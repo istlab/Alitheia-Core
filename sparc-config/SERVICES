@@ -1,0 +1,163 @@
+# Service configuration commands used
+
+# Step 1: Disable Services
+# Remove/disable all the unneeded services Solaris 10 starts by default.
+# This can be converted to a .sh script and run manually or copied to
+# /var/svc/profile/upgrade and reboot to automatically install.
+# If these commands are run manually, during the process the command
+# svcs -vx may print warnings about services that can not be started
+# because their dependencies are stopped or disabled or failed.
+
+# Disable rpcbind and rpc-related services
+svcadm disable -s svc:/network/rpc/bind:default
+svcadm disable -s svc:/network/rpc/gss:default
+svcadm disable -s svc:/network/rpc/keyserv:default
+svcadm disable -s svc:/network/rpc/mdcomm:default
+svcadm disable -s svc:/network/rpc/meta:default
+svcadm disable -s svc:/network/rpc/metamed:default
+svcadm disable -s svc:/network/rpc/metamh:default
+svcadm disable -s svc:/network/rpc/ocfserv:default
+svcadm disable -s svc:/network/rpc/smserver:default
+svcadm disable -s svc:/network/rpc/bootparams:default
+svcadm disable -s svc:/network/rpc/wall:default
+svcadm disable -s svc:/network/rpc/rex:default
+svcadm disable -s svc:/network/rpc-100068_2-5/rpc_udp:default
+svcadm disable -s svc:/network/rpc-100083_1/rpc_tcp:default
+svcadm disable -s svc:/network/rpc-100235_1/rpc_ticotsord:default
+# Disable network services
+svcadm disable -s svc:/network/nfs/server:default
+svcadm disable -s svc:/network/nfs/cbd:default
+svcadm disable -s svc:/network/nfs/mapid:default
+svcadm disable -s svc:/network/nfs/rquota:default
+svcadm disable -s svc:/network/nfs/status:default
+svcadm disable -s svc:/network/nfs/nlockmgr:default
+svcadm disable -s svc:/network/nfs/client:default
+svcadm disable -s svc:/network/nis/client:default
+svcadm disable -s svc:/network/ldap/client:default
+svcadm disable -s svc:/network/security/kadmin:default
+svcadm disable -s svc:/network/security/krb5kdc:default
+svcadm disable -s svc:/network/security/krb5_prop:default
+svcadm disable -s svc:/network/security/ktkt_warn:default
+svcadm disable -s svc:/network/telnet:default
+svcadm disable -s svc:/network/ftp:default
+svcadm disable -s svc:/network/shell:default
+svcadm disable -s svc:/network/tftp:default
+svcadm disable -s svc:/network/login:rlogin
+svcadm disable -s svc:/network/login:eklogin
+svcadm disable -s svc:/network/login:klogin
+svcadm disable -s svc:/network/shell:kshell
+svcadm disable -s svc:/network/finger:default
+svcadm disable -s svc:/network/echo:dgram
+svcadm disable -s svc:/network/echo:stream
+svcadm disable -s svc:/network/dns/server:default
+svcadm disable -s svc:/network/dhcp-server:default
+svcadm disable -s svc:/network/rarp:default
+# Disable filesystem services
+svcadm disable -s svc:/system/filesystem/autofs:default
+svcadm disable -s svc:/system/filesystem/volfs:default
+# Disable various services
+svcadm disable -s svc:/application/print/cleanup:default
+svcadm disable -s svc:/application/print/server:default
+svcadm disable -s svc:/application/print/rfc1179:default
+svcadm disable -s svc:/application/print/ipp-listener:default
+svcadm disable -s svc:/system/power:default
+svcadm disable -s svc:/application/x11/xfs:default
+svcadm disable -s svc:/application/font/stfsloader:default
+#Stop and disable legacy services
+/etc/rc2.d/S99dtlogin stop
+chmod a-x /etc/rc2.d/S99dtlogin
+mv /etc/rc2.d/S99dtlogin /etc/rc2.d/.N99dtlogin
+/etc/rc2.d/S90wbem stop
+chmod a-x /etc/rc2.d/S90wbem
+mv /etc/rc2.d/S90wbem /etc/rc2.d/.N90wbem
+/etc/rc2.d/S90webconsole stop
+chmod a-x /etc/rc2.d/S90webconsole
+mv /etc/rc2.d/S90webconsole /etc/rc2.d/.N90webconsole 
+/etc/rc3.d/S81volmgt stop
+chmod a-x /etc/rc3.d/S81volmgt
+mv /etc/rc3.d/S81volmgt /etc/rc3.d/.N81volmgt 
+/etc/rc3.d/S90samba stop
+chmod a-x /etc/rc3.d/S90samba
+mv /etc/rc3.d/S90samba /etc/rc3.d/.N90samba
+/etc/rc3.d/S50apache stop
+chmod a-x /etc/rc3.d/S50apache
+mv /etc/rc3.d/S50apache /etc/rc3.d/.N50apache 
+/etc/rc3.d/S82initsma stop
+chmod a-x /etc/rc3.d/S82initsma
+mv /etc/rc3.d/S82initsma /etc/rc3.d/.N82initsma 
+/etc/rc3.d/S76snmpdx stop
+chmod a-x /etc/rc3.d/S76snmpdx
+mv /etc/rc3.d/S76snmpdx /etc/rc3.d/.N76snmpdx
+/etc/rc3.d/S77dmi stop
+chmod a-x /etc/rc3.d/S77dmi
+mv /etc/rc3.d/S77dmi /etc/rc3.d/.N77dmi
+/etc/rc3.d/S80mipagent stop
+chmod a-x /etc/rc3.d/S80mipagent
+mv /etc/rc3.d/S80mipagent /etc/rc3.d/.N80mipagent 
+/etc/rc3.d/S84appserv stop
+chmod a-x /etc/rc3.d/S84appserv
+mv /etc/rc3.d/S84appserv /etc/rc3.d/.N84appserv
+/etc/rc3.d/S75seaport stop
+chmod a-x /etc/rc3.d/S75seaport
+mv /etc/rc3.d/S75seaport /etc/rc3.d/.N75seaport 
+
+#If required the same steps can be performed for the following stuff
+# /etc/rc2.d/S40llc2
+# /etc/rc2.d/S47pppd
+# /etc/rc2.d/S70uucp
+# /etc/rc2.d/S72autoinstall
+# /etc/rc2.d/S73cachefs.daemon
+# /etc/rc2.d/S89bdconfig
+# /etc/rc2.d/S89PRESERVE
+# /etc/rc3.d/S16boot.server
+# /etc/rc3.d/S52imq
+
+# Step2: Harden Services Security and limit privileges
+# Configure apache2 to start as webservd and mysql to start as mysqld
+# and limit their privileges
+
+#Part 2.1: Enable tcp_wrappers for rpcbind
+#This may require editing /etc/hosts.allow and /etc/hosts.deny with the following:
+# hosts.allow: rpcbind: 127.0.0.1
+# hosts.deny: ALL: ALL
+svccfg
+select svc:/network/rpc/bind
+setprop config/enable_tpcwrappers=true
+end
+
+#Part 2.2: Harden apache2 privileges
+svccfg -s apache2
+setprop start/user = astring: webservd
+setprop start/group = astring: webservd
+setprop start/privileges = astring: basic,!proc_session,!proc_info,!file_link_any,net_privaddr
+setprop start/limit_privileges = astring: :default
+setprop start/use_profile = boolean: false
+setprop start/supp_groups = astring: :default
+setprop start/working_directory = astring: :default
+setprop start/project = astring: :default
+setprop start/resource_pool = astring: :default
+end
+svcadm -v refresh apache2
+
+#Part 2.3: Enable logging of connection to inetd services
+inetadm -M tcp_trace=TRUE
+
+#Part 2.4: Harden OpenLDAP privileges/security
+groupadd ldap
+useradd -c "OpenLDAP User" -s /bin/false -d /usr/local/libexec -g ldap ldap
+chown ldap:ldap /etc/openldap/slapd.conf
+chown -R ldap:ldap /usr/local/var/*
+
+svccfg -s slapd
+setprop start/user = astring: ldap
+setprop start/group = astring: ldap
+setprop start/privileges = astring: basic,!proc_session,!proc_info,!file_link_any,net_privaddr
+setprop start/limit_privileges = astring: :default
+setprop start/use_profile = boolean: false
+setprop start/supp_groups = astring: :default
+setprop start/working_directory = astring: :default
+setprop start/project = astring: :default
+setprop start/resource_pool = astring: :default
+end
+svcadm -v refresh slapd
+

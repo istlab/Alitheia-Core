@@ -1,0 +1,121 @@
+/*
+ * ELTRUN main CSS Stylesheet File
+ *
+ * $Id: styles.css,v 1.7 2004/11/17 10:04:46 gzoug Exp $
+ */
+
+  body {
+	  margin: 0 0 0 0;
+	  color: #808080;
+	  font-family: arial, verdana;
+  }
+
+  .logo	{
+      border-style: solid;
+      border-width: 10 0 0 0;
+      border-color: #000066;
+      font-family: Verdana;
+      font-size: large;
+      color: #000066;
+      font-weight: bold;
+      padding: 10px;
+      text-decoration: none;
+   }
+
+  .logo a, .logo a:link , .logo a:visited , .logo a:hover , .logo a:active {
+      font-family: Verdana;
+      font-size: large;
+      color: #000066;
+      font-weight: bold;
+      text-decoration: none;
+   }
+
+  .projecttitle	, .projecttitle a , .projecttitle a:hover , .projecttitle a:active {
+      border-style: solid;
+      border-width: 2 0 2 0;
+      border-color: #a0a0a0;
+      background-color: #f0f0f0;
+      font-family: Verdana;
+      font-size: large;
+      color: #808080;
+      font-weight: bold;
+      margin-bottom: 20px;
+      padding-left:10px;
+      text-decoration: none;
+   }
+   
+   .projecttitle a:link, .projecttitle a:visited {
+	   color: #4040B0;
+	   text-decoration: underline;
+   }
+
+   .leftmenu {
+     width: 200px;
+     float: left;
+     background-color: #f0f0f0;
+     font-size: small;
+     border-style: solid;
+     border-width: 1 1 1 1;
+     border-color: #a0a0a0;
+     color: #404040;
+     margin-right: 10px;
+     margin-left: 2px;
+     padding: 4px;
+   }
+   
+  .leftmenu a, .leftmenu a:link , .leftmenu a:visited , .leftmenu a:hover , .leftmenu a:active {
+     color: #404040;
+     text-decoration: underline;
+  }
+
+  .leftmenutitle, .leftmenutitle a, .leftmenutitle a:link , .leftmenutitle a:visited , .leftmenutitle a:hover , .leftmenutitle a:active {
+	 width: 200px;
+	 float: left;
+	 background-color: #a0a0a0;
+	 color: #f0f0f0;
+	 font-weight: bold;
+	 font-size: small;
+	 border-style: solid;
+	 border-width: 1 1 1 1;
+	 border-color: #a0a0a0;
+	 margin-right: 10px;
+	 margin-left: 2px;
+	 padding: 4px;
+   }
+
+   .content {
+     color: #404040;
+     float: both;
+     border-width: 1 1 1 1;
+     border-color: #a0a0a0;
+     font-family: arial;
+     font-size: small;
+     margin-left: 10px;
+     margin-right: 10px;
+     margin-bottom: 10pt;
+     padding-left: 10px;
+   }
+
+  .content a:link , .content a:visited , .content a:active {
+     color: #4040B0;
+     text-decoration: underline;
+   }
+
+   .title {
+     color: #808080;
+     background-color: #f0f0f0;
+     border-style: dashed;
+     border-width: 1 1 1 1;
+     border-color: #a0a0a0;
+     font-family: arial;
+     font-size: large;
+     margin-bottom: 10pt;
+     padding-left: 10px;
+     width: 100%;
+   }
+
+   .title a:link , .title a:visited , .title a:active {
+     color: #4040B0;
+     text-decoration: underline;
+
+   }

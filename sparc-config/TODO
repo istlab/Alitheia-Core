@@ -1,0 +1,28 @@
+--------------- TODO -------------------
+
+-Configure Asterisk Server to be used for VoIP teleconferencing purposes
+
+-Create SMF profile for Asterisk server
+
+-Create a list of files to be excluded from the backup process
+
+-Create On Commit Scripts:
+	-to check latex documents syntactically
+	-to synchronize htdocs folder with www
+
+-Create script to compile latex documents (nightly build cron job)
+
+--------------- DONE --------------------
+-Create script (php?) to allow repository users to change their passwords
+
+-Create users and groups for partners to access svn, document permissions access procedure in presentation 
+
+-Create method for changing unames and passwds, document in presentation 
+
+-Create mailing list archives and access control to it
+
+-Install some web based calendaring system. Maybe just use iCal files + webdav, which is universally supported. dotProject is not suitable... 
+
+-Create document templates 
+
+-Create presentation for management, financial, etc issues...

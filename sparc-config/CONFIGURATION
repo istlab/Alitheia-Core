@@ -1,0 +1,222 @@
+# Configuration options used for software installed from source
+
+#==========================================================================
+# BerkeleyDB 4.4.20
+#==========================================================================
+#No options used, automatic configure arguments: --prefix=/usr/sfw 
+#--with-as=/usr/sfw/bin/gas --with-gnu-as --with-ld=/usr/ccs/bin/ld 
+#--without-gnu-ld --enable-languages=c,c++ --enable-shared
+
+#==========================================================================
+# Expat 1.95.7
+#==========================================================================
+./configure --prefix=/usr/sfw
+
+#==========================================================================
+# LibXML2 2.6.26
+#==========================================================================
+./configure --prefix=/usr/sfw --enable-shared
+
+#==========================================================================
+# OpenSSL 0.9.8d
+#==========================================================================
+./configure --prefix=/usr/sfw enable-shared no-gmp no-krb5 no-mdc2 no-rc5 
+no-zlib no-zlib-dynamic shared
+
+#==========================================================================
+# httpd 2.0.58
+#==========================================================================
+export LD_LIBRARY_PATH="/usr/local/BerkeleyDB.4.4/lib:/usr/sfw/lib:/usr/sfw/lib/mysql"
+export CPP_FLAGS="-I/usr/local/BerkeleyDB.4.4/include -I/usr/sfw/include -I/usr/sfw/include/mysql"
+
+#edit config.layout, add the following lines
+<Layout Solaris-Apache2>
+     prefix:        /usr/apache2
+     exec_prefix:   ${prefix}
+     bindir:        ${exec_prefix}/bin
+     sbindir:       ${exec_prefix}/bin
+     libdir:        ${exec_prefix}/lib
+     libexecdir:    ${exec_prefix}/libexec
+     mandir:        ${exec_prefix}/man
+     sysconfdir:    /etc/apache2
+     datadir:       /var/apache2
+     installbuilddir: ${datadir}/build
+     errordir:      ${datadir}/error
+     iconsdir:      ${datadir}/icons
+     htdocsdir:     ${datadir}/htdocs
+     manualdir:     ${prefix}/manual
+     cgidir:        ${datadir}/cgi-bin
+     includedir:    ${exec_prefix}/include
+     localstatedir: ${prefix}
+     runtimedir:    /var/run/apache2
+     logfiledir:    ${datadir}/logs
+     proxycachedir: ${datadir}/proxy
+</Layout>
+
+./configure \
+--enable-layout=Solaris-Apache2 \
+--enable-mods-shared=all \
+--enable-suexec \
+--enable-proxy \
+--enable-proxy-connect \
+--enable-proxy-ftp \
+--enable-proxy-http \
+--enable-ssl \
+--with-ssl=/usr/sfw \
+--enable-ldap \
+--enable-ldap-auth \
+--with-ldap=/usr/local \
+--with-berkeley-db=/usr/local/BerkeleyDB.4.4 \
+--with-mpm=prefork
+
+#==========================================================================
+# PHP 4.4.4
+#==========================================================================
+export LD_LIBRARY_PATH="/usr/local/BerkeleyDB.4.4/lib"
+export CPP_FLAGS="-I/usr/local/BerkeleyDB.4.4/include"
+
+./configure --with-apxs2=/usr/apache2/bin/apxs \
+--with-mysql=/usr/sfw --enable-dbase \
+--with-libxml-dir=/usr/local \
+--with-config-file-path=/etc/apache2 \
+--with-zlib --with-bz2 --with-xml --with-mhash=/usr/local \
+--enable-inline-optimization --with-expat \
+--enable-sockets --with-openssl --with-gettext \
+--with-regex=system --enable-mbstring --enable-memory-limit \
+--with-dom --with-gd --with-ttf --enable-gd-native-ttf \
+--with-iconv --with-mcrypt --with-ldap=/usr/local \
+--with-unixODBC --enable-dba --with-db4=/usr/local/BerkeleyDB.4.4/
+
+#==========================================================================
+# mod_auth_mysql 3.0
+#==========================================================================
+export LD_LIBRARY_PATH="/usr/sfw/lib:/usr/sfw/lib/mysql"
+export CPP_FLAGS="-I/usr/sfw/include -I/usr/sfw/include/mysql"
+
+/usr/apache2/bin/apxs -c -lmysqlclient -lm -lz mod_auth_mysql.c \
+-I/usr/sfw/include/mysql -L/usr/sfw/lib/mysql \
+-S INCLUDE_DIR="/usr/sfw/include/mysql:/usr/apache2/include"
+
+#==========================================================================
+# Neon 0.25.5
+#==========================================================================
+./configure --with-ssl --with-expat --with-zlib --enable-shared
+
+#==========================================================================
+# Subversion 1.3.2
+#==========================================================================
+export LD_LIBRARY_PATH="/usr/local/BerkeleyDB.4.4/lib"
+export CPP_FLAGS="-I/usr/local/BerkeleyDB.4.4/include"
+
+./configure --with-apr=/usr/apache2/ \
+--with-apr-util=/usr/apache2/ --with-neon=/usr/local \
+--with-apxs=/usr/apache2/bin/apxs --with-ssl --with-zlib \
+--with-berkeley-db=/usr/local/BerkeleyDB.4.4
+
+#==========================================================================
+# Nano 1.2.5
+#==========================================================================
+./configure --prefix=/usr/sfw --enable-color
+
+#==========================================================================
+# Sendmail 8.13.7
+#==========================================================================
+# in file /etc/mail/cf/cf/sendmail.mc
+
+# disabling EXPN and VRFY, enabling authentication warnings
+define(`confPRIVACY_FLAGS', `novrfy,noexpn,authwarnings')dnl
+
+#enabling smrsh feature for use with mailman (before MAILER entries)
+FEATURE(`smrsh', `/usr/lib/smrsh')
+
+#enabling dnsbl for spam blocking
+FEATURE(`dnsbl', `bl.spamcop.net')dnl
+FEATURE(`dnsbl', `list.dsbl.org')dnl
+FEATURE(`dnsbl', `sbl.spamhaus.org')dnl
+FEATURE(`dnsbl', `xbl.spamhaus.org')dnl
+FEATURE(`dnsbl', `dnsbl.sorbs.net')dnl
+
+# enabling smart host to smtp.aueb.gr to enforce relay policy
+define(`SMART_HOST', `smtp.aueb.gr')dnl
+
+#enabling virtual hosting
+FEATURE(`virtusertable', `hash /etc/mail/virtusertable')dnl
+FEATURE(`use_cw_file')dnl
+define(`confCW_FILE', `-o /etc/mail/local-host-names')dnl
+
+#in dir /var/adm/sm.bin/
+ln -s /usr/local/mailman/mail/mailman mailman
+ln -s /bin/mail mail
+
+#==========================================================================
+# Horde Groupware 1.0RC1 (includes horde 3.1.3)
+#==========================================================================
+# Follow the install instructions :), default configuration
+# Installation directory /var/apache2/sqooss/horde (https://sense.dmst.aueb.gr/sqo-oss/horde)
+
+#==========================================================================
+# Mailman 2.1.9rc1
+#==========================================================================
+#create user and group for mailman
+groupadd mailman
+useradd -g mailman -c "GNU Mailman" -s /bin/false -d / mailman
+
+export CC=gcc #maybe /usr/sfw/bin/gcc
+./configure --with-var-prefix=/var/mailman --with-cgi-gid=webservd \
+--with-mail-gid=other --with-mailhost=sqo-oss.eu --with-urlhost=lists.sqo-oss.eu
+
+#==========================================================================
+# Lynx 2.8.5
+#==========================================================================
+./configure --with-included-gettext --with-ssl --with-bzlib --with-zlib
+
+make install-help
+
+#==========================================================================
+# libmcrypt 2.5.7, mhash 0.9.7.1 mcrypt 2.6.4
+#==========================================================================
+export LD_LIBRARY_PATH=/usr/local/lib
+export CC=/usr/sfw/bin/gcc
+./configure #default configuration
+
+#==========================================================================
+# OpenLDAP 2.3.27
+#==========================================================================
+#edit file includes/, replace HUGE_VAL with HUGE
+
+export LD_LIBRARY_PATH="/usr/local/BerkeleyDB.4.4/lib:/usr/local/lib:/usr/local:/usr/sfw/lib:/usr/sfw"
+export CPPFLAGS="-I/usr/local/BerkeleyDB.4.4/include -I/usr/local/include/ -I/usr/sfw/openldap/include -I/usr/sfw/include"
+
+./configure --enable-spasswd --enable-slp --enable-wrappers --enable-backends \
+--enable-back-perl=no --enable-overlays --with-tls --sysconfdir=/etc \
+--disable-perl --enable-perl=no
+
+make depend
+make
+make test
+make install
+
+#==========================================================================
+# Python 2.3.5
+#==========================================================================
+#edit file Includes/pyport.h,  replace HUGE_VAL with HUGE
+#ifndef Py_HUGE_VAL
+#define Py_HUGE_VAL HUGE
+#endif
+
+#clean configure / make / install (no options used)
+
+#==========================================================================
+# GNU fileutils 3.16
+#==========================================================================
+./configure --prefix=/usr/sfw --program-prefix=g
+make
+cp src/ginstall /usr/local/bin
+
+#==========================================================================
+# Asterisk 1.2.12.1
+#==========================================================================
+#No configuration needed
+gmake
+gmake install
+gmake samples
