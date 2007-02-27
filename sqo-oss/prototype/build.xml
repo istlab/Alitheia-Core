@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- 
+MVCS build file 
+-->
+<project name="mvcs" default="compile">
+	<property name="sqooss.build.dir" value="build" />
+	<property name="sqooss.lib.dir" value="lib" />
+	<property name="sqooss.src.dir" value="src" />
+	<property name="sqooss.dist.dir" value="dist" />
+
+	<target name="compile" description="Compile SQO-OSS prototype">
+		<mkdir dir="${sqooss.build.dir}" />
+		<mkdir dir="${sqooss.dist.dir}" />
+		<javac destdir="${sqooss.build.dir}" srcdir="${sqooss.src.dir}">
+			<classpath>
+				<pathelement path="${classpath}"/>
+				 <fileset dir="lib">
+				        <include name="**/*.jar"/>
+				      </fileset>
+			</classpath>
+		</javac>
+		<jar destfile="${sqooss.dist.dir}/sqooss-prototype.jar" basedir="${sqooss.build.dir}" />
+	</target>
+
+	<target name="clean">
+		<delete dir="${sqooss.build.dir}" />
+		<delete file="${sqooss.dist.dir}/sqooss-prototype.jar" />
+	</target>
+</project>
