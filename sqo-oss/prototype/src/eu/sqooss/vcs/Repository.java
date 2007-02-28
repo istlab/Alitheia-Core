@@ -1,111 +1,88 @@
+/*$Id: */
 package eu.sqooss.vcs;
 
 /**
- * Describes a source code repository that is located either on the web
- * or in a specific path on disk
+ * An abstract repository representation. 
  */
 public abstract class Repository {
+    
+    public String password;
 
-	protected String executablePath; //this should be configurable
-	private String path;
-	private String localPath;
-	private Revision revision;
-	protected AuthCredentials credentials;
-	protected Object sync; //used for locking operations
+    public String username;
+    
+    /* The path of the repository on the local end */
+    protected String localPath;
 
-	/// <summary>
-	/// Gets the local path of the repository
-	/// </summary>
-	public String getLocalPath()
-	{
-		return localPath;
-	}
+    /* The path of the repository on the remote end */
+    protected String serverPath;
 
-	/// <summary>
-	/// Gets the remote path of the repository
-	/// </summary>
-	public String getPath()
-	{
-		return path;
-	}
+    /* The current repository revision on the local end */
+    protected Revision revision;
+    
+    /**
+     * 
+     */
+    public Repository(String localPath, String serverPath, String username, String passwd) {
+	this.localPath = localPath;
+	this.serverPath = serverPath;
+	this.username = username;
+	this.password = passwd;
+    }
 
-	/// <summary>
-	/// Gets or sets the current revision of the repository
-	/// </summary>
-	public Revision getRevision()
-	{
-		return revision; 	
-	}
-	
-	protected void setRevision(Revision rev)
-	{
-		if (rev == null)
-		{
-			throw new IllegalArgumentException();
-		}
-		revision = rev;
-		//TODO: if the repository is already loaded and it is checked out on the disk
-		// then we should update to the revision that has just been set
-	}
+    /**
+     * Initialises a local copy of a repository, by checking out the current
+     * revision of the repository server
+     * 
+     */
+    public abstract void checkout();
 
-	/// <summary>
-	/// Creates a new instance of the <see cref="Repository"/> class
-	/// </summary>
-	/// <param name="path">The repository path - usually a Url</param>
-	/// <param name="localPath">The path of the working copy</param>
-	public Repository(String path, String localPath)
-	{
-		this.path = path;
-		this.localPath = localPath;
-		executablePath = "";
-		sync = new Object();
-	}
+    /**
+     * Initialises a local copy of the repository, by checking out
+     * 
+     * 
+     * @param rev
+     */
+    public abstract void checkout(Revision rev);
 
-	/// <summary>
-	/// Creates a new instance of the <see cref="Repository"/> class
-	/// </summary>
-	/// <param name="path">The repository path</param>
-	/// <param name="localPath">The path of the working copy</param>
-	/// <param name="credentials">The credentials required to access the repository</param>
-	public Repository(String path, String localPath, AuthCredentials credentials)
-	{
-		this(path, localPath);
-		this.credentials = credentials;
-	}
+    /**
+     * Fetches the latest revision from the main repository server
+     * 
+     * @param rev
+     */
+    public abstract void update(Revision rev);
 
-	/// <summary>
-	/// Checks out the given revision of a repository/module
-	/// </summary>
-	/// <param name="rev">The revision to check out</param>
-	public abstract void checkout(Revision rev);
+    /**
+     * Returns a diff between the current repository revision and an older
+     * revision
+     * 
+     * @param rev
+     * @return
+     */
+    public abstract Diff diff(Revision rev);
 
-	/// <summary>
-	/// Updates the working copy of the repository to the given revision
-	/// </summary>
-	/// <param name="rev">The revision to update to</param>
-	public abstract void update(Revision rev);
+    /**
+     * Returns a diff between the start and end revisions
+     * 
+     * @param start
+     * @param end
+     * @return
+     */
+    public abstract Diff diff(Revision start, Revision end);
 
-	/// <summary>
-	/// Diffs current repository version with revision rev
-	/// </summary>
-	/// <param name="rev"></param>
-	/// <returns></returns>
-	public abstract Diff diff(Revision rev);
-
-	/// <summary>
-	/// Returns diff between two different revisions of the repository
-	/// </summary>
-	/// <param name="start"></param>
-	/// <param name="end"></param>
-	/// <returns></returns>
-	public abstract Diff diff(Revision start, Revision end);
-
-	/// <summary>
-	/// Gets the log from a project's repository between the given versions
-	/// </summary>
-	/// <param name="start"></param>
-	/// <param name="end"></param>
-	/// <returns></returns>
-	public abstract CommitLog getLog(Revision start, Revision end);
-	
+    /**
+     * Returns the commit log for all the commits between revisions start
+     * and end
+     * 
+     * @param start
+     * @param end
+     * @return
+     */
+    public abstract CommitLog getLog(Revision start, Revision end);
+    
+    /**
+     * Returns the current version of either the remote or local version of 
+     * the repository
+     * @return
+     */
+    public abstract String getCurrentVersion(boolean remote);
 }
