@@ -40,7 +40,18 @@ public final class CmdLine {
 	    formatter.printHelp( help, opts );
 	}
 	
-	//TODO: Call RepositoryFactory with necessary parameters
+	if (!cmdline.hasOption("t")&& !cmdline.hasOption("l")) {
+		System.err.println("No repository type or path specified"); 
+		formatter.printHelp( help, opts );
+	}
+	else{
+		try {
+			Repository currentRepository = RepositoryFactory.getRepository(cmdline.getOptionValue("l"), cmdline.getOptionValue("uri"));
+		} catch (InvalidRepositoryException exp){
+			System.err.println("Couldn't get the specified repository.  Reason: " + exp.getMessage());
+		    formatter.printHelp( help, opts );
+		}	
+	}
 	
 	//TODO: Parse cmd line options for actions
 
