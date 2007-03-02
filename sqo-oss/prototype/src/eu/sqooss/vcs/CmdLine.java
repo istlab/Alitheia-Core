@@ -7,7 +7,7 @@ public final class CmdLine {
     private static final String help = "MVCS: Frontend to multiple version control " +
     		"systems\nUsage:\n" +
     		"mvcs -uri repo-uri <action> or \n"+
-    		"mvcs -s server -l repo-path -u user -p passwd -t repo-type <action>\n\n" +
+    		"mvcs -s server -l repo-path -u user -p passwd -t repo-type -a action\n\n" +
     		"repo-uri has the following syntax: \n" +
     		"\t <svn,cvs>://user@server/path/to/repo?passwd=passwd\n" + 
     		"Currently supported actions are (with parameters): checkout, update, diff, getlog, curver";
@@ -24,6 +24,7 @@ public final class CmdLine {
 	opts.addOption("p", "password", true, "User name for repository access");
 	opts.addOption("t", "repo-type", true, "Repository type. Currently, one of cvs, svn");
 	opts.addOption("h", "help", true, "Print this help message");
+	opts.addOption("a", "action", true, "one of the supported actions");
 	
 	CommandLine cmdline = null;
 	CommandLineParser parser = new GnuParser();
@@ -53,6 +54,26 @@ public final class CmdLine {
 		}	
 	}
 	
+	if (!cmdline.hasOption("a")) {
+	    System.err.println("No action specified");
+	    formatter.printHelp( help, opts );
+	}
+	else if("checkout".equals(cmdline.getOptionValue("a"))) {
+		
+	}
+	else if("update".equals(cmdline.getOptionValue("a"))) {
+		
+	}
+	else if("diff".equals(cmdline.getOptionValue("a"))) {
+		
+	}
+	else if("getlog".equals(cmdline.getOptionValue("a"))) {
+	
+	}
+	else if("curver".equals(cmdline.getOptionValue("a"))) {
+	
+	}
+
 	//TODO: Parse cmd line options for actions
 
     }
