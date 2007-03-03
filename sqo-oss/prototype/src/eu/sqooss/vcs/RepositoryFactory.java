@@ -1,4 +1,3 @@
-/*$Id: */
 package eu.sqooss.vcs;
 
 import java.net.URI;
@@ -6,11 +5,15 @@ import java.net.URISyntaxException;
 
 /**
  * 
- * @author $Author:$
- *
+ * The factory produces Repository objects which can be used to 
+ * access a repository on local disk.
  */
 public class RepositoryFactory {
      
+    /**
+     * Create a Repository object with the given URL to be stored at
+     * on local disk at @p localPath.
+     */
     public static Repository getRepository(String localPath, String url) 
     throws InvalidRepositoryException {
 	
