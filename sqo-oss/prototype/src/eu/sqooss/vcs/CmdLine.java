@@ -79,8 +79,7 @@ public final class CmdLine {
         if (!cmdline.hasOption("t") && !cmdline.hasOption("l")) {
             System.err.println("No repository type or path specified"); 
             formatter.printHelp( help, opts );
-        }
-        else{
+        } else {
             try {
                 RepositoryType type = null;
                 if (cmdline.getOptionValue("t").equals("svn"))
@@ -88,7 +87,7 @@ public final class CmdLine {
                 else if (cmdline.getOptionValue("t").equals("cvs"))
                     type = RepositoryType.CVS;
                 currentRepository = RepositoryFactory.getRepository(cmdline.getOptionValue("l"), cmdline.getOptionValue("s"), cmdline.getOptionValue("u"), cmdline.getOptionValue("p"), type);
-            } catch (InvalidRepositoryException exp){
+            } catch (InvalidRepositoryException exp) {
                 System.err.println("Couldn't get the specified repository.  Reason: " + exp.getMessage());
                 formatter.printHelp( help, opts );
             }
