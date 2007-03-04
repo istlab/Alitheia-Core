@@ -87,7 +87,11 @@ public final class CmdLine {
                 } else if (cmdline.getOptionValue("t").equals("cvs")) {
                     type = RepositoryType.CVS;
                 }
-                currentRepository = RepositoryFactory.getRepository(cmdline.getOptionValue("l"), cmdline.getOptionValue("s"), cmdline.getOptionValue("u"), cmdline.getOptionValue("p"), type);
+                currentRepository = RepositoryFactory.getRepository(
+                        cmdline.getOptionValue("l"), 
+                        cmdline.getOptionValue("s"), 
+                        cmdline.getOptionValue("u"), 
+                        cmdline.getOptionValue("p"), type);
             } catch (InvalidRepositoryException exp) {
                 System.err.println("Couldn't get the specified repository.  Reason: " + exp.getMessage());
                 formatter.printHelp( help, opts );
