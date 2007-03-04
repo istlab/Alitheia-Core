@@ -47,7 +47,8 @@ public final class CmdLine {
     			"update, diff, getlog, getCurrentVersion";
     
     public static void main(String[] args) {
-	
+    
+    Repository currentRepository = null;
 	Options opts = new Options();
 	HelpFormatter formatter = new HelpFormatter();
 	
@@ -74,13 +75,19 @@ public final class CmdLine {
 	    formatter.printHelp( help, opts );
 	}
 	
+	//2nd usage. Initialize currentRepository
 	if (!cmdline.hasOption("t") && !cmdline.hasOption("l")) {
 		System.err.println("No repository type or path specified"); 
 		formatter.printHelp( help, opts );
 	}
 	else{
 		try {
-			Repository currentRepository = RepositoryFactory.getRepository(cmdline.getOptionValue("l"), cmdline.getOptionValue("uri"));
+			RepositoryType type = null;
+			if (cmdline.getOptionValue("t").equals("svn"))
+				type = RepositoryType.SVN;
+			else if (cmdline.getOptionValue("t").equals("cvs"))
+				type = RepositoryType.CVS;
+			currentRepository = RepositoryFactory.getRepository(cmdline.getOptionValue("l"), cmdline.getOptionValue("s"), cmdline.getOptionValue("u"), cmdline.getOptionValue("p"), type);
 		} catch (InvalidRepositoryException exp){
 			System.err.println("Couldn't get the specified repository.  Reason: " + exp.getMessage());
 		    formatter.printHelp( help, opts );
