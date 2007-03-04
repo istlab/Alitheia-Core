@@ -82,10 +82,11 @@ public final class CmdLine {
         } else {
             try {
                 RepositoryType type = null;
-                if (cmdline.getOptionValue("t").equals("svn"))
+                if (cmdline.getOptionValue("t").equals("svn")) {
                     type = RepositoryType.SVN;
-                else if (cmdline.getOptionValue("t").equals("cvs"))
+		} else if (cmdline.getOptionValue("t").equals("cvs")) {
                     type = RepositoryType.CVS;
+                }
                 currentRepository = RepositoryFactory.getRepository(cmdline.getOptionValue("l"), cmdline.getOptionValue("s"), cmdline.getOptionValue("u"), cmdline.getOptionValue("p"), type);
             } catch (InvalidRepositoryException exp) {
                 System.err.println("Couldn't get the specified repository.  Reason: " + exp.getMessage());
