@@ -54,7 +54,7 @@ public final class CmdLine {
 	
 	opts.addOption("uri", "repository-location", true, "URI with repository connection details");
 	opts.addOption("s", "server", true, "Remote repository server");
-	opts.addOption("l", "local-path", true, "Repository path on repository server");
+	opts.addOption("l", "local-path", true, "Local path for repository");
 	opts.addOption("u", "user", true, "User name for repository access");
 	opts.addOption("p", "password", true, "Password for repository access");
 	opts.addOption("t", "repo-type", true, "Repository type. Currently, one of cvs, svn");
