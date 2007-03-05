@@ -66,7 +66,10 @@ public final class CmdLine {
             System.err.println("Parsing failed.  Reason: " + exp.getMessage());
             formatter.printHelp( help, opts );
         }
-
+        // retrieve any left-over non-recognized options and arguments
+        String[] leftOverArgs = null;
+        leftOverArgs = cmdline.getArgs();
+        
         if (cmdline.hasOption("uri")) {
 			/* 1st usage */
 			if (!cmdline.hasOption("l")) {
