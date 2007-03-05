@@ -42,7 +42,7 @@ public final class CmdLine {
         "repo-uri has the following syntax: \n" +
         "\t <svn,cvs>://user@server/path/to/repo?passwd=passwd\n" + 
         "Currently supported actions are (with parameters): checkout, " +
-        "update, diff, getlog, getCurrentVersion";
+        "update, diff, getlog, curver";
     
     public static void main(String[] args) {
         Repository currentRepository = null;
@@ -117,7 +117,24 @@ public final class CmdLine {
         	System.err.println("No repository uri or server specified");
             formatter.printHelp( help, opts );
 		}
-
+        
+        // leftOverArgs[0] is "mvcs"
+        if (leftOverArgs[1].equals("checkout"))
+        {
+        	
+        } else if (leftOverArgs[1].equals("update")) {
+        	
+        } else if (leftOverArgs[1].equals("diff")) {
+        	
+        } else if (leftOverArgs[1].equals("getLog")) {
+        	
+        } else if (leftOverArgs[1].equals("curver")) {
+        	
+        } else {
+        	System.err.println("No supported action specified");
+        	formatter.printHelp( help, opts );
+        }
+        
         //TODO: Parse cmd line options for actions
     }
 }
