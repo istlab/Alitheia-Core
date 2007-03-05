@@ -40,7 +40,7 @@ public final class CmdLine {
     private static final String help = 
         "MVCS: Frontend to multiple version control " +
         "systems\nUsage:\n" +
-        "mvcs -uri repo-uri <action> or \n" +
+        "mvcs -uri repo-uri -l local-path <action> or \n" +
         "mvcs -s server -l local-path -u user -p passwd -t repo-type <action>\n\n" +
         "repo-uri has the following syntax: \n" +
         "\t <svn,cvs>://user@server/path/to/repo?passwd=passwd\n" + 
