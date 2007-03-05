@@ -82,9 +82,9 @@ public final class CmdLine {
         } else {
             try {
                 RepositoryType type = null;
-                if (cmdline.getOptionValue("t").equals("svn")) {
+                if (cmdline.getOptionValue("t").equalsIgnoreCase("svn")) {
                     type = RepositoryType.SVN;
-                } else if (cmdline.getOptionValue("t").equals("cvs")) {
+                } else if (cmdline.getOptionValue("t").equalsIgnoreCase("cvs")) {
                     type = RepositoryType.CVS;
                 }
                 currentRepository = RepositoryFactory.getRepository(
