@@ -13,6 +13,11 @@ public class CvsRepository extends Repository {
     }
 
     @Override
+    public void checkout() {
+
+    }
+
+    @Override
     public void checkout(Revision rev) {
 
     }
@@ -39,11 +44,6 @@ public class CvsRepository extends Repository {
     public CommitLog getLog(Revision start, Revision end) {
 
 	return null;
-    }
-
-    @Override
-    public void checkout() {
-
     }
 
     @Override
