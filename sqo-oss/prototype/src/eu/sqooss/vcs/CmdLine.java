@@ -67,33 +67,53 @@ public final class CmdLine {
             formatter.printHelp( help, opts );
         }
 
-        if (!cmdline.hasOption("uri") && !cmdline.hasOption("s")) {
+        if (cmdline.hasOption("uri")) {
+			/* 1st usage */
+			if (!cmdline.hasOption("l")) {
+				System.err.println("No local path for repository specified");
+				formatter.printHelp( help, opts );
+        	} else {
+        		try {
+        			currentRepository = RepositoryFactory.getRepository(
+        					cmdline.getOptionValue("l"),
+        					cmdline.getOptionValue("uri"));
+        		}catch (InvalidRepositoryException exp) {
+			    	System.err.println("Couldn't get the specified repository.  " +
+			    			"Reason: " + exp.getMessage());
+            		formatter.printHelp( help, opts );
+				}
+			}
             System.err.println("No repository uri or server specified");
             formatter.printHelp( help, opts );
-        }
-
-        //2nd usage. Initialize currentRepository
-        if (!cmdline.hasOption("t") && !cmdline.hasOption("l")) {
-            System.err.println("No repository type or path specified"); 
-            formatter.printHelp( help, opts );
+        } else if (cmdline.hasOption("s")) {
+			/* 2nd usage */
+			if (!cmdline.hasOption("l") && !cmdline.hasOption("t")) {
+				System.err.println("No local path for repository or " +
+						"repository type specified");
+				formatter.printHelp( help, opts );
+			} else {
+				try {
+					RepositoryType type = null;
+				    if (cmdline.getOptionValue("t").equalsIgnoreCase("svn")) {
+				    	type = RepositoryType.SVN;
+				    } else if (cmdline.getOptionValue("t").equalsIgnoreCase("cvs")) {
+				        type = RepositoryType.CVS;
+				    }
+				        currentRepository = RepositoryFactory.getRepository(
+				        		cmdline.getOptionValue("l"),
+				                cmdline.getOptionValue("s"),
+				                cmdline.getOptionValue("u"),
+				                cmdline.getOptionValue("p"), type);
+				    } catch (InvalidRepositoryException exp) {
+				    	System.err.println("Couldn't get the specified repository.  " +
+				    			"Reason: " + exp.getMessage());
+                		formatter.printHelp( help, opts );
+					}
+			}
         } else {
-            try {
-                RepositoryType type = null;
-                if (cmdline.getOptionValue("t").equalsIgnoreCase("svn")) {
-                    type = RepositoryType.SVN;
-                } else if (cmdline.getOptionValue("t").equalsIgnoreCase("cvs")) {
-                    type = RepositoryType.CVS;
-                }
-                currentRepository = RepositoryFactory.getRepository(
-                        cmdline.getOptionValue("l"), 
-                        cmdline.getOptionValue("s"), 
-                        cmdline.getOptionValue("u"), 
-                        cmdline.getOptionValue("p"), type);
-            } catch (InvalidRepositoryException exp) {
-                System.err.println("Couldn't get the specified repository.  Reason: " + exp.getMessage());
-                formatter.printHelp( help, opts );
-            }
-        }
+        	System.err.println("No repository uri or server specified");
+            formatter.printHelp( help, opts );
+		}
 
         //TODO: Parse cmd line options for actions
     }
