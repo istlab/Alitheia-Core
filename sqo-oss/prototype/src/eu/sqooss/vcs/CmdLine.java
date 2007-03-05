@@ -119,9 +119,11 @@ public final class CmdLine {
 		}
         
         // leftOverArgs[0] is "mvcs"
-        if (leftOverArgs[1].equals("checkout"))
-        {
-        	
+        if (leftOverArgs[1].equals("checkout")) {
+        	if (leftOverArgs.length == 2) {
+        		/* checkout without revision */
+        		currentRepository.checkout();
+        	}
         } else if (leftOverArgs[1].equals("update")) {
         	
         } else if (leftOverArgs[1].equals("diff")) {
