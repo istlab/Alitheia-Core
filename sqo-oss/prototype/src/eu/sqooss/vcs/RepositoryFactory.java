@@ -16,7 +16,12 @@ public class RepositoryFactory {
      */
     public static Repository getRepository(String localPath, String url) 
     throws InvalidRepositoryException {
-	
+	// retrieve password from url
+    String patternStr = "\\?";
+    String[] fields = url.split(patternStr);
+    String patternStr2 = "=";
+    String[] fields2 = fields[1].split(patternStr2);
+    String password = fields2[1];
 	URI uri;
 	try {
 	    uri = new URI(url);
@@ -32,8 +37,7 @@ public class RepositoryFactory {
 	else 
 	    throw new InvalidRepositoryException("The repository protocol" + uri.getScheme() + " is not supported");
 	 
-	//TODO: Next line has errors
-	return getRepository(localPath,uri.getHost() + uri.getPath(), uri.getUserInfo(),"4",type);
+	return getRepository(localPath, uri.getHost() + uri.getPath(), uri.getUserInfo(), password, type);
     }
     
     public static Repository getRepository(String localPath, String serverPath,
