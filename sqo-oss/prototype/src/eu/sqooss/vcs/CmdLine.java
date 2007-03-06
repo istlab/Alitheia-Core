@@ -42,10 +42,14 @@ public final class CmdLine {
         "repo-uri has the following syntax: \n" +
         "\t <svn,cvs>://user@server/path/to/repo?passwd=passwd\n" + 
         "Currently supported actions are (with parameters): checkout, " +
-        "update, diff, getlog, curver, localver";
+        "update, diff, getlog, curver, localver" +
+        "<action> has the following syntax: \n" +
+        "\t <checkout,update,diff,getlog,curver,localver> <r1,r1:r2>";
     
     public static void main(String[] args) {
         Repository currentRepository = null;
+        Revision rev1 = null;
+        Revision rev2 = null;
         Options opts = new Options();
         HelpFormatter formatter = new HelpFormatter();
 
@@ -123,23 +127,41 @@ public final class CmdLine {
         	if (leftOverArgs.length == 2) {
         		/* checkout without revision */
         		currentRepository.checkout();
+        	}else {
+        		rev1 = new Revision(leftOverArgs[2]);
+        		currentRepository.checkout(rev1);
         	}
         } else if (leftOverArgs[1].equals("update")) {
-        	
+        	rev1 = new Revision(leftOverArgs[2]);
+        	currentRepository.update(rev1);
         } else if (leftOverArgs[1].equals("diff")) {
-        	
+        	if (leftOverArgs[2].indexOf(":") == -1) {
+        		rev1 = new Revision(leftOverArgs[2]);
+        		currentRepository.diff(rev1);
+        	} else {
+        		String patternStr = ":";
+        		String[] fields = leftOverArgs[2].split(patternStr);
+        		rev1 = new Revision(fields[0]);
+        		rev2 = new Revision(fields[1]);
+        		currentRepository.diff(rev1, rev2);
+        	}
         } else if (leftOverArgs[1].equals("getLog")) {
-        	
+        	String patternStr = ":";
+    		String[] fields = leftOverArgs[2].split(patternStr);
+    		rev1 = new Revision(fields[0]);
+    		rev2 = new Revision(fields[1]);
+    		currentRepository.getLog(rev1, rev2);
         } else if (leftOverArgs[1].equals("curver")) {
-        	
+        	/*get current version from the remote server (remote = true */
+        	boolean remote = true;
+        	currentRepository.getCurrentVersion(remote);
         } else if (leftOverArgs[1].equals("localver")) {
-        	
+        	boolean remote = false;
+        	currentRepository.getCurrentVersion(remote);
         } else {
         	System.err.println("No supported action specified");
         	formatter.printHelp( help, opts );
         }
-        
-        //TODO: Parse cmd line options for actions
     }
 }
 // vim: ts=4:sw=4:expandtab:
