@@ -52,7 +52,7 @@ public final class CmdLine {
         Revision rev2 = null;
         Options opts = new Options();
         HelpFormatter formatter = new HelpFormatter();
-
+        
         opts.addOption("uri", "repository-location", true, "URI with repository connection details");
         opts.addOption("s", "server", true, "Remote repository server");
         opts.addOption("l", "local-path", true, "Local path for repository");
@@ -60,7 +60,7 @@ public final class CmdLine {
         opts.addOption("p", "password", true, "Password for repository access");
         opts.addOption("t", "repo-type", true, "Repository type. Currently, one of cvs, svn");
         opts.addOption("h", "help", true, "Print this help message");
-
+     
         CommandLine cmdline = null;
         CommandLineParser parser = new GnuParser();
         try {
@@ -106,11 +106,18 @@ public final class CmdLine {
 				    } else if (cmdline.getOptionValue("t").equalsIgnoreCase("cvs")) {
 				        type = RepositoryType.CVS;
 				    }
-				        currentRepository = RepositoryFactory.getRepository(
+				    if(!cmdline.hasOption("u") && !cmdline.hasOption("p")) {
+				    	currentRepository = RepositoryFactory.getRepository(
+				        		cmdline.getOptionValue("l"),
+				                cmdline.getOptionValue("s"), "", "", type);
+				    } else {
+				    	currentRepository = RepositoryFactory.getRepository(
 				        		cmdline.getOptionValue("l"),
 				                cmdline.getOptionValue("s"),
 				                cmdline.getOptionValue("u"),
 				                cmdline.getOptionValue("p"), type);
+				    }
+				        
 				    } catch (InvalidRepositoryException exp) {
 				    	System.err.println("Couldn't get the specified repository.  " +
 				    			"Reason: " + exp.getMessage());
