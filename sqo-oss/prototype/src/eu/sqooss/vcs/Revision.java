@@ -5,35 +5,55 @@ import java.util.*;
 
 public class Revision {
 
-    public String description;
-
+    private String description;
+    private long number;
     // TODO: Change this with a custom collection
     private Vector<FileEntry> files;
 
-    public int number;
+    public Revision(long number) {
+        if (number < 0) {
+            throw new IllegalArgumentException();
+        }
 
-    public Revision(int number) {
-	if (number < 0) {
-	    throw new IllegalArgumentException();
-	}
-
-	this.number = number;
-	description = Integer.toString(number);
-	files = new Vector<FileEntry>();
+        this.number = number;
+        description = String.valueOf(number);
+        files = new Vector<FileEntry>();
     }
 
     public Revision(String description) {
-	if (description == null) {
-	    throw new IllegalArgumentException();
-	}
+        if (description == null) {
+            throw new IllegalArgumentException();
+        }
 
-	description = description;
-
-	// TODO: parse revision number from description if possible
-	files = new Vector<FileEntry>();
+        this.description = description;
+        this.number = 0;
+        // TODO: parse revision number from description if possible
+        files = new Vector<FileEntry>();
     }
 
     public List<FileEntry> getFiles() {
-	return files;
+        return files;
+    }
+
+    /**
+     * @return the description
+     */
+    public String getDescription() {
+        if(description != "") {
+            return description;
+        }
+        else if (number > 0) {
+            return String.valueOf(number);
+        }
+        else {
+            return "";
+        }
+    }
+
+    /**
+     * @return the number
+     */
+    public long getNumber() {
+        return number;
     }
 }

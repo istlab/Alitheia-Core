@@ -5,11 +5,11 @@ package eu.sqooss.vcs;
  * An abstract repository representation. 
  */
 public abstract class Repository {
-    
+
     public String password;
 
     public String username;
-    
+
     /* The path of the repository on the local end */
     protected String localPath;
 
@@ -18,15 +18,15 @@ public abstract class Repository {
 
     /* The current repository revision on the local end */
     protected Revision revision;
-    
+
     /**
      * 
      */
     public Repository(String localPath, String serverPath, String username, String passwd) {
-	this.localPath = localPath;
-	this.serverPath = serverPath;
-	this.username = username;
-	this.password = passwd;
+        this.localPath = localPath;
+        this.serverPath = serverPath;
+        this.username = username;
+        this.password = passwd;
     }
 
     /**
@@ -78,7 +78,7 @@ public abstract class Repository {
      * @return
      */
     public abstract CommitLog getLog(Revision start, Revision end);
-    
+
     /**
      * Returns the current version of either the remote or local version of 
      * the repository
