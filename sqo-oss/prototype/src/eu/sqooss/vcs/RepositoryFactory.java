@@ -50,9 +50,9 @@ public class RepositoryFactory {
         URI uri;
         RepositoryType type;
         String password, username, protocol, serverPath = null;
-        //String protocol = null;
+
         // retrieve password from url (if there is one)
-        if (url.indexOf("//?") == -1){
+        if (url.indexOf("?") == -1){
             /* no username or password given */
             password = "";
         } else {
@@ -71,7 +71,7 @@ public class RepositoryFactory {
             url = url.replaceAll("https://", "");
             uri = returnURI(url);
             protocol = "https://";
-        } else if (url.indexOf("svn://") != -1) {
+        } else if (url.indexOf("svn://") > 0) {
             url = url.replaceAll("svn://", "");
             uri = returnURI(url);
             protocol = "svn://";
@@ -125,7 +125,7 @@ public class RepositoryFactory {
     }
 
     public static URI returnURI (String url) throws InvalidRepositoryException{
-        if (url == null){
+        if (url != null){
             URI uri;
             try {
                 uri = new URI(url);
