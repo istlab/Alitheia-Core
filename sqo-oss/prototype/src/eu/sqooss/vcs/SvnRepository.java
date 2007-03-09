@@ -84,11 +84,11 @@ public class SvnRepository extends Repository {
 
     @Override
     public void checkout(Revision rev) {
-    	/* next line has errors */ 
     	initializeRepository();
-    	ISVNEditor myEditor = null;
+    	/* next line has errors */ 
+    	ISVNEditor editor = null;
     	try {
-            repository.checkout(rev.getNumber(), null, true, myEditor);
+            repository.checkout(rev.getNumber(), null, true, editor);
         }
         catch (SVNException svne) {
             revision = new Revision(-1);
