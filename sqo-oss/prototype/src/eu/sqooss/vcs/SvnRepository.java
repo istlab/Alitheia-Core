@@ -39,6 +39,7 @@ import org.tmatesoft.svn.core.internal.io.dav.DAVRepositoryFactory;
 import org.tmatesoft.svn.core.internal.io.fs.FSRepositoryFactory;
 import org.tmatesoft.svn.core.internal.io.svn.SVNRepositoryFactoryImpl;
 import org.tmatesoft.svn.core.internal.wc.admin.SVNWCAccess;
+import org.tmatesoft.svn.core.io.ISVNEditor;
 import org.tmatesoft.svn.core.io.SVNRepository;
 import org.tmatesoft.svn.core.wc.*;
 
@@ -64,12 +65,34 @@ public class SvnRepository extends Repository {
 
     @Override
     public void checkout() {
-
+    	initializeRepository();
+    	/* next line has errors, 
+    	 * we probably need to initialize editor in another way 
+    	 */
+    	ISVNEditor editor = null;
+    	try {
+    		revision = new Revision(repository.getLatestRevision());
+            repository.checkout(revision.getNumber(),
+            		null /* when null, the scope of the checkout operation 
+            		is the repository location to which this object is set*/, 
+            		true /* when true, checkout descends recursively */, editor);
+        }
+        catch (SVNException svne) {
+            revision = new Revision(-1);
+        }
     }
 
     @Override
     public void checkout(Revision rev) {
-
+    	/* next line has errors */ 
+    	initializeRepository();
+    	ISVNEditor myEditor = null;
+    	try {
+            repository.checkout(rev.getNumber(), null, true, myEditor);
+        }
+        catch (SVNException svne) {
+            revision = new Revision(-1);
+        }
     }
 
     @Override
