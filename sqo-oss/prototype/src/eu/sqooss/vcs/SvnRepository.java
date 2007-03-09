@@ -40,6 +40,7 @@ import org.tmatesoft.svn.core.internal.io.fs.FSRepositoryFactory;
 import org.tmatesoft.svn.core.internal.io.svn.SVNRepositoryFactoryImpl;
 import org.tmatesoft.svn.core.internal.wc.admin.SVNWCAccess;
 import org.tmatesoft.svn.core.io.ISVNEditor;
+import org.tmatesoft.svn.core.io.ISVNReporterBaton;
 import org.tmatesoft.svn.core.io.SVNRepository;
 import org.tmatesoft.svn.core.wc.*;
 
@@ -67,7 +68,7 @@ public class SvnRepository extends Repository {
     public void checkout() {
     	initializeRepository();
     	/* next line has errors, 
-    	 * we probably need to initialize editor in another way 
+    	 * we need to initialize editor in another way 
     	 */
     	ISVNEditor editor = null;
     	try {
@@ -97,7 +98,19 @@ public class SvnRepository extends Repository {
 
     @Override
     public void update(Revision rev) {
-
+    	initializeRepository();
+    	/* next line has errors */ 
+    	ISVNEditor editor = null;
+    	/* next line has errors 
+    	 * we need to initialize reporter in another way 
+    	 */
+    	ISVNReporterBaton reporter = null;
+    	try {
+            repository.update(rev.getNumber(), null, true, reporter, editor);
+        }
+        catch (SVNException svne) {
+            revision = new Revision(-1);
+        }
     }
 
     @Override
