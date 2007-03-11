@@ -3,7 +3,7 @@
 MVCS build file 
 -->
 <project name="mvcs" default="compile">
-	<property name="sqooss.build.dir" value="build" />
+	<property name="sqooss.build.dir" value="bin" />
 	<property name="sqooss.lib.dir" value="lib" />
 	<property name="sqooss.src.dir" value="src" />
 	<property name="sqooss.dist.dir" value="dist" />
@@ -25,5 +25,6 @@ MVCS build file
 	<target name="clean">
 		<delete dir="${sqooss.build.dir}" />
 		<delete file="${sqooss.dist.dir}/sqo-oss.jar" />
+		<delete dir="${sqooss.dist.dir}" />
 	</target>
 </project>
