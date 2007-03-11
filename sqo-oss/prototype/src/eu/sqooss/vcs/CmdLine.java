@@ -36,13 +36,13 @@ public final class CmdLine {
     
     private static final String help = 
         "MVCS: Frontend to multiple version control " +
-        "systems\nUsage:\n" +
+        "systems\n" +
         "mvcs -uri repo-uri -l local-path <action> or \n" +
         "mvcs -s server -l local-path -u user -p passwd -t repo-type <action>\n\n" +
         "repo-uri has the following syntax: \n" +
-        "\t <svn,cvs>://user@server/path/to/repo?passwd=passwd\n" + 
-        "Currently supported actions are (with parameters): checkout, " +
-        "update, diff, getlog, curver, localver" +
+        "<svn,cvs>://user@server/path/to/repo?passwd=passwd\n" + 
+        "Currently supported actions are (with parameters):\n  " +
+        "  checkout, update, diff, getlog, curver, localver\n" +
         "<action> has the following syntax: \n" +
         "\t <checkout,update,diff,getlog,curver,localver> <r1,r1:r2>";
     
@@ -129,45 +129,46 @@ public final class CmdLine {
             formatter.printHelp( help, opts );
 		}
         
-        // leftOverArgs[0] is "mvcs"
-        if (leftOverArgs[1].equals("checkout")) {
-        	if (leftOverArgs.length == 2) {
-        		/* checkout without revision */
-        		currentRepository.checkout();
-        	}else {
-        		rev1 = new Revision(leftOverArgs[2]);
-        		currentRepository.checkout(rev1);
-        	}
-        } else if (leftOverArgs[1].equals("update")) {
-        	rev1 = new Revision(leftOverArgs[2]);
-        	currentRepository.update(rev1);
-        } else if (leftOverArgs[1].equals("diff")) {
-        	if (leftOverArgs[2].indexOf(":") == -1) {
-        		rev1 = new Revision(leftOverArgs[2]);
-        		currentRepository.diff(rev1);
-        	} else {
-        		String patternStr = ":";
-        		String[] fields = leftOverArgs[2].split(patternStr);
-        		rev1 = new Revision(fields[0]);
-        		rev2 = new Revision(fields[1]);
-        		currentRepository.diff(rev1, rev2);
-        	}
-        } else if (leftOverArgs[1].equals("getLog")) {
-        	String patternStr = ":";
-    		String[] fields = leftOverArgs[2].split(patternStr);
-    		rev1 = new Revision(fields[0]);
-    		rev2 = new Revision(fields[1]);
-    		currentRepository.getLog(rev1, rev2);
-        } else if (leftOverArgs[1].equals("curver")) {
-        	/*get current version from the remote server (remote = true */
-        	boolean remote = true;
-        	currentRepository.getCurrentVersion(remote);
-        } else if (leftOverArgs[1].equals("localver")) {
-        	boolean remote = false;
-        	currentRepository.getCurrentVersion(remote);
+        assert(currentRepository!=null);
+        
+        if (leftOverArgs[0].equals("checkout")) {
+            if (leftOverArgs.length <= 1) {
+                /* checkout without revision */
+                currentRepository.checkout();
+            } else {
+                rev1 = new Revision(leftOverArgs[1]);
+                currentRepository.checkout(rev1);
+            }
+        } else if (leftOverArgs[0].equals("update")) {
+            rev1 = new Revision(leftOverArgs[1]);
+            currentRepository.update(rev1);
+        } else if (leftOverArgs[0].equals("diff")) {
+            if (leftOverArgs[1].indexOf(":") == -1) {
+                rev1 = new Revision(leftOverArgs[1]);
+                currentRepository.diff(rev1);
+            } else {
+                String patternStr = ":";
+                String[] fields = leftOverArgs[1].split(patternStr);
+                rev1 = new Revision(fields[0]);
+                rev2 = new Revision(fields[1]);
+                currentRepository.diff(rev1, rev2);
+            }
+        } else if (leftOverArgs[0].equals("getLog")) {
+            String patternStr = ":";
+            String[] fields = leftOverArgs[1].split(patternStr);
+            rev1 = new Revision(fields[0]);
+            rev2 = new Revision(fields[1]);
+            currentRepository.getLog(rev1, rev2);
+        } else if (leftOverArgs[0].equals("curver")) {
+            /*get current version from the remote server (remote = true */
+            boolean remote = true;
+            System.out.println(currentRepository.getCurrentVersion(remote));
+        } else if (leftOverArgs[0].equals("localver")) {
+            boolean remote = false;
+            System.out.println(currentRepository.getCurrentVersion(remote));
         } else {
-        	System.err.println("No supported action specified");
-        	formatter.printHelp( help, opts );
+            System.err.println("No supported action specified");
+            formatter.printHelp(help, opts);
         }
     }
 }
