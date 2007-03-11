@@ -19,11 +19,11 @@ MVCS build file
 				      </fileset>
 			</classpath>
 		</javac>
-		<jar destfile="${sqooss.dist.dir}/sqooss-prototype.jar" basedir="${sqooss.build.dir}" />
+		<jar destfile="${sqooss.dist.dir}/sqo-oss.jar" basedir="${sqooss.build.dir}" manifest="src/MANIFEST" />
 	</target>
 
 	<target name="clean">
 		<delete dir="${sqooss.build.dir}" />
-		<delete file="${sqooss.dist.dir}/sqooss-prototype.jar" />
+		<delete file="${sqooss.dist.dir}/sqo-oss.jar" />
 	</target>
 </project>
