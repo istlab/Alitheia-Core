@@ -44,6 +44,7 @@ import org.tmatesoft.svn.core.io.ISVNReporterBaton;
 import org.tmatesoft.svn.core.io.SVNRepository;
 import org.tmatesoft.svn.core.wc.*;
 
+
 /**
  * @author circular
  * 
@@ -55,6 +56,7 @@ public class SvnRepository extends Repository {
     private SVNRepository repository;
     private ISVNAuthenticationManager authManager;
     private static SVNClientManager clientManager;
+    private SVNURL url;
     //private ISVNEventHandler wcEventHandler;
 
     public SvnRepository(String localPath, String serverPath, String username,
@@ -67,50 +69,47 @@ public class SvnRepository extends Repository {
     @Override
     public void checkout() {
     	initializeRepository();
-    	/* next line has errors, 
-    	 * we need to initialize editor in another way 
-    	 */
-    	ISVNEditor editor = null;
+    	SVNUpdateClient updater = new SVNUpdateClient(authManager, 
+    			SVNWCUtil.createDefaultOptions(true));
     	try {
-    		revision = new Revision(repository.getLatestRevision());
-            repository.checkout(revision.getNumber(),
-            		null /* when null, the scope of the checkout operation 
-            		is the repository location to which this object is set*/, 
-            		true /* when true, checkout descends recursively */, editor);
-        }
-        catch (SVNException svne) {
-            revision = new Revision(-1);
-        }
+			updater.doCheckout(url, new File(localPath),
+					SVNRevision.HEAD, 
+					SVNRevision.HEAD /* denotes the latest repository revision */, 
+					true /* when true, checkout descends recursively */);
+		} catch (SVNException svne) {
+			System.err.println("Couldn't checkout");
+			svne.printStackTrace();
+		}
     }
 
     @Override
     public void checkout(Revision rev) {
     	initializeRepository();
-    	/* next line has errors */ 
-    	ISVNEditor editor = null;
+    	SVNUpdateClient updater = new SVNUpdateClient(authManager, 
+    			SVNWCUtil.createDefaultOptions(true));
+    	/* SVNRevision is a revision wrapper used for an abstract 
+    	 * representation of revision information */
+    	SVNRevision tmpRev = SVNRevision.create(rev.getNumber());
     	try {
-            repository.checkout(rev.getNumber(), null, true, editor);
-        }
-        catch (SVNException svne) {
-            revision = new Revision(-1);
-        }
+			updater.doCheckout(url, new File(localPath), tmpRev, tmpRev, true);
+		} catch (SVNException svne) {
+			System.err.println("Couldn't checkout");
+			svne.printStackTrace();
+		}
     }
 
     @Override
     public void update(Revision rev) {
     	initializeRepository();
-    	/* next line has errors */ 
-    	ISVNEditor editor = null;
-    	/* next line has errors 
-    	 * we need to initialize reporter in another way 
-    	 */
-    	ISVNReporterBaton reporter = null;
+    	SVNUpdateClient updater = new SVNUpdateClient(authManager, 
+    			SVNWCUtil.createDefaultOptions(true));
+    	SVNRevision tmpRev = SVNRevision.create(rev.getNumber());
     	try {
-            repository.update(rev.getNumber(), null, true, reporter, editor);
-        }
-        catch (SVNException svne) {
-            revision = new Revision(-1);
-        }
+			updater.doUpdate(new File(localPath), tmpRev, true);
+		} catch (SVNException svne) {
+			System.err.println("Couldn't update");
+			svne.printStackTrace();
+		}
     }
 
     @Override
@@ -137,26 +136,21 @@ public class SvnRepository extends Repository {
         if(remote) {          
             try {
                 revision = new Revision(repository.getLatestRevision());
-            }
-            catch (SVNException svne) {
+            } catch (SVNException svne) {
                 revision = new Revision(-1);
             }
         } else {
-            ISVNOptions options = SVNWCUtil.createDefaultOptions(true);
-            clientManager = SVNClientManager.newInstance(options, authManager);
+            clientManager = SVNClientManager.newInstance(SVNWCUtil.createDefaultOptions(true), authManager);
             try {
                 SVNInfo info = clientManager.getWCClient().doInfo(
-                        new File(localPath), SVNRevision.WORKING);
-                
-                revision = new Revision(info.getRevision().getNumber());
-                
+                        new File(localPath), SVNRevision.WORKING);  
+                revision = new Revision(info.getRevision().getNumber());        
             } catch (SVNException svne) {
                 System.err.println("Error while retrieving info for the "
                         + "working copy of '" + serverPath + "' at "
                         + localPath + ": " + svne.getMessage());
             }
         }
-        
         return revision.getDescription();
     }
 
@@ -182,7 +176,8 @@ public class SvnRepository extends Repository {
         }
         
         try {
-            SVNURL url = SVNURL.parseURIDecoded(serverPath);
+            //SVNURL url = SVNURL.parseURIDecoded(serverPath);
+        	url = SVNURL.parseURIDecoded(serverPath);
             repository = SVNRepositoryFactoryImpl.create(url);
 
             /* 
@@ -193,7 +188,7 @@ public class SvnRepository extends Repository {
              * this kind of behaviour, so we use BasicAuthenticationManager.
              * If anonymous access is requested the authentication is skipped.
              */
-            if((username.length() > 0) && (password.length() > 0)) {
+            if ((username.length() > 0) && (password.length() > 0)) {
                 authManager = new 
                     BasicAuthenticationManager(username, password);
 
