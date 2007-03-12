@@ -51,12 +51,13 @@ import org.tmatesoft.svn.core.wc.*;
  * Implements the functionality required to access a SVN repository
  * 
  */
-public class SvnRepository extends Repository {
+public class SvnRepository extends Repository implements ISVNLogEntryHandler {
 
     private SVNRepository repository;
     private ISVNAuthenticationManager authManager;
     private static SVNClientManager clientManager;
     private SVNURL url;
+    private CommitLog SVNCommitLog;
     //private ISVNEventHandler wcEventHandler;
 
     public SvnRepository(String localPath, String serverPath, String username,
@@ -126,8 +127,23 @@ public class SvnRepository extends Repository {
 
     @Override
     public CommitLog getLog(Revision start, Revision end) {
-
-        return null;
+    	initializeRepository();
+    	SVNLogClient logger = new SVNLogClient(authManager, 
+    			SVNWCUtil.createDefaultOptions(true));
+    	SVNRevision tmpRevStart = SVNRevision.create(start.getNumber());
+    	SVNRevision tmpRevEnd = SVNRevision.create(end.getNumber());
+    	ISVNLogEntryHandler handler = this;
+    	try {
+			logger.doLog(url, null, tmpRevStart, tmpRevStart, tmpRevEnd, 
+					false, /* copies history will be also included into processing */
+					true /* report all changed paths for every revision being processed */,
+					Long.MAX_VALUE, /* maximum number of log entries to be processed */
+					handler /* Interface ISVNLogEntryHandler implemented below */);
+		} catch (SVNException svne) {
+			System.err.println("Couldn't doLog");
+			svne.printStackTrace();
+		}
+        return SVNCommitLog;
     }
 
     @Override
@@ -199,5 +215,9 @@ public class SvnRepository extends Repository {
             System.err.println("Error while creating an SVNRepository for '"
                     + serverPath + "': " + svne.getMessage());
         }
+    }
+    
+    public void handleLogEntry(SVNLogEntry logEntry) {
+    	
     }
 }
