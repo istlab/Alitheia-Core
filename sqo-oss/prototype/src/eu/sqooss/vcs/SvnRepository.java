@@ -57,7 +57,7 @@ public class SvnRepository extends Repository implements ISVNLogEntryHandler {
     private ISVNAuthenticationManager authManager;
     private static SVNClientManager clientManager;
     private SVNURL url;
-    private CommitLog SVNCommitLog;
+    private CommitLog svnCommitLog;
     //private ISVNEventHandler wcEventHandler;
 
     public SvnRepository(String localPath, String serverPath, String username,
@@ -133,6 +133,8 @@ public class SvnRepository extends Repository implements ISVNLogEntryHandler {
     	SVNRevision tmpRevStart = SVNRevision.create(start.getNumber());
     	SVNRevision tmpRevEnd = SVNRevision.create(end.getNumber());
     	ISVNLogEntryHandler handler = this;
+    	svnCommitLog = new CommitLog(start, end);
+    	svnCommitLog.clear();
     	try {
 			logger.doLog(url, null, tmpRevStart, tmpRevStart, tmpRevEnd, 
 					false, /* copies history will be also included into processing */
@@ -143,7 +145,7 @@ public class SvnRepository extends Repository implements ISVNLogEntryHandler {
 			System.err.println("Couldn't doLog");
 			svne.printStackTrace();
 		}
-        return SVNCommitLog;
+        return svnCommitLog;
     }
 
     @Override
@@ -217,7 +219,19 @@ public class SvnRepository extends Repository implements ISVNLogEntryHandler {
         }
     }
     
+    /** 
+     * handleLogEntry handles a log entry passed. Here we use it 
+     * to add CommitLogEntr-ies to a CommitLog object
+     */
     public void handleLogEntry(SVNLogEntry logEntry) {
-    	
+    	if (logEntry == null || (logEntry.getMessage() == null && logEntry.getRevision() == 0)) {
+            return;
+        }
+    	Long tmpRev = logEntry.getRevision();
+    	CommitLogEntry tmpEntry = new CommitLogEntry(logEntry.getAuthor(), 
+    			logEntry.getMessage(), 
+    			logEntry.getDate(), 
+    			tmpRev.toString());
+    	svnCommitLog.add(tmpEntry);
     }
 }
