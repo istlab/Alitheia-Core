@@ -79,11 +79,7 @@ public class RepositoryFactory {
         if(uri.getScheme().equalsIgnoreCase("cvs")) {
         	type = RepositoryType.CVS;
         }
-        else if(uri.getScheme().equalsIgnoreCase("svn") ||
-        		uri.getScheme().equalsIgnoreCase("svn+ssh") ||
-        		uri.getScheme().equalsIgnoreCase("svn+http") ||
-        		uri.getScheme().equalsIgnoreCase("svn+https") ||
-        		uri.getScheme().equalsIgnoreCase("svns+fsfs")) {
+        else if(uri.getScheme().contains("svn")) {
         	type = RepositoryType.SVN;
         }   
         else {

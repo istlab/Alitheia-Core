@@ -67,12 +67,12 @@ public class SvnRepository extends Repository implements ISVNLogEntryHandler {
             String passwd)throws InvalidRepositoryException {
         super(localPath, serverPath, username, passwd);
         
-        if (this.serverPath.indexOf("svn+http://") != -1) {
+        if (this.serverPath.indexOf("svn://") != -1) {
         	/* usage over http */
-        	this.serverPath = this.serverPath.replaceAll("svn+http://", "http://");
+        	this.serverPath = this.serverPath.replaceAll("svn://", "http://");
         } else if (this.serverPath.indexOf("svns://") != -1) {
         	/* usage over https */
-        	this.serverPath = this.serverPath.replaceAll("svn+https://", "https://");
+        	this.serverPath = this.serverPath.replaceAll("svns://", "https://");
         } else if (this.serverPath.indexOf("svn+fsfs://") != -1) {
         	/* usage over file */
         	this.serverPath = this.serverPath.replaceAll("svn+fsfs://", "fsfs://");
