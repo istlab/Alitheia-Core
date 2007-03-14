@@ -3,28 +3,64 @@
 MVCS build file 
 -->
 <project name="mvcs" default="compile">
-	<property name="sqooss.build.dir" value="bin" />
-	<property name="sqooss.lib.dir" value="lib" />
-	<property name="sqooss.src.dir" value="src" />
-	<property name="sqooss.dist.dir" value="dist" />
+    <property name="sqooss.build.dir" value="bin" />
+    <property name="sqooss.lib.dir" value="lib" />
+    <property name="sqooss.src.dir" value="src" />
+    <property name="sqooss.dist.dir" value="dist" />
 
-	<target name="compile" description="Compile SQO-OSS prototype">
-		<mkdir dir="${sqooss.build.dir}" />
-		<mkdir dir="${sqooss.dist.dir}" />
-		<javac destdir="${sqooss.build.dir}" srcdir="${sqooss.src.dir}">
-			<classpath>
-				<pathelement path="${classpath}"/>
-				 <fileset dir="lib">
-				        <include name="**/*.jar"/>
-				      </fileset>
-			</classpath>
-		</javac>
-		<jar destfile="${sqooss.dist.dir}/sqo-oss.jar" basedir="${sqooss.build.dir}" manifest="src/MANIFEST" />
-	</target>
+    <path id="libraries">
+	<fileset dir="lib">
+	    <include name="**/*.jar"/>
+	</fileset>
+    </path>
+    
+    <target name="compile" description="Compile SQO-OSS prototype">
+	<mkdir dir="${sqooss.build.dir}" />
+	<mkdir dir="${sqooss.dist.dir}" />
+	<javac destdir="${sqooss.build.dir}" srcdir="${sqooss.src.dir}">
+	    <classpath>
+		<pathelement path="${classpath}"/>
+		<path refid="libraries"/>
+	    </classpath>
+	</javac>
+	<copy todir="${sqooss.build.dir}" flatten="true">
+	    <fileset dir="${sqooss.src.dir}">
+		<include name="**/*.xml" />
+	    </fileset>
+	    <fileset dir="${sqooss.src.dir}">
+		<include name="**/*.properties" />
+	    </fileset>
+	</copy>
+	<jar destfile="${sqooss.dist.dir}/sqo-oss.jar" basedir="${sqooss.build.dir}" manifest="src/MANIFEST"/>
+    </target>
 
-	<target name="clean">
-		<delete dir="${sqooss.build.dir}" />
-		<delete file="${sqooss.dist.dir}/sqo-oss.jar" />
-		<delete dir="${sqooss.dist.dir}" />
-	</target>
+    <target name="clean">
+	<delete dir="${sqooss.build.dir}" />
+	<delete file="${sqooss.dist.dir}/sqo-oss.jar" />
+	<delete dir="${sqooss.dist.dir}" />
+    </target>
+
+    <target name="schemaexport" depends="compile">
+
+	<taskdef name="schemaexport" classname="org.hibernate.tool.hbm2ddl.SchemaExportTask">
+	    <classpath>
+		<pathelement path="${sqooss.dist.dir}/sqo-oss.jar"/>
+		<path refid="libraries"/>
+	    </classpath>
+	</taskdef>
+
+	<schemaexport config="${sqooss.src.dir}/eu/sqooss/db/hibernate.cfg.xml"
+		      output="${sqooss.build.dir}/schema-export.sql"/>
+    </target>
+    
+    <target name="test">
+	<java fork="true" classname="eu.sqooss.test.StoredProjectTest" classpathref="libraries">
+	    <classpath>
+		<pathelement path="${sqooss.dist.dir}/sqo-oss.jar"/>
+		<path refid="libraries"/>
+	    </classpath>
+	    <arg value="${action}"/>
+	</java>
+    </target>
+    
 </project>

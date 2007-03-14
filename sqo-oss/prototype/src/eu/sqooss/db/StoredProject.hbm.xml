@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="eu.sqooss.db">
+  <class name="StoredProject" table="STORED_PROJECTS">
+    <id name="id" column="ID">
+      <generator class="native"/>
+    </id>
+    <property name="name" column="NAME"/>
+    <property name="website" column="WEB_SITE"/>
+    <property name="contactPoint" column="CONTACT_POINT"/>
+    <property name="srcPath" column="SRC_PATH"/>
+    <property name="mailPath" column="MAIL_PATH"/>
+  </class>
+</hibernate-mapping>
