@@ -40,7 +40,7 @@ public final class CmdLine {
         "mvcs -uri repo-uri -l local-path <action> or \n" +
         "mvcs -s server -l local-path -u user -p passwd -t repo-type <action>\n\n" +
         "repo-uri has the following syntax: \n" +
-        "<svn,cvs>://user@server/path/to/repo?passwd=passwd\n" + 
+        "<svn,cvs,svn+http,svn+https,svn+ssh,svn+fsfs>://user@server/path/to/repo?passwd=passwd\n" + 
         "Currently supported actions are (with parameters):\n  " +
         "  checkout, update, diff, getlog, curver, localver\n" +
         "<action> has the following syntax: \n" +

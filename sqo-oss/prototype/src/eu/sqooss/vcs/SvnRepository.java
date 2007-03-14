@@ -31,6 +31,9 @@
 package eu.sqooss.vcs;
 
 import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
+
 
 import org.tmatesoft.svn.core.*;
 import org.tmatesoft.svn.core.auth.BasicAuthenticationManager;
@@ -61,8 +64,34 @@ public class SvnRepository extends Repository implements ISVNLogEntryHandler {
     //private ISVNEventHandler wcEventHandler;
 
     public SvnRepository(String localPath, String serverPath, String username,
-            String passwd) {
+            String passwd)throws InvalidRepositoryException {
         super(localPath, serverPath, username, passwd);
+        
+        if (this.serverPath.indexOf("svn+http://") != -1) {
+        	/* usage over http */
+        	this.serverPath = this.serverPath.replaceAll("svn+http://", "http://");
+        } else if (this.serverPath.indexOf("svns://") != -1) {
+        	/* usage over https */
+        	this.serverPath = this.serverPath.replaceAll("svn+https://", "https://");
+        } else if (this.serverPath.indexOf("svn+fsfs://") != -1) {
+        	/* usage over file */
+        	this.serverPath = this.serverPath.replaceAll("svn+fsfs://", "fsfs://");
+        }
+        
+        URI uri;
+        try {
+            uri = new URI(this.serverPath);
+        } catch (URISyntaxException e) {
+            throw new InvalidRepositoryException(e.getMessage());
+        }
+        // check if there is a port given
+        if (uri.getPort() == -1) {
+        	this.serverPath = uri.getScheme() + uri.getHost() + uri.getPath();
+        } else {
+            String port = new Integer(uri.getPort()).toString();
+            this.serverPath = uri.getScheme() + uri.getHost() + uri.getPath() + ":" + port;
+        }
+        
         initializeFactories();
         repository = null;
     }
@@ -115,13 +144,18 @@ public class SvnRepository extends Repository implements ISVNLogEntryHandler {
 
     @Override
     public Diff diff(Revision rev) {
-
+    	SVNDiffClient diffClient = new SVNDiffClient(authManager, 
+    			SVNWCUtil.createDefaultOptions(true));
+    	SVNRevision tmpRev = SVNRevision.create(rev.getNumber());
         return null;
     }
 
     @Override
     public Diff diff(Revision start, Revision end) {
-
+    	SVNDiffClient diffClient = new SVNDiffClient(authManager, 
+    			SVNWCUtil.createDefaultOptions(true));
+    	SVNRevision tmpRevStart = SVNRevision.create(start.getNumber());
+    	SVNRevision tmpRevEnd = SVNRevision.create(end.getNumber());
         return null;
     }
 
@@ -184,7 +218,7 @@ public class SvnRepository extends Repository implements ISVNLogEntryHandler {
         //for using over svn:// and svn+xxx://
         SVNRepositoryFactoryImpl.setup();
 
-        //for using over file:///
+        //for using over file://
         FSRepositoryFactory.setup();
     }
 
