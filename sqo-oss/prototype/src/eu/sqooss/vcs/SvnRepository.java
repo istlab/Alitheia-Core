@@ -47,6 +47,8 @@ import org.tmatesoft.svn.core.io.ISVNReporterBaton;
 import org.tmatesoft.svn.core.io.SVNRepository;
 import org.tmatesoft.svn.core.wc.*;
 
+import com.sshtools.j2ssh.util.Base64.OutputStream;
+
 
 /**
  * @author circular
@@ -61,6 +63,7 @@ public class SvnRepository extends Repository implements ISVNLogEntryHandler {
     private static SVNClientManager clientManager;
     private SVNURL url;
     private CommitLog svnCommitLog;
+    private OutputStream diffStream;
     //private ISVNEventHandler wcEventHandler;
 
     public SvnRepository(String localPath, String serverPath, String username,
@@ -156,6 +159,16 @@ public class SvnRepository extends Repository implements ISVNLogEntryHandler {
     			SVNWCUtil.createDefaultOptions(true));
     	SVNRevision tmpRevStart = SVNRevision.create(start.getNumber());
     	SVNRevision tmpRevEnd = SVNRevision.create(end.getNumber());
+    	try {
+			diffClient.doDiff(url, tmpRevStart, tmpRevStart, 
+					tmpRevEnd, true /* descend recursively */, 
+					true /* the paths ancestry will be noticed while calculating differences */, 
+					diffStream);
+		} catch (SVNException svne) {
+			System.err.println("Couldn't doDiff");
+			svne.printStackTrace();
+		}
+		//diffClient
         return null;
     }
 
