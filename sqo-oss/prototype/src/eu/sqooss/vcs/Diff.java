@@ -32,35 +32,37 @@ package eu.sqooss.vcs;
 
 import java.util.*;
 
-public class Diff implements Iterable<FileEntry> {
+public class Diff {
 
     /**
      * hold a list of files that changed between the two revisions,
-     * not the file differences
+     * and the file differences
      */
-    private HashMap<String, FileEntry> changedFiles;
-
+    private HashMap<String, Vector<String>> changeSet;
     public Diff() {
-	changedFiles = new HashMap<String, FileEntry>();
+	changeSet = new HashMap<String, Vector<String>>();
     }
 
-    void add(FileEntry item) {
-	changedFiles.put(item.getName(), item);
+    void add(String key, String changes) {
+    	if (changeSet.containsKey(key)) {
+    		changeSet.get(key).add(changes);
+    	}
+    	else {
+    		Vector<String> tmpVector = new Vector<String>();
+    		tmpVector.add(changes);
+    		changeSet.put(key, tmpVector);
+    	}
     }
-
+    
     void clear() {
-	changedFiles.clear();
+    	changeSet.clear();
     }
-
-    void remove(FileEntry item) {
-	changedFiles.remove(item.getName());
+    
+    void remove(String key) {
+    	changeSet.remove(key);
     }
-
-    public FileEntry getItem(String name) {
-	return changedFiles.get(name);
-    }
-
-    public Iterator<FileEntry> iterator() {
-	return changedFiles.values().iterator();
+    
+    public Vector<String> getChangesOfASpecifiedFile(String key) {
+    	return changeSet.get(key);
     }
 }
