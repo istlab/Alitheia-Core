@@ -30,6 +30,7 @@
 
 package eu.sqooss.vcs;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -63,7 +64,8 @@ public class SvnRepository extends Repository implements ISVNLogEntryHandler {
     private static SVNClientManager clientManager;
     private SVNURL url;
     private CommitLog svnCommitLog;
-    private OutputStream diffStream;
+    private ByteArrayOutputStream diffStream;
+    private Diff svnDiff;
     //private ISVNEventHandler wcEventHandler;
 
     public SvnRepository(String localPath, String serverPath, String username,
@@ -147,10 +149,7 @@ public class SvnRepository extends Repository implements ISVNLogEntryHandler {
 
     @Override
     public Diff diff(Revision rev) {
-    	SVNDiffClient diffClient = new SVNDiffClient(authManager, 
-    			SVNWCUtil.createDefaultOptions(true));
-    	SVNRevision tmpRev = SVNRevision.create(rev.getNumber());
-        return null;
+        return diff(new Revision(getCurrentVersion(false)), rev);
     }
 
     @Override
@@ -159,20 +158,24 @@ public class SvnRepository extends Repository implements ISVNLogEntryHandler {
     			SVNWCUtil.createDefaultOptions(true));
     	SVNRevision tmpRevStart = SVNRevision.create(start.getNumber());
     	SVNRevision tmpRevEnd = SVNRevision.create(end.getNumber());
+    	String returnVal = null;
     	try {
 			diffClient.doDiff(url, tmpRevStart, tmpRevStart, 
 					tmpRevEnd, true /* descend recursively */, 
 					true /* the paths ancestry will be noticed while calculating differences */, 
-					diffStream);
+					diffStream);			
 		} catch (SVNException svne) {
 			System.err.println("Couldn't doDiff");
 			svne.printStackTrace();
 		}
-		//diffClient
-        return null;
+		returnVal = new String(diffStream.toByteArray());
+		svnDiff = new Diff();
+		svnDiff = manageOutput(returnVal);
+
+        return svnDiff;
     }
 
-    @Override
+	@Override
     public CommitLog getLog(Revision start, Revision end) {
     	initializeRepository();
     	SVNLogClient logger = new SVNLogClient(authManager, 
@@ -281,4 +284,15 @@ public class SvnRepository extends Repository implements ISVNLogEntryHandler {
     			tmpRev.toString());
     	svnCommitLog.add(tmpEntry);
     }
+    
+    /** 
+     * handles the output of doDiff in order to fill 
+     * a Diff object
+     */
+    private Diff manageOutput(String returnVal) {
+    	Diff tmpDiff = new Diff();
+    	
+		return tmpDiff;
+	}
+
 }
