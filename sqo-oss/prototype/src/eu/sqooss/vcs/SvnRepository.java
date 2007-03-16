@@ -34,6 +34,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.regex.*;
 
 
 import org.tmatesoft.svn.core.*;
@@ -169,8 +170,7 @@ public class SvnRepository extends Repository implements ISVNLogEntryHandler {
 			svne.printStackTrace();
 		}
 		returnVal = new String(diffStream.toByteArray());
-		svnDiff = new Diff();
-		svnDiff = manageOutput(returnVal);
+		svnDiff = parseDiffOutput(returnVal);
 
         return svnDiff;
     }
@@ -289,8 +289,27 @@ public class SvnRepository extends Repository implements ISVNLogEntryHandler {
      * handles the output of doDiff in order to fill 
      * a Diff object
      */
-    private Diff manageOutput(String returnVal) {
+    private Diff parseDiffOutput(String returnVal) {
     	Diff tmpDiff = new Diff();
+    	Pattern entrySplitter = Pattern.compile("^Index: (.*)$");
+    	Pattern changeSplitter = Pattern.compile("^@@\\W+@@$");
+    	
+    	String[] entries = entrySplitter.split(returnVal);
+    	
+    	foreach(String entry: entries) {
+    		Matcher m = entrySplitter.matcher(entry);
+    		String filename = m.group(1);
+    		
+    		//retrieved the filename, it's time to get the change list
+    		
+    		String[] changes = changeSplitter.split(entry);
+    		
+    		for(int i = 1; i<changes.length; i++) {
+    			//skip the first result - it does not contain a change
+    			tmpDiff.add(filename, changes[i]);
+    		}
+    		
+    	}
     	
 		return tmpDiff;
 	}
