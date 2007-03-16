@@ -30,6 +30,7 @@
 
 package eu.sqooss.vcs;
 
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Vector;
 
@@ -41,44 +42,51 @@ public class CommitLog implements Iterable<CommitLogEntry> {
     private Revision start, end;
 
     public CommitLog(Revision start, Revision end) {
-	if ((start == null) || (end == null)) {
-	    throw new IllegalArgumentException();
-	}
+    	if ((start == null) || (end == null)) {
+    		throw new IllegalArgumentException();
+    	}
 
-	this.start = start;
-	this.end = end;
-	entries = new Vector<CommitLogEntry>();
+    	this.start = start;
+    	this.end = end;
+    	entries = new Vector<CommitLogEntry>();
     }
 
     public Revision getStart() {
-	return start;
+    	return start;
     }
 
     public Revision getEnd() {
-	return end;
+    	return end;
     }
 
     Vector<CommitLogEntry> getEntries() {
-	return entries;
+    	return entries;
     }
 
     public void add(CommitLogEntry entry) {
-	entries.add(entry);
+    	entries.add(entry);
     }
 
     public boolean remove(CommitLogEntry entry) {
-	return entries.remove(entry);
+    	return entries.remove(entry);
     }
 
     public void clear() {
-	entries.clear();
+    	entries.clear();
     }
 
     public int size() {
-	return entries.size();
+    	return entries.size();
     }
 
     public Iterator<CommitLogEntry> iterator() {
-	return entries.iterator();
+    	return entries.iterator();
     }
+    
+    public void printCommitLog(){
+    	for (Enumeration<CommitLogEntry> e = entries.elements() ; e.hasMoreElements() ;) {
+            System.out.println(e.nextElement());
+        }
+    }
+    
 }

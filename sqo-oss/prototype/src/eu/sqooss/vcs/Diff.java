@@ -65,4 +65,14 @@ public class Diff {
     public Vector<String> getChangesOfASpecifiedFile(String key) {
     	return changeSet.get(key);
     }
+    
+    public void printDiff() {
+    	Set set = this.changeSet.entrySet();
+    	Iterator i = set.iterator();
+    	while (i.hasNext()) {
+    		Map.Entry me = (Map.Entry)i.next();
+    		System.out.println(me.getKey() + " : " + me.getValue() );
+    	}
+    }
+    
 }

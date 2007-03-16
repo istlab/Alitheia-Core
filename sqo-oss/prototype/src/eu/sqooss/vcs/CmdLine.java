@@ -145,20 +145,26 @@ public final class CmdLine {
         } else if (leftOverArgs[0].equals("diff")) {
             if (leftOverArgs[1].indexOf(":") == -1) {
                 rev1 = new Revision(leftOverArgs[1]);
-                currentRepository.diff(rev1);
+                Diff resultDiff = new Diff();
+                resultDiff = currentRepository.diff(rev1);
+                resultDiff.printDiff();
             } else {
                 String patternStr = ":";
                 String[] fields = leftOverArgs[1].split(patternStr);
                 rev1 = new Revision(fields[0]);
                 rev2 = new Revision(fields[1]);
-                currentRepository.diff(rev1, rev2);
+                Diff resultDiff = new Diff();
+                resultDiff = currentRepository.diff(rev1, rev2);
+                resultDiff.printDiff();
             }
         } else if (leftOverArgs[0].equals("getLog")) {
             String patternStr = ":";
             String[] fields = leftOverArgs[1].split(patternStr);
             rev1 = new Revision(fields[0]);
             rev2 = new Revision(fields[1]);
-            currentRepository.getLog(rev1, rev2);
+            CommitLog resultCommitLog = new CommitLog(rev1, rev2);
+            resultCommitLog = currentRepository.getLog(rev1, rev2);
+            resultCommitLog.printCommitLog();
         } else if (leftOverArgs[0].equals("curver")) {
             /*get current version from the remote server (remote = true */
             boolean remote = true;
