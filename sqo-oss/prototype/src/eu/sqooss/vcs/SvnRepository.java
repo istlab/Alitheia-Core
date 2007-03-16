@@ -230,7 +230,7 @@ public class SvnRepository extends Repository implements ISVNLogEntryHandler {
         //for using over svn:// and svn+xxx://
         SVNRepositoryFactoryImpl.setup();
 
-        //for using over file://
+        //for using over file:///
         FSRepositoryFactory.setup();
     }
 
@@ -289,7 +289,6 @@ public class SvnRepository extends Repository implements ISVNLogEntryHandler {
     	Diff tmpDiff = new Diff();
     	Pattern entrySplitter = Pattern.compile("^Index: (.*)$");
     	Pattern changeSplitter = Pattern.compile("^@@\\W+@@$");
-    	
     	String[] entries = entrySplitter.split(returnVal);
     	
     	for(String entry: entries) {
@@ -297,14 +296,12 @@ public class SvnRepository extends Repository implements ISVNLogEntryHandler {
     		String filename = m.group(1);
     		
     		//retrieved the filename, it's time to get the change list
-    		
     		String[] changes = changeSplitter.split(entry);
     		
     		for(int i = 1; i<changes.length; i++) {
     			//skip the first result - it does not contain a change
     			tmpDiff.add(filename, changes[i]);
     		}
-    		
     	}
     	
 		return tmpDiff;

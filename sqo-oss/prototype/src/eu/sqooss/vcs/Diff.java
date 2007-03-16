@@ -62,6 +62,10 @@ public class Diff {
     	changeSet.remove(key);
     }
     
+    public int size() {
+    	return changeSet.size();
+    }
+    
     public Vector<String> getChangesOfASpecifiedFile(String key) {
     	return changeSet.get(key);
     }
