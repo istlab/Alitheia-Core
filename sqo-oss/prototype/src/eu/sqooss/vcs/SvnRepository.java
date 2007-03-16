@@ -296,7 +296,7 @@ public class SvnRepository extends Repository implements ISVNLogEntryHandler {
     	
     	String[] entries = entrySplitter.split(returnVal);
     	
-    	foreach(String entry: entries) {
+    	for(String entry: entries) {
     		Matcher m = entrySplitter.matcher(entry);
     		String filename = m.group(1);
     		
