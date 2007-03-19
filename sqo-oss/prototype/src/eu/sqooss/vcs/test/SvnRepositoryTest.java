@@ -12,7 +12,6 @@ import junit.framework.TestCase;
  */
 public class SvnRepositoryTest extends TestCase {
 
-	private RepositoryFactory factory;
 	private SvnRepository repository;
 	
 	public SvnRepositoryTest(String arg0) {
@@ -21,8 +20,7 @@ public class SvnRepositoryTest extends TestCase {
 
 	@Override
 	protected void setUp() throws Exception {
-		factory = new RepositoryFactory();
-		repository = factory.getRepository("./svntest", "https://svn.sqo-oss.eu/", "svnviewer", "Sq0V13weR", RepositoryType.SVN);
+		repository = (SvnRepository)RepositoryFactory.getRepository("./svntest", "https://svn.sqo-oss.eu/", "svnviewer", "Sq0V13weR", RepositoryType.SVN);
 	}
 	
 	
