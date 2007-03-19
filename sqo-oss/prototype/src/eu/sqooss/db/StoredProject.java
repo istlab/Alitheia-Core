@@ -31,6 +31,9 @@
 
 package eu.sqooss.db;
 
+import java.util.Set;
+import java.util.HashSet;
+
 public class StoredProject {
     private long id;
 
@@ -44,7 +47,10 @@ public class StoredProject {
 
     private String mailPath;
 
+    private Set versions;
+    
     public StoredProject() {
+	this.versions = new HashSet();
     }
 
     public String getContactPoint() {
@@ -95,4 +101,11 @@ public class StoredProject {
 	this.website = website;
     }
 
+    public Set getVersions() {
+	return this.versions;
+    }
+
+    public void setVersions(Set versions) {
+	this.versions = versions;
+    }
 }

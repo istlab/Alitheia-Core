@@ -14,10 +14,15 @@
 
 	<!-- Drop and re-create the database schema on startup -->
         <property name="hibernate.hbm2ddl.auto">create-drop</property>
-	
-	<!-- JDBC connection pool (use the build-in) -->
-	<property name="hibernate.connection.pool_size">1</property>
-		
+
+
+	<!-- Use the C3PO connection pool provider -->
+	<property name="hibernate.c3p0.min_size">5</property>
+	<property name="hibernate.c3p0.max_size">20</property>
+	<property name="hibernate.c3p0.timeout">300</property>
+	<property name="hibernate.c3p0.max_statements">50</property>
+	<property name="hibernate.c3p0.idle_test_period">3000</property>
+
 	<!-- SQL dialect -->
 	<property name="hibernate.dialect">org.hibernate.dialect.HSQLDialect</property>
 
@@ -29,8 +34,9 @@
 	
 	<!-- Echo all executed SQL to stdout -->
 	<property name="hibernate.show_sql">true</property>
-	
+
 	<mapping resource="StoredProject.hbm.xml"/>
+	<mapping resource="ProjectVersion.hbm.xml"/>
 	
     </session-factory>
 </hibernate-configuration>

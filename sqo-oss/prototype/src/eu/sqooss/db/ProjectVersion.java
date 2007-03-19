@@ -31,28 +31,28 @@
 package eu.sqooss.db;
 
 public class ProjectVersion {
-    String id;
+    long id;
 
-    String projectId;
+    long projectId;
 
     String version;
 
     public ProjectVersion() {
     }
 
-    public String getId() {
+    public long getId() {
 	return id;
     }
 
-    public void setId(String id) {
+    public void setId(long id) {
 	this.id = id;
     }
 
-    public String getProjectId() {
+    public long getProjectId() {
 	return projectId;
     }
 
-    public void setProjectId(String projectId) {
+    public void setProjectId(long projectId) {
 	this.projectId = projectId;
     }
 

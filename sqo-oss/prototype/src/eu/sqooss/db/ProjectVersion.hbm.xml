@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="eu.sqooss.db">
+  <class name="ProjectVersion" table="PROJECT_VERSION">
+    <id name="id" column="ID">
+      <generator class="native"/>
+    </id>
+    <property name="projectId" column="PROJECT_ID"/>
+    <property name="version" column="VERSION"/>
+  </class>
+</hibernate-mapping>
