@@ -88,12 +88,12 @@ public class SvnRepository extends Repository implements ISVNLogEntryHandler {
         }
         // check if there is a port given
         if (uri.getPort() == -1) {
-        	this.serverPath = uri.getScheme() + uri.getHost() + uri.getPath();
+        	this.serverPath = uri.getScheme() + "://" + uri.getHost() + uri.getPath();
         } else {
             String port = new Integer(uri.getPort()).toString();
-            this.serverPath = uri.getScheme() + uri.getHost() + uri.getPath() + ":" + port;
+            this.serverPath = uri.getScheme() + "://" + uri.getHost() + uri.getPath() + ":" + port;
         }
-        
+        System.out.println(this.serverPath);
         initializeFactories();
         repository = null;
     }
