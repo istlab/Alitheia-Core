@@ -3,8 +3,9 @@
  */
 package eu.sqooss.vcs.test;
 
-import eu.sqooss.vcs.*;
 import junit.framework.TestCase;
+import eu.sqooss.vcs.*;
+
 
 /**
  * @author k.stroggylos
@@ -86,7 +87,12 @@ public class SvnRepositoryTest extends TestCase {
 	 * Test method for {@link eu.sqooss.vcs.SvnRepository#getLog(eu.sqooss.vcs.Revision, eu.sqooss.vcs.Revision)}.
 	 */
 	public void testGetLog() {
-		fail("Not yet implemented"); // TODO
+		repository.checkout(new Revision(800));
+		assertEquals(repository.getCurrentVersion(false), 800);
+		CommitLog commitLog = 
+			repository.getLog(new Revision(800), new Revision(801));
+		assertNotNull(commitLog);
+		assertTrue(commitLog.size() > 0);
 	}
 
 	/**

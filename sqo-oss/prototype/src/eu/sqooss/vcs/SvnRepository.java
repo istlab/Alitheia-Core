@@ -63,7 +63,6 @@ public class SvnRepository extends Repository implements ISVNLogEntryHandler {
     private CommitLog svnCommitLog;
     private ByteArrayOutputStream diffStream;
     private Diff svnDiff;
-    //private ISVNEventHandler wcEventHandler;
 
     public SvnRepository(String localPath, String serverPath, String username,
             String passwd)throws InvalidRepositoryException {
@@ -93,7 +92,7 @@ public class SvnRepository extends Repository implements ISVNLogEntryHandler {
             String port = new Integer(uri.getPort()).toString();
             this.serverPath = uri.getScheme() + "://" + uri.getHost() + uri.getPath() + ":" + port;
         }
-        System.out.println(this.serverPath);
+        //System.out.println(this.serverPath);
         initializeFactories();
         repository = null;
     }
