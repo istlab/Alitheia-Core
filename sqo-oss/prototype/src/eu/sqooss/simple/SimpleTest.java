@@ -3,6 +3,10 @@
  */
 package eu.sqooss.simple;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Vector;
 
 /**
@@ -32,7 +36,29 @@ public class SimpleTest {
     }
     
     private double runWCTool(String file, long revision) {
-        return 0.0;
+        double result = 0.0;
+        
+        String [] args = new String[2];
+        args[0] = "wc -l";
+        args[1] = file;
+        
+        String output = "";
+        
+        Process p;
+        try {
+            p = Runtime.getRuntime().exec(args);
+            if(p != null) {
+                BufferedReader b = new BufferedReader(new InputStreamReader(p.getInputStream()));
+                output = b.readLine();
+                b.close();
+            }
+        } catch (IOException e) {
+            return 0.0;
+        }
+        
+        //parse the output
+        
+        return result;
     }
     
     private void storeMetrics(int projectID, long revision, String file) {
