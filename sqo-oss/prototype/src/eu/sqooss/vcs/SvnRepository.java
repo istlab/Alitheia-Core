@@ -34,6 +34,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Vector;
 import java.util.regex.*;
 
 
@@ -216,7 +219,30 @@ public class SvnRepository extends Repository implements ISVNLogEntryHandler {
         }
         return revision.getDescription();
     }
+    @Override
+    public void listEntries(Vector<String> files, String path, Revision rev) {
+    	Collection entries = null;
+		try {
+			entries = repository.getDir(path, rev.getNumber(), 
+					null /* means that we're not interested in directory properties */, 
+					(Collection) null /* we don't provide our own Collection instance 
+					so we use the one returned */);
+		} catch (SVNException svne) {
+			svne.printStackTrace();
+		}
+    	Iterator iterator = entries.iterator();
+    	while (iterator.hasNext()) {
+    		 SVNDirEntry entry = (SVNDirEntry) iterator.next();
+    		 if (entry.getKind() == SVNNodeKind.DIR) {
+    			 listEntries(files, (path.equals("")) ? entry.getName()
+                         : path + "/" + entry.getName(), rev);
+    		 } else if (entry.getKind() == SVNNodeKind.FILE) {
+    			 files.add(entry.getName());
+    		 }
+    	}
 
+    }
+    
     /**
      * Initializes the SVNKit library to work with dirrerent repository
      * remote access methods
@@ -279,6 +305,7 @@ public class SvnRepository extends Repository implements ISVNLogEntryHandler {
     			tmpRev.toString());
     	svnCommitLog.add(tmpEntry);
     }
+    
     
     /** 
      * handles the output of doDiff in order to fill 

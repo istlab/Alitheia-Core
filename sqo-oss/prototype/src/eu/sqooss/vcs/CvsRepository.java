@@ -30,6 +30,8 @@
 
 package eu.sqooss.vcs;
 
+import java.util.Vector;
+
 /**
  * @author circular
  *
@@ -79,5 +81,10 @@ public class CvsRepository extends Repository {
     public String getCurrentVersion(boolean remote) {
 	return null;
     }
+
+	@Override
+	public void listEntries(Vector<String> files, String path, Revision rev) {
+
+	}
     
 }

@@ -30,6 +30,8 @@
 
 package eu.sqooss.vcs;
 
+import java.util.Vector;
+
 /**
  * An abstract repository representation. 
  */
@@ -114,4 +116,17 @@ public abstract class Repository {
      * @return
      */
     public abstract String getCurrentVersion(boolean remote);
+    
+    /**
+     * Called recursively to obtain all files that exist in 
+     * the repository tree
+     * 
+     * @param files 
+     * @param path
+     * @param revision
+     * @return
+     */
+    public abstract void listEntries(Vector<String> files, 
+    		String path, Revision revision);
+    
 }
