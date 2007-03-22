@@ -6,9 +6,14 @@ package eu.sqooss.simple;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Iterator;
 import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.tmatesoft.svn.core.auth.ISVNAuthenticationManager;
+import org.tmatesoft.svn.core.io.SVNRepository;
+import org.tmatesoft.svn.core.wc.SVNWCUtil;
 
 import eu.sqooss.vcs.*;
 
@@ -48,7 +53,15 @@ public class SimpleTest {
 
     private void checkOut(long revision) {
         repository.checkout(new Revision(revision));
-
+        Vector<String> files = new Vector();
+        Vector results = new Vector();
+        repository.listEntries(files, /* which path? */localPath, new Revision(revision));
+        int i = 0, size = 0;
+        size = files.size();
+        while (i != size) {
+        	results.add(runWCTool(files.elementAt(i), revision));
+        	i++;
+        }
         // TODO: obtain list of files stored locally, run storeProjectFiles
     }
 
