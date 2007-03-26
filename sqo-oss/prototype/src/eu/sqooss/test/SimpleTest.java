@@ -53,8 +53,8 @@ public class SimpleTest {
 
     private void checkOut(long revision) {
         repository.checkout(new Revision(revision));
-        Vector<String> files = new Vector();
-        Vector results = new Vector();
+        Vector<String> files = new Vector<String>();
+        Vector<Double> results = new Vector<Double>();
         repository.listEntries(files, /* which path? */localPath, new Revision(revision));
         int i = 0, size = 0;
         size = files.size();
@@ -64,10 +64,8 @@ public class SimpleTest {
         }
         // TODO: obtain list of files stored locally, run storeProjectFiles
     }
-
-    private void storeProjectFiles(Vector<String> files) {
-
-    }
+    
+    // private void storeProjectFiles
 
     private double runWCTool(String file, long revision) {
         double result = 0.0;
