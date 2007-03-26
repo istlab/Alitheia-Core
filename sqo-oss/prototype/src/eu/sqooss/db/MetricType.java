@@ -32,7 +32,6 @@ package eu.sqooss.db;
 
 public class MetricType {
     String id;
-
     String type;
 
     public MetricType() {

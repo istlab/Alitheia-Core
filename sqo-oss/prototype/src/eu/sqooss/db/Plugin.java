@@ -32,16 +32,13 @@ package eu.sqooss.db;
 
 public class Plugin {
     String id;
-
     String metricId;
-
     String path;
-
     String cmd;
-
     String parameters;
 
     public Plugin() {
+	
     }
     
     public String getCmd() {

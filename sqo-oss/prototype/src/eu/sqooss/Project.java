@@ -1,4 +1,3 @@
-/*$Id: */
 package eu.sqooss;
 
 import java.util.Date;
