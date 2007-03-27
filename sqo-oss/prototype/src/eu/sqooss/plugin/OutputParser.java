@@ -42,5 +42,5 @@ import java.io.InputStream;
  * (shortname)/value pairs. 
  */
 public interface OutputParser {
-    public HashMap<String,String> getData(InputStream is);
+    public HashMap<String,String> parse(InputStream is);
 }

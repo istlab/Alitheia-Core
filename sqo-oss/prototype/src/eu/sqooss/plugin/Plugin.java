@@ -44,4 +44,6 @@ public interface Plugin {
     public Metric[] getMetrics();
     
     public String getDescription();
+    
+    public String getName();
 }

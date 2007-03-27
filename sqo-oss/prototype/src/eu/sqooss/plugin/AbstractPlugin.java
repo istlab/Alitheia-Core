@@ -36,6 +36,10 @@ import java.util.HashMap;
 import java.io.InputStream;
 import java.io.File;
 
+/**
+ * Abstract class for the plugins. Use this one as glue code,
+ * 
+ */
 public abstract class AbstractPlugin implements Plugin {
     private Executor executor;
     private OutputParser outputParser;
@@ -45,15 +49,15 @@ public abstract class AbstractPlugin implements Plugin {
 	this.outputParser = op;
     }
     
-    public HashMap<String, String> run(String file) 
-    	throws PluginException{
+    public HashMap<String, String> run(String file) throws PluginException{
 	File f = new File(file);
 	
-	InputStream is;
+	if(!f.exists()) { 
+	    throw new PluginException(getName() + " (plugin): " + 
+		    f.toString() + "does not exist"); 
+	}
 	
-	return null;
+	InputStream r = executor.execute(f);
+	return outputParser.parse(r);
     }
-    
-    
-
 }
