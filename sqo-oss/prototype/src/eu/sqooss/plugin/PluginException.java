@@ -31,6 +31,18 @@
 
 package eu.sqooss.plugin;
 
+/**
+ * Generic exception for error reporting 
+ * for the plugins
+ */
 public class PluginException extends Exception{
-
+    private String message;
+    
+    public PluginException(String message) {
+	this.message = message;
+    }
+    
+    public String getMessage() {
+	return message;
+    }
 }
