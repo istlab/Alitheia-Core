@@ -32,13 +32,33 @@
 package eu.sqooss.plugin;
 
 import java.io.InputStream;
+import java.util.Formatter;
 import java.util.HashMap;
 
 public class ExternalOutputParser implements OutputParser {
-
+    private String cmd;
+    private String[] args;
+    
+    public ExternalOutputParser(String cmd, String[] args) {
+	this.cmd = cmd;
+	this.args = args;
+    }
+    
     public HashMap<String, String> parse(InputStream is) {
-	// TODO Auto-generated method stub
-	return null;
+	Process p;
+	try {
+	    StringBuilder cmdLine = new StringBuilder();;
+	    Formatter f = new Formatter(cmdLine);
+	    // TODO: fix the object cast here
+	    f.format(cmd, args);
+	    p.Runtime.getRuntime().exec(cmdLine.toString());
+	    // TODO Have to redirect the input - outputstream here
+	    // TODO then parse the output and create the key-value pairs
+	    return null;
+	} catch (Exception e) {
+	    // TODO: logging?
+	    return null;
+	}
     }
 
 }
