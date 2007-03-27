@@ -31,8 +31,15 @@
 
 package eu.sqooss.tool;
 
+import org.apache.commons.cli.*;
+
+/**
+ * Main entry point class for the sqo-oss tool.
+ * It provides access to the sqo-oss quality
+ * measurement tool
+ */
 public class Main {
     public static void main(String[] args) {
-	// TODO implement the command line interface for the tool
+	// TODO command line parsing here :)
     }
 }
