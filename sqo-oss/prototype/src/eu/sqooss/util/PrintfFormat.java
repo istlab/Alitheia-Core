@@ -25,7 +25,7 @@
 // http://java.sun.com/nav/business/index.html for further important licensing 
 // information for the Java Technology.
 //
-
+package eu.sqooss.util;
 
 import java.util.Enumeration;
 import java.util.Vector;
