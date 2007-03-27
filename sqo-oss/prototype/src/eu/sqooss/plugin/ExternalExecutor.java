@@ -33,12 +33,33 @@ package eu.sqooss.plugin;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.Formatter;
 
+/**
+ * 
+ *
+ */
 public class ExternalExecutor implements Executor {
-
-    public InputStream execute(File file) {
-	// TODO Auto-generated method stub
-	return null;
+    private String cmd;
+    private String[] args;
+    
+    public ExternalExecutor(String cmd, String[] args) {
+	this.cmd = cmd;
+	this.args = args;
     }
 
+    public InputStream execute(File file) {
+	Process p;
+	try {
+	    StringBuilder cmdLine = new StringBuilder();;
+	    Formatter f = new Formatter(cmdLine);
+	    // TODO: fix the object cast here
+	    f.format(cmd, args);
+	    p = Runtime.getRuntime().exec(cmdLine.toString());
+	    return p.getInputStream();
+	} catch (Exception e) {
+	    // TODO: logging?
+	    return null;
+	}
+    }
 }
