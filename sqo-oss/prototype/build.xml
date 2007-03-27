@@ -9,73 +9,68 @@ MVCS build file
     <property name="sqooss.dist.dir" value="dist" />
 
     <path id="libraries">
-	<fileset dir="lib">
-	    <include name="**/*.jar"/>
-	</fileset>
+		<fileset dir="lib">
+		    <include name="**/*.jar"/>
+		</fileset>
     </path>
 
     <target name="compile" description="Compile SQO-OSS prototype">
-	<mkdir dir="${sqooss.build.dir}" />
-	<mkdir dir="${sqooss.dist.dir}" />
-	<javac destdir="${sqooss.build.dir}" srcdir="${sqooss.src.dir}"
-	       source="1.5"
-	       target="1.5">
-	    <classpath>
-		<path refid="libraries"/>
-	    </classpath>
-	</javac>
-	<copy todir="${sqooss.build.dir}" flatten="true">
-	    <fileset dir="${sqooss.src.dir}">
-		<include name="**/*.xml" />
-	    </fileset>
-	    <fileset dir="${sqooss.src.dir}">
-		<include name="**/*.properties" />
-	    </fileset>
-	</copy>
-	<jar destfile="${sqooss.dist.dir}/sqo-oss.jar" basedir="${sqooss.build.dir}" manifest="src/MANIFEST"/>
+		<mkdir dir="${sqooss.build.dir}" />
+		<mkdir dir="${sqooss.dist.dir}" />
+		<javac destdir="${sqooss.build.dir}" srcdir="${sqooss.src.dir}"
+		       source="1.5"
+		       target="1.5">
+		    <classpath>
+				<path refid="libraries"/>
+		    </classpath>
+		</javac>
+		<copy todir="${sqooss.build.dir}" flatten="true">
+		    <fileset dir="${sqooss.src.dir}">
+			<include name="**/*.xml" />
+		    </fileset>
+		    <fileset dir="${sqooss.src.dir}">
+			<include name="**/*.properties" />
+		    </fileset>
+		</copy>
+		<jar destfile="${sqooss.dist.dir}/sqo-oss.jar" basedir="${sqooss.build.dir}" manifest="src/MANIFEST"/>
     </target>
 
     <target name="clean">
-	<delete dir="${sqooss.build.dir}" />
-	<delete file="${sqooss.dist.dir}/sqo-oss.jar" />
-	<delete dir="${sqooss.dist.dir}" />
+		<delete dir="${sqooss.build.dir}" />
+		<delete file="${sqooss.dist.dir}/sqo-oss.jar" />
+		<delete dir="${sqooss.dist.dir}" />
     </target>
 
     <taskdef name="hibernatetool"
-	     classname="org.hibernate.tool.ant.HibernateToolTask"
-	     classpathref="libraries">
+	         classname="org.hibernate.tool.ant.HibernateToolTask"
+	         classpathref="libraries">
     </taskdef>
 
     <target name="schemaexport" depends="compile">
-
-	<hibernatetool destdir="${sqooss.build.dir}">
-	    <classpath>
-		<pathelement path="${sqooss.dist.dir}/sqo-oss.jar"/>
-		<path refid="libraries"/>
-	    </classpath>
-
-	    <configuration configurationfile="${sqooss.src.dir}/eu/sqooss/db/hibernate.cfg.xml"/>
-
-	    <hbm2ddl
-		drop="true"
-		create="true"
-		export="true"
-		outputfilename="schema-export.sql"
-		delimiter=";"
-		format="true"/>
-	    
-	</hibernatetool>
-	
+		<hibernatetool destdir="${sqooss.build.dir}">
+	    	<classpath>
+				<pathelement path="${sqooss.dist.dir}/sqo-oss.jar"/>
+				<path refid="libraries"/>
+	    	</classpath>
+	    	<configuration configurationfile="${sqooss.src.dir}/eu/sqooss/db/hibernate.cfg.xml"/>
+		    <hbm2ddl drop="true"
+		    		 create="true"
+					 export="true"
+					 outputfilename="schema-export.sql"
+					 delimiter=";"
+					 format="true"
+		    />
+		</hibernatetool>
     </target>
     
     <target name="test">
-	<java fork="true" classname="eu.sqooss.test.StoredProjectTest" classpathref="libraries">
-	    <classpath>
-		<pathelement path="${sqooss.dist.dir}/sqo-oss.jar"/>
-		<path refid="libraries"/>
-	    </classpath>
-	    <arg value="${action}"/>
-	</java>
+		<java fork="true" classname="eu.sqooss.test.StoredProjectTest" classpathref="libraries">
+	    	<classpath>
+				<pathelement path="${sqooss.dist.dir}/sqo-oss.jar"/>
+				<path refid="libraries"/>
+	    	</classpath>
+	    	<arg value="${action}"/>
+		</java>
     </target>
     
 </project>
