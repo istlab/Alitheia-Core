@@ -76,10 +76,7 @@ public class RepositoryFactory {
             username = "";
         }
         //check repository type
-        if(uri.getScheme().equalsIgnoreCase("cvs")) {
-        	type = RepositoryType.CVS;
-        }
-        else if(uri.getScheme().contains("svn")) {
+        if(uri.getScheme().contains("svn")) {
         	type = RepositoryType.SVN;
         }   
         else {
@@ -95,9 +92,6 @@ public class RepositoryFactory {
         if(type == RepositoryType.SVN) {
         	return (new SvnRepository(localPath, serverPath, username, passwd));
         }  
-        else if (type == RepositoryType.CVS) {
-        	return (new CvsRepository(localPath, serverPath, username, passwd));
-        }
         else {
         	throw new InvalidRepositoryException("The specified repository " +
         			"protocol is not supported");
