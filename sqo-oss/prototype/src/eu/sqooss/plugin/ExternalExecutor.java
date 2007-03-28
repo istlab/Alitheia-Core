@@ -36,25 +36,32 @@ import java.io.InputStream;
 import java.util.Formatter;
 
 /**
+ * The ExternalExecutor class executes an external
+ * process based in its command line. The argument
+ * is always a File class that contains a file or 
+ * a directory.
  * 
+ * For the command line concatenation we use the Formatter
+ * class, that uses a printf like syntax. 
+ * e.g. wc -l %s // for the word count invocation
  *
+ * @see java.io.File
+ * @see java.util.Formatter
  */
 public class ExternalExecutor implements Executor {
     private String cmd;
-    private String[] args;
     
-    public ExternalExecutor(String cmd, String[] args) {
+    public ExternalExecutor(String cmd) {
 	this.cmd = cmd;
-	this.args = args;
     }
 
     public InputStream execute(File file) {
 	Process p;
 	try {
-	    StringBuilder cmdLine = new StringBuilder();;
+	    StringBuilder cmdLine = new StringBuilder();
 	    Formatter f = new Formatter(cmdLine);
 	    // TODO: fix the object cast here
-	    f.format(cmd, args);
+	    f.format(cmd, file.toString());
 	    p = Runtime.getRuntime().exec(cmdLine.toString());
 	    return p.getInputStream();
 	} catch (Exception e) {
