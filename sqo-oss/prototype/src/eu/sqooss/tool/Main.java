@@ -39,7 +39,8 @@ import org.apache.commons.cli.*;
  * measurement tool
  */
 public class Main {
-	private static final String help = "";
+    private static final String help = "";
+    
     public static void main(String[] args) {
 	// TODO command line parsing here :)
     	Options opts = new Options();
@@ -61,7 +62,7 @@ public class Main {
         
         if(!cmdline.hasOption("m") && !cmdline.hasOption("l")) {
         	System.err.println("No modules or metrics specified");
-			formatter.printHelp( help, opts );
+		formatter.printHelp( help, opts );
         }
     }
 }
