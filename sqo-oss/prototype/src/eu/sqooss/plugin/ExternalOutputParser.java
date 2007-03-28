@@ -34,9 +34,10 @@ package eu.sqooss.plugin;
 import java.io.InputStream;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-
+import java.io.PrintWriter;
 
 import java.util.HashMap;
+import java.util.StringTokenizer;
 
 /**
  * Handles parsing of the output of an Executor class.
@@ -50,16 +51,32 @@ public class ExternalOutputParser implements OutputParser {
 	this.cmd = cmd;
     }
     
+    
+    // TODO needs testing
     public HashMap<String, String> parse(InputStream is) {
 	try {
 	    HashMap<String,String> result = new HashMap<String,String>();
 	    
 	    Process p = Runtime.getRuntime().exec(cmd);
-	    BufferedReader br = new BufferedReader(
-		    new InputStreamReader(p.getInputStream()));
-	    //BuffereWriter bw = new BufferedWriter()
+	    BufferedReader br = new BufferedReader(new InputStreamReader(is));
+	    PrintWriter bw = new PrintWriter(p.getOutputStream());
 	    
-	    return null;
+	    while(br.ready()) {
+		String l = br.readLine();
+		bw.print(l);
+	    }
+	    
+	    br.close();
+	    br = new BufferedReader(
+		    new InputStreamReader(p.getInputStream()));
+	    
+	    while(br.ready()) {
+		String l = br.readLine();
+		String[] i = l.split("\t");
+		result.put(i[0], i[1]);
+	    }
+	    
+	    return result;
 	} catch (Exception e) {
 	    // TODO: logging?
 	    return null;
