@@ -35,10 +35,24 @@ import java.io.InputStream;
 import java.util.HashMap;
 
 public class JavaOutputParser implements OutputParser {
+    private String clazz;
 
+    public JavaOutputParser(String clazz) {
+	this.clazz = clazz;
+    }
+    
     public HashMap<String, String> parse(InputStream is) {
-	// TODO Auto-generated method stub
-	return null;
+	try {
+	    Class c = Class.forName(clazz);
+	    OutputParser op = (OutputParser)c.newInstance();
+	    return op.parse(is);
+	} catch (InstantiationException ie) {
+	    return null;
+	} catch (IllegalAccessException iae) {    
+	    return null;
+	} catch (ClassNotFoundException cnfe) {
+	    return null;
+	}
     }
 
 }
