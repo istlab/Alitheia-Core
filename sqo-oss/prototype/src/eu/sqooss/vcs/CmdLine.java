@@ -103,8 +103,9 @@ public final class CmdLine {
 					RepositoryType type = null;
 				    if (cmdline.getOptionValue("t").equalsIgnoreCase("svn")) {
 				    	type = RepositoryType.SVN;
-				    } else if (cmdline.getOptionValue("t").equalsIgnoreCase("cvs")) {
-				        type = RepositoryType.CVS;
+				    } else {
+				    	throw new InvalidRepositoryException("The repository protocol" 
+			        			+ cmdline.getOptionValue("t") + " is not supported");
 				    }
 				    if(!cmdline.hasOption("u") && !cmdline.hasOption("p")) {
 				    	currentRepository = RepositoryFactory.getRepository(
