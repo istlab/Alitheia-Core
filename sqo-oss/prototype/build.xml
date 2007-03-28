@@ -45,6 +45,7 @@ MVCS build file
 		<delete dir="${sqooss.build.dir}" />
 		<delete file="${sqooss.dist.dir}/sqo-oss.jar" />
 		<delete dir="${sqooss.dist.dir}" />
+    	<delete dir="${sqooss.doc.dir}" />
     </target>
 
     <taskdef name="hibernatetool"
