@@ -6,6 +6,7 @@ MVCS build file
     <property name="sqooss.build.dir" value="build" />
     <property name="sqooss.lib.dir" value="lib" />
     <property name="sqooss.src.dir" value="src" />
+	<property name="sqooos.doc.dir" value="docs" />
     <property name="sqooss.dist.dir" value="dist" />
 
     <path id="libraries">
@@ -13,6 +14,11 @@ MVCS build file
 		    <include name="**/*.jar"/>
 		</fileset>
     </path>
+	
+	<target name="javadoc" description="Create javadoc for the SQO-OSS prototype">
+		<mkdir dir="${sqooos.doc.dir}" />
+		<!-- TODO:  -->
+	</target>
 
     <target name="compile" description="Compile SQO-OSS prototype">
 		<mkdir dir="${sqooss.build.dir}" />
