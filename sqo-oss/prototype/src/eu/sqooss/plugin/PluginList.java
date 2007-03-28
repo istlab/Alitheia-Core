@@ -31,9 +31,9 @@
 
 package eu.sqooss.plugin;
 
-import eu.sqooss.db.Plugin;
-
 import java.util.ArrayList;
+
+import eu.sqooss.util.ReadOnlyIterator;
 
 /**
  * The PluginList class initializes the plugins 
@@ -51,8 +51,12 @@ public class PluginList extends ArrayList {
     }
     
     // TODO: implement this function
-    public boolean addPlugin(Plugin p) {
+    public boolean addPlugin(eu.sqooss.db.Plugin p) {
 	return false;
+    }
+    
+    public ReadOnlyIterator getPlugins() {
+	return (new ReadOnlyIterator(iterator()));
     }
     
     public static PluginList getInstance() {
