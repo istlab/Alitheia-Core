@@ -31,14 +31,34 @@
 package eu.sqooss.db;
 
 public class Plugin {
-    String id;
-    String metricId;
+    long id;
+    
+    Metric metric;
+    
     String path;
+
     String cmd;
+
     String parameters;
 
+    String executor;
+
+    String executorType;
+
+    String parser;
+
+    String parserType;
+    
     public Plugin() {
 	
+    }
+
+    public long getId() {
+	return id;
+    }
+
+    public void setId(long id) {
+	this.id = id;
     }
     
     public String getCmd() {
@@ -49,20 +69,12 @@ public class Plugin {
 	this.cmd = cmd;
     }
 
-    public String getId() {
-	return id;
+    public Metric getMetric() {
+	return metric;
     }
 
-    public void setId(String id) {
-	this.id = id;
-    }
-
-    public String getMetricId() {
-	return metricId;
-    }
-
-    public void setMetricId(String metricId) {
-	this.metricId = metricId;
+    public void setMetric(Metric metric) {
+	this.metric = metric;
     }
 
     public String getParameters() {
@@ -81,4 +93,36 @@ public class Plugin {
 	this.path = path;
     }
 
+    public String getExecutor() {
+	return executor;
+    }
+
+    public void setExecutor(String executor) {
+	this.executor = executor;
+    }
+
+    public String getExecutorType() {
+	return executorType;
+    }
+
+    public void setExecutorType(String executorType) {
+	this.executorType = executorType;
+    }
+
+    public String getParser() {
+	return parser;
+    }
+
+    public void setParser(String parser) {
+	this.parser = parser;
+    }
+
+    public String getParserType() {
+	return parserType;
+    }
+
+    public void setParserType(String parserType) {
+	this.parserType = parserType;
+    }
+    
 }

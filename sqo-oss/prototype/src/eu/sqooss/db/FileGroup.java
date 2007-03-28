@@ -30,11 +30,16 @@
  */
 package eu.sqooss.db;
 
-public class MetricType {
+public class FileGroup {
     long id;
-    String type;
 
-    public MetricType() {
+    String name;
+
+    String description;
+
+    ProjectVersion projectVersion;
+
+    public FileGroup() {
     }
 
     public long getId() {
@@ -45,12 +50,19 @@ public class MetricType {
 	this.id = id;
     }
 
-    public String getType() {
-	return type;
+    public String getName() {
+	return name;
     }
 
-    public void setType(String type) {
-	this.type = type;
+    public void setName(String name) {
+	this.name = name;
     }
 
+    public String getDescription() {
+	return description;
+    }
+
+    public void setDescription(String description) {
+	this.description = description;
+    }
 }

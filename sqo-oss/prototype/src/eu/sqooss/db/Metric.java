@@ -31,15 +31,31 @@
 package eu.sqooss.db;
 
 public class Metric {
-    String id;
+    long id;
 
-    String metricTypeId;
+    MetricType metricType;
 
     String description;
 
     public Metric() {
     }
 
+    public long getId() {
+	return id;
+    }
+
+    public void setId(long id) {
+	this.id = id;
+    }
+    
+    public MetricType getMetricType() {
+	return metricType;
+    }
+
+    public void setMetricType(MetricType metricType) {
+	this.metricType = metricType;
+    }
+    
     public String getDescription() {
 	return description;
     }
@@ -47,21 +63,4 @@ public class Metric {
     public void setDescription(String description) {
 	this.description = description;
     }
-
-    public String getId() {
-	return id;
-    }
-
-    public void setId(String id) {
-	this.id = id;
-    }
-
-    public String getMetricTypeId() {
-	return metricTypeId;
-    }
-
-    public void setMetricTypeId(String metricTypeId) {
-	this.metricTypeId = metricTypeId;
-    }
-
 }

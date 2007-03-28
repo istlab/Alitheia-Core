@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="eu.sqooss.db">
+  <class name="Plugin" table="PLUGIN">
+    <id name="id" column="ID">
+      <generator class="native"/>
+    </id>
+    <many-to-one name="metric"
+		 class="Metric"
+		 column="METRIC_ID"
+		 not-null="true"/>
+    <property name="path" column="PATH"/>
+    <property name="cmd" column="CMD"/>
+    <property name="parameters" column="PARAMETERS"/>
+    <property name="executor" column="EXECUTOR"/>
+    <property name="executorType" column="EXECUTOR_TYPE"/>
+    <property name="parser" column="PARSER"/>
+    <property name="parserType" column="PARSER_TYPE"/>
+  </class>
+</hibernate-mapping>

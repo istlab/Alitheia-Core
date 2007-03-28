@@ -30,48 +30,71 @@
  */
 package eu.sqooss.db;
 
-public class ProjectFileVersion {
-    String id;
+import java.util.Date;
 
-    String projectFileId;
+public class Measurement {
+    long id;
 
-    String projectVersionId;
+    Metric metric;
 
-    String version;
+    String result;
 
-    public ProjectFileVersion() {
-    }
+    Date whenRun;
+
+    ProjectFile projectFile;
     
-    public String getId() {
+    FileGroup fileGroup;
+
+    ProjectVersion projectVersion;
+    
+    public Measurement() {
+    }
+
+    public long getId() {
 	return id;
     }
 
-    public void setId(String id) {
+    public void setId(long id) {
 	this.id = id;
     }
 
-    public String getProjectFileId() {
-	return projectFileId;
+    public Metric getMetric() {
+	return metric;
     }
 
-    public void setProjectFileId(String projectFileId) {
-	this.projectFileId = projectFileId;
+    public void setMetric(Metric metric) {
+	this.metric = metric;
     }
 
-    public String getProjectVersionId() {
-	return projectVersionId;
+    public Date getWhenRun() {
+	return whenRun;
     }
 
-    public void setProjectVersionId(String projectVersionId) {
-	this.projectVersionId = projectVersionId;
+    public void setWhenRun(Date whenRun) {
+	this.whenRun = whenRun;
     }
 
-    public String getVersion() {
-	return version;
+    public ProjectFile getProjectFile() {
+	return projectFile;
     }
 
-    public void setVersion(String version) {
-	this.version = version;
+    public void setProjectFile(ProjectFile projectFile) {
+	this.projectFile = projectFile;
     }
 
+    public FileGroup getFileGroup() {
+	return fileGroup;
+    }
+
+    public void setFileGroup(FileGroup fileGroup) {
+	this.fileGroup = fileGroup;
+    }
+
+    public ProjectVersion getProjectVersion() {
+	return projectVersion;
+    }
+
+    public void setProjectVersion(ProjectVersion projectVersion) {
+	this.projectVersion = projectVersion;
+    }
 }

@@ -37,6 +37,12 @@
 
 	<mapping resource="StoredProject.hbm.xml"/>
 	<mapping resource="ProjectVersion.hbm.xml"/>
+	<mapping resource="ProjectFile.hbm.xml"/>
+	<mapping resource="Metric.hbm.xml"/>
+	<mapping resource="MetricType.hbm.xml"/>
+	<mapping resource="Measurement.hbm.xml"/>
+	<mapping resource="Plugin.hbm.xml"/>
+	<mapping resource="FileGroup.hbm.xml"/>
 	
     </session-factory>
 </hibernate-configuration>
