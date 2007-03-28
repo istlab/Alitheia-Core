@@ -39,7 +39,29 @@ import org.apache.commons.cli.*;
  * measurement tool
  */
 public class Main {
+	private static final String help = "";
     public static void main(String[] args) {
 	// TODO command line parsing here :)
+    	Options opts = new Options();
+        HelpFormatter formatter = new HelpFormatter();
+
+        opts.addOption("m", "metrics", true, "Print the available metrics");
+        opts.addOption("l", "list", true, "Print the available modules");
+        opts.addOption("h", "help", true, "Print this help message");
+        
+        CommandLine cmdline = null;
+        CommandLineParser parser = new GnuParser();
+        try {
+            // parse command line arguments
+            cmdline = parser.parse(opts, args);
+        } catch (ParseException exp) {
+            System.err.println("Parsing failed.  Reason: " + exp.getMessage());
+            formatter.printHelp( help, opts );
+        }
+        
+        if(!cmdline.hasOption("m") && !cmdline.hasOption("l")) {
+        	System.err.println("No modules or metrics specified");
+			formatter.printHelp( help, opts );
+        }
     }
 }
