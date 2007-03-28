@@ -37,7 +37,6 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 
 import java.util.HashMap;
-import java.util.StringTokenizer;
 
 /**
  * Handles parsing of the output of an Executor class.
@@ -50,7 +49,6 @@ public class ExternalOutputParser implements OutputParser {
     public ExternalOutputParser(String cmd) {
 	this.cmd = cmd;
     }
-    
     
     // TODO needs testing
     public HashMap<String, String> parse(InputStream is) {
