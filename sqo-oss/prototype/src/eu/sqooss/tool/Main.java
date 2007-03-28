@@ -65,6 +65,13 @@ public class Main {
             formatter.printHelp( help, opts );
         }
         
+        // print the help for command line options
+        if(cmdline.hasOption("h")) {
+            formatter.printHelp( help, opts);
+            return;
+        }
+        
+        // print the metrics
         if(cmdline.hasOption("m")) {
             System.out.println("Print all available Modules:\n");
             PluginList pl = PluginList.getInstance();
@@ -73,6 +80,7 @@ public class Main {
             while(roi.hasNext()) {
         	System.out.println(((Plugin)roi.next()).toString());
             }
+            return;
         }
     }
 }
