@@ -33,6 +33,11 @@ package eu.sqooss.tool;
 
 import org.apache.commons.cli.*;
 
+import eu.sqooss.plugin.PluginList;
+import eu.sqooss.plugin.Plugin;
+
+import eu.sqooss.util.ReadOnlyIterator;
+
 /**
  * Main entry point class for the sqo-oss tool.
  * It provides access to the sqo-oss quality
@@ -60,9 +65,14 @@ public class Main {
             formatter.printHelp( help, opts );
         }
         
-        if(!cmdline.hasOption("m") && !cmdline.hasOption("l")) {
-        	System.err.println("No modules or metrics specified");
-		formatter.printHelp( help, opts );
+        if(cmdline.hasOption("m")) {
+            System.out.println("Print all available Modules:\n");
+            PluginList pl = PluginList.getInstance();
+            ReadOnlyIterator roi = pl.getPlugins();
+            
+            while(roi.hasNext()) {
+        	System.out.println(((Plugin)roi.next()).toString());
+            }
         }
     }
 }
