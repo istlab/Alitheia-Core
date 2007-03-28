@@ -36,6 +36,8 @@ import java.util.HashMap;
 import java.io.InputStream;
 import java.io.File;
 
+import eu.sqooss.db.Metric;
+
 /**
  * Abstract class for the plugins. Use this one as glue code,
  * 
@@ -59,5 +61,19 @@ public abstract class AbstractPlugin implements Plugin {
 	
 	InputStream r = executor.execute(f);
 	return outputParser.parse(r);
+    }
+    
+    public String toString() {
+	StringBuilder strbld = new StringBuilder();
+	strbld.append(getName()).append(" - ");
+	strbld.append(getDescription()).append(" (");
+	
+	for( Metric m : getMetrics() ) {
+	    // get the short name for the metric
+	}
+	
+	strbld.append(")");
+	
+	return strbld.toString(); 
     }
 }
