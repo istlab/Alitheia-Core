@@ -34,59 +34,107 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Vector;
 
+/**
+ * Represents a commit log, implemented as an iterable collection of
+ * {@link CommitLogEntry} objects.
+ * 
+ */
 public class CommitLog implements Iterable<CommitLogEntry> {
 
-    /*TODO:perhaps arrange entries by date*/
+    /* TODO:perhaps arrange entries by date */
     private Vector<CommitLogEntry> entries;
 
     private Revision start, end;
 
+    /**
+     * Constructs a new instance of the class that contains the entries
+     * created by the commits between the two revisions
+     * 
+     * @param start The first revision
+     * @param end The last revision
+     */
     public CommitLog(Revision start, Revision end) {
-    	if ((start == null) || (end == null)) {
-    		throw new IllegalArgumentException();
-    	}
+        if ((start == null) || (end == null)) {
+            throw new IllegalArgumentException();
+        }
 
-    	this.start = start;
-    	this.end = end;
-    	entries = new Vector<CommitLogEntry>();
+        this.start = start;
+        this.end = end;
+        entries = new Vector<CommitLogEntry>();
     }
 
+    /**
+     * Gets the first revision
+     * @return The first {@link Revision} contained in the log
+     */
     public Revision getStart() {
-    	return start;
+        return start;
     }
 
+    /**
+     * Gets the last revision
+     * @return The last {@link Revision} contained in the log
+     */
     public Revision getEnd() {
-    	return end;
+        return end;
     }
 
+    /**
+     * Provides access to the entries contained in the log
+     * @return A Vector of {@link CommitLogEntry} objects contained in the log
+     */
     Vector<CommitLogEntry> getEntries() {
-    	return entries;
+        return entries;
     }
 
+    /**
+     * Adds a new entry to the log
+     * @param entry The {@link CommitLogEntry} to add to the log
+     */
     public void add(CommitLogEntry entry) {
-    	entries.add(entry);
+        entries.add(entry);
     }
 
+    /**
+     * Removes an entry from the log
+     * @param entry The {@link CommitLogEntry} to remove from the log
+     * @return A boolean value indicating whether the entry was removed
+     */
     public boolean remove(CommitLogEntry entry) {
-    	return entries.remove(entry);
+        return entries.remove(entry);
     }
 
+    /**
+     * Removes all entries from the log
+     */
     public void clear() {
-    	entries.clear();
+        entries.clear();
     }
 
+    /**
+     * Returns the number of entries contained in the log
+     * @return an integer indicating the number of entries contained in the log
+     */
     public int size() {
-    	return entries.size();
+        return entries.size();
     }
 
+    /**
+     * Gets an iterator for enumerating through the entries contained in the
+     * log
+     */
     public Iterator<CommitLogEntry> iterator() {
-    	return entries.iterator();
+        return entries.iterator();
     }
-    
-    public void printCommitLog(){
-    	for (Enumeration<CommitLogEntry> e = entries.elements() ; e.hasMoreElements() ;) {
-            System.out.println(e.nextElement());
+
+    /**
+     * Iterates through the entries contained in the log and prints them on the
+     * standard output
+     */
+    public void printCommitLog() {
+        for (CommitLogEntry entry: entries) {
+            System.out.println(entry);
         }
     }
-    
+
 }
