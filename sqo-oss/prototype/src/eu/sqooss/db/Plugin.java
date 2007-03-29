@@ -32,21 +32,11 @@ package eu.sqooss.db;
 
 public class Plugin {
     long id;
-    
-    Metric metric;
-    
+    Metric metric;    
     String path;
-
-    String cmd;
-
-    String parameters;
-
     String executor;
-
     String executorType;
-
     String parser;
-
     String parserType;
     
     public Plugin() {
