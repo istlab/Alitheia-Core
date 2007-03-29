@@ -66,10 +66,11 @@ public class CommitLogEntry {
 
     /**
      * Constructs a new instance of the class
-     * @param author
-     * @param comment
-     * @param date
-     * @param revision
+     * 
+     * @param author The author who performed a commit
+     * @param comment The comment logged by a commiter
+     * @param date The date and time when the commit was performed
+     * @param revision The identifier of the revision
      */
     public CommitLogEntry(String author, String comment, Date date,
 	    String revision) {
