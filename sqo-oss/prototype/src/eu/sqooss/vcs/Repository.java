@@ -124,7 +124,7 @@ public abstract class Repository {
      * If it is false, get the local one
      * @return
      */
-    public abstract String getCurrentVersion(boolean remote);
+    public abstract long getCurrentVersion(boolean remote);
     
     /**
      * Called to obtain all files that exist in the repository tree

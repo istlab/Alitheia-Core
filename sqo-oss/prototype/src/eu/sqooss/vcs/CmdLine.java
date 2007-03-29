@@ -137,23 +137,28 @@ public final class CmdLine {
                 /* checkout without revision */
                 currentRepository.checkout();
             } else {
-                rev1 = new Revision(leftOverArgs[1]);
+                long tmp = new Long(leftOverArgs[1]);
+            	rev1 = new Revision(tmp);
                 currentRepository.checkout(rev1);
             }
         } else if (leftOverArgs[0].equals("update")) {
-            rev1 = new Revision(leftOverArgs[1]);
+        	long tmp = new Long(leftOverArgs[1]);
+            rev1 = new Revision(tmp);
             currentRepository.update(rev1);
         } else if (leftOverArgs[0].equals("diff")) {
             if (leftOverArgs[1].indexOf(":") == -1) {
-                rev1 = new Revision(leftOverArgs[1]);
+            	long tmp = new Long(leftOverArgs[1]);
+                rev1 = new Revision(tmp);
                 Diff resultDiff = new Diff();
                 resultDiff = currentRepository.diff(rev1);
                 resultDiff.printDiff();
             } else {
                 String patternStr = ":";
                 String[] fields = leftOverArgs[1].split(patternStr);
-                rev1 = new Revision(fields[0]);
-                rev2 = new Revision(fields[1]);
+                long tmp = new Long(fields[0]);
+                rev1 = new Revision(tmp);
+                long tmp2 = new Long(fields[1]);
+                rev2 = new Revision(tmp2);
                 Diff resultDiff = new Diff();
                 resultDiff = currentRepository.diff(rev1, rev2);
                 resultDiff.printDiff();
@@ -161,8 +166,10 @@ public final class CmdLine {
         } else if (leftOverArgs[0].equals("getLog")) {
             String patternStr = ":";
             String[] fields = leftOverArgs[1].split(patternStr);
-            rev1 = new Revision(fields[0]);
-            rev2 = new Revision(fields[1]);
+            long tmp = new Long(fields[0]);
+            rev1 = new Revision(tmp);
+            long tmp2 = new Long(fields[1]);
+            rev2 = new Revision(tmp2);
             CommitLog resultCommitLog = new CommitLog(rev1, rev2);
             resultCommitLog = currentRepository.getLog(rev1, rev2);
             resultCommitLog.printCommitLog();

@@ -64,7 +64,15 @@ public class SvnRepository extends Repository implements ISVNLogEntryHandler {
     private CommitLog svnCommitLog;
     private ByteArrayOutputStream diffStream;
     private Diff svnDiff;
-
+   
+    /**
+     * Constructs a new instance of the SvnRepository class
+    * @param localPath The directory in the local machine, where the 
+     * revision of this repository will be stored
+     * @param serverPath The remote server of the Repository. 
+     * @param username The username that is used to connect to the Repository
+     * @param passwd The password that is used to connect to the Repository
+     */
     public SvnRepository(String localPath, String serverPath, String username,
             String passwd)throws InvalidRepositoryException {
         super(localPath, serverPath, username, passwd);
@@ -195,7 +203,7 @@ public class SvnRepository extends Repository implements ISVNLogEntryHandler {
     }
 
     @Override
-    public String getCurrentVersion(boolean remote) {
+    public long getCurrentVersion(boolean remote) {
         initializeRepository();
         if(remote) {          
             try {
@@ -215,7 +223,7 @@ public class SvnRepository extends Repository implements ISVNLogEntryHandler {
                         + localPath + ": " + svne.getMessage());
             }
         }
-        return revision.getDescription();
+        return revision.getNumber();
     }
     @Override
     public void listEntries(Vector<String> files, String path, Revision rev) {
