@@ -45,24 +45,20 @@
     </path>
 	
 	<target name="javadoc" description="Create javadoc for the SQO-OSS prototype">
-        <javadoc
-                packagenames="eu.sqooss"
-                sourcepath="${sqooss.src.dir}"
-                destdir="${sqooss.doc.dir}"
-                nohelp="true"
-                notree="true"
-                nodeprecated="true"
-                nodeprecatedlist="true"
-                Version="true"
-                author="false"
-                version="true"
-                windowtitle="SQO-OSS API Documentation"
-                doctitle="SQO-OSS prototype API"
-                bottom=""
-        >
-        <fileset dir="${sqooss.src.dir}" excludes="**/RCS/** Manifest **/**.xml **/**.properties MANIFEST" />
-</javadoc>
-
+        <javadoc packagenames="eu.sqooss"
+                 sourcepath="${sqooss.src.dir}"
+                 destdir="${sqooss.doc.dir}"
+                 nohelp="true"
+                 notree="true"
+                 nodeprecated="true"
+                 nodeprecatedlist="true"
+                 author="false"
+                 version="true"
+                 windowtitle="SQO-OSS API Documentation"
+                 doctitle="SQO-OSS prototype API"
+                 bottom="Copyright (c) Members of the SQO-OSS Collaboration, 2007">
+        	<fileset dir="${sqooss.src.dir}" excludes="**/RCS/** Manifest **/**.xml **/**.properties" />
+		</javadoc>
 	</target>
 
     <target name="compile" description="Compile SQO-OSS prototype">
