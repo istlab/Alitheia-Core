@@ -38,6 +38,8 @@ public class Revision {
     private long number;
     // TODO: Change this with a custom collection
     private Vector<FileEntry> files;
+    public static final long HEAD = -1;
+    public static final long BASE = -2;
 
     public Revision(long number) {
         if (number < 0) {
@@ -46,17 +48,6 @@ public class Revision {
 
         this.number = number;
         description = String.valueOf(number);
-        files = new Vector<FileEntry>();
-    }
-
-    public Revision(String description) {
-        if (description == null) {
-            throw new IllegalArgumentException();
-        }
-
-        this.description = description;
-        this.number = 0;
-        // TODO: parse revision number from description if possible
         files = new Vector<FileEntry>();
     }
 
