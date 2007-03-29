@@ -50,8 +50,6 @@ import org.tmatesoft.svn.core.io.SVNRepository;
 import org.tmatesoft.svn.core.wc.*;
 
 /**
- * @author circular, dimitro
- * 
  * Implements the functionality required to access a SVN repository
  * 
  */
