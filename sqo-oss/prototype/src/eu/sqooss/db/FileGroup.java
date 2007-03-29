@@ -38,8 +38,18 @@ public class FileGroup {
     String description;
 
     ProjectVersion projectVersion;
+    
+    StoredProject storedProject;
 
     public FileGroup() {
+    }
+    
+    public StoredProject getStoredProject() {
+	return storedProject;
+    }
+    
+    public void setStoredProject(StoredProject sp) {
+	this.storedProject = sp;
     }
 
     public long getId() {
