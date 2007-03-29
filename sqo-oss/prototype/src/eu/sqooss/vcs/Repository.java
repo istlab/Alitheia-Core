@@ -55,9 +55,8 @@ public abstract class Repository {
     /**
      * Initializes the Repository class attributes
      * 
-     * @param localPath The directory in the local machine, where the 
-     * revision of this repository will be stored
-     * @param serverPath The remote server of the Repository
+     * @param localPath The path of the repository on the local end
+     * @param serverPath The path of the repository on the remote end
      * @param username The username that is used to connect to the Repository
      * @param passwd The password that is used to connect to the Repository
      */
