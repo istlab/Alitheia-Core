@@ -127,7 +127,11 @@ public class SvnRepositoryTest extends TestCase {
 	 * Test method for {@link eu.sqooss.vcs.SvnRepository#getCurrentVersion(boolean)}.
 	 */
 	public void testGetCurrentVersion() {
-		fail("Not yet implemented"); // TODO
+		repository.checkout(new Revision(800));
+		assertEquals(repository.getCurrentVersion(false), 800);
+		repository.checkout(); //update to the HEAD revision
+		assertTrue(repository.getCurrentVersion(true) > 1000);
+		assertEquals(repository.getCurrentVersion(false), repository.getCurrentVersion(true));
 	}
 
 	/**
