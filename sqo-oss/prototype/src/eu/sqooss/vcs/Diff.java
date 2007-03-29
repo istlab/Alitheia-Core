@@ -32,18 +32,35 @@ package eu.sqooss.vcs;
 
 import java.util.*;
 
-public class Diff {
+/**
+ * 
+ * Diff holds a list of files that changed between two revisions,
+ * and the changes made between those files
+ * 
+ */
 
-    /**
-     * hold a list of files that changed between the two revisions,
-     * and the file differences
-     */
+public class Diff {
+	
+	/**
+	 * The key of this HashMap is the name of the files. The vector 
+	 * stores the changes made to this file
+	 */
     private HashMap<String, Vector<String>> changeSet;
+   
+    /**
+     * Constructs a new instance of the class
+     */
     public Diff() {
 	changeSet = new HashMap<String, Vector<String>>();
     }
-
-    void add(String key, String changes) {
+    
+    /**
+     * Add a change that was made to a specific file
+     * 
+     * @param key The file that changed
+     * @param changes One of the changes that was made to the specified file
+     */
+    public void add(String key, String changes) {
     	if (changeSet.containsKey(key)) {
     		changeSet.get(key).add(changes);
     	}
@@ -54,22 +71,44 @@ public class Diff {
     	}
     }
     
-    void clear() {
+    /**
+     * Clears the changeSet
+     */
+    public void clear() {
     	changeSet.clear();
     }
     
-    void remove(String key) {
+    /**
+     * Removes a specific file
+     * 
+     * @param key A specified file
+     */
+    public void remove(String key) {
     	changeSet.remove(key);
     }
     
+    /**
+     * Returns the size of the changeSet
+     * 
+     * @return An integer which is the size of the changeset
+     */
     public int size() {
     	return changeSet.size();
     }
     
+    /**
+     * Returns all the changes of a specified file
+     * 
+     * @param key A specified file
+     * @return A string vector with all the changes of the specified file
+     */
     public Vector<String> getChangesOfASpecifiedFile(String key) {
     	return changeSet.get(key);
     }
     
+    /**
+     * Prints a Diff object
+     */
     public void printDiff() {
     	Set set = this.changeSet.entrySet();
     	Iterator i = set.iterator();
