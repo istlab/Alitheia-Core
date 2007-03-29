@@ -31,28 +31,38 @@
 
 package eu.sqooss.plugin;
 
-import java.lang.reflect.*;
+import java.lang.annotation.*;
 
 /**
  *
- * Generic class to represent dependencies between plugins, useful when
- * loading plugins that require others to be loaded.
+ * Annotation to represent dependencies between plugins, useful when
+ * loading plugins that require others to be loaded first.
  */
-public class PluginDependency {
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface PluginDependency {
 
-	private Type type;
-	private String version;
-	private PluginVersionConstraint constraint;
+    /**
+     * @return The class name of the plugin upon which the annotated plugin
+     * depends
+     */
+	public String dependencyPluginClassName();
+    /**
+     * @return A string representation of the version of the plugin upon which
+     * the annotated plugin depends
+     */
+	public String version();
+    /**
+     * @return The type of constraintset on the version of the plugin upon
+     * which the annotated plugin depends 
+     */
+	public PluginVersionConstraint constraint() default 
+        PluginVersionConstraint.Any;
 	
-	/*
-	 * 
-	 */
-	public PluginDependency(Type type, String version, PluginVersionConstraint constraint) {
-		this.type = type;
-		this.version = version;
-		this.constraint = constraint;
-	}
-	
+    /**
+     * Enumeration used to define constraints in the version of a plugin
+     * dependency
+     */
 	public enum PluginVersionConstraint {
 		Equals,
 		Minimum,
