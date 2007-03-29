@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="eu.sqooss.db">
+  <class name="Measurement" table="MEASUREMENT">
+    <id name="id" column="ID">
+      <generator class="native"/>
+    </id>
+    <property name="result" column="RESULT"/>
+    <property name="whenRun" column="WHEN_RUN"/>
+    <many-to-one name="metric"
+		 class="Metric"
+		 column="METRIC_ID"
+		 not-null="true"/>
+    <many-to-one name="projectFile"
+		class="ProjectFile"
+		column="PROJECT_FILE_ID"/>
+    <many-to-one name="fileGroup"
+		class="FileGroup"
+		column="FILE_GROUP_ID"/>
+    <many-to-one name="projectVersion"
+		class="ProjectVersion"
+		column="PROJECT_VERSION_ID"/>
+  </class>
+</hibernate-mapping>
