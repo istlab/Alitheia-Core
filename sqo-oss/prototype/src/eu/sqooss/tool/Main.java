@@ -37,6 +37,7 @@ import eu.sqooss.plugin.PluginList;
 import eu.sqooss.plugin.Plugin;
 
 import eu.sqooss.util.ReadOnlyIterator;
+import eu.sqooss.util.HibernateUtil;
 
 /**
  * Main entry point class for the sqo-oss tool.
@@ -47,7 +48,6 @@ public class Main {
     private static final String help = "";
     
     public static void main(String[] args) {
-	// TODO command line parsing here :)
     	Options opts = new Options();
         HelpFormatter formatter = new HelpFormatter();
 
@@ -82,5 +82,7 @@ public class Main {
             }
             return;
         }
+        
+        //HibernateUtil.getSessionFactory().getCurrentSession();
     }
 }
