@@ -40,7 +40,7 @@ import eu.sqooss.util.ReadOnlyIterator;
  * from the database
  */
 public class PluginList extends ArrayList {
-    private static PluginList defaultInstance;
+    private final static PluginList defaultInstance;
     
     static {
 	defaultInstance = new PluginList();
