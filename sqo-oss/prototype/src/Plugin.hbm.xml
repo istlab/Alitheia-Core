@@ -12,8 +12,6 @@
 		 column="METRIC_ID"
 		 not-null="true"/>
     <property name="path" column="PATH"/>
-    <property name="cmd" column="CMD"/>
-    <property name="parameters" column="PARAMETERS"/>
     <property name="executor" column="EXECUTOR"/>
     <property name="executorType" column="EXECUTOR_TYPE"/>
     <property name="parser" column="PARSER"/>
