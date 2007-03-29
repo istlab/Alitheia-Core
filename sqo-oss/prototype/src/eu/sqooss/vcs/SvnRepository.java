@@ -316,6 +316,9 @@ public class SvnRepository extends Repository implements ISVNLogEntryHandler {
     /** 
      * handles the output of doDiff in order to fill 
      * a Diff object
+     * 
+     * @param returnVal The string that the diff method returned
+     * @return A Diff object
      */
     private Diff parseDiffOutput(String returnVal) {
     	Diff tmpDiff = new Diff();

@@ -91,6 +91,7 @@ public abstract class Repository {
      * revision
      * 
      * @param rev The requested revision
+     * @return a Diff object
      */
     public abstract Diff diff(Revision rev);
 
@@ -99,7 +100,7 @@ public abstract class Repository {
      * 
      * @param start
      * @param end
-     * @return
+     * @return a Diff object 
      */
     public abstract Diff diff(Revision start, Revision end);
 
@@ -109,7 +110,7 @@ public abstract class Repository {
      * 
      * @param start
      * @param end
-     * @return
+     * @return A CommitLog object
      */
     public abstract CommitLog getLog(Revision start, Revision end);
 
@@ -119,17 +120,16 @@ public abstract class Repository {
      * 
      * @param remote If remote is true get the remote current version. 
      * If it is false, get the local one
-     * @return
+     * @return the current version as a long
      */
     public abstract long getCurrentVersion(boolean remote);
     
     /**
-     * Called to obtain all files that exist in the repository tree
+     * Obtains all files that exist in the repository tree
      * 
      * @param files A string vector where the filenames will be stored
      * @param path The path of the Repository
      * @param revision The requested revision
-     * @return
      */
     public abstract void listEntries(Vector<String> files, 
     		String path, Revision revision);
