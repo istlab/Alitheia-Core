@@ -30,19 +30,22 @@
  */
 package eu.sqooss.db;
 
+/**
+ * Class representation of the FileGroup Table in the
+ * database
+ */
 public class FileGroup {
     long id;
-
     String name;
-
     String description;
-
     ProjectVersion projectVersion;
     
     public FileGroup() {
     }
     
-    
+    public ProjectVersion getProjectVersion() {
+        return projectVersion;
+    }
 
     public long getId() {
 	return id;
