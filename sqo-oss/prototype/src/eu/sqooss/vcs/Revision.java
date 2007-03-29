@@ -32,15 +32,38 @@ package eu.sqooss.vcs;
 
 import java.util.*;
 
+/**
+ * Represents a revision of a resource (file or module) stored in a software
+ * configuration management system (SCM). Depending on the type of SCM a
+ * revision may refer to a single item (file or folder) or the entire
+ * repository.
+ */
 public class Revision {
 
     private String description;
+
     private long number;
+
     // TODO: Change this with a custom collection
     private Vector<FileEntry> files;
+
+    /**
+     * The latest revision of the resource
+     */
     public static final long HEAD = -1;
+
+    /**
+     * The base revision of the resource (i.e. the last revision that was
+     * successfully checked out)
+     */
     public static final long BASE = -2;
 
+    /**
+     * Creates a new instance of the class
+     * 
+     * @param number
+     *            The number of the revision
+     */
     public Revision(long number) {
         if (number < 0) {
             throw new IllegalArgumentException();
@@ -51,27 +74,31 @@ public class Revision {
         files = new Vector<FileEntry>();
     }
 
+    /**
+     * Gets a list of all the files contained in the given revision
+     * 
+     * @return A list of {@link FileEntry} objects, each representing a resource
+     *         (file or folder) that is contained in the given revision
+     */
     public List<FileEntry> getFiles() {
         return files;
     }
 
     /**
-     * @return the description
+     * @return A textual representation of the revision
      */
     public String getDescription() {
-        if(description != "") {
+        if (description != "") {
             return description;
-        }
-        else if (number > 0) {
+        } else if (number > 0) {
             return String.valueOf(number);
-        }
-        else {
+        } else {
             return "";
         }
     }
 
     /**
-     * @return the number
+     * @return A numeric representation of the revision
      */
     public long getNumber() {
         return number;
