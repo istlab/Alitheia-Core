@@ -130,7 +130,7 @@ public class SvnRepositoryTest extends TestCase {
 		repository.checkout(new Revision(800));
 		assertEquals(repository.getCurrentVersion(false), 800);
 		repository.checkout(); //update to the HEAD revision
-		assertTrue(repository.getCurrentVersion(true) > 1000);
+		assertTrue(Integer.valueOf(repository.getCurrentVersion(true)) > 1000);
 		assertEquals(repository.getCurrentVersion(false), repository.getCurrentVersion(true));
 	}
 
