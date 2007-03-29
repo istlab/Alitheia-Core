@@ -46,6 +46,10 @@ public class FileGroup {
     public ProjectVersion getProjectVersion() {
         return projectVersion;
     }
+    
+    public void setProjectVersion(ProjectVersion pv) {
+        this.projectVersion = pv;
+    }
 
     public long getId() {
 	return id;
