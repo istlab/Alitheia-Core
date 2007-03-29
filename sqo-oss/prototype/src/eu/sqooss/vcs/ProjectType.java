@@ -31,8 +31,6 @@
 package eu.sqooss.vcs;
 
 /**
- * @author circular, dimitro
- *
  * Represents the various types of projects supported.
  */
 public enum ProjectType {

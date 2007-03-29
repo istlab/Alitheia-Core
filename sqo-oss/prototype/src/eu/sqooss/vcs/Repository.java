@@ -33,8 +33,6 @@ package eu.sqooss.vcs;
 import java.util.Vector;
 
 /**
- * @author circular, dimitro
- * 
  * An abstract repository representation. 
  */
 public abstract class Repository {
