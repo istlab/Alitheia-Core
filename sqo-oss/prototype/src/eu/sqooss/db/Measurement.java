@@ -49,6 +49,14 @@ public class Measurement {
     
     public Measurement() {
     }
+    
+    public String getResult() {
+	return result;
+    }
+    
+    public void setResult(String result) {
+	this.result = result;
+    }
 
     public long getId() {
 	return id;
