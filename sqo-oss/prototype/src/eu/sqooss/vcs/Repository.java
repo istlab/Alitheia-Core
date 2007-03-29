@@ -33,6 +33,8 @@ package eu.sqooss.vcs;
 import java.util.Vector;
 
 /**
+ * @author circular, dimitro
+ * 
  * An abstract repository representation. 
  */
 public abstract class Repository {
@@ -51,7 +53,13 @@ public abstract class Repository {
     protected Revision revision;
 
     /**
+     * Initializes the Repository class attributes
      * 
+     * @param localPath The directory in the local machine, where the 
+     * revision of this repository will be stored
+     * @param serverPath The remote server of the Repository
+     * @param username The username that is used to connect to the Repository
+     * @param passwd The password that is used to connect to the Repository
      */
     public Repository(String localPath, String serverPath, String username, String passwd) {
         this.localPath = localPath;
@@ -70,15 +78,14 @@ public abstract class Repository {
     /**
      * Initialises a local copy of the repository, by checking out
      * 
-     * 
-     * @param rev
+     * @param rev The requested revision
      */
     public abstract void checkout(Revision rev);
 
     /**
      * Fetches the latest revision from the main repository server
      * 
-     * @param rev
+     * @param rev The requested revision
      */
     public abstract void update(Revision rev);
 
@@ -86,8 +93,7 @@ public abstract class Repository {
      * Returns a diff between the current repository revision and an older
      * revision
      * 
-     * @param rev
-     * @return
+     * @param rev The requested revision
      */
     public abstract Diff diff(Revision rev);
 
@@ -113,17 +119,19 @@ public abstract class Repository {
     /**
      * Returns the current version of either the remote or local version of 
      * the repository
+     * 
+     * @param remote If remote is true get the remote current version. 
+     * If it is false, get the local one
      * @return
      */
     public abstract String getCurrentVersion(boolean remote);
     
     /**
-     * Called recursively to obtain all files that exist in 
-     * the repository tree
+     * Called to obtain all files that exist in the repository tree
      * 
-     * @param files 
-     * @param path
-     * @param revision
+     * @param files A string vector where the filenames will be stored
+     * @param path The path of the Repository
+     * @param revision The requested revision
      * @return
      */
     public abstract void listEntries(Vector<String> files, 
