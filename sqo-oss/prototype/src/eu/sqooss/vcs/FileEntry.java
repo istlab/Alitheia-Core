@@ -51,7 +51,7 @@ public abstract class FileEntry {
     }
 
     public enum InputDataFormat {
-	Plain, Svn, SvnXml, SvnLogXml, Cvs
+	Plain, Svn, SvnXml, SvnLogXml
     }
 
     public FileEntry(String name) {
