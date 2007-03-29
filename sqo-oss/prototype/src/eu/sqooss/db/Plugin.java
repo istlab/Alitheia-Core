@@ -50,14 +50,6 @@ public class Plugin {
     public void setId(long id) {
 	this.id = id;
     }
-    
-    public String getCmd() {
-	return cmd;
-    }
-
-    public void setCmd(String cmd) {
-	this.cmd = cmd;
-    }
 
     public Metric getMetric() {
 	return metric;
@@ -65,14 +57,6 @@ public class Plugin {
 
     public void setMetric(Metric metric) {
 	this.metric = metric;
-    }
-
-    public String getParameters() {
-	return parameters;
-    }
-
-    public void setParameters(String parameters) {
-	this.parameters = parameters;
     }
 
     public String getPath() {
