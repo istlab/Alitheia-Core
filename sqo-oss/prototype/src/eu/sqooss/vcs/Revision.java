@@ -61,8 +61,7 @@ public class Revision {
     /**
      * Creates a new instance of the class
      * 
-     * @param number
-     *            The number of the revision
+     * @param number The number of the revision
      */
     public Revision(long number) {
         if (number < 0) {
