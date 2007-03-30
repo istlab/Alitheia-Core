@@ -30,6 +30,10 @@
  */
 package eu.sqooss.db;
 
+/**
+ * Class representation of the MetricType Table in the
+ * database
+ */
 public class MetricType {
     long id;
     String type;

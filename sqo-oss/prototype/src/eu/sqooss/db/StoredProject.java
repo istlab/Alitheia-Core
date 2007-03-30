@@ -34,19 +34,17 @@ package eu.sqooss.db;
 import java.util.Set;
 import java.util.HashSet;
 
+/**
+ * Class representation of the StoredProject Table in the
+ * database
+ */
 public class StoredProject {
     private long id;
-
     private String name;
-
     private String website;
-
     private String contactPoint;
-
     private String srcPath;
-
     private String mailPath;
-
     private Set versions;
     
     public StoredProject() {

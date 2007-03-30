@@ -30,13 +30,14 @@
  */
 package eu.sqooss.db;
 
+/**
+ * Class representation of the ProjectFile Table in the
+ * database
+ */
 public class ProjectFile {
     long id;
-
     ProjectVersion projectVersion;
-    
     String name;
-
     String status;
 
     public ProjectFile() {

@@ -30,6 +30,10 @@
  */
 package eu.sqooss.db;
 
+/**
+ * Class representation of the Plugin Table in the
+ * database
+ */
 public class Plugin {
     long id;
     Metric metric;    

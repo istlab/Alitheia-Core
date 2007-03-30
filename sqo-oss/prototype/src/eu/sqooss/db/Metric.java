@@ -30,13 +30,15 @@
  */
 package eu.sqooss.db;
 
+/**
+ * Class representation of the Metric Table in the
+ * database
+ */
 public class Metric {
     long id;
-
     MetricType metricType;
-
     String description;
-
+    
     public Metric() {
     }
 

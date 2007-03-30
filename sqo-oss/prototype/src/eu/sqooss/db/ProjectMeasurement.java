@@ -33,16 +33,15 @@ package eu.sqooss.db;
 
 import java.util.Date;
 
+/**
+ * Class representation of the ProjectMeasurement Table in the
+ * database
+ */
 public class ProjectMeasurement {
-
     String id;
-
     String projectVersionId;
-
     String metricId;
-
     String result;
-
     Date whenRun;
 
     public ProjectMeasurement() {

@@ -30,11 +30,13 @@
  */
 package eu.sqooss.db;
 
+/**
+ * Class representation of the ProjectVersion Table in the
+ * database
+ */
 public class ProjectVersion {
     long id;
-
     long projectId;
-
     String version;
 
     public ProjectVersion() {
