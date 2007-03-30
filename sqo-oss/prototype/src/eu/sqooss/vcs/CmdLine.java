@@ -31,7 +31,25 @@
 package eu.sqooss.vcs;
 
 import org.apache.commons.cli.*;
-
+/**
+ * Provides two ways to use the vcs library. 
+ * 
+ * 1st way: providing the URI of the repository and the path of the repository 
+ * on the local end. URI must have the following syntax: 
+ * <cvs,svn,svns,svn+ssh,svn+fsfs>://user@server/path/to/repo?passwd=passwd
+ * "svns" is for https and "svn+fsfs" is for file usage
+ * 2nd way: providing: the path of the repository on the remote end,
+ * the path of the repository on the local end, the username and the password
+ * to connect to the repository and finally the type of the repository 
+ * 
+ * Currently supported actions (trailing the above arguments): 
+ * - checkout
+ * - update
+ * - diff
+ * - getLog
+ * - curver (get current remote version)
+ * - local (get curent local version)
+ */
 public final class CmdLine {
     
     private static final String help = 
@@ -42,7 +60,7 @@ public final class CmdLine {
         "repo-uri has the following syntax: \n" +
         "<cvs,svn,svns,svn+ssh,svn+fsfs>://user@server/path/to/repo?passwd=passwd\n" + 
         "Currently supported actions are (with parameters):\n  " +
-        "  checkout, update, diff, getlog, curver, localver\n" +
+        "checkout, update, diff, getlog, curver, localver\n" +
         "<action> has the following syntax: \n" +
         "\t <checkout,update,diff,getlog,curver,localver> <r1,r1:r2>";
     
@@ -132,7 +150,7 @@ public final class CmdLine {
         
         assert(currentRepository!=null);
         
-        if (leftOverArgs[0].equals("checkout")) {
+        if (leftOverArgs[0].equalsIgnoreCase("checkout")) {
             if (leftOverArgs.length <= 1) {
                 /* checkout without revision */
                 currentRepository.checkout();
@@ -141,11 +159,11 @@ public final class CmdLine {
             	rev1 = new Revision(tmp);
                 currentRepository.checkout(rev1);
             }
-        } else if (leftOverArgs[0].equals("update")) {
+        } else if (leftOverArgs[0].equalsIgnoreCase("update")) {
         	long tmp = new Long(leftOverArgs[1]);
             rev1 = new Revision(tmp);
             currentRepository.update(rev1);
-        } else if (leftOverArgs[0].equals("diff")) {
+        } else if (leftOverArgs[0].equalsIgnoreCase("diff")) {
             if (leftOverArgs[1].indexOf(":") == -1) {
             	long tmp = new Long(leftOverArgs[1]);
                 rev1 = new Revision(tmp);
@@ -163,7 +181,7 @@ public final class CmdLine {
                 resultDiff = currentRepository.diff(rev1, rev2);
                 resultDiff.printDiff();
             }
-        } else if (leftOverArgs[0].equals("getLog")) {
+        } else if (leftOverArgs[0].equalsIgnoreCase("getLog")) {
             String patternStr = ":";
             String[] fields = leftOverArgs[1].split(patternStr);
             long tmp = new Long(fields[0]);
@@ -173,11 +191,11 @@ public final class CmdLine {
             CommitLog resultCommitLog = new CommitLog(rev1, rev2);
             resultCommitLog = currentRepository.getLog(rev1, rev2);
             resultCommitLog.printCommitLog();
-        } else if (leftOverArgs[0].equals("curver")) {
+        } else if (leftOverArgs[0].equalsIgnoreCase("curver")) {
             /*get current version from the remote server (remote = true */
             boolean remote = true;
             System.out.println(currentRepository.getCurrentVersion(remote));
-        } else if (leftOverArgs[0].equals("localver")) {
+        } else if (leftOverArgs[0].equalsIgnoreCase("localver")) {
             boolean remote = false;
             System.out.println(currentRepository.getCurrentVersion(remote));
         } else {
@@ -186,4 +204,3 @@ public final class CmdLine {
         }
     }
 }
-// vim: ts=4:sw=4:expandtab:
