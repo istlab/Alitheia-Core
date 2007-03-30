@@ -38,6 +38,7 @@ import eu.sqooss.plugin.Plugin;
 
 import eu.sqooss.util.ReadOnlyIterator;
 import eu.sqooss.util.HibernateUtil;
+import eu.sqooss.vcs.*;
 
 /**
  * Main entry point class for the sqo-oss tool.
@@ -85,4 +86,32 @@ public class Main {
         
         //HibernateUtil.getSessionFactory().getCurrentSession();
     }
+    
+    public void checkoutAndStore(String localPath, String serverPath, String username,
+            String passwd /* more args needed */) throws InvalidRepositoryException {
+    	SvnRepository repository = 
+    		new SvnRepository(localPath, serverPath, username, passwd);
+    	repository.checkout();
+    	
+    	//store
+    }
+    //the same but with a specified revision
+    public void checkoutAndStore(String localPath, String serverPath, String username,
+            String passwd, Revision rev /* more args needed */) throws InvalidRepositoryException {
+    	SvnRepository repository = 
+    		new SvnRepository(localPath, serverPath, username, passwd);
+    	repository.checkout(rev);
+    	
+    	//store
+    }
+    
+    public void updateAndStore(String localPath, String serverPath, String username,
+            String passwd, Revision rev /* more args needed */) throws InvalidRepositoryException {
+    	SvnRepository repository = 
+    		new SvnRepository(localPath, serverPath, username, passwd);
+    	repository.update(rev);
+    	
+    	//store
+    }
+    
 }
