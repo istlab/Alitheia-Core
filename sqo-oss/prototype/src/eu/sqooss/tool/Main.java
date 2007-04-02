@@ -31,6 +31,8 @@
 
 package eu.sqooss.tool;
 
+import java.util.Vector;
+
 import org.apache.commons.cli.*;
 
 import eu.sqooss.plugin.PluginList;
@@ -114,4 +116,11 @@ public class Main {
     	//store
     }
     
+    public void storeAllProjectFiles(SvnRepository repository, String path, 
+    		Revision rev /* more args needed (?)*/) throws InvalidRepositoryException {
+    	Vector<String> files = new Vector<String>();
+		repository.listEntries(files, path, rev);
+		//we probably need diff for status
+		//store 
+    }
 }
