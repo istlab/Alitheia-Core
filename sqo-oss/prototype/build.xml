@@ -100,7 +100,7 @@
 				<pathelement path="${sqooss.dist.dir}/sqo-oss.jar"/>
 				<path refid="libraries"/>
 	    	</classpath>
-	    	<configuration configurationfile="${sqooss.src.dir}/eu/sqooss/db/hibernate.cfg.xml"/>
+	    	<configuration configurationfile="${sqooss.src.dir}/hibernate.cfg.xml"/>
 		    <hbm2ddl drop="true"
 		    		 create="true"
 					 export="true"
