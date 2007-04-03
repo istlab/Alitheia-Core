@@ -33,4 +33,5 @@ SQO-OSS code measurement tool installation instruction
 ------------------------------------------------------
 
 1. set the environment variable SQOOSS_HOME to the installation directory
-2. 
+2. start the database engine (through $SQOOSS_HOME/bin/startdb.sh)
+3. run sqooss tool (through $SQOOSS_HOME/bin/tool.sh)
