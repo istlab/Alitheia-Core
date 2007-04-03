@@ -60,6 +60,7 @@ public class Main {
     public static void main(String[] args) {
         // first load the configuration
         Configurator conf = Configurator.getInstance();
+        HibernateUtil.getSessionFactory().getCurrentSession();
         
         //
         // basic options are:
@@ -138,6 +139,6 @@ public class Main {
             return;
         } */
         
-        //HibernateUtil.getSessionFactory().getCurrentSession();
+        
     }    
 }
