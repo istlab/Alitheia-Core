@@ -12,10 +12,6 @@
 	<property name="hibernate.connection.username">sa</property>
 	<property name="hibernate.connection.password"></property>
 
-	<!-- Drop and re-create the database schema on startup -->
-        <property name="hibernate.hbm2ddl.auto">create-drop</property>
-
-
 	<!-- Use the C3PO connection pool provider -->
 	<property name="hibernate.c3p0.min_size">5</property>
 	<property name="hibernate.c3p0.max_size">20</property>

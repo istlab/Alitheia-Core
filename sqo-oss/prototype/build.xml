@@ -101,12 +101,12 @@
 				<path refid="libraries"/>
 	    	</classpath>
 	    	<configuration configurationfile="${sqooss.src.dir}/hibernate.cfg.xml"/>
-		    <hbm2ddl drop="true"
-		    		 create="true"
-					 export="true"
-					 outputfilename="schema-export.sql"
-					 delimiter=";"
-					 format="true"
+		    <hbm2ddl drop="false"
+			     create="false"
+			     export="false"
+			     outputfilename="schema-export.sql"
+			     delimiter=";"
+			     format="true"
 		    />
 		</hibernatetool>
     </target>
