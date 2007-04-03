@@ -7,7 +7,7 @@ import org.apache.commons.cli.*;
  * parsing 
  */
 public class CLI {
-    protected static final String HEADER = "SQO-OSS metrics tool\n\n" +
+    public static final String HEADER = "SQO-OSS metrics tool\n\n" +
                              "Copyright (c) Members of the SQO-OSS Collaboration, 2007\n" +
                              "All rights reserved by respective owners." +
                              "See http://www.sqo-oss.eu/ for details on the copyright holders."; 
