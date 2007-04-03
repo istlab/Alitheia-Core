@@ -43,12 +43,38 @@ public class StoredProject {
     private String name;
     private String website;
     private String contactPoint;
-    private String srcPath;
     private String mailPath;
     private Set versions;
-    
+    private String localPath;
+    private String remotePath;
+    private String svnUrl;
+        
     public StoredProject() {
 	this.versions = new HashSet();
+    }
+    
+    public void setSvnUrl(String svnUrl) {
+        this.svnUrl = svnUrl;
+    }
+    
+    public String getSvnUrl() {
+        return svnUrl;
+    }
+    
+    public void setLocalPath(String localPath) {
+        this.localPath = localPath;
+    }
+    
+    public String getLocalPath() {
+        return localPath;
+    }
+    
+    public void setRemotePath(String remotePath) {
+        this.remotePath = remotePath;
+    }
+    
+    public String getRemotePath() {
+        return remotePath;
     }
 
     public String getContactPoint() {
