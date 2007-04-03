@@ -87,7 +87,8 @@ public abstract class Repository {
     public abstract void update(Revision rev);
 
     /**
-     * Returns a diff between the current repository revision and an older
+     * Returns a Diff object between the current repository revision and 
+     * an older one
      * revision
      * 
      * @param rev The requested revision
@@ -96,7 +97,7 @@ public abstract class Repository {
     public abstract Diff diff(Revision rev);
 
     /**
-     * Returns a diff between the start and end revisions
+     * Returns a Diff object between the start and end revisions
      * 
      * @param start
      * @param end
