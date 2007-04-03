@@ -48,10 +48,61 @@ import eu.sqooss.vcs.*;
  * measurement tool
  */
 public class Main {
-    private static final String help = "";
+    private final static void printHelp(String message) {
+        System.out.println("SQO-OSS metrics tool\n--------------------\n");
+        System.out.println(message);
+        System.out.println("Copyright (c) Members of the SQO-OSS Collaboration, 2007");
+        System.out.println("All rights reserved by respective owners.");
+        System.out.println("See http://www.sqo-oss.eu/ for details on the copyright holders."); 
+    }
     
     public static void main(String[] args) {
-    	Options opts = new Options();
+        // first load the configuration
+        Configurator conf = Configurator.getInstance();
+        
+        //
+        // basic options are:
+        //  - projects, plugins, task, results
+        if(args.length != 0) {
+            if(args[0].compareTo("projects") == 0) {
+                // TODO add command line handling for projects
+                printHelp("projects option not yet implemented\n");
+                return;
+            }
+            if(args[0].compareTo("plugins") == 0) {
+                // TODO add command line handling for plugins
+                printHelp("plugins option not yet implemented\n");
+                return;
+            }
+            if(args[0].compareTo("task") == 0) {
+                // TODO add command line handling for tasks
+                printHelp("task option not yet implemented\n");
+                return;
+            }
+            if(args[0].compareTo("results") == 0) {
+                // TODO add command line handling for results
+                printHelp("results option not yet implemented\n");
+                return;
+            }
+            if(args[0].compareTo("filegroup") == 0) {
+                printHelp("filegroup option not yet implemented\n");
+                // TODO add command line handling for file groups
+            }
+            if(args[0].compareTo("help") == 0) {
+                printHelp("Available arguments are:\n\n projects - " +
+                                "configure stored projects\n plugin - configure/list " +
+                                "available plugins\n task - execute a " +
+                                "measurement task\n results - browse store results\n" +
+                                " filegroup - configure file groups\n" +
+                                " help - prints online help\n");              
+                return;
+            }
+        }
+               
+        printHelp("type 'tool.sh help' to see available commands\n");
+        
+        //
+/*    	Options opts = new Options();
         HelpFormatter formatter = new HelpFormatter();
 
         opts.addOption("m", "metrics", true, "Print the available metrics");
@@ -84,43 +135,8 @@ public class Main {
         	System.out.println(((Plugin)roi.next()).toString());
             }
             return;
-        }
+        } */
         
         //HibernateUtil.getSessionFactory().getCurrentSession();
-    }
-    
-    public void checkoutAndStore(String localPath, String serverPath, String username,
-            String passwd /* more args needed */) throws InvalidRepositoryException {
-    	SvnRepository repository = 
-    		new SvnRepository(localPath, serverPath, username, passwd);
-    	repository.checkout();
-    	
-    	//store
-    }
-    //the same but with a specified revision
-    public void checkoutAndStore(String localPath, String serverPath, String username,
-            String passwd, Revision rev /* more args needed */) throws InvalidRepositoryException {
-    	SvnRepository repository = 
-    		new SvnRepository(localPath, serverPath, username, passwd);
-    	repository.checkout(rev);
-    	
-    	//store
-    }
-    
-    public void updateAndStore(String localPath, String serverPath, String username,
-            String passwd, Revision rev /* more args needed */) throws InvalidRepositoryException {
-    	SvnRepository repository = 
-    		new SvnRepository(localPath, serverPath, username, passwd);
-    	repository.update(rev);
-    	
-    	//store
-    }
-    
-    public void storeAllProjectFiles(SvnRepository repository, String path, 
-    		Revision rev /* more args needed (?)*/) throws InvalidRepositoryException {
-    	Vector<String> files = new Vector<String>();
-		repository.listEntries(files, path, rev);
-		//we probably need diff for status
-		//store 
-    }
+    }    
 }
