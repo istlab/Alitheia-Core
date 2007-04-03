@@ -72,8 +72,7 @@ public class Main {
                 return;
             }
             if(args[0].compareTo("plugins") == 0) {
-                // TODO add command line handling for plugins
-                printHelp("plugins option not yet implemented\n");
+                PluginCLI.parse(args);
                 return;
             }
             if(args[0].compareTo("task") == 0) {
