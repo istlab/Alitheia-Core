@@ -109,14 +109,6 @@ public class StoredProject {
 	this.name = name;
     }
 
-    public String getSrcPath() {
-	return srcPath;
-    }
-
-    public void setSrcPath(String srcPath) {
-	this.srcPath = srcPath;
-    }
-
     public String getWebsite() {
 	return website;
     }
