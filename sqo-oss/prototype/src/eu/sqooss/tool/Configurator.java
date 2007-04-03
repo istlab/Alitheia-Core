@@ -33,8 +33,8 @@ public class Configurator {
     }
     
     public String getValue(ConfigurationOptions option) {
-        if(option.compareTo(ConfigurationOptions.DB_FILE) == 0) {
-            return configuration.getProperty("DB_FILE");
+        if(option.compareTo(ConfigurationOptions.DB_URL) == 0) {
+            return configuration.getProperty("DB_URL");
         }
         if(option.compareTo(ConfigurationOptions.PLUGINS) == 0) {
             return configuration.getProperty("PLUGINS");

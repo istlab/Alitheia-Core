@@ -48,6 +48,7 @@ import eu.sqooss.vcs.*;
  * measurement tool
  */
 public class Main {
+    // that is a little lame
     private final static void printHelp(String message) {
         System.out.println("SQO-OSS metrics tool\n--------------------\n");
         System.out.println(message);
