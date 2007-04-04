@@ -43,12 +43,16 @@ public class Main {
         // basic options are:
         //  - projects, plugins, task, results
         if(args.length != 0) {
+            // trim the arguments
+            String[] targs = new String[args.length - 1];
+            System.arraycopy(args, 1, targs, 0, targs.length);
+            
             if(args[0].compareTo("projects") == 0) {
                 // TODO add command line handling for projects
                 return;
             }
             if(args[0].compareTo("plugins") == 0) {
-                PluginCLI.parse(args);
+                PluginCLI.parse(targs);
                 return;
             }
             if(args[0].compareTo("task") == 0) {

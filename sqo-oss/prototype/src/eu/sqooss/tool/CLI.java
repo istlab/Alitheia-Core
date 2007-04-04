@@ -9,8 +9,8 @@ import org.apache.commons.cli.*;
 public class CLI {
     public static final String HEADER = "SQO-OSS metrics tool\n\n" +
                              "Copyright (c) Members of the SQO-OSS Collaboration, 2007\n" +
-                             "All rights reserved by respective owners." +
-                             "See http://www.sqo-oss.eu/ for details on the copyright holders."; 
+                             "All rights reserved by respective owners.\n" +
+                             "See http://www.sqo-oss.eu/ for details on the copyright holders.\n"; 
     //
     protected Options options;
     protected HelpFormatter formatter;
@@ -28,8 +28,8 @@ public class CLI {
             return parser.parse(options, args);
         } catch (ParseException exp) {
             System.err.println("Parsing failed.  Reason: " + exp.getMessage());
-            // TODO fix formatter message
-            formatter.printHelp( HEADER, options );
+            System.out.println(HEADER);
+            formatter.printHelp( " ", options );
             return null;
         }
     }

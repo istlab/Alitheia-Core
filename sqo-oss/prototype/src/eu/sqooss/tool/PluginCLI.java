@@ -14,16 +14,24 @@ import eu.sqooss.util.ReadOnlyIterator;
 public class PluginCLI extends CLI {
     
     private PluginCLI(String[] args) {
-        super(args);
-        
+        super(args);        
         options.addOption("l","list",false,"List available plugins");
+        options.addOption("h","help",false,"Prints the online help");
     }    
     
     public static void parse(String[] args) {
         PluginCLI pcli = new PluginCLI(args);
         CommandLine cmdLine = pcli.parseArgs();
         
-        if(cmdLine.hasOption("list")) {
+        if(cmdLine == null) { return; }
+        
+        if(cmdLine.hasOption('h')) {
+            System.out.println(HEADER);
+            pcli.formatter.printHelp( " ", pcli.options);
+            return;
+        }
+                
+        if(cmdLine.hasOption('l')) {
             System.out.println("Print all available Modules:\n");
             PluginList pl = PluginList.getInstance();
             ReadOnlyIterator roi = pl.getPlugins();
