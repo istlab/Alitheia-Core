@@ -76,30 +76,7 @@ public class Main {
         
         System.out.println(PluginCLI.HEADER);
         System.out.println("type 'tool.sh help' to see available commands\n");
-        
-        //
-/*    	Options opts = new Options();
-        HelpFormatter formatter = new HelpFormatter();
-
-        opts.addOption("m", "metrics", true, "Print the available metrics");
-        opts.addOption("l", "list", true, "Print the available modules");
-        opts.addOption("h", "help", true, "Print this help message");
-        
-        CommandLine cmdline = null;
-        CommandLineParser parser = new GnuParser();
-        try {
-            // parse command line arguments
-            cmdline = parser.parse(opts, args);
-        } catch (ParseException exp) {
-            System.err.println("Parsing failed.  Reason: " + exp.getMessage());
-            formatter.printHelp( help, opts );
-        }
-        
-        // print the help for command line options
-        if(cmdline.hasOption("h")) {
-            formatter.printHelp( help, opts);
-            return;
-        }
+/*    	
         
         // print the metrics
         if(cmdline.hasOption("m")) {
