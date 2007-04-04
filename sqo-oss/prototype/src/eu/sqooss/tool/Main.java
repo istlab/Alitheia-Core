@@ -76,20 +76,5 @@ public class Main {
         
         System.out.println(PluginCLI.HEADER);
         System.out.println("type 'tool.sh help' to see available commands\n");
-/*    	
-        
-        // print the metrics
-        if(cmdline.hasOption("m")) {
-            System.out.println("Print all available Modules:\n");
-            PluginList pl = PluginList.getInstance();
-            ReadOnlyIterator roi = pl.getPlugins();
-            
-            while(roi.hasNext()) {
-        	System.out.println(((Plugin)roi.next()).toString());
-            }
-            return;
-        } */
-        
-        
     }    
 }
