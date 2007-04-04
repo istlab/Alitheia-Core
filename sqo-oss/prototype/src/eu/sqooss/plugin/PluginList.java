@@ -32,14 +32,21 @@
 package eu.sqooss.plugin;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Iterator;
 
+import org.hibernate.Session;
+
+import eu.sqooss.util.HibernateUtil;
 import eu.sqooss.util.ReadOnlyIterator;
+
+import eu.sqooss.db.Plugin;
 
 /**
  * The PluginList class initializes the plugins 
  * from the database
  */
-public class PluginList extends ArrayList {
+public class PluginList extends ArrayList<Plugin> {
     private final static PluginList defaultInstance;
     
     static {
@@ -47,11 +54,17 @@ public class PluginList extends ArrayList {
     }
     
     private PluginList() {
-	
+        List pl = Plugin.getPluginList();
+        Iterator i = pl.iterator();
+        while(i.hasNext()) {
+            addPlugin((Plugin)i.next());
+        }
     }
     
     // TODO: implement this function
-    public boolean addPlugin(eu.sqooss.db.Plugin p) {
+    private boolean addPlugin(Plugin p) {
+        System.out.println(p.getDescription());
+        
 	return false;
     }
     
