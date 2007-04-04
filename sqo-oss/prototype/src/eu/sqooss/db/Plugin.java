@@ -30,6 +30,12 @@
  */
 package eu.sqooss.db;
 
+import org.hibernate.Session;
+
+import eu.sqooss.util.HibernateUtil;
+
+import java.util.List;
+
 /**
  * Class representation of the Plugin Table in the
  * database
@@ -42,11 +48,13 @@ public class Plugin {
     String executorType;
     String parser;
     String parserType;
+    String description;
+    String name;
     
-    public Plugin() {
-	
-    }
+    public Plugin() { /* empty default constructor */ }
 
+    // setters and getters
+    
     public long getId() {
 	return id;
     }
@@ -103,4 +111,30 @@ public class Plugin {
 	this.parserType = parserType;
     }
     
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+    
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+    
+    // other methods
+    
+    public static List getPluginList() {
+        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        session.beginTransaction();
+        List result = session.createQuery("from Plugin").list();
+        session.getTransaction().commit();
+        
+        return result;
+    }
 }

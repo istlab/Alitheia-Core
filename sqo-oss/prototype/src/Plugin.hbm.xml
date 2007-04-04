@@ -11,6 +11,8 @@
 		 class="Metric"
 		 column="METRIC_ID"
 		 not-null="true"/>
+	<property name="description" column="DESCRIPTION" />
+	<property name="name" column="NAME" />
     <property name="path" column="PATH"/>
     <property name="executor" column="EXECUTOR"/>
     <property name="executorType" column="EXECUTOR_TYPE"/>
