@@ -7,10 +7,6 @@
     <id name="id" column="ID">
       <generator class="native"/>
     </id>
-    <many-to-one name="metric"
-		 class="Metric"
-		 column="METRIC_ID"
-		 not-null="true"/>
 	<property name="description" column="DESCRIPTION" />
 	<property name="name" column="NAME" />
     <property name="path" column="PATH"/>

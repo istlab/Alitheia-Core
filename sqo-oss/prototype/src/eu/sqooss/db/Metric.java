@@ -36,8 +36,10 @@ package eu.sqooss.db;
  */
 public class Metric {
     long id;
+    long plugin;
     MetricType metricType;
     String description;
+    String name;
     
     public Metric() {
     }
@@ -64,5 +66,21 @@ public class Metric {
 
     public void setDescription(String description) {
 	this.description = description;
+    }
+
+    public long getPlugin() {
+        return plugin;
+    }
+
+    public void setPlugin(long plugin) {
+        this.plugin = plugin;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

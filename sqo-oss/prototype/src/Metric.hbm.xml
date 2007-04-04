@@ -7,10 +7,15 @@
     <id name="id" column="ID">
       <generator class="native"/>
     </id>
+    <many-to-one name="Plugin"
+		 class="Plugin"
+		 column="PLUGIN_ID"
+		 not-null="true"/>
     <many-to-one name="metricType"
 		 class="MetricType"
 		 column="METRIC_TYPE_ID"
 		 not-null="true"/>
+	<property name="name" column="NAME" />
     <property name="description" column="DESCRIPTION"/>
   </class>
 </hibernate-mapping>

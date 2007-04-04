@@ -42,7 +42,6 @@ import java.util.List;
  */
 public class Plugin {
     long id;
-    Metric metric;    
     String path;
     String executor;
     String executorType;
@@ -61,14 +60,6 @@ public class Plugin {
 
     public void setId(long id) {
 	this.id = id;
-    }
-
-    public Metric getMetric() {
-	return metric;
-    }
-
-    public void setMetric(Metric metric) {
-	this.metric = metric;
     }
 
     public String getPath() {
