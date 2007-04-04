@@ -32,8 +32,10 @@ package eu.sqooss.db;
 
 import org.hibernate.Session;
 
+import eu.sqooss.plugin.PluginException;
 import eu.sqooss.util.HibernateUtil;
 
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -120,6 +122,26 @@ public class Plugin {
     
     // other methods
     
+    /**
+     * Empty method, override in abstract plugin
+     */
+    public HashMap<String,String> run(String file) throws PluginException {
+        return null;
+    }
+    
+    /**
+     * Get the available metrics for the Plugin
+     * 
+     * @return an array of metrics
+     */
+    public Metric[] getMetrics() {
+        return null;
+    }
+    
+    /**
+     * Get a list with all the available plugins
+     * 
+     */
     public static List getPluginList() {
         Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();

@@ -37,12 +37,13 @@ import java.io.InputStream;
 import java.io.File;
 
 import eu.sqooss.db.Metric;
+import eu.sqooss.db.Plugin;
 
 /**
  * Abstract class for the plugins. Use this one as glue code,
  * 
  */
-public abstract class AbstractPlugin implements Plugin {
+public abstract class AbstractPlugin extends Plugin {
     private Executor executor;
     private OutputParser outputParser;
 
