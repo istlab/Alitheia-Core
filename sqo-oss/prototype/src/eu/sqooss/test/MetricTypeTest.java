@@ -34,41 +34,30 @@ import org.hibernate.Session;
 
 import eu.sqooss.util.HibernateUtil;
 
-import eu.sqooss.db.StoredProject;
+import eu.sqooss.db.MetricType;
 
-public class StoredProjectTest {
+public class MetricTypeTest {
 
     public static void main(String[] args) {
 
-	StoredProjectTest test = new StoredProjectTest();
-
-	if (args[0].equals("store")) {
-	    test.createAndStoreProject("My project", "My website",
-				       "My contact point", "My src path",
-				       "My mail path");
-	}
+	MetricTypeTest test = new MetricTypeTest();
+	test.createAndStoreMetric(1, "the great description");
 
 	HibernateUtil.getSessionFactory().close();
-
     }
 
-    private void createAndStoreProject(String name, String website,
-				       String contactPoint, String srcPath,
-				       String mailPath) {
-
+    private void createAndStoreMetric(long id, String name) {
 	Session session =
 	    HibernateUtil.getSessionFactory().getCurrentSession();
 
 	session.beginTransaction();
 
-	StoredProject theProject = new StoredProject();
-	theProject.setName(name);
-	theProject.setWebsite(website);
-	theProject.setContactPoint(contactPoint);
-	//theProject.(srcPath);
-	theProject.setMailPath(mailPath);
-
-	session.save(theProject);
+        MetricType m = new MetricType();
+        
+        m.setId(id);
+        m.setType(name);
+	
+	session.save(m);
 
 	session.getTransaction().commit();
     }
