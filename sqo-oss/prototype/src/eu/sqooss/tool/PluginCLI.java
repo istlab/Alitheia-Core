@@ -3,7 +3,8 @@ package eu.sqooss.tool;
 import org.apache.commons.cli.*;
 
 import eu.sqooss.plugin.PluginList;
-import eu.sqooss.plugin.Plugin;
+
+import eu.sqooss.db.Plugin;
 
 import eu.sqooss.util.ReadOnlyIterator;
 
