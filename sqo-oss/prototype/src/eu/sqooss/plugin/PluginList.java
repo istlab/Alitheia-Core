@@ -61,11 +61,9 @@ public class PluginList extends ArrayList<Plugin> {
         }
     }
     
-    // TODO: implement this function
-    private boolean addPlugin(Plugin p) {
+    private void addPlugin(Plugin p) {
         System.out.println(p.getDescription());
         
-	return false;
     }
     
     public ReadOnlyIterator getPlugins() {
