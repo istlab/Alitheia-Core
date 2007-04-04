@@ -24,13 +24,13 @@ public class PluginCLI extends CLI {
         CommandLine cmdLine = pcli.parseArgs();
         
         if(cmdLine.hasOption("list")) {
-                System.out.println("Print all available Modules:\n");
-                PluginList pl = PluginList.getInstance();
-                ReadOnlyIterator roi = pl.getPlugins();
-                
-                while(roi.hasNext()) {
+            System.out.println("Print all available Modules:\n");
+            PluginList pl = PluginList.getInstance();
+            ReadOnlyIterator roi = pl.getPlugins();
+            while(roi.hasNext()) {
                 System.out.println(((Plugin)roi.next()).toString());
-            } 
+            }
+            
             return;
         }
     }
