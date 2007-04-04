@@ -65,7 +65,7 @@ public class StoredProjectTest {
 	theProject.setName(name);
 	theProject.setWebsite(website);
 	theProject.setContactPoint(contactPoint);
-	theProject.setSrcPath(srcPath);
+	//theProject.(srcPath);
 	theProject.setMailPath(mailPath);
 
 	session.save(theProject);
