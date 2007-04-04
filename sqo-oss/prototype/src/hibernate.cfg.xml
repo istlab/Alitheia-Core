@@ -8,7 +8,7 @@
 
 	<!-- Database connection settings -->
 	<property name="hibernate.connection.driver_class">org.hsqldb.jdbcDriver</property>
-	<property name="hibernate.connection.url">jdbc:hsqldb://127.0.0.1/sqooss</property>
+	<property name="hibernate.connection.url">jdbc:hsqldb:hsql://127.0.0.1/sqooss</property>
 	<property name="hibernate.connection.username">sa</property>
 	<property name="hibernate.connection.password"></property>
 
