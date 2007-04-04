@@ -63,18 +63,4 @@ public abstract class AbstractPlugin extends Plugin {
 	InputStream r = executor.execute(f);
 	return outputParser.parse(r);
     }
-    
-    public String toString() {
-	StringBuilder strbld = new StringBuilder();
-	strbld.append(getName()).append(" - ");
-	strbld.append(getDescription()).append(" (");
-	
-	for( Metric m : getMetrics() ) {
-	    // get the short name for the metric
-	}
-	
-	strbld.append(")");
-	
-	return strbld.toString(); 
-    }
 }

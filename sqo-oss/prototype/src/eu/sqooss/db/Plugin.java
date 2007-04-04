@@ -150,4 +150,21 @@ public class Plugin {
         
         return result;
     }
+    
+    /**
+     * Overrides toString()
+     */
+    public String toString() {
+        StringBuilder strbld = new StringBuilder();
+        strbld.append(getName()).append(" - ");
+        strbld.append(getDescription()).append(" (");
+        
+        for( Metric m : getMetrics() ) {
+            strbld.append(m.getName()).append(" ");
+        }
+        
+        strbld.append(")");
+        
+        return strbld.toString(); 
+    }
 }
