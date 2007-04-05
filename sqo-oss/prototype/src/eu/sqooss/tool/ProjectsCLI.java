@@ -163,7 +163,7 @@ public class ProjectsCLI extends CLI {
         try {
             r = RepositoryFactory.getRepository(projectPath, url);
         } catch (InvalidRepositoryException e) {
-            
+            error(e.getMessage());
         }
         
         long curver = r.getCurrentVersion(false);
