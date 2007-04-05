@@ -13,14 +13,14 @@ import eu.sqooss.util.ReadOnlyIterator;
  */
 public class PluginCLI extends CLI {
     
-    private PluginCLI(String[] args) {
+    PluginCLI(String[] args) {
         super(args);        
         options.addOption("l","list",false,"List available plugins");
         options.addOption("h","help",false,"Prints the online help");
         options.addOption("a","add",false,"Add a new module");
     }
     
-    public void parse(String[] args) {
+    public void parse() {
         PluginCLI pcli = new PluginCLI(args);
         CommandLine cmdLine = pcli.parseArgs();
         

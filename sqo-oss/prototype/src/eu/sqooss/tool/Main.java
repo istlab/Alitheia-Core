@@ -40,6 +40,7 @@ public class Main {
 
     public void dispatch(String[] args) {
         CLI cli = new CLI(args);
+        
         //
         // basic options are:
         //  - projects, plugins, task, results
@@ -49,11 +50,13 @@ public class Main {
             System.arraycopy(args, 1, targs, 0, targs.length);
 
             if (args[0].compareTo("projects") == 0) {
-                ((ProjectsCLI)cli).parse(targs);
+                ProjectsCLI pcli = new ProjectsCLI(targs);
+                pcli.parse();
                 return;
             }
             if (args[0].compareTo("plugins") == 0) {
-                ((PluginCLI)cli).parse(targs);
+                PluginCLI pcli = new PluginCLI(targs);
+                pcli.parse();
                 return;
             }
             if (args[0].compareTo("task") == 0) {

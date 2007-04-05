@@ -67,7 +67,7 @@ public class ProjectsCLI extends CLI {
         options.addOption("h", "help", false, "Project functions and options");
     }
 
-    public void parse(String[] args) {
+    public void parse() {
         ProjectsCLI pcli = new ProjectsCLI(args);
         CommandLine cmdLine = pcli.parseArgs();
 
