@@ -43,14 +43,14 @@ import java.util.List;
  * database
  */
 public class Plugin {
-    long id;
-    String path;
-    String executor;
-    String executorType;
-    String parser;
-    String parserType;
-    String description;
-    String name;
+    protected long id;
+    protected String path;
+    protected String executor;
+    protected String executorType;
+    protected String parser;
+    protected String parserType;
+    protected String description;
+    protected String name;
     
     public Plugin() { /* empty default constructor */ }
 
@@ -137,7 +137,7 @@ public class Plugin {
         Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
         // TODO check this query
-        List result = session.createQuery("from metric where metric.id = " + id).list();       
+        List result = session.createQuery("from Metric where metric.id = " + id).list();       
         session.getTransaction().commit();
         
         return (Metric[])result.toArray(new Metric[] {});
@@ -150,7 +150,7 @@ public class Plugin {
     public static List getPluginList() {
         Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
-        List result = session.createQuery("from plugin").list();
+        List result = session.createQuery("from Plugin").list();
         session.getTransaction().commit();
         
         return result;
@@ -164,9 +164,9 @@ public class Plugin {
         strbld.append(getName()).append(" - ");
         strbld.append(getDescription()).append(" (");
         
-        for( Metric m : getMetrics() ) {
+        /*for( Metric m : getMetrics() ) {
             strbld.append(m.getName()).append(" ");
-        }
+        }*/
         
         strbld.append(")");
         

@@ -44,12 +44,20 @@ import eu.sqooss.db.ProjectFile;
  * 
  */
 public class DefaultPlugin extends Plugin {
-    private Executor executor;
-    private OutputParser outputParser;
+    private Executor executorInstance;
+    private OutputParser outputParserInstance;
 
-    public DefaultPlugin(Executor e, OutputParser op) {
-	this.executor = e;
-	this.outputParser = op;
+    public DefaultPlugin(Plugin p, Executor e, OutputParser op) {
+	this.executorInstance = e;
+	this.outputParserInstance = op;
+        //
+        this.name = p.getName();
+        this.description = p.getDescription();
+        this.executor = p.getExecutor();
+        this.executorType = p.getExecutorType();
+        this.path = p.getPath();
+        this.parser = p.getParser();
+        this.parserType = p.getParserType();
     }
     
     public HashMap<String, String> run(ProjectFile file) throws PluginException {
@@ -60,7 +68,7 @@ public class DefaultPlugin extends Plugin {
 		    f.toString() + "does not exist"); 
 	}
 	
-	InputStream r = executor.execute(f);
-	return outputParser.parse(r);
+	InputStream r = executorInstance.execute(f);
+	return outputParserInstance.parse(r);
     }
 }

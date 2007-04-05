@@ -77,7 +77,7 @@ public class PluginList extends ArrayList<Plugin> {
             op = new ExternalOutputParser(p.getParser());
         }
         
-        DefaultPlugin dp = new DefaultPlugin(ex,op);
+        DefaultPlugin dp = new DefaultPlugin(p,ex,op);
         add(dp);
     }
     
