@@ -81,23 +81,23 @@ public class CCCCOutputParser implements OutputParser {
 			SAXReader reader = new SAXReader();
 			xmldoc = reader.read(is);
 			
-			String path = "/CCCC_Project/procedural_summary/module/[name='%s']"
+			String path = "/CCCC_Project/procedural_summary/module[name='%s']"
 				+ "/McCabes_Cyclomatic_Complexity";
 			RetrieveMetric(results, path, "MVG", xmldoc);
 			
-			path = "/CCCC_Project/oo_design/module/[name='%s']"
+			path = "/CCCC_Project/oo_design/module[name='%s']"
 				+ "/weighted_methods_per_class_unity";
 			RetrieveMetric(results, path, "WMC", xmldoc);
 			
-			path = "/CCCC_Project/oo_design/module/[name='%s']"
+			path = "/CCCC_Project/oo_design/module[name='%s']"
 				+ "/depth_of_inheritance_tree";
 			RetrieveMetric(results, path, "DIT", xmldoc);
 			
-			path = "/CCCC_Project/oo_design/module/[name='%s']"
+			path = "/CCCC_Project/oo_design/module[name='%s']"
 				+ "/number_of_children";
 			RetrieveMetric(results, path, "NOC", xmldoc);
 			
-			path = "/CCCC_Project/oo_design/module/[name='%s']"
+			path = "/CCCC_Project/oo_design/module[name='%s']"
 				+ "/coupling_between_objects";
 			RetrieveMetric(results, path, "CBO", xmldoc);
 			
