@@ -57,7 +57,7 @@ public class ProjectsCLI extends CLI {
             File.separatorChar   + "projects";
     }
     
-    protected ProjectsCLI(String[] args) {
+    ProjectsCLI(String[] args) {
         super(args);
         /*Functions*/
         options.addOption("ap", "add-project", false, "Add a project");
