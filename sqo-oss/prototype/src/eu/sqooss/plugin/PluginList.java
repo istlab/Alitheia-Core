@@ -44,6 +44,9 @@ import eu.sqooss.db.Plugin;
  * from the database
  */
 public class PluginList extends ArrayList<Plugin> {
+    private final static String JAVA     = "Java";
+    private final static String EXTERNAL = "External";
+    //
     private final static PluginList defaultInstance;
     
     static {
@@ -59,8 +62,23 @@ public class PluginList extends ArrayList<Plugin> {
     }
     
     private void addPlugin(Plugin p) {
-        //System.out.println(p.getDescription());
-        // TODO implement it
+        Executor ex = null;
+        OutputParser op = null;
+        
+        if(p.getExecutorType().compareToIgnoreCase(JAVA) == 0) {
+            ex = new JavaExecutor(p.getExecutor());
+        } else if(p.getExecutorType().compareToIgnoreCase(EXTERNAL) == 0) {
+            ex = new ExternalExecutor(p.getExecutor());
+        }
+        
+        if(p.getParserType().compareToIgnoreCase(JAVA) == 0) {
+            op = new JavaOutputParser(p.getParser());
+        } else if(p.getParserType().compareToIgnoreCase(EXTERNAL) == 0) {
+            op = new ExternalOutputParser(p.getParser());
+        }
+        
+        DefaultPlugin dp = new DefaultPlugin(ex,op);
+        add(dp);
     }
     
     public ReadOnlyIterator getPlugins() {
