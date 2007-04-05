@@ -124,7 +124,7 @@ public class Plugin {
     /**
      * Empty method, override in abstract plugin
      */
-    public HashMap<String,String> run(String file) throws PluginException {
+    public HashMap<String,String> run(ProjectFile file) throws PluginException {
         return new HashMap<String,String>();
     }
     

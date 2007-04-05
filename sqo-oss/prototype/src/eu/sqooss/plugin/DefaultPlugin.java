@@ -36,26 +36,26 @@ import java.util.HashMap;
 import java.io.InputStream;
 import java.io.File;
 
-import eu.sqooss.db.Metric;
 import eu.sqooss.db.Plugin;
+import eu.sqooss.db.ProjectFile;
 
 /**
  * Abstract class for the plugins. Use this one as glue code,
  * 
  */
-public abstract class AbstractPlugin extends Plugin {
+public class DefaultPlugin extends Plugin {
     private Executor executor;
     private OutputParser outputParser;
 
-    protected AbstractPlugin(Executor e, OutputParser op) {
+    public DefaultPlugin(Executor e, OutputParser op) {
 	this.executor = e;
 	this.outputParser = op;
     }
     
-    public HashMap<String, String> run(String file) throws PluginException{
-	File f = new File(file);
+    public HashMap<String, String> run(ProjectFile file) throws PluginException {
+	File f = new File(file.getName());
 	
-	if(!f.exists()) { 
+	if(!f.exists()) {
 	    throw new PluginException(getName() + " (plugin): " + 
 		    f.toString() + "does not exist"); 
 	}
