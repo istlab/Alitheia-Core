@@ -31,6 +31,7 @@
 package eu.sqooss.db;
 
 import org.hibernate.Session;
+import org.hibernate.Query;
 
 import eu.sqooss.plugin.PluginException;
 import eu.sqooss.util.HibernateUtil;
@@ -137,8 +138,11 @@ public class Plugin {
         Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
         // TODO check this query
-        List result = session.createQuery("from Metric where metric.id = " + id).list();       
-        session.getTransaction().commit();
+        Query q = session.createQuery("from Metric metric where metric.id = :id");
+        q.setLong("id", id);
+        System.out.println(id);
+        List result = q.list();
+        //session.getTransaction().commit();
         
         return (Metric[])result.toArray(new Metric[] {});
     }
@@ -162,11 +166,11 @@ public class Plugin {
     public String toString() {
         StringBuilder strbld = new StringBuilder();
         strbld.append(getName()).append(" - ");
-        strbld.append(getDescription()).append(" (");
+        strbld.append(getDescription()).append(" ( ");
         
-        /*for( Metric m : getMetrics() ) {
+        for( Metric m : getMetrics() ) {
             strbld.append(m.getName()).append(" ");
-        }*/
+        }
         
         strbld.append(")");
         

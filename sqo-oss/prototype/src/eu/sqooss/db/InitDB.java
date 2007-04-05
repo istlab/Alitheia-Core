@@ -36,8 +36,8 @@ public class InitDB {
         return p;
     }
     
-    private static Metric createMetric(String description,
-                                       String name,
+    private static Metric createMetric(String name,
+                                       String description,
                                        MetricType metricType,
                                        Plugin plugin) {
         Metric metric = new Metric();
