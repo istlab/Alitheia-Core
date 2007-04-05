@@ -20,7 +20,7 @@ public class PluginCLI extends CLI {
         options.addOption("a","add",false,"Add a new module");
     }
     
-    public static void parse(String[] args) {
+    public void parse(String[] args) {
         PluginCLI pcli = new PluginCLI(args);
         CommandLine cmdLine = pcli.parseArgs();
         

@@ -37,48 +37,54 @@ package eu.sqooss.tool;
  * measurement tool
  */
 public class Main {
-    
-    public static void main(String[] args) {
+
+    public void dispatch(String[] args) {
+        CLI cli = new CLI(args);
         //
         // basic options are:
         //  - projects, plugins, task, results
-        if(args.length != 0) {
+        if (args.length != 0) {
             // trim the arguments
             String[] targs = new String[args.length - 1];
             System.arraycopy(args, 1, targs, 0, targs.length);
-            
-            if(args[0].compareTo("projects") == 0) {
+
+            if (args[0].compareTo("projects") == 0) {
+                ((ProjectsCLI)cli).parse(targs);
+                return;
+            }
+            if (args[0].compareTo("plugins") == 0) {
+                ((PluginCLI)cli).parse(targs);
+                return;
+            }
+            if (args[0].compareTo("task") == 0) {
                 // TODO add command line handling for projects
                 return;
             }
-            if(args[0].compareTo("plugins") == 0) {
-                PluginCLI.parse(targs);
-                return;
-            }
-            if(args[0].compareTo("task") == 0) {
-                ProjectsCLI.parse(targs);
-                return;
-            }
-            if(args[0].compareTo("results") == 0) {
+            if (args[0].compareTo("results") == 0) {
                 // TODO add command line handling for results
                 return;
             }
-            if(args[0].compareTo("filegroup") == 0) {
+            if (args[0].compareTo("filegroup") == 0) {
                 // TODO add command line handling for file groups
             }
-            if(args[0].compareTo("help") == 0) {
+            if (args[0].compareTo("help") == 0) {
                 System.out.println(CLI.HEADER);
-                System.out.println("Available arguments are:\n\n projects - " +
-                                "configure stored projects\n plugin - configure/list " +
-                                "available plugins\n task - execute a " +
-                                "measurement task\n results - browse store results\n" +
-                                " filegroup - configure file groups\n" +
-                                " help - prints online help\n");              
+                System.out.println("Available arguments are:\n\n projects - "
+                                + "configure stored projects\n plugin - configure/list "
+                                + "available plugins\n task - execute a "
+                                + "measurement task\n results - browse store results\n"
+                                + " filegroup - configure file groups\n"
+                                + " help - prints online help\n");
                 return;
             }
         }
-        
+
         System.out.println(PluginCLI.HEADER);
         System.out.println("type 'tool.sh help' to see available commands\n");
-    }    
+    }
+
+    public static void main(String[] args) {
+        Main main = new Main();
+        main.dispatch(args);
+    }
 }

@@ -33,4 +33,37 @@ public class CLI {
             return null;
         }
     }
+    
+    /**
+     * Tries to ensure that a set of given options appears to rhe given cmd line
+     * 
+     * @param cmdLine The CommandLine to search into
+     * @param options Space sererated list of options 
+     * @return True if all options present to the options spec string 
+     * also appear to the given command line, false otherwise.
+     */
+    protected boolean ensureOptions(CommandLine cmdLine, String options) {
+        String[] opts = options.split(" ");
+        
+        for(String s : opts) 
+            if(!cmdLine.hasOption(s))
+                return false;
+        
+        return true;
+    }
+    
+    /**
+     * Print an error message and exit with exit code 1
+     * @param msg The message to be printed
+     */
+    protected void error(String msg, CommandLine pcli) {
+        System.err.println("ERROR:" + msg);
+        System.out.println(HEADER);
+        formatter.printHelp( "usage", options);
+        System.exit(1);
+    }
+    
+    protected void parse(String[] args) {
+        
+    }
 }

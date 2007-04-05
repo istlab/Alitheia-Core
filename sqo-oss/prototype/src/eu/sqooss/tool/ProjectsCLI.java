@@ -34,7 +34,7 @@ package eu.sqooss.tool;
 import org.apache.commons.cli.CommandLine;
 
 /**
- * Handling of command line for and dispatching if project-related
+ * Handling of command line for and dispatching of project-related
  * functions
  */
 public class ProjectsCLI extends CLI {
@@ -67,11 +67,27 @@ public class ProjectsCLI extends CLI {
         options.addOption("h", "help", false, "Project functions and options");
     }
 
-    public static void parse(String[] args) {
+    public void parse(String[] args) {
         ProjectsCLI pcli = new ProjectsCLI(args);
         CommandLine cmdLine = pcli.parseArgs();
 
+        if (!(cmdLine.hasOption("ap") || cmdLine.hasOption("av")
+                || cmdLine.hasOption("lp") || cmdLine.hasOption("lv")
+                || cmdLine.hasOption("dp") || cmdLine.hasOption("dv"))) {
+            error("One of the ap, av, lp, lv, dp, dv options must be set", cmdLine);
+            
+            return;
+        }
         
+        if(cmdLine.hasOption("ap")) {
+            if (!ensureOptions(cmdLine, "n l c s")) 
+                error("Missing options", cmdLine);
+        }
+        
+        if(cmdLine.hasOption("lp")) {
+            
+        }
     }
+    
 
 }
