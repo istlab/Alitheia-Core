@@ -19,7 +19,7 @@ public class WCParser implements OutputParser {
         try {
             HashMap<String,String> result = new HashMap<String,String>();
             BufferedReader b = new BufferedReader(
-                    new InputStreamReader(p.getInputStream()));
+                    new InputStreamReader(is));
             String output = b.readLine();
             b.close();
             Pattern pattern = Pattern.compile("[0-9]+");
