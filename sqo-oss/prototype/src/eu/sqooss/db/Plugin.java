@@ -121,12 +121,11 @@ public class Plugin {
     }
     
     // other methods
-    
     /**
      * Empty method, override in abstract plugin
      */
     public HashMap<String,String> run(String file) throws PluginException {
-        return null;
+        return new HashMap<String,String>();
     }
     
     /**
@@ -135,7 +134,13 @@ public class Plugin {
      * @return an array of metrics
      */
     public Metric[] getMetrics() {
-        return null;
+        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        session.beginTransaction();
+        // TODO check this query
+        List result = session.createQuery("from metric where metric.id = " + id).list();       
+        session.getTransaction().commit();
+        
+        return (Metric[])result.toArray(new Metric[] {});
     }
     
     /**
@@ -145,7 +150,7 @@ public class Plugin {
     public static List getPluginList() {
         Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
-        List result = session.createQuery("from Plugin").list();
+        List result = session.createQuery("from plugin").list();
         session.getTransaction().commit();
         
         return result;
