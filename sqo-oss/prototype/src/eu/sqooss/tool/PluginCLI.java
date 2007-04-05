@@ -17,7 +17,6 @@ public class PluginCLI extends CLI {
         super(args);        
         options.addOption("l","list",false,"List available plugins");
         options.addOption("h","help",false,"Prints the online help");
-        options.addOption("a","add",false,"Add a new module");
     }
     
     public void parse() {
