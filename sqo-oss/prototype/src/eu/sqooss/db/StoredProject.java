@@ -50,7 +50,7 @@ public class StoredProject {
     private String svnUrl;
         
     public StoredProject() {
-	this.versions = new HashSet();
+        this.versions = new HashSet();
     }
     
     public void setSvnUrl(String svnUrl) {
