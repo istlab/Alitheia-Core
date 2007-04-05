@@ -35,9 +35,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Iterator;
 
-import org.hibernate.Session;
-
-import eu.sqooss.util.HibernateUtil;
 import eu.sqooss.util.ReadOnlyIterator;
 
 import eu.sqooss.db.Plugin;
@@ -62,8 +59,8 @@ public class PluginList extends ArrayList<Plugin> {
     }
     
     private void addPlugin(Plugin p) {
-        System.out.println(p.getDescription());
-        
+        //System.out.println(p.getDescription());
+        // TODO implement it
     }
     
     public ReadOnlyIterator getPlugins() {
