@@ -22,10 +22,9 @@ public class PluginCLI extends CLI {
     public void parse() {
         PluginCLI pcli = new PluginCLI(args);
         CommandLine cmdLine = pcli.parseArgs();
-        
-        if(cmdLine == null) { return; }
-        
-        if(cmdLine.hasOption('h')) {
+                
+        if(cmdLine == null || cmdLine.getOptions().length ==0 
+                || cmdLine.hasOption('h')) {
             System.out.println(HEADER);
             pcli.formatter.printHelp( " ", pcli.options);
             return;
