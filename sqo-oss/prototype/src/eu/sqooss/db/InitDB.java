@@ -9,29 +9,76 @@ import eu.sqooss.util.HibernateUtil;
  * (invoke only once)
  */
 public class InitDB {
-    private static MetricType addMetricType(String type) {
-        MetricType mt = new MetricType();
-        
+    private static MetricType createMetricType(String type) {
+        MetricType mt = new MetricType();   
         mt.setType(type);
         
         return mt;
     }
     
+    private static Plugin createPlugin(String name, 
+                                       String description, 
+                                       String executor,
+                                       String executorType,
+                                       String parser,
+                                       String parserType,
+                                       String path ) {
+        Plugin p = new Plugin();
+        
+        p.setName(name);
+        p.setDescription(description);
+        p.setExecutor(executor);
+        p.setExecutorType(executorType);
+        p.setParser(parser);
+        p.setParserType(parserType);
+        p.setPath(path);
+        
+        return p;
+    }
+    
+    private static Metric createMetric(String description,
+                                       String name,
+                                       MetricType metricType,
+                                       Plugin plugin) {
+        Metric metric = new Metric();
+        
+        metric.setDescription(description);
+        metric.setName(name);
+        metric.setPlugin(plugin);
+        metric.setMetricType(metricType);
+        
+        return metric;
+    }
+    
     public static void main(String[] args) {
         Session session =
-            HibernateUtil.getSessionFactory().getCurrentSession();
-        
+            HibernateUtil.getSessionFactory().getCurrentSession();       
         
         session.beginTransaction();
         
         // add metric_type
-        session.save(addMetricType("Code Metric"));
-        session.save(addMetricType("Statistical measure"));
+        MetricType codeMetric = createMetricType("Code Metric");
+        MetricType statMeasure = createMetricType("Statistical measure"); 
+        
+        session.save(codeMetric);
+        session.save(statMeasure);
         
         // add plugins
+        Plugin wcPlugin = createPlugin("wc",
+                                       "Word Cound Plugin",
+                                       "wc -l %s",
+                                       "external",
+                                       "eu.sqooss.plugin.wordcount.WCParser",
+                                       "Java",
+                                        ""); // path is empty
+        
+        session.save(wcPlugin);
         
         // add metrics
         
+        session.save(createMetric("WC","Word Count",codeMetric,wcPlugin));
+        
+        // finally commit
         session.getTransaction().commit();
         
         // close the session
