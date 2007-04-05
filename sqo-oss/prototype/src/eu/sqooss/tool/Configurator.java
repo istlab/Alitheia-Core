@@ -1,5 +1,6 @@
 package eu.sqooss.tool;
 
+import java.io.File;
 import java.io.FileInputStream;
 
 import java.util.Properties;
@@ -24,7 +25,7 @@ public class Configurator {
         sqoossHome = System.getenv("SQOOSS_HOME");
         configuration = new Properties();
         try {
-            FileInputStream fis = new FileInputStream(sqoossHome + "/sqooss.properties");
+            FileInputStream fis = new FileInputStream(sqoossHome + File.separatorChar +"sqooss.properties");
             configuration.load(fis);
             fis.close();
         } catch (Exception e) {
