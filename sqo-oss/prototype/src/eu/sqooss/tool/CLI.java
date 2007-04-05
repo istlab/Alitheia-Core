@@ -63,6 +63,11 @@ public class CLI {
         System.exit(1);
     }
     
+    protected void error(String msg) {
+        System.err.println("ERROR:" + msg);
+        System.exit(1);
+    }
+    
     protected void parse(String[] args) {
         
     }
