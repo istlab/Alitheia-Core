@@ -56,7 +56,7 @@ public class Main {
                 return;
             }
             if(args[0].compareTo("task") == 0) {
-                // TODO add command line handling for tasks
+                ProjectsCLI.parse(targs);
                 return;
             }
             if(args[0].compareTo("results") == 0) {
