@@ -65,7 +65,7 @@ public class InitDB {
         
         // add plugins
         Plugin wcPlugin = createPlugin("wc",
-                                       "Word Cound Plugin",
+                                       "Word Count Plugin",
                                        "wc -l %s",
                                        "external",
                                        "eu.sqooss.plugin.wordcount.WCParser",
@@ -74,9 +74,40 @@ public class InitDB {
         
         session.save(wcPlugin);
         
+        
+        Plugin ccccPlugin = createPlugin("cccc",
+        								 "C/C++ Code Counter Plugin",
+        								 "eu.sqooss.plugin.cccc.CCCCExecutor" ,
+        								 "Java",
+        								 "eu.sqooss.plugin.cccc.CCCCOutputParser",
+        								 "Java",
+        								 "");
+        
+        session.save(ccccPlugin);
+        
         // add metrics
         
         session.save(createMetric("WC","Word Count",codeMetric,wcPlugin));
+        session.save(createMetric("MVG", 
+        		                  "McCabe's CC",
+        		                  codeMetric,
+        		                  ccccPlugin));
+        session.save(createMetric("WMC",
+        						  "Weighted Methods per Class", 
+        					      codeMetric,
+        					      ccccPlugin));
+        session.save(createMetric("DIT",
+                                  "Depth of Inheritance Tree",
+        		    		      codeMetric,
+        		    		      ccccPlugin));
+        session.save(createMetric("NOC",
+        		                  "Number of Children",
+        		                  codeMetric,
+        		    		      ccccPlugin));
+        session.save(createMetric("CBO",
+        		                  "Coupling Between Objects", 
+        		    		      codeMetric, 
+        		    		      ccccPlugin));
         
         // finally commit
         session.getTransaction().commit();
