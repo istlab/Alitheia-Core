@@ -64,10 +64,18 @@ public class CLI {
     }
     
     protected void error(String msg) {
-        System.err.println("ERROR:" + msg);
+        System.err.println("ERROR: " + msg);
         System.exit(1);
     }
     
+    protected void log(String msg) {
+        System.err.println("INFO: " + msg);
+    }
+    
+    /**
+     * Parses the arguments specific to a command
+     * @param args
+     */
     protected void parse(String[] args) {
         
     }
