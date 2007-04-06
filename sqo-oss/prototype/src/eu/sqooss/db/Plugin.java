@@ -137,11 +137,9 @@ public class Plugin {
     public Metric[] getMetrics() {
         Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
-        // TODO check this query
         Query q = session.createQuery("from Metric metric where metric.Plugin.id = :plugin");
         q.setLong("plugin", id);
         List result = q.list();
-        //session.getTransaction().commit();
         
         return (Metric[])result.toArray(new Metric[] {});
     }
