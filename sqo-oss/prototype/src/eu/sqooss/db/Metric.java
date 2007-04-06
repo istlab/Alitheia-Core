@@ -30,6 +30,13 @@
  */
 package eu.sqooss.db;
 
+import org.hibernate.Session;
+import org.hibernate.Query;
+
+import eu.sqooss.util.HibernateUtil;
+
+import java.util.List;
+
 /**
  * Class representation of the Metric Table in the
  * database
@@ -82,5 +89,21 @@ public class Metric {
 
     public void setName(String name) {
         this.name = name;
+    }
+    
+    // Other    
+    public static Metric getMetricByName(String name) {
+        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        session.beginTransaction();
+        
+        Query q = session.createQuery("from Metric metric where metric.name = :metric");
+        q.setString("metric",name);
+        List result = q.list();
+
+        if(result.size() > 1) {
+            return (Metric)result.get(0);
+        }
+        
+        return null;
     }
 }

@@ -5,6 +5,7 @@ import org.apache.commons.cli.*;
 import eu.sqooss.plugin.PluginList;
 
 import eu.sqooss.db.Plugin;
+import eu.sqooss.db.Metric;
 
 import eu.sqooss.util.ReadOnlyIterator;
 
@@ -17,6 +18,7 @@ public class PluginCLI extends CLI {
         super(args);        
         options.addOption("l","list",false,"List available plugins");
         options.addOption("h","help",false,"Prints the online help");
+        options.addOption("m","metric",true,"Prints information about a metric");
     }
     
     public void parse() {
@@ -25,8 +27,7 @@ public class PluginCLI extends CLI {
                 
         if(cmdLine == null || cmdLine.getOptions().length ==0 
                 || cmdLine.hasOption('h')) {
-            System.out.println(HEADER);
-            pcli.formatter.printHelp( " ", pcli.options);
+            error( " ",cmdLine);
             return;
         }
                 
@@ -39,6 +40,21 @@ public class PluginCLI extends CLI {
             }
             
             return;
+        }
+        
+        if(cmdLine.hasOption('m')) {
+            System.out.println("Metric Information: ");
+            String name = cmdLine.getOptionValue('m');
+            
+            Metric m = Metric.getMetricByName(name);
+            
+            if(m == null) { 
+                System.out.println("Metric " + name + " does not exists");
+                return;
+            }
+            System.out.println(m.getName() + " - " + m.getDescription() + 
+                    " by plugin " + m.getPlugin().getDescription() + " (" + 
+                    m.getName() + ")");
         }
     }
 }
