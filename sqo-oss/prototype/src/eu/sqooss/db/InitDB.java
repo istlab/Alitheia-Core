@@ -77,10 +77,10 @@ public class InitDB {
         
         Plugin ccccPlugin = createPlugin("cccc",
         								 "C/C++ Code Counter Plugin",
-        								 "eu.sqooss.plugin.cccc.CCCCExecutor" ,
-        								 "Java",
-        								 "eu.sqooss.plugin.cccc.CCCCOutputParser",
-        								 "Java",
+        								 "eu.sqooss.plugin.cccc.CCCCPlugin" ,
+        								 "JavaPlugin",
+        								 "", //no parser required for JavaPlugins
+        								 "",
         								 "");
         
         session.save(ccccPlugin);
