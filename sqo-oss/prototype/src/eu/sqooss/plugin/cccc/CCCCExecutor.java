@@ -50,7 +50,7 @@ public class CCCCExecutor extends ExternalExecutor {
 	@Override
 	public InputStream execute(File file) {
 		StringBuilder target = new StringBuilder();
-		target.append(cmd);
+		//target.append(cmd);
 		String outputPath = System.getProperty("java.io.tmpdir");
 		if ( !outputPath.endsWith(System.getProperty("file.separator")) )
 			   outputPath += System.getProperty("file.separator");
