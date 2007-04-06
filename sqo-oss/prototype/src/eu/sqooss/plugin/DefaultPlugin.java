@@ -51,14 +51,7 @@ public class DefaultPlugin extends Plugin {
 	this.executorInstance = e;
 	this.outputParserInstance = op;
         //
-        this.id = p.getId();
-        this.name = p.getName();
-        this.description = p.getDescription();
-        this.executor = p.getExecutor();
-        this.executorType = p.getExecutorType();
-        this.path = p.getPath();
-        this.parser = p.getParser();
-        this.parserType = p.getParserType();
+        p.copy(this);
     }
     
     public HashMap<String, String> run(ProjectFile file) throws PluginException {

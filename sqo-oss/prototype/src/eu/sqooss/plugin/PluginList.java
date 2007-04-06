@@ -67,14 +67,8 @@ public class PluginList extends ArrayList<Plugin> {
             try {
                 Class clazz = Class.forName(p.getExecutor());
                 Plugin plugin = (Plugin)clazz.newInstance();
-                // this is bad, will replace later on (at least it works)
-                plugin.setId(p.getId());
-                plugin.setName(p.getName());
-                plugin.setDescription(p.getDescription());
-                plugin.setExecutor(p.getExecutor());
-                plugin.setExecutorType(p.getExecutorType());
-                plugin.setParser(p.getParser());
-                plugin.setParserType(p.getParserType());
+                plugin = p.copy(plugin);
+                add(plugin);
             }catch (Exception e) {
                 System.err.println("Cannot initialize plugin : " 
                         + p.getName()+ " : "+ e.toString());
