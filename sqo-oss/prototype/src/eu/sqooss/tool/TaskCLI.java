@@ -109,6 +109,22 @@ public class TaskCLI extends CLI {
         System.out.println(String.format("Executing Plugin %s for "
                 + "Revision %s of project %s", plugin, revision, project));
 
+        performProcessing(p, pv, projectFiles);
+
+        session.getTransaction().commit();
+        System.out.println("Processing complete");
+    }
+
+    /**
+     * Performs the processing by invoking the plugin for each project file
+     * @param p
+     *            The plugin to be used for processing
+     * @param pv
+     *            The version of the project to be processed
+     * @param projectFiles
+     *            The list of files belonging in the version to be processed
+     */
+    private void performProcessing(Plugin p, ProjectVersion pv, List projectFiles) {
         Iterator pfit = projectFiles.iterator();
         while (pfit.hasNext()) {
             ProjectFile pf = (ProjectFile) pfit.next();
@@ -126,9 +142,6 @@ public class TaskCLI extends CLI {
             }
             storeResults(results, pf, pv);
         }
-
-        session.getTransaction().commit();
-        System.out.println("Processing complete");
     }
 
     /**
