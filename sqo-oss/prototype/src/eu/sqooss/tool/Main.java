@@ -65,7 +65,8 @@ public class Main {
                 return;
             }
             if (args[0].compareTo("results") == 0) {
-                // TODO add command line handling for results
+                ResultsCLI rcli = new ResultsCLI(targs);
+                rcli.parse();
                 return;
             }
             if (args[0].compareTo("filegroup") == 0) {

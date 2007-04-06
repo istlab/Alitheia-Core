@@ -144,7 +144,8 @@ public class StoredProject {
         HashMap<String, String> record = new HashMap<String, String>();
         
         Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-        Query q = session.createQuery("from StroredProject project where proiect.Project.id = :project");
+        Query q = session.createQuery("from StoredProject project where "
+                + "project.Project.id = :project");
         q.setString("project", projectid);
         List result = q.list();
         
