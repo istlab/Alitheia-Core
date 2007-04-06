@@ -34,7 +34,7 @@ import java.util.*;
 
 /**
  * Represents a log entry containing comments, author and date/time
- * information
+ * information, as well as a list of changed files.
  *
  * If one of the fields of a commit log entry could be used as a
  * unique ID (the date is not a safe option, perhaps a
@@ -65,6 +65,11 @@ public class CommitLogEntry {
     public String Revision;
 
     /**
+     * The list of paths changed during the commit
+     */
+    public ArrayList<String> ChangedPaths;
+    
+    /**
      * Constructs a new instance of the class
      * 
      * @param author The author who performed a commit
@@ -78,5 +83,6 @@ public class CommitLogEntry {
 	Comment = comment;
 	Date = date;
 	Revision = (revision == null) ? "" : revision;
+    ChangedPaths = new ArrayList<String>();
     }
 }

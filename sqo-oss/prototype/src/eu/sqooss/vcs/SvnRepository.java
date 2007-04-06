@@ -36,6 +36,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Set;
 import java.util.Vector;
 import java.util.regex.*;
 
@@ -298,7 +299,7 @@ public class SvnRepository extends Repository implements ISVNLogEntryHandler {
     
     /** 
      * handleLogEntry handles a log entry passed. Here we use it 
-     * to add CommitLogEntr-ies to a CommitLog object
+     * to add CommitLogEntries to a CommitLog object
      */
     public void handleLogEntry(SVNLogEntry logEntry) {
     	if (logEntry == null || (logEntry.getMessage() == null && logEntry.getRevision() == 0)) {
@@ -309,6 +310,8 @@ public class SvnRepository extends Repository implements ISVNLogEntryHandler {
     			logEntry.getMessage(), 
     			logEntry.getDate(), 
     			tmpRev.toString());
+        tmpEntry.ChangedPaths.addAll(logEntry.getChangedPaths().keySet());
+        
     	svnCommitLog.add(tmpEntry);
     }
     
