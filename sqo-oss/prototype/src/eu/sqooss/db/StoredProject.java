@@ -31,8 +31,15 @@
 
 package eu.sqooss.db;
 
+import org.hibernate.Session;
+import org.hibernate.Query;
+
+import eu.sqooss.util.HibernateUtil;
+
+import java.util.List;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.HashMap;
 
 /**
  * Class representation of the StoredProject Table in the
@@ -40,88 +47,107 @@ import java.util.HashSet;
  */
 public class StoredProject {
     private long id;
+
     private String name;
+
     private String website;
+
     private String contactPoint;
+
     private String mailPath;
+
     private Set versions;
+
     private String localPath;
+
     private String remotePath;
+
     private String svnUrl;
-        
+
     public StoredProject() {
         this.versions = new HashSet();
     }
-    
+
     public void setSvnUrl(String svnUrl) {
         this.svnUrl = svnUrl;
     }
-    
+
     public String getSvnUrl() {
         return svnUrl;
     }
-    
+
     public void setLocalPath(String localPath) {
         this.localPath = localPath;
     }
-    
+
     public String getLocalPath() {
         return localPath;
     }
-    
+
     public void setRemotePath(String remotePath) {
         this.remotePath = remotePath;
     }
-    
+
     public String getRemotePath() {
         return remotePath;
     }
 
     public String getContactPoint() {
-	return contactPoint;
+        return contactPoint;
     }
 
     public void setContactPoint(String contactPoint) {
-	this.contactPoint = contactPoint;
+        this.contactPoint = contactPoint;
     }
 
     public long getId() {
-	return id;
+        return id;
     }
 
     public void setId(long id) {
-	this.id = id;
+        this.id = id;
     }
 
     public String getMailPath() {
-	return mailPath;
+        return mailPath;
     }
 
     public void setMailPath(String mailPath) {
-	this.mailPath = mailPath;
+        this.mailPath = mailPath;
     }
 
     public String getName() {
-	return name;
+        return name;
     }
 
     public void setName(String name) {
-	this.name = name;
+        this.name = name;
     }
 
     public String getWebsite() {
-	return website;
+        return website;
     }
 
     public void setWebsite(String website) {
-	this.website = website;
+        this.website = website;
     }
 
     public Set getVersions() {
-	return this.versions;
+        return this.versions;
     }
 
     public void setVersions(Set versions) {
-	this.versions = versions;
+        this.versions = versions;
+    }
+    
+    public static HashMap<String, String> getProjectInfo(String projectid) {
+        HashMap<String, String> record = new HashMap<String, String>();
+        
+        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        Query q = session.createQuery("from StroredProject project where proiect.Project.id = :project");
+        q.setString("project", projectid);
+        List result = q.list();
+        
+        return record;
     }
 }
