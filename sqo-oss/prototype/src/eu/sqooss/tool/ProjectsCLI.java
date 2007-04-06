@@ -33,6 +33,7 @@ package eu.sqooss.tool;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 
 import org.apache.commons.cli.CommandLine;
 import org.hibernate.Session;
@@ -118,7 +119,10 @@ public class ProjectsCLI extends CLI {
         
         if(cmdLine.hasOption("av")) {
             if (!ensureOptions(cmdLine, "i v")) 
-                error("One of the required options (i) is missing", cmdLine);
+                error("One of the required options (i ,v) is missing", cmdLine);
+            
+            String projectid = cmdLine.getOptionValue("i").trim();
+            String version = cmdLine.getOptionValue("v").trim();
         }
         
         if(cmdLine.hasOption("lp")) {
@@ -132,10 +136,23 @@ public class ProjectsCLI extends CLI {
     }
     
     /**
+     * Checks out a project version and adds the relevant entries to the database
+     * @param projectId The project id to work with
+     * @param version Version number to add
+     */
+    private boolean addNewVersion(String projectId, String version) {
+        
+        log("Checking out current version");
+        HashMap<String, String> project = StoredProject.getProjectInfo(projectId);
+        //File f = new File(projectPath + File.separatorChar + ""); 
+
+        return false;
+    }
+    
+    /**
      * Adds a project to the StoredProject table and checks out 
      * its current version to the base path 
      */
-    
     private void addProject(String name, String remotePath, String localPath, String url) {
         
         String projectPath = null;
@@ -166,11 +183,8 @@ public class ProjectsCLI extends CLI {
             error(e.getMessage());
         }
         
-        long curver = r.getCurrentVersion(false);
+        long curver = r.getCurrentVersion(true);
         log("Current project version:" + curver);
-        
-        f = new File(projectPath); 
-       
         
         log("Adding project entry to the database");
         Session session = HibernateUtil.getSessionFactory().getCurrentSession();
@@ -189,5 +203,7 @@ public class ProjectsCLI extends CLI {
         session.save(p);
 
         session.getTransaction().commit();
+               
+       
     }
 }
