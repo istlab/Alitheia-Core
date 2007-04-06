@@ -160,6 +160,19 @@ public class Plugin {
         return result;
     }
     
+    public Plugin copy(Plugin p) {
+        p.id = id;
+        p.name = name;
+        p.description = description;
+        p.executor = executor;
+        p.executorType = executorType;
+        p.path = path;
+        p.parser = parser;
+        p.parserType = parserType;
+        
+        return p;
+    }
+    
     /**
      * Overrides toString()
      */
