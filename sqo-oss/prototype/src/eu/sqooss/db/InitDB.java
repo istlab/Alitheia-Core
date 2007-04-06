@@ -16,8 +16,8 @@ public class InitDB {
         return mt;
     }
     
-    private static Plugin createPlugin(String name, 
-                                       String description, 
+    private static Plugin createPlugin(String name,
+                                       String description,
                                        String executor,
                                        String executorType,
                                        String parser,
@@ -103,7 +103,6 @@ public class InitDB {
                                   "Number of Children",
                                   codeMetric,
                                   ccccPlugin));
-        
         session.save(createMetric("CBO",
                                   "Coupling Between Objects", 
                                   codeMetric, 
