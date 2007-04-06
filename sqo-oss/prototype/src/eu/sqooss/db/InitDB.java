@@ -86,7 +86,10 @@ public class InitDB {
         
         // add metrics
         
-        session.save(createMetric("WC","Word Count",codeMetric,wcPlugin));
+        session.save(createMetric("WC",
+                                  "Word Count",
+                                  codeMetric,
+                                  wcPlugin));
         session.save(createMetric("MVG", 
                                   "McCabe's CC",
                                   codeMetric,
