@@ -38,6 +38,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.Vector;
+import java.util.Map.Entry;
 import java.util.regex.*;
 
 
@@ -310,8 +311,25 @@ public class SvnRepository extends Repository implements ISVNLogEntryHandler {
     			logEntry.getMessage(), 
     			logEntry.getDate(), 
     			tmpRev.toString());
-        tmpEntry.ChangedPaths.addAll(logEntry.getChangedPaths().keySet());
         
+        for (Entry<String, SVNLogEntryPath> entry : (Set<Entry<String, SVNLogEntryPath>>)
+                logEntry.getChangedPaths().entrySet()) {
+        
+            switch(entry.getValue().getType()) {
+            case SVNLogEntryPath.TYPE_ADDED:
+                tmpEntry.ChangedPaths.put(entry.getKey(), ModificationType.Added);
+                break;
+            case SVNLogEntryPath.TYPE_DELETED:
+                tmpEntry.ChangedPaths.put(entry.getKey(), ModificationType.Deleted);
+                break;
+            case SVNLogEntryPath.TYPE_MODIFIED:
+                tmpEntry.ChangedPaths.put(entry.getKey(), ModificationType.Modified);
+                break;
+            case SVNLogEntryPath.TYPE_REPLACED:
+                tmpEntry.ChangedPaths.put(entry.getKey(), ModificationType.Replaced);
+                break;
+            }
+        }        
     	svnCommitLog.add(tmpEntry);
     }
     

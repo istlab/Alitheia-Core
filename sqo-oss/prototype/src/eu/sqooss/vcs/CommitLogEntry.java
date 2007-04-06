@@ -67,7 +67,7 @@ public class CommitLogEntry {
     /**
      * The list of paths changed during the commit
      */
-    public ArrayList<String> ChangedPaths;
+    public HashMap<String, ModificationType> ChangedPaths;
     
     /**
      * Constructs a new instance of the class
@@ -83,6 +83,6 @@ public class CommitLogEntry {
 	Comment = comment;
 	Date = date;
 	Revision = (revision == null) ? "" : revision;
-    ChangedPaths = new ArrayList<String>();
+    ChangedPaths = new HashMap<String, ModificationType>();
     }
 }
