@@ -60,7 +60,8 @@ public class Main {
                 return;
             }
             if (args[0].compareTo("task") == 0) {
-                // TODO add command line handling for projects
+                TaskCLI tcli = new TaskCLI(targs);
+                tcli.parse();
                 return;
             }
             if (args[0].compareTo("results") == 0) {
