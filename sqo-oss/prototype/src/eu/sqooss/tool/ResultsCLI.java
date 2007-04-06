@@ -96,7 +96,6 @@ public class ResultsCLI extends CLI {
         }
 
         session = HibernateUtil.getSessionFactory().getCurrentSession();
-        session.beginTransaction();
 
         if (cmdLine.hasOption("pl")) {
             /*
@@ -125,10 +124,8 @@ public class ResultsCLI extends CLI {
             error("The specified revision does not contain any items");
 
         /* If we got this far, it's time to retrieve the metric values */
-
         retrieveResults(pv, projectFiles);
 
-        session.getTransaction().commit();
         System.out.println("Processing complete");
     }
 
@@ -168,9 +165,13 @@ public class ResultsCLI extends CLI {
 
     /**
      * Retrieves a single measurement from the database
-     * @param pv The project version of the measurement
-     * @param pf The project file of the measurement
-     * @param m The metric of the measurement
+     * 
+     * @param pv
+     *            The project version of the measurement
+     * @param pf
+     *            The project file of the measurement
+     * @param m
+     *            The metric of the measurement
      * @return The corresponding measurement instance
      */
     private Measurement retrieveMeasurement(ProjectVersion pv, ProjectFile pf, Metric m) {
