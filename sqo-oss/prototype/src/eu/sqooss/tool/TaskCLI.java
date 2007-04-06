@@ -47,104 +47,107 @@ public class TaskCLI extends CLI {
 
     private Session session;
     private HashMap<String, Metric> metrics;
-        
+
     TaskCLI(String args[]) {
         super(args);
-        
+
         /* Arguments to task */
         options.addOption("pl", "plugin", true, "Plugin Name");
         options.addOption("pr", "project", true, "Project name");
         options.addOption("r", "revision", true, "Project revision");
-     
-        /*Help*/
+
+        /* Help */
         options.addOption("h", "help", false, "Print online help");
     }
 
     public void parse() {
         TaskCLI tcli = new TaskCLI(args);
         CommandLine cmdLine = tcli.parseArgs();
-        
-        if(cmdLine == null || cmdLine.getOptions().length ==0 
+
+        if (cmdLine == null || cmdLine.getOptions().length == 0
                 || cmdLine.hasOption('h')) {
             System.out.println(HEADER);
-            tcli.formatter.printHelp( " ", tcli.options);
+            tcli.formatter.printHelp(" ", tcli.options);
             return;
         }
-        if (!ensureOptions(cmdLine, "pl pr r")) 
-            error("One of the required options (pl, pr, r) is missing " +
-                    "or has no argument", cmdLine);
-        
+        if (!ensureOptions(cmdLine, "pl pr r"))
+            error("One of the required options (pl, pr, r) is missing "
+                    + "or has no argument", cmdLine);
+
         String plugin = cmdLine.getOptionValue("pl");
         String project = cmdLine.getOptionValue("pr");
         String revision = cmdLine.getOptionValue("r");
-        
+
         assert plugin != null && plugin != "";
         assert project != null && project != "";
         assert revision != null && revision != "";
-        
+
         /* check if the plugin exists and is registered */
         Plugin p = checkPlugin(plugin);
-        if(p == null)
+        if (p == null)
             error("The requested plugin is not registered in the system");
-        
+
         session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
-        
+
         /* check if the project exists and is registered */
         StoredProject pr = checkProject(project);
-        if(pr == null)
+        if (pr == null)
             error("The requested project is not registered in the system");
-        
-       /* Check if the requested revision is available in the system */
+
+        /* Check if the requested revision is available in the system */
         ProjectVersion pv = checkProjectRevision(revision, pr);
-        if(pv == null)
+        if (pv == null)
             error("The requested revision is not registered in the system");
-        
+
         /* Retrieve the project files */
         List projectFiles = retrieveProjectFiles(pv);
-        if(projectFiles.size() == 0)
+        if (projectFiles.size() == 0)
             error("The specified revision does not contain any items");
-        
+
         /* If we got this far, at last it's time to execute the Plugin */
-        System.out.println(String.format("Executing Plugin %s for " +
-                "Revision %s of project %s", plugin, revision, project));
-        
+        System.out.println(String.format("Executing Plugin %s for "
+                + "Revision %s of project %s", plugin, revision, project));
+
         Iterator pfit = projectFiles.iterator();
-        while(pfit.hasNext()) {
-            ProjectFile pf = (ProjectFile)pfit.next();
-            System.out.println(String.format("Processing file %s", 
-                    pf.getName()));
+        while (pfit.hasNext()) {
+            ProjectFile pf = (ProjectFile) pfit.next();
+            System.out.println(
+                    String.format("Processing file %s", pf.getName()));
             HashMap<String, String> results;
             try {
                 results = p.run(pf);
             } catch (PluginException pe) {
-                System.out.println(String.format("An error occured while " +
-                        "processing file %s:\n %s", pf.getName(), 
+                System.out.println(String.format("An error occured while "
+                        + "processing file %s:\n %s", pf.getName(),
                         pe.getMessage()));
                 log(pe.toString());
                 continue;
             }
             storeResults(results, pf, pv);
         }
-        
+
         session.getTransaction().commit();
         System.out.println("Processing complete");
     }
-    
+
     /**
      * Stores the results (metrics) calculated for a file by the plugin
-     * @param results A HashMap containing metric name - metric value pairs
-     * @param pf The ProjectFile from which the results occured
-     * @param pv The ProjectVersion that was processed 
+     * 
+     * @param results
+     *            A HashMap containing metric name - metric value pairs
+     * @param pf
+     *            The ProjectFile from which the results occured
+     * @param pv
+     *            The ProjectVersion that was processed
      */
     private void storeResults(HashMap<String, String> results, ProjectFile pf,
             ProjectVersion pv) {
-        
+
         Date date = new Date();
-        for(Entry<String, String> entry: results.entrySet()) {
-            
+        for (Entry<String, String> entry : results.entrySet()) {
+
             Measurement m = new Measurement();
-            
             m.setProjectFile(pf);
             m.setProjectVersion(pv);
             m.setWhenRun(date);
@@ -157,12 +160,14 @@ public class TaskCLI extends CLI {
     /**
      * Retrieves the list of files associated with a specific version of a
      * project
-     * @param pv The ProjectVersion whose list of files is to be retrieved
+     * 
+     * @param pv
+     *            The ProjectVersion whose list of files is to be retrieved
      * @return A list containing ProjectFile objects
      */
     private List retrieveProjectFiles(ProjectVersion pv) {
-        Query q = session.createQuery("from PROJECT_FILE pf where " +
-                "pf.PROJECT_VERSION_ID = :projverid");
+        Query q = session.createQuery("from PROJECT_FILE pf where "
+                + "pf.PROJECT_VERSION_ID = :projverid");
         q.setLong("projverid", pv.getId());
         List projectFiles = q.list();
         return projectFiles;
@@ -171,40 +176,46 @@ public class TaskCLI extends CLI {
     /**
      * Checks whether a specific revision of a project is available and stored
      * in the database
-     * @param revision The revision of the project (ProjectVersion)
-     * @param pr The project to be checked
+     * 
+     * @param revision
+     *            The revision of the project (ProjectVersion)
+     * @param pr
+     *            The project to be checked
      * @return The ProjectVersion corresponding to the given revision
      */
-    private ProjectVersion checkProjectRevision(String revision, StoredProject pr) {
-        ProjectVersion pv; 
-        Query q = session.createQuery("from PROJECT_VERSION pv where " +
-                "pv.PROJECT_ID = :projid and pv.VERSION like :version");
+    private ProjectVersion checkProjectRevision(String revision,
+            StoredProject pr) {
+        ProjectVersion pv;
+        Query q = session.createQuery("from PROJECT_VERSION pv where "
+                + "pv.PROJECT_ID = :projid and pv.VERSION like :version");
         q.setLong("projid", pr.getId());
         q.setString("version", revision);
-        pv = (ProjectVersion)q.uniqueResult();
+        pv = (ProjectVersion) q.uniqueResult();
         return pv;
     }
 
     /**
      * Checks whether a plugin is registered in the system and available
-     * @param plugin The name of the plugin
+     * 
+     * @param plugin
+     *            The name of the plugin
      * @return An instance of the plugin
      */
     private Plugin checkPlugin(String plugin) {
-        Plugin p = null;        
+        Plugin p = null;
         PluginList pl = PluginList.getInstance();
         ReadOnlyIterator roi = pl.getPlugins();
-        while(roi.hasNext()) {
-            Plugin current =(Plugin)roi.next(); 
-            if(current.getName().equalsIgnoreCase(plugin)) {
+        while (roi.hasNext()) {
+            Plugin current = (Plugin) roi.next();
+            if (current.getName().equalsIgnoreCase(plugin)) {
                 p = current;
                 break;
             }
         }
-        if(p != null) {
-            //initialize the hashmap of the metrics supported by the plugin
+        if (p != null) {
+            // initialize the hashmap of the metrics supported by the plugin
             metrics = new HashMap<String, Metric>();
-            for(Metric m: p.getMetrics()) {
+            for (Metric m : p.getMetrics()) {
                 metrics.put(m.getName(), m);
             }
         }
@@ -213,14 +224,15 @@ public class TaskCLI extends CLI {
 
     /**
      * Checks whether a project is registered in the database
-     * @param project The project name
+     * 
+     * @param project
+     *            The project name
      * @return An instance of the project
      */
     private StoredProject checkProject(String project) {
         StoredProject pr = (StoredProject) session.createQuery(
-                "from STORED_PROJECT as sp where sp.NAME = :prname")
-                .setString("prname", project)
-                .uniqueResult();
+                "from STORED_PROJECT as sp where sp.NAME = :prname").setString(
+                "prname", project).uniqueResult();
         return pr;
     }
 }
