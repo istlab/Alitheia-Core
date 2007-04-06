@@ -46,6 +46,7 @@ import eu.sqooss.db.Plugin;
 public class PluginList extends ArrayList<Plugin> {
     private final static String JAVA     = "Java";
     private final static String EXTERNAL = "External";
+    private final static String PLUGIN   = "JavaPlugin";
     //
     private final static PluginList defaultInstance;
     
@@ -62,6 +63,25 @@ public class PluginList extends ArrayList<Plugin> {
     }
     
     private void addPlugin(Plugin p) {
+        if(p.getExecutorType().compareToIgnoreCase(PLUGIN) == 0) {
+            try {
+                Class clazz = Class.forName(p.getExecutor());
+                Plugin plugin = (Plugin)clazz.newInstance();
+                // this is bad, will replace later on (at least it works)
+                plugin.setId(p.getId());
+                plugin.setName(p.getName());
+                plugin.setDescription(p.getDescription());
+                plugin.setExecutor(p.getExecutor());
+                plugin.setExecutorType(p.getExecutorType());
+                plugin.setParser(p.getParser());
+                plugin.setParserType(p.getParserType());
+            }catch (Exception e) {
+                System.err.println("Cannot initialize plugin : " 
+                        + p.getName()+ " : "+ e.toString());
+            }
+            return;
+        }
+        
         Executor ex = null;
         OutputParser op = null;
         
