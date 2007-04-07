@@ -27,7 +27,7 @@ public class PluginCLI extends CLI {
                 
         if(cmdLine == null || cmdLine.getOptions().length ==0 
                 || cmdLine.hasOption('h')) {
-            error( " ",cmdLine);
+            error(" ", cmdLine);
             return;
         }
                 
@@ -44,12 +44,12 @@ public class PluginCLI extends CLI {
         
         if(cmdLine.hasOption('m')) {
             System.out.println("Metric Information: ");
-            String name = cmdLine.getOptionValue('m');
+            String name = getOptionValue(cmdLine, "m");
             
             Metric m = Metric.getMetricByName(name);
             
             if(m == null) { 
-                System.out.println("Metric " + name + " does not exists");
+                System.out.println("Metric " + name + " does not exist");
                 return;
             }
             System.out.println(m.getName() + " - " + m.getDescription() + 

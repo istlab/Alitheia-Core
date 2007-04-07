@@ -73,6 +73,20 @@ public class CLI {
     }
     
     /**
+     * Gets the value of an option if it exists
+     * @param cmdLine The command line to be parsed for the value of the option
+     * @param option The option name
+     * @return An empty string if the option is not found, its value otherwise
+     */
+    protected String getOptionValue(CommandLine cmdLine, String option) {
+        String result = "";
+        if(cmdLine.hasOption(option)) {
+            result = cmdLine.getOptionValue(option).trim();
+        }
+        return result;
+    }
+    
+    /**
      * Parses the arguments specific to a command
      * @param args
      */

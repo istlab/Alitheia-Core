@@ -52,9 +52,9 @@ public class TaskCLI extends CLI {
         super(args);
 
         /* Arguments to task */
-        options.addOption("pl", "plugin", true, "Plugin Name");
-        options.addOption("pr", "project", true, "Project name");
-        options.addOption("r", "revision", true, "Project revision");
+        options.addOption("pl", "plugin", true, "Plugin name");
+        options.addOption("p", "project", true, "Project name");
+        options.addOption("v", "version", true, "Project version");
 
         /* Help */
         options.addOption("h", "help", false, "Print online help");
@@ -70,17 +70,17 @@ public class TaskCLI extends CLI {
             tcli.formatter.printHelp(" ", tcli.options);
             return;
         }
-        if (!ensureOptions(cmdLine, "pl pr r"))
-            error("One of the required options (pl, pr, r) is missing "
+        if (!ensureOptions(cmdLine, "pl p v"))
+            error("One of the required options (pl, p, v) is missing "
                     + "or has no argument", cmdLine);
 
-        String plugin = cmdLine.getOptionValue("pl");
-        String project = cmdLine.getOptionValue("pr");
-        String revision = cmdLine.getOptionValue("r");
+        String plugin = getOptionValue(cmdLine, "pl");
+        String project = getOptionValue(cmdLine, "p");
+        String version = getOptionValue(cmdLine, "v");
 
-        assert plugin != null && plugin != "";
-        assert project != null && project != "";
-        assert revision != null && revision != "";
+        assert plugin != "";
+        assert project != "";
+        assert version != "";
 
         /* check if the plugin exists and is registered */
         Plugin p = checkPlugin(plugin);
@@ -96,7 +96,7 @@ public class TaskCLI extends CLI {
             error("The requested project is not registered in the system");
 
         /* Check if the requested revision is available in the system */
-        ProjectVersion pv = checkProjectRevision(revision, pr);
+        ProjectVersion pv = checkProjectRevision(version, pr);
         if (pv == null)
             error("The requested revision is not registered in the system");
 
@@ -107,7 +107,7 @@ public class TaskCLI extends CLI {
 
         /* If we got this far, at last it's time to execute the Plugin */
         System.out.println(String.format("Executing Plugin %s for "
-                + "Revision %s of project %s", plugin, revision, project));
+                + "Revision %s of project %s", plugin, version, project));
 
         performProcessing(p, pv, projectFiles);
 

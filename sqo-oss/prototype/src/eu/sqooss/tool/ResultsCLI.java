@@ -54,9 +54,9 @@ public class ResultsCLI extends CLI {
 
         /* Arguments to task */
         options.addOption("p", "project", true, "Project name");
-        options.addOption("pl", "plugin", true, "Plugin Name");
-        options.addOption("r", "revision", true, "Project revision");
-        options.addOption("m", "metric", true, "Metric name(s)");
+        options.addOption("pl", "plugin", true, "Plugin name");
+        options.addOption("v", "version", true, "Project version");
+        options.addOption("m", "metric", true, "Metric name");
 
         /* Help */
         options.addOption("h", "help", false, "Print online help");
@@ -72,27 +72,25 @@ public class ResultsCLI extends CLI {
             rcli.formatter.printHelp(" ", rcli.options);
             return;
         }
-        if (!ensureOptions(cmdLine, "p r"))
-            error("One of the required options (p, r) is missing "
+        if (!ensureOptions(cmdLine, "p v"))
+            error("One of the required options (p, v) is missing "
                     + "or has no argument", cmdLine);
 
         if (!(cmdLine.hasOption("pl") || cmdLine.hasOption("m")))
             error("One of the optional options (pl, m) must be set", cmdLine);
 
-        String project = cmdLine.getOptionValue("p");
-        String revision = cmdLine.getOptionValue("r");
-        assert project != null && project != "";
-        assert revision != null && revision != "";
+        String project = getOptionValue(cmdLine,"p");
+        String version = getOptionValue(cmdLine,"v");
+        String plugin = getOptionValue(cmdLine, "pl");
+        String metric = getOptionValue(cmdLine, "m");
+        assert project != "";
+        assert version != "";
 
-        String plugin = "", metric = "";
-
-        if (cmdLine.hasOption("pl")) {
-            plugin = cmdLine.getOptionValue("pl");
-            assert plugin != null && plugin != "";
+        if (cmdLine.hasOption("pl")) { 
+            assert plugin != "";
         }
         if (cmdLine.hasOption("m")) {
-            metric = cmdLine.getOptionValue("m");
-            assert metric != null && metric != "";
+            assert metric != "";
         }
 
         session = HibernateUtil.getSessionFactory().getCurrentSession();
@@ -114,7 +112,7 @@ public class ResultsCLI extends CLI {
             error("The requested project is not registered in the system");
 
         /* Check if the requested revision is available in the system */
-        ProjectVersion pv = checkProjectRevision(revision, pr);
+        ProjectVersion pv = checkProjectRevision(version, pr);
         if (pv == null)
             error("The requested revision is not registered in the system");
 
@@ -218,19 +216,19 @@ public class ResultsCLI extends CLI {
      * Checks whether a specific revision of a project is available and stored
      * in the database
      * 
-     * @param revision
-     *            The revision of the project (ProjectVersion)
+     * @param version
+     *            The version of the project
      * @param pr
      *            The project to be checked
-     * @return The ProjectVersion corresponding to the given revision
+     * @return The ProjectVersion object corresponding to the given version
      */
-    private ProjectVersion checkProjectRevision(String revision,
+    private ProjectVersion checkProjectRevision(String version,
             StoredProject pr) {
         ProjectVersion pv;
         Query q = session.createQuery("from PROJECT_VERSION pv where "
                 + "pv.PROJECT_ID = :projid and pv.VERSION like :version");
         q.setLong("projid", pr.getId());
-        q.setString("version", revision);
+        q.setString("version", version);
         pv = (ProjectVersion) q.uniqueResult();
         return pv;
     }

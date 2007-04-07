@@ -34,6 +34,8 @@ package eu.sqooss.tool;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
 import org.hibernate.Query;
@@ -49,6 +51,7 @@ import eu.sqooss.vcs.*;
 public class ProjectsCLI extends CLI {
 
     private static String basepath;
+    private Session session;
 
     static {
         basepath = Configurator.getInstance().getValue(
@@ -68,7 +71,7 @@ public class ProjectsCLI extends CLI {
 
         options.addOption("dp", "delete-project", false,
                 "Delete a project and versions");
-        options.addOption("dv", "delete-versions", false,
+        options.addOption("dv", "delete-version", false,
                 "Delete a project version");
         options.addOption("f", "file-list", false,
                 "Displays the file list for a project");
@@ -92,37 +95,35 @@ public class ProjectsCLI extends CLI {
         ProjectsCLI pcli = new ProjectsCLI(args);
         CommandLine cmdLine = pcli.parseArgs();
 
-        String name = "";
-        String remotePath = "";
-        String url = "";
-        String localPath = "";
-        String projectid = "";
-        String version = "";
-
         if (!(cmdLine.hasOption("ap") || cmdLine.hasOption("av")
                 || cmdLine.hasOption("lp") || cmdLine.hasOption("lv")
-                || cmdLine.hasOption("dp") || cmdLine.hasOption("dv"))) {
-            error("One of the ap, av, lp, lv, dp, dv options must be set",
+                || cmdLine.hasOption("dp") || cmdLine.hasOption("dv")
+                || cmdLine.hasOption("f"))) {
+            error("One of the ap, av, lp, lv, dp, dv, f options must be set",
                     cmdLine);
-
             return;
         }
+        
+        String projectid = getOptionValue(cmdLine, "i");
+        String projectname = getOptionValue(cmdLine, "n");
+        String localPath = getOptionValue(cmdLine, "l");
+        String remotePath = getOptionValue(cmdLine, "r");
+        String svnurl = getOptionValue(cmdLine, "s");;
+        String version = getOptionValue(cmdLine, "v");;
 
+        session = HibernateUtil.getSessionFactory().getCurrentSession();
+        
         /* Project file listing handling */
         if (cmdLine.hasOption("f")) {
             if (!ensureOptions(cmdLine, "n v")) {
                 error("One of the required options (n, v) is missing "
                         + "or has no argument", cmdLine);
             }
-            name = cmdLine.getOptionValue("n");
-            version = cmdLine.getOptionValue("v");
-            assert name != null && name.trim() != "";
-            assert version != null && version.trim() != "";
-            name = name.trim();
-            version = version.trim();
+            assert projectname != "";
+            assert version != "";
 
             /* check if the project exists and is registered */
-            StoredProject pr = checkProject(name);
+            StoredProject pr = checkProject(projectname);
             if (pr == null)
                 error("The requested project is not registered in the system");
 
@@ -133,6 +134,7 @@ public class ProjectsCLI extends CLI {
 
             /* list the project files */
             listProjectVersionFiles(pv);
+            return;
         }
 
         if (cmdLine.hasOption("ap")) {
@@ -140,34 +142,59 @@ public class ProjectsCLI extends CLI {
                 error("One of the required options (n,r,s) is missing "
                         + "or has no argument", cmdLine);
 
-            name = cmdLine.getOptionValue("n").trim();
-            remotePath = cmdLine.getOptionValue("r").trim();
-            url = cmdLine.getOptionValue("s").trim();
-            localPath = cmdLine.getOptionValue("l");
-
-            assert name != null && name != "";
-            assert remotePath != null && remotePath != "";
-            assert url != null && url != "";
+            assert projectname != "";
+            assert remotePath != "";
+            assert svnurl != "";
 
             // if(!checkProjectExists(name, localPath, remotePath, url))
-            addProject(name, remotePath, localPath, url);
+            addProject(projectname, remotePath, localPath, svnurl);
+            session.getTransaction().commit();
+            return;
         }
 
         if (cmdLine.hasOption("av")) {
             if (!ensureOptions(cmdLine, "i v"))
                 error("One of the required options (i ,v) is missing", cmdLine);
 
-            projectid = cmdLine.getOptionValue("i").trim();
-            version = cmdLine.getOptionValue("v").trim();
+            assert projectid != "";
+            assert version != "";
+            session.getTransaction().commit();
+            return;
         }
 
+        if(cmdLine.hasOption("dp")) {
+            if(!ensureOptions(cmdLine, "i"))
+                error("One of the required options (i) is missing", cmdLine);
+            
+            assert projectid != "";
+            deleteProject(projectid);
+            session.getTransaction().commit();
+            return;
+        }
+        
+        if(cmdLine.hasOption("dv")) {
+            if(!ensureOptions(cmdLine, "i v"))
+                error("One of the required options (i, v) is missing", cmdLine);
+            
+            assert projectid != "";
+            assert version != "";
+            //TODO deleteProjectVersion(pv);
+            session.getTransaction().commit();
+            return;
+        }
+        
         if (cmdLine.hasOption("lp")) {
-
+            listProjects();
+            return;
         }
 
         if (cmdLine.hasOption("lv")) {
             if (!ensureOptions(cmdLine, "i"))
                 error("One of the required options (i) is missing", cmdLine);
+            
+            assert projectid != "";
+            listProjectVersions(projectid);
+            return;
         }
     }
 
@@ -229,14 +256,13 @@ public class ProjectsCLI extends CLI {
         log("Current project version:" + curver);
 
         log("Adding project entry to the database");
-        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
 
         session.beginTransaction();
 
         StoredProject p = new StoredProject();
         p.setName(name);
         p.setLocalPath(projectPath);
-        p.setRemotePath(remotePath.trim());
+        p.setRemotePath(remotePath);
         p.setSvnUrl(url);
         p.setContactPoint("admin@");
         p.setWebsite(url);
@@ -247,6 +273,72 @@ public class ProjectsCLI extends CLI {
         session.getTransaction().commit();
     }
 
+    /**
+     * Deletes a project and all associated objects from the database
+     * @param projectid
+     *                   The ID of the project to delete
+     */
+    private void deleteProject(String projectid) {
+        //TODO
+    }
+    
+    /**
+     * Deletes a project version and all associated objects from the database
+     * @param pv
+     *           The ProjectVersion to delete
+     */
+    private void deleteProjectVersion(ProjectVersion pv) {
+        //TODO
+    }
+    
+    /**
+     * Lists the projects registered and stored in the database
+     */
+    private void listProjects() {
+        
+        Query q = session.createQuery("from STORED_PROJECT pr");
+        List results = q.list();
+        if(results.size() == 0) {
+            System.out.println("No projects registered");
+            return;
+        }
+        System.out.println(String.format("%4s%16s%30s%30s",
+                "ID", "Project name", "Local path", "Repository url"));
+        Iterator it = results.iterator();
+        while(it.hasNext()) {
+            StoredProject sp = (StoredProject)it.next();   
+            System.out.println(String.format("%4s%16s%%30s%30s",
+                                             sp.getId(),
+                                             sp.getName(),
+                                             sp.getLocalPath(),
+                                             sp.getSvnUrl()));
+        }
+    }
+    
+    /**
+     * Lists the versions of a project registered to the system
+     * @param projectid 
+     *                   The ID of the project whose versions are requested
+     */
+    private void listProjectVersions(String projectid) {
+        Query q = session.createQuery("from PROJECT_VERSION pv WHERE "
+                + "pv.PROJECT_ID = :pid");
+        q.setString("pid", projectid);
+        List results = q.list();
+        if(results.size() == 0) {
+            System.out.println("No versions found");
+            return;
+        }
+        System.out.println("ID   Version");
+        Iterator it = results.iterator();
+        while(it.hasNext()) {
+            ProjectVersion pv = (ProjectVersion)it.next();   
+            System.out.println(String.format("%5s%s%",
+                                             pv.getId(),
+                                             pv.getVersion()));
+        }
+    }
+    
     /**
      * Lists the files associated with a project version
      * 
@@ -271,7 +363,6 @@ public class ProjectsCLI extends CLI {
      * @return An instance of the project
      */
     private StoredProject checkProject(String project) {
-        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         StoredProject pr = (StoredProject) session.createQuery(
                 "from STORED_PROJECT as sp where sp.NAME = :prname").setString(
                 "prname", project).uniqueResult();
@@ -291,7 +382,6 @@ public class ProjectsCLI extends CLI {
     private ProjectVersion checkProjectRevision(String revision,
             StoredProject pr) {
         ProjectVersion pv;
-        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         Query q = session.createQuery("from PROJECT_VERSION pv where "
                 + "pv.PROJECT_ID = :projid and pv.VERSION like :version");
         q.setLong("projid", pr.getId());
