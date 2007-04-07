@@ -72,6 +72,8 @@ public class ProjectsCLI extends CLI {
                 "Delete a project and versions");
         options.addOption("dv", "delete-versions", false,
                 "Delete a project version");
+        options.addOption("f","file-list",false,
+                "Displays the file list for a project");
 
         /*Arguments to functions*/
         options.addOption("i", "project-id", true, "Project ID");
@@ -97,6 +99,15 @@ public class ProjectsCLI extends CLI {
             error("One of the ap, av, lp, lv, dp, dv options must be set", cmdLine);
             
             return;
+        }
+        
+        if(cmdLine.hasOption("f")) {
+            if ( !ensureOptions(cmdLine, "n v")) {
+                error("One of the required options (n,r,s) is missing " +
+                        "or has no argument", cmdLine);
+            }
+            // TODO list the files of a project version
+            
         }
         
         if(cmdLine.hasOption("ap")) {
