@@ -98,12 +98,9 @@ public class Metric {
         
         Query q = session.createQuery("from Metric metric where metric.name = :metric");
         q.setString("metric",name);
-        List result = q.list();
-
-        if(result.size() > 1) {
-            return (Metric)result.get(0);
-        }
         
-        return null;
+        Metric m = (Metric)q.uniqueResult();
+        
+        return m;
     }
 }
