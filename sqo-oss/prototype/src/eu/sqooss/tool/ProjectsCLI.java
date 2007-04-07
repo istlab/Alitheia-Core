@@ -32,35 +32,33 @@
 package eu.sqooss.tool;
 
 import java.io.File;
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.apache.commons.cli.CommandLine;
+import org.hibernate.Query;
 import org.hibernate.Session;
 
-import eu.sqooss.db.MetricType;
-import eu.sqooss.db.StoredProject;
+import eu.sqooss.db.*;
 import eu.sqooss.util.HibernateUtil;
-import eu.sqooss.vcs.InvalidRepositoryException;
-import eu.sqooss.vcs.Repository;
-import eu.sqooss.vcs.RepositoryFactory;
+import eu.sqooss.vcs.*;
 
 /**
- * Handling of command line for and dispatching of project-related
- * functions
+ * Handling of command line for and dispatching of project-related functions
  */
 public class ProjectsCLI extends CLI {
 
     private static String basepath;
-    
-    static{
-        basepath = Configurator.getInstance().getValue(ConfigurationOptions.SQOOSS_HOME) + 
-            File.separatorChar   + "projects";
+
+    static {
+        basepath = Configurator.getInstance().getValue(
+                ConfigurationOptions.SQOOSS_HOME)
+                + File.separatorChar + "projects";
     }
-    
+
     ProjectsCLI(String[] args) {
         super(args);
-        /*Functions*/
+        /* Functions */
         options.addOption("ap", "add-project", false, "Add a project");
         options.addOption("av", "add-version", false,
                 "Add a new version to an " + "existing project");
@@ -72,20 +70,21 @@ public class ProjectsCLI extends CLI {
                 "Delete a project and versions");
         options.addOption("dv", "delete-versions", false,
                 "Delete a project version");
-        options.addOption("f","file-list",false,
+        options.addOption("f", "file-list", false,
                 "Displays the file list for a project");
 
-        /*Arguments to functions*/
+        /* Arguments to functions */
         options.addOption("i", "project-id", true, "Project ID");
         options.addOption("n", "project-name", true, "Project Name");
-        options.addOption("l", "project-local-path", true,
-                "Project local path");
+        options
+                .addOption("l", "project-local-path", true,
+                        "Project local path");
         options.addOption("r", "project-remote-path", true,
                 "Project remote path");
         options.addOption("v", "version", true, "Project version");
         options.addOption("s", "project-svn-url", true, "Project SVN URL");
 
-        /*Help*/
+        /* Help */
         options.addOption("h", "help", true, "Project functions and options");
     }
 
@@ -93,115 +92,147 @@ public class ProjectsCLI extends CLI {
         ProjectsCLI pcli = new ProjectsCLI(args);
         CommandLine cmdLine = pcli.parseArgs();
 
+        String name = "";
+        String remotePath = "";
+        String url = "";
+        String localPath = "";
+        String projectid = "";
+        String version = "";
+
         if (!(cmdLine.hasOption("ap") || cmdLine.hasOption("av")
                 || cmdLine.hasOption("lp") || cmdLine.hasOption("lv")
                 || cmdLine.hasOption("dp") || cmdLine.hasOption("dv"))) {
-            error("One of the ap, av, lp, lv, dp, dv options must be set", cmdLine);
-            
+            error("One of the ap, av, lp, lv, dp, dv options must be set",
+                    cmdLine);
+
             return;
         }
-        
-        if(cmdLine.hasOption("f")) {
-            if ( !ensureOptions(cmdLine, "n v")) {
-                error("One of the required options (n,r,s) is missing " +
-                        "or has no argument", cmdLine);
+
+        /* Project file listing handling */
+        if (cmdLine.hasOption("f")) {
+            if (!ensureOptions(cmdLine, "n v")) {
+                error("One of the required options (n, v) is missing "
+                        + "or has no argument", cmdLine);
             }
-            // TODO list the files of a project version
-            
+            name = cmdLine.getOptionValue("n");
+            version = cmdLine.getOptionValue("v");
+            assert name != null && name.trim() != "";
+            assert version != null && version.trim() != "";
+            name = name.trim();
+            version = version.trim();
+
+            /* check if the project exists and is registered */
+            StoredProject pr = checkProject(name);
+            if (pr == null)
+                error("The requested project is not registered in the system");
+
+            /* Check if the requested revision is available in the system */
+            ProjectVersion pv = checkProjectRevision(version, pr);
+            if (pv == null)
+                error("The requested revision is not registered in the system");
+
+            /* list the project files */
+            listProjectVersionFiles(pv);
         }
-        
-        if(cmdLine.hasOption("ap")) {
-            if (!ensureOptions(cmdLine, "n r s")) 
-                error("One of the required options (n,r,s) is missing " +
-                        "or has no argument", cmdLine);
-            
-            String name = cmdLine.getOptionValue("n").trim();
-            String remotePath = cmdLine.getOptionValue("r").trim();
-            String url = cmdLine.getOptionValue("s").trim();
-            String localPath = cmdLine.getOptionValue("l");
-            
+
+        if (cmdLine.hasOption("ap")) {
+            if (!ensureOptions(cmdLine, "n r s"))
+                error("One of the required options (n,r,s) is missing "
+                        + "or has no argument", cmdLine);
+
+            name = cmdLine.getOptionValue("n").trim();
+            remotePath = cmdLine.getOptionValue("r").trim();
+            url = cmdLine.getOptionValue("s").trim();
+            localPath = cmdLine.getOptionValue("l");
+
             assert name != null && name != "";
             assert remotePath != null && remotePath != "";
             assert url != null && url != "";
-            
-            //if(!checkProjectExists(name, localPath, remotePath, url))
+
+            // if(!checkProjectExists(name, localPath, remotePath, url))
             addProject(name, remotePath, localPath, url);
         }
-        
-        if(cmdLine.hasOption("av")) {
-            if (!ensureOptions(cmdLine, "i v")) 
+
+        if (cmdLine.hasOption("av")) {
+            if (!ensureOptions(cmdLine, "i v"))
                 error("One of the required options (i ,v) is missing", cmdLine);
-            
-            String projectid = cmdLine.getOptionValue("i").trim();
-            String version = cmdLine.getOptionValue("v").trim();
+
+            projectid = cmdLine.getOptionValue("i").trim();
+            version = cmdLine.getOptionValue("v").trim();
         }
-        
-        if(cmdLine.hasOption("lp")) {
-            
+
+        if (cmdLine.hasOption("lp")) {
+
         }
-        
-        if(cmdLine.hasOption("lv")) {
-            if (!ensureOptions(cmdLine, "i")) 
+
+        if (cmdLine.hasOption("lv")) {
+            if (!ensureOptions(cmdLine, "i"))
                 error("One of the required options (i) is missing", cmdLine);
         }
     }
-    
+
     /**
-     * Checks out a project version and adds the relevant entries to the database
-     * @param projectId The project id to work with
-     * @param version Version number to add
+     * Checks out a project version and adds the relevant entries to the
+     * database
+     * 
+     * @param projectId
+     *            The project id to work with
+     * @param version
+     *            Version number to add
      */
     private boolean addNewVersion(String projectId, String version) {
-        
+
         log("Checking out current version");
-        HashMap<String, String> project = StoredProject.getProjectInfo(projectId);
-        //File f = new File(projectPath + File.separatorChar + ""); 
+        HashMap<String, String> project = StoredProject
+                .getProjectInfo(projectId);
+        // File f = new File(projectPath + File.separatorChar + "");
 
         return false;
     }
-    
+
     /**
-     * Adds a project to the StoredProject table and checks out 
-     * its current version to the base path 
+     * Adds a project to the StoredProject table and checks out its current
+     * version to the base path
      */
-    private void addProject(String name, String remotePath, String localPath, String url) {
-        
+    private void addProject(String name, String remotePath, String localPath,
+            String url) {
+
         String projectPath = null;
-        
-        if(localPath != null)
-            projectPath = (localPath == basepath + File.separatorChar + name)?localPath:localPath;
+
+        if (localPath != null)
+            projectPath = (localPath == basepath + File.separatorChar + name) ? localPath
+                    : localPath;
         else
             projectPath = basepath + File.separatorChar + name;
-        
+
         System.out.println(basepath);
         System.out.println(projectPath);
-        
+
         File f = new File(projectPath);
-        
-        if(f.exists()) {
+
+        if (f.exists()) {
             error("Project directory already exists - not adding");
+        } else {
+            log("Creating project dir: " + f.getAbsolutePath());
+            f.mkdirs();
         }
-        else {
-          log("Creating project dir: " + f.getAbsolutePath());
-          f.mkdirs();
-        }
-        
+
         Repository r = null;
-        
+
         try {
             r = RepositoryFactory.getRepository(projectPath, url);
         } catch (InvalidRepositoryException e) {
             error(e.getMessage());
         }
-        
+
         long curver = r.getCurrentVersion(true);
         log("Current project version:" + curver);
-        
+
         log("Adding project entry to the database");
         Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-        
+
         session.beginTransaction();
-        
+
         StoredProject p = new StoredProject();
         p.setName(name);
         p.setLocalPath(projectPath);
@@ -210,11 +241,62 @@ public class ProjectsCLI extends CLI {
         p.setContactPoint("admin@");
         p.setWebsite(url);
         p.setMailPath(projectPath + File.separatorChar + "mail");
-        
+
         session.save(p);
 
         session.getTransaction().commit();
-               
-       
+    }
+
+    /**
+     * Lists the files associated with a project version
+     * 
+     * @param pv
+     *            The project version
+     */
+    private void listProjectVersionFiles(ProjectVersion pv) {
+        ArrayList<ProjectFile> projectFiles = pv.getProjectVersionFiles();
+        System.out.println("File listing of version " + pv.getVersion());
+        System.out.println("Status Filename");
+        for (ProjectFile pf : projectFiles) {
+            System.out.println(String.format("%6s %s", pf.getStatus(), pf
+                    .getName()));
+        }
+    }
+
+    /**
+     * Checks whether a project is registered in the database
+     * 
+     * @param project
+     *            The project name
+     * @return An instance of the project
+     */
+    private StoredProject checkProject(String project) {
+        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        StoredProject pr = (StoredProject) session.createQuery(
+                "from STORED_PROJECT as sp where sp.NAME = :prname").setString(
+                "prname", project).uniqueResult();
+        return pr;
+    }
+
+    /**
+     * Checks whether a specific revision of a project is available and stored
+     * in the database
+     * 
+     * @param revision
+     *            The revision of the project (ProjectVersion)
+     * @param pr
+     *            The project to be checked
+     * @return The ProjectVersion corresponding to the given revision
+     */
+    private ProjectVersion checkProjectRevision(String revision,
+            StoredProject pr) {
+        ProjectVersion pv;
+        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        Query q = session.createQuery("from PROJECT_VERSION pv where "
+                + "pv.PROJECT_ID = :projid and pv.VERSION like :version");
+        q.setLong("projid", pr.getId());
+        q.setString("version", revision);
+        pv = (ProjectVersion) q.uniqueResult();
+        return pv;
     }
 }

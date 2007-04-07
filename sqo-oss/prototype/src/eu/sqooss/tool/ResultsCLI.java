@@ -119,7 +119,7 @@ public class ResultsCLI extends CLI {
             error("The requested revision is not registered in the system");
 
         /* Retrieve the project files */
-        List projectFiles = retrieveProjectFiles(pv);
+        List projectFiles = pv.getProjectVersionFiles();
         if (projectFiles.size() == 0)
             error("The specified revision does not contain any items");
 
@@ -131,7 +131,7 @@ public class ResultsCLI extends CLI {
 
     /**
      * Performs the processing by retrieving the measurements for each project
-     * file and for eache metric
+     * file and for each metric
      * 
      * @param pv
      *            The version of the project to be processed

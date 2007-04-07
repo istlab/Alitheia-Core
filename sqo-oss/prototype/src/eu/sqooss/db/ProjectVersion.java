@@ -30,40 +30,68 @@
  */
 package eu.sqooss.db;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.hibernate.Query;
+import org.hibernate.Session;
+
+import eu.sqooss.util.HibernateUtil;
+
 /**
- * Class representation of the ProjectVersion Table in the
- * database
+ * Class representation of the ProjectVersion Table in the database
  */
 public class ProjectVersion {
     long id;
+
     long projectId;
+
     String version;
 
     public ProjectVersion() {
     }
 
     public long getId() {
-	return id;
+        return id;
     }
 
     public void setId(long id) {
-	this.id = id;
+        this.id = id;
     }
 
     public long getProjectId() {
-	return projectId;
+        return projectId;
     }
 
     public void setProjectId(long projectId) {
-	this.projectId = projectId;
+        this.projectId = projectId;
     }
 
     public String getVersion() {
-	return version;
+        return version;
     }
 
     public void setVersion(String version) {
-	this.version = version;
+        this.version = version;
+    }
+
+    /**
+     * Retrieves a list of all the ProjectFiles associated with this version
+     * 
+     * @return An ArrayList of ProjectFile objects
+     */
+    public ArrayList<ProjectFile> getProjectVersionFiles() {
+        ArrayList<ProjectFile> result = new ArrayList<ProjectFile>();
+        try {
+            Session session = HibernateUtil.getSessionFactory()
+                    .getCurrentSession();
+            Query q = session.createQuery("from PROJECT_FILE pf where "
+                    + "pf.PROJECT_VERSION_ID = :projverid");
+            q.setLong("projverid", id);
+            result.addAll(q.list());
+        } catch (Exception e) {
+        }
+        return result;
     }
 
 }

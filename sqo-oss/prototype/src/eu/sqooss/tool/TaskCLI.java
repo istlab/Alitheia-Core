@@ -101,7 +101,7 @@ public class TaskCLI extends CLI {
             error("The requested revision is not registered in the system");
 
         /* Retrieve the project files */
-        List projectFiles = retrieveProjectFiles(pv);
+        List projectFiles = pv.getProjectVersionFiles();
         if (projectFiles.size() == 0)
             error("The specified revision does not contain any items");
 
@@ -168,22 +168,6 @@ public class TaskCLI extends CLI {
             m.setResult(entry.getValue());
             session.save(m);
         }
-    }
-
-    /**
-     * Retrieves the list of files associated with a specific version of a
-     * project
-     * 
-     * @param pv
-     *            The ProjectVersion whose list of files is to be retrieved
-     * @return A list containing ProjectFile objects
-     */
-    private List retrieveProjectFiles(ProjectVersion pv) {
-        Query q = session.createQuery("from PROJECT_FILE pf where "
-                + "pf.PROJECT_VERSION_ID = :projverid");
-        q.setLong("projverid", pv.getId());
-        List projectFiles = q.list();
-        return projectFiles;
     }
 
     /**

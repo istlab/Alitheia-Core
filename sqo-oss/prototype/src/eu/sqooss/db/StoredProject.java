@@ -36,6 +36,7 @@ import org.hibernate.Query;
 
 import eu.sqooss.util.HibernateUtil;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.HashSet;
@@ -150,5 +151,28 @@ public class StoredProject {
         List result = q.list();
         
         return record;
+    }
+    
+    /**
+     * Loads the list of versions related to the project and returns it
+     * @return The list of ProjectVersion objects associated with the current
+     * instance
+     */
+    public Set getProjectVersions() {
+        
+        try {
+            Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+            Query q = session.createQuery("from ProjectVersion pv where "
+                    + "pv.PROJECT_ID = :pid");
+            q.setLong("pid", id);
+            List results = q.list();
+            Iterator it = results.iterator();
+            while (it.hasNext()) {
+                versions.add((ProjectVersion)it.next());
+            }
+        } catch (Exception e) {
+        }
+        
+        return versions;
     }
 }
