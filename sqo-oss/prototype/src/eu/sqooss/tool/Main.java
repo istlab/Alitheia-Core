@@ -49,8 +49,6 @@ public class Main {
     
     public void dispatch(String[] args) {
         CLI cli = new CLI(args);
-        
-        //
         // basic options are:
         //  - projects, plugins, task, results
         if (args.length != 0) {
@@ -83,13 +81,13 @@ public class Main {
             }
             if (args[0].compareTo("help") == 0) {
                 System.out.println(CLI.HEADER);
-		System.out.println("Available arguments are:\n\n");
-		for (String helpLine : help)
-		    System.out.println(" " + helpLine);
+                System.out.println("Available arguments are:\n\n");
+                for (String helpLine : help) {
+                	System.out.println(" " + helpLine);
+                }	
                 return;
             }
         }
-
         System.out.println(PluginCLI.HEADER);
         System.out.println("type 'tool.sh help' to see available commands\n");
     }

@@ -11,7 +11,6 @@ public class CLI {
                              "Copyright (c) Members of the SQO-OSS Collaboration, 2007\n" +
                              "All rights reserved by respective owners.\n" +
                              "See http://www.sqo-oss.eu/ for details on the copyright holders.\n"; 
-    //
     protected Options options;
     protected HelpFormatter formatter;
     protected String[] args;
@@ -35,7 +34,7 @@ public class CLI {
     }
     
     /**
-     * Tries to ensure that a set of given options appears to rhe given cmd line
+     * Tries to ensure that a set of given options appears to the given cmd line
      * 
      * @param cmdLine The CommandLine to search into
      * @param options Space sererated list of options 

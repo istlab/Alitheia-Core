@@ -76,8 +76,7 @@ public class ProjectsCLI extends CLI {
         /* Arguments to functions */
         options.addOption("i", "project-id", true, "Project ID");
         options.addOption("n", "project-name", true, "Project Name");
-        options
-                .addOption("l", "project-local-path", true,
+        options.addOption("l", "project-local-path", true,
                         "Project local path");
         options.addOption("r", "project-remote-path", true,
                 "Project remote path");
@@ -121,24 +120,24 @@ public class ProjectsCLI extends CLI {
 
             /* check if the project exists and is registered */
             StoredProject pr = checkProject(projectName);
-            if (pr == null)
-                error("The requested project is not registered in the system");
-
+            if (pr == null) {
+            	error("The requested project is not registered in the system");
+            }
             /* Check if the requested revision is available in the system */
             ProjectVersion pv = checkProjectVersion(version, pr);
-            if (pv == null)
-                error("The requested revision is not registered in the system");
-
+            if (pv == null) {
+            	error("The requested revision is not registered in the system");
+            }
             /* list the project files */
             listProjectVersionFiles(pv);
             return;
         }
 
         if (cmdLine.hasOption("ap")) {
-            if (!ensureOptions(cmdLine, "n r s"))
-                error("One of the required options (n,r,s) is missing "
+            if (!ensureOptions(cmdLine, "n r s")) {
+            	error("One of the required options (n,r,s) is missing "
                         + "or has no argument", cmdLine);
-
+            }
             assert projectName != "";
             assert remotePath != "";
             assert svnurl != "";
@@ -154,9 +153,9 @@ public class ProjectsCLI extends CLI {
         }
 
         if (cmdLine.hasOption("av")) {
-            if (!ensureOptions(cmdLine, "i v"))
-                error("One of the required options (i,v) is missing", cmdLine);
-
+            if (!ensureOptions(cmdLine, "i v")) {
+            	 error("One of the required options (i,v) is missing", cmdLine);
+            }
             assert projectid != "";
             assert version != "";
             
@@ -171,9 +170,9 @@ public class ProjectsCLI extends CLI {
         }
 
         if(cmdLine.hasOption("dp")) {
-            if(!ensureOptions(cmdLine, "i"))
-                error("One of the required options (i) is missing", cmdLine);
-            
+            if(!ensureOptions(cmdLine, "i")) {
+            	error("One of the required options (i) is missing", cmdLine);
+            }
             assert projectid != "";
             StoredProject pr = loadProject(projectid);
             if(pr == null) {
@@ -186,9 +185,9 @@ public class ProjectsCLI extends CLI {
         }
         
         if(cmdLine.hasOption("dv")) {
-            if(!ensureOptions(cmdLine, "i v"))
-                error("One of the required options (i, v) is missing", cmdLine);
-            
+            if(!ensureOptions(cmdLine, "i v")) {
+            	 error("One of the required options (i, v) is missing", cmdLine);
+            }
             assert projectid != "";
             assert version != "";
             StoredProject pr = loadProject(projectid);
@@ -211,9 +210,9 @@ public class ProjectsCLI extends CLI {
         }
 
         if (cmdLine.hasOption("lv")) {
-            if (!ensureOptions(cmdLine, "i"))
-                error("One of the required options (i) is missing", cmdLine);
-            
+            if (!ensureOptions(cmdLine, "i")) {
+            	error("One of the required options (i) is missing", cmdLine);
+            } 
             assert projectid != "";
             listProjectVersions(projectid);
             return;
@@ -242,10 +241,11 @@ public class ProjectsCLI extends CLI {
     private void addProject(String name, String remotePath, String localPath,
             String url) {
         String projectPath = null;
-        if (localPath != null && localPath !="")
-            projectPath = localPath;
-        else
-            projectPath = basepath + File.separatorChar + name;
+        if (localPath != null && localPath !="") {
+        	projectPath = localPath;
+        } else {
+        	projectPath = basepath + File.separatorChar + name;
+        }
         //System.out.println(basepath);
         //System.out.println(projectPath);
 
@@ -289,8 +289,7 @@ public class ProjectsCLI extends CLI {
     private void checkoutProject(StoredProject project, String version) {
         Repository r = null;
         Revision rev;
-        try
-        {
+        try {
             r = RepositoryFactory.getRepository(project.getLocalPath(),
                     project.getSvnUrl());
         } catch(InvalidRepositoryException ire) {
