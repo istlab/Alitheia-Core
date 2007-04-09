@@ -1,0 +1,4 @@
+urlid sqooss
+url jdbc:hsqldb:hsql://localhost/sqooss
+username sa
+password
