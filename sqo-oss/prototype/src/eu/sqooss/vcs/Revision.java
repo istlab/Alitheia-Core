@@ -64,13 +64,38 @@ public class Revision {
      * @param number The number of the revision
      */
     public Revision(long number) {
-        if (number < 0) {
+        if (number < -2) {
             throw new IllegalArgumentException();
         }
 
         this.number = number;
         description = String.valueOf(number);
         files = new Vector<FileEntry>();
+    }
+    
+    /**
+     * Creates a new instance of the class
+     * @param description The description of the revision
+     */
+    public Revision(String description) {
+        if(description == null || description == "" || 
+                description.equalsIgnoreCase("HEAD")) {
+            number = HEAD;
+            this.description = "HEAD";
+        } else if (description == "BASE") {
+            number = BASE;
+            this.description = "BASE";
+        } else {
+            long n = 0;
+            try {
+                n = Long.parseLong(description);
+                number = n;
+                this.description = String.valueOf(number);
+            } catch (Exception e) {
+                number = HEAD;
+                this.description = "HEAD";
+            }
+        }
     }
 
     /**

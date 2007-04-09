@@ -102,7 +102,7 @@ public class ProjectsCLI extends CLI {
         }
         
         String projectid = getOptionValue(cmdLine, "i");
-        String projectname = getOptionValue(cmdLine, "n");
+        String projectName = getOptionValue(cmdLine, "n");
         String localPath = getOptionValue(cmdLine, "l");
         String remotePath = getOptionValue(cmdLine, "r");
         String svnurl = getOptionValue(cmdLine, "s");;
@@ -116,11 +116,11 @@ public class ProjectsCLI extends CLI {
                 error("One of the required options (n, v) is missing "
                         + "or has no argument", cmdLine);
             }
-            assert projectname != "";
+            assert projectName != "";
             assert version != "";
 
             /* check if the project exists and is registered */
-            StoredProject pr = checkProject(projectname);
+            StoredProject pr = checkProject(projectName);
             if (pr == null)
                 error("The requested project is not registered in the system");
 
@@ -139,22 +139,33 @@ public class ProjectsCLI extends CLI {
                 error("One of the required options (n,r,s) is missing "
                         + "or has no argument", cmdLine);
 
-            assert projectname != "";
+            assert projectName != "";
             assert remotePath != "";
             assert svnurl != "";
+            if(localPath == "") {
+                localPath = basepath + File.separator + projectName;
+            }
 
             // if(!checkProjectExists(name, localPath, remotePath, url))
-            addProject(projectname, remotePath, localPath, svnurl);
+            session.beginTransaction();
+            addProject(projectName, remotePath, localPath, svnurl);
             session.getTransaction().commit();
             return;
         }
 
         if (cmdLine.hasOption("av")) {
             if (!ensureOptions(cmdLine, "i v"))
-                error("One of the required options (i ,v) is missing", cmdLine);
+                error("One of the required options (i,v) is missing", cmdLine);
 
             assert projectid != "";
             assert version != "";
+            
+            StoredProject pr = loadProject(projectid);
+            if(pr == null) {
+                error("The requested project is not registered");
+            }
+            session.beginTransaction();
+            addNewVersion(pr, version);
             session.getTransaction().commit();
             return;
         }
@@ -168,6 +179,7 @@ public class ProjectsCLI extends CLI {
             if(pr == null) {
                 error("The requested project is not registered");
             }
+            session.beginTransaction();
             deleteProject(pr);
             session.getTransaction().commit();
             return;
@@ -187,6 +199,7 @@ public class ProjectsCLI extends CLI {
             if(pv == null) {
                 error("The requested revision is not registered");
             }
+            session.beginTransaction();
             deleteProjectVersion(pv);
             session.getTransaction().commit();
             return;
@@ -211,19 +224,15 @@ public class ProjectsCLI extends CLI {
      * Checks out a project version and adds the relevant entries to the
      * database
      * 
-     * @param projectId
-     *            The project id to work with
+     * @param project
+     *            The project to work with
      * @param version
      *            Version number to add
      */
-    private boolean addNewVersion(String projectId, String version) {
-
-        log("Checking out current version");
-        HashMap<String, String> project = StoredProject
-                .getProjectInfo(projectId);
-        // File f = new File(projectPath + File.separatorChar + "");
-
-        return false;
+    private void addNewVersion(StoredProject project, String version) {
+        log(String.format("Checking out version %s of project %s",
+                version, project.getName()));
+        checkoutProject(project, version);
     }
 
     /**
@@ -232,41 +241,31 @@ public class ProjectsCLI extends CLI {
      */
     private void addProject(String name, String remotePath, String localPath,
             String url) {
-
         String projectPath = null;
-
-        if (localPath != null)
-            projectPath = (localPath == basepath + File.separatorChar + name) ? localPath
-                    : localPath;
+        if (localPath != null && localPath !="")
+            projectPath = localPath;
         else
             projectPath = basepath + File.separatorChar + name;
-
-        System.out.println(basepath);
-        System.out.println(projectPath);
+        //System.out.println(basepath);
+        //System.out.println(projectPath);
 
         File f = new File(projectPath);
-
         if (f.exists()) {
             error("Project directory already exists - not adding");
         } else {
             log("Creating project dir: " + f.getAbsolutePath());
             f.mkdirs();
         }
-
+        
         Repository r = null;
-
         try {
             r = RepositoryFactory.getRepository(projectPath, url);
         } catch (InvalidRepositoryException e) {
             error(e.getMessage());
         }
-
         long curver = r.getCurrentVersion(true);
         log("Current project version:" + curver);
-
         log("Adding project entry to the database");
-
-        session.beginTransaction();
 
         StoredProject p = new StoredProject();
         p.setName(name);
@@ -278,10 +277,49 @@ public class ProjectsCLI extends CLI {
         p.setMailPath(projectPath + File.separatorChar + "mail");
 
         session.save(p);
-
-        session.getTransaction().commit();
+        addNewVersion(p, String.valueOf(curver));
     }
 
+    /**
+     * Checks out a project revision at the location selected or the base
+     * location for all projects
+     * @param project
+     * @param version
+     */
+    private void checkoutProject(StoredProject project, String version) {
+        Repository r = null;
+        Revision rev;
+        try
+        {
+            r = RepositoryFactory.getRepository(project.getLocalPath(),
+                    project.getSvnUrl());
+        } catch(InvalidRepositoryException ire) {
+            error("Failed to access the project's repository");
+        }
+        rev = new Revision(version); /*if the version is in invalid format,
+        the HEAD revision will be used */
+        r.checkout(rev);
+        Vector<String> files = new Vector<String>();
+        r.listEntries(files, "/", rev);
+        
+        ProjectVersion pv = new ProjectVersion();
+        pv.setProjectId(project.getId());
+        pv.setVersion(String.valueOf(r.getCurrentVersion(false)));
+        session.save(pv);
+        
+        for(String file: files) {
+            try {
+                ProjectFile pf = new ProjectFile();
+                pf.setName(file); //perhaps it needs project.getLocalpath + ...
+                pf.setProjectVersion(pv);
+                session.save(pf);    
+            } catch (Exception ex) {
+                log("Failed to store information for file: " + file);
+                continue;
+            }   
+        }       
+    }
+    
     /**
      * Deletes a project and all associated objects from the database
      * @param project
