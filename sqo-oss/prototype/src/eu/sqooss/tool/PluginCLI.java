@@ -16,9 +16,10 @@ public class PluginCLI extends CLI {
     
     PluginCLI(String[] args) {
         super(args);        
-        options.addOption("l","list",false,"List available plugins");
-        options.addOption("h","help",false,"Prints the online help");
-        options.addOption("m","metric",true,"Prints information about a metric");
+        options.addOption("l", "list", false, "List available plugins");
+        options.addOption("h", "help", false, "Prints the online help");
+        options.addOption("m", "metric", true, 
+        		"Prints information about a metric");
     }
     
     public void parse() {

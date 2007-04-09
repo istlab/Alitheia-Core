@@ -84,27 +84,27 @@ public class TaskCLI extends CLI {
 
         /* check if the plugin exists and is registered */
         Plugin p = checkPlugin(plugin);
-        if (p == null)
-            error("The requested plugin is not registered in the system");
-
+        if (p == null) {
+        	error("The requested plugin is not registered in the system");
+        }
         session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
 
         /* check if the project exists and is registered */
         StoredProject pr = checkProject(project);
-        if (pr == null)
-            error("The requested project is not registered in the system");
-
+        if (pr == null) {
+        	error("The requested project is not registered in the system");
+        }
         /* Check if the requested revision is available in the system */
         ProjectVersion pv = checkProjectRevision(version, pr);
-        if (pv == null)
-            error("The requested revision is not registered in the system");
-
+        if (pv == null) {
+        	error("The requested revision is not registered in the system");
+        }
         /* Retrieve the project files */
         List projectFiles = pv.getProjectVersionFiles();
-        if (projectFiles.size() == 0)
-            error("The specified revision does not contain any items");
-
+        if (projectFiles.size() == 0) {
+        	error("The specified revision does not contain any items");
+        }
         /* If we got this far, at last it's time to execute the Plugin */
         System.out.println(String.format("Executing Plugin %s for "
                 + "Revision %s of project %s", plugin, version, project));

@@ -61,7 +61,7 @@ public class ProjectsCLI extends CLI {
         /* Functions */
         options.addOption("ap", "add-project", false, "Add a project");
         options.addOption("av", "add-version", false,
-                "Add a new version to an " + "existing project");
+                "Add a new version to an existing project");
         options.addOption("lp", "list-projects", false, "List all projects");
         options.addOption("lv", "list-versions", false,
                 "List versions of project");
@@ -158,7 +158,6 @@ public class ProjectsCLI extends CLI {
             }
             assert projectid != "";
             assert version != "";
-            
             StoredProject pr = loadProject(projectid);
             if(pr == null) {
                 error("The requested project is not registered");
