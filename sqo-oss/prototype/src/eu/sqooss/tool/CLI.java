@@ -44,10 +44,11 @@ public class CLI {
     protected boolean ensureOptions(CommandLine cmdLine, String options) {
         String[] opts = options.split(" ");
         
-        for(String s : opts) 
-            if(!cmdLine.hasOption(s))
-                return false;
-        
+        for(String s : opts) {
+        	if(!cmdLine.hasOption(s)) {
+        		return false;
+        	}      
+        }
         return true;
     }
     

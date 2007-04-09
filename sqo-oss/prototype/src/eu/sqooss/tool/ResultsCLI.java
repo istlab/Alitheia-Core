@@ -72,13 +72,15 @@ public class ResultsCLI extends CLI {
             rcli.formatter.printHelp(" ", rcli.options);
             return;
         }
-        if (!ensureOptions(cmdLine, "p v"))
-            error("One of the required options (p, v) is missing "
+        if (!ensureOptions(cmdLine, "p v")) {
+        	error("One of the required options (p, v) is missing "
                     + "or has no argument", cmdLine);
+        }     
 
-        if (!(cmdLine.hasOption("pl") || cmdLine.hasOption("m")))
-            error("One of the optional options (pl, m) must be set", cmdLine);
-
+        if (!(cmdLine.hasOption("pl") || cmdLine.hasOption("m"))) {
+        	error("One of the optional options (pl, m) must be set", cmdLine);
+        }
+        
         String project = getOptionValue(cmdLine,"p");
         String version = getOptionValue(cmdLine,"v");
         String plugin = getOptionValue(cmdLine, "pl");
@@ -108,18 +110,21 @@ public class ResultsCLI extends CLI {
 
         /* check if the project exists and is registered */
         StoredProject pr = checkProject(project);
-        if (pr == null)
-            error("The requested project is not registered in the system");
-
+        if (pr == null) {
+        	error("The requested project is not registered in the system");
+        }
+            
         /* Check if the requested revision is available in the system */
         ProjectVersion pv = checkProjectRevision(version, pr);
-        if (pv == null)
-            error("The requested revision is not registered in the system");
+        if (pv == null) {
+        	error("The requested revision is not registered in the system");
+        }
 
         /* Retrieve the project files */
         List projectFiles = pv.getProjectVersionFiles();
-        if (projectFiles.size() == 0)
-            error("The specified revision does not contain any items");
+        if (projectFiles.size() == 0) {
+        	error("The specified revision does not contain any items");
+        }
 
         /* If we got this far, it's time to retrieve the metric values */
         retrieveResults(pv, projectFiles);
@@ -148,11 +153,12 @@ public class ResultsCLI extends CLI {
             for (Metric m : metrics.values()) {
                 try {
                     Measurement measurement = retrieveMeasurement(pv, pf, m);
-                    if (measurement != null)
-                        System.out.print(String.format("%6s", 
+                    if (measurement != null) {
+                    	System.out.print(String.format("%6s", 
                                 measurement.getResult()));
-                    else
-                        System.out.print(String.format("%6s", "N/A"));
+                    } else{
+                    	System.out.print(String.format("%6s", "N/A"));
+                    }       
                 } catch (Exception e) {
                     System.out.print(String.format("%6s", "ERR"));
                 }
