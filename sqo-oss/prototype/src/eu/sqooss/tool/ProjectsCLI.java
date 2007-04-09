@@ -105,8 +105,8 @@ public class ProjectsCLI extends CLI {
         String projectName = getOptionValue(cmdLine, "n");
         String localPath = getOptionValue(cmdLine, "l");
         String remotePath = getOptionValue(cmdLine, "r");
-        String svnurl = getOptionValue(cmdLine, "s");;
-        String version = getOptionValue(cmdLine, "v");;
+        String svnurl = getOptionValue(cmdLine, "s");
+        String version = getOptionValue(cmdLine, "v");
 
         session = HibernateUtil.getSessionFactory().getCurrentSession();
         
