@@ -38,6 +38,15 @@ package eu.sqooss.tool;
  */
 public class Main {
 
+    private String help[] = {
+	"projects - configure stored projects",
+	"plugins - configure/list available plugins",
+	"task - execute a measurement task",
+	"results - browse stored results",
+	"filegroup - configure file groups",
+	"help - prints online help"
+    };
+    
     public void dispatch(String[] args) {
         CLI cli = new CLI(args);
         
@@ -74,12 +83,9 @@ public class Main {
             }
             if (args[0].compareTo("help") == 0) {
                 System.out.println(CLI.HEADER);
-                System.out.println("Available arguments are:\n\n projects - "
-                                + "configure stored projects\n plugin - configure/list "
-                                + "available plugins\n task - execute a "
-                                + "measurement task\n results - browse store results\n"
-                                + " filegroup - configure file groups\n"
-                                + " help - prints online help\n");
+		System.out.println("Available arguments are:\n\n");
+		for (String helpLine : help)
+		    System.out.println(" " + helpLine);
                 return;
             }
         }
