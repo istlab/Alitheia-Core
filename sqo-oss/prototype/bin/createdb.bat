@@ -1,1 +1,1 @@
-java -jar lib\hsqldb.jar --rcFile data\sqoossdb.rc --autocommit sqooss data\sqooss-db-schema.sql
+java -jar %SQOOSS_HOME%\lib\hsqldb.jar --rcFile %SQOOSS_HOME\data\sqoossdb.rc --autocommit sqooss %SQOOSS_HOME%\data\sqooss-db-schema.sql
