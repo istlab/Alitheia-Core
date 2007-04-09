@@ -32,10 +32,7 @@
 package eu.sqooss.tool;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 import org.apache.commons.cli.CommandLine;
 import org.hibernate.Query;
@@ -128,7 +125,7 @@ public class ProjectsCLI extends CLI {
                 error("The requested project is not registered in the system");
 
             /* Check if the requested revision is available in the system */
-            ProjectVersion pv = checkProjectRevision(version, pr);
+            ProjectVersion pv = checkProjectVersion(version, pr);
             if (pv == null)
                 error("The requested revision is not registered in the system");
 
@@ -167,7 +164,11 @@ public class ProjectsCLI extends CLI {
                 error("One of the required options (i) is missing", cmdLine);
             
             assert projectid != "";
-            deleteProject(projectid);
+            StoredProject pr = loadProject(projectid);
+            if(pr == null) {
+                error("The requested project is not registered");
+            }
+            deleteProject(pr);
             session.getTransaction().commit();
             return;
         }
@@ -178,7 +179,15 @@ public class ProjectsCLI extends CLI {
             
             assert projectid != "";
             assert version != "";
-            //TODO deleteProjectVersion(pv);
+            StoredProject pr = loadProject(projectid);
+            if(pr == null) {
+                error("The requested project is not registered");
+            }
+            ProjectVersion pv = checkProjectVersion(version, pr);
+            if(pv == null) {
+                error("The requested revision is not registered");
+            }
+            deleteProjectVersion(pv);
             session.getTransaction().commit();
             return;
         }
@@ -275,11 +284,17 @@ public class ProjectsCLI extends CLI {
 
     /**
      * Deletes a project and all associated objects from the database
-     * @param projectid
-     *                   The ID of the project to delete
+     * @param project
+     *                   The project to delete
      */
-    private void deleteProject(String projectid) {
-        //TODO
+    private void deleteProject(StoredProject project) {
+        Set projectVersions = project.getProjectVersions();
+        Iterator it = projectVersions.iterator();
+        while(it.hasNext()) {
+            ProjectVersion pv = (ProjectVersion)it.next();
+            deleteProjectVersion(pv);
+        }
+        session.delete(project);            
     }
     
     /**
@@ -288,7 +303,23 @@ public class ProjectsCLI extends CLI {
      *           The ProjectVersion to delete
      */
     private void deleteProjectVersion(ProjectVersion pv) {
-        //TODO
+        //delete all project files and the related measurements
+        ArrayList<ProjectFile> files = pv.getProjectVersionFiles();
+        for(ProjectFile pf: files) {
+            Query q = session.createQuery("from MEASUREMENT m WHERE "
+                    + "m.PROJECT_VERSION_ID = :pvid AND "
+                    + "m.PROJECT_FILE_ID = :pfid");
+            q.setLong("pvid", pv.getId());
+            q.setLong("pfid", pf.getId());
+            List measurements = q.list();
+            Iterator it = measurements.iterator();
+            while(it.hasNext()) {
+                Measurement m = (Measurement)it.next();
+                session.delete(m);
+            }
+            session.delete(pf);
+        }
+        session.delete(pv);
     }
     
     /**
@@ -368,24 +399,38 @@ public class ProjectsCLI extends CLI {
                 "prname", project).uniqueResult();
         return pr;
     }
+    
+    /**
+     * Loads a project from the database
+     * 
+     * @param projectid
+     *            The project id
+     * @return An instance of the project
+     */
+    private StoredProject loadProject(String projectid) {
+        
+        StoredProject pr = (StoredProject)session.load(StoredProject.class, 
+                Long.parseLong(projectid));
+        return pr;
+    }
 
     /**
      * Checks whether a specific revision of a project is available and stored
      * in the database
      * 
-     * @param revision
-     *            The revision of the project (ProjectVersion)
+     * @param version
+     *            The version of the project
      * @param pr
      *            The project to be checked
-     * @return The ProjectVersion corresponding to the given revision
+     * @return The ProjectVersion corresponding to the given version
      */
-    private ProjectVersion checkProjectRevision(String revision,
+    private ProjectVersion checkProjectVersion(String version,
             StoredProject pr) {
         ProjectVersion pv;
         Query q = session.createQuery("from PROJECT_VERSION pv where "
                 + "pv.PROJECT_ID = :projid and pv.VERSION like :version");
         q.setLong("projid", pr.getId());
-        q.setString("version", revision);
+        q.setString("version", version);
         pv = (ProjectVersion) q.uniqueResult();
         return pv;
     }
