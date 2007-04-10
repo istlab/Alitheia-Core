@@ -145,10 +145,12 @@ public class ProjectsCLI extends CLI {
                 localPath = basepath + File.separator + projectName;
             }
 
-            // if(!checkProjectExists(name, localPath, remotePath, url))
             session.beginTransaction();
-            addProject(projectName, remotePath, localPath, svnurl);
+            long projectId =
+		addProject(projectName, remotePath, localPath, svnurl);
             session.getTransaction().commit();
+	    log("Added " + projectName + " with ID " + projectId);
+	    System.out.println("Project ID: " + projectId);
             return;
         }
 
@@ -235,9 +237,11 @@ public class ProjectsCLI extends CLI {
 
     /**
      * Adds a project to the StoredProject table and checks out its current
-     * version to the base path
+     * version to the base path.
+     *
+     * @return the project id
      */
-    private void addProject(String name, String remotePath, String localPath,
+    private long addProject(String name, String remotePath, String localPath,
             String url) {
         String projectPath = null;
         if (localPath != null && localPath !="") {
@@ -245,12 +249,11 @@ public class ProjectsCLI extends CLI {
         } else {
         	projectPath = basepath + File.separatorChar + name;
         }
-        //System.out.println(basepath);
-        //System.out.println(projectPath);
 
         File f = new File(projectPath);
         if (f.exists()) {
-            error("Project directory already exists - not adding");
+            error("Project directory "
+		  + projectPath + " already exists - not adding");
         } else {
             log("Creating project dir: " + f.getAbsolutePath());
             f.mkdirs();
@@ -277,6 +280,7 @@ public class ProjectsCLI extends CLI {
 
         session.save(p);
         addNewVersion(p, String.valueOf(curver));
+	return p.getId();
     }
 
     /**
