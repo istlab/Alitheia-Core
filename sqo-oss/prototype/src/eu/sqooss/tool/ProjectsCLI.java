@@ -91,8 +91,12 @@ public class ProjectsCLI extends CLI {
     public void parse() {
         ProjectsCLI pcli = new ProjectsCLI(args);
         CommandLine cmdLine = pcli.parseArgs();        
+
+        if(cmdLine == null) {
+            error("Bad arguments");
+        }
         
-        if(cmdLine == null || cmdLine.getOptions().length == 0) {
+        if(cmdLine.getOptions().length == 0) {
             error( "No options set", cmdLine);
             return;
         }
