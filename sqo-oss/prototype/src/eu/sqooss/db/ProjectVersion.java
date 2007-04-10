@@ -39,12 +39,12 @@ import org.hibernate.Session;
 import eu.sqooss.util.HibernateUtil;
 
 /**
- * Class representation of the ProjectVersion Table in the database
+ * Class representation of the ProjectVersion table in the database
  */
 public class ProjectVersion {
     long id;
 
-    long projectId;
+    StoredProject storedProject;
 
     String version;
 
@@ -59,12 +59,12 @@ public class ProjectVersion {
         this.id = id;
     }
 
-    public long getProjectId() {
-        return projectId;
+    public StoredProject getStoredProject() {
+        return storedProject;
     }
 
-    public void setProjectId(long projectId) {
-        this.projectId = projectId;
+    public void setStoredProject(StoredProject storedProject) {
+        this.storedProject = storedProject;
     }
 
     public String getVersion() {
@@ -87,7 +87,7 @@ public class ProjectVersion {
                     .getCurrentSession();
             Query q = session.createQuery("from PROJECT_FILE pf where "
                     + "pf.PROJECT_VERSION_ID = :projverid");
-            q.setLong("projverid", id);
+            q.setLong("projverid", storedProject.getId());
             result.addAll(q.list());
         } catch (Exception e) {
         }

@@ -7,7 +7,10 @@
     <id name="id" column="ID">
       <generator class="native"/>
     </id>
-    <property name="projectId" column="PROJECT_ID"/>
+    <many-to-one name="storedProject"
+		 class="StoredProject"
+		 column="STORED_PROJECT_ID"
+		 not-null="true"/>
     <property name="version" column="VERSION"/>
   </class>
 </hibernate-mapping>
