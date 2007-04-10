@@ -34,111 +34,125 @@ package eu.sqooss.vcs.test;
 import junit.framework.TestCase;
 import eu.sqooss.vcs.*;
 
-
 /**
- * @author k.stroggylos
- *
+ * JUnit Test Case for SvnRepository functionality testing
  */
 public class SvnRepositoryTest extends TestCase {
 
-	private SvnRepository repository;
-	
-	public SvnRepositoryTest(String arg0) {
-		super(arg0);
-	}
+    private SvnRepository repository;
 
-	@Override
-	protected void setUp() throws Exception {
-		repository = (SvnRepository)RepositoryFactory.getRepository("./svntest", "https://svn.sqo-oss.eu/", "svnviewer", "Sq0V13weR", RepositoryType.SVN);
-	}
-	
-	
-	/**
-	 * Test method for {@link eu.sqooss.vcs.SvnRepository#checkout()}.
-	 */
-	public void testCheckout() {
-		
-		repository.checkout();
-		assertEquals(repository.getCurrentVersion(false), repository.getCurrentVersion((true)));
-	}
+    /**
+     * Creates a new instance
+     * 
+     * @param name
+     *            The name of the test
+     */
+    public SvnRepositoryTest(String name) {
+        super(name);
+    }
 
-	/**
-	 * Test method for {@link eu.sqooss.vcs.SvnRepository#checkout(eu.sqooss.vcs.Revision)}.
-	 */
-	public void testCheckoutRevision() {
-		repository.checkout(new Revision(800));
-		assertEquals(repository.getCurrentVersion(false), 800);
-	}
+    @Override
+    protected void setUp() throws Exception {
+        repository = (SvnRepository) RepositoryFactory.getRepository(
+                "./svntest", "https://svn.sqo-oss.eu/", "svnviewer",
+                "Sq0V13weR", RepositoryType.SVN);
+    }
 
-	/**
-	 * Test method for {@link eu.sqooss.vcs.SvnRepository#update(eu.sqooss.vcs.Revision)}.
-	 */
-	public void testUpdate() {
-		repository.checkout(new Revision(800));
-		assertEquals(repository.getCurrentVersion(false), 800);
-		
-		Diff diff1 = repository.diff(new Revision(801));
-		
-		repository.update(new Revision(801));
-		assertEquals(repository.getCurrentVersion(false), 801);
-		
-		Diff diff2 = repository.diff(new Revision(800), new Revision(801));
-		
-		assertEquals(diff1.size(), diff2.size());
-	}
+    /**
+     * Test method for {@link eu.sqooss.vcs.SvnRepository#checkout()}.
+     */
+    public void testCheckout() {
 
-	/**
-	 * Test method for {@link eu.sqooss.vcs.SvnRepository#diff(eu.sqooss.vcs.Revision)}.
-	 */
-	public void testDiffRevision() {
+        repository.checkout();
+        assertEquals(repository.getCurrentVersion(false), repository
+                .getCurrentVersion((true)));
+    }
 
-		repository.checkout(new Revision(800));
-		assertEquals(repository.getCurrentVersion(false), 800);
-		Diff diff = repository.diff(new Revision(801));
-		assertNotNull(diff);
-		assertTrue(diff.size() > 0);
-	}
+    /**
+     * Test method for
+     * {@link eu.sqooss.vcs.SvnRepository#checkout(eu.sqooss.vcs.Revision)}.
+     */
+    public void testCheckoutRevision() {
+        repository.checkout(new Revision(800));
+        assertEquals(repository.getCurrentVersion(false), 800);
+    }
 
-	/**
-	 * Test method for {@link eu.sqooss.vcs.SvnRepository#diff(eu.sqooss.vcs.Revision, eu.sqooss.vcs.Revision)}.
-	 */
-	public void testDiffRevisionRevision() {
+    /**
+     * Test method for
+     * {@link eu.sqooss.vcs.SvnRepository#update(eu.sqooss.vcs.Revision)}.
+     */
+    public void testUpdate() {
+        repository.checkout(new Revision(800));
+        assertEquals(repository.getCurrentVersion(false), 800);
 
-		repository.checkout(new Revision(800));
-		assertEquals(repository.getCurrentVersion(false), 800);
-		Diff diff = repository.diff(new Revision(800), new Revision(801));
-		assertNotNull(diff);
-		assertTrue(diff.size() > 0);
-	}
+        Diff diff1 = repository.diff(new Revision(801));
 
-	/**
-	 * Test method for {@link eu.sqooss.vcs.SvnRepository#getLog(eu.sqooss.vcs.Revision, eu.sqooss.vcs.Revision)}.
-	 */
-	public void testGetLog() {
-		repository.checkout(new Revision(800));
-		assertEquals(repository.getCurrentVersion(false), 800);
-		CommitLog commitLog = 
-			repository.getLog(new Revision(800), new Revision(801));
-		assertNotNull(commitLog);
-		assertTrue(commitLog.size() > 0);
-	}
+        repository.update(new Revision(801));
+        assertEquals(repository.getCurrentVersion(false), 801);
 
-	/**
-	 * Test method for {@link eu.sqooss.vcs.SvnRepository#getCurrentVersion(boolean)}.
-	 */
-	public void testGetCurrentVersion() {
-		repository.checkout(new Revision(800));
-		assertEquals(repository.getCurrentVersion(false), 800);
-		repository.checkout(); //update to the HEAD revision
-		assertTrue(repository.getCurrentVersion(true) > 1000);
-		assertEquals(repository.getCurrentVersion(false), repository.getCurrentVersion(true));
-	}
+        Diff diff2 = repository.diff(new Revision(800), new Revision(801));
 
-	/**
-	 * Test method for {@link eu.sqooss.vcs.SvnRepository#SvnRepository(java.lang.String, java.lang.String, java.lang.String, java.lang.String)}.
-	 */
-	public void testSvnRepository() {
-		fail("Not yet implemented"); // TODO
-	}
+        assertEquals(diff1.size(), diff2.size());
+    }
+
+    /**
+     * Test method for
+     * {@link eu.sqooss.vcs.SvnRepository#diff(eu.sqooss.vcs.Revision)}.
+     */
+    public void testDiffRevision() {
+
+        repository.checkout(new Revision(800));
+        assertEquals(repository.getCurrentVersion(false), 800);
+        Diff diff = repository.diff(new Revision(801));
+        assertNotNull(diff);
+        assertTrue(diff.size() > 0);
+    }
+
+    /**
+     * Test method for
+     * {@link eu.sqooss.vcs.SvnRepository#diff(eu.sqooss.vcs.Revision, eu.sqooss.vcs.Revision)}.
+     */
+    public void testDiffRevisionRevision() {
+
+        repository.checkout(new Revision(800));
+        assertEquals(repository.getCurrentVersion(false), 800);
+        Diff diff = repository.diff(new Revision(800), new Revision(801));
+        assertNotNull(diff);
+        assertTrue(diff.size() > 0);
+    }
+
+    /**
+     * Test method for
+     * {@link eu.sqooss.vcs.SvnRepository#getLog(eu.sqooss.vcs.Revision, eu.sqooss.vcs.Revision)}.
+     */
+    public void testGetLog() {
+        repository.checkout(new Revision(800));
+        assertEquals(repository.getCurrentVersion(false), 800);
+        CommitLog commitLog = repository.getLog(new Revision(800),
+                new Revision(801));
+        assertNotNull(commitLog);
+        assertTrue(commitLog.size() > 0);
+    }
+
+    /**
+     * Test method for
+     * {@link eu.sqooss.vcs.SvnRepository#getCurrentVersion(boolean)}.
+     */
+    public void testGetCurrentVersion() {
+        repository.checkout(new Revision(800));
+        assertEquals(repository.getCurrentVersion(false), 800);
+        repository.checkout(); // update to the HEAD revision
+        assertTrue(repository.getCurrentVersion(true) > 1000);
+        assertEquals(repository.getCurrentVersion(false), repository
+                .getCurrentVersion(true));
+    }
+
+    /**
+     * Test method for
+     * {@link eu.sqooss.vcs.SvnRepository#SvnRepository(java.lang.String, java.lang.String, java.lang.String, java.lang.String)}.
+     */
+    public void testSvnRepository() {
+        fail("Not yet implemented"); // TODO
+    }
 
 }

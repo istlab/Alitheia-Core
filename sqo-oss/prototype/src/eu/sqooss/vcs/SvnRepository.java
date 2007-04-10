@@ -41,8 +41,11 @@ import java.util.Vector;
 import java.util.Map.Entry;
 import java.util.regex.*;
 
+<<<<<<< .mine
+=======
 import org.apache.commons.lang.StringUtils;
 
+>>>>>>> .r1375
 import org.tmatesoft.svn.core.*;
 import org.tmatesoft.svn.core.auth.BasicAuthenticationManager;
 import org.tmatesoft.svn.core.auth.ISVNAuthenticationManager;
@@ -59,35 +62,47 @@ import org.tmatesoft.svn.core.wc.*;
 public class SvnRepository extends Repository implements ISVNLogEntryHandler {
 
     private SVNRepository repository;
+
     private ISVNAuthenticationManager authManager;
+
     private static SVNClientManager clientManager;
+
     private SVNURL url;
+
     private CommitLog svnCommitLog;
+
     private ByteArrayOutputStream diffStream;
+
     private Diff svnDiff;
-   
+
     /**
-     * Constructs a new instance of the SvnRepository class
-     * @param localPath The path of the repository on the local end
-     * @param serverPath The path of the repository on the remote end
-     * @param username The username that is used to connect to the Repository
-     * @param passwd The password that is used to connect to the Repository
+     * Constructs a new instance of the SvnRepository class.
+     * 
+     * @param localPath
+     *            The path of the repository on the local end
+     * @param serverPath
+     *            The path of the repository on the remote end
+     * @param username
+     *            The username that is used to connect to the Repository
+     * @param passwd
+     *            The password that is used to connect to the Repository
      */
     public SvnRepository(String localPath, String serverPath, String username,
-            String passwd)throws InvalidRepositoryException {
+            String passwd) throws InvalidRepositoryException {
         super(localPath, serverPath, username, passwd);
-        
+
         if (this.serverPath.indexOf("svn://") != -1) {
-        	/* usage over http */
-        	this.serverPath = this.serverPath.replaceAll("svn://", "http://");
+            /* usage over http */
+            this.serverPath = this.serverPath.replaceAll("svn://", "http://");
         } else if (this.serverPath.indexOf("svns://") != -1) {
-        	/* usage over https */
-        	this.serverPath = this.serverPath.replaceAll("svns://", "https://");
+            /* usage over https */
+            this.serverPath = this.serverPath.replaceAll("svns://", "https://");
         } else if (this.serverPath.indexOf("svn+fsfs://") != -1) {
-        	/* usage over file */
-        	this.serverPath = this.serverPath.replaceAll("svn+fsfs://", "fsfs://");
+            /* usage over file */
+            this.serverPath = this.serverPath.replaceAll("svn+fsfs://",
+                    "fsfs://");
         }
-        
+
         URI uri;
         try {
             uri = new URI(this.serverPath);
@@ -96,28 +111,31 @@ public class SvnRepository extends Repository implements ISVNLogEntryHandler {
         }
         // check if there is a port given
         if (uri.getPort() == -1) {
-        	this.serverPath = uri.getScheme() + "://" + uri.getHost() + uri.getPath();
+            this.serverPath = uri.getScheme() + "://" + uri.getHost()
+                    + uri.getPath();
         } else {
             String port = new Integer(uri.getPort()).toString();
-            this.serverPath = uri.getScheme() + "://" + uri.getHost() + uri.getPath() + ":" + port;
+            this.serverPath = uri.getScheme() + "://" + uri.getHost()
+                    + uri.getPath() + ":" + port;
         }
-        //System.out.println(this.serverPath);
+        // System.out.println(this.serverPath);
         initializeFactories();
         repository = null;
     }
 
     @Override
     public void checkout() {
-    	initializeRepository();
-    	SVNUpdateClient updater = new SVNUpdateClient(authManager, 
-    	SVNWCUtil.createDefaultOptions(true));
+        initializeRepository();
+        SVNUpdateClient updater = new SVNUpdateClient(authManager, SVNWCUtil
+                .createDefaultOptions(true));
         try {
-            updater.doCheckout(url,
-                              new File(localPath),
-                              SVNRevision.HEAD, 
-                              SVNRevision.HEAD , /* denotes the latest repository revision */ 
-                              true ); /* when true, checkout descends recursively */
-	} catch (SVNException svne) {
+            updater.doCheckout(url, new File(localPath), SVNRevision.HEAD,
+                    SVNRevision.HEAD, /*
+                                         * denotes the latest repository
+                                         * revision
+                                         */
+                    true); /* when true, checkout descends recursively */
+        } catch (SVNException svne) {
             System.err.println("Couldn't checkout");
             svne.printStackTrace();
         }
@@ -126,12 +144,14 @@ public class SvnRepository extends Repository implements ISVNLogEntryHandler {
     @Override
     public void checkout(Revision rev) {
         initializeRepository();
-        SVNUpdateClient updater = 
-            new SVNUpdateClient(authManager, SVNWCUtil.createDefaultOptions(true));
-    	/* SVNRevision is a revision wrapper used for an abstract 
-    	 * representation of revision information */
-    	SVNRevision tmpRev = SVNRevision.create(rev.getNumber());
-    	try {
+        SVNUpdateClient updater = new SVNUpdateClient(authManager, SVNWCUtil
+                .createDefaultOptions(true));
+        /*
+         * SVNRevision is a revision wrapper used for an abstract representation
+         * of revision information
+         */
+        SVNRevision tmpRev = SVNRevision.create(rev.getNumber());
+        try {
             updater.doCheckout(url, new File(localPath), tmpRev, tmpRev, true);
         } catch (SVNException svne) {
             System.err.println("Couldn't checkout");
@@ -141,16 +161,16 @@ public class SvnRepository extends Repository implements ISVNLogEntryHandler {
 
     @Override
     public void update(Revision rev) {
-    	initializeRepository();
-    	SVNUpdateClient updater = new SVNUpdateClient(authManager, 
-    			SVNWCUtil.createDefaultOptions(true));
-    	SVNRevision tmpRev = SVNRevision.create(rev.getNumber());
-    	try {
-			updater.doUpdate(new File(localPath), tmpRev, true);
-		} catch (SVNException svne) {
-			System.err.println("Couldn't update");
-			svne.printStackTrace();
-		}
+        initializeRepository();
+        SVNUpdateClient updater = new SVNUpdateClient(authManager, SVNWCUtil
+                .createDefaultOptions(true));
+        SVNRevision tmpRev = SVNRevision.create(rev.getNumber());
+        try {
+            updater.doUpdate(new File(localPath), tmpRev, true);
+        } catch (SVNException svne) {
+            System.err.println("Couldn't update");
+            svne.printStackTrace();
+        }
     }
 
     @Override
@@ -160,64 +180,91 @@ public class SvnRepository extends Repository implements ISVNLogEntryHandler {
 
     @Override
     public Diff diff(Revision start, Revision end) {
-    	SVNDiffClient diffClient = new SVNDiffClient(authManager, 
-    			SVNWCUtil.createDefaultOptions(true));
-    	SVNRevision tmpRevStart = SVNRevision.create(start.getNumber());
-    	SVNRevision tmpRevEnd = SVNRevision.create(end.getNumber());
-    	String returnVal = null;
-    	try {
-			diffClient.doDiff(url, tmpRevStart, tmpRevStart, 
-					tmpRevEnd, true /* descend recursively */, 
-					true /* the paths ancestry will be noticed while calculating differences */, 
-					diffStream);			
-		} catch (SVNException svne) {
-			System.err.println("Couldn't doDiff");
-			svne.printStackTrace();
-		}
-		returnVal = new String(diffStream.toByteArray());
-		svnDiff = parseDiffOutput(returnVal);
+        SVNDiffClient diffClient = new SVNDiffClient(authManager, SVNWCUtil
+                .createDefaultOptions(true));
+        SVNRevision tmpRevStart = SVNRevision.create(start.getNumber());
+        SVNRevision tmpRevEnd = SVNRevision.create(end.getNumber());
+        String returnVal = null;
+        try {
+            diffClient
+                    .doDiff(
+                            url,
+                            tmpRevStart,
+                            tmpRevStart,
+                            tmpRevEnd,
+                            true /* descend recursively */,
+                            true /*
+                                     * the paths ancestry will be noticed while
+                                     * calculating differences
+                                     */,
+                            diffStream);
+        } catch (SVNException svne) {
+            System.err.println("Couldn't doDiff");
+            svne.printStackTrace();
+        }
+        returnVal = new String(diffStream.toByteArray());
+        svnDiff = parseDiffOutput(returnVal);
 
         return svnDiff;
     }
 
-	@Override
+    @Override
     public CommitLog getLog(Revision start, Revision end) {
-    	initializeRepository();
-    	SVNLogClient logger = new SVNLogClient(authManager, 
-    			SVNWCUtil.createDefaultOptions(true));
-    	SVNRevision tmpRevStart = SVNRevision.create(start.getNumber());
-    	SVNRevision tmpRevEnd = SVNRevision.create(end.getNumber());
-    	ISVNLogEntryHandler handler = this;
-    	svnCommitLog = new CommitLog(start, end);
-    	svnCommitLog.clear();
-    	try {
-			logger.doLog(url, null, tmpRevStart, tmpRevStart, tmpRevEnd, 
-					false, /* copies history will be also included into processing */
-					true /* report all changed paths for every revision being processed */,
-					Long.MAX_VALUE, /* maximum number of log entries to be processed */
-					handler /* Interface ISVNLogEntryHandler implemented below */);
-		} catch (SVNException svne) {
-			System.err.println("Couldn't doLog");
-			svne.printStackTrace();
-		}
+        initializeRepository();
+        SVNLogClient logger = new SVNLogClient(authManager, SVNWCUtil
+                .createDefaultOptions(true));
+        SVNRevision tmpRevStart = SVNRevision.create(start.getNumber());
+        SVNRevision tmpRevEnd = SVNRevision.create(end.getNumber());
+        ISVNLogEntryHandler handler = this;
+        svnCommitLog = new CommitLog(start, end);
+        svnCommitLog.clear();
+        try {
+            logger
+                    .doLog(
+                            url,
+                            null,
+                            tmpRevStart,
+                            tmpRevStart,
+                            tmpRevEnd,
+                            false, /*
+                                     * copies history will be also included into
+                                     * processing
+                                     */
+                            true /*
+                                     * report all changed paths for every
+                                     * revision being processed
+                                     */,
+                            Long.MAX_VALUE, /*
+                                             * maximum number of log entries to
+                                             * be processed
+                                             */
+                            handler /*
+                                     * Interface ISVNLogEntryHandler implemented
+                                     * below
+                                     */);
+        } catch (SVNException svne) {
+            System.err.println("Couldn't doLog");
+            svne.printStackTrace();
+        }
         return svnCommitLog;
     }
 
     @Override
     public long getCurrentVersion(boolean remote) {
         initializeRepository();
-        if(remote) {          
+        if (remote) {
             try {
                 revision = new Revision(repository.getLatestRevision());
             } catch (SVNException svne) {
                 revision = new Revision(-1);
             }
         } else {
-            clientManager = SVNClientManager.newInstance(SVNWCUtil.createDefaultOptions(true), authManager);
+            clientManager = SVNClientManager.newInstance(SVNWCUtil
+                    .createDefaultOptions(true), authManager);
             try {
                 SVNInfo info = clientManager.getWCClient().doInfo(
-                        new File(localPath), SVNRevision.WORKING);  
-                revision = new Revision(info.getRevision().getNumber());        
+                        new File(localPath), SVNRevision.WORKING);
+                revision = new Revision(info.getRevision().getNumber());
             } catch (SVNException svne) {
                 System.err.println("Error while retrieving info for the "
                         + "working copy of '" + serverPath + "' at "
@@ -226,15 +273,22 @@ public class SvnRepository extends Repository implements ISVNLogEntryHandler {
         }
         return revision.getNumber();
     }
+
     @Override
     public void listEntries(Vector<String> files, String path, Revision rev) {
+
     	Collection entries = null;
 	String localisedPath;
 		try {
 			entries = repository.getDir(path, rev.getNumber(), 
-					null /* means that we're not interested in directory properties */, 
-					(Collection) null /* we don't provide our own Collection instance 
-					so we use the one returned */);
+					null /*
+                             * means that we're not interested in directory
+                             * properties
+                             */, 
+					(Collection) null /*
+                                         * we don't provide our own Collection
+                                         * instance so we use the one returned
+                                         */);
 		} catch (SVNException svne) {
 			svne.printStackTrace();
 		}
@@ -257,120 +311,121 @@ public class SvnRepository extends Repository implements ISVNLogEntryHandler {
     	}
 
     }
-    
+
     /**
-     * Initializes the SVNKit library to work with dirrerent repository
-     * remote access methods
+     * Initializes the SVNKit library to work with dirrerent repository remote
+     * access methods
      */
     private static void initializeFactories() {
 
         // for using over http:// and https://
         DAVRepositoryFactory.setup();
 
-        //for using over svn:// and svn+xxx://
+        // for using over svn:// and svn+xxx://
         SVNRepositoryFactoryImpl.setup();
 
-        //for using over file:///
+        // for using over file:///
         FSRepositoryFactory.setup();
     }
-    
+
     /**
-     * Initializes an SVNKit repository to work with 
+     * Initializes an SVNKit repository to work with
      */
     private void initializeRepository() {
-        if(repository != null) {
+        if (repository != null) {
             return;
         }
-        
+
         try {
-            //SVNURL url = SVNURL.parseURIDecoded(serverPath);
-        	url = SVNURL.parseURIDecoded(serverPath);
+            // SVNURL url = SVNURL.parseURIDecoded(serverPath);
+            url = SVNURL.parseURIDecoded(serverPath);
             repository = SVNRepositoryFactoryImpl.create(url);
 
-            /* 
+            /*
              * Default authentication manager first attempts to use provided
              * user name and password and then falls back to the credentials
-             * stored in the default Subversion credentials storage that is 
+             * stored in the default Subversion credentials storage that is
              * located in Subversion configuration area. We dont need / like
-             * this kind of behaviour, so we use BasicAuthenticationManager.
-             * If anonymous access is requested the authentication is skipped.
+             * this kind of behaviour, so we use BasicAuthenticationManager. If
+             * anonymous access is requested the authentication is skipped.
              */
             if ((username.length() > 0) && (password.length() > 0)) {
-                authManager = new 
-                    BasicAuthenticationManager(username, password);
+                authManager = new BasicAuthenticationManager(username, password);
 
                 repository.setAuthenticationManager(authManager);
             }
-        } catch (SVNException svne){
-            //Probably a malformed URL was provided
+        } catch (SVNException svne) {
+            // Probably a malformed URL was provided
             System.err.println("Error while creating an SVNRepository for '"
                     + serverPath + "': " + svne.getMessage());
         }
     }
-    
-    /** 
-     * handleLogEntry handles a log entry passed. Here we use it 
-     * to add CommitLogEntries to a CommitLog object
+
+    /**
+     * handleLogEntry handles a log entry passed. Here we use it to add
+     * CommitLogEntries to a CommitLog object
      */
     public void handleLogEntry(SVNLogEntry logEntry) {
-    	if (logEntry == null || (logEntry.getMessage() == null && logEntry.getRevision() == 0)) {
+        if (logEntry == null
+                || (logEntry.getMessage() == null && logEntry.getRevision() == 0)) {
             return;
         }
-    	Long tmpRev = logEntry.getRevision();
-    	CommitLogEntry tmpEntry = new CommitLogEntry(logEntry.getAuthor(), 
-    			logEntry.getMessage(), 
-    			logEntry.getDate(), 
-    			tmpRev.toString());
-        
-        for (Entry<String, SVNLogEntryPath> entry : (Set<Entry<String, SVNLogEntryPath>>)
-                logEntry.getChangedPaths().entrySet()) {
-        
-            switch(entry.getValue().getType()) {
+        Long tmpRev = logEntry.getRevision();
+        CommitLogEntry tmpEntry = new CommitLogEntry(logEntry.getAuthor(),
+                logEntry.getMessage(), logEntry.getDate(), tmpRev.toString());
+
+        for (Entry<String, SVNLogEntryPath> entry : (Set<Entry<String, SVNLogEntryPath>>) logEntry
+                .getChangedPaths().entrySet()) {
+
+            switch (entry.getValue().getType()) {
             case SVNLogEntryPath.TYPE_ADDED:
-                tmpEntry.ChangedPaths.put(entry.getKey(), ModificationType.Added);
+                tmpEntry.ChangedPaths.put(entry.getKey(),
+                        ModificationType.Added);
                 break;
             case SVNLogEntryPath.TYPE_DELETED:
-                tmpEntry.ChangedPaths.put(entry.getKey(), ModificationType.Deleted);
+                tmpEntry.ChangedPaths.put(entry.getKey(),
+                        ModificationType.Deleted);
                 break;
             case SVNLogEntryPath.TYPE_MODIFIED:
-                tmpEntry.ChangedPaths.put(entry.getKey(), ModificationType.Modified);
+                tmpEntry.ChangedPaths.put(entry.getKey(),
+                        ModificationType.Modified);
                 break;
             case SVNLogEntryPath.TYPE_REPLACED:
-                tmpEntry.ChangedPaths.put(entry.getKey(), ModificationType.Replaced);
+                tmpEntry.ChangedPaths.put(entry.getKey(),
+                        ModificationType.Replaced);
                 break;
             }
-        }        
-    	svnCommitLog.add(tmpEntry);
+        }
+        svnCommitLog.add(tmpEntry);
     }
-    
-    
-    /** 
-     * handles the output of doDiff in order to fill 
-     * a Diff object
+
+    /**
+     * handles the output of doDiff in order to fill a Diff object
      * 
-     * @param returnVal The string that the diff method returned
+     * @param returnVal
+     *            The string that the diff method returned
      * @return A Diff object
      */
     private Diff parseDiffOutput(String returnVal) {
-    	Diff tmpDiff = new Diff();
-    	Pattern entrySplitter = Pattern.compile("^Index: (.*)$");
-    	Pattern changeSplitter = Pattern.compile("^@@\\W+@@$");
-    	String[] entries = entrySplitter.split(returnVal);
-    	
-    	for(String entry: entries) {
-    		Matcher m = entrySplitter.matcher(entry);
-    		String filename = m.group(1);
-    		
-    		//retrieved the filename, it's time to get the change list
-    		String[] changes = changeSplitter.split(entry);
-    		
-    		for(int i = 1; i<changes.length; i++) {
-    			//skip the first result - it does not contain a change
-    			tmpDiff.add(filename, changes[i]);
-    		}
-    	}
-    	
-		return tmpDiff;
-	}
+        Diff tmpDiff = new Diff();
+        Pattern entrySplitter = Pattern.compile("^Index: (.*)$");
+        Pattern changeSplitter = Pattern.compile("^@@\\W+@@$");
+        String[] entries = entrySplitter.split(returnVal);
+
+        for (String entry : entries) {
+            Matcher m = entrySplitter.matcher(entry);
+            String filename = m.group(1);
+
+            // retrieved the filename, it's time to get the change list
+            String[] changes = changeSplitter.split(entry);
+
+            for (int i = 1; i < changes.length; i++) {
+                // skip the first result - it does not contain a change
+                tmpDiff.add(filename, changes[i]);
+            }
+        }
+
+        return tmpDiff;
+    }
 
 }

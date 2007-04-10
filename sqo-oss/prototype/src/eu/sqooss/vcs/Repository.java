@@ -33,7 +33,7 @@ package eu.sqooss.vcs;
 import java.util.Vector;
 
 /**
- * An abstract repository representation. 
+ * An abstract repository representation.
  */
 public abstract class Repository {
 
@@ -53,16 +53,21 @@ public abstract class Repository {
     /**
      * Initializes the Repository class attributes
      * 
-     * @param localPath The path of the repository on the local end
-     * @param serverPath The path of the repository on the remote end
-     * @param username The username that is used to connect to the Repository
-     * @param passwd The password that is used to connect to the Repository
+     * @param localpath
+     *            The path of the repository on the local end
+     * @param serverpath
+     *            The path of the repository on the remote end
+     * @param user
+     *            The username that is used to connect to the Repository
+     * @param pass
+     *            The password that is used to connect to the Repository
      */
-    public Repository(String localPath, String serverPath, String username, String passwd) {
-        this.localPath = localPath;
-        this.serverPath = serverPath;
-        this.username = username;
-        this.password = passwd;
+    public Repository(String localpath, String serverpath, String user,
+            String pass) {
+        this.localPath = localpath;
+        this.serverPath = serverpath;
+        this.username = user;
+        this.password = pass;
     }
 
     /**
@@ -75,23 +80,25 @@ public abstract class Repository {
     /**
      * Initialises a local copy of the repository, by checking out
      * 
-     * @param rev The requested revision
+     * @param rev
+     *            The requested revision
      */
     public abstract void checkout(Revision rev);
 
     /**
      * Fetches the latest revision from the main repository server
      * 
-     * @param rev The requested revision
+     * @param rev
+     *            The requested revision
      */
     public abstract void update(Revision rev);
 
     /**
-     * Returns a Diff object between the current repository revision and 
-     * an older one
-     * revision
+     * Returns a Diff object between the current repository revision and an
+     * older one revision
      * 
-     * @param rev The requested revision
+     * @param rev
+     *            The requested revision
      * @return a Diff object
      */
     public abstract Diff diff(Revision rev);
@@ -100,39 +107,47 @@ public abstract class Repository {
      * Returns a Diff object between the start and end revisions
      * 
      * @param start
+     *            The start revision
      * @param end
-     * @return a Diff object 
+     *            The end revision
+     * @return a Diff object
      */
     public abstract Diff diff(Revision start, Revision end);
 
     /**
-     * Returns the commit log for all the commits between revisions start
-     * and end
+     * Returns the commit log for all the commits between revisions start and
+     * end
      * 
      * @param start
+     *            The start revision
      * @param end
+     *            The end revision
      * @return A CommitLog object
      */
     public abstract CommitLog getLog(Revision start, Revision end);
 
     /**
-     * Returns the current version of either the remote or local version of 
-     * the repository
+     * Returns the current version of either the remote or local version of the
+     * repository
      * 
-     * @param remote If remote is true get the remote current version. 
-     * If it is false, get the local one
+     * @param remote
+     *            If remote is true get the remote current version. If it is
+     *            false, get the local one
      * @return the current version as a long
      */
     public abstract long getCurrentVersion(boolean remote);
-    
+
     /**
      * Obtains all files that exist in the repository tree
      * 
-     * @param files A string vector where the filenames will be stored
-     * @param path The path of the Repository
-     * @param revision The requested revision
+     * @param files
+     *            A string vector where the filenames will be stored
+     * @param path
+     *            The path of the Repository
+     * @param revision
+     *            The requested revision
      */
-    public abstract void listEntries(Vector<String> files, 
-    		String path, Revision revision);
-    
+    public abstract void listEntries(Vector<String> files, String path,
+            Revision revision);
+
 }

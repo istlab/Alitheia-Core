@@ -32,31 +32,34 @@ package eu.sqooss.vcs;
 
 /**
  * 
- * Represents an exception thrown when an unsupported repository format
- * or method is used
- *
+ * Represents an exception thrown when an unsupported repository format or
+ * method is used.
+ * 
  */
-public class InvalidRepositoryException extends Exception{
+public class InvalidRepositoryException extends Exception {
 
     private static final long serialVersionUID = 1L;
-    
+
     private String message;
-    
+
     /**
-     * Constructs a new instance of the class with the given message
-     * @param s The exception message
+     * Constructs a new instance of the class with the given message.
+     * 
+     * @param s
+     *            The exception message
      */
     public InvalidRepositoryException(String s) {
-	this.message = s;
+        this.message = s;
     }
-    
+
     /**
-     * Gets the message associated with the current exception instance
-     * @returns A string containing the message associated with the current
-     * instance
+     * Gets the message associated with the current exception instance.
+     * 
+     * @return A string containing the message associated with the current
+     *         instance
      */
-    public String getMessage(){
-	return message;
+    public String getMessage() {
+        return message;
     }
 
 }
