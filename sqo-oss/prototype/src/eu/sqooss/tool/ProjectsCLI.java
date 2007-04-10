@@ -379,8 +379,11 @@ public class ProjectsCLI extends CLI {
         Iterator it = results.iterator();
         while (it.hasNext()) {
             StoredProject sp = (StoredProject) it.next();
-            System.out.println(String.format("%4s%16s%%30s%30s", sp.getId(), sp
-                    .getName(), sp.getLocalPath(), sp.getSvnUrl()));
+            System.out.println(String.format("%4s%16s%%30s%30s", 
+                                             sp.getId(),
+                                             sp.getName(),
+                                             sp.getLocalPath(),
+                                             sp.getSvnUrl()));
         }
     }
 

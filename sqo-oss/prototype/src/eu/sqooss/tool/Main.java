@@ -32,25 +32,21 @@
 package eu.sqooss.tool;
 
 /**
- * Main entry point class for the sqo-oss tool.
- * It provides access to the sqo-oss quality
- * measurement tool
+ * Main entry point class for the sqo-oss tool. It provides access to the
+ * sqo-oss quality measurement tool
  */
 public class Main {
 
-    private String help[] = {
-	"projects - configure stored projects",
-	"plugins - configure/list available plugins",
-	"task - execute a measurement task",
-	"results - browse stored results",
-	"filegroup - configure file groups",
-	"help - prints online help"
-    };
-    
+    private String help[] = { "projects - configure stored projects",
+            "plugins - configure/list available plugins",
+            "task - execute a measurement task",
+            "results - browse stored results",
+            "filegroup - configure file groups", "help - prints online help" };
+
     public void dispatch(String[] args) {
         CLI cli = new CLI(args);
         // basic options are:
-        //  - projects, plugins, task, results
+        // - projects, plugins, task, results
         if (args.length != 0) {
             // trim the arguments
             String[] targs = new String[args.length - 1];
@@ -83,8 +79,8 @@ public class Main {
                 System.out.println(CLI.HEADER);
                 System.out.println("Available arguments are:\n\n");
                 for (String helpLine : help) {
-                	System.out.println(" " + helpLine);
-                }	
+                    System.out.println(" " + helpLine);
+                }
                 return;
             }
         }

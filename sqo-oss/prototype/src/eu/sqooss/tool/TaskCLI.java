@@ -46,6 +46,7 @@ import eu.sqooss.util.*;
 public class TaskCLI extends CLI {
 
     private Session session;
+
     private HashMap<String, Metric> metrics;
 
     TaskCLI(String args[]) {
@@ -71,8 +72,8 @@ public class TaskCLI extends CLI {
             return;
         }
         if (!ensureOptions(cmdLine, "pl p v")) {
-        	error("One of the required options (pl, p, v) is missing " +
-        			"or has no argument", cmdLine);
+            error("One of the required options (pl, p, v) is missing "
+                    + "or has no argument", cmdLine);
         }
 
         String plugin = getOptionValue(cmdLine, "pl");
@@ -86,7 +87,7 @@ public class TaskCLI extends CLI {
         /* check if the plugin exists and is registered */
         Plugin p = checkPlugin(plugin);
         if (p == null) {
-        	error("The requested plugin is not registered in the system");
+            error("The requested plugin is not registered in the system");
         }
         session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
@@ -94,17 +95,17 @@ public class TaskCLI extends CLI {
         /* check if the project exists and is registered */
         StoredProject pr = checkProject(project);
         if (pr == null) {
-        	error("The requested project is not registered in the system");
+            error("The requested project is not registered in the system");
         }
         /* Check if the requested revision is available in the system */
         ProjectVersion pv = checkProjectRevision(version, pr);
         if (pv == null) {
-        	error("The requested revision is not registered in the system");
+            error("The requested revision is not registered in the system");
         }
         /* Retrieve the project files */
         List projectFiles = pv.getProjectVersionFiles();
         if (projectFiles.size() == 0) {
-        	error("The specified revision does not contain any items");
+            error("The specified revision does not contain any items");
         }
         /* If we got this far, at last it's time to execute the Plugin */
         System.out.println(String.format("Executing Plugin %s for "
@@ -118,6 +119,7 @@ public class TaskCLI extends CLI {
 
     /**
      * Performs the processing by invoking the plugin for each project file
+     * 
      * @param p
      *            The plugin to be used for processing
      * @param pv
@@ -125,19 +127,20 @@ public class TaskCLI extends CLI {
      * @param projectFiles
      *            The list of files belonging in the version to be processed
      */
-    private void performProcessing(Plugin p, ProjectVersion pv, List projectFiles) {
+    private void performProcessing(Plugin p, ProjectVersion pv,
+            List projectFiles) {
         Iterator pfit = projectFiles.iterator();
         while (pfit.hasNext()) {
             ProjectFile pf = (ProjectFile) pfit.next();
-            System.out.println(
-                    String.format("Processing file %s", pf.getName()));
+            System.out.println(String
+                    .format("Processing file %s", pf.getName()));
             HashMap<String, String> results;
             try {
                 results = p.run(pf);
             } catch (PluginException pe) {
                 System.out.println(String.format("An error occured while "
-                        + "processing file %s:\n %s", pf.getName(),
-                        pe.getMessage()));
+                        + "processing file %s:\n %s", pf.getName(), pe
+                        .getMessage()));
                 log(pe.toString());
                 continue;
             }
