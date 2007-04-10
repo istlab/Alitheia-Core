@@ -38,9 +38,9 @@ import eu.sqooss.util.HibernateUtil;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.HashMap;
 import java.util.Set;
 import java.util.HashSet;
-import java.util.HashMap;
 
 /**
  * Class representation of the StoredProject Table in the
@@ -57,8 +57,6 @@ public class StoredProject {
 
     private String mailPath;
 
-    private Set versions;
-
     private String localPath;
 
     private String remotePath;
@@ -66,7 +64,6 @@ public class StoredProject {
     private String svnUrl;
 
     public StoredProject() {
-        this.versions = new HashSet();
     }
 
     public void setSvnUrl(String svnUrl) {
@@ -132,19 +129,12 @@ public class StoredProject {
     public void setWebsite(String website) {
         this.website = website;
     }
-
-    public Set getVersions() {
-        return this.versions;
-    }
-
-    public void setVersions(Set versions) {
-        this.versions = versions;
-    }
     
     public static HashMap<String, String> getProjectInfo(String projectid) {
         HashMap<String, String> record = new HashMap<String, String>();
         
-        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        Session session =
+	    HibernateUtil.getSessionFactory().getCurrentSession();
         Query q = session.createQuery("from StoredProject project where "
                 + "project.Project.id = :project");
         q.setString("project", projectid);
@@ -159,7 +149,9 @@ public class StoredProject {
      * instance
      */
     public Set getProjectVersions() {
-        
+
+	Set versions = new HashSet();
+	
         try {
             Session session = HibernateUtil.getSessionFactory().getCurrentSession();
             Query q = session.createQuery("from ProjectVersion pv where "

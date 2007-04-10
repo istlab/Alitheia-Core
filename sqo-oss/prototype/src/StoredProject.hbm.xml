@@ -7,11 +7,6 @@
     <id name="id" column="ID">
       <generator class="native"/>
     </id>
-    <set name="versions"
-	 cascade="all">
-	 <key column="project_id" not-null="true"/>
-	 <one-to-many class="ProjectVersion" />
-    </set>
     <property name="name" column="NAME"/>
     <property name="website" column="WEB_SITE"/>
     <property name="contactPoint" column="CONTACT_POINT"/>
