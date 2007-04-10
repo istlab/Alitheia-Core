@@ -187,9 +187,12 @@ public class TaskCLI extends CLI {
     private ProjectVersion checkProjectRevision(String revision,
             StoredProject pr) {
         ProjectVersion pv;
+	System.out.println("HERE VERSION is " + revision);
+	System.out.println("HERE PROJECT ID is " + pr.getId());
         Query q = session.createQuery("from ProjectVersion as pv where "
 				      + "pv.storedProject.id = :projid "
-				      + "and pv.version.id like :version");
+				      + "and pv.version like "
+				      + ":version");
         q.setLong("projid", pr.getId());
         q.setString("version", revision);
         pv = (ProjectVersion) q.uniqueResult();
