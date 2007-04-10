@@ -133,12 +133,12 @@ public class StoredProject {
         HashMap<String, String> record = new HashMap<String, String>();
 
         Session session = HibernateUtil.getSessionFactory().openSession();
-	session.beginTransaction();
+        session.beginTransaction();
         Query q = session.createQuery("from StoredProject project where "
                 + "project.Project.id = :project");
         q.setString("project", projectid);
         List result = q.list();
-	session.getTransaction().commit();
+        session.getTransaction().commit();
         return record;
     }
 
@@ -154,7 +154,7 @@ public class StoredProject {
 
         try {
             Session session = HibernateUtil.getSessionFactory().openSession();
-	    session.beginTransaction();
+            session.beginTransaction();
             Query q = session.createQuery("from PROJECT_VERSION pv where "
                     + "pv.PROJECT_ID = :pid");
             q.setLong("pid", id);
@@ -163,8 +163,10 @@ public class StoredProject {
             while (it.hasNext()) {
                 versions.add((ProjectVersion) it.next());
             }
-	    session.getTransaction().commit();
+            session.getTransaction().commit();
         } catch (Exception e) {
+            System.err.println("An error occured while retrieving the project"
+                    + " versions: " + e.getMessage());
         }
 
         return versions;

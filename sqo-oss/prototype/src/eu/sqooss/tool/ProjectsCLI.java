@@ -488,7 +488,7 @@ public class ProjectsCLI extends CLI {
         ProjectVersion pv;
         Query q = session.createQuery("from ProjectVersion as pv where "
                 + "pv.storedProject.id = :projid "
-                + "and pv.version like :version");
+                + "and pv.version = :version");
         q.setLong("projid", pr.getId());
         q.setString("version", version);
         pv = (ProjectVersion) q.uniqueResult();

@@ -148,8 +148,8 @@ public class CCCCPlugin extends Plugin {
                 }
             }
         } catch (Exception e) {
-            System.err
-                    .println("An error occured while reading the xml document");
+            System.err.println("An error occured while reading the CCCC tool "
+                   + "output: " + e.getMessage());
         }
         return results;
     }
