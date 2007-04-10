@@ -81,7 +81,7 @@ public class ProjectsCLI extends CLI {
                         "Project local path");
         options.addOption("r", "project-remote-path", true,
                 "Project remote path");
-        options.addOption("v", "version", true, "Project version");
+        options.addOption("v", "project-version", true, "Project version");
         options.addOption("s", "project-svn-url", true, "Project SVN URL");
 
         /* Help */
