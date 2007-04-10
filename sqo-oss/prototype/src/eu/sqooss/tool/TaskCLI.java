@@ -187,8 +187,9 @@ public class TaskCLI extends CLI {
     private ProjectVersion checkProjectRevision(String revision,
             StoredProject pr) {
         ProjectVersion pv;
-        Query q = session.createQuery("from PROJECT_VERSION pv where "
-                + "pv.PROJECT_ID = :projid and pv.VERSION like :version");
+        Query q = session.createQuery("from ProjectVersion as pv where "
+				      + "pv.storedProject.id = :projid "
+				      + "and pv.version.id like :version");
         q.setLong("projid", pr.getId());
         q.setString("version", revision);
         pv = (ProjectVersion) q.uniqueResult();
@@ -231,9 +232,10 @@ public class TaskCLI extends CLI {
      * @return An instance of the project
      */
     private StoredProject checkProject(String project) {
-        StoredProject pr = (StoredProject) session.createQuery(
-                "from STORED_PROJECT as sp where sp.NAME = :prname").setString(
-                "prname", project).uniqueResult();
+        StoredProject pr
+	    = (StoredProject) session.createQuery(
+                "from StoredProject as sp where sp.name = :prname").setString(
+		    "prname", project).uniqueResult();
         return pr;
     }
 }
