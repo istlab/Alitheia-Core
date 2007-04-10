@@ -314,7 +314,7 @@ public class ProjectsCLI extends CLI {
                                       */
         r.checkout(rev);
         Vector<String> files = new Vector<String>();
-        r.listEntries(files, "/", rev);
+        r.listEntries(files, "", rev);
 
         ProjectVersion pv = new ProjectVersion();
         pv.setStoredProject(project);
@@ -324,8 +324,13 @@ public class ProjectsCLI extends CLI {
         for (String file : files) {
             try {
                 ProjectFile pf = new ProjectFile();
-                pf.setName(project.getLocalPath()
-                        + System.getProperty("file.separator") + file);
+		String localisedPath = project.getLocalPath()
+		    + System.getProperty("file.separator") + file;
+		File testFile = new File(localisedPath);
+		if (!testFile.exists()) {
+		    continue;
+		}
+		pf.setName(localisedPath);
                 pf.setProjectVersion(pv);
                 session.save(pf);
             } catch (Exception ex) {

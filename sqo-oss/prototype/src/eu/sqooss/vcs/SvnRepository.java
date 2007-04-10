@@ -41,8 +41,6 @@ import java.util.Vector;
 import java.util.Map.Entry;
 import java.util.regex.*;
 
-import org.apache.commons.lang.StringUtils;
-
 import org.tmatesoft.svn.core.*;
 import org.tmatesoft.svn.core.auth.BasicAuthenticationManager;
 import org.tmatesoft.svn.core.auth.ISVNAuthenticationManager;
@@ -243,24 +241,22 @@ public class SvnRepository extends Repository implements ISVNLogEntryHandler {
     public void listEntries(Vector<String> files, String path, Revision rev) {
 
         Collection entries = null;
-        String localisedPath;
         try {
             entries = repository.getDir(path, rev.getNumber(), null,
-                    (Collection) null);
+					(Collection) null);
         } catch (SVNException svne) {
             svne.printStackTrace();
         }
         Iterator iterator = entries.iterator();
+	String fileSeparator = "/";
         while (iterator.hasNext()) {
             SVNDirEntry entry = (SVNDirEntry) iterator.next();
             if (entry.getKind() == SVNNodeKind.DIR) {
-                listEntries(files, (path.equals("")) ? entry.getName() : path
-                        + "/" + entry.getName(), rev);
+                listEntries(files, path.equals("") ? entry.getName() : path
+			    + fileSeparator + entry.getName(), rev);
             } else if (entry.getKind() == SVNNodeKind.FILE) {
-                localisedPath = StringUtils.replace(path, "/",
-                        System.getProperty("file.separator")).substring(2);
-                files.add(localisedPath + System.getProperty("file.separator")
-                        + entry.getName());
+		files.add((path.equals("") ? "" : path + fileSeparator)
+			  + entry.getName());
             }
         }
     }
