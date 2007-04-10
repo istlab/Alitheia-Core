@@ -12,6 +12,5 @@
 		 column="PROJECT_VERSION_ID"
 		 not-null="true"/>
     <property name="name" column="NAME"/>
-    <property name="status" column="STATUS"/>
   </class>
 </hibernate-mapping>

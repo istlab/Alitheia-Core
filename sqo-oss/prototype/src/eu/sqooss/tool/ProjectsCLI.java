@@ -440,10 +440,9 @@ public class ProjectsCLI extends CLI {
     private void listProjectVersionFiles(ProjectVersion pv) {
         ArrayList<ProjectFile> projectFiles = pv.getProjectVersionFiles();
         System.out.println("File listing of version " + pv.getVersion());
-        System.out.println("Status Filename");
+        System.out.println("Filename");
         for (ProjectFile pf : projectFiles) {
-            System.out.println(String.format("%6s %s", pf.getStatus(), pf
-                    .getName()));
+            System.out.println(pf.getName());
         }
     }
 
