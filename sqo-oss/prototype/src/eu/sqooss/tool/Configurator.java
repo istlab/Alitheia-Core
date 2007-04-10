@@ -46,9 +46,6 @@ public class Configurator {
         if (option.compareTo(ConfigurationOptions.SQOOSS_HOME) == 0) {
             return sqoossHome;
         }
-        if (option.compareTo(ConfigurationOptions.VCS_SPOOL) == 0) {
-            return configuration.getProperty("VCS_SPOOL");
-        }
 
         return null;
     }

@@ -52,9 +52,9 @@ public class ProjectsCLI extends CLI {
     private Session session;
 
     static {
-        basepath = Configurator.getInstance().getValue(
-                ConfigurationOptions.SQOOSS_HOME)
-                + File.separatorChar + "projects";
+        basepath = Configurator.getInstance()
+                   .getValue(ConfigurationOptions.SQOOSS_HOME)
+                   + File.separatorChar + "projects";
     }
 
     ProjectsCLI(String[] args) {
