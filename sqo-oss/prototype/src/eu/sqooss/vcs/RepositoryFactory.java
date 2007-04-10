@@ -83,8 +83,9 @@ public class RepositoryFactory {
         	type = RepositoryType.SVN;
         }   
         else {
-        	throw new InvalidRepositoryException("The repository protocol" 
-        			+ uri.getScheme() + " is not supported");
+	    throw new InvalidRepositoryException("The repository protocol " 
+						 + uri.getScheme()
+						 + " is not supported");
         }
         return getRepository(localPath, url, username, password, type);
     }
