@@ -47,7 +47,7 @@ import eu.sqooss.vcs.*;
  */
 public class ProjectsCLI extends CLI {
 
-    private static String basepath;
+    private final static String basepath;
 
     private Session session;
 
@@ -77,8 +77,7 @@ public class ProjectsCLI extends CLI {
         /* Arguments to functions */
         options.addOption("i", "project-id", true, "Project ID");
         options.addOption("n", "project-name", true, "Project Name");
-        options
-                .addOption("l", "project-local-path", true,
+        options.addOption("l", "project-local-path", true,
                         "Project local path");
         options.addOption("r", "project-remote-path", true,
                 "Project remote path");
@@ -86,12 +85,23 @@ public class ProjectsCLI extends CLI {
         options.addOption("s", "project-svn-url", true, "Project SVN URL");
 
         /* Help */
-        options.addOption("h", "help", true, "Project functions and options");
+        options.addOption("h", "help", false, "Project functions and options");
     }
 
     public void parse() {
         ProjectsCLI pcli = new ProjectsCLI(args);
-        CommandLine cmdLine = pcli.parseArgs();
+        CommandLine cmdLine = pcli.parseArgs();        
+        
+        if(cmdLine == null || cmdLine.getOptions().length == 0) {
+            error( "No options set", cmdLine);
+            return;
+        }
+        
+        if(cmdLine.hasOption('h')) {
+            System.out.println(HEADER);
+            pcli.formatter.printHelp(" ", pcli.options);            
+            return;
+        }
 
         if (!(cmdLine.hasOption("ap") || cmdLine.hasOption("av")
                 || cmdLine.hasOption("lp") || cmdLine.hasOption("lv")
