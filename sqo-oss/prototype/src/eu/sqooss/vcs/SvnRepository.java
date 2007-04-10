@@ -41,6 +41,8 @@ import java.util.Vector;
 import java.util.Map.Entry;
 import java.util.regex.*;
 
+import org.apache.commons.lang.StringUtils;
+
 import org.tmatesoft.svn.core.*;
 import org.tmatesoft.svn.core.auth.BasicAuthenticationManager;
 import org.tmatesoft.svn.core.auth.ISVNAuthenticationManager;
