@@ -16,19 +16,22 @@ public class PluginCLI extends CLI {
     
     PluginCLI(String[] args) {
         super(args);        
+        
+        /* Arguments to plugin */
         options.addOption("l", "list", false, "List available plugins");
-        options.addOption("h", "help", false, "Prints the online help");
         options.addOption("m", "metric", true, 
         		"Prints information about a metric");
+        
+        /* Help */
+        options.addOption("h", "help", false, "Prints the online help");
     }
     
     public void parse() {
         PluginCLI pcli = new PluginCLI(args);
         CommandLine cmdLine = pcli.parseArgs();
-                
-        if(cmdLine == null || cmdLine.getOptions().length ==0 
-                || cmdLine.hasOption('h')) {
-            error(" ", cmdLine);
+        
+        if (!(cmdLine.hasOption("l") || cmdLine.hasOption("m"))) {
+            error("One of the l, m options must be set", cmdLine);
             return;
         }
                 
@@ -39,7 +42,6 @@ public class PluginCLI extends CLI {
             while(roi.hasNext()) {
                 System.out.println(((Plugin)roi.next()).toString());
             }
-            
             return;
         }
         

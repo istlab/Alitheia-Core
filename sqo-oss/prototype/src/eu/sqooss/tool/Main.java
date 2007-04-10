@@ -88,7 +88,7 @@ public class Main {
                 return;
             }
         }
-        System.out.println(PluginCLI.HEADER);
+        System.out.println(CLI.HEADER);
         System.out.println("type 'tool.sh help' to see available commands\n");
     }
 
