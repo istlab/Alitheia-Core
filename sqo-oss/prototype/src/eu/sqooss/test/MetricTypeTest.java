@@ -40,26 +40,24 @@ public class MetricTypeTest {
 
     public static void main(String[] args) {
 
-	MetricTypeTest test = new MetricTypeTest();
-	test.createAndStoreMetric(1, "the great description");
+        MetricTypeTest test = new MetricTypeTest();
+        test.createAndStoreMetric(1, "the great description");
 
-	HibernateUtil.getSessionFactory().close();
+        HibernateUtil.getSessionFactory().close();
     }
 
     private void createAndStoreMetric(long id, String name) {
-	Session session =
-	    HibernateUtil.getSessionFactory().getCurrentSession();
+        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
 
-	session.beginTransaction();
+        session.beginTransaction();
 
         MetricType m = new MetricType();
-        
+
         m.setId(id);
         m.setType(name);
-	
-	session.save(m);
 
-	session.getTransaction().commit();
+        session.save(m);
+
+        session.getTransaction().commit();
     }
 }
-	    

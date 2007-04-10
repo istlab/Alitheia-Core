@@ -7,9 +7,9 @@ import org.apache.commons.cli.*;
  */
 public class CLI {
     public static final String HEADER = "SQO-OSS metrics tool\n\n"
-        + "Copyright (c) Members of the SQO-OSS Collaboration, 2007\n"
-        + "All rights reserved by respective owners.\n"
-        + "See http://www.sqo-oss.eu/ for details on the copyright holders.\n";
+            + "Copyright (c) Members of the SQO-OSS Collaboration, 2007\n"
+            + "All rights reserved by respective owners.\n"
+            + "See http://www.sqo-oss.eu/ for details on the copyright holders.\n";
 
     protected Options options;
 

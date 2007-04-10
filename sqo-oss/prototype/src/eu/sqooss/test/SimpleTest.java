@@ -54,10 +54,15 @@ public class SimpleTest {
      * @param args
      */
     private Repository repository;
+
     private RepositoryType type;
+
     private String serverPath;
+
     private String localPath;
+
     private String username;
+
     private String password;
 
     public SimpleTest() throws Exception {
@@ -82,16 +87,17 @@ public class SimpleTest {
         repository.checkout(new Revision(revision));
         Vector<String> files = new Vector<String>();
         Vector<Double> results = new Vector<Double>();
-        repository.listEntries(files, /* which path? */localPath, new Revision(revision));
+        repository.listEntries(files, /* which path? */localPath,
+                new Revision(revision));
         int i = 0, size = 0;
         size = files.size();
         while (i != size) {
-        	results.add(runWCTool(files.elementAt(i), revision));
-        	i++;
+            results.add(runWCTool(files.elementAt(i), revision));
+            i++;
         }
         // TODO: obtain list of files stored locally, run storeProjectFiles
     }
-    
+
     // private void storeProjectFiles
 
     private double runWCTool(String file, long revision) {

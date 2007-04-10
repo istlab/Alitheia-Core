@@ -89,12 +89,12 @@ public class CCCCPlugin extends Plugin {
         String target = f.getName().substring(f.getPath().length());
         int pos = target.lastIndexOf(".");
         if (pos > 0) {
-        	target = target.substring(0, pos);
+            target = target.substring(0, pos);
         }
-        
+
         InputStream is = execute(f);
         if (is == null) {
-        	throw new PluginException("The execution of the cccc tool failed");
+            throw new PluginException("The execution of the cccc tool failed");
         }
 
         return parse(is, target);
@@ -112,7 +112,7 @@ public class CCCCPlugin extends Plugin {
         target.append(cmd);
         String outputPath = System.getProperty("java.io.tmpdir");
         if (!outputPath.endsWith(System.getProperty("file.separator"))) {
-        	outputPath += System.getProperty("file.separator");
+            outputPath += System.getProperty("file.separator");
         }
         outputPath += "cccc";
         outputPath += System.getProperty("file.separator");
@@ -148,7 +148,8 @@ public class CCCCPlugin extends Plugin {
                 }
             }
         } catch (Exception e) {
-            System.err.println("An error occured while reading the xml document");
+            System.err
+                    .println("An error occured while reading the xml document");
         }
         return results;
     }

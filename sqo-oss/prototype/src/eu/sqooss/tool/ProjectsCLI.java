@@ -77,8 +77,9 @@ public class ProjectsCLI extends CLI {
         /* Arguments to functions */
         options.addOption("i", "project-id", true, "Project ID");
         options.addOption("n", "project-name", true, "Project Name");
-        options.addOption("l", "project-local-path", true,
-                "Project local path");
+        options
+                .addOption("l", "project-local-path", true,
+                        "Project local path");
         options.addOption("r", "project-remote-path", true,
                 "Project remote path");
         options.addOption("v", "version", true, "Project version");
@@ -94,8 +95,8 @@ public class ProjectsCLI extends CLI {
 
         if (!(cmdLine.hasOption("ap") || cmdLine.hasOption("av")
                 || cmdLine.hasOption("lp") || cmdLine.hasOption("lv")
-                || cmdLine.hasOption("dp") || cmdLine.hasOption("dv")
-                || cmdLine.hasOption("f"))) {
+                || cmdLine.hasOption("dp") || cmdLine.hasOption("dv") || cmdLine
+                .hasOption("f"))) {
             error("One of the ap, av, lp, lv, dp, dv, f options must be set",
                     cmdLine);
             return;
@@ -292,13 +293,15 @@ public class ProjectsCLI extends CLI {
         Repository r = null;
         Revision rev;
         try {
-            r = RepositoryFactory.getRepository(project.getLocalPath(), 
-                    project.getSvnUrl());
+            r = RepositoryFactory.getRepository(project.getLocalPath(), project
+                    .getSvnUrl());
         } catch (InvalidRepositoryException ire) {
             error("Failed to access the project's repository");
         }
-        rev = new Revision(version); /* if the version is in invalid format,
-                                     *  the HEAD revision will be used */
+        rev = new Revision(version); /*
+                                         * if the version is in invalid format,
+                                         * the HEAD revision will be used
+                                         */
         r.checkout(rev);
         Vector<String> files = new Vector<String>();
         r.listEntries(files, "/", rev);
@@ -312,7 +315,7 @@ public class ProjectsCLI extends CLI {
             try {
                 ProjectFile pf = new ProjectFile();
                 pf.setName(project.getLocalPath()
-			   + System.getProperty("file.separator") + file);
+                        + System.getProperty("file.separator") + file);
                 pf.setProjectVersion(pv);
                 session.save(pf);
             } catch (Exception ex) {
@@ -349,8 +352,8 @@ public class ProjectsCLI extends CLI {
         ArrayList<ProjectFile> files = pv.getProjectVersionFiles();
         for (ProjectFile pf : files) {
             Query q = session.createQuery("from Measurement m where "
-					  + "m.projectVersion.id = :pvid AND "
-					  + "m.projectFile.id = :pfid");
+                    + "m.projectVersion.id = :pvid AND "
+                    + "m.projectFile.id = :pfid");
             q.setLong("pvid", pv.getId());
             q.setLong("pfid", pf.getId());
             List measurements = q.list();
@@ -380,11 +383,8 @@ public class ProjectsCLI extends CLI {
         Iterator it = results.iterator();
         while (it.hasNext()) {
             StoredProject sp = (StoredProject) it.next();
-            System.out.println(String.format("%4s%16s%%30s%30s", 
-                                             sp.getId(),
-                                             sp.getName(),
-                                             sp.getLocalPath(),
-                                             sp.getSvnUrl()));
+            System.out.println(String.format("%4s%16s%%30s%30s", sp.getId(), sp
+                    .getName(), sp.getLocalPath(), sp.getSvnUrl()));
         }
     }
 
@@ -396,7 +396,7 @@ public class ProjectsCLI extends CLI {
      */
     private void listProjectVersions(String projectid) {
         Query q = session.createQuery("from ProjectVersion pv where "
-				      + "pv.project.id = :pid");
+                + "pv.project.id = :pid");
         q.setString("pid", projectid);
         List results = q.list();
         if (results.size() == 0) {
@@ -407,8 +407,8 @@ public class ProjectsCLI extends CLI {
         Iterator it = results.iterator();
         while (it.hasNext()) {
             ProjectVersion pv = (ProjectVersion) it.next();
-            System.out.println(String.format("%5s%s%", pv.getId(), 
-                    pv.getVersion()));
+            System.out.println(String.format("%5s%s%", pv.getId(), pv
+                    .getVersion()));
         }
     }
 
@@ -423,8 +423,8 @@ public class ProjectsCLI extends CLI {
         System.out.println("File listing of version " + pv.getVersion());
         System.out.println("Status Filename");
         for (ProjectFile pf : projectFiles) {
-            System.out.println(String.format("%6s %s", pf.getStatus(), 
-					     pf.getName()));
+            System.out.println(String.format("%6s %s", pf.getStatus(), pf
+                    .getName()));
         }
     }
 
@@ -469,8 +469,8 @@ public class ProjectsCLI extends CLI {
     private ProjectVersion checkProjectVersion(String version, StoredProject pr) {
         ProjectVersion pv;
         Query q = session.createQuery("from ProjectVersion as pv where "
-				      + "pv.storedProject.id = :projid "
-				      + "and pv.version like :version");
+                + "pv.storedProject.id = :projid "
+                + "and pv.version like :version");
         q.setLong("projid", pr.getId());
         q.setString("version", version);
         pv = (ProjectVersion) q.uniqueResult();
