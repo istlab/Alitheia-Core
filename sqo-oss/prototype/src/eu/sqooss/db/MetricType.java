@@ -42,19 +42,19 @@ public class MetricType {
     }
 
     public long getId() {
-	return id;
+    	return id;
     }
 
     public void setId(long id) {
-	this.id = id;
+    	this.id = id;
     }
 
     public String getType() {
-	return type;
+    	return type;
     }
 
     public void setType(String type) {
-	this.type = type;
+    	this.type = type;
     }
 
 }

@@ -54,55 +54,53 @@ public class Plugin {
     protected String name;
     
     public Plugin() { /* empty default constructor */ }
-
-    // setters and getters
     
     public long getId() {
-	return id;
+    	return id;
     }
 
     public void setId(long id) {
-	this.id = id;
+    	this.id = id;
     }
 
     public String getPath() {
-	return path;
+    	return path;
     }
 
     public void setPath(String path) {
-	this.path = path;
+    	this.path = path;
     }
 
     public String getExecutor() {
-	return executor;
+    	return executor;
     }
 
     public void setExecutor(String executor) {
-	this.executor = executor;
+    	this.executor = executor;
     }
 
     public String getExecutorType() {
-	return executorType;
+    	return executorType;
     }
 
     public void setExecutorType(String executorType) {
-	this.executorType = executorType;
+    	this.executorType = executorType;
     }
 
     public String getParser() {
-	return parser;
+    	return parser;
     }
 
     public void setParser(String parser) {
-	this.parser = parser;
+    	this.parser = parser;
     }
 
     public String getParserType() {
-	return parserType;
+    	return parserType;
     }
 
     public void setParserType(String parserType) {
-	this.parserType = parserType;
+    	this.parserType = parserType;
     }
     
     public String getDescription() {

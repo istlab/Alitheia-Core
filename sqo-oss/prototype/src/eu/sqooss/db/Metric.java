@@ -52,27 +52,27 @@ public class Metric {
     }
 
     public long getId() {
-	return id;
+    	return id;
     }
 
     public void setId(long id) {
-	this.id = id;
+    	this.id = id;
     }
     
     public MetricType getMetricType() {
-	return metricType;
+    	return metricType;
     }
 
     public void setMetricType(MetricType metricType) {
-	this.metricType = metricType;
+    	this.metricType = metricType;
     }
     
     public String getDescription() {
-	return description;
+    	return description;
     }
 
     public void setDescription(String description) {
-	this.description = description;
+    	this.description = description;
     }
 
     public Plugin getPlugin() {
