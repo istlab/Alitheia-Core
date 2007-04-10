@@ -109,32 +109,33 @@ public class SvnRepository extends Repository implements ISVNLogEntryHandler {
     public void checkout() {
     	initializeRepository();
     	SVNUpdateClient updater = new SVNUpdateClient(authManager, 
-    			SVNWCUtil.createDefaultOptions(true));
-    	try {
-			updater.doCheckout(url, new File(localPath),
-					SVNRevision.HEAD, 
-					SVNRevision.HEAD /* denotes the latest repository revision */, 
-					true /* when true, checkout descends recursively */);
-		} catch (SVNException svne) {
-			System.err.println("Couldn't checkout");
-			svne.printStackTrace();
-		}
+    	SVNWCUtil.createDefaultOptions(true));
+        try {
+            updater.doCheckout(url,
+                              new File(localPath),
+                              SVNRevision.HEAD, 
+                              SVNRevision.HEAD , /* denotes the latest repository revision */ 
+                              true ); /* when true, checkout descends recursively */
+	} catch (SVNException svne) {
+            System.err.println("Couldn't checkout");
+            svne.printStackTrace();
+        }
     }
 
     @Override
     public void checkout(Revision rev) {
-    	initializeRepository();
-    	SVNUpdateClient updater = new SVNUpdateClient(authManager, 
-    			SVNWCUtil.createDefaultOptions(true));
+        initializeRepository();
+        SVNUpdateClient updater = 
+            new SVNUpdateClient(authManager, SVNWCUtil.createDefaultOptions(true));
     	/* SVNRevision is a revision wrapper used for an abstract 
     	 * representation of revision information */
     	SVNRevision tmpRev = SVNRevision.create(rev.getNumber());
     	try {
-			updater.doCheckout(url, new File(localPath), tmpRev, tmpRev, true);
-		} catch (SVNException svne) {
-			System.err.println("Couldn't checkout");
-			svne.printStackTrace();
-		}
+            updater.doCheckout(url, new File(localPath), tmpRev, tmpRev, true);
+        } catch (SVNException svne) {
+            System.err.println("Couldn't checkout");
+            svne.printStackTrace();
+        }
     }
 
     @Override
