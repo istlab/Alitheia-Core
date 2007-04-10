@@ -39,46 +39,45 @@ import java.io.PrintWriter;
 import java.util.HashMap;
 
 /**
- * Handles parsing of the output of an Executor class.
- * The ExternalOutputHandler implementation assumes that
- * the output will be key/value pairs with \t separators.
+ * Handles parsing of the output of an Executor class. The ExternalOutputHandler
+ * implementation assumes that the output will be key/value pairs with \t
+ * separators.
  */
 public class ExternalOutputParser implements OutputParser {
     private String cmd;
-    
+
     public ExternalOutputParser(String cmd) {
-	this.cmd = cmd;
+        this.cmd = cmd;
     }
-    
+
     // TODO needs testing
     public HashMap<String, String> parse(InputStream is) {
-	try {
-	    HashMap<String,String> result = new HashMap<String,String>();
-	    
-	    Process p = Runtime.getRuntime().exec(cmd);
-	    BufferedReader br = new BufferedReader(new InputStreamReader(is));
-	    PrintWriter bw = new PrintWriter(p.getOutputStream());
-	    
-	    while(br.ready()) {
-		String l = br.readLine();
-		bw.print(l);
-	    }
-	    
-	    br.close();
-	    br = new BufferedReader(
-		    new InputStreamReader(p.getInputStream()));
-	    
-	    while(br.ready()) {
-		String l = br.readLine();
-		String[] i = l.split("\t");
-		result.put(i[0], i[1]);
-	    }
-	    
-	    return result;
-	} catch (Exception e) {
-	    // TODO: logging?
-	    return null;
-	}
+        try {
+            HashMap<String, String> result = new HashMap<String, String>();
+
+            Process p = Runtime.getRuntime().exec(cmd);
+            BufferedReader br = new BufferedReader(new InputStreamReader(is));
+            PrintWriter bw = new PrintWriter(p.getOutputStream());
+
+            while (br.ready()) {
+                String l = br.readLine();
+                bw.print(l);
+            }
+
+            br.close();
+            br = new BufferedReader(new InputStreamReader(p.getInputStream()));
+
+            while (br.ready()) {
+                String l = br.readLine();
+                String[] i = l.split("\t");
+                result.put(i[0], i[1]);
+            }
+
+            return result;
+        } catch (Exception e) {
+            // TODO: logging?
+            return null;
+        }
     }
 
 }

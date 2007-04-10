@@ -36,23 +36,23 @@ import java.io.InputStream;
 
 public class JavaExecutor implements Executor {
     private String clazz;
-    
+
     public JavaExecutor(String clazz) {
-	this.clazz = clazz;
+        this.clazz = clazz;
     }
 
     public InputStream execute(File file) {
-    	try {
-    		Class c = Class.forName(clazz);
-    		Executor e = (Executor)c.newInstance();
-    		return e.execute(file);
-		} catch (InstantiationException ie) {
-			return null;
-		} catch (IllegalAccessException iae) {    
-			return null;
-		} catch (ClassNotFoundException cnfe) {
-			return null;
-		}
+        try {
+            Class c = Class.forName(clazz);
+            Executor e = (Executor) c.newInstance();
+            return e.execute(file);
+        } catch (InstantiationException ie) {
+            return null;
+        } catch (IllegalAccessException iae) {
+            return null;
+        } catch (ClassNotFoundException cnfe) {
+            return null;
+        }
     }
 
 }

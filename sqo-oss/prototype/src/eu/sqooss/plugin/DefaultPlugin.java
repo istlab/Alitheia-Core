@@ -45,24 +45,24 @@ import eu.sqooss.db.ProjectFile;
  */
 public class DefaultPlugin extends Plugin {
     private Executor executorInstance;
+
     private OutputParser outputParserInstance;
 
     public DefaultPlugin(Plugin p, Executor e, OutputParser op) {
-	this.executorInstance = e;
-	this.outputParserInstance = op;
-	p.copy(this);
+        this.executorInstance = e;
+        this.outputParserInstance = op;
+        p.copy(this);
     }
-    
-    public HashMap<String, String> run(ProjectFile file)
-	throws PluginException {
-	File f = new File(file.getName());
-	
-	if(!f.exists()) {
-	    throw new PluginException(getName() + " (plugin): " + 
-		    f.toString() + " does not exist"); 
-	}
-	
-	InputStream r = executorInstance.execute(f);
-	return outputParserInstance.parse(r);
+
+    public HashMap<String, String> run(ProjectFile file) throws PluginException {
+        File f = new File(file.getName());
+
+        if (!f.exists()) {
+            throw new PluginException(getName() + " (plugin): " + f.toString()
+                    + " does not exist");
+        }
+
+        InputStream r = executorInstance.execute(f);
+        return outputParserInstance.parse(r);
     }
 }

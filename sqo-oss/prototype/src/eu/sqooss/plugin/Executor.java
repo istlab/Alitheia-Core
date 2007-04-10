@@ -35,9 +35,9 @@ import java.io.File;
 import java.io.InputStream;
 
 /**
- * Interface for the Executor module parts. These
- * actually "run" the initialized plugin (from the database)
- * and return an InputStream with the results in raw text
+ * Interface for the Executor module parts. These actually "run" the initialized
+ * plugin (from the database) and return an InputStream with the results in raw
+ * text
  */
 public interface Executor {
     public InputStream execute(File file);

@@ -36,11 +36,10 @@ import java.util.HashMap;
 import java.io.InputStream;
 
 /**
- * This interface specifies an OutputParser module.
- * It accept the output of an Executor module (as InputStream)
- * and returns a HashMap that contains metric 
- * (shortname)/value pairs. 
+ * This interface specifies an OutputParser module. It accept the output of an
+ * Executor module (as InputStream) and returns a HashMap that contains metric
+ * (shortname)/value pairs.
  */
 public interface OutputParser {
-    public HashMap<String,String> parse(InputStream is);
+    public HashMap<String, String> parse(InputStream is);
 }

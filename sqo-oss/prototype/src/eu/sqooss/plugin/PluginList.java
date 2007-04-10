@@ -40,66 +40,68 @@ import eu.sqooss.util.ReadOnlyIterator;
 import eu.sqooss.db.Plugin;
 
 /**
- * The PluginList class initializes the plugins 
- * from the database
+ * The PluginList class initializes the plugins from the database
  */
 public class PluginList extends ArrayList<Plugin> {
-    private final static String JAVA     = "Java";
+    private final static String JAVA = "Java";
+
     private final static String EXTERNAL = "External";
-    private final static String PLUGIN   = "JavaPlugin";
+
+    private final static String PLUGIN = "JavaPlugin";
+
     //
     private final static PluginList defaultInstance;
-    
+
     static {
-	defaultInstance = new PluginList();
+        defaultInstance = new PluginList();
     }
-    
+
     private PluginList() {
         List pl = Plugin.getPluginList();
         Iterator i = pl.iterator();
-        while(i.hasNext()) {
-            addPlugin((Plugin)i.next());
+        while (i.hasNext()) {
+            addPlugin((Plugin) i.next());
         }
     }
-    
+
     private void addPlugin(Plugin p) {
-        if(p.getExecutorType().compareToIgnoreCase(PLUGIN) == 0) {
+        if (p.getExecutorType().compareToIgnoreCase(PLUGIN) == 0) {
             try {
                 Class clazz = Class.forName(p.getExecutor());
-                Plugin plugin = (Plugin)clazz.newInstance();
+                Plugin plugin = (Plugin) clazz.newInstance();
                 plugin = p.copy(plugin);
                 add(plugin);
-            }catch (Exception e) {
-                System.err.println("Cannot initialize plugin : " 
-                        + p.getName()+ " : "+ e.toString());
+            } catch (Exception e) {
+                System.err.println("Cannot initialize plugin : " + p.getName()
+                        + " : " + e.toString());
             }
             return;
         }
-        
+
         Executor ex = null;
         OutputParser op = null;
-        
-        if(p.getExecutorType().compareToIgnoreCase(JAVA) == 0) {
+
+        if (p.getExecutorType().compareToIgnoreCase(JAVA) == 0) {
             ex = new JavaExecutor(p.getExecutor());
-        } else if(p.getExecutorType().compareToIgnoreCase(EXTERNAL) == 0) {
+        } else if (p.getExecutorType().compareToIgnoreCase(EXTERNAL) == 0) {
             ex = new ExternalExecutor(p.getExecutor());
         }
-        
-        if(p.getParserType().compareToIgnoreCase(JAVA) == 0) {
+
+        if (p.getParserType().compareToIgnoreCase(JAVA) == 0) {
             op = new JavaOutputParser(p.getParser());
-        } else if(p.getParserType().compareToIgnoreCase(EXTERNAL) == 0) {
+        } else if (p.getParserType().compareToIgnoreCase(EXTERNAL) == 0) {
             op = new ExternalOutputParser(p.getParser());
         }
-        
-        DefaultPlugin dp = new DefaultPlugin(p,ex,op);
+
+        DefaultPlugin dp = new DefaultPlugin(p, ex, op);
         add(dp);
     }
-    
+
     public ReadOnlyIterator getPlugins() {
-    	return (new ReadOnlyIterator(iterator()));
+        return (new ReadOnlyIterator(iterator()));
     }
-    
+
     public static PluginList getInstance() {
-    	return defaultInstance; 
+        return defaultInstance;
     }
 }
