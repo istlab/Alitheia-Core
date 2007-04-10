@@ -304,7 +304,7 @@ public class ProjectsCLI extends CLI {
         r.listEntries(files, "/", rev);
 
         ProjectVersion pv = new ProjectVersion();
-        pv.setProjectId(project.getId());
+        pv.setStoredProject(project);
         pv.setVersion(String.valueOf(r.getCurrentVersion(false)));
         session.save(pv);
 
