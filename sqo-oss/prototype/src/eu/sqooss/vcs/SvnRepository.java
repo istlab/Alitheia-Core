@@ -88,32 +88,34 @@ public class SvnRepository extends Repository implements ISVNLogEntryHandler {
             String passwd) throws InvalidRepositoryException {
         super(localPath, serverPath, username, passwd);
 
-        if (this.serverPath.indexOf("svn://") != -1) {
+        if (this.getServerPath().indexOf("svn://") != -1) {
             /* usage over http */
-            this.serverPath = this.serverPath.replaceAll("svn://", "http://");
-        } else if (this.serverPath.indexOf("svns://") != -1) {
+            this.setServerPath(this.getServerPath().replaceAll("svn://",
+                    "http://"));
+        } else if (this.getServerPath().indexOf("svns://") != -1) {
             /* usage over https */
-            this.serverPath = this.serverPath.replaceAll("svns://", "https://");
-        } else if (this.serverPath.indexOf("svn+fsfs://") != -1) {
+            this.setServerPath(this.getServerPath().replaceAll("svns://",
+                    "https://"));
+        } else if (this.getServerPath().indexOf("svn+fsfs://") != -1) {
             /* usage over file */
-            this.serverPath = this.serverPath.replaceAll("svn+fsfs://",
-                    "fsfs://");
+            this.setServerPath(this.getServerPath().replaceAll("svn+fsfs://",
+                    "fsfs://"));
         }
 
         URI uri;
         try {
-            uri = new URI(this.serverPath);
+            uri = new URI(this.getServerPath());
         } catch (URISyntaxException e) {
             throw new InvalidRepositoryException(e.getMessage());
         }
         // check if there is a port given
         if (uri.getPort() == -1) {
-            this.serverPath = uri.getScheme() + "://" + uri.getHost()
-                    + uri.getPath();
+            this.setServerPath(uri.getScheme() + "://" + uri.getHost()
+                    + uri.getPath());
         } else {
             String port = new Integer(uri.getPort()).toString();
-            this.serverPath = uri.getScheme() + "://" + uri.getHost()
-                    + uri.getPath() + ":" + port;
+            this.setServerPath(uri.getScheme() + "://" + uri.getHost()
+                    + uri.getPath() + ":" + port);
         }
         // System.out.println(this.serverPath);
         initializeFactories();
@@ -126,12 +128,8 @@ public class SvnRepository extends Repository implements ISVNLogEntryHandler {
         SVNUpdateClient updater = new SVNUpdateClient(authManager, SVNWCUtil
                 .createDefaultOptions(true));
         try {
-            updater.doCheckout(url, new File(localPath), SVNRevision.HEAD,
-                    SVNRevision.HEAD, /*
-                                         * denotes the latest repository
-                                         * revision
-                                         */
-                    true); /* when true, checkout descends recursively */
+            updater.doCheckout(url, new File(getLocalPath()), SVNRevision.HEAD,
+                    SVNRevision.HEAD, true); /* descend recursively */
         } catch (SVNException svne) {
             System.err.println("Couldn't checkout");
             svne.printStackTrace();
@@ -149,7 +147,8 @@ public class SvnRepository extends Repository implements ISVNLogEntryHandler {
          */
         SVNRevision tmpRev = SVNRevision.create(rev.getNumber());
         try {
-            updater.doCheckout(url, new File(localPath), tmpRev, tmpRev, true);
+            updater.doCheckout(url, new File(getLocalPath()), tmpRev, tmpRev,
+                    true);
         } catch (SVNException svne) {
             System.err.println("Couldn't checkout");
             svne.printStackTrace();
@@ -163,7 +162,7 @@ public class SvnRepository extends Repository implements ISVNLogEntryHandler {
                 .createDefaultOptions(true));
         SVNRevision tmpRev = SVNRevision.create(rev.getNumber());
         try {
-            updater.doUpdate(new File(localPath), tmpRev, true);
+            updater.doUpdate(new File(getLocalPath()), tmpRev, true);
         } catch (SVNException svne) {
             System.err.println("Couldn't update");
             svne.printStackTrace();
@@ -183,18 +182,8 @@ public class SvnRepository extends Repository implements ISVNLogEntryHandler {
         SVNRevision tmpRevEnd = SVNRevision.create(end.getNumber());
         String returnVal = null;
         try {
-            diffClient
-                    .doDiff(
-                            url,
-                            tmpRevStart,
-                            tmpRevStart,
-                            tmpRevEnd,
-                            true /* descend recursively */,
-                            true /*
-                                     * the paths ancestry will be noticed while
-                                     * calculating differences
-                                     */,
-                            diffStream);
+            diffClient.doDiff(url, tmpRevStart, tmpRevStart, tmpRevEnd,
+                    true /* descend recursively */, true, diffStream);
         } catch (SVNException svne) {
             System.err.println("Couldn't doDiff");
             svne.printStackTrace();
@@ -216,29 +205,8 @@ public class SvnRepository extends Repository implements ISVNLogEntryHandler {
         svnCommitLog = new CommitLog(start, end);
         svnCommitLog.clear();
         try {
-            logger
-                    .doLog(
-                            url,
-                            null,
-                            tmpRevStart,
-                            tmpRevStart,
-                            tmpRevEnd,
-                            false, /*
-                                     * copies history will be also included into
-                                     * processing
-                                     */
-                            true /*
-                                     * report all changed paths for every
-                                     * revision being processed
-                                     */,
-                            Long.MAX_VALUE, /*
-                                             * maximum number of log entries to
-                                             * be processed
-                                             */
-                            handler /*
-                                     * Interface ISVNLogEntryHandler implemented
-                                     * below
-                                     */);
+            logger.doLog(url, null, tmpRevStart, tmpRevStart, tmpRevEnd, false,
+                    true, Long.MAX_VALUE, handler);
         } catch (SVNException svne) {
             System.err.println("Couldn't doLog");
             svne.printStackTrace();
@@ -251,62 +219,50 @@ public class SvnRepository extends Repository implements ISVNLogEntryHandler {
         initializeRepository();
         if (remote) {
             try {
-                revision = new Revision(repository.getLatestRevision());
+                setRevision(new Revision(repository.getLatestRevision()));
             } catch (SVNException svne) {
-                revision = new Revision(-1);
+                setRevision(new Revision(-1));
             }
         } else {
             clientManager = SVNClientManager.newInstance(SVNWCUtil
                     .createDefaultOptions(true), authManager);
             try {
                 SVNInfo info = clientManager.getWCClient().doInfo(
-                        new File(localPath), SVNRevision.WORKING);
-                revision = new Revision(info.getRevision().getNumber());
+                        new File(getLocalPath()), SVNRevision.WORKING);
+                setRevision(new Revision(info.getRevision().getNumber()));
             } catch (SVNException svne) {
                 System.err.println("Error while retrieving info for the "
-                        + "working copy of '" + serverPath + "' at "
-                        + localPath + ": " + svne.getMessage());
+                        + "working copy of '" + getServerPath() + "' at "
+                        + getLocalPath() + ": " + svne.getMessage());
             }
         }
-        return revision.getNumber();
+        return getRevision().getNumber();
     }
 
     @Override
     public void listEntries(Vector<String> files, String path, Revision rev) {
 
-    	Collection entries = null;
-	String localisedPath;
-		try {
-			entries = repository.getDir(path, rev.getNumber(), 
-					null /*
-                             * means that we're not interested in directory
-                             * properties
-                             */, 
-					(Collection) null /*
-                                         * we don't provide our own Collection
-                                         * instance so we use the one returned
-                                         */);
-		} catch (SVNException svne) {
-			svne.printStackTrace();
-		}
-    	Iterator iterator = entries.iterator();
-    	while (iterator.hasNext()) {
-    		 SVNDirEntry entry = (SVNDirEntry) iterator.next();
-    		 if (entry.getKind() == SVNNodeKind.DIR) {
-		     listEntries(files, (path.equals("")) ? entry.getName()
-				 : path + "/" + entry.getName(), rev);
-    		 } else if (entry.getKind() == SVNNodeKind.FILE) {
-		     localisedPath =
-			 StringUtils.replace(path, "/",
-					     System
-					     .getProperty("file.separator"))
-			 .substring(2); 
-		     files.add(localisedPath
-			       + System.getProperty("file.separator")
-			       + entry.getName());
-    		 }
-    	}
-
+        Collection entries = null;
+        String localisedPath;
+        try {
+            entries = repository.getDir(path, rev.getNumber(), null,
+                    (Collection) null);
+        } catch (SVNException svne) {
+            svne.printStackTrace();
+        }
+        Iterator iterator = entries.iterator();
+        while (iterator.hasNext()) {
+            SVNDirEntry entry = (SVNDirEntry) iterator.next();
+            if (entry.getKind() == SVNNodeKind.DIR) {
+                listEntries(files, (path.equals("")) ? entry.getName() : path
+                        + "/" + entry.getName(), rev);
+            } else if (entry.getKind() == SVNNodeKind.FILE) {
+                localisedPath = StringUtils.replace(path, "/",
+                        System.getProperty("file.separator")).substring(2);
+                files.add(localisedPath + System.getProperty("file.separator")
+                        + entry.getName());
+            }
+        }
     }
 
     /**
@@ -335,7 +291,7 @@ public class SvnRepository extends Repository implements ISVNLogEntryHandler {
 
         try {
             // SVNURL url = SVNURL.parseURIDecoded(serverPath);
-            url = SVNURL.parseURIDecoded(serverPath);
+            url = SVNURL.parseURIDecoded(getServerPath());
             repository = SVNRepositoryFactoryImpl.create(url);
 
             /*
@@ -346,15 +302,16 @@ public class SvnRepository extends Repository implements ISVNLogEntryHandler {
              * this kind of behaviour, so we use BasicAuthenticationManager. If
              * anonymous access is requested the authentication is skipped.
              */
-            if ((username.length() > 0) && (password.length() > 0)) {
-                authManager = new BasicAuthenticationManager(username, password);
+            if ((getUsername().length() > 0) && (getPassword().length() > 0)) {
+                authManager = new BasicAuthenticationManager(getUsername(),
+                        getPassword());
 
                 repository.setAuthenticationManager(authManager);
             }
         } catch (SVNException svne) {
             // Probably a malformed URL was provided
             System.err.println("Error while creating an SVNRepository for '"
-                    + serverPath + "': " + svne.getMessage());
+                    + getServerPath() + "': " + svne.getMessage());
         }
     }
 
@@ -363,15 +320,17 @@ public class SvnRepository extends Repository implements ISVNLogEntryHandler {
      * CommitLogEntries to a CommitLog object
      */
     public void handleLogEntry(SVNLogEntry logEntry) {
-        if (logEntry == null
-                || (logEntry.getMessage() == null && logEntry.getRevision() == 0)) {
+        if (logEntry == null 
+                || (logEntry.getMessage() == null 
+                        && logEntry.getRevision() == 0)) {
             return;
         }
         Long tmpRev = logEntry.getRevision();
         CommitLogEntry tmpEntry = new CommitLogEntry(logEntry.getAuthor(),
                 logEntry.getMessage(), logEntry.getDate(), tmpRev.toString());
 
-        for (Entry<String, SVNLogEntryPath> entry : (Set<Entry<String, SVNLogEntryPath>>) logEntry
+        for (Entry<String, SVNLogEntryPath> entry : 
+            (Set<Entry<String, SVNLogEntryPath>>) logEntry
                 .getChangedPaths().entrySet()) {
 
             switch (entry.getValue().getType()) {

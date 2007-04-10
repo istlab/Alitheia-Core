@@ -37,18 +37,18 @@ import java.util.Vector;
  */
 public abstract class Repository {
 
-    public String password;
+    private String password;
 
-    public String username;
+    private String username;
 
     /* The path of the repository on the local end */
-    protected String localPath;
+    private String localPath;
 
     /* The path of the repository on the remote end */
-    protected String serverPath;
+    private String serverPath;
 
     /* The current repository revision on the local end */
-    protected Revision revision;
+    private Revision revision;
 
     /**
      * Initializes the Repository class attributes
@@ -64,10 +64,10 @@ public abstract class Repository {
      */
     public Repository(String localpath, String serverpath, String user,
             String pass) {
-        this.localPath = localpath;
-        this.serverPath = serverpath;
-        this.username = user;
-        this.password = pass;
+        this.setLocalPath(localpath);
+        this.setServerPath(serverpath);
+        this.setUsername(user);
+        this.setPassword(pass);
     }
 
     /**
@@ -149,5 +149,75 @@ public abstract class Repository {
      */
     public abstract void listEntries(Vector<String> files, String path,
             Revision revision);
+
+    /**
+     * @param password the password to set
+     */
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    /**
+     * @return the password
+     */
+    public String getPassword() {
+        return password;
+    }
+
+    /**
+     * @param username the username to set
+     */
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    /**
+     * @return the username
+     */
+    public String getUsername() {
+        return username;
+    }
+
+    /**
+     * @param localPath the localPath to set
+     */
+    protected void setLocalPath(String localPath) {
+        this.localPath = localPath;
+    }
+
+    /**
+     * @return the localPath
+     */
+    protected String getLocalPath() {
+        return localPath;
+    }
+
+    /**
+     * @param serverPath the serverPath to set
+     */
+    protected void setServerPath(String serverPath) {
+        this.serverPath = serverPath;
+    }
+
+    /**
+     * @return the serverPath
+     */
+    protected String getServerPath() {
+        return serverPath;
+    }
+
+    /**
+     * @param revision the revision to set
+     */
+    protected void setRevision(Revision revision) {
+        this.revision = revision;
+    }
+
+    /**
+     * @return the revision
+     */
+    protected Revision getRevision() {
+        return revision;
+    }
 
 }
