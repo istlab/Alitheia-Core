@@ -140,13 +140,14 @@ public class Plugin {
      * @return an array of metrics
      */
     public Metric[] getMetrics() {
-        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        Session session = HibernateUtil.getSessionFactory().openSession();
         session.beginTransaction();
         Query q = session
                 .createQuery("from Metric metric where metric.Plugin.id = :plugin");
         q.setLong("plugin", id);
         List result = q.list();
 
+	session.getTransaction().commit();
         return (Metric[]) result.toArray(new Metric[] {});
     }
 
@@ -155,11 +156,11 @@ public class Plugin {
      * 
      */
     public static List getPluginList() {
-        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        Session session = HibernateUtil.getSessionFactory().openSession();
         session.beginTransaction();
         List result = session.createQuery("from Plugin").list();
-        session.getTransaction().commit();
 
+	session.getTransaction().commit();
         return result;
     }
 

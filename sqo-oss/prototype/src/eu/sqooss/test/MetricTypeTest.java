@@ -47,7 +47,7 @@ public class MetricTypeTest {
     }
 
     private void createAndStoreMetric(long id, String name) {
-        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        Session session = HibernateUtil.getSessionFactory().openSession();
 
         session.beginTransaction();
 

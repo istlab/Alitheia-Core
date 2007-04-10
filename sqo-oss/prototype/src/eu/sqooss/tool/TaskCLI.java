@@ -89,7 +89,7 @@ public class TaskCLI extends CLI {
         if (p == null) {
             error("The requested plugin is not registered in the system");
         }
-        session = HibernateUtil.getSessionFactory().getCurrentSession();
+        session = HibernateUtil.getSessionFactory().openSession();
         session.beginTransaction();
 
         /* check if the project exists and is registered */

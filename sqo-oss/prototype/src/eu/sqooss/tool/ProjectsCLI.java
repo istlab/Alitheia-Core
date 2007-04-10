@@ -123,7 +123,7 @@ public class ProjectsCLI extends CLI {
         String svnurl = getOptionValue(cmdLine, "s");
         String version = getOptionValue(cmdLine, "v");
 
-        session = HibernateUtil.getSessionFactory().getCurrentSession();
+        session = HibernateUtil.getSessionFactory().openSession();
         session.beginTransaction();
 
         /* Project file listing handling */

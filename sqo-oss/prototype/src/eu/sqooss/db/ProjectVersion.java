@@ -84,11 +84,13 @@ public class ProjectVersion {
         ArrayList<ProjectFile> result = new ArrayList<ProjectFile>();
         try {
             Session session = HibernateUtil.getSessionFactory()
-                    .getCurrentSession();
+                    .openSession();
+	    session.beginTransaction();
             Query q = session.createQuery("from ProjectFile pf where "
                     + "pf.projectVersion.id = :projverid");
             q.setLong("projverid", storedProject.getId());
             result.addAll(q.list());
+	    session.getTransaction().commit();
         } catch (Exception e) {
         }
         return result;

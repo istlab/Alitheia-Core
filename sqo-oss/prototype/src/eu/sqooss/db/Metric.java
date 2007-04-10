@@ -96,7 +96,7 @@ public class Metric {
 
     // Other
     public static Metric[] getMetricByName(String name) {
-        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        Session session = HibernateUtil.getSessionFactory().openSession();
         session.beginTransaction();
 
         Query q = session
@@ -105,6 +105,7 @@ public class Metric {
 
         Metric[] m = (Metric[])q.list().toArray(new Metric[] {}); 
 
+	session.getTransaction().commit();
         return m;
     }
 }

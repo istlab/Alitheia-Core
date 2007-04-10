@@ -44,7 +44,7 @@ public class InitDB {
     }
 
     public static void main(String[] args) {
-        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        Session session = HibernateUtil.getSessionFactory().openSession();
 
         session.beginTransaction();
 

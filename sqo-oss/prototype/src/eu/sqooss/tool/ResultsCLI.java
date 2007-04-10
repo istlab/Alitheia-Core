@@ -95,7 +95,7 @@ public class ResultsCLI extends CLI {
             assert metric != "";
         }
 
-        session = HibernateUtil.getSessionFactory().getCurrentSession();
+        session = HibernateUtil.getSessionFactory().openSession();
         session.beginTransaction();
 
         if (cmdLine.hasOption("pl")) {
@@ -162,7 +162,7 @@ public class ResultsCLI extends CLI {
                         System.out.print(String.format("%6s", "N/A"));
                     }
                 } catch (Exception e) {
-                    System.out.print(String.format("%6s", "ERR"));
+		    e.printStackTrace();
                 }
             }
             System.out.println();
@@ -182,9 +182,9 @@ public class ResultsCLI extends CLI {
      */
     private Measurement retrieveMeasurement(ProjectVersion pv, ProjectFile pf,
             Metric m) {
-        Query q = session.createQuery("from MEASUREMENT me where "
-                + "me.METRIC_ID=:mid AND me.PROJECT_FILE_ID=:pfid "
-                + "AND me.PROJECT_VERSION_ID=:pvid");
+        Query q = session.createQuery("from Measurement as me where "
+                + "me.metric.id=:mid and me.projectFile.id=:pfid "
+                + "AND me.projectVersion.id=:pvid");
         q.setLong("mid", m.getId());
         q.setLong("pfid", pf.getId());
         q.setLong("pvid", pv.getId());
@@ -214,8 +214,8 @@ public class ResultsCLI extends CLI {
      * @return A list containing ProjectFile objects
      */
     private List retrieveProjectFiles(ProjectVersion pv) {
-        Query q = session.createQuery("from PROJECT_FILE pf where "
-                + "pf.PROJECT_VERSION_ID = :projverid");
+        Query q = session.createQuery("from ProjectFile as pf where "
+                + "pf.projectVersion.id = :projverid");
         q.setLong("projverid", pv.getId());
         List projectFiles = q.list();
         return projectFiles;
@@ -233,8 +233,9 @@ public class ResultsCLI extends CLI {
      */
     private ProjectVersion checkProjectRevision(String version, StoredProject pr) {
         ProjectVersion pv;
-        Query q = session.createQuery("from PROJECT_VERSION pv where "
-                + "pv.PROJECT_ID = :projid and pv.VERSION like :version");
+        Query q = session.createQuery("from ProjectVersion as pv where "
+				      + "pv.storedProject.id = :projid "
+				      + "and pv.version like :version");
         q.setLong("projid", pr.getId());
         q.setString("version", version);
         pv = (ProjectVersion) q.uniqueResult();
@@ -278,7 +279,7 @@ public class ResultsCLI extends CLI {
      */
     private StoredProject checkProject(String project) {
         StoredProject pr = (StoredProject) session.createQuery(
-                "from STORED_PROJECT as sp where sp.NAME = :prname").setString(
+                "from StoredProject as sp where sp.name = :prname").setString(
                 "prname", project).uniqueResult();
         return pr;
     }
@@ -291,7 +292,7 @@ public class ResultsCLI extends CLI {
      */
     private void checkMetric(String metric) {
         Metric m = (Metric) session.createQuery(
-                "from METRIC as m where m.NAME = :mname").setString("mname",
+                "from Metric as m where m.name = :mname").setString("mname",
                 metric).uniqueResult();
         if (m != null) {
             metrics.put(m.getName(), m);
