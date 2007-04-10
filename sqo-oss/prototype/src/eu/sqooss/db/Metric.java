@@ -38,41 +38,44 @@ import eu.sqooss.util.HibernateUtil;
 import java.util.List;
 
 /**
- * Class representation of the Metric Table in the
- * database
+ * Class representation of the Metric Table in the database
  */
 public class Metric {
     long id;
+
     Plugin plugin;
+
     MetricType metricType;
+
     String description;
+
     String name;
-    
+
     public Metric() {
     }
 
     public long getId() {
-    	return id;
+        return id;
     }
 
     public void setId(long id) {
-    	this.id = id;
+        this.id = id;
     }
-    
+
     public MetricType getMetricType() {
-    	return metricType;
+        return metricType;
     }
 
     public void setMetricType(MetricType metricType) {
-    	this.metricType = metricType;
+        this.metricType = metricType;
     }
-    
+
     public String getDescription() {
-    	return description;
+        return description;
     }
 
     public void setDescription(String description) {
-    	this.description = description;
+        this.description = description;
     }
 
     public Plugin getPlugin() {
@@ -90,17 +93,18 @@ public class Metric {
     public void setName(String name) {
         this.name = name;
     }
-    
-    // Other    
+
+    // Other
     public static Metric getMetricByName(String name) {
         Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
-        
-        Query q = session.createQuery("from Metric metric where metric.name = :metric");
-        q.setString("metric",name);
-        
-        Metric m = (Metric)q.uniqueResult();
-        
+
+        Query q = session
+                .createQuery("from Metric metric where metric.name = :metric");
+        q.setString("metric", name);
+
+        Metric m = (Metric) q.uniqueResult();
+
         return m;
     }
 }

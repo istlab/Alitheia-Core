@@ -85,9 +85,8 @@ public class ProjectVersion {
         try {
             Session session = HibernateUtil.getSessionFactory()
                     .getCurrentSession();
-            Query q =
-		session.createQuery("from ProjectFile pf where "
-				    + "pf.projectVersion.id = :projverid");
+            Query q = session.createQuery("from ProjectFile pf where "
+                    + "pf.projectVersion.id = :projverid");
             q.setLong("projverid", storedProject.getId());
             result.addAll(q.list());
         } catch (Exception e) {

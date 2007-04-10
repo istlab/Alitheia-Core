@@ -31,47 +31,49 @@
 package eu.sqooss.db;
 
 /**
- * Class representation of the ProjectFile Table in the
- * database
+ * Class representation of the ProjectFile Table in the database
  */
 public class ProjectFile {
     long id;
+
     ProjectVersion projectVersion;
+
     String name;
+
     String status;
 
     public ProjectFile() {
     }
-    
+
     public long getId() {
-    	return id;
+        return id;
     }
 
     public void setId(long id) {
-    	this.id = id;
+        this.id = id;
     }
 
     public ProjectVersion getProjectVersion() {
-    	return projectVersion;
+        return projectVersion;
     }
 
     public void setProjectVersion(ProjectVersion projectVersion) {
-		this.projectVersion = projectVersion;
+        this.projectVersion = projectVersion;
     }
-    
+
     public String getName() {
-    	return name;
+        return name;
     }
 
     public void setName(String name) {
-    	this.name = name;
+        this.name = name;
     }
-    
+
     public String getStatus() {
-    	return status;
+        return status;
     }
-    
+
     public void setStatus(String status) {
-    	this.status = status;
+        this.status = status;
     }
 }

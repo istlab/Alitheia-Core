@@ -40,69 +40,76 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * Class representation of the Plugin Table in the
- * database
+ * Class representation of the Plugin Table in the database
  */
 public class Plugin {
     protected long id;
+
     protected String path;
+
     protected String executor;
+
     protected String executorType;
+
     protected String parser;
+
     protected String parserType;
+
     protected String description;
+
     protected String name;
-    
-    public Plugin() { /* empty default constructor */ }
-    
+
+    public Plugin() { /* empty default constructor */
+    }
+
     public long getId() {
-    	return id;
+        return id;
     }
 
     public void setId(long id) {
-    	this.id = id;
+        this.id = id;
     }
 
     public String getPath() {
-    	return path;
+        return path;
     }
 
     public void setPath(String path) {
-    	this.path = path;
+        this.path = path;
     }
 
     public String getExecutor() {
-    	return executor;
+        return executor;
     }
 
     public void setExecutor(String executor) {
-    	this.executor = executor;
+        this.executor = executor;
     }
 
     public String getExecutorType() {
-    	return executorType;
+        return executorType;
     }
 
     public void setExecutorType(String executorType) {
-    	this.executorType = executorType;
+        this.executorType = executorType;
     }
 
     public String getParser() {
-    	return parser;
+        return parser;
     }
 
     public void setParser(String parser) {
-    	this.parser = parser;
+        this.parser = parser;
     }
 
     public String getParserType() {
-    	return parserType;
+        return parserType;
     }
 
     public void setParserType(String parserType) {
-    	this.parserType = parserType;
+        this.parserType = parserType;
     }
-    
+
     public String getDescription() {
         return description;
     }
@@ -110,7 +117,7 @@ public class Plugin {
     public void setDescription(String description) {
         this.description = description;
     }
-    
+
     public String getName() {
         return name;
     }
@@ -118,15 +125,15 @@ public class Plugin {
     public void setName(String name) {
         this.name = name;
     }
-    
+
     // other methods
     /**
      * Empty method, override in abstract plugin
      */
-    public HashMap<String,String> run(ProjectFile file) throws PluginException {
-        return new HashMap<String,String>();
+    public HashMap<String, String> run(ProjectFile file) throws PluginException {
+        return new HashMap<String, String>();
     }
-    
+
     /**
      * Get the available metrics for the Plugin
      * 
@@ -135,13 +142,14 @@ public class Plugin {
     public Metric[] getMetrics() {
         Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
-        Query q = session.createQuery("from Metric metric where metric.Plugin.id = :plugin");
+        Query q = session
+                .createQuery("from Metric metric where metric.Plugin.id = :plugin");
         q.setLong("plugin", id);
         List result = q.list();
-        
-        return (Metric[])result.toArray(new Metric[] {});
+
+        return (Metric[]) result.toArray(new Metric[] {});
     }
-    
+
     /**
      * Get a list with all the available plugins
      * 
@@ -151,10 +159,10 @@ public class Plugin {
         session.beginTransaction();
         List result = session.createQuery("from Plugin").list();
         session.getTransaction().commit();
-        
+
         return result;
     }
-    
+
     public Plugin copy(Plugin p) {
         p.id = id;
         p.name = name;
@@ -164,10 +172,10 @@ public class Plugin {
         p.path = path;
         p.parser = parser;
         p.parserType = parserType;
-        
+
         return p;
     }
-    
+
     /**
      * Overrides toString()
      */
@@ -175,13 +183,13 @@ public class Plugin {
         StringBuilder strbld = new StringBuilder();
         strbld.append(getName()).append(" - ");
         strbld.append(getDescription()).append(" ( ");
-        
-        for( Metric m : getMetrics() ) {
+
+        for (Metric m : getMetrics()) {
             strbld.append(m.getName()).append(" ");
         }
-        
+
         strbld.append(")");
-        
-        return strbld.toString(); 
+
+        return strbld.toString();
     }
 }

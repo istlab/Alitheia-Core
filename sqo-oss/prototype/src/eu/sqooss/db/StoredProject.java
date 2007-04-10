@@ -43,8 +43,7 @@ import java.util.Set;
 import java.util.HashSet;
 
 /**
- * Class representation of the StoredProject Table in the
- * database
+ * Class representation of the StoredProject Table in the database
  */
 public class StoredProject {
     private long id;
@@ -129,42 +128,43 @@ public class StoredProject {
     public void setWebsite(String website) {
         this.website = website;
     }
-    
+
     public static HashMap<String, String> getProjectInfo(String projectid) {
         HashMap<String, String> record = new HashMap<String, String>();
-        
-        Session session =
-	    HibernateUtil.getSessionFactory().getCurrentSession();
+
+        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         Query q = session.createQuery("from StoredProject project where "
                 + "project.Project.id = :project");
         q.setString("project", projectid);
         List result = q.list();
-        
+
         return record;
     }
-    
+
     /**
      * Loads the list of versions related to the project and returns it
+     * 
      * @return The list of ProjectVersion objects associated with the current
-     * instance
+     *         instance
      */
     public Set getProjectVersions() {
 
-	Set versions = new HashSet();
-	
+        Set versions = new HashSet();
+
         try {
-            Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+            Session session = HibernateUtil.getSessionFactory()
+                    .getCurrentSession();
             Query q = session.createQuery("from PROJECT_VERSION pv where "
                     + "pv.PROJECT_ID = :pid");
             q.setLong("pid", id);
             List results = q.list();
             Iterator it = results.iterator();
             while (it.hasNext()) {
-                versions.add((ProjectVersion)it.next());
+                versions.add((ProjectVersion) it.next());
             }
         } catch (Exception e) {
         }
-        
+
         return versions;
     }
 }
