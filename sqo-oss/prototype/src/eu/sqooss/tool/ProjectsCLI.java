@@ -347,9 +347,9 @@ public class ProjectsCLI extends CLI {
         // delete all project files and the related measurements
         ArrayList<ProjectFile> files = pv.getProjectVersionFiles();
         for (ProjectFile pf : files) {
-            Query q = session.createQuery("from MEASUREMENT m WHERE "
-                    + "m.PROJECT_VERSION_ID = :pvid AND "
-                    + "m.PROJECT_FILE_ID = :pfid");
+            Query q = session.createQuery("from Measurement m where "
+					  + "m.projectVersion.id = :pvid AND "
+					  + "m.projectFile.id = :pfid");
             q.setLong("pvid", pv.getId());
             q.setLong("pfid", pf.getId());
             List measurements = q.list();
@@ -394,8 +394,8 @@ public class ProjectsCLI extends CLI {
      *            The ID of the project whose versions are requested
      */
     private void listProjectVersions(String projectid) {
-        Query q = session.createQuery("from PROJECT_VERSION pv WHERE "
-                + "pv.PROJECT_ID = :pid");
+        Query q = session.createQuery("from ProjectVersion pv where "
+				      + "pv.project.id = :pid");
         q.setString("pid", projectid);
         List results = q.list();
         if (results.size() == 0) {
@@ -423,7 +423,7 @@ public class ProjectsCLI extends CLI {
         System.out.println("Status Filename");
         for (ProjectFile pf : projectFiles) {
             System.out.println(String.format("%6s %s", pf.getStatus(), 
-                    pf.getName()));
+					     pf.getName()));
         }
     }
 
@@ -436,7 +436,7 @@ public class ProjectsCLI extends CLI {
      */
     private StoredProject checkProject(String project) {
         StoredProject pr = (StoredProject) session.createQuery(
-                "from STORED_PROJECT as sp where sp.NAME = :prname").setString(
+                "from StoredProject as sp where sp.name = :prname").setString(
                 "prname", project).uniqueResult();
         return pr;
     }
@@ -467,8 +467,9 @@ public class ProjectsCLI extends CLI {
      */
     private ProjectVersion checkProjectVersion(String version, StoredProject pr) {
         ProjectVersion pv;
-        Query q = session.createQuery("from PROJECT_VERSION pv where "
-                + "pv.PROJECT_ID = :projid and pv.VERSION like :version");
+        Query q = session.createQuery("from ProjectVersion as pv where "
+				      + "pv.storedProject.id = :projid "
+				      + "and pv.version like :version");
         q.setLong("projid", pr.getId());
         q.setString("version", version);
         pv = (ProjectVersion) q.uniqueResult();
