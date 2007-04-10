@@ -154,7 +154,7 @@ public class StoredProject {
 	
         try {
             Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-            Query q = session.createQuery("from ProjectVersion pv where "
+            Query q = session.createQuery("from PROJECT_VERSION pv where "
                     + "pv.PROJECT_ID = :pid");
             q.setLong("pid", id);
             List results = q.list();
