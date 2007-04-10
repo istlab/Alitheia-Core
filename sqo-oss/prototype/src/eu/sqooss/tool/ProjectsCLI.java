@@ -48,6 +48,7 @@ import eu.sqooss.vcs.*;
 public class ProjectsCLI extends CLI {
 
     private static String basepath;
+
     private Session session;
 
     static {
@@ -77,7 +78,7 @@ public class ProjectsCLI extends CLI {
         options.addOption("i", "project-id", true, "Project ID");
         options.addOption("n", "project-name", true, "Project Name");
         options.addOption("l", "project-local-path", true,
-                        "Project local path");
+                "Project local path");
         options.addOption("r", "project-remote-path", true,
                 "Project remote path");
         options.addOption("v", "version", true, "Project version");
@@ -99,7 +100,7 @@ public class ProjectsCLI extends CLI {
                     cmdLine);
             return;
         }
-        
+
         String projectid = getOptionValue(cmdLine, "i");
         String projectName = getOptionValue(cmdLine, "n");
         String localPath = getOptionValue(cmdLine, "l");
@@ -108,7 +109,8 @@ public class ProjectsCLI extends CLI {
         String version = getOptionValue(cmdLine, "v");
 
         session = HibernateUtil.getSessionFactory().getCurrentSession();
-        
+        session.beginTransaction();
+
         /* Project file listing handling */
         if (cmdLine.hasOption("f")) {
             if (!ensureOptions(cmdLine, "n v")) {
@@ -121,12 +123,12 @@ public class ProjectsCLI extends CLI {
             /* check if the project exists and is registered */
             StoredProject pr = checkProject(projectName);
             if (pr == null) {
-            	error("The requested project is not registered in the system");
+                error("The requested project is not registered in the system");
             }
             /* Check if the requested revision is available in the system */
             ProjectVersion pv = checkProjectVersion(version, pr);
             if (pv == null) {
-            	error("The requested revision is not registered in the system");
+                error("The requested revision is not registered in the system");
             }
             /* list the project files */
             listProjectVersionFiles(pv);
@@ -135,76 +137,72 @@ public class ProjectsCLI extends CLI {
 
         if (cmdLine.hasOption("ap")) {
             if (!ensureOptions(cmdLine, "n r s")) {
-            	error("One of the required options (n,r,s) is missing "
+                error("One of the required options (n,r,s) is missing "
                         + "or has no argument", cmdLine);
             }
             assert projectName != "";
             assert remotePath != "";
             assert svnurl != "";
-            if(localPath == "") {
+            if (localPath == "") {
                 localPath = basepath + File.separator + projectName;
             }
 
-            session.beginTransaction();
-            long projectId =
-		addProject(projectName, remotePath, localPath, svnurl);
+            long projectId = addProject(projectName, remotePath, localPath,
+                    svnurl);
             session.getTransaction().commit();
-	    log("Added " + projectName + " with ID " + projectId);
-	    System.out.println("Project ID: " + projectId);
+            log("Added " + projectName + " with ID " + projectId);
+            System.out.println("Project ID: " + projectId);
             return;
         }
 
         if (cmdLine.hasOption("av")) {
             if (!ensureOptions(cmdLine, "i v")) {
-            	 error("One of the required options (i,v) is missing", cmdLine);
+                error("One of the required options (i,v) is missing", cmdLine);
             }
             assert projectid != "";
             assert version != "";
             StoredProject pr = loadProject(projectid);
-            if(pr == null) {
+            if (pr == null) {
                 error("The requested project is not registered");
             }
-            session.beginTransaction();
             addNewVersion(pr, version);
             session.getTransaction().commit();
             return;
         }
 
-        if(cmdLine.hasOption("dp")) {
-            if(!ensureOptions(cmdLine, "i")) {
-            	error("One of the required options (i) is missing", cmdLine);
+        if (cmdLine.hasOption("dp")) {
+            if (!ensureOptions(cmdLine, "i")) {
+                error("One of the required options (i) is missing", cmdLine);
             }
             assert projectid != "";
             StoredProject pr = loadProject(projectid);
-            if(pr == null) {
+            if (pr == null) {
                 error("The requested project is not registered");
             }
-            session.beginTransaction();
             deleteProject(pr);
             session.getTransaction().commit();
             return;
         }
-        
-        if(cmdLine.hasOption("dv")) {
-            if(!ensureOptions(cmdLine, "i v")) {
-            	 error("One of the required options (i, v) is missing", cmdLine);
+
+        if (cmdLine.hasOption("dv")) {
+            if (!ensureOptions(cmdLine, "i v")) {
+                error("One of the required options (i, v) is missing", cmdLine);
             }
             assert projectid != "";
             assert version != "";
             StoredProject pr = loadProject(projectid);
-            if(pr == null) {
+            if (pr == null) {
                 error("The requested project is not registered");
             }
             ProjectVersion pv = checkProjectVersion(version, pr);
-            if(pv == null) {
+            if (pv == null) {
                 error("The requested revision is not registered");
             }
-            session.beginTransaction();
             deleteProjectVersion(pv);
             session.getTransaction().commit();
             return;
         }
-        
+
         if (cmdLine.hasOption("lp")) {
             listProjects();
             return;
@@ -212,8 +210,8 @@ public class ProjectsCLI extends CLI {
 
         if (cmdLine.hasOption("lv")) {
             if (!ensureOptions(cmdLine, "i")) {
-            	error("One of the required options (i) is missing", cmdLine);
-            } 
+                error("One of the required options (i) is missing", cmdLine);
+            }
             assert projectid != "";
             listProjectVersions(projectid);
             return;
@@ -230,35 +228,35 @@ public class ProjectsCLI extends CLI {
      *            Version number to add
      */
     private void addNewVersion(StoredProject project, String version) {
-        log(String.format("Checking out version %s of project %s",
-                version, project.getName()));
+        log(String.format("Checking out version %s of project %s", version,
+                project.getName()));
         checkoutProject(project, version);
     }
 
     /**
      * Adds a project to the StoredProject table and checks out its current
      * version to the base path.
-     *
+     * 
      * @return the project id
      */
     private long addProject(String name, String remotePath, String localPath,
             String url) {
         String projectPath = null;
-        if (localPath != null && localPath !="") {
-        	projectPath = localPath;
+        if (localPath != null && localPath != "") {
+            projectPath = localPath;
         } else {
-        	projectPath = basepath + File.separatorChar + name;
+            projectPath = basepath + File.separatorChar + name;
         }
 
         File f = new File(projectPath);
         if (f.exists()) {
-            error("Project directory "
-		  + projectPath + " already exists - not adding");
+            error("Project directory " + projectPath
+                    + " already exists - not adding");
         } else {
             log("Creating project dir: " + f.getAbsolutePath());
             f.mkdirs();
         }
-        
+
         Repository r = null;
         try {
             r = RepositoryFactory.getRepository(projectPath, url);
@@ -280,12 +278,13 @@ public class ProjectsCLI extends CLI {
 
         session.save(p);
         addNewVersion(p, String.valueOf(curver));
-	return p.getId();
+        return p.getId();
     }
 
     /**
      * Checks out a project revision at the location selected or the base
      * location for all projects
+     * 
      * @param project
      * @param version
      */
@@ -293,59 +292,61 @@ public class ProjectsCLI extends CLI {
         Repository r = null;
         Revision rev;
         try {
-            r = RepositoryFactory.getRepository(project.getLocalPath(),
+            r = RepositoryFactory.getRepository(project.getLocalPath(), 
                     project.getSvnUrl());
-        } catch(InvalidRepositoryException ire) {
+        } catch (InvalidRepositoryException ire) {
             error("Failed to access the project's repository");
         }
-        rev = new Revision(version); /*if the version is in invalid format,
-        the HEAD revision will be used */
+        rev = new Revision(version); /* if the version is in invalid format,
+                                     *  the HEAD revision will be used */
         r.checkout(rev);
         Vector<String> files = new Vector<String>();
         r.listEntries(files, "/", rev);
-        
+
         ProjectVersion pv = new ProjectVersion();
         pv.setProjectId(project.getId());
         pv.setVersion(String.valueOf(r.getCurrentVersion(false)));
         session.save(pv);
-        
-        for(String file: files) {
+
+        for (String file : files) {
             try {
                 ProjectFile pf = new ProjectFile();
-                pf.setName(file); //perhaps it needs project.getLocalpath + ...
+                pf.setName(file); // perhaps it needs project.getLocalpath+...
                 pf.setProjectVersion(pv);
-                session.save(pf);    
+                session.save(pf);
             } catch (Exception ex) {
                 log("Failed to store information for file: " + file);
                 continue;
-            }   
-        }       
+            }
+        }
     }
-    
+
     /**
      * Deletes a project and all associated objects from the database
+     * 
      * @param project
-     *                   The project to delete
+     *            The project to delete
      */
     private void deleteProject(StoredProject project) {
         Set projectVersions = project.getProjectVersions();
         Iterator it = projectVersions.iterator();
-        while(it.hasNext()) {
-            ProjectVersion pv = (ProjectVersion)it.next();
+        while (it.hasNext()) {
+            ProjectVersion pv = (ProjectVersion) it.next();
             deleteProjectVersion(pv);
         }
-        session.delete(project);            
+        session.delete(project);
     }
-    
+
     /**
      * Deletes a project version and all associated objects from the database
+     * 
      * @param pv
-     *           The ProjectVersion to delete
+     *            The ProjectVersion to delete
      */
     private void deleteProjectVersion(ProjectVersion pv) {
-        //delete all project files and the related measurements
+        // delete all project files and the related measurements
         ArrayList<ProjectFile> files = pv.getProjectVersionFiles();
-        for(ProjectFile pf: files) {
+        for (ProjectFile pf : files) {
             Query q = session.createQuery("from MEASUREMENT m WHERE "
                     + "m.PROJECT_VERSION_ID = :pvid AND "
                     + "m.PROJECT_FILE_ID = :pfid");
@@ -353,63 +354,60 @@ public class ProjectsCLI extends CLI {
             q.setLong("pfid", pf.getId());
             List measurements = q.list();
             Iterator it = measurements.iterator();
-            while(it.hasNext()) {
-                Measurement m = (Measurement)it.next();
+            while (it.hasNext()) {
+                Measurement m = (Measurement) it.next();
                 session.delete(m);
             }
             session.delete(pf);
         }
         session.delete(pv);
     }
-    
+
     /**
      * Lists the projects registered and stored in the database
      */
     private void listProjects() {
-        
-        Query q = session.createQuery("from STORED_PROJECT pr");
+
+        Query q = session.createQuery("from eu.sqooss.db.StoredProject pr");
         List results = q.list();
-        if(results.size() == 0) {
+        if (results.size() == 0) {
             System.out.println("No projects registered");
             return;
         }
-        System.out.println(String.format("%4s%16s%30s%30s",
-                "ID", "Project name", "Local path", "Repository url"));
+        System.out.println(String.format("%4s%16s%30s%30s", "ID",
+                "Project name", "Local path", "Repository url"));
         Iterator it = results.iterator();
-        while(it.hasNext()) {
-            StoredProject sp = (StoredProject)it.next();   
-            System.out.println(String.format("%4s%16s%%30s%30s",
-                                             sp.getId(),
-                                             sp.getName(),
-                                             sp.getLocalPath(),
-                                             sp.getSvnUrl()));
+        while (it.hasNext()) {
+            StoredProject sp = (StoredProject) it.next();
+            System.out.println(String.format("%4s%16s%%30s%30s", sp.getId(), sp
+                    .getName(), sp.getLocalPath(), sp.getSvnUrl()));
         }
     }
-    
+
     /**
      * Lists the versions of a project registered to the system
-     * @param projectid 
-     *                   The ID of the project whose versions are requested
+     * 
+     * @param projectid
+     *            The ID of the project whose versions are requested
      */
     private void listProjectVersions(String projectid) {
         Query q = session.createQuery("from PROJECT_VERSION pv WHERE "
                 + "pv.PROJECT_ID = :pid");
         q.setString("pid", projectid);
         List results = q.list();
-        if(results.size() == 0) {
+        if (results.size() == 0) {
             System.out.println("No versions found");
             return;
         }
         System.out.println("ID   Version");
         Iterator it = results.iterator();
-        while(it.hasNext()) {
-            ProjectVersion pv = (ProjectVersion)it.next();   
-            System.out.println(String.format("%5s%s%",
-                                             pv.getId(),
-                                             pv.getVersion()));
+        while (it.hasNext()) {
+            ProjectVersion pv = (ProjectVersion) it.next();
+            System.out.println(String.format("%5s%s%", pv.getId(), 
+                    pv.getVersion()));
         }
     }
-    
+
     /**
      * Lists the files associated with a project version
      * 
@@ -421,8 +419,8 @@ public class ProjectsCLI extends CLI {
         System.out.println("File listing of version " + pv.getVersion());
         System.out.println("Status Filename");
         for (ProjectFile pf : projectFiles) {
-            System.out.println(String.format("%6s %s", pf.getStatus(), pf
-                    .getName()));
+            System.out.println(String.format("%6s %s", pf.getStatus(), 
+                    pf.getName()));
         }
     }
 
@@ -439,7 +437,7 @@ public class ProjectsCLI extends CLI {
                 "prname", project).uniqueResult();
         return pr;
     }
-    
+
     /**
      * Loads a project from the database
      * 
@@ -448,8 +446,8 @@ public class ProjectsCLI extends CLI {
      * @return An instance of the project
      */
     private StoredProject loadProject(String projectid) {
-        
-        StoredProject pr = (StoredProject)session.load(StoredProject.class, 
+
+        StoredProject pr = (StoredProject) session.load(StoredProject.class,
                 Long.parseLong(projectid));
         return pr;
     }
@@ -464,8 +462,7 @@ public class ProjectsCLI extends CLI {
      *            The project to be checked
      * @return The ProjectVersion corresponding to the given version
      */
-    private ProjectVersion checkProjectVersion(String version,
-            StoredProject pr) {
+    private ProjectVersion checkProjectVersion(String version, StoredProject pr) {
         ProjectVersion pv;
         Query q = session.createQuery("from PROJECT_VERSION pv where "
                 + "pv.PROJECT_ID = :projid and pv.VERSION like :version");
