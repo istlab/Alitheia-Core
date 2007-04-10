@@ -53,12 +53,13 @@ public class DefaultPlugin extends Plugin {
 	p.copy(this);
     }
     
-    public HashMap<String, String> run(ProjectFile file) throws PluginException {
+    public HashMap<String, String> run(ProjectFile file)
+	throws PluginException {
 	File f = new File(file.getName());
 	
 	if(!f.exists()) {
 	    throw new PluginException(getName() + " (plugin): " + 
-		    f.toString() + "does not exist"); 
+		    f.toString() + " does not exist"); 
 	}
 	
 	InputStream r = executorInstance.execute(f);

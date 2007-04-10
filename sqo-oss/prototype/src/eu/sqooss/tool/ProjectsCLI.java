@@ -311,7 +311,8 @@ public class ProjectsCLI extends CLI {
         for (String file : files) {
             try {
                 ProjectFile pf = new ProjectFile();
-                pf.setName(file); // perhaps it needs project.getLocalpath+...
+                pf.setName(project.getLocalPath()
+			   + System.getProperty("file.separator") + file);
                 pf.setProjectVersion(pv);
                 session.save(pf);
             } catch (Exception ex) {
