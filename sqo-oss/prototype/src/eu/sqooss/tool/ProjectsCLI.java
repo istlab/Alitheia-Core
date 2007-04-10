@@ -299,9 +299,9 @@ public class ProjectsCLI extends CLI {
             error("Failed to access the project's repository");
         }
         rev = new Revision(version); /*
-                                         * if the version is in invalid format,
-                                         * the HEAD revision will be used
-                                         */
+                                      * if the version is in invalid format,
+                                      * the HEAD revision will be used
+                                      */
         r.checkout(rev);
         Vector<String> files = new Vector<String>();
         r.listEntries(files, "/", rev);
