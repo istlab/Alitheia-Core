@@ -41,11 +41,6 @@ import java.util.Vector;
 import java.util.Map.Entry;
 import java.util.regex.*;
 
-<<<<<<< .mine
-=======
-import org.apache.commons.lang.StringUtils;
-
->>>>>>> .r1375
 import org.tmatesoft.svn.core.*;
 import org.tmatesoft.svn.core.auth.BasicAuthenticationManager;
 import org.tmatesoft.svn.core.auth.ISVNAuthenticationManager;
