@@ -42,17 +42,17 @@ public class JavaExecutor implements Executor {
     }
 
     public InputStream execute(File file) {
-	try {
-	    Class c = Class.forName(clazz);
-	    Executor e = (Executor)c.newInstance();
-	    return e.execute(file);
-	} catch (InstantiationException ie) {
-	    return null;
-	} catch (IllegalAccessException iae) {    
-	    return null;
-	} catch (ClassNotFoundException cnfe) {
-	    return null;
-	}
+    	try {
+    		Class c = Class.forName(clazz);
+    		Executor e = (Executor)c.newInstance();
+    		return e.execute(file);
+		} catch (InstantiationException ie) {
+			return null;
+		} catch (IllegalAccessException iae) {    
+			return null;
+		} catch (ClassNotFoundException cnfe) {
+			return null;
+		}
     }
 
 }

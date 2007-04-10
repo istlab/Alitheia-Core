@@ -262,8 +262,9 @@ public class ResultsCLI extends CLI {
             for (Metric m : p.getMetrics()) {
                 metrics.put(m.getName(), m);
             }
-        } else
-            error("The requested plugin is not registered in the system");
+        } else {
+        	error("The requested plugin is not registered in the system");
+        }      
     }
 
     /**

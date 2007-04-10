@@ -70,9 +70,10 @@ public class TaskCLI extends CLI {
             tcli.formatter.printHelp(" ", tcli.options);
             return;
         }
-        if (!ensureOptions(cmdLine, "pl p v"))
-            error("One of the required options (pl, p, v) is missing "
-                    + "or has no argument", cmdLine);
+        if (!ensureOptions(cmdLine, "pl p v")) {
+        	error("One of the required options (pl, p, v) is missing " +
+        			"or has no argument", cmdLine);
+        }
 
         String plugin = getOptionValue(cmdLine, "pl");
         String project = getOptionValue(cmdLine, "p");

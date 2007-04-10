@@ -42,17 +42,17 @@ public class JavaOutputParser implements OutputParser {
     }
     
     public HashMap<String, String> parse(InputStream is) {
-	try {
-	    Class c = Class.forName(clazz);
-	    OutputParser op = (OutputParser)c.newInstance();
-	    return op.parse(is);
-	} catch (InstantiationException ie) {
-	    return null;
-	} catch (IllegalAccessException iae) {    
-	    return null;
-	} catch (ClassNotFoundException cnfe) {
-	    return null;
-	}
+    	try {
+    		Class c = Class.forName(clazz);
+    		OutputParser op = (OutputParser)c.newInstance();
+    		return op.parse(is);
+    	} catch (InstantiationException ie) {
+    		return null;
+    	} catch (IllegalAccessException iae) {    
+    		return null;
+    	} catch (ClassNotFoundException cnfe) {
+    		return null;
+    	}
     }
 
 }

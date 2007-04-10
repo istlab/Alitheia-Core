@@ -39,10 +39,10 @@ public class PluginException extends Exception{
     private String message;
     
     public PluginException(String message) {
-	this.message = message;
+    	this.message = message;
     }
     
     public String getMessage() {
-	return message;
+    	return message;
     }
 }

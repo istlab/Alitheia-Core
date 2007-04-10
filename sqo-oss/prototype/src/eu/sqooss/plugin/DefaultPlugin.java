@@ -50,8 +50,7 @@ public class DefaultPlugin extends Plugin {
     public DefaultPlugin(Plugin p, Executor e, OutputParser op) {
 	this.executorInstance = e;
 	this.outputParserInstance = op;
-        //
-        p.copy(this);
+	p.copy(this);
     }
     
     public HashMap<String, String> run(ProjectFile file) throws PluginException {

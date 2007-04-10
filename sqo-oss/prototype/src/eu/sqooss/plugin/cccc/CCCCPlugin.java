@@ -88,12 +88,14 @@ public class CCCCPlugin extends Plugin {
         File f = new File(file.getName());
         String target = f.getName().substring(f.getPath().length());
         int pos = target.lastIndexOf(".");
-        if (pos > 0)
-            target = target.substring(0, pos);
-
+        if (pos > 0) {
+        	target = target.substring(0, pos);
+        }
+        
         InputStream is = execute(f);
-        if (is == null)
-            throw new PluginException("The execution of the cccc tool failed");
+        if (is == null) {
+        	throw new PluginException("The execution of the cccc tool failed");
+        }
 
         return parse(is, target);
     }
@@ -109,8 +111,9 @@ public class CCCCPlugin extends Plugin {
         StringBuilder target = new StringBuilder();
         target.append(cmd);
         String outputPath = System.getProperty("java.io.tmpdir");
-        if (!outputPath.endsWith(System.getProperty("file.separator")))
-            outputPath += System.getProperty("file.separator");
+        if (!outputPath.endsWith(System.getProperty("file.separator"))) {
+        	outputPath += System.getProperty("file.separator");
+        }
         outputPath += "cccc";
         outputPath += System.getProperty("file.separator");
         target.append(" --outdir=");

@@ -96,10 +96,10 @@ public class PluginList extends ArrayList<Plugin> {
     }
     
     public ReadOnlyIterator getPlugins() {
-	return (new ReadOnlyIterator(iterator()));
+    	return (new ReadOnlyIterator(iterator()));
     }
     
     public static PluginList getInstance() {
-	return defaultInstance; 
+    	return defaultInstance; 
     }
 }
