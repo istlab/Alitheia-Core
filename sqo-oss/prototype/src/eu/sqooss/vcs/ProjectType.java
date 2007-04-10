@@ -34,7 +34,7 @@ package eu.sqooss.vcs;
  * Represents the various types of projects supported.
  */
 public enum ProjectType {
-		SVN,
-		Url, //ftp or www location of the latest version of a project
-		Local //a project that is synced via an external interface and we analyze locally
+    SVN, Url, // ftp or www location of the latest version of a project
+    Local
+    // a project that is synced via an external interface and we analyze locally
 }

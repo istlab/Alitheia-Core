@@ -33,29 +33,33 @@ package eu.sqooss.vcs;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-/** 
- * The factory produces Repository objects which can be used to 
- * access a repository on local disk.
+/**
+ * The factory produces Repository objects which can be used to access a
+ * repository on local disk.
  */
 public class RepositoryFactory {
 
     /**
-     * Create a Repository object with the given URL to be stored
-     * on the local disk at @p localPath.
+     * Create a Repository object with the given URL to be stored on the local
+     * disk at
      * 
-     * @param localPath The path of the repository on the local end
-     * @param url The given URL
+     * @p localPath.
+     * 
+     * @param localPath
+     *            The path of the repository on the local end
+     * @param url
+     *            The given URL
      * @return A Repository object
      */
-    public static Repository getRepository(String localPath, String url) 
-    throws InvalidRepositoryException {
+    public static Repository getRepository(String localPath, String url)
+            throws InvalidRepositoryException {
 
         URI uri;
         RepositoryType type;
         String password, username = null;
 
         // retrieve password from url (if there is one)
-        if (url.indexOf("?") == -1){
+        if (url.indexOf("?") == -1) {
             /* no username or password given */
             password = "";
         } else {
@@ -65,7 +69,7 @@ public class RepositoryFactory {
             String[] fields2 = fields[1].split(patternStr2);
             password = fields2[1];
         }
-        
+
         try {
             uri = new URI(url);
         } catch (URISyntaxException e) {
@@ -78,38 +82,41 @@ public class RepositoryFactory {
         } else {
             username = "";
         }
-        //check repository type
-        if(uri.getScheme().contains("svn")) {
-        	type = RepositoryType.SVN;
-        }   
-        else {
-	    throw new InvalidRepositoryException("The repository protocol " 
-						 + uri.getScheme()
-						 + " is not supported");
+        // check repository type
+        if (uri.getScheme().contains("svn")) {
+            type = RepositoryType.SVN;
+        } else {
+            throw new InvalidRepositoryException("The repository protocol "
+                    + uri.getScheme() + " is not supported");
         }
         return getRepository(localPath, url, username, password, type);
     }
-    
+
     /**
      * Create a Repository object of a specific type
      * 
-     * @param localPath The path of the repository on the local end
-     * @param serverPath The path of the repository on the remote end
-     * @param username The username that is used to connect to the Repository
-     * @param passwd The password that is used to connect to the Repository
-     * @param type The type of the repository
+     * @param localPath
+     *            The path of the repository on the local end
+     * @param serverPath
+     *            The path of the repository on the remote end
+     * @param username
+     *            The username that is used to connect to the Repository
+     * @param passwd
+     *            The password that is used to connect to the Repository
+     * @param type
+     *            The type of the repository
      * @return A specific Repository object
      */
     public static Repository getRepository(String localPath, String serverPath,
-            String username, String passwd, RepositoryType type) throws InvalidRepositoryException {
+            String username, String passwd, RepositoryType type)
+            throws InvalidRepositoryException {
 
-        if(type == RepositoryType.SVN) {
-        	return (new SvnRepository(localPath, serverPath, username, passwd));
-        }  
-        else {
-        	throw new InvalidRepositoryException("The specified repository " +
-        			"protocol is not supported");
+        if (type == RepositoryType.SVN) {
+            return (new SvnRepository(localPath, serverPath, username, passwd));
+        } else {
+            throw new InvalidRepositoryException("The specified repository "
+                    + "protocol is not supported");
         }
-           
+
     }
 }

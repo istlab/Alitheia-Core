@@ -40,15 +40,10 @@ import java.util.*;
 public abstract class FileEntry {
 
     private HashMap<String, String> attributes;
-
     private String fullPath;
-
     EntryKind kind;
-
     private String name;
-
     String revision;
-
     int size;
 
     /**

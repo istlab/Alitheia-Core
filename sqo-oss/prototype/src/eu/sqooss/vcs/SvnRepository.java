@@ -320,17 +320,15 @@ public class SvnRepository extends Repository implements ISVNLogEntryHandler {
      * CommitLogEntries to a CommitLog object
      */
     public void handleLogEntry(SVNLogEntry logEntry) {
-        if (logEntry == null 
-                || (logEntry.getMessage() == null 
-                        && logEntry.getRevision() == 0)) {
+        if (logEntry == null
+                || (logEntry.getMessage() == null && logEntry.getRevision() == 0)) {
             return;
         }
         Long tmpRev = logEntry.getRevision();
         CommitLogEntry tmpEntry = new CommitLogEntry(logEntry.getAuthor(),
                 logEntry.getMessage(), logEntry.getDate(), tmpRev.toString());
 
-        for (Entry<String, SVNLogEntryPath> entry : 
-            (Set<Entry<String, SVNLogEntryPath>>) logEntry
+        for (Entry<String, SVNLogEntryPath> entry : (Set<Entry<String, SVNLogEntryPath>>) logEntry
                 .getChangedPaths().entrySet()) {
 
             switch (entry.getValue().getType()) {

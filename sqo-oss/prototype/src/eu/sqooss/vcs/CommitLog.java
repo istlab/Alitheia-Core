@@ -30,7 +30,6 @@
 
 package eu.sqooss.vcs;
 
-import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Vector;
 

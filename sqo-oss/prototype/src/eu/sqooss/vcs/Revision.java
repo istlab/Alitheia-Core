@@ -61,7 +61,8 @@ public class Revision {
     /**
      * Creates a new instance of the class
      * 
-     * @param number The number of the revision
+     * @param number
+     *            The number of the revision
      */
     public Revision(long number) {
         if (number < -2) {
@@ -72,14 +73,16 @@ public class Revision {
         description = String.valueOf(number);
         files = new Vector<FileEntry>();
     }
-    
+
     /**
      * Creates a new instance of the class
-     * @param description The description of the revision
+     * 
+     * @param description
+     *            The description of the revision
      */
     public Revision(String description) {
-        if(description == null || description == "" || 
-                description.equalsIgnoreCase("HEAD")) {
+        if (description == null || description == ""
+                || description.equalsIgnoreCase("HEAD")) {
             number = HEAD;
             this.description = "HEAD";
         } else if (description == "BASE") {

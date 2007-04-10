@@ -151,7 +151,8 @@ public abstract class Repository {
             Revision revision);
 
     /**
-     * @param password the password to set
+     * @param password
+     *            the password to set
      */
     public void setPassword(String password) {
         this.password = password;
@@ -165,7 +166,8 @@ public abstract class Repository {
     }
 
     /**
-     * @param username the username to set
+     * @param username
+     *            the username to set
      */
     public void setUsername(String username) {
         this.username = username;
@@ -179,7 +181,8 @@ public abstract class Repository {
     }
 
     /**
-     * @param localPath the localPath to set
+     * @param localPath
+     *            the localPath to set
      */
     protected void setLocalPath(String localPath) {
         this.localPath = localPath;
@@ -193,7 +196,8 @@ public abstract class Repository {
     }
 
     /**
-     * @param serverPath the serverPath to set
+     * @param serverPath
+     *            the serverPath to set
      */
     protected void setServerPath(String serverPath) {
         this.serverPath = serverPath;
@@ -207,7 +211,8 @@ public abstract class Repository {
     }
 
     /**
-     * @param revision the revision to set
+     * @param revision
+     *            the revision to set
      */
     protected void setRevision(Revision revision) {
         this.revision = revision;

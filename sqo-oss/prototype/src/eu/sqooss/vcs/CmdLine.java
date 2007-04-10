@@ -31,54 +31,52 @@
 package eu.sqooss.vcs;
 
 import org.apache.commons.cli.*;
+
 /**
- * Provides two ways to use the vcs library. 
+ * Provides two ways to use the vcs library.
  * 
- * 1st way: providing the URI of the repository and the path of the repository 
- * on the local end. URI must have the following syntax: 
- * <svn,svns,svn+ssh,svn+fsfs>://user@server/path/to/repo?passwd=passwd
- * "svns" is for https and "svn+fsfs" is for file usage
- * 2nd way: providing: the path of the repository on the remote end,
- * the path of the repository on the local end, the username and the password
- * to connect to the repository and finally the type of the repository 
+ * 1st way: providing the URI of the repository and the path of the repository
+ * on the local end. URI must have the following syntax:
+ * <svn,svns,svn+ssh,svn+fsfs>://user@server/path/to/repo?passwd=passwd "svns"
+ * is for https and "svn+fsfs" is for file usage 2nd way: providing: the path of
+ * the repository on the remote end, the path of the repository on the local
+ * end, the username and the password to connect to the repository and finally
+ * the type of the repository
  * 
- * Currently supported actions (trailing the above arguments): 
- * - checkout
- * - update
- * - diff
- * - getLog
- * - curver (get current remote version)
- * - local (get curent local version)
+ * Currently supported actions (trailing the above arguments): - checkout -
+ * update - diff - getLog - curver (get current remote version) - local (get
+ * curent local version)
  */
 public final class CmdLine {
-    
-    private static final String help = 
-        "MVCS: Frontend to multiple version control " +
-        "systems\n" +
-        "mvcs -uri repo-uri -l local-path <action> or \n" +
-        "mvcs -s server -l local-path -u user -p passwd -t repo-type <action>\n\n" +
-        "repo-uri has the following syntax: \n" +
-        "<cvs,svn,svns,svn+ssh,svn+fsfs>://user@server/path/to/repo?passwd=passwd\n" + 
-        "Currently supported actions are (with parameters):\n  " +
-        "checkout, update, diff, getlog, curver, localver\n" +
-        "<action> has the following syntax: \n" +
-        "\t <checkout,update,diff,getlog,curver,localver> <r1,r1:r2>";
-    
+
+    private static final String help = "MVCS: Frontend to multiple version control "
+            + "systems\n"
+            + "mvcs -uri repo-uri -l local-path <action> or \n"
+            + "mvcs -s server -l local-path -u user -p passwd -t repo-type <action>\n\n"
+            + "repo-uri has the following syntax: \n"
+            + "<cvs,svn,svns,svn+ssh,svn+fsfs>://user@server/path/to/repo?passwd=passwd\n"
+            + "Currently supported actions are (with parameters):\n  "
+            + "checkout, update, diff, getlog, curver, localver\n"
+            + "<action> has the following syntax: \n"
+            + "\t <checkout,update,diff,getlog,curver,localver> <r1,r1:r2>";
+
     public static void main(String[] args) {
         Repository currentRepository = null;
         Revision rev1 = null;
         Revision rev2 = null;
         Options opts = new Options();
         HelpFormatter formatter = new HelpFormatter();
-        
-        opts.addOption("uri", "repository-location", true, "URI with repository connection details");
+
+        opts.addOption("uri", "repository-location", true,
+                "URI with repository connection details");
         opts.addOption("s", "server", true, "Remote repository server");
         opts.addOption("l", "local-path", true, "Local path for repository");
         opts.addOption("u", "user", true, "User name for repository access");
         opts.addOption("p", "password", true, "Password for repository access");
-        opts.addOption("t", "repo-type", true, "Repository type. Currently, one of cvs, svn");
+        opts.addOption("t", "repo-type", true,
+                "Repository type. Currently, one of cvs, svn");
         opts.addOption("h", "help", true, "Print this help message");
-     
+
         CommandLine cmdline = null;
         CommandLineParser parser = new GnuParser();
         try {
@@ -86,86 +84,90 @@ public final class CmdLine {
             cmdline = parser.parse(opts, args);
         } catch (ParseException exp) {
             System.err.println("Parsing failed.  Reason: " + exp.getMessage());
-            formatter.printHelp( help, opts );
+            formatter.printHelp(help, opts);
         }
         // retrieve any left-over non-recognized options and arguments
         String[] leftOverArgs = null;
         leftOverArgs = cmdline.getArgs();
-        
+
         if (cmdline.hasOption("uri")) {
-			/* 1st usage */
-			if (!cmdline.hasOption("l")) {
-				System.err.println("No local path for repository specified");
-				formatter.printHelp( help, opts );
-        	} else {
-        		try {
-        			currentRepository = RepositoryFactory.getRepository(
-        					cmdline.getOptionValue("l"),
-        					cmdline.getOptionValue("uri"));
-        		}catch (InvalidRepositoryException exp) {
-			    	System.err.println("Couldn't get the specified repository.  " +
-			    			"Reason: " + exp.getMessage());
-            		formatter.printHelp( help, opts );
-				}
-			}
+            /* 1st usage */
+            if (!cmdline.hasOption("l")) {
+                System.err.println("No local path for repository specified");
+                formatter.printHelp(help, opts);
+            } else {
+                try {
+                    currentRepository = RepositoryFactory
+                            .getRepository(cmdline.getOptionValue("l"), cmdline
+                                    .getOptionValue("uri"));
+                } catch (InvalidRepositoryException exp) {
+                    System.err
+                            .println("Couldn't get the specified repository.  "
+                                    + "Reason: " + exp.getMessage());
+                    formatter.printHelp(help, opts);
+                }
+            }
             System.err.println("No repository uri or server specified");
-            formatter.printHelp( help, opts );
+            formatter.printHelp(help, opts);
         } else if (cmdline.hasOption("s")) {
-			/* 2nd usage */
-			if (!cmdline.hasOption("l") && !cmdline.hasOption("t")) {
-				System.err.println("No local path for repository or " +
-						"repository type specified");
-				formatter.printHelp( help, opts );
-			} else {
-				try {
-					RepositoryType type = null;
-				    if (cmdline.getOptionValue("t").equalsIgnoreCase("svn")) {
-				    	type = RepositoryType.SVN;
-				    } else {
-				    	throw new InvalidRepositoryException("The repository protocol" 
-			        			+ cmdline.getOptionValue("t") + " is not supported");
-				    }
-				    if(!cmdline.hasOption("u") && !cmdline.hasOption("p")) {
-				    	currentRepository = RepositoryFactory.getRepository(
-				        		cmdline.getOptionValue("l"),
-				                cmdline.getOptionValue("s"), "", "", type);
-				    } else {
-				    	currentRepository = RepositoryFactory.getRepository(
-				        		cmdline.getOptionValue("l"),
-				                cmdline.getOptionValue("s"),
-				                cmdline.getOptionValue("u"),
-				                cmdline.getOptionValue("p"), type);
-				    }
-				        
-				    } catch (InvalidRepositoryException exp) {
-				    	System.err.println("Couldn't get the specified repository.  " +
-				    			"Reason: " + exp.getMessage());
-                		formatter.printHelp( help, opts );
-					}
-			}
+            /* 2nd usage */
+            if (!cmdline.hasOption("l") && !cmdline.hasOption("t")) {
+                System.err.println("No local path for repository or "
+                        + "repository type specified");
+                formatter.printHelp(help, opts);
+            } else {
+                try {
+                    RepositoryType type = null;
+                    if (cmdline.getOptionValue("t").equalsIgnoreCase("svn")) {
+                        type = RepositoryType.SVN;
+                    } else {
+                        throw new InvalidRepositoryException(
+                                "The repository protocol"
+                                        + cmdline.getOptionValue("t")
+                                        + " is not supported");
+                    }
+                    if (!cmdline.hasOption("u") && !cmdline.hasOption("p")) {
+                        currentRepository = RepositoryFactory.getRepository(
+                                cmdline.getOptionValue("l"), cmdline
+                                        .getOptionValue("s"), "", "", type);
+                    } else {
+                        currentRepository = RepositoryFactory.getRepository(
+                                cmdline.getOptionValue("l"), cmdline
+                                        .getOptionValue("s"), cmdline
+                                        .getOptionValue("u"), cmdline
+                                        .getOptionValue("p"), type);
+                    }
+
+                } catch (InvalidRepositoryException exp) {
+                    System.err
+                            .println("Couldn't get the specified repository.  "
+                                    + "Reason: " + exp.getMessage());
+                    formatter.printHelp(help, opts);
+                }
+            }
         } else {
-        	System.err.println("No repository uri or server specified");
-            formatter.printHelp( help, opts );
-		}
-        
-        assert(currentRepository!=null);
-        
+            System.err.println("No repository uri or server specified");
+            formatter.printHelp(help, opts);
+        }
+
+        assert (currentRepository != null);
+
         if (leftOverArgs[0].equalsIgnoreCase("checkout")) {
             if (leftOverArgs.length <= 1) {
                 /* checkout without revision */
                 currentRepository.checkout();
             } else {
                 long tmp = new Long(leftOverArgs[1]);
-            	rev1 = new Revision(tmp);
+                rev1 = new Revision(tmp);
                 currentRepository.checkout(rev1);
             }
         } else if (leftOverArgs[0].equalsIgnoreCase("update")) {
-        	long tmp = new Long(leftOverArgs[1]);
+            long tmp = new Long(leftOverArgs[1]);
             rev1 = new Revision(tmp);
             currentRepository.update(rev1);
         } else if (leftOverArgs[0].equalsIgnoreCase("diff")) {
             if (leftOverArgs[1].indexOf(":") == -1) {
-            	long tmp = new Long(leftOverArgs[1]);
+                long tmp = new Long(leftOverArgs[1]);
                 rev1 = new Revision(tmp);
                 Diff resultDiff = new Diff();
                 resultDiff = currentRepository.diff(rev1);
@@ -192,7 +194,7 @@ public final class CmdLine {
             resultCommitLog = currentRepository.getLog(rev1, rev2);
             resultCommitLog.printCommitLog();
         } else if (leftOverArgs[0].equalsIgnoreCase("curver")) {
-            /*get current version from the remote server (remote = true */
+            /* get current version from the remote server (remote = true */
             boolean remote = true;
             System.out.println(currentRepository.getCurrentVersion(remote));
         } else if (leftOverArgs[0].equalsIgnoreCase("localver")) {

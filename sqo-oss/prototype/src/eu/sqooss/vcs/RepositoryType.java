@@ -31,6 +31,6 @@
 package eu.sqooss.vcs;
 
 public enum RepositoryType {
-    /*An SVN repository*/ 
+    /* An SVN repository */
     SVN
 }
