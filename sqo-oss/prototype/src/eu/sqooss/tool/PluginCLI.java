@@ -49,15 +49,18 @@ public class PluginCLI extends CLI {
             System.out.println("Metric Information: ");
             String name = getOptionValue(cmdLine, "m");
 
-            Metric m = Metric.getMetricByName(name);
+            Metric[] mr = Metric.getMetricByName(name);
 
-            if (m == null) {
+            if (mr == null) {
                 System.out.println("Metric " + name + " does not exist");
                 return;
             }
-            System.out.println(m.getName() + " - " + m.getDescription()
-                    + " by plugin " + m.getPlugin().getDescription() + " ("
-                    + m.getName() + ")");
+            
+            for( Metric m : mr) {
+                System.out.println(m.getName() + " - " + m.getDescription()
+                        + " by plugin " + m.getPlugin().getDescription() + " ("
+                        + m.getName() + ")");
+            }
         }
     }
 }

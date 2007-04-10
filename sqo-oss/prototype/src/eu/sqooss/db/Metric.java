@@ -95,7 +95,7 @@ public class Metric {
     }
 
     // Other
-    public static Metric getMetricByName(String name) {
+    public static Metric[] getMetricByName(String name) {
         Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
 
@@ -103,7 +103,7 @@ public class Metric {
                 .createQuery("from Metric metric where metric.name = :metric");
         q.setString("metric", name);
 
-        Metric m = (Metric) q.uniqueResult();
+        Metric[] m = (Metric[])q.list().toArray(new Metric[] {}); 
 
         return m;
     }
