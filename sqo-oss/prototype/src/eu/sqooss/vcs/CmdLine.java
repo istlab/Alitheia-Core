@@ -36,7 +36,7 @@ import org.apache.commons.cli.*;
  * 
  * 1st way: providing the URI of the repository and the path of the repository 
  * on the local end. URI must have the following syntax: 
- * <cvs,svn,svns,svn+ssh,svn+fsfs>://user@server/path/to/repo?passwd=passwd
+ * <svn,svns,svn+ssh,svn+fsfs>://user@server/path/to/repo?passwd=passwd
  * "svns" is for https and "svn+fsfs" is for file usage
  * 2nd way: providing: the path of the repository on the remote end,
  * the path of the repository on the local end, the username and the password
