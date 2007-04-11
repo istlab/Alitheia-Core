@@ -170,7 +170,7 @@ public class TaskCLI extends CLI {
             m.setWhenRun(date);
             m.setMetric(metrics.get(entry.getKey()));
             m.setResult(entry.getValue());
-            session.save(m);
+            session.saveOrUpdate(m);
         }
     }
 

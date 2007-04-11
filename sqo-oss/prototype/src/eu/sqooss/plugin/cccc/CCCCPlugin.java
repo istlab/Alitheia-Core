@@ -35,10 +35,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map.Entry;
 
 import org.dom4j.Document;
-import org.dom4j.Element;
 import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
 
@@ -57,6 +57,7 @@ public class CCCCPlugin extends Plugin {
     private String cmd;
 
     private HashMap<String, String> metricPaths;
+    private HashSet<String> supportedExtensions;
 
     /**
      * Creates a new instance of the class. It is parameterless to allow
@@ -75,6 +76,14 @@ public class CCCCPlugin extends Plugin {
                 + "/number_of_children");
         metricPaths.put("CBO", "/CCCC_Project/oo_design/module[name='%s']"
                 + "/coupling_between_objects");
+        
+        supportedExtensions = new HashSet<String>();
+        supportedExtensions.add(".java");
+        supportedExtensions.add(".c");
+        supportedExtensions.add(".cc");
+        supportedExtensions.add(".cpp");
+        supportedExtensions.add(".cxx");
+        supportedExtensions.add(".h");
     }
 
     /*
@@ -86,10 +95,15 @@ public class CCCCPlugin extends Plugin {
     public HashMap<String, String> run(ProjectFile file) throws PluginException {
         // set the target of the parser
         File f = new File(file.getName());
-        String target = f.getName().substring(f.getPath().length());
+        String target = f.getName();
+        String extension = "";
         int pos = target.lastIndexOf(".");
         if (pos > 0) {
+            extension = target.substring(pos);
             target = target.substring(0, pos);
+            if(!supportedExtensions.contains(extension.toLowerCase())) {
+                return new HashMap<String, String>();
+            }
         }
 
         InputStream is = execute(f);
@@ -116,13 +130,43 @@ public class CCCCPlugin extends Plugin {
         }
         outputPath += "cccc";
         outputPath += System.getProperty("file.separator");
+        File op = new File(outputPath);
+        op.delete();
+        op.mkdirs();
         target.append(" --outdir=");
         target.append(outputPath);
         target.append(" " + file.toString());
 
         try {
             Process p = Runtime.getRuntime().exec(target.toString());
-            p.waitFor();
+            InputStream s = p.getInputStream();
+            while (s.available() > 0) {
+                try {
+                    s.read();
+                } catch (Exception e) {
+                    // this sucks but waitFor for some reason never returns
+                    Thread.sleep(1000);
+                }
+            }
+            s.close();
+            s = p.getErrorStream();
+            while (s.available() > 0) {
+                try {
+                    s.read();
+                } catch (Exception e) {
+                    Thread.sleep(1000);
+                }
+            }
+            s.close();
+            while (true) {
+                try {
+                    p.exitValue();
+                    break;
+                } catch (Exception e) {
+                    Thread.sleep(1000);
+                }
+            }
+            //p.waitFor();
             FileInputStream result = new FileInputStream(outputPath
                     + "cccc.xml");
             return result;
