@@ -180,7 +180,7 @@ public class ProjectsCLI extends CLI {
             if (pr == null) {
                 error("The requested project is not registered");
             }
-            addNewVersion(pr, version);
+            addNewVersion(pr, version, localPath);
             session.getTransaction().commit();
             return;
         }
@@ -243,10 +243,11 @@ public class ProjectsCLI extends CLI {
      * @param version
      *            Version number to add
      */
-    private void addNewVersion(StoredProject project, String version) {
-        log(String.format("Checking out version %s of project %s", version,
-                project.getName()));
-        checkoutProject(project, version);
+    private void addNewVersion(StoredProject project, String version,
+			       String localPath) {
+        log(String.format("Checking out version %s of project %s at %s",
+			  version, project.getName(), localPath));
+        checkoutProject(project, version, localPath);
     }
 
     /**
@@ -285,7 +286,6 @@ public class ProjectsCLI extends CLI {
 
         StoredProject p = new StoredProject();
         p.setName(name);
-        p.setLocalPath(projectPath);
         p.setRemotePath(remotePath);
         p.setSvnUrl(url);
         p.setContactPoint("admin@");
@@ -293,7 +293,7 @@ public class ProjectsCLI extends CLI {
         p.setMailPath(projectPath + File.separatorChar + "mail");
 
         session.save(p);
-        addNewVersion(p, String.valueOf(curver));
+        addNewVersion(p, String.valueOf(curver), localPath);
         return p.getId();
     }
 
@@ -304,12 +304,12 @@ public class ProjectsCLI extends CLI {
      * @param project
      * @param version
      */
-    private void checkoutProject(StoredProject project, String version) {
+    private void checkoutProject(StoredProject project, String version, String localPath) {
         Repository r = null;
         Revision rev;
         try {
-            r = RepositoryFactory.getRepository(project.getLocalPath(), project
-                    .getSvnUrl());
+            r = RepositoryFactory.getRepository(localPath,
+						project .getSvnUrl());
         } catch (InvalidRepositoryException ire) {
             error("Failed to access the project's repository");
         }
@@ -324,12 +324,13 @@ public class ProjectsCLI extends CLI {
         ProjectVersion pv = new ProjectVersion();
         pv.setStoredProject(project);
         pv.setVersion(String.valueOf(r.getCurrentVersion(false)));
+	pv.setLocalPath(localPath);
         session.save(pv);
 
         for (String file : files) {
             try {
                 ProjectFile pf = new ProjectFile();
-		String localisedPath = project.getLocalPath()
+		String localisedPath = localPath
 		    + System.getProperty("file.separator") + file;
 		File testFile = new File(localisedPath);
 		if (!testFile.exists()) {
@@ -403,8 +404,10 @@ public class ProjectsCLI extends CLI {
         Iterator it = results.iterator();
         while (it.hasNext()) {
             StoredProject sp = (StoredProject) it.next();
-            System.out.println(String.format("%4s %-12s %-20s %-30s", sp.getId(),
-                    sp.getName(), sp.getLocalPath(), sp.getSvnUrl()));
+            System.out.println(String.format("%4s%16s%30s",
+					     sp.getId(),
+					     sp.getName(),
+					     sp.getSvnUrl()));
         }
     }
 

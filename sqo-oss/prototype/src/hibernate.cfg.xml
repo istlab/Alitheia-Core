@@ -31,7 +31,7 @@
 	<property name="hibernate.cache.provider_class">org.hibernate.cache.NoCacheProvider</property>
 	
 	<!-- Echo all executed SQL to stdout -->
-	<property name="hibernate.show_sql">true</property>
+	<property name="hibernate.show_sql">false</property>
 
 	<mapping resource="StoredProject.hbm.xml"/>
 	<mapping resource="ProjectVersion.hbm.xml"/>

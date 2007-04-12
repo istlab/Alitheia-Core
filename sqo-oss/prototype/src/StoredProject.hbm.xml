@@ -10,7 +10,6 @@
     <property name="name" column="NAME"/>
     <property name="website" column="WEB_SITE"/>
     <property name="contactPoint" column="CONTACT_POINT"/>
-    <property name="localPath" column="LOCAL_PATH"/>
     <property name="remotePath" column="REMOTE_PATH"/>
     <property name="svnUrl" column="SVN_URL"/>
     <property name="mailPath" column="MAIL_PATH"/>

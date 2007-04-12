@@ -77,8 +77,14 @@
 		    </fileset>
 		    <fileset dir="${sqooss.src.dir}">
 			<include name="**/*.properties" />
+			<exclude name="log4j.properties"/>
 		    </fileset>
 		</copy>
+		<copy todir="${sqooss.dist.dir}" flatten="true">
+		    <fileset dir="${sqooss.src.dir}">
+			<include name="log4j.properties"/>
+		    </fileset>
+		</copy>    
 		<jar destfile="${sqooss.dist.dir}/sqo-oss.jar" basedir="${sqooss.build.dir}" manifest="src/MANIFEST"/>
     </target>
 

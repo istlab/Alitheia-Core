@@ -12,5 +12,6 @@
 		 column="STORED_PROJECT_ID"
 		 not-null="true"/>
     <property name="version" column="VERSION"/>
+    <property name="localPath" column="LOCAL_PATH"/>
   </class>
 </hibernate-mapping>

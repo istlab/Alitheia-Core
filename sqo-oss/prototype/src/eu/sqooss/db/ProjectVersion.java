@@ -48,6 +48,8 @@ public class ProjectVersion {
 
     String version;
 
+    private String localPath;
+    
     public ProjectVersion() {
     }
 
@@ -75,6 +77,14 @@ public class ProjectVersion {
         this.version = version;
     }
 
+    public void setLocalPath(String localPath) {
+        this.localPath = localPath;
+    }
+
+    public String getLocalPath() {
+        return localPath;
+    }
+    
     /**
      * Retrieves a list of all the ProjectFiles associated with this version
      * 

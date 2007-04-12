@@ -56,8 +56,6 @@ public class StoredProject {
 
     private String mailPath;
 
-    private String localPath;
-
     private String remotePath;
 
     private String svnUrl;
@@ -71,14 +69,6 @@ public class StoredProject {
 
     public String getSvnUrl() {
         return svnUrl;
-    }
-
-    public void setLocalPath(String localPath) {
-        this.localPath = localPath;
-    }
-
-    public String getLocalPath() {
-        return localPath;
     }
 
     public void setRemotePath(String remotePath) {
