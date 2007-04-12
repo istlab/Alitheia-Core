@@ -228,7 +228,8 @@ public class ProjectsCLI extends CLI {
                 error("One of the required options (i) is missing", cmdLine);
             }
             assert projectid != "";
-            listProjectVersions(projectid);
+            StoredProject project = loadProject(projectid);
+            listProjectVersions(project);
             return;
         }
     }
@@ -397,26 +398,26 @@ public class ProjectsCLI extends CLI {
             System.out.println("No projects registered");
             return;
         }
-        System.out.println(String.format("%4s%16s%30s%30s", "ID",
+        System.out.println(String.format("ID   %-12s %-20s %-30s",
                 "Project name", "Local path", "Repository url"));
         Iterator it = results.iterator();
         while (it.hasNext()) {
             StoredProject sp = (StoredProject) it.next();
-            System.out.println(String.format("%4s%16s%%30s%30s", sp.getId(), sp
-                    .getName(), sp.getLocalPath(), sp.getSvnUrl()));
+            System.out.println(String.format("%4s %-12s %-20s %-30s", sp.getId(),
+                    sp.getName(), sp.getLocalPath(), sp.getSvnUrl()));
         }
     }
 
     /**
      * Lists the versions of a project registered to the system
      * 
-     * @param projectid
-     *            The ID of the project whose versions are requested
+     * @param project
+     *            The project whose versions are requested
      */
-    private void listProjectVersions(String projectid) {
+    private void listProjectVersions(StoredProject project) {
         Query q = session.createQuery("from ProjectVersion pv where "
                 + "pv.project.id = :pid");
-        q.setString("pid", projectid);
+        q.setLong("pid", project.getId());
         List results = q.list();
         if (results.size() == 0) {
             System.out.println("No versions found");
@@ -426,7 +427,7 @@ public class ProjectsCLI extends CLI {
         Iterator it = results.iterator();
         while (it.hasNext()) {
             ProjectVersion pv = (ProjectVersion) it.next();
-            System.out.println(String.format("%5s%s%", pv.getId(), pv
+            System.out.println(String.format("%5s%s", pv.getId(), pv
                     .getVersion()));
         }
     }

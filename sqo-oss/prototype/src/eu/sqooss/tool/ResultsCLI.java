@@ -150,8 +150,7 @@ public class ResultsCLI extends CLI {
         Iterator pfit = projectFiles.iterator();
         while (pfit.hasNext()) {
             ProjectFile pf = (ProjectFile) pfit.next();
-            System.out.print(String.format("%40s", pf.getName()));
-
+            
             for (Metric m : metrics.values()) {
                 try {
                     Measurement measurement = retrieveMeasurement(pv, pf, m);
@@ -162,8 +161,9 @@ public class ResultsCLI extends CLI {
                         System.out.print(String.format("%6s", "N/A"));
                     }
                 } catch (Exception e) {
-		    e.printStackTrace();
+		            e.printStackTrace();
                 }
+                System.out.print(" " + pf.getName());
             }
             System.out.println();
         }
@@ -198,10 +198,10 @@ public class ResultsCLI extends CLI {
      */
     private void printHeader() {
         StringBuffer header = new StringBuffer();
-        header.append(String.format("%40s", "File"));
         for (Metric m : metrics.values()) {
             header.append(String.format("%6s", m.getName()));
         }
+        header.append(" File");
         System.out.println(header.toString());
     }
 
