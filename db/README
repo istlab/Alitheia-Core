@@ -1,4 +1,0 @@
-This directory contains SQL scripts for creating and maintaining the
-SQO-OSS database on the server.
-
-The database is PostgreSQL (www.postgresql.org).
