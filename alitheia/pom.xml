@@ -1,0 +1,200 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+
+  <!-- =======[ Alitheia's metrics - main POM                     ]======= -->
+  <groupId>eu.sqooss</groupId>
+  <artifactId>alitheia</artifactId>
+  <version>1.0.0</version>
+  <packaging>pom</packaging>
+
+  <!-- =======[ Project description                               ]======= -->
+  <name>Alitheia Core</name>
+  <url>http://ikaria.dmst.aueb.gr:8088/alitheia</url>
+  <inceptionYear>2006</inceptionYear>
+  <description>
+    Contains the modules building the core SQO-OSS system 
+  </description>
+
+  <!-- =======[ Project license                                   ]======= -->
+  <licenses>
+    <!-- We need the SQO-OSS project definition put here instead -->
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <!-- =======[ Organisation description                          ]======= -->
+  <organization>
+    <name>SQO-OSS</name>
+    <url>http://www.sqo-oss.eu/</url>
+  </organization>
+
+  <!-- =======[ Source code repository for this project           ]======= -->
+  <scm>
+    <connection>
+      scm:svn:https://svn.sqo-oss.eu/devel/trunk/alitheia
+    </connection>
+    <developerConnection>
+      scm:svn:https://svn.sqo-oss.eu/devel/trunk/alitheia
+    </developerConnection>
+    <!-- Configure and enable in case there is an anonymous SVN viewer 
+    <url>http://hostname/sqooss</url>
+    -->
+  </scm> 
+
+  <!-- =======[ Build options, goals and plug-ins configurations  ]======= -->
+  <build>
+    <defaultGoal>clean deploy</defaultGoal>
+    <plugins>
+      <plugin>
+        <artifactId>maven-site-plugin</artifactId>
+        <configuration>
+          <locales>en</locales>
+        </configuration>
+        <executions>
+          <execution>
+            <phase>deploy</phase>
+            <goals>
+              <goal>site</goal>
+              <goal>deploy</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <configuration>
+          <generatePom>false</generatePom>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build> 
+
+  <!-- =======[ Repositories holding required external libraries  ]======= -->
+  <repositories>
+    <repository>
+      <id>extlibs</id>
+      <name>SQO-OSS External Libraries Repository</name>
+      <url>https://svn.sqo-oss.eu/devel/trunk/extlibs</url>
+    </repository>
+  </repositories>
+
+  <distributionManagement>
+    <!-- Deploy the project reports site in this location                  -->
+    <site>
+      <id>buildsite</id>
+      <url>scp://ikaria.dmst.aueb.gr/home/byotov/builds/site/alitheia</url>
+    </site>
+    <!-- Deploy project(s) releases into the following repository          -->
+    <repository>
+      <id>buildsite</id>
+      <name>SQO-OSS Releases Repository</name>
+      <url>scp://ikaria.dmst.aueb.gr/home/byotov/builds/releases</url>
+    </repository>
+    <!-- COMMENTED OUT
+    <snapshotRepository>
+      <id>buildsite</id>
+      <name>SQO-OSS Snapshots Repository</name>
+      <url>scp://ikaria.dmst.aueb.gr/home/byotov/builds/snapshots</url>
+    </snapshotRepository>
+    -->
+  </distributionManagement>
+
+  <!-- =======[ Tools for creating project reports                ]======= -->
+  <reporting>
+    <plugins>
+      <!-- Plugin for generating JavaDoc from the project's sources        -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+      </plugin>
+      <!-- Plugin for checking the coding style of the project's sources   -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <configuration>
+          <format>sun</format>
+          <includes>**/*.java</includes>
+          <enableRulesSummary>false</enableRulesSummary>
+        </configuration>
+      </plugin>
+      <!-- Plugin for checking the project source against -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-pmd-plugin</artifactId>
+        <reportSets>
+          <reportSet>
+            <reports>
+              <report>pmd</report>
+              <!-- Don't need Copy&Paste detector
+              <report>cpd</report>
+              -->
+            </reports>
+          </reportSet>
+        </reportSets>
+      </plugin>
+      <!-- Create cross references between reports and source files        -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jxr-plugin</artifactId>
+        <configuration>
+          <!-- Don't need aggregation into the parent project
+          <aggregate>true</aggregate>
+          -->
+        </configuration>
+      </plugin>
+    </plugins>
+  </reporting>
+
+  <!-- =======[ Mailing lists associated with this project        ]======= -->
+  <!-- COMMENTED OUT
+  <mailingLists>
+    <mailingList>
+      <name>SQO-OSS WP3 Mailing List</name>
+      <subscribe>project-subscribe@localhost</subscribe>
+      <unsubscribe>project-unsubscribe@localhost</unsubscribe>
+      <post>project@localhost</post>
+      <archive>http://localhost/pipermail/project/</archive>
+    </mailingList>
+  </mailingLists>
+  -->
+
+  <!-- =======[ CIS configuration                                 ]======= -->
+  <ciManagement>
+    <system>Apache Maven Continuum</system>
+    <url>http://ikaria.dmst.aueb.gr:8089/continuum/servlet/continuum</url>
+    <notifiers>
+      <notifier>
+        <type>mail</type>
+        <configuration>
+          <!-- Replace with the mailing list dedicated to the CIS results -->
+          <address>b.yotov@prosyst.com</address>
+        </configuration>
+      </notifier>
+    </notifiers>
+  </ciManagement>
+
+  <!-- =======[ Modules part of this project                      ]======= -->
+  <modules>
+    <!-- Add Alitheia modules here -->
+    <!--
+    <module>service_one</module>
+    <module>service_two</module>
+    -->
+  </modules>
+
+  <!-- =======[ List of developers working on this project        ]======= -->
+  <developers>
+    <developer>
+      <id>byotov</id>
+      <name>Boryan Yotov</name>
+      <email>b.yotov@prosyst.com</email>
+      <organization>ProSyst Software GmbH</organization>
+      <!-- Unfortunatelly Maven does not support daylight saving           -->
+      <timezone>+2</timezone>
+    </developer>
+  </developers>
+</project>
+
