@@ -77,7 +77,10 @@
     <repository>
       <id>extlibs</id>
       <name>SQO-OSS External Libraries Repository</name>
-      <url>https://svn.sqo-oss.eu/devel/trunk/extlibs</url>
+      <!-- Enable this, once the certificate for svn.sqo-oss.eu is fixed -->
+      <!-- <url>https://svn.sqo-oss.eu/devel/trunk/extlibs</url> -->
+      <!-- ... and disable/remove the next line -->
+      <url>http://ikaria.dmst.aueb.gr:8088/extlibs</url>
     </repository>
   </repositories>
 
