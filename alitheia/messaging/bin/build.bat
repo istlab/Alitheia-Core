@@ -1,1 +1,0 @@
-jar cmf ../manifest/messaging.mf ../bundle/m.jar ./eu/*.*
