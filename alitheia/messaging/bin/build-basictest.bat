@@ -1,0 +1,1 @@
+jar cmf ../test/basic-test/manifest/basictest.mf ../bundle/tm.jar ./com/*.*

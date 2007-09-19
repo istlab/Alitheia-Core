@@ -1,0 +1,10 @@
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: eu.sqooss.services.messaging
+Bundle-Name: Messaging Service
+Bundle-Activator: eu.sqooss.impl.service.MessagingActivator
+Bundle-Version: 1.0.0
+Bundle-Vendor: ProSyst
+Bundle-Category: messaging
+Bundle-Description: This bundle provides the Messaging Service
+Import-Package: org.osgi.framework
+Export-Package: eu.sqooss.services.messaging

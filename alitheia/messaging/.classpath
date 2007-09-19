@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="test/basic-test/src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="C:/dev/frameworks/eclipse-equinox-SDK-3.3/eclipse/plugins/org.eclipse.osgi_3.3.0.v20070530.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
