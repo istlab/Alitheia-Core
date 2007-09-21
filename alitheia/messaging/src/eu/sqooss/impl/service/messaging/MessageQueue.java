@@ -12,14 +12,14 @@ public class MessageQueue {
     vector = new Vector();
     clear = false;
   }
-  
+
   public void push(MessageImpl message) {
     synchronized (lockObject) {
       vector.addElement(message);
       lockObject.notifyAll();
     }
   }
-  
+
   public MessageImpl pop() {
     synchronized (lockObject) {
       try {
@@ -36,25 +36,25 @@ public class MessageQueue {
       }
     }
   }
-  
+
   public boolean isEmpty() {
     synchronized (lockObject) {
       return vector.isEmpty();
     }
   }
-  
-  public void clearQueue(){
+
+  public void clearQueue() {
     synchronized (lockObject) {
       vector.removeAllElements();
       clear = true;
       lockObject.notifyAll();
     }
   }
-  
+
   public int size() {
     synchronized (lockObject) {
       return vector.size();
     }
   }
-  
+
 }
