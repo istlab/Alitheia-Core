@@ -1,0 +1,10 @@
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: eu.sqooss.services.logging
+Bundle-Name: Logging Service
+Bundle-Activator: eu.sqooss.impl.service.LoggingActivator
+Bundle-Version: 1.0.0
+Bundle-Vendor: ProSyst
+Bundle-Category: logging
+Bundle-Description: This bundle provides the Logging Service
+Import-Package: org.osgi.framework
+Export-Package: eu.sqooss.service.logging
