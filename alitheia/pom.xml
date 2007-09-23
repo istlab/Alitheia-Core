@@ -187,6 +187,7 @@
     <module>service_two</module>
     -->
     <module>messaging</module>
+    <module>logger</module>
   </modules>
 
   <!-- =======[ List of developers working on this project        ]======= -->
