@@ -1,6 +1,6 @@
 package eu.sqooss.services.webui;
 
-public interface WebUI {
+public interface WebUIService {
   /**
    * Sets the service property indicated by the specified key.
    * @param key the name of the service property
