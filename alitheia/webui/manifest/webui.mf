@@ -1,7 +1,7 @@
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: eu.sqooss.services.webui
 Bundle-Name: Web UI Service
-Bundle-Activator: eu.sqooss.impl.service.WebUI
+Bundle-Activator: eu.sqooss.impl.service.WebUIActivator
 Bundle-Version: 1.0.0
 Bundle-Vendor: ProSyst
 Bundle-Category: ui

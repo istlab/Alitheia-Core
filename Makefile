@@ -17,7 +17,8 @@ $(PREFIX)/bin :
 	test -d $(PREFIX)/bin
 
 BUNDLES=alitheia/logger \
-	alitheia/messaging
+	alitheia/messaging \
+	alitheia/webui
 OSGI=extlibs/org/eclipse/equinox/osgi/3.3.0/
 install : $(PREFIX)/bin
 	for i in $(BUNDLES) ; do cp $$i/target/*.jar $(PREFIX)/bin/ ; done
