@@ -1,8 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: SQO-KDE Plug-in
-Bundle-SymbolicName: SQO_KDE
-Bundle-Version: 1.0.0
-Bundle-Activator: sqo_kde.Activator
-Bundle-Localization: plugin
-Import-Package: org.osgi.framework;version="1.3.0"
