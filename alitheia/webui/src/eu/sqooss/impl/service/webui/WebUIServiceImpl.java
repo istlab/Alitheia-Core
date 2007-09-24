@@ -15,6 +15,20 @@ import org.osgi.framework.InvalidSyntaxException;
 import eu.sqooss.services.webui.WebUIService;
 
 public class WebUIServiceImpl implements WebUIService {
+    public WebUIServiceImpl(BundleContext bc) { 
+        System.out.println("foo");
+    }
+
+    public String[] getConfigurationKeys() {
+        return null;
+    }
+
+    public String getConfigurationProperty(String key) {
+        return key;
+    }
+
+    public void setConfigurationProperty(String key, String val) {
+    }
 }
 
 
