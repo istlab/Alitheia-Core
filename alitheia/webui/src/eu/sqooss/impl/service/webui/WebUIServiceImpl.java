@@ -16,7 +16,7 @@ import eu.sqooss.services.webui.WebUIService;
 
 public class WebUIServiceImpl implements WebUIService {
     public WebUIServiceImpl(BundleContext bc) { 
-        System.out.println("foo");
+        System.out.println("<html><head><title>SQO-OSS User Interface</title></head><body><h1>It works!</h1></body></html>");
     }
 
     public String[] getConfigurationKeys() {
