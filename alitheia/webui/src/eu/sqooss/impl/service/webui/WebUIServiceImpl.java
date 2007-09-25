@@ -13,10 +13,14 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 
 import eu.sqooss.services.webui.WebUIService;
+import eu.sqooss.impl.service.webui.WebUIServer;
 
 public class WebUIServiceImpl implements WebUIService {
+    WebUIServer ui;
+
     public WebUIServiceImpl(BundleContext bc) { 
-        System.out.println("<html><head><title>SQO-OSS User Interface</title></head><body><h1>It works!</h1></body></html>");
+        System.out.println("ItWorks UI 2.0\n");
+        ui = new WebUIServer();
     }
 
     public String[] getConfigurationKeys() {
