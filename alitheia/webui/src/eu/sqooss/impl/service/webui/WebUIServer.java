@@ -7,6 +7,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.*;
 
 public class WebUIServer extends HttpServlet {
+    public static final String page = "<html><head><title>SQO-OSS Web UI</title></head><body><h1>It Works!</h1></body></html>";
+
     public WebUIServer() { 
     }
 
@@ -15,9 +17,7 @@ public class WebUIServer extends HttpServlet {
                                                               IOException {
         response.setContentType("text/html");
         PrintWriter print = response.getWriter();
-        print.print("<html><head><title>SQO-OSS Web UI</title></head>");
-        print.print("<body><h1>It Works!</h1></body>");
-        print.print("</html>");
+        print.print(page);
     }
 }
 
