@@ -23,6 +23,7 @@ public class WebUIActivator implements BundleActivator {
         webuiService = new WebUIServiceImpl(bc);
         registration = bc.registerService(WebUIService.class.getName(), 
                                           webuiService, null);
+        System.out.println("# WebUIActivator::start done.");
     }
 
     public void stop(BundleContext bc) throws Exception {

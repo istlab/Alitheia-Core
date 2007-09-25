@@ -18,22 +18,15 @@ public class WebUIServiceImpl implements WebUIService {
     HttpService httpservice = null;
     WebUIServer httpui = null;
 
-    public WebUIServiceImpl(BundleContext bc) { 
-        System.out.println(WebUIServer.page);
+    public WebUIServiceImpl(BundleContext bc) throws Exception { 
+        System.out.println("# WebUIServiceImpl()");
         serviceref = bc.getServiceReference("org.osgi.service.http.HttpService");
         if (serviceref != null) {
+            System.out.println("#   Got service reference.");
             httpservice = (HttpService) bc.getService(serviceref);
             httpui = new WebUIServer();
-            try {
-                httpservice.registerServlet("/", (Servlet) httpui,
-                                            new Hashtable(), null);
-            } catch (ServletException e) {
-                System.out.println("! Failed to register HTTP service.");
-                httpui = null;
-            } catch (NamespaceException e) {
-                System.out.println("! Namespace failure in HTTP service.");
-                httpui = null;
-            }
+            httpservice.registerServlet("/", (Servlet) httpui,
+                                        new Hashtable(), null);
         } else {
             System.out.println("! Could not load the HTTP service.");
         }

@@ -10,6 +10,7 @@ public class WebUIServer extends HttpServlet {
     public static final String page = "<html><head><title>SQO-OSS Web UI</title></head><body><h1>It Works!</h1></body></html>";
 
     public WebUIServer() { 
+        System.out.println("# WebUIServer ok.");
     }
 
     protected void doGet(HttpServletRequest request,
