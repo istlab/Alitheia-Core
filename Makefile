@@ -1,20 +1,26 @@
-all : build-alitheia build-metrics
+# This is a GNU Makefile, requiring GNU make 3.80 or later.
+#
 
-build-alitheia :
-	( cd alitheia && mvn package )
+all : build
 
-build-metrics :
-	( cd metrics && mvn package )
+SUBDIRS=alitheia metrics
 
-BUNDLES=alitheia/logger \
-	alitheia/messaging \
-	alitheia/webui
+define subdir_template
+$(1)-$(2) :
+	cd $(2) && $(MAKE) $(1)
+endef
+
+$(foreach d,$(SUBDIRS),$(eval $(call subdir_template,build,$(d))))
+$(foreach d,$(SUBDIRS),$(eval $(call subdir_template,clean,$(d))))
+
+build : $(foreach d,$(SUBDIRS),build-$(d))
+
 PREFIX=equinox
 
 install :
 	T="" ; \
-	for i in $(BUNDLES) ; do \
-		for j in $$i/target/*.jar ; do \
+	for i in $(SUBDIRS) ; do \
+		for j in $$i/*/target/*.jar ; do \
 			if test -f $$j ; then \
 				T="$$T ,"`basename $$j`"@start" ; \
 				cp $$j $(PREFIX) ; \
@@ -27,9 +33,5 @@ run :
 	cd $(PREFIX) && \
 	java -jar org.eclipse.osgi_3.3.0.v20070321.jar -console
 
-clean :
-	for i in $(BUNDLES) ; do \
-		for j in $$i/target/*.jar ; do \
-			rm -f $(PREFIX)/`basename $$j` ; done ; done
-	rm -f alitheia/*/target/*.jar
+clean : $(foreach d,$(SUBDIRS),clean-$(d))
 	

@@ -41,10 +41,32 @@ import javax.servlet.ServletException;
 import javax.servlet.http.*;
 
 public class WebUIServer extends HttpServlet {
-    public static final String page = "<html><head><title>SQO-OSS Web UI</title></head><body><h1>It is Roger!</h1></body></html>";
+    public static final String pageHead = "<html><head><title>SQO-OSS Web UI</title></head><body style='padding: 1ex 1em;'>";
+    public static final String pageIntro = "<p style='margin: 1ex 1em; padding: 1ex 1em; border: 3px solid pink;'>This is the administrative interface page for the Alitheia system. System stats are shown below.</p>";
+    public static final String pageBundleStats = "<h1 style='margin-left: 1em; padding-left: 3px; color: green;'>Available Bundles</h1>";
+    public static final String pageServiceStats = "<h1 style='margin-left: 1em; padding-left: 3px; color: green;'>Available Services</h1>";
+    public static final String pageFooter = "</body></html>";
 
     public WebUIServer() { 
         System.out.println("# WebUIServer ok.");
+    }
+
+    protected String[] getServiceNames() {
+        String[] names = new String[0];
+        return names;
+    }
+
+    protected void printServices(PrintWriter print) {
+        String[] names = getServiceNames();
+        if (names.length > 0) {
+            print.println("<ul>");
+            for (String s : names) {
+                print.println("<li>" + s + "</li>");
+            }
+            print.println("</ul>");
+        } else {
+            print.println("<p>&lt;none&gt;</p>");
+        }
     }
 
     protected void doGet(HttpServletRequest request,
@@ -52,7 +74,11 @@ public class WebUIServer extends HttpServlet {
                                                               IOException {
         response.setContentType("text/html");
         PrintWriter print = response.getWriter();
-        print.print(page);
+        print.println(pageHead);
+        print.println(pageIntro);
+        print.println(pageServiceStats);
+        printServices(print);
+        print.println(pageFooter);
     }
 }
 
