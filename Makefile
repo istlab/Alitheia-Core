@@ -1,9 +1,4 @@
-all :
-	@echo "# You need Maven2 installed and should run make for one of:"
-	@echo "#     build install"
-	@echo "# Set PREFIX to the directory to install to (default './')."
-
-build : build-alitheia build-metrics
+all : build-alitheia build-metrics
 
 build-alitheia :
 	( cd alitheia && mvn package )
