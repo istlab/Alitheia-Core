@@ -34,5 +34,10 @@ package eu.sqooss.services.updater;
 
 public interface UpdaterService {
 
-    void update();
+    /**
+     * Inform the updater service about changes to the data mirrors
+     * 
+     * @param path - The path that has changed
+     */
+    void update(String path);
 }

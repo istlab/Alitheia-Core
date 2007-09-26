@@ -32,19 +32,35 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package eu.sqooss.impl.service.updater;
 
+import java.io.IOException;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.osgi.framework.BundleContext;
 
 import eu.sqooss.services.updater.UpdaterService;
 
-public class UpdaterServiceImpl implements UpdaterService {
+
+public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
 
     public UpdaterServiceImpl(BundleContext bc) {
         
     }
     
-    public void update() {
-        // TODO Auto-generated method stub
-        
+    public void update(String path) {
+        System.out.println(path);
+    }
+    
+    public void doGet(HttpServletRequest request, HttpServletResponse response) 
+        throws ServletException,IOException {
+        String s = request.getParameter("path");
+        if ( s != null )
+            update(s);
+        else
+            response.getWriter().write("<html><head><title>Error</title></head><body><h1>Error</h1></body>");
     }
 
 }
