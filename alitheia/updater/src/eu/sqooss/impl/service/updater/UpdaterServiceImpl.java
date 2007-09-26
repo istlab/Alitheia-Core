@@ -33,21 +33,36 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package eu.sqooss.impl.service.updater;
 
 import java.io.IOException;
+import java.util.Hashtable;
 
+import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.http.HttpService;
+import org.osgi.service.http.NamespaceException;
 
 import eu.sqooss.services.updater.UpdaterService;
 
 
 public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
 
-    public UpdaterServiceImpl(BundleContext bc) {
+    private ServiceReference serviceref = null;    
+    private HttpService httpservice = null;    
+    
+    public UpdaterServiceImpl(BundleContext bc) throws ServletException, NamespaceException {
         
+        serviceref = bc.getServiceReference("org.osgi.service.http.HttpService");
+        if (serviceref != null) {
+            httpservice = (HttpService) bc.getService(serviceref);
+            httpservice.registerServlet("/updater", (Servlet) this, new Hashtable(), null);
+        } else {
+            System.out.println("! Could not load the HTTP service.");
+        }
     }
     
     public void update(String path) {
