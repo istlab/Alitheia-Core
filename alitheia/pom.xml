@@ -189,8 +189,7 @@
     <module>messaging</module>
     <module>logger</module>
     <module>webui</module>
-    <module>updater</module>
-</modules>
+  </modules>
 
   <!-- =======[ List of developers working on this project        ]======= -->
   <developers>

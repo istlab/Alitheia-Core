@@ -1,0 +1,6 @@
+osgi.bundles=org.eclipse.osgi.util_3.1.100.v20060918.jar@start, \
+    org.eclipse.osgi.services_3.1.100.v20060918.jar@start, \
+    org.eclipse.equinox.log_1.0.100.v20070226.jar@start, \
+    javax.servlet_2.4.0.v200612120446.jar@start, \
+    org.eclipse.equinox.http_1.0.100.v20070226.jar@start @@ALITHEIA@@
+org.osgi.service.http.port=8080
