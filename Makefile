@@ -16,7 +16,7 @@ install :
 	for i in $(BUNDLES) ; do \
 		for j in $$i/target/*.jar ; do \
 			if test -f $$j ; then \
-				T="$T ,"`basename $$j`"@start" ; \
+				T="$$T ,"`basename $$j`"@start" ; \
 				cp $$j $(PREFIX) ; \
 			fi ; \
 		done ; \
@@ -26,3 +26,10 @@ install :
 run :
 	cd $(PREFIX) && \
 	java -jar org.eclipse.osgi_3.3.0.v20070321.jar -console
+
+clean :
+	for i in $(BUNDLES) ; do \
+		for j in $$i/target/*.jar ; do \
+			rm -f $(PREFIX)/`basename $$j` ; done ; done
+	rm -f alitheia/*/target/*.jar
+	
