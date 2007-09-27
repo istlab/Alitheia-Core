@@ -43,7 +43,8 @@ public class LogUtils {
         nameSecondPart.equals(LogManagerConstants.SIBLING_SECURITY) ||
         nameSecondPart.equals(LogManagerConstants.SIBLING_SERVICE_SYSTEM) ||
         nameSecondPart.equals(LogManagerConstants.SIBLING_UPDATER) ||
-        nameSecondPart.equals(LogManagerConstants.SIBLING_WEB_SERVICES)) {
+        nameSecondPart.equals(LogManagerConstants.SIBLING_WEB_SERVICES) ||
+	nameSecondPart.equals(LogManagerConstants.SIBLING_WEBUI)) {
       return 1;
     }
     
