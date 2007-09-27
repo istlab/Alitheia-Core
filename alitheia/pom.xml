@@ -183,7 +183,10 @@
         <type>mail</type>
         <configuration>
           <!-- Replace with the mailing list dedicated to the CIS results -->
+          <!--
           <address>continuum@sqo-oss.eu</address>
+          -->
+          <address>b.yotov@prosyst.com</address>
         </configuration>
       </notifier>
     </notifiers>
