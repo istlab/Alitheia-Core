@@ -39,6 +39,7 @@ import org.osgi.service.http.NamespaceException;
 import eu.sqooss.services.updater.UpdaterService;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.logging.LogManager;
+import eu.sqooss.impl.service.logging.LogManagerConstants;
 
 public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
 
@@ -53,17 +54,25 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
     public UpdaterServiceImpl(BundleContext bc) throws ServletException,
             NamespaceException {
 
-        logService = (LogManager) bc.getServiceReference("eu.sqooss.service.logging.LogManager");
-
+        serviceRef = bc.getServiceReference("eu.sqooss.service.logging.LogManager");
+        logService = (LogManager) bc.getService(serviceRef);
+        
         if (logService != null) {
-            logger = logService.createLogger("eu.sqooss.updater");
+            logger = logService.createLogger(
+                    LogManagerConstants.NAME_ROOT_LOGGER
+                  + LogManagerConstants.NAME_DELIMITER
+                  + LogManagerConstants.SIBLING_UPDATER);
+         
             if (logger != null) {
                 logger.setConfigurationProperty("file.name","update-service.log");
                 logger.setConfigurationProperty("message.format", "text/plain");
                 System.out.println("Got logging!");
             }
             System.out.println("Got log service but not a logger");
+        } else {
+            System.out.println("Got neither a service nor a logger");
         }
+            
 
         serviceRef = bc.getServiceReference("org.osgi.service.http.HttpService");
         
