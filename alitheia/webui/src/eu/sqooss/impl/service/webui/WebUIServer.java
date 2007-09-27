@@ -79,10 +79,10 @@ public class WebUIServer extends HttpServlet {
             if (logger != null) {
                 logger.setConfigurationProperty("file.name","webui-service");
                 logger.setConfigurationProperty("message.format", "text/plain");
-                System.out.println("Got logging!");
+                System.out.println("# Got logging!");
             }
         } else {
-            System.out.println("Got neither a service nor a logger");
+            System.out.println("# Got neither a service nor a logger");
         }
     }
 
@@ -197,7 +197,7 @@ public class WebUIServer extends HttpServlet {
         if (names.length > 0) {
             print.println("<ol style='margin-left: 2em;'>");
             for (String s : names) {
-                print.println("<li>" + s + "</li>");
+                print.println("<li style='background-color: yellow;'>" + s + "</li>");
             }
             print.println("</ol>");
         } else {
@@ -208,6 +208,8 @@ public class WebUIServer extends HttpServlet {
     protected void doGet(HttpServletRequest request,
                          HttpServletResponse response) throws ServletException,
                                                               IOException {
+        System.out.println("# Doing GET");
+        
         response.setContentType("text/html");
         PrintWriter print = response.getWriter();
         print.println(pageHead);
@@ -217,6 +219,21 @@ public class WebUIServer extends HttpServlet {
         print.println(pageServiceStats);
         printServices(print);
         print.println(pageFooter);
+        
+        try {
+            if ( request.getRequestURI() != null ) {
+                System.out.println("# M=" + request.getRequestURI());
+                System.out.println("# M=" + request.getServletPath());
+                System.out.println("# M=" + request.getPathInfo());
+                System.out.println("# M=" + request.getQueryString());
+            } else {
+                System.out.println("# No message");
+            }
+        } catch ( Exception e ) {
+            System.out.println("! Got an exception.");
+            e.printStackTrace();
+            System.out.println("! " + e.getMessage());
+        }
     }
 }
 
