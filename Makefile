@@ -18,6 +18,7 @@ build : $(foreach d,$(SUBDIRS),build-$(d))
 PREFIX=equinox
 
 install :
+	rm -Rf ${PREFIX}/configuration/org.eclipse.osgi
 	T="" ; \
 	for i in $(SUBDIRS) ; do \
 		for j in $$i/*/target/*.jar ; do \
