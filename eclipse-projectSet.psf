@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<psf version="2.0">
+<provider id="org.tigris.subversion.subclipse.core.svnnature">
+<project reference="0.9.3,https://svn.sqo-oss.eu/devel/trunk/alitheia/logger,logger"/>
+<project reference="0.9.3,https://svn.sqo-oss.eu/devel/trunk/alitheia/messaging,messaging"/>
+<project reference="0.9.3,https://svn.sqo-oss.eu/devel/trunk/alitheia/updater,updater"/>
+<project reference="0.9.3,https://svn.sqo-oss.eu/devel/trunk/alitheia/webui,webui"/>
+</provider>
+</psf>
