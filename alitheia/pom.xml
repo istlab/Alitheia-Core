@@ -183,7 +183,7 @@
         <type>mail</type>
         <configuration>
           <!-- Replace with the mailing list dedicated to the CIS results -->
-          <address>continuum@undefined.dmst.aueb.gr</address>
+          <address>continuum@sqo-oss.eu</address>
         </configuration>
       </notifier>
     </notifiers>
