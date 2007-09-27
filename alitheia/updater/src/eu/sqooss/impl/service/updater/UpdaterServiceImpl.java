@@ -47,26 +47,34 @@ import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
 
 import eu.sqooss.services.updater.UpdaterService;
-
+import eu.sqooss.service.logging.Logger;
 
 public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
 
-    private ServiceReference serviceref = null;    
-    private HttpService httpservice = null;    
+    private ServiceReference serviceRef = null;    
+    private HttpService httpService = null;    
+    private Logger logService = null;
     
     public UpdaterServiceImpl(BundleContext bc) throws ServletException, NamespaceException {
         
-        serviceref = bc.getServiceReference("org.osgi.service.http.HttpService");
-        if (serviceref != null) {
-            httpservice = (HttpService) bc.getService(serviceref);
-            httpservice.registerServlet("/updater", (Servlet) this, new Hashtable(), null);
+        logService = (Logger) bc.getServiceReference("eu.sqooss.service.logging.Logger");
+        
+        if (logService != null) {
+            logService.setConfigurationProperty("file.name", "update-service.log");
+            logService.setConfigurationProperty("message.format", "text/plain");
+        }
+        System.out.println("Got logging!");
+        serviceRef = bc.getServiceReference("org.osgi.service.http.HttpService");
+        if (serviceRef != null) {
+            httpService = (HttpService) bc.getService(serviceRef);
+            httpService.registerServlet("/updater", (Servlet) this, new Hashtable(), null);
         } else {
-            System.out.println("! Could not load the HTTP service.");
+            logService.severe("Could not load the HTTP service."); 
         }
     }
     
     public void update(String path) {
-        System.out.println(path);
+        logService.info("Request to update path:" + path);
     }
     
     public void doGet(HttpServletRequest request, HttpServletResponse response) 
@@ -74,8 +82,10 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
         String s = request.getParameter("path");
         if ( s != null )
             update(s);
-        else
-            response.getWriter().write("<html><head><title>Error</title></head><body><h1>Error</h1></body>");
+        else {
+            response.setContentType("text/html");
+            response.getWriter().write("<html><head><title>Error</title></head><body><h1>Error</h1></body></html>");
+        }
     }
 
 }
