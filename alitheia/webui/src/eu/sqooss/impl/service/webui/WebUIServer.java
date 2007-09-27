@@ -38,12 +38,18 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
+import eu.sqooss.impl.service.logging.LogManagerConstants;
+import eu.sqooss.service.logging.LogManager;
+import eu.sqooss.service.logging.Logger;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 
 // Java Extensions
 import javax.servlet.ServletException;
-import javax.servlet.http.*;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServlet;
 
 public class WebUIServer extends HttpServlet {
     public static final String pageHead = "<html><head><title>SQO-OSS Web UI</title></head><body style='padding: 1ex 1em;'>";
@@ -54,8 +60,30 @@ public class WebUIServer extends HttpServlet {
 
     private BundleContext bundlecontext = null;
 
+    private LogManager logService = null;
+    private Logger logger = null;
+
     public WebUIServer(BundleContext bc) { 
+        ServiceReference serviceRef = null;
         bundlecontext = bc;
+        
+        serviceRef = bc.getServiceReference("eu.sqooss.service.logging.LogManager");
+        logService = (LogManager) bc.getService(serviceRef);
+        
+        if (logService != null) {
+            logger = logService.createLogger(
+                    LogManagerConstants.NAME_ROOT_LOGGER
+                  + LogManagerConstants.NAME_DELIMITER
+                  + LogManagerConstants.SIBLING_WEBUI);
+         
+            if (logger != null) {
+                logger.setConfigurationProperty("file.name","webui-service");
+                logger.setConfigurationProperty("message.format", "text/plain");
+                System.out.println("Got logging!");
+            }
+        } else {
+            System.out.println("Got neither a service nor a logger");
+        }
     }
 
     /**
@@ -124,7 +152,7 @@ public class WebUIServer extends HttpServlet {
 
                 return names;
             } catch (org.osgi.framework.InvalidSyntaxException e) {
-                System.out.println("! Invalid request syntax");
+                logger.severe("Invalid request syntax");
                 return null;
             }
         } else {
