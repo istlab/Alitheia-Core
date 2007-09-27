@@ -122,6 +122,9 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
+        <configuration>
+          <encoding>UTF-8</encoding>
+        </configuration>
       </plugin>
       <!-- Plugin for checking the coding style of the project's sources   -->
       <plugin>
