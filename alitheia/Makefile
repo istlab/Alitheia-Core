@@ -3,7 +3,8 @@ all : build
 BUNDLES=logger \
 	messaging \
 	updater \
-	webui
+	webui \
+	scheduler
 
 define subdir_template
 $(1)-$(2) :

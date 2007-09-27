@@ -203,6 +203,7 @@
     <module>logger</module>
     <module>webui</module>
     <module>updater</module>
+    <module>scheduler</module>
   </modules>
 
   <!-- =======[ List of developers working on this project        ]======= -->
