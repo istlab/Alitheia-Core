@@ -34,6 +34,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package eu.sqooss.impl.service.webui;
 
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
@@ -54,31 +55,69 @@ public class WebUIServer extends HttpServlet {
     private BundleContext bundlecontext = null;
 
     public WebUIServer(BundleContext bc) { 
-        System.out.println("# WebUIServer ok.");
         bundlecontext = bc;
     }
 
+    /**
+    * Concatenate the strings in @p names, placing @p sep
+    * between each (except at the end) and return the resulting
+    * string.
+    *
+    * @see QStringList::join
+    */
+    public String join(String[] names, String sep) {
+        int i = 0;
+        int l = names.length;
+
+        if (l<1) {
+            return "";
+        }
+
+        StringBuilder b = new StringBuilder( l * sep.length() + l + 1 );;
+        for ( i=0; i<l; i++ ) {
+            b.append(names[i]);
+            if ( i < (l-1) ) {
+                b.append(sep);
+            }
+        }
+        return b.toString();
+    }
+    
+    /**
+    * Given a bitfield value @p value, and an array that names
+    * each bit position, return a comma-separated string that
+    * names each bit position that is set in @p value.
+    */
+    public String bitfieldToString(String[] statenames, int value) {
+        StringBuilder b = new StringBuilder();
+        for ( int statebit = 0; statebit < statenames.length; statebit++ ) {
+            int statebitvalue = 1 << statebit ;
+            if ( (value & statebitvalue) != 0 ) {
+                b.append(statenames[statebit]);
+                value -= statebitvalue;
+                if ( value != 0 ) {
+                    b.append(", ");
+                }
+            }
+        }
+        return b.toString();
+    }
+
     protected String[] getServiceNames() {
-        System.out.println("# getServiceNames");
         if ( bundlecontext != null ) {
-            System.out.println("# Have a bundle context to work with.");
             try {
                 ServiceReference servicerefs[] = bundlecontext.getServiceReferences(
                     null,null);
-                System.out.println("# Got " + servicerefs.length + " services.");
 
                 String names[] = new String[servicerefs.length];
                 int i = 0;
                 for (ServiceReference r : servicerefs) {
                     String s;
-                    Object clazz = r.getProperty("objectClass");
+                    Object clazz = r.getProperty( org.osgi.framework.Constants.OBJECTCLASS );
                     if (clazz != null) {
-                        s = "" + i + "=";
-                        for (String c : (String[]) clazz) {
-                            s = s + c + ", ";
-                        }
+                        s = join( (String[])clazz, ", ");
                     } else {
-                        s = "" + i + "->none";
+                        s = "No class defined";
                     }
                     names[i++]=s;
                 }
@@ -93,18 +132,46 @@ public class WebUIServer extends HttpServlet {
         }
     }
 
+    protected String[] getBundleNames() {
+        if ( bundlecontext != null ) {
+            Bundle[] bundles = bundlecontext.getBundles();
+            String names[] = new String[bundles.length];
+            int i = 0;
+            String[] statenames = { "uninstalled",
+                "installed",
+                "resolved",
+                "starting",
+                "stopping",
+                "active" } ;
+            String s;
+            for (Bundle b : bundles) {
+                int state = b.getState();
+                s = b.getSymbolicName() + " = " + state + " (" + bitfieldToString(statenames,state) + ")";;
+                names[i++] = s;
+            }
+            return names;
+        } else {
+            return null;
+        }
+    }
+
     protected void printServices(PrintWriter print) {
         String[] names = getServiceNames();
         printList(print,names);
     }
 
+    protected void printBundles(PrintWriter print) {
+        String[] names = getBundleNames();
+        printList(print, names);
+    }
+
     public void printList(PrintWriter print, String[] names) {
         if (names.length > 0) {
-            print.println("<ul>");
+            print.println("<ol style='margin-left: 2em;'>");
             for (String s : names) {
                 print.println("<li>" + s + "</li>");
             }
-            print.println("</ul>");
+            print.println("</ol>");
         } else {
             print.println("<p>&lt;none&gt;</p>");
         }
@@ -117,6 +184,8 @@ public class WebUIServer extends HttpServlet {
         PrintWriter print = response.getWriter();
         print.println(pageHead);
         print.println(pageIntro);
+        print.println(pageBundleStats);
+        printBundles(print);
         print.println(pageServiceStats);
         printServices(print);
         print.println(pageFooter);

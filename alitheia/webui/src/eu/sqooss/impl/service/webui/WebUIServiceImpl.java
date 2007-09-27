@@ -53,10 +53,8 @@ public class WebUIServiceImpl implements WebUIService {
     WebUIServer httpui = null;
 
     public WebUIServiceImpl(BundleContext bc) throws Exception { 
-        System.out.println("# WebUIServiceImpl()");
         serviceref = bc.getServiceReference("org.osgi.service.http.HttpService");
         if (serviceref != null) {
-            System.out.println("#   Got service reference.");
             httpservice = (HttpService) bc.getService(serviceref);
             httpui = new WebUIServer(bc);
             httpservice.registerServlet("/", (Servlet) httpui,
