@@ -59,20 +59,30 @@ public class WebUIServer extends HttpServlet {
     }
 
     protected String[] getServiceNames() {
+        System.out.println("# getServiceNames");
         if ( bundlecontext != null ) {
+            System.out.println("# Have a bundle context to work with.");
             try {
                 ServiceReference servicerefs[] = bundlecontext.getServiceReferences(
-                    "ServiceObject","");
-                String[] names = servicerefs[0].getPropertyKeys();
+                    null,null);
+                System.out.println("# Got " + servicerefs.length + " services.");
 
-/*
-int i = 0;
-for (ServiceReference r : servicerefs) {
-Service service = (Service) bundlecontext.getService(r);
-String s = service.getName();
-names[i++]=s;
-}
-*/
+                String names[] = new String[servicerefs.length];
+                int i = 0;
+                for (ServiceReference r : servicerefs) {
+                    String s;
+                    Object clazz = r.getProperty("objectClass");
+                    if (clazz != null) {
+                        s = "" + i + "=";
+                        for (String c : (String[]) clazz) {
+                            s = s + c + ", ";
+                        }
+                    } else {
+                        s = "" + i + "->none";
+                    }
+                    names[i++]=s;
+                }
+
                 return names;
             } catch (org.osgi.framework.InvalidSyntaxException e) {
                 System.out.println("! Invalid request syntax");
