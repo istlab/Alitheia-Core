@@ -44,9 +44,12 @@ import eu.sqooss.service.logging.Logger;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.File;
+import java.io.FileInputStream;
 
 // Java Extensions
 import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServlet;
@@ -205,11 +208,8 @@ public class WebUIServer extends HttpServlet {
         }
     }
 
-    protected void doGet(HttpServletRequest request,
-                         HttpServletResponse response) throws ServletException,
-                                                              IOException {
-        System.out.println("# Doing GET");
-        
+    protected void standardResponse(HttpServletResponse response)
+        throws ServletException, IOException {
         response.setContentType("text/html");
         PrintWriter print = response.getWriter();
         print.println(pageHead);
@@ -219,6 +219,31 @@ public class WebUIServer extends HttpServlet {
         print.println(pageServiceStats);
         printServices(print);
         print.println(pageFooter);
+    }
+    
+    protected void doGet(HttpServletRequest request,
+                         HttpServletResponse response) throws ServletException,
+                                                              IOException {
+        System.out.println("# Doing GET [" + request.getQueryString() + "]");
+        
+        if ( !request.getQueryString().endsWith("flossie") ) {
+            standardResponse(response);
+        } else {
+            System.out.println("# Try flossie!");
+            File f = new File("/tmp/flossie.png");
+            if ( f.exists() ) {
+                FileInputStream istream = new FileInputStream(f);
+                byte[] buffer = new byte[1972];
+                istream.read(buffer);
+                
+                response.setContentType("image/x-png");
+                ServletOutputStream ostream = response.getOutputStream();
+                ostream.write(buffer);
+            } else {
+                System.out.println("# Flossie does not exist.");
+                standardResponse(response);
+            }
+        }
         
         try {
             if ( request.getRequestURI() != null ) {

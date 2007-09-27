@@ -17,6 +17,8 @@ $(foreach d,$(BUNDLES),$(eval $(call subdir_template,install,$(d),cp target/*.ja
 build :
 	mvn package
 
+build-parts : $(foreach d,$(BUNDLES),build-$(d))
+
 install :
 	for i in $(BUNDLES) ; do \
 		cp $$i/target/*.jar ../equinox/ ; \
