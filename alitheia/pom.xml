@@ -183,7 +183,7 @@
         <type>mail</type>
         <configuration>
           <!-- Replace with the mailing list dedicated to the CIS results -->
-          <address>b.yotov@prosyst.com</address>
+          <address>continuum@undefined.dmst.aueb.gr</address>
         </configuration>
       </notifier>
     </notifiers>
