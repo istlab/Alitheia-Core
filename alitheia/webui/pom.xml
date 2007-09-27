@@ -79,6 +79,13 @@
       <type>jar</type>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>eu.sqooss</groupId>
+      <artifactId>logger</artifactId>
+      <version>1.0.0</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
 
   <!-- Developers working on this module -->
