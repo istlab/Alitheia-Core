@@ -8,7 +8,7 @@ $(1)-$(2) :
 endef
 
 $(foreach d,$(BUNDLES),$(eval $(call subdir_template,build,$(d),mvn package)))
-$(foreach d,$(BUNDLES),$(eval $(call subdir_template,install,$(d),cp target/*.jar ../equinox/)))
+$(foreach d,$(BUNDLES),$(eval $(call subdir_template,install,$(d),cp target/*.jar ../../equinox/)))
 
 build :
 	mvn package

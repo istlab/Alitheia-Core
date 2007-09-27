@@ -35,7 +35,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package eu.sqooss.impl.service.webui;
 
 import java.util.Hashtable;
-import javax.servlet.*;
+import javax.servlet.Servlet;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -58,7 +58,7 @@ public class WebUIServiceImpl implements WebUIService {
         if (serviceref != null) {
             System.out.println("#   Got service reference.");
             httpservice = (HttpService) bc.getService(serviceref);
-            httpui = new WebUIServer();
+            httpui = new WebUIServer(bc);
             httpservice.registerServlet("/", (Servlet) httpui,
                                         new Hashtable(), null);
         } else {

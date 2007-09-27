@@ -34,7 +34,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package eu.sqooss.impl.service.webui;
 
-import java.io.*;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
+
+import java.io.IOException;
+import java.io.PrintWriter;
 
 // Java Extensions
 import javax.servlet.ServletException;
@@ -47,17 +51,44 @@ public class WebUIServer extends HttpServlet {
     public static final String pageServiceStats = "<h1 style='margin-left: 1em; padding-left: 3px; color: green;'>Available Services</h1>";
     public static final String pageFooter = "</body></html>";
 
-    public WebUIServer() { 
+    private BundleContext bundlecontext = null;
+
+    public WebUIServer(BundleContext bc) { 
         System.out.println("# WebUIServer ok.");
+        bundlecontext = bc;
     }
 
     protected String[] getServiceNames() {
-        String[] names = new String[0];
-        return names;
+        if ( bundlecontext != null ) {
+            try {
+                ServiceReference servicerefs[] = bundlecontext.getServiceReferences(
+                    "ServiceObject","");
+                String[] names = servicerefs[0].getPropertyKeys();
+
+/*
+int i = 0;
+for (ServiceReference r : servicerefs) {
+Service service = (Service) bundlecontext.getService(r);
+String s = service.getName();
+names[i++]=s;
+}
+*/
+                return names;
+            } catch (org.osgi.framework.InvalidSyntaxException e) {
+                System.out.println("! Invalid request syntax");
+                return null;
+            }
+        } else {
+            return null;
+        }
     }
 
     protected void printServices(PrintWriter print) {
         String[] names = getServiceNames();
+        printList(print,names);
+    }
+
+    public void printList(PrintWriter print, String[] names) {
         if (names.length > 0) {
             print.println("<ul>");
             for (String s : names) {
