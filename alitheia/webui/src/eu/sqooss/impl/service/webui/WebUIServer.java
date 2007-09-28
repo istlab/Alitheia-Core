@@ -41,6 +41,9 @@ import org.osgi.framework.ServiceReference;
 import eu.sqooss.impl.service.logging.LogManagerConstants;
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
+import eu.sqooss.util.SQOUtils;
+
+import java.util.Hashtable;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -65,6 +68,7 @@ public class WebUIServer extends HttpServlet {
 
     private LogManager logService = null;
     private Logger logger = null;
+    private Hashtable staticContentMap;
 
     public WebUIServer(BundleContext bc) {
         ServiceReference serviceRef = null;
@@ -87,69 +91,12 @@ public class WebUIServer extends HttpServlet {
         } else {
             System.out.println("! Got neither a service nor a logger");
         }
-    }
 
-    /**
-    * Concatenate the strings in @p names, placing @p sep
-    * between each (except at the end) and return the resulting
-    * string.
-    *
-    * @see QStringList::join
-    *
-    * Test cases:
-    *   - null separator, empty separator, one-character and longer string separator
-    *   - null names, 0-length names, 1 name, n names
-    */
-    public String join(String[] names, String sep) {
-        if ( names == null ) {
-            return null;
-        }
-        int l = names.length;
-
-        if (l<1) {
-            return "";
-        }
-
-        StringBuilder b = new StringBuilder( l * sep.length() + l + 1 );;
-        for ( int i=0; i<l; i++ ) {
-            b.append(names[i]);
-            if ( (i < (l-1)) && (sep != null) ) {
-                b.append(sep);
-            }
-        }
-        return b.toString();
-    }
-
-    /**
-    * Given a bitfield value @p value, and an array that names
-    * each bit position, return a comma-separated string that
-    * names each bit position that is set in @p value.
-    *
-    * Test cases:
-    *   - value 0, a few random ones, -1 (0xffffffffffffffff), MAXINT.
-    *   - null names, 0-length names, names contains nulls,
-    *   - names contains empty strings, names too short for value,
-    *   - names too long.
-    */
-    public String bitfieldToString(String[] statenames, int value) {
-        if ( (value == 0) || (statenames == null) || (statenames.length == 0) ) {
-            return "";
-        }
-        StringBuilder b = new StringBuilder();
-        for ( int statebit = 0; statebit < statenames.length; statebit++ ) {
-            int statebitvalue = 1 << statebit ;
-            if ( (value & statebitvalue) != 0 ) {
-                // ASSERT: statebit < statenames.length
-                // TODO: handle null strings
-                b.append(statenames[statebit]);
-                // TODO: make this bit-twiddling, may fail with negative value
-                value -= statebitvalue;
-                if ( value != 0 ) {
-                    b.append(", ");
-                }
-            }
-        }
-        return b.toString();
+        staticContentMap = new Hashtable();
+        String[] flossie = { "image/x-png", "/flossie.png" } ;
+        String[] css = { "text/css", "/alitheia.css" } ;
+        staticContentMap.put("logo", flossie);
+        staticContentMap.put("css",css);
     }
 
     protected String[] getServiceNames() {
@@ -164,7 +111,7 @@ public class WebUIServer extends HttpServlet {
                     String s;
                     Object clazz = r.getProperty( org.osgi.framework.Constants.OBJECTCLASS );
                     if (clazz != null) {
-                        s = join( (String[])clazz, ", ");
+                        s = SQOUtils.join( (String[])clazz, ", ");
                     } else {
                         s = "No class defined";
                     }
@@ -195,7 +142,7 @@ public class WebUIServer extends HttpServlet {
             String s;
             for (Bundle b : bundles) {
                 int state = b.getState();
-                s = b.getSymbolicName() + " = " + state + " (" + bitfieldToString(statenames,state) + ")";;
+                s = b.getSymbolicName() + " = " + state + " (" + SQOUtils.bitfieldToString(statenames,state) + ")";;
                 names[i++] = s;
             }
             return names;
