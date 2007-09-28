@@ -1,23 +1,23 @@
 /*
 * This file is part of the Alitheia system, developed by the SQO-OSS
 * consortium as part of the IST FP6 SQO-OSS project, number 033331.
-* 
+*
 * Copyright 2007 by the SQO-OSS consortium members <info@sqo-oss.eu>
 * Copyright 2007 by Adriaan de Groot <groot@kde.org>
-* 
-* 
+*
+*
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are
 * met:
-* 
+*
 *     * Redistributions of source code must retain the above copyright
 *       notice, this list of conditions and the following disclaimer.
-* 
+*
 *     * Redistributions in binary form must reproduce the above
 *       copyright notice, this list of conditions and the following
 *       disclaimer in the documentation and/or other materials provided
 *       with the distribution.
-* 
+*
 * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -29,7 +29,7 @@
 * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-* 
+*
 */
 
 package eu.sqooss.impl.service.webui;
@@ -66,19 +66,19 @@ public class WebUIServer extends HttpServlet {
     private LogManager logService = null;
     private Logger logger = null;
 
-    public WebUIServer(BundleContext bc) { 
+    public WebUIServer(BundleContext bc) {
         ServiceReference serviceRef = null;
         bundlecontext = bc;
-        
+
         serviceRef = bc.getServiceReference("eu.sqooss.service.logging.LogManager");
         logService = (LogManager) bc.getService(serviceRef);
-        
+
         if (logService != null) {
             logger = logService.createLogger(
                     LogManagerConstants.NAME_ROOT_LOGGER
                   + LogManagerConstants.NAME_DELIMITER
                   + LogManagerConstants.SIBLING_WEBUI);
-         
+
             if (logger != null) {
                 logger.setConfigurationProperty("file.name","webui-service");
                 logger.setConfigurationProperty("message.format", "text/plain");
@@ -95,9 +95,15 @@ public class WebUIServer extends HttpServlet {
     * string.
     *
     * @see QStringList::join
+    *
+    * Test cases:
+    *   - null separator, empty separator, one-character and longer string separator
+    *   - null names, 0-length names, 1 name, n names
     */
     public String join(String[] names, String sep) {
-        int i = 0;
+        if ( names == null ) {
+            return null;
+        }
         int l = names.length;
 
         if (l<1) {
@@ -105,21 +111,30 @@ public class WebUIServer extends HttpServlet {
         }
 
         StringBuilder b = new StringBuilder( l * sep.length() + l + 1 );;
-        for ( i=0; i<l; i++ ) {
+        for ( int i=0; i<l; i++ ) {
             b.append(names[i]);
-            if ( i < (l-1) ) {
+            if ( (i < (l-1)) && (sep != null) ) {
                 b.append(sep);
             }
         }
         return b.toString();
     }
-    
+
     /**
     * Given a bitfield value @p value, and an array that names
     * each bit position, return a comma-separated string that
     * names each bit position that is set in @p value.
+    *
+    * Test cases:
+    *   - value 0, a few random ones, -1 (0xffffffffffffffff), MAXINT.
+    *   - null names, 0-length names, names contains nulls,
+    *   - names contains empty strings, names too short for value,
+    *   - names too long.
     */
     public String bitfieldToString(String[] statenames, int value) {
+        if ( (value == 0) || (statenames == null) || (statenames.length == 0) ) {
+            return "";
+        }
         StringBuilder b = new StringBuilder();
         for ( int statebit = 0; statebit < statenames.length; statebit++ ) {
             int statebitvalue = 1 << statebit ;
@@ -220,41 +235,40 @@ public class WebUIServer extends HttpServlet {
         printServices(print);
         print.println(pageFooter);
     }
-    
+
     protected void sendResource(HttpServletResponse response, String mimeType, String path)
         throws ServletException, IOException {
         InputStream istream = getClass().getResourceAsStream(path);
         if ( istream == null ) {
             throw new IOException( "Path not found: " + path );
         }
-        
+
         byte[] buffer = new byte[1024];
         int bytesRead = 0;
         int totalBytes = 0;
         System.out.println( "# Opened " + path );
-        
+
         response.setContentType(mimeType);
         ServletOutputStream ostream = response.getOutputStream();
         while ( (bytesRead = istream.read(buffer)) > 0 ) {
-            System.out.println("# Read " + bytesRead + " from flossie.");
             ostream.write(buffer,0,bytesRead);
             totalBytes += bytesRead;
         }
-        
+
         System.out.println("# Wrote " + totalBytes);
     }
-    
+
     protected void flossieResponse(HttpServletResponse response)
         throws ServletException, IOException {
         System.out.println("# Try flossie!");
         sendResource(response, "image/x-png", "/flossie.png");
     }
-    
+
     protected void doGet(HttpServletRequest request,
                          HttpServletResponse response) throws ServletException,
                                                               IOException {
         System.out.println("# Doing GET [" + request.getQueryString() + "]");
-        
+
         String query = request.getQueryString();
         if ( (query != null) && (query.endsWith("flossie")) ) {
             flossieResponse(response);
