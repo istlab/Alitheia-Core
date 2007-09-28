@@ -139,7 +139,10 @@ public class WebUIServer extends HttpServlet {
         for ( int statebit = 0; statebit < statenames.length; statebit++ ) {
             int statebitvalue = 1 << statebit ;
             if ( (value & statebitvalue) != 0 ) {
+                // ASSERT: statebit < statenames.length
+                // TODO: handle null strings
                 b.append(statenames[statebit]);
+                // TODO: make this bit-twiddling, may fail with negative value
                 value -= statebitvalue;
                 if ( value != 0 ) {
                     b.append(", ");
@@ -236,10 +239,22 @@ public class WebUIServer extends HttpServlet {
         print.println(pageFooter);
     }
 
+    /**
+    * Sends a resource (stored in the jar file) as a response. The mime-type
+    * is set to @p mimeType . The @p path to the resource should start
+    * with a / .
+    *
+    * Test cases:
+    *   - null mimetype, null path, bad path, relative path, path not found,
+    *   - null response
+    *
+    * TODO: How to simulate conditions that will cause IOException
+    */
     protected void sendResource(HttpServletResponse response, String mimeType, String path)
         throws ServletException, IOException {
         InputStream istream = getClass().getResourceAsStream(path);
         if ( istream == null ) {
+            // TODO: Is there a more specific exception?
             throw new IOException( "Path not found: " + path );
         }
 
@@ -255,6 +270,8 @@ public class WebUIServer extends HttpServlet {
             totalBytes += bytesRead;
         }
 
+        // TODO: Check that the bytes written were as many as the
+        //  file size in the JAR (how? it's an InputStream).
         System.out.println("# Wrote " + totalBytes);
     }
 
