@@ -11,7 +11,7 @@ import eu.sqooss.service.logging.Logger;
 public class LoggerImpl implements Logger {
 
   private Object lockObject = new Object();
-  
+
   private LogConfiguration logConfig;
   private LogWritersManager logWritersManager;
   private LogWriter logWriter;
@@ -19,9 +19,9 @@ public class LoggerImpl implements Logger {
   private String fileName;
   private String messageFormat;
   private LogWritersManager logStorage;
-  
+
   private int takingsNumber; //used from LogManager
-  
+
   public LoggerImpl(String name, LogWritersManager logStorage, LogConfiguration logConfig) {
     this.name = name;
     this.logWritersManager = logStorage;
@@ -36,11 +36,11 @@ public class LoggerImpl implements Logger {
   public String getName() {
     return name;
   }
-  
+
   public String getConfigurationProperty(String key) {
     return logConfig.getConfigurationProperty(name, key);
   }
-  
+
   public void setConfigurationProperty(String key, String value) {
     setConfigurationProperty(key, value, false);
   }
@@ -57,7 +57,7 @@ public class LoggerImpl implements Logger {
         }
       } else if (LogConfigurationConstants.KEY_ROTATION_FILE_NUMBER.equals(key)) {
         try {
-          int maxLogFileNumber = Integer.parseInt(value); 
+          int maxLogFileNumber = Integer.parseInt(value);
           logWriter.setMaxLogFilesNumber(maxLogFileNumber);
         } catch (NumberFormatException nfe) {
           throw new RuntimeException(nfe);
@@ -74,13 +74,13 @@ public class LoggerImpl implements Logger {
       }
     }
   }
-  
+
   public void config(String message) {
     synchronized (lockObject) {
       logWriter.write(getMessage(message, LoggerConstants.LOGGING_LEVEL_CONFIG));
     }
   }
-  
+
   public void info(String message) {
     synchronized (lockObject) {
       logWriter.write(getMessage(message, LoggerConstants.LOGGING_LEVEL_INFO));
@@ -102,19 +102,19 @@ public class LoggerImpl implements Logger {
   public String[] getConfigurationKeys() {
     return LogConfigurationConstants.KEYS;
   }
-  
+
   protected void get() {
     takingsNumber++;
   }
-  
+
   protected int unget() {
     return --takingsNumber;
   }
-  
+
   protected void close() {
     logWritersManager.releaseLogWriter(fileName);
   }
-  
+
   private String getFileExtension(String messageFormat) {
     if (messageFormat.equals(LogConfigurationConstants.MESSAGE_FORMAT_TEXT_PLAIN)) {
       return LogConfigurationConstants.FILE_EXTENSION_TEXT_PLAIN + LogConfigurationConstants.FILE_EXTENSION;
@@ -122,12 +122,12 @@ public class LoggerImpl implements Logger {
       return LogConfigurationConstants.FILE_EXTENSION_TEXT_XML + LogConfigurationConstants.FILE_EXTENSION;
     }
   }
-  
+
   private String getMessage(String messageBody, String loggingLevel) {
     String text ;
     Date timestamp = new Date();
     if (LogConfigurationConstants.MESSAGE_FORMAT_TEXT_PLAIN.equals(messageFormat)) {
-      text = loggingLevel + ", " + messageBody + ", " + timestamp.toString() + ", " + this.name + "\n";
+      text = loggingLevel + ", " + timestamp.toString() + ", " + this.name + ", "  +messageBody + "\n";
     } else {
       text = "<log-message>\n" +
                 "\t<level>" + loggingLevel + "</level>\n" +
@@ -138,5 +138,5 @@ public class LoggerImpl implements Logger {
     }
     return text;
   }
-  
+
 }
