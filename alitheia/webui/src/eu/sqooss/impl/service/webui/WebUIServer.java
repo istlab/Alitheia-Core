@@ -45,10 +45,12 @@ import eu.sqooss.util.SQOUtils;
 
 import java.util.Hashtable;
 
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 // Java Extensions
 import javax.servlet.ServletException;
@@ -69,6 +71,8 @@ public class WebUIServer extends HttpServlet {
     private LogManager logService = null;
     private Logger logger = null;
     private Hashtable<Integer,String[]> staticContentMap;
+    private Hashtable<Integer,String> dynamicContentMap;
+    private Hashtable<Integer,String> dynamicSubstitutions;
 
     public WebUIServer(BundleContext bc) {
         ServiceReference serviceRef = null;
@@ -97,6 +101,13 @@ public class WebUIServer extends HttpServlet {
         String[] css = { "text/css", "/alitheia.css" } ;
         staticContentMap.put("logo".hashCode(), flossie);
         staticContentMap.put("css".hashCode(),css);
+
+        dynamicContentMap = new Hashtable<Integer,String>();
+        dynamicContentMap.put("about".hashCode(),"/about.html");
+        dynamicContentMap.put("status".hashCode(),"/index.html");
+        dynamicContentMap.put("index".hashCode(),"/index.html");
+
+        dynamicSubstitutions = new Hashtable<Integer,String>();
     }
 
     protected String[] getServiceNames() {
@@ -151,43 +162,16 @@ public class WebUIServer extends HttpServlet {
         }
     }
 
-    protected void printServices(PrintWriter print) {
-        String[] names = getServiceNames();
-        print.println("<div id='servicelist'>");
-        printList(print,names);
-        print.println("</div>");
-    }
-
-    protected void printBundles(PrintWriter print) {
-        String[] names = getBundleNames();
-        print.println("<div id='bundlelist'>");
-        printList(print, names);
-        print.println("</div>");
-    }
-
-    public void printList(PrintWriter print, String[] names) {
+    public String renderList(String[] names) {
         if (names.length > 0) {
-            print.println("<ol>");
+            StringBuilder b = new StringBuilder();
             for (String s : names) {
-                print.println("<li>" + s + "</li>");
+                b.append("<li>" + s + "</li>");
             }
-            print.println("</ol>");
+            return b.toString();
         } else {
-            print.println("<p>&lt;none&gt;</p>");
+            return "<li>&lt;none&gt;</li>";
         }
-    }
-
-    protected void standardResponse(HttpServletResponse response)
-        throws ServletException, IOException {
-        response.setContentType("text/html");
-        PrintWriter print = response.getWriter();
-        print.println(pageHead);
-        print.println(pageIntro);
-        print.println(pageBundleStats);
-        printBundles(print);
-        print.println(pageServiceStats);
-        printServices(print);
-        print.println(pageFooter);
     }
 
     /**
@@ -231,6 +215,32 @@ public class WebUIServer extends HttpServlet {
         }
     }
 
+    protected void sendTemplate(HttpServletResponse response, String path, Hashtable<Integer,String> subs)
+        throws ServletException, IOException {
+        BufferedReader istream = new BufferedReader(
+            new InputStreamReader(getClass().getResourceAsStream(path)));
+        if ( istream == null ) {
+            // TODO: Is there a more specific exception?
+            throw new IOException( "Path not found: " + path );
+        }
+
+        if ( logger != null ) {
+            logger.info("Serving template " + path);
+        }
+
+        response.setContentType("text/html");
+        PrintWriter print = response.getWriter();
+        while ( istream.ready() ) {
+            String line = istream.readLine();
+            if ( line.startsWith("@@") && subs.containsKey(line.hashCode()) ) {
+                print.println(subs.get(line.hashCode()));
+            } else {
+                print.println(line);
+            }
+        }
+    }
+
+
     protected void doGet(HttpServletRequest request,
                          HttpServletResponse response) throws ServletException,
                                                               IOException {
@@ -243,7 +253,17 @@ public class WebUIServer extends HttpServlet {
             String[] mapvalues = staticContentMap.get(query.hashCode());
             sendResource(response, mapvalues[0], mapvalues[1]);
         } else {
-            standardResponse(response);
+            dynamicSubstitutions.clear();
+            dynamicSubstitutions.put("@@LOGO".hashCode(),"<img src='/logo' id='logo' alt='Logo' />");
+            dynamicSubstitutions.put("@@COPYRIGHT".hashCode(),"Copyright 2007 SQO-OSS Consortium members");
+            dynamicSubstitutions.put("@@ABOUT".hashCode(),"<p class='box'>This is the administrative interface.</p>");
+            dynamicSubstitutions.put("@@BUNDLE".hashCode(),renderList(getBundleNames()));
+            dynamicSubstitutions.put("@@SERVICE".hashCode(),renderList(getServiceNames()));
+            if ( (query != null) && dynamicContentMap.containsKey(query.hashCode()) ) {
+                sendTemplate(response,dynamicContentMap.get(query.hashCode()),dynamicSubstitutions);
+            } else {
+                sendTemplate(response,"/index.html",dynamicSubstitutions);
+            }
         }
     }
 }

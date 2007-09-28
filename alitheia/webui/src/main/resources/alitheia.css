@@ -17,3 +17,22 @@ border: 3px solid white;
 background: yellow;
 }
 
+#footer {
+border-top: 1px solid white;
+padding: 1ex 2em;
+}
+
+#footer .copyright {
+display: block;
+float: right;
+font-size: small;
+font-style: italic;
+color: grey;
+}
+
+#id {
+display: block;
+float: right;
+margin: 1ex 1ex;
+}
+
