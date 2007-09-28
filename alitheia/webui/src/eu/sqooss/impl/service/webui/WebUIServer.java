@@ -45,7 +45,7 @@ import eu.sqooss.service.logging.Logger;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.File;
-import java.io.FileInputStream;
+import java.io.InputStream;
 
 // Java Extensions
 import javax.servlet.ServletException;
@@ -221,43 +221,45 @@ public class WebUIServer extends HttpServlet {
         print.println(pageFooter);
     }
     
+    protected void sendResource(HttpServletResponse response, String mimeType, String path)
+        throws ServletException, IOException {
+        InputStream istream = getClass().getResourceAsStream(path);
+        if ( istream == null ) {
+            throw new IOException( "Path not found: " + path );
+        }
+        
+        byte[] buffer = new byte[1024];
+        int bytesRead = 0;
+        int totalBytes = 0;
+        System.out.println( "# Opened " + path );
+        
+        response.setContentType(mimeType);
+        ServletOutputStream ostream = response.getOutputStream();
+        while ( (bytesRead = istream.read(buffer)) > 0 ) {
+            System.out.println("# Read " + bytesRead + " from flossie.");
+            ostream.write(buffer,0,bytesRead);
+            totalBytes += bytesRead;
+        }
+        
+        System.out.println("# Wrote " + totalBytes);
+    }
+    
+    protected void flossieResponse(HttpServletResponse response)
+        throws ServletException, IOException {
+        System.out.println("# Try flossie!");
+        sendResource(response, "image/x-png", "/flossie.png");
+    }
+    
     protected void doGet(HttpServletRequest request,
                          HttpServletResponse response) throws ServletException,
                                                               IOException {
         System.out.println("# Doing GET [" + request.getQueryString() + "]");
         
-        if ( !request.getQueryString().endsWith("flossie") ) {
-            standardResponse(response);
+        String query = request.getQueryString();
+        if ( (query != null) && (query.endsWith("flossie")) ) {
+            flossieResponse(response);
         } else {
-            System.out.println("# Try flossie!");
-            File f = new File("/tmp/flossie.png");
-            if ( f.exists() ) {
-                FileInputStream istream = new FileInputStream(f);
-                byte[] buffer = new byte[1972];
-                istream.read(buffer);
-                
-                response.setContentType("image/x-png");
-                ServletOutputStream ostream = response.getOutputStream();
-                ostream.write(buffer);
-            } else {
-                System.out.println("# Flossie does not exist.");
-                standardResponse(response);
-            }
-        }
-        
-        try {
-            if ( request.getRequestURI() != null ) {
-                System.out.println("# M=" + request.getRequestURI());
-                System.out.println("# M=" + request.getServletPath());
-                System.out.println("# M=" + request.getPathInfo());
-                System.out.println("# M=" + request.getQueryString());
-            } else {
-                System.out.println("# No message");
-            }
-        } catch ( Exception e ) {
-            System.out.println("! Got an exception.");
-            e.printStackTrace();
-            System.out.println("! " + e.getMessage());
+            standardResponse(response);
         }
     }
 }
