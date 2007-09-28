@@ -1,0 +1,19 @@
+body {
+background-color: pink;
+padding: 1ex 1em;
+}
+
+h1 {
+color: green;
+padding-left: 1em;
+margin-left: 1em;
+}
+
+.box {
+border: 3px solid white;
+}
+
+#bundlelist, #servicelist {
+background: yellow;
+}
+

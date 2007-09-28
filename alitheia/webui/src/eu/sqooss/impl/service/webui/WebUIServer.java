@@ -58,17 +58,17 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServlet;
 
 public class WebUIServer extends HttpServlet {
-    public static final String pageHead = "<html><head><title>SQO-OSS Web UI</title></head><body style='padding: 1ex 1em;'>";
-    public static final String pageIntro = "<p style='margin: 1ex 1em; padding: 1ex 1em; border: 3px solid pink;'>This is the administrative interface page for the Alitheia system. System stats are shown below.</p>";
-    public static final String pageBundleStats = "<h1 style='margin-left: 1em; padding-left: 3px; color: green;'>Available Bundles</h1>";
-    public static final String pageServiceStats = "<h1 style='margin-left: 1em; padding-left: 3px; color: green;'>Available Services</h1>";
+    public static final String pageHead = "<html><head><title>SQO-OSS Web UI</title><link rel='stylesheet' type='text/css' href='/css' /></head><body>";
+    public static final String pageIntro = "<p class='box'>This is the administrative interface page for the Alitheia system. System stats are shown below.</p>";
+    public static final String pageBundleStats = "<h1>Available Bundles</h1>";
+    public static final String pageServiceStats = "<h1>Services</h1>";
     public static final String pageFooter = "</body></html>";
 
     private BundleContext bundlecontext = null;
 
     private LogManager logService = null;
     private Logger logger = null;
-    private Hashtable staticContentMap;
+    private Hashtable<Integer,String[]> staticContentMap;
 
     public WebUIServer(BundleContext bc) {
         ServiceReference serviceRef = null;
@@ -92,11 +92,11 @@ public class WebUIServer extends HttpServlet {
             System.out.println("! Got neither a service nor a logger");
         }
 
-        staticContentMap = new Hashtable();
+        staticContentMap = new Hashtable<Integer,String[]>();
         String[] flossie = { "image/x-png", "/flossie.png" } ;
         String[] css = { "text/css", "/alitheia.css" } ;
-        staticContentMap.put("logo", flossie);
-        staticContentMap.put("css",css);
+        staticContentMap.put("logo".hashCode(), flossie);
+        staticContentMap.put("css".hashCode(),css);
     }
 
     protected String[] getServiceNames() {
@@ -153,19 +153,23 @@ public class WebUIServer extends HttpServlet {
 
     protected void printServices(PrintWriter print) {
         String[] names = getServiceNames();
+        print.println("<div id='servicelist'>");
         printList(print,names);
+        print.println("</div>");
     }
 
     protected void printBundles(PrintWriter print) {
         String[] names = getBundleNames();
+        print.println("<div id='bundlelist'>");
         printList(print, names);
+        print.println("</div>");
     }
 
     public void printList(PrintWriter print, String[] names) {
         if (names.length > 0) {
-            print.println("<ol style='margin-left: 2em;'>");
+            print.println("<ol>");
             for (String s : names) {
-                print.println("<li style='background-color: yellow;'>" + s + "</li>");
+                print.println("<li>" + s + "</li>");
             }
             print.println("</ol>");
         } else {
@@ -227,25 +231,17 @@ public class WebUIServer extends HttpServlet {
         }
     }
 
-    protected void flossieResponse(HttpServletResponse response)
-        throws ServletException, IOException {
-        if ( logger != null ) {
-            logger.info("Sending logo");
-        }
-        sendResource(response, "image/x-png", "/flossie.png");
-    }
-
     protected void doGet(HttpServletRequest request,
                          HttpServletResponse response) throws ServletException,
                                                               IOException {
         if ( logger != null ) {
             logger.info("GET path=" + request.getPathInfo());
-            logger.info("GET query=" + request.getQueryString());
         }
 
-        String query = request.getQueryString();
-        if ( (query != null) && (query.endsWith("flossie")) ) {
-            flossieResponse(response);
+        String query = request.getPathInfo();
+        if ( (query != null) && (staticContentMap.containsKey(query.hashCode())) ) {
+            String[] mapvalues = staticContentMap.get(query.hashCode());
+            sendResource(response, mapvalues[0], mapvalues[1]);
         } else {
             standardResponse(response);
         }
