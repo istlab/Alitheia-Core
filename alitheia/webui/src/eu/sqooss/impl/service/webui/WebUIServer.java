@@ -82,10 +82,10 @@ public class WebUIServer extends HttpServlet {
             if (logger != null) {
                 logger.setConfigurationProperty("file.name","webui-service");
                 logger.setConfigurationProperty("message.format", "text/plain");
-                System.out.println("# Got logging!");
+                logger.info("WebUIServer started");
             }
         } else {
-            System.out.println("# Got neither a service nor a logger");
+            System.out.println("! Got neither a service nor a logger");
         }
     }
 
@@ -261,7 +261,10 @@ public class WebUIServer extends HttpServlet {
         byte[] buffer = new byte[1024];
         int bytesRead = 0;
         int totalBytes = 0;
-        System.out.println( "# Opened " + path );
+
+        if ( logger != null ) {
+            logger.info("Serving " + path + " (" + mimeType + ")");
+        }
 
         response.setContentType(mimeType);
         ServletOutputStream ostream = response.getOutputStream();
@@ -272,19 +275,26 @@ public class WebUIServer extends HttpServlet {
 
         // TODO: Check that the bytes written were as many as the
         //  file size in the JAR (how? it's an InputStream).
-        System.out.println("# Wrote " + totalBytes);
+        if ( logger != null ) {
+            logger.info("Wrote " + totalBytes + " from " + path);
+        }
     }
 
     protected void flossieResponse(HttpServletResponse response)
         throws ServletException, IOException {
-        System.out.println("# Try flossie!");
+        if ( logger != null ) {
+            logger.info("Sending logo");
+        }
         sendResource(response, "image/x-png", "/flossie.png");
     }
 
     protected void doGet(HttpServletRequest request,
                          HttpServletResponse response) throws ServletException,
                                                               IOException {
-        System.out.println("# Doing GET [" + request.getQueryString() + "]");
+        if ( logger != null ) {
+            logger.info("GET path=" + request.getPathInfo());
+            logger.info("GET query=" + request.getQueryString());
+        }
 
         String query = request.getQueryString();
         if ( (query != null) && (query.endsWith("flossie")) ) {
