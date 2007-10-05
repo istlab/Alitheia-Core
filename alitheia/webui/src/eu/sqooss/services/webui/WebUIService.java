@@ -56,3 +56,6 @@ public interface WebUIService {
    */
   public String[] getConfigurationKeys();
 }
+
+// vi: ai nosi sw=4 ts=4 expandtab
+

@@ -88,6 +88,7 @@ public class WebUIServer extends HttpServlet {
                   + LogManagerConstants.SIBLING_WEBUI);
 
             if (logger != null) {
+                // How the heck are we supposed to guess these constants?
                 logger.setConfigurationProperty("file.name","webui-service");
                 logger.setConfigurationProperty("message.format", "text/plain");
                 logger.info("WebUIServer started");
@@ -268,4 +269,6 @@ public class WebUIServer extends HttpServlet {
     }
 }
 
+
+// vi: ai nosi sw=4 ts=4 expandtab
 

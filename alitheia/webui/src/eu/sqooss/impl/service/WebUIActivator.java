@@ -56,3 +56,6 @@ public class WebUIActivator implements BundleActivator {
         registration.unregister();
     }
 }
+
+// vi: ai nosi sw=4 ts=4 expandtab
+
