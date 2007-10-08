@@ -31,4 +31,5 @@ clean :
 		done ; \
 		rm -f $$i/target/*.jar ; \
 	done
+	rm -f `find . -name '*.class'`
 

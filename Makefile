@@ -31,9 +31,10 @@ install :
 	done ; \
 	sed "s/@@ALITHEIA@@/$$T/" < $(PREFIX)/configuration/config.ini.in > $(PREFIX)/configuration/config.ini
 
+# $(CONFIG) would typically be used to set system properties.
 run :
 	cd $(PREFIX) && \
-	java -jar org.eclipse.osgi_3.3.0.v20070321.jar -console
+	java $(CONFIG) -jar org.eclipse.osgi_3.3.0.v20070321.jar -console
 
 clean : $(foreach d,$(SUBDIRS),clean-$(d))
-	
+	rm -f $(PREFIX)/alitheia.log
