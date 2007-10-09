@@ -205,7 +205,6 @@
     -->
     <module>messaging</module>
     <module>logger</module>
-    <module>webui</module>
     <module>updater</module>
     <module>scheduler</module>
   </modules>
