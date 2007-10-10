@@ -45,7 +45,6 @@ public class TDSActivator implements BundleActivator {
     public void start(BundleContext bc) throws Exception {
         registration = bc.registerService(TDSServiceImpl.class.getName(),
                                           new TDSServiceImpl(), null);
-        System.out.println("# TDSActivator::start done.");
     }
 
     public void stop(BundleContext bc) throws Exception {

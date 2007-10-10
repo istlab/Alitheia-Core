@@ -74,12 +74,12 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
                   + LogManagerConstants.SIBLING_UPDATER);
          
             if (logger != null) {
-                logger.setConfigurationProperty("file.name","update-service.log");
-                logger.setConfigurationProperty("message.format", "text/plain");
-                System.out.println("Got logging!");
+                logger.info("Got logging!");
             }
-        } else {
-            System.out.println("Got neither a service nor a logger");
+        } 
+
+        if (logger == null) {
+            System.out.println("! Got no logger");
         }
 
         serviceRef = bc.getServiceReference("org.osgi.service.http.HttpService");

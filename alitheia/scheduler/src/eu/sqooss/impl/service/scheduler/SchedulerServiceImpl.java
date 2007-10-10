@@ -63,11 +63,13 @@ public class SchedulerServiceImpl implements Scheduler {
         if (logService != null) {
             logger = logService.createLogger("sqooss.scheduler");
             if(logger != null) {
-            	logger.setConfigurationProperty("file.name", "scheduler-service.log");
-            	logger.setConfigurationProperty("message.format", "text/plain");
-            	System.out.println("Got logging!");
+            	logger.info("Got logging!");
             }
         }
-        System.out.println("Got scheduling!");
+        if (logger != null) {
+            logger.info("Got scheduling!");
+        } else {
+            System.out.println("! Got scheduler but no logging.");
+        }
     }
 }

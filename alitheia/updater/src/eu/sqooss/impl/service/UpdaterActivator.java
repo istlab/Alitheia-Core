@@ -47,7 +47,6 @@ public class UpdaterActivator implements BundleActivator {
         updaterService = new UpdaterServiceImpl(bc);
         registration = bc.registerService(UpdaterService.class.getName(), 
                                           updaterService, null);
-        System.out.println("# UpdaterActivator::start done.");
     }
 
     public void stop(BundleContext bc) throws Exception {

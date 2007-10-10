@@ -48,7 +48,6 @@ public class SchedulerActivator implements BundleActivator {
     public void start(BundleContext bundleContext) throws Exception {
         schedulerService = new SchedulerServiceImpl(bundleContext);
         registration = bundleContext.registerService(Scheduler.class.getName(), schedulerService, null);
-        System.out.println("# SchedulerActivator::start done.");
     }
     
     public void stop(BundleContext bundleContext ) throws Exception {
