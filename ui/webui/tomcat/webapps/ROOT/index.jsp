@@ -10,7 +10,7 @@
 
 <body>
 <div id="banner">
-<img class="sqologo" src="http://www.sqo-oss.eu/index_html/sqo-oss-logo.jpg" alt="SQO-OSS Project Logo" />
+<img class="sqologo" src="http://www.sqo-oss.eu/sqo-oss-logo.jpg" alt="SQO-OSS Project Logo" />
 <img class="alitheialogo" src="alitheia.png" alt="Alitheia Logo" />
 </div>
 
