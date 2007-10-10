@@ -205,6 +205,7 @@
     -->
     <module>messaging</module>
     <module>logger</module>
+    <module>tds</module>
     <module>updater</module>
     <module>scheduler</module>
   </modules>

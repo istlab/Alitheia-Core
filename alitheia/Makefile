@@ -2,6 +2,7 @@ all : build
 
 BUNDLES=logger \
 	messaging \
+	tds \
 	updater \
 	scheduler
 
