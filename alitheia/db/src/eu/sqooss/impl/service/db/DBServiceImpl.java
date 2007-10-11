@@ -43,12 +43,42 @@ import eu.sqooss.impl.service.logging.LogManagerConstants;
 public class DBServiceImpl {
     private Logger logger;
     
+    /**
+     * Attempt to get the Postgres JDBC connector and initialize
+     * a connection to the Postgres instance (just to check that
+     * the DB is up and running).
+     *
+     * @return @c true on success
+     */
+    private boolean getPostgresJDBC() {
+        return false;
+    }
+    
+    /**
+     * Attempt to get the Derby JDBC connector and initialize
+     * a connection to the Derby instance -- this is intended
+     * to be a debug fallback routine during development.
+     *
+     * @return @c true on success
+     */
+    private boolean getDerbyJDBC() {
+        return false;
+    }
+    
     public DBServiceImpl() {
         logger = LogManager.getInstance().createLogger("sqooss.database");
         if (logger != null) {
             logger.info("DB service created.");
         } else {
             System.out.println("# DB service failed to get logger.");
+        }
+    
+        if (!getPostgresJDBC()) {
+            if (!getDerbyJDBC()) {
+                if (logger != null) {
+                    logger.severe("DB service got no JDBC connectors.");
+                }
+            }
         }
     }
 }
