@@ -66,6 +66,20 @@
       <type>jar</type>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>org.apache</groupId>
+      <artifactId>derby</artifactId>
+      <version>10.3.1.4</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.derby</groupId>
+      <artifactId>tools</artifactId>
+      <version>10.3.1.4</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
   
   <!-- Developers working on this module -->
