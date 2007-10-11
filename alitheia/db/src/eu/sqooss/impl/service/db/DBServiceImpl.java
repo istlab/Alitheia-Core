@@ -75,9 +75,7 @@ public class DBServiceImpl {
     
         if (!getPostgresJDBC()) {
             if (!getDerbyJDBC()) {
-                if (logger != null) {
-                    logger.severe("DB service got no JDBC connectors.");
-                }
+                logger.severe("DB service got no JDBC connectors.");
             }
         }
     }
