@@ -36,7 +36,6 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
-// import eu.sqooss.services.tds.TDSService;
 import eu.sqooss.impl.service.tds.TDSServiceImpl;
 
 public class TDSActivator implements BundleActivator {

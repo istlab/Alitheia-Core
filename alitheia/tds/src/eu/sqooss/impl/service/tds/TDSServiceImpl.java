@@ -36,12 +36,20 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
-// import eu.sqooss.services.tds.TDSService;
-import eu.sqooss.impl.service.tds.TDSServiceImpl;
+import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.logging.LogManager;
+import eu.sqooss.impl.service.logging.LogManagerConstants;
 
 public class TDSServiceImpl {
+    private Logger logger;
+    
     public TDSServiceImpl() {
-        System.out.println("# TDS created.");
+        logger = LogManager.getInstance().createLogger("sqooss.tds");
+        if (logger != null) {
+            logger.info("TDS service created.");
+        } else {
+            System.out.println("# TDS failed to get logger.");
+        }
     }
 }
 

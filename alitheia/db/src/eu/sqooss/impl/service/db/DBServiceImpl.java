@@ -36,9 +36,20 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
+import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.logging.LogManager;
+import eu.sqooss.impl.service.logging.LogManagerConstants;
+
 public class DBServiceImpl {
+    private Logger logger;
+    
     public DBServiceImpl() {
-        System.out.println("# DB service created.");
+        logger = LogManager.getInstance().createLogger("sqooss.database");
+        if (logger != null) {
+            logger.info("DB service created.");
+        } else {
+            System.out.println("# DB service failed to get logger.");
+        }
     }
 }
 
