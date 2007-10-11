@@ -36,15 +36,14 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
-// import eu.sqooss.services.tds.TDSService;
-import eu.sqooss.impl.service.tds.TDSServiceImpl;
+import eu.sqooss.impl.service.db.DBServiceImpl;
 
-public class TDSActivator implements BundleActivator {
+public class DBActivator implements BundleActivator {
     private ServiceRegistration registration;
 
     public void start(BundleContext bc) throws Exception {
-        registration = bc.registerService(TDSServiceImpl.class.getName(),
-                                          new TDSServiceImpl(), null);
+        registration = bc.registerService(DBServiceImpl.class.getName(),
+                                          new DBServiceImpl(), null);
     }
 
     public void stop(BundleContext bc) throws Exception {
