@@ -38,3 +38,7 @@ run :
 
 clean : $(foreach d,$(SUBDIRS),clean-$(d))
 	rm -f $(PREFIX)/alitheia.log
+
+show-log :
+	cat $(PREFIX)/configuration/org.eclipse.osgi/bundles/[0-9]*/data/logs/alitheia*.log
+
