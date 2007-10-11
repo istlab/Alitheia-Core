@@ -216,11 +216,12 @@
     <module>service_one</module>
     <module>service_two</module>
     -->
-    <module>messaging</module>
+    <module>db</module>
     <module>logger</module>
+    <module>messaging</module>
+    <module>scheduler</module>
     <module>tds</module>
     <module>updater</module>
-    <module>scheduler</module>
   </modules>
 
   <!-- =======[ List of developers working on this project        ]======= -->

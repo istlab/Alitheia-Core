@@ -30,18 +30,15 @@
  * 
  */
 
-package eu.sqooss.impl.service.tds;
+package eu.sqooss.impl.service.db;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
-// import eu.sqooss.services.tds.TDSService;
-import eu.sqooss.impl.service.tds.TDSServiceImpl;
-
-public class TDSServiceImpl {
-    public TDSServiceImpl() {
-        System.out.println("# TDS created.");
+public class DBServiceImpl {
+    public DBServiceImpl() {
+        System.out.println("# DB service created.");
     }
 }
 
