@@ -44,7 +44,10 @@ public class TDSServiceImpl {
     private Logger logger;
     
     public TDSServiceImpl() {
-        logger = LogManager.getInstance().createLogger("sqooss.tds");
+        logger = LogManager.getInstance().createLogger(
+            LogManagerConstants.NAME_ROOT_LOGGER + 
+            LogManagerConstants.NAME_DELIMITER + 
+            LogManagerConstants.SIBLING_DATABASE);
         if (logger != null) {
             logger.info("TDS service created.");
         } else {
