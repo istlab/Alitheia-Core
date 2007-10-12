@@ -80,6 +80,13 @@
       <type>jar</type>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>org.postgresql</groupId>
+      <artifactId>jdbc</artifactId>
+      <version>8.2.505</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
   
   <!-- Developers working on this module -->

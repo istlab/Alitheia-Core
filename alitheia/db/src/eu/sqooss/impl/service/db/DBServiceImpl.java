@@ -52,6 +52,27 @@ public class DBServiceImpl {
     private Connection dbConnection = null;
     private Statement dbStatement = null;
 
+    private Connection getJDBCConnection(String driver, String url) {
+        try {
+            Class.forName(driver).newInstance();
+            logger.info("Created JDBC instance for " + driver);
+            Connection c = DriverManager.getConnection(url);
+            logger.info("Created JDBC connection for " + url);
+            c.setAutoCommit(false);
+            return c;
+        } catch (InstantiationException e) {
+            logger.warning("Could not instantiate JDBC connection for " + driver);
+        } catch (ClassNotFoundException e) {
+            logger.warning("Could not get class for JDBC driver " + driver);
+        } catch (IllegalAccessException e) {
+            logger.warning("SEGV. Core dumped.");
+        } catch (SQLException e) {
+            logger.warning("SQL Exception while instantiating " + driver);
+        }
+
+        return null;
+    }
+
     /**
      * Attempt to get the Postgres JDBC connector and initialize
      * a connection to the Postgres instance (just to check that
@@ -60,7 +81,14 @@ public class DBServiceImpl {
      * @return @c true on success
      */
     private boolean getPostgresJDBC() {
-        return false;
+        Connection c = getJDBCConnection(
+            "org.postgresql.Driver",
+            "jdbc:postgresql:postgresDB");
+
+        if (c!=null) {
+            dbConnection = c;
+        }
+        return (c!=null);
     }
 
     /**
@@ -71,31 +99,14 @@ public class DBServiceImpl {
      * @return @c true on success
      */
     private boolean getDerbyJDBC() {
-        String driver = "org.apache.derby.jdbc.EmbeddedDriver";
+        Connection c = getJDBCConnection(
+            "org.apache.derby.jdbc.EmbeddedDriver",
+            "jdbc:derby:derbyDB;create=true");
 
-        try {
-            Class.forName(driver).newInstance();
-            logger.info("Created Derby JDBC instance.");
-            dbConnection = DriverManager.getConnection(
-                "jdbc:derby:derbyDB;create=true", null);
-            logger.info("Created Derby connection.");
-            dbConnection.setAutoCommit(false);
-            dbStatement = dbConnection.createStatement();
-        } catch (InstantiationException e) {
-            logger.warning("Could not instantiate Derby JDBC connection.");
-            return false;
-        } catch (ClassNotFoundException e) {
-            logger.warning("Could not get class for Derby JDBC.");
-            return false;
-        } catch (IllegalAccessException e) {
-            logger.warning("SEGV. Core dumped in Derby.");
-            return false;
-        } catch (SQLException e) {
-            logger.warning("SQL Exception while instantiating Derby.");
-            return false;
+        if (c!=null) {
+            dbConnection = c;
         }
-
-        return true;
+        return (c!=null);
     }
 
     public DBServiceImpl() {
@@ -112,13 +123,12 @@ public class DBServiceImpl {
             }
         }
 
-        if (dbStatement != null) {
-            try {
-                dbStatement.execute("create table STORED_PROJECT (ID int, NAME varchar(80))");
-                logger.info("Created table STORED_PROJECT.");
-            } catch (SQLException e) {
-                logger.warning("SQL Exception while creating table.");
-            }
+        try {
+            dbStatement = dbConnection.createStatement();
+            dbStatement.execute("create table STORED_PROJECT (ID int, NAME varchar(80))");
+            logger.info("Created table STORED_PROJECT.");
+        } catch (SQLException e) {
+            logger.warning("SQL Exception while creating table.");
         }
     }
 }
