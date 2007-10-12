@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?><metadata>
+  <groupId>org.postgresql</groupId>
+  <artifactId>jdbc</artifactId>
+  <version>8.2.505</version>
+  <versioning>
+    <versions>
+      <version>8.2.505</version>
+    </versions>
+    <lastUpdated>20071012071052</lastUpdated>
+  </versioning>
+</metadata>
