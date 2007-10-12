@@ -32,6 +32,12 @@
 
 package eu.sqooss.impl.service.tds;
 
+import org.tmatesoft.svn.core.SVNException;
+import org.tmatesoft.svn.core.internal.io.dav.DAVRepositoryFactory;
+import org.tmatesoft.svn.core.internal.io.fs.FSRepositoryFactory;
+import org.tmatesoft.svn.core.internal.io.svn.SVNRepositoryFactoryImpl;
+import org.tmatesoft.svn.core.io.SVNRepository;
+
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
@@ -53,6 +59,13 @@ public class TDSServiceImpl {
         } else {
             System.out.println("# TDS failed to get logger.");
         }
+
+        // Initialize access methods for all the repo types
+        DAVRepositoryFactory.setup();
+        SVNRepositoryFactoryImpl.setup();
+        FSRepositoryFactory.setup();
+
+        logger.info("SVN repo factories initialized.");
     }
 }
 

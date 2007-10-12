@@ -62,6 +62,13 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
+      <groupId>com.svnkit</groupId>
+      <artifactId>svnkit</artifactId>
+      <version>1.1.4</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>eu.sqooss</groupId>
       <artifactId>logger</artifactId>
       <version>1.0.0</version>
