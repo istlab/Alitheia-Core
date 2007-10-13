@@ -32,7 +32,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-package eu.sqooss.services.scheduler;
+package eu.sqooss.service.scheduler;
 
 public interface Scheduler {
 

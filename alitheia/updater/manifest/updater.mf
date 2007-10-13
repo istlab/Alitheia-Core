@@ -1,5 +1,5 @@
 Bundle-ManifestVersion: 2
-Bundle-SymbolicName: eu.sqooss.services.updater
+Bundle-SymbolicName: eu.sqooss.service.updater
 Bundle-Name: Updater Service
 Bundle-Activator: eu.sqooss.impl.service.UpdaterActivator
 Bundle-Version: 1.0.0
@@ -7,4 +7,4 @@ Bundle-Vendor: AUEB
 Bundle-Category: ui
 Bundle-Description: This bundle provides the Updater Service
 Import-Package: org.osgi.framework, javax.servlet, javax.servlet.http, org.osgi.service.http, eu.sqooss.service.logging
-Export-Package: eu.sqooss.services.updater
+Export-Package: eu.sqooss.service.updater

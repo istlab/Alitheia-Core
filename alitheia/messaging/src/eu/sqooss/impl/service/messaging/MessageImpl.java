@@ -2,7 +2,7 @@ package eu.sqooss.impl.service.messaging;
 
 import java.util.Vector;
 
-import eu.sqooss.services.messaging.Message;
+import eu.sqooss.service.messaging.Message;
 
 public class MessageImpl extends Message {
 

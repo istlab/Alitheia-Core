@@ -1,5 +1,5 @@
 Bundle-ManifestVersion: 2
-Bundle-SymbolicName: eu.sqooss.services.scheduler
+Bundle-SymbolicName: eu.sqooss.service.scheduler
 Bundle-Name: Scheduler
 Bundle-Activator: eu.sqooss.impl.service.SchedulerActivator
 Bundle-Version: 1.0.0
@@ -7,4 +7,4 @@ Bundle-Vendor: KDAB
 Bundle-Category: ui
 Bundle-Description: This bundle provides the Scheduler
 Import-Package: org.osgi.framework, org.osgi.service.http, eu.sqooss.service.logging
-Export-Package: eu.sqooss.services.scheduler
+Export-Package: eu.sqooss.service.scheduler

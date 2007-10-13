@@ -13,10 +13,10 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 
 import eu.sqooss.impl.service.messaging.senders.smtp.SMTPSender;
-import eu.sqooss.services.messaging.Message;
-import eu.sqooss.services.messaging.MessageListener;
-import eu.sqooss.services.messaging.MessagingService;
-import eu.sqooss.services.messaging.sender.MessageSender;
+import eu.sqooss.service.messaging.Message;
+import eu.sqooss.service.messaging.MessageListener;
+import eu.sqooss.service.messaging.MessagingService;
+import eu.sqooss.service.messaging.sender.MessageSender;
 
 public class MessagingServiceImpl implements MessagingService {
 

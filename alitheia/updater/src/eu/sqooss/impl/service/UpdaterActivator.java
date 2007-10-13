@@ -36,7 +36,7 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
-import eu.sqooss.services.updater.UpdaterService;
+import eu.sqooss.service.updater.UpdaterService;
 import eu.sqooss.impl.service.updater.UpdaterServiceImpl;
 
 public class UpdaterActivator implements BundleActivator {

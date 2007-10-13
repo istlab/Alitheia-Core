@@ -5,8 +5,8 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 
 import eu.sqooss.impl.service.messaging.senders.smtp.SMTPSender;
-import eu.sqooss.services.messaging.Message;
-import eu.sqooss.services.messaging.sender.MessageSender;
+import eu.sqooss.service.messaging.Message;
+import eu.sqooss.service.messaging.sender.MessageSender;
 
 public class MessagingServiceThread implements Runnable {
 

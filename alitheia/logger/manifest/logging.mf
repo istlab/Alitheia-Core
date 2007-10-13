@@ -1,5 +1,5 @@
 Bundle-ManifestVersion: 2
-Bundle-SymbolicName: eu.sqooss.services.logging
+Bundle-SymbolicName: eu.sqooss.service.logging
 Bundle-Name: Logging Service
 Bundle-Activator: eu.sqooss.impl.service.LoggingActivator
 Bundle-Version: 1.0.0

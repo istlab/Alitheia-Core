@@ -38,7 +38,7 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
-import eu.sqooss.services.scheduler.Scheduler;
+import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.impl.service.scheduler.SchedulerServiceImpl;
 
 public class SchedulerActivator implements BundleActivator {

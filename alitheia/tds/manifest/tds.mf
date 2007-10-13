@@ -1,5 +1,5 @@
 Bundle-ManifestVersion: 2
-Bundle-SymbolicName: eu.sqooss.services.tds
+Bundle-SymbolicName: eu.sqooss.service.tds
 Bundle-Name: TDS Service
 Bundle-Activator: eu.sqooss.impl.service.TDSActivator
 Bundle-Version: 0.0.1
@@ -8,5 +8,5 @@ Bundle-Category: data
 Bundle-Description: This bundle provides the TDS Service
 Bundle-Classpath: svnkit-1.1.4.jar, .
 Import-Package: org.osgi.framework, eu.sqooss.service.logging
-Export-Package: eu.sqooss.services.tds
+Export-Package: eu.sqooss.service.tds
 

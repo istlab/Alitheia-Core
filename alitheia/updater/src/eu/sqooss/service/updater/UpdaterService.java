@@ -30,7 +30,7 @@
  * 
  */
 
-package eu.sqooss.services.updater;
+package eu.sqooss.service.updater;
 
 public interface UpdaterService {
 

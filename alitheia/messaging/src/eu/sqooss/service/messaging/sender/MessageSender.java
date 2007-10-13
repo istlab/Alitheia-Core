@@ -1,6 +1,6 @@
-package eu.sqooss.services.messaging.sender;
+package eu.sqooss.service.messaging.sender;
 
-import eu.sqooss.services.messaging.Message;
+import eu.sqooss.service.messaging.Message;
 
 /**
  * The services which implements this interface provide method that deal with a dispatch of the message.

@@ -1,5 +1,5 @@
 Bundle-ManifestVersion: 2
-Bundle-SymbolicName: eu.sqooss.services.db
+Bundle-SymbolicName: eu.sqooss.service.db
 Bundle-Name: Database Service
 Bundle-Activator: eu.sqooss.impl.service.DBActivator
 Bundle-Version: 0.0.1
@@ -8,5 +8,5 @@ Bundle-Category: data
 Bundle-Description: This bundle provides the Database Service
 Bundle-ClassPath: derby-10.3.1.4.jar, tools-10.3.1.4.jar, jdbc-8.2.505.jar, .
 Import-Package: org.osgi.framework, eu.sqooss.service.logging
-Export-Package: eu.sqooss.services.db
+Export-Package: eu.sqooss.service.db
 

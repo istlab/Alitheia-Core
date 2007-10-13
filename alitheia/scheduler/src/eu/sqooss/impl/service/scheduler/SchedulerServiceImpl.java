@@ -42,7 +42,7 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
 
-import eu.sqooss.services.scheduler.Scheduler;
+import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.logging.LogManager;
 

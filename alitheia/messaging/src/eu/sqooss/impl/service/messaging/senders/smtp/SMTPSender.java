@@ -8,8 +8,8 @@ import org.osgi.framework.BundleContext;
 import eu.sqooss.impl.service.messaging.senders.smtp.connection.Constants;
 import eu.sqooss.impl.service.messaging.senders.smtp.connection.DefaultSASLFactory;
 import eu.sqooss.impl.service.messaging.senders.smtp.timer.Timer;
-import eu.sqooss.services.messaging.Message;
-import eu.sqooss.services.messaging.sender.MessageSender;
+import eu.sqooss.service.messaging.Message;
+import eu.sqooss.service.messaging.sender.MessageSender;
 
 public class SMTPSender implements MessageSender {
 

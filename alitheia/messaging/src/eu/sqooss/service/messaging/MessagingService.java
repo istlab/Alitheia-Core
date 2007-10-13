@@ -1,4 +1,4 @@
-package eu.sqooss.services.messaging;
+package eu.sqooss.service.messaging;
 
 /**
  * The messaging service is used to send messages.

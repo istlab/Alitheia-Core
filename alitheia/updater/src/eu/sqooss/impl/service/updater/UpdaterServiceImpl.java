@@ -46,7 +46,7 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
 
-import eu.sqooss.services.updater.UpdaterService;
+import eu.sqooss.service.updater.UpdaterService;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.impl.service.logging.LogManagerConstants;

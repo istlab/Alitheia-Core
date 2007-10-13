@@ -1,4 +1,4 @@
-package eu.sqooss.services.messaging;
+package eu.sqooss.service.messaging;
 
 /**
  * Classes which implement this interface provide methods that deal with the changes of the the message status. 

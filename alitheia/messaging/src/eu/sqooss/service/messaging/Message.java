@@ -1,4 +1,4 @@
-package eu.sqooss.services.messaging;
+package eu.sqooss.service.messaging;
 
 import java.util.Vector;
 

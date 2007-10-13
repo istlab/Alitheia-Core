@@ -7,7 +7,7 @@ public class LogManagerConstants {
   public static final String SIBLING_DATABASE       = "database";
   public static final String SIBLING_SECURITY       = "secutiry";
   public static final String SIBLING_MESSAGING      = "messaging";
-  public static final String SIBLING_WEB_SERVICES   = "webservices";
+  public static final String SIBLING_WEB_SERVICES   = "webservice";
   public static final String SIBLING_SCHEDULING     = "scheduler";
   public static final String SIBLING_UPDATER        = "updater";
   public static final String SIBLING_WEBUI          = "webui";

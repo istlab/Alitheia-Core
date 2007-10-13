@@ -15,8 +15,8 @@ import org.osgi.framework.ServiceRegistration;
 import eu.sqooss.impl.service.messaging.MessagingConstants;
 import eu.sqooss.impl.service.messaging.MessagingServiceImpl;
 import eu.sqooss.impl.service.messaging.senders.smtp.SMTPSender;
-import eu.sqooss.services.messaging.MessagingService;
-import eu.sqooss.services.messaging.sender.MessageSender;
+import eu.sqooss.service.messaging.MessagingService;
+import eu.sqooss.service.messaging.sender.MessageSender;
 
 /**
  * The <code>MessagingActivator</code> class registers the messaging service and SMTP sender service. 
