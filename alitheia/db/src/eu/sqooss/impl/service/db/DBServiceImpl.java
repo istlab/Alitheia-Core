@@ -46,7 +46,11 @@ import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.impl.service.logging.LogManagerConstants;
 
-public class DBServiceImpl {
+import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.FSAccessData;
+import eu.sqooss.impl.service.db.FSAccessDataImpl;
+
+public class DBServiceImpl implements DBService {
     private Logger logger = null;
     // This is the database connection; we may want to do more pooling here.
     private Connection dbConnection = null;
@@ -107,6 +111,14 @@ public class DBServiceImpl {
             dbConnection = c;
         }
         return (c!=null);
+    }
+
+    public FSAccessData getFSAccess(int id) {
+        if (id==1) {
+            return new FSAccessDataImpl(id);
+        }
+        // Should really throw something
+        return null;
     }
 
     public DBServiceImpl() {
