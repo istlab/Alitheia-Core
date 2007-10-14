@@ -32,6 +32,8 @@
 
 package eu.sqooss.impl.service.tds;
 
+import java.util.HashMap;
+
 import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.internal.io.dav.DAVRepositoryFactory;
 import org.tmatesoft.svn.core.internal.io.fs.FSRepositoryFactory;
@@ -46,8 +48,12 @@ import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.impl.service.logging.LogManagerConstants;
 
-public class TDSServiceImpl {
+import eu.sqooss.service.tds.TDSService;
+import eu.sqooss.service.tds.TDAccessor;
+
+public class TDSServiceImpl implements TDSService {
     private Logger logger;
+    private HashMap<Integer, TDAccessor> accessorPool;
     
     public TDSServiceImpl() {
         logger = LogManager.getInstance().createLogger(
@@ -66,6 +72,21 @@ public class TDSServiceImpl {
         FSRepositoryFactory.setup();
 
         logger.info("SVN repo factories initialized.");
+    }
+
+    public boolean accessorExists(int id) {
+        return accessorPool.containsKey(new Integer(id));
+    }
+
+    public TDAccessor getAccessor(int id) {
+        if (accessorExists(id)) {
+            return accessorPool.get(new Integer(id));
+        }
+
+        return null;
+    }
+
+    public void releaseAccessor(TDAccessor td) {
     }
 }
 
