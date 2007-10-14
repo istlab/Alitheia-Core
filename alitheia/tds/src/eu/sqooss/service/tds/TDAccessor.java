@@ -33,45 +33,33 @@
 
 package eu.sqooss.service.tds;
 
-import eu.sqooss.service.tds.TDAccessor;
-
 /**
- * The TDS service interface provides a way to retrieve and release
- * and configure the thin data access objects. A typical lifecycle
- * is as follows:
+ * The accessor for a project gives you the means to retrieve
+ * raw project data for it. See the interfaces for each individual
+ * raw data source for more.
  *
- * - Check if there already is an accessor (optional); if there isn't
- *   this indicated that the project has not been requested recently.
- * - Request an accessor for the project. This may throw a variety of
- *   exceptions indicating resource or permissions problems (or that
- *   the project does not exist).
- * - If the accessor is returned, use its interface to get information
- *   from the project.
- * - When done, release the accessor.
+ * An accessor has the immediate means to retrieve any of the data
+ * asked for it; all the communications resources have been acquired
+ * and initialized, so you can start querying immediately.
  *
- * The accessor pool is limited by available connections and threads for
- * pulling information out of the file store, so do remember to free
- * accessors once you are done.
- *   
- * @see TDAccessor
+ * Do not forget to release the accessor when done with it.
+ *
+ * @see TDSService
  */
-public interface TDSService {
+public interface TDAccessor {
     /**
-     * Check if the given project ID has an accessor object ready.
-     * This may be used to suppress requests for the accessor if
-     * it is not in use yet.
+     * Return the numeric ID for the accessor. At creation time this
+     * is guaranteed to be a valid project ID, but during the lifetime
+     * of the accessor the project may be removed or modified so that
+     * the ID becomes invalid.
      */
-    public boolean accessorExists(int id);
+    public int getId();
 
     /**
-     * Retrieve the accessor object for the given project @p id .
+     * Return the name assigned to the project when the accessor was created.
+     * Just like the ID, this may have changed since.
      */
-    public TDAccessor getAccessor(int id);
-
-    /**
-     * Release your claim on the accessor.
-     */
-    public void releaseAccessor(TDAccessor tda);
+    public String getName();
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab
