@@ -33,10 +33,26 @@
 
 package eu.sqooss.service.tds;
 
+import eu.sqooss.service.tds.TDAccessor;
+
 /**
  * The TDS service interface provides a way to retrieve and release
- * and configure the thin data access objects.
+ * and configure the thin data access objects. A typical lifecycle
+ * is as follows:
  *
+ * - Check if there already is an accessor (optional); if there isn't
+ *   this indicated that the project has not been requested recently.
+ * - Request an accessor for the project. This may throw a variety of
+ *   exceptions indicating resource or permissions problems (or that
+ *   the project does not exist).
+ * - If the accessor is returned, use its interface to get information
+ *   from the project.
+ * - When done, release the accessor.
+ *
+ * The accessor pool is limited by available connections and threads for
+ * pulling information out of the file store, so do remember to free
+ * accessors once you are done.
+ *   
  * @see TDAccessor
  */
 public interface TDSService {
@@ -50,6 +66,12 @@ public interface TDSService {
     /**
      * Retrieve the accessor object for the given project @p id .
      */
+    TDAccessor getAccessor(int id);
+
+    /**
+     * Release your claim on the accessor.
+     */
+    void releaseAccessor(TDAccessor tda);
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab
