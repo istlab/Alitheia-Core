@@ -56,7 +56,7 @@ public class MessagingServiceThread implements Runnable {
 
   public void stop(boolean stopService) {
     isStopped = true;
-    if (stopService && (sender == defaultSender)) {
+    if (stopService && ((sender == null) || (sender == defaultSender))) {
       defaultSender.stopService();
     }
   }

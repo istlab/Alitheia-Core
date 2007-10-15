@@ -13,13 +13,13 @@ import java.util.Vector;
 
 import org.osgi.framework.BundleContext;
 
-import eu.sqooss.impl.service.messaging.senders.smtp.timer.Timer;
-import eu.sqooss.impl.service.messaging.senders.smtp.timer.TimerListener;
 import eu.sqooss.impl.service.messaging.senders.smtp.utils.LineReader;
 import eu.sqooss.impl.service.messaging.senders.smtp.connection.Constants;
 import eu.sqooss.impl.service.messaging.senders.smtp.connection.SASL;
 import eu.sqooss.impl.service.messaging.senders.smtp.connection.SASLFactory;
 import eu.sqooss.impl.service.messaging.senders.smtp.connection.SessionException;
+import eu.sqooss.impl.service.messaging.timer.Timer;
+import eu.sqooss.impl.service.messaging.timer.TimerListener;
 
 /**
  * An SMTP session realizes and controls communication between a single client

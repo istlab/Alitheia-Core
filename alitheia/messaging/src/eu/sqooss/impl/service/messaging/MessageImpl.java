@@ -2,9 +2,10 @@ package eu.sqooss.impl.service.messaging;
 
 import java.util.Vector;
 
+import eu.sqooss.impl.service.messaging.timer.TimerListener;
 import eu.sqooss.service.messaging.Message;
 
-public class MessageImpl extends Message {
+public class MessageImpl extends Message implements TimerListener {
 
   private int status;
   private long id;
@@ -14,6 +15,7 @@ public class MessageImpl extends Message {
   private Vector recipients;
   private String title;
   private String protocol;
+  private MessageHistory messageHistory;
   
   public MessageImpl(String body, Vector recipients, String title, String protocol) {
     setBody(body);
@@ -124,5 +126,19 @@ public class MessageImpl extends Message {
       return new Long(id).hashCode();
     }
   }
+
+  /* Message history methods */
+  
+  public void setMessageHistory(MessageHistory messageHistory) {
+    this.messageHistory = messageHistory;
+  }
+  
+  public void timer() {
+    if (messageHistory != null) {
+      messageHistory.removeMessage(id);
+    }
+  }
+  
+  /* Message history methods */
   
 }

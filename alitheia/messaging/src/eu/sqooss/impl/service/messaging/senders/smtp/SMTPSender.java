@@ -7,7 +7,7 @@ import org.osgi.framework.BundleContext;
 
 import eu.sqooss.impl.service.messaging.senders.smtp.connection.Constants;
 import eu.sqooss.impl.service.messaging.senders.smtp.connection.DefaultSASLFactory;
-import eu.sqooss.impl.service.messaging.senders.smtp.timer.Timer;
+import eu.sqooss.impl.service.messaging.timer.Timer;
 import eu.sqooss.service.messaging.Message;
 import eu.sqooss.service.messaging.sender.MessageSender;
 
@@ -15,7 +15,8 @@ public class SMTPSender implements MessageSender {
 
   public static final String PROTOCOL_PROPERTY_VALUE = "smtp";
   
-  private static long defaultSessionTimeout = 2*60*1000;
+  private static final String SMTP_TIMER_NAME = "SMTP Timer ";
+  private static final long DEFAULT_SESSION_TIMEOUT = 2*60*1000;
   
   private Object sessionsLockObject = new Object();
   private Object propertiesLockObject = new Object();
@@ -34,10 +35,10 @@ public class SMTPSender implements MessageSender {
   
   public SMTPSender(BundleContext bc) {
     this.bc = bc;
-    this.sessionTimeout = defaultSessionTimeout;
+    this.sessionTimeout = DEFAULT_SESSION_TIMEOUT;
     sessions = new Vector();
     isStopped = false;
-    timer = new Timer();
+    timer = new Timer(SMTP_TIMER_NAME);
     timer.start();
   }
   
@@ -127,7 +128,7 @@ public class SMTPSender implements MessageSender {
 
   public void setSessionTimeout(long sessionTimeout) {
     if (sessionTimeout < 0) {
-      this.sessionTimeout = defaultSessionTimeout;
+      this.sessionTimeout = DEFAULT_SESSION_TIMEOUT;
     } else {
       this.sessionTimeout = sessionTimeout;
     }

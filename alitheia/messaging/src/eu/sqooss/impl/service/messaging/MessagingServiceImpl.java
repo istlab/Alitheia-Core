@@ -5,7 +5,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.Properties;
 import java.util.Vector;
 
@@ -28,7 +27,7 @@ public class MessagingServiceImpl implements MessagingService {
   private long id;
   private Properties properties;
   private Vector messageListeners;
-  private Hashtable messagesStorage;
+  private MessageHistory messageHistory;
   private MessageQueue messageQueue;
   private Vector messagingThreads;
   private BundleContext bc;
@@ -43,7 +42,7 @@ public class MessagingServiceImpl implements MessagingService {
     this.properties = new Properties();
     initProperties(bc);
     messageListeners = new Vector();
-    messagesStorage = new Hashtable();
+    messageHistory = new MessageHistory(0);
     messageQueue = new MessageQueue();
     messagingThreads = new Vector();
     startThreadIfNeeded();
@@ -61,7 +60,7 @@ public class MessagingServiceImpl implements MessagingService {
     createdMessage.setId(getNextId());
     createdMessage.setQueueTime(System.currentTimeMillis());
     validateMessage(message);
-    messagesStorage.put(new Long(createdMessage.getId()), createdMessage);
+    messageHistory.put(createdMessage);
     messageQueue.push(createdMessage);
     notifyListeners(createdMessage, Message.STATUS_QUEUED);
   }
@@ -124,6 +123,18 @@ public class MessagingServiceImpl implements MessagingService {
       } catch (NumberFormatException nfe) {
         throw new IllegalArgumentException("The string value does not contain a parsable int!");
       }
+    } else if (key.equals(MessagingConstants.KEY_MESSAGE_PRESERVING_TIME)) {
+      try {
+        long preservingTime = Long.parseLong(value);
+        if (preservingTime >= 0) {
+          properties.setProperty(key, value);
+          messageHistory.setPreservingTime(preservingTime);
+        } else {
+          throw new IllegalArgumentException("The preserving time must not be negative!");
+        }
+      } catch (NumberFormatException nfe) {
+        throw new IllegalArgumentException("The string value does not contain a parsable long!");
+      }
     } else if (key.equals(MessagingConstants.KEY_SMTP_HOST)) {
       properties.setProperty(key, value);
       defaultSender.setSessionHost(value);
@@ -167,6 +178,7 @@ public class MessagingServiceImpl implements MessagingService {
     }
     messageQueue.clearQueue();
     messageListeners.removeAllElements();
+    messageHistory.clear();
     try {
       properties.store(new FileOutputStream(bc.getDataFile(MessagingConstants.FILE_NAME_PROPERTIES)), null);
     } catch (IOException ioe) {
@@ -240,7 +252,7 @@ public class MessagingServiceImpl implements MessagingService {
   }
   
   public Message getMessage(long id) {
-    return (Message)messagesStorage.get(new Long(id));
+    return messageHistory.getMessage(id);
   }
   
   private void refreshThreadsQueueringTime(long queueringTime) {
