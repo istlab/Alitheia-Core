@@ -33,7 +33,29 @@
 
 package eu.sqooss.service.tds;
 
+import eu.sqooss.service.tds.ProjectRevision;
 
+public interface CommitLog {
+    /**
+     * Retrieve the project revision information for the first
+     * entry in this commit log.
+     */
+    public ProjectRevision first();
+
+    /**
+     * Retrieve the project revision information for the last
+     * entry in this commit log. This may be the same as first()
+     * for 1-entry logs.
+     */
+    public ProjectRevision last();
+
+    /**
+     * Retrieve the message (commit message) for project revision
+     * @p r in this log. If @p r is not within the range of this
+     * log, throw an exception.
+     */
+    String message(ProjectRevision r);
+}
 
 // vi: ai nosi sw=4 ts=4 expandtab
 
