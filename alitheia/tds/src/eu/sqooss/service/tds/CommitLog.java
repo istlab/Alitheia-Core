@@ -54,7 +54,7 @@ public interface CommitLog {
      * @p r in this log. If @p r is not within the range of this
      * log, throw an exception.
      */
-    String message(ProjectRevision r);
+    public String message(ProjectRevision r);
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

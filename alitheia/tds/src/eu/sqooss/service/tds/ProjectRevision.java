@@ -38,7 +38,7 @@ public interface ProjectRevision {
      * Retrieve the SVN revision that most closely corresponds
      * with this project revision.
      */
-    int getSVNRevision();
+    public int getSVNRevision();
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

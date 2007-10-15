@@ -54,7 +54,7 @@ public interface Diff {
      * Retrieve the list of file names (relative to the root
      * under which this diff was taken) modified by this diff.
      */
-    String[] changedFiles();
+    public String[] changedFiles();
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

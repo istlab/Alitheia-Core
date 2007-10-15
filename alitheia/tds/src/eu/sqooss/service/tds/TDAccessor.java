@@ -1,22 +1,22 @@
 /*
  * This file is part of the Alitheia system, developed by the SQO-OSS
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
- * 
+ *
  * Copyright 2007 by the SQO-OSS consortium members <info@sqo-oss.eu>
  * Copyright 2007 by Adriaan de Groot <groot@kde.org>
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
  * met:
- * 
+ *
  *     * Redistributions of source code must retain the above copyright
  *       notice, this list of conditions and the following disclaimer.
- * 
+ *
  *     * Redistributions in binary form must reproduce the above
  *       copyright notice, this list of conditions and the following
  *       disclaimer in the documentation and/or other materials provided
  *       with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -28,10 +28,14 @@
  * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 package eu.sqooss.service.tds;
+
+// import eu.sqooss.service.tds.BTSAccessor;
+// import eu.sqooss.service.tds.MailAccessor;
+import eu.sqooss.service.tds.SCMAccessor;
 
 /**
  * The accessor for a project gives you the means to retrieve
@@ -46,7 +50,8 @@ package eu.sqooss.service.tds;
  *
  * @see TDSService
  */
-public interface TDAccessor {
+public interface TDAccessor
+    extends SCMAccessor {
     /**
      * Return the numeric ID for the accessor. At creation time this
      * is guaranteed to be a valid project ID, but during the lifetime
