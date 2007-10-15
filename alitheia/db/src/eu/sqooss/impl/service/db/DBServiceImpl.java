@@ -113,9 +113,15 @@ public class DBServiceImpl implements DBService {
         return (c!=null);
     }
 
+    private FSAccessDataImpl[] fsaccessdb = {
+        new FSAccessDataImpl("svn://www.englishbreakfastnetwork.org/home/kde",
+            "",""),
+        new FSAccessDataImpl("svn://anonsvn.subversion.org/","","")
+    } ;
+
     public FSAccessData getFSAccess(int id) {
-        if (id==1) {
-            return new FSAccessDataImpl(id);
+        if (id<=fsaccessdb.length) {
+            return fsaccessdb[id-1];
         }
         // Should really throw something
         return null;

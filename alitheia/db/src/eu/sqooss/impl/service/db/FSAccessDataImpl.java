@@ -36,10 +36,6 @@ package eu.sqooss.impl.service.db;
 import eu.sqooss.service.db.FSAccessData;
 
 class FSAccessDataImpl implements FSAccessData {
-    private static String[] SVNUrls = { "svn://anonsvn.kde.org/" };
-    private static String[] IMAPPaths = { "" };
-    private static String[] BTSUrls = { "" };
-
     private String SVNUrl;
     private String IMAPPath;
     private String BTSUrl;
@@ -56,17 +52,16 @@ class FSAccessDataImpl implements FSAccessData {
         return SVNUrl;
     }
 
-    public FSAccessDataImpl(int id) {
-        if (id==0) {
-            throw new IllegalArgumentException("That ID is bad");
-        }
-        if (id<=SVNUrls.length) {
-            SVNUrl = SVNUrls[id-1];
-            IMAPPath = IMAPPaths[id-1];
-            BTSUrl = BTSUrls[id-1];
-        } else {
-            throw new IllegalArgumentException("That ID is bad");
-        }
+    FSAccessDataImpl() {
+        SVNUrl = null;
+        IMAPPath = null;
+        BTSUrl = null;
+    }
+
+    FSAccessDataImpl( String s, String m, String b ) {
+        SVNUrl = s;
+        IMAPPath = m;
+        BTSUrl = b;
     }
 }
 
