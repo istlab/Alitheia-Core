@@ -57,4 +57,17 @@ public class LogUtils {
     }
   }
   
+  /**
+   * @param name
+   * @return the name of the parent logger, or empty string otherwise
+   */
+  public static String getParentLoggerName(String name) {
+    int lastDelimiterPosition = name.lastIndexOf(LogManagerConstants.NAME_DELIMITER);
+    if (lastDelimiterPosition == -1) {
+      return "";
+    } else {
+      return name.substring(0, lastDelimiterPosition);
+    }
+  }
+  
 }

@@ -25,7 +25,7 @@ public class LogManagerImpl extends LogManager {
   private Hashtable serviceSiblingLoggers; //stores sqooss.service.<plugin_name> - level 2
   
   private LogConfiguration logConfig;
-  private LogWritersManager logStorage;
+  private LogWritersManager logWritersManager;
   
   public LogManagerImpl() {
     rootSiblingLoggers = new Hashtable();
@@ -41,7 +41,7 @@ public class LogManagerImpl extends LogManager {
         throw new IllegalArgumentException("The name is not valid!");
       case 0: 
         if (rootLogger == null) {
-          rootLogger = new LoggerImpl(name, logStorage, logConfig);
+          rootLogger = new LoggerImpl(name, logWritersManager, logConfig, this);
           logger = rootLogger;
         } else {
           logger = rootLogger;
@@ -49,7 +49,7 @@ public class LogManagerImpl extends LogManager {
         break;
       case 1:
         if (!rootSiblingLoggers.containsKey(name)) {
-          logger = new LoggerImpl(name, logStorage, logConfig);
+          logger = new LoggerImpl(name, logWritersManager, logConfig, this);
           rootSiblingLoggers.put(name, logger);
         } else {
           logger = (LoggerImpl)rootSiblingLoggers.get(name);
@@ -57,7 +57,7 @@ public class LogManagerImpl extends LogManager {
         break;
       case 2:
         if (!serviceSiblingLoggers.containsKey(name)) {
-          logger = new LoggerImpl(name, logStorage, logConfig);
+          logger = new LoggerImpl(name, logWritersManager, logConfig, this);
           serviceSiblingLoggers.put(name, logger);
         } else {
           logger = (LoggerImpl)rootSiblingLoggers.get(name);
@@ -131,7 +131,7 @@ public class LogManagerImpl extends LogManager {
   
   public void setBundleContext(BundleContext bc) {
     if (this.bc == null) {
-      logStorage = new LogWritersManager(bc);
+      logWritersManager = new LogWritersManager(bc);
       logConfig = new LogConfiguration(bc, this);
     }
     this.bc = bc;
