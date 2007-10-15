@@ -1,10 +1,71 @@
 package eu.sqooss.service.logging;
 
+import eu.sqooss.impl.service.logging.LogManagerConstants;
+
 /**
  * The <code>Logger</code> instances are used for logging. They are created with createLogger method of the
  * LogManager service. 
  */
 public interface Logger {
+  
+  /**
+   * Represents the logger name delimiter.
+   */
+  public static final String LOGGER_NAME_DELIMITER = String.valueOf(LogManagerConstants.NAME_DELIMITER);
+  
+  /**
+   * Represents SQO-OSS system logger name.
+   */
+  public static final String NAME_SQOOSS = LogManagerConstants.NAME_ROOT_LOGGER;
+  
+  /**
+   * Represents service system logger name.
+   */
+  public static final String NAME_SQOOSS_SERVICE      = LogManagerConstants.NAME_ROOT_LOGGER +
+                                                        LogManagerConstants.NAME_DELIMITER + 
+                                                        LogManagerConstants.SIBLING_SERVICE_SYSTEM;
+  
+  /**
+   * Represents database connectivity logger name.
+   */
+  public static final String NAME_SQOOSS_DATABASE     = LogManagerConstants.NAME_ROOT_LOGGER +
+                                                        LogManagerConstants.NAME_DELIMITER + 
+                                                        LogManagerConstants.SIBLING_DATABASE;
+  
+  /**
+   * Represents security logger name.
+   */
+  public static final String NAME_SQOOSS_SECURITY     = LogManagerConstants.NAME_ROOT_LOGGER +
+                                                        LogManagerConstants.NAME_DELIMITER + 
+                                                        LogManagerConstants.SIBLING_SECURITY;
+  
+  /**
+   * Represents messaging logger name.
+   */
+  public static final String NAME_SQOOSS_MESSAGING    = LogManagerConstants.NAME_ROOT_LOGGER +
+                                                        LogManagerConstants.NAME_DELIMITER + 
+                                                        LogManagerConstants.SIBLING_MESSAGING;
+  
+  /**
+   * Represents web services logger name.
+   */
+  public static final String NAME_SQOOSS_WEB_SERVICES = LogManagerConstants.NAME_ROOT_LOGGER +
+                                                        LogManagerConstants.NAME_DELIMITER + 
+                                                        LogManagerConstants.SIBLING_WEB_SERVICES;
+  
+  /**
+   * Represents scheduling logger name.
+   */
+  public static final String NAME_SQOOSS_SCHEDULING   = LogManagerConstants.NAME_ROOT_LOGGER +
+                                                        LogManagerConstants.NAME_DELIMITER + 
+                                                        LogManagerConstants.SIBLING_SCHEDULING;
+  
+  /**
+   * Represents updater logger name.
+   */
+  public static final String NAME_SQOOSS_UPDATER      = LogManagerConstants.NAME_ROOT_LOGGER +
+                                                        LogManagerConstants.NAME_DELIMITER + 
+                                                        LogManagerConstants.SIBLING_UPDATER;
   
   /**
    * Logs a message with a info(lowest) logging level
