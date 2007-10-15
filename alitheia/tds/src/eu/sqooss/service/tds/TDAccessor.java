@@ -33,8 +33,8 @@
 
 package eu.sqooss.service.tds;
 
-// import eu.sqooss.service.tds.BTSAccessor;
-// import eu.sqooss.service.tds.MailAccessor;
+import eu.sqooss.service.tds.BTSAccessor;
+import eu.sqooss.service.tds.MailAccessor;
 import eu.sqooss.service.tds.SCMAccessor;
 
 /**
@@ -51,7 +51,7 @@ import eu.sqooss.service.tds.SCMAccessor;
  * @see TDSService
  */
 public interface TDAccessor
-    extends SCMAccessor {
+    extends BTSAccessor, MailAccessor, SCMAccessor {
     /**
      * Return the numeric ID for the accessor. At creation time this
      * is guaranteed to be a valid project ID, but during the lifetime
