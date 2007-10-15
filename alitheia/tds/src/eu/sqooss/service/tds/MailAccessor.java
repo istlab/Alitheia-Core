@@ -33,7 +33,14 @@
 
 package eu.sqooss.service.tds;
 
-
+public interface MailAccessor {
+    /**
+     * Retrieves the entire raw message content of the given
+     * message ID (the message ID may be relative to the project
+     * that this accessor is attached to).
+     */
+    public String getRawMessage( String id );
+}
 
 // vi: ai nosi sw=4 ts=4 expandtab
 
