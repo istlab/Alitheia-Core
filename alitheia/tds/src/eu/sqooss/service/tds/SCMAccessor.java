@@ -33,6 +33,10 @@
 
 package eu.sqooss.service.tds;
 
+import eu.sqooss.service.tds.CommitLog;
+import eu.sqooss.service.tds.Diff;
+import eu.sqooss.service.tds.ProjectRevision;
+
 public interface SCMAccessor {
     /**
      * Retrieve a checkout of the complete source tree underneath
@@ -40,7 +44,35 @@ public interface SCMAccessor {
      * to which this accessor is attached. The checkout is written
      * to the local path @p localPath .
      */
-    void checkOut( String repoPath, int revision, String localPath );
+    void checkOut( String repoPath, ProjectRevision revision, String localPath );
+
+    /**
+     * Retrieve a single file from the source repository, relative
+     * to the root URL of the project to which this accessor is
+     * attached. The checked-out file is written to the local
+     * path @p localPath.
+     */
+    void checkOutFile( String repoPath, ProjectRevision revision, String localPath );
+
+    /**
+     * Get the commit log entries for revisions @p r1 to @p r2
+     * for this source repository.
+     */
+    CommitLog getCommitLog( ProjectRevision r1, ProjectRevision r2 );
+
+    /**
+     * Get the commit log entries for revisions @p r1 to @p r2
+     * for this source repository within the subtree identified
+     * by the path @p repoPath (relative to the root URL of the
+     * project this accessor is attached to).
+     */
+    CommitLog getCommitLog( String repoPath, ProjectRevision r1, ProjectRevision r2 );
+
+    /**
+     * Get the diff between two revisions of a subtree within
+     * the source repository. Arguments as getCommitLog(), above.
+     */
+    Diff getDiff( String repoPath, ProjectRevision r1, ProjectRevision r2 );
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab
