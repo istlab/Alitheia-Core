@@ -11,6 +11,7 @@ public class LogManagerConstants {
   public static final String SIBLING_SCHEDULING     = "scheduler";
   public static final String SIBLING_UPDATER        = "updater";
   public static final String SIBLING_WEBUI          = "webui";
+  public static final String SIBLING_TDS            = "webui";
   
   public static final char   NAME_DELIMITER         = '.';  
 }

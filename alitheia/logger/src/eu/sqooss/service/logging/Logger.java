@@ -73,6 +73,13 @@ public interface Logger {
   public static final String NAME_SQOOSS_WEBUI      =   LogManagerConstants.NAME_ROOT_LOGGER +
                                                         LogManagerConstants.NAME_DELIMITER + 
                                                         LogManagerConstants.SIBLING_WEBUI;
+  /**
+   * Represents web TDS logger name.
+   */
+  public static final String NAME_SQOOSS_TDS        =   LogManagerConstants.NAME_ROOT_LOGGER +
+                                                        LogManagerConstants.NAME_DELIMITER + 
+                                                        LogManagerConstants.SIBLING_TDS;
+  
   
   /**
    * Logs a message with a info(lowest) logging level
