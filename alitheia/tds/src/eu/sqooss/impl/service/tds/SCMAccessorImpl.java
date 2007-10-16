@@ -31,48 +31,49 @@
  *
  */
 
-package eu.sqooss.service.tds;
+package eu.sqooss.impl.service.tds;
 
+import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.tds.SCMAccessor;
 import eu.sqooss.service.tds.CommitLog;
 import eu.sqooss.service.tds.Diff;
 import eu.sqooss.service.tds.ProjectRevision;
 
-public interface SCMAccessor {
-    /**
-     * Retrieve a checkout of the complete source tree underneath
-     * the given path, relative to the root URL of the project
-     * to which this accessor is attached. The checkout is written
-     * to the local path @p localPath .
-     */
-    public void checkOut( String repoPath, ProjectRevision revision, String localPath );
+public class SCMAccessorImpl implements SCMAccessor {
+    private String url;
+    private String projectName;
+    public static Logger logger = null;
 
-    /**
-     * Retrieve a single file from the source repository, relative
-     * to the root URL of the project to which this accessor is
-     * attached. The checked-out file is written to the local
-     * path @p localPath.
-     */
-    public void checkOutFile( String repoPath, ProjectRevision revision, String localPath );
+    public SCMAccessorImpl( String projectName, String url ) {
+        this.url = url;
+        this.projectName = projectName;
+        if (logger != null) {
+            logger.info("Created SCMAccessor for " + projectName);
+        }
+    }
 
-    /**
-     * Get the commit log entries for revisions @p r1 to @p r2
-     * for this source repository.
-     */
-    public CommitLog getCommitLog( ProjectRevision r1, ProjectRevision r2 );
+    // Interface methods
+    public void checkOut( String repoPath, ProjectRevision revision, String localPath ) {
+    }
 
-    /**
-     * Get the commit log entries for revisions @p r1 to @p r2
-     * for this source repository within the subtree identified
-     * by the path @p repoPath (relative to the root URL of the
-     * project this accessor is attached to).
-     */
-    public CommitLog getCommitLog( String repoPath, ProjectRevision r1, ProjectRevision r2 );
+    public void checkOutFile( String repoPath, ProjectRevision revision, String localPath ) {
+    }
 
-    /**
-     * Get the diff between two revisions of a subtree within
-     * the source repository. Arguments as getCommitLog(), above.
-     */
-    public Diff getDiff( String repoPath, ProjectRevision r1, ProjectRevision r2 );
+    private static int revcount = 1;
+    public CommitLog getCommitLog( ProjectRevision r1, ProjectRevision r2 ) {
+        logger.info("getting log message for r." + revcount);
+        return null;
+    }
+
+    public CommitLog getCommitLog( String repoPath, ProjectRevision r1, ProjectRevision r2 ) {
+        return null;
+    }
+
+    public Diff getDiff( String repoPath, ProjectRevision r1, ProjectRevision r2 ) {
+        logger.info("diff -r" +
+            r1.getSVNRevision() + ":" + r2.getSVNRevision() + " " + repoPath);
+        return null;
+    }
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

@@ -49,6 +49,7 @@ import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.tds.TDAccessor;
 import eu.sqooss.impl.service.tds.TDAccessorImpl;
+import eu.sqooss.impl.service.tds.SCMAccessorImpl;
 
 public class TDSServiceImpl implements TDSService {
     private Logger logger;
@@ -69,6 +70,7 @@ public class TDSServiceImpl implements TDSService {
 
         logger.info("SVN repo factories initialized.");
         TDAccessorImpl.logger = logger;
+        SCMAccessorImpl.logger = logger;
 
         String tdsroot = bc.getProperty("eu.sqooss.tds.config");
         if (tdsroot==null) {
@@ -98,6 +100,8 @@ public class TDSServiceImpl implements TDSService {
             }
         }
         logger.info("Got configuration for " + projectCount + " projects.");
+
+        getAccessor("kde").getSCMAccessor().getCommitLog(null,null);
     }
 
     public boolean accessorExists( String projectName ) {

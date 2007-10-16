@@ -44,6 +44,7 @@ import eu.sqooss.service.tds.TDAccessor;
 import eu.sqooss.service.tds.BTSAccessor;
 import eu.sqooss.service.tds.MailAccessor;
 import eu.sqooss.service.tds.SCMAccessor;
+import eu.sqooss.impl.service.tds.SCMAccessorImpl;
 
 public class TDAccessorImpl implements TDAccessor {
     public String bts;
@@ -51,6 +52,7 @@ public class TDAccessorImpl implements TDAccessor {
     public String scm;
     private String name;
     private int id;
+    private SCMAccessorImpl scmAccessor = null;
     private static int idSequence = 0;
     public static Logger logger;
 
@@ -104,7 +106,10 @@ public class TDAccessorImpl implements TDAccessor {
     }
 
     public SCMAccessor getSCMAccessor() {
-        return null;
+        if (scmAccessor == null) {
+            scmAccessor = new SCMAccessorImpl( name, scm );
+        }
+        return scmAccessor;
     }
 }
 
