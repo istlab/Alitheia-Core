@@ -20,9 +20,10 @@ PREFIX=equinox
 install :
 	rm -Rf ${PREFIX}/configuration/org.eclipse.osgi
 	rm -f ${PREFIX}/configuration/*.log
-	for i in $(SUBDIRS) ; do \
+	-for i in $(SUBDIRS) ; do \
 		for j in $$i/*/target/*.jar ; do \
-			echo $$j ; \
+			echo "$$j" ; \
+			test -f "$$j" && cp "$$j" "$(PREFIX)" ; \
 		done ; \
 	done
 
