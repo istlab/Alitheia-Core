@@ -34,22 +34,14 @@ package eu.sqooss.impl.service.tds;
 
 import java.util.HashMap;
 
-import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.internal.io.dav.DAVRepositoryFactory;
 import org.tmatesoft.svn.core.internal.io.fs.FSRepositoryFactory;
 import org.tmatesoft.svn.core.internal.io.svn.SVNRepositoryFactoryImpl;
-import org.tmatesoft.svn.core.io.SVNRepository;
 
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
-
-import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.logging.LogManager;
-import eu.sqooss.impl.service.logging.LogManagerConstants;
-
-import eu.sqooss.service.tds.TDSService;
+import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.TDAccessor;
+import eu.sqooss.service.tds.TDSService;
 
 public class TDSServiceImpl implements TDSService {
     private Logger logger;
@@ -57,9 +49,9 @@ public class TDSServiceImpl implements TDSService {
 
     public TDSServiceImpl() {
         logger = LogManager.getInstance().createLogger(
-            LogManagerConstants.NAME_ROOT_LOGGER +
-            LogManagerConstants.NAME_DELIMITER +
-            LogManagerConstants.SIBLING_DATABASE);
+            Logger.NAME_SQOOSS +
+            Logger.LOGGER_NAME_DELIMITER +
+            Logger.NAME_SQOOSS_DATABASE);
         if (logger != null) {
             logger.info("TDS service created.");
         } else {
