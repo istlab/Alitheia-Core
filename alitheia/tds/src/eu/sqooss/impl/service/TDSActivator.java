@@ -48,7 +48,7 @@ public class TDSActivator implements BundleActivator {
         if (tdsroot==null) {
             tdsroot="eu.sqooss.tds.config.";
         }
-        if (!tdsroot.endsWith('.')) {
+        if (!tdsroot.endsWith(".")) {
             tdsroot = tdsroot + ".";
         }
         System.out.println("Using configuration key " + tdsroot);
