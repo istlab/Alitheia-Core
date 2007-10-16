@@ -64,23 +64,7 @@ public interface UpdaterService {
                 return UpdateTarget.ALL;
             else
                 return null;
-        }
-
-        public static String toString(UpdateTarget t) {
-            if(t == UpdateTarget.SOURCE_CODE_DATA)
-                return ("code");
-            else if ( t ==  UpdateTarget.REPOSITORY_DATA)
-                return ("repo");
-            else if ( t ==  UpdateTarget.MAILING_LIST_DATA)
-                return ("mail");
-            else if ( t ==  UpdateTarget.BUG_DATABASE_DATA)
-                return ("bug");
-            else if ( t ==  UpdateTarget.ALL)
-                return ("all");
-            else 
-                return (null);
-        }
-         
+        }         
     }
 
     /**
