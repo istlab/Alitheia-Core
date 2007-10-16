@@ -23,8 +23,15 @@ install :
 	T="" ; \
 	for i in $(SUBDIRS) ; do \
 		for j in $$i/*/target/*.jar ; do \
+			START_LEVEL="" ; \
+			INIT_STATE="start"; \
+			MODULE_PATH=`echo $$j | sed 's/\/target\/.*.jar//'` ; \
+			if test -f $$MODULE_PATH/startlevel.cfg ; then \
+				START_LEVEL=`cat $$MODULE_PATH/startlevel.cfg | awk -F ':' '{print $$1}'`":" ; \
+				INIT_STATE=`cat $$MODULE_PATH/startlevel.cfg | awk -F ':' '{print $$2}'`":" ; \
+			fi ; \
 			if test -f $$j ; then \
-				T="$$T ,"`basename $$j`"@start" ; \
+				T="$$T, \\\\\n    "`basename $$j`"@$$START_LEVEL$$INIT_STATE" ; \
 				cp $$j $(PREFIX) ; \
 			fi ; \
 		done ; \
