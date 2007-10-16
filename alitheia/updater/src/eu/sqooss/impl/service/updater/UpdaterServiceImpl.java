@@ -3,6 +3,7 @@
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  * 
  * Copyright 2007 by the SQO-OSS consortium members <info@sqo-oss.eu>
+ * Copyright 2007 Georgios Gousios <gousiosg@aueb.gr>
  * 
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -33,7 +34,6 @@
 package eu.sqooss.impl.service.updater;
 
 import java.io.IOException;
-import java.util.Hashtable;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -46,12 +46,13 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
 
-import eu.sqooss.service.updater.UpdaterService;
-import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.logging.LogManager;
-import eu.sqooss.impl.service.logging.LogManagerConstants;
+import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.updater.UpdaterService;
 
 public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
+
+    private static final long serialVersionUID = 1L;
 
     private ServiceReference serviceRef = null;
 
@@ -66,47 +67,42 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
 
         serviceRef = bc.getServiceReference("eu.sqooss.service.logging.LogManager");
         logService = (LogManager) bc.getService(serviceRef);
-        
+
         if (logService != null) {
-            logger = logService.createLogger(
-                    LogManagerConstants.NAME_ROOT_LOGGER
-                  + LogManagerConstants.NAME_DELIMITER
-                  + LogManagerConstants.SIBLING_UPDATER);
-         
-            if (logger != null) {
+            logger = logService.createLogger(Logger.NAME_SQOOSS_UPDATER);
+
+            if (logger != null)
                 logger.info("Got logging!");
-            }
-        } 
+        }
 
         if (logger == null) {
             System.out.println("! Got no logger");
         }
 
         serviceRef = bc.getServiceReference("org.osgi.service.http.HttpService");
-        
+
         if (serviceRef != null) {
             httpService = (HttpService) bc.getService(serviceRef);
-            httpService.registerServlet("/updater", (Servlet) this,
-                    new Hashtable(), null);
+            httpService.registerServlet("/updater", (Servlet) this, null, null);
         } else {
             logger.severe("Could not load the HTTP service.");
         }
     }
 
-    public void update(String path) {
-        logger.info("Request to update path:" + path);
+    public void update(String path, UpdateTarget target) {
+        logger.info("Request to update project" + path + " for target: "
+                + UpdateTarget.toString(target));
     }
 
     public void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String s = request.getParameter("path");
-        if (s != null)
-            update(s);
-        else {
-            response.setContentType("text/html");
-            response.getWriter().write("<html><head><title>Error</title>" +
-            		"</head><body><h1>Error</h1></body></html>");
+        String p = request.getParameter("project");
+        String t = request.getParameter("target");
+
+        if (p != null && UpdateTarget.fromString(t) != null) {
+            update(p, UpdateTarget.fromString(t));
+        } else {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST);
         }
     }
-
 }
