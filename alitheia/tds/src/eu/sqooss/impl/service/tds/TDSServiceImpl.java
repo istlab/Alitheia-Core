@@ -34,7 +34,9 @@ package eu.sqooss.impl.service.tds;
 
 import java.util.HashMap;
 import java.util.Properties;
+import java.util.Enumeration;
 import java.io.FileInputStream;
+import java.io.File;
 
 import org.osgi.framework.BundleContext;
 
@@ -48,8 +50,28 @@ import eu.sqooss.service.tds.TDAccessor;
 import eu.sqooss.service.tds.TDSService;
 
 public class TDSServiceImpl implements TDSService {
+    private class TDAData {
+        public String scm;
+        public String bts;
+        public String mail;
+
+        public void put( String s, String v ) {
+            String subKey = s.substring(s.indexOf(".")+1);
+            if ("scm".equals(subKey)) {
+                scm = v;
+            } else if ("bts".equals(subKey)) {
+                bts = v;
+            } else if ("mail".equals(subKey)) {
+                mail = v;
+            } else {
+                logger.warning("Bad configuration key <" + s + "> in TDS config.");
+            }
+        }
+    }
+
     private Logger logger;
     private HashMap<String, TDAccessor> accessorPool;
+    private HashMap<String, TDAData> nameToAccessDataMap;
 
     public TDSServiceImpl(BundleContext bc) {
         logger = LogManager.getInstance().createLogger(Logger.NAME_SQOOSS_TDS);
@@ -77,7 +99,23 @@ public class TDSServiceImpl implements TDSService {
         } catch (Exception e) {
             logger.warning(e.getMessage());
         }
-        p.list(System.out);
+
+        int projectCount = 0;
+        nameToAccessDataMap = new HashMap<String,TDAData>();
+        for(Enumeration i = p.keys(); i.hasMoreElements(); ) {
+            String s = (String) i.nextElement();
+            String projectName = s.substring(0,s.indexOf("."));
+            if (nameToAccessDataMap.containsKey(projectName)) {
+                TDAData a = nameToAccessDataMap.get(projectName);
+                a.put(s,(String)p.get(s));
+            } else {
+                TDAData a = new TDAData();
+                a.put(s,(String)p.get(s));
+                nameToAccessDataMap.put(projectName,a);
+                projectCount++;
+            }
+        }
+        logger.info("Got configuration for " + projectCount + " projects.");
     }
 
     public boolean accessorExists( String projectName ) {
