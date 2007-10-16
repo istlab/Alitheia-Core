@@ -46,32 +46,13 @@ import org.tmatesoft.svn.core.internal.io.svn.SVNRepositoryFactoryImpl;
 
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
-import eu.sqooss.service.tds.TDAccessor;
 import eu.sqooss.service.tds.TDSService;
+import eu.sqooss.service.tds.TDAccessor;
+import eu.sqooss.impl.service.tds.TDAccessorImpl;
 
 public class TDSServiceImpl implements TDSService {
-    private class TDAData {
-        public String scm;
-        public String bts;
-        public String mail;
-
-        public void put( String s, String v ) {
-            String subKey = s.substring(s.indexOf(".")+1);
-            if ("scm".equals(subKey)) {
-                scm = v;
-            } else if ("bts".equals(subKey)) {
-                bts = v;
-            } else if ("mail".equals(subKey)) {
-                mail = v;
-            } else {
-                logger.warning("Bad configuration key <" + s + "> in TDS config.");
-            }
-        }
-    }
-
     private Logger logger;
-    private HashMap<String, TDAccessor> accessorPool;
-    private HashMap<String, TDAData> nameToAccessDataMap;
+    private HashMap<String, TDAccessorImpl> accessorPool;
 
     public TDSServiceImpl(BundleContext bc) {
         logger = LogManager.getInstance().createLogger(Logger.NAME_SQOOSS_TDS);
@@ -87,6 +68,7 @@ public class TDSServiceImpl implements TDSService {
         FSRepositoryFactory.setup();
 
         logger.info("SVN repo factories initialized.");
+        TDAccessorImpl.logger = logger;
 
         String tdsroot = bc.getProperty("eu.sqooss.tds.config");
         if (tdsroot==null) {
@@ -101,17 +83,17 @@ public class TDSServiceImpl implements TDSService {
         }
 
         int projectCount = 0;
-        nameToAccessDataMap = new HashMap<String,TDAData>();
+        accessorPool = new HashMap<String,TDAccessorImpl>();
         for(Enumeration i = p.keys(); i.hasMoreElements(); ) {
             String s = (String) i.nextElement();
             String projectName = s.substring(0,s.indexOf("."));
-            if (nameToAccessDataMap.containsKey(projectName)) {
-                TDAData a = nameToAccessDataMap.get(projectName);
+            if (accessorPool.containsKey(projectName)) {
+                TDAccessorImpl a = accessorPool.get(projectName);
                 a.put(s,(String)p.get(s));
             } else {
-                TDAData a = new TDAData();
+                TDAccessorImpl a = new TDAccessorImpl(projectName);
                 a.put(s,(String)p.get(s));
-                nameToAccessDataMap.put(projectName,a);
+                accessorPool.put(projectName,a);
                 projectCount++;
             }
         }
