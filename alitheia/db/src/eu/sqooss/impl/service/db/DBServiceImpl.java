@@ -34,21 +34,13 @@ package eu.sqooss.impl.service.db;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
-
-import eu.sqooss.service.logging.Logger;
-import eu.sqooss.service.logging.LogManager;
-import eu.sqooss.impl.service.logging.LogManagerConstants;
-
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.FSAccessData;
-import eu.sqooss.impl.service.db.FSAccessDataImpl;
+import eu.sqooss.service.logging.LogManager;
+import eu.sqooss.service.logging.Logger;
 
 public class DBServiceImpl implements DBService {
     private Logger logger = null;
