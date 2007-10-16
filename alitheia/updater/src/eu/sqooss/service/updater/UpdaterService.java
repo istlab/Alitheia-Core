@@ -3,6 +3,7 @@
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  * 
  * Copyright 2007 by the SQO-OSS consortium members <info@sqo-oss.eu>
+ * Copyright 2007 by Georgios Gousios <gousiosg@aueb.gr>
  * 
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -35,9 +36,58 @@ package eu.sqooss.service.updater;
 public interface UpdaterService {
 
     /**
+     * Targets for an update request
+     *
+     */
+    public enum UpdateTarget {
+        /* Request to update source code metadata*/
+        SOURCE_CODE_DATA,
+        /* Request to update repository metadata*/
+        REPOSITORY_DATA,
+        /* Request to update mailing list metadata*/
+        MAILING_LIST_DATA,
+        /* Request to update bug metadata*/
+        BUG_DATABASE_DATA,
+        /* Request to update all metadata*/
+        ALL;
+
+        public static UpdateTarget fromString(String s) {
+            if (s.contains("code"))
+                return UpdateTarget.SOURCE_CODE_DATA;
+            else if (s.contains("repo"))
+                return UpdateTarget.REPOSITORY_DATA;
+            else if (s.contains("mail"))
+                return UpdateTarget.MAILING_LIST_DATA;
+            else if (s.contains("bugs"))
+                return UpdateTarget.BUG_DATABASE_DATA;
+            else if (s.contains("all"))
+                return UpdateTarget.ALL;
+            else
+                return null;
+        }
+
+        public static String toString(UpdateTarget t) {
+            if(t == UpdateTarget.SOURCE_CODE_DATA)
+                return ("code");
+            else if ( t ==  UpdateTarget.REPOSITORY_DATA)
+                return ("repo");
+            else if ( t ==  UpdateTarget.MAILING_LIST_DATA)
+                return ("mail");
+            else if ( t ==  UpdateTarget.BUG_DATABASE_DATA)
+                return ("bug");
+            else if ( t ==  UpdateTarget.ALL)
+                return ("all");
+            else 
+                return (null);
+        }
+         
+    }
+
+    /**
      * Inform the updater service about changes to the data mirrors
      * 
-     * @param path - The path that has changed
+     * @param project - The project name that has been updated
+     * @param target - Specifies which project resource has been updated
      */
-    void update(String path);
+    void update(String project, UpdateTarget target);
 }
