@@ -43,15 +43,7 @@ public class TDSActivator implements BundleActivator {
 
     public void start(BundleContext bc) throws Exception {
         registration = bc.registerService(TDSServiceImpl.class.getName(),
-                                          new TDSServiceImpl(), null);
-        String tdsroot = bc.getProperty("eu.sqooss.tds.root");
-        if (tdsroot==null) {
-            tdsroot="eu.sqooss.tds.config.";
-        }
-        if (!tdsroot.endsWith(".")) {
-            tdsroot = tdsroot + ".";
-        }
-        System.out.println("Using configuration key " + tdsroot);
+                                          new TDSServiceImpl(bc), null);
     }
 
     public void stop(BundleContext bc) throws Exception {

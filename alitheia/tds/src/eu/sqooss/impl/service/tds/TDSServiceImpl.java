@@ -34,6 +34,8 @@ package eu.sqooss.impl.service.tds;
 
 import java.util.HashMap;
 
+import org.osgi.framework.BundleContext;
+
 import org.tmatesoft.svn.core.internal.io.dav.DAVRepositoryFactory;
 import org.tmatesoft.svn.core.internal.io.fs.FSRepositoryFactory;
 import org.tmatesoft.svn.core.internal.io.svn.SVNRepositoryFactoryImpl;
@@ -47,7 +49,7 @@ public class TDSServiceImpl implements TDSService {
     private Logger logger;
     private HashMap<String, TDAccessor> accessorPool;
 
-    public TDSServiceImpl() {
+    public TDSServiceImpl(BundleContext bc) {
         logger = LogManager.getInstance().createLogger(Logger.NAME_SQOOSS_TDS);
         if (logger != null) {
             logger.info("TDS service created.");
@@ -61,6 +63,16 @@ public class TDSServiceImpl implements TDSService {
         FSRepositoryFactory.setup();
 
         logger.info("SVN repo factories initialized.");
+
+        String tdsroot = bc.getProperty("eu.sqooss.tds.root");
+        if (tdsroot==null) {
+            tdsroot="eu.sqooss.tds.config.";
+        }
+        if (!tdsroot.endsWith(".")) {
+            tdsroot = tdsroot + ".";
+        }
+        logger.info("TDS using config root <" + tdsroot + ">");
+        System.out.println(System.getProperties());
     }
 
     public boolean accessorExists( String projectName ) {
