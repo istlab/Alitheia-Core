@@ -33,6 +33,8 @@
 package eu.sqooss.impl.service.tds;
 
 import java.util.HashMap;
+import java.util.Properties;
+import java.io.FileInputStream;
 
 import org.osgi.framework.BundleContext;
 
@@ -64,15 +66,18 @@ public class TDSServiceImpl implements TDSService {
 
         logger.info("SVN repo factories initialized.");
 
-        String tdsroot = bc.getProperty("eu.sqooss.tds.root");
+        String tdsroot = bc.getProperty("eu.sqooss.tds.config");
         if (tdsroot==null) {
-            tdsroot="eu.sqooss.tds.config.";
+            tdsroot="tds.conf";
         }
-        if (!tdsroot.endsWith(".")) {
-            tdsroot = tdsroot + ".";
+        logger.info("TDS using config file <" + tdsroot + ">");
+        Properties p = new Properties();
+        try {
+            p.load(new FileInputStream(tdsroot));
+        } catch (Exception e) {
+            logger.warning(e.getMessage());
         }
-        logger.info("TDS using config root <" + tdsroot + ">");
-        System.out.println(System.getProperties());
+        p.list(System.out);
     }
 
     public boolean accessorExists( String projectName ) {
