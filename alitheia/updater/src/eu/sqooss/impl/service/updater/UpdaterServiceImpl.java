@@ -80,7 +80,7 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
             logger = logService.createLogger(Logger.NAME_SQOOSS_UPDATER);
 
             if (logger != null)
-                logger.info("Got logging!");
+                logger.info("Got a valid reference to the logger");
         }
 
         if (logger == null) {
@@ -88,22 +88,29 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
         }
         
         /*Get a reference to the TDS service*/
-        serviceRef = bc.getServiceReference("eu.sqooss.service.tds");
+        serviceRef = bc.getServiceReference("eu.sqooss.impl.service.tds.TDSServiceImpl");
         tdsService = (TDSService) bc.getService(serviceRef);
         if (tdsService == null)
             logger.severe("Could not load the TDS service");
+        else
+            logger.info("Got a reference to the TDS service");
         
         /*Get a reference to the DB service*/
-        serviceRef = bc.getServiceReference("eu.sqooss.service.db");
+        serviceRef = bc.getServiceReference("eu.sqooss.impl.service.db.DBServiceImpl");
         dbService = (DBService) bc.getService(serviceRef);
         if (dbService == null)
             logger.severe("Could not load the DB service");
+        else
+            logger.info("Got a valid reference to the DB service");
         
         /*Get a reference to the scheduler service*/
-        serviceRef = bc.getServiceReference("eu.sqooss.service.scheduler");
+        serviceRef = bc.getServiceReference("eu.sqooss.service.scheduler.Scheduler");
         scheduler = (Scheduler) bc.getService(serviceRef);
         if (scheduler == null)
             logger.severe("Could not load the scheduler");
+        else
+            logger.info("Got a valid reference to the Scheduler");
+
 
         /*Get a reference to the HTTP service*/
         serviceRef = bc.getServiceReference("org.osgi.service.http.HttpService");
@@ -114,6 +121,8 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
         } else {
             logger.severe("Could not load the HTTP service.");
         }
+        
+        logger.info("Succesfully started updater service");
     }
 
     public void update(String path, UpdateTarget target) {

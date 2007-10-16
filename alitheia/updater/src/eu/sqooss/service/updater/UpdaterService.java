@@ -52,6 +52,10 @@ public interface UpdaterService {
         ALL;
 
         public static UpdateTarget fromString(String s) {
+            
+            if (s == null)
+                return null;
+            
             if (s.contains("code"))
                 return UpdateTarget.SOURCE_CODE_DATA;
             else if (s.contains("repo"))
