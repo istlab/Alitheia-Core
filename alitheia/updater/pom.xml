@@ -85,6 +85,27 @@
       <type>jar</type>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>eu.sqooss</groupId>
+      <artifactId>tds</artifactId>
+      <version>1.0.0</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>eu.sqooss</groupId>
+      <artifactId>db</artifactId>
+      <version>1.0.0</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>eu.sqooss</groupId>
+      <artifactId>scheduler</artifactId>
+      <version>1.0.0</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
   
   <!-- Developers working on this module -->

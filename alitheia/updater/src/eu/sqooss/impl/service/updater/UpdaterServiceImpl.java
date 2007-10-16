@@ -49,6 +49,9 @@ import org.osgi.service.http.NamespaceException;
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.updater.UpdaterService;
+import eu.sqooss.service.tds.TDSService;
+import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.scheduler.Scheduler;
 
 public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
 
@@ -57,7 +60,11 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
     private ServiceReference serviceRef = null;
 
     private HttpService httpService = null;
-
+    
+    private TDSService tdsService = null;
+    private DBService dbService = null;
+    private Scheduler scheduler = null;
+    
     private LogManager logService = null;
 
     private Logger logger = null;
@@ -65,6 +72,7 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
     public UpdaterServiceImpl(BundleContext bc) throws ServletException,
             NamespaceException {
 
+        /*Get a reference to the logging service*/
         serviceRef = bc.getServiceReference("eu.sqooss.service.logging.LogManager");
         logService = (LogManager) bc.getService(serviceRef);
 
@@ -76,9 +84,28 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
         }
 
         if (logger == null) {
-            System.out.println("! Got no logger");
+            System.out.println("ERROR: Got no logger");
         }
+        
+        /*Get a reference to the TDS service*/
+        serviceRef = bc.getServiceReference("eu.sqooss.service.tds");
+        tdsService = (TDSService) bc.getService(serviceRef);
+        if (tdsService == null)
+            logger.severe("Could not load the TDS service");
+        
+        /*Get a reference to the DB service*/
+        serviceRef = bc.getServiceReference("eu.sqooss.service.db");
+        dbService = (DBService) bc.getService(serviceRef);
+        if (dbService == null)
+            logger.severe("Could not load the DB service");
+        
+        /*Get a reference to the scheduler service*/
+        serviceRef = bc.getServiceReference("eu.sqooss.service.scheduler");
+        scheduler = (Scheduler) bc.getService(serviceRef);
+        if (scheduler == null)
+            logger.severe("Could not load the scheduler");
 
+        /*Get a reference to the HTTP service*/
         serviceRef = bc.getServiceReference("org.osgi.service.http.HttpService");
 
         if (serviceRef != null) {
@@ -90,8 +117,8 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
     }
 
     public void update(String path, UpdateTarget target) {
-        logger.info("Request to update project" + path + " for target: "
-                + UpdateTarget.toString(target));
+        logger.info("Request to update project:" + path + " for target: " 
+                + target);
     }
 
     public void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -102,6 +129,8 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
         if (p != null && UpdateTarget.fromString(t) != null) {
             update(p, UpdateTarget.fromString(t));
         } else {
+            logger.severe("Failing request to update project:" + p 
+                    + " for target: "+ t);
             response.sendError(HttpServletResponse.SC_BAD_REQUEST);
         }
     }
