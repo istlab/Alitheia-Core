@@ -122,23 +122,6 @@ public class TDSServiceImpl implements TDSService {
         return accessorPool.containsKey(projectName);
     }
 
-    public boolean accessorExists( int id ) {
-        return accessorExists(nameForProject(id));
-    }
-
-    private String nameForProject( int id ) {
-        if (id==1) {
-            return "KDE";
-        } else {
-            return null;
-        }
-    }
-
-    public TDAccessor getAccessor( int id ) {
-        logger.info("Trying to retrieve accessor for project ID " + id);
-        return getAccessor(nameForProject(id));
-    }
-
     public TDAccessor getAccessor( String projectName ) {
         if (accessorExists(projectName)) {
             logger.info("Retrieving accessor for project " + projectName);

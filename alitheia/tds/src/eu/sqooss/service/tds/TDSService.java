@@ -61,19 +61,7 @@ public interface TDSService {
      * This may be used to suppress requests for the accessor if
      * it is not in use yet.
      */
-    public boolean accessorExists( int id );
-
-    /**
-     * Check if the given project ID has an accessor object ready.
-     * This may be used to suppress requests for the accessor if
-     * it is not in use yet.
-     */
     public boolean accessorExists( String name );
-
-    /**
-     * Retrieve the accessor object for the given project @p id .
-     */
-    public TDAccessor getAccessor( int id );
 
     /**
      * Retrieve the accessor object for the given project @p name .
