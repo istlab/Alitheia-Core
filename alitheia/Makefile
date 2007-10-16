@@ -11,11 +11,11 @@ $(1)-$(2) :
 	cd $(2) && $(3)
 endef
 
-$(foreach d,$(BUNDLES),$(eval $(call subdir_template,build,$(d),mvn package)))
+$(foreach d,$(BUNDLES),$(eval $(call subdir_template,build,$(d),mvn package install)))
 $(foreach d,$(BUNDLES),$(eval $(call subdir_template,install,$(d),cp target/*.jar ../../equinox/)))
 
 build :
-	mvn package
+	mvn package install
 
 build-parts : $(foreach d,$(BUNDLES),build-$(d))
 
