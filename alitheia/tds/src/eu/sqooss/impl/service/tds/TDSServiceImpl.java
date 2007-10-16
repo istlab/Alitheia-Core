@@ -1,21 +1,21 @@
 /*
  * This file is part of the Alitheia system, developed by the SQO-OSS
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
- * 
+ *
  * Copyright 2007 by the SQO-OSS consortium members <info@sqo-oss.eu>
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
  * met:
- * 
+ *
  *     * Redistributions of source code must retain the above copyright
  *       notice, this list of conditions and the following disclaimer.
- * 
+ *
  *     * Redistributions in binary form must reproduce the above
  *       copyright notice, this list of conditions and the following
  *       disclaimer in the documentation and/or other materials provided
  *       with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -27,7 +27,7 @@
  * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 package eu.sqooss.impl.service.tds;
@@ -53,12 +53,12 @@ import eu.sqooss.service.tds.TDAccessor;
 
 public class TDSServiceImpl implements TDSService {
     private Logger logger;
-    private HashMap<Integer, TDAccessor> accessorPool;
-    
+    private HashMap<String, TDAccessor> accessorPool;
+
     public TDSServiceImpl() {
         logger = LogManager.getInstance().createLogger(
-            LogManagerConstants.NAME_ROOT_LOGGER + 
-            LogManagerConstants.NAME_DELIMITER + 
+            LogManagerConstants.NAME_ROOT_LOGGER +
+            LogManagerConstants.NAME_DELIMITER +
             LogManagerConstants.SIBLING_DATABASE);
         if (logger != null) {
             logger.info("TDS service created.");
@@ -74,13 +74,19 @@ public class TDSServiceImpl implements TDSService {
         logger.info("SVN repo factories initialized.");
     }
 
-    public boolean accessorExists(int id) {
-        return accessorPool.containsKey(new Integer(id));
+    public boolean accessorExists(String name) {
+        return accessorPool.containsKey(name);
     }
 
     public TDAccessor getAccessor(int id) {
-        if (accessorExists(id)) {
-            return accessorPool.get(new Integer(id));
+        logger.info("Trying to retrieve accessor for project ID " + id);
+        return getAccessor(nameForProject(id));
+    }
+
+    public TDAccessor getAccessor( String projectName ) {
+        if (accessorExists(name)) {
+            logger.info("Retrieving accessor for project " + name);
+            return accessorPool.get(name);
         }
 
         return null;
