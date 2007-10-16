@@ -31,7 +31,7 @@ install :
 				INIT_STATE=`cat $$MODULE_PATH/startlevel.cfg | awk -F ':' '{print $$2}'`":" ; \
 			fi ; \
 			if test -f $$j ; then \
-				T="$$T, \\\\\n    "`basename $$j`"@$$START_LEVEL$$INIT_STATE" ; \
+				T="$$T, "`basename $$j`"@$$START_LEVEL$$INIT_STATE" ; \
 				cp $$j $(PREFIX) ; \
 			fi ; \
 		done ; \
