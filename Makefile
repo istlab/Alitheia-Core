@@ -20,23 +20,11 @@ PREFIX=equinox
 install :
 	rm -Rf ${PREFIX}/configuration/org.eclipse.osgi
 	rm -f ${PREFIX}/configuration/*.log
-	T="" ; \
 	for i in $(SUBDIRS) ; do \
 		for j in $$i/*/target/*.jar ; do \
-			START_LEVEL="" ; \
-			INIT_STATE="start"; \
-			MODULE_PATH=`echo $$j | sed 's/\/target\/.*.jar//'` ; \
-			if test -f $$MODULE_PATH/startlevel.cfg ; then \
-				START_LEVEL=`cat $$MODULE_PATH/startlevel.cfg | awk -F ':' '{print $$1}'`":" ; \
-				INIT_STATE=`cat $$MODULE_PATH/startlevel.cfg | awk -F ':' '{print $$2}'`":" ; \
-			fi ; \
-			if test -f $$j ; then \
-				T="$$T, "`basename $$j`"@$$START_LEVEL$$INIT_STATE" ; \
-				cp $$j $(PREFIX) ; \
-			fi ; \
+			echo $$j ; \
 		done ; \
-	done ; \
-	sed "s/@@ALITHEIA@@/$$T/" < $(PREFIX)/configuration/config.ini.in > $(PREFIX)/configuration/config.ini
+	done
 
 # $(CONFIG) would typically be used to set system properties.
 run :
