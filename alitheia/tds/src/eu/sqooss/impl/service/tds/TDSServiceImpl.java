@@ -74,25 +74,38 @@ public class TDSServiceImpl implements TDSService {
         logger.info("SVN repo factories initialized.");
     }
 
-    public boolean accessorExists(String name) {
-        return accessorPool.containsKey(name);
+    public boolean accessorExists( String projectName ) {
+        return accessorPool.containsKey(projectName);
     }
 
-    public TDAccessor getAccessor(int id) {
+    public boolean accessorExists( int id ) {
+        return accessorExists(nameForProject(id));
+    }
+
+    private String nameForProject( int id ) {
+        if (id==1) {
+            return "KDE";
+        } else {
+            return null;
+        }
+    }
+
+    public TDAccessor getAccessor( int id ) {
         logger.info("Trying to retrieve accessor for project ID " + id);
         return getAccessor(nameForProject(id));
     }
 
     public TDAccessor getAccessor( String projectName ) {
-        if (accessorExists(name)) {
-            logger.info("Retrieving accessor for project " + name);
-            return accessorPool.get(name);
+        if (accessorExists(projectName)) {
+            logger.info("Retrieving accessor for project " + projectName);
+            return accessorPool.get(projectName);
         }
 
         return null;
     }
 
-    public void releaseAccessor(TDAccessor td) {
+    public void releaseAccessor( TDAccessor td ) {
+        logger.info("Release accessor for " + td.getName());
     }
 }
 
