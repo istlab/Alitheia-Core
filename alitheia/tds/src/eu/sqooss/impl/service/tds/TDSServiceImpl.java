@@ -48,10 +48,7 @@ public class TDSServiceImpl implements TDSService {
     private HashMap<String, TDAccessor> accessorPool;
 
     public TDSServiceImpl() {
-        logger = LogManager.getInstance().createLogger(
-            Logger.NAME_SQOOSS +
-            Logger.LOGGER_NAME_DELIMITER +
-            Logger.NAME_SQOOSS_DATABASE);
+        logger = LogManager.getInstance().createLogger(Logger.NAME_SQOOSS_TDS);
         if (logger != null) {
             logger.info("TDS service created.");
         } else {
