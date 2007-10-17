@@ -12,6 +12,7 @@ public class LogManagerConstants {
   public static final String SIBLING_UPDATER        = "updater";
   public static final String SIBLING_WEBUI          = "webui";
   public static final String SIBLING_TDS            = "tds";
+  public static final String SIBLING_FDS            = "fds";
   
   public static final char   NAME_DELIMITER         = '.';  
 }

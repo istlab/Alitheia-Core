@@ -80,6 +80,12 @@ public interface Logger {
                                                         LogManagerConstants.NAME_DELIMITER + 
                                                         LogManagerConstants.SIBLING_TDS;
   
+  /**
+   * Represents web FDS logger name.
+   */
+  public static final String NAME_SQOOSS_FDS        =   LogManagerConstants.NAME_ROOT_LOGGER +
+                                                        LogManagerConstants.NAME_DELIMITER + 
+                                                        LogManagerConstants.SIBLING_FDS;
   
   /**
    * Logs a message with a info(lowest) logging level
