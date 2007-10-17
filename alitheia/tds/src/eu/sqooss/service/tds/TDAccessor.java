@@ -52,10 +52,10 @@ import eu.sqooss.service.tds.SCMAccessor;
  */
 public interface TDAccessor {
     /**
-     * Return the numeric ID for the accessor. At creation time this
-     * is guaranteed to be a valid project ID, but during the lifetime
-     * of the accessor the project may be removed or modified so that
-     * the ID becomes invalid.
+     * Return the numeric ID for the project associated with this accessor. 
+     * At creation time this is guaranteed to be a valid project ID, but 
+     * during the lifetime of the accessor the project may be removed or 
+     * modified so that the ID becomes invalid.
      */
     public int getId();
 
@@ -69,19 +69,19 @@ public interface TDAccessor {
      * Get the BTS sub-accessor for the project associated with this
      * TDAccessor.
      */
-    BTSAccessor getBTSAccessor();
+    public BTSAccessor getBTSAccessor();
 
     /**
      * Get the Mail sub-accessor for the project associated with this
      * TDAccessor.
      */
-    MailAccessor getMailAccessor();
+    public MailAccessor getMailAccessor();
 
     /**
      * Get the BTS sub-accessor for the project associated with this
      * TDAccessor.
      */
-    SCMAccessor getSCMAccessor();
+    public SCMAccessor getSCMAccessor();
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab
