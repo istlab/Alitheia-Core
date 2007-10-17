@@ -25,7 +25,7 @@
     <!-- Tells Maven to search for source code here -->
     <sourceDirectory>${basedir}/src</sourceDirectory>
     <!-- Tells Maven to build Java class files here -->
-    <outputDirectory>${basedir}/bin</outputDirectory>
+    <outputDirectory>${basedir}/build</outputDirectory>
     <!-- Tells Maven where to find the bundle manifest file -->
     <plugins>
       <plugin>
