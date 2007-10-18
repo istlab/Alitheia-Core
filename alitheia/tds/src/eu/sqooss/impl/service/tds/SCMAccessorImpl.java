@@ -33,15 +33,33 @@
 
 package eu.sqooss.impl.service.tds;
 
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+
+import org.tmatesoft.svn.core.SVNException;
+import org.tmatesoft.svn.core.SVNLogEntry;
+// import org.tmatesoft.svn.core.SVNLogEntryPath;
+import org.tmatesoft.svn.core.SVNURL;
+// import org.tmatesoft.svn.core.auth.ISVNAuthenticationManager;
+// import org.tmatesoft.svn.core.internal.io.dav.DAVRepositoryFactory;
+// import org.tmatesoft.svn.core.internal.io.fs.FSRepositoryFactory;
+// import org.tmatesoft.svn.core.internal.io.svn.SVNRepositoryFactoryImpl;
+import org.tmatesoft.svn.core.io.SVNRepository;
+import org.tmatesoft.svn.core.io.SVNRepositoryFactory;
+// import org.tmatesoft.svn.core.wc.SVNWCUtil;
+
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.SCMAccessor;
 import eu.sqooss.service.tds.CommitLog;
 import eu.sqooss.service.tds.Diff;
 import eu.sqooss.service.tds.ProjectRevision;
+import eu.sqooss.impl.service.tds.CommitLogImpl;
 
 public class SCMAccessorImpl implements SCMAccessor {
     private String url;
     private String projectName;
+    private SVNRepository svnRepository = null;
     public static Logger logger = null;
 
     public SCMAccessorImpl( String projectName, String url ) {
@@ -59,9 +77,58 @@ public class SCMAccessorImpl implements SCMAccessor {
     public void checkOutFile( String repoPath, ProjectRevision revision, String localPath ) {
     }
 
+    private void connectToRepository() {
+        try {
+            svnRepository = SVNRepositoryFactory.create(SVNURL.parseURIDecoded(url));
+            // All access is assumed to be anonynmous, so no
+            // authentication manager is used.
+        } catch (SVNException e) {
+            logger.warning("Could not create SVN repository connection for " + projectName +
+                e.getMessage());
+            svnRepository = null;
+        }
+    }
+
+    private void checkLatestRevision() {
+        try {
+            long endRevision = svnRepository.getLatestRevision();
+            logger.info("Latest revision of " + projectName + " is " + endRevision);
+        } catch (SVNException e) {
+            logger.warning("Could not get latest revision of " + projectName +
+                e.getMessage());
+        }
+    }
+
     private static int revcount = 1;
     public CommitLog getCommitLog( ProjectRevision r1, ProjectRevision r2 ) {
+        if (svnRepository == null) {
+            connectToRepository();
+        }
+        if (svnRepository == null) {
+            return null;
+        }
+
         logger.info("getting log message for r." + revcount);
+        checkLatestRevision();
+
+        try {
+            Collection logEntries = svnRepository.log(new String[]{""},null,
+                revcount, revcount, true, true);
+            int entrycount = 0;
+            // There ought to be just one entry in here.
+            CommitLogImpl l = new CommitLogImpl();
+            for (Iterator entries = logEntries.iterator(); entries.hasNext();) {
+                SVNLogEntry logEntry = (SVNLogEntry) entries.next();
+                l.add(logEntry);
+                logger.info("Commit message for r." + revcount + " is <" +
+                    logEntry.getMessage() + ">");
+            }
+            revcount++;
+            return l;
+        } catch (SVNException e) {
+            logger.warning("Could not get log for " + projectName);
+        }
+
         return null;
     }
 
