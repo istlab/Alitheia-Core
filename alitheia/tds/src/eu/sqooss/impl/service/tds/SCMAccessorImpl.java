@@ -122,7 +122,6 @@ public class SCMAccessorImpl implements SCMAccessor {
                 revcount, revcount+10, true, true);
             logger.info("Message for r." + revcount + " is <" +
                 l.message(null) + ">");
-            l.dump();
             revcount++;
             return l;
         } catch (SVNException e) {
