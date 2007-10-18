@@ -42,25 +42,14 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.http.HttpService;
 
-import eu.sqooss.service.logger.Logger;
-import eu.sqooss.service.logger.LogManager;
 import eu.sqooss.service.webui.WebUIService;
 
 public class WebUIServiceImpl implements WebUIService {
-    ServiceReference serviceref = null;
-    HttpService httpservice = null;
-    WebUIServer httpui = null;
+    private ServiceReference serviceref = null;
+    private HttpService httpservice = null;
+    private WebUIServer httpui = null;
 
     public WebUIServiceImpl(BundleContext bc) throws Exception {
-        ServiceReference logServiceRef = bc.getServiceReference("eu.sqooss.service.logging.LogManager");
-        logService = (LogManager) bc.getService(logServiceRef);
-        logger = logService.createLogger(Logger.NAME_SQOOSS_WEBUI);
-        if (logger != null) {
-            logger.info("WebUI service created.");
-        } else {
-            System.out.println("# WebUI failed to get logger.");
-        }
-
         serviceref = bc.getServiceReference("org.osgi.service.http.HttpService");
         if (serviceref != null) {
             httpservice = (HttpService) bc.getService(serviceref);

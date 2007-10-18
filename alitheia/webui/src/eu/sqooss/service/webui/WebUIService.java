@@ -32,7 +32,7 @@
  *
  */
 
-package eu.sqooss.services.webui;
+package eu.sqooss.service.webui;
 
 public interface WebUIService {
   /**
