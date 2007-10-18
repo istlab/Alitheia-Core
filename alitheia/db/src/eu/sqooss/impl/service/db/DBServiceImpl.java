@@ -37,12 +37,16 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
+
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.FSAccessData;
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
 
 public class DBServiceImpl implements DBService {
+    private LogManager logService = null;
     private Logger logger = null;
     // This is the database connection; we may want to do more pooling here.
     private Connection dbConnection = null;
@@ -119,8 +123,11 @@ public class DBServiceImpl implements DBService {
         return null;
     }
 
-    public DBServiceImpl() {
-        logger = LogManager.getInstance().createLogger("sqooss.database");
+    public DBServiceImpl( BundleContext bc ) {
+        ServiceReference serviceref = 
+            bc.getServiceReference("eu.sqooss.service.logging.LogManager");
+        logService = (LogManager) bc.getService(serviceref);
+        logger = logService.createLogger("sqooss.database");
         if (logger != null) {
             logger.info("DB service created.");
         } else {

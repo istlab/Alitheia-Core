@@ -39,6 +39,7 @@ import java.io.FileInputStream;
 import java.io.File;
 
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 
 import org.tmatesoft.svn.core.internal.io.dav.DAVRepositoryFactory;
 import org.tmatesoft.svn.core.internal.io.fs.FSRepositoryFactory;
@@ -52,11 +53,14 @@ import eu.sqooss.impl.service.tds.TDAccessorImpl;
 import eu.sqooss.impl.service.tds.SCMAccessorImpl;
 
 public class TDSServiceImpl implements TDSService {
-    private Logger logger;
+    private LogManager logService = null;
+    private Logger logger = null;
     private HashMap<String, TDAccessorImpl> accessorPool;
 
     public TDSServiceImpl(BundleContext bc) {
-        logger = LogManager.getInstance().createLogger(Logger.NAME_SQOOSS_TDS);
+        ServiceReference serviceRef = bc.getServiceReference("eu.sqooss.service.logging.LogManager");
+        logService = (LogManager) bc.getService(serviceRef);
+        logger = logService.createLogger(Logger.NAME_SQOOSS_TDS);
         if (logger != null) {
             logger.info("TDS service created.");
         } else {
