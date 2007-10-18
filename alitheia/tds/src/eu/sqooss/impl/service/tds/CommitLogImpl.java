@@ -33,7 +33,8 @@
 
 package eu.sqooss.impl.service.tds;
 
-import java.util.List;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedList;
 
 import org.tmatesoft.svn.core.SVNLogEntry;
@@ -42,22 +43,29 @@ import eu.sqooss.service.tds.CommitLog;
 import eu.sqooss.service.tds.ProjectRevision;
 
 public class CommitLogImpl implements CommitLog {
-    private class Entry {
-        public long revision;
-        public String message;
-    }
-
-    private List<Entry> entries;
+    private LinkedList<SVNLogEntry> entries;
 
     public CommitLogImpl() {
-        entries = new LinkedList<Entry>();
+        entries = new LinkedList<SVNLogEntry>();
     }
 
-    public void add(SVNLogEntry m) {
-        Entry e = new Entry();
-        e.revision = m.getRevision();
-        e.message = m.getMessage();
-        entries.add(e);
+    public Collection getEntriesReference() {
+        return entries;
+    }
+
+    public void dump(SVNLogEntry l) {
+        System.out.println("--------------------------------");
+        System.out.println("r." + l.getRevision() +
+            "  " + l.getAuthor() +
+            "  " + l.getDate());
+        System.out.println(l.getMessage());
+    }
+
+    public void dump() {
+        for (Iterator i = entries.iterator(); i.hasNext(); ) {
+            SVNLogEntry l = (SVNLogEntry) i.next();
+            dump(l);
+        }
     }
 
     // Interface methods
@@ -70,7 +78,7 @@ public class CommitLogImpl implements CommitLog {
     }
 
     public String message(ProjectRevision r) {
-        return entries.get(0).message;
+        return entries.get(0).getMessage();
     }
 }
 

@@ -34,8 +34,8 @@
 package eu.sqooss.impl.service.tds;
 
 import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+// import java.util.Iterator;
+// import java.util.List;
 
 import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.SVNLogEntry;
@@ -101,6 +101,10 @@ public class SCMAccessorImpl implements SCMAccessor {
 
     private static int revcount = 1;
     public CommitLog getCommitLog( ProjectRevision r1, ProjectRevision r2 ) {
+        return getCommitLog("",r1,r2);
+    }
+
+    public CommitLog getCommitLog( String repoPath, ProjectRevision r1, ProjectRevision r2 ) {
         if (svnRepository == null) {
             connectToRepository();
         }
@@ -111,28 +115,20 @@ public class SCMAccessorImpl implements SCMAccessor {
         logger.info("getting log message for r." + revcount);
         checkLatestRevision();
 
+        CommitLogImpl l = new CommitLogImpl();
         try {
-            Collection logEntries = svnRepository.log(new String[]{""},null,
-                revcount, revcount, true, true);
-            int entrycount = 0;
-            // There ought to be just one entry in here.
-            CommitLogImpl l = new CommitLogImpl();
-            for (Iterator entries = logEntries.iterator(); entries.hasNext();) {
-                SVNLogEntry logEntry = (SVNLogEntry) entries.next();
-                l.add(logEntry);
-                logger.info("Commit message for r." + revcount + " is <" +
-                    logEntry.getMessage() + ">");
-            }
+            Collection logEntries = svnRepository.log(new String[]{repoPath},
+                l.getEntriesReference(),
+                revcount, revcount+10, true, true);
+            logger.info("Message for r." + revcount + " is <" +
+                l.message(null) + ">");
+            l.dump();
             revcount++;
             return l;
         } catch (SVNException e) {
             logger.warning("Could not get log for " + projectName);
         }
 
-        return null;
-    }
-
-    public CommitLog getCommitLog( String repoPath, ProjectRevision r1, ProjectRevision r2 ) {
         return null;
     }
 
