@@ -38,6 +38,26 @@ to the JVM. Typical use would be something like this:
 
 The following system properties are (at the very least) used:
 
+[ No system properties are used at this time. ]
+
+***
+*** Runtime configuration of OSGi
+***
+
+At runtime, the OSGi framework reads properties from the file config.ini
+which is located in the equinox/configuration/ directory. Use standard
+key=value pairs to define properties. The supported properties are
+described in the file itself.
+
+***
+*** Alternate logging subsystem
+***
+
+The branches/logger-log4j directory contains an alternative logger 
+implementation based on Apache log4j. You may move away the alitheia/logger
+directory and move in the log4j directory as it is source compatible.
+Rebuild the system. This adds one runtime configuration option:
+
 log4j.configuration
 	Set this to the URL of a log4j configuration file. The default
 	configuration is contained within the logger bundle; you may override
