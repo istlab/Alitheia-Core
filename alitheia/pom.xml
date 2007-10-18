@@ -222,6 +222,7 @@
     <module>scheduler</module>
     <module>tds</module>
     <module>updater</module>
+    <module>webui</module>
   </modules>
 
   <!-- =======[ List of developers working on this project        ]======= -->

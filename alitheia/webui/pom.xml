@@ -1,0 +1,108 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+
+  <!-- Parent POM -->
+  <parent>
+    <groupId>eu.sqooss</groupId>
+    <artifactId>alitheia</artifactId>
+    <version>1.0.0</version>
+  </parent>
+
+  <!-- WebUI Service - main POM -->
+  <groupId>eu.sqooss</groupId>
+  <artifactId>webui</artifactId>
+  <version>1.0.0</version>
+  <packaging>jar</packaging>
+
+  <!-- Project description -->
+  <name>Web UI Service</name>
+  <description>
+    This bundle provided the Web UI service for Alitheia.
+    (... more description to come later on)
+  </description>
+
+  <!-- Build properties -->
+  <build>
+    <!-- Tells Maven to search for source code here -->
+    <sourceDirectory>${basedir}/src</sourceDirectory>
+    <!-- Tells Maven to build Java class files here -->
+    <outputDirectory>${basedir}/bin</outputDirectory>
+    <!-- Tells Maven where to find the bundle manifest file -->
+    <plugins>
+      <plugin>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifestFile>
+              ${basedir}/manifest/webui.mf
+            </manifestFile>
+          </archive>
+        </configuration> 
+      </plugin>
+    </plugins>
+  </build>
+
+  <!-- Dependencies -->
+  <dependencies>
+    <dependency>
+      <groupId>org.eclipse.equinox</groupId>
+      <artifactId>osgi</artifactId>
+      <version>3.3.0</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>javax</groupId>
+      <artifactId>servlet</artifactId>
+      <version>2.4.0.v200612120446</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.equinox</groupId>
+      <artifactId>http</artifactId>
+      <version>1.0.100.v20070226</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.equinox.http</groupId>
+      <artifactId>servlet</artifactId>
+      <version>1.0.0.v20070318</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.osgi</groupId>
+      <artifactId>services</artifactId>
+      <version>3.1.100.v20060918</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>eu.sqooss</groupId>
+      <artifactId>logger</artifactId>
+      <version>1.0.0</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+
+  <!-- Developers working on this module -->
+  <developers>
+    <developer>
+      <id>tcholakov</id>
+      <name>Todor Cholakov</name>
+      <email>t.cholakov@prosyst.com</email>
+      <organization>ProSyst Software GmbH</organization>
+      <timezone>+2</timezone>
+    </developer>
+    <developer>
+      <id>e_grigorov</id>
+      <name>Evgeni Grigorov</name>
+      <email>e.grigorov@prosyst.com</email>
+      <organization>ProSyst Software GmbH</organization>
+      <timezone>+2</timezone>
+    </developer>
+  </developers>
+</project>
