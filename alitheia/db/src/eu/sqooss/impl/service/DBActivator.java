@@ -43,7 +43,7 @@ public class DBActivator implements BundleActivator {
 
     public void start(BundleContext bc) throws Exception {
         registration = bc.registerService(DBServiceImpl.class.getName(),
-                                          new DBServiceImpl(), null);
+                                          new DBServiceImpl(bc), null);
     }
 
     public void stop(BundleContext bc) throws Exception {
