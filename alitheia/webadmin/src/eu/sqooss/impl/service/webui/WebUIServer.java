@@ -98,6 +98,7 @@ public class WebUIServer extends HttpServlet {
         staticContentMap.put("logo".hashCode(), flossie);
         staticContentMap.put("css".hashCode(),css);
         staticContentMap.put("alitheia.png".hashCode(), logo);
+        staticContentMap.put("alitheia.css".hashCode(), css);
 
         dynamicContentMap = new Hashtable<Integer,String>();
         dynamicContentMap.put("about".hashCode(),"/about.html");
