@@ -74,7 +74,7 @@ target/$(BUNDLE_NAME)-$(BUNDLE_VERSION).jar : $(SRC:%.java=build/%.class) $(RESO
 	cd build/ && jar cfm ../target/$(BUNDLE_NAME)-$(BUNDLE_VERSION).jar ../manifest/$(BUNDLE_MANIFEST_NAME).mf .
 
 $(RESOURCES:%=build/%) : $(RESOURCES:%=src/main/resources/%)
-	cd src/main/resources && cp -Rv . ../../../build
+	cd src/main/resources && cp -v * ../../../build
 
 build/%.class : src/%.java
 	javac -Xlint -source 1.5 -cp $(EXTRA_CP)$(EQUINOX_CP):src/ -d build/ $<
