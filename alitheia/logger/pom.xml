@@ -11,14 +11,13 @@
   <!-- Messaging Service - main POM -->
   <groupId>eu.sqooss</groupId>
   <artifactId>logger</artifactId>
-  <version>1.0.0</version>
+  <version>0.0.1</version>
   <packaging>jar</packaging>
 
   <!-- Project description -->
   <name>Logger Service</name>
   <description>
     This bundle provided the Logger service for Alitheia.
-    (... more description to come later on)
   </description>
 
   <!-- Build properties -->

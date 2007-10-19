@@ -1,7 +1,7 @@
 # This is a GNU Makefile, requiring GNU make 3.80 or later.
 #
 PREFIX=equinox
-SUBDIRS=alitheia metrics
+SUBDIRS=alitheia
 
 ABS_PREFIX=$(shell cd $(PREFIX) && pwd)
 
@@ -15,27 +15,22 @@ endef
 
 $(foreach d,$(SUBDIRS),$(eval $(call subdir_template,build,$(d))))
 $(foreach d,$(SUBDIRS),$(eval $(call subdir_template,clean,$(d))))
+$(foreach d,$(SUBDIRS),$(eval $(call subdir_template,install,$(d))))
 
 build : $(foreach d,$(SUBDIRS),build-$(d))
 
-
-install :
+install : $(foreach d,$(SUBDIRS),install-$(d))
 	rm -Rf ${PREFIX}/configuration/org.eclipse.osgi
 	rm -f ${PREFIX}/configuration/*.log
-	-for i in $(SUBDIRS) ; do \
-		for j in $$i/*/target/*.jar ; do \
-			echo "$$j" ; \
-			test -f "$$j" && cp "$$j" "$(PREFIX)" ; \
-		done ; \
-	done
+
+clean : $(foreach d,$(SUBDIRS),clean-$(d))
+	rm -f $(PREFIX)/alitheia.log
+
 
 # $(CONFIG) would typically be used to set system properties.
 run :
 	cd $(PREFIX) && \
 	java $(CONFIG) -jar org.eclipse.osgi_3.3.0.v20070321.jar -console
-
-clean : $(foreach d,$(SUBDIRS),clean-$(d))
-	rm -f $(PREFIX)/alitheia.log
 
 show-log :
 	cat $(PREFIX)/configuration/org.eclipse.osgi/bundles/[0-9]*/data/logs/alitheia*.log
