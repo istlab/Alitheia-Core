@@ -1,10 +1,10 @@
 Bundle-ManifestVersion: 2
-Bundle-SymbolicName: eu.sqooss.services.webui
+Bundle-SymbolicName: eu.sqooss.services.webadmin
 Bundle-Name: Web UI Service
 Bundle-Activator: eu.sqooss.impl.service.WebUIActivator
 Bundle-Version: 0.0.1
-Bundle-Vendor: ProSyst
+Bundle-Vendor: KDE
 Bundle-Category: ui
-Bundle-Description: This bundle provides the Web UI Service
+Bundle-Description: This bundle provides the Web Admin Service
 Import-Package: org.osgi.framework, javax.servlet, javax.servlet.http, org.osgi.service.http, eu.sqooss.service.logging
-Export-Package: eu.sqooss.services.webui
+Export-Package: eu.sqooss.services.webadmin
