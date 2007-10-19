@@ -69,19 +69,20 @@ build-jar: target target/$(BUNDLE_NAME)-$(BUNDLE_VERSION).jar
 target:
 	mkdir target
 
-ifeq ($(WITH_MAVEN),)
-# Depend on the class files and all the copied-over resource files
-target/$(BUNDLE_NAME)-$(BUNDLE_VERSION).jar : manifest/$(BUNDLE_MANIFEST_NAME).mf $(SRC:%.java=build/%.class) $(RESOURCES:%=build/%)
-	cd build/ && jar cfm ../target/$(BUNDLE_NAME)-$(BUNDLE_VERSION).jar ../manifest/$(BUNDLE_MANIFEST_NAME).mf .
-
 define resource_template
 build/$(1) : src/main/resources/$(1)
 	cp src/main/resources/$(1) build/
 endef
 
+ifeq ($(WITH_MAVEN),)
+# Depend on the class files and all the copied-over resource files
+target/$(BUNDLE_NAME)-$(BUNDLE_VERSION).jar : manifest/$(BUNDLE_MANIFEST_NAME).mf $(SRC:%.java=build/%.class) $(RESOURCES:%=build/%)
+	cd build/ && jar cfm ../target/$(BUNDLE_NAME)-$(BUNDLE_VERSION).jar ../manifest/$(BUNDLE_MANIFEST_NAME).mf .
+endif
+
 $(foreach d,$(RESOURCES),$(eval $(call resource_template,$(d))))
 
 build/%.class : src/%.java
 	javac -Xlint -source 1.5 -cp $(EXTRA_CP)$(EQUINOX_CP):src/ -d build/ $<
-endif
+
 
