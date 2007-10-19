@@ -1,4 +1,8 @@
-This is the Maven project tree for the Alitheia system, its components and
+***
+*** Introduction
+***
+
+This is the source tree for the Alitheia system, its components and
 metrics. The top-level tree is split into the following groups:
 
 alitheia/
@@ -24,7 +28,17 @@ extlibs/
 *** Build 
 *** 
 
-See documentation in the Makefile.
+See documentation in the Makefile. The official build system is Maven;
+there is an alternative purely GNU Make-based system as well. The
+short of it is:
+
+	make clean build install run WITH_MAVEN=YES
+
+or, for the alternative GNU Make system,
+
+	make clean build install run
+
+This will leave you with an OSGi console and a running Alitheia core system. 
 
 ***
 *** Runtime configuration

@@ -16,6 +16,9 @@
 # build		- Compile all of the Java sources into jars for each bundle.
 # install	- Install the resulting bundles into the equinox dir.
 # run		- Run the OSGi / Equinox system.
+# run-ui	- Start up tomcat with the public-facing web front end.
+# stop-ui	- Stop the tomcat instance.
+# start		- Run the web UI and the core system.
 # clean		- Remove all build artifacts and logs.
 # show-log	- Finds the run log and prints it.
 #
@@ -65,6 +68,17 @@ clean : $(foreach d,$(SUBDIRS),clean-$(d))
 run :
 	cd $(PREFIX) && \
 	java $(CONFIG) -jar org.eclipse.osgi_3.3.0.v20070321.jar -console
+
+run-ui :
+	cd ui/webui && $(MAKE) start
+
+stop-ui :
+	cd ui/webui && $(MAKE) stop
+
+start : run-ui run
+
+
+
 
 # The default log4j configuration puts the log directly in $(PREFIX) and
 # the SQO-OSS logger puts it in the bundle data directory. Handle both.
