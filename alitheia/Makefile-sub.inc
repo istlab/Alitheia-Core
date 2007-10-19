@@ -71,7 +71,7 @@ target:
 
 ifeq ($(WITH_MAVEN),)
 # Depend on the class files and all the copied-over resource files
-target/$(BUNDLE_NAME)-$(BUNDLE_VERSION).jar : $(SRC:%.java=build/%.class) $(RESOURCES:%=build/%)
+target/$(BUNDLE_NAME)-$(BUNDLE_VERSION).jar : manifest/$(BUNDLE_MANIFEST_NAME).mf $(SRC:%.java=build/%.class) $(RESOURCES:%=build/%)
 	cd build/ && jar cfm ../target/$(BUNDLE_NAME)-$(BUNDLE_VERSION).jar ../manifest/$(BUNDLE_MANIFEST_NAME).mf .
 
 define resource_template
