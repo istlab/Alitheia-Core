@@ -1,38 +1,52 @@
-body {
-background-color: pink;
-padding: 1ex 1em;
+#banner {
+padding: 0px;
+margin-bottom: 1ex;
+height: 89px;
+background: #cccccc;
 }
 
-h1 {
-color: green;
-padding-left: 1em;
-margin-left: 1em;
+#banner .alitheialogo {
+float: right;
 }
 
-.box {
-border: 3px solid white;
-}
-
-#bundlelist, #servicelist {
-background: yellow;
+#banner .sqologo {
+float: left;
 }
 
 #footer {
-border-top: 1px solid white;
-padding: 1ex 2em;
+padding: 1ex 1em;
+border-top: 1px solid #cecece;
+margin-top: 1ex;
+height: 4ex;
+font-color: #333333;
+font-size: x-small;
+text-align: right;
+clear: both;
 }
 
-#footer .copyright {
-display: block;
-float: right;
+
+#status, #menu {
+width: 20%;
+float: left;
+clear: left;
+border: 1px solid #cccccc;
+padding: 1ex 1em;
+margin: 1ex 1em 1ex 0px;
 font-size: small;
-font-style: italic;
-color: grey;
 }
 
-#id {
-display: block;
-float: right;
-margin: 1ex 1ex;
+#menu ul {
+list-style-type: none;
+margin: 0px;
+padding: 0px;
+}
+
+#menu li {
+margin-left: 0px;
+padding-left: 0px;
+}
+
+#news {
+padding: 1ex 1em 1ex 22%;
 }
 
