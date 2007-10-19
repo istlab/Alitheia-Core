@@ -20,7 +20,6 @@ public class LoggingActivator implements BundleActivator {
     l.setConfigurationProperty("file.name","alitheia.log");
     l.setConfigurationProperty("message.format","text/plain");
     l.info("Logging bundle started.");
-    System.out.println("Look ma, I'm smoking crack!");
   }
 
   public void stop(BundleContext bc) throws Exception {

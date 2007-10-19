@@ -42,20 +42,19 @@ RESOURCES=$(shell test -d src/main/resources && cd src/main/resources && find . 
 $(foreach d,$(JARS),$(eval EXTRA_CP:=$(EXTRA_CP)$(d):))
 
 # This is (hardcoded) the OSGi framework classpath.
-EQUINOX_CP=../../equinox/org.eclipse.osgi_3.3.0.v20070321.jar:../../equinox/org.eclipse.osgi.util_3.1.100.v20060918.jar:../../equinox/org.eclipse.osgi.services_3.1.100.v20060918.jar
+EQUINOX_CP=$(PREFIX)/org.eclipse.osgi_3.3.0.v20070321.jar:$(PREFIX)/org.eclipse.osgi.util_3.1.100.v20060918.jar:$(PREFIX)/org.eclipse.osgi.services_3.1.100.v20060918.jar
 
 # Basic targets all, build, install, clean
 all: check-builddir build-all build-jar
 
 build: all
 
-# Prefix is hard-coded, eww.
-install: all
-	cp $(BUNDLE_NAME)-$(BUNDLE_VERSION).jar ../../equinox
+install: build-jar
+	cp target/$(BUNDLE_NAME)-$(BUNDLE_VERSION).jar $(PREFIX)
 
 clean:
 	rm -rf build/*
-	rm -f $(BUNDLE_NAME)-*.jar
+	rm -f $(BUNDLE_NAME)-*.jar target/$(BUNDLE_NAME)-*.jar
 
 # We create a separate directory to hold the build artifacts.
 check-builddir:
@@ -64,15 +63,17 @@ check-builddir:
 # Depend on s/java/class/ files.
 build-all: $(SRC:%.java=build/%.class)
 
-build-jar: $(BUNDLE_NAME)-$(BUNDLE_VERSION).jar
+build-jar: target/$(BUNDLE_NAME)-$(BUNDLE_VERSION).jar
 
+ifeq ($(WITH_MAVEN),)
 # Depend on the class files and all the copied-over resource files
-$(BUNDLE_NAME)-$(BUNDLE_VERSION).jar : $(SRC:%.java=build/%.class) $(RESOURCES:%=build/%)
-	cd build/ && jar cfm ../$(BUNDLE_NAME)-$(BUNDLE_VERSION).jar ../manifest/$(BUNDLE_MANIFEST_NAME).mf .
+target/$(BUNDLE_NAME)-$(BUNDLE_VERSION).jar : $(SRC:%.java=build/%.class) $(RESOURCES:%=build/%)
+	cd build/ && jar cfm ../target/$(BUNDLE_NAME)-$(BUNDLE_VERSION).jar ../manifest/$(BUNDLE_MANIFEST_NAME).mf .
 
 $(RESOURCES:%=build/%) : $(RESOURCES:%=src/main/resources/%)
 	cd src/main/resources && cp -Rv . ../../../build
 
 build/%.class : src/%.java
 	javac -Xlint -source 1.5 -cp $(EXTRA_CP)$(EQUINOX_CP):src/ -d build/ $<
+endif
 
