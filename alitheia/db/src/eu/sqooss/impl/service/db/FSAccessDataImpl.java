@@ -38,6 +38,7 @@ import eu.sqooss.service.db.FSAccessData;
 class FSAccessDataImpl implements FSAccessData {
     private Long id;
 
+    private String name;
     private String SVNUrl;
     private String IMAPPath;
     private String BTSUrl;
@@ -46,8 +47,16 @@ class FSAccessDataImpl implements FSAccessData {
         return id;
     }
 
-    private void setId() {
+    private void setId(long id) {
         this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getBTSUrl() {

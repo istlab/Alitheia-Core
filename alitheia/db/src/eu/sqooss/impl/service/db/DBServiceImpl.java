@@ -119,6 +119,7 @@ public class DBServiceImpl implements DBService {
             sessionFactory = new Configuration().configure().buildSessionFactory();
         } catch (Throwable e) {
             logger.severe("Failed to initialize Hibernate: " + e.getMessage());
+	    e.printStackTrace();
             throw new ExceptionInInitializerError(e);
         }
     }
