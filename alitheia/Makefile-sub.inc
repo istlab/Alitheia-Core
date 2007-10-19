@@ -63,7 +63,10 @@ check-builddir:
 # Depend on s/java/class/ files.
 build-all: $(SRC:%.java=build/%.class)
 
-build-jar: target/$(BUNDLE_NAME)-$(BUNDLE_VERSION).jar
+build-jar: target target/$(BUNDLE_NAME)-$(BUNDLE_VERSION).jar
+
+target:
+	mkdir target
 
 ifeq ($(WITH_MAVEN),)
 # Depend on the class files and all the copied-over resource files
