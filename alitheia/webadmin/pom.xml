@@ -10,15 +10,17 @@
 
   <!-- WebUI Service - main POM -->
   <groupId>eu.sqooss</groupId>
-  <artifactId>webui</artifactId>
+  <artifactId>webadmin</artifactId>
   <version>0.0.1</version>
   <packaging>jar</packaging>
 
   <!-- Project description -->
-  <name>Web UI Service</name>
+  <name>Web Admin Service</name>
   <description>
-    This bundle provided the Web UI service for Alitheia.
-    (... more description to come later on)
+    This bundle provided the Web Administrative service for Alitheia.
+    The interface is intended as a stop-gap measure to see what is
+    happening inside the system before the more "official" interfaces
+    are ready.
   </description>
 
   <!-- Build properties -->
@@ -34,7 +36,7 @@
         <configuration>
           <archive>
             <manifestFile>
-              ${basedir}/manifest/webui.mf
+              ${basedir}/manifest/webadmin.mf
             </manifestFile>
           </archive>
         </configuration> 

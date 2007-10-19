@@ -6,7 +6,7 @@ BUNDLES=logger \
 	scheduler \
 	tds \
 	updater \
-	webui
+	webadmin
 
 define subdir_template
 $(1)-$(2) :

@@ -2,7 +2,7 @@ Bundle-ManifestVersion: 2
 Bundle-SymbolicName: eu.sqooss.service.scheduler
 Bundle-Name: Scheduler
 Bundle-Activator: eu.sqooss.impl.service.SchedulerActivator
-Bundle-Version: 1.0.0
+Bundle-Version: 0.0.1
 Bundle-Vendor: KDAB
 Bundle-Category: ui
 Bundle-Description: This bundle provides the Scheduler

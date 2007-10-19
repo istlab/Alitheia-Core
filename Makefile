@@ -25,6 +25,7 @@ install : $(foreach d,$(SUBDIRS),install-$(d))
 
 clean : $(foreach d,$(SUBDIRS),clean-$(d))
 	rm -f $(PREFIX)/alitheia.log
+	rm -rf $(PREFIX)/configuration/org.eclipse.osgi
 
 
 # $(CONFIG) would typically be used to set system properties.

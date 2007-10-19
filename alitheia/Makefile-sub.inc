@@ -23,9 +23,11 @@ check-builddir:
 
 build-all: $(SRC:%.java=build/%.class)
 
-build-jar:
+build-jar: build-resources
 	cd build/ && jar cfm ../$(BUNDLE_NAME)-$(BUNDLE_VERSION).jar ../manifest/$(BUNDLE_MANIFEST_NAME).mf .
 
+build-resources:
+	@-cd src/main/resources && cp -vR . ../../../build
 
 build/%.class : src/%.java
 	javac -Xlint -source 1.5 -cp $(EXTRA_CP)$(EQUINOX_CP):src/ -d build/ $<

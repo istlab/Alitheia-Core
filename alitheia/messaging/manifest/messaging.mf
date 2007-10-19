@@ -2,7 +2,7 @@ Bundle-ManifestVersion: 2
 Bundle-SymbolicName: eu.sqooss.service.messaging
 Bundle-Name: Messaging Service
 Bundle-Activator: eu.sqooss.impl.service.MessagingActivator
-Bundle-Version: 1.0.0
+Bundle-Version: 0.0.1
 Bundle-Vendor: ProSyst
 Bundle-Category: messaging
 Bundle-Description: This bundle provides the Messaging Service
