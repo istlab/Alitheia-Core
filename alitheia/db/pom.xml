@@ -60,13 +60,6 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>eu.sqooss</groupId>
-      <artifactId>logger</artifactId>
-      <version>1.0.0</version>
-      <type>jar</type>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
       <groupId>org.apache</groupId>
       <artifactId>derby</artifactId>
       <version>10.3.1.4</version>
@@ -84,6 +77,13 @@
       <groupId>org.postgresql</groupId>
       <artifactId>jdbc</artifactId>
       <version>8.2.505</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>eu.sqooss</groupId>
+      <artifactId>logger</artifactId>
+      <version>[0.0.1,)</version>
       <type>jar</type>
       <scope>provided</scope>
     </dependency>

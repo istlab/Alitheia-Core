@@ -11,7 +11,7 @@
   <!-- WebUI Service - main POM -->
   <groupId>eu.sqooss</groupId>
   <artifactId>webui</artifactId>
-  <version>1.0.0</version>
+  <version>0.0.1</version>
   <packaging>jar</packaging>
 
   <!-- Project description -->
@@ -82,7 +82,7 @@
     <dependency>
       <groupId>eu.sqooss</groupId>
       <artifactId>logger</artifactId>
-      <version>1.0.0</version>
+      <version>[0.0.1,)</version>
       <type>jar</type>
       <scope>provided</scope>
     </dependency>

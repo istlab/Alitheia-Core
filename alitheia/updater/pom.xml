@@ -81,15 +81,13 @@
     <dependency>
       <groupId>eu.sqooss</groupId>
       <artifactId>logger</artifactId>
-      <version>1.0.0</version>
+      <version>[0.0.1,)</version>
       <type>jar</type>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>eu.sqooss</groupId>
       <artifactId>tds</artifactId>
-      <!-- <version>0.0.1</version> -->
-      <!-- Use version equal or bigger than 0.0.1 -->
       <version>[0.0.1,)</version>
       <type>jar</type>
       <scope>provided</scope>
