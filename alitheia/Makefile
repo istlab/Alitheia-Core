@@ -55,7 +55,7 @@ clean : $(foreach d,$(BUNDLES),clean-$(d))
 # the Maven, Makefile and filesystem setups.
 check:
 	@echo "# Unused subdirs:"
-	@( for i in `find . -type d -maxdepth 1 | grep -v '^\.$$'` ; do \
+	@( for i in `find . -type d -maxdepth 1 | grep -v '^\.$$' | grep -v '^./.svn'` ; do \
 		D=`basename $$i` ; echo $$D ; done ; \
 	for i in $(BUNDLES) ; do echo $$i ; done ) | \
 	sort | uniq -u

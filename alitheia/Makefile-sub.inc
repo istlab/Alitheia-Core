@@ -36,7 +36,7 @@ BUNDLE_MANIFEST_NAME?=$(BUNDLE_NAME)
 # Find the source files, the dependency jars and other resources
 SRC=$(shell cd src && find eu -name *.java)
 JARS=$(shell test -d src/main/resources && find src/main/resources -name '*.jar')
-RESOURCES=$(shell test -d src/main/resources && cd src/main/resources && find . -type f)
+RESOURCES=$(shell test -d src/main/resources && cd src/main/resources && ls -1)
 
 # Add the dependency jars to the classpath.
 $(foreach d,$(JARS),$(eval EXTRA_CP:=$(EXTRA_CP)$(d):))
@@ -73,8 +73,12 @@ ifeq ($(WITH_MAVEN),)
 target/$(BUNDLE_NAME)-$(BUNDLE_VERSION).jar : $(SRC:%.java=build/%.class) $(RESOURCES:%=build/%)
 	cd build/ && jar cfm ../target/$(BUNDLE_NAME)-$(BUNDLE_VERSION).jar ../manifest/$(BUNDLE_MANIFEST_NAME).mf .
 
-$(RESOURCES:%=build/%) : $(RESOURCES:%=src/main/resources/%)
-	cd src/main/resources && cp -v * ../../../build
+define resource_template
+build/$(1) : src/main/resources/$(1)
+	cp src/main/resources/$(1) build/
+endef
+
+$(foreach d,$(RESOURCES),$(eval $(call resource_template,$(d))))
 
 build/%.class : src/%.java
 	javac -Xlint -source 1.5 -cp $(EXTRA_CP)$(EQUINOX_CP):src/ -d build/ $<
