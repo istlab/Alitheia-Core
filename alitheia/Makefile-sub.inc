@@ -53,7 +53,8 @@ install: build-jar
 	cp target/$(BUNDLE_NAME)-$(BUNDLE_VERSION).jar $(PREFIX)
 
 clean:
-	rm -rf build/*
+	rm -rf target/
+	rm -rf build/
 	rm -f $(BUNDLE_NAME)-*.jar target/$(BUNDLE_NAME)-*.jar
 
 # We create a separate directory to hold the build artifacts.

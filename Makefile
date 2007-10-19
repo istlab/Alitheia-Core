@@ -72,6 +72,6 @@ show-log :
 	if test -f $(PREFIX)/alitheia.log  ; then \
 		cat $(PREFIX)/alitheia.log ; \
 	else \
-		cat $(PREFIX)/configuration/org.eclipse.osgi/bundles/[0-9]*/data/logs/alitheia*.log \
+		cat $(PREFIX)/configuration/org.eclipse.osgi/bundles/[0-9]*/data/logs/alitheia*.log ; \
 	fi
 
