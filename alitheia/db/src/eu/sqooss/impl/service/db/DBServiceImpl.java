@@ -37,6 +37,9 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
+
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
@@ -51,6 +54,7 @@ public class DBServiceImpl implements DBService {
     // This is the database connection; we may want to do more pooling here.
     private Connection dbConnection = null;
     private Statement dbStatement = null;
+    private SessionFactory sessionFactory = null;
 
     private Connection getJDBCConnection(String driver, String url) {
         try {
@@ -109,18 +113,14 @@ public class DBServiceImpl implements DBService {
         return (c!=null);
     }
 
-    private FSAccessDataImpl[] fsaccessdb = {
-        new FSAccessDataImpl("svn://www.englishbreakfastnetwork.org/home/kde",
-            "",""),
-        new FSAccessDataImpl("svn://anonsvn.subversion.org/","","")
-    } ;
-
-    public FSAccessData getFSAccess(int id) {
-        if (id<=fsaccessdb.length) {
-            return fsaccessdb[id-1];
+    private void initHibernate() {
+        logger.info("Initializing Hibernate");
+        try {
+            sessionFactory = new Configuration().configure().buildSessionFactory();
+        } catch (Throwable e) {
+            logger.severe("Failed to initialize Hibernate: " + e.getMessage());
+            throw new ExceptionInInitializerError(e);
         }
-        // Should really throw something
-        return null;
     }
 
     public DBServiceImpl( BundleContext bc ) {
@@ -133,6 +133,8 @@ public class DBServiceImpl implements DBService {
         } else {
             System.out.println("# DB service failed to get logger.");
         }
+
+        initHibernate();
 
         if (!getPostgresJDBC()) {
             if (!getDerbyJDBC()) {

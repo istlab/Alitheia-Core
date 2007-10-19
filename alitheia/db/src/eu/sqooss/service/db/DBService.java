@@ -36,12 +36,7 @@ package eu.sqooss.service.db;
 import eu.sqooss.service.db.FSAccessData;
 
 public interface DBService {
-    /**
-     * Return the FS access data (paths and whatnot) for the
-     * project @p id . These data may be used to get to the
-     * actual raw data of the project (interpreted by the TDS).
-     */
-    FSAccessData getFSAccess(int id);
+    // Empty interface
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

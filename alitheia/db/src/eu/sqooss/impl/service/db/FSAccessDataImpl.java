@@ -36,20 +36,42 @@ package eu.sqooss.impl.service.db;
 import eu.sqooss.service.db.FSAccessData;
 
 class FSAccessDataImpl implements FSAccessData {
+    private Long id;
+
     private String SVNUrl;
     private String IMAPPath;
     private String BTSUrl;
 
+    public Long getId() {
+        return id;
+    }
+
+    private void setId() {
+        this.id = id;
+    }
+
     public String getBTSUrl() {
         return BTSUrl;
+    }
+
+    public void setBTSUrl( String url ) {
+        BTSUrl = url;
     }
 
     public String getIMAPPath() {
         return IMAPPath;
     }
 
+    public void setIMAPPath( String url ) {
+        IMAPPath = url;
+    }
+
     public String getSVNUrl() {
         return SVNUrl;
+    }
+
+    public void setSVNUrl( String url ) {
+        SVNUrl = url;
     }
 
     FSAccessDataImpl() {
