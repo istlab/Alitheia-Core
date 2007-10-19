@@ -147,6 +147,7 @@ public class LogManagerImpl extends LogManager {
     }
     if (rootLogger != null) {
       rootLogger.close();
+      rootLogger = null;
     }
     Collection elements;
     Iterator iter;
@@ -158,6 +159,7 @@ public class LogManagerImpl extends LogManager {
       logger = (LoggerImpl)iter.next();
       logger.close();
     }
+    rootSiblingLoggers.clear();
     
     elements = serviceSiblingLoggers.values();
     iter = elements.iterator();
@@ -165,6 +167,9 @@ public class LogManagerImpl extends LogManager {
       logger = (LoggerImpl)iter.next();
       logger.close();
     }
+    serviceSiblingLoggers.clear();
+    
+    bc = null;
   }
   
 }
