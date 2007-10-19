@@ -1,13 +1,16 @@
 # This is a GNU Makefile, requiring GNU make 3.80 or later.
 #
+PREFIX=equinox
+SUBDIRS=alitheia metrics
+
+ABS_PREFIX=$(shell cd $(PREFIX) && pwd)
 
 all : build
 
-SUBDIRS=alitheia metrics
 
 define subdir_template
 $(1)-$(2) :
-	cd $(2) && $(MAKE) $(1)
+	cd $(2) && $(MAKE) $(1) PREFIX=$(ABS_PREFIX)
 endef
 
 $(foreach d,$(SUBDIRS),$(eval $(call subdir_template,build,$(d))))
@@ -15,7 +18,6 @@ $(foreach d,$(SUBDIRS),$(eval $(call subdir_template,clean,$(d))))
 
 build : $(foreach d,$(SUBDIRS),build-$(d))
 
-PREFIX=equinox
 
 install :
 	rm -Rf ${PREFIX}/configuration/org.eclipse.osgi

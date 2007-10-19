@@ -27,6 +27,7 @@ install :
 clean :
 	for i in $(BUNDLES) ; do \
 		for j in $$i/target/*.jar ; do \
+			test -f "$$j" && \
 			rm -f $(PREFIX)/`basename $$j` ; \
 		done ; \
 		rm -f $$i/target/*.jar ; \
