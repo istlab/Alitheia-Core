@@ -45,9 +45,7 @@ $(foreach d,$(JARS),$(eval EXTRA_CP:=$(EXTRA_CP)$(d):))
 EQUINOX_CP=$(PREFIX)/org.eclipse.osgi_3.3.0.v20070321.jar:$(PREFIX)/org.eclipse.osgi.util_3.1.100.v20060918.jar:$(PREFIX)/org.eclipse.osgi.services_3.1.100.v20060918.jar
 
 # Basic targets all, build, install, clean
-all: check-builddir build-all build-jar
-
-build: all
+all: build-all build-jar
 
 install: build-jar
 	cp target/$(BUNDLE_NAME)-$(BUNDLE_VERSION).jar $(PREFIX)
@@ -57,17 +55,21 @@ clean:
 	rm -f $(BUNDLE_NAME)-*.jar target/$(BUNDLE_NAME)-*.jar
 	rm -f $(PREFIX)/$(BUNDLE_NAME)-$(BUNDLE_VERSION).jar
 
-# We create a separate directory to hold the build artifacts.
-check-builddir:
-	@test -d build || mkdir build ; test -d build
 
 # Depend on s/java/class/ files.
-build-all: build/.prebuild
+build-all: build build/.prebuild
 
 build-jar: target target/$(BUNDLE_NAME)-$(BUNDLE_VERSION).jar
 
 target:
 	mkdir target
+	test -d target
+
+build:
+	mkdir build
+	test -d build
+
+
 
 define resource_template
 build/$(1) : src/main/resources/$(1)
