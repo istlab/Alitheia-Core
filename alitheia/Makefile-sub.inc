@@ -53,9 +53,9 @@ install: build-jar
 	cp target/$(BUNDLE_NAME)-$(BUNDLE_VERSION).jar $(PREFIX)
 
 clean:
-	rm -rf target/
-	rm -rf build/
+	rm -rf target/ build/ bin/
 	rm -f $(BUNDLE_NAME)-*.jar target/$(BUNDLE_NAME)-*.jar
+	rm -f $(PREFIX)/$(BUNDLE_NAME)-$(BUNDLE_VERSION).jar
 
 # We create a separate directory to hold the build artifacts.
 check-builddir:
