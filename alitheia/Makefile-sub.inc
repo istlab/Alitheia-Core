@@ -62,7 +62,7 @@ check-builddir:
 	@test -d build || mkdir build ; test -d build
 
 # Depend on s/java/class/ files.
-build-all: $(SRC:%.java=build/%.class)
+build-all: build/.prebuild
 
 build-jar: target target/$(BUNDLE_NAME)-$(BUNDLE_VERSION).jar
 
@@ -76,13 +76,15 @@ endef
 
 ifeq ($(WITH_MAVEN),)
 # Depend on the class files and all the copied-over resource files
-target/$(BUNDLE_NAME)-$(BUNDLE_VERSION).jar : manifest/$(BUNDLE_MANIFEST_NAME).mf $(SRC:%.java=build/%.class) $(RESOURCES:%=build/%)
-	cd build/ && jar cfm ../target/$(BUNDLE_NAME)-$(BUNDLE_VERSION).jar ../manifest/$(BUNDLE_MANIFEST_NAME).mf .
+target/$(BUNDLE_NAME)-$(BUNDLE_VERSION).jar : manifest/$(BUNDLE_MANIFEST_NAME).mf build/.prebuild $(RESOURCES:%=build/%)
+	cd build/ && jar cfm ../target/$(BUNDLE_NAME)-$(BUNDLE_VERSION).jar ../manifest/$(BUNDLE_MANIFEST_NAME).mf *
 endif
 
 $(foreach d,$(RESOURCES),$(eval $(call resource_template,$(d))))
 
-build/%.class : src/%.java
-	javac -Xlint -source 1.5 -cp $(EXTRA_CP)$(EQUINOX_CP):src/ -d build/ $<
+build/.prebuild : $(SRC:%=src/%)
+	javac -Xlint -source 1.5 -cp $(EXTRA_CP)$(EQUINOX_CP):src/ -d build/ $?
+	touch build/.prebuild
+
 
 
