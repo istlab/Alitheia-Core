@@ -65,10 +65,15 @@ clean : $(foreach d,$(SUBDIRS),clean-$(d))
 	rm -rf $(PREFIX)/configuration/org.eclipse.osgi
 	rm -rf $(PREFIX)/derby.log $(PREFIX)/derbyDB
 
+CL_CONFIG=-Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.Log4JLogger
+LOG4J_CONFIG=-Dlog4j.configuration=file://$(ABS_PREFIX)/configuration/log4j.properties
+
 # $(CONFIG) would typically be used to set system properties.
 run :
 	cd $(PREFIX) && \
-	java $(CONFIG) -jar org.eclipse.osgi_3.3.0.v20070321.jar -console
+	java $(CONFIG) \
+		$(CL_CONFIG) $(LOG4J_CONFIG) \
+		-jar org.eclipse.osgi_3.3.0.v20070321.jar -console
 
 run-ui :
 	cd ui/webui && $(MAKE) start
