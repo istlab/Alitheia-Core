@@ -5,6 +5,8 @@ package eu.sqooss.impl.service.messaging.senders.smtp.connection;
  * which implement the Session interface.
  */
 public class SessionException extends Exception {
+  private static final long serialVersionUID = 1L;
+
   private Exception ex;
 
 

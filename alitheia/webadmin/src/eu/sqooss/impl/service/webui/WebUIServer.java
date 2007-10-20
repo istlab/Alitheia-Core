@@ -60,6 +60,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServlet;
 
 public class WebUIServer extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+
     public static final String pageHead = "<html><head><title>SQO-OSS Web UI</title><link rel='stylesheet' type='text/css' href='/css' /></head><body>";
     public static final String pageIntro = "<p class='box'>This is the administrative interface page for the Alitheia system. System stats are shown below.</p>";
     public static final String pageBundleStats = "<h1>Available Bundles</h1>";
