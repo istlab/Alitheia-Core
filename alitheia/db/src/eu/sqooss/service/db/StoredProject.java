@@ -45,6 +45,11 @@ public class StoredProject {
     public StoredProject() {
     }
 
+    public StoredProject(String name) {
+        this();
+        setName(name);
+    }
+
     public Long getId() {
         return id;
     }

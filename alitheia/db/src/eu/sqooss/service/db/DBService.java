@@ -33,10 +33,19 @@
 
 package eu.sqooss.service.db;
 
-import eu.sqooss.service.db.FSAccessData;
-
 public interface DBService {
-    // Empty interface
+    /**
+     * Add a new project to the system; this should initialize
+     * any tables that are needed for storage of project information.
+     */
+    public void addProject(String name, String website, String contact,
+        String bts, String mail, String scm);
+
+    /**
+     * Return the names (and only the names) of all the projects in the
+     * database.
+     */
+    public String[] listProjects();
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

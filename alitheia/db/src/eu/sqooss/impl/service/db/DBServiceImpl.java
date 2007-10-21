@@ -37,6 +37,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
@@ -44,7 +45,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 import eu.sqooss.service.db.DBService;
-import eu.sqooss.service.db.FSAccessData;
+import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
 
@@ -119,7 +120,7 @@ public class DBServiceImpl implements DBService {
             sessionFactory = new Configuration().configure().buildSessionFactory();
         } catch (Throwable e) {
             logger.severe("Failed to initialize Hibernate: " + e.getMessage());
-	    e.printStackTrace();
+            e.printStackTrace();
             throw new ExceptionInInitializerError(e);
         }
     }
@@ -148,6 +149,25 @@ public class DBServiceImpl implements DBService {
         } catch (SQLException e) {
             logger.warning("SQL Exception while creating table.");
         }
+    }
+
+    // Interface functions
+    public String[] listProjects() {
+        return null;
+    }
+
+    public void addProject(String name, String web, String contact,
+        String bts, String mail, String scm) {
+        Session s = sessionFactory.getCurrentSession();
+        s.beginTransaction();
+        StoredProject p = new StoredProject(name);
+        p.setWebsite(web);
+        p.setContact(contact);
+        p.setBugs(bts);
+        p.setMail(mail);
+        p.setRepository(scm);
+        s.save(p);
+        s.getTransaction().commit();
     }
 }
 
