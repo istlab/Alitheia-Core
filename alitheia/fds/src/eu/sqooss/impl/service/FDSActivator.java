@@ -36,13 +36,14 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
+import eu.sqooss.service.fds.FDSService;
 import eu.sqooss.impl.service.fds.FDSServiceImpl;
 
 public class FDSActivator implements BundleActivator {
     private ServiceRegistration registration;
 
     public void start(BundleContext bc) throws Exception {
-        registration = bc.registerService(FDSServiceImpl.class.getName(),
+        registration = bc.registerService(FDSService.class.getName(),
                                           new FDSServiceImpl(bc), null);
     }
 

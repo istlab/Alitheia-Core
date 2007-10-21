@@ -37,8 +37,9 @@ import org.osgi.framework.ServiceReference;
 
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.fds.FDSService;
 
-public class FDSServiceImpl {
+public class FDSServiceImpl implements FDSService {
     private LogManager logService = null;
     private Logger logger = null;
 

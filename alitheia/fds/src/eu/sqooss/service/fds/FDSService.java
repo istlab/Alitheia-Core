@@ -3,6 +3,7 @@
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  *
  * Copyright 2007 by the SQO-OSS consortium members <info@sqo-oss.eu>
+ * Copyright 2007 by Adriaan de Groot <groot@kde.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -30,26 +31,12 @@
  *
  */
 
-package eu.sqooss.impl.service;
+package eu.sqooss.service.fds;
 
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
-
-import eu.sqooss.service.tds.TDSService;
-import eu.sqooss.impl.service.tds.TDSServiceImpl;
-
-public class TDSActivator implements BundleActivator {
-    private ServiceRegistration registration;
-
-    public void start(BundleContext bc) throws Exception {
-        registration = bc.registerService(TDSService.class.getName(),
-                                          new TDSServiceImpl(bc), null);
-    }
-
-    public void stop(BundleContext bc) throws Exception {
-        registration.unregister();
-    }
+/**
+ */
+public interface FDSService {
+    // Empty interface
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

@@ -73,7 +73,7 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
             NamespaceException {
 
         /*Get a reference to the logging service*/
-        serviceRef = bc.getServiceReference("eu.sqooss.service.logging.LogManager");
+        serviceRef = bc.getServiceReference(LogManager.class.getName());
         logService = (LogManager) bc.getService(serviceRef);
 
         if (logService != null) {
@@ -88,7 +88,7 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
         }
         
         /*Get a reference to the TDS service*/
-        serviceRef = bc.getServiceReference("eu.sqooss.impl.service.tds.TDSServiceImpl");
+        serviceRef = bc.getServiceReference(TDSService.class.getName());
         tdsService = (TDSService) bc.getService(serviceRef);
         if (tdsService == null)
             logger.severe("Could not load the TDS service");
@@ -96,7 +96,7 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
             logger.info("Got a reference to the TDS service");
         
         /*Get a reference to the DB service*/
-        serviceRef = bc.getServiceReference("eu.sqooss.impl.service.db.DBServiceImpl");
+        serviceRef = bc.getServiceReference(DBService.class.getName());
         dbService = (DBService) bc.getService(serviceRef);
         if (dbService == null)
             logger.severe("Could not load the DB service");
@@ -104,7 +104,7 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
             logger.info("Got a valid reference to the DB service");
         
         /*Get a reference to the scheduler service*/
-        serviceRef = bc.getServiceReference("eu.sqooss.service.scheduler.Scheduler");
+        serviceRef = bc.getServiceReference(Scheduler.class.getName());
         scheduler = (Scheduler) bc.getService(serviceRef);
         if (scheduler == null)
             logger.severe("Could not load the scheduler");
