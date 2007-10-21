@@ -15,6 +15,7 @@ BUNDLES=logger \
 	db \
 	scheduler \
 	tds \
+	fds \
 	updater \
 	webadmin
 
@@ -22,6 +23,8 @@ BUNDLES=logger \
 # END OF USER CONFIGURABLE AREA
 #
 ###
+
+PREFIX?=$(shell cd ../equinox && pwd)
 
 all : build
 
