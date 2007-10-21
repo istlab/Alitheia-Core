@@ -31,7 +31,7 @@
         <!-- Drop and re-create the database schema on startup -->
         <property name="hbm2ddl.auto">create</property>
 
-        <mapping resource="FSAccessDataImpl.hbm.xml"/>
+        <mapping resource="eu/sqooss/impl/service/db/FSAccessDataImpl.hbm.xml"/>
 
     </session-factory>
 
