@@ -106,6 +106,7 @@ public class WebUIServer extends HttpServlet {
         dynamicContentMap.put("about","/about.html");
         dynamicContentMap.put("status","/index.html");
         dynamicContentMap.put("index","/index.html");
+        dynamicContentMap.put("addproject","/addproject.html");
 
         dynamicSubstitutions = new Hashtable<String,String>();
     }
@@ -240,6 +241,12 @@ public class WebUIServer extends HttpServlet {
         }
     }
 
+    private void resetSubstitutions() {
+        dynamicSubstitutions.clear();
+        dynamicSubstitutions.put("@@STATUS","The cruncher is offline.");
+        dynamicSubstitutions.put("@@LOGO","<img src='/logo' id='logo' alt='Logo' />");
+        dynamicSubstitutions.put("@@COPYRIGHT","Copyright 2007 SQO-OSS Consortium members");
+    }
 
     protected void doGet(HttpServletRequest request,
                          HttpServletResponse response) throws ServletException,
@@ -253,10 +260,7 @@ public class WebUIServer extends HttpServlet {
             String[] mapvalues = staticContentMap.get(query);
             sendResource(response, mapvalues[0], mapvalues[1]);
         } else {
-            dynamicSubstitutions.clear();
-            dynamicSubstitutions.put("@@STATUS","The cruncher is offline.");
-            dynamicSubstitutions.put("@@LOGO","<img src='/logo' id='logo' alt='Logo' />");
-            dynamicSubstitutions.put("@@COPYRIGHT","Copyright 2007 SQO-OSS Consortium members");
+            resetSubstitutions();
             dynamicSubstitutions.put("@@ABOUT","<p class='box'>This is the administrative interface.</p>");
             dynamicSubstitutions.put("@@BUNDLE",renderList(getBundleNames()));
             dynamicSubstitutions.put("@@SERVICE",renderList(getServiceNames()));
@@ -267,6 +271,41 @@ public class WebUIServer extends HttpServlet {
             }
         }
     }
+
+    private void addProject(HttpServletRequest request) {
+        resetSubstitutions();
+
+        String name = request.getParameter("name");
+        String website = request.getParameter("website");
+        String contact = request.getParameter("contact");
+        String bts = request.getParameter("bts");
+        String mail = request.getParameter("mail");
+        String scm = request.getParameter("scm");
+
+        if ( (name == null) ||
+            (website == null) ||
+            (contact == null) ||
+            (bts == null) ||
+            (mail == null) ||
+            (scm == null) ) {
+            dynamicSubstitutions.put("@@RESULTS","<p>Add project failed because some of the required information was missing.</p>");
+            return;
+        }
+    }
+
+    protected void doPost(HttpServletRequest request,
+                          HttpServletResponse response) throws ServletException,
+                                                               IOException {
+        logger.info("POST path=" + request.getPathInfo());
+        if ("addproject".equals(request.getPathInfo())) {
+            addProject(request);
+            // addProject() has filled in the substitutions by now
+            sendTemplate(response,"/results.html",dynamicSubstitutions);
+        } else {
+            doGet(request,response);
+        }
+    }
+
 }
 
 
