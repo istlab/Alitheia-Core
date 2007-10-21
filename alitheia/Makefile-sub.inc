@@ -32,11 +32,13 @@ BUNDLE_MANIFEST_NAME?=$(BUNDLE_NAME)
 #
 ###
 
+PREFIX?=$(shell cd ../../equinox && pwd)
 
 # Find the source files, the dependency jars and other resources
 SRC=$(shell cd src && find eu -name *.java)
 JARS=$(shell test -d src/main/resources && find src/main/resources -name '*.jar')
 RESOURCES=$(shell test -d src/main/resources && cd src/main/resources && ls -1)
+HBM_RESOURCES=$(shell cd src/ && find eu -name '*.hbm.xml')
 
 # Add the dependency jars to the classpath.
 $(foreach d,$(JARS),$(eval EXTRA_CP:=$(EXTRA_CP)$(d):))
@@ -76,13 +78,20 @@ build/$(1) : src/main/resources/$(1)
 	cp src/main/resources/$(1) build/
 endef
 
+define hbm_resource_template
+build/$(1) : src/$(1)
+	-mkdir -p build/$(dir $(1))
+	cp src/$(1) build/$(dir $(1))
+endef
+
 ifeq ($(WITH_MAVEN),)
 # Depend on the class files and all the copied-over resource files
-target/$(BUNDLE_NAME)-$(BUNDLE_VERSION).jar : manifest/$(BUNDLE_MANIFEST_NAME).mf build/.prebuild $(RESOURCES:%=build/%)
+target/$(BUNDLE_NAME)-$(BUNDLE_VERSION).jar : manifest/$(BUNDLE_MANIFEST_NAME).mf build/.prebuild $(RESOURCES:%=build/%) $(HBM_RESOURCES:%=build/%)
 	cd build/ && jar cfm ../target/$(BUNDLE_NAME)-$(BUNDLE_VERSION).jar ../manifest/$(BUNDLE_MANIFEST_NAME).mf *
 endif
 
 $(foreach d,$(RESOURCES),$(eval $(call resource_template,$(d))))
+$(foreach d,$(HBM_RESOURCES),$(eval $(call hbm_resource_template,$(d))))
 
 build/.prebuild : $(SRC:%=src/%)
 	javac -Xlint -source 1.5 -cp $(EXTRA_CP)$(EQUINOX_CP):src/ -d build/ $?
