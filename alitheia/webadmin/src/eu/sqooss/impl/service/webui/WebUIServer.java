@@ -72,9 +72,9 @@ public class WebUIServer extends HttpServlet {
 
     private LogManager logService = null;
     private Logger logger = null;
-    private Hashtable<Integer,String[]> staticContentMap;
-    private Hashtable<Integer,String> dynamicContentMap;
-    private Hashtable<Integer,String> dynamicSubstitutions;
+    private Hashtable<String,String[]> staticContentMap;
+    private Hashtable<String,String> dynamicContentMap;
+    private Hashtable<String,String> dynamicSubstitutions;
 
     public WebUIServer(BundleContext bc) {
         ServiceReference serviceRef = null;
@@ -93,21 +93,21 @@ public class WebUIServer extends HttpServlet {
             System.out.println("! Got neither a service nor a logger");
         }
 
-        staticContentMap = new Hashtable<Integer,String[]>();
+        staticContentMap = new Hashtable<String,String[]>();
         String[] flossie = { "image/x-png", "/flossie.png" } ;
         String[] css = { "text/css", "/alitheia.css" } ;
         String[] logo = { "image/x-png", "/alitheia.png" } ;
-        staticContentMap.put("logo".hashCode(), flossie);
-        staticContentMap.put("css".hashCode(),css);
-        staticContentMap.put("alitheia.png".hashCode(), logo);
-        staticContentMap.put("alitheia.css".hashCode(), css);
+        staticContentMap.put("logo", flossie);
+        staticContentMap.put("css",css);
+        staticContentMap.put("alitheia.png", logo);
+        staticContentMap.put("alitheia.css", css);
 
-        dynamicContentMap = new Hashtable<Integer,String>();
-        dynamicContentMap.put("about".hashCode(),"/about.html");
-        dynamicContentMap.put("status".hashCode(),"/index.html");
-        dynamicContentMap.put("index".hashCode(),"/index.html");
+        dynamicContentMap = new Hashtable<String,String>();
+        dynamicContentMap.put("about","/about.html");
+        dynamicContentMap.put("status","/index.html");
+        dynamicContentMap.put("index","/index.html");
 
-        dynamicSubstitutions = new Hashtable<Integer,String>();
+        dynamicSubstitutions = new Hashtable<String,String>();
     }
 
     protected String[] getServiceNames() {
@@ -215,7 +215,7 @@ public class WebUIServer extends HttpServlet {
         }
     }
 
-    protected void sendTemplate(HttpServletResponse response, String path, Hashtable<Integer,String> subs)
+    protected void sendTemplate(HttpServletResponse response, String path, Hashtable<String,String> subs)
         throws ServletException, IOException {
         BufferedReader istream = new BufferedReader(
             new InputStreamReader(getClass().getResourceAsStream(path)));
@@ -232,8 +232,8 @@ public class WebUIServer extends HttpServlet {
         PrintWriter print = response.getWriter();
         while ( istream.ready() ) {
             String line = istream.readLine();
-            if ( line.startsWith("@@") && subs.containsKey(line.hashCode()) ) {
-                print.println(subs.get(line.hashCode()));
+            if ( line.startsWith("@@") && subs.containsKey(line) ) {
+                print.println(subs.get(line));
             } else {
                 print.println(line);
             }
@@ -249,18 +249,19 @@ public class WebUIServer extends HttpServlet {
         }
 
         String query = request.getPathInfo();
-        if ( (query != null) && (staticContentMap.containsKey(query.hashCode())) ) {
-            String[] mapvalues = staticContentMap.get(query.hashCode());
+        if ( (query != null) && (staticContentMap.containsKey(query)) ) {
+            String[] mapvalues = staticContentMap.get(query);
             sendResource(response, mapvalues[0], mapvalues[1]);
         } else {
             dynamicSubstitutions.clear();
-            dynamicSubstitutions.put("@@LOGO".hashCode(),"<img src='/logo' id='logo' alt='Logo' />");
-            dynamicSubstitutions.put("@@COPYRIGHT".hashCode(),"Copyright 2007 SQO-OSS Consortium members");
-            dynamicSubstitutions.put("@@ABOUT".hashCode(),"<p class='box'>This is the administrative interface.</p>");
-            dynamicSubstitutions.put("@@BUNDLE".hashCode(),renderList(getBundleNames()));
-            dynamicSubstitutions.put("@@SERVICE".hashCode(),renderList(getServiceNames()));
-            if ( (query != null) && dynamicContentMap.containsKey(query.hashCode()) ) {
-                sendTemplate(response,dynamicContentMap.get(query.hashCode()),dynamicSubstitutions);
+            dynamicSubstitutions.put("@@STATUS","The cruncher is offline.");
+            dynamicSubstitutions.put("@@LOGO","<img src='/logo' id='logo' alt='Logo' />");
+            dynamicSubstitutions.put("@@COPYRIGHT","Copyright 2007 SQO-OSS Consortium members");
+            dynamicSubstitutions.put("@@ABOUT","<p class='box'>This is the administrative interface.</p>");
+            dynamicSubstitutions.put("@@BUNDLE",renderList(getBundleNames()));
+            dynamicSubstitutions.put("@@SERVICE",renderList(getServiceNames()));
+            if ( (query != null) && dynamicContentMap.containsKey(query) ) {
+                sendTemplate(response,dynamicContentMap.get(query),dynamicSubstitutions);
             } else {
                 sendTemplate(response,"/index.html",dynamicSubstitutions);
             }
