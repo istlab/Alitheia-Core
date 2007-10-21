@@ -32,6 +32,7 @@
         <property name="hbm2ddl.auto">create</property>
 
         <mapping resource="eu/sqooss/impl/service/db/FSAccessDataImpl.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/StoredProject.hbm.xml"/>
 
     </session-factory>
 
