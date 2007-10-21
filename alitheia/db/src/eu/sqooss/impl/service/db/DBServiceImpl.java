@@ -141,14 +141,6 @@ public class DBServiceImpl implements DBService {
         if (!getDerbyJDBC()) {
             logger.severe("DB service got no JDBC connectors.");
         }
-
-        try {
-            dbStatement = dbConnection.createStatement();
-            dbStatement.execute("create table STORED_PROJECT (ID int, NAME varchar(80))");
-            logger.info("Created table STORED_PROJECT.");
-        } catch (SQLException e) {
-            logger.warning("SQL Exception while creating table.");
-        }
     }
 
     // Interface functions
