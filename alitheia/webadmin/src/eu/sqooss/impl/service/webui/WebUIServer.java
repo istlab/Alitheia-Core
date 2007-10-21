@@ -38,9 +38,9 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
-import eu.sqooss.impl.service.logging.LogManagerConstants;
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.db.DBService;
 import eu.sqooss.util.SQOUtils;
 
 import java.util.Hashtable;
@@ -62,36 +62,52 @@ import javax.servlet.http.HttpServlet;
 public class WebUIServer extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
-    public static final String pageHead = "<html><head><title>SQO-OSS Web UI</title><link rel='stylesheet' type='text/css' href='/css' /></head><body>";
-    public static final String pageIntro = "<p class='box'>This is the administrative interface page for the Alitheia system. System stats are shown below.</p>";
-    public static final String pageBundleStats = "<h1>Available Bundles</h1>";
-    public static final String pageServiceStats = "<h1>Services</h1>";
-    public static final String pageFooter = "</body></html>";
-
     private BundleContext bundlecontext = null;
 
     private LogManager logService = null;
     private Logger logger = null;
+    private DBService dbService = null;
     private Hashtable<String,String[]> staticContentMap;
     private Hashtable<String,String> dynamicContentMap;
     private Hashtable<String,String> dynamicSubstitutions;
 
-    public WebUIServer(BundleContext bc) {
+    private void getLogger(BundleContext bc) {
         ServiceReference serviceRef = null;
-        bundlecontext = bc;
-
-        serviceRef = bc.getServiceReference("eu.sqooss.service.logging.LogManager");
+        serviceRef = bc.getServiceReference(LogManager.class.getName());
         logService = (LogManager) bc.getService(serviceRef);
 
         if (logService != null) {
             logger = logService.createLogger(Logger.NAME_SQOOSS_WEBUI);
 
             if (logger != null) {
-                logger.info("WebUIServer started");
+                logger.info("WebAdmin got logger.");
             }
         } else {
-            System.out.println("! Got neither a service nor a logger");
+            System.out.println("! Got neither a service nor a logger.");
         }
+    }
+
+    private void getDB(BundleContext bc) {
+        ServiceReference serviceRef = bc.getServiceReference(DBService.class.getName());
+        if (serviceRef != null) {
+            dbService = (DBService) bc.getService(serviceRef);
+            if (logger != null) {
+                logger.info("Got DB service.");
+            }
+        } else {
+            if (logger != null) {
+                logger.warning("Did not get DB service.");
+            } else {
+                System.out.println("! Got no DB service.");
+            }
+        }
+    }
+
+    public WebUIServer(BundleContext bc) {
+        bundlecontext = bc;
+        getLogger(bc);
+        getDB(bc);
+
 
         staticContentMap = new Hashtable<String,String[]>();
         String[] flossie = { "image/x-png", "/flossie.png" } ;
