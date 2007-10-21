@@ -1,0 +1,90 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+
+  <!-- Parent POM -->
+  <parent>
+    <groupId>eu.sqooss</groupId>
+    <artifactId>alitheia</artifactId>
+    <version>1.0.0</version>
+  </parent>
+
+  <!-- FDS Service - main POM -->
+  <groupId>eu.sqooss</groupId>
+  <artifactId>fds</artifactId>
+  <version>0.0.1</version>
+  <packaging>jar</packaging>
+
+  <!-- Project description -->
+  <name>FDS Service</name>
+  <description>
+    The fat data store (FDS) is responsible for high-level
+    data access to project data. This is an intelligent component,
+    responsible for caching and resource management in controlling
+    access to project data.
+  </description>
+
+  <!-- Build properties -->
+  <build>
+    <!-- Tells Maven to search for source code here -->
+    <sourceDirectory>${basedir}/src</sourceDirectory>
+    <!-- Tells Maven to build Java class files here -->
+    <outputDirectory>${basedir}/build</outputDirectory>
+    <!-- Tells Maven where to find the bundle manifest file -->
+    <plugins>
+      <plugin>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifestFile>
+              ${basedir}/manifest/manifest.mf
+            </manifestFile>
+          </archive>
+        </configuration> 
+      </plugin>
+    </plugins>
+  </build>
+
+  <!-- Dependencies -->
+  <dependencies>
+    <dependency>
+      <groupId>org.eclipse.equinox</groupId>
+      <artifactId>osgi</artifactId>
+      <version>3.3.0</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.osgi</groupId>
+      <artifactId>services</artifactId>
+      <version>3.1.100.v20060918</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>eu.sqooss</groupId>
+      <artifactId>logger</artifactId>
+      <version>[0.0.1,)</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+  
+  <!-- Developers working on this module -->
+  <developers>
+    <developer>
+      <id>adriaan</id>
+      <name>Adriaan de Groot</name>
+      <email>groot@kde.org</email>
+      <organization>KDE</organization>
+      <timezone>+1</timezone>
+    </developer>
+    <developer>
+      <id>sebas</id>
+      <name>Sebastian Kuegler</name>
+      <email>sebas@kde.org</email>
+      <organization>KDE</organization>
+      <timezone>+1</timezone>
+    </developer>
+  </developers>
+</project>
+
