@@ -307,6 +307,12 @@ public class WebUIServer extends HttpServlet {
             dynamicSubstitutions.put("@@RESULTS","<p>Add project failed because some of the required information was missing.</p>");
             return;
         }
+
+        if (dbService != null) {
+            dbService.addProject(name,website,contact,bts,mail,scm);
+        }
+        logger.info("Added a new project.");
+        dynamicSubstitutions.put("@@RESULTS","<p>New project added successfully.</p>");
     }
 
     protected void doPost(HttpServletRequest request,

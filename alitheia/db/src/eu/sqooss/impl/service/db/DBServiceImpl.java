@@ -126,7 +126,7 @@ public class DBServiceImpl implements DBService {
     }
 
     public DBServiceImpl( BundleContext bc ) {
-        ServiceReference serviceref = 
+        ServiceReference serviceref =
             bc.getServiceReference("eu.sqooss.service.logging.LogManager");
         logService = (LogManager) bc.getService(serviceref);
         logger = logService.createLogger("sqooss.database");
@@ -158,6 +158,7 @@ public class DBServiceImpl implements DBService {
 
     public void addProject(String name, String web, String contact,
         String bts, String mail, String scm) {
+        logger.info("Adding a new project <" + name + ">");
         Session s = sessionFactory.getCurrentSession();
         s.beginTransaction();
         StoredProject p = new StoredProject(name);
@@ -166,8 +167,11 @@ public class DBServiceImpl implements DBService {
         p.setBugs(bts);
         p.setMail(mail);
         p.setRepository(scm);
+        logger.info("Set data for project.");
         s.save(p);
+        logger.info("Saved project data.");
         s.getTransaction().commit();
+        logger.info("Transaction done.");
     }
 }
 
