@@ -89,14 +89,17 @@ public class SCMAccessorImpl implements SCMAccessor {
         }
     }
 
-    private void checkLatestRevision() {
+    public long getHeadRevision() {
+	long endRevision = -1;
         try {
-            long endRevision = svnRepository.getLatestRevision();
+            endRevision = svnRepository.getLatestRevision();
             logger.info("Latest revision of " + projectName + " is " + endRevision);
         } catch (SVNException e) {
             logger.warning("Could not get latest revision of " + projectName +
                 e.getMessage());
         }
+
+	return endRevision;
     }
 
     private static int revcount = 1;
@@ -113,7 +116,7 @@ public class SCMAccessorImpl implements SCMAccessor {
         }
 
         logger.info("getting log message for r." + revcount);
-        checkLatestRevision();
+        getHeadRevision();
 
         CommitLogImpl l = new CommitLogImpl();
         try {

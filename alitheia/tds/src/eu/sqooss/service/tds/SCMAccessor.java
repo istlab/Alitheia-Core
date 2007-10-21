@@ -39,6 +39,12 @@ import eu.sqooss.service.tds.ProjectRevision;
 
 public interface SCMAccessor {
     /**
+     * Get the numeric revision number for HEAD in this project.
+     * Returns a negative value (usually -1) on error.
+     */
+    public long getHeadRevision();
+
+    /**
      * Retrieve a checkout of the complete source tree underneath
      * the given path, relative to the root URL of the project
      * to which this accessor is attached. The checkout is written
