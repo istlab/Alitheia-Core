@@ -45,7 +45,7 @@ public class FDSServiceImpl {
     public FDSServiceImpl(BundleContext bc) {
         ServiceReference serviceRef = bc.getServiceReference("eu.sqooss.service.logging.LogManager");
         logService = (LogManager) bc.getService(serviceRef);
-        logger = logService.createLogger(Logger.NAME_SQOOSS_TDS);
+        logger = logService.createLogger(Logger.NAME_SQOOSS_FDS);
         if (logger != null) {
             logger.info("FDS service created.");
         } else {
