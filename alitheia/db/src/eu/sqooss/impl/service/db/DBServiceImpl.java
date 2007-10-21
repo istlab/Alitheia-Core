@@ -137,10 +137,8 @@ public class DBServiceImpl implements DBService {
 
         initHibernate();
 
-        if (!getPostgresJDBC()) {
-            if (!getDerbyJDBC()) {
-                logger.severe("DB service got no JDBC connectors.");
-            }
+        if (!getDerbyJDBC()) {
+            logger.severe("DB service got no JDBC connectors.");
         }
 
         try {
