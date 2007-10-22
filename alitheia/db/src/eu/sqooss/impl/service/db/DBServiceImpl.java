@@ -55,6 +55,10 @@ public class DBServiceImpl implements DBService {
     // This is the database connection; we may want to do more pooling here.
     private Connection dbConnection = null;
     private Statement dbStatement = null;
+    // Store the class and URL of the database to hand off to
+    // Hibernate so that it obeys the fallback from Postgres to Derby as well.
+    private String dbClass, dbURL, dbDialect;
+    // This is the Hibernate session factory.
     private SessionFactory sessionFactory = null;
 
     private Connection getJDBCConnection(String driver, String url) {
@@ -64,6 +68,8 @@ public class DBServiceImpl implements DBService {
             Connection c = DriverManager.getConnection(url);
             logger.info("Created JDBC connection for " + url);
             c.setAutoCommit(false);
+            dbClass = driver;
+            dbURL = url;
             return c;
         } catch (InstantiationException e) {
             logger.warning("Could not instantiate JDBC connection for " + driver);
@@ -92,6 +98,7 @@ public class DBServiceImpl implements DBService {
 
         if (c!=null) {
             dbConnection = c;
+            dbDialect = "org.hibernate.dialect.PostgresDialect";
         }
         return (c!=null);
     }
@@ -110,6 +117,7 @@ public class DBServiceImpl implements DBService {
 
         if (c!=null) {
             dbConnection = c;
+            dbDialect = "org.hibernate.dialect.DerbyDialect";
         }
         return (c!=null);
     }
@@ -117,7 +125,14 @@ public class DBServiceImpl implements DBService {
     private void initHibernate() {
         logger.info("Initializing Hibernate");
         try {
-            sessionFactory = new Configuration().configure().buildSessionFactory();
+            Configuration c = new Configuration();
+            c.configure();
+            // c now holds the configuration from hibernate.cfg.xml, need
+            // to override some of those properties.
+            c.setProperty("connection.driver_class",dbClass);
+            c.setProperty("connection.url",dbURL);
+            c.setProperty("connection.dialect",dbDialect);
+            sessionFactory = c.buildSessionFactory();
         } catch (Throwable e) {
             logger.severe("Failed to initialize Hibernate: " + e.getMessage());
             e.printStackTrace();
@@ -136,10 +151,18 @@ public class DBServiceImpl implements DBService {
             System.out.println("# DB service failed to get logger.");
         }
 
-        initHibernate();
+        dbClass = null;
+        if (!getPostgresJDBC()) {
+            if (!getDerbyJDBC()) {
+                logger.severe("DB service got no JDBC connectors.");
+            }
+        }
 
-        if (!getDerbyJDBC()) {
-            logger.severe("DB service got no JDBC connectors.");
+        if (dbClass != null) {
+            initHibernate();
+        } else {
+            logger.severe("Hibernate will not be initialized.");
+            // TODO: Throw something to prevent the bundle from being started?
         }
     }
 
