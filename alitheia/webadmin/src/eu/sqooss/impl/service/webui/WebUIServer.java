@@ -180,7 +180,7 @@ public class WebUIServer extends HttpServlet {
     }
 
     public String renderList(String[] names) {
-        if (names.length > 0) {
+        if ((names != null) && (names.length > 0)) {
             StringBuilder b = new StringBuilder();
             for (String s : names) {
                 b.append("<li>" + s + "</li>");
