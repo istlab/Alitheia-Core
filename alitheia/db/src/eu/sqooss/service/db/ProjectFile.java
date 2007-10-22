@@ -35,7 +35,7 @@ package eu.sqooss.service.db;
 import java.sql.Time;
 
 public class ProjectFile {
-    private Long id;
+    private long id;
     private String protection;
     private int links;
     private int userId;
@@ -67,7 +67,7 @@ public class ProjectFile {
     }
 
     public int getLinks() {
-	return this.links;
+	return links;
     }
 
     public void setLinks(int links) {
@@ -75,7 +75,7 @@ public class ProjectFile {
     }
 
     public int getUserId() {
-	return this.userId;
+	return userId;
     }
 
     public void setUserId(int userId) {
@@ -83,7 +83,7 @@ public class ProjectFile {
     }
 
     public int getGroupId() {
-	return this.groupId;
+	return groupId;
     }
 
     public void setGroupId(int groupId) {
@@ -91,7 +91,7 @@ public class ProjectFile {
     }
 
     public Time getAccessTime() {
-	return this.accessTime;
+	return accessTime;
     }
 
     public void setAccessTime(Time accessTime) {
@@ -99,7 +99,7 @@ public class ProjectFile {
     }
 
     public Time getModificationTime() {
-	return this.modificationTime;
+	return modificationTime;
     }
 
     public void setModificationTime(Time modificationTime){
@@ -107,7 +107,7 @@ public class ProjectFile {
     }
 
     public int getSize() {
-	return this.size;
+	return size;
     }
 
     public void setSize(int size) {
@@ -115,7 +115,7 @@ public class ProjectFile {
     }
 
     public int blocks() {
-	return this.blocks;
+	return blocks;
     }
 
     public void setBlocks(int blocks) {
