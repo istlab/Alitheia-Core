@@ -114,7 +114,7 @@ public class ProjectFile {
 	this.size = size;
     }
 
-    public int blocks() {
+    public int getBlocks() {
 	return blocks;
     }
 
