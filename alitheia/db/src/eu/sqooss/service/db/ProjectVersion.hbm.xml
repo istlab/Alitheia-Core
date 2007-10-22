@@ -9,6 +9,6 @@
       <generator class="native" />
     </id>
     <property name="project" column="PROJECT_ID" />
-    <property name="version" column="PROJECT_VERSION" />
+    <property name="version" column="VERSION" />
   </class>
 </hibernate-mapping>
