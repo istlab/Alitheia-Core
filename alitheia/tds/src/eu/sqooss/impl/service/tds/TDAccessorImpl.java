@@ -32,12 +32,6 @@
 
 package eu.sqooss.impl.service.tds;
 
-import java.util.HashMap;
-import java.util.Properties;
-import java.util.Enumeration;
-import java.io.FileInputStream;
-import java.io.File;
-
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.TDAccessor;
