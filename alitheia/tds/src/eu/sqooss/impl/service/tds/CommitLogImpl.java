@@ -70,11 +70,21 @@ public class CommitLogImpl implements CommitLog {
 
     // Interface methods
     public ProjectRevision first() {
-        return null;
+        if (entries.size()<1) {
+            return null;
+        }
+        ProjectRevision r = new ProjectRevision(entries.get(0).getRevision());
+        r.setDate(entries.get(0).getDate());
+        return r;
     }
 
     public ProjectRevision last() {
-        return null;
+        if (entries.size()<1) {
+            return null;
+        }
+        ProjectRevision r = new ProjectRevision(entries.getLast().getRevision());
+        r.setDate(entries.getLast().getDate());
+        return r;
     }
 
     public String message(ProjectRevision r) {

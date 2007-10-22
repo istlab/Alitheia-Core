@@ -141,7 +141,7 @@ public class ProjectRevision {
      * There is no date associated with this until the project revision
      * is applied to a specific SVN repository.
      */
-    public ProjectRevision(int revision) {
+    public ProjectRevision(long revision) {
         this();
         this.revision = revision;
         haveRevision = true;
