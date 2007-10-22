@@ -124,6 +124,12 @@ public class TDSServiceImpl implements TDSService {
     public void releaseAccessor( TDAccessor td ) {
         logger.info("Release accessor for " + td.getName());
     }
+
+    public void addAccessor( String name, String bts, String mail, String scm ) {
+        TDAccessorImpl a = new TDAccessorImpl(name,bts,mail,scm);
+        accessorPool.put(name,a);
+        logger.info("Added project <" + name + ">");
+    }
 }
 
 

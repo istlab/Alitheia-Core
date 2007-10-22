@@ -72,6 +72,19 @@ public interface TDSService {
      * Release your claim on the accessor.
      */
     public void releaseAccessor( TDAccessor tda );
+
+    /**
+     * Add an accessor for a project (usually a new project just
+     * added to the system, in preparation for syncing it).
+     *
+     * @param name Project name
+     * @param bts  Bug tracker URL
+     * @param mail URL for email access
+     * @param scm  URL for repository
+     *
+     * @see eu.sqooss.service.db.StoredProject
+     */
+    public void addAccessor( String name, String bts, String mail, String scm );
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab
