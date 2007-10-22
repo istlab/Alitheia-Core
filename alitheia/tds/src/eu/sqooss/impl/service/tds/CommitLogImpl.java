@@ -34,6 +34,7 @@
 package eu.sqooss.impl.service.tds;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -41,6 +42,7 @@ import org.tmatesoft.svn.core.SVNLogEntry;
 
 import eu.sqooss.service.tds.CommitLog;
 import eu.sqooss.service.tds.ProjectRevision;
+import eu.sqooss.service.tds.InvalidProjectRevisionException;
 
 public class CommitLogImpl implements CommitLog {
     private LinkedList<SVNLogEntry> entries;
@@ -62,8 +64,8 @@ public class CommitLogImpl implements CommitLog {
     }
 
     public void dump() {
-        for (Iterator i = entries.iterator(); i.hasNext(); ) {
-            SVNLogEntry l = (SVNLogEntry) i.next();
+        for (Iterator<SVNLogEntry> i = entries.iterator(); i.hasNext(); ) {
+            SVNLogEntry l = i.next();
             dump(l);
         }
     }
@@ -87,8 +89,42 @@ public class CommitLogImpl implements CommitLog {
         return r;
     }
 
-    public String message(ProjectRevision r) {
-        return entries.get(0).getMessage();
+    public String message(ProjectRevision r)
+        throws InvalidProjectRevisionException {
+        if ((r==null) || (!r.isValid())) {
+            throw new InvalidProjectRevisionException("Need a valid revision to query log");
+        }
+
+        if (r.hasSVNRevision()) {
+            long revno = r.getSVNRevision();
+            for (Iterator<SVNLogEntry> i = entries.iterator(); i.hasNext(); ) {
+                SVNLogEntry l = i.next();
+                if (l.getRevision() == revno) {
+                    return l.getMessage();
+                }
+            }
+        } else {
+            Date d = r.getDate();
+            SVNLogEntry l=null,prev=null;
+            for (Iterator<SVNLogEntry> i = entries.iterator(); i.hasNext(); ) {
+                prev = l;
+                l = i.next();
+                if (l.getDate().after(d)) {
+                    if (prev != null) {
+                        return prev.getMessage();
+                    } else {
+                        // This is the case when the first entry already
+                        // comes after the requested date.
+                        return null;
+                    }
+                }
+            }
+            // We've gotten to the end without finding a revision that
+            // comes after the requested date, so obviously the last
+            // entry is the latest entry before the requested date.
+            return prev.getMessage();
+        }
+        return null;
     }
 }
 

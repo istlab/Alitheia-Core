@@ -34,27 +34,33 @@
 package eu.sqooss.service.tds;
 
 import eu.sqooss.service.tds.ProjectRevision;
+import eu.sqooss.service.tds.InvalidProjectRevisionException;
 
 public interface CommitLog {
     /**
      * Retrieve the project revision information for the first
-     * entry in this commit log.
+     * entry in this commit log. May return null if the log is empty.
      */
     public ProjectRevision first();
 
     /**
      * Retrieve the project revision information for the last
      * entry in this commit log. This may be the same as first()
-     * for 1-entry logs.
+     * for 1-entry logs. May return null if the log is empty.
      */
     public ProjectRevision last();
 
     /**
      * Retrieve the message (commit message) for project revision
-     * @p r in this log. If @p r is not within the range of this
-     * log, throw an exception.
+     * @p r in this log. If @p r is not valid in some way, throw
+     * an exception. If @p r is not in the log (the revision does not
+     * occur, for instance) return null. For ProjectRevisions with
+     * no SVN revision attached (date revisions) return the last
+     * revision that is not after the indicated date, or null if there
+     * isn't one.
      */
-    public String message(ProjectRevision r);
+    public String message(ProjectRevision r)
+        throws InvalidProjectRevisionException;
 
     /**
      * For debugging purposes, dump the log to stdout.
