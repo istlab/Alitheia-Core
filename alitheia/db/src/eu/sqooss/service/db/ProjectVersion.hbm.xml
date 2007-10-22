@@ -5,10 +5,10 @@
 
 <hibernate-mapping>
   <class name="eu.sqooss.service.db.ProjectVersion" table="PROJECT_VERSION">
-    <id name="id" column="PROJECT_ID">
+    <id name="id" column="VERSION_ID">
       <generator class="native" />
     </id>
-    <property name="name" column="PROJECT_NAME" />
+    <property name="project" column="PROJECT_ID" />
     <property name="version" column="PROJECT_VERSION" />
   </class>
 </hibernate-mapping>
