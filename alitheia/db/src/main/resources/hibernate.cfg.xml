@@ -31,7 +31,11 @@
         <!-- Drop and re-create the database schema on startup -->
         <property name="hbm2ddl.auto">update</property>
 
+        <mapping resource="eu/sqooss/service/db/ProjectFile.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/ProjectVersion.hbm.xml"/>
+	<mapping resource="eu/sqooss/service/db/Filemetadata.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/StoredProject.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/Tag.hbm.xml"/>
 
     </session-factory>
 
