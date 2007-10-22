@@ -33,8 +33,6 @@
 
 package eu.sqooss.service.tds;
 
-import org.tmatesoft.svn.core.SVNException;
-
 import eu.sqooss.service.tds.CommitLog;
 import eu.sqooss.service.tds.Diff;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
@@ -68,7 +66,7 @@ public interface SCMAccessor {
      * for this source repository.
      */
     public CommitLog getCommitLog( ProjectRevision r1, ProjectRevision r2 )
-        throws SVNException, InvalidProjectRevisionException;
+        throws InvalidProjectRevisionException;
 
     /**
      * Get the commit log entries for revisions @p r1 to @p r2
@@ -77,7 +75,7 @@ public interface SCMAccessor {
      * project this accessor is attached to).
      */
     public CommitLog getCommitLog( String repoPath, ProjectRevision r1, ProjectRevision r2 )
-        throws SVNException, InvalidProjectRevisionException;
+        throws InvalidProjectRevisionException;
 
     /**
      * Get the diff between two revisions of a subtree within

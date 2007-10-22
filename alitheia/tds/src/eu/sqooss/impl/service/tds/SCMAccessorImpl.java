@@ -111,7 +111,7 @@ public class SCMAccessorImpl implements SCMAccessor {
     }
 
     private long resolveProjectRevision( ProjectRevision r )
-        throws SVNException, InvalidProjectRevisionException {
+        throws InvalidProjectRevisionException {
         if ( (r==null) || (!r.isValid()) ) {
             throw new InvalidProjectRevisionException("Can only resolve a valid revision");
         }
@@ -119,17 +119,21 @@ public class SCMAccessorImpl implements SCMAccessor {
         if (r.hasSVNRevision()) {
             return r.getSVNRevision();
         } else {
-            return resolveDatedProjectRevision(r);
+            try {
+                return resolveDatedProjectRevision(r);
+            } catch (SVNException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
     public CommitLog getCommitLog( ProjectRevision r1, ProjectRevision r2 )
-        throws SVNException, InvalidProjectRevisionException {
+        throws InvalidProjectRevisionException {
         return getCommitLog("",r1,r2);
     }
 
     public CommitLog getCommitLog( String repoPath, ProjectRevision r1, ProjectRevision r2 )
-        throws SVNException, InvalidProjectRevisionException {
+        throws InvalidProjectRevisionException {
         if (svnRepository == null) {
             connectToRepository();
         }
@@ -161,9 +165,14 @@ public class SCMAccessorImpl implements SCMAccessor {
         getHeadRevision();
 
         CommitLogImpl l = new CommitLogImpl();
-        Collection logEntries = svnRepository.log(new String[]{repoPath},
-            l.getEntriesReference(),
-            revstart, revend, true, true);
+        try {
+            Collection logEntries = svnRepository.log(new String[]{repoPath},
+                l.getEntriesReference(),
+                revstart, revend, true, true);
+        } catch (SVNException e) {
+            throw new RuntimeException(e);
+        }
+
         return l;
     }
 
