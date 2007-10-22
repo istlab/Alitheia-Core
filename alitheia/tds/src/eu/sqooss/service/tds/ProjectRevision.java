@@ -70,7 +70,7 @@ public class ProjectRevision {
      * Retrieve the SVN revision that most closely corresponds
      * with this project revision.
      */
-    public int getSVNRevision() {
+    public long getSVNRevision() {
         if (haveRevision) {
             return revision;
         } else {
@@ -83,7 +83,7 @@ public class ProjectRevision {
      * the kind of the project revision (in particular, an INVALID one
      * will remain INVALID).
      */
-    public void setSVNRevision(int r) {
+    public void setSVNRevision(long r) {
         revision = r;
         haveRevision = true;
     }
@@ -172,7 +172,7 @@ public class ProjectRevision {
         }
     }
 
-    private int revision;
+    private long revision;
     private Date date;
     private boolean haveRevision, haveDate;
     private Kind kind;
