@@ -115,7 +115,7 @@ public class SCMAccessorImpl implements SCMAccessor {
             return null;
         }
 
-        logger.info("getting log message for r." + revcount);
+        logger.info("Getting log messages for " + r1 + " -- " + r2);
         getHeadRevision();
 
         CommitLogImpl l = new CommitLogImpl();

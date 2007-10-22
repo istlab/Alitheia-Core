@@ -32,9 +32,10 @@
 
 package eu.sqooss.impl.service.tds;
 
+import java.util.Date;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Properties;
-import java.util.Enumeration;
 import java.io.FileInputStream;
 import java.io.File;
 
@@ -49,6 +50,7 @@ import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.tds.TDAccessor;
+import eu.sqooss.service.tds.ProjectRevision;
 import eu.sqooss.impl.service.tds.TDAccessorImpl;
 import eu.sqooss.impl.service.tds.SCMAccessorImpl;
 
@@ -105,7 +107,10 @@ public class TDSServiceImpl implements TDSService {
         }
         logger.info("Got configuration for " + projectCount + " projects.");
 
-        getAccessor("kde").getSCMAccessor().getCommitLog(null,null);
+        // This date is december 1st, 2000; r.72768 was on november 29th.
+        getAccessor("kde").getSCMAccessor().getCommitLog(
+            new ProjectRevision(72768),
+            new ProjectRevision(new Date(100,11,1)));
     }
 
     public boolean accessorExists( String projectName ) {

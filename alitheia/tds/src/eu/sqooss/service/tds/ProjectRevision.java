@@ -172,6 +172,29 @@ public class ProjectRevision {
         }
     }
 
+    /**
+     * Return human-readable representation of this ProjectRevision.
+     */
+    public String toString() {
+        switch (kind) {
+        case INVALID:
+            return "invalid";
+        case FROM_REVISION:
+            if (hasDate()) {
+                return "r." + revision + " (" + date + ")";
+            } else {
+                return "r." + revision;
+            }
+        case FROM_DATE:
+            if (hasSVNRevision()) {
+                return date + "(r." + revision + ")";
+            } else {
+                return date.toString();
+            }
+        }
+        throw new RuntimeException("Invalid kind of revision: " + kind);
+    }
+
     private long revision;
     private Date date;
     private boolean haveRevision, haveDate;
