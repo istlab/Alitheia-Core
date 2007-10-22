@@ -66,6 +66,10 @@ public class ProjectRevision {
         return kind;
     }
 
+    public boolean isValid() {
+        return kind != Kind.INVALID;
+    }
+
     /**
      * Retrieve the SVN revision that most closely corresponds
      * with this project revision.
@@ -187,7 +191,7 @@ public class ProjectRevision {
             }
         case FROM_DATE:
             if (hasSVNRevision()) {
-                return date + "(r." + revision + ")";
+                return date + " (r." + revision + ")";
             } else {
                 return date.toString();
             }

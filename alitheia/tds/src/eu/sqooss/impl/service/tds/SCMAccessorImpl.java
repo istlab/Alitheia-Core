@@ -39,21 +39,16 @@ import java.util.Collection;
 
 import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.SVNLogEntry;
-// import org.tmatesoft.svn.core.SVNLogEntryPath;
 import org.tmatesoft.svn.core.SVNURL;
-// import org.tmatesoft.svn.core.auth.ISVNAuthenticationManager;
-// import org.tmatesoft.svn.core.internal.io.dav.DAVRepositoryFactory;
-// import org.tmatesoft.svn.core.internal.io.fs.FSRepositoryFactory;
-// import org.tmatesoft.svn.core.internal.io.svn.SVNRepositoryFactoryImpl;
 import org.tmatesoft.svn.core.io.SVNRepository;
 import org.tmatesoft.svn.core.io.SVNRepositoryFactory;
-// import org.tmatesoft.svn.core.wc.SVNWCUtil;
 
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.SCMAccessor;
 import eu.sqooss.service.tds.CommitLog;
 import eu.sqooss.service.tds.Diff;
 import eu.sqooss.service.tds.ProjectRevision;
+import eu.sqooss.service.tds.InvalidProjectRevisionException;
 import eu.sqooss.impl.service.tds.CommitLogImpl;
 
 public class SCMAccessorImpl implements SCMAccessor {
@@ -102,36 +97,63 @@ public class SCMAccessorImpl implements SCMAccessor {
 	return endRevision;
     }
 
-    private static int revcount = 1;
-    public CommitLog getCommitLog( ProjectRevision r1, ProjectRevision r2 ) {
+    public CommitLog getCommitLog( ProjectRevision r1, ProjectRevision r2 )
+        throws SVNException, InvalidProjectRevisionException {
         return getCommitLog("",r1,r2);
     }
 
-    public CommitLog getCommitLog( String repoPath, ProjectRevision r1, ProjectRevision r2 ) {
+    public CommitLog getCommitLog( String repoPath, ProjectRevision r1, ProjectRevision r2 )
+        throws SVNException, InvalidProjectRevisionException {
         if (svnRepository == null) {
             connectToRepository();
         }
         if (svnRepository == null) {
-            return null;
+            throw new NullPointerException("No SVN repository for project <" + projectName + ">");
+        }
+        if (r1 == null) {
+            throw new InvalidProjectRevisionException("Null start revision");
+        }
+        if (!r1.isValid()) {
+            throw new InvalidProjectRevisionException("Invalid start revision");
         }
 
-        logger.info("Getting log messages for " + r1 + " -- " + r2);
+        // Map the project revisions to SVN revision numbers
+        long revstart=-1, revend=-1;
+        if (r1.hasSVNRevision()) {
+            revstart = r1.getSVNRevision();
+        } else {
+            revstart = svnRepository.getDatedRevision(r1.getDate());
+            if (revstart > 0) {
+                // Cache for later
+                r1.setSVNRevision(revstart);
+            }
+        }
+        logger.info("Start revision for log " + r1);
+
+        if (r2 == null) {
+            revend = revstart;
+        } else {
+            if (!r2.isValid()) {
+                throw new InvalidProjectRevisionException("Invalid end revision");
+            }
+            if (r2.hasSVNRevision()) {
+                revend = r2.getSVNRevision();
+            } else {
+                revend = svnRepository.getDatedRevision(r2.getDate());
+                if (revend > 0) {
+                    r2.setSVNRevision(revend);
+                }
+            }
+            logger.info("End revision for log " + r2);
+        }
+
         getHeadRevision();
 
         CommitLogImpl l = new CommitLogImpl();
-        try {
-            Collection logEntries = svnRepository.log(new String[]{repoPath},
-                l.getEntriesReference(),
-                revcount, revcount+10, true, true);
-            logger.info("Message for r." + revcount + " is <" +
-                l.message(null) + ">");
-            revcount++;
-            return l;
-        } catch (SVNException e) {
-            logger.warning("Could not get log for " + projectName);
-        }
-
-        return null;
+        Collection logEntries = svnRepository.log(new String[]{repoPath},
+            l.getEntriesReference(),
+            revstart, revend, true, true);
+        return l;
     }
 
     public Diff getDiff( String repoPath, ProjectRevision r1, ProjectRevision r2 ) {

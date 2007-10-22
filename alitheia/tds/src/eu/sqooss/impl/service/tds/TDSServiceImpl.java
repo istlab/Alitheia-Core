@@ -107,10 +107,14 @@ public class TDSServiceImpl implements TDSService {
         }
         logger.info("Got configuration for " + projectCount + " projects.");
 
-        // This date is december 1st, 2000; r.72768 was on november 29th.
-        getAccessor("kde").getSCMAccessor().getCommitLog(
-            new ProjectRevision(72768),
-            new ProjectRevision(new Date(100,11,1)));
+        try {
+            // This date is december 1st, 2000; r.72768 was on november 29th.
+            getAccessor("kde").getSCMAccessor().getCommitLog(
+                new ProjectRevision(72768),
+                new ProjectRevision(new Date(100,11,1)));
+        } catch (Exception e) {
+            logger.warn(e.getMessage());
+        }
     }
 
     public boolean accessorExists( String projectName ) {
