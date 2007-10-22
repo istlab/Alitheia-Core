@@ -62,11 +62,13 @@ install : $(foreach d,$(SUBDIRS),install-$(d))
 
 clean : clean-log $(foreach d,$(SUBDIRS),clean-$(d))
 	rm -rf $(PREFIX)/configuration/org.eclipse.osgi
-	rm -rf $(PREFIX)/derbyDB
 
 clean-log :
 	rm -f $(PREFIX)/alitheia.log $(PREFIX)/hibernate.log
 	rm -f $(PREFIX)/derby.log
+
+clean-db :
+	rm -rf $(PREFIX)/derbyDB
 
 CL_CONFIG=-Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.Log4JLogger
 LOG4J_CONFIG=-Dlog4j.configuration=file://$(ABS_PREFIX)/configuration/log4j.properties
