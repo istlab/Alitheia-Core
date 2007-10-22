@@ -20,7 +20,14 @@
 # stop-ui	- Stop the tomcat instance.
 # start		- Run the web UI and the core system.
 # clean		- Remove all build artifacts and logs.
+# clean-log	- Clean up just the logs. Keeps show-log short.
+# clean-db	- Remove the Derby DB, so it will be re-created next run.
+#		  Only useful if you are using Derby, which is the fallback
+#		  when Postgres can't be found.
 # show-log	- Finds the run log and prints it.
+# show-db	- Start the Derby CLI for database manipulation.
+#		  Only useful if you are using Derby, which is the fallback
+#		  when Postgres can't be found.
 #
 # After 'make run' you may need to type 'close' on the OSGi console
 # to quit the Alitheia system (in production circumstances you would
