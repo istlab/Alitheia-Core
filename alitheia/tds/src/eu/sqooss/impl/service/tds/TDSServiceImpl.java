@@ -118,7 +118,7 @@ public class TDSServiceImpl implements TDSService {
                 new ProjectRevision(d.getTime()));
             l.dump();
         } catch (Exception e) {
-            logger.warn(e.getMessage());
+            logger.warning(e.getMessage());
         }
     }
 
