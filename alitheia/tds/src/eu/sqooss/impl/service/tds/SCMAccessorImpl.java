@@ -97,6 +97,32 @@ public class SCMAccessorImpl implements SCMAccessor {
 	return endRevision;
     }
 
+    private long resolveDatedProjectRevision( ProjectRevision r )
+        throws SVNException, InvalidProjectRevisionException {
+        if ( (r==null) || (!r.hasDate()) ) {
+            throw new InvalidProjectRevisionException("Can only resolve a revision with a date");
+        }
+
+        long revno = svnRepository.getDatedRevision(r.getDate());
+        if (revno > 0) {
+            r.setSVNRevision(revno);
+        }
+        return revno;
+    }
+
+    private long resolveProjectRevision( ProjectRevision r )
+        throws SVNException, InvalidProjectRevisionException {
+        if ( (r==null) || (!r.isValid()) ) {
+            throw new InvalidProjectRevisionException("Can only resolve a valid revision");
+        }
+
+        if (r.hasSVNRevision()) {
+            return r.getSVNRevision();
+        } else {
+            return resolveDatedProjectRevision(r);
+        }
+    }
+
     public CommitLog getCommitLog( ProjectRevision r1, ProjectRevision r2 )
         throws SVNException, InvalidProjectRevisionException {
         return getCommitLog("",r1,r2);
@@ -119,15 +145,7 @@ public class SCMAccessorImpl implements SCMAccessor {
 
         // Map the project revisions to SVN revision numbers
         long revstart=-1, revend=-1;
-        if (r1.hasSVNRevision()) {
-            revstart = r1.getSVNRevision();
-        } else {
-            revstart = svnRepository.getDatedRevision(r1.getDate());
-            if (revstart > 0) {
-                // Cache for later
-                r1.setSVNRevision(revstart);
-            }
-        }
+        revstart = resolveProjectRevision(r1);
         logger.info("Start revision for log " + r1);
 
         if (r2 == null) {
@@ -136,14 +154,7 @@ public class SCMAccessorImpl implements SCMAccessor {
             if (!r2.isValid()) {
                 throw new InvalidProjectRevisionException("Invalid end revision");
             }
-            if (r2.hasSVNRevision()) {
-                revend = r2.getSVNRevision();
-            } else {
-                revend = svnRepository.getDatedRevision(r2.getDate());
-                if (revend > 0) {
-                    r2.setSVNRevision(revend);
-                }
-            }
+            revend = resolveProjectRevision(r2);
             logger.info("End revision for log " + r2);
         }
 
