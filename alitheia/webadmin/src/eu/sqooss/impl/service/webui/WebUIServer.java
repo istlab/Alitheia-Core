@@ -114,15 +114,15 @@ public class WebUIServer extends HttpServlet {
         String[] css = { "text/css", "/alitheia.css" } ;
         String[] logo = { "image/x-png", "/alitheia.png" } ;
         staticContentMap.put("logo", flossie);
-        staticContentMap.put("css",css);
-        staticContentMap.put("alitheia.png", logo);
         staticContentMap.put("alitheia.css", css);
+        staticContentMap.put("alitheia.png", logo);
 
         dynamicContentMap = new Hashtable<String,String>();
         dynamicContentMap.put("about","/about.html");
         dynamicContentMap.put("status","/index.html");
         dynamicContentMap.put("index","/index.html");
         dynamicContentMap.put("addproject","/addproject.html");
+        dynamicContentMap.put("list","/listproject.html");
 
         dynamicSubstitutions = new Hashtable<String,String>();
     }
@@ -278,8 +278,12 @@ public class WebUIServer extends HttpServlet {
         } else {
             resetSubstitutions();
             dynamicSubstitutions.put("@@ABOUT","<p class='box'>This is the administrative interface.</p>");
-            dynamicSubstitutions.put("@@BUNDLE",renderList(getBundleNames()));
-            dynamicSubstitutions.put("@@SERVICE",renderList(getServiceNames()));
+            if ("list".equals(query)) {
+                dynamicSubstitutions.put("@@PROJECTS",renderList(dbService.listProjects()));
+            } else {
+                dynamicSubstitutions.put("@@BUNDLE",renderList(getBundleNames()));
+                dynamicSubstitutions.put("@@SERVICE",renderList(getServiceNames()));
+            }
             if ( (query != null) && dynamicContentMap.containsKey(query) ) {
                 sendTemplate(response,dynamicContentMap.get(query),dynamicSubstitutions);
             } else {
