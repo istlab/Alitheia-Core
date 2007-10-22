@@ -32,6 +32,7 @@
 
 package eu.sqooss.impl.service.tds;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -53,6 +54,7 @@ import eu.sqooss.service.tds.TDAccessor;
 import eu.sqooss.service.tds.ProjectRevision;
 import eu.sqooss.impl.service.tds.TDAccessorImpl;
 import eu.sqooss.impl.service.tds.SCMAccessorImpl;
+import eu.sqooss.service.tds.CommitLog;
 
 public class TDSServiceImpl implements TDSService {
     private LogManager logService = null;
@@ -109,9 +111,12 @@ public class TDSServiceImpl implements TDSService {
 
         try {
             // This date is december 1st, 2000; r.72768 was on november 29th.
-            getAccessor("kde").getSCMAccessor().getCommitLog(
+            Calendar d = Calendar.getInstance();
+            d.set(2000,11,1);
+            CommitLog l = getAccessor("kde").getSCMAccessor().getCommitLog(
                 new ProjectRevision(72768),
-                new ProjectRevision(new Date(100,11,1)));
+                new ProjectRevision(d.getTime()));
+            l.dump();
         } catch (Exception e) {
             logger.warn(e.getMessage());
         }

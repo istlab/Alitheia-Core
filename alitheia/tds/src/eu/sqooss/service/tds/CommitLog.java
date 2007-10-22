@@ -55,6 +55,11 @@ public interface CommitLog {
      * log, throw an exception.
      */
     public String message(ProjectRevision r);
+
+    /**
+     * For debugging purposes, dump the log to stdout.
+     */
+    public void dump();
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab
