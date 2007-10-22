@@ -194,11 +194,8 @@ public class DBServiceImpl implements DBService {
         p.setBugs(bts);
         p.setMail(mail);
         p.setRepository(scm);
-        logger.info("Set data for project.");
         s.save(p);
-        logger.info("Saved project data.");
         s.getTransaction().commit();
-        logger.info("Transaction done.");
     }
 }
 
