@@ -33,12 +33,149 @@
 
 package eu.sqooss.service.tds;
 
-public interface ProjectRevision {
+import java.util.Date;
+
+/**
+ * A ProjectRevision denotes a revision of a (any) project; revisions
+ * may be created from dates or from SVN revision numbers. A specific
+ * ProjectRevision object contains @em only dates or revisions; it is
+ * not of itself associated with a specific project. If a ProjectRevision
+ * is created with a date it has no SVN revision until it is applied to
+ * a specific project; at that point its SVN revision @em may be set
+ * by querying the SVN repository. Similarly ProjectRevisions created
+ * from a specific revision number have no date until they hit a repository.
+ *
+ * ProjectRevisions are passed to many functions of the raw accessor
+ * classes. It may be invalid to pass certain kinds of revisions
+ * to some of those methods (for instance, the email accessors only
+ * make sense if there is a date attached to the revision). The
+ * InvalidProjectRevisionException is used to indicate problems like that.
+ */
+public class ProjectRevision {
+    public enum Kind {
+        INVALID,
+        FROM_REVISION,
+        FROM_DATE
+    }
+
+    /**
+     * What kind of source was this project revision created with?
+     * That is the definitive source of the data.
+     */
+    public Kind getKind() {
+        return kind;
+    }
+
     /**
      * Retrieve the SVN revision that most closely corresponds
      * with this project revision.
      */
-    public int getSVNRevision();
+    public int getSVNRevision() {
+        if (haveRevision) {
+            return revision;
+        } else {
+            return -1;
+        }
+    }
+
+    /**
+     * Set the revision to a specific number. This does not change
+     * the kind of the project revision (in particular, an INVALID one
+     * will remain INVALID).
+     */
+    public void setSVNRevision(int r) {
+        revision = r;
+        haveRevision = true;
+    }
+
+    /**
+     * Does the project revision have a SVN revision associated?
+     */
+    public boolean hasSVNRevision() {
+        return haveRevision;
+    }
+
+    /**
+     * Project revisions may be associated with a date; get that date.
+     */
+    public Date getDate() {
+        if (haveDate) {
+            return date;
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Set the date for this project revision. Does not change its kind.
+     */
+    public void setDate(Date d) {
+        date = d;
+        haveDate = true;
+    }
+
+    /**
+     * Does the project revision have a date associated?
+     */
+    public boolean hasDate() {
+        return haveDate;
+    }
+
+    /**
+     * Default constructor, creating an invalid revision.
+     */
+    public ProjectRevision() {
+        revision = -1;
+        date = null;
+        haveRevision = false;
+        haveDate = false;
+        kind = Kind.INVALID;
+    }
+
+    /**
+     * Create a ProjectRevision from a raw SVN revision number.
+     * There is no date associated with this until the project revision
+     * is applied to a specific SVN repository.
+     */
+    public ProjectRevision(int revision) {
+        this();
+        this.revision = revision;
+        haveRevision = true;
+        kind = Kind.FROM_REVISION;
+    }
+
+    /**
+     * Create a ProjectRevision from a date. No revision number
+     * is associated with the date until the project revision
+     * is applied to a specific SVN repository.
+     */
+    public ProjectRevision(Date date) {
+        this();
+        this.date = date;
+        haveDate = true;
+        kind = Kind.FROM_DATE;
+    }
+
+    /**
+     * Copy constructor.
+     */
+    public ProjectRevision(ProjectRevision r) {
+        this();
+        kind = r.getKind();
+        if (r.hasDate()) {
+            haveDate = true;
+            date = r.getDate();
+        }
+        if (r.hasSVNRevision()) {
+            haveRevision = true;
+            revision = r.getSVNRevision();
+        }
+    }
+
+    private int revision;
+    private Date date;
+    private boolean haveRevision, haveDate;
+    private Kind kind;
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab
