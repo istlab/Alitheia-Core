@@ -33,12 +33,14 @@
 
 package eu.sqooss.impl.service.tds;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Collection;
-// import java.util.Iterator;
-// import java.util.List;
 
 import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.SVNLogEntry;
+import org.tmatesoft.svn.core.SVNNodeKind;
 import org.tmatesoft.svn.core.SVNURL;
 import org.tmatesoft.svn.core.io.SVNRepository;
 import org.tmatesoft.svn.core.io.SVNRepositoryFactory;
@@ -65,13 +67,10 @@ public class SCMAccessorImpl implements SCMAccessor {
         }
     }
 
-    // Interface methods
-    public void checkOut( String repoPath, ProjectRevision revision, String localPath ) {
-    }
-
-    public void checkOutFile( String repoPath, ProjectRevision revision, String localPath ) {
-    }
-
+    /**
+     * Connect to the repository named in the constructor (the URL
+     * is stored in this.url); may set the repo to null on error.
+     */
     private void connectToRepository() {
         try {
             svnRepository = SVNRepositoryFactory.create(SVNURL.parseURIDecoded(url));
@@ -84,19 +83,14 @@ public class SCMAccessorImpl implements SCMAccessor {
         }
     }
 
-    public long getHeadRevision() {
-	long endRevision = -1;
-        try {
-            endRevision = svnRepository.getLatestRevision();
-            logger.info("Latest revision of " + projectName + " is " + endRevision);
-        } catch (SVNException e) {
-            logger.warning("Could not get latest revision of " + projectName +
-                e.getMessage());
-        }
-
-	return endRevision;
-    }
-
+    /**
+     * For a ProjectRevision which has only got a date associated
+     * with it (typically from things like revisions stated
+     * as a {YYYYMMDD} string) resolve the date to a SVN revision
+     * number. Throws SVNException on errors in the underlying
+     * library or InvalidProjectRevisionException if the
+     * ProjectRevision can't be used for resolution.
+     */
     private long resolveDatedProjectRevision( ProjectRevision r )
         throws SVNException, InvalidProjectRevisionException {
         if ( (r==null) || (!r.hasDate()) ) {
@@ -110,6 +104,12 @@ public class SCMAccessorImpl implements SCMAccessor {
         return revno;
     }
 
+    /**
+     * Get the SVN revision number associated with this Project
+     * Revision. May throw InvalidProjectRevision if there is
+     * no way to do so, or a RuntimeException if something is
+     * horribly wrong underneath.
+     */
     private long resolveProjectRevision( ProjectRevision r )
         throws InvalidProjectRevisionException {
         if ( (r==null) || (!r.isValid()) ) {
@@ -124,6 +124,68 @@ public class SCMAccessorImpl implements SCMAccessor {
             } catch (SVNException e) {
                 throw new RuntimeException(e);
             }
+        }
+    }
+
+    // Interface methods
+    public long getHeadRevision() {
+	long endRevision = -1;
+        try {
+            endRevision = svnRepository.getLatestRevision();
+            logger.info("Latest revision of " + projectName + " is " + endRevision);
+        } catch (SVNException e) {
+            logger.warning("Could not get latest revision of " + projectName +
+                e.getMessage());
+        }
+
+	return endRevision;
+    }
+
+    public void checkOut( String repoPath, ProjectRevision revision, String localPath )
+        throws InvalidProjectRevisionException {
+        if (svnRepository == null) {
+            connectToRepository();
+        }
+        if (svnRepository == null) {
+            throw new NullPointerException("No SVN repository for project <" + projectName + ">");
+        }
+
+        long revno = resolveProjectRevision(revision);
+        // TODO: do something useful
+    }
+
+    public void checkOutFile( String repoPath,
+        ProjectRevision revision, String localPath )
+        throws InvalidProjectRevisionException, FileNotFoundException {
+        if (svnRepository == null) {
+            connectToRepository();
+        }
+        if (svnRepository == null) {
+            throw new NullPointerException("No SVN repository for project <" + projectName + ">");
+        }
+
+        long revno = resolveProjectRevision(revision);
+        try {
+            SVNNodeKind nodeKind = svnRepository.checkPath(repoPath, revno);
+            if (SVNNodeKind.NONE == nodeKind) {
+                logger.info("Requested path " + repoPath + " does not exist.");
+                // TODO: throw something
+                return;
+            }
+            if (SVNNodeKind.DIR == nodeKind) {
+                logger.info("Requested path " + repoPath + " is a directory.");
+                // TODO: throw something
+                return;
+            }
+
+            FileOutputStream stream = new FileOutputStream(localPath);
+            long retrieved_revision = svnRepository.getFile(
+                repoPath, revno, null, stream);
+            stream.close();
+        } catch (SVNException e) {
+            throw new FileNotFoundException(e.getMessage());
+        } catch (IOException e) {
+            logger.warning("Failed to close output stream on SVN request.");
         }
     }
 

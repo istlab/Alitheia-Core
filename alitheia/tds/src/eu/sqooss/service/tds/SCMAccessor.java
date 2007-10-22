@@ -33,6 +33,8 @@
 
 package eu.sqooss.service.tds;
 
+import java.io.FileNotFoundException;
+
 import eu.sqooss.service.tds.CommitLog;
 import eu.sqooss.service.tds.Diff;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
@@ -51,7 +53,8 @@ public interface SCMAccessor {
      * to which this accessor is attached. The checkout is written
      * to the local path @p localPath .
      */
-    public void checkOut( String repoPath, ProjectRevision revision, String localPath );
+    public void checkOut( String repoPath, ProjectRevision revision, String localPath )
+        throws InvalidProjectRevisionException;
 
     /**
      * Retrieve a single file from the source repository, relative
@@ -59,7 +62,9 @@ public interface SCMAccessor {
      * attached. The checked-out file is written to the local
      * path @p localPath.
      */
-    public void checkOutFile( String repoPath, ProjectRevision revision, String localPath );
+    public void checkOutFile( String repoPath, ProjectRevision revision, String localPath )
+        throws InvalidProjectRevisionException,
+               FileNotFoundException;
 
     /**
      * Get the commit log entries for revisions @p r1 to @p r2
