@@ -100,3 +100,9 @@ show-log :
 		cat $(PREFIX)/configuration/org.eclipse.osgi/bundles/[0-9]*/data/logs/alitheia*.log ; \
 	fi
 
+DBPATH=alitheia/db/src/main/resources
+show-db :
+	java -Dij.protocol=jdbc:derby: -Dij.database=equinox/derbyDB \
+		-cp $(DBPATH)/derby-10.3.1.4.jar:$(DBPATH)/tools-10.3.1.4.jar \
+		org.apache.derby.tools.ij
+
