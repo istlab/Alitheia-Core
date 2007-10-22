@@ -51,38 +51,74 @@ public class ProjectFile {
     }
 
     public Long getId() {
-	return this.id;
+	return id;
+    }
+
+    public void setId(Long id) {
+	this.id = id;
     }
 
     public String getProtection() {
-	return this.protection;
+	return protection;
+    }
+
+    public void setProtection(String protection) {
+	this.protection = protection;
     }
 
     public int getLinks() {
 	return this.links;
     }
 
+    public void setLinks(int links) {
+	this.links = links;
+    }
+
     public int getUserId() {
 	return this.userId;
+    }
+
+    public void setUserId(int userId) {
+	this.userId = userId;
     }
 
     public int getGroupId() {
 	return this.groupId;
     }
 
+    public void setGroupId(int groupId) {
+	this.groupId = groupId;
+    }
+
     public Time getAccessTime() {
 	return this.accessTime;
+    }
+
+    public void setAccessTime(Time accessTime) {
+	this.accessTime = accessTime;
     }
 
     public Time getModificationTime() {
 	return this.modificationTime;
     }
 
-    public int size() {
+    public void setModificationTime(Time modificationTime){
+	this.modificationTime = modificationTime;
+    }
+
+    public int getSize() {
 	return this.size;
+    }
+
+    public void setSize(int size) {
+	this.size = size;
     }
 
     public int blocks() {
 	return this.blocks;
+    }
+
+    public void setBlocks(int blocks) {
+	this.blocks = blocks;
     }
 }
