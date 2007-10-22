@@ -145,7 +145,19 @@ public class DBServiceImpl implements DBService {
 
     // Interface functions
     public String[] listProjects() {
-        return null;
+        Session s = sessionFactory.getCurrentSession();
+        s.beginTransaction();
+        java.util.List l = s.createQuery("from StoredProject").list();
+        s.getTransaction().commit();
+        if (l==null) {
+            return null;
+        }
+        String[] results = new String[l.size()];
+        for (int i=0; i<l.size(); i++) {
+            StoredProject p = (StoredProject) l.get(i);
+            results[i] = p.getName() + " (" + p.getWebsite() + ")";
+        }
+        return results;
     }
 
     public void addProject(String name, String web, String contact,
