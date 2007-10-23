@@ -1,5 +1,8 @@
 package eu.sqooss.impl.service.messaging.timer;
 
+/**
+ * The instances from this class represent the elements of <code>TimerQueue</code>. 
+ */
 class QueueElement {
   
   private TimerListener listener;

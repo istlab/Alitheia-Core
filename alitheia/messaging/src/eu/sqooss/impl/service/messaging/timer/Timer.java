@@ -1,5 +1,9 @@
 package eu.sqooss.impl.service.messaging.timer;
 
+/**
+ * The <code>Timer</code> class represents a timer, which notifies your listeners.
+ * It uses a linked priority queue to represent its listener queue.
+ */
 public class Timer implements Runnable {
   
   private TimerQueue queue;
@@ -12,6 +16,12 @@ public class Timer implements Runnable {
     queue = new TimerQueue();
   }
   
+  /**
+   * Adds the listener to the queue.
+   * The listener is notified after <code>periodMillis</code> milliseconds.
+   * @param listener the timer listener
+   * @param periodMillis notify period
+   */
   public void addNotifyListener(TimerListener listener, long periodMillis) {
     synchronized (lockObject) {
       queue.insertElement(new QueueElement(listener, System.currentTimeMillis() + periodMillis));
@@ -19,6 +29,12 @@ public class Timer implements Runnable {
     }
   }
   
+  /**
+   * Removes the listener from the queue.
+   * The listener is automatically removed from the queue after notify operation. 
+   * @param listener
+   * @return
+   */
   public boolean removeNotifyListener(TimerListener listener) {
     synchronized (lockObject) {
       return queue.deleteElement(listener);
@@ -49,6 +65,9 @@ public class Timer implements Runnable {
     }
   }
   
+  /**
+   * This method starts the timer's thread.
+   */
   public void start() {
     isStopped = false;
     Thread thread = new Thread(this);
@@ -56,6 +75,9 @@ public class Timer implements Runnable {
     thread.start();
   }
   
+  /**
+   * This method stops the timer's thread.
+   */
   public void stop() {
     synchronized (lockObject) {
       isStopped = true;

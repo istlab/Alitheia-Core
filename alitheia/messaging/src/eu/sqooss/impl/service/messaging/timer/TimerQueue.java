@@ -1,5 +1,8 @@
 package eu.sqooss.impl.service.messaging.timer;
 
+/**
+ * This class represents the linked priority queue. 
+ */
 class TimerQueue {
   
   private QueueNode start;
@@ -8,10 +11,16 @@ class TimerQueue {
   public TimerQueue() {
   }
   
+  /**
+   * @return the minimal element of the queue
+   */
   public QueueElement getMin() {
     return (start != null) ? start.element: null;
   }
   
+  /**
+   * Removes the minimal element from the queue.
+   */
   public void removeMin() {
     if (!isEmpty()) {
       if (lastInserted == start) {
@@ -21,10 +30,17 @@ class TimerQueue {
     }
   }
   
+  /**
+   * @return <code>true</code> - if the queue is empty, <code>false</code> - otherwise
+   */
   public boolean isEmpty() {
     return (start == null);
   }
   
+  /**
+   * Inserts the element in the queue.
+   * @param element the new element
+   */
   public void insertElement(QueueElement element) {
     QueueNode newNode = new QueueNode(element, null);
     //the priority queue is empty
@@ -58,6 +74,9 @@ class TimerQueue {
     prev.next = newNode;
   }
   
+  /**
+   * Removes the listener from the queue.
+   */
   public boolean deleteElement(TimerListener listener) {
     if (isEmpty()) {
       return false;
@@ -87,6 +106,10 @@ class TimerQueue {
     }
   }
   
+  /**
+   * This class represents the queue node.
+   * The node has a value and a link to the next element. 
+   */
   private class QueueNode {
     QueueElement element;
     QueueNode next;

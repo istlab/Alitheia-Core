@@ -4,10 +4,12 @@ import eu.sqooss.service.messaging.Message;
 
 /**
  * The services which implements this interface provide method that deal with a dispatch of the message.
- * The services must be registered with a Sender.PROTOCOL_PROPERTY property.
- * The services must be thread safe. 
+ * The services must be registered with a <code>MessageSender.PROTOCOL_PROPERTY</code> property.
+ * <code>MessagingService</code> uses a MessageSender when the message protocol and <code>MessageSender.PROTOCOL_PROPERTY</code> value are equal.
+ * The services must be thread safe.
  */
 public interface MessageSender {
+  
   public static final String PROTOCOL_PROPERTY = "protocol";
     
   /**
@@ -18,7 +20,8 @@ public interface MessageSender {
    * </ul>
    * 
    * @param message the message for sending
-   * @return message status
+   * @return message status (see the constants above)
    */
   public int sendMessage(Message message);
+  
 }

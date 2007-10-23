@@ -11,6 +11,11 @@ import eu.sqooss.impl.service.messaging.timer.Timer;
 import eu.sqooss.service.messaging.Message;
 import eu.sqooss.service.messaging.sender.MessageSender;
 
+/**
+ * The default sender of the messages is <code>SMTPSender</code>.
+ * It is registered as service with property <code>Message.PROTOCOL_PROPERTY</code> and
+ * property value <code>SMTPSender.PROTOCOL_PROPERTY_VALUE</code>.
+ */
 public class SMTPSender implements MessageSender {
 
   public static final String PROTOCOL_PROPERTY_VALUE = "smtp";
@@ -42,6 +47,9 @@ public class SMTPSender implements MessageSender {
     timer.start();
   }
   
+  /**
+   * @see eu.sqooss.service.messaging.sender.MessageSender#sendMessage(eu.sqooss.service.messaging.Message)
+   */
   public int sendMessage(Message message) {
     if ((reply == null) || (reply.trim().equals(""))) {
       throw new IllegalArgumentException("The message's reply is not set!");
@@ -88,6 +96,9 @@ public class SMTPSender implements MessageSender {
     return Message.STATUS_SENT;
   }
 
+  /**
+   * Stops the sender.
+   */
   public void stopService() {
     if (!isStopped) {
       timer.stop();
@@ -102,30 +113,50 @@ public class SMTPSender implements MessageSender {
     }
   }
   
+  /**
+   * Sets the port.
+   * @param sessionPort the new port
+   */
   public void setSessionPort(String sessionPort) {
     synchronized (propertiesLockObject) {
       this.sessionPort = sessionPort;
     }
   }
 
+  /**
+   * Sets the host.
+   * @param sessionHost the new host
+   */
   public void setSessionHost(String sessionHost) {
     synchronized (propertiesLockObject) {
       this.sessionHost = sessionHost;
     }
   }
 
+  /**
+   * Sets the user.
+   * @param sessionUser the new user
+   */
   public void setSessionUser(String sessionUser) {
     synchronized (propertiesLockObject) {
       this.sessionUser = sessionUser;
     }
   }
 
+  /**
+   * Sets the password.
+   * @param sessionPass the new password
+   */
   public void setSessionPass(String sessionPass) {
     synchronized (propertiesLockObject) {
       this.sessionPass = sessionPass;      
     }
   }
 
+  /**
+   * Sets the timeout of the session.
+   * @param sessionTimeout the new timeout
+   */
   public void setSessionTimeout(long sessionTimeout) {
     if (sessionTimeout < 0) {
       this.sessionTimeout = DEFAULT_SESSION_TIMEOUT;
@@ -134,6 +165,10 @@ public class SMTPSender implements MessageSender {
     }
   }
   
+  /**
+   * Sets the reply address.
+   * @param reply the new reply address
+   */
   public void setReply(String reply) {
     this.reply = reply;
   }

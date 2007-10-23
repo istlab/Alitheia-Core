@@ -1,5 +1,10 @@
 package eu.sqooss.impl.service.messaging;
 
+/**
+ *  These constants are used for the configuration.
+ *  
+ *  @see eu.sqooss.service.messaging.MessagingService#setConfigurationProperty(String, String)
+ */
 public class MessagingConstants {
 
   //persistent storage for message id

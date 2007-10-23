@@ -8,6 +8,10 @@ import eu.sqooss.impl.service.messaging.senders.smtp.SMTPSender;
 import eu.sqooss.service.messaging.Message;
 import eu.sqooss.service.messaging.sender.MessageSender;
 
+/**
+ * These threads work with <code>MessageQueue</code>.
+ * They get the messages from the queue and send them to the message sender service.
+ */
 public class MessagingServiceThread implements Runnable {
 
   public static int threadFactor = 10;
@@ -54,6 +58,10 @@ public class MessagingServiceThread implements Runnable {
     }
   }
 
+  /**
+   * Stops the thread.
+   * @param stopService if <code>true</code> then the thread stops the SMTP service 
+   */
   public void stop(boolean stopService) {
     isStopped = true;
     if (stopService && ((sender == null) || (sender == defaultSender))) {
@@ -65,6 +73,13 @@ public class MessagingServiceThread implements Runnable {
     this.queueringTime = queueringTime;
   }
   
+  
+  /**
+   * This method returns SMTP sender if a message's protocol is not set or
+   * there isn't appropriate service.
+   * 
+   *  @see eu.sqooss.service.messaging.Message#setProtocol(String)
+  */
   private MessageSender getMessageSender(Message message) {
     String messageProtocol = message.getProtocol();
     String filter = "(" + MessageSender.PROTOCOL_PROPERTY + "=" + messageProtocol + ")";

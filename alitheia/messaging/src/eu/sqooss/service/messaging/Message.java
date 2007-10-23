@@ -6,21 +6,38 @@ import eu.sqooss.impl.service.messaging.MessageImpl;
 
 /**
  * The <code>Message</code> class represents a message used from the messaging service.
- * The messaging service works only with the messages created from a <code>getInstance</code> method. 
+ * The messaging service works only with the messages created from a <code>getInstance</code> method.
+ * This class is not intended to be subclassed. 
  */
 public abstract class Message {
+  
+  /**
+   * The message is in the queue.
+   */
   public static final int STATUS_QUEUED = 1;
+  
+  /**
+   * The message is sent successfully.
+   */
   public static final int STATUS_SENT   = 2;
+  
+  /**
+   * The sending of the message is failed.
+   */
   public static final int STATUS_FAILED = 3;
+  
+  /**
+   * The message is new and is not processed in a messaging service.
+   */
   public static final int STATUS_NEW    = 0;
   
   /**
-   * @return returns a body of the message.
+   * @return returns the body of the message.
    */
   public abstract String getBody();
 
   /**
-   * Sets a new message body
+   * Sets a new message body.
    * @param body the message's body
    * 
    * @exception NullPointerException - if <code>body</code> is null
@@ -29,13 +46,15 @@ public abstract class Message {
   public abstract void setBody(String body);
   
   /**
-   * Gets the receivers of the message.
+   * Gets the recipients of the message.
    * @return returns the recipients
    */
   public abstract Vector getRecipients();
   
   /**
-   * Set the new message's recipients
+   * Sets the new message's recipients.
+   * The old recipients are replaced.
+   * 
    * @param recipients
    * 
    * @exception NullPointerException - if <code>recipients</code> parameter is null or contains null value
@@ -44,14 +63,14 @@ public abstract class Message {
   public abstract void setRecipients(Vector recipients);
   
   /**
-   * Gets the title(subject) of the message
+   * Gets the title(subject) of the message.
    * @return returns a title(subject)
    */
   public abstract String getTitle();
   
   /**
-   * Sets a new message title.
-   * @param title a new message title
+   * Sets a new message title(subject).
+   * @param title a new message title(subject)
    * 
    * @exception NullPointerException - if <code>title</code> is null.
    * @exception IllegalArgumentException - if <code>title</code> is empty
@@ -84,21 +103,23 @@ public abstract class Message {
   public abstract String getProtocol();
   
   /**
-   * Set a new message protocol. The messaging service uses SMTP if a message's protocol is not set. 
+   * Sets a new message protocol. The messaging service uses SMTP if a message's protocol is not set.
+   * <code>MessagingService</code> uses a specified MessageSender when the message protocol and <code>MessageSender.PROTOCOL_PROPERTY</code> value are equal.
+   * 
    * @param protocol a message protocol used for transmission of the message
    */
   public abstract void setProtocol(String protocol);
   
   /**
    * Creates a new message with body, recipients, title and protocol.
-   * The message identifier and status aren't set. Their values are 0 and Message.STATUS_NEW. 
+   * The message identifier and status aren't set. Their values are 0 and Message.STATUS_NEW respectively. 
    * The messaging service changes this values after a message posting with <code>sendMessage</code> method.
    * The messaging service works only with the messages created from this method.
    * 
-   * @param body
-   * @param recipient
-   * @param title 
-   * @param protocol
+   * @param body the message's body
+   * @param recipients the message's recipients
+   * @param title the message's title
+   * @param protocol the message's protocol
    * @return a new message
    * 
    * @exception NullPointerException:

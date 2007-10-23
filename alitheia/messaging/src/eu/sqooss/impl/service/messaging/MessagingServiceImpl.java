@@ -17,6 +17,9 @@ import eu.sqooss.service.messaging.MessageListener;
 import eu.sqooss.service.messaging.MessagingService;
 import eu.sqooss.service.messaging.sender.MessageSender;
 
+/**
+ * This class implements the <code>MessagingService</code> interface. 
+ */
 public class MessagingServiceImpl implements MessagingService {
 
   private Object lockObjectListeners = new Object();
@@ -48,6 +51,9 @@ public class MessagingServiceImpl implements MessagingService {
     startThreadIfNeeded();
   }
 
+  /**
+   * @see eu.sqooss.service.messaging.MessagingService#sendMessage(Message)
+   */
   public void sendMessage(Message message) {
     if (message == null) {
       throw new NullPointerException("The message is null!");
@@ -65,26 +71,41 @@ public class MessagingServiceImpl implements MessagingService {
     notifyListeners(createdMessage, Message.STATUS_QUEUED);
   }
   
+  /**
+   * @see eu.sqooss.service.messaging.MessagingService#addMessageListener(MessageListener)
+   */
   public void addMessageListener(MessageListener listener) {
     synchronized (lockObjectListeners) {
       messageListeners.addElement(listener);
     }
   }
 
+  /**
+   * @see eu.sqooss.service.messaging.MessagingService#removeMessageListener(MessageListener)
+   */
   public boolean removeMessageListener(MessageListener listener) {
     synchronized (lockObjectListeners) {
       return messageListeners.removeElement(listener);
     }
   }
 
+  /**
+   * @see eu.sqooss.service.messaging.MessagingService#getConfigurationProperty(String)
+   */
   public String getConfigurationProperty(String key) {
     return properties.getProperty(key);
   }
   
+  /**
+   * @see eu.sqooss.service.messaging.MessagingService#getConfigurationKeys()
+   */
   public String[] getConfigurationKeys() {
     return MessagingConstants.KEYS;
   }
   
+  /**
+   * @see eu.sqooss.service.messaging.MessagingService#setConfigurationProperty(String, String)
+   */
   public void setConfigurationProperty(String key, String value) {
     if (key.equals(MessagingConstants.KEY_QUEUERING_TIME)) {
       try {
@@ -167,6 +188,12 @@ public class MessagingServiceImpl implements MessagingService {
     }
   }
   
+  /**
+   * This method: stops the all message threads;
+   * clears the message queue, listeners and message history; saves the settings
+   * 
+   * @return the last message id
+   */
   public long stopService() {
     synchronized (lockObjectThreads) {
       MessagingServiceThread messThread;
@@ -187,6 +214,11 @@ public class MessagingServiceImpl implements MessagingService {
     return id;
   }
 
+  /**
+   * This method notifies the all listeners.
+   * @param message
+   * @param status
+   */
   public void notifyListeners(Message message, int status) {
     synchronized (lockObjectListeners) {
       MessageListener currentListener;
@@ -209,10 +241,21 @@ public class MessagingServiceImpl implements MessagingService {
     }
   }
   
+  /**
+   * Generates the identifiers of the messages
+   * @return the next identifier
+   */
   private long getNextId() {
     return id++;
   }
   
+  /**
+   * Validates the message's fields.
+   * 
+   * @param message
+   * 
+   * @exception IllegalArgumentException - if the protocol's string isn't valid
+   */
   private void validateMessage(Message message) {
     //validate the protocol
     String messageProtocol = message.getProtocol();
@@ -227,6 +270,10 @@ public class MessagingServiceImpl implements MessagingService {
     }
   }
   
+  /**
+   * This method checks the number of the threads and the number of the messages in the queue.
+   * In case of need starts a new thread.
+   */
   public void startThreadIfNeeded() {
     synchronized (lockObjectThreads) {
       if ((messagingThreads.size() < maxThreadsNumber) &&
@@ -241,6 +288,10 @@ public class MessagingServiceImpl implements MessagingService {
     }
   }
   
+  /**
+   * This method checks the number of the threads and the number of the messages in the queue.
+   * In case of need stops a thread.
+   */
   public void stopThreadIfNeeded(MessagingServiceThread thread) {
     synchronized (lockObjectThreads) {
       if ((messagingThreads.size() > 1) &&
@@ -251,6 +302,9 @@ public class MessagingServiceImpl implements MessagingService {
     }
   }
   
+  /**
+   * @see eu.sqooss.service.messaging.MessagingService#getMessage(long)
+   */
   public Message getMessage(long id) {
     return messageHistory.getMessage(id);
   }
@@ -265,6 +319,10 @@ public class MessagingServiceImpl implements MessagingService {
     }
   }
   
+  /**
+   * Loads the configuration settings from the configuration file.
+   * @param bc
+   */
   private void initProperties(BundleContext bc) {
     Properties props = new Properties();
     try {
