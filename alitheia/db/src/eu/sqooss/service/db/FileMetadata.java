@@ -116,7 +116,7 @@ public class FileMetadata {
     }
 
     public String getFileStatusChange() {
-	return fileStatusChanged;
+	return fileStatusChange;
     }
 
     public void setFileStatusChange(String fileStatusChange) {
