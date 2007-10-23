@@ -5,7 +5,7 @@
 
 <hibernate-mapping>
   <class name="eu.sqooss.service.db.FileGroup" table="FILE_GROUP">
-    <id name="id" column="TAG_ID">
+    <id name="id" column="FILE_GROUP__ID">
       <generator class="native" />
     </id>
     <property name="name" column="FILE_GROUP_NAME" />
