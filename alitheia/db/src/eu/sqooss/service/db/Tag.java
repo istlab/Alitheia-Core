@@ -32,42 +32,36 @@
 
 package eu.sqooss.service.db;
 
-public class ProjectFile {
+public class Tag {
     private Long id;
+    private int version;
     private String name;
-    private int projectVersion;
-    private String status;
 
-
-    public void setId(Long id) {
-	this.id = id;
+    public Tag() {
+	// Nothing to do
     }
 
     public Long getId() {
 	return id;
     }
 
-    public void setName(String name) {
-	this.name = name;
+    public void setId(Long id) {
+	this.id = id;
+    }
+
+    public int getInt() {
+	return version;
+    }
+
+    public void setVersion(int version ) {
+	this.version = version;
     }
 
     public String getName() {
 	return name;
     }
 
-    public void setProjectVersion(int projectVersion ) {
-	this.projectVersion = projectVersion;
-    }
-
-    public int getProjectVersion() {
-	return projectVersion;
-    }
-
-    public void setStatus(String status) {
-	this.status = status;
-    }
-
-    public String getStatus() {
-	return status;
+    public void setName(String name) {
+	this.name = name;
     }
 }
