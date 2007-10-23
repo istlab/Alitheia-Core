@@ -33,7 +33,7 @@
 package eu.sqooss.service.db;
 
 public class Metric {
-    private Long id;
+    private int id;
     private int metricType;
     private String description;
 
@@ -41,11 +41,11 @@ public class Metric {
 	//Nothing to do here
     }
 
-    public Long getId() {
+    public int getId() {
 	return id;
     }
 
-    public void setId(Long id) {
+    public void setId(int id) {
 	this.id = id;
     }
 

@@ -35,8 +35,8 @@ package eu.sqooss.service.db;
 import java.sql.Time;
 
 public class Measurement {
-    private Long id;
-    private Long metric;
+    private int id;
+    private int metric;
     private Long projectVersion;
     private Time whenRun;
     private String result;
@@ -45,19 +45,19 @@ public class Measurement {
 	// Nothing to do here
     }
 
-    public Long getId() {
+    public int getId() {
 	return id;
     }
 
-    public void setId(Long id) {
+    public void setId(int id) {
 	this.id = id;
     }
 
-    public Long getMetric() {
+    public int getMetric() {
 	return metric;
     }
 
-    public void setMetric(Long metric) {
+    public void setMetric(int metric) {
 	this.metric = metric;
     }
 

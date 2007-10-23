@@ -8,7 +8,7 @@
     <id name="id" column="TAG_ID">
       <generator class="native" />
     </id>
-    <property name="version" column="PROJECT_VERSION" />
+    <property name="projectVersion" column="PROJECT_VERSION" />
     <property name="name" column="TAG_NAME" />
   </class>
 </hibernate-mapping>

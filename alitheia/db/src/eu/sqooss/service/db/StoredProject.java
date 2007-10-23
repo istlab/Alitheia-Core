@@ -46,7 +46,6 @@ public class StoredProject {
     }
 
     public StoredProject(String name) {
-        this();
         setName(name);
     }
 
