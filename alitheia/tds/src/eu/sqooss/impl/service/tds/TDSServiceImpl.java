@@ -121,7 +121,7 @@ public class TDSServiceImpl implements TDSService {
             getAccessor("kde").getSCMAccessor().checkOut(
                 "trunk/KDE/kdepim/kpilot/lib",
                 new ProjectRevision(728512),
-                "/tmp/");
+                "/tmp/kpilot-test");
             logger.info("Done many-file test.");
         } catch (TDSException e) {
             logger.warning(e.getMessage());

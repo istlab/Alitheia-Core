@@ -48,6 +48,8 @@ import eu.sqooss.service.logging.Logger;
 public class CheckoutEditor implements ISVNEditor {
     private long targetRevision;
     private String localPath;
+    private String repoDir; // Directory path within the repo
+    private String repoFilePathName; // Filename below that dir
     private SVNDeltaProcessor deltaProcessor;
     public static Logger logger;
 
@@ -59,11 +61,12 @@ public class CheckoutEditor implements ISVNEditor {
     }
 
     public void targetRevision(long revision) {
-        logger.info("Server requested r." + revision);
+        if (revision != targetRevision) {
+            logger.warning("SVN revision changed beneath us.");
+        }
     }
 
     public void openRoot(long revision) {
-        logger.info("Server opened r." + revision);
     }
 
     public void addDir(String path, String sourcePath, long sourceRevision) {
@@ -71,15 +74,37 @@ public class CheckoutEditor implements ISVNEditor {
     }
 
     public void openDir(String path, long revision) {
-        logger.info("Server opens directory " + path);
+        repoDir = path;
+        logger.info("Server changed to directory " + path);
     }
 
     public void changeDirProperty(String name, String value) {
-        logger.info("Server changed dir property " + name + " to " + value);
+    }
+
+    /**
+     * Since we want to get paths relative to the original repoPath
+     * for this editor, we normalise the paths received from the
+     * server (which are relative to the SVN root of the repo)
+     * to point within the tree repoPath.
+     */
+    private String normalisePath(String path) {
+        if (path.startsWith(repoDir)) {
+            // Empty for loop, just counts how many separatorChars
+            // there are between the repoDir part and the path
+            // part of the string.
+            int i;
+            for (i=repoDir.length(); i<path.length() &&
+                path.charAt(i)==File.separatorChar; i++) ;
+            return path.substring(i);
+        } else {
+            logger.warning("Weird path " + path + " not within repoDir (" + repoDir + ")");
+            return path;
+        }
     }
 
     public void addFile(String path, String sourcePath, long sourceRevision) {
-        logger.info("Server adds file " + path);
+        repoFilePathName = normalisePath(path);
+        logger.info("Server adds file " + path + " (as " + repoFilePathName + ")");
     }
 
     public void openFile(String path, long revision) {
@@ -87,14 +112,13 @@ public class CheckoutEditor implements ISVNEditor {
     }
 
     public void changeFileProperty(String path, String name, String value) {
-        logger.info("Server changed file property on " + path + " " + name + " to " + value);
     }
 
     static int filecount = 0;
     public void applyTextDelta(String path, String checksum)
         throws SVNException {
-        logger.info("Set up text delta on " + path);
-        deltaProcessor.applyTextDelta(null,new File("/tmp",new Integer(filecount).toString()), false);
+        repoFilePathName = normalisePath(path);
+        deltaProcessor.applyTextDelta(null,new File(localPath,repoFilePathName), false);
         filecount++;
     }
 
@@ -126,6 +150,7 @@ public class CheckoutEditor implements ISVNEditor {
     }
 
     public SVNCommitInfo closeEdit() {
+        logger.info("Checked out " + filecount + " files.");
         return null;
     }
 

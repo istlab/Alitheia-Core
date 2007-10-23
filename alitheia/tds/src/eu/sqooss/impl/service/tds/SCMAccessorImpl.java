@@ -33,6 +33,7 @@
 
 package eu.sqooss.impl.service.tds;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -165,13 +166,35 @@ public class SCMAccessorImpl implements SCMAccessor {
         CheckoutBaton.logger = logger;
 
         long revno = resolveProjectRevision(revision);
+        SVNNodeKind nodeKind;
+        try {
+            nodeKind = svnRepository.checkPath(repoPath, revno);
+        } catch (SVNException e) {
+            throw new FileNotFoundException(repoPath);
+        }
+
+        // Handle the various kinds of nodes that repoPath may refer to
+        if ( (SVNNodeKind.NONE == nodeKind) ||
+                (SVNNodeKind.UNKNOWN == nodeKind) ) {
+            logger.info("Requested path " + repoPath + " does not exist.");
+            throw new FileNotFoundException(repoPath);
+        }
+        if (SVNNodeKind.FILE == nodeKind) {
+            checkOutFile(repoPath, revision,
+                localPath + File.separator + new File(repoPath).getName());
+            return;
+        }
+        // It must be a directory now.
+        if (SVNNodeKind.DIR != nodeKind) {
+            logger.warning("Node " + repoPath + " has weird type.");
+            throw new FileNotFoundException(repoPath);
+        }
+
         ISVNReporterBaton baton = new CheckoutBaton(revno,localPath);
         ISVNEditor editor = new CheckoutEditor(revno,localPath);
 
         try {
-            logger.info("Checking out " + repoPath + "@" + revno + " to " + localPath);
             svnRepository.update(revno,repoPath,true,baton,editor);
-            logger.info("Done checkout.");
         } catch (SVNException e) {
             throw new InvalidRepositoryException(projectName,url,e.getMessage());
         }

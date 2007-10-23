@@ -57,20 +57,18 @@ public class CheckoutBaton implements ISVNReporterBaton {
     public CheckoutBaton(long revision, String path) {
         targetRevision = revision;
         localPath = path;
-        logger.info("Created baton for r." + revision + " at " + path);
     }
 
     public void report(ISVNReporter reporter)
         throws SVNException {
-        logger.info("Reporting for duty.");
         try {
             reporter.setPath("",null,targetRevision,true);
             reporter.finishReport();
         } catch (SVNException e) {
             reporter.abortReport();
-            logger.info("Aborted.");
+            logger.info("Checkout aborted by baton.");
         }
-        logger.info("Ready.");
+        logger.info("Empty checkout baton ready.");
     }
 }
 

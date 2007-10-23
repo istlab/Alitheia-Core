@@ -54,6 +54,16 @@ public interface SCMAccessor {
      * the given path, relative to the root URL of the project
      * to which this accessor is attached. The checkout is written
      * to the local path @p localPath .
+     *
+     * @p localPath @em must be a directory, or IllegalArgumentException
+     * will be thrown. It must also exist already.
+     *
+     * If @p repoPath refers to a file, it is written as a single
+     * file (named after its basename) in @p localPath. If @p repoPath
+     * refers to a directory, the contents of the directory are placed
+     * directly under @p localPath.
+     *
+     * This behavior mimics svn co repoUrl/repoPath/ localPath .
      */
     public void checkOut( String repoPath, ProjectRevision revision, String localPath )
         throws InvalidProjectRevisionException,
