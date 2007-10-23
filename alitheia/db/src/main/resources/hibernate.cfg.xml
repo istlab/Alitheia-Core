@@ -39,6 +39,7 @@
         <mapping resource="eu/sqooss/service/db/Measurement.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/Metric.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/MetricType.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/Plugin.hbm.xml"/>
     </session-factory>
 
 </hibernate-configuration>
