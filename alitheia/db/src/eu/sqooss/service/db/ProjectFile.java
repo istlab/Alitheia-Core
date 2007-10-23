@@ -32,93 +32,34 @@
 
 package eu.sqooss.service.db;
 
-import java.sql.Time;
-
 public class ProjectFile {
     private Long id;
-    private String protection;
-    private int links;
-    private int userId;
-    private int groupId;
-    private Time accessTime;
-    private Time modificationTime;
-    private int size;
-    private int blocks;
+    private String name;
+    private int projectVersion;
+    //private Foo status;
 
 
-    public ProjectFile() {
-	// Nothing to do
+    public void setId(Long id) {
+	this.id = id;
     }
 
     public Long getId() {
 	return id;
     }
 
-    public void setId(Long id) {
-	this.id = id;
+    public void setName(String name) {
+	this.name = name;
     }
 
-    public String getProtection() {
-	return protection;
+    public String getName() {
+	return name;
     }
 
-    public void setProtection(String protection) {
-	this.protection = protection;
+    public void setProjectVersion(int projectVersion ) {
+	this.projectVersion = projectVersion;
     }
 
-    public int getLinks() {
-	return links;
-    }
-
-    public void setLinks(int links) {
-	this.links = links;
-    }
-
-    public int getUserId() {
-	return userId;
-    }
-
-    public void setUserId(int userId) {
-	this.userId = userId;
-    }
-
-    public int getGroupId() {
-	return groupId;
-    }
-
-    public void setGroupId(int groupId) {
-	this.groupId = groupId;
-    }
-
-    public Time getAccessTime() {
-	return accessTime;
-    }
-
-    public void setAccessTime(Time accessTime) {
-	this.accessTime = accessTime;
-    }
-
-    public Time getModificationTime() {
-	return modificationTime;
-    }
-
-    public void setModificationTime(Time modificationTime){
-	this.modificationTime = modificationTime;
-    }
-
-    public int getSize() {
-	return size;
-    }
-
-    public void setSize(int size) {
-	this.size = size;
-    }
-
-    public int getBlocks() {
-	return blocks;
-    }
-
-    public void setBlocks(int blocks) {
-	this.blocks = blocks;
+    public int getProjectVersion() {
+	return projectVersion;
     }
 }
