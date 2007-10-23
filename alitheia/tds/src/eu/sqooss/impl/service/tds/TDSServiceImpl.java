@@ -39,6 +39,7 @@ import java.util.HashMap;
 import java.util.Properties;
 import java.io.FileInputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -49,12 +50,13 @@ import org.tmatesoft.svn.core.internal.io.svn.SVNRepositoryFactoryImpl;
 
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
-import eu.sqooss.service.tds.TDSService;
-import eu.sqooss.service.tds.TDAccessor;
+import eu.sqooss.service.tds.CommitLog;
 import eu.sqooss.service.tds.ProjectRevision;
+import eu.sqooss.service.tds.TDAccessor;
+import eu.sqooss.service.tds.TDSException;
+import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.impl.service.tds.TDAccessorImpl;
 import eu.sqooss.impl.service.tds.SCMAccessorImpl;
-import eu.sqooss.service.tds.CommitLog;
 
 public class TDSServiceImpl implements TDSService {
     private LogManager logService = null;
@@ -108,6 +110,19 @@ public class TDSServiceImpl implements TDSService {
             }
         }
         logger.info("Got configuration for " + projectCount + " projects.");
+
+        try {
+            logger.info("Doing checkout of one file from KDE");
+            getAccessor("kde").getSCMAccessor().checkOutFile(
+                "trunk/KDE/kdepim/kpilot/lib/syncAction.cc",
+                new ProjectRevision(-1),
+                "/tmp/syncAction.cc");
+            logger.info("Done.");
+        } catch (TDSException e) {
+            logger.warning(e.getMessage());
+        } catch (FileNotFoundException e) {
+            logger.warning(e.getMessage());
+        }
     }
 
     public boolean accessorExists( String projectName ) {
@@ -118,6 +133,8 @@ public class TDSServiceImpl implements TDSService {
         if (accessorExists(projectName)) {
             logger.info("Retrieving accessor for project " + projectName);
             return accessorPool.get(projectName);
+        } else {
+            logger.info("Retrieval request for non-existent project " + projectName);
         }
 
         return null;
