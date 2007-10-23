@@ -112,17 +112,12 @@ public class TDSServiceImpl implements TDSService {
         logger.info("Got configuration for " + projectCount + " projects.");
 
         try {
-            logger.info("Doing checkout of one file from KDE");
-            getAccessor("kde").getSCMAccessor().checkOutFile(
-                "trunk/KDE/kdepim/kpilot/lib/syncAction.cc",
-                new ProjectRevision(-1),
-                "/tmp/syncAction.cc");
-            logger.info("Done one-file test.");
-            getAccessor("kde").getSCMAccessor().checkOut(
-                "trunk/KDE/kdepim/kpilot",
-                new ProjectRevision(728512),
-                "/tmp/kpilot-test");
-            logger.info("Done many-file test.");
+            logger.info("Doing diff of one file from KDE");
+            getAccessor("kde").getSCMAccessor().getDiff(
+                "trunk/KDE/kdepim/kpilot/lib",
+                new ProjectRevision(705186),
+                new ProjectRevision(705187));
+            logger.info("Done one-file diff.");
         } catch (TDSException e) {
             logger.warning(e.getMessage());
         } catch (FileNotFoundException e) {

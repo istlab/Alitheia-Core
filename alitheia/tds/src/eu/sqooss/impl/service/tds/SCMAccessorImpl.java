@@ -265,8 +265,6 @@ public class SCMAccessorImpl implements SCMAccessor {
             logger.info("End revision for log " + r2);
         }
 
-        getHeadRevision();
-
         CommitLogImpl l = new CommitLogImpl();
         try {
             Collection logEntries = svnRepository.log(new String[]{repoPath},
@@ -279,9 +277,63 @@ public class SCMAccessorImpl implements SCMAccessor {
         return l;
     }
 
-    public Diff getDiff( String repoPath, ProjectRevision r1, ProjectRevision r2 ) {
-        logger.info("diff -r" +
-            r1.getSVNRevision() + ":" + r2.getSVNRevision() + " " + repoPath);
+    public Diff getDiff( String repoPath, ProjectRevision r1, ProjectRevision r2 )
+        throws InvalidProjectRevisionException,
+               InvalidRepositoryException,
+               FileNotFoundException {
+        if (svnRepository == null) {
+            connectToRepository();
+        }
+
+        if ((r1 == null) || (!r1.isValid())) {
+            throw new InvalidProjectRevisionException("Invalid start revision",null);
+        }
+
+        // Map the project revisions to SVN revision numbers
+        long revstart=-1, revend=-1;
+        revstart = resolveProjectRevision(r1);
+        logger.info("Start revision for diff " + r1);
+
+        if (r2 == null) {
+            revend = revstart + 1;
+        } else {
+            if (!r2.isValid()) {
+                throw new InvalidProjectRevisionException("Invalid end revision",null);
+            }
+            revend = resolveProjectRevision(r2);
+            logger.info("End revision for diff " + r2);
+        }
+
+        SVNNodeKind nodeKind;
+        logger.info("Checking for " + repoPath);
+        try {
+            nodeKind = svnRepository.checkPath(repoPath, revstart);
+        } catch (SVNException e) {
+            throw new FileNotFoundException(repoPath);
+        }
+        logger.info("Got kind " + nodeKind);
+
+        // Handle the various kinds of nodes that repoPath may refer to
+        if ( (SVNNodeKind.NONE == nodeKind) ||
+                (SVNNodeKind.UNKNOWN == nodeKind) ) {
+            logger.info("Requested path " + repoPath + " does not exist.");
+            throw new FileNotFoundException(repoPath);
+        }
+
+        CheckoutEditor.logger = logger;
+        CheckoutBaton.logger = logger;
+        ISVNReporterBaton baton = new CheckoutBaton(revstart,"/tmp");
+        ISVNEditor editor = new CheckoutEditor(revstart,"/tmp");
+
+        try {
+            logger.info("Starting diff");
+            svnRepository.diff(SVNURL.parseURIDecoded(url + File.separator + repoPath),revstart,revend,"pilot.cc",true,false,false,baton,editor);
+            logger.info("Done diff");
+        } catch (SVNException e) {
+            logger.warning(e.getMessage());
+            throw new InvalidRepositoryException(projectName,url,e.getMessage());
+        }
+
         return null;
     }
 }
