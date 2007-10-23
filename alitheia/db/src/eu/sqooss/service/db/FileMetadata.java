@@ -119,8 +119,8 @@ public class FileMetadata {
 	return fileStatusChanged;
     }
 
-    public void setFileStatusChange(String fileStatusChanged) {
-	this.fileStatusChanged = fileStatusChanged;
+    public void setFileStatusChange(String fileStatusChange) {
+	this.fileStatusChange = fileStatusChange;
     }
 
     public int getBlocks() {
