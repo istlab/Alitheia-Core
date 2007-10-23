@@ -1,6 +1,6 @@
 
 build :
-	javac ProjectList.java
+	javac *\.java
 
 clean :
 	rm *\.class

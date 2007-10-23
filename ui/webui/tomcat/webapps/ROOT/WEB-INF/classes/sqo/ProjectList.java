@@ -3,7 +3,7 @@ package sqo;
 
 public class ProjectList {
 
-    //String[] allProjects = {"KDE", "Apache", "FreeBSD"};
+    String[] allProjects = {"KDE", "Apache", "FreeBSD"};
     //String currentProject = "KDE";
     String currentProject;
     
@@ -17,5 +17,9 @@ public class ProjectList {
     
     public String getCurrentProject () {
         return currentProject;
+    }
+    
+    public String[] getAllProjects () {
+        return allProjects;
     }
 }
