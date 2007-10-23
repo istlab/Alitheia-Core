@@ -108,8 +108,12 @@ show-log :
 	fi
 
 DBPATH=alitheia/db/src/main/resources
-show-db :
-	java -Dij.protocol=jdbc:derby: -Dij.database=equinox/derbyDB \
+RUN_DERBY_IJ=java -Dij.protocol=jdbc:derby: -Dij.database=equinox/derbyDB \
 		-cp $(DBPATH)/derby-10.3.1.4.jar:$(DBPATH)/tools-10.3.1.4.jar \
 		org.apache.derby.tools.ij
+show-db :
+	$(RUN_DERBY_IJ)
+
+show-db-tables :
+	echo "show tables;" | $(RUN_DERBY_IJ) | grep '^APP'
 
