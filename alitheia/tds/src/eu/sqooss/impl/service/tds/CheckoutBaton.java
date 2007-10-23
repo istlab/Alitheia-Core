@@ -37,6 +37,8 @@ import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.io.ISVNReporter;
 import org.tmatesoft.svn.core.io.ISVNReporterBaton;
 
+import eu.sqooss.service.logging.Logger;
+
 /**
  * This class implements the reporter baton interface required
  * by SVNKit for checkout and export and update operations.
@@ -50,20 +52,25 @@ import org.tmatesoft.svn.core.io.ISVNReporterBaton;
 public class CheckoutBaton implements ISVNReporterBaton {
     private long targetRevision;
     private String localPath;
+    public static Logger logger;
 
     public CheckoutBaton(long revision, String path) {
         targetRevision = revision;
         localPath = path;
+        logger.info("Created baton for r." + revision + " at " + path);
     }
 
     public void report(ISVNReporter reporter)
         throws SVNException {
+        logger.info("Reporting for duty.");
         try {
             reporter.setPath("",null,targetRevision,true);
             reporter.finishReport();
         } catch (SVNException e) {
             reporter.abortReport();
+            logger.info("Aborted.");
         }
+        logger.info("Ready.");
     }
 }
 

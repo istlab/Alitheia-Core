@@ -47,7 +47,7 @@ public class TDSException extends Exception {
     }
 
     public String getMessage() {
-        return service + super.getMessage();
+        return service + " " + super.getMessage();
     }
 }
 

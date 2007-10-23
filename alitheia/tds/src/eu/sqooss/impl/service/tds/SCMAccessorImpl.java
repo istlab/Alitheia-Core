@@ -161,13 +161,17 @@ public class SCMAccessorImpl implements SCMAccessor {
         if (svnRepository == null) {
             connectToRepository();
         }
+        CheckoutEditor.logger = logger;
+        CheckoutBaton.logger = logger;
 
         long revno = resolveProjectRevision(revision);
         ISVNReporterBaton baton = new CheckoutBaton(revno,localPath);
         ISVNEditor editor = new CheckoutEditor(revno,localPath);
 
         try {
+            logger.info("Checking out " + repoPath + "@" + revno + " to " + localPath);
             svnRepository.update(revno,repoPath,true,baton,editor);
+            logger.info("Done checkout.");
         } catch (SVNException e) {
             throw new InvalidRepositoryException(projectName,url,e.getMessage());
         }
@@ -187,13 +191,11 @@ public class SCMAccessorImpl implements SCMAccessor {
             SVNNodeKind nodeKind = svnRepository.checkPath(repoPath, revno);
             if (SVNNodeKind.NONE == nodeKind) {
                 logger.info("Requested path " + repoPath + " does not exist.");
-                // TODO: throw something
-                return;
+                throw new FileNotFoundException(repoPath);
             }
             if (SVNNodeKind.DIR == nodeKind) {
                 logger.info("Requested path " + repoPath + " is a directory.");
-                // TODO: throw something
-                return;
+                throw new FileNotFoundException(repoPath + " (dir)");
             }
 
             FileOutputStream stream = new FileOutputStream(localPath);
