@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
     <head>
     <title><%= application.getServerInfo() %></title>
-    <link rel='stylesheet' type='text/css' href='alitheia.css' />
+    <link rel='stylesheet' type='text/css' href='/alitheia.css' />
 </head>
 
 <body>
 <div id="banner">
-<img class="sqologo" src="sqo-oss-logo.jpg" alt="SQO-OSS Project Logo" />
-<img class="alitheialogo" src="alitheia.png" alt="Alitheia Logo" />
+<img class="sqologo" src="/sqo-oss-logo.jpg" alt="SQO-OSS Project Logo" />
+<img class="alitheialogo" src="/alitheia.png" alt="Alitheia Logo" />
 </div>
 
 
