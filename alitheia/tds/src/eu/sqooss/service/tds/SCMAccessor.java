@@ -57,7 +57,8 @@ public interface SCMAccessor {
      */
     public void checkOut( String repoPath, ProjectRevision revision, String localPath )
         throws InvalidProjectRevisionException,
-               InvalidRepositoryException;
+               InvalidRepositoryException,
+               FileNotFoundException;
 
     /**
      * Retrieve a single file from the source repository, relative

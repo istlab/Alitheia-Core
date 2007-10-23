@@ -44,6 +44,8 @@ import org.tmatesoft.svn.core.SVNNodeKind;
 import org.tmatesoft.svn.core.SVNURL;
 import org.tmatesoft.svn.core.io.SVNRepository;
 import org.tmatesoft.svn.core.io.SVNRepositoryFactory;
+import org.tmatesoft.svn.core.io.ISVNEditor;
+import org.tmatesoft.svn.core.io.ISVNReporterBaton;
 
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.SCMAccessor;
@@ -53,6 +55,8 @@ import eu.sqooss.service.tds.ProjectRevision;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
 import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.impl.service.tds.CommitLogImpl;
+import eu.sqooss.impl.service.tds.CheckoutBaton;
+import eu.sqooss.impl.service.tds.CheckoutEditor;
 
 public class SCMAccessorImpl implements SCMAccessor {
     private String url;
@@ -152,13 +156,21 @@ public class SCMAccessorImpl implements SCMAccessor {
 
     public void checkOut( String repoPath, ProjectRevision revision, String localPath )
         throws InvalidProjectRevisionException,
-               InvalidRepositoryException {
+               InvalidRepositoryException,
+               FileNotFoundException {
         if (svnRepository == null) {
             connectToRepository();
         }
 
         long revno = resolveProjectRevision(revision);
-        // TODO: do something useful
+        ISVNReporterBaton baton = new CheckoutBaton(revno,localPath);
+        ISVNEditor editor = new CheckoutEditor(revno,localPath);
+
+        try {
+            svnRepository.update(revno,repoPath,true,baton,editor);
+        } catch (SVNException e) {
+            throw new InvalidRepositoryException(projectName,url,e.getMessage());
+        }
     }
 
     public void checkOutFile( String repoPath,
