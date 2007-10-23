@@ -49,11 +49,11 @@ public class Tag {
 	this.id = id;
     }
 
-    public int getInt() {
+    public int getVersion() {
 	return version;
     }
 
-    public void setVersion(int version ) {
+    public void setVersion(int version) {
 	this.version = version;
     }
 
