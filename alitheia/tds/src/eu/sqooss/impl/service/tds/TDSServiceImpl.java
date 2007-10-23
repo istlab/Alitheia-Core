@@ -119,7 +119,7 @@ public class TDSServiceImpl implements TDSService {
                 "/tmp/syncAction.cc");
             logger.info("Done one-file test.");
             getAccessor("kde").getSCMAccessor().checkOut(
-                "trunk/KDE/kdepim/kpilot/lib",
+                "trunk/KDE/kdepim/kpilot",
                 new ProjectRevision(728512),
                 "/tmp/kpilot-test");
             logger.info("Done many-file test.");
