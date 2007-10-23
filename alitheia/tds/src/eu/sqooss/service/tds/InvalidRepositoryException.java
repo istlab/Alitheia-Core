@@ -46,15 +46,16 @@ import eu.sqooss.service.tds.TDSException;
  */
 public class InvalidRepositoryException extends TDSException {
     private static final long serialVersionUID = 1L;
-    private String projectName;
+    private String projectName, projectURL;
 
-    public InvalidRepositoryException(String project) {
-        super("Invalid project repository");
+    public InvalidRepositoryException(String project, String url, String message) {
+        super(message);
         projectName = project;
+        projectURL = url;
     }
 
     public String getMessage() {
-        return super.getMessage() + " " + projectName;
+        return super.getMessage() + " " + projectName + " " + projectURL;
     }
 }
 

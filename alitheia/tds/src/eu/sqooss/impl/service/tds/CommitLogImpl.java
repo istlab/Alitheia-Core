@@ -92,7 +92,7 @@ public class CommitLogImpl implements CommitLog {
     public String message(ProjectRevision r)
         throws InvalidProjectRevisionException {
         if ((r==null) || (!r.isValid())) {
-            throw new InvalidProjectRevisionException("Need a valid revision to query log");
+            throw new InvalidProjectRevisionException("Need a valid revision to query log",null);
         }
 
         if (r.hasSVNRevision()) {

@@ -38,6 +38,7 @@ import java.io.FileNotFoundException;
 import eu.sqooss.service.tds.CommitLog;
 import eu.sqooss.service.tds.Diff;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
+import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.ProjectRevision;
 
 public interface SCMAccessor {
@@ -45,7 +46,8 @@ public interface SCMAccessor {
      * Get the numeric revision number for HEAD in this project.
      * Returns a negative value (usually -1) on error.
      */
-    public long getHeadRevision();
+    public long getHeadRevision()
+        throws InvalidRepositoryException;
 
     /**
      * Retrieve a checkout of the complete source tree underneath
@@ -54,7 +56,8 @@ public interface SCMAccessor {
      * to the local path @p localPath .
      */
     public void checkOut( String repoPath, ProjectRevision revision, String localPath )
-        throws InvalidProjectRevisionException;
+        throws InvalidProjectRevisionException,
+               InvalidRepositoryException;
 
     /**
      * Retrieve a single file from the source repository, relative
@@ -64,6 +67,7 @@ public interface SCMAccessor {
      */
     public void checkOutFile( String repoPath, ProjectRevision revision, String localPath )
         throws InvalidProjectRevisionException,
+               InvalidRepositoryException,
                FileNotFoundException;
 
     /**
@@ -71,7 +75,8 @@ public interface SCMAccessor {
      * for this source repository.
      */
     public CommitLog getCommitLog( ProjectRevision r1, ProjectRevision r2 )
-        throws InvalidProjectRevisionException;
+        throws InvalidProjectRevisionException,
+               InvalidRepositoryException;
 
     /**
      * Get the commit log entries for revisions @p r1 to @p r2
@@ -80,7 +85,8 @@ public interface SCMAccessor {
      * project this accessor is attached to).
      */
     public CommitLog getCommitLog( String repoPath, ProjectRevision r1, ProjectRevision r2 )
-        throws InvalidProjectRevisionException;
+        throws InvalidProjectRevisionException,
+               InvalidRepositoryException;
 
     /**
      * Get the diff between two revisions of a subtree within
