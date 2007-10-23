@@ -33,39 +33,21 @@
 
 package eu.sqooss.service.tds;
 
-import eu.sqooss.service.tds.ProjectRevision;
-
 /**
- * This class flags invalid revisions which are passed to
- * methods of the SCMAccessor. Invalid revisions may be
- * of the wrong kind or indicate a revision that is not
- * within the range of the accessor (or other data structures).
+ * This is the base class of exceptions thrown by the TDS.
+ * It is mainly here to group together the exceptions
+ * thrown by the service.
  */
-public class InvalidProjectRevisionException extends TDSException {
+public class TDSException extends Exception {
     private static final long serialVersionUID = 1L;
-    private ProjectRevision.Kind kind;
-    private String projectName;
+    private static String service = "[TDS]";
 
-    /**
-     * Constructor. Create an InvalidProjectRevisionException
-     * for the indicated @p project. The expected @p kind of
-     * revision may be null, meaning "any valid revision".
-     */
-    public InvalidProjectRevisionException(String project,
-        ProjectRevision.Kind k) {
-        super("Invalid project revision");
-        kind = k;
-        projectName = project;
+    public TDSException(String message) {
+        super(message);
     }
 
     public String getMessage() {
-        if (kind != null) {
-            return super.getMessage() + " " + projectName +
-                " expected revision kind " + kind;
-        } else {
-            return super.getMessage() + " " + projectName +
-                " expected a valid revision.";
-        }
+        return service + super.getMessage();
     }
 }
 

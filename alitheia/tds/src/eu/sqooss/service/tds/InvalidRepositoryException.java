@@ -33,39 +33,28 @@
 
 package eu.sqooss.service.tds;
 
-import eu.sqooss.service.tds.ProjectRevision;
+import eu.sqooss.service.tds.TDSException;
 
 /**
- * This class flags invalid revisions which are passed to
- * methods of the SCMAccessor. Invalid revisions may be
- * of the wrong kind or indicate a revision that is not
- * within the range of the accessor (or other data structures).
+ * This exception indicates that the repository is invalid for
+ * some project. This may indicate that the TDS does not know
+ * about the repository at all or that something has failed
+ * in accessing the repository. It is the public face that
+ * replaces SVNException from SVNKit, since we don't want to
+ * expose that to the other bundles (complicates dependencies
+ * too much).
  */
-public class InvalidProjectRevisionException extends TDSException {
+public class InvalidRepositoryException extends TDSException {
     private static final long serialVersionUID = 1L;
-    private ProjectRevision.Kind kind;
     private String projectName;
 
-    /**
-     * Constructor. Create an InvalidProjectRevisionException
-     * for the indicated @p project. The expected @p kind of
-     * revision may be null, meaning "any valid revision".
-     */
-    public InvalidProjectRevisionException(String project,
-        ProjectRevision.Kind k) {
-        super("Invalid project revision");
-        kind = k;
+    public InvalidRepositoryException(String project) {
+        super("Invalid project repository");
         projectName = project;
     }
 
     public String getMessage() {
-        if (kind != null) {
-            return super.getMessage() + " " + projectName +
-                " expected revision kind " + kind;
-        } else {
-            return super.getMessage() + " " + projectName +
-                " expected a valid revision.";
-        }
+        return super.getMessage() + " " + projectName;
     }
 }
 
