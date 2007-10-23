@@ -36,7 +36,7 @@ import java.sql.Time;
 
 public class Measurement {
     private Long id;
-    private String metric;
+    private Long metric;
     private Long projectVersion;
     private Time whenRun;
     private String result;
@@ -53,11 +53,11 @@ public class Measurement {
 	this.id = id;
     }
 
-    public String getMetric() {
+    public Long getMetric() {
 	return metric;
     }
 
-    public void setMetric(String metric ) {
+    public void setMetric(Long metric) {
 	this.metric = metric;
     }
 
