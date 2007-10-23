@@ -4,11 +4,11 @@
         "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-  <class name="eu.sqooss.service.db.Tag" table="TAG">
+  <class name="eu.sqooss.service.db.ProjectVersion" table="PROJECT_VERSION">
     <id name="id" column="TAG_ID">
       <generator class="native" />
     </id>
-    <property name="version" column="PROJECT_VERSION" />
-    <property name="name" column="TAG_NAME" />
+    <property name="project" column="PROJECT_ID" />
+    <property name="version" column="VERSION" />
   </class>
 </hibernate-mapping>
