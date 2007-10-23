@@ -1,3 +1,9 @@
+all : build run
+
+build :
+	cd tomcat/webapps/ROOT/WEB-INF/classes/sqo && \
+	$(MAKE)
+
 run : start
 
 start :
@@ -9,7 +15,5 @@ stop :
 	cd tomcat && \
 	sh bin/catalina.sh stop
 
-restart :
-	make stop && \
-	make start
+restart : stop start
 
