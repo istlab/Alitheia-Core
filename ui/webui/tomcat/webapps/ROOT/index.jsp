@@ -1,21 +1,9 @@
 <%@ include file="/inc/header.jsp" %>
+<%@ include file="/inc/menu.jsp" %>
 
-<div id="status">
-<!-- First call to cruncher to obtain status -->
-The cruncher is offline.
-</div>
+<%@ include file="/inc/news.jsp" %>
 
-<div id="menu">
-<ul>
-<li>About</li>
-</ul>
-</div>
 
-<div id="news">
-News items would be here
-for this specific deployment.
-</div>
-<hr />
 
 <div>
     <h2>Here's this playground's testing area</h2>
