@@ -10,7 +10,7 @@
     </id>
     <property name="name" column="FILE_GROUP_NAME" />
     <property name="subPath" column="GROUP_SUBPATH" />
-    <property name="regExp" column="REGEX" />
+    <property name="regex" column="REGEX" />
     <property name="recalcFreq" column="RECALC_FREQ" />
     <property name="subPath" column="GROUP_SUBPATH" />
     <property name="lastUsed" column="LAST_USED" />
