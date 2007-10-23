@@ -42,6 +42,7 @@ public class FileMetadata {
     private int groupId;
     private Time accessTime;
     private Time modificationTime;
+    private String fileStatusChange;
     private int size;
     private int blocks;
 
@@ -112,6 +113,14 @@ public class FileMetadata {
 
     public void setSize(int size) {
 	this.size = size;
+    }
+
+    public String getFileStatusChange() {
+	return fileStatusChanged;
+    }
+
+    public void setFileStatusChange(String fileStatusChanged) {
+	this.fileStatusChanged = fileStatusChanged;
     }
 
     public int getBlocks() {
