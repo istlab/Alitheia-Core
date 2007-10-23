@@ -1,5 +1,8 @@
 package eu.sqooss.impl.service.logging;
 
+/**
+ * These constants are of use for the names of the loggers.
+ */
 public class LogManagerConstants {
   //logger naming scheme
   public static final String NAME_ROOT_LOGGER    = "sqooss";

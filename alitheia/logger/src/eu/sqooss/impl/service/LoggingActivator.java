@@ -8,10 +8,16 @@ import eu.sqooss.impl.service.logging.LogManagerImpl;
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
 
+/**
+ * The class is used to start and stop the logger bundle.
+ */
 public class LoggingActivator implements BundleActivator {
 
   private ServiceRegistration sReg;
   
+  /**
+   * Configures and registers a <code>LogManager</code> service.
+   */
   public void start(BundleContext bc) throws Exception {
     //registers a log manager service
     LogManagerImpl.logManager.setBundleContext(bc);
@@ -22,6 +28,9 @@ public class LoggingActivator implements BundleActivator {
     l.info("Logging bundle started.");
   }
 
+  /**
+   * Closes and unregisters a <code>LogManager</code> service.
+   */
   public void stop(BundleContext bc) throws Exception {
     //unregisters a log manager service
     if (sReg != null) {

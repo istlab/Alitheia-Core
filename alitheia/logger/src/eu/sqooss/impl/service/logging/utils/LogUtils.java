@@ -5,13 +5,14 @@ import eu.sqooss.impl.service.logging.LogManagerConstants;
 public class LogUtils {
   
   /**
-   * @param name
+   * Determines the level of the logger's name in the logger hierarchy. 
+   * @param name the logger name
    * @return
    * <ul>
    *  <li> -1 - if the name is not valid
-   *  <li> 0 - sqooss
-   *  <li> 1 - sqooss.service_name
-   *  <li> 2 - sqooss.service.plugin_name 
+   *  <li> 0 - for sqooss (for SQO-OSS system logger)
+   *  <li> 1 - for sqooss.service_name (for the children of the SQO-OSS system logger) 
+   *  <li> 2 - for sqooss.service.plugin_name (for the children of service system logger i.e. metric plug-ins loggers)
    * </ul>
    */
   public static int getNameLevel(String name) {
@@ -60,7 +61,7 @@ public class LogUtils {
   }
   
   /**
-   * @param name
+   * @param name the logger name
    * @return the name of the parent logger, or empty string otherwise
    */
   public static String getParentLoggerName(String name) {

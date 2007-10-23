@@ -8,6 +8,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 
+/**
+ * The <code>LogWriter</code> instances write the log messages to the log file.
+ * They are created and released from <code>LogWritersManager</code>.
+ * The <code>LogWritersManager</code> is used as a singleton because different loggers can log to the same file.
+ */
 public class LogWriter {
   
   private long maxFileLength;
@@ -33,6 +38,10 @@ public class LogWriter {
     }
   }
   
+  /**
+   * Writes the text to the specified file.
+   * @param text
+   */
   public void write(String text) {
     synchronized (lockObject) {
       try {
@@ -48,22 +57,39 @@ public class LogWriter {
     }
   }
   
+  /**
+   * The rotation policy uses this method.
+   * @param maxFileLength
+   */
   public void setMaxFileLength(long maxFileLength) {
     this.maxFileLength = maxFileLength;
   }
 
+  /**
+   * The rotation policy uses this method.
+   * @param maxLogFilesNumber
+   */
   public void setMaxLogFilesNumber(int maxLogFilesNumber) {
     this.maxLogFilesNumber = maxLogFilesNumber;
   }
 
+  /**
+   * This method increases the internal counter when the <code>LogWritersManager</code> creates or gets the log writer.
+   */
   protected void get() {
     takingsNumber++;
   }
   
+  /**
+   * This method decreases the internal counter when the <code>LogWritersManager</code> releases the log writer.
+   */
   protected int unget() {
     return --takingsNumber;
   }
   
+  /**
+   * This method closes the <code>LogWriter</code>.
+   */
   protected void close() {
     synchronized (lockObject) {
       try {

@@ -5,6 +5,9 @@ import java.util.Hashtable;
 
 import org.osgi.framework.BundleContext;
 
+/**
+ * The <code>LogWritersManager</code> is the entry point to <code>LogWriter</code>.
+ */
 public class LogWritersManager {
   
   private Object lockObject = new Object();
@@ -22,6 +25,11 @@ public class LogWritersManager {
     logWritersStorage = new Hashtable();
   }
   
+  /**
+   * Creates a new writer if doesn't exist, otherwise returns a existent writer.
+   * @param fileName
+   * @return
+   */
   public LogWriter createLogWriter(String fileName) {
     synchronized (lockObject) {
       LogWriter logWriter;
@@ -36,6 +44,10 @@ public class LogWritersManager {
     }
   }
   
+  /**
+   * Releases the writer with specified file name.
+   * @param fileName
+   */
   public void releaseLogWriter(String fileName) {
     synchronized (lockObject) {
       if (logWritersStorage.containsKey(fileName)) {

@@ -10,6 +10,9 @@ import eu.sqooss.impl.service.logging.utils.LogWriter;
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
 
+/**
+ * This class implements a Logger interface.  
+ */
 public class LoggerImpl implements Logger {
 
   private Object lockObject = new Object();
@@ -37,18 +40,33 @@ public class LoggerImpl implements Logger {
     takingsNumber = 0;
   }
 
+  /**
+   * @see eu.sqooss.service.logging.Logger#getName()
+   */
   public String getName() {
     return name;
   }
   
+  /**
+   * @see eu.sqooss.service.logging.Logger#getConfigurationProperty(String)
+   */
   public String getConfigurationProperty(String key) {
     return logConfig.getConfigurationProperty(name, key);
   }
   
+  /**
+   * @see eu.sqooss.service.logging.Logger#setConfigurationProperty(String, String)
+   */
   public void setConfigurationProperty(String key, String value) {
     setConfigurationProperty(key, value, false);
   }
 
+  /**
+   * If the parent changes the configuration then the flag <code>isParentChange</code> is true. 
+   * @param key
+   * @param value
+   * @param isParentChange
+   */
   public void setConfigurationProperty(String key, String value, boolean isParentChange) {
     if (!isParentChange) {
       logConfig.setConfigurationProperty(name, key, value);
@@ -79,18 +97,27 @@ public class LoggerImpl implements Logger {
     }
   }
   
+  /**
+   * @see eu.sqooss.service.logging.Logger#config(String)
+   */
   public void config(String message) {
     synchronized (lockObject) {
       logWriter.write(getMessage(message, LoggerConstants.LOGGING_LEVEL_CONFIG));
     }
   }
   
+  /**
+   * @see eu.sqooss.service.logging.Logger#info(String)
+   */
   public void info(String message) {
     synchronized (lockObject) {
       logWriter.write(getMessage(message, LoggerConstants.LOGGING_LEVEL_INFO));
     }
   }
 
+  /**
+   * @see eu.sqooss.service.logging.Logger#severe(String)
+   */
   public void severe(String message) {
     logToParent(message);
     synchronized (lockObject) {
@@ -98,30 +125,50 @@ public class LoggerImpl implements Logger {
     }
   }
 
+  /**
+   * @see eu.sqooss.service.logging.Logger#warning(String)
+   */
   public void warning(String message) {
     synchronized (lockObject) {
       logWriter.write(getMessage(message, LoggerConstants.LOGGING_LEVEL_WARNING));
     }
   }
 
+  /**
+   * @see eu.sqooss.service.logging.Logger#getConfigurationKeys()
+   */
   public String[] getConfigurationKeys() {
     return LogConfigurationConstants.KEYS;
   }
   
+  /**
+   * This method increases the internal counter when the log manager creates or gets the logger.
+   */
   protected void get() {
     takingsNumber++;
   }
   
+  /**
+   * This method decreases the internal counter when the log manager releases the logger.
+   */
   protected int unget() {
     return --takingsNumber;
   }
   
+  /**
+   * This method closes the logger.
+   */
   protected void close() {
     synchronized (lockObject) {
       logWritersManager.releaseLogWriter(fileName);
     }
   }
   
+  /**
+   * The file extension depends on the message's format. 
+   * @param messageFormat
+   * @return the file extension
+   */
   private String getFileExtension(String messageFormat) {
     if (messageFormat.equals(LogConfigurationConstants.MESSAGE_FORMAT_TEXT_PLAIN)) {
       return LogConfigurationConstants.FILE_EXTENSION_TEXT_PLAIN + LogConfigurationConstants.FILE_EXTENSION;
@@ -130,6 +177,12 @@ public class LoggerImpl implements Logger {
     }
   }
   
+  /**
+   * 
+   * @param messageBody
+   * @param loggingLevel
+   * @return the logging message 
+   */
   private String getMessage(String messageBody, String loggingLevel) {
     String text ;
     Date timestamp = new Date();
@@ -146,6 +199,11 @@ public class LoggerImpl implements Logger {
     return text;
   }
   
+  /**
+   * This method is used by severe logging level.
+   * Logs the message to the logger's parent.
+   * @param message
+   */
   private void logToParent(String message) {
     if (!"".equals(parentName)) {
       Logger parentLogger = logManager.createLogger(parentName);

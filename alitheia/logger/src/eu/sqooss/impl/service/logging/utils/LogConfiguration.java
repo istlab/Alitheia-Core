@@ -13,6 +13,9 @@ import org.osgi.framework.BundleContext;
 import eu.sqooss.impl.service.logging.LogManagerConstants;
 import eu.sqooss.impl.service.logging.LogManagerImpl;
 
+/**
+ * This class is the entry point for the logger configuration.
+ */
 public class LogConfiguration {
   
   private static final char INTERNAL_KEY_SYMBOL = '.';
@@ -32,6 +35,12 @@ public class LogConfiguration {
     loadLogProperties(bc);
   }
   
+  /**
+   * Sets the logger property indicated by the specified key.
+   * @param loggerName
+   * @param key
+   * @param value
+   */
   public void setConfigurationProperty(String loggerName, String key, String value) {
     String internalKey = loggerName + INTERNAL_KEY_SYMBOL + key;
     int nameLevel = LogUtils.getNameLevel(loggerName);
@@ -54,6 +63,12 @@ public class LogConfiguration {
     }
   }
   
+  /**
+   * Gets the logger property indicated by the key.
+   * @param loggerName
+   * @param key
+   * @return
+   */
   public String getConfigurationProperty(String loggerName, String key) {
     String configProp = null;
     String internalKey = loggerName + INTERNAL_KEY_SYMBOL + key;
@@ -89,10 +104,17 @@ public class LogConfiguration {
     }
   }
   
+  /**
+   * The <code>close</code> method saves the configuration properties.
+   */
   public void close() {
     saveLogProperties(bc);
   }
   
+  /**
+   * This method loads the configuration properties. (if the files exist)
+   * @param bc
+   */
   private void loadLogProperties(BundleContext bc) {
     File rootFile = bc.getDataFile(ROOT_PROPS_FILE_NAME);
     File rootSiblingFile = bc.getDataFile(ROOT_SIBLING_PROPS_FILE_NAME);
@@ -102,7 +124,19 @@ public class LogConfiguration {
     serviceSiblingProperties = new Properties();
     try {
       rootProperties.load(new FileInputStream(rootFile));
+    } catch (FileNotFoundException fnfe) {
+      //set properties manual
+    } catch (IOException ioe) {
+      throw new RuntimeException(ioe);
+    }
+    try {
       rootSiblingProperties.load(new FileInputStream(rootSiblingFile));
+    } catch (FileNotFoundException fnfe) {
+      //set properties manual
+    } catch (IOException ioe) {
+      throw new RuntimeException(ioe);
+    }
+    try {
       serviceSiblingProperties.load(new FileInputStream(serviceSiblingFile));
     } catch (FileNotFoundException fnfe) {
       //set properties manual
@@ -111,6 +145,10 @@ public class LogConfiguration {
     }
   }
   
+  /**
+   * This method saves the configuration properties.
+   * @param bc
+   */
   private void saveLogProperties(BundleContext bc) {
     File rootFile = bc.getDataFile(ROOT_PROPS_FILE_NAME);
     File rootSiblingFile = bc.getDataFile(ROOT_SIBLING_PROPS_FILE_NAME);
@@ -126,6 +164,11 @@ public class LogConfiguration {
     }
   }
   
+  /**
+   * @param loggerName
+   * @param key
+   * @return default value for some keys
+   */
   private String getDefaultValue(String loggerName, String key) {
     if (LogConfigurationConstants.KEY_MESSAGE_FORMAT.equals(key)) {
       return LogConfigurationConstants.MESSAGE_FORMAT_TEXT_XML;

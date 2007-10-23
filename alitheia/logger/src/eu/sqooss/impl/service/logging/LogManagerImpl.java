@@ -32,6 +32,9 @@ public class LogManagerImpl extends LogManager {
     serviceSiblingLoggers = new Hashtable();
   }
   
+  /**
+   * @see eu.sqooss.service.logging.LogManager#createLogger(String)
+   */
   public Logger createLogger(String name) {
     LoggerImpl logger = null;
     int nameLevel = LogUtils.getNameLevel(name);
@@ -69,6 +72,9 @@ public class LogManagerImpl extends LogManager {
     }
   }
 
+  /**
+   * @see eu.sqooss.service.logging.LogManager#releaseLogger(String)
+   */
   public void releaseLogger(String name) {
     LoggerImpl logger;
     int takingsNumber;
@@ -107,6 +113,12 @@ public class LogManagerImpl extends LogManager {
     }
   }
 
+  /**
+   * This method notifies the logger's children for a configuration change.
+   * @param childrenLevel
+   * @param key
+   * @param value
+   */
   public void notifyChildrenForChange(int childrenLevel, String key, String value) {
     switch (childrenLevel) {
     //notify all
@@ -129,6 +141,10 @@ public class LogManagerImpl extends LogManager {
     }
   }
   
+  /**
+   * Sets the actual bundle context.
+   * @param bc the bundle context
+   */
   public void setBundleContext(BundleContext bc) {
     if (this.bc == null) {
       logWritersManager = new LogWritersManager(bc);
@@ -137,10 +153,16 @@ public class LogManagerImpl extends LogManager {
     this.bc = bc;
   }
   
+  /**
+   * @return the bundle context
+   */
   public BundleContext getBundleContext() {
     return this.bc;
   }
   
+  /**
+   * This method closes the log manager and the loggers.
+   */
   public void close() {
     if (logConfig != null) {
       logConfig.close();

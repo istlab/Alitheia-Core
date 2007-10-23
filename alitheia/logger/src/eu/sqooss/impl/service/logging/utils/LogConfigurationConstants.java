@@ -1,5 +1,8 @@
 package eu.sqooss.impl.service.logging.utils;
 
+/**
+ * These constants are of use for logger configuration.
+ */
 public class LogConfigurationConstants {
   
   public static final String KEY_FILE_NAME       = "file.name";
