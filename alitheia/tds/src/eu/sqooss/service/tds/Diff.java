@@ -33,6 +33,8 @@
 
 package eu.sqooss.service.tds;
 
+import java.io.File;
+
 import eu.sqooss.service.tds.ProjectRevision;
 
 public interface Diff {
