@@ -31,55 +31,46 @@
  *
  */
 
-package eu.sqooss.service.tds;
+package eu.sqooss.impl.service.tds;
 
-import java.io.FileNotFoundException;
+import eu.sqooss.service.tds.MailAccessor;
 
-public interface MailAccessor {
-    /**
-     * Retrieves the entire raw message content of the given
-     * message ID (the message ID may be relative to the project
-     * that this accessor is attached to).
-     */
-    public String getRawMessage( String listId, String id )
-        throws IllegalArgumentException,
-               FileNotFoundException;
+public class MailAccessorImpl implements MailAccessor {
+    private File maildirRoot;
+    private String[] subdirs = { "cur", "new", "tmp" };
 
-    /**
-     * Retrieve the list of messages that are stored in the mailing list.
-     */
-    public List<String> getMessages( String listId )
-        throws IllegalArgumentException;
+    public MailAccessorImpl( File root ) {
+        maildirRoot = root;
+    }
 
-    /**
-     * Retrieve the list of messages in the mailing list in the interval
-     * [d1,d2).
-     */
-    public List<String> getMessages( String listId, Date d1, Date d2 );
+    public String getRawMessage( String listId, String id ) {
+        File listDir = new File(maildirRoot, listId);
+        if (!listDir.exists() || !listDir.isDirectory()) {
+            throw new IllegalArgumentException("ListID <" + listId + "> does not exist.");
+        }
 
-    /**
-     * Get the message sender for the given message.
-     *
-     * @todo return more metadata since we're parsing headers anyway
-     */
-    public String getSender( String listId, String id );
+        for(String s : subdirs) {
+            File msgFile = new File(listDir, s + File.separator + id);
+            if (msgFile.exists()) {
+                return readFile(msgFile);
+            }
+        }
+        throw new FileNotFoundException("No message <" + id + ">");
+        // return null;
+    }
 
-    /*
-     * The following methods from D5 are not implemented:
-     *
-     * getSenders( String listId )
-     * getSenders( String listId, Date, Date )
-     *      This method requires retrieving all of the individual
-     *      messages and parsing them; it is better done at a higher
-     *      level either by the updater or the FDS.
-     *
-     * getMessages( String listId, String sender )
-     *      Similar - this should be calculated and cached elsewhere.
-     *
-     * getNextMessage( String listId, String id, boolean mode )
-     *      No idea what this is supposed to do. Jump to next
-     *      message Id after @p id?
-     */
+    // Remainder is all stubs
+    public List<String> getMessages( String listId ) {
+        return null;
+    }
+
+    public List<String> getMessages( String listId, Date d1, Date d2 ) {
+        return null;
+    }
+
+    public String getSender( String listId, String id ) {
+        return null;
+    }
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab
