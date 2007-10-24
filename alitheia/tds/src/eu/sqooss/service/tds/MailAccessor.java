@@ -33,6 +33,9 @@
 
 package eu.sqooss.service.tds;
 
+import java.util.Date;
+import java.util.List;
+
 import java.io.FileNotFoundException;
 
 public interface MailAccessor {

@@ -33,6 +33,15 @@
 
 package eu.sqooss.impl.service.tds;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.lang.StringBuilder;
+import java.util.Date;
+import java.util.List;
+
 import eu.sqooss.service.tds.MailAccessor;
 
 public class MailAccessorImpl implements MailAccessor {
@@ -43,7 +52,27 @@ public class MailAccessorImpl implements MailAccessor {
         maildirRoot = root;
     }
 
-    public String getRawMessage( String listId, String id ) {
+    private String readFile( File f )
+        throws FileNotFoundException {
+        BufferedReader in = new BufferedReader(new FileReader(f));
+        StringBuilder s = new StringBuilder();
+        String line;
+
+        try {
+            while ( (line=in.readLine()) != null ) {
+                s.append(line);
+            }
+        } catch (IOException e) {
+            // Repurpose, pretend it was not found
+            throw new FileNotFoundException(e.getMessage());
+        }
+
+        return s.toString();
+    }
+
+    public String getRawMessage( String listId, String id )
+        throws IllegalArgumentException,
+               FileNotFoundException {
         File listDir = new File(maildirRoot, listId);
         if (!listDir.exists() || !listDir.isDirectory()) {
             throw new IllegalArgumentException("ListID <" + listId + "> does not exist.");
