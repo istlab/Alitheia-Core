@@ -6,7 +6,16 @@ build :
 
 run : start
 
+build :
+	PWD=`pwd` && \
+	echo ${PWD} && \
+	cd tomcat/webapps/ROOT/WEB-INF/classes/sqo && \
+	make clean && \
+	make build && \
+	cd ${PWD}
+
 start :
+	make build && \
 	cd tomcat && \
 	export CLASSPATH=tomcat/webapps/ROOT/WEB-INF/classes && \
 	sh bin/catalina.sh start
