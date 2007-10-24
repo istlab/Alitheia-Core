@@ -60,6 +60,7 @@ import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.impl.service.tds.CommitLogImpl;
 import eu.sqooss.impl.service.tds.CheckoutBaton;
 import eu.sqooss.impl.service.tds.CheckoutEditor;
+import eu.sqooss.impl.service.tds.DiffStatusHandler;
 
 public class SCMAccessorImpl implements SCMAccessor {
     private String url;
@@ -323,17 +324,24 @@ public class SCMAccessorImpl implements SCMAccessor {
         try {
             SVNDiffClient d = new SVNDiffClient(svnRepository.getAuthenticationManager(),null);
             File f = File.createTempFile("tds",".diff");
-            d.doDiff(svnRepository.getLocation().appendPath(repoPath,true),
+            SVNURL u = svnRepository.getLocation().appendPath(repoPath,true);
+            d.doDiff(u,
                 SVNRevision.create(revstart),
                 SVNRevision.create(revstart),
                 SVNRevision.create(revend),
                 true,
                 false,
                 new FileOutputStream(f));
+            // Store the diff
+            DiffImpl theDiff = new DiffImpl(r1,r2,f);
+            // Add status information
+            d.doDiffStatus(u,SVNRevision.create(revstart),
+                u,SVNRevision.create(revend),
+                true,false,new DiffStatusHandler(theDiff));
             f.deleteOnExit();
             logger.info("Done diff of " + repoPath + 
                 " to " + f.getAbsolutePath());
-            return new DiffImpl(r1,r2,f);
+            return theDiff;
         } catch (SVNException e) {
             logger.warning(e.getMessage());
             throw new InvalidRepositoryException(projectName,url,e.getMessage());

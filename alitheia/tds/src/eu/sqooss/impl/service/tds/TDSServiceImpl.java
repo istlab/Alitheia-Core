@@ -110,19 +110,6 @@ public class TDSServiceImpl implements TDSService {
             }
         }
         logger.info("Got configuration for " + projectCount + " projects.");
-
-        try {
-            logger.info("Doing diff of one file from KDE");
-            getAccessor("kde").getSCMAccessor().getDiff(
-                "trunk/KDE/kdepim/kpilot",
-                new ProjectRevision(700000),
-                new ProjectRevision(705187));
-            logger.info("Done one-file diff.");
-        } catch (TDSException e) {
-            logger.warning(e.getMessage());
-        } catch (FileNotFoundException e) {
-            logger.warning(e.getMessage());
-        }
     }
 
     public boolean accessorExists( String projectName ) {

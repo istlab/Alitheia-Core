@@ -1,22 +1,22 @@
 /*
  * This file is part of the Alitheia system, developed by the SQO-OSS
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
- *
+ * 
  * Copyright 2007 by the SQO-OSS consortium members <info@sqo-oss.eu>
  * Copyright 2007 by Adriaan de Groot <groot@kde.org>
- *
+ * 
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
  * met:
- *
+ * 
  *     * Redistributions of source code must retain the above copyright
  *       notice, this list of conditions and the following disclaimer.
- *
+ * 
  *     * Redistributions in binary form must reproduce the above
  *       copyright notice, this list of conditions and the following
  *       disclaimer in the documentation and/or other materials provided
  *       with the distribution.
- *
+ * 
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -28,42 +28,29 @@
  * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
+ * 
  */
 
-package eu.sqooss.service.tds;
+package eu.sqooss.impl.service.tds;
 
-import java.io.File;
-import java.util.Set;
+import org.tmatesoft.svn.core.SVNNodeKind;
+import org.tmatesoft.svn.core.wc.ISVNDiffStatusHandler;
+import org.tmatesoft.svn.core.wc.SVNDiffStatus;
 
-import eu.sqooss.service.tds.ProjectRevision;
+import eu.sqooss.impl.service.tds.DiffImpl;
 
-public interface Diff {
-    /**
-     * Retrieve the project revision information for the first
-     * (before) revision of this diff.
-     */
-    public ProjectRevision getSourceRevision();
+public class DiffStatusHandler implements ISVNDiffStatusHandler {
+    private DiffImpl theDiff;
 
-    /**
-     * Retrieve the project revision information for the last
-     * revision for this diff. This may be the same as first()
-     * for 1-entry diffs (although the difference between R and R
-     * is empty).
-     */
-    public ProjectRevision getTargetRevision();
+    public DiffStatusHandler(DiffImpl d) {
+        theDiff = d;
+    }
 
-    /**
-     * The diff is stored in a temporary file somewhere. Get
-     * the file for it so that the diff itself can be read in.
-     */
-    public File getDiffFile();
-
-    /**
-     * Retrieve the list of file names (relative to the root
-     * under which this diff was taken) modified by this diff.
-     */
-    public Set<String> getChangedFiles();
+    public void handleDiffStatus(SVNDiffStatus s) {
+        if ((theDiff!=null) && (s.getKind()==SVNNodeKind.FILE)) {
+            theDiff.addFile(s.getPath());
+        }
+    }
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

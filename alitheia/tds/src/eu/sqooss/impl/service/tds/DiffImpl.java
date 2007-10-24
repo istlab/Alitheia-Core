@@ -34,6 +34,8 @@
 package eu.sqooss.impl.service.tds;
 
 import java.io.File;
+import java.util.HashSet;
+import java.util.Set;
 
 import eu.sqooss.service.tds.Diff;
 import eu.sqooss.service.tds.ProjectRevision;
@@ -41,6 +43,7 @@ import eu.sqooss.service.tds.ProjectRevision;
 public class DiffImpl implements Diff {
     private ProjectRevision revStart,revEnd;
     private File diffFile;
+    private Set<String> changedFiles;
 
     public DiffImpl(ProjectRevision start, ProjectRevision end, File path) {
         revStart = new ProjectRevision(start);
@@ -50,9 +53,19 @@ public class DiffImpl implements Diff {
             revEnd = new ProjectRevision(start.getSVNRevision()+1);
         }
         diffFile = path;
-        // TODO: parse diff file to get changed paths
+        changedFiles = new HashSet<String>();
     }
 
+    /**
+     * Add a file to the set of changed files represented by
+     * this Diff. Normally done by the DiffStatusHandler while
+     * processing the diff from the server.
+     */
+    public void addFile(String path) {
+        changedFiles.add(path);
+    }
+
+    // Interface methods
     public ProjectRevision getSourceRevision() {
         return new ProjectRevision(revStart);
     }
@@ -65,7 +78,7 @@ public class DiffImpl implements Diff {
         return diffFile;
     }
 
-    public String[] getChangedFiles() {
+    public Set<String> getChangedFiles() {
         return null;
     }
 }
