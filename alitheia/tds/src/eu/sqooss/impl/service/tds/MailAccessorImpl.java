@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.lang.StringBuilder;
 import java.util.Date;
 import java.util.List;
+import java.util.LinkedList;
 
 import eu.sqooss.service.tds.MailAccessor;
 
@@ -101,7 +102,9 @@ public class MailAccessorImpl implements MailAccessor {
             File msgFile = new File(listDir, s);
             if (msgFile.exists() && msgFile.isDirectory()) {
                 String[] entries = msgFile.list();
-                l.addAll(entries);
+                for (String e : entries) {
+                    l.add(e);
+                }
             }
         }
 
