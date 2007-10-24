@@ -47,6 +47,8 @@ import org.tmatesoft.svn.core.io.SVNRepository;
 import org.tmatesoft.svn.core.io.SVNRepositoryFactory;
 import org.tmatesoft.svn.core.io.ISVNEditor;
 import org.tmatesoft.svn.core.io.ISVNReporterBaton;
+import org.tmatesoft.svn.core.wc.SVNDiffClient;
+import org.tmatesoft.svn.core.wc.SVNRevision;
 
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.SCMAccessor;
@@ -320,18 +322,24 @@ public class SCMAccessorImpl implements SCMAccessor {
             throw new FileNotFoundException(repoPath);
         }
 
-        CheckoutEditor.logger = logger;
-        CheckoutBaton.logger = logger;
-        ISVNReporterBaton baton = new CheckoutBaton(revstart,"/tmp");
-        ISVNEditor editor = new CheckoutEditor(revstart,"/tmp");
-
         try {
-            logger.info("Starting diff");
-            svnRepository.diff(SVNURL.parseURIDecoded(url + File.separator + repoPath),revstart,revend,"pilot.cc",true,false,false,baton,editor);
-            logger.info("Done diff");
+            SVNDiffClient d = new SVNDiffClient(svnRepository.getAuthenticationManager(),null);
+            File f = File.createTempFile("tds",".diff");
+            d.doDiff(svnRepository.getLocation().appendPath(repoPath,true),
+                SVNRevision.create(revstart),
+                SVNRevision.create(revstart),
+                SVNRevision.create(revend),
+                true,
+                false,
+                new FileOutputStream(f));
+            f.deleteOnExit();
+            logger.info("Done diff to " + f.getAbsolutePath());
         } catch (SVNException e) {
             logger.warning(e.getMessage());
             throw new InvalidRepositoryException(projectName,url,e.getMessage());
+        } catch (IOException e) {
+            logger.warning(e.getMessage());
+            throw new FileNotFoundException("Could not create temporary file for diff.");
         }
 
         return null;
