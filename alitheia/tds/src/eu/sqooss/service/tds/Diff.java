@@ -51,6 +51,12 @@ public interface Diff {
     public ProjectRevision last();
 
     /**
+     * The diff is stored in a temporary file somewhere. Get
+     * the file for it so that the diff itself can be read in.
+     */
+    public File getDiffFile();
+
+    /**
      * Retrieve the list of file names (relative to the root
      * under which this diff was taken) modified by this diff.
      */

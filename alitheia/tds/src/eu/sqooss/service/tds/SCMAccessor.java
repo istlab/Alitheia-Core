@@ -103,7 +103,8 @@ public interface SCMAccessor {
      * Get the diff between two revisions of a subtree within
      * the source repository. Arguments as getCommitLog(), above.
      * Passing in a null for @p r2 calculates the diff between
-     * @p r1 and @p r1+1 .
+     * @p r1 and @p r1+1 . FileNotFoundException may also indicate
+     * that the Diff could not be created (it is a temporary file).
      */
     public Diff getDiff( String repoPath, ProjectRevision r1, ProjectRevision r2 )
         throws InvalidProjectRevisionException,
