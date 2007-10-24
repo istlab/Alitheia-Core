@@ -89,8 +89,23 @@ public class MailAccessorImpl implements MailAccessor {
     }
 
     // Remainder is all stubs
-    public List<String> getMessages( String listId ) {
-        return null;
+    public List<String> getMessages( String listId )
+        throws IllegalArgumentException {
+        List<String> l = new LinkedList<String>();
+        File listDir = new File(maildirRoot, listId);
+        if (!listDir.exists() || !listDir.isDirectory()) {
+            throw new IllegalArgumentException("ListID <" + listId + "> does not exist.");
+        }
+
+        for(String s : subdirs) {
+            File msgFile = new File(listDir, s);
+            if (msgFile.exists() && msgFile.isDirectory()) {
+                String[] entries = msgFile.list();
+                l.addAll(entries);
+            }
+        }
+
+        return l;
     }
 
     public List<String> getMessages( String listId, Date d1, Date d2 ) {
