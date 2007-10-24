@@ -11,7 +11,8 @@
     <ul>
     
     <% 
-    if (request.getParameter("uid").length() > 0) {
+    String uid = request.getParameter("uid");
+    if ( (uid!=null) && uid.length() > 0) {
         //user.setCurrentUserId(new Integer(request.getParameter("uid")));
         //out.println("<h2>Hello " + user.getCurrentUser() + "!<h2>");
         out.println("Bla");
