@@ -4,6 +4,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 
+import eu.sqooss.impl.service.MessagingActivator;
 import eu.sqooss.impl.service.messaging.senders.smtp.SMTPSender;
 import eu.sqooss.service.messaging.Message;
 import eu.sqooss.service.messaging.sender.MessageSender;
@@ -46,6 +47,8 @@ public class MessagingServiceThread implements Runnable {
       messagingService.startThreadIfNeeded();
       sender = getMessageSender(message);
       messageStatus = sender.sendMessage(message);
+      MessagingActivator.log("The message (id = " + message.getId() + ") status is " + messageStatus + " after the message dispatch",
+          MessagingActivator.LOGGING_INFO_LEVEL);
       ungetMessageSender();
       message.setStatus(messageStatus);
       messagingService.notifyListeners(message, messageStatus);
@@ -97,6 +100,7 @@ public class MessagingServiceThread implements Runnable {
         return (MessageSender)bc.getService(sRef);
       }
     } catch (InvalidSyntaxException ise) {
+      MessagingActivator.log("Invalid message protocol string: " + ise.getMessage(), MessagingActivator.LOGGING_WARNING_LEVEL);
       throw new IllegalArgumentException("Invalid message protocol string: " + message.getProtocol());
     }
   }

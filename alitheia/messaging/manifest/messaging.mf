@@ -6,5 +6,5 @@ Bundle-Version: 0.0.1
 Bundle-Vendor: ProSyst
 Bundle-Category: messaging
 Bundle-Description: This bundle provides the Messaging Service
-Import-Package: org.osgi.framework
+Import-Package: org.osgi.framework, eu.sqooss.service.logging
 Export-Package: eu.sqooss.service.messaging

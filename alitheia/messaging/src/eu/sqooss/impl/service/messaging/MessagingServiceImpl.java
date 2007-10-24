@@ -11,6 +11,7 @@ import java.util.Vector;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 
+import eu.sqooss.impl.service.MessagingActivator;
 import eu.sqooss.impl.service.messaging.senders.smtp.SMTPSender;
 import eu.sqooss.service.messaging.Message;
 import eu.sqooss.service.messaging.MessageListener;
@@ -107,6 +108,8 @@ public class MessagingServiceImpl implements MessagingService {
    * @see eu.sqooss.service.messaging.MessagingService#setConfigurationProperty(String, String)
    */
   public void setConfigurationProperty(String key, String value) {
+    MessagingActivator.log("Set a configuration property: key=" + key + ", value=" + value,
+        MessagingActivator.LOGGING_INFO_LEVEL);
     if (key.equals(MessagingConstants.KEY_QUEUERING_TIME)) {
       try {
         long qTime = Long.parseLong(value);
@@ -209,7 +212,8 @@ public class MessagingServiceImpl implements MessagingService {
     try {
       properties.store(new FileOutputStream(bc.getDataFile(MessagingConstants.FILE_NAME_PROPERTIES)), null);
     } catch (IOException ioe) {
-      //TODO: log
+      MessagingActivator.log("An error occurs while saving the properties: " + ioe.getMessage(),
+          MessagingActivator.LOGGING_WARNING_LEVEL);
     }
     return id;
   }
@@ -328,6 +332,7 @@ public class MessagingServiceImpl implements MessagingService {
     try {
       props.load(new FileInputStream(bc.getDataFile(MessagingConstants.FILE_NAME_PROPERTIES)));
     } catch (FileNotFoundException fnfe) {
+      MessagingActivator.log("The properties file doesn't exist!", MessagingActivator.LOGGING_INFO_LEVEL);
       //the properties must be set manual
     } catch (IOException ioe) {
       throw new RuntimeException(ioe);

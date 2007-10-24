@@ -2,6 +2,8 @@ package eu.sqooss.impl.service.messaging;
 
 import java.util.Vector;
 
+import eu.sqooss.impl.service.MessagingActivator;
+
 /**
  * This class represents the message queue.
  * The messages in the queue have the <code>Message.STATUS_QUEUED</code> status. 
@@ -26,6 +28,8 @@ public class MessageQueue {
       vector.addElement(message);
       lockObject.notifyAll();
     }
+    MessagingActivator.log("The message (id = " + message.getId() + ") is in the queue!",
+        MessagingActivator.LOGGING_INFO_LEVEL);
   }
   
   /**
@@ -40,9 +44,13 @@ public class MessageQueue {
         if (clear) {
           return null;
         } else {
-          return (MessageImpl)vector.remove(0);
+          MessageImpl message = (MessageImpl)vector.remove(0);
+          MessagingActivator.log("The message (id = " + message.getId() + ") is removed from the queue!",
+              MessagingActivator.LOGGING_INFO_LEVEL);
+          return message;
         }
       } catch (InterruptedException ie) {
+        MessagingActivator.log(ie.getMessage(), MessagingActivator.LOGGING_WARNING_LEVEL);
         throw new RuntimeException(ie);
       }
     }

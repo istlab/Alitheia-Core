@@ -2,6 +2,7 @@ package eu.sqooss.impl.service.messaging;
 
 import java.util.Hashtable;
 
+import eu.sqooss.impl.service.MessagingActivator;
 import eu.sqooss.impl.service.messaging.timer.Timer;
 import eu.sqooss.service.messaging.Message;
 
@@ -37,6 +38,7 @@ public class MessageHistory {
         timer.addNotifyListener(message, preservingTime);
       }
     }
+    MessagingActivator.log("The message (id = " + message.getId() + ") is stored!", MessagingActivator.LOGGING_INFO_LEVEL);
   }
   
   /**
@@ -57,8 +59,10 @@ public class MessageHistory {
   public boolean removeMessage(long messageId) {
     synchronized (lockObject) {
       if (messageHistory.remove(new Long(messageId)) == null) {
+        MessagingActivator.log("The message (id = " + messageId + ") isn't stored!", MessagingActivator.LOGGING_INFO_LEVEL);
         return false;
       } else {
+        MessagingActivator.log("The message (id = " + messageId + ") is removed!", MessagingActivator.LOGGING_INFO_LEVEL);
         return true;
       }
     }
