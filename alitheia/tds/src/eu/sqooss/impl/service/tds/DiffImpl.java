@@ -62,10 +62,10 @@ public class DiffImpl implements Diff {
     }
 
     public File getDiffFile() {
-        return new File(diffFile);
+        return diffFile;
     }
 
-    public String[] getChangedFiles() {
+    public String[] changedFiles() {
         return null;
     }
 }

@@ -307,13 +307,11 @@ public class SCMAccessorImpl implements SCMAccessor {
         }
 
         SVNNodeKind nodeKind;
-        logger.info("Checking for " + repoPath);
         try {
             nodeKind = svnRepository.checkPath(repoPath, revstart);
         } catch (SVNException e) {
             throw new FileNotFoundException(repoPath);
         }
-        logger.info("Got kind " + nodeKind);
 
         // Handle the various kinds of nodes that repoPath may refer to
         if ( (SVNNodeKind.NONE == nodeKind) ||
@@ -333,7 +331,8 @@ public class SCMAccessorImpl implements SCMAccessor {
                 false,
                 new FileOutputStream(f));
             f.deleteOnExit();
-            logger.info("Done diff to " + f.getAbsolutePath());
+            logger.info("Done diff of " + repoPath + 
+                " to " + f.getAbsolutePath());
             return new DiffImpl(r1,r2,f);
         } catch (SVNException e) {
             logger.warning(e.getMessage());
@@ -342,8 +341,6 @@ public class SCMAccessorImpl implements SCMAccessor {
             logger.warning(e.getMessage());
             throw new FileNotFoundException("Could not create temporary file for diff.");
         }
-
-        return null;
     }
 }
 
