@@ -334,6 +334,7 @@ public class SCMAccessorImpl implements SCMAccessor {
                 new FileOutputStream(f));
             f.deleteOnExit();
             logger.info("Done diff to " + f.getAbsolutePath());
+            return new DiffImpl(r1,r2,f);
         } catch (SVNException e) {
             logger.warning(e.getMessage());
             throw new InvalidRepositoryException(projectName,url,e.getMessage());
