@@ -170,7 +170,7 @@ public class MessagingActivator implements BundleActivator, ServiceListener {
       logManagerServiceRef = bc.getServiceReference(LogManager.class.getName());
       if (logManagerServiceRef != null) {
         logManager = (LogManager)bc.getService(logManagerServiceRef);
-        logger = logManager.createLogger(Logger.NAME_SQOOSS_SECURITY);
+        logger = logManager.createLogger(Logger.NAME_SQOOSS_MESSAGING);
       }
     }
   }
