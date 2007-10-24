@@ -114,8 +114,8 @@ public class TDSServiceImpl implements TDSService {
         try {
             logger.info("Doing diff of one file from KDE");
             getAccessor("kde").getSCMAccessor().getDiff(
-                "trunk/KDE/kdepim/kpilot/lib",
-                new ProjectRevision(705186),
+                "trunk/KDE/kdepim/kpilot",
+                new ProjectRevision(700000),
                 new ProjectRevision(705187));
             logger.info("Done one-file diff.");
         } catch (TDSException e) {

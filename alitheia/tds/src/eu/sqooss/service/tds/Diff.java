@@ -42,7 +42,7 @@ public interface Diff {
      * Retrieve the project revision information for the first
      * (before) revision of this diff.
      */
-    public ProjectRevision first();
+    public ProjectRevision getSourceRevision();
 
     /**
      * Retrieve the project revision information for the last
@@ -50,7 +50,7 @@ public interface Diff {
      * for 1-entry diffs (although the difference between R and R
      * is empty).
      */
-    public ProjectRevision last();
+    public ProjectRevision getTargetRevision();
 
     /**
      * The diff is stored in a temporary file somewhere. Get
@@ -62,7 +62,7 @@ public interface Diff {
      * Retrieve the list of file names (relative to the root
      * under which this diff was taken) modified by this diff.
      */
-    public String[] changedFiles();
+    public String[] getChangedFiles();
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

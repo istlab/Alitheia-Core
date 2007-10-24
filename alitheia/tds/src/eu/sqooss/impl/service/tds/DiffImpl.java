@@ -53,11 +53,11 @@ public class DiffImpl implements Diff {
         // TODO: parse diff file to get changed paths
     }
 
-    public ProjectRevision first() {
+    public ProjectRevision getSourceRevision() {
         return new ProjectRevision(revStart);
     }
 
-    public ProjectRevision last() {
+    public ProjectRevision getTargetRevision() {
         return new ProjectRevision(revEnd);
     }
 
@@ -65,7 +65,7 @@ public class DiffImpl implements Diff {
         return diffFile;
     }
 
-    public String[] changedFiles() {
+    public String[] getChangedFiles() {
         return null;
     }
 }
