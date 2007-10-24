@@ -185,7 +185,7 @@ public class LogConfiguration {
     for(keys = props.propertyNames(); keys.hasMoreElements(); ) {
       currentKey = (String)keys.nextElement();
       if (currentKey.endsWith(suffix)) {
-        rootSiblingProperties.remove(currentKey);
+        props.remove(currentKey);
       }
     }
   }

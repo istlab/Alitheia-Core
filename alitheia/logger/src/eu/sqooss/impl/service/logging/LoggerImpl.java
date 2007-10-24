@@ -1,6 +1,7 @@
 package eu.sqooss.impl.service.logging;
 
 import java.util.Date;
+import java.util.Vector;
 
 import eu.sqooss.impl.service.logging.utils.LogConfiguration;
 import eu.sqooss.impl.service.logging.utils.LogConfigurationConstants;
@@ -119,9 +120,29 @@ public class LoggerImpl implements Logger {
    * @see eu.sqooss.service.logging.Logger#severe(String)
    */
   public void severe(String message) {
-    logToParent(message);
+    severe(message, null);
+  }
+  
+  /**
+   * Logs the message only once to the same file.  
+   * @param message
+   * @param loggedToFiles contains the names of the files where the message is logged 
+   */
+  private void severe(String message, Vector loggedToFiles) {
     synchronized (lockObject) {
+      if (loggedToFiles != null) {
+        for (int i = 0; i < loggedToFiles.size(); i++) {
+          if (fileName.equals(loggedToFiles.get(i))) {
+            logToParent(message, loggedToFiles);
+            return; // the message is logged from the child
+          }
+        }
+      } else {
+        loggedToFiles = new Vector(1);
+      }
       logWriter.write(getMessage(message, LoggerConstants.LOGGING_LEVEL_SEVERE));
+      loggedToFiles.add(fileName);
+      logToParent(message, loggedToFiles);
     }
   }
 
@@ -204,10 +225,10 @@ public class LoggerImpl implements Logger {
    * Logs the message to the logger's parent.
    * @param message
    */
-  private void logToParent(String message) {
+  private void logToParent(String message, Vector loggedToFiles) {
     if (!"".equals(parentName)) {
-      Logger parentLogger = logManager.createLogger(parentName);
-      parentLogger.severe(message);
+      LoggerImpl parentLogger = (LoggerImpl)logManager.createLogger(parentName);
+      parentLogger.severe(message, loggedToFiles);
       logManager.releaseLogger(parentName);
     }
   }
