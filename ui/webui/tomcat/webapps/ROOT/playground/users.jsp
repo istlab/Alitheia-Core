@@ -1,25 +1,24 @@
 <%@ page import="java.util.*" %>
 <%@ include file="/inc/header.jsp" %>
 
-<jsp :useBean id="user" class="sqo.User" scope="session"/> 
+<jsp :useBean id="user" class="eu.sqooss.webui.User" scope="session"/> 
 <jsp :setProperty name="user" property="*"/>
 
-<div>
+<h1>Users</h1>
 
-
-    Available users are:
-    <ul>
-    
-    <% 
+    <%
     String uid = request.getParameter("uid");
-    if ( (uid!=null) && uid.length() > 0) {
+    if ( (uid!=null) && uid.length() > 0 ) {
         //user.setCurrentUserId(new Integer(request.getParameter("uid")));
         //out.println("<h2>Hello " + user.getCurrentUser() + "!<h2>");
-        out.println("Bla");
+        //String currentUser = user.getCurrentUser();
+        out.println("Available users:");
+        out.println("<ul><li> Foobar </li></ul>");
+        out.println("<br />[ UID supplied ]");
     } else {
-        out.println("Foo");
+        //out.println("Foo");
         // Let's list all users.
-        //out.println("Your User ID is not known to the system yet.");
+        out.println("Your User ID is not known to the system yet.");
         //out.println("<h2>You are " + user.getCurrentUser() + "!</h2>");
         
         /*
@@ -31,8 +30,5 @@
         */
     }
     %>
-    </ul>
-</div>
-
 
 <%@ include file="/inc/footer.jsp" %>

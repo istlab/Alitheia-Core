@@ -2,16 +2,27 @@
 
 <div id="menu">
     <ul>
+        <li><a href="/" title="Click here for no information">Home</a></li>
         <li><a href="/playground/projectlist.jsp" title="Click here for no information">Projects</a></li>
         <li><a href="/playground/users.jsp" title="Click here for no information">Users</a></li>
-        <br />
-        <li>About</li>
     </ul>
 </div>
 
 <div id="status">
 <!-- First call to cruncher to obtain status -->
-The cruncher is offline.
+The cruncher is offline. (That's a wild guess.)<br />
+<%
+java.util.Date date = new java.util.Date();
+out.println( "<br /><br />" );
+out.println( String.valueOf( date ));
+out.println( "<br /><br />" );
+out.println( "Your IP: " + request.getRemoteHost());
+
+//response.sendRedirect( "http://www.kde.org");
+
+
+%>
+
 </div>
 
 <!-- *** menu.jsp begins here *** -->

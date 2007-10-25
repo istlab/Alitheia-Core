@@ -16,4 +16,8 @@
         <img class="alitheialogo" src="/img/alitheia.png" alt="Alitheia Logo" />
     </div>
 
+    <%@ include file="/inc/menu.jsp" %>
+
+    <div id="content">
+
 <!-- *** header.jsp ends here *** -->
