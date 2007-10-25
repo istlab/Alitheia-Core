@@ -13,7 +13,7 @@
     
     <div id="banner">
         <img class="sqologo" src="/img/sqo-oss-logo.jpg" alt="SQO-OSS Project Logo" />
-        <img class="alitheialogo" src="alitheia.png" alt="Alitheia Logo" />
+        <img class="alitheialogo" src="/img/alitheia.png" alt="Alitheia Logo" />
     </div>
 
 <!-- *** header.jsp ends here *** -->
