@@ -126,6 +126,14 @@ public class CommitLogImpl implements CommitLog {
         }
         return null;
     }
+    
+    public int size() {
+        return entries.size();
+    }
+
+    public Iterator<SVNLogEntry> iterator() {
+        return entries.iterator();
+    }
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

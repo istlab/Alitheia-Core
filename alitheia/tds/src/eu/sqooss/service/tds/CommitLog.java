@@ -36,7 +36,7 @@ package eu.sqooss.service.tds;
 import eu.sqooss.service.tds.ProjectRevision;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
 
-public interface CommitLog {
+public interface CommitLog extends Iterable {
     /**
      * Retrieve the project revision information for the first
      * entry in this commit log. May return null if the log is empty.
@@ -66,6 +66,11 @@ public interface CommitLog {
      * For debugging purposes, dump the log to stdout.
      */
     public void dump();
+    
+    /**
+     * Return the number of entries in the log
+     */
+    public int size();
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab
