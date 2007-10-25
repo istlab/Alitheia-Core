@@ -31,46 +31,33 @@
  *
  */
 
-package eu.sqooss.service.tds;
-
-import java.util.Date;
-import java.util.List;
+package eu.sqooss.impl.service.tds;
 
 import eu.sqooss.service.tds.Bug;
 
-public interface BTSAccessor {
-    public interface BugNumberList extends List<Integer> { }
+class BugImpl implements Bug {
+    private int bugNumber;
+    private String reporter;
+    private int severity;
 
-    /**
-     * Retrieves the bug numbers in the database. This accessor
-     * is attached to a specific project which has a specific BTS;
-     * the list of bugs is valid only within that BTS.
-     */
-    BugNumberList getBugs();
+    public BugImpl(int n, String r, int s) {
+        bugNumber = n;
+        reporter = r;
+        severity = s;
+    }
 
-    /**
-     * Retrieves the bug numbers in the database, filtered for
-     * the severity @p severity . Returns @em only the bugs with
-     * exactly this severity. Bug severities are defined by the
-     * bug tracker in use.
-     */
-    BugNumberList getBugs( int severity );
+    // Interface methods
+    public int getBugNumber() {
+        return bugNumber;
+    }
 
-    /**
-     * Retrieve bugs that are reported between the dates @p d1 and @p d2.
-     */
-    BugNumberList getBugs( Date d1, Date d2 );
+    public String getReporter() {
+        return reporter;
+    }
 
-    /**
-     * Retrieve bugs reported between @p d1 and @p d2 with a
-     * severity exactly @p severity .
-     */
-    BugNumberList getBugs( Date d1, Date d2, int severity );
-
-    /**
-     * Retrieve the bug information for one specific bug.
-     */
-    Bug getBug( int n );
+    public int getSeverity() {
+        return severity;
+    }
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

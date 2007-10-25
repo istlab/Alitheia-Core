@@ -56,7 +56,6 @@ import eu.sqooss.service.tds.TDAccessor;
 import eu.sqooss.service.tds.TDSException;
 import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.impl.service.tds.TDAccessorImpl;
-import eu.sqooss.impl.service.tds.SCMAccessorImpl;
 
 public class TDSServiceImpl implements TDSService {
     private LogManager logService = null;
@@ -80,7 +79,6 @@ public class TDSServiceImpl implements TDSService {
 
         logger.info("SVN repo factories initialized.");
         TDAccessorImpl.logger = logger;
-        SCMAccessorImpl.logger = logger;
 
         String tdsroot = bc.getProperty("eu.sqooss.tds.config");
         if (tdsroot==null) {

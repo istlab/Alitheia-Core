@@ -31,46 +31,50 @@
  *
  */
 
-package eu.sqooss.service.tds;
+package eu.sqooss.impl.service.tds;
 
 import java.util.Date;
 import java.util.List;
+import java.util.LinkedList;
 
+import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.tds.BTSAccessor;
 import eu.sqooss.service.tds.Bug;
 
-public interface BTSAccessor {
-    public interface BugNumberList extends List<Integer> { }
+class BTSAccessorImpl implements BTSAccessor {
+    class BugNumberListImpl
+        extends LinkedList<Integer>
+        implements BugNumberList {
+        private static final long serialVersionUID = 1;
+    }
 
-    /**
-     * Retrieves the bug numbers in the database. This accessor
-     * is attached to a specific project which has a specific BTS;
-     * the list of bugs is valid only within that BTS.
-     */
-    BugNumberList getBugs();
+    private String projectName;
+    public static Logger logger;
 
-    /**
-     * Retrieves the bug numbers in the database, filtered for
-     * the severity @p severity . Returns @em only the bugs with
-     * exactly this severity. Bug severities are defined by the
-     * bug tracker in use.
-     */
-    BugNumberList getBugs( int severity );
+    public BTSAccessorImpl(String projectName) {
+        this.projectName = projectName;
+    }
 
-    /**
-     * Retrieve bugs that are reported between the dates @p d1 and @p d2.
-     */
-    BugNumberList getBugs( Date d1, Date d2 );
+    // Interface methds
+    public BugNumberList getBugs() {
+        return null;
+    }
 
-    /**
-     * Retrieve bugs reported between @p d1 and @p d2 with a
-     * severity exactly @p severity .
-     */
-    BugNumberList getBugs( Date d1, Date d2, int severity );
+    public BugNumberList getBugs( int severity ) {
+        return null;
+    }
 
-    /**
-     * Retrieve the bug information for one specific bug.
-     */
-    Bug getBug( int n );
+    public BugNumberList getBugs( Date d1, Date d2 ) {
+        return null;
+    }
+
+    public BugNumberList getBugs( Date d1, Date d2, int severity ) {
+        return null;
+    }
+
+    public Bug getBug( int n ) {
+        return null;
+    }
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

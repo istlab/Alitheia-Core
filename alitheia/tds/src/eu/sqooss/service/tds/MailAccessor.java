@@ -52,20 +52,24 @@ public interface MailAccessor {
      * Retrieve the list of messages that are stored in the mailing list.
      */
     public List<String> getMessages( String listId )
-        throws IllegalArgumentException;
+        throws FileNotFoundException;
 
     /**
      * Retrieve the list of messages in the mailing list in the interval
-     * [d1,d2).
+     * [d1,d2). The dates are @em envelope dates, not delivery dates.
      */
-    public List<String> getMessages( String listId, Date d1, Date d2 );
+    public List<String> getMessages( String listId, Date d1, Date d2 )
+        throws IllegalArgumentException,
+               FileNotFoundException;
 
     /**
      * Get the message sender for the given message.
      *
-     * @todo return more metadata since we're parsing headers anyway
+     * TODO return more metadata since we're parsing headers anyway
      */
-    public String getSender( String listId, String id );
+    public String getSender( String listId, String id )
+        throws IllegalArgumentException,
+               FileNotFoundException;
 
     /*
      * The following methods from D5 are not implemented:

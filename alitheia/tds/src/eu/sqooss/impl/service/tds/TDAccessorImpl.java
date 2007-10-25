@@ -32,13 +32,17 @@
 
 package eu.sqooss.impl.service.tds;
 
+import java.io.File;
+
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.TDAccessor;
 import eu.sqooss.service.tds.BTSAccessor;
 import eu.sqooss.service.tds.MailAccessor;
 import eu.sqooss.service.tds.SCMAccessor;
+import eu.sqooss.impl.service.tds.BTSAccessorImpl;
 import eu.sqooss.impl.service.tds.SCMAccessorImpl;
+import eu.sqooss.impl.service.tds.MailAccessorImpl;
 
 public class TDAccessorImpl implements TDAccessor {
     public String bts;
@@ -46,7 +50,9 @@ public class TDAccessorImpl implements TDAccessor {
     public String scm;
     private String name;
     private int id;
+    private BTSAccessorImpl btsAccessor = null;
     private SCMAccessorImpl scmAccessor = null;
+    private MailAccessorImpl mailAccessor = null;
     private static int idSequence = 0;
     public static Logger logger;
 
@@ -72,6 +78,9 @@ public class TDAccessorImpl implements TDAccessor {
     public TDAccessorImpl( String name ) {
         this.name = name;
         this.id = idSequence++;
+        BTSAccessorImpl.logger = logger;
+        MailAccessorImpl.logger = logger;
+        SCMAccessorImpl.logger = logger;
     }
 
     public TDAccessorImpl( String name, String bts, String mail, String scm ) {
@@ -92,11 +101,17 @@ public class TDAccessorImpl implements TDAccessor {
     }
 
     public BTSAccessor getBTSAccessor() {
-        return null;
+        if (btsAccessor == null) {
+            btsAccessor = new BTSAccessorImpl(name);
+        }
+        return btsAccessor;
     }
 
     public MailAccessor getMailAccessor() {
-        return null;
+        if (mailAccessor == null) {
+            mailAccessor = new MailAccessorImpl( new File("/var/spool/mail") );
+        }
+        return mailAccessor;
     }
 
     public SCMAccessor getSCMAccessor() {
