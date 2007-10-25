@@ -3,8 +3,9 @@
 <div id="menu">
     <ul>
         <li><a href="/" title="Click here for no information">Home</a></li>
-        <li><a href="/playground/projectlist.jsp" title="Click here for no information">Projects</a></li>
+        <li><a href="/playground/projects.jsp" title="Click here for no information">Projects</a></li>
         <li><a href="/playground/users.jsp" title="Click here for no information">Users</a></li>
+        <li><a href="/playground/metrics.jsp" title="Click here for no information">Metrics</a></li>
     </ul>
 </div>
 
