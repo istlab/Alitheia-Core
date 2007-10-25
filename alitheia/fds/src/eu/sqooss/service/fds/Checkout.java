@@ -33,28 +33,35 @@
 
 package eu.sqooss.service.fds;
 
-import eu.sqooss.service.fds.Checkout;
+import java.io.File;
+
 import eu.sqooss.service.tds.ProjectRevision;
 
 /**
- * The FDS (Fat Data Service) is the part of the raw data access layer that handles
- * caching and coordination of raw project data. It is primarily concerned with handling
- * (and updating) checkouts of project sources, not with access to mail or the BTS.
+ * A checkout represents a working copy (checkout) of a project
+ * somewhere within the filesystem of the Alitheia system. A checkout
+ * has a specific revision attached to it. On no account may you edit
+ * files in a checkout! It is a read only working copy. Other parts
+ * of the Alitheia system may access the same checkout concurrently.
+ * Use the FDSService to obtain a checkout and remember to release it
+ * when done.
  */
-public interface FDSService {
+public interface Checkout {
     /**
-     * This maintains (and caches) a checkout of a given project in a
-     * given revision; remember to release the checkout when you're done
-     * with it. As long as a checkout is held by someone, the revisions of
-     * files in the checkout will not change, but once the checkout is
-     * released by all, it may be updated to some new revision.
+     * Get the project name for this checkout.
      */
-    public Checkout getCheckOut( String projectName, ProjectRevision r );
+    public String getProjectName();
 
     /**
-     * Release a previously obtained checkout.
+     * Get the revision at which this checkout was made.
      */
-    public void releaseCheckOut( Checkout c );
+    public ProjectRevision getRevision();
+
+    /**
+     * Get the root within the Alitheia filesystem where the checkout lives,
+     * for further manipulation with regular java.io methods.
+     */
+    public File getRoot();
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab
