@@ -1,18 +1,10 @@
 all : build run
 
 build :
-	cd tomcat/webapps/ROOT/WEB-INF/classes/sqo && \
+	cd tomcat/webapps/ROOT/WEB-INF/classes/eu/sqooss/webui && \
 	$(MAKE)
 
 run : start
-
-build :
-	PWD=`pwd` && \
-	echo ${PWD} && \
-	cd tomcat/webapps/ROOT/WEB-INF/classes/sqo && \
-	make clean && \
-	make build && \
-	cd ${PWD}
 
 start :
 	make build && \
