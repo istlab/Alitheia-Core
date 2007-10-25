@@ -35,26 +35,26 @@
 package eu.sqooss.webui;
 
 import java.util.*;
+import eu.sqooss.webui.ListView;
 
-public class MetricsListView {
+public class MetricsListView extends ListView {
 
-    String[] metrics = {
-                   "Line count (wc -l)",
-                    "Cyclic complexity",
-                    "Developer Interaction",
-                    "Subversion statistics",
-                    "Mailinglist activity"
-                };
     String projectId;
 
-    public MetricsListView() {};
+    public MetricsListView() {
+    items[0] = "Line count (wc -l)";
+    items[1] = "Cyclic complexity";
+    items[2]= "Developer Interaction";
+    //items[3]= "Subversion statistics";
+    //                    "Mailinglist activity"
+    };
 
     public String[] getMetrics() {
-        return metrics;
+        return items;
     };
 
     public void setMetrics( String[] value ) {
-        metrics = value;
+        items = value;
     };
 
     public String getProjectId() {
@@ -65,12 +65,5 @@ public class MetricsListView {
         projectId = value;
     };
 
-    public String getHtml() {
-        String html = "<!-- MetricsListView -->\n<ul>";
-        for (int i = 0; i < metrics.length; i++) {
-            html = html.concat(new String("\n  <li>" + metrics[i] + "</li>"));
-        }
-        html = html.concat("\n</ul>\n");
-        return html;
-    }
+
 };
