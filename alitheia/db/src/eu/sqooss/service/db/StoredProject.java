@@ -34,7 +34,7 @@
 package eu.sqooss.service.db;
 
 public class StoredProject {
-    private Long id;
+    private long id;
     private String name;
     private String websiteUrl;
     private String contactUrl;

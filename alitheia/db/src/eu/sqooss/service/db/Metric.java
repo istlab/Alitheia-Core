@@ -33,8 +33,8 @@
 package eu.sqooss.service.db;
 
 public class Metric {
-    private int id;
-    private int metricType;
+    private long id;
+    private long metricType;
     private String description;
 
     public Metric() {

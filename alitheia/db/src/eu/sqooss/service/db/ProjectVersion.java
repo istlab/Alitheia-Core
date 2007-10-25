@@ -34,7 +34,7 @@ package eu.sqooss.service.db;
 
 public class ProjectVersion {
     private Long id;
-    private int project; //ID of the project entity
+    private long project; //ID of the project entity
     private int version;
 
     public ProjectVersion() {

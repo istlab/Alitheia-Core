@@ -35,9 +35,9 @@ package eu.sqooss.service.db;
 import java.sql.Time;
 
 public class Measurement {
-    private int id;
-    private int metric;
-    private Long projectVersion;
+    private long id;
+    private long metric;
+    private long projectVersion;
     private Time whenRun;
     private String result;
 

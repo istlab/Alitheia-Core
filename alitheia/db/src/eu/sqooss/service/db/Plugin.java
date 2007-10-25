@@ -33,8 +33,8 @@
 package eu.sqooss.service.db;
 
 public class Plugin {
-    private int id;
-    private int metric;
+    private long id;
+    private long metric;
     private String name;
 
     public Plugin() {

@@ -35,7 +35,7 @@ package eu.sqooss.service.db;
 import java.sql.Time;
 
 public class FileMetadata {
-    private int id;
+    private long id;
     private String protection;
     private int links;
     private int userId;

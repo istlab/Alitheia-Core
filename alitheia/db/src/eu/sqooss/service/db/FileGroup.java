@@ -35,13 +35,13 @@ package eu.sqooss.service.db;
 import java.sql.Time;
 
 public class FileGroup {
-    private int id;
+    private long id;
     private String name;
     private String subPath;
     private String regex;
     private int recalcFreq;
     private Time lastUsed;
-    private Long projectVersion;
+    private long projectVersion;
 
     public FileGroup() {
 	// Nothing to do

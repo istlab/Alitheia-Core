@@ -33,8 +33,8 @@
 package eu.sqooss.service.db;
 
 public class Tag {
-    private int id;
-    private Long projectVersion;
+    private long id;
+    private long projectVersion;
     private String name;
 
     public Tag() {

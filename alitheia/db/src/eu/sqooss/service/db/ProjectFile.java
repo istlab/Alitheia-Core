@@ -35,7 +35,7 @@ package eu.sqooss.service.db;
 public class ProjectFile {
     private int id;
     private String name;
-    private Long projectVersion;
+    private long projectVersion;
     private String status;
 
 
