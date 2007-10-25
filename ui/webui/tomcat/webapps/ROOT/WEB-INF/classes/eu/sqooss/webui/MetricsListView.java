@@ -66,7 +66,7 @@ public class MetricsListView {
     };
 
     public String getHtml() {
-        String html = "<-- MetricsListView -->\n<ul>";
+        String html = "<!-- MetricsListView -->\n<ul>";
         for (int i = 0; i < metrics.length; i++) {
             html = html.concat(new String("\n  <li>" + metrics[i] + "</li>"));
         }
