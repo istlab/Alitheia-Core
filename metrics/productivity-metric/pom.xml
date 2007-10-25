@@ -1,0 +1,107 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+
+  <!-- Parent POM -->
+  <parent>
+    <groupId>eu.sqooss</groupId>
+    <artifactId>metrics</artifactId>
+    <version>1.0.0</version>
+  </parent>
+
+  <!-- Productivity Metric - main POM -->
+  <groupId>eu.sqooss.metrics</groupId>
+  <artifactId>productivity</artifactId>
+  <version>0.0.1</version>
+  <packaging>jar</packaging>
+
+  <!-- Project description -->
+  <name>Productivity Metric</name>
+  <description>
+  	A metric that evaluates developer productivity	
+  </description>
+
+  <!-- Build properties -->
+  <build>
+    <!-- Tells Maven to search for source code here -->
+    <sourceDirectory>${basedir}/src</sourceDirectory>
+    <!-- Tells Maven to build Java class files here -->
+    <outputDirectory>${basedir}/build</outputDirectory>
+    <!-- Tells Maven where to find the bundle manifest file -->
+    <plugins>
+      <plugin>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifestFile>
+              ${basedir}/manifest/productivitymetric.mf
+            </manifestFile>
+          </archive>
+        </configuration> 
+      </plugin>
+    </plugins>
+  </build>
+
+  <!-- Dependencies -->
+  <dependencies>
+    <dependency>
+      <groupId>org.eclipse.equinox</groupId>
+      <artifactId>osgi</artifactId>
+      <version>3.3.0</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.osgi</groupId>
+      <artifactId>services</artifactId>
+      <version>3.1.100.v20060918</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>javax</groupId>
+      <artifactId>servlet</artifactId>
+      <version>2.4.0.v200612120446</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.equinox</groupId>
+      <artifactId>http</artifactId>
+      <version>1.0.100.v20070226</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.equinox.http</groupId>
+      <artifactId>servlet</artifactId>
+      <version>1.0.0.v20070318</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>eu.sqooss</groupId>
+      <artifactId>logger</artifactId>
+      <version>[0.0.1,)</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>eu.sqooss</groupId>
+      <artifactId>tds</artifactId>
+      <version>[0.0.1,)</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+  
+  <!-- Developers working on this module -->
+  <developers>
+    <developer>
+      <id>gousiosg</id>
+      <name>Georgios Gousios</name>
+      <email>gousiosg@aueb.gr</email>
+      <organization>AUEB</organization>
+      <timezone>+2</timezone>
+    </developer>
+  </developers>
+</project>
