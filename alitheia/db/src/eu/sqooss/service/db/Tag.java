@@ -41,19 +41,19 @@ public class Tag {
 	// Nothing to do
     }
 
-    public int getId() {
+    public long getId() {
 	return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
 	this.id = id;
     }
 
-    public Long getProjectVersion() {
+    public long getProjectVersion() {
 	return projectVersion;
     }
 
-    public void setProjectVersion(Long projectVersion) {
+    public void setProjectVersion(long projectVersion) {
 	this.projectVersion = projectVersion;
     }
 

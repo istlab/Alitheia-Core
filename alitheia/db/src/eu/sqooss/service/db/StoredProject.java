@@ -49,11 +49,11 @@ public class StoredProject {
         setName(name);
     }
 
-    public Long getId() {
+    public long getId() {
         return id;
     }
 
-    private void setId(Long id) {
+    private void setId(long id) {
         this.id = id;
     }
 

@@ -41,19 +41,19 @@ public class Metric {
 	//Nothing to do here
     }
 
-    public int getId() {
+    public long getId() {
 	return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
 	this.id = id;
     }
 
-    public int getMetricType() {
+    public long getMetricType() {
 	return metricType;
     }
 
-    public void setMetricType(int metricType) {
+    public void setMetricType(long metricType) {
 	this.metricType = metricType;
     }
 

@@ -33,17 +33,17 @@
 package eu.sqooss.service.db;
 
 public class ProjectFile {
-    private int id;
+    private long id;
     private String name;
     private long projectVersion;
     private String status;
 
 
-    public void setId(int id) {
+    public void setId(long id) {
 	this.id = id;
     }
 
-    public int getId() {
+    public long getId() {
 	return id;
     }
 
@@ -55,11 +55,11 @@ public class ProjectFile {
 	return name;
     }
 
-    public void setProjectVersion(Long projectVersion ) {
+    public void setProjectVersion(long projectVersion ) {
 	this.projectVersion = projectVersion;
     }
 
-    public Long getProjectVersion() {
+    public long getProjectVersion() {
 	return projectVersion;
     }
 
