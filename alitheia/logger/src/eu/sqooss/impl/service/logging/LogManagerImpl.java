@@ -91,6 +91,8 @@ public class LogManagerImpl extends LogManager {
             rootLogger = null;
           }
         }
+        // TODO: throw something because the name is invalid
+        break;
       case 1:
         logger = rootSiblingLoggers.get(name);
         if (logger != null) {
@@ -100,6 +102,8 @@ public class LogManagerImpl extends LogManager {
             rootSiblingLoggers.remove(name);
           }
         }
+        // TODO: throw something because the name is invalid
+        break;
       case 2:
         logger = serviceSiblingLoggers.get(name);
         if (logger != null) {
@@ -109,6 +113,11 @@ public class LogManagerImpl extends LogManager {
             serviceSiblingLoggers.remove(name);
           }
         }
+        // TODO: throw something because the name is invalid
+        break;
+      default:
+        // TODO: throw something because the name is invalid
+        break;
       }
     }
   }
