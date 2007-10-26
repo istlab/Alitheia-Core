@@ -122,13 +122,8 @@ public class SCMAccessorImpl implements SCMAccessor {
         return revno;
     }
 
-    /**
-     * Get the SVN revision number associated with this Project
-     * Revision. May throw InvalidProjectRevision if there is
-     * no way to do so, or a RuntimeException if something is
-     * horribly wrong underneath.
-     */
-    private long resolveProjectRevision( ProjectRevision r )
+    // Interface methods
+    public long resolveProjectRevision( ProjectRevision r )
         throws InvalidProjectRevisionException,
                InvalidRepositoryException {
         if ( (r==null) || (!r.isValid()) ) {
@@ -142,10 +137,9 @@ public class SCMAccessorImpl implements SCMAccessor {
         }
     }
 
-    // Interface methods
     public long getHeadRevision()
         throws InvalidRepositoryException {
-	long endRevision = -1;
+        long endRevision = -1;
         try {
             endRevision = svnRepository.getLatestRevision();
             logger.info("Latest revision of " + projectName + " is " + endRevision);
@@ -155,7 +149,7 @@ public class SCMAccessorImpl implements SCMAccessor {
             throw new InvalidRepositoryException(projectName,url,e.getMessage());
         }
 
-	return endRevision;
+        return endRevision;
     }
 
     public void checkOut( String repoPath, ProjectRevision revision, String localPath )
@@ -339,7 +333,7 @@ public class SCMAccessorImpl implements SCMAccessor {
                 u,SVNRevision.create(revend),
                 true,false,new DiffStatusHandler(theDiff));
             f.deleteOnExit();
-            logger.info("Done diff of " + repoPath + 
+            logger.info("Done diff of " + repoPath +
                 " to " + f.getAbsolutePath());
             return theDiff;
         } catch (SVNException e) {

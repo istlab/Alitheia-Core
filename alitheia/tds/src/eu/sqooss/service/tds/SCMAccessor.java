@@ -50,6 +50,18 @@ public interface SCMAccessor {
         throws InvalidRepositoryException;
 
     /**
+     * Get the SVN revision number associated with this Project
+     * Revision. May throw InvalidProjectRevision if there is
+     * no way to do so, or a RuntimeException if something is
+     * horribly wrong underneath.
+     *
+     * @return the SVN revision number in the project this
+     *         SCMAccessor is attached to for the given revision @p r
+     */
+    public long resolveProjectRevision( ProjectRevision r )
+        throws InvalidProjectRevisionException,
+               InvalidRepositoryException;
+    /**
      * Retrieve a checkout of the complete source tree underneath
      * the given path, relative to the root URL of the project
      * to which this accessor is attached. The checkout is written
