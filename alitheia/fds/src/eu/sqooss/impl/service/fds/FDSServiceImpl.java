@@ -40,16 +40,21 @@ import java.util.LinkedList;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
-import eu.sqooss.service.logging.LogManager;
-import eu.sqooss.service.logging.Logger;
-import eu.sqooss.service.tds.ProjectRevision;
 import eu.sqooss.service.fds.Checkout;
 import eu.sqooss.service.fds.FDSService;
+import eu.sqooss.service.logging.LogManager;
+import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.tds.InvalidRepositoryException;
+import eu.sqooss.service.tds.InvalidProjectRevisionException;
+import eu.sqooss.service.tds.ProjectRevision;
+import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.impl.service.fds.CheckoutImpl;
 
 public class FDSServiceImpl implements FDSService {
     private LogManager logService = null;
     private Logger logger = null;
+    private TDSService tds = null;
+
     /**
      * This map maps project names to lists of checkouts; the
      * checkouts all have different revisions.
@@ -57,13 +62,20 @@ public class FDSServiceImpl implements FDSService {
     private HashMap<String,List<CheckoutImpl>> checkoutCollection;
 
     public FDSServiceImpl(BundleContext bc) {
-        ServiceReference serviceRef = bc.getServiceReference("eu.sqooss.service.logging.LogManager");
+        ServiceReference serviceRef = bc.getServiceReference(LogManager.class.getName());
         logService = (LogManager) bc.getService(serviceRef);
         logger = logService.createLogger(Logger.NAME_SQOOSS_FDS);
         if (logger != null) {
             logger.info("FDS service created.");
         } else {
             System.out.println("# FDS failed to get logger.");
+        }
+
+        serviceRef = bc.getServiceReference(TDSService.class.getName());
+        tds = (TDSService) bc.getService(serviceRef);
+
+        if (logger != null) {
+            logger.info("Got TDS.");
         }
 
         checkoutCollection = new HashMap<String,List<CheckoutImpl>>();
@@ -83,7 +95,12 @@ public class FDSServiceImpl implements FDSService {
     }
 
     // Interface methods
-    public Checkout getCheckout(String projectName, ProjectRevision r) {
+    public Checkout getCheckout(String projectName, ProjectRevision r)
+        throws InvalidRepositoryException {
+        if (!tds.projectExists(projectName)) {
+            throw new InvalidRepositoryException(projectName,"",
+                "No such project to check out.");
+        }
         // TODO: validate project name against TDS.
         // TODO: normalise revision against project SVN.
         List<CheckoutImpl> l = checkoutCollection.get(projectName);

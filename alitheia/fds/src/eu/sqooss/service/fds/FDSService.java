@@ -33,8 +33,11 @@
 
 package eu.sqooss.service.fds;
 
-import eu.sqooss.service.fds.Checkout;
+import eu.sqooss.service.tds.InvalidRepositoryException;
+import eu.sqooss.service.tds.InvalidProjectRevisionException;
 import eu.sqooss.service.tds.ProjectRevision;
+
+import eu.sqooss.service.fds.Checkout;
 
 /**
  * The FDS (Fat Data Service) is the part of the raw data access layer that handles
@@ -49,7 +52,8 @@ public interface FDSService {
      * files in the checkout will not change, but once the checkout is
      * released by all, it may be updated to some new revision.
      */
-    public Checkout getCheckout( String projectName, ProjectRevision r );
+    public Checkout getCheckout( String projectName, ProjectRevision r )
+        throws InvalidRepositoryException;
 
     /**
      * Release a previously obtained checkout.
