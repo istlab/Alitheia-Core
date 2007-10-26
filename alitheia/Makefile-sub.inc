@@ -97,5 +97,9 @@ build/.prebuild : $(SRC:%=src/%)
 	javac -Xlint -source 1.5 -cp $(EXTRA_CP)$(EQUINOX_CP):src/ -d build/ $?
 	touch build/.prebuild
 
+JAVADEP=perl ../../../../tools/java_dependency_generator.pl
+depend :
+	for i in `find . -name *.java`; do echo $$i ; grep "^import *eu.sqooss" $$i; done | $(JAVADEP) $(BUNDLE_NAME) > Makefile.dep
 
+-include Makefile.dep
 

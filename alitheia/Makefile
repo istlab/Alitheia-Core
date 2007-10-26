@@ -37,6 +37,7 @@ endef
 $(foreach d,$(BUNDLES),$(eval $(call subdir_template,build,$(d),)))
 $(foreach d,$(BUNDLES),$(eval $(call subdir_template,install,$(d),install)))
 $(foreach d,$(BUNDLES),$(eval $(call subdir_template,clean,$(d),clean)))
+$(foreach d,$(BUNDLES),$(eval $(call subdir_template,depend,$(d),depend)))
 
 # Maven short circuits the build by compiling from here.
 ifeq ($(WITH_MAVEN),)
@@ -51,6 +52,8 @@ install : $(foreach d,$(BUNDLES),install-$(d))
 
 clean : $(foreach d,$(BUNDLES),clean-$(d))
 	rm -f `find . -name '*.class'`
+
+depend : $(foreach d,$(BUNDLES),depend-$(d))
 
 # This is a double check that all of the subdirectories listed in 
 # BUNDLES exist and that all of the subdirectories that exist are
