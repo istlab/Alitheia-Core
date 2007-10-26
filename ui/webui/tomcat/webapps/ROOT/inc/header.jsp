@@ -18,6 +18,6 @@
 
     <%@ include file="/inc/menu.jsp" %>
 
-    <div id="content">
-
+    <table id="content">
+        <tr><td>
 <!-- *** header.jsp ends here *** -->
