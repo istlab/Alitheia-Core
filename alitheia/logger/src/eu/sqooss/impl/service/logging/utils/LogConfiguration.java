@@ -50,6 +50,7 @@ public class LogConfiguration {
       clearProperties(rootSiblingProperties, key);
       clearProperties(serviceSiblingProperties, key);
       logManager.notifyChildrenForChange(1, key, value);
+      break;
     case 1:
       rootSiblingProperties.put(internalKey, value);
       String serviceLoggerName = LogManagerConstants.NAME_ROOT_LOGGER + LogManagerConstants.NAME_DELIMITER +
@@ -58,8 +59,12 @@ public class LogConfiguration {
         clearProperties(serviceSiblingProperties, key);
         logManager.notifyChildrenForChange(2, key, value);
       }
+      break;
     case 2:
       serviceSiblingProperties.put(internalKey, value);
+      break;
+    default:
+      // TODO: throw something, since this shouldn't happen
     }
   }
   
