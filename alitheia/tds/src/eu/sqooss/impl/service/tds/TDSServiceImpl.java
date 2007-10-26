@@ -110,6 +110,16 @@ public class TDSServiceImpl implements TDSService {
         logger.info("Got configuration for " + projectCount + " projects.");
     }
 
+    // Interface methods
+
+    // For now, there is no difference between projectExists and
+    // accessorExists; in future there may be when accessor pooling
+    // and limiting is implemented. Then it may be that a project
+    // exists for the TDS but has no accessor yet.
+    public boolean projectExists( String projectName ) {
+        return accessorPool.containsKey(projectName);
+    }
+
     public boolean accessorExists( String projectName ) {
         return accessorPool.containsKey(projectName);
     }

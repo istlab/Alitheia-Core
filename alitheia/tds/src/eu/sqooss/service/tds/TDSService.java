@@ -57,6 +57,11 @@ import eu.sqooss.service.tds.TDAccessor;
  */
 public interface TDSService {
     /**
+     * Check that the given project exists in the TDS.
+     */
+    public boolean projectExists( String name );
+
+    /**
      * Check if the given project ID has an accessor object ready.
      * This may be used to suppress requests for the accessor if
      * it is not in use yet.
