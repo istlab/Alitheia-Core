@@ -32,6 +32,11 @@
 
 package eu.sqooss.impl.service.fds;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.LinkedList;
+
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
@@ -40,10 +45,16 @@ import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.ProjectRevision;
 import eu.sqooss.service.fds.Checkout;
 import eu.sqooss.service.fds.FDSService;
+import eu.sqooss.impl.service.fds.CheckoutImpl;
 
 public class FDSServiceImpl implements FDSService {
     private LogManager logService = null;
     private Logger logger = null;
+    /**
+     * This map maps project names to lists of checkouts; the
+     * checkouts all have different revisions.
+     */
+    private HashMap<String,List<CheckoutImpl>> checkoutCollection;
 
     public FDSServiceImpl(BundleContext bc) {
         ServiceReference serviceRef = bc.getServiceReference("eu.sqooss.service.logging.LogManager");
@@ -54,10 +65,32 @@ public class FDSServiceImpl implements FDSService {
         } else {
             System.out.println("# FDS failed to get logger.");
         }
+
+        checkoutCollection = new HashMap<String,List<CheckoutImpl>>();
+    }
+
+    /**
+     * Scan a list of checkouts for one with the right project revision.
+     */
+    private CheckoutImpl findCheckout(List<CheckoutImpl> l, ProjectRevision r) {
+        for (Iterator<CheckoutImpl> i = l.iterator(); i.hasNext(); ) {
+            CheckoutImpl c = i.next();
+            if (c.getRevision().equals(r)) {
+                return c;
+            }
+        }
+        return null;
     }
 
     // Interface methods
     public Checkout getCheckout(String projectName, ProjectRevision r) {
+        // TODO: validate project name against TDS.
+        // TODO: normalise revision against project SVN.
+        List<CheckoutImpl> l = checkoutCollection.get(projectName);
+        if (l!=null) {
+            CheckoutImpl c = findCheckout(l,r);
+            return c;
+        }
         return null;
     }
 
