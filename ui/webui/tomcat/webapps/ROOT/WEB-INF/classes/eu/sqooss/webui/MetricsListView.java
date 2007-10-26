@@ -42,18 +42,19 @@ public class MetricsListView extends ListView {
     String projectId;
 
     public MetricsListView() {
-    items[0] = "Line count (wc -l)";
-    items[1] = "Cyclic complexity";
-    items[2]= "Developer Interaction";
-    //items[3]= "Subversion statistics";
-    //                    "Mailinglist activity"
+        items.removeAllElements();
+        items.addElement(new String("Line count (wc -l)"));
+        items.addElement(new String("Cyclic complexity"));
+        items.addElement(new String("Developer Interaction"));
+        items.addElement(new String("Subversion statistics"));
+        items.addElement(new String("Mailinglist activity"));
     };
 
-    public String[] getMetrics() {
+    public Vector<String> getMetrics() {
         return items;
     };
 
-    public void setMetrics( String[] value ) {
+    public void setMetrics( Vector<String> value ) {
         items = value;
     };
 

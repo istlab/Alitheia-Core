@@ -1,28 +1,29 @@
 package eu.sqooss.webui;
 
+import java.util.Vector;
 
 class ListView {
     
-    String[] items = new String[3];
+    Vector<String> items = new Vector();
 
     public ListView () {
-        items[0] = "Item 1";
-        items[1] = "Item 2";
-        items[2] = "Item 3";
+        items.addElement(new String("Item 1"));
+        items.addElement(new String("Item 2"));
+        items.addElement(new String("Item 3"));
     }
     
-    public void setItems (String[] _items) {
+    public void setItems (Vector<String> _items) {
         items = _items;
     }
     
-    public String[] getItems () {
+    public Vector<String> getItems () {
         return items;
     }
 
     public String getHtml() {
         String html = "<!-- ListView -->\n<ul>";
-        for (int i = 0; i < items.length; i++) {
-            html = html.concat(new String("\n  <li>" + items[i] + "</li>"));
+        for (String item: items) {
+            html = html.concat(new String("\n  <li>" + item + "</li>"));
         }
         html = html.concat("\n</ul>\n");
         return html;
