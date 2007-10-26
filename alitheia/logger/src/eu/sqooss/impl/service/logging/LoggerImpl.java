@@ -128,7 +128,7 @@ public class LoggerImpl implements Logger {
    * @param message
    * @param loggedToFiles contains the names of the files where the message is logged 
    */
-  private void severe(String message, Vector loggedToFiles) {
+  private void severe(String message, Vector<String> loggedToFiles) {
     synchronized (lockObject) {
       if (loggedToFiles != null) {
         for (int i = 0; i < loggedToFiles.size(); i++) {
@@ -138,7 +138,7 @@ public class LoggerImpl implements Logger {
           }
         }
       } else {
-        loggedToFiles = new Vector(1);
+        loggedToFiles = new Vector<String>(1);
       }
       logWriter.write(getMessage(message, LoggerConstants.LOGGING_LEVEL_SEVERE));
       loggedToFiles.add(fileName);
@@ -225,7 +225,7 @@ public class LoggerImpl implements Logger {
    * Logs the message to the logger's parent.
    * @param message
    */
-  private void logToParent(String message, Vector loggedToFiles) {
+  private void logToParent(String message, Vector<String> loggedToFiles) {
     if (!"".equals(parentName)) {
       LoggerImpl parentLogger = (LoggerImpl)logManager.createLogger(parentName);
       parentLogger.severe(message, loggedToFiles);
