@@ -49,12 +49,12 @@ public interface FDSService {
      * files in the checkout will not change, but once the checkout is
      * released by all, it may be updated to some new revision.
      */
-    public Checkout getCheckOut( String projectName, ProjectRevision r );
+    public Checkout getCheckout( String projectName, ProjectRevision r );
 
     /**
      * Release a previously obtained checkout.
      */
-    public void releaseCheckOut( Checkout c );
+    public void releaseCheckout( Checkout c );
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

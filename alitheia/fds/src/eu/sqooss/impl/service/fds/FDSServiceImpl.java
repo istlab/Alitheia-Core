@@ -57,11 +57,11 @@ public class FDSServiceImpl implements FDSService {
     }
 
     // Interface methods
-    public Checkout getCheckOut(String projectName, ProjectRevision r) {
+    public Checkout getCheckout(String projectName, ProjectRevision r) {
         return null;
     }
 
-    public void releaseCheckOut(Checkout c) {
+    public void releaseCheckout(Checkout c) {
     }
 }
 
