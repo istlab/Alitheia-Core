@@ -108,7 +108,16 @@ public class FDSServiceImpl implements FDSService {
                 "Bogus checkout has bad revision attached.");
         }
 
-        return findCheckout(l, c.getRevision());
+        CheckoutImpl candidate = findCheckout(l, c.getRevision());
+        if (candidate == c) {
+            return candidate;
+        } else {
+            // This means that we have two objects in the checkoutCollection
+            // with the same project name and the same SVN revision, but
+            // they are different objects. This must not happen.
+            throw new RuntimeException("Duplicate checkouts for " +
+                c.getProjectName() + " " + c.getRevision());
+        }
     }
 
     // Interface methods
@@ -148,6 +157,11 @@ public class FDSServiceImpl implements FDSService {
             }
             // TODO: else create this checkout
             return c;
+        } else {
+            // This is the very first checkout of the project,
+            // isn't that exciting.
+            l = new LinkedList<CheckoutImpl>();
+            checkoutCollection.put(projectName,l);
         }
         return null;
     }
