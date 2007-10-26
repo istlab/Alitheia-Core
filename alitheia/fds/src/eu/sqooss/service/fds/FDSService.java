@@ -59,7 +59,8 @@ public interface FDSService {
     /**
      * Release a previously obtained checkout.
      */
-    public void releaseCheckout( Checkout c );
+    public void releaseCheckout( Checkout c )
+        throws InvalidRepositoryException;
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

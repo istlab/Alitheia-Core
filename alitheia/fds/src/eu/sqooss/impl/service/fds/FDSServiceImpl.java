@@ -96,6 +96,21 @@ public class FDSServiceImpl implements FDSService {
         return null;
     }
 
+    private CheckoutImpl findCheckout( Checkout c )
+        throws InvalidRepositoryException {
+        List<CheckoutImpl> l = checkoutCollection.get(c.getProjectName());
+        if (l == null) {
+            throw new InvalidRepositoryException(c.getProjectName(),"",
+                "No managed checkout for this project.");
+        }
+        if (!c.getRevision().isValid() || !c.getRevision().hasSVNRevision()) {
+            throw new InvalidRepositoryException(c.getProjectName(),"",
+                "Bogus checkout has bad revision attached.");
+        }
+
+        return findCheckout(l, c.getRevision());
+    }
+
     // Interface methods
     public Checkout getCheckout(String projectName, ProjectRevision r)
         throws InvalidRepositoryException,
@@ -128,12 +143,22 @@ public class FDSServiceImpl implements FDSService {
         List<CheckoutImpl> l = checkoutCollection.get(projectName);
         if (l!=null) {
             CheckoutImpl c = findCheckout(l,r);
+            if (c != null) {
+                c.claim();
+            }
+            // TODO: else create this checkout
             return c;
         }
         return null;
     }
 
-    public void releaseCheckout(Checkout c) {
+    public void releaseCheckout(Checkout c)
+        throws InvalidRepositoryException {
+        CheckoutImpl i = findCheckout(c);
+        if (i.release() < 1) {
+            logger.info("Checkout of " + c.getProjectName() + " (" +
+                c.getRevision() + ") is free.");
+        }
     }
 }
 
