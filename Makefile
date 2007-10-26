@@ -101,7 +101,7 @@ start : run-ui run
 # The default log4j configuration puts the log directly in $(PREFIX) and
 # the SQO-OSS logger puts it in the bundle data directory. Handle both.
 show-log :
-	if test -f $(PREFIX)/alitheia.log  ; then \
+	if test -s $(PREFIX)/alitheia.log  ; then \
 		cat $(PREFIX)/alitheia.log ; \
 	else \
 		cat $(PREFIX)/configuration/org.eclipse.osgi/bundles/[0-9]*/data/logs/alitheia*.log ; \
