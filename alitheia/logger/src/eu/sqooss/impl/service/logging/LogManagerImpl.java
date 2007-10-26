@@ -21,15 +21,15 @@ public class LogManagerImpl extends LogManager {
   private BundleContext bc;
   
   private LoggerImpl rootLogger;           //stores sqooss - level 0
-  private Hashtable rootSiblingLoggers;    //stores sqooss.<service_name> - level 1
-  private Hashtable serviceSiblingLoggers; //stores sqooss.service.<plugin_name> - level 2
+  private Hashtable<String,LoggerImpl> rootSiblingLoggers;    //stores sqooss.<service_name> - level 1
+  private Hashtable<String,LoggerImpl> serviceSiblingLoggers; //stores sqooss.service.<plugin_name> - level 2
   
   private LogConfiguration logConfig;
   private LogWritersManager logWritersManager;
   
   public LogManagerImpl() {
-    rootSiblingLoggers = new Hashtable();
-    serviceSiblingLoggers = new Hashtable();
+    rootSiblingLoggers = new Hashtable<String,LoggerImpl>();
+    serviceSiblingLoggers = new Hashtable<String,LoggerImpl>();
   }
   
   /**
@@ -55,7 +55,7 @@ public class LogManagerImpl extends LogManager {
           logger = new LoggerImpl(name, logWritersManager, logConfig, this);
           rootSiblingLoggers.put(name, logger);
         } else {
-          logger = (LoggerImpl)rootSiblingLoggers.get(name);
+          logger = rootSiblingLoggers.get(name);
         }
         break;
       case 2:
@@ -63,7 +63,7 @@ public class LogManagerImpl extends LogManager {
           logger = new LoggerImpl(name, logWritersManager, logConfig, this);
           serviceSiblingLoggers.put(name, logger);
         } else {
-          logger = (LoggerImpl)rootSiblingLoggers.get(name);
+          logger = rootSiblingLoggers.get(name);
         }
         break;
       }
@@ -92,7 +92,7 @@ public class LogManagerImpl extends LogManager {
           }
         }
       case 1:
-        logger = (LoggerImpl)rootSiblingLoggers.get(name);
+        logger = rootSiblingLoggers.get(name);
         if (logger != null) {
           takingsNumber = logger.unget();
           if (takingsNumber == 0) {
@@ -101,7 +101,7 @@ public class LogManagerImpl extends LogManager {
           }
         }
       case 2:
-        logger = (LoggerImpl)serviceSiblingLoggers.get(name);
+        logger = serviceSiblingLoggers.get(name);
         if (logger != null) {
           takingsNumber = logger.unget();
           if (takingsNumber == 0) {
@@ -132,11 +132,11 @@ public class LogManagerImpl extends LogManager {
     }
   }
   
-  private void notify(Collection loggers, String key, String value) {
+  private void notify(Collection<LoggerImpl> loggers, String key, String value) {
     LoggerImpl currentLogger;
-    Iterator iter = loggers.iterator();
+    Iterator<LoggerImpl> iter = loggers.iterator();
     while (iter.hasNext()) {
-      currentLogger = (LoggerImpl)iter.next();
+      currentLogger = iter.next();
       currentLogger.setConfigurationProperty(key, value, true);
     }
   }
@@ -171,14 +171,14 @@ public class LogManagerImpl extends LogManager {
       rootLogger.close();
       rootLogger = null;
     }
-    Collection elements;
-    Iterator iter;
+    Collection<LoggerImpl> elements;
+    Iterator<LoggerImpl> iter;
     LoggerImpl logger;
     
     elements = rootSiblingLoggers.values();
     iter = elements.iterator();
     while (iter.hasNext()) {
-      logger = (LoggerImpl)iter.next();
+      logger = iter.next();
       logger.close();
     }
     rootSiblingLoggers.clear();
@@ -186,7 +186,7 @@ public class LogManagerImpl extends LogManager {
     elements = serviceSiblingLoggers.values();
     iter = elements.iterator();
     while (iter.hasNext()) {
-      logger = (LoggerImpl)iter.next();
+      logger = iter.next();
       logger.close();
     }
     serviceSiblingLoggers.clear();
