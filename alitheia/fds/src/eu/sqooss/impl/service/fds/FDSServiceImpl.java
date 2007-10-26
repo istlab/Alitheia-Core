@@ -89,7 +89,7 @@ public class FDSServiceImpl implements FDSService {
     private CheckoutImpl findCheckout(List<CheckoutImpl> l, ProjectRevision r) {
         for (Iterator<CheckoutImpl> i = l.iterator(); i.hasNext(); ) {
             CheckoutImpl c = i.next();
-            if (c.getRevision().equals(r)) {
+            if (c.getRevision().getSVNRevision() == r.getSVNRevision()) {
                 return c;
             }
         }
@@ -98,7 +98,8 @@ public class FDSServiceImpl implements FDSService {
 
     // Interface methods
     public Checkout getCheckout(String projectName, ProjectRevision r)
-        throws InvalidRepositoryException {
+        throws InvalidRepositoryException,
+               InvalidProjectRevisionException {
         if (!tds.projectExists(projectName)) {
             throw new InvalidRepositoryException(projectName,"",
                 "No such project to check out.");
@@ -122,7 +123,8 @@ public class FDSServiceImpl implements FDSService {
                 "No SCM accessor available.");
         }
 
-        // TODO: normalise revision against project SVN.
+        svn.resolveProjectRevision(r);
+
         List<CheckoutImpl> l = checkoutCollection.get(projectName);
         if (l!=null) {
             CheckoutImpl c = findCheckout(l,r);

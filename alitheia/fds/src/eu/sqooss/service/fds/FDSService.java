@@ -53,7 +53,8 @@ public interface FDSService {
      * released by all, it may be updated to some new revision.
      */
     public Checkout getCheckout( String projectName, ProjectRevision r )
-        throws InvalidRepositoryException;
+        throws InvalidRepositoryException,
+               InvalidProjectRevisionException;
 
     /**
      * Release a previously obtained checkout.
