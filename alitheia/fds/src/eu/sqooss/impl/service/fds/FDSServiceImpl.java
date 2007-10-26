@@ -47,6 +47,8 @@ import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
 import eu.sqooss.service.tds.ProjectRevision;
+import eu.sqooss.service.tds.SCMAccessor;
+import eu.sqooss.service.tds.TDAccessor;
 import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.impl.service.fds.CheckoutImpl;
 
@@ -101,7 +103,25 @@ public class FDSServiceImpl implements FDSService {
             throw new InvalidRepositoryException(projectName,"",
                 "No such project to check out.");
         }
-        // TODO: validate project name against TDS.
+        if (!tds.accessorExists(projectName)) {
+            throw new InvalidRepositoryException(projectName,"",
+                "No accessor available.");
+        }
+
+        TDAccessor a = tds.getAccessor(projectName);
+        if (a == null) {
+            logger.warning("Accessor not available even though accessorExists()");
+            throw new InvalidRepositoryException(projectName,"",
+                "No accessor available.");
+        }
+
+        SCMAccessor svn = a.getSCMAccessor();
+        if (svn == null) {
+            logger.warning("No SCM available for " + projectName);
+            throw new InvalidRepositoryException(projectName,"",
+                "No SCM accessor available.");
+        }
+
         // TODO: normalise revision against project SVN.
         List<CheckoutImpl> l = checkoutCollection.get(projectName);
         if (l!=null) {
