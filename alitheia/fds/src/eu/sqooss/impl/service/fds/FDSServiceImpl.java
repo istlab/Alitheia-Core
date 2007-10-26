@@ -37,6 +37,8 @@ import org.osgi.framework.ServiceReference;
 
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.tds.ProjectRevision;
+import eu.sqooss.service.fds.Checkout;
 import eu.sqooss.service.fds.FDSService;
 
 public class FDSServiceImpl implements FDSService {
@@ -52,6 +54,14 @@ public class FDSServiceImpl implements FDSService {
         } else {
             System.out.println("# FDS failed to get logger.");
         }
+    }
+
+    // Interface methods
+    public Checkout getCheckOut(String projectName, ProjectRevision r) {
+        return null;
+    }
+
+    public void releaseCheckOut(Checkout c) {
     }
 }
 
