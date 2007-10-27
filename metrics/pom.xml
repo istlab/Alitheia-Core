@@ -64,6 +64,17 @@
         </executions>
       </plugin>
       <plugin>
+	<groupId>org.apache.maven.plugins</groupId>
+	<artifactId>maven-compiler-plugin</artifactId>
+	<configuration>
+	  <showWarnings>true</showWarnings>
+	  <showDeprecation>true</showDeprecation>
+	  <compilerArgument>-Xlint</compilerArgument>
+	  <source>1.5</source>
+	  <target>1.5</target>
+	</configuration>
+      </plugin>
+      <plugin>
         <artifactId>maven-deploy-plugin</artifactId>
         <configuration>
           <generatePom>false</generatePom>
@@ -196,6 +207,8 @@
     <module>metric_one</module>
     <module>metric_two</module>
     -->
+    <module>abstract-metric</module>
+    <module>productivity-metric</module>
   </modules>
 
   <!-- =======[ List of developers working on this project        ]======= -->
@@ -207,6 +220,14 @@
       <organization>ProSyst Software GmbH</organization>
       <!-- Unfortunatelly Maven does not support daylight saving           -->
       <timezone>+2</timezone>
+    </developer>
+    <developer>
+      <id>gousiosg</id>
+      <name>Georgios Gousios</name>
+      <email>gousiosg@gmail.com</email>
+      <organization>AUEB</organization>
+      <!-- Unfortunatelly Maven does not support daylight saving           -->
+      <timezone>+3</timezone>
     </developer>
   </developers>
 </project>
