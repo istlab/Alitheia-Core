@@ -164,6 +164,12 @@ public class FDSServiceImpl implements FDSService {
             // isn't that exciting.
             l = new LinkedList<CheckoutImpl>();
             checkoutCollection.put(projectName,l);
+            // TODO: pick a name for this checkout
+            // TODO: create directories
+            // TODO: use tds to check out there
+            // TODO: setup a CheckoutImpl object
+            // TODO: add to the list
+            // TODO: locking around all that
         }
         return null;
     }
