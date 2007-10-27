@@ -1,4 +1,4 @@
-package eu.sqooss.metrics.productivity;
+package eu.sqooss.impl.metrics.productivity;
 
 public class FileTypeMatcher {
 

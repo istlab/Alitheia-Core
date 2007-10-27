@@ -31,7 +31,7 @@
  * 
  */
 
-package eu.sqooss.metrics.productivity;
+package eu.sqooss.impl.metrics.productivity;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -45,7 +45,7 @@ import eu.sqooss.service.tds.ProjectRevision;
 /**
  * Code commit - A commit that affects at least 1 source code file
  */
-public class CodeCommits extends AbstractMetric implements Runnable {
+public class CodeCommits extends ProductivityBase implements Runnable {
 
     HashMap<String, Integer> authorCommits = new HashMap<String, Integer>();
 

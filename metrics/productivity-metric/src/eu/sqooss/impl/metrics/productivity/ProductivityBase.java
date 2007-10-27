@@ -32,30 +32,91 @@
  * 
  */
 
-package eu.sqooss.metrics.productivity;
+package eu.sqooss.impl.metrics.productivity;
 
+import eu.sqooss.metrics.abstractmetric.MetricResult;
+import eu.sqooss.metrics.productivity.ProductivityMetric;
 import eu.sqooss.service.tds.SCMAccessor;
 import eu.sqooss.service.tds.TDSService;
 
+import eu.sqooss.service.db.ProjectVersion;
+import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
 
-public class AbstractMetric {
+public class ProductivityBase implements ProductivityMetric {
   
-    TDSService service;
-    SCMAccessor svn;
-    Logger log;
+    protected TDSService service;
+    protected SCMAccessor svn;
+    protected Logger log;
+    private String revision = "$Revision: ";
     
-    
-    protected AbstractMetric() {
+    protected ProductivityBase() {
         svn = (SCMAccessor) service.getAccessor("scm");
     }
     
-    /**
-     * Runs the metric 
-     * 
-     * @param args
-     */
     protected void run() {
+        
+    }
 
+    public String getAuthor() {
+        return "Georgios Gousios";
+    }
+
+    public String getDateInstalled() {
+        return null;
+    }
+
+    public String getDescription() {
+        return "Assesses programmer productivity based on an array of " +
+        		"evaluation criteria.";
+    }
+
+    public String getName() {
+        return "Productivity Metric";
+    }
+
+    public String getVersion() {
+        return this.revision.split(":")[1];
+    }
+
+    public boolean install() {
+        return false;
+    }
+
+    public boolean remove() {
+        return false;
+    }
+
+    public boolean update() {
+        return false;
+    }
+    
+    public boolean run (ProjectVersion a) {
+        return false;   
+    }
+    
+    public MetricResult getResult(ProjectVersion a) {
+        return null;
+        
+    }
+
+    public boolean delete(StoredProject a) {
+        return false;
+    }
+
+    public MetricResult getResult(StoredProject a) {
+        return null;
+    }
+
+    public boolean run(StoredProject a) {
+        return false;
+    }
+
+    public boolean delete(ProjectVersion a) {
+        return false;
+    }
+
+    public boolean run(ProjectVersion a, ProjectVersion b) {
+        return false;
     }
 }

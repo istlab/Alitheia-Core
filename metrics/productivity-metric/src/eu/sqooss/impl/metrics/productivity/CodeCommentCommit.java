@@ -30,7 +30,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-package eu.sqooss.metrics.productivity;
+package eu.sqooss.impl.metrics.productivity;
 
 import java.io.File;
 import java.io.FileInputStream;

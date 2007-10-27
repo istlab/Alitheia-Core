@@ -1,4 +1,4 @@
-package eu.sqooss.impl.service;
+package eu.sqooss.impl.metrics.productivity;
 
 import java.io.IOException;
 
