@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Abstract metric Plug-in
+Bundle-SymbolicName: eu.sqooss.metric.abstractmetric
+Bundle-Version: 0.0.1
+Bundle-Activator: eu.sqooss.impl.service.Activator
+Bundle-Vendor: AUEB
+Import-Package: eu.sqooss.service.db, org.osgi.framework
+Export-Package: eu.sqooss.metrics.abstractmetric
