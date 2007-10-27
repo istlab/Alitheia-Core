@@ -32,6 +32,7 @@
 
 package eu.sqooss.impl.service.fds;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -56,6 +57,7 @@ public class FDSServiceImpl implements FDSService {
     private LogManager logService = null;
     private Logger logger = null;
     private TDSService tds = null;
+    private File fdsCheckoutRoot = null;
 
     /**
      * This map maps project names to lists of checkouts; the
@@ -71,16 +73,16 @@ public class FDSServiceImpl implements FDSService {
             logger.info("FDS service created.");
         } else {
             System.out.println("# FDS failed to get logger.");
+            return;
         }
 
         serviceRef = bc.getServiceReference(TDSService.class.getName());
         tds = (TDSService) bc.getService(serviceRef);
-
-        if (logger != null) {
-            logger.info("Got TDS.");
-        }
+        logger.info("Got TDS service for FDS.");
 
         checkoutCollection = new HashMap<String,List<CheckoutImpl>>();
+        logger.info("FDS root directory " + bc.getProperty("eu.sqooss.fds.root"));
+        fdsCheckoutRoot = new File(bc.getProperty("eu.sqooss.fds.root"));
     }
 
     /**
