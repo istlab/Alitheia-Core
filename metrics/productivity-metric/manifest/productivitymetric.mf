@@ -3,12 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Productivity metric plug-in
 Bundle-SymbolicName: eu.sqooss.metric.productivity
 Bundle-Version: 0.0.1
-Bundle-Activator: eu.sqooss.impl.metrics.productivity.Activator
+Bundle-Activator: eu.sqooss.impl.service.Activator
 Bundle-Vendor: AUEB
-Import-Package: eu.sqooss.service.logging,
- eu.sqooss.service.tds,
- org.osgi.framework,
-  org.osgi.service.http,
-   javax.servlet,
- javax.servlet.http
- 
+Import-Package: eu.sqooss.service.logging, eu.sqooss.service.tds, org.osgi.framework, org.osgi.service.http, javax.servlet, javax.servlet.http, eu.sqooss.metrics.abstractmetric
