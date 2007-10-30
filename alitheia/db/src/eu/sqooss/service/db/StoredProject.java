@@ -33,13 +33,40 @@
 
 package eu.sqooss.service.db;
 
+/**
+ * This class represents a project that Alitheia "knows about".
+ * These projects are the ones that are examined by the cruncher.
+ * Basically, if the cruncher is operating on a project, there
+ * has to be a record of this type in the system.
+ */
 public class StoredProject {
     private long id;
+    /**
+     * Public, human-readable name of the project (e.g. Evolution, 
+     * GNOME, Catalina, Sciplot). Used for display purposes.
+     */
     private String name;
+    /**
+     * URL of the public, human-readable project website.
+     */
     private String websiteUrl;
+    /**
+     * URL (generally mailto:) of the project contact person.
+     */
     private String contactUrl;
+    /**
+     * This is information for accessing the BTS system
+     * via the TDS. Consider it write-once when the project
+     * is added to the system by the administrator.
+     */
     private String btsUrl;
+    /**
+     * Access to the SCM via the TDS. @see btsUrl.
+     */
     private String scmUrl;
+    /**
+     * Access to the mail store via the TDS. @see btsUrl.
+     */
     private String mailUrl;
 
     public StoredProject() {
