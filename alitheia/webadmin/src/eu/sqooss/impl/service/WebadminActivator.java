@@ -38,8 +38,8 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
-import eu.sqooss.impl.service.webui.WebadminServiceImpl;
-import eu.sqooss.service.webui.WebadminService;
+import eu.sqooss.impl.service.webadmin.WebadminServiceImpl;
+import eu.sqooss.service.webadmin.WebadminService;
 
 public class WebadminActivator implements BundleActivator {
     private WebadminServiceImpl webadminService;

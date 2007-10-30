@@ -8,7 +8,7 @@
     <version>1.0.0</version>
   </parent>
 
-  <!-- WebUI Service - main POM -->
+  <!-- Webadmin Service - main POM -->
   <groupId>eu.sqooss</groupId>
   <artifactId>webadmin</artifactId>
   <version>0.0.1</version>

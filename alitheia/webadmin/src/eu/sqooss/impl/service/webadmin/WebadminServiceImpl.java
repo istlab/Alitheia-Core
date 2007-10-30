@@ -42,7 +42,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.http.HttpService;
 
-import eu.sqooss.service.webui.WebadminService;
+import eu.sqooss.service.webadmin.WebadminService;
 
 public class WebadminServiceImpl implements WebadminService {
     private ServiceReference serviceref = null;
