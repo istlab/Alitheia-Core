@@ -164,8 +164,15 @@ public class FDSServiceImpl implements FDSService {
             // isn't that exciting.
             l = new LinkedList<CheckoutImpl>();
             checkoutCollection.put(projectName,l);
-            // TODO: pick a name for this checkout
-            // TODO: create directories
+
+            File projectRoot = new File(fdsCheckoutRoot,projectName);
+            // It shouldn't exist yet
+            projectRoot.mkdir();
+
+            File checkoutRoot = new File(projectRoot,new Long(r.getSVNRevision()).toString());
+            // It shouldn't exist yet either
+            checkoutRoot.mkdir();
+
             // TODO: use tds to check out there
             // TODO: setup a CheckoutImpl object
             // TODO: add to the list
