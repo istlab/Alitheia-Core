@@ -3,6 +3,7 @@
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  *
  * Copyright 2007 by the SQO-OSS consortium members <info@sqo-oss.eu>
+ * Copyright 2007 Georgios Gousios <gousiosg@aueb.gr>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -30,6 +31,7 @@
  *
  */
 
+
 package eu.sqooss.metrics.abstractmetric;
 
 /**
@@ -49,22 +51,23 @@ package eu.sqooss.metrics.abstractmetric;
  * 
  */
 public class MetricResultEntry {
-    
+
     byte[] b;
+
     public String mimeType;
-    
+
     MetricResultEntry(int size) {
         b = new byte[size];
     }
-    
+
     public String toString() {
-            return new String(b);
+        return new String(b);
     }
-    
+
     public String toXML() {
         return null;
     }
-    
+
     public static MetricResultEntry fromXML(String XML) {
         return null;
     }

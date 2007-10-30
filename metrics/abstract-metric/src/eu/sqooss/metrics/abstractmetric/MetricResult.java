@@ -3,6 +3,7 @@
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  *
  * Copyright 2007 by the SQO-OSS consortium members <info@sqo-oss.eu>
+ * Copyright 2007 Georgios Gousios <gousiosg@aueb.gr>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -51,13 +52,13 @@ import java.util.Iterator;
  * object.  
  * 
  * The result object can be serialized to XML for transfering over SOAP to 
- * the GUIs. A static deserializer is also provided to return a concerete 
+ * the GUIs. A static deserializer is also provided to return a concrete 
  * object from an XML description. An XML Schema description of the XML is
  * also provided for clients that need to validate the serialized XML.   
  *
  */
-public class MetricResult implements Iterable<ArrayList<MetricResultEntry>>, 
-        Iterator<ArrayList<MetricResultEntry>>  { 
+public class MetricResult implements Iterable<ArrayList<MetricResultEntry>>,
+        Iterator<ArrayList<MetricResultEntry>> {
 
     private ArrayList<ArrayList<MetricResultEntry>> result;
 
@@ -66,48 +67,51 @@ public class MetricResult implements Iterable<ArrayList<MetricResultEntry>>,
     int field;
 
     public MetricResult() {
-        result = new ArrayList<ArrayList<MetricResultEntry>>() ;
+        result = new ArrayList<ArrayList<MetricResultEntry>>();
     }
 
     public void first() {
         line = 1;
     }
-    
+
     public void last() {
         line = result.size();
     }
 
     public boolean hasNext() {
-        if (line <=  result.size()) 
+        if (line <= result.size()) {
             return true;
-        
+        }
+
         return false;
     }
-    
+
     /**
      * Return and Iterator for accessing the lines of the object
      */
     public Iterator<ArrayList<MetricResultEntry>> iterator() {
         return this;
     }
-    
+
     public ArrayList<MetricResultEntry> next() {
         if (hasNext()) {
             line++;
             return result.get(line);
-        } else 
+        } else {
             return result.get(line);
+        }
     }
 
     /**
      * Returns the current row.
      * @return The row at the current position of the cursor
      */
-    public  ArrayList<MetricResultEntry> get() {
-        if (line <= result.size())
+    public ArrayList<MetricResultEntry> get() {
+        if (line <= result.size()) {
             return result.get(line);
-        else
+        } else {
             return result.get(result.size());
+        }
     }
 
     /**
@@ -116,10 +120,11 @@ public class MetricResult implements Iterable<ArrayList<MetricResultEntry>>,
      * @return The specified row or null if the row index is out of range 
      */
     public ArrayList<MetricResultEntry> getRow(int i) {
-        if (i > 0 && i <= result.size())
+        if (i > 0 && i <= result.size()) {
             return result.get(i);
-        else
+        } else {
             return null;
+        }
     }
 
     /**
@@ -131,15 +136,17 @@ public class MetricResult implements Iterable<ArrayList<MetricResultEntry>>,
      */
     public MetricResultEntry getFieldAt(int x, int y) {
         ArrayList<MetricResultEntry> line = getRow(x);
-        if (line == null)
+        if (line == null) {
             return null;
-        
-        if ( y > line.size())
+        }
+
+        if (y > line.size()) {
             return null;
-        
+        }
+
         return line.get(y);
     }
-    
+
     /**
      * Adds a result row to the results table
      * @param result The result row to add
@@ -147,7 +154,7 @@ public class MetricResult implements Iterable<ArrayList<MetricResultEntry>>,
     public void addResultRow(ArrayList<MetricResultEntry> result) {
         this.result.add(result);
     }
-    
+
     /**
      * Return the number of rows in the the MetricResult
      * @return The number of rows
@@ -164,33 +171,32 @@ public class MetricResult implements Iterable<ArrayList<MetricResultEntry>>,
         StringBuffer sb = new StringBuffer();
         sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
         sb.append("<metricresult>\n");
-        for(ArrayList<MetricResultEntry> i: this) {
+        for (ArrayList<MetricResultEntry> i : this) {
             sb.append("\t<r>\n");
-            for(MetricResultEntry r : i) {
+            for (MetricResultEntry r : i) {
                 sb.append("\t\t<c>\n");
                 r.toXML();
                 sb.append("\t\t</c>\n");
             }
             sb.append("\t</r>\n");
         }
-        
+
         sb.append("</metricresult>");
-        
+
         return sb.toString();
     }
-    
-    
+
     /**
      * Static deserialiser 
      * @param xml An MetricResult object serialised to XML
      * @return A Metric Result object or null if and error in the 
      * deserialisation occurs
      */
-    public static MetricResult fromXML (String xml) {
+    public static MetricResult fromXML(String xml) {
         return null;
     }
 
     public void remove() {
-        
+
     }    
 }

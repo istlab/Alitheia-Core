@@ -3,6 +3,7 @@
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  *
  * Copyright 2007 by the SQO-OSS consortium members <info@sqo-oss.eu>
+ * Copyright 2007 Georgios Gousios <gousiosg@aueb.gr>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -31,6 +32,8 @@
  */
 
 package eu.sqooss.metrics.abstractmetric;
+
+import java.util.Date;
 
 /**
  * Common metric plug-in related functionality. Must be implemented
@@ -76,7 +79,7 @@ public interface Metric {
     /**
      * Get the date this version of the metric has been installed
      */
-    String getDateInstalled();
+    Date getDateInstalled();
 
     /**
      * Get the metric name
