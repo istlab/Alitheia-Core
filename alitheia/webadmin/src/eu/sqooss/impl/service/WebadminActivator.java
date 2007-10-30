@@ -38,20 +38,23 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
-import eu.sqooss.impl.service.webui.WebUIServiceImpl;
-import eu.sqooss.service.webui.WebUIService;
+import eu.sqooss.impl.service.webui.WebadminServiceImpl;
+import eu.sqooss.service.webui.WebadminService;
 
-public class WebUIActivator implements BundleActivator {
-    private WebUIServiceImpl webuiService;
+public class WebadminActivator implements BundleActivator {
+    private WebadminServiceImpl webadminService;
     private ServiceRegistration registration;
 
     public void start(BundleContext bc) throws Exception {
-        webuiService = new WebUIServiceImpl(bc);
-        registration = bc.registerService(WebUIService.class.getName(),
-                                          webuiService, null);
+        webadminService = new WebadminServiceImpl(bc);
+        registration = bc.registerService(WebadminService.class.getName(),
+                                          webadminService, null);
     }
 
     public void stop(BundleContext bc) throws Exception {
         registration.unregister();
     }
 }
+
+// vi: ai nosi sw=4 ts=4 expandtab
+
