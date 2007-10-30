@@ -32,7 +32,7 @@
  *
  */
 
-package eu.sqooss.impl.service.webui;
+package eu.sqooss.impl.service.webadmin;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -59,7 +59,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServlet;
 
-public class WebUIServer extends HttpServlet {
+public class AdminServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
     private BundleContext bundlecontext = null;
@@ -103,7 +103,7 @@ public class WebUIServer extends HttpServlet {
         }
     }
 
-    public WebUIServer(BundleContext bc) {
+    public AdminServlet(BundleContext bc) {
         bundlecontext = bc;
         getLogger(bc);
         getDB(bc);

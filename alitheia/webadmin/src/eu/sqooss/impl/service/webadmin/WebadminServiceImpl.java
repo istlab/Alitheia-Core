@@ -32,7 +32,7 @@
  *
  */
 
-package eu.sqooss.impl.service.webui;
+package eu.sqooss.impl.service.webadmin;
 
 import java.util.Hashtable;
 
@@ -42,19 +42,19 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.http.HttpService;
 
-import eu.sqooss.service.webui.WebUIService;
+import eu.sqooss.service.webui.WebadminService;
 
-public class WebUIServiceImpl implements WebUIService {
+public class WebadminServiceImpl implements WebadminService {
     private ServiceReference serviceref = null;
     private HttpService httpservice = null;
-    private WebUIServer httpui = null;
+    private AdminServlet servlet = null;
 
-    public WebUIServiceImpl(BundleContext bc) throws Exception {
+    public WebadminServiceImpl(BundleContext bc) throws Exception {
         serviceref = bc.getServiceReference("org.osgi.service.http.HttpService");
         if (serviceref != null) {
             httpservice = (HttpService) bc.getService(serviceref);
-            httpui = new WebUIServer(bc);
-            httpservice.registerServlet("/", (Servlet) httpui,
+            servlet = new AdminServlet(bc);
+            httpservice.registerServlet("/", (Servlet) servlet,
                                         new Hashtable(), null);
         } else {
             System.out.println("! Could not load the HTTP service.");
