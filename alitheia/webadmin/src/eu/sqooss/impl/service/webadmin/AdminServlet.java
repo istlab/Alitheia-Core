@@ -38,9 +38,10 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
+import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
-import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.util.SQOUtils;
 
 import java.util.Hashtable;
@@ -67,6 +68,8 @@ public class AdminServlet extends HttpServlet {
     private LogManager logService = null;
     private Logger logger = null;
     private DBService dbService = null;
+    private TDSService tdsService = null;
+
     private Hashtable<String,String[]> staticContentMap;
     private Hashtable<String,String> dynamicContentMap;
     private Hashtable<String,String> dynamicSubstitutions;
@@ -103,11 +106,30 @@ public class AdminServlet extends HttpServlet {
         }
     }
 
+    private void getTDS(BundleContext bc) {
+        ServiceReference serviceRef = bc.getServiceReference(TDSService.class.getName());
+        if (serviceRef != null) {
+            tdsService = (TDSService) bc.getService(serviceRef);
+            if (logger != null) {
+                logger.info("Got TDS service.");
+            }
+        } else {
+            if (logger != null) {
+                logger.warning("Did not get TDS service.");
+            } else {
+                System.out.println("! Got no TDS service.");
+            }
+        }
+    }
+
     public AdminServlet(BundleContext bc) {
         bundlecontext = bc;
         getLogger(bc);
         getDB(bc);
-
+        getTDS(bc);
+        Stuffer myStuffer = new Stuffer(dbService, logger, tdsService);
+        Thread t = new Thread(myStuffer, "DB to TDS Stuffer");
+        t.start();
 
         staticContentMap = new Hashtable<String,String[]>();
         String[] flossie = { "image/x-png", "/flossie.png" } ;
@@ -334,4 +356,6 @@ public class AdminServlet extends HttpServlet {
 
 }
 
+
+// vi: ai nosi sw=4 ts=4 expandtab
 
