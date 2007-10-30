@@ -32,9 +32,9 @@
  *
  */
 
-package eu.sqooss.service.webui;
+package eu.sqooss.service.webadmin;
 
-public interface WebUIService {
+public interface WebadminService {
   /**
    * Sets the service property indicated by the specified key.
    * @param key the name of the service property
@@ -56,3 +56,6 @@ public interface WebUIService {
    */
   public String[] getConfigurationKeys();
 }
+
+// vi: ai nosi sw=4 ts=4 expandtab
+
