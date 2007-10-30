@@ -37,6 +37,8 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import java.util.List;
+
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
@@ -196,6 +198,16 @@ public class DBServiceImpl implements DBService {
         p.setRepository(scm);
         s.save(p);
         s.getTransaction().commit();
+    }
+
+    public List doSelect(String fromWhere){
+        Session s = sessionFactory.getCurrentSession();
+
+	s.beginTransaction();
+	List result = s.createQuery(fromWhere).list();
+	s.getTransaction().commit();
+
+	return result;
     }
 }
 

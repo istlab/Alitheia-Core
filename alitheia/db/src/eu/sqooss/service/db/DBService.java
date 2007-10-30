@@ -33,6 +33,8 @@
 
 package eu.sqooss.service.db;
 
+import java.util.List;
+
 public interface DBService {
     /**
      * Add a new project to the system; this should initialize
@@ -46,6 +48,12 @@ public interface DBService {
      * database.
      */
     public String[] listProjects();
+
+
+    /**
+     * Return the result of a simple 'SELECT *' type query
+     */
+    public List doSelect(String fromWhere);
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab
