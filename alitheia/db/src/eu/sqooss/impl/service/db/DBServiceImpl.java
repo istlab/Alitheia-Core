@@ -204,7 +204,7 @@ public class DBServiceImpl implements DBService {
         Session s = sessionFactory.getCurrentSession();
 
 	s.beginTransaction();
-	List result = s.createQuery(fromWhere).list();
+	List result = s.createQuery("from " + fromWhere).list();
 	s.getTransaction().commit();
 
 	return result;
