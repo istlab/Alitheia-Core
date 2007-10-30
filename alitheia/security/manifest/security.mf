@@ -1,0 +1,10 @@
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: eu.sqooss.service.security
+Bundle-Name: Security Service
+Bundle-Activator: eu.sqooss.impl.service.SecurityActivator
+Bundle-Version: 1.0.0
+Bundle-Vendor: ProSyst
+Bundle-Category: security
+Bundle-Description: This bundle provides the Security Service
+Import-Package: org.osgi.framework, eu.sqooss.service.logging
+Export-Package: eu.sqooss.service.security
