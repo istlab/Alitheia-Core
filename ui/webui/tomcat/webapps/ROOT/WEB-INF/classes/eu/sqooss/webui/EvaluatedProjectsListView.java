@@ -32,6 +32,7 @@
  
 package eu.sqooss.webui;
 
+
 import eu.sqooss.webui.ListView;
 
 public class EvaluatedProjectsListView extends ListView {
@@ -39,13 +40,7 @@ public class EvaluatedProjectsListView extends ListView {
     String currentProject;
     
     public EvaluatedProjectsListView () {
-        currentProject = "KDE";
         items.removeAllElements();
-        items.addElement(new String("FreeBSD"));
-        items.addElement(new String("Apache"));
-        items.addElement(new String("KDE"));
-        items.addElement(new String("Samba"));
-        items.addElement(new String("Nmap"));
     }
     
     public void setCurrentProject ( String project ) {
@@ -53,6 +48,32 @@ public class EvaluatedProjectsListView extends ListView {
     }
     
     public String getCurrentProject () {
-        return currentProject;
+        String pid = String.valueOf(getCurrentProjectId());
+        return currentProject + " (" + pid + ")";
+    }
+
+    public int getCurrentProjectId() {
+        return getProjectId(currentProject);
+    }
+
+    public void retrieveData () {
+        items.addElement(new String("FreeBSD"));
+        items.addElement(new String("Apache"));
+        items.addElement(new String("KDE"));
+        items.addElement(new String("Samba"));
+        items.addElement(new String("Nmap"));
+        currentProject = "KDE";
+    }
+    
+    Integer getProjectId (String project) {
+        // FIXME: This should not just return the index of a static list :-)
+        int i = 0;
+        for (String item: items) {
+            if (project.equals(item)) {
+                return i;
+            }
+            i++;
+        }
+        return -1; // Means: not found, maybe an exception here?
     }
 }

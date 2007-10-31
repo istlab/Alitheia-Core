@@ -39,9 +39,7 @@ class ListView {
     Vector<String> items = new Vector();
 
     public ListView () {
-        items.addElement(new String("Item 1"));
-        items.addElement(new String("Item 2"));
-        items.addElement(new String("Item 3"));
+        retrieveData();
     }
     
     public void setItems (Vector<String> _items) {
@@ -59,5 +57,11 @@ class ListView {
         }
         html = html.concat("\n</ul>\n");
         return html;
+    }
+    
+    public void retrieveData () {
+        items.addElement(new String("Item 1"));
+        items.addElement(new String("Item 2"));
+        items.addElement(new String("Item 3"));
     }
 }
