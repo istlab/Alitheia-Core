@@ -12,74 +12,74 @@ import eu.sqooss.service.messaging.Message;
  */
 public class MessageHistory {
 
-  private static final String MESSAGE_HISTORY_TIMER_NAME = "Message history timer ";
-  
-  private Object lockObject = new Object();
-  
-  private Timer timer;
-  private Hashtable messageHistory;
-  private long preservingTime;
-  
-  public MessageHistory(long preservingTime) {
-    this.preservingTime = preservingTime;
-    messageHistory = new Hashtable();
-    timer = new Timer(MESSAGE_HISTORY_TIMER_NAME);
-    timer.start();
-  }
-  
-  /**
-   * Stores a new message.
-   * @param message
-   */
-  public void put(MessageImpl message) {
-    if (preservingTime != 0) {
-      synchronized (lockObject) {
-        messageHistory.put(new Long(message.getId()), message);
-        timer.addNotifyListener(message, preservingTime);
-      }
+    private static final String MESSAGE_HISTORY_TIMER_NAME = "Message history timer ";
+
+    private Object lockObject = new Object();
+
+    private Timer timer;
+    private Hashtable messageHistory;
+    private long preservingTime;
+
+    public MessageHistory(long preservingTime) {
+        this.preservingTime = preservingTime;
+        messageHistory = new Hashtable();
+        timer = new Timer(MESSAGE_HISTORY_TIMER_NAME);
+        timer.start();
     }
-    MessagingActivator.log("The message (id = " + message.getId() + ") is stored!", MessagingActivator.LOGGING_INFO_LEVEL);
-  }
-  
-  /**
-   * Returns the stored message with specified id.
-   * @param messageId
-   * @return the message to which the id is mapped in this message history; null if the id is not mapped.
-   */
-  public Message getMessage(long messageId) {
-    return (Message)messageHistory.get(new Long(messageId));
-  }
-  
-  /**
-   * Removes the message from the message history.
-   * @param messageId
-   * @return <code>false</code> - if the id is not mapped to the message in the message history,
-   * <code>true</code> - otherwise
-   */
-  public boolean removeMessage(long messageId) {
-    synchronized (lockObject) {
-      if (messageHistory.remove(new Long(messageId)) == null) {
-        MessagingActivator.log("The message (id = " + messageId + ") isn't stored!", MessagingActivator.LOGGING_INFO_LEVEL);
-        return false;
-      } else {
-        MessagingActivator.log("The message (id = " + messageId + ") is removed!", MessagingActivator.LOGGING_INFO_LEVEL);
-        return true;
-      }
+
+    /**
+     * Stores a new message.
+     * @param message
+     */
+    public void put(MessageImpl message) {
+        if (preservingTime != 0) {
+            synchronized (lockObject) {
+                messageHistory.put(new Long(message.getId()), message);
+                timer.addNotifyListener(message, preservingTime);
+            }
+        }
+        MessagingActivator.log("The message (id = " + message.getId() + ") is stored!", MessagingActivator.LOGGING_INFO_LEVEL);
     }
-  }
-  
-  /**
-   * Clears the history.
-   */
-  public void clear() {
-    synchronized (lockObject) {
-      timer.stop();
-      messageHistory.clear();
+
+    /**
+     * Returns the stored message with specified id.
+     * @param messageId
+     * @return the message to which the id is mapped in this message history; null if the id is not mapped.
+     */
+    public Message getMessage(long messageId) {
+        return (Message)messageHistory.get(new Long(messageId));
     }
-  }
-  
-  public void setPreservingTime(long preservingTime) {
-    this.preservingTime = preservingTime;
-  }
-  
+
+    /**
+     * Removes the message from the message history.
+     * @param messageId
+     * @return <code>false</code> - if the id is not mapped to the message in the message history,
+     * <code>true</code> - otherwise
+     */
+    public boolean removeMessage(long messageId) {
+        synchronized (lockObject) {
+            if (messageHistory.remove(new Long(messageId)) == null) {
+                MessagingActivator.log("The message (id = " + messageId + ") isn't stored!", MessagingActivator.LOGGING_INFO_LEVEL);
+                return false;
+            } else {
+                MessagingActivator.log("The message (id = " + messageId + ") is removed!", MessagingActivator.LOGGING_INFO_LEVEL);
+                return true;
+            }
+        }
+    }
+
+    /**
+     * Clears the history.
+     */
+    public void clear() {
+        synchronized (lockObject) {
+            timer.stop();
+            messageHistory.clear();
+        }
+    }
+
+    public void setPreservingTime(long preservingTime) {
+        this.preservingTime = preservingTime;
+    }
+
 }

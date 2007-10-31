@@ -9,19 +9,19 @@ import eu.sqooss.service.messaging.Message;
  * The services must be thread safe.
  */
 public interface MessageSender {
-  
-  public static final String PROTOCOL_PROPERTY = "protocol";
-    
-  /**
-   * Sends a message and returns a message status:
-   * <ul>
-   *  <li><code>Message.STATUS_SENT</code> - if the message is sent successful
-   *  <li><code>Message.STATUS_FAILED</code> - if the message isn't sent successful
-   * </ul>
-   * 
-   * @param message the message for sending
-   * @return message status (see the constants above)
-   */
-  public int sendMessage(Message message);
-  
+
+    public static final String PROTOCOL_PROPERTY = "protocol";
+
+    /**
+     * Sends a message and returns a message status:
+     * <ul>
+     *  <li><code>Message.STATUS_SENT</code> - if the message is sent successful
+     *  <li><code>Message.STATUS_FAILED</code> - if the message isn't sent successful
+     * </ul>
+     * 
+     * @param message the message for sending
+     * @return message status (see the constants above)
+     */
+    public int sendMessage(Message message);
+
 }
