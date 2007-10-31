@@ -1,5 +1,5 @@
 <%
-String title = "Alitheia Home";
+String title = "Home";
 %>
 <%@ include file="/inc/header.jsp" %>
 

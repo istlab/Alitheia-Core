@@ -38,9 +38,7 @@ class ListView {
     
     Vector<String> items = new Vector();
 
-    public ListView () {
-        retrieveData();
-    }
+    public ListView () {}
     
     public void setItems (Vector<String> _items) {
         items = _items;

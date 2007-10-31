@@ -41,7 +41,7 @@ public class MetricsListView extends ListView {
     String projectId;
 
     public MetricsListView() {
-        items.removeAllElements();
+        retrieveData();
     };
 
     public Vector<String> getMetrics() {

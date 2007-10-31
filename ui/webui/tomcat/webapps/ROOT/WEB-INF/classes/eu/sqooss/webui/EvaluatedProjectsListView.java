@@ -40,7 +40,7 @@ public class EvaluatedProjectsListView extends ListView {
     String currentProject;
     
     public EvaluatedProjectsListView () {
-        items.removeAllElements();
+        retrieveData();
     }
     
     public void setCurrentProject ( String project ) {
