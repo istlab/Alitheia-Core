@@ -5,7 +5,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 
 <head>
-    <title><%= application.getServerInfo() %></title>
+    <title><%= "Alitheia :: " + title %></title>
     <link rel='stylesheet' type='text/css' href='/alitheia.css' />
 </head>
 

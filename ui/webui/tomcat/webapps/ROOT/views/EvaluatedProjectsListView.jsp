@@ -5,4 +5,8 @@
 
 out.println(EvaluatedProjectsListView.getHtml());
 
+out.println("<p /><strong>");
+out.println(EvaluatedProjectsListView.getCurrentProject());
+//out.println(EvaluatedProjectsListView.getCurrentProjectId());
 %>
+</strong>

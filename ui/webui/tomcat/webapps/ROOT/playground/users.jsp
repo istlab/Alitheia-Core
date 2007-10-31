@@ -1,3 +1,4 @@
+<% String title = "Users"; %>
 <%@ page import="java.util.*" %>
 <%@ include file="/inc/header.jsp" %>
 
@@ -9,25 +10,10 @@
     <%
     String uid = request.getParameter("uid");
     if ( (uid!=null) && uid.length() > 0 ) {
-        //user.setCurrentUserId(new Integer(request.getParameter("uid")));
-        //out.println("<h2>Hello " + user.getCurrentUser() + "!<h2>");
-        //String currentUser = user.getCurrentUser();
-        out.println("Available users:");
-        out.println("<ul><li> Foobar </li></ul>");
-        out.println("<br />[ UID supplied ]");
+        out.println("You are:");
+        out.println("<ul><li> Foobar [" + uid + "]</li></ul>");
     } else {
-        //out.println("Foo");
-        // Let's list all users.
         out.println("Your User ID is not known to the system yet.");
-        //out.println("<h2>You are " + user.getCurrentUser() + "!</h2>");
-        
-        /*
-        Dictionary allUsers = user.getAllUsers();
-    
-        for (Integer i = 0; i < allUsers.size(); i++) {
-            out.println("<li>" + allUsers.get(i) + "</li>");
-        }
-        */
     }
     %>
 

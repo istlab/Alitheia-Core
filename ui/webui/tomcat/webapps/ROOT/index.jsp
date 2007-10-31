@@ -1,3 +1,6 @@
+<%
+String title = "Alitheia Home";
+%>
 <%@ include file="/inc/header.jsp" %>
 
 <h2>This is the Alitheia System</h2>
