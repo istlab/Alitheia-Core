@@ -13,29 +13,29 @@ import eu.sqooss.service.logging.Logger;
  */
 public class LoggingActivator implements BundleActivator {
 
-  private ServiceRegistration sReg;
-  
-  /**
-   * Configures and registers a <code>LogManager</code> service.
-   */
-  public void start(BundleContext bc) throws Exception {
-    //registers a log manager service
-    LogManagerImpl.logManager.setBundleContext(bc);
-    sReg = bc.registerService(LogManager.class.getName(), LogManagerImpl.logManager, null);
-    Logger l = LogManagerImpl.logManager.createLogger("sqooss");
-    l.setConfigurationProperty("file.name","alitheia.log");
-    l.setConfigurationProperty("message.format","text/plain");
-    l.info("Logging bundle started.");
-  }
+    private ServiceRegistration sReg;
 
-  /**
-   * Closes and unregisters a <code>LogManager</code> service.
-   */
-  public void stop(BundleContext bc) throws Exception {
-    //unregisters a log manager service
-    if (sReg != null) {
-      sReg.unregister();
+    /**
+     * Configures and registers a <code>LogManager</code> service.
+     */
+    public void start(BundleContext bc) throws Exception {
+        //registers a log manager service
+        LogManagerImpl.logManager.setBundleContext(bc);
+        sReg = bc.registerService(LogManager.class.getName(), LogManagerImpl.logManager, null);
+        Logger l = LogManagerImpl.logManager.createLogger("sqooss");
+        l.setConfigurationProperty("file.name","alitheia.log");
+        l.setConfigurationProperty("message.format","text/plain");
+        l.info("Logging bundle started.");
     }
-    LogManagerImpl.logManager.close();
-  }
+
+    /**
+     * Closes and unregisters a <code>LogManager</code> service.
+     */
+    public void stop(BundleContext bc) throws Exception {
+        //unregisters a log manager service
+        if (sReg != null) {
+            sReg.unregister();
+        }
+        LogManagerImpl.logManager.close();
+    }
 }
