@@ -32,14 +32,7 @@
 
 package eu.sqooss.impl.service.tds;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Properties;
-import java.io.FileInputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -55,7 +48,6 @@ import eu.sqooss.service.tds.ProjectRevision;
 import eu.sqooss.service.tds.TDAccessor;
 import eu.sqooss.service.tds.TDSException;
 import eu.sqooss.service.tds.TDSService;
-import eu.sqooss.impl.service.tds.TDAccessorImpl;
 
 public class TDSServiceImpl implements TDSService {
     private LogManager logService = null;
@@ -63,7 +55,7 @@ public class TDSServiceImpl implements TDSService {
     private HashMap<String, TDAccessorImpl> accessorPool;
 
     public TDSServiceImpl(BundleContext bc) {
-        ServiceReference serviceRef = bc.getServiceReference("eu.sqooss.service.logging.LogManager");
+        ServiceReference serviceRef = bc.getServiceReference(LogManager.class.getName());
         logService = (LogManager) bc.getService(serviceRef);
         logger = logService.createLogger(Logger.NAME_SQOOSS_TDS);
         if (logger != null) {
@@ -80,34 +72,7 @@ public class TDSServiceImpl implements TDSService {
         logger.info("SVN repo factories initialized.");
         TDAccessorImpl.logger = logger;
 
-        String tdsroot = bc.getProperty("eu.sqooss.tds.config");
-        if (tdsroot==null) {
-            tdsroot="tds.conf";
-        }
-        logger.info("TDS using config file <" + tdsroot + ">");
-        Properties p = new Properties();
-        try {
-            p.load(new FileInputStream(tdsroot));
-        } catch (Exception e) {
-            logger.warning(e.getMessage());
-        }
-
-        int projectCount = 0;
         accessorPool = new HashMap<String,TDAccessorImpl>();
-        for(Enumeration i = p.keys(); i.hasMoreElements(); ) {
-            String s = (String) i.nextElement();
-            String projectName = s.substring(0,s.indexOf("."));
-            if (accessorPool.containsKey(projectName)) {
-                TDAccessorImpl a = accessorPool.get(projectName);
-                a.put(s,(String)p.get(s));
-            } else {
-                TDAccessorImpl a = new TDAccessorImpl(projectName);
-                a.put(s,(String)p.get(s));
-                accessorPool.put(projectName,a);
-                projectCount++;
-            }
-        }
-        logger.info("Got configuration for " + projectCount + " projects.");
     }
 
     // Interface methods
