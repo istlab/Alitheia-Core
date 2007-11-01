@@ -170,10 +170,8 @@ public class DBServiceImpl implements DBService {
 
     // Interface functions
     public String[] listProjects() {
-        Session s = sessionFactory.getCurrentSession();
-        s.beginTransaction();
-        java.util.List l = s.createQuery("from StoredProject").list();
-        s.getTransaction().commit();
+        logger.warning("Using deprecated listProjects()");
+        List l = doSelect("StoredProject");
         if (l==null) {
             return null;
         }
@@ -200,14 +198,14 @@ public class DBServiceImpl implements DBService {
         s.getTransaction().commit();
     }
 
-    public List doSelect(String fromWhere){
+    public List doSelect(String fromWhere) {
         Session s = sessionFactory.getCurrentSession();
 
-	s.beginTransaction();
-	List result = s.createQuery("from " + fromWhere).list();
-	s.getTransaction().commit();
+	    s.beginTransaction();
+	    List result = s.createQuery("from " + fromWhere).list();
+	    s.getTransaction().commit();
 
-	return result;
+	    return result;
     }
 }
 
