@@ -65,4 +65,12 @@ public abstract class LogManager {
         }
         return LogManagerImpl.logManager;
     }
+
+    /**
+     * (Added for source-compatibility) Returns a list of recent
+     * log entries. Returns null and leaves the caller to deal with that.
+     */
+    public String[] getRecentEntries() {
+        return null;
+    }
 }
