@@ -179,28 +179,40 @@ public class AdminServlet extends HttpServlet {
         }
     }
 
-    protected String[] getBundleNames() {
-        if ( bundlecontext != null ) {
+    protected String renderBundles() {
+        if( bundlecontext != null ) {
             Bundle[] bundles = bundlecontext.getBundles();
             String names[] = new String[bundles.length];
-            int i = 0;
-            String[] statenames = { "uninstalled",
+            String[] statenames = { 
+                "uninstalled",
                 "installed",
                 "resolved",
                 "starting",
                 "stopping",
-                "active" } ;
-            String s;
-            for (Bundle b : bundles) {
+                "active" 
+            };
+
+            String resultString = 
+                "<table><tr><th>Bundle Name</th><th>Status</th></tr>";
+
+            for( Bundle b : bundles ){
                 int state = b.getState();
-                s = b.getSymbolicName() + " = " + state + " (" + SQOUtils.bitfieldToString(statenames,state) + ")";;
-                names[i++] = s;
+                String name = b.getSymbolicName();
+
+                resultString += 
+                    "<tr><th>" + b.getSymbolicName() + 
+                    "</th><th>" + 
+                    SQOUtils.bitfieldToString(statenames,state) +
+                    "</th>";
             }
-            return names;
+
+            resultString += "</table>";
+
+            return resultString;
         } else {
             return null;
         }
-    }
+    }           
 
     public String renderList(String[] names) {
         if ((names != null) && (names.length > 0)) {
@@ -305,7 +317,7 @@ public class AdminServlet extends HttpServlet {
             if ("list".equals(query)) {
                 dynamicSubstitutions.put("@@PROJECTS",renderList(dbService.listProjects()));
             } else {
-                dynamicSubstitutions.put("@@BUNDLE",renderList(getBundleNames()));
+                dynamicSubstitutions.put("@@BUNDLE",renderBundles());
                 dynamicSubstitutions.put("@@SERVICE",renderList(getServiceNames()));
             }
             if ( (query != null) && dynamicContentMap.containsKey(query) ) {
