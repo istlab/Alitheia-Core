@@ -145,6 +145,7 @@ public class AdminServlet extends HttpServlet {
         dynamicContentMap.put("index","/index.html");
         dynamicContentMap.put("addproject","/addproject.html");
         dynamicContentMap.put("list","/listproject.html");
+        dynamicContentMap.put("logs","/logs.html");
 
         dynamicSubstitutions = new Hashtable<String,String>();
     }
