@@ -270,7 +270,7 @@ public class AdminServlet extends HttpServlet {
         response.setContentType("text/html");
         PrintWriter print = response.getWriter();
         while ( istream.ready() ) {
-            String line = istream.readLine();
+            String line = istream.readLine().trim();
             if ( line.startsWith("@@") && subs.containsKey(line) ) {
                 print.println(subs.get(line));
             } else {

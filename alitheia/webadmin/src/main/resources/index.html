@@ -1,41 +1,46 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+    <head>
+        <title>Alitheia System Administration Interface</title>
+        <link rel='stylesheet' type='text/css' href='/alitheia.css' />
+    </head>
+    <body>
+        <!-- Want this to be a JavaBean -->
+        <div id="banner">
+            <img class="sqologo" src="http://www.sqo-oss.eu/sqo-oss-logo.jpg" alt="SQO-OSS Project Logo" />
+            <img class="alitheialogo" src="alitheia.png" alt="Alitheia Logo" />
+        </div>
 
-<head>
-<title>Alitheia Status</title>
-<link rel='stylesheet' type='text/css' href='/alitheia.css' />
-</head>
-<body>
-<!-- Want this to be a JavaBean -->
-<div id="banner">
-<img class="sqologo" src="http://www.sqo-oss.eu/sqo-oss-logo.jpg" alt="SQO-OSS Project Logo" />
-<img class="alitheialogo" src="alitheia.png" alt="Alitheia Logo" />
-</div>
+        <div id="status">
+            @@STATUS
+        </div>
 
-<div id="status">
-@@STATUS
-</div>
+        <div id="menu">
+            <ul>
+                <li><a href="about">About</a></li>
+                <li><a href="addproject">Add Project</a></li>
+            </ul>
+        </div>
 
-<div id="menu">
-<ul>
-<li><a href="about">About</a></li>
-<li><a href="addproject">Add Project</a></li>
-</ul>
-</div>
+        <h1>Alitheia System Administration Interface</h1>
+        <h2>Bundle Status</h2>
+        <div id="bundlelist">
+            <ol>
+                @@BUNDLE
+            </ol>
+        </div>
 
-@@ABOUT
-<h1>Bundle Status</h1>
-<div id="bundlelist"><ol>
-@@BUNDLE
-</ol></div>
-<h1>Service Status</h1>
-<div id="servicelist"><ol>
-@@SERVICE
-</ol></div>
-<div id='footer'>
-<span class="copyright">
-@@COPYRIGHT
-</span>
-</div>
-</body>
+       <h2>Service Status</h2>
+       <div id="servicelist">
+           <ol>
+               @@SERVICE
+           </ol>
+       </div>
+
+       <div id='footer'>
+           <span class="copyright"> 
+               @@COPYRIGHT
+           </span>
+       </div>
+    </body>
 </html>
