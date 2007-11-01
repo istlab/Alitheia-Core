@@ -25,7 +25,7 @@ clear: both;
 }
 
 
-#status, #menu {
+#status, #menu, #options {
 width: 20%;
 float: left;
 clear: left;
