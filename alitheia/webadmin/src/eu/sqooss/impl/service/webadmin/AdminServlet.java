@@ -285,6 +285,7 @@ public class AdminServlet extends HttpServlet {
         dynamicSubstitutions.put("@@STATUS","The cruncher is offline.");
         dynamicSubstitutions.put("@@LOGO","<img src='/logo' id='logo' alt='Logo' />");
         dynamicSubstitutions.put("@@COPYRIGHT","Copyright 2007 <a href=\"about\">SQO-OSS Consortium members</a>");
+        dynamicSubstitutions.put("@@GETLOGS", renderList(logService.getRecentEntries()));
     }
 
     protected void doGet(HttpServletRequest request,
