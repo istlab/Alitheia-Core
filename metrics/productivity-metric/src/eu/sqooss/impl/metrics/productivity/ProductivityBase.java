@@ -34,6 +34,8 @@
 
 package eu.sqooss.impl.metrics.productivity;
 
+import java.util.Date;
+
 import eu.sqooss.metrics.abstractmetric.MetricResult;
 import eu.sqooss.metrics.productivity.ProductivityMetric;
 import eu.sqooss.service.tds.SCMAccessor;
@@ -62,7 +64,7 @@ public class ProductivityBase implements ProductivityMetric {
         return "Georgios Gousios";
     }
 
-    public String getDateInstalled() {
+    public Date getDateInstalled() {
         return null;
     }
 
