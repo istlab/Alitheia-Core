@@ -17,10 +17,10 @@ public class ParserUtility {
             return url; //the url hasn't parameters
         } else {
             String resourceUrl = url.substring(0, firstIndexOfQuestionMark);
-            Hashtable arguments = parseUrlArguments(url.substring(firstIndexOfQuestionMark + 1));
+            Hashtable<String,String> arguments = parseUrlArguments(url.substring(firstIndexOfQuestionMark + 1));
 
             //sort the arguments according to the keys (selection sort is enough)
-            String[] keys = (String[])arguments.keySet().toArray(new String[0]);
+            String[] keys = arguments.keySet().toArray(new String[0]);
             String tmpKey;
             StringBuffer sortedArguments = new StringBuffer();
             for (int i = 0; i < keys.length; i++) {
@@ -50,13 +50,13 @@ public class ParserUtility {
      * @param privileges the privileges from the url
      * @return mangled resource url
      */
-    public static String mangleUrlWithPrivileges(String fullUrl, Hashtable privileges) {
+    public static String mangleUrlWithPrivileges(String fullUrl, Hashtable<String,String> privileges) {
         int firstIndexOfQuestionMark = fullUrl.indexOf('?');
         if (firstIndexOfQuestionMark == -1) {
             throw new IllegalArgumentException("The url: " + fullUrl + " hasn't privilege(s)!");
         } else {
             String resourceUrl = fullUrl.substring(0, firstIndexOfQuestionMark);
-            Hashtable argumentsAndPrivileges = parseUrlArguments(fullUrl.substring(firstIndexOfQuestionMark + 1));
+            Hashtable<String,String> argumentsAndPrivileges = parseUrlArguments(fullUrl.substring(firstIndexOfQuestionMark + 1));
             StringBuffer arguments = new StringBuffer();
             String currentKey;
             for (Enumeration keys = argumentsAndPrivileges.keys(); keys.hasMoreElements(); ) {
@@ -82,8 +82,8 @@ public class ParserUtility {
      * @param arguments
      * @return the hash table with the arguments from the <code>arguments</code> string
      */
-    private static Hashtable parseUrlArguments(String arguments) {
-        Hashtable argumentsTable = new Hashtable();
+    private static Hashtable<String,String> parseUrlArguments(String arguments) {
+        Hashtable<String,String> argumentsTable = new Hashtable<String,String>();
         StringTokenizer tokenizer = new StringTokenizer(arguments, "&");
         String currentToken;
         int firstIndexOfEquals;
