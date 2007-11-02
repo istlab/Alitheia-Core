@@ -51,13 +51,21 @@ public interface FDSService {
      * with it. As long as a checkout is held by someone, the revisions of
      * files in the checkout will not change, but once the checkout is
      * released by all, it may be updated to some new revision.
+     *
+     * @param id   Project ID
+     * @param name Project name (informative only)
+     * @param r    Revision (project state) to get
+     *
+     * @return Checkout object. Remember to release it later.
      */
-    public Checkout getCheckout( String projectName, ProjectRevision r )
+    public Checkout getCheckout( long id, String projectName, ProjectRevision r )
         throws InvalidRepositoryException,
                InvalidProjectRevisionException;
 
     /**
      * Release a previously obtained checkout.
+     *
+     * @param c Checkout obtained from previous call to getCheckout()
      */
     public void releaseCheckout( Checkout c )
         throws InvalidRepositoryException;

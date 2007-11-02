@@ -72,7 +72,7 @@ class Stuffer implements Runnable {
         l.add(kde);
 
         for(StoredProject p : l) {
-            tds.addAccessor(p.getName(), p.getBugs(), p.getMail(), p.getRepository());
+            tds.addAccessor(p.getId(), p.getName(), p.getBugs(), p.getMail(), p.getRepository());
         }
     }
 }

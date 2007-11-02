@@ -123,19 +123,19 @@ public class FDSServiceImpl implements FDSService {
     }
 
     // Interface methods
-    public Checkout getCheckout(String projectName, ProjectRevision r)
+    public Checkout getCheckout(long projectId, String projectName, ProjectRevision r)
         throws InvalidRepositoryException,
                InvalidProjectRevisionException {
-        if (!tds.projectExists(projectName)) {
+        if (!tds.projectExists(projectId)) {
             throw new InvalidRepositoryException(projectName,"",
                 "No such project to check out.");
         }
-        if (!tds.accessorExists(projectName)) {
+        if (!tds.accessorExists(projectId)) {
             throw new InvalidRepositoryException(projectName,"",
                 "No accessor available.");
         }
 
-        TDAccessor a = tds.getAccessor(projectName);
+        TDAccessor a = tds.getAccessor(projectId);
         if (a == null) {
             logger.warning("Accessor not available even though accessorExists()");
             throw new InvalidRepositoryException(projectName,"",
