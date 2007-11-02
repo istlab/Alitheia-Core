@@ -10,12 +10,13 @@
 
 # Subdirectories to build bundles in. Ignored in a Maven build (which takes
 # the same information from pom.xml).
-BUNDLES=logger \
-	messaging \
-	db \
-	scheduler \
-	tds \
+BUNDLES=db \
 	fds \
+	logger \
+	messaging \
+	scheduler \
+	security \
+	tds \
 	updater \
 	webadmin
 
