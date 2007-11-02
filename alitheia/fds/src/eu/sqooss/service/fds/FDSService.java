@@ -37,12 +37,11 @@ import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
 import eu.sqooss.service.tds.ProjectRevision;
 
-import eu.sqooss.service.fds.Checkout;
-
 /**
- * The FDS (Fat Data Service) is the part of the raw data access layer that handles
- * caching and coordination of raw project data. It is primarily concerned with handling
- * (and updating) checkouts of project sources, not with access to mail or the BTS.
+ * The FDS (Fat Data Service) is the part of the raw data access layer that
+ * handles caching and coordination of raw project data. It is primarily
+ * concerned with handling (and updating) checkouts of project sources, not
+ * with access to mail or the BTS.
  */
 public interface FDSService {
     /**
@@ -52,13 +51,20 @@ public interface FDSService {
      * files in the checkout will not change, but once the checkout is
      * released by all, it may be updated to some new revision.
      *
-     * @param id   Project ID
-     * @param name Project name (informative only)
-     * @param r    Revision (project state) to get
+     * @param id    Project ID
+     * @param name  Project name (informative only)
+     * @param r     Revision (project state) to get
      *
-     * @return Checkout object. Remember to release it later.
+     * @return      Checkout object. Remember to release it later.
+     *
+     * @throws InvalidRepositoryException if the repository is not valid
+     *              in some way (usually because of id being wrong).
+     * @throws InvalidProjectRevisionException if the revision does not
+     *              make sense with the given repository (for instance,
+     *              non-existent SVN number).
      */
-    public Checkout getCheckout( long id, String projectName, ProjectRevision r )
+    Checkout getCheckout( long id, String name,
+        ProjectRevision r )
         throws InvalidRepositoryException,
                InvalidProjectRevisionException;
 
@@ -67,7 +73,7 @@ public interface FDSService {
      *
      * @param c Checkout obtained from previous call to getCheckout()
      */
-    public void releaseCheckout( Checkout c )
+    void releaseCheckout( Checkout c )
         throws InvalidRepositoryException;
 }
 
