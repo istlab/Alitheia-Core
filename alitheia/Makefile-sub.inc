@@ -32,6 +32,7 @@ BUNDLE_MANIFEST_NAME?=$(BUNDLE_NAME)
 #
 ###
 
+TOP_SRCDIR?=$(shell cd ../.. && pwd)
 PREFIX?=$(shell cd ../../equinox && pwd)
 
 # Find the source files, the dependency jars and other resources
@@ -71,6 +72,12 @@ build:
 	mkdir build
 	test -d build
 
+CHECKSTYLE_DIR=$(TOP_SRCDIR)/../../tools/javatools/
+checkstyle:
+	cd src && \
+	java -jar $(CHECKSTYLE_DIR)/checkstyle-all-4.3.jar \
+		-c $(CHECKSTYLE_DIR)/sun_checks.xml \
+		$(SRC)
 
 
 define resource_template

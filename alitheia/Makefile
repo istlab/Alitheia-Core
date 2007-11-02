@@ -25,6 +25,7 @@ BUNDLES=db \
 #
 ###
 
+TOP_SRCDIR?=$(shell cd .. && pwd)
 PREFIX?=$(shell cd ../equinox && pwd)
 
 all : build
@@ -32,7 +33,7 @@ all : build
 # Template to pass targets on to sub-directories.
 define subdir_template
 $(1)-$(2) :
-	cd $(2) && $(MAKE) $(3) PREFIX=$(PREFIX)
+	cd $(2) && $(MAKE) $(3) TOP_SRCDIR=$(TOP_SRCDIR) PREFIX=$(PREFIX)
 endef
 
 $(foreach d,$(BUNDLES),$(eval $(call subdir_template,build,$(d),)))

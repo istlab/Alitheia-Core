@@ -45,6 +45,7 @@ SUBDIRS=alitheia metrics
 #
 ###
 
+TOP_SRCDIR=$(shell pwd)
 ABS_PREFIX=$(shell cd $(PREFIX) && pwd)
 
 all : build
@@ -54,7 +55,7 @@ all : build
 # PREFIX and Maven attributes.
 define subdir_template
 $(1)-$(2) :
-	cd $(2) && $(MAKE) $(1) PREFIX=$(ABS_PREFIX) WITH_MAVEN=$(WITH_MAVEN)
+	cd $(2) && $(MAKE) $(1) TOP_SRCDIR=$(TOP_SRCDIR) PREFIX=$(ABS_PREFIX) WITH_MAVEN=$(WITH_MAVEN)
 endef
 
 $(foreach d,$(SUBDIRS),$(eval $(call subdir_template,build,$(d))))
