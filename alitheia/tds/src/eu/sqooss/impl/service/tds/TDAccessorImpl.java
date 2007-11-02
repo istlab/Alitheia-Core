@@ -45,15 +45,15 @@ import eu.sqooss.impl.service.tds.SCMAccessorImpl;
 import eu.sqooss.impl.service.tds.MailAccessorImpl;
 
 public class TDAccessorImpl implements TDAccessor {
+    private long id;
     public String bts;
     public String mail;
     public String scm;
     private String name;
-    private int id;
     private BTSAccessorImpl btsAccessor = null;
     private SCMAccessorImpl scmAccessor = null;
     private MailAccessorImpl mailAccessor = null;
-    private static int idSequence = 0;
+
     public static Logger logger;
 
     /**
@@ -75,16 +75,9 @@ public class TDAccessorImpl implements TDAccessor {
         }
     }
 
-    public TDAccessorImpl( String name ) {
+    public TDAccessorImpl( long id, String name, String bts, String mail, String scm ) {
+        this.id = id;
         this.name = name;
-        this.id = idSequence++;
-        BTSAccessorImpl.logger = logger;
-        MailAccessorImpl.logger = logger;
-        SCMAccessorImpl.logger = logger;
-    }
-
-    public TDAccessorImpl( String name, String bts, String mail, String scm ) {
-        this(name);
         this.bts = bts;
         this.mail = mail;
         this.scm = scm;
@@ -92,7 +85,7 @@ public class TDAccessorImpl implements TDAccessor {
 
 
     // Interface functions
-    public int getId() {
+    public long getId() {
         return id;
     }
 

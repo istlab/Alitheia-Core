@@ -52,12 +52,12 @@ import eu.sqooss.service.tds.SCMAccessor;
  */
 public interface TDAccessor {
     /**
-     * Return the numeric ID for the project associated with this accessor. 
-     * At creation time this is guaranteed to be a valid project ID, but 
-     * during the lifetime of the accessor the project may be removed or 
+     * Return the numeric ID for the project associated with this accessor.
+     * At creation time this is guaranteed to be a valid project ID, but
+     * during the lifetime of the accessor the project may be removed or
      * modified so that the ID becomes invalid.
      */
-    public int getId();
+    public long getId();
 
     /**
      * Return the name assigned to the project when the accessor was created.

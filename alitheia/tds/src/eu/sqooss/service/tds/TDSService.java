@@ -59,19 +59,19 @@ public interface TDSService {
     /**
      * Check that the given project exists in the TDS.
      */
-    public boolean projectExists( String name );
+    public boolean projectExists( long id );
 
     /**
      * Check if the given project ID has an accessor object ready.
      * This may be used to suppress requests for the accessor if
      * it is not in use yet.
      */
-    public boolean accessorExists( String name );
+    public boolean accessorExists( long id );
 
     /**
-     * Retrieve the accessor object for the given project @p name .
+     * Retrieve the accessor object for the given project @p id .
      */
-    public TDAccessor getAccessor( String name );
+    public TDAccessor getAccessor( long id );
 
     /**
      * Release your claim on the accessor.
@@ -82,14 +82,15 @@ public interface TDSService {
      * Add an accessor for a project (usually a new project just
      * added to the system, in preparation for syncing it).
      *
-     * @param name Project name
+     * @param id   Project ID
+     * @param name Project name (informational only)
      * @param bts  Bug tracker URL
      * @param mail URL for email access
      * @param scm  URL for repository
      *
      * @see eu.sqooss.service.db.StoredProject
      */
-    public void addAccessor( String name, String bts, String mail, String scm );
+    public void addAccessor( long id, String name, String bts, String mail, String scm );
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

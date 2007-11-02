@@ -52,7 +52,7 @@ import eu.sqooss.service.tds.TDSService;
 public class TDSServiceImpl implements TDSService {
     private LogManager logService = null;
     private Logger logger = null;
-    private HashMap<String, TDAccessorImpl> accessorPool;
+    private HashMap<Long, TDAccessorImpl> accessorPool;
 
     public TDSServiceImpl(BundleContext bc) {
         ServiceReference serviceRef = bc.getServiceReference(LogManager.class.getName());
@@ -72,7 +72,7 @@ public class TDSServiceImpl implements TDSService {
         logger.info("SVN repo factories initialized.");
         TDAccessorImpl.logger = logger;
 
-        accessorPool = new HashMap<String,TDAccessorImpl>();
+        accessorPool = new HashMap<Long,TDAccessorImpl>();
     }
 
     // Interface methods
@@ -81,20 +81,20 @@ public class TDSServiceImpl implements TDSService {
     // accessorExists; in future there may be when accessor pooling
     // and limiting is implemented. Then it may be that a project
     // exists for the TDS but has no accessor yet.
-    public boolean projectExists( String projectName ) {
-        return accessorPool.containsKey(projectName);
+    public boolean projectExists( long projectId ) {
+        return accessorPool.containsKey(new Long(projectId));
     }
 
-    public boolean accessorExists( String projectName ) {
-        return accessorPool.containsKey(projectName);
+    public boolean accessorExists( long projectId ) {
+        return accessorPool.containsKey(new Long(projectId));
     }
 
-    public TDAccessor getAccessor( String projectName ) {
-        if (accessorExists(projectName)) {
-            logger.info("Retrieving accessor for project " + projectName);
-            return accessorPool.get(projectName);
+    public TDAccessor getAccessor( long projectId ) {
+        if (accessorExists(projectId)) {
+            logger.info("Retrieving accessor for project " + projectId);
+            return accessorPool.get(projectId);
         } else {
-            logger.info("Retrieval request for non-existent project " + projectName);
+            logger.info("Retrieval request for non-existent project " + projectId);
         }
 
         return null;
@@ -104,9 +104,9 @@ public class TDSServiceImpl implements TDSService {
         logger.info("Release accessor for " + td.getName());
     }
 
-    public void addAccessor( String name, String bts, String mail, String scm ) {
-        TDAccessorImpl a = new TDAccessorImpl(name,bts,mail,scm);
-        accessorPool.put(name,a);
+    public void addAccessor( long id, String name, String bts, String mail, String scm ) {
+        TDAccessorImpl a = new TDAccessorImpl(id,name,bts,mail,scm);
+        accessorPool.put(new Long(id),a);
         logger.info("Added project <" + name + ">");
     }
 }
