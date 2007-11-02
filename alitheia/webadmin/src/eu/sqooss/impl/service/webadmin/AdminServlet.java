@@ -150,39 +150,34 @@ public class AdminServlet extends HttpServlet {
         dynamicSubstitutions = new Hashtable<String,String>();
     }
 
-    protected String[] getServiceNames() {
-        if ( bundlecontext != null ) {
-            try {
-                ServiceReference servicerefs[] = bundlecontext.getServiceReferences(
-                    null,null);
+    protected String[] getServiceNames(ServiceReference[] servicerefs) {
+        String names[] = new String[servicerefs.length];
+        int i = 0;
 
-                String names[] = new String[servicerefs.length];
-                int i = 0;
-                for (ServiceReference r : servicerefs) {
-                    String s;
-                    Object clazz = r.getProperty( org.osgi.framework.Constants.OBJECTCLASS );
-                    if (clazz != null) {
-                        s = SQOUtils.join( (String[])clazz, ", ");
-                    } else {
-                        s = "No class defined";
-                    }
-                    names[i++]=s;
-                }
+        for (ServiceReference r : servicerefs) {
+            String s;
+            Object clazz = 
+                r.getProperty( org.osgi.framework.Constants.OBJECTCLASS );
 
-                return names;
-            } catch (org.osgi.framework.InvalidSyntaxException e) {
-                logger.severe("Invalid request syntax");
-                return null;
+            if (clazz != null) {
+                s = SQOUtils.join( (String)clazz, ", ");
+            } else {
+                s = "No class defined";
             }
-        } else {
-            return null;
+            
+            names[i++] = s;
         }
+        
+        return names;
     }
 
+    /**
+     * Creates an HTML table displaying the key information on
+     * bundles and the services that they supply
+    */
     protected String renderBundles() {
         if( bundlecontext != null ) {
             Bundle[] bundles = bundlecontext.getBundles();
-            String names[] = new String[bundles.length];
             String[] statenames = { 
                 "uninstalled",
                 "installed",
@@ -192,22 +187,30 @@ public class AdminServlet extends HttpServlet {
                 "active" 
             };
 
+            // TODO: Convert this to use a String builder
             String resultString = 
-                "<table><tr><th>Bundle Name</th><th>Status</th></tr>";
+                "<table><tr><th>Bundle Name</th><th>Status</th><th>Services Provided</th></tr>";
 
             for( Bundle b : bundles ){
                 int state = b.getState();
-                String name = b.getSymbolicName();
+                ServiceReference[] servicerefs = b.getRegisteredServices();
+                String[] names = getServiceNames( servicerefs );
+
+                System.out.println( "Got the names!" );
 
                 resultString += 
                     "<tr><th>" + b.getSymbolicName() + 
                     "</th><th>" + 
                     SQOUtils.bitfieldToString(statenames,state) +
-                    "</th>";
+                    "</th><th><ul>" + 
+                    renderList(names) +
+                    "</ul></th></tr>";
             }
 
-            resultString += "</table>";
+            System.out.println( "Loop over!" );
 
+            resultString += "</table>";
+            
             return resultString;
         } else {
             return null;
@@ -216,10 +219,13 @@ public class AdminServlet extends HttpServlet {
 
     public String renderList(String[] names) {
         if ((names != null) && (names.length > 0)) {
+            System.out.println( "Starting the build!" );
             StringBuilder b = new StringBuilder();
             for (String s : names) {
                 b.append("<li>" + s + "</li>");
             }
+            
+            System.out.println( b.toString() );
             return b.toString();
         } else {
             return "<li>&lt;none&gt;</li>";
@@ -317,8 +323,7 @@ public class AdminServlet extends HttpServlet {
             if ("list".equals(query)) {
                 dynamicSubstitutions.put("@@PROJECTS",renderList(dbService.listProjects()));
             } else {
-                dynamicSubstitutions.put("@@BUNDLE",renderBundles());
-                dynamicSubstitutions.put("@@SERVICE",renderList(getServiceNames()));
+                dynamicSubstitutions.put("@@BUNDLE", renderBundles());
             }
             if ( (query != null) && dynamicContentMap.containsKey(query) ) {
                 sendTemplate(response,dynamicContentMap.get(query),dynamicSubstitutions);
