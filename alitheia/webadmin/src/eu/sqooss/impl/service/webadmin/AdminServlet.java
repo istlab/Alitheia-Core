@@ -191,18 +191,23 @@ public class AdminServlet extends HttpServlet {
             };
 
 	    StringBuilder resultString = new StringBuilder();
- 	    resultString.append("<table><tr><th>Bundle Name</th><th>Status</th><th>Services Utilised</th></tr>");
+ 	    resultString.append("<table>\n");    
+	    resultString.append("\t<tr>\n");
+	    resultString.append("\t\t<th>Bundle Name</th>\n");
+	    resultString.append("\t\t<th>Status</th>\n");
+	    resultString.append("\t\t<th>Services Utilised</th>\n");
+	    resultString.append("\t</tr>\n");
 
 	    for( Bundle b : bundles ){
 		String[] names = getServiceNames(b.getRegisteredServices());
 
-		resultString.append("<tr><th>");
+		resultString.append("\t<tr>\n\t\t<th>");
 		resultString.append(b.getSymbolicName());
-		resultString.append("</th><th>"); 
+		resultString.append("</th>\n\t\t<th>"); 
 		resultString.append(SQOUtils.bitfieldToString(statenames,b.getState()));
-		resultString.append("</th><th><ul>"); 
+		resultString.append("</th>\n\t\t<th>\n\t\t\t<ul>\n"); 
 		resultString.append(renderList(names));
-		resultString.append("</ul></th></tr>");
+		resultString.append("\t\t\t</ul>\n\t\t</th>\n\t</tr>\n");
 	    }
 	    
 	    resultString.append("</table>");
@@ -217,12 +222,12 @@ public class AdminServlet extends HttpServlet {
         if ((names != null) && (names.length > 0)) {
             StringBuilder b = new StringBuilder();
             for (String s : names) {
-                b.append("<li>" + s + "</li>");
+                b.append("\t\t\t\t<li>" + s + "</li>\n");
             }
             
             return b.toString();
         } else {
-            return "<li>&lt;none&gt;</li>";
+            return "\t\t\t\t<li>&lt;none&gt;</li>\n";
         }
     }
 
