@@ -191,25 +191,29 @@ public class AdminServlet extends HttpServlet {
             };
 
 	    StringBuilder resultString = new StringBuilder();
- 	    resultString.append("<table>\n");    
-	    resultString.append("\t<tr>\n");
-	    resultString.append("\t\t<th>Bundle Name</th>\n");
-	    resultString.append("\t\t<th>Status</th>\n");
-	    resultString.append("\t\t<th>Services Utilised</th>\n");
-	    resultString.append("\t</tr>\n");
-
+ 	    resultString.append("<table>\n");
+	    resultString.append("\t<thead>\n");
+	    resultString.append("\t\t<tr>\n");
+	    resultString.append("\t\t\t<th>Bundle Name</th>\n");
+	    resultString.append("\t\t\t<th>Status</th>\n");
+	    resultString.append("\t\t\t<th>Services Utilised</th>\n");
+	    resultString.append("\t\t</tr>\n");
+	    resultString.append("\t</thead>\n");
+	    resultString.append("\t<tbody>\n");
+	    
 	    for( Bundle b : bundles ){
 		String[] names = getServiceNames(b.getRegisteredServices());
 
-		resultString.append("\t<tr>\n\t\t<th>");
+		resultString.append("\t\t<tr>\n\t\t\t<th>");
 		resultString.append(SQOUtils.makeXHTMLSafe(b.getSymbolicName()));
-		resultString.append("</th>\n\t\t<th>"); 
+		resultString.append("</th>\n\t\t\t<th>"); 
 		resultString.append(SQOUtils.bitfieldToString(statenames,b.getState()));
-		resultString.append("</th>\n\t\t<th>\n\t\t\t<ul>\n"); 
+		resultString.append("</th>\n\t\t\t<th>\n\t\t\t\t<ul>\n"); 
 		resultString.append(renderList(names));
-		resultString.append("\t\t\t</ul>\n\t\t</th>\n\t</tr>\n");
+		resultString.append("\t\t\t\t</ul>\n\t\t\t</th>\n\t\t</tr>\n");
 	    }
 	    
+	    resultString.append("\t</tbody>\n");
 	    resultString.append("</table>");
 	    
             return resultString.toString();
@@ -222,12 +226,12 @@ public class AdminServlet extends HttpServlet {
         if ((names != null) && (names.length > 0)) {
             StringBuilder b = new StringBuilder();
             for (String s : names) {
-                b.append("\t\t\t\t<li>" + SQOUtils.makeXHTMLSafe(s) + "</li>\n");
+                b.append("\t\t\t\t\t<li>" + SQOUtils.makeXHTMLSafe(s) + "</li>\n");
             }
             
             return b.toString();
         } else {
-            return "\t\t\t\t<li>&lt;none&gt;</li>\n";
+            return "\t\t\t\t\t<li>&lt;none&gt;</li>\n";
         }
     }
 
