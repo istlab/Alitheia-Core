@@ -151,24 +151,27 @@ public class AdminServlet extends HttpServlet {
     }
 
     protected String[] getServiceNames(ServiceReference[] servicerefs) {
-        String names[] = new String[servicerefs.length];
-        int i = 0;
+	if( servicerefs != null ){
+	    String s, names[] = new String[servicerefs.length];
+	    int i = 0;
 
-        for (ServiceReference r : servicerefs) {
-            String s;
-            Object clazz = 
-                r.getProperty( org.osgi.framework.Constants.OBJECTCLASS );
-
-            if (clazz != null) {
-                s = SQOUtils.join( (String[])clazz, ", ");
-            } else {
-                s = "No class defined";
-            }
-            
-            names[i++] = s;
-        }
+	    for (ServiceReference r : servicerefs) {
+		Object clazz = 
+		    r.getProperty( org.osgi.framework.Constants.OBJECTCLASS );
+		
+		if (clazz != null) {
+		    s = SQOUtils.join( (String[])clazz, ", ");
+		} else {
+		    s = "No class defined";
+		}
         
-        return names;
+		names[i++] = s;
+	    }
+        
+	    return names;
+	} else {
+	    return null;
+	}
     }
 
     /**
@@ -187,25 +190,23 @@ public class AdminServlet extends HttpServlet {
                 "active" 
             };
 
-            StringBuilder resultString = new StringBuilder();
-	    resultString.append("<table><tr><th>Bundle Name</th><th>Status</th><th>Services Provided</th></tr>");
+	    StringBuilder resultString = new StringBuilder();
+ 	    resultString.append("<table><tr><th>Bundle Name</th><th>Status</th><th>Services Utilised</th></tr>");
 
-            for( Bundle b : bundles ){
-                int state = b.getState();
-                ServiceReference[] servicerefs = b.getRegisteredServices();
-                String[] names = getServiceNames( servicerefs );
+	    for( Bundle b : bundles ){
+		String[] names = getServiceNames(b.getRegisteredServices());
 
-                resultString.append("<tr><th>");
+		resultString.append("<tr><th>");
 		resultString.append(b.getSymbolicName());
-                resultString.append("</th><th>"); 
-                resultString.append(SQOUtils.bitfieldToString(statenames,state));
-		resultString.append("</th><th><ul>");
+		resultString.append("</th><th>"); 
+		resultString.append(SQOUtils.bitfieldToString(statenames,b.getState()));
+		resultString.append("</th><th><ul>"); 
 		resultString.append(renderList(names));
-                resultString.append("</ul></th></tr>");
-            }
-
-            resultString.append("</table>");
-
+		resultString.append("</ul></th></tr>");
+	    }
+	    
+	    resultString.append("</table>");
+	    
             return resultString.toString();
         } else {
             return null;
