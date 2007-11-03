@@ -160,7 +160,7 @@ public class AdminServlet extends HttpServlet {
                 r.getProperty( org.osgi.framework.Constants.OBJECTCLASS );
 
             if (clazz != null) {
-                s = SQOUtils.join( (String)clazz, ", ");
+                s = SQOUtils.join( (String[])clazz, ", ");
             } else {
                 s = "No class defined";
             }
@@ -196,8 +196,6 @@ public class AdminServlet extends HttpServlet {
                 ServiceReference[] servicerefs = b.getRegisteredServices();
                 String[] names = getServiceNames( servicerefs );
 
-                System.out.println( "Got the names!" );
-
                 resultString += 
                     "<tr><th>" + b.getSymbolicName() + 
                     "</th><th>" + 
@@ -206,8 +204,6 @@ public class AdminServlet extends HttpServlet {
                     renderList(names) +
                     "</ul></th></tr>";
             }
-
-            System.out.println( "Loop over!" );
 
             resultString += "</table>";
             
@@ -219,7 +215,6 @@ public class AdminServlet extends HttpServlet {
 
     public String renderList(String[] names) {
         if ((names != null) && (names.length > 0)) {
-            System.out.println( "Starting the build!" );
             StringBuilder b = new StringBuilder();
             for (String s : names) {
                 b.append("<li>" + s + "</li>");
