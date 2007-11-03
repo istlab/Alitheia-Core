@@ -97,5 +97,14 @@ public class SQOUtils {
         }
         return b.toString();
     }
+
+    /**
+     * Given a String, this function returns an XHTML-safe version of the same 
+     */
+    public static String makeXHTMLSafe(String line){
+	return line.replace("&", "&amp;")
+	    .replace("<", "&lt;")
+	    .replace(">", "&gt;");
+    }
 }
 
