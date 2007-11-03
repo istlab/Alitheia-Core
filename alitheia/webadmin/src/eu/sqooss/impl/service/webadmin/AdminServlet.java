@@ -187,27 +187,26 @@ public class AdminServlet extends HttpServlet {
                 "active" 
             };
 
-            // TODO: Convert this to use a String builder
-            String resultString = 
-                "<table><tr><th>Bundle Name</th><th>Status</th><th>Services Provided</th></tr>";
+            StringBuilder resultString = new StringBuilder();
+	    resultString.append("<table><tr><th>Bundle Name</th><th>Status</th><th>Services Provided</th></tr>");
 
             for( Bundle b : bundles ){
                 int state = b.getState();
                 ServiceReference[] servicerefs = b.getRegisteredServices();
                 String[] names = getServiceNames( servicerefs );
 
-                resultString += 
-                    "<tr><th>" + b.getSymbolicName() + 
-                    "</th><th>" + 
-                    SQOUtils.bitfieldToString(statenames,state) +
-                    "</th><th><ul>" + 
-                    renderList(names) +
-                    "</ul></th></tr>";
+                resultString.append("<tr><th>");
+		resultString.append(b.getSymbolicName());
+                resultString.append("</th><th>"); 
+                resultString.append(SQOUtils.bitfieldToString(statenames,state));
+		resultString.append("</th><th><ul>");
+		resultString.append(renderList(names));
+                resultString.append("</ul></th></tr>");
             }
 
-            resultString += "</table>";
-            
-            return resultString;
+            resultString.append("</table>");
+
+            return resultString.toString();
         } else {
             return null;
         }
@@ -220,7 +219,6 @@ public class AdminServlet extends HttpServlet {
                 b.append("<li>" + s + "</li>");
             }
             
-            System.out.println( b.toString() );
             return b.toString();
         } else {
             return "<li>&lt;none&gt;</li>";
