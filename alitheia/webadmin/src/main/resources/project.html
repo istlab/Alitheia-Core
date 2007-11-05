@@ -32,13 +32,45 @@
         </fieldset>
 
         <h1>Alitheia Projects</h1>
-        <h2>Installed Projects</h2>
         <div id="projectlist">
+            <h2>Installed Projects</h2>
 	    @@PROJECTS
         </div>
 
-        <h2>Install New Project</h2>
         <div id="newproject">
+            <h2>Install New Project</h2>
+            <form id="addproject" method="post" action="addproject">
+                <table>
+                    <tr>
+                        <td>Project Name:</td>
+                        <td><input name="name" type="text" size="25" maxlength="25" /></td>
+                    </tr>
+                    <tr>
+                        <td>Website:</td>
+                        <td><input name="website" type="text" size="25" /></td>
+                    </tr>
+                    <tr>
+                        <td>Contact:</td>
+                        <td><input name="contact" type="text" size="25" /></td>
+                    </tr>
+                    <tr>
+                        <td>Bug Database:</td>
+                        <td><input name="bts" type="text" size="25" /></td>
+                    </tr>
+                    <tr>
+                        <td>Mail:</td>
+                        <td><input name="mail" type="text" size="25" /></td>
+                    </tr>
+                    <tr>
+                        <td>Subversion:</td>
+                        <td><input name="scm" type="text" size="25" /></td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td><input type="submit" /></td>
+                    </tr>
+                </table>
+            </form>
         </div>
 
         <div id='footer'>

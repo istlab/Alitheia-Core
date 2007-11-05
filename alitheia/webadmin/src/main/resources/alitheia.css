@@ -24,6 +24,11 @@ text-align: right;
 clear: both;
 }
 
+#projectlist, #newproject {
+width: 30%;
+float: left;
+}
+
 
 #status, #menu, #options {
 width: 20%;

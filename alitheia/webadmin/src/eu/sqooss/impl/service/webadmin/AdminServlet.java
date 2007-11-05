@@ -132,12 +132,26 @@ public class AdminServlet extends HttpServlet {
         t.start();
 
         staticContentMap = new Hashtable<String,String[]>();
-        String[] flossie = { "image/x-png", "/flossie.png" } ;
-        String[] css = { "text/css", "/alitheia.css" } ;
-        String[] logo = { "image/x-png", "/alitheia.png" } ;
+        String[] flossie = { "image/x-png", "/flossie.png" };
+        String[] css = { "text/css", "/alitheia.css" };
+        String[] css2 = { "text/css", "/style.css" };
+        String[] logo = { "image/x-png", "/alitheia.png" };
+        String[] bD = { "image/x-gif", "/blueDown.gif" };
+        String[] bU = { "image/x-gif", "/blueUp.gif" };
+        String[] gB = { "image/x-png", "/greyBack.png" };
+        String[] pD = { "image/x-gif", "/purpleDown.gif" };
+        String[] pU = { "image/x-gif", "/purpleUp.gif" };
+
+
         staticContentMap.put("logo", flossie);
         staticContentMap.put("alitheia.css", css);
+        staticContentMap.put("style.css", css2);
         staticContentMap.put("alitheia.png", logo);
+        staticContentMap.put("blueDown.gif", bD);
+        staticContentMap.put("blueUp.gif", bU);
+        staticContentMap.put("greyBack.png", gB);
+        staticContentMap.put("purpleDown.gif", pD);
+        staticContentMap.put("purpleUp.gif", pU);
 
         dynamicContentMap = new Hashtable<String,String>();
         dynamicContentMap.put("about","/about.html");
@@ -190,12 +204,12 @@ public class AdminServlet extends HttpServlet {
             };
 
 	    StringBuilder resultString = new StringBuilder();
- 	    resultString.append("<table>\n");
+ 	    resultString.append("<table cellpadding=\"0\" cellspacing=\"0\">\n");
 	    resultString.append("\t<thead>\n");
 	    resultString.append("\t\t<tr>\n");
-	    resultString.append("\t\t\t<th>Bundle Name</th>\n");
-	    resultString.append("\t\t\t<th>Status</th>\n");
-	    resultString.append("\t\t\t<th>Services Utilised</th>\n");
+	    resultString.append("\t\t\t<td class=\"supportGreyTopLeft\">&nbsp;</td>\n");
+	    resultString.append("\t\t\t<td class=\"supportLblueImageUp\">Status</td>\n");
+	    resultString.append("\t\t\t<td class=\"supportPurpleImageUp\">Services Utilised</td>\n");
 	    resultString.append("\t\t</tr>\n");
 	    resultString.append("\t</thead>\n");
 	    resultString.append("\t<tbody>\n");
@@ -203,13 +217,13 @@ public class AdminServlet extends HttpServlet {
 	    for( Bundle b : bundles ){
 		String[] names = getServiceNames(b.getRegisteredServices());
 
-		resultString.append("\t\t<tr>\n\t\t\t<th>");
+		resultString.append("\t\t<tr>\n\t\t\t<td class=\"supportGreyLeft\">");
 		resultString.append(SQOUtils.makeXHTMLSafe(b.getSymbolicName()));
-		resultString.append("</th>\n\t\t\t<th>"); 
+		resultString.append("</td>\n\t\t\t<td class=\"supportLblue\">"); 
 		resultString.append(SQOUtils.bitfieldToString(statenames,b.getState()));
-		resultString.append("</th>\n\t\t\t<th>\n\t\t\t\t<ul>\n"); 
+		resultString.append("</td>\n\t\t\t<td class=\"supportPurple\">\n\t\t\t\t<ul>\n"); 
 		resultString.append(renderList(names));
-		resultString.append("\t\t\t\t</ul>\n\t\t\t</th>\n\t\t</tr>\n");
+		resultString.append("\t\t\t\t</ul>\n\t\t\t</td>\n\t\t</tr>\n");
 	    }
 	    
 	    resultString.append("\t</tbody>\n");
