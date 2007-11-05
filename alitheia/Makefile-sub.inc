@@ -87,7 +87,7 @@ endef
 
 define hbm_resource_template
 build/$(1) : src/$(1)
-	-mkdir -p build/$(dir $(1))
+	@-mkdir -p build/$(dir $(1))
 	cp src/$(1) build/$(dir $(1))
 endef
 
