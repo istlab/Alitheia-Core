@@ -306,6 +306,7 @@ public class AdminServlet extends HttpServlet {
         dynamicSubstitutions.put("@@LOGO","<img src='/logo' id='logo' alt='Logo' />");
         dynamicSubstitutions.put("@@COPYRIGHT","Copyright 2007 <a href=\"about\">SQO-OSS Consortium members</a>");
         dynamicSubstitutions.put("@@GETLOGS", renderList(logService.getRecentEntries()));
+        dynamicSubstitutions.put("@@PROJECTS",renderList(dbService.listProjects()));
     }
 
     protected void doGet(HttpServletRequest request,
