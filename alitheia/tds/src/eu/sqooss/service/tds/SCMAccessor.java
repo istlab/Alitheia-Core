@@ -41,7 +41,7 @@ import eu.sqooss.service.tds.InvalidProjectRevisionException;
 import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.ProjectRevision;
 
-public interface SCMAccessor {
+public interface SCMAccessor extends NamedAccessor {
     /**
      * Get the numeric revision number for HEAD in this project.
      * Returns a negative value (usually -1) on error.

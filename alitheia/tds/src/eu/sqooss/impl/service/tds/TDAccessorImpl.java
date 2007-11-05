@@ -44,12 +44,10 @@ import eu.sqooss.impl.service.tds.BTSAccessorImpl;
 import eu.sqooss.impl.service.tds.SCMAccessorImpl;
 import eu.sqooss.impl.service.tds.MailAccessorImpl;
 
-public class TDAccessorImpl implements TDAccessor {
-    private long id;
+public class TDAccessorImpl extends NamedAccessorImpl implements TDAccessor {
     public String bts;
     public String mail;
     public String scm;
-    private String name;
     private BTSAccessorImpl btsAccessor = null;
     private SCMAccessorImpl scmAccessor = null;
     private MailAccessorImpl mailAccessor = null;
@@ -76,8 +74,7 @@ public class TDAccessorImpl implements TDAccessor {
     }
 
     public TDAccessorImpl( long id, String name, String bts, String mail, String scm ) {
-        this.id = id;
-        this.name = name;
+        super(id,name);
         this.bts = bts;
         this.mail = mail;
         this.scm = scm;
@@ -85,31 +82,24 @@ public class TDAccessorImpl implements TDAccessor {
 
 
     // Interface functions
-    public long getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
     public BTSAccessor getBTSAccessor() {
         if (btsAccessor == null) {
-            btsAccessor = new BTSAccessorImpl(name);
+            btsAccessor = new BTSAccessorImpl(getId(),getName());
         }
         return btsAccessor;
     }
 
     public MailAccessor getMailAccessor() {
         if (mailAccessor == null) {
-            mailAccessor = new MailAccessorImpl( new File("/var/spool/mail") );
+            mailAccessor = new MailAccessorImpl( getId(),getName(),
+                new File("/var/spool/mail") );
         }
         return mailAccessor;
     }
 
     public SCMAccessor getSCMAccessor() {
         if (scmAccessor == null) {
-            scmAccessor = new SCMAccessorImpl( name, scm );
+            scmAccessor = new SCMAccessorImpl( getId(),getName(), scm );
         }
         return scmAccessor;
     }

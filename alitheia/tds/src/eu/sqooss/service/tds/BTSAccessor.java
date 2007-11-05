@@ -38,7 +38,7 @@ import java.util.List;
 
 import eu.sqooss.service.tds.Bug;
 
-public interface BTSAccessor {
+public interface BTSAccessor extends NamedAccessor {
     public interface BugNumberList extends List<Integer> { }
 
     /**

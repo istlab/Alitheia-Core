@@ -31,58 +31,29 @@
  *
  */
 
-package eu.sqooss.impl.service.tds;
+package eu.sqooss.service.tds;
 
-import java.io.File;
-import java.util.HashSet;
-import java.util.Set;
-
-import eu.sqooss.service.tds.Diff;
-import eu.sqooss.service.tds.ProjectRevision;
-
-public class DiffImpl implements Diff {
-    private ProjectRevision revStart,revEnd;
-    private File diffFile;
-    private Set<String> changedFiles;
-
-    public DiffImpl(ProjectRevision start, ProjectRevision end, File path) {
-        revStart = new ProjectRevision(start);
-        if (end!=null) {
-            revEnd = new ProjectRevision(end);
-        } else {
-            revEnd = new ProjectRevision(start.getSVNRevision()+1);
-        }
-        diffFile = path;
-        changedFiles = new HashSet<String>();
-    }
+/**
+ * Most of the accessors to data are associated with a single
+ * project, which has an ID in the StoredProject table for Alitheia,
+ * and an informative (but not necessarily unique) human-readable
+ * name. This interface captures that high-level data layout.
+ */
+public interface NamedAccessor {
+    /**
+     * Return the numeric ID for the project associated with this accessor.
+     * At creation time this is guaranteed to be a valid project ID, but
+     * during the lifetime of the accessor the project may be removed or
+     * modified so that the ID becomes invalid.
+     */
+    public long getId();
 
     /**
-     * Add a file to the set of changed files represented by
-     * this Diff. Normally done by the DiffStatusHandler while
-     * processing the diff from the server.
+     * Return the name assigned to the project when the accessor was created.
+     * Just like the ID, this may have changed since.
      */
-    public void addFile(String path) {
-        changedFiles.add(path);
-    }
-
-    // Interface methods
-    public ProjectRevision getSourceRevision() {
-        return new ProjectRevision(revStart);
-    }
-
-    public ProjectRevision getTargetRevision() {
-        return new ProjectRevision(revEnd);
-    }
-
-    public File getDiffFile() {
-        return diffFile;
-    }
-
-    public Set<String> getChangedFiles() {
-        return changedFiles;
-    }
+    public String getName();
 }
-
 
 // vi: ai nosi sw=4 ts=4 expandtab
 

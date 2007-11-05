@@ -41,18 +41,17 @@ import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.BTSAccessor;
 import eu.sqooss.service.tds.Bug;
 
-class BTSAccessorImpl implements BTSAccessor {
+class BTSAccessorImpl extends NamedAccessorImpl implements BTSAccessor {
     class BugNumberListImpl
         extends LinkedList<Integer>
         implements BugNumberList {
         private static final long serialVersionUID = 1;
     }
 
-    private String projectName;
     public static Logger logger;
 
-    public BTSAccessorImpl(String projectName) {
-        this.projectName = projectName;
+    public BTSAccessorImpl( long id, String projectName ) {
+        super(id,projectName);
     }
 
     // Interface methds

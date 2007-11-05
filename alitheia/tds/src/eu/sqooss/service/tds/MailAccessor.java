@@ -38,7 +38,7 @@ import java.util.List;
 
 import java.io.FileNotFoundException;
 
-public interface MailAccessor {
+public interface MailAccessor extends NamedAccessor {
     /**
      * Retrieves the entire raw message content of the given
      * message ID (the message ID may be relative to the project

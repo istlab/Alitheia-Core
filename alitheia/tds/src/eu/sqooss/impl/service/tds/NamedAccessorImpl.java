@@ -31,58 +31,28 @@
  *
  */
 
+// Need a package name
 package eu.sqooss.impl.service.tds;
 
-import java.io.File;
-import java.util.HashSet;
-import java.util.Set;
+import eu.sqooss.service.tds.NamedAccessor;
 
-import eu.sqooss.service.tds.Diff;
-import eu.sqooss.service.tds.ProjectRevision;
+public class NamedAccessorImpl implements NamedAccessor {
+    private long id;
+    private String name;
 
-public class DiffImpl implements Diff {
-    private ProjectRevision revStart,revEnd;
-    private File diffFile;
-    private Set<String> changedFiles;
-
-    public DiffImpl(ProjectRevision start, ProjectRevision end, File path) {
-        revStart = new ProjectRevision(start);
-        if (end!=null) {
-            revEnd = new ProjectRevision(end);
-        } else {
-            revEnd = new ProjectRevision(start.getSVNRevision()+1);
-        }
-        diffFile = path;
-        changedFiles = new HashSet<String>();
+    public long getId() {
+        return id;
     }
 
-    /**
-     * Add a file to the set of changed files represented by
-     * this Diff. Normally done by the DiffStatusHandler while
-     * processing the diff from the server.
-     */
-    public void addFile(String path) {
-        changedFiles.add(path);
+    public String getName() {
+        return name;
     }
 
-    // Interface methods
-    public ProjectRevision getSourceRevision() {
-        return new ProjectRevision(revStart);
-    }
-
-    public ProjectRevision getTargetRevision() {
-        return new ProjectRevision(revEnd);
-    }
-
-    public File getDiffFile() {
-        return diffFile;
-    }
-
-    public Set<String> getChangedFiles() {
-        return changedFiles;
+    protected NamedAccessorImpl( long id, String name ) {
+        this.id = id;
+        this.name = name;
     }
 }
-
 
 // vi: ai nosi sw=4 ts=4 expandtab
 

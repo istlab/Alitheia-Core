@@ -47,12 +47,13 @@ import java.util.LinkedList;
 import eu.sqooss.service.tds.MailAccessor;
 import eu.sqooss.service.logging.Logger;
 
-public class MailAccessorImpl implements MailAccessor {
+public class MailAccessorImpl extends NamedAccessorImpl implements MailAccessor {
     private File maildirRoot;
     private String[] subdirs = { "cur", "new", "tmp" };
     public static Logger logger = null;
 
-    public MailAccessorImpl( File root ) {
+    public MailAccessorImpl( long id, String name, File root ) {
+        super(id,name);
         maildirRoot = root;
     }
 

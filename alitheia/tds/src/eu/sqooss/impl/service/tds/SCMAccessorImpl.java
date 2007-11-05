@@ -57,22 +57,17 @@ import eu.sqooss.service.tds.Diff;
 import eu.sqooss.service.tds.ProjectRevision;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
 import eu.sqooss.service.tds.InvalidRepositoryException;
-import eu.sqooss.impl.service.tds.CommitLogImpl;
-import eu.sqooss.impl.service.tds.CheckoutBaton;
-import eu.sqooss.impl.service.tds.CheckoutEditor;
-import eu.sqooss.impl.service.tds.DiffStatusHandler;
 
-public class SCMAccessorImpl implements SCMAccessor {
+public class SCMAccessorImpl extends NamedAccessorImpl implements SCMAccessor {
     private String url;
-    private String projectName;
     private SVNRepository svnRepository = null;
     public static Logger logger = null;
 
-    public SCMAccessorImpl( String projectName, String url ) {
+    public SCMAccessorImpl( long id, String projectName, String url ) {
+        super(id,projectName);
         this.url = url;
-        this.projectName = projectName;
         if (logger != null) {
-            logger.info("Created SCMAccessor for " + projectName);
+            logger.info("Created SCMAccessor for " + getName());
         }
     }
 
@@ -87,10 +82,10 @@ public class SCMAccessorImpl implements SCMAccessor {
             // All access is assumed to be anonynmous, so no
             // authentication manager is used.
         } catch (SVNException e) {
-            logger.warning("Could not create SVN repository connection for " + projectName +
+            logger.warning("Could not create SVN repository connection for " + getName() +
                 e.getMessage());
             svnRepository = null;
-            throw new InvalidRepositoryException(projectName,url,e.getMessage());
+            throw new InvalidRepositoryException(getName(),url,e.getMessage());
         }
     }
 
@@ -114,7 +109,7 @@ public class SCMAccessorImpl implements SCMAccessor {
         try {
             revno = svnRepository.getDatedRevision(r.getDate());
         } catch (SVNException e) {
-            throw new InvalidRepositoryException(projectName,url,e.getMessage());
+            throw new InvalidRepositoryException(getName(),url,e.getMessage());
         }
         if (revno > 0) {
             r.setSVNRevision(revno);
@@ -142,11 +137,11 @@ public class SCMAccessorImpl implements SCMAccessor {
         long endRevision = -1;
         try {
             endRevision = svnRepository.getLatestRevision();
-            logger.info("Latest revision of " + projectName + " is " + endRevision);
+            logger.info("Latest revision of " + getName() + " is " + endRevision);
         } catch (SVNException e) {
-            logger.warning("Could not get latest revision of " + projectName +
+            logger.warning("Could not get latest revision of " + getName() +
                 e.getMessage());
-            throw new InvalidRepositoryException(projectName,url,e.getMessage());
+            throw new InvalidRepositoryException(getName(),url,e.getMessage());
         }
 
         return endRevision;
@@ -193,7 +188,7 @@ public class SCMAccessorImpl implements SCMAccessor {
         try {
             svnRepository.update(revno,repoPath,true,baton,editor);
         } catch (SVNException e) {
-            throw new InvalidRepositoryException(projectName,url,e.getMessage());
+            throw new InvalidRepositoryException(getName(),url,e.getMessage());
         }
     }
 
@@ -268,7 +263,7 @@ public class SCMAccessorImpl implements SCMAccessor {
                 l.getEntriesReference(),
                 revstart, revend, true, true);
         } catch (SVNException e) {
-            throw new InvalidRepositoryException(projectName, url, e.getMessage());
+            throw new InvalidRepositoryException(getName(), url, e.getMessage());
         }
 
         return l;
@@ -338,7 +333,7 @@ public class SCMAccessorImpl implements SCMAccessor {
             return theDiff;
         } catch (SVNException e) {
             logger.warning(e.getMessage());
-            throw new InvalidRepositoryException(projectName,url,e.getMessage());
+            throw new InvalidRepositoryException(getName(),url,e.getMessage());
         } catch (IOException e) {
             logger.warning(e.getMessage());
             throw new FileNotFoundException("Could not create temporary file for diff.");

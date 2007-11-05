@@ -46,22 +46,23 @@ import eu.sqooss.service.tds.ProjectRevision;
  * Use the FDSService to obtain a checkout and remember to release it
  * when done.
  */
-public interface Checkout {
-    /**
-     * Get the project name for this checkout.
-     */
-    public String getProjectName();
-
+public interface Checkout extends eu.sqooss.service.tds.NamedAccessor {
     /**
      * Get the revision at which this checkout was made.
+     *
+     * @return Revision (resolved to both timestamp and SVN revision
+     *          number) of this checkout. Will not change.
      */
-    public ProjectRevision getRevision();
+    ProjectRevision getRevision();
 
     /**
      * Get the root within the Alitheia filesystem where the checkout lives,
      * for further manipulation with regular java.io methods.
+     *
+     * @return File representing the abstract path to the root of the
+     *          checkout; all files live beneath this.
      */
-    public File getRoot();
+    File getRoot();
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

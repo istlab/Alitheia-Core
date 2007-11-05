@@ -33,10 +33,6 @@
 
 package eu.sqooss.service.tds;
 
-import eu.sqooss.service.tds.BTSAccessor;
-import eu.sqooss.service.tds.MailAccessor;
-import eu.sqooss.service.tds.SCMAccessor;
-
 /**
  * The accessor for a project gives you the means to retrieve
  * raw project data for it. See the interfaces for each individual
@@ -50,7 +46,7 @@ import eu.sqooss.service.tds.SCMAccessor;
  *
  * @see TDSService
  */
-public interface TDAccessor {
+public interface TDAccessor extends NamedAccessor {
     /**
      * Return the numeric ID for the project associated with this accessor.
      * At creation time this is guaranteed to be a valid project ID, but

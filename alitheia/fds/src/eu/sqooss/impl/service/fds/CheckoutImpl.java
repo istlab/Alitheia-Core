@@ -39,10 +39,14 @@ import eu.sqooss.service.fds.Checkout;
 import eu.sqooss.service.tds.ProjectRevision;
 
 class CheckoutImpl implements Checkout {
+    private long projectId;
     private String projectName;
     private int claims;
+    private File root;
+    private ProjectRevision revision;
 
-    CheckoutImpl(String name) {
+    CheckoutImpl( long id, String name ) {
+        projectId = id;
         projectName = name;
         claims = 0;
     }
@@ -55,17 +59,27 @@ class CheckoutImpl implements Checkout {
         return --claims;
     }
 
+    public void setCheckout( File root, ProjectRevision r ) {
+        this.root = root;
+        this.revision = r;
+    }
+
     // Interface methods
     public File getRoot() {
-        return null;
+        return root;
     }
 
     public ProjectRevision getRevision() {
-        return null;
+        return revision;
     }
 
-    public String getProjectName() {
+    // Interface eu.sqooss.service.tds.NamedAccessor
+    public String getName() {
         return projectName;
+    }
+
+    public long getId() {
+        return projectId;
     }
 }
 

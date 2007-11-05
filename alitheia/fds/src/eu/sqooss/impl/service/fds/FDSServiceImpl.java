@@ -33,6 +33,7 @@
 package eu.sqooss.impl.service.fds;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -51,7 +52,6 @@ import eu.sqooss.service.tds.ProjectRevision;
 import eu.sqooss.service.tds.SCMAccessor;
 import eu.sqooss.service.tds.TDAccessor;
 import eu.sqooss.service.tds.TDSService;
-import eu.sqooss.impl.service.fds.CheckoutImpl;
 
 public class FDSServiceImpl implements FDSService {
     private LogManager logService = null;
@@ -63,7 +63,7 @@ public class FDSServiceImpl implements FDSService {
      * This map maps project names to lists of checkouts; the
      * checkouts all have different revisions.
      */
-    private HashMap<String,List<CheckoutImpl>> checkoutCollection;
+    private HashMap<Long,List<CheckoutImpl>> checkoutCollection;
 
     public FDSServiceImpl(BundleContext bc) {
         ServiceReference serviceRef = bc.getServiceReference(LogManager.class.getName());
@@ -80,7 +80,7 @@ public class FDSServiceImpl implements FDSService {
         tds = (TDSService) bc.getService(serviceRef);
         logger.info("Got TDS service for FDS.");
 
-        checkoutCollection = new HashMap<String,List<CheckoutImpl>>();
+        checkoutCollection = new HashMap<Long,List<CheckoutImpl>>();
         logger.info("FDS root directory " + bc.getProperty("eu.sqooss.fds.root"));
         fdsCheckoutRoot = new File(bc.getProperty("eu.sqooss.fds.root"));
     }
@@ -100,13 +100,13 @@ public class FDSServiceImpl implements FDSService {
 
     private CheckoutImpl findCheckout( Checkout c )
         throws InvalidRepositoryException {
-        List<CheckoutImpl> l = checkoutCollection.get(c.getProjectName());
+        List<CheckoutImpl> l = checkoutCollection.get(c.getName());
         if (l == null) {
-            throw new InvalidRepositoryException(c.getProjectName(),"",
+            throw new InvalidRepositoryException(c.getName(),"",
                 "No managed checkout for this project.");
         }
         if (!c.getRevision().isValid() || !c.getRevision().hasSVNRevision()) {
-            throw new InvalidRepositoryException(c.getProjectName(),"",
+            throw new InvalidRepositoryException(c.getName(),"",
                 "Bogus checkout has bad revision attached.");
         }
 
@@ -118,8 +118,34 @@ public class FDSServiceImpl implements FDSService {
             // with the same project name and the same SVN revision, but
             // they are different objects. This must not happen.
             throw new RuntimeException("Duplicate checkouts for " +
-                c.getProjectName() + " " + c.getRevision());
+                c.getName() + " " + c.getRevision());
         }
+    }
+
+    private CheckoutImpl createCheckout( SCMAccessor svn,
+        long projectId, String projectName, ProjectRevision r )
+        throws InvalidRepositoryException,
+               InvalidProjectRevisionException {
+        File projectRoot = new File(fdsCheckoutRoot,new Long(projectId).toString());
+        // It shouldn't exist yet
+        projectRoot.mkdir();
+
+        File checkoutRoot = new File(projectRoot,new Long(r.getSVNRevision()).toString());
+        // It shouldn't exist yet either
+        checkoutRoot.mkdir();
+
+        try {
+            svn.checkOut( "", r, checkoutRoot.toString() );
+        } catch (FileNotFoundException e) {
+            logger.warning("Root of project " + svn.getName() + " does not exist.");
+            return null;
+        }
+
+        CheckoutImpl c = new CheckoutImpl( projectId, projectName );
+        c.setCheckout( checkoutRoot, r );
+        c.claim();
+
+        return c;
     }
 
     // Interface methods
@@ -151,41 +177,39 @@ public class FDSServiceImpl implements FDSService {
 
         svn.resolveProjectRevision(r);
 
-        List<CheckoutImpl> l = checkoutCollection.get(projectName);
+        List<CheckoutImpl> l = checkoutCollection.get(projectId);
         if (l!=null) {
-            CheckoutImpl c = findCheckout(l,r);
-            if (c != null) {
-                c.claim();
+            synchronized(l) {
+                CheckoutImpl c = findCheckout(l,r);
+                if (c != null) {
+                    c.claim();
+                } else {
+                    c = createCheckout(svn,projectId,projectName,r);
+                    l.add(c);
+                }
+                return c;
             }
-            // TODO: else create this checkout
-            return c;
         } else {
             // This is the very first checkout of the project,
             // isn't that exciting.
-            l = new LinkedList<CheckoutImpl>();
-            checkoutCollection.put(projectName,l);
-
-            File projectRoot = new File(fdsCheckoutRoot,projectName);
-            // It shouldn't exist yet
-            projectRoot.mkdir();
-
-            File checkoutRoot = new File(projectRoot,new Long(r.getSVNRevision()).toString());
-            // It shouldn't exist yet either
-            checkoutRoot.mkdir();
-
-            // TODO: use tds to check out there
-            // TODO: setup a CheckoutImpl object
-            // TODO: add to the list
-            // TODO: locking around all that
+            synchronized(checkoutCollection) {
+                CheckoutImpl c = null;
+                l = new LinkedList<CheckoutImpl>();
+                synchronized(l) {
+                    checkoutCollection.put(projectId,l);
+                    c = createCheckout(svn,projectId,projectName,r);
+                    l.add(c);
+                }
+                return c;
+            }
         }
-        return null;
     }
 
     public void releaseCheckout(Checkout c)
         throws InvalidRepositoryException {
         CheckoutImpl i = findCheckout(c);
         if (i.release() < 1) {
-            logger.info("Checkout of " + c.getProjectName() + " (" +
+            logger.info("Checkout of " + c.getName() + " (" +
                 c.getRevision() + ") is free.");
         }
     }
