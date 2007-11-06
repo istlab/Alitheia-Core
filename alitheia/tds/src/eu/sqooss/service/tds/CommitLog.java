@@ -33,22 +33,32 @@
 
 package eu.sqooss.service.tds;
 
-import eu.sqooss.service.tds.ProjectRevision;
-import eu.sqooss.service.tds.InvalidProjectRevisionException;
-
+/**
+ * This interface represents a lowest-common-denominator
+ * approach to logs of changes to a project. A commit log
+ * extends from some first revision to some last revision
+ * (which may be the same revision, or may both be null
+ * if the log is empty) and consists of messages.
+ * The log is iterable and will return the messages
+ * in commit order.
+ */
 public interface CommitLog extends Iterable {
     /**
      * Retrieve the project revision information for the first
      * entry in this commit log. May return null if the log is empty.
+     *
+     * @return starting revision or null if empty
      */
-    public ProjectRevision first();
+    ProjectRevision first();
 
     /**
      * Retrieve the project revision information for the last
      * entry in this commit log. This may be the same as first()
      * for 1-entry logs. May return null if the log is empty.
+     *
+     * @return final revision or null if empty
      */
-    public ProjectRevision last();
+    ProjectRevision last();
 
     /**
      * Retrieve the message (commit message) for project revision
@@ -58,19 +68,24 @@ public interface CommitLog extends Iterable {
      * no SVN revision attached (date revisions) return the last
      * revision that is not after the indicated date, or null if there
      * isn't one.
+     *
+     * @param  r Revision for which the message should be retrieved
+     * @return message at revision @p r
+     * @throws InvalidProjectRevisionException if @p r is not within the
+     *          scope of this log.
      */
-    public String message(ProjectRevision r)
+    String message(ProjectRevision r)
         throws InvalidProjectRevisionException;
 
     /**
      * For debugging purposes, dump the log to stdout.
      */
-    public void dump();
-    
+    void dump();
+
     /**
-     * Return the number of entries in the log
+     * @return the number of entries in the log
      */
-    public int size();
+    int size();
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

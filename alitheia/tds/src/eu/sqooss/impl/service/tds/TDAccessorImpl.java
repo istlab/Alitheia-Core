@@ -34,20 +34,16 @@ package eu.sqooss.impl.service.tds;
 
 import java.io.File;
 
-import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.TDAccessor;
 import eu.sqooss.service.tds.BTSAccessor;
 import eu.sqooss.service.tds.MailAccessor;
 import eu.sqooss.service.tds.SCMAccessor;
-import eu.sqooss.impl.service.tds.BTSAccessorImpl;
-import eu.sqooss.impl.service.tds.SCMAccessorImpl;
-import eu.sqooss.impl.service.tds.MailAccessorImpl;
 
 public class TDAccessorImpl extends NamedAccessorImpl implements TDAccessor {
-    public String bts;
-    public String mail;
-    public String scm;
+    private String bts;
+    private String mail;
+    private String scm;
     private BTSAccessorImpl btsAccessor = null;
     private SCMAccessorImpl scmAccessor = null;
     private MailAccessorImpl mailAccessor = null;
