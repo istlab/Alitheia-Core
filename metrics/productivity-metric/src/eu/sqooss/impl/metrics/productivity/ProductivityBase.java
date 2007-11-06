@@ -47,15 +47,16 @@ import eu.sqooss.service.logging.Logger;
 
 public class ProductivityBase implements ProductivityMetric {
 
-    protected TDSService service;
-    protected SCMAccessor svn;
+    protected TDSService service = null;
+    protected SCMAccessor svn = null;
     protected Logger log;
     private String revision = "Spanky Monkey:17";
 
     protected ProductivityBase() {
-
-        //FIXME: Dummy getAccessor value to fix the build
-        svn = service.getAccessor(1).getSCMAccessor();
+        if (service != null) {
+            //FIXME: Dummy getAccessor value to fix the build
+            svn = service.getAccessor(1).getSCMAccessor();
+        }
     }
 
     protected void run() {
@@ -63,7 +64,7 @@ public class ProductivityBase implements ProductivityMetric {
     }
 
     public String getAuthor() {
-        return "Georgios Gousios";
+        return "Γιοργος Γουσιος";
     }
 
     public Date getDateInstalled() {

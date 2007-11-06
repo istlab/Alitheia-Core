@@ -42,6 +42,10 @@ public class ProductivityServiceImpl extends HttpServlet {
 
         if (logger == null) {
             System.out.println("ERROR: Got no logger");
+        } else {
+            ProductivityBase b = new ProductivityBase();
+            logger.info(b.getAuthor());
+            System.out.println(b.getAuthor());
         }
 
         /*Get a reference to the HTTP service*/
@@ -60,7 +64,7 @@ public class ProductivityServiceImpl extends HttpServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String t = request.getParameter("target");
-        
+
     }
 
 }
