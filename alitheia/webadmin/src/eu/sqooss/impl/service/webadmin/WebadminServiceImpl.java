@@ -71,6 +71,10 @@ public class WebadminServiceImpl implements WebadminService {
 
     public void setConfigurationProperty(String key, String val) {
     }
+
+    // Perform a self-test
+    public void selfTest() {
+    }
 }
 
 

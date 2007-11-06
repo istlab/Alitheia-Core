@@ -166,27 +166,26 @@ public class AdminServlet extends HttpServlet {
     }
 
     protected String[] getServiceNames(ServiceReference[] servicerefs) {
-	if( servicerefs != null ){
-	    String s, names[] = new String[servicerefs.length];
-	    int i = 0;
+        if( servicerefs != null ){
+            String s, names[] = new String[servicerefs.length];
+            int i = 0;
 
-	    for (ServiceReference r : servicerefs) {
-		Object clazz = 
-		    r.getProperty( org.osgi.framework.Constants.OBJECTCLASS );
-		
-		if (clazz != null) {
-		    s = SQOUtils.join( (String[])clazz, ", ");
-		} else {
-		    s = "No class defined";
-		}
-        
-		names[i++] = s;
-	    }
-        
-	    return names;
-	} else {
-	    return null;
-	}
+            for (ServiceReference r : servicerefs) {
+                Object clazz =
+                    r.getProperty( org.osgi.framework.Constants.OBJECTCLASS );
+                if (clazz != null) {
+                    s = SQOUtils.join( (String[])clazz, ", ");
+                } else {
+                    s = "No class defined";
+                }
+
+                names[i++] = s;
+            }
+
+            return names;
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -196,46 +195,46 @@ public class AdminServlet extends HttpServlet {
     protected String renderBundles() {
         if( bundlecontext != null ) {
             Bundle[] bundles = bundlecontext.getBundles();
-            String[] statenames = { 
+            String[] statenames = {
                 "uninstalled",
                 "installed",
                 "resolved",
                 "starting",
                 "stopping",
-                "active" 
+                "active"
             };
 
-	    StringBuilder resultString = new StringBuilder();
- 	    resultString.append("<table cellpadding=\"0\" cellspacing=\"0\">\n");
-	    resultString.append("\t<thead>\n");
-	    resultString.append("\t\t<tr>\n");
-	    resultString.append("\t\t\t<td class=\"supportGreyTopLeft\">&nbsp;</td>\n");
-	    resultString.append("\t\t\t<td class=\"supportLblueImageUp\">Status</td>\n");
-	    resultString.append("\t\t\t<td class=\"supportPurpleImageUp\">Services Utilised</td>\n");
-	    resultString.append("\t\t</tr>\n");
-	    resultString.append("\t</thead>\n");
-	    resultString.append("\t<tbody>\n");
-	    
-	    for( Bundle b : bundles ){
-		String[] names = getServiceNames(b.getRegisteredServices());
+            StringBuilder resultString = new StringBuilder();
+            resultString.append("<table cellpadding=\"0\" cellspacing=\"0\">\n");
+            resultString.append("\t<thead>\n");
+            resultString.append("\t\t<tr>\n");
+            resultString.append("\t\t\t<td class=\"supportGreyTopLeft\">&nbsp;</td>\n");
+            resultString.append("\t\t\t<td class=\"supportLblueImageUp\">Status</td>\n");
+            resultString.append("\t\t\t<td class=\"supportPurpleImageUp\">Services Utilised</td>\n");
+            resultString.append("\t\t</tr>\n");
+            resultString.append("\t</thead>\n");
+            resultString.append("\t<tbody>\n");
 
-		resultString.append("\t\t<tr>\n\t\t\t<td class=\"supportGreyLeft\">");
-		resultString.append(SQOUtils.makeXHTMLSafe(b.getSymbolicName()));
-		resultString.append("</td>\n\t\t\t<td class=\"supportLblue\">"); 
-		resultString.append(SQOUtils.bitfieldToString(statenames,b.getState()));
-		resultString.append("</td>\n\t\t\t<td class=\"supportPurple\">\n\t\t\t\t<ul>\n"); 
-		resultString.append(renderList(names));
-		resultString.append("\t\t\t\t</ul>\n\t\t\t</td>\n\t\t</tr>\n");
-	    }
-	    
-	    resultString.append("\t</tbody>\n");
-	    resultString.append("</table>");
-	    
+            for( Bundle b : bundles ){
+                String[] names = getServiceNames(b.getRegisteredServices());
+
+                resultString.append("\t\t<tr>\n\t\t\t<td class=\"supportGreyLeft\">");
+                resultString.append(SQOUtils.makeXHTMLSafe(b.getSymbolicName()));
+                resultString.append("</td>\n\t\t\t<td class=\"supportLblue\">");
+                resultString.append(SQOUtils.bitfieldToString(statenames,b.getState()));
+                resultString.append("</td>\n\t\t\t<td class=\"supportPurple\">\n\t\t\t\t<ul>\n");
+                resultString.append(renderList(names));
+                resultString.append("\t\t\t\t</ul>\n\t\t\t</td>\n\t\t</tr>\n");
+            }
+
+            resultString.append("\t</tbody>\n");
+            resultString.append("</table>");
+
             return resultString.toString();
         } else {
             return null;
         }
-    }           
+    }
 
     public String renderList(String[] names) {
         if ((names != null) && (names.length > 0)) {
@@ -243,7 +242,7 @@ public class AdminServlet extends HttpServlet {
             for (String s : names) {
                 b.append("\t\t\t\t\t<li>" + SQOUtils.makeXHTMLSafe(s) + "</li>\n");
             }
-            
+
             return b.toString();
         } else {
             return "\t\t\t\t\t<li>&lt;none&gt;</li>\n";
@@ -353,7 +352,7 @@ public class AdminServlet extends HttpServlet {
     }
 
     private String[] listProjects() {
-	List l = dbService.doSelect("StoredProject");
+        List l = dbService.doSelect("StoredProject");
         if (l==null) {
             return null;
         }
@@ -386,13 +385,13 @@ public class AdminServlet extends HttpServlet {
         }
 
         if (dbService != null) {
-	    StoredProject project = new StoredProject();
-	    project.setName(name);
-	    project.setWebsite(website);
-	    project.setContact(contact);
-	    project.setBugs(bts);
-	    project.setRepository(scm);
-	    project.setMail(mail);
+            StoredProject project = new StoredProject();
+            project.setName(name);
+            project.setWebsite(website);
+            project.setContact(contact);
+            project.setBugs(bts);
+            project.setRepository(scm);
+            project.setMail(mail);
             dbService.addRecord(project);
         }
         logger.info("Added a new project.");
