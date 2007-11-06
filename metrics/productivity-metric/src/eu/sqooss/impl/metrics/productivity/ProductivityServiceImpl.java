@@ -42,10 +42,6 @@ public class ProductivityServiceImpl extends HttpServlet {
 
         if (logger == null) {
             System.out.println("ERROR: Got no logger");
-        } else {
-            ProductivityBase b = new ProductivityBase();
-            logger.info(b.getAuthor());
-            System.out.println(b.getAuthor());
         }
 
         /*Get a reference to the HTTP service*/
