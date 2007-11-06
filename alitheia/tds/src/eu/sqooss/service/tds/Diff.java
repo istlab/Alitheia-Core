@@ -36,34 +36,45 @@ package eu.sqooss.service.tds;
 import java.io.File;
 import java.util.Set;
 
-import eu.sqooss.service.tds.ProjectRevision;
-
+/**
+ * This interface represents a lowest-common-denominator interface
+ * to diffs obtained between two revisions in a subversion repository
+ * (or between two project revisions, whatever that may mean).
+ */
 public interface Diff {
     /**
      * Retrieve the project revision information for the first
      * (before) revision of this diff.
+     *
+     * @return source revision
      */
-    public ProjectRevision getSourceRevision();
+    ProjectRevision getSourceRevision();
 
     /**
      * Retrieve the project revision information for the last
      * revision for this diff. This may be the same as first()
      * for 1-entry diffs (although the difference between R and R
      * is empty).
+     *
+     * @return comparison revision
      */
-    public ProjectRevision getTargetRevision();
+    ProjectRevision getTargetRevision();
 
     /**
      * The diff is stored in a temporary file somewhere. Get
      * the file for it so that the diff itself can be read in.
+     *
+     * @return abstract file name containing the diff
      */
-    public File getDiffFile();
+    File getDiffFile();
 
     /**
      * Retrieve the list of file names (relative to the root
      * under which this diff was taken) modified by this diff.
+     *
+     * @return set of files changed in this diff
      */
-    public Set<String> getChangedFiles();
+    Set < String > getChangedFiles();
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

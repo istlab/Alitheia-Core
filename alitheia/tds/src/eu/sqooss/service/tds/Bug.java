@@ -33,20 +33,27 @@
 
 package eu.sqooss.service.tds;
 
+/**
+ * The bug interface represents a single bug from a bug tracker (whichever
+ * that may be) in the most abstract form possible. The lowest common
+ * denominator resolves to an ID, a reporter name and a severity. The
+ * severity is an uninterpreted integer, so do not assume that larger
+ * numbers are "worse" or "better".
+ */
 public interface Bug {
     /**
-     * Retrieve the bug number (within the BTS this bug comes from)
-     * for this bug.
+     * @return the bug number (within the BTS this bug comes from)
+     *          for this bug.
      */
     int getBugNumber();
 
     /**
-     * Retrieve the original reporter's name for this bug.
+     * @return the original reporter's name for this bug.
      */
     String getReporter();
 
     /**
-     * Retrieve the severity of this bug.
+     * @return the severity of this bug.
      */
     int getSeverity();
 }
