@@ -33,20 +33,85 @@
 
 package eu.sqooss.impl.service;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
+
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 // Now the SQO-OSS imports, alphabetically
 import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.logging.LogManager;
 
-class TesterActivator implements BundleActivator {
-    public void start( BundleContext bc )
-        throws Exception {
+
+public class TesterActivator implements BundleActivator {
+    private ServiceReference logmanager = null;
+    private Logger logger = null;
+
+    private void getLogger( BundleContext bc ) {
+        logmanager = bc.getServiceReference(LogManager.class.getName());
+        if (logmanager != null) {
+            LogManager m = (LogManager) bc.getService(logmanager);
+            logger = m.createLogger(Logger.NAME_SQOOSS_UPDATER);
+        } 
+    }
+
+    public void start( BundleContext bc ) {
+        // Really really enabled?
+        if (!"YES".equals(bc.getProperty("eu.sqooss.tester.enable"))) {
+            System.out.println("Self-test is disabled.");
+            return;
+        }
+
+        System.out.println("Self-test is enabled. Starting self-test.");
+        getLogger(bc);
+        if (logger == null) {
+            return;
+        }
+
+        logger.info("Running self-test.");
+
+        Bundle[] bundles = bc.getBundles();
+        for (Bundle b : bundles) {
+            logger.info("Examining bundle " + b.getSymbolicName());
+            ServiceReference[] services = b.getRegisteredServices();
+            if (services == null) {
+                logger.info("No services for this bundle.");
+                continue;
+            }
+            for (ServiceReference s : services) {
+                Object o = bc.getService(s);
+                try {
+                    Method m = o.getClass().getMethod("selfTest");
+                    Object r = m.invoke(o);
+                    if (r != null) {
+                        logger.info("Test failed: " + r.toString());
+                    } else {
+                        logger.info("Test was successful.");
+                    }
+                } catch (NoSuchMethodException e) {
+                    logger.info("No test method for service.");
+                } catch (SecurityException e) {
+                    logger.info("Can't access selfTest() method.");
+                } catch (IllegalAccessException e) {
+                    logger.info("Failed to invoke selfTest() method.");
+                } catch (InvocationTargetException e) {
+                    logger.info("Failed to invoke selfTest() on service.");
+                }
+                bc.ungetService(s);
+            }
+        }
+
+        logger.info("Done with self-test.");
     }
 
     public void stop( BundleContext bc ) 
         throws Exception {
+        if (logmanager != null) {
+            bc.ungetService(logmanager);
+        }
     }
 }
 

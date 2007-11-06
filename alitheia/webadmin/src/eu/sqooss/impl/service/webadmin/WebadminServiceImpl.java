@@ -73,7 +73,8 @@ public class WebadminServiceImpl implements WebadminService {
     }
 
     // Perform a self-test
-    public void selfTest() {
+    public Object selfTest() {
+        return null;
     }
 }
 
