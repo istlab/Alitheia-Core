@@ -54,8 +54,8 @@ public class ProductivityBase implements ProductivityMetric {
 
     protected ProductivityBase() {
 
-	//FIXME: Dummy getAccessor value to fix the build
-	svn = (SCMAccessor) service.getAccessor(1);
+        //FIXME: Dummy getAccessor value to fix the build
+        svn = service.getAccessor(1).getSCMAccessor();
     }
 
     protected void run() {
