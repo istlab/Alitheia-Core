@@ -32,9 +32,11 @@
 
 package eu.sqooss.service.db;
 
+import eu.sqooss.service.db.DAObject;
+
 import java.sql.Time;
 
-public class FileGroup {
+public class FileGroup implements DAObject{
     private long id;
     private String name;
     private String subPath;

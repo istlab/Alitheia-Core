@@ -3,6 +3,8 @@
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  * 
  * Copyright 2007 by the SQO-OSS consortium members <info@sqo-oss.eu>
+ * Copyright 2007 by Adriaan de Groot <groot@kde.org>
+ * Copyright 2007 by Paul J. Adams <paul.adams@siriusit.co.uk>
  * 
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -33,13 +35,15 @@
 
 package eu.sqooss.service.db;
 
+import eu.sqooss.service.db.DAObject;
+
 /**
  * This class represents a project that Alitheia "knows about".
  * These projects are the ones that are examined by the cruncher.
  * Basically, if the cruncher is operating on a project, there
  * has to be a record of this type in the system.
  */
-public class StoredProject {
+public class StoredProject implements DAObject {
     private long id;
     /**
      * Public, human-readable name of the project (e.g. Evolution, 
@@ -80,7 +84,7 @@ public class StoredProject {
         return id;
     }
 
-    private void setId(long id) {
+    public void setId(long id) {
         this.id = id;
     }
 

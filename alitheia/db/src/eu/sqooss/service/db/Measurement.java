@@ -3,6 +3,7 @@
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  *
  * Copyright 2007 by the SQO-OSS consortium members <info@sqo-oss.eu>
+ * Copyright 2007 by Paul J. Adams <paul.adams@siriusit.co.uk>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -32,9 +33,11 @@
 
 package eu.sqooss.service.db;
 
+import eu.sqooss.service.db.DAObject;
+
 import java.sql.Time;
 
-public class Measurement {
+public class Measurement implements DAObject{
     private long id;
     private long metric;
     private long projectVersion;

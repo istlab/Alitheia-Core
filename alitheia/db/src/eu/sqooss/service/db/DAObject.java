@@ -1,22 +1,22 @@
 /*
  * This file is part of the Alitheia system, developed by the SQO-OSS
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
- *
+ * 
  * Copyright 2007 by the SQO-OSS consortium members <info@sqo-oss.eu>
- * Copyright 2007 by Paul J. Adams <paul.adams@siriusit.co.uk>
+ * Copyright 2007 by Paul J. Adams <paul.adams@siriusit.co.uk> 
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
  * met:
- *
+ * 
  *     * Redistributions of source code must retain the above copyright
  *       notice, this list of conditions and the following disclaimer.
- *
+ * 
  *     * Redistributions in binary form must reproduce the above
  *       copyright notice, this list of conditions and the following
  *       disclaimer in the documentation and/or other materials provided
  *       with the distribution.
- *
+ * 
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -28,43 +28,14 @@
  * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
+ * 
  */
 
 package eu.sqooss.service.db;
 
-import eu.sqooss.service.db.DAObject;
-
-public class ProjectVersion implements DAObject {
-    private long id;
-    private long project; //ID of the project entity
-    private int version;
-
-    public ProjectVersion() {
-	// Nothing to do
-    }
-
-    public long getId() {
-	return id;
-    }
-
-    public void setId(long id) {
-	this.id = id;
-    }
-
-    public long getProject() {
-	return project;
-    }
-
-    public void setProject(long project) {
-	this.project = project;
-    }
-
-    public int getVersion() {
-	return this.version;
-    }
-
-    public void setVersion(int version) {
-	this.version = version;
-    }
+public interface DAObject {
+    public long getId();
+    public void setId(long id);
 }
+
+    
