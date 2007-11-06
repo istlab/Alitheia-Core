@@ -48,32 +48,25 @@ public class TDAccessorImpl extends NamedAccessorImpl implements TDAccessor {
     private SCMAccessorImpl scmAccessor = null;
     private MailAccessorImpl mailAccessor = null;
 
-    public static Logger logger;
-
-    /**
-     * Put a configuration value into this accessor. From the
-     * full configuration key @p s (of the form project.subkey)
-     * extract the subkey and store the value @p v (probably a
-     * URL) for this accessor.
-     */
-    public void put( String s, String v ) {
-        String subKey = s.substring(s.indexOf(".")+1);
-        if ("scm".equals(subKey)) {
-            scm = v;
-        } else if ("bts".equals(subKey)) {
-            bts = v;
-        } else if ("mail".equals(subKey)) {
-            mail = v;
-        } else {
-            logger.warning("Bad configuration key <" + s + "> in TDS config.");
-        }
-    }
+    public static Logger logger = null;
 
     public TDAccessorImpl( long id, String name, String bts, String mail, String scm ) {
         super(id,name);
         this.bts = bts;
         this.mail = mail;
         this.scm = scm;
+        if (mail == null) {
+            this.mail = "file:///var/spool/mail";
+        }
+
+        if (!this.mail.startsWith("file:///")) {
+            if (logger != null) {
+                logger.warning("Mail access uses an unsupported URL scheme <" + mail + ">");
+            }
+            this.mail="/var/spool/mail";
+        } else {
+            this.mail = this.mail.substring(7);
+        }
     }
 
 
@@ -88,7 +81,7 @@ public class TDAccessorImpl extends NamedAccessorImpl implements TDAccessor {
     public MailAccessor getMailAccessor() {
         if (mailAccessor == null) {
             mailAccessor = new MailAccessorImpl( getId(),getName(),
-                new File("/var/spool/mail") );
+                new File(mail) );
         }
         return mailAccessor;
     }
