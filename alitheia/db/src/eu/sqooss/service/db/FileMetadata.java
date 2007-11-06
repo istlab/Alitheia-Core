@@ -37,8 +37,7 @@ import eu.sqooss.service.db.DAObject;
 
 import java.sql.Time;
 
-public class FileMetadata implements DAObject{
-    private long id;
+public class FileMetadata extends DAObject{
     private String protection;
     private int links;
     private int userId;
@@ -52,14 +51,6 @@ public class FileMetadata implements DAObject{
 
     public FileMetadata() {
 	// Nothing to do
-    }
-
-    public long getId() {
-	return id;
-    }
-
-    public void setId(long id) {
-	this.id = id;
     }
 
     public String getProtection() {

@@ -35,21 +35,12 @@ package eu.sqooss.service.db;
 
 import eu.sqooss.service.db.DAObject;
 
-public class ProjectVersion implements DAObject {
-    private long id;
+public class ProjectVersion extends DAObject {
     private long project; //ID of the project entity
     private int version;
 
     public ProjectVersion() {
 	// Nothing to do
-    }
-
-    public long getId() {
-	return id;
-    }
-
-    public void setId(long id) {
-	this.id = id;
     }
 
     public long getProject() {

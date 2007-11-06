@@ -35,21 +35,12 @@ package eu.sqooss.service.db;
 
 import eu.sqooss.service.db.DAObject;
 
-public class Plugin implements DAObject{
-    private long id;
+public class Plugin extends DAObject{
     private long metric;
     private String name;
 
     public Plugin() {
 	// Nothing to do here
-    }
-
-    public long getId() {
-	return id;
-    }
-
-    public void setId(long id) {
-	this.id = id;
     }
 
     public long getMetric() {

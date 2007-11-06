@@ -43,8 +43,7 @@ import eu.sqooss.service.db.DAObject;
  * Basically, if the cruncher is operating on a project, there
  * has to be a record of this type in the system.
  */
-public class StoredProject implements DAObject {
-    private long id;
+public class StoredProject extends DAObject {
     /**
      * Public, human-readable name of the project (e.g. Evolution, 
      * GNOME, Catalina, Sciplot). Used for display purposes.
@@ -78,14 +77,6 @@ public class StoredProject implements DAObject {
 
     public StoredProject(String name) {
         setName(name);
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
     }
 
     public String getName() {

@@ -36,8 +36,7 @@ import eu.sqooss.service.db.DAObject;
 
 import java.sql.Time;
 
-public class FileGroup implements DAObject{
-    private long id;
+public class FileGroup extends DAObject{
     private String name;
     private String subPath;
     private String regex;
@@ -47,14 +46,6 @@ public class FileGroup implements DAObject{
 
     public FileGroup() {
 	// Nothing to do
-    }
-
-    public long getId() {
-	return id;
-    }
-
-    public void setId(long id) {
-	this.id = id;
     }
 
     public String getName() {

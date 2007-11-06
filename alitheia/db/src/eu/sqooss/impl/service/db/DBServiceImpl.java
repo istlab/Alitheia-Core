@@ -46,8 +46,8 @@ import org.hibernate.cfg.Configuration;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
+import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
-import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
 
@@ -168,19 +168,10 @@ public class DBServiceImpl implements DBService {
         }
     }
 
-    public void addProject(String name, String web, String contact,
-        String bts, String mail, String scm) {
-	logger.warning("Using depracted addProject()");
-        logger.info("Adding a new project <" + name + ">");
+    public void addRecord(DAObject record) {
         Session s = sessionFactory.getCurrentSession();
         s.beginTransaction();
-        StoredProject p = new StoredProject(name);
-        p.setWebsite(web);
-        p.setContact(contact);
-        p.setBugs(bts);
-        p.setMail(mail);
-        p.setRepository(scm);
-        s.save(p);
+        s.save(record);
         s.getTransaction().commit();
     }
 

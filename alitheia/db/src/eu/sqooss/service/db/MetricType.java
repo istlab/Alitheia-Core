@@ -35,20 +35,11 @@ package eu.sqooss.service.db;
 
 import eu.sqooss.service.db.DAObject;
 
-public class MetricType implements DAObject{
-    private long id;
+public class MetricType extends DAObject{
     private String type;
 
     public MetricType() {
 	// Nothing to do here
-    }
-
-    public long getId() {
-	return id;
-    }
-
-    public void setId(long id) {
-	this.id = id;
     }
 
     public String getType() {

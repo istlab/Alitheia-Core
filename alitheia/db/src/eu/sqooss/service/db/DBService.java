@@ -33,6 +33,8 @@
 
 package eu.sqooss.service.db;
 
+import eu.sqooss.service.db.DAObject;
+
 import java.util.List;
 
 public interface DBService {
@@ -40,8 +42,7 @@ public interface DBService {
      * Add a new project to the system; this should initialize
      * any tables that are needed for storage of project information.
      */
-    public void addProject(String name, String website, String contact,
-        String bts, String mail, String scm);
+    public void addRecord(DAObject record);
 
     /**
      * Return the result of a simple 'SELECT *' type query

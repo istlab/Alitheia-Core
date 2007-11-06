@@ -386,7 +386,14 @@ public class AdminServlet extends HttpServlet {
         }
 
         if (dbService != null) {
-            dbService.addProject(name,website,contact,bts,mail,scm);
+	    StoredProject project = new StoredProject();
+	    project.setName(name);
+	    project.setWebsite(website);
+	    project.setContact(contact);
+	    project.setBugs(bts);
+	    project.setRepository(scm);
+	    project.setMail(mail);
+            dbService.addRecord(project);
         }
         logger.info("Added a new project.");
         dynamicSubstitutions.put("@@RESULTS","<p>New project added successfully.</p>");

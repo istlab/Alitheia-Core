@@ -33,9 +33,16 @@
 
 package eu.sqooss.service.db;
 
-public interface DAObject {
-    public long getId();
-    public void setId(long id);
+public class DAObject {
+    private long id;
+
+    public long getId() {
+	return id;
+    }
+
+    public void setId(long id) {
+	this.id = id;
+    }
 }
 
     

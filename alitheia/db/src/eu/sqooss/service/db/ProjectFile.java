@@ -35,19 +35,14 @@ package eu.sqooss.service.db;
 
 import eu.sqooss.service.db.DAObject;
 
-public class ProjectFile implements DAObject{
-    private long id;
+public class ProjectFile extends DAObject{
     private String name;
     private long projectVersion;
     private String status;
 
 
-    public void setId(long id) {
-	this.id = id;
-    }
-
-    public long getId() {
-	return id;
+    public ProjectFile() {
+	// Nothing to see here
     }
 
     public void setName(String name) {

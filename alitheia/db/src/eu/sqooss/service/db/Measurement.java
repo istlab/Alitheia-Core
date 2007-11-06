@@ -37,8 +37,7 @@ import eu.sqooss.service.db.DAObject;
 
 import java.sql.Time;
 
-public class Measurement implements DAObject{
-    private long id;
+public class Measurement extends DAObject{
     private long metric;
     private long projectVersion;
     private Time whenRun;
@@ -46,14 +45,6 @@ public class Measurement implements DAObject{
 
     public Measurement() {
 	// Nothing to do here
-    }
-
-    public long getId() {
-	return id;
-    }
-
-    public void setId(long id) {
-	this.id = id;
     }
 
     public long getMetric() {
