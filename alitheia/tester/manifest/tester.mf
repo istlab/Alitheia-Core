@@ -1,0 +1,12 @@
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: eu.sqooss.service.tester
+Bundle-Name: Meta-Testing Service
+Bundle-Activator: eu.sqooss.impl.service.TesterActivator
+Bundle-Version: 0.0.1
+Bundle-Vendor: KDE
+Bundle-Category: data
+Bundle-Description: This bundle provides the Meta-Testing Service
+Bundle-Classpath: .
+Import-Package: org.osgi.framework, eu.sqooss.service.logging
+Export-Package: eu.sqooss.service.tester
+

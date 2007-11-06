@@ -17,6 +17,7 @@ BUNDLES=db \
 	scheduler \
 	security \
 	tds \
+	tester \
 	updater \
 	webadmin
 
