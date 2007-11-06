@@ -64,7 +64,7 @@ public class ProductivityBase implements ProductivityMetric {
     }
 
     public String getAuthor() {
-        return "Γιοργος Γουσιος";
+        return "Γιώργος Γουσιος";
     }
 
     public Date getDateInstalled() {
