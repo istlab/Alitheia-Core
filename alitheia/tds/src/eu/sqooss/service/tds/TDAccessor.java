@@ -48,20 +48,6 @@ package eu.sqooss.service.tds;
  */
 public interface TDAccessor extends NamedAccessor {
     /**
-     * Return the numeric ID for the project associated with this accessor.
-     * At creation time this is guaranteed to be a valid project ID, but
-     * during the lifetime of the accessor the project may be removed or
-     * modified so that the ID becomes invalid.
-     */
-    public long getId();
-
-    /**
-     * Return the name assigned to the project when the accessor was created.
-     * Just like the ID, this may have changed since.
-     */
-    public String getName();
-
-    /**
      * Get the BTS sub-accessor for the project associated with this
      * TDAccessor.
      */
