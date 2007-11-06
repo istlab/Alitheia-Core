@@ -44,13 +44,6 @@ public interface DBService {
         String bts, String mail, String scm);
 
     /**
-     * Return the names (and only the names) of all the projects in the
-     * database.
-     */
-    public String[] listProjects();
-
-
-    /**
      * Return the result of a simple 'SELECT *' type query
      */
     public List doSelect(String fromWhere);

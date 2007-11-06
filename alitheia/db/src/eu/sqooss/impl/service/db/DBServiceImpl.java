@@ -168,23 +168,9 @@ public class DBServiceImpl implements DBService {
         }
     }
 
-    // Interface functions
-    public String[] listProjects() {
-        logger.warning("Using deprecated listProjects()");
-        List l = doSelect("StoredProject");
-        if (l==null) {
-            return null;
-        }
-        String[] results = new String[l.size()];
-        for (int i=0; i<l.size(); i++) {
-            StoredProject p = (StoredProject) l.get(i);
-            results[i] = p.getName() + " (" + p.getWebsite() + ")";
-        }
-        return results;
-    }
-
     public void addProject(String name, String web, String contact,
         String bts, String mail, String scm) {
+	logger.warning("Using depracted addProject()");
         logger.info("Adding a new project <" + name + ">");
         Session s = sessionFactory.getCurrentSession();
         s.beginTransaction();

@@ -39,11 +39,13 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.util.SQOUtils;
 
+import java.util.List;
 import java.util.Hashtable;
 
 import java.io.BufferedReader;
@@ -320,7 +322,7 @@ public class AdminServlet extends HttpServlet {
         dynamicSubstitutions.put("@@LOGO","<img src='/logo' id='logo' alt='Logo' />");
         dynamicSubstitutions.put("@@COPYRIGHT","Copyright 2007 <a href=\"about\">SQO-OSS Consortium members</a>");
         dynamicSubstitutions.put("@@GETLOGS", renderList(logService.getRecentEntries()));
-        dynamicSubstitutions.put("@@PROJECTS",renderList(dbService.listProjects()));
+        dynamicSubstitutions.put("@@PROJECTS",renderList(listProjects()));
     }
 
     protected void doGet(HttpServletRequest request,
@@ -338,7 +340,7 @@ public class AdminServlet extends HttpServlet {
             resetSubstitutions();
             dynamicSubstitutions.put("@@ABOUT","<p class='box'>This is the administrative interface.</p>");
             if ("list".equals(query)) {
-                dynamicSubstitutions.put("@@PROJECTS",renderList(dbService.listProjects()));
+                dynamicSubstitutions.put("@@PROJECTS",renderList(listProjects()));
             } else {
                 dynamicSubstitutions.put("@@BUNDLE", renderBundles());
             }
@@ -348,6 +350,19 @@ public class AdminServlet extends HttpServlet {
                 sendTemplate(response,"/index.html",dynamicSubstitutions);
             }
         }
+    }
+
+    public String[] listProjects() {
+	List l = dbService.doSelect("StoredProject");
+        if (l==null) {
+            return null;
+        }
+        String[] results = new String[l.size()];
+        for (int i=0; i<l.size(); i++) {
+            StoredProject p = (StoredProject) l.get(i);
+            results[i] = p.getName() + " (" + p.getWebsite() + ")";
+        }
+        return results;
     }
 
     private void addProject(HttpServletRequest request) {
