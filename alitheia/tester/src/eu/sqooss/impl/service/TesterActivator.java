@@ -75,24 +75,24 @@ public class TesterActivator implements BundleActivator {
 
         Bundle[] bundles = bc.getBundles();
         for (Bundle b : bundles) {
-            logger.info("Examining bundle " + b.getSymbolicName());
+            if (!b.getSymbolicName().startsWith("eu.sqooss")) {
+                continue;
+            }
             ServiceReference[] services = b.getRegisteredServices();
             if (services == null) {
-                logger.info("No services for this bundle.");
                 continue;
             }
             for (ServiceReference s : services) {
                 Object o = bc.getService(s);
                 try {
                     Method m = o.getClass().getMethod("selfTest");
+                    logger.info("Testing " + o.getClass().getName());
                     Object r = m.invoke(o);
                     if (r != null) {
                         logger.info("Test failed: " + r.toString());
-                    } else {
-                        logger.info("Test was successful.");
                     }
                 } catch (NoSuchMethodException e) {
-                    logger.info("No test method for service.");
+                    // logger.info("No test method for service.");
                 } catch (SecurityException e) {
                     logger.info("Can't access selfTest() method.");
                 } catch (IllegalAccessException e) {

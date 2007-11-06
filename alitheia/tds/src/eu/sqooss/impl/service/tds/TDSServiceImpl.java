@@ -109,6 +109,14 @@ public class TDSServiceImpl implements TDSService {
         accessorPool.put(new Long(id),a);
         logger.info("Added project <" + name + ">");
     }
+
+    public Object selfTest() {
+        return new String("\n" +
+            "\tSo there's these two cows in a field, right?\n" +
+            "\tAnd the one cow says to the other 'hey, you heard about\n" +
+            "\tthat mad cow disease that's going around? Are you worried?'\n" +
+            "\tAnd the other cow goes 'why should I worry? I'm a duck.'\n\n");
+    }
 }
 
 
