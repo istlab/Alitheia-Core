@@ -1,5 +1,5 @@
 <!-- *** footer.jsp begins here *** -->
-    </td><tr>
+    </td></tr>
     </table> <!-- id content -->
     <div id="footer">
         Copyright 2007 by members of the 

@@ -50,8 +50,9 @@ public class MetricsTableView {
     boolean showHeader = true;
     boolean showFooter = false;
     
-    String tableClass; // CSS class
-    String tableId; // identifier in the HTML output
+    String tableClass = new String(); // CSS class for the whole table
+    String cellClass = new String(); // CSS class for individual cells
+    String tableId = new String(); // identifier in the HTML output
     
     public MetricsTableView () {
         retrieveData();   
@@ -78,7 +79,9 @@ public class MetricsTableView {
     }
 
     public String getHtml() {
-        int columns = 1;
+        
+        // Count columns so we know how an empty table row looks like
+        int columns = 0;
         if (showId) {
             columns++;
         }
@@ -89,25 +92,42 @@ public class MetricsTableView {
             columns++;
         }
         
-        String html = new String("<!-- MetricsTableView -->\n<table border=\"1\">\n");
+        // Prepare some CSS tricks
+        String css_class = new String();
+        String cell_class = new String();
+        String table_id = new String();
+        
+        if (tableClass.length() > 0) {
+            css_class = " class=\"" + tableClass + "\" "; 
+        }
+        if (cellClass.length() > 0) {
+            cell_class = " class=\"" + cellClass + "\" "; 
+        }
+        if (tableId.length() > 0) {
+            table_id = " class=\"" + tableId + "\" "; 
+        }
+        
+        String html = new String("<!-- MetricsTableView -->\n");
+        html = html + "<table " + table_id + " " + css_class + ">\n";
         
         // Table header
         html = html + "<thead><tr>";
         if (showId) {
-            html = html + "\n\t<td>ID</td>";
+            html = html + "\n\t<td " + cell_class + ">ID</td>";
         }
         if (showName) {
-            html = html + "\n\t<td>Metric</td>";
+            html = html + "\n\t<td " + cell_class + ">Metric</td>";
         }
         if (showDescription) {
-            html = html + "\n\t<td>Description</td>";
+            html = html + "\n\t<td " + cell_class + ">Description</td>";
         }
         html = html + "</tr></thead>\n\n";
 
         // Table footer
         if (showFooter) {
+            // Dummy.
             html = html + "<tfoot><tr>";
-            
+            html = html + "<td  " + cell_class + " colspan=\"" + columns + "\">&nbsp;</td>";
             html = html + "</tr></tfoot>\n\n";
         }
         // Table rows
@@ -115,18 +135,18 @@ public class MetricsTableView {
         for (Integer key: metricNames.keySet()) {
             html = html + "\n<tr>";
             if (showId) {
-                html = html + "\n\t<td>" + key + "</td>";
+                html = html + "\n\t<td " + cell_class + ">" + key + "</td>";
             }
             if (showName) {
-                html = html + "\n\t<td>" + metricNames.get(key) + "</td>";
+                html = html + "\n\t<td " + cell_class + ">" + metricNames.get(key) + "</td>";
             }
             if (showDescription) {
-                html = html + "\n\t<td>" + metricDescriptions.get(key) + "</td>";
+                html = html + "\n\t<td " + cell_class + ">" + metricDescriptions.get(key) + "</td>";
             }
             html = html + "\n</tr>";
         }
         
-        html = html + "</tr></tbody>";
+        html = html + "</tr>\n</tbody>";
         html = html + "\n</table>";
 
         return html;
@@ -135,10 +155,34 @@ public class MetricsTableView {
     public String getHtmlList () {
         String html = new String("<!-- MetricsList -->\n<ul>");
         for (Integer key: metricNames.keySet()) {
-            html = html + "\n\t<li>" + metricNames.get(key) + "</li";
+            html = html + "\n\t<li>" + metricNames.get(key) + "</li>";
         }
         html = html + "\n</ul>";
         return html;
+    }
+    
+    public String getTableClass () {
+       return tableClass; 
+    }
+    
+    public void setTableClass (String css_class) {
+        tableClass = css_class;
+    }
+    
+    public String getCellClass () {
+       return cellClass; 
+    }
+    
+    public void setCellClass (String cell_class) {
+        cellClass = cell_class;
+    }
+    
+    public String getTableId () {
+        return tableId;
+    }
+    
+    public void setTableId (String table_id) {
+        tableId = table_id;
     }
     
     public void setShowId (boolean show) {
