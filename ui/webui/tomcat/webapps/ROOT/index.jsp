@@ -8,11 +8,11 @@ String title = "Home";
 
 
 <h2>Evaluated Projects</h2>
-<%@ include file="/views/EvaluatedProjectsListView.jsp" %>
+<%@ include file="/views/EvaluatedProjectsList.jsp" %>
 
 <hr />
 <h2>Available Metrics</h2>
-<%@ include file="/views/MetricsListView.jsp" %>
+<%@ include file="/views/MetricsList.jsp" %>
 
 
 <%@ include file="/inc/footer.jsp" %>
