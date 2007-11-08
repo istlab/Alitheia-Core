@@ -35,11 +35,11 @@ package eu.sqooss.webui;
 
 import eu.sqooss.webui.ListView;
 
-public class EvaluatedProjectsListView extends ListView {
+public class ProjectsListView extends ListView {
 
     String currentProject;
     
-    public EvaluatedProjectsListView () {
+    public ProjectsListView () {
         retrieveData();
     }
     
