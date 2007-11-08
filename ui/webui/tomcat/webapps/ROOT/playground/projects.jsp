@@ -3,6 +3,6 @@
 
 <h1>Evaluated Projects</h1>
 
-<%@ include file="/views/ProjectsListView.jsp" %>
+<%@ include file="/views/EvaluatedProjectsList.jsp" %>
 
 <%@ include file="/inc/footer.jsp" %>

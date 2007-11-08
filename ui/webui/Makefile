@@ -2,15 +2,14 @@ all : build run
 
 build :
 	cd tomcat/webapps/ROOT/WEB-INF/classes/eu/sqooss/webui && \
-	$(MAKE)
+	javac *\.java && cd -
 
-run : start
+run : build start
 
 start :
 	if test -z $$JAVA_HOME ; then \
 		test -x /usr/bin/javac && export JAVA_HOME=/usr ; \
 	fi ; \
-	make build && \
 	cd tomcat && \
 	export CLASSPATH=tomcat/webapps/ROOT/WEB-INF/classes && \
 	sh bin/catalina.sh start
@@ -22,5 +21,10 @@ stop :
 	cd tomcat && \
 	sh bin/catalina.sh stop
 
-restart : stop start
+restart: stop run
+
+rebuild :
+	$(MAKE) build && \ 
+	make stop > /dev/null 2>&1 && echo "\033[0;31m  Tomcat stopped...\033[1;37m" && \
+	make start > /dev/null 2>&1 && echo "\033[0;34m  Tomcat started...\033[1;37m"
 
