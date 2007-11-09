@@ -4,10 +4,15 @@
 <div id="menu">
     <ul>
         <li><a href="/" title="Click here for no information">Home</a></li>
-        <li><a href="/playground/projects.jsp" title="Click here for no information">Projects</a></li>
-        <li><a href="/playground/users.jsp" title="Click here for no information">Users</a></li>
-        <li><a href="/playground/metrics.jsp" title="Click here for no information">Metrics</a></li>
+        <li><a href="/playground/projects.jsp" title="Click here for projects we don't do anything with yet">Projects</a></li>
+        <li><a href="/playground/users.jsp" title="Click here for registered crackheads">Users</a></li>
+        <li><a href="/playground/metrics.jsp" title="Click here for some imaginatory metrics">Metrics</a></li>
+        <li><a href="/playground/files.jsp" title="Click here for a random list of files">Files</a></li>
     </ul>
+</div>
+
+<div id="status">
+    <%@ include file="/views/Message.jsp" %>
 </div>
 
 <div id="status">

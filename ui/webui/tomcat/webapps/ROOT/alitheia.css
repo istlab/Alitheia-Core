@@ -27,6 +27,10 @@ table.metrics {
     border: 2px solid #cccccc;
 }
 
+blockquote {
+    font-style: italic;
+}
+
 #content {
     margin-top: 20px;
     margin-right: 10px;
