@@ -55,7 +55,7 @@ public class MetricsTableView {
     String tableId = new String(); // identifier in the HTML output
     
     public MetricsTableView () {
-        retrieveData();   
+        retrieveData();
     }
     
 
@@ -107,58 +107,58 @@ public class MetricsTableView {
             table_id = " class=\"" + tableId + "\" "; 
         }
         
-        String html = new String("<!-- MetricsTableView -->\n");
-        html += "<table " + table_id + " " + css_class + " cellspacing=\"0\" >\n";
+        StringBuilder html = new StringBuilder("<!-- MetricsTableView -->\n");
+        html.append("<table " + table_id + " " + css_class + " cellspacing=\"0\" >\n");
         
         // Table header
-        html += "<thead><tr>";
+        html.append("<thead><tr>");
         if (showId) {
-            html += "\n\t<td " + cell_class + ">ID</td>";
+            html.append("\n\t<td " + cell_class + ">ID</td>");
         }
         if (showName) {
-            html += "\n\t<td " + cell_class + ">Metric</td>";
+            html.append("\n\t<td " + cell_class + ">Metric</td>");
         }
         if (showDescription) {
-            html += "\n\t<td " + cell_class + ">Description</td>";
+            html.append("\n\t<td " + cell_class + ">Description</td>");
         }
-        html += "</tr></thead>\n\n";
+        html.append("\n</tr></thead>\n\n");
 
         // Table footer
         if (showFooter) {
             // Dummy.
-            html += "<tfoot><tr>";
-            html += "<td  " + cell_class + " colspan=\"" + columns + "\">&nbsp;</td>";
-            html += "</tr></tfoot>\n\n";
+            html.append("\n<tfoot><tr>");
+            html.append("\n\t<td  " + cell_class + " colspan=\"" + columns + "\">&nbsp;</td>");
+            html.append("\n</tr></tfoot>\n\n");
         }
         // Table rows
-        html += "<tbody>";
+        html.append("<tbody>");
         for (Integer key: metricNames.keySet()) {
-            html += "\n<tr>";
+            html.append("\n<tr>");
             if (showId) {
-                html += "\n\t<td " + cell_class + ">" + key + "</td>";
+                html.append("\n\t<td " + cell_class + ">" + key + "</td>");
             }
             if (showName) {
-                html += "\n\t<td " + cell_class + ">" + metricNames.get(key) + "</td>";
+                html.append("\n\t<td " + cell_class + ">" + metricNames.get(key) + "</td>");
             }
             if (showDescription) {
-                html += "\n\t<td " + cell_class + ">" + metricDescriptions.get(key) + "</td>";
+                html.append("\n\t<td " + cell_class + ">" + metricDescriptions.get(key) + "</td>");
             }
-            html += "\n</tr>";
+            html.append("\n</tr>");
         }
         
-        html += "</tr>\n</tbody>";
-        html += "\n</table>";
+        html.append("</tr>\n</tbody>");
+        html.append("\n</table>");
 
-        return html;
+        return html.toString();
     }
     
     public String getHtmlList () {
-        String html = new String("<!-- MetricsList -->\n<ul>");
+        StringBuilder html = new StringBuilder("<!-- MetricsList -->\n<ul>");
         for (Integer key: metricNames.keySet()) {
-            html += "\n\t<li>" + metricNames.get(key) + "</li>";
+            html.append("\n\t<li>" + metricNames.get(key) + "</li>");
         }
-        html += "\n</ul>";
-        return html;
+        html.append("\n</ul>");
+        return html.toString();
     }
     
     public String getTableClass () {

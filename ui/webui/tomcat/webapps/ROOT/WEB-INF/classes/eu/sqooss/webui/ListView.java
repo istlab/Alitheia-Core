@@ -49,12 +49,12 @@ class ListView {
     }
 
     public String getHtml() {
-        String html = "<!-- ListView -->\n<ul>";
+        StringBuilder html = new StringBuilder("<!-- ListView -->\n<ul>");
         for (String item: items) {
-            html = html.concat(new String("\n  <li>" + item + "</li>"));
+            html = html.append(new String("\n  <li>" + item + "</li>"));
         }
-        html = html.concat("\n</ul>\n");
-        return html;
+        html = html.append("\n</ul>\n");
+        return html.toString();
     }
     
     public void retrieveData () {
