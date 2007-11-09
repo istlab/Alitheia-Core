@@ -40,6 +40,8 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 
+import java.util.Properties;
+
 public class CruncherStatus {
     private class Worker implements Runnable {
         private Object lock;
@@ -53,6 +55,7 @@ public class CruncherStatus {
         public void run() {
             String s;
             URL url = null;
+            Properties p = new Properties();
             try {
                 url = new URL("http://10.0.0.20:8088/ws");
             } catch (java.net.MalformedURLException e) {
@@ -72,9 +75,18 @@ public class CruncherStatus {
             while(true) {
                 try {
                     URLConnection c = url.openConnection();
-                    BufferedReader rd = new BufferedReader(new InputStreamReader(c.getInputStream()));
+                    p.load(c.getInputStream());
+                    if (p.getProperty("online").equals("true")) {
+                        s = "The cruncher is online (" +
+                            p.getProperty("uptime") + "), " +
+                            p.getProperty("load") + " jobs running, " +
+                            p.getProperty("projects") + "x" +
+                            p.getProperty("metrics") + " things to do.";
+                    } else {
+                        s = "The cruncher is offline.";
+                    }
                     synchronized(lock) {
-                        m=rd.readLine();
+                        m = s;
                     }
                 } catch (java.io.IOException e) {
                     m = "The cruncher is offline.";
