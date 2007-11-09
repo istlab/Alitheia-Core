@@ -29,7 +29,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
- 
+
 package eu.sqooss.webui;
 
 
@@ -38,15 +38,15 @@ import eu.sqooss.webui.ListView;
 public class ProjectsListView extends ListView {
 
     String currentProject;
-    
+
     public ProjectsListView () {
         retrieveData();
     }
-    
+
     public void setCurrentProject ( String project ) {
         currentProject = project;
     }
-    
+
     public String getCurrentProject () {
         String pid = String.valueOf(getCurrentProjectId());
         return currentProject + " (" + pid + ")";
@@ -64,7 +64,7 @@ public class ProjectsListView extends ListView {
         items.addElement(new String("Nmap"));
         currentProject = "KDE";
     }
-    
+
     Integer getProjectId (String project) {
         // FIXME: This should not just return the index of a static list :-)
         int i = 0;

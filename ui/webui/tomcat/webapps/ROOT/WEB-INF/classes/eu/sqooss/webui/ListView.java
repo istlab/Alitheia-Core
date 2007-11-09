@@ -29,21 +29,21 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
- 
+
 package eu.sqooss.webui;
 
 import java.util.Vector;
 
 class ListView {
-    
+
     Vector<String> items = new Vector();
 
     public ListView () {}
-    
+
     public void setItems (Vector<String> _items) {
         items = _items;
     }
-    
+
     public Vector<String> getItems () {
         return items;
     }
@@ -56,7 +56,7 @@ class ListView {
         html = html.append("\n</ul>\n");
         return html.toString();
     }
-    
+
     public void retrieveData () {
         items.addElement(new String("Item 1"));
         items.addElement(new String("Item 2"));

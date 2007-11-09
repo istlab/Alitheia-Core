@@ -36,7 +36,7 @@ package eu.sqooss.webui;
 import java.util.Dictionary;
 
 public class User {
-    
+
     //java.util.Dictionary allUsers;
     Dictionary allUsers;
     Integer currentUserId;
@@ -56,15 +56,15 @@ public class User {
         allUsers.put(new Integer(4), "sebas");
         currentUserId = new Integer(0);
     }
-    
+
     public Integer getCurrentUserId () {
         return currentUserId;
     }
-    
+
     public void setCurrentUserId ( Integer userId ) {
         currentUserId = userId;
     }
-    
+
     public String getCurrentUser () {
         return getUser(currentUserId);
     }
@@ -76,7 +76,7 @@ public class User {
     public String getUser (Integer id) {
         return (String)allUsers.get(id);
     }
-    
+
     public Dictionary getAllUsers() {
         return allUsers;
     }
@@ -85,7 +85,7 @@ public class User {
         allUsers = users;
         return;
     }
-    
+
     public String getInfo () {
         String info = "Currently, there are " + allUsers.size() + " users registered.";
         return info;
