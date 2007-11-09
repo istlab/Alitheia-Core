@@ -36,29 +36,59 @@ package eu.sqooss.webui;
 import java.util.*;
 import eu.sqooss.webui.MetricsListView;
 
+/* A bean for rendering a table or a list of Metrics available for a
+ * project that is being evaluated.
+ *
+ * @author Sebastian Kuegler <sebas@kde.org>
+ *
+ *
+ */
 public class MetricsTableView {
 
-    Map<Integer,String> metricNames = new HashMap<Integer,String>(); // holds Id, Name
-    Map<Integer,String> metricDescriptions = new HashMap<Integer,String>(); // holds Id, description
+    /* Holds the names of Metrics, indexed by ID: ID, Name
+     * This Map should be in sync with metricDescriptions.
+     */
+    Map<Integer,String> metricNames = new HashMap<Integer,String>();
 
+    /* Holds the descriptions of Metrics, indexed by ID: ID, Description
+     * This Map should be in sync with metricNames.
+     */
+    Map<Integer,String> metricDescriptions = new HashMap<Integer,String>();
+
+    /* Holds the ID of the project. */
     Integer projectId;
 
+    /* Show the ID in the table HTML output? */
     boolean showId = true;
+
+    /* Show the name of the metric in the table HTML output? */
     boolean showName = true;
+
+    /* Show the description of the metric in the table HTML output? */
     boolean showDescription = true;
 
+    /* Show the header of the table? */
     boolean showHeader = true;
+
+    /* Show the footer of the table? */
     boolean showFooter = false;
 
-    String tableClass = new String(); // CSS class for the whole table
-    String cellClass = new String(); // CSS class for individual cells
+    /* CSS class to use for the table element */
+    String tableClass = new String();
+
+    /* CSS class to use for the individual cells of the table */
+    String cellClass = new String();
+
+    /* Identifier in the HTML output */
     String tableId = new String(); // identifier in the HTML output
 
     public MetricsTableView () {
         retrieveData();
     }
 
-
+    /* Retrieves data (right now, we're setting Dummy data, later on,
+     * this function retrieves data from the database.
+     */
     public void retrieveData () {
 
         metricNames.put(0, "Line Count");
@@ -78,6 +108,9 @@ public class MetricsTableView {
 
     }
 
+    /* @return HTML code representing a list of Metrics.
+     *
+     */
     public String getHtml() {
 
         // Count columns so we know how an empty table row looks like
@@ -98,17 +131,17 @@ public class MetricsTableView {
         String table_id = new String();
 
         if (tableClass.length() > 0) {
-            css_class = " class=\"" + tableClass + "\" "; 
+            css_class = " class=\"" + tableClass + "\" ";
         }
         if (cellClass.length() > 0) {
-            cell_class = " class=\"" + cellClass + "\" "; 
+            cell_class = " class=\"" + cellClass + "\" ";
         }
         if (tableId.length() > 0) {
-            table_id = " class=\"" + tableId + "\" "; 
+            table_id = " class=\"" + tableId + "\" ";
         }
 
         StringBuilder html = new StringBuilder("<!-- MetricsTableView -->\n");
-        html.append("<table " + table_id + " " + css_class + " cellspacing=\"0\" >\n");
+        html.append("<table " + table_id + " " + css_class + " cellspacing=\"0\">\n");
 
         // Table header
         html.append("<thead><tr>");
@@ -126,9 +159,9 @@ public class MetricsTableView {
         // Table footer
         if (showFooter) {
             // Dummy.
-            html.append("\n<tfoot><tr>");
+            html.append("\n<tfoot>\n<tr>");
             html.append("\n\t<td  " + cell_class + " colspan=\"" + columns + "\">&nbsp;</td>");
-            html.append("\n</tr></tfoot>\n\n");
+            html.append("\n</tr>\n</tfoot>\n\n");
         }
         // Table rows
         html.append("<tbody>");
@@ -146,12 +179,15 @@ public class MetricsTableView {
             html.append("\n</tr>");
         }
 
-        html.append("</tr>\n</tbody>");
+        html.append("\n</tbody>");
         html.append("\n</table>");
 
         return html.toString();
     }
 
+    /* @return HTML code representing a simple, unordered list of metrics.
+    *
+    */
     public String getHtmlList () {
         StringBuilder html = new StringBuilder("<!-- MetricsList -->\n<ul>");
         for (Integer key: metricNames.keySet()) {
@@ -161,51 +197,87 @@ public class MetricsTableView {
         return html.toString();
     }
 
+    /*
+     * @return The CSS class that is used for the whole table.
+     */
     public String getTableClass () {
-       return tableClass; 
+       return tableClass;
     }
 
+    /*
+     * @param css_class The CSS class to use for the table.
+     */
     public void setTableClass (String css_class) {
         tableClass = css_class;
     }
 
+    /*
+    * @return The CSS class that is used for the table's cells.
+    */
     public String getCellClass () {
-       return cellClass; 
+       return cellClass;
     }
 
+    /*
+    * @param cell_class Set the CSS class to use for the table's cells.
+    */
     public void setCellClass (String cell_class) {
         cellClass = cell_class;
     }
 
+    /*
+    * @return The ID that is used for the whole table.
+    */
     public String getTableId () {
         return tableId;
     }
 
+    /*
+    * @param table_id Set the ID to use for the table.
+    */
     public void setTableId (String table_id) {
         tableId = table_id;
     }
 
+    /*
+     * @param show Wether to show the Metric ID in the table or not.
+     */
     public void setShowId (boolean show) {
         showId = show;
     }
 
+    /*
+    * @return The CSS class that is used for the whole table.
+    */
     public boolean getShowId () {
-        return showId; 
+        return showId;
     }
 
+    /*
+    * @return The CSS class that is used for the whole table.
+    */
     public void setShowName (boolean show) {
         showName = show;
     }
 
+    /*
+    * @return true or false (show the name in the table or not?).
+    */
     public boolean getShowName () {
         return showName;
     }
 
+    /*
+    * @param show Wether to show the Metric's description in the Table or not
+    */
     public void setShowDescription (boolean show) {
         showDescription = show;
     }
 
+    /*
+    * @return true or false (Show Metric's description in the table?)
+    */
     public boolean getShowDescription () {
-        return showDescription;   
+        return showDescription;
     }
 }
