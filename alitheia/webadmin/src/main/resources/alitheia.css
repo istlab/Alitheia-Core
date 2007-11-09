@@ -46,6 +46,7 @@ html, body {
 }
 
 #logs {
+	display: inline;
 	width: 75%;
 	float: right;
 }
