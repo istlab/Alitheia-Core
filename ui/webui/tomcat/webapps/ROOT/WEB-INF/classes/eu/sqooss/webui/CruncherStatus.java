@@ -34,33 +34,62 @@
 // Need a package name
 package eu.sqooss.webui;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+
+import java.net.URL;
+import java.net.URLConnection;
 
 public class CruncherStatus {
     private class Worker implements Runnable {
         private Object lock;
-        private int m;
+        private String m;
 
         public Worker() {
             lock = new Object();
-            m = 0;
+            m = "The cruncher is offline.";
         }
 
         public void run() {
+            String s;
+            URL url = null;
+            try {
+                url = new URL("http://10.0.0.20:8088/ws");
+            } catch (java.net.MalformedURLException e) {
+                synchronized(lock) {
+                    m = "Invalid cruncher URL.";
+                }
+                // Wait forever
+                while(true) {
+                    try {
+                        Thread.sleep(60000);
+                    } catch (InterruptedException ex) {
+                        // Ignore
+                    }
+                }
+            }
+
             while(true) {
+                try {
+                    URLConnection c = url.openConnection();
+                    BufferedReader rd = new BufferedReader(new InputStreamReader(c.getInputStream()));
+                    synchronized(lock) {
+                        m=rd.readLine();
+                    }
+                } catch (java.io.IOException e) {
+                    m = "The cruncher is offline.";
+                }
+
                 // Sleep one minute?
                 try {
                     Thread.sleep(60000);
                 } catch (InterruptedException e) {
                     // Ignore
                 }
-                System.out.println("Hi there!");
-                synchronized(lock) {
-                    m++;
-                }
             }
         }
 
-        public int getM() {
+        public String getM() {
             synchronized(lock) {
                 return m;
             }
@@ -91,7 +120,7 @@ public class CruncherStatus {
     }
 
     public String getStatus() {
-        return "The cruncher is offline (" + getHits() + " hits, m=" + worker.getM() + ")";
+        return worker.getM() + " (" + getHits() + " hits)";
     }
 
     private void setStatus(String s) {
