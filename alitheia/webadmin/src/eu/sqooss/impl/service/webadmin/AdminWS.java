@@ -5,7 +5,6 @@
  * Copyright 2007 by the SQO-OSS consortium members <info@sqo-oss.eu>
  * Copyright 2007 by Adriaan de Groot <groot@kde.org>
  *
- *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
  * met:
@@ -34,49 +33,52 @@
 
 package eu.sqooss.impl.service.webadmin;
 
-import java.util.Hashtable;
+import java.io.PrintWriter;
+import java.io.IOException;
 
-import javax.servlet.Servlet;
+import java.lang.management.RuntimeMXBean;
+import java.lang.management.ManagementFactory;
 
+import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServlet;
+
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
-import org.osgi.service.http.HttpService;
 
-import eu.sqooss.service.webadmin.WebadminService;
 
-public class WebadminServiceImpl implements WebadminService {
-    private ServiceReference serviceref = null;
-    private HttpService httpservice = null;
-    private AdminServlet servlet = null;
+public class AdminWS extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+    private BundleContext bundleContext;
 
-    public WebadminServiceImpl(BundleContext bc) throws Exception {
-        serviceref = bc.getServiceReference("org.osgi.service.http.HttpService");
-        if (serviceref != null) {
-            httpservice = (HttpService) bc.getService(serviceref);
-            servlet = new AdminServlet(bc);
-            httpservice.registerServlet("/", (Servlet) servlet,
-                                        new Hashtable(), null);
-            httpservice.registerServlet("/ws", (Servlet) new AdminWS(bc),
-                                        new Hashtable(), null);
-        } else {
-            System.out.println("! Could not load the HTTP service.");
+    public AdminWS( BundleContext bc ) {
+        bundleContext = bc;
+    }
+
+    protected void doGet(HttpServletRequest request,
+                         HttpServletResponse response) throws ServletException,
+                                                              IOException {
+        long upTime = ManagementFactory.getRuntimeMXBean().getUptime();
+
+        response.setContentType("text/x-ini");
+        PrintWriter print = response.getWriter();
+        print.println("online=true");
+        print.println("uptime=" + upTime);
+        print.println("load=0");
+
+        int count = 0;
+        if (bundleContext != null) {
+            Bundle[] bundles = bundleContext.getBundles();
+            for ( Bundle b : bundles ) {
+                String s = b.getSymbolicName();
+                if (s.startsWith("eu.sqooss.metric")) {
+                    count++;
+                }
+            }
         }
-    }
-
-    public String[] getConfigurationKeys() {
-        return null;
-    }
-
-    public String getConfigurationProperty(String key) {
-        return key;
-    }
-
-    public void setConfigurationProperty(String key, String val) {
-    }
-
-    // Perform a self-test
-    public Object selfTest() {
-        return null;
+        print.println("metrics=" + count);
     }
 }
 
