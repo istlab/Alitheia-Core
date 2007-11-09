@@ -1,4 +1,5 @@
 <!-- *** menu.jsp begins here *** -->
+<jsp:useBean id="cruncher" class="eu.sqooss.webui.CruncherStatus" scope="application" />
 
 <div id="menu">
     <ul>
@@ -11,7 +12,7 @@
 
 <div id="status">
 <!-- First call to cruncher to obtain status -->
-The cruncher is offline. (That's a wild guess.)<br />
+The cruncher is offline. (That's a wild guess <%=cruncher.getHits() %>)<br />
 <%
 java.util.Date date = new java.util.Date();
 out.println( "<p />" + String.valueOf( date ));
@@ -24,4 +25,4 @@ out.println("<p />" + application.getServerInfo());
 
 </div>
 
-<!-- *** menu.jsp begins here *** -->
+<!-- *** menu.jsp ends here *** -->
