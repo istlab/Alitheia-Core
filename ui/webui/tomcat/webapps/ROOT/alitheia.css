@@ -16,10 +16,16 @@ a:hover {
 }
 
 .metrics {
+    margin: 0px;
     padding: 4px;
     border: 1px solid #cccccc;
 }
 
+
+table.metrics {
+    margin: 0px;
+    border: 2px solid #cccccc;
+}
 
 #content {
     margin-top: 20px;
@@ -32,7 +38,6 @@ a:hover {
 
 #content ul {
     padding-left: 40px;
-
 }
 
 #banner {

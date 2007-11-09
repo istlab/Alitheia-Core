@@ -108,46 +108,46 @@ public class MetricsTableView {
         }
         
         String html = new String("<!-- MetricsTableView -->\n");
-        html = html + "<table " + table_id + " " + css_class + ">\n";
+        html += "<table " + table_id + " " + css_class + " cellspacing=\"0\" >\n";
         
         // Table header
-        html = html + "<thead><tr>";
+        html += "<thead><tr>";
         if (showId) {
-            html = html + "\n\t<td " + cell_class + ">ID</td>";
+            html += "\n\t<td " + cell_class + ">ID</td>";
         }
         if (showName) {
-            html = html + "\n\t<td " + cell_class + ">Metric</td>";
+            html += "\n\t<td " + cell_class + ">Metric</td>";
         }
         if (showDescription) {
-            html = html + "\n\t<td " + cell_class + ">Description</td>";
+            html += "\n\t<td " + cell_class + ">Description</td>";
         }
-        html = html + "</tr></thead>\n\n";
+        html += "</tr></thead>\n\n";
 
         // Table footer
         if (showFooter) {
             // Dummy.
-            html = html + "<tfoot><tr>";
-            html = html + "<td  " + cell_class + " colspan=\"" + columns + "\">&nbsp;</td>";
-            html = html + "</tr></tfoot>\n\n";
+            html += "<tfoot><tr>";
+            html += "<td  " + cell_class + " colspan=\"" + columns + "\">&nbsp;</td>";
+            html += "</tr></tfoot>\n\n";
         }
         // Table rows
-        html = html + "<tbody>";
+        html += "<tbody>";
         for (Integer key: metricNames.keySet()) {
-            html = html + "\n<tr>";
+            html += "\n<tr>";
             if (showId) {
-                html = html + "\n\t<td " + cell_class + ">" + key + "</td>";
+                html += "\n\t<td " + cell_class + ">" + key + "</td>";
             }
             if (showName) {
-                html = html + "\n\t<td " + cell_class + ">" + metricNames.get(key) + "</td>";
+                html += "\n\t<td " + cell_class + ">" + metricNames.get(key) + "</td>";
             }
             if (showDescription) {
-                html = html + "\n\t<td " + cell_class + ">" + metricDescriptions.get(key) + "</td>";
+                html += "\n\t<td " + cell_class + ">" + metricDescriptions.get(key) + "</td>";
             }
-            html = html + "\n</tr>";
+            html += "\n</tr>";
         }
         
-        html = html + "</tr>\n</tbody>";
-        html = html + "\n</table>";
+        html += "</tr>\n</tbody>";
+        html += "\n</table>";
 
         return html;
     }
@@ -155,9 +155,9 @@ public class MetricsTableView {
     public String getHtmlList () {
         String html = new String("<!-- MetricsList -->\n<ul>");
         for (Integer key: metricNames.keySet()) {
-            html = html + "\n\t<li>" + metricNames.get(key) + "</li>";
+            html += "\n\t<li>" + metricNames.get(key) + "</li>";
         }
-        html = html + "\n</ul>";
+        html += "\n</ul>";
         return html;
     }
     
