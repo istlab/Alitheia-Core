@@ -36,10 +36,46 @@ package eu.sqooss.webui;
 
 
 public class CruncherStatus {
+    private class Worker implements Runnable {
+        private Object lock;
+        private int m;
+
+        public Worker() {
+            lock = new Object();
+            m = 0;
+        }
+
+        public void run() {
+            while(true) {
+                // Sleep one minute?
+                try {
+                    Thread.sleep(60000);
+                } catch (InterruptedException e) {
+                    // Ignore
+                }
+                System.out.println("Hi there!");
+                synchronized(lock) {
+                    m++;
+                }
+            }
+        }
+
+        public int getM() {
+            synchronized(lock) {
+                return m;
+            }
+        }
+    }
+
     private long hits = 0;
+    private Worker worker = null;
 
     public CruncherStatus() {
         hits = 0;
+        Worker w = new Worker();
+        Thread t = new Thread(w);
+        t.start();
+        worker = w;
     }
 
     public long getHits() {
@@ -55,7 +91,7 @@ public class CruncherStatus {
     }
 
     public String getStatus() {
-        return "The cruncher is offline (" + getHits() + " hits)";
+        return "The cruncher is offline (" + getHits() + " hits, m=" + worker.getM() + ")";
     }
 
     private void setStatus(String s) {
