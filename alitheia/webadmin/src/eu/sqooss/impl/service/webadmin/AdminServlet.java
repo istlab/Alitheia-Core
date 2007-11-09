@@ -45,6 +45,9 @@ import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.util.SQOUtils;
 
+import java.lang.management.RuntimeMXBean;
+import java.lang.management.ManagementFactory;
+
 import java.util.List;
 import java.util.Hashtable;
 
@@ -75,6 +78,22 @@ public class AdminServlet extends HttpServlet {
     private Hashtable<String,String[]> staticContentMap;
     private Hashtable<String,String> dynamicContentMap;
     private Hashtable<String,String> dynamicSubstitutions;
+
+    private String getUptime() {
+        long upTime = ManagementFactory.getRuntimeMXBean().getUptime();
+        long remainder;
+
+        // Get the elapsed time in days, hours, mins, secs
+        int days = new Long(upTime / 86400000).intValue();
+        remainder = upTime % 86400000;
+        int hours = new Long(remainder / 3600000).intValue();
+        remainder = remainder % 3600000;
+        int mins = new Long(remainder / 60000).intValue();
+        remainder = remainder % 60000;
+        int secs = new Long(remainder / 1000).intValue();
+
+        return days + ":" + hours + ":" + mins + ":" + secs;
+    }
 
     private void getLogger(BundleContext bc) {
         ServiceReference serviceRef = null;
@@ -322,6 +341,7 @@ public class AdminServlet extends HttpServlet {
         dynamicSubstitutions.put("@@COPYRIGHT","Copyright 2007 <a href=\"about\">SQO-OSS Consortium members</a>");
         dynamicSubstitutions.put("@@GETLOGS", renderList(logService.getRecentEntries()));
         dynamicSubstitutions.put("@@PROJECTS",renderList(listProjects()));
+        dynamicSubstitutions.put("@@UPTIME",getUptime());
     }
 
     protected void doGet(HttpServletRequest request,

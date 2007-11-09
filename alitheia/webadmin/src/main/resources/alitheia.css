@@ -45,6 +45,11 @@ html, body {
 	font-size: small;
 }
 
+#logs {
+	width: 80%;
+	float: right;
+}
+
 #menu ul {
 	list-style-type: none;
 	margin: 0px;
