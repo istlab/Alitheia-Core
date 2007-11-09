@@ -67,6 +67,7 @@ public class AdminWS extends HttpServlet {
         print.println("online=true");
         print.println("uptime=" + upTime);
         print.println("load=0");
+        print.println("projects=2");
 
         int count = 0;
         if (bundleContext != null) {
