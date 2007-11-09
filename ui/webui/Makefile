@@ -14,7 +14,7 @@ endef
 start :
 	$(call set_java_home) \
 	cd tomcat && \
-	export CLASSPATH=tomcat/webapps/ROOT/WEB-INF/classes && \
+	export CLASSPATH=`pwd`/webapps/ROOT/WEB-INF/classes && \
 	sh bin/catalina.sh start
 
 stop :
