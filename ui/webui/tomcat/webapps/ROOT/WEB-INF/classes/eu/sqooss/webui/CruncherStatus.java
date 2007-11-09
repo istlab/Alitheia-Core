@@ -43,11 +43,22 @@ public class CruncherStatus {
     }
 
     public long getHits() {
-        return ++hits;
+        return hits;
     }
 
     private void setHits(long h) {
         hits = h;
+    }
+
+    public void hit() {
+        ++hits;
+    }
+
+    public String getStatus() {
+        return "The cruncher is offline (" + getHits() + " hits)";
+    }
+
+    private void setStatus(String s) {
     }
 }
 

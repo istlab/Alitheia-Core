@@ -12,8 +12,10 @@
 
 <div id="status">
 <!-- First call to cruncher to obtain status -->
-The cruncher is offline. (That's a wild guess <%=cruncher.getHits() %>)<br />
 <%
+cruncher.hit();
+out.println(cruncher.getStatus() + "<br />");
+
 java.util.Date date = new java.util.Date();
 out.println( "<p />" + String.valueOf( date ));
 out.println( "<p />Your IP: " + request.getRemoteHost());
