@@ -43,7 +43,7 @@ public class CruncherStatus {
     }
 
     public long getHits() {
-        return hits;
+        return ++hits;
     }
 
     private void setHits(long h) {
