@@ -48,8 +48,9 @@ import eu.sqooss.util.SQOUtils;
 import java.lang.management.RuntimeMXBean;
 import java.lang.management.ManagementFactory;
 
-import java.util.List;
+import java.util.Formatter;
 import java.util.Hashtable;
+import java.util.List;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -92,7 +93,7 @@ public class AdminServlet extends HttpServlet {
         remainder = remainder % 60000;
         int secs = new Long(remainder / 1000).intValue();
 
-        return days + ":" + hours + ":" + mins + ":" + secs;
+        return String.format("%d:%02d:%02d:%02d", days, hours, mins, secs);
     }
 
     private void getLogger(BundleContext bc) {
