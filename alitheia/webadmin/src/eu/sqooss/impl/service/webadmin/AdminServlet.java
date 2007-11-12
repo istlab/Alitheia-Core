@@ -427,6 +427,12 @@ public class AdminServlet extends HttpServlet {
             addProject(request);
             // addProject() has filled in the substitutions by now
             sendTemplate(response,"/results.html",dynamicSubstitutions);
+        } else if ("stop".equals(request.getPathInfo())) {
+            dynamicSubstitutions.put("@@RESULTS", "<p>Alitheia Core is now shutdown.</p>");
+            sendTemplate(response,"/results.html",dynamicSubstitutions);
+        } else if ("restart".equals(request.getPathInfo())) {
+            dynamicSubstitutions.put("@@RESULTS", "<p>Alithei Core is now restarting. Please wait.</p>");
+            sendTemplate(response,"/results.html",dynamicSubstitutions);
         } else {
             doGet(request,response);
         }
@@ -436,4 +442,3 @@ public class AdminServlet extends HttpServlet {
 
 
 // vi: ai nosi sw=4 ts=4 expandtab
-

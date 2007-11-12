@@ -34,8 +34,12 @@
 
         <fieldset id="options">
             <legend>System Options</legend>
-            <button>Restart Alitheia</button>
-            <button>Stop Alitheia</button>
+            <form id="restart" method="POST" action="restart">
+                <button>Restart Alitheia</button>
+            </form>
+            <form id="stop" method="POST" action="stop">
+                <button>Stop Alitheia</button>
+            </form>
         </fieldset>
 
         <h1>Alitheia System Bundles</h1>
