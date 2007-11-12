@@ -40,6 +40,7 @@ form {
 
 
 #status, #menu, #options {
+	display: inline;
 	background-color: #ecebeb;
 	width: 18%;
 	float: left;
@@ -57,6 +58,8 @@ legend {
 }
 
 #logs {
+	position: absolute;
+	left: 20%;
 	display: inline;
 	width: 75%;
 	float: right;

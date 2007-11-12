@@ -12,47 +12,48 @@
             <img class="alitheialogo" src="alitheia.png" alt="Alitheia Logo" />
         </div>
 
-        <fieldset id="status">
-            <legend>Alitheia Status</legend>
-            <hr/>
-            Uptime:<br/>
-            @@UPTIME
-            <hr/>
-            Job Queue Length:<br/>
-            @@QUEUE_LENGTH
-            <hr/>
-        </fieldset>
+        <div id="wrapper">
+            <fieldset id="status">
+                <legend>Alitheia Status</legend>
+                <hr/>
+                Uptime:<br/>
+                @@UPTIME
+                <hr/>
+                Job Queue Length:<br/>
+                @@QUEUE_LENGTH
+                <hr/>
+            </fieldset>
 
-        <fieldset id="menu">
-            <legend>Menu</legend>
-            <ul>
-                <li><a href="index">Bundles</a></li>
-                <li>Logs</li>
-                <li><a href="projects">Projects</a></li>
-            </ul>
-        </fieldset>
+            <fieldset id="menu">
+                <legend>Menu</legend>
+                <ul>
+                    <li><a href="index">Bundles</a></li>
+                    <li>Logs</li>
+                    <li><a href="projects">Projects</a></li>
+                </ul>
+            </fieldset>
 
-        <fieldset id="options">
-            <legend>System Options</legend>
-            <form id="restart" method="POST" action="restart">
-                <button>Restart Alitheia</button>
-            </form>
-            <form id="stop" method="POST" action="stop">
-                <button>Stop Alitheia</button>
-            </form>
-        </fieldset>
+            <fieldset id="options">
+                <legend>System Options</legend>
+                <form id="restart" method="POST" action="restart">
+                    <button>Restart Alitheia</button>
+                </form>
+                <form id="stop" method="POST" action="stop">
+                    <button>Stop Alitheia</button>
+                </form>
+            </fieldset>
 
-        <h1>Alitheia System Logs</h1>
-        <div id="logs">
-	    <ul>
-                @@GETLOGS
-	    </ul>
-        </div>  
-
-       <div id="footer">
-           <span class="copyright"> 
-               @@COPYRIGHT
-           </span>
-       </div>
+            <h1>Alitheia System Logs</h1>
+            <div id="logs">
+	        <ul>
+                    @@GETLOGS
+	        </ul>
+            </div>
+        </div> <!-- WRAPPER -->
+        <div id="footer">
+            <span class="copyright"> 
+                @@COPYRIGHT
+            </span>
+        </div>
     </body>
 </html>
