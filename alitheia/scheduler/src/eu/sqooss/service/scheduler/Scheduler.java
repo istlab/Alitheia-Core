@@ -41,6 +41,6 @@ public interface Scheduler {
      * 
      * @param job - the job.
      */
-    // void enqueue( Job job );
+    void enqueue( Job job );
 
 }

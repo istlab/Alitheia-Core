@@ -4,7 +4,7 @@ consortium as part of the IST FP6 SQO-OSS project, number 033331.
 
 Copyright 2007 by the SQO-OSS consortium members <info@sqo-oss.eu>
 Copyright 2007 by KDAB (www.kdab.net)
-Author: Mirko Boehm <mirko@kdab.net>
+Author: Christoph Schleifenbaum <christoph@kdab.net>
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are
@@ -32,53 +32,23 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-package eu.sqooss.impl.service.scheduler;
+package eu.sqooss.service.scheduler;
 
-import java.io.IOException;
-import java.util.Hashtable;
 import java.util.List;
 
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
-import org.osgi.service.http.HttpService;
-import org.osgi.service.http.NamespaceException;
-
-import eu.sqooss.service.scheduler.Job;
-import eu.sqooss.service.scheduler.Scheduler;
-import eu.sqooss.service.logging.Logger;
-import eu.sqooss.service.logging.LogManager;
-
-public class SchedulerServiceImpl implements Scheduler {
-
-    private ServiceReference serviceRef = null;    
-
-    private HttpService httpService = null;    
-
-    private LogManager logService = null;
-    
-    private Logger logger = null;
-    
-    private List<Job> jobQueue;
-
-    public SchedulerServiceImpl(BundleContext bc) throws NamespaceException {
-        
-        serviceRef = bc.getServiceReference("eu.sqooss.service.logging.LogManager");
-        logService = (LogManager) bc.getService(serviceRef);
-        if (logService != null) {
-            logger = logService.createLogger("sqooss.scheduler");
-            if(logger != null) {
-            	logger.info("Got logging!");
-            }
-        }
-        if (logger != null) {
-            logger.info("Got scheduling!");
-        } else {
-            System.out.println("! Got scheduler but no logging.");
-        }
-    }
-
-	public void enqueue(Job job) {
-		logger.info("Got a new job");
-		jobQueue.add(job);
-	}
+public interface Job {
+	/**
+	 * Run the job.
+	 */
+	void run();
+	
+	/**
+	 * @return The priority of the job.   
+	 */
+	int priority();
+	
+	/**
+	 * @return All jobs this job depends on.
+	 */
+	List<Job> dependencies();
 }
