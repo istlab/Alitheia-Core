@@ -40,7 +40,7 @@ public interface Job {
 	/**
 	 * Run the job.
 	 */
-	void run();
+	void run() throws Exception;
 	
 	/**
 	 * @return The priority of the job.   
