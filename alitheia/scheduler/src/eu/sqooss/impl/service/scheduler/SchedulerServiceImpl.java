@@ -79,6 +79,18 @@ public class SchedulerServiceImpl implements Scheduler {
 
 	public void enqueue(Job job) {
 		logger.info("Got a new job");
+		job.aboutToBeEnqueued( this );
 		jobQueue.add(job);
+	}
+	
+	public void dequeue( Job job ) {
+		logger.info("Job being removed");
+		if( !jobQueue.contains( job ) )
+		{
+			logger.info("The job was not enqueued.");
+			return;
+		}
+		job.aboutToBeDequeued( this );
+		jobQueue.remove( job );
 	}
 }

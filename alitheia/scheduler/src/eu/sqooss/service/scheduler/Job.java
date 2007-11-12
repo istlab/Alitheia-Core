@@ -34,21 +34,85 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package eu.sqooss.service.scheduler;
 
+import java.util.Iterator;
 import java.util.List;
 
-public interface Job {
+public abstract class Job {
+	
+	/**
+	 * The state of the job.
+	 * @author christoph
+	 *
+	 */
+	enum State
+	{
+		Created,
+		Queued,
+		Running,
+		Finished,
+		Error
+	}
+
+	/**
+	 * @return The current state of the job.
+	 */
+	abstract State state();
+	
+	/**
+	 * Executes the job.
+	 * Makes sure, that all dependencies are met. 
+	 * @throws Exception
+	 */
+	final public void execute() throws Exception
+	{
+		
+	}
+
 	/**
 	 * Run the job.
+	 * @throws Exception
 	 */
-	void run() throws Exception;
+	abstract protected void run() throws Exception;
 	
 	/**
 	 * @return The priority of the job.   
 	 */
-	int priority();
+	abstract int priority();
+
+	/** 
+	 * This method is called during queueing, right before the job is added to the work queue.
+	 * @param s The scheduler, the job has been enqueued to 
+	 */
+	public void aboutToBeEnqueued( Scheduler s )
+	{
+	}
+	
+	/** 
+	 * This method is called right before the job is dequeued without being executed. 
+	 * */
+	public void aboutToBeDequeued( Scheduler s )
+	{
+	}
 	
 	/**
 	 * @return All jobs this job depends on.
 	 */
-	List<Job> dependencies();
+	abstract List<Job> dependencies();
+	
+	/**
+	 * Checks, wheter all dependencies are met and the job can be executed.
+	 * @return true, when all dependencies are met.
+	 */
+	boolean canExecute()
+	{
+		final List<Job> deps = dependencies();
+		Iterator<Job> it = deps.iterator(); 
+		while( it.hasNext() )
+		{
+			Job j = it.next();
+			if( j.state() != State.Finished )
+				return false;
+		}
+		return true;
+	}
 }
