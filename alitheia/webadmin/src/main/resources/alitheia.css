@@ -1,6 +1,10 @@
-html, body {
+html, body, form {
 	padding: 0;
 	margin: 0;
+}
+
+form {
+	display: inline;
 }
 
 #banner {
