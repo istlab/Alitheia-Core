@@ -431,7 +431,7 @@ public class AdminServlet extends HttpServlet {
             dynamicSubstitutions.put("@@RESULTS", "<p>Alitheia Core is now shutdown.</p>");
             sendTemplate(response,"/results.html",dynamicSubstitutions);
         } else if ("restart".equals(request.getPathInfo())) {
-            dynamicSubstitutions.put("@@RESULTS", "<p>Alithei Core is now restarting. Please wait.</p>");
+            dynamicSubstitutions.put("@@RESULTS", "<p>Alitheia Core is now restarting. Please wait.</p>");
             sendTemplate(response,"/results.html",dynamicSubstitutions);
         } else {
             doGet(request,response);

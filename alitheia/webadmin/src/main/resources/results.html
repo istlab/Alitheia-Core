@@ -1,32 +1,37 @@
-<html>
-<head>
-<title>About Alitheia</title>
-<link rel='stylesheet' type='text/css' href='/alitheia.css' />
-</head>
-<body>
-<!-- Want this to be a JavaBean -->
-<div id="banner">
-<img class="sqologo" src="http://www.sqo-oss.eu/sqo-oss-logo.jpg" alt="SQO-OSS Project Logo" />
-<img class="alitheialogo" src="alitheia.png" alt="Alitheia Logo" />
-</div>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+    <head>
+        <title>Alitheia System Administration Interface</title>
+        <link rel="stylesheet" type="text/css" href="/alitheia.css" />
+        <link rel="stylesheet" type="text/css" href="/style.css" />
+    </head>
+    <body>
+        <!-- Want this to be a JavaBean -->
+        <div id="banner">
+            <img class="sqologo" src="http://www.sqo-oss.eu/sqo-oss-logo.jpg" alt="SQO-OSS Project Logo" />
+            <img class="alitheialogo" src="alitheia.png" alt="Alitheia Logo" />
+        </div>
 
-<div id="status">
-@@STATUS
-</div>
+        <fieldset id="status">
+            <legend>Alitheia Status</legend>
+            <hr/>
+            Uptime:<br/>
+            @@UPTIME
+            <hr/>
+            Job Queue Length:<br/>
+            @@QUEUE_LENGTH
+            <hr/>
+        </fieldset>
 
-<div id="menu">
-<ul>
-<li><a href="/">Home</a></li>
-</ul>
-</div>
+        <h1>Alitheia System Message</h1>
+        <div id="messages">
+	    @@RESULTS
+        </div>
 
-@@RESULTS
-
-
-<div id='footer'>
-<span class="copyright">
-@@COPYRIGHT
-</span>
-</div>
-</body>
+        <div id='footer'>
+            <span class="copyright"> 
+                @@COPYRIGHT
+            </span>
+        </div>
+    </body>
 </html>
