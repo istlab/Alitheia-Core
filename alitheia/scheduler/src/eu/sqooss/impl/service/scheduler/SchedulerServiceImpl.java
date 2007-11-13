@@ -78,20 +78,20 @@ public class SchedulerServiceImpl implements Scheduler {
     }
 
 	public void enqueue(Job job) {
-		logger.info("Got a new job");
+		logger.info("SchedulerServiceImpl: queuing job " + job.toString() );
 		job.aboutToBeEnqueued( this );
 		jobQueue.add(job);
 	}
 	
 	public void dequeue( Job job ) {
-		logger.info("Job being removed");
 		if( !jobQueue.contains( job ) )
 		{
-			logger.info("The job was not enqueued.");
+			logger.info("SchedulerServiceImpl: job " + job.toString() + " not found in the queue.");
 			return;
 		}
 		job.aboutToBeDequeued( this );
 		jobQueue.remove( job );
+		logger.info("SchedulerServiceImpl: job " + job.toString() + " not found in the queue." );
 	}
 
     public Object selfTest() {
