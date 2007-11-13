@@ -36,7 +36,7 @@ import java.util.Vector;
 
 class ListView {
 
-    Vector<String> items = new Vector();
+    Vector<String> items = new Vector<String>();
 
     public ListView () {}
 

@@ -33,12 +33,13 @@
 
 package eu.sqooss.webui;
 
-import java.util.Dictionary;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class User {
 
     //java.util.Dictionary allUsers;
-    Dictionary allUsers;
+    Map<Integer,String> allUsers;
     Integer currentUserId;
     String currentUser;
 
@@ -48,6 +49,7 @@ public class User {
      * some point in the near future.
      */
     public User () {
+        allUsers = new TreeMap<Integer,String>();
         // Sample data
         allUsers.put(new Integer(0), "nobody");
         allUsers.put(new Integer(1), "admin");
@@ -77,11 +79,11 @@ public class User {
         return (String)allUsers.get(id);
     }
 
-    public Dictionary getAllUsers() {
+    public Map getAllUsers() {
         return allUsers;
     }
 
-    public void setAllUsers ( Dictionary users) {
+    public void setAllUsers ( Map<Integer,String> users) {
         allUsers = users;
         return;
     }

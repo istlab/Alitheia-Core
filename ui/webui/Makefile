@@ -2,7 +2,7 @@ all : build run
 
 build :
 	cd tomcat/webapps/ROOT/WEB-INF/classes/eu/sqooss/webui && \
-	javac *\.java && cd -
+	javac -Xlint *\.java && cd -
 
 run : build start
 
