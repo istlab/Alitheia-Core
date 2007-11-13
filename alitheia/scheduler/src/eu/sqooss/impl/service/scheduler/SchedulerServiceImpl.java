@@ -93,4 +93,8 @@ public class SchedulerServiceImpl implements Scheduler {
 		job.aboutToBeDequeued( this );
 		jobQueue.remove( job );
 	}
+
+    public Object selfTest() {
+        return null;
+    }
 }
