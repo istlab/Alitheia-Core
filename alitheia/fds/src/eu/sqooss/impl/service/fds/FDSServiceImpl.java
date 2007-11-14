@@ -81,8 +81,14 @@ public class FDSServiceImpl implements FDSService {
         logger.info("Got TDS service for FDS.");
 
         checkoutCollection = new HashMap<Long,List<CheckoutImpl>>();
-        logger.info("FDS root directory " + bc.getProperty("eu.sqooss.fds.root"));
-        fdsCheckoutRoot = new File(bc.getProperty("eu.sqooss.fds.root"));
+        String s = bc.getProperty("eu.sqooss.fds.root");
+        if (s==null) {
+            logger.info("No eu.sqooss.fds.root set, using default /var/tmp");
+            s = "/var/tmp";
+        } else {
+            logger.info("FDS root directory " + s);
+        }
+        fdsCheckoutRoot = new File(s);
     }
 
     /**
