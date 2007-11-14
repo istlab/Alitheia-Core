@@ -38,81 +38,135 @@ import java.util.Iterator;
 import java.util.List;
 
 public abstract class Job {
-	
-	/**
-	 * The state of the job.
-	 * @author christoph
-	 *
-	 */
-	enum State
-	{
-		Created,
-		Queued,
-		Running,
-		Finished,
-		Error
-	}
 
-	/**
-	 * @return The current state of the job.
-	 */
-	abstract State state();
-	
-	/**
-	 * Executes the job.
-	 * Makes sure, that all dependencies are met. 
-	 * @throws Exception
-	 */
-	final public void execute() throws Exception
+    /**
+     * The state of the job.
+     * @author christoph
+     *
+     */
+    public enum State
 	{
-		
-	}
+        Created,
+        Queued,
+        Running,
+        Finished,
+        Error
+    }
 
-	/**
-	 * Run the job.
-	 * @throws Exception
-	 */
-	abstract protected void run() throws Exception;
-	
-	/**
-	 * @return The priority of the job.   
-	 */
-	abstract int priority();
+    Job()
+    {
+        m_scheduler = null;
+        m_errorException = null;
+        setState( State.Created );
+    }
 
-	/** 
-	 * This method is called during queueing, right before the job is added to the work queue.
-	 * @param s The scheduler, the job has been enqueued to 
-	 */
-	public void aboutToBeEnqueued( Scheduler s )
-	{
-	}
-	
-	/** 
-	 * This method is called right before the job is dequeued without being executed. 
-	 * */
-	public void aboutToBeDequeued( Scheduler s )
-	{
-	}
-	
-	/**
-	 * @return All jobs this job depends on.
-	 */
-	abstract List<Job> dependencies();
-	
-	/**
-	 * Checks, wheter all dependencies are met and the job can be executed.
-	 * @return true, when all dependencies are met.
-	 */
-	boolean canExecute()
-	{
-		final List<Job> deps = dependencies();
-		Iterator<Job> it = deps.iterator(); 
-		while( it.hasNext() )
-		{
-			Job j = it.next();
-			if( j.state() != State.Finished )
-				return false;
-		}
-		return true;
-	}
+    private State m_state;
+    private Scheduler m_scheduler;
+    private Exception m_errorException;
+
+    /**
+     * @return The current state of the job.
+     */
+    public final State state()
+    {
+        return m_state;
+    }
+
+    /**
+     * Sets the jobs state
+     */
+    protected final void setState( State s )
+    {
+        if( m_state == s )
+            return;
+        m_state = s;
+        if( m_scheduler != null )
+            m_scheduler.jobStateChanged( this, s );
+    }
+
+    /**
+     * Executes the job.
+     * Makes sure, that all dependencies are met. 
+     * @throws Exception
+     */
+    final public void execute() throws Exception
+    {
+        try
+        {
+            setState( State.Running );
+            run();
+            setState( State.Finished );
+        }
+        catch( Exception e )
+        {
+            m_errorException = e;
+            setState( State.Error );
+            throw e;
+        }
+    }
+
+    /**
+     * Run the job.
+     * @throws Exception
+     */
+    abstract protected void run() throws Exception;
+
+    /**
+     * @return The priority of the job.   
+     */
+    abstract int priority();
+
+    public final void callAboutToBeEnqueued( Scheduler s )
+    {
+        aboutToBeEnqueued( s );
+        m_state = State.Queued;
+        m_scheduler = s;
+    }
+
+    public final void callAboutToBeDequeued( Scheduler s )
+    {
+        aboutToBeDequeued( s );
+        if( m_state == State.Queued )
+            m_state = State.Created;
+        m_scheduler = null;
+    }
+
+    /** 
+     * This method is called during queueing, right before the job is added to the work queue.
+     * The job is not in state Queued at this time.
+     * @param s The scheduler, the job has been enqueued to 
+     */
+    protected void aboutToBeEnqueued( Scheduler s )
+    {
+    }
+
+    /** 
+     * This method is called right before the job is dequeued without being executed. 
+     * 
+     */
+    protected void aboutToBeDequeued( Scheduler s )
+    {
+    }
+
+    /**
+     * @return All jobs this job depends on.
+     */
+    abstract List<Job> dependencies();
+
+    /**
+     * Checks, wheter all dependencies are met and the job can be executed.
+     * @return true, when all dependencies are met.
+     */
+    boolean canExecute()
+    {
+        final List<Job> deps = dependencies();
+        Iterator<Job> it = deps.iterator(); 
+        while( it.hasNext() )
+        {
+            Job j = it.next();
+            if( j.state() != State.Finished )
+                return false;
+        }
+        return true;
+    }
 }

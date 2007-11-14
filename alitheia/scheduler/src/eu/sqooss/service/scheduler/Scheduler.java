@@ -43,4 +43,5 @@ public interface Scheduler {
      */
     void enqueue( Job job );
 
+    void jobStateChanged( Job job, Job.State state );
 }
