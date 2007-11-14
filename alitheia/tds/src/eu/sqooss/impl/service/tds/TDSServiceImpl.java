@@ -33,6 +33,8 @@
 package eu.sqooss.impl.service.tds;
 
 import java.util.HashMap;
+import java.util.Set;
+import java.util.Iterator;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -61,6 +63,9 @@ public class TDSServiceImpl implements TDSService {
         if (logger != null) {
             logger.info("TDS service created.");
         } else {
+            // If the logger is not created, this gets printed
+            // but no checks are done later, and the bundle will
+            // crash (later in the constructor already).
             System.out.println("# TDS failed to get logger.");
         }
 
@@ -86,7 +91,7 @@ public class TDSServiceImpl implements TDSService {
     }
 
     public boolean accessorExists( long projectId ) {
-        return accessorPool.containsKey(new Long(projectId));
+        return projectExists(projectId);
     }
 
     public TDAccessor getAccessor( long projectId ) {
@@ -111,11 +116,35 @@ public class TDSServiceImpl implements TDSService {
     }
 
     public Object selfTest() {
-        return new String("\n" +
-            "\tSo there's these two cows in a field, right?\n" +
-            "\tAnd the one cow says to the other 'hey, you heard about\n" +
-            "\tthat mad cow disease that's going around? Are you worried?'\n" +
-            "\tAnd the other cow goes 'why should I worry? I'm a duck.'\n\n");
+        // Fail if certain required data structures are not initialized
+        if (logger == null) {
+            return new String("No logger available.");
+        }
+        if (accessorPool == null) {
+            return new String("No accessor pool available.");
+        }
+
+        // Fail if the pool is empty; we don't want to fiddle around
+        // with a system where the database is empty. This assumes 
+        // that someone else calls addAccessor() before calling selfTest().
+        Set<Long> accessorKeys = accessorPool.keySet();
+        Iterator<Long> i = accessorKeys.iterator();
+        if (!i.hasNext()) {
+            return new String("No projects to check against.");
+        }
+
+        // Check consistency of accessor retrieval
+        TDAccessorImpl accessor = accessorPool.get(i.next());
+        long id = accessor.getId();
+        logger.info("Checking project " + id + 
+            " <" + accessor.getName() + ">");
+        if (accessor != getAccessor(id)) {
+            return new String("Request for project " + i +
+                " got someone else.");
+        }
+
+        // Everything is ok
+        return null;
     }
 }
 
