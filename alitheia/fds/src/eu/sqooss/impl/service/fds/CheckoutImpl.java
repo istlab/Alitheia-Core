@@ -73,6 +73,10 @@ class CheckoutImpl implements Checkout {
         return revision;
     }
 
+    public int numberOfShares() {
+        return claims;
+    }
+
     // Interface eu.sqooss.service.tds.NamedAccessor
     public String getName() {
         return projectName;

@@ -63,6 +63,15 @@ public interface Checkout extends eu.sqooss.service.tds.NamedAccessor {
      *          checkout; all files live beneath this.
      */
     File getRoot();
+
+    /**
+     * Checkouts may be shared between different metrics or other parts
+     * of the system; if a checkout is shared, it (obviously) cannot be
+     * updated or changed by one of the individual holders of the checkout.
+     *
+     * @return Number of holders of this checkout.
+     */
+    int numberOfShares();
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab
