@@ -7,14 +7,22 @@
 
     <session-factory>
 
-        <!-- Database connection settings -->
-        <!-- ... all of these settings are set programmatically. -->
+        <!-- Database connection settings: all of these settings are 
+             set programmatically by initHibernate() in the DBS.
+
+             connection.driver_class
+             connection.url
+             connection.username
+             connection.password
+
+             SQL dialect is also set programmatically.
+
+             dialect
+        -->
 
         <!-- JDBC connection pool (use the built-in) -->
         <property name="connection.pool_size">1</property>
 
-        <!-- SQL dialect -->
-        <property name="dialect">org.hibernate.dialect.DerbyDialect</property>
 
         <!-- Enable Hibernate's automatic session context management -->
         <property name="current_session_context_class">thread</property>
