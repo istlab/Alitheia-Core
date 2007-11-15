@@ -36,8 +36,10 @@ package eu.sqooss.service.scheduler;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.LinkedList;
+import java.lang.Comparable; 
 
-public abstract class Job {
+public abstract class Job implements Comparable< Job > {
 
     /**
      * The state of the job.
@@ -53,7 +55,7 @@ public abstract class Job {
         Error
     }
 
-    Job()
+    protected Job()
     {
         m_scheduler = null;
         m_errorException = null;
@@ -63,6 +65,17 @@ public abstract class Job {
     private State m_state;
     private Scheduler m_scheduler;
     private Exception m_errorException;
+
+
+    /**
+     * This list contains the dependencies between the jobs.
+     * Each pair defines that the \a second one's execution depends on
+     * completion of the \a first one.
+     *
+     * As soon as the \a first job is finished, the pair is removed from
+     * the list.
+     */
+    protected static List< Pair< Job, Job > > s_dependencies = new LinkedList< Pair< Job, Job > >();
 
     /**
      * @return The current state of the job.
@@ -80,8 +93,50 @@ public abstract class Job {
         if( m_state == s )
             return;
         m_state = s;
+        if( m_state == State.Finished )
+        {
+            // remove the job from the dependency list
+            synchronized( s_dependencies )
+            {
+                List< Pair< Job, Job > > doomed = new LinkedList< Pair< Job, Job > >();
+                for( Pair< Job, Job > p : s_dependencies )
+                    if( p.first == this )
+                        doomed.add( p );
+                s_dependencies.removeAll( doomed );
+            }
+        }
         if( m_scheduler != null )
             m_scheduler.jobStateChanged( this, s );
+    }
+
+    /**
+     * Adds a dependency.
+     * This job cannot be executed, as long \a other 
+     * is not finished.
+     */
+    public final void addDependency( Job other )
+    {
+        synchronized( s_dependencies )
+        {
+            Pair< Job, Job > newDependency = new Pair< Job, Job >( other, this );
+            s_dependencies.add( newDependency );
+        }
+    }
+
+    /**
+     * Removes a dependency.
+     * \sa addDependency
+     */
+    public final void removeDependency( Job other )
+    {
+        synchronized( s_dependencies )
+        {
+            List< Pair< Job, Job > > doomed = new LinkedList< Pair< Job, Job > >();
+            for( Pair< Job, Job > p : s_dependencies )
+                if( p.first == this && p.second == other )
+                    doomed.add( p );
+            s_dependencies.removeAll( doomed );
+        }
     }
 
     /**
@@ -114,7 +169,7 @@ public abstract class Job {
     /**
      * @return The priority of the job.   
      */
-    abstract int priority();
+    abstract public int priority();
 
     public final void callAboutToBeEnqueued( Scheduler s )
     {
@@ -149,18 +204,28 @@ public abstract class Job {
     }
 
     /**
-     * @return All jobs this job depends on.
+     * @return All unfinished jobs this job depends on.
      */
-    abstract List<Job> dependencies();
+    public final List< Job > dependencies()
+    {
+        List< Job > result = new LinkedList< Job >();
+        synchronized( s_dependencies )
+        {
+            for( Pair< Job, Job > p : s_dependencies )
+                if( p.second == this )
+                    result.add( p.first );
+        }
+        return result;
+    }
 
     /**
      * Checks, wheter all dependencies are met and the job can be executed.
      * @return true, when all dependencies are met.
      */
-    boolean canExecute()
+    public boolean canExecute()
     {
-        final List<Job> deps = dependencies();
-        Iterator<Job> it = deps.iterator(); 
+        final List< Job > deps = dependencies();
+        Iterator< Job > it = deps.iterator(); 
         while( it.hasNext() )
         {
             Job j = it.next();
@@ -168,5 +233,12 @@ public abstract class Job {
                 return false;
         }
         return true;
+    }
+
+    public int compareTo( Job other )
+    {
+        if( this == other )
+            return 0;
+        return 1;
     }
 }

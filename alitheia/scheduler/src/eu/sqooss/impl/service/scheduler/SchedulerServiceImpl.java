@@ -77,13 +77,15 @@ public class SchedulerServiceImpl implements Scheduler {
         }
     }
 
-	public void enqueue(Job job) {
+	public void enqueue( Job job )
+    {
 		logger.info("SchedulerServiceImpl: queuing job " + job.toString() );
 		job.callAboutToBeEnqueued( this );
 		jobQueue.add(job);
 	}
 	
-	public void dequeue( Job job ) {
+	public void dequeue( Job job )
+    {
 		if( !jobQueue.contains( job ) )
 		{
             if( logger != null )
@@ -105,6 +107,27 @@ public class SchedulerServiceImpl implements Scheduler {
     public Object selfTest() {
         if( logger != null )
             logger.info( "Starting scheduler selftest..." );
+
+        Job firstJob = new TestJob();
+        Job secondJob = new TestJob();
+
+        // firstJob depends on secondJob
+        firstJob.addDependency( secondJob );
+
+        List< Job > dependencies = firstJob.dependencies();
+        if( dependencies.size() != 1 )
+            return new String( "Scheduler test failed: dependencies.size() != 1" );
+        if( !dependencies.contains( secondJob ) )
+            return new String( "Scheduler test failed: !dependencies.contains( secondJob )" );
+        dependencies = secondJob.dependencies();
+        if( dependencies.size() != 0 )
+            return new String( "Scheduler test failed: dependencies.size() != 0" );
+        if( !secondJob.canExecute() )
+            return new String( "Scheduler test failed: !secondJob.canExecute()" );
+        if( firstJob.canExecute() )
+            return new String( "Scheduler test failed: firstJob.canExecute()" );
+
+        System.out.println( "all ok" );
         return null;
     }
 }
