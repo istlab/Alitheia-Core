@@ -348,26 +348,42 @@ public class AdminServlet extends HttpServlet {
         dynamicSubstitutions.put("@@QUEUE_LENGTH","Infinite");
     }
 
+    private void doServletException(HttpServletRequest request,
+        HttpServletResponse response, Throwable e)
+        throws ServletException, IOException {
+        response.setContentType("text/html");
+        PrintWriter print = response.getWriter();
+        print.println("<html><head><title>Alitheia Exception</title></head>");
+        print.println("<body>An exception was encountered. The message is:");
+        print.println("<blockquote>" + e.getMessage() + "</blockquote>");
+        print.println("The stack trace is:");
+        print.println("<blockquote>");
+        e.printStackTrace(print);
+        print.println("</blockquote>");
+        print.println("</body></html>");
+    }
+
     protected void doGet(HttpServletRequest request,
                          HttpServletResponse response) throws ServletException,
                                                               IOException {
+        try {
+            logger.info("GET path=" + request.getPathInfo());
 
-	if ( logger != null ) {
-	    logger.info("GET path=" + request.getPathInfo());
-	}
-	
-	String query = request.getPathInfo();
-	if ( (query != null) && (staticContentMap.containsKey(query)) ) {
-	    String[] mapvalues = staticContentMap.get(query);
-	    sendResource(response, mapvalues[0], mapvalues[1]);
-	} else {
-	    resetSubstitutions();
-	    if ( (query != null) && dynamicContentMap.containsKey(query) ) {
-		sendTemplate(response,dynamicContentMap.get(query),dynamicSubstitutions);
-	    } else {
-		sendTemplate(response,"/index.html",dynamicSubstitutions);
-	    }
-	}
+            String query = request.getPathInfo();
+            if ( (query != null) && (staticContentMap.containsKey(query)) ) {
+                String[] mapvalues = staticContentMap.get(query);
+                sendResource(response, mapvalues[0], mapvalues[1]);
+            } else {
+                resetSubstitutions();
+                if ( (query != null) && dynamicContentMap.containsKey(query) ) {
+                    sendTemplate(response,dynamicContentMap.get(query),dynamicSubstitutions);
+                } else {
+                    sendTemplate(response,"/index.html",dynamicSubstitutions);
+                }
+            }
+        } catch (Exception e) {
+            doServletException(request,response,e);
+        }
     }
 
     private String[] listProjects() {
@@ -420,24 +436,24 @@ public class AdminServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request,
                           HttpServletResponse response) throws ServletException,
                                                                IOException {
-
-	if (logger != null ) {
-	    logger.info("POST path=" + request.getPathInfo());
-	}
-	
-	if ("addproject".equals(request.getPathInfo())) {
-	    addProject(request);
-	    // addProject() has filled in the substitutions by now
-	    sendTemplate(response,"/results.html",dynamicSubstitutions);
-	} else if ("stop".equals(request.getPathInfo())) {
-	    dynamicSubstitutions.put("@@RESULTS", "<p>Alitheia Core is now shutdown.</p>");
-	    sendTemplate(response,"/results.html",dynamicSubstitutions);
-	} else if ("restart".equals(request.getPathInfo())) {
-	    dynamicSubstitutions.put("@@RESULTS", "<p>Alitheia Core is now restarting. Please wait.</p>");
-	    sendTemplate(response,"/results.html",dynamicSubstitutions);
-	} else {
-	    doGet(request,response);
-	}
+        try {
+            logger.info("POST path=" + request.getPathInfo());
+            if ("addproject".equals(request.getPathInfo())) {
+                addProject(request);
+                // addProject() has filled in the substitutions by now
+                sendTemplate(response,"/results.html",dynamicSubstitutions);
+            } else if ("stop".equals(request.getPathInfo())) {
+                dynamicSubstitutions.put("@@RESULTS", "<p>Alitheia Core is now shutdown.</p>");
+                sendTemplate(response,"/results.html",dynamicSubstitutions);
+            } else if ("restart".equals(request.getPathInfo())) {
+                dynamicSubstitutions.put("@@RESULTS", "<p>Alitheia Core is now restarting. Please wait.</p>");
+                sendTemplate(response,"/results.html",dynamicSubstitutions);
+            } else {
+                doGet(request,response);
+            }
+        } catch (Exception e) {
+            doServletException(request,response,e);
+        }
     }
 }
 
