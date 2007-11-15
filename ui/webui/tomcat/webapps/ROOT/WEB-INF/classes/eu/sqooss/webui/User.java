@@ -92,4 +92,16 @@ public class User {
         String info = "Currently, there are " + allUsers.size() + " users registered.";
         return info;
     }
+
+    public boolean isLoggedIn( Integer userId ) {
+        if (userId == null) {
+            userId = getCurrentUserId();
+        }
+        // Fear this magic, all users with a high
+        // user id are automatically logged in
+        if (userId > 2) {
+            return true;
+        }
+        return false;
+    }
 }
