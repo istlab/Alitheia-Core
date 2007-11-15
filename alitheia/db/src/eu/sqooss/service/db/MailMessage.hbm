@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+  <class name="eu.sqooss.service.db.MailMessage" table="MAILMESSAGE">
+    <id name="id" column="ID">
+      <generator class="native" />
+    </id>
+    <property name="listId" column="LISTID" />
+    <property name="messageId" column="MESSAGEID" />
+    <property name="sender" column="SENDER" />
+    <property name="recipients" column="RECIPIENTS" />
+    <property name="subject" column="SUBJECT" />
+  </class>
+</hibernate-mapping>
+
