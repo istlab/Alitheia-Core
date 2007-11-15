@@ -130,9 +130,11 @@ public class DBServiceImpl implements DBService {
             c.configure();
             // c now holds the configuration from hibernate.cfg.xml, need
             // to override some of those properties.
-            c.setProperty("connection.driver_class",dbClass);
-            c.setProperty("connection.url",dbURL);
-            c.setProperty("connection.dialect",dbDialect);
+            c.setProperty("connection.driver_class", dbClass);
+            c.setProperty("connection.url", dbURL);
+            c.setProperty("connection.username", "alitheia");
+            c.setProperty("connection.password", "");
+            c.setProperty("connection.dialect", dbDialect);
             sessionFactory = c.buildSessionFactory();
         } catch (Throwable e) {
             logger.severe("Failed to initialize Hibernate: " + e.getMessage());
