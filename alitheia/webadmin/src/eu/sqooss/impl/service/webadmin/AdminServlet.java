@@ -351,22 +351,23 @@ public class AdminServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request,
                          HttpServletResponse response) throws ServletException,
                                                               IOException {
-        if ( logger != null ) {
-            logger.info("GET path=" + request.getPathInfo());
-        }
 
-        String query = request.getPathInfo();
-        if ( (query != null) && (staticContentMap.containsKey(query)) ) {
-            String[] mapvalues = staticContentMap.get(query);
-            sendResource(response, mapvalues[0], mapvalues[1]);
-        } else {
-            resetSubstitutions();
-            if ( (query != null) && dynamicContentMap.containsKey(query) ) {
-                sendTemplate(response,dynamicContentMap.get(query),dynamicSubstitutions);
-            } else {
-                sendTemplate(response,"/index.html",dynamicSubstitutions);
-            }
-        }
+	if ( logger != null ) {
+	    logger.info("GET path=" + request.getPathInfo());
+	}
+	
+	String query = request.getPathInfo();
+	if ( (query != null) && (staticContentMap.containsKey(query)) ) {
+	    String[] mapvalues = staticContentMap.get(query);
+	    sendResource(response, mapvalues[0], mapvalues[1]);
+	} else {
+	    resetSubstitutions();
+	    if ( (query != null) && dynamicContentMap.containsKey(query) ) {
+		sendTemplate(response,dynamicContentMap.get(query),dynamicSubstitutions);
+	    } else {
+		sendTemplate(response,"/index.html",dynamicSubstitutions);
+	    }
+	}
     }
 
     private String[] listProjects() {
@@ -419,22 +420,25 @@ public class AdminServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request,
                           HttpServletResponse response) throws ServletException,
                                                                IOException {
-        logger.info("POST path=" + request.getPathInfo());
-        if ("addproject".equals(request.getPathInfo())) {
-            addProject(request);
-            // addProject() has filled in the substitutions by now
-            sendTemplate(response,"/results.html",dynamicSubstitutions);
-        } else if ("stop".equals(request.getPathInfo())) {
-            dynamicSubstitutions.put("@@RESULTS", "<p>Alitheia Core is now shutdown.</p>");
-            sendTemplate(response,"/results.html",dynamicSubstitutions);
-        } else if ("restart".equals(request.getPathInfo())) {
-            dynamicSubstitutions.put("@@RESULTS", "<p>Alitheia Core is now restarting. Please wait.</p>");
-            sendTemplate(response,"/results.html",dynamicSubstitutions);
-        } else {
-            doGet(request,response);
-        }
-    }
 
+	if (logger != null ) {
+	    logger.info("POST path=" + request.getPathInfo());
+	}
+	
+	if ("addproject".equals(request.getPathInfo())) {
+	    addProject(request);
+	    // addProject() has filled in the substitutions by now
+	    sendTemplate(response,"/results.html",dynamicSubstitutions);
+	} else if ("stop".equals(request.getPathInfo())) {
+	    dynamicSubstitutions.put("@@RESULTS", "<p>Alitheia Core is now shutdown.</p>");
+	    sendTemplate(response,"/results.html",dynamicSubstitutions);
+	} else if ("restart".equals(request.getPathInfo())) {
+	    dynamicSubstitutions.put("@@RESULTS", "<p>Alitheia Core is now restarting. Please wait.</p>");
+	    sendTemplate(response,"/results.html",dynamicSubstitutions);
+	} else {
+	    doGet(request,response);
+	}
+    }
 }
 
 
