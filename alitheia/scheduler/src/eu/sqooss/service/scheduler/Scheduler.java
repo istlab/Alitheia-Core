@@ -41,7 +41,32 @@ public interface Scheduler {
      * 
      * @param job - the job.
      */
-    void enqueue( Job job );
+    void enqueue( Job job ) throws Exception;
 
+    /**
+     * This method is called, when the state of the job \a job changes to \a state.
+     */
     void jobStateChanged( Job job, Job.State state );
+
+    /**
+     * This method is called, when dependencies of the job \a were changed.
+     */
+    void jobDependenciesChanged( Job job );
+
+    /**
+     * Returns a job which can be executed.
+     * If there's currently no job available, this method is blocking.
+     * @return The job.
+     */
+    Job takeJob() throws java.lang.InterruptedException;
+
+    /**
+     * Starts job execution using \a n worker threads.
+     */
+    void startExecute( int n );
+
+    /**
+     * Stops job execution.
+     */
+    void stopExecute();
 }

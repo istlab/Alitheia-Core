@@ -37,7 +37,9 @@ package eu.sqooss.service.scheduler;
 import java.util.Iterator;
 import java.util.List;
 import java.util.LinkedList;
+
 import java.lang.Comparable; 
+import java.lang.InterruptedException;
 
 public abstract class Job implements Comparable< Job > {
 
@@ -88,7 +90,7 @@ public abstract class Job implements Comparable< Job > {
     /**
      * Sets the jobs state
      */
-    protected final void setState( State s )
+    synchronized protected final void setState( State s )
     {
         if( m_state == s )
             return;
@@ -96,17 +98,37 @@ public abstract class Job implements Comparable< Job > {
         if( m_state == State.Finished )
         {
             // remove the job from the dependency list
+            List< Job > unblockedJobs = new LinkedList< Job >();
             synchronized( s_dependencies )
             {
                 List< Pair< Job, Job > > doomed = new LinkedList< Pair< Job, Job > >();
                 for( Pair< Job, Job > p : s_dependencies )
+                {
                     if( p.first == this )
+                    {
                         doomed.add( p );
+                        unblockedJobs.add( p.second );
+                    }
+                }
                 s_dependencies.removeAll( doomed );
             }
+            // tell all jobs depending on the now finished on to forward that to the scheduler
+            for( Job j : unblockedJobs )
+                j.callDependenciesChanged();
         }
         if( m_scheduler != null )
             m_scheduler.jobStateChanged( this, s );
+
+        notifyAll();
+    }
+
+    /**
+     * If the job is queued to a scheduler, this methods tells the scheduler, that the job's dependencies have changed.
+     */
+    protected final void callDependenciesChanged()
+    {
+        if( m_scheduler != null )
+            m_scheduler.jobDependenciesChanged( this );
     }
 
     /**
@@ -116,11 +138,15 @@ public abstract class Job implements Comparable< Job > {
      */
     public final void addDependency( Job other )
     {
+        // I cannot add a dependency to a thread already running or whatever...
+        if( state() != State.Created && state() != State.Queued )
+            return;
         synchronized( s_dependencies )
         {
             Pair< Job, Job > newDependency = new Pair< Job, Job >( other, this );
             s_dependencies.add( newDependency );
         }
+        callDependenciesChanged();
     }
 
     /**
@@ -137,6 +163,7 @@ public abstract class Job implements Comparable< Job > {
                     doomed.add( p );
             s_dependencies.removeAll( doomed );
         }
+        callDependenciesChanged();
     }
 
     /**
@@ -171,8 +198,12 @@ public abstract class Job implements Comparable< Job > {
      */
     abstract public int priority();
 
-    public final void callAboutToBeEnqueued( Scheduler s )
+    public final void callAboutToBeEnqueued( Scheduler s ) throws Exception
     {
+        if( m_scheduler != null )
+        {
+            throw new Exception( "This job is already enqueued in a scheduler." );
+        }
         aboutToBeEnqueued( s );
         m_state = State.Queued;
         m_scheduler = s;
@@ -216,6 +247,16 @@ public abstract class Job implements Comparable< Job > {
                     result.add( p.first );
         }
         return result;
+    }
+
+    synchronized public final void waitForFinished() throws Exception
+    {
+        while( state() != State.Finished )
+        {
+            if( state() == State.Error )
+                throw new Exception( "Job Error during waitForFinished" );
+            wait();
+        }
     }
 
     /**
