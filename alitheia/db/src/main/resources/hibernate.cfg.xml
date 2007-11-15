@@ -31,15 +31,17 @@
         <!-- Drop and re-create the database schema on startup -->
         <property name="hbm2ddl.auto">update</property>
 
-        <mapping resource="eu/sqooss/service/db/ProjectFile.hbm.xml"/>
-        <mapping resource="eu/sqooss/service/db/ProjectVersion.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/FileMetadata.hbm.xml"/>
-        <mapping resource="eu/sqooss/service/db/StoredProject.hbm.xml"/>
-        <mapping resource="eu/sqooss/service/db/Tag.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/MailMessage.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/Measurement.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/Metric.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/MetricType.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/Plugin.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/ProjectFile.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/ProjectVersion.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/StoredProject.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/Tag.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/User.hbm.xml"/>
     </session-factory>
 
 </hibernate-configuration>
