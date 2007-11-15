@@ -127,7 +127,6 @@ public class SchedulerServiceImpl implements Scheduler {
         if( firstJob.canExecute() )
             return new String( "Scheduler test failed: firstJob.canExecute()" );
 
-        System.out.println( "all ok" );
         return null;
     }
 }
