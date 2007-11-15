@@ -45,9 +45,10 @@ public interface DBService {
     public void addRecord(DAObject record);
 
     /**
-     * Return the result of a simple 'SELECT *' type query
+     * Allows the intelligent C++ programmer to simply fire complete SQL
+     * "SELECT foo" statements to the DBS
      */
-    public List doSelect(String fromWhere);
+    public List doSQL(String sql);
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

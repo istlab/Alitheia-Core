@@ -145,7 +145,7 @@ public class DBServiceImpl implements DBService {
 
     public DBServiceImpl( BundleContext bc ) {
         ServiceReference serviceref =
-            bc.getServiceReference("eu.sqooss.service.logging.LogManager");
+	    bc.getServiceReference("eu.sqooss.service.logging.LogManager");
         logService = (LogManager) bc.getService(serviceref);
         logger = logService.createLogger("sqooss.database");
         if (logger != null) {
@@ -177,14 +177,13 @@ public class DBServiceImpl implements DBService {
         s.getTransaction().commit();
     }
 
-    public List doSelect(String fromWhere) {
-        Session s = sessionFactory.getCurrentSession();
+    public List doSQL(String sql) {
+	Session s = sessionFactory.getCurrentSession();
+	s.beginTransaction();
+	List result = s.createQuery(sql).list();
+	s.getTransaction().commit();
 
-	    s.beginTransaction();
-	    List result = s.createQuery("from " + fromWhere).list();
-	    s.getTransaction().commit();
-
-	    return result;
+	return result;
     }
 }
 

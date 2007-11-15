@@ -370,7 +370,7 @@ public class AdminServlet extends HttpServlet {
     }
 
     private String[] listProjects() {
-        List l = dbService.doSelect("StoredProject");
+        List l = dbService.doSQL("from StoredProject");
         if (l==null) {
             return null;
         }
