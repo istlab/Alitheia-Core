@@ -1,4 +1,3 @@
-
 /*
  * This file is part of the Alitheia system, developed by the SQO-OSS
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
@@ -36,9 +35,9 @@ package eu.sqooss.service.db;
 
 import java.util.*;
 
-// Remember to add 'import eu.sqooss.service.db.DAObject' and
-// 'extends DAObject' for use with DB service.
-public class MailMessage {
+import eu.sqooss.service.db.DAObject;
+
+public class MailMessage extends DAObject {
 
     String listId;
     String messageId;
