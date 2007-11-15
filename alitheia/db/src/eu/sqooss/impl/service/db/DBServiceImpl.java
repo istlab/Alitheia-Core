@@ -68,7 +68,6 @@ public class DBServiceImpl implements DBService {
             Class.forName(driver).newInstance();
             logger.info("Created JDBC instance for " + driver);
             Connection c = DriverManager.getConnection(url);
-            logger.info("Created JDBC connection for " + url);
             c.setAutoCommit(false);
             dbClass = driver;
             dbURL = url;
@@ -159,6 +158,7 @@ public class DBServiceImpl implements DBService {
                 logger.severe("DB service got no JDBC connectors.");
             }
         }
+        logger.info("Using JDBC " + dbClass);
 
         if (dbClass != null) {
             initHibernate();
