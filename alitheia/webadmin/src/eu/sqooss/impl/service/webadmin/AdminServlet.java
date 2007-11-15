@@ -343,6 +343,7 @@ public class AdminServlet extends HttpServlet {
         dynamicSubstitutions.put("@@GETLOGS", renderList(logService.getRecentEntries()));
         dynamicSubstitutions.put("@@PROJECTS",renderList(listProjects()));
         dynamicSubstitutions.put("@@UPTIME",getUptime());
+        dynamicSubstitutions.put("@@QUEUE_LENGTH","Infinite");
     }
 
     protected void doGet(HttpServletRequest request,
