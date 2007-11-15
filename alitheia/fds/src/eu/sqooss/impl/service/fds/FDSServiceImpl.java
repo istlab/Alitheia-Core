@@ -236,7 +236,7 @@ public class FDSServiceImpl implements FDSService {
         } catch (InvalidRepositoryException e) {
             thrown = true;
         } catch (InvalidProjectRevisionException e) {
-            logger.warn("Invalid revision triggered first (wrongly).");
+            logger.warning("Invalid revision triggered first (wrongly).");
             thrown = true;
         }
         if (!thrown) {
@@ -250,7 +250,7 @@ public class FDSServiceImpl implements FDSService {
             // Assuming KDE doesn't reach 1 billion commits before 2038
             Checkout c = getCheckout(1, "kde", new ProjectRevision(1000000000));
         } catch (InvalidRepositoryException e) {
-            logger.warn("No project with ID 1.");
+            logger.warning("No project with ID 1.");
             thrown = true;
         } catch (InvalidProjectRevisionException e) {
             thrown = true;
