@@ -337,11 +337,13 @@ public class AdminServlet extends HttpServlet {
 
     private void resetSubstitutions() {
         dynamicSubstitutions.clear();
+        dynamicSubstitutions.put("@@ABOUT","<p class='box'>This is the administrative interface.</p>");
         dynamicSubstitutions.put("@@STATUS","The cruncher is offline.");
         dynamicSubstitutions.put("@@LOGO","<img src='/logo' id='logo' alt='Logo' />");
         dynamicSubstitutions.put("@@COPYRIGHT","Copyright 2007 <a href=\"about\">SQO-OSS Consortium members</a>");
         dynamicSubstitutions.put("@@GETLOGS", renderList(logService.getRecentEntries()));
         dynamicSubstitutions.put("@@PROJECTS",renderList(listProjects()));
+        dynamicSubstitutions.put("@@BUNDLE", renderBundles());
         dynamicSubstitutions.put("@@UPTIME",getUptime());
         dynamicSubstitutions.put("@@QUEUE_LENGTH","Infinite");
     }
@@ -359,12 +361,6 @@ public class AdminServlet extends HttpServlet {
             sendResource(response, mapvalues[0], mapvalues[1]);
         } else {
             resetSubstitutions();
-            dynamicSubstitutions.put("@@ABOUT","<p class='box'>This is the administrative interface.</p>");
-            if ("list".equals(query)) {
-                dynamicSubstitutions.put("@@PROJECTS",renderList(listProjects()));
-            } else {
-                dynamicSubstitutions.put("@@BUNDLE", renderBundles());
-            }
             if ( (query != null) && dynamicContentMap.containsKey(query) ) {
                 sendTemplate(response,dynamicContentMap.get(query),dynamicSubstitutions);
             } else {
