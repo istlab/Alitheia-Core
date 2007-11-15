@@ -96,7 +96,7 @@ public class DBServiceImpl implements DBService {
     private boolean getPostgresJDBC() {
         Connection c = getJDBCConnection(
             "org.postgresql.Driver",
-            "jdbc:postgresql:postgresDB");
+            "jdbc:postgresql:alitheia?user=alitheia&password=");
 
         if (c!=null) {
             dbConnection = c;
