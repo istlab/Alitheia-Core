@@ -1,5 +1,6 @@
 <!-- *** menu.jsp begins here *** -->
 <jsp:useBean id="cruncher" class="eu.sqooss.webui.CruncherStatus" scope="application" />
+<jsp:useBean id="user" class="eu.sqooss.webui.User" scope="session" />
 
 <div id="menu">
     <ul>
@@ -8,6 +9,7 @@
         <li><a href="/playground/users.jsp" title="Click here for registered crackheads">Users</a></li>
         <li><a href="/playground/metrics.jsp" title="Click here for some imaginatory metrics">Metrics</a></li>
         <li><a href="/playground/files.jsp" title="Click here for a random list of files">Files</a></li>
+        <li><a href="/login.jsp" title="Click here to log in">Login</a></li>
     </ul>
 </div>
 
@@ -25,6 +27,7 @@ java.util.Date date = new java.util.Date();
 out.println( "<p />" + String.valueOf( date ));
 out.println( "<p />Your IP: " + request.getRemoteHost());
 out.println("<p />" + application.getServerInfo());
+
 //response.sendRedirect( "http://www.kde.org");
 
 
