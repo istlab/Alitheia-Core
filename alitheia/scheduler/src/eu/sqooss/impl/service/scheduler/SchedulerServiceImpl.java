@@ -48,6 +48,7 @@ import org.osgi.service.http.NamespaceException;
 
 import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.scheduler.Scheduler;
+import eu.sqooss.service.scheduler.SchedulerException;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.logging.LogManager;
 
@@ -167,14 +168,18 @@ public class SchedulerServiceImpl implements Scheduler {
         Job forthJob = new TestJob(20, "forthJob");
         Job fifthJob = new TestJob(1, "fifthJob");
 
-        // secondJob depends on firstJob
-        secondJob.addDependency(firstJob);
-        // thirdJob depends on firstJob
-        thirdJob.addDependency(firstJob);
-        // forthJob depends on secondJob and thirdJob
-        forthJob.addDependency(secondJob);
-        forthJob.addDependency(thirdJob);
-        fifthJob.addDependency(secondJob);
+        try{
+            // secondJob depends on firstJob
+            secondJob.addDependency(firstJob);
+            // thirdJob depends on firstJob
+            thirdJob.addDependency(firstJob);
+            // forthJob depends on secondJob and thirdJob
+            forthJob.addDependency(secondJob);
+            forthJob.addDependency(thirdJob);
+            fifthJob.addDependency(secondJob);
+        } catch (SchedulerException e) {
+            return new String("Scheudel test failed: " + e.getMessage());
+        }
 
         // firstJob should not end up with any dependencies        
         if (firstJob.dependencies().size() != 0) {
