@@ -72,9 +72,9 @@ Alitheia contains a run-time testing facility. The bundle tester
 defined in each service, but only if the startup tests are enabled
 in the runtime configuration file. To enable them, set
 
-eu.sqooss.tester.enable=YES
+eu.sqooss.tester.enable=true
 
-(case sensitive, must be exactly "YES"). Then each service object
+Then each service object
 registered with the OSGi framework (on startup of the tester bundle)
 will be examined. Those with a selfTest() method will be called.
 
