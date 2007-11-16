@@ -60,6 +60,7 @@ public class DBServiceImpl implements DBService {
     // Store the class and URL of the database to hand off to
     // Hibernate so that it obeys the fallback from Postgres to Derby as well.
     private String dbClass, dbURL, dbDialect;
+    
     // This is the Hibernate session factory.
     private SessionFactory sessionFactory = null;
 
@@ -114,7 +115,7 @@ public class DBServiceImpl implements DBService {
     private boolean getDerbyJDBC() {
         Connection c = getJDBCConnection(
             "org.apache.derby.jdbc.EmbeddedDriver",
-            "jdbc:derby:derbyDB;create=true");
+            dbURL);
 
         if (c!=null) {
             dbConnection = c;
@@ -148,7 +149,8 @@ public class DBServiceImpl implements DBService {
 	    bc.getServiceReference("eu.sqooss.service.logging.LogManager");
         logService = (LogManager) bc.getService(serviceref);
         logger = logService.createLogger("sqooss.database");
-        if (logger != null) {
+        dbURL = bc.getProperty("eu.sqooss.dbs.url");
+	if (logger != null) {
             logger.info("DB service created.");
         } else {
             System.out.println("# DB service failed to get logger.");
