@@ -60,11 +60,19 @@ public class DBServiceImpl implements DBService {
     // Store the class and URL of the database to hand off to
     // Hibernate so that it obeys the fallback from Postgres to Derby as well.
     private String dbClass, dbURL, dbDialect;
-    
+
     // This is the Hibernate session factory.
     private SessionFactory sessionFactory = null;
 
-    private Connection getJDBCConnection(String driver, String url) {
+    private boolean getJDBCConnection(String driver, String url, String dialect) {
+        if ( (driver==null) || (url==null) || (dialect==null) ) {
+            dbClass = null;
+            dbURL = null;
+            dbDialect = null;
+            dbConnection = null;
+            return false;
+        }
+
         try {
             Class.forName(driver).newInstance();
             logger.info("Created JDBC instance for " + driver);
@@ -72,7 +80,9 @@ public class DBServiceImpl implements DBService {
             c.setAutoCommit(false);
             dbClass = driver;
             dbURL = url;
-            return c;
+            dbDialect = dialect;
+            dbConnection = c;
+            return true;
         } catch (InstantiationException e) {
             logger.warning("Could not instantiate JDBC connection for " + driver);
         } catch (ClassNotFoundException e) {
@@ -83,26 +93,11 @@ public class DBServiceImpl implements DBService {
             logger.warning("SQL Exception while instantiating " + driver);
         }
 
-        return null;
-    }
-
-    /**
-     * Attempt to get the Postgres JDBC connector and initialize
-     * a connection to the Postgres instance (just to check that
-     * the DB is up and running).
-     *
-     * @return @c true on success
-     */
-    private boolean getPostgresJDBC() {
-        Connection c = getJDBCConnection(
-            "org.postgresql.Driver",
-            "jdbc:postgresql:alitheia?user=alitheia&password=");
-
-        if (c!=null) {
-            dbConnection = c;
-            dbDialect = "org.hibernate.dialect.PostgresDialect";
-        }
-        return (c!=null);
+        dbClass = null;
+        dbURL = null;
+        dbDialect = null;
+        dbConnection = null;
+        return false;
     }
 
     /**
@@ -113,15 +108,10 @@ public class DBServiceImpl implements DBService {
      * @return @c true on success
      */
     private boolean getDerbyJDBC() {
-        Connection c = getJDBCConnection(
+        return getJDBCConnection(
             "org.apache.derby.jdbc.EmbeddedDriver",
-            dbURL);
-
-        if (c!=null) {
-            dbConnection = c;
-            dbDialect = "org.hibernate.dialect.DerbyDialect";
-        }
-        return (c!=null);
+            "jdbc:derby:derbyDB;create=true",
+            "org.hibernate.dialect.DerbyDialect");
     }
 
     private void initHibernate() {
@@ -149,22 +139,25 @@ public class DBServiceImpl implements DBService {
 	    bc.getServiceReference("eu.sqooss.service.logging.LogManager");
         logService = (LogManager) bc.getService(serviceref);
         logger = logService.createLogger("sqooss.database");
-        dbURL = bc.getProperty("eu.sqooss.dbs.url");
 	if (logger != null) {
             logger.info("DB service created.");
         } else {
             System.out.println("# DB service failed to get logger.");
         }
 
+        dbURL = null;
         dbClass = null;
-        if (!getPostgresJDBC()) {
+        dbDialect = null;
+        if (!getJDBCConnection(bc.getProperty("eu.sqooss.db.driver"),
+                                bc.getProperty("eu.sqooss.db.url"),
+                                bc.getProperty("eu.sqooss.db.dialect"))) {
             if (!getDerbyJDBC()) {
                 logger.severe("DB service got no JDBC connectors.");
             }
         }
-        logger.info("Using JDBC " + dbClass);
 
         if (dbClass != null) {
+            logger.info("Using JDBC " + dbClass);
             initHibernate();
         } else {
             logger.severe("Hibernate will not be initialized.");
