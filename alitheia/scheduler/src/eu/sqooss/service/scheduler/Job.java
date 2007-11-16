@@ -41,33 +41,25 @@ import java.util.LinkedList;
 import java.lang.Comparable; 
 import java.lang.InterruptedException;
 
-public abstract class Job implements Comparable< Job > {
+/**
+ * Abstract base class for all jobs running by the scheduler.
+ *
+ * @author Christoph Schleifenbam
+ */
+public abstract class Job implements Comparable<Job> {
 
     /**
      * The state of the job.
      * @author christoph
      *
      */
-    public enum State
-	{
+    public enum State {
         Created,
         Queued,
         Running,
         Finished,
         Error
     }
-
-    protected Job()
-    {
-        m_scheduler = null;
-        m_errorException = null;
-        setState( State.Created );
-    }
-
-    private State m_state;
-    private Scheduler m_scheduler;
-    private Exception m_errorException;
-
 
     /**
      * This list contains the dependencies between the jobs.
@@ -77,58 +69,20 @@ public abstract class Job implements Comparable< Job > {
      * As soon as the \a first job is finished, the pair is removed from
      * the list.
      */
-    protected static List< Pair< Job, Job > > s_dependencies = new LinkedList< Pair< Job, Job > >();
+    protected static List<Pair<Job,Job>> s_dependencies = new LinkedList<Pair<Job,Job>>();
+
+    private State m_state;
+
+    private Scheduler m_scheduler;
+
+    private Exception m_errorException;
+
 
     /**
      * @return The current state of the job.
      */
-    public final State state()
-    {
+    public final State state() {
         return m_state;
-    }
-
-    /**
-     * Sets the jobs state
-     */
-    synchronized protected final void setState( State s )
-    {
-        if( m_state == s )
-            return;
-        m_state = s;
-        if( m_state == State.Finished )
-        {
-            // remove the job from the dependency list
-            List< Job > unblockedJobs = new LinkedList< Job >();
-            synchronized( s_dependencies )
-            {
-                List< Pair< Job, Job > > doomed = new LinkedList< Pair< Job, Job > >();
-                for( Pair< Job, Job > p : s_dependencies )
-                {
-                    if( p.first == this )
-                    {
-                        doomed.add( p );
-                        unblockedJobs.add( p.second );
-                    }
-                }
-                s_dependencies.removeAll( doomed );
-            }
-            // tell all jobs depending on the now finished on to forward that to the scheduler
-            for( Job j : unblockedJobs )
-                j.callDependenciesChanged();
-        }
-        if( m_scheduler != null )
-            m_scheduler.jobStateChanged( this, s );
-
-        notifyAll();
-    }
-
-    /**
-     * If the job is queued to a scheduler, this methods tells the scheduler, that the job's dependencies have changed.
-     */
-    protected final void callDependenciesChanged()
-    {
-        if( m_scheduler != null )
-            m_scheduler.jobDependenciesChanged( this );
     }
 
     /**
@@ -136,15 +90,15 @@ public abstract class Job implements Comparable< Job > {
      * This job cannot be executed, as long \a other 
      * is not finished.
      */
-    public final void addDependency( Job other )
-    {
+    public final void addDependency(Job other) {
         // I cannot add a dependency to a thread already running or whatever...
-        if( state() != State.Created && state() != State.Queued )
+        if ( (state() != State.Created) && (state() != State.Queued) ) {
             return;
-        synchronized( s_dependencies )
-        {
-            Pair< Job, Job > newDependency = new Pair< Job, Job >( other, this );
-            s_dependencies.add( newDependency );
+        }
+
+        synchronized (s_dependencies) {
+            Pair<Job,Job> newDependency = new Pair<Job,Job>(other, this);
+            s_dependencies.add(newDependency);
         }
         callDependenciesChanged();
     }
@@ -153,15 +107,15 @@ public abstract class Job implements Comparable< Job > {
      * Removes a dependency.
      * \sa addDependency
      */
-    public final void removeDependency( Job other )
-    {
-        synchronized( s_dependencies )
-        {
-            List< Pair< Job, Job > > doomed = new LinkedList< Pair< Job, Job > >();
-            for( Pair< Job, Job > p : s_dependencies )
-                if( p.first == this && p.second == other )
-                    doomed.add( p );
-            s_dependencies.removeAll( doomed );
+    public final void removeDependency(Job other) {
+        synchronized(s_dependencies){
+            List<Pair<Job,Job>> doomed = new LinkedList<Pair<Job,Job>>();
+            for (Pair<Job,Job> p: s_dependencies ) {
+                if ( (p.first == this) && (p.second == other) ) {
+                    doomed.add(p);
+                }
+            }
+            s_dependencies.removeAll(doomed);
         }
         callDependenciesChanged();
     }
@@ -171,90 +125,80 @@ public abstract class Job implements Comparable< Job > {
      * Makes sure, that all dependencies are met. 
      * @throws Exception
      */
-    final public void execute() throws Exception
-    {
-        try
-        {
-            setState( State.Running );
+    final public void execute() throws Exception {
+        try {
+            setState(State.Running);
             run();
-            setState( State.Finished );
-        }
-        catch( Exception e )
-        {
+            setState(State.Finished);
+        } catch(Exception e) {
+            // I case of an exception, state becomes Error
             m_errorException = e;
-            setState( State.Error );
+            setState(State.Error);
+            // the Exception itself is forwarded
             throw e;
         }
     }
 
     /**
-     * Run the job.
-     * @throws Exception
+     * Sets the job's state te Queued and informs the job about the new 
+     * scheduler.
+     * This method should only be called by Scheduler.enqueue.
+     * @throws Exception If the job is already enqueued.
      */
-    abstract protected void run() throws Exception;
+    public final void callAboutToBeEnqueued(Scheduler s) throws Exception {
+        if (m_scheduler != null) {
+            throw new Exception("This job is already enqueued in a scheduler.");
+        }
+        aboutToBeEnqueued(s);
+        m_state = State.Queued;
+        m_scheduler = s;
+    }
+
+    /**
+     * Sets the job's state back from Queued to Created and informs about being
+     * dequeud.
+     * This method should only be called by Scheduler.dequeue.
+     */
+    public final void callAboutToBeDequeued(Scheduler s) {
+        aboutToBeDequeued(s);
+
+        if (m_state == State.Queued) {
+            m_state = State.Created;
+        }
+
+        m_scheduler = null;
+    }
+
 
     /**
      * @return The priority of the job.   
      */
     abstract public int priority();
 
-    public final void callAboutToBeEnqueued( Scheduler s ) throws Exception
-    {
-        if( m_scheduler != null )
-        {
-            throw new Exception( "This job is already enqueued in a scheduler." );
-        }
-        aboutToBeEnqueued( s );
-        m_state = State.Queued;
-        m_scheduler = s;
-    }
-
-    public final void callAboutToBeDequeued( Scheduler s )
-    {
-        aboutToBeDequeued( s );
-        if( m_state == State.Queued )
-            m_state = State.Created;
-        m_scheduler = null;
-    }
-
-    /** 
-     * This method is called during queueing, right before the job is added to the work queue.
-     * The job is not in state Queued at this time.
-     * @param s The scheduler, the job has been enqueued to 
-     */
-    protected void aboutToBeEnqueued( Scheduler s )
-    {
-    }
-
-    /** 
-     * This method is called right before the job is dequeued without being executed. 
-     * 
-     */
-    protected void aboutToBeDequeued( Scheduler s )
-    {
-    }
-
     /**
      * @return All unfinished jobs this job depends on.
      */
-    public final List< Job > dependencies()
-    {
-        List< Job > result = new LinkedList< Job >();
-        synchronized( s_dependencies )
-        {
-            for( Pair< Job, Job > p : s_dependencies )
-                if( p.second == this )
-                    result.add( p.first );
+    public final List<Job> dependencies() {
+        List<Job> result = new LinkedList<Job>();
+        synchronized (s_dependencies) {
+            for (Pair<Job,Job> p: s_dependencies) {
+                if (p.second == this) {
+                    result.add(p.first);
+                }
+            }
         }
         return result;
     }
 
-    synchronized public final void waitForFinished() throws Exception
-    {
-        while( state() != State.Finished )
-        {
-            if( state() == State.Error )
+    /**
+     * Waits for the job to finish succesfully.
+     * @throws Exception When the job's state changes to Error instead.
+     */
+    synchronized public final void waitForFinished() throws Exception {
+        while (state() != State.Finished) {
+            if (state() == State.Error) {
                 throw new Exception( "Job Error during waitForFinished" );
+            }
             wait();
         }
     }
@@ -263,23 +207,105 @@ public abstract class Job implements Comparable< Job > {
      * Checks, wheter all dependencies are met and the job can be executed.
      * @return true, when all dependencies are met.
      */
-    public boolean canExecute()
-    {
-        final List< Job > deps = dependencies();
-        Iterator< Job > it = deps.iterator(); 
-        while( it.hasNext() )
-        {
+    public boolean canExecute() {
+        final List<Job> deps = dependencies();
+        Iterator<Job> it = deps.iterator(); 
+        while (it.hasNext()) {
             Job j = it.next();
-            if( j.state() != State.Finished )
+            if (j.state() != State.Finished) {
                 return false;
+            }
         }
         return true;
     }
 
-    public int compareTo( Job other )
+    /**
+     * XXX bogus method, only used for putting it in into a Pair.
+     */
+    public int compareTo(Job other)
     {
-        if( this == other )
-            return 0;
-        return 1;
+        return (this == other) ? 0 : 1;
+    }
+
+    /**
+     * Protected default constructor.
+     */
+    protected Job() {
+        m_scheduler = null;
+        m_errorException = null;
+        setState( State.Created );
+    }
+
+    /**
+     * Sets the job's state.
+     * @param s The new state.
+     */
+    synchronized protected final void setState(State s) {
+        if (m_state == s) {
+            return;
+        }
+
+        m_state = s;
+
+        if (m_state == State.Finished) {
+            // remove the job from the dependency list
+            List<Job> unblockedJobs = new LinkedList<Job>();
+            synchronized (s_dependencies) {
+                List<Pair<Job,Job>> doomed = new LinkedList<Pair<Job,Job>>();
+                for (Pair<Job,Job> p: s_dependencies) {
+                    if (p.first == this) {
+                        doomed.add(p);
+                        unblockedJobs.add(p.second);
+                    }
+                }
+                s_dependencies.removeAll(doomed);
+            }
+            /* tell all jobs depending on the now finished on to forward that 
+             * to the scheduler
+             */
+            for (Job j: unblockedJobs) {
+                j.callDependenciesChanged();
+            }
+        }
+        if (m_scheduler != null) {
+            m_scheduler.jobStateChanged(this, s);
+        }
+
+        notifyAll();
+    }
+
+    /**
+     * If the job is queued to a scheduler, this methods tells the scheduler, 
+     * that the job's dependencies have changed.
+     */
+    protected final void callDependenciesChanged() {
+        if (m_scheduler != null) {
+            m_scheduler.jobDependenciesChanged(this);
+        }
+    }
+
+
+    /**
+     * Run the job.
+     * @throws Exception If thrown, the job ends up in Error state.
+     */
+    abstract protected void run() throws Exception;
+
+    /** 
+     * This method is called during queueing, right before the job is added to 
+     * the work queue.
+     * The job is not in state Queued at this time.
+     * @param s The scheduler, the job has been enqueued to.
+     */
+    protected void aboutToBeEnqueued(Scheduler s) {
+    }
+
+    /** 
+     * This method is called right before the job is dequeued without being
+     * executed. 
+     * The job is still in it's previoues state.
+     * @parem s The scheduler, the job is dequeued from.
+     */
+    protected void aboutToBeDequeued(Scheduler s) {
     }
 }

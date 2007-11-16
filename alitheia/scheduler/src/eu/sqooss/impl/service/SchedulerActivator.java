@@ -50,7 +50,7 @@ public class SchedulerActivator implements BundleActivator {
         registration = bundleContext.registerService(Scheduler.class.getName(), schedulerService, null);
     }
     
-    public void stop(BundleContext bundleContext ) throws Exception {
+    public void stop(BundleContext bundleContext) throws Exception {
         registration.unregister();
     }
 }

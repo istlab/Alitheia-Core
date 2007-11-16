@@ -38,32 +38,54 @@ import java.lang.Comparable;
 
 /**
  * This class is a container for an object pair.
- * TODO: Move mo to sqoutils
+ * TODO: Move me to sqoutils
+ *
+ * @author Christoph Schleifenbaum
  */
-public class Pair< T1 extends Comparable< T1 >, T2 extends Comparable< T2 > > implements Comparable< Pair< T1, T2 > >
-{
-    Pair()
-    {
+public class Pair<T1 extends Comparable<T1>, T2 extends Comparable<T2>> implements Comparable<Pair<T1,T2>> {
+
+    /**
+     * First value.
+     */
+    public T1 first;
+
+    /**
+     * Second value.
+     */
+    public T2 second;
+
+    /**
+     * Default contructor.
+     * Fills both values with null.
+     */
+    public Pair() {
         this.first = null;
         this.second = null;
     }
 
-    Pair( T1 first, T2 second )
-    {
+    /**
+     * Constructor.
+     * @param first The value used for first.
+     * @param second The value used for second.
+     */
+    public Pair(T1 first, T2 second) {
         this.first = first;
         this.second = second;
     }
 
-    public int compareTo( Pair< T1, T2 > other )
-    {
-        if( this == other )
+    /**
+     * Compares this object with the specified object for order.
+     * @param other the Object to be compared.
+     * @return negative integer, zero, or a positive integer as this object is 
+     * less than, equal to, or greater than the specified object.
+     */
+    public int compareTo(Pair<T1,T2> other) {
+        if (this == other) {
             return 0;
+        }
 
         int firstComp = first.compareTo( other.first );
         
-        return firstComp != 0 ? firstComp : second.compareTo( other.second );
+        return (firstComp != 0) ? firstComp : second.compareTo(other.second);
     }
-
-    T1 first;
-    T2 second;
 }

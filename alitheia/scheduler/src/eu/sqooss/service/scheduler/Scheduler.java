@@ -34,6 +34,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package eu.sqooss.service.scheduler;
 
+/**
+ * Interface for the scheduler.
+ *
+ * @author Mirko Boehm
+ */
 public interface Scheduler {
 
     /**
@@ -41,17 +46,18 @@ public interface Scheduler {
      * 
      * @param job - the job.
      */
-    void enqueue( Job job ) throws Exception;
+    void enqueue(Job job) throws Exception;
 
     /**
-     * This method is called, when the state of the job \a job changes to \a state.
+     * This method is called, when the state of the job \a job changes to 
+     * \a state.
      */
-    void jobStateChanged( Job job, Job.State state );
+    void jobStateChanged(Job job, Job.State state);
 
     /**
      * This method is called, when dependencies of the job \a were changed.
      */
-    void jobDependenciesChanged( Job job );
+    void jobDependenciesChanged(Job job);
 
     /**
      * Returns a job which can be executed.
@@ -61,12 +67,14 @@ public interface Scheduler {
     Job takeJob() throws java.lang.InterruptedException;
 
     /**
-     * Starts job execution using \a n worker threads.
+     * Starts job execution using \a n additional worker threads.
+     * \a n new worker threads are created. Even if the scheduler is already
+     * running some.
      */
-    void startExecute( int n );
+    void startExecute(int n);
 
     /**
-     * Stops job execution.
+     * Stops job execution of all current worker threads.
      */
     void stopExecute();
 }

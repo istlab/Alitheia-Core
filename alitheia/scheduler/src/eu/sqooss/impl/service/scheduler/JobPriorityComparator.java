@@ -4,7 +4,7 @@ consortium as part of the IST FP6 SQO-OSS project, number 033331.
 
 Copyright 2007 by the SQO-OSS consortium members <info@sqo-oss.eu>
 Copyright 2007 by KDAB (www.kdab.net)
-Author: Mirko Boehm <mirko@kdab.net>
+Author: Christoph Schleifenbaum <christoph@kdab.net>
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are
@@ -38,14 +38,31 @@ import java.util.Comparator;
 
 import eu.sqooss.service.scheduler.Job;
 
-public class JobPriorityComparator implements Comparator< Job >
+/**
+ * Comparator for jobs comparing by priority.
+ *
+ * @author Christoph Schleifenbaum
+ */
+public class JobPriorityComparator implements Comparator<Job>
 {
-    public int compare( Job lhs, Job rhs )
+    
+    /**
+     * Compares its two arguments for order.
+     * @param lhs the first object to be compared.
+     * @param rhs the second object to be compared.
+     * @return a negative integer, zero, or a positive integer as the first 
+     * argument is less than, equal to, or greater than the second.
+     */
+    public int compare(Job lhs, Job rhs)
     {
         return lhs.priority() - rhs.priority();
     }
 
-    public boolean equals( Object obj )
+    /**
+     * Indicates whether some other object is "equal to" this Comparator.
+     * @param obj the reference object with which to compare.
+     */
+    public boolean equals(Object obj)
     {
         return obj instanceof JobPriorityComparator;
     }
