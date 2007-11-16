@@ -41,6 +41,8 @@ import java.util.LinkedList;
 import java.lang.Comparable; 
 import java.lang.InterruptedException;
 
+import eu.sqooss.service.scheduler.SchedulerException;
+
 /**
  * Abstract base class for all jobs running by the scheduler.
  *
@@ -90,10 +92,12 @@ public abstract class Job implements Comparable<Job> {
      * This job cannot be executed, as long \a other 
      * is not finished.
      */
-    public final void addDependency(Job other) {
-        // I cannot add a dependency to a thread already running or whatever...
-        if ( (state() != State.Created) && (state() != State.Queued) ) {
-            return;
+    public final void addDependency(Job other) throws SchedulerException {
+        // Dependencies of jobs can ony be changed before the job is queued. 
+    	// Otherwise, race conditions would occur in which it would be undefined 
+    	// if the dependency is applied or not.
+        if ( (state() != State.Created) ) {
+	    throw new SchedulerException( "Job dependencies cannot be added after the job has been queued.");
         }
 
         synchronized (s_dependencies) {
