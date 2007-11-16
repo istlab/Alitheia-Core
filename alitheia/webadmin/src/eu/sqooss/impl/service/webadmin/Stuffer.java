@@ -63,16 +63,13 @@ class Stuffer implements Runnable {
     public void run() {
         logger.info("Now running stuffer.");
 
-        StoredProject kde = new StoredProject("kde");
-        kde.setRepository("svn://www.englishbreakfastnetwork.org/home/kde");
-        kde.setContact("dirk@kde.org");
-        kde.setWebsite("http://www.kde.org/");
-        // TODO get list of stored projects
-        List<StoredProject> l = new LinkedList<StoredProject>();
-        l.add(kde);
+        if (db != null) {
+            List l = db.doSQL("from StoredProject");
 
-        for(StoredProject p : l) {
-            tds.addAccessor(p.getId(), p.getName(), p.getBugs(), p.getMail(), p.getRepository());
+            for(Object o : l) {
+                StoredProject p = (StoredProject) o;
+                tds.addAccessor(p.getId(), p.getName(), p.getBugs(), p.getMail(), p.getRepository());
+            }
         }
     }
 }

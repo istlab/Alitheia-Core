@@ -45,8 +45,12 @@ public interface DBService {
     public void addRecord(DAObject record);
 
     /**
-     * Allows the intelligent C++ programmer to simply fire complete SQL
-     * "SELECT foo" statements to the DBS
+     * Allows the intelligent C++ programmer to simply fire complete HQL
+     * statements to the DBS. The HQL is very similar to SQL, but differs
+     * in a variety of important ways. See the hibernate documentation at
+     * http://www.hibernate.org/hib_docs/reference/en/html/queryhql.html
+     * for details. As a rule, you do not write 'SELECT *' but only
+     * 'FROM <ClassName>' (note: not the table name, the @em class).
      */
     public List doSQL(String sql);
 }
