@@ -97,7 +97,7 @@ public abstract class Job implements Comparable<Job> {
     	// Otherwise, race conditions would occur in which it would be undefined 
     	// if the dependency is applied or not.
         if ( (state() != State.Created) ) {
-	    throw new SchedulerException( "Job dependencies cannot be added after the job has been queued.");
+        	throw new SchedulerException( "Job dependencies cannot be added after the job has been queued.");
         }
 
         synchronized (s_dependencies) {
@@ -147,11 +147,11 @@ public abstract class Job implements Comparable<Job> {
      * Sets the job's state te Queued and informs the job about the new 
      * scheduler.
      * This method should only be called by Scheduler.enqueue.
-     * @throws Exception If the job is already enqueued.
+     * @throws SchedulerException If the job is already enqueued.
      */
-    public final void callAboutToBeEnqueued(Scheduler s) throws Exception {
+    public final void callAboutToBeEnqueued(Scheduler s) throws SchedulerException {
         if (m_scheduler != null) {
-            throw new Exception("This job is already enqueued in a scheduler.");
+            throw new SchedulerException("This job is already enqueued in a scheduler.");
         }
         aboutToBeEnqueued(s);
         m_state = State.Queued;
@@ -196,19 +196,23 @@ public abstract class Job implements Comparable<Job> {
 
     /**
      * Waits for the job to finish succesfully.
-     * @throws Exception When the job's state changes to Error instead.
+     * @throws SchedulerException When the job's state changes to Error instead.
+     *
+     * FIXME should this really throw? it would seem like waiting has failed.
      */
-    synchronized public final void waitForFinished() throws Exception {
+    synchronized public final void waitForFinished() throws SchedulerException {
         while (state() != State.Finished) {
             if (state() == State.Error) {
-                throw new Exception( "Job Error during waitForFinished" );
+                throw new SchedulerException( "Job Error during waitForFinished" );
             }
-            wait();
+	    try {
+		wait();
+	    } catch (InterruptedException e) {}
         }
     }
 
     /**
-     * Checks, wheter all dependencies are met and the job can be executed.
+     * Checks, whether all dependencies are met and the job can be executed.
      * @return true, when all dependencies are met.
      */
     public boolean canExecute() {
