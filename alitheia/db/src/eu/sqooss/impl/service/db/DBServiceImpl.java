@@ -151,7 +151,7 @@ public class DBServiceImpl implements DBService {
         if (!getJDBCConnection(bc.getProperty("eu.sqooss.db.driver"),
                                 bc.getProperty("eu.sqooss.db.url"),
                                 bc.getProperty("eu.sqooss.db.dialect"))) {
-            if (!getDerbyJDBC()) {
+            if (!Boolean.valueOf(bc.getProperty("eu.sqooss.db.fallback.enable")) || !getDerbyJDBC()) {
                 logger.severe("DB service got no JDBC connectors.");
             }
         }

@@ -60,7 +60,7 @@ public class TesterActivator implements BundleActivator {
 
     public void start( BundleContext bc ) {
         // Really really enabled?
-        if (!"YES".equals(bc.getProperty("eu.sqooss.tester.enable"))) {
+        if (!Boolean.valueOf(bc.getProperty("eu.sqooss.tester.enable"))) {
             System.out.println("Self-test is disabled.");
             return;
         }
