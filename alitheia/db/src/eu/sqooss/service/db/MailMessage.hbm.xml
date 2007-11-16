@@ -8,9 +8,9 @@
     <id name="id" column="ID">
       <generator class="native" />
     </id>
-    <property name="listId" column="LISTID" />
-    <property name="messageId" column="MESSAGEID" />
-    <property name="sender" column="SENDER" />
+    <property name="listId" column="LISTID" not-null="true" />
+    <property name="messageId" column="MESSAGEID" not-null="true" />
+    <property name="sender" column="SENDER" not-null="true" />
     <property name="recipients" column="RECIPIENTS" />
     <property name="subject" column="SUBJECT" />
   </class>
