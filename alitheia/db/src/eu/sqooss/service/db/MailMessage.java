@@ -35,33 +35,16 @@ package eu.sqooss.service.db;
 
 import java.util.*;
 
-import eu.sqooss.service.db.DAObject;
-
 public class MailMessage extends DAObject {
 
-    String listId;
-    String messageId;
     String sender;
     String recipients;
+    String listId;
+    String messageId;
+    Date date;
     String subject;
 
     public MailMessage() {};
-
-    public String getListId() {
-        return listId;
-    };
-
-    public void setListId( String value ) {
-        listId = value;
-    };
-
-    public String getMessageId() {
-        return messageId;
-    };
-
-    public void setMessageId( String value ) {
-        messageId = value;
-    };
 
     public String getSender() {
         return sender;
@@ -79,6 +62,30 @@ public class MailMessage extends DAObject {
         recipients = value;
     };
 
+    public String getListId() {
+        return listId;
+    };
+
+    public void setListId( String value ) {
+        listId = value;
+    };
+
+    public String getMessageId() {
+        return messageId;
+    };
+
+    public void setMessageId( String value ) {
+        messageId = value;
+    };
+
+    public Date getDate() {
+        return date;
+    };
+
+    public void setDate( Date value ) {
+        date = value;
+    };
+
     public String getSubject() {
         return subject;
     };
@@ -86,4 +93,6 @@ public class MailMessage extends DAObject {
     public void setSubject( String value ) {
         subject = value;
     };
-};
+} ;
+
+// vi: ai nosi sw=4 ts=4 expandtab
