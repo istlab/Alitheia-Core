@@ -97,7 +97,12 @@ public abstract class Job implements Comparable<Job> {
     	// Otherwise, race conditions would occur in which it would be undefined 
     	// if the dependency is applied or not.
         if ( (state() != State.Created) ) {
-        	throw new SchedulerException( "Job dependencies cannot be added after the job has been queued.");
+        	throw new SchedulerException("Job dependencies cannot be added after the job has been queued.");
+        }
+
+        // Don't allow circular dependencies
+        if( other.dependsOn(this) || (this==other) ) {
+            throw new SchedulerException("Job dependencies are not allowed to be cyclic.");
         }
 
         synchronized (s_dependencies) {
@@ -112,16 +117,34 @@ public abstract class Job implements Comparable<Job> {
      * \sa addDependency
      */
     public final void removeDependency(Job other) {
-        synchronized(s_dependencies){
+        synchronized(s_dependencies) {
             List<Pair<Job,Job>> doomed = new LinkedList<Pair<Job,Job>>();
             for (Pair<Job,Job> p: s_dependencies ) {
-                if ( (p.first == this) && (p.second == other) ) {
+                if ( (p.first == other) && (p.second == this) ) {
                     doomed.add(p);
                 }
             }
             s_dependencies.removeAll(doomed);
         }
         callDependenciesChanged();
+    }
+
+    /**
+     * Checks recursive wheter this job depends on job \a other.
+     * @param other the job to check dependency of.
+     * @return true, when the job depends on \a other, otherwise false.
+     */
+    public final boolean dependsOn(Job other) {
+        synchronized(s_dependencies) {
+            for (Pair<Job,Job> p: s_dependencies ) {
+                if ( (p.first == other) && (p.second == this) ) {
+                    return true;
+                } else if ( (p.second == this) && p.first.dependsOn(other)) {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 
     /**
@@ -205,9 +228,10 @@ public abstract class Job implements Comparable<Job> {
             if (state() == State.Error) {
                 throw new SchedulerException( "Job Error during waitForFinished" );
             }
-	    try {
-		wait();
-	    } catch (InterruptedException e) {}
+            try {
+                wait();
+            } catch (InterruptedException e) {
+            }
         }
     }
 

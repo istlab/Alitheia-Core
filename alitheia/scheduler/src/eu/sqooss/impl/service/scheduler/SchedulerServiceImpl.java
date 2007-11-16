@@ -178,7 +178,15 @@ public class SchedulerServiceImpl implements Scheduler {
             forthJob.addDependency(thirdJob);
             fifthJob.addDependency(secondJob);
         } catch (SchedulerException e) {
-            return new String("Scheudel test failed: " + e.getMessage());
+            return new String("Scheduler test failed: " + e.getMessage());
+        }
+
+        try{
+            // that must fail, since cyclic dependencies are not allowed
+            firstJob.addDependency(forthJob);
+            // nothing was thrown? ohh...
+            return new String("Scheduler test failed: Adding cyclic dependencies shold not be possible");
+        } catch (SchedulerException e) {
         }
 
         // firstJob should not end up with any dependencies        
@@ -192,6 +200,18 @@ public class SchedulerServiceImpl implements Scheduler {
             return new String("Scheduler test failed: dependencies.size() != 0");
         } else if (!dependencies.contains(firstJob)) {
             return new String("Scheduler test failed: !dependencies.contains(firstJob)");
+        }
+
+        // removing dependencies works?
+        secondJob.removeDependency(firstJob);
+        if( secondJob.dependencies().size() != 0 ) {
+            return new String("Scheduler test failed: secondJob.dependencies().size() != 0");
+        }
+        try{
+            // secondJob depends on firstJob
+            secondJob.addDependency(firstJob);
+        } catch (SchedulerException e) {
+            return new String("Scheduler test failed: " + e.getMessage());
         }
 
         // even thirdJob should end up with exactly one dependency
