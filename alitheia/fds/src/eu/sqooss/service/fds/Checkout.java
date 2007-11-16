@@ -71,7 +71,7 @@ public interface Checkout extends eu.sqooss.service.tds.NamedAccessor {
      *
      * @return Number of holders of this checkout.
      */
-    int numberOfShares();
+    int getReferenceCount();
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

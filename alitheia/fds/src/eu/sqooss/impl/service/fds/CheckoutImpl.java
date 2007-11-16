@@ -73,7 +73,7 @@ class CheckoutImpl implements Checkout {
         return revision;
     }
 
-    public int numberOfShares() {
+    public int getReferenceCount() {
         return claims;
     }
 
