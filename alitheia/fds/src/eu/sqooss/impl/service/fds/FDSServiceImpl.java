@@ -140,10 +140,11 @@ public class FDSServiceImpl implements FDSService {
         // It shouldn't exist yet either
         checkoutRoot.mkdir();
 
+        logger.info("Created checkout root <" + checkoutRoot + ">");
         try {
             svn.checkOut( "", r, checkoutRoot.toString() );
         } catch (FileNotFoundException e) {
-            logger.warning("Root of project " + svn.getName() + " does not exist.");
+            logger.warning("Root of project " + svn.getName() + " does not exist: " + e.getMessage());
             return null;
         }
 
@@ -234,6 +235,7 @@ public class FDSServiceImpl implements FDSService {
             logger.info("Intentionally triggering InvalidRepository exception.");
             Checkout c = getCheckout(-1, null, new ProjectRevision(1));
         } catch (InvalidRepositoryException e) {
+            logger.info("Exception triggered as expected.");
             thrown = true;
         } catch (InvalidProjectRevisionException e) {
             logger.warning("Invalid revision triggered first (wrongly).");
@@ -253,10 +255,27 @@ public class FDSServiceImpl implements FDSService {
             logger.warning("No project with ID 1.");
             thrown = true;
         } catch (InvalidProjectRevisionException e) {
+            logger.info("Exception triggered as expected.");
             thrown = true;
         }
         if (!thrown) {
             return new String("No exception thrown for bogus revision.");
+        }
+
+        // This time it should not fail
+        thrown = false;
+        try {
+            logger.info("Getting something sensible out of FDS");
+            Checkout c = getCheckout(1, "kpilot", new ProjectRevision(1));
+        } catch (InvalidRepositoryException e) {
+            logger.warning("(Still) no project with ID 1.");
+            thrown = true;
+        } catch (InvalidProjectRevisionException e) {
+            logger.warning("Project ID 1 has no revision 1");
+            thrown = true;
+        }
+        if (thrown) {
+            return new String("Exception thrown retrieving checkout r.1 of project 1");
         }
 
         return null;
