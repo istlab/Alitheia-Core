@@ -49,7 +49,7 @@ class WorkerThread extends Thread
 
     private Scheduler m_scheduler;
 
-    private boolean m_processing;
+    private volatile boolean m_processing;
 
     /**
      * Constructor creating a new WorkerThread
