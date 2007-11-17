@@ -84,24 +84,33 @@ public class TesterActivator implements BundleActivator {
             }
             for (ServiceReference s : services) {
                 Object o = bc.getService(s);
-                try {
-                    Method m = o.getClass().getMethod("selfTest");
-                    logger.info("Testing " + o.getClass().getName());
-                    Object r = m.invoke(o);
-                    if (r != null) {
-                        logger.info("Test failed: " + r.toString());
-                    }
+                Method m = null;
+                try { 
+                    m = o.getClass().getMethod("selfTest");
                 } catch (NoSuchMethodException e) {
                     // logger.info("No test method for service.");
-                } catch (SecurityException e) {
-                    logger.info("Can't access selfTest() method.");
-                } catch (IllegalAccessException e) {
-                    logger.info("Failed to invoke selfTest() method: " + e.getMessage());
-                } catch (InvocationTargetException e) {
-                    logger.info("Failed to invoke selfTest() on service: " + e.getMessage());
-                } catch (Exception e) {
-                    logger.warning("selfTest() method failed: " + e.getMessage());
-                    e.printStackTrace();
+                }
+                if (m != null) {
+                    logger.info("BEGIN Test " + o.getClass().getName());
+
+                    try {
+                        Object r = m.invoke(o);
+                        if (r != null) {
+                            logger.info("Test failed: " + r.toString());
+                        }
+                    } catch (SecurityException e) {
+                        logger.info("Can't access selfTest() method.");
+                    } catch (IllegalAccessException e) {
+                        logger.info("Failed to invoke selfTest() method: " + e.getMessage());
+                    } catch (InvocationTargetException e) {
+                        logger.info("Failed to invoke selfTest() on service: " + e.getMessage());
+                    } catch (Exception e) {
+                        logger.warning("selfTest() method failed: " + e.getMessage());
+                        e.printStackTrace();
+                    }
+
+                    logger.info("END   Test " + o.getClass().getName());
+                    m = null;
                 }
                 bc.ungetService(s);
             }
