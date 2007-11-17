@@ -240,9 +240,12 @@ public class FDSServiceImpl implements FDSService {
         } catch (InvalidProjectRevisionException e) {
             logger.warning("Invalid revision triggered first (wrongly).");
             thrown = true;
+        } catch (NullPointerException e) {
+            logger.warning("Null pointer in checkout.");
+            e.printStackTrace();
         }
         if (!thrown) {
-            return  new String("No exception thrown for bogus project.");
+            return new String("No exception thrown for bogus project.");
         }
 
         // This is supposed to throw as well
@@ -257,6 +260,9 @@ public class FDSServiceImpl implements FDSService {
         } catch (InvalidProjectRevisionException e) {
             logger.info("Exception triggered as expected.");
             thrown = true;
+        } catch (NullPointerException e) {
+            logger.warning("Null pointer in checkout.");
+            e.printStackTrace();
         }
         if (!thrown) {
             return new String("No exception thrown for bogus revision.");
@@ -273,6 +279,9 @@ public class FDSServiceImpl implements FDSService {
         } catch (InvalidProjectRevisionException e) {
             logger.warning("Project ID 1 has no revision 1");
             thrown = true;
+        } catch (NullPointerException e) {
+            logger.warning("Null pointer in checkout.");
+            e.printStackTrace();
         }
         if (thrown) {
             return new String("Exception thrown retrieving checkout r.1 of project 1");

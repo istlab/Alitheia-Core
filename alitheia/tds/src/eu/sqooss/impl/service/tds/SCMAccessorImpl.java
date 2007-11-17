@@ -157,6 +157,10 @@ public class SCMAccessorImpl extends NamedAccessorImpl implements SCMAccessor {
         CheckoutEditor.logger = logger;
         CheckoutBaton.logger = logger;
 
+        logger.info("Checking out project " + getName() + " path <" +
+            repoPath + "> in r." + revision.toString() + " to <" +
+            localPath + ">");
+
         long revno = resolveProjectRevision(revision);
         SVNNodeKind nodeKind;
         try {
