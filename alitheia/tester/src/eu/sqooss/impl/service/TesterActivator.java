@@ -96,9 +96,12 @@ public class TesterActivator implements BundleActivator {
                 } catch (SecurityException e) {
                     logger.info("Can't access selfTest() method.");
                 } catch (IllegalAccessException e) {
-                    logger.info("Failed to invoke selfTest() method.");
+                    logger.info("Failed to invoke selfTest() method: " + e.getMessage());
                 } catch (InvocationTargetException e) {
-                    logger.info("Failed to invoke selfTest() on service.");
+                    logger.info("Failed to invoke selfTest() on service: " + e.getMessage());
+                } catch (Exception e) {
+                    logger.warning("selfTest() method failed: " + e.getMessage());
+                    e.printStackTrace();
                 }
                 bc.ungetService(s);
             }
