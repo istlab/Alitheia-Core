@@ -174,8 +174,17 @@ public class DBServiceImpl implements DBService {
 
     public List doSQL(String sql) {
 	Session s = sessionFactory.getCurrentSession();
+        s.beginTransaction();
+        List result = s.createSQLQuery(sql).list();
+        s.getTransaction().commit();
+
+        return result;
+    }
+
+    public List doHQL(String hql) {
+	Session s = sessionFactory.getCurrentSession();
 	s.beginTransaction();
-	List result = s.createQuery(sql).list();
+	List result = s.createQuery(hql).list();
 	s.getTransaction().commit();
 
 	return result;

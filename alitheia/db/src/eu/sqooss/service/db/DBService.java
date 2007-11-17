@@ -53,6 +53,13 @@ public interface DBService {
      * 'FROM <ClassName>' (note: not the table name, the @em class).
      */
     public List doSQL(String sql);
+
+    /**
+     * This function shall perform an HQL query
+     * This shall be used to replace the doSQL function
+     * which shall be repurposed to actually do SQL!
+     */
+    public List doHQL(String hql);
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

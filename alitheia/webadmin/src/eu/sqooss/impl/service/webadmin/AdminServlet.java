@@ -387,7 +387,7 @@ public class AdminServlet extends HttpServlet {
     }
 
     private String[] listProjects() {
-        List l = dbService.doSQL("from StoredProject");
+        List l = dbService.doHQL("from StoredProject");
         if (l==null) {
             return null;
         }
