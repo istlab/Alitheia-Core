@@ -136,9 +136,17 @@ public class FDSServiceImpl implements FDSService {
         // It shouldn't exist yet
         projectRoot.mkdir();
 
+        // Side effect: throws if the revision is invalid
+        svn.resolveProjectRevision(r);
+
         File checkoutRoot = new File(projectRoot,new Long(r.getSVNRevision()).toString());
         // It shouldn't exist yet either
-        checkoutRoot.mkdir();
+        if (!checkoutRoot.mkdirs()) {
+            logger.warning("Could not create checkout root <" + 
+                checkoutRoot + ">");
+            // TODO: throw instead?
+            return null;
+        }
 
         logger.info("Created checkout root <" + checkoutRoot + ">");
         try {

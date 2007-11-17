@@ -64,7 +64,7 @@ class Stuffer implements Runnable {
         logger.info("Now running stuffer.");
 
         if (db != null) {
-            List l = db.doSQL("from StoredProject");
+            List l = db.doHQL("from StoredProject");
 
             for(Object o : l) {
                 StoredProject p = (StoredProject) o;
