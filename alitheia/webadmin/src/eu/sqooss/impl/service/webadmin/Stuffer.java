@@ -66,6 +66,12 @@ class Stuffer implements Runnable {
         if (db != null) {
             List l = db.doHQL("from StoredProject");
 
+            if (l.isEmpty()) {
+                // Some dorky default project so the TDS is not empty
+                // for the test later.
+                tds.addAccessor(1, "KPilot", "", "", 
+                    "http://cvs.codeyard.net/svn/kpilot/" );
+            }
             for(Object o : l) {
                 StoredProject p = (StoredProject) o;
                 tds.addAccessor(p.getId(), p.getName(), p.getBugs(), p.getMail(), p.getRepository());
