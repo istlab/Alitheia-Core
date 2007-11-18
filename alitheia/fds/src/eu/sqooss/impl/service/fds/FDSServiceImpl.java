@@ -191,6 +191,7 @@ public class FDSServiceImpl implements FDSService {
         }
 
         svn.resolveProjectRevision(r);
+        logger.info("Retrieving checkout for " + svn.getName() + " r." + r);
 
         List<CheckoutImpl> l = checkoutCollection.get(projectId);
         if (l!=null) {

@@ -76,6 +76,9 @@ public class TDSServiceImpl implements TDSService {
 
         logger.info("SVN repo factories initialized.");
         TDAccessorImpl.logger = logger;
+        SCMAccessorImpl.logger = logger;
+        BTSAccessorImpl.logger = logger;
+        MailAccessorImpl.logger = logger;
 
         accessorPool = new HashMap<Long,TDAccessorImpl>();
     }

@@ -140,6 +140,9 @@ public class SCMAccessorImpl extends NamedAccessorImpl implements SCMAccessor {
         if ( (r==null) || (!r.isValid()) ) {
             return false;
         }
+        if (svnRepository == null) {
+            connectToRepository();
+        }
         if (!r.hasSVNRevision()) {
             // Must be a dated revision, those are always ok
             // TODO: Check that. What about dated revisions < r.0 ?
@@ -152,6 +155,9 @@ public class SCMAccessorImpl extends NamedAccessorImpl implements SCMAccessor {
     public long getHeadRevision()
         throws InvalidRepositoryException {
         long endRevision = -1;
+        if (svnRepository == null) {
+            connectToRepository();
+        }
         try {
             endRevision = svnRepository.getLatestRevision();
             logger.info("Latest revision of " + getName() + " is " + endRevision);
