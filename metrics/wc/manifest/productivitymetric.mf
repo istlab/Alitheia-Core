@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Wc metric plug-in
+Bundle-SymbolicName: eu.sqooss.metric.wc
+Bundle-Version: 0.0.1
+Bundle-Activator: eu.sqooss.impl.service.Activator
+Bundle-Vendor: AUEB
+Import-Package: eu.sqooss.service.logging, eu.sqooss.service.tds, org.osgi.framework, eu.sqooss.metrics.abstractmetric
