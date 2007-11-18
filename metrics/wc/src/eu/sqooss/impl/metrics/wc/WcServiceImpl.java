@@ -1,7 +1,5 @@
 package eu.sqooss.impl.metrics.wc;
 
-import java.io.IOException;
-
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 

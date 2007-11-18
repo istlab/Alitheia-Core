@@ -38,7 +38,6 @@ import eu.sqooss.metrics.abstractmetric.ProjectVersionMetric;
 import eu.sqooss.metrics.abstractmetric.FileGroupMetric;
 import eu.sqooss.metrics.abstractmetric.ProjectFileMetric;
 
-public interface Wc extends Metric, StoredProjectMetric,
-ProjectVersionMetric, ProjectFileMetric, FileGroupMetric {
+public interface Wc extends Metric {
 
 }

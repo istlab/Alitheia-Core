@@ -34,6 +34,8 @@
 
 package eu.sqooss.impl.metrics.wc;
 
+import java.util.Date;
+
 import eu.sqooss.metrics.wc.Wc;
 
 public class WcImplementation implements Wc {
@@ -43,4 +45,44 @@ public class WcImplementation implements Wc {
     protected WcImplementation() {
       
     }
+
+	public String getAuthor() {
+		
+		return "Markos Gogoulos";
+	}
+
+	public Date getDateInstalled() {
+		
+		return null;
+	}
+
+	public String getDescription() {
+		
+		return null;
+	}
+
+	public String getName() {
+		
+		return "Wc metric";
+	}
+
+	public String getVersion() {
+		
+		return revision;
+	}
+
+	public boolean install() {
+		
+		return false;
+	}
+
+	public boolean remove() {
+		
+		return false;
+	}
+
+	public boolean update() {
+		
+		return false;
+	}
 }
