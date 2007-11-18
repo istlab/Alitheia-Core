@@ -126,10 +126,27 @@ public class SCMAccessorImpl extends NamedAccessorImpl implements SCMAccessor {
         }
 
         if (r.hasSVNRevision()) {
+            if (r.getSVNRevision() > getHeadRevision()) {
+                throw new InvalidProjectRevisionException("Revision > HEAD", null);
+            }
             return r.getSVNRevision();
         } else {
             return resolveDatedProjectRevision(r);
         }
+    }
+
+    public boolean isRevisionValid( ProjectRevision r ) 
+        throws InvalidRepositoryException {
+        if ( (r==null) || (!r.isValid()) ) {
+            return false;
+        }
+        if (!r.hasSVNRevision()) {
+            // Must be a dated revision, those are always ok
+            // TODO: Check that. What about dated revisions < r.0 ?
+            return true;
+        }
+        long n = r.getSVNRevision();
+        return ( (n>=1) && (n<=getHeadRevision()) );
     }
 
     public long getHeadRevision()
