@@ -38,7 +38,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.lang.StringBuilder;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
@@ -47,12 +46,41 @@ import java.util.LinkedList;
 import eu.sqooss.service.tds.MailAccessor;
 import eu.sqooss.service.logging.Logger;
 
-public class MailAccessorImpl extends NamedAccessorImpl implements MailAccessor {
+/**
+ * This is the implementation of the simple access to mailing
+ * lists; a client obtains a MailAccessor through the public
+ * interfaces of the TDS for whichever access implementation is
+ * in use. This implementation assumes direct access to the
+ * maildir store for message access.
+ */
+public class MailAccessorImpl extends NamedAccessorImpl
+    implements MailAccessor {
+    /**
+     * Where in the filesystem is the root of the message
+     * folder hierarchy for the project this accessor is bound to?
+     */
     private File maildirRoot;
+
+    /**
+     * Every maildir folder has three subdirectories,
+     * indicating message status. These are their names.
+     */
     private String[] subdirs = { "cur", "new", "tmp" };
+
+    /**
+     * Logger instance common across the TDS.
+     */
     public static Logger logger = null;
 
-    public MailAccessorImpl( long id, String name, File root ) {
+    /**
+     * Create a mail accessor for the given project. The
+     * project @p id is definitive, while the @p name is
+     * informational in human-readable text only. The
+     * root of the mailing list hierarcht for the project
+     * is given by @p root, which should be a directory.
+     */
+    public MailAccessorImpl( final long id, final String name,
+        final File root ) {
         super(id,name);
         maildirRoot = root;
     }
@@ -136,11 +164,10 @@ public class MailAccessorImpl extends NamedAccessorImpl implements MailAccessor 
     }
 
     // Interface methods
-    public String getRawMessage( String listId, String id )
-        throws IllegalArgumentException,
-               FileNotFoundException {
+    public String getRawMessage(String listId, String id)
+        throws FileNotFoundException {
         File listDir = getFolder(listId);
-        for(String s : subdirs) {
+        for (String s : subdirs) {
             File msgFile = new File(listDir, s + File.separator + id);
             if (msgFile.exists()) {
                 return readFile(msgFile);
@@ -149,10 +176,10 @@ public class MailAccessorImpl extends NamedAccessorImpl implements MailAccessor 
         throw new FileNotFoundException("No message <" + id + ">");
     }
 
-    public List<String> getMessages( String listId )
+    public List < String > getMessages(String listId)
         throws FileNotFoundException {
         File listDir = getFolder(listId);
-        List<String> l = new LinkedList<String>();
+        List < String > l = new LinkedList < String >();
 
         for(String s : subdirs) {
             File msgFile = new File(listDir, s);
@@ -200,21 +227,25 @@ public class MailAccessorImpl extends NamedAccessorImpl implements MailAccessor 
         return goodMessages;
     }
 
-    public String getSender( String listId, String id )
-        throws IllegalArgumentException,
-               FileNotFoundException {
+    public final String getSender(final String listId,
+        final  String id)
+        throws FileNotFoundException {
         File listDir = getFolder(listId);
-        File msgFile = getMessageFile(listDir,id);
+        File msgFile = getMessageFile(listDir, id);
         try {
-            String from = scanForHeader(msgFile,"From:",2);
+            // From: ought to be very first header
+            String from = scanForHeader(msgFile, "From:", 2);
             if (from != null) {
                 return from;
             }
         } catch (IOException e) {
-            throw new IllegalArgumentException("Message <" + id + "> cannot be read.");
+            throw new FileNotFoundException(
+                "Message <" + id + "> cannot be read.");
         }
 
-        throw new IllegalArgumentException("Message <" + id + ">implements the wrong kind of mbox header.");
+        // This is some kind of lousy joke.
+        throw new FileNotFoundException(
+            "Message <" + id + "> implements wrong mbox headers.");
     }
 }
 
