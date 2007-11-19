@@ -79,6 +79,8 @@ public class TDSServiceImpl implements TDSService {
         SCMAccessorImpl.logger = logger;
         BTSAccessorImpl.logger = logger;
         MailAccessorImpl.logger = logger;
+        CheckoutBaton.logger = logger;
+        CheckoutEditor.logger = logger;
 
         accessorPool = new HashMap<Long,TDAccessorImpl>();
     }

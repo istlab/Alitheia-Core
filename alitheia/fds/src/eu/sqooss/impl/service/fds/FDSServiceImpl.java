@@ -132,7 +132,9 @@ public class FDSServiceImpl implements FDSService {
         long projectId, String projectName, ProjectRevision r )
         throws InvalidRepositoryException,
                InvalidProjectRevisionException {
-        File projectRoot = new File(fdsCheckoutRoot,new Long(projectId).toString());
+        logger.info("Creating new checkout for " + projectName + " " + r);
+
+        File projectRoot = new File(fdsCheckoutRoot,String.format("%08d",projectId) + "-" + projectName);
         // It shouldn't exist yet
         projectRoot.mkdir();
 
@@ -191,8 +193,8 @@ public class FDSServiceImpl implements FDSService {
         }
 
         svn.resolveProjectRevision(r);
-        logger.info("Retrieving checkout for " + svn.getName() + " r." + r);
 
+        logger.info("Finding available checkout for " + svn.getName() + " " + r);
         List<CheckoutImpl> l = checkoutCollection.get(projectId);
         if (l!=null) {
             synchronized(l) {

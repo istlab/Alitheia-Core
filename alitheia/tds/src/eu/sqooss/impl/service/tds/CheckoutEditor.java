@@ -88,6 +88,9 @@ public class CheckoutEditor implements ISVNEditor {
      * to point within the tree repoPath.
      */
     private String normalisePath(String path) {
+        if (repoDir == null) {
+            return path;
+        }
         if (path.startsWith(repoDir)) {
             // Empty for loop, just counts how many separatorChars
             // there are between the repoDir part and the path
