@@ -107,9 +107,9 @@ public class DiskUtil {
         return count;
     }
 
-    public static void selfTest(Logger l) {
-        l.info("Self-test for class DiskUtils.");
-        l.info("Creating test directories ...");
+    public static void selfTest(Logger logger) {
+        logger.info("Self-test for class DiskUtil.");
+        logger.info("Creating test directories ...");
 
         /* We are going to create at most maxfiles files and
          * maxsubdirs sub-directories at this level. These numbers
@@ -120,12 +120,13 @@ public class DiskUtil {
 
         final File toplevel = new File("/tmp/DiskUtilsTest");
         if (!toplevel.mkdirs()) {
-            l.warning("Could not create self-test toplevel.");
+            logger.warning("Could not create self-test toplevel.");
             return;
         }
 
         int total = createTestFiles(toplevel, maxfiles, maxsubdirs);
         try {
+            // This just ensures that there is at least one file
             if (new File(toplevel,"README").createNewFile()) {
                 ++total;
             }
@@ -134,7 +135,25 @@ public class DiskUtil {
             total += 0;
         }
 
-        l.info("Created " + total + " files and directories for test.");
+        logger.info("Created " + total + " files and directories for test.");
+
+        rmStar(toplevel);
+        // Now there should be no files left in there
+        File[] files = toplevel.listFiles();
+        for (File f : files) {
+            if (f.isFile()) {
+                logger.warning("Failed to remove " + f);
+            }
+        }
+
+        rmRf(toplevel);
+        if (toplevel.exists()) {
+            logger.warning("Failed to rm -rf " + toplevel);
+        } else {
+            logger.info("Successfully removed " + toplevel);
+        }
+
+        logger.info("End self-test for class DiskUtil.");
     }
 }
 
