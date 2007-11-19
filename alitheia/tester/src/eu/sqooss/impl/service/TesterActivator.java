@@ -55,7 +55,7 @@ public class TesterActivator implements BundleActivator {
         if (logmanager != null) {
             LogManager m = (LogManager) bc.getService(logmanager);
             logger = m.createLogger(Logger.NAME_SQOOSS_UPDATER);
-        } 
+        }
     }
 
     public void start( BundleContext bc ) {
@@ -85,13 +85,27 @@ public class TesterActivator implements BundleActivator {
             for (ServiceReference s : services) {
                 Object o = bc.getService(s);
                 Method m = null;
-                try { 
+                try {
                     m = o.getClass().getMethod("selfTest");
                 } catch (NoSuchMethodException e) {
                     // logger.info("No test method for service.");
                 }
                 if (m != null) {
-                    logger.info("BEGIN Test " + o.getClass().getName());
+                    String className = o.getClass().getName();
+                    logger.info("BEGIN Test " + className);
+
+                    // Now trim down to only the class name
+                    int lastDot = className.lastIndexOf('.');
+                    if (lastDot > 0) {
+                        className = className.substring(lastDot+1);
+                    }
+
+                    String enabled = bc.getProperty(
+                        "eu.sqooss.tester.enable." + className);
+                    if ((enabled != null) && !Boolean.valueOf(enabled)) {
+                        logger.info("SKIP  Test (disabled in configuration)");
+                        continue;
+                    }
 
                     try {
                         Object r = m.invoke(o);
@@ -119,7 +133,7 @@ public class TesterActivator implements BundleActivator {
         logger.info("Done with self-test.");
     }
 
-    public void stop( BundleContext bc ) 
+    public void stop( BundleContext bc )
         throws Exception {
         if (logmanager != null) {
             bc.ungetService(logmanager);
