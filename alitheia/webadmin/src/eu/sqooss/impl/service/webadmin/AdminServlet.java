@@ -150,8 +150,7 @@ public class AdminServlet extends HttpServlet {
         getDB(bc);
         getTDS(bc);
         Stuffer myStuffer = new Stuffer(dbService, logger, tdsService);
-        Thread t = new Thread(myStuffer, "DB to TDS Stuffer");
-        t.start();
+        myStuffer.run();
 
         staticContentMap = new Hashtable<String,String[]>();
         String[] flossie = { "image/x-png", "/flossie.png" };
