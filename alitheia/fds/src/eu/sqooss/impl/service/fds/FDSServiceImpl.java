@@ -143,12 +143,23 @@ public class FDSServiceImpl implements FDSService {
 
         File checkoutRoot = new File(projectRoot,new Long(r.getSVNRevision()).toString());
         // It shouldn't exist yet either
-        if (!checkoutRoot.mkdirs()) {
-            logger.warning("Could not create checkout root <" + 
-                checkoutRoot + ">");
-            // TODO: throw instead?
-            return null;
+        if (checkoutRoot.exists()) {
+            logger.warning("Checkout root <" + checkoutRoot + "> already exists.");
+            if (checkoutRoot.isDirectory()) {
+                logger.info("Recycling the checkout root.");
+            } else {
+                // TODO: throw instead?
+                return null;
+            }
+        } else {
+            if (!checkoutRoot.mkdirs()) {
+                logger.warning("Could not create checkout root <" + 
+                    checkoutRoot + ">");
+                // TODO: throw instead?
+                return null;
+            }
         }
+        // Now checkoutRoot exists and is a directory.
 
         logger.info("Created checkout root <" + checkoutRoot + ">");
         try {
