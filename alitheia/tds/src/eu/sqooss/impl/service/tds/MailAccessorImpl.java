@@ -205,16 +205,18 @@ public class MailAccessorImpl extends NamedAccessorImpl
         return l;
     }
 
-    public List<String> getMessages( String listId, Date d1, Date d2 )
+    /** {@inheritDoc} */
+    final public List<String> getMessages(final String listId,
+        final Date d1, final Date d2)
         throws FileNotFoundException {
         File listDir = getFolder(listId);
-        List<String> allMessages = getMessages(listId);
-        List<String> goodMessages = new LinkedList<String>();
+        List < String > allMessages = getMessages(listId);
+        List < String > goodMessages = new LinkedList < String >();
         DateFormat dateParser = DateFormat.getInstance();
         for (String m : allMessages) {
             String dateHdr = null;
             try {
-                File msgFile = getMessageFile(listDir,m);
+                File msgFile = getMessageFile(listDir, m);
                 dateHdr = scanForHeader(msgFile, "Date:", TEN_LINES);
                 if (dateHdr != null) {
                     Date d = dateParser.parse(dateHdr.substring(FIVE_CHARS));
@@ -241,6 +243,7 @@ public class MailAccessorImpl extends NamedAccessorImpl
         return goodMessages;
     }
 
+    /** {@inheritDoc} */
     public final String getSender(final String listId,
         final  String id)
         throws FileNotFoundException {
