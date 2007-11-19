@@ -58,6 +58,7 @@ public class FDSServiceImpl implements FDSService {
     private Logger logger = null;
     private TDSService tds = null;
     private File fdsCheckoutRoot = null;
+    private BundleContext bundleContext = null;
 
     /**
      * This map maps project names to lists of checkouts; the
@@ -66,6 +67,7 @@ public class FDSServiceImpl implements FDSService {
     private HashMap<Long,List<CheckoutImpl>> checkoutCollection;
 
     public FDSServiceImpl(BundleContext bc) {
+        bundleContext = bc;
         ServiceReference serviceRef = bc.getServiceReference(LogManager.class.getName());
         logService = (LogManager) bc.getService(serviceRef);
         logger = logService.createLogger(Logger.NAME_SQOOSS_FDS);
@@ -251,7 +253,13 @@ public class FDSServiceImpl implements FDSService {
             return new String("No checkout collection available.");
         }
 
-        DiskUtil.selfTest(logger);
+        String enabled = bundleContext.getProperty(
+            "eu.sqooss.tester.enable.FDSServiceImpl.DiskUtil");
+        if ((enabled == null) || Boolean.valueOf(enabled)) {
+            DiskUtil.selfTest(logger);
+        } else {
+            logger.info("Skipping DiskUtil self-test.");
+        }
 
         // This is supposed to throw an exception
         boolean thrown = false;
