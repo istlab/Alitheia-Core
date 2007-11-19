@@ -101,7 +101,7 @@ public class DiskUtil {
             File f = new File(r,new Double(Math.random()).toString());
             if (f.mkdir()) {
                 ++count;
-                createTestFiles(f, mf/2, md/2);
+                count += createTestFiles(f, mf/2, md/2);
             }
         }
         return count;
@@ -125,6 +125,14 @@ public class DiskUtil {
         }
 
         int total = createTestFiles(toplevel, maxfiles, maxsubdirs);
+        try {
+            if (new File(toplevel,"README").createNewFile()) {
+                ++total;
+            }
+        } catch (IOException e) {
+            // Just ignore it
+            total += 0;
+        }
 
         l.info("Created " + total + " files and directories for test.");
     }

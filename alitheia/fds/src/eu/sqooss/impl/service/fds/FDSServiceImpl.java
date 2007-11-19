@@ -153,7 +153,7 @@ public class FDSServiceImpl implements FDSService {
             }
         } else {
             if (!checkoutRoot.mkdirs()) {
-                logger.warning("Could not create checkout root <" + 
+                logger.warning("Could not create checkout root <" +
                     checkoutRoot + ">");
                 // TODO: throw instead?
                 return null;
@@ -250,6 +250,8 @@ public class FDSServiceImpl implements FDSService {
         if (checkoutCollection == null) {
             return new String("No checkout collection available.");
         }
+
+        DiskUtil.selfTest(logger);
 
         // This is supposed to throw an exception
         boolean thrown = false;
