@@ -73,6 +73,17 @@ public class MailAccessorImpl extends NamedAccessorImpl
     public static Logger logger = null;
 
     /**
+     * Ten. The number of header lines to scan while looking
+     * for a Date: line in mail messages.
+     */
+    private static final int TEN_LINES = 10;
+
+    /**
+     * Five. The length of the string 'Date: '.
+     */
+    private static final int FIVE_CHARS = 5;
+
+    /**
      * Create a mail accessor for the given project. The
      * project @p id is definitive, while the @p name is
      * informational in human-readable text only. The
@@ -204,9 +215,9 @@ public class MailAccessorImpl extends NamedAccessorImpl
             String dateHdr = null;
             try {
                 File msgFile = getMessageFile(listDir,m);
-                dateHdr = scanForHeader(msgFile,"Date:",10);
+                dateHdr = scanForHeader(msgFile, "Date:", TEN_LINES);
                 if (dateHdr != null) {
-                    Date d = dateParser.parse(dateHdr.substring(5));
+                    Date d = dateParser.parse(dateHdr.substring(FIVE_CHARS));
                     // Check if it's in the interval [d1,d2)
                     if (!(d.before(d1) || !d.before(d2))) {
                         goodMessages.add(m);
@@ -215,12 +226,15 @@ public class MailAccessorImpl extends NamedAccessorImpl
             } catch (FileNotFoundException e) {
                 // Message disappeared out from under us, ignore
                 // and assume message is bad
+                logger.info("Message <" + m + "> vanished.");
             } catch (IOException e) {
                 // scanForHeader failed; ignore and assume message is bad
+                logger.info("Could not read message <" + m + ">");
             } catch (java.text.ParseException e) {
                 // Bad date in maildir message, assume message is bad
-                if (logger!=null) {
-                    logger.info("Failed to parse <" + dateHdr.substring(5) + ">");
+                if (logger != null) {
+                    logger.info("Failed to parse <"
+                        + dateHdr.substring(FIVE_CHARS) + ">");
                 }
             }
         }
