@@ -165,22 +165,22 @@ public class AdminServlet extends HttpServlet {
         String[] pU = { "image/x-gif", "/purpleUp.gif" };
 
 
-        staticContentMap.put("logo", flossie);
-        staticContentMap.put("alitheia.css", css);
-        staticContentMap.put("style.css", css2);
-        staticContentMap.put("alitheia.png", logo);
-        staticContentMap.put("blueDown.gif", bD);
-        staticContentMap.put("blueUp.gif", bU);
-        staticContentMap.put("greyBack.png", gB);
-        staticContentMap.put("purpleDown.gif", pD);
-        staticContentMap.put("purpleUp.gif", pU);
+        staticContentMap.put("/logo", flossie);
+        staticContentMap.put("/alitheia.css", css);
+        staticContentMap.put("/style.css", css2);
+        staticContentMap.put("/alitheia.png", logo);
+        staticContentMap.put("/blueDown.gif", bD);
+        staticContentMap.put("/blueUp.gif", bU);
+        staticContentMap.put("/greyBack.png", gB);
+        staticContentMap.put("/purpleDown.gif", pD);
+        staticContentMap.put("/purpleUp.gif", pU);
 
         dynamicContentMap = new Hashtable<String,String>();
-        dynamicContentMap.put("about","/about.html");
-        dynamicContentMap.put("status","/index.html");
-        dynamicContentMap.put("index","/index.html");
-        dynamicContentMap.put("projects","/project.html");
-        dynamicContentMap.put("logs","/logs.html");
+        dynamicContentMap.put("/about","/about.html");
+        dynamicContentMap.put("/status","/index.html");
+        dynamicContentMap.put("/index","/index.html");
+        dynamicContentMap.put("/projects","/project.html");
+        dynamicContentMap.put("/logs","/logs.html");
 
         dynamicSubstitutions = new Hashtable<String,String>();
     }
@@ -438,14 +438,14 @@ public class AdminServlet extends HttpServlet {
                                                                IOException {
         try {
             logger.info("POST path=" + request.getPathInfo());
-            if ("addproject".equals(request.getPathInfo())) {
+            if ("/addproject".equals(request.getPathInfo())) {
                 addProject(request);
                 // addProject() has filled in the substitutions by now
                 sendTemplate(response,"/results.html",dynamicSubstitutions);
-            } else if ("stop".equals(request.getPathInfo())) {
+            } else if ("/stop".equals(request.getPathInfo())) {
                 dynamicSubstitutions.put("@@RESULTS", "<p>Alitheia Core is now shutdown.</p>");
                 sendTemplate(response,"/results.html",dynamicSubstitutions);
-            } else if ("restart".equals(request.getPathInfo())) {
+            } else if ("/restart".equals(request.getPathInfo())) {
                 dynamicSubstitutions.put("@@RESULTS", "<p>Alitheia Core is now restarting. Please wait.</p>");
                 sendTemplate(response,"/results.html",dynamicSubstitutions);
             } else {
