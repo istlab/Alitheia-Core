@@ -39,15 +39,24 @@ import org.osgi.framework.ServiceRegistration;
 import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.impl.service.tds.TDSServiceImpl;
 
+/**
+ * This is the OSGi activator class for the Thin Data Service.
+ */
 public class TDSActivator implements BundleActivator {
+    /**
+     * Registration handle for the service, so we can
+     * unregister later.
+     */
     private ServiceRegistration registration;
 
-    public void start(BundleContext bc) throws Exception {
+    /** Activate the bundle and register services. */
+    final public void start(final BundleContext bc) throws Exception {
         registration = bc.registerService(TDSService.class.getName(),
                                           new TDSServiceImpl(bc), null);
     }
 
-    public void stop(BundleContext bc) throws Exception {
+    /** Stop the bundle and unregister services. */
+    final public void stop(final BundleContext bc) throws Exception {
         registration.unregister();
     }
 }
