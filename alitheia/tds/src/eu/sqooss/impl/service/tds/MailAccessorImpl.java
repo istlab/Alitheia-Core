@@ -65,7 +65,7 @@ public class MailAccessorImpl extends NamedAccessorImpl
      * Every maildir folder has three subdirectories,
      * indicating message status. These are their names.
      */
-    private String[] subdirs = { "cur", "new", "tmp" };
+    private String[] subdirs = {"cur", "new", "tmp"};
 
     /**
      * Logger instance common across the TDS.
@@ -89,10 +89,14 @@ public class MailAccessorImpl extends NamedAccessorImpl
      * informational in human-readable text only. The
      * root of the mailing list hierarcht for the project
      * is given by @p root, which should be a directory.
+     *
+     * @param id ID of the project
+     * @param name human-readable name of the project
+     * @param root root within the filesytstem of the list directories
      */
-    public MailAccessorImpl( final long id, final String name,
-        final File root ) {
-        super(id,name);
+    public MailAccessorImpl(final long id, final String name,
+        final File root) {
+        super(id, name);
         maildirRoot = root;
     }
 
@@ -100,15 +104,19 @@ public class MailAccessorImpl extends NamedAccessorImpl
      * Read a file @p f and return its contents as a single String,
      * possibly preserving newlines (I'm not sure what readLine() does)
      * assuming the file is a text file and encoded in the default encoding.
+     *
+     * @param f File to read
+     * @return contents of file
+     * @throws FileNotFoundException if the file does not exist
      */
-    private String readFile( File f )
+    private String readFile(final File f)
         throws FileNotFoundException {
         BufferedReader in = new BufferedReader(new FileReader(f));
         StringBuilder s = new StringBuilder();
         String line;
 
         try {
-            while ( (line=in.readLine()) != null ) {
+            while ((line = in.readLine()) != null) {
                 s.append(line);
             }
         } catch (IOException e) {
@@ -120,14 +128,18 @@ public class MailAccessorImpl extends NamedAccessorImpl
     }
 
     /**
-     * Return a File object for the given @p listId or throw FileNotFoundException
-     * if the list does not exist.
+     * Return a File object for the given listId.
+     *
+     * @param listId the name of the list to be retrieved
+     * @return abstract file for that list
+     * @throws FileNotFoundException if there is no such list
      */
-    private File getFolder( String listId )
+    private File getFolder(final String listId)
         throws FileNotFoundException {
         File listDir = new File(maildirRoot, listId);
         if (!listDir.exists() || !listDir.isDirectory()) {
-            throw new FileNotFoundException("ListID <" + listId + "> does not exist.");
+            throw new FileNotFoundException(
+                "ListID <" + listId + "> does not exist.");
         }
         return listDir;
     }
@@ -135,18 +147,26 @@ public class MailAccessorImpl extends NamedAccessorImpl
     /**
      * Return a file object for the given @p messageId within the mailing
      * list folder @p listDir . This searches the normal maildir subfolders
-     * new, cur and tmp (tmp is a bad idea, actually). Throws FileNotFoundException
-     * if the message does not exist in any of the maildir subdirectories.
+     * new, cur and tmp (tmp is a bad idea, actually).
+     *
+     * @param listDir   root directory for the mailing list the message is in
+     * @param messageId maildir message ID to look for
+     *
+     * @return abstract file to the requested message (somewhere underneath
+     *          the listDir in one of the maildir subdirectories)
+     * @throws FileNotFoundException if the messageId cannot be found
+     *          in any of the maildir subdirectories
      */
-    private File getMessageFile( File listDir, String messageId )
+    private File getMessageFile(final File listDir, final String messageId)
         throws FileNotFoundException {
-        for(String s : subdirs) {
+        for (String s : subdirs) {
             File msgFile = new File(listDir, s + File.separator + messageId);
             if (msgFile.exists()) {
                 return msgFile;
             }
         }
-        throw new FileNotFoundException("Message <" + messageId + "> does not exist.");
+        throw new FileNotFoundException(
+            "Message <" + messageId + "> does not exist.");
     }
 
     /**
@@ -156,12 +176,20 @@ public class MailAccessorImpl extends NamedAccessorImpl
      * the end of headers, cause the scan to end regardless of the
      * value of @p limit.
      *
-     * May return null if the header is not found.
+     * @param msgFile   the file to read
+     * @param hdr       the header (string) to scan for
+     * @param limit     maximum number of lines scanned
+     *
+     * @return  entire header line with the requested header or
+     *          null if header is not found
+     *
+     * @throws IOException on error reading file
      */
-    private String scanForHeader( File msgFile, String hdr, int limit )
+    private String scanForHeader(final File msgFile, final String hdr,
+        final int limit)
         throws IOException {
         BufferedReader in = new BufferedReader(new FileReader(msgFile));
-        for (int i=0; i<limit; ++i) {
+        for (int i = 0; i < limit; ++i) {
             String line = in.readLine();
             if (line.startsWith(hdr)) {
                 return line;
@@ -175,7 +203,9 @@ public class MailAccessorImpl extends NamedAccessorImpl
     }
 
     // Interface methods
-    public String getRawMessage(String listId, String id)
+    /** {@inheritDoc} */
+    public final String getRawMessage(final String listId,
+        final String id)
         throws FileNotFoundException {
         File listDir = getFolder(listId);
         for (String s : subdirs) {
@@ -187,12 +217,13 @@ public class MailAccessorImpl extends NamedAccessorImpl
         throw new FileNotFoundException("No message <" + id + ">");
     }
 
-    public List < String > getMessages(String listId)
+    /** {@inheritDoc} */
+    public final List < String > getMessages(final String listId)
         throws FileNotFoundException {
         File listDir = getFolder(listId);
         List < String > l = new LinkedList < String >();
 
-        for(String s : subdirs) {
+        for (String s : subdirs) {
             File msgFile = new File(listDir, s);
             if (msgFile.exists() && msgFile.isDirectory()) {
                 String[] entries = msgFile.list();
@@ -206,7 +237,7 @@ public class MailAccessorImpl extends NamedAccessorImpl
     }
 
     /** {@inheritDoc} */
-    final public List<String> getMessages(final String listId,
+    public final List < String > getMessages(final String listId,
         final Date d1, final Date d2)
         throws FileNotFoundException {
         File listDir = getFolder(listId);
