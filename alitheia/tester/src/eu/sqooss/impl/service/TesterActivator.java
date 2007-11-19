@@ -54,7 +54,7 @@ public class TesterActivator implements BundleActivator {
         logmanager = bc.getServiceReference(LogManager.class.getName());
         if (logmanager != null) {
             LogManager m = (LogManager) bc.getService(logmanager);
-            logger = m.createLogger(Logger.NAME_SQOOSS_UPDATER);
+            logger = m.createLogger(Logger.NAME_SQOOSS_UPDATER /* TESTER */);
         }
     }
 
