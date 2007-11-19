@@ -60,6 +60,14 @@ class Stuffer implements Runnable {
         logger.info("Stuffer ready.");
     }
 
+    private void bogusStuffer() {
+        logger.info("Stuffing bogus project into TDS");
+        // Some dorky default project so the TDS is not empty
+        // for the test later.
+        tds.addAccessor(1, "KPilot", "", "",
+            "http://cvs.codeyard.net/svn/kpilot/" );
+    }
+
     public void run() {
         logger.info("Now running stuffer.");
 
@@ -67,15 +75,15 @@ class Stuffer implements Runnable {
             List l = db.doHQL("from StoredProject");
 
             if (l.isEmpty()) {
-                // Some dorky default project so the TDS is not empty
-                // for the test later.
-                tds.addAccessor(1, "KPilot", "", "", 
-                    "http://cvs.codeyard.net/svn/kpilot/" );
+                bogusStuffer();
+                // Next for loop is empty as well
             }
             for(Object o : l) {
                 StoredProject p = (StoredProject) o;
                 tds.addAccessor(p.getId(), p.getName(), p.getBugs(), p.getMail(), p.getRepository());
             }
+        } else {
+            bogusStuffer();
         }
     }
 }
