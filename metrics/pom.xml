@@ -92,6 +92,12 @@
     </repository>
   </repositories>
 
+  <!-- =======[ Repositories holding snapshots of the Maven plugins ]===== -->
+  <!-- Using a snapshot repository is not that good ideia, since it happens
+       often that some of the plugins' snapshots doesn't work as expected.
+       Enable at your own risk!
+  -->
+  <!--
   <pluginRepositories>
     <pluginRepository>
       <id>Maven.Snapshots</id>
@@ -104,6 +110,7 @@
       <url>http://cvs.apache.org/maven-snapshot-repository</url>
     </pluginRepository>
   </pluginRepositories>
+  -->
 
   <distributionManagement>
     <!-- Deploy the project reports site in this location                  -->
