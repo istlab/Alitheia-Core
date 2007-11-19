@@ -34,6 +34,9 @@
 package eu.sqooss.impl.service.fds;
 
 import java.io.File;
+import java.io.IOException;
+
+import eu.sqooss.service.logging.Logger;
 
 /**
  * This class contains common static functionality for manipulating
@@ -76,6 +79,54 @@ public class DiskUtil {
             return d.exists();
         }
         return false;
+    }
+
+    private static int createTestFiles(File r, int mf, int md) {
+        int numberOfFiles = (int) Math.round(Math.floor(Math.random() * (double) mf));
+        int numberOfSubDirs = (int) Math.round(Math.floor(Math.random() * (double) md));
+        int count = 0;
+
+        for (int i=0; i < numberOfFiles; ++i) {
+            File f = new File(r,new Double(Math.random()).toString());
+            try {
+                if (f.createNewFile()) {
+                    ++count;
+                }
+            } catch (IOException e) {
+                // Ignore the exception
+                count += 0;
+            }
+        }
+        for (int i=0; i < numberOfSubDirs; ++i) {
+            File f = new File(r,new Double(Math.random()).toString());
+            if (f.mkdir()) {
+                ++count;
+                createTestFiles(f, mf/2, md/2);
+            }
+        }
+        return count;
+    }
+
+    public static void selfTest(Logger l) {
+        l.info("Self-test for class DiskUtils.");
+        l.info("Creating test directories ...");
+
+        /* We are going to create at most maxfiles files and
+         * maxsubdirs sub-directories at this level. These numbers
+         * are halved at each descent, so it terminates.
+         */
+        int maxfiles = 16;
+        int maxsubdirs = 8;
+
+        final File toplevel = new File("/tmp/DiskUtilsTest");
+        if (!toplevel.mkdirs()) {
+            l.warning("Could not create self-test toplevel.");
+            return;
+        }
+
+        int total = createTestFiles(toplevel, maxfiles, maxsubdirs);
+
+        l.info("Created " + total + " files and directories for test.");
     }
 }
 
