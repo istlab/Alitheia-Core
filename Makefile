@@ -80,12 +80,13 @@ clean-db :
 
 CL_CONFIG=-Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.Log4JLogger
 LOG4J_CONFIG=-Dlog4j.configuration=file://$(ABS_PREFIX)/configuration/log4j.properties
+JETTY_CONFIG=-DDEBUG_VERBOSE=1 -DDEBUG_PATTERNS=main,org.mortbay.http -Dorg.mortbay.log.LogFactory.noDiscovery=false
 
 # $(CONFIG) would typically be used to set system properties.
 run :
 	cd $(PREFIX) && \
 	java $(CONFIG) \
-		$(CL_CONFIG) $(LOG4J_CONFIG) \
+		-DDEBUG $(CL_CONFIG) $(LOG4J_CONFIG) $(JETTY_CONFIG) \
 		-jar org.eclipse.osgi_3.3.0.v20070321.jar -console
 
 run-ui :
