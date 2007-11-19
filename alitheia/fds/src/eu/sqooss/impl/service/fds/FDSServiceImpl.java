@@ -34,10 +34,12 @@ package eu.sqooss.impl.service.fds;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.LinkedList;
+import java.util.Random;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -59,6 +61,7 @@ public class FDSServiceImpl implements FDSService {
     private TDSService tds = null;
     private File fdsCheckoutRoot = null;
     private BundleContext bundleContext = null;
+    private Random randomCheckout = null;
 
     /**
      * This map maps project names to lists of checkouts; the
@@ -91,6 +94,8 @@ public class FDSServiceImpl implements FDSService {
             logger.info("FDS root directory " + s);
         }
         fdsCheckoutRoot = new File(s);
+
+        randomCheckout = new Random();
     }
 
     /**
@@ -130,6 +135,43 @@ public class FDSServiceImpl implements FDSService {
         }
     }
 
+    private byte[] intToBytes(int v) {
+        byte[] b = new byte[4];
+        b[0] = (byte) (v & 0xff);
+        b[1] = (byte) ((v >> 8) & 0xff);
+        b[2] = (byte) ((v >> 16) & 0xff);
+        b[3] = (byte) ((v >> 24) & 0xff);
+        return b;
+    }
+
+    private static final String hex = "0123456789abcdef";
+    private String getRandomCheckoutName(int length) {
+        // Each character is 4 bits, calculate bytes
+        int byteCount = (length + 1) / 2;
+        // Get that many random bytes
+        byte[] b = new byte[byteCount];
+        randomCheckout.nextBytes(b);
+        return bytesToHexString(b);
+    }
+
+    private String bytesToHexString(byte[] b) {
+        // Fill a char array with those bytes
+        int length = b.length * 2;
+        char[] c = new char[length];
+        boolean useHighNibble = false;
+        for (int i = 0; i < length; i++) {
+            byte thisByte = b[i/2];
+            if (useHighNibble) {
+                thisByte = (byte) ((b[i/2] >> 4) & 0xf);
+            } else {
+                thisByte = (byte) (b[i/2] & 0xf);
+            }
+            c[i] = hex.charAt(thisByte);
+            useHighNibble = !useHighNibble;
+        }
+        return new String(c);
+    }
+
     private CheckoutImpl createCheckout( SCMAccessor svn,
         long projectId, String projectName, ProjectRevision r )
         throws InvalidRepositoryException,
@@ -143,7 +185,12 @@ public class FDSServiceImpl implements FDSService {
         // Side effect: throws if the revision is invalid
         svn.resolveProjectRevision(r);
 
-        File checkoutRoot = new File(projectRoot,new Long(r.getSVNRevision()).toString());
+        // In order to discourage assumptions about what checkouts belong
+        // where, assign each an 8-character random prefix and then
+        // encode the revision number as well; this means that we can
+        // update and futz with the revisions within each checkout directory.
+        File checkoutRoot = new File(projectRoot,getRandomCheckoutName(8) + "." +
+            bytesToHexString(intToBytes((int)r.getSVNRevision())));
         // It shouldn't exist yet either
         if (checkoutRoot.exists()) {
             logger.warning("Checkout root <" + checkoutRoot + "> already exists.");
