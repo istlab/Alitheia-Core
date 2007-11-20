@@ -135,43 +135,6 @@ public class FDSServiceImpl implements FDSService {
         }
     }
 
-    private byte[] intToBytes(int v) {
-        byte[] b = new byte[4];
-        b[0] = (byte) (v & 0xff);
-        b[1] = (byte) ((v >> 8) & 0xff);
-        b[2] = (byte) ((v >> 16) & 0xff);
-        b[3] = (byte) ((v >> 24) & 0xff);
-        return b;
-    }
-
-    private static final String hex = "0123456789abcdef";
-    private String getRandomCheckoutName(int length) {
-        // Each character is 4 bits, calculate bytes
-        int byteCount = (length + 1) / 2;
-        // Get that many random bytes
-        byte[] b = new byte[byteCount];
-        randomCheckout.nextBytes(b);
-        return bytesToHexString(b);
-    }
-
-    private String bytesToHexString(byte[] b) {
-        // Fill a char array with those bytes
-        int length = b.length * 2;
-        char[] c = new char[length];
-        boolean useHighNibble = false;
-        for (int i = 0; i < length; i++) {
-            byte thisByte = b[i/2];
-            if (useHighNibble) {
-                thisByte = (byte) ((b[i/2] >> 4) & 0xf);
-            } else {
-                thisByte = (byte) (b[i/2] & 0xf);
-            }
-            c[i] = hex.charAt(thisByte);
-            useHighNibble = !useHighNibble;
-        }
-        return new String(c);
-    }
-
     private CheckoutImpl createCheckout( SCMAccessor svn,
         long projectId, String projectName, ProjectRevision r )
         throws InvalidRepositoryException,
@@ -189,8 +152,10 @@ public class FDSServiceImpl implements FDSService {
         // where, assign each an 8-character random prefix and then
         // encode the revision number as well; this means that we can
         // update and futz with the revisions within each checkout directory.
-        File checkoutRoot = new File(projectRoot,getRandomCheckoutName(8) + "." +
-            bytesToHexString(intToBytes((int)r.getSVNRevision())));
+        File checkoutRoot = new File(projectRoot,
+            Encoding.getRandomCheckoutName(8,randomCheckout) + "." +
+            Encoding.bytesToHexString(
+                Encoding.intToBytes((int)r.getSVNRevision())));
         // It shouldn't exist yet either
         if (checkoutRoot.exists()) {
             logger.warning("Checkout root <" + checkoutRoot + "> already exists.");
