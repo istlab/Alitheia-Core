@@ -161,6 +161,10 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-pmd-plugin</artifactId>
+        <!-- Tell PMD explicitly to run in JDK 1.5 mode -->
+        <configuration>  
+          <targetJdk>1.5</targetJdk>  
+        </configuration> 
         <reportSets>
           <reportSet>
             <reports>
