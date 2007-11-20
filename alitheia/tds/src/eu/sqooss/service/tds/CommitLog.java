@@ -62,17 +62,18 @@ public interface CommitLog extends Iterable {
 
     /**
      * Retrieve the message (commit message) for project revision
-     * @p r in this log. If @p r is not valid in some way, throw
-     * an exception. If @p r is not in the log (the revision does not
-     * occur, for instance) return null. For ProjectRevisions with
-     * no SVN revision attached (date revisions) return the last
-     * revision that is not after the indicated date, or null if there
-     * isn't one.
+     * <code>r</code> in this log. If <code>r</code> is not valid
+     * in some way, throw  an exception. If <code>r</code> is not
+     * in the log (the revision does not occur, for instance)
+     * return <code>null</code>. For <code>ProjectRevisions</code>
+     * with no SVN revision attached (date revisions) return the
+     * last revision that is not after the indicated date, or
+     * <code>null</code> if there isn't one.
      *
      * @param  r Revision for which the message should be retrieved
-     * @return message at revision @p r
-     * @throws InvalidProjectRevisionException if @p r is not within the
-     *          scope of this log.
+     * @return message at revision <code>r</code>
+     * @throws InvalidProjectRevisionException if <code>r</code> is not within
+     *          thea scope of this log.
      */
     String message(ProjectRevision r)
         throws InvalidProjectRevisionException;
