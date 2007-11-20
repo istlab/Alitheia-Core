@@ -52,7 +52,6 @@ public interface FDSService {
      * released by all, it may be updated to some new revision.
      *
      * @param id    Project ID
-     * @param name  Project name (informative only)
      * @param r     Revision (project state) to get
      *
      * @return      Checkout object. Remember to release it later.
@@ -63,8 +62,7 @@ public interface FDSService {
      *              make sense with the given repository (for instance,
      *              non-existent SVN number).
      */
-    Checkout getCheckout( long id, String name,
-        ProjectRevision r )
+    Checkout getCheckout( long id, ProjectRevision r )
         throws InvalidRepositoryException,
                InvalidProjectRevisionException;
 

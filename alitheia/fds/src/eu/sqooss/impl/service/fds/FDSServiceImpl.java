@@ -55,24 +55,71 @@ import eu.sqooss.service.tds.SCMAccessor;
 import eu.sqooss.service.tds.TDAccessor;
 import eu.sqooss.service.tds.TDSService;
 
+/** {@inheritDoc} */
 public class FDSServiceImpl implements FDSService {
-    private LogManager logService = null;
-    private Logger logger = null;
-    private TDSService tds = null;
-    private File fdsCheckoutRoot = null;
+    /** We will keep around the bundle context for the properties. */
     private BundleContext bundleContext = null;
+    /** The logger for the FDS. */
+    private Logger logger = null;
+    /** We use the TDS for raw data access. */
+    private TDSService tds = null;
+
+    /**
+     * The FDS is configured to place checkouts -- which are the main
+     * things that the FDS is supposed to manage -- somewhere in the
+     * filesystem. This is the root of those checkouts; underneath
+     * here each project has a directory, and then checkouts of that
+     * project live under there.
+     */
+    private File fdsCheckoutRoot = null;
+    /**
+     * Checkouts are done in directories with a random prefix; this
+     * is done to avoid the suggestion that the checkouts are tied to
+     * specific revisions. We generate the random prefixes with this
+     * random generator.
+     */
     private Random randomCheckout = null;
 
     /**
      * This map maps project names to lists of checkouts; the
      * checkouts all have different revisions.
      */
-    private HashMap<Long,List<CheckoutImpl>> checkoutCollection;
+    private HashMap < Long, List < CheckoutImpl > > checkoutCollection;
 
+    /*
+     * The following constants influence the formatting of checkout
+     * and project directory names.
+     */
+
+    /**
+     * Project IDs are formatted as decimals (with leading zeroes)
+     * of this length; 8 covers the expected range of IDs.
+     */
     private static final int INT_AS_DECIMAL_LENGTH = 8;
+    /**
+     * Each checkout gets a random hex string prefixed to a
+     * guaranteed unique identifier. The length of the prefix
+     * is defined here.
+     */
     private static final int RANDOM_PREFIX_LENGTH = 8;
+    /**
+     * States how many hex digits are needed to express an int.
+     */
     private static final int INT_AS_HEX_LENGTH = 8;
 
+    /**
+     * The FDS considers its checkout root to be 'private' and will
+     * write all kinds of stuff in there. The checkouts need to be
+     * cleaned up on shutdown at the very least, in order to avoid
+     * polluting the filesystem with orphaned checkout directories.
+     * Also cleanup at startup, to prevent accidentally dropping
+     * checkouts in older directories.
+     *
+     * Only directories that match the patterns created by the FDS
+     * are actually cleaned up.
+     *
+     * Keep this synchronised with the format of files created elsewhere.
+     */
     private void cleanupCheckoutRoot() {
         logger.info("Cleaning up " + fdsCheckoutRoot);
         File[] projects = fdsCheckoutRoot.listFiles();
@@ -93,23 +140,32 @@ public class FDSServiceImpl implements FDSService {
         }
     }
 
+    /**
+     * Constructor. Get the services the FDS needs, retrieve settings,
+     * initialize data structures and clean up the checkout directory
+     * in preparation for writing new stuff under the FDS root.
+     */
     public FDSServiceImpl(BundleContext bc) {
         bundleContext = bc;
-        ServiceReference serviceRef = bc.getServiceReference(LogManager.class.getName());
-        logService = (LogManager) bc.getService(serviceRef);
+        ServiceReference serviceRef =
+            bc.getServiceReference(LogManager.class.getName());
+        LogManager logService = (LogManager) bc.getService(serviceRef);
         logger = logService.createLogger(Logger.NAME_SQOOSS_FDS);
         if (logger != null) {
             logger.info("FDS service created.");
         } else {
             System.out.println("# FDS failed to get logger.");
-            return;
+            // This means we'll throw a null pointer exception in a minute,
+            // which is fine -- can't run without a logger.
         }
 
         serviceRef = bc.getServiceReference(TDSService.class.getName());
         tds = (TDSService) bc.getService(serviceRef);
         logger.info("Got TDS service for FDS.");
 
-        checkoutCollection = new HashMap<Long,List<CheckoutImpl>>();
+        checkoutCollection = new HashMap < Long, List < CheckoutImpl > >();
+
+        // Get the checkout root from the properties file.
         String s = bc.getProperty("eu.sqooss.fds.root");
         if (s==null) {
             logger.info("No eu.sqooss.fds.root set, using default /var/tmp");
@@ -123,14 +179,30 @@ public class FDSServiceImpl implements FDSService {
         cleanupCheckoutRoot();
     }
 
+    /**
+     * Stop method. Called by the activator on exit, just does cleanup.
+     */
     public void stop() {
         cleanupCheckoutRoot();
     }
 
     /**
      * Scan a list of checkouts for one with the right project revision.
+     *
+     * @param l list of checkouts to search for. These checkouts must belong
+     *          to the project we're interested in.
+     * @param r revision to search for.
+     *
+     * @return null if no checkout exists with exactly that revision, or
+     *          the checkout object itself. Also returns null if the revision
+     *          has not been normalized to have a SVN revision (instead of
+     *          just a date or some other revision kind).
      */
-    private CheckoutImpl findCheckout(List<CheckoutImpl> l, ProjectRevision r) {
+    private CheckoutImpl findCheckout(List < CheckoutImpl > l,
+        ProjectRevision r) {
+        if (!r.hasSVNRevision()) {
+            return null;
+        }
         for (Iterator<CheckoutImpl> i = l.iterator(); i.hasNext(); ) {
             CheckoutImpl c = i.next();
             if (c.getRevision().getSVNRevision() == r.getSVNRevision()) {
@@ -140,9 +212,20 @@ public class FDSServiceImpl implements FDSService {
         return null;
     }
 
+    /**
+     * This is for consistency checks: any project p should have exactly
+     * *one* checkout for a revision r, no more than that
+     *
+     * @param c Checkout to search for.
+     * @return Checkout; ought to be c again.
+     * @throws InvalidRepositoryException if the checkout refers to a
+     *          non-existent project or has a bogus revision attached.
+     * @throws RuntimeException if we find a second checkout of the
+     *          same project and revision which is not equal to c.
+     */
     private CheckoutImpl findCheckout( Checkout c )
         throws InvalidRepositoryException {
-        List<CheckoutImpl> l = checkoutCollection.get(c.getName());
+        List<CheckoutImpl> l = checkoutCollection.get(c.getId());
         if (l == null) {
             throw new InvalidRepositoryException(c.getName(),"",
                 "No managed checkout for this project.");
@@ -164,15 +247,20 @@ public class FDSServiceImpl implements FDSService {
         }
     }
 
-    private CheckoutImpl createCheckout( SCMAccessor svn,
-        long projectId, String projectName, ProjectRevision r )
+    /**
+     * Create, for a given SCM accessor, a checkout at a given revision.
+     * This assumes that there is not already a checkout for this
+     * project in this revision, and uses the SCM itself to do the
+     * checkout somewhere underneath the FDS root.
+     */
+    private CheckoutImpl createCheckout( SCMAccessor svn, ProjectRevision r )
         throws InvalidRepositoryException,
                InvalidProjectRevisionException {
-        logger.info("Creating new checkout for " + projectName + " " + r);
+        logger.info("Creating new checkout for " + svn.getName() + " " + r);
 
         File projectRoot = new File(fdsCheckoutRoot,
-            String.format("%0" + INT_AS_DECIMAL_LENGTH + "d",projectId)
-                + "-" + projectName);
+            String.format("%0" + INT_AS_DECIMAL_LENGTH + "d", svn.getId())
+                + "-" + svn.getName());
         // It shouldn't exist yet
         projectRoot.mkdir();
 
@@ -214,7 +302,7 @@ public class FDSServiceImpl implements FDSService {
             return null;
         }
 
-        CheckoutImpl c = new CheckoutImpl( projectId, projectName );
+        CheckoutImpl c = new CheckoutImpl( svn.getId(), svn.getName());
         c.setCheckout( checkoutRoot, r );
         c.claim();
 
@@ -222,29 +310,29 @@ public class FDSServiceImpl implements FDSService {
     }
 
     // Interface methods
-    public Checkout getCheckout(long projectId, String projectName, ProjectRevision r)
+    public Checkout getCheckout(long projectId, ProjectRevision r)
         throws InvalidRepositoryException,
                InvalidProjectRevisionException {
         if (!tds.projectExists(projectId)) {
-            throw new InvalidRepositoryException(projectName,"",
-                "No such project to check out.");
+            throw new InvalidRepositoryException(String.valueOf(projectId),
+                "", "No such project to check out.");
         }
         if (!tds.accessorExists(projectId)) {
-            throw new InvalidRepositoryException(projectName,"",
-                "No accessor available.");
+            throw new InvalidRepositoryException(String.valueOf(projectId),
+                "", "No accessor available.");
         }
 
         TDAccessor a = tds.getAccessor(projectId);
         if (a == null) {
             logger.warning("Accessor not available even though accessorExists()");
-            throw new InvalidRepositoryException(projectName,"",
-                "No accessor available.");
+            throw new InvalidRepositoryException(String.valueOf(projectId),
+                "", "No accessor available.");
         }
 
         SCMAccessor svn = a.getSCMAccessor();
         if (svn == null) {
-            logger.warning("No SCM available for " + projectName);
-            throw new InvalidRepositoryException(projectName,"",
+            logger.warning("No SCM available for " + svn.getName());
+            throw new InvalidRepositoryException(svn.getName(),"",
                 "No SCM accessor available.");
         }
 
@@ -258,7 +346,7 @@ public class FDSServiceImpl implements FDSService {
                 if (c != null) {
                     c.claim();
                 } else {
-                    c = createCheckout(svn,projectId,projectName,r);
+                    c = createCheckout(svn,r);
                     l.add(c);
                 }
                 return c;
@@ -271,7 +359,7 @@ public class FDSServiceImpl implements FDSService {
                 l = new LinkedList<CheckoutImpl>();
                 synchronized(l) {
                     checkoutCollection.put(projectId,l);
-                    c = createCheckout(svn,projectId,projectName,r);
+                    c = createCheckout(svn,r);
                     l.add(c);
                 }
                 return c;
@@ -308,7 +396,7 @@ public class FDSServiceImpl implements FDSService {
         boolean thrown = false;
         try {
             logger.info("Intentionally triggering InvalidRepository exception.");
-            Checkout c = getCheckout(-1, null, new ProjectRevision(1));
+            Checkout c = getCheckout(-1, new ProjectRevision(1));
         } catch (InvalidRepositoryException e) {
             logger.info("Exception triggered as expected.");
             thrown = true;
@@ -328,7 +416,7 @@ public class FDSServiceImpl implements FDSService {
         try {
             logger.info("Intentionally triggering InvalidRevision exception.");
             // Assuming KDE doesn't reach 1 billion commits before 2038
-            Checkout c = getCheckout(1, "kde", new ProjectRevision(1000000000));
+            Checkout c = getCheckout(1, new ProjectRevision(1000000000));
         } catch (InvalidRepositoryException e) {
             logger.warning("No project with ID 1.");
             thrown = true;
@@ -347,7 +435,7 @@ public class FDSServiceImpl implements FDSService {
         thrown = false;
         try {
             logger.info("Getting something sensible out of FDS");
-            Checkout c = getCheckout(1, "kpilot", new ProjectRevision(1));
+            Checkout c = getCheckout(1, new ProjectRevision(1));
         } catch (InvalidRepositoryException e) {
             logger.warning("(Still) no project with ID 1.");
             thrown = true;
