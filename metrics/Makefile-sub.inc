@@ -51,7 +51,7 @@ EQUINOX_CP=$(PREFIX)/org.eclipse.osgi_3.3.0.v20070321.jar:$(PREFIX)/org.eclipse.
 all: build-all build-jar
 
 install: build-jar
-	cp target/$(BUNDLE_NAME)-$(BUNDLE_VERSION).jar $(PREFIX)
+	cp target/$(BUNDLE_NAME)-$(BUNDLE_VERSION).jar $(PREFIX)/eu.sqooss.metrics.$(BUNDLE_NAME)-$(BUNDLE_VERSION).jar
 
 clean:
 	rm -rf target/ build/ bin/
