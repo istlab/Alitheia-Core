@@ -70,10 +70,12 @@ install : $(foreach d,$(SUBDIRS),install-$(d))
 
 clean : clean-log $(foreach d,$(SUBDIRS),clean-$(d))
 	rm -rf $(PREFIX)/configuration/org.eclipse.osgi
+	rm -f $(PREFIX)/eu.sqooss.service.*.jar \
+		$(PREFIX)/eu.sqooss.metrics.*.jar
 
 clean-log :
-	rm -f $(PREFIX)/alitheia.log $(PREFIX)/hibernate.log
-	rm -f $(PREFIX)/derby.log
+	rm -f $(PREFIX)/alitheia.log $(PREFIX)/hibernate.log $(PREFIX)/derby.log
+	rm -f $(PREFIX)/logs/*
 
 clean-db :
 	rm -rf $(PREFIX)/derbyDB
