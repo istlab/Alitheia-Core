@@ -102,7 +102,7 @@ public class AdminServlet extends HttpServlet {
         logService = (LogManager) bc.getService(serviceRef);
 
         if (logService != null) {
-            logger = logService.createLogger(Logger.NAME_SQOOSS_WEBADMIN);
+            logger = logService.createLogger(Logger.NAME_SQOOSS_WEBUI);
 
             if (logger != null) {
                 logger.info("WebAdmin got logger.");
