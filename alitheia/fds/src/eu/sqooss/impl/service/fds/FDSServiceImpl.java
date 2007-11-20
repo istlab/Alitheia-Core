@@ -310,6 +310,7 @@ public class FDSServiceImpl implements FDSService {
     }
 
     // Interface methods
+    /** {@inheritDoc} */
     public Checkout getCheckout(long projectId, ProjectRevision r)
         throws InvalidRepositoryException,
                InvalidProjectRevisionException {
@@ -367,6 +368,7 @@ public class FDSServiceImpl implements FDSService {
         }
     }
 
+    /** {@inheritDoc} */
     public void releaseCheckout(Checkout c)
         throws InvalidRepositoryException {
         CheckoutImpl i = findCheckout(c);
@@ -376,6 +378,10 @@ public class FDSServiceImpl implements FDSService {
         }
     }
 
+    /**
+     * Perform a self-test on the FDS by trying various operations
+     * on existing checkouts.
+     */
     public Object selfTest() {
         if (logger == null) {
             return new String("No logger available.");
