@@ -162,8 +162,8 @@ public final class DiskUtil {
             return;
         }
 
-        int total = createTestFiles(STARTING_MAX_SUBDIRS, STARTING_MAX_FILES,
-            maxsubdirs);
+        int total = createTestFiles(toplevel,
+            STARTING_MAX_SUBDIRS, STARTING_MAX_FILES);
         try {
             // This just ensures that there is at least one file
             if (new File(toplevel, "README").createNewFile()) {
