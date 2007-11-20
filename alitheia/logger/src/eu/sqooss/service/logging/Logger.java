@@ -109,7 +109,7 @@ public interface Logger {
     /**
      * Represents web UI logger name.
      */
-    public static final String NAME_SQOOSS_WEBUI        = "sqooss.webui";
+    public static final String NAME_SQOOSS_WEBADMIN     = "sqooss.webadmin";
 
     /**
      * Represents TDS logger name.
