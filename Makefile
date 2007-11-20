@@ -68,6 +68,17 @@ install : $(foreach d,$(SUBDIRS),install-$(d))
 	rm -Rf ${PREFIX}/configuration/org.eclipse.osgi
 	rm -f ${PREFIX}/configuration/*.log
 
+install-deps :
+	for i in `cd ../../tools/javatools/ ; java BundleSelecter $(ABS_PREFIX)/configuration/config.ini` ; do \
+		DST=`find $(ABS_PREFIX) -name $$i` ; \
+		SRC=`find extlibs -name $$i` ; \
+		if test -z "$$DST" ; then \
+			echo "Installing $$i" ; \
+			cp "$$SRC" "$(ABS_PREFIX)" ; \
+		fi ; \
+	done
+	 
+
 clean : clean-log $(foreach d,$(SUBDIRS),clean-$(d))
 	rm -rf $(PREFIX)/configuration/org.eclipse.osgi
 	rm -f $(PREFIX)/eu.sqooss.service.*.jar \
