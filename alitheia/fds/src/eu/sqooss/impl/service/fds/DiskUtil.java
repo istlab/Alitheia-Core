@@ -42,7 +42,11 @@ import eu.sqooss.service.logging.Logger;
  * This class contains common static functionality for manipulating
  * directory trees on-disk.
  */
-public class DiskUtil {
+public final class DiskUtil {
+    /** Constructor. This is a utility class, no constructor wanted. */
+    private DiskUtil() {
+    }
+
     /**
      * Remove all files within a directory d.
      * @param d directory to remove all files from
@@ -81,13 +85,31 @@ public class DiskUtil {
         return false;
     }
 
-    private static int createTestFiles(File r, int mf, int md) {
-        int numberOfFiles = (int) Math.round(Math.floor(Math.random() * (double) mf));
-        int numberOfSubDirs = (int) Math.round(Math.floor(Math.random() * (double) md));
+    /**
+     * Create a bunch of junk files underneath a given directory.
+     * Recurse into any directories created this way (and create
+     * fewer files and directories in the subdirs, so that the
+     * recursion terminates).
+     *
+     * @param r root under which to create junk.
+     * @param mf maximum number of files to create under r.
+     * @param md maximum number of directories to create under r.
+     *
+     * @return number of files + directories created under r.
+     */
+    private static int createTestFiles(final File r,
+        final int mf, final int md) {
+        // Horribly contused way of getting a random integer in
+        // the range 0..mf-1, but alternatives seem to require
+        // creating our own Random object.
+        int numberOfFiles = (int) Math.round(Math.floor(
+            Math.random() * (double) mf));
+        int numberOfSubDirs = (int) Math.round(Math.floor(
+            Math.random() * (double) md));
         int count = 0;
 
-        for (int i=0; i < numberOfFiles; ++i) {
-            File f = new File(r,new Double(Math.random()).toString());
+        for (int i = 0; i < numberOfFiles; ++i) {
+            File f = new File(r, new Double(Math.random()).toString());
             try {
                 if (f.createNewFile()) {
                     ++count;
@@ -97,17 +119,36 @@ public class DiskUtil {
                 count += 0;
             }
         }
-        for (int i=0; i < numberOfSubDirs; ++i) {
-            File f = new File(r,new Double(Math.random()).toString());
+        for (int i = 0; i < numberOfSubDirs; ++i) {
+            File f = new File(r, new Double(Math.random()).toString());
             if (f.mkdir()) {
                 ++count;
-                count += createTestFiles(f, mf/2, md/2);
+                count += createTestFiles(f, mf / 2, md - 1);
             }
         }
         return count;
     }
 
-    public static void selfTest(Logger logger) {
+    /**
+     * For the self test, maximum number of subdirectories under the
+     * top-level directory. Maximum number of subdirectories per
+     * level decreases exponentially.
+     */
+    private static final int STARTING_MAX_SUBDIRS = 8;
+    /**
+     * For the self-test, maximum number of files in any directory.
+     * This should be more than log(STARTING_MAX_SUBDIRS) for the
+     * createTestFiles() code to work properly.
+     */
+    private static final int STARTING_MAX_FILES = 16;
+    /**
+     * Perform a self-test on the diskutils class by creating
+     * a bunch of directories and then deleting them again
+     * with the rm*() methods.
+     *
+     * @param logger the logger to which test results are printed.
+     */
+    public static void selfTest(final Logger logger) {
         logger.info("Self-test for class DiskUtil.");
         logger.info("Creating test directories ...");
 
@@ -115,19 +156,17 @@ public class DiskUtil {
          * maxsubdirs sub-directories at this level. These numbers
          * are halved at each descent, so it terminates.
          */
-        int maxfiles = 16;
-        int maxsubdirs = 8;
-
         final File toplevel = new File("/tmp/DiskUtilsTest");
         if (!toplevel.mkdirs()) {
             logger.warning("Could not create self-test toplevel.");
             return;
         }
 
-        int total = createTestFiles(toplevel, maxfiles, maxsubdirs);
+        int total = createTestFiles(STARTING_MAX_SUBDIRS, STARTING_MAX_FILES,
+            maxsubdirs);
         try {
             // This just ensures that there is at least one file
-            if (new File(toplevel,"README").createNewFile()) {
+            if (new File(toplevel, "README").createNewFile()) {
                 ++total;
             }
         } catch (IOException e) {
