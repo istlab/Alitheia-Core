@@ -1,0 +1,10 @@
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: eu.sqooss.service.logging
+Bundle-Name: Logging Service
+Bundle-Activator: eu.sqooss.impl.service.LoggingActivator
+Bundle-Version: 0.0.1
+Bundle-Vendor: KDE
+Bundle-Category: logging
+Bundle-Description: This bundle wraps the log4j as a SQO-OSS Logging Service
+Import-Package: org.osgi.framework, org.apache.log4j, org.apache.log4j.helpers, org.apache.log4j.spi
+Export-Package: eu.sqooss.service.logging
