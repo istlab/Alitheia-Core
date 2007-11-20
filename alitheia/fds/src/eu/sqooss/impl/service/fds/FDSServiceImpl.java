@@ -144,8 +144,10 @@ public class FDSServiceImpl implements FDSService {
      * Constructor. Get the services the FDS needs, retrieve settings,
      * initialize data structures and clean up the checkout directory
      * in preparation for writing new stuff under the FDS root.
+     *
+     * @param bc bundlecontext for configuration parameters.
      */
-    public FDSServiceImpl(BundleContext bc) {
+    public FDSServiceImpl(final BundleContext bc) {
         bundleContext = bc;
         ServiceReference serviceRef =
             bc.getServiceReference(LogManager.class.getName());
@@ -167,7 +169,7 @@ public class FDSServiceImpl implements FDSService {
 
         // Get the checkout root from the properties file.
         String s = bc.getProperty("eu.sqooss.fds.root");
-        if (s==null) {
+        if (s == null) {
             logger.info("No eu.sqooss.fds.root set, using default /var/tmp");
             s = "/var/tmp";
         } else {
@@ -182,7 +184,7 @@ public class FDSServiceImpl implements FDSService {
     /**
      * Stop method. Called by the activator on exit, just does cleanup.
      */
-    public void stop() {
+    public final void stop() {
         cleanupCheckoutRoot();
     }
 
@@ -198,12 +200,12 @@ public class FDSServiceImpl implements FDSService {
      *          has not been normalized to have a SVN revision (instead of
      *          just a date or some other revision kind).
      */
-    private CheckoutImpl findCheckout(List < CheckoutImpl > l,
-        ProjectRevision r) {
+    private CheckoutImpl findCheckout(final List < CheckoutImpl > l,
+        final ProjectRevision r) {
         if (!r.hasSVNRevision()) {
             return null;
         }
-        for (Iterator<CheckoutImpl> i = l.iterator(); i.hasNext(); ) {
+        for (Iterator < CheckoutImpl > i = l.iterator(); i.hasNext(); ) {
             CheckoutImpl c = i.next();
             if (c.getRevision().getSVNRevision() == r.getSVNRevision()) {
                 return c;
@@ -277,7 +279,8 @@ public class FDSServiceImpl implements FDSService {
                 Encoding.intToBytes((int)r.getSVNRevision())));
         // It shouldn't exist yet either
         if (checkoutRoot.exists()) {
-            logger.warning("Checkout root <" + checkoutRoot + "> already exists.");
+            logger.warning("Checkout root <" + checkoutRoot
+                + "> already exists.");
             if (checkoutRoot.isDirectory()) {
                 logger.info("Recycling the checkout root.");
             } else {
@@ -298,7 +301,8 @@ public class FDSServiceImpl implements FDSService {
         try {
             svn.checkOut( "", r, checkoutRoot.toString() );
         } catch (FileNotFoundException e) {
-            logger.warning("Root of project " + svn.getName() + " does not exist: " + e.getMessage());
+            logger.warning("Root of project " + svn.getName()
+                + " does not exist: " + e.getMessage());
             return null;
         }
 
@@ -325,7 +329,7 @@ public class FDSServiceImpl implements FDSService {
 
         TDAccessor a = tds.getAccessor(projectId);
         if (a == null) {
-            logger.warning("Accessor not available even though accessorExists()");
+            logger.warning("Accessor not available even though it exists.");
             throw new InvalidRepositoryException(String.valueOf(projectId),
                 "", "No accessor available.");
         }
@@ -339,7 +343,8 @@ public class FDSServiceImpl implements FDSService {
 
         svn.resolveProjectRevision(r);
 
-        logger.info("Finding available checkout for " + svn.getName() + " " + r);
+        logger.info("Finding available checkout for "
+            + svn.getName() + " " + r);
         List<CheckoutImpl> l = checkoutCollection.get(projectId);
         if (l!=null) {
             synchronized(l) {
@@ -401,7 +406,7 @@ public class FDSServiceImpl implements FDSService {
         // This is supposed to throw an exception
         boolean thrown = false;
         try {
-            logger.info("Intentionally triggering InvalidRepository exception.");
+            logger.info("Intentionally throwing InvalidRepository.");
             Checkout c = getCheckout(-1, new ProjectRevision(1));
         } catch (InvalidRepositoryException e) {
             logger.info("Exception triggered as expected.");
@@ -453,7 +458,7 @@ public class FDSServiceImpl implements FDSService {
             e.printStackTrace();
         }
         if (thrown) {
-            return new String("Exception thrown retrieving checkout r.1 of project 1");
+            return new String("Unexpected exception thrown for p.1 r.1");
         }
 
         return null;

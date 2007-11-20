@@ -39,17 +39,30 @@ import org.osgi.framework.ServiceRegistration;
 import eu.sqooss.service.fds.FDSService;
 import eu.sqooss.impl.service.fds.FDSServiceImpl;
 
+
+/**
+ * Activator for the Fat Data Service (FDS).
+ */
 public class FDSActivator implements BundleActivator {
+    /** Remember registration so we can unregister later. */
     private ServiceRegistration registration;
+    /** This is our actual service. */
     private FDSServiceImpl fds;
 
-    public void start(BundleContext bc) throws Exception {
+    /** Start the bundle. @param bc the bundle context. */
+    public void start(BundleContext bc) {
         fds = new FDSServiceImpl(bc);
         registration = bc.registerService(FDSService.class.getName(),
             fds, null);
     }
 
-    public void stop(BundleContext bc) throws Exception {
+    /**
+     * Stop the bundle. Call stop on the service because it
+     * has some cleanup to do.
+     *
+     * @param bc the bundle context.
+     */
+    public void stop(BundleContext bc) {
         fds.stop();
         registration.unregister();
     }
