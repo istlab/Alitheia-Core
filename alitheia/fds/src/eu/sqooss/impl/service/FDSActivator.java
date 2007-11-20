@@ -41,13 +41,16 @@ import eu.sqooss.impl.service.fds.FDSServiceImpl;
 
 public class FDSActivator implements BundleActivator {
     private ServiceRegistration registration;
+    private FDSServiceImpl fds;
 
     public void start(BundleContext bc) throws Exception {
+        fds = new FDSServiceImpl(bc);
         registration = bc.registerService(FDSService.class.getName(),
-                                          new FDSServiceImpl(bc), null);
+            fds, null);
     }
 
     public void stop(BundleContext bc) throws Exception {
+        fds.stop();
         registration.unregister();
     }
 }

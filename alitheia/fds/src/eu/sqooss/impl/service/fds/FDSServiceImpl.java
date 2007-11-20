@@ -69,6 +69,30 @@ public class FDSServiceImpl implements FDSService {
      */
     private HashMap<Long,List<CheckoutImpl>> checkoutCollection;
 
+    private static final int INT_AS_DECIMAL_LENGTH = 8;
+    private static final int RANDOM_PREFIX_LENGTH = 8;
+    private static final int INT_AS_HEX_LENGTH = 8;
+
+    private void cleanupCheckoutRoot() {
+        logger.info("Cleaning up " + fdsCheckoutRoot);
+        File[] projects = fdsCheckoutRoot.listFiles();
+        String projectRE = "^[0-9]{" + INT_AS_DECIMAL_LENGTH + "}-.*";
+        String checkoutRE = "^[0-9a-f]{" + RANDOM_PREFIX_LENGTH
+            + "}.[0-9a-f]{" + INT_AS_HEX_LENGTH + "}$";
+        for (File f : projects) {
+            String s = f.getName();
+            if (s.matches(projectRE)) {
+                File[] checkouts = f.listFiles();
+                for (File c : checkouts) {
+                    if (c.getName().matches(checkoutRE)) {
+                        logger.info("Delete " + c);
+                        DiskUtil.rmRf(c);
+                    }
+                }
+            }
+        }
+    }
+
     public FDSServiceImpl(BundleContext bc) {
         bundleContext = bc;
         ServiceReference serviceRef = bc.getServiceReference(LogManager.class.getName());
@@ -94,8 +118,13 @@ public class FDSServiceImpl implements FDSService {
             logger.info("FDS root directory " + s);
         }
         fdsCheckoutRoot = new File(s);
-
         randomCheckout = new Random();
+
+        cleanupCheckoutRoot();
+    }
+
+    public void stop() {
+        cleanupCheckoutRoot();
     }
 
     /**
@@ -141,7 +170,9 @@ public class FDSServiceImpl implements FDSService {
                InvalidProjectRevisionException {
         logger.info("Creating new checkout for " + projectName + " " + r);
 
-        File projectRoot = new File(fdsCheckoutRoot,String.format("%08d",projectId) + "-" + projectName);
+        File projectRoot = new File(fdsCheckoutRoot,
+            String.format("%0" + INT_AS_DECIMAL_LENGTH + "d",projectId)
+                + "-" + projectName);
         // It shouldn't exist yet
         projectRoot.mkdir();
 
@@ -153,8 +184,8 @@ public class FDSServiceImpl implements FDSService {
         // encode the revision number as well; this means that we can
         // update and futz with the revisions within each checkout directory.
         File checkoutRoot = new File(projectRoot,
-            Encoding.getRandomCheckoutName(8,randomCheckout) + "." +
-            Encoding.bytesToHexString(
+            Encoding.getRandomCheckoutName(RANDOM_PREFIX_LENGTH,randomCheckout)
+            + "." + Encoding.bytesToHexString(
                 Encoding.intToBytes((int)r.getSVNRevision())));
         // It shouldn't exist yet either
         if (checkoutRoot.exists()) {
