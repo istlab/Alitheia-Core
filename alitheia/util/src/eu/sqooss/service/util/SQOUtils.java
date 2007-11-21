@@ -32,7 +32,7 @@
  *
  */
 
-package eu.sqooss.util;
+package eu.sqooss.service.util;
 
 public class SQOUtils {
     /**

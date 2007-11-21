@@ -1,0 +1,9 @@
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: eu.sqooss.service.util
+Bundle-Name: Utility Library
+Bundle-Version: 0.0.1
+Bundle-Vendor: KDE
+Bundle-Category: data
+Bundle-Description: This bundle provides utility classes
+Export-Package: eu.sqooss.service.util
+

@@ -43,7 +43,7 @@ import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.TDSService;
-import eu.sqooss.util.SQOUtils;
+import eu.sqooss.service.util.SQOUtils;
 
 import java.lang.management.RuntimeMXBean;
 import java.lang.management.ManagementFactory;

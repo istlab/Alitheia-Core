@@ -19,6 +19,7 @@ BUNDLES=db \
 	tds \
 	tester \
 	updater \
+	util \
 	webadmin
 
 #
