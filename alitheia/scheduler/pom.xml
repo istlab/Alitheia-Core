@@ -86,7 +86,7 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>eu.sqooss.service.util</groupId>
+      <groupId>eu.sqooss</groupId>
       <artifactId>util</artifactId>
       <version>[0.0.1,)</version>
       <type>jar</type>
