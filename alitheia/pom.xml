@@ -232,6 +232,7 @@
     <module>messaging</module>
     <module>scheduler</module>
     <module>tds</module>
+    <module>fds</module>
     <module>updater</module>
     <module>webadmin</module>
   </modules>
