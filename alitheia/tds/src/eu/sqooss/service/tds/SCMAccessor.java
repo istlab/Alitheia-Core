@@ -90,6 +90,11 @@ public interface SCMAccessor extends NamedAccessor {
                InvalidRepositoryException,
                FileNotFoundException;
 
+    void update(String repoPath, ProjectRevision src, ProjectRevision dst,
+        String localPath)
+        throws InvalidProjectRevisionException,
+               InvalidRepositoryException,
+               FileNotFoundException;
     /**
      * Retrieve a single file from the source repository, relative
      * to the root URL of the project to which this accessor is

@@ -65,23 +65,28 @@ class CheckoutImpl implements Checkout {
     }
 
     // Interface methods
+    /** {@inheritDoc} */
     public File getRoot() {
         return root;
     }
 
+    /** {@inheritDoc} */
     public ProjectRevision getRevision() {
         return revision;
     }
 
+    /** {@inheritDoc} */
     public int getReferenceCount() {
         return claims;
     }
 
     // Interface eu.sqooss.service.tds.NamedAccessor
+    /** {@inheritDoc} */
     public String getName() {
         return projectName;
     }
 
+    /** {@inheritDoc} */
     public long getId() {
         return projectId;
     }

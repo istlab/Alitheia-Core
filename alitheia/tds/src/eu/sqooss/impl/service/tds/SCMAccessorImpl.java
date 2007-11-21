@@ -135,7 +135,7 @@ public class SCMAccessorImpl extends NamedAccessorImpl implements SCMAccessor {
         }
     }
 
-    public boolean isRevisionValid( ProjectRevision r ) 
+    public boolean isRevisionValid( ProjectRevision r )
         throws InvalidRepositoryException {
         if ( (r==null) || (!r.isValid()) ) {
             return false;
@@ -217,6 +217,14 @@ public class SCMAccessorImpl extends NamedAccessorImpl implements SCMAccessor {
         } catch (SVNException e) {
             throw new InvalidRepositoryException(getName(),url,e.getMessage());
         }
+    }
+
+    public void update(String repoPath, ProjectRevision src, ProjectRevision dst,
+        String localPath)
+        throws InvalidProjectRevisionException,
+               InvalidRepositoryException,
+               FileNotFoundException {
+        throw new InvalidRepositoryException(getName(), url, "Not Implemented");
     }
 
     public void checkOutFile( String repoPath,
