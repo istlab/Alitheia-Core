@@ -32,13 +32,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-package eu.sqooss.service.scheduler;
+package eu.sqooss.service.util;
 
 import java.lang.Comparable;
 
 /**
  * This class is a container for an object pair.
- * TODO: Move me to sqoutils
  *
  * @author Christoph Schleifenbaum
  */

@@ -41,6 +41,8 @@ import java.util.LinkedList;
 import java.lang.Comparable; 
 import java.lang.InterruptedException;
 
+import eu.sqooss.service.util.Pair;
+
 import eu.sqooss.service.scheduler.SchedulerException;
 
 /**
