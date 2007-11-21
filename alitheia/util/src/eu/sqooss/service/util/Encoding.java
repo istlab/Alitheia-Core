@@ -31,8 +31,7 @@
  *
  */
 
-// Need a package name
-package eu.sqooss.impl.service.fds;
+package eu.sqooss.service.util;
 
 import java.util.Random;
 

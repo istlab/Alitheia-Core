@@ -54,6 +54,7 @@ import eu.sqooss.service.tds.ProjectRevision;
 import eu.sqooss.service.tds.SCMAccessor;
 import eu.sqooss.service.tds.TDAccessor;
 import eu.sqooss.service.tds.TDSService;
+import eu.sqooss.service.util.Encoding;
 
 /** {@inheritDoc} */
 public class FDSServiceImpl implements FDSService {
