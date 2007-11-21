@@ -8,19 +8,17 @@
     <version>1.0.0</version>
   </parent>
 
-  <!-- FDS Service - main POM -->
+  <!-- Messaging Service - main POM -->
   <groupId>eu.sqooss</groupId>
-  <artifactId>fds</artifactId>
+  <artifactId>security</artifactId>
   <version>0.0.1</version>
   <packaging>jar</packaging>
 
   <!-- Project description -->
-  <name>FDS Service</name>
+  <name>Security Service</name>
   <description>
-    The fat data store (FDS) is responsible for high-level
-    data access to project data. This is an intelligent component,
-    responsible for caching and resource management in controlling
-    access to project data.
+    This bundle provided the Security service for Alitheia.
+    (... more description to come later on)
   </description>
 
   <!-- Build properties -->
@@ -36,7 +34,7 @@
         <configuration>
           <archive>
             <manifestFile>
-              ${basedir}/manifest/manifest.mf
+              ${basedir}/manifest/security.mf
             </manifestFile>
           </archive>
         </configuration> 
@@ -54,51 +52,29 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.eclipse.osgi</groupId>
-      <artifactId>services</artifactId>
-      <version>3.1.100.v20060918</version>
-      <type>jar</type>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
       <groupId>eu.sqooss</groupId>
       <artifactId>logger</artifactId>
       <version>[0.0.1,)</version>
       <type>jar</type>
       <scope>provided</scope>
     </dependency>
-    <dependency>
-      <groupId>eu.sqooss</groupId>
-      <artifactId>tds</artifactId>
-      <version>[0.0.1,)</version>
-      <type>jar</type>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>eu.sqooss</groupId>
-      <artifactId>util</artifactId>
-      <version>[0.0.1,)</version>
-      <type>jar</type>
-      <scope>provided</scope>
-    </dependency>
   </dependencies>
-  
+
   <!-- Developers working on this module -->
   <developers>
     <developer>
-      <id>adriaan</id>
-      <name>Adriaan de Groot</name>
-      <email>groot@kde.org</email>
-      <organization>KDE</organization>
-      <timezone>+1</timezone>
+      <id>tcholakov</id>
+      <name>Todor Cholakov</name>
+      <email>t.cholakov@prosyst.com</email>
+      <organization>ProSyst Software GmbH</organization>
+      <timezone>+2</timezone>
     </developer>
     <developer>
-      <id>sebas</id>
-      <name>Sebastian Kuegler</name>
-      <email>sebas@kde.org</email>
-      <organization>KDE</organization>
-      <timezone>+1</timezone>
+      <id>e_grigorov</id>
+      <name>Evgeni Grigorov</name>
+      <email>e.grigorov@prosyst.com</email>
+      <organization>ProSyst Software GmbH</organization>
+      <timezone>+2</timezone>
     </developer>
   </developers>
 </project>
-

@@ -102,6 +102,13 @@
       <type>jar</type>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>eu.sqooss</groupId>
+      <artifactId>util</artifactId>
+      <version>[0.0.1,)</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
 
   <!-- Developers working on this module -->

@@ -228,12 +228,15 @@
     <module>service_two</module>
     -->
     <module>db</module>
+    <module>fds</module>
     <module>logger</module>
     <module>messaging</module>
     <module>scheduler</module>
+    <module>security</module>
     <module>tds</module>
-    <module>fds</module>
+    <module>tester</module>
     <module>updater</module>
+    <module>util</module>
     <module>webadmin</module>
   </modules>
 
