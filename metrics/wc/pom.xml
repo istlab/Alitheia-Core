@@ -15,9 +15,10 @@
   <packaging>jar</packaging>
 
   <!-- Project description -->
-  <name>Wc metric</name>
+  <name>Word Count Metric</name>
   <description>
-  	A metric that calculates file lines	
+  	A metric that evaluates developer productivity	
+        through volumetrics of their loquacious verbosity.
   </description>
 
   <!-- Build properties -->
@@ -33,7 +34,7 @@
         <configuration>
           <archive>
             <manifestFile>
-              ${basedir}/manifest/productivitymetric.mf
+              ${basedir}/manifest/manifest.mf
             </manifestFile>
           </archive>
         </configuration> 
@@ -72,8 +73,8 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>eu.sqooss</groupId>
-      <artifactId>fds</artifactId>
+      <groupId>eu.sqooss.metrics</groupId>
+      <artifactId>abstract</artifactId>
       <version>[0.0.1,)</version>
       <type>jar</type>
       <scope>provided</scope>
@@ -83,9 +84,9 @@
   <!-- Developers working on this module -->
   <developers>
     <developer>
-      <id>mgogoulos</id>
-      <name>Markos Gogoulos</name>
-      <email>mgogoulos@gmail.com</email>
+      <id>gousiosg</id>
+      <name>Georgios Gousios</name>
+      <email>gousiosg@aueb.gr</email>
       <organization>AUEB</organization>
       <timezone>+2</timezone>
     </developer>

@@ -218,6 +218,7 @@
     <module>metric_two</module>
     -->
     <module>abstract-metric</module>
+    <module>wc</module>
   </modules>
 
   <!-- =======[ List of developers working on this project        ]======= -->
