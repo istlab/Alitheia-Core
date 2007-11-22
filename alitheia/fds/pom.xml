@@ -61,6 +61,13 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>codec</artifactId>
+      <version>1.3.0</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>eu.sqooss</groupId>
       <artifactId>logger</artifactId>
       <version>[0.0.2,)</version>
