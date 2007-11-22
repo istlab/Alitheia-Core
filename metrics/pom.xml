@@ -17,10 +17,9 @@
 
   <!-- =======[ Project license                                   ]======= -->
   <licenses>
-    <!-- We need the SQO-OSS project definition put here instead -->
     <license>
-      <name>The Apache Software License, Version 2.0</name>
-      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <name>2-Clause BSD License</name>
+      <url>http://www.gnu.org/licenses/info/BSD_2Clause.html</url>
       <distribution>repo</distribution>
     </license>
   </licenses>
@@ -219,7 +218,6 @@
     <module>metric_two</module>
     -->
     <module>abstract-metric</module>
-    <module>productivity-metric</module>
   </modules>
 
   <!-- =======[ List of developers working on this project        ]======= -->

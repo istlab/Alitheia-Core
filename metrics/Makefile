@@ -10,8 +10,7 @@
 
 # Subdirectories to build bundles in. Ignored in a Maven build (which takes
 # the same information from pom.xml).
-BUNDLES= productivity-metric \
-	abstract-metric \
+BUNDLES=abstract-metric \
 	wc
 
 

@@ -8,16 +8,16 @@
     <version>1.0.0</version>
   </parent>
 
-  <!-- Productivity Metric - main POM -->
+  <!-- Abstract Metric - main POM -->
   <groupId>eu.sqooss.metrics</groupId>
-  <artifactId>abstracmetric</artifactId>
+  <artifactId>abstract</artifactId>
   <version>0.0.1</version>
   <packaging>jar</packaging>
 
   <!-- Project description -->
-  <name>Productivity Metric</name>
+  <name>Abstract Metric Base</name>
   <description>
-  	Metric interfaces and results encapsulation	
+  	Metric interfaces and results encapsulation and sheep
   </description>
 
   <!-- Build properties -->
@@ -33,7 +33,7 @@
         <configuration>
           <archive>
             <manifestFile>
-              ${basedir}/manifest/productivitymetric.mf
+              ${basedir}/manifest/manifest.mf
             </manifestFile>
           </archive>
         </configuration> 
@@ -60,6 +60,13 @@
     <dependency>
       <groupId>eu.sqooss</groupId>
       <artifactId>tds</artifactId>
+      <version>[0.0.1,)</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>eu.sqooss</groupId>
+      <artifactId>dbs</artifactId>
       <version>[0.0.1,)</version>
       <type>jar</type>
       <scope>provided</scope>
