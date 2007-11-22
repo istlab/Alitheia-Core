@@ -68,8 +68,11 @@ install : $(foreach d,$(SUBDIRS),install-$(d))
 	rm -Rf ${PREFIX}/configuration/org.eclipse.osgi
 	rm -f ${PREFIX}/configuration/*.log
 
+TOOL_DIR=../../tools/javatools
 install-deps :
-	for i in `cd ../../tools/javatools/ ; java BundleSelecter $(ABS_PREFIX)/configuration/config.ini` ; do \
+	test -f $(TOOL_DIR)/BundleSelecter.class || \
+		( cd $(TOOL_DIR) && $(MAKE) BundleSelecter.class )
+	for i in `cd $(TOOL_DIR) ; java BundleSelecter $(ABS_PREFIX)/configuration/config.ini` ; do \
 		DST=`find $(ABS_PREFIX) -name $$i` ; \
 		SRC=`find extlibs -name $$i` ; \
 		if test -z "$$DST" ; then \
