@@ -44,6 +44,8 @@ import java.util.Random;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
+import org.apache.commons.codec.binary.Hex;
+
 import eu.sqooss.service.fds.Checkout;
 import eu.sqooss.service.fds.FDSService;
 import eu.sqooss.service.logging.LogManager;
