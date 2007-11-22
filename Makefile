@@ -68,7 +68,7 @@ install : $(foreach d,$(SUBDIRS),install-$(d))
 	rm -Rf ${PREFIX}/configuration/org.eclipse.osgi
 	rm -f ${PREFIX}/configuration/*.log
 
-TOOL_DIR=../../tools/javatools
+TOOL_DIR=tools
 install-deps :
 	test -f $(TOOL_DIR)/BundleSelecter.class || \
 		( cd $(TOOL_DIR) && $(MAKE) BundleSelecter.class )

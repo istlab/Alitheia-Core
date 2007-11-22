@@ -13,6 +13,10 @@ metrics/
     Contain the source code of the various metric plug-ins developed for the
     Alitheia system.
 
+tools/
+    Contains build tools which were developed as part of the system.
+    Shouldn't have to be packaged with the rest of the system.
+
 ui/
     Contains the source code and build definition (will probably be Maven too)
     for the public-facing website (user interface), the CLI (admin interface)
