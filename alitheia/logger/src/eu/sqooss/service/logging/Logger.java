@@ -124,7 +124,7 @@ public interface Logger {
     /**
      * Represents Metric logger name.
      */
-    public static final String NAME_SQOOSS_METRIC         = "sqooss.metric";
+    public static final String NAME_SQOOSS_METRIC       = "sqooss.metric";
 
     /**
     * Log a message with debug (lower than lowest) logging level.
@@ -188,4 +188,4 @@ public interface Logger {
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab
-  
+

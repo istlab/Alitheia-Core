@@ -62,21 +62,21 @@ public class LoggerImpl implements Logger {
 
     public void config(String message) {
         synchronized (lockObject) {
-            org.apache.log4j.Logger.getRootLogger().warn("Deprecated log method config() called.");
+            // org.apache.log4j.Logger.getRootLogger().warn("Deprecated log method config() called.");
             theLogger.info(message);
         }
     }
 
     public void warning(String message) {
         synchronized (lockObject) {
-            org.apache.log4j.Logger.getRootLogger().warn("Deprecated log method warning() called.");
+            // org.apache.log4j.Logger.getRootLogger().warn("Deprecated log method warning() called.");
             theLogger.warn(message);
         }
     }
 
     public void severe(String message) {
         synchronized (lockObject) {
-            org.apache.log4j.Logger.getRootLogger().warn("Deprecated log method severe() called.");
+            // org.apache.log4j.Logger.getRootLogger().warn("Deprecated log method severe() called.");
             theLogger.error(message);
         }
     }
