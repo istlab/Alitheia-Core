@@ -17,12 +17,12 @@ public class MessageHistory {
     private Object lockObject = new Object();
 
     private Timer timer;
-    private Hashtable messageHistory;
+    private Hashtable < Long, MessageImpl > messageHistory;
     private long preservingTime;
 
     public MessageHistory(long preservingTime) {
         this.preservingTime = preservingTime;
-        messageHistory = new Hashtable();
+        messageHistory = new Hashtable < Long, MessageImpl >();
         timer = new Timer(MESSAGE_HISTORY_TIMER_NAME);
         timer.start();
     }

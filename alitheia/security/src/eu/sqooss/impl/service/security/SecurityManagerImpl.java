@@ -21,7 +21,7 @@ public class SecurityManagerImpl implements SecurityManager {
      * @see eu.sqooss.service.security.SecurityManager#checkPermission(java.lang.String, java.lang.String, java.lang.String)
      */
     public boolean checkPermission(String fullUrl, String userName, String password) {
-        Hashtable privileges = new Hashtable();
+        Hashtable < String, String > privileges = new Hashtable < String, String >();
         String resourceUrl = ParserUtility.mangleUrlWithPrivileges(fullUrl, privileges);
         return checkPermission(resourceUrl, privileges, userName, password);
     }
