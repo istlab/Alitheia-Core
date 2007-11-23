@@ -63,6 +63,7 @@ public class LogManagerConstants {
         Logger.NAME_SQOOSS_FDS,
         Logger.NAME_SQOOSS_MESSAGING,
         Logger.NAME_SQOOSS_METRIC,
+        Logger.NAME_SQOOSS_SCHEDULING,
         Logger.NAME_SQOOSS_SECURITY,
         Logger.NAME_SQOOSS_SERVICE,
         Logger.NAME_SQOOSS_TDS,
