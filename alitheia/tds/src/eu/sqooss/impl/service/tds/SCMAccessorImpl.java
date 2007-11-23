@@ -219,8 +219,8 @@ public class SCMAccessorImpl extends NamedAccessorImpl implements SCMAccessor {
         }
     }
 
-    public void update(String repoPath, ProjectRevision src, ProjectRevision dst,
-        String localPath)
+    public void updateCheckout(String repoPath, ProjectRevision src,
+        ProjectRevision dst, File localPath)
         throws InvalidProjectRevisionException,
                InvalidRepositoryException,
                FileNotFoundException {

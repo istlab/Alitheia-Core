@@ -33,6 +33,7 @@
 
 package eu.sqooss.service.tds;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 
 import eu.sqooss.service.tds.CommitLog;
@@ -90,8 +91,8 @@ public interface SCMAccessor extends NamedAccessor {
                InvalidRepositoryException,
                FileNotFoundException;
 
-    void update(String repoPath, ProjectRevision src, ProjectRevision dst,
-        String localPath)
+    void updateCheckout(String repoPath, ProjectRevision src,
+        ProjectRevision dst, File localPath)
         throws InvalidProjectRevisionException,
                InvalidRepositoryException,
                FileNotFoundException;
