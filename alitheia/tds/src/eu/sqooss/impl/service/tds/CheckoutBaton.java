@@ -52,19 +52,31 @@ import eu.sqooss.service.logging.Logger;
  * Based on the SVNKit examples.
  */
 public class CheckoutBaton implements ISVNReporterBaton {
+    private long sourceRevision;
     private long targetRevision;
     private File localPath;
     public static Logger logger;
 
     public CheckoutBaton(long revision, File path) {
+        sourceRevision = 0;
         targetRevision = revision;
+        localPath = path;
+    }
+
+    public CheckoutBaton(long src, long dst, File path) {
+        sourceRevision = src;
+        targetRevision = dst;
         localPath = path;
     }
 
     public void report(ISVNReporter reporter)
         throws SVNException {
         try {
-            reporter.setPath("", null, targetRevision, true);
+            if (sourceRevision == 0) {
+                reporter.setPath("", null, targetRevision, true);
+            } else {
+                reporter.setPath("", null, sourceRevision, false);
+            }
             reporter.finishReport();
         } catch (SVNException e) {
             reporter.abortReport();

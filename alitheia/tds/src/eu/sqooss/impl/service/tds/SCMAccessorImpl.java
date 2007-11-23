@@ -182,7 +182,7 @@ public class SCMAccessorImpl extends NamedAccessorImpl implements SCMAccessor {
         CheckoutBaton.logger = logger;
 
         logger.info("Checking out project " + getName() + " path <" +
-            repoPath + "> in " + revision + " to <" +
+            repoPath + "> in " + revision + " in <" +
             localPath + ">");
 
         long revno = resolveProjectRevision(revision);
@@ -224,7 +224,51 @@ public class SCMAccessorImpl extends NamedAccessorImpl implements SCMAccessor {
         throws InvalidProjectRevisionException,
                InvalidRepositoryException,
                FileNotFoundException {
-        throw new InvalidRepositoryException(getName(), url, "Not Implemented");
+        if (svnRepository == null) {
+            connectToRepository();
+        }
+        CheckoutEditor.logger = logger;
+        CheckoutBaton.logger = logger;
+
+        logger.info("Updating project " + getName() + " path <" +
+            repoPath + "> from " + src + " to " + dst + " in <" +
+            localPath + ">");
+
+        resolveProjectRevision(src);
+        long revno = resolveProjectRevision(dst);
+        SVNNodeKind nodeKind;
+        try {
+            nodeKind = svnRepository.checkPath(repoPath, revno);
+        } catch (SVNException e) {
+            throw new FileNotFoundException(repoPath);
+        }
+
+        // Handle the various kinds of nodes that repoPath may refer to
+        if ( (SVNNodeKind.NONE == nodeKind) ||
+                (SVNNodeKind.UNKNOWN == nodeKind) ) {
+            logger.info("Requested path " + repoPath + " does not exist.");
+            throw new FileNotFoundException(repoPath);
+        }
+        if (SVNNodeKind.FILE == nodeKind) {
+            getFile(repoPath, dst, new File(localPath, repoPath));
+            return;
+        }
+        // It must be a directory now.
+        if (SVNNodeKind.DIR != nodeKind) {
+            logger.warning("Node " + repoPath + " has weird type.");
+            throw new FileNotFoundException(repoPath);
+        }
+
+        ISVNReporterBaton baton = new CheckoutBaton(src.getSVNRevision(),
+            dst.getSVNRevision(),localPath);
+        ISVNEditor editor = new CheckoutEditor(dst.getSVNRevision(),localPath);
+
+        try {
+            svnRepository.update(revno,repoPath,true,baton,editor);
+        } catch (SVNException e) {
+            e.printStackTrace();
+            throw new InvalidRepositoryException(getName(),url,e.getMessage());
+        }
     }
 
     public void getFile(String repoPath,

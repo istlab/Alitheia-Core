@@ -471,6 +471,7 @@ public class FDSServiceImpl implements FDSService {
             projectCheckout = getCheckout(1, new ProjectRevision(1));
         } catch (InvalidRepositoryException e) {
             logger.warning("(Still) no project with ID 1.");
+            e.printStackTrace();
             thrown = true;
         } catch (InvalidProjectRevisionException e) {
             logger.warning("Project ID 1 has no revision 1");
