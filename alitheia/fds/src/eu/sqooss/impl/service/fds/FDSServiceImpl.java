@@ -304,7 +304,7 @@ public class FDSServiceImpl implements FDSService {
 
         logger.info("Created checkout root <" + checkoutRoot + ">");
         try {
-            svn.checkOut( "", r, checkoutRoot.toString() );
+            svn.getCheckout("", r, checkoutRoot);
         } catch (FileNotFoundException e) {
             logger.warning("Root of project " + svn.getName()
                 + " does not exist: " + e.getMessage());
