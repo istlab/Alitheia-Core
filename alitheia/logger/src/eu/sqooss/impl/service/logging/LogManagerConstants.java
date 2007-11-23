@@ -72,6 +72,7 @@ public class LogManagerConstants {
             name.equals(Logger.NAME_SQOOSS_WEBADMIN) ||
             name.equals(Logger.NAME_SQOOSS_TDS) ||
             name.equals(Logger.NAME_SQOOSS_FDS) ||
+            name.equals(Logger.NAME_SQOOSS_METRIC) ||
 	    false; // No-op, but allows us to insert items above more easily
     }
 

@@ -87,6 +87,7 @@ public class LogManagerImpl implements LogManager {
                 Logger.NAME_SQOOSS_WEBADMIN,
                 Logger.NAME_SQOOSS_TDS,
                 Logger.NAME_SQOOSS_FDS,
+                Logger.NAME_SQOOSS_METRIC,
                 null
         } ;
         for (String s : loggerNames) {
