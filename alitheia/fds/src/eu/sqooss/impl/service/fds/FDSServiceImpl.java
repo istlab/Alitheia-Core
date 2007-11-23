@@ -318,9 +318,25 @@ public class FDSServiceImpl implements FDSService {
         return c;
     }
 
+    private void updateCheckout(CheckoutImpl c, ProjectRevision r)
+        throws InvalidProjectRevisionException,
+               InvalidRepositoryException {
+        logger.info("Updating project " + c.getId() + " from "
+            + c.getRevision() + " to " + r);
+        TDAccessor a = tds.getAccessor(c.getId());
+        SCMAccessor svn = a.getSCMAccessor();
+        svn.resolveProjectRevision(r);
+        try {
+            svn.updateCheckout("", c.getRevision(), r, c.getRoot());
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        c.setRevision(r);
+    }
+
     // Interface methods
     /** {@inheritDoc} */
-    public Checkout getCheckout(long projectId, ProjectRevision r)
+    public CheckoutImpl getCheckout(long projectId, ProjectRevision r)
         throws InvalidRepositoryException,
                InvalidProjectRevisionException {
         if (!tds.projectExists(projectId)) {
@@ -449,9 +465,10 @@ public class FDSServiceImpl implements FDSService {
 
         // This time it should not fail
         thrown = false;
+        CheckoutImpl projectCheckout = null;
         try {
             logger.info("Getting something sensible out of FDS");
-            Checkout c = getCheckout(1, new ProjectRevision(1));
+            projectCheckout = getCheckout(1, new ProjectRevision(1));
         } catch (InvalidRepositoryException e) {
             logger.warning("(Still) no project with ID 1.");
             thrown = true;
@@ -464,6 +481,16 @@ public class FDSServiceImpl implements FDSService {
         }
         if (thrown) {
             return new String("Unexpected exception thrown for p.1 r.1");
+        }
+
+        if (projectCheckout != null) {
+            try {
+                updateCheckout(projectCheckout, new ProjectRevision(4));
+            } catch (InvalidRepositoryException e) {
+                logger.warning("Project ID 1 has vanished again.");
+            } catch (InvalidProjectRevisionException e) {
+                logger.warning("Project ID 1 has no revision 4");
+            }
         }
 
         return null;

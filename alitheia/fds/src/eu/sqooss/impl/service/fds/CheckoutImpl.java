@@ -64,6 +64,10 @@ class CheckoutImpl implements Checkout {
         this.revision = r;
     }
 
+    public void setRevision(ProjectRevision r) {
+        this.revision = r;
+    }
+
     // Interface methods
     /** {@inheritDoc} */
     public File getRoot() {
