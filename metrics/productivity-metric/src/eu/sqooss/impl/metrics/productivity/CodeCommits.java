@@ -36,7 +36,6 @@ package eu.sqooss.impl.metrics.productivity;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import org.tmatesoft.svn.core.SVNLogEntry;
 import eu.sqooss.service.tds.CommitLog;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
 import eu.sqooss.service.tds.InvalidRepositoryException;
@@ -55,7 +54,7 @@ public class CodeCommits extends ProductivityBase implements Runnable {
     
     public void run() {
         System.out.println("Calculating Code Commits per developer...");
-        SVNLogEntry entry = null;
+      //  SVNLogEntry entry = null;
 
         CommitLog log = null;
         
@@ -67,7 +66,7 @@ public class CodeCommits extends ProductivityBase implements Runnable {
         }
         
         System.out.println("Got " + log + " log entries");
-
+/*
         //Get log entries
         Iterator<SVNLogEntry> i = log.iterator();
 
@@ -94,12 +93,12 @@ public class CodeCommits extends ProductivityBase implements Runnable {
             commits += authorCommits.get(author).intValue();
             System.out.printf("%d %s\n", authorCommits.get(author).intValue(),
                     author);
-        }
+        }*/
 
-        System.err.println("Total code commits:" + commits);
+     //   System.err.println("Total code commits:" + commits);
     }
 
-    protected boolean evaluate(String path, SVNLogEntry entry) {
+ /*   protected boolean evaluate(String path, SVNLogEntry entry) {
         
         if (FileTypeMatcher.getFileType(path) == FileTypeMatcher.FileType.SRC) {
             if (authorCommits.containsKey(entry.getAuthor()))
@@ -110,5 +109,5 @@ public class CodeCommits extends ProductivityBase implements Runnable {
             return true;
         }
         return false;
-    }
+    }*/
 }

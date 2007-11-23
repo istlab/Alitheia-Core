@@ -34,94 +34,24 @@
 
 package eu.sqooss.impl.metrics.productivity;
 
-import java.util.Date;
-
-import eu.sqooss.metrics.abstractmetric.MetricResult;
-import eu.sqooss.metrics.productivity.ProductivityMetric;
+import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.SCMAccessor;
 import eu.sqooss.service.tds.TDSService;
 
-import eu.sqooss.service.db.ProjectVersion;
-import eu.sqooss.service.db.StoredProject;
-import eu.sqooss.service.logging.Logger;
-
-public class ProductivityBase implements ProductivityMetric {
+public class ProductivityBase  {
 
     protected TDSService service = null;
     protected SCMAccessor svn = null;
     protected Logger log;
-    private String revision = "Spanky Monkey:17";
 
     protected ProductivityBase() {
-        if (service != null) {
-            //FIXME: Dummy getAccessor value to fix the build
-            svn = service.getAccessor(1).getSCMAccessor();
-        }
+	if (service != null) {
+	    // FIXME: Dummy getAccessor value to fix the build
+	    svn = service.getAccessor(1).getSCMAccessor();
+	}
     }
-
+    
     protected void run() {
-
-    }
-
-    public String getAuthor() {
-        return "Γιώργος Γουσιος";
-    }
-
-    public Date getDateInstalled() {
-        return null;
-    }
-
-    public String getDescription() {
-        return "Assesses programmer productivity based on an array of " +
-        		"evaluation criteria.";
-    }
-
-    public String getName() {
-        return "Productivity Metric";
-    }
-
-    public String getVersion() {
-        return this.revision.split(":")[1];
-    }
-
-    public boolean install() {
-        return false;
-    }
-
-    public boolean remove() {
-        return false;
-    }
-
-    public boolean update() {
-        return false;
-    }
-
-    public boolean run (ProjectVersion a) {
-        return false;
-    }
-
-    public MetricResult getResult(ProjectVersion a) {
-        return null;
-
-    }
-
-    public boolean delete(StoredProject a) {
-        return false;
-    }
-
-    public MetricResult getResult(StoredProject a) {
-        return null;
-    }
-
-    public boolean run(StoredProject a) {
-        return false;
-    }
-
-    public boolean delete(ProjectVersion a) {
-        return false;
-    }
-
-    public boolean run(ProjectVersion a, ProjectVersion b) {
-        return false;
+	
     }
 }

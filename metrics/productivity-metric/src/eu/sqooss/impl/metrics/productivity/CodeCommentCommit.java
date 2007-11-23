@@ -41,8 +41,6 @@ import java.nio.channels.FileChannel.MapMode;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.tmatesoft.svn.core.SVNLogEntry;
-
 import eu.sqooss.service.tds.Diff;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
 import eu.sqooss.service.tds.InvalidRepositoryException;
@@ -62,7 +60,7 @@ public class CodeCommentCommit extends CodeCommits {
         super();
     }
 
-    protected boolean evaluate(String path, SVNLogEntry entry) {
+   /* protected boolean evaluate(String path, SVNLogEntry entry) {
 
         Diff d = null;
         try {
@@ -99,6 +97,6 @@ public class CodeCommentCommit extends CodeCommits {
         
         return false;
 
-    }
+    }*/
 
 }
