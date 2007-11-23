@@ -73,24 +73,9 @@ public class LogManagerImpl implements LogManager {
         org.apache.log4j.Logger.getRootLogger().addAppender(l);
         cyclicLogger = l;
 
-        validLoggers = new HashMap<String,LoggerImpl>(16);
-        // Push all the system logger names into the validLoggers map.
-        String[] loggerNames = {
-		Logger.NAME_SQOOSS,
-                Logger.NAME_SQOOSS_SERVICE,
-                Logger.NAME_SQOOSS_DATABASE,
-                Logger.NAME_SQOOSS_SECURITY,
-                Logger.NAME_SQOOSS_MESSAGING,
-                Logger.NAME_SQOOSS_WEB_SERVICES,
-                Logger.NAME_SQOOSS_SCHEDULING,
-                Logger.NAME_SQOOSS_UPDATER,
-                Logger.NAME_SQOOSS_WEBADMIN,
-                Logger.NAME_SQOOSS_TDS,
-                Logger.NAME_SQOOSS_FDS,
-                Logger.NAME_SQOOSS_METRIC,
-                null
-        } ;
-        for (String s : loggerNames) {
+        validLoggers = new HashMap<String,LoggerImpl>(
+            LogManagerConstants.loggerNames.length);
+        for (String s : LogManagerConstants.loggerNames) {
             if (s != null) {
                 validLoggers.put(s,null);
             }

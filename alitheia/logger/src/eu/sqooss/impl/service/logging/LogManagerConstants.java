@@ -57,23 +57,30 @@ public class LogManagerConstants {
             loggerIsSystemLogger(name);
     }
 
+    public static final String[] loggerNames = {
+        Logger.NAME_SQOOSS,
+        Logger.NAME_SQOOSS_DATABASE,
+        Logger.NAME_SQOOSS_FDS,
+        Logger.NAME_SQOOSS_MESSAGING,
+        Logger.NAME_SQOOSS_METRIC,
+        Logger.NAME_SQOOSS_SECURITY,
+        Logger.NAME_SQOOSS_SERVICE,
+        Logger.NAME_SQOOSS_TDS,
+        Logger.NAME_SQOOSS_UPDATER,
+        Logger.NAME_SQOOSS_WEBADMIN,
+        Logger.NAME_SQOOSS_WEB_SERVICES
+    } ;
+
     /**
      * @return true iff the name is a valid system logger name.
      */
     public static final boolean loggerIsSystemLogger(String name) {
-        return name.equals(Logger.NAME_SQOOSS) || // Root logger
-	    name.equals(Logger.NAME_SQOOSS_SERVICE) ||
-            name.equals(Logger.NAME_SQOOSS_DATABASE) ||
-            name.equals(Logger.NAME_SQOOSS_SECURITY) ||
-            name.equals(Logger.NAME_SQOOSS_MESSAGING) ||
-            name.equals(Logger.NAME_SQOOSS_WEB_SERVICES) ||
-            name.equals(Logger.NAME_SQOOSS_SCHEDULING) ||
-            name.equals(Logger.NAME_SQOOSS_UPDATER) ||
-            name.equals(Logger.NAME_SQOOSS_WEBADMIN) ||
-            name.equals(Logger.NAME_SQOOSS_TDS) ||
-            name.equals(Logger.NAME_SQOOSS_FDS) ||
-            name.equals(Logger.NAME_SQOOSS_METRIC) ||
-	    false; // No-op, but allows us to insert items above more easily
+        for (String s : loggerNames) {
+            if (s.equals(name)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
