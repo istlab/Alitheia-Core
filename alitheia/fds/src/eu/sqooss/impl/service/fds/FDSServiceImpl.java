@@ -56,7 +56,6 @@ import eu.sqooss.service.tds.ProjectRevision;
 import eu.sqooss.service.tds.SCMAccessor;
 import eu.sqooss.service.tds.TDAccessor;
 import eu.sqooss.service.tds.TDSService;
-import eu.sqooss.service.util.Encoding;
 
 /** {@inheritDoc} */
 public class FDSServiceImpl implements FDSService {
@@ -276,10 +275,13 @@ public class FDSServiceImpl implements FDSService {
         // where, assign each an 8-character random prefix and then
         // encode the revision number as well; this means that we can
         // update and futz with the revisions within each checkout directory.
+        byte[] randomBytes = new byte[(RANDOM_PREFIX_LENGTH + 1)/2];
+        randomCheckout.nextBytes(randomBytes);
+        char[] randomPrefixChars = Hex.encodeHex(randomBytes);
+        String format = "%0" + INT_AS_HEX_LENGTH + "x";
         File checkoutRoot = new File(projectRoot,
-            Encoding.getRandomCheckoutName(RANDOM_PREFIX_LENGTH,randomCheckout)
-            + "." + Encoding.bytesToHexString(
-                Encoding.intToBytes((int)r.getSVNRevision())));
+            new String(randomPrefixChars)
+            + "." + String.format(format, r.getSVNRevision()));
         // It shouldn't exist yet either
         if (checkoutRoot.exists()) {
             logger.warning("Checkout root <" + checkoutRoot
