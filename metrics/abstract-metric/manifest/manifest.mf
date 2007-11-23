@@ -5,5 +5,8 @@ Bundle-SymbolicName: eu.sqooss.metric.abstractmetric
 Bundle-Version: 0.0.1
 Bundle-Activator: eu.sqooss.impl.service.Activator
 Bundle-Vendor: AUEB
-Import-Package: eu.sqooss.service.db, org.osgi.framework
+Bundle-ContactAddress: Georgios Gousios <gousiosg@gmail.com>
+Bundle-DocURL: http://ikaria.sqo-oss.eu:8088/
+Bundle-Description: Metric base classes and interfaces
+Import-Package: eu.sqooss.service.db, eu.sqooss.service.logging, org.osgi.framework
 Export-Package: eu.sqooss.metrics.abstractmetric
