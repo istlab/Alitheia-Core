@@ -59,7 +59,7 @@ public interface SCMAccessor extends NamedAccessor {
      * @return the SVN revision number in the project this
      *         SCMAccessor is attached to for the given revision @p r
      */
-    long resolveProjectRevision( ProjectRevision r )
+    long resolveProjectRevision(ProjectRevision r)
         throws InvalidProjectRevisionException,
                InvalidRepositoryException;
     /**
@@ -67,7 +67,7 @@ public interface SCMAccessor extends NamedAccessor {
      * if the revision @em number is set (not the date) to something
      * invalid (before 1 or after HEAD).
      */
-    boolean isRevisionValid( ProjectRevision r )
+    boolean isRevisionValid(ProjectRevision r)
         throws InvalidRepositoryException;
 
     /**
@@ -86,7 +86,7 @@ public interface SCMAccessor extends NamedAccessor {
      *
      * This behavior mimics svn co repoUrl/repoPath/ localPath .
      */
-    void checkOut( String repoPath, ProjectRevision revision, String localPath )
+    void getCheckout(String repoPath, ProjectRevision revision, File localPath)
         throws InvalidProjectRevisionException,
                InvalidRepositoryException,
                FileNotFoundException;
@@ -102,7 +102,7 @@ public interface SCMAccessor extends NamedAccessor {
      * attached. The checked-out file is written to the local
      * path @p localPath.
      */
-    void checkOutFile( String repoPath, ProjectRevision revision, String localPath )
+    void getFile(String repoPath, ProjectRevision revision, File localPath)
         throws InvalidProjectRevisionException,
                InvalidRepositoryException,
                FileNotFoundException;
@@ -111,7 +111,7 @@ public interface SCMAccessor extends NamedAccessor {
      * Get the commit log entries for revisions @p r1 to @p r2
      * for this source repository.
      */
-    CommitLog getCommitLog( ProjectRevision r1, ProjectRevision r2 )
+    CommitLog getCommitLog(ProjectRevision r1, ProjectRevision r2)
         throws InvalidProjectRevisionException,
                InvalidRepositoryException;
 
@@ -121,7 +121,8 @@ public interface SCMAccessor extends NamedAccessor {
      * by the path @p repoPath (relative to the root URL of the
      * project this accessor is attached to).
      */
-    CommitLog getCommitLog( String repoPath, ProjectRevision r1, ProjectRevision r2 )
+    CommitLog getCommitLog(String repoPath,
+        ProjectRevision r1, ProjectRevision r2)
         throws InvalidProjectRevisionException,
                InvalidRepositoryException;
 
@@ -132,7 +133,7 @@ public interface SCMAccessor extends NamedAccessor {
      * @p r1 and @p r1+1 . FileNotFoundException may also indicate
      * that the Diff could not be created (it is a temporary file).
      */
-    Diff getDiff( String repoPath, ProjectRevision r1, ProjectRevision r2 )
+    Diff getDiff(String repoPath, ProjectRevision r1, ProjectRevision r2)
         throws InvalidProjectRevisionException,
                InvalidRepositoryException,
                FileNotFoundException;

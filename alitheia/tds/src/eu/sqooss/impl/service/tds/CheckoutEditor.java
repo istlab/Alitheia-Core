@@ -47,13 +47,13 @@ import eu.sqooss.service.logging.Logger;
 
 public class CheckoutEditor implements ISVNEditor {
     private long targetRevision;
-    private String localPath;
+    private File localPath;
     private String repoDir; // Directory path within the repo
     private String repoFilePathName; // Filename below that dir
     private SVNDeltaProcessor deltaProcessor;
     public static Logger logger;
 
-    public CheckoutEditor(long r, String p) {
+    public CheckoutEditor(long r, File p) {
         targetRevision = r;
         localPath = p;
         deltaProcessor = new SVNDeltaProcessor();

@@ -170,7 +170,8 @@ public class SCMAccessorImpl extends NamedAccessorImpl implements SCMAccessor {
         return endRevision;
     }
 
-    public void checkOut( String repoPath, ProjectRevision revision, String localPath )
+    public void getCheckout(String repoPath, ProjectRevision revision,
+        File localPath)
         throws InvalidProjectRevisionException,
                InvalidRepositoryException,
                FileNotFoundException {
@@ -199,8 +200,7 @@ public class SCMAccessorImpl extends NamedAccessorImpl implements SCMAccessor {
             throw new FileNotFoundException(repoPath);
         }
         if (SVNNodeKind.FILE == nodeKind) {
-            checkOutFile(repoPath, revision,
-                localPath + File.separator + new File(repoPath).getName());
+            getFile(repoPath, revision, new File(localPath, repoPath));
             return;
         }
         // It must be a directory now.
@@ -227,8 +227,8 @@ public class SCMAccessorImpl extends NamedAccessorImpl implements SCMAccessor {
         throw new InvalidRepositoryException(getName(), url, "Not Implemented");
     }
 
-    public void checkOutFile( String repoPath,
-        ProjectRevision revision, String localPath )
+    public void getFile(String repoPath,
+        ProjectRevision revision, File localPath)
         throws InvalidProjectRevisionException,
                InvalidRepositoryException,
                FileNotFoundException {
