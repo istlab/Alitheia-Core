@@ -77,25 +77,29 @@ public abstract class AbstractMetric implements Metric {
     
     public String getAuthor() {
 	if (bc != null)
-	    return (String) bc.getBundle().getHeaders().get("Bundle-ContactAddress");
+	    return (String) bc.getBundle().getHeaders().get(
+		    org.osgi.framework.Constants.BUNDLE_CONTACTADDRESS);
 	return null;
     }
 
     public String getDescription() {
 	if (bc != null)
-	    return (String) bc.getBundle().getHeaders().get("Bundle-Description");
+	    return (String) bc.getBundle().getHeaders().get(
+		    org.osgi.framework.Constants.BUNDLE_DESCRIPTION);
 	return null;
     }
 
     public String getName() {
 	if (bc != null)
-	    return (String) bc.getBundle().getHeaders().get("Bundle-Name");
+	    return (String) bc.getBundle().getHeaders().get(
+		    org.osgi.framework.Constants.BUNDLE_NAME);
 	return null;
     }
 
     public String getVersion() {
 	if (bc != null)
-	    return (String) bc.getBundle().getHeaders().get("Bundle-Version");
+	    return (String) bc.getBundle().getHeaders().get(
+		    org.osgi.framework.Constants.BUNDLE_VERSION);
 	return null;
     }
 
