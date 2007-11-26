@@ -80,6 +80,10 @@ public class AdminServlet extends HttpServlet {
     private Hashtable<String,String> dynamicContentMap;
     private Hashtable<String,String> dynamicSubstitutions;
 
+    /**
+     * Returns a string representing the uptime of the Alitheia core
+     * in dd:hh:mm:ss format
+     */
     private String getUptime() {
         long upTime = ManagementFactory.getRuntimeMXBean().getUptime();
         long remainder;
