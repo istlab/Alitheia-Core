@@ -448,6 +448,8 @@ public class AdminServlet extends HttpServlet {
             } else if ("/stop".equals(request.getPathInfo())) {
                 dynamicSubstitutions.put("@@RESULTS", "<p>Alitheia Core is now shutdown.</p>");
                 sendTemplate(response,"/results.html",dynamicSubstitutions);
+                // Stop the system
+                bundlecontext.getBundle(0).stop();
             } else if ("/restart".equals(request.getPathInfo())) {
                 dynamicSubstitutions.put("@@RESULTS", "<p>Alitheia Core is now restarting. Please wait.</p>");
                 sendTemplate(response,"/results.html",dynamicSubstitutions);
