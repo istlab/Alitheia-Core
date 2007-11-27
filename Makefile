@@ -16,9 +16,13 @@
 # build		- Compile all of the Java sources into jars for each bundle.
 # install	- Install the resulting bundles into the equinox dir.
 # run		- Run the OSGi / Equinox system.
+# run-bg	- Run the OSGi / Equinox system without a console and in
+#             background mode.
 # run-ui	- Start up tomcat with the public-facing web front end.
 # stop-ui	- Stop the tomcat instance.
 # start		- Run the web UI and the core system.
+# start-bg	- Run the web UI and the core system (the latest without a
+#             console and in BG mode).
 # clean		- Remove all build artifacts and logs.
 # clean-log	- Clean up just the logs. Keeps show-log short.
 # clean-db	- Remove the Derby DB, so it will be re-created next run.
@@ -105,6 +109,12 @@ run :
 		-DDEBUG $(CL_CONFIG) $(LOG4J_CONFIG) $(JETTY_CONFIG) \
 		-jar org.eclipse.osgi_3.3.0.v20070321.jar -console
 
+run-bg :
+	cd $(PREFIX) && \
+	java $(CONFIG) \
+		-DDEBUG $(CL_CONFIG) $(LOG4J_CONFIG) $(JETTY_CONFIG) \
+		-jar org.eclipse.osgi_3.3.0.v20070321.jar -no-exit &
+
 run-ui :
 	cd ui/webui && $(MAKE) start
 
@@ -113,7 +123,7 @@ stop-ui :
 
 start : run-ui run
 
-
+start-bg : run-ui run-bg
 
 
 # The default log4j configuration puts the log directly in $(PREFIX) and
