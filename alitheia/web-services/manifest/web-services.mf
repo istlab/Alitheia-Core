@@ -1,0 +1,14 @@
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: eu.sqooss.service.web.services
+Bundle-Name: Web Services Service
+Bundle-Activator: eu.sqooss.impl.service.WebServicesActivator
+Bundle-Version: 0.0.1
+Bundle-Vendor: ProSyst
+Bundle-Category: web
+Bundle-Description: This bundle provides the Web Services Service
+Import-Package: org.osgi.framework,
+ org.osgi.util.tracker,
+ eu.sqooss.service.logging,
+ eu.sqooss.service.db,
+ eu.sqooss.service.security
+Export-Package: eu.sqooss.service.web.services
