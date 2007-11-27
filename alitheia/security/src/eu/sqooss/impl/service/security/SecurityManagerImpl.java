@@ -54,11 +54,13 @@ public class SecurityManagerImpl implements SecurityManager {
                     } else {
                         tmpUrl = tmpUrl.substring(0, firstIndexOfQuestionMark);
                     }
+                } else {
+                    tmpUrl = tmpUrl.substring(0, lastIndexOfAmpersand);
                 }
             }
         }
     }
-
+    
     /**
      * @see eu.sqooss.service.security.SecurityManager#createAuthorizationRule(eu.sqooss.service.security.SecurityGroup, long, eu.sqooss.service.security.SecurityResourceURL)
      */
