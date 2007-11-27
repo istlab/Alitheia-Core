@@ -48,6 +48,7 @@ import eu.sqooss.service.util.SQOUtils;
 import java.lang.management.RuntimeMXBean;
 import java.lang.management.ManagementFactory;
 
+import java.util.Date;
 import java.util.Formatter;
 import java.util.Hashtable;
 import java.util.List;
@@ -69,6 +70,8 @@ import javax.servlet.http.HttpServlet;
 public class AdminServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
+    private long startTime = new Date().getTime();
+
     private BundleContext bundlecontext = null;
 
     private LogManager logService = null;
@@ -85,12 +88,12 @@ public class AdminServlet extends HttpServlet {
      * in dd:hh:mm:ss format
      */
     private String getUptime() {
-        long upTime = ManagementFactory.getRuntimeMXBean().getUptime();
         long remainder;
+        long timeRunning = new Date().getTime() - startTime;
 
         // Get the elapsed time in days, hours, mins, secs
-        int days = new Long(upTime / 86400000).intValue();
-        remainder = upTime % 86400000;
+        int days = new Long(timeRunning / 86400000).intValue();
+        remainder = timeRunning % 86400000;
         int hours = new Long(remainder / 3600000).intValue();
         remainder = remainder % 3600000;
         int mins = new Long(remainder / 60000).intValue();
@@ -452,6 +455,7 @@ public class AdminServlet extends HttpServlet {
                 bundlecontext.getBundle(0).stop();
             } else if ("/restart".equals(request.getPathInfo())) {
                 dynamicSubstitutions.put("@@RESULTS", "<p>Alitheia Core is now restarting. Please wait.</p>");
+                startTime = new Date().getTime();
                 sendTemplate(response,"/results.html",dynamicSubstitutions);
             } else {
                 doGet(request,response);
