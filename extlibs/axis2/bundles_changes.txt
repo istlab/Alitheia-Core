@@ -1,0 +1,41 @@
+1. soap provider -> axis2.xml - replace the message receiver; auto-generate the wsdl from the OSGi service:
+<messageReceivers>
+        <messageReceiver mep="http://www.w3.org/2004/08/wsdl/in-only"
+                         class="org.apache.axis2.rpc.receivers.RPCInOnlyMessageReceiver"/>
+        <messageReceiver mep="http://www.w3.org/2004/08/wsdl/in-out"
+                         class="org.apache.axis2.rpc.receivers.RPCMessageReceiver"/>
+        <messageReceiver mep="http://www.w3.org/2004/08/wsdl/rpc/in-out"
+                         class="org.apache.axis2.rpc.receivers.RPCMessageReceiver"/>
+</messageReceivers>
+
+2. Imports:
+org.apache.muse.osgi.soa.axis2_1.0.0 - org.w3c.dom
+org.apache.muse.complete_2.2.0 - org.w3c.dom
+org.codehaus.stax2_3.0.1 - javax.xml.transform, javax.xml.transform.stream, javax.xml.namespace
+org.apache.axiom.impl_1.2.0 - javax.xml.namespace
+org.apache.ws.commons.schema_1.2.0 - javax.xml.namespace, org.xml.sax, javax.xml.parsers, javax.xml.transform, javax.xml.transform.dom, javax.xml.transform.stream
+org.apache.ws.java2wsdl_1.1.0 - javax.xml.namespace
+
+3. org.apache.axis2_1.1.0 - remove the version from org.apache.commons.logging and org.apache.commons.logging.impl
+
+4. fix in org.eclipse.corona.soa.common_0.9.0.M20070504-incubation.jar
+- WebServiceDeployer:
+	-private void undeployWebService(ServiceReference srvRef) throws Exception {
+	    Object webServiceName = srvRef.getProperty(PROPERTY_WS_NAME);
+	    WebService webService = listWebServices.get(webServiceName); 
+        
+        SOAPProvider soapProvider = (SOAPProvider) this.ctxBundle.getService(soapProviderReference);
+        if ((soapProvider == null) || (webService == null)) {
+            // TODO log some warning
+            return;
+        }
+
+        WebApp webApp = soapProvider.getWebApp(srvRef.getBundle(), webService.getWebContext(), false);
+
+        soapProvider.undeployService(webApp, 
+                webService.getServiceName(), 
+                webService.getInterface() 
+                );
+        
+        listWebServices.remove(webServiceName);
+	}
