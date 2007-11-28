@@ -26,7 +26,7 @@ public class SMTPSender implements MessageSender {
     private Object sessionsLockObject = new Object();
     private Object propertiesLockObject = new Object();
     private Timer timer;
-    private Vector sessions; 
+    private Vector < SMTPSession > sessions;
     private BundleContext bc;
     private boolean isStopped;
 
@@ -41,7 +41,7 @@ public class SMTPSender implements MessageSender {
     public SMTPSender(BundleContext bc) {
         this.bc = bc;
         this.sessionTimeout = DEFAULT_SESSION_TIMEOUT;
-        sessions = new Vector();
+        sessions = new Vector < SMTPSession >();
         isStopped = false;
         timer = new Timer(SMTP_TIMER_NAME);
         timer.start();
@@ -54,7 +54,7 @@ public class SMTPSender implements MessageSender {
         if ((reply == null) || (reply.trim().equals(""))) {
             throw new IllegalArgumentException("The message's reply is not set!");
         }
-        Properties sessionProperties = getSessionProperties(); 
+        Properties sessionProperties = getSessionProperties();
         DefaultSASLFactory saslFactory = new DefaultSASLFactory();
         SMTPSession session = new SMTPSession(bc, sessionProperties, sessionTimeout, timer);
         synchronized (sessionsLockObject) {
@@ -149,7 +149,7 @@ public class SMTPSender implements MessageSender {
      */
     public void setSessionPass(String sessionPass) {
         synchronized (propertiesLockObject) {
-            this.sessionPass = sessionPass;      
+            this.sessionPass = sessionPass;
         }
     }
 

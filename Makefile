@@ -73,17 +73,8 @@ install : $(foreach d,$(SUBDIRS),install-$(d))
 	rm -f ${PREFIX}/configuration/*.log
 
 TOOL_DIR=tools
-install-deps :
-	test -f $(TOOL_DIR)/BundleSelecter.class || \
-		( cd $(TOOL_DIR) && $(MAKE) BundleSelecter.class )
-	for i in `cd $(TOOL_DIR) ; java BundleSelecter $(ABS_PREFIX)/configuration/config.ini` ; do \
-		DST=`find $(ABS_PREFIX) -name $$i` ; \
-		SRC=`find extlibs -name $$i` ; \
-		if test -z "$$DST" ; then \
-			echo "Installing $$i" ; \
-			cp "$$SRC" "$(ABS_PREFIX)" ; \
-		fi ; \
-	done
+# None of the tools in the tools dir need to be used right now,
+# so there are no targets referencing it.
 	 
 
 clean : clean-log $(foreach d,$(SUBDIRS),clean-$(d))

@@ -5,7 +5,8 @@ import java.util.Hashtable;
 
 public class DefaultSASLFactory implements SASLFactory {
 
-    Hashtable recognizedSecurityMethods = new Hashtable();
+    Hashtable < String, SASL > recognizedSecurityMethods =
+        new Hashtable < String, SASL >();
 
     public DefaultSASLFactory(){
         SASL tmp = new CramMD5SASL();

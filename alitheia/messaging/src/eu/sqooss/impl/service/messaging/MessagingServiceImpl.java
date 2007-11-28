@@ -19,7 +19,7 @@ import eu.sqooss.service.messaging.MessagingService;
 import eu.sqooss.service.messaging.sender.MessageSender;
 
 /**
- * This class implements the <code>MessagingService</code> interface. 
+ * This class implements the <code>MessagingService</code> interface.
  */
 public class MessagingServiceImpl implements MessagingService {
 
@@ -30,10 +30,10 @@ public class MessagingServiceImpl implements MessagingService {
     private int maxThreadsNumber;
     private long id;
     private Properties properties;
-    private Vector messageListeners;
+    private Vector < MessageListener > messageListeners;
     private MessageHistory messageHistory;
     private MessageQueue messageQueue;
-    private Vector messagingThreads;
+    private Vector < MessagingServiceThread > messagingThreads;
     private BundleContext bc;
     private SMTPSender defaultSender;
 
@@ -45,10 +45,10 @@ public class MessagingServiceImpl implements MessagingService {
         this.queueringTime = 60*1000; //default value
         this.properties = new Properties();
         initProperties(bc);
-        messageListeners = new Vector();
+        messageListeners = new Vector < MessageListener >();
         messageHistory = new MessageHistory(0);
         messageQueue = new MessageQueue();
-        messagingThreads = new Vector();
+        messagingThreads = new Vector < MessagingServiceThread >();
         startThreadIfNeeded();
     }
 
@@ -194,7 +194,7 @@ public class MessagingServiceImpl implements MessagingService {
     /**
      * This method: stops the all message threads;
      * clears the message queue, listeners and message history; saves the settings
-     * 
+     *
      * @return the last message id
      */
     public long stopService() {
@@ -255,9 +255,9 @@ public class MessagingServiceImpl implements MessagingService {
 
     /**
      * Validates the message's fields.
-     * 
+     *
      * @param message
-     * 
+     *
      * @exception IllegalArgumentException - if the protocol's string isn't valid
      */
     private void validateMessage(Message message) {

@@ -77,7 +77,7 @@ public class SMTPSession implements SMTP, TimerListener {
 
             int resValue = getCode(answer);
             if (resValue != 220)  {
-                MessagingActivator.log("Error in open method. Answer expected: 220. Answer received: " + answer, 
+                MessagingActivator.log("Error in open method. Answer expected: 220. Answer received: " + answer,
                         MessagingActivator.LOGGING_WARNING_LEVEL);
                 throwException("Error in open method. Answer expected: 220. Answer received: " + answer, null, resValue, answer);
             }
@@ -363,7 +363,7 @@ public class SMTPSession implements SMTP, TimerListener {
         if(saslFactory==null){
             return false;
         }
-        Vector securityMethods = new Vector();
+        Vector < String > securityMethods = new Vector < String >();
         StringTokenizer st = new StringTokenizer(request," ");
         String command = "";
         command=st.nextToken();

@@ -6,16 +6,16 @@ import eu.sqooss.impl.service.MessagingActivator;
 
 /**
  * This class represents the message queue.
- * The messages in the queue have the <code>Message.STATUS_QUEUED</code> status. 
+ * The messages in the queue have the <code>Message.STATUS_QUEUED</code> status.
  */
 public class MessageQueue {
 
-    private Vector vector;
+    private Vector < MessageImpl > vector;
     private Object lockObject = new Object();
     private boolean clear;
 
     public MessageQueue() {
-        vector = new Vector();
+        vector = new Vector < MessageImpl >();
         clear = false;
     }
 
