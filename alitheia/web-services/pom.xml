@@ -43,6 +43,7 @@
     <resources>
       <resource>
         <directory>${basedir}/OSGI-INF</directory>
+        <targetPath>OSGI-INF</targetPath>
       </resource>
     </resources>
   </build>
