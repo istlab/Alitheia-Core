@@ -145,6 +145,7 @@
         <configuration>
           <charset>UTF-8</charset>
           <docencoding>UTF-8</docencoding>
+          <excludePackageNames>eu.sqooss.impl</excludePackageNames>
         </configuration>
       </plugin>
       <!-- Plugin for checking the coding style of the project's sources   -->
