@@ -1,0 +1,96 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+
+  <!-- =[ Parent POM ]==================================================== -->
+  <parent>
+    <groupId>eu.sqooss</groupId>
+    <artifactId>alitheia</artifactId>
+    <version>1.0.0</version>
+  </parent>
+
+  <!-- [ Web-Services Service - main POM ]================================ -->
+  <groupId>eu.sqooss</groupId>
+  <artifactId>web-services</artifactId>
+  <version>0.0.1</version>
+  <packaging>jar</packaging>
+
+  <!-- =[ Project description ]=========================================== -->
+  <name>Web-Services Service</name>
+  <description>
+    This bundle provided the Web-Services service for Alitheia.
+    (... more description to come later on)
+  </description>
+
+  <!-- =[ Build properties ]============================================== -->
+  <build>
+    <!-- Tells Maven to search for source code here -->
+    <sourceDirectory>${basedir}/src</sourceDirectory>
+    <!-- Tells Maven to build Java class files here -->
+    <outputDirectory>${basedir}/bin</outputDirectory>
+    <!-- Tells Maven where to look for a manifest file -->
+    <plugins>
+      <plugin>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifestFile>
+              ${basedir}/manifest/web-services.mf
+            </manifestFile>
+          </archive>
+        </configuration> 
+      </plugin>
+    </plugins>
+    <resources>
+      <resource>
+        <directory>${basedir}/OSGI-INF</directory>
+      </resource>
+    </resources>
+  </build>
+
+  <!-- =[ Dependencies ]================================================== -->
+  <dependencies>
+    <!-- Dependant on OSGi R4 Framework Package -->
+    <dependency>
+      <groupId>org.eclipse.equinox</groupId>
+      <artifactId>osgi</artifactId>
+      <version>3.3.0</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <!-- Dependant on SQO-OSS Logger Service -->
+    <dependency>
+      <groupId>eu.sqooss</groupId>
+      <artifactId>logger</artifactId>
+      <version>[0.0.2,)</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <!-- Dependant on SQO-OSS Database Service -->
+    <dependency>
+      <groupId>eu.sqooss</groupId>
+      <artifactId>dbs</artifactId>
+      <version>[0.0.1,)</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <!-- Dependant on SQO-OSS Security Service -->
+    <dependency>
+      <groupId>eu.sqooss</groupId>
+      <artifactId>security</artifactId>
+      <version>[0.0.1,)</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+
+  <!-- =[ Developers working on this module ]============================= -->
+  <developers>
+    <developer>
+      <id>e_grigorov</id>
+      <name>Evgeni Grigorov</name>
+      <email>e.grigorov@prosyst.com</email>
+      <organization>ProSyst Software GmbH</organization>
+      <timezone>+2</timezone>
+    </developer>
+  </developers>
+</project>
