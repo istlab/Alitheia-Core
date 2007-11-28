@@ -41,6 +41,23 @@
         </configuration> 
       </plugin>
     </plugins>
+    <resources>
+      <resource>
+        <directory>${basedir}/src/eu/sqooss/service/db</directory>
+        <targetPath>eu/sqooss/service/db</targetPath>
+        <includes>
+          <include>**/*.xml</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>${basedir}/src/main/resources</directory>
+        <targetPath>.</targetPath>
+        <includes>
+          <include>**/*.jar</include>
+          <include>**/*.xml</include>
+        </includes>
+      </resource>
+    </resources>
   </build>
 
   <!-- Dependencies -->
