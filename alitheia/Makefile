@@ -20,7 +20,8 @@ BUNDLES=db \
 	tester \
 	updater \
 	util \
-	webadmin
+	webadmin \
+  web-services
 
 #
 # END OF USER CONFIGURABLE AREA
