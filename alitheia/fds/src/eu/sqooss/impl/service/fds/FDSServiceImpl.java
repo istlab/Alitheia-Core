@@ -217,6 +217,42 @@ public class FDSServiceImpl implements FDSService {
     }
 
     /**
+     * Scan a list of checkouts heuristically for one checkout that is
+     * 'close enough' and which may be updated.
+     *
+     * @param l list of checkouts to search in.
+     * @param r desired revision.
+     * @return null if no checkout exists that is 'close enough'.
+     */
+    private CheckoutImpl findUpdatableCheckout(final List < CheckoutImpl > l,
+        final ProjectRevision r) {
+        if (!r.hasSVNRevision()) {
+            return null;
+        }
+
+        // This is the acceptable distance between the desired revision
+        // and the revision of the checkout which will be returned.
+        // As a crude first heuristic for what's acceptable, we use a
+        // distance that grows with the number of checkouts.
+        long acceptableDistance = l.size() * 37;
+        long lowerBound = r.getSVNRevision() - acceptableDistance;
+        long upperBound = r.getSVNRevision() + acceptableDistance;
+
+        for (Iterator < CheckoutImpl > i = l.iterator(); i.hasNext(); ) {
+            CheckoutImpl c = i.next();
+            if (c.getReferenceCount() == 0) {
+                // This is a candidate
+                long rev = c.getRevision().getSVNRevision();
+                if ( (lowerBound <= rev) && (rev <= upperBound) ) {
+                    return c;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * This is for consistency checks: any project p should have exactly
      * *one* checkout for a revision r, no more than that
      *
@@ -318,6 +354,14 @@ public class FDSServiceImpl implements FDSService {
         return c;
     }
 
+    /**
+     * Update a checkout from its current revision to another one.
+     * This should only be done when the checkout has no references
+     * anymore. Updating a checkout may be more efficient than doing
+     * a whole new checkout, but this should be balanced against the
+     * number of users of checkouts of a given SCM and the amount of
+     * available disk space.
+     */
     private void updateCheckout(CheckoutImpl c, ProjectRevision r)
         throws InvalidProjectRevisionException,
                InvalidRepositoryException {
@@ -373,8 +417,14 @@ public class FDSServiceImpl implements FDSService {
                 if (c != null) {
                     c.claim();
                 } else {
-                    c = createCheckout(svn,r);
-                    l.add(c);
+                    c = findUpdatableCheckout(l,r);
+                    if (c != null) {
+                        updateCheckout(c, r);
+                        c.claim();
+                    } else {
+                        c = createCheckout(svn,r);
+                        l.add(c);
+                    }
                 }
                 return c;
             }
