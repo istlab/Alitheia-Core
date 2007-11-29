@@ -217,11 +217,22 @@ form {
 }
 
 #status li.uptime  {
-	list-style : disc url(/uptime.png) inside;
+	list-style: none;
+	background-image: url(/uptime.png);
+	background-repeat: no-repeat;
+	background-position: 0 0;
+	padding-top: 3px;
+	padding-left: 37px;
+	padding-bottom: 10px;
 }
 
 #status li.queue  {
-	list-style : disc url(/queue.png) inside;
+	list-style: none;
+	background-image: url(/queue.png);
+	background-repeat: no-repeat;
+	background-position: 0 0;
+	padding-top: 3px;
+	padding-left: 37px;
 }
 
 legend {
