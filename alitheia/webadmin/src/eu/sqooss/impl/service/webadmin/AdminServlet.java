@@ -146,7 +146,7 @@ public class AdminServlet extends HttpServlet {
             if (logger != null) {
                 logger.warning("Did not get TDS service.");
             } else {
-                System.out.println("! Got no TDS service.");
+                System.out.println("Got no TDS service.");
             }
         }
     }
@@ -160,33 +160,35 @@ public class AdminServlet extends HttpServlet {
         myStuffer.run();
 
         staticContentMap = new Hashtable<String,String[]>();
-        String[] flossie = { "image/x-png", "/flossie.png" };
-        String[] css = { "text/css", "/alitheia.css" };
-        String[] css2 = { "text/css", "/style.css" };
-        String[] logo = { "image/x-png", "/alitheia.png" };
-        String[] bD = { "image/x-gif", "/blueDown.gif" };
-        String[] bU = { "image/x-gif", "/blueUp.gif" };
-        String[] gB = { "image/x-png", "/greyBack.png" };
-        String[] pD = { "image/x-gif", "/purpleDown.gif" };
-        String[] pU = { "image/x-gif", "/purpleUp.gif" };
 
-
-        staticContentMap.put("/logo", flossie);
-        staticContentMap.put("/alitheia.css", css);
-        staticContentMap.put("/style.css", css2);
-        staticContentMap.put("/alitheia.png", logo);
-        staticContentMap.put("/blueDown.gif", bD);
-        staticContentMap.put("/blueUp.gif", bU);
-        staticContentMap.put("/greyBack.png", gB);
-        staticContentMap.put("/purpleDown.gif", pD);
-        staticContentMap.put("/purpleUp.gif", pU);
-
+        // Images and CSS
+        String[] css = { "text/css", "/screen.css" };
+        String[] logo = { "image/x-png", "/sqo-oss.png" };
+        String[] queue = { "image/x-png", "/queue.png" };
+        String[] uptime = { "image/x-png", "/uptime.png" };
+        String[] greyBack = { "image/x-jpg", "/greyBack.jpg" };
+        String[] projects = { "image/x-png", "/projects.png" };
+        String[] logs = { "image/x-png", "/logs.png" };
+        String[] bundles = { "image/x-png", "/bundles.png" };
+        String[] header = { "image/x-png", "/header-repeat.png" };
+        
+        staticContentMap.put("/screen.css", css);
+        staticContentMap.put("/sqo-oss.png", logo);
+        staticContentMap.put("/queue.png", queue);
+        staticContentMap.put("/uptime.png", uptime);
+        staticContentMap.put("/greyBack.jpg", greyBack);
+        staticContentMap.put("/projects.png", projects);
+        staticContentMap.put("/logs.png", logs);
+        staticContentMap.put("/bundles.png", bundles);
+        staticContentMap.put("/header-repeat.png", header);
+        
+        // Pages
         dynamicContentMap = new Hashtable<String,String>();
-        dynamicContentMap.put("/about","/about.html");
-        dynamicContentMap.put("/status","/index.html");
-        dynamicContentMap.put("/index","/index.html");
-        dynamicContentMap.put("/projects","/project.html");
-        dynamicContentMap.put("/logs","/logs.html");
+        dynamicContentMap.put("/about", "/about.html");
+        dynamicContentMap.put("/status", "/index.html");
+        dynamicContentMap.put("/index", "/index.html");
+        dynamicContentMap.put("/projects", "/projects.html");
+        dynamicContentMap.put("/logs", "/logs.html");
 
         dynamicSubstitutions = new Hashtable<String,String>();
     }
@@ -231,12 +233,12 @@ public class AdminServlet extends HttpServlet {
             };
 
             StringBuilder resultString = new StringBuilder();
-            resultString.append("<table cellpadding=\"0\" cellspacing=\"0\">\n");
+            resultString.append("<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n");
             resultString.append("\t<thead>\n");
             resultString.append("\t\t<tr>\n");
-            resultString.append("\t\t\t<td class=\"supportGreyTopLeft\">&nbsp;</td>\n");
-            resultString.append("\t\t\t<td class=\"supportLblueImageUp\">Status</td>\n");
-            resultString.append("\t\t\t<td class=\"supportPurpleImageUp\">Services Utilised</td>\n");
+            resultString.append("\t\t\t<td>Bundle</td>\n");
+            resultString.append("\t\t\t<td>Status</td>\n");
+            resultString.append("\t\t\t<td>Services Utilised</td>\n");
             resultString.append("\t\t</tr>\n");
             resultString.append("\t</thead>\n");
             resultString.append("\t<tbody>\n");
@@ -244,11 +246,11 @@ public class AdminServlet extends HttpServlet {
             for( Bundle b : bundles ){
                 String[] names = getServiceNames(b.getRegisteredServices());
 
-                resultString.append("\t\t<tr>\n\t\t\t<td class=\"supportGreyLeft\">");
+                resultString.append("\t\t<tr>\n\t\t\t<td>");
                 resultString.append(SQOUtils.makeXHTMLSafe(b.getSymbolicName()));
-                resultString.append("</td>\n\t\t\t<td class=\"supportLblue\">");
+                resultString.append("</td>\n\t\t\t<td>");
                 resultString.append(SQOUtils.bitfieldToString(statenames,b.getState()));
-                resultString.append("</td>\n\t\t\t<td class=\"supportPurple\">\n\t\t\t\t<ul>\n");
+                resultString.append("</td>\n\t\t\t<td>\n\t\t\t\t<ul>\n");
                 resultString.append(renderList(names));
                 resultString.append("\t\t\t\t</ul>\n\t\t\t</td>\n\t\t</tr>\n");
             }
@@ -346,7 +348,7 @@ public class AdminServlet extends HttpServlet {
         dynamicSubstitutions.put("@@ABOUT","<p class='box'>This is the administrative interface.</p>");
         dynamicSubstitutions.put("@@STATUS","The cruncher is offline.");
         dynamicSubstitutions.put("@@LOGO","<img src='/logo' id='logo' alt='Logo' />");
-        dynamicSubstitutions.put("@@COPYRIGHT","Copyright 2007 <a href=\"about\">SQO-OSS Consortium Members</a>");
+        dynamicSubstitutions.put("@@COPYRIGHT","Copyright 2007 <a href=\"http://www.sqo-oss.eu/about/\">SQO-OSS Consortium Members</a>");
         dynamicSubstitutions.put("@@GETLOGS", renderList(logService.getRecentEntries()));
         dynamicSubstitutions.put("@@PROJECTS",renderList(listProjects()));
         dynamicSubstitutions.put("@@BUNDLE", renderBundles());
