@@ -130,7 +130,8 @@ public class TesterActivator implements BundleActivator {
             }
         }
 
-        logger.info("Done with self-test.");
+        logger.info("Finished self-test.");
+        System.out.println("Self-test is enabled. Finished self-test.");
     }
 
     public void stop( BundleContext bc )

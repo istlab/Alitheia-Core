@@ -544,6 +544,47 @@ public class FDSServiceImpl implements FDSService {
             }
         }
 
+        if (projectCheckout != null) {
+            try {
+                releaseCheckout(projectCheckout);
+            } catch (InvalidRepositoryException e) {
+                logger.warning("Project ID 1 is no longer managed.");
+            }
+        }
+
+        // This test goes through and updates the KPilot checkout from r.4 to
+        // r.60, which will take some time. It should demonstrate that the
+        // checkout is released and updated each time. Note that we still hold
+        // the reference to projectCheckout, which is something we should no
+        // longer access -- but it's the object reference to the checkout which
+        // we *should* get.
+        enabled = bundleContext.getProperty(
+            "eu.sqooss.tester.enable.FDSServiceImpl.Updates");
+        if ((enabled == null) || Boolean.valueOf(enabled)) {
+            CheckoutImpl otherCheckout = null;
+            long currentRevision = 4;
+            try {
+                logger.info("Advancing single checkout object.");
+                otherCheckout = getCheckout(1, new ProjectRevision(currentRevision));
+                if (otherCheckout != projectCheckout) {
+                    logger.warning("Second request for 1r4 returned different object.");
+                }
+                while (currentRevision < 60) {
+                    releaseCheckout(otherCheckout);
+                    currentRevision++;
+                    otherCheckout = getCheckout(1, new ProjectRevision(currentRevision));
+                }
+                if (otherCheckout != projectCheckout) {
+                    logger.warning("Sixtieth request for 1r60 returned different object.");
+                }
+            } catch (InvalidRepositoryException e) {
+                logger.warning("Project ID 1 has vanished again.");
+            } catch (InvalidProjectRevisionException e) {
+                logger.warning("Project ID 1 has no revision " + currentRevision);
+            }
+        } else {
+            logger.info("Skipping update self-test.");
+        }
         return null;
     }
 }
