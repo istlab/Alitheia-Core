@@ -43,7 +43,7 @@ import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.TDSService;
-import eu.sqooss.service.util.SQOUtils;
+import eu.sqooss.service.util.StringUtils;
 
 import java.lang.management.RuntimeMXBean;
 import java.lang.management.ManagementFactory;
@@ -202,7 +202,7 @@ public class AdminServlet extends HttpServlet {
                 Object clazz =
                     r.getProperty( org.osgi.framework.Constants.OBJECTCLASS );
                 if (clazz != null) {
-                    s = SQOUtils.join( (String[])clazz, ", ");
+                    s = StringUtils.join( (String[])clazz, ", ");
                 } else {
                     s = "No class defined";
                 }
@@ -247,9 +247,9 @@ public class AdminServlet extends HttpServlet {
                 String[] names = getServiceNames(b.getRegisteredServices());
 
                 resultString.append("\t\t<tr>\n\t\t\t<td>");
-                resultString.append(SQOUtils.makeXHTMLSafe(b.getSymbolicName()));
+                resultString.append(StringUtils.makeXHTMLSafe(b.getSymbolicName()));
                 resultString.append("</td>\n\t\t\t<td>");
-                resultString.append(SQOUtils.bitfieldToString(statenames,b.getState()));
+                resultString.append(StringUtils.bitfieldToString(statenames,b.getState()));
                 resultString.append("</td>\n\t\t\t<td>\n\t\t\t\t<ul>\n");
                 resultString.append(renderList(names));
                 resultString.append("\t\t\t\t</ul>\n\t\t\t</td>\n\t\t</tr>\n");
@@ -268,7 +268,7 @@ public class AdminServlet extends HttpServlet {
         if ((names != null) && (names.length > 0)) {
             StringBuilder b = new StringBuilder();
             for (String s : names) {
-                b.append("\t\t\t\t\t<li>" + SQOUtils.makeXHTMLSafe(s) + "</li>\n");
+                b.append("\t\t\t\t\t<li>" + StringUtils.makeXHTMLSafe(s) + "</li>\n");
             }
 
             return b.toString();

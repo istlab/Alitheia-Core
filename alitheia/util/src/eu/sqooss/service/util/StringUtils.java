@@ -34,7 +34,7 @@
 
 package eu.sqooss.service.util;
 
-public class SQOUtils {
+public class StringUtils {
     /**
     * Concatenate the strings in @p names, placing @p sep
     * between each (except at the end) and return the resulting
