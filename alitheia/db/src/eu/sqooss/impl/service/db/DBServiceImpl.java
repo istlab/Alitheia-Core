@@ -55,7 +55,9 @@ import eu.sqooss.service.logging.Logger;
 
 public class DBServiceImpl implements DBService {
     
+    /*Those two should be runtime configuration options*/
     private static final int INIT_POOL_SIZE = 5;
+    private static final int MAX_POOL_SIZE = 100;
     
     private LogManager logService = null;
     private Logger logger = null;
@@ -102,8 +104,9 @@ public class DBServiceImpl implements DBService {
 	/**
 	 * Returns a session to the holder object
 	 * @param holder The object to which the returned session is bound to 
+	 * @throws Exception 
 	 */
-	public synchronized Session getSession(Object holder) {
+	public synchronized Session getSession(Object holder) throws Exception {
 	    Iterator<Session> i = sessions.keySet().iterator(); 
 	    Session s = null;
 	    
@@ -117,6 +120,13 @@ public class DBServiceImpl implements DBService {
 	    //Pool is full, expand it
 	    if (s == null && expand){
 		int size = sessions.size() / 2;
+		
+		if (size + sessions.size() >= MAX_POOL_SIZE)
+		    size = MAX_POOL_SIZE - sessions.size();
+		
+		if(MAX_POOL_SIZE == sessions.size())
+		    throw new Exception("SessionManager: Cannot serve more " +
+		    		"than "+ MAX_POOL_SIZE + " sessions");
 		
 		for (int j = 0; j < size; j++) 
 			sessions.put(sf.openSession(), this);
@@ -249,35 +259,41 @@ public class DBServiceImpl implements DBService {
     }
 
     public void addRecord(DAObject record) {
-        Session s = sm.getSession(this);
+        Session s = getSession(this);
         s.beginTransaction();
         s.save(record);
         s.getTransaction().commit();
-        sm.returnSession(s);
+        returnSession(s);
     }
 
     public List doSQL(String sql) {
-	Session s = sm.getSession(this);
+	Session s = getSession(this);
         s.beginTransaction();
         List result = s.createSQLQuery(sql).list();
         s.getTransaction().commit();
-        sm.returnSession(s);
+        returnSession(s);
 
         return result;
     }
 
     public List doHQL(String hql) {
-	Session s = sm.getSession(this);
+	Session s = getSession(this);
 	s.beginTransaction();
 	List result = s.createQuery(hql).list();
 	s.getTransaction().commit();
-	sm.returnSession(s);
+	returnSession(s);
 
 	return result;
     }
 
     public Session getSession(Object holder) {
-	return sm.getSession(holder);
+	Session s = null;
+	try {
+	    s = sm.getSession(holder);
+	} catch(Exception e) {
+	    logger.error("getSession(): " + e.getMessage());
+	}
+	return s;
     }
 
     public void returnSession(Session s) {
@@ -299,29 +315,41 @@ public class DBServiceImpl implements DBService {
     public Object selfTest() {
 	Object[] o = new Object[INIT_POOL_SIZE + 1];
 	Session[] s = new Session[INIT_POOL_SIZE + 1];
-	
-	if( logger != null ) 
-            logger.info("Starting db service selftest...");
-	
-	try{
+
+	if (logger != null)
+	    logger.info("Starting db service selftest...");
+
+	try {
 	    for (int i = 0; i < INIT_POOL_SIZE + 1; i++)
 		s[i] = null;
- 	    
+
 	    for (int i = 0; i < INIT_POOL_SIZE + 1; i++)
 		s[i] = getSession(o[i]);
-	    
+
 	    for (int i = 0; i < INIT_POOL_SIZE + 1; i++)
-		if(s[i] == null)
+		if (s[i] == null)
 		    return "Tests failed, a session is null";
-	    
+
 	} catch (Exception e) {
 	    return "Tests failed: " + e.getMessage();
 	}
+
+	if (sm.sessions.size() != (INIT_POOL_SIZE + (INIT_POOL_SIZE / 2)))
+	    return "Tests failed: Session pool size should be "
+		    + (INIT_POOL_SIZE + (INIT_POOL_SIZE / 2)) + ", it is "
+		    + sm.sessions.size();
+
+	o = new Object[MAX_POOL_SIZE + 3];
+	s = new Session[MAX_POOL_SIZE + 3];
 	
-	if(sm.sessions.size() != (INIT_POOL_SIZE + (INIT_POOL_SIZE / 2)))
-	    return "Tests failed: Session pool size should be " + 
-	    	(INIT_POOL_SIZE + (INIT_POOL_SIZE / 2)) + ", it is " + 
-	    	sm.sessions.size();
+	for (int i = 0; i < MAX_POOL_SIZE + 3; i++)
+	    s[i] = getSession(o[i]);
+
+	if (s[MAX_POOL_SIZE + 2] != null)
+	    return ("Tests failed, the session pool should have returned null");
+
+	for (int i = 0; i < MAX_POOL_SIZE + 3; i++)
+	    returnSession(s[i]);
 	
 	return null;
     }
