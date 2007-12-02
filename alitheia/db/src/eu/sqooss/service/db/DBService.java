@@ -37,13 +37,20 @@ import eu.sqooss.service.db.DAObject;
 
 import java.util.List;
 
+import org.hibernate.Session;
+
 public interface DBService {
     /**
      * Add a new project to the system; this should initialize
      * any tables that are needed for storage of project information.
+     * 
+     * @deprecated
      */
+    @Deprecated
     public void addRecord(DAObject record);
 
+    public void addRecord(Session s, DAObject record);
+    
     /**
      * Allows the intelligent C++ programmer to simply fire complete HQL
      * statements to the DBS. The HQL is very similar to SQL, but differs
@@ -51,15 +58,38 @@ public interface DBService {
      * http://www.hibernate.org/hib_docs/reference/en/html/queryhql.html
      * for details. As a rule, you do not write 'SELECT *' but only
      * 'FROM <ClassName>' (note: not the table name, the @em class).
+     * 
+     * @deprecated
      */
+    @Deprecated
     public List doSQL(String sql);
+    
+    public List doSQL(Session s, String sql);
 
     /**
      * This function shall perform an HQL query
      * This shall be used to replace the doSQL function
      * which shall be repurposed to actually do SQL!
+     * 
+     * @deprecated
      */
+    @Deprecated
     public List doHQL(String hql);
+    
+    public List doHQL(Session s, String hql);
+    
+    /**
+     * Get a session to the alitheia DB from the session manager
+     * 
+     * @return An initialised hibernate session to the SQO-OSS DB
+     */
+    public Session getSession(Object holder);
+    
+    /**
+     * Return a session to the session manager
+     * @param s The session to be returned
+     */
+    public void returnSession(Session s);
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

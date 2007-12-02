@@ -37,6 +37,8 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 import org.hibernate.Session;
@@ -61,8 +63,85 @@ public class DBServiceImpl implements DBService {
     // Hibernate so that it obeys the fallback from Postgres to Derby as well.
     private String dbClass, dbURL, dbDialect;
 
-    // This is the Hibernate session factory.
-    private SessionFactory sessionFactory = null;
+    private SessionManager sm = null;
+    
+    /**
+     * The simplest possible Session pool implementation. Maintains a pool of
+     * active hibernate sessions and manages associations of sessions to 
+     * clients.
+     */
+    private class SessionManager {
+	
+	/*Session->Session Holder mapping*/
+	private HashMap<Session, Object> sessions;
+	private SessionFactory sf;
+	private boolean expand;
+	
+	/**
+	 * Constructor
+	 * 
+	 * @param f - The factory to get sessions from
+	 * @param initSessions - Initial number of sessions to maintain
+	 * @param expand - Indicates whether the session manager will expand
+	 * the session pool if the all sessions are in use
+	 */
+	public SessionManager(SessionFactory f, int initSessions, 
+		boolean expand) {
+	    sf = f;
+	    this.expand = expand;
+	    sessions = new HashMap<Session, Object>();
+	    
+	    for (int i = 0; i < initSessions; i++) 
+		sessions.put(sf.openSession(), this);
+	    
+	    logger.info("Hibernate session manager init: pool size " 
+			+ sessions.size());
+	}
+	
+	/**
+	 * Returns a session to the holder object
+	 * @param holder The object to which the returned session is bound to 
+	 */
+	public synchronized Session getSession(Object holder) {
+	    Iterator<Session> i = sessions.keySet().iterator(); 
+	    Session s = null;
+	    
+	    while(i.hasNext()) {
+		s  = i.next();
+		if (sessions.get(s) == this)
+		    break;
+		s = null;
+	    }
+	    
+	    //Pool is full, expand it
+	    if (s == null && expand){
+		int size = sessions.size() / 2;
+		
+		for (int j = 0; j < size; j++) 
+			sessions.put(sf.openSession(), this);
+		
+		logger.info("Expanded Hibernate session pool to size " 
+			+ sessions.size());
+		return getSession(holder);
+	    } 
+	    
+	    if(s != null)
+		sessions.put(s, holder);
+	    
+	    return s;
+	}
+	
+	/**
+	 * Return a session to the session manager and release the binding to
+	 * the holder object
+	 * @param s
+	 */
+	public synchronized void returnSession(Session s) {
+	    if(sessions.containsKey(s)) {
+		sessions.put(s, this);
+	    }
+	}
+    }
 
     private boolean getJDBCConnection(String driver, String url, String dialect) {
         if ( (driver==null) || (url==null) || (dialect==null) ) {
@@ -115,6 +194,7 @@ public class DBServiceImpl implements DBService {
     }
 
     private void initHibernate() {
+	SessionFactory sf = null;
         logger.info("Initializing Hibernate");
         try {
             Configuration c = new Configuration();
@@ -126,7 +206,9 @@ public class DBServiceImpl implements DBService {
             c.setProperty("hibernate.connection.username", "alitheia");
             c.setProperty("hibernate.connection.password", "");
             c.setProperty("hibernate.connection.dialect", dbDialect);
-            sessionFactory = c.buildSessionFactory();
+            sf = c.buildSessionFactory();
+            sm = new SessionManager(sf, 10, true);
+            
         } catch (Throwable e) {
             logger.severe("Failed to initialize Hibernate: " + e.getMessage());
             e.printStackTrace();
@@ -166,28 +248,51 @@ public class DBServiceImpl implements DBService {
     }
 
     public void addRecord(DAObject record) {
-        Session s = sessionFactory.getCurrentSession();
+        Session s = sm.getSession(this);
         s.beginTransaction();
         s.save(record);
         s.getTransaction().commit();
+        sm.returnSession(s);
     }
 
     public List doSQL(String sql) {
-	Session s = sessionFactory.getCurrentSession();
+	Session s = sm.getSession(this);
         s.beginTransaction();
         List result = s.createSQLQuery(sql).list();
         s.getTransaction().commit();
+        sm.returnSession(s);
 
         return result;
     }
 
     public List doHQL(String hql) {
-	Session s = sessionFactory.getCurrentSession();
+	Session s = sm.getSession(this);
 	s.beginTransaction();
 	List result = s.createQuery(hql).list();
 	s.getTransaction().commit();
+	sm.returnSession(s);
 
 	return result;
+    }
+
+    public Session getSession(Object holder) {
+	return sm.getSession(holder);
+    }
+
+    public void returnSession(Session s) {
+	sm.returnSession(s);
+    }
+
+    public void addRecord(Session s, DAObject record) {
+	s.save(record);
+    }
+
+    public List doHQL(Session s, String hql) {
+	return s.createQuery(hql).list();
+    }
+
+    public List doSQL(Session s, String sql) {
+	return s.createSQLQuery(sql).list();
     }
 }
 
