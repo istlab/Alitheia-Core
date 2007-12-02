@@ -54,6 +54,9 @@ import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
 
 public class DBServiceImpl implements DBService {
+    
+    private static final int INIT_POOL_SIZE = 5;
+    
     private LogManager logService = null;
     private Logger logger = null;
     // This is the database connection; we may want to do more pooling here.
@@ -68,7 +71,7 @@ public class DBServiceImpl implements DBService {
     /**
      * The simplest possible Session pool implementation. Maintains a pool of
      * active hibernate sessions and manages associations of sessions to 
-     * clients.
+     * clients. <it>It only supports one session per client object</it> 
      */
     private class SessionManager {
 	
@@ -81,17 +84,15 @@ public class DBServiceImpl implements DBService {
 	 * Constructor
 	 * 
 	 * @param f - The factory to get sessions from
-	 * @param initSessions - Initial number of sessions to maintain
 	 * @param expand - Indicates whether the session manager will expand
 	 * the session pool if the all sessions are in use
 	 */
-	public SessionManager(SessionFactory f, int initSessions, 
-		boolean expand) {
+	public SessionManager(SessionFactory f, boolean expand) {
 	    sf = f;
 	    this.expand = expand;
 	    sessions = new HashMap<Session, Object>();
 	    
-	    for (int i = 0; i < initSessions; i++) 
+	    for (int i = 0; i < INIT_POOL_SIZE; i++) 
 		sessions.put(sf.openSession(), this);
 	    
 	    logger.info("Hibernate session manager init: pool size " 
@@ -207,7 +208,7 @@ public class DBServiceImpl implements DBService {
             c.setProperty("hibernate.connection.password", "");
             c.setProperty("hibernate.connection.dialect", dbDialect);
             sf = c.buildSessionFactory();
-            sm = new SessionManager(sf, 10, true);
+            sm = new SessionManager(sf, true);
             
         } catch (Throwable e) {
             logger.severe("Failed to initialize Hibernate: " + e.getMessage());
@@ -293,6 +294,36 @@ public class DBServiceImpl implements DBService {
 
     public List doSQL(Session s, String sql) {
 	return s.createSQLQuery(sql).list();
+    }
+    
+    public Object selfTest() {
+	Object[] o = new Object[INIT_POOL_SIZE + 1];
+	Session[] s = new Session[INIT_POOL_SIZE + 1];
+	
+	if( logger != null ) 
+            logger.info("Starting db service selftest...");
+	
+	try{
+	    for (int i = 0; i < INIT_POOL_SIZE + 1; i++)
+		s[i] = null;
+ 	    
+	    for (int i = 0; i < INIT_POOL_SIZE + 1; i++)
+		s[i] = getSession(o[i]);
+	    
+	    for (int i = 0; i < INIT_POOL_SIZE + 1; i++)
+		if(s[i] == null)
+		    return "Tests failed, a session is null";
+	    
+	} catch (Exception e) {
+	    return "Tests failed: " + e.getMessage();
+	}
+	
+	if(sm.sessions.size() != (INIT_POOL_SIZE + (INIT_POOL_SIZE / 2)))
+	    return "Tests failed: Session pool size should be " + 
+	    	(INIT_POOL_SIZE + (INIT_POOL_SIZE / 2)) + ", it is " + 
+	    	sm.sessions.size();
+	
+	return null;
     }
 }
 
