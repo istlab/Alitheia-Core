@@ -41,33 +41,32 @@ public interface UpdaterService {
      */
     public enum UpdateTarget {
         /* Request to update source code metadata*/
-        SOURCE_CODE_DATA,
+        SOURCE_CODE_DATA("code"),
         /* Request to update repository metadata*/
-        REPOSITORY_DATA,
+        REPOSITORY_DATA("repo"),
         /* Request to update mailing list metadata*/
-        MAILING_LIST_DATA,
+        MAILING_LIST_DATA("mail"),
         /* Request to update bug metadata*/
-        BUG_DATABASE_DATA,
+        BUG_DATABASE_DATA("bug"),
         /* Request to update all metadata*/
-        ALL;
+        ALL("all");
+        
+        private String desc;
+        
+        private UpdateTarget(String desc) {
+            this.desc = desc;
+        }
 
         public static UpdateTarget fromString(String s) {
             
             if (s == null)
                 return null;
             
-            if (s.contains("code"))
-                return UpdateTarget.SOURCE_CODE_DATA;
-            else if (s.contains("repo"))
-                return UpdateTarget.REPOSITORY_DATA;
-            else if (s.contains("mail"))
-                return UpdateTarget.MAILING_LIST_DATA;
-            else if (s.contains("bugs"))
-                return UpdateTarget.BUG_DATABASE_DATA;
-            else if (s.contains("all"))
-                return UpdateTarget.ALL;
-            else
-                return null;
+            for ( UpdateTarget t : values() ) {
+        	if(s.contains(t.desc)) { return t; }
+            }
+            
+            return null;
         }         
     }
 
