@@ -82,6 +82,13 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>core</artifactId>
+      <version>3.2.5</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>eu.sqooss</groupId>
       <artifactId>logger</artifactId>
       <version>[0.0.2,)</version>
