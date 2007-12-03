@@ -31,15 +31,88 @@
  *
  */
 
-// Need a package name
 package eu.sqooss.service.util;
 
-// OSGi comes next
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
+import java.util.Properties;
 
-public class BundleActivator {
-	static final int foo = 0;
+import org.osgi.framework.*;
+
+import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.logging.LogManager;
+
+public abstract class BundleActivatorBase implements Logger {
+    private ServiceReference logManagerService = null;
+    private LogManager logManager = null;
+    private Logger logger = null;
+    private String loggerName = null;
+    
+    protected void getLogger(final BundleContext bc) {
+        logManagerService = bc.getServiceReference(LogManager.class.getName());
+        if (logManagerService != null) {
+            logManager = (LogManager)bc.getService(logManagerService);
+            logger = logManager.createLogger(loggerName);
+        }
+    }
+
+    protected void ungetLogger(final BundleContext bc) {
+        if (logManagerService != null) {
+            logManager.releaseLogger(logger.getName());
+            logger = null;
+            bc.ungetService(logManagerService);
+            logManager = null;
+            logManagerService = null;
+        }
+    }
+
+    // Interface methods, all of them forwarded to the logger.
+    public void debug(String m) {
+        if (logger != null) {
+            logger.debug(m);
+        }
+    }
+
+    public void info(String m) {
+        if (logger != null) {
+            logger.info(m);
+        }
+    }
+
+    public void warn(String m) {
+        if (logger != null) {
+            logger.warn(m);
+        }
+    }
+
+    public void error(String m) {
+        if (logger != null) {
+            logger.error(m);
+        }
+    }
+
+    public void config(String m) {
+        if (logger != null) {
+            logger.config(m);
+        }
+    }
+
+    public void warning(String m) {
+        if (logger != null) {
+            logger.warning(m);
+        }
+    }
+
+    public void severe(String m) {
+        if (logger != null) {
+            logger.severe(m);
+        }
+    }
+
+    public String getName() {
+        if (logger != null) {
+            return logger.getName();
+        }
+        return null;
+    }
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab
