@@ -126,6 +126,10 @@ public interface SCMAccessor extends NamedAccessor {
         throws InvalidProjectRevisionException,
                InvalidRepositoryException;
 
+    CommitEntry getCommitLog(String repoPath, ProjectRevision r)
+        throws InvalidProjectRevisionException,
+               InvalidRepositoryException;
+
     /**
      * Get the diff between two revisions of a subtree within
      * the source repository. Arguments as getCommitLog(), above.

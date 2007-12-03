@@ -38,6 +38,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Iterator;
 
 import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.SVNLogEntry;
@@ -52,6 +53,7 @@ import org.tmatesoft.svn.core.wc.SVNRevision;
 
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.SCMAccessor;
+import eu.sqooss.service.tds.CommitEntry;
 import eu.sqooss.service.tds.CommitLog;
 import eu.sqooss.service.tds.Diff;
 import eu.sqooss.service.tds.ProjectRevision;
@@ -304,13 +306,22 @@ public class SCMAccessorImpl extends NamedAccessorImpl implements SCMAccessor {
         }
     }
 
-    public CommitLog getCommitLog( ProjectRevision r1, ProjectRevision r2 )
+    public CommitEntryImpl getCommitLog(String repoPath, ProjectRevision r1)
+        throws InvalidProjectRevisionException,
+               InvalidRepositoryException {
+        CommitLogImpl l = getCommitLog(repoPath,r1,r1);
+        Iterator<SVNLogEntry> i = l.iterator();
+        SVNLogEntry e = i.next();
+        return new CommitEntryImpl(e);
+    }
+
+    public CommitLogImpl getCommitLog(ProjectRevision r1, ProjectRevision r2)
         throws InvalidProjectRevisionException,
                InvalidRepositoryException {
         return getCommitLog("",r1,r2);
     }
 
-    public CommitLog getCommitLog( String repoPath, ProjectRevision r1, ProjectRevision r2 )
+    public CommitLogImpl getCommitLog(String repoPath, ProjectRevision r1, ProjectRevision r2)
         throws InvalidProjectRevisionException,
                InvalidRepositoryException {
         if (svnRepository == null) {

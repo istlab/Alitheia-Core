@@ -73,8 +73,13 @@ public class CheckoutBaton implements ISVNReporterBaton {
         throws SVNException {
         try {
             if (sourceRevision == 0) {
+                // If we are coming from r.0, then the checkout
+                // directory is empty -- that's what that true
+                // means in setPath().
                 reporter.setPath("", null, targetRevision, true);
             } else {
+                // All of the files are already there in r.source
+                // since we are updating an old checkout.
                 reporter.setPath("", null, sourceRevision, false);
             }
             reporter.finishReport();
