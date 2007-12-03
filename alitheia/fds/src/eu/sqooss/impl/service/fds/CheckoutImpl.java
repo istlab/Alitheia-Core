@@ -43,10 +43,29 @@ import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.ProjectRevision;
 import eu.sqooss.service.tds.SCMAccessor;
 
+/**
+ * The CheckoutImpl implements the Checkout interface. It represents a
+ * checkout of a specific project at a specific revision somewhere in the
+ * filesystem of the Alitheia core system. A CheckoutImpl exposes
+ * additional API for updating the checkout itself and handling the
+ * reference counting done on it. Most operations on CheckoutImpl
+ * are not thread-safe. Locking is done in the FDS which exposes
+ * only the Checkout (safe) part of the interface.
+ */
 class CheckoutImpl implements Checkout {
+    /** 
+     * The project this checkout belongs to. Used to get back to the
+     * TDS SCM that can update the checkout.
+     */
     private long projectId;
+    /**
+     * Human-readable project name. Informational only.
+     */
     private String projectName;
 
+    /**
+     * Reference count for this checkout.
+     */
     private int claims;
 
     private File root;
@@ -54,17 +73,19 @@ class CheckoutImpl implements Checkout {
     private ProjectRevision revision;
     private CommitEntry entry;
 
-    CheckoutImpl(SCMAccessor scm, String repoPath, ProjectRevision r, File root)
+    CheckoutImpl(SCMAccessor scm, String path, ProjectRevision r, File root)
         throws FileNotFoundException,
                InvalidProjectRevisionException,
                InvalidRepositoryException {
         projectId = scm.getId();
         projectName = scm.getName();
         claims = 0;
-        scm.getCheckout(repoPath, r, root);
+        repoPath = path;
+
+        scm.getCheckout(path, r, root);
         entry = scm.getCommitLog(repoPath, r);
+
         setCheckout(root, r);
-        this.repoPath = repoPath;
     }
 
     public void updateCheckout(SCMAccessor scm, ProjectRevision r)
@@ -84,9 +105,9 @@ class CheckoutImpl implements Checkout {
         return --claims;
     }
 
-    public void setCheckout( File root, ProjectRevision r ) {
-        this.root = root;
-        this.revision = r;
+    public void setCheckout(File rootPath, ProjectRevision r) {
+        root = rootPath;
+        revision = r;
     }
 
     public void setRevision(ProjectRevision r) {

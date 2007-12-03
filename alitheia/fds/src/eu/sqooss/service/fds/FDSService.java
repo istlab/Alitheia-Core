@@ -42,6 +42,8 @@ import eu.sqooss.service.tds.ProjectRevision;
  * handles caching and coordination of raw project data. It is primarily
  * concerned with handling (and updating) checkouts of project sources, not
  * with access to mail or the BTS.
+ *
+ * @see Checkout for information on how the lifecycle of a Checkout works.
  */
 public interface FDSService {
     /**
@@ -62,7 +64,7 @@ public interface FDSService {
      *              make sense with the given repository (for instance,
      *              non-existent SVN number).
      */
-    Checkout getCheckout( long id, ProjectRevision r )
+    Checkout getCheckout(long id, ProjectRevision r)
         throws InvalidRepositoryException,
                InvalidProjectRevisionException;
 
@@ -70,8 +72,12 @@ public interface FDSService {
      * Release a previously obtained checkout.
      *
      * @param c Checkout obtained from previous call to getCheckout()
+     *
+     * @throws InvalidRepositoryException if the repository (project ID)
+     *              is invalid in some way. If the checkout was obtained
+     *              normally, this indicates an inconsistency in the TDS.
      */
-    void releaseCheckout( Checkout c )
+    void releaseCheckout(Checkout c)
         throws InvalidRepositoryException;
 }
 
