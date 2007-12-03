@@ -38,19 +38,25 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
+import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.scheduler.Scheduler;
+import eu.sqooss.service.util.BundleActivatorBase;
+
 import eu.sqooss.impl.service.scheduler.SchedulerServiceImpl;
 
-public class SchedulerActivator implements BundleActivator {
+public class SchedulerActivator extends BundleActivatorBase
+    implements BundleActivator {
     private SchedulerServiceImpl schedulerService;
     private ServiceRegistration registration;
 
     public void start(BundleContext bundleContext) throws Exception {
-        schedulerService = new SchedulerServiceImpl(bundleContext);
+        start(bundleContext, Logger.NAME_SQOOSS_SCHEDULING);
+        schedulerService = new SchedulerServiceImpl(bundleContext, this);
         registration = bundleContext.registerService(Scheduler.class.getName(), schedulerService, null);
     }
     
     public void stop(BundleContext bundleContext) throws Exception {
         registration.unregister();
+        stop();
     }
 }

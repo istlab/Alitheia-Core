@@ -58,8 +58,6 @@ public class SchedulerServiceImpl implements Scheduler {
 
     private HttpService httpService = null;    
 
-    private LogManager logService = null;
-    
     private Logger logger = null;
     
     // thread safe job queue
@@ -68,21 +66,9 @@ public class SchedulerServiceImpl implements Scheduler {
 
     private List< WorkerThread > myWorkerThreads = null;
 
-    public SchedulerServiceImpl(BundleContext bc) throws NamespaceException {
-        
-        serviceRef = bc.getServiceReference("eu.sqooss.service.logging.LogManager");
-        logService = (LogManager) bc.getService(serviceRef);
-        if (logService != null) {
-            logger = logService.createLogger("sqooss.scheduler");
-            if(logger != null) {
-            	logger.info("Got logging!");
-            }
-        }
-        if (logger != null) {
-            logger.info("Got scheduling!");
-        } else {
-            System.out.println("! Got scheduler but no logging.");
-        }
+    public SchedulerServiceImpl(BundleContext bc, Logger l) {
+        logger = l;
+        logger.info("Got scheduling!");
     }
 
 	synchronized public void enqueue(Job job) throws Exception {
