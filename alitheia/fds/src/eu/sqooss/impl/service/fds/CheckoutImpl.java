@@ -109,6 +109,10 @@ class CheckoutImpl implements Checkout {
         return claims;
     }
 
+    public CommitEntry getCommitLog() {
+        return entry;
+    }
+
     // Interface eu.sqooss.service.tds.NamedAccessor
     /** {@inheritDoc} */
     public String getName() {

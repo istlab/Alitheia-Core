@@ -35,6 +35,7 @@ package eu.sqooss.service.fds;
 
 import java.io.File;
 
+import eu.sqooss.service.tds.CommitEntry;
 import eu.sqooss.service.tds.ProjectRevision;
 
 /**
@@ -45,6 +46,22 @@ import eu.sqooss.service.tds.ProjectRevision;
  * of the Alitheia system may access the same checkout concurrently.
  * Use the FDSService to obtain a checkout and remember to release it
  * when done.
+ *
+ * Typical use of a checkout looks like this:
+ *
+ * <code>
+ * Checkout c = fds.getCheckout(projectId, new ProjectRevision(svnRevision));
+ * File r = c.getRoot();
+ * // Do stuff in the file system tree under r, but don't change anything!
+ * fds.releaseCheckout(c);
+ * </code>
+ *
+ * A checkout carries with it knowledge of which revision it is, and you
+ * can get the project Id with getId(), but there is no direct access to
+ * the SCMAccessor that created the checkout -- you need to go through
+ * the TDS or FDS again for that. The checkout also has the commit log
+ * entry for itself, ie. svn log of getRevision().
+ *
  */
 public interface Checkout extends eu.sqooss.service.tds.NamedAccessor {
     /**
@@ -72,6 +89,13 @@ public interface Checkout extends eu.sqooss.service.tds.NamedAccessor {
      * @return Number of holders of this checkout.
      */
     int getReferenceCount();
+
+    /**
+     * A checkout knows the SVN log information for its revision.
+     *
+     * @return SVN log information for this checkout's revision.
+     */
+    CommitEntry getCommitLog();
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab
