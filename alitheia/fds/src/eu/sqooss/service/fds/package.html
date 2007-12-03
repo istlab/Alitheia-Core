@@ -1,0 +1,18 @@
+<html><head><title>Fat Data Service (FDS)</title></head>
+<body>
+<p>The Fat Data Service (FDS) provides access to the data stored
+in an Alitheia system. This is the <em>preprocessed</em> and <em>cached</em>
+data on the projects that the system analyses. The FDS makes use of the
+Thin Data Service (TDS) for all raw data access when the system does
+not have a preprocessed and cached version of the data available.
+</p>
+
+<p>
+The most important interface provided by the FDS is the Checkout.
+This allows metrics (or other system components) to retrieve a
+working copy (SVN checkout) of a project.
+Checkouts are shared between system components and must be released
+after use and must <em>not</em> be modified by system code.
+</p>
+</body>
+</html>
