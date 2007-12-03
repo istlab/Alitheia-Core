@@ -40,31 +40,78 @@ import org.osgi.framework.*;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.logging.LogManager;
 
-public abstract class BundleActivatorBase implements Logger {
+public abstract class BundleActivatorBase implements Logger, ServiceListener {
     private ServiceReference logManagerService = null;
+    private BundleContext bc = null;
     private LogManager logManager = null;
     private Logger logger = null;
     private String loggerName = null;
+    private static String loggerClass = LogManager.class.getName();
     
-    protected void getLogger(final BundleContext bc) {
-        logManagerService = bc.getServiceReference(LogManager.class.getName());
+    protected void start(final BundleContext bc, String loggerName) {
+        this.bc = bc;
+        this.loggerName = loggerName;
+        getLogger();
+        addListener();
+    }
+
+    protected void stop() {
+        removeListener();
+        ungetLogger();
+    }
+
+    private void addListener() {
+        if (logManagerService != null) {
+            String loggerFilter = "(" + Constants.OBJECTCLASS
+                + "=" + loggerClass +")";
+            try {
+                bc.addServiceListener(this, loggerFilter);
+            } catch (InvalidSyntaxException e) {
+                warning(e.getMessage());
+            }
+        }
+    }
+
+    private void removeListener() {
+        bc.removeServiceListener(this);
+    }
+
+    private void getLogger() {
+        if (logManagerService == null) {
+            logManagerService = bc.getServiceReference(loggerClass);
+        }
         if (logManagerService != null) {
             logManager = (LogManager)bc.getService(logManagerService);
             logger = logManager.createLogger(loggerName);
         }
     }
 
-    protected void ungetLogger(final BundleContext bc) {
+    private void ungetLogger() {
         if (logManagerService != null) {
             logManager.releaseLogger(logger.getName());
             logger = null;
             bc.ungetService(logManagerService);
             logManager = null;
-            logManagerService = null;
+            // The service *reference* stays around, since it's OK
+            // to keep service references even when the bundle they
+            // refer to is not available.
+            // logManagerService = null;
         }
     }
 
-    // Interface methods, all of them forwarded to the logger.
+    // Interface ServiceListener.
+    public void serviceChanged(ServiceEvent event) {
+        int eventType = event.getType();
+        if ((ServiceEvent.REGISTERED == eventType) ||
+            (ServiceEvent.MODIFIED == eventType)) {
+            getLogger();
+        } else if (ServiceEvent.UNREGISTERING == eventType) {
+            ungetLogger();
+        }
+    }
+
+
+    // Interface Logger. All calls forwarded to the actual logger object.
     public void debug(String m) {
         if (logger != null) {
             logger.debug(m);
