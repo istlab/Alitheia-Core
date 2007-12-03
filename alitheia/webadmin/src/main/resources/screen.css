@@ -133,7 +133,7 @@ body.section-4 #menu li#nav-4 a {
 
 /* Tabs Content */
 
-#contents {
+#contents {	
 	background : #fff;
 	border : 1px solid #ccc;
 	border-top : none;
@@ -141,6 +141,14 @@ body.section-4 #menu li#nav-4 a {
 	margin : 0px;
 	padding : 15px;
 	font-size: 12px;
+}
+
+#contents h2 {
+	width: 100%;
+	padding: 0;
+	margin: 0;
+	margin-bottom: 10px;
+	border-bottom: 1px dotted #000;
 }
 
 #bundles table {
@@ -169,6 +177,12 @@ body.section-4 #menu li#nav-4 a {
 	font-family: monospace;
 }
 
+#projectlist {
+	width: 80%;
+	display: inline;
+	float: left;
+}
+
 #newproject table {
     	border-collapse: collapse;
 	font-size: 12px;
@@ -186,11 +200,11 @@ body.section-4 #menu li#nav-4 a {
 
 /* Sidebar Content */
 
-form {
+form p {
 	display: inline;
 }
 
-#status, #options {
+#status, #options, #newproject {
 	display: inline;
 	background-color: #f6f6f6;
 	width: 89%;
@@ -200,6 +214,13 @@ form {
 	margin: 15px 0 10px 0;
 	font-size: small;
 }
+
+#newproject {
+	display: inline;
+	float: right;
+	width: 40%;
+}
+
 
 #start {
 	padding-right: 15px;

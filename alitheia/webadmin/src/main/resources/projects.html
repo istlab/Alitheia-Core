@@ -1,100 +1,96 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
-<head>
-<title>SQO-OSS : System Projects</title>
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-<link rel="stylesheet" type="text/css" media="screen" href="screen.css" />
-</head>
-
-<body class="section-3">
-<div id="wrap">
-	<div id="header"><h1>Admin Panel</h1><img src="sqo-oss.png" title="SQO-OSS" /></div>
-	<div id="main">
-	
-	<ul id="menu">
- 		<li id="nav-1"><a href="/index">Bundles</a></li>
-  		<li id="nav-2"><a href="/logs">Logs</a></li>
-  		<li id="nav-3"><a href="/projects">Projects</a></li>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtm1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+  <head>
+    <title>SQO-OSS : System Projects</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <link rel="stylesheet" type="text/css" media="screen" href="screen.css" />
+  </head>
+  <body class="section-3">
+    <div id="wrap">
+      <div id="header">
+        <h1>Admin Panel</h1>
+        <img src="sqo-oss.png" alt="SQO-OSS Logo" />
+      </div>
+      <div id="main">
+        <ul id="menu">
+          <li id="nav-1"><a href="/index">Bundles</a></li>
+          <li id="nav-2"><a href="/logs">Logs</a></li>
+          <li id="nav-3"><a href="/projects">Projects</a></li>
 	</ul>
 
 	<div id="contents">
-		<div id="projectlist">
-			<h2>Current Projects</h2>
-				<ul>
-					@@PROJECTS
-				</ul>
-		</div>
-
-		<div id="newproject">
-
-		<h2>Install New Project</h2>
-		<form id="addproject" method="post" action="addproject">
-			<table>
-				<tr>
-					<td>Project Name:</td>
-					<td><input name="name" type="text" size="25" maxlength="25" class="form" /></td>
-				</tr>
-				<tr>
-					<td>Website:</td>
-					<td><input name="website" type="text" size="25" class="form" /></td>
-				</tr>
-				<tr>
-					<td>Contact:</td>
-					<td><input name="contact" type="text" size="25" class="form" /></td>
-				</tr>
-				<tr>
-					<td>Bug Database:</td>
-					<td><input name="bts" type="text" size="25" class="form" /></td>
-				</tr>
-				<tr>
-					<td>Mail:</td>
-					<td><input name="mail" type="text" size="25" class="form" /></td>
-				</tr>
-				<tr>
-					<td>Subversion:</td>
-					<td><input name="scm" type="text" size="25" class="form" /></td>
-				</tr>
-				<tr>
-					<td>&nbsp;</td>
-					<td><input type="submit" value="Install Project" /></td>
-				</tr>
-			</table>
-		</form>
-		</div>
-  		
+          <h2>Installed Projects</h2>
+          <div id="projectlist">
+            <ul>
+              @@PROJECTS
+            </ul>
+          </div>
+          <fieldset id="newproject">
+            <legend>Install new project</legend>
+              <form id="addproject" method="post" action="addproject">
+                <table width="100%">
+                  <tr>
+                    <td>Project Name:</td>
+                    <td><input name="name" type="text" size="25" maxlength="25" class="form" /></td>
+                  </tr>
+                  <tr>
+                    <td>Website:</td>
+                    <td><input name="website" type="text" size="25" class="form" /></td>
+                  </tr>
+                  <tr>
+                    <td>Contact:</td>
+                    <td><input name="contact" type="text" size="25" class="form" /></td>
+                  </tr>
+                  <tr>
+                    <td>Bug Database:</td>
+                    <td><input name="bts" type="text" size="25" class="form" /></td>
+                  </tr>
+                  <tr>
+                    <td>Mail:</td>
+                    <td><input name="mail" type="text" size="25" class="form" /></td>
+                  </tr>
+                  <tr>
+                    <td>Subversion:</td>
+                    <td><input name="scm" type="text" size="25" class="form" /></td>
+                  </tr>
+                  <tr>
+                    <td>&nbsp;</td>
+                    <td><input type="submit" value="Install Project" /></td>
+                  </tr>
+                </table>
+              </form>
+            </fieldset>
+          </div>
 	</div>
-	</div>
-	<div id="sidebar">
-		<fieldset id="options">
-			<legend>Options</legend>	
-			<form id="start" method="POST" action="restart">
-				<input type="submit" value="Restart" />
-			</form>
-			<form id="stop" method="POST" action="stop">
-				<input type="submit" value="Stop" />
-			</form>
-		</fieldset>
-
-		<fieldset id="status">
-			<legend>Status</legend>	
-			<ul>
-				<li class="uptime">Uptime: 
-                                @@UPTIME
-                                </li>
-			
-				<li class="queue">Job Queue Length: 
-                                @@QUEUE_LENGTH
-                                </li>
-			</ul>
-		</fieldset>
-	</div>
-	<div id="footer">
-		<p>
-                @@COPYRIGHT
-                </p>
-	</div>
-</div>
-  
-</body>
+      </div>
+      <div id="sidebar">
+        <fieldset id="status">
+          <legend>Status</legend>	
+          <ul>
+            <li class="uptime">Uptime: 
+            @@UPTIME
+            </li>
+            <li class="queue">Job Queue Length: 
+            @@QUEUE_LENGTH
+            </li>
+          </ul>
+        </fieldset>
+        <fieldset id="options">
+          <legend>Options</legend>	
+          <form id="start" method="post" action="restart">
+            <input type="submit" value="Restart" />
+          </form>
+          <form id="stop" method="post" action="stop">
+            <input type="submit" value="Stop" />
+          </form>
+        </fieldset>
+      </div>
+      <div id="footer">
+        <p>
+        @@COPYRIGHT
+        </p>
+      </div>
+    </div>
+  </body>
 </html>
 
