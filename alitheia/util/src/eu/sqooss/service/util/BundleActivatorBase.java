@@ -35,7 +35,12 @@ package eu.sqooss.service.util;
 
 import java.util.Properties;
 
-import org.osgi.framework.*;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceEvent;
+import org.osgi.framework.ServiceListener;
+import org.osgi.framework.ServiceReference;
 
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.logging.LogManager;
