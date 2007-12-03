@@ -46,9 +46,11 @@ public class LoggingActivator implements BundleActivator {
         new LogManagerImpl(bc);
         LogManagerImpl.logManager.setBundleContext(bc);
         sReg = bc.registerService(LogManager.class.getName(), LogManagerImpl.logManager, null);
+        System.out.println("Logging started.");
     }
 
     public void stop(BundleContext bc) throws Exception {
+        System.out.println("Logging stopped.");
         if (sReg != null) {
             sReg.unregister();
         }

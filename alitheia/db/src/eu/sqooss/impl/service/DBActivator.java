@@ -36,19 +36,25 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
-import eu.sqooss.impl.service.db.DBServiceImpl;
 import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.util.BundleActivatorBase;
 
-public class DBActivator implements BundleActivator {
+import eu.sqooss.impl.service.db.DBServiceImpl;
+
+public class DBActivator extends BundleActivatorBase
+    implements BundleActivator {
     private ServiceRegistration registration;
 
     public void start(BundleContext bc) throws Exception {
+        start(bc, Logger.NAME_SQOOSS_DATABASE);
         registration = bc.registerService(DBService.class.getName(),
-                                          new DBServiceImpl(bc), null);
+                                          new DBServiceImpl(bc, this), null);
     }
 
     public void stop(BundleContext bc) throws Exception {
         registration.unregister();
+        stop();
     }
 }
 

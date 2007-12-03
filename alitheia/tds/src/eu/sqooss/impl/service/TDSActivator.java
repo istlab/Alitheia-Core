@@ -36,13 +36,17 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
+import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.TDSService;
+import eu.sqooss.service.util.BundleActivatorBase;
+
 import eu.sqooss.impl.service.tds.TDSServiceImpl;
 
 /**
  * This is the OSGi activator class for the Thin Data Service.
  */
-public class TDSActivator implements BundleActivator {
+public class TDSActivator extends BundleActivatorBase
+    implements BundleActivator {
     /**
      * Registration handle for the service, so we can
      * unregister later.
@@ -51,13 +55,15 @@ public class TDSActivator implements BundleActivator {
 
     /** Activate the bundle and register services. */
     final public void start(final BundleContext bc) throws Exception {
+        start(bc, Logger.NAME_SQOOSS_TDS);
         registration = bc.registerService(TDSService.class.getName(),
-                                          new TDSServiceImpl(bc), null);
+                                          new TDSServiceImpl(this), null);
     }
 
     /** Stop the bundle and unregister services. */
     final public void stop(final BundleContext bc) throws Exception {
         registration.unregister();
+        stop();
     }
 }
 

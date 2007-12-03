@@ -149,21 +149,11 @@ public class FDSServiceImpl implements FDSService {
      *
      * @param bc bundlecontext for configuration parameters.
      */
-    public FDSServiceImpl(final BundleContext bc) {
+    public FDSServiceImpl(final BundleContext bc, Logger l) {
         bundleContext = bc;
-        ServiceReference serviceRef =
-            bc.getServiceReference(LogManager.class.getName());
-        LogManager logService = (LogManager) bc.getService(serviceRef);
-        logger = logService.createLogger(Logger.NAME_SQOOSS_FDS);
-        if (logger != null) {
-            logger.info("FDS service created.");
-        } else {
-            System.out.println("# FDS failed to get logger.");
-            // This means we'll throw a null pointer exception in a minute,
-            // which is fine -- can't run without a logger.
-        }
+        logger = l;
 
-        serviceRef = bc.getServiceReference(TDSService.class.getName());
+        ServiceReference serviceRef = bc.getServiceReference(TDSService.class.getName());
         tds = (TDSService) bc.getService(serviceRef);
         logger.info("Got TDS service for FDS.");
 

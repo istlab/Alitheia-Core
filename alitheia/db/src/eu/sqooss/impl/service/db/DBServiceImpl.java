@@ -54,11 +54,11 @@ import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
 
 public class DBServiceImpl implements DBService {
-    
+
     /*Those two should be runtime configuration options*/
     private static final int INIT_POOL_SIZE = 5;
     private static final int MAX_POOL_SIZE = 100;
-    
+
     private LogManager logService = null;
     private Logger logger = null;
     // This is the database connection; we may want to do more pooling here.
@@ -69,22 +69,22 @@ public class DBServiceImpl implements DBService {
     private String dbClass, dbURL, dbDialect;
 
     private SessionManager sm = null;
-    
+
     /**
      * The simplest possible Session pool implementation. Maintains a pool of
-     * active hibernate sessions and manages associations of sessions to 
-     * clients. <it>It only supports one session per client object</it> 
+     * active hibernate sessions and manages associations of sessions to
+     * clients. <it>It only supports one session per client object</it>
      */
     private class SessionManager {
-	
+
 	/*Session->Session Holder mapping*/
 	private HashMap<Session, Object> sessions;
 	private SessionFactory sf;
 	private boolean expand;
-	
+
 	/**
 	 * Constructor
-	 * 
+	 *
 	 * @param f - The factory to get sessions from
 	 * @param expand - Indicates whether the session manager will expand
 	 * the session pool if the all sessions are in use
@@ -93,55 +93,55 @@ public class DBServiceImpl implements DBService {
 	    sf = f;
 	    this.expand = expand;
 	    sessions = new HashMap<Session, Object>();
-	    
-	    for (int i = 0; i < INIT_POOL_SIZE; i++) 
+
+	    for (int i = 0; i < INIT_POOL_SIZE; i++)
 		sessions.put(sf.openSession(), this);
-	    
-	    logger.info("Hibernate session manager init: pool size " 
+
+	    logger.info("Hibernate session manager init: pool size "
 			+ sessions.size());
 	}
-	
+
 	/**
 	 * Returns a session to the holder object
-	 * @param holder The object to which the returned session is bound to 
-	 * @throws Exception 
+	 * @param holder The object to which the returned session is bound to
+	 * @throws Exception
 	 */
 	public synchronized Session getSession(Object holder) throws Exception {
-	    Iterator<Session> i = sessions.keySet().iterator(); 
+	    Iterator<Session> i = sessions.keySet().iterator();
 	    Session s = null;
-	    
+
 	    while(i.hasNext()) {
 		s  = i.next();
 		if (sessions.get(s) == this)
 		    break;
 		s = null;
 	    }
-	    
+
 	    //Pool is full, expand it
 	    if (s == null && expand){
 		int size = sessions.size() / 2;
-		
+
 		if (size + sessions.size() >= MAX_POOL_SIZE)
 		    size = MAX_POOL_SIZE - sessions.size();
-		
+
 		if(MAX_POOL_SIZE == sessions.size())
 		    throw new Exception("SessionManager: Cannot serve more " +
 		    		"than "+ MAX_POOL_SIZE + " sessions");
-		
-		for (int j = 0; j < size; j++) 
+
+		for (int j = 0; j < size; j++)
 			sessions.put(sf.openSession(), this);
-		
-		logger.info("Expanded Hibernate session pool to size " 
+
+		logger.info("Expanded Hibernate session pool to size "
 			+ sessions.size());
 		return getSession(holder);
-	    } 
-	    
+	    }
+
 	    if(s != null)
 		sessions.put(s, holder);
-	    
+
 	    return s;
 	}
-	
+
 	/**
 	 * Return a session to the session manager and release the binding to
 	 * the holder object
@@ -219,7 +219,7 @@ public class DBServiceImpl implements DBService {
             c.setProperty("hibernate.connection.dialect", dbDialect);
             sf = c.buildSessionFactory();
             sm = new SessionManager(sf, true);
-            
+
         } catch (Throwable e) {
             logger.severe("Failed to initialize Hibernate: " + e.getMessage());
             e.printStackTrace();
@@ -227,16 +227,8 @@ public class DBServiceImpl implements DBService {
         }
     }
 
-    public DBServiceImpl( BundleContext bc ) {
-        ServiceReference serviceref =
-	    bc.getServiceReference("eu.sqooss.service.logging.LogManager");
-        logService = (LogManager) bc.getService(serviceref);
-        logger = logService.createLogger("sqooss.database");
-	if (logger != null) {
-            logger.info("DB service created.");
-        } else {
-            System.out.println("# DB service failed to get logger.");
-        }
+    public DBServiceImpl(BundleContext bc, Logger l) {
+        logger = l;
 
         dbURL = null;
         dbClass = null;
@@ -311,7 +303,7 @@ public class DBServiceImpl implements DBService {
     public List doSQL(Session s, String sql) {
 	return s.createSQLQuery(sql).list();
     }
-    
+
     public Object selfTest() {
 	Object[] o = new Object[INIT_POOL_SIZE + 1];
 	Session[] s = new Session[INIT_POOL_SIZE + 1];
@@ -341,7 +333,7 @@ public class DBServiceImpl implements DBService {
 
 	o = new Object[MAX_POOL_SIZE + 3];
 	s = new Session[MAX_POOL_SIZE + 3];
-	
+
 	for (int i = 0; i < MAX_POOL_SIZE + 3; i++)
 	    s[i] = getSession(o[i]);
 
@@ -350,7 +342,7 @@ public class DBServiceImpl implements DBService {
 
 	for (int i = 0; i < MAX_POOL_SIZE + 3; i++)
 	    returnSession(s[i]);
-	
+
 	return null;
     }
 }

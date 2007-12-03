@@ -37,13 +37,17 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
 import eu.sqooss.service.fds.FDSService;
+import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.util.BundleActivatorBase;
+
 import eu.sqooss.impl.service.fds.FDSServiceImpl;
 
 
 /**
  * Activator for the Fat Data Service (FDS).
  */
-public class FDSActivator implements BundleActivator {
+public class FDSActivator extends BundleActivatorBase
+    implements BundleActivator {
     /** Remember registration so we can unregister later. */
     private ServiceRegistration registration;
     /** This is our actual service. */
@@ -51,7 +55,8 @@ public class FDSActivator implements BundleActivator {
 
     /** Start the bundle. @param bc the bundle context. */
     public void start(BundleContext bc) {
-        fds = new FDSServiceImpl(bc);
+        start(bc, Logger.NAME_SQOOSS_FDS);
+        fds = new FDSServiceImpl(bc,this);
         registration = bc.registerService(FDSService.class.getName(),
             fds, null);
     }
@@ -65,6 +70,7 @@ public class FDSActivator implements BundleActivator {
     public void stop(BundleContext bc) {
         fds.stop();
         registration.unregister();
+        stop();
     }
 }
 

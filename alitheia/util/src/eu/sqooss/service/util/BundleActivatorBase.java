@@ -109,8 +109,10 @@ public abstract class BundleActivatorBase implements Logger, ServiceListener {
         int eventType = event.getType();
         if ((ServiceEvent.REGISTERED == eventType) ||
             (ServiceEvent.MODIFIED == eventType)) {
+            System.out.println("Logger for " + loggerName + " updated.");
             getLogger();
         } else if (ServiceEvent.UNREGISTERING == eventType) {
+            System.out.println("Logger for " + loggerName + " unregistered.");
             ungetLogger();
         }
     }

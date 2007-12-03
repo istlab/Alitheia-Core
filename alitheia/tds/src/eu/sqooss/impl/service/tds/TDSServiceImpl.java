@@ -56,18 +56,17 @@ public class TDSServiceImpl implements TDSService {
     private Logger logger = null;
     private HashMap<Long, TDAccessorImpl> accessorPool;
 
-    public TDSServiceImpl(BundleContext bc) {
-        ServiceReference serviceRef = bc.getServiceReference(LogManager.class.getName());
-        logService = (LogManager) bc.getService(serviceRef);
-        logger = logService.createLogger(Logger.NAME_SQOOSS_TDS);
-        if (logger != null) {
-            logger.info("TDS service created.");
-        } else {
-            // If the logger is not created, this gets printed
-            // but no checks are done later, and the bundle will
-            // crash (later in the constructor already).
-            System.out.println("# TDS failed to get logger.");
-        }
+    public TDSServiceImpl(Logger l) {
+        logger = l;
+        // Many other implementation classes need the same logger
+        TDAccessorImpl.logger = logger;
+        SCMAccessorImpl.logger = logger;
+        BTSAccessorImpl.logger = logger;
+        MailAccessorImpl.logger = logger;
+        CheckoutBaton.logger = logger;
+        CheckoutEditor.logger = logger;
+
+        logger.info("TDS service created.");
 
         // Initialize access methods for all the repo types
         DAVRepositoryFactory.setup();
@@ -75,12 +74,6 @@ public class TDSServiceImpl implements TDSService {
         FSRepositoryFactory.setup();
 
         logger.info("SVN repo factories initialized.");
-        TDAccessorImpl.logger = logger;
-        SCMAccessorImpl.logger = logger;
-        BTSAccessorImpl.logger = logger;
-        MailAccessorImpl.logger = logger;
-        CheckoutBaton.logger = logger;
-        CheckoutEditor.logger = logger;
 
         accessorPool = new HashMap<Long,TDAccessorImpl>();
     }
@@ -130,7 +123,7 @@ public class TDSServiceImpl implements TDSService {
         }
 
         // Fail if the pool is empty; we don't want to fiddle around
-        // with a system where the database is empty. This assumes 
+        // with a system where the database is empty. This assumes
         // that someone else calls addAccessor() before calling selfTest().
         Set<Long> accessorKeys = accessorPool.keySet();
         Iterator<Long> i = accessorKeys.iterator();
@@ -141,7 +134,7 @@ public class TDSServiceImpl implements TDSService {
         // Check consistency of accessor retrieval
         TDAccessorImpl accessor = accessorPool.get(i.next());
         long id = accessor.getId();
-        logger.info("Checking project " + id + 
+        logger.info("Checking project " + id +
             " <" + accessor.getName() + ">");
         if (accessor != getAccessor(id)) {
             return new String("Request for project " + i +
