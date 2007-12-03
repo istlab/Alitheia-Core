@@ -521,7 +521,10 @@ public class FDSServiceImpl implements FDSService {
 
         if (projectCheckout != null) {
             try {
+                // Normally you don't do an update on a checkout that
+                // is claimed by someone.
                 updateCheckout(projectCheckout, new ProjectRevision(4));
+                logger.info(projectCheckout.getCommitLog().toString());
             } catch (InvalidRepositoryException e) {
                 logger.warning("Project ID 1 has vanished again.");
             } catch (InvalidProjectRevisionException e) {

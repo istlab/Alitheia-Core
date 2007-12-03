@@ -42,6 +42,8 @@ public interface CommitEntry {
     String getAuthor();
     String getMessage();
     String[] getChangedPaths();
+
+    String toString();
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

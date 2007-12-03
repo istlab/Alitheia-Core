@@ -81,6 +81,11 @@ public class CommitEntryImpl implements CommitEntry {
     public String[] getChangedPaths() {
         return changedPaths;
     }
+
+    public String toString() {
+        return getRevision().toString() + " " + getAuthor() + "\n    "
+            + getMessage();
+    }
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab
