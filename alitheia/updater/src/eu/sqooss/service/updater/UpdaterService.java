@@ -42,8 +42,6 @@ public interface UpdaterService {
     public enum UpdateTarget {
         /* Request to update source code metadata*/
         SOURCE_CODE_DATA("code"),
-        /* Request to update repository metadata*/
-        REPOSITORY_DATA("repo"),
         /* Request to update mailing list metadata*/
         MAILING_LIST_DATA("mail"),
         /* Request to update bug metadata*/

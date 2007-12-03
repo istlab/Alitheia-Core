@@ -128,6 +128,17 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
     public void update(String path, UpdateTarget target) {
         logger.info("Request to update project:" + path + " for target: " 
                 + target);
+        
+        if ( target == UpdateTarget.MAILING_LIST_DATA ) {
+            // mailing list update
+        } else if ( target == UpdateTarget.SOURCE_CODE_DATA ) {
+            // source code update
+        } else if ( target == UpdateTarget.BUG_DATABASE_DATA ) {
+            // bug database update
+        } else if ( target == UpdateTarget.ALL ) {
+            // update all
+        }
+        
     }
 
     public void doGet(HttpServletRequest request, HttpServletResponse response)
