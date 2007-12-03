@@ -45,7 +45,6 @@
 
   <!-- Dependencies -->
   <dependencies>
-<!--
     <dependency>
       <groupId>org.eclipse.equinox</groupId>
       <artifactId>osgi</artifactId>
@@ -53,6 +52,7 @@
       <type>jar</type>
       <scope>provided</scope>
     </dependency>
+<!--
     <dependency>
       <groupId>org.eclipse.osgi</groupId>
       <artifactId>services</artifactId>
