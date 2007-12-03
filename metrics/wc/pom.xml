@@ -73,6 +73,13 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
+      <groupId>eu.sqooss</groupId>
+      <artifactId>dbs</artifactId>
+      <version>[0.0.1,)</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>eu.sqooss.metrics</groupId>
       <artifactId>abstract</artifactId>
       <version>[0.0.1,)</version>
