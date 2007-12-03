@@ -34,6 +34,7 @@
 package eu.sqooss.metrics.abstractmetric;
 
 import java.util.Date;
+import eu.sqooss.service.db.DAObject;
 
 /**
  * Common metric plug-in related functionality. Must be implemented
@@ -91,6 +92,13 @@ public interface Metric {
      */
     String getDescription();
 
+    /**
+     * Generic "get results" function, it is specialised by sub-interfaces 
+     * @param o 
+     * @return
+     */
+    MetricResult getResult(DAObject o);
+   
     /**
      * After installing a new version of the metric, try to 
      * update the results. The metric may opt to partially

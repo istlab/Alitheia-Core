@@ -38,13 +38,18 @@ import java.util.Date;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
+import eu.sqooss.service.db.DAObject;
+import eu.sqooss.service.db.FileGroup;
+import eu.sqooss.service.db.ProjectFile;
+import eu.sqooss.service.db.ProjectVersion;
+import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
 
 /**
  * A base class for all metrics. Implements basic functionality such as
  * logging setup and plug-in information retrieval from the OSGi bundle
- * maniferst file. Metrics can choose to directly implement
+ * manifest file. Metrics can choose to directly implement
  * the {@link eu.sqooss.metrics.Metric} interface instead of extending 
  * this class.
  */
@@ -57,6 +62,7 @@ public abstract class AbstractMetric implements Metric {
 
     protected Logger logger = null;
 
+    
     protected AbstractMetric(BundleContext bc){ 
 	/* Get a reference to the logging service */
 	serviceRef = bc.getServiceReference(LogManager.class.getName());
@@ -103,6 +109,41 @@ public abstract class AbstractMetric implements Metric {
 	return null;
     }
 
+    public void delete(DAObject o) {
+	if(this instanceof ProjectVersionMetric)
+	    delete((ProjectVersion) o);
+	if(this instanceof StoredProjectMetric)
+	    delete((StoredProject) o);
+	if(this instanceof ProjectFileMetric)
+	    delete((ProjectFile) o);
+	if(this instanceof FileGroupMetric)
+	    delete((FileGroup) o);
+    }
+
+    public MetricResult getResult(DAObject o) {
+	
+	if(this instanceof ProjectVersionMetric)
+	    return getResult((ProjectVersion) o);
+	if(this instanceof StoredProjectMetric)
+	    return getResult((StoredProject) o);
+	if(this instanceof ProjectFileMetric)
+	    return getResult((ProjectFile) o);
+	if(this instanceof FileGroupMetric)
+	    return getResult((FileGroup) o);
+	return null;
+    }
+
+    public void run(DAObject o) {
+	if(this instanceof ProjectVersionMetric)
+	    run((ProjectVersion) o);
+	if(this instanceof StoredProjectMetric)
+	    run((StoredProject) o);
+	if(this instanceof ProjectFileMetric)
+	    run((ProjectFile) o);
+	if(this instanceof FileGroupMetric)
+	    run((FileGroup) o);
+    }
+
     public abstract boolean install();
 
     public abstract boolean remove();
@@ -110,6 +151,14 @@ public abstract class AbstractMetric implements Metric {
     public abstract boolean update();
 
     public abstract Date getDateInstalled();
+    
+    
+    protected boolean initStorage() {
+	
+	return false;
+    }
 }
+
+
 // vi: ai nosi sw=4 ts=4 expandtab
 
