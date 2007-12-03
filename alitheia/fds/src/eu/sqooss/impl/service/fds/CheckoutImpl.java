@@ -34,21 +34,42 @@
 package eu.sqooss.impl.service.fds;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 
 import eu.sqooss.service.fds.Checkout;
+import eu.sqooss.service.tds.InvalidProjectRevisionException;
+import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.ProjectRevision;
+import eu.sqooss.service.tds.SCMAccessor;
 
 class CheckoutImpl implements Checkout {
     private long projectId;
     private String projectName;
+
     private int claims;
+
     private File root;
+    private String repoPath;
     private ProjectRevision revision;
 
-    CheckoutImpl( long id, String name ) {
-        projectId = id;
-        projectName = name;
+    CheckoutImpl(SCMAccessor scm, String repoPath, ProjectRevision r, File root)
+        throws FileNotFoundException,
+               InvalidProjectRevisionException,
+               InvalidRepositoryException {
+        projectId = scm.getId();
+        projectName = scm.getName();
         claims = 0;
+        scm.getCheckout(repoPath, r, root);
+        setCheckout(root, r);
+        this.repoPath = repoPath;
+    }
+
+    public void updateCheckout(SCMAccessor scm, ProjectRevision r)
+        throws FileNotFoundException,
+               InvalidProjectRevisionException,
+               InvalidRepositoryException {
+        scm.updateCheckout(repoPath, getRevision(), r, getRoot());
+        setRevision(r);
     }
 
     public int claim() {

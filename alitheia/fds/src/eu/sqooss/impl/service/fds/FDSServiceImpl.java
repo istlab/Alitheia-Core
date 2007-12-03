@@ -330,18 +330,14 @@ public class FDSServiceImpl implements FDSService {
 
         logger.info("Created checkout root <" + checkoutRoot + ">");
         try {
-            svn.getCheckout("", r, checkoutRoot);
+            CheckoutImpl c = new CheckoutImpl(svn, "", r, checkoutRoot);
+            c.claim();
+            return c;
         } catch (FileNotFoundException e) {
             logger.warning("Root of project " + svn.getName()
                 + " does not exist: " + e.getMessage());
             return null;
         }
-
-        CheckoutImpl c = new CheckoutImpl( svn.getId(), svn.getName());
-        c.setCheckout( checkoutRoot, r );
-        c.claim();
-
-        return c;
     }
 
     /**
@@ -361,11 +357,10 @@ public class FDSServiceImpl implements FDSService {
         SCMAccessor svn = a.getSCMAccessor();
         svn.resolveProjectRevision(r);
         try {
-            svn.updateCheckout("", c.getRevision(), r, c.getRoot());
+            c.updateCheckout(svn, r);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        c.setRevision(r);
     }
 
     // Interface methods
