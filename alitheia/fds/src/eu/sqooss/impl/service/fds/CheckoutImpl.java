@@ -37,6 +37,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 
 import eu.sqooss.service.fds.Checkout;
+import eu.sqooss.service.tds.CommitEntry;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
 import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.ProjectRevision;
@@ -51,6 +52,7 @@ class CheckoutImpl implements Checkout {
     private File root;
     private String repoPath;
     private ProjectRevision revision;
+    private CommitEntry entry;
 
     CheckoutImpl(SCMAccessor scm, String repoPath, ProjectRevision r, File root)
         throws FileNotFoundException,
@@ -60,6 +62,7 @@ class CheckoutImpl implements Checkout {
         projectName = scm.getName();
         claims = 0;
         scm.getCheckout(repoPath, r, root);
+        entry = scm.getCommitLog(repoPath, r);
         setCheckout(root, r);
         this.repoPath = repoPath;
     }
@@ -69,6 +72,7 @@ class CheckoutImpl implements Checkout {
                InvalidProjectRevisionException,
                InvalidRepositoryException {
         scm.updateCheckout(repoPath, getRevision(), r, getRoot());
+        entry = scm.getCommitLog(repoPath, r);
         setRevision(r);
     }
 

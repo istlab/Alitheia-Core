@@ -39,9 +39,9 @@ package eu.sqooss.service.tds;
 
 public interface CommitEntry {
     ProjectRevision getRevision();
-    String author();
-    String message();
-    String[] changedPaths();
+    String getAuthor();
+    String getMessage();
+    String[] getChangedPaths();
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab
