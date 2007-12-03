@@ -36,53 +36,54 @@ package eu.sqooss.impl.metrics.wc;
 
 import java.util.Date;
 
+import org.osgi.framework.BundleContext;
+
+import eu.sqooss.metrics.abstractmetric.AbstractMetric;
+import eu.sqooss.metrics.abstractmetric.MetricResult;
 import eu.sqooss.metrics.wc.Wc;
+import eu.sqooss.service.db.ProjectFile;
+import eu.sqooss.service.db.ProjectVersion;
 
-public class WcImplementation implements Wc {
+public class WcImplementation extends AbstractMetric implements Wc {
 
-    private String revision = "Spanky Monkey:17";
-
-    protected WcImplementation() {
-      
+    protected WcImplementation(BundleContext bc) {
+	super(bc);
     }
 
-	public String getAuthor() {
-		
-		return "Markos Gogoulos";
-	}
+    public Date getDateInstalled() {
 
-	public Date getDateInstalled() {
-		
-		return null;
-	}
+	return null;
+    }
 
-	public String getDescription() {
-		
-		return null;
-	}
+    public boolean install() {
 
-	public String getName() {
-		
-		return "Wc metric";
-	}
+	return false;
+    }
 
-	public String getVersion() {
-		
-		return revision;
-	}
+    public boolean remove() {
 
-	public boolean install() {
-		
-		return false;
-	}
+	return false;
+    }
 
-	public boolean remove() {
-		
-		return false;
-	}
+    public boolean update() {
 
-	public boolean update() {
-		
-		return false;
-	}
+	return false;
+    }
+    
+    boolean run(ProjectVersion a, ProjectVersion b) {
+	return false;
+    }
+
+    public MetricResult getResult(ProjectFile a) {
+	// TODO Auto-generated method stub
+	return null;
+    }
+
+    public boolean run(ProjectFile a) {
+	// TODO Auto-generated method stub
+	return false;
+    }
+    
+    
+    
 }

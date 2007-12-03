@@ -32,12 +32,8 @@
 
 package eu.sqooss.metrics.wc;
 
-import eu.sqooss.metrics.abstractmetric.Metric;
-import eu.sqooss.metrics.abstractmetric.StoredProjectMetric;
-import eu.sqooss.metrics.abstractmetric.ProjectVersionMetric;
-import eu.sqooss.metrics.abstractmetric.FileGroupMetric;
 import eu.sqooss.metrics.abstractmetric.ProjectFileMetric;
 
-public interface Wc extends Metric {
-
+public interface Wc extends ProjectFileMetric {
+    
 }
