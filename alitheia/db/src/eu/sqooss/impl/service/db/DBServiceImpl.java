@@ -297,53 +297,57 @@ public class DBServiceImpl implements DBService {
     }
 
     public List doHQL(Session s, String hql) {
-	return s.createQuery(hql).list();
+        return s.createQuery(hql).list();
     }
 
     public List doSQL(Session s, String sql) {
-	return s.createSQLQuery(sql).list();
+        return s.createSQLQuery(sql).list();
     }
 
     public Object selfTest() {
-	Object[] o = new Object[INIT_POOL_SIZE + 1];
-	Session[] s = new Session[INIT_POOL_SIZE + 1];
+        Object[] o = new Object[INIT_POOL_SIZE + 1];
+        Session[] s = new Session[INIT_POOL_SIZE + 1];
 
-	if (logger != null)
-	    logger.info("Starting db service selftest...");
+        try {
+            for (int i = 0; i < INIT_POOL_SIZE + 1; i++) {
+                s[i] = null;
+            }
 
-	try {
-	    for (int i = 0; i < INIT_POOL_SIZE + 1; i++)
-		s[i] = null;
+            for (int i = 0; i < INIT_POOL_SIZE + 1; i++) {
+                s[i] = getSession(o[i]);
+            }
 
-	    for (int i = 0; i < INIT_POOL_SIZE + 1; i++)
-		s[i] = getSession(o[i]);
+            for (int i = 0; i < INIT_POOL_SIZE + 1; i++) {
+                if (s[i] == null) {
+                    return "Tests failed, a session is null";
+                }
+            }
+        } catch (Exception e) {
+            return "Tests failed: " + e.getMessage();
+        }
 
-	    for (int i = 0; i < INIT_POOL_SIZE + 1; i++)
-		if (s[i] == null)
-		    return "Tests failed, a session is null";
+        if (sm.sessions.size() != (INIT_POOL_SIZE + (INIT_POOL_SIZE / 2))) {
+            return "Tests failed: Session pool size should be "
+                + (INIT_POOL_SIZE + (INIT_POOL_SIZE / 2)) + ", it is "
+                + sm.sessions.size();
+        }
 
-	} catch (Exception e) {
-	    return "Tests failed: " + e.getMessage();
-	}
+        o = new Object[MAX_POOL_SIZE + 3];
+        s = new Session[MAX_POOL_SIZE + 3];
 
-	if (sm.sessions.size() != (INIT_POOL_SIZE + (INIT_POOL_SIZE / 2)))
-	    return "Tests failed: Session pool size should be "
-		    + (INIT_POOL_SIZE + (INIT_POOL_SIZE / 2)) + ", it is "
-		    + sm.sessions.size();
+        for (int i = 0; i < MAX_POOL_SIZE + 3; i++) {
+            s[i] = getSession(o[i]);
+        }
 
-	o = new Object[MAX_POOL_SIZE + 3];
-	s = new Session[MAX_POOL_SIZE + 3];
+        if (s[MAX_POOL_SIZE + 2] != null) {
+            return ("Tests failed, the session pool should have returned null");
+        }
 
-	for (int i = 0; i < MAX_POOL_SIZE + 3; i++)
-	    s[i] = getSession(o[i]);
+        for (int i = 0; i < MAX_POOL_SIZE + 3; i++) {
+            returnSession(s[i]);
+        }
 
-	if (s[MAX_POOL_SIZE + 2] != null)
-	    return ("Tests failed, the session pool should have returned null");
-
-	for (int i = 0; i < MAX_POOL_SIZE + 3; i++)
-	    returnSession(s[i]);
-
-	return null;
+        return null;
     }
 }
 
