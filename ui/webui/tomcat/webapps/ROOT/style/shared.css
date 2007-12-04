@@ -10,26 +10,21 @@ html {
 	background:#fff;
 }
 
-#wrap {
-	background:#fff;
-	width: 100%;
-}
-
-#sidebar a:link {
+a:link {
     color: black;
     text-decoration: underline;
 }
 
-#sidebar a:hover {
+a:hover {
     color: #D622222;
     text-decoration: none;
 }
 
-#sidebar a:active {
+a:active {
     font-weight: bold;
 }
 
-#sidebar a:visited {
+a:visited {
     color: #131114;
 }
 
@@ -57,11 +52,6 @@ html {
 	padding: 15px;
 }
 
-#sidebar {
-	background:#fff;
-	float:right;
-	width:22%;
-}
 
 #footer {
 	background:#f6f6f6;
@@ -74,80 +64,6 @@ html {
 #footer p {
 	padding:5px;
 	margin:0;
-}
-
-/* Tabs menu */
-
-#menu {
-	border-bottom : 1px solid #ccc;
-	margin : 0;
-	padding-bottom : 30px;
-	padding-left : 10px;
-}
-
-#menu ul, #menu li	{
-	display : inline;
-	list-style-type : none;
-	margin : 0;
-	padding : 0;
-}
-
-	
-#menu a:link, #menu a:visited	{
-	background : #E8EBF0;
-	border : 1px solid #ccc;
-	color : #666;
-	float : left;
-	font-size : small;
-	font-weight : normal;
-	line-height : 25px;
-	margin-right : 8px;
-	padding : 2px 10px 2px 10px;
-	text-decoration : none;
-}
-
-#menu a:link.active, #menu a:visited.active	{
-	background : #fff;
-	border-bottom : 1px solid #fff;
-	color : #000;
-}
-
-#menu a:hover	{
-	color : #D622222;
-}
-
-	
-#menu li#nav-1 a {
-	background : #eee url(/bundles.png) 0 3px no-repeat;
-	padding-left: 25px;
-	border-bottom : 1px solid #ccc;
-}
- 
-#menu li#nav-2 a {
-	background : #eee url(/logs.png) 0 3px no-repeat;
-	padding-left: 25px;
-	border-bottom : 1px solid #ccc;
-}
-
-#menu li#nav-3 a {
-	background : #eee url(/projects.png) 0 3px no-repeat;
-	padding-left: 25px;
-	border-bottom : 1px solid #ccc;
-}
-
-body.section-1 #menu li#nav-1 a, 
-body.section-2 #menu li#nav-2 a,
-body.section-3 #menu li#nav-3 a,
-body.section-4 #menu li#nav-4 a {
-	background-color: #fff;
-	border-bottom : 1px solid #fff;
-	color : #000;
-}
-
-
-
- #menu ul a:hover {
-	color : #D622222 !important;
 }
 
 /* Tabs Content */
@@ -178,115 +94,6 @@ body.section-4 #menu li#nav-4 a {
     border-bottom: 1px dotted #000;
 }
 
-#bundles table {
-    border-color: #c6c6c5;
-    border-width: 0 0 1px 1px;
-   	border-style: solid;
-   	border-collapse: collapse;
-	font-size: 12px;
-}
-
-#bundles thead {
-	text-align: center;
-	font-weight: bold;	
-}
-
-#bundles td {
-    border-color: #c6c6c5;
-    border-width: 1px 1px 0 0;
-    border-style: solid;
-    margin: 0;
-    padding: 4px;
-    background-color: #fcfbf2;
-}
-
-#contents .logs {
-	font-family: monospace;
-}
-
-#projectlist {
-	width: 80%;
-	display: inline;
-	float: left;
-}
-
-#newproject table {
-    border-collapse: collapse;
-	font-size: 12px;
-}
-
-#newproject td {
-    margin: 0;
-    padding: 4px;
-}
-
-#newproject .form {
-	border: 1px solid #ccc;
-	background: url(/style/greyBack.jpg) top repeat-x; 
-}
-
-/* Sidebar Content */
-
-form p {
-	display: inline;
-}
-
-#status, #options, #newproject {
-	display: inline;
-	background-color: #f6f6f6;
-	width: 89%;
-	float: left;
-	clear: left;
-	border: 1px dotted #ccc;
-	margin: 15px 0 10px 0;
-	font-size: small;
-}
-
-#newproject {
-	display: inline;
-	float: right;
-	width: 40%;
-}
-
-
-#start {
-	padding-right: 15px;
-}
-
-#status ul   {
-	margin : 0;
-	padding : 0;
-	text-align : left;
-	border : 0;
-}
-
-#status li {
-	line-height: 1.5em;
-}
-
-#status li.uptime  {
-	list-style: none;
-	background-image: url(/uptime.png);
-	background-repeat: no-repeat;
-	background-position: 0 0;
-	padding-top: 3px;
-	padding-left: 37px;
-	padding-bottom: 10px;
-}
-
-#status li.queue  {
-	list-style: none;
-	background-image: url(/queue.png);
-	background-repeat: no-repeat;
-	background-position: 0 0;
-	padding-top: 3px;
-	padding-left: 37px;
-}
-
-legend {
-	font-weight: bold;
-}
-
 
 .metrics {
     margin: 0px;
@@ -303,33 +110,3 @@ table.metrics {
 blockquote {
     font-style: italic;
 }
-
-
-#sidebar {
-    background: #eeeeee;
-    width: 20%;
-    float: left;
-    clear: left;
-    border: 1px solid #cccccc;
-    padding: 1ex 1em;
-    margin: 1ex 4ex 4ex 4px;
-    font-size: small;
-    font-weight: bold;
-}
-
-#sidebar ul {
-    list-style-type: none;
-    margin: 0px;
-    padding: 0px;
-}
-
-#sidebar li {
-    margin-left: 0px;
-    padding-left: 0px;
-    padding-right: 5px;
-}
-
-#news {
-    padding: 1ex 1em 1ex 22%;
-}
-

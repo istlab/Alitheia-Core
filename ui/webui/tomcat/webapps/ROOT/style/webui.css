@@ -1,0 +1,30 @@
+
+
+#sidebar {
+    background: #eeeeee;
+    width: 20%;
+    float: left;
+    clear: left;
+    border: 1px solid #cccccc;
+    padding: 1ex 1em;
+    margin: 1ex 4ex 4ex 4px;
+    font-size: small;
+    font-weight: bold;
+}
+
+#sidebar ul {
+    list-style-type: none;
+    margin: 0px;
+    padding: 0px;
+}
+
+#sidebar li {
+    margin-left: 0px;
+    padding-left: 0px;
+    padding-right: 5px;
+}
+
+#news {
+    padding: 1ex 1em 1ex 22%;
+}
+
