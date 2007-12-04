@@ -84,7 +84,12 @@ checkstyle:
 
 define resource_template
 build/$(1) : src/main/resources/$(1)
-	cp src/main/resources/$(1) build/
+	if test -d src/main/resources/$(1) ; then \
+		cp -R src/main/resources/$(1) build/ ; \
+		rm -rf `find build/ -name .svn` ; \
+	else \
+		cp src/main/resources/$(1) build/ ; \
+	fi
 endef
 
 define hbm_resource_template
