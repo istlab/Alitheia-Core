@@ -77,3 +77,5 @@ public abstract class ProductivityMetricJob extends Job {
         log.info(this.getClass().getName() + ": Nothing to do");
     }
 }
+
+//vi: ai nosi sw=4 ts=4 expandtab

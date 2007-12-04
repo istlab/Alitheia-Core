@@ -133,3 +133,5 @@ public class CodeCommitsJob extends ProductivityMetricJob {
         return false;
     }
 }
+
+//vi: ai nosi sw=4 ts=4 expandtab
