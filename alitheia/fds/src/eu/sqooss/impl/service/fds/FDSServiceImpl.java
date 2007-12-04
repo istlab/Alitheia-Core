@@ -48,7 +48,6 @@ import org.apache.commons.codec.binary.Hex;
 
 import eu.sqooss.service.fds.Checkout;
 import eu.sqooss.service.fds.FDSService;
-import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
@@ -153,7 +152,9 @@ public class FDSServiceImpl implements FDSService {
         bundleContext = bc;
         logger = l;
 
-        ServiceReference serviceRef = bc.getServiceReference(TDSService.class.getName());
+        ServiceReference serviceRef = bc.getServiceReference(
+            TDSService.class.getName());
+        // This will NPE if there wasn't a TDS available, no problem.
         tds = (TDSService) bc.getService(serviceRef);
         logger.info("Got TDS service for FDS.");
 
@@ -233,7 +234,7 @@ public class FDSServiceImpl implements FDSService {
             if (c.getReferenceCount() == 0) {
                 // This is a candidate
                 long rev = c.getRevision().getSVNRevision();
-                if ( (lowerBound <= rev) && (rev <= upperBound) ) {
+                if ((lowerBound <= rev) && (rev <= upperBound)) {
                     return c;
                 }
             }
@@ -253,7 +254,7 @@ public class FDSServiceImpl implements FDSService {
      * @throws RuntimeException if we find a second checkout of the
      *          same project and revision which is not equal to c.
      */
-    private CheckoutImpl findCheckout( Checkout c )
+    private CheckoutImpl findCheckout(Checkout c)
         throws InvalidRepositoryException {
         List<CheckoutImpl> l = checkoutCollection.get(c.getId());
         if (l == null) {
@@ -272,8 +273,8 @@ public class FDSServiceImpl implements FDSService {
             // This means that we have two objects in the checkoutCollection
             // with the same project name and the same SVN revision, but
             // they are different objects. This must not happen.
-            throw new RuntimeException("Duplicate checkouts for " +
-                c.getName() + " " + c.getRevision());
+            throw new RuntimeException("Duplicate checkouts for "
+                + c.getName() + " " + c.getRevision());
         }
     }
 
@@ -283,7 +284,7 @@ public class FDSServiceImpl implements FDSService {
      * project in this revision, and uses the SCM itself to do the
      * checkout somewhere underneath the FDS root.
      */
-    private CheckoutImpl createCheckout( SCMAccessor svn, ProjectRevision r )
+    private CheckoutImpl createCheckout(SCMAccessor svn, ProjectRevision r)
         throws InvalidRepositoryException,
                InvalidProjectRevisionException {
         logger.info("Creating new checkout for " + svn.getName() + " " + r);
@@ -553,22 +554,27 @@ public class FDSServiceImpl implements FDSService {
             long currentRevision = 4;
             try {
                 logger.info("Advancing single checkout object.");
-                otherCheckout = getCheckout(1, new ProjectRevision(currentRevision));
+                otherCheckout = getCheckout(1, 
+                    new ProjectRevision(currentRevision));
                 if (otherCheckout != projectCheckout) {
-                    logger.warning("Second request for 1r4 returned different object.");
+                    logger.warning("Second request for 1r4 returned "
+                        + "different object.");
                 }
                 while (currentRevision < 60) {
                     releaseCheckout(otherCheckout);
                     currentRevision++;
-                    otherCheckout = getCheckout(1, new ProjectRevision(currentRevision));
+                    otherCheckout = getCheckout(1, 
+                        new ProjectRevision(currentRevision));
                 }
                 if (otherCheckout != projectCheckout) {
-                    logger.warning("Sixtieth request for 1r60 returned different object.");
+                    logger.warning("Sixtieth request for 1r60 returned "
+                        + "different object.");
                 }
             } catch (InvalidRepositoryException e) {
                 logger.warning("Project ID 1 has vanished again.");
             } catch (InvalidProjectRevisionException e) {
-                logger.warning("Project ID 1 has no revision " + currentRevision);
+                logger.warning("Project ID 1 has no revision "
+                    + currentRevision);
             }
         } else {
             logger.info("Skipping update self-test.");

@@ -53,7 +53,7 @@ import eu.sqooss.service.tds.SCMAccessor;
  * only the Checkout (safe) part of the interface.
  */
 class CheckoutImpl implements Checkout {
-    /** 
+    /**
      * The project this checkout belongs to. Used to get back to the
      * TDS SCM that can update the checkout.
      */
@@ -68,7 +68,7 @@ class CheckoutImpl implements Checkout {
      */
     private int claims;
 
-    private File root;
+    private File localRoot;
     private String repoPath;
     private ProjectRevision revision;
     private CommitEntry entry;
@@ -105,8 +105,8 @@ class CheckoutImpl implements Checkout {
         return --claims;
     }
 
-    public void setCheckout(File rootPath, ProjectRevision r) {
-        root = rootPath;
+    public void setCheckout(File root, ProjectRevision r) {
+        localRoot = root;
         revision = r;
     }
 
@@ -117,7 +117,7 @@ class CheckoutImpl implements Checkout {
     // Interface methods
     /** {@inheritDoc} */
     public File getRoot() {
-        return root;
+        return localRoot;
     }
 
     /** {@inheritDoc} */

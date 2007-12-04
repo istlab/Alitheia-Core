@@ -56,7 +56,7 @@ public class FDSActivator extends BundleActivatorBase
     /** Start the bundle. @param bc the bundle context. */
     public void start(BundleContext bc) {
         start(bc, Logger.NAME_SQOOSS_FDS);
-        fds = new FDSServiceImpl(bc,this);
+        fds = new FDSServiceImpl(bc, this);
         registration = bc.registerService(FDSService.class.getName(),
             fds, null);
     }
