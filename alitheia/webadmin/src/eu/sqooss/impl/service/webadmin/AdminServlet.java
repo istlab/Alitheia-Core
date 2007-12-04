@@ -43,6 +43,7 @@ import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.TDSService;
+import eu.sqooss.service.util.Pair;
 import eu.sqooss.service.util.StringUtils;
 
 import java.lang.management.RuntimeMXBean;
@@ -79,7 +80,7 @@ public class AdminServlet extends HttpServlet {
     private DBService dbService = null;
     private TDSService tdsService = null;
 
-    private Hashtable<String,String[]> staticContentMap;
+    private Hashtable<String,Pair<String,String>> staticContentMap;
     private Hashtable<String,String> dynamicContentMap;
     private Hashtable<String,String> dynamicSubstitutions;
 
@@ -151,6 +152,11 @@ public class AdminServlet extends HttpServlet {
         }
     }
 
+    public void addStaticContent(String path, String type) {
+        Pair < String, String > p = new Pair < String, String > (path,type);
+        staticContentMap.put(path, p);
+    }
+
     public AdminServlet(BundleContext bc) {
         bundlecontext = bc;
         getLogger(bc);
@@ -159,28 +165,18 @@ public class AdminServlet extends HttpServlet {
         Stuffer myStuffer = new Stuffer(dbService, logger, tdsService);
         myStuffer.run();
 
-        staticContentMap = new Hashtable<String,String[]>();
+        staticContentMap = new Hashtable < String, Pair < String, String > >();
 
         // Images and CSS
-        String[] css = { "text/css", "/screen.css" };
-        String[] logo = { "image/x-png", "/sqo-oss.png" };
-        String[] queue = { "image/x-png", "/queue.png" };
-        String[] uptime = { "image/x-png", "/uptime.png" };
-        String[] greyBack = { "image/x-jpg", "/greyBack.jpg" };
-        String[] projects = { "image/x-png", "/projects.png" };
-        String[] logs = { "image/x-png", "/logs.png" };
-        String[] bundles = { "image/x-png", "/bundles.png" };
-        String[] header = { "image/x-png", "/header-repeat.png" };
-        
-        staticContentMap.put("/screen.css", css);
-        staticContentMap.put("/sqo-oss.png", logo);
-        staticContentMap.put("/queue.png", queue);
-        staticContentMap.put("/uptime.png", uptime);
-        staticContentMap.put("/greyBack.jpg", greyBack);
-        staticContentMap.put("/projects.png", projects);
-        staticContentMap.put("/logs.png", logs);
-        staticContentMap.put("/bundles.png", bundles);
-        staticContentMap.put("/header-repeat.png", header);
+        addStaticContent("/screen.css", "text/css");
+        addStaticContent("/sqo-oss.png", "image/x-png");
+        addStaticContent("/queue.png", "image/x-png");
+        addStaticContent("/uptime.png", "image/x-png");
+        addStaticContent("/greyBack.jpg", "image/x-jpg");
+        addStaticContent("/projects.png", "image/x-png");
+        addStaticContent("/logs.png", "image/x-png");
+        addStaticContent("/bundles.png", "image/x-png");
+        addStaticContent("/header-repeat.png", "image/x-png");
         
         // Pages
         dynamicContentMap = new Hashtable<String,String>();
@@ -288,12 +284,12 @@ public class AdminServlet extends HttpServlet {
     *
     * TODO: How to simulate conditions that will cause IOException
     */
-    protected void sendResource(HttpServletResponse response, String mimeType, String path)
+    protected void sendResource(HttpServletResponse response, Pair<String,String> source)
         throws ServletException, IOException {
-        InputStream istream = getClass().getResourceAsStream(path);
+        InputStream istream = getClass().getResourceAsStream(source.first);
         if ( istream == null ) {
             // TODO: Is there a more specific exception?
-            throw new IOException( "Path not found: " + path );
+            throw new IOException( "Path not found: " + source.first);
         }
 
         byte[] buffer = new byte[1024];
@@ -301,10 +297,10 @@ public class AdminServlet extends HttpServlet {
         int totalBytes = 0;
 
         if ( logger != null ) {
-            logger.info("Serving " + path + " (" + mimeType + ")");
+            logger.info("Serving " + source.first + " (" + source.second + ")");
         }
 
-        response.setContentType(mimeType);
+        response.setContentType(source.second);
         ServletOutputStream ostream = response.getOutputStream();
         while ( (bytesRead = istream.read(buffer)) > 0 ) {
             ostream.write(buffer,0,bytesRead);
@@ -314,7 +310,7 @@ public class AdminServlet extends HttpServlet {
         // TODO: Check that the bytes written were as many as the
         //  file size in the JAR (how? it's an InputStream).
         if ( logger != null ) {
-            logger.info("Wrote " + totalBytes + " from " + path);
+            logger.info("Wrote " + totalBytes + " from " + source.first);
         }
     }
 
@@ -379,8 +375,7 @@ public class AdminServlet extends HttpServlet {
 
             String query = request.getPathInfo();
             if ( (query != null) && (staticContentMap.containsKey(query)) ) {
-                String[] mapvalues = staticContentMap.get(query);
-                sendResource(response, mapvalues[0], mapvalues[1]);
+                sendResource(response, staticContentMap.get(query));
             } else {
                 resetSubstitutions();
                 if ( (query != null) && dynamicContentMap.containsKey(query) ) {
