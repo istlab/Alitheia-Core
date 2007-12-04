@@ -64,42 +64,49 @@ public class CodeCommitsJob extends ProductivityMetricJob {
     }
     
     public void run() {
-        log.info(this.getClass().getName() + ":Calculating Code Commits per developer");
-        
+        log.debug(this.getClass().getName()
+                + ":Calculating Code Commits per developer");
+
         CommitLog svnLog = null;
-        
-        if(tds.accessorExists(start.getProject()) && tds.accessorExists(end.getProject())) {
+
+        if (tds.accessorExists(start.getProject())
+                && tds.accessorExists(end.getProject())) {
             svn = (SCMAccessor) this.tds.getAccessor(1);
-        }
-        else {
-            log.error("An accessor for projectid:" + start.getProject() + " does not exist");
+        } else {
+            log.error("An accessor for projectid:" + start.getProject()
+                    + " does not exist");
             return;
         }
-        
-        try {
-            svnLog = svn.getCommitLog(new ProjectRevision(start.getVersion()), new ProjectRevision(end.getVersion()));
-       //     svn.getC
-        } catch (InvalidProjectRevisionException e) {
-            
-        } catch (InvalidRepositoryException e) {
-            
-        }
-        
-        System.out.println("Got " + log + " log entries");
 
-        //Get log entries
+        try {
+            svnLog = svn.getCommitLog(new ProjectRevision(start.getVersion()),
+                    new ProjectRevision(end.getVersion()));
+            
+        } catch (InvalidProjectRevisionException e) {
+            log.error("No project with id " + start.getProject());
+            return;
+        } catch (InvalidRepositoryException e) {
+            log.error("Invalid repository: Error was: " + e.getMessage());
+            return;
+        }
+
+        log.debug("Got " + log + " log entries");
+
+        // Get log entries
         Iterator<CommitEntry> i = svnLog.iterator();
         CommitEntry entry;
-        
+
         while (i.hasNext()) {
             entry = i.next();
-            //Iterate over changed paths
+            // Iterate over changed paths
             for (String path : entry.getChangedPaths())
-                //Get the entry type (binary or text)
-                //  System.err.println("Path " + path + " is a " + FileTypeMatcher.getFileType(path) + " file");
+                // Get the entry type (binary or text)
+                // System.err.println("Path " + path + " is a " +
+                // FileTypeMatcher.getFileType(path) + " file");
 
                 if (evaluate(path, entry))
-                    //Author marked as having committed code, now break to next commit
+                    // Author marked as having committed code, now break to next
+                    // commit
                     break;
         }
 
@@ -109,11 +116,11 @@ public class CodeCommitsJob extends ProductivityMetricJob {
         while (k.hasNext()) {
             String author = k.next();
             commits += authorCommits.get(author).intValue();
-            System.out.printf("%d %s\n", authorCommits.get(author).intValue(),
-                    author);
+            log.debug(authorCommits.get(author).intValue() + " " + author + 
+                    "\n");
         }
 
-     //   System.err.println("Total code commits:" + commits);
+        log.debug("Total code commits:" + commits);
     }
 
     public int priority() {
