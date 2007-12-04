@@ -33,13 +33,23 @@
 
 package eu.sqooss.metrics.abstractmetric;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
 
 /**
  * A generic container encapsulating metric results. 
  * 
- * Metric results can be everything: from  a simple integer value to an array 
+ * Metric results can be everything: from a simple integer value to an array 
  * of png images. For this reason, we mimic the JDBC {@link java.sql.ResultSet}
  * by storing the results in rows and columns. Each row contains the metric 
  * results for one run of the metric on the project entity the metric supports.
@@ -191,9 +201,25 @@ public class MetricResult implements Iterable<ArrayList<MetricResultEntry>>,
      * @param xml An MetricResult object serialised to XML
      * @return A Metric Result object or null if and error in the 
      * deserialisation occurs
+     * @throws ParserConfigurationException 
+     * @throws IOException 
+     * @throws SAXException 
      */
-    public static MetricResult fromXML(String xml) {
+    public static MetricResult fromXML(String xml) throws 
+        ParserConfigurationException, SAXException, IOException {
+
+        DocumentBuilderFactory dbfactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = dbfactory.newDocumentBuilder();
+        Document doc = builder.parse(xml);
+        
+        NodeList nl = doc.getElementsByTagName("metricresult").item(0).getChildNodes();
+        
+        for(int i = 0; i < nl.getLength(); i++) {
+            nl.item(i).getNodeType();
+        }
+        //TODO: Continue from there tommorrow
         return null;
+
     }
 
     public void remove() {
