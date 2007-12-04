@@ -141,6 +141,20 @@ public interface SCMAccessor extends NamedAccessor {
         throws InvalidProjectRevisionException,
                InvalidRepositoryException,
                FileNotFoundException;
+
+    /**
+     * Get the change that led to revision r. Roughly equivalent to
+     * getDiff(repoPath,r.prev(),r).
+     *
+     * TODO: decide whether this should take repoPath into account and
+     * return the most recent change in the path (like the SVN cli command
+     * PREV revision) or just the r-1 revision.
+     */
+    Diff getChange(String repoPath, ProjectRevision r)
+        throws InvalidProjectRevisionException,
+               InvalidRepositoryException,
+               FileNotFoundException;
+
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

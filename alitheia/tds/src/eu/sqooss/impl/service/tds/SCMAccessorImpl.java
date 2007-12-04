@@ -429,6 +429,13 @@ public class SCMAccessorImpl extends NamedAccessorImpl implements SCMAccessor {
             throw new FileNotFoundException("Could not create temporary file for diff.");
         }
     }
+
+    public Diff getChange(String repoPath, ProjectRevision r)
+        throws InvalidProjectRevisionException,
+            InvalidRepositoryException,
+            FileNotFoundException {
+        return getDiff(repoPath, r.prev(), r);
+    }
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab
