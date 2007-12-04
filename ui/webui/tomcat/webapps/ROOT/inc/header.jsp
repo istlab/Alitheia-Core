@@ -6,15 +6,14 @@
 
 <head>
     <title><%= "Alitheia :: " + title %></title>
-    <link rel='stylesheet' type='text/css' href='/screen.css' />
-    <link rel='stylesheet' type='text/css' href='/alitheia.css' />
+    <link rel='stylesheet' type='text/css' href='/style/screen.css' />
 </head>
 
 <body>
     
     <div id="header">
         <h1><%= title %></h1>
-        <img src="/img/sqo-oss.png" alt="SQO-OSS Logo"/>
+        <img src="/style/sqo-oss.png" alt="SQO-OSS Logo"/>
     </div>
 
     <%@ include file="/inc/menu.jsp" %>

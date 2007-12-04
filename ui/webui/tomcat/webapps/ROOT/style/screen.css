@@ -5,7 +5,7 @@ html {
 	margin:0;
 	padding:0;
 	width: 100%;
-	font-family: Verdana, Helvetica, Arial;
+	font-family: Verdana, Helvetica, Arial, sans serif;
 	color:#000;
 	background:#f6f6f6;
 }
@@ -16,7 +16,7 @@ html {
 }
 
 #header {
-	background: #fff url(/img/header-repeat.png) repeat-x;
+	background: #fff url(/style/header-repeat.png) repeat-x;
 	height: 75px;
 }
 
@@ -195,7 +195,7 @@ body.section-4 #menu li#nav-4 a {
 
 #newproject .form {
 	border: 1px solid #ccc;
-	background: url(/greyBack.jpg) top repeat-x; 
+	background: url(/style/greyBack.jpg) top repeat-x; 
 }
 
 /* Sidebar Content */
@@ -259,3 +259,66 @@ form p {
 legend {
 	font-weight: bold;
 }
+
+
+a:hover {
+    text-decoration: none;
+    color: #fa0602; /* SQO-OSS red. ;-) */
+}
+.metrics {
+    margin: 0px;
+    padding: 4px;
+    border: 1px solid #cccccc;
+}
+
+
+table.metrics {
+    margin: 0px;
+    border: 2px solid #cccccc;
+}
+
+blockquote {
+    font-style: italic;
+}
+
+#content {
+    margin-top: 20px;
+    margin-right: 10px;
+    margin-left: 10px;
+    margin-bottom: 8px;
+    text-align: justified;
+    font-size: 1.2em;
+}
+
+#content ul {
+    padding-left: 40px;
+}
+
+#sidebar {
+    background: #eeeeee;
+    width: 20%;
+    float: left;
+    clear: left;
+    border: 1px solid #cccccc;
+    padding: 1ex 1em;
+    margin: 1ex 4ex 4ex 4px;
+    font-size: small;
+    font-weight: bold;
+}
+
+#sidebar ul {
+    list-style-type: none;
+    margin: 0px;
+    padding: 0px;
+}
+
+#sidebar li {
+    margin-left: 0px;
+    padding-left: 0px;
+    padding-right: 5px;
+}
+
+#news {
+    padding: 1ex 1em 1ex 22%;
+}
+
