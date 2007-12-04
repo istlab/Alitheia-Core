@@ -32,6 +32,8 @@ extlibs/
 *** Build 
 *** 
 
+Alitheia
+---------
 See documentation in the Makefile. The official build system is Maven;
 there is an alternative purely GNU Make-based system as well. The
 short of it is:
@@ -42,7 +44,19 @@ or, for the alternative GNU Make system,
 
 	make clean build install run
 
-This will leave you with an OSGi console and a running Alitheia core system. 
+This will leave you with an OSGi console and a running Alitheia core system.
+The webadmin of the Alitheia core can then be accessed via http://localhost:8088
+
+Webinterface
+-------------
+
+To start the tomcat running the webinterface, do the following:
+
+cd ui/webui
+
+make run
+
+The webinterface can then be accessed via http://localhost:8080
 
 ***
 *** Runtime configuration
