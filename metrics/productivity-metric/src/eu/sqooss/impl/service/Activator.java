@@ -15,13 +15,12 @@ public class Activator implements BundleActivator {
     private ServiceRegistration registration;
 
     public void start(BundleContext bc) throws Exception {
-
-	Dictionary d = new Hashtable(2);
+        Dictionary < String, String > d = new Hashtable < String, String >(2);
+        d.put("metric.id", "");
 	
-	d.put("metric.id", "");
-	
-        registration = bc.registerService(ProductivityMetricImpl.class
-                .getName(), new ProductivityMetricImpl(bc), null);
+        registration = bc.registerService(
+            ProductivityMetricImpl.class.getName(), 
+            new ProductivityMetricImpl(bc), null);
     }
 
     public void stop(BundleContext context) throws Exception {
