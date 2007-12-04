@@ -126,6 +126,37 @@ public class ProjectRevision {
     }
 
     /**
+     * "Iterator" to go back in SVN history. Only works on revisions
+     * with an SVN revision number attached.
+     *
+     * @return the previous revision, or null if there is no revision
+     *          already or null if there is no previous revision (e.g.
+     *          r.0 has no previous).
+     */
+    public ProjectRevision prev() {
+        if (!hasSVNRevision() || (revision < 1)) {
+            return null;
+        } else {
+            return new ProjectRevision(revision - 1);
+        }
+    }
+
+    /**
+     * "Iterator" to go forward in SVN history. Only works on revisions
+     * with an SVN revision number attached.
+     *
+     * @return the next project revision, or null if the revision does not
+     *          have an SVN revision number already.
+     */
+    public ProjectRevision next() {
+        if (!hasSVNRevision()) {
+            return null;
+        } else {
+            return new ProjectRevision(revision + 1);
+        }
+    }
+
+    /**
      * Default constructor, creating an invalid revision.
      */
     public ProjectRevision() {
