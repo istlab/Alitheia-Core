@@ -2,7 +2,7 @@
 <jsp:useBean id="cruncher" class="eu.sqooss.webui.CruncherStatus" scope="application" />
 <jsp:useBean id="user" class="eu.sqooss.webui.User" scope="session" />
 
-<div id="menu">
+<div id="sidebar">
     <ul>
         <li><a href="/" title="Click here for no information">Home</a></li>
         <li><a href="/playground/projects.jsp" title="Click here for projects we don't do anything with yet">Projects</a></li>
@@ -13,11 +13,11 @@
     </ul>
 </div>
 
-<div id="status">
+<div id="sidebar">
     <%@ include file="/views/Message.jsp" %>
 </div>
 
-<div id="status">
+<div id="sidebar">
 <!-- First call to cruncher to obtain status -->
 <%
 cruncher.hit();
