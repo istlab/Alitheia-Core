@@ -6,7 +6,8 @@
 
 <head>
     <title><%= "Alitheia :: " + title %></title>
-    <link rel='stylesheet' type='text/css' href='/style/screen.css' />
+    <link rel='stylesheet' type='text/css' href='/style/shared.css' />
+    <link rel='stylesheet' type='text/css' href='/style/webui.css' />
 </head>
 
 <body>
@@ -18,6 +19,6 @@
 
     <%@ include file="/inc/menu.jsp" %>
 
-    <table id="content">
+    <table id="contents">
         <tr><td>
 <!-- *** header.jsp ends here *** -->

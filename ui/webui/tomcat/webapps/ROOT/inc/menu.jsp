@@ -14,10 +14,12 @@
 </div>
 
 <div id="sidebar">
+<legend>Messages:</legend>
     <%@ include file="/views/Message.jsp" %>
 </div>
 
 <div id="sidebar">
+<legend>Status:</legend>
 <!-- First call to cruncher to obtain status -->
 <%
 cruncher.hit();
