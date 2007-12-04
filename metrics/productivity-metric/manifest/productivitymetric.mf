@@ -5,4 +5,5 @@ Bundle-SymbolicName: eu.sqooss.metric.productivity
 Bundle-Version: 0.0.1
 Bundle-Activator: eu.sqooss.impl.service.Activator
 Bundle-Vendor: AUEB
-Import-Package: eu.sqooss.service.logging, eu.sqooss.service.tds, org.osgi.framework, org.osgi.service.http, javax.servlet, javax.servlet.http, eu.sqooss.metrics.abstractmetric
+Import-Package: eu.sqooss.service.logging, eu.sqooss.service.tds, org.osgi.framework, eu.sqooss.metrics.abstractmetric, eu.sqooss.service.fds, eu.sqooss.service.scheduler
+
