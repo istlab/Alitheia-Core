@@ -45,7 +45,10 @@ HBM_RESOURCES=$(shell cd src/ && find eu -name '*.hbm.xml')
 $(foreach d,$(JARS),$(eval EXTRA_CP:=$(EXTRA_CP)$(d):))
 
 # This is (hardcoded) the OSGi framework classpath.
-EQUINOX_CP=$(PREFIX)/org.eclipse.osgi_3.3.0.v20070321.jar:$(PREFIX)/org.eclipse.osgi.util_3.1.100.v20060918.jar:$(PREFIX)/org.eclipse.osgi.services_3.1.100.v20060918.jar
+EQUINOX_CP=$(PREFIX)/org.eclipse.osgi_3.3.0.v20070321.jar:$(PREFIX)/org.eclipse.osgi.util_3.1.100.v20060918.jar:$(PREFIX)/org.eclipse.osgi.services_3.1.100.v20060918.jar:
+
+# All metrics need some specific jars as well for support.
+METRICS_CP=$(PREFIX)/org.apache.commons.codec_1.3.0.jar:
 
 # Basic targets all, build, install, clean
 all: build-all build-jar
@@ -82,12 +85,17 @@ checkstyle:
 
 define resource_template
 build/$(1) : src/main/resources/$(1)
-	cp src/main/resources/$(1) build/
+	if test -d src/main/resources/$(1) ; then \
+		cp -R src/main/resources/$(1) build/ ; \
+		rm -rf `find build/ -name .svn` ; \
+	else \
+		cp src/main/resources/$(1) build/ ; \
+	fi
 endef
 
 define hbm_resource_template
 build/$(1) : src/$(1)
-	-mkdir -p build/$(dir $(1))
+	@-mkdir -p build/$(dir $(1))
 	cp src/$(1) build/$(dir $(1))
 endef
 
@@ -101,7 +109,7 @@ $(foreach d,$(RESOURCES),$(eval $(call resource_template,$(d))))
 $(foreach d,$(HBM_RESOURCES),$(eval $(call hbm_resource_template,$(d))))
 
 build/.prebuild : $(SRC:%=src/%)
-	javac -Xlint -source 1.5 -cp $(EXTRA_CP)$(EQUINOX_CP):src/ -d build/ $?
+	javac -Xlint -source 1.5 -cp $(EXTRA_CP)$(EQUINOX_CP)$(METRICS_CP)src/ -d build/ $?
 	touch build/.prebuild
 
 JAVADEP=perl ../../../../tools/java_dependency_generator.pl
