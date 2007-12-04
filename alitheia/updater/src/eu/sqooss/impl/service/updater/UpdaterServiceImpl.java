@@ -60,11 +60,13 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
     private ServiceReference serviceRef = null;
 
     private HttpService httpService = null;
-    
+
     private TDSService tdsService = null;
+
     private DBService dbService = null;
+
     private Scheduler scheduler = null;
-    
+
     private LogManager logService = null;
 
     private Logger logger = null;
@@ -72,7 +74,7 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
     public UpdaterServiceImpl(BundleContext bc) throws ServletException,
             NamespaceException {
 
-        /*Get a reference to the logging service*/
+        /* Get a reference to the logging service */
         serviceRef = bc.getServiceReference(LogManager.class.getName());
         logService = (LogManager) bc.getService(serviceRef);
 
@@ -86,24 +88,24 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
         if (logger == null) {
             System.out.println("ERROR: Got no logger");
         }
-        
-        /*Get a reference to the TDS service*/
+
+        /* Get a reference to the TDS service */
         serviceRef = bc.getServiceReference(TDSService.class.getName());
         tdsService = (TDSService) bc.getService(serviceRef);
         if (tdsService == null)
             logger.severe("Could not load the TDS service");
         else
             logger.info("Got a reference to the TDS service");
-        
-        /*Get a reference to the DB service*/
+
+        /* Get a reference to the DB service */
         serviceRef = bc.getServiceReference(DBService.class.getName());
         dbService = (DBService) bc.getService(serviceRef);
         if (dbService == null)
             logger.severe("Could not load the DB service");
         else
             logger.info("Got a valid reference to the DB service");
-        
-        /*Get a reference to the scheduler service*/
+
+        /* Get a reference to the scheduler service */
         serviceRef = bc.getServiceReference(Scheduler.class.getName());
         scheduler = (Scheduler) bc.getService(serviceRef);
         if (scheduler == null)
@@ -111,9 +113,9 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
         else
             logger.info("Got a valid reference to the Scheduler");
 
-
-        /*Get a reference to the HTTP service*/
-        serviceRef = bc.getServiceReference("org.osgi.service.http.HttpService");
+        /* Get a reference to the HTTP service */
+        serviceRef = bc
+                .getServiceReference("org.osgi.service.http.HttpService");
 
         if (serviceRef != null) {
             httpService = (HttpService) bc.getService(serviceRef);
@@ -121,24 +123,32 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
         } else {
             logger.severe("Could not load the HTTP service.");
         }
-        
+
         logger.info("Succesfully started updater service");
     }
 
     public void update(String path, UpdateTarget target) {
-        logger.info("Request to update project:" + path + " for target: " 
+        logger.info("Request to update project:" + path + " for target: "
                 + target);
-        
-        if ( target == UpdateTarget.MAILING_LIST_DATA ) {
+
+        if (target == UpdateTarget.MAILING_LIST_DATA) {
             // mailing list update
-        } else if ( target == UpdateTarget.SOURCE_CODE_DATA ) {
+        } else if (target == UpdateTarget.SOURCE_CODE_DATA) {
             // source code update
-        } else if ( target == UpdateTarget.BUG_DATABASE_DATA ) {
+            try {
+                SourceUpdater su = new SourceUpdater(path, tdsService,
+                        dbService, scheduler, logger);
+                su.DoUpdate();
+            } catch (UpdaterException ue) {
+                logger.severe("The Updater failed to update the code for project "
+                                + path);
+            }
+        } else if (target == UpdateTarget.BUG_DATABASE_DATA) {
             // bug database update
-        } else if ( target == UpdateTarget.ALL ) {
+        } else if (target == UpdateTarget.ALL) {
             // update all
         }
-        
+
     }
 
     public void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -149,8 +159,8 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
         if (p != null && UpdateTarget.fromString(t) != null) {
             update(p, UpdateTarget.fromString(t));
         } else {
-            logger.severe("Failing request to update project:" + p 
-                    + " for target: "+ t);
+            logger.severe("Failing request to update project:" + p
+                    + " for target: " + t);
             response.sendError(HttpServletResponse.SC_BAD_REQUEST);
         }
     }

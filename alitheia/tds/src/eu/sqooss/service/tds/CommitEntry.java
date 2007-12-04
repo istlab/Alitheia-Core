@@ -37,10 +37,13 @@
 
 package eu.sqooss.service.tds;
 
+import java.util.Date;
+
 public interface CommitEntry {
     ProjectRevision getRevision();
     String getAuthor();
     String getMessage();
+    Date getDate();
     String[] getChangedPaths();
 
     String toString();

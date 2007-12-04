@@ -40,39 +40,39 @@ import java.util.LinkedList;
 
 import org.tmatesoft.svn.core.SVNLogEntry;
 
+import eu.sqooss.service.tds.CommitEntry;
 import eu.sqooss.service.tds.CommitLog;
 import eu.sqooss.service.tds.ProjectRevision;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
 
 public class CommitLogImpl implements CommitLog {
-    private LinkedList<SVNLogEntry> entries;
+    private LinkedList<CommitEntry> entries;
 
     public CommitLogImpl() {
-        entries = new LinkedList<SVNLogEntry>();
+        entries = new LinkedList<CommitEntry>();
     }
 
     public Collection getEntriesReference() {
         return entries;
     }
 
-    public void dump(SVNLogEntry l) {
+    private void dump(CommitEntry l) {
         System.out.println("--------------------------------");
-        System.out.println("r." + l.getRevision() +
-            "  " + l.getAuthor() +
-            "  " + l.getDate());
+        System.out.println("r." + l.getRevision() + "  " + l.getAuthor() + "  "
+                + l.getDate());
         System.out.println(l.getMessage());
     }
 
     public void dump() {
-        for (Iterator<SVNLogEntry> i = entries.iterator(); i.hasNext(); ) {
-            SVNLogEntry l = i.next();
+        for (Iterator<CommitEntry> i = entries.iterator(); i.hasNext();) {
+            CommitEntry l = i.next();
             dump(l);
         }
     }
 
     // Interface methods
     public ProjectRevision first() {
-        if (entries.size()<1) {
+        if (entries.size() < 1) {
             return null;
         }
         ProjectRevision r = new ProjectRevision(entries.get(0).getRevision());
@@ -81,7 +81,7 @@ public class CommitLogImpl implements CommitLog {
     }
 
     public ProjectRevision last() {
-        if (entries.size()<1) {
+        if (entries.size() < 1) {
             return null;
         }
         ProjectRevision r = new ProjectRevision(entries.getLast().getRevision());
@@ -90,23 +90,24 @@ public class CommitLogImpl implements CommitLog {
     }
 
     public String message(ProjectRevision r)
-        throws InvalidProjectRevisionException {
-        if ((r==null) || (!r.isValid())) {
-            throw new InvalidProjectRevisionException("Need a valid revision to query log",null);
+            throws InvalidProjectRevisionException {
+        if ((r == null) || (!r.isValid())) {
+            throw new InvalidProjectRevisionException(
+                    "Need a valid revision to query log", null);
         }
 
         if (r.hasSVNRevision()) {
             long revno = r.getSVNRevision();
-            for (Iterator<SVNLogEntry> i = entries.iterator(); i.hasNext(); ) {
-                SVNLogEntry l = i.next();
-                if (l.getRevision() == revno) {
+            for (Iterator<CommitEntry> i = entries.iterator(); i.hasNext();) {
+                CommitEntry l = i.next();
+                if (l.getRevision().getSVNRevision() == revno) {
                     return l.getMessage();
                 }
             }
         } else {
             Date d = r.getDate();
-            SVNLogEntry l=null,prev=null;
-            for (Iterator<SVNLogEntry> i = entries.iterator(); i.hasNext(); ) {
+            CommitEntry l = null, prev = null;
+            for (Iterator<CommitEntry> i = entries.iterator(); i.hasNext();) {
                 prev = l;
                 l = i.next();
                 if (l.getDate().after(d)) {
@@ -126,12 +127,12 @@ public class CommitLogImpl implements CommitLog {
         }
         return null;
     }
-    
+
     public int size() {
         return entries.size();
     }
 
-    public Iterator<SVNLogEntry> iterator() {
+    public Iterator<CommitEntry> iterator() {
         return entries.iterator();
     }
 }

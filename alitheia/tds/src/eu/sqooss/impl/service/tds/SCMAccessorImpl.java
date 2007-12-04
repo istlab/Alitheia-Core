@@ -37,8 +37,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.SVNLogEntry;
@@ -310,9 +312,9 @@ public class SCMAccessorImpl extends NamedAccessorImpl implements SCMAccessor {
         throws InvalidProjectRevisionException,
                InvalidRepositoryException {
         CommitLogImpl l = getCommitLog(repoPath,r1,r1);
-        Iterator<SVNLogEntry> i = l.iterator();
-        SVNLogEntry e = i.next();
-        return new CommitEntryImpl(e);
+        Iterator<CommitEntry> i = l.iterator();
+        CommitEntry e = i.next();
+        return (CommitEntryImpl)e;
     }
 
     public CommitLogImpl getCommitLog(ProjectRevision r1, ProjectRevision r2)
@@ -347,16 +349,23 @@ public class SCMAccessorImpl extends NamedAccessorImpl implements SCMAccessor {
             logger.info("End revision for log " + r2);
         }
 
-        CommitLogImpl l = new CommitLogImpl();
+        ArrayList<SVNLogEntry> l = new ArrayList<SVNLogEntry>();
+        CommitLogImpl result = new CommitLogImpl();
+        
         try {
             Collection logEntries = svnRepository.log(new String[]{repoPath},
-                l.getEntriesReference(),
-                revstart, revend, true, true);
+                l,revstart, revend, true, true);
         } catch (SVNException e) {
             throw new InvalidRepositoryException(getName(), url, e.getMessage());
         }
 
-        return l;
+        Iterator<SVNLogEntry> i = l.iterator();
+        while(i.hasNext()) {
+            SVNLogEntry entry = i.next();
+            result.getEntriesReference().add(new CommitEntryImpl(entry));   
+        }
+        
+        return result;
     }
 
     public Diff getDiff( String repoPath, ProjectRevision r1, ProjectRevision r2 )

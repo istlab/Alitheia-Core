@@ -36,43 +36,47 @@ package eu.sqooss.service.updater;
 public interface UpdaterService {
 
     /**
-     * Targets for an update request
-     *
-     */
+         * Targets for an update request
+         * 
+         */
     public enum UpdateTarget {
-        /* Request to update source code metadata*/
-        SOURCE_CODE_DATA("code"),
-        /* Request to update mailing list metadata*/
-        MAILING_LIST_DATA("mail"),
-        /* Request to update bug metadata*/
-        BUG_DATABASE_DATA("bug"),
-        /* Request to update all metadata*/
-        ALL("all");
-        
-        private String desc;
-        
-        private UpdateTarget(String desc) {
-            this.desc = desc;
-        }
+	/* Request to update source code metadata */
+	SOURCE_CODE_DATA("code"),
+	/* Request to update mailing list metadata */
+	MAILING_LIST_DATA("mail"),
+	/* Request to update bug metadata */
+	BUG_DATABASE_DATA("bug"),
+	/* Request to update all metadata */
+	ALL("all");
 
-        public static UpdateTarget fromString(String s) {
-            
-            if (s == null)
-                return null;
-            
-            for ( UpdateTarget t : values() ) {
-        	if(s.contains(t.desc)) { return t; }
-            }
-            
-            return null;
-        }         
+	private String desc;
+
+	private UpdateTarget(String desc) {
+	    this.desc = desc;
+	}
+
+	public static UpdateTarget fromString(String s) {
+
+	    if (s == null)
+		return null;
+
+	    for (UpdateTarget t : values()) {
+		if (s.contains(t.desc)) {
+		    return t;
+		}
+	    }
+
+	    return null;
+	}
     }
 
     /**
-     * Inform the updater service about changes to the data mirrors
-     * 
-     * @param project - The project name that has been updated
-     * @param target - Specifies which project resource has been updated
-     */
+         * Inform the updater service about changes to the data mirrors
+         * 
+         * @param project -
+         *                The project name that has been updated
+         * @param target -
+         *                Specifies which project resource has been updated
+         */
     void update(String project, UpdateTarget target);
 }

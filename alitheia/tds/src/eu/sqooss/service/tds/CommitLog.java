@@ -34,58 +34,56 @@
 package eu.sqooss.service.tds;
 
 /**
- * This interface represents a lowest-common-denominator
- * approach to logs of changes to a project. A commit log
- * extends from some first revision to some last revision
- * (which may be the same revision, or may both be null
- * if the log is empty) and consists of messages.
- * The log is iterable and will return the messages
- * in commit order.
+ * This interface represents a lowest-common-denominator approach to logs of
+ * changes to a project. A commit log extends from some first revision to some
+ * last revision (which may be the same revision, or may both be null if the log
+ * is empty) and consists of messages. The log is iterable and will return the
+ * messages in commit order.
  */
-public interface CommitLog extends Iterable {
+public interface CommitLog extends Iterable<CommitEntry> {
     /**
-     * Retrieve the project revision information for the first
-     * entry in this commit log. May return null if the log is empty.
-     *
-     * @return starting revision or null if empty
-     */
+         * Retrieve the project revision information for the first entry in this
+         * commit log. May return null if the log is empty.
+         * 
+         * @return starting revision or null if empty
+         */
     ProjectRevision first();
 
     /**
-     * Retrieve the project revision information for the last
-     * entry in this commit log. This may be the same as first()
-     * for 1-entry logs. May return null if the log is empty.
-     *
-     * @return final revision or null if empty
-     */
+         * Retrieve the project revision information for the last entry in this
+         * commit log. This may be the same as first() for 1-entry logs. May
+         * return null if the log is empty.
+         * 
+         * @return final revision or null if empty
+         */
     ProjectRevision last();
 
     /**
-     * Retrieve the message (commit message) for project revision
-     * <code>r</code> in this log. If <code>r</code> is not valid
-     * in some way, throw  an exception. If <code>r</code> is not
-     * in the log (the revision does not occur, for instance)
-     * return <code>null</code>. For <code>ProjectRevisions</code>
-     * with no SVN revision attached (date revisions) return the
-     * last revision that is not after the indicated date, or
-     * <code>null</code> if there isn't one.
-     *
-     * @param  r Revision for which the message should be retrieved
-     * @return message at revision <code>r</code>
-     * @throws InvalidProjectRevisionException if <code>r</code> is not within
-     *          thea scope of this log.
-     */
-    String message(ProjectRevision r)
-        throws InvalidProjectRevisionException;
+         * Retrieve the message (commit message) for project revision
+         * <code>r</code> in this log. If <code>r</code> is not valid in
+         * some way, throw an exception. If <code>r</code> is not in the log
+         * (the revision does not occur, for instance) return <code>null</code>.
+         * For <code>ProjectRevisions</code> with no SVN revision attached
+         * (date revisions) return the last revision that is not after the
+         * indicated date, or <code>null</code> if there isn't one.
+         * 
+         * @param r
+         *                Revision for which the message should be retrieved
+         * @return message at revision <code>r</code>
+         * @throws InvalidProjectRevisionException
+         *                 if <code>r</code> is not within thea scope of this
+         *                 log.
+         */
+    String message(ProjectRevision r) throws InvalidProjectRevisionException;
 
     /**
-     * For debugging purposes, dump the log to stdout.
-     */
+         * For debugging purposes, dump the log to stdout.
+         */
     void dump();
 
     /**
-     * @return the number of entries in the log
-     */
+         * @return the number of entries in the log
+         */
     int size();
 }
 

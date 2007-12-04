@@ -1,13 +1,10 @@
-/*
+/* -*- Mode: java -*-
+ *
  * This file is part of the Alitheia system, developed by the SQO-OSS
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  *
  * Copyright 2007 by the SQO-OSS consortium members <info@sqo-oss.eu>
- * Copyright 2007 by Adriaan de Groot <groot@kde.org>
- *   [[ Individual consortium members may list themselves here;
- *      third parties are to be listed here as well. You must
- *      include a real name and an email address. ]]
- *
+ * Copyright 2007 by Mirko Boehm <mirko@kdab.net>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -35,63 +32,22 @@
  *
  */
 
-package eu.sqooss.impl.service.tds;
+package eu.sqooss.impl.service.updater;
 
-import java.util.Date;
-import java.util.Iterator;
-import java.util.Set;
+/**
+ * Base class for updater exceptions.
+ */
+public class UpdaterException extends Exception {
 
-import org.tmatesoft.svn.core.SVNLogEntry;
+    private static final long serialVersionUID = 1L;
 
-import eu.sqooss.service.tds.CommitEntry;
-import eu.sqooss.service.tds.ProjectRevision;
+    private static String service = "[Updater]";
 
-public class CommitEntryImpl implements CommitEntry {
-    private ProjectRevision revision;
-    private String author;
-    private String message;
-    private String[] changedPaths;
-
-    public CommitEntryImpl(SVNLogEntry l) {
-        revision = new ProjectRevision(l.getRevision());
-        author = l.getAuthor();
-        message = l.getMessage();
-
-        String[] paths = new String[l.getChangedPaths().size()];
-        int c = 0;
-        for (Iterator i = l.getChangedPaths().keySet().iterator();
-            i.hasNext(); ) {
-            paths[c] = (String) i.next();
-            ++c;
-        }
-        changedPaths = paths;
-    }
-
-    public ProjectRevision getRevision() {
-        return revision;
-    }
-
-    public String getAuthor() {
-        return author;
+    public UpdaterException(String message) {
+	super(message);
     }
 
     public String getMessage() {
-        return message;
-    }
-    
-    public Date getDate() {
-        return revision.getDate();
-    }
-
-    public String[] getChangedPaths() {
-        return changedPaths;
-    }
-
-    public String toString() {
-        return getRevision().toString() + " " + getAuthor() + "\n    "
-            + getMessage();
+	return service + " " + super.getMessage();
     }
 }
-
-// vi: ai nosi sw=4 ts=4 expandtab
-
