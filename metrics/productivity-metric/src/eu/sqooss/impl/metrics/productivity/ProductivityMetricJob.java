@@ -34,24 +34,46 @@
 
 package eu.sqooss.impl.metrics.productivity;
 
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
+
 import eu.sqooss.service.logging.Logger;
-import eu.sqooss.service.tds.SCMAccessor;
+import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.tds.TDSService;
+import eu.sqooss.service.fds.FDSService;
 
-public class ProductivityBase  {
+public abstract class ProductivityMetricJob extends Job {
 
-    protected TDSService service = null;
-    protected SCMAccessor svn = null;
+    protected TDSService tds = null;
+    protected FDSService fds = null;
     protected Logger log;
 
-    protected ProductivityBase() {
-	if (service != null) {
-	    // FIXME: Dummy getAccessor value to fix the build
-	    svn = service.getAccessor(1).getSCMAccessor();
-	}
+    private ServiceReference serviceRef;
+
+    public ProductivityMetricJob(BundleContext bc, Logger log) {
+        this.log = log;
+
+        serviceRef = bc.getServiceReference(TDSService.class.getName());
+        tds = (TDSService) bc.getService(serviceRef);
+
+        if (tds != null) {
+            log.info("Got TDS Service!");
+        } else {
+            log.error("Didn't get TDS Service");
+        }
+
+        serviceRef = bc.getServiceReference(FDSService.class.getName());
+
+        fds = (FDSService) bc.getService(serviceRef);
+
+        if (fds != null) {
+            log.info("Got FDS Service!");
+        } else {
+            log.error("Didn't get FDS Service");
+        }
     }
-    
-    protected void run() {
-	
+
+    protected void run() throws Exception {
+        log.info(this.getClass().getName() + ": Nothing to do");
     }
 }

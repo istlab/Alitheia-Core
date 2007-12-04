@@ -32,15 +32,20 @@
  */
 package eu.sqooss.impl.metrics.productivity;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.File;
 import java.io.IOException;
 import java.nio.CharBuffer;
 import java.nio.channels.FileChannel.MapMode;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.osgi.framework.BundleContext;
+
+import eu.sqooss.service.db.ProjectVersion;
+import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.tds.CommitEntry;
 import eu.sqooss.service.tds.Diff;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
 import eu.sqooss.service.tds.InvalidRepositoryException;
@@ -50,22 +55,22 @@ import eu.sqooss.service.tds.ProjectRevision;
  * Code comment commit - A commit on a src file that 
  * also includes comments
  */
-public class CodeCommentCommit extends CodeCommits {
+public class CodeCommentCommit extends CodeCommitsJob {
 
     private Pattern comment1 = Pattern.compile("^\\s*#.*$");
 
     private Pattern comment2 = Pattern.compile("^\\s*\\/\\/.*$");
 
-    protected CodeCommentCommit() {
-        super();
+    protected CodeCommentCommit(BundleContext bc, Logger log, ProjectVersion a,
+            ProjectVersion b) {
+        super(bc, log, a, b);
     }
 
-   /* protected boolean evaluate(String path, SVNLogEntry entry) {
+    protected boolean evaluate(String path, CommitEntry entry) {
 
         Diff d = null;
         try {
-            d = svn.getDiff(path, new ProjectRevision(entry.getRevision() - 1), 
-                    new ProjectRevision(entry.getRevision()));
+            d = svn.getDiff(path, entry.getRevision(), entry.getRevision());
         } catch (InvalidProjectRevisionException e) {
             log.severe("Invalid Project Revision: " + e.getMessage());
         } catch (InvalidRepositoryException e) {
@@ -77,26 +82,24 @@ public class CodeCommentCommit extends CodeCommits {
         try {
             File f = d.getDiffFile();
             java.io.FileInputStream fis = new FileInputStream(f);
-            CharBuffer buffer = fis.getChannel().map(MapMode.READ_ONLY, 0, f.length()).asCharBuffer();
-            
+            CharBuffer buffer = fis.getChannel().map(MapMode.READ_ONLY, 0,
+                    f.length()).asCharBuffer();
+
             Matcher m = comment1.matcher(buffer);
             if (m.matches())
                 return true;
-            
+
             m = comment2.matcher(buffer);
             if (m.matches())
                 return true;
 
-            
         } catch (FileNotFoundException e) {
             log.severe("Diff file not found:" + e.getMessage());
         } catch (IOException e) {
             log.severe("Error mapping diff file to memory:" + e.getMessage());
         }
-        
-        
+
         return false;
 
-    }*/
-
+    }
 }

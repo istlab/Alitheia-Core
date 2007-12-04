@@ -9,53 +9,58 @@ import eu.sqooss.metrics.abstractmetric.MetricResult;
 import eu.sqooss.metrics.productivity.ProductivityMetric;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
+import eu.sqooss.service.logging.Logger;
 
 public class ProductivityMetricImpl extends AbstractMetric implements
-	ProductivityMetric {
+        ProductivityMetric {
+
+    protected Logger log;
+
     private static final long serialVersionUID = 1L;
 
-
     public ProductivityMetricImpl(BundleContext bc) {
-	super(bc);
+        super(bc);
     }
 
     public boolean install() {
-	return false;
+        return false;
     }
 
     public boolean remove() {
-	return false;
+        return false;
     }
-    
+
     public boolean update() {
-	return false;
+        return false;
     }
 
     public boolean delete(StoredProject a) {
-	return false;
+        return false;
     }
 
     public MetricResult getResult(StoredProject a) {
-	return null;
+        return null;
     }
 
     public boolean run(StoredProject a) {
-	return false;
+        return false;
     }
 
     public boolean delete(ProjectVersion a) {
-	return false;
+        return false;
     }
 
     public MetricResult getResult(ProjectVersion a) {
-	return null;
+        return null;
     }
 
     public boolean run(ProjectVersion a, ProjectVersion b) {
-	return false;
+        CodeCommitsJob ccj = new CodeCommitsJob(bc, log, a ,b);
+        //
+        return false;
     }
 
     public Date getDateInstalled() {
-	return null;
+        return null;
     }
 }

@@ -36,53 +36,71 @@ package eu.sqooss.impl.metrics.productivity;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import org.osgi.framework.BundleContext;
+
+import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.tds.CommitEntry;
 import eu.sqooss.service.tds.CommitLog;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
 import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.ProjectRevision;
+import eu.sqooss.service.tds.SCMAccessor;
+import eu.sqooss.service.db.ProjectVersion;
 
 /**
  * Code commit - A commit that affects at least 1 source code file
  */
-public class CodeCommits extends ProductivityBase implements Runnable {
+public class CodeCommitsJob extends ProductivityMetricJob {
 
     HashMap<String, Integer> authorCommits = new HashMap<String, Integer>();
-
-    protected CodeCommits() {
-        super();
+    ProjectVersion start, end;
+    SCMAccessor svn;
+    
+    protected CodeCommitsJob(BundleContext bc, Logger log, ProjectVersion a, 
+            ProjectVersion b) {
+        super(bc, log);
+        start = a;
+        end = b;
     }
     
     public void run() {
-        System.out.println("Calculating Code Commits per developer...");
-      //  SVNLogEntry entry = null;
-
-        CommitLog log = null;
+        log.info(this.getClass().getName() + ":Calculating Code Commits per developer");
+        
+        CommitLog svnLog = null;
+        
+        if(tds.accessorExists(start.getProject()) && tds.accessorExists(end.getProject())) {
+            svn = (SCMAccessor) this.tds.getAccessor(1);
+        }
+        else {
+            log.error("An accessor for projectid:" + start.getProject() + " does not exist");
+            return;
+        }
         
         try {
-            log = svn.getCommitLog(new ProjectRevision(21000), 
-                    new ProjectRevision(svn.getHeadRevision()));
+            svnLog = svn.getCommitLog(new ProjectRevision(start.getVersion()), new ProjectRevision(end.getVersion()));
+       //     svn.getC
         } catch (InvalidProjectRevisionException e) {
+            
         } catch (InvalidRepositoryException e) {
+            
         }
         
         System.out.println("Got " + log + " log entries");
-/*
-        //Get log entries
-        Iterator<SVNLogEntry> i = log.iterator();
 
+        //Get log entries
+        Iterator<CommitEntry> i = svnLog.iterator();
+        CommitEntry entry;
+        
         while (i.hasNext()) {
             entry = i.next();
             //Iterate over changed paths
-            Iterator<String> j = entry.getChangedPaths().keySet().iterator();
-            while (j.hasNext()) {
-                String path = j.next();
+            for (String path : entry.getChangedPaths())
                 //Get the entry type (binary or text)
                 //  System.err.println("Path " + path + " is a " + FileTypeMatcher.getFileType(path) + " file");
 
                 if (evaluate(path, entry))
                     //Author marked as having committed code, now break to next commit
                     break;
-            }
         }
 
         System.err.println("Code Commits per developer");
@@ -93,12 +111,16 @@ public class CodeCommits extends ProductivityBase implements Runnable {
             commits += authorCommits.get(author).intValue();
             System.out.printf("%d %s\n", authorCommits.get(author).intValue(),
                     author);
-        }*/
+        }
 
      //   System.err.println("Total code commits:" + commits);
     }
 
- /*   protected boolean evaluate(String path, SVNLogEntry entry) {
+    public int priority() {
+        return 0;
+    }
+
+    protected boolean evaluate(String path, CommitEntry entry) {
         
         if (FileTypeMatcher.getFileType(path) == FileTypeMatcher.FileType.SRC) {
             if (authorCommits.containsKey(entry.getAuthor()))
@@ -109,5 +131,5 @@ public class CodeCommits extends ProductivityBase implements Runnable {
             return true;
         }
         return false;
-    }*/
+    }
 }
