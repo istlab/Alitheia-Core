@@ -9,12 +9,11 @@ body {
 a {
     color: black;
 }
-
+*/
 a:hover {
     text-decoration: none;
-    color: #fa0602; /* SQO-OSS red. ;-) * /
+    color: #fa0602; /* SQO-OSS red. ;-) */
 }
-*/
 .metrics {
     margin: 0px;
     padding: 4px;
@@ -52,7 +51,7 @@ blockquote {
     background: #cccccc;
     margin: 0px;
 }
-*/
+* /
 #banner .alitheialogo {
     float: right;
 }
@@ -60,7 +59,7 @@ blockquote {
 #banner .sqologo {
     float: left;
 }
-
+*/
 #footer {
     padding: 1ex 1em;
     border-top: 1px solid #cecece;
@@ -86,13 +85,13 @@ blockquote {
     font-weight: bold;
 }
 
-#menu ul {
+#sidebar ul {
     list-style-type: none;
     margin: 0px;
     padding: 0px;
 }
 
-#menu li {
+#sidebar li {
     margin-left: 0px;
     padding-left: 0px;
     padding-right: 5px;
