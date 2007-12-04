@@ -16,7 +16,7 @@ a:link {
 }
 
 a:hover {
-    color: #D622222;
+    color: #D62222;
     text-decoration: none;
 }
 
@@ -36,7 +36,7 @@ a:visited {
 
 #header h1 {
 	float: right;
-    	padding: 10px 15px 0 0;
+    padding: 10px 15px 0 0;
 	font-size: 18px;
 	font-weight: bold;
 }
@@ -54,7 +54,7 @@ a:visited {
 
 
 #footer {
-	background:#f6f6f6;
+	background: #fcfbf3;
 	border-top: 1px solid #ccc;
 	text-align: center;
 	font-size: 0.8em;
@@ -72,7 +72,6 @@ a:visited {
 	background : #fff;
 	border : 1px solid #ccc;
 	border-top : none;
-    margin-top: -5px;
     text-align: justified;
 	margin : 0px;
 	padding : 15px;
@@ -95,17 +94,6 @@ a:visited {
 }
 
 
-.metrics {
-    margin: 0px;
-    padding: 4px;
-    border: 1px solid #cccccc;
-}
-
-
-table.metrics {
-    margin: 0px;
-    border: 2px solid #cccccc;
-}
 
 blockquote {
     font-style: italic;
