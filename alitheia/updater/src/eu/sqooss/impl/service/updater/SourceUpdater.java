@@ -63,6 +63,11 @@ import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.scheduler.Scheduler;
 
+/**
+ * 
+ * 
+ * @author Kostas Strogyllos (circular@aueb.gr)
+ */
 public class SourceUpdater {
 
     private String path;
