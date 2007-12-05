@@ -30,43 +30,41 @@
  *
  */
 
-package eu.sqooss.service.web.services;
+package eu.sqooss.impl.service.web.services.utils;
 
-/**
- * The web services service throws <code>WebServicesException</code>.
- * Axis2 server returns the exception to the client in the SOAP fault element. 
- */
-public class WebServicesException extends Exception {
+public class WSPair {
     
-    private static final long serialVersionUID = 1L;
+    private String first;
+    private String second;
     
     /**
-     * @see java.lang.Exception#Exception()
+     * @return the first
      */
-    public WebServicesException() {
-        super();
+    public String getFirst() {
+        return first;
     }
     
     /**
-     * @see java.lang.Exception#Exception(java.lang.String message)
+     * @param first the first to set
      */
-    public WebServicesException(String message) {
-        super(message);
+    public void setFirst(String first) {
+        this.first = first;
     }
     
     /**
-     * @see java.lang.Exception#Exception(java.lang.Throwable cause)
+     * @return the second
      */
-    public WebServicesException(Throwable cause) {
-        super(cause);
+    public String getSecond() {
+        return second;
     }
     
     /**
-     * @see java.lang.Exception#Exception(java.lang.String message, java.lang.Throwable cause)
+     * @param second the second to set
      */
-    public WebServicesException(String message, Throwable cause) {
-        super(message, cause);
+    public void setSecond(String second) {
+        this.second = second;
     }
+    
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
