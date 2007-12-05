@@ -43,10 +43,7 @@ public interface DBService {
     /**
      * Add a new project to the system; this should initialize
      * any tables that are needed for storage of project information.
-     * 
-     * @deprecated
      */
-    @Deprecated
     public void addRecord(DAObject record);
 
     public void addRecord(Session s, DAObject record);
@@ -58,10 +55,7 @@ public interface DBService {
      * http://www.hibernate.org/hib_docs/reference/en/html/queryhql.html
      * for details. As a rule, you do not write 'SELECT *' but only
      * 'FROM <ClassName>' (note: not the table name, the @em class).
-     * 
-     * @deprecated
      */
-    @Deprecated
     public List doSQL(String sql);
     
     public List doSQL(Session s, String sql);
@@ -70,10 +64,7 @@ public interface DBService {
      * This function shall perform an HQL query
      * This shall be used to replace the doSQL function
      * which shall be repurposed to actually do SQL!
-     * 
-     * @deprecated
      */
-    @Deprecated
     public List doHQL(String hql);
     
     public List doHQL(Session s, String hql);
