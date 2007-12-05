@@ -1,0 +1,57 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+  <head>
+    <title>SQO-OSS : System Logs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+    <link rel="stylesheet" type="text/css" media="screen" href="screen.css" />
+  </head>
+  <body class="section-2">
+    <div id="wrap">
+      <div id="header">
+        <h1>Admin Panel</h1>
+        <img src="sqo-oss.png" alt="SQO-OSS Logo" />
+      </div>
+      <div id="main">
+	<ul id="menu">
+ 	  <li id="nav-1"><a href="/index">Bundles</a></li>
+          <li id="nav-2"><a href="/logs">Logs</a></li>
+          <li id="nav-3"><a href="/projects">Projects</a></li>
+        </ul>
+	<div id="contents">
+          <h2>Alitheia Logs</h2>
+          <ul class="logs">
+            @@GETLOGS  	
+          </ul>	
+	</div>
+      </div>
+      <div id="sidebar">
+	<fieldset id="status">
+          <legend>Status</legend>	
+          <ul>
+            <li class="uptime">Uptime: 
+            @@UPTIME
+            </li>
+            <li class="queue">Job Queue Length: 
+            @@QUEUE_LENGTH
+            </li>
+          </ul>
+        </fieldset>
+        <fieldset id="options">
+          <legend>Options</legend>	
+          <form id="start" method="post" action="restart">
+            <p><input type="submit" value="Restart" /></p>
+	  </form>
+          <form id="stop" method="post" action="stop">
+            <p><input type="submit" value="Stop" /></p>
+	  </form>
+        </fieldset>
+      </div>
+      <div id="footer">
+        <p>
+        @@COPYRIGHT
+        </p>
+      </div>
+    </div>
+  </body>
+</html>
