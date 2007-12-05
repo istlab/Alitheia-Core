@@ -65,7 +65,7 @@ public class DiffImpl implements Diff {
      * processing the diff from the server. 
      */
     public void addFile(String path) {
-        changedFiles.add(path, FileChangeType.UNKNOWN);
+        changedFiles.put(path, FileChangeType.UNKNOWN);
     }
     
     /**
@@ -74,7 +74,7 @@ public class DiffImpl implements Diff {
      * processing the diff from the server.
      */
     public void addFile(String path, FileChangeType changeType) {
-        changedFiles.add(path, changeType);
+        changedFiles.put(path, changeType);
     }
 
     // Interface methods
