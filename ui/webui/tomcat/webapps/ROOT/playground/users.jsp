@@ -1,4 +1,7 @@
-<% String title = "Users"; %>
+<%@ include file="/inc/init.jsp" %>
+<%
+    title = "Users";
+%>
 <%@ page import="java.util.*" %>
 <%@ include file="/inc/header.jsp" %>
 

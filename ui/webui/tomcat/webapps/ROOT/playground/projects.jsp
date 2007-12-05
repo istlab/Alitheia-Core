@@ -1,4 +1,7 @@
-<% String title = "Evaluated Projects"; %>
+<%@ include file="/inc/init.jsp" %>
+<%
+    title = "Available Projects";
+%>
 <%@ include file="/inc/header.jsp" %>
 
 <h1>Evaluated Projects</h1>

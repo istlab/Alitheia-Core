@@ -1,6 +1,8 @@
+<%@ include file="/inc/init.jsp" %>
 <%
-String title = "Home";
+    title = "Home";
 %>
+<%@ page session="true" %>
 <%@ include file="/inc/header.jsp" %>
 
 <h2>This is the Alitheia System</h2>

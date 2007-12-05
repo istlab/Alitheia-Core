@@ -53,3 +53,7 @@ table.metrics {
     border: 2px solid #cccccc;
 }
 
+div.green {
+    display: inline;
+    color: green;
+}

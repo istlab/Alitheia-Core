@@ -76,7 +76,18 @@ public class User {
     }
 
     public String getUser (Integer id) {
-        return (String)allUsers.get(id);
+        return allUsers.get(id);
+    }
+
+    public Integer getUserId (String user) {
+        int i = 0;
+        for (String u: allUsers.values()) {
+            if (user.equals(u)) {
+                return i;
+            }
+            i++;
+        }
+        return -1;
     }
 
     public Map getAllUsers() {
@@ -99,9 +110,13 @@ public class User {
         }
         // Fear this magic, all users with a high
         // user id are automatically logged in
-        if (userId > 2) {
+        if (userId > 0) {
             return true;
         }
         return false;
+    }
+
+    public void logout() {
+        setCurrentUserId(0);
     }
 }

@@ -1,6 +1,6 @@
 <!-- *** menu.jsp begins here *** -->
+
 <jsp:useBean id="cruncher" class="eu.sqooss.webui.CruncherStatus" scope="application" />
-<jsp:useBean id="user" class="eu.sqooss.webui.User" scope="session" />
 
 <div id="menu">
     <ul>
@@ -10,14 +10,21 @@
         <li><a href="/playground/metrics.jsp" title="Click here for some imaginatory metrics">Metrics</a></li>
         <li><a href="/playground/files.jsp" title="Click here for a random list of files">Files</a></li>
         <li><a href="/login.jsp" title="Click here to log in">Login</a></li>
+        <li><a href="/logout.jsp" title="Click here to log out">Logout</a></li>
     </ul>
 </div>
 
+<%
+    //msg = msg + request.getParameter("msg");
+    if ( (msg!=null) && msg.length() > 0 ) {
+%>
 <div id="sidebar">
 <legend>Messages:</legend>
-    <%@ include file="/views/Message.jsp" %>
+    <%= msg %>
 </div>
-
+<%
+}
+%>
 <div id="sidebar">
 <legend>Status:</legend>
 <!-- First call to cruncher to obtain status -->
