@@ -34,16 +34,19 @@
 package eu.sqooss.impl.service.tds;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
+import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.tds.Diff;
 import eu.sqooss.service.tds.ProjectRevision;
 
 public class DiffImpl implements Diff {
     private ProjectRevision revStart,revEnd;
     private File diffFile;
-    private Set<String> changedFiles;
+    private Map<String, FileChangeType> changedFiles;
 
     public DiffImpl(ProjectRevision start, ProjectRevision end, File path) {
         revStart = new ProjectRevision(start);
@@ -53,16 +56,25 @@ public class DiffImpl implements Diff {
             revEnd = new ProjectRevision(start.getSVNRevision()+1);
         }
         diffFile = path;
-        changedFiles = new HashSet<String>();
+        changedFiles = new HashMap<String, FileChangeType>();
     }
 
     /**
      * Add a file to the set of changed files represented by
      * this Diff. Normally done by the DiffStatusHandler while
-     * processing the diff from the server.
+     * processing the diff from the server. 
      */
     public void addFile(String path) {
-        changedFiles.add(path);
+        changedFiles.add(path, FileChangeType.UNKNOWN);
+    }
+    
+    /**
+     * Add a file to the set of changed files represented by
+     * this Diff. Normally done by the DiffStatusHandler while
+     * processing the diff from the server.
+     */
+    public void addFile(String path, FileChangeType changeType) {
+        changedFiles.add(path, changeType);
     }
 
     // Interface methods
@@ -79,6 +91,10 @@ public class DiffImpl implements Diff {
     }
 
     public Set<String> getChangedFiles() {
+        return changedFiles.keySet();
+    }
+    
+    public Map<String, FileChangeType> getChangedFilesStatus() {
         return changedFiles;
     }
 }

@@ -89,7 +89,7 @@ public class SourceUpdater {
         this.logger = logger;
     }
 
-    public void DoUpdate() throws UpdaterException {
+    public void doUpdate() throws UpdaterException {
 
         try {
 
@@ -147,7 +147,8 @@ public class SourceUpdater {
 
         List pvList = dbs.doHQL("from ProjectVersion pv where pv.project = "
                 + project.getId() + " and pv.id = (select max(pv2.id) from "
-                + " ProjectVersion pv2 where pv2.project = " + project.getId());
+                + " ProjectVersion pv2 where pv2.project = " + project.getId()
+                + ")");
 
         if ((pvList == null) || (pvList.size() != -1)) {
             throw new UpdaterException(
@@ -160,4 +161,4 @@ public class SourceUpdater {
 
 }
 
-//vi: ai nosi sw=4 ts=4 expandtab
+// vi: ai nosi sw=4 ts=4 expandtab

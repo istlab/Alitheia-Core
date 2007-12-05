@@ -36,8 +36,10 @@ package eu.sqooss.impl.service.tds;
 import org.tmatesoft.svn.core.SVNNodeKind;
 import org.tmatesoft.svn.core.wc.ISVNDiffStatusHandler;
 import org.tmatesoft.svn.core.wc.SVNDiffStatus;
+import org.tmatesoft.svn.core.wc.SVNStatusType;
 
 import eu.sqooss.impl.service.tds.DiffImpl;
+import eu.sqooss.service.tds.Diff.FileChangeType;
 
 public class DiffStatusHandler implements ISVNDiffStatusHandler {
     private DiffImpl theDiff;
@@ -48,7 +50,16 @@ public class DiffStatusHandler implements ISVNDiffStatusHandler {
 
     public void handleDiffStatus(SVNDiffStatus s) {
         if ((theDiff!=null) && (s.getKind()==SVNNodeKind.FILE)) {
-            theDiff.addFile(s.getPath());
+           
+            SVNStatusType type = s.getModificationType();
+            
+            if((type == SVNStatusType.CHANGED) || (type == SVNStatusType.MERGED)) {
+                theDiff.addFile(s.getPath(), FileChangeType.MODIFIED);
+            } else if (type == SVNStatusType.UNCHANGED) {
+                theDiff.addFile(s.getPath(), FileChangeType.UNMODIFIED);
+            } else {
+                theDiff.addFile(s.getPath(), FileChangeType.UNKNOWN);
+            }
         }
     }
 }

@@ -44,7 +44,7 @@ public interface CommitEntry {
     String getAuthor();
     String getMessage();
     Date getDate();
-    String[] getChangedPaths();
+    String[] getChangedPaths();    
 
     String toString();
 }

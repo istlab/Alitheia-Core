@@ -138,7 +138,7 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
             try {
                 SourceUpdater su = new SourceUpdater(path, tdsService,
                         dbService, scheduler, logger);
-                su.DoUpdate();
+                su.doUpdate();
             } catch (UpdaterException ue) {
                 logger.severe("The Updater failed to update the code for project "
                                 + path);

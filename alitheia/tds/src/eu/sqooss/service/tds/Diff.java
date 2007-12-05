@@ -34,6 +34,7 @@
 package eu.sqooss.service.tds;
 
 import java.io.File;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -42,6 +43,18 @@ import java.util.Set;
  * (or between two project revisions, whatever that may mean).
  */
 public interface Diff {
+    
+    /**
+     * Describes the type of modification that has occured on a project
+     * file (path) within two different versions of the project
+     */
+    public enum FileChangeType {
+        UNKNOWN,
+        UNMODIFIED,
+        MODIFIED,
+        DELETED
+    }
+    
     /**
      * Retrieve the project revision information for the first
      * (before) revision of this diff.
@@ -75,6 +88,16 @@ public interface Diff {
      * @return set of files changed in this diff
      */
     Set < String > getChangedFiles();
+    
+    /**
+     * Retrieve a list of file names (relative to the root
+     * under which the diff was taken) modified by this diff,
+     * and the type of change associated with each one.
+     *  
+     * @return mapping of files changed in this diff and the
+     * type of modification that occured on each one.
+     */
+    Map <String, FileChangeType> getChangedFilesStatus();
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab
