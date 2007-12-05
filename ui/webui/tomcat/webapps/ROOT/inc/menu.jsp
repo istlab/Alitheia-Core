@@ -9,8 +9,18 @@
         <li><a href="/playground/users.jsp" title="Click here for registered crackheads">Users</a></li>
         <li><a href="/playground/metrics.jsp" title="Click here for some imaginatory metrics">Metrics</a></li>
         <li><a href="/playground/files.jsp" title="Click here for a random list of files">Files</a></li>
+
+<%
+if (!loggedIn) {
+%>
         <li><a href="/login.jsp" title="Click here to log in">Login</a></li>
+<%
+} else {
+%>
         <li><a href="/logout.jsp" title="Click here to log out">Logout</a></li>
+<%
+}
+%>
     </ul>
 </div>
 
