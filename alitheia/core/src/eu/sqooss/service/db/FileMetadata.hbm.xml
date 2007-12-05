@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+  <class name="eu.sqooss.service.db.FileMetadata" table="FILE_METADATA">
+    <id name="id" column="METADATA_ID">
+      <generator class="native" />
+    </id>
+    <property name="protection" column="PROTECTION_MODE" />
+    <property name="links" column="NUMBER_OF_LINKS" />
+    <property name="userId" column="USER_ID" />
+    <property name="groupId" column="GROUP_ID" />
+    <property name="accessTime" column="ACCESS_TIME" />
+    <property name="modificationTime" column="MODIFICATION_TIME" />
+    <property name="fileStatusChange" column="STATUS_CHANGE" />
+    <property name="size" column="FILE_SIZE" />
+    <property name="blocks" column="FILE_BLOCKS" />
+  </class>
+</hibernate-mapping>
