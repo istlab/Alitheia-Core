@@ -1,0 +1,12 @@
+<assembly>
+  <id>sqooss.services</id>
+  <includeBaseDirectory>false</includeBaseDirectory>
+  <moduleSets>
+    <moduleSet>
+      <binaries>
+        <outputFileNameMapping>eu.sqooss.service.${artifactId}_${version}.${extension}</outputFileNameMapping>
+        <unpack>false</unpack>
+      </binaries>
+    </moduleSet>
+  </moduleSets>
+</assembly>
