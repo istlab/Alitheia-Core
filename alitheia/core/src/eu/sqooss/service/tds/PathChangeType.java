@@ -4,10 +4,6 @@
  *
  * Copyright 2007 by the SQO-OSS consortium members <info@sqo-oss.eu>
  * Copyright 2007 by Adriaan de Groot <groot@kde.org>
- *   [[ Individual consortium members may list themselves here;
- *      third parties are to be listed here as well. You must
- *      include a real name and an email address. ]]
- *
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -37,20 +33,15 @@
 
 package eu.sqooss.service.tds;
 
-import java.util.Date;
-import java.util.Map;
-import java.util.Set;
-
-public interface CommitEntry {
-    ProjectRevision getRevision();
-    String getAuthor();
-    String getMessage();
-    Date getDate();
-    Set<String> getChangedPaths();
-    Map<String, PathChangeType> getChangedPathsStatus();
-
-    String toString();
+/**
+ * Describes the type of modification that has occured on a project
+ * file (path) within two different versions of the project
+ */
+public enum PathChangeType {
+        UNKNOWN,
+        UNMODIFIED,
+        ADDED,
+        MODIFIED,
+        REPLACED,
+        DELETED
 }
-
-// vi: ai nosi sw=4 ts=4 expandtab
-

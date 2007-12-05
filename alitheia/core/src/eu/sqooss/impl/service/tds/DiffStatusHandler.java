@@ -38,8 +38,8 @@ import org.tmatesoft.svn.core.wc.ISVNDiffStatusHandler;
 import org.tmatesoft.svn.core.wc.SVNDiffStatus;
 import org.tmatesoft.svn.core.wc.SVNStatusType;
 
+import eu.sqooss.service.tds.PathChangeType;
 import eu.sqooss.impl.service.tds.DiffImpl;
-import eu.sqooss.service.tds.Diff.FileChangeType;
 
 public class DiffStatusHandler implements ISVNDiffStatusHandler {
     private DiffImpl theDiff;
@@ -49,16 +49,17 @@ public class DiffStatusHandler implements ISVNDiffStatusHandler {
     }
 
     public void handleDiffStatus(SVNDiffStatus s) {
-        if ((theDiff!=null) && (s.getKind()==SVNNodeKind.FILE)) {
-           
+        if ((theDiff != null) && (s.getKind() == SVNNodeKind.FILE)) {
+
             SVNStatusType type = s.getModificationType();
-            
-            if((type == SVNStatusType.CHANGED) || (type == SVNStatusType.MERGED)) {
-                theDiff.addFile(s.getPath(), FileChangeType.MODIFIED);
+
+            if ((type == SVNStatusType.CHANGED)
+                    || (type == SVNStatusType.MERGED)) {
+                theDiff.addFile(s.getPath(), PathChangeType.MODIFIED);
             } else if (type == SVNStatusType.UNCHANGED) {
-                theDiff.addFile(s.getPath(), FileChangeType.UNMODIFIED);
+                theDiff.addFile(s.getPath(), PathChangeType.UNMODIFIED);
             } else {
-                theDiff.addFile(s.getPath(), FileChangeType.UNKNOWN);
+                theDiff.addFile(s.getPath(), PathChangeType.UNKNOWN);
             }
         }
     }

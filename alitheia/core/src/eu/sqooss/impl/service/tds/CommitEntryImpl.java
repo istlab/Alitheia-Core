@@ -38,33 +38,40 @@
 package eu.sqooss.impl.service.tds;
 
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 import org.tmatesoft.svn.core.SVNLogEntry;
+import org.tmatesoft.svn.core.SVNLogEntryPath;
 
 import eu.sqooss.service.tds.CommitEntry;
+import eu.sqooss.service.tds.PathChangeType;
 import eu.sqooss.service.tds.ProjectRevision;
 
 public class CommitEntryImpl implements CommitEntry {
     private ProjectRevision revision;
+
     private String author;
+
     private String message;
-    private String[] changedPaths;
+
+    private Map<String, PathChangeType> changedPaths;
 
     public CommitEntryImpl(SVNLogEntry l) {
         revision = new ProjectRevision(l.getRevision());
         author = l.getAuthor();
         message = l.getMessage();
+        changedPaths = new LinkedHashMap<String, PathChangeType>();
+        Map<String, SVNLogEntryPath> paths = (Map<String, SVNLogEntryPath>) l
+                .getChangedPaths();
 
-        String[] paths = new String[l.getChangedPaths().size()];
-        int c = 0;
-        for (Iterator i = l.getChangedPaths().keySet().iterator();
-            i.hasNext(); ) {
-            paths[c] = (String) i.next();
-            ++c;
+        for (Iterator i = paths.keySet().iterator(); i.hasNext();) {
+            String path = (String) i.next();
+            changedPaths.put(path, parseSVNLogEntryPath(paths.get(path)
+                    .getType()));
         }
-        changedPaths = paths;
     }
 
     public ProjectRevision getRevision() {
@@ -78,18 +85,36 @@ public class CommitEntryImpl implements CommitEntry {
     public String getMessage() {
         return message;
     }
-    
+
     public Date getDate() {
         return revision.getDate();
     }
 
-    public String[] getChangedPaths() {
+    public Set<String> getChangedPaths() {
+        return changedPaths.keySet();
+    }
+
+    public Map<String, PathChangeType> getChangedPathsStatus() {
         return changedPaths;
     }
 
     public String toString() {
         return getRevision().toString() + " " + getAuthor() + "\n    "
-            + getMessage();
+                + getMessage();
+    }
+
+    private PathChangeType parseSVNLogEntryPath(char entryPathType) {
+        if (entryPathType == SVNLogEntryPath.TYPE_ADDED) {
+            return PathChangeType.ADDED;
+        } else if (entryPathType == SVNLogEntryPath.TYPE_DELETED) {
+            return PathChangeType.DELETED;
+        } else if (entryPathType == SVNLogEntryPath.TYPE_MODIFIED) {
+            return PathChangeType.MODIFIED;
+        } else if (entryPathType == SVNLogEntryPath.TYPE_REPLACED) {
+            return PathChangeType.REPLACED;
+        } else {
+            return PathChangeType.UNKNOWN;
+        }
     }
 }
 

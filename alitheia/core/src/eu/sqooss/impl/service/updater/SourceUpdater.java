@@ -33,52 +33,38 @@
 
 package eu.sqooss.impl.service.updater;
 
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
-import javax.servlet.Servlet;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
-import org.osgi.service.http.HttpService;
-import org.osgi.service.http.NamespaceException;
-
-import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
-import eu.sqooss.service.updater.UpdaterService;
 import eu.sqooss.service.tds.CommitEntry;
 import eu.sqooss.service.tds.CommitLog;
 import eu.sqooss.service.tds.Diff;
+import eu.sqooss.service.tds.PathChangeType;
 import eu.sqooss.service.tds.ProjectRevision;
 import eu.sqooss.service.tds.SCMAccessor;
 import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
+import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.scheduler.Scheduler;
 
 /**
  * 
- * 
- * @author Kostas Strogyllos (circular@aueb.gr)
+ * @author Kostas Stroggylos
  */
-public class SourceUpdater {
+public class SourceUpdater extends Job {
 
     private String path;
-
     private TDSService tds;
-
     private DBService dbs;
-
     private Scheduler scheduler;
-
     private Logger logger;
+    private List<Job> subTasks;
 
     public SourceUpdater(String path, TDSService tds, DBService dbs,
             Scheduler scheduler, Logger logger) throws UpdaterException {
@@ -92,34 +78,35 @@ public class SourceUpdater {
         this.dbs = dbs;
         this.scheduler = scheduler;
         this.logger = logger;
+        subTasks = new ArrayList<Job>();
+    }
+    
+    public int priority() {
+        return 1;
     }
 
-    public void doUpdate() throws UpdaterException {
-
+    protected void run() throws UpdaterException {
         try {
-
             StoredProject project = getProject();
-
             ProjectVersion lastVersion = getLastProjectVersion(project);
-
             SCMAccessor scm = tds.getAccessor(project.getId()).getSCMAccessor();
-
             CommitLog commitLog = scm.getCommitLog(new ProjectRevision(
                     lastVersion.getVersion()), new ProjectRevision(new Date()));
 
+            //TODO: store project version info
+            
             for (CommitEntry entry : commitLog) {
-
+                //handle individual changes and create the necessary jobs for storing
+                //information related to updated files
+                processEntry(entry);
             }
 
-            Diff diff = getProjectDiff(lastVersion, scm);
-
-            Set<String> changedFiles = diff.getChangedFiles();
         } catch (Exception e) {
-            e.getMessage();
+            logger.error(e.getMessage());
         }
 
     }
-
+    
     private Diff getProjectDiff(ProjectVersion lastVersion, SCMAccessor scm)
             throws UpdaterException {
         Diff diff = null;
@@ -163,7 +150,48 @@ public class SourceUpdater {
         lastVersion = (ProjectVersion) pvList.get(0);
         return lastVersion;
     }
+    
+    private void processEntry(CommitEntry entry) throws Exception {
+        Map<String, PathChangeType> changes = entry
+        .getChangedPathsStatus();
 
+        for (Iterator i = changes.keySet().iterator(); i.hasNext();) {
+            String path = (String) i.next();
+            
+            CommitEntryHandlerJob job = new CommitEntryHandlerJob(tds, dbs, logger);
+            job.init(path, changes.get(path));
+            this.addDependency(job);
+            subTasks.add(job);
+        }
+    }
+    
+    @Override
+    protected void aboutToBeEnqueued(Scheduler s) {
+        try {
+            for(Job subTask: subTasks) {
+                s.enqueue(subTask);
+            }
+        }
+        catch(Exception e) {
+            logger.error("Updater failed to enqueue jobs for handling updated source files");
+            return;
+        }
+    }
+    
+    @Override
+    protected void aboutToBeDequeued(Scheduler s) {
+        //remove the subTasks from the queue
+        for(Job subTask: subTasks) {
+            try {
+                s.enqueue(subTask);
+            }
+            catch(Exception e) {
+                logger.error("Updater failed to dequeue jobs for handling updated source files");
+                continue;
+            }
+        }
+        super.aboutToBeDequeued(s);
+    }
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

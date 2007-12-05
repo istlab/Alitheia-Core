@@ -41,12 +41,13 @@ import java.util.Set;
 
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.tds.Diff;
+import eu.sqooss.service.tds.PathChangeType;
 import eu.sqooss.service.tds.ProjectRevision;
 
 public class DiffImpl implements Diff {
     private ProjectRevision revStart,revEnd;
     private File diffFile;
-    private Map<String, FileChangeType> changedFiles;
+    private Map<String, PathChangeType> changedFiles;
 
     public DiffImpl(ProjectRevision start, ProjectRevision end, File path) {
         revStart = new ProjectRevision(start);
@@ -56,7 +57,7 @@ public class DiffImpl implements Diff {
             revEnd = new ProjectRevision(start.getSVNRevision()+1);
         }
         diffFile = path;
-        changedFiles = new HashMap<String, FileChangeType>();
+        changedFiles = new HashMap<String, PathChangeType>();
     }
 
     /**
@@ -65,15 +66,16 @@ public class DiffImpl implements Diff {
      * processing the diff from the server. 
      */
     public void addFile(String path) {
-        changedFiles.put(path, FileChangeType.UNKNOWN);
+        changedFiles.put(path, PathChangeType.UNKNOWN);
     }
     
     /**
-     * Add a file to the set of changed files represented by
-     * this Diff. Normally done by the DiffStatusHandler while
+     * Add a file to the collection of changed files represented by
+     * this Diff, along with the kind of change that has taken place
+     * on each one. Normally done by the DiffStatusHandler while
      * processing the diff from the server.
      */
-    public void addFile(String path, FileChangeType changeType) {
+    public void addFile(String path, PathChangeType changeType) {
         changedFiles.put(path, changeType);
     }
 
@@ -94,7 +96,7 @@ public class DiffImpl implements Diff {
         return changedFiles.keySet();
     }
     
-    public Map<String, FileChangeType> getChangedFilesStatus() {
+    public Map<String, PathChangeType> getChangedFilesStatus() {
         return changedFiles;
     }
 }

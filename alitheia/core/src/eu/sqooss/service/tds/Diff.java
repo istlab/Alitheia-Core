@@ -45,17 +45,6 @@ import java.util.Set;
 public interface Diff {
     
     /**
-     * Describes the type of modification that has occured on a project
-     * file (path) within two different versions of the project
-     */
-    public enum FileChangeType {
-        UNKNOWN,
-        UNMODIFIED,
-        MODIFIED,
-        DELETED
-    }
-    
-    /**
      * Retrieve the project revision information for the first
      * (before) revision of this diff.
      *
@@ -97,7 +86,7 @@ public interface Diff {
      * @return mapping of files changed in this diff and the
      * type of modification that occured on each one.
      */
-    Map <String, FileChangeType> getChangedFilesStatus();
+    Map <String, PathChangeType> getChangedFilesStatus();
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab
