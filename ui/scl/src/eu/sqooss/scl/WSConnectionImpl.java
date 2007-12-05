@@ -40,29 +40,179 @@ import eu.sqooss.scl.result.WSResult;
  */
 class WSConnectionImpl implements WSConnection {
 
-    public void addEventListener(String url, WSEventListener listener) {
+    public void deleteUser(String userNameForAccess, String passwordForAccess,
+            String userId) {
+        // TODO Auto-generated method stub
+        
     }
 
-    public WSResult addMetric(String url) {
+    public WSResult displayDeveloperInfo(String userName, String password,
+            String projectId, String developerId, String criterioId,
+            String display) {
+        // TODO Auto-generated method stub
         return null;
     }
 
-    public WSResult getFileGroupMetricResult(long merticId, long projectId,
-            int projectVersison) {
+    public WSResult displayDeveloperInfoTimeDiagram(String userName,
+            String password, String projectId, String developerId,
+            String criterioId, String tdStart, String tdEnd) {
+        // TODO Auto-generated method stub
         return null;
     }
 
-    public WSResult getValue(String url) {
+    public WSResult displayUser(String userName, String password) {
+        // TODO Auto-generated method stub
         return null;
     }
 
-    public void removeEventListener(String url, WSEventListener listener) {
-    }
-
-    public WSResult removeMetric(long metricId) {
+    public WSResult evaluatedProjectsList(String userName, String password) {
+        // TODO Auto-generated method stub
         return null;
     }
 
+    public WSResult evaluatedProjectsListScore(String userName, String password) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public void modifySubscriptions(String userName, String password,
+            String newProjectNotification, String newMetricPlugin,
+            String projectEvalFinished, String newProjectVersion,
+            String newQualityRatings, String statistics) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public void modifyUser(String userNameForAccess, String passwordForAccess,
+            String modifyAccountUserName, String modifyAccountSurname,
+            String modifyAccountPassword, String modifyAccountUserClass) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public WSResult ratedProjectsList(String userName, String password) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public WSResult requestDefectStatistics(String userName, String password,
+            String prokectId, String searchQuery, String statisticalScheme) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public void requestEvaluatin4Project(String userName, String password,
+            String projectName, String projectVersion,
+            String srcRepositoryLocation, String srcRepositoryType,
+            String mailingListLocation, String BTSLocation) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public WSResult requestEvolEstimates4Project(String userName,
+            String password, String projectName, String projectVersion,
+            String srcRepositoryLocation, String srcRepositoryType,
+            String mailingListLocation, String BTSLocation) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public WSResult requestPastEvolEstimProjects(String userName,
+            String password) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public WSResult requestProjectEvolutionEstimates(String userName,
+            String password, String projectId, String startDate, String endDate) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public WSResult requestProjectEvolutionEstimatesDuration(String userName,
+            String password, String projectId, String duration) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public WSResult requestProjectsWithBTS(String userName, String password) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public WSResult retrieveCriteria4SelectedDeveloper(String userName,
+            String password, String projectId, String developerId) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public WSResult retrieveDevelopers4SelectedProject(String userName,
+            String password, String projectId) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public WSResult retrieveFileList(String userName, String password,
+            String projectId) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public WSResult retrieveMetrics4SelectedFiles(String userName,
+            String password, String projectId, String[] folders,
+            String[] fileNames) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public WSResult retrieveMetrics4SelectedProject(String userName,
+            String password, String projectId) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public WSResult retrieveProjectRatings(String userName, String password,
+            String projectId) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public WSResult retrieveSelectedMetric(String userName, String password,
+            String projectId, String metricId) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public void submitScores(String userName, String password,
+            String projectId, String[] scores, String textOpinion) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public void submitUser(String userNameForAccess, String passwordForAccess,
+            String newAccountUserName, String newAccountSurname,
+            String newAccountPassword, String newAccountUserClass) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public WSResult subscriptionsStatus(String userName, String password) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public WSResult viewComments(String userName, String password,
+            String projectId) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public WSResult viewScores(String userName, String password,
+            String projectId) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+    
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

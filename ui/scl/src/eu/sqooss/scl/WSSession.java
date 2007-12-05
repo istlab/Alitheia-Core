@@ -37,17 +37,47 @@ import eu.sqooss.scl.result.WSResult;
 /**
  * The WSResult can be stored in the user session. 
  */
-public interface WSSession {
+public class WSSession {
     
-    public String getId();
+    public WSSession(String userName, String password) {
+        
+    }
     
-    public void setWSResult(String key, WSResult result);
+    public WSSession(String userName, String password, String webServiceUrl) {
+        
+    }
     
-    public boolean removeWSResult(String key);
+    public WSResult getValue(String webServiceMethodUrl) {
+        return null;
+    }
     
-    public boolean clearWSResults();
+    public void setWSResult(String key, WSResult result) {
+        
+    }
     
-    public WSConnection getConnection();
+    public WSResult getWSResult(String key) {
+        return null;
+    }
+    
+    public void removeWSResult(String key) {
+        
+    }
+    
+    public void clearWSResults() {
+        
+    }
+    
+    public WSConnection getConnection() {
+        return null;
+    }
+    
+    public void addWebServiceListener(String webServiceMethodUrl, WSEventListener listener) {
+        
+    }
+    
+    public void removeWebServiceListener(String webServiceMethodUrl, WSEventListener listener) {
+        
+    }
     
 }
 
