@@ -6,9 +6,10 @@
     position: absolute;
     left: 224px;
     top: 75px;
+    font-size: 0.8em;
 }
 
-#sidebar {
+#sidebar, #menu {
     background: #fcfbf3;
     width: 180px;
     float: left;
@@ -16,20 +17,24 @@
     border: 1px solid #cccccc;
     padding: 1ex 1em;
     margin: 1ex 1ex 0ex 1ex;
-    font-size: small;
-    font-weight: bold;
+    font-size: 0.8em;
 }
 
-#sidebar ul {
+#menu ul {
     list-style-type: none;
     margin: 0px;
     padding: 0px;
 }
 
-#sidebar li {
+#menu li {
     margin-left: 0px;
     padding-left: 0px;
     padding-right: 5px;
+}
+
+#menu {
+    font-weight: bold;
+    
 }
 
 #news {
@@ -47,3 +52,4 @@ table.metrics {
     margin: 0px;
     border: 2px solid #cccccc;
 }
+

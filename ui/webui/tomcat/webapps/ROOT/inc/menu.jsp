@@ -2,7 +2,7 @@
 <jsp:useBean id="cruncher" class="eu.sqooss.webui.CruncherStatus" scope="application" />
 <jsp:useBean id="user" class="eu.sqooss.webui.User" scope="session" />
 
-<div id="sidebar">
+<div id="menu">
     <ul>
         <li><a href="/" title="Click here for no information">Home</a></li>
         <li><a href="/playground/projects.jsp" title="Click here for projects we don't do anything with yet">Projects</a></li>

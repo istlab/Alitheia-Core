@@ -28,7 +28,6 @@ a:visited {
     color: #131114;
 }
 
-
 #header {
 	background: #fff url(/style/header-repeat.png) repeat-x;
 	height: 75px;
@@ -52,12 +51,12 @@ a:visited {
 	padding: 15px;
 }
 
-
 #footer {
 	background: #fcfbf3;
 	border-top: 1px solid #ccc;
 	text-align: center;
 	font-size: 0.8em;
+    margin-top: 20px;
 	clear:both;
 }
 
@@ -93,13 +92,18 @@ a:visited {
     border-bottom: 1px dotted #000;
 }
 
-
-
 blockquote {
     font-style: italic;
+    margin: 5px;
+    font-size: 0.9em;
 }
 
 legend {
     font-weight: bold;
+}
+
+.form {
+    border: 1px solid #ccc;
+    background: url(/style/greyBack.jpg) top repeat-x;
 }
 

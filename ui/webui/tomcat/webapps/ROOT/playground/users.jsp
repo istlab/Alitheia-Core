@@ -13,6 +13,13 @@
         out.println("You are:");
         out.println("<ul><li> Foobar [" + uid + "]</li></ul>");
     } else {
+%>
+<form id="loginform">
+    <input type="text" name="user_id" />
+    <input type="password" name="password" />
+</form>
+
+<%
         out.println("Your User ID is not known to the system yet.");
     }
     %>

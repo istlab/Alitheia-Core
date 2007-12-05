@@ -5,7 +5,7 @@
 <jsp :useBean id="user" class="eu.sqooss.webui.User" scope="session"/> 
 <jsp :setProperty name="user" property="*"/>
 
-<h1>Users</h1>
+<h1>Login to the Alitheia System</h1>
 
 <%
 String uid = request.getParameter("uid");
@@ -28,8 +28,30 @@ if ( (uid!=null) && uid.length() > 0 ) {
         }
     }
 } else {
-    // Login form
-    out.println("Your User ID is not known to the system yet.");
+%>
+<form id="loginform">
+
+<table>
+<tr>
+    <td>
+        Username:
+    </td>
+    <td>
+        <input type="text" name="user_id" class="form" />
+    </td>
+</tr><tr>
+    <td>
+        Password:
+    </td>
+    <td>
+        <input type="password" name="password" class="form" />
+    </td>
+</tr>
+</table>
+
+</form>
+
+<%
 }
 %>
 
