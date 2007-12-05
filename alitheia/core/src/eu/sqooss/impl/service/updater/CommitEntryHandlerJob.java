@@ -71,7 +71,7 @@ public class CommitEntryHandlerJob extends Job {
     }
 
     protected void run() throws UpdaterException {
-        if (path == null || path.isEmpty()) {
+        if (path == null || (path.length() < 1)) {
             throw new UpdaterException("The Job has not been initialised");
         }
         ProjectFile pf = new ProjectFile();
