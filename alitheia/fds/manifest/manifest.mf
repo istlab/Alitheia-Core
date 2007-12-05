@@ -6,6 +6,6 @@ Bundle-Version: 0.0.1
 Bundle-Vendor: KDE
 Bundle-Category: data
 Bundle-Description: This bundle provides the FDS Service
-Import-Package: org.osgi.framework, org.apache.commons.codec.binary, eu.sqooss.service.logging, eu.sqooss.service.tds
+Import-Package: org.osgi.framework, org.apache.commons.codec.binary, eu.sqooss.service.logging, eu.sqooss.service.util, eu.sqooss.service.tds
 Export-Package: eu.sqooss.service.fds
 
