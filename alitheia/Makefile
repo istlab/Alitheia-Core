@@ -10,18 +10,8 @@
 
 # Subdirectories to build bundles in. Ignored in a Maven build (which takes
 # the same information from pom.xml).
-BUNDLES=db \
-	fds \
-	logger \
-	messaging \
-	scheduler \
-	security \
-	tds \
-	tester \
-	updater \
-	util \
-	webadmin \
-  web-services
+BUNDLES=  tester \
+	core 
 
 #
 # END OF USER CONFIGURABLE AREA

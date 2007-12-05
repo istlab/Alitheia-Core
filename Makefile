@@ -42,7 +42,7 @@
 PREFIX=equinox
 
 # Subdirectories to build or install from.
-SUBDIRS=alitheia metrics
+SUBDIRS=alitheia 
 
 #
 # END OF USER CONFIGURATION AREA
