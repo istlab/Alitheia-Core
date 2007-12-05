@@ -52,7 +52,7 @@ public class CommitLogImpl implements CommitLog {
         entries = new LinkedList<CommitEntry>();
     }
 
-    public Collection getEntriesReference() {
+    public Collection<CommitEntry> getEntriesReference() {
         return entries;
     }
 

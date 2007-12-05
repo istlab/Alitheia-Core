@@ -64,8 +64,8 @@ public class CommitEntryImpl implements CommitEntry {
         author = l.getAuthor();
         message = l.getMessage();
         changedPaths = new LinkedHashMap<String, PathChangeType>();
-        Map<String, SVNLogEntryPath> paths = (Map<String, SVNLogEntryPath>) l
-                .getChangedPaths();
+        Map<String, SVNLogEntryPath> paths = 
+            (Map<String, SVNLogEntryPath>) (l.getChangedPaths());
 
         for (Iterator i = paths.keySet().iterator(); i.hasNext();) {
             String path = (String) i.next();
