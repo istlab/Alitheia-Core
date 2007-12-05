@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<classpath>
-	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.launching.macosx.MacOSXType/JVM 1.5"/>
-	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
-	<classpathentry kind="lib" path="/Users/gousiosg/Documents/projects/SQO-OSS/svn/devel/trunk/equinox/logger-1.0.0.jar" sourcepath="/Users/gousiosg/Documents/projects/SQO-OSS/svn/devel/trunk/alitheia/logger/src"/>
-	<classpathentry kind="output" path="bin"/>
-</classpath>
