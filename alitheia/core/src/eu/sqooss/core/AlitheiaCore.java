@@ -47,6 +47,7 @@ import eu.sqooss.impl.service.tds.TDSServiceImpl;
 import eu.sqooss.impl.service.updater.UpdaterServiceImpl;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.fds.FDSService;
+import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.messaging.MessagingService;
 import eu.sqooss.impl.service.messaging.MessagingServiceImpl;
 import eu.sqooss.service.scheduler.Scheduler;
@@ -68,11 +69,12 @@ public class AlitheiaCore {
     private org.osgi.framework.BundleContext bc;
 
     public AlitheiaCore(BundleContext bc) {
+    	bc.registerService(AlitheiaCore.class.getName(), this, null);
         this.bc = bc;
-        
+        getLogManager();
     }
 
-    public LogManagerImpl getLogManager() {
+    public LogManager getLogManager() {
         if (logger == null) {
             logger = new LogManagerImpl(bc);
         }

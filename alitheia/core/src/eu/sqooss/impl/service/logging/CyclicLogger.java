@@ -33,12 +33,10 @@
 
 package eu.sqooss.impl.service.logging;
 
-import org.apache.log4j.Appender;
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.Layout;
-import org.apache.log4j.Level;
-import org.apache.log4j.spi.LoggingEvent;
 import org.apache.log4j.helpers.CyclicBuffer;
+import org.apache.log4j.spi.LoggingEvent;
 
 public class CyclicLogger extends AppenderSkeleton {
     private int entries = 512;
@@ -61,7 +59,7 @@ public class CyclicLogger extends AppenderSkeleton {
     }
 
     public String[] getEntries() {
-        synchronized(buffer) {
+         synchronized(buffer) {
             String[] list = new String[buffer.length()];
             Layout layout = getLayout();
             for (int i=0; i<buffer.length(); i++) {

@@ -43,9 +43,8 @@ import org.osgi.framework.ServiceReference;
 
 // Now the SQO-OSS imports, alphabetically
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.logging.LogManager;
-
+import eu.sqooss.service.logging.Logger;
 
 public class TesterActivator implements BundleActivator {
     private ServiceReference core = null;

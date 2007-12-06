@@ -34,11 +34,12 @@ package eu.sqooss.impl.service.logging;
 
 import java.util.HashMap;
 
-import org.apache.log4j.*;
+import org.apache.log4j.PatternLayout;
+import org.apache.log4j.SimpleLayout;
 import org.osgi.framework.BundleContext;
 
-import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.logging.LogManager;
+import eu.sqooss.service.logging.Logger;
 
 public class LogManagerImpl implements LogManager {
     // Our singleton manager
