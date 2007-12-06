@@ -30,7 +30,7 @@
  *
  */
 
-package eu.sqooss;
+package eu.sqooss.core;
 
 import javax.servlet.ServletException;
 

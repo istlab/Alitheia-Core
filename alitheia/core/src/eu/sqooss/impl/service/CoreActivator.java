@@ -3,7 +3,7 @@ package eu.sqooss.impl.service;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleActivator;
 
-import eu.sqooss.AlitheiaCore;
+import eu.sqooss.core.AlitheiaCore;
 
 public class CoreActivator
     implements BundleActivator{
