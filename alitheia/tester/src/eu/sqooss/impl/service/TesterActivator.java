@@ -47,104 +47,104 @@ import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
 
 public class TesterActivator implements BundleActivator {
-    private ServiceReference core = null;
-    private Logger logger = null;
+	private ServiceReference serviceRef = null;
+	private AlitheiaCore core = null;
+	private Logger logger = null;
 
-    private void getLogger( BundleContext bc ) {
-    	try {
-    		core = bc.getServiceReference(AlitheiaCore.class.getName());
-    	} catch( Throwable t ) {
-    		core = null;
-    	}
+	private void getLogger() {
+		assert (core != null);
+		LogManager man = core.getLogManager();
+		logger = man.createLogger(Logger.NAME_SQOOSS_TESTER);
+	}
 
-        if (core != null) {
-            LogManager m = ((AlitheiaCore) bc.getService(core)).getLogManager();
-            logger = m.createLogger(Logger.NAME_SQOOSS_UPDATER /* TESTER */);
-        }
-    }
+	public void start(BundleContext bc) {
+		// Really really enabled?
+		if (!Boolean.valueOf(bc.getProperty("eu.sqooss.tester.enable"))) {
+			System.out.println("Self-test is disabled.");
+			return;
+		}
 
-    public void start( BundleContext bc ) {
-        // Really really enabled?
-        if (!Boolean.valueOf(bc.getProperty("eu.sqooss.tester.enable"))) {
-            System.out.println("Self-test is disabled.");
-            return;
-        }
+		System.out.println("Self-test is enabled. Starting self-test.");
 
-        System.out.println("Self-test is enabled. Starting self-test.");
-        getLogger(bc);
-        if (logger == null) {
-            return;
-        }
+		serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
+		core = (AlitheiaCore) bc.getService(serviceRef);
 
-        logger.info("Running self-test.");
+		getLogger();
+		if (logger == null) {
+			return;
+		}
 
-        Bundle[] bundles = bc.getBundles();
-        for (Bundle b : bundles) {
-            if (!b.getSymbolicName().startsWith("eu.sqooss")) {
-                continue;
-            }
-            ServiceReference[] services = b.getRegisteredServices();
-            if (services == null) {
-                continue;
-            }
-            for (ServiceReference s : services) {
-                Object o = bc.getService(s);
-                Method m = null;
-                try {
-                    m = o.getClass().getMethod("selfTest");
-                } catch (NoSuchMethodException e) {
-                    // logger.info("No test method for service.");
-                }
-                if (m != null) {
-                    String className = o.getClass().getName();
-                    logger.info("BEGIN Test " + className);
+		logger.info("Running self-test.");
 
-                    // Now trim down to only the class name
-                    int lastDot = className.lastIndexOf('.');
-                    if (lastDot > 0) {
-                        className = className.substring(lastDot+1);
-                    }
+		Bundle[] bundles = bc.getBundles();
+		for (Bundle b : bundles) {
+			if (!b.getSymbolicName().startsWith("eu.sqooss")) {
+				continue;
+			}
+			ServiceReference[] services = b.getRegisteredServices();
+			if (services == null) {
+				continue;
+			}
+			for (ServiceReference s : services) {
+				Object o = bc.getService(s);
+				Method m = null;
+				try {
+					m = o.getClass().getMethod("selfTest");
+				} catch (NoSuchMethodException e) {
+					// logger.info("No test method for service.");
+				}
+				if (m != null) {
+					String className = o.getClass().getName();
+					logger.info("BEGIN Test " + className);
 
-                    String enabled = bc.getProperty(
-                        "eu.sqooss.tester.enable." + className);
-                    if ((enabled != null) && !Boolean.valueOf(enabled)) {
-                        logger.info("SKIP  Test (disabled in configuration)");
-                        continue;
-                    }
+					// Now trim down to only the class name
+					int lastDot = className.lastIndexOf('.');
+					if (lastDot > 0) {
+						className = className.substring(lastDot + 1);
+					}
 
-                    try {
-                        Object r = m.invoke(o);
-                        if (r != null) {
-                            logger.info("Test failed: " + r.toString());
-                        }
-                    } catch (SecurityException e) {
-                        logger.info("Can't access selfTest() method.");
-                    } catch (IllegalAccessException e) {
-                        logger.info("Failed to invoke selfTest() method: " + e.getMessage());
-                    } catch (InvocationTargetException e) {
-                        logger.info("Failed to invoke selfTest() on service: " + e.getMessage());
-                    } catch (Exception e) {
-                        logger.warning("selfTest() method failed: " + e.getMessage());
-                        e.printStackTrace();
-                    }
+					String enabled = bc.getProperty("eu.sqooss.tester.enable."
+							+ className);
+					if ((enabled != null) && !Boolean.valueOf(enabled)) {
+						logger.info("SKIP  Test (disabled in configuration)");
+						continue;
+					}
 
-                    logger.info("END   Test " + o.getClass().getName());
-                    m = null;
-                }
-                bc.ungetService(s);
-            }
-        }
+					try {
+						Object r = m.invoke(o);
+						if (r != null) {
+							logger.info("Test failed: " + r.toString());
+						}
+					} catch (SecurityException e) {
+						logger.info("Can't access selfTest() method.");
+					} catch (IllegalAccessException e) {
+						logger.info("Failed to invoke selfTest() method: "
+								+ e.getMessage());
+					} catch (InvocationTargetException e) {
+						logger.info("Failed to invoke selfTest() on service: "
+								+ e.getMessage());
+					} catch (Exception e) {
+						logger.warning("selfTest() method failed: "
+								+ e.getMessage());
+						e.printStackTrace();
+					}
 
-        logger.info("Finished self-test.");
-        System.out.println("Self-test is enabled. Finished self-test.");
-    }
+					logger.info("END   Test " + o.getClass().getName());
+					m = null;
+				}
+				bc.ungetService(s);
+			}
+		}
 
-    public void stop( BundleContext bc )
-        throws Exception {
-    	if (core != null) {
-    		bc.ungetService( core );
-    	}
-    }
+		logger.info("Finished self-test.");
+		System.out.println("Self-test is enabled. Finished self-test.");
+	}
+
+	public void stop(BundleContext bc) throws Exception {
+		if (serviceRef != null) {
+			bc.ungetService(serviceRef);
+		}
+	}
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

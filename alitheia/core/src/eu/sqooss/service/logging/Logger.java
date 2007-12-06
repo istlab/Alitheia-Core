@@ -127,6 +127,11 @@ public interface Logger {
     public static final String NAME_SQOOSS_METRIC       = "sqooss.metric";
 
     /**
+     * Represents Metric logger name.
+     */
+    public static final String NAME_SQOOSS_TESTER       = "sqooss.tester";
+
+    /**
     * Log a message with debug (lower than lowest) logging level.
     * @param message a log message
     * @note In the default configuration, debug messages will never
