@@ -32,6 +32,11 @@
 
 package eu.sqooss.core;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.LinkedList;
+import java.util.List;
+
 import javax.servlet.ServletException;
 
 import org.osgi.framework.BundleContext;
@@ -69,7 +74,6 @@ public class AlitheiaCore {
     private org.osgi.framework.BundleContext bc;
 
     public AlitheiaCore(BundleContext bc) {
-    	bc.registerService(AlitheiaCore.class.getName(), this, null);
         this.bc = bc;
         getLogManager();
     }
@@ -141,4 +145,40 @@ public class AlitheiaCore {
         }
         return updater;
     }
+    
+    public Object selfTest()
+    {
+    	List<Object> testObjects = new LinkedList<Object>();
+    	testObjects.add(getScheduler());
+    	
+    	Object result = null;
+    	
+    	for (Object o: testObjects)
+    	{
+    		Method m = null;
+        	try {
+            	m = sched.getClass().getMethod("selfTest");
+            	try {
+					result = m.invoke(o);
+				} catch (IllegalArgumentException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IllegalAccessException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (InvocationTargetException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				if (result != null)
+				{
+					return result;
+				}
+        	} catch (NoSuchMethodException e) {
+        		// logger.info("No test method for service.");
+        	}
+    	}
+    	
+    	return result;
+	}
 }
