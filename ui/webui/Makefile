@@ -1,6 +1,7 @@
 all : build run
 
 build :
+	CLASSPATH=/home/sebas/work/svn.sqo-oss.eu/devel/trunk/ui/scl/src:/home/sebas/work/svn.sqo-oss.eu/devel/trunk/ui/webui/tomcat/webapps/ROOT/WEB-INF/classes && \
 	cd tomcat/webapps/ROOT/WEB-INF/classes/eu/sqooss/webui && \
 	javac -Xlint *\.java && cd -
 
@@ -14,8 +15,9 @@ endef
 start :
 	$(call set_java_home) \
 	cd tomcat && \
-	export CLASSPATH=`pwd`/webapps/ROOT/WEB-INF/classes && \
+        echo ${CLASSPATH} && \
 	sh bin/catalina.sh start
+
 
 stop :
 	$(call set_java_home) \

@@ -34,18 +34,24 @@ package eu.sqooss.webui;
 
 
 import eu.sqooss.webui.ListView;
-//import eu.sqooss.scl.WSConnection;
 import eu.sqooss.scl.WSSession;
+import eu.sqooss.scl.result.WSResult;
 
 
 public class ProjectsListView extends ListView {
 
     String currentProject;
     WSSession session;
+    String someresult;
 
     public ProjectsListView () {
-        session = new WSSession();
+        session = new WSSession("bla", "foo");
+        someresult = ""+session.getConnection().evaluatedProjectsList("foobar", "ihateKLM").getValue();
         retrieveData();
+    }
+
+    public String giveMeSomeData() {
+        return "Random Crap" + someresult;
     }
 
     public void setCurrentProject ( String project ) {
