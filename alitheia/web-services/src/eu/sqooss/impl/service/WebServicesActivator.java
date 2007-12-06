@@ -39,14 +39,12 @@ import java.util.Properties;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.Constants;
-import org.osgi.framework.ServiceEvent;
-import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
-import org.osgi.util.tracker.ServiceTracker;
 
+import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.impl.service.web.services.WebServicesConstants;
+import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.web.services.WebServices;
@@ -55,59 +53,56 @@ import eu.sqooss.service.security.SecurityManager;
 /**
  * This class is used to start and stop the web services bundle. 
  */
-public class WebServicesActivator implements BundleActivator, ServiceListener {
+public class WebServicesActivator implements BundleActivator {
     
-    public static final int LOGGING_INFO_LEVEL    = 0;
-    public static final int LOGGING_CONFIG_LEVEL  = 1;
-    public static final int LOGGING_WARNING_LEVEL = 2;
-    public static final int LOGGING_SEVERE_LEVEL  = 3;
-    
-    private BundleContext bc;
+    private ServiceReference coreServiceRef;
     private ServiceRegistration webServicesReg;
-    private ServiceReference logManagerServiceRef;
     private LogManager logManager;
-    private ServiceTracker securityTracker;
-    
-    private static Logger logger;
-    
-    private static Object lockObject = new Object();
+    private Logger logger;
     
     /**
      * @see org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext)
      */
     public void start(BundleContext bc) throws Exception {
-        this.bc = bc;
+    
+        coreServiceRef = bc.getServiceReference(AlitheiaCore.class.getName());
+        if (coreServiceRef == null) {
+            return;
+        }
         
-        String filter = "(" + Constants.OBJECTCLASS + "=" + LogManager.class.getName() + ")";
-        bc.addServiceListener(this, filter);
-        initializeLogger();
+        AlitheiaCore core = (AlitheiaCore)bc.getService(coreServiceRef);
         
-        securityTracker = new ServiceTracker(bc, SecurityManager.class.getName(), null);
-        securityTracker.open();
-        Object serviceObject = new WebServices(bc, securityTracker);
+        SecurityManager securityManager = core.getSecurityManager();
+        DBService db = core.getDBService();
+        logManager  = core.getLogManager();
+        logger = logManager.createLogger(Logger.NAME_SQOOSS_WEB_SERVICES);
+        
+        //registers the web service
+        Object serviceObject = new WebServices(bc, securityManager, db, logger);
         Properties props = initProperties(bc);
         String serviceClass = props.getProperty(WebServicesConstants.PROPERTY_KEY_WEB_SERVICES_INTERFACE); 
         webServicesReg = bc.registerService(serviceClass, serviceObject, props);
         
-        WebServicesActivator.log("The web services bundle is started!",
-                WebServicesActivator.LOGGING_INFO_LEVEL);
+        logger.info("The web services bundle is started!");
     }
 
     /**
      * @see org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
      */
     public void stop(BundleContext bc) throws Exception {
+        if (logger != null) {
+            logger.info("The web services bundle is stoped!");
+        }
+        
         if (webServicesReg != null) {
             webServicesReg.unregister();
         }
         
-        WebServicesActivator.log("The web services bundle is stoped!",
-                WebServicesActivator.LOGGING_INFO_LEVEL);
+        if (coreServiceRef != null) {
+            bc.ungetService(coreServiceRef);
+            logManager.releaseLogger(logger.getName());
+        }
         
-        securityTracker.close();
-        
-        bc.removeServiceListener(this);
-        removeLogger();
     }
     
     /**
@@ -129,8 +124,9 @@ public class WebServicesActivator implements BundleActivator, ServiceListener {
                 props.load(propsUrl.openStream());
             } catch (IOException e) {
                 //uses default properties
-                WebServicesActivator.log(e.getMessage(),
-                        WebServicesActivator.LOGGING_WARNING_LEVEL);
+                //TODO:
+//                WebServicesActivator.log(e.getMessage(),
+//                        WebServicesActivator.LOGGING_WARNING_LEVEL);
             }
         }
         setDefaultPropertiesIfNeed(props);
@@ -157,65 +153,6 @@ public class WebServicesActivator implements BundleActivator, ServiceListener {
         }
     }
 
-    /**
-     * This method logs the messages from the specified logging level.
-     * @param message the text
-     * @param level the logging level
-     */
-    public static void log(String message, int level) {
-        synchronized (lockObject) {
-            if (logger != null) {
-                switch (level) {
-                case WebServicesActivator.LOGGING_INFO_LEVEL: logger.info(message); break;
-                case WebServicesActivator.LOGGING_CONFIG_LEVEL: logger.config(message); break;
-                case WebServicesActivator.LOGGING_WARNING_LEVEL: logger.warning(message); break;
-                case WebServicesActivator.LOGGING_SEVERE_LEVEL: logger.severe(message); break;
-                default: logger.info(message); break;
-                }
-            }
-        }
-    }
-
-    /**
-     * @see org.osgi.framework.ServiceListener#serviceChanged(ServiceEvent)
-     */
-    public void serviceChanged(ServiceEvent event) {
-        int eventType = event.getType();
-        if ((ServiceEvent.REGISTERED == eventType) ||
-                (ServiceEvent.MODIFIED == eventType)) {
-            initializeLogger();
-        } else if (ServiceEvent.UNREGISTERING == eventType) {
-            removeLogger();
-        }
-    }
-
-    /**
-     * Gets the logger
-     */
-    private void initializeLogger() {
-        synchronized (lockObject) {
-            logManagerServiceRef = bc.getServiceReference(LogManager.class.getName());
-            if (logManagerServiceRef != null) {
-                logManager = (LogManager)bc.getService(logManagerServiceRef);
-                logger = logManager.createLogger(Logger.NAME_SQOOSS_WEB_SERVICES);
-            }
-        }
-    }
-
-    /**
-     * Ungets the logger. 
-     */
-    private void removeLogger() {
-        synchronized (lockObject) {
-            if (logManagerServiceRef != null) {
-                logManager.releaseLogger(logger.getName());
-                bc.ungetService(logManagerServiceRef);
-                logManagerServiceRef = null;
-                logger = null;
-            }
-        }
-    }
-    
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

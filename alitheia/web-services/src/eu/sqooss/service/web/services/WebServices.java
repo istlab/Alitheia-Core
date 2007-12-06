@@ -33,10 +33,12 @@
 package eu.sqooss.service.web.services;
 
 import org.osgi.framework.BundleContext;
-import org.osgi.util.tracker.ServiceTracker;
 
 import eu.sqooss.impl.service.web.services.WebServicesImpl;
 import eu.sqooss.impl.service.web.services.utils.WSPair;
+import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.security.SecurityManager;
 
 /* 
  * NOTES:
@@ -57,8 +59,10 @@ public class WebServices {
     
     private WebServicesImpl webServices;
     
-    public WebServices(BundleContext bc, ServiceTracker securityTracker) {
-        webServices = new WebServicesImpl(bc, securityTracker);
+    public WebServices(BundleContext bc, SecurityManager securityManager,
+            DBService db, Logger logger) {
+        
+        webServices = new WebServicesImpl(bc, securityManager, db, logger);
     }
     
     //5.1.1

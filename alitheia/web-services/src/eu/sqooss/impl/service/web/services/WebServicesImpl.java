@@ -32,166 +32,197 @@
 
 package eu.sqooss.impl.service.web.services;
 
-import java.util.Hashtable;
-
 import org.osgi.framework.BundleContext;
-import org.osgi.util.tracker.ServiceTracker;
 
-import eu.sqooss.service.db.ProjectFile;
-import eu.sqooss.service.db.ProjectVersion;
-import eu.sqooss.service.db.StoredProject;
-import eu.sqooss.service.security.SecurityConstants;
+import eu.sqooss.impl.service.web.services.utils.WSPair;
+import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.security.SecurityManager;
-import eu.sqooss.service.web.services.WebServicesException;
 
 public class WebServicesImpl {
     
-    private BundleContext bc;
-    private ServiceTracker securityTracker;
-    
-    public WebServicesImpl(BundleContext bc, ServiceTracker securityTracker) {
-        this.bc = bc;
-        this.securityTracker = securityTracker;
+    public WebServicesImpl(BundleContext bc, SecurityManager securityManager,
+            DBService db, Logger logger) {
     }
     
-    /*metric's methods*/
-    /**
-     * @see eu.sqooss.service.web.services.WebServices#addMetric(String, String, String)
-     */
-    public String addMetric(String userName, String password, String url) throws WebServicesException {
-        String resourceUrl = SecurityConstants.URL_SQOOSS_SERVICE;
-        Hashtable<String, String> privileges = new Hashtable<String, String>(1);
-        privileges.put(SecurityConstants.URL_PRIVILEGE_ACTION,
-                WebServicesConstants.URL_PRIVILEGE_ACTION_ADD_METRIC);
-        if (!checkSecurity(userName, password, privileges, resourceUrl)) {
-            throw new WebServicesException("No permission to perform (add metric) opeariton!");
-        }
-        //TODO: adds the metric from the Url
+    /* project's methods */
+    
+    //5.1.1
+    public WSPair[] evaluatedProjectsList(String userName, String password) {
+        //TODO: check the security
+        
         return null;
     }
     
-    /**
-     * @see eu.sqooss.service.web.services.WebServices#removeMetric(String, String, String) 
-     */
-    public void removeMetric(String userName, String password, String metricId) throws WebServicesException {
-        String resourceUrl = SecurityConstants.URL_SQOOSS_SERVICE;
-        Hashtable<String, String> privileges = new Hashtable<String, String>(1);
-        privileges.put(SecurityConstants.URL_PRIVILEGE_ACTION,
-                WebServicesConstants.URL_PRIVILEGE_ACTION_REMOVE_METRIC);
-        if (!checkSecurity(userName, password, privileges, resourceUrl)) {
-            throw new WebServicesException("No permission to perform (remove metric) operation!");
-        }
-        //TODO: removes the metric with metricId
+    public WSPair[] retrieveMetrics4SelectedProject(String userName,
+            String password, String projectId) {
+        return null; 
     }
     
-    /**
-     * @see eu.sqooss.service.web.services.WebServices#getMetricId(String, String, String, String)
-     */
-    public String getMetricId(String userName, String password, String metricName, String metricVersion) throws WebServicesException {
-        String resourceUrl = SecurityConstants.URL_SQOOSS_SERVICE;
-        Hashtable<String, String> privileges = new Hashtable<String, String>(1);
-        privileges.put(SecurityConstants.URL_PRIVILEGE_ACTION,
-                WebServicesConstants.URL_PRIVILEGE_ACTION_GET_METRIC_ID);
-        if (!checkSecurity(userName, password, privileges, resourceUrl)) {
-            throw new WebServicesException("No permission to perform (get metric id) operation!");
-        }
-        //TODO: returns the metric's id
+    public String retrieveSelectedMetric(String userName, String password,
+            String projectId, String metricId) {
+        return null;
+    }
+    //5.1.1
+    
+    //5.1.2
+    public String[] retrieveFileList(String userName, String password, String projectId) {
         return null;
     }
     
-    /**
-     * @see eu.sqooss.service.web.services.WebServices#getFileGroupMetricResult(String, String, String, ProjectVersion)
-     */
-    public String getFileGroupMetricResult(String userName, String password,
-            String metricId, ProjectVersion projectVersion) {
-        //!!!!FileGroupMetric works with ProjectVersion, maybe must be FileGroup
+    public WSPair[] retrieveMetrics4SelectedFiles(String userName, String password,
+            String projectId, String[] folders, String[] fileNames) {
+        return null;
+    }
+    //5.1.2
+    
+    //5.1.3
+    public void requestEvaluatin4Project(String userName, String password,
+            String projectName, String projectVersion,
+            String srcRepositoryLocation, String srcRepositoryType,
+            String mailingListLocation, String BTSLocation) {
+    }
+    //5.1.3
+    
+    //5.1.4
+    public WSPair[] requestPastEvolEstimProjects(String userName, String password) {
         return null;
     }
     
-    /**
-     * @see eu.sqooss.service.web.services.WebServices#getProjectFileMetricResult(String, String, String, ProjectFile)
-     */
-    public String getProjectFileMetricResult(String userName, String password,
-            String metricId, ProjectFile projectFile) throws WebServicesException {
-        String[] urlComponents = {
-                SecurityConstants.URL_SQOOSS_SERVICE,
-                SecurityConstants.URL_PARAMETER_METRIC_ID, metricId,
-                SecurityConstants.URL_PRIVILEGE_ACTION, WebServicesConstants.URL_PRIVILEGE_ACTION_GET_METRIC_RESULT
-        };
-        String url = makeUrl(urlComponents);
-        if (!checkSecurity(userName, password, url)) {
-            throw new WebServicesException("No permission to perform this operation: " + url);
-        }
+    public String[] requestProjectEvolutionEstimates(String userName, String password,
+            String projectId, String startDate, String endDate) {
         return null;
     }
     
-    /**
-     * @see eu.sqooss.service.web.services.WebServices#getProjectVersionMetricResult(String, String, String, ProjectVersion)
-     */
-    public String getProjectVersionMetricResult(String userName, String password,
-            String metricId, ProjectVersion projectVersion) throws WebServicesException {
-        String[] urlComponents = {
-                SecurityConstants.URL_SQOOSS_SERVICE,
-                SecurityConstants.URL_PARAMETER_METRIC_ID, metricId,
-                SecurityConstants.URL_PRIVILEGE_ACTION, WebServicesConstants.URL_PRIVILEGE_ACTION_GET_METRIC_RESULT
-        };
-        String url = makeUrl(urlComponents);
-        if (!checkSecurity(userName, password, url)) {
-            throw new WebServicesException("No permission to perform this operation: " + url);
-        }
+    public String[] requestProjectEvolutionEstimatesDuration(String userName, String password,
+            String projectId, String duration) {
         return null;
     }
     
-    /**
-     * @see eu.sqooss.service.web.services.WebServices#getStoredProjectMetricResult(String, String, String, StoredProject)
-     */
-    public String getStoredProjectMetricResult(String userName, String password,
-            String metricId, StoredProject storedProject) throws WebServicesException {
-        String[] urlComponents = {
-                SecurityConstants.URL_SQOOSS_SERVICE,
-                SecurityConstants.URL_PARAMETER_METRIC_ID, metricId,
-                SecurityConstants.URL_PRIVILEGE_ACTION, WebServicesConstants.URL_PRIVILEGE_ACTION_GET_METRIC_RESULT
-        };
-        String url = makeUrl(urlComponents);
-        System.out.println("url: " + url);
-        if (!checkSecurity(userName, password, url)) {
-            throw new WebServicesException("No permission to perform this operation: " + url);
-        }
+    public String[] requestEvolEstimates4Project(String userName, String password,
+            String projectName, String projectVersion, String srcRepositoryLocation,
+            String srcRepositoryType, String mailingListLocation, String BTSLocation) {
         return null;
     }
-    /*metric's methods*/
+    //5.1.4
     
-    /*project's methods*/
-    /**
-     * @see eu.sqooss.service.web.services.WebServices#startEvaluateProject(String, String, StoredProject)
-     */
-    public void startEvaluateProject(String userName, String password, StoredProject storedProject) {
+    //5.1.5
+    public WSPair[] requestProjectsWithBTS(String userName, String password) {
+        return null;
     }
     
-    /**
-     * @see eu.sqooss.service.web.services.WebServices#stopEvaluateProject(String, String, StoredProject)
-     */
-    public void stopEvaluateProject(String userName, String password, StoredProject storedProject) {
+    public String[] requestDefectStatistics(String userName, String password,
+            String prokectId, String searchQuery, String statisticalScheme) {
+        return null;
     }
-    /*project's methods*/
+    //5.1.5
     
-    private boolean checkSecurity(String userName, String password, String Url) {
-        SecurityManager security = (SecurityManager)securityTracker.getService();
-        if (security != null) {
-            return security.checkPermission(Url, userName, password);
-        } else {
-            return false;
-        }
+    //5.1.6
+    public WSPair[] retrieveDevelopers4SelectedProject(String userName, String password,
+            String projectId) {
+        return null;
     }
     
-    private boolean checkSecurity(String userName, String password, Hashtable<String, String> privileges, String resourceUrl) {
-        SecurityManager security = (SecurityManager)securityTracker.getService();
-        if (security != null) {
-            return security.checkPermission(resourceUrl, privileges, userName, password);
-        } else {
-            return false;
-        }
+    public WSPair[] retrieveCriteria4SelectedDeveloper(String userName, String password,
+            String projectId, String developerId) {
+        return null;
     }
+    
+    public String displayDeveloperInfoTimeDiagram(String userName, String password,
+            String projectId, String developerId, String criterioId,
+            String tdStart, String tdEnd) {
+        return null;
+    }
+    
+    public String displayDeveloperInfo(String userName, String password,
+            String projectId, String developerId, String criterioId, String display) {
+        return null;
+    }
+    //5.1.6
+    
+    //5.1.7
+    public WSPair[] evaluatedProjectsListScore(String userName, String password) {
+        return null;
+    }
+    
+    public void submitScores(String userName, String password, String projectId,
+            String[] scores, String textOpinion) {
+        
+    }
+    
+    public String[] viewScores(String userName, String password, String projectId) {
+        return null;
+    }
+    
+    public String[] viewComments(String userName, String password, String projectId) {
+        return null;
+    }
+    //5.1.7
+    
+    //5.1.8
+    public WSPair[] ratedProjectsList(String userName, String password) {
+        return null;
+    }
+    
+    public String[] retrieveProjectRatings(String userName, String password,
+            String projectId) {
+        return null;
+    }
+    //5.1.8
+    
+    //5.1.9
+    public String subscriptionsStatus(String userName, String password) {
+        return null;
+    }
+    
+    public void modifySubscriptions(String userName, String password,
+            String newProjectNotification, String newMetricPlugin,
+            String projectEvalFinished, String newProjectVersion,
+            String newQualityRatings, String statistics) {
+    }
+    //5.1.9
+    
+    //5.1.10
+    public void submitUser(String userNameForAccess, String passwordForAccess,
+            String newAccountUserName, String newAccountSurname,
+            String newAccountPassword, String newAccountUserClass) {
+    }
+    //5.1.10
+    
+    //5.1.11
+    public WSPair[] displayUser(String userName, String password) {
+        return null;
+    }
+    
+    public void modifyUser(String userNameForAccess, String passwordForAccess,
+            String modifyAccountUserName, String modifyAccountSurname,
+            String modifyAccountPassword, String modifyAccountUserClass) {
+    }
+    
+    public void deleteUser(String userNameForAccess, String passwordForAccess, String userId) {
+        
+    }
+    //5.1.11
+    
+    /* project's methods */
+    
+//    private boolean checkSecurity(String userName, String password, String Url) {
+//        SecurityManager security = (SecurityManager)securityTracker.getService();
+//        if (security != null) {
+//            return security.checkPermission(Url, userName, password);
+//        } else {
+//            return false;
+//        }
+//    }
+//    
+//    private boolean checkSecurity(String userName, String password, Hashtable<String, String> privileges, String resourceUrl) {
+//        SecurityManager security = (SecurityManager)securityTracker.getService();
+//        if (security != null) {
+//            return security.checkPermission(resourceUrl, privileges, userName, password);
+//        } else {
+//            return false;
+//        }
+//    }
     
     private String makeUrl(String[] args) {
         int argsLength = args.length;
