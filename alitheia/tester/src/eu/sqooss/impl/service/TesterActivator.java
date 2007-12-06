@@ -58,7 +58,7 @@ public class TesterActivator implements BundleActivator {
     	}
 
         if (core != null) {
-            LogManager m = (LogManager) bc.getService(core);
+            LogManager m = ((AlitheiaCore) bc.getService(core)).getLogManager();
             logger = m.createLogger(Logger.NAME_SQOOSS_UPDATER /* TESTER */);
         }
     }
