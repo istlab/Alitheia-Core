@@ -92,6 +92,14 @@ in the runtime configuration file. To enable them, set
 
 eu.sqooss.tester.enable=true
 
+When debugging in Eclipse, the switch to enable the tests can be
+passed in as an argument to the JVM: Add 
+
+       -Deu.sqooss.tester.enable=true
+
+to "VM Arguments" under "Arguments" in the debug configuration used to
+run the Alitheia OSGi bundles. 
+
 Then each service object
 registered with the OSGi framework (on startup of the tester bundle)
 will be examined. Those with a selfTest() method will be called.
