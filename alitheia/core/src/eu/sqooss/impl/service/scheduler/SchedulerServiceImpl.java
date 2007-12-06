@@ -167,7 +167,7 @@ public class SchedulerServiceImpl implements Scheduler {
             // that must fail, since cyclic dependencies are not allowed
             firstJob.addDependency(forthJob);
             // nothing was thrown? ohh...
-            return new String("Scheduler test failed: Adding cyclic dependencies shold not be possible");
+            return new String("Scheduler test failed: Adding cyclic dependencies should not be possible");
         } catch (SchedulerException e) {
         }
 
@@ -214,7 +214,7 @@ public class SchedulerServiceImpl implements Scheduler {
             return new String("Scheduler test failed: !dependencies.contains(thirdJob)");
         }
 
-        // check, wheter canExecute() return true only for firstJob
+        // check whether canExecute() returns true only for firstJob
         if (!firstJob.canExecute()) {
             return new String("Scheduler test failed: !firstJob.canExecute()");
         } else if (secondJob.canExecute()) {
