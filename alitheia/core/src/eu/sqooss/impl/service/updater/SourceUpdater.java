@@ -39,6 +39,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.hibernate.Session;
+
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.CommitEntry;
 import eu.sqooss.service.tds.CommitLog;
@@ -94,7 +96,11 @@ public class SourceUpdater extends Job {
             CommitLog commitLog = scm.getCommitLog(new ProjectRevision(
                     lastVersion.getVersion()), new ProjectRevision(new Date()));
 
-            //TODO: store project version info
+            ProjectVersion curVersion = new ProjectVersion();
+            curVersion.setProject(project.getId());
+            curVersion.setVersion((int)commitLog.last().getSVNRevision());
+            //TODO: switch ProjectVersion.version to long
+            dbs.addRecord(curVersion);
             
             for (CommitEntry entry : commitLog) {
                 //handle individual changes and create the necessary jobs for storing
