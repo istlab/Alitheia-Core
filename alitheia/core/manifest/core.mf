@@ -6,7 +6,7 @@ Bundle-Version: 0.0.1
 Bundle-Vendor: SQO-OSS
 Bundle-Category: data
 Bundle-Description: This bundle provides the Database Service
-Bundle-ClassPath: derby-10.3.1.4.jar, tools-10.3.1.4.jar, jdbc-8.2.505.jar, hibernate3.jar, dom4j-1.6.1.jar, commons-collections-2.1.1.jar, cglib-2.1.3.jar, asm.jar, asm-attrs.jar, jta.jar, antlr-2.7.6.jar, .
+Bundle-ClassPath: derby-10.3.1.4.jar, tools-10.3.1.4.jar, jdbc-8.2.505.jar, hibernate3.jar, dom4j-1.6.1.jar, commons-collections-2.1.1.jar, cglib-2.1.3.jar, asm.jar, asm-attrs.jar, jta.jar, antlr-2.7.6.jar, commons-codec.jar, log4j.jar, javx.servlet.jar, .
 Import-Package: org.osgi.framework, org.apache.commons.logging, org.apache.commons.logging.impl, org.apache.log4j, javax.servlet, javax.servlet.http, org.osgi.service.http
 Export-Package: eu.sqooss
 
