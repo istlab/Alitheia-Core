@@ -1,5 +1,7 @@
 package eu.sqooss.impl.service.messaging;
 
+import java.io.DataInputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -10,6 +12,7 @@ import java.util.Vector;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceRegistration;
 
 import eu.sqooss.impl.service.MessagingActivator;
 import eu.sqooss.impl.service.messaging.senders.smtp.SMTPSender;
@@ -36,8 +39,9 @@ public class MessagingServiceImpl implements MessagingService {
     private Vector < MessagingServiceThread > messagingThreads;
     private BundleContext bc;
     private SMTPSender defaultSender;
+	private ServiceRegistration sRegSMTPSenderService;
 
-    public MessagingServiceImpl(BundleContext bc) {
+    public MessagingServiceImpl(BundleContext bc) throws IOException {
          SMTPSender defaultSender = new SMTPSender(bc);
          Properties serviceProps = new Properties();
          serviceProps.setProperty(MessageSender.PROTOCOL_PROPERTY, SMTPSender.PROTOCOL_PROPERTY_VALUE);
