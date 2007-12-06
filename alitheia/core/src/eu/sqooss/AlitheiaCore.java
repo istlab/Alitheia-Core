@@ -41,6 +41,7 @@ import eu.sqooss.impl.service.db.DBServiceImpl;
 import eu.sqooss.impl.service.fds.FDSServiceImpl;
 import eu.sqooss.impl.service.logging.LogManagerConstants;
 import eu.sqooss.impl.service.logging.LogManagerImpl;
+import eu.sqooss.impl.service.messaging.MessagingServiceImpl;
 import eu.sqooss.impl.service.scheduler.SchedulerServiceImpl;
 import eu.sqooss.impl.service.security.SecurityManagerImpl;
 import eu.sqooss.impl.service.tds.TDSServiceImpl;
