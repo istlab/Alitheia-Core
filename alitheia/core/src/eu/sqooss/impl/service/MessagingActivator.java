@@ -63,7 +63,7 @@ public class MessagingActivator implements BundleActivator, ServiceListener {
 
         //registers messaging service
         long id = readId(bc);
-        messagingService = new MessagingServiceImpl(id, bc, smtpSender);
+        messagingService = new MessagingServiceImpl(bc);
         sRegMessagingService = bc.registerService(MessagingService.class.getName(), messagingService, null);
 
         MessagingActivator.log("The messaging bundle is started!", MessagingActivator.LOGGING_INFO_LEVEL);
