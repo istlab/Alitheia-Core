@@ -173,16 +173,11 @@ public class AlitheiaCore {
             	Method m = o.getClass().getMethod("selfTest");
             	try {
 					result = m.invoke(o);
-				} catch (IllegalArgumentException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IllegalAccessException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (InvocationTargetException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+				} catch ( Exception e ) {
+					// e.printStackTrace();
+					System.out.println( "FAILED Test method of class " + o.getClass().getName() + " failed." );
 				}
+				
 				if (result != null)
 				{
 					return result;
