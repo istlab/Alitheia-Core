@@ -1,4 +1,5 @@
 <%@ include file="/inc/init.jsp" %>
+<%@ include file="/inc/functions.jsp" %>
 <%
     title = "Home";
 %>
@@ -6,6 +7,10 @@
 <%@ include file="/inc/header.jsp" %>
 
 <h2>This is the Alitheia System</h2>
+
+<%
+out.println(dude());
+%>
 <%@ include file="/inc/news.jsp" %>
 
 

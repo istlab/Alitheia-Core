@@ -40,16 +40,7 @@ if (!loggedIn) {
 <!-- First call to cruncher to obtain status -->
 <%
 cruncher.hit();
-out.println(cruncher.getStatus() + "<br />");
-
-java.util.Date date = new java.util.Date();
-out.println( "<p />" + String.valueOf( date ));
-out.println( "<p />Your IP: " + request.getRemoteHost());
-out.println("<p />" + application.getServerInfo());
-
-//response.sendRedirect( "http://www.kde.org");
-
-
+out.println(cruncher.getStatus());
 %>
 
 </div>

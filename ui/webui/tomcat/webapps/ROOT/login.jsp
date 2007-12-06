@@ -45,7 +45,7 @@ if (!loggedIn) {
 
     <%
 } else {
-    out.println("You are already signed in. To log in as a different user, please sign out first.");
+    out.println("You are signed in. To sign in as a different user, please sign out first.");
 }
 %>
 

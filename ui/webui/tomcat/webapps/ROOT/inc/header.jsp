@@ -5,19 +5,17 @@
 
 <head>
     <title><%= "Alitheia :: " + title %></title>
-    <link rel='stylesheet' type='text/css' href='/style/shared.css' />
-    <link rel='stylesheet' type='text/css' href='/style/webui.css' />
+    <link rel="stylesheet" type="text/css" href="/style/shared.css" />
+    <link rel="stylesheet" type="text/css" href="/style/webui.css" />
 </head>
 
 <body>
-    
-    <div id="header">
-        <h1><%= title %></h1>
-        <img src="/style/sqo-oss.png" alt="SQO-OSS Logo"/>
-    </div>
+<div id="header">
+    <h1><%= title %></h1>
+    <img src="/style/sqo-oss.png" alt="SQO-OSS Logo"/>
+</div>
 
     <%@ include file="/inc/menu.jsp" %>
 
-    <table id="contents">
-        <tr><td>
+    <div id="contents">
 <!-- *** header.jsp ends here *** -->
