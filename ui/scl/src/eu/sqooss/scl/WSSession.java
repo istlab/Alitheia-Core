@@ -33,22 +33,25 @@
 package eu.sqooss.scl;
 
 import eu.sqooss.scl.result.WSResult;
+import eu.sqooss.scl.result.WSResultImpl;
 
 /**
  * The WSResult can be stored in the user session. 
  */
 public class WSSession {
+	
+	WSConnectionImpl connection;
     
     public WSSession(String userName, String password) {
-        
+        connection = new WSConnectionImpl();
     }
     
     public WSSession(String userName, String password, String webServiceUrl) {
-        
+        connection = new WSConnectionImpl();
     }
     
     public WSResult getValue(String webServiceMethodUrl) {
-        return null;
+        return new WSResultImpl("Not Implemented yet");
     }
     
     public void setWSResult(String key, WSResult result) {
@@ -68,7 +71,7 @@ public class WSSession {
     }
     
     public WSConnection getConnection() {
-        return null;
+        return connection;
     }
     
     public void addWebServiceListener(String webServiceMethodUrl, WSEventListener listener) {

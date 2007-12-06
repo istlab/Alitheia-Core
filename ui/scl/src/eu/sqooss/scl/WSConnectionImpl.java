@@ -33,6 +33,7 @@
 package eu.sqooss.scl;
 
 import eu.sqooss.scl.result.WSResult;
+import eu.sqooss.scl.result.WSResultImpl;
 
 /**
  * The class has package visibility.
@@ -50,29 +51,29 @@ class WSConnectionImpl implements WSConnection {
             String projectId, String developerId, String criterioId,
             String display) {
         // TODO Auto-generated method stub
-        return null;
+        return new WSResultImpl("Not Implemented yet");
     }
 
     public WSResult displayDeveloperInfoTimeDiagram(String userName,
             String password, String projectId, String developerId,
             String criterioId, String tdStart, String tdEnd) {
         // TODO Auto-generated method stub
-        return null;
+        return new WSResultImpl("Not Implemented yet");
     }
 
     public WSResult displayUser(String userName, String password) {
         // TODO Auto-generated method stub
-        return null;
+        return new WSResultImpl("Not Implemented yet");
     }
 
     public WSResult evaluatedProjectsList(String userName, String password) {
         // TODO Auto-generated method stub
-        return null;
+        return new WSResultImpl("Not Implemented yet");
     }
 
     public WSResult evaluatedProjectsListScore(String userName, String password) {
         // TODO Auto-generated method stub
-        return null;
+        return new WSResultImpl("Not Implemented yet");
     }
 
     public void modifySubscriptions(String userName, String password,
@@ -92,13 +93,13 @@ class WSConnectionImpl implements WSConnection {
 
     public WSResult ratedProjectsList(String userName, String password) {
         // TODO Auto-generated method stub
-        return null;
+        return new WSResultImpl("Not Implemented yet");
     }
 
     public WSResult requestDefectStatistics(String userName, String password,
             String prokectId, String searchQuery, String statisticalScheme) {
         // TODO Auto-generated method stub
-        return null;
+        return new WSResultImpl("Not Implemented yet");
     }
 
     public void requestEvaluatin4Project(String userName, String password,
@@ -114,73 +115,73 @@ class WSConnectionImpl implements WSConnection {
             String srcRepositoryLocation, String srcRepositoryType,
             String mailingListLocation, String BTSLocation) {
         // TODO Auto-generated method stub
-        return null;
+        return new WSResultImpl("Not Implemented yet");
     }
 
     public WSResult requestPastEvolEstimProjects(String userName,
             String password) {
         // TODO Auto-generated method stub
-        return null;
+        return new WSResultImpl("Not Implemented yet");
     }
 
     public WSResult requestProjectEvolutionEstimates(String userName,
             String password, String projectId, String startDate, String endDate) {
         // TODO Auto-generated method stub
-        return null;
+        return new WSResultImpl("Not Implemented yet");
     }
 
     public WSResult requestProjectEvolutionEstimatesDuration(String userName,
             String password, String projectId, String duration) {
         // TODO Auto-generated method stub
-        return null;
+        return new WSResultImpl("Not Implemented yet");
     }
 
     public WSResult requestProjectsWithBTS(String userName, String password) {
         // TODO Auto-generated method stub
-        return null;
+        return new WSResultImpl("Not Implemented yet");
     }
 
     public WSResult retrieveCriteria4SelectedDeveloper(String userName,
             String password, String projectId, String developerId) {
         // TODO Auto-generated method stub
-        return null;
+        return new WSResultImpl("Not Implemented yet");
     }
 
     public WSResult retrieveDevelopers4SelectedProject(String userName,
             String password, String projectId) {
         // TODO Auto-generated method stub
-        return null;
+        return new WSResultImpl("Not Implemented yet");
     }
 
     public WSResult retrieveFileList(String userName, String password,
             String projectId) {
         // TODO Auto-generated method stub
-        return null;
+        return new WSResultImpl("Not Implemented yet");
     }
 
     public WSResult retrieveMetrics4SelectedFiles(String userName,
             String password, String projectId, String[] folders,
             String[] fileNames) {
         // TODO Auto-generated method stub
-        return null;
+        return new WSResultImpl("Not Implemented yet");
     }
 
     public WSResult retrieveMetrics4SelectedProject(String userName,
             String password, String projectId) {
         // TODO Auto-generated method stub
-        return null;
+        return new WSResultImpl("Not Implemented yet");
     }
 
     public WSResult retrieveProjectRatings(String userName, String password,
             String projectId) {
         // TODO Auto-generated method stub
-        return null;
+        return new WSResultImpl("Not Implemented yet");
     }
 
     public WSResult retrieveSelectedMetric(String userName, String password,
             String projectId, String metricId) {
         // TODO Auto-generated method stub
-        return null;
+        return new WSResultImpl("Not Implemented yet");
     }
 
     public void submitScores(String userName, String password,
@@ -198,19 +199,19 @@ class WSConnectionImpl implements WSConnection {
 
     public WSResult subscriptionsStatus(String userName, String password) {
         // TODO Auto-generated method stub
-        return null;
+        return new WSResultImpl("Not Implemented yet");
     }
 
     public WSResult viewComments(String userName, String password,
             String projectId) {
         // TODO Auto-generated method stub
-        return null;
+        return new WSResultImpl("Not Implemented yet");
     }
 
     public WSResult viewScores(String userName, String password,
             String projectId) {
         // TODO Auto-generated method stub
-        return null;
+        return new WSResultImpl("Not Implemented yet");
     }
     
 }
