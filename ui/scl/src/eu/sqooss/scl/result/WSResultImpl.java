@@ -47,4 +47,15 @@ public class WSResultImpl extends WSResult {
 
 	}
 
+	@Override
+	public int getType() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public Object getValue() {
+		return data;
+	}
+
 }

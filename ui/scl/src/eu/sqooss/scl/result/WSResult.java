@@ -49,6 +49,10 @@ public abstract class WSResult implements Iterable<ArrayList<WSResultEntry>>,
     
     public abstract boolean validate();
     
+    public abstract Object getValue();
+    
+    public abstract int getType();
+    
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
