@@ -96,6 +96,7 @@ public class AlitheiaCore {
 
     public MessagingService getMessagingService() {
         if (msg == null) {
+            msg = new MessagingServiceImpl(bc);
             // msg = new eu.sqooss.impl.service.messaging.MessagingServiceImpl()
         }
 
