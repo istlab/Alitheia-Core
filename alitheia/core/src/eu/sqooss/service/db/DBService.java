@@ -36,17 +36,25 @@ package eu.sqooss.service.db;
 import eu.sqooss.service.db.DAObject;
 
 import java.util.List;
+import java.util.Map;
 
 import org.hibernate.Session;
 
 public interface DBService {
     /**
-     * Add a new project to the system; this should initialize
+     * Add a new record to the system database; this should initialize
      * any tables that are needed for storage of project information.
      */
     public void addRecord(DAObject record);
 
     public void addRecord(Session s, DAObject record);
+    
+    /**
+     * Delete an existing record from the system database
+     */
+    public void deleteRecord(DAObject record);
+    
+    public void deleteRecord(Session s, DAObject record);
     
     /**
      * Allows the intelligent C++ programmer to simply fire complete HQL
@@ -58,7 +66,11 @@ public interface DBService {
      */
     public List doSQL(String sql);
     
+    public List doSQL(String sql, Map<String, Object> params);
+    
     public List doSQL(Session s, String sql);
+    
+    public List doSQL(Session s, String sql, Map<String, Object> params);
 
     /**
      * This function shall perform an HQL query
@@ -67,7 +79,11 @@ public interface DBService {
      */
     public List doHQL(String hql);
     
+    public List doHQL(String hql, Map<String, Object> params);
+    
     public List doHQL(Session s, String hql);
+    
+    public List doHQL(Session s, String hql, Map<String, Object> params);
     
     /**
      * Get a session to the alitheia DB from the session manager

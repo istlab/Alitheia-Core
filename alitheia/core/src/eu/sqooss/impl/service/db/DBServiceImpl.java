@@ -40,7 +40,9 @@ import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
@@ -55,7 +57,7 @@ import eu.sqooss.service.logging.Logger;
 
 public class DBServiceImpl implements DBService {
 
-    /*Those two should be runtime configuration options*/
+    /* Those two should be runtime configuration options */
     private static final int INIT_POOL_SIZE = 5;
     private static final int MAX_POOL_SIZE = 100;
 
@@ -67,7 +69,6 @@ public class DBServiceImpl implements DBService {
     // Store the class and URL of the database to hand off to
     // Hibernate so that it obeys the fallback from Postgres to Derby as well.
     private String dbClass, dbURL, dbDialect;
-
     private SessionManager sm = null;
 
     /**
@@ -77,85 +78,90 @@ public class DBServiceImpl implements DBService {
      */
     private class SessionManager {
 
-	/*Session->Session Holder mapping*/
-	private HashMap<Session, Object> sessions;
-	private SessionFactory sf;
-	private boolean expand;
+        /* Session->Session Holder mapping */
+        private HashMap<Session, Object> sessions;
+        private SessionFactory sf;
+        private boolean expand;
 
-	/**
-	 * Constructor
-	 *
-	 * @param f - The factory to get sessions from
-	 * @param expand - Indicates whether the session manager will expand
-	 * the session pool if the all sessions are in use
-	 */
-	public SessionManager(SessionFactory f, boolean expand) {
-	    sf = f;
-	    this.expand = expand;
-	    sessions = new HashMap<Session, Object>();
+        /**
+         * Constructor
+         * 
+         * @param f -
+         *            The factory to get sessions from
+         * @param expand -
+         *            Indicates whether the session manager will expand the
+         *            session pool if the all sessions are in use
+         */
+        public SessionManager(SessionFactory f, boolean expand) {
+            sf = f;
+            this.expand = expand;
+            sessions = new HashMap<Session, Object>();
 
-	    for (int i = 0; i < INIT_POOL_SIZE; i++)
-		sessions.put(sf.openSession(), this);
+            for (int i = 0; i < INIT_POOL_SIZE; i++)
+                sessions.put(sf.openSession(), this);
 
-	    logger.info("Hibernate session manager init: pool size "
-			+ sessions.size());
-	}
+            logger.info("Hibernate session manager init: pool size "
+                    + sessions.size());
+        }
 
-	/**
-	 * Returns a session to the holder object
-	 * @param holder The object to which the returned session is bound to
-	 * @throws Exception
-	 */
-	public synchronized Session getSession(Object holder) throws Exception {
-	    Iterator<Session> i = sessions.keySet().iterator();
-	    Session s = null;
+        /**
+         * Returns a session to the holder object
+         * 
+         * @param holder
+         *            The object to which the returned session is bound to
+         * @throws Exception
+         */
+        public synchronized Session getSession(Object holder) throws Exception {
+            Iterator<Session> i = sessions.keySet().iterator();
+            Session s = null;
 
-	    while(i.hasNext()) {
-		s  = i.next();
-		if (sessions.get(s) == this)
-		    break;
-		s = null;
-	    }
+            while (i.hasNext()) {
+                s = i.next();
+                if (sessions.get(s) == this)
+                    break;
+                s = null;
+            }
 
-	    //Pool is full, expand it
-	    if (s == null && expand){
-		int size = sessions.size() / 2;
+            // Pool is full, expand it
+            if (s == null && expand) {
+                int size = sessions.size() / 2;
 
-		if (size + sessions.size() >= MAX_POOL_SIZE)
-		    size = MAX_POOL_SIZE - sessions.size();
+                if (size + sessions.size() >= MAX_POOL_SIZE)
+                    size = MAX_POOL_SIZE - sessions.size();
 
-		if(MAX_POOL_SIZE == sessions.size())
-		    throw new Exception("SessionManager: Cannot serve more " +
-		    		"than "+ MAX_POOL_SIZE + " sessions");
+                if (MAX_POOL_SIZE == sessions.size())
+                    throw new Exception("SessionManager: Cannot serve more "
+                            + "than " + MAX_POOL_SIZE + " sessions");
 
-		for (int j = 0; j < size; j++)
-			sessions.put(sf.openSession(), this);
+                for (int j = 0; j < size; j++)
+                    sessions.put(sf.openSession(), this);
 
-		logger.info("Expanded Hibernate session pool to size "
-			+ sessions.size());
-		return getSession(holder);
-	    }
+                logger.info("Expanded Hibernate session pool to size "
+                        + sessions.size());
+                return getSession(holder);
+            }
 
-	    if(s != null)
-		sessions.put(s, holder);
+            if (s != null)
+                sessions.put(s, holder);
 
-	    return s;
-	}
+            return s;
+        }
 
-	/**
-	 * Return a session to the session manager and release the binding to
-	 * the holder object
-	 * @param s
-	 */
-	public synchronized void returnSession(Session s) {
-	    if(sessions.containsKey(s)) {
-		sessions.put(s, this);
-	    }
-	}
+        /**
+         * Return a session to the session manager and release the binding to
+         * the holder object
+         * 
+         * @param s
+         */
+        public synchronized void returnSession(Session s) {
+            if (sessions.containsKey(s)) {
+                sessions.put(s, this);
+            }
+        }
     }
 
     private boolean getJDBCConnection(String driver, String url, String dialect) {
-        if ( (driver==null) || (url==null) || (dialect==null) ) {
+        if ((driver == null) || (url == null) || (dialect == null)) {
             dbClass = null;
             dbURL = null;
             dbDialect = null;
@@ -174,7 +180,8 @@ public class DBServiceImpl implements DBService {
             dbConnection = c;
             return true;
         } catch (InstantiationException e) {
-            logger.warning("Could not instantiate JDBC connection for " + driver);
+            logger.warning("Could not instantiate JDBC connection for "
+                    + driver);
         } catch (ClassNotFoundException e) {
             logger.warning("Could not get class for JDBC driver " + driver);
         } catch (IllegalAccessException e) {
@@ -191,21 +198,21 @@ public class DBServiceImpl implements DBService {
     }
 
     /**
-     * Attempt to get the Derby JDBC connector and initialize
-     * a connection to the Derby instance -- this is intended
-     * to be a debug fallback routine during development.
-     *
-     * @return @c true on success
+     * Attempt to get the Derby JDBC connector and initialize a connection to
+     * the Derby instance -- this is intended to be a debug fallback routine
+     * during development.
+     * 
+     * @return
+     * @c true on success
      */
     private boolean getDerbyJDBC() {
-        return getJDBCConnection(
-            "org.apache.derby.jdbc.EmbeddedDriver",
-            "jdbc:derby:derbyDB;create=true",
-            "org.hibernate.dialect.DerbyDialect");
+        return getJDBCConnection("org.apache.derby.jdbc.EmbeddedDriver",
+                "jdbc:derby:derbyDB;create=true",
+                "org.hibernate.dialect.DerbyDialect");
     }
 
     private void initHibernate() {
-	SessionFactory sf = null;
+        SessionFactory sf = null;
         logger.info("Initializing Hibernate");
         try {
             Configuration c = new Configuration();
@@ -233,10 +240,12 @@ public class DBServiceImpl implements DBService {
         dbURL = null;
         dbClass = null;
         dbDialect = null;
-        if (!getJDBCConnection(bc.getProperty("eu.sqooss.db.driver"),
-                                bc.getProperty("eu.sqooss.db.url"),
-                                bc.getProperty("eu.sqooss.db.dialect"))) {
-            if (!Boolean.valueOf(bc.getProperty("eu.sqooss.db.fallback.enable")) || !getDerbyJDBC()) {
+        if (!getJDBCConnection(bc.getProperty("eu.sqooss.db.driver"), bc
+                .getProperty("eu.sqooss.db.url"), bc
+                .getProperty("eu.sqooss.db.dialect"))) {
+            if (!Boolean
+                    .valueOf(bc.getProperty("eu.sqooss.db.fallback.enable"))
+                    || !getDerbyJDBC()) {
                 logger.severe("DB service got no JDBC connectors.");
             }
         }
@@ -253,15 +262,23 @@ public class DBServiceImpl implements DBService {
     public void addRecord(DAObject record) {
         Session s = getSession(this);
         s.beginTransaction();
-        s.save(record);
+        addRecord(s, record);
+        s.getTransaction().commit();
+        returnSession(s);
+    }
+
+    public void deleteRecord(DAObject record) {
+        Session s = getSession(this);
+        s.beginTransaction();
+        deleteRecord(s, record);
         s.getTransaction().commit();
         returnSession(s);
     }
 
     public List doSQL(String sql) {
-	Session s = getSession(this);
+        Session s = getSession(this);
         s.beginTransaction();
-        List result = s.createSQLQuery(sql).list();
+        List result = doSQL(s, sql);
         s.getTransaction().commit();
         returnSession(s);
 
@@ -269,31 +286,35 @@ public class DBServiceImpl implements DBService {
     }
 
     public List doHQL(String hql) {
-	Session s = getSession(this);
-	s.beginTransaction();
-	List result = s.createQuery(hql).list();
-	s.getTransaction().commit();
-	returnSession(s);
+        Session s = getSession(this);
+        s.beginTransaction();
+        List result = doHQL(s, hql);
+        s.getTransaction().commit();
+        returnSession(s);
 
-	return result;
+        return result;
     }
 
     public Session getSession(Object holder) {
-	Session s = null;
-	try {
-	    s = sm.getSession(holder);
-	} catch(Exception e) {
-	    logger.error("getSession(): " + e.getMessage());
-	}
-	return s;
+        Session s = null;
+        try {
+            s = sm.getSession(holder);
+        } catch (Exception e) {
+            logger.error("getSession(): " + e.getMessage());
+        }
+        return s;
     }
 
     public void returnSession(Session s) {
-	sm.returnSession(s);
+        sm.returnSession(s);
     }
 
     public void addRecord(Session s, DAObject record) {
-	s.save(record);
+        s.save(record);
+    }
+
+    public void deleteRecord(Session s, DAObject record) {
+        s.delete(record);
     }
 
     public List doHQL(Session s, String hql) {
@@ -303,7 +324,47 @@ public class DBServiceImpl implements DBService {
     public List doSQL(Session s, String sql) {
         return s.createSQLQuery(sql).list();
     }
+    
+    public List doHQL(String hql, Map<String, Object> params) {
+        Session s = getSession(this);
+        s.beginTransaction();
+        List result = doHQL(s, hql, params);
+        s.getTransaction().commit();
+        returnSession(s);
 
+        return result;
+    }
+    
+    public List doSQL(String sql, Map<String, Object> params) {
+        Session s = getSession(this);
+        s.beginTransaction();
+        List result = doSQL(s, sql, params);
+        s.getTransaction().commit();
+        returnSession(s);
+
+        return result;
+    }
+    
+    public List doHQL(Session s, String hql, Map<String, Object> params) {
+        Query query = s.createQuery(hql);
+        Iterator<String> i = params.keySet().iterator();
+        while(i.hasNext()) {
+            String paramName = i.next();
+            query.setParameter(paramName, params.get(paramName));
+        }
+        return query.list();
+    }
+    
+    public List doSQL(Session s, String sql, Map<String, Object> params) {
+        Query query = s.createSQLQuery(sql);
+        Iterator<String> i = params.keySet().iterator();
+        while(i.hasNext()) {
+            String paramName = i.next();
+            query.setParameter(paramName, params.get(paramName));
+        }
+        return query.list();
+    }
+ 
     public Object selfTest() {
         Object[] o = new Object[INIT_POOL_SIZE + 1];
         Session[] s = new Session[INIT_POOL_SIZE + 1];
@@ -328,8 +389,8 @@ public class DBServiceImpl implements DBService {
 
         if (sm.sessions.size() != (INIT_POOL_SIZE + (INIT_POOL_SIZE / 2))) {
             return "Tests failed: Session pool size should be "
-                + (INIT_POOL_SIZE + (INIT_POOL_SIZE / 2)) + ", it is "
-                + sm.sessions.size();
+                    + (INIT_POOL_SIZE + (INIT_POOL_SIZE / 2)) + ", it is "
+                    + sm.sessions.size();
         }
 
         o = new Object[MAX_POOL_SIZE + 3];
@@ -350,7 +411,6 @@ public class DBServiceImpl implements DBService {
         return null;
     }
 }
-
 
 // vi: ai nosi sw=4 ts=4 expandtab
 

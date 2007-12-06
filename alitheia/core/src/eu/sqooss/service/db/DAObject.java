@@ -37,14 +37,12 @@ public class DAObject {
     private long id;
 
     public long getId() {
-	return id;
+        return id;
     }
 
     public void setId(long id) {
-	this.id = id;
+        this.id = id;
     }
 }
-
-    
 
 // vi: ai nosi sw=4 ts=4 expandtab
