@@ -142,7 +142,7 @@ public class SourceUpdater extends Job {
                 + " ProjectVersion pv2 where pv2.project = " + project.getId()
                 + ")");
 
-        if ((pvList == null) || (pvList.size() != -1)) {
+        if ((pvList == null) || (pvList.size() != 1)) {
             throw new UpdaterException(
                     "The last stored version of the project could not be retrieved");
         }
