@@ -40,6 +40,7 @@ import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.tds.PathChangeType;
 import eu.sqooss.service.tds.TDSService;
+import eu.sqooss.service.updater.UpdaterException;
 
 public class CommitEntryHandlerJob extends Job {
 

@@ -32,7 +32,7 @@
  *
  */
 
-package eu.sqooss.impl.service.updater;
+package eu.sqooss.service.updater;
 
 /**
  * Base class for updater exceptions.
@@ -44,10 +44,10 @@ public class UpdaterException extends Exception {
     private static String service = "[Updater]";
 
     public UpdaterException(String message) {
-	super(message);
+        super(message);
     }
 
     public String getMessage() {
-	return service + " " + super.getMessage();
+        return service + " " + super.getMessage();
     }
 }

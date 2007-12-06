@@ -40,6 +40,7 @@ import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.scheduler.Scheduler;
 
 import eu.sqooss.service.tds.TDSService;
+import eu.sqooss.service.updater.UpdaterException;
 
 /** 
  * 

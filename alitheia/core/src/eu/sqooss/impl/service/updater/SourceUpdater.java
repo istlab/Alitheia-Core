@@ -47,6 +47,7 @@ import eu.sqooss.service.tds.PathChangeType;
 import eu.sqooss.service.tds.ProjectRevision;
 import eu.sqooss.service.tds.SCMAccessor;
 import eu.sqooss.service.tds.TDSService;
+import eu.sqooss.service.updater.UpdaterException;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;

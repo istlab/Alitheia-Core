@@ -48,6 +48,7 @@ import org.osgi.service.http.NamespaceException;
 
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.updater.UpdaterException;
 import eu.sqooss.service.updater.UpdaterService;
 import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.db.DBService;
