@@ -42,18 +42,24 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 // Now the SQO-OSS imports, alphabetically
+import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.logging.LogManager;
 
 
 public class TesterActivator implements BundleActivator {
-    private ServiceReference logmanager = null;
+    private ServiceReference core = null;
     private Logger logger = null;
 
     private void getLogger( BundleContext bc ) {
-        logmanager = bc.getServiceReference(LogManager.class.getName());
-        if (logmanager != null) {
-            LogManager m = (LogManager) bc.getService(logmanager);
+    	try {
+    		core = bc.getServiceReference(AlitheiaCore.class.getName());
+    	} catch( Throwable t ) {
+    		core = null;
+    	}
+
+        if (core != null) {
+            LogManager m = (LogManager) bc.getService(core);
             logger = m.createLogger(Logger.NAME_SQOOSS_UPDATER /* TESTER */);
         }
     }
@@ -136,9 +142,9 @@ public class TesterActivator implements BundleActivator {
 
     public void stop( BundleContext bc )
         throws Exception {
-        if (logmanager != null) {
-            bc.ungetService(logmanager);
-        }
+    	if (core != null) {
+    		bc.ungetService( core );
+    	}
     }
 }
 
