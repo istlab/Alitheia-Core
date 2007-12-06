@@ -46,6 +46,7 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
 
+import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.updater.UpdaterException;
@@ -76,8 +77,8 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
             NamespaceException {
 
         /* Get a reference to the logging service */
-        serviceRef = bc.getServiceReference(LogManager.class.getName());
-        logService = (LogManager) bc.getService(serviceRef);
+        serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
+        logService = ((AlitheiaCore) bc.getService(serviceRef)).getLogManager();
 
         if (logService != null) {
             logger = logService.createLogger(Logger.NAME_SQOOSS_UPDATER);
@@ -91,24 +92,23 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
         }
 
         /* Get a reference to the TDS service */
-        serviceRef = bc.getServiceReference(TDSService.class.getName());
-        tdsService = (TDSService) bc.getService(serviceRef);
+        ServiceReference coreRef = bc.getServiceReference(AlitheiaCore.class.getName());
+        AlitheiaCore core = (AlitheiaCore) bc.getService(coreRef);
+        tdsService = core.getTDSService();
         if (tdsService == null)
             logger.severe("Could not load the TDS service");
         else
             logger.info("Got a reference to the TDS service");
 
         /* Get a reference to the DB service */
-        serviceRef = bc.getServiceReference(DBService.class.getName());
-        dbService = (DBService) bc.getService(serviceRef);
+        dbService = core.getDBService();
         if (dbService == null)
             logger.severe("Could not load the DB service");
         else
             logger.info("Got a valid reference to the DB service");
 
         /* Get a reference to the scheduler service */
-        serviceRef = bc.getServiceReference(Scheduler.class.getName());
-        scheduler = (Scheduler) bc.getService(serviceRef);
+        scheduler = core.getScheduler();
         if (scheduler == null)
             logger.severe("Could not load the scheduler");
         else

@@ -149,7 +149,20 @@ public class AlitheiaCore {
     public Object selfTest()
     {
     	List<Object> testObjects = new LinkedList<Object>();
+    	try{
     	testObjects.add(getScheduler());
+    	testObjects.add(getDBService());
+    	testObjects.add(getFDSService());
+    	testObjects.add(getLogManager());
+    	testObjects.add(getMessagingService());
+    	testObjects.add(getSecurityManager());
+    	testObjects.add(getTDSService());
+    	testObjects.add(getUpdater());
+    	}
+    	catch( Throwable t )
+    	{
+    		t.printStackTrace();
+    	}
     	
     	Object result = null;
     	
@@ -157,6 +170,7 @@ public class AlitheiaCore {
     	{
     		Method m = null;
         	try {
+        		System.out.println("Running " + o.getClass().getName() );
             	m = sched.getClass().getMethod("selfTest");
             	try {
 					result = m.invoke(o);

@@ -46,6 +46,7 @@ import org.osgi.framework.ServiceReference;
 
 import org.apache.commons.codec.binary.Hex;
 
+import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.fds.Checkout;
 import eu.sqooss.service.fds.FDSService;
 import eu.sqooss.service.logging.Logger;
@@ -153,9 +154,9 @@ public class FDSServiceImpl implements FDSService {
         logger = l;
 
         ServiceReference serviceRef = bc.getServiceReference(
-            TDSService.class.getName());
+            AlitheiaCore.class.getName());
         // This will NPE if there wasn't a TDS available, no problem.
-        tds = (TDSService) bc.getService(serviceRef);
+        tds = ((AlitheiaCore) bc.getService(serviceRef)).getTDSService();
         logger.info("Got TDS service for FDS.");
 
         checkoutCollection = new HashMap < Long, List < CheckoutImpl > >();
