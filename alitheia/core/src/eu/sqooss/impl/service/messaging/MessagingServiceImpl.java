@@ -41,12 +41,13 @@ public class MessagingServiceImpl implements MessagingService {
     private SMTPSender defaultSender;
 	private ServiceRegistration sRegSMTPSenderService;
 
-    public MessagingServiceImpl(BundleContext bc) throws IOException {
+    public MessagingServiceImpl(BundleContext bc){
          SMTPSender defaultSender = new SMTPSender(bc);
          Properties serviceProps = new Properties();
          serviceProps.setProperty(MessageSender.PROTOCOL_PROPERTY, SMTPSender.PROTOCOL_PROPERTY_VALUE);
-         sRegSMTPSenderService = bc.registerService(MessageSender.class.getName(), defaultSender, serviceProps);
+         bc.registerService(MessageSender.class.getName(), defaultSender, serviceProps);
 
+        
         this.id = readId(bc);
         this.bc = bc;
         this.defaultSender = defaultSender;
@@ -64,18 +65,26 @@ public class MessagingServiceImpl implements MessagingService {
     /**
      * Reads the last message id from the file.
      */
-    private long readId(BundleContext bc) throws IOException {
+    private long readId(BundleContext bc)  {
         File idFile = bc.getDataFile(MessagingConstants.FILE_NAME_MESSAGE_ID);
         DataInputStream in = null;
         if (idFile.exists()) {
             try {
                 in = new DataInputStream(new FileInputStream(idFile));
                 return in.readLong();
+            } catch (IOException ioe) {
+                ioe.printStackTrace();
             } finally {
                 if (in != null) {
-                    in.close();
+                    try {
+                        in.close();
+                    } catch (final IOException e) {
+                        e.printStackTrace();
+                    }
                 }
+                return 0;
             }
+
         } else {
             return 1;
         }
