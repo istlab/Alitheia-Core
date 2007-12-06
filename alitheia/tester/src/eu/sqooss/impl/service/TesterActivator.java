@@ -78,7 +78,6 @@ public class TesterActivator implements BundleActivator {
 
 		Bundle[] bundles = bc.getBundles();
 		for (Bundle b : bundles) {
-			System.out.println( b.toString() );
 			if (!b.getSymbolicName().startsWith("eu.sqooss")) {
 				continue;
 			}
