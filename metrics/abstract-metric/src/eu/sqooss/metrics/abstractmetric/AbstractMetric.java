@@ -109,17 +109,6 @@ public abstract class AbstractMetric implements Metric {
 	return null;
     }
 
-    public void delete(DAObject o) {
-	if(this instanceof ProjectVersionMetric)
-	    delete((ProjectVersion) o);
-	if(this instanceof StoredProjectMetric)
-	    delete((StoredProject) o);
-	if(this instanceof ProjectFileMetric)
-	    delete((ProjectFile) o);
-	if(this instanceof FileGroupMetric)
-	    delete((FileGroup) o);
-    }
-
     public MetricResult getResult(DAObject o) {
 	
 	if(this instanceof ProjectVersionMetric)

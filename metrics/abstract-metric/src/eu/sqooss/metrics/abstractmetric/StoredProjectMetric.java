@@ -60,10 +60,4 @@ public interface StoredProjectMetric {
      */
     MetricResult getResult(StoredProject a);
     
-    /**
-     * 
-     * @param a
-     * @return
-     */
-    boolean delete(StoredProject a);
 }

@@ -98,7 +98,14 @@ public interface Metric {
      * @return
      */
     MetricResult getResult(DAObject o);
-   
+    
+    /**
+     * Generic run plug-in method
+     * @param o The DAO that gets passed to the plug-in in order to run it
+     */
+    
+    public void run(DAObject o);
+       
     /**
      * After installing a new version of the metric, try to 
      * update the results. The metric may opt to partially

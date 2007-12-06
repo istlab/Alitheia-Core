@@ -64,12 +64,4 @@ public interface ProjectVersionMetric extends Metric {
      * exist, <tt>null</tt> otherwise.
      */
     MetricResult getResult(ProjectVersion a);
-
-    /**
-     * Delete all results for project version <tt>a</tt>
-     * 
-     * @param The project version to delete results for
-     * @return True if clean up succeeded false otherwise
-     */
-    boolean delete(ProjectVersion a);
 }
