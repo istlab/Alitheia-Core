@@ -34,12 +34,17 @@ package eu.sqooss.webui;
 
 
 import eu.sqooss.webui.ListView;
+//import eu.sqooss.scl.WSConnection;
+import eu.sqooss.scl.WSSession;
+
 
 public class ProjectsListView extends ListView {
 
     String currentProject;
+    WSSession session;
 
     public ProjectsListView () {
+        session = new WSSession();
         retrieveData();
     }
 
