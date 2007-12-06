@@ -41,7 +41,14 @@ import java.util.Iterator;
 public abstract class WSResult implements Iterable<ArrayList<WSResultEntry>>,
                                           Iterator<ArrayList<WSResultEntry>> {
     
-    public static WSResult fromXML() {
+    public static final int TYPE_STRING = 0;
+    public static final int TYPE_INT = 1;
+    public static final int TYPE_FLOAT = 2;
+    public static final int TYPE_OBJECT = 3;
+    public static final int TYPE_XML = 4;
+    public static final int TYPE_BOOLEAN = 5;
+	
+	public static WSResult fromXML() {
         return null;
     }
     
