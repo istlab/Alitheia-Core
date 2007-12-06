@@ -168,10 +168,9 @@ public class AlitheiaCore {
     	
     	for (Object o: testObjects)
     	{
-    		Method m = null;
         	try {
         		System.out.println("Running " + o.getClass().getName() );
-            	m = sched.getClass().getMethod("selfTest");
+            	Method m = o.getClass().getMethod("selfTest");
             	try {
 					result = m.invoke(o);
 				} catch (IllegalArgumentException e) {
