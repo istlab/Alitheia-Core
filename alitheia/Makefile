@@ -10,8 +10,9 @@
 
 # Subdirectories to build bundles in. Ignored in a Maven build (which takes
 # the same information from pom.xml).
-BUNDLES=  tester \
-	core 
+BUNDLES = core \
+	tester
+
 
 #
 # END OF USER CONFIGURABLE AREA

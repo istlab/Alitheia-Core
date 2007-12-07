@@ -44,6 +44,8 @@ PREFIX=equinox
 # Subdirectories to build or install from.
 SUBDIRS=alitheia 
 
+CLASSPATH=$(shell tools/setcp.sh `pwd` )
+
 #
 # END OF USER CONFIGURATION AREA
 #
@@ -53,7 +55,6 @@ TOP_SRCDIR=$(shell pwd)
 ABS_PREFIX=$(shell cd $(PREFIX) && pwd)
 
 all : build
-
 
 # Template to carry a target to a subdirectory while preserving the
 # PREFIX and Maven attributes.
@@ -75,7 +76,7 @@ install : $(foreach d,$(SUBDIRS),install-$(d))
 TOOL_DIR=tools
 # None of the tools in the tools dir need to be used right now,
 # so there are no targets referencing it.
-	 
+
 
 clean : clean-log $(foreach d,$(SUBDIRS),clean-$(d))
 	rm -rf $(PREFIX)/configuration/org.eclipse.osgi
@@ -89,6 +90,9 @@ clean-log :
 clean-db :
 	rm -rf $(PREFIX)/derbyDB
 
+#Just a dummy config file
+CONFIG=-Xmx256M
+
 CL_CONFIG=-Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.Log4JLogger
 LOG4J_CONFIG=-Dlog4j.configuration=file://$(ABS_PREFIX)/configuration/log4j.properties
 JETTY_CONFIG=-DDEBUG_VERBOSE=1 -DDEBUG_PATTERNS=main,org.mortbay.http -Dorg.mortbay.log.LogFactory.noDiscovery=false
@@ -96,7 +100,7 @@ JETTY_CONFIG=-DDEBUG_VERBOSE=1 -DDEBUG_PATTERNS=main,org.mortbay.http -Dorg.mort
 # $(CONFIG) would typically be used to set system properties.
 run :
 	cd $(PREFIX) && \
-	java $(CONFIG) \
+	java -cp $(CLASSPATH) $(CONFIG) \
 		-DDEBUG $(CL_CONFIG) $(LOG4J_CONFIG) $(JETTY_CONFIG) \
 		-jar org.eclipse.osgi_3.3.0.v20070321.jar -console
 

@@ -21,7 +21,7 @@
 
 # Extra dependencies for this bundle. These should point to the sources
 # of other bundles. Everyone depends on the logger, so add it always.
-EXTRA_CP:=$(EXTRA_CP):../core/src:
+EXTRA_CP:=$(EXTRA_CP):../core/src
 
 # Optionally, the manifest name may be different from the bundle name.
 # This is a historical mistake, but not easy to correct.
@@ -31,9 +31,10 @@ BUNDLE_MANIFEST_NAME?=$(BUNDLE_NAME)
 # END OF USER CONFIGURATION
 #
 ###
-
 TOP_SRCDIR?=$(shell cd ../.. && pwd)
 PREFIX?=$(shell cd ../../equinox && pwd)
+CP:=$(shell ../../tools/setcp.sh ../..)
+EXTRA_CP:=${CP}:$(EXTRA_CP)
 
 # Find the source files, the dependency jars and other resources
 SRC=$(shell cd src && find eu -name *.java)
@@ -45,7 +46,7 @@ HBM_RESOURCES=$(shell cd src/ && find eu -name '*.hbm.xml')
 $(foreach d,$(JARS),$(eval EXTRA_CP:=$(EXTRA_CP)$(d):))
 
 # This is (hardcoded) the OSGi framework classpath.
-EQUINOX_CP=$(PREFIX)/org.eclipse.osgi_3.3.0.v20070321.jar:$(PREFIX)/org.eclipse.osgi.util_3.1.100.v20060918.jar:$(PREFIX)/org.eclipse.osgi.services_3.1.100.v20060918.jar:
+#EQUINOX_CP=$(PREFIX)/org.eclipse.osgi_3.3.0.v20070321.jar:$(PREFIX)/org.eclipse.osgi.util_3.1.100.v20060918.jar:$(PREFIX)/org.eclipse.osgi.services_3.1.100.v20060918.jar:
 
 # Basic targets all, build, install, clean
 all: build-all build-jar
@@ -63,7 +64,7 @@ clean:
 build-all: build build/.prebuild
 
 build-jar: target target/$(BUNDLE_NAME)-$(BUNDLE_VERSION).jar
-
+	echo $C
 target:
 	mkdir target
 	test -d target
@@ -106,7 +107,7 @@ $(foreach d,$(RESOURCES),$(eval $(call resource_template,$(d))))
 $(foreach d,$(HBM_RESOURCES),$(eval $(call hbm_resource_template,$(d))))
 
 build/.prebuild : $(SRC:%=src/%)
-	javac -Xlint:-path -source 1.5 -cp $(EXTRA_CP)$(EQUINOX_CP)src/ -d build/ $?
+	javac -Xlint:-path -source 1.5 -cp $(EXTRA_CP):src/ -d build/ $?
 	touch build/.prebuild
 
 JAVADEP=perl ../../../../tools/java_dependency_generator.pl
