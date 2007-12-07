@@ -31,12 +31,30 @@
  *
  */
 
+package eu.sqooss.service.abstractmetric;
 
-package eu.sqooss.metrics.abstractmetric;
+import eu.sqooss.service.db.ProjectVersion;
 
-public class ConversionNotSupportedException extends Exception {
-    private static final long serialVersionUID = 1;
-    public ConversionNotSupportedException(String msg) {
-        super(msg);
-    }
+public interface FileGroupMetric {
+  
+    /**
+     * Run the metric to update the metric results when new versions
+     * of the evaluated project are available. 
+     * 
+     * By default, the run method will start updating metric results from
+     * <tt>a</tt> to the newest project version.
+     *   
+     * @param The first new version DAO
+     * @return True, if the metric run succeeded, false otherwise
+     * @see eu.sqooss.service.db.ProjectVersion
+     */
+    boolean run(ProjectVersion a);
+    
+    /**
+     * Return metric results for project version <tt>a</tt> 
+     * 
+     * @param metricTypeDAO
+     * @return
+     */
+    MetricResult getResult(ProjectVersion a);
 }

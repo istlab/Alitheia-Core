@@ -31,7 +31,7 @@
  *
  */
 
-package eu.sqooss.metrics.abstractmetric;
+package eu.sqooss.service.abstractmetric;
 
 import java.io.IOException;
 import java.util.ArrayList;

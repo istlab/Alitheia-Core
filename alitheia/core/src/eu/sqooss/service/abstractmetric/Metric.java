@@ -31,7 +31,7 @@
  *
  */
 
-package eu.sqooss.metrics.abstractmetric;
+package eu.sqooss.service.abstractmetric;
 
 import java.util.Date;
 import eu.sqooss.service.db.DAObject;

@@ -31,30 +31,27 @@
  *
  */
 
-package eu.sqooss.metrics.abstractmetric;
+package eu.sqooss.service.abstractmetric;
 
-import eu.sqooss.service.db.ProjectVersion;
+import eu.sqooss.service.db.ProjectFile;
 
-public interface FileGroupMetric {
+public interface ProjectFileMetric {
   
     /**
-     * Run the metric to update the metric results when new versions
-     * of the evaluated project are available. 
-     * 
-     * By default, the run method will start updating metric results from
-     * <tt>a</tt> to the newest project version.
-     *   
+     * Run the metric to update the metric results on the file indicated by the
+     * argument DAO 
+     *    
      * @param The first new version DAO
      * @return True, if the metric run succeeded, false otherwise
      * @see eu.sqooss.service.db.ProjectVersion
      */
-    boolean run(ProjectVersion a);
+    boolean run(ProjectFile a);
     
     /**
-     * Return metric results for project version <tt>a</tt> 
+     * Return metric results for file <tt>a</tt> 
      * 
-     * @param metricTypeDAO
-     * @return
+     * @param ProjectFile DAO
+     * @return The metric result
      */
-    MetricResult getResult(ProjectVersion a);
+    MetricResult getResult(ProjectFile a);
 }

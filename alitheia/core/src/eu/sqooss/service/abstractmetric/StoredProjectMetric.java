@@ -31,27 +31,33 @@
  *
  */
 
-package eu.sqooss.metrics.abstractmetric;
+package eu.sqooss.service.abstractmetric;
 
-import eu.sqooss.service.db.ProjectFile;
+import eu.sqooss.service.db.StoredProject;
 
-public interface ProjectFileMetric {
+/**
+ * A metric plug-in implements the <tt>StoredProjectMetric</tt> interface to
+ * indicate that its results are linked to the StoredProject table, and 
+ * consequently needs to be recalculated when a change that affects the 
+ * whole project occurs. 
+ */
+public interface StoredProjectMetric {
   
     /**
-     * Run the metric to update the metric results on the file indicated by the
-     * argument DAO 
-     *    
-     * @param The first new version DAO
+     * Run the metric to update the results for the specific project DAO
+     *   
+     * @param 
      * @return True, if the metric run succeeded, false otherwise
-     * @see eu.sqooss.service.db.ProjectVersion
+     * @see eu.sqooss.service.db.StoredProject
      */
-    boolean run(ProjectFile a);
+    boolean run(StoredProject a);
     
     /**
-     * Return metric results for file <tt>a</tt> 
+     * Return metric results for project version <tt>a</tt> 
      * 
-     * @param ProjectFile DAO
-     * @return The metric result
+     * @param metricTypeDAO
+     * @return
      */
-    MetricResult getResult(ProjectFile a);
+    MetricResult getResult(StoredProject a);
+    
 }

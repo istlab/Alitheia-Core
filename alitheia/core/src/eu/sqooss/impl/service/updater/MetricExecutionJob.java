@@ -42,26 +42,21 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.metrics.abstractmetric.FileGroupMetric;
-import eu.sqooss.metrics.abstractmetric.Metric;
-import eu.sqooss.metrics.abstractmetric.MetricResult;
-import eu.sqooss.metrics.abstractmetric.MetricResultEntry;
-import eu.sqooss.metrics.abstractmetric.ProjectFileMetric;
-import eu.sqooss.metrics.abstractmetric.ProjectVersionMetric;
-import eu.sqooss.metrics.abstractmetric.StoredProjectMetric;
-
+import eu.sqooss.service.abstractmetric.FileGroupMetric;
+import eu.sqooss.service.abstractmetric.Metric;
+import eu.sqooss.service.abstractmetric.MetricResult;
+import eu.sqooss.service.abstractmetric.MetricResultEntry;
+import eu.sqooss.service.abstractmetric.ProjectFileMetric;
+import eu.sqooss.service.abstractmetric.ProjectVersionMetric;
+import eu.sqooss.service.abstractmetric.StoredProjectMetric;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.FileGroup;
 import eu.sqooss.service.db.Measurement;
-import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
-import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.scheduler.Job;
-import eu.sqooss.service.scheduler.Scheduler;
-import eu.sqooss.service.tds.PathChangeType;
 import eu.sqooss.service.updater.UpdaterException;
 
 public class MetricExecutionJob extends Job {
