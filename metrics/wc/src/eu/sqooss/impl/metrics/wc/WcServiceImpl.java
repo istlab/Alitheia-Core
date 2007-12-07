@@ -3,6 +3,7 @@ package eu.sqooss.impl.metrics.wc;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
+import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
 
@@ -17,8 +18,8 @@ public class WcServiceImpl {
 
     public WcServiceImpl(BundleContext bc)  {
         /*Get a reference to the logging service*/
-        serviceRef = bc.getServiceReference(LogManager.class.getName());
-        logService = (LogManager) bc.getService(serviceRef);
+    	serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
+    	logService = ((AlitheiaCore) bc.getService(serviceRef)).getLogManager();
 
         if (logService != null) {
             logger = logService.createLogger(Logger.NAME_SQOOSS_UPDATER);
