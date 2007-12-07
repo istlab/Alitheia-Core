@@ -39,8 +39,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.hibernate.Session;
+import org.osgi.framework.BundleContext;
 
+import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.CommitEntry;
 import eu.sqooss.service.tds.CommitLog;
@@ -51,6 +52,7 @@ import eu.sqooss.service.tds.SCMAccessor;
 import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.updater.UpdaterException;
 import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.scheduler.Job;
@@ -62,25 +64,25 @@ import eu.sqooss.service.scheduler.Scheduler;
  */
 public class SourceUpdater extends Job {
 
+    private AlitheiaCore core;
+    private BundleContext context;
     private String path;
     private TDSService tds;
     private DBService dbs;
-    private Scheduler scheduler;
     private Logger logger;
     private List<Job> subTasks;
 
-    public SourceUpdater(String path, TDSService tds, DBService dbs,
-            Scheduler scheduler, Logger logger) throws UpdaterException {
-        if ((path == null) || (tds == null) || (dbs == null)
-                || (scheduler == null) || (logger == null)) {
+    public SourceUpdater(String path, AlitheiaCore core, Logger logger, BundleContext bc) throws UpdaterException {
+        if ((path == null) || (core == null) || (logger == null) || (bc == null)) {
             throw new UpdaterException(
                     "The components required by the updater are unavailable.");
         }
 
-        this.tds = tds;
-        this.dbs = dbs;
-        this.scheduler = scheduler;
+        this.core = core;
+        this.context = bc;
         this.logger = logger;
+        this.tds = core.getTDSService();
+        this.dbs = core.getDBService();
         subTasks = new ArrayList<Job>();
     }
     
@@ -170,6 +172,7 @@ public class SourceUpdater extends Job {
             this.addDependency(job);
             subTasks.add(job);
         }
+        
     }
     
     @Override

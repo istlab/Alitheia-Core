@@ -47,84 +47,41 @@ import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
 
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.updater.UpdaterException;
 import eu.sqooss.service.updater.UpdaterService;
-import eu.sqooss.service.tds.TDSService;
-import eu.sqooss.service.db.DBService;
-import eu.sqooss.service.scheduler.Scheduler;
 
 public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
 
     private static final long serialVersionUID = 1L;
-
-    private ServiceReference serviceRef = null;
-
-    private HttpService httpService = null;
-
-    private TDSService tdsService = null;
-
-    private DBService dbService = null;
-
-    private Scheduler scheduler = null;
-
-    private LogManager logService = null;
-
     private Logger logger = null;
+    private AlitheiaCore core = null;
+    private HttpService httpService = null;
+    private BundleContext context;
 
-    public UpdaterServiceImpl(BundleContext bc) throws ServletException,
+    public UpdaterServiceImpl(BundleContext bc, Logger logger) throws ServletException,
             NamespaceException {
 
-        /* Get a reference to the logging service */
-        serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
-        logService = ((AlitheiaCore) bc.getService(serviceRef)).getLogManager();
-
-        if (logService != null) {
-            logger = logService.createLogger(Logger.NAME_SQOOSS_UPDATER);
-
-            if (logger != null)
+        this.context = bc;
+        this.logger = logger;
+        /* Get a reference to the core service*/
+        ServiceReference serviceRef = null;
+        serviceRef = context.getServiceReference(AlitheiaCore.class.getName());
+        core = (AlitheiaCore) context.getService(serviceRef);
+        if (logger != null) { 
                 logger.info("Got a valid reference to the logger");
+        } else {
+            System.out.println("ERROR: Updater got no logger");
         }
-
-        if (logger == null) {
-            System.out.println("ERROR: Got no logger");
-        }
-
-        /* Get a reference to the TDS service */
-        ServiceReference coreRef = bc.getServiceReference(AlitheiaCore.class.getName());
-        AlitheiaCore core = (AlitheiaCore) bc.getService(coreRef);
-        tdsService = core.getTDSService();
-        if (tdsService == null)
-            logger.severe("Could not load the TDS service");
-        else
-            logger.info("Got a reference to the TDS service");
-
-        /* Get a reference to the DB service */
-        dbService = core.getDBService();
-        if (dbService == null)
-            logger.severe("Could not load the DB service");
-        else
-            logger.info("Got a valid reference to the DB service");
-
-        /* Get a reference to the scheduler service */
-        scheduler = core.getScheduler();
-        if (scheduler == null)
-            logger.severe("Could not load the scheduler");
-        else
-            logger.info("Got a valid reference to the Scheduler");
 
         /* Get a reference to the HTTP service */
-        serviceRef = bc
-                .getServiceReference("org.osgi.service.http.HttpService");
-
+        serviceRef = context.getServiceReference("org.osgi.service.http.HttpService");
         if (serviceRef != null) {
-            httpService = (HttpService) bc.getService(serviceRef);
+            httpService = (HttpService) context.getService(serviceRef);
             httpService.registerServlet("/updater", (Servlet) this, null, null);
         } else {
-            logger.severe("Could not load the HTTP service.");
+            logger.error("Could not load the HTTP service.");
         }
-
         logger.info("Succesfully started updater service");
     }
 
@@ -137,11 +94,10 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
         } else if (target == UpdateTarget.SOURCE_CODE_DATA) {
             // source code update
             try {
-                SourceUpdater su = new SourceUpdater(path, tdsService,
-                        dbService, scheduler, logger);
-                su.run();
-            } catch (UpdaterException ue) {
-                logger.severe("The Updater failed to update the code for project "
+                SourceUpdater su = new SourceUpdater(path, core, logger, context);
+                core.getScheduler().enqueue(su);
+            } catch (Exception e) {
+                logger.error("The Updater failed to update the code for project "
                                 + path);
             }
         } else if (target == UpdateTarget.BUG_DATABASE_DATA) {

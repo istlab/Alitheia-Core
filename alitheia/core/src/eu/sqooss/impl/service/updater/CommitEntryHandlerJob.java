@@ -38,6 +38,7 @@ import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.scheduler.Scheduler;
+import eu.sqooss.service.tds.CommitEntry;
 import eu.sqooss.service.tds.PathChangeType;
 import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.updater.UpdaterException;
@@ -45,13 +46,9 @@ import eu.sqooss.service.updater.UpdaterException;
 public class CommitEntryHandlerJob extends Job {
 
     private TDSService tds;
-
     private DBService dbs;
-
     private Logger logger;
-
     private String path;
-
     private PathChangeType changeType;
 
     CommitEntryHandlerJob(TDSService tds, DBService dbs, Logger logger)
@@ -76,6 +73,11 @@ public class CommitEntryHandlerJob extends Job {
             throw new UpdaterException("The Job has not been initialised");
         }
         ProjectFile pf = new ProjectFile();
+        
+        CommitEntry entry = null;
+        
+        
+        
     }
 
     void init(String path, PathChangeType changeType) {

@@ -32,7 +32,7 @@
 
 package eu.sqooss.core;
 
-import java.lang.reflect.InvocationTargetException;
+
 import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
@@ -136,7 +136,7 @@ public class AlitheiaCore {
     public UpdaterService getUpdater() {
         if (updater == null) {
             try {
-                updater = new UpdaterServiceImpl(bc);
+                updater = new UpdaterServiceImpl(bc, getLogManager().createLogger(LogManagerConstants.loggerNames[9]));
             } catch (ServletException e) {
                 e.printStackTrace();
             } catch (NamespaceException e) {
