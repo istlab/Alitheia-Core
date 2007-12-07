@@ -46,6 +46,7 @@ SUBDIRS=alitheia \
 	metrics
 
 CLASSPATH=$(shell tools/setcp.sh `pwd` )
+BOOTPATH=$(shell tools/setbp.sh `pwd` )
 
 #
 # END OF USER CONFIGURATION AREA
@@ -101,7 +102,7 @@ JETTY_CONFIG=-DDEBUG_VERBOSE=1 -DDEBUG_PATTERNS=main,org.mortbay.http -Dorg.mort
 # $(CONFIG) would typically be used to set system properties.
 run :
 	cd $(PREFIX) && \
-	java -cp $(CLASSPATH) $(CONFIG) \
+	java -Xbootclasspath/p$(BOOTPATH) $(CONFIG) \
 		-DDEBUG $(CL_CONFIG) $(LOG4J_CONFIG) $(JETTY_CONFIG) \
 		-jar org.eclipse.osgi_3.3.0.v20070321.jar -console
 
