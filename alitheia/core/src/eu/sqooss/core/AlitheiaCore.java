@@ -175,6 +175,7 @@ public class AlitheiaCore {
             	Method m = o.getClass().getMethod("selfTest");
             	try {
 					result = m.invoke(o);
+					System.out.println("Done");
 				} catch ( Exception e ) {
 					// e.printStackTrace();
 					System.out.println( "FAILED Test method of class " + o.getClass().getName() + " failed." );
@@ -182,6 +183,7 @@ public class AlitheiaCore {
 				
 				if (result != null)
 				{
+					System.out.println("Returned: " + result.toString());
 					return result;
 				}
         	} catch (NoSuchMethodException e) {

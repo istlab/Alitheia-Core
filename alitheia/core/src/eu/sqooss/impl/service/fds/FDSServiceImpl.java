@@ -456,10 +456,11 @@ public class FDSServiceImpl implements FDSService {
         String enabled = bundleContext.getProperty(
             "eu.sqooss.tester.enable.FDSServiceImpl.DiskUtil");
         if ((enabled == null) || Boolean.valueOf(enabled)) {
-            DiskUtil.selfTest(logger);
+            //DiskUtil.selfTest(logger);
         } else {
             logger.info("Skipping DiskUtil self-test.");
         }
+       	tds.addAccessor(1, "KPilot", "", null, "http://cvs.codeyard.net/svn/kpilot/" );
 
         // This is supposed to throw an exception
         boolean thrown = false;
