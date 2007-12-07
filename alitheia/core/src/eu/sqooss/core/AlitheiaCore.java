@@ -151,18 +151,19 @@ public class AlitheiaCore {
     {
     	List<Object> testObjects = new LinkedList<Object>();
     	try{
-    	testObjects.add(getScheduler());
-    	testObjects.add(getDBService());
-    	testObjects.add(getFDSService());
-    	testObjects.add(getLogManager());
-    	testObjects.add(getMessagingService());
-    	testObjects.add(getSecurityManager());
-    	testObjects.add(getTDSService());
-    	testObjects.add(getUpdater());
+    		testObjects.add(getScheduler());
+    		testObjects.add(getDBService());
+    		testObjects.add(getFDSService());
+    		testObjects.add(getLogManager());
+    		testObjects.add(getMessagingService());
+    		testObjects.add(getSecurityManager());
+    		testObjects.add(getTDSService());
+    		testObjects.add(getUpdater());
     	}
     	catch( Throwable t )
     	{
     		t.printStackTrace();
+    		return t.toString();
     	}
     	
     	Object result = null;
