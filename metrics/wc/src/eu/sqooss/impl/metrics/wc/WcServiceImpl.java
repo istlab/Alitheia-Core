@@ -1,35 +1,39 @@
 package eu.sqooss.impl.metrics.wc;
 
+import java.util.Date;
+
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 
-import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.service.logging.LogManager;
-import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.abstractmetric.AbstractMetric;
 
-public class WcServiceImpl {
+public class WcServiceImpl extends AbstractMetric {
     private static final long serialVersionUID = 1L;
 
-    private ServiceReference serviceRef = null;
-
-    private LogManager logService = null;
-
-    private Logger logger = null;
-
     public WcServiceImpl(BundleContext bc)  {
-        /*Get a reference to the logging service*/
-    	serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
-    	logService = ((AlitheiaCore) bc.getService(serviceRef)).getLogManager();
-
-        if (logService != null) {
-            logger = logService.createLogger(Logger.NAME_SQOOSS_UPDATER);
-
-            if (logger != null)
-                logger.info("Got a valid reference to the logger");
-        }
-
-        if (logger == null) {
-            System.out.println("ERROR: Got no logger");
-        }
+    	super(bc);
     }
+
+	@Override
+	public Date getDateInstalled() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean install() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean remove() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean update() {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }

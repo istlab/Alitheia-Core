@@ -38,6 +38,7 @@ import java.util.Date;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
+import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.FileGroup;
 import eu.sqooss.service.db.ProjectFile;
@@ -65,8 +66,8 @@ public abstract class AbstractMetric implements Metric {
     
     protected AbstractMetric(BundleContext bc){ 
 	/* Get a reference to the logging service */
-	serviceRef = bc.getServiceReference(LogManager.class.getName());
-	logService = (LogManager) bc.getService(serviceRef);
+	serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
+	logService = ((AlitheiaCore) bc.getService(serviceRef)).getLogManager();
 
 	if (logService != null) {
 	    logger = logService.createLogger(Logger.NAME_SQOOSS_METRIC);
