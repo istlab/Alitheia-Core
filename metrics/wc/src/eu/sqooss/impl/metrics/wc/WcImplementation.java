@@ -46,43 +46,43 @@ import eu.sqooss.service.db.ProjectVersion;
 
 public class WcImplementation extends AbstractMetric implements Wc {
 
-    protected WcImplementation(BundleContext bc) {
-	super(bc);
-    }
+	protected WcImplementation(BundleContext bc) {
+		super(bc);
+	}
 
-    public Date getDateInstalled() {
+	public Date getDateInstalled() {
 
-	return null;
-    }
+		return null;
+	}
 
-    public boolean install() {
+	public boolean install() {
 
-	return false;
-    }
+		return false;
+	}
 
-    public boolean remove() {
+	public boolean remove() {
 
-	return false;
-    }
+		return false;
+	}
 
-    public boolean update() {
+	public boolean update() {
 
-	return false;
-    }
-    
-    boolean run(ProjectVersion a, ProjectVersion b) {
-	return false;
-    }
+		return false;
+	}
 
-    public MetricResult getResult(ProjectFile a) {
-	// TODO Auto-generated method stub
-	return null;
-    }
+	boolean run(ProjectVersion a, ProjectVersion b) {
+		return false;
+	}
 
-    public boolean run(ProjectFile a) {
-	// TODO Auto-generated method stub
-	return false;
-    }
+	public MetricResult getResult(ProjectFile a) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public boolean run(ProjectFile a) {
+		// TODO Auto-generated method stub
+		return false;
+	}
     
     
     

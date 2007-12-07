@@ -4,4 +4,3 @@ BUNDLE_MANIFEST_NAME=web-services
 
 include ../Makefile-sub.inc
 
-EXTRA_CP=../logger/src:../db/src:../security/src:

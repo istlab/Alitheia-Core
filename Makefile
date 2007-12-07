@@ -42,7 +42,8 @@
 PREFIX=equinox
 
 # Subdirectories to build or install from.
-SUBDIRS=alitheia 
+SUBDIRS=alitheia \
+	metrics
 
 CLASSPATH=$(shell tools/setcp.sh `pwd` )
 
