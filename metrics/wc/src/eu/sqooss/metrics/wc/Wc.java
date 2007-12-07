@@ -32,7 +32,7 @@
 
 package eu.sqooss.metrics.wc;
 
-import eu.sqooss.metrics.abstractmetric.ProjectFileMetric;
+import eu.sqooss.service.abstractmetric.ProjectFileMetric;
 
 public interface Wc extends ProjectFileMetric {
     

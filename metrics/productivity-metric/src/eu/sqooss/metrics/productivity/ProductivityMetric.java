@@ -32,9 +32,9 @@
 
 package eu.sqooss.metrics.productivity;
 
-import eu.sqooss.metrics.abstractmetric.Metric;
-import eu.sqooss.metrics.abstractmetric.StoredProjectMetric;
-import eu.sqooss.metrics.abstractmetric.ProjectVersionMetric;
+import eu.sqooss.service.abstractmetric.Metric;
+import eu.sqooss.service.abstractmetric.StoredProjectMetric;
+import eu.sqooss.service.abstractmetric.ProjectVersionMetric;
 
 public interface ProductivityMetric extends Metric, StoredProjectMetric,
         ProjectVersionMetric {

@@ -38,8 +38,8 @@ import java.util.Date;
 
 import org.osgi.framework.BundleContext;
 
-import eu.sqooss.metrics.abstractmetric.AbstractMetric;
-import eu.sqooss.metrics.abstractmetric.MetricResult;
+import eu.sqooss.service.abstractmetric.AbstractMetric;
+import eu.sqooss.service.abstractmetric.MetricResult;
 import eu.sqooss.metrics.productivity.ProductivityMetric;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
