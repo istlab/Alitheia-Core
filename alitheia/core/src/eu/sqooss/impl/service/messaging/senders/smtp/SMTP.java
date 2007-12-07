@@ -22,7 +22,7 @@ public interface SMTP {
      *               service.
      * @exception   SessionException  if the current SMTP session is invalid
      */
-    public void send(Vector receivers, String reply, String message)
+    public void send(Vector<String> receivers, String reply, String message)
     throws SMTPException, SessionException;
 
     /**
@@ -37,7 +37,7 @@ public interface SMTP {
      *               service.
      * @exception   SessionException  if the current SMTP session is invalid
      */
-    public void send(Vector receivers, String reply, InputStream message)
+    public void send(Vector<String> receivers, String reply, InputStream message)
     throws SMTPException, SessionException;
 
     /**

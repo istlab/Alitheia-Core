@@ -2,7 +2,7 @@ package eu.sqooss.impl.service.messaging;
 
 import java.util.Vector;
 
-import eu.sqooss.impl.service.MessagingActivator;
+import eu.sqooss.service.messaging.MessagingService;
 
 /**
  * This class represents the message queue.
@@ -28,8 +28,8 @@ public class MessageQueue {
             vector.addElement(message);
             lockObject.notifyAll();
         }
-        MessagingActivator.log("The message (id = " + message.getId() + ") is in the queue!",
-                MessagingActivator.LOGGING_INFO_LEVEL);
+        MessagingServiceImpl.log("The message (id = " + message.getId() + ") is in the queue!",
+                MessagingService.LOGGING_INFO_LEVEL);
     }
 
     /**
@@ -45,12 +45,12 @@ public class MessageQueue {
                     return null;
                 } else {
                     MessageImpl message = (MessageImpl)vector.remove(0);
-                    MessagingActivator.log("The message (id = " + message.getId() + ") is removed from the queue!",
-                            MessagingActivator.LOGGING_INFO_LEVEL);
+                    MessagingServiceImpl.log("The message (id = " + message.getId() + ") is removed from the queue!",
+                    		MessagingService.LOGGING_INFO_LEVEL);
                     return message;
                 }
             } catch (InterruptedException ie) {
-                MessagingActivator.log(ie.getMessage(), MessagingActivator.LOGGING_WARNING_LEVEL);
+            	MessagingServiceImpl.log(ie.getMessage(), MessagingService.LOGGING_WARNING_LEVEL);
                 throw new RuntimeException(ie);
             }
         }

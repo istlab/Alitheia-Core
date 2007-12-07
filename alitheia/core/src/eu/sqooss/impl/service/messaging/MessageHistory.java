@@ -2,9 +2,9 @@ package eu.sqooss.impl.service.messaging;
 
 import java.util.Hashtable;
 
-import eu.sqooss.impl.service.MessagingActivator;
 import eu.sqooss.impl.service.messaging.timer.Timer;
 import eu.sqooss.service.messaging.Message;
+import eu.sqooss.service.messaging.MessagingService;
 
 /**
  * This class is used to store the messages for future reference.
@@ -38,7 +38,7 @@ public class MessageHistory {
                 timer.addNotifyListener(message, preservingTime);
             }
         }
-        MessagingActivator.log("The message (id = " + message.getId() + ") is stored!", MessagingActivator.LOGGING_INFO_LEVEL);
+        MessagingServiceImpl.log("The message (id = " + message.getId() + ") is stored!", MessagingService.LOGGING_INFO_LEVEL);
     }
 
     /**
@@ -59,10 +59,10 @@ public class MessageHistory {
     public boolean removeMessage(long messageId) {
         synchronized (lockObject) {
             if (messageHistory.remove(new Long(messageId)) == null) {
-                MessagingActivator.log("The message (id = " + messageId + ") isn't stored!", MessagingActivator.LOGGING_INFO_LEVEL);
+            	MessagingServiceImpl.log("The message (id = " + messageId + ") isn't stored!", MessagingService.LOGGING_INFO_LEVEL);
                 return false;
             } else {
-                MessagingActivator.log("The message (id = " + messageId + ") is removed!", MessagingActivator.LOGGING_INFO_LEVEL);
+            	MessagingServiceImpl.log("The message (id = " + messageId + ") is removed!", MessagingService.LOGGING_INFO_LEVEL);
                 return true;
             }
         }

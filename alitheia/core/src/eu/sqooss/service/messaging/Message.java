@@ -49,7 +49,7 @@ public abstract class Message {
      * Gets the recipients of the message.
      * @return returns the recipients
      */
-    public abstract Vector getRecipients();
+    public abstract Vector<String> getRecipients();
 
     /**
      * Sets the new message's recipients.
@@ -60,7 +60,7 @@ public abstract class Message {
      * @exception NullPointerException - if <code>recipients</code> parameter is null or contains null value
      * @exception IllegalArgumentException - if <code>recipients</code> parameter is empty
      */
-    public abstract void setRecipients(Vector recipients);
+    public abstract void setRecipients(Vector<String> recipients);
 
     /**
      * Gets the title(subject) of the message.
@@ -136,7 +136,7 @@ public abstract class Message {
      * <li>if <code>recipients</code> parameter is empty
      * </ul>   
      */
-    public static Message getInstance(String body, Vector recipients, String title, String protocol) {
+    public static Message getInstance(String body, Vector<String> recipients, String title, String protocol) {
         Message newMessage = new MessageImpl(body, recipients, title, protocol);
         return newMessage;
     }

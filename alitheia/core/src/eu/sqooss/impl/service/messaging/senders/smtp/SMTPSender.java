@@ -73,7 +73,7 @@ public class SMTPSender implements MessageSender {
             messageBody.append("From: " + reply + "\r\n");
             //adds to
             messageBody.append("To: ");
-            Vector recipients = message.getRecipients();
+            Vector<String> recipients = message.getRecipients();
             for (int i = 0; i < recipients.size(); i++) {
                 messageBody.append((String)recipients.elementAt(i));
                 messageBody.append(", ");

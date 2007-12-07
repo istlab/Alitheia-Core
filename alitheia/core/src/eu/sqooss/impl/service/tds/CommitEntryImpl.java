@@ -59,7 +59,8 @@ public class CommitEntryImpl implements CommitEntry {
 
     private Map<String, PathChangeType> changedPaths;
 
-    public CommitEntryImpl(SVNLogEntry l) {
+    @SuppressWarnings("unchecked")
+	public CommitEntryImpl(SVNLogEntry l) {
         revision = new ProjectRevision(l.getRevision());
         author = l.getAuthor();
         message = l.getMessage();

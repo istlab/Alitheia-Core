@@ -12,10 +12,13 @@ import java.util.Vector;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 
-import eu.sqooss.impl.service.MessagingActivator;
+import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.impl.service.messaging.senders.smtp.SMTPSender;
+import eu.sqooss.service.logging.LogManager;
+import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.messaging.Message;
 import eu.sqooss.service.messaging.MessageListener;
 import eu.sqooss.service.messaging.MessagingService;
@@ -40,26 +43,32 @@ public class MessagingServiceImpl implements MessagingService {
     private BundleContext bc;
     private SMTPSender defaultSender;
 	private ServiceRegistration sRegSMTPSenderService;
+	private static Logger logger;
 
     public MessagingServiceImpl(BundleContext bc){
          SMTPSender defaultSender = new SMTPSender(bc);
          Properties serviceProps = new Properties();
          serviceProps.setProperty(MessageSender.PROTOCOL_PROPERTY, SMTPSender.PROTOCOL_PROPERTY_VALUE);
-         bc.registerService(MessageSender.class.getName(), defaultSender, serviceProps);
-
         
-        this.id = readId(bc);
-        this.bc = bc;
-        this.defaultSender = defaultSender;
-        this.maxThreadsNumber = 10; //default value
-        this.queueringTime = 60*1000; //default value
-        this.properties = new Properties();
-        initProperties(bc);
-        messageListeners = new Vector < MessageListener >();
-        messageHistory = new MessageHistory(0);
-        messageQueue = new MessageQueue();
-        messagingThreads = new Vector < MessagingServiceThread >();
-        startThreadIfNeeded();
+         this.id = readId(bc);
+         this.bc = bc;
+         this.defaultSender = defaultSender;
+         this.maxThreadsNumber = 10; //default value
+         this.queueringTime = 60*1000; //default value
+         this.properties = new Properties();
+         initProperties(bc);
+         messageListeners = new Vector < MessageListener >();
+         messageHistory = new MessageHistory(0);
+         messageQueue = new MessageQueue();
+         messagingThreads = new Vector < MessagingServiceThread >();
+         startThreadIfNeeded();
+         
+         ServiceReference coreRef = bc.getServiceReference(AlitheiaCore.class.getName());
+         if (logger == null && coreRef != null)
+         {
+        	 LogManager logManager = ((AlitheiaCore)bc.getService(coreRef)).getLogManager();
+        	 logger = logManager.createLogger(Logger.NAME_SQOOSS_MESSAGING);
+         }
     }
 
     /**
@@ -69,9 +78,10 @@ public class MessagingServiceImpl implements MessagingService {
         File idFile = bc.getDataFile(MessagingConstants.FILE_NAME_MESSAGE_ID);
         DataInputStream in = null;
         if (idFile.exists()) {
+        	long result = 0;
             try {
                 in = new DataInputStream(new FileInputStream(idFile));
-                return in.readLong();
+                result = in.readLong();
             } catch (IOException ioe) {
                 ioe.printStackTrace();
             } finally {
@@ -82,9 +92,9 @@ public class MessagingServiceImpl implements MessagingService {
                         e.printStackTrace();
                     }
                 }
-                return 0;
+                result = 0;
             }
-
+            return result;
         } else {
             return 1;
         }
@@ -147,8 +157,8 @@ public class MessagingServiceImpl implements MessagingService {
      * @see eu.sqooss.service.messaging.MessagingService#setConfigurationProperty(String, String)
      */
     public void setConfigurationProperty(String key, String value) {
-        MessagingActivator.log("Set a configuration property: key=" + key + ", value=" + value,
-                MessagingActivator.LOGGING_INFO_LEVEL);
+        log("Set a configuration property: key=" + key + ", value=" + value,
+                MessagingService.LOGGING_INFO_LEVEL);
         if (key.equals(MessagingConstants.KEY_QUEUERING_TIME)) {
             try {
                 long qTime = Long.parseLong(value);
@@ -251,8 +261,8 @@ public class MessagingServiceImpl implements MessagingService {
         try {
             properties.store(new FileOutputStream(bc.getDataFile(MessagingConstants.FILE_NAME_PROPERTIES)), null);
         } catch (IOException ioe) {
-            MessagingActivator.log("An error occurs while saving the properties: " + ioe.getMessage(),
-                    MessagingActivator.LOGGING_WARNING_LEVEL);
+            log("An error occurs while saving the properties: " + ioe.getMessage(),
+            		MessagingService.LOGGING_WARNING_LEVEL);
         }
         return id;
     }
@@ -371,7 +381,7 @@ public class MessagingServiceImpl implements MessagingService {
         try {
             props.load(new FileInputStream(bc.getDataFile(MessagingConstants.FILE_NAME_PROPERTIES)));
         } catch (FileNotFoundException fnfe) {
-            MessagingActivator.log("The properties file doesn't exist!", MessagingActivator.LOGGING_INFO_LEVEL);
+            log("The properties file doesn't exist!", MessagingService.LOGGING_INFO_LEVEL);
             //the properties must be set manual
         } catch (IOException ioe) {
             throw new RuntimeException(ioe);
@@ -383,5 +393,23 @@ public class MessagingServiceImpl implements MessagingService {
             setConfigurationProperty(currentKey, props.getProperty(currentKey));
         }
     }
-
+    
+    /**
+     * This method logs the messages from the specified logging level.
+     * @param message the text
+     * @param level the logging level
+     */
+    public static void log(String message, int level) {
+        /*synchronized (lockObject)*/ {
+            if (logger != null) {
+                switch (level) {
+                case MessagingService.LOGGING_INFO_LEVEL: logger.info(message); break;
+                case MessagingService.LOGGING_CONFIG_LEVEL: logger.config(message); break;
+                case MessagingService.LOGGING_WARNING_LEVEL: logger.warning(message); break;
+                case MessagingService.LOGGING_SEVERE_LEVEL: logger.severe(message); break;
+                default: logger.info(message); break;
+                }
+            }
+        }
+    }
 }

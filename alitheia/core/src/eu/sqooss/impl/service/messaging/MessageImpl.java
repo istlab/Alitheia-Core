@@ -16,12 +16,12 @@ public class MessageImpl extends Message implements TimerListener {
     private long queueTime;
 
     private String body;
-    private Vector recipients;
+    private Vector<String> recipients;
     private String title;
     private String protocol;
     private MessageHistory messageHistory;
 
-    public MessageImpl(String body, Vector recipients, String title, String protocol) {
+    public MessageImpl(String body, Vector<String> recipients, String title, String protocol) {
         setBody(body);
         setRecipients(recipients);
         setTitle(title);
@@ -55,7 +55,7 @@ public class MessageImpl extends Message implements TimerListener {
     /**
      * @see eu.sqooss.service.messaging.Message#getRecipients()
      */
-    public Vector getRecipients() {
+    public Vector<String> getRecipients() {
         return recipients;
     }
 
@@ -96,7 +96,7 @@ public class MessageImpl extends Message implements TimerListener {
     /**
      * @see eu.sqooss.service.messaging.Message#setRecipients(java.util.Vector)
      */
-    public void setRecipients(Vector recipients) {
+    public void setRecipients(Vector<String> recipients) {
         if (recipients == null) {
             throw new NullPointerException("The recipients vector is null!");
         }
