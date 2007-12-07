@@ -36,9 +36,6 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.Iterator;
 
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
-
 import org.tmatesoft.svn.core.internal.io.dav.DAVRepositoryFactory;
 import org.tmatesoft.svn.core.internal.io.fs.FSRepositoryFactory;
 import org.tmatesoft.svn.core.internal.io.svn.SVNRepositoryFactoryImpl;
@@ -121,13 +118,23 @@ public class TDSServiceImpl implements TDSService {
         if (accessorPool == null) {
             return new String("No accessor pool available.");
         }
-
-        // Fail if the pool is empty; we don't want to fiddle around
-        // with a system where the database is empty. This assumes
-        // that someone else calls addAccessor() before calling selfTest().
+        
+        // Add an accessor for testing purposes when none was there.
+        Boolean addedAccessor = false;
+        if (accessorPool.isEmpty())
+        {
+        	addAccessor(1, "KPilot", "", null, "http://cvs.codeyard.net/svn/kpilot/" );
+        	addedAccessor = true;
+        }
+        
         Set<Long> accessorKeys = accessorPool.keySet();
         Iterator<Long> i = accessorKeys.iterator();
         if (!i.hasNext()) {
+        	// we added an accesor before, so it should be here...
+        	if (addedAccessor)
+        	{
+        		accessorPool.clear();
+        	}
             return new String("No projects to check against.");
         }
 
@@ -137,11 +144,19 @@ public class TDSServiceImpl implements TDSService {
         logger.info("Checking project " + id +
             " <" + accessor.getName() + ">");
         if (accessor != getAccessor(id)) {
+           	if (addedAccessor)
+        	{
+        		accessorPool.clear();
+        	}
             return new String("Request for project " + i +
                 " got someone else.");
         }
-
-        // Everything is ok
+        
+       	if (addedAccessor)
+    	{
+    		accessorPool.clear();
+    	}
+       // Everything is ok
         return null;
     }
 }

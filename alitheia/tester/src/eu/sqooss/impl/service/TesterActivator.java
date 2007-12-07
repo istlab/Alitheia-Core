@@ -124,7 +124,7 @@ public class TesterActivator implements BundleActivator {
 						logger.info("Failed to invoke selfTest() on service: "
 								+ e.getMessage());
 					} catch (Exception e) {
-						logger.warning("selfTest() method failed: "
+						logger.warn("selfTest() method failed: "
 								+ e.getMessage());
 						e.printStackTrace();
 					}
