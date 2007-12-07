@@ -53,6 +53,7 @@ import eu.sqooss.impl.service.updater.UpdaterServiceImpl;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.fds.FDSService;
 import eu.sqooss.service.logging.LogManager;
+import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.messaging.MessagingService;
 import eu.sqooss.impl.service.messaging.MessagingServiceImpl;
 import eu.sqooss.service.scheduler.Scheduler;
@@ -120,7 +121,7 @@ public class AlitheiaCore {
 
     public SecurityManager getSecurityManager() {
         if (sec == null) {
-            sec = new SecurityManagerImpl();
+            sec = new SecurityManagerImpl(this.getLogManager().createLogger(Logger.NAME_SQOOSS_SECURITY));
         }
 
         return sec;

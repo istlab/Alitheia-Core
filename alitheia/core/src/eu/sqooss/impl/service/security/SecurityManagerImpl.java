@@ -1,13 +1,45 @@
+/*
+ * This file is part of the Alitheia system, developed by the SQO-OSS
+ * consortium as part of the IST FP6 SQO-OSS project, number 033331.
+ *
+ * Copyright 2007 by the SQO-OSS consortium members <info@sqo-oss.eu>
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     * Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
 package eu.sqooss.impl.service.security;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
 
-import eu.sqooss.impl.service.SecurityActivator;
 import eu.sqooss.impl.service.security.utils.DatabaseUtility;
 import eu.sqooss.impl.service.security.utils.ParserUtility;
 import eu.sqooss.impl.service.security.utils.PrivilegeDatabaseUtility;
 import eu.sqooss.impl.service.security.utils.ValidateUtility;
+import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.security.SecurityAuthorizationRule;
 import eu.sqooss.service.security.SecurityGroup;
 import eu.sqooss.service.security.SecurityManager;
@@ -16,6 +48,12 @@ import eu.sqooss.service.security.SecurityResourceURL;
 import eu.sqooss.service.security.SecurityUser;
 
 public class SecurityManagerImpl implements SecurityManager {
+    
+    private Logger logger;
+    
+    public SecurityManagerImpl(Logger logger) {
+        this.logger = logger;
+    }
 
     /**
      * @see eu.sqooss.service.security.SecurityManager#checkPermission(java.lang.String, java.lang.String, java.lang.String)
@@ -71,11 +109,11 @@ public class SecurityManagerImpl implements SecurityManager {
                 (group instanceof SecurityGroupImpl) &&
                 (resourceURL instanceof SecurityResourceURLImpl)) {
             SecurityAuthorizationRule newRule = new SecurityAuthorizationRuleImpl(group.getId(), resourceURL.getId(), privilegeValueId);
-            SecurityActivator.log(newRule + " is created", SecurityActivator.LOGGING_INFO_LEVEL);
+            logger.info(newRule + " is created");
             return newRule;
         } else {
-            SecurityActivator.log("Can't create a authorization rule with: group id = " + group.getId() +
-                    "; privilege value id = " + privilegeValueId + "; url id = " + resourceURL.getId(), SecurityActivator.LOGGING_INFO_LEVEL);
+            logger.info("Can't create a authorization rule with: group id = " + group.getId() +
+                    "; privilege value id = " + privilegeValueId + "; url id = " + resourceURL.getId());
             return null;
         }
     }
@@ -87,7 +125,7 @@ public class SecurityManagerImpl implements SecurityManager {
         ValidateUtility.validateValue(description);
         long groupId = DatabaseUtility.createGroup(description);
         SecurityGroup newGroup = new SecurityGroupImpl(groupId);
-        SecurityActivator.log(newGroup + " is created", SecurityActivator.LOGGING_INFO_LEVEL);
+        logger.info(newGroup + " is created");
         return newGroup;
     }
 
@@ -98,7 +136,7 @@ public class SecurityManagerImpl implements SecurityManager {
         ValidateUtility.validateValue(description);
         long privilegeId = PrivilegeDatabaseUtility.createPrivilege(description);
         SecurityPrivilege newPrivilege = new SecurityPrivilegeImpl(privilegeId);
-        SecurityActivator.log(newPrivilege + " is created", SecurityActivator.LOGGING_INFO_LEVEL);
+        logger.info(newPrivilege + " is created");
         return newPrivilege;
     }
 
@@ -111,7 +149,7 @@ public class SecurityManagerImpl implements SecurityManager {
         String mangledUrl = ParserUtility.mangleUrl(resourceURL);
         long urlId = DatabaseUtility.createURL(mangledUrl);
         SecurityResourceURL newResourceUrl = new SecurityResourceURLImpl(urlId);
-        SecurityActivator.log(newResourceUrl + " is created", SecurityActivator.LOGGING_INFO_LEVEL);
+        logger.info(newResourceUrl + " is created");
         return newResourceUrl;
     }
 
@@ -123,7 +161,7 @@ public class SecurityManagerImpl implements SecurityManager {
         ValidateUtility.validateValue(password);
         long userId = DatabaseUtility.createUser(userName, password);
         SecurityUser newUser = new SecurityUserImpl(userId);
-        SecurityActivator.log(newUser + " is created", SecurityActivator.LOGGING_INFO_LEVEL);
+        logger.info(newUser + " is created");
         return newUser;
     }
 
@@ -134,7 +172,7 @@ public class SecurityManagerImpl implements SecurityManager {
         if (DatabaseUtility.isExistentGroup(id)) {
             return new SecurityGroupImpl(id);
         } else {
-            SecurityActivator.log("The group with id = " + id + " doesn't exist", SecurityActivator.LOGGING_INFO_LEVEL);
+            logger.info("The group with id = " + id + " doesn't exist");
             return null;
         }
     }
@@ -146,7 +184,7 @@ public class SecurityManagerImpl implements SecurityManager {
         if (PrivilegeDatabaseUtility.isExistentPrivilege(id)) {
             return new SecurityPrivilegeImpl(id);
         } else {
-            SecurityActivator.log("The privilege with id = " + id + " doesn't exist", SecurityActivator.LOGGING_INFO_LEVEL);
+            logger.info("The privilege with id = " + id + " doesn't exist");
             return null;
         }
     }
@@ -158,7 +196,7 @@ public class SecurityManagerImpl implements SecurityManager {
         if (DatabaseUtility.isExistentResourceUrl(id)) {
             return new SecurityResourceURLImpl(id);
         } else {
-            SecurityActivator.log("The resource url with id = " + id + " doesn't exist", SecurityActivator.LOGGING_INFO_LEVEL);
+            logger.info("The resource url with id = " + id + " doesn't exist");
             return null;
         }
     }
@@ -170,7 +208,7 @@ public class SecurityManagerImpl implements SecurityManager {
         if (DatabaseUtility.isExistentUser(id)) {
             return new SecurityUserImpl(id);
         } else {
-            SecurityActivator.log("The user with id = " + id + " doesn't exist", SecurityActivator.LOGGING_INFO_LEVEL);
+            logger.info("The user with id = " + id + " doesn't exist");
             return null;
         }
     }
@@ -183,3 +221,5 @@ public class SecurityManagerImpl implements SecurityManager {
     }
 
 }
+
+//vi: ai nosi sw=4 ts=4 expandtab
