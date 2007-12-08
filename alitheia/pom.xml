@@ -299,7 +299,9 @@
     <module>web-services</module>
     -->
     <module>core</module>
+<!--
     <module>tester</module>
+-->
   </modules>
 
   <!-- =======[ List of developers working on this project        ]======= -->
