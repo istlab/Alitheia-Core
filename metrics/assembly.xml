@@ -4,7 +4,7 @@
   <moduleSets>
     <moduleSet>
       <binaries>
-        <outputFileNameMapping>eu.sqooss.service.${artifactId}_${version}.${extension}</outputFileNameMapping>
+        <outputFileNameMapping>eu.sqooss.metrics.${artifactId}_${version}.${extension}</outputFileNameMapping>
         <unpack>false</unpack>
       </binaries>
     </moduleSet>
