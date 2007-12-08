@@ -44,6 +44,7 @@
 
   <!-- Dependencies -->
   <dependencies>
+    <!-- [sqooss repo] Dependant on OSGi R4 Framework Package -->
     <dependency>
       <groupId>org.eclipse.equinox</groupId>
       <artifactId>osgi</artifactId>
@@ -51,6 +52,7 @@
       <type>jar</type>
       <scope>provided</scope>
     </dependency>
+    <!-- [sqooss repo] Dependant on OSGi R4 Services Package -->
     <dependency>
       <groupId>org.eclipse.osgi</groupId>
       <artifactId>services</artifactId>
@@ -58,30 +60,10 @@
       <type>jar</type>
       <scope>provided</scope>
     </dependency>
+    <!-- [local repo] Dependant on SQO-OSS Core Package -->
     <dependency>
       <groupId>eu.sqooss</groupId>
-      <artifactId>logger</artifactId>
-      <version>[0.0.1,)</version>
-      <type>jar</type>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>eu.sqooss</groupId>
-      <artifactId>tds</artifactId>
-      <version>[0.0.1,)</version>
-      <type>jar</type>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>eu.sqooss</groupId>
-      <artifactId>dbs</artifactId>
-      <version>[0.0.1,)</version>
-      <type>jar</type>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>eu.sqooss.metrics</groupId>
-      <artifactId>abstract</artifactId>
+      <artifactId>core</artifactId>
       <version>[0.0.1,)</version>
       <type>jar</type>
       <scope>provided</scope>
