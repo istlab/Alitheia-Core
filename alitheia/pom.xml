@@ -38,9 +38,11 @@
     <developerConnection>
       scm:svn:https://svn.sqo-oss.eu/devel/trunk/alitheia
     </developerConnection>
-    <!-- Configure and enable in case there is an anonymous SVN viewer 
-    <url>http://hostname/sqooss</url>
+    <!-- Configure and enable this, in case we provide an anonymous SVN viewer
     -->
+<!--
+    <url>http://hostname/sqooss</url>
+-->
   </scm> 
 
   <!-- =======[ Build options, goals and plug-ins configurations  ]======= -->
@@ -125,24 +127,27 @@
     </plugins>
   </build> 
 
-  <!-- =======[ Repositories holding required external libraries  ]======= -->
+  <!-- =======[ Extra repositories for build dependencies ]=============== -->
   <repositories>
     <repository>
-      <id>extlibs</id>
-      <name>SQO-OSS External Libraries Repository</name>
-      <!-- Enable this, once the certificate for svn.sqo-oss.eu is fixed -->
-      <!-- <url>https://svn.sqo-oss.eu/devel/trunk/extlibs</url> -->
-      <!-- ... and disable/remove the next line -->
-      <url>http://ikaria.dmst.aueb.gr:8088/extlibs</url>
+      <id>sqoossrepo</id>
+      <name>SQO-OSS Local Maven Repository</name>
+      <!-- Enable this, once the certificate for svn.sqo-oss.eu is fixed,
+        and disable/remove the line that follows it
+      -->
+<!--
+      <url>https://svn.sqo-oss.eu/devel/trunk/extlibs</url>
+-->
+      <url>http://ikaria.dmst.aueb.gr:8088/sqoossrepo</url>
     </repository>
   </repositories>
 
-  <!-- =======[ Repositories holding snapshots of Maven plugins ]========= -->
+  <!-- =======[ Snapshot repositories for Maven plugins ]================= -->
   <!-- Using a snapshot repository is not that good ideia, since it happens
        often that some of the plugins' snapshots doesn't work as expected.
        Enable at your own risk!
   -->
-  <!--
+<!--
   <pluginRepositories>
     <pluginRepository>
       <id>Maven.Snapshots</id>
@@ -155,7 +160,7 @@
       <url>http://cvs.apache.org/maven-snapshot-repository</url>
     </pluginRepository>
   </pluginRepositories>
-  -->
+-->
 
   <distributionManagement>
     <!-- Deploy the project reports site in this location                  -->
@@ -201,9 +206,9 @@
             report considered as critical by the configuration creator),
             therefore IMHO it's better if Checkstyle behaviour is fed by a 
             configuration file, that can be easily modified -->
-          <!--
+<!--
           <format>sun</format>
-          -->
+-->
           <configLocation>sqooss_checks.xml</configLocation>
           <includes>**/*.java</includes>
           <enableRulesSummary>false</enableRulesSummary>
@@ -279,6 +284,7 @@
     <module>service_one</module>
     <module>service_two</module>
     -->
+    <!-- Old modules list (prior Athens'2007)
     <module>db</module>
     <module>fds</module>
     <module>logger</module>
@@ -291,6 +297,9 @@
     <module>util</module>
     <module>webadmin</module>
     <module>web-services</module>
+    -->
+    <module>core</module>
+    <module>tester</module>
   </modules>
 
   <!-- =======[ List of developers working on this project        ]======= -->
