@@ -1,0 +1,140 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+
+  <!-- =[ Parent POM ]==================================================== -->
+  <parent>
+    <groupId>eu.sqooss</groupId>
+    <artifactId>alitheia</artifactId>
+    <version>1.0.0</version>
+  </parent>
+
+  <!-- [ Web-Services Service - main POM ]================================ -->
+  <groupId>eu.sqooss</groupId>
+  <artifactId>core</artifactId>
+  <version>0.0.1</version>
+  <packaging>jar</packaging>
+
+  <!-- =[ Project description ]=========================================== -->
+  <name>Core Services</name>
+  <description>
+    This bundle provided the set of core services for Alitheia.
+    (... more description to come later on)
+  </description>
+
+  <!-- =[ Build properties ]============================================== -->
+  <build>
+    <!-- Tells Maven to search for source code here -->
+    <sourceDirectory>${basedir}/src</sourceDirectory>
+    <!-- Tells Maven to build Java class files here -->
+    <outputDirectory>${basedir}/bin</outputDirectory>
+    <!-- Tells Maven where to look for a manifest file -->
+    <plugins>
+      <plugin>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifestFile>
+              ${basedir}/manifest/core.mf
+            </manifestFile>
+          </archive>
+        </configuration> 
+      </plugin>
+    </plugins>
+    <resources>
+      <resource>
+        <directory>${basedir}/src/eu/sqooss/service/db</directory>
+        <targetPath>eu/sqooss/service/db</targetPath>
+        <includes>
+          <include>**/*.xml</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>${basedir}/src/main/resources</directory>
+        <targetPath>.</targetPath>
+        <includes>
+          <include>**/*.jar</include>
+          <include>**/*.xml</include>
+        </includes>
+      </resource>
+    </resources>
+  </build>
+
+  <!-- =[ Dependencies ]================================================== -->
+  <dependencies>
+    <!-- [sqooss repo] Dependant on OSGi R4 Framework Package -->
+    <dependency>
+      <groupId>org.eclipse.equinox</groupId>
+      <artifactId>osgi</artifactId>
+      <version>3.3.0</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <!-- [sqooss repo] Dependant on OSGi R4 Services Package -->
+    <dependency>
+      <groupId>org.eclipse.osgi</groupId>
+      <artifactId>services</artifactId>
+      <version>3.1.100.v20060918</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <!-- [sqooss repo] Dependant on Java Servlet Extension -->
+    <dependency>
+      <groupId>javax</groupId>
+      <artifactId>servlet</artifactId>
+      <version>2.4.0.v200612120446</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <!-- [sqooss repo] Dependant on Apache Log4j -->
+    <dependency>
+      <groupId>org.apache</groupId>
+      <artifactId>log4j</artifactId>
+      <version>1.2.15</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <!-- [sqooss repo] Dependant on Apache Commons - Codec -->
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>codec</artifactId>
+      <version>1.3.0</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <!-- [sqooss repo] Dependant on Hibernate -->
+    <dependency>
+      <groupId>org</groupId>
+      <artifactId>hibernate</artifactId>
+      <version>3.2.5</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <!-- [sqooss repo] Dependant on SVN Kit -->
+    <dependency>
+      <groupId>org.tmatesoft</groupId>
+      <artifactId>svnkit</artifactId>
+      <version>1.1.4</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <!-- [sqooss repo] Dependant on SQO-OSS Abstract Metric -->
+    <dependency>
+      <groupId>eu.sqooss.metrics</groupId>
+      <artifactId>abstract</artifactId>
+      <version>[0.0.1,)</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+
+  <!-- =[ Developers working on this module ]============================= -->
+  <developers>
+    <developer>
+      <id>e_grigorov</id>
+      <name>Evgeni Grigorov</name>
+      <email>e.grigorov@prosyst.com</email>
+      <organization>ProSyst Software GmbH</organization>
+      <timezone>+2</timezone>
+    </developer>
+  </developers>
+</project>
