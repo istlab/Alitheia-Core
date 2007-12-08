@@ -214,7 +214,8 @@
           <enableRulesSummary>false</enableRulesSummary>
         </configuration>
       </plugin>
-      <!-- Plugin for checking the project source against -->
+      <!-- Plugin for checking the project source against some codding rules
+      -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-pmd-plugin</artifactId>

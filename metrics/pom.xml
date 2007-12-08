@@ -38,15 +38,18 @@
     <developerConnection>
       scm:svn:https://svn.sqo-oss.eu/devel/trunk/metrics
     </developerConnection>
-    <!-- Configure and enable in case there is an anonymous SVN viewer 
-    <url>http://hostname/sqooss</url>
+    <!-- Configure and enable this, in case we provide an anonymous SVN viewer
     -->
+<!--
+    <url>http://hostname/sqooss</url>
+-->
   </scm> 
 
   <!-- =======[ Build options, goals and plug-ins configurations  ]======= -->
   <build>
     <defaultGoal>clean deploy</defaultGoal>
     <plugins>
+      <!-- SITE-GENERATOR plug-in configuration                            -->
       <plugin>
         <artifactId>maven-site-plugin</artifactId>
         <configuration>
@@ -62,41 +65,89 @@
           </execution>
         </executions>
       </plugin>
-      <plugin>
-	<groupId>org.apache.maven.plugins</groupId>
-	<artifactId>maven-compiler-plugin</artifactId>
-	<configuration>
-	  <showWarnings>true</showWarnings>
-	  <showDeprecation>true</showDeprecation>
-	  <compilerArgument>-Xlint</compilerArgument>
-	  <source>1.5</source>
-	  <target>1.5</target>
-	</configuration>
-      </plugin>
+      <!-- DEPLOY plug-in configuration                                    -->
       <plugin>
         <artifactId>maven-deploy-plugin</artifactId>
         <configuration>
           <generatePom>false</generatePom>
         </configuration>
       </plugin>
+      <!-- COMPILER plug-in configuration                                  -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId> 
+        <configuration>
+          <showWarnings>true</showWarnings>
+          <showDeprecation>true</showDeprecation>
+          <compilerArgument>-Xlint</compilerArgument>
+          <source>1.5</source>
+          <target>1.5</target>
+        </configuration>
+      </plugin>
+      <!-- CLEAN plug-in configuration                                     -->
+      <plugin>
+        <artifactId>maven-clean-plugin</artifactId>
+        <configuration>
+          <!-- [byotov] Also cleanup all previously deployed SQO-OSS metric
+            bundles from the Equinox bundles repository.
+          -->
+          <filesets>
+            <fileset>
+              <directory>${user.dir}/equinox</directory>
+              <includes>
+                <include>**/eu.sqooss.metrics.*</include>
+              </includes>
+              <followSymlinks>false</followSymlinks>
+            </fileset>
+          </filesets>
+        </configuration>
+      </plugin>
+      <!-- ASSEMBLY plug-in configuration                                  -->
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>2.1</version>
+        <configuration>
+          <outputDirectory>${user.dir}</outputDirectory>
+          <finalName>equinox</finalName>
+          <appendAssemblyId>false</appendAssemblyId>
+          <descriptors>
+            <descriptor>assembly.xml</descriptor>
+          </descriptors>
+          <executions>
+            <execution>
+              <id>sqooss.metrics</id>
+              <phase>package</phase>
+              <goals>
+                <goal>directory-inline</goal>
+              </goals>
+            </execution>
+          </executions>
+        </configuration>
+      </plugin>
     </plugins>
   </build> 
 
-  <!-- =======[ Repositories holding required external libraries  ]======= -->
+  <!-- =======[ Extra repositories for build dependencies ]=============== -->
   <repositories>
     <repository>
-      <id>extlibs</id>
-      <name>SQO-OSS External Libraries Repository</name>
+      <id>sqoossrepo</id>
+      <name>SQO-OSS Local Maven Repository</name>
+      <!-- Enable this, once the certificate for svn.sqo-oss.eu is fixed,
+        and disable/remove the line that follows it
+      -->
+<!--
       <url>https://svn.sqo-oss.eu/devel/trunk/extlibs</url>
+-->
+      <url>http://ikaria.dmst.aueb.gr:8088/sqoossrepo</url>
     </repository>
   </repositories>
 
-  <!-- =======[ Repositories holding snapshots of the Maven plugins ]===== -->
+  <!-- =======[ Snapshot repositories for Maven plugins ]================= -->
   <!-- Using a snapshot repository is not that good ideia, since it happens
        often that some of the plugins' snapshots doesn't work as expected.
        Enable at your own risk!
   -->
-  <!--
+<!--
   <pluginRepositories>
     <pluginRepository>
       <id>Maven.Snapshots</id>
@@ -109,7 +160,7 @@
       <url>http://cvs.apache.org/maven-snapshot-repository</url>
     </pluginRepository>
   </pluginRepositories>
-  -->
+-->
 
   <distributionManagement>
     <!-- Deploy the project reports site in this location                  -->
@@ -150,12 +201,21 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
         <configuration>
+          <!-- [byotov] Using a predefined checkstyle configuration is not
+            that flexible (especially when you want to switch off an annoying
+            report considered as critical by the configuration creator),
+            therefore IMHO it's better if Checkstyle behaviour is fed by a 
+            configuration file, that can be easily modified -->
+<!--
           <format>sun</format>
+-->
+          <configLocation>sqooss_checks.xml</configLocation>
           <includes>**/*.java</includes>
           <enableRulesSummary>false</enableRulesSummary>
         </configuration>
       </plugin>
-      <!-- Plugin for checking the project source against -->
+      <!-- Plugin for checking the project source against some codding rules
+      -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-pmd-plugin</artifactId>
@@ -209,6 +269,9 @@
         <type>mail</type>
         <configuration>
           <!-- Replace with the mailing list dedicated to the CIS results -->
+          <!--
+          <address>continuum@sqo-oss.eu</address>
+          -->
           <address>b.yotov@prosyst.com</address>
         </configuration>
       </notifier>
@@ -222,7 +285,7 @@
     <module>metric_one</module>
     <module>metric_two</module>
     -->
-    <module>abstract-metric</module>
+    <module>productivity-metric</module>
     <module>wc</module>
   </modules>
 
