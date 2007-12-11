@@ -117,14 +117,6 @@
       <type>jar</type>
       <scope>provided</scope>
     </dependency>
-    <!-- [sqooss repo] Dependant on SQO-OSS Abstract Metric -->
-    <dependency>
-      <groupId>eu.sqooss.metrics</groupId>
-      <artifactId>abstract</artifactId>
-      <version>[0.0.1,)</version>
-      <type>jar</type>
-      <scope>provided</scope>
-    </dependency>
   </dependencies>
 
   <!-- =[ Developers working on this module ]============================= -->
