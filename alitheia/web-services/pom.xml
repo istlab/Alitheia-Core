@@ -66,6 +66,14 @@
       <type>jar</type>
       <scope>provided</scope>
     </dependency>
+    <!-- [sqooss repo] Dependant on Hibernate -->
+    <dependency>
+      <groupId>org</groupId>
+      <artifactId>hibernate</artifactId>
+      <version>3.2.5</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
 
   <!-- =[ Developers working on this module ]============================= -->
