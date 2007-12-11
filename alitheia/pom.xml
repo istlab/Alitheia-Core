@@ -297,9 +297,9 @@
     <module>updater</module>
     <module>util</module>
     <module>webadmin</module>
-    <module>web-services</module>
     -->
     <module>core</module>
+    <module>web-services</module>
 <!--
     <module>tester</module>
 -->

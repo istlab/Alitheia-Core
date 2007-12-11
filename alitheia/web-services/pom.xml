@@ -58,26 +58,10 @@
       <type>jar</type>
       <scope>provided</scope>
     </dependency>
-    <!-- Dependant on SQO-OSS Logger Service -->
+    <!-- Dependant on SQO-OSS Core Service -->
     <dependency>
       <groupId>eu.sqooss</groupId>
-      <artifactId>logger</artifactId>
-      <version>[0.0.2,)</version>
-      <type>jar</type>
-      <scope>provided</scope>
-    </dependency>
-    <!-- Dependant on SQO-OSS Database Service -->
-    <dependency>
-      <groupId>eu.sqooss</groupId>
-      <artifactId>dbs</artifactId>
-      <version>[0.0.1,)</version>
-      <type>jar</type>
-      <scope>provided</scope>
-    </dependency>
-    <!-- Dependant on SQO-OSS Security Service -->
-    <dependency>
-      <groupId>eu.sqooss</groupId>
-      <artifactId>security</artifactId>
+      <artifactId>core</artifactId>
       <version>[0.0.1,)</version>
       <type>jar</type>
       <scope>provided</scope>
