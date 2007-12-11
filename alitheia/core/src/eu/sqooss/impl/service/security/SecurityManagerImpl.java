@@ -36,9 +36,11 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 
 import eu.sqooss.impl.service.security.utils.DatabaseUtility;
+import eu.sqooss.impl.service.security.utils.DatabaseWrapper;
 import eu.sqooss.impl.service.security.utils.ParserUtility;
 import eu.sqooss.impl.service.security.utils.PrivilegeDatabaseUtility;
 import eu.sqooss.impl.service.security.utils.ValidateUtility;
+import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.security.SecurityAuthorizationRule;
 import eu.sqooss.service.security.SecurityGroup;
@@ -49,9 +51,11 @@ import eu.sqooss.service.security.SecurityUser;
 
 public class SecurityManagerImpl implements SecurityManager {
     
+    private DatabaseWrapper dbWrapper;
     private Logger logger;
     
-    public SecurityManagerImpl(Logger logger) {
+    public SecurityManagerImpl(DBService db, Logger logger) {
+        this.dbWrapper = new DatabaseWrapper(db);
         this.logger = logger;
     }
 
@@ -72,13 +76,15 @@ public class SecurityManagerImpl implements SecurityManager {
 
         String tmpUrl = resourceURL;
         while (true) {
-            if (DatabaseUtility.isExistentResourceUrl(tmpUrl)) {
+            if (dbWrapper.isExistentResourceUrl(tmpUrl)) {
+//            if (DatabaseUtility.isExistentResourceUrl(tmpUrl)) {
                 String currentPrivilegeName;
                 String currentPrivilegeValue;
                 for (Enumeration keys = privileges.keys(); keys.hasMoreElements(); ) {
                     currentPrivilegeName = (String)keys.nextElement();
                     currentPrivilegeValue = (String)privileges.get(currentPrivilegeName);
-                    if (!(DatabaseUtility.checkAuthorizationRule(tmpUrl, currentPrivilegeName, currentPrivilegeValue, userName, password))) {
+//                    if (!(DatabaseUtility.checkAuthorizationRule(tmpUrl, currentPrivilegeName, currentPrivilegeValue, userName, password))) {
+                    if (!dbWrapper.checkAuthorizationRule(tmpUrl, currentPrivilegeName, currentPrivilegeValue, userName, password)) {
                         return false;
                     }
                 }
