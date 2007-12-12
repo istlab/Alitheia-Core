@@ -50,6 +50,7 @@ import eu.sqooss.impl.service.scheduler.SchedulerServiceImpl;
 import eu.sqooss.impl.service.security.SecurityManagerImpl;
 import eu.sqooss.impl.service.tds.TDSServiceImpl;
 import eu.sqooss.impl.service.updater.UpdaterServiceImpl;
+import eu.sqooss.impl.service.webadmin.WebadminServiceImpl;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.fds.FDSService;
 import eu.sqooss.service.logging.LogManager;
@@ -60,6 +61,7 @@ import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.security.SecurityManager;
 import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.updater.UpdaterService;
+import eu.sqooss.service.webadmin.WebadminService;
 
 public class AlitheiaCore {
 
@@ -71,6 +73,7 @@ public class AlitheiaCore {
     private SecurityManager sec;
     private TDSService tds;
     private UpdaterService updater;
+    private WebadminService webadmin;
 
     private org.osgi.framework.BundleContext bc;
 
@@ -79,6 +82,12 @@ public class AlitheiaCore {
         getLogManager();
     }
 
+    public void initWebAdmin() {
+        if (webadmin == null) {
+            webadmin = new WebadminServiceImpl(bc);
+        }
+    }
+    
     public LogManager getLogManager() {
         if (logger == null) {
             logger = new LogManagerImpl(bc);

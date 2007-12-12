@@ -38,6 +38,8 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
+import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.impl.service.logging.LogManagerConstants;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.LogManager;
@@ -75,10 +77,16 @@ public class AdminServlet extends HttpServlet {
 
     private BundleContext bundlecontext = null;
 
-    private LogManager logService = null;
-    private Logger logger = null;
-    private DBService dbService = null;
-    private TDSService tdsService = null;
+    // AlitheiaCore reference and object
+    private ServiceReference srefCore = null;
+    private AlitheiaCore sobjAlitheiaCore = null;
+
+    // LogManager and Logger objects
+    private LogManager sobjLogManager = null;
+    private Logger sobjLogger = null;
+
+    private DBService sobjDB = null;
+    private TDSService sobjTDS = null;
 
     private Hashtable<String,Pair<String,String>> staticContentMap;
     private Hashtable<String,String> dynamicContentMap;
@@ -104,53 +112,59 @@ public class AdminServlet extends HttpServlet {
         return String.format("%d:%02d:%02d:%02d", days, hours, mins, secs);
     }
 
-    private void getLogger(BundleContext bc) {
+    private void doLogInfo (String logMessage) {
+        if (sobjLogger != null) {
+            sobjLogger.info(logMessage);
+        }
+    }
+
+/*    private void getLogger(BundleContext bc) {
         ServiceReference serviceRef = null;
         serviceRef = bc.getServiceReference(LogManager.class.getName());
-        logService = (LogManager) bc.getService(serviceRef);
+        sobjLogManager = (LogManager) bc.getService(serviceRef);
 
-        if (logService != null) {
-            logger = logService.createLogger(Logger.NAME_SQOOSS_WEBADMIN);
+        if (sobjLogManager != null) {
+            sobjLogger = sobjLogManager.createLogger(Logger.NAME_SQOOSS_WEBADMIN);
 
-            if (logger != null) {
-                logger.info("WebAdmin got logger.");
+            if (sobjLogger != null) {
+                sobjLogger.info("WebAdmin got logger.");
             }
         } else {
             System.out.println("! Got neither a service nor a logger.");
         }
-    }
+    }*/
 
-    private void getDB(BundleContext bc) {
+/*    private void getDB(BundleContext bc) {
         ServiceReference serviceRef = bc.getServiceReference(DBService.class.getName());
         if (serviceRef != null) {
-            dbService = (DBService) bc.getService(serviceRef);
-            if (logger != null) {
-                logger.info("Got DB service.");
+            sobjDB = (DBService) bc.getService(serviceRef);
+            if (sobjLogger != null) {
+                sobjLogger.info("Got DB service.");
             }
         } else {
-            if (logger != null) {
-                logger.warning("Did not get DB service.");
+            if (sobjLogger != null) {
+                sobjLogger.warning("Did not get DB service.");
             } else {
                 System.out.println("! Got no DB service.");
             }
         }
-    }
+    }*/
 
-    private void getTDS(BundleContext bc) {
+/*    private void getTDS(BundleContext bc) {
         ServiceReference serviceRef = bc.getServiceReference(TDSService.class.getName());
         if (serviceRef != null) {
-            tdsService = (TDSService) bc.getService(serviceRef);
-            if (logger != null) {
-                logger.info("Got TDS service.");
+            sobjTDS = (TDSService) bc.getService(serviceRef);
+            if (sobjLogger != null) {
+                sobjLogger.info("Got TDS service.");
             }
         } else {
-            if (logger != null) {
-                logger.warning("Did not get TDS service.");
+            if (sobjLogger != null) {
+                sobjLogger.warning("Did not get TDS service.");
             } else {
                 System.out.println("Got no TDS service.");
             }
         }
-    }
+    }*/
 
     public void addStaticContent(String path, String type) {
         Pair < String, String > p = new Pair < String, String > (path,type);
@@ -159,34 +173,61 @@ public class AdminServlet extends HttpServlet {
 
     public AdminServlet(BundleContext bc) {
         bundlecontext = bc;
-        getLogger(bc);
-        getDB(bc);
-        getTDS(bc);
-        Stuffer myStuffer = new Stuffer(dbService, logger, tdsService);
-        myStuffer.run();
 
-        staticContentMap = new Hashtable < String, Pair < String, String > >();
+        srefCore = bc.getServiceReference(AlitheiaCore.class.getName());
+        if (srefCore != null) {
+            sobjAlitheiaCore = (AlitheiaCore) bc.getService(srefCore);
+        }
+        else {
+            System.out.println("No CORE");
+        }
 
-        // Images and CSS
-        addStaticContent("/screen.css", "text/css");
-        addStaticContent("/sqo-oss.png", "image/x-png");
-        addStaticContent("/queue.png", "image/x-png");
-        addStaticContent("/uptime.png", "image/x-png");
-        addStaticContent("/greyBack.jpg", "image/x-jpg");
-        addStaticContent("/projects.png", "image/x-png");
-        addStaticContent("/logs.png", "image/x-png");
-        addStaticContent("/bundles.png", "image/x-png");
-        addStaticContent("/header-repeat.png", "image/x-png");
-        
-        // Pages
-        dynamicContentMap = new Hashtable<String,String>();
-        dynamicContentMap.put("/about", "/about.html");
-        dynamicContentMap.put("/status", "/index.html");
-        dynamicContentMap.put("/index", "/index.html");
-        dynamicContentMap.put("/projects", "/projects.html");
-        dynamicContentMap.put("/logs", "/logs.html");
+        if (sobjAlitheiaCore != null) {
+            //Get the LogManager and Logger objects
+            sobjLogManager = sobjAlitheiaCore.getLogManager();
+            if (sobjLogManager != null) {
+                sobjLogger = sobjLogManager.createLogger(
+                    LogManagerConstants.loggerNames[10]);
+            }
 
-        dynamicSubstitutions = new Hashtable<String,String>();
+            // Get the DB Service object
+            sobjDB = sobjAlitheiaCore.getDBService();
+            if (sobjDB != null) {
+                doLogInfo("WebAdmin got DB Service object.");
+            }
+
+            // Get the TDS Service object
+            sobjTDS = sobjAlitheiaCore.getTDSService();
+            if (sobjTDS != null) {
+                doLogInfo("WebAdmin got TDS Service object.");
+            }
+
+            Stuffer myStuffer = new Stuffer(sobjDB, sobjLogger, sobjTDS);
+            myStuffer.run();
+
+            staticContentMap = new Hashtable < String, Pair < String, String > >();
+
+            // Images and CSS
+            addStaticContent("/screen.css", "text/css");
+            addStaticContent("/sqo-oss.png", "image/x-png");
+            addStaticContent("/queue.png", "image/x-png");
+            addStaticContent("/uptime.png", "image/x-png");
+            addStaticContent("/greyBack.jpg", "image/x-jpg");
+            addStaticContent("/projects.png", "image/x-png");
+            addStaticContent("/logs.png", "image/x-png");
+            addStaticContent("/bundles.png", "image/x-png");
+            addStaticContent("/header-repeat.png", "image/x-png");
+
+            // Pages
+            dynamicContentMap = new Hashtable<String,String>();
+            dynamicContentMap.put("/about", "/about.html");
+            dynamicContentMap.put("/status", "/index.html");
+            dynamicContentMap.put("/index", "/index.html");
+            dynamicContentMap.put("/projects", "/projects.html");
+            dynamicContentMap.put("/logs", "/logs.html");
+
+            dynamicSubstitutions = new Hashtable<String,String>();
+        }
     }
 
     protected String[] getServiceNames(ServiceReference[] servicerefs) {
@@ -296,8 +337,8 @@ public class AdminServlet extends HttpServlet {
         int bytesRead = 0;
         int totalBytes = 0;
 
-        if ( logger != null ) {
-            logger.info("Serving " + source.first + " (" + source.second + ")");
+        if ( sobjLogger != null ) {
+            sobjLogger.info("Serving " + source.first + " (" + source.second + ")");
         }
 
         response.setContentType(source.second);
@@ -309,8 +350,8 @@ public class AdminServlet extends HttpServlet {
 
         // TODO: Check that the bytes written were as many as the
         //  file size in the JAR (how? it's an InputStream).
-        if ( logger != null ) {
-            logger.info("Wrote " + totalBytes + " from " + source.first);
+        if ( sobjLogger != null ) {
+            sobjLogger.info("Wrote " + totalBytes + " from " + source.first);
         }
     }
 
@@ -323,8 +364,8 @@ public class AdminServlet extends HttpServlet {
             throw new IOException( "Path not found: " + path );
         }
 
-        if ( logger != null ) {
-            logger.info("Serving template " + path);
+        if ( sobjLogger != null ) {
+            sobjLogger.info("Serving template " + path);
         }
 
         response.setContentType("text/html");
@@ -345,7 +386,7 @@ public class AdminServlet extends HttpServlet {
         dynamicSubstitutions.put("@@STATUS","The cruncher is offline.");
         dynamicSubstitutions.put("@@LOGO","<img src='/logo' id='logo' alt='Logo' />");
         dynamicSubstitutions.put("@@COPYRIGHT","Copyright 2007 <a href=\"http://www.sqo-oss.eu/about/\">SQO-OSS Consortium Members</a>");
-        dynamicSubstitutions.put("@@GETLOGS", renderList(logService.getRecentEntries()));
+        dynamicSubstitutions.put("@@GETLOGS", renderList(sobjLogManager.getRecentEntries()));
         dynamicSubstitutions.put("@@PROJECTS",renderList(listProjects()));
         dynamicSubstitutions.put("@@BUNDLE", renderBundles());
         dynamicSubstitutions.put("@@UPTIME",getUptime());
@@ -371,7 +412,7 @@ public class AdminServlet extends HttpServlet {
                          HttpServletResponse response) throws ServletException,
                                                               IOException {
         try {
-            logger.info("GET path=" + request.getPathInfo());
+            sobjLogger.info("GET path=" + request.getPathInfo());
 
             String query = request.getPathInfo();
             if ( (query != null) && (staticContentMap.containsKey(query)) ) {
@@ -390,7 +431,7 @@ public class AdminServlet extends HttpServlet {
     }
 
     private String[] listProjects() {
-        List l = dbService.doHQL("from StoredProject");
+        List l = sobjDB.doHQL("from StoredProject");
         if (l==null) {
             return null;
         }
@@ -422,7 +463,7 @@ public class AdminServlet extends HttpServlet {
             return;
         }
 
-        if (dbService != null) {
+        if (sobjDB != null) {
             StoredProject project = new StoredProject();
             project.setName(name);
             project.setWebsite(website);
@@ -430,9 +471,9 @@ public class AdminServlet extends HttpServlet {
             project.setBugs(bts);
             project.setRepository(scm);
             project.setMail(mail);
-            dbService.addRecord(project);
+            sobjDB.addRecord(project);
         }
-        logger.info("Added a new project.");
+        sobjLogger.info("Added a new project.");
         dynamicSubstitutions.put("@@RESULTS","<p>New project added successfully.</p>");
     }
 
@@ -440,7 +481,7 @@ public class AdminServlet extends HttpServlet {
                           HttpServletResponse response) throws ServletException,
                                                                IOException {
         try {
-            logger.info("POST path=" + request.getPathInfo());
+            sobjLogger.info("POST path=" + request.getPathInfo());
             if ("/addproject".equals(request.getPathInfo())) {
                 addProject(request);
                 // addProject() has filled in the substitutions by now

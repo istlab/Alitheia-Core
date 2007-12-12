@@ -11,6 +11,9 @@ public class CoreActivator
     public void start(BundleContext bc) throws Exception {
         AlitheiaCore core = new AlitheiaCore(bc);
         bc.registerService(core.getClass().getName(), core, null);
+        
+        // Create a WebAdmin instance
+        core.initWebAdmin();
     }
 
     public void stop(BundleContext bc) throws Exception {

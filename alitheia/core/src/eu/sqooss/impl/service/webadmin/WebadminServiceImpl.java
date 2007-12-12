@@ -41,6 +41,7 @@ import javax.servlet.Servlet;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.http.HttpService;
+import eu.sqooss.service.logging.Logger;
 
 import eu.sqooss.service.webadmin.WebadminService;
 
@@ -49,17 +50,40 @@ public class WebadminServiceImpl implements WebadminService {
     private HttpService httpservice = null;
     private AdminServlet servlet = null;
 
-    public WebadminServiceImpl(BundleContext bc) throws Exception {
-        serviceref = bc.getServiceReference("org.osgi.service.http.HttpService");
+    public WebadminServiceImpl(BundleContext bc) {
+        serviceref = bc.getServiceReference(
+            "org.osgi.service.http.HttpService");
+
         if (serviceref != null) {
             httpservice = (HttpService) bc.getService(serviceref);
             servlet = new AdminServlet(bc);
-            httpservice.registerServlet("/", (Servlet) servlet,
-                                        new Hashtable(), null);
-            httpservice.registerServlet("/ws", (Servlet) new AdminWS(bc),
-                                        new Hashtable(), null);
-        } else {
-            System.out.println("! Could not load the HTTP service.");
+            if (httpservice != null) {
+                try {
+                    httpservice.registerServlet(
+                        "/",
+                        (Servlet) servlet,
+                        new Hashtable(),
+                        null);
+                }
+                catch (Exception e) {
+                    System.out.println("AdminServlet: " + e);
+                }
+                
+/*                try {
+                    httpservice.registerServlet(
+                        "/ws",
+                        (Servlet) new AdminWS(bc),
+                        new Hashtable(),
+                        null);
+                }
+                catch (Exception e) {
+                    System.out.println("AdminWS: " + e);
+                }*/
+            }
+        }
+        else {
+            System.out.println(
+                "[ERROR] Could not load the HTTP service.");
         }
     }
 
