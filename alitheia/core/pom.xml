@@ -52,8 +52,7 @@
         <directory>${basedir}/src/main/resources</directory>
         <targetPath>.</targetPath>
         <includes>
-          <include>**/*.jar</include>
-          <include>**/*.xml</include>
+          <include>**/*</include>
         </includes>
       </resource>
     </resources>
