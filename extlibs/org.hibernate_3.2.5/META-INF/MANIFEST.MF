@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Vendor: Red Hat Middleware
+Bundle-Name: Hibernate
+Bundle-Version: 3.2.5
+Bundle-SymbolicName: org.hibernate
+Bundle-ClassPath: org.hibernate-3.2.5.jar
+Export-Package: org.hibernate;version="3.2.5",
+    org.hibernate.cfg;version="3.2.5"
+Import-Package: org.apache.commons.logging,
+    org.dom4j;version="1.6.1",
+    org.dom4j.io;version="1.6.1"
