@@ -32,6 +32,7 @@
 
 package eu.sqooss.impl.service.db;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -215,8 +216,8 @@ public class DBServiceImpl implements DBService {
         SessionFactory sf = null;
         logger.info("Initializing Hibernate");
         try {
-            Configuration c = new Configuration();
-            c.configure();
+            Configuration c = new Configuration().configure(
+                new File ("hibernate.cfg.xml"));
             // c now holds the configuration from hibernate.cfg.xml, need
             // to override some of those properties.
             c.setProperty("hibernate.connection.driver_class", dbClass);
