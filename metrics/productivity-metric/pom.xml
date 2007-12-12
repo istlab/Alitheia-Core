@@ -10,7 +10,7 @@
 
   <!-- Productivity Metric - main POM -->
   <groupId>eu.sqooss.metrics</groupId>
-  <artifactId>productivity</artifactId>
+  <artifactId>productivity-metric</artifactId>
   <version>0.0.1</version>
   <packaging>jar</packaging>
 
