@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Corbaservice Plug-in
+Bundle-SymbolicName: eu.sqooss.service.corbaservice
+Bundle-Version: 0.0.1
+Bundle-Activator: eu.sqooss.impl.service.CorbaActivator
+Bundle-Vendor: KDAB
+Eclipse-LazyStart: true
+Import-Package: org.osgi.framework;version="1.3.0"
+Require-Bundle: eu.sqooss.service.core
