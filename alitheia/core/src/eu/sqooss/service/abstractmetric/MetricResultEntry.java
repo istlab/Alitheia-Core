@@ -81,6 +81,8 @@ public class MetricResultEntry {
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
         ObjectOutputStream oout = new ObjectOutputStream(bout);
         oout.writeObject(value);
+        oout.flush();
+        b = bout.toByteArray();
     }
 
     public String toString() {
