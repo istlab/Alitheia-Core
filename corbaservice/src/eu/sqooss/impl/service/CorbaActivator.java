@@ -1,5 +1,7 @@
 package eu.sqooss.impl.service;
 
+import java.util.Properties;
+
 import org.omg.CORBA.ORB;
 import org.omg.CosNaming.NameComponent;
 import org.omg.CosNaming.NamingContextExt;
@@ -38,8 +40,12 @@ public class CorbaActivator implements BundleActivator {
 		// TODO Auto-generated method stub
 
 		try{
+			Properties props = new Properties();
+			props.put("org.omg.CORBA.ORBInitialPort", "1050");
+//			props.put(key, value)
+			
 			// create and initialize the ORB
-			ORB orb = ORB.init(new String[0], null);
+			ORB orb = ORB.init(new String[0], props);
 			
 			// get reference to rootpoa & activate the POAManager
 			POA rootpoa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));

@@ -24,24 +24,20 @@ public class LoggerImpl extends LoggerPOA {
 		logger = logManager.createLogger(Logger.NAME_SQOOSS);
 	}
 	
-	public String debug(String message) {
+	public void debug(String message) {
 		logger.debug(message);
-		return null;
 	}
 
-	public String error(String message) {
+	public void error(String message) {
 		logger.error(message);
-		return null;
 	}
 
-	public String info(String message) {
+	public void info(String message) {
 		logger.info(message);
-		return null;
 	}
 
-	public String warn(String message) {
+	public void warn(String message) {
 		logger.warn(message);
-		return null;
 	}
 
 }

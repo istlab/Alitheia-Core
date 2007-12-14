@@ -10,13 +10,15 @@ using namespace alitheia;
 
 int main( int argc, char **argv)
 {
-    CORBA::ORB_var orb = CORBA::ORB_init( argc, argv);
+    char* params[] = { "", "-ORBDefaultInitRef", "corbaloc::localhost:1050" };
+    int count = 3;
+    CORBA::ORB_var orb = CORBA::ORB_init( count, params);
 
     int rc = 0;
-    /*if (argc != 2) {
+    if (argc != 2) {
         cerr << "usage: " << argv[0] << " message\n";
         exit(1);
-    }*/
+    }
     
     try {
         CORBA::Object_var nsobj = orb->resolve_initial_references("NameService");
@@ -30,7 +32,10 @@ int main( int argc, char **argv)
         CORBA::Object_var obj = nc->resolve( name );
 
         Logger_var f = Logger::_narrow( obj );
-        f->info( argv[1] );
+        f->debug( argv[ 1 ] );
+        f->error( argv[ 1 ] );
+        f->info( argv[ 1 ] );
+        f->warn( argv[ 1 ] );
     }
     catch(CORBA::ORB::InvalidName_catch& ex)
     {
