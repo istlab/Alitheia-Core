@@ -6,13 +6,13 @@ Alitheia.cpp: Alitheia.idl
 Alitheia.o: Alitheia.cpp
 	mico-c++ -I. -c Alitheia.cpp
 
-main.o: Alitheia.cpp main.cpp
+main.o: Alitheia.cpp main.cpp logger.h
 	mico-c++ -c main.cpp
 
-logger.o: Alitheia.cpp logger.cpp
+logger.o: Alitheia.cpp logger.cpp corbahandler.h logger.h
 	mico-c++ -c logger.cpp
 
-corbahandler.o: Alitheia.cpp corbahandler.cpp
+corbahandler.o: Alitheia.cpp corbahandler.cpp corbahandler.h
 	mico-c++ -c corbahandler.cpp
 
 logger: main.o Alitheia.o logger.o corbahandler.o
