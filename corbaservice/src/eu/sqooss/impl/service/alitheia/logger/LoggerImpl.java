@@ -8,10 +8,21 @@ import eu.sqooss.impl.service.alitheia.LoggerPOA;
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class LoggerImpl extends LoggerPOA {
 
 	private LogManager logManager;
-	private Logger logger;
+	
+	private Map<String,Logger> loggers;
+
+	protected Logger logger(String name) {
+		if (!loggers.containsKey(name)) {
+			loggers.put(name, logManager.createLogger(name));
+		}
+		return loggers.get(name);
+	}
 	
 	public LoggerImpl(BundleContext bc) {
 		ServiceReference serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
@@ -21,23 +32,23 @@ public class LoggerImpl extends LoggerPOA {
 			return;
 		}
 		logManager = core.getLogManager();
-		logger = logManager.createLogger(Logger.NAME_SQOOSS);
+		loggers = new HashMap<String,Logger>();
 	}
 	
-	public void debug(String message) {
-		logger.debug(message);
+	public void debug(String name, String message) {
+		logger(name).debug(message);
 	}
 
-	public void error(String message) {
-		logger.error(message);
+	public void error(String name, String message) {
+		logger(name).error(message);
 	}
 
-	public void info(String message) {
-		logger.info(message);
+	public void info(String name, String message) {
+		logger(name).info(message);
 	}
 
-	public void warn(String message) {
-		logger.warn(message);
+	public void warn(String name, String message) {
+		logger(name).warn(message);
 	}
 
 }

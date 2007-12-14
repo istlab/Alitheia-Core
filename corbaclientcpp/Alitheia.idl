@@ -3,9 +3,9 @@ module alitheia
 {
   interface Logger
   {
-    void debug( in string text );
-    void info( in string text );
-    void warn( in string text );
-    void error( in string text );
+    void debug( in string logger, in string text );
+    void info( in string logger, in string text );
+    void warn( in string logger, in string text );
+    void error( in string logger, in string text );
   };
 };

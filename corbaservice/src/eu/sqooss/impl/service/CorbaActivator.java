@@ -37,12 +37,9 @@ public class CorbaActivator implements BundleActivator {
 	private ORBThread orbthread;
 	
 	public void start(BundleContext bc) throws Exception {
-		// TODO Auto-generated method stub
-
 		try{
 			Properties props = new Properties();
 			props.put("org.omg.CORBA.ORBInitialPort", "1050");
-//			props.put(key, value)
 			
 			// create and initialize the ORB
 			ORB orb = ORB.init(new String[0], props);
@@ -78,7 +75,7 @@ public class CorbaActivator implements BundleActivator {
 			orbthread = new ORBThread(orb);
 			orbthread.start();
 			
-			loggerImpl.info("CORBA Service ready and waiting...");
+			//loggerImpl.info(,"CORBA Service ready and waiting...");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -1,55 +1,55 @@
-#include <CORBA.h>
-#include <coss/CosNaming.h>
+#include "logger.h"
 
-#include "Alitheia.h"
-
-#include <fstream> 
+#include "corbahandler.h"
 
 using namespace std;
-using namespace alitheia;
+using namespace Alitheia;
 
-int main( int argc, char **argv)
+const std::string Logger::NameSqoOss            = "sqooss";
+const std::string Logger::NameSqoOssService     = "sqooss.service";
+const std::string Logger::NameSqoOssDatabase    = "sqooss.database";
+const std::string Logger::NameSqoOssSecurity    = "sqooss.security";
+const std::string Logger::NameSqoOssMessaging   = "sqooss.messaging";
+const std::string Logger::NameSqoOssWebServices = "sqooss.messaging";
+const std::string Logger::NameSqoOssScheduling  = "sqooss.scheduler";
+const std::string Logger::NameSqoOssUpdater     = "sqooss.scheduler";
+const std::string Logger::NameSqoOssWebAdmin    = "sqooss.webadmin";
+const std::string Logger::NameSqoOssTDS         = "sqooss.tds";
+const std::string Logger::NameSqoOssFDS         = "sqooss.tds";
+const std::string Logger::NameSqoOssMetric      = "sqooss.metric";
+const std::string Logger::NameSqoOssTester      = "sqooss.tester";
+
+Logger::Logger( const string& name )
+    : m_name( name ),
+      m_logger( alitheia::Logger::_narrow( CorbaHandler::instance()->getObject( "Logger" ) ) )
 {
-    char* params[] = { "", "-ORBDefaultInitRef", "corbaloc::localhost:1050" };
-    int count = 3;
-    CORBA::ORB_var orb = CORBA::ORB_init( count, params);
+}
 
-    int rc = 0;
-    if (argc != 2) {
-        cerr << "usage: " << argv[0] << " message\n";
-        exit(1);
-    }
-    
-    try {
-        CORBA::Object_var nsobj = orb->resolve_initial_references("NameService");
-        CosNaming::NamingContext_var nc = CosNaming::NamingContext::_narrow( nsobj );
+Logger::~Logger()
+{
+}
 
-        CosNaming::Name name;
-        name.length( 1 );
-        name[ 0 ].id = CORBA::string_dup( "Logger" );
-        name[ 0 ].kind = CORBA::string_dup( "" );
+void Logger::debug( const std::string& message )
+{
+    m_logger->debug( m_name.c_str(), message.c_str() );
+}
 
-        CORBA::Object_var obj = nc->resolve( name );
+void Logger::info( const std::string& message )
+{
+    m_logger->info( m_name.c_str(), message.c_str() );
+}
 
-        Logger_var f = Logger::_narrow( obj );
-        f->debug( argv[ 1 ] );
-        f->error( argv[ 1 ] );
-        f->info( argv[ 1 ] );
-        f->warn( argv[ 1 ] );
-    }
-    catch(CORBA::ORB::InvalidName_catch& ex)
-    {
-        ex->_print(cerr);
-        cerr << endl;
-        cerr << "possible cause: can't locate Naming Service\n";
-        rc = 1;
-    }
-    catch(CORBA::SystemException_catch& ex)
-    {
-        ex -> _print(cerr);
-        cerr << endl;
-        rc = 1;
-    }
+void Logger::warn( const std::string& message )
+{
+    m_logger->warn( m_name.c_str(), message.c_str() );
+}
 
-    return rc;
+void Logger::error( const std::string& message )
+{
+    m_logger->error( m_name.c_str(), message.c_str() );
+}
+
+string Logger::name() const
+{
+    return m_name;
 }
