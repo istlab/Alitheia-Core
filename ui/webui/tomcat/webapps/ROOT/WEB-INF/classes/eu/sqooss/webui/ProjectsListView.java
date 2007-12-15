@@ -46,7 +46,7 @@ public class ProjectsListView extends ListView {
 
     public ProjectsListView () {
         session = new WSSession("bla", "foo");
-        someresult = ""+session.getConnection().evaluatedProjectsList("foobar", "ihateKLM").getValue();
+        someresult = ""+session.getConnection().evaluatedProjectsList("foobar", "ihateKLM").next().get(0).getString();
         retrieveData();
     }
 
