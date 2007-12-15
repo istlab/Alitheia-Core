@@ -33,7 +33,6 @@
 package eu.sqooss.scl;
 
 import eu.sqooss.scl.result.WSResult;
-import eu.sqooss.scl.result.WSResultImpl;
 
 /**
  * The WSResult can be stored in the user session. 
@@ -51,7 +50,7 @@ public class WSSession {
     }
     
     public WSResult getValue(String webServiceMethodUrl) {
-        return new WSResultImpl("Not Implemented yet");
+        return new WSResult("Not Implemented yet");
     }
     
     public void setWSResult(String key, WSResult result) {
