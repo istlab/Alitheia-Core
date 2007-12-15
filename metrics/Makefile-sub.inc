@@ -34,7 +34,7 @@ BUNDLE_MANIFEST_NAME?=$(BUNDLE_NAME)
 
 TOP_SRCDIR?=$(shell cd ../.. && pwd)
 PREFIX?=$(shell cd ../../equinox && pwd)
-CP:=$(shell ../../tools/setcp.sh ../..)
+CP:=$(shell /bin/sh $(TOP_SRCDIR)/tools/setcp.sh ../..)
 EXTRA_CP:=${CP}:$(EXTRA_CP)
 
 # Find the source files, the dependency jars and other resources
