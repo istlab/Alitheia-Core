@@ -159,48 +159,48 @@ public class AlitheiaCore {
     
     public Object selfTest()
     {
-    	List<Object> testObjects = new LinkedList<Object>();
-    	try{
-    		testObjects.add(getScheduler());
-    		testObjects.add(getDBService());
-    		testObjects.add(getFDSService());
-    		testObjects.add(getLogManager());
-    		testObjects.add(getMessagingService());
-    		testObjects.add(getSecurityManager());
-    		testObjects.add(getTDSService());
-    		testObjects.add(getUpdater());
-    	}
-    	catch( Throwable t )
-    	{
-    		t.printStackTrace();
-    		return t.toString();
-    	}
-    	
-    	Object result = null;
-    	
-    	for (Object o: testObjects)
-    	{
-        	try {
-        		System.out.println("Running " + o.getClass().getName() );
-            	Method m = o.getClass().getMethod("selfTest");
-            	try {
-					result = m.invoke(o);
-					System.out.println("Done");
-				} catch ( Exception e ) {
-					// e.printStackTrace();
-					System.out.println( "FAILED Test method of class " + o.getClass().getName() + " failed." );
-				}
-				
-				if (result != null)
-				{
-					System.out.println("Returned: " + result.toString());
-					return result;
-				}
-        	} catch (NoSuchMethodException e) {
-        		// logger.info("No test method for service.");
-        	}
-    	}
-    	
-    	return result;
-	}
+        List<Object> testObjects = new LinkedList<Object>();
+        try{
+            testObjects.add(getScheduler());
+            testObjects.add(getDBService());
+            testObjects.add(getFDSService());
+            testObjects.add(getLogManager());
+            testObjects.add(getMessagingService());
+            testObjects.add(getSecurityManager());
+            testObjects.add(getTDSService());
+            testObjects.add(getUpdater());
+        }
+        catch( Throwable t )
+        {
+            t.printStackTrace();
+            return t.toString();
+        }
+
+        Object result = null;
+
+        for (Object o: testObjects)
+        {
+            try {
+                System.out.println("Running " + o.getClass().getName() );
+                Method m = o.getClass().getMethod("selfTest");
+                try {
+                    result = m.invoke(o);
+                    System.out.println("Done");
+                } catch ( Exception e ) {
+                    // e.printStackTrace();
+                    System.out.println( "FAILED Test method of class " + o.getClass().getName() + " failed." );
+                }
+
+                if (result != null)
+                {
+                    System.out.println("Returned: " + result.toString());
+                    return result;
+                }
+            } catch (NoSuchMethodException e) {
+                // logger.info("No test method for service.");
+            }
+        }
+
+        return result;
+    }
 }
