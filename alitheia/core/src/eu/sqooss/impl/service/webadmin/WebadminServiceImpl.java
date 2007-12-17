@@ -41,49 +41,50 @@ import javax.servlet.Servlet;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.http.HttpService;
-import eu.sqooss.service.logging.Logger;
 
 import eu.sqooss.service.webadmin.WebadminService;
 
 public class WebadminServiceImpl implements WebadminService {
-    private ServiceReference serviceref = null;
-    private HttpService httpservice = null;
-    private AdminServlet servlet = null;
+    private ServiceReference srefHTTPService    = null;
+    private HttpService sobjHTTPService         = null;
+    private AdminServlet servlet                = null;
 
     public WebadminServiceImpl(BundleContext bc) {
-        serviceref = bc.getServiceReference(
-            "org.osgi.service.http.HttpService");
+        // Get a reference to the HTTPService, and then its object
+        srefHTTPService = bc.getServiceReference(
+            HttpService.class.getName());
+        if (srefHTTPService != null) {
+            sobjHTTPService = (HttpService) bc.getService(srefHTTPService);
+        }
+        else {
+            System.out.println(
+                "[ERROR] Could not find a HTTP service!");
+        }
 
-        if (serviceref != null) {
-            httpservice = (HttpService) bc.getService(serviceref);
+        // Register the front-end servlets
+        if (sobjHTTPService != null) {
             servlet = new AdminServlet(bc);
-            if (httpservice != null) {
-                try {
-                    httpservice.registerServlet(
-                        "/",
-                        (Servlet) servlet,
-                        new Hashtable(),
-                        null);
-                }
-                catch (Exception e) {
-                    System.out.println("AdminServlet: " + e);
-                }
-                
-/*                try {
-                    httpservice.registerServlet(
+            try {
+                sobjHTTPService.registerServlet(
+                    "/",
+                    (Servlet) servlet,
+                    new Hashtable(),
+                    null);
+            }
+            catch (Exception e) {
+                System.out.println("[ERROR] AdminServlet: " + e);
+            }
+
+            try {
+                sobjHTTPService.registerServlet(
                         "/ws",
                         (Servlet) new AdminWS(bc),
                         new Hashtable(),
                         null);
-                }
-                catch (Exception e) {
-                    System.out.println("AdminWS: " + e);
-                }*/
             }
-        }
-        else {
-            System.out.println(
-                "[ERROR] Could not load the HTTP service.");
+            catch (Exception e) {
+                System.out.println("[ERROR] AdminWS: " + e);
+            }
         }
     }
 
