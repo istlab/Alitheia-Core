@@ -37,102 +37,89 @@ import eu.sqooss.scl.result.WSResult;
 public interface WSConnection {
     
     //5.1.1
-    public WSResult evaluatedProjectsList(String userName, String password);
+    public WSResult evaluatedProjectsList();
     
-    public WSResult retrieveMetrics4SelectedProject(String userName, String password, String projectId);
+    public WSResult retrieveMetrics4SelectedProject(String projectId);
     
-    public WSResult retrieveSelectedMetric(String userName, String password, String projectId, String metricId);
+    public WSResult retrieveSelectedMetric(String projectId, String metricId);
     //5.1.1
     
     //5.1.2
-    public WSResult retrieveFileList(String userName, String password, String projectId);
+    public WSResult retrieveFileList(String projectId);
     
-    public WSResult retrieveMetrics4SelectedFiles(String userName, String password,
-            String projectId, String[] folders, String[] fileNames);
+    public WSResult retrieveMetrics4SelectedFiles(String projectId, String[] folders, String[] fileNames);
     //5.1.2
     
     //5.1.3
-    public void requestEvaluatin4Project(String userName, String password,
-            String projectName, String projectVersion,
+    public void requestEvaluatin4Project(String projectName, String projectVersion,
             String srcRepositoryLocation, String srcRepositoryType,
             String mailingListLocation, String BTSLocation);
     //5.1.3
     
     //5.1.4
-    public WSResult requestPastEvolEstimProjects(String userName, String password);
+    public WSResult requestPastEvolEstimProjects();
     
-    public WSResult requestProjectEvolutionEstimates(String userName, String password,
-            String projectId, String startDate, String endDate);
+    public WSResult requestProjectEvolutionEstimates(String projectId, String startDate, String endDate);
     
-    public WSResult requestProjectEvolutionEstimatesDuration(String userName, String password,
-            String projectId, String duration);
+    public WSResult requestProjectEvolutionEstimatesDuration(String projectId, String duration);
     
-    public WSResult requestEvolEstimates4Project(String userName, String password,
-            String projectName, String projectVersion, String srcRepositoryLocation,
+    public WSResult requestEvolEstimates4Project(String projectName, String projectVersion, String srcRepositoryLocation,
             String srcRepositoryType, String mailingListLocation, String BTSLocation);
     //5.1.4
     
     //5.1.5
-    public WSResult requestProjectsWithBTS(String userName, String password);
+    public WSResult requestProjectsWithBTS();
     
-    public WSResult requestDefectStatistics(String userName, String password,
-            String prokectId, String searchQuery, String statisticalScheme);
+    public WSResult requestDefectStatistics(String prokectId, String searchQuery, String statisticalScheme);
     //5.1.5
     
     //5.1.6
-    public WSResult retrieveDevelopers4SelectedProject(String userName, String password, String projectId);
+    public WSResult retrieveDevelopers4SelectedProject(String projectId);
     
-    public WSResult retrieveCriteria4SelectedDeveloper(String userName, String password,
-            String projectId, String developerId);
+    public WSResult retrieveCriteria4SelectedDeveloper(String projectId, String developerId);
     
-    public WSResult displayDeveloperInfoTimeDiagram(String userName, String password,
-            String projectId, String developerId, String criterioId,
+    public WSResult displayDeveloperInfoTimeDiagram(String projectId, String developerId, String criterioId,
             String tdStart, String tdEnd);
     
-    public WSResult displayDeveloperInfo(String userName, String password,
-            String projectId, String developerId, String criterioId, String display);
+    public WSResult displayDeveloperInfo(String projectId, String developerId, String criterioId, String display);
     //5.1.6
     
     //5.1.7
-    public WSResult evaluatedProjectsListScore(String userName, String password);
+    public WSResult evaluatedProjectsListScore();
     
-    public void submitScores(String userName, String password, String projectId,
-            String[] scores, String textOpinion);
+    public void submitScores(String projectId, String[] scores, String textOpinion);
     
-    public WSResult viewScores(String userName, String password, String projectId);
+    public WSResult viewScores(String projectId);
     
-    public WSResult viewComments(String userName, String password, String projectId);
+    public WSResult viewComments(String projectId);
     //5.1.7
     
     //5.1.8
-    public WSResult ratedProjectsList(String userName, String password);
+    public WSResult ratedProjectsList();
     
-    public WSResult retrieveProjectRatings(String userName, String password, String projectId);
+    public WSResult retrieveProjectRatings(String projectId);
     //5.1.8
     
     //5.1.9
-    public WSResult subscriptionsStatus(String userName, String password);
+    public WSResult subscriptionsStatus();
     
-    public void modifySubscriptions(String userName, String password,
-            String newProjectNotification, String newMetricPlugin,
+    public void modifySubscriptions(String newProjectNotification, String newMetricPlugin,
             String projectEvalFinished, String newProjectVersion,
             String newQualityRatings, String statistics);
     //5.1.9
     
     //5.1.10
-    public void submitUser(String userNameForAccess, String passwordForAccess,
-            String newAccountUserName, String newAccountSurname,
+    public void submitUser(String newAccountUserName, String newAccountSurname,
             String newAccountPassword, String newAccountUserClass);
     //5.1.10
     
     //5.1.11
-    public WSResult displayUser(String userName, String password);
+    public WSResult displayUser();
     
-    public void modifyUser(String userNameForAccess, String passwordForAccess,
-            String modifyAccountUserName, String modifyAccountSurname,
+    public void modifyUser(String modifyAccountUserName, String modifyAccountSurname,
             String modifyAccountPassword, String modifyAccountUserClass);
     
-    public void deleteUser(String userNameForAccess, String passwordForAccess, String userId);
+    public void deleteUser(String userId);
     //5.1.11
     
 }

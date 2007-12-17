@@ -40,175 +40,163 @@ import eu.sqooss.scl.result.WSResult;
  */
 class WSConnectionImpl implements WSConnection {
 
-    public void deleteUser(String userNameForAccess, String passwordForAccess,
-            String userId) {
+    private String userName;
+    private String password;
+    private String webServiceUrl;
+    
+    public WSConnectionImpl(String userName, String password, String webServiceUrl) {
+        this.userName = userName;
+        this.password = password;
+        this.webServiceUrl = webServiceUrl;
+    }
+    
+    public void deleteUser(String userId) {
         // TODO Auto-generated method stub
         
     }
 
-    public WSResult displayDeveloperInfo(String userName, String password,
-            String projectId, String developerId, String criterioId,
+    public WSResult displayDeveloperInfo(String projectId, String developerId, String criterioId,
             String display) {
         // TODO Auto-generated method stub
         return new WSResult("Not Implemented yet");
     }
 
-    public WSResult displayDeveloperInfoTimeDiagram(String userName,
-            String password, String projectId, String developerId,
+    public WSResult displayDeveloperInfoTimeDiagram(String projectId, String developerId,
             String criterioId, String tdStart, String tdEnd) {
         // TODO Auto-generated method stub
         return new WSResult("Not Implemented yet");
     }
 
-    public WSResult displayUser(String userName, String password) {
+    public WSResult displayUser() {
         // TODO Auto-generated method stub
         return new WSResult("Not Implemented yet");
     }
 
-    public WSResult evaluatedProjectsList(String userName, String password) {
+    public WSResult evaluatedProjectsList() {
         // TODO Auto-generated method stub
         return new WSResult("Not Implemented yet");
     }
 
-    public WSResult evaluatedProjectsListScore(String userName, String password) {
+    public WSResult evaluatedProjectsListScore() {
         // TODO Auto-generated method stub
         return new WSResult("Not Implemented yet");
     }
 
-    public void modifySubscriptions(String userName, String password,
-            String newProjectNotification, String newMetricPlugin,
+    public void modifySubscriptions(String newProjectNotification, String newMetricPlugin,
             String projectEvalFinished, String newProjectVersion,
             String newQualityRatings, String statistics) {
         // TODO Auto-generated method stub
         
     }
 
-    public void modifyUser(String userNameForAccess, String passwordForAccess,
-            String modifyAccountUserName, String modifyAccountSurname,
+    public void modifyUser(String modifyAccountUserName, String modifyAccountSurname,
             String modifyAccountPassword, String modifyAccountUserClass) {
         // TODO Auto-generated method stub
         
     }
 
-    public WSResult ratedProjectsList(String userName, String password) {
+    public WSResult ratedProjectsList() {
         // TODO Auto-generated method stub
         return new WSResult("Not Implemented yet");
     }
 
-    public WSResult requestDefectStatistics(String userName, String password,
-            String prokectId, String searchQuery, String statisticalScheme) {
+    public WSResult requestDefectStatistics(String prokectId, String searchQuery, String statisticalScheme) {
         // TODO Auto-generated method stub
         return new WSResult("Not Implemented yet");
     }
 
-    public void requestEvaluatin4Project(String userName, String password,
-            String projectName, String projectVersion,
+    public void requestEvaluatin4Project(String projectName, String projectVersion,
             String srcRepositoryLocation, String srcRepositoryType,
             String mailingListLocation, String BTSLocation) {
         // TODO Auto-generated method stub
         
     }
 
-    public WSResult requestEvolEstimates4Project(String userName,
-            String password, String projectName, String projectVersion,
+    public WSResult requestEvolEstimates4Project(String projectName, String projectVersion,
             String srcRepositoryLocation, String srcRepositoryType,
             String mailingListLocation, String BTSLocation) {
         // TODO Auto-generated method stub
         return new WSResult("Not Implemented yet");
     }
 
-    public WSResult requestPastEvolEstimProjects(String userName,
-            String password) {
+    public WSResult requestPastEvolEstimProjects() {
         // TODO Auto-generated method stub
         return new WSResult("Not Implemented yet");
     }
 
-    public WSResult requestProjectEvolutionEstimates(String userName,
-            String password, String projectId, String startDate, String endDate) {
+    public WSResult requestProjectEvolutionEstimates(String projectId, String startDate, String endDate) {
         // TODO Auto-generated method stub
         return new WSResult("Not Implemented yet");
     }
 
-    public WSResult requestProjectEvolutionEstimatesDuration(String userName,
-            String password, String projectId, String duration) {
+    public WSResult requestProjectEvolutionEstimatesDuration(String projectId, String duration) {
         // TODO Auto-generated method stub
         return new WSResult("Not Implemented yet");
     }
 
-    public WSResult requestProjectsWithBTS(String userName, String password) {
+    public WSResult requestProjectsWithBTS() {
         // TODO Auto-generated method stub
         return new WSResult("Not Implemented yet");
     }
 
-    public WSResult retrieveCriteria4SelectedDeveloper(String userName,
-            String password, String projectId, String developerId) {
+    public WSResult retrieveCriteria4SelectedDeveloper(String projectId, String developerId) {
         // TODO Auto-generated method stub
         return new WSResult("Not Implemented yet");
     }
 
-    public WSResult retrieveDevelopers4SelectedProject(String userName,
-            String password, String projectId) {
+    public WSResult retrieveDevelopers4SelectedProject(String projectId) {
         // TODO Auto-generated method stub
         return new WSResult("Not Implemented yet");
     }
 
-    public WSResult retrieveFileList(String userName, String password,
-            String projectId) {
+    public WSResult retrieveFileList(String projectId) {
         // TODO Auto-generated method stub
         return new WSResult("Not Implemented yet");
     }
 
-    public WSResult retrieveMetrics4SelectedFiles(String userName,
-            String password, String projectId, String[] folders,
+    public WSResult retrieveMetrics4SelectedFiles(String projectId, String[] folders,
             String[] fileNames) {
         // TODO Auto-generated method stub
         return new WSResult("Not Implemented yet");
     }
 
-    public WSResult retrieveMetrics4SelectedProject(String userName,
-            String password, String projectId) {
+    public WSResult retrieveMetrics4SelectedProject(String projectId) {
         // TODO Auto-generated method stub
         return new WSResult("Not Implemented yet");
     }
 
-    public WSResult retrieveProjectRatings(String userName, String password,
-            String projectId) {
+    public WSResult retrieveProjectRatings(String projectId) {
         // TODO Auto-generated method stub
         return new WSResult("Not Implemented yet");
     }
 
-    public WSResult retrieveSelectedMetric(String userName, String password,
-            String projectId, String metricId) {
+    public WSResult retrieveSelectedMetric(String projectId, String metricId) {
         // TODO Auto-generated method stub
         return new WSResult("Not Implemented yet");
     }
 
-    public void submitScores(String userName, String password,
-            String projectId, String[] scores, String textOpinion) {
+    public void submitScores(String projectId, String[] scores, String textOpinion) {
         // TODO Auto-generated method stub
         
     }
 
-    public void submitUser(String userNameForAccess, String passwordForAccess,
-            String newAccountUserName, String newAccountSurname,
+    public void submitUser(String newAccountUserName, String newAccountSurname,
             String newAccountPassword, String newAccountUserClass) {
         // TODO Auto-generated method stub
         
     }
 
-    public WSResult subscriptionsStatus(String userName, String password) {
+    public WSResult subscriptionsStatus() {
         // TODO Auto-generated method stub
         return new WSResult("Not Implemented yet");
     }
 
-    public WSResult viewComments(String userName, String password,
-            String projectId) {
+    public WSResult viewComments(String projectId) {
         // TODO Auto-generated method stub
         return new WSResult("Not Implemented yet");
     }
 
-    public WSResult viewScores(String userName, String password,
-            String projectId) {
+    public WSResult viewScores(String projectId) {
         // TODO Auto-generated method stub
         return new WSResult("Not Implemented yet");
     }
