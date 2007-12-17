@@ -91,8 +91,8 @@ public class ParserUtility {
             Hashtable<String,String> argumentsAndPrivileges = parseUrlArguments(fullUrl.substring(firstIndexOfQuestionMark + 1));
             StringBuffer arguments = new StringBuffer();
             String currentKey;
-            for (Enumeration keys = argumentsAndPrivileges.keys(); keys.hasMoreElements(); ) {
-                currentKey = (String)keys.nextElement();
+            for (Enumeration<String> keys = argumentsAndPrivileges.keys(); keys.hasMoreElements(); ) {
+                currentKey = keys.nextElement();
                 if (PrivilegeDatabaseUtility.isExistentPrivilege(currentKey)) {
                     privileges.put(currentKey, argumentsAndPrivileges.get(currentKey));
                 } else {

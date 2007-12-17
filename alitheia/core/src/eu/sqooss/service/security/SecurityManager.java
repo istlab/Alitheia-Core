@@ -133,7 +133,7 @@ public interface SecurityManager {
      * @param password
      * @return <code>true</code> if the access is allowed, <code>false</code> otherwise
      */
-    public boolean checkPermission(String resourceURL, Hashtable privileges, String userName, String password);
+    public boolean checkPermission(String resourceURL, Hashtable<String, String> privileges, String userName, String password);
 
 }
 

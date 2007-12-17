@@ -35,7 +35,6 @@ package eu.sqooss.impl.service.security;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
-import eu.sqooss.impl.service.security.utils.DatabaseUtility;
 import eu.sqooss.impl.service.security.utils.DatabaseWrapper;
 import eu.sqooss.impl.service.security.utils.ParserUtility;
 import eu.sqooss.impl.service.security.utils.PrivilegeDatabaseUtility;
@@ -71,7 +70,7 @@ public class SecurityManagerImpl implements SecurityManager {
     /**
      * @see eu.sqooss.service.security.SecurityManager#checkPermission(java.lang.String, java.util.Hashtable, java.lang.String, java.lang.String)
      */
-    public boolean checkPermission(String resourceURL, Hashtable privileges, String userName, String password) {
+    public boolean checkPermission(String resourceURL, Hashtable<String, String> privileges, String userName, String password) {
         ValidateUtility.validateValue(resourceURL);
 
         String tmpUrl = resourceURL;
@@ -80,9 +79,9 @@ public class SecurityManagerImpl implements SecurityManager {
 //            if (DatabaseUtility.isExistentResourceUrl(tmpUrl)) {
                 String currentPrivilegeName;
                 String currentPrivilegeValue;
-                for (Enumeration keys = privileges.keys(); keys.hasMoreElements(); ) {
-                    currentPrivilegeName = (String)keys.nextElement();
-                    currentPrivilegeValue = (String)privileges.get(currentPrivilegeName);
+                for (Enumeration<String> keys = privileges.keys(); keys.hasMoreElements(); ) {
+                    currentPrivilegeName = keys.nextElement();
+                    currentPrivilegeValue = privileges.get(currentPrivilegeName);
 //                    if (!(DatabaseUtility.checkAuthorizationRule(tmpUrl, currentPrivilegeName, currentPrivilegeValue, userName, password))) {
                     if (!dbWrapper.checkAuthorizationRule(tmpUrl, currentPrivilegeName, currentPrivilegeValue, userName, password)) {
                         return false;
@@ -129,7 +128,7 @@ public class SecurityManagerImpl implements SecurityManager {
      */
     public SecurityGroup createGroup(String description) {
         ValidateUtility.validateValue(description);
-        long groupId = DatabaseUtility.createGroup(description);
+        long groupId = dbWrapper.createGroup(description);
         SecurityGroup newGroup = new SecurityGroupImpl(groupId);
         logger.info(newGroup + " is created");
         return newGroup;
@@ -153,7 +152,7 @@ public class SecurityManagerImpl implements SecurityManager {
         ValidateUtility.validateValue(resourceURL);
 
         String mangledUrl = ParserUtility.mangleUrl(resourceURL);
-        long urlId = DatabaseUtility.createURL(mangledUrl);
+        long urlId = dbWrapper.createURL(mangledUrl);
         SecurityResourceURL newResourceUrl = new SecurityResourceURLImpl(urlId);
         logger.info(newResourceUrl + " is created");
         return newResourceUrl;
@@ -165,7 +164,7 @@ public class SecurityManagerImpl implements SecurityManager {
     public SecurityUser createUser(String userName, String password) {
         ValidateUtility.validateValue(userName);
         ValidateUtility.validateValue(password);
-        long userId = DatabaseUtility.createUser(userName, password);
+        long userId = dbWrapper.createUser(userName, password);
         SecurityUser newUser = new SecurityUserImpl(userId);
         logger.info(newUser + " is created");
         return newUser;
@@ -175,7 +174,7 @@ public class SecurityManagerImpl implements SecurityManager {
      * @see eu.sqooss.service.security.SecurityManager#getGroup(long)
      */
     public SecurityGroup getGroup(long id) {
-        if (DatabaseUtility.isExistentGroup(id)) {
+        if (dbWrapper.isExistentGroup(id)) {
             return new SecurityGroupImpl(id);
         } else {
             logger.info("The group with id = " + id + " doesn't exist");
@@ -199,7 +198,7 @@ public class SecurityManagerImpl implements SecurityManager {
      * @see eu.sqooss.service.security.SecurityManager#getReourceURL(long)
      */
     public SecurityResourceURL getReourceURL(long id) {
-        if (DatabaseUtility.isExistentResourceUrl(id)) {
+        if (dbWrapper.isExistentResourceUrl(id)) {
             return new SecurityResourceURLImpl(id);
         } else {
             logger.info("The resource url with id = " + id + " doesn't exist");
@@ -211,7 +210,7 @@ public class SecurityManagerImpl implements SecurityManager {
      * @see eu.sqooss.service.security.SecurityManager#getUser(long)
      */
     public SecurityUser getUser(long id) {
-        if (DatabaseUtility.isExistentUser(id)) {
+        if (dbWrapper.isExistentUser(id)) {
             return new SecurityUserImpl(id);
         } else {
             logger.info("The user with id = " + id + " doesn't exist");
@@ -223,7 +222,7 @@ public class SecurityManagerImpl implements SecurityManager {
      * @see eu.sqooss.service.security.SecurityManager#getAuthorizationRules()
      */
     public SecurityAuthorizationRule[] getAuthorizationRules() {
-        return DatabaseUtility.getAuthorizationRules();
+        return dbWrapper.getAuthorizationRules();
     }
 
 }

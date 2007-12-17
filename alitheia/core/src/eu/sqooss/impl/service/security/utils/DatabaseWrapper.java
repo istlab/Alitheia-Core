@@ -36,6 +36,7 @@ import java.util.Hashtable;
 import java.util.Map;
 
 import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.security.SecurityAuthorizationRule;
 
 public class DatabaseWrapper {
     
@@ -45,7 +46,33 @@ public class DatabaseWrapper {
         this.db = db;
     }
 
+    /* create methods */
+    public long createUser(String userName, String password) {
+        return 0;
+    }
+
+    public long createGroup(String description) {
+        return 0;
+    }
+
+    public long createURL(String url) {
+        return 0;
+    }
+
+    /* create methods */
+    
     /* get methods */
+    public SecurityAuthorizationRule[] getAuthorizationRules() {
+        return null;
+    }
+    
+    public boolean isExistentGroup(long groupId) {
+        return false;
+    }
+    
+    public boolean isExistentResourceUrl(long urlId) {
+        return false;
+    }
     
     public boolean isExistentResourceUrl(String resourceUrl) {
         Map<String, Object> queryParameters = new Hashtable<String, Object>(1);
@@ -57,6 +84,9 @@ public class DatabaseWrapper {
         }
     }
 
+    public boolean isExistentUser(long userId) {
+        return false;
+    }
     /* get methods */
 
     public boolean checkAuthorizationRule(String resourceUrl, String privilegeName,
