@@ -34,7 +34,7 @@ package eu.sqooss.impl.service.web.services;
 
 import eu.sqooss.service.web.services.WebServices;
 
-public class WebServicesConstants {
+public class Constants {
     
     /** Represents the location of the configuration file. */
     public static final String FILE_NAME_PROPERTIES = "/OSGI-INF/configuration/web-services.properties";
@@ -59,7 +59,7 @@ public class WebServicesConstants {
     public static final String PROPERTY_KEY_WEB_SERVICES_INTERFACE     = "interface.class";
     
     /** Represents the name of the web service endpoints. */
-    public static final String PROPERTY_VALUE_WEB_SERVICES_NAME        = "system";
+    public static final String PROPERTY_VALUE_WEB_SERVICES_NAME        = "ws";
     
     /** Represents the context to be associated with the web services. */
     public static final String PROPERTY_VALUE_WEB_SERVICES_CONTEXT     = "sqooss";
@@ -78,6 +78,7 @@ public class WebServicesConstants {
     
     /** Represents privilege value - get metric id. */
     public static final String URL_PRIVILEGE_ACTION_GET_METRIC_ID     = "get_metric_id";
+    
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

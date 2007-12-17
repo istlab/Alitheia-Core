@@ -32,41 +32,107 @@
 
 package eu.sqooss.impl.service.web.services;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Vector;
+
 import org.osgi.framework.BundleContext;
 
+import eu.sqooss.impl.service.web.services.datatypes.WSMetric;
+import eu.sqooss.impl.service.web.services.datatypes.WSProjectFile;
+import eu.sqooss.impl.service.web.services.datatypes.WSStoredProject;
+import eu.sqooss.impl.service.web.services.utils.DatabaseQueries;
 import eu.sqooss.impl.service.web.services.utils.WSPair;
 import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.Metric;
+import eu.sqooss.service.db.MetricType;
+import eu.sqooss.service.db.ProjectVersion;
+import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.security.SecurityManager;
+import eu.sqooss.service.web.services.WebServicesException;
 
 public class WebServicesImpl {
     
+    private SecurityManager securityManager;
+    private Logger logger;
+    private DBService db;
+    
     public WebServicesImpl(BundleContext bc, SecurityManager securityManager,
             DBService db, Logger logger) {
+        this.securityManager = securityManager;
+        this.db = db;
+        this.logger = logger;
     }
     
     /* project's methods */
     
     //5.1.1
-    public WSPair[] evaluatedProjectsList(String userName, String password) {
+    public WSStoredProject[] evaluatedProjectsList(String userName, String password) throws WebServicesException {
+        try{
+            logger.info("Gets the evaluated project list! user: " + userName);
+
+            //TODO: check the security
+
+            List queryResult = db.doHQL(DatabaseQueries.EVALUATED_PROJECTS_LIST);
+
+            return makeUnoinByStoredProjectId(queryResult);
+        } catch (Throwable t) {
+            throw new WebServicesException(t.getMessage());
+        }
+    }
+    
+    public WSMetric[] retrieveMetrics4SelectedProject(String userName,
+            String password, String projectId) {
+        
+        logger.info("Retrieve metrics for selected project! user: " + userName +
+                "; project id:" + projectId);
+        
         //TODO: check the security
         
-        return null;
+        Map<String, Object> queryParameters = new HashMap<String, Object>(1);
+        queryParameters.put(DatabaseQueries.RETRIEVE_METRICS_4_SELECTED_PPROJECT_PARAM, projectId);
+        List<Object[]> queryResult = db.doHQL(DatabaseQueries.RETRIEVE_METRICS_4_SELECTED_PPROJECT, queryParameters);
+        
+        WSMetric[] result = new WSMetric[queryResult.size()];
+        Object[] currentElem;
+        for (int i = 0; i < result.length; i++) {
+            currentElem = queryResult.get(i);
+            result[i] = new WSMetric((Metric)currentElem[0], (MetricType)currentElem[1]);
+        }
+        
+        return result; 
     }
     
-    public WSPair[] retrieveMetrics4SelectedProject(String userName,
-            String password, String projectId) {
-        return null; 
-    }
-    
-    public String retrieveSelectedMetric(String userName, String password,
+    public WSMetric retrieveSelectedMetric(String userName, String password,
             String projectId, String metricId) {
-        return null;
+        
+        logger.info("Retrieve selected metric! user: " + userName +
+                "; project id: " + projectId + "; metricId: " + metricId);
+        
+        //TODO: check the security
+        
+        Map<String, Object> queryParameters = new HashMap<String, Object>(2);
+        queryParameters.put(DatabaseQueries.RETRIEVE_SELECTED_METRIC_PARAM_PR, projectId);
+        queryParameters.put(DatabaseQueries.RETRIEVE_SELECTED_METRIC_PARAM_METRIC, metricId);
+
+        List<Object[]> queryResult = db.doHQL(DatabaseQueries.RETRIEVE_METRICS_4_SELECTED_PPROJECT, queryParameters);
+        
+        if (queryResult.size() == 1) {
+            Object[] elem = queryResult.get(0);
+            return new WSMetric((Metric)elem[0], (MetricType)elem[1]);
+        } else {
+            return null;
+        }
     }
     //5.1.1
     
     //5.1.2
-    public String[] retrieveFileList(String userName, String password, String projectId) {
+    public WSProjectFile[] retrieveFileList(String userName, String password, String projectId) {
+        logger.info("Retrieve file list! user: " + userName +
+                "; project id: " + projectId);
+        //TODO: check the security
         return null;
     }
     
@@ -244,6 +310,61 @@ public class WebServicesImpl {
             return null;
         }
         
+    }
+    
+    /**
+     * The list's element must be an array from Objects.
+     * The first object represents the StoredProject.
+     * The second object represents the ProjectVersion.
+     * The list must be sorted by StoredProject's id.
+     * The method returns the array of the WSStoredProject.
+     * Each WSStoredProject contains the stored project and its project versions.
+     * @param list
+     * @return
+     */
+    private WSStoredProject[] makeUnoinByStoredProjectId(List list) {
+        if ((list == null) || (list.size() == 0)) {
+            return null;
+        }
+        int storedProjectIndex = 0;
+        int projectVersionIndex = 1;
+        int listSize = list.size();
+        WSStoredProject[] result;
+        WSStoredProject currentWSStoredProject;
+        Object[] currentListElem = (Object[])list.get(0);
+        StoredProject currentStoredProject = (StoredProject)currentListElem[storedProjectIndex];
+        ProjectVersion currentProjectVersion = (ProjectVersion)currentListElem[projectVersionIndex];
+        if (listSize == 1) {
+            currentWSStoredProject = new WSStoredProject(currentStoredProject, currentProjectVersion);
+            result = new WSStoredProject[] {currentWSStoredProject};
+        } else {
+            Object[] nextListElem;
+            StoredProject nextStoredProject;
+            ProjectVersion nextProjectVersion;
+            List<WSStoredProject> union = new Vector<WSStoredProject>();
+            List<ProjectVersion> projectVersions = new Vector<ProjectVersion>();
+            projectVersions.add(currentProjectVersion);
+            for (int i = 1; i < listSize; i++) {
+                nextListElem = (Object[])list.get(i);
+                nextStoredProject = (StoredProject)nextListElem[storedProjectIndex];;
+                nextProjectVersion = (ProjectVersion)nextListElem[projectVersionIndex];
+                if (currentStoredProject.getId() == nextStoredProject.getId()) {
+                    projectVersions.add(nextProjectVersion);
+                } else {
+                    currentWSStoredProject = new WSStoredProject(currentStoredProject, projectVersions);
+                    union.add(currentWSStoredProject);
+                    projectVersions.clear();
+                    projectVersions.add(nextProjectVersion);
+                    currentStoredProject = nextStoredProject;
+                }
+            }
+            if (!projectVersions.isEmpty()) {
+                currentWSStoredProject = new WSStoredProject(currentStoredProject, projectVersions);
+                union.add(currentWSStoredProject);
+            }
+            result = union.toArray(new WSStoredProject[0]);
+        }
+        return result;
     }
     
 }

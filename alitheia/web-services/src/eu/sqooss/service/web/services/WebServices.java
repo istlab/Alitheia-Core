@@ -35,7 +35,7 @@ package eu.sqooss.service.web.services;
 import org.osgi.framework.BundleContext;
 
 import eu.sqooss.impl.service.web.services.WebServicesImpl;
-import eu.sqooss.impl.service.web.services.utils.WSPair;
+import eu.sqooss.impl.service.web.services.datatypes.WSStoredProject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.security.SecurityManager;
@@ -66,159 +66,159 @@ public class WebServices {
     }
     
     //5.1.1
-    public WSPair[] evaluatedProjectsList(String userName, String password) {
-        return null;
+    public WSStoredProject[] evaluatedProjectsList(String userName, String password) throws WebServicesException {
+        return webServices.evaluatedProjectsList(userName, password);
     }
     
-    public WSPair[] retrieveMetrics4SelectedProject(String userName,
-            String password, String projectId) {
-        return null; 
-    }
-    
-    public String retrieveSelectedMetric(String userName, String password,
-            String projectId, String metricId) {
-        return null;
-    }
-    //5.1.1
-    
-    //5.1.2
-    public String[] retrieveFileList(String userName, String password, String projectId) {
-        return null;
-    }
-    
-    public WSPair[] retrieveMetrics4SelectedFiles(String userName, String password,
-            String projectId, String[] folders, String[] fileNames) {
-        return null;
-    }
-    //5.1.2
-    
-    //5.1.3
-    public void requestEvaluatin4Project(String userName, String password,
-            String projectName, String projectVersion,
-            String srcRepositoryLocation, String srcRepositoryType,
-            String mailingListLocation, String BTSLocation) {
-    }
-    //5.1.3
-    
-    //5.1.4
-    public WSPair[] requestPastEvolEstimProjects(String userName, String password) {
-        return null;
-    }
-    
-    public String[] requestProjectEvolutionEstimates(String userName, String password,
-            String projectId, String startDate, String endDate) {
-        return null;
-    }
-    
-    public String[] requestProjectEvolutionEstimatesDuration(String userName, String password,
-            String projectId, String duration) {
-        return null;
-    }
-    
-    public String[] requestEvolEstimates4Project(String userName, String password,
-            String projectName, String projectVersion, String srcRepositoryLocation,
-            String srcRepositoryType, String mailingListLocation, String BTSLocation) {
-        return null;
-    }
-    //5.1.4
-    
-    //5.1.5
-    public WSPair[] requestProjectsWithBTS(String userName, String password) {
-        return null;
-    }
-    
-    public String[] requestDefectStatistics(String userName, String password,
-            String prokectId, String searchQuery, String statisticalScheme) {
-        return null;
-    }
-    //5.1.5
-    
-    //5.1.6
-    public WSPair[] retrieveDevelopers4SelectedProject(String userName, String password,
-            String projectId) {
-        return null;
-    }
-    
-    public WSPair[] retrieveCriteria4SelectedDeveloper(String userName, String password,
-            String projectId, String developerId) {
-        return null;
-    }
-    
-    public String displayDeveloperInfoTimeDiagram(String userName, String password,
-            String projectId, String developerId, String criterioId,
-            String tdStart, String tdEnd) {
-        return null;
-    }
-    
-    public String displayDeveloperInfo(String userName, String password,
-            String projectId, String developerId, String criterioId, String display) {
-        return null;
-    }
-    //5.1.6
-    
-    //5.1.7
-    public WSPair[] evaluatedProjectsListScore(String userName, String password) {
-        return null;
-    }
-    
-    public void submitScores(String userName, String password, String projectId,
-            String[] scores, String textOpinion) {
-        
-    }
-    
-    public String[] viewScores(String userName, String password, String projectId) {
-        return null;
-    }
-    
-    public String[] viewComments(String userName, String password, String projectId) {
-        return null;
-    }
-    //5.1.7
-    
-    //5.1.8
-    public WSPair[] ratedProjectsList(String userName, String password) {
-        return null;
-    }
-    
-    public String[] retrieveProjectRatings(String userName, String password,
-            String projectId) {
-        return null;
-    }
-    //5.1.8
-    
-    //5.1.9
-    public String subscriptionsStatus(String userName, String password) {
-        return null;
-    }
-    
-    public void modifySubscriptions(String userName, String password,
-            String newProjectNotification, String newMetricPlugin,
-            String projectEvalFinished, String newProjectVersion,
-            String newQualityRatings, String statistics) {
-    }
-    //5.1.9
-    
-    //5.1.10
-    public void submitUser(String userNameForAccess, String passwordForAccess,
-            String newAccountUserName, String newAccountSurname,
-            String newAccountPassword, String newAccountUserClass) {
-    }
-    //5.1.10
-    
-    //5.1.11
-    public WSPair[] displayUser(String userName, String password) {
-        return null;
-    }
-    
-    public void modifyUser(String userNameForAccess, String passwordForAccess,
-            String modifyAccountUserName, String modifyAccountSurname,
-            String modifyAccountPassword, String modifyAccountUserClass) {
-    }
-    
-    public void deleteUser(String userNameForAccess, String passwordForAccess, String userId) {
-        
-    }
-    //5.1.11
+//    public WSPair[] retrieveMetrics4SelectedProject(String userName,
+//            String password, String projectId) {
+//        return null; 
+//    }
+//    
+//    public String retrieveSelectedMetric(String userName, String password,
+//            String projectId, String metricId) {
+//        return null;
+//    }
+//    //5.1.1
+//    
+//    //5.1.2
+//    public String[] retrieveFileList(String userName, String password, String projectId) {
+//        return null;
+//    }
+//    
+//    public WSPair[] retrieveMetrics4SelectedFiles(String userName, String password,
+//            String projectId, String[] folders, String[] fileNames) {
+//        return null;
+//    }
+//    //5.1.2
+//    
+//    //5.1.3
+//    public void requestEvaluatin4Project(String userName, String password,
+//            String projectName, String projectVersion,
+//            String srcRepositoryLocation, String srcRepositoryType,
+//            String mailingListLocation, String BTSLocation) {
+//    }
+//    //5.1.3
+//    
+//    //5.1.4
+//    public WSPair[] requestPastEvolEstimProjects(String userName, String password) {
+//        return null;
+//    }
+//    
+//    public String[] requestProjectEvolutionEstimates(String userName, String password,
+//            String projectId, String startDate, String endDate) {
+//        return null;
+//    }
+//    
+//    public String[] requestProjectEvolutionEstimatesDuration(String userName, String password,
+//            String projectId, String duration) {
+//        return null;
+//    }
+//    
+//    public String[] requestEvolEstimates4Project(String userName, String password,
+//            String projectName, String projectVersion, String srcRepositoryLocation,
+//            String srcRepositoryType, String mailingListLocation, String BTSLocation) {
+//        return null;
+//    }
+//    //5.1.4
+//    
+//    //5.1.5
+//    public WSPair[] requestProjectsWithBTS(String userName, String password) {
+//        return null;
+//    }
+//    
+//    public String[] requestDefectStatistics(String userName, String password,
+//            String prokectId, String searchQuery, String statisticalScheme) {
+//        return null;
+//    }
+//    //5.1.5
+//    
+//    //5.1.6
+//    public WSPair[] retrieveDevelopers4SelectedProject(String userName, String password,
+//            String projectId) {
+//        return null;
+//    }
+//    
+//    public WSPair[] retrieveCriteria4SelectedDeveloper(String userName, String password,
+//            String projectId, String developerId) {
+//        return null;
+//    }
+//    
+//    public String displayDeveloperInfoTimeDiagram(String userName, String password,
+//            String projectId, String developerId, String criterioId,
+//            String tdStart, String tdEnd) {
+//        return null;
+//    }
+//    
+//    public String displayDeveloperInfo(String userName, String password,
+//            String projectId, String developerId, String criterioId, String display) {
+//        return null;
+//    }
+//    //5.1.6
+//    
+//    //5.1.7
+//    public WSPair[] evaluatedProjectsListScore(String userName, String password) {
+//        return null;
+//    }
+//    
+//    public void submitScores(String userName, String password, String projectId,
+//            String[] scores, String textOpinion) {
+//        
+//    }
+//    
+//    public String[] viewScores(String userName, String password, String projectId) {
+//        return null;
+//    }
+//    
+//    public String[] viewComments(String userName, String password, String projectId) {
+//        return null;
+//    }
+//    //5.1.7
+//    
+//    //5.1.8
+//    public WSPair[] ratedProjectsList(String userName, String password) {
+//        return null;
+//    }
+//    
+//    public String[] retrieveProjectRatings(String userName, String password,
+//            String projectId) {
+//        return null;
+//    }
+//    //5.1.8
+//    
+//    //5.1.9
+//    public String subscriptionsStatus(String userName, String password) {
+//        return null;
+//    }
+//    
+//    public void modifySubscriptions(String userName, String password,
+//            String newProjectNotification, String newMetricPlugin,
+//            String projectEvalFinished, String newProjectVersion,
+//            String newQualityRatings, String statistics) {
+//    }
+//    //5.1.9
+//    
+//    //5.1.10
+//    public void submitUser(String userNameForAccess, String passwordForAccess,
+//            String newAccountUserName, String newAccountSurname,
+//            String newAccountPassword, String newAccountUserClass) {
+//    }
+//    //5.1.10
+//    
+//    //5.1.11
+//    public WSPair[] displayUser(String userName, String password) {
+//        return null;
+//    }
+//    
+//    public void modifyUser(String userNameForAccess, String passwordForAccess,
+//            String modifyAccountUserName, String modifyAccountSurname,
+//            String modifyAccountPassword, String modifyAccountUserClass) {
+//    }
+//    
+//    public void deleteUser(String userNameForAccess, String passwordForAccess, String userId) {
+//        
+//    }
+//    //5.1.11
     
 }
 

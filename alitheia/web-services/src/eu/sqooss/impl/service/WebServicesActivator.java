@@ -39,11 +39,12 @@ import java.util.Properties;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.impl.service.web.services.WebServicesConstants;
+import eu.sqooss.impl.service.web.services.Constants;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
@@ -67,7 +68,7 @@ public class WebServicesActivator implements BundleActivator {
     
         coreServiceRef = bc.getServiceReference(AlitheiaCore.class.getName());
         if (coreServiceRef == null) {
-            return;
+            throw new BundleException("Can't get the alitheia core service!");
         }
         
         AlitheiaCore core = (AlitheiaCore)bc.getService(coreServiceRef);
@@ -80,7 +81,7 @@ public class WebServicesActivator implements BundleActivator {
         //registers the web service
         Object serviceObject = new WebServices(bc, securityManager, db, logger);
         Properties props = initProperties(bc);
-        String serviceClass = props.getProperty(WebServicesConstants.PROPERTY_KEY_WEB_SERVICES_INTERFACE); 
+        String serviceClass = props.getProperty(Constants.PROPERTY_KEY_WEB_SERVICES_INTERFACE); 
         webServicesReg = bc.registerService(serviceClass, serviceObject, props);
         
         logger.info("The web services bundle is started!");
@@ -117,16 +118,14 @@ public class WebServicesActivator implements BundleActivator {
      */
     private Properties initProperties(BundleContext bc) {
         Bundle bundle = bc.getBundle();
-        URL propsUrl = bundle.getEntry(WebServicesConstants.FILE_NAME_PROPERTIES); 
+        URL propsUrl = bundle.getEntry(Constants.FILE_NAME_PROPERTIES); 
         Properties props = new Properties();
         if (propsUrl != null) {
             try {
                 props.load(propsUrl.openStream());
             } catch (IOException e) {
                 //uses default properties
-                //TODO:
-//                WebServicesActivator.log(e.getMessage(),
-//                        WebServicesActivator.LOGGING_WARNING_LEVEL);
+                logger.info(e.getMessage());
             }
         }
         setDefaultPropertiesIfNeed(props);
@@ -139,17 +138,17 @@ public class WebServicesActivator implements BundleActivator {
      * @param props
      */
     private void setDefaultPropertiesIfNeed(Properties props) {
-        if (props.getProperty(WebServicesConstants.PROPERTY_KEY_WEB_SERVICES_CONTEXT) == null) {
-        props.setProperty(WebServicesConstants.PROPERTY_KEY_WEB_SERVICES_CONTEXT,
-                WebServicesConstants.PROPERTY_VALUE_WEB_SERVICES_CONTEXT);
+        if (props.getProperty(Constants.PROPERTY_KEY_WEB_SERVICES_CONTEXT) == null) {
+        props.setProperty(Constants.PROPERTY_KEY_WEB_SERVICES_CONTEXT,
+                Constants.PROPERTY_VALUE_WEB_SERVICES_CONTEXT);
         }
-        if (props.getProperty(WebServicesConstants.PROPERTY_KEY_WEB_SERVICES_INTERFACE) == null) {
-        props.setProperty(WebServicesConstants.PROPERTY_KEY_WEB_SERVICES_INTERFACE,
-                WebServicesConstants.PROPERTY_VALUE_WEB_SERVICES_INTERFACE);
+        if (props.getProperty(Constants.PROPERTY_KEY_WEB_SERVICES_INTERFACE) == null) {
+        props.setProperty(Constants.PROPERTY_KEY_WEB_SERVICES_INTERFACE,
+                Constants.PROPERTY_VALUE_WEB_SERVICES_INTERFACE);
         }
-        if (props.getProperty(WebServicesConstants.PROPERTY_KEY_WEB_SERVICES_NAME) == null) {
-        props.setProperty(WebServicesConstants.PROPERTY_KEY_WEB_SERVICES_NAME,
-                WebServicesConstants.PROPERTY_VALUE_WEB_SERVICES_NAME);
+        if (props.getProperty(Constants.PROPERTY_KEY_WEB_SERVICES_NAME) == null) {
+        props.setProperty(Constants.PROPERTY_KEY_WEB_SERVICES_NAME,
+                Constants.PROPERTY_VALUE_WEB_SERVICES_NAME);
         }
     }
 
