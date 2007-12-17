@@ -7,12 +7,12 @@ import eu.sqooss.core.AlitheiaCore;
 
 public class CoreActivator
     implements BundleActivator{
-    
+
     public void start(BundleContext bc) throws Exception {
         AlitheiaCore core = new AlitheiaCore(bc);
         bc.registerService(core.getClass().getName(), core, null);
-        
-        // Create a WebAdmin instance
+
+        // Run an instance of the WebAdmin
         core.initWebAdmin();
     }
 
