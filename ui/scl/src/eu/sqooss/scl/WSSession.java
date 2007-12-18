@@ -54,13 +54,14 @@ public class WSSession {
 	 * This constructor reads the web service url from the SCL's configuration file.
 	 * @param userName
 	 * @param password
+	 * @throws WSException 
 	 * @throws IOException if the read operation fails
 	 */
-    public WSSession(String userName, String password) {
+    public WSSession(String userName, String password) throws WSException {
         this(userName, password, getWebServiceUrl());
     }
 
-    public WSSession(String userName, String password, String webServiceUrl) {
+    public WSSession(String userName, String password, String webServiceUrl) throws WSException {
         this.userName = userName;
         this.password = password;
         this.webServiceUrl = webServiceUrl;
@@ -99,8 +100,9 @@ public class WSSession {
     
     /**
      * @return New ws connection. Every time creates a new connection.
+     * @throws WSException 
      */
-    public WSConnection getConnection() {
+    public WSConnection getConnection() throws WSException {
         return new WSConnectionImpl(userName, password, webServiceUrl);
     }
     

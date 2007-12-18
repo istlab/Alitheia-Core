@@ -47,7 +47,7 @@ import java.io.ObjectOutputStream;
  * 
  *  Supported mime types include:
  *  <ul>
- *      <li>type/{integer, float, double}</li>
+ *      <li>type/{integer, long, float, double}</li>
  *      <li>text/{plain, html, xml}</li>
  *      <li>image/{gif, png, jpeg}</li>
  *  </ul>
@@ -57,6 +57,9 @@ public class WSResultEntry {
 
     /** Represents "type/integer" MIME type. */
     public static final String MIME_TYPE_TYPE_INTEGER = "type/integer";
+    
+    /** Represents "type/long" MIME type. */
+    public static final String MIME_TYPE_TYPE_LONG    = "type/long";
     
     /** Represents "type/float" MIME type. */
     public static final String MIME_TYPE_TYPE_FLOAT   = "type/float";
@@ -141,6 +144,18 @@ public class WSResultEntry {
     }
     
     /**
+     * @return The long value of the <code>WSResultEntry</code>.
+     * @throws IllegalStateException if the WSResultEntry isn't a long.
+     */
+    public long getLong() {
+        if (value instanceof Long) {
+            return (Long)value;
+        } else {
+            throw new IllegalArgumentException("The metric result entry is'nt long!");
+        }
+    }
+    
+    /**
      * @return The float value of the <code>WSResultEntry</code>.
      * @throws IllegalStateException if the WSResultEntry isn't a float.
      */
@@ -186,6 +201,7 @@ public class WSResultEntry {
     
     private void validate(Object value, String mimeType) {
         if (((MIME_TYPE_TYPE_INTEGER.equals(mimeType)) && (value instanceof Integer)) ||
+                ((MIME_TYPE_TYPE_LONG.equals(mimeType)) && (value instanceof Long)) ||
                 ((MIME_TYPE_TYPE_FLOAT.equals(mimeType)) && (value instanceof Float)) ||
                 ((MIME_TYPE_TYPE_DOUBLE.equals(mimeType)) && (value instanceof Double))) {
             return;

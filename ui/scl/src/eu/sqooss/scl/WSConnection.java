@@ -37,7 +37,7 @@ import eu.sqooss.scl.result.WSResult;
 public interface WSConnection {
     
     //5.1.1
-    public WSResult evaluatedProjectsList();
+    public WSResult evaluatedProjectsList() throws WSException;
     
     public WSResult retrieveMetrics4SelectedProject(String projectId);
     

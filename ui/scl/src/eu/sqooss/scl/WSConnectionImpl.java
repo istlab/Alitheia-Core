@@ -32,7 +32,18 @@
 
 package eu.sqooss.scl;
 
+import java.rmi.RemoteException;
+import java.util.ArrayList;
+
+import org.apache.axis2.AxisFault;
+
+import eu.sqooss.scl.axis2.WsStub;
+import eu.sqooss.scl.axis2.WsStub.EvaluatedProjectsList;
+import eu.sqooss.scl.axis2.WsStub.EvaluatedProjectsListResponse;
+import eu.sqooss.scl.axis2.WsStub.WSProjectVersion;
+import eu.sqooss.scl.axis2.WsStub.WSStoredProject;
 import eu.sqooss.scl.result.WSResult;
+import eu.sqooss.scl.result.WSResultEntry;
 
 /**
  * The class has package visibility.
@@ -40,14 +51,20 @@ import eu.sqooss.scl.result.WSResult;
  */
 class WSConnectionImpl implements WSConnection {
 
+    private WsStub wsStub;
     private String userName;
     private String password;
     private String webServiceUrl;
     
-    public WSConnectionImpl(String userName, String password, String webServiceUrl) {
+    public WSConnectionImpl(String userName, String password, String webServiceUrl) throws WSException {
         this.userName = userName;
         this.password = password;
         this.webServiceUrl = webServiceUrl;
+        try {
+            this.wsStub = new WsStub(webServiceUrl);
+        } catch (AxisFault e) {
+            throw new WSException(e);
+        }
     }
     
     public void deleteUser(String userId) {
@@ -72,9 +89,18 @@ class WSConnectionImpl implements WSConnection {
         return new WSResult("Not Implemented yet");
     }
 
-    public WSResult evaluatedProjectsList() {
-        // TODO Auto-generated method stub
-        return new WSResult("Not Implemented yet");
+    public WSResult evaluatedProjectsList() throws WSException {
+        // TODO optimize the use of the object 
+        EvaluatedProjectsListResponse response; 
+        EvaluatedProjectsList params = new EvaluatedProjectsList();
+        params.setPassword(password);
+        params.setUserName(userName);
+        try {
+            response = wsStub.evaluatedProjectsList(params);
+        } catch (RemoteException e) {
+            throw new WSException(e);
+        }
+        return parseStoredProjects(response.get_return());
     }
 
     public WSResult evaluatedProjectsListScore() {
@@ -199,6 +225,27 @@ class WSConnectionImpl implements WSConnection {
     public WSResult viewScores(String projectId) {
         // TODO Auto-generated method stub
         return new WSResult("Not Implemented yet");
+    }
+    
+    private WSResult parseStoredProjects(WSStoredProject[] storedProjects) {
+        WSResult result = new WSResult();
+        ArrayList<WSResultEntry> currentRow;
+        for(WSStoredProject sp: storedProjects) {
+            currentRow = new ArrayList<WSResultEntry>();
+            currentRow.add(new WSResultEntry(sp.getId(), WSResultEntry.MIME_TYPE_TYPE_LONG));
+            currentRow.add(new WSResultEntry(sp.getName(), WSResultEntry.MIME_TYPE_TEXT_PLAIN));
+            currentRow.add(new WSResultEntry(sp.getRepository(), WSResultEntry.MIME_TYPE_TEXT_PLAIN));
+            currentRow.add(new WSResultEntry(sp.getBugs(), WSResultEntry.MIME_TYPE_TEXT_PLAIN));
+            currentRow.add(new WSResultEntry(sp.getMail(), WSResultEntry.MIME_TYPE_TEXT_PLAIN));
+            currentRow.add(new WSResultEntry(sp.getContact(), WSResultEntry.MIME_TYPE_TEXT_PLAIN));
+            currentRow.add(new WSResultEntry(sp.getWebsite(), WSResultEntry.MIME_TYPE_TEXT_PLAIN));
+            WSProjectVersion[] projectVersions = sp.getProjectVersions();
+            for (WSProjectVersion projectVersion: projectVersions) {
+                currentRow.add(new WSResultEntry(projectVersion.getVersion(), WSResultEntry.MIME_TYPE_TYPE_INTEGER));
+            }
+            result.addResultRow(currentRow);
+        }
+        return result;
     }
     
 }
