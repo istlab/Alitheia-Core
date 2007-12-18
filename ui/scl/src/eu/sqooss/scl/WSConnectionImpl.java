@@ -229,21 +229,23 @@ class WSConnectionImpl implements WSConnection {
     
     private WSResult parseStoredProjects(WSStoredProject[] storedProjects) {
         WSResult result = new WSResult();
-        ArrayList<WSResultEntry> currentRow;
-        for(WSStoredProject sp: storedProjects) {
-            currentRow = new ArrayList<WSResultEntry>();
-            currentRow.add(new WSResultEntry(sp.getId(), WSResultEntry.MIME_TYPE_TYPE_LONG));
-            currentRow.add(new WSResultEntry(sp.getName(), WSResultEntry.MIME_TYPE_TEXT_PLAIN));
-            currentRow.add(new WSResultEntry(sp.getRepository(), WSResultEntry.MIME_TYPE_TEXT_PLAIN));
-            currentRow.add(new WSResultEntry(sp.getBugs(), WSResultEntry.MIME_TYPE_TEXT_PLAIN));
-            currentRow.add(new WSResultEntry(sp.getMail(), WSResultEntry.MIME_TYPE_TEXT_PLAIN));
-            currentRow.add(new WSResultEntry(sp.getContact(), WSResultEntry.MIME_TYPE_TEXT_PLAIN));
-            currentRow.add(new WSResultEntry(sp.getWebsite(), WSResultEntry.MIME_TYPE_TEXT_PLAIN));
-            WSProjectVersion[] projectVersions = sp.getProjectVersions();
-            for (WSProjectVersion projectVersion: projectVersions) {
-                currentRow.add(new WSResultEntry(projectVersion.getVersion(), WSResultEntry.MIME_TYPE_TYPE_INTEGER));
+        if (storedProjects[0] != null) {
+            ArrayList<WSResultEntry> currentRow;
+            for(WSStoredProject sp: storedProjects) {
+                currentRow = new ArrayList<WSResultEntry>();
+                currentRow.add(new WSResultEntry(sp.getId(), WSResultEntry.MIME_TYPE_TYPE_LONG));
+                currentRow.add(new WSResultEntry(sp.getName(), WSResultEntry.MIME_TYPE_TEXT_PLAIN));
+                currentRow.add(new WSResultEntry(sp.getRepository(), WSResultEntry.MIME_TYPE_TEXT_PLAIN));
+                currentRow.add(new WSResultEntry(sp.getBugs(), WSResultEntry.MIME_TYPE_TEXT_PLAIN));
+                currentRow.add(new WSResultEntry(sp.getMail(), WSResultEntry.MIME_TYPE_TEXT_PLAIN));
+                currentRow.add(new WSResultEntry(sp.getContact(), WSResultEntry.MIME_TYPE_TEXT_PLAIN));
+                currentRow.add(new WSResultEntry(sp.getWebsite(), WSResultEntry.MIME_TYPE_TEXT_PLAIN));
+                WSProjectVersion[] projectVersions = sp.getProjectVersions();
+                for (WSProjectVersion projectVersion: projectVersions) {
+                    currentRow.add(new WSResultEntry(projectVersion.getVersion(), WSResultEntry.MIME_TYPE_TYPE_INTEGER));
+                }
+                result.addResultRow(currentRow);
             }
-            result.addResultRow(currentRow);
         }
         return result;
     }
