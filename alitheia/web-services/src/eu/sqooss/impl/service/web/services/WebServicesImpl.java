@@ -51,7 +51,6 @@ import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.security.SecurityManager;
-import eu.sqooss.service.web.services.WebServicesException;
 
 public class WebServicesImpl {
     
@@ -69,18 +68,14 @@ public class WebServicesImpl {
     /* project's methods */
     
     //5.1.1
-    public WSStoredProject[] evaluatedProjectsList(String userName, String password) throws WebServicesException {
-        try{
-            logger.info("Gets the evaluated project list! user: " + userName);
+    public WSStoredProject[] evaluatedProjectsList(String userName, String password) {
+        logger.info("Gets the evaluated project list! user: " + userName);
 
-            //TODO: check the security
+        //TODO: check the security
 
-            List queryResult = db.doHQL(DatabaseQueries.EVALUATED_PROJECTS_LIST);
+        List queryResult = db.doHQL(DatabaseQueries.EVALUATED_PROJECTS_LIST);
 
-            return makeUnoinByStoredProjectId(queryResult);
-        } catch (Throwable t) {
-            throw new WebServicesException(t.getMessage());
-        }
+        return makeUnoinByStoredProjectId(queryResult);
     }
     
     public WSMetric[] retrieveMetrics4SelectedProject(String userName,

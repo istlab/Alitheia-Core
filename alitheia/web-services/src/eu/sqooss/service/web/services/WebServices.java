@@ -66,7 +66,7 @@ public class WebServices {
     }
     
     //5.1.1
-    public WSStoredProject[] evaluatedProjectsList(String userName, String password) throws WebServicesException {
+    public WSStoredProject[] evaluatedProjectsList(String userName, String password) {
         return webServices.evaluatedProjectsList(userName, password);
     }
     
