@@ -32,30 +32,23 @@
 
 package eu.sqooss.impl.service.web.services.datatypes;
 
-import eu.sqooss.service.db.ProjectVersion;
+import eu.sqooss.service.db.MetricType;
 
 /**
- * This class wraps the <code>eu.sqooss.service.db.ProjectVersion</code>.
+ * This class wraps the <code>eu.sqooss.service.db.MetricType</code> 
  */
-public class WSProjectVersion {
-
-    private ProjectVersion projectVersion;
-
-    public WSProjectVersion(ProjectVersion projectVersion) {
-        this.projectVersion = projectVersion;
+public class WSMetricType {
+    
+    private MetricType metricType;
+    
+    public WSMetricType(MetricType metricType) {
+        this.metricType = metricType;
+    }
+    
+    public String getType() {
+        return metricType.getType();
     }
 
-    public long getId() {
-        return projectVersion.getId();
-    }
-
-    public long getProject() {
-        return projectVersion.getProject();
-    }
-
-    public int getVersion() {
-        return projectVersion.getVersion();
-    }
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

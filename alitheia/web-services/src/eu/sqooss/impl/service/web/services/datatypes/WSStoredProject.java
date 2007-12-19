@@ -38,7 +38,8 @@ import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 
 /**
- * This class wraps the <code>StoredProject</code> with the <code>ProjectVersion</code>s.
+ * This class wraps the <code>eu.sqooss.service.db.StoredProject</code>
+ * with the <code>eu.sqooss.service.db.ProjectVersion</code>s.
  * It is useful because we can have a project with many versions.  
  */
 public class WSStoredProject {

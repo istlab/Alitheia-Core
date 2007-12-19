@@ -45,26 +45,31 @@ public class DatabaseQueries {
 
     public static final String RETRIEVE_METRICS_4_SELECTED_PPROJECT_PARAM = "project_id";
     
-    public static final String RETRIEVE_METRICS_4_SELECTED_PPROJECT = "select Metric, MetricType " +
-                                                                      "from ProjectVersion, Measurement, Metric, MetricType " +
-                                                                      "where ProjectVersion.id=Measurement.projectVersion " +
-                                                                      " and Metric.id=Measurement.metric " +
-                                                                      " and MetricType.id=Metric.metricType " +
-                                                                      " and ProjectVersion.project=:" +
-                                                                      RETRIEVE_METRICS_4_SELECTED_PPROJECT_PARAM;
+    public static final String RETRIEVE_METRICS_4_SELECTED_PPROJECT = "select metric, metricType " +
+                                                                      "from ProjectVersion pv, Measurement measurement, Metric metric, MetricType metricType " +
+                                                                      "where pv.id=measurement.projectVersion " +
+                                                                      " and metric.id=measurement.metric " +
+                                                                      " and metricType.id=metric.metricType " +
+                                                                      " and pv.project=:" +
+                                                                      RETRIEVE_METRICS_4_SELECTED_PPROJECT_PARAM + " " +
+                                                                      "group by metric.id, metric.metricType, metric.description, " +
+                                                                      "         metricType.id, metricType.type";
  
     public static final String RETRIEVE_SELECTED_METRIC_PARAM_PR = "project_id";
     
     public static final String RETRIEVE_SELECTED_METRIC_PARAM_METRIC = "metric_id";
     
-    public static final String RETRIEVE_SELECTED_METRIC = "select Metric, MetricType " +
-    		                                              "from ProjectVersion, Measurement, Metric, MetricType " +
-    		                                              "where ProjectVersion.id=Measurement.projectVersion " +
-    		                                              " and Metric.id=Measurement.metric " +
-    		                                              " and ProjectVersion.project=:" +
-    		                                              RETRIEVE_SELECTED_METRIC_PARAM_PR +
-    		                                              " and Metric.id=:" +
-    		                                              RETRIEVE_SELECTED_METRIC_PARAM_METRIC;
+    public static final String RETRIEVE_SELECTED_METRIC = "select metric, metricType " +
+    		                                              "from ProjectVersion pv, Measurement measurement, Metric metric, MetricType metricType " +
+    		                                              "where pv.id=measurement.projectVersion " +
+    		                                              " and metric.id=measurement.metric " +
+    		                                              " and metricType.id=metric.metricType " +
+    		                                              " and pv.project=:" +
+    		                                              RETRIEVE_SELECTED_METRIC_PARAM_PR + " " +
+    		                                              " and metric.id=:" +
+    		                                              RETRIEVE_SELECTED_METRIC_PARAM_METRIC + " " +
+                                                          "group by metric.id, metric.metricType, metric.description, " +
+                                                          "         metricType.id, metricType.type";
     //5.1.1
     
     //5.1.2

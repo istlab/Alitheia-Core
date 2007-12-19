@@ -35,32 +35,36 @@ package eu.sqooss.impl.service.web.services.datatypes;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
 
-public class WSMetric extends Metric {
+/**
+ * This class wraps the <code>eu.sqooss.service.db.Metric</code>
+ * with the <code>eu.sqooss.service.db.MetricType</code>.
+ */
+public class WSMetric {
     
-    private String type;
+    private Metric metric;
+    private WSMetricType wsMetricType;
     
     public WSMetric(Metric metric, MetricType metricType) {
-        super.setDescription(metric.getDescription());
-        super.setId(metric.getId());
-        super.setMetricType(metric.getMetricType());
-        
-        this.type = metricType.getType();
+        this.metric = metric;
+        this.wsMetricType = new WSMetricType(metricType);
     }
 
-    /**
-     * @return the type
-     */
-    public String getType() {
-        return type;
-    }
-
-    /**
-     * @param type the type to set
-     */
-    public void setType(String type) {
-        this.type = type;
+    public WSMetricType getMetricType() {
+        return wsMetricType;
     }
     
+    public long getId() {
+        return metric.getId();
+    }
+    
+    public long getMetricTypeId() {
+        return metric.getMetricType();
+    }
+
+    public String getDescription() {
+        return metric.getDescription();
+    }
+
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

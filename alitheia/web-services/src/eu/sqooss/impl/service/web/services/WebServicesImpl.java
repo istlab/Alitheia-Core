@@ -87,16 +87,18 @@ public class WebServicesImpl {
         //TODO: check the security
         
         Map<String, Object> queryParameters = new HashMap<String, Object>(1);
-        queryParameters.put(DatabaseQueries.RETRIEVE_METRICS_4_SELECTED_PPROJECT_PARAM, projectId);
+        queryParameters.put(DatabaseQueries.RETRIEVE_METRICS_4_SELECTED_PPROJECT_PARAM, Long.parseLong(projectId));
         List<Object[]> queryResult = db.doHQL(DatabaseQueries.RETRIEVE_METRICS_4_SELECTED_PPROJECT, queryParameters);
         
         WSMetric[] result = new WSMetric[queryResult.size()];
+        if (result.length == 0) {
+            return null;
+        }
         Object[] currentElem;
         for (int i = 0; i < result.length; i++) {
             currentElem = queryResult.get(i);
             result[i] = new WSMetric((Metric)currentElem[0], (MetricType)currentElem[1]);
         }
-        
         return result; 
     }
     
@@ -109,10 +111,10 @@ public class WebServicesImpl {
         //TODO: check the security
         
         Map<String, Object> queryParameters = new HashMap<String, Object>(2);
-        queryParameters.put(DatabaseQueries.RETRIEVE_SELECTED_METRIC_PARAM_PR, projectId);
-        queryParameters.put(DatabaseQueries.RETRIEVE_SELECTED_METRIC_PARAM_METRIC, metricId);
+        queryParameters.put(DatabaseQueries.RETRIEVE_SELECTED_METRIC_PARAM_PR, Long.parseLong(projectId));
+        queryParameters.put(DatabaseQueries.RETRIEVE_SELECTED_METRIC_PARAM_METRIC, Long.parseLong(metricId));
 
-        List<Object[]> queryResult = db.doHQL(DatabaseQueries.RETRIEVE_METRICS_4_SELECTED_PPROJECT, queryParameters);
+        List<Object[]> queryResult = db.doHQL(DatabaseQueries.RETRIEVE_SELECTED_METRIC, queryParameters);
         
         if (queryResult.size() == 1) {
             Object[] elem = queryResult.get(0);
