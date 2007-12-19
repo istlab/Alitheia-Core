@@ -1,0 +1,27 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Wsdl4J Plug-in
+Bundle-SymbolicName: org.apache.wsdl4j
+Bundle-Version: 1.6.1
+Bundle-ClassPath: wsdl4j-1.6.1.jar
+Bundle-Localization: plugin
+Export-Package: com.ibm.wsdl;version="1.6.1",
+ com.ibm.wsdl.extensions;version="1.6.1",
+ com.ibm.wsdl.extensions.http;version="1.6.1",
+ com.ibm.wsdl.extensions.mime;version="1.6.1",
+ com.ibm.wsdl.extensions.schema;version="1.6.1",
+ com.ibm.wsdl.extensions.soap;version="1.6.1",
+ com.ibm.wsdl.extensions.soap12;version="1.6.1",
+ com.ibm.wsdl.factory;version="1.6.1",
+ com.ibm.wsdl.util;version="1.6.1",
+ com.ibm.wsdl.util.xml;version="1.6.1",
+ com.ibm.wsdl.xml;version="1.6.1",
+ javax.wsdl;version="1.6.1",
+ javax.wsdl.extensions;version="1.6.1",
+ javax.wsdl.extensions.http;version="1.6.1",
+ javax.wsdl.extensions.mime;version="1.6.1",
+ javax.wsdl.extensions.schema;version="1.6.1",
+ javax.wsdl.extensions.soap;version="1.6.1",
+ javax.wsdl.extensions.soap12;version="1.6.1",
+ javax.wsdl.factory;version="1.6.1",
+ javax.wsdl.xml;version="1.6.1"
