@@ -33,17 +33,20 @@
 package eu.sqooss.scl;
 
 import java.rmi.RemoteException;
-import java.util.ArrayList;
+import java.util.Hashtable;
 
 import org.apache.axis2.AxisFault;
 
 import eu.sqooss.scl.axis2.WsStub;
-import eu.sqooss.scl.axis2.WsStub.EvaluatedProjectsList;
-import eu.sqooss.scl.axis2.WsStub.EvaluatedProjectsListResponse;
-import eu.sqooss.scl.axis2.WsStub.WSProjectVersion;
-import eu.sqooss.scl.axis2.WsStub.WSStoredProject;
+import eu.sqooss.scl.axis2.ws.EvaluatedProjectsList;
+import eu.sqooss.scl.axis2.ws.EvaluatedProjectsListResponse;
+import eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedProject;
+import eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedProjectResponse;
+import eu.sqooss.scl.axis2.ws.RetrieveSelectedMetric;
+import eu.sqooss.scl.axis2.ws.RetrieveSelectedMetricResponse;
+import eu.sqooss.scl.axis2.datatypes.WSMetric;
 import eu.sqooss.scl.result.WSResult;
-import eu.sqooss.scl.result.WSResultEntry;
+import eu.sqooss.scl.utils.WSResponseParser;
 
 /**
  * The class has package visibility.
@@ -51,6 +54,7 @@ import eu.sqooss.scl.result.WSResultEntry;
  */
 class WSConnectionImpl implements WSConnection {
 
+    private Hashtable<String, Object> parameters;
     private WsStub wsStub;
     private String userName;
     private String password;
@@ -65,6 +69,7 @@ class WSConnectionImpl implements WSConnection {
         } catch (AxisFault e) {
             throw new WSException(e);
         }
+        initParameters();
     }
     
     public void deleteUser(String userId) {
@@ -90,17 +95,14 @@ class WSConnectionImpl implements WSConnection {
     }
 
     public WSResult evaluatedProjectsList() throws WSException {
-        // TODO optimize the use of the object 
         EvaluatedProjectsListResponse response; 
-        EvaluatedProjectsList params = new EvaluatedProjectsList();
-        params.setPassword(password);
-        params.setUserName(userName);
+        EvaluatedProjectsList params = (EvaluatedProjectsList) parameters.get(WSConnectionConstants.PARAM_KEY_EVALUATED_PROJECTS_LIST);
         try {
             response = wsStub.evaluatedProjectsList(params);
         } catch (RemoteException e) {
             throw new WSException(e);
         }
-        return parseStoredProjects(response.get_return());
+        return WSResponseParser.parseStoredProjects(response.get_return());
     }
 
     public WSResult evaluatedProjectsListScore() {
@@ -186,9 +188,16 @@ class WSConnectionImpl implements WSConnection {
         return new WSResult("Not Implemented yet");
     }
 
-    public WSResult retrieveMetrics4SelectedProject(String projectId) {
-        // TODO Auto-generated method stub
-        return new WSResult("Not Implemented yet");
+    public WSResult retrieveMetrics4SelectedProject(String projectId) throws WSException {
+        RetrieveMetrics4SelectedProject params = (RetrieveMetrics4SelectedProject) parameters.get(WSConnectionConstants.PARAM_KEY_RETRIEVE_METRICS_4_SELECTED_PROJECTS);
+        params.setProjectId(projectId);
+        RetrieveMetrics4SelectedProjectResponse response;
+        try {
+            response = wsStub.retrieveMetrics4SelectedProject(params);
+        } catch (RemoteException re) {
+            throw new WSException(re);
+        }
+        return WSResponseParser.parseMetrics(response.get_return());
     }
 
     public WSResult retrieveProjectRatings(String projectId) {
@@ -196,9 +205,17 @@ class WSConnectionImpl implements WSConnection {
         return new WSResult("Not Implemented yet");
     }
 
-    public WSResult retrieveSelectedMetric(String projectId, String metricId) {
-        // TODO Auto-generated method stub
-        return new WSResult("Not Implemented yet");
+    public WSResult retrieveSelectedMetric(String projectId, String metricId) throws WSException {
+        RetrieveSelectedMetric params = (RetrieveSelectedMetric) parameters.get(WSConnectionConstants.PARAM_KEY_RETRIEVE_SELECTED_METRIC);
+        params.setProjectId(projectId);
+        params.setMetricId(metricId);
+        RetrieveSelectedMetricResponse response = null;;
+        try {
+            response = wsStub.retrieveSelectedMetric(params);
+        } catch (RemoteException e) {
+            throw new WSException(e);
+        }
+        return WSResponseParser.parseMetrics(new WSMetric[]{response.get_return()});
     }
 
     public void submitScores(String projectId, String[] scores, String textOpinion) {
@@ -227,27 +244,24 @@ class WSConnectionImpl implements WSConnection {
         return new WSResult("Not Implemented yet");
     }
     
-    private WSResult parseStoredProjects(WSStoredProject[] storedProjects) {
-        WSResult result = new WSResult();
-        if (storedProjects[0] != null) {
-            ArrayList<WSResultEntry> currentRow;
-            for(WSStoredProject sp: storedProjects) {
-                currentRow = new ArrayList<WSResultEntry>();
-                currentRow.add(new WSResultEntry(sp.getId(), WSResultEntry.MIME_TYPE_TYPE_LONG));
-                currentRow.add(new WSResultEntry(sp.getName(), WSResultEntry.MIME_TYPE_TEXT_PLAIN));
-                currentRow.add(new WSResultEntry(sp.getRepository(), WSResultEntry.MIME_TYPE_TEXT_PLAIN));
-                currentRow.add(new WSResultEntry(sp.getBugs(), WSResultEntry.MIME_TYPE_TEXT_PLAIN));
-                currentRow.add(new WSResultEntry(sp.getMail(), WSResultEntry.MIME_TYPE_TEXT_PLAIN));
-                currentRow.add(new WSResultEntry(sp.getContact(), WSResultEntry.MIME_TYPE_TEXT_PLAIN));
-                currentRow.add(new WSResultEntry(sp.getWebsite(), WSResultEntry.MIME_TYPE_TEXT_PLAIN));
-                WSProjectVersion[] projectVersions = sp.getProjectVersions();
-                for (WSProjectVersion projectVersion: projectVersions) {
-                    currentRow.add(new WSResultEntry(projectVersion.getVersion(), WSResultEntry.MIME_TYPE_TYPE_INTEGER));
-                }
-                result.addResultRow(currentRow);
-            }
-        }
-        return result;
+    private void initParameters() {
+        parameters = new Hashtable<String, Object>(2);
+        
+        EvaluatedProjectsList epl = new EvaluatedProjectsList();
+        epl.setPassword(password);
+        epl.setUserName(userName);
+        parameters.put(WSConnectionConstants.PARAM_KEY_EVALUATED_PROJECTS_LIST, epl);
+        
+        RetrieveMetrics4SelectedProject rm4sp = new RetrieveMetrics4SelectedProject();
+        rm4sp.setUserName(userName);
+        rm4sp.setPassword(password);
+        parameters.put(WSConnectionConstants.PARAM_KEY_RETRIEVE_METRICS_4_SELECTED_PROJECTS, rm4sp);
+        
+        RetrieveSelectedMetric rsm = new RetrieveSelectedMetric();
+        rsm.setUserName(userName);
+        rsm.setPassword(password);
+        parameters.put(WSConnectionConstants.PARAM_KEY_RETRIEVE_SELECTED_METRIC, rsm);
+        
     }
     
 }

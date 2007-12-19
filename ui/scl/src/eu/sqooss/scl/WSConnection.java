@@ -39,9 +39,9 @@ public interface WSConnection {
     //5.1.1
     public WSResult evaluatedProjectsList() throws WSException;
     
-    public WSResult retrieveMetrics4SelectedProject(String projectId);
+    public WSResult retrieveMetrics4SelectedProject(String projectId) throws WSException;
     
-    public WSResult retrieveSelectedMetric(String projectId, String metricId);
+    public WSResult retrieveSelectedMetric(String projectId, String metricId) throws WSException;
     //5.1.1
     
     //5.1.2
