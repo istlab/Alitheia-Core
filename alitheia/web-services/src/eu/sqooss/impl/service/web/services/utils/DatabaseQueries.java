@@ -43,23 +43,21 @@ public class DatabaseQueries {
                                                          " and metric.id=plugin.metric " +
                                                          "order by sp.id asc";
 
-    public static final String RETRIEVE_METRICS_4_SELECTED_PPROJECT_PARAM = "project_id";
+    public static final String RETRIEVE_METRICS_4_SELECTED_PROJECT_PARAM = "project_id";
     
-    public static final String RETRIEVE_METRICS_4_SELECTED_PPROJECT = "select metric, metricType " +
+    public static final String RETRIEVE_METRICS_4_SELECTED_PROJECT = "select distinct metric, metricType " +
                                                                       "from ProjectVersion pv, Measurement measurement, Metric metric, MetricType metricType " +
                                                                       "where pv.id=measurement.projectVersion " +
                                                                       " and metric.id=measurement.metric " +
                                                                       " and metricType.id=metric.metricType " +
                                                                       " and pv.project=:" +
-                                                                      RETRIEVE_METRICS_4_SELECTED_PPROJECT_PARAM + " " +
-                                                                      "group by metric.id, metric.metricType, metric.description, " +
-                                                                      "         metricType.id, metricType.type";
+                                                                      RETRIEVE_METRICS_4_SELECTED_PROJECT_PARAM;
  
     public static final String RETRIEVE_SELECTED_METRIC_PARAM_PR = "project_id";
     
     public static final String RETRIEVE_SELECTED_METRIC_PARAM_METRIC = "metric_id";
     
-    public static final String RETRIEVE_SELECTED_METRIC = "select metric, metricType " +
+    public static final String RETRIEVE_SELECTED_METRIC = "select distinct metric, metricType " +
     		                                              "from ProjectVersion pv, Measurement measurement, Metric metric, MetricType metricType " +
     		                                              "where pv.id=measurement.projectVersion " +
     		                                              " and metric.id=measurement.metric " +
@@ -67,20 +65,27 @@ public class DatabaseQueries {
     		                                              " and pv.project=:" +
     		                                              RETRIEVE_SELECTED_METRIC_PARAM_PR + " " +
     		                                              " and metric.id=:" +
-    		                                              RETRIEVE_SELECTED_METRIC_PARAM_METRIC + " " +
-                                                          "group by metric.id, metric.metricType, metric.description, " +
-                                                          "         metricType.id, metricType.type";
+    		                                              RETRIEVE_SELECTED_METRIC_PARAM_METRIC;
     //5.1.1
     
     //5.1.2
     public static final String RETRIEVE_FILE_LIST_PARAM = "project_id";
     
-    public static final String RETRIEVE_FILE_LIST = "select pf, fm " +
+    public static final String RETRIEVE_FILE_LIST = "select distinct pf, fm " +
                                                     "from ProjectVersion pv, ProjectFile pf, FileMetadata fm " +
                                                     "where fm.projectFile=pf.id " +
                                                     " and pf.projectVersion=pv.id " +
                                                     " and pv.project=:" +
                                                     RETRIEVE_FILE_LIST_PARAM;
+    
+    public static String RETRIEVE_METRICS_4_SELECTED_FILES_FILE_PREFIX = "file_";
+    
+    public static String RETRIEVE_METRICS_4_SELECTED_FILES = "";
+    
+    public static String RETRIEVE_METRICS_4_SELECTED_FILES_DIRS_PREFIX = "dir_";
+    
+    public static String RETRIEVE_METRICS_4_SELECTED_DIRS = "";
+    
     //5.1.2
     
 }

@@ -32,7 +32,6 @@
 
 package eu.sqooss.impl.service.web.services;
 
-import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -89,9 +88,9 @@ public class WebServicesImpl {
         
         //TODO: check the security
         
-        Map<String, Object> queryParameters = new HashMap<String, Object>(1);
-        queryParameters.put(DatabaseQueries.RETRIEVE_METRICS_4_SELECTED_PPROJECT_PARAM, Long.parseLong(projectId));
-        List queryResult = db.doHQL(DatabaseQueries.RETRIEVE_METRICS_4_SELECTED_PPROJECT, queryParameters);
+        Map<String, Object> queryParameters = new Hashtable<String, Object>(1);
+        queryParameters.put(DatabaseQueries.RETRIEVE_METRICS_4_SELECTED_PROJECT_PARAM, Long.parseLong(projectId));
+        List queryResult = db.doHQL(DatabaseQueries.RETRIEVE_METRICS_4_SELECTED_PROJECT, queryParameters);
         
         if (queryResult.size() == 0) {
             return null;
@@ -114,7 +113,7 @@ public class WebServicesImpl {
         
         //TODO: check the security
         
-        Map<String, Object> queryParameters = new HashMap<String, Object>(2);
+        Map<String, Object> queryParameters = new Hashtable<String, Object>(2);
         queryParameters.put(DatabaseQueries.RETRIEVE_SELECTED_METRIC_PARAM_PR, Long.parseLong(projectId));
         queryParameters.put(DatabaseQueries.RETRIEVE_SELECTED_METRIC_PARAM_METRIC, Long.parseLong(metricId));
 
