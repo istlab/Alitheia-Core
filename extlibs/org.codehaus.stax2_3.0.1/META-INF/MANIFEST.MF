@@ -3,8 +3,9 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Wstx Asl Plug-in
 Bundle-SymbolicName: org.codehaus.stax2
 Bundle-Version: 3.0.1
-Bundle-ClassPath: wstx-asl-3.0.1.jar
 Bundle-Vendor: Codehaus
+Bundle-ClassPath: wstx-asl-3.0.1.jar,
+ .
 Bundle-Localization: plugin
 Export-Package: .,
  com.ctc.wstx.api;version="3.0.1",
@@ -26,6 +27,5 @@ Export-Package: .,
  org.codehaus.stax2.io;version="3.0.1",
  org.codehaus.stax2.validation;version="3.0.1"
 Require-Bundle: javax.stax.api
-Import-Package: javax.xml.transform,
- javax.xml.transform.stream,
- javax.xml.namespace
+Import-Package: javax.xml.transform,javax.xml.transform.stream,	javax.xml.namespace
+

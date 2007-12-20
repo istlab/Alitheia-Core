@@ -1,10 +1,11 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Api Plug-in
+Bundle-Name: Javax Mail Plug-in
 Bundle-SymbolicName: javax.mail.api
 Bundle-Version: 1.4.0
-Bundle-ClassPath: mail-1.4.jar,
- activation-1.1.jar
+Bundle-ClassPath: activation-1.1.jar,
+ mail-1.4.jar,
+ .
 Bundle-Localization: plugin
 Export-Package: com.sun.activation.registries;version="1.1.0",
  com.sun.activation.viewers;version="1.1.0",

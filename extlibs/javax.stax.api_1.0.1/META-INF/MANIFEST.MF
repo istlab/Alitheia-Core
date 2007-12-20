@@ -3,7 +3,8 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Stax Plug-in
 Bundle-SymbolicName: javax.stax.api
 Bundle-Version: 1.0.1
-Bundle-ClassPath: stax-api-1.0.1.jar
+Bundle-ClassPath: stax-api-1.0.1.jar,
+ .
 Bundle-Localization: plugin
 Export-Package: javax.xml;version="1.0.1",
  javax.xml.stream;version="1.0.1",
