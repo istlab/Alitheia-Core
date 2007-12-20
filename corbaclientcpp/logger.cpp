@@ -1,5 +1,6 @@
-#include "logger.h"
+#include <exception>
 
+#include "logger.h"
 #include "corbahandler.h"
 
 using namespace std;
@@ -20,9 +21,9 @@ const std::string Logger::NameSqoOssMetric      = "sqooss.metric";
 const std::string Logger::NameSqoOssTester      = "sqooss.tester";
 
 Logger::Logger( const string& name )
-    : m_name( name ),
-      m_logger( alitheia::Logger::_narrow( CorbaHandler::instance()->getObject( "Logger" ) ) )
+    : m_name( name )
 {
+    m_logger = alitheia::Logger::_narrow( CorbaHandler::instance()->getObject( "Logger" ) );
 }
 
 Logger::~Logger()

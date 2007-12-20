@@ -3,6 +3,8 @@
 
 #include <CORBA.h>
 
+class OrbThread;
+
 class CorbaHandler
 {
 protected:
@@ -17,9 +19,11 @@ public:
 
     static CorbaHandler* instance();
 
-    CORBA::Object_var getObject( const char* className ) const;
+    CORBA::Object_var getObject( const char* name ) const throw (CORBA::Exception);
+    void exportObject( CORBA::Object_ptr obj, const char* name );
 
 private:
+    OrbThread* orb_thread;
     CORBA::ORB_var orb;
 };
 
