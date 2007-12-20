@@ -1,18 +1,25 @@
 package eu.sqooss.impl.service;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import org.omg.CORBA.ORB;
 import org.omg.CosNaming.NameComponent;
 import org.omg.CosNaming.NamingContextExt;
 import org.omg.CosNaming.NamingContextExtHelper;
+import org.omg.CosNaming.NamingContextPackage.CannotProceed;
+import org.omg.CosNaming.NamingContextPackage.InvalidName;
+import org.omg.CosNaming.NamingContextPackage.NotFound;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
 
-import eu.sqooss.impl.service.alitheia.Logger;
+import eu.sqooss.impl.service.alitheia.CoreHelper;
 import eu.sqooss.impl.service.alitheia.LoggerHelper;
+import eu.sqooss.impl.service.alitheia.core.CoreImpl;
 import eu.sqooss.impl.service.alitheia.logger.LoggerImpl;
 
 public class CorbaActivator implements BundleActivator {
@@ -36,24 +43,32 @@ public class CorbaActivator implements BundleActivator {
 	
 	private ORBThread orbthread;
 	
+	private NamingContextExt ncRef;
+	private POA rootpoa;
+	private static CorbaActivator instance;
+	
+	private BundleContext bc;
+	
+	private Map< Integer, ServiceRegistration > registrations;
+	
 	public void start(BundleContext bc) throws Exception {
+		
+		instance = this;
+
+		this.bc = bc;
+		
+		// create servant and register it with the ORB
+		LoggerImpl loggerImpl = new LoggerImpl(bc);
 		try{
 			Properties props = new Properties();
-			props.put("org.omg.CORBA.ORBInitialPort", "1050");
+			props.put("org.omg.CORBA.ORBInitialPort", "900");
 			
 			// create and initialize the ORB
 			ORB orb = ORB.init(new String[0], props);
 			
 			// get reference to rootpoa & activate the POAManager
-			POA rootpoa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
+			rootpoa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
 			rootpoa.the_POAManager().activate();
-			
-			// create servant and register it with the ORB
-			LoggerImpl loggerImpl = new LoggerImpl(bc);
-			
-			// get object reference from the servant
-			org.omg.CORBA.Object ref = rootpoa.servant_to_reference(loggerImpl);
-			Logger logRef = LoggerHelper.narrow(ref);
 			
 			// get the root naming context
 			//The string "NameService" is defined for all CORBA ORBs.
@@ -63,26 +78,54 @@ public class CorbaActivator implements BundleActivator {
 			// to the interface we need.
 			// Use NamingContextExt which is part of the Interoperable
 			// Naming Service (INS) specification.
-			NamingContextExt ncRef = NamingContextExtHelper.narrow(objRef);
+			ncRef = NamingContextExtHelper.narrow(objRef);
 			
-			// bind the Object Reference with the Naming Service.
-			String name = "Logger";
-			NameComponent path[] = ncRef.to_name(name);
-			//pass the name to the Naming Service, binding the logRef to the string
-			// "Logger"
-			ncRef.rebind(path, logRef);
+			// this list contains all service registrations made via the core 
+			registrations = new HashMap< Integer, ServiceRegistration >();
 			
+			// register the logger in CORBA
+			registerCorbaObject("Logger", LoggerHelper.narrow(rootpoa.servant_to_reference(loggerImpl)));
+			
+			// register the core in CORBA
+			registerCorbaObject("Core", CoreHelper.narrow(rootpoa.servant_to_reference(new CoreImpl(bc))));
+			
+			// start the ORB thread in the background
 			orbthread = new ORBThread(orb);
 			orbthread.start();
 			
-			//loggerImpl.info(,"CORBA Service ready and waiting...");
-		} catch (Exception e) {
-			e.printStackTrace();
+			loggerImpl.info(eu.sqooss.service.logging.Logger.NAME_SQOOSS, "CORBA Service ready and waiting...");
+		} catch (Throwable t) {
+			loggerImpl.error(eu.sqooss.service.logging.Logger.NAME_SQOOSS, "CORBA Service failed to connect to ORB.");
 		}
 	}
 
-	public void stop(BundleContext context) throws Exception {
+	public synchronized void stop(BundleContext context) throws Exception {
 		orbthread.shutdown();
+		
+		for (ServiceRegistration sr : registrations.values()) {
+			sr.unregister();
+		}
+		
+		instance = null;
 	}
-
+	
+	public synchronized int registerExternalCorbaObject(String clazz, Object service) {
+		ServiceRegistration sr = bc.registerService(clazz, service, null);
+		registrations.put(sr.hashCode(), sr);
+		return sr.hashCode();
+	}
+	
+	public synchronized void unregisterExternalCorbaObject(int id) {
+		registrations.get(id).unregister();
+		registrations.remove(id);
+	}
+	
+	protected void registerCorbaObject(String name, org.omg.CORBA.Object obj) throws InvalidName, NotFound, CannotProceed {
+		NameComponent path[] = ncRef.to_name(name);
+		ncRef.rebind(path, obj);
+	}
+	
+	public static CorbaActivator instance() {
+		return instance;
+	}
 }
