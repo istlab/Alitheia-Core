@@ -96,8 +96,8 @@ clean-db :
 	rm -rf $(PREFIX)/derbyDB
 
 distclean: clean clean-log clean-db
-	find . -type f|grep *~|xargs rm
-	find . -type f|grep DS_Store|xargs rm
+	-find . -type f|grep *~|xargs rm
+	-find . -type f|grep DS_Store|xargs rm
 
 #Just a dummy config file
 CONFIG=-Xmx256M
@@ -174,6 +174,7 @@ eclipse-up-workdir: distclean
 	if [ ! -z "`svn status|grep -v "^?"`" ]; then \
 		echo Modified or added files are in place, take care of them first;\
 		exit ; \
-	fi &&
-	(cd $(ECLIPSEDIR) && svn up) &&
-	rsync -rv $(ECLIPSEDIR) $(TOP_SRCDIR)
+	fi && \
+	(cd $(ECLIPSEDIR) && svn up) && \ 
+	rsync -rv --exclude ".svn" $(ECLIPSEDIR)/ $(TOP_SRCDIR)/ 
+
