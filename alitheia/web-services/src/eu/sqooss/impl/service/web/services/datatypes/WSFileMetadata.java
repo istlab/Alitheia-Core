@@ -33,42 +33,61 @@
 package eu.sqooss.impl.service.web.services.datatypes;
 
 import eu.sqooss.service.db.FileMetadata;
-import eu.sqooss.service.db.ProjectFile;
 
 /**
- * This class wraps the <code>eu.sqooss.service.db.ProjectFile</code>
- * with  the <code>eu.sqooss.service.db.FileMetadata</code>.
+ * This class wraps the <code>eu.sqooss.service.db.FileMetadata</code>
  */
-public class WSProjectFile {
+public class WSFileMetadata {
     
-    private ProjectFile projectFile;
-    private WSFileMetadata fileMetadata; 
+    private FileMetadata fileMetadata;
     
-    public WSProjectFile(ProjectFile projectFile, FileMetadata fileMetadata) {
-        this.projectFile = projectFile;
-        this.fileMetadata = new WSFileMetadata(fileMetadata);
+    public WSFileMetadata(FileMetadata fileMetadata) {
+        this.fileMetadata = fileMetadata;
+    }
+    
+    public String getProtection() {
+        return fileMetadata.getProtection();
     }
 
-    public long getId() {
-        return projectFile.getId();
-    }
-    
-    public String getName() {
-        return projectFile.getName();
+    public int getLinks() {
+        return fileMetadata.getLinks();
     }
 
-    public long getProjectVersion() {
-        return projectFile.getProjectVersion();
+    public int getUserId() {
+        return fileMetadata.getUserId();
     }
 
-    public String getStatus() {
-        return projectFile.getStatus();
+    public int getGroupId() {
+        return fileMetadata.getGroupId();
     }
-    
-    public WSFileMetadata getProjectFileMetadata() {
-        return fileMetadata;
+
+    /**
+     * @see java.util.Date#getTime()
+     * @return
+     */
+    public long getAccessTime() {
+        return fileMetadata.getAccessTime().getTime();
     }
-    
+
+    /**
+     * @see java.util.Date#getTime()
+     * @return
+     */
+    public long getModificationTime() {
+        return fileMetadata.getModificationTime().getTime();
+    }
+
+    public int getSize() {
+        return fileMetadata.getSize();
+    }
+
+    public String getFileStatusChange() {
+        return fileMetadata.getFileStatusChange();
+    }
+
+    public int getBlocks() {
+        return fileMetadata.getBlocks();
+    }
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

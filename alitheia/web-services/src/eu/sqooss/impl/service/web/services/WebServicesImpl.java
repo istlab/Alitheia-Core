@@ -33,6 +33,7 @@
 package eu.sqooss.impl.service.web.services;
 
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
@@ -45,8 +46,10 @@ import eu.sqooss.impl.service.web.services.datatypes.WSStoredProject;
 import eu.sqooss.impl.service.web.services.utils.DatabaseQueries;
 import eu.sqooss.impl.service.web.services.utils.WSPair;
 import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.FileMetadata;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
+import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
@@ -88,18 +91,19 @@ public class WebServicesImpl {
         
         Map<String, Object> queryParameters = new HashMap<String, Object>(1);
         queryParameters.put(DatabaseQueries.RETRIEVE_METRICS_4_SELECTED_PPROJECT_PARAM, Long.parseLong(projectId));
-        List<Object[]> queryResult = db.doHQL(DatabaseQueries.RETRIEVE_METRICS_4_SELECTED_PPROJECT, queryParameters);
+        List queryResult = db.doHQL(DatabaseQueries.RETRIEVE_METRICS_4_SELECTED_PPROJECT, queryParameters);
         
-        WSMetric[] result = new WSMetric[queryResult.size()];
-        if (result.length == 0) {
+        if (queryResult.size() == 0) {
             return null;
+        } else {
+            WSMetric[] result = new WSMetric[queryResult.size()];
+            Object[] currentElem;
+            for (int i = 0; i < result.length; i++) {
+                currentElem = (Object[]) queryResult.get(i);
+                result[i] = new WSMetric((Metric) currentElem[0], (MetricType) currentElem[1]);
+            }
+            return result;
         }
-        Object[] currentElem;
-        for (int i = 0; i < result.length; i++) {
-            currentElem = queryResult.get(i);
-            result[i] = new WSMetric((Metric)currentElem[0], (MetricType)currentElem[1]);
-        }
-        return result; 
     }
     
     public WSMetric retrieveSelectedMetric(String userName, String password,
@@ -114,11 +118,11 @@ public class WebServicesImpl {
         queryParameters.put(DatabaseQueries.RETRIEVE_SELECTED_METRIC_PARAM_PR, Long.parseLong(projectId));
         queryParameters.put(DatabaseQueries.RETRIEVE_SELECTED_METRIC_PARAM_METRIC, Long.parseLong(metricId));
 
-        List<Object[]> queryResult = db.doHQL(DatabaseQueries.RETRIEVE_SELECTED_METRIC, queryParameters);
+        List queryResult = db.doHQL(DatabaseQueries.RETRIEVE_SELECTED_METRIC, queryParameters);
         
         if (queryResult.size() == 1) {
-            Object[] elem = queryResult.get(0);
-            return new WSMetric((Metric)elem[0], (MetricType)elem[1]);
+            Object[] elem = (Object[]) queryResult.get(0);
+            return new WSMetric((Metric) elem[0], (MetricType) elem[1]);
         } else {
             return null;
         }
@@ -127,10 +131,28 @@ public class WebServicesImpl {
     
     //5.1.2
     public WSProjectFile[] retrieveFileList(String userName, String password, String projectId) {
-        logger.info("Retrieve file list! user: " + userName +
-                "; project id: " + projectId);
+        logger.info("Retrieve file list! user: " + userName + "; project id: " + projectId);
+        
         //TODO: check the security
+        
         return null;
+        //TODO: uncomment after DB schema fix
+//        Map<String, Object> queryParameters = new Hashtable<String, Object>(1);
+//        queryParameters.put(DatabaseQueries.RETRIEVE_FILE_LIST_PARAM, Long.parseLong(projectId));
+//        
+//        List queryResult = db.doHQL(DatabaseQueries.RETRIEVE_FILE_LIST, queryParameters);
+//        
+//        if (queryResult.size() == 0) {
+//            return null;
+//        } else {
+//            WSProjectFile[] result = new WSProjectFile[queryResult.size()];
+//            Object[] currentElem;
+//            for (int i = 0; i < result.length; i++) {
+//                currentElem = (Object[]) queryResult.get(i);
+//                result[i] = new WSProjectFile((ProjectFile) currentElem[0], (FileMetadata) currentElem[1]);
+//            }
+//            return result;
+//        }
     }
     
     public WSPair[] retrieveMetrics4SelectedFiles(String userName, String password,
