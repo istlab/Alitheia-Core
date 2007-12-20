@@ -18,5 +18,5 @@ Import-Package: org.apache.commons.logging,
     org.dom4j;version="1.6.1",
     org.dom4j.io;version="1.6.1",
     org.postgresql;version="8.2.505",
-    org.apache.derby.jdbc;version="10.3.2.1",
-    eu.sqooss.service.db
+    org.apache.derby.jdbc;version="10.3.2.1"
+
