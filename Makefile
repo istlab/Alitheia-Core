@@ -17,7 +17,7 @@
 # install	- Install the resulting bundles into the equinox dir.
 # run		- Run the OSGi / Equinox system.
 # run-bg	- Run the OSGi / Equinox system without a console and in
-#             background mode.
+#             	background mode.
 # run-ui	- Start up tomcat with the public-facing web front end.
 # stop-ui	- Stop the tomcat instance.
 # start		- Run the web UI and the core system.
@@ -32,6 +32,9 @@
 # show-db	- Start the Derby CLI for database manipulation.
 #		  Only useful if you are using Derby, which is the fallback
 #		  when Postgres can't be found.
+#
+# eclipse-up-branch  - Update the eclipse branch from the current workdir
+# eclipse-up-workdir - Update the current workdir from the eclipse branch
 #
 # After 'make run' you may need to type 'close' on the OSGi console
 # to quit the Alitheia system (in production circumstances you would
@@ -92,6 +95,10 @@ clean-log :
 clean-db :
 	rm -rf $(PREFIX)/derbyDB
 
+distclean: clean clean-log clean-db
+	find . -type f|grep *~|xargs rm
+	find . -type f|grep DS_Store|xargs rm
+
 #Just a dummy config file
 CONFIG=-Xmx256M
 
@@ -142,3 +149,31 @@ show-db :
 show-db-tables :
 	echo "show tables;" | $(RUN_DERBY_IJ) | grep '^APP'
 
+
+ECLIPSEDIR=$(TOP_SRCDIR)/../branches/eclipse
+
+eclipse-up-branch: distclean
+	@if [ !  "`svn status|grep -v "^?"`" ]; then \
+		echo **Modified exist, take care of them first;\
+		exit ; \
+	fi &&\
+	files=`svn st|grep ^?|tr -s ' '|cut -f2 -d' '|tr '\n' ' '` && \
+	for file in $$files; do \
+		mkdir -p ../tmp/`dirname $$file`;  \
+		cp -rv $$file ../tmp/$$file;  \
+	done && \
+	rsync -rv ../tmp/ $(ECLIPSEDIR) && \
+	echo Cleaning up.... && \
+	rm -R ../tmp &&\
+	echo "#################################" && \
+	echo "#Commit the following files/dirs#" && \
+	echo "#################################" && \
+	svn st $(ECLIPSEDIR) 
+
+eclipse-up-workdir: distclean
+	if [ ! -z "`svn status|grep -v "^?"`" ]; then \
+		echo Modified or added files are in place, take care of them first;\
+		exit ; \
+	fi &&
+	(cd $(ECLIPSEDIR) && svn up) &&
+	rsync -rv $(ECLIPSEDIR) $(TOP_SRCDIR)
