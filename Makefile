@@ -102,6 +102,8 @@ distclean: clean clean-log clean-db
 #Just a dummy config file
 CONFIG=-Xmx256M
 
+DEBUGOPT=-Xdebug -Xrunjdwp:transport=dt_socket,server=y,address=8000,suspend=y 
+
 CL_CONFIG=-Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.Log4JLogger
 LOG4J_CONFIG=-Dlog4j.configuration=file://$(ABS_PREFIX)/configuration/log4j.properties
 JETTY_CONFIG=-DDEBUG_VERBOSE=1 -DDEBUG_PATTERNS=main,org.mortbay.http -Dorg.mortbay.log.LogFactory.noDiscovery=false
@@ -118,6 +120,12 @@ run-bg :
 	java $(CONFIG) \
 		-DDEBUG $(CL_CONFIG) $(LOG4J_CONFIG) $(JETTY_CONFIG) \
 		-jar org.eclipse.osgi_3.3.0.v20070321.jar -no-exit &
+
+debug :
+	cd $(PREFIX) && \
+	java $(DEBUGOPT) $(CONFIG) \
+		-DDEBUG $(CL_CONFIG) $(LOG4J_CONFIG) $(JETTY_CONFIG) \
+		-jar org.eclipse.osgi_3.3.0.v20070321.jar -console 
 
 run-ui :
 	cd ui/webui && $(MAKE) start
