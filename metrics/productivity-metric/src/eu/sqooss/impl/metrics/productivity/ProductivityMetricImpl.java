@@ -97,6 +97,11 @@ public class ProductivityMetricImpl extends AbstractMetric implements
     public Date getDateInstalled() {
         return null;
     }
+    
+    public Object selfTest() {
+    	
+    	return null;
+    }
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

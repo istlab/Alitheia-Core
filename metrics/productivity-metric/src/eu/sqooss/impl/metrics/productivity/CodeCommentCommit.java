@@ -72,11 +72,11 @@ public class CodeCommentCommit extends CodeCommitsJob {
         try {
             d = svn.getDiff(path, entry.getRevision(), entry.getRevision());
         } catch (InvalidProjectRevisionException e) {
-            log.severe("Invalid Project Revision: " + e.getMessage());
+            log.error("Invalid Project Revision: " + e.getMessage());
         } catch (InvalidRepositoryException e) {
-            log.severe("Invalid Repository Exception: " + e.getMessage());
+            log.error("Invalid Repository Exception: " + e.getMessage());
         } catch (FileNotFoundException e) {
-            log.severe("File Not Found Exception: " + e.getMessage());
+            log.error("File Not Found Exception: " + e.getMessage());
         }
 
         try {
@@ -94,9 +94,9 @@ public class CodeCommentCommit extends CodeCommitsJob {
                 return true;
 
         } catch (FileNotFoundException e) {
-            log.severe("Diff file not found:" + e.getMessage());
+            log.error("Diff file not found:" + e.getMessage());
         } catch (IOException e) {
-            log.severe("Error mapping diff file to memory:" + e.getMessage());
+            log.error("Error mapping diff file to memory:" + e.getMessage());
         }
 
         return false;

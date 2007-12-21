@@ -105,8 +105,8 @@ public class CodeCommitsJob extends ProductivityMetricJob {
                 // FileTypeMatcher.getFileType(path) + " file");
 
                 if (evaluate(path, entry))
-                    // Author marked as having committed code, now break to next
-                    // commit
+                    // Author marked as having committed code, 
+                	//now break to next commit
                     break;
         }
 

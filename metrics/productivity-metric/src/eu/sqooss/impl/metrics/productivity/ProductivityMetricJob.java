@@ -37,15 +37,19 @@ package eu.sqooss.impl.metrics.productivity;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
+import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.tds.TDSService;
+import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.fds.FDSService;
 
 public abstract class ProductivityMetricJob extends Job {
 
+	protected AlitheiaCore core = null;
     protected TDSService tds = null;
     protected FDSService fds = null;
+    protected DBService db = null;
     protected Logger log;
 
     private ServiceReference serviceRef;
@@ -53,23 +57,37 @@ public abstract class ProductivityMetricJob extends Job {
     public ProductivityMetricJob(BundleContext bc, Logger log) {
         this.log = log;
 
-        serviceRef = bc.getServiceReference(TDSService.class.getName());
-        tds = (TDSService) bc.getService(serviceRef);
+        serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
+        core = (AlitheiaCore) bc.getService(serviceRef);
+
+        if (core != null) {
+            log.info("Got Core Service!");
+        } else {
+            log.error("Didn't get Core Service");
+        }
+        
+        tds = core.getTDSService();
 
         if (tds != null) {
             log.info("Got TDS Service!");
         } else {
             log.error("Didn't get TDS Service");
         }
-
-        serviceRef = bc.getServiceReference(FDSService.class.getName());
-
-        fds = (FDSService) bc.getService(serviceRef);
+        
+        fds = core.getFDSService();
 
         if (fds != null) {
             log.info("Got FDS Service!");
         } else {
             log.error("Didn't get FDS Service");
+        }
+        
+        db = core.getDBService();
+        
+        if (db != null) {
+            log.info("Got DB Service!");
+        } else {
+            log.error("Didn't get DB Service");
         }
     }
 

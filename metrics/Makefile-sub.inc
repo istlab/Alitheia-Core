@@ -111,7 +111,7 @@ $(foreach d,$(RESOURCES),$(eval $(call resource_template,$(d))))
 $(foreach d,$(HBM_RESOURCES),$(eval $(call hbm_resource_template,$(d))))
 
 build/.prebuild : $(SRC:%=src/%)
-	javac -Xlint:-path -source 1.5 -cp $(EXTRA_CP):$(EQUINOX_CP):$(METRICS_CP):src/ -d build/ $?
+	javac -g -Xlint:-path -source 1.5 -cp $(EXTRA_CP):$(EQUINOX_CP):$(METRICS_CP):src/ -d build/ $?
 	touch build/.prebuild
 
 JAVADEP=perl ../../../../tools/java_dependency_generator.pl
