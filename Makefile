@@ -147,15 +147,15 @@ show-log :
 		cat $(PREFIX)/configuration/org.eclipse.osgi/bundles/[0-9]*/data/logs/alitheia*.log ; \
 	fi
 
-DBPATH=alitheia/db/src/main/resources
+DBPATH=extlibs/org.apache.derby_10.3.2.1
 RUN_DERBY_IJ=java -Dij.protocol=jdbc:derby: -Dij.database=equinox/derbyDB \
-		-cp $(DBPATH)/derby-10.3.1.4.jar:$(DBPATH)/tools-10.3.1.4.jar \
+		-cp $(DBPATH)/derby.jar:$(DBPATH)/../org.apache.derby.tools-10.3.1.4.jar \
 		org.apache.derby.tools.ij
 show-db :
 	$(RUN_DERBY_IJ)
 
 show-db-tables :
-	echo "show tables;" | $(RUN_DERBY_IJ) | grep '^APP'
+	echo "show tables;" | $(RUN_DERBY_IJ) | grep '^ALITHEIA'
 
 
 ECLIPSEDIR=$(TOP_SRCDIR)/../branches/eclipse
