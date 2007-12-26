@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+  <class name="eu.sqooss.service.db.WeightHistory" table="WEIGHT_HISTORY">
+    <id name="id" column="WEIGHT_HISTORY_ID">
+      <generator class="native" />
+    </id>
+    <property name="actionID" column="RESOURCE_TYPE_ID" />
+    <property name="weight" column="WEIGHT" />
+    <property name="calcDate" column="CALC_DATE" />
+  </class>
+</hibernate-mapping>
