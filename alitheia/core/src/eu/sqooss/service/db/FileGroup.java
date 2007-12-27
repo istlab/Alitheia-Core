@@ -45,54 +45,57 @@ public class FileGroup extends DAObject{
     private long projectVersion;
 
     public FileGroup() {
-	// Nothing to do
+        // Nothing to do
     }
 
     public String getName() {
-	return name;
+        return name;
     }
 
     public void setName(String name) {
-	this.name = name;
+        this.name = name;
     }
 
     public String getSubPath() {
-	return subPath;
+        return subPath;
     }
 
     public void setSubPath(String subPath) {
-	this.subPath = subPath;
+        this.subPath = subPath;
     }
 
     public String getRegex() {
-	return regex;
+        return regex;
     }
 
     public void setRegex(String regex) {
-	this.regex = regex;
+        this.regex = regex;
     }
 
     public int getRecalcFreq() {
-	return recalcFreq;
+        return recalcFreq;
     }
 
     public void setRecalcFreq(int recalcFreq) {
-	this.recalcFreq = recalcFreq;
+        this.recalcFreq = recalcFreq;
     }
 
     public Time getLastUsed() {
-	return lastUsed;
+        return lastUsed;
     }
 
     public void setLastUsed(Time lastUsed) {
-	this.lastUsed = lastUsed;
+        this.lastUsed = lastUsed;
     }
 
     public long getProjectVersion() {
-	return projectVersion;
+        return projectVersion;
     }
 
     public void setProjectVersion(long projectVersion ) {
-	this.projectVersion = projectVersion;
+        this.projectVersion = projectVersion;
     }
 }
+
+//vi: ai nosi sw=4 ts=4 expandtab
+

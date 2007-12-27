@@ -40,22 +40,25 @@ public class Metric extends DAObject{
     private String description;
 
     public Metric() {
-	//Nothing to do here
+        //Nothing to do here
     }
 
     public long getMetricType() {
-	return metricType;
+        return metricType;
     }
 
     public void setMetricType(long metricType) {
-	this.metricType = metricType;
+        this.metricType = metricType;
     }
 
     public String getDescription() {
-	return description;
+        return description;
     }
 
     public void setDescription(String description) {
-	this.description = description;
+        this.description = description;
     }
 }
+
+//vi: ai nosi sw=4 ts=4 expandtab
+

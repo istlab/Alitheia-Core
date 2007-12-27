@@ -42,30 +42,33 @@ public class ProjectFile extends DAObject{
 
 
     public ProjectFile() {
-	// Nothing to see here
+        // Nothing to see here
     }
 
     public void setName(String name) {
-	this.name = name;
+        this.name = name;
     }
 
     public String getName() {
-	return name;
+        return name;
     }
 
     public void setProjectVersion(long projectVersion ) {
-	this.projectVersion = projectVersion;
+        this.projectVersion = projectVersion;
     }
 
     public long getProjectVersion() {
-	return projectVersion;
+        return projectVersion;
     }
 
     public void setStatus(String status) {
-	this.status = status;
+        this.status = status;
     }
 
     public String getStatus() {
-	return status;
+        return status;
     }
 }
+
+//vi: ai nosi sw=4 ts=4 expandtab
+

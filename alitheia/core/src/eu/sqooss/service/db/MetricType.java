@@ -39,14 +39,17 @@ public class MetricType extends DAObject{
     private String type;
 
     public MetricType() {
-	// Nothing to do here
+        // Nothing to do here
     }
 
     public String getType() {
-	return type;
+        return type;
     }
 
     public void setType(String type) {
-	this.type = type;
+        this.type = type;
     }
 }
+
+//vi: ai nosi sw=4 ts=4 expandtab
+

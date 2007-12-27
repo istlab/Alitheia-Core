@@ -44,38 +44,41 @@ public class Measurement extends DAObject{
     private String result;
 
     public Measurement() {
-	// Nothing to do here
+        // Nothing to do here
     }
 
     public long getMetric() {
-	return metric;
+        return metric;
     }
 
     public void setMetric(long metric) {
-	this.metric = metric;
+        this.metric = metric;
     }
 
     public long getProjectVersion() {
-	return projectVersion;
+        return projectVersion;
     }
 
     public void setProjectVersion(long projectVersion) {
-	this.projectVersion = projectVersion;
+        this.projectVersion = projectVersion;
     }
 
     public Time getWhenRun() {
-	return whenRun;
+        return whenRun;
     }
 
     public void setWhenRun(Time whenRun) {
-	this.whenRun = whenRun;
+        this.whenRun = whenRun;
     }
-	
+        
     public String getResult() {
-	return result;
+        return result;
     }
 
     public void setResult(String result) {
-	this.result = result;
+        this.result = result;
     }
 }
+
+//vi: ai nosi sw=4 ts=4 expandtab
+

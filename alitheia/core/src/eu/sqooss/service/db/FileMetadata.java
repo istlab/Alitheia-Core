@@ -50,78 +50,81 @@ public class FileMetadata extends DAObject{
 
 
     public FileMetadata() {
-	// Nothing to do
+        // Nothing to do
     }
 
     public String getProtection() {
-	return protection;
+        return protection;
     }
 
     public void setProtection(String protection) {
-	this.protection = protection;
+        this.protection = protection;
     }
 
     public int getLinks() {
-	return links;
+        return links;
     }
 
     public void setLinks(int links) {
-	this.links = links;
+        this.links = links;
     }
 
     public int getUserId() {
-	return userId;
+        return userId;
     }
 
     public void setUserId(int userId) {
-	this.userId = userId;
+        this.userId = userId;
     }
 
     public int getGroupId() {
-	return groupId;
+        return groupId;
     }
 
     public void setGroupId(int groupId) {
-	this.groupId = groupId;
+        this.groupId = groupId;
     }
 
     public Time getAccessTime() {
-	return accessTime;
+        return accessTime;
     }
 
     public void setAccessTime(Time accessTime) {
-	this.accessTime = accessTime;
+        this.accessTime = accessTime;
     }
 
     public Time getModificationTime() {
-	return modificationTime;
+        return modificationTime;
     }
 
     public void setModificationTime(Time modificationTime){
-	this.modificationTime = modificationTime;
+        this.modificationTime = modificationTime;
     }
 
     public int getSize() {
-	return size;
+        return size;
     }
 
     public void setSize(int size) {
-	this.size = size;
+        this.size = size;
     }
 
     public String getFileStatusChange() {
-	return fileStatusChange;
+        return fileStatusChange;
     }
 
     public void setFileStatusChange(String fileStatusChange) {
-	this.fileStatusChange = fileStatusChange;
+        this.fileStatusChange = fileStatusChange;
     }
 
     public int getBlocks() {
-	return blocks;
+        return blocks;
     }
 
     public void setBlocks(int blocks) {
-	this.blocks = blocks;
+        this.blocks = blocks;
     }
 }
+
+//vi: ai nosi sw=4 ts=4 expandtab
+

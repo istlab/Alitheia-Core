@@ -40,22 +40,25 @@ public class Plugin extends DAObject{
     private String name;
 
     public Plugin() {
-	// Nothing to do here
+        // Nothing to do here
     }
 
     public long getMetric() {
-	return metric;
+        return metric;
     }
 
     public void setMetric(long metric) {
-	this.metric = metric;
+        this.metric = metric;
     }
 
     public String getName() {
-	return name;
+        return name;
     }
 
     public void setName(String name) {
-	this.name = name;
+        this.name = name;
     }
 }
+
+//vi: ai nosi sw=4 ts=4 expandtab
+

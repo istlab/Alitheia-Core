@@ -40,22 +40,25 @@ public class Tag extends DAObject {
     private String name;
 
     public Tag() {
-	// Nothing to do
+        // Nothing to do
     }
 
     public long getProjectVersion() {
-	return projectVersion;
+        return projectVersion;
     }
 
     public void setProjectVersion(long projectVersion) {
-	this.projectVersion = projectVersion;
+        this.projectVersion = projectVersion;
     }
 
     public String getName() {
-	return name;
+        return name;
     }
 
     public void setName(String name) {
-	this.name = name;
+        this.name = name;
     }
 }
+
+//vi: ai nosi sw=4 ts=4 expandtab
+

@@ -40,22 +40,25 @@ public class ProjectVersion extends DAObject {
     private int version;
 
     public ProjectVersion() {
-	// Nothing to do
+        // Nothing to do
     }
 
     public long getProject() {
-	return project;
+        return project;
     }
 
     public void setProject(long project) {
-	this.project = project;
+        this.project = project;
     }
 
     public int getVersion() {
-	return this.version;
+        return this.version;
     }
 
     public void setVersion(int version) {
-	this.version = version;
+        this.version = version;
     }
 }
+
+//vi: ai nosi sw=4 ts=4 expandtab
+
