@@ -4,7 +4,7 @@
         "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-  <class name="eu.sqooss.service.db.ResourceWeight" table="RESOURCE_WEIGHT">
+  <class name="eu.sqooss.service.db.ResourceWeight" table="PRODUCTIVITY_RESOURCE_WEIGHT">
     <id name="id" column="RESOURCE_WEIGHT_ID">
       <generator class="native" />
     </id>

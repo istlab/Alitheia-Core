@@ -4,7 +4,7 @@
         "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-  <class name="eu.sqooss.service.db.WeightHistory" table="WEIGHT_HISTORY">
+  <class name="eu.sqooss.service.db.WeightHistory" table="PRODUCTIVITY_WEIGHT_HISTORY">
     <id name="id" column="WEIGHT_HISTORY_ID">
       <generator class="native" />
     </id>
