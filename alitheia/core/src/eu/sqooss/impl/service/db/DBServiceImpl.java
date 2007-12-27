@@ -36,8 +36,6 @@ import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.sql.Statement;
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -48,13 +46,10 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
-
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
-import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
 
 public class DBServiceImpl implements DBService {
@@ -63,11 +58,9 @@ public class DBServiceImpl implements DBService {
     private static final int INIT_POOL_SIZE = 5;
     private static final int MAX_POOL_SIZE = 100;
 
-    private LogManager logService = null;
     private Logger logger = null;
     // This is the database connection; we may want to do more pooling here.
     private Connection dbConnection = null;
-    private Statement dbStatement = null;
     // Store the class and URL of the database to hand off to
     // Hibernate so that it obeys the fallback from Postgres to Derby as well.
     private String dbClass, dbURL, dbDialect;
@@ -182,14 +175,14 @@ public class DBServiceImpl implements DBService {
             dbConnection = c;
             return true;
         } catch (InstantiationException e) {
-            logger.warning("Could not instantiate JDBC connection for "
+            logger.error("Could not instantiate JDBC connection for "
                     + driver);
         } catch (ClassNotFoundException e) {
-            logger.warning("Could not get class for JDBC driver " + driver);
+            logger.error("Could not get class for JDBC driver " + driver);
         } catch (IllegalAccessException e) {
-            logger.warning("SEGV. Core dumped.");
+            logger.error("SEGV. Core dumped.");
         } catch (SQLException e) {
-            logger.warning("SQL Exception while instantiating " + driver);
+            logger.error("SQL Exception while instantiating " + driver);
         }
 
         dbClass = null;
@@ -229,7 +222,7 @@ public class DBServiceImpl implements DBService {
             sm = new SessionManager(sf, true);
 
         } catch (Throwable e) {
-            logger.severe("Failed to initialize Hibernate: " + e.getMessage());
+            logger.error("Failed to initialize Hibernate: " + e.getMessage());
             e.printStackTrace();
             throw new ExceptionInInitializerError(e);
         }
@@ -247,7 +240,7 @@ public class DBServiceImpl implements DBService {
             if (!Boolean
                     .valueOf(bc.getProperty("eu.sqooss.db.fallback.enable"))
                     || !getDerbyJDBC()) {
-                logger.severe("DB service got no JDBC connectors.");
+                logger.error("DB service got no JDBC connectors.");
             }
         }
 
@@ -255,7 +248,7 @@ public class DBServiceImpl implements DBService {
             logger.info("Using JDBC " + dbClass);
             initHibernate(bc.getBundle().getEntry("/hibernate.cfg.xml"));
         } else {
-            logger.severe("Hibernate will not be initialized.");
+            logger.error("Hibernate will not be initialized.");
             // TODO: Throw something to prevent the bundle from being started?
         }
     }
