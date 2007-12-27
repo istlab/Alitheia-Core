@@ -33,31 +33,33 @@
 package eu.sqooss.service.db;
 
 public class ResourceWeight extends DAObject {
-	public long resourceTypeID;
-	public long projectID;
-	public long weight;
-	
-	public long getResourceTypeID() {
-		return resourceTypeID;
-	}
-	
-	public void setResourceTypeID(long resourceTypeID) {
-		resourceTypeID = resourceTypeID;
-	}
-	
-	public long getProjectID() {
-		return projectID;
-	}
-	
-	public void setProjectID(long projectID) {
-		projectID = projectID;
-	}
-	
-	public long getWeight() {
-		return weight;
-	}
-	
-	public void setWeight(long weight) {
-		weight = weight;
-	}
+    public long resourceTypeID;
+    public long projectID;
+    public long weight;
+
+    public long getResourceTypeID() {
+        return resourceTypeID;
+    }
+
+    public void setResourceTypeID(long resourceTypeID) {
+        resourceTypeID = resourceTypeID;
+    }
+
+    public long getProjectID() {
+        return projectID;
+    }
+
+    public void setProjectID(long projectID) {
+        projectID = projectID;
+    }
+
+    public long getWeight() {
+        return weight;
+    }
+
+    public void setWeight(long weight) {
+        weight = weight;
+    }
 }
+
+//vi: ai nosi sw=4 ts=4 expandtab

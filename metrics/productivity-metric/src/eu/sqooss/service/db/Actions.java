@@ -34,32 +34,34 @@
 package eu.sqooss.service.db;
 
 public class Actions extends DAObject {
-	private long resourceTypeID;
-	private String actionName;
-	private boolean isActionProductive;
-	
-	public long getResourceTypeID() {
-		return resourceTypeID;
-	}
-	
-	public void setResourceTypeID(long resourceTypeID) {
-		this.resourceTypeID = resourceTypeID;
-	}
-	
-	public String getActionName() {
-		return actionName;
-	}
-	
-	public void setActionName(String actionName) {
-		this.actionName = actionName;
-	}
-	
-	public boolean isActionProductive() {
-		return isActionProductive;
-	}
-	
-	public void setActionProductive(boolean isActionProductive) {
-		this.isActionProductive = isActionProductive;
-	}
+    private long resourceTypeID;
+    private String actionName;
+    private boolean isActionProductive;
+
+    public long getResourceTypeID() {
+        return resourceTypeID;
+    }
+
+    public void setResourceTypeID(long resourceTypeID) {
+        this.resourceTypeID = resourceTypeID;
+    }
+
+    public String getActionName() {
+        return actionName;
+    }
+
+    public void setActionName(String actionName) {
+        this.actionName = actionName;
+    }
+
+    public boolean isActionProductive() {
+        return isActionProductive;
+    }
+
+    public void setActionProductive(boolean isActionProductive) {
+        this.isActionProductive = isActionProductive;
+    }
 }
 
+
+//vi: ai nosi sw=4 ts=4 expandtab

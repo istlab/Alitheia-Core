@@ -35,36 +35,35 @@ package eu.sqooss.service.db;
 
 import java.util.Date;
 
-public class WeightHistory extends DAObject{
-	private long actionID;
-	private long weight;
-	private Date calcDate;
-	
-	public long getActionID() {
-		return actionID;
-	}
-	
-	public void setActionID(long actionID) {
-		this.actionID = actionID;
-	}
-	
-	public long getWeight() {
-		return weight;
-	}
-	
-	public void setWeight(long weight) {
-		this.weight = weight;
-	}
-	
-	public Date getCalcDate() {
-		return calcDate;
-	}
-	
-	public void setCalcDate(Date calcDate) {
-		this.calcDate = calcDate;
-	}
-	
-	
+public class WeightHistory extends DAObject {
+    private long actionID;
+    private long weight;
+    private Date calcDate;
+
+    public long getActionID() {
+        return actionID;
+    }
+
+    public void setActionID(long actionID) {
+        this.actionID = actionID;
+    }
+
+    public long getWeight() {
+        return weight;
+    }
+
+    public void setWeight(long weight) {
+        this.weight = weight;
+    }
+
+    public Date getCalcDate() {
+        return calcDate;
+    }
+
+    public void setCalcDate(Date calcDate) {
+        this.calcDate = calcDate;
+    }
+
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

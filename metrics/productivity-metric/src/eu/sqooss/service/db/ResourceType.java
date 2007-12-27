@@ -33,13 +33,16 @@
 package eu.sqooss.service.db;
 
 public class ResourceType extends DAObject {
-	private String resourceName;
+    private String resourceName;
 
-	public String getResourceName() {
-		return resourceName;
-	}
+    public String getResourceName() {
+        return resourceName;
+    }
 
-	public void setResourceName(String resourceName) {
-		this.resourceName = resourceName;
-	}
+    public void setResourceName(String resourceName) {
+        this.resourceName = resourceName;
+    }
 }
+
+
+//vi: ai nosi sw=4 ts=4 expandtab

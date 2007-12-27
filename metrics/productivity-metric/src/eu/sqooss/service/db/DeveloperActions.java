@@ -34,33 +34,35 @@
 package eu.sqooss.service.db;
 
 public class DeveloperActions extends DAObject {
-	private long developerID;
-	private long weightID;
-	private long totalActions;
-	
-	public long getDeveloperID() {
-		return developerID;
-	}
-	
-	public void setDeveloperID(long developerID) {
-		this.developerID = developerID;
-	}
-	
-	public long getWeightID() {
-		return weightID;
-	}
-	
-	public void setWeightID(long weightID) {
-		this.weightID = weightID;
-	}
-	
-	public long getTotalActions() {
-		return totalActions;
-	}
-	
-	public void setTotalActions(long totalActions) {
-		this.totalActions = totalActions;
-	}
-	
-	
+    private long developerID;
+    private long weightID;
+    private long totalActions;
+
+    public long getDeveloperID() {
+        return developerID;
+    }
+
+    public void setDeveloperID(long developerID) {
+        this.developerID = developerID;
+    }
+
+    public long getWeightID() {
+        return weightID;
+    }
+
+    public void setWeightID(long weightID) {
+        this.weightID = weightID;
+    }
+
+    public long getTotalActions() {
+        return totalActions;
+    }
+
+    public void setTotalActions(long totalActions) {
+        this.totalActions = totalActions;
+    }
+
 }
+
+
+//vi: ai nosi sw=4 ts=4 expandtab
