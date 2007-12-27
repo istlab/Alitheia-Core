@@ -36,33 +36,32 @@ package eu.sqooss.impl.metrics.productivity;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import org.osgi.framework.BundleContext;
-
-import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.abstractmetric.AbstractMetric;
+import eu.sqooss.service.abstractmetric.AbstractMetricJob;
+import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.tds.CommitEntry;
 import eu.sqooss.service.tds.CommitLog;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
 import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.ProjectRevision;
 import eu.sqooss.service.tds.SCMAccessor;
-import eu.sqooss.service.db.ProjectVersion;
 
 /**
  * Code commit - A commit that affects at least 1 source code file
  */
-public class CodeCommitsJob extends ProductivityMetricJob {
+public class CodeCommitsJob extends AbstractMetricJob {
 
     HashMap<String, Integer> authorCommits = new HashMap<String, Integer>();
     ProjectVersion start, end;
     SCMAccessor svn;
-    
-    protected CodeCommitsJob(BundleContext bc, Logger log, ProjectVersion a, 
+
+    protected CodeCommitsJob(AbstractMetric owner, ProjectVersion a,
             ProjectVersion b) {
-        super(bc, log);
+        super(owner);
         start = a;
         end = b;
     }
-    
+
     public void run() {
         log.debug(this.getClass().getName()
                 + ":Calculating Code Commits per developer");
@@ -81,7 +80,7 @@ public class CodeCommitsJob extends ProductivityMetricJob {
         try {
             svnLog = svn.getCommitLog(new ProjectRevision(start.getVersion()),
                     new ProjectRevision(end.getVersion()));
-            
+
         } catch (InvalidProjectRevisionException e) {
             log.error("No project with id " + start.getProject());
             return;
@@ -105,8 +104,8 @@ public class CodeCommitsJob extends ProductivityMetricJob {
                 // FileTypeMatcher.getFileType(path) + " file");
 
                 if (evaluate(path, entry))
-                    // Author marked as having committed code, 
-                	//now break to next commit
+                    // Author marked as having committed code,
+                    // now break to next commit
                     break;
         }
 
@@ -116,8 +115,8 @@ public class CodeCommitsJob extends ProductivityMetricJob {
         while (k.hasNext()) {
             String author = k.next();
             commits += authorCommits.get(author).intValue();
-            log.debug(authorCommits.get(author).intValue() + " " + author + 
-                    "\n");
+            log.debug(authorCommits.get(author).intValue() + " " + author
+                    + "\n");
         }
 
         log.debug("Total code commits:" + commits);
@@ -128,10 +127,11 @@ public class CodeCommitsJob extends ProductivityMetricJob {
     }
 
     protected boolean evaluate(String path, CommitEntry entry) {
-        
+
         if (FileTypeMatcher.getFileType(path) == FileTypeMatcher.FileType.SRC) {
             if (authorCommits.containsKey(entry.getAuthor()))
-                authorCommits.put(entry.getAuthor(),authorCommits.get(entry.getAuthor()) + 1);
+                authorCommits.put(entry.getAuthor(), authorCommits.get(entry
+                        .getAuthor()) + 1);
             else
                 authorCommits.put(entry.getAuthor(), new Integer(1));
 

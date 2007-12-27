@@ -32,28 +32,24 @@
  */
 package eu.sqooss.impl.metrics.productivity;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.File;
 import java.io.IOException;
 import java.nio.CharBuffer;
 import java.nio.channels.FileChannel.MapMode;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.osgi.framework.BundleContext;
-
+import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.db.ProjectVersion;
-import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.CommitEntry;
 import eu.sqooss.service.tds.Diff;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
 import eu.sqooss.service.tds.InvalidRepositoryException;
-import eu.sqooss.service.tds.ProjectRevision;
 
 /**
- * Code comment commit - A commit on a src file that 
- * also includes comments
+ * Code comment commit - A commit on a src file that also includes comments
  */
 public class CodeCommentCommit extends CodeCommitsJob {
 
@@ -61,9 +57,9 @@ public class CodeCommentCommit extends CodeCommitsJob {
 
     private Pattern comment2 = Pattern.compile("^\\s*\\/\\/.*$");
 
-    protected CodeCommentCommit(BundleContext bc, Logger log, ProjectVersion a,
+    protected CodeCommentCommit(AbstractMetric owner, ProjectVersion a,
             ProjectVersion b) {
-        super(bc, log, a, b);
+        super(owner, a, b);
     }
 
     protected boolean evaluate(String path, CommitEntry entry) {

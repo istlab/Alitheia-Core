@@ -31,24 +31,23 @@
  * 
  */
 
-
 package eu.sqooss.impl.metrics.productivity;
 
 import java.util.Date;
 
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.MetricResult;
+import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.metrics.productivity.ProductivityMetric;
+import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
-import eu.sqooss.service.logging.Logger;
 
 public class ProductivityMetricImpl extends AbstractMetric implements
         ProductivityMetric {
-
-    protected Logger log;
 
     private static final long serialVersionUID = 1L;
 
@@ -57,6 +56,15 @@ public class ProductivityMetricImpl extends AbstractMetric implements
     }
 
     public boolean install() {
+
+        ServiceReference serviceRef = null;
+        AlitheiaCore core = null;
+        DBService db = null;
+
+        serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
+        core = (AlitheiaCore) bc.getService(serviceRef);
+        db = core.getDBService();
+
         return false;
     }
 
@@ -89,7 +97,7 @@ public class ProductivityMetricImpl extends AbstractMetric implements
     }
 
     public boolean run(ProjectVersion a, ProjectVersion b) {
-        CodeCommitsJob ccj = new CodeCommitsJob(bc, log, a ,b);
+        CodeCommitsJob ccj = new CodeCommitsJob(this, a, b);
         //
         return false;
     }
@@ -97,11 +105,11 @@ public class ProductivityMetricImpl extends AbstractMetric implements
     public Date getDateInstalled() {
         return null;
     }
-    
+
     public Object selfTest() {
-    	
-    	return null;
+
+        return null;
     }
 }
 
-//vi: ai nosi sw=4 ts=4 expandtab
+// vi: ai nosi sw=4 ts=4 expandtab
