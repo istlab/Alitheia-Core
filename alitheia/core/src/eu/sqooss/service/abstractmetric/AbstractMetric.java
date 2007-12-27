@@ -36,16 +36,12 @@ package eu.sqooss.service.abstractmetric;
 import java.util.Date;
 
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 
-import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.FileGroup;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
-import eu.sqooss.service.logging.LogManager;
-import eu.sqooss.service.logging.Logger;
 
 /**
  * A base class for all metrics. Implements basic functionality such as
@@ -57,81 +53,62 @@ import eu.sqooss.service.logging.Logger;
 public abstract class AbstractMetric implements Metric {
 
     protected BundleContext bc;
-    protected ServiceReference serviceRef = null;
 
-    protected LogManager logService = null;
+    protected AbstractMetric(BundleContext bc) {
 
-    protected Logger logger = null;
-
-    
-    protected AbstractMetric(BundleContext bc){ 
-	/* Get a reference to the logging service */
-	serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
-	logService = ((AlitheiaCore) bc.getService(serviceRef)).getLogManager();
-
-	if (logService != null) {
-	    logger = logService.createLogger(Logger.NAME_SQOOSS_METRIC);
-
-	    if (logger != null)
-		logger.info("Got a valid reference to the logger");
-	}
-
-	if (logger == null) {
-	    System.out.println("ERROR: Got no logger");
-	}
-	this.bc = bc;
+        this.bc = bc;
     }
-    
+
     public String getAuthor() {
-	if (bc != null)
-	    return (String) bc.getBundle().getHeaders().get(
-		    org.osgi.framework.Constants.BUNDLE_CONTACTADDRESS);
-	return null;
+        if (bc != null)
+            return (String) bc.getBundle().getHeaders().get(
+                    org.osgi.framework.Constants.BUNDLE_CONTACTADDRESS);
+        return null;
     }
 
     public String getDescription() {
-	if (bc != null)
-	    return (String) bc.getBundle().getHeaders().get(
-		    org.osgi.framework.Constants.BUNDLE_DESCRIPTION);
-	return null;
+        if (bc != null)
+            return (String) bc.getBundle().getHeaders().get(
+                    org.osgi.framework.Constants.BUNDLE_DESCRIPTION);
+        return null;
     }
 
     public String getName() {
-	if (bc != null)
-	    return (String) bc.getBundle().getHeaders().get(
-		    org.osgi.framework.Constants.BUNDLE_NAME);
-	return null;
+        if (bc != null)
+            return (String) bc.getBundle().getHeaders().get(
+                    org.osgi.framework.Constants.BUNDLE_NAME);
+        return null;
     }
 
     public String getVersion() {
-	if (bc != null)
-	    return (String) bc.getBundle().getHeaders().get(
-		    org.osgi.framework.Constants.BUNDLE_VERSION);
-	return null;
+        if (bc != null)
+            return (String) bc.getBundle().getHeaders().get(
+                    org.osgi.framework.Constants.BUNDLE_VERSION);
+        return null;
     }
 
     public MetricResult getResult(DAObject o) {
-	
-	if(this instanceof ProjectVersionMetric)
-	    return getResult((ProjectVersion) o);
-	if(this instanceof StoredProjectMetric)
-	    return getResult((StoredProject) o);
-	if(this instanceof ProjectFileMetric)
-	    return getResult((ProjectFile) o);
-	if(this instanceof FileGroupMetric)
-	    return getResult((FileGroup) o);
-	return null;
+
+        if (this instanceof ProjectVersionMetric)
+            return getResult((ProjectVersion) o);
+        if (this instanceof StoredProjectMetric)
+            return getResult((StoredProject) o);
+        if (this instanceof ProjectFileMetric)
+            return getResult((ProjectFile) o);
+        if (this instanceof FileGroupMetric)
+            return getResult((FileGroup) o);
+        return null;
     }
 
     public void run(DAObject o) {
-	if(this instanceof ProjectVersionMetric)
-	    run((ProjectVersion) o);
-	if(this instanceof StoredProjectMetric)
-	    run((StoredProject) o);
-	if(this instanceof ProjectFileMetric)
-	    run((ProjectFile) o);
-	if(this instanceof FileGroupMetric)
-	    run((FileGroup) o);
+        if (this instanceof ProjectVersionMetric)
+            run((ProjectVersion) o);
+        if (this instanceof StoredProjectMetric)
+            run((StoredProject) o);
+        if (this instanceof ProjectFileMetric)
+            run((ProjectFile) o);
+        if (this instanceof FileGroupMetric)
+            run((FileGroup) o);
     }
 
     public abstract boolean install();
@@ -141,14 +118,12 @@ public abstract class AbstractMetric implements Metric {
     public abstract boolean update();
 
     public abstract Date getDateInstalled();
-    
-    
+
     protected boolean initStorage() {
-	
-	return false;
+
+        return false;
     }
 }
-
 
 // vi: ai nosi sw=4 ts=4 expandtab
 
