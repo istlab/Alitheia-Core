@@ -35,6 +35,7 @@ package eu.sqooss.service.db;
 
 import eu.sqooss.service.db.DAObject;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -80,20 +81,78 @@ public interface DBService {
     public List doSQL(Session s, String sql, Map<String, Object> params);
 
     /**
+     * Do an HQL query with the default session as a single transaction.
+     *
+     * @param hql HQL query string
+     * @see doHQL(Session, String, Map<String, Object>, Map<String,Collection>)
+     */
+    public List doHQL(String hql);
+    
+    /**
+     * Do an HQL query with the default session as a single transaction.
+     *
+     * @param hql HQL query string
+     * @param params parameters in the query
+     * @see doHQL(Session, String, Map<String, Object>, Map<String,Collection>)
+     */
+    public List doHQL(String hql, Map<String, Object> params);
+
+    /**
+     * Do an HQL query with the default session as a single transaction.
+     *
+     * @param hql HQL query string
+     * @param params parameters in the query
+     * @param collectionParams list-based parameters in the query
+     * @see doHQL(Session, String, Map<String, Object>, Map<String,Collection>)
+     */
+    public List doHQL(String hql, Map<String, Object> params,
+        Map<String, Collection> collectionParams);
+    
+    /**
+     * Do an HQL query with the given session.
+     *
+     * @param s session to use
+     * @param hql HQL query string
+     * @see doHQL(Session, String, Map<String, Object>, Map<String,Collection>)
+     */
+    public List doHQL(Session s, String hql);
+    
+    /**
+     * Do an HQL query with the given session.
+     *
+     * @param s session to use
+     * @param hql HQL query string
+     * @param params parameters in the query
+     * @see doHQL(Session, String, Map<String, Object>, Map<String,Collection>)
+     */
+    public List doHQL(Session s, String hql, Map<String, Object> params);
+
+    /**
      * Allows the intelligent C++ programmer to simply fire complete HQL
      * statements to the DBS. The HQL is very similar to SQL, but differs
      * in a variety of important ways. See the hibernate documentation at
      * http://www.hibernate.org/hib_docs/reference/en/html/queryhql.html
      * for details. As a rule, you do not write 'SELECT *' but only
      * 'FROM <ClassName>' (note: not the table name, the @em class).
+     *
+     * The query is not performed as a complete transaction. The caller
+     * must handle transactions.
+     *
+     * The query string may contain named parameters, for which values
+     * will be substituted from the params and lparams arguments to this
+     * method. For parameters that expect a single datum, put the mapping
+     * from name to an object in the params argument. List-based parameters
+     * (for instance the allowable values in a "IN ( foo, ... )" clause)
+     * may be placed in the lparams argument. Either may be null if there
+     * are no paramaters of that kind.
+     *
+     * @param s        the database session to use
+     * @param hql      the HQL query string
+     * @param params   named parameters to substitute in the query
+     * @param lparams  list parameters to substitute in the query
      */
-    public List doHQL(String hql);
-    
-    public List doHQL(String hql, Map<String, Object> params);
-    
-    public List doHQL(Session s, String hql);
-    
-    public List doHQL(Session s, String hql, Map<String, Object> params);
+    public List doHQL(Session s, String hql, Map<String, Object> params,
+        Map<String, Collection> lparams);
     
     /**
      * Get a session to the alitheia DB from the session manager

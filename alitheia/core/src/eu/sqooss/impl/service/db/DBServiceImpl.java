@@ -38,6 +38,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -286,15 +287,52 @@ public class DBServiceImpl implements DBService {
     }
 
     public List doHQL(String hql) {
+        return doHQL(hql, null, null);
+    }
+
+    public List doHQL(String hql, Map<String, Object> params) {
+        return doHQL(hql, params, null);
+    }
+
+    public List doHQL(String hql, Map<String, Object> params,
+        Map<String, Collection> collectionParams) {
         Session s = getSession(this);
         s.beginTransaction();
-        List result = doHQL(s, hql);
+        List result = doHQL(s, hql, params, collectionParams);
         s.getTransaction().commit();
         returnSession(s);
 
         return result;
     }
+    
+    public List doHQL(Session s, String hql) {
+        return doHQL(s, hql, null, null);
+    }
 
+    public List doHQL(Session s, String hql, Map<String, Object> params) {
+        return doHQL(s, hql, params, null);
+    }
+
+    public List doHQL(Session s, String hql, Map<String, Object> params,
+        Map<String, Collection> collectionParams) {
+        Query query = s.createQuery(hql);
+        if (params != null) {
+            Iterator<String> i = params.keySet().iterator();
+            while(i.hasNext()) {
+                String paramName = i.next();
+                query.setParameter(paramName, params.get(paramName));
+            }
+        }
+        if (collectionParams != null) {
+            Iterator<String> i = collectionParams.keySet().iterator();
+            while(i.hasNext()) {
+                String paramName = i.next();
+                query.setParameterList(paramName, collectionParams.get(paramName));
+            }
+        }
+        return query.list();
+    }
+    
     public Session getSession(Object holder) {
         Session s = null;
         try {
@@ -317,22 +355,8 @@ public class DBServiceImpl implements DBService {
         s.delete(record);
     }
 
-    public List doHQL(Session s, String hql) {
-        return s.createQuery(hql).list();
-    }
-
     public List doSQL(Session s, String sql) {
         return s.createSQLQuery(sql).list();
-    }
-    
-    public List doHQL(String hql, Map<String, Object> params) {
-        Session s = getSession(this);
-        s.beginTransaction();
-        List result = doHQL(s, hql, params);
-        s.getTransaction().commit();
-        returnSession(s);
-
-        return result;
     }
     
     public List doSQL(String sql, Map<String, Object> params) {
@@ -343,16 +367,6 @@ public class DBServiceImpl implements DBService {
         returnSession(s);
 
         return result;
-    }
-    
-    public List doHQL(Session s, String hql, Map<String, Object> params) {
-        Query query = s.createQuery(hql);
-        Iterator<String> i = params.keySet().iterator();
-        while(i.hasNext()) {
-            String paramName = i.next();
-            query.setParameter(paramName, params.get(paramName));
-        }
-        return query.list();
     }
     
     public List doSQL(Session s, String sql, Map<String, Object> params) {
