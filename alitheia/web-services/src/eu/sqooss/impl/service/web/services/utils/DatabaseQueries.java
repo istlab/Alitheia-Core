@@ -78,13 +78,32 @@ public class DatabaseQueries {
                                                     " and pv.project=:" +
                                                     RETRIEVE_FILE_LIST_PARAM;
     
-    public static String RETRIEVE_METRICS_4_SELECTED_FILES_FILE_PREFIX = "file_";
+    public static final String RETRIEVE_METRICS_4_SELECTED_FILES_PARAM_LIST = "list_of_filenames";
     
-    public static String RETRIEVE_METRICS_4_SELECTED_FILES = "";
+    public static final String RETRIEVE_METRICS_4_SELECTED_FILES_PARAM_PR = "project_id";
     
-    public static String RETRIEVE_METRICS_4_SELECTED_FILES_DIRS_PREFIX = "dir_";
+    public static final String RETRIEVE_METRICS_4_SELECTED_FILES = "select distinct metric, metricType " +
+                                                                   "from ProjectFile pf, ProjectVersion pv, Measurement measurement, " +
+                                                                   "     Metric metric, MetricType metricType " +
+                                                                   "where pv.id=pf.projectVersion " +
+                                                                   " and pv.id=measurement.projectVersion " +
+                                                                   " and metric.id=measurement.metric " +
+                                                                   " and metricType.id=metric.id " +
+                                                                   " and pf.name in (:" +
+                                                                   RETRIEVE_METRICS_4_SELECTED_FILES_PARAM_LIST + ") " +
+                                                                   " and pv.project=:" +
+                                                                   RETRIEVE_METRICS_4_SELECTED_FILES_PARAM_PR;
+                                                                   
     
-    public static String RETRIEVE_METRICS_4_SELECTED_DIRS = "";
+    public static final String RETRIEVE_METRICS_4_SELECTED_FILES_DIRS_PARAM = "dir_name";
+    
+    public static final String RETRIEVE_METRICS_4_SELECTED_FILES_DIRS = "select pf.name " +
+                                                                        "from ProjectFile pf, ProjectVersion pv " +
+                                                                        "where pf.name like :" +
+                                                                        RETRIEVE_METRICS_4_SELECTED_FILES_DIRS_PARAM + " " +
+                                                                        " and pv.project=:" +
+                                                                        RETRIEVE_METRICS_4_SELECTED_FILES_PARAM_PR;
+                                                                        
     
     //5.1.2
     

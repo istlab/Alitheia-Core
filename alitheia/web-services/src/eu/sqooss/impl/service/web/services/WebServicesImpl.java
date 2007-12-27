@@ -32,11 +32,16 @@
 
 package eu.sqooss.impl.service.web.services;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 
+import org.hibernate.Query;
+import org.hibernate.Session;
 import org.osgi.framework.BundleContext;
 
 import eu.sqooss.impl.service.web.services.datatypes.WSMetric;
@@ -92,17 +97,7 @@ public class WebServicesImpl {
         queryParameters.put(DatabaseQueries.RETRIEVE_METRICS_4_SELECTED_PROJECT_PARAM, Long.parseLong(projectId));
         List queryResult = db.doHQL(DatabaseQueries.RETRIEVE_METRICS_4_SELECTED_PROJECT, queryParameters);
         
-        if (queryResult.size() == 0) {
-            return null;
-        } else {
-            WSMetric[] result = new WSMetric[queryResult.size()];
-            Object[] currentElem;
-            for (int i = 0; i < result.length; i++) {
-                currentElem = (Object[]) queryResult.get(i);
-                result[i] = new WSMetric((Metric) currentElem[0], (MetricType) currentElem[1]);
-            }
-            return result;
-        }
+        return convertToWSMetrics(queryResult);
     }
     
     public WSMetric retrieveSelectedMetric(String userName, String password,
@@ -154,9 +149,50 @@ public class WebServicesImpl {
 //        }
     }
     
-    public WSPair[] retrieveMetrics4SelectedFiles(String userName, String password,
+    public WSMetric[] retrieveMetrics4SelectedFiles(String userName, String password,
             String projectId, String[] folders, String[] fileNames) {
-        return null;
+        logger.info("Retrieve metrics for selected files! user: " + userName + "; project id: " + projectId);
+
+        //TODO: check the security
+
+        long projectIdValue = Long.parseLong(projectId);
+        
+        Set<String> fileNamesSet;
+        if ((fileNames.length == 0) || (fileNames[0] == null)) {
+            fileNamesSet = new HashSet<String>();
+        } else {
+            fileNamesSet = new HashSet<String>(Arrays.asList(fileNames));
+        }
+        
+        if ((folders.length != 0) && (folders[0] != null)) {
+            Map<String, Object> folderNameParameters = new Hashtable<String, Object>(1);
+            List currentFileNames;
+            for (String folder : folders) {
+                folderNameParameters.put(DatabaseQueries.RETRIEVE_METRICS_4_SELECTED_FILES_PARAM_PR,
+                        projectIdValue);
+                folderNameParameters.put(DatabaseQueries.RETRIEVE_METRICS_4_SELECTED_FILES_DIRS_PARAM,
+                        folder + "%");
+                currentFileNames = db.doHQL(DatabaseQueries.RETRIEVE_METRICS_4_SELECTED_FILES_DIRS,
+                        folderNameParameters);
+                fileNamesSet.addAll(currentFileNames);
+            }
+        }
+        
+        List result = null;
+        
+        if (fileNamesSet.size() != 0) {
+            //TODO remake after db feature request - 27.12.2007
+            Session dbSession = db.getSession(this);
+            Query dbQuery = dbSession.createQuery(DatabaseQueries.RETRIEVE_METRICS_4_SELECTED_FILES);
+            dbQuery.setParameter(DatabaseQueries.RETRIEVE_METRICS_4_SELECTED_FILES_PARAM_PR,
+                    projectIdValue);
+            dbQuery.setParameterList(DatabaseQueries.RETRIEVE_METRICS_4_SELECTED_FILES_PARAM_LIST,
+                    fileNamesSet);
+            result = dbQuery.list();
+            db.returnSession(dbSession);
+        }
+        
+        return convertToWSMetrics(result);
     }
     //5.1.2
     
@@ -381,6 +417,19 @@ public class WebServicesImpl {
                 union.add(currentWSStoredProject);
             }
             result = union.toArray(new WSStoredProject[0]);
+        }
+        return result;
+    }
+    
+    private WSMetric[] convertToWSMetrics(List metricsWithTypes) {
+        WSMetric[] result = null;
+        if ((metricsWithTypes != null) && (metricsWithTypes.size() != 0)) {
+            result = new WSMetric[metricsWithTypes.size()];
+            Object[] currentElem;
+            for (int i = 0; i < result.length; i++) {
+                currentElem = (Object[]) metricsWithTypes.get(i);
+                result[i] = new WSMetric((Metric) currentElem[0], (MetricType) currentElem[1]);
+            }
         }
         return result;
     }

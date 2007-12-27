@@ -86,13 +86,13 @@ public class WebServices {
 //    public String[] retrieveFileList(String userName, String password, String projectId) {
 //        return null;
 //    }
-//    
-//    public WSPair[] retrieveMetrics4SelectedFiles(String userName, String password,
-//            String projectId, String[] folders, String[] fileNames) {
-//        return null;
-//    }
-//    //5.1.2
-//    
+    
+    public WSMetric[] retrieveMetrics4SelectedFiles(String userName, String password,
+            String projectId, String[] folders, String[] fileNames) {
+        return webServices.retrieveMetrics4SelectedFiles(userName, password, projectId, folders, fileNames);
+    }
+    //5.1.2
+    
 //    //5.1.3
 //    public void requestEvaluatin4Project(String userName, String password,
 //            String projectName, String projectVersion,
