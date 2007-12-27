@@ -36,7 +36,7 @@
     
 
 
-        _operations = new org.apache.axis2.description.AxisOperation[3];
+        _operations = new org.apache.axis2.description.AxisOperation[4];
         
                    __operation = new org.apache.axis2.description.OutInAxisOperation();
                 
@@ -69,6 +69,17 @@
 	    
 	    
             _operations[2]=__operation;
+            
+        
+                   __operation = new org.apache.axis2.description.OutInAxisOperation();
+                
+
+            __operation.setName(new javax.xml.namespace.QName("", "retrieveMetrics4SelectedFiles"));
+	    _service.addOperation(__operation);
+	    
+	    
+	    
+            _operations[3]=__operation;
             
         
         }
@@ -123,12 +134,12 @@
                     /**
                     * Auto generated method signature
                     * @see eu.sqooss.scl.axis2.Ws#evaluatedProjectsList
-                        * @param param6
+                        * @param param8
                     
                     */
                     public eu.sqooss.scl.axis2.ws.EvaluatedProjectsListResponse evaluatedProjectsList(
 
-                    eu.sqooss.scl.axis2.ws.EvaluatedProjectsList param6)
+                    eu.sqooss.scl.axis2.ws.EvaluatedProjectsList param8)
                     throws java.rmi.RemoteException
                     
                     {
@@ -146,7 +157,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    param6,
+                                                    param8,
                                                     optimizeContent(new javax.xml.namespace.QName("",
                                                     "evaluatedProjectsList")));
                                                 
@@ -226,12 +237,12 @@
                     /**
                     * Auto generated method signature
                     * @see eu.sqooss.scl.axis2.Ws#retrieveMetrics4SelectedProject
-                        * @param param8
+                        * @param param10
                     
                     */
                     public eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedProjectResponse retrieveMetrics4SelectedProject(
 
-                    eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedProject param8)
+                    eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedProject param10)
                     throws java.rmi.RemoteException
                     
                     {
@@ -249,7 +260,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    param8,
+                                                    param10,
                                                     optimizeContent(new javax.xml.namespace.QName("",
                                                     "retrieveMetrics4SelectedProject")));
                                                 
@@ -329,12 +340,12 @@
                     /**
                     * Auto generated method signature
                     * @see eu.sqooss.scl.axis2.Ws#retrieveSelectedMetric
-                        * @param param10
+                        * @param param12
                     
                     */
                     public eu.sqooss.scl.axis2.ws.RetrieveSelectedMetricResponse retrieveSelectedMetric(
 
-                    eu.sqooss.scl.axis2.ws.RetrieveSelectedMetric param10)
+                    eu.sqooss.scl.axis2.ws.RetrieveSelectedMetric param12)
                     throws java.rmi.RemoteException
                     
                     {
@@ -352,7 +363,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    param10,
+                                                    param12,
                                                     optimizeContent(new javax.xml.namespace.QName("",
                                                     "retrieveSelectedMetric")));
                                                 
@@ -380,6 +391,109 @@
                                          getEnvelopeNamespaces(_returnEnv));
                            _messageContext.getTransportOut().getSender().cleanup(_messageContext);
                            return (eu.sqooss.scl.axis2.ws.RetrieveSelectedMetricResponse)object;
+                    
+         }catch(org.apache.axis2.AxisFault f){
+            org.apache.axiom.om.OMElement faultElt = f.getDetail();
+            if (faultElt!=null){
+                if (faultExeptionNameMap.containsKey(faultElt.getQName())){
+                    //make the fault by reflection
+                    try{
+                        java.lang.String exceptionClassName = (java.lang.String)faultExeptionClassNameMap.get(faultElt.getQName());
+                        java.lang.Class exceptionClass = java.lang.Class.forName(exceptionClassName);
+                        java.lang.Exception ex=
+                                (java.lang.Exception) exceptionClass.newInstance();
+                        //message class
+                        java.lang.String messageClassName = (java.lang.String)faultMessageMap.get(faultElt.getQName());
+                        java.lang.Class messageClass = java.lang.Class.forName(messageClassName);
+                        java.lang.Object messageObject = fromOM(faultElt,messageClass,null);
+                        java.lang.reflect.Method m = exceptionClass.getMethod("setFaultMessage",
+                                   new java.lang.Class[]{messageClass});
+                        m.invoke(ex,new java.lang.Object[]{messageObject});
+                        
+
+                        throw new java.rmi.RemoteException(ex.getMessage(), ex);
+                    }catch(java.lang.ClassCastException e){
+                       // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    } catch (java.lang.ClassNotFoundException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }catch (java.lang.NoSuchMethodException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    } catch (java.lang.reflect.InvocationTargetException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }  catch (java.lang.IllegalAccessException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }   catch (java.lang.InstantiationException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }
+                }else{
+                    throw f;
+                }
+            }else{
+                throw f;
+            }
+        }
+        }
+            
+                    /**
+                    * Auto generated method signature
+                    * @see eu.sqooss.scl.axis2.Ws#retrieveMetrics4SelectedFiles
+                        * @param param14
+                    
+                    */
+                    public eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedFilesResponse retrieveMetrics4SelectedFiles(
+
+                    eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedFiles param14)
+                    throws java.rmi.RemoteException
+                    
+                    {
+              try{
+               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[3].getName());
+              _operationClient.getOptions().setAction("urn:retrieveMetrics4SelectedFiles");
+              _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
+
+              
+
+              // create SOAP envelope with that payload
+              org.apache.axiom.soap.SOAPEnvelope env = null;
+                    
+                                    //Style is Doc.
+                                    
+                                                    
+                                                    env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
+                                                    param14,
+                                                    optimizeContent(new javax.xml.namespace.QName("",
+                                                    "retrieveMetrics4SelectedFiles")));
+                                                
+        //adding SOAP headers
+         _serviceClient.addHeadersToEnvelope(env);
+        // create message context with that soap envelope
+        org.apache.axis2.context.MessageContext _messageContext = new org.apache.axis2.context.MessageContext() ;
+        _messageContext.setEnvelope(env);
+
+        // add the message contxt to the operation client
+        _operationClient.addMessageContext(_messageContext);
+
+        //execute the operation client
+        _operationClient.execute(true);
+
+         
+               org.apache.axis2.context.MessageContext _returnMessageContext = _operationClient.getMessageContext(
+                                           org.apache.axis2.wsdl.WSDLConstants.MESSAGE_LABEL_IN_VALUE);
+                org.apache.axiom.soap.SOAPEnvelope _returnEnv = _returnMessageContext.getEnvelope();
+                
+                
+                           java.lang.Object object = fromOM(
+                                        _returnEnv.getBody().getFirstElement() ,
+                                        eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedFilesResponse.class,
+                                         getEnvelopeNamespaces(_returnEnv));
+                           _messageContext.getTransportOut().getSender().cleanup(_messageContext);
+                           return (eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedFilesResponse)object;
                     
          }catch(org.apache.axis2.AxisFault f){
             org.apache.axiom.om.OMElement faultElt = f.getDetail();
@@ -508,6 +622,22 @@
 
             }
         
+            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedFiles param, boolean optimizeContent){
+            
+                     return param.getOMElement(eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedFiles.MY_QNAME,
+                                  org.apache.axiom.om.OMAbstractFactory.getOMFactory());
+                    
+
+            }
+        
+            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedFilesResponse param, boolean optimizeContent){
+            
+                     return param.getOMElement(eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedFilesResponse.MY_QNAME,
+                                  org.apache.axiom.om.OMAbstractFactory.getOMFactory());
+                    
+
+            }
+        
 
                             
                         private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, eu.sqooss.scl.axis2.ws.EvaluatedProjectsList param, boolean optimizeContent){
@@ -536,6 +666,17 @@
                         org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
                              
                                     emptyEnvelope.getBody().addChild(param.getOMElement(eu.sqooss.scl.axis2.ws.RetrieveSelectedMetric.MY_QNAME,factory));
+                                
+                         return emptyEnvelope;
+                        }
+
+                        
+
+                            
+                        private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedFiles param, boolean optimizeContent){
+                        org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
+                             
+                                    emptyEnvelope.getBody().addChild(param.getOMElement(eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedFiles.MY_QNAME,factory));
                                 
                          return emptyEnvelope;
                         }
@@ -596,6 +737,20 @@
                 if (eu.sqooss.scl.axis2.ws.RetrieveSelectedMetricResponse.class.equals(type)){
                 
                            return eu.sqooss.scl.axis2.ws.RetrieveSelectedMetricResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+                    
+
+                }
+           
+                if (eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedFiles.class.equals(type)){
+                
+                           return eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedFiles.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+                    
+
+                }
+           
+                if (eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedFilesResponse.class.equals(type)){
+                
+                           return eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedFilesResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
                     
 
                 }

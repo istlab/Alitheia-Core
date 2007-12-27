@@ -60,6 +60,21 @@
 
         
 
+        /**
+                * Auto generated method signature
+                
+                    * @param param6
+                
+         */
+         public eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedFilesResponse retrieveMetrics4SelectedFiles(
+
+                eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedFiles param6)
+                throws java.rmi.RemoteException
+          
+          ;
+
+        
+
         
        //
        }

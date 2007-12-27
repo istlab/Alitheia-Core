@@ -43,7 +43,7 @@ import eu.sqooss.scl.result.WSResult;
  * The WSResult can be stored in the user session. 
  */
 public class WSSession {
-	
+    
     private WSResult[] wsResults;
     private String webServiceUrl;
     private String userName;

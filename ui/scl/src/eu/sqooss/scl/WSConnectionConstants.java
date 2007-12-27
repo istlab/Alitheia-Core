@@ -39,9 +39,11 @@ interface WSConnectionConstants {
     
     public static final String PARAM_KEY_EVALUATED_PROJECTS_LIST              = "evaluatedProjectsList";
     
-    public static final String PARAM_KEY_RETRIEVE_METRICS_4_SELECTED_PROJECTS = "retrieveMetrics4SelectedProject";
+    public static final String PARAM_KEY_RETRIEVE_METRICS_4_SELECTED_PROJECT  = "retrieveMetrics4SelectedProject";
     
     public static final String PARAM_KEY_RETRIEVE_SELECTED_METRIC             = "retrieveSelectedMetric";
+    
+    public static final String PARAM_KEY_RETRIEVE_METRICS_4_SELECTED_FILES    = "retrieveMetrics4SelectedFiles";
     
 }
 

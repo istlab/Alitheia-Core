@@ -34,12 +34,15 @@ package eu.sqooss.scl;
 
 import java.rmi.RemoteException;
 import java.util.Hashtable;
+import java.util.StringTokenizer;
 
 import org.apache.axis2.AxisFault;
 
 import eu.sqooss.scl.axis2.WsStub;
 import eu.sqooss.scl.axis2.ws.EvaluatedProjectsList;
 import eu.sqooss.scl.axis2.ws.EvaluatedProjectsListResponse;
+import eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedFiles;
+import eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedFilesResponse;
 import eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedProject;
 import eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedProjectResponse;
 import eu.sqooss.scl.axis2.ws.RetrieveSelectedMetric;
@@ -182,14 +185,51 @@ class WSConnectionImpl implements WSConnection {
         return new WSResult("Not Implemented yet");
     }
 
-    public WSResult retrieveMetrics4SelectedFiles(String projectId, String[] folders,
-            String[] fileNames) {
-        // TODO Auto-generated method stub
-        return new WSResult("Not Implemented yet");
+    public WSResult retrieveMetrics4SelectedFiles(String projectId, String folderNames,
+            String fileNames) throws WSException {
+        RetrieveMetrics4SelectedFiles params = (RetrieveMetrics4SelectedFiles) parameters.get(WSConnectionConstants.PARAM_KEY_RETRIEVE_METRICS_4_SELECTED_FILES);
+        params.setProjectId(projectId);
+        String delimiter = ",";
+        
+        StringTokenizer folderNamesTokenizer = new StringTokenizer(folderNames, delimiter);
+        int folderNamesNumber = folderNamesTokenizer.countTokens();
+        String[] folderNamesArray;
+        if (folderNamesNumber == 0) {
+            folderNamesArray = new String[1];
+            folderNamesArray[0] = null;
+        } else {
+            folderNamesArray = new String[folderNamesNumber];
+            for (int i = 0; i < folderNamesArray.length; i++) {
+                folderNamesArray[i] = folderNamesTokenizer.nextToken();
+            }
+        }
+        
+        StringTokenizer fileNamesTokenizer = new StringTokenizer(fileNames, delimiter);
+        int fileNamesNumber = fileNamesTokenizer.countTokens();
+        String[] fileNamesArray;
+        if (fileNamesNumber == 0) {
+            fileNamesArray = new String[1];
+            fileNamesArray[0] = null;
+        } else {
+            fileNamesArray = new String[fileNamesNumber];
+            for (int i = 0; i < fileNamesArray.length; i++) {
+                fileNamesArray[i] = fileNamesTokenizer.nextToken();
+            }
+        }
+        
+        params.setFolders(folderNamesArray);
+        params.setFileNames(fileNamesArray);
+        RetrieveMetrics4SelectedFilesResponse response;
+        try {
+            response = wsStub.retrieveMetrics4SelectedFiles(params);
+        } catch (RemoteException re) {
+            throw new WSException(re);
+        }
+        return WSResponseParser.parseMetrics(response.get_return());
     }
 
     public WSResult retrieveMetrics4SelectedProject(String projectId) throws WSException {
-        RetrieveMetrics4SelectedProject params = (RetrieveMetrics4SelectedProject) parameters.get(WSConnectionConstants.PARAM_KEY_RETRIEVE_METRICS_4_SELECTED_PROJECTS);
+        RetrieveMetrics4SelectedProject params = (RetrieveMetrics4SelectedProject) parameters.get(WSConnectionConstants.PARAM_KEY_RETRIEVE_METRICS_4_SELECTED_PROJECT);
         params.setProjectId(projectId);
         RetrieveMetrics4SelectedProjectResponse response;
         try {
@@ -245,7 +285,7 @@ class WSConnectionImpl implements WSConnection {
     }
     
     private void initParameters() {
-        parameters = new Hashtable<String, Object>(2);
+        parameters = new Hashtable<String, Object>(4);
         
         EvaluatedProjectsList epl = new EvaluatedProjectsList();
         epl.setPassword(password);
@@ -255,12 +295,17 @@ class WSConnectionImpl implements WSConnection {
         RetrieveMetrics4SelectedProject rm4sp = new RetrieveMetrics4SelectedProject();
         rm4sp.setUserName(userName);
         rm4sp.setPassword(password);
-        parameters.put(WSConnectionConstants.PARAM_KEY_RETRIEVE_METRICS_4_SELECTED_PROJECTS, rm4sp);
+        parameters.put(WSConnectionConstants.PARAM_KEY_RETRIEVE_METRICS_4_SELECTED_PROJECT, rm4sp);
         
         RetrieveSelectedMetric rsm = new RetrieveSelectedMetric();
         rsm.setUserName(userName);
         rsm.setPassword(password);
         parameters.put(WSConnectionConstants.PARAM_KEY_RETRIEVE_SELECTED_METRIC, rsm);
+        
+        RetrieveMetrics4SelectedFiles rm4sf = new RetrieveMetrics4SelectedFiles();
+        rm4sf.setPassword(password);
+        rm4sf.setUserName(userName);
+        parameters.put(WSConnectionConstants.PARAM_KEY_RETRIEVE_METRICS_4_SELECTED_FILES, rm4sf);
         
     }
     
