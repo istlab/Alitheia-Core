@@ -34,6 +34,7 @@ package eu.sqooss.core;
 
 
 import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -159,8 +160,12 @@ public class AlitheiaCore {
     
     public Object selfTest()
     {
+        // We are going to push all of the test failures onto this
+        // list to dump in one go later.
+        List<Object> result = new LinkedList<Object>();
+
         List<Object> testObjects = new LinkedList<Object>();
-        try{
+        try {
             testObjects.add(getScheduler());
             testObjects.add(getDBService());
             testObjects.add(getFDSService());
@@ -176,31 +181,60 @@ public class AlitheiaCore {
             return t.toString();
         }
 
-        Object result = null;
+        Logger l = getLogManager().createLogger(Logger.NAME_SQOOSS_TESTER);
 
         for (Object o: testObjects)
         {
             try {
-                System.out.println("Running " + o.getClass().getName() );
+                String className = o.getClass().getName();
                 Method m = o.getClass().getMethod("selfTest");
-                try {
-                    result = m.invoke(o);
-                    System.out.println("Done");
-                } catch ( Exception e ) {
-                    // e.printStackTrace();
-                    System.out.println( "FAILED Test method of class " + o.getClass().getName() + " failed." );
-                }
+                if (m != null) {
+                    l.info("BEGIN SubTest " + className);
 
-                if (result != null)
-                {
-                    System.out.println("Returned: " + result.toString());
-                    return result;
+                    // Now trim down to only the class name
+                    int lastDot = className.lastIndexOf('.');
+                    if (lastDot > 0) {
+                        className = className.substring(lastDot + 1);
+                    }
+
+                    String enabled = bc.getProperty("eu.sqooss.tester.enable."
+                            + className);
+                    if ((enabled != null) && !Boolean.valueOf(enabled)) {
+                        l.info("SKIP  Test (disabled in configuration)");
+                        continue;
+                    }
+
+                    try {
+                        Object r = m.invoke(o);
+                        if (r != null) {
+                            l.info("Test failed: " + r.toString());
+                            result.add(r);
+                        }
+                    } catch (SecurityException e) {
+                        l.info("Can't access selfTest() method.");
+                    } catch (IllegalAccessException e) {
+                        l.info("Failed to invoke selfTest() method: "
+                                + e.getMessage());
+                    } catch (InvocationTargetException e) {
+                        l.info("Failed to invoke selfTest() on service: "
+                                + e.getMessage());
+                    } catch (Exception e) {
+                        l.warn("selfTest() method failed: "
+                                + e.getMessage());
+                        e.printStackTrace();
+                    }
+
+                    l.info("END   SubTest " + o.getClass().getName());
+                    m = null;
                 }
             } catch (NoSuchMethodException e) {
-                // logger.info("No test method for service.");
+                // l.info("No test method for service.");
             }
         }
 
         return result;
     }
 }
+
+// vi: ai nosi sw=4 ts=4 expandtab
+
