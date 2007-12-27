@@ -50,19 +50,26 @@ public interface DBService {
     public void addRecord(Session s, DAObject record);
     
     /**
-     * Delete an existing record from the system database
+     * Delete an existing record from the system database, using the
+     * default database session.
+     *
+     * @param record the record to remove from the database
      */
     public void deleteRecord(DAObject record);
     
+    /**
+     * Delete an existing record from the system database, using a
+     * separate database session.
+     *
+     * @param s session to use for this transaction
+     * @param record the record to remove from the database
+     */
     public void deleteRecord(Session s, DAObject record);
     
     /**
-     * Allows the intelligent C++ programmer to simply fire complete HQL
-     * statements to the DBS. The HQL is very similar to SQL, but differs
-     * in a variety of important ways. See the hibernate documentation at
-     * http://www.hibernate.org/hib_docs/reference/en/html/queryhql.html
-     * for details. As a rule, you do not write 'SELECT *' but only
-     * 'FROM <ClassName>' (note: not the table name, the @em class).
+     * Allows the intelligent C++ programmer to simply fire complete SQL
+     * statements to the database. This allows low-level manipulation
+     * of the database contents outside of the DAO types.
      */
     public List doSQL(String sql);
     
@@ -73,9 +80,12 @@ public interface DBService {
     public List doSQL(Session s, String sql, Map<String, Object> params);
 
     /**
-     * This function shall perform an HQL query
-     * This shall be used to replace the doSQL function
-     * which shall be repurposed to actually do SQL!
+     * Allows the intelligent C++ programmer to simply fire complete HQL
+     * statements to the DBS. The HQL is very similar to SQL, but differs
+     * in a variety of important ways. See the hibernate documentation at
+     * http://www.hibernate.org/hib_docs/reference/en/html/queryhql.html
+     * for details. As a rule, you do not write 'SELECT *' but only
+     * 'FROM <ClassName>' (note: not the table name, the @em class).
      */
     public List doHQL(String hql);
     
