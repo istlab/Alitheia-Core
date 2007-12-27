@@ -46,8 +46,7 @@ PREFIX=equinox
 
 # Subdirectories to build or install from.
 SUBDIRS=alitheia \
-	metrics \
-	extlibs
+	metrics
 
 CLASSPATH=$(shell tools/setcp.sh `pwd` )
 
@@ -75,6 +74,7 @@ $(foreach d,$(SUBDIRS),$(eval $(call subdir_template,install,$(d))))
 build : $(foreach d,$(SUBDIRS),build-$(d))
 
 install : $(foreach d,$(SUBDIRS),install-$(d))
+	cd extlibs && $(MAKE) && $(MAKE) install
 	rm -Rf ${PREFIX}/configuration/org.eclipse.osgi
 	rm -f ${PREFIX}/configuration/*.log
 
