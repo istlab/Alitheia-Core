@@ -51,9 +51,9 @@
                     * @param param4
                 
          */
-         public eu.sqooss.scl.axis2.ws.RetrieveSelectedMetricResponse retrieveSelectedMetric(
+         public eu.sqooss.scl.axis2.ws.RetrieveFileListResponse retrieveFileList(
 
-                eu.sqooss.scl.axis2.ws.RetrieveSelectedMetric param4)
+                eu.sqooss.scl.axis2.ws.RetrieveFileList param4)
                 throws java.rmi.RemoteException
           
           ;
@@ -66,9 +66,24 @@
                     * @param param6
                 
          */
+         public eu.sqooss.scl.axis2.ws.RetrieveSelectedMetricResponse retrieveSelectedMetric(
+
+                eu.sqooss.scl.axis2.ws.RetrieveSelectedMetric param6)
+                throws java.rmi.RemoteException
+          
+          ;
+
+        
+
+        /**
+                * Auto generated method signature
+                
+                    * @param param8
+                
+         */
          public eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedFilesResponse retrieveMetrics4SelectedFiles(
 
-                eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedFiles param6)
+                eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedFiles param8)
                 throws java.rmi.RemoteException
           
           ;

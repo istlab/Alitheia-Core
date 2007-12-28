@@ -40,6 +40,16 @@
               
                   if (
                   "http://datatypes.services.web.service.impl.sqooss.eu/xsd".equals(namespaceURI) &&
+                  "WSProjectFile".equals(typeName)){
+                   
+                            return  eu.sqooss.scl.axis2.datatypes.WSProjectFile.Factory.parse(reader);
+                        
+
+                  }
+
+              
+                  if (
+                  "http://datatypes.services.web.service.impl.sqooss.eu/xsd".equals(namespaceURI) &&
                   "WSMetricType".equals(typeName)){
                    
                             return  eu.sqooss.scl.axis2.datatypes.WSMetricType.Factory.parse(reader);
@@ -53,6 +63,16 @@
                   "WSStoredProject".equals(typeName)){
                    
                             return  eu.sqooss.scl.axis2.datatypes.WSStoredProject.Factory.parse(reader);
+                        
+
+                  }
+
+              
+                  if (
+                  "http://datatypes.services.web.service.impl.sqooss.eu/xsd".equals(namespaceURI) &&
+                  "WSFileMetadata".equals(typeName)){
+                   
+                            return  eu.sqooss.scl.axis2.datatypes.WSFileMetadata.Factory.parse(reader);
                         
 
                   }

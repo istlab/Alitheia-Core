@@ -34,7 +34,9 @@ package eu.sqooss.scl.utils;
 
 import java.util.ArrayList;
 
+import eu.sqooss.scl.axis2.datatypes.WSFileMetadata;
 import eu.sqooss.scl.axis2.datatypes.WSMetric;
+import eu.sqooss.scl.axis2.datatypes.WSProjectFile;
 import eu.sqooss.scl.axis2.datatypes.WSProjectVersion;
 import eu.sqooss.scl.axis2.datatypes.WSStoredProject;
 import eu.sqooss.scl.result.WSResult;
@@ -73,7 +75,7 @@ public class WSResponseParser {
         WSResult result = new WSResult();
         //if the web service returns null, it is the first element in the array
         if (metrics[0] != null) {
-            ArrayList<WSResultEntry> currentRow = new ArrayList<WSResultEntry>();
+            ArrayList<WSResultEntry> currentRow;
             for (WSMetric metric: metrics) {
                 currentRow = new ArrayList<WSResultEntry>();
                 currentRow.add(new WSResultEntry(metric.getId(), WSResultEntry.MIME_TYPE_TYPE_LONG));
@@ -83,6 +85,33 @@ public class WSResponseParser {
             }
         }
         return result;   
+    }
+    
+    public static WSResult parseProjectFiles(WSProjectFile[] projectFiles) {
+        WSResult result = new WSResult();
+        //if the web service returns null, it is the first element in the array
+        if (projectFiles[0] != null) {
+            ArrayList<WSResultEntry> currentRow;
+            WSFileMetadata currentFileMetadata;
+            for (WSProjectFile projectFile : projectFiles) {
+                currentRow = new ArrayList<WSResultEntry>(); 
+                currentRow.add(new WSResultEntry(projectFile.getName(), WSResultEntry.MIME_TYPE_TEXT_PLAIN));
+                currentRow.add(new WSResultEntry(projectFile.getStatus(), WSResultEntry.MIME_TYPE_TEXT_PLAIN));
+                
+                currentFileMetadata = projectFile.getProjectFileMetadata();
+                currentRow.add(new WSResultEntry(currentFileMetadata.getProtection(), WSResultEntry.MIME_TYPE_TEXT_PLAIN));
+                currentRow.add(new WSResultEntry(currentFileMetadata.getLinks(), WSResultEntry.MIME_TYPE_TYPE_INTEGER));
+                currentRow.add(new WSResultEntry(currentFileMetadata.getUserId(), WSResultEntry.MIME_TYPE_TYPE_LONG));
+                currentRow.add(new WSResultEntry(currentFileMetadata.getGroupId(), WSResultEntry.MIME_TYPE_TYPE_LONG));
+                currentRow.add(new WSResultEntry(currentFileMetadata.getAccessTime(), WSResultEntry.MIME_TYPE_TYPE_LONG));
+                currentRow.add(new WSResultEntry(currentFileMetadata.getModificationTime(), WSResultEntry.MIME_TYPE_TYPE_LONG));
+                currentRow.add(new WSResultEntry(currentFileMetadata.getFileStatusChange(), WSResultEntry.MIME_TYPE_TEXT_PLAIN));
+                currentRow.add(new WSResultEntry(currentFileMetadata.getSize(), WSResultEntry.MIME_TYPE_TYPE_INTEGER));
+                currentRow.add(new WSResultEntry(currentFileMetadata.getBlocks(), WSResultEntry.MIME_TYPE_TYPE_INTEGER));
+                result.addResultRow(currentRow);
+            }
+        }
+        return result;
     }
     
 }

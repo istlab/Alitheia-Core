@@ -41,6 +41,8 @@ import org.apache.axis2.AxisFault;
 import eu.sqooss.scl.axis2.WsStub;
 import eu.sqooss.scl.axis2.ws.EvaluatedProjectsList;
 import eu.sqooss.scl.axis2.ws.EvaluatedProjectsListResponse;
+import eu.sqooss.scl.axis2.ws.RetrieveFileList;
+import eu.sqooss.scl.axis2.ws.RetrieveFileListResponse;
 import eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedFiles;
 import eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedFilesResponse;
 import eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedProject;
@@ -180,9 +182,16 @@ class WSConnectionImpl implements WSConnection {
         return new WSResult("Not Implemented yet");
     }
 
-    public WSResult retrieveFileList(String projectId) {
-        // TODO Auto-generated method stub
-        return new WSResult("Not Implemented yet");
+    public WSResult retrieveFileList(String projectId) throws WSException {
+        RetrieveFileList params = (RetrieveFileList) parameters.get(WSConnectionConstants.PARAM_KEY_RETRIEVE_FILE_LIST);
+        params.setProjectId(projectId);
+        RetrieveFileListResponse response;
+        try {
+            response = wsStub.retrieveFileList(params);
+        } catch (RemoteException re) {
+            throw new WSException(re);
+        }
+        return WSResponseParser.parseProjectFiles(response.get_return());
     }
 
     public WSResult retrieveMetrics4SelectedFiles(String projectId, String folderNames,
@@ -307,6 +316,10 @@ class WSConnectionImpl implements WSConnection {
         rm4sf.setUserName(userName);
         parameters.put(WSConnectionConstants.PARAM_KEY_RETRIEVE_METRICS_4_SELECTED_FILES, rm4sf);
         
+        RetrieveFileList rfl = new RetrieveFileList();
+        rfl.setPassword(password);
+        rfl.setUserName(userName);
+        parameters.put(WSConnectionConstants.PARAM_KEY_RETRIEVE_FILE_LIST, rfl);
     }
     
 }

@@ -45,6 +45,8 @@ interface WSConnectionConstants {
     
     public static final String PARAM_KEY_RETRIEVE_METRICS_4_SELECTED_FILES    = "retrieveMetrics4SelectedFiles";
     
+    public static final String PARAM_KEY_RETRIEVE_FILE_LIST                   = "retrieveFileList";
+    
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

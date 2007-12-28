@@ -45,7 +45,7 @@ public interface WSConnection {
     //5.1.1
     
     //5.1.2
-    public WSResult retrieveFileList(String projectId);
+    public WSResult retrieveFileList(String projectId) throws WSException;
     
     public WSResult retrieveMetrics4SelectedFiles(String projectId, String folderNames, String fileNames) throws WSException;
     //5.1.2
