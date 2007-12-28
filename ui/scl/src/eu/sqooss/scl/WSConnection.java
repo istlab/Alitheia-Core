@@ -37,16 +37,94 @@ import eu.sqooss.scl.result.WSResult;
 public interface WSConnection {
     
     //5.1.1
+    /**
+     * This method returns evaluated projects.
+     * Each <code>WSResult</code>'s row contains information about the project.
+     * The row consists of fields. The fields' description can be found in:
+     * {@link eu.sqooss.scl.utils.WSResponseParser#parseStoredProjects(eu.sqooss.scl.axis2.datatypes.WSStoredProject[])}
+     * 
+     * @return <code>WSResult</code>
+     * @throws WSException
+     * <ul>
+     * <li>if the connection can't be establish to the SQO-OSS's web services service</li>
+     * <li>if web services service throws a exception</li>
+     * <li>if the arguments aren't correct</li>
+     * <ul>
+     */
     public WSResult evaluatedProjectsList() throws WSException;
     
+    /**
+     * This method returns the metrics for a given project.
+     * Each <code>WSResult</code>'s row contains information about the metric.
+     * The row consists of fields. The fields' description can be found in:
+     * {@link eu.sqooss.scl.utils.WSResponseParser#parseMetrics(eu.sqooss.scl.axis2.datatypes.WSMetric[])}
+     * 
+     * @param projectId the project's id
+     * @return <code>WSResult</code>
+     * @throws WSException
+     * <ul>
+     * <li>if the connection can't be establish to the SQO-OSS's web services service</li>
+     * <li>if web services service throws a exception</li>
+     * <li>if the arguments aren't correct</li>
+     * <ul>
+     */
     public WSResult retrieveMetrics4SelectedProject(String projectId) throws WSException;
     
+    /**
+     * This method returns the metric with a given id.
+     * A <code>WSResult</code>'s row contains information about the metric.
+     * The row consists of fields. The fields' description can be found in:
+     * {@link eu.sqooss.scl.utils.WSResponseParser#parseMetrics(eu.sqooss.scl.axis2.datatypes.WSMetric[])}
+     * 
+     * @param projectId the project's id
+     * @param metricId the metric's id
+     * @return <code>WSResult</code>
+     * @throws WSException
+     * <ul>
+     * <li>if the connection can't be establish to the SQO-OSS's web services service</li>
+     * <li>if web services service throws a exception</li>
+     * <li>if the arguments aren't correct</li>
+     * <ul>
+     */
     public WSResult retrieveSelectedMetric(String projectId, String metricId) throws WSException;
     //5.1.1
     
     //5.1.2
+    /**
+     * This method returns the project's files.
+     * Each <code>WSResult</code>'s row contains information about the project's file.
+     * The row consists of fields. The fields' description can be found in:
+     * {@link eu.sqooss.scl.utils.WSResponseParser#parseProjectFiles(eu.sqooss.scl.axis2.datatypes.WSProjectFile[])}
+     * 
+     * @param projectId the project's id
+     * @return <code>WSResult</code>
+     * @throws WSException
+     * <ul>
+     * <li>if the connection can't be establish to the SQO-OSS's web services service</li>
+     * <li>if web services service throws a exception</li>
+     * <li>if the arguments aren't correct</li>
+     * <ul>
+     */
     public WSResult retrieveFileList(String projectId) throws WSException;
     
+    /**
+     * This method returns the metrics for a given files.
+     * All files in the folder can be selected with the folder's name.
+     * Each <code>WSResult</code>'s row contains information about the metric.
+     * The row consists of fields. The fields' description can be found in:
+     * {@link eu.sqooss.scl.utils.WSResponseParser#parseMetrics(eu.sqooss.scl.axis2.datatypes.WSMetric[])}
+     * 
+     * @param projectId the project's id
+     * @param folderNames the folders' names i.e. all files in the folders
+     * @param fileNames the files' names
+     * @return <code>WSResult</code>
+     * @throws WSException
+     * <ul>
+     * <li>if the connection can't be establish to the SQO-OSS's web services service</li>
+     * <li>if web services service throws a exception</li>
+     * <li>if the arguments aren't correct</li>
+     * <ul>
+     */
     public WSResult retrieveMetrics4SelectedFiles(String projectId, String folderNames, String fileNames) throws WSException;
     //5.1.2
     

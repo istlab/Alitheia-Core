@@ -45,11 +45,13 @@ import eu.sqooss.service.security.SecurityManager;
 /* 
  * NOTES:
  * 
- * 1. The implementation is specially here. The Axis2's wsdl generator is the reason.
- * It doesn't work correct with the interfaces and the abstract classes.
+ * 1. The WebServices's implementation and the data types are specially in this form.
+ * The Axis2's wsdl generator is the reason.
+ * It doesn't work correct with the interfaces, the abstract classes and the inheritance.
  * 
  * 2. java2wsdl doesn't support methods overloading.
  * 
+ * 3. The returned arrays must not be empty. You can return null.
  */
 
 /**
@@ -68,15 +70,39 @@ public class WebServices {
     }
     
     //5.1.1
+    /**
+     * This method returns evaluated projects.
+     * The user's name and password must be valid. 
+     * @param userName
+     * @param password
+     * @return
+     */
     public WSStoredProject[] evaluatedProjectsList(String userName, String password) {
         return webServices.evaluatedProjectsList(userName, password);
     }
     
+    /**
+     * This method returns the metrics for a given project.
+     * The user's name and password must be valid.
+     * @param userName
+     * @param password
+     * @param projectId
+     * @return
+     */
     public WSMetric[] retrieveMetrics4SelectedProject(String userName,
             String password, String projectId) {
         return webServices.retrieveMetrics4SelectedProject(userName, password, projectId);
     }
     
+    /**
+     * This method returns the metric with a given id.
+     * The user's name and password must be valid.
+     * @param userName
+     * @param password
+     * @param projectId
+     * @param metricId
+     * @return
+     */
     public WSMetric retrieveSelectedMetric(String userName, String password,
             String projectId, String metricId) {
         return webServices.retrieveSelectedMetric(userName, password, projectId, metricId);
@@ -84,10 +110,29 @@ public class WebServices {
     //5.1.1
     
     //5.1.2
+    /**
+     * This method returns the project's files.
+     * The user's name and password must be valid.
+     * @param userName
+     * @param password
+     * @param projectId
+     * @return
+     */
     public WSProjectFile[] retrieveFileList(String userName, String password, String projectId) {
         return webServices.retrieveFileList(userName, password, projectId);
     }
     
+    /**
+     * This method returns the metrics for a given files.
+     * All files in the folder can be selected with the folder's name.
+     * The user's name and password must be valid.
+     * @param userName
+     * @param password
+     * @param projectId
+     * @param folders
+     * @param fileNames
+     * @return
+     */
     public WSMetric[] retrieveMetrics4SelectedFiles(String userName, String password,
             String projectId, String[] folders, String[] fileNames) {
         return webServices.retrieveMetrics4SelectedFiles(userName, password, projectId, folders, fileNames);

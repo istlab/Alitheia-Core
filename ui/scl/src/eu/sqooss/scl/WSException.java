@@ -34,8 +34,8 @@ package eu.sqooss.scl;
 
 public class WSException extends Exception {
     
-    private static final long serialVersionUID = 1L;
-    
+    private static final long serialVersionUID = 2075296057326742881L;
+
     /**
      * @see java.lang.Exception#Exception()
      */

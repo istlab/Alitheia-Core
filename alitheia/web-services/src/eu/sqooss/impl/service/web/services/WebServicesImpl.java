@@ -74,6 +74,9 @@ public class WebServicesImpl {
     /* project's methods */
     
     //5.1.1
+    /**
+     * @see eu.sqooss.service.web.services.WebServices#evaluatedProjectsList(String, String)
+     */
     public WSStoredProject[] evaluatedProjectsList(String userName, String password) {
         logger.info("Gets the evaluated project list! user: " + userName);
 
@@ -84,6 +87,9 @@ public class WebServicesImpl {
         return makeUnoinByStoredProjectId(queryResult);
     }
     
+    /**
+     * @see eu.sqooss.service.web.services.WebServices#retrieveMetrics4SelectedProject(String, String, String)
+     */
     public WSMetric[] retrieveMetrics4SelectedProject(String userName,
             String password, String projectId) {
         
@@ -99,6 +105,9 @@ public class WebServicesImpl {
         return convertToWSMetrics(queryResult);
     }
     
+    /**
+     * @see eu.sqooss.service.web.services.WebServices#retrieveSelectedMetric(String, String, String, String)
+     */
     public WSMetric retrieveSelectedMetric(String userName, String password,
             String projectId, String metricId) {
         
@@ -123,6 +132,9 @@ public class WebServicesImpl {
     //5.1.1
     
     //5.1.2
+    /**
+     * @see eu.sqooss.service.web.services.WebServices#retrieveFileList(String, String, String)
+     */
     public WSProjectFile[] retrieveFileList(String userName, String password, String projectId) {
         logger.info("Retrieve file list! user: " + userName + "; project id: " + projectId);
         
@@ -136,6 +148,9 @@ public class WebServicesImpl {
         return convertToWSProjectFiles(queryResult);
     }
     
+    /**
+     * @see eu.sqooss.service.web.services.WebServices#retrieveMetrics4SelectedFiles(String, String, String, String[], String[])
+     */
     public WSMetric[] retrieveMetrics4SelectedFiles(String userName, String password,
             String projectId, String[] folders, String[] fileNames) {
         logger.info("Retrieve metrics for selected files! user: " + userName + "; project id: " + projectId);

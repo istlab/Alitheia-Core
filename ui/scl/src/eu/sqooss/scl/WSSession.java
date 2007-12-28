@@ -40,7 +40,8 @@ import java.util.StringTokenizer;
 import eu.sqooss.scl.result.WSResult;
 
 /**
- * The WSResult can be stored in the user session. 
+ * The <code>WSSession</code> cares for the <code>WSConnection</code>s.
+ * The <code>WSResult</code> can be stored in the user session. 
  */
 public class WSSession {
     
@@ -68,6 +69,24 @@ public class WSSession {
         sessionConnection = new WSConnectionImpl(userName, password, webServiceUrl);
     }
     
+    /**
+     * This method gives access to the SQO-OSS's web services service via URLs.
+     * The generic format of a SCL-specific URL is the following:
+     * <p>
+     * http://sqo-oss/wscall?arg1=value1&...&argN=valueN
+     * </p>
+     * The URL presented above corresponds to the following <code>WSConnection</code>'s method:
+     * <p>
+     * WSResult wscall(arg1, ..., argN);
+     * </p>
+     * @param webServiceMethodUrl the url
+     * @return <code>WSResult</code>
+     * @throws WSException
+     * <li>if the connection can't be establish to the SQO-OSS's web services service</li>
+     * <li>if web services service throws a exception</li>
+     * <li>if the arguments aren't correct</li>
+     * <li>if the URL isn't valid</li>
+     */
     public WSResult getValue(String webServiceMethodUrl) throws WSException {
         ArrayList<String> methodArguments = new ArrayList<String>();
         String methodName = parseWebServiceMethodUrl(webServiceMethodUrl, methodArguments);

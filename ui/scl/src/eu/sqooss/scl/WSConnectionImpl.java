@@ -99,6 +99,9 @@ class WSConnectionImpl implements WSConnection {
         return new WSResult("Not Implemented yet");
     }
 
+    /**
+     * @see eu.sqooss.scl.WSConnection#evaluatedProjectsList()
+     */
     public WSResult evaluatedProjectsList() throws WSException {
         EvaluatedProjectsListResponse response; 
         EvaluatedProjectsList params = (EvaluatedProjectsList) parameters.get(WSConnectionConstants.PARAM_KEY_EVALUATED_PROJECTS_LIST);
@@ -182,6 +185,9 @@ class WSConnectionImpl implements WSConnection {
         return new WSResult("Not Implemented yet");
     }
 
+    /**
+     * @see eu.sqooss.scl.WSConnection#retrieveFileList(java.lang.String)
+     */
     public WSResult retrieveFileList(String projectId) throws WSException {
         RetrieveFileList params = (RetrieveFileList) parameters.get(WSConnectionConstants.PARAM_KEY_RETRIEVE_FILE_LIST);
         params.setProjectId(projectId);
@@ -194,6 +200,9 @@ class WSConnectionImpl implements WSConnection {
         return WSResponseParser.parseProjectFiles(response.get_return());
     }
 
+    /**
+     * @see eu.sqooss.scl.WSConnection#retrieveMetrics4SelectedFiles(java.lang.String, java.lang.String, java.lang.String)
+     */
     public WSResult retrieveMetrics4SelectedFiles(String projectId, String folderNames,
             String fileNames) throws WSException {
         RetrieveMetrics4SelectedFiles params = (RetrieveMetrics4SelectedFiles) parameters.get(WSConnectionConstants.PARAM_KEY_RETRIEVE_METRICS_4_SELECTED_FILES);
@@ -237,6 +246,9 @@ class WSConnectionImpl implements WSConnection {
         return WSResponseParser.parseMetrics(response.get_return());
     }
 
+    /**
+     * @see eu.sqooss.scl.WSConnection#retrieveMetrics4SelectedProject(java.lang.String)
+     */
     public WSResult retrieveMetrics4SelectedProject(String projectId) throws WSException {
         RetrieveMetrics4SelectedProject params = (RetrieveMetrics4SelectedProject) parameters.get(WSConnectionConstants.PARAM_KEY_RETRIEVE_METRICS_4_SELECTED_PROJECT);
         params.setProjectId(projectId);
@@ -254,6 +266,9 @@ class WSConnectionImpl implements WSConnection {
         return new WSResult("Not Implemented yet");
     }
 
+    /**
+     * @see eu.sqooss.scl.WSConnection#retrieveSelectedMetric(java.lang.String, java.lang.String)
+     */
     public WSResult retrieveSelectedMetric(String projectId, String metricId) throws WSException {
         RetrieveSelectedMetric params = (RetrieveSelectedMetric) parameters.get(WSConnectionConstants.PARAM_KEY_RETRIEVE_SELECTED_METRIC);
         params.setProjectId(projectId);
