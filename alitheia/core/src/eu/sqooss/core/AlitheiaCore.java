@@ -157,14 +157,26 @@ public class AlitheiaCore {
         }
         return updater;
     }
-    
-    public Object selfTest()
-    {
+
+    /**
+     * This is the selfTest() method which is called by the system
+     * tester at startup. The method itself serves only as a dispatcher
+     * to call the selfTest() methods of all of the sub-services of
+     * the Alitheia core. It does this much like the tester does:
+     * use reflection to get the selfTest() method. There is probably
+     * some duplicated logging if failures occur (by this method
+     * and the calling TesterService.selfTest()).
+     *
+     * @return object representing all of the failures of the test
+     *          (we use a List of Object to collect the failures
+     *          across sub-services).
+     */
+    public final Object selfTest() {
         // We are going to push all of the test failures onto this
         // list to dump in one go later.
-        List<Object> result = new LinkedList<Object>();
+        List <Object > result = new LinkedList < Object >();
 
-        List<Object> testObjects = new LinkedList<Object>();
+        List < Object > testObjects = new LinkedList < Object >();
         try {
             testObjects.add(getScheduler());
             testObjects.add(getDBService());
@@ -174,19 +186,16 @@ public class AlitheiaCore {
             testObjects.add(getSecurityManager());
             testObjects.add(getTDSService());
             testObjects.add(getUpdater());
-        }
-        catch( Throwable t )
-        {
+        } catch (Throwable t) {
             t.printStackTrace();
             return t.toString();
         }
 
         Logger l = getLogManager().createLogger(Logger.NAME_SQOOSS_TESTER);
 
-        for (Object o: testObjects)
-        {
+        for (Object o : testObjects) {
+            String className = o.getClass().getName();
             try {
-                String className = o.getClass().getName();
                 Method m = o.getClass().getMethod("selfTest");
                 if (m != null) {
                     l.info("BEGIN SubTest " + className);
@@ -228,7 +237,7 @@ public class AlitheiaCore {
                     m = null;
                 }
             } catch (NoSuchMethodException e) {
-                // l.info("No test method for service.");
+                l.warn("Core component " + className + " has no selfTest()");
             }
         }
 
