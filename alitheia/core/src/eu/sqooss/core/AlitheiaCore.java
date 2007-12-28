@@ -45,8 +45,8 @@ import org.osgi.service.http.NamespaceException;
 
 import eu.sqooss.impl.service.db.DBServiceImpl;
 import eu.sqooss.impl.service.fds.FDSServiceImpl;
-import eu.sqooss.impl.service.logging.LogManagerConstants;
 import eu.sqooss.impl.service.logging.LogManagerImpl;
+import eu.sqooss.impl.service.messaging.MessagingServiceImpl;
 import eu.sqooss.impl.service.scheduler.SchedulerServiceImpl;
 import eu.sqooss.impl.service.security.SecurityManagerImpl;
 import eu.sqooss.impl.service.tds.TDSServiceImpl;
@@ -57,7 +57,6 @@ import eu.sqooss.service.fds.FDSService;
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.messaging.MessagingService;
-import eu.sqooss.impl.service.messaging.MessagingServiceImpl;
 import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.security.SecurityManager;
 import eu.sqooss.service.tds.TDSService;
@@ -98,7 +97,7 @@ public class AlitheiaCore {
 
     public DBService getDBService() {
         if (db == null) {
-            db = new DBServiceImpl(bc, getLogManager().createLogger(LogManagerConstants.loggerNames[1]));
+            db = new DBServiceImpl(bc, getLogManager().createLogger(Logger.NAME_SQOOSS_DATABASE));
         }
 
         return db;
@@ -106,7 +105,7 @@ public class AlitheiaCore {
 
     public FDSService getFDSService() {
         if (fds == null) {
-            fds = new FDSServiceImpl(bc, getLogManager().createLogger(LogManagerConstants.loggerNames[2]));
+            fds = new FDSServiceImpl(bc, getLogManager().createLogger(Logger.NAME_SQOOSS_FDS));
         }
 
         return fds;
@@ -114,8 +113,8 @@ public class AlitheiaCore {
 
     public MessagingService getMessagingService() {
         if (msg == null) {
+            // The messaging service doesn't log.
             msg = new MessagingServiceImpl(bc);
-            // msg = new eu.sqooss.impl.service.messaging.MessagingServiceImpl()
         }
 
         return msg;
@@ -123,7 +122,7 @@ public class AlitheiaCore {
 
     public Scheduler getScheduler() {
         if (sched == null) {
-            sched = new SchedulerServiceImpl(bc, getLogManager().createLogger(LogManagerConstants.loggerNames[5]));
+            sched = new SchedulerServiceImpl(bc, getLogManager().createLogger(Logger.NAME_SQOOSS_SCHEDULING));
         }
 
         return sched;
@@ -140,7 +139,7 @@ public class AlitheiaCore {
 
     public TDSService getTDSService() {
         if (tds == null) {
-            tds = new TDSServiceImpl(getLogManager().createLogger(LogManagerConstants.loggerNames[8]));
+            tds = new TDSServiceImpl(getLogManager().createLogger(Logger.NAME_SQOOSS_TDS));
         }
         return tds;
     }
@@ -148,7 +147,7 @@ public class AlitheiaCore {
     public UpdaterService getUpdater() {
         if (updater == null) {
             try {
-                updater = new UpdaterServiceImpl(bc, getLogManager().createLogger(LogManagerConstants.loggerNames[9]));
+                updater = new UpdaterServiceImpl(bc, getLogManager().createLogger(Logger.NAME_SQOOSS_UPDATER));
             } catch (ServletException e) {
                 e.printStackTrace();
             } catch (NamespaceException e) {
