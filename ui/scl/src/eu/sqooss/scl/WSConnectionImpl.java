@@ -294,7 +294,7 @@ class WSConnectionImpl implements WSConnection {
     }
     
     private void initParameters() {
-        parameters = new Hashtable<String, Object>(4);
+        parameters = new Hashtable<String, Object>();
         
         EvaluatedProjectsList epl = new EvaluatedProjectsList();
         epl.setPassword(password);

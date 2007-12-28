@@ -33,6 +33,7 @@
 package eu.sqooss.impl.service.web.services;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
@@ -169,15 +170,14 @@ public class WebServicesImpl {
         List result = null;
         
         if (fileNamesSet.size() != 0) {
-            //TODO remake after db feature request - 27.12.2007
-            Session dbSession = db.getSession(this);
-            Query dbQuery = dbSession.createQuery(DatabaseQueries.RETRIEVE_METRICS_4_SELECTED_FILES);
-            dbQuery.setParameter(DatabaseQueries.RETRIEVE_METRICS_4_SELECTED_FILES_PARAM_PR,
+            Map<String, Object> projectIdParameter = new Hashtable<String, Object>(1);
+            projectIdParameter.put(DatabaseQueries.RETRIEVE_METRICS_4_SELECTED_FILES_PARAM_PR,
                     projectIdValue);
-            dbQuery.setParameterList(DatabaseQueries.RETRIEVE_METRICS_4_SELECTED_FILES_PARAM_LIST,
+            Map<String, Collection> fileNamesParameter = new Hashtable<String, Collection>(1);
+            fileNamesParameter.put(DatabaseQueries.RETRIEVE_METRICS_4_SELECTED_FILES_PARAM_LIST,
                     fileNamesSet);
-            result = dbQuery.list();
-            db.returnSession(dbSession);
+            result = db.doHQL(DatabaseQueries.RETRIEVE_METRICS_4_SELECTED_FILES,
+                    projectIdParameter, fileNamesParameter);
         }
         
         return convertToWSMetrics(result);
