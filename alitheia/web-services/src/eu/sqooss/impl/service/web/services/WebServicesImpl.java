@@ -41,8 +41,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
-import org.hibernate.Query;
-import org.hibernate.Session;
 import org.osgi.framework.BundleContext;
 
 import eu.sqooss.impl.service.web.services.datatypes.WSMetric;
