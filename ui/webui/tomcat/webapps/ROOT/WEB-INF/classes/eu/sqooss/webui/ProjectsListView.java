@@ -34,6 +34,7 @@ package eu.sqooss.webui;
 
 
 import eu.sqooss.webui.ListView;
+import eu.sqooss.scl.WSException;
 import eu.sqooss.scl.WSSession;
 import eu.sqooss.scl.result.WSResult;
 
@@ -45,8 +46,13 @@ public class ProjectsListView extends ListView {
     String someresult;
 
     public ProjectsListView () {
-        session = new WSSession("bla", "foo");
-        someresult = ""+session.getConnection().evaluatedProjectsList().next().get(0).getString();
+        try {
+            session = new WSSession("bla", "foo");
+            someresult = ""+session.getConnection().evaluatedProjectsList().next().get(0).getString();
+        } catch (WSException wse) {
+            //TODO
+            wse.printStackTrace();
+        }
         retrieveData();
     }
 
