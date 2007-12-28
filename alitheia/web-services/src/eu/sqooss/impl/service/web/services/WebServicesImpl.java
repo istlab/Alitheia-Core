@@ -129,24 +129,12 @@ public class WebServicesImpl {
         
         //TODO: check the security
         
-        return null;
-        //TODO: uncomment after DB schema fix
-//        Map<String, Object> queryParameters = new Hashtable<String, Object>(1);
-//        queryParameters.put(DatabaseQueries.RETRIEVE_FILE_LIST_PARAM, Long.parseLong(projectId));
-//        
-//        List queryResult = db.doHQL(DatabaseQueries.RETRIEVE_FILE_LIST, queryParameters);
-//        
-//        if (queryResult.size() == 0) {
-//            return null;
-//        } else {
-//            WSProjectFile[] result = new WSProjectFile[queryResult.size()];
-//            Object[] currentElem;
-//            for (int i = 0; i < result.length; i++) {
-//                currentElem = (Object[]) queryResult.get(i);
-//                result[i] = new WSProjectFile((ProjectFile) currentElem[0], (FileMetadata) currentElem[1]);
-//            }
-//            return result;
-//        }
+        Map<String, Object> queryParameters = new Hashtable<String, Object>(1);
+        queryParameters.put(DatabaseQueries.RETRIEVE_FILE_LIST_PARAM, Long.parseLong(projectId));
+        
+        List queryResult = db.doHQL(DatabaseQueries.RETRIEVE_FILE_LIST, queryParameters);
+        
+        return convertToWSProjectFiles(queryResult);
     }
     
     public WSMetric[] retrieveMetrics4SelectedFiles(String userName, String password,
@@ -429,6 +417,19 @@ public class WebServicesImpl {
             for (int i = 0; i < result.length; i++) {
                 currentElem = (Object[]) metricsWithTypes.get(i);
                 result[i] = new WSMetric((Metric) currentElem[0], (MetricType) currentElem[1]);
+            }
+        }
+        return result;
+    }
+    
+    private WSProjectFile[] convertToWSProjectFiles(List projectFilesWithMetadata) {
+        WSProjectFile[] result = null;
+        if ((projectFilesWithMetadata != null) && (projectFilesWithMetadata.size() != 0)) {
+            result = new WSProjectFile[projectFilesWithMetadata.size()];
+            Object[] currentElem;
+            for (int i = 0; i < result.length; i++) {
+                currentElem = (Object[]) projectFilesWithMetadata.get(i);
+                result[i] = new WSProjectFile((ProjectFile) currentElem[0], (FileMetadata) currentElem[1]);
             }
         }
         return result;

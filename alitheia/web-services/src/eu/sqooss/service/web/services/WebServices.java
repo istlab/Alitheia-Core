@@ -36,6 +36,7 @@ import org.osgi.framework.BundleContext;
 
 import eu.sqooss.impl.service.web.services.WebServicesImpl;
 import eu.sqooss.impl.service.web.services.datatypes.WSMetric;
+import eu.sqooss.impl.service.web.services.datatypes.WSProjectFile;
 import eu.sqooss.impl.service.web.services.datatypes.WSStoredProject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.logging.Logger;
@@ -81,11 +82,11 @@ public class WebServices {
         return webServices.retrieveSelectedMetric(userName, password, projectId, metricId);
     }
     //5.1.1
-//    
-//    //5.1.2
-//    public String[] retrieveFileList(String userName, String password, String projectId) {
-//        return null;
-//    }
+    
+    //5.1.2
+    public WSProjectFile[] retrieveFileList(String userName, String password, String projectId) {
+        return webServices.retrieveFileList(userName, password, projectId);
+    }
     
     public WSMetric[] retrieveMetrics4SelectedFiles(String userName, String password,
             String projectId, String[] folders, String[] fileNames) {

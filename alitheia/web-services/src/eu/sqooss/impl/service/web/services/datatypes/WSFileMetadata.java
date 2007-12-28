@@ -53,11 +53,11 @@ public class WSFileMetadata {
         return fileMetadata.getLinks();
     }
 
-    public int getUserId() {
+    public long getUserId() {
         return fileMetadata.getUserId();
     }
 
-    public int getGroupId() {
+    public long getGroupId() {
         return fileMetadata.getGroupId();
     }
 
