@@ -40,13 +40,14 @@ import java.sql.Time;
 public class FileMetadata extends DAObject{
     private String protection;
     private int links;
-    private int userId;
-    private int groupId;
+    private long userId;
+    private long groupId;
     private Time accessTime;
     private Time modificationTime;
     private String fileStatusChange;
     private int size;
     private int blocks;
+    private long projectFile;
 
 
     public FileMetadata() {
@@ -69,19 +70,19 @@ public class FileMetadata extends DAObject{
         this.links = links;
     }
 
-    public int getUserId() {
+    public long getUserId() {
         return userId;
     }
 
-    public void setUserId(int userId) {
+    public void setUserId(long userId) {
         this.userId = userId;
     }
 
-    public int getGroupId() {
+    public long getGroupId() {
         return groupId;
     }
 
-    public void setGroupId(int groupId) {
+    public void setGroupId(long groupId) {
         this.groupId = groupId;
     }
 
@@ -124,6 +125,15 @@ public class FileMetadata extends DAObject{
     public void setBlocks(int blocks) {
         this.blocks = blocks;
     }
+
+    public long getProjectFile() {
+        return projectFile;
+    }
+
+    public void setProjectFile(long projectFile) {
+        this.projectFile = projectFile;
+    }
+    
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

@@ -17,5 +17,6 @@
     <property name="fileStatusChange" column="STATUS_CHANGE" />
     <property name="size" column="FILE_SIZE" />
     <property name="blocks" column="FILE_BLOCKS" />
+    <property name="projectFile" column="PROJECT_FILE" />
   </class>
 </hibernate-mapping>
