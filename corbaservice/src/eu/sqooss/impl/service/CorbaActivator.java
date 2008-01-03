@@ -61,10 +61,17 @@ public class CorbaActivator implements BundleActivator {
 		LoggerImpl loggerImpl = new LoggerImpl(bc);
 		try{
 			Properties props = new Properties();
-			props.put("org.omg.CORBA.ORBInitialPort", "900");
+			//props.put("org.omg.CORBA.ORBInitialPort", "1050");
+
+			String nsHost = "localhost";
+			String nsPort = "2809";
+			
+			String[] orb_args = new String[2];
+			orb_args[0] = "-ORBInitRef";
+			orb_args[1] = "NameService=corbaloc:iiop:1.2@" + nsHost + ":" + nsPort + "/NameService";
 			
 			// create and initialize the ORB
-			ORB orb = ORB.init(new String[0], props);
+			ORB orb = ORB.init( orb_args, props );
 			
 			// get reference to rootpoa & activate the POAManager
 			rootpoa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));

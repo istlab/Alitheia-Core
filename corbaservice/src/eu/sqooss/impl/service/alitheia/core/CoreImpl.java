@@ -12,8 +12,7 @@ public class CoreImpl extends CorePOA {
 	}
 	
 	public int registerMetric(String name) {
-		return 0;
-		// TODO Auto-generated method stub
+		return CorbaActivator.instance().registerExternalCorbaObject(name, null);
 	}
 
 	public void unregisterMetric(int id) {
