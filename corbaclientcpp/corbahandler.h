@@ -22,9 +22,14 @@ public:
     CORBA::Object_var getObject( const char* name ) const throw (CORBA::Exception);
     void exportObject( CORBA::Object_ptr obj, const char* name );
 
+    void run();
+
 private:
     OrbThread* orb_thread;
     CORBA::ORB_var orb;
+    CORBA::Object_var poaobj;
+    PortableServer::POA_var poa;
+    PortableServer::POAManager_var mgr;
 };
 
 #endif

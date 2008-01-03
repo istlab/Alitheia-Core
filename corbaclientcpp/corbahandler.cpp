@@ -19,15 +19,26 @@ private:
 
 CorbaHandler::CorbaHandler()
 {
-    char* params[] = { "", "-ORBDefaultInitRef", "corbaloc::localhost:900" };
-    int count = 3;
-    orb = CORBA::ORB_init( count, params );
-    orb_thread = new OrbThread( orb );
+    int argc = 3;
+    char* argv[] = { "", "-ORBInitRef", "NameService=corbaloc:iiop:1.2@localhost:2809/NameService" };
+ 
+    orb = CORBA::ORB_init( argc, argv );
+    poaobj = orb->resolve_initial_references( "RootPOA" );
+    
+    poa = PortableServer::POA::_narrow( poaobj );
+    mgr = poa->the_POAManager();
+    mgr->activate();
+//    orb_thread = new OrbThread( orb );
 }
 
 CorbaHandler::~CorbaHandler()
 {
-    delete orb_thread;
+//    delete orb_thread;
+}
+
+void CorbaHandler::run()
+{
+    orb->run();
 }
 
 CorbaHandler* CorbaHandler::instance()
@@ -51,7 +62,7 @@ CORBA::Object_var CorbaHandler::getObject( const char* name ) const throw (CORBA
 
 void CorbaHandler::exportObject( CORBA::Object_ptr obj, const char* name )
 {
-    const CORBA::Object_var nsobj = orb->resolve_initial_references( "NameService" );
+/*    const CORBA::Object_var nsobj = orb->resolve_initial_references( "NameService" );
     const CosNaming::NamingContext_var nc = CosNaming::NamingContext::_narrow( nsobj );
 
     CosNaming::Name cosName;
@@ -59,5 +70,5 @@ void CorbaHandler::exportObject( CORBA::Object_ptr obj, const char* name )
     cosName[ 0 ].id = CORBA::string_dup( name );
     cosName[ 0 ].kind = CORBA::string_dup( "" );
 
-    nc->rebind( cosName, obj );
+    nc->rebind( cosName, obj );*/
 }
