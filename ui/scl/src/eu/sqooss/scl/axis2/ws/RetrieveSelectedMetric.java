@@ -114,14 +114,14 @@ implements org.apache.axis2.databinding.ADBBean{
      * field for ProjectId
      */
 
-    protected java.lang.String localProjectId ;
+    protected long localProjectId ;
 
 
     /**
      * Auto generated getter method
-     * @return java.lang.String
+     * @return long
      */
-    public  java.lang.String getProjectId(){
+    public  long getProjectId(){
         return localProjectId;
     }
 
@@ -131,7 +131,7 @@ implements org.apache.axis2.databinding.ADBBean{
      * Auto generated setter method
      * @param param ProjectId
      */
-    public void setProjectId(java.lang.String param){
+    public void setProjectId(long param){
 
         this.localProjectId=param;
 
@@ -143,14 +143,14 @@ implements org.apache.axis2.databinding.ADBBean{
      * field for MetricId
      */
 
-    protected java.lang.String localMetricId ;
+    protected long localMetricId ;
 
 
     /**
      * Auto generated getter method
-     * @return java.lang.String
+     * @return long
      */
-    public  java.lang.String getMetricId(){
+    public  long getMetricId(){
         return localMetricId;
     }
 
@@ -160,7 +160,7 @@ implements org.apache.axis2.databinding.ADBBean{
      * Auto generated setter method
      * @param param MetricId
      */
-    public void setMetricId(java.lang.String param){
+    public void setMetricId(long param){
 
         this.localMetricId=param;
 
@@ -298,18 +298,7 @@ implements org.apache.axis2.databinding.ADBBean{
                     xmlWriter.writeStartElement("projectId");
                 }
 
-
-                if (localProjectId==null){
-                    // write the nil attribute
-
-                    writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","true",xmlWriter);
-
-                }else{
-
-
-                    xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localProjectId));
-
-                }
+                xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localProjectId));
 
                 xmlWriter.writeEndElement();
 
@@ -332,18 +321,7 @@ implements org.apache.axis2.databinding.ADBBean{
                     xmlWriter.writeStartElement("metricId");
                 }
 
-
-                if (localMetricId==null){
-                    // write the nil attribute
-
-                    writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","true",xmlWriter);
-
-                }else{
-
-
-                    xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localMetricId));
-
-                }
+                xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localMetricId));
 
                 xmlWriter.writeEndElement();
 
@@ -447,14 +425,14 @@ implements org.apache.axis2.databinding.ADBBean{
         elementList.add(new javax.xml.namespace.QName("http://services.web.service.sqooss.eu/xsd",
         "projectId"));
 
-        elementList.add(localProjectId==null?null:
-            org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localProjectId));
+        elementList.add(
+                org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localProjectId));
 
         elementList.add(new javax.xml.namespace.QName("http://services.web.service.sqooss.eu/xsd",
         "metricId"));
 
-        elementList.add(localMetricId==null?null:
-            org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localMetricId));
+        elementList.add(
+                org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localMetricId));
 
 
         return new org.apache.axis2.databinding.utils.reader.ADBXMLStreamReaderImpl(qName, elementList.toArray(), attribList.toArray());
@@ -586,7 +564,7 @@ implements org.apache.axis2.databinding.ADBBean{
                         java.lang.String content = reader.getElementText();
 
                         object.setProjectId(
-                                org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                                org.apache.axis2.databinding.utils.ConverterUtil.convertToLong(content));
 
                     } else {
                         reader.getElementText(); // throw away text nodes if any.
@@ -611,7 +589,7 @@ implements org.apache.axis2.databinding.ADBBean{
                         java.lang.String content = reader.getElementText();
 
                         object.setMetricId(
-                                org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                                org.apache.axis2.databinding.utils.ConverterUtil.convertToLong(content));
 
                     } else {
                         reader.getElementText(); // throw away text nodes if any.

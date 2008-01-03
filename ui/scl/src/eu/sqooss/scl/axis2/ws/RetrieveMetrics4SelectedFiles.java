@@ -114,14 +114,14 @@ implements org.apache.axis2.databinding.ADBBean{
      * field for ProjectId
      */
 
-    protected java.lang.String localProjectId ;
+    protected long localProjectId ;
 
 
     /**
      * Auto generated getter method
-     * @return java.lang.String
+     * @return long
      */
-    public  java.lang.String getProjectId(){
+    public  long getProjectId(){
         return localProjectId;
     }
 
@@ -131,7 +131,7 @@ implements org.apache.axis2.databinding.ADBBean{
      * Auto generated setter method
      * @param param ProjectId
      */
-    public void setProjectId(java.lang.String param){
+    public void setProjectId(long param){
 
         this.localProjectId=param;
 
@@ -405,18 +405,7 @@ implements org.apache.axis2.databinding.ADBBean{
                     xmlWriter.writeStartElement("projectId");
                 }
 
-
-                if (localProjectId==null){
-                    // write the nil attribute
-
-                    writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","true",xmlWriter);
-
-                }else{
-
-
-                    xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localProjectId));
-
-                }
+                xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localProjectId));
 
                 xmlWriter.writeEndElement();
 
@@ -684,8 +673,8 @@ implements org.apache.axis2.databinding.ADBBean{
         elementList.add(new javax.xml.namespace.QName("http://services.web.service.sqooss.eu/xsd",
         "projectId"));
 
-        elementList.add(localProjectId==null?null:
-            org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localProjectId));
+        elementList.add(
+                org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localProjectId));
 
         if (localFolders!=null){
             for (int i = 0;i < localFolders.length;i++){
@@ -875,7 +864,7 @@ implements org.apache.axis2.databinding.ADBBean{
                         java.lang.String content = reader.getElementText();
 
                         object.setProjectId(
-                                org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                                org.apache.axis2.databinding.utils.ConverterUtil.convertToLong(content));
 
                     } else {
                         reader.getElementText(); // throw away text nodes if any.

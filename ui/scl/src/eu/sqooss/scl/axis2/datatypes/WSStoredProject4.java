@@ -31,7 +31,7 @@
  */
 
 /**
- * WSMetricType2.java
+ * WSStoredProject4.java
  *
  * This file was auto-generated from WSDL
  * by the Apache Axis2 version: #axisVersion# #today#
@@ -39,43 +39,43 @@
 
 package eu.sqooss.scl.axis2.datatypes;
 /**
- *  WSMetricType2 bean class
+ *  WSStoredProject4 bean class
  */
 
-public  class WSMetricType2
+public  class WSStoredProject4
 implements org.apache.axis2.databinding.ADBBean{
 
     public static final javax.xml.namespace.QName MY_QNAME = new javax.xml.namespace.QName(
             "http://datatypes.services.web.service.impl.sqooss.eu/xsd",
-            "WSMetricType",
+            "WSStoredProject",
     "ns1");
 
 
 
     /**
-     * field for WSMetricType
+     * field for WSStoredProject
      */
 
-    protected eu.sqooss.scl.axis2.datatypes.WSMetricType localWSMetricType ;
+    protected eu.sqooss.scl.axis2.datatypes.WSStoredProject localWSStoredProject ;
 
 
     /**
      * Auto generated getter method
-     * @return eu.sqooss.scl.axis2.datatypes.WSMetricType
+     * @return eu.sqooss.scl.axis2.datatypes.WSStoredProject
      */
-    public  eu.sqooss.scl.axis2.datatypes.WSMetricType getWSMetricType(){
-        return localWSMetricType;
+    public  eu.sqooss.scl.axis2.datatypes.WSStoredProject getWSStoredProject(){
+        return localWSStoredProject;
     }
 
 
 
     /**
      * Auto generated setter method
-     * @param param WSMetricType
+     * @param param WSStoredProject
      */
-    public void setWSMetricType(eu.sqooss.scl.axis2.datatypes.WSMetricType param){
+    public void setWSStoredProject(eu.sqooss.scl.axis2.datatypes.WSStoredProject param){
 
-        this.localWSMetricType=param;
+        this.localWSStoredProject=param;
 
 
     }
@@ -103,10 +103,10 @@ implements org.apache.axis2.databinding.ADBBean{
 
                 //We can safely assume an element has only one type associated with it
 
-                if (localWSMetricType==null){
+                if (localWSStoredProject==null){
                     throw new RuntimeException("Property cannot be null!");
                 }
-                localWSMetricType.getOMElement(
+                localWSStoredProject.getOMElement(
                         MY_QNAME,
                         factory).serialize(xmlWriter);
 
@@ -189,7 +189,7 @@ implements org.apache.axis2.databinding.ADBBean{
 
 
         //We can safely assume an element has only one type associated with it
-        return localWSMetricType.getPullParser(MY_QNAME);
+        return localWSStoredProject.getPullParser(MY_QNAME);
 
     }
 
@@ -208,8 +208,8 @@ implements org.apache.axis2.databinding.ADBBean{
          * Postcondition: If this object is an element, the reader is positioned at its end element
          *                If this object is a complex type, the reader is positioned at the end element of its outer element
          */
-        public static WSMetricType2 parse(javax.xml.stream.XMLStreamReader reader) throws java.lang.Exception{
-            WSMetricType2 object = new WSMetricType2();
+        public static WSStoredProject4 parse(javax.xml.stream.XMLStreamReader reader) throws java.lang.Exception{
+            WSStoredProject4 object = new WSStoredProject4();
             int event;
             try {
 
@@ -237,9 +237,9 @@ implements org.apache.axis2.databinding.ADBBean{
                 while(!reader.isEndElement()) {
                     if (reader.isStartElement() ){
 
-                        if (reader.isStartElement() && new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd","WSMetricType").equals(reader.getName())){
+                        if (reader.isStartElement() && new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd","WSStoredProject").equals(reader.getName())){
 
-                            object.setWSMetricType(eu.sqooss.scl.axis2.datatypes.WSMetricType.Factory.parse(reader));
+                            object.setWSStoredProject(eu.sqooss.scl.axis2.datatypes.WSStoredProject.Factory.parse(reader));
 
                         }  // End of if for expected property start element
 

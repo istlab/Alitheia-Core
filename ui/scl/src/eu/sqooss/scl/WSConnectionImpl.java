@@ -136,12 +136,12 @@ class WSConnectionImpl implements WSConnection {
         return new WSResult("Not Implemented yet");
     }
 
-    public WSResult requestDefectStatistics(String prokectId, String searchQuery, String statisticalScheme) {
+    public WSResult requestDefectStatistics(String projectId, String searchQuery, String statisticalScheme) {
         // TODO Auto-generated method stub
         return new WSResult("Not Implemented yet");
     }
 
-    public void requestEvaluatin4Project(String projectName, String projectVersion,
+    public void requestEvaluation4Project(String projectName, String projectVersion,
             String srcRepositoryLocation, String srcRepositoryType,
             String mailingListLocation, String BTSLocation) {
         // TODO Auto-generated method stub
@@ -190,7 +190,7 @@ class WSConnectionImpl implements WSConnection {
      */
     public WSResult retrieveFileList(String projectId) throws WSException {
         RetrieveFileList params = (RetrieveFileList) parameters.get(WSConnectionConstants.PARAM_KEY_RETRIEVE_FILE_LIST);
-        params.setProjectId(projectId);
+        params.setProjectId(Long.parseLong(projectId));
         RetrieveFileListResponse response;
         try {
             response = wsStub.retrieveFileList(params);
@@ -206,7 +206,7 @@ class WSConnectionImpl implements WSConnection {
     public WSResult retrieveMetrics4SelectedFiles(String projectId, String folderNames,
             String fileNames) throws WSException {
         RetrieveMetrics4SelectedFiles params = (RetrieveMetrics4SelectedFiles) parameters.get(WSConnectionConstants.PARAM_KEY_RETRIEVE_METRICS_4_SELECTED_FILES);
-        params.setProjectId(projectId);
+        params.setProjectId(Long.parseLong(projectId));
         String delimiter = ",";
         
         StringTokenizer folderNamesTokenizer = new StringTokenizer(folderNames, delimiter);
@@ -251,7 +251,7 @@ class WSConnectionImpl implements WSConnection {
      */
     public WSResult retrieveMetrics4SelectedProject(String projectId) throws WSException {
         RetrieveMetrics4SelectedProject params = (RetrieveMetrics4SelectedProject) parameters.get(WSConnectionConstants.PARAM_KEY_RETRIEVE_METRICS_4_SELECTED_PROJECT);
-        params.setProjectId(projectId);
+        params.setProjectId(Long.parseLong(projectId));
         RetrieveMetrics4SelectedProjectResponse response;
         try {
             response = wsStub.retrieveMetrics4SelectedProject(params);
@@ -271,8 +271,8 @@ class WSConnectionImpl implements WSConnection {
      */
     public WSResult retrieveSelectedMetric(String projectId, String metricId) throws WSException {
         RetrieveSelectedMetric params = (RetrieveSelectedMetric) parameters.get(WSConnectionConstants.PARAM_KEY_RETRIEVE_SELECTED_METRIC);
-        params.setProjectId(projectId);
-        params.setMetricId(metricId);
+        params.setProjectId(Long.parseLong(projectId));
+        params.setMetricId(Long.parseLong(metricId));
         RetrieveSelectedMetricResponse response = null;;
         try {
             response = wsStub.retrieveSelectedMetric(params);

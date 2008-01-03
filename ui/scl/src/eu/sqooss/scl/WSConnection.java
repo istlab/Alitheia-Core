@@ -129,7 +129,7 @@ public interface WSConnection {
     //5.1.2
     
     //5.1.3
-    public void requestEvaluatin4Project(String projectName, String projectVersion,
+    public void requestEvaluation4Project(String projectName, String projectVersion,
             String srcRepositoryLocation, String srcRepositoryType,
             String mailingListLocation, String BTSLocation);
     //5.1.3
@@ -148,7 +148,7 @@ public interface WSConnection {
     //5.1.5
     public WSResult requestProjectsWithBTS();
     
-    public WSResult requestDefectStatistics(String prokectId, String searchQuery, String statisticalScheme);
+    public WSResult requestDefectStatistics(String projectId, String searchQuery, String statisticalScheme);
     //5.1.5
     
     //5.1.6
