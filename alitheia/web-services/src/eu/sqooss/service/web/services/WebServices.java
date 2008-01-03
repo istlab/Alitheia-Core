@@ -90,7 +90,7 @@ public class WebServices {
      * @return
      */
     public WSMetric[] retrieveMetrics4SelectedProject(String userName,
-            String password, String projectId) {
+            String password, long projectId) {
         return webServices.retrieveMetrics4SelectedProject(userName, password, projectId);
     }
     
@@ -104,7 +104,7 @@ public class WebServices {
      * @return
      */
     public WSMetric retrieveSelectedMetric(String userName, String password,
-            String projectId, String metricId) {
+            long projectId, long metricId) {
         return webServices.retrieveSelectedMetric(userName, password, projectId, metricId);
     }
     //5.1.1
@@ -118,7 +118,7 @@ public class WebServices {
      * @param projectId
      * @return
      */
-    public WSProjectFile[] retrieveFileList(String userName, String password, String projectId) {
+    public WSProjectFile[] retrieveFileList(String userName, String password, long projectId) {
         return webServices.retrieveFileList(userName, password, projectId);
     }
     
@@ -134,16 +134,20 @@ public class WebServices {
      * @return
      */
     public WSMetric[] retrieveMetrics4SelectedFiles(String userName, String password,
-            String projectId, String[] folders, String[] fileNames) {
+            long projectId, String[] folders, String[] fileNames) {
         return webServices.retrieveMetrics4SelectedFiles(userName, password, projectId, folders, fileNames);
     }
     //5.1.2
     
-//    //5.1.3
-//    public void requestEvaluatin4Project(String userName, String password,
-//            String projectName, String projectVersion,
-//            String srcRepositoryLocation, String srcRepositoryType,
-//            String mailingListLocation, String BTSLocation) {
+    //5.1.3
+//    public WSStoredProject requestEvaluation4Project(String userName, String password,
+//            String projectName, int projectVersion,
+//            String srcRepositoryLocation, String mailingListLocation,
+//            String BTSLocation, String userEmailAddress,
+//            String website) {
+//        return webServices.requestEvaluation4Project(userName, password,
+//                projectName,projectVersion, srcRepositoryLocation,
+//                mailingListLocation, BTSLocation, userEmailAddress, website);
 //    }
 //    //5.1.3
 //    
