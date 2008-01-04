@@ -47,6 +47,8 @@ interface WSConnectionConstants {
     
     public static final String PARAM_KEY_RETRIEVE_FILE_LIST                   = "retrieveFileList";
     
+    public static final String PARAM_KEY_REQUEST_EVALUATION_4_PROJECT         = "requestEvaluation4Project";
+    
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

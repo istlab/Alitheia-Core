@@ -41,6 +41,8 @@ import org.apache.axis2.AxisFault;
 import eu.sqooss.scl.axis2.WsStub;
 import eu.sqooss.scl.axis2.ws.EvaluatedProjectsList;
 import eu.sqooss.scl.axis2.ws.EvaluatedProjectsListResponse;
+import eu.sqooss.scl.axis2.ws.RequestEvaluation4Project;
+import eu.sqooss.scl.axis2.ws.RequestEvaluation4ProjectResponse;
 import eu.sqooss.scl.axis2.ws.RetrieveFileList;
 import eu.sqooss.scl.axis2.ws.RetrieveFileListResponse;
 import eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedFiles;
@@ -50,6 +52,7 @@ import eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedProjectResponse;
 import eu.sqooss.scl.axis2.ws.RetrieveSelectedMetric;
 import eu.sqooss.scl.axis2.ws.RetrieveSelectedMetricResponse;
 import eu.sqooss.scl.axis2.datatypes.WSMetric;
+import eu.sqooss.scl.axis2.datatypes.WSStoredProject;
 import eu.sqooss.scl.result.WSResult;
 import eu.sqooss.scl.utils.WSResponseParser;
 
@@ -104,7 +107,8 @@ class WSConnectionImpl implements WSConnection {
      */
     public WSResult evaluatedProjectsList() throws WSException {
         EvaluatedProjectsListResponse response; 
-        EvaluatedProjectsList params = (EvaluatedProjectsList) parameters.get(WSConnectionConstants.PARAM_KEY_EVALUATED_PROJECTS_LIST);
+        EvaluatedProjectsList params = (EvaluatedProjectsList) parameters.get(
+                WSConnectionConstants.PARAM_KEY_EVALUATED_PROJECTS_LIST);
         try {
             response = wsStub.evaluatedProjectsList(params);
         } catch (RemoteException e) {
@@ -141,11 +145,25 @@ class WSConnectionImpl implements WSConnection {
         return new WSResult("Not Implemented yet");
     }
 
-    public void requestEvaluation4Project(String projectName, String projectVersion,
-            String srcRepositoryLocation, String srcRepositoryType,
-            String mailingListLocation, String BTSLocation) {
-        // TODO Auto-generated method stub
-        
+    public WSResult requestEvaluation4Project(String projectName, String projectVersion,
+            String srcRepositoryLocation, String mailingListLocation,
+            String BTSLocation, String userEmailAddress, String website) throws WSException {
+        RequestEvaluation4ProjectResponse response;
+        RequestEvaluation4Project params = (RequestEvaluation4Project) parameters.get(
+                WSConnectionConstants.PARAM_KEY_REQUEST_EVALUATION_4_PROJECT);
+        params.setProjectName(projectName);
+        params.setProjectVersion(Integer.parseInt(projectVersion));
+        params.setSrcRepositoryLocation(srcRepositoryLocation);
+        params.setMailingListLocation(mailingListLocation);
+        params.setBTSLocation(BTSLocation);
+        params.setUserEmailAddress(userEmailAddress);
+        params.setWebsite(website);
+        try {
+            response = wsStub.requestEvaluation4Project(params);
+        } catch (RemoteException re) {
+            throw new WSException(re);
+        }
+        return WSResponseParser.parseStoredProjects(new WSStoredProject[]{response.get_return()});
     }
 
     public WSResult requestEvolEstimates4Project(String projectName, String projectVersion,
@@ -189,7 +207,8 @@ class WSConnectionImpl implements WSConnection {
      * @see eu.sqooss.scl.WSConnection#retrieveFileList(java.lang.String)
      */
     public WSResult retrieveFileList(String projectId) throws WSException {
-        RetrieveFileList params = (RetrieveFileList) parameters.get(WSConnectionConstants.PARAM_KEY_RETRIEVE_FILE_LIST);
+        RetrieveFileList params = (RetrieveFileList) parameters.get(
+                WSConnectionConstants.PARAM_KEY_RETRIEVE_FILE_LIST);
         params.setProjectId(Long.parseLong(projectId));
         RetrieveFileListResponse response;
         try {
@@ -205,7 +224,8 @@ class WSConnectionImpl implements WSConnection {
      */
     public WSResult retrieveMetrics4SelectedFiles(String projectId, String folderNames,
             String fileNames) throws WSException {
-        RetrieveMetrics4SelectedFiles params = (RetrieveMetrics4SelectedFiles) parameters.get(WSConnectionConstants.PARAM_KEY_RETRIEVE_METRICS_4_SELECTED_FILES);
+        RetrieveMetrics4SelectedFiles params = (RetrieveMetrics4SelectedFiles) parameters.get(
+                WSConnectionConstants.PARAM_KEY_RETRIEVE_METRICS_4_SELECTED_FILES);
         params.setProjectId(Long.parseLong(projectId));
         String delimiter = ",";
         
@@ -250,7 +270,8 @@ class WSConnectionImpl implements WSConnection {
      * @see eu.sqooss.scl.WSConnection#retrieveMetrics4SelectedProject(java.lang.String)
      */
     public WSResult retrieveMetrics4SelectedProject(String projectId) throws WSException {
-        RetrieveMetrics4SelectedProject params = (RetrieveMetrics4SelectedProject) parameters.get(WSConnectionConstants.PARAM_KEY_RETRIEVE_METRICS_4_SELECTED_PROJECT);
+        RetrieveMetrics4SelectedProject params = (RetrieveMetrics4SelectedProject) parameters.get(
+                WSConnectionConstants.PARAM_KEY_RETRIEVE_METRICS_4_SELECTED_PROJECT);
         params.setProjectId(Long.parseLong(projectId));
         RetrieveMetrics4SelectedProjectResponse response;
         try {
@@ -270,7 +291,8 @@ class WSConnectionImpl implements WSConnection {
      * @see eu.sqooss.scl.WSConnection#retrieveSelectedMetric(java.lang.String, java.lang.String)
      */
     public WSResult retrieveSelectedMetric(String projectId, String metricId) throws WSException {
-        RetrieveSelectedMetric params = (RetrieveSelectedMetric) parameters.get(WSConnectionConstants.PARAM_KEY_RETRIEVE_SELECTED_METRIC);
+        RetrieveSelectedMetric params = (RetrieveSelectedMetric) parameters.get(
+                WSConnectionConstants.PARAM_KEY_RETRIEVE_SELECTED_METRIC);
         params.setProjectId(Long.parseLong(projectId));
         params.setMetricId(Long.parseLong(metricId));
         RetrieveSelectedMetricResponse response = null;;
@@ -335,6 +357,11 @@ class WSConnectionImpl implements WSConnection {
         rfl.setPassword(password);
         rfl.setUserName(userName);
         parameters.put(WSConnectionConstants.PARAM_KEY_RETRIEVE_FILE_LIST, rfl);
+        
+        RequestEvaluation4Project refp = new RequestEvaluation4Project();
+        refp.setPassword(password);
+        refp.setUserName(userName);
+        parameters.put(WSConnectionConstants.PARAM_KEY_REQUEST_EVALUATION_4_PROJECT, refp);
     }
     
 }

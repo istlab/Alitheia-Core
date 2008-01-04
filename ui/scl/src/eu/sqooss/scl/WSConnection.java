@@ -46,9 +46,8 @@ public interface WSConnection {
      * @return <code>WSResult</code>
      * @throws WSException
      * <ul>
-     * <li>if the connection can't be establish to the SQO-OSS's web services service</li>
-     * <li>if web services service throws a exception</li>
-     * <li>if the arguments aren't correct</li>
+     *  <li>if the connection can't be establish to the SQO-OSS's web services service</li>
+     *  <li>if web services service throws a exception</li>
      * <ul>
      */
     public WSResult evaluatedProjectsList() throws WSException;
@@ -63,9 +62,8 @@ public interface WSConnection {
      * @return <code>WSResult</code>
      * @throws WSException
      * <ul>
-     * <li>if the connection can't be establish to the SQO-OSS's web services service</li>
-     * <li>if web services service throws a exception</li>
-     * <li>if the arguments aren't correct</li>
+     *  <li>if the connection can't be establish to the SQO-OSS's web services service</li>
+     *  <li>if web services service throws a exception</li>
      * <ul>
      */
     public WSResult retrieveMetrics4SelectedProject(String projectId) throws WSException;
@@ -81,9 +79,8 @@ public interface WSConnection {
      * @return <code>WSResult</code>
      * @throws WSException
      * <ul>
-     * <li>if the connection can't be establish to the SQO-OSS's web services service</li>
-     * <li>if web services service throws a exception</li>
-     * <li>if the arguments aren't correct</li>
+     *  <li>if the connection can't be establish to the SQO-OSS's web services service</li>
+     *  <li>if web services service throws a exception</li>
      * <ul>
      */
     public WSResult retrieveSelectedMetric(String projectId, String metricId) throws WSException;
@@ -100,9 +97,8 @@ public interface WSConnection {
      * @return <code>WSResult</code>
      * @throws WSException
      * <ul>
-     * <li>if the connection can't be establish to the SQO-OSS's web services service</li>
-     * <li>if web services service throws a exception</li>
-     * <li>if the arguments aren't correct</li>
+     *  <li>if the connection can't be establish to the SQO-OSS's web services service</li>
+     *  <li>if web services service throws a exception</li>
      * <ul>
      */
     public WSResult retrieveFileList(String projectId) throws WSException;
@@ -120,18 +116,39 @@ public interface WSConnection {
      * @return <code>WSResult</code>
      * @throws WSException
      * <ul>
-     * <li>if the connection can't be establish to the SQO-OSS's web services service</li>
-     * <li>if web services service throws a exception</li>
-     * <li>if the arguments aren't correct</li>
+     *  <li>if the connection can't be establish to the SQO-OSS's web services service</li>
+     *  <li>if web services service throws a exception</li>
      * <ul>
      */
     public WSResult retrieveMetrics4SelectedFiles(String projectId, String folderNames, String fileNames) throws WSException;
     //5.1.2
     
     //5.1.3
-    public void requestEvaluation4Project(String projectName, String projectVersion,
-            String srcRepositoryLocation, String srcRepositoryType,
-            String mailingListLocation, String BTSLocation);
+    /**
+     * This method makes request for OSS project evaluation.
+     * If a project with same name and version is known to the system
+     * then the method returns the existent project.
+     * A <code>WSResult</code> contains information about the project.
+     * The row consists of fields. The fields' description can be found in:
+     * {@link eu.sqooss.scl.utils.WSResponseParser#parseStoredProjects(eu.sqooss.scl.axis2.datatypes.WSStoredProject[])}
+     *  
+     * @param projectName the project's name
+     * @param projectVersion the project's version
+     * @param srcRepositoryLocation URL for the source repository
+     * @param mailingListLocation URL for the mailing list
+     * @param BTSLocation URL for the bug tracking system
+     * @param userEmailAddress user's e-mail address
+     * @param website project's website
+     * @return <code>WSResult</code>
+     * @throws WSException
+     * <ul>
+     *  <li>if the connection can't be establish to the SQO-OSS's web services service</li>
+     *  <li>if web services service throws a exception</li>
+     * <ul>
+     */
+    public WSResult requestEvaluation4Project(String projectName, String projectVersion,
+            String srcRepositoryLocation, String mailingListLocation,
+            String BTSLocation, String userEmailAddress, String website) throws WSException;
     //5.1.3
     
     //5.1.4
