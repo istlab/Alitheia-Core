@@ -33,9 +33,6 @@
 package eu.sqooss.scl;
 
 import java.io.IOException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.StringTokenizer;
 
 import eu.sqooss.scl.result.WSResult;
 
@@ -49,7 +46,7 @@ public class WSSession {
     private String webServiceUrl;
     private String userName;
     private String password;
-	private WSConnection sessionConnection;
+	private WSConnectionWrapper sessionConnectionWrapper;
     
 	/**
 	 * This constructor reads the web service url from the SCL's configuration file.
@@ -66,7 +63,8 @@ public class WSSession {
         this.userName = userName;
         this.password = password;
         this.webServiceUrl = webServiceUrl;
-        sessionConnection = new WSConnectionImpl(userName, password, webServiceUrl);
+        sessionConnectionWrapper = new WSConnectionWrapper(
+                new WSConnectionImpl(userName, password, webServiceUrl));
     }
     
     /**
@@ -88,18 +86,7 @@ public class WSSession {
      * <li>if the URL isn't valid</li>
      */
     public WSResult getValue(String webServiceMethodUrl) throws WSException {
-        ArrayList<String> methodArguments = new ArrayList<String>();
-        String methodName = parseWebServiceMethodUrl(webServiceMethodUrl, methodArguments);
-        Class[] parameterTypes = new Class[methodArguments.size()];
-        try {
-            for (int i = 0; i < parameterTypes.length; i++) {
-                parameterTypes[i] = Class.forName("java.lang.String");
-            }
-            Method method = sessionConnection.getClass().getDeclaredMethod(methodName, parameterTypes);
-            return (WSResult)method.invoke(sessionConnection, methodArguments.toArray());
-        } catch (Exception e) {
-            throw new WSException(e);
-        }
+        return sessionConnectionWrapper.getValue(webServiceMethodUrl);
     }
     
     /**
@@ -138,60 +125,6 @@ public class WSSession {
     private static String getWebServiceUrl() {
         //TODO: read the web service url from the configuration file
         return null;
-    }
-    
-    /**
-     * This method parses the url.
-     * It returns the method's name and puts the method's arguments' values
-     * in the <code>arguments</code> array list.
-     * The arguments' position is important.
-     * @param url
-     * @param arguments contains the method's arguments' values
-     * @return method's name
-     * @throws WSException 
-     */
-    private String parseWebServiceMethodUrl(String url, ArrayList<String> arguments) throws WSException {
-        String urlPrefix = "http://sqo-oss/";
-        char questionMark = '?';
-        char ampersand = '&';
-        int firstIndexOfQuestionMark = url.indexOf(questionMark);
-        int lastIndexOfQuestionMark = url.lastIndexOf(questionMark); 
-        int firstIndexOfAmpersand = url.indexOf(ampersand);
-        if (((firstIndexOfAmpersand != -1 ) && ((firstIndexOfQuestionMark == -1) || (firstIndexOfAmpersand < firstIndexOfQuestionMark))) ||
-                (firstIndexOfQuestionMark != lastIndexOfQuestionMark)){
-            throw new WSException("The url isn't correct: " + url);
-        }
-        if (!url.startsWith(urlPrefix)) {
-            throw new WSException("The url doesn't start with: " + urlPrefix);
-        }
-
-        arguments.clear();
-        String methodName;
-        if (firstIndexOfQuestionMark == -1) {
-            methodName = url.substring(urlPrefix.length());
-        } else {
-            methodName = url.substring(urlPrefix.length(), firstIndexOfQuestionMark);
-        }
-        if (firstIndexOfQuestionMark != -1) {
-            String argumentsString = url.substring(firstIndexOfQuestionMark + 1);
-            StringTokenizer tokenizer = new StringTokenizer(argumentsString, String.valueOf(ampersand));
-            String currentToken;
-            int firstIndexOfEquals;
-            int lastIndexOfEquals;
-            String argumentValue;
-            while (tokenizer.hasMoreTokens()) {
-                currentToken = tokenizer.nextToken();
-                firstIndexOfEquals = currentToken.indexOf('=');
-                lastIndexOfEquals = currentToken.lastIndexOf('=');
-                if ((firstIndexOfEquals == -1) || (firstIndexOfEquals == 0) ||
-                        (firstIndexOfEquals != lastIndexOfEquals)) {
-                    throw new WSException("The parameter is not valid: " + currentToken);
-                }
-                argumentValue = currentToken.substring(firstIndexOfEquals + 1);
-                arguments.add(argumentValue);
-            }
-        }
-        return methodName;
     }
     
 }

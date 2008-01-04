@@ -66,7 +66,7 @@ public interface WSConnection {
      *  <li>if web services service throws a exception</li>
      * <ul>
      */
-    public WSResult retrieveMetrics4SelectedProject(String projectId) throws WSException;
+    public WSResult retrieveMetrics4SelectedProject(long projectId) throws WSException;
     
     /**
      * This method returns the metric with a given id.
@@ -83,7 +83,7 @@ public interface WSConnection {
      *  <li>if web services service throws a exception</li>
      * <ul>
      */
-    public WSResult retrieveSelectedMetric(String projectId, String metricId) throws WSException;
+    public WSResult retrieveSelectedMetric(long projectId, long metricId) throws WSException;
     //5.1.1
     
     //5.1.2
@@ -101,7 +101,7 @@ public interface WSConnection {
      *  <li>if web services service throws a exception</li>
      * <ul>
      */
-    public WSResult retrieveFileList(String projectId) throws WSException;
+    public WSResult retrieveFileList(long projectId) throws WSException;
     
     /**
      * This method returns the metrics for a given files.
@@ -111,8 +111,8 @@ public interface WSConnection {
      * {@link eu.sqooss.scl.utils.WSResponseParser#parseMetrics(eu.sqooss.scl.axis2.datatypes.WSMetric[])}
      * 
      * @param projectId the project's id
-     * @param folderNames the folders' names i.e. all files in the folders
-     * @param fileNames the files' names
+     * @param folderNames the folders' names; the folders' delimiter is a comma
+     * @param fileNames the files' names, the files' delimiter is a comma
      * @return <code>WSResult</code>
      * @throws WSException
      * <ul>
@@ -120,7 +120,7 @@ public interface WSConnection {
      *  <li>if web services service throws a exception</li>
      * <ul>
      */
-    public WSResult retrieveMetrics4SelectedFiles(String projectId, String folderNames, String fileNames) throws WSException;
+    public WSResult retrieveMetrics4SelectedFiles(long projectId, String folderNames, String fileNames) throws WSException;
     //5.1.2
     
     //5.1.3
@@ -146,7 +146,7 @@ public interface WSConnection {
      *  <li>if web services service throws a exception</li>
      * <ul>
      */
-    public WSResult requestEvaluation4Project(String projectName, String projectVersion,
+    public WSResult requestEvaluation4Project(String projectName, int projectVersion,
             String srcRepositoryLocation, String mailingListLocation,
             String BTSLocation, String userEmailAddress, String website) throws WSException;
     //5.1.3

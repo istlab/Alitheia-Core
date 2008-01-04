@@ -37,17 +37,17 @@ package eu.sqooss.scl;
  */
 interface WSConnectionConstants {
     
-    public static final String PARAM_KEY_EVALUATED_PROJECTS_LIST              = "evaluatedProjectsList";
+    public static final String METHOD_NAME_EVALUATED_PROJECTS_LIST              = "evaluatedProjectsList";
     
-    public static final String PARAM_KEY_RETRIEVE_METRICS_4_SELECTED_PROJECT  = "retrieveMetrics4SelectedProject";
+    public static final String METHOD_NAME_RETRIEVE_METRICS_4_SELECTED_PROJECT  = "retrieveMetrics4SelectedProject";
     
-    public static final String PARAM_KEY_RETRIEVE_SELECTED_METRIC             = "retrieveSelectedMetric";
+    public static final String METHOD_NAME_RETRIEVE_SELECTED_METRIC             = "retrieveSelectedMetric";
     
-    public static final String PARAM_KEY_RETRIEVE_METRICS_4_SELECTED_FILES    = "retrieveMetrics4SelectedFiles";
+    public static final String METHOD_NAME_RETRIEVE_METRICS_4_SELECTED_FILES    = "retrieveMetrics4SelectedFiles";
     
-    public static final String PARAM_KEY_RETRIEVE_FILE_LIST                   = "retrieveFileList";
+    public static final String METHOD_NAME_RETRIEVE_FILE_LIST                   = "retrieveFileList";
     
-    public static final String PARAM_KEY_REQUEST_EVALUATION_4_PROJECT         = "requestEvaluation4Project";
+    public static final String METHOD_NAME_REQUEST_EVALUATION_4_PROJECT         = "requestEvaluation4Project";
     
 }
 
