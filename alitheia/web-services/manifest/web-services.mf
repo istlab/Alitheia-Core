@@ -10,6 +10,7 @@ Import-Package: org.osgi.framework,
   eu.sqooss.service.logging,
   eu.sqooss.service.db,
   eu.sqooss.service.security,
+  eu.sqooss.service.tds,
   eu.sqooss.core,
   org.hibernate
 Export-Package: eu.sqooss.service.web.services

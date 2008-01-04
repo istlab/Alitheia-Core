@@ -41,6 +41,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.osgi.framework.BundleContext;
 
 import eu.sqooss.impl.service.web.services.datatypes.WSMetric;
@@ -57,17 +60,20 @@ import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.security.SecurityManager;
+import eu.sqooss.service.tds.TDSService;
 
 public class WebServicesImpl {
     
     private SecurityManager securityManager;
     private Logger logger;
     private DBService db;
+    private TDSService tds;
     
     public WebServicesImpl(BundleContext bc, SecurityManager securityManager,
-            DBService db, Logger logger) {
+            DBService db, TDSService tds, Logger logger) {
         this.securityManager = securityManager;
         this.db = db;
+        this.tds = tds;
         this.logger = logger;
     }
     
@@ -91,7 +97,7 @@ public class WebServicesImpl {
      * @see eu.sqooss.service.web.services.WebServices#retrieveMetrics4SelectedProject(String, String, String)
      */
     public WSMetric[] retrieveMetrics4SelectedProject(String userName,
-            String password, String projectId) {
+            String password, long projectId) {
         
         logger.info("Retrieve metrics for selected project! user: " + userName +
                 "; project id:" + projectId);
@@ -99,7 +105,7 @@ public class WebServicesImpl {
         //TODO: check the security
         
         Map<String, Object> queryParameters = new Hashtable<String, Object>(1);
-        queryParameters.put(DatabaseQueries.RETRIEVE_METRICS_4_SELECTED_PROJECT_PARAM, Long.parseLong(projectId));
+        queryParameters.put(DatabaseQueries.RETRIEVE_METRICS_4_SELECTED_PROJECT_PARAM, projectId);
         List queryResult = db.doHQL(DatabaseQueries.RETRIEVE_METRICS_4_SELECTED_PROJECT, queryParameters);
         
         return convertToWSMetrics(queryResult);
@@ -109,7 +115,7 @@ public class WebServicesImpl {
      * @see eu.sqooss.service.web.services.WebServices#retrieveSelectedMetric(String, String, String, String)
      */
     public WSMetric retrieveSelectedMetric(String userName, String password,
-            String projectId, String metricId) {
+            long projectId, long metricId) {
         
         logger.info("Retrieve selected metric! user: " + userName +
                 "; project id: " + projectId + "; metricId: " + metricId);
@@ -117,8 +123,8 @@ public class WebServicesImpl {
         //TODO: check the security
         
         Map<String, Object> queryParameters = new Hashtable<String, Object>(2);
-        queryParameters.put(DatabaseQueries.RETRIEVE_SELECTED_METRIC_PARAM_PR, Long.parseLong(projectId));
-        queryParameters.put(DatabaseQueries.RETRIEVE_SELECTED_METRIC_PARAM_METRIC, Long.parseLong(metricId));
+        queryParameters.put(DatabaseQueries.RETRIEVE_SELECTED_METRIC_PARAM_PR, projectId);
+        queryParameters.put(DatabaseQueries.RETRIEVE_SELECTED_METRIC_PARAM_METRIC, metricId);
 
         List queryResult = db.doHQL(DatabaseQueries.RETRIEVE_SELECTED_METRIC, queryParameters);
         
@@ -135,13 +141,13 @@ public class WebServicesImpl {
     /**
      * @see eu.sqooss.service.web.services.WebServices#retrieveFileList(String, String, String)
      */
-    public WSProjectFile[] retrieveFileList(String userName, String password, String projectId) {
+    public WSProjectFile[] retrieveFileList(String userName, String password, long projectId) {
         logger.info("Retrieve file list! user: " + userName + "; project id: " + projectId);
         
         //TODO: check the security
         
         Map<String, Object> queryParameters = new Hashtable<String, Object>(1);
-        queryParameters.put(DatabaseQueries.RETRIEVE_FILE_LIST_PARAM, Long.parseLong(projectId));
+        queryParameters.put(DatabaseQueries.RETRIEVE_FILE_LIST_PARAM, projectId);
         
         List queryResult = db.doHQL(DatabaseQueries.RETRIEVE_FILE_LIST, queryParameters);
         
@@ -152,13 +158,11 @@ public class WebServicesImpl {
      * @see eu.sqooss.service.web.services.WebServices#retrieveMetrics4SelectedFiles(String, String, String, String[], String[])
      */
     public WSMetric[] retrieveMetrics4SelectedFiles(String userName, String password,
-            String projectId, String[] folders, String[] fileNames) {
+            long projectId, String[] folders, String[] fileNames) {
         logger.info("Retrieve metrics for selected files! user: " + userName + "; project id: " + projectId);
 
         //TODO: check the security
 
-        long projectIdValue = Long.parseLong(projectId);
-        
         Set<String> fileNamesSet;
         if ((fileNames.length == 0) || (fileNames[0] == null)) {
             fileNamesSet = new HashSet<String>();
@@ -171,7 +175,7 @@ public class WebServicesImpl {
             List currentFileNames;
             for (String folder : folders) {
                 folderNameParameters.put(DatabaseQueries.RETRIEVE_METRICS_4_SELECTED_FILES_PARAM_PR,
-                        projectIdValue);
+                        projectId);
                 folderNameParameters.put(DatabaseQueries.RETRIEVE_METRICS_4_SELECTED_FILES_DIRS_PARAM,
                         folder + "%");
                 currentFileNames = db.doHQL(DatabaseQueries.RETRIEVE_METRICS_4_SELECTED_FILES_DIRS,
@@ -185,7 +189,7 @@ public class WebServicesImpl {
         if (fileNamesSet.size() != 0) {
             Map<String, Object> projectIdParameter = new Hashtable<String, Object>(1);
             projectIdParameter.put(DatabaseQueries.RETRIEVE_METRICS_4_SELECTED_FILES_PARAM_PR,
-                    projectIdValue);
+                    projectId);
             Map<String, Collection> fileNamesParameter = new Hashtable<String, Collection>(1);
             fileNamesParameter.put(DatabaseQueries.RETRIEVE_METRICS_4_SELECTED_FILES_PARAM_LIST,
                     fileNamesSet);
@@ -198,10 +202,74 @@ public class WebServicesImpl {
     //5.1.2
     
     //5.1.3
-    public void requestEvaluatin4Project(String userName, String password,
-            String projectName, String projectVersion,
-            String srcRepositoryLocation, String srcRepositoryType,
-            String mailingListLocation, String BTSLocation) {
+    /**
+     * @see eu.sqooss.service.web.services.WebServices#requestEvaluation4Project(String, String, String, int, String, String, String, String, String)
+     */
+    public WSStoredProject requestEvaluation4Project(String userName, String password,
+            String projectName, int projectVersion,
+            String srcRepositoryLocation, String mailingListLocation,
+            String BTSLocation, String userEmailAddress, String website) {
+        logger.info("Request evaluation for project! user: " + userName +
+                "; project name: " + projectName + "; projectVersion: " + projectVersion +
+                ";\n source repository: " + srcRepositoryLocation +
+                "; mailing list: " + mailingListLocation +
+                ";\n BTS: " + BTSLocation + "; user's e-mail: " + userEmailAddress +
+                "; website: " + website);
+        
+        //TODO: check the security
+        
+        Map<String, Object> queryParameters = new Hashtable<String, Object>(2);
+        queryParameters.put(DatabaseQueries.REQUEST_EVALUATION_4_PROJECT_PARAM_PR_NAME, projectName);
+        queryParameters.put(DatabaseQueries.REQUEST_EVALUATION_4_PROJECT_PARAM_PR_VERSION, projectVersion);
+        
+        List result;
+        
+        result = db.doHQL(DatabaseQueries.REQUEST_EVALUATION_4_PROJECT, queryParameters);
+        
+        if (result.size() == 0) {
+            StoredProject newStoredProject = new StoredProject();
+            newStoredProject.setBugs(BTSLocation);
+            newStoredProject.setContact(userEmailAddress);
+            newStoredProject.setMail(mailingListLocation);
+            newStoredProject.setName(projectName);
+            newStoredProject.setRepository(srcRepositoryLocation);
+            newStoredProject.setWebsite(website);
+            long newStoredProjectId;
+            
+            ProjectVersion newProjectVersion = new ProjectVersion();
+            newProjectVersion.setVersion(projectVersion);
+            
+            Session dbSession = null;
+            Transaction transaction = null;
+            try {
+            dbSession = db.getSession(this);
+            transaction = dbSession.beginTransaction();
+            db.addRecord(dbSession, newStoredProject);
+            newStoredProjectId = newStoredProject.getId();
+            newProjectVersion.setProject(newStoredProjectId);
+            db.addRecord(dbSession, newProjectVersion);
+            transaction.commit();
+            db.returnSession(dbSession);
+            } catch (HibernateException he) {
+                if (transaction != null) {
+                    transaction.rollback();
+                }
+                db.returnSession(dbSession);
+                throw he;
+            }
+            if (!tds.projectExists(newStoredProjectId)) {
+                tds.addAccessor(newStoredProjectId, projectName, BTSLocation,
+                        mailingListLocation, srcRepositoryLocation);
+            }
+            return new WSStoredProject(newStoredProject, newProjectVersion);
+        } else if (result.size() == 1) {
+            return makeUnoinByStoredProjectId(result)[0];
+        } else {
+            String message = "The database contains more than 1 project! name:" + 
+            projectName + "; version: " + projectVersion;
+            logger.warn(message);
+            throw new RuntimeException(message);
+        }
     }
     //5.1.3
     

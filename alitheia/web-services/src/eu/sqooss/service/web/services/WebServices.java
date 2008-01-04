@@ -41,6 +41,7 @@ import eu.sqooss.impl.service.web.services.datatypes.WSStoredProject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.security.SecurityManager;
+import eu.sqooss.service.tds.TDSService;
 
 /* 
  * NOTES:
@@ -64,9 +65,9 @@ public class WebServices {
     private WebServicesImpl webServices;
     
     public WebServices(BundleContext bc, SecurityManager securityManager,
-            DBService db, Logger logger) {
+            DBService db, TDSService tds, Logger logger) {
         
-        webServices = new WebServicesImpl(bc, securityManager, db, logger);
+        webServices = new WebServicesImpl(bc, securityManager, db, tds, logger);
     }
     
     //5.1.1
@@ -140,17 +141,32 @@ public class WebServices {
     //5.1.2
     
     //5.1.3
-//    public WSStoredProject requestEvaluation4Project(String userName, String password,
-//            String projectName, int projectVersion,
-//            String srcRepositoryLocation, String mailingListLocation,
-//            String BTSLocation, String userEmailAddress,
-//            String website) {
-//        return webServices.requestEvaluation4Project(userName, password,
-//                projectName,projectVersion, srcRepositoryLocation,
-//                mailingListLocation, BTSLocation, userEmailAddress, website);
-//    }
-//    //5.1.3
-//    
+    /**
+     * This method makes request for OSS project evaluation.
+     * If a project with same name and version is known to the system
+     * then the method returns the existent project.
+     *  
+     * @param userName for an authentication
+     * @param password for an authentication 
+     * @param projectName project's name
+     * @param projectVersion project's version
+     * @param srcRepositoryLocation URL for the source repository
+     * @param mailingListLocation URL for the mailing list
+     * @param BTSLocation URL for the bug tracking system
+     * @param userEmailAddress user's e-mail address
+     * @param website project's website
+     * @return the project or old one if exist
+     */
+    public WSStoredProject requestEvaluation4Project(String userName, String password,
+            String projectName, int projectVersion,
+            String srcRepositoryLocation, String mailingListLocation,
+            String BTSLocation, String userEmailAddress,String website) {
+        return webServices.requestEvaluation4Project(userName, password,
+                projectName,projectVersion, srcRepositoryLocation,
+                mailingListLocation, BTSLocation, userEmailAddress, website);
+    }
+    //5.1.3
+    
 //    //5.1.4
 //    public WSPair[] requestPastEvolEstimProjects(String userName, String password) {
 //        return null;

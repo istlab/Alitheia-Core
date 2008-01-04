@@ -107,6 +107,20 @@ public class DatabaseQueries {
     
     //5.1.2
     
+    //5.1.3
+    public static final String REQUEST_EVALUATION_4_PROJECT_PARAM_PR_NAME    = "project_name";
+    
+    public static final String REQUEST_EVALUATION_4_PROJECT_PARAM_PR_VERSION = "project_ver";
+    
+    public static final String REQUEST_EVALUATION_4_PROJECT = "select sp, pv " +
+                                                              "from StoredProject sp, ProjectVersion pv " +
+                                                              "where sp.id=pv.project " +
+                                                              " and sp.name=:" +
+                                                              REQUEST_EVALUATION_4_PROJECT_PARAM_PR_NAME + " " +
+                                                              " and pv.version=:" +
+                                                              REQUEST_EVALUATION_4_PROJECT_PARAM_PR_VERSION;
+    //5.1.3
+    
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
