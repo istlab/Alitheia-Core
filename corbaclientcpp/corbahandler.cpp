@@ -62,7 +62,7 @@ CORBA::Object_var CorbaHandler::getObject( const char* name ) const throw (CORBA
 
 void CorbaHandler::exportObject( CORBA::Object_ptr obj, const char* name )
 {
-/*    const CORBA::Object_var nsobj = orb->resolve_initial_references( "NameService" );
+    const CORBA::Object_var nsobj = orb->resolve_initial_references( "NameService" );
     const CosNaming::NamingContext_var nc = CosNaming::NamingContext::_narrow( nsobj );
 
     CosNaming::Name cosName;
@@ -70,5 +70,5 @@ void CorbaHandler::exportObject( CORBA::Object_ptr obj, const char* name )
     cosName[ 0 ].id = CORBA::string_dup( name );
     cosName[ 0 ].kind = CORBA::string_dup( "" );
 
-    nc->rebind( cosName, obj );*/
+    nc->rebind( cosName, obj );
 }

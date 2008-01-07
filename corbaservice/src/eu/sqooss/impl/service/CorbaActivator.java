@@ -6,8 +6,10 @@ import java.util.Properties;
 
 import org.omg.CORBA.ORB;
 import org.omg.CosNaming.NameComponent;
+import org.omg.CosNaming.NamingContext;
 import org.omg.CosNaming.NamingContextExt;
 import org.omg.CosNaming.NamingContextExtHelper;
+import org.omg.CosNaming.NamingContextHelper;
 import org.omg.CosNaming.NamingContextPackage.CannotProceed;
 import org.omg.CosNaming.NamingContextPackage.InvalidName;
 import org.omg.CosNaming.NamingContextPackage.NotFound;
@@ -46,8 +48,10 @@ public class CorbaActivator implements BundleActivator {
 	private NamingContextExt ncRef;
 	private POA rootpoa;
 	private static CorbaActivator instance;
+	private ORB orb;
 	
 	private BundleContext bc;
+	private LoggerImpl loggerImpl;
 	
 	private Map< Integer, ServiceRegistration > registrations;
 	
@@ -58,7 +62,7 @@ public class CorbaActivator implements BundleActivator {
 		this.bc = bc;
 		
 		// create servant and register it with the ORB
-		LoggerImpl loggerImpl = new LoggerImpl(bc);
+		loggerImpl = new LoggerImpl(bc);
 		try{
 			Properties props = new Properties();
 			//props.put("org.omg.CORBA.ORBInitialPort", "1050");
@@ -71,7 +75,7 @@ public class CorbaActivator implements BundleActivator {
 			orb_args[1] = "NameService=corbaloc:iiop:1.2@" + nsHost + ":" + nsPort + "/NameService";
 			
 			// create and initialize the ORB
-			ORB orb = ORB.init( orb_args, props );
+			orb = ORB.init( orb_args, props );
 			
 			// get reference to rootpoa & activate the POAManager
 			rootpoa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
@@ -130,6 +134,20 @@ public class CorbaActivator implements BundleActivator {
 	protected void registerCorbaObject(String name, org.omg.CORBA.Object obj) throws InvalidName, NotFound, CannotProceed {
 		NameComponent path[] = ncRef.to_name(name);
 		ncRef.rebind(path, obj);
+	}
+	
+	public org.omg.CORBA.Object getExternalCorbaObject(String name) throws NotFound, CannotProceed, InvalidName
+	{
+		org.omg.CORBA.Object nameservice;
+		try {
+			nameservice = orb.resolve_initial_references("NameService");
+		} catch (org.omg.CORBA.ORBPackage.InvalidName e) {
+			loggerImpl.error(eu.sqooss.service.logging.Logger.NAME_SQOOSS, "CORBA Service couldn't get the NameService trying to get object \"" + name +"\".");
+			return null;
+		}
+		NamingContext ncRef = NamingContextHelper.narrow(nameservice); 
+		NameComponent path[] = { new NameComponent(name, "") };
+		return ncRef.resolve(path);
 	}
 	
 	public static CorbaActivator instance() {
