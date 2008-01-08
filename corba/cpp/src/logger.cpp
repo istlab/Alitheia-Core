@@ -11,12 +11,12 @@ const std::string Logger::NameSqoOssService     = "sqooss.service";
 const std::string Logger::NameSqoOssDatabase    = "sqooss.database";
 const std::string Logger::NameSqoOssSecurity    = "sqooss.security";
 const std::string Logger::NameSqoOssMessaging   = "sqooss.messaging";
-const std::string Logger::NameSqoOssWebServices = "sqooss.messaging";
+const std::string Logger::NameSqoOssWebServices = "sqooss.webservices";
 const std::string Logger::NameSqoOssScheduling  = "sqooss.scheduler";
-const std::string Logger::NameSqoOssUpdater     = "sqooss.scheduler";
+const std::string Logger::NameSqoOssUpdater     = "sqooss.updater";
 const std::string Logger::NameSqoOssWebAdmin    = "sqooss.webadmin";
 const std::string Logger::NameSqoOssTDS         = "sqooss.tds";
-const std::string Logger::NameSqoOssFDS         = "sqooss.tds";
+const std::string Logger::NameSqoOssFDS         = "sqooss.fds";
 const std::string Logger::NameSqoOssMetric      = "sqooss.metric";
 const std::string Logger::NameSqoOssTester      = "sqooss.tester";
 
