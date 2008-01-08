@@ -1,0 +1,17 @@
+-When changing the name of a table in the SQL source file, make sure you
+also change the (corresponding) name "TABNAME" in the  
+"new SourceParser().createTableInsert(TABNAME);" declaration -found for example
+in the MailInserter class.
+
+-Make sure you parse the SQL tables in the order they have been declared in
+the SQL source file, otherwise unforseable problems may be encountered. For
+example:
+SQL source:
+CREATE TABLE X (...);
+CREATE TABLE Y (...);
+CREATE TABLE Z (...);
+
+code:
+"new SourceParser().createTableInsert(X);"
+"new SourceParser().createTableInsert(Y);"
+"new SourceParser().createTableInsert(Z);"
