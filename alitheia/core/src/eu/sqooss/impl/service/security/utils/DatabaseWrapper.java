@@ -37,6 +37,7 @@ import java.util.Map;
 
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.security.SecurityAuthorizationRule;
+import eu.sqooss.service.security.SecurityUser;
 
 public class DatabaseWrapper {
     
@@ -103,6 +104,18 @@ public class DatabaseWrapper {
             return false;
         }
     }
+    
+    /* delete methods */
+    public void deleteUser(long userId) {
+        //TODO:
+    }
+    /* delete methods */
+    
+    /* modify methods */
+    public void momifyUser(SecurityUser modifiedUser) {
+        //TODO:
+    }
+    /* modify methods */
     
 }
 

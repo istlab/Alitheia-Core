@@ -58,6 +58,18 @@ public interface SecurityManager {
     public SecurityUser getUser(long id);
 
     /**
+     * This method deletes the user with given id.
+     * @param userId
+     */
+    public void deleteUser(long userId);
+    
+    /**
+     * This method refreshes given user.
+     * @param modifiedUser
+     */
+    public void modifyUser(SecurityUser modifiedUser);
+    
+    /**
      * Creates a new security group with <code>description</code>.
      * A SecurityGroup object represents the new group.
      * @param description the description of the security group

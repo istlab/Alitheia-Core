@@ -224,7 +224,29 @@ public class SecurityManagerImpl implements SecurityManager {
     public SecurityAuthorizationRule[] getAuthorizationRules() {
         return dbWrapper.getAuthorizationRules();
     }
-
+    
+    /**
+     * @see eu.sqooss.service.security.SecurityManager#deleteUser(long)
+     */
+    public void deleteUser(long userId) {
+        if (dbWrapper.isExistentUser(userId)) {
+            dbWrapper.deleteUser(userId);
+        } else {
+            //TODO: throws exception
+        }
+    }
+    
+    /**
+     * @see eu.sqooss.service.security.SecurityManager#modifyUser(eu.sqooss.service.security.SecurityUser)
+     */
+    public void modifyUser(SecurityUser modifiedUser) {
+        if (dbWrapper.isExistentUser(modifiedUser.getId())) {
+            dbWrapper.momifyUser(modifiedUser);
+        } else {
+            //TODO: throws exception
+        }
+    }
+    
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
