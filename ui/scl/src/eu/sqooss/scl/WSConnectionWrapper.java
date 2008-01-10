@@ -70,6 +70,16 @@ class WSConnectionWrapper {
             return retrieveFileList(methodArguments);
         } else if (WSConnectionConstants.METHOD_NAME_REQUEST_EVALUATION_4_PROJECT.equals(methodName)) {
             return requestEvaluation4Project(methodArguments);
+        } else if (WSConnectionConstants.METHOD_NAME_DISPLAY_USER.equals(methodName)) {
+            return displayUser(methodArguments);
+        } else if (WSConnectionConstants.METHOD_NAME_DELETE_USER.equals(methodName)) {
+            deleteUser(methodArguments);
+            return new WSResult();
+        } else if (WSConnectionConstants.METHOD_NAME_MODIFY_USER.equals(methodName)) {
+            modifyUser(methodArguments);
+            return new WSResult();
+        } else if (WSConnectionConstants.METHOD_NAME_SUBMIT_USER.equals(methodName)) {
+            return submitUser(methodArguments);
         } else {
             throw new WSException("Invalid URL! url: " + webServiceMethodUrl);
         }
@@ -133,6 +143,97 @@ class WSConnectionWrapper {
         return wsConnection.requestEvaluation4Project(projectName, projectVersion,
                 srcRepositoryLocation, mailingListLocation, BTSLocation, userEmailAddress, website);
     }
+    
+    //5.1.10
+    private WSResult submitUser(ArrayList<String> args) throws WSException {
+        int argsNumber = args.size();
+
+        String newUserName;
+        String newNames;
+        String newPassword;
+        String newUserClass;
+        String newOtherInfo;
+
+        if (argsNumber == 3) {
+            newUserName = args.get(0);
+            newNames = null; //optional
+            newPassword = args.get(1);
+            newUserClass = args.get(2);
+            newOtherInfo = null; //optional
+        } else if (argsNumber == 4) {
+            newUserName = args.get(0);
+            newNames = null; //optional
+            newPassword = args.get(1);
+            newUserClass = args.get(2);
+            newOtherInfo = args.get(3);
+        } else if (argsNumber == 5) {
+            newUserName = args.get(0);
+            newNames = args.get(1);
+            newPassword = args.get(2);
+            newUserClass = args.get(3);
+            newOtherInfo = args.get(4);
+        } else {
+            throw new WSException("The number of the arguments is not correct! number: " + argsNumber);
+        }
+
+        return wsConnection.submitUser(newUserName, newNames, newPassword,
+                newUserClass, newOtherInfo);
+    }
+    //5.1.10
+    
+    //5.1.11
+    private WSResult displayUser(ArrayList<String>  args) throws WSException {
+        int argsNumber = args.size();
+        if (argsNumber != 1) {
+            throw new WSException("The number of the arguments is not correct! number: " + argsNumber);
+        }
+        long userId = Long.parseLong(args.get(0));
+        return wsConnection.displayUser(userId);
+    }
+    
+    private void modifyUser(ArrayList<String> args) throws WSException {
+        int argsNumber = args.size();
+        
+        String newUserName;
+        String newNames;
+        String newPassword;
+        String newUserClass;
+        String newOtherInfo;
+        
+        if (argsNumber == 3) {
+            newUserName = args.get(0);
+            newNames = null; //optional
+            newPassword = args.get(1);
+            newUserClass = args.get(2);
+            newOtherInfo = null; //optional
+        } else if (argsNumber == 4) {
+            newUserName = args.get(0);
+            newNames = null; //optional
+            newPassword = args.get(1);
+            newUserClass = args.get(2);
+            newOtherInfo = args.get(3);
+        } else if (argsNumber == 5) {
+            newUserName = args.get(0);
+            newNames = args.get(1);
+            newPassword = args.get(2);
+            newUserClass = args.get(3);
+            newOtherInfo = args.get(4);
+        } else {
+            throw new WSException("The number of the arguments is not correct! number: " + argsNumber);
+        }
+        
+        wsConnection.modifyUser(newUserName, newNames, newPassword, newUserClass, newOtherInfo);
+    }
+    
+    private void deleteUser(ArrayList<String> args) throws WSException {
+        int argsNumber = args.size();
+        if (argsNumber != 1) {
+            throw new WSException("The number of the arguments is not correct! number: " + argsNumber);
+        }
+        long userId = Long.parseLong(args.get(0));
+        wsConnection.deleteUser(userId);
+    }
+    //5.1.11
     
     /**
      * This method parses the url.

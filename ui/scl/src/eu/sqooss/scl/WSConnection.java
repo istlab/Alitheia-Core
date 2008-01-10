@@ -204,17 +204,17 @@ public interface WSConnection {
     //5.1.9
     
     //5.1.10
-    public void submitUser(String newAccountUserName, String newAccountSurname,
-            String newAccountPassword, String newAccountUserClass);
+    public WSResult submitUser(String newUserName, String newNames, String newPassword,
+            String newUserClass, String newOtherInfo) throws WSException;
     //5.1.10
     
     //5.1.11
-    public WSResult displayUser();
+    public WSResult displayUser(long userId) throws WSException;
     
-    public void modifyUser(String modifyAccountUserName, String modifyAccountSurname,
-            String modifyAccountPassword, String modifyAccountUserClass);
+    public void modifyUser(String newUserName, String newNames, String newPassword,
+            String newUserClass, String newOtherInfo) throws WSException;
     
-    public void deleteUser(String userId);
+    public void deleteUser(long userId) throws WSException;
     //5.1.11
     
 }

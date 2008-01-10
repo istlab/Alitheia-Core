@@ -39,8 +39,12 @@ import java.util.StringTokenizer;
 import org.apache.axis2.AxisFault;
 
 import eu.sqooss.scl.axis2.WsStub;
+import eu.sqooss.scl.axis2.ws.DeleteUser;
+import eu.sqooss.scl.axis2.ws.DisplayUser;
+import eu.sqooss.scl.axis2.ws.DisplayUserResponse;
 import eu.sqooss.scl.axis2.ws.EvaluatedProjectsList;
 import eu.sqooss.scl.axis2.ws.EvaluatedProjectsListResponse;
+import eu.sqooss.scl.axis2.ws.ModifyUser;
 import eu.sqooss.scl.axis2.ws.RequestEvaluation4Project;
 import eu.sqooss.scl.axis2.ws.RequestEvaluation4ProjectResponse;
 import eu.sqooss.scl.axis2.ws.RetrieveFileList;
@@ -51,8 +55,11 @@ import eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedProject;
 import eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedProjectResponse;
 import eu.sqooss.scl.axis2.ws.RetrieveSelectedMetric;
 import eu.sqooss.scl.axis2.ws.RetrieveSelectedMetricResponse;
+import eu.sqooss.scl.axis2.ws.SubmitUser;
+import eu.sqooss.scl.axis2.ws.SubmitUserResponse;
 import eu.sqooss.scl.axis2.datatypes.WSMetric;
 import eu.sqooss.scl.axis2.datatypes.WSStoredProject;
+import eu.sqooss.scl.axis2.datatypes.WSUser;
 import eu.sqooss.scl.result.WSResult;
 import eu.sqooss.scl.utils.WSResponseParser;
 
@@ -78,9 +85,19 @@ class WSConnectionImpl implements WSConnection {
         initParameters();
     }
     
-    public void deleteUser(String userId) {
-        // TODO Auto-generated method stub
-        
+    /**
+     * @throws WSException 
+     * @see eu.sqooss.scl.WSConnection#deleteUser(long)
+     */
+    public void deleteUser(long userId) throws WSException {
+        DeleteUser params = (DeleteUser) parameters.get(
+                WSConnectionConstants.METHOD_NAME_DELETE_USER);
+        params.setUserId(userId);
+        try {
+            wsStub.deleteUser(params);
+        } catch (RemoteException re) {
+            throw new WSException(re);
+        }
     }
 
     public WSResult displayDeveloperInfo(String projectId, String developerId, String criterioId,
@@ -95,9 +112,17 @@ class WSConnectionImpl implements WSConnection {
         return new WSResult("Not Implemented yet");
     }
 
-    public WSResult displayUser() {
-        // TODO Auto-generated method stub
-        return new WSResult("Not Implemented yet");
+    public WSResult displayUser(long userId) throws WSException {
+        DisplayUserResponse response;
+        DisplayUser params = (DisplayUser) parameters.get(
+                WSConnectionConstants.METHOD_NAME_DISPLAY_USER);
+        params.setUserId(userId);
+        try {
+            response = wsStub.displayUser(params);
+        } catch (RemoteException re) {
+            throw new WSException(re);
+        }
+        return WSResponseParser.parseUsers(new WSUser[] {response.get_return()});
     }
 
     /**
@@ -127,10 +152,22 @@ class WSConnectionImpl implements WSConnection {
         
     }
 
-    public void modifyUser(String modifyAccountUserName, String modifyAccountSurname,
-            String modifyAccountPassword, String modifyAccountUserClass) {
-        // TODO Auto-generated method stub
-        
+    /**
+     * @see eu.sqooss.scl.WSConnection#modifyUser(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)
+     */
+    public void modifyUser(String newUserName, String newNames, String newPassword,
+            String newUserClass, String newOtherInfo) throws WSException {
+        ModifyUser params = (ModifyUser) parameters.get(WSConnectionConstants.METHOD_NAME_MODIFY_USER);
+        params.setNewUserName(newUserName);
+        params.setNewNames(newNames);
+        params.setNewPassword(newPassword);
+        params.setNewUserClass(newUserClass);
+        params.setNewOtherInfo(newOtherInfo);
+        try {
+            wsStub.modifyUser(params);
+        } catch (RemoteException re) {
+            throw new WSException(re);
+        }
     }
 
     public WSResult ratedProjectsList() {
@@ -310,10 +347,23 @@ class WSConnectionImpl implements WSConnection {
         
     }
 
-    public void submitUser(String newAccountUserName, String newAccountSurname,
-            String newAccountPassword, String newAccountUserClass) {
-        // TODO Auto-generated method stub
+    public WSResult submitUser(String newUserName, String newNames, String newPassword,
+            String newUserClass, String newOtherInfo) throws WSException {
+        SubmitUser params = (SubmitUser) parameters.get(
+                WSConnectionConstants.METHOD_NAME_SUBMIT_USER);
+        params.setNewUserName(newUserName);
+        params.setNewNames(newNames);
+        params.setNewPassword(newPassword);
+        params.setNewUserClass(newUserClass);
+        params.setNewOtherInfo(newOtherInfo);
         
+        SubmitUserResponse response;
+        try {
+            response = wsStub.submitUser(params);
+        } catch (RemoteException re) {
+            throw new WSException(re);
+        }
+        return WSResponseParser.parseUsers(new WSUser[] {response.get_return()});
     }
 
     public WSResult subscriptionsStatus() {
@@ -363,6 +413,26 @@ class WSConnectionImpl implements WSConnection {
         refp.setPassword(password);
         refp.setUserName(userName);
         parameters.put(WSConnectionConstants.METHOD_NAME_REQUEST_EVALUATION_4_PROJECT, refp);
+        
+        DisplayUser displayUser = new DisplayUser();
+        displayUser.setPasswordForAccess(password);
+        displayUser.setUserNameForAccess(userName);
+        parameters.put(WSConnectionConstants.METHOD_NAME_DISPLAY_USER, displayUser);
+        
+        DeleteUser deleteUser = new DeleteUser();
+        deleteUser.setPasswordForAccess(password);
+        deleteUser.setUserNameForAccess(userName);
+        parameters.put(WSConnectionConstants.METHOD_NAME_DELETE_USER, deleteUser);
+        
+        ModifyUser modifyUser = new ModifyUser();
+        modifyUser.setPasswordForAccess(password);
+        modifyUser.setUserNameForAccess(userName);
+        parameters.put(WSConnectionConstants.METHOD_NAME_MODIFY_USER, modifyUser);
+        
+        SubmitUser submitUser = new SubmitUser();
+        submitUser.setPasswordForAccess(password);
+        submitUser.setUserNameForAccess(userName);
+        parameters.put(WSConnectionConstants.METHOD_NAME_SUBMIT_USER, submitUser);
     }
     
 }

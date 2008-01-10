@@ -51,9 +51,9 @@ public interface Ws {
      * @param param0
 
      */
-    public eu.sqooss.scl.axis2.ws.EvaluatedProjectsListResponse evaluatedProjectsList(
+    public eu.sqooss.scl.axis2.ws.DisplayUserResponse displayUser(
 
-            eu.sqooss.scl.axis2.ws.EvaluatedProjectsList param0)
+            eu.sqooss.scl.axis2.ws.DisplayUser param0)
     throws java.rmi.RemoteException
 
     ;
@@ -66,9 +66,9 @@ public interface Ws {
      * @param param2
 
      */
-    public eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedProjectResponse retrieveMetrics4SelectedProject(
+    public eu.sqooss.scl.axis2.ws.EvaluatedProjectsListResponse evaluatedProjectsList(
 
-            eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedProject param2)
+            eu.sqooss.scl.axis2.ws.EvaluatedProjectsList param2)
     throws java.rmi.RemoteException
 
     ;
@@ -81,9 +81,9 @@ public interface Ws {
      * @param param4
 
      */
-    public eu.sqooss.scl.axis2.ws.RequestEvaluation4ProjectResponse requestEvaluation4Project(
+    public eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedProjectResponse retrieveMetrics4SelectedProject(
 
-            eu.sqooss.scl.axis2.ws.RequestEvaluation4Project param4)
+            eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedProject param4)
     throws java.rmi.RemoteException
 
     ;
@@ -96,9 +96,9 @@ public interface Ws {
      * @param param6
 
      */
-    public eu.sqooss.scl.axis2.ws.RetrieveFileListResponse retrieveFileList(
+    public eu.sqooss.scl.axis2.ws.SubmitUserResponse submitUser(
 
-            eu.sqooss.scl.axis2.ws.RetrieveFileList param6)
+            eu.sqooss.scl.axis2.ws.SubmitUser param6)
     throws java.rmi.RemoteException
 
     ;
@@ -111,9 +111,9 @@ public interface Ws {
      * @param param8
 
      */
-    public eu.sqooss.scl.axis2.ws.RetrieveSelectedMetricResponse retrieveSelectedMetric(
+    public void modifyUser(
 
-            eu.sqooss.scl.axis2.ws.RetrieveSelectedMetric param8)
+            eu.sqooss.scl.axis2.ws.ModifyUser param8)
     throws java.rmi.RemoteException
 
     ;
@@ -126,9 +126,69 @@ public interface Ws {
      * @param param10
 
      */
+    public eu.sqooss.scl.axis2.ws.RequestEvaluation4ProjectResponse requestEvaluation4Project(
+
+            eu.sqooss.scl.axis2.ws.RequestEvaluation4Project param10)
+    throws java.rmi.RemoteException
+
+    ;
+
+
+
+    /**
+     * Auto generated method signature
+
+     * @param param12
+
+     */
+    public void deleteUser(
+
+            eu.sqooss.scl.axis2.ws.DeleteUser param12)
+    throws java.rmi.RemoteException
+
+    ;
+
+
+
+    /**
+     * Auto generated method signature
+
+     * @param param14
+
+     */
+    public eu.sqooss.scl.axis2.ws.RetrieveFileListResponse retrieveFileList(
+
+            eu.sqooss.scl.axis2.ws.RetrieveFileList param14)
+    throws java.rmi.RemoteException
+
+    ;
+
+
+
+    /**
+     * Auto generated method signature
+
+     * @param param16
+
+     */
+    public eu.sqooss.scl.axis2.ws.RetrieveSelectedMetricResponse retrieveSelectedMetric(
+
+            eu.sqooss.scl.axis2.ws.RetrieveSelectedMetric param16)
+    throws java.rmi.RemoteException
+
+    ;
+
+
+
+    /**
+     * Auto generated method signature
+
+     * @param param18
+
+     */
     public eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedFilesResponse retrieveMetrics4SelectedFiles(
 
-            eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedFiles param10)
+            eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedFiles param18)
     throws java.rmi.RemoteException
 
     ;

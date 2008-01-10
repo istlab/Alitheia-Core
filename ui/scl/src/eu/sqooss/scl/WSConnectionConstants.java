@@ -49,6 +49,14 @@ interface WSConnectionConstants {
     
     public static final String METHOD_NAME_REQUEST_EVALUATION_4_PROJECT         = "requestEvaluation4Project";
     
+    public static final String METHOD_NAME_DISPLAY_USER                         = "displayUser";
+    
+    public static final String METHOD_NAME_DELETE_USER                          = "deleteUser";
+    
+    public static final String METHOD_NAME_MODIFY_USER                          = "modifyUser";
+    
+    public static final String METHOD_NAME_SUBMIT_USER                          = "submitUser";
+    
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

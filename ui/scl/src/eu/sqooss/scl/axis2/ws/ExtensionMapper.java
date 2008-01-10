@@ -101,6 +101,26 @@ public  class ExtensionMapper{
 
         if (
                 "http://datatypes.services.web.service.impl.sqooss.eu/xsd".equals(namespaceURI) &&
+                "WSUser".equals(typeName)){
+
+            return  eu.sqooss.scl.axis2.datatypes.WSUser.Factory.parse(reader);
+
+
+        }
+
+
+        if (
+                "http://datatypes.services.web.service.impl.sqooss.eu/xsd".equals(namespaceURI) &&
+                "WSUserGroup".equals(typeName)){
+
+            return  eu.sqooss.scl.axis2.datatypes.WSUserGroup.Factory.parse(reader);
+
+
+        }
+
+
+        if (
+                "http://datatypes.services.web.service.impl.sqooss.eu/xsd".equals(namespaceURI) &&
                 "WSFileMetadata".equals(typeName)){
 
             return  eu.sqooss.scl.axis2.datatypes.WSFileMetadata.Factory.parse(reader);

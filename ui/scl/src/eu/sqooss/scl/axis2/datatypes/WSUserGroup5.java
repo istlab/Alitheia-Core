@@ -31,7 +31,7 @@
  */
 
 /**
- * WSFileMetadata5.java
+ * WSUserGroup5.java
  *
  * This file was auto-generated from WSDL
  * by the Apache Axis2 version: #axisVersion# #today#
@@ -39,43 +39,43 @@
 
 package eu.sqooss.scl.axis2.datatypes;
 /**
- *  WSFileMetadata5 bean class
+ *  WSUserGroup5 bean class
  */
 
-public  class WSFileMetadata5
+public  class WSUserGroup5
 implements org.apache.axis2.databinding.ADBBean{
 
     public static final javax.xml.namespace.QName MY_QNAME = new javax.xml.namespace.QName(
             "http://datatypes.services.web.service.impl.sqooss.eu/xsd",
-            "WSFileMetadata",
+            "WSUserGroup",
     "ns1");
 
 
 
     /**
-     * field for WSFileMetadata
+     * field for WSUserGroup
      */
 
-    protected eu.sqooss.scl.axis2.datatypes.WSFileMetadata localWSFileMetadata ;
+    protected eu.sqooss.scl.axis2.datatypes.WSUserGroup localWSUserGroup ;
 
 
     /**
      * Auto generated getter method
-     * @return eu.sqooss.scl.axis2.datatypes.WSFileMetadata
+     * @return eu.sqooss.scl.axis2.datatypes.WSUserGroup
      */
-    public  eu.sqooss.scl.axis2.datatypes.WSFileMetadata getWSFileMetadata(){
-        return localWSFileMetadata;
+    public  eu.sqooss.scl.axis2.datatypes.WSUserGroup getWSUserGroup(){
+        return localWSUserGroup;
     }
 
 
 
     /**
      * Auto generated setter method
-     * @param param WSFileMetadata
+     * @param param WSUserGroup
      */
-    public void setWSFileMetadata(eu.sqooss.scl.axis2.datatypes.WSFileMetadata param){
+    public void setWSUserGroup(eu.sqooss.scl.axis2.datatypes.WSUserGroup param){
 
-        this.localWSFileMetadata=param;
+        this.localWSUserGroup=param;
 
 
     }
@@ -103,10 +103,10 @@ implements org.apache.axis2.databinding.ADBBean{
 
                 //We can safely assume an element has only one type associated with it
 
-                if (localWSFileMetadata==null){
+                if (localWSUserGroup==null){
                     throw new RuntimeException("Property cannot be null!");
                 }
-                localWSFileMetadata.getOMElement(
+                localWSUserGroup.getOMElement(
                         MY_QNAME,
                         factory).serialize(xmlWriter);
 
@@ -189,7 +189,7 @@ implements org.apache.axis2.databinding.ADBBean{
 
 
         //We can safely assume an element has only one type associated with it
-        return localWSFileMetadata.getPullParser(MY_QNAME);
+        return localWSUserGroup.getPullParser(MY_QNAME);
 
     }
 
@@ -208,8 +208,8 @@ implements org.apache.axis2.databinding.ADBBean{
          * Postcondition: If this object is an element, the reader is positioned at its end element
          *                If this object is a complex type, the reader is positioned at the end element of its outer element
          */
-        public static WSFileMetadata5 parse(javax.xml.stream.XMLStreamReader reader) throws java.lang.Exception{
-            WSFileMetadata5 object = new WSFileMetadata5();
+        public static WSUserGroup5 parse(javax.xml.stream.XMLStreamReader reader) throws java.lang.Exception{
+            WSUserGroup5 object = new WSUserGroup5();
             int event;
             try {
 
@@ -237,9 +237,9 @@ implements org.apache.axis2.databinding.ADBBean{
                 while(!reader.isEndElement()) {
                     if (reader.isStartElement() ){
 
-                        if (reader.isStartElement() && new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd","WSFileMetadata").equals(reader.getName())){
+                        if (reader.isStartElement() && new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd","WSUserGroup").equals(reader.getName())){
 
-                            object.setWSFileMetadata(eu.sqooss.scl.axis2.datatypes.WSFileMetadata.Factory.parse(reader));
+                            object.setWSUserGroup(eu.sqooss.scl.axis2.datatypes.WSUserGroup.Factory.parse(reader));
 
                         }  // End of if for expected property start element
 

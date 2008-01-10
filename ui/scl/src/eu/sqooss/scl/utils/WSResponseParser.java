@@ -39,6 +39,8 @@ import eu.sqooss.scl.axis2.datatypes.WSMetric;
 import eu.sqooss.scl.axis2.datatypes.WSProjectFile;
 import eu.sqooss.scl.axis2.datatypes.WSProjectVersion;
 import eu.sqooss.scl.axis2.datatypes.WSStoredProject;
+import eu.sqooss.scl.axis2.datatypes.WSUser;
+import eu.sqooss.scl.axis2.datatypes.WSUserGroup;
 import eu.sqooss.scl.result.WSResult;
 import eu.sqooss.scl.result.WSResultEntry;
 
@@ -159,6 +161,43 @@ public class WSResponseParser {
                 currentRow.add(new WSResultEntry(currentFileMetadata.getFileStatusChange(), WSResultEntry.MIME_TYPE_TEXT_PLAIN));
                 currentRow.add(new WSResultEntry(currentFileMetadata.getSize(), WSResultEntry.MIME_TYPE_TYPE_INTEGER));
                 currentRow.add(new WSResultEntry(currentFileMetadata.getBlocks(), WSResultEntry.MIME_TYPE_TYPE_INTEGER));
+                result.addResultRow(currentRow);
+            }
+        }
+        return result;
+    }
+    
+    /**
+     * This method parses the array of <code>WSUser</code>s to the <code>WSResult</code>.
+     * The <code>WSResult</code>'s rows consist of fields in the following format:
+     * <p>
+     * <table border=1>
+     *  <tr><td> Field Index </td><td> Field Type </td><td> Field value </td></tr>
+     *  <tr><td> 0 </td><td> type/long    </td><td> user's id            </td></tr>
+     *  <tr><td> 1 </td><td> text/plain   </td><td> user name            </td></tr>
+     *  <tr><td> 2 </td><td> type/long    </td><td> group1's is          </td></tr>
+     *  <tr><td> 3 </td><td> text/plain   </td><td> groups1' description </td></tr>
+     *  <tr><td> 4 </td><td> type/long    </td><td> group2's is          </td></tr>
+     *  <tr><td> 5 </td><td> text/plain   </td><td> groups2' description </td></tr>
+     *  <tr><td>...</td><td> type/long    </td><td> groupN's is          </td></tr>
+     *  <tr><td>...</td><td> text/plain   </td><td> groupsN' description </td></tr>
+     * </table>
+     * </p><br>
+     */
+    public static WSResult parseUsers(WSUser[] wsUsers) {
+        WSResult result = new WSResult();
+        if (wsUsers[0] != null) {
+            ArrayList<WSResultEntry> currentRow;
+            WSUserGroup[] userGroups;
+            for (WSUser user : wsUsers) {
+                currentRow = new ArrayList<WSResultEntry>();
+                currentRow.add(new WSResultEntry(user.getId(), WSResultEntry.MIME_TYPE_TYPE_LONG));
+                currentRow.add(new WSResultEntry(user.getUserName(), WSResultEntry.MIME_TYPE_TEXT_PLAIN));
+                userGroups = user.getUserGroups();
+                for (WSUserGroup userGroup : userGroups) {
+                    currentRow.add(new WSResultEntry(userGroup.getId(), WSResultEntry.MIME_TYPE_TYPE_LONG));
+                    currentRow.add(new WSResultEntry(userGroup.getDescription(), WSResultEntry.MIME_TYPE_TEXT_PLAIN));
+                }
                 result.addResultRow(currentRow);
             }
         }
