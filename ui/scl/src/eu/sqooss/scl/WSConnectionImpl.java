@@ -92,11 +92,13 @@ class WSConnectionImpl implements WSConnection {
     public void deleteUser(long userId) throws WSException {
         DeleteUser params = (DeleteUser) parameters.get(
                 WSConnectionConstants.METHOD_NAME_DELETE_USER);
-        params.setUserId(userId);
-        try {
-            wsStub.deleteUser(params);
-        } catch (RemoteException re) {
-            throw new WSException(re);
+        synchronized (params) {
+            params.setUserId(userId);
+            try {
+                wsStub.deleteUser(params);
+            } catch (RemoteException re) {
+                throw new WSException(re);
+            }
         }
     }
 
@@ -116,11 +118,13 @@ class WSConnectionImpl implements WSConnection {
         DisplayUserResponse response;
         DisplayUser params = (DisplayUser) parameters.get(
                 WSConnectionConstants.METHOD_NAME_DISPLAY_USER);
-        params.setUserId(userId);
-        try {
-            response = wsStub.displayUser(params);
-        } catch (RemoteException re) {
-            throw new WSException(re);
+        synchronized (params) {
+            params.setUserId(userId);
+            try {
+                response = wsStub.displayUser(params);
+            } catch (RemoteException re) {
+                throw new WSException(re);
+            }
         }
         return WSResponseParser.parseUsers(new WSUser[] {response.get_return()});
     }
@@ -132,10 +136,12 @@ class WSConnectionImpl implements WSConnection {
         EvaluatedProjectsListResponse response; 
         EvaluatedProjectsList params = (EvaluatedProjectsList) parameters.get(
                 WSConnectionConstants.METHOD_NAME_EVALUATED_PROJECTS_LIST);
-        try {
-            response = wsStub.evaluatedProjectsList(params);
-        } catch (RemoteException e) {
-            throw new WSException(e);
+        synchronized (params) {
+            try {
+                response = wsStub.evaluatedProjectsList(params);
+            } catch (RemoteException e) {
+                throw new WSException(e);
+            }
         }
         return WSResponseParser.parseStoredProjects(response.get_return());
     }
@@ -158,15 +164,17 @@ class WSConnectionImpl implements WSConnection {
     public void modifyUser(String newUserName, String newNames, String newPassword,
             String newUserClass, String newOtherInfo) throws WSException {
         ModifyUser params = (ModifyUser) parameters.get(WSConnectionConstants.METHOD_NAME_MODIFY_USER);
-        params.setNewUserName(newUserName);
-        params.setNewNames(newNames);
-        params.setNewPassword(newPassword);
-        params.setNewUserClass(newUserClass);
-        params.setNewOtherInfo(newOtherInfo);
-        try {
-            wsStub.modifyUser(params);
-        } catch (RemoteException re) {
-            throw new WSException(re);
+        synchronized (params) {
+            params.setNewUserName(newUserName);
+            params.setNewNames(newNames);
+            params.setNewPassword(newPassword);
+            params.setNewUserClass(newUserClass);
+            params.setNewOtherInfo(newOtherInfo);
+            try {
+                wsStub.modifyUser(params);
+            } catch (RemoteException re) {
+                throw new WSException(re);
+            }
         }
     }
 
@@ -189,17 +197,19 @@ class WSConnectionImpl implements WSConnection {
         RequestEvaluation4ProjectResponse response;
         RequestEvaluation4Project params = (RequestEvaluation4Project) parameters.get(
                 WSConnectionConstants.METHOD_NAME_REQUEST_EVALUATION_4_PROJECT);
-        params.setProjectName(projectName);
-        params.setProjectVersion(projectVersion);
-        params.setSrcRepositoryLocation(srcRepositoryLocation);
-        params.setMailingListLocation(mailingListLocation);
-        params.setBTSLocation(BTSLocation);
-        params.setUserEmailAddress(userEmailAddress);
-        params.setWebsite(website);
-        try {
-            response = wsStub.requestEvaluation4Project(params);
-        } catch (RemoteException re) {
-            throw new WSException(re);
+        synchronized (params) {
+            params.setProjectName(projectName);
+            params.setProjectVersion(projectVersion);
+            params.setSrcRepositoryLocation(srcRepositoryLocation);
+            params.setMailingListLocation(mailingListLocation);
+            params.setBTSLocation(BTSLocation);
+            params.setUserEmailAddress(userEmailAddress);
+            params.setWebsite(website);
+            try {
+                response = wsStub.requestEvaluation4Project(params);
+            } catch (RemoteException re) {
+                throw new WSException(re);
+            }
         }
         return WSResponseParser.parseStoredProjects(new WSStoredProject[]{response.get_return()});
     }
@@ -245,14 +255,16 @@ class WSConnectionImpl implements WSConnection {
      * @see eu.sqooss.scl.WSConnection#retrieveFileList(long)
      */
     public WSResult retrieveFileList(long projectId) throws WSException {
+        RetrieveFileListResponse response;
         RetrieveFileList params = (RetrieveFileList) parameters.get(
                 WSConnectionConstants.METHOD_NAME_RETRIEVE_FILE_LIST);
-        params.setProjectId(projectId);
-        RetrieveFileListResponse response;
-        try {
-            response = wsStub.retrieveFileList(params);
-        } catch (RemoteException re) {
-            throw new WSException(re);
+        synchronized (params) {
+            params.setProjectId(projectId);
+            try {
+                response = wsStub.retrieveFileList(params);
+            } catch (RemoteException re) {
+                throw new WSException(re);
+            }
         }
         return WSResponseParser.parseProjectFiles(response.get_return());
     }
@@ -262,9 +274,6 @@ class WSConnectionImpl implements WSConnection {
     */
     public WSResult retrieveMetrics4SelectedFiles(long projectId, String folderNames,
             String fileNames) throws WSException {
-        RetrieveMetrics4SelectedFiles params = (RetrieveMetrics4SelectedFiles) parameters.get(
-                WSConnectionConstants.METHOD_NAME_RETRIEVE_METRICS_4_SELECTED_FILES);
-        params.setProjectId(projectId);
         String delimiter = ",";
         
         StringTokenizer folderNamesTokenizer = new StringTokenizer(folderNames, delimiter);
@@ -293,13 +302,18 @@ class WSConnectionImpl implements WSConnection {
             }
         }
         
-        params.setFolders(folderNamesArray);
-        params.setFileNames(fileNamesArray);
         RetrieveMetrics4SelectedFilesResponse response;
-        try {
-            response = wsStub.retrieveMetrics4SelectedFiles(params);
-        } catch (RemoteException re) {
-            throw new WSException(re);
+        RetrieveMetrics4SelectedFiles params = (RetrieveMetrics4SelectedFiles) parameters.get(
+                WSConnectionConstants.METHOD_NAME_RETRIEVE_METRICS_4_SELECTED_FILES);
+        synchronized (params) {
+            params.setProjectId(projectId);
+            params.setFolders(folderNamesArray);
+            params.setFileNames(fileNamesArray);
+            try {
+                response = wsStub.retrieveMetrics4SelectedFiles(params);
+            } catch (RemoteException re) {
+                throw new WSException(re);
+            }
         }
         return WSResponseParser.parseMetrics(response.get_return());
     }
@@ -308,14 +322,16 @@ class WSConnectionImpl implements WSConnection {
      * @see eu.sqooss.scl.WSConnection#retrieveMetrics4SelectedProject(long)
      */
     public WSResult retrieveMetrics4SelectedProject(long projectId) throws WSException {
+        RetrieveMetrics4SelectedProjectResponse response;
         RetrieveMetrics4SelectedProject params = (RetrieveMetrics4SelectedProject) parameters.get(
                 WSConnectionConstants.METHOD_NAME_RETRIEVE_METRICS_4_SELECTED_PROJECT);
-        params.setProjectId(projectId);
-        RetrieveMetrics4SelectedProjectResponse response;
-        try {
-            response = wsStub.retrieveMetrics4SelectedProject(params);
-        } catch (RemoteException re) {
-            throw new WSException(re);
+        synchronized (params) {
+            params.setProjectId(projectId);
+            try {
+                response = wsStub.retrieveMetrics4SelectedProject(params);
+            } catch (RemoteException re) {
+                throw new WSException(re);
+            }
         }
         return WSResponseParser.parseMetrics(response.get_return());
     }
@@ -329,15 +345,17 @@ class WSConnectionImpl implements WSConnection {
      * @see eu.sqooss.scl.WSConnection#retrieveSelectedMetric(long, long)
      */
     public WSResult retrieveSelectedMetric(long projectId, long metricId) throws WSException {
+        RetrieveSelectedMetricResponse response;
         RetrieveSelectedMetric params = (RetrieveSelectedMetric) parameters.get(
                 WSConnectionConstants.METHOD_NAME_RETRIEVE_SELECTED_METRIC);
-        params.setProjectId(projectId);
-        params.setMetricId(metricId);
-        RetrieveSelectedMetricResponse response = null;;
-        try {
-            response = wsStub.retrieveSelectedMetric(params);
-        } catch (RemoteException e) {
-            throw new WSException(e);
+        synchronized (params) {
+            params.setProjectId(projectId);
+            params.setMetricId(metricId);
+            try {
+                response = wsStub.retrieveSelectedMetric(params);
+            } catch (RemoteException e) {
+                throw new WSException(e);
+            }
         }
         return WSResponseParser.parseMetrics(new WSMetric[]{response.get_return()});
     }
@@ -349,19 +367,21 @@ class WSConnectionImpl implements WSConnection {
 
     public WSResult submitUser(String newUserName, String newNames, String newPassword,
             String newUserClass, String newOtherInfo) throws WSException {
+        SubmitUserResponse response;
         SubmitUser params = (SubmitUser) parameters.get(
                 WSConnectionConstants.METHOD_NAME_SUBMIT_USER);
-        params.setNewUserName(newUserName);
-        params.setNewNames(newNames);
-        params.setNewPassword(newPassword);
-        params.setNewUserClass(newUserClass);
-        params.setNewOtherInfo(newOtherInfo);
-        
-        SubmitUserResponse response;
-        try {
-            response = wsStub.submitUser(params);
-        } catch (RemoteException re) {
-            throw new WSException(re);
+        synchronized (params) {
+            params.setNewUserName(newUserName);
+            params.setNewNames(newNames);
+            params.setNewPassword(newPassword);
+            params.setNewUserClass(newUserClass);
+            params.setNewOtherInfo(newOtherInfo);
+
+            try {
+                response = wsStub.submitUser(params);
+            } catch (RemoteException re) {
+                throw new WSException(re);
+            }
         }
         return WSResponseParser.parseUsers(new WSUser[] {response.get_return()});
     }
