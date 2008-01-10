@@ -345,19 +345,21 @@ class WSConnectionImpl implements WSConnection {
      * @see eu.sqooss.scl.WSConnection#retrieveSelectedMetric(long, long)
      */
     public WSResult retrieveSelectedMetric(long projectId, long metricId) throws WSException {
-        RetrieveSelectedMetricResponse response;
-        RetrieveSelectedMetric params = (RetrieveSelectedMetric) parameters.get(
-                WSConnectionConstants.METHOD_NAME_RETRIEVE_SELECTED_METRIC);
-        synchronized (params) {
-            params.setProjectId(projectId);
-            params.setMetricId(metricId);
-            try {
-                response = wsStub.retrieveSelectedMetric(params);
-            } catch (RemoteException e) {
-                throw new WSException(e);
-            }
-        }
-        return WSResponseParser.parseMetrics(new WSMetric[]{response.get_return()});
+        //TODO: should be replaced
+//        RetrieveSelectedMetricResponse response;
+//        RetrieveSelectedMetric params = (RetrieveSelectedMetric) parameters.get(
+//                WSConnectionConstants.METHOD_NAME_RETRIEVE_SELECTED_METRIC);
+//        synchronized (params) {
+//            params.setProjectId(projectId);
+//            params.setMetricId(metricId);
+//            try {
+//                response = wsStub.retrieveSelectedMetric(params);
+//            } catch (RemoteException e) {
+//                throw new WSException(e);
+//            }
+//        }
+//        return WSResponseParser.parseMetrics(new WSMetric[]{response.get_return()});
+        return new WSResult("Not Implement yet");
     }
 
     public void submitScores(String projectId, String[] scores, String textOpinion) {
