@@ -49,6 +49,7 @@ import org.osgi.framework.BundleContext;
 import eu.sqooss.impl.service.web.services.datatypes.WSMetric;
 import eu.sqooss.impl.service.web.services.datatypes.WSProjectFile;
 import eu.sqooss.impl.service.web.services.datatypes.WSStoredProject;
+import eu.sqooss.impl.service.web.services.datatypes.WSUser;
 import eu.sqooss.impl.service.web.services.utils.DatabaseQueries;
 import eu.sqooss.impl.service.web.services.utils.WSPair;
 import eu.sqooss.service.db.DBService;
@@ -372,24 +373,41 @@ public class WebServicesImpl {
     //5.1.9
     
     //5.1.10
-    public void submitUser(String userNameForAccess, String passwordForAccess,
-            String newAccountUserName, String newAccountSurname,
-            String newAccountPassword, String newAccountUserClass) {
+    public WSUser submitUser(String userNameForAccess, String passwordForAccess,
+            String newUserName, String newNames, String newPassword,
+            String newUserClass, String newOtherInfo) {
+        
+        //TODO: check the security
+        
+        //TODO: add all fields to the security
+        return new WSUser(securityManager.createUser(newUserName, newPassword));
+        
     }
     //5.1.10
     
     //5.1.11
-    public WSPair[] displayUser(String userName, String password) {
-        return null;
-    }
-    
-    public void modifyUser(String userNameForAccess, String passwordForAccess,
-            String modifyAccountUserName, String modifyAccountSurname,
-            String modifyAccountPassword, String modifyAccountUserClass) {
-    }
-    
-    public void deleteUser(String userNameForAccess, String passwordForAccess, String userId) {
+    public WSUser displayUser(String userNameForAccess, String passwordForAccess,
+            long userId) {
         
+        //TODO: check the security
+        
+        return new WSUser(securityManager.getUser(userId));
+    }
+    
+    public void modifyUsermodifyUser(String userNameForAccess, String passwordForAccess,
+            String newUserName, String newNames, String newPassword,
+            String newUserClass, String newOtherInfo) {
+        
+        //TODO: check the security and implement
+        
+        securityManager.modifyUser(null);
+    }
+    
+    public void deleteUser(String userNameForAccess, String passwordForAccess, long userId) {
+        
+        //TODO: check the security
+        
+        securityManager.deleteUser(userId);
     }
     //5.1.11
     

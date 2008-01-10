@@ -38,6 +38,7 @@ import eu.sqooss.impl.service.web.services.WebServicesImpl;
 import eu.sqooss.impl.service.web.services.datatypes.WSMetric;
 import eu.sqooss.impl.service.web.services.datatypes.WSProjectFile;
 import eu.sqooss.impl.service.web.services.datatypes.WSStoredProject;
+import eu.sqooss.impl.service.web.services.datatypes.WSUser;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.security.SecurityManager;
@@ -264,28 +265,33 @@ public class WebServices {
 //            String newQualityRatings, String statistics) {
 //    }
 //    //5.1.9
-//    
-//    //5.1.10
-//    public void submitUser(String userNameForAccess, String passwordForAccess,
-//            String newAccountUserName, String newAccountSurname,
-//            String newAccountPassword, String newAccountUserClass) {
-//    }
-//    //5.1.10
-//    
-//    //5.1.11
-//    public WSPair[] displayUser(String userName, String password) {
-//        return null;
-//    }
-//    
-//    public void modifyUser(String userNameForAccess, String passwordForAccess,
-//            String modifyAccountUserName, String modifyAccountSurname,
-//            String modifyAccountPassword, String modifyAccountUserClass) {
-//    }
-//    
-//    public void deleteUser(String userNameForAccess, String passwordForAccess, String userId) {
-//        
-//    }
-//    //5.1.11
+    
+    //5.1.10
+    public WSUser submitUser(String userNameForAccess, String passwordForAccess,
+            String newUserName, String newNames, String newPassword,
+            String newUserClass, String newOtherInfo) {
+        return webServices.submitUser(userNameForAccess, passwordForAccess,
+                newUserName, newNames, newPassword, newUserClass, newOtherInfo);
+    }
+    //5.1.10
+    
+    //5.1.11
+    public WSUser displayUser(String userNameForAccess, String passwordForAccess,
+            long userId) {
+        return webServices.displayUser(userNameForAccess, passwordForAccess, userId);
+    }
+    
+    public void modifyUser(String userNameForAccess, String passwordForAccess,
+            String newUserName, String newNames, String newPassword,
+            String newUserClass, String newOtherInfo) {
+        webServices.modifyUsermodifyUser(userNameForAccess, passwordForAccess,
+                newUserName, newNames, newPassword, newUserClass, newOtherInfo);
+    }
+    
+    public void deleteUser(String userNameForAccess, String passwordForAccess, long userId) {
+        webServices.deleteUser(userNameForAccess, passwordForAccess, userId);
+    }
+    //5.1.11
     
 }
 
