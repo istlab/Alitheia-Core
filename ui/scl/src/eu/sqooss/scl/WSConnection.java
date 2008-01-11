@@ -41,7 +41,7 @@ public interface WSConnection {
      * This method returns evaluated projects.
      * Each <code>WSResult</code>'s row contains information about the project.
      * The row consists of fields. The fields' description can be found in:
-     * {@link eu.sqooss.scl.utils.WSResponseParser#parseStoredProjects(eu.sqooss.scl.axis2.datatypes.WSStoredProject[])}
+     * {@link eu.sqooss.scl.result.WSResult}
      * 
      * <p>
      * The method's url is: <br>
@@ -61,7 +61,7 @@ public interface WSConnection {
      * This method returns the metrics for a given project.
      * Each <code>WSResult</code>'s row contains information about the metric.
      * The row consists of fields. The fields' description can be found in:
-     * {@link eu.sqooss.scl.utils.WSResponseParser#parseMetrics(eu.sqooss.scl.axis2.datatypes.WSMetric[])}
+     * {@link eu.sqooss.scl.result.WSResult}
      * 
      * <p>
      * The method's url is: <br>
@@ -82,7 +82,7 @@ public interface WSConnection {
      * This method returns the metric with a given id.
      * A <code>WSResult</code>'s row contains information about the metric.
      * The row consists of fields. The fields' description can be found in:
-     * {@link eu.sqooss.scl.utils.WSResponseParser#parseMetrics(eu.sqooss.scl.axis2.datatypes.WSMetric[])}
+     * {@link eu.sqooss.scl.result.WSResult}
      * 
      * <p>
      * The method's url is: <br>
@@ -106,7 +106,7 @@ public interface WSConnection {
      * This method returns the project's files.
      * Each <code>WSResult</code>'s row contains information about the project's file.
      * The row consists of fields. The fields' description can be found in:
-     * {@link eu.sqooss.scl.utils.WSResponseParser#parseProjectFiles(eu.sqooss.scl.axis2.datatypes.WSProjectFile[])}
+     * {@link eu.sqooss.scl.result.WSResult}
      * 
      * <p>
      * The method's url is: <br>
@@ -128,7 +128,7 @@ public interface WSConnection {
      * All files in the folder can be selected with the folder's name.
      * Each <code>WSResult</code>'s row contains information about the metric.
      * The row consists of fields. The fields' description can be found in:
-     * {@link eu.sqooss.scl.utils.WSResponseParser#parseMetrics(eu.sqooss.scl.axis2.datatypes.WSMetric[])}
+     * {@link eu.sqooss.scl.result.WSResult}
      * 
      * <p>
      * The method's url is: <br>
@@ -156,7 +156,7 @@ public interface WSConnection {
      * then the method returns the existent project.
      * A <code>WSResult</code> contains information about the project.
      * The row consists of fields. The fields' description can be found in:
-     * {@link eu.sqooss.scl.utils.WSResponseParser#parseStoredProjects(eu.sqooss.scl.axis2.datatypes.WSStoredProject[])}
+     * {@link eu.sqooss.scl.result.WSResult}
      *  
      *  <p>
      * The method's url is: <br>
@@ -241,7 +241,7 @@ public interface WSConnection {
      * This method creates a new user.
      * A <code>WSResult</code> contains information about the new user.
      * The row consists of fields. The fields' description can be found in:
-     * {@link eu.sqooss.scl.utils.WSResponseParser#parseUsers(eu.sqooss.scl.axis2.datatypes.WSUser[]))}
+     * {@link eu.sqooss.scl.result.WSResult}
      * 
      * @param newUserName - user name
      * @param newNames - user's names (optional)
@@ -264,7 +264,7 @@ public interface WSConnection {
      * This method returns information about the user with a given id.
      * A <code>WSResult</code> contains information about the user.
      * The row consists of fields. The fields' description can be found in:
-     * {@link eu.sqooss.scl.utils.WSResponseParser#parseUsers(eu.sqooss.scl.axis2.datatypes.WSUser[]))}
+     * {@link eu.sqooss.scl.result.WSResult}
      *  
      * @param userId - user's id
      * @return

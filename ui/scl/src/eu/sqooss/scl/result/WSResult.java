@@ -37,7 +37,80 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
- * The WSResult is similar to the MetricResult. 
+ * The WSResult is similar to the MetricResult.
+ * 
+ * <p>
+ * Projects:
+ * The <code>WSResult</code>'s rows consist of fields in the following format:
+     * <p>
+     * <table border=1>
+     *  <tr><td> Field Index </td><td> Field Type </td><td> Field value </td></tr>
+     *  <tr><td> 0 </td><td> type/long    </td><td> id         </td></tr>
+     *  <tr><td> 1 </td><td> text/plain   </td><td> name       </td></tr>
+     *  <tr><td> 2 </td><td> text/plain   </td><td> repository </td></tr>
+     *  <tr><td> 3 </td><td> text/plain   </td><td> bugs       </td></tr>
+     *  <tr><td> 4 </td><td> text/plain   </td><td> mail       </td></tr>
+     *  <tr><td> 5 </td><td> text/plain   </td><td> contact    </td></tr>
+     *  <tr><td> 6 </td><td> text/plain   </td><td> website    </td></tr>
+     *  <tr><td> 7 </td><td> type/integer </td><td> version1   </td></tr>
+     *  <tr><td> 8 </td><td> type/integer </td><td> version2   </td></tr>
+     *  <tr><td>...</td><td> type/integer </td><td> versionN   </td></tr>
+     * <table>
+     * </p><br>
+ * </p>
+ * 
+ * <p>
+ * Metrics:
+ * The <code>WSResult</code>'s rows consist of fields in the following format:
+ * <p>
+ * <table border=1>
+ *  <tr><td> Field Index </td><td> Field Type </td><td> Field value </td></tr>
+ *  <tr><td> 0 </td><td> type/long    </td><td> id          </td></tr>
+ *  <tr><td> 1 </td><td> text/plain   </td><td> description </td></tr>
+ *  <tr><td> 2 </td><td> text/plain   </td><td> type        </td></tr>
+ * <table>
+ * </p><br>
+ * </p>
+ * 
+ * <p>
+ * Files:
+ * The <code>WSResult</code>'s rows consist of fields in the following format:
+ * <p>
+ * <table border=1>
+ *  <tr><td> Field Index </td><td> Field Type </td><td> Field value </td></tr>
+ *  <tr><td>  0 </td><td> text/plain   </td><td> name        </td></tr>
+ *  <tr><td>  1 </td><td> text/plain   </td><td> status      </td></tr>
+ *  <tr><td>  2 </td><td> text/plain   </td><td> protection  </td></tr>
+ *  <tr><td>  3 </td><td> type/integer </td><td> links       </td></tr>
+ *  <tr><td>  4 </td><td> type/long    </td><td> user's id   </td></tr>
+ *  <tr><td>  5 </td><td> type/long    </td><td> group's id  </td></tr>
+ *  <tr><td>  6 </td><td> type/long    </td><td> access time </td></tr>
+ *  <tr><td>  7 </td><td> type/long    </td><td> modification time </td></tr>
+ *  <tr><td>  8 </td><td> text/plain   </td><td> file status change </td></tr>
+ *  <tr><td>  9 </td><td> type/integer </td><td> size        </td></tr>
+ *  <tr><td> 10 </td><td> type/integer </td><td> blocks      </td></tr>
+ * </table>
+ * </p><br>
+ * </p>
+ * 
+ * <p>
+ * Users:
+ * The <code>WSResult</code>'s rows consist of fields in the following format:
+ * <p>
+ * <table border=1>
+ *  <tr><td> Field Index </td><td> Field Type </td><td> Field value </td></tr>
+ *  <tr><td> 0 </td><td> type/long    </td><td> user's id            </td></tr>
+ *  <tr><td> 1 </td><td> text/plain   </td><td> user name            </td></tr>
+ *  <tr><td> 2 </td><td> type/long    </td><td> group1's is          </td></tr>
+ *  <tr><td> 3 </td><td> text/plain   </td><td> groups1' description </td></tr>
+ *  <tr><td> 4 </td><td> type/long    </td><td> group2's is          </td></tr>
+ *  <tr><td> 5 </td><td> text/plain   </td><td> groups2' description </td></tr>
+ *  <tr><td>...</td><td> type/long    </td><td> groupN's is          </td></tr>
+ *  <tr><td>...</td><td> text/plain   </td><td> groupsN' description </td></tr>
+ * </table>
+ * </p><br>
+ * </p>
+ * 
  */
 public class WSResult implements Iterable<ArrayList<WSResultEntry>>,
                                           Iterator<ArrayList<WSResultEntry>> {
