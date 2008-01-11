@@ -373,6 +373,9 @@ public class WebServicesImpl {
     //5.1.9
     
     //5.1.10
+    /**
+     * @see eu.sqooss.service.web.services.WebServices#submitUser(String, String, String, String, String, String, String)
+     */
     public WSUser submitUser(String userNameForAccess, String passwordForAccess,
             String newUserName, String newNames, String newPassword,
             String newUserClass, String newOtherInfo) {
@@ -386,6 +389,9 @@ public class WebServicesImpl {
     //5.1.10
     
     //5.1.11
+    /**
+     * @see eu.sqooss.service.web.services.WebServices#displayUser(String, String, long)
+     */
     public WSUser displayUser(String userNameForAccess, String passwordForAccess,
             long userId) {
         
@@ -394,8 +400,11 @@ public class WebServicesImpl {
         return new WSUser(securityManager.getUser(userId));
     }
     
-    public void modifyUsermodifyUser(String userNameForAccess, String passwordForAccess,
-            String newUserName, String newNames, String newPassword,
+    /**
+     * @see eu.sqooss.service.web.services.WebServices#modifyUser(String, String, String, String, String, String, String)
+     */
+    public void modifyUser(String userNameForAccess, String passwordForAccess,
+            String userName, String newNames, String newPassword,
             String newUserClass, String newOtherInfo) {
         
         //TODO: check the security and implement
@@ -403,6 +412,9 @@ public class WebServicesImpl {
         securityManager.modifyUser(null);
     }
     
+    /**
+     * @see eu.sqooss.service.web.services.WebServices#deleteUser(String, String, long)
+     */
     public void deleteUser(String userNameForAccess, String passwordForAccess, long userId) {
         
         //TODO: check the security

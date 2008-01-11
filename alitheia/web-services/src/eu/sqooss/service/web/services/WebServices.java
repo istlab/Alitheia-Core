@@ -267,6 +267,18 @@ public class WebServices {
 //    //5.1.9
     
     //5.1.10
+    /**
+     * This method creates a new user.
+     * 
+     * @param userNameForAccess
+     * @param passwordForAccess
+     * @param newUserName
+     * @param newNames
+     * @param newPassword
+     * @param newUserClass
+     * @param newOtherInfo
+     * @return
+     */
     public WSUser submitUser(String userNameForAccess, String passwordForAccess,
             String newUserName, String newNames, String newPassword,
             String newUserClass, String newOtherInfo) {
@@ -276,18 +288,44 @@ public class WebServices {
     //5.1.10
     
     //5.1.11
+    /**
+     * This method returns information about the user with a given id.
+     * 
+     * @param userNameForAccess
+     * @param passwordForAccess
+     * @param userId
+     * @return
+     */
     public WSUser displayUser(String userNameForAccess, String passwordForAccess,
             long userId) {
         return webServices.displayUser(userNameForAccess, passwordForAccess, userId);
     }
     
+    /**
+     * This method modifies the existent user with a given user name.
+     * 
+     * @param userNameForAccess
+     * @param passwordForAccess
+     * @param userName
+     * @param newNames
+     * @param newPassword
+     * @param newUserClass
+     * @param newOtherInfo
+     */
     public void modifyUser(String userNameForAccess, String passwordForAccess,
-            String newUserName, String newNames, String newPassword,
+            String userName, String newNames, String newPassword,
             String newUserClass, String newOtherInfo) {
-        webServices.modifyUsermodifyUser(userNameForAccess, passwordForAccess,
-                newUserName, newNames, newPassword, newUserClass, newOtherInfo);
+        webServices.modifyUser(userNameForAccess, passwordForAccess,
+                userName, newNames, newPassword, newUserClass, newOtherInfo);
     }
     
+    /**
+     * This method deletes the user with a given id.
+     * 
+     * @param userNameForAccess
+     * @param passwordForAccess
+     * @param userId
+     */
     public void deleteUser(String userNameForAccess, String passwordForAccess, long userId) {
         webServices.deleteUser(userNameForAccess, passwordForAccess, userId);
     }

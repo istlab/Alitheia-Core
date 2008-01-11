@@ -43,6 +43,11 @@ public interface WSConnection {
      * The row consists of fields. The fields' description can be found in:
      * {@link eu.sqooss.scl.utils.WSResponseParser#parseStoredProjects(eu.sqooss.scl.axis2.datatypes.WSStoredProject[])}
      * 
+     * <p>
+     * The method's url is: <br>
+     * http://sqo-oss/evaluatedProjectsList
+     * </p>
+     * 
      * @return <code>WSResult</code>
      * @throws WSException
      * <ul>
@@ -57,6 +62,11 @@ public interface WSConnection {
      * Each <code>WSResult</code>'s row contains information about the metric.
      * The row consists of fields. The fields' description can be found in:
      * {@link eu.sqooss.scl.utils.WSResponseParser#parseMetrics(eu.sqooss.scl.axis2.datatypes.WSMetric[])}
+     * 
+     * <p>
+     * The method's url is: <br>
+     * http://sqo-oss/retrieveMetrics4SelectedProject?pid={project_id}
+     * </p>
      * 
      * @param projectId the project's id
      * @return <code>WSResult</code>
@@ -73,6 +83,11 @@ public interface WSConnection {
      * A <code>WSResult</code>'s row contains information about the metric.
      * The row consists of fields. The fields' description can be found in:
      * {@link eu.sqooss.scl.utils.WSResponseParser#parseMetrics(eu.sqooss.scl.axis2.datatypes.WSMetric[])}
+     * 
+     * <p>
+     * The method's url is: <br>
+     * http://sqo-oss/retrieveSelectedMetric?pid={project_id}&mid={metric_id}
+     * </p>
      * 
      * @param projectId the project's id
      * @param metricId the metric's id
@@ -93,6 +108,11 @@ public interface WSConnection {
      * The row consists of fields. The fields' description can be found in:
      * {@link eu.sqooss.scl.utils.WSResponseParser#parseProjectFiles(eu.sqooss.scl.axis2.datatypes.WSProjectFile[])}
      * 
+     * <p>
+     * The method's url is: <br>
+     * http://sqo-oss/retrieveFileList?pid={project_id}
+     * </p>
+     * 
      * @param projectId the project's id
      * @return <code>WSResult</code>
      * @throws WSException
@@ -109,6 +129,12 @@ public interface WSConnection {
      * Each <code>WSResult</code>'s row contains information about the metric.
      * The row consists of fields. The fields' description can be found in:
      * {@link eu.sqooss.scl.utils.WSResponseParser#parseMetrics(eu.sqooss.scl.axis2.datatypes.WSMetric[])}
+     * 
+     * <p>
+     * The method's url is: <br>
+     * http://sqo-oss/retrieveMetrics4SelectedFiles?pid={project_id}&
+     * folders={list-of-folder-names}&filenames={list-of-file-names}
+     * </p>
      * 
      * @param projectId the project's id
      * @param folderNames the folders' names; the folders' delimiter is a comma
@@ -131,6 +157,13 @@ public interface WSConnection {
      * A <code>WSResult</code> contains information about the project.
      * The row consists of fields. The fields' description can be found in:
      * {@link eu.sqooss.scl.utils.WSResponseParser#parseStoredProjects(eu.sqooss.scl.axis2.datatypes.WSStoredProject[])}
+     *  
+     *  <p>
+     * The method's url is: <br>
+     * http://sqo-oss/requestEvaluation4Project?pn={project-name}&pv={project-version}&
+     * srl={source-repository-location}&ml={mailing-list-location}&bts={BTS-location}&
+     * email={user-email-address}&ws={web-site}
+     * </p>
      *  
      * @param projectName the project's name
      * @param projectVersion the project's version
@@ -204,16 +237,72 @@ public interface WSConnection {
     //5.1.9
     
     //5.1.10
+    /**
+     * This method creates a new user.
+     * A <code>WSResult</code> contains information about the new user.
+     * The row consists of fields. The fields' description can be found in:
+     * {@link eu.sqooss.scl.utils.WSResponseParser#parseUsers(eu.sqooss.scl.axis2.datatypes.WSUser[]))}
+     * 
+     * @param newUserName - user name
+     * @param newNames - user's names (optional)
+     * @param newPassword - user's password
+     * @param newUserClass - user's class (general user, OSS developer, etc.)
+     * @param newOtherInfo - (optional)
+     * @return
+     * @throws WSException
+     * <ul>
+     *  <li>if the connection can't be establish to the SQO-OSS's web services service</li>
+     *  <li>if web services service throws a exception</li>
+     * <ul>
+     */
     public WSResult submitUser(String newUserName, String newNames, String newPassword,
             String newUserClass, String newOtherInfo) throws WSException;
     //5.1.10
     
     //5.1.11
+    /**
+     * This method returns information about the user with a given id.
+     * A <code>WSResult</code> contains information about the user.
+     * The row consists of fields. The fields' description can be found in:
+     * {@link eu.sqooss.scl.utils.WSResponseParser#parseUsers(eu.sqooss.scl.axis2.datatypes.WSUser[]))}
+     *  
+     * @param userId - user's id
+     * @return
+     * @throws WSException
+     * <ul>
+     *  <li>if the connection can't be establish to the SQO-OSS's web services service</li>
+     *  <li>if web services service throws a exception</li>
+     * <ul>
+     */
     public WSResult displayUser(long userId) throws WSException;
     
-    public void modifyUser(String newUserName, String newNames, String newPassword,
+    /**
+     * This method modifies the existent user with a given user name.
+     * 
+     * @param userName - the user name
+     * @param newNames - the new user's names (optional)
+     * @param newPassword - the new password
+     * @param newUserClass - the new user's class (general user, OSS developer, etc.)
+     * @param newOtherInfo - (optional)
+     * @throws WSException
+     * <ul>
+     *  <li>if the connection can't be establish to the SQO-OSS's web services service</li>
+     *  <li>if web services service throws a exception</li>
+     * <ul>
+     */
+    public void modifyUser(String userName, String newNames, String newPassword,
             String newUserClass, String newOtherInfo) throws WSException;
     
+    /**
+     * This method deletes the user with a given id.
+     * 
+     * @param userId - user's id
+     * @throws WSException
+     * <ul>
+     *  <li>if the connection can't be establish to the SQO-OSS's web services service</li>
+     *  <li>if web services service throws a exception</li>
+     * <ul>
+     */
     public void deleteUser(long userId) throws WSException;
     //5.1.11
     

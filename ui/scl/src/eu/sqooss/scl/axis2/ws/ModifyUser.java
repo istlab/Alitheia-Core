@@ -111,29 +111,29 @@ implements org.apache.axis2.databinding.ADBBean{
 
 
     /**
-     * field for NewUserName
+     * field for UserName
      */
 
-    protected java.lang.String localNewUserName ;
+    protected java.lang.String localUserName ;
 
 
     /**
      * Auto generated getter method
      * @return java.lang.String
      */
-    public  java.lang.String getNewUserName(){
-        return localNewUserName;
+    public  java.lang.String getUserName(){
+        return localUserName;
     }
 
 
 
     /**
      * Auto generated setter method
-     * @param param NewUserName
+     * @param param UserName
      */
-    public void setNewUserName(java.lang.String param){
+    public void setUserName(java.lang.String param){
 
-        this.localNewUserName=param;
+        this.localUserName=param;
 
 
     }
@@ -373,20 +373,20 @@ implements org.apache.axis2.databinding.ADBBean{
                     if (prefix == null) {
                         prefix = org.apache.axis2.databinding.utils.BeanUtil.getUniquePrefix();
 
-                        xmlWriter.writeStartElement(prefix,"newUserName", namespace);
+                        xmlWriter.writeStartElement(prefix,"userName", namespace);
                         xmlWriter.writeNamespace(prefix, namespace);
                         xmlWriter.setPrefix(prefix, namespace);
 
                     } else {
-                        xmlWriter.writeStartElement(namespace,"newUserName");
+                        xmlWriter.writeStartElement(namespace,"userName");
                     }
 
                 } else {
-                    xmlWriter.writeStartElement("newUserName");
+                    xmlWriter.writeStartElement("userName");
                 }
 
 
-                if (localNewUserName==null){
+                if (localUserName==null){
                     // write the nil attribute
 
                     writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","true",xmlWriter);
@@ -394,7 +394,7 @@ implements org.apache.axis2.databinding.ADBBean{
                 }else{
 
 
-                    xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localNewUserName));
+                    xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localUserName));
 
                 }
 
@@ -634,10 +634,10 @@ implements org.apache.axis2.databinding.ADBBean{
             org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localPasswordForAccess));
 
         elementList.add(new javax.xml.namespace.QName("http://services.web.service.sqooss.eu/xsd",
-        "newUserName"));
+        "userName"));
 
-        elementList.add(localNewUserName==null?null:
-            org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localNewUserName));
+        elementList.add(localUserName==null?null:
+            org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localUserName));
 
         elementList.add(new javax.xml.namespace.QName("http://services.web.service.sqooss.eu/xsd",
         "newNames"));
@@ -786,13 +786,13 @@ implements org.apache.axis2.databinding.ADBBean{
 
                 while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
 
-                if (reader.isStartElement() && new javax.xml.namespace.QName("http://services.web.service.sqooss.eu/xsd","newUserName").equals(reader.getName())){
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://services.web.service.sqooss.eu/xsd","userName").equals(reader.getName())){
 
                     if (!"true".equals(reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil"))){
 
                         java.lang.String content = reader.getElementText();
 
-                        object.setNewUserName(
+                        object.setUserName(
                                 org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
 
                     } else {

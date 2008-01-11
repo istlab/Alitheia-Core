@@ -114,6 +114,9 @@ class WSConnectionImpl implements WSConnection {
         return new WSResult("Not Implemented yet");
     }
 
+    /**
+     * @see eu.sqooss.scl.WSConnection#displayUser(long)
+     */
     public WSResult displayUser(long userId) throws WSException {
         DisplayUserResponse response;
         DisplayUser params = (DisplayUser) parameters.get(
@@ -161,11 +164,11 @@ class WSConnectionImpl implements WSConnection {
     /**
      * @see eu.sqooss.scl.WSConnection#modifyUser(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)
      */
-    public void modifyUser(String newUserName, String newNames, String newPassword,
+    public void modifyUser(String userName, String newNames, String newPassword,
             String newUserClass, String newOtherInfo) throws WSException {
         ModifyUser params = (ModifyUser) parameters.get(WSConnectionConstants.METHOD_NAME_MODIFY_USER);
         synchronized (params) {
-            params.setNewUserName(newUserName);
+            params.setUserName(userName);
             params.setNewNames(newNames);
             params.setNewPassword(newPassword);
             params.setNewUserClass(newUserClass);
@@ -367,6 +370,9 @@ class WSConnectionImpl implements WSConnection {
         
     }
 
+    /**
+     * @see eu.sqooss.scl.WSConnection#submitUser(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)
+     */
     public WSResult submitUser(String newUserName, String newNames, String newPassword,
             String newUserClass, String newOtherInfo) throws WSException {
         SubmitUserResponse response;

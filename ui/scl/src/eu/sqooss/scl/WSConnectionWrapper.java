@@ -154,13 +154,7 @@ class WSConnectionWrapper {
         String newUserClass;
         String newOtherInfo;
 
-        if (argsNumber == 3) {
-            newUserName = args.get(0);
-            newNames = null; //optional
-            newPassword = args.get(1);
-            newUserClass = args.get(2);
-            newOtherInfo = null; //optional
-        } else if (argsNumber == 4) {
+        if (argsNumber == 4) {
             newUserName = args.get(0);
             newNames = null; //optional
             newPassword = args.get(1);
@@ -200,13 +194,7 @@ class WSConnectionWrapper {
         String newUserClass;
         String newOtherInfo;
         
-        if (argsNumber == 3) {
-            newUserName = args.get(0);
-            newNames = null; //optional
-            newPassword = args.get(1);
-            newUserClass = args.get(2);
-            newOtherInfo = null; //optional
-        } else if (argsNumber == 4) {
+        if (argsNumber == 4) {
             newUserName = args.get(0);
             newNames = null; //optional
             newPassword = args.get(1);
