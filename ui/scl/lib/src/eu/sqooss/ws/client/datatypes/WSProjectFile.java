@@ -37,7 +37,7 @@
  * by the Apache Axis2 version: #axisVersion# #today#
  */
 
-package eu.sqooss.scl.axis2.datatypes;
+package eu.sqooss.ws.client.datatypes;
 /**
  *  WSProjectFile bean class
  */
@@ -113,14 +113,14 @@ implements org.apache.axis2.databinding.ADBBean{
      * field for ProjectFileMetadata
      */
 
-    protected eu.sqooss.scl.axis2.datatypes.WSFileMetadata localProjectFileMetadata ;
+    protected eu.sqooss.ws.client.datatypes.WSFileMetadata localProjectFileMetadata ;
 
 
     /**
      * Auto generated getter method
-     * @return eu.sqooss.scl.axis2.datatypes.WSFileMetadata
+     * @return eu.sqooss.ws.client.datatypes.WSFileMetadata
      */
-    public  eu.sqooss.scl.axis2.datatypes.WSFileMetadata getProjectFileMetadata(){
+    public  eu.sqooss.ws.client.datatypes.WSFileMetadata getProjectFileMetadata(){
         return localProjectFileMetadata;
     }
 
@@ -130,7 +130,7 @@ implements org.apache.axis2.databinding.ADBBean{
      * Auto generated setter method
      * @param param ProjectFileMetadata
      */
-    public void setProjectFileMetadata(eu.sqooss.scl.axis2.datatypes.WSFileMetadata param){
+    public void setProjectFileMetadata(eu.sqooss.ws.client.datatypes.WSFileMetadata param){
 
         this.localProjectFileMetadata=param;
 
@@ -543,7 +543,7 @@ implements org.apache.axis2.databinding.ADBBean{
                         if (!"WSProjectFile".equals(type)){
                             //find namespace for the prefix
                             java.lang.String nsUri = reader.getNamespaceContext().getNamespaceURI(nsPrefix);
-                            return (WSProjectFile)eu.sqooss.scl.axis2.ws.ExtensionMapper.getTypeObject(
+                            return (WSProjectFile)eu.sqooss.ws.client.ws.ExtensionMapper.getTypeObject(
                                     nsUri,type,reader);
                         }
 
@@ -628,7 +628,7 @@ implements org.apache.axis2.databinding.ADBBean{
 
                     }else{
 
-                        object.setProjectFileMetadata(eu.sqooss.scl.axis2.datatypes.WSFileMetadata.Factory.parse(reader));
+                        object.setProjectFileMetadata(eu.sqooss.ws.client.datatypes.WSFileMetadata.Factory.parse(reader));
 
                         reader.next();
                     }

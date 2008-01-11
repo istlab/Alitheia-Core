@@ -38,30 +38,29 @@ import java.util.StringTokenizer;
 
 import org.apache.axis2.AxisFault;
 
-import eu.sqooss.scl.axis2.WsStub;
-import eu.sqooss.scl.axis2.ws.DeleteUser;
-import eu.sqooss.scl.axis2.ws.DisplayUser;
-import eu.sqooss.scl.axis2.ws.DisplayUserResponse;
-import eu.sqooss.scl.axis2.ws.EvaluatedProjectsList;
-import eu.sqooss.scl.axis2.ws.EvaluatedProjectsListResponse;
-import eu.sqooss.scl.axis2.ws.ModifyUser;
-import eu.sqooss.scl.axis2.ws.RequestEvaluation4Project;
-import eu.sqooss.scl.axis2.ws.RequestEvaluation4ProjectResponse;
-import eu.sqooss.scl.axis2.ws.RetrieveFileList;
-import eu.sqooss.scl.axis2.ws.RetrieveFileListResponse;
-import eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedFiles;
-import eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedFilesResponse;
-import eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedProject;
-import eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedProjectResponse;
-import eu.sqooss.scl.axis2.ws.RetrieveSelectedMetric;
-import eu.sqooss.scl.axis2.ws.RetrieveSelectedMetricResponse;
-import eu.sqooss.scl.axis2.ws.SubmitUser;
-import eu.sqooss.scl.axis2.ws.SubmitUserResponse;
-import eu.sqooss.scl.axis2.datatypes.WSMetric;
-import eu.sqooss.scl.axis2.datatypes.WSStoredProject;
-import eu.sqooss.scl.axis2.datatypes.WSUser;
+import eu.sqooss.ws.client.WsStub;
+import eu.sqooss.ws.client.ws.DeleteUser;
+import eu.sqooss.ws.client.ws.DisplayUser;
+import eu.sqooss.ws.client.ws.DisplayUserResponse;
+import eu.sqooss.ws.client.ws.EvaluatedProjectsList;
+import eu.sqooss.ws.client.ws.EvaluatedProjectsListResponse;
+import eu.sqooss.ws.client.ws.ModifyUser;
+import eu.sqooss.ws.client.ws.RequestEvaluation4Project;
+import eu.sqooss.ws.client.ws.RequestEvaluation4ProjectResponse;
+import eu.sqooss.ws.client.ws.RetrieveFileList;
+import eu.sqooss.ws.client.ws.RetrieveFileListResponse;
+import eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedFiles;
+import eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedFilesResponse;
+import eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProject;
+import eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProjectResponse;
+import eu.sqooss.ws.client.ws.RetrieveSelectedMetric;
+import eu.sqooss.ws.client.ws.RetrieveSelectedMetricResponse;
+import eu.sqooss.ws.client.ws.SubmitUser;
+import eu.sqooss.ws.client.ws.SubmitUserResponse;
+import eu.sqooss.ws.client.datatypes.WSMetric;
+import eu.sqooss.ws.client.datatypes.WSStoredProject;
+import eu.sqooss.ws.client.datatypes.WSUser;
 import eu.sqooss.scl.result.WSResult;
-import eu.sqooss.scl.utils.WSResponseParser;
 
 /**
  * The class has package visibility.

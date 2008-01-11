@@ -37,7 +37,7 @@
  * by the Apache Axis2 version: #axisVersion# #today#
  */
 
-package eu.sqooss.scl.axis2.ws;
+package eu.sqooss.ws.client.ws;
 /**
  *  RetrieveMetrics4SelectedFilesResponse bean class
  */
@@ -57,14 +57,14 @@ implements org.apache.axis2.databinding.ADBBean{
      * This was an Array!
      */
 
-    protected eu.sqooss.scl.axis2.datatypes.WSMetric[] local_return ;
+    protected eu.sqooss.ws.client.datatypes.WSMetric[] local_return ;
 
 
     /**
      * Auto generated getter method
-     * @return eu.sqooss.scl.axis2.datatypes.WSMetric[]
+     * @return eu.sqooss.ws.client.datatypes.WSMetric[]
      */
-    public  eu.sqooss.scl.axis2.datatypes.WSMetric[] get_return(){
+    public  eu.sqooss.ws.client.datatypes.WSMetric[] get_return(){
         return local_return;
     }
 
@@ -76,7 +76,7 @@ implements org.apache.axis2.databinding.ADBBean{
     /**
      * validate the array for _return
      */
-    protected void validate_return(eu.sqooss.scl.axis2.datatypes.WSMetric[] param){
+    protected void validate_return(eu.sqooss.ws.client.datatypes.WSMetric[] param){
 
         if ((param != null) && (param.length < 1)){
             throw new java.lang.RuntimeException();
@@ -89,7 +89,7 @@ implements org.apache.axis2.databinding.ADBBean{
      * Auto generated setter method
      * @param param _return
      */
-    public void set_return(eu.sqooss.scl.axis2.datatypes.WSMetric[] param){
+    public void set_return(eu.sqooss.ws.client.datatypes.WSMetric[] param){
 
         validate_return(param);
 
@@ -101,11 +101,11 @@ implements org.apache.axis2.databinding.ADBBean{
 
     /**
      * Auto generated add method for the array for convenience
-     * @param param eu.sqooss.scl.axis2.datatypes.WSMetric
+     * @param param eu.sqooss.ws.client.datatypes.WSMetric
      */
-    public void add_return(eu.sqooss.scl.axis2.datatypes.WSMetric param){
+    public void add_return(eu.sqooss.ws.client.datatypes.WSMetric param){
         if (local_return == null){
-            local_return = new eu.sqooss.scl.axis2.datatypes.WSMetric[]{};
+            local_return = new eu.sqooss.ws.client.datatypes.WSMetric[]{};
         }
 
 
@@ -114,8 +114,8 @@ implements org.apache.axis2.databinding.ADBBean{
             org.apache.axis2.databinding.utils.ConverterUtil.toList(local_return);
         list.add(param);
         this.local_return =
-            (eu.sqooss.scl.axis2.datatypes.WSMetric[])list.toArray(
-                    new eu.sqooss.scl.axis2.datatypes.WSMetric[list.size()]);
+            (eu.sqooss.ws.client.datatypes.WSMetric[])list.toArray(
+                    new eu.sqooss.ws.client.datatypes.WSMetric[list.size()]);
 
     }
 
@@ -378,7 +378,7 @@ implements org.apache.axis2.databinding.ADBBean{
                         if (!"retrieveMetrics4SelectedFilesResponse".equals(type)){
                             //find namespace for the prefix
                             java.lang.String nsUri = reader.getNamespaceContext().getNamespaceURI(nsPrefix);
-                            return (RetrieveMetrics4SelectedFilesResponse)eu.sqooss.scl.axis2.ws.ExtensionMapper.getTypeObject(
+                            return (RetrieveMetrics4SelectedFilesResponse)eu.sqooss.ws.client.ws.ExtensionMapper.getTypeObject(
                                     nsUri,type,reader);
                         }
 
@@ -421,7 +421,7 @@ implements org.apache.axis2.databinding.ADBBean{
                         list1.add(null);
                         reader.next();
                     } else {
-                        list1.add(eu.sqooss.scl.axis2.datatypes.WSMetric.Factory.parse(reader));
+                        list1.add(eu.sqooss.ws.client.datatypes.WSMetric.Factory.parse(reader));
                     }
                     //loop until we find a start element that is not part of this array
                     boolean loopDone1 = false;
@@ -444,7 +444,7 @@ implements org.apache.axis2.databinding.ADBBean{
                                     list1.add(null);
                                     reader.next();
                                 } else {
-                                    list1.add(eu.sqooss.scl.axis2.datatypes.WSMetric.Factory.parse(reader));
+                                    list1.add(eu.sqooss.ws.client.datatypes.WSMetric.Factory.parse(reader));
                                 }
                             }else{
                                 loopDone1 = true;
@@ -452,9 +452,9 @@ implements org.apache.axis2.databinding.ADBBean{
                         }
                     }
                     // call the converter utility  to convert and set the array
-                    object.set_return((eu.sqooss.scl.axis2.datatypes.WSMetric[])
+                    object.set_return((eu.sqooss.ws.client.datatypes.WSMetric[])
                             org.apache.axis2.databinding.utils.ConverterUtil.convertToArray(
-                                    eu.sqooss.scl.axis2.datatypes.WSMetric.class,
+                                    eu.sqooss.ws.client.datatypes.WSMetric.class,
                                     list1));
 
                 }  // End of if for expected property start element

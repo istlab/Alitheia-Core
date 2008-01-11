@@ -37,7 +37,7 @@
  * by the Apache Axis2 version: #axisVersion# #today#
  */
 
-package eu.sqooss.scl.axis2.ws;
+package eu.sqooss.ws.client.ws;
 /**
  *  RequestEvaluation4ProjectResponse bean class
  */
@@ -56,14 +56,14 @@ implements org.apache.axis2.databinding.ADBBean{
      * field for _return
      */
 
-    protected eu.sqooss.scl.axis2.datatypes.WSStoredProject local_return ;
+    protected eu.sqooss.ws.client.datatypes.WSStoredProject local_return ;
 
 
     /**
      * Auto generated getter method
-     * @return eu.sqooss.scl.axis2.datatypes.WSStoredProject
+     * @return eu.sqooss.ws.client.datatypes.WSStoredProject
      */
-    public  eu.sqooss.scl.axis2.datatypes.WSStoredProject get_return(){
+    public  eu.sqooss.ws.client.datatypes.WSStoredProject get_return(){
         return local_return;
     }
 
@@ -73,7 +73,7 @@ implements org.apache.axis2.databinding.ADBBean{
      * Auto generated setter method
      * @param param _return
      */
-    public void set_return(eu.sqooss.scl.axis2.datatypes.WSStoredProject param){
+    public void set_return(eu.sqooss.ws.client.datatypes.WSStoredProject param){
 
         this.local_return=param;
 
@@ -290,7 +290,7 @@ implements org.apache.axis2.databinding.ADBBean{
                         if (!"requestEvaluation4ProjectResponse".equals(type)){
                             //find namespace for the prefix
                             java.lang.String nsUri = reader.getNamespaceContext().getNamespaceURI(nsPrefix);
-                            return (RequestEvaluation4ProjectResponse)eu.sqooss.scl.axis2.ws.ExtensionMapper.getTypeObject(
+                            return (RequestEvaluation4ProjectResponse)eu.sqooss.ws.client.ws.ExtensionMapper.getTypeObject(
                                     nsUri,type,reader);
                         }
 
@@ -331,7 +331,7 @@ implements org.apache.axis2.databinding.ADBBean{
 
                     }else{
 
-                        object.set_return(eu.sqooss.scl.axis2.datatypes.WSStoredProject.Factory.parse(reader));
+                        object.set_return(eu.sqooss.ws.client.datatypes.WSStoredProject.Factory.parse(reader));
 
                         reader.next();
                     }

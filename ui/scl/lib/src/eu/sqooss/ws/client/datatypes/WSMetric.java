@@ -37,7 +37,7 @@
  * by the Apache Axis2 version: #axisVersion# #today#
  */
 
-package eu.sqooss.scl.axis2.datatypes;
+package eu.sqooss.ws.client.datatypes;
 /**
  *  WSMetric bean class
  */
@@ -113,14 +113,14 @@ implements org.apache.axis2.databinding.ADBBean{
      * field for MetricType
      */
 
-    protected eu.sqooss.scl.axis2.datatypes.WSMetricType localMetricType ;
+    protected eu.sqooss.ws.client.datatypes.WSMetricType localMetricType ;
 
 
     /**
      * Auto generated getter method
-     * @return eu.sqooss.scl.axis2.datatypes.WSMetricType
+     * @return eu.sqooss.ws.client.datatypes.WSMetricType
      */
-    public  eu.sqooss.scl.axis2.datatypes.WSMetricType getMetricType(){
+    public  eu.sqooss.ws.client.datatypes.WSMetricType getMetricType(){
         return localMetricType;
     }
 
@@ -130,7 +130,7 @@ implements org.apache.axis2.databinding.ADBBean{
      * Auto generated setter method
      * @param param MetricType
      */
-    public void setMetricType(eu.sqooss.scl.axis2.datatypes.WSMetricType param){
+    public void setMetricType(eu.sqooss.ws.client.datatypes.WSMetricType param){
 
         this.localMetricType=param;
 
@@ -474,7 +474,7 @@ implements org.apache.axis2.databinding.ADBBean{
                         if (!"WSMetric".equals(type)){
                             //find namespace for the prefix
                             java.lang.String nsUri = reader.getNamespaceContext().getNamespaceURI(nsPrefix);
-                            return (WSMetric)eu.sqooss.scl.axis2.ws.ExtensionMapper.getTypeObject(
+                            return (WSMetric)eu.sqooss.ws.client.ws.ExtensionMapper.getTypeObject(
                                     nsUri,type,reader);
                         }
 
@@ -559,7 +559,7 @@ implements org.apache.axis2.databinding.ADBBean{
 
                     }else{
 
-                        object.setMetricType(eu.sqooss.scl.axis2.datatypes.WSMetricType.Factory.parse(reader));
+                        object.setMetricType(eu.sqooss.ws.client.datatypes.WSMetricType.Factory.parse(reader));
 
                         reader.next();
                     }

@@ -37,7 +37,7 @@
  * by the Apache Axis2 version: #axisVersion# #today#
  */
 
-package eu.sqooss.scl.axis2.ws;
+package eu.sqooss.ws.client.ws;
 /**
  *  EvaluatedProjectsListResponse bean class
  */
@@ -57,14 +57,14 @@ implements org.apache.axis2.databinding.ADBBean{
      * This was an Array!
      */
 
-    protected eu.sqooss.scl.axis2.datatypes.WSStoredProject[] local_return ;
+    protected eu.sqooss.ws.client.datatypes.WSStoredProject[] local_return ;
 
 
     /**
      * Auto generated getter method
-     * @return eu.sqooss.scl.axis2.datatypes.WSStoredProject[]
+     * @return eu.sqooss.ws.client.datatypes.WSStoredProject[]
      */
-    public  eu.sqooss.scl.axis2.datatypes.WSStoredProject[] get_return(){
+    public  eu.sqooss.ws.client.datatypes.WSStoredProject[] get_return(){
         return local_return;
     }
 
@@ -76,7 +76,7 @@ implements org.apache.axis2.databinding.ADBBean{
     /**
      * validate the array for _return
      */
-    protected void validate_return(eu.sqooss.scl.axis2.datatypes.WSStoredProject[] param){
+    protected void validate_return(eu.sqooss.ws.client.datatypes.WSStoredProject[] param){
 
         if ((param != null) && (param.length < 1)){
             throw new java.lang.RuntimeException();
@@ -89,7 +89,7 @@ implements org.apache.axis2.databinding.ADBBean{
      * Auto generated setter method
      * @param param _return
      */
-    public void set_return(eu.sqooss.scl.axis2.datatypes.WSStoredProject[] param){
+    public void set_return(eu.sqooss.ws.client.datatypes.WSStoredProject[] param){
 
         validate_return(param);
 
@@ -101,11 +101,11 @@ implements org.apache.axis2.databinding.ADBBean{
 
     /**
      * Auto generated add method for the array for convenience
-     * @param param eu.sqooss.scl.axis2.datatypes.WSStoredProject
+     * @param param eu.sqooss.ws.client.datatypes.WSStoredProject
      */
-    public void add_return(eu.sqooss.scl.axis2.datatypes.WSStoredProject param){
+    public void add_return(eu.sqooss.ws.client.datatypes.WSStoredProject param){
         if (local_return == null){
-            local_return = new eu.sqooss.scl.axis2.datatypes.WSStoredProject[]{};
+            local_return = new eu.sqooss.ws.client.datatypes.WSStoredProject[]{};
         }
 
 
@@ -114,8 +114,8 @@ implements org.apache.axis2.databinding.ADBBean{
             org.apache.axis2.databinding.utils.ConverterUtil.toList(local_return);
         list.add(param);
         this.local_return =
-            (eu.sqooss.scl.axis2.datatypes.WSStoredProject[])list.toArray(
-                    new eu.sqooss.scl.axis2.datatypes.WSStoredProject[list.size()]);
+            (eu.sqooss.ws.client.datatypes.WSStoredProject[])list.toArray(
+                    new eu.sqooss.ws.client.datatypes.WSStoredProject[list.size()]);
 
     }
 
@@ -378,7 +378,7 @@ implements org.apache.axis2.databinding.ADBBean{
                         if (!"evaluatedProjectsListResponse".equals(type)){
                             //find namespace for the prefix
                             java.lang.String nsUri = reader.getNamespaceContext().getNamespaceURI(nsPrefix);
-                            return (EvaluatedProjectsListResponse)eu.sqooss.scl.axis2.ws.ExtensionMapper.getTypeObject(
+                            return (EvaluatedProjectsListResponse)eu.sqooss.ws.client.ws.ExtensionMapper.getTypeObject(
                                     nsUri,type,reader);
                         }
 
@@ -421,7 +421,7 @@ implements org.apache.axis2.databinding.ADBBean{
                         list1.add(null);
                         reader.next();
                     } else {
-                        list1.add(eu.sqooss.scl.axis2.datatypes.WSStoredProject.Factory.parse(reader));
+                        list1.add(eu.sqooss.ws.client.datatypes.WSStoredProject.Factory.parse(reader));
                     }
                     //loop until we find a start element that is not part of this array
                     boolean loopDone1 = false;
@@ -444,7 +444,7 @@ implements org.apache.axis2.databinding.ADBBean{
                                     list1.add(null);
                                     reader.next();
                                 } else {
-                                    list1.add(eu.sqooss.scl.axis2.datatypes.WSStoredProject.Factory.parse(reader));
+                                    list1.add(eu.sqooss.ws.client.datatypes.WSStoredProject.Factory.parse(reader));
                                 }
                             }else{
                                 loopDone1 = true;
@@ -452,9 +452,9 @@ implements org.apache.axis2.databinding.ADBBean{
                         }
                     }
                     // call the converter utility  to convert and set the array
-                    object.set_return((eu.sqooss.scl.axis2.datatypes.WSStoredProject[])
+                    object.set_return((eu.sqooss.ws.client.datatypes.WSStoredProject[])
                             org.apache.axis2.databinding.utils.ConverterUtil.convertToArray(
-                                    eu.sqooss.scl.axis2.datatypes.WSStoredProject.class,
+                                    eu.sqooss.ws.client.datatypes.WSStoredProject.class,
                                     list1));
 
                 }  // End of if for expected property start element

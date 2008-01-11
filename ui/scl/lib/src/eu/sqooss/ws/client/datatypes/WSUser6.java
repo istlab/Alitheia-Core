@@ -37,7 +37,7 @@
  * by the Apache Axis2 version: #axisVersion# #today#
  */
 
-package eu.sqooss.scl.axis2.datatypes;
+package eu.sqooss.ws.client.datatypes;
 /**
  *  WSUser6 bean class
  */
@@ -56,14 +56,14 @@ implements org.apache.axis2.databinding.ADBBean{
      * field for WSUser
      */
 
-    protected eu.sqooss.scl.axis2.datatypes.WSUser localWSUser ;
+    protected eu.sqooss.ws.client.datatypes.WSUser localWSUser ;
 
 
     /**
      * Auto generated getter method
-     * @return eu.sqooss.scl.axis2.datatypes.WSUser
+     * @return eu.sqooss.ws.client.datatypes.WSUser
      */
-    public  eu.sqooss.scl.axis2.datatypes.WSUser getWSUser(){
+    public  eu.sqooss.ws.client.datatypes.WSUser getWSUser(){
         return localWSUser;
     }
 
@@ -73,7 +73,7 @@ implements org.apache.axis2.databinding.ADBBean{
      * Auto generated setter method
      * @param param WSUser
      */
-    public void setWSUser(eu.sqooss.scl.axis2.datatypes.WSUser param){
+    public void setWSUser(eu.sqooss.ws.client.datatypes.WSUser param){
 
         this.localWSUser=param;
 
@@ -239,7 +239,7 @@ implements org.apache.axis2.databinding.ADBBean{
 
                         if (reader.isStartElement() && new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd","WSUser").equals(reader.getName())){
 
-                            object.setWSUser(eu.sqooss.scl.axis2.datatypes.WSUser.Factory.parse(reader));
+                            object.setWSUser(eu.sqooss.ws.client.datatypes.WSUser.Factory.parse(reader));
 
                         }  // End of if for expected property start element
 

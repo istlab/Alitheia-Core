@@ -37,7 +37,7 @@
  * by the Apache Axis2 version: #axisVersion# #today#
  */
 
-package eu.sqooss.scl.axis2.datatypes;
+package eu.sqooss.ws.client.datatypes;
 /**
  *  WSFileMetadata7 bean class
  */
@@ -56,14 +56,14 @@ implements org.apache.axis2.databinding.ADBBean{
      * field for WSFileMetadata
      */
 
-    protected eu.sqooss.scl.axis2.datatypes.WSFileMetadata localWSFileMetadata ;
+    protected eu.sqooss.ws.client.datatypes.WSFileMetadata localWSFileMetadata ;
 
 
     /**
      * Auto generated getter method
-     * @return eu.sqooss.scl.axis2.datatypes.WSFileMetadata
+     * @return eu.sqooss.ws.client.datatypes.WSFileMetadata
      */
-    public  eu.sqooss.scl.axis2.datatypes.WSFileMetadata getWSFileMetadata(){
+    public  eu.sqooss.ws.client.datatypes.WSFileMetadata getWSFileMetadata(){
         return localWSFileMetadata;
     }
 
@@ -73,7 +73,7 @@ implements org.apache.axis2.databinding.ADBBean{
      * Auto generated setter method
      * @param param WSFileMetadata
      */
-    public void setWSFileMetadata(eu.sqooss.scl.axis2.datatypes.WSFileMetadata param){
+    public void setWSFileMetadata(eu.sqooss.ws.client.datatypes.WSFileMetadata param){
 
         this.localWSFileMetadata=param;
 
@@ -239,7 +239,7 @@ implements org.apache.axis2.databinding.ADBBean{
 
                         if (reader.isStartElement() && new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd","WSFileMetadata").equals(reader.getName())){
 
-                            object.setWSFileMetadata(eu.sqooss.scl.axis2.datatypes.WSFileMetadata.Factory.parse(reader));
+                            object.setWSFileMetadata(eu.sqooss.ws.client.datatypes.WSFileMetadata.Factory.parse(reader));
 
                         }  // End of if for expected property start element
 

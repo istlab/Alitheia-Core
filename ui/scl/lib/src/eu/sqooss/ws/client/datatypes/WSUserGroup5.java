@@ -37,7 +37,7 @@
  * by the Apache Axis2 version: #axisVersion# #today#
  */
 
-package eu.sqooss.scl.axis2.datatypes;
+package eu.sqooss.ws.client.datatypes;
 /**
  *  WSUserGroup5 bean class
  */
@@ -56,14 +56,14 @@ implements org.apache.axis2.databinding.ADBBean{
      * field for WSUserGroup
      */
 
-    protected eu.sqooss.scl.axis2.datatypes.WSUserGroup localWSUserGroup ;
+    protected eu.sqooss.ws.client.datatypes.WSUserGroup localWSUserGroup ;
 
 
     /**
      * Auto generated getter method
-     * @return eu.sqooss.scl.axis2.datatypes.WSUserGroup
+     * @return eu.sqooss.ws.client.datatypes.WSUserGroup
      */
-    public  eu.sqooss.scl.axis2.datatypes.WSUserGroup getWSUserGroup(){
+    public  eu.sqooss.ws.client.datatypes.WSUserGroup getWSUserGroup(){
         return localWSUserGroup;
     }
 
@@ -73,7 +73,7 @@ implements org.apache.axis2.databinding.ADBBean{
      * Auto generated setter method
      * @param param WSUserGroup
      */
-    public void setWSUserGroup(eu.sqooss.scl.axis2.datatypes.WSUserGroup param){
+    public void setWSUserGroup(eu.sqooss.ws.client.datatypes.WSUserGroup param){
 
         this.localWSUserGroup=param;
 
@@ -239,7 +239,7 @@ implements org.apache.axis2.databinding.ADBBean{
 
                         if (reader.isStartElement() && new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd","WSUserGroup").equals(reader.getName())){
 
-                            object.setWSUserGroup(eu.sqooss.scl.axis2.datatypes.WSUserGroup.Factory.parse(reader));
+                            object.setWSUserGroup(eu.sqooss.ws.client.datatypes.WSUserGroup.Factory.parse(reader));
 
                         }  // End of if for expected property start element
 

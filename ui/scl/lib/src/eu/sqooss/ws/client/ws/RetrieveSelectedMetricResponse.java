@@ -37,7 +37,7 @@
  * by the Apache Axis2 version: #axisVersion# #today#
  */
 
-package eu.sqooss.scl.axis2.ws;
+package eu.sqooss.ws.client.ws;
 /**
  *  RetrieveSelectedMetricResponse bean class
  */
@@ -56,14 +56,14 @@ implements org.apache.axis2.databinding.ADBBean{
      * field for _return
      */
 
-    protected eu.sqooss.scl.axis2.datatypes.WSMetric local_return ;
+    protected eu.sqooss.ws.client.datatypes.WSMetric local_return ;
 
 
     /**
      * Auto generated getter method
-     * @return eu.sqooss.scl.axis2.datatypes.WSMetric
+     * @return eu.sqooss.ws.client.datatypes.WSMetric
      */
-    public  eu.sqooss.scl.axis2.datatypes.WSMetric get_return(){
+    public  eu.sqooss.ws.client.datatypes.WSMetric get_return(){
         return local_return;
     }
 
@@ -73,7 +73,7 @@ implements org.apache.axis2.databinding.ADBBean{
      * Auto generated setter method
      * @param param _return
      */
-    public void set_return(eu.sqooss.scl.axis2.datatypes.WSMetric param){
+    public void set_return(eu.sqooss.ws.client.datatypes.WSMetric param){
 
         this.local_return=param;
 
@@ -290,7 +290,7 @@ implements org.apache.axis2.databinding.ADBBean{
                         if (!"retrieveSelectedMetricResponse".equals(type)){
                             //find namespace for the prefix
                             java.lang.String nsUri = reader.getNamespaceContext().getNamespaceURI(nsPrefix);
-                            return (RetrieveSelectedMetricResponse)eu.sqooss.scl.axis2.ws.ExtensionMapper.getTypeObject(
+                            return (RetrieveSelectedMetricResponse)eu.sqooss.ws.client.ws.ExtensionMapper.getTypeObject(
                                     nsUri,type,reader);
                         }
 
@@ -331,7 +331,7 @@ implements org.apache.axis2.databinding.ADBBean{
 
                     }else{
 
-                        object.set_return(eu.sqooss.scl.axis2.datatypes.WSMetric.Factory.parse(reader));
+                        object.set_return(eu.sqooss.ws.client.datatypes.WSMetric.Factory.parse(reader));
 
                         reader.next();
                     }

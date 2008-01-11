@@ -37,7 +37,7 @@
  * by the Apache Axis2 version: #axisVersion# #today#
  */
 
-package eu.sqooss.scl.axis2.datatypes;
+package eu.sqooss.ws.client.datatypes;
 /**
  *  WSProjectVersion1 bean class
  */
@@ -56,14 +56,14 @@ implements org.apache.axis2.databinding.ADBBean{
      * field for WSProjectVersion
      */
 
-    protected eu.sqooss.scl.axis2.datatypes.WSProjectVersion localWSProjectVersion ;
+    protected eu.sqooss.ws.client.datatypes.WSProjectVersion localWSProjectVersion ;
 
 
     /**
      * Auto generated getter method
-     * @return eu.sqooss.scl.axis2.datatypes.WSProjectVersion
+     * @return eu.sqooss.ws.client.datatypes.WSProjectVersion
      */
-    public  eu.sqooss.scl.axis2.datatypes.WSProjectVersion getWSProjectVersion(){
+    public  eu.sqooss.ws.client.datatypes.WSProjectVersion getWSProjectVersion(){
         return localWSProjectVersion;
     }
 
@@ -73,7 +73,7 @@ implements org.apache.axis2.databinding.ADBBean{
      * Auto generated setter method
      * @param param WSProjectVersion
      */
-    public void setWSProjectVersion(eu.sqooss.scl.axis2.datatypes.WSProjectVersion param){
+    public void setWSProjectVersion(eu.sqooss.ws.client.datatypes.WSProjectVersion param){
 
         this.localWSProjectVersion=param;
 
@@ -239,7 +239,7 @@ implements org.apache.axis2.databinding.ADBBean{
 
                         if (reader.isStartElement() && new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd","WSProjectVersion").equals(reader.getName())){
 
-                            object.setWSProjectVersion(eu.sqooss.scl.axis2.datatypes.WSProjectVersion.Factory.parse(reader));
+                            object.setWSProjectVersion(eu.sqooss.ws.client.datatypes.WSProjectVersion.Factory.parse(reader));
 
                         }  // End of if for expected property start element
 

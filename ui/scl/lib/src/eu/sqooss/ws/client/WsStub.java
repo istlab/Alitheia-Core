@@ -36,7 +36,7 @@
  * This file was auto-generated from WSDL
  * by the Apache Axis2 version: 1.1 Nov 13, 2006 (07:31:44 LKT)
  */
-package eu.sqooss.scl.axis2;
+package eu.sqooss.ws.client;
 
 
 
@@ -230,13 +230,13 @@ implements Ws{
 
     /**
      * Auto generated method signature
-     * @see eu.sqooss.scl.axis2.Ws#displayUser
+     * @see eu.sqooss.ws.client.Ws#displayUser
      * @param param20
 
      */
-    public eu.sqooss.scl.axis2.ws.DisplayUserResponse displayUser(
+    public eu.sqooss.ws.client.ws.DisplayUserResponse displayUser(
 
-            eu.sqooss.scl.axis2.ws.DisplayUser param20)
+            eu.sqooss.ws.client.ws.DisplayUser param20)
     throws java.rmi.RemoteException
 
     {
@@ -278,10 +278,10 @@ implements Ws{
 
             java.lang.Object object = fromOM(
                     _returnEnv.getBody().getFirstElement() ,
-                    eu.sqooss.scl.axis2.ws.DisplayUserResponse.class,
+                    eu.sqooss.ws.client.ws.DisplayUserResponse.class,
                     getEnvelopeNamespaces(_returnEnv));
             _messageContext.getTransportOut().getSender().cleanup(_messageContext);
-            return (eu.sqooss.scl.axis2.ws.DisplayUserResponse)object;
+            return (eu.sqooss.ws.client.ws.DisplayUserResponse)object;
 
         }catch(org.apache.axis2.AxisFault f){
             org.apache.axiom.om.OMElement faultElt = f.getDetail();
@@ -333,13 +333,13 @@ implements Ws{
 
     /**
      * Auto generated method signature
-     * @see eu.sqooss.scl.axis2.Ws#evaluatedProjectsList
+     * @see eu.sqooss.ws.client.Ws#evaluatedProjectsList
      * @param param22
 
      */
-    public eu.sqooss.scl.axis2.ws.EvaluatedProjectsListResponse evaluatedProjectsList(
+    public eu.sqooss.ws.client.ws.EvaluatedProjectsListResponse evaluatedProjectsList(
 
-            eu.sqooss.scl.axis2.ws.EvaluatedProjectsList param22)
+            eu.sqooss.ws.client.ws.EvaluatedProjectsList param22)
     throws java.rmi.RemoteException
 
     {
@@ -381,10 +381,10 @@ implements Ws{
 
             java.lang.Object object = fromOM(
                     _returnEnv.getBody().getFirstElement() ,
-                    eu.sqooss.scl.axis2.ws.EvaluatedProjectsListResponse.class,
+                    eu.sqooss.ws.client.ws.EvaluatedProjectsListResponse.class,
                     getEnvelopeNamespaces(_returnEnv));
             _messageContext.getTransportOut().getSender().cleanup(_messageContext);
-            return (eu.sqooss.scl.axis2.ws.EvaluatedProjectsListResponse)object;
+            return (eu.sqooss.ws.client.ws.EvaluatedProjectsListResponse)object;
 
         }catch(org.apache.axis2.AxisFault f){
             org.apache.axiom.om.OMElement faultElt = f.getDetail();
@@ -436,13 +436,13 @@ implements Ws{
 
     /**
      * Auto generated method signature
-     * @see eu.sqooss.scl.axis2.Ws#retrieveMetrics4SelectedProject
+     * @see eu.sqooss.ws.client.Ws#retrieveMetrics4SelectedProject
      * @param param24
 
      */
-    public eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedProjectResponse retrieveMetrics4SelectedProject(
+    public eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProjectResponse retrieveMetrics4SelectedProject(
 
-            eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedProject param24)
+            eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProject param24)
     throws java.rmi.RemoteException
 
     {
@@ -484,10 +484,10 @@ implements Ws{
 
             java.lang.Object object = fromOM(
                     _returnEnv.getBody().getFirstElement() ,
-                    eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedProjectResponse.class,
+                    eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProjectResponse.class,
                     getEnvelopeNamespaces(_returnEnv));
             _messageContext.getTransportOut().getSender().cleanup(_messageContext);
-            return (eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedProjectResponse)object;
+            return (eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProjectResponse)object;
 
         }catch(org.apache.axis2.AxisFault f){
             org.apache.axiom.om.OMElement faultElt = f.getDetail();
@@ -539,13 +539,13 @@ implements Ws{
 
     /**
      * Auto generated method signature
-     * @see eu.sqooss.scl.axis2.Ws#submitUser
+     * @see eu.sqooss.ws.client.Ws#submitUser
      * @param param26
 
      */
-    public eu.sqooss.scl.axis2.ws.SubmitUserResponse submitUser(
+    public eu.sqooss.ws.client.ws.SubmitUserResponse submitUser(
 
-            eu.sqooss.scl.axis2.ws.SubmitUser param26)
+            eu.sqooss.ws.client.ws.SubmitUser param26)
     throws java.rmi.RemoteException
 
     {
@@ -587,10 +587,10 @@ implements Ws{
 
             java.lang.Object object = fromOM(
                     _returnEnv.getBody().getFirstElement() ,
-                    eu.sqooss.scl.axis2.ws.SubmitUserResponse.class,
+                    eu.sqooss.ws.client.ws.SubmitUserResponse.class,
                     getEnvelopeNamespaces(_returnEnv));
             _messageContext.getTransportOut().getSender().cleanup(_messageContext);
-            return (eu.sqooss.scl.axis2.ws.SubmitUserResponse)object;
+            return (eu.sqooss.ws.client.ws.SubmitUserResponse)object;
 
         }catch(org.apache.axis2.AxisFault f){
             org.apache.axiom.om.OMElement faultElt = f.getDetail();
@@ -642,13 +642,13 @@ implements Ws{
 
     /**
      * Auto generated method signature
-     * @see eu.sqooss.scl.axis2.Ws#modifyUser
+     * @see eu.sqooss.ws.client.Ws#modifyUser
      * @param param28
 
      */
     public void modifyUser(
 
-            eu.sqooss.scl.axis2.ws.ModifyUser param28)
+            eu.sqooss.ws.client.ws.ModifyUser param28)
     throws java.rmi.RemoteException
 
     {
@@ -735,13 +735,13 @@ implements Ws{
 
     /**
      * Auto generated method signature
-     * @see eu.sqooss.scl.axis2.Ws#requestEvaluation4Project
+     * @see eu.sqooss.ws.client.Ws#requestEvaluation4Project
      * @param param30
 
      */
-    public eu.sqooss.scl.axis2.ws.RequestEvaluation4ProjectResponse requestEvaluation4Project(
+    public eu.sqooss.ws.client.ws.RequestEvaluation4ProjectResponse requestEvaluation4Project(
 
-            eu.sqooss.scl.axis2.ws.RequestEvaluation4Project param30)
+            eu.sqooss.ws.client.ws.RequestEvaluation4Project param30)
     throws java.rmi.RemoteException
 
     {
@@ -783,10 +783,10 @@ implements Ws{
 
             java.lang.Object object = fromOM(
                     _returnEnv.getBody().getFirstElement() ,
-                    eu.sqooss.scl.axis2.ws.RequestEvaluation4ProjectResponse.class,
+                    eu.sqooss.ws.client.ws.RequestEvaluation4ProjectResponse.class,
                     getEnvelopeNamespaces(_returnEnv));
             _messageContext.getTransportOut().getSender().cleanup(_messageContext);
-            return (eu.sqooss.scl.axis2.ws.RequestEvaluation4ProjectResponse)object;
+            return (eu.sqooss.ws.client.ws.RequestEvaluation4ProjectResponse)object;
 
         }catch(org.apache.axis2.AxisFault f){
             org.apache.axiom.om.OMElement faultElt = f.getDetail();
@@ -838,13 +838,13 @@ implements Ws{
 
     /**
      * Auto generated method signature
-     * @see eu.sqooss.scl.axis2.Ws#deleteUser
+     * @see eu.sqooss.ws.client.Ws#deleteUser
      * @param param32
 
      */
     public void deleteUser(
 
-            eu.sqooss.scl.axis2.ws.DeleteUser param32)
+            eu.sqooss.ws.client.ws.DeleteUser param32)
     throws java.rmi.RemoteException
 
     {
@@ -931,13 +931,13 @@ implements Ws{
 
     /**
      * Auto generated method signature
-     * @see eu.sqooss.scl.axis2.Ws#retrieveFileList
+     * @see eu.sqooss.ws.client.Ws#retrieveFileList
      * @param param34
 
      */
-    public eu.sqooss.scl.axis2.ws.RetrieveFileListResponse retrieveFileList(
+    public eu.sqooss.ws.client.ws.RetrieveFileListResponse retrieveFileList(
 
-            eu.sqooss.scl.axis2.ws.RetrieveFileList param34)
+            eu.sqooss.ws.client.ws.RetrieveFileList param34)
     throws java.rmi.RemoteException
 
     {
@@ -979,10 +979,10 @@ implements Ws{
 
             java.lang.Object object = fromOM(
                     _returnEnv.getBody().getFirstElement() ,
-                    eu.sqooss.scl.axis2.ws.RetrieveFileListResponse.class,
+                    eu.sqooss.ws.client.ws.RetrieveFileListResponse.class,
                     getEnvelopeNamespaces(_returnEnv));
             _messageContext.getTransportOut().getSender().cleanup(_messageContext);
-            return (eu.sqooss.scl.axis2.ws.RetrieveFileListResponse)object;
+            return (eu.sqooss.ws.client.ws.RetrieveFileListResponse)object;
 
         }catch(org.apache.axis2.AxisFault f){
             org.apache.axiom.om.OMElement faultElt = f.getDetail();
@@ -1034,13 +1034,13 @@ implements Ws{
 
     /**
      * Auto generated method signature
-     * @see eu.sqooss.scl.axis2.Ws#retrieveSelectedMetric
+     * @see eu.sqooss.ws.client.Ws#retrieveSelectedMetric
      * @param param36
 
      */
-    public eu.sqooss.scl.axis2.ws.RetrieveSelectedMetricResponse retrieveSelectedMetric(
+    public eu.sqooss.ws.client.ws.RetrieveSelectedMetricResponse retrieveSelectedMetric(
 
-            eu.sqooss.scl.axis2.ws.RetrieveSelectedMetric param36)
+            eu.sqooss.ws.client.ws.RetrieveSelectedMetric param36)
     throws java.rmi.RemoteException
 
     {
@@ -1082,10 +1082,10 @@ implements Ws{
 
             java.lang.Object object = fromOM(
                     _returnEnv.getBody().getFirstElement() ,
-                    eu.sqooss.scl.axis2.ws.RetrieveSelectedMetricResponse.class,
+                    eu.sqooss.ws.client.ws.RetrieveSelectedMetricResponse.class,
                     getEnvelopeNamespaces(_returnEnv));
             _messageContext.getTransportOut().getSender().cleanup(_messageContext);
-            return (eu.sqooss.scl.axis2.ws.RetrieveSelectedMetricResponse)object;
+            return (eu.sqooss.ws.client.ws.RetrieveSelectedMetricResponse)object;
 
         }catch(org.apache.axis2.AxisFault f){
             org.apache.axiom.om.OMElement faultElt = f.getDetail();
@@ -1137,13 +1137,13 @@ implements Ws{
 
     /**
      * Auto generated method signature
-     * @see eu.sqooss.scl.axis2.Ws#retrieveMetrics4SelectedFiles
+     * @see eu.sqooss.ws.client.Ws#retrieveMetrics4SelectedFiles
      * @param param38
 
      */
-    public eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedFilesResponse retrieveMetrics4SelectedFiles(
+    public eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedFilesResponse retrieveMetrics4SelectedFiles(
 
-            eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedFiles param38)
+            eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedFiles param38)
     throws java.rmi.RemoteException
 
     {
@@ -1185,10 +1185,10 @@ implements Ws{
 
             java.lang.Object object = fromOM(
                     _returnEnv.getBody().getFirstElement() ,
-                    eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedFilesResponse.class,
+                    eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedFilesResponse.class,
                     getEnvelopeNamespaces(_returnEnv));
             _messageContext.getTransportOut().getSender().cleanup(_messageContext);
-            return (eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedFilesResponse)object;
+            return (eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedFilesResponse)object;
 
         }catch(org.apache.axis2.AxisFault f){
             org.apache.axiom.om.OMElement faultElt = f.getDetail();
@@ -1269,145 +1269,145 @@ implements Ws{
         return false;
     }
     //http://localhost:8088//services/ws
-    private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.scl.axis2.ws.DisplayUser param, boolean optimizeContent){
+    private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.DisplayUser param, boolean optimizeContent){
 
-        return param.getOMElement(eu.sqooss.scl.axis2.ws.DisplayUser.MY_QNAME,
+        return param.getOMElement(eu.sqooss.ws.client.ws.DisplayUser.MY_QNAME,
                 org.apache.axiom.om.OMAbstractFactory.getOMFactory());
 
 
     }
 
-    private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.scl.axis2.ws.DisplayUserResponse param, boolean optimizeContent){
+    private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.DisplayUserResponse param, boolean optimizeContent){
 
-        return param.getOMElement(eu.sqooss.scl.axis2.ws.DisplayUserResponse.MY_QNAME,
+        return param.getOMElement(eu.sqooss.ws.client.ws.DisplayUserResponse.MY_QNAME,
                 org.apache.axiom.om.OMAbstractFactory.getOMFactory());
 
 
     }
 
-    private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.scl.axis2.ws.EvaluatedProjectsList param, boolean optimizeContent){
+    private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.EvaluatedProjectsList param, boolean optimizeContent){
 
-        return param.getOMElement(eu.sqooss.scl.axis2.ws.EvaluatedProjectsList.MY_QNAME,
+        return param.getOMElement(eu.sqooss.ws.client.ws.EvaluatedProjectsList.MY_QNAME,
                 org.apache.axiom.om.OMAbstractFactory.getOMFactory());
 
 
     }
 
-    private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.scl.axis2.ws.EvaluatedProjectsListResponse param, boolean optimizeContent){
+    private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.EvaluatedProjectsListResponse param, boolean optimizeContent){
 
-        return param.getOMElement(eu.sqooss.scl.axis2.ws.EvaluatedProjectsListResponse.MY_QNAME,
+        return param.getOMElement(eu.sqooss.ws.client.ws.EvaluatedProjectsListResponse.MY_QNAME,
                 org.apache.axiom.om.OMAbstractFactory.getOMFactory());
 
 
     }
 
-    private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedProject param, boolean optimizeContent){
+    private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProject param, boolean optimizeContent){
 
-        return param.getOMElement(eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedProject.MY_QNAME,
+        return param.getOMElement(eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProject.MY_QNAME,
                 org.apache.axiom.om.OMAbstractFactory.getOMFactory());
 
 
     }
 
-    private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedProjectResponse param, boolean optimizeContent){
+    private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProjectResponse param, boolean optimizeContent){
 
-        return param.getOMElement(eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedProjectResponse.MY_QNAME,
+        return param.getOMElement(eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProjectResponse.MY_QNAME,
                 org.apache.axiom.om.OMAbstractFactory.getOMFactory());
 
 
     }
 
-    private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.scl.axis2.ws.SubmitUser param, boolean optimizeContent){
+    private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.SubmitUser param, boolean optimizeContent){
 
-        return param.getOMElement(eu.sqooss.scl.axis2.ws.SubmitUser.MY_QNAME,
+        return param.getOMElement(eu.sqooss.ws.client.ws.SubmitUser.MY_QNAME,
                 org.apache.axiom.om.OMAbstractFactory.getOMFactory());
 
 
     }
 
-    private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.scl.axis2.ws.SubmitUserResponse param, boolean optimizeContent){
+    private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.SubmitUserResponse param, boolean optimizeContent){
 
-        return param.getOMElement(eu.sqooss.scl.axis2.ws.SubmitUserResponse.MY_QNAME,
+        return param.getOMElement(eu.sqooss.ws.client.ws.SubmitUserResponse.MY_QNAME,
                 org.apache.axiom.om.OMAbstractFactory.getOMFactory());
 
 
     }
 
-    private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.scl.axis2.ws.ModifyUser param, boolean optimizeContent){
+    private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.ModifyUser param, boolean optimizeContent){
 
-        return param.getOMElement(eu.sqooss.scl.axis2.ws.ModifyUser.MY_QNAME,
+        return param.getOMElement(eu.sqooss.ws.client.ws.ModifyUser.MY_QNAME,
                 org.apache.axiom.om.OMAbstractFactory.getOMFactory());
 
 
     }
 
-    private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.scl.axis2.ws.RequestEvaluation4Project param, boolean optimizeContent){
+    private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.RequestEvaluation4Project param, boolean optimizeContent){
 
-        return param.getOMElement(eu.sqooss.scl.axis2.ws.RequestEvaluation4Project.MY_QNAME,
+        return param.getOMElement(eu.sqooss.ws.client.ws.RequestEvaluation4Project.MY_QNAME,
                 org.apache.axiom.om.OMAbstractFactory.getOMFactory());
 
 
     }
 
-    private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.scl.axis2.ws.RequestEvaluation4ProjectResponse param, boolean optimizeContent){
+    private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.RequestEvaluation4ProjectResponse param, boolean optimizeContent){
 
-        return param.getOMElement(eu.sqooss.scl.axis2.ws.RequestEvaluation4ProjectResponse.MY_QNAME,
+        return param.getOMElement(eu.sqooss.ws.client.ws.RequestEvaluation4ProjectResponse.MY_QNAME,
                 org.apache.axiom.om.OMAbstractFactory.getOMFactory());
 
 
     }
 
-    private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.scl.axis2.ws.DeleteUser param, boolean optimizeContent){
+    private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.DeleteUser param, boolean optimizeContent){
 
-        return param.getOMElement(eu.sqooss.scl.axis2.ws.DeleteUser.MY_QNAME,
+        return param.getOMElement(eu.sqooss.ws.client.ws.DeleteUser.MY_QNAME,
                 org.apache.axiom.om.OMAbstractFactory.getOMFactory());
 
 
     }
 
-    private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.scl.axis2.ws.RetrieveFileList param, boolean optimizeContent){
+    private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.RetrieveFileList param, boolean optimizeContent){
 
-        return param.getOMElement(eu.sqooss.scl.axis2.ws.RetrieveFileList.MY_QNAME,
+        return param.getOMElement(eu.sqooss.ws.client.ws.RetrieveFileList.MY_QNAME,
                 org.apache.axiom.om.OMAbstractFactory.getOMFactory());
 
 
     }
 
-    private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.scl.axis2.ws.RetrieveFileListResponse param, boolean optimizeContent){
+    private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.RetrieveFileListResponse param, boolean optimizeContent){
 
-        return param.getOMElement(eu.sqooss.scl.axis2.ws.RetrieveFileListResponse.MY_QNAME,
+        return param.getOMElement(eu.sqooss.ws.client.ws.RetrieveFileListResponse.MY_QNAME,
                 org.apache.axiom.om.OMAbstractFactory.getOMFactory());
 
 
     }
 
-    private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.scl.axis2.ws.RetrieveSelectedMetric param, boolean optimizeContent){
+    private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.RetrieveSelectedMetric param, boolean optimizeContent){
 
-        return param.getOMElement(eu.sqooss.scl.axis2.ws.RetrieveSelectedMetric.MY_QNAME,
+        return param.getOMElement(eu.sqooss.ws.client.ws.RetrieveSelectedMetric.MY_QNAME,
                 org.apache.axiom.om.OMAbstractFactory.getOMFactory());
 
 
     }
 
-    private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.scl.axis2.ws.RetrieveSelectedMetricResponse param, boolean optimizeContent){
+    private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.RetrieveSelectedMetricResponse param, boolean optimizeContent){
 
-        return param.getOMElement(eu.sqooss.scl.axis2.ws.RetrieveSelectedMetricResponse.MY_QNAME,
+        return param.getOMElement(eu.sqooss.ws.client.ws.RetrieveSelectedMetricResponse.MY_QNAME,
                 org.apache.axiom.om.OMAbstractFactory.getOMFactory());
 
 
     }
 
-    private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedFiles param, boolean optimizeContent){
+    private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedFiles param, boolean optimizeContent){
 
-        return param.getOMElement(eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedFiles.MY_QNAME,
+        return param.getOMElement(eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedFiles.MY_QNAME,
                 org.apache.axiom.om.OMAbstractFactory.getOMFactory());
 
 
     }
 
-    private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedFilesResponse param, boolean optimizeContent){
+    private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedFilesResponse param, boolean optimizeContent){
 
-        return param.getOMElement(eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedFilesResponse.MY_QNAME,
+        return param.getOMElement(eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedFilesResponse.MY_QNAME,
                 org.apache.axiom.om.OMAbstractFactory.getOMFactory());
 
 
@@ -1415,10 +1415,10 @@ implements Ws{
 
 
 
-    private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, eu.sqooss.scl.axis2.ws.DisplayUser param, boolean optimizeContent){
+    private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, eu.sqooss.ws.client.ws.DisplayUser param, boolean optimizeContent){
         org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
 
-        emptyEnvelope.getBody().addChild(param.getOMElement(eu.sqooss.scl.axis2.ws.DisplayUser.MY_QNAME,factory));
+        emptyEnvelope.getBody().addChild(param.getOMElement(eu.sqooss.ws.client.ws.DisplayUser.MY_QNAME,factory));
 
         return emptyEnvelope;
     }
@@ -1426,10 +1426,10 @@ implements Ws{
 
 
 
-    private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, eu.sqooss.scl.axis2.ws.EvaluatedProjectsList param, boolean optimizeContent){
+    private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, eu.sqooss.ws.client.ws.EvaluatedProjectsList param, boolean optimizeContent){
         org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
 
-        emptyEnvelope.getBody().addChild(param.getOMElement(eu.sqooss.scl.axis2.ws.EvaluatedProjectsList.MY_QNAME,factory));
+        emptyEnvelope.getBody().addChild(param.getOMElement(eu.sqooss.ws.client.ws.EvaluatedProjectsList.MY_QNAME,factory));
 
         return emptyEnvelope;
     }
@@ -1437,10 +1437,10 @@ implements Ws{
 
 
 
-    private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedProject param, boolean optimizeContent){
+    private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProject param, boolean optimizeContent){
         org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
 
-        emptyEnvelope.getBody().addChild(param.getOMElement(eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedProject.MY_QNAME,factory));
+        emptyEnvelope.getBody().addChild(param.getOMElement(eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProject.MY_QNAME,factory));
 
         return emptyEnvelope;
     }
@@ -1448,10 +1448,10 @@ implements Ws{
 
 
 
-    private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, eu.sqooss.scl.axis2.ws.SubmitUser param, boolean optimizeContent){
+    private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, eu.sqooss.ws.client.ws.SubmitUser param, boolean optimizeContent){
         org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
 
-        emptyEnvelope.getBody().addChild(param.getOMElement(eu.sqooss.scl.axis2.ws.SubmitUser.MY_QNAME,factory));
+        emptyEnvelope.getBody().addChild(param.getOMElement(eu.sqooss.ws.client.ws.SubmitUser.MY_QNAME,factory));
 
         return emptyEnvelope;
     }
@@ -1459,10 +1459,10 @@ implements Ws{
 
 
 
-    private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, eu.sqooss.scl.axis2.ws.ModifyUser param, boolean optimizeContent){
+    private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, eu.sqooss.ws.client.ws.ModifyUser param, boolean optimizeContent){
         org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
 
-        emptyEnvelope.getBody().addChild(param.getOMElement(eu.sqooss.scl.axis2.ws.ModifyUser.MY_QNAME,factory));
+        emptyEnvelope.getBody().addChild(param.getOMElement(eu.sqooss.ws.client.ws.ModifyUser.MY_QNAME,factory));
 
         return emptyEnvelope;
     }
@@ -1470,10 +1470,10 @@ implements Ws{
 
 
 
-    private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, eu.sqooss.scl.axis2.ws.RequestEvaluation4Project param, boolean optimizeContent){
+    private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, eu.sqooss.ws.client.ws.RequestEvaluation4Project param, boolean optimizeContent){
         org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
 
-        emptyEnvelope.getBody().addChild(param.getOMElement(eu.sqooss.scl.axis2.ws.RequestEvaluation4Project.MY_QNAME,factory));
+        emptyEnvelope.getBody().addChild(param.getOMElement(eu.sqooss.ws.client.ws.RequestEvaluation4Project.MY_QNAME,factory));
 
         return emptyEnvelope;
     }
@@ -1481,10 +1481,10 @@ implements Ws{
 
 
 
-    private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, eu.sqooss.scl.axis2.ws.DeleteUser param, boolean optimizeContent){
+    private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, eu.sqooss.ws.client.ws.DeleteUser param, boolean optimizeContent){
         org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
 
-        emptyEnvelope.getBody().addChild(param.getOMElement(eu.sqooss.scl.axis2.ws.DeleteUser.MY_QNAME,factory));
+        emptyEnvelope.getBody().addChild(param.getOMElement(eu.sqooss.ws.client.ws.DeleteUser.MY_QNAME,factory));
 
         return emptyEnvelope;
     }
@@ -1492,10 +1492,10 @@ implements Ws{
 
 
 
-    private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, eu.sqooss.scl.axis2.ws.RetrieveFileList param, boolean optimizeContent){
+    private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, eu.sqooss.ws.client.ws.RetrieveFileList param, boolean optimizeContent){
         org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
 
-        emptyEnvelope.getBody().addChild(param.getOMElement(eu.sqooss.scl.axis2.ws.RetrieveFileList.MY_QNAME,factory));
+        emptyEnvelope.getBody().addChild(param.getOMElement(eu.sqooss.ws.client.ws.RetrieveFileList.MY_QNAME,factory));
 
         return emptyEnvelope;
     }
@@ -1503,10 +1503,10 @@ implements Ws{
 
 
 
-    private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, eu.sqooss.scl.axis2.ws.RetrieveSelectedMetric param, boolean optimizeContent){
+    private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, eu.sqooss.ws.client.ws.RetrieveSelectedMetric param, boolean optimizeContent){
         org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
 
-        emptyEnvelope.getBody().addChild(param.getOMElement(eu.sqooss.scl.axis2.ws.RetrieveSelectedMetric.MY_QNAME,factory));
+        emptyEnvelope.getBody().addChild(param.getOMElement(eu.sqooss.ws.client.ws.RetrieveSelectedMetric.MY_QNAME,factory));
 
         return emptyEnvelope;
     }
@@ -1514,10 +1514,10 @@ implements Ws{
 
 
 
-    private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedFiles param, boolean optimizeContent){
+    private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedFiles param, boolean optimizeContent){
         org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
 
-        emptyEnvelope.getBody().addChild(param.getOMElement(eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedFiles.MY_QNAME,factory));
+        emptyEnvelope.getBody().addChild(param.getOMElement(eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedFiles.MY_QNAME,factory));
 
         return emptyEnvelope;
     }
@@ -1540,128 +1540,128 @@ implements Ws{
 
         try {
 
-            if (eu.sqooss.scl.axis2.ws.DisplayUser.class.equals(type)){
+            if (eu.sqooss.ws.client.ws.DisplayUser.class.equals(type)){
 
-                return eu.sqooss.scl.axis2.ws.DisplayUser.Factory.parse(param.getXMLStreamReaderWithoutCaching());
-
-
-            }
-
-            if (eu.sqooss.scl.axis2.ws.DisplayUserResponse.class.equals(type)){
-
-                return eu.sqooss.scl.axis2.ws.DisplayUserResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+                return eu.sqooss.ws.client.ws.DisplayUser.Factory.parse(param.getXMLStreamReaderWithoutCaching());
 
 
             }
 
-            if (eu.sqooss.scl.axis2.ws.EvaluatedProjectsList.class.equals(type)){
+            if (eu.sqooss.ws.client.ws.DisplayUserResponse.class.equals(type)){
 
-                return eu.sqooss.scl.axis2.ws.EvaluatedProjectsList.Factory.parse(param.getXMLStreamReaderWithoutCaching());
-
-
-            }
-
-            if (eu.sqooss.scl.axis2.ws.EvaluatedProjectsListResponse.class.equals(type)){
-
-                return eu.sqooss.scl.axis2.ws.EvaluatedProjectsListResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+                return eu.sqooss.ws.client.ws.DisplayUserResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
 
 
             }
 
-            if (eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedProject.class.equals(type)){
+            if (eu.sqooss.ws.client.ws.EvaluatedProjectsList.class.equals(type)){
 
-                return eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedProject.Factory.parse(param.getXMLStreamReaderWithoutCaching());
-
-
-            }
-
-            if (eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedProjectResponse.class.equals(type)){
-
-                return eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedProjectResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+                return eu.sqooss.ws.client.ws.EvaluatedProjectsList.Factory.parse(param.getXMLStreamReaderWithoutCaching());
 
 
             }
 
-            if (eu.sqooss.scl.axis2.ws.SubmitUser.class.equals(type)){
+            if (eu.sqooss.ws.client.ws.EvaluatedProjectsListResponse.class.equals(type)){
 
-                return eu.sqooss.scl.axis2.ws.SubmitUser.Factory.parse(param.getXMLStreamReaderWithoutCaching());
-
-
-            }
-
-            if (eu.sqooss.scl.axis2.ws.SubmitUserResponse.class.equals(type)){
-
-                return eu.sqooss.scl.axis2.ws.SubmitUserResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+                return eu.sqooss.ws.client.ws.EvaluatedProjectsListResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
 
 
             }
 
-            if (eu.sqooss.scl.axis2.ws.ModifyUser.class.equals(type)){
+            if (eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProject.class.equals(type)){
 
-                return eu.sqooss.scl.axis2.ws.ModifyUser.Factory.parse(param.getXMLStreamReaderWithoutCaching());
-
-
-            }
-
-            if (eu.sqooss.scl.axis2.ws.RequestEvaluation4Project.class.equals(type)){
-
-                return eu.sqooss.scl.axis2.ws.RequestEvaluation4Project.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+                return eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProject.Factory.parse(param.getXMLStreamReaderWithoutCaching());
 
 
             }
 
-            if (eu.sqooss.scl.axis2.ws.RequestEvaluation4ProjectResponse.class.equals(type)){
+            if (eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProjectResponse.class.equals(type)){
 
-                return eu.sqooss.scl.axis2.ws.RequestEvaluation4ProjectResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
-
-
-            }
-
-            if (eu.sqooss.scl.axis2.ws.DeleteUser.class.equals(type)){
-
-                return eu.sqooss.scl.axis2.ws.DeleteUser.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+                return eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProjectResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
 
 
             }
 
-            if (eu.sqooss.scl.axis2.ws.RetrieveFileList.class.equals(type)){
+            if (eu.sqooss.ws.client.ws.SubmitUser.class.equals(type)){
 
-                return eu.sqooss.scl.axis2.ws.RetrieveFileList.Factory.parse(param.getXMLStreamReaderWithoutCaching());
-
-
-            }
-
-            if (eu.sqooss.scl.axis2.ws.RetrieveFileListResponse.class.equals(type)){
-
-                return eu.sqooss.scl.axis2.ws.RetrieveFileListResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+                return eu.sqooss.ws.client.ws.SubmitUser.Factory.parse(param.getXMLStreamReaderWithoutCaching());
 
 
             }
 
-            if (eu.sqooss.scl.axis2.ws.RetrieveSelectedMetric.class.equals(type)){
+            if (eu.sqooss.ws.client.ws.SubmitUserResponse.class.equals(type)){
 
-                return eu.sqooss.scl.axis2.ws.RetrieveSelectedMetric.Factory.parse(param.getXMLStreamReaderWithoutCaching());
-
-
-            }
-
-            if (eu.sqooss.scl.axis2.ws.RetrieveSelectedMetricResponse.class.equals(type)){
-
-                return eu.sqooss.scl.axis2.ws.RetrieveSelectedMetricResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+                return eu.sqooss.ws.client.ws.SubmitUserResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
 
 
             }
 
-            if (eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedFiles.class.equals(type)){
+            if (eu.sqooss.ws.client.ws.ModifyUser.class.equals(type)){
 
-                return eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedFiles.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+                return eu.sqooss.ws.client.ws.ModifyUser.Factory.parse(param.getXMLStreamReaderWithoutCaching());
 
 
             }
 
-            if (eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedFilesResponse.class.equals(type)){
+            if (eu.sqooss.ws.client.ws.RequestEvaluation4Project.class.equals(type)){
 
-                return eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedFilesResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+                return eu.sqooss.ws.client.ws.RequestEvaluation4Project.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+
+
+            }
+
+            if (eu.sqooss.ws.client.ws.RequestEvaluation4ProjectResponse.class.equals(type)){
+
+                return eu.sqooss.ws.client.ws.RequestEvaluation4ProjectResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+
+
+            }
+
+            if (eu.sqooss.ws.client.ws.DeleteUser.class.equals(type)){
+
+                return eu.sqooss.ws.client.ws.DeleteUser.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+
+
+            }
+
+            if (eu.sqooss.ws.client.ws.RetrieveFileList.class.equals(type)){
+
+                return eu.sqooss.ws.client.ws.RetrieveFileList.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+
+
+            }
+
+            if (eu.sqooss.ws.client.ws.RetrieveFileListResponse.class.equals(type)){
+
+                return eu.sqooss.ws.client.ws.RetrieveFileListResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+
+
+            }
+
+            if (eu.sqooss.ws.client.ws.RetrieveSelectedMetric.class.equals(type)){
+
+                return eu.sqooss.ws.client.ws.RetrieveSelectedMetric.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+
+
+            }
+
+            if (eu.sqooss.ws.client.ws.RetrieveSelectedMetricResponse.class.equals(type)){
+
+                return eu.sqooss.ws.client.ws.RetrieveSelectedMetricResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+
+
+            }
+
+            if (eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedFiles.class.equals(type)){
+
+                return eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedFiles.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+
+
+            }
+
+            if (eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedFilesResponse.class.equals(type)){
+
+                return eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedFilesResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
 
 
             }

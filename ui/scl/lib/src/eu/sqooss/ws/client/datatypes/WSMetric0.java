@@ -37,7 +37,7 @@
  * by the Apache Axis2 version: #axisVersion# #today#
  */
 
-package eu.sqooss.scl.axis2.datatypes;
+package eu.sqooss.ws.client.datatypes;
 /**
  *  WSMetric0 bean class
  */
@@ -56,14 +56,14 @@ implements org.apache.axis2.databinding.ADBBean{
      * field for WSMetric
      */
 
-    protected eu.sqooss.scl.axis2.datatypes.WSMetric localWSMetric ;
+    protected eu.sqooss.ws.client.datatypes.WSMetric localWSMetric ;
 
 
     /**
      * Auto generated getter method
-     * @return eu.sqooss.scl.axis2.datatypes.WSMetric
+     * @return eu.sqooss.ws.client.datatypes.WSMetric
      */
-    public  eu.sqooss.scl.axis2.datatypes.WSMetric getWSMetric(){
+    public  eu.sqooss.ws.client.datatypes.WSMetric getWSMetric(){
         return localWSMetric;
     }
 
@@ -73,7 +73,7 @@ implements org.apache.axis2.databinding.ADBBean{
      * Auto generated setter method
      * @param param WSMetric
      */
-    public void setWSMetric(eu.sqooss.scl.axis2.datatypes.WSMetric param){
+    public void setWSMetric(eu.sqooss.ws.client.datatypes.WSMetric param){
 
         this.localWSMetric=param;
 
@@ -239,7 +239,7 @@ implements org.apache.axis2.databinding.ADBBean{
 
                         if (reader.isStartElement() && new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd","WSMetric").equals(reader.getName())){
 
-                            object.setWSMetric(eu.sqooss.scl.axis2.datatypes.WSMetric.Factory.parse(reader));
+                            object.setWSMetric(eu.sqooss.ws.client.datatypes.WSMetric.Factory.parse(reader));
 
                         }  // End of if for expected property start element
 

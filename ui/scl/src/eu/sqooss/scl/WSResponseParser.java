@@ -30,17 +30,17 @@
  *
  */
 
-package eu.sqooss.scl.utils;
+package eu.sqooss.scl;
 
 import java.util.ArrayList;
 
-import eu.sqooss.scl.axis2.datatypes.WSFileMetadata;
-import eu.sqooss.scl.axis2.datatypes.WSMetric;
-import eu.sqooss.scl.axis2.datatypes.WSProjectFile;
-import eu.sqooss.scl.axis2.datatypes.WSProjectVersion;
-import eu.sqooss.scl.axis2.datatypes.WSStoredProject;
-import eu.sqooss.scl.axis2.datatypes.WSUser;
-import eu.sqooss.scl.axis2.datatypes.WSUserGroup;
+import eu.sqooss.ws.client.datatypes.WSFileMetadata;
+import eu.sqooss.ws.client.datatypes.WSMetric;
+import eu.sqooss.ws.client.datatypes.WSProjectFile;
+import eu.sqooss.ws.client.datatypes.WSProjectVersion;
+import eu.sqooss.ws.client.datatypes.WSStoredProject;
+import eu.sqooss.ws.client.datatypes.WSUser;
+import eu.sqooss.ws.client.datatypes.WSUserGroup;
 import eu.sqooss.scl.result.WSResult;
 import eu.sqooss.scl.result.WSResultEntry;
 

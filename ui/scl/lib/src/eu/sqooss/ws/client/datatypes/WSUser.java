@@ -37,7 +37,7 @@
  * by the Apache Axis2 version: #axisVersion# #today#
  */
 
-package eu.sqooss.scl.axis2.datatypes;
+package eu.sqooss.ws.client.datatypes;
 /**
  *  WSUser bean class
  */
@@ -85,14 +85,14 @@ implements org.apache.axis2.databinding.ADBBean{
      * This was an Array!
      */
 
-    protected eu.sqooss.scl.axis2.datatypes.WSUserGroup[] localUserGroups ;
+    protected eu.sqooss.ws.client.datatypes.WSUserGroup[] localUserGroups ;
 
 
     /**
      * Auto generated getter method
-     * @return eu.sqooss.scl.axis2.datatypes.WSUserGroup[]
+     * @return eu.sqooss.ws.client.datatypes.WSUserGroup[]
      */
-    public  eu.sqooss.scl.axis2.datatypes.WSUserGroup[] getUserGroups(){
+    public  eu.sqooss.ws.client.datatypes.WSUserGroup[] getUserGroups(){
         return localUserGroups;
     }
 
@@ -104,7 +104,7 @@ implements org.apache.axis2.databinding.ADBBean{
     /**
      * validate the array for UserGroups
      */
-    protected void validateUserGroups(eu.sqooss.scl.axis2.datatypes.WSUserGroup[] param){
+    protected void validateUserGroups(eu.sqooss.ws.client.datatypes.WSUserGroup[] param){
 
         if ((param != null) && (param.length < 1)){
             throw new java.lang.RuntimeException();
@@ -117,7 +117,7 @@ implements org.apache.axis2.databinding.ADBBean{
      * Auto generated setter method
      * @param param UserGroups
      */
-    public void setUserGroups(eu.sqooss.scl.axis2.datatypes.WSUserGroup[] param){
+    public void setUserGroups(eu.sqooss.ws.client.datatypes.WSUserGroup[] param){
 
         validateUserGroups(param);
 
@@ -129,11 +129,11 @@ implements org.apache.axis2.databinding.ADBBean{
 
     /**
      * Auto generated add method for the array for convenience
-     * @param param eu.sqooss.scl.axis2.datatypes.WSUserGroup
+     * @param param eu.sqooss.ws.client.datatypes.WSUserGroup
      */
-    public void addUserGroups(eu.sqooss.scl.axis2.datatypes.WSUserGroup param){
+    public void addUserGroups(eu.sqooss.ws.client.datatypes.WSUserGroup param){
         if (localUserGroups == null){
-            localUserGroups = new eu.sqooss.scl.axis2.datatypes.WSUserGroup[]{};
+            localUserGroups = new eu.sqooss.ws.client.datatypes.WSUserGroup[]{};
         }
 
 
@@ -142,8 +142,8 @@ implements org.apache.axis2.databinding.ADBBean{
             org.apache.axis2.databinding.utils.ConverterUtil.toList(localUserGroups);
         list.add(param);
         this.localUserGroups =
-            (eu.sqooss.scl.axis2.datatypes.WSUserGroup[])list.toArray(
-                    new eu.sqooss.scl.axis2.datatypes.WSUserGroup[list.size()]);
+            (eu.sqooss.ws.client.datatypes.WSUserGroup[])list.toArray(
+                    new eu.sqooss.ws.client.datatypes.WSUserGroup[list.size()]);
 
     }
 
@@ -504,7 +504,7 @@ implements org.apache.axis2.databinding.ADBBean{
                         if (!"WSUser".equals(type)){
                             //find namespace for the prefix
                             java.lang.String nsUri = reader.getNamespaceContext().getNamespaceURI(nsPrefix);
-                            return (WSUser)eu.sqooss.scl.axis2.ws.ExtensionMapper.getTypeObject(
+                            return (WSUser)eu.sqooss.ws.client.ws.ExtensionMapper.getTypeObject(
                                     nsUri,type,reader);
                         }
 
@@ -566,7 +566,7 @@ implements org.apache.axis2.databinding.ADBBean{
                         list2.add(null);
                         reader.next();
                     } else {
-                        list2.add(eu.sqooss.scl.axis2.datatypes.WSUserGroup.Factory.parse(reader));
+                        list2.add(eu.sqooss.ws.client.datatypes.WSUserGroup.Factory.parse(reader));
                     }
                     //loop until we find a start element that is not part of this array
                     boolean loopDone2 = false;
@@ -589,7 +589,7 @@ implements org.apache.axis2.databinding.ADBBean{
                                     list2.add(null);
                                     reader.next();
                                 } else {
-                                    list2.add(eu.sqooss.scl.axis2.datatypes.WSUserGroup.Factory.parse(reader));
+                                    list2.add(eu.sqooss.ws.client.datatypes.WSUserGroup.Factory.parse(reader));
                                 }
                             }else{
                                 loopDone2 = true;
@@ -597,9 +597,9 @@ implements org.apache.axis2.databinding.ADBBean{
                         }
                     }
                     // call the converter utility  to convert and set the array
-                    object.setUserGroups((eu.sqooss.scl.axis2.datatypes.WSUserGroup[])
+                    object.setUserGroups((eu.sqooss.ws.client.datatypes.WSUserGroup[])
                             org.apache.axis2.databinding.utils.ConverterUtil.convertToArray(
-                                    eu.sqooss.scl.axis2.datatypes.WSUserGroup.class,
+                                    eu.sqooss.ws.client.datatypes.WSUserGroup.class,
                                     list2));
 
                 }  // End of if for expected property start element

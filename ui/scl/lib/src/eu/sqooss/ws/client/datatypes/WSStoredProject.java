@@ -37,7 +37,7 @@
  * by the Apache Axis2 version: #axisVersion# #today#
  */
 
-package eu.sqooss.scl.axis2.datatypes;
+package eu.sqooss.ws.client.datatypes;
 /**
  *  WSStoredProject bean class
  */
@@ -201,14 +201,14 @@ implements org.apache.axis2.databinding.ADBBean{
      * This was an Array!
      */
 
-    protected eu.sqooss.scl.axis2.datatypes.WSProjectVersion[] localProjectVersions ;
+    protected eu.sqooss.ws.client.datatypes.WSProjectVersion[] localProjectVersions ;
 
 
     /**
      * Auto generated getter method
-     * @return eu.sqooss.scl.axis2.datatypes.WSProjectVersion[]
+     * @return eu.sqooss.ws.client.datatypes.WSProjectVersion[]
      */
-    public  eu.sqooss.scl.axis2.datatypes.WSProjectVersion[] getProjectVersions(){
+    public  eu.sqooss.ws.client.datatypes.WSProjectVersion[] getProjectVersions(){
         return localProjectVersions;
     }
 
@@ -220,7 +220,7 @@ implements org.apache.axis2.databinding.ADBBean{
     /**
      * validate the array for ProjectVersions
      */
-    protected void validateProjectVersions(eu.sqooss.scl.axis2.datatypes.WSProjectVersion[] param){
+    protected void validateProjectVersions(eu.sqooss.ws.client.datatypes.WSProjectVersion[] param){
 
         if ((param != null) && (param.length < 1)){
             throw new java.lang.RuntimeException();
@@ -233,7 +233,7 @@ implements org.apache.axis2.databinding.ADBBean{
      * Auto generated setter method
      * @param param ProjectVersions
      */
-    public void setProjectVersions(eu.sqooss.scl.axis2.datatypes.WSProjectVersion[] param){
+    public void setProjectVersions(eu.sqooss.ws.client.datatypes.WSProjectVersion[] param){
 
         validateProjectVersions(param);
 
@@ -245,11 +245,11 @@ implements org.apache.axis2.databinding.ADBBean{
 
     /**
      * Auto generated add method for the array for convenience
-     * @param param eu.sqooss.scl.axis2.datatypes.WSProjectVersion
+     * @param param eu.sqooss.ws.client.datatypes.WSProjectVersion
      */
-    public void addProjectVersions(eu.sqooss.scl.axis2.datatypes.WSProjectVersion param){
+    public void addProjectVersions(eu.sqooss.ws.client.datatypes.WSProjectVersion param){
         if (localProjectVersions == null){
-            localProjectVersions = new eu.sqooss.scl.axis2.datatypes.WSProjectVersion[]{};
+            localProjectVersions = new eu.sqooss.ws.client.datatypes.WSProjectVersion[]{};
         }
 
 
@@ -258,8 +258,8 @@ implements org.apache.axis2.databinding.ADBBean{
             org.apache.axis2.databinding.utils.ConverterUtil.toList(localProjectVersions);
         list.add(param);
         this.localProjectVersions =
-            (eu.sqooss.scl.axis2.datatypes.WSProjectVersion[])list.toArray(
-                    new eu.sqooss.scl.axis2.datatypes.WSProjectVersion[list.size()]);
+            (eu.sqooss.ws.client.datatypes.WSProjectVersion[])list.toArray(
+                    new eu.sqooss.ws.client.datatypes.WSProjectVersion[list.size()]);
 
     }
 
@@ -849,7 +849,7 @@ implements org.apache.axis2.databinding.ADBBean{
                         if (!"WSStoredProject".equals(type)){
                             //find namespace for the prefix
                             java.lang.String nsUri = reader.getNamespaceContext().getNamespaceURI(nsPrefix);
-                            return (WSStoredProject)eu.sqooss.scl.axis2.ws.ExtensionMapper.getTypeObject(
+                            return (WSStoredProject)eu.sqooss.ws.client.ws.ExtensionMapper.getTypeObject(
                                     nsUri,type,reader);
                         }
 
@@ -1011,7 +1011,7 @@ implements org.apache.axis2.databinding.ADBBean{
                         list6.add(null);
                         reader.next();
                     } else {
-                        list6.add(eu.sqooss.scl.axis2.datatypes.WSProjectVersion.Factory.parse(reader));
+                        list6.add(eu.sqooss.ws.client.datatypes.WSProjectVersion.Factory.parse(reader));
                     }
                     //loop until we find a start element that is not part of this array
                     boolean loopDone6 = false;
@@ -1034,7 +1034,7 @@ implements org.apache.axis2.databinding.ADBBean{
                                     list6.add(null);
                                     reader.next();
                                 } else {
-                                    list6.add(eu.sqooss.scl.axis2.datatypes.WSProjectVersion.Factory.parse(reader));
+                                    list6.add(eu.sqooss.ws.client.datatypes.WSProjectVersion.Factory.parse(reader));
                                 }
                             }else{
                                 loopDone6 = true;
@@ -1042,9 +1042,9 @@ implements org.apache.axis2.databinding.ADBBean{
                         }
                     }
                     // call the converter utility  to convert and set the array
-                    object.setProjectVersions((eu.sqooss.scl.axis2.datatypes.WSProjectVersion[])
+                    object.setProjectVersions((eu.sqooss.ws.client.datatypes.WSProjectVersion[])
                             org.apache.axis2.databinding.utils.ConverterUtil.convertToArray(
-                                    eu.sqooss.scl.axis2.datatypes.WSProjectVersion.class,
+                                    eu.sqooss.ws.client.datatypes.WSProjectVersion.class,
                                     list6));
 
                 }  // End of if for expected property start element

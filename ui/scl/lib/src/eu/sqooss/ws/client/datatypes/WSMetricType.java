@@ -37,7 +37,7 @@
  * by the Apache Axis2 version: #axisVersion# #today#
  */
 
-package eu.sqooss.scl.axis2.datatypes;
+package eu.sqooss.ws.client.datatypes;
 /**
  *  WSMetricType bean class
  */
@@ -290,7 +290,7 @@ implements org.apache.axis2.databinding.ADBBean{
                         if (!"WSMetricType".equals(type)){
                             //find namespace for the prefix
                             java.lang.String nsUri = reader.getNamespaceContext().getNamespaceURI(nsPrefix);
-                            return (WSMetricType)eu.sqooss.scl.axis2.ws.ExtensionMapper.getTypeObject(
+                            return (WSMetricType)eu.sqooss.ws.client.ws.ExtensionMapper.getTypeObject(
                                     nsUri,type,reader);
                         }
 

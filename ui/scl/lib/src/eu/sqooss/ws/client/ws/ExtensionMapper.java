@@ -37,7 +37,7 @@
  * by the Apache Axis2 version: #axisVersion# #today#
  */
 
-package eu.sqooss.scl.axis2.ws;
+package eu.sqooss.ws.client.ws;
 /**
  *  ExtensionMapper class
  */
@@ -53,7 +53,7 @@ public  class ExtensionMapper{
                 "http://datatypes.services.web.service.impl.sqooss.eu/xsd".equals(namespaceURI) &&
                 "WSMetric".equals(typeName)){
 
-            return  eu.sqooss.scl.axis2.datatypes.WSMetric.Factory.parse(reader);
+            return  eu.sqooss.ws.client.datatypes.WSMetric.Factory.parse(reader);
 
 
         }
@@ -63,7 +63,7 @@ public  class ExtensionMapper{
                 "http://datatypes.services.web.service.impl.sqooss.eu/xsd".equals(namespaceURI) &&
                 "WSProjectVersion".equals(typeName)){
 
-            return  eu.sqooss.scl.axis2.datatypes.WSProjectVersion.Factory.parse(reader);
+            return  eu.sqooss.ws.client.datatypes.WSProjectVersion.Factory.parse(reader);
 
 
         }
@@ -73,7 +73,7 @@ public  class ExtensionMapper{
                 "http://datatypes.services.web.service.impl.sqooss.eu/xsd".equals(namespaceURI) &&
                 "WSProjectFile".equals(typeName)){
 
-            return  eu.sqooss.scl.axis2.datatypes.WSProjectFile.Factory.parse(reader);
+            return  eu.sqooss.ws.client.datatypes.WSProjectFile.Factory.parse(reader);
 
 
         }
@@ -83,7 +83,7 @@ public  class ExtensionMapper{
                 "http://datatypes.services.web.service.impl.sqooss.eu/xsd".equals(namespaceURI) &&
                 "WSMetricType".equals(typeName)){
 
-            return  eu.sqooss.scl.axis2.datatypes.WSMetricType.Factory.parse(reader);
+            return  eu.sqooss.ws.client.datatypes.WSMetricType.Factory.parse(reader);
 
 
         }
@@ -93,7 +93,7 @@ public  class ExtensionMapper{
                 "http://datatypes.services.web.service.impl.sqooss.eu/xsd".equals(namespaceURI) &&
                 "WSStoredProject".equals(typeName)){
 
-            return  eu.sqooss.scl.axis2.datatypes.WSStoredProject.Factory.parse(reader);
+            return  eu.sqooss.ws.client.datatypes.WSStoredProject.Factory.parse(reader);
 
 
         }
@@ -103,7 +103,7 @@ public  class ExtensionMapper{
                 "http://datatypes.services.web.service.impl.sqooss.eu/xsd".equals(namespaceURI) &&
                 "WSUser".equals(typeName)){
 
-            return  eu.sqooss.scl.axis2.datatypes.WSUser.Factory.parse(reader);
+            return  eu.sqooss.ws.client.datatypes.WSUser.Factory.parse(reader);
 
 
         }
@@ -113,7 +113,7 @@ public  class ExtensionMapper{
                 "http://datatypes.services.web.service.impl.sqooss.eu/xsd".equals(namespaceURI) &&
                 "WSUserGroup".equals(typeName)){
 
-            return  eu.sqooss.scl.axis2.datatypes.WSUserGroup.Factory.parse(reader);
+            return  eu.sqooss.ws.client.datatypes.WSUserGroup.Factory.parse(reader);
 
 
         }
@@ -123,7 +123,7 @@ public  class ExtensionMapper{
                 "http://datatypes.services.web.service.impl.sqooss.eu/xsd".equals(namespaceURI) &&
                 "WSFileMetadata".equals(typeName)){
 
-            return  eu.sqooss.scl.axis2.datatypes.WSFileMetadata.Factory.parse(reader);
+            return  eu.sqooss.ws.client.datatypes.WSFileMetadata.Factory.parse(reader);
 
 
         }

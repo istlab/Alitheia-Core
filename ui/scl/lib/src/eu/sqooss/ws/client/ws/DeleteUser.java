@@ -37,7 +37,7 @@
  * by the Apache Axis2 version: #axisVersion# #today#
  */
 
-package eu.sqooss.scl.axis2.ws;
+package eu.sqooss.ws.client.ws;
 /**
  *  DeleteUser bean class
  */
@@ -418,7 +418,7 @@ implements org.apache.axis2.databinding.ADBBean{
                         if (!"deleteUser".equals(type)){
                             //find namespace for the prefix
                             java.lang.String nsUri = reader.getNamespaceContext().getNamespaceURI(nsPrefix);
-                            return (DeleteUser)eu.sqooss.scl.axis2.ws.ExtensionMapper.getTypeObject(
+                            return (DeleteUser)eu.sqooss.ws.client.ws.ExtensionMapper.getTypeObject(
                                     nsUri,type,reader);
                         }
 

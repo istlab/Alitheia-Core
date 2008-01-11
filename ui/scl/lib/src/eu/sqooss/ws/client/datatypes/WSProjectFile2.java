@@ -37,7 +37,7 @@
  * by the Apache Axis2 version: #axisVersion# #today#
  */
 
-package eu.sqooss.scl.axis2.datatypes;
+package eu.sqooss.ws.client.datatypes;
 /**
  *  WSProjectFile2 bean class
  */
@@ -56,14 +56,14 @@ implements org.apache.axis2.databinding.ADBBean{
      * field for WSProjectFile
      */
 
-    protected eu.sqooss.scl.axis2.datatypes.WSProjectFile localWSProjectFile ;
+    protected eu.sqooss.ws.client.datatypes.WSProjectFile localWSProjectFile ;
 
 
     /**
      * Auto generated getter method
-     * @return eu.sqooss.scl.axis2.datatypes.WSProjectFile
+     * @return eu.sqooss.ws.client.datatypes.WSProjectFile
      */
-    public  eu.sqooss.scl.axis2.datatypes.WSProjectFile getWSProjectFile(){
+    public  eu.sqooss.ws.client.datatypes.WSProjectFile getWSProjectFile(){
         return localWSProjectFile;
     }
 
@@ -73,7 +73,7 @@ implements org.apache.axis2.databinding.ADBBean{
      * Auto generated setter method
      * @param param WSProjectFile
      */
-    public void setWSProjectFile(eu.sqooss.scl.axis2.datatypes.WSProjectFile param){
+    public void setWSProjectFile(eu.sqooss.ws.client.datatypes.WSProjectFile param){
 
         this.localWSProjectFile=param;
 
@@ -239,7 +239,7 @@ implements org.apache.axis2.databinding.ADBBean{
 
                         if (reader.isStartElement() && new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd","WSProjectFile").equals(reader.getName())){
 
-                            object.setWSProjectFile(eu.sqooss.scl.axis2.datatypes.WSProjectFile.Factory.parse(reader));
+                            object.setWSProjectFile(eu.sqooss.ws.client.datatypes.WSProjectFile.Factory.parse(reader));
 
                         }  // End of if for expected property start element
 

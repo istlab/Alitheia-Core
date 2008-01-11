@@ -37,7 +37,7 @@
  * by the Apache Axis2 version: #axisVersion# #today#
  */
 
-package eu.sqooss.scl.axis2.ws;
+package eu.sqooss.ws.client.ws;
 /**
  *  SubmitUserResponse bean class
  */
@@ -56,14 +56,14 @@ implements org.apache.axis2.databinding.ADBBean{
      * field for _return
      */
 
-    protected eu.sqooss.scl.axis2.datatypes.WSUser local_return ;
+    protected eu.sqooss.ws.client.datatypes.WSUser local_return ;
 
 
     /**
      * Auto generated getter method
-     * @return eu.sqooss.scl.axis2.datatypes.WSUser
+     * @return eu.sqooss.ws.client.datatypes.WSUser
      */
-    public  eu.sqooss.scl.axis2.datatypes.WSUser get_return(){
+    public  eu.sqooss.ws.client.datatypes.WSUser get_return(){
         return local_return;
     }
 
@@ -73,7 +73,7 @@ implements org.apache.axis2.databinding.ADBBean{
      * Auto generated setter method
      * @param param _return
      */
-    public void set_return(eu.sqooss.scl.axis2.datatypes.WSUser param){
+    public void set_return(eu.sqooss.ws.client.datatypes.WSUser param){
 
         this.local_return=param;
 
@@ -290,7 +290,7 @@ implements org.apache.axis2.databinding.ADBBean{
                         if (!"submitUserResponse".equals(type)){
                             //find namespace for the prefix
                             java.lang.String nsUri = reader.getNamespaceContext().getNamespaceURI(nsPrefix);
-                            return (SubmitUserResponse)eu.sqooss.scl.axis2.ws.ExtensionMapper.getTypeObject(
+                            return (SubmitUserResponse)eu.sqooss.ws.client.ws.ExtensionMapper.getTypeObject(
                                     nsUri,type,reader);
                         }
 
@@ -331,7 +331,7 @@ implements org.apache.axis2.databinding.ADBBean{
 
                     }else{
 
-                        object.set_return(eu.sqooss.scl.axis2.datatypes.WSUser.Factory.parse(reader));
+                        object.set_return(eu.sqooss.ws.client.datatypes.WSUser.Factory.parse(reader));
 
                         reader.next();
                     }

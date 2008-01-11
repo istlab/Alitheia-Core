@@ -37,7 +37,7 @@
  * by the Apache Axis2 version: #axisVersion# #today#
  */
 
-package eu.sqooss.scl.axis2.ws;
+package eu.sqooss.ws.client.ws;
 /**
  *  SubmitUser bean class
  */
@@ -705,7 +705,7 @@ implements org.apache.axis2.databinding.ADBBean{
                         if (!"submitUser".equals(type)){
                             //find namespace for the prefix
                             java.lang.String nsUri = reader.getNamespaceContext().getNamespaceURI(nsPrefix);
-                            return (SubmitUser)eu.sqooss.scl.axis2.ws.ExtensionMapper.getTypeObject(
+                            return (SubmitUser)eu.sqooss.ws.client.ws.ExtensionMapper.getTypeObject(
                                     nsUri,type,reader);
                         }
 

@@ -36,7 +36,7 @@
  * This file was auto-generated from WSDL
  * by the Apache Axis2 version: 1.1 Nov 13, 2006 (07:31:44 LKT)
  */
-package eu.sqooss.scl.axis2;
+package eu.sqooss.ws.client;
 
 /*
  *  Ws java interface
@@ -51,9 +51,9 @@ public interface Ws {
      * @param param0
 
      */
-    public eu.sqooss.scl.axis2.ws.DisplayUserResponse displayUser(
+    public eu.sqooss.ws.client.ws.DisplayUserResponse displayUser(
 
-            eu.sqooss.scl.axis2.ws.DisplayUser param0)
+            eu.sqooss.ws.client.ws.DisplayUser param0)
     throws java.rmi.RemoteException
 
     ;
@@ -66,9 +66,9 @@ public interface Ws {
      * @param param2
 
      */
-    public eu.sqooss.scl.axis2.ws.EvaluatedProjectsListResponse evaluatedProjectsList(
+    public eu.sqooss.ws.client.ws.EvaluatedProjectsListResponse evaluatedProjectsList(
 
-            eu.sqooss.scl.axis2.ws.EvaluatedProjectsList param2)
+            eu.sqooss.ws.client.ws.EvaluatedProjectsList param2)
     throws java.rmi.RemoteException
 
     ;
@@ -81,9 +81,9 @@ public interface Ws {
      * @param param4
 
      */
-    public eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedProjectResponse retrieveMetrics4SelectedProject(
+    public eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProjectResponse retrieveMetrics4SelectedProject(
 
-            eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedProject param4)
+            eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProject param4)
     throws java.rmi.RemoteException
 
     ;
@@ -96,9 +96,9 @@ public interface Ws {
      * @param param6
 
      */
-    public eu.sqooss.scl.axis2.ws.SubmitUserResponse submitUser(
+    public eu.sqooss.ws.client.ws.SubmitUserResponse submitUser(
 
-            eu.sqooss.scl.axis2.ws.SubmitUser param6)
+            eu.sqooss.ws.client.ws.SubmitUser param6)
     throws java.rmi.RemoteException
 
     ;
@@ -113,7 +113,7 @@ public interface Ws {
      */
     public void modifyUser(
 
-            eu.sqooss.scl.axis2.ws.ModifyUser param8)
+            eu.sqooss.ws.client.ws.ModifyUser param8)
     throws java.rmi.RemoteException
 
     ;
@@ -126,9 +126,9 @@ public interface Ws {
      * @param param10
 
      */
-    public eu.sqooss.scl.axis2.ws.RequestEvaluation4ProjectResponse requestEvaluation4Project(
+    public eu.sqooss.ws.client.ws.RequestEvaluation4ProjectResponse requestEvaluation4Project(
 
-            eu.sqooss.scl.axis2.ws.RequestEvaluation4Project param10)
+            eu.sqooss.ws.client.ws.RequestEvaluation4Project param10)
     throws java.rmi.RemoteException
 
     ;
@@ -143,7 +143,7 @@ public interface Ws {
      */
     public void deleteUser(
 
-            eu.sqooss.scl.axis2.ws.DeleteUser param12)
+            eu.sqooss.ws.client.ws.DeleteUser param12)
     throws java.rmi.RemoteException
 
     ;
@@ -156,9 +156,9 @@ public interface Ws {
      * @param param14
 
      */
-    public eu.sqooss.scl.axis2.ws.RetrieveFileListResponse retrieveFileList(
+    public eu.sqooss.ws.client.ws.RetrieveFileListResponse retrieveFileList(
 
-            eu.sqooss.scl.axis2.ws.RetrieveFileList param14)
+            eu.sqooss.ws.client.ws.RetrieveFileList param14)
     throws java.rmi.RemoteException
 
     ;
@@ -171,9 +171,9 @@ public interface Ws {
      * @param param16
 
      */
-    public eu.sqooss.scl.axis2.ws.RetrieveSelectedMetricResponse retrieveSelectedMetric(
+    public eu.sqooss.ws.client.ws.RetrieveSelectedMetricResponse retrieveSelectedMetric(
 
-            eu.sqooss.scl.axis2.ws.RetrieveSelectedMetric param16)
+            eu.sqooss.ws.client.ws.RetrieveSelectedMetric param16)
     throws java.rmi.RemoteException
 
     ;
@@ -186,9 +186,9 @@ public interface Ws {
      * @param param18
 
      */
-    public eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedFilesResponse retrieveMetrics4SelectedFiles(
+    public eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedFilesResponse retrieveMetrics4SelectedFiles(
 
-            eu.sqooss.scl.axis2.ws.RetrieveMetrics4SelectedFiles param18)
+            eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedFiles param18)
     throws java.rmi.RemoteException
 
     ;
