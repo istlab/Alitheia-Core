@@ -32,9 +32,17 @@
 
 package eu.sqooss.scl.result;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+
+import eu.sqooss.scl.WSException;
 
 /**
  * The WSResult is similar to the MetricResult.
@@ -115,8 +123,19 @@ import java.util.NoSuchElementException;
 public class WSResult implements Iterable<ArrayList<WSResultEntry>>,
                                           Iterator<ArrayList<WSResultEntry>> {
     
+    private static final String XML_DECLARATION         = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+    private static final String XML_ELEM_NAME_ROOT   = "WSResult";
+    private static final String XML_ELEM_NAME_ROOT_ROW    = "Row";
+    private static final String XML_ELEM_NAME_ROOT_ROW_FIELD  = "Field";
+    private static final String XML_ELEM_NAME_ROOT_ROW_FIELD_MIME  = "MimeType";
+    private static final String XML_ELEM_NAME_ROOT_ROW_FIELD_VALUE = "Value";
+    
     private ArrayList<ArrayList<WSResultEntry>> wsResultTable;
     private int currentRow;
+    
+    private static SAXDefaultHandler saxHandler = new SAXDefaultHandler(XML_ELEM_NAME_ROOT_ROW,
+            XML_ELEM_NAME_ROOT_ROW_FIELD, XML_ELEM_NAME_ROOT_ROW_FIELD_MIME,
+            XML_ELEM_NAME_ROOT_ROW_FIELD_VALUE);;
     
     private Object lockObject = new Object();
 
@@ -254,7 +273,9 @@ public class WSResult implements Iterable<ArrayList<WSResultEntry>>,
      * @param result The result row to add
      */
     public void addResultRow(ArrayList<WSResultEntry> result) {
-        this.wsResultTable.add(result);
+        synchronized (lockObject) {
+            this.wsResultTable.add(result);
+        }
     }
 
     /**
@@ -265,18 +286,97 @@ public class WSResult implements Iterable<ArrayList<WSResultEntry>>,
         return wsResultTable.size();
     }
 
+    /**
+     * This method returns the XML representation of the <code>WSResult</code>.
+     * 
+     * @return - the string represents the WSResult in XML format
+     */
     public String toXML() {
-        throw new UnsupportedOperationException("Coming soon");
+        String rootStartTag     = "<" + XML_ELEM_NAME_ROOT + ">\n";
+        String rootEndTag       = "</" + XML_ELEM_NAME_ROOT + ">\n";;
+        String rowStartTag      = "\t<" + XML_ELEM_NAME_ROOT_ROW + ">\n";
+        String rowEndTag        = "\t</" + XML_ELEM_NAME_ROOT_ROW + ">\n";
+        String fieldStartTag    = "\t\t<" + XML_ELEM_NAME_ROOT_ROW_FIELD + ">\n";
+        String fieldEndTag      = "\t\t</" + XML_ELEM_NAME_ROOT_ROW_FIELD + ">\n";
+        String mimeTypeStartTag = "\t\t\t<" + XML_ELEM_NAME_ROOT_ROW_FIELD_MIME + ">\n";
+        String mimeTypeEndTag   = "\t\t\t</" + XML_ELEM_NAME_ROOT_ROW_FIELD_MIME + ">\n";
+        String valueStartTag    = "\t\t\t<" + XML_ELEM_NAME_ROOT_ROW_FIELD_VALUE + ">\n";
+        String valueEndTag      = "\t\t\t</" + XML_ELEM_NAME_ROOT_ROW_FIELD_VALUE + ">\n";
+        String wsResultEntryIndentation = "\t\t\t\t";
+        StringBuffer result   = new StringBuffer();
+        result.append(XML_DECLARATION);
+        result.append(rootStartTag);
+        for (ArrayList<WSResultEntry> currentRow : wsResultTable) {
+            result.append(rowStartTag);
+            for (WSResultEntry currentField : currentRow) {
+                result.append(fieldStartTag);
+                
+                result.append(mimeTypeStartTag);
+                result.append(wsResultEntryIndentation);
+                result.append(currentField.getMimeType());
+                result.append('\n');
+                result.append(mimeTypeEndTag);
+                
+                result.append(valueStartTag);
+                result.append(wsResultEntryIndentation);
+                result.append(currentField.toString());
+                result.append('\n');
+                result.append(valueEndTag);
+                
+                result.append(fieldEndTag);
+            }
+            result.append(rowEndTag);
+        }
+        result.append(rootEndTag);
+        return result.toString();
     }
 
-    public static WSResult fromXML(String xml) { 
-        throw new UnsupportedOperationException("Coming soon");
+    /**
+     * This method creates a new object from a XML description.
+     * 
+     * @param xml
+     * @return
+     * @throws WSException
+     */
+    public static WSResult fromXML(String xml) throws WSException { 
+        try {
+            SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
+            String xmlEncoding = getEncodingFromXMLDeclaration(xml);
+            byte[] xmlInBytes;
+            try {
+                xmlInBytes = xml.getBytes(xmlEncoding);
+            } catch (UnsupportedEncodingException uee) {
+                xmlInBytes = xml.getBytes("UTF-8");
+            }
+            InputStream xmlInputStream = new ByteArrayInputStream(xmlInBytes);            
+            saxParser.parse(xmlInputStream, saxHandler);
+            return saxHandler.getParsedWSResult();
+        } catch(Exception e) {
+            throw new WSException(e);
+        }
     }
     
     public static boolean validate() {
         return false;
     }
     
+    /**
+     * This method returns the encoding from the XML's declaration.
+     * If the encoding is missing then returns UTF-8.
+     * @param xml
+     * @return
+     */
+    private static String getEncodingFromXMLDeclaration(String xml) {
+        String encoding = "UTF-8";
+        StringBuffer xmlDeclaration = new StringBuffer(xml.substring(0, xml.indexOf('>') + 1));
+        int encodingIndex = xmlDeclaration.indexOf("encoding");
+        if (encodingIndex != -1) {
+            xmlDeclaration.delete(0, encodingIndex);
+            xmlDeclaration.delete(0, xmlDeclaration.indexOf("\"") + 1);
+            encoding = xmlDeclaration.substring(0, xmlDeclaration.indexOf("\""));
+        }
+        return encoding;
+    }
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

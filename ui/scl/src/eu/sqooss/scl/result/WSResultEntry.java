@@ -36,6 +36,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 
+import org.apache.commons.codec.binary.Base64;
+
 /**
  *
  * A WSResultEntry tries to be as generic as possible by storing
@@ -88,6 +90,7 @@ public class WSResultEntry {
     private Object value;
     private byte[] valueByteArray;
     private String mimeType;
+    private boolean isSimpleMimeType;
     
     /**
      * Creates a new WSResultEntry object.
@@ -101,18 +104,11 @@ public class WSResultEntry {
      */
     public WSResultEntry(Object value, String mimeType) {
         validate(value, mimeType);
+        
         this.value = value;
         this.mimeType = mimeType;
 
-        try {
-            ByteArrayOutputStream bout = new ByteArrayOutputStream();
-            ObjectOutputStream oout = new ObjectOutputStream(bout);
-            oout.writeObject(value);
-            oout.close();
-            valueByteArray = bout.toByteArray();
-        } catch (IOException ioe) {
-            throw new RuntimeException(ioe);
-        }
+        initValueBytes(value);
     }
 
     /**
@@ -191,36 +187,93 @@ public class WSResultEntry {
         }
     }
     
-    public String toXML() {
-        throw new UnsupportedOperationException("Coming soon!");
+    /**
+     * @return The object value of the <code>WSResultEntry</code>
+     *         or <code>null</code> if there isn't.
+     */
+    public Object getObject() {
+        return value;
     }
     
-    public static WSResultEntry fromXML(String xml) {
-        throw new UnsupportedOperationException("Coming soon!");
+    /**
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        if (isSimpleMimeType) {
+            return value.toString();
+        } else {
+            StringBuffer result = new StringBuffer();
+            byte[] base64Characters = Base64.encodeBase64(getByteArray());
+            for (byte currentCharacter : base64Characters) {
+                result.append((char) currentCharacter);
+            }
+            return result.toString();
+        }
+    }
+
+    static WSResultEntry fromString(String value, String mimeType) {
+        if (MIME_TYPE_TYPE_INTEGER.equals(mimeType)) {
+            return new WSResultEntry(Integer.parseInt(value), mimeType);
+        } else if (MIME_TYPE_TYPE_LONG.equals(mimeType)) {
+            return new WSResultEntry(Long.parseLong(value), mimeType);
+        } else if (MIME_TYPE_TYPE_DOUBLE.equals(mimeType)) {
+            return new WSResultEntry(Double.parseDouble(value), mimeType);
+        } else if (MIME_TYPE_TYPE_FLOAT.equals(mimeType)) {
+            return new WSResultEntry(Float.parseFloat(value), mimeType);
+        } else if (MIME_TYPE_TEXT_PLAIN.equals(mimeType)) {
+            return new WSResultEntry(value, mimeType);
+        } else {
+            byte[] sequenceInBase64 = new byte[value.length()];
+            for (int i = 0; i < value.length(); i++) {
+                sequenceInBase64[i] = (byte)value.charAt(i);
+            }
+            return new WSResultEntry(Base64.decodeBase64(sequenceInBase64), mimeType);
+        }
     }
     
     private void validate(Object value, String mimeType) {
         if (((MIME_TYPE_TYPE_INTEGER.equals(mimeType)) && (value instanceof Integer)) ||
                 ((MIME_TYPE_TYPE_LONG.equals(mimeType)) && (value instanceof Long)) ||
                 ((MIME_TYPE_TYPE_FLOAT.equals(mimeType)) && (value instanceof Float)) ||
-                ((MIME_TYPE_TYPE_DOUBLE.equals(mimeType)) && (value instanceof Double))) {
+                ((MIME_TYPE_TYPE_DOUBLE.equals(mimeType)) && (value instanceof Double)) ||
+                ((MIME_TYPE_TEXT_PLAIN.equals(mimeType)) && (value instanceof String))) {
+            isSimpleMimeType = true;
             return;
         }
         
-        if ((MIME_TYPE_TEXT_PLAIN.equals(mimeType) ||
-                MIME_TYPE_TEXT_HTML.equals(mimeType) ||
+        if ((MIME_TYPE_TEXT_HTML.equals(mimeType) ||
                 MIME_TYPE_TEXT_XML.equals(mimeType)) && (value instanceof String)) {
             return;
         }
         
-        if (MIME_TYPE_IMAGE_GIF.equals(mimeType) &&
-                MIME_TYPE_IMAGE_JPEG.equals(mimeType) &&
-                MIME_TYPE_IMAGE_PNG.equals(mimeType)) {
+        if ((MIME_TYPE_IMAGE_GIF.equals(mimeType) ||
+                MIME_TYPE_IMAGE_JPEG.equals(mimeType) ||
+                MIME_TYPE_IMAGE_PNG.equals(mimeType)) && (value != null)){
             return;
         }
         
         throw new IllegalArgumentException("The MIME type isn't compatible with the value!");
     }
+    
+    private void initValueBytes(Object value) {
+        Class<?> valueClass = value.getClass();
+        if ((valueClass.isArray()) &&
+                (Byte.TYPE.equals(valueClass.getComponentType()))) {
+            valueByteArray = (byte[])value;
+        } else {
+            try {
+                ByteArrayOutputStream bout = new ByteArrayOutputStream();
+                ObjectOutputStream oout = new ObjectOutputStream(bout);
+                oout.writeObject(value);
+                oout.close();
+                valueByteArray = bout.toByteArray();
+            } catch (IOException ioe) {
+                throw new RuntimeException(ioe);
+            }
+        }
+    }
+    
 }
 
 
