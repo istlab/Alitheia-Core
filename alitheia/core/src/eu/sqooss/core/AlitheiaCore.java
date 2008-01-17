@@ -62,6 +62,7 @@ import eu.sqooss.service.security.SecurityManager;
 import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.updater.UpdaterService;
 import eu.sqooss.service.webadmin.WebadminService;
+import eu.sqooss.impl.service.pa.PAServiceImpl;
 
 public class AlitheiaCore {
 
@@ -74,6 +75,7 @@ public class AlitheiaCore {
     private TDSService tds;
     private UpdaterService updater;
     private WebadminService webadmin;
+    private PAServiceImpl padmin;
 
     private org.osgi.framework.BundleContext bc;
 
@@ -85,6 +87,12 @@ public class AlitheiaCore {
     public void initWebAdmin() {
         if (webadmin == null) {
             webadmin = new WebadminServiceImpl(bc);
+        }
+    }
+    
+    public void initPluginAdmin() {
+        if (padmin == null) {
+            padmin = new PAServiceImpl(bc);
         }
     }
     
