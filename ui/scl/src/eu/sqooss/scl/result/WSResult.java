@@ -33,14 +33,18 @@
 package eu.sqooss.scl.result;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
 
 import eu.sqooss.scl.WSException;
 
@@ -132,13 +136,14 @@ public class WSResult implements Iterable<ArrayList<WSResultEntry>>,
     
     private ArrayList<ArrayList<WSResultEntry>> wsResultTable;
     private int currentRow;
-    
-    private static SAXDefaultHandler saxHandler = new SAXDefaultHandler(XML_ELEM_NAME_ROOT_ROW,
-            XML_ELEM_NAME_ROOT_ROW_FIELD, XML_ELEM_NAME_ROOT_ROW_FIELD_MIME,
-            XML_ELEM_NAME_ROOT_ROW_FIELD_VALUE);;
-    
+
     private Object lockObject = new Object();
 
+    private static SAXParser saxParser;
+    private static SAXDefaultHandler saxHandler = new SAXDefaultHandler(XML_ELEM_NAME_ROOT_ROW,
+            XML_ELEM_NAME_ROOT_ROW_FIELD, XML_ELEM_NAME_ROOT_ROW_FIELD_MIME,
+            XML_ELEM_NAME_ROOT_ROW_FIELD_VALUE);
+    
     public WSResult() {
         wsResultTable = new ArrayList<ArrayList<WSResultEntry>>();
         currentRow = -1;
@@ -340,7 +345,15 @@ public class WSResult implements Iterable<ArrayList<WSResultEntry>>,
      */
     public static WSResult fromXML(String xml) throws WSException { 
         try {
-            SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
+            if (saxParser == null) {
+                SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
+                SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+                //TODO: set the xml schema file
+                Schema wsResultSchema = schemaFactory.newSchema(new File("./WSResult.xsd"));
+                saxParserFactory.setValidating(false);
+                saxParserFactory.setSchema(wsResultSchema);
+                saxParser = saxParserFactory.newSAXParser();
+            }
             String xmlEncoding = getEncodingFromXMLDeclaration(xml);
             byte[] xmlInBytes;
             try {
@@ -356,10 +369,6 @@ public class WSResult implements Iterable<ArrayList<WSResultEntry>>,
         }
     }
     
-    public static boolean validate() {
-        return false;
-    }
-    
     /**
      * This method returns the encoding from the XML's declaration.
      * If the encoding is missing then returns UTF-8.
@@ -373,7 +382,7 @@ public class WSResult implements Iterable<ArrayList<WSResultEntry>>,
         if (encodingIndex != -1) {
             xmlDeclaration.delete(0, encodingIndex);
             xmlDeclaration.delete(0, xmlDeclaration.indexOf("\"") + 1);
-            encoding = xmlDeclaration.substring(0, xmlDeclaration.indexOf("\""));
+            encoding = xmlDeclaration.substring(0, xmlDeclaration.indexOf("\"")).trim();
         }
         return encoding;
     }

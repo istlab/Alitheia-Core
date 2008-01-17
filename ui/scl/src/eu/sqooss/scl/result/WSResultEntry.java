@@ -253,7 +253,8 @@ public class WSResultEntry {
             return;
         }
         
-        throw new IllegalArgumentException("The MIME type isn't compatible with the value!");
+        throw new IllegalArgumentException("The MIME type isn't compatible with the value! mime type: " + 
+                mimeType + "; value: " + value);
     }
     
     private void initValueBytes(Object value) {

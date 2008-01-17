@@ -36,6 +36,7 @@ import java.util.ArrayList;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 import org.xml.sax.helpers.DefaultHandler;
 
 /**
@@ -115,7 +116,7 @@ class SAXDefaultHandler extends DefaultHandler {
         if (rowElemName.equals(name)) {
             tableResult.addResultRow(currentRow);
             currentRow = null;
-        } else if ((fieldElemName.equals(name)) && (currentRow != null)) {
+        } else if (fieldElemName.equals(name)) {
             String mimeType = currentMimeTypeElemVal.toString();
             currentRow.add(WSResultEntry.fromString(currentValueElemVal.toString(), mimeType));
             currentValueElemVal.setLength(0);
@@ -131,7 +132,16 @@ class SAXDefaultHandler extends DefaultHandler {
     public WSResult getParsedWSResult() {
         return tableResult;
     }
-    
+
+    /**
+     * @see org.xml.sax.helpers.DefaultHandler#error(org.xml.sax.SAXParseException)
+     */
+    @Override
+    public void error(SAXParseException e) throws SAXException {
+        super.error(e);
+        throw e;
+    }
+
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
