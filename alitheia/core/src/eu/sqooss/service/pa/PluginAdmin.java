@@ -42,7 +42,7 @@ public interface PluginAdmin {
     
     /** The Constant METRICS_CLASS shall be used as a filter when searching
      * for registered metric services. */
-    final static String METRICS_CLASS = "eu.sqooss.impl.metrics.*";
+    public final static String METRICS_CLASS = "eu.sqooss.impl.metrics.*";
 
     /**
      * Returns a collection containing information about all metrics services
