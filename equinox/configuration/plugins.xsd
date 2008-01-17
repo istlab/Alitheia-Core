@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema">
+<element name="plugins">
+  <complexType>
+    <sequence>
+      <element name="metric" maxOccurs="unbounded">
+        <complexType>
+          <all>
+            <!-- Trigger automatic installation on this metric-->
+            <element name="autoinstall" type="boolean" minOccurs="0"/>
+          </all>
+          <attribute name="name" type="string" use="required"/>
+        </complexType>
+      </element>
+    </sequence>
+  </complexType>
+  
+  <!--
+    The 'name' attribute is the unique key of the metric element.
+  -->
+  <key name="metric-name">
+    <selector xpath="metric"/>
+    <field xpath="@name"/>
+  </key>
+</element>
+</schema>

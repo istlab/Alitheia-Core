@@ -1,0 +1,9 @@
+<plugins>
+  <metric name="eu.sqooss.impl.metrics.wc.WcServiceImpl">
+    <autoinstall>true</autoinstall>
+  </metric>
+
+  <metric name="eu.sqooss.impl.metrics.productivity.ProductivityMetricImpl">
+    <autoinstall>false</autoinstall>
+  </metric>
+</plugins>
