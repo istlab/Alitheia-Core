@@ -14,6 +14,9 @@ public class CoreActivator
 
         // Run an instance of the WebAdmin
         core.initWebAdmin();
+        
+        // Run an instance of the PluginAdmin
+        core.initPluginAdmin();
     }
 
     public void stop(BundleContext bc) throws Exception {
