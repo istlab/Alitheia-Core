@@ -33,15 +33,13 @@
 
 package eu.sqooss.impl.metrics.productivity;
 
-import java.util.Date;
-
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
-import eu.sqooss.service.abstractmetric.AbstractMetric;
-import eu.sqooss.service.abstractmetric.MetricResult;
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.metrics.productivity.ProductivityMetric;
+import eu.sqooss.service.abstractmetric.AbstractMetric;
+import eu.sqooss.service.abstractmetric.MetricResult;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
@@ -64,7 +62,7 @@ public class ProductivityMetricImpl extends AbstractMetric implements
         serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
         core = (AlitheiaCore) bc.getService(serviceRef);
         db = core.getDBService();
-
+        
         return false;
     }
 
@@ -100,10 +98,6 @@ public class ProductivityMetricImpl extends AbstractMetric implements
         CodeCommitsJob ccj = new CodeCommitsJob(this, a, b);
         //
         return false;
-    }
-
-    public Date getDateInstalled() {
-        return null;
     }
 
     public Object selfTest() {

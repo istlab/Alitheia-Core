@@ -34,8 +34,6 @@
 
 package eu.sqooss.impl.metrics.wc;
 
-import java.util.Date;
-
 import org.osgi.framework.BundleContext;
 
 import eu.sqooss.service.abstractmetric.AbstractMetric;
@@ -46,44 +44,35 @@ import eu.sqooss.service.db.ProjectVersion;
 
 public class WcImplementation extends AbstractMetric implements Wc {
 
-	protected WcImplementation(BundleContext bc) {
-		super(bc);
-	}
+    public WcImplementation(BundleContext bc) {
+        super(bc);
+    }
 
-	public Date getDateInstalled() {
+    public boolean install() {
 
-		return null;
-	}
+        return false;
+    }
 
-	public boolean install() {
+    public boolean remove() {
 
-		return false;
-	}
+        return false;
+    }
 
-	public boolean remove() {
+    public boolean update() {
 
-		return false;
-	}
+        return false;
+    }
 
-	public boolean update() {
+    boolean run(ProjectVersion a, ProjectVersion b) {
+        return false;
+    }
 
-		return false;
-	}
+    public MetricResult getResult(ProjectFile a) {
+        return null;
+    }
 
-	boolean run(ProjectVersion a, ProjectVersion b) {
-		return false;
-	}
+    public boolean run(ProjectFile a) {
+        return false;
+    }
 
-	public MetricResult getResult(ProjectFile a) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public boolean run(ProjectFile a) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-    
-    
-    
 }

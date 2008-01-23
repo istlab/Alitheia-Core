@@ -36,12 +36,16 @@ package eu.sqooss.service.abstractmetric;
 import java.util.Date;
 
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 
+import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.FileGroup;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
+import eu.sqooss.service.logging.LogManager;
+import eu.sqooss.service.logging.Logger;
 
 /**
  * A base class for all metrics. Implements basic functionality such as
@@ -53,37 +57,55 @@ import eu.sqooss.service.db.StoredProject;
 public abstract class AbstractMetric implements Metric {
 
     protected BundleContext bc;
-
+    protected LogManager logService = null;
+    protected Logger log = null;
+        
     protected AbstractMetric(BundleContext bc) {
 
         this.bc = bc;
+        ServiceReference serviceRef = null;
+        serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
+        
+        logService = ((AlitheiaCore) bc.getService(serviceRef)).getLogManager();
+
+        if (logService != null) {
+            log = logService.createLogger(Logger.NAME_SQOOSS_METRIC);
+
+            if (log != null)
+                log.info("Got a valid reference to the logger");
+        }
+
+        if (log == null) {
+            System.out.println("ERROR: Got no logger");
+        }
     }
 
     public String getAuthor() {
-        if (bc != null)
-            return (String) bc.getBundle().getHeaders().get(
-                    org.osgi.framework.Constants.BUNDLE_CONTACTADDRESS);
-        return null;
+
+        return (String) bc.getBundle().getHeaders().get(
+                org.osgi.framework.Constants.BUNDLE_CONTACTADDRESS);
     }
 
     public String getDescription() {
-        if (bc != null)
-            return (String) bc.getBundle().getHeaders().get(
-                    org.osgi.framework.Constants.BUNDLE_DESCRIPTION);
-        return null;
+
+        return (String) bc.getBundle().getHeaders().get(
+                org.osgi.framework.Constants.BUNDLE_DESCRIPTION);
     }
 
     public String getName() {
-        if (bc != null)
-            return (String) bc.getBundle().getHeaders().get(
-                    org.osgi.framework.Constants.BUNDLE_NAME);
-        return null;
+
+        return (String) bc.getBundle().getHeaders().get(
+                org.osgi.framework.Constants.BUNDLE_NAME);
     }
 
     public String getVersion() {
-        if (bc != null)
-            return (String) bc.getBundle().getHeaders().get(
-                    org.osgi.framework.Constants.BUNDLE_VERSION);
+
+        return (String) bc.getBundle().getHeaders().get(
+                org.osgi.framework.Constants.BUNDLE_VERSION);
+    }
+
+    public final Date getDateInstalled() {
+
         return null;
     }
 
@@ -111,18 +133,14 @@ public abstract class AbstractMetric implements Metric {
             run((FileGroup) o);
     }
 
-    public abstract boolean install();
+    public boolean install() {
+        return false;
+    }
 
     public abstract boolean remove();
 
     public abstract boolean update();
 
-    public abstract Date getDateInstalled();
-
-    protected boolean initStorage() {
-
-        return false;
-    }
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab
