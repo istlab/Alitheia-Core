@@ -127,7 +127,7 @@ body.section-4 #menu li#nav-4 a {
 
 
 
- #menu ul a:hover {
+#menu ul a:hover {
 	color : #f00 !important;
 }
 
@@ -214,13 +214,6 @@ form p {
 	margin: 15px 0 10px 0;
 	font-size: small;
 }
-
-#newproject {
-	display: inline;
-	float: right;
-	width: 40%;
-}
-
 
 #start {
 	padding-right: 15px;
