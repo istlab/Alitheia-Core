@@ -2,7 +2,6 @@
 #define LOGGER_H
 
 #include <string>
-#include <sstream>
 #include <ostream>
 
 #include "Alitheia.h"
@@ -38,18 +37,12 @@ namespace Alitheia
 
         void setTeeStream( std::ostream& stream );
 
-        //Logger& operator<<( std::ostream& (*f)(std::ostream&) );
-        //Logger& operator<<( const std::string& message );
-       
-        //std::ostream& put( char c );
-        
     private:
         void copyMessage( const std::string& message );
         
         std::string m_name;
         alitheia::Logger_var m_logger;
         std::ostream* copy_stream;
-        std::stringstream ss;
     };
 }
 

@@ -144,26 +144,3 @@ void Logger::setTeeStream( ostream& stream )
 {
     copy_stream = &stream;
 }
-
-/*ostream& Logger::put( char c )
-{
-    cerr << c;
-    //ss.put( c );
-    //return ostream::put( c );
-    //return *this;
-}*/
-
-/*Logger& Logger::operator<<( std::ostream& (*f)(std::ostream&) )
-{
-    // flush
-    info( ss.str() );
-    // and clear
-    //ss = stringstream();
-    return *this;
-}
-
-Logger& Logger::operator<<( const std::string& message )
-{
-    ss << message;
-    return *this;
-}*/
