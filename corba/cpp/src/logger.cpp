@@ -3,6 +3,8 @@
 #include "logger.h"
 #include "corbahandler.h"
 
+#include <iostream>
+
 using namespace std;
 using namespace Alitheia;
 
@@ -23,7 +25,15 @@ const std::string Logger::NameSqoOssTester      = "sqooss.tester";
 Logger::Logger( const string& name )
     : m_name( name )
 {
-    m_logger = alitheia::Logger::_narrow( CorbaHandler::instance()->getObject( "Logger" ) );
+    try
+    {
+        m_logger = alitheia::Logger::_narrow( CorbaHandler::instance()->getObject( "Logger" ) );
+    }
+    catch( ... )
+    {
+        cerr << "Got an exception while getting an instance of the Logger. Make sure the Alitheia system is running and eu.sqooss.service.corbaservice is loaded." << endl;
+        throw exception();
+    }
 }
 
 Logger::~Logger()
@@ -32,22 +42,50 @@ Logger::~Logger()
 
 void Logger::debug( const std::string& message )
 {
-    m_logger->debug( m_name.c_str(), message.c_str() );
+    try
+    {
+        m_logger->debug( m_name.c_str(), message.c_str() );
+    }
+    catch( ... )
+    {
+        cerr << "Got an exception while getting an instance of the Logger. Make sure the Alitheia system is running and eu.sqooss.service.corbaservice is loaded." << endl;
+    }
 }
 
 void Logger::info( const std::string& message )
 {
-    m_logger->info( m_name.c_str(), message.c_str() );
+    try
+    {
+        m_logger->info( m_name.c_str(), message.c_str() );
+    }
+    catch( ... )
+    {
+        cerr << "Got an exception while getting an instance of the Logger. Make sure the Alitheia system is running and eu.sqooss.service.corbaservice is loaded." << endl;
+    }
 }
 
 void Logger::warn( const std::string& message )
 {
-    m_logger->warn( m_name.c_str(), message.c_str() );
+    try
+    {
+        m_logger->warn( m_name.c_str(), message.c_str() );
+    }
+    catch( ... )
+    {
+        cerr << "Got an exception while getting an instance of the Logger. Make sure the Alitheia system is running and eu.sqooss.service.corbaservice is loaded." << endl;
+    }
 }
 
 void Logger::error( const std::string& message )
 {
-    m_logger->error( m_name.c_str(), message.c_str() );
+    try
+    {
+        m_logger->error( m_name.c_str(), message.c_str() );
+    }
+    catch( ... )
+    {
+        cerr << "Got an exception while getting an instance of the Logger. Make sure the Alitheia system is running and eu.sqooss.service.corbaservice is loaded." << endl;
+    }
 }
 
 string Logger::name() const

@@ -5,6 +5,10 @@
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
 
+#include <iostream>
+
+using namespace std;
+
 class OrbThread
 {
 public:
@@ -22,12 +26,19 @@ CorbaHandler::CorbaHandler()
     int argc = 3;
     char* argv[] = { "", "-ORBInitRef", "NameService=corbaloc:iiop:1.2@localhost:2809/NameService" };
  
-    orb = CORBA::ORB_init( argc, argv );
-    poaobj = orb->resolve_initial_references( "RootPOA" );
+    try{
+        orb = CORBA::ORB_init( argc, argv );
+        poaobj = orb->resolve_initial_references( "RootPOA" );
     
-    poa = PortableServer::POA::_narrow( poaobj );
-    mgr = poa->the_POAManager();
-    mgr->activate();
+        poa = PortableServer::POA::_narrow( poaobj );
+        mgr = poa->the_POAManager();
+        mgr->activate();
+    }
+    catch( CORBA::SystemException_catch& ex )
+    {
+        ex->_print( cerr );
+        cerr << "Got an exception while initializing the CorbaHandler. Make sure the ordb is running on port 2809." << endl;
+    }
 //    orb_thread = new OrbThread( orb );
 }
 

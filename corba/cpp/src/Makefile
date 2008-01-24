@@ -17,15 +17,11 @@ corbahandler.o: Alitheia.cpp corbahandler.cpp corbahandler.h
 
 ../lib/libalitheia.a: Alitheia.o logger.o corbahandler.o core.o metric.o
 	test -d ../lib || mkdir ../lib
+	test -f ../lib/libalitheia.a && rm ../lib/libalitheia.a
 	ar cqs ../lib/libalitheia.a Alitheia.o logger.o corbahandler.o core.o metric.o
 
-logger: main.o Alitheia.o logger.o corbahandler.o core.o metric.o
-	mico-ld -o logger main.o logger.o core.o corbahandler.o Alitheia.o metric.o -lmicocoss2.3.12 -lmicocoss2.3.12 -lboost_thread
-
 clean:
-	-rm Alitheia.cpp Alitheia.h
 	-rm Alitheia.o
-	-rm main.o
 	-rm logger.o
 	-rm corbahandler.o
 	-rm core.o

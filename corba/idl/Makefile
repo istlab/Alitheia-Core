@@ -20,9 +20,13 @@ JAVA_RESULTS=CoreHelper.java \
 CPP_RESULTS=Alitheia.cpp \
 	Alitheia.h
 
-all: Alitheia.idl
-	idlj -td ../corbaservice/src -pkgPrefix alitheia eu.sqooss.impl.service -fall Alitheia.idl
+all: ../cpp/src/Alitheia.cpp ../corbaservice/src/eu/sqooss/impl/service/alitheia/CoreHelper.java
+
+../cpp/src/Alitheia.cpp: Alitheia.idl
 	cd ../cpp/src; idl --poa --c++-suffix cpp ../../idl/Alitheia.idl; cd ../../idl
+	
+../corbaservice/src/eu/sqooss/impl/service/alitheia/CoreHelper.java: Alitheia.idl
+	idlj -td ../corbaservice/src -pkgPrefix alitheia eu.sqooss.impl.service -fall Alitheia.idl
 
 install:
 #bogus rule, nothing to do here
