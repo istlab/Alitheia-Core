@@ -3,6 +3,7 @@
 #include <Metric>
 
 #include <sstream>
+#include <ostream>
 
 using namespace std;
 using namespace Alitheia;
@@ -10,17 +11,16 @@ using namespace Alitheia;
 int main( int argc, char **argv)
 {
     Core c;
-    Logger l( Logger::NameSqoOssMetric );
+    
+    Logger logger( Logger::NameSqoOssMetric );
+    logger.setTeeStream( cout );
     
     Metric* const m = new Metric;
-    l.info( "Registering C++ client metric..." );
+    logger << "Registering C++ client metric..." << endl;
     
     const int id = c.registerMetric( "MyCorbaMetric", m );
-    stringstream ss;
-    ss << "C++ client metric registered, id is " << id << ".";
-    l.info( ss.str() );
-   
-    l.info( "Metric waiting for orders..." );
+    logger << "C++ client metric registered, id is " << id << "." << endl;
+    logger << "Metric waiting for orders..." << endl;
     
     c.run();
 }
