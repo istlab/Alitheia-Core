@@ -177,12 +177,6 @@ body.section-4 #menu li#nav-4 a {
 	font-family: monospace;
 }
 
-#projectlist {
-	width: 80%;
-	display: inline;
-	float: left;
-}
-
 #newproject table {
     	border-collapse: collapse;
 	font-size: 12px;
