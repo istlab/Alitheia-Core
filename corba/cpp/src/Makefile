@@ -17,14 +17,14 @@ corbahandler.o: Alitheia.cpp corbahandler.cpp corbahandler.h
 
 ../lib/libalitheia.a: Alitheia.o logger.o corbahandler.o core.o metric.o
 	test -d ../lib || mkdir ../lib
-	test -f ../lib/libalitheia.a && rm ../lib/libalitheia.a
+	test ! -f ../lib/libalitheia.a || rm ../lib/libalitheia.a
 	ar cqs ../lib/libalitheia.a Alitheia.o logger.o corbahandler.o core.o metric.o
 
 clean:
-	-rm Alitheia.o
-	-rm logger.o
-	-rm corbahandler.o
-	-rm core.o
-	-rm metric.o
-	-rm ../lib/libalitheia.a
-	-rm -r ../lib
+	test ! -f Alitheia.o || rm Alitheia.o
+	test ! -f logger.o || rm logger.o
+	test ! -f corbahandler.o || rm corbahandler.o
+	test ! -f core.o || rm core.o
+	test ! -f metric.o || rm metric.o
+	test ! -f ../lib/libalitheia.a || rm ../lib/libalitheia.a
+	test ! "`echo ../lib/*`" == '../lib/*' || ( test -d ../lib && rm -r ../lib ) || true
