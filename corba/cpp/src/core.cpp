@@ -51,6 +51,7 @@ Core::Core()
 
 Core::~Core()
 {
+    delete d;
 }
 
 int Core::registerMetric( const std::string& name, Metric* metric )

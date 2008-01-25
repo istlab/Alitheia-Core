@@ -106,6 +106,7 @@ Logger::Logger( const string& name )
 Logger::~Logger()
 {
     delete rdbuf();
+    delete d;
 }
 
 void Logger::debug( const std::string& message )
