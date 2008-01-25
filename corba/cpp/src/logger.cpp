@@ -22,48 +22,79 @@ const std::string Logger::NameSqoOssFDS         = "sqooss.fds";
 const std::string Logger::NameSqoOssMetric      = "sqooss.metric";
 const std::string Logger::NameSqoOssTester      = "sqooss.tester";
 
-
-class LoggerBuffer : public streambuf
+namespace Alitheia
 {
-public:
-    LoggerBuffer( Logger* logger )
-        : streambuf(),
-          logger( logger )
+    class Logger::Private
     {
-    }
-    ~LoggerBuffer()
-    {
-    }
-
-protected:
-    int overflow( int c )
-    {
-        if( c != EOF )
+    public:
+        class LoggerBuffer : public streambuf
         {
-            if( c == 10 )
-            {
-                logger->info( s );
-                s = string();
-                return 0;
-            }
-            s.append( (char*)&c );
-        }
+        public:
+            LoggerBuffer( Logger* logger );
+
+        protected:
+            int overflow( int c );
+
+        private:
+            string s;
+            Logger* const logger;
+        };
+
+        Private( Logger* q );
+
+        void copyMessage( const string& message );
+    
+    private:
+        Logger* q;
+
+    public:
+        string name;
+        alitheia::Logger_var logger;
+        ostream* copy_stream;
+    };
+}
+   
+Logger::Private::LoggerBuffer::LoggerBuffer( Logger* logger )
+    : streambuf(),
+      logger( logger )
+{
+}
+
+int Logger::Private::LoggerBuffer::overflow( int c )
+{
+    if( c == EOF )
+        return 0;
+    if( c == 10 )
+    {
+        logger->info( s );
+        s = string();
         return 0;
     }
+    s.append( (char*)&c );
+    return 0;
+}
 
-private:
-    string s;
-    Logger* const logger;
-};
-
-Logger::Logger( const string& name )
-    : ostream( new LoggerBuffer( this ) ),
-      m_name( name ),
+Logger::Private::Private( Logger* q )
+    : q( q ),
       copy_stream( 0 )
 {
+}
+
+void Logger::Private::copyMessage( const string& message )
+{
+    if( copy_stream != 0 )
+        *copy_stream << message << endl;
+}
+
+
+Logger::Logger( const string& name )
+    : ostream( new Private::LoggerBuffer( this ) ),
+      d( new Private( this ) )
+{
+    d->name = name;
     try
     {
-        m_logger = alitheia::Logger::_narrow( CorbaHandler::instance()->getObject( "Logger" ) );
+        d->logger = alitheia::Logger::_narrow( CorbaHandler::instance()->getObject( "Logger" ) );
     }
     catch( ... )
     {
@@ -81,8 +112,8 @@ void Logger::debug( const std::string& message )
 {
     try
     {
-        copyMessage( message );
-        m_logger->debug( m_name.c_str(), message.c_str() );
+        d->copyMessage( message );
+        d->logger->debug( d->name.c_str(), message.c_str() );
     }
     catch( ... )
     {
@@ -94,8 +125,8 @@ void Logger::info( const std::string& message )
 {
     try
     {
-        copyMessage( message );
-        m_logger->info( m_name.c_str(), message.c_str() );
+        d->copyMessage( message );
+        d->logger->info( d->name.c_str(), message.c_str() );
     }
     catch( ... )
     {
@@ -107,8 +138,8 @@ void Logger::warn( const std::string& message )
 {
     try
     {
-        copyMessage( message );
-        m_logger->warn( m_name.c_str(), message.c_str() );
+        d->copyMessage( message );
+        d->logger->warn( d->name.c_str(), message.c_str() );
     }
     catch( ... )
     {
@@ -120,8 +151,8 @@ void Logger::error( const std::string& message )
 {
     try
     {
-        copyMessage( message );
-        m_logger->error( m_name.c_str(), message.c_str() );
+        d->copyMessage( message );
+        d->logger->error( d->name.c_str(), message.c_str() );
     }
     catch( ... )
     {
@@ -131,16 +162,10 @@ void Logger::error( const std::string& message )
 
 string Logger::name() const
 {
-    return m_name;
-}
-
-void Logger::copyMessage( const string& message )
-{
-    if( copy_stream != 0 )
-        *copy_stream << message << endl;
+    return d->name;
 }
 
 void Logger::setTeeStream( ostream& stream )
 {
-    copy_stream = &stream;
+    d->copy_stream = &stream;
 }
