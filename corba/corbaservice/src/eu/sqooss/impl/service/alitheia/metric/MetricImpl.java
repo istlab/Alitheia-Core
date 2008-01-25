@@ -1,15 +1,20 @@
 package eu.sqooss.impl.service.alitheia.metric;
 
-import eu.sqooss.impl.service.alitheia.MetricPOA;
+import org.osgi.framework.BundleContext;
 
-public class MetricImpl extends MetricPOA {
+import eu.sqooss.impl.service.alitheia.Metric;
+import eu.sqooss.service.abstractmetric.AbstractMetric;
+import eu.sqooss.service.abstractmetric.MetricResult;
+import eu.sqooss.service.db.DAObject;
 
-	public String getAuthor() {
-		// TODO Auto-generated method stub
-		return null;
+public class MetricImpl extends AbstractMetric {
+
+	protected MetricImpl(BundleContext bc, Metric m) {
+		super(bc);
+		// TODO Auto-generated constructor stub
 	}
 
-	public String getDateInstalled() {
+	public String getAuthor() {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -19,19 +24,34 @@ public class MetricImpl extends MetricPOA {
 		return null;
 	}
 
+	@Override
 	public String getName() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	public String getResult() {
+	@Override
+	public MetricResult getResult(DAObject o) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@Override
 	public String getVersion() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public boolean remove() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean update() {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }
