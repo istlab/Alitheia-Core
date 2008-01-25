@@ -3,14 +3,38 @@
 #include "corbahandler.h"
 #include "metric.h"
 
+#include <string>
+
+namespace Alitheia
+{
+    class Core::Private
+    {
+    public:
+        Private( Core* q );
+
+    private:
+        Core* q;
+
+    public:
+        alitheia::Core_var core;
+        std::map< int, std::string > registeredServices;
+    };
+}
+
 using namespace std;
 using namespace Alitheia;
 
+Core::Private::Private( Core* q )
+    : q( q )
+{
+};
+
 Core::Core()
+    : d( new Private( this ) )
 {
     try
     {
-        m_core = alitheia::Core::_narrow( CorbaHandler::instance()->getObject( "Core" ) );
+        d->core = alitheia::Core::_narrow( CorbaHandler::instance()->getObject( "Core" ) );
     }
     catch( CORBA::SystemException_catch& ex )
     {
@@ -32,15 +56,15 @@ Core::~Core()
 int Core::registerMetric( const std::string& name, Metric* metric )
 {
     CorbaHandler::instance()->exportObject( metric->_this(), name.c_str() );
-    const int id = m_core->registerMetric( CORBA::string_dup( name.c_str() ) );
-    m_registeredServices[ id ] = name;
+    const int id = d->core->registerMetric( CORBA::string_dup( name.c_str() ) );
+    d->registeredServices[ id ] = name;
     return id;
 }
 
 void Core::unregisterMetric( int id )
 {
-    m_core->unregisterMetric( id );
-    m_registeredServices.erase( id );
+    d->core->unregisterMetric( id );
+    d->registeredServices.erase( id );
 }
 
 void Core::run()

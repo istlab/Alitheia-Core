@@ -5,29 +5,26 @@
 #include <iostream>
 #include <exception>
 
-using namespace std;
-using namespace Alitheia;
-
-const std::string Logger::NameSqoOss            = "sqooss";
-const std::string Logger::NameSqoOssService     = "sqooss.service";
-const std::string Logger::NameSqoOssDatabase    = "sqooss.database";
-const std::string Logger::NameSqoOssSecurity    = "sqooss.security";
-const std::string Logger::NameSqoOssMessaging   = "sqooss.messaging";
-const std::string Logger::NameSqoOssWebServices = "sqooss.webservices";
-const std::string Logger::NameSqoOssScheduling  = "sqooss.scheduler";
-const std::string Logger::NameSqoOssUpdater     = "sqooss.updater";
-const std::string Logger::NameSqoOssWebAdmin    = "sqooss.webadmin";
-const std::string Logger::NameSqoOssTDS         = "sqooss.tds";
-const std::string Logger::NameSqoOssFDS         = "sqooss.fds";
-const std::string Logger::NameSqoOssMetric      = "sqooss.metric";
-const std::string Logger::NameSqoOssTester      = "sqooss.tester";
-
 namespace Alitheia
 {
+    const std::string Logger::NameSqoOss            = "sqooss";
+    const std::string Logger::NameSqoOssService     = "sqooss.service";
+    const std::string Logger::NameSqoOssDatabase    = "sqooss.database";
+    const std::string Logger::NameSqoOssSecurity    = "sqooss.security";
+    const std::string Logger::NameSqoOssMessaging   = "sqooss.messaging";
+    const std::string Logger::NameSqoOssWebServices = "sqooss.webservices";
+    const std::string Logger::NameSqoOssScheduling  = "sqooss.scheduler";
+    const std::string Logger::NameSqoOssUpdater     = "sqooss.updater";
+    const std::string Logger::NameSqoOssWebAdmin    = "sqooss.webadmin";
+    const std::string Logger::NameSqoOssTDS         = "sqooss.tds";
+    const std::string Logger::NameSqoOssFDS         = "sqooss.fds";
+    const std::string Logger::NameSqoOssMetric      = "sqooss.metric";
+    const std::string Logger::NameSqoOssTester      = "sqooss.tester";
+    
     class Logger::Private
     {
     public:
-        class LoggerBuffer : public streambuf
+        class LoggerBuffer : public std::streambuf
         {
         public:
             LoggerBuffer( Logger* logger );
@@ -36,23 +33,26 @@ namespace Alitheia
             int overflow( int c );
 
         private:
-            string s;
+            std::string s;
             Logger* const logger;
         };
 
         Private( Logger* q );
 
-        void copyMessage( const string& message );
+        void copyMessage( const std::string& message );
     
     private:
         Logger* q;
 
     public:
-        string name;
+        std::string name;
         alitheia::Logger_var logger;
-        ostream* copy_stream;
+        std::ostream* copy_stream;
     };
 }
+
+using namespace std;
+using namespace Alitheia;
    
 Logger::Private::LoggerBuffer::LoggerBuffer( Logger* logger )
     : streambuf(),
