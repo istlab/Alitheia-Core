@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: SQO-OSS Eclipse IDE Plug-in
-Bundle-SymbolicName: SQO-OSS;singleton:=true
+Bundle-SymbolicName: SQO_OSS;singleton:=true
 Bundle-Version: 0.0.1
 Bundle-Activator: eu.sqooss.plugin.Activator
 Bundle-Vendor: ProSyst Software GmbH
