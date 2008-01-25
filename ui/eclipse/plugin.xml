@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+
+	<extension point="org.eclipse.ui.propertyPages"> 
+        <page 
+            id="eu.sqooss.plugin.properties.projectPropertyPage" 
+            name="SQO-OSS"
+            class="eu.sqooss.plugin.properties.ProjectPropertyPage"> 
+            <enabledWhen>
+            	<adapt
+					type="org.eclipse.core.resources.IResource">
+				</adapt>
+          	</enabledWhen>
+        </page> 
+    </extension>
+
+	<extension point="org.eclipse.ui.propertyPages"> 
+        <page 
+            id="eu.sqooss.plugin.properties.configurationPropertyPage" 
+            name="Configuration"
+            class="eu.sqooss.plugin.properties.ConfigurationPropertyPage"
+            category="eu.sqooss.plugin.properties.projectPropertyPage">
+            <enabledWhen>
+            	<adapt
+					type="org.eclipse.core.resources.IResource">
+				</adapt>
+          	</enabledWhen>
+        </page> 
+    </extension>
+    
+    <extension point="org.eclipse.ui.propertyPages"> 
+        <page 
+            id="eu.sqooss.plugin.properties.profilePropertyPage" 
+            name="Profiles"
+            class="eu.sqooss.plugin.properties.ProfilePropertyPage"
+            category="eu.sqooss.plugin.properties.projectPropertyPage">
+            <enabledWhen>
+            	<adapt
+					type="org.eclipse.core.resources.IResource">
+				</adapt>
+          	</enabledWhen>
+        </page> 
+    </extension>
+    
+    <extension point="org.eclipse.ui.propertyPages"> 
+        <page 
+            id="eu.sqooss.plugin.properties.qualityPropertyPage" 
+            name="Quality"
+            class="eu.sqooss.plugin.properties.QualityPropertyPage"
+            category="eu.sqooss.plugin.properties.projectPropertyPage">
+            <enabledWhen>
+            	<adapt
+					type="org.eclipse.core.resources.IResource">
+				</adapt>
+          	</enabledWhen>
+        </page> 
+    </extension>
+
+</plugin>
