@@ -15,7 +15,13 @@ JAVA_RESULTS=CoreHelper.java \
 	Metric.java \
 	MetricOperations.java \
 	MetricPOA.java \
-	_MetricStub.java
+	_MetricStub.java \
+	JobHelper.java \
+	JobHolder.java \
+	Job.java \
+	JobOperations.java \
+	JobPOA.java \
+	_JobStub.java
 
 CPP_RESULTS=Alitheia.cpp \
 	Alitheia.h

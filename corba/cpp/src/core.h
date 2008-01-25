@@ -10,6 +10,7 @@ namespace std
 
 namespace Alitheia
 {
+    class Job;
     class Metric;
 
     /**
@@ -42,6 +43,9 @@ namespace Alitheia
          */
         void unregisterMetric( int id );
 
+        int registerJob( const std::string& name, Job* job );
+        void unregisterJob( int id );
+        
         /**
          * Runs the local ORB.
          * You need to call run after registered metrics. Otherwise it would

@@ -1,6 +1,7 @@
 #include "core.h"
 
 #include "corbahandler.h"
+#include "job.h"
 #include "metric.h"
 
 #include <string>
@@ -65,6 +66,20 @@ int Core::registerMetric( const std::string& name, Metric* metric )
 void Core::unregisterMetric( int id )
 {
     d->core->unregisterMetric( id );
+    d->registeredServices.erase( id );
+}
+
+int Core::registerJob( const std::string& name, Job* job )
+{
+    CorbaHandler::instance()->exportObject( job->_this(), name.c_str() );
+    const int id = d->core->registerJob( CORBA::string_dup( name.c_str() ) );
+    d->registeredServices[ id ] = name;
+    return id;
+}
+
+void Core::unregisterJob( int id )
+{
+    d->core->unregisterJob( id );
     d->registeredServices.erase( id );
 }
 

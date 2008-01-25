@@ -7,9 +7,9 @@ import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.MetricResult;
 import eu.sqooss.service.db.DAObject;
 
-public class MetricImpl extends AbstractMetric {
+public class CorbaMetricImpl extends AbstractMetric {
 
-	protected MetricImpl(BundleContext bc, Metric m) {
+	public CorbaMetricImpl(BundleContext bc, Metric m) {
 		super(bc);
 		// TODO Auto-generated constructor stub
 	}

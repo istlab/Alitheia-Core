@@ -17,6 +17,11 @@ public:
     {
     }
 
+    void join()
+    {
+        thread.join();
+    }
+    
 private:
     boost::thread thread;
 };
@@ -39,7 +44,7 @@ CorbaHandler::CorbaHandler()
         ex->_print( cerr );
         cerr << "Got an exception while initializing the CorbaHandler. Make sure the ordb is running on port 2809." << endl;
     }
-//    orb_thread = new OrbThread( orb );
+    orb_thread = new OrbThread( orb );
 }
 
 CorbaHandler::~CorbaHandler()
@@ -49,7 +54,8 @@ CorbaHandler::~CorbaHandler()
 
 void CorbaHandler::run()
 {
-    orb->run();
+    orb_thread->join();
+    //orb->run();
 }
 
 CorbaHandler* CorbaHandler::instance()
