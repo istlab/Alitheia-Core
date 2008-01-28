@@ -21,16 +21,24 @@ namespace Alitheia
      */
     class Core
     {
-    public:
+        friend class Job;
+    protected:
         /**
          * Constructor.
          */
         Core();
+
+    public:
         /**
          * Destructor.
          */
         virtual ~Core();
 
+        /**
+         * Get a singleton instance.
+         */
+        static Core* instance();
+        
         /**
          * Registers \a metric in the Alitheia core by using \a name
          * as it's name in the ORB.
@@ -43,9 +51,14 @@ namespace Alitheia
          */
         void unregisterMetric( int id );
 
-        int registerJob( const std::string& name, Job* job );
-        void unregisterJob( int id );
-        
+        /**
+         * Registers \a job in the Alitheia core.
+         * The job is executed as possible.
+         *
+         * \note The job is executed in a different thread.
+         */
+        int registerJob( Job* job );
+       
         /**
          * Runs the local ORB.
          * You need to call run after registered metrics. Otherwise it would
@@ -55,6 +68,15 @@ namespace Alitheia
          */
         void run();
 
+        /** Enqueue \a job.
+         * \a job is registered in Alitheia's job scheduler and executed
+         * as soon as all dependencies are met.
+         */
+        void enqueueJob( Job* job );
+    
+    protected:
+        void addJobDependency( Job* job, Job* dependency );
+        
     private:
         class Private;
         Private* d;

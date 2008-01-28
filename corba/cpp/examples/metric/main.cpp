@@ -10,7 +10,7 @@ using namespace Alitheia;
 
 int main( int argc, char **argv)
 {
-    Core c;
+    Core& c = *Core::instance();
     
     Logger logger( Logger::NameSqoOssMetric );
     logger.setTeeStream( cout );

@@ -1,5 +1,8 @@
 package eu.sqooss.impl.service.alitheia.core;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.osgi.framework.BundleContext;
 
 import eu.sqooss.impl.service.CorbaActivator;
@@ -15,8 +18,11 @@ public class CoreImpl extends CorePOA {
 
 	BundleContext bc;
 	
+	Map< String, CorbaJobImpl > registeredJobs;
+	
 	public CoreImpl(BundleContext bc) {
 		this.bc = bc;
+		registeredJobs = new HashMap< String, CorbaJobImpl >();
 	}
 	
 	public int registerMetric(String name) {
@@ -46,12 +52,25 @@ public class CoreImpl extends CorePOA {
 		}
 		Job j = JobHelper.narrow(o);
 		CorbaJobImpl impl = new CorbaJobImpl(bc,j);
+		registeredJobs.put(name, impl);
 		return impl.hashCode();
 	}
 
 	public void unregisterJob(int id) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	public void enqueueJob(String name) {
+		registeredJobs.get(name).enqueue();
+	}
+
+	public void addJobDependency(String job, String dependency) {
+		try {
+			registeredJobs.get(job).addDependency(registeredJobs.get(dependency));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 }

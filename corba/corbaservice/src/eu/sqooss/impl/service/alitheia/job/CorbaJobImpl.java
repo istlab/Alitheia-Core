@@ -9,21 +9,17 @@ import eu.sqooss.service.scheduler.Job;
 public class CorbaJobImpl extends Job {
 
 	private eu.sqooss.impl.service.alitheia.Job j;
-	
+    
+	private AlitheiaCore core;
+    	
 	public CorbaJobImpl(BundleContext bc, eu.sqooss.impl.service.alitheia.Job j)
 	{
 		this.j = j;
 		ServiceReference serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
-        AlitheiaCore core = (AlitheiaCore) bc.getService(serviceRef);
-        try {
-        	if (!core.getScheduler().isExecuting()) {
-        		core.getScheduler().startExecute(5);
-        	}
-			core.getScheduler().enqueue(this);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+        core = (AlitheiaCore) bc.getService(serviceRef);
+        if (!core.getScheduler().isExecuting()) {
+       		core.getScheduler().startExecute(16);
+       	}
 	}
 	
 	@Override
@@ -34,6 +30,16 @@ public class CorbaJobImpl extends Job {
 	@Override
 	protected void run() throws Exception {
 		j.run();
+	}
+	
+	public void enqueue()
+	{
+		try{
+			core.getScheduler().enqueue(this);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 }

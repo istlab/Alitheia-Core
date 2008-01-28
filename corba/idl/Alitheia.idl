@@ -10,7 +10,9 @@ module alitheia
     void unregisterMetric( in long id );
 
     long registerJob( in string name );
+    void enqueueJob( in string name );
     void unregisterJob( in long id );
+    void addJobDependency( in string job, in string dependency );
   };
 
   interface Job
