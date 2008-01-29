@@ -38,11 +38,14 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 
+import eu.sqooss.plugin.util.Constants;
+
 public class ProjectPropertyPage extends AbstractProjectPropertyPage implements SelectionListener {
 
     /**
      * @see org.eclipse.jface.preference.PreferencePage#createControl(org.eclipse.swt.widgets.Composite)
      */
+    @Override
     public void createControl(Composite parent) {
         noDefaultAndApplyButton();
         super.createControl(parent);
@@ -51,6 +54,7 @@ public class ProjectPropertyPage extends AbstractProjectPropertyPage implements 
     /**
      * @see eu.sqooss.plugin.properties.AbstractProjectPropertyPage#createContents(org.eclipse.swt.widgets.Composite)
      */
+    @Override
     protected Control createContents(Composite parent) {
         Control control = super.createContents(parent);
         
@@ -69,11 +73,11 @@ public class ProjectPropertyPage extends AbstractProjectPropertyPage implements 
         Object eventSource = e.getSource();
         IWorkbenchPreferenceContainer container= (IWorkbenchPreferenceContainer)getContainer();
         if (eventSource == linkConfigurationPropertyPage) {
-            container.openPage(ConfigurationPropertyPage.PROPERTY_PAGE_ID, null);
+            container.openPage(Constants.CONFIGURATION_PROPERTY_PAGE_ID, null);
         } else if (eventSource == linkProfilePropertyPage) {
-            container.openPage(ProfilePropertyPage.PROPERTY_PAGE_ID, null);
+            container.openPage(Constants.PROFILE_PROPERTY_PAGE_ID, null);
         } else if (eventSource == linkQualityPropertyPage) {
-            container.openPage(QualityPropertyPage.PROPERTY_PAGE_ID, null);
+            container.openPage(Constants.QUALITY_PROPERTY_PAGE_ID, null);
         }
     }
     

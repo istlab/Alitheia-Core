@@ -32,33 +32,49 @@
 
 package eu.sqooss.plugin.properties;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.jface.dialogs.ControlEnableState;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Link;
+import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 
-public class QualityPropertyPage extends AbstractQualityPropertyPage implements SelectionListener{
+import eu.sqooss.plugin.util.ConnectionUtils;
+import eu.sqooss.plugin.util.Constants;
+import eu.sqooss.plugin.util.EnabledState;
 
-    public static final String PROPERTY_PAGE_ID = "eu.sqooss.plugin.properties.qualityPropertyPage";
+public class QualityPropertyPage extends AbstractQualityPropertyPage implements SelectionListener, EnabledState {
+
+    private Composite parent;
+    private Composite mainComposite;
+    private ControlEnableState controlEnableState;
     
     /**
      * @see eu.sqooss.plugin.properties.AbstractQualityPropertyPage#createContents(org.eclipse.swt.widgets.Composite)
      */
+    @Override
     protected Control createContents(Composite parent) {
-        Control control = super.createContents(parent);
+        this.parent = parent;
+        
+        IResource resource = (IResource) (getElement().getAdapter(IResource.class));
+        IProject resourceProject = resource.getProject();
+        
+        mainComposite = (Composite) super.createContents(parent);
         buttonCompareVersion.addSelectionListener(this);
-        
         textFieldEntityPath.setText(getEntityPath());
-        
         parent.forceFocus();
-        
-        return control;
+        setEnabled(ConnectionUtils.validateConfiguration(resourceProject) == null);
+        return mainComposite;
     }
 
     /**
      * @see org.eclipse.jface.preference.PreferencePage#createControl(org.eclipse.swt.widgets.Composite)
      */
+    @Override
     public void createControl(Composite parent) {
         noDefaultAndApplyButton();
         super.createControl(parent);
@@ -69,20 +85,55 @@ public class QualityPropertyPage extends AbstractQualityPropertyPage implements 
     }
 
     public void widgetSelected(SelectionEvent e) {
-        if (e.getSource() == buttonCompareVersion) {
+        Object eventSource = e.getSource(); 
+        if (eventSource == buttonCompareVersion) {
             if (comboCompareVersion.isEnabled()) {
                 comboCompareVersion.setEnabled(false);
             } else {
                 comboCompareVersion.setEnabled(true);
             }
+        } else if (eventSource == configurationLink) {
+            IWorkbenchPreferenceContainer container= (IWorkbenchPreferenceContainer)getContainer();
+            container.openPage(Constants.CONFIGURATION_PROPERTY_PAGE_ID, null);
         }
     }
+    
+    /**
+     * @see eu.sqooss.plugin.properties.EnabledState#setEnabled(boolean)
+     */
+    public void setEnabled(boolean isEnabled) {
+        if (isEnabled) {
+            //it is disabled before, enable now
+            if (controlEnableState != null) {
+                controlEnableState.restore();
+                controlEnableState = null;
+                
+                //remove the configuration link
+                configurationLink.dispose();
+                configurationLink = null;
+                parent.layout();
+            }
+        }else {
+            //it is enabled, disable now
+            if (controlEnableState == null) {
+                controlEnableState = ControlEnableState.disable(mainComposite);
+                
+                //add configuration link
+                configurationLink = new Link(parent, SWT.NONE);
+                configurationLink.setText(PropertyPagesMessages.ProjectPropertyPage_Link_Configuration);
+                configurationLink.addSelectionListener(this);
+                parent.layout();
+            }
+        }
+    }
+    
+    
     
     private String getEntityPath() {
         IResource resource = (IResource) (getElement().getAdapter(IResource.class));
         return ProjectConverterUtility.getEntityPath(resource);
     }
-    
+
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

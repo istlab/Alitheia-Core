@@ -58,6 +58,11 @@ public class PropertyPagesMessages extends NLS {
     public static String ConfigurationPropertyPage_Label_Password;
     public static String ConfigurationPropertyPage_Label_Project_Name;
     public static String ConfigurationPropertyPage_Button_Validate;
+    public static String ConfigurationPropertyPage_MessageBox_Validate_Title;
+    public static String ConfigurationPropertyPage_MessageBox_Validate_Pass;
+    public static String ConfigurationPropertyPage_MessageBox_Validate_Fail;
+    public static String ConfigurationPropertyPage_MessageBox_Save_Title;
+    public static String ConfigurationPropertyPage_MessageBox_Save_Fail;
     
     //QualityPropertyPage's messages
     public static String QualityPropertyPage_Label_Entity_Path;

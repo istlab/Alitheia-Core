@@ -30,36 +30,42 @@
  *
  */
 
-package eu.sqooss.plugin.properties;
+package eu.sqooss.plugin.util;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.QualifiedName;
 
-import eu.sqooss.plugin.util.ConnectionUtils;
-
-public class ProjectConverterUtility {
+public class ConnectionUtils {
     
-    public static String getEntityPath(IResource resource) {
-        StringBuffer eclipsePath = new StringBuffer(resource.getFullPath().toString());
-        char rootPathSymbol = eclipsePath.charAt(0);
-        eclipsePath.deleteCharAt(0); //remove the root
-        int secondPathSymbol = eclipsePath.indexOf(Character.toString(rootPathSymbol));
-        if (secondPathSymbol != -1) {
-            eclipsePath.delete(0, secondPathSymbol);
-            return eclipsePath.toString();
-        } else {
-            //it is a project
-            IProject project = resource.getProject();
-            String sqoossProjectName;
-            try {
-                sqoossProjectName = project.getPersistentProperty(
-                        ConnectionUtils.PROPERTY_PROJECT_NAME);
-            } catch (CoreException e) {
-                sqoossProjectName = null;
-            }
-            return (sqoossProjectName == null)? "" : sqoossProjectName;
+    public static final QualifiedName PROPERTY_SERVER_URL   =
+        new QualifiedName("", "SQO-OSS_SERVER_URL");
+    public static final QualifiedName PROPERTY_USER_NAME    =
+        new QualifiedName("", "SQO-OSS_USER_NAME");
+    public static final QualifiedName PROPERTY_PASSWORD     =
+        new QualifiedName("", "SQO-OSS_PASSWORD");
+    public static final QualifiedName PROPERTY_PROJECT_NAME =
+        new QualifiedName("", "SQO-OSS_PROJECT_NAME");
+    
+    public static String validateConfiguration(String serverUrl, String userName,
+            String password, String projectName) {
+        return "Invalid configuration";
+    }
+
+    public static String validateConfiguration(IProject project) {
+        String serverUrl;
+        String userName;
+        String password;
+        String projectName;
+        try {
+            serverUrl = project.getPersistentProperty(PROPERTY_SERVER_URL);
+            userName = project.getPersistentProperty(PROPERTY_USER_NAME);
+            password = project.getPersistentProperty(PROPERTY_PASSWORD);
+            projectName = project.getPersistentProperty(PROPERTY_PROJECT_NAME);
+        } catch (CoreException ce) {
+            return ce.getMessage();
         }
+        return validateConfiguration(serverUrl, userName, password, projectName);
     }
     
 }

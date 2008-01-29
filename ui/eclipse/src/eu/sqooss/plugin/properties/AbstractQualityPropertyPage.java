@@ -40,6 +40,7 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.PropertyPage;
 
@@ -49,6 +50,7 @@ class AbstractQualityPropertyPage extends PropertyPage {
     protected Combo comboMetric;
     protected Combo comboCompareVersion;
     protected Button buttonCompareVersion;
+    protected Link configurationLink;
     
     protected Control createContents(Composite parent) {
         

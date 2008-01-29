@@ -40,6 +40,7 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.PropertyPage;
 
@@ -55,6 +56,7 @@ abstract class AbstractProfilePropertyPage extends PropertyPage {
     protected Text textFieldPath;
     protected Text textFieldFilesFilter;
     protected Text textFieldRecalcFreq;
+    protected Link configurationLink;
     
     protected Control createContents(Composite parent) {
         Composite composite = createComposite(parent);
@@ -116,7 +118,7 @@ abstract class AbstractProfilePropertyPage extends PropertyPage {
         addLayoutData(comboProjectVersion, 3, true);
     }
     
-    private Composite createComposite(Composite parent) {
+    protected Composite createComposite(Composite parent) {
         Composite composite = new Composite(parent, SWT.NULL);
         GridLayout layout = new GridLayout();
         layout.numColumns = 4;

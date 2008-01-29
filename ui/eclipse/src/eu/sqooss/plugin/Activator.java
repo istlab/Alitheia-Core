@@ -41,7 +41,7 @@ import org.osgi.framework.BundleContext;
 public class Activator extends AbstractUIPlugin {
 
 	// The plug-in ID
-	public static final String PLUGIN_ID = "sqooss";
+	public static final String PLUGIN_ID = "SQO_OSS";
 
 	// The shared instance
 	private static Activator plugin;

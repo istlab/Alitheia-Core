@@ -32,29 +32,81 @@
 
 package eu.sqooss.plugin.properties;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.jface.dialogs.ControlEnableState;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Link;
+import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 
-public class ProfilePropertyPage extends AbstractProfilePropertyPage {
+import eu.sqooss.plugin.util.ConnectionUtils;
+import eu.sqooss.plugin.util.Constants;
+import eu.sqooss.plugin.util.EnabledState;
+
+public class ProfilePropertyPage extends AbstractProfilePropertyPage implements EnabledState, SelectionListener {
     
-    public static final String PROPERTY_PAGE_ID = "eu.sqooss.plugin.properties.profilePropertyPage";
-
+    private Composite mainComposite;
+    private Composite configurationComposite;
+    private ControlEnableState controlEnableState;
     
     /**
      * @see eu.sqooss.plugin.properties.AbstractProfilePropertyPage#createContents(org.eclipse.swt.widgets.Composite)
      */
+    @Override
     protected Control createContents(Composite parent) {
-        Control control = super.createContents(parent);
+        IResource resource = (IResource) (getElement().getAdapter(IResource.class));
+        IProject resourceProject = resource.getProject();
         
+        mainComposite = (Composite) super.createContents(parent);
+        configurationComposite = super.createComposite(parent);
+        addConfigurationLink(configurationComposite);
         textFieldPath.setText(getEntityPath());
-        
-        return control;
+        setEnabled(ConnectionUtils.validateConfiguration(resourceProject) == null);
+        return mainComposite;
+    }
+    
+    public void setEnabled(boolean isEnable) {
+        if (isEnable) {
+            //it is disabled before, enable now
+            if (controlEnableState != null) {
+                controlEnableState.restore();
+                controlEnableState = null;
+                configurationLink.setVisible(false);
+            }
+        }else {
+            //it is enabled, disable now
+            if (controlEnableState == null) {
+                controlEnableState = ControlEnableState.disable(mainComposite);
+                configurationLink.setVisible(true);
+            }
+        }
+    }
+
+    public void widgetDefaultSelected(SelectionEvent e) {
+        //do nothing
+    }
+
+    public void widgetSelected(SelectionEvent e) {
+        Object eventSource = e.getSource();
+        if (eventSource == configurationLink) {
+            IWorkbenchPreferenceContainer container= (IWorkbenchPreferenceContainer)getContainer();
+            container.openPage(Constants.CONFIGURATION_PROPERTY_PAGE_ID, null);
+        }
     }
     
     private String getEntityPath() {
         IResource resource = (IResource) (getElement().getAdapter(IResource.class));
         return ProjectConverterUtility.getEntityPath(resource);
+    }
+
+    private void addConfigurationLink(Composite parent) {
+        configurationLink = new Link(parent, SWT.NONE);
+        configurationLink.setText(PropertyPagesMessages.ProjectPropertyPage_Link_Configuration);
+        configurationLink.addSelectionListener(this);
     }
 
 }

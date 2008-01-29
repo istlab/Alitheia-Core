@@ -30,37 +30,11 @@
  *
  */
 
-package eu.sqooss.plugin.properties;
+package eu.sqooss.plugin.util;
 
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.CoreException;
-
-import eu.sqooss.plugin.util.ConnectionUtils;
-
-public class ProjectConverterUtility {
+public interface EnabledState {
     
-    public static String getEntityPath(IResource resource) {
-        StringBuffer eclipsePath = new StringBuffer(resource.getFullPath().toString());
-        char rootPathSymbol = eclipsePath.charAt(0);
-        eclipsePath.deleteCharAt(0); //remove the root
-        int secondPathSymbol = eclipsePath.indexOf(Character.toString(rootPathSymbol));
-        if (secondPathSymbol != -1) {
-            eclipsePath.delete(0, secondPathSymbol);
-            return eclipsePath.toString();
-        } else {
-            //it is a project
-            IProject project = resource.getProject();
-            String sqoossProjectName;
-            try {
-                sqoossProjectName = project.getPersistentProperty(
-                        ConnectionUtils.PROPERTY_PROJECT_NAME);
-            } catch (CoreException e) {
-                sqoossProjectName = null;
-            }
-            return (sqoossProjectName == null)? "" : sqoossProjectName;
-        }
-    }
+    public void setEnabled(boolean isEnabled);
     
 }
 

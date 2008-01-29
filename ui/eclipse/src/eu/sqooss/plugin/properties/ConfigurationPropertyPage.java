@@ -32,32 +32,35 @@
 
 package eu.sqooss.plugin.properties;
 
+import java.util.List;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.jface.dialogs.ErrorDialog;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.preference.IPreferenceNode;
+import org.eclipse.jface.preference.IPreferencePage;
+import org.eclipse.jface.preference.PreferenceDialog;
+import org.eclipse.jface.preference.PreferenceManager;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
+import eu.sqooss.plugin.Activator;
+import eu.sqooss.plugin.util.ConnectionUtils;
+import eu.sqooss.plugin.util.EnabledState;
+
 public class ConfigurationPropertyPage extends AbstractConfigurationPropertyPage implements SelectionListener{
 
-    public static final String PROPERTY_PAGE_ID = "eu.sqooss.plugin.properties.configurationPropertyPage";
-    
     private static final String TEXT_FIELD_SERVER_URL_DEFAULT_VALUE   = "http://";
     private static final String TEXT_FIELD_USER_NAME_DEFAULT_VALUE    = "";
     private static final String TEXT_FIELD_PASSWORD_DEFAULT_VALUE     = "";
     private static final String TEXT_FIELD_PROJECT_NAME_DEFAULT_VALUE = "";
     
-    public static final QualifiedName PROPERTY_SERVER_URL   =
-        new QualifiedName("", "SQO-OSS_SERVER_URL");
-    public static final QualifiedName PROPERTY_USER_NAME    =
-        new QualifiedName("", "SQO-OSS_USER_NAME");
-    public static final QualifiedName PROPERTY_PASSWORD     =
-        new QualifiedName("", "SQO-OSS_PASSWORD");
-    public static final QualifiedName PROPERTY_PROJECT_NAME =
-        new QualifiedName("", "SQO-OSS_PROJECT_NAME");
+    private IProject project;
     
 	public ConfigurationPropertyPage() {
 		super();
@@ -73,27 +76,27 @@ public class ConfigurationPropertyPage extends AbstractConfigurationPropertyPage
         try {
             String propertyValue;
             IResource resource = (IResource) (getElement().getAdapter(IResource.class));
-            IProject resourceProject = resource.getProject();
+            this.project = resource.getProject();
             
-            propertyValue = resourceProject.getPersistentProperty(PROPERTY_SERVER_URL);
+            propertyValue = project.getPersistentProperty(ConnectionUtils.PROPERTY_SERVER_URL);
             if (propertyValue == null) {
                 propertyValue = TEXT_FIELD_SERVER_URL_DEFAULT_VALUE;
             }
             textFieldServerUrl.setText(propertyValue);
             
-            propertyValue = resourceProject.getPersistentProperty(PROPERTY_USER_NAME);
+            propertyValue = project.getPersistentProperty(ConnectionUtils.PROPERTY_USER_NAME);
             if (propertyValue == null) {
                 propertyValue = TEXT_FIELD_USER_NAME_DEFAULT_VALUE;
             }
             textFieldUserName.setText(propertyValue);
             
-            propertyValue = resourceProject.getPersistentProperty(PROPERTY_PASSWORD);
+            propertyValue = project.getPersistentProperty(ConnectionUtils.PROPERTY_PASSWORD);
             if (propertyValue == null) {
                 propertyValue = TEXT_FIELD_PASSWORD_DEFAULT_VALUE;
             }
             textFieldPassword.setText(propertyValue);
             
-            propertyValue = resourceProject.getPersistentProperty(PROPERTY_PROJECT_NAME);
+            propertyValue = project.getPersistentProperty(ConnectionUtils.PROPERTY_PROJECT_NAME);
             if (propertyValue == null) {
                 propertyValue = TEXT_FIELD_PROJECT_NAME_DEFAULT_VALUE;
             }
@@ -131,11 +134,35 @@ public class ConfigurationPropertyPage extends AbstractConfigurationPropertyPage
     @Override
     public boolean performOk() {
         if (super.performOk()) {
-            return saveConfiguration();
+            saveConfiguration();
+            return true;
         } else {
             return false;
         }
     }
+
+    /**
+     * @see org.eclipse.jface.preference.PreferencePage#performApply()
+     */
+    @Override
+    protected void performApply() {
+        saveConfiguration();
+        String validateMessage = ConnectionUtils.validateConfiguration(project);
+        PreferenceDialog preferenceDialog = (PreferenceDialog) getContainer();
+        List<?> nodes = preferenceDialog.getPreferenceManager().getElements(PreferenceManager.POST_ORDER);
+        IPreferenceNode currentNode;
+        IPreferencePage currentPage;
+        EnabledState enabledPage;
+        for (Object node : nodes) {
+            currentNode = (IPreferenceNode) node;
+            currentPage = currentNode.getPage();
+            if (currentPage instanceof EnabledState) {
+                enabledPage = ((EnabledState) currentPage);
+                enabledPage.setEnabled(validateMessage == null);
+            }
+        }
+    }
+
 
     public void widgetDefaultSelected(SelectionEvent e) {
         //do nothing
@@ -147,57 +174,66 @@ public class ConfigurationPropertyPage extends AbstractConfigurationPropertyPage
         }
     }
 	
-    private boolean validateConfiguration() {
-        //TODO: implement
-        String url = textFieldServerUrl.getText();
+    private void validateConfiguration() {
+        String serverUrl = textFieldServerUrl.getText();
         String userName = textFieldUserName.getText();
         String password = textFieldPassword.getText();
         String projectName = textFieldProjectName.getText();
-        System.out.println("validate configuration: " + url + "; " + userName + "; " +
-                password + "; " + projectName);
-        return true;
-    }
-    
-    private boolean saveConfiguration() {
-        if (validateConfiguration()) {
-            try {
-                String propertyValue;
-                IResource resource = (IResource) (getElement().getAdapter(IResource.class));
-                IProject resourceProject = resource.getProject();
-                
-                propertyValue = textFieldServerUrl.getText().trim();
-                if (!TEXT_FIELD_SERVER_URL_DEFAULT_VALUE.equals(propertyValue)) {
-                    resourceProject.setPersistentProperty(PROPERTY_SERVER_URL, propertyValue);
-                } else {
-                    resourceProject.setPersistentProperty(PROPERTY_SERVER_URL, null);
-                }
-                
-                propertyValue = textFieldUserName.getText().trim();
-                if (!TEXT_FIELD_USER_NAME_DEFAULT_VALUE.equals(propertyValue)) {
-                    resourceProject.setPersistentProperty(PROPERTY_USER_NAME, propertyValue);
-                } else {
-                    resourceProject.setPersistentProperty(PROPERTY_USER_NAME, null);
-                }
-                
-                propertyValue = textFieldPassword.getText().trim();
-                if (!TEXT_FIELD_PASSWORD_DEFAULT_VALUE.equals(propertyValue)) {
-                    resourceProject.setPersistentProperty(PROPERTY_PASSWORD, propertyValue);
-                } else {
-                    resourceProject.setPersistentProperty(PROPERTY_PASSWORD, null);
-                }
-                
-                propertyValue = textFieldProjectName.getText();
-                if (!TEXT_FIELD_PROJECT_NAME_DEFAULT_VALUE.equals(propertyValue)) {
-                    resourceProject.setPersistentProperty(PROPERTY_PROJECT_NAME, propertyValue);
-                } else {
-                    resourceProject.setPersistentProperty(PROPERTY_PROJECT_NAME, null);
-                }
-                return true;
-            } catch (CoreException ce) {
-                return false;
+        String validateMessage = ConnectionUtils.validateConfiguration(serverUrl, userName, password, projectName); 
+        if (validateMessage == null) {
+            boolean isForSave;
+            isForSave = MessageDialog.openQuestion(getShell(),
+                    PropertyPagesMessages.ConfigurationPropertyPage_MessageBox_Validate_Title,
+                    PropertyPagesMessages.ConfigurationPropertyPage_MessageBox_Validate_Pass);
+            if (isForSave) {
+                saveConfiguration();
             }
         } else {
-            return false;
+            MessageDialog.openWarning(getShell(),
+                    PropertyPagesMessages.ConfigurationPropertyPage_MessageBox_Validate_Title,
+                    PropertyPagesMessages.ConfigurationPropertyPage_MessageBox_Validate_Fail + 
+                    "\n\nReason: " + validateMessage);
+        }
+    }
+    
+    private void saveConfiguration() {
+        try {
+            String propertyValue;
+
+            propertyValue = textFieldServerUrl.getText().trim();
+            if (!TEXT_FIELD_SERVER_URL_DEFAULT_VALUE.equals(propertyValue)) {
+                project.setPersistentProperty(ConnectionUtils.PROPERTY_SERVER_URL, propertyValue);
+            } else {
+                project.setPersistentProperty(ConnectionUtils.PROPERTY_SERVER_URL, null);
+            }
+
+            propertyValue = textFieldUserName.getText().trim();
+            if (!TEXT_FIELD_USER_NAME_DEFAULT_VALUE.equals(propertyValue)) {
+                project.setPersistentProperty(ConnectionUtils.PROPERTY_USER_NAME, propertyValue);
+            } else {
+                project.setPersistentProperty(ConnectionUtils.PROPERTY_USER_NAME, null);
+            }
+
+            propertyValue = textFieldPassword.getText().trim();
+            if (!TEXT_FIELD_PASSWORD_DEFAULT_VALUE.equals(propertyValue)) {
+                project.setPersistentProperty(ConnectionUtils.PROPERTY_PASSWORD, propertyValue);
+            } else {
+                project.setPersistentProperty(ConnectionUtils.PROPERTY_PASSWORD, null);
+            }
+
+            propertyValue = textFieldProjectName.getText();
+            if (!TEXT_FIELD_PROJECT_NAME_DEFAULT_VALUE.equals(propertyValue)) {
+                project.setPersistentProperty(ConnectionUtils.PROPERTY_PROJECT_NAME, propertyValue);
+            } else {
+                project.setPersistentProperty(ConnectionUtils.PROPERTY_PROJECT_NAME, null);
+            }
+        } catch (CoreException ce) {
+            Status errorStatus = new Status(Status.ERROR, Activator.PLUGIN_ID,
+                    PropertyPagesMessages.ConfigurationPropertyPage_MessageBox_Validate_Fail, ce);
+            ErrorDialog.openError(getShell(),
+                    PropertyPagesMessages.ConfigurationPropertyPage_MessageBox_Validate_Title,
+                    null,
+                    errorStatus);
         }
     }
 }
