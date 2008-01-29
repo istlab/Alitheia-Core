@@ -115,7 +115,7 @@ public class SchedulerServiceImpl implements Scheduler {
         }
     }
 
-    public void startExecute(int n) {
+    synchronized public void startExecute(int n) {
         if (myWorkerThreads == null) {
             myWorkerThreads = new LinkedList< WorkerThread >();
         }
@@ -127,7 +127,7 @@ public class SchedulerServiceImpl implements Scheduler {
         }
     }
 
-    public void stopExecute() {
+    synchronized public void stopExecute() {
         if (myWorkerThreads == null) {
             return;
         }
@@ -137,6 +137,16 @@ public class SchedulerServiceImpl implements Scheduler {
         }
 
         myWorkerThreads.clear();
+    }
+    
+    synchronized public boolean isExecuting()
+    {
+    	if (myWorkerThreads==null) {
+    		return false;
+    	}
+    	else {
+    		return !myWorkerThreads.isEmpty();
+    	}
     }
 
     public Object selfTest() {

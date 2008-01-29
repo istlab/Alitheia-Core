@@ -77,4 +77,9 @@ public interface Scheduler {
      * Stops job execution of all current worker threads.
      */
     void stopExecute();
+    
+    /**
+     * @return Whether the scheduler is currently executing jobs or not.
+     */
+    boolean isExecuting();
 }
