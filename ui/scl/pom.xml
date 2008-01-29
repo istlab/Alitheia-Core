@@ -70,6 +70,18 @@
       </resource>
     </resources>
     <plugins>
+      <plugin>
+        <!-- JAR-PACKER plug-in configuration                              -->
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <excludes>
+            <exclude>**/bin</exclude>
+          </excludes>
+          <archive>
+            <addMavenDescriptor>false</addMavenDescriptor>
+          </archive>
+        </configuration>
+      </plugin>
       <!-- SITE-GENERATOR plug-in configuration                            -->
       <plugin>
         <artifactId>maven-site-plugin</artifactId>
