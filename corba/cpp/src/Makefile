@@ -9,7 +9,7 @@ logger.o: Alitheia.h logger.cpp corbahandler.h logger.h
 metric.o: Alitheia.h metric.cpp metric.h
 	mico-c++ -c metric.cpp
 
-core.o: Alitheia.h core.cpp corbahandler.h core.h
+core.o: Alitheia.h core.cpp corbahandler.h core.h metric.h job.h
 	mico-c++ -c core.cpp
 
 job.o: Alitheia.h job.cpp job.h corbahandler.h

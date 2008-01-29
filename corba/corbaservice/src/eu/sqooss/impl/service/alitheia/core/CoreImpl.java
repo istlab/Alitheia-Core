@@ -72,5 +72,12 @@ public class CoreImpl extends CorePOA {
 			e.printStackTrace();
 		}
 	}
-
+	
+	public void waitForJobFinished(String job) {
+		try {
+			registeredJobs.get(job).waitForFinished();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 }

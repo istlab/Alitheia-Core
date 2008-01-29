@@ -5,6 +5,8 @@
 #include <sstream>
 #include <ostream>
 
+#include <boost/thread.hpp>
+
 using namespace std;
 using namespace Alitheia;
 
@@ -21,24 +23,31 @@ public:
     {
         for( int i = 0; i < 10; ++i )
         {
-            for( long long bogus = 0; bogus < 1000000000LL; ++bogus )
             {
-                // waste some processing time...
-                float foobar = 3.8523;
-                foobar += 34.928;
-                foobar *= 3423.928;
-                float blob = foobar + 342;
-                blob /= 2392.92;;
+                boost::mutex::scoped_lock scoped_lock( mutex );
+                l << "TestJob::run(): Our job " << name << " is running :-)" << endl;
             }
-            l << "TestJob::run(): Our job " << name << " is running :-)" << endl;
-    
+            boost::xtime xt;
+            boost::xtime_get( &xt, boost::TIME_UTC );
+            ++xt.sec;
+            boost::thread::sleep( xt );
         }
+    }
+
+    void stateChanged( State state )
+    {
+        boost::mutex::scoped_lock scoped_lock( mutex );
+        l << "TestJob::stateChanged(): Our job " << name << " changed to state " << state << endl;
     }
 
 private:
     Logger& l;
     const string name;
+
+    static boost::mutex mutex;
 };
+
+boost::mutex TestJob::mutex;
 
 int main( int argc, char **argv)
 {
@@ -71,5 +80,5 @@ int main( int argc, char **argv)
     c.enqueueJob( j3 );
     c.enqueueJob( j4 );
     
-    c.run();
+    j4->waitForFinished();
 }

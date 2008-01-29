@@ -73,9 +73,10 @@ namespace Alitheia
          * as soon as all dependencies are met.
          */
         void enqueueJob( Job* job );
-    
+   
     protected:
         void addJobDependency( Job* job, Job* dependency );
+        void waitForJobFinished( Job* job );
         
     private:
         class Private;

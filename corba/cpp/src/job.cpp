@@ -19,6 +19,7 @@ namespace Alitheia
 
     public:
         std::string name;
+        Job::State state;
     };
 }
 
@@ -52,9 +53,33 @@ void Job::run()
 {
 }
 
+Job::State Job::state() const
+{
+    return d->state;
+}
+
+void Job::stateChanged( State )
+{
+}
+
+void Job::setState( State state )
+{
+    if( d->state == state )
+        return;
+
+    d->state = state;
+
+    stateChanged( state );
+}
+
 void Job::addDependency( Job* other )
 {
     Core::instance()->addJobDependency( this, other );
+}
+
+void Job::waitForFinished()
+{
+    Core::instance()->waitForJobFinished( this );
 }
 
 const std::string& Job::name() const
@@ -65,4 +90,27 @@ const std::string& Job::name() const
 void Job::setName( const std::string& name )
 {
     d->name = name;
+}
+
+std::ostream& operator<<( std::ostream& stream, Job::State state )
+{
+    switch( state )
+    {
+    case ::alitheia::Job::Created:
+        stream << "Created";
+        break;
+    case ::alitheia::Job::Error:
+        stream << "Error";
+        break;
+    case ::alitheia::Job::Finished:
+        stream << "Finished";
+        break;
+    case ::alitheia::Job::Queued:
+        stream << "Queued";
+        break;
+    case ::alitheia::Job::Running:
+        stream << "Running";
+        break;
+    }
+    return stream;
 }

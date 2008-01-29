@@ -106,6 +106,13 @@ void Core::addJobDependency( Job* job, Job* dependency )
                                CORBA::string_dup( dependency->name().c_str() ) );
 }
 
+void Core::waitForJobFinished( Job* job )
+{
+    if( job->name().length() == 0 )
+        registerJob( job );
+    d->core->waitForJobFinished( CORBA::string_dup( job->name().c_str() ) );
+}
+
 void Core::run()
 {
     CorbaHandler::instance()->run();

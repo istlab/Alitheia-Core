@@ -304,10 +304,20 @@ public abstract class Job implements Comparable<Job> {
         if (m_scheduler != null) {
             m_scheduler.jobStateChanged(this, s);
         }
-
+        
+        stateChanged(m_state);
+        
         notifyAll();
     }
 
+    /**
+     * Called, when the state of the job changed to \a state.
+     * The default implementation does nothing.
+     */
+    protected void stateChanged(State state) {
+    	
+    }
+    
     /**
      * If the job is queued to a scheduler, this methods tells the scheduler, 
      * that the job's dependencies have changed.

@@ -13,12 +13,22 @@ module alitheia
     void enqueueJob( in string name );
     void unregisterJob( in long id );
     void addJobDependency( in string job, in string dependency );
+    void waitForJobFinished( in string name );
   };
 
   interface Job
   {
     long priority();
     void run();
+    enum JobState
+    {
+        Created,
+        Queued,
+        Running,
+        Finished,
+        Error
+    };
+    void setState( in JobState state );
   };
 
   interface Logger
