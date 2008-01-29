@@ -65,18 +65,15 @@
         <directory>${basedir}</directory>
         <targetPath>.</targetPath>
         <includes>
-          <include>**/eu.sqooss.ws.client_*.jar</include>
+          <include>eu.sqooss.ws.client_*.jar</include>
         </includes>
       </resource>
     </resources>
     <plugins>
+      <!-- JAR-PACKER plug-in configuration                                -->
       <plugin>
-        <!-- JAR-PACKER plug-in configuration                              -->
         <artifactId>maven-jar-plugin</artifactId>
         <configuration>
-          <excludes>
-            <exclude>**/bin</exclude>
-          </excludes>
           <archive>
             <addMavenDescriptor>false</addMavenDescriptor>
           </archive>
@@ -121,9 +118,7 @@
       <plugin>
         <artifactId>maven-clean-plugin</artifactId>
         <configuration>
-          <!-- [byotov] Also cleanup all previously deployed SQO-OSS service
-            bundles from the Equinox bundles repository.
-          -->
+          <!-- [byotov] Cleanup the previous SQO-OSS SCL deployment -->
           <filesets>
             <fileset>
               <directory>${user.dir}/ui/build</directory>
