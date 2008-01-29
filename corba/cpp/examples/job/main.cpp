@@ -14,7 +14,8 @@ class TestJob : public Job
 {
 public:
     TestJob( Logger& l, const string& name )
-        : l( l ),
+        : Job(),
+          l( l ),
           name( name )
     {
     }

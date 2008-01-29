@@ -19,7 +19,14 @@ namespace Alitheia
         Job();
         ~Job();
         
-        typedef ::alitheia::Job::JobState State;
+        enum State
+        {
+            Created   = ::alitheia::Job::Created,
+            Queued    = ::alitheia::Job::Queued,
+            Running   = ::alitheia::Job::Running,
+            Finished  = ::alitheia::Job::Finished,
+            Error     = ::alitheia::Job::Error
+        };
         
         virtual CORBA::Long priority();
         virtual void run();
@@ -33,7 +40,7 @@ namespace Alitheia
         void waitForFinished();
 
     protected:
-        void setState( State state );
+        void setState( alitheia::Job::JobState state );
         
         const std::string& name() const;
         void setName( const std::string& name );

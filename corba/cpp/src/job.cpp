@@ -26,7 +26,8 @@ namespace Alitheia
 using namespace Alitheia;
 
 Job::Private::Private( Job* q )
-    : q( q )
+    : q( q ),
+      state( Job::Created )
 {
 }
 
@@ -37,6 +38,7 @@ Job::Private::~Private()
 Job::Job()
     : d( new Private( this ) )
 {
+    this->stateChanged( Created );
 }
 
 Job::~Job()
@@ -62,14 +64,14 @@ void Job::stateChanged( State )
 {
 }
 
-void Job::setState( State state )
+void Job::setState( alitheia::Job::JobState state )
 {
-    if( d->state == state )
+    if( d->state == static_cast< State >( state ) )
         return;
 
-    d->state = state;
+    d->state = static_cast< State >( state );
 
-    stateChanged( state );
+    stateChanged( d->state );
 }
 
 void Job::addDependency( Job* other )
@@ -96,20 +98,23 @@ std::ostream& operator<<( std::ostream& stream, Job::State state )
 {
     switch( state )
     {
-    case ::alitheia::Job::Created:
+    case Job::Created:
         stream << "Created";
         break;
-    case ::alitheia::Job::Error:
+    case Job::Error:
         stream << "Error";
         break;
-    case ::alitheia::Job::Finished:
+    case Job::Finished:
         stream << "Finished";
         break;
-    case ::alitheia::Job::Queued:
+    case Job::Queued:
         stream << "Queued";
         break;
-    case ::alitheia::Job::Running:
+    case Job::Running:
         stream << "Running";
+        break;
+    default:
+        stream << "Undefined";
         break;
     }
     return stream;
