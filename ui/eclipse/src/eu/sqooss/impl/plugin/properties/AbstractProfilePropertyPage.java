@@ -30,7 +30,7 @@
  *
  */
 
-package eu.sqooss.plugin.properties;
+package eu.sqooss.impl.plugin.properties;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;

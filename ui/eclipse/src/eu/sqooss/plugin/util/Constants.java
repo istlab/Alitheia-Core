@@ -35,16 +35,16 @@ package eu.sqooss.plugin.util;
 public interface Constants {
     
     public static final String PROJECT_PROPERTY_PAGE_ID =
-        "eu.sqooss.plugin.properties.projectPropertyPage";
+        "eu.sqooss.impl.plugin.properties.projectPropertyPage";
     
     public static final String CONFIGURATION_PROPERTY_PAGE_ID = 
-        "eu.sqooss.plugin.properties.configurationPropertyPage";
+        "eu.sqooss.impl.plugin.properties.configurationPropertyPage";
     
     public static final String PROFILE_PROPERTY_PAGE_ID =
-        "eu.sqooss.plugin.properties.profilePropertyPage";
+        "eu.sqooss.impl.plugin.properties.profilePropertyPage";
     
     public static final String QUALITY_PROPERTY_PAGE_ID =
-        "eu.sqooss.plugin.properties.qualityPropertyPage";
+        "eu.sqooss.impl.plugin.properties.qualityPropertyPage";
     
 }
 

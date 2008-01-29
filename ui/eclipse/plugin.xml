@@ -4,9 +4,9 @@
 
 	<extension point="org.eclipse.ui.propertyPages"> 
         <page 
-            id="eu.sqooss.plugin.properties.projectPropertyPage" 
+            id="eu.sqooss.impl.plugin.properties.projectPropertyPage" 
             name="SQO-OSS"
-            class="eu.sqooss.plugin.properties.ProjectPropertyPage"> 
+            class="eu.sqooss.impl.plugin.properties.ProjectPropertyPage"> 
             <enabledWhen>
             	<adapt
 					type="org.eclipse.core.resources.IResource">
@@ -17,10 +17,10 @@
 
 	<extension point="org.eclipse.ui.propertyPages"> 
         <page 
-            id="eu.sqooss.plugin.properties.configurationPropertyPage" 
+            id="eu.sqooss.impl.plugin.properties.configurationPropertyPage" 
             name="Configuration"
-            class="eu.sqooss.plugin.properties.ConfigurationPropertyPage"
-            category="eu.sqooss.plugin.properties.projectPropertyPage">
+            class="eu.sqooss.impl.plugin.properties.ConfigurationPropertyPage"
+            category="eu.sqooss.impl.plugin.properties.projectPropertyPage">
             <enabledWhen>
             	<adapt
 					type="org.eclipse.core.resources.IResource">
@@ -31,10 +31,10 @@
     
     <extension point="org.eclipse.ui.propertyPages"> 
         <page 
-            id="eu.sqooss.plugin.properties.profilePropertyPage" 
+            id="eu.sqooss.impl.plugin.properties.profilePropertyPage" 
             name="Profiles"
-            class="eu.sqooss.plugin.properties.ProfilePropertyPage"
-            category="eu.sqooss.plugin.properties.projectPropertyPage">
+            class="eu.sqooss.impl.plugin.properties.ProfilePropertyPage"
+            category="eu.sqooss.impl.plugin.properties.projectPropertyPage">
             <enabledWhen>
             	<adapt
 					type="org.eclipse.core.resources.IResource">
@@ -45,10 +45,10 @@
     
     <extension point="org.eclipse.ui.propertyPages"> 
         <page 
-            id="eu.sqooss.plugin.properties.qualityPropertyPage" 
+            id="eu.sqooss.impl.plugin.properties.qualityPropertyPage" 
             name="Quality"
-            class="eu.sqooss.plugin.properties.QualityPropertyPage"
-            category="eu.sqooss.plugin.properties.projectPropertyPage">
+            class="eu.sqooss.impl.plugin.properties.QualityPropertyPage"
+            category="eu.sqooss.impl.plugin.properties.projectPropertyPage">
             <enabledWhen>
             	<adapt
 					type="org.eclipse.core.resources.IResource">

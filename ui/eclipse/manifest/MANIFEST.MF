@@ -3,10 +3,11 @@ Bundle-ManifestVersion: 2
 Bundle-Name: SQO-OSS Eclipse IDE Plug-in
 Bundle-SymbolicName: SQO_OSS;singleton:=true
 Bundle-Version: 0.0.1
-Bundle-Activator: eu.sqooss.plugin.Activator
+Bundle-Activator: eu.sqooss.impl.plugin.Activator
 Bundle-Vendor: ProSyst Software GmbH
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.core.resources
 Eclipse-LazyStart: true
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Export-Package: eu.sqooss.plugin.util

@@ -30,7 +30,7 @@
  *
  */
 
-package eu.sqooss.plugin.properties;
+package eu.sqooss.impl.plugin.properties;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;

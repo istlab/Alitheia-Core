@@ -30,7 +30,7 @@
  *
  */
 
-package eu.sqooss.plugin.properties;
+package eu.sqooss.impl.plugin.properties;
 
 import java.util.List;
 
@@ -49,7 +49,7 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
-import eu.sqooss.plugin.Activator;
+import eu.sqooss.impl.plugin.Activator;
 import eu.sqooss.plugin.util.ConnectionUtils;
 import eu.sqooss.plugin.util.EnabledState;
 

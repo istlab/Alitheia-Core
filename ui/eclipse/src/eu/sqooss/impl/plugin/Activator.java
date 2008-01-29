@@ -30,7 +30,7 @@
  *
  */
 
-package eu.sqooss.plugin;
+package eu.sqooss.impl.plugin;
 
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
