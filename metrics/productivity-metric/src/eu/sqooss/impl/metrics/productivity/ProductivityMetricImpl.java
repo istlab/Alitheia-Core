@@ -54,16 +54,7 @@ public class ProductivityMetricImpl extends AbstractMetric implements
     }
 
     public boolean install() {
-
-        ServiceReference serviceRef = null;
-        AlitheiaCore core = null;
-        DBService db = null;
-
-        serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
-        core = (AlitheiaCore) bc.getService(serviceRef);
-        db = core.getDBService();
-        
-        return false;
+        return super.install();
     }
 
     public boolean remove() {

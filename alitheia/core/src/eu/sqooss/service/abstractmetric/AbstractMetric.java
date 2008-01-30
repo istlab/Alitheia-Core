@@ -34,18 +34,26 @@
 package eu.sqooss.service.abstractmetric;
 
 import java.util.Date;
+import java.util.List;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DAObject;
+import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.FileGroup;
+import eu.sqooss.service.db.MetricType;
+import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
+
 
 /**
  * A base class for all metrics. Implements basic functionality such as
@@ -59,7 +67,11 @@ public abstract class AbstractMetric implements Metric {
     protected BundleContext bc;
     protected LogManager logService = null;
     protected Logger log = null;
-        
+    
+    protected Metric metric;
+    protected MetricType metricType;
+    protected DBService db;
+    
     protected AbstractMetric(BundleContext bc) {
 
         this.bc = bc;
@@ -78,6 +90,11 @@ public abstract class AbstractMetric implements Metric {
         if (log == null) {
             System.out.println("ERROR: Got no logger");
         }
+        
+        db = ((AlitheiaCore) bc.getService(serviceRef)).getDBService();
+        
+        if(db == null) 
+            log.error("Could not get a reference to the DB service");            
     }
 
     public String getAuthor() {
@@ -133,8 +150,42 @@ public abstract class AbstractMetric implements Metric {
             run((FileGroup) o);
     }
 
+    /**
+     * Register the metric to the DB. Subclasses can perform
+     * their custom initialization routines after calling 
+     * super()
+     */
     public boolean install() {
-        return false;
+        
+        Session s = db.getSession(this);
+        
+        List<Plugin> plugins = s.createQuery("from Plugin as m where m.name = ? ")
+            .setString(0, getName())
+            .list();
+        
+        if (!plugins.isEmpty()) {
+            log.warn("Plugin " + getName() + " is already installed, won't re-install.");
+            return false;
+        }
+        
+        Transaction tx = null;
+        try {
+            tx = s.beginTransaction();
+            Plugin p = new Plugin();
+            p.setName(getName());
+            p.setInstalldate(new Date(System.currentTimeMillis()));
+            s.persist(p);
+            tx.commit();
+        }
+        catch (RuntimeException e) {
+            if (tx != null) 
+                tx.rollback();
+            log.warn("Error writting plug-in info for " 
+                    + getName() + " to the DB");
+            return false;
+        }
+        
+        return true;
     }
 
     public abstract boolean remove();

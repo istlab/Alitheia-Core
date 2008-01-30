@@ -49,8 +49,7 @@ public class WcImplementation extends AbstractMetric implements Wc {
     }
 
     public boolean install() {
-
-        return false;
+        return super.install();
     }
 
     public boolean remove() {

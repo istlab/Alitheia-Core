@@ -33,12 +33,15 @@
 
 package eu.sqooss.service.db;
 
+import java.util.Date;
+
 import eu.sqooss.service.db.DAObject;
 
 public class Plugin extends DAObject{
     private long metric;
     private String name;
-
+    private Date installdate;
+    
     public Plugin() {
         // Nothing to do here
     }
@@ -57,6 +60,14 @@ public class Plugin extends DAObject{
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Date getInstalldate() {
+        return installdate;
+    }
+
+    public void setInstalldate(Date installdate) {
+        this.installdate = installdate;
     }
 }
 
