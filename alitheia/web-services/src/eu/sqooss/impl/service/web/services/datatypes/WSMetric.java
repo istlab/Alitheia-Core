@@ -58,7 +58,7 @@ public class WSMetric {
     }
     
     public long getMetricTypeId() {
-        return metric.getMetricType();
+        return metric.getMetricType().getId();
     }
 
     public String getDescription() {
