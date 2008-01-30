@@ -36,18 +36,19 @@ package eu.sqooss.service.db;
 import eu.sqooss.service.db.DAObject;
 
 public class Metric extends DAObject{
-    private long metricType;
+    private Plugin plugin;
+    private MetricType metricType;
     private String description;
 
     public Metric() {
         //Nothing to do here
     }
 
-    public long getMetricType() {
+    public MetricType getMetricType() {
         return metricType;
     }
 
-    public void setMetricType(long metricType) {
+    public void setMetricType(MetricType metricType) {
         this.metricType = metricType;
     }
 
@@ -57,6 +58,14 @@ public class Metric extends DAObject{
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Plugin getPlugin() {
+        return plugin;
+    }
+
+    public void setPlugin(Plugin plugin) {
+        this.plugin = plugin;
     }
 }
 

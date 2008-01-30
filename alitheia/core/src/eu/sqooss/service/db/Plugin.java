@@ -34,24 +34,16 @@
 package eu.sqooss.service.db;
 
 import java.util.Date;
+import java.util.HashMap;
 
 import eu.sqooss.service.db.DAObject;
 
-public class Plugin extends DAObject{
-    private long metric;
+public class Plugin extends DAObject{ 
     private String name;
     private Date installdate;
     
     public Plugin() {
         // Nothing to do here
-    }
-
-    public long getMetric() {
-        return metric;
-    }
-
-    public void setMetric(long metric) {
-        this.metric = metric;
     }
 
     public String getName() {
@@ -68,6 +60,12 @@ public class Plugin extends DAObject{
 
     public void setInstalldate(Date installdate) {
         this.installdate = installdate;
+    }
+    
+    public static Plugin getPlugin(DBService db, String name) {
+        HashMap<String, Object> s = new HashMap<String, Object>();
+        s.put("name", name);
+        return (Plugin)db.doHQL("from Plugin where name = ?", s).get(0);
     }
 }
 

@@ -8,8 +8,7 @@
     <id name="id" column="PLUGIN_ID">
       <generator class="native" />
     </id>
-    <property name="metric" column="METRIC_ID" />
-    <property name="name" column="NAME" />
+    <property name="name" column="NAME" type="string" />
     <property name="installdate" column="INSTALL_DATE" type="java.util.Date" />
   </class>
 </hibernate-mapping>
