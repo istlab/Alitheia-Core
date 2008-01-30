@@ -37,19 +37,23 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 import org.osgi.framework.BundleContext;
 
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.logging.Logger;
 
 public class DBServiceImpl implements DBService {
@@ -253,12 +257,11 @@ public class DBServiceImpl implements DBService {
         }
     }
 
-    public void addRecord(DAObject record) {
+    public boolean addRecord(DAObject record) {
         Session s = getSession(this);
-        s.beginTransaction();
-        addRecord(s, record);
-        s.getTransaction().commit();
-        returnSession(s);
+        boolean result = addRecord(s, record);
+        returnSession (s);
+        return result;
     }
 
     public void deleteRecord(DAObject record) {
@@ -340,8 +343,31 @@ public class DBServiceImpl implements DBService {
         sm.returnSession(s);
     }
 
-    public void addRecord(Session s, DAObject record) {
-        s.save(record);
+    public boolean addRecord(Session s, DAObject record) {
+        
+        Transaction tx = null;
+        try {
+            tx = s.beginTransaction();
+            s.save(record);
+            tx.commit();
+        }
+        catch (HibernateException e) {
+            if (tx != null) {
+                try {
+                    tx.rollback();
+                } catch (HibernateException ex) {
+                    logger.error("Error while rolling back failed transaction" +
+                        ". DB may be left in inconsistent state:" + ex.getMessage());
+                    ex.printStackTrace();
+                    return false;
+                }
+                logger.warn("Failed to add object " + record.getId() 
+                        + " to the database: " + e.getMessage());
+            }
+            return false;
+        }
+       
+        return true;
     }
 
     public void deleteRecord(Session s, DAObject record) {

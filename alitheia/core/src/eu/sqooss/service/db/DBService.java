@@ -43,12 +43,15 @@ import org.hibernate.Session;
 
 public interface DBService {
     /**
-     * Add a new record to the system database; this should initialize
-     * any tables that are needed for storage of project information.
+     * Add a new record to the system database; this should initialize any
+     * tables that are needed for storage of project information.
+     * 
+     * @return True, if record insertion succeeded. False + log message
+     *         otherwise
      */
-    public void addRecord(DAObject record);
+    public boolean addRecord(DAObject record);
 
-    public void addRecord(Session s, DAObject record);
+    public boolean addRecord(Session s, DAObject record);
     
     /**
      * Delete an existing record from the system database, using the
@@ -84,7 +87,7 @@ public interface DBService {
      * Do an HQL query with the default session as a single transaction.
      *
      * @param hql HQL query string
-     * @see doHQL(Session, String, Map<String, Object>, Map<String,Collection>)
+     * @see doHQL(Session, String, Map<String, Object>)
      */
     public List doHQL(String hql);
     
