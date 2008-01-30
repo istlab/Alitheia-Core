@@ -34,7 +34,6 @@
 package eu.sqooss.service.db;
 
 import eu.sqooss.service.db.DAObject;
-import java.sql.Time;
 
 public class BugReporter extends DAObject {
     private String name;
