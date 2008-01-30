@@ -8,8 +8,8 @@
     <id name="id" column="METRIC_ID">
       <generator class="native" />
     </id>
-    <many-to-one name="plugin" column="PLUGIN_ID"/>
+    <many-to-one name="plugin" column="PLUGIN_ID" not-null="true"/>
     <many-to-one name="metricType" column="METRIC_TYPE" />
-    <property name="description" column="DESCRIPTION" />
+    <property name="description" column="DESCRIPTION" not-null="true" />
   </class>
 </hibernate-mapping>

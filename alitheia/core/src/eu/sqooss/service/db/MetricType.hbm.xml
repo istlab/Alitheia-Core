@@ -8,6 +8,6 @@
     <id name="id" column="METRIC_TYPE_ID">
       <generator class="native" />
     </id>
-    <property name="type" column="TYPE" />
+    <property name="type" column="TYPE" not-null="true" />
   </class>
 </hibernate-mapping>

@@ -46,7 +46,7 @@ public class WSMetricType {
     }
     
     public String getType() {
-        return metricType.getType();
+        return metricType.getType().toString();
     }
 
 }

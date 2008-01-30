@@ -35,21 +35,44 @@ package eu.sqooss.service.db;
 
 import eu.sqooss.service.db.DAObject;
 
-public class MetricType extends DAObject{
+public class MetricType extends DAObject {
     private String type;
+
+    public enum Type {
+
+        SOURCE_CODE, MAILING_LIST, BUG_DATABASE;
+
+        public static Type fromString(String s) {
+            if (s == "SOURCE_CODE")
+                return Type.SOURCE_CODE;
+            else if (s == "MAILING_LIST")
+                return Type.MAILING_LIST;
+            else if (s == "BUG_DATABASE")
+                return Type.BUG_DATABASE;
+            else
+                return null;
+        }
+    }
 
     public MetricType() {
         // Nothing to do here
     }
 
-    public String getType() {
-        return type;
+    public MetricType(Type t) {
+        type = t.toString();
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public Type getType() {
+        return Type.fromString(type);
+    }
+
+    public void setType(Type type) {
+        this.type = type.toString();
+    }
+
+    public void setType(String s) {
+        this.type = Type.fromString(s).toString();
     }
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
-
