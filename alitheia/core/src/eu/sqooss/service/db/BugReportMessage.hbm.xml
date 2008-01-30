@@ -8,8 +8,8 @@
     <id name="id" column="BUG_REPORT_MESSAGE_ID">
       <generator class="native" />
     </id>
-    <property name="bug" column="BUG" />
-    <property name="bugReporter" column="BUG_REPORTER" />
+    <many-to-one name="bug" column="BUG_ID" not-null="TRUE"/>
+    <many-to-one name="bugReporter" column="BUG_REPORTER_ID" not-null="TRUE"/>
     <property name="description" column="DESCRIPTION" />
     <property name="action" column="ACTION" />
   </class>
