@@ -33,6 +33,8 @@
 
 package eu.sqooss.service.db;
 
+import java.util.HashMap;
+
 import eu.sqooss.service.db.DAObject;
 
 public class MetricType extends DAObject {
@@ -72,6 +74,12 @@ public class MetricType extends DAObject {
 
     public void setType(String s) {
         this.type = Type.fromString(s).toString();
+    }
+    
+    public static MetricType getMetricType(DBService db, Type t) {
+        HashMap<String, Object> s = new HashMap<String, Object>();
+        s.put("type", t.toString());
+        return (MetricType)db.doHQL("from MetricType where type = ? ", s).get(0) ;
     }
 }
 
