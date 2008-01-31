@@ -106,6 +106,7 @@ public class ProfilePropertyPage extends AbstractProfilePropertyPage implements 
     private void addConfigurationLink(Composite parent) {
         configurationLink = new Link(parent, SWT.NONE);
         configurationLink.setText(PropertyPagesMessages.ProjectPropertyPage_Link_Configuration);
+        configurationLink.setVisible(false);
         configurationLink.addSelectionListener(this);
     }
 
