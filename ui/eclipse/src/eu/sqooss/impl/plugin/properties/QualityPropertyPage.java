@@ -38,6 +38,7 @@ import org.eclipse.jface.dialogs.ControlEnableState;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Link;
@@ -121,6 +122,7 @@ public class QualityPropertyPage extends AbstractQualityPropertyPage implements 
                 //add configuration link
                 configurationLink = new Link(parent, SWT.NONE);
                 configurationLink.setText(PropertyPagesMessages.ProjectPropertyPage_Link_Configuration);
+                configurationLink.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, false));
                 configurationLink.addSelectionListener(this);
                 parent.layout();
             }

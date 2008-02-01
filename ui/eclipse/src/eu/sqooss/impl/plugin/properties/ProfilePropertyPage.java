@@ -35,12 +35,10 @@ package eu.sqooss.impl.plugin.properties;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.dialogs.ControlEnableState;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Link;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 
 import eu.sqooss.plugin.util.ConnectionUtils;
@@ -49,8 +47,6 @@ import eu.sqooss.plugin.util.EnabledState;
 
 public class ProfilePropertyPage extends AbstractProfilePropertyPage implements EnabledState, SelectionListener {
     
-    private Composite mainComposite;
-    private Composite configurationComposite;
     private ControlEnableState controlEnableState;
     
     /**
@@ -61,12 +57,15 @@ public class ProfilePropertyPage extends AbstractProfilePropertyPage implements 
         IResource resource = (IResource) (getElement().getAdapter(IResource.class));
         IProject resourceProject = resource.getProject();
         
-        mainComposite = (Composite) super.createContents(parent);
-        configurationComposite = super.createComposite(parent);
-        addConfigurationLink(configurationComposite);
+        Composite containerComposite = (Composite) super.createContents(parent);
+        
+        configurationLink.addSelectionListener(this);
+        
         textFieldPath.setText(getEntityPath());
+        
         setEnabled(ConnectionUtils.validateConfiguration(resourceProject) == null);
-        return mainComposite;
+        
+        return containerComposite;
     }
     
     public void setEnabled(boolean isEnable) {
@@ -101,13 +100,6 @@ public class ProfilePropertyPage extends AbstractProfilePropertyPage implements 
     private String getEntityPath() {
         IResource resource = (IResource) (getElement().getAdapter(IResource.class));
         return ProjectConverterUtility.getEntityPath(resource);
-    }
-
-    private void addConfigurationLink(Composite parent) {
-        configurationLink = new Link(parent, SWT.NONE);
-        configurationLink.setText(PropertyPagesMessages.ProjectPropertyPage_Link_Configuration);
-        configurationLink.setVisible(false);
-        configurationLink.addSelectionListener(this);
     }
 
 }

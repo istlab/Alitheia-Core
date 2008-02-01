@@ -53,8 +53,11 @@ class AbstractQualityPropertyPage extends PropertyPage {
     protected Link configurationLink;
     
     protected Control createContents(Composite parent) {
+        GridData gridData;
         
         Composite mainComposite = createComposite(parent, SWT.NULL, 2);
+        gridData = new GridData(GridData.FILL, GridData.FILL, true, true);
+        mainComposite.setLayoutData(gridData);
         
         addFirstSection(mainComposite);
         addSeparator(mainComposite);

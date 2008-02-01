@@ -62,6 +62,8 @@ abstract class AbstractConfigurationPropertyPage extends PropertyPage {
      */
     protected Control createContents(Composite parent) {
         Composite composite = createComposite(parent);
+        GridData compositeGridData = new GridData(GridData.FILL, GridData.FILL, true, true);
+        composite.setLayoutData(compositeGridData);
         addComponents(composite);
         return composite;
     }
@@ -112,7 +114,7 @@ abstract class AbstractConfigurationPropertyPage extends PropertyPage {
         return composite;
     }
     
-    private void setLayoutData(Control control) {
+    private static void setLayoutData(Control control) {
         GridData gridData = new GridData();
         gridData.horizontalAlignment = GridData.FILL;
         gridData.grabExcessHorizontalSpace = true;

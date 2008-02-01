@@ -48,6 +48,8 @@ abstract class AbstractProfilePropertyPage extends PropertyPage {
 
     private static final int TEXT_FIELDS_SWT_STYLE = SWT.SINGLE | SWT.BORDER;
     
+    protected Composite mainComposite;
+    protected Composite configurationComposite;
     protected Combo comboProfileName;
     protected Combo comboProjectVersion;
     protected Button buttonRemoveProfile;
@@ -59,20 +61,32 @@ abstract class AbstractProfilePropertyPage extends PropertyPage {
     protected Link configurationLink;
     
     protected Control createContents(Composite parent) {
-        Composite composite = createComposite(parent);
-        addComponents(composite);
-        return composite;
+        GridData gridData;
+        
+        Composite containerComposite = createComposite(parent, 1);
+        gridData = new GridData(GridData.FILL, GridData.FILL, true, true);
+        containerComposite.setLayoutData(gridData);
+        
+        mainComposite = createComposite(containerComposite, 4);
+        gridData = new GridData(GridData.FILL, GridData.FILL, true, true);
+        mainComposite.setLayoutData(gridData);
+        
+        configurationComposite = createComposite(containerComposite, 1);
+        gridData = new GridData(GridData.FILL, GridData.FILL, true, false);
+        configurationComposite.setLayoutData(gridData);
+        
+        addComponents(mainComposite);
+        
+        addConfigurationLink(configurationComposite);
+        
+        return containerComposite;
     }
 
     private void addComponents(Composite composite) {
-        GridData gridData;
-        
         //add profile's components
         Label labelProfileName = new Label(composite, SWT.NONE);
         labelProfileName.setText(PropertyPagesMessages.ProfilePropertyPage_Label_Profile_Name);
-        gridData = new GridData();
-        gridData.horizontalSpan = 4;
-        labelProfileName.setLayoutData(gridData);
+        addLayoutData(labelProfileName, 4, false);
         
         comboProfileName = new Combo(composite, SWT.DROP_DOWN);
         addLayoutData(comboProfileName, 2, true);
@@ -118,12 +132,12 @@ abstract class AbstractProfilePropertyPage extends PropertyPage {
         addLayoutData(comboProjectVersion, 3, true);
     }
     
-    protected Composite createComposite(Composite parent) {
+    private Composite createComposite(Composite parent, int numColumns) {
         Composite composite = new Composite(parent, SWT.NULL);
         GridLayout layout = new GridLayout();
-        layout.numColumns = 4;
+        layout.numColumns = numColumns;
         composite.setLayout(layout);
-
+        
         return composite;
     }
     
@@ -134,6 +148,13 @@ abstract class AbstractProfilePropertyPage extends PropertyPage {
         gridData.horizontalAlignment = SWT.FILL;
         gridData.grabExcessHorizontalSpace = grabExcessHorizontalSpace;
         control.setLayoutData(gridData);
+    }
+    
+    private void addConfigurationLink(Composite parent) {
+        configurationLink = new Link(parent, SWT.NONE);
+        configurationLink.setText(PropertyPagesMessages.ProjectPropertyPage_Link_Configuration);
+        addLayoutData(configurationLink, 1, true);
+        configurationLink.setVisible(false);
     }
     
 }

@@ -48,7 +48,11 @@ abstract class AbstractProjectPropertyPage extends PropertyPage {
     protected Link linkQualityPropertyPage;
     
     protected Control createContents(Composite parent) {
+        GridData gridData;
+        
         Composite composite  = createComposite(parent);
+        gridData = new GridData(GridData.FILL, GridData.FILL, true, true);
+        composite.setLayoutData(gridData);
         
         //add caption
         Label labelCaption = new Label(composite, SWT.NONE);
