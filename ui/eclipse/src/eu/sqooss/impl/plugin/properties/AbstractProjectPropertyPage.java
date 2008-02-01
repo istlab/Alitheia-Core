@@ -53,30 +53,31 @@ abstract class AbstractProjectPropertyPage extends PropertyPage {
         //add caption
         Label labelCaption = new Label(composite, SWT.NONE);
         labelCaption.setText(PropertyPagesMessages.ProjectPropertyPage_Label_Caption);
+        setLayoutData(labelCaption);
      
         addSeparator(composite);
         
         //add configuration link
         linkConfigurationPropertyPage = new Link(composite, SWT.NONE);
         linkConfigurationPropertyPage.setText(PropertyPagesMessages.ProjectPropertyPage_Link_Configuration);
+        setLayoutData(linkConfigurationPropertyPage);
         
         //add profile link
         linkProfilePropertyPage = new Link(composite, SWT.NONE);
         linkProfilePropertyPage.setText(PropertyPagesMessages.ProjectPropertyPage_Link_Profile);
+        setLayoutData(linkProfilePropertyPage);
         
         //add quality link
         linkQualityPropertyPage = new Link(composite, SWT.NONE);
         linkQualityPropertyPage.setText(PropertyPagesMessages.ProjectPropertyPage_Link_Quality);
+        setLayoutData(linkQualityPropertyPage);
         
         return composite;
     }
 
     private void addSeparator(Composite parent) {
         Label separator = new Label(parent, SWT.SEPARATOR | SWT.HORIZONTAL);
-        GridData gridData = new GridData();
-        gridData.horizontalAlignment = SWT.FILL;
-        gridData.grabExcessHorizontalSpace = true;
-        separator.setLayoutData(gridData);
+        setLayoutData(separator);
     }
     
     private Composite createComposite(Composite parent) {
@@ -88,6 +89,13 @@ abstract class AbstractProjectPropertyPage extends PropertyPage {
         return composite;
     }
 
+    private void setLayoutData(Control control) {
+        GridData gridData = new GridData();
+        gridData.horizontalAlignment = SWT.FILL;
+        gridData.grabExcessHorizontalSpace = true;
+        control.setLayoutData(gridData);
+    }
+    
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
