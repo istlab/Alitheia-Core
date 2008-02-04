@@ -68,6 +68,125 @@
           <include>eu.sqooss.ws.client_*.jar</include>
         </includes>
       </resource>
+      <!-- External libraries that needs to be bundle with the SCL library
+        extlibs/org.apache.axiom.api_1.2.2/axiom-api-1.2.2.jar
+        extlibs/org.apache.axiom.dom_1.2.2/axiom-dom-1.2.2.jar
+        extlibs/org.apache.axiom.impl_1.2.2/axiom-impl-1.2.2.jar
+        extlibs/org.apache.axis2_1.1.0/axis2-kernel-1.1.jar
+        extlibs/org.apache.axis2.databinding_1.1.0/axis2-adb-1.1.jar
+        extlibs/org.apache.commons.collections_2.1.1/org.apache.commons.collections-2.1.1.jar
+        extlibs/org.apache.commons.httpclient-3.0.1.jar
+        extlibs/org.apache.commons.logging-1.1.1.jar
+        extlibs/org.apache.ws.commons.schema_1.2.0/XmlSchema-1.2.jar
+        extlibs/org.apache.wsdl4j_1.6.1/wsdl4j-1.6.1.jar
+        extlibs/javax.mail.api_1.4.0/activation-1.1.jar
+        extlibs/javax.mail.api_1.4.0/mail-1.4.jar
+        extlibs/javax.stax.api_1.0.1/stax-api-1.0.1.jar
+        extlibs/org.codehaus.stax2_3.0.1/wstx-asl-3.0.1.jar
+      -->
+      <!-- TODO: the following is against the Maven's good practices. It has
+        to be performed by the assembly plug-in, once all dependancies are
+        made available through a Maven repo. But since they are currently
+        provided in a system scope, and Maven Assembly NPEs when resolving
+        those, a fast solution is to use a dirty trick -->
+      <resource>
+        <directory>${user.dir}/extlibs/org.apache.axiom.api_1.2.2</directory>
+        <targetPath>.</targetPath>
+        <includes>
+          <include>axiom-api-1.2.2.jar</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>${user.dir}/extlibs/org.apache.axiom.dom_1.2.2</directory>
+        <targetPath>.</targetPath>
+        <includes>
+          <include>axiom-dom-1.2.2.jar</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>${user.dir}/extlibs/org.apache.axiom.impl_1.2.2</directory>
+        <targetPath>.</targetPath>
+        <includes>
+          <include>axiom-impl-1.2.2.jar</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>${user.dir}/extlibs/org.apache.axis2_1.1.0</directory>
+        <targetPath>.</targetPath>
+        <includes>
+          <include>axis2-kernel-1.1.jar</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>${user.dir}/extlibs/org.apache.axis2.databinding_1.1.0</directory>
+        <targetPath>.</targetPath>
+        <includes>
+          <include>axis2-adb-1.1.jar</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>${user.dir}/extlibs/org.apache.commons.collections_2.1.1</directory>
+        <targetPath>.</targetPath>
+        <includes>
+          <include>org.apache.commons.collections-2.1.1.jar</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>${user.dir}/extlibs</directory>
+        <targetPath>.</targetPath>
+        <includes>
+          <include>org.apache.commons.httpclient-3.0.1.jar</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>${user.dir}/extlibs</directory>
+        <targetPath>.</targetPath>
+        <includes>
+          <include>org.apache.commons.logging-1.1.1.jar</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>${user.dir}/extlibs/org.apache.ws.commons.schema_1.2.0</directory>
+        <targetPath>.</targetPath>
+        <includes>
+          <include>XmlSchema-1.2.jar</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>${user.dir}/extlibs/org.apache.wsdl4j_1.6.1</directory>
+        <targetPath>.</targetPath>
+        <includes>
+          <include>wsdl4j-1.6.1.jar</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>${user.dir}/extlibs/javax.mail.api_1.4.0</directory>
+        <targetPath>.</targetPath>
+        <includes>
+          <include>activation-1.1.jar</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>${user.dir}/extlibs/javax.mail.api_1.4.0</directory>
+        <targetPath>.</targetPath>
+        <includes>
+          <include>mail-1.4.jar</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>>${user.dir}/extlibs/javax.stax.api_1.0.1</directory>
+        <targetPath>.</targetPath>
+        <includes>
+          <include>stax-api-1.0.1.jar</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>>${user.dir}/extlibs/org.codehaus.stax2_3.0.1</directory>
+        <targetPath>.</targetPath>
+        <includes>
+          <include>wstx-asl-3.0.1.jar</include>
+        </includes>
+      </resource>
     </resources>
     <plugins>
       <!-- JAR-PACKER plug-in configuration                                -->
