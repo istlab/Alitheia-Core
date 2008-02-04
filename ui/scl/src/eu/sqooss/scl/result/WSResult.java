@@ -151,8 +151,17 @@ public class WSResult implements Iterable<ArrayList<WSResultEntry>>,
 
     public WSResult(String plainText) {
         this();
+        if (plainText != null) {
+            ArrayList<WSResultEntry> row = new ArrayList<WSResultEntry>(1);
+            row.add(new WSResultEntry(plainText, WSResultEntry.MIME_TYPE_TEXT_PLAIN));
+            addResultRow(row);
+        }
+    }
+    
+    public WSResult(long longValue) {
+        this();
         ArrayList<WSResultEntry> row = new ArrayList<WSResultEntry>(1);
-        row.add(new WSResultEntry(plainText, WSResultEntry.MIME_TYPE_TEXT_PLAIN));
+        row.add(new WSResultEntry(longValue, WSResultEntry.MIME_TYPE_TYPE_LONG));
         addResultRow(row);
     }
     

@@ -38,7 +38,10 @@ import java.util.StringTokenizer;
 
 import org.apache.axis2.AxisFault;
 
+import eu.sqooss.scl.result.WSResult;
 import eu.sqooss.ws.client.WsStub;
+import eu.sqooss.ws.client.datatypes.WSStoredProject;
+import eu.sqooss.ws.client.datatypes.WSUser;
 import eu.sqooss.ws.client.ws.DeleteUser;
 import eu.sqooss.ws.client.ws.DisplayUser;
 import eu.sqooss.ws.client.ws.DisplayUserResponse;
@@ -53,14 +56,13 @@ import eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedFiles;
 import eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedFilesResponse;
 import eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProject;
 import eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProjectResponse;
+import eu.sqooss.ws.client.ws.RetrieveProjectId;
+import eu.sqooss.ws.client.ws.RetrieveProjectIdResponse;
 import eu.sqooss.ws.client.ws.RetrieveSelectedMetric;
-import eu.sqooss.ws.client.ws.RetrieveSelectedMetricResponse;
 import eu.sqooss.ws.client.ws.SubmitUser;
 import eu.sqooss.ws.client.ws.SubmitUserResponse;
-import eu.sqooss.ws.client.datatypes.WSMetric;
-import eu.sqooss.ws.client.datatypes.WSStoredProject;
-import eu.sqooss.ws.client.datatypes.WSUser;
-import eu.sqooss.scl.result.WSResult;
+import eu.sqooss.ws.client.ws.ValidateAccount;
+import eu.sqooss.ws.client.ws.ValidateAccountResponse;
 
 /**
  * The class has package visibility.
@@ -76,11 +78,23 @@ class WSConnectionImpl implements WSConnection {
     public WSConnectionImpl(String userName, String password, String webServiceUrl) throws WSException {
         this.userName = userName;
         this.password = password;
+        ValidateAccountResponse response;
         try {
             this.wsStub = new WsStub(webServiceUrl);
+            ValidateAccount accountParams = new ValidateAccount();
+            accountParams.setPassword(password);
+            accountParams.setUserName(userName);
+            response = this.wsStub.validateAccount(accountParams);
         } catch (AxisFault e) {
             throw new WSException(e);
+        } catch (RemoteException re) {
+            throw new WSException(re);
         }
+        
+        if (!response.get_return()) {
+            throw new WSException("The user's account is not valid!");
+        }
+        
         initParameters();
     }
     
@@ -408,6 +422,25 @@ class WSConnectionImpl implements WSConnection {
         return new WSResult("Not Implemented yet");
     }
     
+    public WSResult retrieveProjectId(String projectName) throws WSException {
+        RetrieveProjectIdResponse response;
+        RetrieveProjectId params = (RetrieveProjectId) parameters.get(
+                WSConnectionConstants.METHOD_NAME_RETRIEVE_PROJECT_ID);
+        synchronized (params) {
+            params.setProjectName(projectName);
+            try {
+                response = wsStub.retrieveProjectId(params);
+            } catch (RemoteException re) {
+                throw new WSException(re);
+            }
+        }
+        
+        long result = response.get_return();
+        
+        return new WSResult(result);
+        
+    }
+    
     private void initParameters() {
         parameters = new Hashtable<String, Object>();
         
@@ -460,6 +493,11 @@ class WSConnectionImpl implements WSConnection {
         submitUser.setPasswordForAccess(password);
         submitUser.setUserNameForAccess(userName);
         parameters.put(WSConnectionConstants.METHOD_NAME_SUBMIT_USER, submitUser);
+        
+        RetrieveProjectId retrieveProjectIdParam = new RetrieveProjectId();
+        retrieveProjectIdParam.setPasswrod(password);
+        retrieveProjectIdParam.setUserName(userName);
+        parameters.put(WSConnectionConstants.METHOD_NAME_RETRIEVE_PROJECT_ID, retrieveProjectIdParam);
     }
     
 }

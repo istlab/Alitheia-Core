@@ -58,31 +58,38 @@ class WSConnectionWrapper {
     public WSResult getValue(String webServiceMethodUrl) throws WSException {
         ArrayList<String> methodArguments = new ArrayList<String>();
         String methodName = parseWebServiceMethodUrl(webServiceMethodUrl, methodArguments);
-        if (WSConnectionConstants.METHOD_NAME_EVALUATED_PROJECTS_LIST.equals(methodName)) {
-            return evaluatedProjectsList();
-        } else if (WSConnectionConstants.METHOD_NAME_RETRIEVE_METRICS_4_SELECTED_PROJECT.equals(methodName)) {
-            return retrieveMetrics4SelectedProject(methodArguments);
-        } else if (WSConnectionConstants.METHOD_NAME_RETRIEVE_SELECTED_METRIC.equals(methodName)) {
-            return retrieveSelectedMetric(methodArguments);
-        } else if (WSConnectionConstants.METHOD_NAME_RETRIEVE_METRICS_4_SELECTED_FILES.equals(methodName)) {
-            return retrieveMetrics4SelectedFiles(methodArguments);
-        } else if (WSConnectionConstants.METHOD_NAME_RETRIEVE_FILE_LIST.equals(methodName)) {
-            return retrieveFileList(methodArguments);
-        } else if (WSConnectionConstants.METHOD_NAME_REQUEST_EVALUATION_4_PROJECT.equals(methodName)) {
-            return requestEvaluation4Project(methodArguments);
-        } else if (WSConnectionConstants.METHOD_NAME_DISPLAY_USER.equals(methodName)) {
-            return displayUser(methodArguments);
-        } else if (WSConnectionConstants.METHOD_NAME_DELETE_USER.equals(methodName)) {
-            deleteUser(methodArguments);
-            return new WSResult();
-        } else if (WSConnectionConstants.METHOD_NAME_MODIFY_USER.equals(methodName)) {
-            modifyUser(methodArguments);
-            return new WSResult();
-        } else if (WSConnectionConstants.METHOD_NAME_SUBMIT_USER.equals(methodName)) {
-            return submitUser(methodArguments);
-        } else {
-            throw new WSException("Invalid URL! url: " + webServiceMethodUrl);
+        try {
+            if (WSConnectionConstants.METHOD_NAME_EVALUATED_PROJECTS_LIST.equals(methodName)) {
+                return evaluatedProjectsList();
+            } else if (WSConnectionConstants.METHOD_NAME_RETRIEVE_METRICS_4_SELECTED_PROJECT.equals(methodName)) {
+                return retrieveMetrics4SelectedProject(methodArguments);
+            } else if (WSConnectionConstants.METHOD_NAME_RETRIEVE_SELECTED_METRIC.equals(methodName)) {
+                return retrieveSelectedMetric(methodArguments);
+            } else if (WSConnectionConstants.METHOD_NAME_RETRIEVE_METRICS_4_SELECTED_FILES.equals(methodName)) {
+                return retrieveMetrics4SelectedFiles(methodArguments);
+            } else if (WSConnectionConstants.METHOD_NAME_RETRIEVE_FILE_LIST.equals(methodName)) {
+                return retrieveFileList(methodArguments);
+            } else if (WSConnectionConstants.METHOD_NAME_REQUEST_EVALUATION_4_PROJECT.equals(methodName)) {
+                return requestEvaluation4Project(methodArguments);
+            } else if (WSConnectionConstants.METHOD_NAME_DISPLAY_USER.equals(methodName)) {
+                return displayUser(methodArguments);
+            } else if (WSConnectionConstants.METHOD_NAME_DELETE_USER.equals(methodName)) {
+                deleteUser(methodArguments);
+                return new WSResult();
+            } else if (WSConnectionConstants.METHOD_NAME_MODIFY_USER.equals(methodName)) {
+                modifyUser(methodArguments);
+                return new WSResult();
+            } else if (WSConnectionConstants.METHOD_NAME_SUBMIT_USER.equals(methodName)) {
+                return submitUser(methodArguments);
+            } else if (WSConnectionConstants.METHOD_NAME_RETRIEVE_PROJECT_ID.equals(methodName)) {
+                return retrieveProjectId(methodArguments);
+            }
+        } catch (WSException wse) {
+            throw wse;
+        } catch (Throwable t) {
+            throw new WSException(t);
         }
+        throw new WSException("Invalid URL! url: " + webServiceMethodUrl);
     }
     
     private WSResult evaluatedProjectsList() throws WSException {
@@ -222,6 +229,16 @@ class WSConnectionWrapper {
         wsConnection.deleteUser(userId);
     }
     //5.1.11
+    
+    //validation
+    private WSResult retrieveProjectId(ArrayList<String> args) throws WSException {
+        int argsNumber = args.size();
+        if (argsNumber != 1) {
+            throw new WSException("The number of the arguments is not correct! number: " + argsNumber);
+        }
+        return wsConnection.retrieveProjectId(args.get(0));
+    }
+    //validation
     
     /**
      * This method parses the url.

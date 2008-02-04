@@ -126,9 +126,9 @@ public interface Ws {
      * @param param10
 
      */
-    public eu.sqooss.ws.client.ws.RequestEvaluation4ProjectResponse requestEvaluation4Project(
+    public eu.sqooss.ws.client.ws.ValidateAccountResponse validateAccount(
 
-            eu.sqooss.ws.client.ws.RequestEvaluation4Project param10)
+            eu.sqooss.ws.client.ws.ValidateAccount param10)
     throws java.rmi.RemoteException
 
     ;
@@ -141,9 +141,9 @@ public interface Ws {
      * @param param12
 
      */
-    public void deleteUser(
+    public eu.sqooss.ws.client.ws.RequestEvaluation4ProjectResponse requestEvaluation4Project(
 
-            eu.sqooss.ws.client.ws.DeleteUser param12)
+            eu.sqooss.ws.client.ws.RequestEvaluation4Project param12)
     throws java.rmi.RemoteException
 
     ;
@@ -156,9 +156,9 @@ public interface Ws {
      * @param param14
 
      */
-    public eu.sqooss.ws.client.ws.RetrieveFileListResponse retrieveFileList(
+    public void deleteUser(
 
-            eu.sqooss.ws.client.ws.RetrieveFileList param14)
+            eu.sqooss.ws.client.ws.DeleteUser param14)
     throws java.rmi.RemoteException
 
     ;
@@ -171,9 +171,9 @@ public interface Ws {
      * @param param16
 
      */
-    public eu.sqooss.ws.client.ws.RetrieveSelectedMetricResponse retrieveSelectedMetric(
+    public eu.sqooss.ws.client.ws.RetrieveProjectIdResponse retrieveProjectId(
 
-            eu.sqooss.ws.client.ws.RetrieveSelectedMetric param16)
+            eu.sqooss.ws.client.ws.RetrieveProjectId param16)
     throws java.rmi.RemoteException
 
     ;
@@ -186,9 +186,39 @@ public interface Ws {
      * @param param18
 
      */
+    public eu.sqooss.ws.client.ws.RetrieveFileListResponse retrieveFileList(
+
+            eu.sqooss.ws.client.ws.RetrieveFileList param18)
+    throws java.rmi.RemoteException
+
+    ;
+
+
+
+    /**
+     * Auto generated method signature
+
+     * @param param20
+
+     */
+    public eu.sqooss.ws.client.ws.RetrieveSelectedMetricResponse retrieveSelectedMetric(
+
+            eu.sqooss.ws.client.ws.RetrieveSelectedMetric param20)
+    throws java.rmi.RemoteException
+
+    ;
+
+
+
+    /**
+     * Auto generated method signature
+
+     * @param param22
+
+     */
     public eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedFilesResponse retrieveMetrics4SelectedFiles(
 
-            eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedFiles param18)
+            eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedFiles param22)
     throws java.rmi.RemoteException
 
     ;

@@ -306,6 +306,17 @@ public interface WSConnection {
     public void deleteUser(long userId) throws WSException;
     //5.1.11
     
+    //retrieve methods
+    /**
+     * This method retrieves the project's identifier.
+     * 
+     * @param projectName - the name of the project as stored in the SQO-OSS.
+     * @return
+     * @throws WSException
+     */
+    public WSResult retrieveProjectId(String projectName) throws WSException;
+    //retrieve methods
+    
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
