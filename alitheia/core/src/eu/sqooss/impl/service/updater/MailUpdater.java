@@ -33,44 +33,32 @@
 
 package eu.sqooss.impl.service.updater;
 
-import eu.sqooss.service.db.DBService;
+import eu.sqooss.core.AlitheiaCore;
 
 import eu.sqooss.service.logging.Logger;
 
-import eu.sqooss.service.scheduler.Scheduler;
-
-import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.updater.UpdaterException;
 
 /** 
- * 
+ * Synchronises raw mails with the database
  * 
  * @author Vassilios Karakoidas (bkarak@aueb.gr)
  */
 public class MailUpdater {
-    
     private String path;
-
-    private TDSService tds;
-
-    private DBService dbs;
-
-    private Scheduler scheduler;
-
+    private AlitheiaCore core;
     private Logger logger;
-
-    public MailUpdater(String path, TDSService tds, DBService dbs,
-            Scheduler scheduler, Logger logger) throws UpdaterException {
-        if ((path == null) || (tds == null) || (dbs == null)
-                || (scheduler == null) || (logger == null)) {
-            throw new UpdaterException(
-                    "The components required by the updater are unavailable.");
-        }
-
-        this.tds = tds;
-        this.dbs = dbs;
-        this.scheduler = scheduler;
-        this.logger = logger;
+    
+    public MailUpdater(String path, 
+	    	       AlitheiaCore core,
+	    	       Logger logger) throws UpdaterException {
+	if(path == null || core == null || logger == null) {
+	    throw new UpdaterException("Cannot initialise MailUpdater (path/core/logger is null)");
+	}
+	
+	this.core = core;
+	this.logger = logger;
+	this.path = path;
     }
     
     public void doUpdate() throws UpdaterException {

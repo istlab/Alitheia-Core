@@ -89,9 +89,16 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
         logger.info("Request to update project:" + path + " for target: "
                 + target);
 
-        if (target == UpdateTarget.MAILING_LIST_DATA) {
+        if (target == UpdateTarget.MAILING_LIST_DATA || target == UpdateTarget.ALL) {
             // mailing list update
-        } else if (target == UpdateTarget.SOURCE_CODE_DATA) {
+            try {
+        	MailUpdater mu = new MailUpdater(path, core, logger);
+        	mu.doUpdate();
+            } catch (UpdaterException ue) {
+        	logger.error("The Updater failed to update the mailing list data for " 
+        		+ path);
+            }
+        } else if (target == UpdateTarget.SOURCE_CODE_DATA || target == UpdateTarget.ALL) {
             // source code update
             try {
                 SourceUpdater su = new SourceUpdater(path, core, logger, context);
@@ -100,12 +107,9 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
                 logger.error("The Updater failed to update the code for project "
                                 + path);
             }
-        } else if (target == UpdateTarget.BUG_DATABASE_DATA) {
+        } else if (target == UpdateTarget.BUG_DATABASE_DATA || target == UpdateTarget.ALL) {
             // bug database update
-        } else if (target == UpdateTarget.ALL) {
-            // update all
         }
-
     }
 
     public void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -116,7 +120,7 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
         if (p != null && UpdateTarget.fromString(t) != null) {
             update(p, UpdateTarget.fromString(t));
         } else {
-            logger.severe("Failing request to update project:" + p
+            logger.error("Failing request to update project:" + p
                     + " for target: " + t);
             response.sendError(HttpServletResponse.SC_BAD_REQUEST);
         }
