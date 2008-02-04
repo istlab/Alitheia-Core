@@ -331,6 +331,32 @@ public class WebServices {
     }
     //5.1.11
     
+    //retrieve methods
+    /**
+     * This method retrieves the project's identifier.
+     * 
+     * @param userName
+     * @param passwrod
+     * @param projectName - the name of the project as stored in the SQO-OSS.
+     * @return
+     */
+    public long retrieveProjectId(String userName, String passwrod, String projectName) {
+        return webServices.retrieveProjectId(userName, passwrod, projectName);
+    }
+    //retrieve methods
+    
+    //validation
+    /**
+     * This method checks the user's name and the given password.
+     * @param userName
+     * @param password
+     * @return
+     */
+    public boolean validateAccount(String userName, String password) {
+        return webServices.validateAccount(userName, password);
+    }
+    //validation
+    
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

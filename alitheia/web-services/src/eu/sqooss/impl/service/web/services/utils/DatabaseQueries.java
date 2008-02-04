@@ -121,6 +121,15 @@ public class DatabaseQueries {
                                                               REQUEST_EVALUATION_4_PROJECT_PARAM_PR_VERSION;
     //5.1.3
     
+    //retrieve methods
+    public static final String RETRIEVE_PROJECT_ID_PARAM_PR_NAME = "project_name";
+    
+    public static final String RETRIEVE_PROJECT_ID_PARAM = "select sp.id " +
+                                                           "from StoredProject sp " +
+                                                           "where sp.name=:" +
+                                                           RETRIEVE_PROJECT_ID_PARAM_PR_NAME;
+    //retrieve methods
+    
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

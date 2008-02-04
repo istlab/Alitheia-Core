@@ -423,6 +423,37 @@ public class WebServicesImpl {
     }
     //5.1.11
     
+    //retrieve methods
+    public long retrieveProjectId(String userName, String passwrod, String projectName) {
+        
+        logger.info("Retrieve project id! user: " + userName +
+                "; project name: " + projectName);
+        
+        //TODO: check the security
+        
+        Map<String, Object> queryParameters = new Hashtable<String, Object>(1);
+        queryParameters.put(DatabaseQueries.RETRIEVE_PROJECT_ID_PARAM_PR_NAME, projectName);
+        List queryResult = db.doHQL(DatabaseQueries.RETRIEVE_PROJECT_ID_PARAM, queryParameters);
+        
+        Long projectId;
+        
+        if (queryResult.size() != 0) {
+            projectId = (Long) queryResult.get(0);
+            return projectId;
+        } else {
+            throw new IllegalArgumentException("Can't find the project with name: " + projectName);
+        }
+        
+    }
+    //retrieve methods
+    
+    //validation
+    public boolean validateAccount(String userName, String password) {
+        //TODO:
+        return true;
+    }
+    //validation
+    
     /* project's methods */
     
 //    private boolean checkSecurity(String userName, String password, String Url) {
