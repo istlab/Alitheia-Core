@@ -44,6 +44,12 @@ HBM_RESOURCES=$(shell cd src/ && find eu -name '*.hbm.xml')
 
 # Add the dependency jars to the classpath.
 $(foreach d,$(JARS),$(eval EXTRA_CP:=$(EXTRA_CP)$(d):))
+EXTRA_CP:=$(EXTRA_CP):src
+ifeq ($(OS),Windows_NT)
+EXTRA_CP:=$(subst /,\,$(EXTRA_CP))
+EXTRA_CP:=$(subst :,;,$(EXTRA_CP))
+endif
+CLASSPATH=$(EXTRA_CP)
 
 # This is (hardcoded) the OSGi framework classpath.
 #EQUINOX_CP=$(PREFIX)/org.eclipse.osgi_3.3.0.v20070321.jar:$(PREFIX)/org.eclipse.osgi.util_3.1.100.v20060918.jar:$(PREFIX)/org.eclipse.osgi.services_3.1.100.v20060918.jar:
@@ -107,7 +113,7 @@ $(foreach d,$(RESOURCES),$(eval $(call resource_template,$(d))))
 $(foreach d,$(HBM_RESOURCES),$(eval $(call hbm_resource_template,$(d))))
 
 build/.prebuild : $(SRC:%=src/%)
-	javac -g -Xlint:-path -source 1.5 -cp $(EXTRA_CP):src/ -d build/ $?
+	javac -g -Xlint:-path -source 1.5 -d build/ $?
 	touch build/.prebuild
 
 JAVADEP=perl ../../../../tools/java_dependency_generator.pl

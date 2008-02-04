@@ -49,7 +49,12 @@ SUBDIRS=alitheia \
 	metrics \
 	corba
 
-CLASSPATH=$(shell tools/setcp.sh `pwd` )
+CLASSPATH=$(shell tools/setcp.sh `pwd`)
+ifeq ($(OS),Windows_NT)
+CLASSPATH:=$(subst /,\,$(CLASSPATH))
+CLASSPATH:=$(subst :,;,$(CLASSPATH))
+endif
+
 
 #
 # END OF USER CONFIGURATION AREA
