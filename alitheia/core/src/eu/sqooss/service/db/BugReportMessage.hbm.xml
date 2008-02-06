@@ -4,7 +4,7 @@
         "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-  <class name="eu.sqooss.service.db.BugReporMessage" table="BUG_REPORT_MESSAGE">
+  <class name="eu.sqooss.service.db.BugReportMessage" table="BUG_REPORT_MESSAGE">
     <id name="id" column="BUG_REPORT_MESSAGE_ID">
       <generator class="native" />
     </id>
