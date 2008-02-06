@@ -40,7 +40,7 @@ import java.util.*;
  *
  */
 public class MailMessage extends DAObject {
-    String sender;
+    Sender sender;
     String recipients;
     String listId;
     String messageId;
@@ -49,11 +49,11 @@ public class MailMessage extends DAObject {
 
     public MailMessage() {}
 
-    public String getSender() {
+    public Sender getSender() {
         return sender;
     }
 
-    public void setSender( String value ) {
+    public void setSender( Sender value ) {
         sender = value;
     }
 

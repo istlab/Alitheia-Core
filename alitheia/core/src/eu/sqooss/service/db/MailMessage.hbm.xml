@@ -8,7 +8,7 @@
     <id name="id" column="ID">
       <generator class="native" />
     </id>
-    <property name="sender" column="SENDER" not-null="true" />
+    <many-to-one name="sender" column="SENDER_ID" not-null="true" />
     <property name="recipients" column="RECIPIENTS" />
     <property name="listId" column="LISTID" not-null="true" />
     <property name="messageId" column="MESSAGEID" not-null="true" />
