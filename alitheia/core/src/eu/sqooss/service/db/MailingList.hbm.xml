@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+  <class name="eu.sqooss.service.db.MailingList" table="MAILINGLIST">
+    <id name="id" column="MLIST_ID">
+      <generator class="native" />
+    </id>
+    <property name="listId" column="MLIST_LISTID" not-null="true"/>
+    <many-to-one name="storedProject" column="PROJECT_ID" />
+  </class>
+</hibernate-mapping>

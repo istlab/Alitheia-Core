@@ -30,72 +30,33 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
- 
 
 package eu.sqooss.service.db;
 
-import java.util.*;
-
 /**
- * DAO Object for the MailMessage database table
- *
+ * 
+ * 
+ * @author Vassilios Karakoidas (bkarak@aueb.gr)
  */
-public class MailMessage extends DAObject {
-    Sender sender;
-    MailingList listId;
-    String messageId;
-    String subject;
-    Date sendDate;
-    Date arrivalDate;
+public class MailingList extends DAObject {
+    private String listId;
+    private StoredProject storedProject; 
     
-
-    public MailMessage() {}
+    public MailingList() {}
     
-    public Date getArrivalDate() {
-	return arrivalDate;
+    public String getListId() {
+	return listId;
     }
     
-    public void setArrivalDate(Date ad) {
-	this.arrivalDate = ad;
+    public void setListId(String li) {
+	this.listId = li;
     }
-
-    public Sender getSender() {
-        return sender;
+    
+    public StoredProject getStoredProject() {
+	return storedProject;
     }
-
-    public void setSender( Sender value ) {
-        sender = value;
-    }
-
-    public MailingList getListId() {
-        return listId;
-    }
-
-    public void setListId( MailingList value ) {
-        listId = value;
-    }
-
-    public String getMessageId() {
-        return messageId;
-    }
-
-    public void setMessageId( String value ) {
-        messageId = value;
-    }
-
-    public Date getSendDate() {
-        return sendDate;
-    }
-
-    public void setSendDate( Date value ) {
-        sendDate = value;
-    }
-
-    public String getSubject() {
-        return subject;
-    }
-
-    public void setSubject( String value ) {
-        subject = value;
+    
+    public void setStoredProject(StoredProject sp) {
+	this.storedProject = sp;
     }
 }

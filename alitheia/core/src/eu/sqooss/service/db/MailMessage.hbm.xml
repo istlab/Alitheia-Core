@@ -9,10 +9,10 @@
       <generator class="native" />
     </id>
     <many-to-one name="sender" column="SENDER_ID" not-null="true" />
-    <property name="recipients" column="RECIPIENTS" />
-    <property name="listId" column="LISTID" not-null="true" />
+    <many-to-one name="listId" column="MLIST_ID" not-null="true" />
     <property name="messageId" column="MESSAGEID" not-null="true" />
-    <property name="date" column="DATE" />
+    <property name="sendDate" column="SEND_DATE" />
+    <property name="arrivalDate" column="ARRIVAL_DATE" />
     <property name="subject" column="SUBJECT" />
   </class>
 </hibernate-mapping>
