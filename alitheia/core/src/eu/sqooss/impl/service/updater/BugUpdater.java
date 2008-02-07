@@ -53,7 +53,7 @@ import eu.sqooss.service.scheduler.Job;
  * 
  * @author Panos Louridas (louridas@aueb.gr)
  */
-public class BugUpdater {
+public class BugUpdater extends Job {
     
     private TDSService tds;
 
@@ -96,5 +96,16 @@ public class BugUpdater {
     }
     
     public void doUpdate() throws UpdaterException {	
+    }
+
+    @Override
+    public int priority() {
+        return 1;
+    }
+
+    @Override
+    protected void run() throws Exception {
+        // TODO Auto-generated method stub
+        
     }
 }
