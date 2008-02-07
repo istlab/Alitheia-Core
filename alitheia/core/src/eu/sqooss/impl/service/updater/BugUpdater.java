@@ -41,16 +41,20 @@ import eu.sqooss.service.scheduler.Scheduler;
 
 import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.updater.UpdaterException;
+import eu.sqooss.service.scheduler.Job;
+
 
 /** 
+ * Provides the entrypoint for updating bug-related data.
  * 
+ * Construction-wise, it follows the Builder pattern as described by Joshua Block.
+ * As we are not sure about the full set of parameters we will be able to use, we employ
+ * this design pattern to enable us to work with "optional named" parameters.
  * 
- * @author Vassilios Karakoidas (bkarak@aueb.gr)
+ * @author Panos Louridas (louridas@aueb.gr)
  */
 public class BugUpdater {
     
-    private String path;
-
     private TDSService tds;
 
     private DBService dbs;
@@ -59,21 +63,38 @@ public class BugUpdater {
 
     private Logger logger;
 
-    public BugUpdater(String path, TDSService tds, DBService dbs,
-            Scheduler scheduler, Logger logger) throws UpdaterException {
-        if ((path == null) || (tds == null) || (dbs == null)
-                || (scheduler == null) || (logger == null)) {
-            throw new UpdaterException(
-                    "The components required by the updater are unavailable.");
-        }
+    public class Builder {        
+        private TDSService tds;
+        private DBService dbs;
+        private Scheduler scheduler;
+        private Logger logger;
 
-        this.tds = tds;
-        this.dbs = dbs;
-        this.scheduler = scheduler;
-        this.logger = logger;
+        public Builder(String path, TDSService tds, DBService dbs, Scheduler scheduler, Logger logger) throws UpdaterException {
+            if ((path == null) || (tds == null) || (dbs == null) || (scheduler == null) || (logger == null)) {
+                throw new UpdaterException("The components required by the updater are unavailable");
+            }
+            this.tds = tds;
+            this.dbs = dbs;
+            this.scheduler = scheduler;
+            this.logger = logger;
+        }
+        
+        /*
+         * Example of optional parameter:
+         * public Builder foo(int val) {
+         *     this.foo = val;
+         *     return this;
+         * }
+         */
+        
+        public BugUpdater build() throws UpdaterException {
+            return new BugUpdater(this);
+        }
     }
     
-    public void doUpdate() throws UpdaterException {
-	
+    private BugUpdater(Builder builder) throws UpdaterException {
+    }
+    
+    public void doUpdate() throws UpdaterException {	
     }
 }
