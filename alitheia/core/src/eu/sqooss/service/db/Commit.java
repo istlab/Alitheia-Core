@@ -34,6 +34,7 @@
 package eu.sqooss.service.db;
 
 import eu.sqooss.service.db.DAObject;
+
 import java.sql.Time;
 
 public class Commit extends DAObject{
@@ -68,6 +69,14 @@ public class Commit extends DAObject{
 
     public void setProjectVersion(Long projectVersion) {
         this.projectVersion = projectVersion;
+    }
+    
+    public String getProperties() {
+	return properties;
+    }
+    
+    public void setProperties(String properties) {
+	this.properties = properties;
     }
 }
 

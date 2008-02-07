@@ -47,6 +47,11 @@
         <mapping resource="eu/sqooss/service/db/StoredProject.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/Tag.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/User.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/Bug.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/BugReporter.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/BugReportMessage.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/Sender.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/Commit.hbm.xml"/>
     </session-factory>
 
 </hibernate-configuration>

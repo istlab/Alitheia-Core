@@ -8,7 +8,7 @@
     <id name="id" column="BUG_ID">
       <generator class="native" />
     </id>
-    <property name="commit" column="COMMIT" />
+    <many-to-one name="commit" column="COMMIT_ID" />
     <property name="description" column="DESCRIPTION" />
     <property name="properties" column="PROPERTIES" />
   </class>
