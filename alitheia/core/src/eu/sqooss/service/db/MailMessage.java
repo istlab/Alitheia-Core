@@ -39,6 +39,7 @@ import java.util.*;
 /**
  * DAO Object for the MailMessage database table
  *
+ * @author Vassilios Karakoidas (bkarak@aueb.gr)
  */
 public class MailMessage extends DAObject {
     Sender sender;
@@ -46,8 +47,7 @@ public class MailMessage extends DAObject {
     String messageId;
     String subject;
     Date sendDate;
-    Date arrivalDate;
-    
+    Date arrivalDate;    
 
     public MailMessage() {}
     
