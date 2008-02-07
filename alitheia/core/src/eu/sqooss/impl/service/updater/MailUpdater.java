@@ -37,6 +37,8 @@ import eu.sqooss.core.AlitheiaCore;
 
 import eu.sqooss.service.logging.Logger;
 
+import eu.sqooss.service.scheduler.Job;
+import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.updater.UpdaterException;
 
 /** 
@@ -62,6 +64,27 @@ public class MailUpdater {
     }
     
     public void doUpdate() throws UpdaterException {
-	
+	try {
+	    Scheduler scheduler = core.getScheduler();
+	    scheduler.enqueue(new MailUpdaterJob(path));
+	} catch (Exception e) {
+	    throw new UpdaterException(e.getMessage());
+	}
     }
+}
+
+class MailUpdaterJob extends Job {
+    private String path;
+    
+    MailUpdaterJob(String path) {
+	this.path = path;
+    }
+
+    public int priority() {
+	return 0;
+    }
+
+    protected void run() throws Exception {
+	
+    }    
 }
