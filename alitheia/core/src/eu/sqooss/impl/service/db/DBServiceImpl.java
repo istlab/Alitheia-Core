@@ -264,14 +264,6 @@ public class DBServiceImpl implements DBService {
         return result;
     }
 
-    public void deleteRecord(DAObject record) {
-        Session s = getSession(this);
-        s.beginTransaction();
-        deleteRecord(s, record);
-        s.getTransaction().commit();
-        returnSession(s);
-    }
-
     public List doSQL(String sql) {
         Session s = getSession(this);
         s.beginTransaction();
@@ -370,10 +362,40 @@ public class DBServiceImpl implements DBService {
         return true;
     }
 
-    public void deleteRecord(Session s, DAObject record) {
-        s.delete(record);
+    public boolean deleteRecord(DAObject record) {
+        Session s = getSession(this);
+        boolean result = deleteRecord(s, record);
+        returnSession(s);
+        return result;
     }
 
+    public boolean deleteRecord(Session s, DAObject record) {
+        
+        Transaction tx = null;
+        try {
+            tx = s.beginTransaction();
+            s.delete(record);
+            tx.commit();
+        }
+        catch (HibernateException e) {
+            if (tx != null) {
+                try {
+                    tx.rollback();
+                } catch (HibernateException ex) {
+                    logger.error("Error while rolling back failed transaction" +
+                        ". DB may be left in inconsistent state:" + ex.getMessage());
+                    ex.printStackTrace();
+                    return false;
+                }
+                logger.warn("Failed to remove object " + record.getId() 
+                        + " from the database: " + e.getMessage());
+            }
+            return false;
+        }
+       
+        return true;
+    }
+    
     public List doSQL(Session s, String sql) {
         return s.createSQLQuery(sql).list();
     }

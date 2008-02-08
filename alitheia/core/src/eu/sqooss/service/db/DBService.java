@@ -59,7 +59,7 @@ public interface DBService {
      *
      * @param record the record to remove from the database
      */
-    public void deleteRecord(DAObject record);
+    public boolean deleteRecord(DAObject record);
     
     /**
      * Delete an existing record from the system database, using a
@@ -68,7 +68,7 @@ public interface DBService {
      * @param s session to use for this transaction
      * @param record the record to remove from the database
      */
-    public void deleteRecord(Session s, DAObject record);
+    public boolean deleteRecord(Session s, DAObject record);
     
     /**
      * Allows the intelligent C++ programmer to simply fire complete SQL
