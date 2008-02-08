@@ -33,6 +33,8 @@
 
 package eu.sqooss.service.db;
 
+import java.util.List;
+
 /**
  * 
  * 
@@ -58,5 +60,9 @@ public class MailingList extends DAObject {
     
     public void setStoredProject(StoredProject sp) {
 	this.storedProject = sp;
+    }
+    
+    public static List<MailingList> getListsPerProject(StoredProject sp, DBService dbs, Logger logger) {
+	return null;
     }
 }
