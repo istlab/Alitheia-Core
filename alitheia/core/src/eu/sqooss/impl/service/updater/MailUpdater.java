@@ -33,11 +33,15 @@
 
 package eu.sqooss.impl.service.updater;
 
+import java.util.List;
+
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 import eu.sqooss.core.AlitheiaCore;
 
+import eu.sqooss.service.db.DAOException;
+import eu.sqooss.service.db.MailingList;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
 
@@ -61,7 +65,7 @@ public class MailUpdater {
 	    	       AlitheiaCore core,
 	    	       Logger logger) throws UpdaterException {
 	if(path == null || core == null || logger == null) {
-	    throw new UpdaterException("Cannot initialise MailUpdater (path/core is null)");
+	    throw new UpdaterException("Cannot initialise MailUpdater (path/core/logger is null)");
 	}
 	
 	this.core = core;
@@ -94,9 +98,21 @@ class MailUpdaterJob extends Job {
     }
 
     protected void run() throws Exception {
-	StoredProject sp = StoredProject.getProjectByName(path, logger);
-	TDAccessor spAccessor = core.getTDSService().getAccessor(sp.getId());
-	MailAccessor mailAccessor = spAccessor.getMailAccessor();
-	
+	try {
+	    StoredProject sp = StoredProject.getProjectByName(path, logger);
+	    TDAccessor spAccessor = core.getTDSService().getAccessor(sp.getId());
+	    MailAccessor mailAccessor = spAccessor.getMailAccessor();
+	    List<MailingList> mllist = MailingList.getListsPerProject(sp);
+	    for ( MailingList ml : mllist ) {
+		String listId = ml.getListId();
+		List<String> listIds = mailAccessor.getMessages(ml.getListId());
+		for ( String id : listIds ) {
+		    String raw = mailAccessor.getRawMessage( listId, id);
+		    // TODO: parse the message & add it to the database
+		}
+	    }
+	} catch ( DAOException daoe ) {
+	    logger.warn(daoe.getMessage());
+	}	
     }
 }
