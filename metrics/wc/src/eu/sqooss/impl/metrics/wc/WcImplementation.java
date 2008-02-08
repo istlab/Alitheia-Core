@@ -34,22 +34,28 @@
 
 package eu.sqooss.impl.metrics.wc;
 
+import java.util.List;
+
 import org.osgi.framework.BundleContext;
 
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.MetricResult;
+import eu.sqooss.service.db.Metric;
 import eu.sqooss.metrics.wc.Wc;
 import eu.sqooss.service.db.ProjectFile;
-import eu.sqooss.service.db.ProjectVersion;
 
 public class WcImplementation extends AbstractMetric implements Wc {
 
+    List<Metric> supportedMetrics;
+    
     public WcImplementation(BundleContext bc) {
         super(bc);
+        
     }
 
     public boolean install() {
         return super.install();
+        
     }
 
     public boolean remove() {
@@ -59,11 +65,7 @@ public class WcImplementation extends AbstractMetric implements Wc {
 
     public boolean update() {
 
-        return false;
-    }
-
-    boolean run(ProjectVersion a, ProjectVersion b) {
-        return false;
+        return remove() && install(); 
     }
 
     public MetricResult getResult(ProjectFile a) {
@@ -73,5 +75,4 @@ public class WcImplementation extends AbstractMetric implements Wc {
     public boolean run(ProjectFile a) {
         return false;
     }
-
 }
