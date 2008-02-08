@@ -32,6 +32,7 @@
 # show-db	- Start the Derby CLI for database manipulation.
 #		  Only useful if you are using Derby, which is the fallback
 #		  when Postgres can't be found.
+# show-tables-db - shows the generated database tables
 #
 # eclipse-up-branch  - Update the eclipse branch from the current workdir
 # eclipse-up-workdir - Update the current workdir from the eclipse branch
