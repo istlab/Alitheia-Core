@@ -61,7 +61,7 @@ public class TDAccessorImpl extends NamedAccessorImpl implements TDAccessor {
 
         if (!this.mail.startsWith("file:///")) {
             if (logger != null) {
-                logger.warning("Mail access uses an unsupported URL scheme <" + mail + ">");
+                logger.warn("Mail access uses an unsupported URL scheme <" + mail + ">");
             }
             this.mail="/var/spool/mail";
         } else {
