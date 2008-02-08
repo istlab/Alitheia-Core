@@ -33,6 +33,9 @@
 
 package eu.sqooss.impl.service.updater;
 
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
+
 import eu.sqooss.core.AlitheiaCore;
 
 import eu.sqooss.service.logging.Logger;
@@ -48,21 +51,21 @@ import eu.sqooss.service.updater.UpdaterException;
  */
 public class MailUpdater {
     private String path;
-    private Scheduler scheduler;
+    private AlitheiaCore core;
     
     public MailUpdater(String path, 
-	    	       Scheduler scheduler) throws UpdaterException {
+	    	       AlitheiaCore core) throws UpdaterException {
 	if(path == null) {
 	    throw new UpdaterException("Cannot initialise MailUpdater (path/core/logger is null)");
 	}
 	
-	this.scheduler = scheduler;
+	this.core = core;
 	this.path = path;
     }
     
     public void doUpdate() throws UpdaterException {
 	try {
-	    scheduler.enqueue(new MailUpdaterJob(path));
+	    core.getScheduler().enqueue(new MailUpdaterJob(path, core));
 	} catch (Exception e) {
 	    throw new UpdaterException(e.getMessage());
 	}
@@ -70,10 +73,12 @@ public class MailUpdater {
 }
 
 class MailUpdaterJob extends Job {
+    private AlitheiaCore core;
     private String path;
     
-    MailUpdaterJob(String path) {
+    MailUpdaterJob(String path, AlitheiaCore core) {
 	this.path = path;
+	this.core = core;
     }
 
     public int priority() {
