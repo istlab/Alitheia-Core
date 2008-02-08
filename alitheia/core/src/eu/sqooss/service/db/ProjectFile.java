@@ -37,7 +37,7 @@ import eu.sqooss.service.db.DAObject;
 
 public class ProjectFile extends DAObject{
     private String name;
-    private long projectVersion;
+    private ProjectVersion projectVersion;
     private String status;
 
 
@@ -53,11 +53,11 @@ public class ProjectFile extends DAObject{
         return name;
     }
 
-    public void setProjectVersion(long projectVersion ) {
+    public void setProjectVersion(ProjectVersion projectVersion ) {
         this.projectVersion = projectVersion;
     }
 
-    public long getProjectVersion() {
+    public ProjectVersion getProjectVersion() {
         return projectVersion;
     }
 
