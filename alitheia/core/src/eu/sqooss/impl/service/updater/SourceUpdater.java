@@ -107,7 +107,7 @@ public class SourceUpdater extends Job {
                     lastVersion.getVersion()), new ProjectRevision(new Date()));
 
             ProjectVersion curVersion = new ProjectVersion();
-            curVersion.setProject(project.getId());
+            curVersion.setProject(project);
             curVersion.setVersion((int)commitLog.last().getSVNRevision());
             //TODO: switch ProjectVersion.version to long
             dbs.addRecord(curVersion);
@@ -162,7 +162,7 @@ public class SourceUpdater extends Job {
         if ((pvList == null) || (pvList.size() != 1)) {
             logger.warn("The last stored version of the project could not be retrieved");
             lastVersion = new ProjectVersion();
-            lastVersion.setProject(project.getId());
+            lastVersion.setProject(project);
             lastVersion.setVersion(0);
         }
         else

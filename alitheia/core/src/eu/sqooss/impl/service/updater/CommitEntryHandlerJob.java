@@ -80,7 +80,7 @@ public class CommitEntryHandlerJob extends Job {
         ProjectFile pf = new ProjectFile();
         File f = new File(path);
         pf.setName(f.getName());
-        pf.setProjectVersion(pv.getVersion());
+        pf.setProjectVersion(pv);
         pf.setStatus(changeType.toString());
         dbs.addRecord(pf);
     }
