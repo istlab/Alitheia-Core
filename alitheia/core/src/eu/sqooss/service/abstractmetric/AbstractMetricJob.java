@@ -57,8 +57,7 @@ public class AbstractMetricJob extends Job {
         
         ServiceReference serviceRef = null;
         serviceRef = owner.bc.getServiceReference(AlitheiaCore.class.getName());
-        logService = ((AlitheiaCore) owner.bc.getService(serviceRef))
-                .getLogManager();
+        logService = ((AlitheiaCore) owner.bc.getService(serviceRef)).getLogManager();
 
         if (logService != null) {
             log = logService.createLogger(Logger.NAME_SQOOSS_METRIC);

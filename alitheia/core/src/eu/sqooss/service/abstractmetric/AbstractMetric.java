@@ -40,12 +40,12 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.FileGroup;
+import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.db.ProjectFile;
@@ -62,14 +62,11 @@ import eu.sqooss.service.logging.Logger;
  * the {@link eu.sqooss.metrics.Metric} interface instead of extending 
  * this class.
  */
-public abstract class AbstractMetric implements Metric {
+public abstract class AbstractMetric implements eu.sqooss.service.abstractmetric.Metric {
 
     protected BundleContext bc;
     protected LogManager logService = null;
     protected Logger log = null;
-    
-    protected Metric metric;
-    protected MetricType metricType;
     protected DBService db;
     
     protected AbstractMetric(BundleContext bc) {
@@ -94,7 +91,7 @@ public abstract class AbstractMetric implements Metric {
         db = ((AlitheiaCore) bc.getService(serviceRef)).getDBService();
         
         if(db == null) 
-            log.error("Could not get a reference to the DB service");            
+            log.error("Could not get a reference to the DB service");      
     }
 
     public String getAuthor() {
@@ -122,8 +119,7 @@ public abstract class AbstractMetric implements Metric {
     }
 
     public final Date getDateInstalled() {
-
-        return null;
+        return Plugin.getPlugin(db, getName()).getInstalldate();
     }
 
     public MetricResult getResult(DAObject o) {
@@ -151,6 +147,21 @@ public abstract class AbstractMetric implements Metric {
     }
 
     /**
+     * Add a supported metric description to the database.
+     * 
+     * @param desc String description of the metric
+     * @param type The metric type of the supported metric
+     * @return 
+     */
+    protected final boolean addSupportedMetrics(String desc, MetricType.Type type) {
+        Metric m = new Metric();
+        m.setDescription(desc);
+        m.setMetricType(MetricType.getMetricType(db, type));
+        m.setPlugin(Plugin.getPlugin(db, getName()));
+        return db.addRecord(m);
+    }
+    
+    /**
      * Register the metric to the DB. Subclasses can perform
      * their custom initialization routines after calling 
      * super()
@@ -158,34 +169,23 @@ public abstract class AbstractMetric implements Metric {
     public boolean install() {
         
         Session s = db.getSession(this);
-        
-        List<Plugin> plugins = s.createQuery("from Plugin as m where m.name = ? ")
-            .setString(0, getName())
-            .list();
-        
+
+        List plugins = s.createQuery("from Plugin as m where m.name = ? ")
+                .setString(0, getName())
+                .list();
+
         if (!plugins.isEmpty()) {
-            log.warn("Plugin " + getName() + " is already installed, won't re-install.");
+            log.warn("Plugin <" + getName()
+                    + "> is already installed, won't re-install.");
             return false;
         }
+
+        Plugin p = new Plugin();
+        p.setName(getName());
+        p.setInstalldate(new Date(System.currentTimeMillis()));
+        db.returnSession(s);
         
-        Transaction tx = null;
-        try {
-            tx = s.beginTransaction();
-            Plugin p = new Plugin();
-            p.setName(getName());
-            p.setInstalldate(new Date(System.currentTimeMillis()));
-            s.persist(p);
-            tx.commit();
-        }
-        catch (RuntimeException e) {
-            if (tx != null) 
-                tx.rollback();
-            log.warn("Error writting plug-in info for " 
-                    + getName() + " to the DB");
-            return false;
-        }
-        
-        return true;
+        return db.addRecord(p);
     }
 
     public abstract boolean remove();
