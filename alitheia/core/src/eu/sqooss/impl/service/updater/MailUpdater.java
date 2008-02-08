@@ -48,24 +48,20 @@ import eu.sqooss.service.updater.UpdaterException;
  */
 public class MailUpdater {
     private String path;
-    private AlitheiaCore core;
-    private Logger logger;
+    private Scheduler scheduler;
     
     public MailUpdater(String path, 
-	    	       AlitheiaCore core,
-	    	       Logger logger) throws UpdaterException {
-	if(path == null || core == null || logger == null) {
+	    	       Scheduler scheduler) throws UpdaterException {
+	if(path == null) {
 	    throw new UpdaterException("Cannot initialise MailUpdater (path/core/logger is null)");
 	}
 	
-	this.core = core;
-	this.logger = logger;
+	this.scheduler = scheduler;
 	this.path = path;
     }
     
     public void doUpdate() throws UpdaterException {
 	try {
-	    Scheduler scheduler = core.getScheduler();
 	    scheduler.enqueue(new MailUpdaterJob(path));
 	} catch (Exception e) {
 	    throw new UpdaterException(e.getMessage());

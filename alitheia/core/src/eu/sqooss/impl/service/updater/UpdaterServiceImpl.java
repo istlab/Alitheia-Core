@@ -92,7 +92,7 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
         if (target == UpdateTarget.MAILING_LIST_DATA || target == UpdateTarget.ALL) {
             // mailing list update
             try {
-        	MailUpdater mu = new MailUpdater(path, core, logger);
+        	MailUpdater mu = new MailUpdater(path, core.getScheduler());
         	mu.doUpdate();
             } catch (UpdaterException ue) {
         	logger.error("The Updater failed to update the mailing list data for " 
