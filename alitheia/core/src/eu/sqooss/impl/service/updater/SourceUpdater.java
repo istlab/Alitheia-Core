@@ -66,18 +66,19 @@ public class SourceUpdater extends Job {
 
     private AlitheiaCore core;
     private BundleContext context;
-    private String path;
+    private StoredProject project;
     private TDSService tds;
     private DBService dbs;
     private Logger logger;
     private List<Job> subTasks;
 
-    public SourceUpdater(String path, AlitheiaCore core, Logger logger, BundleContext bc) throws UpdaterException {
-        if ((path == null) || (core == null) || (logger == null) || (bc == null)) {
+    public SourceUpdater(StoredProject project, AlitheiaCore core, Logger logger, BundleContext bc) throws UpdaterException {
+        if ((project == null) || (core == null) || (logger == null) || (bc == null)) {
             throw new UpdaterException(
                     "The components required by the updater are unavailable.");
         }
 
+        this.project = project;
         this.core = core;
         this.context = bc;
         this.logger = logger;
@@ -92,13 +93,6 @@ public class SourceUpdater extends Job {
 
     protected void run() throws UpdaterException {
         try {
-            StoredProject project = StoredProject.getProjectByName(path, logger);
-            if(project == null) {
-                //the project was not found, so the job can not continue
-                logger.error("The project with the given name was not found");
-                setState(State.Error);
-                return;
-            }
             ProjectVersion lastVersion = StoredProject.getLastProjectVersion(project, logger);
             SCMAccessor scm = tds.getAccessor(project.getId()).getSCMAccessor();
             CommitLog commitLog = scm.getCommitLog(new ProjectRevision(
@@ -131,7 +125,7 @@ public class SourceUpdater extends Job {
         } catch (Exception ex) {
             throw new UpdaterException(
                     "Updater failed to retrieve the diff for the project "
-                            + path + ":\n" + ex.getMessage());
+                            + project.getName() + ":\n" + ex.getMessage());
         }
         return diff;
     }

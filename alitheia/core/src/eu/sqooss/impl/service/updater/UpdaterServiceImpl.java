@@ -47,6 +47,7 @@ import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
 
 import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.updater.UpdaterException;
 import eu.sqooss.service.updater.UpdaterService;
@@ -85,13 +86,24 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
     }
 
     public void update(String path, UpdateTarget target) {
+        if (path == null) {
+            logger.info("Bad project name for update.");
+            return;
+        }
         logger.info("Request to update project:" + path + " for target: "
                 + target);
+
+        StoredProject project = StoredProject.getProjectByName(path, logger);
+        if (project == null) {
+            //the project was not found, so the job can not continue
+            logger.error("The project <" + path + "> was not found");
+            return;
+        }
 
         if (target == UpdateTarget.MAIL || target == UpdateTarget.ALL) {
             // mailing list update
             try {
-                MailUpdater mu = new MailUpdater(path, core, logger);
+                MailUpdater mu = new MailUpdater(project, core, logger);
                 mu.doUpdate();
             } catch (UpdaterException ue) {
                 logger.error("The Updater failed to update the mailing list data for "
@@ -100,7 +112,7 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
         } else if (target == UpdateTarget.CODE || target == UpdateTarget.ALL) {
             // source code update
             try {
-                SourceUpdater su = new SourceUpdater(path, core, logger, context);
+                SourceUpdater su = new SourceUpdater(project, core, logger, context);
                 core.getScheduler().enqueue(su);
             } catch (Exception e) {
                 logger.error("The Updater failed to update the code for project "
