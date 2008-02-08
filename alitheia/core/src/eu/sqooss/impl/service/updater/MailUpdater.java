@@ -43,6 +43,8 @@ import eu.sqooss.service.logging.Logger;
 
 import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.scheduler.Scheduler;
+import eu.sqooss.service.tds.MailAccessor;
+import eu.sqooss.service.tds.TDAccessor;
 import eu.sqooss.service.updater.UpdaterException;
 
 /** 
@@ -93,6 +95,8 @@ class MailUpdaterJob extends Job {
 
     protected void run() throws Exception {
 	StoredProject sp = StoredProject.getProject(path, core.getDBService(), logger);
+	TDAccessor spAccessor = core.getTDSService().getAccessor(sp.getId());
+	MailAccessor mailAccessor = spAccessor.getMailAccessor();
 	
     }
 }
