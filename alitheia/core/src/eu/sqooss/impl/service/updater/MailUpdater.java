@@ -94,7 +94,7 @@ class MailUpdaterJob extends Job {
     }
 
     protected void run() throws Exception {
-	StoredProject sp = StoredProject.getProject(path, core.getDBService(), logger);
+	StoredProject sp = StoredProject.getProjectByName(path, logger);
 	TDAccessor spAccessor = core.getTDSService().getAccessor(sp.getId());
 	MailAccessor mailAccessor = spAccessor.getMailAccessor();
 	
