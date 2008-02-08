@@ -92,16 +92,14 @@ public class SourceUpdater extends Job {
 
     protected void run() throws UpdaterException {
         try {
-            StoredProject project = null;
-            try {
-                project = getProject();
-            } catch(UpdaterException ue) {
+            StoredProject project = StoredProject.getProject(path, dbs, logger);
+            if(project == null) {
                 //the project was not found, so the job can not continue
                 logger.error("The project with the given name was not found");
                 setState(State.Error);
                 return;
             }
-            ProjectVersion lastVersion = getLastProjectVersion(project);
+            ProjectVersion lastVersion = StoredProject.getLastProjectVersion(project, dbs, logger);
             SCMAccessor scm = tds.getAccessor(project.getId()).getSCMAccessor();
             CommitLog commitLog = scm.getCommitLog(new ProjectRevision(
                     lastVersion.getVersion()), new ProjectRevision(new Date()));
@@ -136,40 +134,6 @@ public class SourceUpdater extends Job {
                             + path + ":\n" + ex.getMessage());
         }
         return diff;
-    }
-
-    private StoredProject getProject() throws UpdaterException {
-        StoredProject project = null;
-
-        List prList = dbs.doHQL("from StoredProject where Name = " + path + "");
-        if ((prList == null) || (prList.size() != 1)) {
-            throw new UpdaterException("The requested project was not found");
-        }
-
-        project = (StoredProject) prList.get(0);
-        return project;
-    }
-
-    //TODO: move to StoredProject
-    private ProjectVersion getLastProjectVersion(StoredProject project) {
-        ProjectVersion lastVersion = null;
-
-        List pvList = dbs.doHQL("from ProjectVersion pv where pv.project = "
-                + project.getId() + " and pv.id = (select max(pv2.id) from "
-                + " ProjectVersion pv2 where pv2.project = " + project.getId()
-                + ")");
-
-        if ((pvList == null) || (pvList.size() != 1)) {
-            logger.warn("The last stored version of the project could not be retrieved");
-            lastVersion = new ProjectVersion();
-            lastVersion.setProject(project);
-            lastVersion.setVersion(0);
-        }
-        else
-        {
-            lastVersion = (ProjectVersion) pvList.get(0);
-        }
-        return lastVersion;
     }
     
     private void processEntry(CommitEntry entry, ProjectVersion pv) throws Exception {

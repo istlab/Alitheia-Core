@@ -38,6 +38,7 @@ package eu.sqooss.service.db;
 import java.util.List;
 
 import eu.sqooss.service.db.DAObject;
+import eu.sqooss.service.logging.Logger;
 
 /**
  * This class represents a project that Alitheia "knows about".
@@ -127,6 +128,40 @@ public class StoredProject extends DAObject {
 
     public void setMail(String url) {
         this.mailUrl = url;
+    }
+    
+    public static StoredProject getProject(String name, DBService dbs, Logger logger) {
+        StoredProject project = null;
+
+        List prList = dbs.doHQL("from StoredProject where Name = " + name + "");
+        if ((prList == null) || (prList.size() != 1)) {
+            logger.error("The requested project was not found");
+            return null;
+        }
+
+        project = (StoredProject) prList.get(0);
+        return project;
+    }
+    
+    public static ProjectVersion getLastProjectVersion(StoredProject project, DBService dbs, Logger logger) {
+        ProjectVersion lastVersion = null;
+
+        List pvList = dbs.doHQL("from ProjectVersion pv where pv.project = "
+                + project.getId() + " and pv.id = (select max(pv2.id) from "
+                + " ProjectVersion pv2 where pv2.project = " + project.getId()
+                + ")");
+
+        if ((pvList == null) || (pvList.size() != 1)) {
+            logger.warn("The last stored version of the project could not be retrieved");
+            lastVersion = new ProjectVersion();
+            lastVersion.setProject(project);
+            lastVersion.setVersion(0);
+        }
+        else
+        {
+            lastVersion = (ProjectVersion) pvList.get(0);
+        }
+        return lastVersion;
     }
     
     public List<ProjectVersion> getProjectVersions() {
