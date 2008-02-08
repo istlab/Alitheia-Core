@@ -39,7 +39,7 @@ import java.sql.Time;
 
 public class Measurement extends DAObject{
     private Metric metric;
-    private long projectVersion;
+    private ProjectVersion projectVersion;
     private Time whenRun;
     private String result;
 
@@ -55,11 +55,11 @@ public class Measurement extends DAObject{
         this.metric = metric;
     }
 
-    public long getProjectVersion() {
+    public ProjectVersion getProjectVersion() {
         return projectVersion;
     }
 
-    public void setProjectVersion(long projectVersion) {
+    public void setProjectVersion(ProjectVersion projectVersion) {
         this.projectVersion = projectVersion;
     }
 

@@ -9,7 +9,7 @@
       <generator class="native" />
     </id>
     <many-to-one name="metric" column="METRIC" not-null="true"/>
-    <property name="projectVersion" column="PROJECT_VERSION" />
+    <many-to-one name="projectVersion" column="PROJECT_VERSION_ID" not-null="true"/>
     <property name="whenRun" column="WHEN_RUN" type="java.util.Date" />
     <property name="result" column="RESULT" type="string" />
   </class>
