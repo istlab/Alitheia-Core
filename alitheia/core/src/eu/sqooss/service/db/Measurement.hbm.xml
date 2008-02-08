@@ -8,9 +8,9 @@
     <id name="id" column="MEASUREMENT_ID">
       <generator class="native" />
     </id>
-    <property name="metric" column="METRIC" />
+    <many-to-one name="metric" column="METRIC" not-null="true"/>
     <property name="projectVersion" column="PROJECT_VERSION" />
-    <property name="whenRun" column="WHEN_RUN" />
-    <property name="result" column="RESULT" />
+    <property name="whenRun" column="WHEN_RUN" type="java.util.Date" />
+    <property name="result" column="RESULT" type="string" />
   </class>
 </hibernate-mapping>
