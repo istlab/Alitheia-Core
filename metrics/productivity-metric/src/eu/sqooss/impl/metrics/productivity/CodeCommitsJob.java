@@ -68,8 +68,8 @@ public class CodeCommitsJob extends AbstractMetricJob {
 
         CommitLog svnLog = null;
 
-        if (tds.accessorExists(start.getProject())
-                && tds.accessorExists(end.getProject())) {
+        if (tds.accessorExists(start.getProject().getId())
+                && tds.accessorExists(end.getProject().getId())) {
             svn = (SCMAccessor) this.tds.getAccessor(1);
         } else {
             log.error("An accessor for projectid:" + start.getProject()
