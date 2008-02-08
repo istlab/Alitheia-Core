@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <xsd:element name="WSResult">
+    <xsd:annotation>
+      <xsd:documentation>
+        A WSResult contains zero or more rows
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element ref="Row" minOccurs="0" maxOccurs="unbounded"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+  <xsd:element name="Row">
+    <xsd:annotation>
+      <xsd:documentation>
+        A Row contains zero or more field
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element ref="Field" minOccurs="0" maxOccurs="unbounded"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+  <xsd:element name="Field">
+    <xsd:annotation>
+      <xsd:documentation>
+        A Field contains mime type and value
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element ref="MimeType"/>
+        <xsd:element ref="Value"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+  <xsd:element name="MimeType" type="xsd:string"/>
+  <xsd:element name="Value" type="xsd:string"/>
+</xsd:schema>
