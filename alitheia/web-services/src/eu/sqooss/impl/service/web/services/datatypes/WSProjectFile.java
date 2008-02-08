@@ -58,7 +58,7 @@ public class WSProjectFile {
     }
 
     public long getProjectVersion() {
-        return projectFile.getProjectVersion();
+        return projectFile.getProjectVersion().getId();
     }
 
     public String getStatus() {

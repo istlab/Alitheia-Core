@@ -247,7 +247,7 @@ public class WebServicesImpl {
             transaction = dbSession.beginTransaction();
             db.addRecord(dbSession, newStoredProject);
             newStoredProjectId = newStoredProject.getId();
-            newProjectVersion.setProject(newStoredProjectId);
+            newProjectVersion.setProject(newStoredProject);
             db.addRecord(dbSession, newProjectVersion);
             transaction.commit();
             db.returnSession(dbSession);
