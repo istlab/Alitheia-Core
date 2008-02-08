@@ -122,7 +122,7 @@ public class MetricExecutionJob extends Job {
                 m = new Measurement();
                 eu.sqooss.service.db.Metric metric = new eu.sqooss.service.db.Metric();
                 //TODO: load the MetricType and set in metric
-                m.setMetric(metric.getId());
+                m.setMetric(metric);
                 m.setResult(mre.toString()); //TODO: use xml form?
                 m.setWhenRun(new Time((new Date()).getTime()));
                 dbs.addRecord(m);
