@@ -4,7 +4,7 @@
         "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-  <class name="eu.sqooss.service.db.Commit" table="COMMIT">
+  <class name="eu.sqooss.service.db.Commit" table="COMMITS">
     <id name="id" column="COMMIT_ID">
       <generator class="native" />
     </id>
