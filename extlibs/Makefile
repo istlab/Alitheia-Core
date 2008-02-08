@@ -1,5 +1,7 @@
 ##Makefile to autobuild the bundled libraries
 
+TOP_SRCDIR?=..
+
 BUILDDIR=build
 DIRS=$(shell find . -maxdepth 1 -mindepth 1 -not -regex ".*build" -not -regex ".*svn" -type d)
 
@@ -9,13 +11,14 @@ EXCLUDEFILES+=${ECLIPSEFILES}
 
 
 JARS=$(addsuffix .jar , $(DIRS))
+LOCAL_JARS=$(wildcard *.jar)
 
 all: build
 
 %.jar: %
 	@echo Creating bundle $<.jar && \
-	excl=`echo ${EXCLUDEFILES} | sed -e s/\ /\|/g` && \
-	incl=`cd $< && find . -type f |egrep -v $$excl | tr '\n' ' ' |sed -e "s, $$,," -e "s,\ , -C $< ,g" -e "s,^, -C $< ,"` && \
+	excl=`echo "(${EXCLUDEFILES})" | sed -e s/\ \ */\|/g` && \
+	incl=`cd $< && find . -type f |egrep -v "^$$excl" | tr '\n' ' ' |sed -e "s, $$,," -e "s,\ , -C $< ,g" -e "s,^, -C $< ,"` && \
 	jar -cvmf $</META-INF/MANIFEST.MF ${BUILDDIR}/$<.jar $$incl >/dev/null 
 
 
@@ -25,7 +28,8 @@ builddir:
 build: builddir $(JARS)
 
 install:
-#cp -v ${BUILDDIR}/*.jar ${TOP_SRCDIR}/equinox
+	-cp -v ${BUILDDIR}/*.jar ${TOP_SRCDIR}/equinox
+	-cp -v $(LOCAL_JARS) ${TOP_SRCDIR}/equinox
 
 clean:
 	rm -Rf ${BUILDDIR}

@@ -8,14 +8,14 @@
     <version>1.0.0</version>
   </parent>
 
-  <!-- Messaging Service - main POM -->
+  <!-- Tester Service - main POM -->
   <groupId>eu.sqooss</groupId>
   <artifactId>tester</artifactId>
   <version>0.0.1</version>
   <packaging>jar</packaging>
 
   <!-- Project description -->
-  <name>Messaging Service</name>
+  <name>Tester Service</name>
   <description>
     This bundle provides the Tester service for Alitheia. This
     service runs a bunch of self-tests on startup and provides
@@ -54,8 +54,8 @@
     </dependency>
     <dependency>
       <groupId>eu.sqooss</groupId>
-      <artifactId>logger</artifactId>
-      <version>[0.0.2,)</version>
+      <artifactId>core</artifactId>
+      <version>[0.0.1,)</version>
       <type>jar</type>
       <scope>provided</scope>
     </dependency>

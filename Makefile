@@ -47,8 +47,10 @@ PREFIX=equinox
 
 # Subdirectories to build or install from.
 SUBDIRS=alitheia \
-	metrics \
-	corba
+	metrics
+ifeq ($(WITH_MAVEN),)
+SUBDIRS+= corba
+endif
 
 CLASSPATH=$(shell tools/setcp.sh `pwd`)
 ifeq ($(OS),Windows_NT)
@@ -82,10 +84,12 @@ $(foreach d,$(SUBDIRS),$(eval $(call subdir_template,build,$(d))))
 $(foreach d,$(SUBDIRS),$(eval $(call subdir_template,clean,$(d))))
 $(foreach d,$(SUBDIRS),$(eval $(call subdir_template,install,$(d))))
 
+
+
 build : $(foreach d,$(SUBDIRS),build-$(d))
 
 install : $(foreach d,$(SUBDIRS),install-$(d))
-	cd extlibs && $(MAKE) && $(MAKE) install
+	cd extlibs && $(MAKE) TOP_SRCDIR=$(TOP_SRCDIR) && $(MAKE) install TOP_SRCDIR=$(TOP_SRCDIR)
 	rm -Rf ${PREFIX}/configuration/org.eclipse.osgi
 	rm -f ${PREFIX}/configuration/*.log
 
@@ -98,6 +102,7 @@ clean : clean-log $(foreach d,$(SUBDIRS),clean-$(d))
 	rm -rf $(PREFIX)/configuration/org.eclipse.osgi
 	rm -f $(PREFIX)/eu.sqooss.service.*.jar \
 		$(PREFIX)/eu.sqooss.metrics.*.jar
+	rm -f $(PREFIX)/*.jar
 
 clean-log :
 	rm -f $(PREFIX)/alitheia.log $(PREFIX)/hibernate.log $(PREFIX)/derby.log
