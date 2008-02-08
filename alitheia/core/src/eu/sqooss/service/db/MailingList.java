@@ -33,7 +33,10 @@
 
 package eu.sqooss.service.db;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.log4j.Logger;
 
 /**
  * 
@@ -63,6 +66,10 @@ public class MailingList extends DAObject {
     }
     
     public static List<MailingList> getListsPerProject(StoredProject sp, DBService dbs, Logger logger) {
-	return null;
+	List<MailingList> ml = new ArrayList<MailingList>();
+	
+	//List mllist = dbs.doHQL("from ");
+	
+	return ml;
     }
 }
