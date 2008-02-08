@@ -92,14 +92,14 @@ public class SourceUpdater extends Job {
 
     protected void run() throws UpdaterException {
         try {
-            StoredProject project = StoredProject.getProject(path, dbs, logger);
+            StoredProject project = StoredProject.getProjectByName(path, logger);
             if(project == null) {
                 //the project was not found, so the job can not continue
                 logger.error("The project with the given name was not found");
                 setState(State.Error);
                 return;
             }
-            ProjectVersion lastVersion = StoredProject.getLastProjectVersion(project, dbs, logger);
+            ProjectVersion lastVersion = StoredProject.getLastProjectVersion(project, logger);
             SCMAccessor scm = tds.getAccessor(project.getId()).getSCMAccessor();
             CommitLog commitLog = scm.getCommitLog(new ProjectRevision(
                     lastVersion.getVersion()), new ProjectRevision(new Date()));

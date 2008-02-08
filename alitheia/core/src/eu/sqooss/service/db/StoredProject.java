@@ -37,8 +37,12 @@ package eu.sqooss.service.db;
 
 import java.util.List;
 
+import eu.sqooss.impl.service.CoreActivator;
+
 import eu.sqooss.service.db.DAObject;
+import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.logging.Logger;
+
 
 /**
  * This class represents a project that Alitheia "knows about".
@@ -130,9 +134,10 @@ public class StoredProject extends DAObject {
         this.mailUrl = url;
     }
     
-    public static StoredProject getProject(String name, DBService dbs, Logger logger) {
+    public static StoredProject getProjectByName(String name, Logger logger) {
         StoredProject project = null;
-
+        DBService dbs = CoreActivator.getDBService();
+        
         List prList = dbs.doHQL("from StoredProject where Name = " + name + "");
         if ((prList == null) || (prList.size() != 1)) {
             logger.error("The requested project was not found");
@@ -143,8 +148,9 @@ public class StoredProject extends DAObject {
         return project;
     }
     
-    public static ProjectVersion getLastProjectVersion(StoredProject project, DBService dbs, Logger logger) {
+    public static ProjectVersion getLastProjectVersion(StoredProject project, Logger logger) {
         ProjectVersion lastVersion = null;
+        DBService dbs = CoreActivator.getDBService();
 
         List pvList = dbs.doHQL("from ProjectVersion pv where pv.project = "
                 + project.getId() + " and pv.id = (select max(pv2.id) from "

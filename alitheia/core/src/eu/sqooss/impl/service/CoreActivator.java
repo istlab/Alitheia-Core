@@ -5,6 +5,7 @@ import org.osgi.framework.BundleActivator;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.logging.Logger;
 
 public class CoreActivator implements BundleActivator {
 
