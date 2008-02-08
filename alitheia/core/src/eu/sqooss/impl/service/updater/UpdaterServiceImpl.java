@@ -1,22 +1,22 @@
 /*
  * This file is part of the Alitheia system, developed by the SQO-OSS
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
- * 
+ *
  * Copyright 2007 by the SQO-OSS consortium members <info@sqo-oss.eu>
  * Copyright 2007 Georgios Gousios <gousiosg@aueb.gr>
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
  * met:
- * 
+ *
  *     * Redistributions of source code must retain the above copyright
  *       notice, this list of conditions and the following disclaimer.
- * 
+ *
  *     * Redistributions in binary form must reproduce the above
  *       copyright notice, this list of conditions and the following
  *       disclaimer in the documentation and/or other materials provided
  *       with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -28,7 +28,7 @@
  * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 package eu.sqooss.impl.service.updater;
@@ -67,7 +67,7 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
         ServiceReference serviceRef = null;
         serviceRef = context.getServiceReference(AlitheiaCore.class.getName());
         core = (AlitheiaCore) context.getService(serviceRef);
-        if (logger != null) { 
+        if (logger != null) {
             logger.info("Got a valid reference to the logger");
         } else {
             System.out.println("ERROR: Updater got no logger");
@@ -88,16 +88,16 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
         logger.info("Request to update project:" + path + " for target: "
                 + target);
 
-        if (target == UpdateTarget.MAILING_LIST_DATA || target == UpdateTarget.ALL) {
+        if (target == UpdateTarget.MAIL || target == UpdateTarget.ALL) {
             // mailing list update
             try {
-        	MailUpdater mu = new MailUpdater(path, core, logger);
-        	mu.doUpdate();
+                MailUpdater mu = new MailUpdater(path, core, logger);
+                mu.doUpdate();
             } catch (UpdaterException ue) {
-        	logger.error("The Updater failed to update the mailing list data for " 
-        		+ path);
+                logger.error("The Updater failed to update the mailing list data for "
+                        + path);
             }
-        } else if (target == UpdateTarget.SOURCE_CODE_DATA || target == UpdateTarget.ALL) {
+        } else if (target == UpdateTarget.CODE || target == UpdateTarget.ALL) {
             // source code update
             try {
                 SourceUpdater su = new SourceUpdater(path, core, logger, context);
@@ -106,22 +106,44 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
                 logger.error("The Updater failed to update the code for project "
                                 + path);
             }
-        } else if (target == UpdateTarget.BUG_DATABASE_DATA || target == UpdateTarget.ALL) {
+        } else if (target == UpdateTarget.BUGS || target == UpdateTarget.ALL) {
             // bug database update
         }
     }
 
+    /**
+     * This is the standard HTTP request handler. It maps GET parameters onto
+     * the method arguments for update(project,target). The response always
+     * gets a response code -- SC_OK (200) only if the update was able to
+     * start at all.
+     */
     public void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String p = request.getParameter("project");
         String t = request.getParameter("target");
 
-        if (p != null && UpdateTarget.fromString(t) != null) {
-            update(p, UpdateTarget.fromString(t));
-        } else {
-            logger.error("Failing request to update project:" + p
-                    + " for target: " + t);
+        if (p == null) {
+            logger.warn("Bad updater request is missing project name.");
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
+        if (t == null) {
+            logger.warn("Bad updater request is missing update target.");
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
+
+        // Should check that project exists, then
+
+        try {
+            UpdateTarget target = UpdateTarget.valueOf(t.toUpperCase());
+            logger.info("Updating project " + p + " " + t);
+            update(p, target);
+            response.setStatus(HttpServletResponse.SC_OK);
+        } catch (IllegalArgumentException e) {
+            logger.warn("Bad updater request for target " + t);
             response.sendError(HttpServletResponse.SC_BAD_REQUEST);
         }
+
     }
 }

@@ -38,7 +38,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.LinkedList;
 
-import java.lang.Comparable; 
+import java.lang.Comparable;
 import java.lang.InterruptedException;
 
 import eu.sqooss.service.util.Pair;
@@ -91,13 +91,13 @@ public abstract class Job implements Comparable<Job> {
 
     /**
      * Adds a dependency.
-     * This job cannot be executed, as long \a other 
+     * This job cannot be executed, as long \a other
      * is not finished.
      */
     public final void addDependency(Job other) throws SchedulerException {
-        // Dependencies of jobs can ony be changed before the job is queued. 
-    	// Otherwise, race conditions would occur in which it would be undefined 
-    	// if the dependency is applied or not.
+        // Dependencies of jobs can ony be changed before the job is queued.
+        // Otherwise, race conditions would occur in which it would be undefined
+        // if the dependency is applied or not.
         if ( (state() != State.Created) ) {
         	throw new SchedulerException("Job dependencies cannot be added after the job has been queued.");
         }
@@ -151,7 +151,7 @@ public abstract class Job implements Comparable<Job> {
 
     /**
      * Executes the job.
-     * Makes sure, that all dependencies are met. 
+     * Makes sure, that all dependencies are met.
      * @throws Exception
      */
     final public void execute() throws Exception {
@@ -169,7 +169,7 @@ public abstract class Job implements Comparable<Job> {
     }
 
     /**
-     * Sets the job's state to Queued and informs the job about the new 
+     * Sets the job's state to Queued and informs the job about the new
      * scheduler.
      * This method should only be called by Scheduler.enqueue.
      * @throws SchedulerException If the job is already enqueued.
@@ -200,7 +200,7 @@ public abstract class Job implements Comparable<Job> {
 
 
     /**
-     * @return The priority of the job.   
+     * @return The priority of the job.
      */
     abstract public int priority();
 
@@ -243,7 +243,7 @@ public abstract class Job implements Comparable<Job> {
      */
     public boolean canExecute() {
         final List<Job> deps = dependencies();
-        Iterator<Job> it = deps.iterator(); 
+        Iterator<Job> it = deps.iterator();
         while (it.hasNext()) {
             Job j = it.next();
             if (j.state() != State.Finished) {
@@ -294,7 +294,7 @@ public abstract class Job implements Comparable<Job> {
                 }
                 s_dependencies.removeAll(doomed);
             }
-            /* tell all jobs depending on the now finished on to forward that 
+            /* tell all jobs depending on the now finished on to forward that
              * to the scheduler
              */
             for (Job j: unblockedJobs) {
@@ -304,9 +304,9 @@ public abstract class Job implements Comparable<Job> {
         if (m_scheduler != null) {
             m_scheduler.jobStateChanged(this, s);
         }
-        
+
         stateChanged(m_state);
-        
+
         notifyAll();
     }
 
@@ -315,11 +315,11 @@ public abstract class Job implements Comparable<Job> {
      * The default implementation does nothing.
      */
     protected void stateChanged(State state) {
-    	
+
     }
-    
+
     /**
-     * If the job is queued to a scheduler, this methods tells the scheduler, 
+     * If the job is queued to a scheduler, this methods tells the scheduler,
      * that the job's dependencies have changed.
      */
     protected final void callDependenciesChanged() {
@@ -335,8 +335,8 @@ public abstract class Job implements Comparable<Job> {
      */
     abstract protected void run() throws Exception;
 
-    /** 
-     * This method is called during queueing, right before the job is added to 
+    /**
+     * This method is called during queueing, right before the job is added to
      * the work queue.
      * The job is not in state Queued at this time.
      * @param s The scheduler, the job has been enqueued to.
@@ -344,9 +344,9 @@ public abstract class Job implements Comparable<Job> {
     protected void aboutToBeEnqueued(Scheduler s) {
     }
 
-    /** 
+    /**
      * This method is called right before the job is dequeued without being
-     * executed. 
+     * executed.
      * The job is still in it's previoues state.
      * @parem s The scheduler, the job is dequeued from.
      */

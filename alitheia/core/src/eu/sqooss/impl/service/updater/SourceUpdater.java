@@ -1,22 +1,22 @@
 /*
  * This file is part of the Alitheia system, developed by the SQO-OSS
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
- * 
+ *
  * Copyright 2007 by the SQO-OSS consortium members <info@sqo-oss.eu>
  * Copyright 2007 Georgios Gousios <gousiosg@aueb.gr>
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
  * met:
- * 
+ *
  *     * Redistributions of source code must retain the above copyright
  *       notice, this list of conditions and the following disclaimer.
- * 
+ *
  *     * Redistributions in binary form must reproduce the above
  *       copyright notice, this list of conditions and the following
  *       disclaimer in the documentation and/or other materials provided
  *       with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -28,7 +28,7 @@
  * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 package eu.sqooss.impl.service.updater;
@@ -59,7 +59,7 @@ import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.scheduler.Scheduler;
 
 /**
- * 
+ *
  * @author Kostas Stroggylos
  */
 public class SourceUpdater extends Job {
@@ -85,7 +85,7 @@ public class SourceUpdater extends Job {
         this.dbs = core.getDBService();
         subTasks = new ArrayList<Job>();
     }
-    
+
     public int priority() {
         return 1;
     }
@@ -109,10 +109,10 @@ public class SourceUpdater extends Job {
             curVersion.setVersion((int)commitLog.last().getSVNRevision());
             //TODO: switch ProjectVersion.version to long
             dbs.addRecord(curVersion);
-            
+
             for (CommitEntry entry : commitLog) {
-                //handle changes that have occured on each individual commit 
-                // and create the necessary jobs for storing information 
+                //handle changes that have occured on each individual commit
+                // and create the necessary jobs for storing information
                 //related to updated files
                 processEntry(entry, curVersion);
             }
@@ -121,7 +121,7 @@ public class SourceUpdater extends Job {
             setState(State.Error);
         }
     }
-    
+
     private Diff getProjectDiff(ProjectVersion lastVersion, SCMAccessor scm)
             throws UpdaterException {
         Diff diff = null;
@@ -135,7 +135,7 @@ public class SourceUpdater extends Job {
         }
         return diff;
     }
-    
+
     private void processEntry(CommitEntry entry, ProjectVersion pv) throws Exception {
         Map<String, PathChangeType> changes = entry
         .getChangedPathsStatus();
@@ -143,15 +143,15 @@ public class SourceUpdater extends Job {
         for (Iterator i = changes.keySet().iterator(); i.hasNext();) {
             String path = (String) i.next();
             PathChangeType change = changes.get(path);
-            
+
             CommitEntryHandlerJob job = new CommitEntryHandlerJob(core, logger);
             job.init(pv, path, change);
             this.addDependency(job);
             subTasks.add(job);
         }
-        
+
     }
-    
+
     @Override
     protected void aboutToBeEnqueued(Scheduler s) {
         try {
@@ -164,7 +164,7 @@ public class SourceUpdater extends Job {
             return;
         }
     }
-    
+
     @Override
     protected void aboutToBeDequeued(Scheduler s) {
         //remove the subTasks from the queue

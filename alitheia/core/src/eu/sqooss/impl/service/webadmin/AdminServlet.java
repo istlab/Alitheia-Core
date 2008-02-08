@@ -118,54 +118,6 @@ public class AdminServlet extends HttpServlet {
         }
     }
 
-/*    private void getLogger(BundleContext bc) {
-        ServiceReference serviceRef = null;
-        serviceRef = bc.getServiceReference(LogManager.class.getName());
-        sobjLogManager = (LogManager) bc.getService(serviceRef);
-
-        if (sobjLogManager != null) {
-            sobjLogger = sobjLogManager.createLogger(Logger.NAME_SQOOSS_WEBADMIN);
-
-            if (sobjLogger != null) {
-                sobjLogger.info("WebAdmin got logger.");
-            }
-        } else {
-            System.out.println("! Got neither a service nor a logger.");
-        }
-    }*/
-
-/*    private void getDB(BundleContext bc) {
-        ServiceReference serviceRef = bc.getServiceReference(DBService.class.getName());
-        if (serviceRef != null) {
-            sobjDB = (DBService) bc.getService(serviceRef);
-            if (sobjLogger != null) {
-                sobjLogger.info("Got DB service.");
-            }
-        } else {
-            if (sobjLogger != null) {
-                sobjLogger.warning("Did not get DB service.");
-            } else {
-                System.out.println("! Got no DB service.");
-            }
-        }
-    }*/
-
-/*    private void getTDS(BundleContext bc) {
-        ServiceReference serviceRef = bc.getServiceReference(TDSService.class.getName());
-        if (serviceRef != null) {
-            sobjTDS = (TDSService) bc.getService(serviceRef);
-            if (sobjLogger != null) {
-                sobjLogger.info("Got TDS service.");
-            }
-        } else {
-            if (sobjLogger != null) {
-                sobjLogger.warning("Did not get TDS service.");
-            } else {
-                System.out.println("Got no TDS service.");
-            }
-        }
-    }*/
-
     public void addStaticContent(String path, String type) {
         Pair < String, String > p = new Pair < String, String > (path,type);
         staticContentMap.put(path, p);

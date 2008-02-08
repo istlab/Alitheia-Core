@@ -50,12 +50,12 @@ import eu.sqooss.service.scheduler.SchedulerException;
 
 public class SchedulerServiceImpl implements Scheduler {
 
-    private ServiceReference serviceRef = null;    
+    private ServiceReference serviceRef = null;
 
-    private HttpService httpService = null;    
+    private HttpService httpService = null;
 
     private Logger logger = null;
-    
+
     // thread safe job queue
     private BlockingQueue< Job > blockedQueue = new PriorityBlockingQueue< Job >( 1, new JobPriorityComparator() );
     private BlockingQueue< Job > workQueue = new PriorityBlockingQueue< Job >( 1, new JobPriorityComparator() );
@@ -67,17 +67,17 @@ public class SchedulerServiceImpl implements Scheduler {
         logger.info("Got scheduling!");
     }
 
-	synchronized public void enqueue(Job job) throws Exception {
-		logger.info("SchedulerServiceImpl: queuing job " + job.toString() );
-		job.callAboutToBeEnqueued( this );
+    synchronized public void enqueue(Job job) throws Exception {
+            logger.info("SchedulerServiceImpl: queuing job " + job.toString() );
+            job.callAboutToBeEnqueued( this );
         blockedQueue.add( job );
         jobDependenciesChanged( job );
-	}
-	
+    }
+
     synchronized public void dequeue(Job job) {
-		if( !blockedQueue.contains(job) && !workQueue.contains(job)) {
+        if( !blockedQueue.contains(job) && !workQueue.contains(job)) {
             if (logger != null) {
-           	    logger.info("SchedulerServiceImpl: job " + job.toString() + " not found in the queue.");
+                logger.info("SchedulerServiceImpl: job " + job.toString() + " not found in the queue.");
             }
             return;
         }
@@ -86,9 +86,9 @@ public class SchedulerServiceImpl implements Scheduler {
         workQueue.remove(job);
 
         if (logger != null) {
-    		logger.info("SchedulerServiceImpl: job " + job.toString() + " not found in the queue." );
+            logger.info("SchedulerServiceImpl: job " + job.toString() + " not found in the queue." );
         }
-	}
+    }
 
     public Job takeJob() throws java.lang.InterruptedException {
         /* no synchronize needed here, the queue is doing that
@@ -131,14 +131,14 @@ public class SchedulerServiceImpl implements Scheduler {
         if (myWorkerThreads == null) {
             return;
         }
-    
+
         for (WorkerThread t: myWorkerThreads) {
             t.stopProcessing();
         }
 
         myWorkerThreads.clear();
     }
-    
+
     synchronized public boolean isExecuting()
     {
     	if (myWorkerThreads==null) {
@@ -181,7 +181,7 @@ public class SchedulerServiceImpl implements Scheduler {
         } catch (SchedulerException e) {
         }
 
-        // firstJob should not end up with any dependencies        
+        // firstJob should not end up with any dependencies
         if (firstJob.dependencies().size() != 0) {
             return new String("Scheduler test failed: firstJob.dependencies().size() != 0");
         }
@@ -243,7 +243,7 @@ public class SchedulerServiceImpl implements Scheduler {
             enqueue(thirdJob);
             enqueue(forthJob);
             enqueue(fifthJob);
-        
+
             // this is blocking until the forthJob is done or has failed
             fifthJob.waitForFinished();
 
@@ -253,7 +253,7 @@ public class SchedulerServiceImpl implements Scheduler {
         } finally {
             stopExecute();
         }
-        
+
         /* since the fifth should start and finish before the forth can be
          * started and the execution is stopped after the fifth, forth should
          * still be in Queued state and the third in Running. */
