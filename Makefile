@@ -63,6 +63,10 @@ endif
 
 TOP_SRCDIR=$(shell pwd)
 ABS_PREFIX=$(shell cd $(PREFIX) && pwd)
+LOG4J_PREFIX=$(ABS_PREFIX)
+ifeq ($(OS),Windows_NT)
+LOG4J_PREFIX:=$(subst /cygdrive/c,,$(LOG4J_PREFIX))
+endif
 
 all : build
 
@@ -111,7 +115,7 @@ CONFIG=-Xmx256M
 DEBUGOPT=-Xdebug -Xrunjdwp:transport=dt_socket,server=y,address=8000,suspend=y 
 
 CL_CONFIG=-Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.Log4JLogger
-LOG4J_CONFIG=-Dlog4j.configuration=file://$(ABS_PREFIX)/configuration/log4j.properties
+LOG4J_CONFIG=-Dlog4j.configuration=file://$(LOG4J_PREFIX)/configuration/log4j.properties
 JETTY_CONFIG=-DDEBUG_VERBOSE=1 -DDEBUG_PATTERNS=main,org.mortbay.http -Dorg.mortbay.log.LogFactory.noDiscovery=false
 
 # $(CONFIG) would typically be used to set system properties.
