@@ -62,13 +62,18 @@ import eu.sqooss.service.logging.Logger;
  * the {@link eu.sqooss.metrics.Metric} interface instead of extending 
  * this class.
  */
-public abstract class AbstractMetric implements eu.sqooss.service.abstractmetric.Metric {
+public abstract class AbstractMetric 
+implements eu.sqooss.service.abstractmetric.Metric {
 
     protected BundleContext bc;
     protected LogManager logService = null;
     protected Logger log = null;
     protected DBService db;
     
+    /**
+     * Init basic services to be used by implementing classes
+     * @param bc
+     */
     protected AbstractMetric(BundleContext bc) {
 
         this.bc = bc;
@@ -94,34 +99,53 @@ public abstract class AbstractMetric implements eu.sqooss.service.abstractmetric
             log.error("Could not get a reference to the DB service");      
     }
 
+    /**
+     * Retrieve author information from the plug-in bundle
+     */
     public String getAuthor() {
 
         return (String) bc.getBundle().getHeaders().get(
                 org.osgi.framework.Constants.BUNDLE_CONTACTADDRESS);
     }
 
+    /**
+     * Retrieve the plug-in description from the plug-in bundle
+     */
     public String getDescription() {
 
         return (String) bc.getBundle().getHeaders().get(
                 org.osgi.framework.Constants.BUNDLE_DESCRIPTION);
     }
 
+    /**
+     * Retrieve the plug-in name as specified in the metric bundle
+     */
     public String getName() {
 
         return (String) bc.getBundle().getHeaders().get(
                 org.osgi.framework.Constants.BUNDLE_NAME);
     }
 
+    /**
+     * Retrieve the plug-in version as specified in the metric bundle
+     */
     public String getVersion() {
 
         return (String) bc.getBundle().getHeaders().get(
                 org.osgi.framework.Constants.BUNDLE_VERSION);
     }
 
+    /**
+     * Retrieve the installation date for this plug-in version
+     */
     public final Date getDateInstalled() {
         return Plugin.getPlugin(db, getName()).getInstalldate();
     }
 
+    /**
+     * Call the appropriate getResult() method according to 
+     * the type of the entity that is measured 
+     */
     public MetricResult getResult(DAObject o) {
 
         if (this instanceof ProjectVersionMetric)
@@ -135,6 +159,10 @@ public abstract class AbstractMetric implements eu.sqooss.service.abstractmetric
         return null;
     }
 
+    /**
+     * Call the appropriate run() method according to 
+     * the type of the entity that is measured 
+     */
     public void run(DAObject o) {
         if (this instanceof ProjectVersionMetric)
             run((ProjectVersion) o);
@@ -151,7 +179,7 @@ public abstract class AbstractMetric implements eu.sqooss.service.abstractmetric
      * 
      * @param desc String description of the metric
      * @param type The metric type of the supported metric
-     * @return 
+     * @return True if the operation succeeds, false otherwise (i.e. duplicates etc)
      */
     protected final boolean addSupportedMetrics(String desc, MetricType.Type type) {
         Metric m = new Metric();
@@ -162,9 +190,9 @@ public abstract class AbstractMetric implements eu.sqooss.service.abstractmetric
     }
     
     /**
-     * Register the metric to the DB. Subclasses can perform
-     * their custom initialization routines after calling 
-     * super()
+     * Register the metric to the DB. Subclasses can run
+     * their custom initialization routines (i.e. registering DAOs or tables) 
+     * after calling super()
      */
     public boolean install() {
         
@@ -188,7 +216,20 @@ public abstract class AbstractMetric implements eu.sqooss.service.abstractmetric
         return db.addRecord(p);
     }
 
-    public abstract boolean remove();
+    /**
+     * Remove a metric's record from the DB. The DB's referential integrity
+     * mechanisms are expected to automatically remove associated records.
+     * Subclasses should also clean up any custom tables created.
+     * 
+     * TODO: Remove metric registrations from the plugin registry 
+     */
+    public boolean remove() {
+        Session s = db.getSession(this);
+        Plugin p = Plugin.getPlugin(db, getName());
+        db.returnSession(s);
+        
+        return db.deleteRecord(p);
+    }
 
     public abstract boolean update();
 
