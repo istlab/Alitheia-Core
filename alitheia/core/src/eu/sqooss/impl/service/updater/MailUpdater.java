@@ -55,8 +55,8 @@ public class MailUpdater {
     
     public MailUpdater(String path, 
 	    	       AlitheiaCore core) throws UpdaterException {
-	if(path == null) {
-	    throw new UpdaterException("Cannot initialise MailUpdater (path/core/logger is null)");
+	if(path == null || core == null) {
+	    throw new UpdaterException("Cannot initialise MailUpdater (path/core is null)");
 	}
 	
 	this.core = core;
