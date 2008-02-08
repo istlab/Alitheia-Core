@@ -35,6 +35,8 @@
 
 package eu.sqooss.service.db;
 
+import java.util.List;
+
 import eu.sqooss.service.db.DAObject;
 
 /**
@@ -125,6 +127,11 @@ public class StoredProject extends DAObject {
 
     public void setMail(String url) {
         this.mailUrl = url;
+    }
+    
+    public List<ProjectVersion> getProjectVersions() {
+        //TODO: implement
+        return null;
     }
 }
 

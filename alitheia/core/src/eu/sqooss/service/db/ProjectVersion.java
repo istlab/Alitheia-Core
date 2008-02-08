@@ -33,16 +33,19 @@
 
 package eu.sqooss.service.db;
 
+import java.util.List;
+
 import eu.sqooss.service.db.DAObject;
 
 public class ProjectVersion extends DAObject {
     private long project; //ID of the project entity
-    private int version;
+    private int version; //TODO: switch to long
 
     public ProjectVersion() {
         // Nothing to do
     }
 
+    //TODO: switch to StoredProject
     public long getProject() {
         return project;
     }
@@ -57,6 +60,11 @@ public class ProjectVersion extends DAObject {
 
     public void setVersion(int version) {
         this.version = version;
+    }
+    
+    public List<ProjectFile> getProjectFiles() {
+        //TODO: implement
+        return null;
     }
 }
 

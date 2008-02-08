@@ -33,8 +33,12 @@
 
 package eu.sqooss.impl.service.updater;
 
+import java.io.File;
+
+import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.ProjectFile;
+import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.scheduler.Scheduler;
@@ -45,22 +49,21 @@ import eu.sqooss.service.updater.UpdaterException;
 
 public class CommitEntryHandlerJob extends Job {
 
-    private TDSService tds;
+    private AlitheiaCore core;
     private DBService dbs;
     private Logger logger;
+    private ProjectVersion pv;
     private String path;
     private PathChangeType changeType;
 
-    CommitEntryHandlerJob(TDSService tds, DBService dbs, Logger logger)
+    CommitEntryHandlerJob(AlitheiaCore core, Logger logger)
             throws UpdaterException {
-        if ((path == null) || (tds == null) || (dbs == null)
-                || (logger == null)) {
+        if ((core == null) || (logger == null)) {
             throw new UpdaterException(
                     "The components required by the job are unavailable.");
         }
 
-        this.tds = tds;
-        this.dbs = dbs;
+        this.dbs = core.getDBService();
         this.logger = logger;
     }
 
@@ -68,19 +71,22 @@ public class CommitEntryHandlerJob extends Job {
         return 1;
     }
 
-    protected void run() throws UpdaterException {
-        if (path == null || (path.length() < 1)) {
-            throw new UpdaterException("The Job has not been initialised");
+    protected void run() {
+        if (pv == null || path == null || (path.length() < 1)) {
+            logger.error("The Job has not been initialised");
+            this.setState(State.Error);
         }
+        
         ProjectFile pf = new ProjectFile();
-        
-        CommitEntry entry = null;
-        
-        
-        
+        File f = new File(path);
+        pf.setName(f.getName());
+        pf.setProjectVersion(pv.getVersion());
+        pf.setStatus(changeType.toString());
+        dbs.addRecord(pf);
     }
 
-    void init(String path, PathChangeType changeType) {
+    void init(ProjectVersion pv, String path, PathChangeType changeType) {
+        this.pv = pv;
         this.path = path;
         this.changeType = changeType;
     }

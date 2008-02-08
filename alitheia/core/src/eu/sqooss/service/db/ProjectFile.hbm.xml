@@ -9,7 +9,7 @@
       <generator class="native" />
     </id>
     <property name="name" column="FILE_NAME" />
-    <property name="projectVersion" column="PROJECT_VERSION" />
+    <many-to-one name="projectVersion" column="PROJECT_VERSION_ID" not-null="true"/>
     <property name="status" column="FILE_STATUS" />
   </class>
 </hibernate-mapping>

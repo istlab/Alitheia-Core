@@ -92,7 +92,15 @@ public class SourceUpdater extends Job {
 
     protected void run() throws UpdaterException {
         try {
-            StoredProject project = getProject();
+            StoredProject project = null;
+            try {
+                project = getProject();
+            } catch(UpdaterException ue) {
+                //the project was not found, so the job can not continue
+                logger.error("The project with the given name was not found");
+                setState(State.Error);
+                return;
+            }
             ProjectVersion lastVersion = getLastProjectVersion(project);
             SCMAccessor scm = tds.getAccessor(project.getId()).getSCMAccessor();
             CommitLog commitLog = scm.getCommitLog(new ProjectRevision(
@@ -105,15 +113,15 @@ public class SourceUpdater extends Job {
             dbs.addRecord(curVersion);
             
             for (CommitEntry entry : commitLog) {
-                //handle individual changes and create the necessary jobs for storing
-                //information related to updated files
-                processEntry(entry);
+                //handle changes that have occured on each individual commit 
+                // and create the necessary jobs for storing information 
+                //related to updated files
+                processEntry(entry, curVersion);
             }
-
         } catch (Exception e) {
             logger.error(e.getMessage());
+            setState(State.Error);
         }
-
     }
     
     private Diff getProjectDiff(ProjectVersion lastVersion, SCMAccessor scm)
@@ -142,8 +150,8 @@ public class SourceUpdater extends Job {
         return project;
     }
 
-    private ProjectVersion getLastProjectVersion(StoredProject project)
-            throws UpdaterException {
+    //TODO: move to StoredProject
+    private ProjectVersion getLastProjectVersion(StoredProject project) {
         ProjectVersion lastVersion = null;
 
         List pvList = dbs.doHQL("from ProjectVersion pv where pv.project = "
@@ -152,23 +160,28 @@ public class SourceUpdater extends Job {
                 + ")");
 
         if ((pvList == null) || (pvList.size() != 1)) {
-            throw new UpdaterException(
-                    "The last stored version of the project could not be retrieved");
+            logger.warn("The last stored version of the project could not be retrieved");
+            lastVersion = new ProjectVersion();
+            lastVersion.setProject(project.getId());
+            lastVersion.setVersion(0);
         }
-
-        lastVersion = (ProjectVersion) pvList.get(0);
+        else
+        {
+            lastVersion = (ProjectVersion) pvList.get(0);
+        }
         return lastVersion;
     }
     
-    private void processEntry(CommitEntry entry) throws Exception {
+    private void processEntry(CommitEntry entry, ProjectVersion pv) throws Exception {
         Map<String, PathChangeType> changes = entry
         .getChangedPathsStatus();
 
         for (Iterator i = changes.keySet().iterator(); i.hasNext();) {
             String path = (String) i.next();
+            PathChangeType change = changes.get(path);
             
-            CommitEntryHandlerJob job = new CommitEntryHandlerJob(tds, dbs, logger);
-            job.init(path, changes.get(path));
+            CommitEntryHandlerJob job = new CommitEntryHandlerJob(core, logger);
+            job.init(pv, path, change);
             this.addDependency(job);
             subTasks.add(job);
         }

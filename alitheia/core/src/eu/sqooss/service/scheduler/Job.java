@@ -169,7 +169,7 @@ public abstract class Job implements Comparable<Job> {
     }
 
     /**
-     * Sets the job's state te Queued and informs the job about the new 
+     * Sets the job's state to Queued and informs the job about the new 
      * scheduler.
      * This method should only be called by Scheduler.enqueue.
      * @throws SchedulerException If the job is already enqueued.
