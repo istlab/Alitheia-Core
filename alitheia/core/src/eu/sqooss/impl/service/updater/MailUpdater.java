@@ -38,6 +38,7 @@ import org.osgi.framework.ServiceReference;
 
 import eu.sqooss.core.AlitheiaCore;
 
+import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
 
 import eu.sqooss.service.scheduler.Job;
@@ -52,20 +53,23 @@ import eu.sqooss.service.updater.UpdaterException;
 public class MailUpdater {
     private String path;
     private AlitheiaCore core;
+    private Logger logger;
     
     public MailUpdater(String path, 
-	    	       AlitheiaCore core) throws UpdaterException {
-	if(path == null || core == null) {
+	    	       AlitheiaCore core,
+	    	       Logger logger) throws UpdaterException {
+	if(path == null || core == null || logger == null) {
 	    throw new UpdaterException("Cannot initialise MailUpdater (path/core is null)");
 	}
 	
 	this.core = core;
 	this.path = path;
+	this.logger = logger;
     }
     
     public void doUpdate() throws UpdaterException {
 	try {
-	    core.getScheduler().enqueue(new MailUpdaterJob(path, core));
+	    core.getScheduler().enqueue(new MailUpdaterJob(path, core, logger));
 	} catch (Exception e) {
 	    throw new UpdaterException(e.getMessage());
 	}
@@ -75,10 +79,12 @@ public class MailUpdater {
 class MailUpdaterJob extends Job {
     private AlitheiaCore core;
     private String path;
+    private Logger logger;
     
-    MailUpdaterJob(String path, AlitheiaCore core) {
+    MailUpdaterJob(String path, AlitheiaCore core, Logger logger) {
 	this.path = path;
 	this.core = core;
+	this.logger = logger;
     }
 
     public int priority() {
@@ -86,7 +92,7 @@ class MailUpdaterJob extends Job {
     }
 
     protected void run() throws Exception {
-	
+	StoredProject sp = StoredProject.getProject(path, core.getDBService(), logger);
 	
     }
 }

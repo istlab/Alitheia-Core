@@ -61,7 +61,6 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
 
     public UpdaterServiceImpl(BundleContext bc, Logger logger) throws ServletException,
             NamespaceException {
-
         this.context = bc;
         this.logger = logger;
         /* Get a reference to the core service*/
@@ -92,7 +91,7 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
         if (target == UpdateTarget.MAILING_LIST_DATA || target == UpdateTarget.ALL) {
             // mailing list update
             try {
-        	MailUpdater mu = new MailUpdater(path, core);
+        	MailUpdater mu = new MailUpdater(path, core, logger);
         	mu.doUpdate();
             } catch (UpdaterException ue) {
         	logger.error("The Updater failed to update the mailing list data for " 
