@@ -69,7 +69,7 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
         serviceRef = context.getServiceReference(AlitheiaCore.class.getName());
         core = (AlitheiaCore) context.getService(serviceRef);
         if (logger != null) { 
-                logger.info("Got a valid reference to the logger");
+            logger.info("Got a valid reference to the logger");
         } else {
             System.out.println("ERROR: Updater got no logger");
         }
