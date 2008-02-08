@@ -35,6 +35,7 @@ package eu.sqooss.service.db;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
 import eu.sqooss.service.db.DAObject;
 
@@ -66,6 +67,12 @@ public class Plugin extends DAObject{
         HashMap<String, Object> s = new HashMap<String, Object>();
         s.put("name", name);
         return (Plugin)db.doHQL("from Plugin where name = ?", s).get(0);
+    }
+    
+    public static List<Metric> getSupportedMetrics(DBService db, Plugin p) {
+        HashMap<String, Object> s = new HashMap<String, Object>();
+        s.put("plugin", p);
+        return (List<Metric>)db.doHQL("from Metric where plugin = ?", s);
     }
 }
 
