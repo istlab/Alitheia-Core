@@ -38,6 +38,8 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import eu.sqooss.impl.service.CoreActivator;
+
 /**
  * 
  * 
@@ -65,10 +67,19 @@ public class MailingList extends DAObject {
 	this.storedProject = sp;
     }
     
-    public static List<MailingList> getListsPerProject(StoredProject sp, DBService dbs, Logger logger) {
+    public static List<MailingList> getListsPerProject(StoredProject sp) throws DAOException {
+	DBService dbs = CoreActivator.getDBService();
 	List<MailingList> ml = new ArrayList<MailingList>();
-	
-	//List mllist = dbs.doHQL("from ");
+
+	// TODO: query needs testing, and all of this maybe rewrite
+	List mllist = dbs.doHQL("from MailingList where Id = " + sp.getId());
+	int mllistLen = mllist.size();
+	if(mllistLen == 0) {
+	    throw new DAOException("MailingList", "No list found for project " + sp.toString());
+	}
+	for (int i = 0;i < mllistLen;i++) {
+	    ml.add((MailingList)mllist.get(i));
+	}
 	
 	return ml;
     }
