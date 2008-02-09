@@ -94,7 +94,7 @@ public class WebServicesActivator implements BundleActivator {
      */
     public void stop(BundleContext bc) throws Exception {
         if (logger != null) {
-            logger.info("The web services bundle is stoped!");
+            logger.info("The web services bundle is stopped!");
         }
         
         if (webServicesReg != null) {

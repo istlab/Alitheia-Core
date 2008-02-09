@@ -46,14 +46,14 @@ public interface SecurityManager {
      * @param userName the user name must be unique
      * @param password the user's password - the security manager doesn't store the password in plain text
      * @return The new security user represents with SecurityUser object.
-     * @exception IllegalArgumentException - if the user name exists  
+     * @exception IllegalArgumentException - if the user name exists
      */
     public SecurityUser createUser(String userName, String password);
 
     /**
      * @param id
      * @return The security user with given id.
-     * <code>null</code> if the user with given id doesn't exist. 
+     * <code>null</code> if the user with given id doesn't exist.
      */
     public SecurityUser getUser(long id);
 
@@ -62,13 +62,13 @@ public interface SecurityManager {
      * @param userId
      */
     public void deleteUser(long userId);
-    
+
     /**
      * This method refreshes given user.
      * @param modifiedUser
      */
     public void modifyUser(SecurityUser modifiedUser);
-    
+
     /**
      * Creates a new security group with <code>description</code>.
      * A SecurityGroup object represents the new group.
@@ -97,7 +97,7 @@ public interface SecurityManager {
      * @return The resource url with given id.
      * <code>null</code> if the resource url with given id doesn't exist.
      */
-    public SecurityResourceURL getReourceURL(long id);
+    public SecurityResourceURL getResourceURL(long id);
 
     /**
      * Creates a new privilege with <code>description</code>.
@@ -116,7 +116,7 @@ public interface SecurityManager {
 
     /**
      * Creates a new association between <code>group</code>, privilege value (represents with your id) and
-     * <code>resourceURL</code>.  
+     * <code>resourceURL</code>.
      * @param group
      * @param privilegeValueId
      * @param resourceURL
@@ -138,7 +138,7 @@ public interface SecurityManager {
     public boolean checkPermission(String fullURL, String userName, String password);
 
     /**
-     * Validates the access to the SQO-OSS resource based on the resourceURL, privileges, user name and password. 
+     * Validates the access to the SQO-OSS resource based on the resourceURL, privileges, user name and password.
      * @param resourceURL
      * @param privileges
      * @param userName

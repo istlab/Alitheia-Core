@@ -195,9 +195,9 @@ public class SecurityManagerImpl implements SecurityManager {
     }
 
     /**
-     * @see eu.sqooss.service.security.SecurityManager#getReourceURL(long)
+     * @see eu.sqooss.service.security.SecurityManager#getResourceURL(long)
      */
-    public SecurityResourceURL getReourceURL(long id) {
+    public SecurityResourceURL getResourceURL(long id) {
         if (dbWrapper.isExistentResourceUrl(id)) {
             return new SecurityResourceURLImpl(id);
         } else {

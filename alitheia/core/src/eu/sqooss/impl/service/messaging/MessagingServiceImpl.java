@@ -78,29 +78,29 @@ public class MessagingServiceImpl implements MessagingService {
     private static Logger logger;
 
     public MessagingServiceImpl(BundleContext bc){
-         SMTPSender defaultSender = new SMTPSender(bc);
-         Properties serviceProps = new Properties();
-         serviceProps.setProperty(MessageSender.PROTOCOL_PROPERTY, SMTPSender.PROTOCOL_PROPERTY_VALUE);
+        SMTPSender defaultSender = new SMTPSender(bc);
+        Properties serviceProps = new Properties();
+        serviceProps.setProperty(MessageSender.PROTOCOL_PROPERTY, SMTPSender.PROTOCOL_PROPERTY_VALUE);
 
-         this.id = readId(bc);
-         this.bc = bc;
-         this.defaultSender = defaultSender;
-         this.maxThreadsNumber = 10; //default value
-         this.queueringTime = 60*1000; //default value
-         this.properties = new Properties();
-         initProperties(bc);
-         messageListeners = new Vector < MessageListener >();
-         messageHistory = new MessageHistory(0);
-         messageQueue = new MessageQueue();
-         messagingThreads = new Vector < MessagingServiceThread >();
-         startThreadIfNeeded();
+        this.id = readId(bc);
+        this.bc = bc;
+        this.defaultSender = defaultSender;
+        this.maxThreadsNumber = 10; //default value
+        this.queueringTime = 60*1000; //default value
+        this.properties = new Properties();
+        initProperties(bc);
+        messageListeners = new Vector < MessageListener >();
+        messageHistory = new MessageHistory(0);
+        messageQueue = new MessageQueue();
+        messagingThreads = new Vector < MessagingServiceThread >();
+        startThreadIfNeeded();
 
-         ServiceReference coreRef = bc.getServiceReference(AlitheiaCore.class.getName());
-         if (logger == null && coreRef != null)
-         {
-        	 LogManager logManager = ((AlitheiaCore)bc.getService(coreRef)).getLogManager();
-        	 logger = logManager.createLogger(Logger.NAME_SQOOSS_MESSAGING);
-         }
+        ServiceReference coreRef = bc.getServiceReference(AlitheiaCore.class.getName());
+        if (logger == null && coreRef != null)
+        {
+            LogManager logManager = ((AlitheiaCore)bc.getService(coreRef)).getLogManager();
+            logger = logManager.createLogger(Logger.NAME_SQOOSS_MESSAGING);
+        }
     }
 
     /**
@@ -110,7 +110,7 @@ public class MessagingServiceImpl implements MessagingService {
         File idFile = bc.getDataFile(MessagingConstants.FILE_NAME_MESSAGE_ID);
         DataInputStream in = null;
         if (idFile.exists()) {
-        	long result = 0;
+            long result = 0;
             try {
                 in = new DataInputStream(new FileInputStream(idFile));
                 result = in.readLong();
@@ -294,7 +294,7 @@ public class MessagingServiceImpl implements MessagingService {
             properties.store(new FileOutputStream(bc.getDataFile(MessagingConstants.FILE_NAME_PROPERTIES)), null);
         } catch (IOException ioe) {
             log("An error occurs while saving the properties: " + ioe.getMessage(),
-            		MessagingService.LOGGING_WARNING_LEVEL);
+                    MessagingService.LOGGING_WARNING_LEVEL);
         }
         return id;
     }

@@ -118,23 +118,23 @@ public class TDSServiceImpl implements TDSService {
         if (accessorPool == null) {
             return new String("No accessor pool available.");
         }
-        
+
         // Add an accessor for testing purposes when none was there.
         Boolean addedAccessor = false;
         if (accessorPool.isEmpty())
         {
-        	addAccessor(1, "KPilot", "", null, "http://cvs.codeyard.net/svn/kpilot/" );
-        	addedAccessor = true;
+            addAccessor(1, "KPilot", "", null, "http://cvs.codeyard.net/svn/kpilot/" );
+            addedAccessor = true;
         }
-        
+
         Set<Long> accessorKeys = accessorPool.keySet();
         Iterator<Long> i = accessorKeys.iterator();
         if (!i.hasNext()) {
-        	// we added an accesor before, so it should be here...
-        	if (addedAccessor)
-        	{
-        		accessorPool.clear();
-        	}
+            // we added an accesor before, so it should be here...
+            if (addedAccessor)
+            {
+                    accessorPool.clear();
+            }
             return new String("No projects to check against.");
         }
 
@@ -144,19 +144,19 @@ public class TDSServiceImpl implements TDSService {
         logger.info("Checking project " + id +
             " <" + accessor.getName() + ">");
         if (accessor != getAccessor(id)) {
-           	if (addedAccessor)
-        	{
-        		accessorPool.clear();
-        	}
+            if (addedAccessor)
+            {
+                    accessorPool.clear();
+            }
             return new String("Request for project " + i +
                 " got someone else.");
         }
-        
-       	if (addedAccessor)
-    	{
-    		accessorPool.clear();
-    	}
-       // Everything is ok
+
+        if (addedAccessor)
+        {
+                accessorPool.clear();
+        }
+        // Everything is ok
         return null;
     }
 }
