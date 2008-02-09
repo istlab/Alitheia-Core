@@ -144,6 +144,12 @@ public class LogManagerImpl implements LogManager {
     public BundleContext getBundleContext() {
         return this.bc;
     }
+
+    public Object selfTest() {
+        // We don't know if logging has been initialized, so we shouldn't
+        // try logging anything either; just assume things are ok.
+        return null;
+    }
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

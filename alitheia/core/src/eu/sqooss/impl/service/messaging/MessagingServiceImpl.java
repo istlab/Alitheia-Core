@@ -74,14 +74,14 @@ public class MessagingServiceImpl implements MessagingService {
     private Vector < MessagingServiceThread > messagingThreads;
     private BundleContext bc;
     private SMTPSender defaultSender;
-	private ServiceRegistration sRegSMTPSenderService;
-	private static Logger logger;
+    private ServiceRegistration sRegSMTPSenderService;
+    private static Logger logger;
 
     public MessagingServiceImpl(BundleContext bc){
          SMTPSender defaultSender = new SMTPSender(bc);
          Properties serviceProps = new Properties();
          serviceProps.setProperty(MessageSender.PROTOCOL_PROPERTY, SMTPSender.PROTOCOL_PROPERTY_VALUE);
-        
+
          this.id = readId(bc);
          this.bc = bc;
          this.defaultSender = defaultSender;
@@ -94,7 +94,7 @@ public class MessagingServiceImpl implements MessagingService {
          messageQueue = new MessageQueue();
          messagingThreads = new Vector < MessagingServiceThread >();
          startThreadIfNeeded();
-         
+
          ServiceReference coreRef = bc.getServiceReference(AlitheiaCore.class.getName());
          if (logger == null && coreRef != null)
          {
@@ -425,7 +425,7 @@ public class MessagingServiceImpl implements MessagingService {
             setConfigurationProperty(currentKey, props.getProperty(currentKey));
         }
     }
-    
+
     /**
      * This method logs the messages from the specified logging level.
      * @param message the text
@@ -443,6 +443,15 @@ public class MessagingServiceImpl implements MessagingService {
                 }
             }
         }
+    }
+
+    public Object selfTest() {
+        if (logger == null) {
+            return new String("No logger available.");
+        }
+
+        // Unsure what to test here that doesn't cause unwanted state changes
+        return null;
     }
 }
 

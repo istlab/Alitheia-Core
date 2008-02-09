@@ -158,4 +158,14 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
         }
 
     }
+
+    public Object selfTest() {
+        if (logger == null) {
+            return new String("No logger available.");
+        }
+
+        // There isn't really much to test here that doesn't affect the
+        // state of the system in an undesirable way.
+        return null;
+    }
 }

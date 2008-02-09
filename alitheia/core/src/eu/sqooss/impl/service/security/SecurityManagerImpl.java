@@ -49,10 +49,10 @@ import eu.sqooss.service.security.SecurityResourceURL;
 import eu.sqooss.service.security.SecurityUser;
 
 public class SecurityManagerImpl implements SecurityManager {
-    
+
     private DatabaseWrapper dbWrapper;
     private Logger logger;
-    
+
     public SecurityManagerImpl(DBService db, Logger logger) {
         this.dbWrapper = new DatabaseWrapper(db);
         this.logger = logger;
@@ -103,7 +103,7 @@ public class SecurityManagerImpl implements SecurityManager {
             }
         }
     }
-    
+
     /**
      * @see eu.sqooss.service.security.SecurityManager#createAuthorizationRule(eu.sqooss.service.security.SecurityGroup, long, eu.sqooss.service.security.SecurityResourceURL)
      */
@@ -224,7 +224,7 @@ public class SecurityManagerImpl implements SecurityManager {
     public SecurityAuthorizationRule[] getAuthorizationRules() {
         return dbWrapper.getAuthorizationRules();
     }
-    
+
     /**
      * @see eu.sqooss.service.security.SecurityManager#deleteUser(long)
      */
@@ -235,7 +235,7 @@ public class SecurityManagerImpl implements SecurityManager {
             //TODO: throws exception
         }
     }
-    
+
     /**
      * @see eu.sqooss.service.security.SecurityManager#modifyUser(eu.sqooss.service.security.SecurityUser)
      */
@@ -246,7 +246,48 @@ public class SecurityManagerImpl implements SecurityManager {
             //TODO: throws exception
         }
     }
-    
+
+    public Object selfTest() {
+        if (logger == null) {
+            return new String("No logger available.");
+        }
+
+        SecurityGroup myGroup = createGroup("BCM");
+        SecurityUser myUser = createUser("adriaan","baaaaa");
+
+        if ( (myGroup == null) || (myUser == null) ) {
+            return new String("Could not create test user and group.");
+        }
+
+        myUser.addToGroup(myGroup);
+
+        SecurityPrivilege myPrivilege = createPrivilege("egcs");
+        SecurityResourceURL myUrl = createResourceURL("http://www.lolcats.com/");
+
+        if ( (myPrivilege == null) || (myUrl == null) ) {
+            return new String("Could not create test privilege and URL.");
+        }
+
+
+        if (createAuthorizationRule(myGroup, myPrivilege.getId(), myUrl) == null) {
+            return new String("Could not create authorization rule.");
+        }
+
+        if (!checkPermission(myUrl.getURL(), myUser.getUserName(), "baaaaa")) {
+            return new String("Permission denied -- falsely");
+        }
+        if (checkPermission(myUrl.getURL(), myUser.getUserName(), "baaa")) {
+            return new String("Permission granted -- falsely");
+        }
+        if (checkPermission(myUrl.getURL(), null, null)) {
+            return new String("Permission granted to null user.");
+        }
+        if (checkPermission("http://thedailywtf.com/", myUser.getUserName(), "baaaaa")) {
+            return new String("Permission granted to bogus URL.");
+        }
+
+        return null;
+    }
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
