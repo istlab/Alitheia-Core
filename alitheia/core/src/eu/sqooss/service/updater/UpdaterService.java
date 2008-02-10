@@ -33,6 +33,8 @@
 
 package eu.sqooss.service.updater;
 
+import eu.sqooss.service.db.StoredProject;
+
 /**
  * The updater service is the gateway in Alitheia to tell the system
  * that the raw data available to the system has changed; usually this
@@ -83,6 +85,11 @@ public interface UpdaterService {
      *
      * @param project   The project name that has been updated
      * @param target    Specifies which project resource has been updated
+     *
+     * @return false if basic validation of the request failed
+     * @return true if the update jobs were started successfully -- this
+     *          does not mean that the jobs themselves were successful,
+     *          as they run asynchronously.
      */
-    void update(String project, UpdateTarget target);
+    boolean update(StoredProject project, UpdateTarget target);
 }

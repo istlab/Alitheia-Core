@@ -39,8 +39,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.osgi.framework.BundleContext;
-
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.CommitEntry;
@@ -62,25 +60,23 @@ import eu.sqooss.service.scheduler.Scheduler;
  *
  * @author Kostas Stroggylos
  */
-public class SourceUpdater extends Job {
+class SourceUpdater extends Job {
 
     private AlitheiaCore core;
-    private BundleContext context;
     private StoredProject project;
     private TDSService tds;
     private DBService dbs;
     private Logger logger;
     private List<Job> subTasks;
 
-    public SourceUpdater(StoredProject project, AlitheiaCore core, Logger logger, BundleContext bc) throws UpdaterException {
-        if ((project == null) || (core == null) || (logger == null) || (bc == null)) {
+    public SourceUpdater(StoredProject project, AlitheiaCore core, Logger logger) throws UpdaterException {
+        if ((project == null) || (core == null) || (logger == null)) {
             throw new UpdaterException(
                     "The components required by the updater are unavailable.");
         }
 
         this.project = project;
         this.core = core;
-        this.context = bc;
         this.logger = logger;
         this.tds = core.getTDSService();
         this.dbs = core.getDBService();
@@ -91,7 +87,7 @@ public class SourceUpdater extends Job {
         return 1;
     }
 
-    protected void run() throws UpdaterException {
+    protected void run() {
         try {
             ProjectVersion lastVersion = StoredProject.getLastProjectVersion(project, logger);
             SCMAccessor scm = tds.getAccessor(project.getId()).getSCMAccessor();

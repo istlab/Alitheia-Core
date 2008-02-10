@@ -200,6 +200,8 @@ public abstract class Job implements Comparable<Job> {
 
 
     /**
+     * TODO: semantics of priority - is 0 high or low ?
+     *
      * @return The priority of the job.
      */
     abstract public int priority();

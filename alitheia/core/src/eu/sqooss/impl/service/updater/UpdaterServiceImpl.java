@@ -85,42 +85,39 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
         logger.info("Succesfully started updater service");
     }
 
-    public void update(String path, UpdateTarget target) {
-        if (path == null) {
-            logger.info("Bad project name for update.");
-            return;
-        }
-        logger.info("Request to update project:" + path + " for target: "
-                + target);
-
-        StoredProject project = StoredProject.getProjectByName(path, logger);
+    public boolean update(StoredProject project, UpdateTarget target) {
         if (project == null) {
-            //the project was not found, so the job can not continue
-            logger.error("The project <" + path + "> was not found");
-            return;
+            logger.info("Bad project name for update.");
+            return false;
         }
+        logger.info("Request to update project:" + project.getName() + " for target: "
+                + target);
 
         if (target == UpdateTarget.MAIL || target == UpdateTarget.ALL) {
             // mailing list update
             try {
                 MailUpdater mu = new MailUpdater(project, core, logger);
-                mu.doUpdate();
-            } catch (UpdaterException ue) {
-                logger.error("The Updater failed to update the mailing list data for "
-                        + path);
+                core.getScheduler().enqueue(mu);
+            } catch (Exception e) {
+                logger.error("The Updater failed to update the mailing list " +
+                    "data for project " + project.getName());
+                return false;
             }
         } else if (target == UpdateTarget.CODE || target == UpdateTarget.ALL) {
             // source code update
             try {
-                SourceUpdater su = new SourceUpdater(project, core, logger, context);
+                SourceUpdater su = new SourceUpdater(project, core, logger);
                 core.getScheduler().enqueue(su);
             } catch (Exception e) {
                 logger.error("The Updater failed to update the code for project "
-                                + path);
+                                + project.getName());
+                return false;
             }
         } else if (target == UpdateTarget.BUGS || target == UpdateTarget.ALL) {
             // bug database update
         }
+
+        return true;
     }
 
     /**
@@ -145,16 +142,32 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
             return;
         }
 
-        // Should check that project exists, then
+        StoredProject project = StoredProject.getProjectByName(p, logger);
+        if (project == null) {
+            //the project was not found, so the job can not continue
+            logger.warn("The project <" + p + "> was not found");
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
 
+        UpdateTarget target = null;
         try {
-            UpdateTarget target = UpdateTarget.valueOf(t.toUpperCase());
-            logger.info("Updating project " + p + " " + t);
-            update(p, target);
-            response.setStatus(HttpServletResponse.SC_OK);
+            target = UpdateTarget.valueOf(t.toUpperCase());
         } catch (IllegalArgumentException e) {
-            logger.warn("Bad updater request for target " + t);
+            logger.warn("Bad updater request for target <" + t + ">");
             response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
+
+        logger.info("Updating project " + p + " target " + t);
+        if (!update(project, target)) {
+            // Something's wrong
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+        } else {
+            response.setStatus(HttpServletResponse.SC_OK);
+            response.setContentType("text/xml;charset=UTF-8");
+            response.getWriter().println("<updater><jobid>8008135</jobid></updater>");
+            response.getWriter().flush();
         }
 
     }

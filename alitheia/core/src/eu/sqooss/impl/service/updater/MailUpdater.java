@@ -33,9 +33,9 @@
 
 package eu.sqooss.impl.service.updater;
 
+import java.io.FileNotFoundException;
 import java.util.List;
 
-import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 import eu.sqooss.core.AlitheiaCore;
@@ -57,7 +57,7 @@ import eu.sqooss.service.updater.UpdaterException;
  *
  * @author Vassilios Karakoidas (bkarak@aueb.gr)
  */
-public class MailUpdater {
+class MailUpdater extends Job {
     private StoredProject project;
     private AlitheiaCore core;
     private Logger logger;
@@ -74,45 +74,43 @@ public class MailUpdater {
         this.logger = logger;
     }
 
-    public void doUpdate() throws UpdaterException {
-        try {
-            core.getScheduler().enqueue(new MailUpdaterJob(project, core, logger));
-        } catch (Exception e) {
-            throw new UpdaterException(e.getMessage());
-        }
-    }
-}
-
-class MailUpdaterJob extends Job {
-    private AlitheiaCore core;
-    private StoredProject project;
-    private Logger logger;
-
-    MailUpdaterJob(StoredProject project, AlitheiaCore core, Logger logger) {
-        this.project = project;
-        this.core = core;
-        this.logger = logger;
-    }
-
     public int priority() {
         return 0;
     }
 
-    protected void run() throws Exception {
+    protected void run() {
         try {
             TDAccessor spAccessor = core.getTDSService().getAccessor(project.getId());
             MailAccessor mailAccessor = spAccessor.getMailAccessor();
             List<MailingList> mllist = MailingList.getListsPerProject(project);
             for ( MailingList ml : mllist ) {
                 String listId = ml.getListId();
-                List<String> listIds = mailAccessor.getMessages(ml.getListId());
-                for ( String id : listIds ) {
-                    String raw = mailAccessor.getRawMessage( listId, id);
-                    // TODO: parse the message & add it to the database
-                }
+                processList(mailAccessor, listId);
             }
         } catch ( DAOException daoe ) {
             logger.warn(daoe.getMessage());
         }
     }
+
+    protected void processList(MailAccessor mailAccessor, String listId) {
+        List<String> messageIds = null;
+        try {
+            messageIds = mailAccessor.getMessages(listId);
+        } catch (FileNotFoundException e) {
+            logger.warn("Mailing list <" + listId + "> vanished.");
+            return;
+        }
+
+        for ( String messageId : messageIds ) {
+            try {
+                String raw = mailAccessor.getRawMessage( listId, messageId);
+                // TODO: parse the message & add it to the database
+            } catch (FileNotFoundException e) {
+                logger.warn("Message <" + messageId + "> in list <" + listId +
+                    "> not found.");
+                // Ignore, just carry on
+            }
+        }
+    }
+
 }

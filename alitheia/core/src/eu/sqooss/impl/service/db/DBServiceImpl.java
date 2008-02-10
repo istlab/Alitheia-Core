@@ -84,7 +84,7 @@ public class DBServiceImpl implements DBService {
 
         /**
          * Constructor
-         * 
+         *
          * @param f -
          *            The factory to get sessions from
          * @param expand -
@@ -105,7 +105,7 @@ public class DBServiceImpl implements DBService {
 
         /**
          * Returns a session to the holder object
-         * 
+         *
          * @param holder
          *            The object to which the returned session is bound to
          * @throws Exception
@@ -149,7 +149,7 @@ public class DBServiceImpl implements DBService {
         /**
          * Return a session to the session manager and release the binding to
          * the holder object
-         * 
+         *
          * @param s
          */
         public synchronized void returnSession(Session s) {
@@ -187,6 +187,7 @@ public class DBServiceImpl implements DBService {
             logger.error("SEGV. Core dumped.");
         } catch (SQLException e) {
             logger.error("SQL Exception while instantiating " + driver);
+            e.printStackTrace();
         }
 
         dbClass = null;
@@ -200,7 +201,7 @@ public class DBServiceImpl implements DBService {
      * Attempt to get the Derby JDBC connector and initialize a connection to
      * the Derby instance -- this is intended to be a debug fallback routine
      * during development.
-     * 
+     *
      * @return
      * @c true on success
      */
@@ -292,7 +293,7 @@ public class DBServiceImpl implements DBService {
 
         return result;
     }
-    
+
     public List doHQL(Session s, String hql) {
         return doHQL(s, hql, null, null);
     }
@@ -320,7 +321,7 @@ public class DBServiceImpl implements DBService {
         }
         return query.list();
     }
-    
+
     public Session getSession(Object holder) {
         Session s = null;
         try {
@@ -336,7 +337,7 @@ public class DBServiceImpl implements DBService {
     }
 
     public boolean addRecord(Session s, DAObject record) {
-        
+
         Transaction tx = null;
         try {
             tx = s.beginTransaction();
@@ -353,12 +354,12 @@ public class DBServiceImpl implements DBService {
                     ex.printStackTrace();
                     return false;
                 }
-                logger.warn("Failed to add object " + record.getId() 
+                logger.warn("Failed to add object " + record.getId()
                         + " to the database: " + e.getMessage());
             }
             return false;
         }
-       
+
         return true;
     }
 
@@ -370,7 +371,7 @@ public class DBServiceImpl implements DBService {
     }
 
     public boolean deleteRecord(Session s, DAObject record) {
-        
+
         Transaction tx = null;
         try {
             tx = s.beginTransaction();
@@ -387,19 +388,19 @@ public class DBServiceImpl implements DBService {
                     ex.printStackTrace();
                     return false;
                 }
-                logger.warn("Failed to remove object " + record.getId() 
+                logger.warn("Failed to remove object " + record.getId()
                         + " from the database: " + e.getMessage());
             }
             return false;
         }
-       
+
         return true;
     }
-    
+
     public List doSQL(Session s, String sql) {
         return s.createSQLQuery(sql).list();
     }
-    
+
     public List doSQL(String sql, Map<String, Object> params) {
         Session s = getSession(this);
         s.beginTransaction();
@@ -409,7 +410,7 @@ public class DBServiceImpl implements DBService {
 
         return result;
     }
-    
+
     public List doSQL(Session s, String sql, Map<String, Object> params) {
         Query query = s.createSQLQuery(sql);
         Iterator<String> i = params.keySet().iterator();
@@ -419,7 +420,7 @@ public class DBServiceImpl implements DBService {
         }
         return query.list();
     }
- 
+
     public Object selfTest() {
         Object[] o = new Object[INIT_POOL_SIZE + 1];
         Session[] s = new Session[INIT_POOL_SIZE + 1];
