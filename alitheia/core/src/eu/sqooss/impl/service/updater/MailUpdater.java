@@ -117,7 +117,6 @@ class MailUpdater extends Job {
                 MimeMessage mm = new MimeMessage(session,bais);
                 Address senderAddr = mm.getSender();
                 
-                
             } catch (FileNotFoundException e) {
                 logger.warn("Message <" + messageId + "> in list <" + listId +
                     "> not found.");

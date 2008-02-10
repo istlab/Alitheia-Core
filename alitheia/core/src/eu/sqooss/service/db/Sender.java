@@ -40,16 +40,7 @@ package eu.sqooss.service.db;
  * @author Vassilios Karakoidas (bkarak@aueb.gr)
  */
 public class Sender extends DAObject {
-    String name;
     String email;
-    
-    public String getName() {
-	return name;
-    }
-    
-    public void setName(String name) {
-	this.name = name;
-    }
     
     public String getEmail() {
 	return email;

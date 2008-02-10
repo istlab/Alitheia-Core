@@ -8,7 +8,6 @@
     <id name="id" column="SENDER_ID">
       <generator class="native" />
     </id>
-    <property name="name" column="SENDER_NAME" />
     <property name="email" column="SENDER_EMAIL" />
   </class>
 </hibernate-mapping>
