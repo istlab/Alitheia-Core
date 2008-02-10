@@ -1,5 +1,5 @@
 /*
- * This file is part of the Alitheia system, developed by the SQO-OSS
+ *  This file is part of the Alitheia system, developed by the SQO-OSS
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  *
  * Copyright 2007 by the SQO-OSS consortium members <info@sqo-oss.eu>
@@ -30,7 +30,6 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-
 package eu.sqooss.service.updater;
 
 import eu.sqooss.service.db.StoredProject;

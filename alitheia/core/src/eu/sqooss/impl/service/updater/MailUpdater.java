@@ -33,23 +33,30 @@
 
 package eu.sqooss.impl.service.updater;
 
+import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
-import java.util.List;
 
-import org.osgi.framework.ServiceReference;
+import java.util.List;
+import java.util.Properties;
+
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.internet.MimeMessage;
 
 import eu.sqooss.core.AlitheiaCore;
 
 import eu.sqooss.service.db.DAOException;
 import eu.sqooss.service.db.MailingList;
 import eu.sqooss.service.db.StoredProject;
+
 import eu.sqooss.service.logging.Logger;
 
-import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.scheduler.Scheduler;
+
 import eu.sqooss.service.tds.MailAccessor;
 import eu.sqooss.service.tds.TDAccessor;
+
 import eu.sqooss.service.updater.UpdaterException;
 
 /**
@@ -63,8 +70,8 @@ class MailUpdater extends Job {
     private Logger logger;
 
     public MailUpdater(StoredProject project,
-                        AlitheiaCore core,
-                        Logger logger) throws UpdaterException {
+                       AlitheiaCore core,
+                       Logger logger) throws UpdaterException {
         if (project == null || core == null || logger == null) {
             throw new UpdaterException("Cannot initialise MailUpdater (path/core/logger is null)");
         }
@@ -104,11 +111,16 @@ class MailUpdater extends Job {
         for ( String messageId : messageIds ) {
             try {
                 String raw = mailAccessor.getRawMessage(listId, messageId);
-                // TODO: parse the message & add it to the database
+                ByteArrayInputStream bais = new ByteArrayInputStream(raw.getBytes());
+                Session session = Session.getDefaultInstance(new Properties());
+                MimeMessage mm = new MimeMessage(session,bais);
+                
             } catch (FileNotFoundException e) {
                 logger.warn("Message <" + messageId + "> in list <" + listId +
                     "> not found.");
-                // Ignore, just carry on
+            } catch (MessagingException me) {
+        	logger.warn("Message <" + messageId + "> in list <" + listId +
+        	    "> could not be parsed! - " + me.toString());
             }
         }
     }
