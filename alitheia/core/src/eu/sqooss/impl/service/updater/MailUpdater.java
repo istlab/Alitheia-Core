@@ -47,13 +47,15 @@ import javax.mail.internet.MimeMessage;
 import eu.sqooss.core.AlitheiaCore;
 
 import eu.sqooss.service.db.DAOException;
+import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.MailMessage;
 import eu.sqooss.service.db.MailingList;
+import eu.sqooss.service.db.Sender;
 import eu.sqooss.service.db.StoredProject;
 
 import eu.sqooss.service.logging.Logger;
 
 import eu.sqooss.service.scheduler.Job;
-import eu.sqooss.service.scheduler.Scheduler;
 
 import eu.sqooss.service.tds.MailAccessor;
 import eu.sqooss.service.tds.TDAccessor;
@@ -92,16 +94,17 @@ class MailUpdater extends Job {
             MailAccessor mailAccessor = spAccessor.getMailAccessor();
             List<MailingList> mllist = MailingList.getListsPerProject(project);
             for ( MailingList ml : mllist ) {
-                String listId = ml.getListId();
-                processList(mailAccessor, listId);
+                processList(mailAccessor, ml);
             }
         } catch ( DAOException daoe ) {
             logger.warn(daoe.getMessage());
         }
     }
 
-    private void processList(MailAccessor mailAccessor, String listId) {
+    private void processList(MailAccessor mailAccessor, MailingList mllist) {
         List<String> messageIds = null;
+        String listId = mllist.getListId();
+        DBService dbs = core.getDBService();
         try {
             messageIds = mailAccessor.getMessages(listId);
         } catch (FileNotFoundException e) {
@@ -109,20 +112,38 @@ class MailUpdater extends Job {
             return;
         }
 
+        // TODO: not the best way to do it, but it works
+        // still needs to do it with Dates
         for ( String messageId : messageIds ) {
+            String msg = String.format("Message <%s> in list <%s> ", messageId, listId);
             try {
                 String raw = mailAccessor.getRawMessage(listId, messageId);
                 ByteArrayInputStream bais = new ByteArrayInputStream(raw.getBytes());
                 Session session = Session.getDefaultInstance(new Properties());
                 MimeMessage mm = new MimeMessage(session,bais);
                 Address senderAddr = mm.getSender();
-                
+                Sender sender = Sender.getSenderByEmail(senderAddr.toString());
+                if(sender == null) {
+                    sender = new Sender(senderAddr.toString());
+                    dbs.addRecord(sender);
+                }
+                MailMessage mmsg = MailMessage.getMessageById(messageId);
+                if(mmsg == null) {
+                    mmsg = new MailMessage();
+                    mmsg.setListId(mllist);
+                    mmsg.setMessageId(mm.getMessageID());
+                    mmsg.setSender(sender);
+                    mmsg.setSendDate(mm.getSentDate());
+                    mmsg.setArrivalDate(mm.getReceivedDate());
+                    mmsg.setSubject(mm.getSubject());
+                    dbs.addRecord(mmsg);
+                }                
             } catch (FileNotFoundException e) {
-                logger.warn("Message <" + messageId + "> in list <" + listId +
-                    "> not found.");
+                logger.warn(msg + "not found.");
             } catch (MessagingException me) {
-        	logger.warn("Message <" + messageId + "> in list <" + listId +
-        	    "> could not be parsed! - " + me.toString());
+        	logger.warn(msg + " could not be parsed! - " + me.toString());
+            } catch (DAOException daoe) {
+        	logger.warn(msg + " error - " + daoe.toString());
             }
         }
     }

@@ -33,6 +33,10 @@
 
 package eu.sqooss.service.db;
 
+import java.util.List;
+
+import eu.sqooss.impl.service.CoreActivator;
+
 /**
  * DAO Object representation for the Sender
  * class
@@ -42,11 +46,29 @@ package eu.sqooss.service.db;
 public class Sender extends DAObject {
     String email;
     
+    public Sender(String email) {
+	this.email = email;
+    }
+    
     public String getEmail() {
 	return email;
     }
     
     public void setEmail(String email) {
 	this.email = email;
+    }
+    
+    public static Sender getSenderByEmail(String email) throws DAOException {
+	DBService dbs = CoreActivator.getDBService();
+	
+	List sndrList = dbs.doHQL("from Sender where SENDER_EMAIL = '" + email + "'");
+	if(sndrList == null) {
+	    return null;
+	}
+	if(sndrList.size() != 1) {
+	    throw new DAOException("Sender","More than one Senders found for " + email);
+	}
+	
+	return (Sender)sndrList.get(0);
     }
 }

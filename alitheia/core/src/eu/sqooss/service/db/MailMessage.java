@@ -36,6 +36,8 @@ package eu.sqooss.service.db;
 
 import java.util.*;
 
+import eu.sqooss.impl.service.CoreActivator;
+
 /**
  * DAO Object for the MailMessage database table
  *
@@ -97,5 +99,19 @@ public class MailMessage extends DAObject {
 
     public void setSubject( String value ) {
         subject = value;
+    }
+    
+    public static MailMessage getMessageById(String messageId) throws DAOException {
+	DBService dbs = CoreActivator.getDBService();
+
+	List msgList = dbs.doHQL("from MailMessage where MESSAGEID = '" + messageId + "'");
+	if(msgList == null) {
+	    return null;
+	}
+	if(msgList.size() != 1) {
+	    throw new DAOException("MailMessage", "More than one message of MailMessage retrieved for message id " + messageId);
+	}
+	
+	return (MailMessage)msgList.get(0);
     }
 }
