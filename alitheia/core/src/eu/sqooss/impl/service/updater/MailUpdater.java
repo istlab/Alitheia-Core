@@ -39,6 +39,7 @@ import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.Properties;
 
+import javax.mail.Address;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
@@ -114,6 +115,8 @@ class MailUpdater extends Job {
                 ByteArrayInputStream bais = new ByteArrayInputStream(raw.getBytes());
                 Session session = Session.getDefaultInstance(new Properties());
                 MimeMessage mm = new MimeMessage(session,bais);
+                Address senderAddr = mm.getSender();
+                
                 
             } catch (FileNotFoundException e) {
                 logger.warn("Message <" + messageId + "> in list <" + listId +

@@ -9,6 +9,6 @@
       <generator class="native" />
     </id>
     <property name="name" column="SENDER_NAME" />
-    <property name="username" column="SENDER_USERNAME" />
+    <property name="email" column="SENDER_EMAIL" />
   </class>
 </hibernate-mapping>

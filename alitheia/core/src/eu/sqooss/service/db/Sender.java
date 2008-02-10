@@ -41,7 +41,7 @@ package eu.sqooss.service.db;
  */
 public class Sender extends DAObject {
     String name;
-    String username;
+    String email;
     
     public String getName() {
 	return name;
@@ -51,11 +51,11 @@ public class Sender extends DAObject {
 	this.name = name;
     }
     
-    public String getUsername() {
-	return username;
+    public String getEmail() {
+	return email;
     }
     
-    public void setUsername(String username) {
-	this.username = username;
+    public void setEmail(String email) {
+	this.email = email;
     }
 }
