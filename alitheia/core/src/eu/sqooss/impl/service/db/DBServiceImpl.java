@@ -305,17 +305,13 @@ public class DBServiceImpl implements DBService {
         Map<String, Collection> collectionParams) {
         Query query = s.createQuery(hql);
         if (params != null) {
-            Iterator<String> i = params.keySet().iterator();
-            while(i.hasNext()) {
-                String paramName = i.next();
-                query.setParameter(paramName, params.get(paramName));
+            for ( String param : params.keySet() ) {
+        	query.setParameter(param, params.get(param));
             }
         }
         if (collectionParams != null) {
-            Iterator<String> i = collectionParams.keySet().iterator();
-            while(i.hasNext()) {
-                String paramName = i.next();
-                query.setParameterList(paramName, collectionParams.get(paramName));
+            for ( String param : collectionParams.keySet() ) {
+        	query.setParameterList(param, collectionParams.get(param));
             }
         }
         return query.list();

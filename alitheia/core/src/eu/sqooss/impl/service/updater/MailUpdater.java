@@ -137,7 +137,7 @@ class MailUpdater extends Job {
                     mmsg.setArrivalDate(mm.getReceivedDate());
                     mmsg.setSubject(mm.getSubject());
                     dbs.addRecord(mmsg);
-                }                
+                }
             } catch (FileNotFoundException e) {
                 logger.warn(msg + "not found.");
             } catch (MessagingException me) {
