@@ -92,7 +92,7 @@ class MailUpdater extends Job {
         }
     }
 
-    protected void processList(MailAccessor mailAccessor, String listId) {
+    private void processList(MailAccessor mailAccessor, String listId) {
         List<String> messageIds = null;
         try {
             messageIds = mailAccessor.getMessages(listId);
@@ -103,7 +103,7 @@ class MailUpdater extends Job {
 
         for ( String messageId : messageIds ) {
             try {
-                String raw = mailAccessor.getRawMessage( listId, messageId);
+                String raw = mailAccessor.getRawMessage(listId, messageId);
                 // TODO: parse the message & add it to the database
             } catch (FileNotFoundException e) {
                 logger.warn("Message <" + messageId + "> in list <" + listId +
