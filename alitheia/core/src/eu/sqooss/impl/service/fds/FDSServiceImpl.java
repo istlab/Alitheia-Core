@@ -125,6 +125,9 @@ public class FDSServiceImpl implements FDSService {
     private void cleanupCheckoutRoot() {
         logger.info("Cleaning up " + fdsCheckoutRoot);
         File[] projects = fdsCheckoutRoot.listFiles();
+        if (projects == null) {
+            return;
+        }
         String projectRE = "^[0-9]{" + INT_AS_DECIMAL_LENGTH + "}-.*";
         String checkoutRE = "^[0-9a-f]{" + RANDOM_PREFIX_LENGTH
             + "}.[0-9a-f]{" + INT_AS_HEX_LENGTH + "}$";
