@@ -7,7 +7,7 @@
         <xs:complexType>
           <xs:all>
             <!-- Trigger for automatic installation of this metric -->
-            <xs:element name="autoinstall" type="xs:boolean" minOccurs="0"/>
+            <xs:element name="autoinstall" type="boolean" minOccurs="0"/>
             <!-- Example byte array like element -->
             <xs:element name="barray" type= "ByteArray" minOccurs="0"/>
             <!-- Example string array like element -->
