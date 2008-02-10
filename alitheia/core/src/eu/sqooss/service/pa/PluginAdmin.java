@@ -35,8 +35,8 @@ import java.util.Collection;
 
 // TODO: Auto-generated Javadoc
 /**
- * PluginAdmin defines interface for classes that provide utilities for
- *  managing.
+ * PluginAdmin defines an interface for classes that provide utilities for
+ *  managing SQO-OSS plug-ins, and more specifically metric plug-ins.
  */
 public interface PluginAdmin {
     
@@ -48,7 +48,7 @@ public interface PluginAdmin {
      * Returns a collection containing information about all metrics services
      * currently registered in the framework.
      * 
-     * @return the collection
+     * @return the list of all metrics currently registered in the framework
      */
     public Collection<MetricInfo> listMetrics();
     
@@ -58,7 +58,7 @@ public interface PluginAdmin {
      * 
      * @param service_ID the service ID of the selected metric service
      * 
-     * @return true, if successful
+     * @return true, if successful; false otherwise
      */
     public boolean installMetric(Long service_ID);
 }

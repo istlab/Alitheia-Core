@@ -41,10 +41,12 @@ import eu.sqooss.service.pa.PluginAdmin;
 import eu.sqooss.service.pa.MetricInfo;
 
 public class PACommandProvider implements CommandProvider {
-    private PluginAdmin sobj_PA = null;
+    private PluginAdmin sobjPA = null;
 
-    public PACommandProvider (PluginAdmin plugin_admin) {
-        this.sobj_PA = plugin_admin;
+    /* ===[ Constructors ]================================================ */
+
+    public PACommandProvider (PluginAdmin pluginAdmin) {
+        this.sobjPA = pluginAdmin;
     }
 
     public String getHelp() {
@@ -67,6 +69,8 @@ public class PACommandProvider implements CommandProvider {
         return help.toString();
     }
 
+    /* ===[ Command shortcuts ]=========================================== */
+
     public void _im (CommandInterpreter ci) {
         _install_metric(ci);
     }
@@ -75,87 +79,91 @@ public class PACommandProvider implements CommandProvider {
         _list_metrics(ci);
     }
 
+    /* ===[ Command methods ]============================================= */
+
     public void _install_metric (CommandInterpreter ci) {
         // Retrieve the service ID from the command's parameters list
-        String service_id = ci.nextArgument();
-        if ((service_id != null) && (sobj_PA != null)){
+        String serviceId = ci.nextArgument();
+        if ((serviceId != null) && (sobjPA != null)){
             try {
                 // Trigger install on the selected metric
-                if (sobj_PA.installMetric(new Long(service_id))) {
-                    System.out.println (
+                if (sobjPA.installMetric(new Long(serviceId))) {
+                    ci.println (
                             "[INFO]"
                             + " "
                             + "Install on metric with ID "
-                            + service_id + " was successfull.");
+                            + serviceId + " was successfull.");
                 }
                 else {
-                    System.out.println (
+                    ci.println (
                             "[ERROR]"
                             + " "
                             + "Install on metric with ID "
-                            + service_id + " was unsuccessfull!");
+                            + serviceId + " was unsuccessfull!");
                 }
             } catch (NumberFormatException e) {
-                System.out.println (
-                "The specified service ID is not a number");
+                ci.println (
+                        "[ERROR]"
+                        + " "
+                        + "The specified service ID is not a number");
             }
         }
     }
 
     public void _list_metrics (CommandInterpreter ci) {
-        if (sobj_PA != null) {
+        if (sobjPA != null) {
             // Dump a formated list of registered metrics, if any where found
-            Collection<MetricInfo> metrics_list = sobj_PA.listMetrics();
-            if ((metrics_list != null) && (metrics_list.isEmpty() == false)) {
+            Collection<MetricInfo> metricsList = sobjPA.listMetrics();
+            if ((metricsList != null) && (metricsList.isEmpty() == false)) {
                 // Iterate through the available metrics
-                Iterator<MetricInfo> list_it = metrics_list.iterator();
-                while ( list_it.hasNext()) {
-                    MetricInfo next_metric = list_it.next();
+                Iterator<MetricInfo> listIterator = metricsList.iterator();
+                while ( listIterator.hasNext()) {
+                    MetricInfo nextMetric = listIterator.next();
 
                     ci.println(
                             "\r\nService ID : "
-                            + next_metric.getServiceID());
+                            + nextMetric.getServiceID());
 
                     ci.println(
                             "  Registered by\t\t: "
-                            + "[" + next_metric.getBundleID() + "]"
-                            + " " + next_metric.getBundleName());
+                            + "[" + nextMetric.getBundleID() + "]"
+                            + " " + nextMetric.getBundleName());
 
-                    String[] metric_classes = next_metric.getObjectClass();
-                    if (metric_classes.length > 0) {
-                        if (metric_classes.length == 1) {
+                    String[] metricClasses = nextMetric.getObjectClass();
+                    if (metricClasses.length > 0) {
+                        if (metricClasses.length == 1) {
                             ci.print("  Service class\t\t: ");
                         }
                         else {
                             ci.println("  Service classes\t: ");
                         }
 
-                        for (int next_class = 0;
-                        next_class < metric_classes.length;
-                        next_class++) {
-                            if (metric_classes.length == 1) {
-                                ci.println(metric_classes[next_class]);
+                        for (int nextClass = 0;
+                        nextClass < metricClasses.length;
+                        nextClass++) {
+                            if (metricClasses.length == 1) {
+                                ci.println(metricClasses[nextClass]);
                             }
                             else {
-                                ci.println("\t\t" + metric_classes[next_class]);
+                                ci.println("\t\t" + metricClasses[nextClass]);
                             }
                         }
                     }
 
                     ci.println (
                             "  Install performed\t: "
-                            + (next_metric.installed ? "yes" : "no"));
+                            + (nextMetric.installed ? "yes" : "no"));
 
-                    if (next_metric.getMetricName() != null) {
+                    if (nextMetric.getMetricName() != null) {
                         ci.println(
                                 "  Metric name\t\t: "
-                                + next_metric.getMetricName());
+                                + nextMetric.getMetricName());
                     }
 
-                    if (next_metric.getMetricVersion() != null) {
+                    if (nextMetric.getMetricVersion() != null) {
                         ci.println(
                                 "  Metric version\t: "
-                                + next_metric.getMetricVersion());
+                                + nextMetric.getMetricVersion());
                     }
                 }
             }

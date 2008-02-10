@@ -35,29 +35,33 @@ import java.util.Hashtable;
 import java.util.Set;
 
 /**
- * MetricConfig defines an interface for classes that store the
- *  configuration set for a single unnamed metric.
+ * MetricConfig defines a default interface for classes that stores the
+ *  configuration set of a single unnamed metric.
  */
 public interface MetricConfig {
 
     /************************************************************************
-     * CONFIGURATION KEYS
+     * OBLIGATORY CONFIGURATION KEYS
      */ 
-    public static final String CFG_AUTOINSTALL =
+    public static final String KEY_AUTOINSTALL =
         "autoinstall";
-    
+
     /**
      * Gets the complete metric's configuration set.
      * 
      * @return the configuration set
      */
     public Hashtable<String, String> getConfiguration();
-    
+
     public boolean containsKey(String value);
-    
-    public String get(String key);
-    
+
     public Set<String> keySet();
+
+    public String getString(String key);
+
+    public byte[] getByteArray(String key);
+
+    public String[] getStringArray(String key);
 
 }
 

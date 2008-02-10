@@ -32,6 +32,7 @@
 package eu.sqooss.impl.service.pa;
 
 import java.io.*;
+import java.nio.ByteBuffer;
 import java.util.*;
 
 //XML - Validation schema related
@@ -59,6 +60,10 @@ public class XMLConfigParser implements ConfigUtils{
     private static final String METRIC_ELEMENT  = "metric";
 
     private static final String METRIC_NAME     = "name";
+    
+    // User-defined XML datatypes
+    private static final String TYPE_BYTE_ARRAY     = "ByteArray";
+    private static final Object TYPE_STRING_ARRAY   = "StringArray";
 
     // Holds the XSD validation schema
     private File validation_schema = null;
@@ -66,12 +71,82 @@ public class XMLConfigParser implements ConfigUtils{
     // Holds the XML based configuration file
     private File config_file = null;
 
-    // Holds the DOM parser for the supplied config file
+    // Holds the DOM parser for the supplied configuration file
     private Document config_parser = null;
-    
+
     private static class MetricConfigImpl implements MetricConfig {
-        private Hashtable<String, String> metric_config =
+
+        // A storage for string based configuration parameters
+        private Hashtable<String, String> stringValues =
             new Hashtable<String, String>();
+
+        // A storage for byte array based configuration parameters
+        private Hashtable<String, ByteBuffer> byteArrays =
+            new Hashtable<String, ByteBuffer>();
+
+        // A storage for string array based configuration parameters
+        private Hashtable<String, String[]> stringArrays =
+            new Hashtable<String, String[]>();
+
+        /********************************************************************
+         * Parsers for user-defined XML datatypes
+         */
+
+        private ByteBuffer parseByteArray (Element e) {
+            if (e.hasChildNodes()) {
+                NodeList childs = e.getChildNodes();
+                ByteBuffer values = ByteBuffer.allocate(10);
+                for (int i=0; i < childs.getLength(); i++) {
+                    Node c = childs.item(i);
+                    // Skip any empty element
+                    if ((c.getNodeType() == Node.ELEMENT_NODE)
+                            && (c.getTextContent() != null)) {
+                        Byte nextByte = new Byte(c.getTextContent());
+                        values.put(nextByte.byteValue());
+                    }
+                }
+                return values;
+            }
+            return null;
+        }
+
+        private String[] parseStringArray (Element e) {
+            if (e.hasChildNodes()) {
+                NodeList childs = e.getChildNodes();
+                Vector<String> values = new Vector<String>();
+                for (int i=0; i < childs.getLength(); i++) {
+                    Node c = childs.item(i);
+                    // Skip any empty element
+                    if ((c.getNodeType() == Node.ELEMENT_NODE)
+                            && (c.getTextContent() != null)) {
+                        String nextString = new String(c.getTextContent());
+                        values.add(nextString);
+                    }
+                }
+                return (String[]) values.toArray(new String[]{});
+            }
+            return null;
+        }
+
+        private void parseElement (Element e) {
+            if (e.getSchemaTypeInfo().getTypeName()
+                    .equals(TYPE_BYTE_ARRAY)) {
+                byteArrays.put(
+                        e.getNodeName(),
+                        parseByteArray(e));
+            }
+            if (e.getSchemaTypeInfo().getTypeName()
+                    .equals(TYPE_STRING_ARRAY)) {
+                stringArrays.put(
+                        e.getNodeName(),
+                        parseStringArray(e));
+            }
+            else {
+                stringValues.put(
+                        e.getNodeName(),
+                        e.getTextContent().trim());
+            }
+        }
 
         public MetricConfigImpl(Element node) {
             // Retrieve the attributes of this node
@@ -79,7 +154,7 @@ public class XMLConfigParser implements ConfigUtils{
                 NamedNodeMap attributes = node.getAttributes();
                 for (int i = 0; i < attributes.getLength(); i++) {
                     if (attributes.item(i).getNodeName() != METRIC_NAME) {
-                        metric_config.put (
+                        stringValues.put (
                                 attributes.item(i).getNodeName(),
                                 attributes.item(i).getNodeValue());
                     }
@@ -93,9 +168,7 @@ public class XMLConfigParser implements ConfigUtils{
                     switch (childs.item(j).getNodeType()) {
                     case Node.ELEMENT_NODE:
                         if (childs.item(j).getTextContent() != null) {
-                            metric_config.put(
-                                    childs.item(j).getNodeName(),
-                                    childs.item(j).getTextContent().trim());
+                            parseElement((Element) childs.item(j));
                         }
                         break;
                     }
@@ -104,21 +177,34 @@ public class XMLConfigParser implements ConfigUtils{
         }
 
         public boolean containsKey(String value) {
-            return metric_config.containsKey(value);
+            return stringValues.containsKey(value);
         }
 
-        public String get(String key) {
-            return metric_config.get(key);
+        public String getString(String key) {
+            return stringValues.get(key);
         }
 
         public Hashtable<String, String> getConfiguration() {
-            return metric_config;
+            return stringValues;
         }
 
         public Set<String> keySet() {
-            return metric_config.keySet();
+            return stringValues.keySet();
         }
 
+        public byte[] getByteArray(String key) {
+            if (byteArrays.containsKey(key)) {
+                return byteArrays.get(key).array();
+            }
+            return null;
+        }
+
+        public String[] getStringArray(String key) {
+            if (stringArrays.containsKey(key)) {
+                return stringArrays.get(key);
+            }
+            return null;
+        }
 
     }
 

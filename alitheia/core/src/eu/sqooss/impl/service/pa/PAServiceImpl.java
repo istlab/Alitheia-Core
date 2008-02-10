@@ -52,12 +52,15 @@ import eu.sqooss.service.pa.PluginAdmin;
 
 public class PAServiceImpl implements PluginAdmin, ServiceListener {
 
+    /* ===[ Constants: System and configuration related ]================= */
+
     // The folder (relative to the Equinox root) where the default
     // configuration files are located
+    // TODO: Better store this parameter in the Equinox's config.ini
     private static final String CONF_DIR =
         "configuration";
 
-    // File separator (as retrieved from the system)
+    // File separator (as retrieved from the host system)
     private static final String FILE_SEP =
         System.getProperty("file.separator");
 
@@ -65,9 +68,13 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
     private static final String CWD_PATH =
         System.getProperty("user.dir");
 
-    /************************************************************************
-     * STANDARD LOG MESSAGE
-     */ 
+    /* ===[ Constants: Service search filters ]=========================== */
+
+    private static final String SREF_FILTER_METRIC =
+        "(" + Constants.OBJECTCLASS + "=" + PluginAdmin.METRICS_CLASS + ")";
+
+    /* ===[ Constants: Common log messages ]============================== */
+
     private static final String NO_MATCHING_SERVICES =
         "No matching services were found!";
     private static final String NOT_A_METRIC =
@@ -77,135 +84,125 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
     private static final String CANT_GET_SOBJ =
         "The service object can not be retrieved!";
 
-    // Store our parent bundle's context here
+    
+    /* ===[ Global variables ]============================================ */
+
+    // Store our parent's bundle context here
     private BundleContext bc;
 
     // Keeps a list of registered metric services, indexed by service ID
-    private HashMap<Long, MetricInfo> metrics_available =
+    private HashMap<Long, MetricInfo> registeredMetrics =
         new HashMap<Long, MetricInfo>();
 
     // Holds the current set of metrics configurations, indexed by class name
-    private HashMap<String, MetricConfig> metrics_configurations =
+    private HashMap<String, MetricConfig> metricConfigurations =
         new HashMap<String, MetricConfig>();
 
-    // Provides access to plug-ins configuration
-    ConfigUtils config_reader = null;
+    // Provides routines for accessing a specified configuration file
+    ConfigUtils configReader = null;
+
+    /* ===[ Constructors ]================================================ */
 
     public PAServiceImpl (BundleContext bc) {
         this.bc = bc;
 
         // Read the default configuration file
-        config_reader = new XMLConfigParser(
+        // TODO: Refactor the XSD schema and XML data file name constructors
+        configReader = new XMLConfigParser(
                 CWD_PATH + FILE_SEP + CONF_DIR + FILE_SEP + "plugins.xml",
                 CWD_PATH + FILE_SEP + CONF_DIR + FILE_SEP + "plugins.xsd");
-        if (config_reader != null) {
-            // ... and retrieve the available metrics configurations
-            metrics_configurations = config_reader.getMetricsConfiguration();
+        // ... and retrieve all available metrics configurations
+        if (configReader != null) {
+            metricConfigurations = configReader.getMetricsConfiguration();
         }
 
-        // Collect information from pre-existing metric services
+        // Collect information about pre-existing metric services
         this.collectMetricsInfo();
 
         // Attach this object as a listener for metric services
         try {
-            bc.addServiceListener(
-                    this,
-                    "(" + Constants.OBJECTCLASS
-                    + "=" + PluginAdmin.METRICS_CLASS + ")");
+            bc.addServiceListener(this, SREF_FILTER_METRIC);
         } catch (InvalidSyntaxException e) {
-            // TODO Use the Logger here
-            System.out.println("Invalid filter string!");
+            logError(INVALID_FILTER_SYNTAX);
         }
 
-        // Register an extension to the Equinox console.
-        //   - provides commands for managing metric services
+        // Register an extension to the Equinox console, in order to
+        // provide commands for managing metric services
         bc.registerService(
                 CommandProvider.class.getName(),
                 new PACommandProvider(this) ,
                 null);
     }
 
-/*    private Set<Long> getIDsFromClass (String class_name){
-        Set<Long> matching_services = new TreeSet<Long>();
-        
-        // Retrieve the service IDs for all registered metrics
-        Iterator<Long> service_ids = metrics_available.keySet().iterator();
-        if (service_ids != null) {
-            while (service_ids.hasNext()) {
-                Long next_id = service_ids.next();
-                
-                MetricInfo next_metric = metrics_available.get(next_id);
-                if ((next_metric != null)
-                        && (next_metric.usesClassName(class_name))) {
-                    matching_services.add(next_id);
-                }
-            }
-        }
-        
-        return matching_services;
-    }*/
+    /**
+     * Constructs a MetricInfo object, from the available information
+     * regarding the selected metric service reference
+     * 
+     * @param srefMetric the service reference object
+     * 
+     * @return a MetricInfo object containing the extracted metric
+     * information
+     */
+    private MetricInfo getMetricInfo (ServiceReference srefMetric) {
 
-    private MetricInfo getMetricInfo (ServiceReference sref_metric) {
-
-        if (sref_metric != null) {
-            MetricInfo metric_info = new MetricInfo();
+        if (srefMetric != null) {
+            MetricInfo metricInfo = new MetricInfo();
 
             // Set the metric's service ID
-            metric_info.setServiceID(
-                    (Long) sref_metric.getProperty(Constants.SERVICE_ID));
+            metricInfo.setServiceID(
+                    (Long) srefMetric.getProperty(Constants.SERVICE_ID));
 
             // Set the class name(s) of the object(s) used in the
             // service registration
             String[] metric_classes =
-                (String[]) sref_metric.getProperty(Constants.OBJECTCLASS);
-            metric_info.setObjectClass(metric_classes);
+                (String[]) srefMetric.getProperty(Constants.OBJECTCLASS);
+            metricInfo.setObjectClass(metric_classes);
 
             // Set the ID and name of the bundle which has registered
             // this service
-            metric_info.setBundleID(
-                    sref_metric.getBundle().getBundleId());
-            metric_info.setBundleName(
-                    sref_metric.getBundle().getSymbolicName());
+            metricInfo.setBundleID(
+                    srefMetric.getBundle().getBundleId());
+            metricInfo.setBundleName(
+                    srefMetric.getBundle().getSymbolicName());
 
-            // SQO-OSS Specific info fields
-            Metric metric_object = (Metric) bc.getService(sref_metric);
+            // SQO-OSS related info fields
+            Metric metric_object = (Metric) bc.getService(srefMetric);
             if (metric_object != null) {
-                metric_info.setMetricName(metric_object.getName());
-                metric_info.setMetricVersion(metric_object.getVersion());
+                metricInfo.setMetricName(metric_object.getName());
+                metricInfo.setMetricVersion(metric_object.getVersion());
             }
 
-            return metric_info;
+            return metricInfo;
         }
 
         return null;
     }
 
+    /**
+     * Collects information about all registered metrics
+     */
     private void collectMetricsInfo() {
-        // Format the search filter for metric services
-        String metrics_filter =
-            "(" + Constants.OBJECTCLASS +"=" + METRICS_CLASS + ")";
-
-        // Retrieve a list of all registered metric services
-        ServiceReference[] metrics_list = null;
+        // Retrieve a list of all references to registered metric services
+        ServiceReference[] metricsList = null;
         try {
-            metrics_list = bc.getServiceReferences(null, metrics_filter);
+            metricsList = bc.getServiceReferences(null, SREF_FILTER_METRIC);
         } catch (InvalidSyntaxException e) {
-            logError("Invalid filter string!");
+            logError(INVALID_FILTER_SYNTAX);
         }
 
-        // Produce a list of registered metrics, if any where found
-        if ((metrics_list != null) && (metrics_list.length > 0)) {
+        // Retrieve information about all registered metrics found
+        if ((metricsList != null) && (metricsList.length > 0)) {
 
-            for (int next_metric = 0;
-            next_metric < metrics_list.length;
-            next_metric++) {
+            for (int nextMetric = 0;
+            nextMetric < metricsList.length;
+            nextMetric++) {
 
-                ServiceReference sref_metric = metrics_list[next_metric];
+                ServiceReference sref_metric = metricsList[nextMetric];
                 MetricInfo metric_info = getMetricInfo(sref_metric);
 
-                // Store this metric's info
+                // Add this metric's info to the list
                 if (metric_info != null) {
-                    metrics_available.put(
+                    registeredMetrics.put(
                             metric_info.getServiceID(),
                             metric_info);
                 }
@@ -216,115 +213,142 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
         }
     }
 
-    private void metricRegistered (ServiceReference sref_metric) {
+    /**
+     * Performs various maintenance operations upon registration of a new
+     * metric service
+     * 
+     * @param srefMetric the reference to the registered metric service
+     */
+    private void metricRegistered (ServiceReference srefMetric) {
         // Retrieve the service ID
-        Long service_id =
-            (Long) sref_metric.getProperty(Constants.SERVICE_ID);
-        logInfo("A metric service was registered with ID " + service_id);
+        Long serviceId =
+            (Long) srefMetric.getProperty(Constants.SERVICE_ID);
+        logInfo("A metric service was registered with ID " + serviceId);
 
-        // Dispose from the list of available metric any old metric that
+        // Dispose from the list of available metric any old metric, that
         // uses the same ID. Should not be required, as long as metric
         // services got properly unregistered.
-        if (!metrics_available.containsKey(service_id)) {
-            metrics_available.remove(service_id);
+        if (!registeredMetrics.containsKey(serviceId)) {
+            registeredMetrics.remove(serviceId);
         }
 
-        // Create an info object for this metric and add it to the list of
-        // available metrics
-        MetricInfo metric_info = getMetricInfo(sref_metric);
-        metrics_available.put(service_id, metric_info);
+        // Retrieve information about this metric and add this metric to the
+        // list of registered/available metrics
+        MetricInfo metricInfo = getMetricInfo(srefMetric);
+        registeredMetrics.put(serviceId, metricInfo);
 
         // Search for an applicable configuration set and apply it
-        Iterator<String> config_sets =
-            metrics_configurations.keySet().iterator();
-        while (config_sets.hasNext()) {
-            String class_name = config_sets.next();
-            if (metric_info.usesClassName(class_name)) {
+        Iterator<String> configSets =
+            metricConfigurations.keySet().iterator();
+        while (configSets.hasNext()) {
+            // Match is performed against the metric's class name(s)
+            String className = configSets.next();
+            // TODO: It could happen that a service get registered with more
+            // than one class. In this case a situation can arise where
+            // two or more matching configuration sets exists.
+            if (metricInfo.usesClassName(className)) {
                 // Apply the current configuration set to this metric
                 logInfo(
                         "A configuration set was found for metric with"
-                        + " object class name " + class_name
-                        + " and service ID "    + service_id);
-                MetricConfig config_set =
-                    metrics_configurations.get(class_name);
+                        + " object class name " + className
+                        + " and service ID "    + serviceId);
+                MetricConfig configSet =
+                    metricConfigurations.get(className);
 
                 // Execute the necessary post-registration actions
-                if (config_set != null) {
-                    // Check if this metric needs to be automatically
+                if (configSet != null) {
+                    // Checks if this metric has to be automatically
                     // installed upon registration
-                    if ((config_set.containsKey(MetricConfig.CFG_AUTOINSTALL)
-                            && (config_set.get(MetricConfig.CFG_AUTOINSTALL)
+                    if ((configSet.containsKey(MetricConfig.KEY_AUTOINSTALL)
+                            && (configSet.getString(MetricConfig.KEY_AUTOINSTALL)
                                     .equalsIgnoreCase("true")))) {
-                        if (installMetric(service_id)) {
+                        if (installMetric(serviceId)) {
                             logInfo (
                                     "The install method of metric with"
-                                    + " service ID " + service_id
+                                    + " service ID " + serviceId
                                     + " was successfully executed.");
                         }
                         else {
                             logError (
                                     "The install method of metric with"
-                                    + " service ID " + service_id
+                                    + " service ID " + serviceId
                                     + " failed.");
                         }
                     }
                 }
             }
         }
-
     }
 
-    private void metricUnregistering (ServiceReference sref_metric) {
-        logInfo("A metric service is unregistering.");
-
+    /**
+     * Performs various maintenance operations during unregistering of a
+     * metric service
+     * 
+     * @param srefMetric the reference to the registered metric service
+     */
+    private void metricUnregistering (ServiceReference srefMetric) {
         // Retrieve the service ID
-        Long service_ID =
-            (Long) sref_metric.getProperty(Constants.SERVICE_ID);
+        Long serviceId =
+            (Long) srefMetric.getProperty(Constants.SERVICE_ID);
+        logInfo(
+                "A metric service with ID "
+                + serviceId + " is unregistering.");
 
         // Remove this service from the list of available metric services
-        if (metrics_available.containsKey(service_ID)) {
-            metrics_available.remove(service_ID);
+        if (registeredMetrics.containsKey(serviceId)) {
+            registeredMetrics.remove(serviceId);
         }
     }
 
-    private void metricModified (ServiceReference sref_metric) {
-        logInfo("A metric service configuration change.");
+    /**
+     * Performs various maintenance operations upon a change in an existing
+     * metric service
+     * 
+     * @param srefMetric the reference to the registered metric service
+     */
+    private void metricModified (ServiceReference srefMetric) {
+        // Retrieve the service ID
+        Long serviceId =
+            (Long) srefMetric.getProperty(Constants.SERVICE_ID);
+        logInfo(
+                "A metric service with ID "
+                + serviceId + " was modified.");
     }
 
-/* ===[ Implementation of the ServiceListener Interface ]================= */
+/* ===[ Implementation of the ServiceListener interface ]================= */
 
     public void serviceChanged(ServiceEvent event) {
         // Get a reference to the affected service
-        ServiceReference affected_service = event.getServiceReference();
+        ServiceReference affectedService = event.getServiceReference();
 
         // Find out what happened to the service
         switch (event.getType()) {
         // New service was registered
         case ServiceEvent.REGISTERED:
-            metricRegistered(affected_service);
+            metricRegistered(affectedService);
             break;
         // An existing service is unregistering  
         case ServiceEvent.UNREGISTERING:
-            metricUnregistering(affected_service);
+            metricUnregistering(affectedService);
             break;
         // The configuration of an existing service was modified
         case ServiceEvent.MODIFIED:
-            metricModified (affected_service);
+            metricModified (affectedService);
         }
     }
 
-/* ===[ Implementation of the PluginAdmin Interface ]===================== */
+/* ===[ Implementation of the PluginAdmin interface ]===================== */
 
     public Collection<MetricInfo> listMetrics() {
-        if (metrics_available.isEmpty() == false) {
-            return metrics_available.values();
+        if (registeredMetrics.isEmpty() == false) {
+            return registeredMetrics.values();
         }
         return null;
     }
 
     public boolean installMetric(Long sid) {
-        // Format the search filter for metric services
-        String service_filter =
+        // Format a search filter for the metric service with <sid> serviceId
+        String serviceFilter =
             "(" + Constants.SERVICE_ID +"=" + sid + ")";
         logInfo (
                 "Installing metric with service ID " + sid);
@@ -335,23 +359,34 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
             + " failed : ";
 
         try {
-            ServiceReference[] matching_services =
-                bc.getServiceReferences(null, service_filter);
-            if ((matching_services != null)
-                    && (matching_services.length == 1)) {
-                ServiceReference sref = matching_services[0];
+            ServiceReference[] matchingServices =
+                bc.getServiceReferences(null, serviceFilter);
+            if ((matchingServices != null)
+                    && (matchingServices.length == 1)) {
+                // Since the search was performed using a serviceId, it must
+                // be only one service reference that is found
+                ServiceReference sref = matchingServices[0];
 
                 if (sref != null) {
                     try {
+                        // Retrieve the Metric object registered with this
+                        // service
                         Metric sobj = (Metric) bc.getService(sref);
                         if (sobj != null) {
+                            // Try to execute the install() method of this
+                            // metric
                             boolean installed = sobj.install();
+
+                            // If the install() is successful, then note this
+                            // into the metric's information object
                             if ((installed) &&
-                                    (metrics_available.containsKey(sid))) {
-                                MetricInfo metric_info =
-                                    metrics_available.get(sid);
-                                if (metric_info != null) {
-                                    metric_info.installed = true;
+                                    (registeredMetrics.containsKey(sid))) {
+                                // Retrieve the corresponding information
+                                // object
+                                MetricInfo metricInfo =
+                                    registeredMetrics.get(sid);
+                                if (metricInfo != null) {
+                                    metricInfo.installed = true;
                                 }
                             }
                             return installed;
@@ -379,21 +414,21 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
         return false;
     }
 
-    private void logError(String msg_text) {
+    private void logError(String msgText) {
         // TODO Use Logger instead
-        System.out.println ("[ERROR] " + msg_text);
+        System.out.println ("[ERROR] " + msgText);
         
     }
 
-    private void logWarning(String msg_text) {
+    private void logWarning(String msgText) {
         // TODO Use Logger instead
-        System.out.println ("[WARNING] " + msg_text);
+        System.out.println ("[WARNING] " + msgText);
         
     }
 
-    private void logInfo(String msg_text) {
+    private void logInfo(String msgText) {
         // TODO Use Logger instead
-        System.out.println ("[INFO] " + msg_text);
+        System.out.println ("[INFO] " + msgText);
         
     }
 
