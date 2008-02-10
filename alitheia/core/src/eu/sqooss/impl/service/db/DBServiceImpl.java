@@ -187,7 +187,6 @@ public class DBServiceImpl implements DBService {
             logger.error("SEGV. Core dumped.");
         } catch (SQLException e) {
             logger.error("SQL Exception while instantiating " + driver);
-            e.printStackTrace();
         }
 
         dbClass = null;

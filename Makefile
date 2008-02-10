@@ -32,7 +32,7 @@
 # show-db	- Start the Derby CLI for database manipulation.
 #		  Only useful if you are using Derby, which is the fallback
 #		  when Postgres can't be found.
-# show-tables-db - shows the generated database tables
+# show-db-tables - shows the generated database tables. Also Derby-only.
 #
 # eclipse-up-branch  - Update the eclipse branch from the current workdir
 # eclipse-up-workdir - Update the current workdir from the eclipse branch
@@ -173,6 +173,8 @@ show-db :
 show-db-tables :
 	echo "show tables;" | $(RUN_DERBY_IJ) | grep '^ALITHEIA'
 
+fill-db-tables :
+	cat examples/db.sql | $(RUN_DERBY_IJ)
 
 ECLIPSEDIR=$(TOP_SRCDIR)/../branches/eclipse
 

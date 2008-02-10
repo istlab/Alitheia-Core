@@ -152,9 +152,9 @@ public class StoredProject extends DAObject {
         ProjectVersion lastVersion = null;
         DBService dbs = CoreActivator.getDBService();
 
-        List pvList = dbs.doHQL("from ProjectVersion pv where pv.project = "
-                + project.getId() + " and pv.id = (select max(pv2.id) from "
-                + " ProjectVersion pv2 where pv2.project = " + project.getId()
+        List pvList = dbs.doHQL("from ProjectVersion pv where pv.STORED_PROJECT_ID= "
+                + project.getId() + " and pv.PROJECT_VERSION_ID = (select max(pv2.PROJECT_VERSION_ID) from "
+                + " ProjectVersion pv2 where pv2.STORED_PROJECT_ID = " + project.getId()
                 + ")");
 
         if ((pvList == null) || (pvList.size() != 1)) {

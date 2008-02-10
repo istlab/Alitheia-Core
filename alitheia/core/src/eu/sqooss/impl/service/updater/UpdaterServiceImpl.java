@@ -93,6 +93,11 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
         logger.info("Request to update project:" + project.getName() + " for target: "
                 + target);
 
+        if (!core.getScheduler().isExecuting()) {
+            // Make sure there is a thread for this update.
+            core.getScheduler().startExecute(1);
+        }
+
         if (target == UpdateTarget.MAIL || target == UpdateTarget.ALL) {
             // mailing list update
             try {

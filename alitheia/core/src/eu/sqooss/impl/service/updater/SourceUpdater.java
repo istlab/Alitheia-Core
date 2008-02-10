@@ -88,6 +88,8 @@ class SourceUpdater extends Job {
     }
 
     protected void run() {
+        logger.info("Running source update for project " + project.getName());
+
         try {
             ProjectVersion lastVersion = StoredProject.getLastProjectVersion(project, logger);
             SCMAccessor scm = tds.getAccessor(project.getId()).getSCMAccessor();

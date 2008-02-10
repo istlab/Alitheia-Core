@@ -149,6 +149,13 @@ public class SchedulerServiceImpl implements Scheduler {
     	}
     }
 
+    /**
+     * Manually schedule a job to a given worker thread.
+     */
+    private void handJob(Job e, WorkerThread t) {
+        // Worker thread API needs extension to push a job to it.
+    }
+
     public Object selfTest() {
         if( logger != null ) {
             logger.info("Starting scheduler selftest...");
