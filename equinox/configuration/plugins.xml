@@ -1,6 +1,16 @@
 <plugins>
   <metric name="eu.sqooss.impl.metrics.wc.WcServiceImpl">
     <autoinstall>true</autoinstall>
+    <barray>
+      <values>3</values>
+      <values>14</values>
+      <values>115</values>
+    </barray>
+    <sarray>
+      <values>one</values>
+      <values>one two</values>
+      <values>one two three</values>
+    </sarray>
   </metric>
 
   <metric name="eu.sqooss.impl.metrics.productivity.ProductivityMetricImpl">

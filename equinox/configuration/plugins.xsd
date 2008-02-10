@@ -1,26 +1,47 @@
-<?xml version="1.0" encoding="ISO-8859-1" ?>
-<schema xmlns="http://www.w3.org/2001/XMLSchema">
-<element name="plugins">
-  <complexType>
-    <sequence>
-      <element name="metric" maxOccurs="unbounded">
-        <complexType>
-          <all>
-            <!-- Trigger automatic installation on this metric-->
-            <element name="autoinstall" type="boolean" minOccurs="0"/>
-          </all>
-          <attribute name="name" type="string" use="required"/>
-        </complexType>
-      </element>
-    </sequence>
-  </complexType>
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<xs:element name="plugins">
+  <xs:complexType>
+    <xs:sequence>
+      <xs:element name="metric" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:all>
+            <!-- Trigger for automatic installation of this metric -->
+            <xs:element name="autoinstall" type="xs:boolean" minOccurs="0"/>
+            <!-- Example byte array like element -->
+            <xs:element name="barray" type= "ByteArray" minOccurs="0"/>
+            <!-- Example string array like element -->
+            <xs:element name="sarray" type= "StringArray" minOccurs="0"/>
+          </xs:all>
+          <!-- Class name of this metric service -->
+          <xs:attribute name="name" type="xs:string" use="required"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
   
-  <!--
-    The 'name' attribute is the unique key of the metric element.
-  -->
-  <key name="metric-name">
-    <selector xpath="metric"/>
-    <field xpath="@name"/>
-  </key>
-</element>
-</schema>
+  <!-- The 'name' attribute is the unique key of a metric element. -->
+  <xs:key name="metric-name">
+    <xs:selector xpath="metric"/>
+    <xs:field xpath="@name"/>
+  </xs:key>
+</xs:element>
+<xs:complexType name="ByteArray">
+  <xs:complexContent>
+    <xs:restriction base="xs:anyType">
+      <xs:sequence>
+        <xs:element name="values" minOccurs="0" maxOccurs="unbounded" type="xs:unsignedByte"/>
+      </xs:sequence>
+    </xs:restriction>
+  </xs:complexContent>
+</xs:complexType>
+<xs:complexType name="StringArray">
+  <xs:complexContent>
+    <xs:restriction base="xs:anyType">
+      <xs:sequence>
+        <xs:element name="values" minOccurs="0" maxOccurs="unbounded" type="xs:string"/>
+      </xs:sequence>
+    </xs:restriction>
+  </xs:complexContent>
+</xs:complexType>
+</xs:schema>
