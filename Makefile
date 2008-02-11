@@ -33,6 +33,7 @@
 #		  Only useful if you are using Derby, which is the fallback
 #		  when Postgres can't be found.
 # show-db-tables - shows the generated database tables. Also Derby-only.
+# fill-db-tables - install canned data
 #
 # eclipse-up-branch  - Update the eclipse branch from the current workdir
 # eclipse-up-workdir - Update the current workdir from the eclipse branch

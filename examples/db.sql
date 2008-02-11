@@ -1,8 +1,8 @@
 insert into ALITHEIA.STORED_PROJECT values ( 
 	1, 
-	'Yoyo', 
-	'http://cvs.codeyard.net/yoyo', 
-	'mailto:adriaan@codeyard.net', 
+	'SQO-OSS', 
+	'http://www.sqo-oss.eu/',
+	'mailto:gousiosg@dmst.aueb.gr', 
 	'file:/dev/null', 
-	'http://cvs.codeyard.net/svn/yoyo',
+	'https://svn.sqo-oss.eu/',
 	'file:/dev/null' ) ;
