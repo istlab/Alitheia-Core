@@ -36,18 +36,18 @@ package eu.sqooss.service.db;
 import eu.sqooss.service.db.DAObject;
 
 public class Tag extends DAObject {
-    private ProjectVersion pv;
+    private long pv;
     private String name;
 
     public Tag() {
         // Nothing to do
     }
 
-    public ProjectVersion getProjectVersion() {
+    public long getProjectVersion() {
         return pv;
     }
 
-    public void setProjectVersion(ProjectVersion pv) {
+    public void setProjectVersion(long pv) {
         this.pv = pv;
     }
 

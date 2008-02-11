@@ -39,7 +39,7 @@ import eu.sqooss.service.db.DAObject;
 
 public class ProjectVersion extends DAObject {
     private StoredProject project;
-    private long version; //TODO: switch to long
+    private long version;
 
     public ProjectVersion() {
         // Nothing to do

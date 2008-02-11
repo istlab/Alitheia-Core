@@ -8,7 +8,7 @@
     <id name="id" column="PROJECT_VERSION_ID">
       <generator class="native" />
     </id>
-    <many-to-one name="project" column="STORED_PROJECT_ID" not-null="true"/>
+    <many-to-one name="project" column="STORED_PROJECT_ID" not-null="true" />
     <property name="version" column="VERSION" />
   </class>
 </hibernate-mapping>
