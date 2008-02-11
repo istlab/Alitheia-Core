@@ -39,8 +39,8 @@ import java.sql.Time;
 
 public class Commit extends DAObject{
     private Time commitTime;
-    private Long committer;
-    private Long projectVersion;
+    private long committer;
+    private long projectVersion;
     private String properties;
 
     public Commit() {
@@ -55,19 +55,19 @@ public class Commit extends DAObject{
         this.commitTime = commitTime;
     }
 
-    public Long getCommitter() {
+    public long getCommitter() {
         return committer;
     }
 
-    public void setCommitter(Long committer) {
+    public void setCommitter(long committer) {
         this.committer = committer;
     }
 
-    public Long getProjectVersion() {
+    public long getProjectVersion() {
         return this.projectVersion;
     }
 
-    public void setProjectVersion(Long projectVersion) {
+    public void setProjectVersion(long projectVersion) {
         this.projectVersion = projectVersion;
     }
     

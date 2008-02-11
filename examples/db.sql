@@ -3,6 +3,6 @@ insert into ALITHEIA.STORED_PROJECT values (
 	'SQO-OSS', 
 	'http://www.sqo-oss.eu/',
 	'mailto:gousiosg@dmst.aueb.gr', 
-	'file:/dev/null', 
+	'maildir:examples/mail/SQO-OSS', 
 	'https://svn.sqo-oss.eu/',
 	'file:/dev/null' ) ;

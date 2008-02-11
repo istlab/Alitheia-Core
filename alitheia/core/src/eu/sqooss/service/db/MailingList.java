@@ -52,35 +52,35 @@ public class MailingList extends DAObject {
     public MailingList() {}
 
     public String getListId() {
-	return listId;
+        return listId;
     }
 
     public void setListId(String li) {
-	this.listId = li;
+        this.listId = li;
     }
 
     public StoredProject getStoredProject() {
-	return storedProject;
+        return storedProject;
     }
 
     public void setStoredProject(StoredProject sp) {
-	this.storedProject = sp;
+        this.storedProject = sp;
     }
 
     public static List<MailingList> getListsPerProject(StoredProject sp) throws DAOException {
-	DBService dbs = CoreActivator.getDBService();
-	List<MailingList> ml = new ArrayList<MailingList>();
+        DBService dbs = CoreActivator.getDBService();
+        List<MailingList> ml = new ArrayList<MailingList>();
 
-	// TODO: query needs testing, and all of this maybe rewrite
-	List mllist = dbs.doHQL("from MailingList where PROJECT_ID = " + sp.getId());
-	int mllistLen = mllist.size();
-	if(mllistLen == 0) {
-	    throw new DAOException("MailingList", "No list found for project " + sp.toString());
-	}
-	for (int i = 0;i < mllistLen;i++) {
-	    ml.add((MailingList)mllist.get(i));
-	}
+        // TODO: query needs testing, and all of this maybe rewrite
+        List mllist = dbs.doHQL("from MailingList where PROJECT_ID = " + sp.getId());
+        int mllistLen = mllist.size();
+        if (mllistLen == 0) {
+            throw new DAOException("MailingList", "No list found for project " + sp.getName());
+        }
+        for (int i = 0;i < mllistLen;i++) {
+            ml.add((MailingList)mllist.get(i));
+        }
 
-	return ml;
+        return ml;
     }
 }
