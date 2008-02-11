@@ -41,7 +41,7 @@ public class ServiceUrl extends DAObject{
     private URL url;
 
     // Nothing to do here
-    public ServiceURL(){}
+    public ServiceUrl(){}
 
     public void setURL(URL url) {
         this.url = url;
