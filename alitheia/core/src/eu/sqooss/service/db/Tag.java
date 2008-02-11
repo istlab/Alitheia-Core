@@ -44,7 +44,7 @@ public class Tag extends DAObject {
     }
 
     public ProjectVersion getProjectVersion() {
-        return projectVersion;
+        return pv;
     }
 
     public void setProjectVersion(ProjectVersion pv) {
