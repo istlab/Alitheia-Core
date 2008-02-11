@@ -3,7 +3,7 @@ all : build run
 build :
 	CLASSPATH=/home/sebas/work/svn.sqo-oss.eu/devel/trunk/ui/scl/src:/home/sebas/work/svn.sqo-oss.eu/devel/trunk/ui/webui/tomcat/webapps/ROOT/WEB-INF/classes && \
 	cd tomcat/webapps/ROOT/WEB-INF/classes/eu/sqooss/webui && \
-	javac -Xlint *\.java && cd -
+	javac -Xlint:path -cp ":../../../eu.sqooss.scl_0.0.1.jar" *\.java && cd -
 
 run : build start
 
