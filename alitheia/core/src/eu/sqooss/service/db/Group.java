@@ -33,10 +33,14 @@
 
 package eu.sqooss.service.db;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import eu.sqooss.service.db.DAObject;
 
 public class Group extends DAObject {
     private String description;
+    private Set users = new HashSet();
 
     // Nothing to do here
     public Group(){}
@@ -48,4 +52,14 @@ public class Group extends DAObject {
     public String getDescription() {
         return this.description;
     }
+
+	public Set getUsers() {
+		return users;
+	}
+
+	public void setUsers(Set users) {
+		this.users = users;
+	}
+    
+    
 }

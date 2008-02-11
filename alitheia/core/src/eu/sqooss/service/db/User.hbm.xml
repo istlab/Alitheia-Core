@@ -5,7 +5,7 @@
 
 <hibernate-mapping>
   <class name="eu.sqooss.service.db.User" table="USERLOGINS">
-    <id name="id" column="ID">
+    <id name="id" column="USER_ID">
       <generator class="native" />
     </id>
     <property name="name" column="NAME" not-null="true" />
@@ -14,6 +14,11 @@
     <property name="lastLogin" column="LASTLOGIN" />
     <property name="password" column="PASSWORD" not-null="true" />
     <property name="email" column="EMAIL" not-null="true" />
+    
+    <set name="groups" table="GROUPUSER">
+        <key column="USER_ID"/>
+        <many-to-many column="GROUP_ID" class="eu.sqooss.service.db.Group"/>
+    </set>
   </class>
 </hibernate-mapping>
 

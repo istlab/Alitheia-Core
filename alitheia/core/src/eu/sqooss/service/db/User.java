@@ -39,13 +39,14 @@ import eu.sqooss.service.db.DAObject;
 
 public class User extends DAObject {
 
-    String name;
-    Integer level;
-    Date registered;
-    Date lastLogin;
-    String password;
-    String email;
-
+    private String name;
+    private Integer level;
+    private Date registered;
+    private Date lastLogin;
+    private String password;
+    private String email;
+    private Set groups = new HashSet();
+    
     public User() {};
 
     public String getName() {
@@ -94,7 +95,15 @@ public class User extends DAObject {
 
     public void setEmail( String value ) {
         email = value;
-    };
+    }
+
+	public Set getGroups() {
+		return groups;
+	}
+
+	public void setGroups(Set groups) {
+		this.groups = groups;
+	};
 };
 
 // vi: ai nosi sw=4 ts=4 expandtab
