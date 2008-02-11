@@ -86,6 +86,7 @@ public class TesterActivator implements BundleActivator {
                 continue;
             }
             for (ServiceReference s : services) {
+                logger.info("BEGIN Test " + s.toString());
                 Object o = bc.getService(s);
                 Method m = null;
                 try {
@@ -95,7 +96,7 @@ public class TesterActivator implements BundleActivator {
                 }
                 if (m != null) {
                     String className = o.getClass().getName();
-                    logger.info("BEGIN Test " + className);
+                    logger.info("TRY   Test " + className);
 
                     // Now trim down to only the class name
                     int lastDot = className.lastIndexOf('.');
