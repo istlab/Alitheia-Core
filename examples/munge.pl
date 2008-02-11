@@ -8,6 +8,7 @@ die $usage . "\tNo such directory.\n" unless -d $dir;
 
 my ($from,@headers,$msgid);
 $from = <STDIN>;
+$from =~ s/ at /@/;
 while (<STDIN>) {
 	die "Missing From line" unless $from =~ /^From /;
 
@@ -15,6 +16,7 @@ while (<STDIN>) {
 	while(<STDIN>) {
 		last if /^$/;
 		$msgid=$_ if /^Message-ID/;
+		s/ at /@/ if /^From: /;
 		$headers .= $_;
 	}
 
@@ -36,6 +38,7 @@ while (<STDIN>) {
 	while (<STDIN>) {
 		if (/^From /) {
 			$from = $_;
+			$from =~ s/ at /@/;
 			last;
 		}
 		print OUTFILE $_;

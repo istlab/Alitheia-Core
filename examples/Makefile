@@ -27,6 +27,7 @@ fetch-mail : create-dirs update-index fetch-archives munge-archives clean
 create-dirs :
 	test -d tmp || mkdir tmp
 	test -d $(DIR) || mkdir -p $(DIR)
+	mkdir $(DIR)/new $(DIR)/tmp $(DIR)/cur ; true
 
 update-index : fetch-index grep-index
 
@@ -40,7 +41,7 @@ fetch-archives :
 	for i in `cat tmp/archive-files.txt` ; do $(FETCH) $(LIST_URL)/$$i > tmp/$$i ; done
 
 munge-archives :
-	for i in `cat tmp/archive-files.txt` ; do gzcat tmp/$$i | perl munge.pl --dir $(DIR); done
+	for i in `cat tmp/archive-files.txt` ; do gzcat tmp/$$i | perl munge.pl --dir $(DIR)/new ; done
 
 clean :
 	rm -f tmp/*
