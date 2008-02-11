@@ -41,7 +41,7 @@ public class Group extends DAObject {
     // Nothing to do here
     public Group(){}
 
-    public void setDescription(String descrition) {
+    public void setDescription(String description) {
         this.description = description;
     }
 
