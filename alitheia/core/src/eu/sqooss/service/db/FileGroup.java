@@ -42,7 +42,7 @@ public class FileGroup extends DAObject{
     private String regex;
     private int recalcFreq;
     private Time lastUsed;
-    private long projectVersion;
+    private ProjectVersion projectVersion;
 
     public FileGroup() {
         // Nothing to do
@@ -88,11 +88,11 @@ public class FileGroup extends DAObject{
         this.lastUsed = lastUsed;
     }
 
-    public long getProjectVersion() {
+    public ProjectVersion getProjectVersion() {
         return projectVersion;
     }
 
-    public void setProjectVersion(long projectVersion ) {
+    public void setProjectVersion(ProjectVersion projectVersion ) {
         this.projectVersion = projectVersion;
     }
 }
