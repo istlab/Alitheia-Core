@@ -67,7 +67,7 @@ public class SchedulerServiceImpl implements Scheduler {
         logger.info("Got scheduling!");
     }
 
-    synchronized public void enqueue(Job job) throws Exception {
+    synchronized public void enqueue(Job job) throws SchedulerException {
             logger.info("SchedulerServiceImpl: queuing job " + job.toString() );
             job.callAboutToBeEnqueued( this );
         blockedQueue.add( job );

@@ -46,7 +46,7 @@ public interface Scheduler {
      * 
      * @param job - the job.
      */
-    void enqueue(Job job) throws Exception;
+    void enqueue(Job job) throws SchedulerException;
 
     /**
      * This method is called, when the state of the job \a job changes to 
