@@ -50,7 +50,7 @@ public class PrivilegeValue extends DAObject {
     }
 
     public Privilege getPrivilege() {
-        return priviliege;
+        return privilege;
     }
 
     public int getValue() {
