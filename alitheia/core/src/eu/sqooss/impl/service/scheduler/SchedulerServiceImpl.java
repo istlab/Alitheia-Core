@@ -101,7 +101,7 @@ public class SchedulerServiceImpl implements Scheduler {
 
     public void jobStateChanged(Job job, Job.State state) {
         if (logger != null ) {
-            logger.info("Job" + job + "changed to state" + state);
+            logger.info("Job " + job + "changed to state " + state);
         }
     }
 

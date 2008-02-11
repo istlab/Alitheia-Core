@@ -463,7 +463,9 @@ public class FDSServiceImpl implements FDSService {
         } else {
             logger.info("Skipping DiskUtil self-test.");
         }
-       	tds.addAccessor(1, "KPilot", "", null, "http://cvs.codeyard.net/svn/kpilot/" );
+
+        final int TEST_PROJECT_ID = 1337;
+       	tds.addAccessor(TEST_PROJECT_ID, "KPilot", "", null, "http://cvs.codeyard.net/svn/kpilot/" );
 
         // This is supposed to throw an exception
         boolean thrown = false;
@@ -489,9 +491,9 @@ public class FDSServiceImpl implements FDSService {
         try {
             logger.info("Intentionally triggering InvalidRevision exception.");
             // Assuming KDE doesn't reach 1 billion commits before 2038
-            Checkout c = getCheckout(1, new ProjectRevision(1000000000));
+            Checkout c = getCheckout(TEST_PROJECT_ID, new ProjectRevision(1000000000));
         } catch (InvalidRepositoryException e) {
-            logger.warning("No project with ID 1.");
+            logger.warning("No project with ID " + TEST_PROJECT_ID);
             thrown = true;
         } catch (InvalidProjectRevisionException e) {
             logger.info("Exception triggered as expected.");
@@ -509,20 +511,20 @@ public class FDSServiceImpl implements FDSService {
         CheckoutImpl projectCheckout = null;
         try {
             logger.info("Getting something sensible out of FDS");
-            projectCheckout = getCheckout(1, new ProjectRevision(1));
+            projectCheckout = getCheckout(TEST_PROJECT_ID, new ProjectRevision(1));
         } catch (InvalidRepositoryException e) {
-            logger.warning("(Still) no project with ID 1.");
+            logger.warning("(Still) no project with ID " + TEST_PROJECT_ID);
             e.printStackTrace();
             thrown = true;
         } catch (InvalidProjectRevisionException e) {
-            logger.warning("Project ID 1 has no revision 1");
+            logger.warning("Project ID " + TEST_PROJECT_ID + " has no revision 1");
             thrown = true;
         } catch (NullPointerException e) {
             logger.warning("Null pointer in checkout.");
             e.printStackTrace();
         }
         if (thrown) {
-            return new String("Unexpected exception thrown for p.1 r.1");
+            return new String("Unexpected exception thrown for p." + TEST_PROJECT_ID + " r.1");
         }
 
         if (projectCheckout != null) {
@@ -532,9 +534,9 @@ public class FDSServiceImpl implements FDSService {
                 updateCheckout(projectCheckout, new ProjectRevision(4));
                 logger.info(projectCheckout.getCommitLog().toString());
             } catch (InvalidRepositoryException e) {
-                logger.warning("Project ID 1 has vanished again.");
+                logger.warning("Project ID " + TEST_PROJECT_ID + " has vanished again.");
             } catch (InvalidProjectRevisionException e) {
-                logger.warning("Project ID 1 has no revision 4");
+                logger.warning("Project ID " + TEST_PROJECT_ID + " has no revision 4");
             }
         }
 
@@ -542,7 +544,7 @@ public class FDSServiceImpl implements FDSService {
             try {
                 releaseCheckout(projectCheckout);
             } catch (InvalidRepositoryException e) {
-                logger.warning("Project ID 1 is no longer managed.");
+                logger.warning("Project ID " + TEST_PROJECT_ID + " is no longer managed.");
             }
         }
 
@@ -559,26 +561,26 @@ public class FDSServiceImpl implements FDSService {
             long currentRevision = 4;
             try {
                 logger.info("Advancing single checkout object.");
-                otherCheckout = getCheckout(1, 
+                otherCheckout = getCheckout(TEST_PROJECT_ID,
                     new ProjectRevision(currentRevision));
                 if (otherCheckout != projectCheckout) {
-                    logger.warning("Second request for 1r4 returned "
+                    logger.warning("Second request for " + TEST_PROJECT_ID + " r.4 returned "
                         + "different object.");
                 }
                 while (currentRevision < 60) {
                     releaseCheckout(otherCheckout);
                     currentRevision++;
-                    otherCheckout = getCheckout(1, 
+                    otherCheckout = getCheckout(TEST_PROJECT_ID,
                         new ProjectRevision(currentRevision));
                 }
                 if (otherCheckout != projectCheckout) {
-                    logger.warning("Sixtieth request for 1r60 returned "
+                    logger.warning("Sixtieth request for " + TEST_PROJECT_ID + " r.60 returned "
                         + "different object.");
                 }
             } catch (InvalidRepositoryException e) {
-                logger.warning("Project ID 1 has vanished again.");
+                logger.warning("Project ID " + TEST_PROJECT_ID + " has vanished again.");
             } catch (InvalidProjectRevisionException e) {
-                logger.warning("Project ID 1 has no revision "
+                logger.warning("Project ID " + TEST_PROJECT_ID + " has no revision "
                     + currentRevision);
             }
         } else {

@@ -137,6 +137,7 @@ public class MailAccessorImpl extends NamedAccessorImpl
     private File getFolder(final String listId)
         throws FileNotFoundException {
         File listDir = new File(maildirRoot, listId);
+        logger.info("Looking in " + listDir);
         if (!listDir.exists() || !listDir.isDirectory()) {
             throw new FileNotFoundException(
                 "ListID <" + listId + "> does not exist.");

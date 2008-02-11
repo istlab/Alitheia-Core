@@ -56,17 +56,18 @@ public class TDAccessorImpl extends NamedAccessorImpl implements TDAccessor {
         this.mail = mail;
         this.scm = scm;
         if (mail == null) {
-            this.mail = "file:///var/spool/mail";
+            this.mail = "maildir:///var/spool/mail";
         }
 
-        if (!this.mail.startsWith("file:///")) {
+        if (!this.mail.startsWith("maildir:")) {
             if (logger != null) {
                 logger.warn("Mail access uses an unsupported URL scheme <" + mail + ">");
             }
             this.mail="/var/spool/mail";
         } else {
-            this.mail = this.mail.substring(7);
+            this.mail = this.mail.substring(8);
         }
+        logger.info("Accessor for project " + id + " gets mail from " + this.mail);
     }
 
 

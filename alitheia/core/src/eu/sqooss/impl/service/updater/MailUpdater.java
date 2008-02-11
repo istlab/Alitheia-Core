@@ -108,7 +108,7 @@ class MailUpdater extends Job {
         try {
             messageIds = mailAccessor.getMessages(listId);
         } catch (FileNotFoundException e) {
-            logger.warn("Mailing list <" + listId + "> vanished.");
+            logger.warn("Mailing list <" + listId + "> vanished: " + e.getMessage());
             return;
         }
 

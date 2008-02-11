@@ -105,6 +105,10 @@ public class TDSServiceImpl implements TDSService {
     }
 
     public void addAccessor( long id, String name, String bts, String mail, String scm ) {
+        if (accessorExists(id)) {
+            logger.warn("Adding duplicate project id " + id + " <" + name + ">");
+            // Continue anyway
+        }
         TDAccessorImpl a = new TDAccessorImpl(id,name,bts,mail,scm);
         accessorPool.put(new Long(id),a);
         logger.info("Added project <" + name + ">");
@@ -121,16 +125,18 @@ public class TDSServiceImpl implements TDSService {
 
         // Add an accessor for testing purposes when none was there.
         Boolean addedAccessor = false;
+        final int TEST_PROJECT_ID = 1337;
         if (accessorPool.isEmpty())
         {
-            addAccessor(1, "KPilot", "", null, "http://cvs.codeyard.net/svn/kpilot/" );
+            logger.info("Adding bogus project to empty accessor pool.");
+            addAccessor(TEST_PROJECT_ID, "KPilot", "", null, "http://cvs.codeyard.net/svn/kpilot/" );
             addedAccessor = true;
         }
 
         Set<Long> accessorKeys = accessorPool.keySet();
         Iterator<Long> i = accessorKeys.iterator();
         if (!i.hasNext()) {
-            // we added an accesor before, so it should be here...
+            // we added an accessor before, so it should be here...
             if (addedAccessor)
             {
                     accessorPool.clear();
