@@ -49,6 +49,8 @@ import org.osgi.service.http.NamespaceException;
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.scheduler.SchedulerException;
+import eu.sqooss.service.updater.UpdaterException;
 import eu.sqooss.service.updater.UpdaterService;
 
 public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
@@ -102,22 +104,38 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
             try {
                 MailUpdater mu = new MailUpdater(project, core, logger);
                 core.getScheduler().enqueue(mu);
-            } catch (Exception e) {
+            } catch(SchedulerException e) {
                 logger.error("The Updater failed to update the mailing list " +
-                    "data for project " + project.getName());
+                    " metadata data for project " + project.getName() + 
+                    " Scheduler error: " + e.getMessage());
                 return false;
+           } catch (UpdaterException e) {
+               logger.error("The Updater failed to update the mailing list " +
+                       "metadata for project " + project.getName() + 
+                       " Updater error: " +  e.getMessage());
+                   return false;
             }
-        } else if (target == UpdateTarget.CODE || target == UpdateTarget.ALL) {
+        } 
+        
+        if (target == UpdateTarget.CODE || target == UpdateTarget.ALL) {
             // source code update
             try {
                 SourceUpdater su = new SourceUpdater(project, core, logger);
                 core.getScheduler().enqueue(su);
-            } catch (Exception e) {
-                logger.error("The Updater failed to update the code for project "
-                                + project.getName());
+            } catch (SchedulerException e) {
+                logger.error("The Updater failed to update the repository" +
+                		" metadata for project " + project.getName() + 
+                		" Scheduler error: " + e.getMessage());
                 return false;
+            } catch (UpdaterException e) {
+                logger.error("The Updater failed to update the repository " +
+                        "metadata for project " + project.getName() + 
+                        " Updater error: " +  e.getMessage());
+                    return false;
             }
-        } else if (target == UpdateTarget.BUGS || target == UpdateTarget.ALL) {
+        } 
+        
+        if (target == UpdateTarget.BUGS || target == UpdateTarget.ALL) {
             // bug database update
         }
 
