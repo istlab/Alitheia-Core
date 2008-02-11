@@ -129,22 +129,29 @@ public class XMLConfigParser implements ConfigUtils{
         }
 
         private void parseElement (Element e) {
-            if (e.getSchemaTypeInfo().getTypeName()
-                    .equals(TYPE_BYTE_ARRAY)) {
-                byteArrays.put(
-                        e.getNodeName(),
-                        parseByteArray(e));
+            try {
+                if (e.getSchemaTypeInfo().getTypeName()
+                        .equals(TYPE_BYTE_ARRAY)) {
+                    byteArrays.put(
+                            e.getNodeName(),
+                            parseByteArray(e));
+                }
+                if (e.getSchemaTypeInfo().getTypeName()
+                        .equals(TYPE_STRING_ARRAY)) {
+                    stringArrays.put(
+                            e.getNodeName(),
+                            parseStringArray(e));
+                }
+                else {
+                    stringValues.put(
+                            e.getNodeName(),
+                            e.getTextContent().trim());
+                }
             }
-            if (e.getSchemaTypeInfo().getTypeName()
-                    .equals(TYPE_STRING_ARRAY)) {
-                stringArrays.put(
-                        e.getNodeName(),
-                        parseStringArray(e));
-            }
-            else {
-                stringValues.put(
-                        e.getNodeName(),
-                        e.getTextContent().trim());
+            catch (NullPointerException ex){
+                // TODO: find out while e.getSchemaTypeInfo().getTypeName()
+                // is throwing an exception on JDK 6
+                
             }
         }
 
