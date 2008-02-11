@@ -35,7 +35,7 @@ package eu.sqooss.service.db;
 
 import eu.sqooss.service.db.DAObject;
 
-public class Group {
+public class Group extends DAObject {
     private String description;
 
     // Nothing to do here

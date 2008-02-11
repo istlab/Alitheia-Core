@@ -37,7 +37,7 @@ import java.net.URL;
 
 import eu.sqooss.service.db.DAObject;
 
-public class ServiceUrl {
+public class ServiceUrl extends DAObject{
     private URL url;
 
     // Nothing to do here
