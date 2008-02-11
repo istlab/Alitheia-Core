@@ -53,7 +53,7 @@ public class WSProjectVersion {
         return projectVersion.getProject().getId();
     }
 
-    public int getVersion() {
+    public long getVersion() {
         return projectVersion.getVersion();
     }
 }
