@@ -200,8 +200,10 @@ public abstract class Job implements Comparable<Job> {
 
 
     /**
-     * TODO: semantics of priority - is 0 high or low ?
-     *
+     * The priority of the job is the order of job within the scheduler's queue.
+     * That leads to 0 being taking he highest precedence, then the higher numbers.
+     * It is not adviced to change the job's priority after it has been enqueued. That
+     * might lead to undefined behaviour.
      * @return The priority of the job.
      */
     abstract public int priority();
