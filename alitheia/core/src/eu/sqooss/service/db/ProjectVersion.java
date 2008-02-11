@@ -59,6 +59,7 @@ public class ProjectVersion extends DAObject {
 
     public long setVersion(long version) {
         this.version = version;
+        return version;
     }
     
     public List<ProjectFile> getProjectFiles() {
