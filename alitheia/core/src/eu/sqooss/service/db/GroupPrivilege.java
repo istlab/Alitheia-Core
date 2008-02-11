@@ -35,7 +35,7 @@ package eu.sqooss.service.db;
 
 import eu.sqooss.service.db.DAObject;
 
-public class Group {
+public class GroupPrivilege {
     private ServiceUrl url;
     private Group group;
     private PrivilegeValue pv;
