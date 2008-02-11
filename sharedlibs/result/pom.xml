@@ -1,0 +1,90 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+
+  <!-- Parent POM -->
+  <parent>
+    <groupId>eu.sqooss</groupId>
+    <artifactId>sharedlibs</artifactId>
+    <version>1.0.0</version>
+  </parent>
+
+  <!-- Productivity Metric - main POM -->
+  <groupId>eu.sqooss.metrics</groupId>
+  <artifactId>wc</artifactId>
+  <version>0.0.1</version>
+  <packaging>jar</packaging>
+
+  <!-- Project description -->
+  <name>Word Count Metric</name>
+  <description>
+  	A metric that evaluates developer productivity	
+        through volumetrics of their loquacious verbosity.
+  </description>
+
+  <!-- Build properties -->
+  <build>
+    <!-- Tells Maven to search for source code here -->
+    <sourceDirectory>${basedir}/src</sourceDirectory>
+    <!-- Tells Maven to build Java class files here -->
+    <outputDirectory>${basedir}/build</outputDirectory>
+    <!-- Tells Maven where to find the bundle manifest file -->
+    <plugins>
+      <plugin>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifestFile>
+              ${basedir}/META-INF/MANIFEST.MF
+            </manifestFile>
+          </archive>
+        </configuration> 
+      </plugin>
+    </plugins>
+  </build>
+
+  <!-- Dependencies -->
+  <dependencies>
+    <!-- [sqooss repo] Dependant on OSGi R4 Framework Package -->
+    <dependency>
+      <groupId>org.eclipse.equinox</groupId>
+      <artifactId>osgi</artifactId>
+      <version>3.3.0</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <!-- [sqooss repo] Dependant on OSGi R4 Services Package -->
+    <dependency>
+      <groupId>org.eclipse.osgi</groupId>
+      <artifactId>services</artifactId>
+      <version>3.1.100.v20060918</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <!-- [local repo] Dependant on SQO-OSS Core Package -->
+    <dependency>
+      <groupId>eu.sqooss</groupId>
+      <artifactId>core</artifactId>
+      <version>[0.0.1,)</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+  
+  <!-- Developers working on this module -->
+  <developers>
+   <developer>
+      <id>e_grigorov</id>
+      <name>Evgeni Grigorov</name>
+      <email>e.grigorov@prosyst.com</email>
+      <organization>ProSyst Software GmbH</organization>
+      <timezone>+2</timezone>
+    </developer>
+    <developer>
+      <id>gousiosg</id>
+      <name>Georgios Gousios</name>
+      <email>gousiosg@aueb.gr</email>
+      <organization>AUEB</organization>
+      <timezone>+2</timezone>
+    </developer>
+  </developers>
+</project>

@@ -39,8 +39,8 @@ import java.util.List;
 import org.osgi.framework.BundleContext;
 
 import eu.sqooss.service.abstractmetric.AbstractMetric;
-import eu.sqooss.service.abstractmetric.MetricResult;
 import eu.sqooss.service.db.Metric;
+import eu.sqooss.lib.result.Result;
 import eu.sqooss.metrics.wc.Wc;
 import eu.sqooss.service.db.ProjectFile;
 
@@ -68,7 +68,7 @@ public class WcImplementation extends AbstractMetric implements Wc {
         return remove() && install(); 
     }
 
-    public MetricResult getResult(ProjectFile a) {
+    public Result getResult(ProjectFile a) {
         return null;
     }
 

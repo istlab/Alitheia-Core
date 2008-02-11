@@ -49,7 +49,6 @@ import org.osgi.service.http.NamespaceException;
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
-import eu.sqooss.service.updater.UpdaterException;
 import eu.sqooss.service.updater.UpdaterService;
 
 public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {

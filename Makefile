@@ -46,7 +46,8 @@
 PREFIX=equinox
 
 # Subdirectories to build or install from.
-SUBDIRS=alitheia \
+SUBDIRS= sharedlibs \
+	alitheia \
 	metrics
 ifeq ($(WITH_MAVEN),)
 SUBDIRS+= corba
@@ -113,7 +114,10 @@ clean-db :
 
 distclean: clean clean-log clean-db
 	-find . -type f|grep *~|xargs rm
-	-find . -type f|grep DS_Store|xargs rm
+	-find . -type f|grep DS_Store|xargs rm 
+
+javadoc:
+	ALLSRC=`find . -type f -name "*.java"|tr '\n' ' '` && javadoc -d doc/javadoc -classpath `./tools/setcp.sh .` $$ALLSRC
 
 #Just a dummy config file
 CONFIG=-Xmx256M
@@ -166,7 +170,7 @@ show-log :
 DBPATH=extlibs/org.apache.derby_10.3.2.1
 RUN_DERBY_IJ=java -Dij.protocol=jdbc:derby: -Dij.database=equinox/derbyDB \
 		-cp $(DBPATH)/derby.jar:$(DBPATH)/../org.apache.derby.tools-10.3.1.4.jar \
-		org.apache.derby.tools.ij
+		org.apache.derby.tools.ij 
 show-db :
 	$(RUN_DERBY_IJ)
 

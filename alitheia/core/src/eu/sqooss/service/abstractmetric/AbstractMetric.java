@@ -42,6 +42,7 @@ import org.osgi.framework.ServiceReference;
 import org.hibernate.Session;
 
 import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.lib.result.Result;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.FileGroup;
@@ -59,20 +60,28 @@ import eu.sqooss.service.logging.Logger;
  * A base class for all metrics. Implements basic functionality such as
  * logging setup and plug-in information retrieval from the OSGi bundle
  * manifest file. Metrics can choose to directly implement
- * the {@link eu.sqooss.metrics.Metric} interface instead of extending 
+ * the {@link eu.sqooss.abstractmetric.Metric} interface instead of extending 
  * this class.
  */
 public abstract class AbstractMetric 
 implements eu.sqooss.service.abstractmetric.Metric {
 
+    /** Reference to the metric bundle context */
     protected BundleContext bc;
+    
+    /** Log manager for administrative operations */
     protected LogManager logService = null;
+    
+    /** Logger for administrative operations */
     protected Logger log = null;
+    
+    /** Reference to the DB service, not to be passed to metric jobs */
     protected DBService db;
     
     /**
-     * Init basic services to be used by implementing classes
-     * @param bc
+     * Init basic services common to all implementing classes
+     * @param bc - The bundle context of the implementing metric - to be passed
+     * by the activator.
      */
     protected AbstractMetric(BundleContext bc) {
 
@@ -146,7 +155,7 @@ implements eu.sqooss.service.abstractmetric.Metric {
      * Call the appropriate getResult() method according to 
      * the type of the entity that is measured 
      */
-    public MetricResult getResult(DAObject o) {
+    public Result getResult(DAObject o) {
 
         if (this instanceof ProjectVersionMetric)
             return getResult((ProjectVersion) o);

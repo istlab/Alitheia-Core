@@ -33,6 +33,7 @@
 
 package eu.sqooss.service.abstractmetric;
 
+import eu.sqooss.lib.result.Result;
 import eu.sqooss.service.db.StoredProject;
 
 /**
@@ -44,7 +45,7 @@ import eu.sqooss.service.db.StoredProject;
 public interface StoredProjectMetric {
   
     /**
-     * Run the metric to update the results for the specific project DAO
+     * Run the metric to update the results for this Stored Project DAO
      *   
      * @param 
      * @return True, if the metric run succeeded, false otherwise
@@ -53,11 +54,11 @@ public interface StoredProjectMetric {
     boolean run(StoredProject a);
     
     /**
-     * Return metric results for project version <tt>a</tt> 
+     * Return metric results for Stored Project <tt>a</tt> 
      * 
      * @param metricTypeDAO
      * @return
      */
-    MetricResult getResult(StoredProject a);
+    Result getResult(StoredProject a);
     
 }

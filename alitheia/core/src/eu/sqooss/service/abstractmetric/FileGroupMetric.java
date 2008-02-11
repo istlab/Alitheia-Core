@@ -33,10 +33,17 @@
 
 package eu.sqooss.service.abstractmetric;
 
+import eu.sqooss.lib.result.Result;
 import eu.sqooss.service.db.ProjectVersion;
 
+/**
+ * A metric plug-in implements the <tt>FileGroupMetric</tt> interface to
+ * indicate that its results are linked to the FileGroup table, and 
+ * consequently needs to be recalculated when the FileGroup has been updated 
+ */
+
 public interface FileGroupMetric {
-  
+    
     /**
      * Run the metric to update the metric results when new versions
      * of the evaluated project are available. 
@@ -56,5 +63,5 @@ public interface FileGroupMetric {
      * @param metricTypeDAO
      * @return
      */
-    MetricResult getResult(ProjectVersion a);
+    Result getResult(ProjectVersion a);
 }

@@ -33,6 +33,7 @@
 
 package eu.sqooss.service.abstractmetric;
 
+import eu.sqooss.lib.result.Result;
 import eu.sqooss.service.db.ProjectVersion;
 
 /**
@@ -47,7 +48,7 @@ public interface ProjectVersionMetric extends Metric {
      * of the evaluated project are available. 
      * 
      * By default, the run method will start updating metric results from
-     * <tt>a</tt> to <tt>b</tt>.
+     * version <tt>a</tt> to version <tt>b</tt>.
      *   
      * @param The first new version DAO
      * @param The last new version DAO
@@ -63,5 +64,5 @@ public interface ProjectVersionMetric extends Metric {
      * @return A {@link MetricResult} object when results for this version
      * exist, <tt>null</tt> otherwise.
      */
-    MetricResult getResult(ProjectVersion a);
+    Result getResult(ProjectVersion a);
 }

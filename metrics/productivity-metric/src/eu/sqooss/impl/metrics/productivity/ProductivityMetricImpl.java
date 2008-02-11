@@ -34,13 +34,10 @@
 package eu.sqooss.impl.metrics.productivity;
 
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 
-import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.lib.result.Result;
 import eu.sqooss.metrics.productivity.ProductivityMetric;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
-import eu.sqooss.service.abstractmetric.MetricResult;
-import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 
@@ -69,7 +66,7 @@ public class ProductivityMetricImpl extends AbstractMetric implements
         return false;
     }
 
-    public MetricResult getResult(StoredProject a) {
+    public Result getResult(StoredProject a) {
         return null;
     }
 
@@ -81,7 +78,7 @@ public class ProductivityMetricImpl extends AbstractMetric implements
         return false;
     }
 
-    public MetricResult getResult(ProjectVersion a) {
+    public Result getResult(ProjectVersion a) {
         return null;
     }
 

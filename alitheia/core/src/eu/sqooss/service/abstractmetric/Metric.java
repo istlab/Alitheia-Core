@@ -34,6 +34,8 @@
 package eu.sqooss.service.abstractmetric;
 
 import java.util.Date;
+
+import eu.sqooss.lib.result.Result;
 import eu.sqooss.service.db.DAObject;
 
 /**
@@ -55,9 +57,9 @@ import eu.sqooss.service.db.DAObject;
  *  <ul>
  *      <li>This interface</li>
  *      <li>One or more of the following interfaces, depending on the type of 
- *      the entity this metric is bound to</li> 
+ *      the entity the metric is bound to</li> 
  *      <ul>
- *          <li>{@link StroredProjectMetric}</li>
+ *          <li>{@link StoredProjectMetric}</li>
  *          <li>{@link ProjectVersionMetric}</li>
  *          <li>{@link ProjectFileMetric}</li>
  *          <li>{@link FileGroupMetric}</li>
@@ -95,9 +97,9 @@ public interface Metric {
     /**
      * Generic "get results" function, it is specialised by sub-interfaces 
      * @param o 
-     * @return
+     * @return 
      */
-    MetricResult getResult(DAObject o);
+    Result getResult(DAObject o);
     
     /**
      * Generic run plug-in method
@@ -116,7 +118,7 @@ public interface Metric {
     boolean update();
 
     /**
-     * Perform maintenance operations when installing a new or updated
+     * Perform maintenance operations when installing a new 
      * version of the metric
      * 
      * @return True, if the installation succeeded, false otherwise

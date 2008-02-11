@@ -43,8 +43,14 @@ import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.tds.TDSService;
 
+
+/**
+ * A scheduler job for calculating metric results. This class
+ * basically initializes references to common core services to
+ * save subclasses the trouble to do that. 
+ * 
+ */
 public class AbstractMetricJob extends Job {
-    
     
     protected LogManager logService = null;
     protected Logger log = null;

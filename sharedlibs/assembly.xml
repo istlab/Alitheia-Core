@@ -1,0 +1,12 @@
+<assembly>
+  <id>sqooss.sharedlibs</id>
+  <includeBaseDirectory>false</includeBaseDirectory>
+  <moduleSets>
+    <moduleSet>
+      <binaries>
+        <outputFileNameMapping>eu.sqooss.lib.${artifactId}_${version}.${extension}</outputFileNameMapping>
+        <unpack>false</unpack>
+      </binaries>
+    </moduleSet>
+  </moduleSets>
+</assembly>

@@ -48,11 +48,11 @@ import javax.xml.validation.SchemaFactory;
 
 
 /**
- * The WSResult is similar to the MetricResult.
+ * A generic result object used both by metrics and by web services
  * 
  * <p>
  * Projects:
- * The <code>WSResult</code>'s rows consist of fields in the following format:
+ * The <code>Result</code> object rows consist of fields in the following format:
      * <p>
      * <table border=1>
      *  <tr><td> Field Index </td><td> Field Type </td><td> Field value </td></tr>

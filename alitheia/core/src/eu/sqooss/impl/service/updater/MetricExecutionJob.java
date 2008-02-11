@@ -42,10 +42,10 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.lib.result.Result;
+import eu.sqooss.lib.result.ResultEntry;
 import eu.sqooss.service.abstractmetric.FileGroupMetric;
 import eu.sqooss.service.abstractmetric.Metric;
-import eu.sqooss.service.abstractmetric.MetricResult;
-import eu.sqooss.service.abstractmetric.MetricResultEntry;
 import eu.sqooss.service.abstractmetric.ProjectFileMetric;
 import eu.sqooss.service.abstractmetric.ProjectVersionMetric;
 import eu.sqooss.service.abstractmetric.StoredProjectMetric;
@@ -105,20 +105,20 @@ public class MetricExecutionJob extends Job {
         // run each metric plugin for the updateTarget, get the results, store them in the db
         for (Metric plugin: metricPlugins) {
             plugin.run(updateTarget);
-            MetricResult result = plugin.getResult(updateTarget);
+            Result result = plugin.getResult(updateTarget);
             storeMetricResults(updateTarget, result);
         }
     }
     
-    private void storeMetricResults(DAObject o, MetricResult result) throws Exception {
+    private void storeMetricResults(DAObject o, Result result) throws Exception {
         if(!(o instanceof ProjectVersion)) {
             //the current db schema allows only ProjectVersion measurements
             return;
         }
         
         Measurement m = null;
-        for(ArrayList<MetricResultEntry> mreList : result) {
-            for(MetricResultEntry mre : mreList) {
+        for(ArrayList<ResultEntry> mreList : result) {
+            for(ResultEntry mre : mreList) {
                 m = new Measurement();
                 eu.sqooss.service.db.Metric metric = new eu.sqooss.service.db.Metric();
                 //TODO: load the MetricType and set in metric

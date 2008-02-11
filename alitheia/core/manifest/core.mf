@@ -7,6 +7,7 @@ Bundle-Category: core
 Bundle-Description: This bundle provides the core SQO-OSS services
 Bundle-SymbolicName: eu.sqooss.service.core
 Import-Package: org.osgi.framework,
+    eu.sqooss.lib.result,
     javax.servlet,
     javax.servlet.http,
     org.apache.commons.logging,

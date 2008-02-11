@@ -33,7 +33,14 @@
 
 package eu.sqooss.service.abstractmetric;
 
+import eu.sqooss.lib.result.Result;
 import eu.sqooss.service.db.ProjectFile;
+
+/**
+ * A metric plug-in implements the <tt>ProjectFileMetric</tt> interface to
+ * indicate that its results are linked to the ProjectFile table, and 
+ * consequently needs to be recalculated when a particular file is changed 
+ */
 
 public interface ProjectFileMetric {
   
@@ -53,5 +60,5 @@ public interface ProjectFileMetric {
      * @param ProjectFile DAO
      * @return The metric result
      */
-    MetricResult getResult(ProjectFile a);
+    Result getResult(ProjectFile a);
 }

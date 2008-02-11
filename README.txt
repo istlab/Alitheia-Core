@@ -28,6 +28,10 @@ extlibs/
     Contains a Maven style repository of all libraries required for building
     the Alitheia system. 
 
+sharedlibs/
+   Contains source code that is shipped with both the Alitheia core and its
+   clients, but does not depend on any of those to be build. 
+
 ***
 *** Build 
 *** 
@@ -46,6 +50,14 @@ or, for the alternative GNU Make system,
 
 This will leave you with an OSGi console and a running Alitheia core system.
 The webadmin of the Alitheia core can then be accessed via http://localhost:8088
+
+Debug
+------
+To debug the Alitheia source code start it with:
+	
+	make clean install debug
+
+This will start the Alitheia core in debug mode: the VM will pause execution until a JDWP-based remote debugger (i.e. Eclipse or Netbeans) is attached to it.
 
 Webinterface
 -------------

@@ -4,7 +4,7 @@ import org.osgi.framework.BundleContext;
 
 import eu.sqooss.impl.service.alitheia.Metric;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
-import eu.sqooss.service.abstractmetric.MetricResult;
+import eu.sqooss.lib.result.Result;
 import eu.sqooss.service.db.DAObject;
 
 public class CorbaMetricImpl extends AbstractMetric {
@@ -31,7 +31,7 @@ public class CorbaMetricImpl extends AbstractMetric {
 	}
 
 	@Override
-	public MetricResult getResult(DAObject o) {
+	public Result getResult(DAObject o) {
 		// TODO Auto-generated method stub
 		return null;
 	}
