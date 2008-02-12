@@ -35,7 +35,9 @@
 
 package eu.sqooss.service.db;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import eu.sqooss.impl.service.CoreActivator;
 
@@ -152,11 +154,27 @@ public class StoredProject extends DAObject {
         ProjectVersion lastVersion = null;
         DBService dbs = CoreActivator.getDBService();
 
-        List pvList = dbs.doHQL("from ProjectVersion pv where pv.STORED_PROJECT_ID= "
-                + project.getId() + " and pv.PROJECT_VERSION_ID = (select max(pv2.PROJECT_VERSION_ID) from "
-                + " ProjectVersion pv2 where pv2.STORED_PROJECT_ID = " + project.getId()
-                + ")");
+        Map<String,Object> parameterMap = new HashMap<String,Object>();
+        parameterMap.put("sp", project);
+        List pvList = dbs.doHQL("from ProjectVersion pv where pv.project=:sp"
+                + " and pv.id = (select max(pv2.id) from "
+                + " ProjectVersion pv2 where pv2.project=:sp)",
+                parameterMap);
 
+        if ((pvList == null) || (pvList.size()==0)) {
+            logger.warn("No last stored version of project " + project.getName());
+            lastVersion = new ProjectVersion();
+            lastVersion.setProject(project);
+            lastVersion.setVersion(0);
+            return lastVersion;
+        }
+        
+        for (Object o : pvList) {
+            if (o instanceof ProjectVersion) {
+                ProjectVersion op = (ProjectVersion)o;
+                logger.info("Found version " + op.getVersion());
+            }
+        }
         if ((pvList == null) || (pvList.size() != 1)) {
             logger.warn("The last stored version of the project could not be retrieved");
             lastVersion = new ProjectVersion();

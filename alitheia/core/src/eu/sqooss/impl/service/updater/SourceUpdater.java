@@ -50,7 +50,6 @@ import eu.sqooss.service.tds.SCMAccessor;
 import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.updater.UpdaterException;
 import eu.sqooss.service.db.DBService;
-import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.scheduler.Job;
@@ -67,7 +66,6 @@ class SourceUpdater extends Job {
     private TDSService tds;
     private DBService dbs;
     private Logger logger;
-    private List<Job> subTasks;
 
     public SourceUpdater(StoredProject project, AlitheiaCore core, Logger logger) throws UpdaterException {
         if ((project == null) || (core == null) || (logger == null)) {
@@ -80,7 +78,6 @@ class SourceUpdater extends Job {
         this.logger = logger;
         this.tds = core.getTDSService();
         this.dbs = core.getDBService();
-        subTasks = new ArrayList<Job>();
     }
 
     public int priority() {
@@ -103,10 +100,10 @@ class SourceUpdater extends Job {
             dbs.addRecord(curVersion);
 
             for (CommitEntry entry : commitLog) {
-                //handle changes that have occured on each individual commit
+                //handle changes that have occurred on each individual commit
                 // and create the necessary jobs for storing information
                 //related to updated files
-                processEntry(entry, curVersion);
+                logger.info(entry.toString());
             }
         } catch (Exception e) {
             logger.error(e.getMessage());
@@ -126,50 +123,6 @@ class SourceUpdater extends Job {
                             + project.getName() + ":\n" + ex.getMessage());
         }
         return diff;
-    }
-
-    private void processEntry(CommitEntry entry, ProjectVersion pv) throws Exception {
-        Map<String, PathChangeType> changes = entry
-        .getChangedPathsStatus();
-
-        for (Iterator i = changes.keySet().iterator(); i.hasNext();) {
-            String path = (String) i.next();
-            PathChangeType change = changes.get(path);
-
-            CommitEntryHandlerJob job = new CommitEntryHandlerJob(core, logger);
-            job.init(pv, path, change);
-            this.addDependency(job);
-            subTasks.add(job);
-        }
-
-    }
-
-    @Override
-    protected void aboutToBeEnqueued(Scheduler s) {
-        try {
-            for(Job subTask: subTasks) {
-                s.enqueue(subTask);
-            }
-        }
-        catch(Exception e) {
-            logger.error("Updater failed to enqueue jobs for handling updated source files");
-            return;
-        }
-    }
-
-    @Override
-    protected void aboutToBeDequeued(Scheduler s) {
-        //remove the subTasks from the queue
-        for(Job subTask: subTasks) {
-            try {
-                s.enqueue(subTask);
-            }
-            catch(Exception e) {
-                logger.error("Updater failed to dequeue jobs for handling updated source files");
-                continue;
-            }
-        }
-        super.aboutToBeDequeued(s);
     }
 }
 

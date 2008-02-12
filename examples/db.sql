@@ -4,7 +4,7 @@ insert into ALITHEIA.STORED_PROJECT values (
 	'http://www.sqo-oss.eu/',
 	'mailto:gousiosg@dmst.aueb.gr', 
 	'file:/dev/null',
-	'https://svn.sqo-oss.eu/',
+	'http://cvs.codeyard.net/svn/yoyo/',
 	'maildir:../examples/mail/SQO-OSS'
 	) ;
 
