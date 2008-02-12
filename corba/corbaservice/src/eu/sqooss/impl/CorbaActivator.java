@@ -63,9 +63,18 @@ public class CorbaActivator implements BundleActivator {
 
         this.bc = bc;
         
-        // create servant and register it with the ORB
         loggerImpl = new LoggerImpl(bc);
-        try{
+        if (!Boolean.valueOf(bc.getProperty("eu.sqooss.corba.enable"))) {
+            loggerImpl.info(eu.sqooss.service.logging.Logger.NAME_SQOOSS, 
+                "Corba service disabled by config value.");
+            return;
+        } else {
+            loggerImpl.info(eu.sqooss.service.logging.Logger.NAME_SQOOSS, 
+                "Corba service starting.");
+        }
+
+        // create servant and register it with the ORB
+        try {
             Properties props = new Properties();
             //props.put("org.omg.CORBA.ORBInitialPort", "1050");
 
