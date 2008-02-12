@@ -171,9 +171,13 @@ show-log :
 	fi
 
 DBPATH=extlibs/org.apache.derby_10.3.2.1
-RUN_DERBY_IJ=java -Dij.protocol=jdbc:derby: -Dij.database=equinox/derbyDB \
-		-cp $(DBPATH)/derby.jar:$(DBPATH)/../org.apache.derby.tools-10.3.1.4.jar \
-		org.apache.derby.tools.ij 
+RUN_DERBY_CLASSPATH=$(DBPATH)/derby.jar:$(DBPATH)/../org.apache.derby.tools-10.3.1.4.jar
+ifeq ($(OS),Windows_NT)
+RUN_DERBY_CLASSPATH:=$(subst /,\,$(RUN_DERBY_CLASSPATH))
+RUN_DERBY_CLASSPATH:=$(subst :,;,$(RUN_DERBY_CLASSPATH))
+endif
+RUN_DERBY_IJ:=java -Dij.protocol=jdbc:derby: -Dij.database=equinox/derbyDB -cp "$(RUN_DERBY_CLASSPATH)" org.apache.derby.tools.ij
+
 show-db :
 	$(RUN_DERBY_IJ)
 
@@ -181,7 +185,7 @@ show-db-tables :
 	echo "show tables;" | $(RUN_DERBY_IJ) | grep '^ALITHEIA'
 
 fill-db-tables :
-	cat examples/db.sql | $(RUN_DERBY_IJ)
+	cat examples/db.sql | $(RUN_DERBY_IJ) 
 
 clean-db-tables :
 	( echo "delete from alitheia.mailmessage;" ; \
