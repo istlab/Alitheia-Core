@@ -36,38 +36,50 @@ package eu.sqooss.service.db;
 import eu.sqooss.service.db.DAObject;
 import java.util.Properties;
 
+/**
+ * This class represents the data relating to bugs, stored in the database
+ */
 public class Bug extends DAObject {
+    /**
+     * The commit which casuses the bug
+     */
     private Commit commit;
+    /**
+     * A description of the bug
+     */
     private String description;
+    /**
+     * The properties related to the bug
+     */
     private Properties properties;
 
     public Bug() {
         // Nothing to do here
     }
 
-	public Commit getCommit() {
-		return commit;
-	}
+    public Commit getCommit() {
+        return commit;
+    }
+    
+    public void setCommit(Commit commit) {
+        this.commit = commit;
+    }
+    
+    public String getDescription() {
+        return description;
+    }
 
-	public void setCommit(Commit commit) {
-		this.commit = commit;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	public Properties getProperties() {
-		return properties;
-	}
-
-	public void setProperties(Properties properties) {
-		this.properties = properties;
-	}
+    public void setDescription(String description) {
+        this.description = description;
+    }
+    
+    public Properties getProperties() {
+        return properties;
+    }
+    
+    public void setProperties(Properties properties) {
+        this.properties = properties;
+    }
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
