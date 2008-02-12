@@ -238,9 +238,9 @@ public class DBServiceImpl implements DBService {
         dbURL = null;
         dbClass = null;
         dbDialect = null;
-        if (!getJDBCConnection(bc.getProperty("eu.sqooss.db.driver"), bc
-                .getProperty("eu.sqooss.db.url"), bc
-                .getProperty("eu.sqooss.db.dialect"))) {
+        if (!getJDBCConnection(bc.getProperty("eu.sqooss.db.driver"),
+                bc.getProperty("eu.sqooss.db.url"),
+                bc.getProperty("eu.sqooss.db.dialect"))) {
             if (!Boolean
                     .valueOf(bc.getProperty("eu.sqooss.db.fallback.enable"))
                     || !getDerbyJDBC()) {
