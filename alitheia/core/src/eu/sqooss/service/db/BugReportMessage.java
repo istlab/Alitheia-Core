@@ -35,49 +35,62 @@ package eu.sqooss.service.db;
 
 import eu.sqooss.service.db.DAObject;
 
+/**
+ * This class represents the primary data associated with a bug report
+ */
 public class BugReportMessage extends DAObject {
+    /**
+     * The bug with which the message is associated
+     */
     private Bug bug;
+    /**
+     * The original reporter of the bug
+     */
     private BugReporter bugReporter;
+    /**
+     * The description of the bug
+     */
     private String description;
+    /**
+     * Something interesting goes here
+     */
     private String action;
-
+    
     public BugReportMessage() {
         // Nothing to do here
     }
-
-	public Bug getBug() {
-		return bug;
-	}
-
-	public void setBug(Bug bug) {
-		this.bug = bug;
-	}
-
-	public BugReporter getBugReporter() {
-		return bugReporter;
-	}
-
-	public void setBugReporter(BugReporter bugReporter) {
-		this.bugReporter = bugReporter;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	public String getAction() {
-		return action;
-	}
-
-	public void setAction(String action) {
-		this.action = action;
-	}
- 
     
+    public Bug getBug() {
+        return bug;
+    }
+    
+    public void setBug(Bug bug) {
+        this.bug = bug;
+    }
+    
+    public BugReporter getBugReporter() {
+        return bugReporter;
+    }
+    
+    public void setBugReporter(BugReporter bugReporter) {
+        this.bugReporter = bugReporter;
+    }
+    
+    public String getDescription() {
+        return description;
+    }
+    
+    public void setDescription(String description) {
+        this.description = description;
+    }
+    
+    public String getAction() {
+        return action;
+    }
+    
+    public void setAction(String action) {
+        this.action = action;
+    }
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
