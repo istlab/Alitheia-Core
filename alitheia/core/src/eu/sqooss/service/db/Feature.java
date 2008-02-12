@@ -34,7 +34,11 @@ package eu.sqooss.service.db;
 
 import eu.sqooss.service.db.DAObject;
 
-public class Feature extends DAObject {
+/**
+ * I would properly document this DAO, but I have absolutely no idea
+ * how this EGCS fits the HPFS 
+ */
+public class Feature extends DAObject { 
     private String name;
 
     public Feature() {}
