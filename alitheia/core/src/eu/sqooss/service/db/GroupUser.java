@@ -35,9 +35,7 @@ package eu.sqooss.service.db;
 
 import java.io.Serializable;
 
-import eu.sqooss.service.db.DAObject;
-
-public class GroupUser extends DAObject implements Serializable {
+public class GroupUser implements Serializable {
     private User user;
     private Group group;
 
