@@ -33,15 +33,37 @@
  
 package eu.sqooss.service.db;
 
+import java.io.Serializable;
+
 import eu.sqooss.service.db.DAObject;
 
-public class GroupUser extends DAObject {
+public class GroupUser extends DAObject implements Serializable {
     private User user;
     private Group group;
 
     public GroupUser(){}
 
-    public User getUser() {
+    /* Needed by Hibernate to handle the composite key
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	public boolean equals(Object obj) {
+		if (obj instanceof GroupUser) {
+			GroupUser groupUser = (GroupUser) obj;
+			return groupUser.group.getId() == this.group.getId()
+				&& groupUser.user.getId() == this.group.getId();
+		}
+		return false;
+	}
+
+	/* Needed by Hibernate to handle the composite key
+	 * @see java.lang.Object#hashCode()
+	 */
+	public int hashCode() {
+		
+		return (int)(user.getId() * group.getId());
+	}
+
+	public User getUser() {
         return user;
     }
 

@@ -12,7 +12,7 @@
 
     <set name="users" table="GROUPUSER" inverse="true">
       <key column="GROUPID"/>
-      <many-to-many column="USERID" class="eu.sqooss.service.db.User"/>
+      <one-to-many class="eu.sqooss.service.db.GroupUser"/>
     </set>
   </class>  
 </hibernate-mapping>

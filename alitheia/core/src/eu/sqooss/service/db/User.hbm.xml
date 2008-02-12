@@ -15,9 +15,9 @@
     <property name="password" column="PASSWORD" not-null="true" />
     <property name="email" column="EMAIL" not-null="true" />
     
-    <set name="groups" table="GROUPUSER">
-        <key column="USERID"/>
-        <many-to-many column="GROUPID" class="eu.sqooss.service.db.Group"/>
+    <set name="groups" table="GROUPUSER" inverse="true">
+      <key column="USERID"/>
+      <one-to-many class="eu.sqooss.service.db.GroupUser"/>
     </set>
   </class>
 </hibernate-mapping>
