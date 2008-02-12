@@ -1,6 +1,6 @@
 TOMCAT_LIB=tomcat/webapps/ROOT/WEB-INF/lib/
 
-all : build install run
+all : stop build install run
 
 
 install :
@@ -26,7 +26,7 @@ build :
 	javac -Xlint:path -cp ":../../../../lib/eu.sqooss.scl_0.0.1.jar" *\.java
 
 
-run : build start
+run : stop start
 
 define set_java_home
 	test -z "$$JAVA_HOME" -a -x /usr/bin/javac && export JAVA_HOME=/usr ; \
