@@ -33,13 +33,36 @@
 
 package eu.sqooss.service.db;
 
-public class GroupPrivilege {
+import java.io.Serializable;
+
+public class GroupPrivilege implements Serializable {
     private ServiceUrl url;
     private Group group;
     private PrivilegeValue pv;
 
     // Nothing to do here
     public GroupPrivilege(){}
+
+    /* Needed by Hibernate to handle the composite key
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	public boolean equals(Object obj) {
+		if (obj instanceof GroupPrivilege) {
+			GroupPrivilege groupPrivilege = (GroupPrivilege) obj;
+			return groupPrivilege.group.getId() == this.group.getId()
+				&& groupPrivilege.url.getId() == this.url.getId()
+				&& groupPrivilege.pv.getId() == this.pv.getId();
+		}
+		return false;
+	}
+
+	/* Needed by Hibernate to handle the composite key
+	 * @see java.lang.Object#hashCode()
+	 */
+	public int hashCode() {
+		
+		return (int)(url.getId() * group.getId() * pv.getId());
+	}
 
     public void setUrl(ServiceUrl url) {
         this.url = url;
