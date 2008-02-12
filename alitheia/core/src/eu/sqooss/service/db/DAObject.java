@@ -33,7 +33,13 @@
 
 package eu.sqooss.service.db;
 
+/**
+ * Base class for describing all DAO, providing a simple id interface
+ */
 public class DAObject {
+    /**
+     * The DAO instance ID
+     */
     private long id;
 
     public long getId() {
