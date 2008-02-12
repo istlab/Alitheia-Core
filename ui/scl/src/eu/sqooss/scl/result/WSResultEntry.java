@@ -42,7 +42,7 @@ import org.apache.commons.codec.binary.Base64;
  *
  * A WSResultEntry tries to be as generic as possible by storing
  * data to the least common denominator of containers, the byte array.
- * Each entry has an assosiated mime type. Mime types are used by the
+ * Each entry has an associated mime type. Mime types are used by the
  * users of the object to convert the byte array store to something 
  * they can use. Some convenience conversion functions are provided
  * with this object.
