@@ -43,7 +43,7 @@ import eu.sqooss.scl.result.WSResultEntry;
 class ListView {
 
     WSSession session;
-    WSResult items = new WSResult();
+    WSResult items = null;
     String error;
 
     public ListView () {
