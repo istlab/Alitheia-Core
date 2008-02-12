@@ -1,0 +1,872 @@
+--
+-- PostgreSQL database cluster dump
+--
+
+\connect postgres
+
+--
+-- Roles
+--
+
+CREATE ROLE alitheia;
+ALTER ROLE alitheia WITH NOSUPERUSER INHERIT NOCREATEROLE NOCREATEDB LOGIN PASSWORD 'md594f35f0d03f6b7aba248caf8356d6be0';
+CREATE ROLE postgres;
+ALTER ROLE postgres WITH SUPERUSER INHERIT CREATEROLE CREATEDB LOGIN;
+
+
+
+
+
+
+--
+-- Database creation
+--
+
+CREATE DATABASE alitheia WITH TEMPLATE = template0 OWNER = alitheia ENCODING = 'UTF8';
+REVOKE ALL ON DATABASE template1 FROM PUBLIC;
+REVOKE ALL ON DATABASE template1 FROM postgres;
+GRANT ALL ON DATABASE template1 TO postgres;
+
+
+\connect alitheia
+
+--
+-- PostgreSQL database dump
+--
+
+SET client_encoding = 'UTF8';
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+
+--
+-- Name: SCHEMA public; Type: COMMENT; Schema: -; Owner: postgres
+--
+
+COMMENT ON SCHEMA public IS 'Standard public schema';
+
+
+--
+-- Name: plpgsql; Type: PROCEDURAL LANGUAGE; Schema: -; Owner: 
+--
+
+CREATE PROCEDURAL LANGUAGE plpgsql;
+
+
+SET search_path = public, pg_catalog;
+
+SET default_tablespace = '';
+
+SET default_with_oids = false;
+
+--
+-- Name: bug; Type: TABLE; Schema: public; Owner: alitheia; Tablespace: 
+--
+
+CREATE TABLE bug (
+    bug_id bigint NOT NULL,
+    commit_id bigint,
+    description character varying(255),
+    properties bytea
+);
+
+
+ALTER TABLE public.bug OWNER TO alitheia;
+
+--
+-- Name: bug_report_message; Type: TABLE; Schema: public; Owner: alitheia; Tablespace: 
+--
+
+CREATE TABLE bug_report_message (
+    bug_report_message_id bigint NOT NULL,
+    bug_id bigint NOT NULL,
+    bug_reporter_id bigint NOT NULL,
+    description character varying(255),
+    "action" character varying(255)
+);
+
+
+ALTER TABLE public.bug_report_message OWNER TO alitheia;
+
+--
+-- Name: bug_reporter; Type: TABLE; Schema: public; Owner: alitheia; Tablespace: 
+--
+
+CREATE TABLE bug_reporter (
+    bug_reporter_id bigint NOT NULL,
+    name character varying(255)
+);
+
+
+ALTER TABLE public.bug_reporter OWNER TO alitheia;
+
+--
+-- Name: commits; Type: TABLE; Schema: public; Owner: alitheia; Tablespace: 
+--
+
+CREATE TABLE commits (
+    commit_id bigint NOT NULL,
+    commit_time time without time zone,
+    committer bigint,
+    project_version bigint,
+    properties character varying(255)
+);
+
+
+ALTER TABLE public.commits OWNER TO alitheia;
+
+--
+-- Name: file_metadata; Type: TABLE; Schema: public; Owner: alitheia; Tablespace: 
+--
+
+CREATE TABLE file_metadata (
+    metadata_id bigint NOT NULL,
+    protection_mode character varying(255),
+    number_of_links integer,
+    user_id integer,
+    group_id integer,
+    access_time time without time zone,
+    modification_time time without time zone,
+    status_change character varying(255),
+    file_size integer,
+    file_blocks integer,
+    project_file bigint
+);
+
+
+ALTER TABLE public.file_metadata OWNER TO alitheia;
+
+--
+-- Name: groupuser; Type: TABLE; Schema: public; Owner: alitheia; Tablespace: 
+--
+
+CREATE TABLE groupuser (
+    user_id bigint NOT NULL,
+    group_id bigint NOT NULL
+);
+
+
+ALTER TABLE public.groupuser OWNER TO alitheia;
+
+--
+-- Name: hibernate_sequence; Type: SEQUENCE; Schema: public; Owner: alitheia
+--
+
+CREATE SEQUENCE hibernate_sequence
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.hibernate_sequence OWNER TO alitheia;
+
+--
+-- Name: hibernate_sequence; Type: SEQUENCE SET; Schema: public; Owner: alitheia
+--
+
+SELECT pg_catalog.setval('hibernate_sequence', 2, true);
+
+
+--
+-- Name: mailinglist; Type: TABLE; Schema: public; Owner: alitheia; Tablespace: 
+--
+
+CREATE TABLE mailinglist (
+    mlist_id bigint NOT NULL,
+    mlist_listid character varying(255) NOT NULL,
+    project_id bigint
+);
+
+
+ALTER TABLE public.mailinglist OWNER TO alitheia;
+
+--
+-- Name: mailmessage; Type: TABLE; Schema: public; Owner: alitheia; Tablespace: 
+--
+
+CREATE TABLE mailmessage (
+    id bigint NOT NULL,
+    sender character varying(255) NOT NULL,
+    recipients character varying(255),
+    listid character varying(255) NOT NULL,
+    messageid character varying(255) NOT NULL,
+    date timestamp without time zone,
+    subject character varying(255),
+    sender_id bigint,
+    mlist_id bigint,
+    send_date timestamp without time zone,
+    arrival_date timestamp without time zone
+);
+
+
+ALTER TABLE public.mailmessage OWNER TO alitheia;
+
+--
+-- Name: measurement; Type: TABLE; Schema: public; Owner: alitheia; Tablespace: 
+--
+
+CREATE TABLE measurement (
+    measurement_id bigint NOT NULL,
+    metric bigint,
+    project_version bigint,
+    when_run time without time zone,
+    result character varying(255),
+    project_version_id bigint
+);
+
+
+ALTER TABLE public.measurement OWNER TO alitheia;
+
+--
+-- Name: metric; Type: TABLE; Schema: public; Owner: alitheia; Tablespace: 
+--
+
+CREATE TABLE metric (
+    metric_id bigint NOT NULL,
+    metric_type bigint,
+    description character varying(255),
+    plugin_id bigint
+);
+
+
+ALTER TABLE public.metric OWNER TO alitheia;
+
+--
+-- Name: metric_type; Type: TABLE; Schema: public; Owner: alitheia; Tablespace: 
+--
+
+CREATE TABLE metric_type (
+    metric_type_id bigint NOT NULL,
+    "type" character varying(255)
+);
+
+
+ALTER TABLE public.metric_type OWNER TO alitheia;
+
+--
+-- Name: plugin; Type: TABLE; Schema: public; Owner: alitheia; Tablespace: 
+--
+
+CREATE TABLE plugin (
+    plugin_id bigint NOT NULL,
+    metric_id bigint,
+    name character varying(255),
+    install_date timestamp without time zone
+);
+
+
+ALTER TABLE public.plugin OWNER TO alitheia;
+
+--
+-- Name: project_file; Type: TABLE; Schema: public; Owner: alitheia; Tablespace: 
+--
+
+CREATE TABLE project_file (
+    project_file_id bigint NOT NULL,
+    file_name character varying(255),
+    project_version bigint,
+    file_status character varying(255),
+    project_version_id bigint
+);
+
+
+ALTER TABLE public.project_file OWNER TO alitheia;
+
+--
+-- Name: project_version; Type: TABLE; Schema: public; Owner: alitheia; Tablespace: 
+--
+
+CREATE TABLE project_version (
+    tag_id bigint NOT NULL,
+    project_id bigint,
+    version integer,
+    project_version_id bigint,
+    stored_project_id bigint
+);
+
+
+ALTER TABLE public.project_version OWNER TO alitheia;
+
+--
+-- Name: sender; Type: TABLE; Schema: public; Owner: alitheia; Tablespace: 
+--
+
+CREATE TABLE sender (
+    sender_id bigint NOT NULL,
+    sender_name character varying(255),
+    sender_username character varying(255),
+    sender_email character varying(255)
+);
+
+
+ALTER TABLE public.sender OWNER TO alitheia;
+
+--
+-- Name: stored_project; Type: TABLE; Schema: public; Owner: alitheia; Tablespace: 
+--
+
+CREATE TABLE stored_project (
+    project_id bigint NOT NULL,
+    project_name character varying(255),
+    website_url character varying(255),
+    contact_url character varying(255),
+    bts_url character varying(255),
+    scm_url character varying(255),
+    mail_url character varying(255)
+);
+
+
+ALTER TABLE public.stored_project OWNER TO alitheia;
+
+--
+-- Name: tag; Type: TABLE; Schema: public; Owner: alitheia; Tablespace: 
+--
+
+CREATE TABLE tag (
+    tag_id bigint NOT NULL,
+    project_version bigint,
+    tag_name character varying(255)
+);
+
+
+ALTER TABLE public.tag OWNER TO alitheia;
+
+--
+-- Name: usergroups; Type: TABLE; Schema: public; Owner: alitheia; Tablespace: 
+--
+
+CREATE TABLE usergroups (
+    group_id bigint NOT NULL,
+    description character varying(255)
+);
+
+
+ALTER TABLE public.usergroups OWNER TO alitheia;
+
+--
+-- Name: userlogins; Type: TABLE; Schema: public; Owner: alitheia; Tablespace: 
+--
+
+CREATE TABLE userlogins (
+    id bigint NOT NULL,
+    name character varying(255) NOT NULL,
+    "level" integer,
+    registered timestamp without time zone,
+    lastlogin timestamp without time zone,
+    "password" character varying(255) NOT NULL,
+    email character varying(255) NOT NULL,
+    user_id bigint
+);
+
+
+ALTER TABLE public.userlogins OWNER TO alitheia;
+
+--
+-- Data for Name: bug; Type: TABLE DATA; Schema: public; Owner: alitheia
+--
+
+COPY bug (bug_id, commit_id, description, properties) FROM stdin;
+\.
+
+
+--
+-- Data for Name: bug_report_message; Type: TABLE DATA; Schema: public; Owner: alitheia
+--
+
+COPY bug_report_message (bug_report_message_id, bug_id, bug_reporter_id, description, "action") FROM stdin;
+\.
+
+
+--
+-- Data for Name: bug_reporter; Type: TABLE DATA; Schema: public; Owner: alitheia
+--
+
+COPY bug_reporter (bug_reporter_id, name) FROM stdin;
+\.
+
+
+--
+-- Data for Name: commits; Type: TABLE DATA; Schema: public; Owner: alitheia
+--
+
+COPY commits (commit_id, commit_time, committer, project_version, properties) FROM stdin;
+\.
+
+
+--
+-- Data for Name: file_metadata; Type: TABLE DATA; Schema: public; Owner: alitheia
+--
+
+COPY file_metadata (metadata_id, protection_mode, number_of_links, user_id, group_id, access_time, modification_time, status_change, file_size, file_blocks, project_file) FROM stdin;
+\.
+
+
+--
+-- Data for Name: groupuser; Type: TABLE DATA; Schema: public; Owner: alitheia
+--
+
+COPY groupuser (user_id, group_id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: mailinglist; Type: TABLE DATA; Schema: public; Owner: alitheia
+--
+
+COPY mailinglist (mlist_id, mlist_listid, project_id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: mailmessage; Type: TABLE DATA; Schema: public; Owner: alitheia
+--
+
+COPY mailmessage (id, sender, recipients, listid, messageid, date, subject, sender_id, mlist_id, send_date, arrival_date) FROM stdin;
+\.
+
+
+--
+-- Data for Name: measurement; Type: TABLE DATA; Schema: public; Owner: alitheia
+--
+
+COPY measurement (measurement_id, metric, project_version, when_run, result, project_version_id) FROM stdin;
+1	1	1	\N	1	1
+\.
+
+
+--
+-- Data for Name: metric; Type: TABLE DATA; Schema: public; Owner: alitheia
+--
+
+COPY metric (metric_id, metric_type, description, plugin_id) FROM stdin;
+1	1	BlaBla	2
+\.
+
+
+--
+-- Data for Name: metric_type; Type: TABLE DATA; Schema: public; Owner: alitheia
+--
+
+COPY metric_type (metric_type_id, "type") FROM stdin;
+1	1
+\.
+
+
+--
+-- Data for Name: plugin; Type: TABLE DATA; Schema: public; Owner: alitheia
+--
+
+COPY plugin (plugin_id, metric_id, name, install_date) FROM stdin;
+2	\N	Wc metric plug-in	2008-02-06 12:39:49.847
+\.
+
+
+--
+-- Data for Name: project_file; Type: TABLE DATA; Schema: public; Owner: alitheia
+--
+
+COPY project_file (project_file_id, file_name, project_version, file_status, project_version_id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: project_version; Type: TABLE DATA; Schema: public; Owner: alitheia
+--
+
+COPY project_version (tag_id, project_id, version, project_version_id, stored_project_id) FROM stdin;
+1	1	1	1	1
+\.
+
+
+--
+-- Data for Name: sender; Type: TABLE DATA; Schema: public; Owner: alitheia
+--
+
+COPY sender (sender_id, sender_name, sender_username, sender_email) FROM stdin;
+\.
+
+
+--
+-- Data for Name: stored_project; Type: TABLE DATA; Schema: public; Owner: alitheia
+--
+
+COPY stored_project (project_id, project_name, website_url, contact_url, bts_url, scm_url, mail_url) FROM stdin;
+1	Test	http://www.test.org	noname@test.org	http://www.test.org	http://svn.test.org	http://mail.test.org
+\.
+
+
+--
+-- Data for Name: tag; Type: TABLE DATA; Schema: public; Owner: alitheia
+--
+
+COPY tag (tag_id, project_version, tag_name) FROM stdin;
+\.
+
+
+--
+-- Data for Name: usergroups; Type: TABLE DATA; Schema: public; Owner: alitheia
+--
+
+COPY usergroups (group_id, description) FROM stdin;
+\.
+
+
+--
+-- Data for Name: userlogins; Type: TABLE DATA; Schema: public; Owner: alitheia
+--
+
+COPY userlogins (id, name, "level", registered, lastlogin, "password", email, user_id) FROM stdin;
+\.
+
+
+--
+-- Name: bug_pkey; Type: CONSTRAINT; Schema: public; Owner: alitheia; Tablespace: 
+--
+
+ALTER TABLE ONLY bug
+    ADD CONSTRAINT bug_pkey PRIMARY KEY (bug_id);
+
+
+--
+-- Name: bug_report_message_pkey; Type: CONSTRAINT; Schema: public; Owner: alitheia; Tablespace: 
+--
+
+ALTER TABLE ONLY bug_report_message
+    ADD CONSTRAINT bug_report_message_pkey PRIMARY KEY (bug_report_message_id);
+
+
+--
+-- Name: bug_reporter_pkey; Type: CONSTRAINT; Schema: public; Owner: alitheia; Tablespace: 
+--
+
+ALTER TABLE ONLY bug_reporter
+    ADD CONSTRAINT bug_reporter_pkey PRIMARY KEY (bug_reporter_id);
+
+
+--
+-- Name: commits_pkey; Type: CONSTRAINT; Schema: public; Owner: alitheia; Tablespace: 
+--
+
+ALTER TABLE ONLY commits
+    ADD CONSTRAINT commits_pkey PRIMARY KEY (commit_id);
+
+
+--
+-- Name: file_metadata_pkey; Type: CONSTRAINT; Schema: public; Owner: alitheia; Tablespace: 
+--
+
+ALTER TABLE ONLY file_metadata
+    ADD CONSTRAINT file_metadata_pkey PRIMARY KEY (metadata_id);
+
+
+--
+-- Name: groupuser_pkey; Type: CONSTRAINT; Schema: public; Owner: alitheia; Tablespace: 
+--
+
+ALTER TABLE ONLY groupuser
+    ADD CONSTRAINT groupuser_pkey PRIMARY KEY (user_id, group_id);
+
+
+--
+-- Name: mailinglist_pkey; Type: CONSTRAINT; Schema: public; Owner: alitheia; Tablespace: 
+--
+
+ALTER TABLE ONLY mailinglist
+    ADD CONSTRAINT mailinglist_pkey PRIMARY KEY (mlist_id);
+
+
+--
+-- Name: mailmessage_pkey; Type: CONSTRAINT; Schema: public; Owner: alitheia; Tablespace: 
+--
+
+ALTER TABLE ONLY mailmessage
+    ADD CONSTRAINT mailmessage_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: measurement_pkey; Type: CONSTRAINT; Schema: public; Owner: alitheia; Tablespace: 
+--
+
+ALTER TABLE ONLY measurement
+    ADD CONSTRAINT measurement_pkey PRIMARY KEY (measurement_id);
+
+
+--
+-- Name: metric_pkey; Type: CONSTRAINT; Schema: public; Owner: alitheia; Tablespace: 
+--
+
+ALTER TABLE ONLY metric
+    ADD CONSTRAINT metric_pkey PRIMARY KEY (metric_id);
+
+
+--
+-- Name: metric_type_pkey; Type: CONSTRAINT; Schema: public; Owner: alitheia; Tablespace: 
+--
+
+ALTER TABLE ONLY metric_type
+    ADD CONSTRAINT metric_type_pkey PRIMARY KEY (metric_type_id);
+
+
+--
+-- Name: plugin_pkey; Type: CONSTRAINT; Schema: public; Owner: alitheia; Tablespace: 
+--
+
+ALTER TABLE ONLY plugin
+    ADD CONSTRAINT plugin_pkey PRIMARY KEY (plugin_id);
+
+
+--
+-- Name: project_file_pkey; Type: CONSTRAINT; Schema: public; Owner: alitheia; Tablespace: 
+--
+
+ALTER TABLE ONLY project_file
+    ADD CONSTRAINT project_file_pkey PRIMARY KEY (project_file_id);
+
+
+--
+-- Name: project_version_pkey; Type: CONSTRAINT; Schema: public; Owner: alitheia; Tablespace: 
+--
+
+ALTER TABLE ONLY project_version
+    ADD CONSTRAINT project_version_pkey PRIMARY KEY (tag_id);
+
+
+--
+-- Name: sender_pkey; Type: CONSTRAINT; Schema: public; Owner: alitheia; Tablespace: 
+--
+
+ALTER TABLE ONLY sender
+    ADD CONSTRAINT sender_pkey PRIMARY KEY (sender_id);
+
+
+--
+-- Name: stored_project_pkey; Type: CONSTRAINT; Schema: public; Owner: alitheia; Tablespace: 
+--
+
+ALTER TABLE ONLY stored_project
+    ADD CONSTRAINT stored_project_pkey PRIMARY KEY (project_id);
+
+
+--
+-- Name: tag_pkey; Type: CONSTRAINT; Schema: public; Owner: alitheia; Tablespace: 
+--
+
+ALTER TABLE ONLY tag
+    ADD CONSTRAINT tag_pkey PRIMARY KEY (tag_id);
+
+
+--
+-- Name: usergroups_pkey; Type: CONSTRAINT; Schema: public; Owner: alitheia; Tablespace: 
+--
+
+ALTER TABLE ONLY usergroups
+    ADD CONSTRAINT usergroups_pkey PRIMARY KEY (group_id);
+
+
+--
+-- Name: userlogins_pkey; Type: CONSTRAINT; Schema: public; Owner: alitheia; Tablespace: 
+--
+
+ALTER TABLE ONLY userlogins
+    ADD CONSTRAINT userlogins_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: fk10254d40f631f; Type: FK CONSTRAINT; Schema: public; Owner: alitheia
+--
+
+ALTER TABLE ONLY bug
+    ADD CONSTRAINT fk10254d40f631f FOREIGN KEY (commit_id) REFERENCES commits(commit_id);
+
+
+--
+-- Name: fk14466f9cf6aebe0c; Type: FK CONSTRAINT; Schema: public; Owner: alitheia
+--
+
+ALTER TABLE ONLY measurement
+    ADD CONSTRAINT fk14466f9cf6aebe0c FOREIGN KEY (project_version_id) REFERENCES project_version(tag_id);
+
+
+--
+-- Name: fk14466f9cfd3d7c25; Type: FK CONSTRAINT; Schema: public; Owner: alitheia
+--
+
+ALTER TABLE ONLY measurement
+    ADD CONSTRAINT fk14466f9cfd3d7c25 FOREIGN KEY (metric) REFERENCES metric(metric_id);
+
+
+--
+-- Name: fk30970127897a1a95; Type: FK CONSTRAINT; Schema: public; Owner: alitheia
+--
+
+ALTER TABLE ONLY bug_report_message
+    ADD CONSTRAINT fk30970127897a1a95 FOREIGN KEY (bug_id) REFERENCES bug(bug_id);
+
+
+--
+-- Name: fk30970127da059be; Type: FK CONSTRAINT; Schema: public; Owner: alitheia
+--
+
+ALTER TABLE ONLY bug_report_message
+    ADD CONSTRAINT fk30970127da059be FOREIGN KEY (bug_reporter_id) REFERENCES bug_reporter(bug_reporter_id);
+
+
+--
+-- Name: fk4dc29aaa8b362ff5; Type: FK CONSTRAINT; Schema: public; Owner: alitheia
+--
+
+ALTER TABLE ONLY groupuser
+    ADD CONSTRAINT fk4dc29aaa8b362ff5 FOREIGN KEY (group_id) REFERENCES usergroups(group_id);
+
+
+--
+-- Name: fk4dc29aaa8f6ad7df; Type: FK CONSTRAINT; Schema: public; Owner: alitheia
+--
+
+ALTER TABLE ONLY groupuser
+    ADD CONSTRAINT fk4dc29aaa8f6ad7df FOREIGN KEY (user_id) REFERENCES userlogins(id);
+
+
+--
+-- Name: fk51830250499cda5f; Type: FK CONSTRAINT; Schema: public; Owner: alitheia
+--
+
+ALTER TABLE ONLY mailmessage
+    ADD CONSTRAINT fk51830250499cda5f FOREIGN KEY (sender_id) REFERENCES sender(sender_id);
+
+
+--
+-- Name: fk51830250c4e33bb3; Type: FK CONSTRAINT; Schema: public; Owner: alitheia
+--
+
+ALTER TABLE ONLY mailmessage
+    ADD CONSTRAINT fk51830250c4e33bb3 FOREIGN KEY (mlist_id) REFERENCES mailinglist(mlist_id);
+
+
+--
+-- Name: fk8758e9b0a94ea7b8; Type: FK CONSTRAINT; Schema: public; Owner: alitheia
+--
+
+ALTER TABLE ONLY metric
+    ADD CONSTRAINT fk8758e9b0a94ea7b8 FOREIGN KEY (metric_type) REFERENCES metric_type(metric_type_id);
+
+
+--
+-- Name: fk8758e9b0d6dfd19f; Type: FK CONSTRAINT; Schema: public; Owner: alitheia
+--
+
+ALTER TABLE ONLY metric
+    ADD CONSTRAINT fk8758e9b0d6dfd19f FOREIGN KEY (plugin_id) REFERENCES plugin(plugin_id);
+
+
+--
+-- Name: fk8c9989c96a3f8d92; Type: FK CONSTRAINT; Schema: public; Owner: alitheia
+--
+
+ALTER TABLE ONLY mailinglist
+    ADD CONSTRAINT fk8c9989c96a3f8d92 FOREIGN KEY (project_id) REFERENCES stored_project(project_id);
+
+
+--
+-- Name: fkc3dc4302f6aebe0c; Type: FK CONSTRAINT; Schema: public; Owner: alitheia
+--
+
+ALTER TABLE ONLY project_file
+    ADD CONSTRAINT fkc3dc4302f6aebe0c FOREIGN KEY (project_version_id) REFERENCES project_version(tag_id);
+
+
+--
+-- Name: fkc5061d72c3822bae; Type: FK CONSTRAINT; Schema: public; Owner: alitheia
+--
+
+ALTER TABLE ONLY project_version
+    ADD CONSTRAINT fkc5061d72c3822bae FOREIGN KEY (stored_project_id) REFERENCES stored_project(project_id);
+
+
+--
+-- Name: public; Type: ACL; Schema: -; Owner: postgres
+--
+
+REVOKE ALL ON SCHEMA public FROM PUBLIC;
+REVOKE ALL ON SCHEMA public FROM postgres;
+GRANT ALL ON SCHEMA public TO postgres;
+GRANT ALL ON SCHEMA public TO PUBLIC;
+
+
+--
+-- PostgreSQL database dump complete
+--
+
+\connect postgres
+
+--
+-- PostgreSQL database dump
+--
+
+SET client_encoding = 'UTF8';
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+
+--
+-- Name: SCHEMA public; Type: COMMENT; Schema: -; Owner: postgres
+--
+
+COMMENT ON SCHEMA public IS 'Standard public schema';
+
+
+--
+-- Name: public; Type: ACL; Schema: -; Owner: postgres
+--
+
+REVOKE ALL ON SCHEMA public FROM PUBLIC;
+REVOKE ALL ON SCHEMA public FROM postgres;
+GRANT ALL ON SCHEMA public TO postgres;
+GRANT ALL ON SCHEMA public TO PUBLIC;
+
+
+--
+-- PostgreSQL database dump complete
+--
+
+\connect template1
+
+--
+-- PostgreSQL database dump
+--
+
+SET client_encoding = 'UTF8';
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+
+--
+-- Name: DATABASE template1; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON DATABASE template1 IS 'Default template database';
+
+
+--
+-- Name: SCHEMA public; Type: COMMENT; Schema: -; Owner: postgres
+--
+
+COMMENT ON SCHEMA public IS 'Standard public schema';
+
+
+--
+-- Name: public; Type: ACL; Schema: -; Owner: postgres
+--
+
+REVOKE ALL ON SCHEMA public FROM PUBLIC;
+REVOKE ALL ON SCHEMA public FROM postgres;
+GRANT ALL ON SCHEMA public TO postgres;
+GRANT ALL ON SCHEMA public TO PUBLIC;
+
+
+--
+-- PostgreSQL database dump complete
+--
+
+--
+-- PostgreSQL database cluster dump complete
+--
+
