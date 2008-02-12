@@ -4,8 +4,8 @@
         "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-  <class name="eu.sqooss.service.db.User" table="USERLOGINS">
-    <id name="id" column="USERID">
+  <class name="eu.sqooss.service.db.User" table="USER">
+    <id name="id" column="USER_ID">
       <generator class="native" />
     </id>
     <property name="name" column="NAME" not-null="true" />
@@ -15,8 +15,8 @@
     <property name="password" column="PASSWORD" not-null="true" />
     <property name="email" column="EMAIL" not-null="true" />
     
-    <set name="groups" table="GROUPUSER" inverse="true">
-      <key column="USERID"/>
+    <set name="groups" table="GROUP_USER" inverse="true">
+      <key column="USER_ID"/>
       <one-to-many class="eu.sqooss.service.db.GroupUser"/>
     </set>
   </class>

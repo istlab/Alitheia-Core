@@ -4,10 +4,10 @@
         "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-  <class name="eu.sqooss.service.db.GroupUser" table="GROUPUSER">
+  <class name="eu.sqooss.service.db.GroupUser" table="GROUP_USER">
     <composite-id>
-      <key-many-to-one name="user" column="USERID" class="eu.sqooss.service.db.User"/>
-      <key-many-to-one name="group" column="GROUPID" class="eu.sqooss.service.db.Group"/>
+      <key-many-to-one name="user" column="USER_ID" class="eu.sqooss.service.db.User"/>
+      <key-many-to-one name="group" column="GROUP_ID" class="eu.sqooss.service.db.Group"/>
     </composite-id>
   </class>  
 </hibernate-mapping>
