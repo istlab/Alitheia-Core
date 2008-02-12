@@ -1,4 +1,4 @@
-<jsp:useBean id="ProjectsListView" class="eu.sqooss.webui.ProjectsListView" scope="session"/>
+<jsp:useBean id="ProjectsListView" class="eu.sqooss.webui.ProjectsListView" scope="page"/>
 <jsp:setProperty name="ProjectsListView" property="*"/>
 <%
 out.println("<pre>");
