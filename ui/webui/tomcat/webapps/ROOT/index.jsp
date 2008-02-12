@@ -2,7 +2,7 @@
 <%@ include file="/inc/functions.jsp" %>
 
 <%
-    title = "This is Homepage";
+    title = "Homepage";
 %>
 <%@ page session="true" %>
 <%@ include file="/inc/header.jsp" %>
