@@ -51,59 +51,59 @@ public class User extends DAObject {
 
     public String getName() {
         return name;
-    };
+    }
 
     public void setName( String value ) {
         name = value;
-    };
+    }
 
     public Integer getLevel() {
         return level;
-    };
+    }
 
     public void setLevel( Integer value ) {
         level = value;
-    };
+    }
 
     public Date getRegistered() {
         return registered;
-    };
+    }
 
     public void setRegistered( Date value ) {
         registered = value;
-    };
+    }
 
     public Date getLastLogin() {
         return lastLogin;
-    };
+    }
 
     public void setLastLogin( Date value ) {
         lastLogin = value;
-    };
+    }
 
     public String getPassword() {
         return password;
-    };
+    }
 
     public void setPassword( String value ) {
         password = value;
-    };
+    }
 
     public String getEmail() {
         return email;
-    };
+    }
 
     public void setEmail( String value ) {
         email = value;
     }
 
-	public Set getGroups() {
-		return groups;
-	}
+    public Set getGroups() {
+        return groups;
+    }
 
-	public void setGroups(Set groups) {
-		this.groups = groups;
-	};
-};
+    public void setGroups(Set groups) {
+        this.groups = groups;
+    }
+}
 
 // vi: ai nosi sw=4 ts=4 expandtab
