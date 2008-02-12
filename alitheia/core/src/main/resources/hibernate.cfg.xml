@@ -36,6 +36,7 @@
         <!-- Drop and re-create the database schema on startup -->
         <property name="hbm2ddl.auto">update</property>
 
+        <mapping resource="eu/sqooss/service/db/ServiceUrl.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/FileMetadata.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/MailMessage.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/Measurement.hbm.xml"/>
