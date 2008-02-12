@@ -36,12 +36,34 @@ import eu.sqooss.service.db.DAObject;
 
 import java.sql.Time;
 
+/**
+ * This class represents a FileGroup in the database. FileGroups are
+ * cool, you should try them some day.
+ */
 public class FileGroup extends DAObject{
+    /**
+     * The FileGroup name
+     */
     private String name;
+    /**
+     * The FileGroup path (on the local file store?)
+     */
     private String subPath;
+    /**
+     * A regular expression. Why not?
+     */
     private String regex;
+    /**
+     * The frequency of recaluation: daily, 4-daily etc.
+     */
     private int recalcFreq;
+    /**
+     * The date on which the FileGroup was last accessed by a metric
+     */
     private Time lastUsed;
+    /**
+     * The ProjectVersion where this FG was created
+     */
     private ProjectVersion projectVersion;
 
     public FileGroup() {
