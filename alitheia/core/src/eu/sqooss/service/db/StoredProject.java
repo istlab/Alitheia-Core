@@ -157,7 +157,7 @@ public class StoredProject extends DAObject {
         Map<String,Object> parameterMap = new HashMap<String,Object>();
         parameterMap.put("sp", project);
         List pvList = dbs.doHQL("from ProjectVersion pv where pv.project=:sp"
-                + " and pv.id = (select max(pv2.id) from "
+                + " and pv.version = (select max(pv2.version) from "
                 + " ProjectVersion pv2 where pv2.project=:sp)",
                 parameterMap);
 
