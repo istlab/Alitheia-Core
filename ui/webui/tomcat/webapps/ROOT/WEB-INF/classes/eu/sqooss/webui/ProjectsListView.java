@@ -44,14 +44,10 @@ public class ProjectsListView extends ListView {
 
     String currentProject;
     WSResult result;
-    String someresult;
+    Long projectId;
 
     public ProjectsListView () {
         retrieveData();
-    }
-
-    public String giveMeSomeData() {
-        return "Status: " + someresult;
     }
 
     public void setCurrentProject ( String project ) {
@@ -59,14 +55,18 @@ public class ProjectsListView extends ListView {
     }
 
     public String getCurrentProject () {
-        String pid = String.valueOf(getCurrentProjectId());
+        String pid = String.valueOf(projectId);
         return currentProject + " (" + pid + ")";
     }
 
-    public int getCurrentProjectId() {
-        return getProjectId(currentProject);
+    public Long getCurrentProjectId() {
+        return projectId;
     }
-
+    
+    public void setCurrentProjectId(Long id) {
+        projectId = id;
+    }
+    
     public void retrieveData () {
         try {
             result = session.getConnection().evaluatedProjectsList();//.next().get(0).getLong() + "=";
