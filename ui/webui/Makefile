@@ -49,7 +49,7 @@ stop :
 restart: stop run
 
 rebuild :
-	$(MAKE) build && \ 
-	make stop > /dev/null 2>&1 && \
-	make start > /dev/null 2>&1 
+	$(MAKE) build
+	$(MAKE) stop && \
+	$(MAKE) start 
 
