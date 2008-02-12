@@ -49,7 +49,7 @@ public class GroupPrivilege {
         this.group = group;
     }
 
-    public void setPV(PrivilegeValue pv) {
+    public void setPv(PrivilegeValue pv) {
         this.pv = pv;
     }
 
@@ -61,7 +61,7 @@ public class GroupPrivilege {
         return group;
     }
 
-    public PrivilegeValue getPV() {
+    public PrivilegeValue getPv() {
         return pv;
     }
 }
