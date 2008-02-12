@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+  <class name="eu.sqooss.service.db.ServiceUrl" table="SERVICE_URL">
+    <id name="id" column="SERVICE_URL_ID">
+      <generator class="native" />
+    </id>
+    <property name="url" column="URL" />
+  </class>
+</hibernate-mapping>
