@@ -5,14 +5,14 @@
 
 <hibernate-mapping>
   <class name="eu.sqooss.service.db.Group" table="USERGROUPS">
-    <id name="id" column="GROUP_ID">
+    <id name="id" column="GROUPID">
       <generator class="native" />
     </id>
     <property name="description" column="DESCRIPTION" />
 
     <set name="users" table="GROUPUSER" inverse="true">
-      <key column="GROUP_ID"/>
-      <many-to-many column="USER_ID" class="eu.sqooss.service.db.User"/>
+      <key column="GROUPID"/>
+      <many-to-many column="USERID" class="eu.sqooss.service.db.User"/>
     </set>
   </class>  
 </hibernate-mapping>
