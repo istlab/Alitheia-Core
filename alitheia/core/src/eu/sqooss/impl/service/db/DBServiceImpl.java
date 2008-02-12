@@ -159,6 +159,16 @@ public class DBServiceImpl implements DBService {
         }
     }
 
+    private void logSQLException(SQLException e) {
+        
+        while (e != null) {
+            String message = String.format("SQLException: SQL State:%s, Error Code:%d, Message:%s",
+                    e.getSQLState(), e.getErrorCode(), e.getMessage());
+            logger.error(message);
+            e = e.getNextException();
+        }
+    }
+    
     private boolean getJDBCConnection(String driver, String url, String dialect) {
         if ((driver == null) || (url == null) || (dialect == null)) {
             dbClass = null;
@@ -170,7 +180,17 @@ public class DBServiceImpl implements DBService {
 
         try {
             Class.forName(driver).newInstance();
-            logger.info("Created JDBC instance for " + driver);
+            logger.info("Created instance of " + driver);
+        } catch (InstantiationException e) {
+            logger.error("Unable to instantiate the JDBC driver " + driver
+                    + " : " + e.getMessage());
+        } catch (ClassNotFoundException e) {
+            logger.error("Unable to load the JDBC driver " + driver);
+        } catch (IllegalAccessException e) {
+            logger.error("Not allowed to access the JDBC driver " + driver);
+        }
+
+        try {
             Connection c = DriverManager.getConnection(url);
             c.setAutoCommit(false);
             dbClass = driver;
@@ -178,17 +198,10 @@ public class DBServiceImpl implements DBService {
             dbDialect = dialect;
             dbConnection = c;
             return true;
-        } catch (InstantiationException e) {
-            logger.error("Could not instantiate JDBC connection for "
-                    + driver);
-        } catch (ClassNotFoundException e) {
-            logger.error("Could not get class for JDBC driver " + driver);
-        } catch (IllegalAccessException e) {
-            logger.error("SEGV. Core dumped.");
         } catch (SQLException e) {
-            logger.error("SQL Exception while instantiating " + driver);
+            logSQLException(e);
         }
-
+        
         dbClass = null;
         dbURL = null;
         dbDialect = null;
@@ -200,7 +213,7 @@ public class DBServiceImpl implements DBService {
      * Attempt to get the Derby JDBC connector and initialize a connection to
      * the Derby instance -- this is intended to be a debug fallback routine
      * during development.
-     *
+     * 
      * @return
      * @c true on success
      */
