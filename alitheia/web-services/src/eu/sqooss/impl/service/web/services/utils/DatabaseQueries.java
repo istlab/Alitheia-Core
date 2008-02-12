@@ -35,12 +35,20 @@ package eu.sqooss.impl.service.web.services.utils;
 public class DatabaseQueries {
     
     //5.1.1
+    /* Quick fix - Evgeni will fix all og those afterwards
     public static final String EVALUATED_PROJECTS_LIST = "select sp, pv " +
                                                          "from StoredProject sp, ProjectVersion pv, Measurement measurement, Metric metric, Plugin plugin " +
                                                          "where sp.id=pv.project " +
                                                          " and pv.id=measurement.projectVersion " +
                                                          " and metric.id=measurement.metric " +
                                                          " and metric.id=plugin.metric " +
+                                                         "order by sp.id asc";
+    */
+
+    public static final String EVALUATED_PROJECTS_LIST = "select sp, pv " +
+                                                         "from StoredProject sp, ProjectVersion pv, Measurement measurement " +
+                                                         "where sp.id=pv.project " +
+                                                         " and pv.id=measurement.projectVersion " +
                                                          "order by sp.id asc";
 
     public static final String RETRIEVE_METRICS_4_SELECTED_PROJECT_PARAM = "project_id";
