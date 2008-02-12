@@ -1,8 +1,20 @@
 <jsp:useBean id="ProjectsListView" class="eu.sqooss.webui.ProjectsListView" scope="page"/>
 <jsp:setProperty name="ProjectsListView" property="*"/>
 <%
-out.println(ProjectsListView.getHtml());
-out.println("<p />Currently selected: <strong>");
-out.println(ProjectsListView.getCurrentProject());
+
+String projects = ProjectsListView.getHtml();
+if (projects == null) {
+    out.println(error("No projects found. Bummer."));
+} else {
+    out.println(ProjectsListView.getHtml());
+    out.println("<p />Currently selected:");
+    String selected_project = ProjectsListView.getCurrentProject();
+    if (selected_project == null) {
+        out.println(error("No project selected."));
+    } else {
+        out.println("<strong>" + selected_project + "</strong>");
+    }
+}
+
 %>
 </strong>

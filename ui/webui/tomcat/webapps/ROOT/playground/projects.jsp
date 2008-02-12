@@ -3,6 +3,7 @@
     title = "Available Projects";
 %>
 <%@ include file="/inc/header.jsp" %>
+<%@ include file="/inc/functions.jsp" %>
 
 <h1>Evaluated Projects</h1>
 

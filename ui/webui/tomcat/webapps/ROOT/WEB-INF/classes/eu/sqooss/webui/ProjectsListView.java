@@ -56,7 +56,10 @@ public class ProjectsListView extends ListView {
 
     public String getCurrentProject () {
         String pid = String.valueOf(projectId);
-        return currentProject + " (" + pid + ")";
+        if (currentProject != null) {
+            return currentProject + " (" + pid + ")";
+        }
+        return null;
     }
 
     public Long getCurrentProjectId() {
