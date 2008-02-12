@@ -1,6 +1,6 @@
 TOMCAT_LIB=tomcat/webapps/ROOT/WEB-INF/lib/
 
-all : build run
+all : build install run
 
 
 install :
