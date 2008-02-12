@@ -88,13 +88,17 @@ class SourceUpdater extends Job {
         logger.info("Running source update for project " + project.getName());
 
         try {
+            // This is the last version we actually know about
             ProjectVersion lastVersion = StoredProject.getLastProjectVersion(project, logger);
             SCMAccessor scm = tds.getAccessor(project.getId()).getSCMAccessor();
-            CommitLog commitLog = scm.getCommitLog(new ProjectRevision(
-                    lastVersion.getVersion()), new ProjectRevision(new Date()));
+            long lastSCMVersion = scm.getHeadRevision();
+            CommitLog commitLog = scm.getCommitLog(
+                    new ProjectRevision(lastVersion.getVersion()),
+                    new ProjectRevision(lastSCMVersion));
 
             ProjectVersion curVersion = new ProjectVersion();
             curVersion.setProject(project);
+            // Assertion: this value is the same as lastSCMVersion
             curVersion.setVersion((int)commitLog.last().getSVNRevision());
             //TODO: switch ProjectVersion.version to long
             dbs.addRecord(curVersion);
