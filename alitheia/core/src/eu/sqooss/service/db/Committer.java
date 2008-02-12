@@ -35,7 +35,14 @@ package eu.sqooss.service.db;
 
 import eu.sqooss.service.db.DAObject;
 
+/**
+ * This class represent the primary data relating to the person
+ * commiting within the repository
+ */
 public class Committer extends DAObject{
+    /**
+     * The commiter's name
+     */
     private String name;
 
     // Nothing to do here
