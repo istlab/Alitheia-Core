@@ -35,20 +35,26 @@ package eu.sqooss.service.db;
 
 import eu.sqooss.service.db.DAObject;
 
+/**
+ * This class describes the known details of the person comitting a bug report
+ */
 public class BugReporter extends DAObject {
+    /**
+     * The bug reporter's name
+     */
     private String name;
 
     public BugReporter() {
         // Nothing to do here
     }
     
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
+    public String getName() {
+        return name;
+    }
+    
+    public void setName(String name) {
+        this.name = name;
+    }
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
