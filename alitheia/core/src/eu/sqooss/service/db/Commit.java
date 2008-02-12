@@ -37,10 +37,25 @@ import eu.sqooss.service.db.DAObject;
 
 import java.sql.Time;
 
+/**
+ * This class represents the primary data relating to a commit in the code repository
+ */
 public class Commit extends DAObject{
+    /**
+     * The time of the commit
+     */
     private Time commitTime;
+    /**
+     * The identity of the commiter
+     */
     private long committer;
+    /**
+     * The new project version create dby this commit
+     */
     private long projectVersion;
+    /**
+     * The "properties", whatever they are
+     */
     private String properties;
 
     public Commit() {
