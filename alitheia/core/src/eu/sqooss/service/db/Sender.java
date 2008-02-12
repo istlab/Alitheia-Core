@@ -46,6 +46,10 @@ import eu.sqooss.impl.service.CoreActivator;
 public class Sender extends DAObject {
     String email;
 
+    public Sender() {
+        this.email = null;
+    }
+
     public Sender(String email) {
         this.email = email;
     }

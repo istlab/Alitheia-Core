@@ -40,6 +40,7 @@ import java.util.List;
 
 import javax.mail.Address;
 import javax.mail.MessagingException;
+import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
 import eu.sqooss.core.AlitheiaCore;
@@ -117,30 +118,30 @@ class MailUpdater extends Job {
             try {
                 MimeMessage mm = mailAccessor.getMimeMessage(listId, messageId);
                 if (mm == null) {
-                	logger.info("Failed to parse message.");
-                	continue;
-                }
-                logger.info("Message has " + mm.getLineCount() + " lines of content.");
-                Enumeration<String> headerStrings = mm.getAllHeaderLines();
-                
-                while (headerStrings.hasMoreElements()) {
-                	logger.info("Header line <" + headerStrings.nextElement() + ">");
+                    logger.info("Failed to parse message.");
+                    continue;
                 }
                 Address[] senderAddr = mm.getFrom();
                 if (senderAddr == null) {
-                	logger.info("Message has no sender?");
-                	continue;
+                    logger.info("Message has no sender?");
+                    continue;
                 }
-                for (Address a : senderAddr) {
-                	logger.info("Found sender <" + a + ">");
+                Address actualSender = senderAddr[0];
+                String senderEmail = null;
+                if (actualSender instanceof InternetAddress) {
+                    senderEmail = ((InternetAddress)actualSender).getAddress();
+                } else {
+                    InternetAddress inet = new InternetAddress(actualSender.toString());
+                    senderEmail = inet.getAddress();
                 }
-                Sender sender = Sender.getSenderByEmail(senderAddr[0].toString());
+                Sender sender = Sender.getSenderByEmail(senderEmail);
                 if (sender == null) {
-                    sender = new Sender(senderAddr.toString());
+                    sender = new Sender(senderEmail);
                     dbs.addRecord(sender);
                 }
                 MailMessage mmsg = MailMessage.getMessageById(messageId);
-                if (mmsg == null) { mmsg = new MailMessage();
+                if (mmsg == null) {
+                    mmsg = new MailMessage();
                     mmsg.setListId(mllist);
                     mmsg.setMessageId(mm.getMessageID());
                     mmsg.setSender(sender);

@@ -34,6 +34,8 @@
 #		  when Postgres can't be found.
 # show-db-tables - shows the generated database tables. Also Derby-only.
 # fill-db-tables - install canned data
+# clean-db-tables - clear the database using delete statements; this keeps
+#		    the structure (unlike clean-db).
 #
 # eclipse-up-branch  - Update the eclipse branch from the current workdir
 # eclipse-up-workdir - Update the current workdir from the eclipse branch
@@ -180,6 +182,12 @@ show-db-tables :
 
 fill-db-tables :
 	cat examples/db.sql | $(RUN_DERBY_IJ)
+
+clean-db-tables :
+	( echo "delete from alitheia.mailmessage;" ; \
+ 	echo "delete from alitheia.sender;" ; \
+	echo "delete from alitheia.mailinglist;" ; \
+	echo "delete from alitheia.stored_project;" ) | $(RUN_DERBY_IJ)
 
 ECLIPSEDIR=$(TOP_SRCDIR)/../branches/eclipse
 
