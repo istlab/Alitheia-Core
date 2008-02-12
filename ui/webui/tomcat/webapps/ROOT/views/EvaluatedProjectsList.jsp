@@ -2,7 +2,7 @@
 <jsp:setProperty name="ProjectsListView" property="*"/>
 <%
 out.println("<pre>");
-out.println(ProjectsListView.giveMeSomeData());
+out.println(ProjectsListView.getHtml());
 out.println("</pre>");
 
 

@@ -73,27 +73,10 @@ public class ProjectsListView extends ListView {
         } catch (WSException wse) {
             error += "<br />Something went wrong getting evaluatedProjectsList() ... :/";
         }
-        /*
-        items.addElement(new String("FreeBSD"));
-        items.addElement(new String("Apache"));
-        items.addElement(new String("KDE"));
-        items.addElement(new String("Samba"));
-        items.addElement(new String("Nmap"));
-        currentProject = "KDE";
-        */
     }
 
     Integer getProjectId (String project) {
         // FIXME: This should not just return the index of a static list :-)
-        /*
-         * int i = 0;
-        for (String item: items) {
-            if (project.equals(item)) {
-                return i;
-            }
-            i++;
-        }
-        */
         return -1; // Means: not found, maybe an exception here?
     }
 }
