@@ -46,9 +46,7 @@ public class ProjectsListView extends ListView {
     String someresult;
 
     public ProjectsListView () {
-        someresult = "|";
         try {
-            someresult += "start";
             session = new WSSession("bla", "foo", "http://localhost:8088/sqooss/services/ws");
             if (session == null) {
                 someresult += "session is NULL";
@@ -72,13 +70,15 @@ public class ProjectsListView extends ListView {
         } catch (WSException wse) {
             //TODO
             wse.printStackTrace();
+        } catch (java.util.NoSuchElementException ex) {
+            someresult = "<b>[ERROR] No available project were found!</b>";
         }
-        someresult += "|blaafoo";
+
         retrieveData();
     }
 
     public String giveMeSomeData() {
-        return "This data comes from the SCL: " + someresult;
+        return "Status: " + someresult;
     }
 
     public void setCurrentProject ( String project ) {
