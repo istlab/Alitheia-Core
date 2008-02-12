@@ -54,6 +54,7 @@
         <mapping resource="eu/sqooss/service/db/Sender.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/Commit.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/MailingList.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/Committer.hbm.xml"/>
     </session-factory>
 
 </hibernate-configuration>
