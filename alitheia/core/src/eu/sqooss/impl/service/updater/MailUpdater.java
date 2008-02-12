@@ -36,6 +36,7 @@ package eu.sqooss.impl.service.updater;
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
 
@@ -116,20 +117,35 @@ class MailUpdater extends Job {
         // still needs to do it with Dates
         for ( String messageId : messageIds ) {
             String msg = String.format("Message <%s> in list <%s> ", messageId, listId);
+
+            logger.info(msg);
             try {
-                String raw = mailAccessor.getRawMessage(listId, messageId);
-                ByteArrayInputStream bais = new ByteArrayInputStream(raw.getBytes());
-                Session session = Session.getDefaultInstance(new Properties());
-                MimeMessage mm = new MimeMessage(session,bais);
-                Address senderAddr = mm.getSender();
-                Sender sender = Sender.getSenderByEmail(senderAddr.toString());
-                if(sender == null) {
+                MimeMessage mm = mailAccessor.getMimeMessage(listId, messageId);
+                if (mm == null) {
+                	logger.info("Failed to parse message.");
+                	continue;
+                }
+                logger.info("Message has " + mm.getLineCount() + " lines of content.");
+                Enumeration<String> headerStrings = mm.getAllHeaderLines();
+                
+                while (headerStrings.hasMoreElements()) {
+                	logger.info("Header line <" + headerStrings.nextElement() + ">");
+                }
+                Address[] senderAddr = mm.getFrom();
+                if (senderAddr == null) {
+                	logger.info("Message has no sender?");
+                	continue;
+                }
+                for (Address a : senderAddr) {
+                	logger.info("Found sender <" + a + ">");
+                }
+                Sender sender = Sender.getSenderByEmail(senderAddr[0].toString());
+                if (sender == null) {
                     sender = new Sender(senderAddr.toString());
                     dbs.addRecord(sender);
                 }
                 MailMessage mmsg = MailMessage.getMessageById(messageId);
-                if(mmsg == null) {
-                    mmsg = new MailMessage();
+                if (mmsg == null) { mmsg = new MailMessage();
                     mmsg.setListId(mllist);
                     mmsg.setMessageId(mm.getMessageID());
                     mmsg.setSender(sender);
@@ -138,14 +154,21 @@ class MailUpdater extends Job {
                     mmsg.setSubject(mm.getSubject());
                     dbs.addRecord(mmsg);
                 }
-            } catch (FileNotFoundException e) {
-                logger.warn(msg + "not found.");
-            } catch (MessagingException me) {
-        	logger.warn(msg + " could not be parsed! - " + me.toString());
-            } catch (DAOException daoe) {
-        	logger.warn(msg + " error - " + daoe.toString());
-            }
-        }
-    }
+			} catch (FileNotFoundException e) {
+				logger.warn(msg + "not found: " + e.getMessage());
+			} catch (MessagingException me) {
+				logger.warn(msg + " could not be parsed! - " + me.toString());
+			} catch (DAOException daoe) {
+				logger.warn(msg + " error - " + daoe.toString());
+			} catch (Exception e) {
+				e.printStackTrace();
+				logger.warn(msg + " error - " + e.getMessage());
+			}
+		}
+	}
 
 }
+
+
+// vi: ai nosi sw=4 ts=4 expandtab
+

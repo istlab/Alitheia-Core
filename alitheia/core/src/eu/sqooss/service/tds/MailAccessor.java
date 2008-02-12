@@ -37,6 +37,7 @@ import java.util.Date;
 import java.util.List;
 
 import java.io.FileNotFoundException;
+import javax.mail.internet.MimeMessage;
 
 public interface MailAccessor extends NamedAccessor {
     /**
@@ -48,6 +49,19 @@ public interface MailAccessor extends NamedAccessor {
         throws IllegalArgumentException,
                FileNotFoundException;
 
+    /**
+     * Retrieves a raw message as a parsed MIME message.
+     * 
+     * @param listId the list the message is in
+     * @param id the message id
+     * @return a parsed MIME message or null if parsing fails
+     * @throws IllegalArgumentException listId or id are null
+     * @throws FileNotFoundException the listId and id are not found
+     */
+    public MimeMessage getMimeMessage( String listId, String id )
+    	throws IllegalArgumentException,
+    	       FileNotFoundException;
+    
     /**
      * Retrieve the list of messages that are stored in the mailing list.
      */

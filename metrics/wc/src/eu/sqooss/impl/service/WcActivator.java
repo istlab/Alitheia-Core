@@ -7,7 +7,7 @@ import org.osgi.framework.ServiceRegistration;
 import eu.sqooss.impl.metrics.wc.WcImplementation;;
 
 
-public class Activator implements BundleActivator {
+public class WcActivator implements BundleActivator {
 
     private ServiceRegistration registration;
 

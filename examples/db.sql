@@ -5,7 +5,7 @@ insert into ALITHEIA.STORED_PROJECT values (
 	'mailto:gousiosg@dmst.aueb.gr', 
 	'file:/dev/null',
 	'https://svn.sqo-oss.eu/',
-	'maildir:examples/mail/SQO-OSS'
+	'maildir:../examples/mail/SQO-OSS'
 	) ;
 
 insert into ALITHEIA.MAILINGLIST values (1,'all',1);

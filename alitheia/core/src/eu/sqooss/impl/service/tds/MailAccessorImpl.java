@@ -42,6 +42,12 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.LinkedList;
+import java.util.Properties;
+
+import javax.mail.Address;
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.internet.MimeMessage;
 
 import eu.sqooss.service.tds.MailAccessor;
 import eu.sqooss.service.logging.Logger;
@@ -118,6 +124,7 @@ public class MailAccessorImpl extends NamedAccessorImpl
         try {
             while ((line = in.readLine()) != null) {
                 s.append(line);
+                s.append("\n");
             }
         } catch (IOException e) {
             // Repurpose, pretend it was not found
@@ -167,7 +174,7 @@ public class MailAccessorImpl extends NamedAccessorImpl
             }
         }
         throw new FileNotFoundException(
-            "Message <" + messageId + "> does not exist.");
+            "Message <" + listDir + ":" + messageId + "> does not exist.");
     }
 
     /**
@@ -209,15 +216,39 @@ public class MailAccessorImpl extends NamedAccessorImpl
         final String id)
         throws FileNotFoundException {
         File listDir = getFolder(listId);
-        for (String s : subdirs) {
-            File msgFile = new File(listDir, s + File.separator + id);
-            if (msgFile.exists()) {
-                return readFile(msgFile);
-            }
+        File msgFile = getMessageFile(listDir,id);
+        if (msgFile.exists()) {
+            String msg = readFile(msgFile);
+            logger.info("Got message body of " + msg.length() + " bytes.");
+            return msg;
         }
         throw new FileNotFoundException("No message <" + id + ">");
     }
 
+    /** {@inheritDoc} */
+    public MimeMessage getMimeMessage(String listId, String id)
+    	throws IllegalArgumentException,
+    	       FileNotFoundException {
+    	if (listId == null) {
+    		throw new IllegalArgumentException("Bad listId");
+    	}
+    	if (id == null ) {
+    		throw new IllegalArgumentException("Bad message Id");
+    	}
+
+    	File listDir = getFolder(listId);
+    	File messageFile = getMessageFile(listDir,id);
+        Session session = Session.getDefaultInstance(new Properties());
+        MimeMessage mm;
+		try {
+			mm = new MimeMessage(session,new java.io.FileInputStream(messageFile));
+		} catch (MessagingException e) {
+			logger.warn("Could not parse message <" + listId + ":" + id +">");
+			return null;
+		}
+
+    	return mm;
+    }
     /** {@inheritDoc} */
     public final List < String > getMessages(final String listId)
         throws FileNotFoundException {
@@ -228,6 +259,7 @@ public class MailAccessorImpl extends NamedAccessorImpl
             File msgFile = new File(listDir, s);
             if (msgFile.exists() && msgFile.isDirectory()) {
                 String[] entries = msgFile.list();
+                logger.info("Found " + entries.length + " entries in sub-folder " + s);
                 for (String e : entries) {
                     l.add(e);
                 }
