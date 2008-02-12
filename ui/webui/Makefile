@@ -21,10 +21,10 @@ install :
 	cp ../../extlibs/org.apache.commons.codec_1.3.0/org.apache.commons.codec-1.3.0.jar $(TOMCAT_LIB) 
 	
 build :
+	rm -rf build/
 	cd tomcat/webapps/ROOT/WEB-INF/classes/eu/sqooss/webui && \
-	javac -Xlint:path -cp ":../../../../lib/eu.sqooss.scl_0.0.1.jar" *\.java && \
-	$(MAKE) install
-	
+	javac -Xlint:path -cp ":../../../../lib/eu.sqooss.scl_0.0.1.jar" *\.java
+
 
 run : build start
 
