@@ -73,6 +73,8 @@ public class ProjectsListView extends ListView {
             setItems(result);
         } catch (WSException wse) {
             error += "<br />Something went wrong getting evaluatedProjectsList() ... :/";
+        } catch (NullPointerException npe) {
+            error += "<br />We didn't connect ...";
         }
     }
 

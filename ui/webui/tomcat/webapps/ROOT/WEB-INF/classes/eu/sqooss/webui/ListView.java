@@ -67,7 +67,11 @@ class ListView {
     }
 
     public String getHtml() {
+        
         StringBuilder html = new StringBuilder("<!-- ListView -->\n<ul>");
+        if (items == null) {
+            return "<b>No results found.</b>";
+        }
         Iterator <ArrayList<WSResultEntry>> itemlist = items.iterator();
         while (itemlist.hasNext()) {
             html.append("\n\t<ul>");
