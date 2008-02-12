@@ -46,18 +46,39 @@ public class ProjectsListView extends ListView {
     String someresult;
 
     public ProjectsListView () {
+        someresult = "|";
         try {
-            session = new WSSession("bla", "foo");
-            someresult = ""+session.getConnection().evaluatedProjectsList().next().get(0).getString();
+            someresult += "start";
+            session = new WSSession("bla", "foo", "http://localhost:8088/sqooss/services/ws");
+            if (session == null) {
+                someresult += "session is NULL";
+            };
+            if (session.getConnection() == null) {
+                someresult += "getConnection() returns NULL ";
+            }
+            if (session.getConnection().evaluatedProjectsList() == null) {
+                someresult += "No evaluated Projects";
+            }
+            if (session.getConnection().evaluatedProjectsList().next() == null) {
+                someresult += "No evaluated Projects NEXT";
+            }
+            if (session.getConnection().evaluatedProjectsList().next().get(0) == null) {
+                someresult += "No evaluated Projects NEXT GET";
+            }
+            if (session.getConnection().evaluatedProjectsList().next().get(0).getString() == null) {
+                someresult += "No evaluated Projects NEXT GET getString";
+            }
+            someresult += "=" + session.getConnection().evaluatedProjectsList().next().get(0).getLong() + "=";
         } catch (WSException wse) {
             //TODO
             wse.printStackTrace();
         }
+        someresult += "|blaafoo";
         retrieveData();
     }
 
     public String giveMeSomeData() {
-        return "Random Crap" + someresult;
+        return "This data comes from the SCL: " + someresult;
     }
 
     public void setCurrentProject ( String project ) {

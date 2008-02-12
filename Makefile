@@ -51,7 +51,7 @@ SUBDIRS= sharedlibs \
 	alitheia \
 	metrics
 ifeq ($(WITH_MAVEN),)
-SUBDIRS+= corba
+#SUBDIRS+= corba
 endif
 
 CLASSPATH=$(shell tools/setcp.sh `pwd`)
