@@ -35,7 +35,6 @@ package eu.sqooss.impl.service.updater;
 
 import java.io.FileNotFoundException;
 
-import java.util.Enumeration;
 import java.util.List;
 
 import javax.mail.Address;
@@ -105,7 +104,7 @@ class MailUpdater extends Job {
         String listId = mllist.getListId();
         DBService dbs = core.getDBService();
         try {
-            messageIds = mailAccessor.getMessages(listId);
+            messageIds = mailAccessor.getNewMessages(listId);
         } catch (FileNotFoundException e) {
             logger.warn("Mailing list <" + listId + "> vanished: " + e.getMessage());
             return;
@@ -150,6 +149,9 @@ class MailUpdater extends Job {
                     mmsg.setSubject(mm.getSubject());
                     dbs.addRecord(mmsg);
                 }
+                if (!mailAccessor.markMessageAsSeen(listId, messageId)) {
+                    logger.warn("Failed to mark message as seen.");
+                }
 			} catch (FileNotFoundException e) {
 				logger.warn(msg + "not found: " + e.getMessage());
 			} catch (MessagingException me) {
@@ -162,9 +164,13 @@ class MailUpdater extends Job {
 			}
 		}
 	}
-
 }
 
+/*
+ * TODO:
+ * - check consistency (regularly?) by examining all messages and all database entries
+ * - prevent multiple update jobs from running at once
+ */
 
 // vi: ai nosi sw=4 ts=4 expandtab
 

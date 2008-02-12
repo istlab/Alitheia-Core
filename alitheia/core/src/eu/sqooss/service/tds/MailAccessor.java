@@ -69,6 +69,13 @@ public interface MailAccessor extends NamedAccessor {
         throws FileNotFoundException;
 
     /**
+     * Retrieves the list of new messages (only new messages) in the
+     * given mailing list.
+     */
+    public List<String> getNewMessages( String listId )
+        throws FileNotFoundException;
+    
+    /**
      * Retrieve the list of messages in the mailing list in the interval
      * [d1,d2). The dates are @em envelope dates, not delivery dates.
      */
@@ -77,14 +84,20 @@ public interface MailAccessor extends NamedAccessor {
                FileNotFoundException;
 
     /**
-     * Get the message sender for the given message.
-     *
-     * TODO return more metadata since we're parsing headers anyway
+     * Mark a message - which must be in the new state - as seen, so that 
+     * it will not be returned by future calls to getNewMessages().
+     * 
+     * @param listId the list where this message lives
+     * @param messageId the message id
+     * @return true if the move was successful
+     * @throws IllegalArgumentException if one of the arguments is null
+     * @throws FileNotFoundException if the message does not exist or
+     *          if the message is not new
      */
-    public String getSender( String listId, String id )
+    public boolean markMessageAsSeen( String listId, String messageId )
         throws IllegalArgumentException,
                FileNotFoundException;
-
+    
     /*
      * The following methods from D5 are not implemented:
      *

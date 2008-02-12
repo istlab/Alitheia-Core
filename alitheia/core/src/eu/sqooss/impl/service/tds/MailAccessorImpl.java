@@ -268,6 +268,24 @@ public class MailAccessorImpl extends NamedAccessorImpl
     }
 
     /** {@inheritDoc} */
+    public final List < String > getNewMessages(final String listId)
+        throws FileNotFoundException {
+    File listDir = getFolder(listId);
+    List < String > l = new LinkedList < String >();
+    String s = "new";
+    File msgFile = new File(listDir, s);
+    if (msgFile.exists() && msgFile.isDirectory()) {
+        String[] entries = msgFile.list();
+        logger.info("Found " + entries.length + " entries in sub-folder " + s);
+        for (String e : entries) {
+            l.add(e);
+        }
+    }
+
+    return l;
+}
+
+    /** {@inheritDoc} */
     public final List < String > getMessages(final String listId,
         final Date d1, final Date d2)
         throws FileNotFoundException {
@@ -304,27 +322,39 @@ public class MailAccessorImpl extends NamedAccessorImpl
         }
         return goodMessages;
     }
-
+    
     /** {@inheritDoc} */
-    public final String getSender(final String listId,
-        final  String id)
-        throws FileNotFoundException {
-        File listDir = getFolder(listId);
-        File msgFile = getMessageFile(listDir, id);
-        try {
-            // From: ought to be very first header
-            String from = scanForHeader(msgFile, "From:", 2);
-            if (from != null) {
-                return from;
-            }
-        } catch (IOException e) {
-            throw new FileNotFoundException(
-                "Message <" + id + "> cannot be read.");
+    public boolean markMessageAsSeen( String listId, String messageId ) 
+        throws IllegalArgumentException,
+                FileNotFoundException {
+        if (listId == null) {
+            throw new IllegalArgumentException("listId is null");
         }
-
-        // This is some kind of lousy joke.
-        throw new FileNotFoundException(
-            "Message <" + id + "> implements wrong mbox headers.");
+        if (messageId == null) {
+            throw new IllegalArgumentException("messageId is null");
+        }
+        
+        File listDir = getFolder(listId);
+        // The message is currently under new/
+        File newDir = new File(listDir,"new");
+        File msgFile = new File(newDir, messageId);
+        // ... and will be moved to cur/
+        File curDir = new File(listDir,"cur");
+        File targetMsgFile = new File(curDir, messageId);
+        
+        if (!msgFile.exists()) {
+            throw new FileNotFoundException("Message is not in new/");
+        }
+        
+        if (!(curDir.exists() && curDir.isDirectory())) {
+            throw new FileNotFoundException("Directory cur/ is missing for list " + listId);
+        }
+        
+        if (targetMsgFile.exists()) {
+            throw new FileNotFoundException("Target filename " + targetMsgFile + " already exists.");
+        }
+        
+        return msgFile.renameTo(targetMsgFile);
     }
 }
 
