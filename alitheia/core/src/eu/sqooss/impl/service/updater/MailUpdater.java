@@ -59,6 +59,7 @@ import eu.sqooss.service.tds.MailAccessor;
 import eu.sqooss.service.tds.TDAccessor;
 
 import eu.sqooss.service.updater.UpdaterException;
+import eu.sqooss.service.updater.UpdaterService;
 
 /**
  * Synchronises raw mails with the database
@@ -69,8 +70,10 @@ class MailUpdater extends Job {
     private StoredProject project;
     private AlitheiaCore core;
     private Logger logger;
+    private UpdaterServiceImpl updater;
 
     public MailUpdater(StoredProject project,
+            UpdaterServiceImpl updater,
                        AlitheiaCore core,
                        Logger logger) throws UpdaterException {
         if (project == null || core == null || logger == null) {
@@ -80,6 +83,7 @@ class MailUpdater extends Job {
         this.core = core;
         this.project = project;
         this.logger = logger;
+        this.updater = updater;
     }
 
     public int priority() {
@@ -97,6 +101,7 @@ class MailUpdater extends Job {
         } catch ( DAOException daoe ) {
             logger.warn(daoe.getMessage());
         }
+        updater.removeUpdater(project.getName(),UpdaterService.UpdateTarget.MAIL);
     }
 
     private void processList(MailAccessor mailAccessor, MailingList mllist) {

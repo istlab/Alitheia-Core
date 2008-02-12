@@ -35,6 +35,11 @@ package eu.sqooss.impl.service.updater;
 
 import java.io.IOException;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -60,6 +65,7 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
     private AlitheiaCore core = null;
     private HttpService httpService = null;
     private BundleContext context;
+    private Map<String,Set<UpdateTarget>> currentJobs = null; 
 
     public UpdaterServiceImpl(BundleContext bc, Logger logger) throws ServletException,
             NamespaceException {
@@ -83,9 +89,76 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
         } else {
             logger.error("Could not load the HTTP service.");
         }
+        
+        currentJobs = new HashMap<String,Set<UpdateTarget>>();
         logger.info("Succesfully started updater service");
     }
 
+    /**
+     * Check if an update of the given type t is running for the given project
+     * name; if t is ALL, check if any update is running.
+     * 
+     * @param projectName project to check for
+     * @param t update type
+     * @return true if such an update is running
+     */
+    private boolean isUpdateRunning(String projectName, UpdateTarget t) {
+        synchronized (currentJobs) {
+            Set<UpdateTarget> s = currentJobs.get(projectName);
+            if (s==null) {
+                // Nothing in progress
+                return false;
+            }
+            if (t==UpdateTarget.ALL) {
+                return !s.isEmpty();
+            }
+            if (s.contains(t)) {
+                return true;
+            }
+            return false;
+        }
+    }
+    
+    /**
+     * Claim an update job of the given type for the project. You may
+     * not claim ALL as a type of update -- use the individual types.
+     * 
+     * @param projectName the project to claim
+     * @param t the type of update that is being claimed
+     * @return true if the claim succeeds
+     */
+    private boolean addUpdate(String projectName, UpdateTarget t) {
+        if (t==UpdateTarget.ALL) {
+            logger.warn("Adding update target ALL is bogus.");
+            return false;
+        }
+        synchronized (currentJobs) {
+            //Duplicate some code from isUpdateRunning
+            Set<UpdateTarget> s = currentJobs.get(projectName);
+            if (s==null) {
+                s = new HashSet<UpdateTarget>(4);
+                currentJobs.put(projectName, s);
+            }
+            if (isUpdateRunning(projectName,t)) {
+                return false;
+            }
+            s.add(t);
+        }
+        return true;
+    }
+    
+    public void removeUpdater(String projectName, UpdateTarget t) {
+        if (t==UpdateTarget.ALL) {
+            logger.warn("Removing update target ALL is bogus.");
+            return;
+        }
+        synchronized (currentJobs) {
+            Set<UpdateTarget> s = currentJobs.get(projectName);
+            if (s!=null) {
+                s.remove(t);
+            }
+        }
+    }
     public boolean update(StoredProject project, UpdateTarget target) {
         if (project == null) {
             logger.info("Bad project name for update.");
@@ -99,10 +172,35 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
             core.getScheduler().startExecute(1);
         }
 
+        Set<UpdateTarget> s = currentJobs.get(project.getName());
+        if ((s==null) || (s.isEmpty())) {
+            logger.info("Update set is empty");
+        } else {
+            String msg = "Update set is: ";
+            for (UpdateTarget u : s) {
+                msg = msg + u.toString();
+            }
+            logger.info(msg);
+        }
+        // Check all the types we need and make claims
+        synchronized(currentJobs) {
+            if (isUpdateRunning(project.getName(),target)) {
+                return false;
+            }
+            if (target==UpdateTarget.ALL) {
+                addUpdate(project.getName(),UpdateTarget.MAIL);
+                addUpdate(project.getName(),UpdateTarget.CODE);
+                // Bugs are suppressed - no job to handle it
+                // addUpdate(project.getName(),UpdateTarget.BUGS);
+            } else {
+                addUpdate(project.getName(),target);
+            }
+        }
+        
         if (target == UpdateTarget.MAIL || target == UpdateTarget.ALL) {
             // mailing list update
             try {
-                MailUpdater mu = new MailUpdater(project, core, logger);
+                MailUpdater mu = new MailUpdater(project, this, core, logger);
                 core.getScheduler().enqueue(mu);
             } catch(SchedulerException e) {
                 logger.error("The Updater failed to update the mailing list " +
@@ -120,7 +218,7 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
         if (target == UpdateTarget.CODE || target == UpdateTarget.ALL) {
             // source code update
             try {
-                SourceUpdater su = new SourceUpdater(project, core, logger);
+                SourceUpdater su = new SourceUpdater(project, this, core, logger);
                 core.getScheduler().enqueue(su);
             } catch (SchedulerException e) {
                 logger.error("The Updater failed to update the repository" +

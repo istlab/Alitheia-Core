@@ -49,6 +49,7 @@ import eu.sqooss.service.tds.ProjectRevision;
 import eu.sqooss.service.tds.SCMAccessor;
 import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.updater.UpdaterException;
+import eu.sqooss.service.updater.UpdaterService;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
@@ -61,20 +62,20 @@ import eu.sqooss.service.scheduler.Scheduler;
  */
 class SourceUpdater extends Job {
 
-    private AlitheiaCore core;
+    private UpdaterServiceImpl updater;
     private StoredProject project;
     private TDSService tds;
     private DBService dbs;
     private Logger logger;
 
-    public SourceUpdater(StoredProject project, AlitheiaCore core, Logger logger) throws UpdaterException {
+    public SourceUpdater(StoredProject project, UpdaterServiceImpl updater, AlitheiaCore core, Logger logger) throws UpdaterException {
         if ((project == null) || (core == null) || (logger == null)) {
             throw new UpdaterException(
                     "The components required by the updater are unavailable.");
         }
 
         this.project = project;
-        this.core = core;
+        this.updater = updater;
         this.logger = logger;
         this.tds = core.getTDSService();
         this.dbs = core.getDBService();
@@ -113,6 +114,7 @@ class SourceUpdater extends Job {
             logger.error(e.getMessage());
             setState(State.Error);
         }
+        updater.removeUpdater(project.getName(),UpdaterService.UpdateTarget.CODE);
     }
 
     private Diff getProjectDiff(ProjectVersion lastVersion, SCMAccessor scm)
