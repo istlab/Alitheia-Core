@@ -43,11 +43,11 @@ public class ServiceUrl extends DAObject{
     // Nothing to do here
     public ServiceUrl(){}
 
-    public void setURL(URL url) {
+    public void setUrl(URL url) {
         this.url = url;
     }
 
-    public URL getURL() {
+    public URL getUrl() {
         return url;
     }
 }
