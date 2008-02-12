@@ -32,8 +32,6 @@
 
 package eu.sqooss.scl;
 
-import java.io.IOException;
-
 import eu.sqooss.scl.result.WSResult;
 
 /**
@@ -47,17 +45,6 @@ public class WSSession {
     private String userName;
     private String password;
 	private WSConnectionWrapper sessionConnectionWrapper;
-    
-	/**
-	 * This constructor reads the web service url from the SCL's configuration file.
-	 * @param userName
-	 * @param password
-	 * @throws WSException 
-	 * @throws IOException if the read operation fails
-	 */
-    public WSSession(String userName, String password) throws WSException {
-        this(userName, password, getWebServiceUrl());
-    }
 
     public WSSession(String userName, String password, String webServiceUrl) throws WSException {
         this.userName = userName;
@@ -120,11 +107,6 @@ public class WSSession {
     public void removeWebServiceListener(String webServiceMethodUrl, WSEventListener listener) {
         //TODO:
         throw new UnsupportedOperationException("Coming soon");
-    }
-    
-    private static String getWebServiceUrl() {
-        //TODO: read the web service url from the configuration file
-        return null;
     }
     
 }
