@@ -12,7 +12,7 @@ $from =~ s/ at /@/;
 while (<STDIN>) {
 	die "Missing From line" unless $from =~ /^From /;
 
-	$headers=$_;
+	$headers="";
 	while(<STDIN>) {
 		last if /^$/;
 		$msgid=$_ if /^Message-ID/;

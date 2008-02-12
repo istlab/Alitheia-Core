@@ -105,7 +105,7 @@ public class MailMessage extends DAObject {
 	DBService dbs = CoreActivator.getDBService();
 
 	List msgList = dbs.doHQL("from MailMessage where MESSAGEID = '" + messageId + "'");
-	if(msgList == null) {
+	if ((msgList == null) || (msgList.size()==0)) {
 	    return null;
 	}
 	if(msgList.size() != 1) {

@@ -44,7 +44,6 @@ import java.util.List;
 import java.util.LinkedList;
 import java.util.Properties;
 
-import javax.mail.Address;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.internet.MimeMessage;

@@ -33,16 +33,13 @@
 
 package eu.sqooss.impl.service.updater;
 
-import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 
 import java.util.Enumeration;
 import java.util.List;
-import java.util.Properties;
 
 import javax.mail.Address;
 import javax.mail.MessagingException;
-import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
 
 import eu.sqooss.core.AlitheiaCore;
@@ -113,8 +110,6 @@ class MailUpdater extends Job {
             return;
         }
 
-        // TODO: not the best way to do it, but it works
-        // still needs to do it with Dates
         for ( String messageId : messageIds ) {
             String msg = String.format("Message <%s> in list <%s> ", messageId, listId);
 
