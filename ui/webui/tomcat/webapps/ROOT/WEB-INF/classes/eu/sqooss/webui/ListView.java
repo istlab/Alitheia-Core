@@ -2,7 +2,8 @@
  * This file is part of the Alitheia system, developed by the SQO-OSS
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  *
- * Copyright 2007 by the SQO-OSS consortium members <info@sqo-oss.eu>
+ * Copyright 2007-2008 by the SQO-OSS consortium members <info@sqo-oss.eu>
+ * Copyright 2007-2008 by Sebastian Kuegler <sebas@kde.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -32,34 +33,56 @@
 
 package eu.sqooss.webui;
 
-import java.util.Vector;
+import java.util.Iterator;
+import java.util.ArrayList;
+import eu.sqooss.scl.WSSession;
+import eu.sqooss.scl.WSException;
+import eu.sqooss.scl.result.WSResult;
+import eu.sqooss.scl.result.WSResultEntry;
 
 class ListView {
 
-    Vector<String> items = new Vector<String>();
+    WSSession session;
+    WSResult items = new WSResult();
+    String error;
 
-    public ListView () {}
+    public ListView () {
+        // Try to connect
+        try {
+            session = new WSSession("bla", "foo", "http://localhost:8088/sqooss/services/ws");
+        } catch (WSException wse) {
+            //TODO
+            wse.printStackTrace();
+        } catch (java.util.NoSuchElementException ex) {
+            error = "<b>[ERROR] No available project were found!</b>";
+        }
+    }
 
-    public void setItems (Vector<String> _items) {
+    public void setItems (WSResult _items) {
         items = _items;
     }
 
-    public Vector<String> getItems () {
+    public WSResult getItems () {
         return items;
     }
 
     public String getHtml() {
         StringBuilder html = new StringBuilder("<!-- ListView -->\n<ul>");
-        for (String item: items) {
-            html = html.append(new String("\n  <li>" + item + "</li>"));
+        Iterator <ArrayList<WSResultEntry>> itemlist = items.iterator();
+        while (itemlist.hasNext()) {
+            html.append("\n\t<ul>");
+            Iterator <WSResultEntry> oneitemlist = itemlist.next().iterator();
+            while (oneitemlist.hasNext()) {
+                html = html.append(new String("\n\t\t<li>" + oneitemlist.next().toString() + "</li>"));
+            }
+            html.append("\n\t</ul>");
         }
         html = html.append("\n</ul>\n");
         return html.toString();
     }
 
     public void retrieveData () {
-        items.addElement(new String("Item 1"));
-        items.addElement(new String("Item 2"));
-        items.addElement(new String("Item 3"));
+        return;
     }
+
 }

@@ -1,8 +1,10 @@
+
 /*
  * This file is part of the Alitheia system, developed by the SQO-OSS
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  *
  * Copyright 2007 by the SQO-OSS consortium members <info@sqo-oss.eu>
+ * Copyright 2007-2008 by Sebastian Kuegler <sebas@kde.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -31,24 +33,34 @@
  */
 
 package eu.sqooss.webui;
-
+// General
 import java.util.Vector;
+
+// SCL
+import eu.sqooss.scl.WSException;
+import eu.sqooss.scl.WSSession;
+import eu.sqooss.scl.result.WSResult;
+
+// Web UI
 import eu.sqooss.webui.ListView;
 
 public class FileListView extends ListView {
 
-    public FileListView () {
+    Long projectId;
+    WSResult result;
+    
+    public FileListView (Long id) {
+        projectId = id;
         retrieveData();
     }
 
     public void retrieveData () {
-        items.addElement(new String("/usr/src/shnizzle-0.1.37/src/pizza.h"));
-        items.addElement(new String("/usr/src/shnizzle-0.1.37/src/pizza.cpp"));
-        items.addElement(new String("/usr/src/shnizzle-0.1.37/src/lasagne.h"));
-        items.addElement(new String("/usr/src/shnizzle-0.1.37/src/lasagne.cpp"));
-        items.addElement(new String("/usr/src/shnizzle-0.1.37/src/CMakeLists.txt"));
-        items.addElement(new String("/usr/src/shnizzle-0.1.37/src/Makefile"));
-        items.addElement(new String("/usr/src/shnizzle-0.1.37/src/COPYING"));
+        try {
+            result = session.getConnection().retrieveFileList(projectId);
+        } catch (WSException wse) {
+            error += "<br />Something went wrong getting the list of files.";
+        }
+        
     }
 
     public Vector<String> filterItems (Vector<String> items) {

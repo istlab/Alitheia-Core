@@ -3,6 +3,7 @@
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  *
  * Copyright 2007 by the SQO-OSS consortium members <info@sqo-oss.eu>
+ * Copyright 2007-2008 by Sebastian Kuegler <sebas@kde.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -38,34 +39,23 @@ import eu.sqooss.webui.ListView;
 
 public class MetricsListView extends ListView {
 
-    String projectId;
+    Long projectId;
 
-    public MetricsListView() {
+    public MetricsListView(Long id) {
+        projectId = id;
         retrieveData();
     };
 
-    public Vector<String> getMetrics() {
-        return items;
-    };
-
-    public void setMetrics( Vector<String> value ) {
-        items = value;
-    };
-
-    public String getProjectId() {
+    public Long getProjectId() {
         return projectId;
     };
 
-    public void setProjectId( String value ) {
+    public void setProjectId(Long value ) {
         projectId = value;
     };
 
     public void retrieveData () {
-        items.addElement(new String("Line count (wc -l)"));
-        items.addElement(new String("Cyclic complexity"));
-        items.addElement(new String("Developer Interaction"));
-        items.addElement(new String("Subversion statistics"));
-        items.addElement(new String("Mailinglist activity"));
+        // TODO: get some data ...
     }
 
 };

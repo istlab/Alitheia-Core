@@ -2,7 +2,8 @@
  * This file is part of the Alitheia system, developed by the SQO-OSS
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  *
- * Copyright 2007 by the SQO-OSS consortium members <info@sqo-oss.eu>
+ * Copyright 2007-2008 by the SQO-OSS consortium members <info@sqo-oss.eu>
+ * Copyright 2007-2008 by Sebastian Kuegler <sebas@kde.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -42,38 +43,10 @@ import eu.sqooss.scl.result.WSResult;
 public class ProjectsListView extends ListView {
 
     String currentProject;
-    WSSession session;
+    WSResult result;
     String someresult;
 
     public ProjectsListView () {
-        try {
-            session = new WSSession("bla", "foo", "http://localhost:8088/sqooss/services/ws");
-            if (session == null) {
-                someresult += "session is NULL";
-            };
-            if (session.getConnection() == null) {
-                someresult += "getConnection() returns NULL ";
-            }
-            if (session.getConnection().evaluatedProjectsList() == null) {
-                someresult += "No evaluated Projects";
-            }
-            if (session.getConnection().evaluatedProjectsList().next() == null) {
-                someresult += "No evaluated Projects NEXT";
-            }
-            if (session.getConnection().evaluatedProjectsList().next().get(0) == null) {
-                someresult += "No evaluated Projects NEXT GET";
-            }
-            if (session.getConnection().evaluatedProjectsList().next().get(0).getString() == null) {
-                someresult += "No evaluated Projects NEXT GET getString";
-            }
-            someresult += "=" + session.getConnection().evaluatedProjectsList().next().get(0).getLong() + "=";
-        } catch (WSException wse) {
-            //TODO
-            wse.printStackTrace();
-        } catch (java.util.NoSuchElementException ex) {
-            someresult = "<b>[ERROR] No available project were found!</b>";
-        }
-
         retrieveData();
     }
 
@@ -95,23 +68,32 @@ public class ProjectsListView extends ListView {
     }
 
     public void retrieveData () {
+        try {
+            result = session.getConnection().evaluatedProjectsList();//.next().get(0).getLong() + "=";
+        } catch (WSException wse) {
+            error += "<br />Something went wrong getting evaluatedProjectsList() ... :/";
+        }
+        /*
         items.addElement(new String("FreeBSD"));
         items.addElement(new String("Apache"));
         items.addElement(new String("KDE"));
         items.addElement(new String("Samba"));
         items.addElement(new String("Nmap"));
         currentProject = "KDE";
+        */
     }
 
     Integer getProjectId (String project) {
         // FIXME: This should not just return the index of a static list :-)
-        int i = 0;
+        /*
+         * int i = 0;
         for (String item: items) {
             if (project.equals(item)) {
                 return i;
             }
             i++;
         }
+        */
         return -1; // Means: not found, maybe an exception here?
     }
 }
