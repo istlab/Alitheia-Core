@@ -207,7 +207,7 @@ public class WebServicesImpl {
      * @see eu.sqooss.service.web.services.WebServices#requestEvaluation4Project(String, String, String, int, String, String, String, String, String)
      */
     public WSStoredProject requestEvaluation4Project(String userName, String password,
-            String projectName, int projectVersion,
+            String projectName, long projectVersion,
             String srcRepositoryLocation, String mailingListLocation,
             String BTSLocation, String userEmailAddress, String website) {
         logger.info("Request evaluation for project! user: " + userName +
@@ -245,10 +245,12 @@ public class WebServicesImpl {
             try {
             dbSession = db.getSession(this);
             transaction = dbSession.beginTransaction();
-            db.addRecord(dbSession, newStoredProject);
+//            db.addRecord(dbSession, newStoredProject);
+            dbSession.save(newStoredProject);
             newStoredProjectId = newStoredProject.getId();
             newProjectVersion.setProject(newStoredProject);
-            db.addRecord(dbSession, newProjectVersion);
+//            db.addRecord(dbSession, newProjectVersion);
+            dbSession.save(newProjectVersion);
             transaction.commit();
             db.returnSession(dbSession);
             } catch (HibernateException he) {

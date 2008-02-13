@@ -159,7 +159,7 @@ public class WebServices {
      * @return the project or old one if exist
      */
     public WSStoredProject requestEvaluation4Project(String userName, String password,
-            String projectName, int projectVersion,
+            String projectName, long projectVersion,
             String srcRepositoryLocation, String mailingListLocation,
             String BTSLocation, String userEmailAddress,String website) {
         return webServices.requestEvaluation4Project(userName, password,

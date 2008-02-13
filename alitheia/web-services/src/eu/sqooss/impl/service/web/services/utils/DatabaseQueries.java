@@ -35,16 +35,6 @@ package eu.sqooss.impl.service.web.services.utils;
 public class DatabaseQueries {
     
     //5.1.1
-    /* Quick fix - Evgeni will fix all og those afterwards
-    public static final String EVALUATED_PROJECTS_LIST = "select sp, pv " +
-                                                         "from StoredProject sp, ProjectVersion pv, Measurement measurement, Metric metric, Plugin plugin " +
-                                                         "where sp.id=pv.project " +
-                                                         " and pv.id=measurement.projectVersion " +
-                                                         " and metric.id=measurement.metric " +
-                                                         " and metric.id=plugin.metric " +
-                                                         "order by sp.id asc";
-    */
-
     public static final String EVALUATED_PROJECTS_LIST = "select sp, pv " +
                                                          "from StoredProject sp, ProjectVersion pv, Measurement measurement " +
                                                          "where sp.id=pv.project " +
@@ -58,7 +48,7 @@ public class DatabaseQueries {
                                                                       "where pv.id=measurement.projectVersion " +
                                                                       " and metric.id=measurement.metric " +
                                                                       " and metricType.id=metric.metricType " +
-                                                                      " and pv.project=:" +
+                                                                      " and pv.project.id=:" +
                                                                       RETRIEVE_METRICS_4_SELECTED_PROJECT_PARAM;
  
     public static final String RETRIEVE_SELECTED_METRIC_PARAM_PR = "project_id";
@@ -83,7 +73,7 @@ public class DatabaseQueries {
                                                     "from ProjectVersion pv, ProjectFile pf, FileMetadata fm " +
                                                     "where fm.projectFile=pf.id " +
                                                     " and pf.projectVersion=pv.id " +
-                                                    " and pv.project=:" +
+                                                    " and pv.project.id=:" +
                                                     RETRIEVE_FILE_LIST_PARAM;
     
     public static final String RETRIEVE_METRICS_4_SELECTED_FILES_PARAM_LIST = "list_of_filenames";
@@ -96,10 +86,10 @@ public class DatabaseQueries {
                                                                    "where pv.id=pf.projectVersion " +
                                                                    " and pv.id=measurement.projectVersion " +
                                                                    " and metric.id=measurement.metric " +
-                                                                   " and metricType.id=metric.id " +
+                                                                   " and metricType.id=metric.metricType " +
                                                                    " and pf.name in (:" +
                                                                    RETRIEVE_METRICS_4_SELECTED_FILES_PARAM_LIST + ") " +
-                                                                   " and pv.project=:" +
+                                                                   " and pv.project.id=:" +
                                                                    RETRIEVE_METRICS_4_SELECTED_FILES_PARAM_PR;
                                                                    
     
@@ -109,7 +99,7 @@ public class DatabaseQueries {
                                                                         "from ProjectFile pf, ProjectVersion pv " +
                                                                         "where pf.name like :" +
                                                                         RETRIEVE_METRICS_4_SELECTED_FILES_DIRS_PARAM + " " +
-                                                                        " and pv.project=:" +
+                                                                        " and pv.project.id=:" +
                                                                         RETRIEVE_METRICS_4_SELECTED_FILES_PARAM_PR;
                                                                         
     
