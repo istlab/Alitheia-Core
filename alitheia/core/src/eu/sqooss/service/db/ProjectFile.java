@@ -45,6 +45,10 @@ public class ProjectFile extends DAObject{
         // Nothing to see here
     }
 
+    public ProjectFile(ProjectVersion pv) {
+        this.projectVersion = pv;
+    }
+
     public void setName(String name) {
         this.name = name;
     }

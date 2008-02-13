@@ -42,6 +42,7 @@ import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
+import eu.sqooss.service.db.Tag;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.tds.CommitEntry;
@@ -49,6 +50,7 @@ import eu.sqooss.service.tds.CommitLog;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
 import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.ProjectRevision;
+import eu.sqooss.service.tds.PathChangeType;
 import eu.sqooss.service.tds.SCMAccessor;
 import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.updater.UpdaterException;
@@ -106,6 +108,15 @@ class SourceUpdater extends Job {
                 s.save(curVersion);
                 
                 for(String chPath: entry.getChangedPaths()) {
+                    
+                    if(isTag(entry, chPath)) {
+                        logger.info("SVN Tag revision: " + entry.getRevision().getSVNRevision());
+                        Tag t = curVersion.addTag();
+                        t.setName(chPath.substring(5));
+                        s.save(t);
+                        break;
+                    }
+                    
                     ProjectFile pf = curVersion.addProjectFile();
                     pf.setName(chPath);
                     pf.setStatus(entry.getChangedPathsStatus().get(chPath).toString());
@@ -140,6 +151,39 @@ class SourceUpdater extends Job {
         
         dbs.returnSession(s);
         updater.removeUpdater(project.getName(),UpdaterService.UpdateTarget.CODE);
+    }
+    
+    /**
+     * Tell tags from regular commits (heuristic based)
+     * 
+     * @param entry
+     * @param path
+     * @return True if <tt>entry</tt> represents a tag  
+     */
+    private boolean isTag(CommitEntry entry, String path) {
+        if(!path.startsWith("/tags"))
+            return false;
+        
+        /* Prevent commits that create the tags/ directory
+         * from being classified as tags
+         */
+        if(path.length() <= 5)
+            return false;
+        
+        /* Tags can only be added (for the time being at least)
+         */
+        if(entry.getChangedPathsStatus().get(path) != PathChangeType.ADDED)
+            return false;
+        
+        /* If a path is not the prefix for all changed files 
+         * in a commit, then it is a leaf node (and therefore 
+         * not a tag)
+         */
+        for(String chPath: entry.getChangedPaths()) 
+            if(!chPath.startsWith(path))
+                return false;
+        
+        return true;
     }
 }
 

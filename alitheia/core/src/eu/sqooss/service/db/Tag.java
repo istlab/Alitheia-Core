@@ -43,6 +43,10 @@ public class Tag extends DAObject {
         // Nothing to do
     }
 
+    public Tag(ProjectVersion pv) {
+        this.pv = pv;
+    }
+    
     public ProjectVersion getPv() {
         return pv;
     }

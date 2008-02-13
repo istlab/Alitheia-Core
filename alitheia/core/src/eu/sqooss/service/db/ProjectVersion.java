@@ -67,9 +67,11 @@ public class ProjectVersion extends DAObject {
     }
     
     public ProjectFile addProjectFile() {
-        ProjectFile f = new ProjectFile();
-        f.setProjectVersion(this);
-        return f;
+        return new ProjectFile(this);
+    }
+    
+    public Tag addTag() {
+        return new Tag(this);
     }
 }
 

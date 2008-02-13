@@ -33,7 +33,7 @@
 #		  Only useful if you are using Derby, which is the fallback
 #		  when Postgres can't be found.
 # show-db-tables - shows the generated database tables. Also Derby-only.
-# fill-db-tables - install canned data
+# fill-derby     - install canned data to the derby test database
 # clean-db-tables - clear the database using delete statements; this keeps
 #		    the structure (unlike clean-db).
 #
@@ -191,6 +191,8 @@ clean-db-tables :
 	( echo "delete from alitheia.mailmessage;" ; \
  	echo "delete from alitheia.sender;" ; \
 	echo "delete from alitheia.mailinglist;" ; \
+	echo "delete from alitheia.project_file; " ; \
+	echo "delete from alitheia.project_version; " ; \
 	echo "delete from alitheia.stored_project;" ; \
 	echo "delete from alitheia.users;" ) | $(RUN_DERBY_IJ)
 
