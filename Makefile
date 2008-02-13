@@ -184,8 +184,8 @@ show-db :
 show-db-tables :
 	echo "show tables;" | $(RUN_DERBY_IJ) | grep '^ALITHEIA'
 
-fill-db-tables :
-	cat examples/db.sql | $(RUN_DERBY_IJ) 
+fill-derby :
+	cat examples/db-derby.sql | $(RUN_DERBY_IJ) 
 
 clean-db-tables :
 	( echo "delete from alitheia.mailmessage;" ; \
