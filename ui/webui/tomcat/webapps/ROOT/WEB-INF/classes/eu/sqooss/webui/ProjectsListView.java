@@ -42,15 +42,14 @@ import eu.sqooss.scl.result.WSResult;
 
 public class ProjectsListView extends ListView {
 
-    String currentProject;
+    Project currentProject;
     WSResult result;
-    Long projectId;
 
     public ProjectsListView () {
         retrieveData();
     }
 
-    public void setCurrentProject ( String project ) {
+    public void setCurrentProject (Project project ) {
         currentProject = project;
     }
 
