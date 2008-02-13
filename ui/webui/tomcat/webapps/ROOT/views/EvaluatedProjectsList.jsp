@@ -8,7 +8,8 @@ if (projects == null) {
 } else {
     out.println(projects);
     out.println("<p />Currently selected:");
-    String selected_project = ProjectsListView.getCurrentProject();
+    //String selected_project = ProjectsListView.getCurrentProject().getName(); // FIXME: throws error
+    String selected_project = null;
     if (selected_project == null) {
         out.println(error("No project selected."));
     } else {

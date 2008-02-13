@@ -2,12 +2,14 @@
 /*
     This file defines variables and defaults for the webui.
     It should be included in every JSP page, at the top.
+    
+    FIXME: needs porting
 */
 
 String title = "Alitheia";
 String msg = "";
 %>
-<jsp:useBean id="user" class="eu.sqooss.webui.User" scope="session"/>
+<jsp:useBean id="user" class="eu.sqooss.webui.Users" scope="session"/>
 <jsp:setProperty name="user" property="*"/>
 <%
 
@@ -16,17 +18,17 @@ boolean loggedIn = false;
 String errorMsg = "";
 
 if (user.isLoggedIn(null)) {
-    msg = "Signed in as " + user.getCurrentUser() + ".";
+    msg = "Signed in as " + user.getCurrentUsers() + ".";
     msg = msg + " <a href=\"/logout.jsp\">sign out</a>";
     loggedIn = true;
 } else if ( (username!=null) && username.length() > 0 ) {
     boolean username_is_valid = false;
-    Integer uid = user.getUserId(username);
+    Integer uid = user.getUsersId(username);
     if (uid > 0) {
-        user.setCurrentUserId(uid);
+        user.setCurrentUsersId(uid);
         if (user.isLoggedIn(null)) {
             msg = "<div class=\"green\">You are now signed in as ";
-            msg = msg + user.getCurrentUser() + ".";
+            msg = msg + user.getCurrentUsers() + ".";
             msg = msg + " <a href=\"/logout.jsp\">Sign out</a></div>";
             loggedIn = true;
         } else {
