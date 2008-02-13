@@ -140,7 +140,9 @@ public class StoredProject extends DAObject {
         StoredProject project = null;
         DBService dbs = CoreActivator.getDBService();
 
-        List prList = dbs.doHQL("from StoredProject where PROJECT_NAME = '" + name + "'");
+        Map<String,Object> parameterMap = new HashMap<String,Object>();
+        parameterMap.put("name",name);
+        List prList = dbs.doHQL("from StoredProject where PROJECT_NAME=:name",parameterMap);
         if ((prList == null) || (prList.size() != 1)) {
             logger.error("The requested project was not found");
             return null;
