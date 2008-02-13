@@ -6,7 +6,7 @@ String projects = ProjectsListView.getHtml();
 if (projects == null) {
     out.println(error("No projects found. Bummer."));
 } else {
-    out.println(ProjectsListView.getHtml());
+    out.println(projects);
     out.println("<p />Currently selected:");
     String selected_project = ProjectsListView.getCurrentProject();
     if (selected_project == null) {

@@ -67,14 +67,22 @@ class ListView {
     }
 
     public String getHtml() {
+        StringBuilder html = new StringBuilder("<!-- ListView -->\n<ul>");
         if (items == null) {
             return null;
+        } else {
+            html.append("<h2>Found " + items.getRowCount() + " projects ...</h2>");
         }
-        StringBuilder html = new StringBuilder("<!-- ListView -->\n<ul>");
         Iterator <ArrayList<WSResultEntry>> itemlist = items.iterator();
+        if (!itemlist.hasNext()) {
+            html.append("No project records found.");
+        }
         while (itemlist.hasNext()) {
             html.append("\n\t<ul>");
             Iterator <WSResultEntry> oneitemlist = itemlist.next().iterator();
+            if (!oneitemlist.hasNext()) {
+                html.append("No items in this project.");
+            }
             while (oneitemlist.hasNext()) {
                 html = html.append(new String("\n\t\t<li>" + oneitemlist.next().toString() + "</li>"));
             }
