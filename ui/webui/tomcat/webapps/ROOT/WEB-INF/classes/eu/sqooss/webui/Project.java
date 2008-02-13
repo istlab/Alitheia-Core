@@ -54,7 +54,7 @@ class Project {
      */
     public Project (ArrayList data) {
         try {
-            id = Long.parseLong(data.get(0).toString().trim());
+            id = Long.parseLong(data.get(0).toString().trim()); // Urgh?
         } catch (NumberFormatException nfe) {
             System.out.println("NumberFormatException: " + nfe.getMessage());
         }

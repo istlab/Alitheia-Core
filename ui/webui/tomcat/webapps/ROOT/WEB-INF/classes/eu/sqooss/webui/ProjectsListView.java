@@ -80,9 +80,4 @@ public class ProjectsListView extends ListView {
             error += "<br />We didn't connect ...";
         }
     }
-
-    Integer getProjectId (String project) {
-        // FIXME: This should not just return the index of a static list :-)
-        return -1; // Means: not found, maybe an exception here?
-    }
 }
