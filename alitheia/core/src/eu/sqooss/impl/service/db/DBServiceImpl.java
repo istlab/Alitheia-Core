@@ -56,14 +56,6 @@ import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.logging.Logger;
 
-/**
- * @author Romain
- *
- */
-/**
- * @author Romain
- *
- */
 public class DBServiceImpl implements DBService {
 
     /* Those two should be runtime configuration options */
