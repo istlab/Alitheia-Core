@@ -36,6 +36,7 @@ import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -54,6 +55,7 @@ import org.osgi.framework.BundleContext;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Plugin;
+import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
 
 public class DBServiceImpl implements DBService {
@@ -273,17 +275,32 @@ public class DBServiceImpl implements DBService {
     /* (non-Javadoc)
      * @see eu.sqooss.service.db.DBService#findObjectById(org.hibernate.Session, java.lang.Class, long)
      */
-    public <T extends DAObject> T findObjectById(Session s, Class<T> daoClass, long id) {
-    	// TODO: implement
-    	throw new RuntimeException("Not implemented yet");
+    @SuppressWarnings("unchecked")
+	public <T extends DAObject> T findObjectById(Session s, Class<T> daoClass, long id) {
+    	return (T) s.get(daoClass, id);
     }
     
 	/* (non-Javadoc)
 	 * @see eu.sqooss.service.db.DBService#findObjectByProperties(org.hibernate.Session, java.lang.Class, java.util.Map)
 	 */
+	@SuppressWarnings("unchecked")
 	public <T extends DAObject> List<T> findObjectByProperties(Session s, Class<T> daoClass, Map<String,Object> properties ) {
-    	// TODO: implement
-    	throw new RuntimeException("Not implemented yet");
+		
+		if ( !DAObject.class.isAssignableFrom(daoClass) ) {
+			// throw an exception instead ?
+			return new ArrayList<T>(0);
+		}
+		
+		// TODO maybe check that the properties are valid (e.g. with java.bean.PropertyDescriptor)
+		
+		Map<String,Object> parameterMap = new HashMap<String,Object>();
+		StringBuffer whereClause = new StringBuffer();
+		for (String key : properties.keySet()) {
+			whereClause.append( whereClause.length() == 0 ? " where " : " and " );
+			whereClause.append( daoClass.getName() + "." + key + "=:_" + key );
+			parameterMap.put( "_" + key, properties.get(key) );
+		}
+        return (List<T>) doHQL( s, "from " + daoClass.getName() + whereClause, parameterMap );
     }
 
     public boolean addRecord(DAObject record) {
