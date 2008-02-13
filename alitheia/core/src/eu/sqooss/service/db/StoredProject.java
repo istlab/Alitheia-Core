@@ -174,19 +174,14 @@ public class StoredProject extends DAObject {
         for (Object o : pvList) {
             if (o instanceof ProjectVersion) {
                 ProjectVersion op = (ProjectVersion)o;
-                logger.info("Found version " + op.getVersion());
+                logger.info("Found last project version " + op.getVersion());
             }
         }
-        if ((pvList == null) || (pvList.size() != 1)) {
-            logger.warn("The last stored version of the project could not be retrieved");
-            lastVersion = new ProjectVersion();
-            lastVersion.setProject(project);
-            lastVersion.setVersion(0);
+        if (pvList.size() > 1) {
+            logger.warn("Found " + pvList.size() + " 'last' versions. Using the first one.");
         }
-        else
-        {
-            lastVersion = (ProjectVersion) pvList.get(0);
-        }
+        
+        lastVersion = (ProjectVersion) pvList.get(0);
         return lastVersion;
     }
 
