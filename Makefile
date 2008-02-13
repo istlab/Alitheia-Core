@@ -191,7 +191,8 @@ clean-db-tables :
 	( echo "delete from alitheia.mailmessage;" ; \
  	echo "delete from alitheia.sender;" ; \
 	echo "delete from alitheia.mailinglist;" ; \
-	echo "delete from alitheia.stored_project;" ) | $(RUN_DERBY_IJ)
+	echo "delete from alitheia.stored_project;" ; \
+	echo "delete from alitheia.users;" ) | $(RUN_DERBY_IJ)
 
 ECLIPSEDIR=$(TOP_SRCDIR)/../branches/eclipse
 
