@@ -59,8 +59,8 @@ class File {
         name = data.get(0).toString();
         status = data.get(1).toString();
         protection = data.get(2).toString();
-        links = Integer.parseInt(data.get(3).toString()); // Does this work?
-        userId = Long.parseLong(data.get(4).toString()); // Does this work? :>
+        links = Integer.parseInt(data.get(3).toString());
+        userId = Long.parseLong(data.get(4).toString());
         groupId = Long.parseLong(data.get(5).toString());
         accessTime = Long.parseLong(data.get(6).toString());
         modificationTime = Long.parseLong(data.get(7).toString());
