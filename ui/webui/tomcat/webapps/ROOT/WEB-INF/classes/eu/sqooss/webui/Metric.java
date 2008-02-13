@@ -33,51 +33,48 @@
 
 package eu.sqooss.webui;
 
-
-import eu.sqooss.webui.ListView;
-import eu.sqooss.scl.WSException;
-import eu.sqooss.scl.WSSession;
-import eu.sqooss.scl.result.WSResult;
+import java.util.ArrayList;
 
 
-public class ProjectsListView extends ListView {
+class Metric {
 
-    String currentProject;
-    WSResult result;
-    Long projectId;
+    Long id;
+    String type;
+    String description;
 
-    public ProjectsListView () {
-        retrieveData();
-    }
-
-    public void setCurrentProject ( String project ) {
-        currentProject = project;
-    }
-
-    public String getCurrentProject () {
-        String pid = String.valueOf(projectId);
-        if (currentProject != null) {
-            return currentProject + " (" + pid + ")";
-        }
-        return null;
-    }
-
-    public Long getCurrentProjectId() {
-        return projectId;
-    }
-
-    public void setCurrentProjectId(Long id) {
-        projectId = id;
-    }
-
-    public void retrieveData () {
+    /** Parses an ArrayList of WSResult and offers convenience methods to get data
+     *  out of it.
+     * 
+     * @param data The ArrayList for one metric
+     * 
+     */
+    public Metric (ArrayList data) {
         try {
-            result = session.getConnection().evaluatedProjectsList();//.next().get(0).getLong() + "=";
-            setItems(result);
-        } catch (WSException wse) {
-            error += "<br />Something went wrong getting evaluatedProjectsList() ... :/";
-        } catch (NullPointerException npe) {
-            error += "<br />We didn't connect ...";
+            id = Long.parseLong(data.get(0).toString().trim()); // Urgh?
+        } catch (NumberFormatException nfe) {
+            System.out.println("NumberFormatException: " + nfe.getMessage());
         }
+        description = data.get(1).toString();
+        type = data.get(2).toString();
+    }
+
+    public String getType () {
+        return type;
+    }
+
+    public Long getId () {
+        return id;
+    }
+
+    public String getDescription () {
+        return description;
+    }
+
+    public String getHtml() {
+        StringBuilder html = new StringBuilder("<!-- Metric -->");
+        html.append("<h3>Metric: " + getId() + "</h3>");
+        html.append("<br />Type: " + getType());
+        html.append("<br />Description: " + getDescription());
+        return html.toString();
     }
 }
