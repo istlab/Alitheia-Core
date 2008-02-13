@@ -33,21 +33,19 @@
 
 package eu.sqooss.impl.service.updater;
 
-import java.util.Date;
-
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.tds.CommitEntry;
 import eu.sqooss.service.tds.CommitLog;
-import eu.sqooss.service.tds.Diff;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
 import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.ProjectRevision;
@@ -56,10 +54,6 @@ import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.updater.UpdaterException;
 import eu.sqooss.service.updater.UpdaterService;
 
-/**
- *
- * @author Kostas Stroggylos
- */
 class SourceUpdater extends Job {
 
     private UpdaterServiceImpl updater;
@@ -110,6 +104,14 @@ class SourceUpdater extends Job {
                 // Assertion: this value is the same as lastSCMVersion
                 curVersion.setVersion(entry.getRevision().getSVNRevision());
                 s.save(curVersion);
+                
+                for(String chPath: entry.getChangedPaths()) {
+                    ProjectFile pf = curVersion.addProjectFile();
+                    pf.setName(chPath);
+                    pf.setStatus(entry.getChangedPathsStatus().get(chPath).toString());
+                    logger.info("Saving path: " + chPath);
+                    s.save(pf);
+                }
             }
             
             s.getTransaction().commit();
@@ -131,27 +133,13 @@ class SourceUpdater extends Job {
                     ex.printStackTrace();
                 }
                 logger.error("Failed to commit updates to the database: "
-                        + e.getMessage());
+                        + e.getMessage() + " Transaction rollbacked");
             }
             setState(State.Error);
         }
         
         dbs.returnSession(s);
         updater.removeUpdater(project.getName(),UpdaterService.UpdateTarget.CODE);
-    }
-
-    private Diff getProjectDiff(ProjectVersion lastVersion, SCMAccessor scm)
-            throws UpdaterException {
-        Diff diff = null;
-        try {
-            diff = scm.getDiff("/", new ProjectRevision(lastVersion
-                    .getVersion()), new ProjectRevision(new Date()));
-        } catch (Exception ex) {
-            throw new UpdaterException(
-                    "Updater failed to retrieve the diff for the project "
-                            + project.getName() + ":\n" + ex.getMessage());
-        }
-        return diff;
     }
 }
 

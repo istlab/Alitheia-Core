@@ -65,6 +65,12 @@ public class ProjectVersion extends DAObject {
         //TODO: implement
         return null;
     }
+    
+    public ProjectFile addProjectFile() {
+        ProjectFile f = new ProjectFile();
+        f.setProjectVersion(this);
+        return f;
+    }
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
