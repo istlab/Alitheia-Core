@@ -207,7 +207,7 @@ class WSConnectionImpl implements WSConnection {
     /**
      * @see eu.sqooss.scl.WSConnection#requestEvaluation4Project(java.lang.String, int, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)
      */
-    public WSResult requestEvaluation4Project(String projectName, int projectVersion,
+    public WSResult requestEvaluation4Project(String projectName, long projectVersion,
             String srcRepositoryLocation, String mailingListLocation,
             String BTSLocation, String userEmailAddress, String website) throws WSException {
         RequestEvaluation4ProjectResponse response;

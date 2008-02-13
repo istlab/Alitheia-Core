@@ -179,7 +179,7 @@ public interface WSConnection {
      *  <li>if web services service throws a exception</li>
      * <ul>
      */
-    public WSResult requestEvaluation4Project(String projectName, int projectVersion,
+    public WSResult requestEvaluation4Project(String projectName, long projectVersion,
             String srcRepositoryLocation, String mailingListLocation,
             String BTSLocation, String userEmailAddress, String website) throws WSException;
     //5.1.3

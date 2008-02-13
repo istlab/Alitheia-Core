@@ -143,14 +143,14 @@ implements org.apache.axis2.databinding.ADBBean{
      * field for ProjectVersion
      */
 
-    protected int localProjectVersion ;
+    protected long localProjectVersion ;
 
 
     /**
      * Auto generated getter method
      * @return int
      */
-    public  int getProjectVersion(){
+    public  long getProjectVersion(){
         return localProjectVersion;
     }
 
@@ -160,7 +160,7 @@ implements org.apache.axis2.databinding.ADBBean{
      * Auto generated setter method
      * @param param ProjectVersion
      */
-    public void setProjectVersion(int param){
+    public void setProjectVersion(long param){
 
         this.localProjectVersion=param;
 
