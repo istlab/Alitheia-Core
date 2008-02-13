@@ -36,19 +36,19 @@ package eu.sqooss.webui;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class User {
+public class Users {
 
     //java.util.Dictionary allUsers;
     Map<Integer,String> allUsers;
-    Integer currentUserId;
-    String currentUser;
+    Integer currentUsersId;
+    String currentUsers;
 
     /* Sets some sample data
      * This has to go, the user data will
      * be retrieved from the database at
      * some point in the near future.
      */
-    public User () {
+    public Users () {
         allUsers = new TreeMap<Integer,String>();
         // Sample data
         allUsers.put(new Integer(0), "nobody");
@@ -56,30 +56,30 @@ public class User {
         allUsers.put(new Integer(2), "padams");
         allUsers.put(new Integer(3), "adridg");
         allUsers.put(new Integer(4), "sebas");
-        currentUserId = new Integer(0);
+        currentUsersId = new Integer(0);
     }
 
-    public Integer getCurrentUserId () {
-        return currentUserId;
+    public Integer getCurrentUsersId () {
+        return currentUsersId;
     }
 
-    public void setCurrentUserId ( Integer userId ) {
-        currentUserId = userId;
+    public void setCurrentUsersId ( Integer userId ) {
+        currentUsersId = userId;
     }
 
-    public String getCurrentUser () {
-        return getUser(currentUserId);
+    public String getCurrentUsers () {
+        return getUsers(currentUsersId);
     }
 
-    public void setCurrentUser( String user) {
-        currentUser = user;
+    public void setCurrentUsers( String user) {
+        currentUsers = user;
     }
 
-    public String getUser (Integer id) {
+    public String getUsers (Integer id) {
         return allUsers.get(id);
     }
 
-    public Integer getUserId (String user) {
+    public Integer getUsersId (String user) {
         int i = 0;
         for (String u: allUsers.values()) {
             if (user.equals(u)) {
@@ -106,7 +106,7 @@ public class User {
 
     public boolean isLoggedIn( Integer userId ) {
         if (userId == null) {
-            userId = getCurrentUserId();
+            userId = getCurrentUsersId();
         }
         // Fear this magic, all users with a high
         // user id are automatically logged in
@@ -117,6 +117,6 @@ public class User {
     }
 
     public void logout() {
-        setCurrentUserId(0);
+        setCurrentUsersId(0);
     }
 }
