@@ -33,28 +33,28 @@
 
 package eu.sqooss.impl.service.updater;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 
 import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.ProjectVersion;
+import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.tds.CommitEntry;
 import eu.sqooss.service.tds.CommitLog;
 import eu.sqooss.service.tds.Diff;
-import eu.sqooss.service.tds.PathChangeType;
+import eu.sqooss.service.tds.InvalidProjectRevisionException;
+import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.ProjectRevision;
 import eu.sqooss.service.tds.SCMAccessor;
 import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.updater.UpdaterException;
 import eu.sqooss.service.updater.UpdaterService;
-import eu.sqooss.service.db.DBService;
-import eu.sqooss.service.db.ProjectVersion;
-import eu.sqooss.service.db.StoredProject;
-import eu.sqooss.service.scheduler.Job;
-import eu.sqooss.service.scheduler.Scheduler;
 
 /**
  *
@@ -87,7 +87,9 @@ class SourceUpdater extends Job {
 
     protected void run() {
         logger.info("Running source update for project " + project.getName());
-
+        Session s = dbs.getSession(this);
+        Transaction tx = s.beginTransaction();
+        
         try {
             // This is the last version we actually know about
             ProjectVersion lastVersion = StoredProject.getLastProjectVersion(project, logger);
@@ -96,24 +98,45 @@ class SourceUpdater extends Job {
             CommitLog commitLog = scm.getCommitLog(
                     new ProjectRevision(lastVersion.getVersion()),
                     new ProjectRevision(lastSCMVersion));
-
-            ProjectVersion curVersion = new ProjectVersion();
-            curVersion.setProject(project);
-            // Assertion: this value is the same as lastSCMVersion
-            curVersion.setVersion((int)commitLog.last().getSVNRevision());
-            //TODO: switch ProjectVersion.version to long
-            dbs.addRecord(curVersion);
-
+            
             for (CommitEntry entry : commitLog) {
                 //handle changes that have occurred on each individual commit
                 // and create the necessary jobs for storing information
                 //related to updated files
                 logger.info(entry.toString());
+                
+                ProjectVersion curVersion = new ProjectVersion();
+                curVersion.setProject(project);
+                // Assertion: this value is the same as lastSCMVersion
+                curVersion.setVersion(entry.getRevision().getSVNRevision());
+                s.save(curVersion);
             }
-        } catch (Exception e) {
-            logger.error(e.getMessage());
+            
+            s.getTransaction().commit();
+            
+        } catch (InvalidRepositoryException e) {
+            logger.error("Not such repository:" + e.getMessage());
+            setState(State.Error);
+        } catch (InvalidProjectRevisionException e) {
+            logger.error("Not such repository revision:" + e.getMessage());
+            setState(State.Error);
+        } catch (HibernateException e) {
+            if (tx != null) {
+                try {
+                    tx.rollback();
+                } catch (HibernateException ex) {
+                    logger.error("Error while rolling back failed transaction"
+                            + ". DB may be left in inconsistent state:"
+                            + ex.getMessage());
+                    ex.printStackTrace();
+                }
+                logger.error("Failed to commit updates to the database: "
+                        + e.getMessage());
+            }
             setState(State.Error);
         }
+        
+        dbs.returnSession(s);
         updater.removeUpdater(project.getName(),UpdaterService.UpdateTarget.CODE);
     }
 
