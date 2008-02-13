@@ -4,7 +4,7 @@
         "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-  <class name="eu.sqooss.service.db.Group" table="GROUP">
+  <class name="eu.sqooss.service.db.Group" table="GROUPS">
     <id name="id" column="GROUP_ID">
       <generator class="native" />
     </id>
