@@ -56,6 +56,14 @@ import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.logging.Logger;
 
+/**
+ * @author Romain
+ *
+ */
+/**
+ * @author Romain
+ *
+ */
 public class DBServiceImpl implements DBService {
 
     /* Those two should be runtime configuration options */
@@ -268,6 +276,22 @@ public class DBServiceImpl implements DBService {
             logger.error("Hibernate will not be initialized.");
             // TODO: Throw something to prevent the bundle from being started?
         }
+    }
+
+    /* (non-Javadoc)
+     * @see eu.sqooss.service.db.DBService#findObjectById(org.hibernate.Session, java.lang.Class, long)
+     */
+    public <T extends DAObject> T findObjectById(Session s, Class<T> daoClass, long id) {
+    	// TODO: implement
+    	throw new RuntimeException("Not implemented yet");
+    }
+    
+	/* (non-Javadoc)
+	 * @see eu.sqooss.service.db.DBService#findObjectByProperties(org.hibernate.Session, java.lang.Class, java.util.Map)
+	 */
+	public <T extends DAObject> List<T> findObjectByProperties(Session s, Class<T> daoClass, Map<String,Object> properties ) {
+    	// TODO: implement
+    	throw new RuntimeException("Not implemented yet");
     }
 
     public boolean addRecord(DAObject record) {

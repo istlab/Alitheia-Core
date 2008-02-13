@@ -43,6 +43,26 @@ import org.hibernate.Session;
 
 public interface DBService {
     /**
+     * A generic query method to retrieve a single DAObject subclass using its identifier.
+     * The return value is parameterized to the actual type of DAObject queried so no downcast is needed.
+     * @param s the session to use for this transaction
+     * @param daoClass the actual class of the DAObject. 
+     * @param id the DAObject's identifier
+     * @return the DAOObject if a match for the class and the identifier was found in the database, or null otherwise
+     */
+    public <T extends DAObject> T findObjectById(Session s, Class<T> daoClass, long id);
+    
+    /**
+     * A generic query method to retrieve a list of DAObjects of a same subclass matching a set of properties.
+     * The return value is parameterized to the actual type of DAObject queried so no downcast is needed.
+     * @param s the session to use for this transaction
+     * @param daoClass the actual class of the DAObjects.
+     * @param properties a map of property name/value pairs
+     * @return a list of DAObjects matching the class and the set of properties, possibly empty if no match was found in the database
+     */
+    public <T extends DAObject> List<T> findObjectByProperties(Session s, Class<T> daoClass, Map<String,Object> properties );
+
+    /**
      * Add a new record to the system database; this should initialize any
      * tables that are needed for storage of project information.
      * 
