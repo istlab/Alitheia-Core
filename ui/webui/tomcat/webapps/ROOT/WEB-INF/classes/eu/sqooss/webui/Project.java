@@ -33,64 +33,64 @@
 
 package eu.sqooss.webui;
 
-import java.util.Iterator;
 import java.util.ArrayList;
-import eu.sqooss.scl.WSSession;
-import eu.sqooss.scl.WSException;
-import eu.sqooss.scl.result.WSResult;
-import eu.sqooss.scl.result.WSResultEntry;
 
-class ListView {
 
-    WSSession session;
-    WSResult items = null;
-    String error;
+class Project {
 
-    public ListView () {
-        // Try to connect
+    Long id;
+    String name;
+    String bts;
+    String scm;
+    String mail;
+    String contact;
+    String website;
+
+    /** Parses an ArrayList of WSResult and offers convenience methods to get data
+     *  out of it.
+     * 
+     * @param data The ArrayList for one project
+     * 
+     */
+    public Project (ArrayList data) {
         try {
-            session = new WSSession("bla", "foo", "http://localhost:8088/sqooss/services/ws");
-        } catch (WSException wse) {
-            //TODO
-            wse.printStackTrace();
-        } catch (java.util.NoSuchElementException ex) {
-            error = "<b>[ERROR] No available project were found!</b>";
+            id = Long.parseLong(data.get(0).toString().trim());
+        } catch (NumberFormatException nfe) {
+            System.out.println("NumberFormatException: " + nfe.getMessage());
         }
+        name = data.get(1).toString();
+        bts = data.get(2).toString(); // FIXME: Is this really the BTS?
+        scm = data.get(3).toString();
+        mail = data.get(4).toString();
+        contact = data.get(5).toString();
+        website = data.get(6).toString();
     }
 
-    public void setItems (WSResult _items) {
-        items = _items;
+    public String getName () {
+        return name;
     }
 
-    public WSResult getItems () {
-        return items;
+    public Long getId () {
+        return id;
     }
 
+    public String getWebsite () {
+        return website;
+    }
+
+    public String getMail () {
+        return mail;
+    }
+
+    public String getContact () {
+        return contact;
+    }
 
     public String getHtml() {
-        StringBuilder html = new StringBuilder("<!-- ListView -->\n<ul>");
-        if (items == null) {
-            return null;
-        } else {
-            html.append("<h2>Found " + items.getRowCount() + " projects ...</h2>");
-        }
-        Iterator <ArrayList<WSResultEntry>> itemlist = items.iterator();
-        if (!itemlist.hasNext()) {
-            html.append("No project records found.");
-        }
-        
-        while (itemlist.hasNext()) {
-            ArrayList <WSResultEntry> p_item = itemlist.next();
-            Iterator <WSResultEntry> oneitemlist = p_item.iterator();
-            Project nextProject = new Project(p_item);
-            html.append("<li>" + nextProject.getHtml() + "</li>");
-        }
-        html = html.append("\n</ul>\n");
+        StringBuilder html = new StringBuilder("<!-- Project -->\n<ul>");
+        html.append("<h3>" + getName() + "</h3>");
+        html.append("<br />Website:<a href=\"" + getWebsite() + "\">" + getWebsite() + "</a>");
+        html.append("<br />Contact:<a href=\"" + getContact() + "\">" + getContact() + "</a>");
         return html.toString();
     }
-
-    public void retrieveData () {
-        return;
-    }
-
 }
