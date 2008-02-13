@@ -222,3 +222,35 @@ eclipse-up-workdir: distclean
 	(cd $(ECLIPSEDIR) && svn up) && \ 
 	rsync -rv --exclude ".svn" $(ECLIPSEDIR)/ $(TOP_SRCDIR)/ 
 
+
+test-updater : test-start-follower test-updater-step1 test-updater-step2 test-stop-follower
+
+test-updater-step1:
+	$(MAKE) test-clean-yoyo
+	$(MAKE) test-checkout-yoyo test-hit-updater
+
+test-updater-step2: 
+	$(MAKE) test-commit-yoyo 
+	$(MAKE) test-hit-updater test-clean-yoyo 
+
+test-checkout-yoyo :
+	-mkdir -p examples/tmp/
+	test -d examples/tmp/
+	svn co https://cvs.codeyard.net/svn/yoyo  examples/tmp/yoyo
+
+test-commit-yoyo :
+	for i in 1 2 3 ; do date >> examples/tmp/yoyo/README.txt ; sleep `jot -r 1 1 10` ; M=`perl ../../tools/tagline.pl` ; svn commit -m "$$M" examples/tmp/yoyo/README.txt ; done
+
+test-clean-yoyo :
+	rm -rf examples/tmp/yoyo
+	rm -f examples/tmp/yoyo.pid
+
+test-hit-updater :
+	curl 'http://localhost:8088/updater?target=code&project=SQO-OSS'
+
+test-start-follower :
+	tail -f equinox/logs/alitheia.log & echo $$! > examples/tmp/yoyo.pid
+
+test-stop-follower :
+	kill `cat examples/tmp/yoyo.pid`
+
