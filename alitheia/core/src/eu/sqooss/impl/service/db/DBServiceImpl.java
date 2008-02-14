@@ -252,7 +252,11 @@ public class DBServiceImpl implements DBService {
 
     private void initHibernate(URL configFileURL) {
         SessionFactory sf = null;
-        logger.info("Initializing Hibernate");
+        logger.info("Initializing Hibernate with URL <" + configFileURL + ">");
+        if (configFileURL == null) {
+            logger.warn("Ignoring null URL.");
+            return;
+        }
         try {
             Configuration c = new Configuration().configure(configFileURL);
             // c now holds the configuration from hibernate.cfg.xml, need
@@ -345,7 +349,11 @@ public class DBServiceImpl implements DBService {
 
         if (dbClass != null) {
             logger.info("Using JDBC " + dbClass);
-            initHibernate(bc.getBundle().getEntry("HIBERNATE_CONFIG_PROPERTY"));
+            try {
+                initHibernate(new URL(bc.getProperty(HIBERNATE_CONFIG_PROPERTY)));
+            } catch (MalformedURLException e) {
+                logger.error("User Hibernate configuration URL is bad.");
+            }
         } else {
             logger.error("Hibernate will not be initialized.");
             // TODO: Throw something to prevent the bundle from being started?
