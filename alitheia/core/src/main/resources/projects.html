@@ -20,35 +20,6 @@
 	</ul>
 
 	<div id="contents">
-          <h2>Installed Projects</h2>
-          <div id="projectlist">
-            <ul>
-              @@PROJECTS
-            </ul>
-          </div>
-	</div>
-      </div>
-      <div id="sidebar">
-        <fieldset id="status">
-          <legend>Status</legend>	
-          <ul>
-            <li class="uptime">Uptime: 
-            @@UPTIME
-            </li>
-            <li class="queue">Job Queue Length: 
-            @@QUEUE_LENGTH
-            </li>
-          </ul>
-        </fieldset>
-        <fieldset id="options">
-          <legend>Options</legend>	
-          <form id="start" method="post" action="restart">
-            <p><input type="submit" value="Restart" /></p>
-          </form>
-          <form id="stop" method="post" action="stop">
-            <p><input type="submit" value="Stop" /></p>
-          </form>
-        </fieldset>
         <fieldset id="newproject">
           <legend>Install new project</legend>
             <form id="addproject" method="post" action="addproject">
@@ -84,6 +55,35 @@
               </table>
             </form>
           </fieldset>
+          <h2>Installed Projects</h2>
+          <div id="projectlist">
+            <ul>
+              @@PROJECTS
+            </ul>
+          </div>
+	</div>
+      </div>
+      <div id="sidebar">
+        <fieldset id="status">
+          <legend>Status</legend>	
+          <ul>
+            <li class="uptime">Uptime: 
+            @@UPTIME
+            </li>
+            <li class="queue">Job Queue Length: 
+            @@QUEUE_LENGTH
+            </li>
+          </ul>
+        </fieldset>
+        <fieldset id="options">
+          <legend>Options</legend>	
+          <form id="start" method="post" action="restart">
+            <p><input type="submit" value="Restart" /></p>
+          </form>
+          <form id="stop" method="post" action="stop">
+            <p><input type="submit" value="Stop" /></p>
+          </form>
+        </fieldset>
         </div>
       </div>
       <div id="footer">
