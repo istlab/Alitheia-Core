@@ -436,6 +436,9 @@ public class DBServiceImpl implements DBService {
 	 */
 	
 	public boolean addRecords(Session s, List<DAObject> records) {
+	    
+	    if( s == null )
+	        return false;
 
         Transaction tx = null;
         DAObject lastRecord = null;
@@ -445,21 +448,27 @@ public class DBServiceImpl implements DBService {
             	lastRecord = record;
             	s.save(record);				
 			}
+            lastRecord = null;
             tx.commit();
         }
         catch (HibernateException e) {
             if (tx != null) {
+            	if (lastRecord != null) {
+                    logger.error("Failed to add object "
+                            + "[" + lastRecord.getClass().getName() + ":" + lastRecord.getId() + "]"
+                            + " to the database: " + e.getMessage());
+                } else {
+                    logger.error("Error while commiting database transaction:"
+                            + e.getMessage());
+                }
                 try {
                     tx.rollback();
                 } catch (HibernateException ex) {
-                    logger.error("Error while rolling back failed transaction" +
-                        ". DB may be left in inconsistent state:" + ex.getMessage());
-                    ex.printStackTrace();
-                    return false;
+                    logger.error("Error while rolling back failed transaction."
+                            + " DB may be left in inconsistent state:" + ex.getMessage());
                 }
-                logger.warn("Failed to add object "
-                		+ "[" + lastRecord.getClass().getName() + ":" + lastRecord.getId() + "]"
-                        + " to the database: " + e.getMessage());
+            } else {
+                logger.error("Error while initializing database transaction:" + e.getMessage());
             }
             return false;
         }
@@ -483,6 +492,9 @@ public class DBServiceImpl implements DBService {
 	 */
 	
 	public boolean deleteRecords(Session s, List<DAObject> records) {
+	    
+	    if( s == null )
+	        return false;
 
         Transaction tx = null;
         DAObject lastRecord = null;
@@ -496,17 +508,22 @@ public class DBServiceImpl implements DBService {
         }
         catch (HibernateException e) {
             if (tx != null) {
+                if (lastRecord != null) {
+                    logger.error("Failed to remove object "
+                            + "[" + lastRecord.getClass().getName() + ":" + lastRecord.getId() + "]"
+                            + " from the database: " + e.getMessage());
+                } else {
+                    logger.error("Error while commiting database transaction:"
+                            + e.getMessage());
+                }
                 try {
                     tx.rollback();
                 } catch (HibernateException ex) {
-                    logger.error("Error while rolling back failed transaction" +
-                        ". DB may be left in inconsistent state:" + ex.getMessage());
-                    ex.printStackTrace();
-                    return false;
+                    logger.error("Error while rolling back failed transaction."
+                            + " DB may be left in inconsistent state:" + ex.getMessage());
                 }
-                logger.warn("Failed to remove object "
-                		+ "[" + lastRecord.getClass().getName() + ":" + lastRecord.getId() + "]"
-                        + " from the database: " + e.getMessage());
+            } else {
+                logger.error("Error while initializing database transaction:" + e.getMessage());
             }
             return false;
         }
