@@ -123,7 +123,7 @@ javadoc:
 	ALLSRC=`find . -type f -name "*.java"|tr '\n' ' '` && javadoc -d doc/javadoc -classpath `./tools/setcp.sh .` $$ALLSRC
 
 #Just a dummy config file
-CONFIG=-Xmx14000M -server
+CONFIG=-Xmx256M 
 
 DEBUGOPT=-Xdebug -Xrunjdwp:transport=dt_socket,server=y,address=8000,suspend=y 
 
