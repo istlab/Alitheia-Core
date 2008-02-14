@@ -349,11 +349,7 @@ public class DBServiceImpl implements DBService {
 
         if (dbClass != null) {
             logger.info("Using JDBC " + dbClass);
-            try {
-                initHibernate(new URL(bc.getProperty(HIBERNATE_CONFIG_PROPERTY)));
-            } catch (MalformedURLException e) {
-                logger.error("User Hibernate configuration URL is bad.");
-            }
+            initHibernate(bc.getBundle().getEntry("/hibernate.cfg.xml"));
         } else {
             logger.error("Hibernate will not be initialized.");
             // TODO: Throw something to prevent the bundle from being started?
