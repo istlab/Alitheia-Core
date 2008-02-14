@@ -372,7 +372,7 @@ public class DBServiceImpl implements DBService {
     }
 
     /* (non-Javadoc)
-     * @see eu.sqooss.service.db.DBService#findObjectByProperties(org.hibernate.Session, java.lang.Class, java.util.Map)
+     * @see eu.sqooss.service.db.DBService#findObjectByProperties(java.lang.Class, java.util.Map)
      */
     @SuppressWarnings("unchecked")
     public <T extends DAObject> List<T> findObjectByProperties(Class<T> daoClass, Map<String,Object> properties ) {
