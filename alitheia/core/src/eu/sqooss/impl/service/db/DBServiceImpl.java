@@ -346,7 +346,14 @@ public class DBServiceImpl implements DBService {
     public <T extends DAObject> List<T> findObjectByProperties(Class<T> daoClass, Map<String,Object> properties ) {
 
         Session s = getSession(this);
-        return findObjectByProperties(s, daoClass, properties);
+        try {
+            s.beginTransaction();
+            List result = findObjectByProperties(s, daoClass, properties);
+            s.getTransaction().commit();
+            return result;
+        } finally {
+            returnSession(s);
+        }
     }  
 
     /* (non-Javadoc)
