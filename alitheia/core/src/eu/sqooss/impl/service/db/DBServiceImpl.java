@@ -303,13 +303,6 @@ public class DBServiceImpl implements DBService {
         return (List<T>) doHQL( s, "from " + daoClass.getName() + whereClause, parameterMap );
     }
 
-    public boolean addRecord(DAObject record) {
-        Session s = getSession(this);
-        boolean result = addRecord(s, record);
-        returnSession (s);
-        return result;
-    }
-
     public List doSQL(String sql) {
         Session s = getSession(this);
         s.beginTransaction();
@@ -318,6 +311,30 @@ public class DBServiceImpl implements DBService {
         returnSession(s);
 
         return result;
+    }
+
+	public List doSQL(Session s, String sql) {
+        return s.createSQLQuery(sql).list();
+    }
+
+    public List doSQL(String sql, Map<String, Object> params) {
+        Session s = getSession(this);
+        s.beginTransaction();
+        List result = doSQL(s, sql, params);
+        s.getTransaction().commit();
+        returnSession(s);
+
+        return result;
+    }
+
+    public List doSQL(Session s, String sql, Map<String, Object> params) {
+        Query query = s.createSQLQuery(sql);
+        Iterator<String> i = params.keySet().iterator();
+        while(i.hasNext()) {
+            String paramName = i.next();
+            query.setParameter(paramName, params.get(paramName));
+        }
+        return query.list();
     }
 
     public List doHQL(String hql) {
@@ -377,31 +394,17 @@ public class DBServiceImpl implements DBService {
         sm.returnSession(s);
     }
 
+    public boolean addRecord(DAObject record) {
+        Session s = getSession(this);
+        boolean result = addRecord(s, record);
+        returnSession (s);
+        return result;
+    }
+
     public boolean addRecord(Session s, DAObject record) {
-
-        Transaction tx = null;
-        try {
-            tx = s.beginTransaction();
-            s.save(record);
-            tx.commit();
-        }
-        catch (HibernateException e) {
-            if (tx != null) {
-                try {
-                    tx.rollback();
-                } catch (HibernateException ex) {
-                    logger.error("Error while rolling back failed transaction" +
-                        ". DB may be left in inconsistent state:" + ex.getMessage());
-                    ex.printStackTrace();
-                    return false;
-                }
-                logger.warn("Failed to add object " + record.getId()
-                        + " to the database: " + e.getMessage());
-            }
-            return false;
-        }
-
-        return true;
+    	ArrayList<DAObject> tmpList = new ArrayList<DAObject>(1);
+    	tmpList.add(record);
+    	return addRecords(s, tmpList);
     }
 
     public boolean deleteRecord(DAObject record) {
@@ -412,11 +415,36 @@ public class DBServiceImpl implements DBService {
     }
 
     public boolean deleteRecord(Session s, DAObject record) {
+    	ArrayList<DAObject> tmpList = new ArrayList<DAObject>(1);
+    	tmpList.add(record);
+    	return deleteRecords(s, tmpList);
+    }
+
+    /* (non-Javadoc)
+	 * @see eu.sqooss.service.db.DBService#addRecords(java.util.List)
+	 */
+	@Override
+	public boolean addRecords(List<DAObject> records) {
+        Session s = getSession(this);
+        boolean result = addRecords(s, records);
+        returnSession(s);
+        return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see eu.sqooss.service.db.DBService#addRecords(org.hibernate.Session, java.util.List)
+	 */
+	@Override
+	public boolean addRecords(Session s, List<DAObject> records) {
 
         Transaction tx = null;
+        DAObject lastRecord = null;
         try {
             tx = s.beginTransaction();
-            s.delete(record);
+            for (DAObject record : records) {
+            	lastRecord = record;
+            	s.save(record);				
+			}
             tx.commit();
         }
         catch (HibernateException e) {
@@ -429,38 +457,62 @@ public class DBServiceImpl implements DBService {
                     ex.printStackTrace();
                     return false;
                 }
-                logger.warn("Failed to remove object " + record.getId()
+                logger.warn("Failed to add object "
+                		+ "[" + lastRecord.getClass().getName() + ":" + lastRecord.getId() + "]"
+                        + " to the database: " + e.getMessage());
+            }
+            return false;
+        }
+
+        return true;
+	}
+
+	/* (non-Javadoc)
+	 * @see eu.sqooss.service.db.DBService#deleteRecords(java.util.List)
+	 */
+	@Override
+	public boolean deleteRecords(List<DAObject> records) {
+        Session s = getSession(this);
+        boolean result = deleteRecords(s, records);
+        returnSession(s);
+        return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see eu.sqooss.service.db.DBService#deleteRecords(org.hibernate.Session, java.util.List)
+	 */
+	@Override
+	public boolean deleteRecords(Session s, List<DAObject> records) {
+
+        Transaction tx = null;
+        DAObject lastRecord = null;
+        try {
+            tx = s.beginTransaction();
+            for (DAObject record : records) {
+            	lastRecord = record;
+            	s.delete(record);				
+			}
+            tx.commit();
+        }
+        catch (HibernateException e) {
+            if (tx != null) {
+                try {
+                    tx.rollback();
+                } catch (HibernateException ex) {
+                    logger.error("Error while rolling back failed transaction" +
+                        ". DB may be left in inconsistent state:" + ex.getMessage());
+                    ex.printStackTrace();
+                    return false;
+                }
+                logger.warn("Failed to remove object "
+                		+ "[" + lastRecord.getClass().getName() + ":" + lastRecord.getId() + "]"
                         + " from the database: " + e.getMessage());
             }
             return false;
         }
 
         return true;
-    }
-
-    public List doSQL(Session s, String sql) {
-        return s.createSQLQuery(sql).list();
-    }
-
-    public List doSQL(String sql, Map<String, Object> params) {
-        Session s = getSession(this);
-        s.beginTransaction();
-        List result = doSQL(s, sql, params);
-        s.getTransaction().commit();
-        returnSession(s);
-
-        return result;
-    }
-
-    public List doSQL(Session s, String sql, Map<String, Object> params) {
-        Query query = s.createSQLQuery(sql);
-        Iterator<String> i = params.keySet().iterator();
-        while(i.hasNext()) {
-            String paramName = i.next();
-            query.setParameter(paramName, params.get(paramName));
-        }
-        return query.list();
-    }
+	}
 
     public Object selfTest() {
         Object[] o = new Object[INIT_POOL_SIZE + 1];

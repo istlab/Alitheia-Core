@@ -67,16 +67,51 @@ public interface DBService {
     public <T extends DAObject> List<T> findObjectByProperties(Session s, Class<T> daoClass, Map<String,Object> properties );
 
     /**
-     * Add a new record to the system database; this should initialize any
-     * tables that are needed for storage of project information.
+     * Add a new record to the system database, using the default database session.
+     * This should initialize any tables that are needed for storage of project information.
      * 
+     * @param record the record to persist into the database
      * @return True, if record insertion succeeded. False + log message
      *         otherwise
      */
     public boolean addRecord(DAObject record);
 
+    /**
+     * Add a new record to the system database, using a separate database session.
+     * This should initialize any tables that are needed for storage of project information.
+     * 
+     * @param s the session to use for this transaction
+     * @param record the record to persist into the database
+     * @return True, if record insertion succeeded. False + log message
+     *         otherwise
+     */
     public boolean addRecord(Session s, DAObject record);
     
+    /**
+     * Add multiple new records to the system database, using the default database session.
+     * This should initialize any tables that are needed for storage of project information.
+     * The results will be committed only if all the insertions are successful,
+     * so if any insertion fails then no record will be added.
+     * 
+     * @param records the list of records to persist into the database
+     * @return True, if all the record insertions succeeded. False + log message
+     *         otherwise
+     */
+    public boolean addRecords(List<DAObject> records);
+
+    /**
+     * Add multiple new records to the system database, using a separate database session.
+     * This should initialize any tables that are needed for storage of project information.
+     * The results will be committed only if all the insertions are successful,
+     * so if any insertion fails then no record will be added.
+     * 
+     * @param s the session to use for this transaction
+     * @param records the list of records to persist into the database
+     * @return True, if all the record insertions succeeded. False + log message
+     *         otherwise
+     */
+    public boolean addRecords(Session s, List<DAObject> records);
+
     /**
      * Delete an existing record from the system database, using the
      * default database session.
@@ -93,6 +128,29 @@ public interface DBService {
      * @param record the record to remove from the database
      */
     public boolean deleteRecord(Session s, DAObject record);
+    
+    /**
+     * Delete multiple existing records from the system database, using the default database session.
+     * The results will be committed only if all the deletions are successful,
+     * so if any deletion fails then no record will be deleted.
+     * 
+     * @param records the list of records to remove from the database
+     * @return True, if all the record deletions succeeded. False + log message
+     *         otherwise
+     */
+    public boolean deleteRecords(List<DAObject> records);
+    
+    /**
+     * Delete multiple existing records from the system database, using a separate database session.
+     * The results will be committed only if all the deletions are successful,
+     * so if any deletion fails then no record will be deleted.
+     * 
+     * @param s the session to use for this transaction
+     * @param records the list of records to remove from the database
+     * @return True, if all the record deletions succeeded. False + log message
+     *         otherwise
+     */
+    public boolean deleteRecords(Session s, List<DAObject> records);
     
     /**
      * Allows the intelligent C++ programmer to simply fire complete SQL
