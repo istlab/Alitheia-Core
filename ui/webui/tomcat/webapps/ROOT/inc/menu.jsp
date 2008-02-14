@@ -9,7 +9,8 @@
         <li><a href="/playground/users.jsp" title="Click here for registered crackheads">Users</a></li>
         <li><a href="/playground/metrics.jsp" title="Click here for some imaginatory metrics">Metrics</a></li>
         <li><a href="/playground/files.jsp" title="Click here for a random list of files">Files</a></li>
-
+        <li><a href="/playground/terrier.jsp" title="Click here to see if Terrier works">Terriertest</a></li>
+        
 <%
 if (!loggedIn) {
 %>

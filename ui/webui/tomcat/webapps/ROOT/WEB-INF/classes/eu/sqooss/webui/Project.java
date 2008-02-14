@@ -36,7 +36,7 @@ package eu.sqooss.webui;
 import java.util.ArrayList;
 
 
-class Project {
+public class Project {
 
     Long id;
     String name;

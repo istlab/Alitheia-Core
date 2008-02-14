@@ -48,63 +48,89 @@ import eu.sqooss.webui.Metric;
 import eu.sqooss.webui.Project;
 
 
-
-class Terrier {
+public class Terrier {
 
     WSSession session;
     WSConnection connection;
     WSResult result;
-    String error;
+    
+    String error = "No problems.";
+    String debug = "...";
 
     public void Terrier () {
         connect();
-    
     }
-    
+
     public Project getProject(Long projectId) {
+        if (connection == null) {
+            debug = "noconnection ";
+            error = "Connection to Alitheia failed.";
+            return null;
+        }
+        debug += "ok";
         try {
             result = connection.evaluatedProjectsList();
         } catch (WSException wse) {
             error = "Could not receive a list of projects.";
-        } catch (NullPointerException npe) {
-            error = "Connection to Alitheia most probably failed.";
+            return null;
         }
         Iterator <ArrayList<WSResultEntry>> itemlist = result.iterator();
         if (!itemlist.hasNext()) {
             error = "No project records found.";
             return null;
         }
-        while (itemlist.hasNext()) {
-            ArrayList <WSResultEntry> p_item = itemlist.next();
-            Iterator <WSResultEntry> oneitemlist = p_item.iterator();
-            Project nextProject = new Project(p_item);
-            if (nextProject.getId() == projectId) {
-                return nextProject;
+        try {
+            while (itemlist.hasNext()) {
+                debug += "hasnext ";
+                ArrayList <WSResultEntry> p_item = itemlist.next();
+                Iterator <WSResultEntry> oneitemlist = p_item.iterator();
+                Project nextProject = new Project(p_item);
+                if (nextProject.getId() == projectId) {
+                    debug += "projectisthere ";
+                    return nextProject;
+                }
             }
+            error = "No project found that match id " + projectId;
+        } catch (NullPointerException npe) {
+            error = "ouch ... :/";
         }
         return null;
     }
-    
+
     public Metric getMetric(Long metricId) {
+        // TODO
         return null;
     }
 
     public User getUser (Long userId) {
+        // TODO
         return null;
     }
-    
+
     public File getFile(Long fileId) {
+        // TODO
         return null;
     }
+
+    public String getError() {
+        return error;
+    }
     
+    public String getDebug() {
+        return debug;
+    }
+
     private void connect() {
-        // Try to connect
+        // Try to connect the SCL to the Alitheia system
         try {
-            session = new WSSession("bla", "foo", "http://localhost:8090/sqooss/services/ws");
+            session = new WSSession("bla", "foo", "http://localhost:8090/sqooss/services/ws"); // WTF?
             connection = session.getConnection();
+            error = "connected";
         } catch (WSException wse) {
+            error = "Connection to Alitheia failed.";
             wse.printStackTrace();
             session = null;
+            connection = null;
         }
     }
 }
