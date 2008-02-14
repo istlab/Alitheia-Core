@@ -41,19 +41,22 @@ import java.io.IOException;
 import java.io.LineNumberReader;
 
 import eu.sqooss.service.abstractmetric.AbstractMetric;
-import eu.sqooss.service.abstractmetric.AbstractMetricJob;
 import eu.sqooss.service.db.Measurement;
 import eu.sqooss.service.db.ProjectFile;
+import eu.sqooss.service.scheduler.Job;
 
-public class WcJob extends AbstractMetricJob {
+public class WcJob extends Job {
 
     private ProjectFile pf;
     
     public WcJob(AbstractMetric owner, ProjectFile a) {
-        super(owner);
         pf = a;
     }
 
+    public int priority() {
+        return 0xbeef;
+    }
+    
     public void run() {
         Measurement m = new Measurement();
         
@@ -67,7 +70,7 @@ public class WcJob extends AbstractMetricJob {
                 lines++;
             }
         } catch (FileNotFoundException e) {
-            log.error(this.getClass().getName() + " Cannot open file: " +
+            System.out.println(this.getClass().getName() + " Cannot open file: " +
                     f.getAbsolutePath());
         } catch (IOException ignored) {
         }

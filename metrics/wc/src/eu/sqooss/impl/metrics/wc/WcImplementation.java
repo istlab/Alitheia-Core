@@ -72,8 +72,7 @@ public class WcImplementation extends AbstractMetric implements Wc {
         return null;
     }
 
-    public boolean run(ProjectFile a) {
-        return false;
+    public void run(ProjectFile a) {
     }
 }
 
