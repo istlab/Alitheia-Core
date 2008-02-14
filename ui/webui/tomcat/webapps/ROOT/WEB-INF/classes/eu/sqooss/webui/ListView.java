@@ -49,7 +49,7 @@ class ListView {
     public ListView () {
         // Try to connect
         try {
-            session = new WSSession("bla", "foo", "http://localhost:8090/sqooss/services/ws");
+            session = new WSSession("bla", "foo", "http://localhost:8088/sqooss/services/ws");
         } catch (WSException wse) {
             //TODO
             wse.printStackTrace();
@@ -74,7 +74,8 @@ class ListView {
         }
         StringBuilder html = new StringBuilder("<!-- ListView -->\n<ul>");
         if (items == null) {
-            return null;
+            return "hhhhhhhhh.";
+            //return null;
         } else {
             html.append("<h2>Found " + items.getRowCount() + " projects ...</h2>");
         }
