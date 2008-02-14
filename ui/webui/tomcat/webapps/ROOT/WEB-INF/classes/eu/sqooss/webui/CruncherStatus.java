@@ -57,7 +57,7 @@ public class CruncherStatus {
             URL url = null;
             Properties p = new Properties();
             try {
-                url = new URL("http://10.0.0.20:8088/ws");
+                url = new URL("http://localhost:8090/ws");
             } catch (java.net.MalformedURLException e) {
                 synchronized(lock) {
                     m = "Invalid cruncher URL.";
