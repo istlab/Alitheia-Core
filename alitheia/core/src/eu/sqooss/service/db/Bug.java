@@ -41,7 +41,7 @@ import java.util.Properties;
  */
 public class Bug extends DAObject {
     /**
-     * The commit which casuses the bug
+     * The commit which resolves the bug
      */
     private Commit commit;
     /**
