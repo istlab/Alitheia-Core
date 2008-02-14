@@ -3,7 +3,7 @@ TOMCAT_LIB=tomcat/webapps/ROOT/WEB-INF/lib/
 all : stop build install run
 
 
-install : install-scl
+install :
 	cp ../../extlibs/org.apache.axiom.api_1.2.2/axiom-api-1.2.2.jar $(TOMCAT_LIB) && \
 	cp ../../extlibs/org.apache.axiom.dom_1.2.2/axiom-dom-1.2.2.jar $(TOMCAT_LIB) && \
 	cp ../../extlibs/org.apache.axiom.impl_1.2.2/axiom-impl-1.2.2.jar $(TOMCAT_LIB) && \
@@ -23,7 +23,7 @@ install : install-scl
 install-scl:
 	cd ../scl && $(MAKE) && cp ../build/* ../webui/$(TOMCAT_LIB)
 
-build :
+build : install-scl
 	rm -rf build/
 	cd tomcat/webapps/ROOT/WEB-INF/classes/eu/sqooss/webui && \
 	javac -Xlint:path -cp ":../../../../lib/eu.sqooss.scl_0.0.1.jar" *\.java
