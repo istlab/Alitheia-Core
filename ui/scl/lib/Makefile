@@ -37,5 +37,6 @@ clean:
 	rm -rf $(DEPLOY_DIR)$(DEPLOY_NAME)
 
 install: build
+	test -d $(DEPLOY_DIR) || mkdir $(DEPLOY_DIR)
 	jar cfm $(DEPLOY_DIR)$(DEPLOY_NAME) $(MANIFEST) -C $(BUILD_DIR) .
 
