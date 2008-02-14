@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.hibernate.HibernateException;
+import org.hibernate.QueryException;
 import org.hibernate.TransactionException;
 import org.hibernate.JDBCException;
 import org.hibernate.Query;
@@ -483,11 +484,18 @@ public class DBServiceImpl implements DBService {
     public List doHQL(String hql, Map<String, Object> params,
             Map<String, Collection> collectionParams) {
         Session s = getSession(this);
+        Transaction tx = null;
         try {
-            s.beginTransaction();
+            tx = s.beginTransaction();
             List result = doHQL(s, hql, params, collectionParams);
-            s.getTransaction().commit();
+            tx.commit();
             return result;
+        } catch( TransactionException e ) {
+            logger.error("Transaction error: " + e.getMessage());
+            throw e;
+        } catch( HibernateException e ) {
+            logExceptionAndRollbackTransaction(e,tx);
+            throw e;
         } finally {
             returnSession(s);
         }
@@ -503,18 +511,26 @@ public class DBServiceImpl implements DBService {
 
     public List doHQL(Session s, String hql, Map<String, Object> params,
             Map<String, Collection> collectionParams) {
-        Query query = s.createQuery(hql);
-        if (params != null) {
-            for ( String param : params.keySet() ) {
-                query.setParameter(param, params.get(param));
+        try {
+            Query query = s.createQuery(hql);
+            if (params != null) {
+                for ( String param : params.keySet() ) {
+                    query.setParameter(param, params.get(param));
+                }
             }
-        }
-        if (collectionParams != null) {
-            for ( String param : collectionParams.keySet() ) {
-                query.setParameterList(param, collectionParams.get(param));
+            if (collectionParams != null) {
+                for ( String param : collectionParams.keySet() ) {
+                    query.setParameterList(param, collectionParams.get(param));
+                }
             }
+            return query.list();
+        } catch (JDBCException e) {
+            logSQLException(e.getSQLException());
+            throw e;
+        } catch (QueryException e) {
+            logger.error("Error while executing HQL query: " +  e.getMessage() + ". HQL query was : " + e.getQueryString());
+            throw e;
         }
-        return query.list();
     }
 
     public Session getSession(Object holder) {
