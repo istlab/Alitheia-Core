@@ -55,6 +55,7 @@ class ListView {
             wse.printStackTrace();
         } catch (java.util.NoSuchElementException ex) {
             error = "<b>[ERROR] No available project were found!</b>";
+            session = null;
         }
     }
 
@@ -68,6 +69,9 @@ class ListView {
 
 
     public String getHtml() {
+        if (session == null) {
+            return null;
+        }
         StringBuilder html = new StringBuilder("<!-- ListView -->\n<ul>");
         if (items == null) {
             return null;
