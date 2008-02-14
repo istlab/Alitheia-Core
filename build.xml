@@ -9,7 +9,7 @@
 	<property name="eu.sqooss.db.driver" value="org.apache.derby.jdbc.EmbeddedDriver" />
 	<property name="eu.sqooss.db.url" value="jdbc:derby:derbyDB;create=true"/>
 	<property name="eu.sqooss.db.dialect" value="org.hibernate.dialect.DerbyDialect" />
-	<property name="eu.sqooss.hibernate.config" value="file:///${basedir}/alitheia/core/src/main/resources/hibernate.cfg.xml" />
+	<property name="eu.sqooss.hibernate.config" value="file://${basedir}/alitheia/core/src/main/resources/hibernate.cfg.xml" />
 
 	<property name="src" value="alitheia/core/src" />
 	<property name="repo" value="sqoossrepo" />

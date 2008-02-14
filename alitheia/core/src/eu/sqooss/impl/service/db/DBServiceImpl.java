@@ -318,7 +318,7 @@ public class DBServiceImpl implements DBService {
         try {
             hibernateConfigURL = new URL(hibernateConfigURLProp);
         } catch (MalformedURLException e) {
-            System.err.println("Could not get hibernate configuration file: " + HIBERNATE_CONFIG_PROPERTY);
+            System.err.println("Could not get hibernate configuration file: " + hibernateConfigURLProp);
             System.exit(1);
         }
 
