@@ -3,7 +3,7 @@ TOMCAT_LIB=tomcat/webapps/ROOT/WEB-INF/lib/
 all : stop build install run
 
 
-install :
+install : install-scl
 	cp ../../extlibs/org.apache.axiom.api_1.2.2/axiom-api-1.2.2.jar $(TOMCAT_LIB) && \
 	cp ../../extlibs/org.apache.axiom.dom_1.2.2/axiom-dom-1.2.2.jar $(TOMCAT_LIB) && \
 	cp ../../extlibs/org.apache.axiom.impl_1.2.2/axiom-impl-1.2.2.jar $(TOMCAT_LIB) && \
@@ -18,13 +18,19 @@ install :
 	cp ../../extlibs/javax.mail.api_1.4.0/mail-1.4.jar $(TOMCAT_LIB) && \
 	cp ../../extlibs/javax.stax.api_1.0.1/stax-api-1.0.1.jar $(TOMCAT_LIB) && \
 	cp ../../extlibs/org.codehaus.stax2_3.0.1/wstx-asl-3.0.1.jar $(TOMCAT_LIB) && \
-	cp ../../extlibs/org.apache.commons.codec_1.3.0/org.apache.commons.codec-1.3.0.jar $(TOMCAT_LIB) 
-	
+	cp ../../extlibs/org.apache.commons.codec_1.3.0/org.apache.commons.codec-1.3.0.jar $(TOMCAT_LIB)
+
+install-scl:
+	cd ../scl && $(MAKE) && cp ../build/* ../webui/$(TOMCAT_LIB)
+
 build :
 	rm -rf build/
 	cd tomcat/webapps/ROOT/WEB-INF/classes/eu/sqooss/webui && \
 	javac -Xlint:path -cp ":../../../../lib/eu.sqooss.scl_0.0.1.jar" *\.java
 
+clean :
+	rm $(TOMCAT_LIB)*
+	cd ../scl && $(MAKE) clean
 
 run : stop start
 
