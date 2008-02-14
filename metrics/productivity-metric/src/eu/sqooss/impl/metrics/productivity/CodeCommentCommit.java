@@ -64,6 +64,7 @@ public class CodeCommentCommit extends CodeCommitsJob {
 
     protected boolean evaluate(String path, CommitEntry entry) {
 
+        /*
         Diff d = null;
         try {
             d = svn.getDiff(path, entry.getRevision(), entry.getRevision());
@@ -94,7 +95,7 @@ public class CodeCommentCommit extends CodeCommitsJob {
         } catch (IOException e) {
             log.error("Error mapping diff file to memory:" + e.getMessage());
         }
-
+        */
         return false;
 
     }

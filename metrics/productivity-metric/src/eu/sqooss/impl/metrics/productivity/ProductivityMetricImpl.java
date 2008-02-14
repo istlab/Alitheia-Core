@@ -70,8 +70,7 @@ public class ProductivityMetricImpl extends AbstractMetric implements
         return null;
     }
 
-    public boolean run(StoredProject a) {
-        return false;
+    public void run(StoredProject a) {
     }
 
     public boolean delete(ProjectVersion a) {
@@ -88,6 +87,9 @@ public class ProductivityMetricImpl extends AbstractMetric implements
         return false;
     }
 
+    public void run(ProjectVersion a) {
+        run(a,a);
+    }
     public Object selfTest() {
 
         return null;

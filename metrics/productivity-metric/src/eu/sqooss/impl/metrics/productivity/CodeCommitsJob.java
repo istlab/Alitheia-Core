@@ -37,8 +37,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import eu.sqooss.service.abstractmetric.AbstractMetric;
-import eu.sqooss.service.abstractmetric.AbstractMetricJob;
 import eu.sqooss.service.db.ProjectVersion;
+import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.tds.CommitEntry;
 import eu.sqooss.service.tds.CommitLog;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
@@ -49,7 +49,7 @@ import eu.sqooss.service.tds.SCMAccessor;
 /**
  * Code commit - A commit that affects at least 1 source code file
  */
-public class CodeCommitsJob extends AbstractMetricJob {
+public class CodeCommitsJob extends Job {
 
     HashMap<String, Integer> authorCommits = new HashMap<String, Integer>();
     ProjectVersion start, end;
@@ -57,12 +57,12 @@ public class CodeCommitsJob extends AbstractMetricJob {
 
     protected CodeCommitsJob(AbstractMetric owner, ProjectVersion a,
             ProjectVersion b) {
-        super(owner);
         start = a;
         end = b;
     }
 
     public void run() {
+        /*
         log.debug(this.getClass().getName()
                 + ":Calculating Code Commits per developer");
 
@@ -120,6 +120,7 @@ public class CodeCommitsJob extends AbstractMetricJob {
         }
 
         log.debug("Total code commits:" + commits);
+        */
     }
 
     public int priority() {
