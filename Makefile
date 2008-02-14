@@ -123,7 +123,7 @@ javadoc:
 	ALLSRC=`find . -type f -name "*.java"|tr '\n' ' '` && javadoc -d doc/javadoc -classpath `./tools/setcp.sh .` $$ALLSRC
 
 #Just a dummy config file
-CONFIG=-Xmx256M
+CONFIG=-Xmx14000M -server
 
 DEBUGOPT=-Xdebug -Xrunjdwp:transport=dt_socket,server=y,address=8000,suspend=y 
 
@@ -131,11 +131,14 @@ CL_CONFIG=-Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.Log4J
 LOG4J_CONFIG=-Dlog4j.configuration=file://$(LOG4J_PREFIX)/configuration/log4j.properties
 JETTY_CONFIG=-DDEBUG_VERBOSE=1 -DDEBUG_PATTERNS=main,org.mortbay.http -Dorg.mortbay.log.LogFactory.noDiscovery=false
 
+HIBERNATE_CONFIG=-Deu.sqooss.hibernate.config=hibernate.cfg.xml
+
 # $(CONFIG) would typically be used to set system properties.
 run :
 	cd $(PREFIX) && \
 	java $(CONFIG) \
 		-DDEBUG $(CL_CONFIG) $(LOG4J_CONFIG) $(JETTY_CONFIG) \
+		$(HIBERNATE_CONFIG) \
 		-jar org.eclipse.osgi_3.3.0.v20070321.jar -console
 
 run-bg :
