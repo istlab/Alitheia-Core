@@ -1,7 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: SQO_OSS_SCL Plug-in
-Bundle-SymbolicName: SQO_OSS_SCL
-Bundle-Version: 1.0.0
-Export-Package: eu.sqooss.scl,
- eu.sqooss.scl.result

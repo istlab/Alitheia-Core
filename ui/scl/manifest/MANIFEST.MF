@@ -1,0 +1,1 @@
+Class-Path: lib/eu.sqooss.ws.client_0.0.1.jar
