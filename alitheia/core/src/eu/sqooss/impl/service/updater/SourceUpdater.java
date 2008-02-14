@@ -87,6 +87,7 @@ class SourceUpdater extends Job {
         Transaction tx = s.beginTransaction();
         
         try {
+            long ts = System.currentTimeMillis();
             // This is the last version we actually know about
             ProjectVersion lastVersion = StoredProject.getLastProjectVersion(project, logger);
             SCMAccessor scm = tds.getAccessor(project.getId()).getSCMAccessor();
@@ -94,6 +95,11 @@ class SourceUpdater extends Job {
             CommitLog commitLog = scm.getCommitLog(
                     new ProjectRevision(lastVersion.getVersion()),
                     new ProjectRevision(lastSCMVersion));
+            
+            logger.info(project.getName() + ": Log entries: " + commitLog.size());
+            logger.info(project.getName() + ": Time to get log: " + 
+                    (int)((System.currentTimeMillis() - ts)/1000));
+            ts = System.currentTimeMillis();
             
             for (CommitEntry entry : commitLog) {
                 //handle changes that have occurred on each individual commit
@@ -110,7 +116,8 @@ class SourceUpdater extends Job {
                 for(String chPath: entry.getChangedPaths()) {
                     
                     if(isTag(entry, chPath)) {
-                        logger.info("SVN Tag revision: " + entry.getRevision().getSVNRevision());
+                        logger.info(project.getName() + ": SVN Tag revision: " + 
+                                entry.getRevision().getSVNRevision());
                         Tag t = curVersion.addTag();
                         t.setName(chPath.substring(5));
                         s.save(t);
@@ -120,12 +127,14 @@ class SourceUpdater extends Job {
                     ProjectFile pf = curVersion.addProjectFile();
                     pf.setName(chPath);
                     pf.setStatus(entry.getChangedPathsStatus().get(chPath).toString());
-                    logger.info("Saving path: " + chPath);
+                    logger.info(project.getName() + ": Saving path: " + chPath);
                     s.save(pf);
                 }
             }
-            
-            s.getTransaction().commit();
+
+            tx.commit();
+            logger.info(project.getName() + ": Time to process entries: " + 
+                    (int)((System.currentTimeMillis() - ts)/1000));
             
         } catch (InvalidRepositoryException e) {
             logger.error("Not such repository:" + e.getMessage());
@@ -174,6 +183,8 @@ class SourceUpdater extends Job {
          */
         if(entry.getChangedPathsStatus().get(path) != PathChangeType.ADDED)
             return false;
+        
+        
         
         /* If a path is not the prefix for all changed files 
          * in a commit, then it is a leaf node (and therefore 
