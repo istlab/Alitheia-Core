@@ -45,13 +45,16 @@ import java.util.List;
 import java.util.Map;
 
 import org.hibernate.HibernateException;
+import org.hibernate.JDBCException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.hibernate.TransactionException;
 import org.hibernate.cfg.Configuration;
 import org.osgi.framework.BundleContext;
 
+import eu.sqooss.impl.service.messaging.senders.smtp.connection.SessionException;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.logging.Logger;
@@ -175,6 +178,20 @@ public class DBServiceImpl implements DBService {
         }
     }
 
+    private void logExceptionAndRollbackTransaction( HibernateException e, Transaction tx) {
+        if (tx != null) {
+            logger.error("Error during database transaction: " + e.getMessage() + ". Rolling back transaction.");
+            try {
+                tx.rollback();
+            } catch (HibernateException ex) {
+                logger.error("Error while rolling back failed transaction."
+                        + " DB may be left in inconsistent state: " + ex.getMessage());
+            }
+        } else {
+            logger.error("Database session error: " + e.getMessage());
+        }
+    }
+    
     private boolean getJDBCConnection(String driver, String url, String dialect) {
         
         if ((driver == null) || (url == null) || (dialect == null)) {
@@ -381,40 +398,64 @@ public class DBServiceImpl implements DBService {
 
     public List doSQL(String sql) {
         Session s = getSession(this);
+        Transaction tx = null;
         try {
-            s.beginTransaction();
+            tx = s.beginTransaction();
             List result = doSQL(s, sql);
-            s.getTransaction().commit();
+            tx.commit();
             return result;
+        } catch( TransactionException e ) {
+            logger.error("Transaction error: " + e.getMessage());
+            throw e;
+        } catch( HibernateException e ) {
+            logExceptionAndRollbackTransaction(e,tx);
+            throw e;
         } finally {
             returnSession(s);
         }
     }
 
     public List doSQL(Session s, String sql) {
-        return s.createSQLQuery(sql).list();
+        try {
+            return s.createSQLQuery(sql).list();
+        } catch( JDBCException e ) {
+            logSQLException(e.getSQLException());
+            throw e;
+        }
     }
 
     public List doSQL(String sql, Map<String, Object> params) {
         Session s = getSession(this);
+        Transaction tx = null;
         try {
-            s.beginTransaction();
+            tx = s.beginTransaction();
             List result = doSQL(s, sql, params);
-            s.getTransaction().commit();
+            tx.commit();
             return result;
+        } catch( TransactionException e ) {
+            logger.error("Transaction error: " + e.getMessage());
+            throw e;
+        } catch( HibernateException e ) {
+            logExceptionAndRollbackTransaction(e,tx);
+            throw e;
         } finally {
             returnSession(s);
         }
     }
 
     public List doSQL(Session s, String sql, Map<String, Object> params) {
-        Query query = s.createSQLQuery(sql);
-        Iterator<String> i = params.keySet().iterator();
-        while(i.hasNext()) {
-            String paramName = i.next();
-            query.setParameter(paramName, params.get(paramName));
+        try {
+            Query query = s.createSQLQuery(sql);
+            Iterator<String> i = params.keySet().iterator();
+            while(i.hasNext()) {
+                String paramName = i.next();
+                query.setParameter(paramName, params.get(paramName));
+            }
+            return query.list();
+        } catch (JDBCException e) {
+            logSQLException(e.getSQLException());
+            throw e;
         }
-        return query.list();
     }
 
     public List doHQL(String hql) {
