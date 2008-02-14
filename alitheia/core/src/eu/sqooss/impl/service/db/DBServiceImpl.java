@@ -504,6 +504,7 @@ public class DBServiceImpl implements DBService {
             	lastRecord = record;
             	s.delete(record);				
 			}
+            lastRecord = null;
             tx.commit();
         }
         catch (HibernateException e) {
