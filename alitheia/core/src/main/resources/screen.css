@@ -188,6 +188,7 @@ body.section-4 #menu li#nav-4 a {
 }
 
 #newproject .form {
+	width: 100%;
 	border: 1px solid #ccc;
 	background: url(/greyBack.jpg) top repeat-x; 
 }
