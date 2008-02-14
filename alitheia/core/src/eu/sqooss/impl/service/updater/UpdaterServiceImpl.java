@@ -168,8 +168,8 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
                 + target);
 
         if (!core.getScheduler().isExecuting()) {
-            // Make sure there is a thread for this update.
-            core.getScheduler().startExecute(1);
+            // Make sure there are enough threads for the updater.
+            core.getScheduler().startExecute(Runtime.getRuntime().availableProcessors());
         }
 
         Set<UpdateTarget> s = currentJobs.get(project.getName());
