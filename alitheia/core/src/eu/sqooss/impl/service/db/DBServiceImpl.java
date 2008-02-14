@@ -305,12 +305,14 @@ public class DBServiceImpl implements DBService {
 
     public List doSQL(String sql) {
         Session s = getSession(this);
-        s.beginTransaction();
-        List result = doSQL(s, sql);
-        s.getTransaction().commit();
-        returnSession(s);
-
-        return result;
+        try {
+            s.beginTransaction();
+            List result = doSQL(s, sql);
+            s.getTransaction().commit();
+            return result;
+        } finally {
+            returnSession(s);
+        }
     }
 
 	public List doSQL(Session s, String sql) {
@@ -319,12 +321,14 @@ public class DBServiceImpl implements DBService {
 
     public List doSQL(String sql, Map<String, Object> params) {
         Session s = getSession(this);
-        s.beginTransaction();
-        List result = doSQL(s, sql, params);
-        s.getTransaction().commit();
-        returnSession(s);
-
-        return result;
+        try {
+            s.beginTransaction();
+            List result = doSQL(s, sql, params);
+            s.getTransaction().commit();
+            return result;
+        } finally {
+            returnSession(s);
+        }
     }
 
     public List doSQL(Session s, String sql, Map<String, Object> params) {
@@ -348,12 +352,14 @@ public class DBServiceImpl implements DBService {
     public List doHQL(String hql, Map<String, Object> params,
         Map<String, Collection> collectionParams) {
         Session s = getSession(this);
-        s.beginTransaction();
-        List result = doHQL(s, hql, params, collectionParams);
-        s.getTransaction().commit();
-        returnSession(s);
-
-        return result;
+        try {
+            s.beginTransaction();
+            List result = doHQL(s, hql, params, collectionParams);
+            s.getTransaction().commit();
+            return result;
+        } finally {
+            returnSession(s);
+        }
     }
 
     public List doHQL(Session s, String hql) {
@@ -396,9 +402,11 @@ public class DBServiceImpl implements DBService {
 
     public boolean addRecord(DAObject record) {
         Session s = getSession(this);
-        boolean result = addRecord(s, record);
-        returnSession (s);
-        return result;
+        try {
+            return addRecord(s, record);
+        } finally {
+            returnSession(s);
+        }
     }
 
     public boolean addRecord(Session s, DAObject record) {
@@ -409,9 +417,11 @@ public class DBServiceImpl implements DBService {
 
     public boolean deleteRecord(DAObject record) {
         Session s = getSession(this);
-        boolean result = deleteRecord(s, record);
-        returnSession(s);
-        return result;
+        try {
+            return deleteRecord(s, record);            
+        } finally {
+            returnSession(s);            
+        }
     }
 
     public boolean deleteRecord(Session s, DAObject record) {
@@ -426,9 +436,11 @@ public class DBServiceImpl implements DBService {
 	
 	public boolean addRecords(List<DAObject> records) {
         Session s = getSession(this);
-        boolean result = addRecords(s, records);
-        returnSession(s);
-        return result;
+        try {
+            return addRecords(s, records);
+        } finally {
+            returnSession(s);
+        }
 	}
 
 	/* (non-Javadoc)
@@ -482,9 +494,11 @@ public class DBServiceImpl implements DBService {
 	
 	public boolean deleteRecords(List<DAObject> records) {
         Session s = getSession(this);
-        boolean result = deleteRecords(s, records);
-        returnSession(s);
-        return result;
+        try {
+            return deleteRecords(s, records);
+        } finally {
+            returnSession(s);
+        }
 	}
 
 	/* (non-Javadoc)
