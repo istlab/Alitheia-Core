@@ -423,7 +423,7 @@ public class DBServiceImpl implements DBService {
     /* (non-Javadoc)
 	 * @see eu.sqooss.service.db.DBService#addRecords(java.util.List)
 	 */
-	@Override
+	
 	public boolean addRecords(List<DAObject> records) {
         Session s = getSession(this);
         boolean result = addRecords(s, records);
@@ -434,7 +434,7 @@ public class DBServiceImpl implements DBService {
 	/* (non-Javadoc)
 	 * @see eu.sqooss.service.db.DBService#addRecords(org.hibernate.Session, java.util.List)
 	 */
-	@Override
+	
 	public boolean addRecords(Session s, List<DAObject> records) {
 
         Transaction tx = null;
@@ -470,7 +470,7 @@ public class DBServiceImpl implements DBService {
 	/* (non-Javadoc)
 	 * @see eu.sqooss.service.db.DBService#deleteRecords(java.util.List)
 	 */
-	@Override
+	
 	public boolean deleteRecords(List<DAObject> records) {
         Session s = getSession(this);
         boolean result = deleteRecords(s, records);
@@ -481,7 +481,7 @@ public class DBServiceImpl implements DBService {
 	/* (non-Javadoc)
 	 * @see eu.sqooss.service.db.DBService#deleteRecords(org.hibernate.Session, java.util.List)
 	 */
-	@Override
+	
 	public boolean deleteRecords(Session s, List<DAObject> records) {
 
         Transaction tx = null;
