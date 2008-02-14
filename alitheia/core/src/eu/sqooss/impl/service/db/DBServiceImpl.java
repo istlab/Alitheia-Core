@@ -613,30 +613,19 @@ public class DBServiceImpl implements DBService {
             }
             lastRecord = null;
             tx.commit();
-        }
-        catch (HibernateException e) {
-            if (tx != null) {
-                if (lastRecord != null) {
-                    logger.error("Failed to add object "
-                            + "[" + lastRecord.getClass().getName() + ":" + lastRecord.getId() + "]"
-                            + " to the database: " + e.getMessage());
-                } else {
-                    logger.error("Error while commiting database transaction:"
-                            + e.getMessage());
-                }
-                try {
-                    tx.rollback();
-                } catch (HibernateException ex) {
-                    logger.error("Error while rolling back failed transaction."
-                            + " DB may be left in inconsistent state:" + ex.getMessage());
-                }
-            } else {
-                logger.error("Error while initializing database transaction:" + e.getMessage());
+            return true;
+        } catch( TransactionException e ) {
+            logger.error("Transaction error: " + e.getMessage());
+            return false;
+        } catch (HibernateException e) {
+            if (lastRecord != null) {
+                logger.error("Failed to add object "
+                        + "[" + lastRecord.getClass().getName() + ":" + lastRecord.getId() + "]"
+                        + " to the database: " + e.getMessage());
             }
+            logExceptionAndRollbackTransaction(e,tx);
             return false;
         }
-
-        return true;
     }
 
     /* (non-Javadoc)
@@ -671,30 +660,19 @@ public class DBServiceImpl implements DBService {
             }
             lastRecord = null;
             tx.commit();
-        }
-        catch (HibernateException e) {
-            if (tx != null) {
-                if (lastRecord != null) {
-                    logger.error("Failed to remove object "
-                            + "[" + lastRecord.getClass().getName() + ":" + lastRecord.getId() + "]"
-                            + " from the database: " + e.getMessage());
-                } else {
-                    logger.error("Error while commiting database transaction:"
-                            + e.getMessage());
-                }
-                try {
-                    tx.rollback();
-                } catch (HibernateException ex) {
-                    logger.error("Error while rolling back failed transaction."
-                            + " DB may be left in inconsistent state:" + ex.getMessage());
-                }
-            } else {
-                logger.error("Error while initializing database transaction:" + e.getMessage());
+            return true;
+        } catch( TransactionException e ) {
+            logger.error("Transaction error: " + e.getMessage());
+            return false;
+        } catch (HibernateException e) {
+            if (lastRecord != null) {
+                logger.error("Failed to remove object "
+                        + "[" + lastRecord.getClass().getName() + ":" + lastRecord.getId() + "]"
+                        + " from the database: " + e.getMessage());
             }
+            logExceptionAndRollbackTransaction(e,tx);
             return false;
         }
-
-        return true;
     }
 
     public Object selfTest() {
