@@ -1,6 +1,6 @@
 TOMCAT_LIB=tomcat/webapps/ROOT/WEB-INF/lib/
 
-all : stop build install run
+all : stop clean build install run
 
 
 install :
