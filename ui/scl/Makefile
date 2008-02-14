@@ -21,7 +21,7 @@ CPLIBS:=$(CPLIBS):$(WSC_LIB)
 
 SOURCES=`find src/ | grep \.java$$`
 
-MANIFEST=META-INF/MANIFEST.MF
+MANIFEST=manifest/scl.mf
 BUILD_DIR=build/
 
 DEPLOY_DIR=../build/
