@@ -45,16 +45,15 @@ import java.util.List;
 import java.util.Map;
 
 import org.hibernate.HibernateException;
+import org.hibernate.TransactionException;
 import org.hibernate.JDBCException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.hibernate.TransactionException;
 import org.hibernate.cfg.Configuration;
 import org.osgi.framework.BundleContext;
 
-import eu.sqooss.impl.service.messaging.senders.smtp.connection.SessionException;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.logging.Logger;
