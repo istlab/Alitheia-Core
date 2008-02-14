@@ -60,24 +60,24 @@ import eu.sqooss.service.logging.Logger;
  * A base class for all metrics. Implements basic functionality such as
  * logging setup and plug-in information retrieval from the OSGi bundle
  * manifest file. Metrics can choose to directly implement
- * the {@link eu.sqooss.abstractmetric.Metric} interface instead of extending 
+ * the {@link eu.sqooss.abstractmetric.Metric} interface instead of extending
  * this class.
  */
-public abstract class AbstractMetric 
+public abstract class AbstractMetric
 implements eu.sqooss.service.abstractmetric.Metric {
 
     /** Reference to the metric bundle context */
     protected BundleContext bc;
-    
+
     /** Log manager for administrative operations */
     protected LogManager logService = null;
-    
+
     /** Logger for administrative operations */
     protected Logger log = null;
-    
+
     /** Reference to the DB service, not to be passed to metric jobs */
     protected DBService db;
-    
+
     /**
      * Init basic services common to all implementing classes
      * @param bc - The bundle context of the implementing metric - to be passed
@@ -88,7 +88,7 @@ implements eu.sqooss.service.abstractmetric.Metric {
         this.bc = bc;
         ServiceReference serviceRef = null;
         serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
-        
+
         logService = ((AlitheiaCore) bc.getService(serviceRef)).getLogManager();
 
         if (logService != null) {
@@ -101,11 +101,11 @@ implements eu.sqooss.service.abstractmetric.Metric {
         if (log == null) {
             System.out.println("ERROR: Got no logger");
         }
-        
+
         db = ((AlitheiaCore) bc.getService(serviceRef)).getDBService();
-        
-        if(db == null) 
-            log.error("Could not get a reference to the DB service");      
+
+        if(db == null)
+            log.error("Could not get a reference to the DB service");
     }
 
     /**
@@ -152,40 +152,86 @@ implements eu.sqooss.service.abstractmetric.Metric {
     }
 
     /**
-     * Call the appropriate getResult() method according to 
-     * the type of the entity that is measured 
+     * Call the appropriate getResult() method according to
+     * the type of the entity that is measured.
+     *
+     * @param o DAO that specifies the desired result type.
+     *      The type of o is used to dispatch to the correct
+     *      specialised getResult() method of the sub-interfaces.
+     * @return result (measurement) performed by this metric
+     *      on the project data specified by o.
+     * @throws MetricMismatchException if the DAO is of a type
+     *      not supported by this metric.
      */
-    public Result getResult(DAObject o) {
-
-        if (this instanceof ProjectVersionMetric)
+    public Result getResult(DAObject o)
+        throws MetricMismatchException {
+        if ((this instanceof ProjectVersionMetric) &&
+            (o instanceof ProjectVersion)) {
             return getResult((ProjectVersion) o);
-        if (this instanceof StoredProjectMetric)
+        }
+        if ((this instanceof StoredProjectMetric) &&
+            (o instanceof StoredProject)) {
             return getResult((StoredProject) o);
-        if (this instanceof ProjectFileMetric)
+        }
+        if ((this instanceof ProjectFileMetric) &&
+            (o instanceof ProjectFile)) {
             return getResult((ProjectFile) o);
-        if (this instanceof FileGroupMetric)
+        }
+        if ((this instanceof FileGroupMetric) &&
+            (o instanceof FileGroup)) {
             return getResult((FileGroup) o);
-        return null;
+        }
+
+        throw new MetricMismatchException(o);
     }
 
     /**
-     * Call the appropriate run() method according to 
-     * the type of the entity that is measured 
+     * Call the appropriate run() method according to
+     * the type of the entity that is measured.
+     *
+     * @param o DAO which determines which sub-interface run
+     *          method is called and also determines what
+     *          is to be measured by that sub-interface.
+     * @throws MetricMismatchException if the DAO is of a type
+     *          not supported by this metric.
      */
-    public void run(DAObject o) {
-        if (this instanceof ProjectVersionMetric)
+    public void run(DAObject o)
+        throws MetricMismatchException {
+        // A DAObject might match multiple dispatches, so we keep
+        // track of whether it has matched any at all; at the end
+        // of this method, if no match was found (meaning that
+        // the type of the DAO is inappropriate for this metric)
+        // we throw a MetricMismatchException.
+        boolean matched = false;
+
+        if ((this instanceof ProjectVersionMetric) &&
+            (o instanceof ProjectVersion)) {
             run((ProjectVersion) o);
-        if (this instanceof StoredProjectMetric)
+            matched = true;
+        }
+        if ((this instanceof StoredProjectMetric) &&
+            (o instanceof StoredProject)) {
             run((StoredProject) o);
-        if (this instanceof ProjectFileMetric)
+            matched = true;
+        }
+        if ((this instanceof ProjectFileMetric) &&
+            (o instanceof ProjectFile)) {
             run((ProjectFile) o);
-        if (this instanceof FileGroupMetric)
+            matched = true;
+        }
+        if ((this instanceof FileGroupMetric) &&
+            (o instanceof FileGroup)) {
             run((FileGroup) o);
+            matched = true;
+        }
+        if (!matched) {
+            throw new MetricMismatchException(o);
+        }
     }
 
     /**
      * Add a supported metric description to the database.
-     * 
+     *
      * @param desc String description of the metric
      * @param type The metric type of the supported metric
      * @return True if the operation succeeds, false otherwise (i.e. duplicates etc)
@@ -197,14 +243,14 @@ implements eu.sqooss.service.abstractmetric.Metric {
         m.setPlugin(Plugin.getPlugin(db, getName()));
         return db.addRecord(m);
     }
-    
+
     /**
      * Register the metric to the DB. Subclasses can run
-     * their custom initialization routines (i.e. registering DAOs or tables) 
+     * their custom initialization routines (i.e. registering DAOs or tables)
      * after calling super()
      */
     public boolean install() {
-        
+
         Session s = db.getSession(this);
 
         List plugins = s.createQuery("from Plugin as m where m.name = ? ")
@@ -221,7 +267,7 @@ implements eu.sqooss.service.abstractmetric.Metric {
         p.setName(getName());
         p.setInstalldate(new Date(System.currentTimeMillis()));
         db.returnSession(s);
-        
+
         return db.addRecord(p);
     }
 
@@ -229,14 +275,14 @@ implements eu.sqooss.service.abstractmetric.Metric {
      * Remove a metric's record from the DB. The DB's referential integrity
      * mechanisms are expected to automatically remove associated records.
      * Subclasses should also clean up any custom tables created.
-     * 
-     * TODO: Remove metric registrations from the plugin registry 
+     *
+     * TODO: Remove metric registrations from the plugin registry
      */
     public boolean remove() {
         Session s = db.getSession(this);
         Plugin p = Plugin.getPlugin(db, getName());
         db.returnSession(s);
-        
+
         return db.deleteRecord(p);
     }
 

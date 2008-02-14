@@ -41,23 +41,23 @@ import eu.sqooss.service.db.DAObject;
 /**
  * Common metric plug-in related functionality. Must be implemented
  * by all metrics plug-ins.
- * 
- * All metrics are bound to one or more of the following 
+ *
+ * All metrics are bound to one or more of the following
  * project entities:
- * 
+ *
  * <ul>
  *  <li>Project</li>
  *  <li>Project Version</li>
  *  <li>File Group</li>
  *  <li>File</li>
  * </ul>
- * 
+ *
  * As a result, all metric implementations need to implement at least 2 interfaces:
- * 
+ *
  *  <ul>
  *      <li>This interface</li>
- *      <li>One or more of the following interfaces, depending on the type of 
- *      the entity the metric is bound to</li> 
+ *      <li>One or more of the following interfaces, depending on the type of
+ *      the entity the metric is bound to</li>
  *      <ul>
  *          <li>{@link StoredProjectMetric}</li>
  *          <li>{@link ProjectVersionMetric}</li>
@@ -65,12 +65,12 @@ import eu.sqooss.service.db.DAObject;
  *          <li>{@link FileGroupMetric}</li>
  *      </ul>
  *  </ul>
- *  
+ *
  */
 public interface Metric {
 
     /**
-     * Get the metric version. Free form text. 
+     * Get the metric version. Free form text.
      */
     String getVersion();
 
@@ -95,39 +95,56 @@ public interface Metric {
     String getDescription();
 
     /**
-     * Generic "get results" function, it is specialised by sub-interfaces 
-     * @param o 
-     * @return 
+     * Generic "get results" function, it is specialised by sub-interfaces.
+     *
+     * @param o DAO whose type specifies the specialised sub-interface to use
+     *          and whose value determines which result to get.
+     * @return value of the measurement or null if there is no such measurement.
+     * @throws MetricMismatchException if the DAO type is one not supported by
+     *          this metric.
      */
-    Result getResult(DAObject o);
-    
+    Result getResult(DAObject o)
+        throws MetricMismatchException;
+
     /**
-     * Generic run plug-in method
+     * Generic run plug-in method. This method performs a measurement for
+     * the given DAO, if possible. The DAO might be any one of the types
+     * that make sense for measurements -- ProjectVersion, projectFile,
+     * some others. If a DAO of a type that the metric doesn't support
+     * is passed in, throws a MetricMismatchException.
+     *
+     * The calculation of measurements may be a computationally expensive
+     * task, so metrics should start jobs (by themselves) to handle that.
+     * The subclass AbstractMetric handles job creation automatically for
+     * metrics that have simple requirements (a single job for doing the
+     * calculation).
+     *
      * @param o The DAO that gets passed to the plug-in in order to run it
+     * @throws MetricMismatchException if the DAO is of an unsupported type.
      */
-    
-    public void run(DAObject o);
-       
+    void run(DAObject o)
+        throws MetricMismatchException;
+
     /**
-     * After installing a new version of the metric, try to 
+     * After installing a new version of the metric, try to
      * update the results. The metric may opt to partially
      * or fully update its results tables or files.
-     *  
+     *
      * @return True, if the update succeeded, false otherwise
      */
     boolean update();
 
     /**
-     * Perform maintenance operations when installing a new 
+     * Perform maintenance operations when installing a new
      * version of the metric
-     * 
+     *
      * @return True, if the installation succeeded, false otherwise
      */
     boolean install();
 
     /**
      * Free the used resources and clean up on metric removal
-     * 
+     *
      * @return True, if the installation succeeded, false otherwise
      */
     boolean remove();

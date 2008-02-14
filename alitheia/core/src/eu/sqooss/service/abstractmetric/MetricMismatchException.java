@@ -3,7 +3,8 @@
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  *
  * Copyright 2007 by the SQO-OSS consortium members <info@sqo-oss.eu>
- * Copyright 2007 Georgios Gousios <gousiosg@aueb.gr>
+ * Copyright 2008 by Adriaan de Groot <groot@kde.org>
+ *
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -31,12 +32,26 @@
  *
  */
 
-
+// Need a package name
 package eu.sqooss.service.abstractmetric;
 
-public class ConversionNotSupportedException extends Exception {
-    private static final long serialVersionUID = 1;
-    public ConversionNotSupportedException(String msg) {
-        super(msg);
+import eu.sqooss.service.db.DAObject;
+
+/**
+ * Since the metrics have generic methods that take a DAO,
+ * we could pass a DAO (of some specific subtype) to a metric
+ * that doesn't support that subtype; this exception flags
+ * those situations. Example: passing a ProjectVerson DAO
+ * to a metric that implements only the ProjectFile metric
+ * subinterface.
+ */
+public class MetricMismatchException extends Exception {
+    private static final long serialVersionUID = 1L;
+
+    public MetricMismatchException(DAObject o) {
+        super("DAO type " + o.getClass().getName() + " is unsupported.");
     }
 }
+
+// vi: ai nosi sw=4 ts=4 expandtab
+

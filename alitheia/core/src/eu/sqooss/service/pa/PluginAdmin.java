@@ -32,14 +32,19 @@
 package eu.sqooss.service.pa;
 
 import java.util.Collection;
+import org.osgi.framework.ServiceReference;
+
+import eu.sqooss.service.abstractmetric.Metric;
+import eu.sqooss.service.db.DAObject;
 
 // TODO: Auto-generated Javadoc
 /**
  * PluginAdmin defines an interface for classes that provide utilities for
  *  managing SQO-OSS plug-ins, and more specifically metric plug-ins.
  */
+
 public interface PluginAdmin {
-    
+
     /** The Constant METRICS_CLASS shall be used as a filter when searching
      * for registered metric services. */
     public final static String METRICS_CLASS = "eu.sqooss.impl.metrics.*";
@@ -47,17 +52,39 @@ public interface PluginAdmin {
     /**
      * Returns a collection containing information about all metrics services
      * currently registered in the framework.
-     * 
+     *
      * @return the list of all metrics currently registered in the framework
      */
     public Collection<MetricInfo> listMetrics();
+
+    /**
+     * Get the list of metrics that have (sub-)interfaces for the given
+     * DAO object's type. The service references are returned, not the
+     * services themselves, since the metrics may disappear or be un-registered
+     * during the lifetime of this collection.
+     *
+     * @param o Object that implies the type of interface that is wanted.
+     * @return Collection of services references. May be null
+     *          if no such interfaces exist.
+     */
+    public ServiceReference[] listMetricProviders(DAObject o);
+    
+    /**
+     * Get the list of metrics that are interested in ProjectVersions;
+     * equivalent to passing a DAObject of class ProjectVersion to
+     * listMetricProviders, above.
+     * 
+     * @return Collection of service references. May be null if no
+     *          such interfaces exist.
+     */
+    public ServiceReference[] listProjectVersionMetrics();
     
     /**
      * Calls the install() method of the metric object provided from a metric
      * service registered with the specified service ID.
-     * 
+     *
      * @param service_ID the service ID of the selected metric service
-     * 
+     *
      * @return true, if successful; false otherwise
      */
     public boolean installMetric(Long service_ID);

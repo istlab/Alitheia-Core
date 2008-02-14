@@ -38,27 +38,27 @@ import eu.sqooss.service.db.StoredProject;
 
 /**
  * A metric plug-in implements the <tt>StoredProjectMetric</tt> interface to
- * indicate that its results are linked to the StoredProject table, and 
- * consequently needs to be recalculated when a change that affects the 
- * whole project occurs. 
+ * indicate that its results are linked to the StoredProject table, and
+ * consequently needs to be recalculated when a change that affects the
+ * whole project occurs.
  */
 public interface StoredProjectMetric {
-  
+
     /**
      * Run the metric to update the results for this Stored Project DAO
-     *   
-     * @param 
+     *
+     * @param
      * @return True, if the metric run succeeded, false otherwise
      * @see eu.sqooss.service.db.StoredProject
      */
-    boolean run(StoredProject a);
-    
+    void run(StoredProject a);
+
     /**
-     * Return metric results for Stored Project <tt>a</tt> 
-     * 
+     * Return metric results for Stored Project <tt>a</tt>
+     *
      * @param metricTypeDAO
      * @return
      */
     Result getResult(StoredProject a);
-    
+
 }

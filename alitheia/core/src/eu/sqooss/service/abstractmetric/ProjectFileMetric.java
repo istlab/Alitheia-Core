@@ -38,25 +38,25 @@ import eu.sqooss.service.db.ProjectFile;
 
 /**
  * A metric plug-in implements the <tt>ProjectFileMetric</tt> interface to
- * indicate that its results are linked to the ProjectFile table, and 
- * consequently needs to be recalculated when a particular file is changed 
+ * indicate that its results are linked to the ProjectFile table, and
+ * consequently needs to be recalculated when a particular file is changed
  */
 
 public interface ProjectFileMetric {
-  
+
     /**
      * Run the metric to update the metric results on the file indicated by the
-     * argument DAO 
-     *    
+     * argument DAO
+     *
      * @param The first new version DAO
      * @return True, if the metric run succeeded, false otherwise
      * @see eu.sqooss.service.db.ProjectVersion
      */
-    boolean run(ProjectFile a);
-    
+    void run(ProjectFile a);
+
     /**
-     * Return metric results for file <tt>a</tt> 
-     * 
+     * Return metric results for file <tt>a</tt>
+     *
      * @param ProjectFile DAO
      * @return The metric result
      */

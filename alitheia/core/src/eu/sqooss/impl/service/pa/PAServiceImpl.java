@@ -31,6 +31,7 @@
  */
 package eu.sqooss.impl.service.pa;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -45,6 +46,15 @@ import org.osgi.framework.Constants;
 import org.eclipse.osgi.framework.console.CommandProvider;
 
 import eu.sqooss.service.abstractmetric.Metric;
+import eu.sqooss.service.abstractmetric.FileGroupMetric;
+import eu.sqooss.service.abstractmetric.ProjectFileMetric;
+import eu.sqooss.service.abstractmetric.ProjectVersionMetric;
+import eu.sqooss.service.abstractmetric.StoredProjectMetric;
+import eu.sqooss.service.db.DAObject;
+import eu.sqooss.service.db.FileGroup;
+import eu.sqooss.service.db.ProjectFile;
+import eu.sqooss.service.db.ProjectVersion;
+import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.pa.ConfigUtils;
 import eu.sqooss.service.pa.MetricConfig;
 import eu.sqooss.service.pa.MetricInfo;
@@ -84,7 +94,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
     private static final String CANT_GET_SOBJ =
         "The service object can not be retrieved!";
 
-    
+
     /* ===[ Global variables ]============================================ */
 
     // Store our parent's bundle context here
@@ -137,9 +147,9 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
     /**
      * Constructs a MetricInfo object, from the available information
      * regarding the selected metric service reference
-     * 
+     *
      * @param srefMetric the service reference object
-     * 
+     *
      * @return a MetricInfo object containing the extracted metric
      * information
      */
@@ -216,7 +226,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
     /**
      * Performs various maintenance operations upon registration of a new
      * metric service
-     * 
+     *
      * @param srefMetric the reference to the registered metric service
      */
     private void metricRegistered (ServiceReference srefMetric) {
@@ -283,7 +293,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
     /**
      * Performs various maintenance operations during unregistering of a
      * metric service
-     * 
+     *
      * @param srefMetric the reference to the registered metric service
      */
     private void metricUnregistering (ServiceReference srefMetric) {
@@ -303,7 +313,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
     /**
      * Performs various maintenance operations upon a change in an existing
      * metric service
-     * 
+     *
      * @param srefMetric the reference to the registered metric service
      */
     private void metricModified (ServiceReference srefMetric) {
@@ -327,7 +337,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
         case ServiceEvent.REGISTERED:
             metricRegistered(affectedService);
             break;
-        // An existing service is unregistering  
+        // An existing service is unregistering
         case ServiceEvent.UNREGISTERING:
             metricUnregistering(affectedService);
             break;
@@ -414,22 +424,57 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
         return false;
     }
 
+    public ServiceReference[] listMetricProviders(DAObject o) {
+        String targetClassName = null;
+        if (o instanceof StoredProject)
+            targetClassName = StoredProjectMetric.class.getName();
+        else if (o instanceof ProjectVersion)
+            targetClassName = ProjectVersionMetric.class.getName();
+        else if (o instanceof ProjectFile)
+            targetClassName = ProjectFileMetric.class.getName();
+        else if (o instanceof FileGroup)
+            targetClassName = FileGroupMetric.class.getName();
+        else {
+            // Just bail out if we don't know what to do with this
+            return null;
+        }
+
+        ServiceReference[] metricsList = null;
+        try {
+            metricsList = bc.getServiceReferences(targetClassName, SREF_FILTER_METRIC);
+        } catch (InvalidSyntaxException e) {
+            logError(INVALID_FILTER_SYNTAX);
+            return null;
+        }
+
+        return metricsList;
+    }
+    
+    public ServiceReference[] listProjectVersionMetrics() {
+        try {
+            return bc.getServiceReferences(ProjectVersionMetric.class.getName(), SREF_FILTER_METRIC);
+        } catch (InvalidSyntaxException e) {
+            logError(INVALID_FILTER_SYNTAX);
+            return null;
+        }
+    }
+
     private void logError(String msgText) {
         // TODO Use Logger instead
         System.out.println ("[ERROR] " + msgText);
-        
+
     }
 
     private void logWarning(String msgText) {
         // TODO Use Logger instead
         System.out.println ("[WARNING] " + msgText);
-        
+
     }
 
     private void logInfo(String msgText) {
         // TODO Use Logger instead
         System.out.println ("[INFO] " + msgText);
-        
+
     }
 
 }

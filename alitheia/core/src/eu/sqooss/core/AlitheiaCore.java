@@ -32,7 +32,6 @@
 
 package eu.sqooss.core;
 
-
 import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedList;
@@ -41,12 +40,14 @@ import java.util.List;
 import javax.servlet.ServletException;
 
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 import org.osgi.service.http.NamespaceException;
 
 import eu.sqooss.impl.service.db.DBServiceImpl;
 import eu.sqooss.impl.service.fds.FDSServiceImpl;
 import eu.sqooss.impl.service.logging.LogManagerImpl;
 import eu.sqooss.impl.service.messaging.MessagingServiceImpl;
+import eu.sqooss.impl.service.pa.PAServiceImpl;
 import eu.sqooss.impl.service.scheduler.SchedulerServiceImpl;
 import eu.sqooss.impl.service.security.SecurityManagerImpl;
 import eu.sqooss.impl.service.tds.TDSServiceImpl;
@@ -57,12 +58,12 @@ import eu.sqooss.service.fds.FDSService;
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.messaging.MessagingService;
+import eu.sqooss.service.pa.PluginAdmin;
 import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.security.SecurityManager;
 import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.updater.UpdaterService;
 import eu.sqooss.service.webadmin.WebadminService;
-import eu.sqooss.impl.service.pa.PAServiceImpl;
 
 public class AlitheiaCore {
 
@@ -94,6 +95,11 @@ public class AlitheiaCore {
         if (padmin == null) {
             padmin = new PAServiceImpl(bc);
         }
+    }
+    
+    public PluginAdmin getPluginManager() {
+        initPluginAdmin();
+        return padmin;
     }
     
     public LogManager getLogManager() {
@@ -165,7 +171,11 @@ public class AlitheiaCore {
         return updater;
     }
 
-    /**
+    public Object getService(ServiceReference r) {
+        return bc.getService(r);
+    }
+    
+    /*
      * This is the selfTest() method which is called by the system
      * tester at startup. The method itself serves only as a dispatcher
      * to call the selfTest() methods of all of the sub-services of

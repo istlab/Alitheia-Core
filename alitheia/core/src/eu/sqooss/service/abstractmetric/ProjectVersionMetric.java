@@ -38,18 +38,18 @@ import eu.sqooss.service.db.ProjectVersion;
 
 /**
  * A metric plug-in implements the <tt>ProjectVersionMetric</tt> interface to
- * indicate that its results are linked to the ProjectVersion table, and 
- * consequently needs to be recalculated on every new project version. 
+ * indicate that its results are linked to the ProjectVersion table, and
+ * consequently needs to be recalculated on every new project version.
  */
 public interface ProjectVersionMetric extends Metric {
 
     /**
      * Run the metric to update the metric results when new versions
-     * of the evaluated project are available. 
-     * 
+     * of the evaluated project are available.
+     *
      * By default, the run method will start updating metric results from
      * version <tt>a</tt> to version <tt>b</tt>.
-     *   
+     *
      * @param The first new version DAO
      * @param The last new version DAO
      * @return True, if the metric run succesfuly, false otherwise
@@ -58,8 +58,13 @@ public interface ProjectVersionMetric extends Metric {
     boolean run(ProjectVersion a, ProjectVersion b);
 
     /**
-     * Return results 
-     * 
+     * Specialization of run(DAObject) for project versions.
+     */
+    void run(ProjectVersion v);
+
+    /**
+     * Return results
+     *
      * @param The project version to return results for
      * @return A {@link MetricResult} object when results for this version
      * exist, <tt>null</tt> otherwise.
