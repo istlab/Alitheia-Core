@@ -55,6 +55,8 @@ public class BugReporter extends DAObject {
     public void setName(String name) {
         this.name = name;
     }
+
+    
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

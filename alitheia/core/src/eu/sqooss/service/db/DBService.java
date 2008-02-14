@@ -59,6 +59,21 @@ public interface DBService {
      * For example, if a class has a String property called name (ie. a getName()/setName() accessor pair),
      * then you would use "name" as the map key and a String object as the map value.
      * If any property in the map isn't valid (either an unknown name or a value of the wrong type) the call will fail and an empty list will be returned.
+     * It uses its own session.
+     * 
+     * @param daoClass the actual class of the DAObjects
+     * @param properties a map of property name/value pairs corresponding to properties of the DAObject subclass
+     * @return a list of DAObjects matching the class and the set of properties, possibly empty if no match was found in the database or if the properties map contains invalid entries
+     */
+    public <T extends DAObject> List<T> findObjectByProperties(Class<T> daoClass, Map<String,Object> properties );
+    
+    /**
+     * A generic query method to retrieve a list of DAObjects of a same subclass matching a set of properties.
+     * The returned list contains the objects matching <b>all</b> of the properties specified. It is parameterized to the actual type of DAObject queried so no downcast is needed.
+     * The map key should be the property name as a string, and the value should be a value with a matching type for the property.
+     * For example, if a class has a String property called name (ie. a getName()/setName() accessor pair),
+     * then you would use "name" as the map key and a String object as the map value.
+     * If any property in the map isn't valid (either an unknown name or a value of the wrong type) the call will fail and an empty list will be returned.
      * @param s the session to use for this transaction
      * @param daoClass the actual class of the DAObjects
      * @param properties a map of property name/value pairs corresponding to properties of the DAObject subclass

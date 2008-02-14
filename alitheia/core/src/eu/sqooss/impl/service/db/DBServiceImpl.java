@@ -33,12 +33,12 @@
 package eu.sqooss.impl.service.db;
 
 import java.net.URL;
+import java.net.MalformedURLException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -54,11 +54,15 @@ import org.osgi.framework.BundleContext;
 
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
-import eu.sqooss.service.db.Plugin;
-import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
+import eu.sqooss.impl.service.logging.LoggerImpl;
 
 public class DBServiceImpl implements DBService {
+
+    private static final String DB_DRIVER_PROPERTY = "eu.sqooss.db.driver";
+    private static final String DB_CONNECTION_URL_PROPERTY = "eu.sqooss.db.url";
+    private static final String DB_DIALECT_PROPERTY = "eu.sqooss.db.dialect";
+    private static final String HIBERNATE_CONFIG_PROPERTY = "eu.sqooss.hibernate.config";
 
     /* Those two should be runtime configuration options */
     private static final int INIT_POOL_SIZE = 5;
@@ -162,7 +166,7 @@ public class DBServiceImpl implements DBService {
     }
 
     private void logSQLException(SQLException e) {
-        
+
         while (e != null) {
             String message = String.format("SQLException: SQL State:%s, Error Code:%d, Message:%s",
                     e.getSQLState(), e.getErrorCode(), e.getMessage());
@@ -170,8 +174,9 @@ public class DBServiceImpl implements DBService {
             e = e.getNextException();
         }
     }
-    
+
     private boolean getJDBCConnection(String driver, String url, String dialect) {
+        
         if ((driver == null) || (url == null) || (dialect == null)) {
             dbClass = null;
             dbURL = null;
@@ -179,19 +184,22 @@ public class DBServiceImpl implements DBService {
             dbConnection = null;
             return false;
         }
-
+        
         try {
             Class.forName(driver).newInstance();
             logger.info("Created instance of " + driver);
         } catch (InstantiationException e) {
             logger.error("Unable to instantiate the JDBC driver " + driver
                     + " : " + e.getMessage());
+            return false;
         } catch (ClassNotFoundException e) {
-            logger.error("Unable to load the JDBC driver " + driver);
+            System.err.println("Unable to load the JDBC driver");
+            return false;
         } catch (IllegalAccessException e) {
-            logger.error("Not allowed to access the JDBC driver " + driver);
+            System.err.println("Not allowed to access the JDBC driver");
+            return false;
         }
-
+        
         try {
             Connection c = DriverManager.getConnection(url);
             c.setAutoCommit(false);
@@ -203,7 +211,7 @@ public class DBServiceImpl implements DBService {
         } catch (SQLException e) {
             logSQLException(e);
         }
-        
+
         dbClass = null;
         dbURL = null;
         dbDialect = null;
@@ -222,7 +230,7 @@ public class DBServiceImpl implements DBService {
     private boolean getDerbyJDBC() {
         return getJDBCConnection("org.apache.derby.jdbc.EmbeddedDriver",
                 "jdbc:derby:derbyDB;create=true",
-                "org.hibernate.dialect.DerbyDialect");
+        "org.hibernate.dialect.DerbyDialect");
     }
 
     private void initHibernate(URL configFileURL) {
@@ -247,15 +255,66 @@ public class DBServiceImpl implements DBService {
         }
     }
 
+    /**
+     * Constructor for creating a DBServiceImpl outside the SQO-OSS system, e.g.,
+     * for testing purposes.
+     */
+    public DBServiceImpl() {
+        String dbDriverProp;
+        String dbConnectionURLProp;
+        String dbDialectProp;
+        String hibernateConfigURLProp;
+        URL hibernateConfigURL = null;
+
+        this.logger = new LoggerImpl("standalone");
+        
+        dbDriverProp = System.getProperty(DB_DRIVER_PROPERTY);
+        if (dbDriverProp == null) {
+            System.err.println("Could not get " + DB_DRIVER_PROPERTY + " property.");
+            System.exit(1);
+        }
+        dbConnectionURLProp = System.getProperty(DB_CONNECTION_URL_PROPERTY);
+        if (dbConnectionURLProp == null) {
+            System.err.println("Could not get " + DB_CONNECTION_URL_PROPERTY + " property.");
+            System.exit(1);
+        }
+        dbDialectProp = System.getProperty(DB_DIALECT_PROPERTY);
+        if (dbDialectProp == null) {
+            System.err.println("Could not get " + DB_DIALECT_PROPERTY + " property.");
+            System.exit(1);
+        }
+        if (!getJDBCConnection(dbDriverProp, dbConnectionURLProp, dbDialectProp)) {
+            System.err.println("Could not get JDBC connection.");
+            System.exit(1);
+        }
+
+        hibernateConfigURLProp = System.getProperty(HIBERNATE_CONFIG_PROPERTY);
+
+        try {
+            hibernateConfigURL = new URL(hibernateConfigURLProp);
+        } catch (MalformedURLException e) {
+            System.err.println("Could not get hibernate configuration file: " + HIBERNATE_CONFIG_PROPERTY);
+            System.exit(1);
+        }
+
+        initHibernate(hibernateConfigURL);
+    }
+
+    /**
+     * Constructor for creating a DBServiceImpl inside the SQO-OSS system.
+     * 
+     * @param bc The current BundleContext
+     * @param l The current Logger
+     */
     public DBServiceImpl(BundleContext bc, Logger l) {
         logger = l;
 
         dbURL = null;
         dbClass = null;
         dbDialect = null;
-        if (!getJDBCConnection(bc.getProperty("eu.sqooss.db.driver"),
-                bc.getProperty("eu.sqooss.db.url"),
-                bc.getProperty("eu.sqooss.db.dialect"))) {
+        if (!getJDBCConnection(bc.getProperty(DB_DRIVER_PROPERTY),
+                bc.getProperty(DB_CONNECTION_URL_PROPERTY),
+                bc.getProperty(DB_DIALECT_PROPERTY))) {
             if (!Boolean
                     .valueOf(bc.getProperty("eu.sqooss.db.fallback.enable"))
                     || !getDerbyJDBC()) {
@@ -265,7 +324,7 @@ public class DBServiceImpl implements DBService {
 
         if (dbClass != null) {
             logger.info("Using JDBC " + dbClass);
-            initHibernate(bc.getBundle().getEntry("/hibernate.cfg.xml"));
+            initHibernate(bc.getBundle().getEntry("HIBERNATE_CONFIG_PROPERTY"));
         } else {
             logger.error("Hibernate will not be initialized.");
             // TODO: Throw something to prevent the bundle from being started?
@@ -276,30 +335,40 @@ public class DBServiceImpl implements DBService {
      * @see eu.sqooss.service.db.DBService#findObjectById(org.hibernate.Session, java.lang.Class, long)
      */
     @SuppressWarnings("unchecked")
-	public <T extends DAObject> T findObjectById(Session s, Class<T> daoClass, long id) {
-    	return (T) s.get(daoClass, id);
+    public <T extends DAObject> T findObjectById(Session s, Class<T> daoClass, long id) {
+        return (T) s.get(daoClass, id);
     }
-    
-	/* (non-Javadoc)
-	 * @see eu.sqooss.service.db.DBService#findObjectByProperties(org.hibernate.Session, java.lang.Class, java.util.Map)
-	 */
-	@SuppressWarnings("unchecked")
-	public <T extends DAObject> List<T> findObjectByProperties(Session s, Class<T> daoClass, Map<String,Object> properties ) {
-		
-		if ( !DAObject.class.isAssignableFrom(daoClass) ) {
-			// throw an exception instead ?
-			return new ArrayList<T>(0);
-		}
-		
-		// TODO maybe check that the properties are valid (e.g. with java.bean.PropertyDescriptor)
-		
-		Map<String,Object> parameterMap = new HashMap<String,Object>();
-		StringBuffer whereClause = new StringBuffer();
-		for (String key : properties.keySet()) {
-			whereClause.append( whereClause.length() == 0 ? " where " : " and " );
-			whereClause.append( daoClass.getName() + "." + key + "=:_" + key );
-			parameterMap.put( "_" + key, properties.get(key) );
-		}
+
+    /* (non-Javadoc)
+     * @see eu.sqooss.service.db.DBService#findObjectByProperties(org.hibernate.Session, java.lang.Class, java.util.Map)
+     */
+    @SuppressWarnings("unchecked")
+    public <T extends DAObject> List<T> findObjectByProperties(Class<T> daoClass, Map<String,Object> properties ) {
+
+        Session s = getSession(this);
+        return findObjectByProperties(s, daoClass, properties);
+    }  
+
+    /* (non-Javadoc)
+     * @see eu.sqooss.service.db.DBService#findObjectByProperties(org.hibernate.Session, java.lang.Class, java.util.Map)
+     */
+    @SuppressWarnings("unchecked")
+    public <T extends DAObject> List<T> findObjectByProperties(Session s, Class<T> daoClass, Map<String,Object> properties ) {
+
+        if ( !DAObject.class.isAssignableFrom(daoClass) ) {
+            // throw an exception instead ?
+            return new ArrayList<T>(0);
+        }
+
+        // TODO maybe check that the properties are valid (e.g. with java.bean.PropertyDescriptor)
+
+        Map<String,Object> parameterMap = new HashMap<String,Object>();
+        StringBuffer whereClause = new StringBuffer();
+        for (String key : properties.keySet()) {
+            whereClause.append( whereClause.length() == 0 ? " where " : " and " );
+            whereClause.append( daoClass.getName() + "." + key + "=:_" + key );
+            parameterMap.put( "_" + key, properties.get(key) );
+        }
         return (List<T>) doHQL( s, "from " + daoClass.getName() + whereClause, parameterMap );
     }
 
@@ -315,7 +384,7 @@ public class DBServiceImpl implements DBService {
         }
     }
 
-	public List doSQL(Session s, String sql) {
+    public List doSQL(Session s, String sql) {
         return s.createSQLQuery(sql).list();
     }
 
@@ -350,7 +419,7 @@ public class DBServiceImpl implements DBService {
     }
 
     public List doHQL(String hql, Map<String, Object> params,
-        Map<String, Collection> collectionParams) {
+            Map<String, Collection> collectionParams) {
         Session s = getSession(this);
         try {
             s.beginTransaction();
@@ -371,16 +440,16 @@ public class DBServiceImpl implements DBService {
     }
 
     public List doHQL(Session s, String hql, Map<String, Object> params,
-        Map<String, Collection> collectionParams) {
+            Map<String, Collection> collectionParams) {
         Query query = s.createQuery(hql);
         if (params != null) {
             for ( String param : params.keySet() ) {
-        	query.setParameter(param, params.get(param));
+                query.setParameter(param, params.get(param));
             }
         }
         if (collectionParams != null) {
             for ( String param : collectionParams.keySet() ) {
-        	query.setParameterList(param, collectionParams.get(param));
+                query.setParameterList(param, collectionParams.get(param));
             }
         }
         return query.list();
@@ -410,9 +479,9 @@ public class DBServiceImpl implements DBService {
     }
 
     public boolean addRecord(Session s, DAObject record) {
-    	ArrayList<DAObject> tmpList = new ArrayList<DAObject>(1);
-    	tmpList.add(record);
-    	return addRecords(s, tmpList);
+        ArrayList<DAObject> tmpList = new ArrayList<DAObject>(1);
+        tmpList.add(record);
+        return addRecords(s, tmpList);
     }
 
     public boolean deleteRecord(DAObject record) {
@@ -425,47 +494,47 @@ public class DBServiceImpl implements DBService {
     }
 
     public boolean deleteRecord(Session s, DAObject record) {
-    	ArrayList<DAObject> tmpList = new ArrayList<DAObject>(1);
-    	tmpList.add(record);
-    	return deleteRecords(s, tmpList);
+        ArrayList<DAObject> tmpList = new ArrayList<DAObject>(1);
+        tmpList.add(record);
+        return deleteRecords(s, tmpList);
     }
 
     /* (non-Javadoc)
-	 * @see eu.sqooss.service.db.DBService#addRecords(java.util.List)
-	 */
-	
-	public boolean addRecords(List<DAObject> records) {
+     * @see eu.sqooss.service.db.DBService#addRecords(java.util.List)
+     */
+
+    public boolean addRecords(List<DAObject> records) {
         Session s = getSession(this);
         try {
             return addRecords(s, records);
         } finally {
             returnSession(s);
         }
-	}
+    }
 
-	/* (non-Javadoc)
-	 * @see eu.sqooss.service.db.DBService#addRecords(org.hibernate.Session, java.util.List)
-	 */
-	
-	public boolean addRecords(Session s, List<DAObject> records) {
-	    
-	    if( s == null )
-	        return false;
+    /* (non-Javadoc)
+     * @see eu.sqooss.service.db.DBService#addRecords(org.hibernate.Session, java.util.List)
+     */
+
+    public boolean addRecords(Session s, List<DAObject> records) {
+
+        if( s == null )
+            return false;
 
         Transaction tx = null;
         DAObject lastRecord = null;
         try {
             tx = s.beginTransaction();
             for (DAObject record : records) {
-            	lastRecord = record;
-            	s.save(record);				
-			}
+                lastRecord = record;
+                s.save(record);				
+            }
             lastRecord = null;
             tx.commit();
         }
         catch (HibernateException e) {
             if (tx != null) {
-            	if (lastRecord != null) {
+                if (lastRecord != null) {
                     logger.error("Failed to add object "
                             + "[" + lastRecord.getClass().getName() + ":" + lastRecord.getId() + "]"
                             + " to the database: " + e.getMessage());
@@ -486,38 +555,38 @@ public class DBServiceImpl implements DBService {
         }
 
         return true;
-	}
+    }
 
-	/* (non-Javadoc)
-	 * @see eu.sqooss.service.db.DBService#deleteRecords(java.util.List)
-	 */
-	
-	public boolean deleteRecords(List<DAObject> records) {
+    /* (non-Javadoc)
+     * @see eu.sqooss.service.db.DBService#deleteRecords(java.util.List)
+     */
+
+    public boolean deleteRecords(List<DAObject> records) {
         Session s = getSession(this);
         try {
             return deleteRecords(s, records);
         } finally {
             returnSession(s);
         }
-	}
+    }
 
-	/* (non-Javadoc)
-	 * @see eu.sqooss.service.db.DBService#deleteRecords(org.hibernate.Session, java.util.List)
-	 */
-	
-	public boolean deleteRecords(Session s, List<DAObject> records) {
-	    
-	    if( s == null )
-	        return false;
+    /* (non-Javadoc)
+     * @see eu.sqooss.service.db.DBService#deleteRecords(org.hibernate.Session, java.util.List)
+     */
+
+    public boolean deleteRecords(Session s, List<DAObject> records) {
+
+        if( s == null )
+            return false;
 
         Transaction tx = null;
         DAObject lastRecord = null;
         try {
             tx = s.beginTransaction();
             for (DAObject record : records) {
-            	lastRecord = record;
-            	s.delete(record);				
-			}
+                lastRecord = record;
+                s.delete(record);				
+            }
             lastRecord = null;
             tx.commit();
         }
@@ -544,7 +613,7 @@ public class DBServiceImpl implements DBService {
         }
 
         return true;
-	}
+    }
 
     public Object selfTest() {
         Object[] o = new Object[INIT_POOL_SIZE + 1];
@@ -570,8 +639,8 @@ public class DBServiceImpl implements DBService {
 
         if (sm.sessions.size() != (INIT_POOL_SIZE + (INIT_POOL_SIZE / 2))) {
             return "Tests failed: Session pool size should be "
-                    + (INIT_POOL_SIZE + (INIT_POOL_SIZE / 2)) + ", it is "
-                    + sm.sessions.size();
+            + (INIT_POOL_SIZE + (INIT_POOL_SIZE / 2)) + ", it is "
+            + sm.sessions.size();
         }
 
         o = new Object[MAX_POOL_SIZE + 3];
@@ -593,5 +662,5 @@ public class DBServiceImpl implements DBService {
     }
 }
 
-// vi: ai nosi sw=4 ts=4 expandtab
+//vi: ai nosi sw=4 ts=4 expandtab
 
