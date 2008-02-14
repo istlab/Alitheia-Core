@@ -45,13 +45,22 @@ public interface DBService {
     /**
      * A generic query method to retrieve a single DAObject subclass using its identifier.
      * The return value is parameterized to the actual type of DAObject queried so no downcast is needed.
+     * @param daoClass the actual class of the DAObject. 
+     * @param id the DAObject's identifier
+     * @return the DAOObject if a match for the class and the identifier was found in the database, or null otherwise
+     */
+    public <T extends DAObject> T findObjectById(Class<T> daoClass, long id);
+    
+    /**
+     * A generic query method to retrieve a single DAObject subclass using its identifier.
+     * The return value is parameterized to the actual type of DAObject queried so no downcast is needed.
      * @param s the session to use for this transaction
      * @param daoClass the actual class of the DAObject. 
      * @param id the DAObject's identifier
      * @return the DAOObject if a match for the class and the identifier was found in the database, or null otherwise
      */
     public <T extends DAObject> T findObjectById(Session s, Class<T> daoClass, long id);
-    
+
     /**
      * A generic query method to retrieve a list of DAObjects of a same subclass matching a set of properties.
      * The returned list contains the objects matching <b>all</b> of the properties specified. It is parameterized to the actual type of DAObject queried so no downcast is needed.

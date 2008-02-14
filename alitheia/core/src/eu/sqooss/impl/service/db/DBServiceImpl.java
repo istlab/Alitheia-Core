@@ -348,6 +348,21 @@ public class DBServiceImpl implements DBService {
     }
 
     /* (non-Javadoc)
+     * @see eu.sqooss.service.db.DBService#findObjectById(java.lang.Class, long)
+     */
+    public <T extends DAObject> T findObjectById(Class<T> daoClass, long id) {
+        Session s = getSession(this);
+        try {
+            s.beginTransaction();
+            T obj = findObjectById(s, daoClass, id);
+            s.getTransaction().commit();
+            return obj;
+        } finally {
+            returnSession(s);
+        }
+    }
+    
+    /* (non-Javadoc)
      * @see eu.sqooss.service.db.DBService#findObjectById(org.hibernate.Session, java.lang.Class, long)
      */
     @SuppressWarnings("unchecked")
