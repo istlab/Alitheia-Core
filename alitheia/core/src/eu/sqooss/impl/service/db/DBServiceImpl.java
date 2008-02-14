@@ -306,6 +306,10 @@ public class DBServiceImpl implements DBService {
         }
 
         hibernateConfigURLProp = System.getProperty(HIBERNATE_CONFIG_PROPERTY);
+        if (hibernateConfigURLProp == null) {
+            System.err.println("Could not get " + HIBERNATE_CONFIG_PROPERTY + " property.");
+            System.exit(1);
+        }
 
         try {
             hibernateConfigURL = new URL(hibernateConfigURLProp);
