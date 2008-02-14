@@ -1,4 +1,4 @@
-<%@ include file="/inc/init.jsp" %>
+ <%@ include file="/inc/init.jsp" %>
 <%
 title = "Testing Terrier";
 %>
@@ -15,12 +15,12 @@ title = "Testing Terrier";
 
 <%
 Long id = new Long(1);
-//id = 1;
 Project testproject = terrier.getProject(id);
+
 if (testproject == null) {
     out.println(error(terrier.getError()));
 } else {
-    out.println(testproject.getName());
+    out.println(testproject.getHtml());
 }
 
 out.println("<hr />" + terrier.getDebug());

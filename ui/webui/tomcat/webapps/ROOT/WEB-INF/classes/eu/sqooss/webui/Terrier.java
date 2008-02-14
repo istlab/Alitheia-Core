@@ -58,10 +58,13 @@ public class Terrier {
     String debug = "...";
 
     public void Terrier () {
-        connect();
+        connect(); // FIXME: for some reason this is not run from the JSP :?
     }
 
     public Project getProject(Long projectId) {
+        if (connection == null) {
+            connect();
+        }
         if (connection == null) {
             debug = "noconnection ";
             error = "Connection to Alitheia failed.";
@@ -85,12 +88,14 @@ public class Terrier {
                 ArrayList <WSResultEntry> p_item = itemlist.next();
                 Iterator <WSResultEntry> oneitemlist = p_item.iterator();
                 Project nextProject = new Project(p_item);
-                if (nextProject.getId() == projectId) {
+                if (nextProject.getId().equals(projectId)) {
                     debug += "projectisthere ";
                     return nextProject;
+                } else {
+                    debug += " " + nextProject.getId() + " == " + projectId;
                 }
             }
-            error = "No project found that match id " + projectId;
+            error = "No project found that matches id " + projectId;
         } catch (NullPointerException npe) {
             error = "ouch ... :/";
         }
@@ -124,12 +129,20 @@ public class Terrier {
         // Try to connect the SCL to the Alitheia system
         try {
             session = new WSSession("bla", "foo", "http://localhost:8088/sqooss/services/ws"); // WTF?
-            connection = session.getConnection();
             error = "connected";
         } catch (WSException wse) {
-            error = "Connection to Alitheia failed.";
+            error = "Couldn't start Alitheia session.";
+            debug += "nosession";
             wse.printStackTrace();
             session = null;
+            connection = null;
+        }
+        try {
+            connection = session.getConnection();
+        } catch (WSException wse) {
+            debug += "noconnection";
+            error = "Couldn't connect to Alitheia's webservice.";
+            wse.printStackTrace();
             connection = null;
         }
     }
