@@ -361,11 +361,18 @@ public class DBServiceImpl implements DBService {
      */
     public <T extends DAObject> T findObjectById(Class<T> daoClass, long id) {
         Session s = getSession(this);
+        Transaction tx = null;
         try {
-            s.beginTransaction();
+            tx = s.beginTransaction();
             T obj = findObjectById(s, daoClass, id);
-            s.getTransaction().commit();
+            tx.commit();
             return obj;
+        } catch( TransactionException e ) {
+            logger.error("Transaction error: " + e.getMessage());
+            return null;
+        } catch( HibernateException e ) {
+            logExceptionAndRollbackTransaction(e,tx);
+            return null;
         } finally {
             returnSession(s);
         }
@@ -386,11 +393,18 @@ public class DBServiceImpl implements DBService {
     public <T extends DAObject> List<T> findObjectByProperties(Class<T> daoClass, Map<String,Object> properties ) {
 
         Session s = getSession(this);
+        Transaction tx = null;
         try {
-            s.beginTransaction();
+            tx = s.beginTransaction();
             List result = findObjectByProperties(s, daoClass, properties);
-            s.getTransaction().commit();
+            tx.commit();
             return result;
+        } catch( TransactionException e ) {
+            logger.error("Transaction error: " + e.getMessage());
+            return new ArrayList<T>(0);
+        } catch( HibernateException e ) {
+            logExceptionAndRollbackTransaction(e,tx);
+            return new ArrayList<T>(0);
         } finally {
             returnSession(s);
         }
