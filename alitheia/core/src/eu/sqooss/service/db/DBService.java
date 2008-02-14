@@ -54,6 +54,8 @@ public interface DBService {
     /**
      * A generic query method to retrieve a single DAObject subclass using its identifier.
      * The return value is parameterized to the actual type of DAObject queried so no downcast is needed.
+     * The caller is responsible for having a transaction initialized before calling the method,
+     * and committing it or rolling it back afterwards.
      * @param s the session to use for this transaction
      * @param daoClass the actual class of the DAObject. 
      * @param id the DAObject's identifier
@@ -83,6 +85,8 @@ public interface DBService {
      * For example, if a class has a String property called name (ie. a getName()/setName() accessor pair),
      * then you would use "name" as the map key and a String object as the map value.
      * If any property in the map isn't valid (either an unknown name or a value of the wrong type) the call will fail and an empty list will be returned.
+     * The caller is responsible for having a transaction initialized before calling the method,
+     * and committing it or rolling it back afterwards.
      * @param s the session to use for this transaction
      * @param daoClass the actual class of the DAObjects
      * @param properties a map of property name/value pairs corresponding to properties of the DAObject subclass
@@ -103,6 +107,8 @@ public interface DBService {
     /**
      * Add a new record to the system database, using a separate database session.
      * This should initialize any tables that are needed for storage of project information.
+     * The caller is responsible for having a transaction initialized before calling the method,
+     * and committing it or rolling it back afterwards.
      * 
      * @param s the session to use for this transaction
      * @param record the record to persist into the database
@@ -128,6 +134,8 @@ public interface DBService {
      * This should initialize any tables that are needed for storage of project information.
      * The results will be committed only if all the insertions are successful,
      * so if any insertion fails then no record will be added.
+     * The caller is responsible for having a transaction initialized before calling the method,
+     * and committing it or rolling it back afterwards.
      * 
      * @param s the session to use for this transaction
      * @param records the list of records to persist into the database
@@ -147,6 +155,8 @@ public interface DBService {
     /**
      * Delete an existing record from the system database, using a
      * separate database session.
+     * The caller is responsible for having a transaction initialized before calling the method,
+     * and committing it or rolling it back afterwards.
      *
      * @param s session to use for this transaction
      * @param record the record to remove from the database
@@ -168,6 +178,8 @@ public interface DBService {
      * Delete multiple existing records from the system database, using a separate database session.
      * The results will be committed only if all the deletions are successful,
      * so if any deletion fails then no record will be deleted.
+     * The caller is responsible for having a transaction initialized before calling the method,
+     * and committing it or rolling it back afterwards.
      * 
      * @param s the session to use for this transaction
      * @param records the list of records to remove from the database
@@ -180,6 +192,8 @@ public interface DBService {
      * Allows the intelligent C++ programmer to simply fire complete SQL
      * statements to the database. This allows low-level manipulation
      * of the database contents outside of the DAO types.
+     * These methods will forward any exceptions coming from Hibernate, 
+     * such as SQL query errors or database access errors
      */
     public List doSQL(String sql);
     
@@ -191,6 +205,8 @@ public interface DBService {
 
     /**
      * Do an HQL query with the default session as a single transaction.
+     * This method will forward any exceptions coming from Hibernate, 
+     * such as SQL query errors or database access errors
      *
      * @param hql HQL query string
      * @see doHQL(Session, String, Map<String, Object>)
@@ -199,6 +215,8 @@ public interface DBService {
     
     /**
      * Do an HQL query with the default session as a single transaction.
+     * This method will forward any exceptions coming from Hibernate, 
+     * such as SQL query errors or database access errors
      *
      * @param hql HQL query string
      * @param params parameters in the query
@@ -208,6 +226,8 @@ public interface DBService {
 
     /**
      * Do an HQL query with the default session as a single transaction.
+     * This method will forward any exceptions coming from Hibernate, 
+     * such as SQL query errors or database access errors
      *
      * @param hql HQL query string
      * @param params parameters in the query
@@ -219,6 +239,8 @@ public interface DBService {
     
     /**
      * Do an HQL query with the given session.
+     * This method will forward any exceptions coming from Hibernate, 
+     * such as SQL query errors or database access errors
      *
      * @param s session to use
      * @param hql HQL query string
@@ -228,6 +250,8 @@ public interface DBService {
     
     /**
      * Do an HQL query with the given session.
+     * This method will forward any exceptions coming from Hibernate, 
+     * such as SQL query errors or database access errors
      *
      * @param s session to use
      * @param hql HQL query string
@@ -254,6 +278,9 @@ public interface DBService {
      * (for instance the allowable values in a "IN ( foo, ... )" clause)
      * may be placed in the lparams argument. Either may be null if there
      * are no paramaters of that kind.
+     * 
+     * This method will forward any exceptions coming from Hibernate, 
+     * such as SQL query errors or database access errors
      *
      * @param s        the database session to use
      * @param hql      the HQL query string
