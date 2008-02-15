@@ -47,6 +47,7 @@ import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.util.Pair;
 import eu.sqooss.service.util.StringUtils;
+import eu.sqooss.service.updater.UpdaterService;
 
 import java.lang.management.RuntimeMXBean;
 import java.lang.management.ManagementFactory;
@@ -87,6 +88,7 @@ public class AdminServlet extends HttpServlet {
 
     private DBService sobjDB = null;
     private TDSService sobjTDS = null;
+    private UpdaterService sobjUpdater = null;
 
     private Hashtable<String,Pair<String,String>> staticContentMap;
     private Hashtable<String,String> dynamicContentMap;
@@ -152,6 +154,12 @@ public class AdminServlet extends HttpServlet {
             sobjTDS = sobjAlitheiaCore.getTDSService();
             if (sobjTDS != null) {
                 doLogInfo("WebAdmin got TDS Service object.");
+            }
+
+            // Get the Updater Service object
+            sobjUpdater = sobjAlitheiaCore.getUpdater();
+            if (sobjUpdater != null) {
+                doLogInfo("WebAdmin got Updater Service object.");
             }
 
             Stuffer myStuffer = new Stuffer(sobjDB, sobjLogger, sobjTDS);
@@ -425,9 +433,18 @@ public class AdminServlet extends HttpServlet {
             project.setRepository(scm);
             project.setMail(mail);
             sobjDB.addRecord(project);
+
+            // Check if the update works
+            if (sobjUpdater.update(project, UpdaterService.UpdateTarget.ALL, null)) {
+                sobjLogger.info("Added a new project.");
+                dynamicSubstitutions.put("@@RESULTS","<p>New project added successfully.</p>");
+            }
+            else {
+                sobjLogger.warn("Adding new project failed.");
+                dynamicSubstitutions.put("@@RESULTS","<p>Failed to add new project. " +
+                                         "Please check paths to data.");
+            }
         }
-        sobjLogger.info("Added a new project.");
-        dynamicSubstitutions.put("@@RESULTS","<p>New project added successfully.</p>");
     }
 
     protected void doPost(HttpServletRequest request,
