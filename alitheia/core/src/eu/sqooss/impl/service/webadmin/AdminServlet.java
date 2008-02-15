@@ -390,7 +390,8 @@ public class AdminServlet extends HttpServlet {
         String[] results = new String[l.size()];
         for (int i=0; i<l.size(); i++) {
             StoredProject p = (StoredProject) l.get(i);
-            results[i] = p.getName() + " (" + p.getWebsite() + ")";
+            results[i] = p.getName() + " (" + p.getWebsite() + ") [id="
+                + p.getId() + "]";
         }
         return results;
     }
