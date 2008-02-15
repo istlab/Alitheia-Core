@@ -168,6 +168,35 @@ implements org.apache.axis2.databinding.ADBBean{
 
 
     /**
+     * field for Id
+     */
+
+    protected long localId ;
+
+
+    /**
+     * Auto generated getter method
+     * @return long
+     */
+    public  long getId(){
+        return localId;
+    }
+
+
+
+    /**
+     * Auto generated setter method
+     * @param param Id
+     */
+    public void setId(long param){
+
+        this.localId=param;
+
+
+    }
+
+
+    /**
      * field for Links
      */
 
@@ -465,6 +494,29 @@ implements org.apache.axis2.databinding.ADBBean{
                     if (prefix == null) {
                         prefix = org.apache.axis2.databinding.utils.BeanUtil.getUniquePrefix();
 
+                        xmlWriter.writeStartElement(prefix,"id", namespace);
+                        xmlWriter.writeNamespace(prefix, namespace);
+                        xmlWriter.setPrefix(prefix, namespace);
+
+                    } else {
+                        xmlWriter.writeStartElement(namespace,"id");
+                    }
+
+                } else {
+                    xmlWriter.writeStartElement("id");
+                }
+
+                xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localId));
+
+                xmlWriter.writeEndElement();
+
+                namespace = "http://datatypes.services.web.service.impl.sqooss.eu/xsd";
+                if (! namespace.equals("")) {
+                    prefix = xmlWriter.getPrefix(namespace);
+
+                    if (prefix == null) {
+                        prefix = org.apache.axis2.databinding.utils.BeanUtil.getUniquePrefix();
+
                         xmlWriter.writeStartElement(prefix,"links", namespace);
                         xmlWriter.writeNamespace(prefix, namespace);
                         xmlWriter.setPrefix(prefix, namespace);
@@ -694,6 +746,12 @@ implements org.apache.axis2.databinding.ADBBean{
                 org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localGroupId));
 
         elementList.add(new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd",
+        "id"));
+
+        elementList.add(
+                org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localId));
+
+        elementList.add(new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd",
         "links"));
 
         elementList.add(
@@ -864,6 +922,25 @@ implements org.apache.axis2.databinding.ADBBean{
                     java.lang.String content = reader.getElementText();
 
                     object.setGroupId(
+                            org.apache.axis2.databinding.utils.ConverterUtil.convertToLong(content));
+
+                    reader.next();
+
+                }  // End of if for expected property start element
+
+                else{
+                    // A start element we are not expecting indicates an invalid parameter was passed
+                    throw new java.lang.RuntimeException("Unexpected subelement " + reader.getLocalName());
+                }
+
+
+                while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
+
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd","id").equals(reader.getName())){
+
+                    java.lang.String content = reader.getElementText();
+
+                    object.setId(
                             org.apache.axis2.databinding.utils.ConverterUtil.convertToLong(content));
 
                     reader.next();

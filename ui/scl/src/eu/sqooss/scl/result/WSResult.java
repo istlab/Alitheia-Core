@@ -90,17 +90,19 @@ import eu.sqooss.scl.WSException;
  * <p>
  * <table border=1>
  *  <tr><td> Field Index </td><td> Field Type </td><td> Field value </td></tr>
- *  <tr><td>  0 </td><td> text/plain   </td><td> name        </td></tr>
- *  <tr><td>  1 </td><td> text/plain   </td><td> status      </td></tr>
- *  <tr><td>  2 </td><td> text/plain   </td><td> protection  </td></tr>
- *  <tr><td>  3 </td><td> type/integer </td><td> links       </td></tr>
- *  <tr><td>  4 </td><td> type/long    </td><td> user's id   </td></tr>
- *  <tr><td>  5 </td><td> type/long    </td><td> group's id  </td></tr>
- *  <tr><td>  6 </td><td> type/long    </td><td> access time </td></tr>
- *  <tr><td>  7 </td><td> type/long    </td><td> modification time </td></tr>
- *  <tr><td>  8 </td><td> text/plain   </td><td> file status change </td></tr>
- *  <tr><td>  9 </td><td> type/integer </td><td> size        </td></tr>
- *  <tr><td> 10 </td><td> type/integer </td><td> blocks      </td></tr>
+ *  <tr><td>  0 </td><td> type/long    </td><td> file's id    </td></tr>
+ *  <tr><td>  1 </td><td> text/plain   </td><td> name         </td></tr>
+ *  <tr><td>  2 </td><td> text/plain   </td><td> status       </td></tr>
+ *  <tr><td>  3 </td><td> type/long    </td><td> metadata's id</td></tr>
+ *  <tr><td>  4 </td><td> text/plain   </td><td> protection   </td></tr>
+ *  <tr><td>  5 </td><td> type/integer </td><td> links        </td></tr>
+ *  <tr><td>  6 </td><td> type/long    </td><td> user's id    </td></tr>
+ *  <tr><td>  7 </td><td> type/long    </td><td> group's id   </td></tr>
+ *  <tr><td>  8 </td><td> type/long    </td><td> access time  </td></tr>
+ *  <tr><td>  9 </td><td> type/long    </td><td> modification time </td></tr>
+ *  <tr><td> 10 </td><td> text/plain   </td><td> file status change </td></tr>
+ *  <tr><td> 11 </td><td> type/integer </td><td> size         </td></tr>
+ *  <tr><td> 12 </td><td> type/integer </td><td> blocks       </td></tr>
  * </table>
  * </p><br>
  * </p>

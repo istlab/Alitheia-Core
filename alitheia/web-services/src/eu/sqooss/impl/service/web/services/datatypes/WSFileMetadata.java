@@ -44,6 +44,10 @@ public class WSFileMetadata {
     public WSFileMetadata(FileMetadata fileMetadata) {
         this.fileMetadata = fileMetadata;
     }
+
+    public long getId() {
+        return fileMetadata.getId();
+    }
     
     public String getProtection() {
         return fileMetadata.getProtection();

@@ -105,11 +105,13 @@ class WSResponseParser {
             ArrayList<WSResultEntry> currentRow;
             WSFileMetadata currentFileMetadata;
             for (WSProjectFile projectFile : projectFiles) {
-                currentRow = new ArrayList<WSResultEntry>(); 
+                currentRow = new ArrayList<WSResultEntry>();
+                currentRow.add(new WSResultEntry(projectFile.getId(), WSResultEntry.MIME_TYPE_TYPE_LONG));
                 currentRow.add(new WSResultEntry(projectFile.getName(), WSResultEntry.MIME_TYPE_TEXT_PLAIN));
                 currentRow.add(new WSResultEntry(projectFile.getStatus(), WSResultEntry.MIME_TYPE_TEXT_PLAIN));
                 
                 currentFileMetadata = projectFile.getProjectFileMetadata();
+                currentRow.add(new WSResultEntry(currentFileMetadata.getId(), WSResultEntry.MIME_TYPE_TYPE_LONG));
                 currentRow.add(new WSResultEntry(currentFileMetadata.getProtection(), WSResultEntry.MIME_TYPE_TEXT_PLAIN));
                 currentRow.add(new WSResultEntry(currentFileMetadata.getLinks(), WSResultEntry.MIME_TYPE_TYPE_INTEGER));
                 currentRow.add(new WSResultEntry(currentFileMetadata.getUserId(), WSResultEntry.MIME_TYPE_TYPE_LONG));
