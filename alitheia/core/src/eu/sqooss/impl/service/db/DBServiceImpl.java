@@ -427,8 +427,6 @@ public class DBServiceImpl implements DBService {
 
         Map<String,Object> parameterMap = new HashMap<String,Object>();
         StringBuffer whereClause = new StringBuffer();
-        String pureClassName = daoClass.getName();
-        pureClassName = pureClassName.substring(pureClassName.lastIndexOf(".") + 1);
         for (String key : properties.keySet()) {
             whereClause.append( whereClause.length() == 0 ? " where " : " and " );
             // We use "foo" as the name of the object
