@@ -424,11 +424,11 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
         return false;
     }
 
-    public ServiceReference[] listMetricProviders(DAObject o) {
-        String targetClassName = null;
-        if (o instanceof StoredProject)
+    public ServiceReference[] listMetricProviders(Class<?> o) {
+/*       String targetClassName = null;
+        if (o.equals(StoredProject.class))
             targetClassName = StoredProjectMetric.class.getName();
-        else if (o instanceof ProjectVersion)
+        else if (o.equals(ProjectVersion.class))
             targetClassName = ProjectVersionMetric.class.getName();
         else if (o instanceof ProjectFile)
             targetClassName = ProjectFileMetric.class.getName();
@@ -438,10 +438,10 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
             // Just bail out if we don't know what to do with this
             return null;
         }
-
+*/
         ServiceReference[] metricsList = null;
         try {
-            metricsList = bc.getServiceReferences(targetClassName, SREF_FILTER_METRIC);
+            metricsList = bc.getServiceReferences(o.getName(), SREF_FILTER_METRIC);
         } catch (InvalidSyntaxException e) {
             logError(INVALID_FILTER_SYNTAX);
             return null;

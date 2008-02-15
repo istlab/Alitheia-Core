@@ -67,7 +67,7 @@ public interface PluginAdmin {
      * @return Collection of services references. May be null
      *          if no such interfaces exist.
      */
-    public ServiceReference[] listMetricProviders(DAObject o);
+    public ServiceReference[] listMetricProviders(Class<?> o);
     
     /**
      * Get the list of metrics that are interested in ProjectVersions;
@@ -78,6 +78,7 @@ public interface PluginAdmin {
      *          such interfaces exist.
      */
     public ServiceReference[] listProjectVersionMetrics();
+    
     
     /**
      * Calls the install() method of the metric object provided from a metric
