@@ -33,6 +33,10 @@
 
 package eu.sqooss.impl.service.updater;
 
+import java.util.Iterator;
+import java.util.SortedSet;
+import java.util.TreeSet;
+
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -68,6 +72,7 @@ class SourceUpdater extends Job {
     private Logger logger;
     private AlitheiaCore core;
     private ServiceReference[] versionMetrics = null;
+    private ServiceReference[] fileMetrics = null;
 
     public SourceUpdater(StoredProject project, UpdaterServiceImpl updater, AlitheiaCore core, Logger logger) throws UpdaterException {
         if ((project == null) || (core == null) || (logger == null)) {
@@ -82,7 +87,8 @@ class SourceUpdater extends Job {
         this.tds = core.getTDSService();
         this.dbs = core.getDBService();
         
-        versionMetrics = core.getPluginManager().listProjectVersionMetrics();
+        versionMetrics = core.getPluginManager().listMetricProviders(ProjectVersion.class);
+        fileMetrics = core.getPluginManager().listMetricProviders(ProjectFile.class);
     }
 
     public int priority() {
@@ -90,11 +96,21 @@ class SourceUpdater extends Job {
     }
 
     protected void run() {
+        /* 
+         * Cache project version and project file IDs for kick-starting
+         * metric update jobs after the metadata update. This is done
+         * to avoid holding references to huge data graphs on large 
+         * updates
+         */
+        SortedSet<Long> updProjectVersions = new TreeSet();
+        SortedSet<Long> updFiles = new TreeSet();
+
         logger.info("Running source update for project " + project.getName());
         Session s = dbs.getSession(this);
+        long ts = System.currentTimeMillis();
         
         try {
-            long ts = System.currentTimeMillis();
+
             // This is the last version we actually know about
             ProjectVersion lastVersion = StoredProject.getLastProjectVersion(project, logger);
             SCMAccessor scm = tds.getAccessor(project.getId()).getSCMAccessor();
@@ -120,7 +136,8 @@ class SourceUpdater extends Job {
                 // Assertion: this value is the same as lastSCMVersion
                 curVersion.setVersion(entry.getRevision().getSVNRevision());
                 s.save(curVersion);
-
+                updProjectVersions.add(new Long(curVersion.getId()));
+                
                 for(String chPath: entry.getChangedPaths()) {
 
                     if(isTag(entry, chPath)) {
@@ -137,21 +154,14 @@ class SourceUpdater extends Job {
                     pf.setStatus(entry.getChangedPathsStatus().get(chPath).toString());
                     logger.info(project.getName() + ": Saving path: " + chPath);
                     s.save(pf);
+                    updFiles.add(pf.getId());
                 }
                 try {
+                    /*Commits a project version along with changes 
+                     * in project paths or tags
+                     */
                     tx.commit();
-                    logger.info(project.getName() + ": Time to process entries: " + 
-                        (int)((System.currentTimeMillis() - ts)/1000));
-                    for (ServiceReference r : versionMetrics) {
-                        Metric m = (Metric)core.getService(r);
-                        if (m!=null) {
-                            try {
-                                m.run(curVersion);
-                            } catch (MetricMismatchException e) {
-                                logger.warn("Metric " + m.getName() + " has changed its colours.");
-                            }
-                        }
-                    }
+                    
                 } catch (HibernateException e) {
                     if (tx != null) {
                         try {
@@ -175,10 +185,46 @@ class SourceUpdater extends Job {
         } catch (InvalidProjectRevisionException e) {
             logger.error("Not such repository revision:" + e.getMessage());
             setState(State.Error);
-        }
+        } finally {
 
-        dbs.returnSession(s);
-        updater.removeUpdater(project.getName(),UpdaterService.UpdateTarget.CODE);
+        logger.info(project.getName() + ": Time to process entries: "
+                    + (int) ((System.currentTimeMillis() - ts) / 1000));
+
+            /* Start project version metrics */
+            Iterator<Long> i = updProjectVersions.iterator();
+
+            while (i.hasNext()) {
+                for (ServiceReference r : versionMetrics) {
+                    Metric m = (Metric) core.getService(r);
+                    if (m != null) {
+                        try {
+                            m.run(dbs.findObjectById(ProjectVersion.class, i.next().longValue()));
+                        } catch (MetricMismatchException e) {
+                            logger.warn("Metric " + m.getName() + " failed");
+                        }
+                    }
+                }
+            }
+
+            /* Start project file metrics */
+            i = updFiles.iterator();
+
+            while (i.hasNext()) {
+                for (ServiceReference r : fileMetrics) {
+                    Metric m = (Metric) core.getService(r);
+                    if (m != null) {
+                        try {
+                            m.run(dbs.findObjectById(ProjectFile.class, i.next().longValue()));
+                        } catch (MetricMismatchException e) {
+                            logger.warn("Metric " + m.getName() + " failed");
+                        }
+                    }
+                }
+            }
+
+            dbs.returnSession(s);
+            updater.removeUpdater(project.getName(), UpdaterService.UpdateTarget.CODE);
+        }
     }
 
     /**
