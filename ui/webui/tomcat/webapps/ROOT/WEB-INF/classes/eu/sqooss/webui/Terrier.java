@@ -107,24 +107,24 @@ public class Terrier {
         if (connection == null) {
             connect();
         }
+        Vector<Project> projects = new Vector<Project>();
         if (connection == null) {
             debug = "noconnection ";
             error = "Connection to Alitheia failed.";
-            return null;
+            return projects;
         }
         debug += "ok";
         try {
             result = connection.evaluatedProjectsList();
         } catch (WSException wse) {
             error = "Could not receive a list of projects.";
-            return null;
+            return projects;
         }
         Iterator <ArrayList<WSResultEntry>> itemlist = result.iterator();
         if (!itemlist.hasNext()) {
             error = "No project records found.";
-            return null;
+            return projects;
         }
-        Vector<Project> projects = new Vector<Project>();
         try {
             while (itemlist.hasNext()) {
                 debug += "hasnext ";
