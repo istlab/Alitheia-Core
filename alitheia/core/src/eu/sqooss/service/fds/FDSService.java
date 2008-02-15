@@ -2,8 +2,8 @@
  * This file is part of the Alitheia system, developed by the SQO-OSS
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  *
- * Copyright 2007 by the SQO-OSS consortium members <info@sqo-oss.eu>
- * Copyright 2007 by Adriaan de Groot <groot@kde.org>
+ * Copyright 2007-2008 by the SQO-OSS consortium members <info@sqo-oss.eu>
+ * Copyright 2007-2008 by Adriaan de Groot <groot@kde.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -33,6 +33,7 @@
 
 package eu.sqooss.service.fds;
 
+import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
 import eu.sqooss.service.tds.ProjectRevision;
@@ -79,6 +80,16 @@ public interface FDSService {
      */
     void releaseCheckout(Checkout c)
         throws InvalidRepositoryException;
+    
+    /**
+     * This function returns a timeline view (combined metadata and pointers 
+     * to actual data) for a given project. 
+     *  
+     * @param c StoredProject to return the timeline for
+     */
+    Timeline getTimeline(StoredProject c);
+    
+    
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

@@ -2,7 +2,7 @@
  * This file is part of the Alitheia system, developed by the SQO-OSS
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  *
- * Copyright 2007 by the SQO-OSS consortium members <info@sqo-oss.eu>
+ * Copyright 2007-2008 by the SQO-OSS consortium members <info@sqo-oss.eu>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -47,8 +47,10 @@ import org.osgi.framework.ServiceReference;
 import org.apache.commons.codec.binary.Hex;
 
 import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.fds.Checkout;
 import eu.sqooss.service.fds.FDSService;
+import eu.sqooss.service.fds.Timeline;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
@@ -586,6 +588,11 @@ public class FDSServiceImpl implements FDSService {
         } else {
             logger.info("Skipping update self-test.");
         }
+        return null;
+    }
+
+    public Timeline getTimeline(StoredProject c) {
+        // TODO: Write the actual implementation
         return null;
     }
 }

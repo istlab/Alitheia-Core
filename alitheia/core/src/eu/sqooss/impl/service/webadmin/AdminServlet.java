@@ -2,8 +2,8 @@
  * This file is part of the Alitheia system, developed by the SQO-OSS
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  *
- * Copyright 2007 by the SQO-OSS consortium members <info@sqo-oss.eu>
- * Copyright 2007 by Adriaan de Groot <groot@kde.org>
+ * Copyright 2007-2008 by the SQO-OSS consortium members <info@sqo-oss.eu>
+ * Copyright 2007-2008 by Adriaan de Groot <groot@kde.org>
  *
  *
  * Redistribution and use in source and binary forms, with or without
@@ -337,7 +337,7 @@ public class AdminServlet extends HttpServlet {
         dynamicSubstitutions.put("@@ABOUT","<p class='box'>This is the administrative interface.</p>");
         dynamicSubstitutions.put("@@STATUS","The cruncher is offline.");
         dynamicSubstitutions.put("@@LOGO","<img src='/logo' id='logo' alt='Logo' />");
-        dynamicSubstitutions.put("@@COPYRIGHT","Copyright 2007 <a href=\"http://www.sqo-oss.eu/about/\">SQO-OSS Consortium Members</a>");
+        dynamicSubstitutions.put("@@COPYRIGHT","Copyright 2007-2008 <a href=\"http://www.sqo-oss.eu/about/\">SQO-OSS Consortium Members</a>");
         dynamicSubstitutions.put("@@GETLOGS", renderList(sobjLogManager.getRecentEntries()));
         dynamicSubstitutions.put("@@PROJECTS",renderList(listProjects()));
         dynamicSubstitutions.put("@@BUNDLE", renderBundles());

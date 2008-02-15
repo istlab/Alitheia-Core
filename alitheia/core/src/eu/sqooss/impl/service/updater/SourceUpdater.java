@@ -2,8 +2,8 @@
  * This file is part of the Alitheia system, developed by the SQO-OSS
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  *
- * Copyright 2007 by the SQO-OSS consortium members <info@sqo-oss.eu>
- * Copyright 2007 Georgios Gousios <gousiosg@aueb.gr>
+ * Copyright 2007-2008 by the SQO-OSS consortium members <info@sqo-oss.eu>
+ * Copyright 2007-2008 Georgios Gousios <gousiosg@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -198,10 +198,11 @@ class SourceUpdater extends Job {
         if(path.length() <= 5)
             return false;
 
-        /* Tags can only be added (for the time being at least)
-         */
+        /* Tags can only be added (for the time being at least)*/
         if(entry.getChangedPathsStatus().get(path) != PathChangeType.ADDED)
             return false;
+
+        
 
         /* If a path is not the prefix for all changed files
          * in a commit, then it is a leaf node (and therefore

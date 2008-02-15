@@ -2,8 +2,8 @@
  * This file is part of the Alitheia system, developed by the SQO-OSS
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  *
- * Copyright 2007 by the SQO-OSS consortium members <info@sqo-oss.eu>
- * Copyright 2007 by Adriaan de Groot <groot@kde.org>
+ * Copyright 2007-2008 by the SQO-OSS consortium members <info@sqo-oss.eu>
+ * Copyright 2007-2008 by Adriaan de Groot <groot@kde.org>
  *   [[ Individual consortium members may list themselves here;
  *      third parties are to be listed here as well. You must
  *      include a real name and an email address. ]]
