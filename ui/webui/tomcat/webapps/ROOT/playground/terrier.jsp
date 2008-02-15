@@ -19,11 +19,15 @@ title = "Testing Terrier";
 String request_id = request.getParameter("id");
 if (request_id == null) {
     Vector<Project> projects = terrier.getEvaluatedProjects();
-    StringBuilder html = new StringBuilder("<h2>All Evaluated Projects</h2>\n<!-- Projects -->\n<ul>");
-    for (Project p: projects) {
-        html.append("\n\t<li><a href=\"?id=" + p.getId() + "\">" + p.getName() + "</a> </li>" );
+    if (projects.size() == 0) {
+        out.println("<ul>Terrier didn't find any evaluated projects in the DB.</ul>");
+    } else {
+        StringBuilder html = new StringBuilder("<h2>All Evaluated Projects</h2>\n<!-- Projects -->\n<ul>");
+        for (Project p: projects) {
+            html.append("\n\t<li><a href=\"?id=" + p.getId() + "\">" + p.getName() + "</a> </li>" );
+        }
+        out.println(html.toString());
     }
-    out.println(html.toString());
     out.println("\n</ul>");
 } else {
     Long id = Long.parseLong(request_id);
