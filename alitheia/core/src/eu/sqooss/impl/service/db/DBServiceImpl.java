@@ -316,9 +316,11 @@ public class DBServiceImpl implements DBService {
         }
 
         try {
+            // The following is necessary for MS-Windows environments
+            hibernateConfigURLProp = hibernateConfigURLProp.replaceFirst("^file://[a-zA-z]:", "file://");
             hibernateConfigURL = new URL(hibernateConfigURLProp);
         } catch (MalformedURLException e) {
-            System.err.println("Could not get hibernate configuration file: " + hibernateConfigURLProp);
+            System.err.println("Invalid URL for hibernate configuration file: " + hibernateConfigURLProp);
             System.exit(1);
         }
 
