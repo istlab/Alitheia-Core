@@ -24,12 +24,12 @@ install-scl:
 	cd ../scl && $(MAKE) && cp ../build/* ../webui/$(TOMCAT_LIB)
 
 build : install-scl
-	rm -rf build/
+	rm -rf build
 	cd tomcat/webapps/ROOT/WEB-INF/classes/eu/sqooss/webui && \
 	javac -Xlint:path -cp ":../../../../lib/eu.sqooss.scl_0.0.1.jar" *\.java
 
 clean :
-	rm $(TOMCAT_LIB)*
+	rm -f $(TOMCAT_LIB)*
 	cd ../scl && $(MAKE) clean
 
 run : stop start
