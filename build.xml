@@ -19,6 +19,7 @@
 	<property name="db.conf" value="${basedir}/alitheia/core/src/eu/sqooss/service/db"/>
 	
 	<path id="compile.class.path">
+		<pathelement location="${src}"/>
 		<fileset dir="${repo}">
 			<include name="**/*.jar" />
 			<include name="**/*.java" />
