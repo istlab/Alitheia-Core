@@ -118,7 +118,14 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
             return false;
         }
     }
-    
+
+    /**
+     * Overload for convenience. See isUpdateRunning(String,UpdateTarget).
+     */
+    private boolean isUpdateRunning(StoredProject p, UpdateTarget t) {
+        return isUpdateRunning(p.getName(),t);
+    }
+
     /**
      * Claim an update job of the given type for the project. You may
      * not claim ALL as a type of update -- use the individual types.
@@ -147,6 +154,19 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
         return true;
     }
     
+    /*
+     * Overload for convenience. See addUpdate(String,UpdateTarget).
+     */
+    private boolean addUpdate(StoredProject p, UpdateTarget t) {
+        return addUpdate(p.getName(),t);
+    }
+    
+    /**
+     * Removes an earlier claim made through addUpdate().
+     * 
+     * @param projectName name of the project whose claim is released
+     * @param t type of claim to release
+     */
     public void removeUpdater(String projectName, UpdateTarget t) {
         if (t==UpdateTarget.ALL) {
             logger.warn("Removing update target ALL is bogus.");
@@ -159,82 +179,149 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
             }
         }
     }
-    public boolean update(StoredProject project, UpdateTarget target) {
+    
+    /*
+     * Overload for convenience. See removeUpdater(String, UpdateTarget)
+     */
+    public void removeUpdater(StoredProject p, UpdateTarget t) {
+        removeUpdater(p.getName(),t);
+    }
+    
+    /**
+     * Overload for convenience. Multiple removeUpdater(String, UpdateTarget)
+     * calls are made to release all the claims in the set.
+     * 
+     * @param p project to release claims for
+     * @param t set of targets to release
+     */
+    public void removeUpdater(StoredProject p, Set<UpdateTarget> t) {
+        if ((t==null) || t.isEmpty()) {
+            return;
+        }
+        for (UpdateTarget u : t) {
+            removeUpdater(p,u);
+        }
+    }
+    
+    /**
+     * Produce a string representation of the set of update targets.
+     * @param s set to convert to string
+     * @return human-readable string representation
+     */
+    private String explain(Set<UpdateTarget> s) {
+        if ((s==null) || s.isEmpty()) {
+            return "empty";
+        }
+        
+        String msg = "";
+        for (UpdateTarget u : s) {
+            msg = msg + u.toString() + " ";
+        }
+        return msg.trim();
+    }
+    
+    public boolean update(StoredProject project, UpdateTarget target, Set<Integer> result) {
         if (project == null) {
             logger.info("Bad project name for update.");
             return false;
         }
         logger.info("Request to update project:" + project.getName() + " for target: "
                 + target);
-
+        if (result==null) {
+            logger.info("Ignoring results return variable.");
+        } else {
+            if (result.size() != 0) {
+                logger.info("Using a non-empty results return variable.");
+            }
+        }
         if (!core.getScheduler().isExecuting()) {
             // Make sure there are enough threads for the updater.
             core.getScheduler().startExecute(Runtime.getRuntime().availableProcessors());
         }
 
         Set<UpdateTarget> s = currentJobs.get(project.getName());
-        if ((s==null) || (s.isEmpty())) {
-            logger.info("Update set is empty");
-        } else {
-            String msg = "Update set is: ";
-            for (UpdateTarget u : s) {
-                msg = msg + u.toString();
-            }
-            logger.info(msg);
-        }
+        logger.info("Update set is:" + s.toString());
+       
         // Check all the types we need and make claims
         synchronized(currentJobs) {
             if (isUpdateRunning(project.getName(),target)) {
                 return false;
             }
             if (target==UpdateTarget.ALL) {
-                addUpdate(project.getName(),UpdateTarget.MAIL);
-                addUpdate(project.getName(),UpdateTarget.CODE);
-                // Bugs are suppressed - no job to handle it
-                // addUpdate(project.getName(),UpdateTarget.BUGS);
+                addUpdate(project,UpdateTarget.MAIL);
+                addUpdate(project,UpdateTarget.CODE);
+                // Bugs have no jobs to run; this claim will be fixed
+                // later and released.
+                addUpdate(project,UpdateTarget.BUGS);
             } else {
-                addUpdate(project.getName(),target);
+                addUpdate(project,target);
             }
         }
         
+        // When we get to here, we have staked our claims already -- thus preventing
+        // others from getting through the synchronized block above -- and can start
+        // queueing jobs; we maintain a list of successfully queued update jobs
+        // to report to the user.
         if (target == UpdateTarget.MAIL || target == UpdateTarget.ALL) {
             // mailing list update
+            boolean queued_successfully = false;
             try {
                 MailUpdater mu = new MailUpdater(project, this, core, logger);
                 core.getScheduler().enqueue(mu);
+                if (result != null) {
+                    result.add(mu.hashCode());
+                }
+                queued_successfully = true;
             } catch(SchedulerException e) {
                 logger.error("The Updater failed to update the mailing list " +
                     " metadata data for project " + project.getName() + 
                     " Scheduler error: " + e.getMessage());
-                return false;
-           } catch (UpdaterException e) {
-               logger.error("The Updater failed to update the mailing list " +
-                       "metadata for project " + project.getName() + 
-                       " Updater error: " +  e.getMessage());
-                   return false;
+            } catch (UpdaterException e) {
+                logger.error("The Updater failed to update the mailing list " +
+                        "metadata for project " + project.getName() + 
+                        " Updater error: " +  e.getMessage());
+            } finally {
+                if (!queued_successfully) {
+                    removeUpdater(project,UpdateTarget.MAIL);
+                }
             }
         } 
         
         if (target == UpdateTarget.CODE || target == UpdateTarget.ALL) {
             // source code update
+            boolean queued_successfully = false;
             try {
                 SourceUpdater su = new SourceUpdater(project, this, core, logger);
                 core.getScheduler().enqueue(su);
+                if (result != null) {
+                    result.add(su.hashCode());
+                }
+                queued_successfully = true;
             } catch (SchedulerException e) {
                 logger.error("The Updater failed to update the repository" +
                 		" metadata for project " + project.getName() + 
                 		" Scheduler error: " + e.getMessage());
-                return false;
             } catch (UpdaterException e) {
                 logger.error("The Updater failed to update the repository " +
                         "metadata for project " + project.getName() + 
                         " Updater error: " +  e.getMessage());
-                    return false;
+            } finally {
+                if (!queued_successfully) {
+                    removeUpdater(project,UpdateTarget.CODE);
+                }
             }
         } 
         
         if (target == UpdateTarget.BUGS || target == UpdateTarget.ALL) {
             // bug database update
+            boolean queued_successfully = false;
+            try {
+                // No updater for bugs yet
+            } finally {
+                if (!queued_successfully) {
+                    removeUpdater(project,UpdateTarget.BUGS);
+                }
+            }
         }
 
         return true;
@@ -245,6 +332,22 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
      * the method arguments for update(project,target). The response always
      * gets a response code -- SC_OK (200) only if the update was able to
      * start at all.
+     * 
+     * The response codes in HTTP are used as follows:
+     * - SC_OK  if the update starts successfully; a fake XML response is
+     *          returned describing the success.
+     * - SC_BAD_REQUEST (400) if the request is syntactically incorrect, which in
+     *          this case means that one of the required parameters "project"
+     *          or "target" is missing.
+     * - SC_NOT_FOUND (404) if the project does not exist in the database or
+     *          is otherwise not found. (This may be confusing with the 404
+     *          returned when the updater servlet is not running, so may need
+     *          to change this at some point).
+     * - SC_NOT_IMPLEMENTED if the update target type is not supported, for
+     *          instance because it names a datatype that we do not know about
+     *          (valid values are "mail", "code", "bugs" and "all" right now).
+     * - SC_CONFLICT if there is already an update running for the given project
+     *          and data source; only one can be active at any time.                           
      */
     public void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -275,18 +378,32 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
             target = UpdateTarget.valueOf(t.toUpperCase());
         } catch (IllegalArgumentException e) {
             logger.warn("Bad updater request for target <" + t + ">");
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST);
-            return;
+            response.sendError(HttpServletResponse.SC_NOT_IMPLEMENTED);
         }
 
         logger.info("Updating project " + p + " target " + t);
-        if (!update(project, target)) {
+        Set<Integer> jobs = new HashSet<Integer>(4);
+        if (!update(project, target,jobs)) {
             // Something's wrong
-            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            response.sendError(HttpServletResponse.SC_CONFLICT);
         } else {
             response.setStatus(HttpServletResponse.SC_OK);
             response.setContentType("text/xml;charset=UTF-8");
-            response.getWriter().println("<updater><jobid>8008135</jobid></updater>");
+            response.getWriter().println("<updater>");
+            response.getWriter().println("<project><id>" + project.getId() + "</id>");
+            response.getWriter().println("<name>" + project.getName() + "</name></project>");
+            if (jobs.isEmpty()) {
+                response.getWriter().println("<status>No jobs started.</status>");
+            } else {
+                response.getWriter().println("<status>Jobs started (" + jobs.size() + ")</status>");
+                response.getWriter().println("<jobs>");
+                for (Integer i : jobs) {
+                    response.getWriter().println("<job>" + i + "</job>");
+                }
+                response.getWriter().println("</jobs>");
+                response.getWriter().println("<gratuitous>8008135</gratuitous>");
+            }
+            response.getWriter().println("</updater>");
             response.getWriter().flush();
         }
 

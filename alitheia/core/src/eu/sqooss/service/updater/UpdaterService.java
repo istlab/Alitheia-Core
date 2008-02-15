@@ -32,6 +32,7 @@
  */
 package eu.sqooss.service.updater;
 
+import java.util.Set;
 import eu.sqooss.service.db.StoredProject;
 
 /**
@@ -84,11 +85,16 @@ public interface UpdaterService {
      *
      * @param project   The project name that has been updated
      * @param target    Specifies which project resource has been updated
+     * @param results   Set of integer identifiers for the jobs which handle
+     *                  the actual update of data; pass in null if no job
+     *                  identifiers are desired, otherwise you should pass
+     *                  in an empty set of some sort (but this is not checked,
+     *                  so if you really like you can pass in a non-empty one).
      *
      * @return false if basic validation of the request failed
      * @return true if the update jobs were started successfully -- this
      *          does not mean that the jobs themselves were successful,
      *          as they run asynchronously.
      */
-    boolean update(StoredProject project, UpdateTarget target);
+    boolean update(StoredProject project, UpdateTarget target, Set<Integer> results);
 }
