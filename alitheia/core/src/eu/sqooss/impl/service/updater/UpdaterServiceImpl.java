@@ -328,6 +328,22 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
     }
 
     /**
+     * Overload for convenience. Use string instead of stored project.
+     * Doesn't usefully distinguish between project not found and other
+     * kinds of errors returned by update().
+     */
+    public boolean update(String p, UpdateTarget t, Set<Integer> results) {
+        StoredProject project = StoredProject.getProjectByName(p, logger);
+        if (project == null) {
+            //the project was not found, so the job can not continue
+            logger.warn("The project <" + p + "> was not found");
+            return false;
+        }
+
+        return update(project, t, results);
+    }
+    
+    /**
      * This is the standard HTTP request handler. It maps GET parameters onto
      * the method arguments for update(project,target). The response always
      * gets a response code -- SC_OK (200) only if the update was able to
