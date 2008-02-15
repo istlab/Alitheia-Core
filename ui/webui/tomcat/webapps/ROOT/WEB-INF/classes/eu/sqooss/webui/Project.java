@@ -87,8 +87,8 @@ public class Project {
     }
 
     public String getHtml() {
-        StringBuilder html = new StringBuilder("<!-- Project -->\n<ul>");
-        html.append("<h3>" + getName() + " (" + getId() + ")</h3>");
+        StringBuilder html = new StringBuilder("<!-- Project -->\n");
+        html.append("<h2>" + getName() + " (" + getId() + ")</h2>");
         html.append("<br />Website:<a href=\"" + getWebsite() + "\">" + getWebsite() + "</a>");
         html.append("<br />Contact:<a href=\"" + getContact() + "\">" + getContact() + "</a>");
         return html.toString();

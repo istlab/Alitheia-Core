@@ -33,6 +33,7 @@
 
 package eu.sqooss.webui;
 
+import java.util.Vector;
 
 import eu.sqooss.webui.ListView;
 import eu.sqooss.scl.WSException;

@@ -33,6 +33,7 @@
 
 package eu.sqooss.webui;
 
+import java.util.Vector;
 import java.util.Iterator;
 import java.util.ArrayList;
 
@@ -53,7 +54,7 @@ public class Terrier {
     WSSession session;
     WSConnection connection;
     WSResult result;
-    
+
     String error = "No problems.";
     String debug = "...";
 
@@ -101,6 +102,42 @@ public class Terrier {
         }
         return null;
     }
+    
+    public Vector<Project> getEvaluatedProjects() {
+        if (connection == null) {
+            connect();
+        }
+        if (connection == null) {
+            debug = "noconnection ";
+            error = "Connection to Alitheia failed.";
+            return null;
+        }
+        debug += "ok";
+        try {
+            result = connection.evaluatedProjectsList();
+        } catch (WSException wse) {
+            error = "Could not receive a list of projects.";
+            return null;
+        }
+        Iterator <ArrayList<WSResultEntry>> itemlist = result.iterator();
+        if (!itemlist.hasNext()) {
+            error = "No project records found.";
+            return null;
+        }
+        Vector<Project> projects = new Vector<Project>();
+        try {
+            while (itemlist.hasNext()) {
+                debug += "hasnext ";
+                ArrayList <WSResultEntry> p_item = itemlist.next();
+                Iterator <WSResultEntry> oneitemlist = p_item.iterator();
+                projects.addElement(new Project(p_item));
+            }
+        } catch (NullPointerException npe) {
+            error = "ouch ... :/";
+        }
+        debug += " no:" + projects.size(); 
+        return projects;
+    }
 
     public Metric getMetric(Long metricId) {
         // TODO
@@ -136,6 +173,7 @@ public class Terrier {
             wse.printStackTrace();
             session = null;
             connection = null;
+            return;
         }
         try {
             connection = session.getConnection();
