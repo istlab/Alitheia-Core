@@ -40,6 +40,7 @@ import eu.sqooss.service.db.DAObject;
 public class ProjectVersion extends DAObject {
     private StoredProject project;
     private long version;
+    private long timestamp;
 
     public ProjectVersion() {
         // Nothing to do
@@ -68,6 +69,14 @@ public class ProjectVersion extends DAObject {
     
     public ProjectFile addProjectFile() {
         return new ProjectFile(this);
+    }
+    
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
     }
     
     public Tag addTag() {

@@ -10,5 +10,6 @@
     </id>
     <many-to-one name="project" column="STORED_PROJECT_ID" not-null="true" />
     <property name="version" column="VERSION" />
+    <property name="timestamp" column="TIMESTAMP" />
   </class>
 </hibernate-mapping>

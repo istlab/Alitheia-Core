@@ -34,8 +34,11 @@
 package eu.sqooss.impl.service.updater;
 
 import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.ArrayList;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -102,13 +105,13 @@ class SourceUpdater extends Job {
          * to avoid holding references to huge data graphs on large 
          * updates
          */
-        SortedSet<Long> updProjectVersions = new TreeSet();
-        SortedSet<Long> updFiles = new TreeSet();
+        SortedSet<Long> updProjectVersions = new TreeSet<Long>();
+        SortedSet<Long> updFiles = new TreeSet<Long>();
 
         logger.info("Running source update for project " + project.getName());
         Session s = dbs.getSession(this);
         long ts = System.currentTimeMillis();
-        
+        Transaction tx = s.beginTransaction();
         try {
 
             // This is the last version we actually know about
@@ -125,16 +128,14 @@ class SourceUpdater extends Job {
             ts = System.currentTimeMillis();
             
             for (CommitEntry entry : commitLog) {
-                Transaction tx = s.beginTransaction();
-                //handle changes that have occurred on each individual commit
-                // and create the necessary jobs for storing information
-                //related to updated files
-                logger.info(entry.toString());
+                
+                //logger.info(entry.toString());
 
                 ProjectVersion curVersion = new ProjectVersion();
                 curVersion.setProject(project);
                 // Assertion: this value is the same as lastSCMVersion
                 curVersion.setVersion(entry.getRevision().getSVNRevision());
+                curVersion.setTimestamp((long)(entry.getDate().getTime() / 1000));
                 s.save(curVersion);
                 updProjectVersions.add(new Long(curVersion.getId()));
                 
@@ -152,41 +153,35 @@ class SourceUpdater extends Job {
                     ProjectFile pf = curVersion.addProjectFile();
                     pf.setName(chPath);
                     pf.setStatus(entry.getChangedPathsStatus().get(chPath).toString());
-                    logger.info(project.getName() + ": Saving path: " + chPath);
+                    //logger.info(project.getName() + ": Saving path: " + chPath);
                     s.save(pf);
                     updFiles.add(pf.getId());
                 }
-                try {
-                    /*Commits a project version along with changes 
-                     * in project paths or tags
-                     */
-                    tx.commit();
-                    
-                } catch (HibernateException e) {
-                    if (tx != null) {
-                        try {
-                            tx.rollback();
-                        } catch (HibernateException ex) {
-                            logger.error("Error while rolling back failed transaction"
-                                    + ". DB may be left in inconsistent state:"
-                                    + ex.getMessage());
-                            ex.printStackTrace();
-                        }
-                        logger.error("Failed to commit updates to the database: "
-                                + e.getMessage() + " Transaction rollbacked");
-                    }
-                    setState(State.Error);
-                    break;
-                }
             }
+            tx.commit();
+            
         } catch (InvalidRepositoryException e) {
             logger.error("Not such repository:" + e.getMessage());
             setState(State.Error);
         } catch (InvalidProjectRevisionException e) {
             logger.error("Not such repository revision:" + e.getMessage());
             setState(State.Error);
+        } catch (HibernateException e) {
+            if (tx != null) {
+                try {
+                    tx.rollback();
+                } catch (HibernateException ex) {
+                    logger.error("Error while rolling back failed transaction"
+                            + ". DB may be left in inconsistent state:"
+                            + ex.getMessage());
+                    ex.printStackTrace();
+                }
+                logger.error("Failed to commit updates to the database: "
+                        + e.getMessage() + " Transaction rollbacked");
+            }
+            setState(State.Error);
         } finally {
-
+  
         logger.info(project.getName() + ": Time to process entries: "
                     + (int) ((System.currentTimeMillis() - ts) / 1000));
 
@@ -247,8 +242,6 @@ class SourceUpdater extends Job {
         /* Tags can only be added (for the time being at least)*/
         if(entry.getChangedPathsStatus().get(path) != PathChangeType.ADDED)
             return false;
-
-        
 
         /* If a path is not the prefix for all changed files
          * in a commit, then it is a leaf node (and therefore
