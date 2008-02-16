@@ -47,6 +47,7 @@ import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.scheduler.SchedulerException;
+import eu.sqooss.service.scheduler.SchedulerStats;
 
 public class SchedulerServiceImpl implements Scheduler {
 
@@ -56,6 +57,8 @@ public class SchedulerServiceImpl implements Scheduler {
 
     private Logger logger = null;
 
+    private SchedulerStats stats = new SchedulerStats();
+    
     // thread safe job queue
     private BlockingQueue< Job > blockedQueue = new PriorityBlockingQueue< Job >( 1, new JobPriorityComparator() );
     private BlockingQueue< Job > workQueue = new PriorityBlockingQueue< Job >( 1, new JobPriorityComparator() );
@@ -71,6 +74,7 @@ public class SchedulerServiceImpl implements Scheduler {
             logger.info("SchedulerServiceImpl: queuing job " + job.toString() );
             job.callAboutToBeEnqueued( this );
         blockedQueue.add( job );
+        stats.incTotalJobs();
         jobDependenciesChanged( job );
     }
 
@@ -84,7 +88,7 @@ public class SchedulerServiceImpl implements Scheduler {
         job.callAboutToBeDequeued(this);
         blockedQueue.remove(job);
         workQueue.remove(job);
-
+        stats.incFinishedJobs();
         if (logger != null) {
             logger.info("SchedulerServiceImpl: job " + job.toString() + " not found in the queue." );
         }
@@ -96,6 +100,7 @@ public class SchedulerServiceImpl implements Scheduler {
          * since no new items can be added as long someone is
          * waiting for items
          */
+        stats.incRunningJobs();
         return workQueue.take();
     }
 
@@ -103,6 +108,12 @@ public class SchedulerServiceImpl implements Scheduler {
         if (logger != null ) {
             logger.info("Job " + job + " changed to state " + state);
         }
+        
+        if (state == Job.State.Finished)
+            stats.incFinishedJobs();
+        
+        if (state == Job.State.Error)
+            stats.incFailedJobs();
     }
 
     synchronized public void jobDependenciesChanged(Job job) {
@@ -124,6 +135,7 @@ public class SchedulerServiceImpl implements Scheduler {
             WorkerThread t = new WorkerThread(this);
             t.start();
             myWorkerThreads.add(t);
+            stats.incWorkerThreads();
         }
     }
 
@@ -134,6 +146,7 @@ public class SchedulerServiceImpl implements Scheduler {
 
         for (WorkerThread t: myWorkerThreads) {
             t.stopProcessing();
+            stats.decWorkerThreads();
         }
 
         myWorkerThreads.clear();
@@ -277,5 +290,9 @@ public class SchedulerServiceImpl implements Scheduler {
         }
 
         return null;
+    }
+
+    public SchedulerStats getSchedulerStats() {
+        return stats;
     }
 }

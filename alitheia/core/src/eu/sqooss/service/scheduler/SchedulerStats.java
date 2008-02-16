@@ -3,8 +3,7 @@ This file is part of the Alitheia system, developed by the SQO-OSS
 consortium as part of the IST FP6 SQO-OSS project, number 033331.
 
 Copyright 2007-2008 by the SQO-OSS consortium members <info@sqo-oss.eu>
-Copyright 2007-2008 by KDAB (www.kdab.net)
-Author: Mirko Boehm <mirko@kdab.net>
+Copyright 2007-2008 by Georgios Gousios <gousiosg@gmail.com>
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are
@@ -34,54 +33,70 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package eu.sqooss.service.scheduler;
 
-/**
- * Interface for the scheduler.
- *
- * @author Mirko Boehm
- */
-public interface Scheduler {
-
-    /**
-     * Queue a job.
-     * 
-     * @param job - the job.
-     */
-    void enqueue(Job job) throws SchedulerException;
-
-    /**
-     * This method is called, when the state of the job \a job changes to 
-     * \a state.
-     */
-    void jobStateChanged(Job job, Job.State state);
-
-    /**
-     * This method is called, when dependencies of the job \a were changed.
-     */
-    void jobDependenciesChanged(Job job);
-
-    /**
-     * Returns a job which can be executed.
-     * If there's currently no job available, this method is blocking.
-     * @return The job.
-     */
-    Job takeJob() throws java.lang.InterruptedException;
-
-    /**
-     * Starts job execution using \a n additional worker threads.
-     * \a n new worker threads are created. Even if the scheduler is already
-     * running some.
-     */
-    void startExecute(int n);
-
-    /**
-     * Stops job execution of all current worker threads.
-     */
-    void stopExecute();
+public class SchedulerStats {
+    private long totalJobs = 0;
+    private long finishedJobs = 0;
+    private long runningJobs = 0;
+    private long workerThreads = 0;
+    private long idleWorkerThreads = 0;
+    private long failedJobs = 0;
     
-    /**
-     * @return Whether the scheduler is currently executing jobs or not.
-     */
-    boolean isExecuting();
+    public synchronized void incTotalJobs() {
+        totalJobs++;
+    }
     
-    SchedulerStats getSchedulerStats();
+    public synchronized void incFinishedJobs() {
+        finishedJobs++;
+    }
+    
+    public synchronized void incRunningJobs() {
+        runningJobs++;
+    }
+    
+    public synchronized void incFailedJobs() {
+        failedJobs++;
+    }
+    
+    public synchronized void incWorkerThreads() {
+        workerThreads++;
+    }
+    
+    public synchronized void decWorkerThreads() {
+        workerThreads--;
+    }
+    
+    public synchronized void incIdleWorkerThreads() {
+        idleWorkerThreads++;
+    }
+    
+    public synchronized void decIdleWorkerThreads() {
+        idleWorkerThreads--;
+    }
+
+    public long getTotalJobs() {
+        return totalJobs;
+    }
+
+    public long getFinishedJobs() {
+        return finishedJobs;
+    }
+
+    public long getRunningJobs() {
+        return runningJobs;
+    }
+
+    public long getWorkerThreads() {
+        return workerThreads;
+    }
+
+    public long getIdleWorkerThreads() {
+        return idleWorkerThreads;
+    }
+
+    public long getFailedJobs() {
+        return failedJobs;
+    }
+    
+    
+    
 }

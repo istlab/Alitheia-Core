@@ -44,6 +44,8 @@ import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.scheduler.Scheduler;
+import eu.sqooss.service.scheduler.SchedulerStats;
 import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.util.Pair;
 import eu.sqooss.service.util.StringUtils;
@@ -88,6 +90,7 @@ public class AdminServlet extends HttpServlet {
 
     private DBService sobjDB = null;
     private TDSService sobjTDS = null;
+    private Scheduler sobjSched = null;    
     private UpdaterService sobjUpdater = null;
 
     private Hashtable<String,Pair<String,String>> staticContentMap;
@@ -156,6 +159,11 @@ public class AdminServlet extends HttpServlet {
                 doLogInfo("WebAdmin got TDS Service object.");
             }
 
+            sobjSched = sobjAlitheiaCore.getScheduler();
+            if (sobjSched != null) {
+                doLogInfo("WebAdmin got Scheduler Service object.");
+            }
+            
             // Get the Updater Service object
             sobjUpdater = sobjAlitheiaCore.getUpdater();
             if (sobjUpdater != null) {
@@ -350,7 +358,12 @@ public class AdminServlet extends HttpServlet {
         dynamicSubstitutions.put("@@PROJECTS",renderList(listProjects()));
         dynamicSubstitutions.put("@@BUNDLE", renderBundles());
         dynamicSubstitutions.put("@@UPTIME",getUptime());
-        dynamicSubstitutions.put("@@QUEUE_LENGTH","Infinite");
+        dynamicSubstitutions.put("@@QUEUE_LENGTH", String.valueOf(sobjSched.getSchedulerStats().getTotalJobs()));
+        dynamicSubstitutions.put("@@JOB_EXEC", String.valueOf(sobjSched.getSchedulerStats().getRunningJobs()));
+        dynamicSubstitutions.put("@@JOB_WAIT", String.valueOf(sobjSched.getSchedulerStats().getTotalJobs()));
+        dynamicSubstitutions.put("@@JOB_WORKTHR", String.valueOf(sobjSched.getSchedulerStats().getWorkerThreads()));
+        dynamicSubstitutions.put("@@JOB_FAILED", String.valueOf(sobjSched.getSchedulerStats().getFailedJobs()));
+        dynamicSubstitutions.put("@@JOB_TOTAL", String.valueOf(sobjSched.getSchedulerStats().getTotalJobs()));
     }
 
     private void doServletException(HttpServletRequest request,
