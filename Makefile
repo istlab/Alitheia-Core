@@ -25,17 +25,14 @@
 #             console and in BG mode).
 # clean		- Remove all build artifacts and logs.
 # clean-log	- Clean up just the logs. Keeps show-log short.
-# clean-db	- Remove the Derby DB, so it will be re-created next run.
-#		  Only useful if you are using Derby, which is the fallback
-#		  when Postgres can't be found.
-# show-log	- Finds the run log and prints it.
-# show-db	- Start the Derby CLI for database manipulation.
-#		  Only useful if you are using Derby, which is the fallback
-#		  when Postgres can't be found.
-# show-db-tables - shows the generated database tables. Also Derby-only.
-# fill-derby     - install canned data to the derby test database
-# clean-db-tables - clear the database using delete statements; this keeps
-#		    the structure (unlike clean-db).
+# show-log      - Finds the run log and prints it.
+#
+# drop-db	 - Remove the DB, so it will be re-created next run.
+# show-db	 - Start the database CLI for database manipulation.
+# fill-db        - install canned data to the database
+# clean-db       - clear the database using delete statements; this keeps
+#		    the structure (unlike drop-db).
+# show-db-tables - shows the generated database tables.
 #
 # eclipse-up-branch  - Update the eclipse branch from the current workdir
 # eclipse-up-workdir - Update the current workdir from the eclipse branch
@@ -62,6 +59,7 @@ CLASSPATH:=$(subst /,\,$(CLASSPATH))
 CLASSPATH:=$(subst :,;,$(CLASSPATH))
 endif
 
+DB_DERBY=0
 
 #
 # END OF USER CONFIGURATION AREA
@@ -112,9 +110,6 @@ clean-log :
 	rm -f $(PREFIX)/alitheia.log $(PREFIX)/hibernate.log $(PREFIX)/derby.log
 	rm -f $(PREFIX)/logs/*
 
-clean-db :
-	rm -rf $(PREFIX)/derbyDB
-
 distclean: clean clean-log clean-db
 	-find . -type f|grep *~|xargs rm
 	-find . -type f|grep DS_Store|xargs rm 
@@ -123,7 +118,7 @@ javadoc:
 	ALLSRC=`find . -type f -name "*.java"|tr '\n' ' '` && javadoc -d doc/javadoc -classpath `./tools/setcp.sh .` $$ALLSRC
 
 #Just a dummy config file
-CONFIG=-Xmx256M 
+CONFIG=-Xmx512M 
 
 DEBUGOPT=-Xdebug -Xrunjdwp:transport=dt_socket,server=y,address=8000,suspend=y 
 
@@ -181,23 +176,42 @@ RUN_DERBY_CLASSPATH:=$(subst :,;,$(RUN_DERBY_CLASSPATH))
 endif
 RUN_DERBY_IJ:=java -Dij.protocol=jdbc:derby: -Dij.database=equinox/derbyDB -cp "$(RUN_DERBY_CLASSPATH)" org.apache.derby.tools.ij
 
+RUN_POSTGRES:=psql alitheia -U alitheia
+
 show-db :
-	$(RUN_DERBY_IJ)
+	if [ ${DB_DERBY} -eq 1 ]; then \
+		${RUN_DERBY_IJ}; \
+	else \
+		$(RUN_POSTGRES); \
+	fi 
 
 show-db-tables :
-	echo "show tables;" | $(RUN_DERBY_IJ) | grep '^ALITHEIA'
+	if [ ${DB_DERBY} -eq 1 ]; then \
+		echo "show tables;" | $(RUN_DERBY_IJ) | grep '^ALITHEIA';\
+	else \
+		echo "\dt" |$(RUN_POSTGRES); \
+	fi
 
-fill-derby :
-	cat examples/db-derby.sql | $(RUN_DERBY_IJ) 
+fill-db :
+	if [ ${DB_DERBY} -eq 1 ]; then \
+		cat examples/db-derby.sql | $(RUN_DERBY_IJ) ; \
+	else \
+		cat examples/db-psql.sql | $(RUN_POSTGRES) ; \
+	fi
 
-clean-db-tables :
-	( echo "delete from alitheia.mailmessage;" ; \
- 	echo "delete from alitheia.sender;" ; \
-	echo "delete from alitheia.mailinglist;" ; \
-	echo "delete from alitheia.project_file; " ; \
-	echo "delete from alitheia.project_version; " ; \
-	echo "delete from alitheia.stored_project;" ; \
-	echo "delete from alitheia.users;" ) | $(RUN_DERBY_IJ)
+clean-db :
+	if [ ${DB_DERBY} -eq 1 ]; then \
+		cat examples/clear-db-derby.sql|$(RUN_DERBY_IJ) ; \
+	else \
+		cat examples/clear-db-psql.sql|$(RUN_POSTGRES) ; \
+	fi
+
+drop-db:
+	if [ ${DB_DERBY} -eq 1 ]; then \
+		rm -rf $(PREFIX)/derbyDB ;\
+	else \	
+		echo "drop db alitheia" $(RUN_POSTGRES) ; \
+	fi
 
 ECLIPSEDIR=$(TOP_SRCDIR)/../branches/eclipse
 
