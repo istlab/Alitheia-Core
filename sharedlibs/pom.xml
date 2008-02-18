@@ -2,17 +2,17 @@
   <modelVersion>4.0.0</modelVersion>
 
   <!-- =======[ Alitheia's metrics - main POM                     ]======= -->
-  <groupId>eu.sqooss</groupId>
-  <artifactId>metrics</artifactId>
-  <version>1.0.0</version>
-  <packaging>pom</packaging>
+  <groupId>eu.sqooss.lib</groupId>
+  <artifactId>resultlib</artifactId>
+  <version>0.0.1</version>
+  <packaging>jar</packaging>
 
   <!-- =======[ Project description                               ]======= -->
-  <name>Alitheia Metrics</name>
-  <url>http://ikaria.dmst.aueb.gr:8088/metrics</url>
+  <name>Shared Libraries for Alitheia</name>
+  <url>http://ikaria.dmst.aueb.gr:8088/sharedlibs</url>
   <inceptionYear>2006</inceptionYear>
   <description>
-    Contains the metrics plug-ins used from the core SQO-OSS system 
+    Add description.
   </description>
 
   <!-- =======[ Project license                                   ]======= -->
@@ -33,10 +33,10 @@
   <!-- =======[ Source code repository for this project           ]======= -->
   <scm>
     <connection>
-      scm:svn:https://svn.sqo-oss.eu/devel/trunk/metrics
+      scm:svn:https://svn.sqo-oss.eu/devel/trunk/sharedlibs
     </connection>
     <developerConnection>
-      scm:svn:https://svn.sqo-oss.eu/devel/trunk/metrics
+      scm:svn:https://svn.sqo-oss.eu/devel/trunk/sharedlibs
     </developerConnection>
     <!-- Configure and enable this, in case we provide an anonymous SVN viewer
     -->
@@ -48,7 +48,22 @@
   <!-- =======[ Build options, goals and plug-ins configurations  ]======= -->
   <build>
     <defaultGoal>clean deploy</defaultGoal>
+    <!-- Tells Maven to search for source code here -->
+    <sourceDirectory>${basedir}/result/src</sourceDirectory>
+    <!-- Tells Maven to build Java class files here -->
+    <outputDirectory>${basedir}/build</outputDirectory>
+    <!-- Tells Maven where to find the bundle manifest file -->
     <plugins>
+      <plugin>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifestFile>
+              ${basedir}/result/manifest/manifest.mf
+            </manifestFile>
+          </archive>
+        </configuration> 
+      </plugin>
       <!-- SITE-GENERATOR plug-in configuration                            -->
       <plugin>
         <artifactId>maven-site-plugin</artifactId>
@@ -95,7 +110,7 @@
             <fileset>
               <directory>${user.dir}/equinox</directory>
               <includes>
-                <include>**/eu.sqooss.metrics.*</include>
+                <include>**/eu.sqooss.libs.*</include>
               </includes>
               <followSymlinks>false</followSymlinks>
             </fileset>
@@ -280,14 +295,20 @@
 
   <!-- =======[ Modules part of this project                      ]======= -->
   <modules>
-    <!-- Add Alitheia modules here -->
-    <!--
-    <module>metric_one</module>
-    <module>metric_two</module>
-    -->
-    <module>productivity-metric</module>
-    <module>wc</module>
+    <!-- Add modules here -->
   </modules>
+
+  <!-- Dependencies -->
+  <dependencies>
+    <!-- [sqooss repo] Dependant on Apache Commons - Codec -->
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>codec</artifactId>
+      <version>1.3.0</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
 
   <!-- =======[ List of developers working on this project        ]======= -->
   <developers>
