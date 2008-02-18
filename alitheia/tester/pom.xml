@@ -63,19 +63,5 @@
 
   <!-- Developers working on this module -->
   <developers>
-    <developer>
-      <id>tcholakov</id>
-      <name>Todor Cholakov</name>
-      <email>t.cholakov@prosyst.com</email>
-      <organization>ProSyst Software GmbH</organization>
-      <timezone>+2</timezone>
-    </developer>
-    <developer>
-      <id>e_grigorov</id>
-      <name>Evgeni Grigorov</name>
-      <email>e.grigorov@prosyst.com</email>
-      <organization>ProSyst Software GmbH</organization>
-      <timezone>+2</timezone>
-    </developer>
   </developers>
 </project>
