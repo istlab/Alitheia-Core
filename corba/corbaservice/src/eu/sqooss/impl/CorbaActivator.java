@@ -75,18 +75,13 @@ public class CorbaActivator implements BundleActivator {
 
         // create servant and register it with the ORB
         try {
-            Properties props = new Properties();
-            //props.put("org.omg.CORBA.ORBInitialPort", "1050");
-
-            String nsHost = "localhost";
-            String nsPort = "2809";
-            
+            // standard ORB settings
             String[] orb_args = new String[2];
             orb_args[0] = "-ORBInitRef";
-            orb_args[1] = "NameService=corbaloc:iiop:1.2@" + nsHost + ":" + nsPort + "/NameService";
+            orb_args[1] = "NameService=" + bc.getProperty("eu.sqooss.corba.orb.nameservice");
             
             // create and initialize the ORB
-            orb = ORB.init( orb_args, props );
+            orb = ORB.init( orb_args, null );
             
             // get reference to rootpoa & activate the POAManager
             rootpoa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
