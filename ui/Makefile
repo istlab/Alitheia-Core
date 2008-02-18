@@ -10,7 +10,9 @@
 
 # Subdirectories to build bundles in. Ignored in a Maven build (which takes
 # the same information from pom.xml).
-BUNDLES=result
+BUNDLES=scl \
+	webui
+
 
 #
 # END OF USER CONFIGURABLE AREA
@@ -20,16 +22,14 @@ BUNDLES=result
 TOP_SRCDIR?=$(shell cd .. && pwd)
 PREFIX?=$(shell cd ../equinox && pwd)
 
-all : narf build
-
-narf :
-	echo $(PREFIX)
+all : build
 
 include ../Makefile.common
 
-$(foreach d,$(BUNDLES),$(eval $(call subdir_template,build,$(d),all)))
+$(foreach d,$(BUNDLES),$(eval $(call subdir_template,build,$(d),)))
 $(foreach d,$(BUNDLES),$(eval $(call subdir_template,install,$(d),install)))
 $(foreach d,$(BUNDLES),$(eval $(call subdir_template,clean,$(d),clean)))
+$(foreach d,$(BUNDLES),$(eval $(call subdir_template,depend,$(d),depend)))
 
 # Maven short circuits the build by compiling from here.
 ifeq ($(WITH_MAVEN),)
@@ -44,4 +44,6 @@ install : $(foreach d,$(BUNDLES),install-$(d))
 
 clean : $(foreach d,$(BUNDLES),clean-$(d))
 	rm -f `find . -name '*.class'`
+
+depend : $(foreach d,$(BUNDLES),depend-$(d))
 

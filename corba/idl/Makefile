@@ -32,6 +32,10 @@ CPP_RESULTS=Alitheia.cpp \
 
 all: ../cpp/src/Alitheia.cpp ../corbaservice/src/eu/sqooss/impl/service/alitheia/CoreHelper.java
 
+build : all
+
+-include ../../Makefile.common
+
 ../cpp/src/Alitheia.cpp: Alitheia.idl
 	cd ../cpp/src; idl --poa --c++-suffix cpp ../../idl/Alitheia.idl; cd ../../idl
 	

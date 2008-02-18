@@ -10,7 +10,7 @@
 
 # Subdirectories to build bundles in. Ignored in a Maven build (which takes
 # the same information from pom.xml).
-BUNDLES = core \
+BUNDLES=core \
 	tester \
 	web-services
 
@@ -25,13 +25,9 @@ PREFIX?=$(shell cd ../equinox && pwd)
 
 all : build
 
-# Template to pass targets on to sub-directories.
-define subdir_template
-$(1)-$(2) :
-	cd $(2) && $(MAKE) $(3) TOP_SRCDIR=$(TOP_SRCDIR) PREFIX=$(PREFIX)
-endef
+include ../Makefile.common
 
-$(foreach d,$(BUNDLES),$(eval $(call subdir_template,build,$(d),)))
+$(foreach d,$(BUNDLES),$(eval $(call subdir_template,build,$(d),all)))
 $(foreach d,$(BUNDLES),$(eval $(call subdir_template,install,$(d),install)))
 $(foreach d,$(BUNDLES),$(eval $(call subdir_template,clean,$(d),clean)))
 $(foreach d,$(BUNDLES),$(eval $(call subdir_template,depend,$(d),depend)))
@@ -51,15 +47,4 @@ clean : $(foreach d,$(BUNDLES),clean-$(d))
 	rm -f `find . -name '*.class'`
 
 depend : $(foreach d,$(BUNDLES),depend-$(d))
-
-# This is a double check that all of the subdirectories listed in 
-# BUNDLES exist and that all of the subdirectories that exist are
-# listed in BUNDLES. This helps avoid embarrassing mismatches between
-# the Maven, Makefile and filesystem setups.
-check:
-	@echo "# Unused subdirs:"
-	@( for i in `find . -maxdepth 1 -type d | grep -v '^\.$$' | grep -v '^./.svn'` ; do \
-		D=`basename $$i` ; echo $$D ; done ; \
-	for i in $(BUNDLES) ; do echo $$i ; done ) | \
-	sort | uniq -u
 

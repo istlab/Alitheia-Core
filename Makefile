@@ -42,32 +42,45 @@
 # not have the console). The run target assumes (and does not check)
 # that you have done a 'make install' already.
 
+###
+#
+# Sensible user-configuration settings. Other things don't make too much
+# sense to change (below this section) unless you are doing actual
+# build-system hacking.
+#
+
 # This is where OSGi / Equinox is installed under this directory.
 PREFIX=equinox
-
-# Subdirectories to build or install from.
-SUBDIRS= sharedlibs \
-	alitheia \
-	metrics
-ifeq ($(WITH_MAVEN),)
-SUBDIRS+= corba
-endif
-
-CLASSPATH=$(shell tools/setcp.sh `pwd`)
-ifeq ($(OS),Windows_NT)
-CLASSPATH:=$(subst /,\,$(CLASSPATH))
-CLASSPATH:=$(subst :,;,$(CLASSPATH))
-endif
-
-DB_DERBY=0
+# Use Derby? If set to anything other than "YES", we assume Postgres.
+DB_DERBY?=YES
 
 #
 # END OF USER CONFIGURATION AREA
 #
 ###
 
+
+###
+#
+# Non-configurable stuff.
+#
+# Subdirectories to build or install from.
+SUBDIRS=sharedlibs \
+	alitheia \
+	ui \
+	corba \
+	metrics
+NOBUILD_SUBDIRS=extlibs
+
+CLASSPATH=$(shell tools/setcp.sh `pwd`)
+ifeq ($(OS),Windows_NT)
+CLASSPATH:=$(subst :,;,$(subst /,\,$(CLASSPATH)))
+endif
+
+
 TOP_SRCDIR=$(shell pwd)
 ABS_PREFIX=$(shell cd $(PREFIX) && pwd)
+
 LOG4J_PREFIX=$(ABS_PREFIX)
 ifeq ($(OS),Windows_NT)
 LOG4J_PREFIX:=$(subst /cygdrive/c,,$(LOG4J_PREFIX))
@@ -75,30 +88,23 @@ endif
 
 all : build
 
-# Template to carry a target to a subdirectory while preserving the
-# PREFIX and Maven attributes.
-define subdir_template
-$(1)-$(2) :
-	cd $(2) && $(MAKE) $(1) TOP_SRCDIR=$(TOP_SRCDIR) PREFIX=$(ABS_PREFIX) WITH_MAVEN=$(WITH_MAVEN)
-endef
+notify :
+	@echo "# Entering top-level."
 
-$(foreach d,$(SUBDIRS),$(eval $(call subdir_template,build,$(d))))
-$(foreach d,$(SUBDIRS),$(eval $(call subdir_template,clean,$(d))))
-$(foreach d,$(SUBDIRS),$(eval $(call subdir_template,install,$(d))))
+include Makefile.common
+
+$(foreach d,$(SUBDIRS),$(eval $(call subdir_template,build,$(d),all)))
+$(foreach d,$(SUBDIRS) $(NOBUILD_SUBDIRS),$(eval $(call subdir_template,clean,$(d),clean)))
+$(foreach d,$(SUBDIRS) $(NOBUILD_SUBDIRS),$(eval $(call subdir_template,install,$(d),install)))
 
 
 
-build : $(foreach d,$(SUBDIRS),build-$(d))
+build : notify $(foreach d,$(SUBDIRS),build-$(d) install-$(d))
 
 install : $(foreach d,$(SUBDIRS),install-$(d))
 	cd extlibs && $(MAKE) TOP_SRCDIR=$(TOP_SRCDIR) && $(MAKE) install TOP_SRCDIR=$(TOP_SRCDIR)
 	rm -Rf ${PREFIX}/configuration/org.eclipse.osgi
 	rm -f ${PREFIX}/configuration/*.log
-
-TOOL_DIR=tools
-# None of the tools in the tools dir need to be used right now,
-# so there are no targets referencing it.
-
 
 clean : clean-log $(foreach d,$(SUBDIRS),clean-$(d))
 	rm -rf $(PREFIX)/configuration/org.eclipse.osgi
@@ -115,7 +121,7 @@ distclean: clean clean-log clean-db
 	-find . -type f|grep DS_Store|xargs rm 
 
 javadoc:
-	ALLSRC=`find . -type f -name "*.java"|tr '\n' ' '` && javadoc -d doc/javadoc -classpath `./tools/setcp.sh .` $$ALLSRC
+	ALLSRC=`find . -type f -name "*.java"|tr '\n' ' '` && javadoc -d doc/javadoc -classpath $(CLASSPATH) $$ALLSRC
 
 #Just a dummy config file
 CONFIG=-Xmx512M 
@@ -162,56 +168,59 @@ start-bg : run-ui run-bg
 # The default log4j configuration puts the log directly in $(PREFIX) and
 # the SQO-OSS logger puts it in the bundle data directory. Handle both.
 show-log :
-	if test -s $(PREFIX)/logs/alitheia.log  ; then \
-		cat $(PREFIX)/logs/alitheia.log ; \
-	else \
-		cat $(PREFIX)/configuration/org.eclipse.osgi/bundles/[0-9]*/data/logs/alitheia*.log ; \
-	fi
+	cat $(PREFIX)/logs/alitheia.log
 
+# The Derby jars live underneath here in extlibs
 DBPATH=extlibs/org.apache.derby_10.3.2.1
+# This is the classpath needed to run Derby applications
 RUN_DERBY_CLASSPATH=$(DBPATH)/derby.jar:$(DBPATH)/../org.apache.derby.tools-10.3.1.4.jar
 ifeq ($(OS),Windows_NT)
-RUN_DERBY_CLASSPATH:=$(subst /,\,$(RUN_DERBY_CLASSPATH))
-RUN_DERBY_CLASSPATH:=$(subst :,;,$(RUN_DERBY_CLASSPATH))
+RUN_DERBY_CLASSPATH:=$(subst :,;,$(subst /,\,$(RUN_DERBY_CLASSPATH)))
 endif
-RUN_DERBY_IJ:=java -Dij.protocol=jdbc:derby: -Dij.database=equinox/derbyDB -cp "$(RUN_DERBY_CLASSPATH)" org.apache.derby.tools.ij
+# Command to run Derby's command-line tool ij
+RUN_DERBY_IJ=java \
+	-Dij.protocol=jdbc:derby: \
+	-Dij.database=equinox/derbyDB \
+	-cp "$(RUN_DERBY_CLASSPATH)" org.apache.derby.tools.ij
 
-RUN_POSTGRES:=psql alitheia -U alitheia
+# Alternate command to run Postgres command-line tool psql
+RUN_POSTGRES=psql alitheia -U alitheia
 
+# All the db-related targets are distinguished between Derby and Postgres
+ifeq ($(DB_DERBY),YES)
 show-db :
-	if [ ${DB_DERBY} -eq 1 ]; then \
-		${RUN_DERBY_IJ}; \
-	else \
-		$(RUN_POSTGRES); \
-	fi 
+	${RUN_DERBY_IJ}
 
 show-db-tables :
-	if [ ${DB_DERBY} -eq 1 ]; then \
-		echo "show tables;" | $(RUN_DERBY_IJ) | grep '^ALITHEIA';\
-	else \
-		echo "\dt" |$(RUN_POSTGRES); \
-	fi
+	echo "show tables;" | $(RUN_DERBY_IJ) | grep "^ALITHEIA"
 
 fill-db :
-	if [ ${DB_DERBY} -eq 1 ]; then \
-		cat examples/db-derby.sql | $(RUN_DERBY_IJ) ; \
-	else \
-		cat examples/db-psql.sql | $(RUN_POSTGRES) ; \
-	fi
+	cat examples/db-derby.sql | $(RUN_DERBY_IJ)
 
 clean-db :
-	if [ ${DB_DERBY} -eq 1 ]; then \
-		cat examples/clear-db-derby.sql|$(RUN_DERBY_IJ) ; \
-	else \
-		cat examples/clear-db-psql.sql|$(RUN_POSTGRES) ; \
-	fi
+	cat examples/clear-db-derby.sql|$(RUN_DERBY_IJ)
 
 drop-db:
-	if [ ${DB_DERBY} -eq 1 ]; then \
-		rm -rf $(PREFIX)/derbyDB ;\
-	else \	
-		echo "drop db alitheia" $(RUN_POSTGRES) ; \
-	fi
+	rm -rf $(PREFIX)/derbyDB
+else
+show-db :
+	$(RUN_POSTGRES)
+
+show-db-tables :
+	echo "\dt" | $(RUN_POSTGRES)
+
+fill-db :
+	cat examples/db-psql.sql | $(RUN_POSTGRES)
+
+clean-db :
+	cat examples/clear-db-psql.sql | $(RUN_POSTGRES)
+
+drop-db:
+	echo "drop db alitheia" | $(RUN_POSTGRES)
+endif
+
+
+
 
 ECLIPSEDIR=$(TOP_SRCDIR)/../branches/eclipse
 
