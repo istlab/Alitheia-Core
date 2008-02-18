@@ -60,6 +60,14 @@
 
   <!-- =[ Dependencies ]================================================== -->
   <dependencies>
+    <!-- [sqooss repo] Dependant on SQO-OSS shared libraries -->
+    <dependency>
+      <groupId>eu.sqooss.lib</groupId>
+      <artifactId>resultlib</artifactId>
+      <version>[0.0.1,)</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
     <!-- [sqooss repo] Dependant on OSGi R4 Framework Package -->
     <dependency>
       <groupId>org.eclipse.equinox</groupId>
@@ -81,6 +89,14 @@
       <groupId>javax</groupId>
       <artifactId>servlet</artifactId>
       <version>2.4.0.v200612120446</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <!-- [sqooss repo] Dependant on Java Mail Extension -->
+    <dependency>
+      <groupId>javax</groupId>
+      <artifactId>mail</artifactId>
+      <version>1.4</version>
       <type>jar</type>
       <scope>provided</scope>
     </dependency>
@@ -113,6 +129,13 @@
       <groupId>org.tmatesoft</groupId>
       <artifactId>svnkit</artifactId>
       <version>1.1.4</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.4</version>
       <type>jar</type>
       <scope>provided</scope>
     </dependency>
