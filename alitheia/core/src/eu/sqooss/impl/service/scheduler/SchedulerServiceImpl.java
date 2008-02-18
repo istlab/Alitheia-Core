@@ -71,9 +71,10 @@ public class SchedulerServiceImpl implements Scheduler {
     }
 
     synchronized public void enqueue(Job job) throws SchedulerException {
-            logger.info("SchedulerServiceImpl: queuing job " + job.toString() );
-            job.callAboutToBeEnqueued( this );
+        logger.info("SchedulerServiceImpl: queuing job " + job.toString() );
+        job.callAboutToBeEnqueued( this );
         blockedQueue.add( job );
+        stats.incWaitingJobs();
         stats.incTotalJobs();
         jobDependenciesChanged( job );
     }
@@ -88,7 +89,8 @@ public class SchedulerServiceImpl implements Scheduler {
         job.callAboutToBeDequeued(this);
         blockedQueue.remove(job);
         workQueue.remove(job);
-        stats.incFinishedJobs();
+        stats.incWaitingJobs();
+        stats.decTotalJobs();
         if (logger != null) {
             logger.info("SchedulerServiceImpl: job " + job.toString() + " not found in the queue." );
         }
@@ -100,7 +102,6 @@ public class SchedulerServiceImpl implements Scheduler {
          * since no new items can be added as long someone is
          * waiting for items
          */
-        stats.incRunningJobs();
         return workQueue.take();
     }
 
@@ -108,12 +109,24 @@ public class SchedulerServiceImpl implements Scheduler {
         if (logger != null ) {
             logger.info("Job " + job + " changed to state " + state);
         }
-        
+       
         if (state == Job.State.Finished)
+        {
+            stats.decTotalJobs();
+            stats.decRunningJobs();
             stats.incFinishedJobs();
-        
-        if (state == Job.State.Error)
+        }
+        else if (state == Job.State.Running)
+        {
+            stats.decWaitingJobs();
+            stats.incRunningJobs();
+        }
+        else if (state == Job.State.Error)
+        {
+            stats.decTotalJobs();
+            stats.decRunningJobs();
             stats.incFailedJobs();
+        }
     }
 
     synchronized public void jobDependenciesChanged(Job job) {

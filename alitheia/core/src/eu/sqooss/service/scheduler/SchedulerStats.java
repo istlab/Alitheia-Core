@@ -34,15 +34,35 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package eu.sqooss.service.scheduler;
 
 public class SchedulerStats {
+    // the number of jobs currently in the scheduler
     private long totalJobs = 0;
+    // the number of jobs which were finished
     private long finishedJobs = 0;
+    // the number of jobs currently waiting
+    private long waitingJobs = 0;
+    // the number of jobs currently running
     private long runningJobs = 0;
+    // the total number of threads available for scheduling
     private long workerThreads = 0;
+    // the number of threads being idle at the moment
     private long idleWorkerThreads = 0;
+    // the number of jobs which failed
     private long failedJobs = 0;
     
     public synchronized void incTotalJobs() {
         totalJobs++;
+    }
+
+    public synchronized void decTotalJobs() {
+        totalJobs--;
+    }
+    
+    public synchronized void incWaitingJobs() {
+        waitingJobs++;
+    }
+
+    public synchronized void decWaitingJobs() {
+        waitingJobs--;
     }
     
     public synchronized void incFinishedJobs() {
@@ -51,6 +71,10 @@ public class SchedulerStats {
     
     public synchronized void incRunningJobs() {
         runningJobs++;
+    }
+
+    public synchronized void decRunningJobs() {
+        runningJobs--;
     }
     
     public synchronized void incFailedJobs() {
@@ -75,6 +99,10 @@ public class SchedulerStats {
 
     public long getTotalJobs() {
         return totalJobs;
+    }
+
+    public long getWaitingJobs() {
+        return waitingJobs;
     }
 
     public long getFinishedJobs() {

@@ -358,9 +358,9 @@ public class AdminServlet extends HttpServlet {
         dynamicSubstitutions.put("@@PROJECTS",renderList(listProjects()));
         dynamicSubstitutions.put("@@BUNDLE", renderBundles());
         dynamicSubstitutions.put("@@UPTIME",getUptime());
-        dynamicSubstitutions.put("@@QUEUE_LENGTH", String.valueOf(sobjSched.getSchedulerStats().getTotalJobs()));
+        dynamicSubstitutions.put("@@QUEUE_LENGTH", String.valueOf(sobjSched.getSchedulerStats().getWaitingJobs()));
         dynamicSubstitutions.put("@@JOB_EXEC", String.valueOf(sobjSched.getSchedulerStats().getRunningJobs()));
-        dynamicSubstitutions.put("@@JOB_WAIT", String.valueOf(sobjSched.getSchedulerStats().getTotalJobs()));
+        dynamicSubstitutions.put("@@JOB_WAIT", String.valueOf(sobjSched.getSchedulerStats().getWaitingJobs()));
         dynamicSubstitutions.put("@@JOB_WORKTHR", String.valueOf(sobjSched.getSchedulerStats().getWorkerThreads()));
         dynamicSubstitutions.put("@@JOB_FAILED", String.valueOf(sobjSched.getSchedulerStats().getFailedJobs()));
         dynamicSubstitutions.put("@@JOB_TOTAL", String.valueOf(sobjSched.getSchedulerStats().getTotalJobs()));
