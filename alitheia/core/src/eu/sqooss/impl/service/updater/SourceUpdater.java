@@ -181,19 +181,19 @@ class SourceUpdater extends Job {
             }
             setState(State.Error);
         } finally {
-  
-        logger.info(project.getName() + ": Time to process entries: "
+            logger.info(project.getName() + ": Time to process entries: "
                     + (int) ((System.currentTimeMillis() - ts) / 1000));
 
             /* Start project version metrics */
             Iterator<Long> i = updProjectVersions.iterator();
 
             while (i.hasNext()) {
+                long currentVersion = i.next().longValue();
                 for (ServiceReference r : versionMetrics) {
                     Metric m = (Metric) core.getService(r);
                     if (m != null) {
                         try {
-                            m.run(dbs.findObjectById(ProjectVersion.class, i.next().longValue()));
+                            m.run(dbs.findObjectById(ProjectVersion.class, currentVersion));
                         } catch (MetricMismatchException e) {
                             logger.warn("Metric " + m.getName() + " failed");
                         }
@@ -205,11 +205,12 @@ class SourceUpdater extends Job {
             i = updFiles.iterator();
 
             while (i.hasNext()) {
+                long currentFileId = i.next().longValue();
                 for (ServiceReference r : fileMetrics) {
                     Metric m = (Metric) core.getService(r);
                     if (m != null) {
                         try {
-                            m.run(dbs.findObjectById(ProjectFile.class, i.next().longValue()));
+                            m.run(dbs.findObjectById(ProjectFile.class, currentFileId));
                         } catch (MetricMismatchException e) {
                             logger.warn("Metric " + m.getName() + " failed");
                         }
