@@ -309,7 +309,8 @@ ALTER TABLE public.project_file OWNER TO alitheia;
 CREATE TABLE project_version (
     project_version_id bigint NOT NULL,
     stored_project_id bigint NOT NULL,
-    version bigint
+    version bigint,
+    timestamp bigint
 );
 
 
@@ -548,8 +549,8 @@ COPY project_file (project_file_id, file_name, project_version_id, file_status) 
 -- Data for Name: project_version; Type: TABLE DATA; Schema: public; Owner: alitheia
 --
 
-COPY project_version (project_version_id, stored_project_id, version) FROM stdin;
-1	1	1
+COPY project_version (project_version_id, stored_project_id, version, timestamp) FROM stdin;
+1	1	1	1111111111111
 \.
 
 
