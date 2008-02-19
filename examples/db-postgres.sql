@@ -244,7 +244,7 @@ ALTER TABLE public.metric OWNER TO alitheia;
 
 CREATE TABLE metric_type (
     metric_type_id bigint NOT NULL,
-    "type" bytea NOT NULL
+    "type" varchar NOT NULL
 );
 
 
@@ -508,7 +508,7 @@ COPY metric (metric_id, plugin_id, metric_type, description) FROM stdin;
 --
 
 COPY metric_type (metric_type_id, "type") FROM stdin;
-1	Counting Words
+1	SOURCE_CODE
 \.
 
 
