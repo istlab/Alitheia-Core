@@ -317,7 +317,7 @@ public class FDSServiceImpl implements FDSService {
             + "." + String.format(format, r.getSVNRevision()));
         // It shouldn't exist yet either
         if (checkoutRoot.exists()) {
-            logger.warning("Checkout root <" + checkoutRoot
+            logger.warn("Checkout root <" + checkoutRoot
                 + "> already exists.");
             if (checkoutRoot.isDirectory()) {
                 logger.info("Recycling the checkout root.");
@@ -327,7 +327,7 @@ public class FDSServiceImpl implements FDSService {
             }
         } else {
             if (!checkoutRoot.mkdirs()) {
-                logger.warning("Could not create checkout root <" +
+                logger.warn("Could not create checkout root <" +
                     checkoutRoot + ">");
                 // TODO: throw instead?
                 return null;
@@ -341,7 +341,7 @@ public class FDSServiceImpl implements FDSService {
             c.claim();
             return c;
         } catch (FileNotFoundException e) {
-            logger.warning("Root of project " + svn.getName()
+            logger.warn("Root of project " + svn.getName()
                 + " does not exist: " + e.getMessage());
             return null;
         }
@@ -386,14 +386,14 @@ public class FDSServiceImpl implements FDSService {
 
         TDAccessor a = tds.getAccessor(projectId);
         if (a == null) {
-            logger.warning("Accessor not available even though it exists.");
+            logger.warn("Accessor not available even though it exists.");
             throw new InvalidRepositoryException(String.valueOf(projectId),
                 "", "No accessor available.");
         }
 
         SCMAccessor svn = a.getSCMAccessor();
         if (svn == null) {
-            logger.warning("No SCM available for " + svn.getName());
+            logger.warn("No SCM available for " + svn.getName());
             throw new InvalidRepositoryException(svn.getName(),"",
                 "No SCM accessor available.");
         }
@@ -478,10 +478,10 @@ public class FDSServiceImpl implements FDSService {
             logger.info("Exception triggered as expected.");
             thrown = true;
         } catch (InvalidProjectRevisionException e) {
-            logger.warning("Invalid revision triggered first (wrongly).");
+            logger.warn("Invalid revision triggered first (wrongly).");
             thrown = true;
         } catch (NullPointerException e) {
-            logger.warning("Null pointer in checkout.");
+            logger.warn("Null pointer in checkout.");
             e.printStackTrace();
         }
         if (!thrown) {
@@ -495,13 +495,13 @@ public class FDSServiceImpl implements FDSService {
             // Assuming KDE doesn't reach 1 billion commits before 2038
             Checkout c = getCheckout(TEST_PROJECT_ID, new ProjectRevision(1000000000));
         } catch (InvalidRepositoryException e) {
-            logger.warning("No project with ID " + TEST_PROJECT_ID);
+            logger.warn("No project with ID " + TEST_PROJECT_ID);
             thrown = true;
         } catch (InvalidProjectRevisionException e) {
             logger.info("Exception triggered as expected.");
             thrown = true;
         } catch (NullPointerException e) {
-            logger.warning("Null pointer in checkout.");
+            logger.warn("Null pointer in checkout.");
             e.printStackTrace();
         }
         if (!thrown) {
@@ -515,14 +515,14 @@ public class FDSServiceImpl implements FDSService {
             logger.info("Getting something sensible out of FDS");
             projectCheckout = getCheckout(TEST_PROJECT_ID, new ProjectRevision(1));
         } catch (InvalidRepositoryException e) {
-            logger.warning("(Still) no project with ID " + TEST_PROJECT_ID);
+            logger.warn("(Still) no project with ID " + TEST_PROJECT_ID);
             e.printStackTrace();
             thrown = true;
         } catch (InvalidProjectRevisionException e) {
-            logger.warning("Project ID " + TEST_PROJECT_ID + " has no revision 1");
+            logger.warn("Project ID " + TEST_PROJECT_ID + " has no revision 1");
             thrown = true;
         } catch (NullPointerException e) {
-            logger.warning("Null pointer in checkout.");
+            logger.warn("Null pointer in checkout.");
             e.printStackTrace();
         }
         if (thrown) {
@@ -536,9 +536,9 @@ public class FDSServiceImpl implements FDSService {
                 updateCheckout(projectCheckout, new ProjectRevision(4));
                 logger.info(projectCheckout.getCommitLog().toString());
             } catch (InvalidRepositoryException e) {
-                logger.warning("Project ID " + TEST_PROJECT_ID + " has vanished again.");
+                logger.warn("Project ID " + TEST_PROJECT_ID + " has vanished again.");
             } catch (InvalidProjectRevisionException e) {
-                logger.warning("Project ID " + TEST_PROJECT_ID + " has no revision 4");
+                logger.warn("Project ID " + TEST_PROJECT_ID + " has no revision 4");
             }
         }
 
@@ -546,7 +546,7 @@ public class FDSServiceImpl implements FDSService {
             try {
                 releaseCheckout(projectCheckout);
             } catch (InvalidRepositoryException e) {
-                logger.warning("Project ID " + TEST_PROJECT_ID + " is no longer managed.");
+                logger.warn("Project ID " + TEST_PROJECT_ID + " is no longer managed.");
             }
         }
 
@@ -566,7 +566,7 @@ public class FDSServiceImpl implements FDSService {
                 otherCheckout = getCheckout(TEST_PROJECT_ID,
                     new ProjectRevision(currentRevision));
                 if (otherCheckout != projectCheckout) {
-                    logger.warning("Second request for " + TEST_PROJECT_ID + " r.4 returned "
+                    logger.warn("Second request for " + TEST_PROJECT_ID + " r.4 returned "
                         + "different object.");
                 }
                 while (currentRevision < 60) {
@@ -576,13 +576,13 @@ public class FDSServiceImpl implements FDSService {
                         new ProjectRevision(currentRevision));
                 }
                 if (otherCheckout != projectCheckout) {
-                    logger.warning("Sixtieth request for " + TEST_PROJECT_ID + " r.60 returned "
+                    logger.warn("Sixtieth request for " + TEST_PROJECT_ID + " r.60 returned "
                         + "different object.");
                 }
             } catch (InvalidRepositoryException e) {
-                logger.warning("Project ID " + TEST_PROJECT_ID + " has vanished again.");
+                logger.warn("Project ID " + TEST_PROJECT_ID + " has vanished again.");
             } catch (InvalidProjectRevisionException e) {
-                logger.warning("Project ID " + TEST_PROJECT_ID + " has no revision "
+                logger.warn("Project ID " + TEST_PROJECT_ID + " has no revision "
                     + currentRevision);
             }
         } else {

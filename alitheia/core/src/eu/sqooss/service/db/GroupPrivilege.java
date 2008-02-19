@@ -36,6 +36,8 @@ package eu.sqooss.service.db;
 import java.io.Serializable;
 
 public class GroupPrivilege implements Serializable {
+    private static final long serialVersionUID = 1;
+
     private ServiceUrl url;
     private Group group;
     private PrivilegeValue pv;

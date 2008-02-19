@@ -86,7 +86,7 @@ public class SCMAccessorImpl extends NamedAccessorImpl implements SCMAccessor {
             // All access is assumed to be anonynmous, so no
             // authentication manager is used.
         } catch (SVNException e) {
-            logger.warning("Could not create SVN repository connection for " + getName() +
+            logger.warn("Could not create SVN repository connection for " + getName() +
                 e.getMessage());
             svnRepository = null;
             throw new InvalidRepositoryException(getName(),url,e.getMessage());
@@ -166,7 +166,7 @@ public class SCMAccessorImpl extends NamedAccessorImpl implements SCMAccessor {
             endRevision = svnRepository.getLatestRevision();
             logger.info("Latest revision of " + getName() + " is " + endRevision);
         } catch (SVNException e) {
-            logger.warning("Could not get latest revision of " + getName() +
+            logger.warn("Could not get latest revision of " + getName() +
                 e.getMessage());
             throw new InvalidRepositoryException(getName(),url,e.getMessage());
         }
@@ -209,7 +209,7 @@ public class SCMAccessorImpl extends NamedAccessorImpl implements SCMAccessor {
         }
         // It must be a directory now.
         if (SVNNodeKind.DIR != nodeKind) {
-            logger.warning("Node " + repoPath + " has weird type.");
+            logger.warn("Node " + repoPath + " has weird type.");
             throw new FileNotFoundException(repoPath);
         }
 
@@ -259,7 +259,7 @@ public class SCMAccessorImpl extends NamedAccessorImpl implements SCMAccessor {
         }
         // It must be a directory now.
         if (SVNNodeKind.DIR != nodeKind) {
-            logger.warning("Node " + repoPath + " has weird type.");
+            logger.warn("Node " + repoPath + " has weird type.");
             throw new FileNotFoundException(repoPath);
         }
 
@@ -303,7 +303,7 @@ public class SCMAccessorImpl extends NamedAccessorImpl implements SCMAccessor {
         } catch (SVNException e) {
             throw new FileNotFoundException(e.getMessage());
         } catch (IOException e) {
-            logger.warning("Failed to close output stream on SVN request.");
+            logger.warn("Failed to close output stream on SVN request.");
             // Swallow this exception.
         }
     }
@@ -431,10 +431,10 @@ public class SCMAccessorImpl extends NamedAccessorImpl implements SCMAccessor {
                 " to " + f.getAbsolutePath());
             return theDiff;
         } catch (SVNException e) {
-            logger.warning(e.getMessage());
+            logger.warn(e.getMessage());
             throw new InvalidRepositoryException(getName(),url,e.getMessage());
         } catch (IOException e) {
-            logger.warning(e.getMessage());
+            logger.warn(e.getMessage());
             throw new FileNotFoundException("Could not create temporary file for diff.");
         }
     }

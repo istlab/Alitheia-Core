@@ -158,7 +158,7 @@ public final class DiskUtil {
          */
         final File toplevel = new File("/tmp/DiskUtilsTest");
         if (!toplevel.mkdirs()) {
-            logger.warning("Could not create self-test toplevel.");
+            logger.warn("Could not create self-test toplevel.");
             return;
         }
 
@@ -181,13 +181,13 @@ public final class DiskUtil {
         File[] files = toplevel.listFiles();
         for (File f : files) {
             if (f.isFile()) {
-                logger.warning("Failed to remove " + f);
+                logger.warn("Failed to remove " + f);
             }
         }
 
         rmRf(toplevel);
         if (toplevel.exists()) {
-            logger.warning("Failed to rm -rf " + toplevel);
+            logger.warn("Failed to rm -rf " + toplevel);
         } else {
             logger.info("Successfully removed " + toplevel);
         }

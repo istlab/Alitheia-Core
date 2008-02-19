@@ -162,37 +162,6 @@ public interface Logger {
     * @return the logger's name
     */
     public String getName();
-
-
-    // Remainder are methods specified in D5, but which
-    // do not match the log4j naming scheme.
-
-
-    /**
-    * Logs a message with a config logging level
-    * @param message a log message
-    * @deprecated
-    * @note Deprecated.
-    */
-    public void config(String message);
-
-    /**
-    * Logs a message with a warning logging level
-    * @param message a log message
-    * @deprecated
-    * @note Deprecated.
-    */
-    public void warning(String message);
-
-    /**
-    * Logs a message with a severe(highest) logging level
-    * @param message a log message
-    * @deprecated
-    * @note Deprecated.
-    */
-    public void severe(String message);
-
-
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

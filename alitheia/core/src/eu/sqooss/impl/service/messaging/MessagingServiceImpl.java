@@ -435,10 +435,10 @@ public class MessagingServiceImpl implements MessagingService {
         /*synchronized (lockObject)*/ {
             if (logger != null) {
                 switch (level) {
+                case MessagingService.LOGGING_CONFIG_LEVEL: logger.debug(message); break;
                 case MessagingService.LOGGING_INFO_LEVEL: logger.info(message); break;
-                case MessagingService.LOGGING_CONFIG_LEVEL: logger.config(message); break;
-                case MessagingService.LOGGING_WARNING_LEVEL: logger.warning(message); break;
-                case MessagingService.LOGGING_SEVERE_LEVEL: logger.severe(message); break;
+                case MessagingService.LOGGING_WARNING_LEVEL: logger.warn(message); break;
+                case MessagingService.LOGGING_SEVERE_LEVEL: logger.error(message); break;
                 default: logger.info(message); break;
                 }
             }

@@ -20,10 +20,7 @@ BUNDLES=result
 TOP_SRCDIR?=$(shell cd .. && pwd)
 PREFIX?=$(shell cd ../equinox && pwd)
 
-all : narf build
-
-narf :
-	echo $(PREFIX)
+all : build
 
 include ../Makefile.common
 

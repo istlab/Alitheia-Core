@@ -62,7 +62,7 @@ public class CheckoutEditor implements ISVNEditor {
 
     public void targetRevision(long revision) {
         if (revision != targetRevision) {
-            logger.warning("SVN revision changed beneath us.");
+            logger.warn("SVN revision changed beneath us.");
         }
     }
 
@@ -100,7 +100,7 @@ public class CheckoutEditor implements ISVNEditor {
                 path.charAt(i)==File.separatorChar; i++) ;
             return path.substring(i);
         } else {
-            logger.warning("Weird path " + path + " not within repoDir (" + repoDir + ")");
+            logger.warn("Weird path " + path + " not within repoDir (" + repoDir + ")");
             return path;
         }
     }

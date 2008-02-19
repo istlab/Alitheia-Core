@@ -36,6 +36,8 @@ package eu.sqooss.service.db;
 import java.io.Serializable;
 
 public class GroupUser implements Serializable {
+    private static final long serialVersionUID = 1;
+
     private User user;
     private Group group;
 

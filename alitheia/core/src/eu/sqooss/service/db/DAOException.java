@@ -40,6 +40,8 @@ package eu.sqooss.service.db;
  * @author Vassilios Karakoidas (bkarak@aueb.gr)
  */
 public class DAOException extends Exception {
+    private static final long serialVersionUID = 1;
+
     private String daoName;
     
     public DAOException(String daoName, String message) {

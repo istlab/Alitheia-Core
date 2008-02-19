@@ -145,19 +145,19 @@ public abstract class BundleActivatorBase implements Logger, ServiceListener {
 
     public void config(String m) {
         if (logger != null) {
-            logger.config(m);
+            logger.debug(m);
         }
     }
 
     public void warning(String m) {
         if (logger != null) {
-            logger.warning(m);
+            logger.warn(m);
         }
     }
 
     public void severe(String m) {
         if (logger != null) {
-            logger.severe(m);
+            logger.error(m);
         }
     }
 
