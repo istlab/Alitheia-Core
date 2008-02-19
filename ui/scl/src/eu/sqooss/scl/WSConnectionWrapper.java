@@ -35,18 +35,16 @@ package eu.sqooss.scl;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
-import eu.sqooss.scl.result.WSResult;
-
 /**
  * This class has package visibility.
  * It wraps the <code>WSConnection</code>.
  */
 class WSConnectionWrapper {
     
-    private WSConnection wsConnection;
+//    private WSConnection wsConnection;
     
     public WSConnectionWrapper(WSConnection wsConnection) {
-        this.wsConnection = wsConnection;
+//        this.wsConnection = wsConnection;
     }
     
     /**
@@ -55,190 +53,194 @@ class WSConnectionWrapper {
      * @return
      * @throws WSException
      */
-    public WSResult getValue(String webServiceMethodUrl) throws WSException {
-        ArrayList<String> methodArguments = new ArrayList<String>();
-        String methodName = parseWebServiceMethodUrl(webServiceMethodUrl, methodArguments);
-        try {
-            if (WSConnectionConstants.METHOD_NAME_EVALUATED_PROJECTS_LIST.equals(methodName)) {
-                return evaluatedProjectsList();
-            } else if (WSConnectionConstants.METHOD_NAME_RETRIEVE_METRICS_4_SELECTED_PROJECT.equals(methodName)) {
-                return retrieveMetrics4SelectedProject(methodArguments);
-            } else if (WSConnectionConstants.METHOD_NAME_RETRIEVE_SELECTED_METRIC.equals(methodName)) {
-                return retrieveSelectedMetric(methodArguments);
-            } else if (WSConnectionConstants.METHOD_NAME_RETRIEVE_METRICS_4_SELECTED_FILES.equals(methodName)) {
-                return retrieveMetrics4SelectedFiles(methodArguments);
-            } else if (WSConnectionConstants.METHOD_NAME_RETRIEVE_FILE_LIST.equals(methodName)) {
-                return retrieveFileList(methodArguments);
-            } else if (WSConnectionConstants.METHOD_NAME_REQUEST_EVALUATION_4_PROJECT.equals(methodName)) {
-                return requestEvaluation4Project(methodArguments);
-            } else if (WSConnectionConstants.METHOD_NAME_DISPLAY_USER.equals(methodName)) {
-                return displayUser(methodArguments);
-            } else if (WSConnectionConstants.METHOD_NAME_DELETE_USER.equals(methodName)) {
-                deleteUser(methodArguments);
-                return new WSResult();
-            } else if (WSConnectionConstants.METHOD_NAME_MODIFY_USER.equals(methodName)) {
-                modifyUser(methodArguments);
-                return new WSResult();
-            } else if (WSConnectionConstants.METHOD_NAME_SUBMIT_USER.equals(methodName)) {
-                return submitUser(methodArguments);
-            } else if (WSConnectionConstants.METHOD_NAME_RETRIEVE_PROJECT_ID.equals(methodName)) {
-                return retrieveProjectId(methodArguments);
-            }
-        } catch (WSException wse) {
-            throw wse;
-        } catch (Throwable t) {
-            throw new WSException(t);
-        }
-        throw new WSException("Invalid URL! url: " + webServiceMethodUrl);
+    public String getValue(String webServiceMethodUrl) throws WSException {
+//        ArrayList<String> methodArguments = new ArrayList<String>();
+//        String methodName = parseWebServiceMethodUrl(webServiceMethodUrl, methodArguments);
+//        try {
+//            if (WSConnectionConstants.METHOD_NAME_EVALUATED_PROJECTS_LIST.equals(methodName)) {
+//                return evaluatedProjectsList();
+//            } else if (WSConnectionConstants.METHOD_NAME_RETRIEVE_METRICS_4_SELECTED_PROJECT.equals(methodName)) {
+//                return retrieveMetrics4SelectedProject(methodArguments);
+//            } else if (WSConnectionConstants.METHOD_NAME_RETRIEVE_SELECTED_METRIC.equals(methodName)) {
+//                return retrieveSelectedMetric(methodArguments);
+//            } else if (WSConnectionConstants.METHOD_NAME_RETRIEVE_METRICS_4_SELECTED_FILES.equals(methodName)) {
+//                return retrieveMetrics4SelectedFiles(methodArguments);
+//            } else if (WSConnectionConstants.METHOD_NAME_RETRIEVE_FILE_LIST.equals(methodName)) {
+//                return retrieveFileList(methodArguments);
+//            } else if (WSConnectionConstants.METHOD_NAME_REQUEST_EVALUATION_4_PROJECT.equals(methodName)) {
+//                return requestEvaluation4Project(methodArguments);
+//            } else if (WSConnectionConstants.METHOD_NAME_DISPLAY_USER.equals(methodName)) {
+//                return displayUser(methodArguments);
+//            } else if (WSConnectionConstants.METHOD_NAME_DELETE_USER.equals(methodName)) {
+//                deleteUser(methodArguments);
+//                return new WSResult();
+//            } else if (WSConnectionConstants.METHOD_NAME_MODIFY_USER.equals(methodName)) {
+//                modifyUser(methodArguments);
+//                return new WSResult();
+//            } else if (WSConnectionConstants.METHOD_NAME_SUBMIT_USER.equals(methodName)) {
+//                return submitUser(methodArguments);
+//            } else if (WSConnectionConstants.METHOD_NAME_RETRIEVE_PROJECT_ID.equals(methodName)) {
+//                return retrieveProjectId(methodArguments);
+//            }
+//        } catch (WSException wse) {
+//            throw wse;
+//        } catch (Throwable t) {
+//            throw new WSException(t);
+//        }
+//        throw new WSException("Invalid URL! url: " + webServiceMethodUrl);
+        return "";
+        //TODO:
     }
     
-    private WSResult evaluatedProjectsList() throws WSException {
-        return wsConnection.evaluatedProjectsList();
-    }
-    
-    private WSResult retrieveMetrics4SelectedProject(ArrayList<String> args) throws WSException {
-        int argsNumber = args.size();
-        if (argsNumber != 1) {
-            throw new WSException("The number of the arguments is not correct! number: " + argsNumber);
-        }
-        long projectId = Long.parseLong(args.get(0));
-        return wsConnection.retrieveMetrics4SelectedProject(projectId);
-    }
-    
-    private WSResult retrieveSelectedMetric(ArrayList<String> args) throws WSException {
-        int argsNumber = args.size();
-        if (argsNumber != 2) {
-            throw new WSException("The number of the arguments is not correct! number: " + argsNumber);
-        }
-        long projectId = Long.parseLong(args.get(0));
-        long metricId = Long.parseLong(args.get(1));
-        return wsConnection.retrieveSelectedMetric(projectId, metricId);
-    }
-    
-    private WSResult retrieveFileList(ArrayList<String> args) throws WSException {
-        int argsNumber = args.size();
-        if (argsNumber != 1) {
-            throw new WSException("The number of the arguments is not correct! number: " + argsNumber);
-        }
-        long projectId = Long.parseLong(args.get(0));
-        return wsConnection.retrieveFileList(projectId);
-    }
-    
-    private WSResult retrieveMetrics4SelectedFiles(ArrayList<String> args) throws WSException {
-        int argsNumber = args.size();
-        if (argsNumber != 3) {
-            throw new WSException("The number of the arguments is not correct! number: " + argsNumber);
-        }
-        long projectId = Long.parseLong(args.get(0));
-        String folderNames = args.get(1);
-        String fileNames = args.get(2);
-        return wsConnection.retrieveMetrics4SelectedFiles(projectId, folderNames, fileNames);
-    }
-    
-    private WSResult requestEvaluation4Project(ArrayList<String> args) throws WSException {
-        int argsNumber = args.size();
-        if (argsNumber != 7) {
-            throw new WSException("The number of the arguments is not correct! number: " + argsNumber);
-        }
-        String projectName = args.get(0);
-        int projectVersion = Integer.parseInt(args.get(1));
-        String srcRepositoryLocation = args.get(2);
-        String mailingListLocation = args.get(3);
-        String BTSLocation = args.get(4);
-        String userEmailAddress = args.get(5);
-        String website = args.get(6);
-        return wsConnection.requestEvaluation4Project(projectName, projectVersion,
-                srcRepositoryLocation, mailingListLocation, BTSLocation, userEmailAddress, website);
-    }
-    
-    //5.1.10
-    private WSResult submitUser(ArrayList<String> args) throws WSException {
-        int argsNumber = args.size();
-
-        String newUserName;
-        String newNames;
-        String newPassword;
-        String newUserClass;
-        String newOtherInfo;
-
-        if (argsNumber == 4) {
-            newUserName = args.get(0);
-            newNames = null; //optional
-            newPassword = args.get(1);
-            newUserClass = args.get(2);
-            newOtherInfo = args.get(3);
-        } else if (argsNumber == 5) {
-            newUserName = args.get(0);
-            newNames = args.get(1);
-            newPassword = args.get(2);
-            newUserClass = args.get(3);
-            newOtherInfo = args.get(4);
-        } else {
-            throw new WSException("The number of the arguments is not correct! number: " + argsNumber);
-        }
-
-        return wsConnection.submitUser(newUserName, newNames, newPassword,
-                newUserClass, newOtherInfo);
-    }
-    //5.1.10
-    
-    //5.1.11
-    private WSResult displayUser(ArrayList<String>  args) throws WSException {
-        int argsNumber = args.size();
-        if (argsNumber != 1) {
-            throw new WSException("The number of the arguments is not correct! number: " + argsNumber);
-        }
-        long userId = Long.parseLong(args.get(0));
-        return wsConnection.displayUser(userId);
-    }
-    
-    private void modifyUser(ArrayList<String> args) throws WSException {
-        int argsNumber = args.size();
-        
-        String newUserName;
-        String newNames;
-        String newPassword;
-        String newUserClass;
-        String newOtherInfo;
-        
-        if (argsNumber == 4) {
-            newUserName = args.get(0);
-            newNames = null; //optional
-            newPassword = args.get(1);
-            newUserClass = args.get(2);
-            newOtherInfo = args.get(3);
-        } else if (argsNumber == 5) {
-            newUserName = args.get(0);
-            newNames = args.get(1);
-            newPassword = args.get(2);
-            newUserClass = args.get(3);
-            newOtherInfo = args.get(4);
-        } else {
-            throw new WSException("The number of the arguments is not correct! number: " + argsNumber);
-        }
-        
-        wsConnection.modifyUser(newUserName, newNames, newPassword, newUserClass, newOtherInfo);
-    }
-    
-    private void deleteUser(ArrayList<String> args) throws WSException {
-        int argsNumber = args.size();
-        if (argsNumber != 1) {
-            throw new WSException("The number of the arguments is not correct! number: " + argsNumber);
-        }
-        long userId = Long.parseLong(args.get(0));
-        wsConnection.deleteUser(userId);
-    }
-    //5.1.11
-    
-    //validation
-    private WSResult retrieveProjectId(ArrayList<String> args) throws WSException {
-        int argsNumber = args.size();
-        if (argsNumber != 1) {
-            throw new WSException("The number of the arguments is not correct! number: " + argsNumber);
-        }
-        return wsConnection.retrieveProjectId(args.get(0));
-    }
-    //validation
+//    private WSResult evaluatedProjectsList() throws WSException {
+//        return new WSResult();
+////        return wsConnection.evaluatedProjectsList();
+//    }
+//    
+//    private WSResult retrieveMetrics4SelectedProject(ArrayList<String> args) throws WSException {
+//        int argsNumber = args.size();
+//        if (argsNumber != 1) {
+//            throw new WSException("The number of the arguments is not correct! number: " + argsNumber);
+//        }
+//        long projectId = Long.parseLong(args.get(0));
+//        return wsConnection.retrieveMetrics4SelectedProject(projectId);
+//    }
+//    
+//    private WSResult retrieveSelectedMetric(ArrayList<String> args) throws WSException {
+//        int argsNumber = args.size();
+//        if (argsNumber != 2) {
+//            throw new WSException("The number of the arguments is not correct! number: " + argsNumber);
+//        }
+//        long projectId = Long.parseLong(args.get(0));
+//        long metricId = Long.parseLong(args.get(1));
+//        return wsConnection.retrieveSelectedMetric(projectId, metricId);
+//    }
+//    
+//    private WSResult retrieveFileList(ArrayList<String> args) throws WSException {
+//        int argsNumber = args.size();
+//        if (argsNumber != 1) {
+//            throw new WSException("The number of the arguments is not correct! number: " + argsNumber);
+//        }
+//        long projectId = Long.parseLong(args.get(0));
+//        return wsConnection.retrieveFileList(projectId);
+//    }
+//    
+//    private WSResult retrieveMetrics4SelectedFiles(ArrayList<String> args) throws WSException {
+//        int argsNumber = args.size();
+//        if (argsNumber != 3) {
+//            throw new WSException("The number of the arguments is not correct! number: " + argsNumber);
+//        }
+//        long projectId = Long.parseLong(args.get(0));
+//        String folderNames = args.get(1);
+//        String fileNames = args.get(2);
+//        return wsConnection.retrieveMetrics4SelectedFiles(projectId, folderNames, fileNames);
+//    }
+//    
+//    private WSResult requestEvaluation4Project(ArrayList<String> args) throws WSException {
+//        int argsNumber = args.size();
+//        if (argsNumber != 7) {
+//            throw new WSException("The number of the arguments is not correct! number: " + argsNumber);
+//        }
+//        String projectName = args.get(0);
+//        int projectVersion = Integer.parseInt(args.get(1));
+//        String srcRepositoryLocation = args.get(2);
+//        String mailingListLocation = args.get(3);
+//        String BTSLocation = args.get(4);
+//        String userEmailAddress = args.get(5);
+//        String website = args.get(6);
+////        return wsConnection.requestEvaluation4Project(projectName, projectVersion,
+////                srcRepositoryLocation, mailingListLocation, BTSLocation, userEmailAddress, website);
+//        return new WSResult();
+//    }
+//    
+//    //5.1.10
+//    private WSResult submitUser(ArrayList<String> args) throws WSException {
+//        int argsNumber = args.size();
+//
+//        String newUserName;
+//        String newNames;
+//        String newPassword;
+//        String newUserClass;
+//        String newOtherInfo;
+//
+//        if (argsNumber == 4) {
+//            newUserName = args.get(0);
+//            newNames = null; //optional
+//            newPassword = args.get(1);
+//            newUserClass = args.get(2);
+//            newOtherInfo = args.get(3);
+//        } else if (argsNumber == 5) {
+//            newUserName = args.get(0);
+//            newNames = args.get(1);
+//            newPassword = args.get(2);
+//            newUserClass = args.get(3);
+//            newOtherInfo = args.get(4);
+//        } else {
+//            throw new WSException("The number of the arguments is not correct! number: " + argsNumber);
+//        }
+//
+//        return wsConnection.submitUser(newUserName, newNames, newPassword,
+//                newUserClass, newOtherInfo);
+//    }
+//    //5.1.10
+//    
+//    //5.1.11
+//    private WSResult displayUser(ArrayList<String>  args) throws WSException {
+//        int argsNumber = args.size();
+//        if (argsNumber != 1) {
+//            throw new WSException("The number of the arguments is not correct! number: " + argsNumber);
+//        }
+//        long userId = Long.parseLong(args.get(0));
+//        return wsConnection.displayUser(userId);
+//    }
+//    
+//    private void modifyUser(ArrayList<String> args) throws WSException {
+//        int argsNumber = args.size();
+//        
+//        String newUserName;
+//        String newNames;
+//        String newPassword;
+//        String newUserClass;
+//        String newOtherInfo;
+//        
+//        if (argsNumber == 4) {
+//            newUserName = args.get(0);
+//            newNames = null; //optional
+//            newPassword = args.get(1);
+//            newUserClass = args.get(2);
+//            newOtherInfo = args.get(3);
+//        } else if (argsNumber == 5) {
+//            newUserName = args.get(0);
+//            newNames = args.get(1);
+//            newPassword = args.get(2);
+//            newUserClass = args.get(3);
+//            newOtherInfo = args.get(4);
+//        } else {
+//            throw new WSException("The number of the arguments is not correct! number: " + argsNumber);
+//        }
+//        
+//        wsConnection.modifyUser(newUserName, newNames, newPassword, newUserClass, newOtherInfo);
+//    }
+//    
+//    private void deleteUser(ArrayList<String> args) throws WSException {
+//        int argsNumber = args.size();
+//        if (argsNumber != 1) {
+//            throw new WSException("The number of the arguments is not correct! number: " + argsNumber);
+//        }
+//        long userId = Long.parseLong(args.get(0));
+//        wsConnection.deleteUser(userId);
+//    }
+//    //5.1.11
+//    
+//    //validation
+//    private WSResult retrieveProjectId(ArrayList<String> args) throws WSException {
+//        int argsNumber = args.size();
+//        if (argsNumber != 1) {
+//            throw new WSException("The number of the arguments is not correct! number: " + argsNumber);
+//        }
+//        return wsConnection.retrieveProjectId(args.get(0));
+//    }
+//    //validation
     
     /**
      * This method parses the url.

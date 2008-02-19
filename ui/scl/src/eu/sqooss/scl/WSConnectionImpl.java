@@ -32,6 +32,7 @@
 
 package eu.sqooss.scl;
 
+import java.lang.reflect.Array;
 import java.rmi.RemoteException;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
@@ -40,6 +41,8 @@ import org.apache.axis2.AxisFault;
 
 import eu.sqooss.scl.result.WSResult;
 import eu.sqooss.ws.client.WsStub;
+import eu.sqooss.ws.client.datatypes.WSMetric;
+import eu.sqooss.ws.client.datatypes.WSProjectFile;
 import eu.sqooss.ws.client.datatypes.WSStoredProject;
 import eu.sqooss.ws.client.datatypes.WSUser;
 import eu.sqooss.ws.client.ws.DeleteUser;
@@ -130,7 +133,7 @@ class WSConnectionImpl implements WSConnection {
     /**
      * @see eu.sqooss.scl.WSConnection#displayUser(long)
      */
-    public WSResult displayUser(long userId) throws WSException {
+    public WSUser displayUser(long userId) throws WSException {
         DisplayUserResponse response;
         DisplayUser params = (DisplayUser) parameters.get(
                 WSConnectionConstants.METHOD_NAME_DISPLAY_USER);
@@ -142,13 +145,13 @@ class WSConnectionImpl implements WSConnection {
                 throw new WSException(re);
             }
         }
-        return WSResponseParser.parseUsers(new WSUser[] {response.get_return()});
+        return (WSUser) parseWSResult(response.get_return());
     }
 
     /**
      * @see eu.sqooss.scl.WSConnection#evaluatedProjectsList()
      */
-    public WSResult evaluatedProjectsList() throws WSException {
+    public WSStoredProject[] evaluatedProjectsList() throws WSException {
         EvaluatedProjectsListResponse response; 
         EvaluatedProjectsList params = (EvaluatedProjectsList) parameters.get(
                 WSConnectionConstants.METHOD_NAME_EVALUATED_PROJECTS_LIST);
@@ -159,7 +162,7 @@ class WSConnectionImpl implements WSConnection {
                 throw new WSException(e);
             }
         }
-        return WSResponseParser.parseStoredProjects(response.get_return());
+        return (WSStoredProject[]) parseWSResult(response.get_return());
     }
 
     public WSResult evaluatedProjectsListScore() {
@@ -207,7 +210,7 @@ class WSConnectionImpl implements WSConnection {
     /**
      * @see eu.sqooss.scl.WSConnection#requestEvaluation4Project(java.lang.String, int, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)
      */
-    public WSResult requestEvaluation4Project(String projectName, long projectVersion,
+    public WSStoredProject requestEvaluation4Project(String projectName, long projectVersion,
             String srcRepositoryLocation, String mailingListLocation,
             String BTSLocation, String userEmailAddress, String website) throws WSException {
         RequestEvaluation4ProjectResponse response;
@@ -227,7 +230,7 @@ class WSConnectionImpl implements WSConnection {
                 throw new WSException(re);
             }
         }
-        return WSResponseParser.parseStoredProjects(new WSStoredProject[]{response.get_return()});
+        return response.get_return();
     }
 
     public WSResult requestEvolEstimates4Project(String projectName, String projectVersion,
@@ -270,7 +273,7 @@ class WSConnectionImpl implements WSConnection {
     /**
      * @see eu.sqooss.scl.WSConnection#retrieveFileList(long)
      */
-    public WSResult retrieveFileList(long projectId) throws WSException {
+    public WSProjectFile[] retrieveFileList(long projectId) throws WSException {
         RetrieveFileListResponse response;
         RetrieveFileList params = (RetrieveFileList) parameters.get(
                 WSConnectionConstants.METHOD_NAME_RETRIEVE_FILE_LIST);
@@ -282,13 +285,13 @@ class WSConnectionImpl implements WSConnection {
                 throw new WSException(re);
             }
         }
-        return WSResponseParser.parseProjectFiles(response.get_return());
+        return (WSProjectFile[]) parseWSResult(response.get_return());
     }
 
    /**
     * @see eu.sqooss.scl.WSConnection#retrieveMetrics4SelectedFiles(long, java.lang.String, java.lang.String)
     */
-    public WSResult retrieveMetrics4SelectedFiles(long projectId, String folderNames,
+    public WSMetric[] retrieveMetrics4SelectedFiles(long projectId, String folderNames,
             String fileNames) throws WSException {
         String delimiter = ",";
         
@@ -331,13 +334,13 @@ class WSConnectionImpl implements WSConnection {
                 throw new WSException(re);
             }
         }
-        return WSResponseParser.parseMetrics(response.get_return());
+        return (WSMetric[]) parseWSResult(response.get_return());
     }
 
     /**
      * @see eu.sqooss.scl.WSConnection#retrieveMetrics4SelectedProject(long)
      */
-    public WSResult retrieveMetrics4SelectedProject(long projectId) throws WSException {
+    public WSMetric[] retrieveMetrics4SelectedProject(long projectId) throws WSException {
         RetrieveMetrics4SelectedProjectResponse response;
         RetrieveMetrics4SelectedProject params = (RetrieveMetrics4SelectedProject) parameters.get(
                 WSConnectionConstants.METHOD_NAME_RETRIEVE_METRICS_4_SELECTED_PROJECT);
@@ -349,7 +352,7 @@ class WSConnectionImpl implements WSConnection {
                 throw new WSException(re);
             }
         }
-        return WSResponseParser.parseMetrics(response.get_return());
+        return (WSMetric[]) parseWSResult(response.get_return());
     }
 
     public WSResult retrieveProjectRatings(String projectId) {
@@ -386,7 +389,7 @@ class WSConnectionImpl implements WSConnection {
     /**
      * @see eu.sqooss.scl.WSConnection#submitUser(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)
      */
-    public WSResult submitUser(String newUserName, String newNames, String newPassword,
+    public WSUser submitUser(String newUserName, String newNames, String newPassword,
             String newUserClass, String newOtherInfo) throws WSException {
         SubmitUserResponse response;
         SubmitUser params = (SubmitUser) parameters.get(
@@ -404,7 +407,7 @@ class WSConnectionImpl implements WSConnection {
                 throw new WSException(re);
             }
         }
-        return WSResponseParser.parseUsers(new WSUser[] {response.get_return()});
+        return (WSUser) parseWSResult(response.get_return());
     }
 
     public WSResult subscriptionsStatus() {
@@ -422,7 +425,7 @@ class WSConnectionImpl implements WSConnection {
         return new WSResult("Not Implemented yet");
     }
     
-    public WSResult retrieveProjectId(String projectName) throws WSException {
+    public long retrieveProjectId(String projectName) throws WSException {
         RetrieveProjectIdResponse response;
         RetrieveProjectId params = (RetrieveProjectId) parameters.get(
                 WSConnectionConstants.METHOD_NAME_RETRIEVE_PROJECT_ID);
@@ -435,10 +438,16 @@ class WSConnectionImpl implements WSConnection {
             }
         }
         
-        long result = response.get_return();
-        
-        return new WSResult(result);
-        
+        return response.get_return();
+    }
+    
+    private Object parseWSResult(Object result) {
+        if ((result != null) && (result.getClass().isArray()) &&
+                (Array.getLength(result) != 0) && (Array.get(result, 0) == null)) {
+            return Array.newInstance(result.getClass().getComponentType(), 0);
+        } else {
+            return result;
+        }
     }
     
     private void initParameters() {

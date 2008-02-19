@@ -33,35 +33,32 @@
 package eu.sqooss.scl;
 
 import eu.sqooss.scl.result.WSResult;
+import eu.sqooss.ws.client.datatypes.WSMetric;
+import eu.sqooss.ws.client.datatypes.WSProjectFile;
+import eu.sqooss.ws.client.datatypes.WSStoredProject;
+import eu.sqooss.ws.client.datatypes.WSUser;
 
 public interface WSConnection {
     
     //5.1.1
     /**
      * This method returns evaluated projects.
-     * Each <code>WSResult</code>'s row contains information about the project.
-     * The row consists of fields. The fields' description can be found in:
-     * {@link eu.sqooss.scl.result.WSResult}
      * 
      * <p>
      * The method's url is: <br>
      * http://sqo-oss/evaluatedProjectsList
      * </p>
      * 
-     * @return <code>WSResult</code>
      * @throws WSException
      * <ul>
      *  <li>if the connection can't be establish to the SQO-OSS's web services service</li>
      *  <li>if web services service throws a exception</li>
      * <ul>
      */
-    public WSResult evaluatedProjectsList() throws WSException;
+    public WSStoredProject[] evaluatedProjectsList() throws WSException;
     
     /**
      * This method returns the metrics for a given project.
-     * Each <code>WSResult</code>'s row contains information about the metric.
-     * The row consists of fields. The fields' description can be found in:
-     * {@link eu.sqooss.scl.result.WSResult}
      * 
      * <p>
      * The method's url is: <br>
@@ -69,44 +66,21 @@ public interface WSConnection {
      * </p>
      * 
      * @param projectId the project's id
-     * @return <code>WSResult</code>
+     * 
      * @throws WSException
      * <ul>
      *  <li>if the connection can't be establish to the SQO-OSS's web services service</li>
      *  <li>if web services service throws a exception</li>
      * <ul>
      */
-    public WSResult retrieveMetrics4SelectedProject(long projectId) throws WSException;
+    public WSMetric[] retrieveMetrics4SelectedProject(long projectId) throws WSException;
     
-    /**
-     * This method returns the metric with a given id.
-     * A <code>WSResult</code>'s row contains information about the metric.
-     * The row consists of fields. The fields' description can be found in:
-     * {@link eu.sqooss.scl.result.WSResult}
-     * 
-     * <p>
-     * The method's url is: <br>
-     * http://sqo-oss/retrieveSelectedMetric?pid={project_id}&mid={metric_id}
-     * </p>
-     * 
-     * @param projectId the project's id
-     * @param metricId the metric's id
-     * @return <code>WSResult</code>
-     * @throws WSException
-     * <ul>
-     *  <li>if the connection can't be establish to the SQO-OSS's web services service</li>
-     *  <li>if web services service throws a exception</li>
-     * <ul>
-     */
     public WSResult retrieveSelectedMetric(long projectId, long metricId) throws WSException;
     //5.1.1
     
     //5.1.2
     /**
      * This method returns the project's files.
-     * Each <code>WSResult</code>'s row contains information about the project's file.
-     * The row consists of fields. The fields' description can be found in:
-     * {@link eu.sqooss.scl.result.WSResult}
      * 
      * <p>
      * The method's url is: <br>
@@ -114,21 +88,18 @@ public interface WSConnection {
      * </p>
      * 
      * @param projectId the project's id
-     * @return <code>WSResult</code>
+     * 
      * @throws WSException
      * <ul>
      *  <li>if the connection can't be establish to the SQO-OSS's web services service</li>
      *  <li>if web services service throws a exception</li>
      * <ul>
      */
-    public WSResult retrieveFileList(long projectId) throws WSException;
+    public WSProjectFile[] retrieveFileList(long projectId) throws WSException;
     
     /**
      * This method returns the metrics for a given files.
      * All files in the folder can be selected with the folder's name.
-     * Each <code>WSResult</code>'s row contains information about the metric.
-     * The row consists of fields. The fields' description can be found in:
-     * {@link eu.sqooss.scl.result.WSResult}
      * 
      * <p>
      * The method's url is: <br>
@@ -139,14 +110,14 @@ public interface WSConnection {
      * @param projectId the project's id
      * @param folderNames the folders' names; the folders' delimiter is a comma
      * @param fileNames the files' names, the files' delimiter is a comma
-     * @return <code>WSResult</code>
+     * 
      * @throws WSException
      * <ul>
      *  <li>if the connection can't be establish to the SQO-OSS's web services service</li>
      *  <li>if web services service throws a exception</li>
      * <ul>
      */
-    public WSResult retrieveMetrics4SelectedFiles(long projectId, String folderNames, String fileNames) throws WSException;
+    public WSMetric[] retrieveMetrics4SelectedFiles(long projectId, String folderNames, String fileNames) throws WSException;
     //5.1.2
     
     //5.1.3
@@ -154,16 +125,6 @@ public interface WSConnection {
      * This method makes request for OSS project evaluation.
      * If a project with same name and version is known to the system
      * then the method returns the existent project.
-     * A <code>WSResult</code> contains information about the project.
-     * The row consists of fields. The fields' description can be found in:
-     * {@link eu.sqooss.scl.result.WSResult}
-     *  
-     *  <p>
-     * The method's url is: <br>
-     * http://sqo-oss/requestEvaluation4Project?pn={project-name}&pv={project-version}&
-     * srl={source-repository-location}&ml={mailing-list-location}&bts={BTS-location}&
-     * email={user-email-address}&ws={web-site}
-     * </p>
      *  
      * @param projectName the project's name
      * @param projectVersion the project's version
@@ -172,14 +133,14 @@ public interface WSConnection {
      * @param BTSLocation URL for the bug tracking system
      * @param userEmailAddress user's e-mail address
      * @param website project's website
-     * @return <code>WSResult</code>
+     * 
      * @throws WSException
      * <ul>
      *  <li>if the connection can't be establish to the SQO-OSS's web services service</li>
      *  <li>if web services service throws a exception</li>
      * <ul>
      */
-    public WSResult requestEvaluation4Project(String projectName, long projectVersion,
+    public WSStoredProject requestEvaluation4Project(String projectName, long projectVersion,
             String srcRepositoryLocation, String mailingListLocation,
             String BTSLocation, String userEmailAddress, String website) throws WSException;
     //5.1.3
@@ -212,21 +173,22 @@ public interface WSConnection {
     public WSResult displayDeveloperInfo(String projectId, String developerId, String criterioId, String display);
     //5.1.6
     
-    //5.1.7
-    public WSResult evaluatedProjectsListScore();
-    
-    public void submitScores(String projectId, String[] scores, String textOpinion);
-    
-    public WSResult viewScores(String projectId);
-    
-    public WSResult viewComments(String projectId);
-    //5.1.7
-    
-    //5.1.8
-    public WSResult ratedProjectsList();
-    
-    public WSResult retrieveProjectRatings(String projectId);
-    //5.1.8
+//  these methods are removed
+//    //5.1.7
+//    public WSResult evaluatedProjectsListScore();
+//    
+//    public void submitScores(String projectId, String[] scores, String textOpinion);
+//    
+//    public WSResult viewScores(String projectId);
+//    
+//    public WSResult viewComments(String projectId);
+//    //5.1.7
+//    
+//    //5.1.8
+//    public WSResult ratedProjectsList();
+//    
+//    public WSResult retrieveProjectRatings(String projectId);
+//    //5.1.8
     
     //5.1.9
     public WSResult subscriptionsStatus();
@@ -239,42 +201,36 @@ public interface WSConnection {
     //5.1.10
     /**
      * This method creates a new user.
-     * A <code>WSResult</code> contains information about the new user.
-     * The row consists of fields. The fields' description can be found in:
-     * {@link eu.sqooss.scl.result.WSResult}
      * 
      * @param newUserName - user name
      * @param newNames - user's names (optional)
      * @param newPassword - user's password
      * @param newUserClass - user's class (general user, OSS developer, etc.)
      * @param newOtherInfo - (optional)
-     * @return
+     * 
      * @throws WSException
      * <ul>
      *  <li>if the connection can't be establish to the SQO-OSS's web services service</li>
      *  <li>if web services service throws a exception</li>
      * <ul>
      */
-    public WSResult submitUser(String newUserName, String newNames, String newPassword,
+    public WSUser submitUser(String newUserName, String newNames, String newPassword,
             String newUserClass, String newOtherInfo) throws WSException;
     //5.1.10
     
     //5.1.11
     /**
      * This method returns information about the user with a given id.
-     * A <code>WSResult</code> contains information about the user.
-     * The row consists of fields. The fields' description can be found in:
-     * {@link eu.sqooss.scl.result.WSResult}
      *  
      * @param userId - user's id
-     * @return
+     * 
      * @throws WSException
      * <ul>
      *  <li>if the connection can't be establish to the SQO-OSS's web services service</li>
      *  <li>if web services service throws a exception</li>
      * <ul>
      */
-    public WSResult displayUser(long userId) throws WSException;
+    public WSUser displayUser(long userId) throws WSException;
     
     /**
      * This method modifies the existent user with a given user name.
@@ -314,7 +270,7 @@ public interface WSConnection {
      * @return
      * @throws WSException
      */
-    public WSResult retrieveProjectId(String projectName) throws WSException;
+    public long retrieveProjectId(String projectName) throws WSException;
     //retrieve methods
     
 }
