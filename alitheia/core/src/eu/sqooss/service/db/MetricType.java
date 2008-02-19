@@ -45,11 +45,11 @@ public class MetricType extends DAObject {
         SOURCE_CODE, MAILING_LIST, BUG_DATABASE;
 
         public static Type fromString(String s) {
-            if (s == "SOURCE_CODE")
+            if ("SOURCE_CODE".equals(s))
                 return Type.SOURCE_CODE;
-            else if (s == "MAILING_LIST")
+            else if ("MAILING_LIST".equals(s))
                 return Type.MAILING_LIST;
-            else if (s == "BUG_DATABASE")
+            else if ("BUG_DATABASE".equals(s))
                 return Type.BUG_DATABASE;
             else
                 return null;
@@ -64,11 +64,15 @@ public class MetricType extends DAObject {
         type = t.toString();
     }
 
-    public Type getType() {
+    public Type getEnumType() {
         return Type.fromString(type);
     }
 
-    public void setType(Type type) {
+    public String getType() {
+        return type;
+    }
+    
+    public void setEnumType(Type type) {
         this.type = type.toString();
     }
 
