@@ -72,7 +72,8 @@ SUBDIRS=sharedlibs \
 	metrics
 NOBUILD_SUBDIRS=extlibs
 
-CLASSPATH=$(shell tools/setcp.sh `pwd`)
+CLASSPATH_JARS=$(strip $(shell find extlibs -name '*.jar' -type f ; find equinox -name '*.jar' -type f))
+$(foreach d,$(CLASSPATH_JARS),$(eval CLASSPATH:=$(d):$(CLASSPATH)))
 ifeq ($(OS),Windows_NT)
 CLASSPATH:=$(subst :,;,$(subst /,\,$(CLASSPATH)))
 endif
@@ -101,16 +102,16 @@ $(foreach d,$(SUBDIRS) $(NOBUILD_SUBDIRS),$(eval $(call subdir_template,install,
 
 build : notify $(foreach d,$(SUBDIRS),build-$(d) install-$(d))
 
-install : $(foreach d,$(SUBDIRS),install-$(d))
-	cd extlibs && $(MAKE) TOP_SRCDIR=$(TOP_SRCDIR) && $(MAKE) install TOP_SRCDIR=$(TOP_SRCDIR)
+install : $(foreach d,$(SUBDIRS) $(NOBUILD_SUBDIRS),install-$(d))
 	rm -Rf ${PREFIX}/configuration/org.eclipse.osgi
 	rm -f ${PREFIX}/configuration/*.log
 
-clean : clean-log $(foreach d,$(SUBDIRS),clean-$(d))
+clean : clean-log $(foreach d,$(SUBDIRS) $(NOBUILD_SUBDIRS),clean-$(d))
 	rm -rf $(PREFIX)/configuration/org.eclipse.osgi
 	rm -f $(PREFIX)/eu.sqooss.service.*.jar \
 		$(PREFIX)/eu.sqooss.metrics.*.jar
 	rm -f $(PREFIX)/*.jar
+	rm -rf doc/javadoc
 
 clean-log :
 	rm -f $(PREFIX)/alitheia.log $(PREFIX)/hibernate.log $(PREFIX)/derby.log

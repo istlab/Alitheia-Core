@@ -6,8 +6,12 @@
 
 TOP_SRCDIR?=$(shell cd ../.. && pwd)
 PREFIX?=$(shell cd ../../equinox && pwd)
-CP:=$(shell /bin/sh $(TOP_SRCDIR)/tools/setcp.sh ../..)
-EXTRA_CP:=${CP}:$(EXTRA_CP)
+
+CLASSPATH_JARS=$(strip $(shell find ../../extlibs -name '*.jar' -type f ; find ../../equinox -name '*.jar' -type f))
+$(foreach d,$(CLASSPATH_JARS),$(eval EXTRA_CP:=$(d):$(EXTRA_CP)))
+ifeq ($(OS),Windows_NT)
+EXTRA_CP:=$(subst :,;,$(subst /,\,$(EXTRA_CP)))
+endif
 
 # Find the source files, the dependency jars and other resources
 SRC=$(shell cd src && find eu -name *.java)
