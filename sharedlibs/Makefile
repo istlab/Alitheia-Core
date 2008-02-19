@@ -41,4 +41,6 @@ install : $(foreach d,$(BUNDLES),install-$(d))
 
 clean : $(foreach d,$(BUNDLES),clean-$(d))
 	rm -f `find . -name '*.class'`
+	rm -rf build target
+
 

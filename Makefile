@@ -116,6 +116,7 @@ clean : clean-log $(foreach d,$(SUBDIRS) $(NOBUILD_SUBDIRS),clean-$(d))
 clean-log :
 	rm -f $(PREFIX)/alitheia.log $(PREFIX)/hibernate.log $(PREFIX)/derby.log
 	rm -f $(PREFIX)/logs/*
+	rm -f $(PREFIX)/configuration/*.log
 
 distclean: clean clean-log clean-db
 	-find . -type f|grep *~|xargs rm

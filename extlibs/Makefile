@@ -15,19 +15,22 @@ LOCAL_JARS=$(wildcard *.jar)
 
 all: build
 
-%.jar: %
-	@echo Creating bundle $<.jar && \
-	excl=`echo "(${EXCLUDEFILES})" | sed -e s/\ \ */\|/g` && \
-	incl=`cd $< && find . -type f |egrep -v "^$$excl" | tr '\n' ' ' |sed -e "s, $$,," -e "s,\ , -C $< ,g" -e "s,^, -C $< ,"` && \
-	jar -cvmf $</META-INF/MANIFEST.MF ${BUILDDIR}/$<.jar $$incl >/dev/null 
+define jar_bundler
+$(BUILDDIR)/$(1).jar: $(1)
+	@echo Creating bundle $(1) 
+	@excl=`echo "(${EXCLUDEFILES})" | sed -e s/\ \ */\|/g` && \
+	incl=`cd $(1) && find . -type f |egrep -v "^$$$$excl" | tr '\n' ' ' |sed -e "s, $$$$,," -e "s,\ , -C $(1) ,g" -e "s,^, -C $(1) ,"` && \
+	jar -cvmf $(1)/META-INF/MANIFEST.MF ${BUILDDIR}/$(1).jar $$$$incl >/dev/null 
+endef
 
+$(foreach d,$(DIRS),$(eval $(call jar_bundler,$(strip $(d)))))
 
 builddir: 
-	-mkdir ${BUILDDIR}
+	@test -d ${BUILDDIR} || mkdir ${BUILDDIR}
 
-build: builddir $(JARS)
+build: builddir $(addprefix $(BUILDDIR)/,$(JARS))
 
-install:
+install: build
 	-cp -v ${BUILDDIR}/*.jar ${TOP_SRCDIR}/equinox
 	-cp -v $(LOCAL_JARS) ${TOP_SRCDIR}/equinox
 

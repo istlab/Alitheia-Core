@@ -31,6 +31,7 @@ build : install-scl
 clean :
 	rm -f $(TOMCAT_LIB)*
 	cd ../scl && $(MAKE) clean
+	rm -f tomcat/logs/*.log
 
 run : stop start
 
