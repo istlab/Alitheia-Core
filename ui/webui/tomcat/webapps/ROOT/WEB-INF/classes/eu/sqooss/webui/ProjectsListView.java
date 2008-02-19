@@ -63,13 +63,15 @@ public class ProjectsListView extends ListView {
     }
 
     public void retrieveData () {
-        try {
-            result = session.getConnection().evaluatedProjectsList();//.next().get(0).getLong() + "=";
-            setItems(result);
-        } catch (WSException wse) {
-            error += "<br />Something went wrong getting evaluatedProjectsList() ... :/";
-        } catch (NullPointerException npe) {
-            error += "<br />We didn't connect ...";
-        }
+//        try {
+//            result = session.getConnection().evaluatedProjectsList();//.next().get(0).getLong() + "=";
+//            setItems(result);
+//            //TODO:
+//        } catch (WSException wse) {
+//            error += "<br />Something went wrong getting evaluatedProjectsList() ... :/";
+//        } catch (NullPointerException npe) {
+//            error += "<br />We didn't connect ...";
+//        }
+        //TODO:
     }
 }

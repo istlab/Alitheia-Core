@@ -55,11 +55,12 @@ public class FileListView extends ListView {
     }
 
     public void retrieveData () {
-        try {
-            result = session.getConnection().retrieveFileList(projectId);
-        } catch (WSException wse) {
-            error += "<br />Something went wrong getting the list of files.";
-        }
+//        try {
+//            result = session.getConnection().retrieveFileList(projectId);
+//        } catch (WSException wse) {
+//            error += "<br />Something went wrong getting the list of files.";
+//        }
+        //TODO:
         
     }
 

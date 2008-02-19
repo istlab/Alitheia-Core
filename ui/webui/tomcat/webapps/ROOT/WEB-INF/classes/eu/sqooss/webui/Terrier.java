@@ -72,12 +72,12 @@ public class Terrier {
             return null;
         }
         debug += "ok";
-        try {
-            result = connection.evaluatedProjectsList();
-        } catch (WSException wse) {
-            error = "Could not receive a list of projects.";
-            return null;
-        }
+//        try {
+//            result = connection.evaluatedProjectsList();
+//        } catch (WSException wse) {
+//            error = "Could not receive a list of projects.";
+//            return null;
+//        }
         Iterator <ArrayList<WSResultEntry>> itemlist = result.iterator();
         if (!itemlist.hasNext()) {
             error = "No project records found.";
@@ -113,13 +113,13 @@ public class Terrier {
             error = "Connection to Alitheia failed.";
             return projects;
         }
-        debug += "ok";
-        try {
-            result = connection.evaluatedProjectsList();
-        } catch (WSException wse) {
-            error = "Could not receive a list of projects.";
-            return projects;
-        }
+//        debug += "ok";
+//        try {
+//            result = connection.evaluatedProjectsList();
+//        } catch (WSException wse) {
+//            error = "Could not receive a list of projects.";
+//            return projects;
+//        }
         Iterator <ArrayList<WSResultEntry>> itemlist = result.iterator();
         if (!itemlist.hasNext()) {
             error = "No project records found.";
