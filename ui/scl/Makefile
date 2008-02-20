@@ -42,13 +42,19 @@ DEPLOY_NAME=eu.sqooss.scl_$(DEPLOY_VER).jar
 
 all : install
 
-build : ws-client $(BUILD_DIR)$(DEPLOY_NAME)
+build : build-ws-client build-scl
+
+
+build-ws-client :
+	cd lib && $(MAKE) install
+
+build-scl : $(BUILD_DIR)$(DEPLOY_NAME)
 
 $(BUILD_DIR)$(DEPLOY_NAME) : $(SOURCES)
 	test -d $(BUILD_DIR) || mkdir $(BUILD_DIR)
 	test -d $(BUILD_DIR) && \
 	javac -Xlint:-path -d $(BUILD_DIR) -cp $(CLASSPATH) $(SOURCES)
-	jar cfm $(BUILD_DIR)$(DEPLOY_NAME) $(MANIFEST) -C $(BUILD_DIR) .
+	jar cfm $(BUILD_DIR)$(DEPLOY_NAME) $(MANIFEST) -C $(BUILD_DIR) eu
 
 clean:
 	cd lib && $(MAKE) clean
@@ -58,8 +64,5 @@ clean:
 install: build
 	test -d $(DEPLOY_DIR) || mkdir $(DEPLOY_DIR)
 	cp $(BUILD_DIR)$(DEPLOY_NAME) $(DEPLOY_DIR)$(DEPLOY_NAME)
-
-ws-client :
-	cd lib && $(MAKE) install
 
 
