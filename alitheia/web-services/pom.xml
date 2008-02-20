@@ -32,10 +32,11 @@
       <plugin>
         <artifactId>maven-jar-plugin</artifactId>
         <configuration>
+          <outputDirectory>${user.dir}/equinox</outputDirectory>
+          <finalName>eu.sqooss.service.${artifactId}_${version}</finalName>
           <archive>
-            <manifestFile>
-              ${basedir}/manifest/web-services.mf
-            </manifestFile>
+            <manifestFile>${basedir}/manifest/web-services.mf</manifestFile>
+            <addMavenDescriptor>false</addMavenDescriptor>
           </archive>
         </configuration> 
       </plugin>
@@ -50,19 +51,19 @@
 
   <!-- =[ Dependencies ]================================================== -->
   <dependencies>
-    <!-- Dependant on OSGi R4 Framework Package -->
-    <dependency>
-      <groupId>org.eclipse.equinox</groupId>
-      <artifactId>osgi</artifactId>
-      <version>3.3.0</version>
-      <type>jar</type>
-      <scope>provided</scope>
-    </dependency>
-    <!-- Dependant on SQO-OSS Core Service -->
+    <!-- [sqooss repo] Dependant on SQO-OSS Core services -->
     <dependency>
       <groupId>eu.sqooss</groupId>
       <artifactId>core</artifactId>
       <version>[0.0.1,)</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <!-- [sqooss repo] Dependant on OSGi R4 Framework Package -->
+    <dependency>
+      <groupId>org.eclipse.equinox</groupId>
+      <artifactId>osgi</artifactId>
+      <version>3.3.0</version>
       <type>jar</type>
       <scope>provided</scope>
     </dependency>
