@@ -89,7 +89,7 @@ public class WebServicesImpl {
 
         //TODO: check the security
 
-        List queryResult = db.doHQL(DatabaseQueries.EVALUATED_PROJECTS_LIST);
+        List<?> queryResult = db.doHQL(DatabaseQueries.EVALUATED_PROJECTS_LIST);
 
         return makeUnoinByStoredProjectId(queryResult);
     }
@@ -107,7 +107,7 @@ public class WebServicesImpl {
         
         Map<String, Object> queryParameters = new Hashtable<String, Object>(1);
         queryParameters.put(DatabaseQueries.RETRIEVE_METRICS_4_SELECTED_PROJECT_PARAM, projectId);
-        List queryResult = db.doHQL(DatabaseQueries.RETRIEVE_METRICS_4_SELECTED_PROJECT, queryParameters);
+        List<?> queryResult = db.doHQL(DatabaseQueries.RETRIEVE_METRICS_4_SELECTED_PROJECT, queryParameters);
         
         return convertToWSMetrics(queryResult);
     }
@@ -127,7 +127,7 @@ public class WebServicesImpl {
         queryParameters.put(DatabaseQueries.RETRIEVE_SELECTED_METRIC_PARAM_PR, projectId);
         queryParameters.put(DatabaseQueries.RETRIEVE_SELECTED_METRIC_PARAM_METRIC, metricId);
 
-        List queryResult = db.doHQL(DatabaseQueries.RETRIEVE_SELECTED_METRIC, queryParameters);
+        List<?> queryResult = db.doHQL(DatabaseQueries.RETRIEVE_SELECTED_METRIC, queryParameters);
         
         if (queryResult.size() == 1) {
             Object[] elem = (Object[]) queryResult.get(0);
@@ -150,7 +150,7 @@ public class WebServicesImpl {
         Map<String, Object> queryParameters = new Hashtable<String, Object>(1);
         queryParameters.put(DatabaseQueries.RETRIEVE_FILE_LIST_PARAM, projectId);
         
-        List queryResult = db.doHQL(DatabaseQueries.RETRIEVE_FILE_LIST, queryParameters);
+        List<?> queryResult = db.doHQL(DatabaseQueries.RETRIEVE_FILE_LIST, queryParameters);
         
         return convertToWSProjectFiles(queryResult);
     }
@@ -185,7 +185,7 @@ public class WebServicesImpl {
             }
         }
         
-        List result = null;
+        List<?> result = null;
         
         if (fileNamesSet.size() != 0) {
             Map<String, Object> projectIdParameter = new Hashtable<String, Object>(1);
@@ -223,7 +223,7 @@ public class WebServicesImpl {
         queryParameters.put(DatabaseQueries.REQUEST_EVALUATION_4_PROJECT_PARAM_PR_NAME, projectName);
         queryParameters.put(DatabaseQueries.REQUEST_EVALUATION_4_PROJECT_PARAM_PR_VERSION, projectVersion);
         
-        List result;
+        List<?> result;
         
         result = db.doHQL(DatabaseQueries.REQUEST_EVALUATION_4_PROJECT, queryParameters);
         
@@ -405,7 +405,7 @@ public class WebServicesImpl {
         
         Map<String, Object> queryParameters = new Hashtable<String, Object>(1);
         queryParameters.put(DatabaseQueries.RETRIEVE_PROJECT_ID_PARAM_PR_NAME, projectName);
-        List queryResult = db.doHQL(DatabaseQueries.RETRIEVE_PROJECT_ID_PARAM, queryParameters);
+        List<?> queryResult = db.doHQL(DatabaseQueries.RETRIEVE_PROJECT_ID_PARAM, queryParameters);
         
         Long projectId;
         
@@ -478,7 +478,7 @@ public class WebServicesImpl {
      * @param list
      * @return
      */
-    private WSStoredProject[] makeUnoinByStoredProjectId(List list) {
+    private WSStoredProject[] makeUnoinByStoredProjectId(List<?> list) {
         if ((list == null) || (list.size() == 0)) {
             return null;
         }
@@ -523,7 +523,7 @@ public class WebServicesImpl {
         return result;
     }
     
-    private WSMetric[] convertToWSMetrics(List metricsWithTypes) {
+    private WSMetric[] convertToWSMetrics(List<?> metricsWithTypes) {
         WSMetric[] result = null;
         if ((metricsWithTypes != null) && (metricsWithTypes.size() != 0)) {
             result = new WSMetric[metricsWithTypes.size()];
@@ -536,7 +536,7 @@ public class WebServicesImpl {
         return result;
     }
     
-    private WSProjectFile[] convertToWSProjectFiles(List projectFilesWithMetadata) {
+    private WSProjectFile[] convertToWSProjectFiles(List<?> projectFilesWithMetadata) {
         WSProjectFile[] result = null;
         if ((projectFilesWithMetadata != null) && (projectFilesWithMetadata.size() != 0)) {
             result = new WSProjectFile[projectFilesWithMetadata.size()];
