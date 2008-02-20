@@ -224,36 +224,6 @@ public class WebServices {
 //    }
 //    //5.1.6
 //    
-//    //5.1.7
-//    public WSPair[] evaluatedProjectsListScore(String userName, String password) {
-//        return null;
-//    }
-//    
-//    public void submitScores(String userName, String password, String projectId,
-//            String[] scores, String textOpinion) {
-//        
-//    }
-//    
-//    public String[] viewScores(String userName, String password, String projectId) {
-//        return null;
-//    }
-//    
-//    public String[] viewComments(String userName, String password, String projectId) {
-//        return null;
-//    }
-//    //5.1.7
-//    
-//    //5.1.8
-//    public WSPair[] ratedProjectsList(String userName, String password) {
-//        return null;
-//    }
-//    
-//    public String[] retrieveProjectRatings(String userName, String password,
-//            String projectId) {
-//        return null;
-//    }
-//    //5.1.8
-//    
 //    //5.1.9
 //    public String subscriptionsStatus(String userName, String password) {
 //        return null;
