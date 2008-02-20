@@ -173,23 +173,6 @@ public interface WSConnection {
     public WSResult displayDeveloperInfo(String projectId, String developerId, String criterioId, String display);
     //5.1.6
     
-//  these methods are removed
-//    //5.1.7
-//    public WSResult evaluatedProjectsListScore();
-//    
-//    public void submitScores(String projectId, String[] scores, String textOpinion);
-//    
-//    public WSResult viewScores(String projectId);
-//    
-//    public WSResult viewComments(String projectId);
-//    //5.1.7
-//    
-//    //5.1.8
-//    public WSResult ratedProjectsList();
-//    
-//    public WSResult retrieveProjectRatings(String projectId);
-//    //5.1.8
-    
     //5.1.9
     public WSResult subscriptionsStatus();
     

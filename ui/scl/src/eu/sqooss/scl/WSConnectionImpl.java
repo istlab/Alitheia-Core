@@ -165,11 +165,6 @@ class WSConnectionImpl implements WSConnection {
         return (WSStoredProject[]) parseWSResult(response.get_return());
     }
 
-    public WSResult evaluatedProjectsListScore() {
-        // TODO Auto-generated method stub
-        return new WSResult("Not Implemented yet");
-    }
-
     public void modifySubscriptions(String newProjectNotification, String newMetricPlugin,
             String projectEvalFinished, String newProjectVersion,
             String newQualityRatings, String statistics) {
@@ -195,11 +190,6 @@ class WSConnectionImpl implements WSConnection {
                 throw new WSException(re);
             }
         }
-    }
-
-    public WSResult ratedProjectsList() {
-        // TODO Auto-generated method stub
-        return new WSResult("Not Implemented yet");
     }
 
     public WSResult requestDefectStatistics(String projectId, String searchQuery, String statisticalScheme) {
@@ -355,11 +345,6 @@ class WSConnectionImpl implements WSConnection {
         return (WSMetric[]) parseWSResult(response.get_return());
     }
 
-    public WSResult retrieveProjectRatings(String projectId) {
-        // TODO Auto-generated method stub
-        return new WSResult("Not Implemented yet");
-    }
-
     /**
      * @see eu.sqooss.scl.WSConnection#retrieveSelectedMetric(long, long)
      */
@@ -379,11 +364,6 @@ class WSConnectionImpl implements WSConnection {
 //        }
 //        return WSResponseParser.parseMetrics(new WSMetric[]{response.get_return()});
         return new WSResult("Not Implement yet");
-    }
-
-    public void submitScores(String projectId, String[] scores, String textOpinion) {
-        // TODO Auto-generated method stub
-        
     }
 
     /**
@@ -415,16 +395,6 @@ class WSConnectionImpl implements WSConnection {
         return new WSResult("Not Implemented yet");
     }
 
-    public WSResult viewComments(String projectId) {
-        // TODO Auto-generated method stub
-        return new WSResult("Not Implemented yet");
-    }
-
-    public WSResult viewScores(String projectId) {
-        // TODO Auto-generated method stub
-        return new WSResult("Not Implemented yet");
-    }
-    
     public long retrieveProjectId(String projectName) throws WSException {
         RetrieveProjectIdResponse response;
         RetrieveProjectId params = (RetrieveProjectId) parameters.get(
