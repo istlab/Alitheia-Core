@@ -42,7 +42,8 @@ install: build-all
 
 fetch-wsdl :
 	rm -f ws.wsdl
-	curl 'http://localhost:8088/sqooss/services/ws?wsdl' > ws.wsdl
+	#curl 'http://localhost:8088/sqooss/services/ws?wsdl' > ws.wsdl
+	java -cp ../../../tools/GetHTML.jar GetHTML "http://localhost:8088/sqooss/services/ws?wsdl" ws.wsdl
 
 EXT_PATH=../../../extlibs
 EXT_LIBS=org.apache.axis2_1.1.0/axis2-kernel-1.1.jar \
