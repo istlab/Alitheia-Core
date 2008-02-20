@@ -167,6 +167,20 @@ class WSConnectionImpl implements WSConnection {
         return (WSStoredProject[]) parseWSResult(response.get_return());
     }
 
+    public WSStoredProject[] storedProjectsList() throws WSException {
+        StoredProjectsListResponse response; 
+        StoredProjectsList params = (StoredProjectsList) parameters.get(
+                WSConnectionConstants.METHOD_NAME_STORED_PROJECTS_LIST);
+        synchronized (params) {
+            try {
+                response = wsStub.storedProjectsList(params);
+            } catch (RemoteException e) {
+                throw new WSException(e);
+            }
+        }
+        return (WSStoredProject[]) parseWSResult(response.get_return());
+    }
+
     public WSResult evaluatedProjectsListScore() {
         // TODO Auto-generated method stub
         return new WSResult("Not Implemented yet");
