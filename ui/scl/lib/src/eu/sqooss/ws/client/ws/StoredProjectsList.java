@@ -1,6 +1,6 @@
 
             /**
-            * SubmitUserResponse.java
+            * StoredProjectsList.java
             *
             * This file was auto-generated from WSDL
             * by the Apache Axis2 version: #axisVersion# #today#
@@ -8,43 +8,72 @@
 
             package eu.sqooss.ws.client.ws;
             /**
-            *  SubmitUserResponse bean class
+            *  StoredProjectsList bean class
             */
         
-        public  class SubmitUserResponse
+        public  class StoredProjectsList
         implements org.apache.axis2.databinding.ADBBean{
         
                 public static final javax.xml.namespace.QName MY_QNAME = new javax.xml.namespace.QName(
                 "http://services.web.service.sqooss.eu/xsd",
-                "submitUserResponse",
+                "storedProjectsList",
                 "ns2");
 
             
 
                         /**
-                        * field for _return
+                        * field for UserName
                         */
 
-                        protected eu.sqooss.ws.client.datatypes.WSUser local_return ;
+                        protected java.lang.String localUserName ;
                         
 
                            /**
                            * Auto generated getter method
-                           * @return eu.sqooss.ws.client.datatypes.WSUser
+                           * @return java.lang.String
                            */
-                           public  eu.sqooss.ws.client.datatypes.WSUser get_return(){
-                               return local_return;
+                           public  java.lang.String getUserName(){
+                               return localUserName;
                            }
 
                            
                         
                             /**
                                * Auto generated setter method
-                               * @param param _return
+                               * @param param UserName
                                */
-                               public void set_return(eu.sqooss.ws.client.datatypes.WSUser param){
+                               public void setUserName(java.lang.String param){
                             
-                                    this.local_return=param;
+                                    this.localUserName=param;
+                            
+
+                               }
+                            
+
+                        /**
+                        * field for Password
+                        */
+
+                        protected java.lang.String localPassword ;
+                        
+
+                           /**
+                           * Auto generated getter method
+                           * @return java.lang.String
+                           */
+                           public  java.lang.String getPassword(){
+                               return localPassword;
+                           }
+
+                           
+                        
+                            /**
+                               * Auto generated setter method
+                               * @param param Password
+                               */
+                               public void setPassword(java.lang.String param){
+                            
+                                    this.localPassword=param;
                             
 
                                }
@@ -93,38 +122,74 @@
 
                 
                
-                                    if (local_return==null){
+                                    namespace = "http://services.web.service.sqooss.eu/xsd";
+                                    if (! namespace.equals("")) {
+                                        prefix = xmlWriter.getPrefix(namespace);
 
-                                            java.lang.String namespace2 = "http://services.web.service.sqooss.eu/xsd";
+                                        if (prefix == null) {
+                                            prefix = org.apache.axis2.databinding.utils.BeanUtil.getUniquePrefix();
 
-                                        if (! namespace2.equals("")) {
-                                            java.lang.String prefix2 = xmlWriter.getPrefix(namespace2);
-
-                                            if (prefix2 == null) {
-                                                prefix2 = org.apache.axis2.databinding.utils.BeanUtil.getUniquePrefix();
-
-                                                xmlWriter.writeStartElement(prefix2,"return", namespace2);
-                                                xmlWriter.writeNamespace(prefix2, namespace2);
-                                                xmlWriter.setPrefix(prefix2, namespace2);
-
-                                            } else {
-                                                xmlWriter.writeStartElement(namespace2,"return");
-                                            }
+                                            xmlWriter.writeStartElement(prefix,"userName", namespace);
+                                            xmlWriter.writeNamespace(prefix, namespace);
+                                            xmlWriter.setPrefix(prefix, namespace);
 
                                         } else {
-                                            xmlWriter.writeStartElement("return");
+                                            xmlWriter.writeStartElement(namespace,"userName");
                                         }
 
-
-                                       // write the nil attribute
-                                      writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","true",xmlWriter);
-                                      xmlWriter.writeEndElement();
-                                    }else{
-                                     local_return.getOMElement(
-                                       new javax.xml.namespace.QName("http://services.web.service.sqooss.eu/xsd","return"),
-                                        factory).serialize(xmlWriter);
+                                    } else {
+                                        xmlWriter.writeStartElement("userName");
                                     }
                                 
+
+                                          if (localUserName==null){
+                                              // write the nil attribute
+                                              
+                                                     writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","true",xmlWriter);
+                                                  
+                                          }else{
+
+                                        
+                                                   xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localUserName));
+                                            
+                                          }
+                                    
+                                   xmlWriter.writeEndElement();
+                             
+                                    namespace = "http://services.web.service.sqooss.eu/xsd";
+                                    if (! namespace.equals("")) {
+                                        prefix = xmlWriter.getPrefix(namespace);
+
+                                        if (prefix == null) {
+                                            prefix = org.apache.axis2.databinding.utils.BeanUtil.getUniquePrefix();
+
+                                            xmlWriter.writeStartElement(prefix,"password", namespace);
+                                            xmlWriter.writeNamespace(prefix, namespace);
+                                            xmlWriter.setPrefix(prefix, namespace);
+
+                                        } else {
+                                            xmlWriter.writeStartElement(namespace,"password");
+                                        }
+
+                                    } else {
+                                        xmlWriter.writeStartElement("password");
+                                    }
+                                
+
+                                          if (localPassword==null){
+                                              // write the nil attribute
+                                              
+                                                     writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","true",xmlWriter);
+                                                  
+                                          }else{
+
+                                        
+                                                   xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localPassword));
+                                            
+                                          }
+                                    
+                                   xmlWriter.writeEndElement();
+                             
                    
                xmlWriter.writeEndElement();
             
@@ -210,13 +275,18 @@
                  java.util.ArrayList attribList = new java.util.ArrayList();
 
                 
-                            elementList.add(new javax.xml.namespace.QName("http://services.web.service.sqooss.eu/xsd",
-                                                                      "return"));
+                             elementList.add(new javax.xml.namespace.QName("http://services.web.service.sqooss.eu/xsd",
+                                                                      "userName"));
                             
+                                         elementList.add(localUserName==null?null:
+                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localUserName));
+                                    
+                             elementList.add(new javax.xml.namespace.QName("http://services.web.service.sqooss.eu/xsd",
+                                                                      "password"));
                             
-                                    elementList.add(local_return==null?null:
-                                    local_return);
-                                
+                                         elementList.add(localPassword==null?null:
+                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localPassword));
+                                    
 
                 return new org.apache.axis2.databinding.utils.reader.ADBXMLStreamReaderImpl(qName, elementList.toArray(), attribList.toArray());
             
@@ -239,8 +309,8 @@
         * Postcondition: If this object is an element, the reader is positioned at its end element
         *                If this object is a complex type, the reader is positioned at the end element of its outer element
         */
-        public static SubmitUserResponse parse(javax.xml.stream.XMLStreamReader reader) throws java.lang.Exception{
-            SubmitUserResponse object = new SubmitUserResponse();
+        public static StoredProjectsList parse(javax.xml.stream.XMLStreamReader reader) throws java.lang.Exception{
+            StoredProjectsList object = new StoredProjectsList();
             int event;
             try {
                 
@@ -256,10 +326,10 @@
                     nsPrefix = nsPrefix==null?"":nsPrefix;
 
                     java.lang.String type = fullTypeName.substring(fullTypeName.indexOf(":")+1);
-                    if (!"submitUserResponse".equals(type)){
+                    if (!"storedProjectsList".equals(type)){
                         //find namespace for the prefix
                         java.lang.String nsUri = reader.getNamespaceContext().getNamespaceURI(nsPrefix);
-                        return (SubmitUserResponse)eu.sqooss.impl.service.web.services.datatypes.xsd.ExtensionMapper.getTypeObject(
+                        return (StoredProjectsList)eu.sqooss.impl.service.web.services.datatypes.xsd.ExtensionMapper.getTypeObject(
                              nsUri,type,reader);
                       }
 
@@ -290,20 +360,46 @@
                                     
                                     while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
                                 
-                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://services.web.service.sqooss.eu/xsd","return").equals(reader.getName())){
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://services.web.service.sqooss.eu/xsd","userName").equals(reader.getName())){
                                 
-                                      if ("true".equals(reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil"))){
-                                          object.set_return(null);
-                                          reader.next();
-                                            
-                                            reader.next();
-                                          
-                                      }else{
+                                       if (!"true".equals(reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil"))){
                                     
-                                        object.set_return(eu.sqooss.ws.client.datatypes.WSUser.Factory.parse(reader));
+                                    java.lang.String content = reader.getElementText();
+                                    
+                                              object.setUserName(
+                                        org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                                            
+                                       } else {
+                                           reader.getElementText(); // throw away text nodes if any.
+                                       }
                                       
                                         reader.next();
-                                    }
+                                    
+                              }  // End of if for expected property start element
+                            
+                                else{
+                                    // A start element we are not expecting indicates an invalid parameter was passed
+                                    throw new java.lang.RuntimeException("Unexpected subelement " + reader.getLocalName());
+                                }
+                            
+                                    
+                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
+                                
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://services.web.service.sqooss.eu/xsd","password").equals(reader.getName())){
+                                
+                                       if (!"true".equals(reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil"))){
+                                    
+                                    java.lang.String content = reader.getElementText();
+                                    
+                                              object.setPassword(
+                                        org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                                            
+                                       } else {
+                                           reader.getElementText(); // throw away text nodes if any.
+                                       }
+                                      
+                                        reader.next();
+                                    
                               }  // End of if for expected property start element
                             
                                 else{

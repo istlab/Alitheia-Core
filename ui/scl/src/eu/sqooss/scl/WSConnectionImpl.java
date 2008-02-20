@@ -62,6 +62,8 @@ import eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProjectResponse;
 import eu.sqooss.ws.client.ws.RetrieveProjectId;
 import eu.sqooss.ws.client.ws.RetrieveProjectIdResponse;
 import eu.sqooss.ws.client.ws.RetrieveSelectedMetric;
+import eu.sqooss.ws.client.ws.StoredProjectsList;
+import eu.sqooss.ws.client.ws.StoredProjectsListResponse;
 import eu.sqooss.ws.client.ws.SubmitUser;
 import eu.sqooss.ws.client.ws.SubmitUserResponse;
 import eu.sqooss.ws.client.ws.ValidateAccount;
@@ -163,6 +165,11 @@ class WSConnectionImpl implements WSConnection {
             }
         }
         return (WSStoredProject[]) parseWSResult(response.get_return());
+    }
+
+    public WSResult evaluatedProjectsListScore() {
+        // TODO Auto-generated method stub
+        return new WSResult("Not Implemented yet");
     }
 
     public void modifySubscriptions(String newProjectNotification, String newMetricPlugin,
@@ -427,7 +434,12 @@ class WSConnectionImpl implements WSConnection {
         epl.setPassword(password);
         epl.setUserName(userName);
         parameters.put(WSConnectionConstants.METHOD_NAME_EVALUATED_PROJECTS_LIST, epl);
-        
+ 
+        StoredProjectsList spl = new StoredProjectsList();
+        spl.setPassword(password);
+        spl.setUserName(userName);
+        parameters.put(WSConnectionConstants.METHOD_NAME_STORED_PROJECTS_LIST, spl);
+
         RetrieveMetrics4SelectedProject rm4sp = new RetrieveMetrics4SelectedProject();
         rm4sp.setUserName(userName);
         rm4sp.setPassword(password);

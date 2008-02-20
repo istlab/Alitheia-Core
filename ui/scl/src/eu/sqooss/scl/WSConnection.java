@@ -56,6 +56,11 @@ public interface WSConnection {
      * <ul>
      */
     public WSStoredProject[] evaluatedProjectsList() throws WSException;
+
+    /**
+     * All the projects in the database. This method has no URL.
+     */
+    public WSStoredProject[] storedProjectsList() throws WSException;
     
     /**
      * This method returns the metrics for a given project.

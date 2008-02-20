@@ -42,6 +42,7 @@ import eu.sqooss.scl.WSSession;
 import eu.sqooss.scl.WSConnection;
 import eu.sqooss.scl.result.WSResult;
 import eu.sqooss.scl.result.WSResultEntry;
+import eu.sqooss.ws.client.datatypes.WSStoredProject;
 
 import eu.sqooss.webui.User;
 import eu.sqooss.webui.File;
@@ -113,13 +114,27 @@ public class Terrier {
             error = "Connection to Alitheia failed.";
             return projects;
         }
-//        debug += "ok";
-//        try {
-//            result = connection.evaluatedProjectsList();
-//        } catch (WSException wse) {
-//            error = "Could not receive a list of projects.";
-//            return projects;
-//        }
+        debug += "ok";
+        try {
+            WSStoredProject projectsResult[] = connection.storedProjectsList();
+            debug += ":gotresults";
+            if (projectsResult == null) {
+                debug += "result=NULL";
+            } else {
+                debug += "result=" + projectsResult.getClass().getName();
+            }
+            for (WSStoredProject wssp : projectsResult) {
+projects.addElement(new Project(wssp));
+}
+        } catch (WSException wse) {
+            debug+= ":wse"; 
+            error = "Could not receive a list of projects.";
+            return projects;
+        }
+        debug += ":done";
+
+	return projects;
+/*
         Iterator <ArrayList<WSResultEntry>> itemlist = result.iterator();
         if (!itemlist.hasNext()) {
             error = "No project records found.";
@@ -137,6 +152,7 @@ public class Terrier {
         }
         debug += " no:" + projects.size(); 
         return projects;
+*/
     }
 
     public Metric getMetric(Long metricId) {

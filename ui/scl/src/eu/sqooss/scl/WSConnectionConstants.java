@@ -38,6 +38,8 @@ package eu.sqooss.scl;
 interface WSConnectionConstants {
     
     public static final String METHOD_NAME_EVALUATED_PROJECTS_LIST              = "evaluatedProjectsList";
+
+    public static final String METHOD_NAME_STORED_PROJECTS_LIST                 = "storedProjectsList";
     
     public static final String METHOD_NAME_RETRIEVE_METRICS_4_SELECTED_PROJECT  = "retrieveMetrics4SelectedProject";
     

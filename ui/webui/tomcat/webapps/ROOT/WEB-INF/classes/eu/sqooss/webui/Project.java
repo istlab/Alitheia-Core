@@ -34,6 +34,7 @@
 package eu.sqooss.webui;
 
 import java.util.ArrayList;
+import eu.sqooss.ws.client.datatypes.WSStoredProject;
 
 
 public class Project {
@@ -64,6 +65,16 @@ public class Project {
         mail = data.get(4).toString();
         contact = data.get(5).toString();
         website = data.get(6).toString();
+    }
+
+    public Project (WSStoredProject p) {
+id=p.getId();
+name = p.getName();
+bts = p.getBugs();
+scm = p.getRepository();
+mail = p.getMail();
+contact = p.getContact();
+website = p.getWebsite();
     }
 
     public String getName () {
