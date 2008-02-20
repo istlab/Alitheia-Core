@@ -39,10 +39,8 @@
       scm:svn:https://svn.sqo-oss.eu/devel/trunk/alitheia
     </developerConnection>
     <!-- Configure and enable this, in case we provide an anonymous SVN viewer
-    -->
-<!--
     <url>http://hostname/sqooss</url>
--->
+    -->
   </scm> 
 
   <!-- =======[ Build options, goals and plug-ins configurations  ]======= -->
@@ -95,7 +93,7 @@
             <fileset>
               <directory>${user.dir}/equinox</directory>
               <includes>
-                <include>**/eu.sqooss.service.*</include>
+                <include>**/eu.sqooss.service.${artifactId}_${version}.jar</include>
               </includes>
               <followSymlinks>false</followSymlinks>
             </fileset>
@@ -133,11 +131,9 @@
       <id>sqoossrepo</id>
       <name>SQO-OSS Local Maven Repository</name>
       <!-- Enable this, once the certificate for svn.sqo-oss.eu is fixed,
-        and disable/remove the line that follows it
-      -->
-<!--
+        and disable or remove the line that follows it
       <url>https://svn.sqo-oss.eu/devel/trunk/extlibs</url>
--->
+      -->
       <url>http://ikaria.dmst.aueb.gr:8088/sqoossrepo</url>
     </repository>
   </repositories>
@@ -146,8 +142,6 @@
   <!-- Using a snapshot repository is not that good ideia, since it happens
        often that some of the plugins' snapshots doesn't work as expected.
        Enable at your own risk!
-  -->
-<!--
   <pluginRepositories>
     <pluginRepository>
       <id>Maven.Snapshots</id>
@@ -162,6 +156,7 @@
   </pluginRepositories>
 -->
 
+  <!-- =======[ Distribution policies                ]==================== -->
   <distributionManagement>
     <!-- Deploy the project reports site in this location                  -->
     <site>
@@ -206,9 +201,9 @@
             report considered as critical by the configuration creator),
             therefore IMHO it's better if Checkstyle behaviour is fed by a 
             configuration file, that can be easily modified -->
-<!--
+          <!--
           <format>sun</format>
--->
+          -->
           <configLocation>sqooss_checks.xml</configLocation>
           <includes>**/*.java</includes>
           <enableRulesSummary>false</enableRulesSummary>
@@ -268,8 +263,7 @@
       <notifier>
         <type>mail</type>
         <configuration>
-          <!-- Replace with the mailing list dedicated to the CIS results -->
-          <!--
+          <!-- Replace with the mailing list dedicated to the CIS results
           <address>continuum@sqo-oss.eu</address>
           -->
           <address>b.yotov@prosyst.com</address>
