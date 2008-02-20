@@ -94,6 +94,36 @@ public class WebServicesImpl {
         return makeUnoinByStoredProjectId(queryResult);
     }
     
+    public WSStoredProject[] storedProjectsList(String userName, String password) {
+        logger.info("Gets the stored project list! user: " + userName);
+
+        //TODO: check the security
+
+        // This query just gets stored projects, so we will give
+        // them fake project versions.
+        List queryResult = db.doHQL(DatabaseQueries.STORED_PROJECTS_LIST);
+
+        List<StoredProject> l = (List<StoredProject>) queryResult;
+        if (l==null) {
+            logger.warn("Stored project query is broken.");
+            return null;
+        } else {
+            WSStoredProject result[] = new WSStoredProject[l.size()];
+            int count = 0;
+            for (StoredProject p : l) {
+                logger.info("Found stored project " + p.getName());
+                ProjectVersion v = new ProjectVersion();
+                // This is totally fake data for project version
+                v.setProject(p);
+                v.setTimestamp(17);
+                v.setVersion(1);
+                result[count] = new WSStoredProject(p, v);
+                count++;
+            }
+            return result;
+        }
+    }
+    
     /**
      * @see eu.sqooss.service.web.services.WebServices#retrieveMetrics4SelectedProject(String, String, String)
      */

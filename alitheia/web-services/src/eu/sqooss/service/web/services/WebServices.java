@@ -83,6 +83,10 @@ public class WebServices {
         return webServices.evaluatedProjectsList(userName, password);
     }
     
+    public WSStoredProject[] storedProjectsList(String userName, String password) {
+        return webServices.storedProjectsList(userName, password);
+    }
+    
     /**
      * This method returns the metrics for a given project.
      * The user's name and password must be valid.

@@ -41,6 +41,10 @@ public class DatabaseQueries {
                                                          " and pv.id=measurement.projectVersion " +
                                                          "order by sp.id asc";
 
+    public static final String STORED_PROJECTS_LIST    = "select sp " +
+                                                         "from StoredProject sp " +
+                                                         "order by sp.id asc";
+
     public static final String RETRIEVE_METRICS_4_SELECTED_PROJECT_PARAM = "project_id";
     
     public static final String RETRIEVE_METRICS_4_SELECTED_PROJECT = "select distinct metric, metricType " +
