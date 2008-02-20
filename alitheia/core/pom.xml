@@ -32,10 +32,11 @@
       <plugin>
         <artifactId>maven-jar-plugin</artifactId>
         <configuration>
+          <outputDirectory>${user.dir}/equinox</outputDirectory>
+          <finalName>eu.sqooss.service.${artifactId}_${version}</finalName>
           <archive>
-            <manifestFile>
-              ${basedir}/manifest/core.mf
-            </manifestFile>
+            <manifestFile>${basedir}/manifest/core.mf</manifestFile>
+            <addMavenDescriptor>false</addMavenDescriptor>
           </archive>
         </configuration> 
       </plugin>
@@ -97,6 +98,14 @@
       <groupId>javax</groupId>
       <artifactId>mail</artifactId>
       <version>1.4</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <!-- [sqooss repo] Dependant on Java Activation Extension -->
+    <dependency>
+      <groupId>javax</groupId>
+      <artifactId>activation</artifactId>
+      <version>1.1</version>
       <type>jar</type>
       <scope>provided</scope>
     </dependency>
