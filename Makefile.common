@@ -8,11 +8,13 @@
 # the Alitheia core, the metrics collection, and others). It is not intended
 # to be used as a stand-alone Makefile.
 #
+# This makefile should be included *after* your default target has been
+# defined (e.g. all) or you need to use a .DEFAULT setting in your makefile.
+#
 # Targets which are defined:
 #
-# check		- compare the list of subdirectories (in BUNDLES)
-#		  with the actual subdirectories and complain about
-#		  mismatches.
+# check		- check the subdirectories and BUNDLES against each other
+#		  in order to flag mismatches.
 #
 # Templates which are defined:
 #
@@ -20,8 +22,17 @@
 #		- define target <type>-<subdir> to cd into <subdir>
 #		  and call a sub-make with <target>. Usually <type>
 #		  and <target> will be the same.
+# build_classpath <result> <jars> <path>
+#		- set variable result to a claspath based on the list
+#		  of jars in variable jars which live in variable path.
+#
+# Variables which are defined:
+#
+# ABS_PREFIX	- absolute path to the PREFIX
+# JAVA_LINT	- lint parameters shared across Alitheia
 
 ABS_PREFIX?=$(shell cd $(PREFIX) && pwd)
+JAVA_LINT=-Xlint
 
 # Template to pass targets on to sub-directories.
 define subdir_template
@@ -29,6 +40,32 @@ $(1)-$(2) :
 	@echo "# Entering" `cd $(2) && pwd | sed 's+$(TOP_SRCDIR)/*++'` "($(3))"
 	@cd $(2) && $(MAKE) $(3) TOP_SRCDIR=$(TOP_SRCDIR) PREFIX=$(ABS_PREFIX) WITH_MAVEN=$(WITH_MAVEN)
 endef
+
+# This macro constructs a classpath out of a list of jar names,
+# a path where those jars live and a variable name to put the
+# resulting classpath. Usage:
+#
+# build_classpath <result> <jars> <path>
+#
+# all three the parameters are *variable names*, not actual values.
+#
+# typically you call this as follows:
+#
+# $(eval $(call build_classpath,CLASSPATH,EXT_LIBS,EXT_PATH))
+#
+# and you get the classpath version of $(EXT_LIBS) with $(EXT_PATH)
+# prepended to each stored in $(CLASSPATH). Windows is handled as
+# well, yielding a semicolon-separated list instead of colons.
+# The result variable is appended to, not reset.
+#
+define build_classpath
+$$(foreach d,$$($(2)),$$(eval $(1):=$$($(1))$$($(3))/$$(strip $$(d)):))
+ifeq ($$(OS),Windows_NT)
+$(1):=$$(subst :,;,$$(subst /,\,$$($(1))))
+endif
+endef
+
+
 
 # This is a double check that all of the subdirectories listed in 
 # BUNDLES exist and that all of the subdirectories that exist are

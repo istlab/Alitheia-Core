@@ -21,7 +21,7 @@
 
 # Extra dependencies for this bundle. These should point to the sources
 # of other bundles. Everyone depends on the logger, so add it always.
-EXTRA_CP+=:../core/src
+EXTRA_CP:=${EXTRA_CP}../core/src:
 
 # Optionally, the manifest name may be different from the bundle name.
 # This is a historical mistake, but not easy to correct.
@@ -34,5 +34,7 @@ NAMESPACE=eu.sqooss.service
 # END OF USER CONFIGURATION
 #
 ###
+
+all: build-all build-jar
 
 include ../../Makefile-sub.common

@@ -1,6 +1,8 @@
 TOMCAT_LIB=tomcat/webapps/ROOT/WEB-INF/lib/
 
-all : stop clean build install run
+all : stop build install run
+
+include ../../Makefile.common
 
 EXT_PATH=../../extlibs
 EXT_LIBS=org.apache.axiom.api_1.2.2/axiom-api-1.2.2.jar \
@@ -35,14 +37,16 @@ BUILD_CP=$(RELATIVE_TOMCAT_LIB):$(RELATIVE_SCL_LIB):$(RELATIVE_WS_LIB)
 build : install-scl
 	rm -rf build
 	cd tomcat/webapps/ROOT/WEB-INF/classes/eu/sqooss/webui && \
-	javac -Xlint:-path -cp "$(BUILD_CP)"  *\.java
+	javac $(JAVA_LINT) -cp "$(BUILD_CP)"  *\.java
 
-clean :
+clean : stop
 	rm -f $(TOMCAT_LIB)*
 	cd ../scl && $(MAKE) clean
 	rm -f tomcat/logs/*.log
 
 run : stop start
+
+restart: stop start
 
 define set_java_home
 	test -z "$$JAVA_HOME" -a -x /usr/bin/javac && export JAVA_HOME=/usr ; \
@@ -62,10 +66,6 @@ stop :
 	sh bin/catalina.sh stop && \
 	echo "\033[0;31m  Tomcat stopped...\033[1;37m"
 
-restart: stop run
 
-rebuild :
-	$(MAKE) build
-	$(MAKE) stop && \
-	$(MAKE) start 
+rebuild : build restart
 

@@ -22,9 +22,9 @@
 # Extra dependencies for the metrics bundle. These should point to the sources
 # of other bundles. Everyone depends on the core. Metrics depend on OSGi. Metrics
 # also depend on codecs.
-EXTRA_CP+=:../../alitheia/core/src
-EXTRA_CP+=:$(PREFIX)/org.eclipse.osgi_3.3.0.v20070321.jar:$(PREFIX)/org.eclipse.osgi.util_3.1.100.v20060918.jar:$(PREFIX)/org.eclipse.osgi.services_3.1.100.v20060918.jar
-EXTRA_CP+=:$(PREFIX)/org.apache.commons.codec_1.3.0.jar
+EXTRA_CP:=$(EXTRA_CP)../../alitheia/core/src:
+# EXTRA_CP+=:$(PREFIX)/org.eclipse.osgi_3.3.0.v20070321.jar:$(PREFIX)/org.eclipse.osgi.util_3.1.100.v20060918.jar:$(PREFIX)/org.eclipse.osgi.services_3.1.100.v20060918.jar
+# EXTRA_CP+=:$(PREFIX)/org.apache.commons.codec_1.3.0.jar
 
 # Optionally, the manifest name may be different from the bundle name.
 # This is a historical mistake, but not easy to correct.

@@ -1,3 +1,6 @@
+all : install
+
+include ../../Makefile.common
 
 # These are the web-service libraries built as part of the Alitheia build.
 WSC_LIBS=../build/eu.sqooss.ws.client_0.0.1.jar
@@ -20,15 +23,8 @@ EXT_LIBS=org.apache.axiom.api_1.2.2/axiom-api-1.2.2.jar \
 	org.codehaus.stax2_3.0.1/wstx-asl-3.0.1.jar \
 	org.apache.commons.codec_1.3.0/org.apache.commons.codec-1.3.0.jar
 
-# Build up a set of paths for the class path
-$(foreach d,$(EXT_LIBS),$(eval EXTRA_CP:=$(EXTRA_CP)$(EXT_PATH)/$(d):))
-EXTRA_CP:=$(EXTRA_CP)$(WSC_LIBS)
-
-# Adjust for Windows
-ifeq ($(OS),Windows_NT)
-EXTRA_CP:=$(subst /,\,$(EXTRA_CP))
-EXTRA_CP:=$(subst :,;,$(EXTRA_CP))
-endif
+EXTRA_CP=../build/eu.sqooss.ws.client_0.0.1.jar:
+$(eval $(call build_classpath,EXTRA_CP,EXT_LIBS,EXT_PATH))
 CLASSPATH=$(EXTRA_CP)
 
 SOURCES=$(shell find src/ -name '*.java')
@@ -39,8 +35,6 @@ BUILD_DIR=build/
 DEPLOY_DIR=../build/
 DEPLOY_VER=0.0.1
 DEPLOY_NAME=eu.sqooss.scl_$(DEPLOY_VER).jar
-
-all : install
 
 build : build-ws-client build-scl
 
@@ -53,7 +47,7 @@ build-scl : $(BUILD_DIR)$(DEPLOY_NAME)
 $(BUILD_DIR)$(DEPLOY_NAME) : $(SOURCES)
 	test -d $(BUILD_DIR) || mkdir $(BUILD_DIR)
 	test -d $(BUILD_DIR) && \
-	javac -Xlint:-path -d $(BUILD_DIR) -cp $(CLASSPATH) $(SOURCES)
+	javac $(JAVA_LINT) -d $(BUILD_DIR) -cp $(CLASSPATH) $(SOURCES)
 	jar cfm $(BUILD_DIR)$(DEPLOY_NAME) $(MANIFEST) -C $(BUILD_DIR) eu
 
 clean:
