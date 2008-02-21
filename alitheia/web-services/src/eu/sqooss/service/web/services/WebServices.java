@@ -37,6 +37,7 @@ import org.osgi.framework.BundleContext;
 import eu.sqooss.impl.service.web.services.WebServicesImpl;
 import eu.sqooss.impl.service.web.services.datatypes.WSMetric;
 import eu.sqooss.impl.service.web.services.datatypes.WSProjectFile;
+import eu.sqooss.impl.service.web.services.datatypes.WSProjectVersion;
 import eu.sqooss.impl.service.web.services.datatypes.WSStoredProject;
 import eu.sqooss.impl.service.web.services.datatypes.WSUser;
 import eu.sqooss.service.db.DBService;
@@ -316,6 +317,10 @@ public class WebServices {
      */
     public long retrieveProjectId(String userName, String passwrod, String projectName) {
         return webServices.retrieveProjectId(userName, passwrod, projectName);
+    }
+    
+    public WSProjectVersion[] retrieveStoredProjectVersions(String userName, String password, long projectId) {
+        return webServices.retrieveStoredProjectVersions(userName, password, projectId);
     }
     //retrieve methods
     

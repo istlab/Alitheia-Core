@@ -35,11 +35,10 @@ package eu.sqooss.impl.service.web.services.utils;
 public class DatabaseQueries {
     
     //5.1.1
-    public static final String EVALUATED_PROJECTS_LIST = "select sp, pv " +
+    public static final String EVALUATED_PROJECTS_LIST = "select sp " +
                                                          "from StoredProject sp, ProjectVersion pv, Measurement measurement " +
                                                          "where sp.id=pv.project " +
-                                                         " and pv.id=measurement.projectVersion " +
-                                                         "order by sp.id asc";
+                                                         " and pv.id=measurement.projectVersion ";
 
     public static final String STORED_PROJECTS_LIST    = "select sp " +
                                                          "from StoredProject sp " +
@@ -114,7 +113,7 @@ public class DatabaseQueries {
     
     public static final String REQUEST_EVALUATION_4_PROJECT_PARAM_PR_VERSION = "project_ver";
     
-    public static final String REQUEST_EVALUATION_4_PROJECT = "select sp, pv " +
+    public static final String REQUEST_EVALUATION_4_PROJECT = "select sp " +
                                                               "from StoredProject sp, ProjectVersion pv " +
                                                               "where sp.id=pv.project " +
                                                               " and sp.name=:" +

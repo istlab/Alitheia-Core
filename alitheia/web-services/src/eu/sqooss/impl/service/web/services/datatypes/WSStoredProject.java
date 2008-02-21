@@ -32,34 +32,17 @@
 
 package eu.sqooss.impl.service.web.services.datatypes;
 
-import java.util.List;
-
-import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 
 /**
- * This class wraps the <code>eu.sqooss.service.db.StoredProject</code>
- * with the <code>eu.sqooss.service.db.ProjectVersion</code>s.
- * It is useful because we can have a project with many versions.  
+ * This class wraps the <code>eu.sqooss.service.db.StoredProject</code>.
  */
 public class WSStoredProject {
     
     private StoredProject storedProject;
-    private WSProjectVersion[] projectVersions;
 
-    public WSStoredProject(StoredProject storedProject, ProjectVersion projectVersion) {
+    public WSStoredProject(StoredProject storedProject) {
         this.storedProject = storedProject;
-        this.projectVersions = wrapProjectVerions(new ProjectVersion[] {projectVersion});
-    }
-    
-    public WSStoredProject(StoredProject storedProject, List<ProjectVersion> projectVersions) {
-        this.storedProject = storedProject;
-        this.projectVersions = wrapProjectVerions(projectVersions);
-    }
-    
-    public WSStoredProject(StoredProject storedProject, ProjectVersion[] projectVersions) {
-        this.storedProject = storedProject;
-        this.projectVersions = wrapProjectVerions(projectVersions);
     }
     
     public String getName() {
@@ -90,30 +73,6 @@ public class WSStoredProject {
         return storedProject.getId();
     }
 
-    /**
-     * @return the projectVersions
-     */
-    public WSProjectVersion[] getProjectVersions() {
-        return projectVersions;
-    }
-    
-    private WSProjectVersion[] wrapProjectVerions(ProjectVersion[] projectVersions) {
-        int projectVersionsLength = projectVersions.length;
-        WSProjectVersion[] wrappedProjectVersions = new WSProjectVersion[projectVersionsLength];
-        for (int i = 0; i < projectVersionsLength; i++) {
-            wrappedProjectVersions[i] = new WSProjectVersion(projectVersions[i]);
-        }
-        return wrappedProjectVersions;
-    }
-    
-    private WSProjectVersion[] wrapProjectVerions(List<ProjectVersion> projectVersions) {
-        int projectVersionsLength = projectVersions.size();
-        WSProjectVersion[] wrappedProjectVersions = new WSProjectVersion[projectVersionsLength];
-        for (int i = 0; i < projectVersionsLength; i++) {
-            wrappedProjectVersions[i] = new WSProjectVersion(projectVersions.get(i));
-        }
-        return wrappedProjectVersions;
-    }
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

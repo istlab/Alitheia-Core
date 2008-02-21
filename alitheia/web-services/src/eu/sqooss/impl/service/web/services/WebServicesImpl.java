@@ -39,7 +39,6 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Vector;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -48,6 +47,7 @@ import org.osgi.framework.BundleContext;
 
 import eu.sqooss.impl.service.web.services.datatypes.WSMetric;
 import eu.sqooss.impl.service.web.services.datatypes.WSProjectFile;
+import eu.sqooss.impl.service.web.services.datatypes.WSProjectVersion;
 import eu.sqooss.impl.service.web.services.datatypes.WSStoredProject;
 import eu.sqooss.impl.service.web.services.datatypes.WSUser;
 import eu.sqooss.impl.service.web.services.utils.DatabaseQueries;
@@ -91,7 +91,7 @@ public class WebServicesImpl {
 
         List<?> queryResult = db.doHQL(DatabaseQueries.EVALUATED_PROJECTS_LIST);
 
-        return makeUnoinByStoredProjectId(queryResult);
+        return convertToWSStoredProject(queryResult);
     }
     
     public WSStoredProject[] storedProjectsList(String userName, String password) {
@@ -108,19 +108,7 @@ public class WebServicesImpl {
             logger.warn("Stored project query is broken.");
             return null;
         } else {
-            WSStoredProject result[] = new WSStoredProject[l.size()];
-            int count = 0;
-            for (StoredProject p : l) {
-                logger.info("Found stored project " + p.getName());
-                ProjectVersion v = new ProjectVersion();
-                // This is totally fake data for project version
-                v.setProject(p);
-                v.setTimestamp(17);
-                v.setVersion(1);
-                result[count] = new WSStoredProject(p, v);
-                count++;
-            }
-            return result;
+            return convertToWSStoredProject(l);
         }
     }
     
@@ -294,9 +282,9 @@ public class WebServicesImpl {
                 tds.addAccessor(newStoredProjectId, projectName, BTSLocation,
                         mailingListLocation, srcRepositoryLocation);
             }
-            return new WSStoredProject(newStoredProject, newProjectVersion);
+            return new WSStoredProject(newStoredProject);
         } else if (result.size() == 1) {
-            return makeUnoinByStoredProjectId(result)[0];
+            return convertToWSStoredProject(result)[0];
         } else {
             String message = "The database contains more than 1 project! name:" + 
             projectName + "; version: " + projectVersion;
@@ -447,6 +435,11 @@ public class WebServicesImpl {
         }
         
     }
+    
+    public WSProjectVersion[] retrieveStoredProjectVersions(String userName, String password, long projectId) {
+        //TODO:
+        return null;
+    }
     //retrieve methods
     
     //validation
@@ -498,60 +491,60 @@ public class WebServicesImpl {
         
     }
     
-    /**
-     * The list's element must be an array from Objects.
-     * The first object represents the StoredProject.
-     * The second object represents the ProjectVersion.
-     * The list must be sorted by StoredProject's id.
-     * The method returns the array of the WSStoredProject.
-     * Each WSStoredProject contains the stored project and its project versions.
-     * @param list
-     * @return
-     */
-    private WSStoredProject[] makeUnoinByStoredProjectId(List<?> list) {
-        if ((list == null) || (list.size() == 0)) {
-            return null;
-        }
-        int storedProjectIndex = 0;
-        int projectVersionIndex = 1;
-        int listSize = list.size();
-        WSStoredProject[] result;
-        WSStoredProject currentWSStoredProject;
-        Object[] currentListElem = (Object[])list.get(0);
-        StoredProject currentStoredProject = (StoredProject)currentListElem[storedProjectIndex];
-        ProjectVersion currentProjectVersion = (ProjectVersion)currentListElem[projectVersionIndex];
-        if (listSize == 1) {
-            currentWSStoredProject = new WSStoredProject(currentStoredProject, currentProjectVersion);
-            result = new WSStoredProject[] {currentWSStoredProject};
-        } else {
-            Object[] nextListElem;
-            StoredProject nextStoredProject;
-            ProjectVersion nextProjectVersion;
-            List<WSStoredProject> union = new Vector<WSStoredProject>();
-            List<ProjectVersion> projectVersions = new Vector<ProjectVersion>();
-            projectVersions.add(currentProjectVersion);
-            for (int i = 1; i < listSize; i++) {
-                nextListElem = (Object[])list.get(i);
-                nextStoredProject = (StoredProject)nextListElem[storedProjectIndex];;
-                nextProjectVersion = (ProjectVersion)nextListElem[projectVersionIndex];
-                if (currentStoredProject.getId() == nextStoredProject.getId()) {
-                    projectVersions.add(nextProjectVersion);
-                } else {
-                    currentWSStoredProject = new WSStoredProject(currentStoredProject, projectVersions);
-                    union.add(currentWSStoredProject);
-                    projectVersions.clear();
-                    projectVersions.add(nextProjectVersion);
-                    currentStoredProject = nextStoredProject;
-                }
-            }
-            if (!projectVersions.isEmpty()) {
-                currentWSStoredProject = new WSStoredProject(currentStoredProject, projectVersions);
-                union.add(currentWSStoredProject);
-            }
-            result = union.toArray(new WSStoredProject[0]);
-        }
-        return result;
-    }
+//    /**
+//     * The list's element must be an array from Objects.
+//     * The first object represents the StoredProject.
+//     * The second object represents the ProjectVersion.
+//     * The list must be sorted by StoredProject's id.
+//     * The method returns the array of the WSStoredProject.
+//     * Each WSStoredProject contains the stored project and its project versions.
+//     * @param list
+//     * @return
+//     */
+//    private WSStoredProject[] makeUnoinByStoredProjectId(List<?> list) {
+//        if ((list == null) || (list.size() == 0)) {
+//            return null;
+//        }
+//        int storedProjectIndex = 0;
+//        int projectVersionIndex = 1;
+//        int listSize = list.size();
+//        WSStoredProject[] result;
+//        WSStoredProject currentWSStoredProject;
+//        Object[] currentListElem = (Object[])list.get(0);
+//        StoredProject currentStoredProject = (StoredProject)currentListElem[storedProjectIndex];
+//        ProjectVersion currentProjectVersion = (ProjectVersion)currentListElem[projectVersionIndex];
+//        if (listSize == 1) {
+//            currentWSStoredProject = new WSStoredProject(currentStoredProject, currentProjectVersion);
+//            result = new WSStoredProject[] {currentWSStoredProject};
+//        } else {
+//            Object[] nextListElem;
+//            StoredProject nextStoredProject;
+//            ProjectVersion nextProjectVersion;
+//            List<WSStoredProject> union = new Vector<WSStoredProject>();
+//            List<ProjectVersion> projectVersions = new Vector<ProjectVersion>();
+//            projectVersions.add(currentProjectVersion);
+//            for (int i = 1; i < listSize; i++) {
+//                nextListElem = (Object[])list.get(i);
+//                nextStoredProject = (StoredProject)nextListElem[storedProjectIndex];;
+//                nextProjectVersion = (ProjectVersion)nextListElem[projectVersionIndex];
+//                if (currentStoredProject.getId() == nextStoredProject.getId()) {
+//                    projectVersions.add(nextProjectVersion);
+//                } else {
+//                    currentWSStoredProject = new WSStoredProject(currentStoredProject, projectVersions);
+//                    union.add(currentWSStoredProject);
+//                    projectVersions.clear();
+//                    projectVersions.add(nextProjectVersion);
+//                    currentStoredProject = nextStoredProject;
+//                }
+//            }
+//            if (!projectVersions.isEmpty()) {
+//                currentWSStoredProject = new WSStoredProject(currentStoredProject, projectVersions);
+//                union.add(currentWSStoredProject);
+//            }
+//            result = union.toArray(new WSStoredProject[0]);
+//        }
+//        return result;
+//    }
     
     private WSMetric[] convertToWSMetrics(List<?> metricsWithTypes) {
         WSMetric[] result = null;
@@ -574,6 +567,19 @@ public class WebServicesImpl {
             for (int i = 0; i < result.length; i++) {
                 currentElem = (Object[]) projectFilesWithMetadata.get(i);
                 result[i] = new WSProjectFile((ProjectFile) currentElem[0], (FileMetadata) currentElem[1]);
+            }
+        }
+        return result;
+    }
+    
+    private WSStoredProject[] convertToWSStoredProject(List<?> storedProjects) {
+        WSStoredProject[] result = null;
+        if ((storedProjects != null) && (storedProjects.size() != 0)) {
+            result = new WSStoredProject[storedProjects.size()];
+            StoredProject currentElem;
+            for (int i = 0; i < result.length; i++) {
+                currentElem = (StoredProject) storedProjects.get(i);
+                result[i] = new WSStoredProject(currentElem);
             }
         }
         return result;
