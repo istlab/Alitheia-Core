@@ -68,7 +68,7 @@ public class Project {
     }
 
     public Project (WSStoredProject p) {
-        id=p.getId();
+        id = p.getId();
         name = p.getName();
         bts = p.getBugs();
         scm = p.getRepository();
@@ -97,11 +97,27 @@ public class Project {
         return contact;
     }
 
+    public String getBts() {
+        return bts;
+    }
+
     public String getHtml() {
         StringBuilder html = new StringBuilder("<!-- Project -->\n");
         html.append("<h2>" + getName() + " (" + getId() + ")</h2>");
-        html.append("<br />Website:<a href=\"" + getWebsite() + "\">" + getWebsite() + "</a>");
-        html.append("<br />Contact:<a href=\"" + getContact() + "\">" + getContact() + "</a>");
+        html.append("<br />Website: "
+                + (getWebsite() != null 
+                        ? "<a href=\"" + getWebsite() + "\">" + getWebsite() + "</a>"
+                        : "<i>undefined</i>"));
+
+        html.append("<br />Contact: "
+                + (getContact() != null 
+                        ? "<a href=\"" + getContact() + "\">" + getContact() + "</a>"
+                        : "<i>undefined</i>"));
+
+        html.append("<br />BTS: "
+                + (getBts() != null 
+                        ? "<a href=\"" + getBts() + "\">" + getBts() + "</a>"
+                        : "<i>undefined</i>"));
         return html.toString();
     }
 }

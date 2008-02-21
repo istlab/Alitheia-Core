@@ -9,6 +9,7 @@ title = "Testing Terrier";
 <%@ page import="eu.sqooss.webui.*" %>
 
 <jsp:useBean id="terrier" class="eu.sqooss.webui.Terrier" scope="page"/>
+<jsp:useBean id="MetricsListView" class="eu.sqooss.webui.MetricsTableView" scope="session"/>
 <jsp:setProperty name="terrier" property="*"/>
 
 
@@ -35,11 +36,23 @@ if (request_id == null) {
     html.append("\n</ul>");
 } else {
     Long id = Long.parseLong(request_id);
-    Project testProject = terrier.getProject(id);
-    if (testProject == null) {
+    Project projectView = terrier.getProject(id);
+    if (projectView == null) {
         html.append(error(terrier.getError()));
     } else {
-        html.append(testProject.getHtml());
+        html.append(projectView.getHtml());
+        
+        if (terrier.projectHasVersion(id)) {
+            html.append("<hr>");
+            MetricsTableView metricView = terrier.getMetrics4Project(id);
+            if (metricView == null) {
+                html.append(error(terrier.getError()));
+            } else {
+                html.append(metricView.getHtml());
+            }
+        } else {
+            html.append ("<br /><i>This project has not yet been evaluated</i>");
+        }
     }
 }
 

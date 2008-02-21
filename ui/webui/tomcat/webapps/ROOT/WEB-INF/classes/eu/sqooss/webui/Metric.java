@@ -35,12 +35,15 @@ package eu.sqooss.webui;
 
 import java.util.ArrayList;
 
+import eu.sqooss.ws.client.datatypes.WSMetric;
+
 
 class Metric {
 
-    Long id;
-    String type;
-    String description;
+    private Long id;
+    private String name;
+    private String type;
+    private String description;
 
     /** Parses an ArrayList of WSResult and offers convenience methods to get data
      *  out of it.
@@ -58,12 +61,23 @@ class Metric {
         type = data.get(2).toString();
     }
 
-    public String getType () {
-        return type;
+    public Metric (WSMetric metric) {
+        name        = "NONAME"; // TODO: find out how WSMetric provides it
+        id          = metric.getId();
+        type        = metric.getMetricType().getType();
+        description = metric.getDescription();
     }
 
     public Long getId () {
         return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getType () {
+        return type;
     }
 
     public String getDescription () {
@@ -77,4 +91,5 @@ class Metric {
         html.append("<br />Description: " + getDescription());
         return html.toString();
     }
+
 }

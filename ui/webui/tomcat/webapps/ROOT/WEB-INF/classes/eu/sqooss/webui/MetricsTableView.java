@@ -35,7 +35,6 @@
 package eu.sqooss.webui;
 
 import java.util.*;
-import eu.sqooss.webui.MetricsListView;
 
 /* A bean for rendering a table or a list of Metrics available for a
  * project that is being evaluated.
@@ -85,6 +84,15 @@ public class MetricsTableView {
 
     public MetricsTableView () {
         retrieveData();
+    }
+
+    public void addMetric (Metric metric) {
+        metricNames.put(
+                metric.getId().intValue(),
+                metric.getName());
+        metricDescriptions.put(
+                metric.getId().intValue(),
+                metric.getDescription());
     }
 
     /* Retrieves data (right now, we're setting Dummy data, later on,
