@@ -18,40 +18,38 @@ title = "Testing Terrier";
 <%
 
 String request_id = request.getParameter("id");
+StringBuilder html = new StringBuilder();
 if (request_id == null) {
     Vector<Project> projects = terrier.getEvaluatedProjects();
     if (projects.size() == 0) {
-        out.println("<ul>Terrier didn't find any evaluated projects in the DB.</ul>");
+        html.append(
+            "<ul>Terrier didn't find any evaluated projects in the DB.</ul>");
     } else {
-        StringBuilder html = new StringBuilder("<h2>All Evaluated Projects</h2>\n<!-- Projects -->\n<ul>");
+        html.append(
+            "<h2>All Evaluated Projects</h2>\n<!-- Projects -->\n<ul>");
         for (Project p: projects) {
-            html.append("\n\t<li><a href=\"?id=" + p.getId() + "\">" + p.getName() + "</a> </li>" );
+            html.append(
+                "\n\t<li><a href=\"?id=" + p.getId()
+                + "\">" + p.getName() + "</a> </li>" );
         }
-        out.println(html.toString());
     }
-    out.println("\n</ul>");
+    html.append("\n</ul>");
 } else {
     Long id = Long.parseLong(request_id);
     WSStoredProject testproject = terrier.getProject(id);
     if (testproject == null) {
-        out.println(error(terrier.getError()));
+        html.append(error(terrier.getError()));
     } else {
         //out.println(testproject.getRepository());
-        StringBuilder html = new StringBuilder(
+        html.append(
             "\n<h2>Project: " + testproject.getName() + "</h2>");
         html.append("\nRepository: " + testproject.getRepository());
-        out.println(html.toString());
     }
 }
 
-
 Long id = new Long(1);
-
-
-
-
-out.println("<hr />" + terrier.getDebug());
-
+html.append("<hr />" + terrier.getDebug());
+out.println(html.toString());
 
 %>
 
