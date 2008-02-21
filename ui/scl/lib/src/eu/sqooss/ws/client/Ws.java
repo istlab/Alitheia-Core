@@ -201,9 +201,9 @@
                     * @param param24
                 
          */
-         public eu.sqooss.ws.client.ws.RetrieveProjectIdResponse retrieveProjectId(
+         public eu.sqooss.ws.client.ws.RetrieveStoredProjectResponse retrieveStoredProject(
 
-                eu.sqooss.ws.client.ws.RetrieveProjectId param24)
+                eu.sqooss.ws.client.ws.RetrieveStoredProject param24)
                 throws java.rmi.RemoteException
           
           ;
@@ -216,9 +216,24 @@
                     * @param param26
                 
          */
+         public eu.sqooss.ws.client.ws.RetrieveProjectIdResponse retrieveProjectId(
+
+                eu.sqooss.ws.client.ws.RetrieveProjectId param26)
+                throws java.rmi.RemoteException
+          
+          ;
+
+        
+
+        /**
+                * Auto generated method signature
+                
+                    * @param param28
+                
+         */
          public eu.sqooss.ws.client.ws.RetrieveFileListResponse retrieveFileList(
 
-                eu.sqooss.ws.client.ws.RetrieveFileList param26)
+                eu.sqooss.ws.client.ws.RetrieveFileList param28)
                 throws java.rmi.RemoteException
           
           ;
