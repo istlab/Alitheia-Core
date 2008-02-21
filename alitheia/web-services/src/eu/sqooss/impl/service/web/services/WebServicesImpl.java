@@ -437,8 +437,21 @@ public class WebServicesImpl {
     }
     
     public WSProjectVersion[] retrieveStoredProjectVersions(String userName, String password, long projectId) {
-        //TODO:
-        return null;
+        
+        logger.info("Retrieve stored project versions! user: " + userName +
+                "; project's id: " + projectId);
+        
+        //TODO: check the security
+        
+        StoredProject storedProject = db.findObjectById(StoredProject.class, projectId);
+        
+        if (storedProject != null) {
+            List<ProjectVersion> projectVersions = storedProject.getProjectVersions();
+            return convertToWSProjectVersion(projectVersions); 
+        } else {
+            return null;
+        }
+        
     }
     
     public WSStoredProject retrieveStoredProject(String userName, String password, long projectId) {
@@ -599,6 +612,19 @@ public class WebServicesImpl {
             for (int i = 0; i < result.length; i++) {
                 currentElem = (StoredProject) storedProjects.get(i);
                 result[i] = new WSStoredProject(currentElem);
+            }
+        }
+        return result;
+    }
+    
+    private WSProjectVersion[] convertToWSProjectVersion(List<?> projectVersions) {
+        WSProjectVersion[] result = null;
+        if ((projectVersions != null) && (projectVersions.size() != 0)) {
+            result = new WSProjectVersion[projectVersions.size()];
+            ProjectVersion currentElem;
+            for (int i = 0; i < result.length; i++) {
+                currentElem = (ProjectVersion) projectVersions.get(i);
+                result[i] = new WSProjectVersion(currentElem);
             }
         }
         return result;
