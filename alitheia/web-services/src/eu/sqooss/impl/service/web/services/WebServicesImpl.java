@@ -440,6 +440,25 @@ public class WebServicesImpl {
         //TODO:
         return null;
     }
+    
+    public WSStoredProject retrieveStoredProject(String userName, String password, long projectId) {
+        
+        logger.info("Retrieve stored project! user: " + userName +
+                "; project's id: " + projectId );
+        
+        //TODO: check the security
+        
+        StoredProject storedProject;
+        
+        storedProject = db.findObjectById(StoredProject.class, projectId);
+        
+        if (storedProject != null) {
+            return new WSStoredProject(storedProject);
+        } else {
+            return null;
+        }
+        
+    }
     //retrieve methods
     
     //validation
