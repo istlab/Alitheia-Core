@@ -32,8 +32,7 @@ install-scl:
 RELATIVE_TOMCAT_LIB=../../../..
 RELATIVE_SCL_LIB=$(RELATIVE_TOMCAT_LIB)/lib/eu.sqooss.scl_0.0.1.jar
 RELATIVE_WS_LIB=$(RELATIVE_TOMCAT_LIB)/lib/eu.sqooss.ws.client_0.0.1.jar
-RELATIVE_ADB_LIB=../../../../../../../../$(EXT_PATH)/org.apache.axis2.databinding_1.1.0/axis2-adb-1.1.jar
-BUILD_CP=$(RELATIVE_TOMCAT_LIB):$(RELATIVE_SCL_LIB):$(RELATIVE_WS_LIB):$(RELATIVE_ADB_LIB)
+BUILD_CP=$(RELATIVE_TOMCAT_LIB):$(RELATIVE_SCL_LIB):$(RELATIVE_WS_LIB)
 
 build : install-scl
 	rm -rf build
