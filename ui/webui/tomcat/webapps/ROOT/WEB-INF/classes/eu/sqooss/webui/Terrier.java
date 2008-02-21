@@ -62,16 +62,21 @@ public class Terrier {
     public Terrier () {
         connect();
     }
-
-    public Project getProject(Long projectId) {
+    
+    public boolean isConnected () {
         if (connection == null) {
             connect();
         }
         if (connection == null) {
             debug = "noconnection ";
             error = "Connection to Alitheia failed.";
-            return null;
+            return false;
         }
+        return true;
+    }
+
+    public Project getProject(Long projectId) {
+        if (!isConnected()) return null;
         debug += "ok";
 //        try {
 //            result = connection.evaluatedProjectsList();
@@ -105,15 +110,8 @@ public class Terrier {
     }
     
     public Vector<Project> getEvaluatedProjects() {
-        if (connection == null) {
-            connect();
-        }
         Vector<Project> projects = new Vector<Project>();
-        if (connection == null) {
-            debug = "noconnection ";
-            error = "Connection to Alitheia failed.";
-            return projects;
-        }
+        if (!isConnected()) return projects;
         debug += "ok";
         try {
             WSStoredProject projectsResult[] = connection.storedProjectsList();
