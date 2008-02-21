@@ -43,6 +43,7 @@ import eu.sqooss.scl.result.WSResult;
 import eu.sqooss.ws.client.WsStub;
 import eu.sqooss.ws.client.datatypes.WSMetric;
 import eu.sqooss.ws.client.datatypes.WSProjectFile;
+import eu.sqooss.ws.client.datatypes.WSProjectVersion;
 import eu.sqooss.ws.client.datatypes.WSStoredProject;
 import eu.sqooss.ws.client.datatypes.WSUser;
 import eu.sqooss.ws.client.ws.DeleteUser;
@@ -62,6 +63,8 @@ import eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProjectResponse;
 import eu.sqooss.ws.client.ws.RetrieveProjectId;
 import eu.sqooss.ws.client.ws.RetrieveProjectIdResponse;
 import eu.sqooss.ws.client.ws.RetrieveSelectedMetric;
+import eu.sqooss.ws.client.ws.RetrieveStoredProjectVersions;
+import eu.sqooss.ws.client.ws.RetrieveStoredProjectVersionsResponse;
 import eu.sqooss.ws.client.ws.StoredProjectsList;
 import eu.sqooss.ws.client.ws.StoredProjectsListResponse;
 import eu.sqooss.ws.client.ws.SubmitUser;
@@ -432,6 +435,23 @@ class WSConnectionImpl implements WSConnection {
         return response.get_return();
     }
     
+    public WSProjectVersion[] retrieveStoredProjectVersions(long projectId) throws WSException {
+        RetrieveStoredProjectVersionsResponse response;
+        RetrieveStoredProjectVersions params = (RetrieveStoredProjectVersions) parameters.get(
+                WSConnectionConstants.METHOD_NAME_RETRIEVE_STORED_PROJECT_VERSIONS);
+        synchronized (params) {
+            params.setProjectId(projectId);
+            try {
+                response = wsStub.retrieveStoredProjectVersions(params);
+            } catch (RemoteException re) {
+                throw new WSException(re);
+            }
+        }
+        
+        return (WSProjectVersion[]) parseWSResult(response.get_return());
+        
+    }
+    
     private Object parseWSResult(Object result) {
         if ((result != null) && (result.getClass().isArray()) &&
                 (Array.getLength(result) != 0) && (Array.get(result, 0) == null)) {
@@ -503,6 +523,13 @@ class WSConnectionImpl implements WSConnection {
         retrieveProjectIdParam.setPasswrod(password);
         retrieveProjectIdParam.setUserName(userName);
         parameters.put(WSConnectionConstants.METHOD_NAME_RETRIEVE_PROJECT_ID, retrieveProjectIdParam);
+        
+        RetrieveStoredProjectVersions retrieveStoredProjectVersionsParam =
+            new RetrieveStoredProjectVersions();
+        retrieveStoredProjectVersionsParam.setPassword(password);
+        retrieveStoredProjectVersionsParam.setUserName(userName);
+        parameters.put(WSConnectionConstants.METHOD_NAME_RETRIEVE_STORED_PROJECT_VERSIONS,
+                retrieveStoredProjectVersionsParam);
     }
     
 }

@@ -35,6 +35,7 @@ package eu.sqooss.scl;
 import eu.sqooss.scl.result.WSResult;
 import eu.sqooss.ws.client.datatypes.WSMetric;
 import eu.sqooss.ws.client.datatypes.WSProjectFile;
+import eu.sqooss.ws.client.datatypes.WSProjectVersion;
 import eu.sqooss.ws.client.datatypes.WSStoredProject;
 import eu.sqooss.ws.client.datatypes.WSUser;
 
@@ -259,6 +260,8 @@ public interface WSConnection {
      * @throws WSException
      */
     public long retrieveProjectId(String projectName) throws WSException;
+    
+    public WSProjectVersion[] retrieveStoredProjectVersions(long projectId) throws WSException;
     //retrieve methods
     
 }

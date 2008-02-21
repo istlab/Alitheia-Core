@@ -49,32 +49,32 @@ import eu.sqooss.scl.result.WSResultEntry;
  */
 class WSResponseParser {
     
-    /**
-     * This method parses the array of <code>WSStoredProject</code>s to the <code>WSResult</code>.
-     */
-    public static WSResult parseStoredProjects(WSStoredProject[] storedProjects) {
-        WSResult result = new WSResult();
-        //if the web service returns null, it is the first element in the array
-        if (storedProjects[0] != null) {
-            ArrayList<WSResultEntry> currentRow;
-            for (WSStoredProject sp: storedProjects) {
-                currentRow = new ArrayList<WSResultEntry>();
-                currentRow.add(new WSResultEntry(sp.getId(), WSResultEntry.MIME_TYPE_TYPE_LONG));
-                currentRow.add(new WSResultEntry(sp.getName(), WSResultEntry.MIME_TYPE_TEXT_PLAIN));
-                currentRow.add(new WSResultEntry(sp.getRepository(), WSResultEntry.MIME_TYPE_TEXT_PLAIN));
-                currentRow.add(new WSResultEntry(sp.getBugs(), WSResultEntry.MIME_TYPE_TEXT_PLAIN));
-                currentRow.add(new WSResultEntry(sp.getMail(), WSResultEntry.MIME_TYPE_TEXT_PLAIN));
-                currentRow.add(new WSResultEntry(sp.getContact(), WSResultEntry.MIME_TYPE_TEXT_PLAIN));
-                currentRow.add(new WSResultEntry(sp.getWebsite(), WSResultEntry.MIME_TYPE_TEXT_PLAIN));
-                WSProjectVersion[] projectVersions = sp.getProjectVersions();
-                for (WSProjectVersion projectVersion: projectVersions) {
-                    currentRow.add(new WSResultEntry(projectVersion.getVersion(), WSResultEntry.MIME_TYPE_TYPE_INTEGER));
-                }
-                result.addResultRow(currentRow);
-            }
-        }
-        return result;
-    }
+//    /**
+//     * This method parses the array of <code>WSStoredProject</code>s to the <code>WSResult</code>.
+//     */
+//    public static WSResult parseStoredProjects(WSStoredProject[] storedProjects) {
+//        WSResult result = new WSResult();
+//        //if the web service returns null, it is the first element in the array
+//        if (storedProjects[0] != null) {
+//            ArrayList<WSResultEntry> currentRow;
+//            for (WSStoredProject sp: storedProjects) {
+//                currentRow = new ArrayList<WSResultEntry>();
+//                currentRow.add(new WSResultEntry(sp.getId(), WSResultEntry.MIME_TYPE_TYPE_LONG));
+//                currentRow.add(new WSResultEntry(sp.getName(), WSResultEntry.MIME_TYPE_TEXT_PLAIN));
+//                currentRow.add(new WSResultEntry(sp.getRepository(), WSResultEntry.MIME_TYPE_TEXT_PLAIN));
+//                currentRow.add(new WSResultEntry(sp.getBugs(), WSResultEntry.MIME_TYPE_TEXT_PLAIN));
+//                currentRow.add(new WSResultEntry(sp.getMail(), WSResultEntry.MIME_TYPE_TEXT_PLAIN));
+//                currentRow.add(new WSResultEntry(sp.getContact(), WSResultEntry.MIME_TYPE_TEXT_PLAIN));
+//                currentRow.add(new WSResultEntry(sp.getWebsite(), WSResultEntry.MIME_TYPE_TEXT_PLAIN));
+//                WSProjectVersion[] projectVersions = sp.getProjectVersions();
+//                for (WSProjectVersion projectVersion: projectVersions) {
+//                    currentRow.add(new WSResultEntry(projectVersion.getVersion(), WSResultEntry.MIME_TYPE_TYPE_INTEGER));
+//                }
+//                result.addResultRow(currentRow);
+//            }
+//        }
+//        return result;
+//    }
     
     /**
      * This method parses the array of <code>WSMetric</code>s to the <code>WSResult</code>.

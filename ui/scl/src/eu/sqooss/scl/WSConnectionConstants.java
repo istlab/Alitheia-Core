@@ -61,6 +61,8 @@ interface WSConnectionConstants {
     
     public static final String METHOD_NAME_RETRIEVE_PROJECT_ID                  = "retrieveProjectId";
     
+    public static final String METHOD_NAME_RETRIEVE_STORED_PROJECT_VERSIONS     = "retrieveStoredProjectVersions"; 
+    
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
