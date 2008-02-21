@@ -61,7 +61,9 @@ interface WSConnectionConstants {
     
     public static final String METHOD_NAME_RETRIEVE_PROJECT_ID                  = "retrieveProjectId";
     
-    public static final String METHOD_NAME_RETRIEVE_STORED_PROJECT_VERSIONS     = "retrieveStoredProjectVersions"; 
+    public static final String METHOD_NAME_RETRIEVE_STORED_PROJECT_VERSIONS     = "retrieveStoredProjectVersions";
+    
+    public static final String METHOD_NAME_RETRIEVE_STORED_PROJECT              = "retrieveStoredProject";
     
 }
 

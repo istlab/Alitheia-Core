@@ -63,6 +63,8 @@ import eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProjectResponse;
 import eu.sqooss.ws.client.ws.RetrieveProjectId;
 import eu.sqooss.ws.client.ws.RetrieveProjectIdResponse;
 import eu.sqooss.ws.client.ws.RetrieveSelectedMetric;
+import eu.sqooss.ws.client.ws.RetrieveStoredProject;
+import eu.sqooss.ws.client.ws.RetrieveStoredProjectResponse;
 import eu.sqooss.ws.client.ws.RetrieveStoredProjectVersions;
 import eu.sqooss.ws.client.ws.RetrieveStoredProjectVersionsResponse;
 import eu.sqooss.ws.client.ws.StoredProjectsList;
@@ -452,6 +454,23 @@ class WSConnectionImpl implements WSConnection {
         
     }
     
+    public WSStoredProject retrieveStoredProject(long projectId) throws WSException {
+        RetrieveStoredProjectResponse response;
+        RetrieveStoredProject params = (RetrieveStoredProject) parameters.get(
+                WSConnectionConstants.METHOD_NAME_RETRIEVE_STORED_PROJECT);
+        synchronized (params) {
+            params.setProjectId(projectId);
+            try {
+                response = wsStub.retrieveStoredProject(params);
+            } catch (RemoteException re) {
+                throw new WSException(re);
+            }
+        }
+        
+        return (WSStoredProject) parseWSResult(response.get_return());
+        
+    }
+    
     private Object parseWSResult(Object result) {
         if ((result != null) && (result.getClass().isArray()) &&
                 (Array.getLength(result) != 0) && (Array.get(result, 0) == null)) {
@@ -530,6 +549,12 @@ class WSConnectionImpl implements WSConnection {
         retrieveStoredProjectVersionsParam.setUserName(userName);
         parameters.put(WSConnectionConstants.METHOD_NAME_RETRIEVE_STORED_PROJECT_VERSIONS,
                 retrieveStoredProjectVersionsParam);
+        
+        RetrieveStoredProject retrieveStoredProjectParam = new RetrieveStoredProject();
+        retrieveStoredProjectParam.setPassword(password);
+        retrieveStoredProjectParam.setUserName(userName);
+        parameters.put(WSConnectionConstants.METHOD_NAME_RETRIEVE_STORED_PROJECT,
+                retrieveStoredProjectParam);
     }
     
 }

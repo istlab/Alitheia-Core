@@ -262,6 +262,8 @@ public interface WSConnection {
     public long retrieveProjectId(String projectName) throws WSException;
     
     public WSProjectVersion[] retrieveStoredProjectVersions(long projectId) throws WSException;
+    
+    public WSStoredProject retrieveStoredProject(long projectId) throws WSException;
     //retrieve methods
     
 }
