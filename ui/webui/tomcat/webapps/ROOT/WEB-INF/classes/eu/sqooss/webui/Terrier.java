@@ -59,8 +59,8 @@ public class Terrier {
     String error = "No problems.";
     String debug = "...";
 
-    public void Terrier () {
-        connect(); // FIXME: for some reason this is not run from the JSP :?
+    public Terrier () {
+        connect();
     }
 
     public Project getProject(Long projectId) {
