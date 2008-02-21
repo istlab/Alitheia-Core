@@ -186,8 +186,25 @@ public class StoredProject extends DAObject {
     }
 
     public List<ProjectVersion> getProjectVersions() {
-        //TODO: implement
-        return null;
+        
+        DBService dbs = CoreActivator.getDBService();
+        
+        String paramProjectId = "project_id";
+        String query = "select pv " +
+                       "from ProjectVersion pv " +
+                       "where pv.project.id=:" +
+                       paramProjectId;
+
+        Map<String,Object> parameters = new HashMap<String,Object>();
+        parameters.put(paramProjectId, this.getId());
+        
+        List<?> projectVersions = dbs.doHQL(query, parameters);
+        if ((projectVersions == null) || (projectVersions.size() == 0)) {
+            return null;
+        } else {
+            return (List<ProjectVersion>) projectVersions;
+        }
+        
     }
 }
 
