@@ -7,7 +7,6 @@ title = "Testing Terrier";
 
 <%@ page import="java.util.*" %>
 <%@ page import="eu.sqooss.webui.*" %>
-<%@ page import="eu.sqooss.ws.client.datatypes.*" %>
 
 <jsp:useBean id="terrier" class="eu.sqooss.webui.Terrier" scope="page"/>
 <jsp:setProperty name="terrier" property="*"/>
@@ -36,14 +35,11 @@ if (request_id == null) {
     html.append("\n</ul>");
 } else {
     Long id = Long.parseLong(request_id);
-    WSStoredProject testproject = terrier.getProject(id);
-    if (testproject == null) {
+    Project testProject = terrier.getProject(id);
+    if (testProject == null) {
         html.append(error(terrier.getError()));
     } else {
-        //out.println(testproject.getRepository());
-        html.append(
-            "\n<h2>Project: " + testproject.getName() + "</h2>");
-        html.append("\nRepository: " + testproject.getRepository());
+        html.append(testProject.getHtml());
     }
 }
 

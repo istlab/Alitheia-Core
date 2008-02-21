@@ -75,42 +75,19 @@ public class Terrier {
         return true;
     }
 
-    public WSStoredProject getProject(Long projectId) {
+    public Project getProject(Long projectId) {
         if (!isConnected()) return null;
         debug += "ok";
 
-        WSStoredProject resProject;
+        Project prj;
         try {
-            resProject = connection.retrieveStoredProject(projectId);
+            prj = new Project(
+                    connection.retrieveStoredProject(projectId));
         } catch (WSException wse) {
             error = "Could not receive a list of projects.";
             return null;
         }
-        /*
-        Iterator <ArrayList<WSResultEntry>> itemlist = result.iterator();
-        if (!itemlist.hasNext()) {
-            error = "No project records found.";
-            return null;
-        }
-        try {
-            while (itemlist.hasNext()) {
-                debug += "hasnext ";
-                ArrayList <WSResultEntry> p_item = itemlist.next();
-                Iterator <WSResultEntry> oneitemlist = p_item.iterator();
-                Project nextProject = new Project(p_item);
-                if (nextProject.getId().equals(projectId)) {
-                    debug += "projectisthere ";
-                    return nextProject;
-                } else {
-                    debug += " " + nextProject.getId() + " == " + projectId;
-                }
-            }
-            error = "No project found that matches id " + projectId;
-        } catch (NullPointerException npe) {
-            error = "ouch ... :/";
-        }
-        */
-        return resProject;
+        return prj;
     }
 
     public Vector<Project> getEvaluatedProjects() {
@@ -131,27 +108,7 @@ public class Terrier {
             return projects;
         }
         debug += ":done";
-
         return projects;
-/*
-        Iterator <ArrayList<WSResultEntry>> itemlist = result.iterator();
-        if (!itemlist.hasNext()) {
-            error = "No project records found.";
-            return projects;
-        }
-        try {
-            while (itemlist.hasNext()) {
-                debug += "hasnext ";
-                ArrayList <WSResultEntry> p_item = itemlist.next();
-                Iterator <WSResultEntry> oneitemlist = p_item.iterator();
-                projects.addElement(new Project(p_item));
-            }
-        } catch (NullPointerException npe) {
-            error = "ouch ... :/";
-        }
-        debug += " no:" + projects.size(); 
-        return projects;
-*/
     }
 
     public Metric getMetric(Long metricId) {
