@@ -75,15 +75,18 @@ public class Terrier {
         return true;
     }
 
-    public Project getProject(Long projectId) {
+    public WSStoredProject getProject(Long projectId) {
         if (!isConnected()) return null;
         debug += "ok";
-//        try {
-//            result = connection.evaluatedProjectsList();
-//        } catch (WSException wse) {
-//            error = "Could not receive a list of projects.";
-//            return null;
-//        }
+
+        WSStoredProject resProject;
+        try {
+            resProject = connection.retrieveStoredProject(projectId);
+        } catch (WSException wse) {
+            error = "Could not receive a list of projects.";
+            return null;
+        }
+        /*
         Iterator <ArrayList<WSResultEntry>> itemlist = result.iterator();
         if (!itemlist.hasNext()) {
             error = "No project records found.";
@@ -106,24 +109,22 @@ public class Terrier {
         } catch (NullPointerException npe) {
             error = "ouch ... :/";
         }
-        return null;
+        */
+        return resProject;
     }
-    
+
     public Vector<Project> getEvaluatedProjects() {
         Vector<Project> projects = new Vector<Project>();
         if (!isConnected()) return projects;
         debug += "ok";
         try {
-            WSStoredProject projectsResult[] = connection.storedProjectsList();
+            WSStoredProject projectsResult[] =
+                connection.storedProjectsList(); // TODO: Why not evaluated
             debug += ":gotresults";
-            if (projectsResult == null) {
-                debug += "result=NULL";
-            } else {
-                debug += "result=" + projectsResult.getClass().getName();
-            }
+            debug += ":projects=" + projectsResult.length;
             for (WSStoredProject wssp : projectsResult) {
-projects.addElement(new Project(wssp));
-}
+                projects.addElement(new Project(wssp));
+            }
         } catch (WSException wse) {
             debug+= ":wse"; 
             error = "Could not receive a list of projects.";
@@ -131,7 +132,7 @@ projects.addElement(new Project(wssp));
         }
         debug += ":done";
 
-	return projects;
+        return projects;
 /*
         Iterator <ArrayList<WSResultEntry>> itemlist = result.iterator();
         if (!itemlist.hasNext()) {
