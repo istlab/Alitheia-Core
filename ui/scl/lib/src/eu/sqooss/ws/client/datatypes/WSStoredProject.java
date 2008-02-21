@@ -166,74 +166,6 @@
                             
 
                         /**
-                        * field for ProjectVersions
-                        * This was an Array!
-                        */
-
-                        protected eu.sqooss.ws.client.datatypes.WSProjectVersion[] localProjectVersions ;
-                        
-
-                           /**
-                           * Auto generated getter method
-                           * @return eu.sqooss.ws.client.datatypes.WSProjectVersion[]
-                           */
-                           public  eu.sqooss.ws.client.datatypes.WSProjectVersion[] getProjectVersions(){
-                               return localProjectVersions;
-                           }
-
-                           
-                        
-
-
-                               
-                              /**
-                               * validate the array for ProjectVersions
-                               */
-                              protected void validateProjectVersions(eu.sqooss.ws.client.datatypes.WSProjectVersion[] param){
-                             
-                              if ((param != null) && (param.length < 1)){
-                                throw new java.lang.RuntimeException();
-                              }
-                              
-                              }
-
-
-                             /**
-                              * Auto generated setter method
-                              * @param param ProjectVersions
-                              */
-                              public void setProjectVersions(eu.sqooss.ws.client.datatypes.WSProjectVersion[] param){
-                              
-                                   validateProjectVersions(param);
-
-                               
-                                      this.localProjectVersions=param;
-                              }
-
-                               
-                             
-                             /**
-                             * Auto generated add method for the array for convenience
-                             * @param param eu.sqooss.ws.client.datatypes.WSProjectVersion
-                             */
-                             public void addProjectVersions(eu.sqooss.ws.client.datatypes.WSProjectVersion param){
-                                   if (localProjectVersions == null){
-                                   localProjectVersions = new eu.sqooss.ws.client.datatypes.WSProjectVersion[]{};
-                                   }
-
-                            
-
-                               java.util.List list =
-                            org.apache.axis2.databinding.utils.ConverterUtil.toList(localProjectVersions);
-                               list.add(param);
-                               this.localProjectVersions =
-                             (eu.sqooss.ws.client.datatypes.WSProjectVersion[])list.toArray(
-                            new eu.sqooss.ws.client.datatypes.WSProjectVersion[list.size()]);
-
-                             }
-                             
-
-                        /**
                         * field for Repository
                         */
 
@@ -493,69 +425,6 @@
                                     
                                    xmlWriter.writeEndElement();
                              
-                             if (localProjectVersions!=null){
-                                    for (int i = 0;i < localProjectVersions.length;i++){
-                                        if (localProjectVersions[i] != null){
-                                         localProjectVersions[i].getOMElement(
-                                                   new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd","projectVersions"),
-                                                   factory).serialize(xmlWriter);
-                                        } else {
-                                           
-                                                    // write null attribute
-                                                    java.lang.String namespace2 = "http://datatypes.services.web.service.impl.sqooss.eu/xsd";
-                                                    if (! namespace2.equals("")) {
-                                                        java.lang.String prefix2 = xmlWriter.getPrefix(namespace2);
-
-                                                        if (prefix2 == null) {
-                                                            prefix2 = org.apache.axis2.databinding.utils.BeanUtil.getUniquePrefix();
-
-                                                            xmlWriter.writeStartElement(prefix2,"projectVersions", namespace2);
-                                                            xmlWriter.writeNamespace(prefix2, namespace2);
-                                                            xmlWriter.setPrefix(prefix2, namespace2);
-
-                                                        } else {
-                                                            xmlWriter.writeStartElement(namespace2,"projectVersions");
-                                                        }
-
-                                                    } else {
-                                                        xmlWriter.writeStartElement("projectVersions");
-                                                    }
-
-                                                   // write the nil attribute
-                                                   writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","true",xmlWriter);
-                                                   xmlWriter.writeEndElement();
-                                            
-                                        }
-
-                                    }
-                             } else {
-                                
-                                        // write null attribute
-                                        java.lang.String namespace2 = "http://datatypes.services.web.service.impl.sqooss.eu/xsd";
-                                        if (! namespace2.equals("")) {
-                                            java.lang.String prefix2 = xmlWriter.getPrefix(namespace2);
-
-                                            if (prefix2 == null) {
-                                                prefix2 = org.apache.axis2.databinding.utils.BeanUtil.getUniquePrefix();
-
-                                                xmlWriter.writeStartElement(prefix2,"projectVersions", namespace2);
-                                                xmlWriter.writeNamespace(prefix2, namespace2);
-                                                xmlWriter.setPrefix(prefix2, namespace2);
-
-                                            } else {
-                                                xmlWriter.writeStartElement(namespace2,"projectVersions");
-                                            }
-
-                                        } else {
-                                            xmlWriter.writeStartElement("projectVersions");
-                                        }
-
-                                       // write the nil attribute
-                                       writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","true",xmlWriter);
-                                       xmlWriter.writeEndElement();
-                                
-                            }
-                        
                                     namespace = "http://datatypes.services.web.service.impl.sqooss.eu/xsd";
                                     if (! namespace.equals("")) {
                                         prefix = xmlWriter.getPrefix(namespace);
@@ -739,31 +608,6 @@
                                          elementList.add(localName==null?null:
                                          org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localName));
                                     
-                             if (localProjectVersions!=null) {
-                                 for (int i = 0;i < localProjectVersions.length;i++){
-
-                                    if (localProjectVersions[i] != null){
-                                         elementList.add(new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd",
-                                                                          "projectVersions"));
-                                         elementList.add(localProjectVersions[i]);
-                                    } else {
-                                        
-                                                elementList.add(new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd",
-                                                                          "projectVersions"));
-                                                elementList.add(null);
-                                            
-                                    }
-
-                                 }
-                             } else {
-                                 
-                                        elementList.add(new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd",
-                                                                          "projectVersions"));
-                                        elementList.add(localProjectVersions);
-                                    
-                             }
-
-                        
                              elementList.add(new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd",
                                                                       "repository"));
                             
@@ -846,8 +690,6 @@
                     
                     reader.next();
                 
-                        java.util.ArrayList list6 = new java.util.ArrayList();
-                    
                                     
                                     while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
                                 
@@ -960,62 +802,6 @@
                                       
                                         reader.next();
                                     
-                              }  // End of if for expected property start element
-                            
-                                else{
-                                    // A start element we are not expecting indicates an invalid parameter was passed
-                                    throw new java.lang.RuntimeException("Unexpected subelement " + reader.getLocalName());
-                                }
-                            
-                                    
-                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
-                                
-                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd","projectVersions").equals(reader.getName())){
-                                
-                                    
-                                    
-                                    // Process the array and step past its final element's end.
-                                    
-                                              if ("true".equals(reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil"))){
-                                                  list6.add(null);
-                                                  reader.next();
-                                              } else {
-                                            list6.add(eu.sqooss.ws.client.datatypes.WSProjectVersion.Factory.parse(reader));
-                                            }
-                                            //loop until we find a start element that is not part of this array
-                                            boolean loopDone6 = false;
-                                            while(!loopDone6){
-                                                // We should be at the end element, but make sure
-                                                while (!reader.isEndElement())
-                                                    reader.next();
-                                                // Step out of this element
-                                                reader.next();
-                                                // Step to next element event.
-                                                while (!reader.isStartElement() && !reader.isEndElement())
-                                                    reader.next();
-                                                if (reader.isEndElement()){
-                                                    //two continuous end elements means we are exiting the xml structure
-                                                    loopDone6 = true;
-                                                } else {
-                                                    if (new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd","projectVersions").equals(reader.getName())){
-                                                        
-                                                          if ("true".equals(reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil"))){
-                                                              list6.add(null);
-                                                              reader.next();
-                                                          } else {
-                                                        list6.add(eu.sqooss.ws.client.datatypes.WSProjectVersion.Factory.parse(reader));
-                                                        }
-                                                    }else{
-                                                        loopDone6 = true;
-                                                    }
-                                                }
-                                            }
-                                            // call the converter utility  to convert and set the array
-                                            object.setProjectVersions((eu.sqooss.ws.client.datatypes.WSProjectVersion[])
-                                                org.apache.axis2.databinding.utils.ConverterUtil.convertToArray(
-                                                    eu.sqooss.ws.client.datatypes.WSProjectVersion.class,
-                                                    list6));
-                                        
                               }  // End of if for expected property start element
                             
                                 else{

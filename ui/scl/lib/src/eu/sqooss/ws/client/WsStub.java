@@ -36,7 +36,7 @@
     
 
 
-        _operations = new org.apache.axis2.description.AxisOperation[13];
+        _operations = new org.apache.axis2.description.AxisOperation[14];
         
                    __operation = new org.apache.axis2.description.OutInAxisOperation();
                 
@@ -129,7 +129,7 @@
                    __operation = new org.apache.axis2.description.OutInAxisOperation();
                 
 
-            __operation.setName(new javax.xml.namespace.QName("", "modifyUser"));
+            __operation.setName(new javax.xml.namespace.QName("", "retrieveStoredProjectVersions"));
 	    _service.addOperation(__operation);
 	    
 	    
@@ -140,7 +140,7 @@
                    __operation = new org.apache.axis2.description.OutInAxisOperation();
                 
 
-            __operation.setName(new javax.xml.namespace.QName("", "validateAccount"));
+            __operation.setName(new javax.xml.namespace.QName("", "modifyUser"));
 	    _service.addOperation(__operation);
 	    
 	    
@@ -151,7 +151,7 @@
                    __operation = new org.apache.axis2.description.OutInAxisOperation();
                 
 
-            __operation.setName(new javax.xml.namespace.QName("", "requestEvaluation4Project"));
+            __operation.setName(new javax.xml.namespace.QName("", "validateAccount"));
 	    _service.addOperation(__operation);
 	    
 	    
@@ -162,7 +162,7 @@
                    __operation = new org.apache.axis2.description.OutInAxisOperation();
                 
 
-            __operation.setName(new javax.xml.namespace.QName("", "retrieveProjectId"));
+            __operation.setName(new javax.xml.namespace.QName("", "requestEvaluation4Project"));
 	    _service.addOperation(__operation);
 	    
 	    
@@ -173,12 +173,23 @@
                    __operation = new org.apache.axis2.description.OutInAxisOperation();
                 
 
-            __operation.setName(new javax.xml.namespace.QName("", "retrieveFileList"));
+            __operation.setName(new javax.xml.namespace.QName("", "retrieveProjectId"));
 	    _service.addOperation(__operation);
 	    
 	    
 	    
             _operations[12]=__operation;
+            
+        
+                   __operation = new org.apache.axis2.description.OutInAxisOperation();
+                
+
+            __operation.setName(new javax.xml.namespace.QName("", "retrieveFileList"));
+	    _service.addOperation(__operation);
+	    
+	    
+	    
+            _operations[13]=__operation;
             
         
         }
@@ -233,12 +244,12 @@
                     /**
                     * Auto generated method signature
                     * @see eu.sqooss.ws.client.Ws#evaluatedProjectsList
-                        * @param param26
+                        * @param param28
                     
                     */
                     public eu.sqooss.ws.client.ws.EvaluatedProjectsListResponse evaluatedProjectsList(
 
-                    eu.sqooss.ws.client.ws.EvaluatedProjectsList param26)
+                    eu.sqooss.ws.client.ws.EvaluatedProjectsList param28)
                     throws java.rmi.RemoteException
                     
                     {
@@ -256,7 +267,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    param26,
+                                                    param28,
                                                     optimizeContent(new javax.xml.namespace.QName("",
                                                     "evaluatedProjectsList")));
                                                 
@@ -336,12 +347,12 @@
                     /**
                     * Auto generated method signature
                     * @see eu.sqooss.ws.client.Ws#submitUser
-                        * @param param28
+                        * @param param30
                     
                     */
                     public eu.sqooss.ws.client.ws.SubmitUserResponse submitUser(
 
-                    eu.sqooss.ws.client.ws.SubmitUser param28)
+                    eu.sqooss.ws.client.ws.SubmitUser param30)
                     throws java.rmi.RemoteException
                     
                     {
@@ -359,7 +370,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    param28,
+                                                    param30,
                                                     optimizeContent(new javax.xml.namespace.QName("",
                                                     "submitUser")));
                                                 
@@ -439,12 +450,12 @@
                     /**
                     * Auto generated method signature
                     * @see eu.sqooss.ws.client.Ws#deleteUser
-                        * @param param30
+                        * @param param32
                     
                     */
                     public void deleteUser(
 
-                    eu.sqooss.ws.client.ws.DeleteUser param30)
+                    eu.sqooss.ws.client.ws.DeleteUser param32)
                     throws java.rmi.RemoteException
                     
                     {
@@ -462,7 +473,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    param30,
+                                                    param32,
                                                     optimizeContent(new javax.xml.namespace.QName("",
                                                     "deleteUser")));
                                                 
@@ -532,12 +543,12 @@
                     /**
                     * Auto generated method signature
                     * @see eu.sqooss.ws.client.Ws#retrieveSelectedMetric
-                        * @param param32
+                        * @param param34
                     
                     */
                     public eu.sqooss.ws.client.ws.RetrieveSelectedMetricResponse retrieveSelectedMetric(
 
-                    eu.sqooss.ws.client.ws.RetrieveSelectedMetric param32)
+                    eu.sqooss.ws.client.ws.RetrieveSelectedMetric param34)
                     throws java.rmi.RemoteException
                     
                     {
@@ -555,7 +566,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    param32,
+                                                    param34,
                                                     optimizeContent(new javax.xml.namespace.QName("",
                                                     "retrieveSelectedMetric")));
                                                 
@@ -635,12 +646,12 @@
                     /**
                     * Auto generated method signature
                     * @see eu.sqooss.ws.client.Ws#retrieveMetrics4SelectedFiles
-                        * @param param34
+                        * @param param36
                     
                     */
                     public eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedFilesResponse retrieveMetrics4SelectedFiles(
 
-                    eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedFiles param34)
+                    eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedFiles param36)
                     throws java.rmi.RemoteException
                     
                     {
@@ -658,7 +669,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    param34,
+                                                    param36,
                                                     optimizeContent(new javax.xml.namespace.QName("",
                                                     "retrieveMetrics4SelectedFiles")));
                                                 
@@ -738,12 +749,12 @@
                     /**
                     * Auto generated method signature
                     * @see eu.sqooss.ws.client.Ws#storedProjectsList
-                        * @param param36
+                        * @param param38
                     
                     */
                     public eu.sqooss.ws.client.ws.StoredProjectsListResponse storedProjectsList(
 
-                    eu.sqooss.ws.client.ws.StoredProjectsList param36)
+                    eu.sqooss.ws.client.ws.StoredProjectsList param38)
                     throws java.rmi.RemoteException
                     
                     {
@@ -761,7 +772,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    param36,
+                                                    param38,
                                                     optimizeContent(new javax.xml.namespace.QName("",
                                                     "storedProjectsList")));
                                                 
@@ -841,12 +852,12 @@
                     /**
                     * Auto generated method signature
                     * @see eu.sqooss.ws.client.Ws#displayUser
-                        * @param param38
+                        * @param param40
                     
                     */
                     public eu.sqooss.ws.client.ws.DisplayUserResponse displayUser(
 
-                    eu.sqooss.ws.client.ws.DisplayUser param38)
+                    eu.sqooss.ws.client.ws.DisplayUser param40)
                     throws java.rmi.RemoteException
                     
                     {
@@ -864,7 +875,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    param38,
+                                                    param40,
                                                     optimizeContent(new javax.xml.namespace.QName("",
                                                     "displayUser")));
                                                 
@@ -944,12 +955,12 @@
                     /**
                     * Auto generated method signature
                     * @see eu.sqooss.ws.client.Ws#retrieveMetrics4SelectedProject
-                        * @param param40
+                        * @param param42
                     
                     */
                     public eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProjectResponse retrieveMetrics4SelectedProject(
 
-                    eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProject param40)
+                    eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProject param42)
                     throws java.rmi.RemoteException
                     
                     {
@@ -967,7 +978,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    param40,
+                                                    param42,
                                                     optimizeContent(new javax.xml.namespace.QName("",
                                                     "retrieveMetrics4SelectedProject")));
                                                 
@@ -1046,18 +1057,121 @@
             
                     /**
                     * Auto generated method signature
-                    * @see eu.sqooss.ws.client.Ws#modifyUser
-                        * @param param42
+                    * @see eu.sqooss.ws.client.Ws#retrieveStoredProjectVersions
+                        * @param param44
                     
                     */
-                    public void modifyUser(
+                    public eu.sqooss.ws.client.ws.RetrieveStoredProjectVersionsResponse retrieveStoredProjectVersions(
 
-                    eu.sqooss.ws.client.ws.ModifyUser param42)
+                    eu.sqooss.ws.client.ws.RetrieveStoredProjectVersions param44)
                     throws java.rmi.RemoteException
                     
                     {
               try{
                org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[8].getName());
+              _operationClient.getOptions().setAction("urn:retrieveStoredProjectVersions");
+              _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
+
+              
+
+              // create SOAP envelope with that payload
+              org.apache.axiom.soap.SOAPEnvelope env = null;
+                    
+                                    //Style is Doc.
+                                    
+                                                    
+                                                    env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
+                                                    param44,
+                                                    optimizeContent(new javax.xml.namespace.QName("",
+                                                    "retrieveStoredProjectVersions")));
+                                                
+        //adding SOAP headers
+         _serviceClient.addHeadersToEnvelope(env);
+        // create message context with that soap envelope
+        org.apache.axis2.context.MessageContext _messageContext = new org.apache.axis2.context.MessageContext() ;
+        _messageContext.setEnvelope(env);
+
+        // add the message contxt to the operation client
+        _operationClient.addMessageContext(_messageContext);
+
+        //execute the operation client
+        _operationClient.execute(true);
+
+         
+               org.apache.axis2.context.MessageContext _returnMessageContext = _operationClient.getMessageContext(
+                                           org.apache.axis2.wsdl.WSDLConstants.MESSAGE_LABEL_IN_VALUE);
+                org.apache.axiom.soap.SOAPEnvelope _returnEnv = _returnMessageContext.getEnvelope();
+                
+                
+                           java.lang.Object object = fromOM(
+                                        _returnEnv.getBody().getFirstElement() ,
+                                        eu.sqooss.ws.client.ws.RetrieveStoredProjectVersionsResponse.class,
+                                         getEnvelopeNamespaces(_returnEnv));
+                           _messageContext.getTransportOut().getSender().cleanup(_messageContext);
+                           return (eu.sqooss.ws.client.ws.RetrieveStoredProjectVersionsResponse)object;
+                    
+         }catch(org.apache.axis2.AxisFault f){
+            org.apache.axiom.om.OMElement faultElt = f.getDetail();
+            if (faultElt!=null){
+                if (faultExeptionNameMap.containsKey(faultElt.getQName())){
+                    //make the fault by reflection
+                    try{
+                        java.lang.String exceptionClassName = (java.lang.String)faultExeptionClassNameMap.get(faultElt.getQName());
+                        java.lang.Class exceptionClass = java.lang.Class.forName(exceptionClassName);
+                        java.lang.Exception ex=
+                                (java.lang.Exception) exceptionClass.newInstance();
+                        //message class
+                        java.lang.String messageClassName = (java.lang.String)faultMessageMap.get(faultElt.getQName());
+                        java.lang.Class messageClass = java.lang.Class.forName(messageClassName);
+                        java.lang.Object messageObject = fromOM(faultElt,messageClass,null);
+                        java.lang.reflect.Method m = exceptionClass.getMethod("setFaultMessage",
+                                   new java.lang.Class[]{messageClass});
+                        m.invoke(ex,new java.lang.Object[]{messageObject});
+                        
+
+                        throw new java.rmi.RemoteException(ex.getMessage(), ex);
+                    }catch(java.lang.ClassCastException e){
+                       // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    } catch (java.lang.ClassNotFoundException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }catch (java.lang.NoSuchMethodException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    } catch (java.lang.reflect.InvocationTargetException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }  catch (java.lang.IllegalAccessException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }   catch (java.lang.InstantiationException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }
+                }else{
+                    throw f;
+                }
+            }else{
+                throw f;
+            }
+        }
+        }
+            
+                    /**
+                    * Auto generated method signature
+                    * @see eu.sqooss.ws.client.Ws#modifyUser
+                        * @param param46
+                    
+                    */
+                    public void modifyUser(
+
+                    eu.sqooss.ws.client.ws.ModifyUser param46)
+                    throws java.rmi.RemoteException
+                    
+                    {
+              try{
+               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[9].getName());
               _operationClient.getOptions().setAction("urn:modifyUser");
               _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
@@ -1070,7 +1184,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    param42,
+                                                    param46,
                                                     optimizeContent(new javax.xml.namespace.QName("",
                                                     "modifyUser")));
                                                 
@@ -1140,17 +1254,17 @@
                     /**
                     * Auto generated method signature
                     * @see eu.sqooss.ws.client.Ws#validateAccount
-                        * @param param44
+                        * @param param48
                     
                     */
                     public eu.sqooss.ws.client.ws.ValidateAccountResponse validateAccount(
 
-                    eu.sqooss.ws.client.ws.ValidateAccount param44)
+                    eu.sqooss.ws.client.ws.ValidateAccount param48)
                     throws java.rmi.RemoteException
                     
                     {
               try{
-               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[9].getName());
+               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[10].getName());
               _operationClient.getOptions().setAction("urn:validateAccount");
               _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
@@ -1163,7 +1277,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    param44,
+                                                    param48,
                                                     optimizeContent(new javax.xml.namespace.QName("",
                                                     "validateAccount")));
                                                 
@@ -1243,17 +1357,17 @@
                     /**
                     * Auto generated method signature
                     * @see eu.sqooss.ws.client.Ws#requestEvaluation4Project
-                        * @param param46
+                        * @param param50
                     
                     */
                     public eu.sqooss.ws.client.ws.RequestEvaluation4ProjectResponse requestEvaluation4Project(
 
-                    eu.sqooss.ws.client.ws.RequestEvaluation4Project param46)
+                    eu.sqooss.ws.client.ws.RequestEvaluation4Project param50)
                     throws java.rmi.RemoteException
                     
                     {
               try{
-               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[10].getName());
+               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[11].getName());
               _operationClient.getOptions().setAction("urn:requestEvaluation4Project");
               _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
@@ -1266,7 +1380,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    param46,
+                                                    param50,
                                                     optimizeContent(new javax.xml.namespace.QName("",
                                                     "requestEvaluation4Project")));
                                                 
@@ -1346,17 +1460,17 @@
                     /**
                     * Auto generated method signature
                     * @see eu.sqooss.ws.client.Ws#retrieveProjectId
-                        * @param param48
+                        * @param param52
                     
                     */
                     public eu.sqooss.ws.client.ws.RetrieveProjectIdResponse retrieveProjectId(
 
-                    eu.sqooss.ws.client.ws.RetrieveProjectId param48)
+                    eu.sqooss.ws.client.ws.RetrieveProjectId param52)
                     throws java.rmi.RemoteException
                     
                     {
               try{
-               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[11].getName());
+               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[12].getName());
               _operationClient.getOptions().setAction("urn:retrieveProjectId");
               _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
@@ -1369,7 +1483,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    param48,
+                                                    param52,
                                                     optimizeContent(new javax.xml.namespace.QName("",
                                                     "retrieveProjectId")));
                                                 
@@ -1449,17 +1563,17 @@
                     /**
                     * Auto generated method signature
                     * @see eu.sqooss.ws.client.Ws#retrieveFileList
-                        * @param param50
+                        * @param param54
                     
                     */
                     public eu.sqooss.ws.client.ws.RetrieveFileListResponse retrieveFileList(
 
-                    eu.sqooss.ws.client.ws.RetrieveFileList param50)
+                    eu.sqooss.ws.client.ws.RetrieveFileList param54)
                     throws java.rmi.RemoteException
                     
                     {
               try{
-               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[12].getName());
+               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[13].getName());
               _operationClient.getOptions().setAction("urn:retrieveFileList");
               _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
@@ -1472,7 +1586,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    param50,
+                                                    param54,
                                                     optimizeContent(new javax.xml.namespace.QName("",
                                                     "retrieveFileList")));
                                                 
@@ -1700,6 +1814,22 @@
 
             }
         
+            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.RetrieveStoredProjectVersions param, boolean optimizeContent){
+            
+                     return param.getOMElement(eu.sqooss.ws.client.ws.RetrieveStoredProjectVersions.MY_QNAME,
+                                  org.apache.axiom.om.OMAbstractFactory.getOMFactory());
+                    
+
+            }
+        
+            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.RetrieveStoredProjectVersionsResponse param, boolean optimizeContent){
+            
+                     return param.getOMElement(eu.sqooss.ws.client.ws.RetrieveStoredProjectVersionsResponse.MY_QNAME,
+                                  org.apache.axiom.om.OMAbstractFactory.getOMFactory());
+                    
+
+            }
+        
             private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.ModifyUser param, boolean optimizeContent){
             
                      return param.getOMElement(eu.sqooss.ws.client.ws.ModifyUser.MY_QNAME,
@@ -1855,6 +1985,17 @@
                         org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
                              
                                     emptyEnvelope.getBody().addChild(param.getOMElement(eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProject.MY_QNAME,factory));
+                                
+                         return emptyEnvelope;
+                        }
+
+                        
+
+                            
+                        private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, eu.sqooss.ws.client.ws.RetrieveStoredProjectVersions param, boolean optimizeContent){
+                        org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
+                             
+                                    emptyEnvelope.getBody().addChild(param.getOMElement(eu.sqooss.ws.client.ws.RetrieveStoredProjectVersions.MY_QNAME,factory));
                                 
                          return emptyEnvelope;
                         }
@@ -2033,6 +2174,20 @@
                 if (eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProjectResponse.class.equals(type)){
                 
                            return eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProjectResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+                    
+
+                }
+           
+                if (eu.sqooss.ws.client.ws.RetrieveStoredProjectVersions.class.equals(type)){
+                
+                           return eu.sqooss.ws.client.ws.RetrieveStoredProjectVersions.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+                    
+
+                }
+           
+                if (eu.sqooss.ws.client.ws.RetrieveStoredProjectVersionsResponse.class.equals(type)){
+                
+                           return eu.sqooss.ws.client.ws.RetrieveStoredProjectVersionsResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
                     
 
                 }
