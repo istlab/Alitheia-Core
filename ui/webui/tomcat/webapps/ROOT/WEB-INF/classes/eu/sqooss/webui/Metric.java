@@ -33,10 +33,7 @@
 
 package eu.sqooss.webui;
 
-import java.util.ArrayList;
-
 import eu.sqooss.ws.client.datatypes.WSMetric;
-
 
 class Metric {
 
@@ -44,22 +41,6 @@ class Metric {
     private String name;
     private String type;
     private String description;
-
-    /** Parses an ArrayList of WSResult and offers convenience methods to get data
-     *  out of it.
-     * 
-     * @param data The ArrayList for one metric
-     * 
-     */
-    public Metric (ArrayList data) {
-        try {
-            id = Long.parseLong(data.get(0).toString().trim()); // Urgh?
-        } catch (NumberFormatException nfe) {
-            System.out.println("NumberFormatException: " + nfe.getMessage());
-        }
-        description = data.get(1).toString();
-        type = data.get(2).toString();
-    }
 
     public Metric (WSMetric metric) {
         name        = "NONAME"; // TODO: find out how WSMetric provides it

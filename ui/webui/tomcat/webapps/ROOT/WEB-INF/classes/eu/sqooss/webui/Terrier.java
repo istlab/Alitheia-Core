@@ -42,6 +42,7 @@ import eu.sqooss.scl.WSSession;
 import eu.sqooss.scl.WSConnection;
 import eu.sqooss.scl.result.WSResult;
 import eu.sqooss.scl.result.WSResultEntry;
+import eu.sqooss.ws.client.datatypes.WSProjectVersion;
 import eu.sqooss.ws.client.datatypes.WSStoredProject;
 import eu.sqooss.ws.client.datatypes.WSMetric;
 
@@ -91,16 +92,22 @@ public class Terrier {
         return prj;
     }
 
-    public boolean projectHasVersion(Long projectId) {
-        if (!isConnected()) return false; // Todo: throw an exception instead?
+    public Vector<Long> getProjectVersions(Long projectId) {
+        Vector<Long> projectVersions = new Vector<Long>();
+        if (!isConnected()) return projectVersions;
         try {
-            WSStoredProject project =
-                connection.retrieveStoredProject(projectId);
-            // Todo: Uncomment once implemented
-            //if (project.getProjectVersions() != null) return true;
+            for (WSProjectVersion nextVersion
+                    : connection.retrieveStoredProjectVersions(projectId)){
+                projectVersions.add(nextVersion.getId());
+            };
         } catch (WSException e) {
-            return false;
+            error = "Could not receive a list of project versions.";
         }
+        return projectVersions;
+    }
+
+    public boolean projectHasVersion(Long projectId) {
+        if (getProjectVersions(projectId).size() > 0) return true;
         return false;
     }
 
@@ -136,7 +143,8 @@ public class Terrier {
                 view.addMetric(new Metric(met));
             }
         } catch (WSException e) {
-            error = "Could not receive a list of metrics for this project.";
+            error = "Can not retrieve the list of metrics for this project.";
+            return null;
         }
         return view;
     }
