@@ -110,7 +110,7 @@ public class Terrier {
         debug += "ok";
         try {
             WSStoredProject projectsResult[] =
-                connection.storedProjectsList(); // TODO: Why not evaluated
+                connection.storedProjectsList(); // TODO: Use evaluated instead
             debug += ":gotresults";
             debug += ":projects=" + projectsResult.length;
             for (WSStoredProject wssp : projectsResult) {

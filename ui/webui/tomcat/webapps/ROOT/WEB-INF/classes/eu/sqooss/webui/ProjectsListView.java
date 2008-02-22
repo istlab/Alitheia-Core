@@ -43,11 +43,12 @@ import eu.sqooss.scl.result.WSResult;
 
 public class ProjectsListView extends ListView {
 
-    Project currentProject;
-    WSResult result;
+    private Long projectId = null;
+    private Terrier terrier;
+    private Project currentProject;
 
     public ProjectsListView () {
-        retrieveData();
+        
     }
 
     public void setCurrentProject (Project project ) {
@@ -58,11 +59,27 @@ public class ProjectsListView extends ListView {
         return currentProject;
     }
 
-    public Long getCurrentProjectId() {
-        return currentProject.getId();
+    public void setProjectId(String projectId) {
+        try {
+            if (new Long(projectId) != null) {
+                this.projectId = new Long(projectId);
+                if (terrier != null) {
+                    setCurrentProject(
+                            terrier.getProject(this.projectId));
+                }
+            }
+        }
+        catch (NumberFormatException ex){
+            
+        }
     }
 
-    public void retrieveData () {
+    public Long getProjectId() {
+        return projectId;
+    }
+
+    public void retrieveData (Terrier terrier) {
+        this.terrier = terrier;
 //        try {
 //            result = session.getConnection().evaluatedProjectsList();//.next().get(0).getLong() + "=";
 //            setItems(result);
@@ -73,5 +90,24 @@ public class ProjectsListView extends ListView {
 //            error += "<br />We didn't connect ...";
 //        }
         //TODO:
+    }
+
+    public String getHtml() {
+        StringBuilder html = new StringBuilder();
+        if (terrier != null) {
+            Vector<Project> projects = terrier.getEvaluatedProjects();
+            if (projects.size() > 0) {
+                html.append("\n<!-- Projects -->");
+                html.append("\n<ul>");
+                for (Project p: projects) {
+                    html.append(
+                            "\n\t<li>"
+                            + "<a href=\"?id=" + p.getId() + "\">"
+                            + p.getName() + "</a></li>");
+                }
+                html.append("\n</ul>");
+            }
+        }
+        return html.toString();
     }
 }
