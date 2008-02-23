@@ -39,6 +39,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
+import java.sql.Time;
 
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.db.Measurement;
@@ -48,7 +49,7 @@ import eu.sqooss.service.scheduler.Job;
 public class WcJob extends Job {
 
     private ProjectFile pf;
-    
+
     public WcJob(AbstractMetric owner, ProjectFile a) {
         pf = a;
     }
@@ -75,9 +76,10 @@ public class WcJob extends Job {
         } catch (IOException ignored) {
         }
         
-        
+        // Create the measurement and add it to the DB
         m.setProjectVersion(pf.getProjectVersion());
-        
+        m.setWhenRun(new Time(System.nanoTime()));
+        m.setResult(String.valueOf(lines));
     }
 }
 
