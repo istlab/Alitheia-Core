@@ -42,15 +42,16 @@ import java.io.LineNumberReader;
 import java.sql.Time;
 
 import eu.sqooss.service.abstractmetric.AbstractMetric;
+import eu.sqooss.service.abstractmetric.AbstractMetricJob;
 import eu.sqooss.service.db.Measurement;
 import eu.sqooss.service.db.ProjectFile;
-import eu.sqooss.service.scheduler.Job;
 
-public class WcJob extends Job {
+public class WcJob extends AbstractMetricJob {
 
     private ProjectFile pf;
 
     public WcJob(AbstractMetric owner, ProjectFile a) {
+        super(owner);
         pf = a;
     }
 
