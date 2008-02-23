@@ -81,6 +81,7 @@ public class WcJob extends AbstractMetricJob {
         m.setProjectVersion(pf.getProjectVersion());
         m.setWhenRun(new Time(System.nanoTime()));
         m.setResult(String.valueOf(lines));
+        db.addRecord(m);
     }
 }
 
