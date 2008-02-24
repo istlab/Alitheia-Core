@@ -67,7 +67,6 @@ DB_DERBY?=YES
 # Subdirectories to build or install from.
 SUBDIRS=sharedlibs \
 	alitheia \
-	ui \
 	corba \
 	metrics
 NOBUILD_SUBDIRS=extlibs

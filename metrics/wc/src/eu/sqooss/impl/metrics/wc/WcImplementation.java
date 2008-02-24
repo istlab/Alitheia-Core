@@ -39,14 +39,13 @@ import java.util.List;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
-import eu.sqooss.service.abstractmetric.AbstractMetric;
-import eu.sqooss.service.db.Metric;
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.lib.result.Result;
 import eu.sqooss.metrics.wc.Wc;
+import eu.sqooss.service.abstractmetric.AbstractMetric;
+import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.ProjectFile;
-import eu.sqooss.service.scheduler.Job;
-import eu.sqooss.service.scheduler.SchedulerException;
+import eu.sqooss.service.scheduler.Scheduler;
 
 public class WcImplementation extends AbstractMetric implements Wc {
 
@@ -75,15 +74,15 @@ public class WcImplementation extends AbstractMetric implements Wc {
     }
 
     public void run(ProjectFile a) {
-        Job w = new WcJob(this, a);
+        WcJob w = new WcJob(this, (ProjectFile)a);
         
         ServiceReference serviceRef = null;
         serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
-        
+        Scheduler s = ((AlitheiaCore)bc.getService(serviceRef)).getScheduler();
         try {
-            ((AlitheiaCore) bc.getService(serviceRef)).getScheduler().enqueue(w);
-        } catch (SchedulerException e) {
-            log.error("Could not schedule wc job for project file: " + a.getName());
+            s.enqueue(w);
+        } catch (Exception e) {
+            log.error("Could not schedule wc job for project file: " + ((ProjectFile)a).getName());
         }
     }
 }
