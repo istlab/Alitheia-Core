@@ -240,7 +240,7 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
         }
 
         Set<UpdateTarget> s = currentJobs.get(project.getName());
-        logger.info("Update set is:" + explain(s));
+        if (s != null) logger.info("Update set is:" + explain(s));
        
         // Check all the types we need and make claims
         synchronized(currentJobs) {
