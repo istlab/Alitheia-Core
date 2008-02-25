@@ -105,12 +105,14 @@ class File {
     }
 
     public String getHtml() {
-        StringBuilder html = new StringBuilder("<!-- File -->\n<ul>");
+        StringBuilder html = new StringBuilder("<!-- File -->\n");
         html.append("<h3>File: " + getName() + "</h3>");
-        html.append("<br />Size (blocks): " + getSize() + "(" + getBlocks() + ")");
-        html.append("<br />Last accessed (modified): " + getAccessTime() + "(" + getModificationTime() + ")");
-        html.append("<br />User (group): " + getUserId() + "(" + getGroupId() + ")");
-        html.append("<br />Status (changed): " + getStatus() + "(" + getFileStatus() + ")");
+        html.append("<ul>");
+        html.append("<li>Size (blocks): " + getSize() + "(" + getBlocks() + ")</li>");
+        html.append("<li>Last accessed (modified): " + getAccessTime() + "(" + getModificationTime() + ")</li>");
+        html.append("<li>User (group): " + getUserId() + "(" + getGroupId() + ")</li>");
+        html.append("<li>Status (changed): " + getStatus() + "(" + getFileStatus() + ")</li>");
+        html.append("</ul>");
         return html.toString();
     }
 }
