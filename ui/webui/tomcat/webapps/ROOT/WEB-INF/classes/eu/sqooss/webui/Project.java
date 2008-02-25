@@ -101,9 +101,8 @@ public class Project {
         return bts;
     }
 
-    public String getHtml() {
-        StringBuilder html = new StringBuilder("<!-- Project -->\n");
-        html.append("<h2>" + getName() + " (" + getId() + ")</h2>");
+    public String getInfo() {
+        StringBuilder html = new StringBuilder();
         html.append("<br />Website: "
                 + (getWebsite() != null 
                         ? "<a href=\"" + getWebsite() + "\">" + getWebsite() + "</a>"
@@ -114,10 +113,20 @@ public class Project {
                         ? "<a href=\"" + getContact() + "\">" + getContact() + "</a>"
                         : "<i>undefined</i>"));
 
+        /*
         html.append("<br />BTS: "
                 + (getBts() != null 
                         ? "<a href=\"" + getBts() + "\">" + getBts() + "</a>"
                         : "<i>undefined</i>"));
+        */
+
+        return html.toString();
+    }
+
+    public String getHtml() {
+        StringBuilder html = new StringBuilder("<!-- Project -->\n");
+        html.append("<h2>" + getName() + " (" + getId() + ")</h2>");
+        html.append(getInfo());
         return html.toString();
     }
 }

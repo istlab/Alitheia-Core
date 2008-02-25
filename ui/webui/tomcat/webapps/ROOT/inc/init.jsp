@@ -6,11 +6,25 @@
     FIXME: needs porting
 */
 
-String title = "Alitheia";
-String msg = "";
+String title    = "Alitheia";
+String msg      = "";
 %>
-<jsp:useBean id="user" class="eu.sqooss.webui.Users" scope="session"/>
+
+<jsp:useBean id="ProjectsListView"
+    class="eu.sqooss.webui.ProjectsListView"
+    scope="session"/>
+<jsp:setProperty name="ProjectsListView" property="*"/>
+
+<jsp:useBean id="terrier"
+    class="eu.sqooss.webui.Terrier"
+    scope="session"/>
+<jsp:setProperty name="terrier" property="*"/>
+
+<jsp:useBean id="user"
+    class="eu.sqooss.webui.Users"
+    scope="session"/>
 <jsp:setProperty name="user" property="*"/>
+
 <%
 
 String username = request.getParameter("username");

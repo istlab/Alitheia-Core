@@ -8,9 +8,7 @@ title = "Testing Terrier";
 <%@ page import="java.util.*" %>
 <%@ page import="eu.sqooss.webui.*" %>
 
-<jsp:useBean id="terrier" class="eu.sqooss.webui.Terrier" scope="page"/>
 <jsp:useBean id="MetricsListView" class="eu.sqooss.webui.MetricsTableView" scope="session"/>
-<jsp:setProperty name="terrier" property="*"/>
 
 
 <h1>Testing Terrier</h1>
