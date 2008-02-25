@@ -15,6 +15,20 @@ if (projects == null) {
     } else {
         out.println("<strong>" + selectedProject.getName() + "</strong>");
         out.println(selectedProject.getInfo());
+        if (selectedProject.getVersionLow() != null) {
+            if ((selectedProject.getVersionHigh() != null)
+                && (selectedProject.getVersionLow()
+                    != selectedProject.getVersionHigh())) {
+                out.println ("<br />Versions: "
+                    + selectedProject.getVersionLow()
+                    + " - "
+                    + selectedProject.getVersionHigh());
+            }
+            else {
+                out.println ("<br />Version: "
+                    + selectedProject.getVersionLow());
+            }
+        }
         out.println("<hr>");
     }
     out.println(projects);

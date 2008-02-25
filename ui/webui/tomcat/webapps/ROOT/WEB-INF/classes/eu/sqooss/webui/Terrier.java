@@ -83,8 +83,14 @@ public class Terrier {
 
         Project prj;
         try {
+            // Retrieve information about this project
             prj = new Project(
                     connection.retrieveStoredProject(projectId));
+
+            // Retrieve the first and last project versions
+            Vector<Long> prjVersions = getProjectVersions(projectId);
+            prj.serVersionLow(prjVersions.firstElement());
+            prj.serVersionHigh(prjVersions.lastElement());
         } catch (WSException wse) {
             error = "Could not receive a list of projects.";
             return null;

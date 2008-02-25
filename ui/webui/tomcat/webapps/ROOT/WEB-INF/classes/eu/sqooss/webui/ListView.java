@@ -87,7 +87,7 @@ class ListView {
         while (itemlist.hasNext()) {
             ArrayList <WSResultEntry> p_item = itemlist.next();
             Iterator <WSResultEntry> oneitemlist = p_item.iterator();
-            Project nextProject = new Project(p_item);
+            Project nextProject = new Project(); // TODO: Fix this
             html.append("<li>" + nextProject.getHtml() + "</li>");
         }
         html = html.append("\n</ul>\n");

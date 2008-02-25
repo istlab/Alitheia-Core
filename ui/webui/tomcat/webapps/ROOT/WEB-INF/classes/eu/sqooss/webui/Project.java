@@ -39,32 +39,18 @@ import eu.sqooss.ws.client.datatypes.WSStoredProject;
 
 public class Project {
 
-    Long id;
-    String name;
-    String bts;
-    String scm;
-    String mail;
-    String contact;
-    String website;
+    private Long    id;
+    private String  name;
+    private String  bts;
+    private String  scm;
+    private String  mail;
+    private String  contact;
+    private String  website;
+    private Long    versionLow;
+    private Long    versionHigh;
 
-    /** Parses an ArrayList of WSResult and offers convenience methods to get data
-     *  out of it.
-     * 
-     * @param data The ArrayList for one project
-     * 
-     */
-    public Project (ArrayList data) {
-        try {
-            id = Long.parseLong(data.get(0).toString().trim()); // Urgh?
-        } catch (NumberFormatException nfe) {
-            System.out.println("NumberFormatException: " + nfe.getMessage());
-        }
-        name = data.get(1).toString();
-        bts = data.get(2).toString(); // FIXME: Is this really the BTS?
-        scm = data.get(3).toString();
-        mail = data.get(4).toString();
-        contact = data.get(5).toString();
-        website = data.get(6).toString();
+    public Project () {
+        
     }
 
     public Project (WSStoredProject p) {
@@ -77,12 +63,12 @@ public class Project {
         website = p.getWebsite();
     }
 
-    public String getName () {
-        return name;
-    }
-
     public Long getId () {
         return id;
+    }
+
+    public String getName () {
+        return name;
     }
 
     public String getWebsite () {
@@ -99,6 +85,22 @@ public class Project {
 
     public String getBts() {
         return bts;
+    }
+
+    public Long getVersionLow () {
+        return versionLow;
+    }
+
+    public void serVersionLow (Long version) {
+        this.versionLow = version;
+    }
+
+    public Long getVersionHigh () {
+        return versionHigh;
+    }
+
+    public void serVersionHigh (Long version) {
+        this.versionHigh = version;
     }
 
     public String getInfo() {
