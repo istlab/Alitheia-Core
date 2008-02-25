@@ -2,9 +2,9 @@
 
 <%
 
-ProjectsListView.setProjectId(request.getParameter("id"));
 ProjectsListView.retrieveData(terrier);
 String projects = ProjectsListView.getHtml();
+
 if (projects == null) {
     out.println(error("Unable to find any evaluated projects."));
 } else {

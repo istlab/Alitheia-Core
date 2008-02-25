@@ -102,7 +102,7 @@ public class ProjectsListView extends ListView {
                 for (Project p: projects) {
                     html.append(
                             "\n\t<li>"
-                            + "<a href=\"?id=" + p.getId() + "\">"
+                            + "<a href=\"?pid=" + p.getId() + "\">"
                             + p.getName() + "</a></li>");
                 }
                 html.append("\n</ul>");

@@ -161,11 +161,12 @@ public class Terrier {
         try {
             WSProjectFile[] files =
                 connection.retrieveFileList(projectId);
+            debug += ":files="+files.length;
             for (WSProjectFile file : files) {
                 view.addFile(new eu.sqooss.webui.File(file));
             }
         } catch (WSException e) {
-            error = "Can not retrieve the list of metrics for this project.";
+            error = "Can not retrieve the list of files for this project.";
             return null;
         }
         return view;

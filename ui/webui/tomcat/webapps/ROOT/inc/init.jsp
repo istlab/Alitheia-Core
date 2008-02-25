@@ -3,7 +3,7 @@
     This file defines variables and defaults for the webui.
     It should be included in every JSP page, at the top.
     
-    FIXME: needs porting
+    TODO: needs porting
 */
 
 String title    = "Alitheia";
@@ -28,6 +28,7 @@ String msg      = "";
 <%
 
 String username = request.getParameter("username");
+ProjectsListView.setProjectId(request.getParameter("pid"));
 boolean loggedIn = false;
 String errorMsg = "";
 
