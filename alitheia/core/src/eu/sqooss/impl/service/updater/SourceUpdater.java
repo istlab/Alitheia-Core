@@ -33,6 +33,7 @@
 
 package eu.sqooss.impl.service.updater;
 
+import java.sql.Time;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -50,6 +51,7 @@ import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.abstractmetric.Metric;
 import eu.sqooss.service.abstractmetric.MetricMismatchException;
 import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.FileMetadata;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
@@ -155,7 +157,25 @@ class SourceUpdater extends Job {
                     pf.setStatus(entry.getChangedPathsStatus().get(chPath).toString());
                     //logger.info(project.getName() + ": Saving path: " + chPath);
                     s.save(pf);
+                   
                     updFiles.add(pf.getId());
+                    
+                    // Todo: Add real implementation behind that
+                    FileMetadata fm = new FileMetadata();
+                    fm.setProjectFile(pf.getId());
+                    fm.setAccessTime(
+                            new Time(System.currentTimeMillis()));
+                    fm.setModificationTime(
+                            new Time(System.currentTimeMillis()));
+                    fm.setBlocks(1);
+                    fm.setFileStatusChange("unknown");
+                    fm.setGroupId(100);
+                    fm.setLinks(0);
+                    fm.setProtection("unknown");
+                    fm.setSize(1234);
+                    fm.setUserId(101);
+                    s.save(fm);
+                    
                 }
             }
             tx.commit();
