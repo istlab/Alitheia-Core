@@ -55,8 +55,8 @@ public class MetricsTableView {
      */
     Map<Integer,String> metricDescriptions = new HashMap<Integer,String>();
 
-    /* Holds the ID of the project. */
-    Integer projectId;
+    // Holds the ID of the selected project, if any
+    Long projectId;
 
     /* Show the ID in the table HTML output? */
     boolean showId = true;
@@ -64,8 +64,8 @@ public class MetricsTableView {
     /* Show the name of the metric in the table HTML output? */
     boolean showName = true;
 
-    /* Show the description of the metric in the table HTML output? */
-    boolean showDescription = true;
+    // Show the description of the metric in the table HTML output?
+    public boolean showDescription = true;
 
     /* Show the header of the table? */
     boolean showHeader = true;
@@ -84,6 +84,10 @@ public class MetricsTableView {
 
     public MetricsTableView () {
         retrieveData();
+    }
+
+    public MetricsTableView (Long projectId) {
+        this.projectId = projectId;
     }
 
     public void addMetric (Metric metric) {
@@ -200,7 +204,12 @@ public class MetricsTableView {
     public String getHtmlList () {
         StringBuilder html = new StringBuilder("<!-- MetricsList -->\n<ul>");
         for (Integer key: metricNames.keySet()) {
-            html.append("\n\t<li>" + metricNames.get(key) + "</li>");
+            html.append("\n\t<li>");
+            html.append(metricNames.get(key));
+            if (showDescription) {
+                html.append(" <i>" + metricDescriptions.get(key) + "</i>");
+            }
+            html.append("</li>");
         }
         html.append("\n</ul>");
         return html.toString();

@@ -140,11 +140,10 @@ public class Terrier {
 
     public MetricsTableView getMetrics4Project(Long projectId) {
         if (!isConnected()) return null;
-        MetricsTableView view = new MetricsTableView();
+        MetricsTableView view = new MetricsTableView(projectId);
         try {
             WSMetric[] metrics =
                 connection.retrieveMetrics4SelectedProject(projectId);
-            debug += ":metrics=" + metrics.length;
             for (WSMetric met : metrics) {
                 view.addMetric(new Metric(met));
             }
