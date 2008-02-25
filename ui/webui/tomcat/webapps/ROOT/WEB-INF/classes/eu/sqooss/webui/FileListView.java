@@ -33,34 +33,34 @@
  */
 
 package eu.sqooss.webui;
-// General
+
+// Java imports
+import java.util.Iterator;
 import java.util.Vector;
-
-// SCL
-import eu.sqooss.scl.WSException;
-import eu.sqooss.scl.WSSession;
-import eu.sqooss.scl.result.WSResult;
-
-// Web UI
-import eu.sqooss.webui.ListView;
 
 public class FileListView extends ListView {
 
-    Long projectId;
-    WSResult result;
-    
-    public FileListView (Long id) {
-        projectId = id;
-        retrieveData();
+    private Vector<eu.sqooss.webui.File> files = new Vector<File>();
+
+    // Contains the ID of the selected project, if any
+    private Long projectId;
+
+    public FileListView () {
+        //retrieveData();
     }
 
+    public FileListView (Long projectId) {
+        this.projectId = projectId;
+        //retrieveData();
+    }
+
+
+    public void addFile(eu.sqooss.webui.File file) {
+        files.add(file);
+    }
+    
+
     public void retrieveData () {
-//        try {
-//            result = session.getConnection().retrieveFileList(projectId);
-//        } catch (WSException wse) {
-//            error += "<br />Something went wrong getting the list of files.";
-//        }
-        //TODO:
         
     }
 
@@ -68,5 +68,17 @@ public class FileListView extends ListView {
         // TODO: Remove some files from this item list, such as Makefile, COPYING,
         // or alternatively, only show a list of certain extensions, like .cpp, .h ...
         return items;
+    }
+
+    public String getHtml() {
+        StringBuffer html = new StringBuffer();
+        Iterator<File> filesIterator = files.iterator();
+        while (filesIterator.hasNext()) {
+            html.append(
+                    (filesIterator.next() != null)
+                    ? filesIterator.next().getHtml()
+                    : "");
+        }
+        return html.toString();
     }
 }

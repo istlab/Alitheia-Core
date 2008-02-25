@@ -33,7 +33,8 @@
 
 package eu.sqooss.webui;
 
-import java.util.ArrayList;
+import eu.sqooss.ws.client.datatypes.WSFileMetadata;
+import eu.sqooss.ws.client.datatypes.WSProjectFile;
 
 class File {
 
@@ -48,25 +49,23 @@ class File {
     String fileStatus;
     Integer size;
     Integer blocks;
-    
-    /** Parses an ArrayList of WSResult and offers convenience methods to get data
-     *  out of it.
-     * 
-     * @param data The ArrayList for one file
-     * 
-     */
-    public File (ArrayList data) {
-        name = data.get(0).toString();
-        status = data.get(1).toString();
-        protection = data.get(2).toString();
-        links = Integer.parseInt(data.get(3).toString());
-        userId = Long.parseLong(data.get(4).toString());
-        groupId = Long.parseLong(data.get(5).toString());
-        accessTime = Long.parseLong(data.get(6).toString());
-        modificationTime = Long.parseLong(data.get(7).toString());
-        fileStatus = data.get(8).toString();
-        size = Integer.parseInt(data.get(9).toString());
-        blocks = Integer.parseInt(data.get(10).toString());
+
+    public File (WSProjectFile wsFile) {
+        name = wsFile.getName();
+        status = wsFile.getStatus();
+
+        WSFileMetadata fileMeta = wsFile.getProjectFileMetadata();
+        if (fileMeta != null) {
+            protection = fileMeta.getProtection();
+            links = fileMeta.getLinks();
+            userId = fileMeta.getUserId();
+            groupId = fileMeta.getGroupId();
+            accessTime = fileMeta.getAccessTime();
+            modificationTime = fileMeta.getModificationTime();
+            fileStatus = fileMeta.getFileStatusChange();
+            size = fileMeta.getSize();
+            blocks = fileMeta.getBlocks();
+        }
     }
 
     public String getName () {
@@ -100,11 +99,11 @@ class File {
     public Integer getSize () {
         return size;
     }
-    
+
     public Integer getBlocks () {
         return blocks;
     }
-    
+
     public String getHtml() {
         StringBuilder html = new StringBuilder("<!-- File -->\n<ul>");
         html.append("<h3>File: " + getName() + "</h3>");

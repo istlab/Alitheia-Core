@@ -42,6 +42,7 @@ import eu.sqooss.scl.WSSession;
 import eu.sqooss.scl.WSConnection;
 import eu.sqooss.scl.result.WSResult;
 import eu.sqooss.scl.result.WSResultEntry;
+import eu.sqooss.ws.client.datatypes.WSProjectFile;
 import eu.sqooss.ws.client.datatypes.WSProjectVersion;
 import eu.sqooss.ws.client.datatypes.WSStoredProject;
 import eu.sqooss.ws.client.datatypes.WSMetric;
@@ -146,6 +147,22 @@ public class Terrier {
                 connection.retrieveMetrics4SelectedProject(projectId);
             for (WSMetric met : metrics) {
                 view.addMetric(new Metric(met));
+            }
+        } catch (WSException e) {
+            error = "Can not retrieve the list of metrics for this project.";
+            return null;
+        }
+        return view;
+    }
+
+    public FileListView getFiles4Project(Long projectId) {
+        if (!isConnected()) return null;
+        FileListView view = new FileListView(projectId);
+        try {
+            WSProjectFile[] files =
+                connection.retrieveFileList(projectId);
+            for (WSProjectFile file : files) {
+                view.addFile(new eu.sqooss.webui.File(file));
             }
         } catch (WSException e) {
             error = "Can not retrieve the list of metrics for this project.";

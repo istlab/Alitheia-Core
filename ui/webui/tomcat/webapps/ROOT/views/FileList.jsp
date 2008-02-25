@@ -1,8 +1,17 @@
-<jsp:useBean id="FileListView" class="eu.sqooss.webui.FileListView" scope="session"/>
+<jsp:useBean id="FileListView"
+    class="eu.sqooss.webui.FileListView"
+    scope="session"/>
 <jsp:setProperty name="FileListView" property="*"/>
 
 <% // Let's list all projects.
 
-out.println(FileListView.getHtml());
+if (ProjectsListView.getProjectId() != null) {
+    out.println(terrier
+        .getFiles4Project(ProjectsListView.getProjectId())
+            .getHtml());
+}
+else {
+    out.println(FileListView.getHtml());
+}
 
 %>
