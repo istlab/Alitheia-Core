@@ -72,10 +72,9 @@ public class DatabaseQueries {
     //5.1.2
     public static final String RETRIEVE_FILE_LIST_PARAM = "project_id";
     
-    public static final String RETRIEVE_FILE_LIST = "select distinct pf, fm " +
-                                                    "from ProjectVersion pv, ProjectFile pf, FileMetadata fm " +
-                                                    "where fm.projectFile=pf.id " +
-                                                    " and pf.projectVersion=pv.id " +
+    public static final String RETRIEVE_FILE_LIST = "select distinct pf " +
+                                                    "from ProjectVersion pv, ProjectFile pf " +
+                                                    "where pf.projectVersion=pv.id " +
                                                     " and pv.project.id=:" +
                                                     RETRIEVE_FILE_LIST_PARAM;
     

@@ -53,7 +53,6 @@ import eu.sqooss.impl.service.web.services.datatypes.WSUser;
 import eu.sqooss.impl.service.web.services.utils.DatabaseQueries;
 import eu.sqooss.impl.service.web.services.utils.WSPair;
 import eu.sqooss.service.db.DBService;
-import eu.sqooss.service.db.FileMetadata;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.ProjectFile;
@@ -595,10 +594,10 @@ public class WebServicesImpl {
         WSProjectFile[] result = null;
         if ((projectFilesWithMetadata != null) && (projectFilesWithMetadata.size() != 0)) {
             result = new WSProjectFile[projectFilesWithMetadata.size()];
-            Object[] currentElem;
+            Object currentProject;
             for (int i = 0; i < result.length; i++) {
-                currentElem = (Object[]) projectFilesWithMetadata.get(i);
-                result[i] = new WSProjectFile((ProjectFile) currentElem[0], (FileMetadata) currentElem[1]);
+                currentProject = projectFilesWithMetadata.get(i);
+                result[i] = new WSProjectFile((ProjectFile) currentProject);
             }
         }
         return result;

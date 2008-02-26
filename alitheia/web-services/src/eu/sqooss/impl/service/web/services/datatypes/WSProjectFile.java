@@ -32,7 +32,6 @@
 
 package eu.sqooss.impl.service.web.services.datatypes;
 
-import eu.sqooss.service.db.FileMetadata;
 import eu.sqooss.service.db.ProjectFile;
 
 /**
@@ -42,11 +41,9 @@ import eu.sqooss.service.db.ProjectFile;
 public class WSProjectFile {
     
     private ProjectFile projectFile;
-    private WSFileMetadata fileMetadata; 
     
-    public WSProjectFile(ProjectFile projectFile, FileMetadata fileMetadata) {
+    public WSProjectFile(ProjectFile projectFile) {
         this.projectFile = projectFile;
-        this.fileMetadata = new WSFileMetadata(fileMetadata);
     }
 
     public long getId() {
@@ -63,10 +60,6 @@ public class WSProjectFile {
 
     public String getStatus() {
         return projectFile.getStatus();
-    }
-    
-    public WSFileMetadata getProjectFileMetadata() {
-        return fileMetadata;
     }
     
 }
