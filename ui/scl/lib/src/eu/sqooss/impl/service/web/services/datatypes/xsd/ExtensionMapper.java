@@ -88,16 +88,6 @@
                   }
 
               
-                  if (
-                  "http://datatypes.services.web.service.impl.sqooss.eu/xsd".equals(namespaceURI) &&
-                  "WSFileMetadata".equals(typeName)){
-                   
-                            return  eu.sqooss.ws.client.datatypes.WSFileMetadata.Factory.parse(reader);
-                        
-
-                  }
-
-              
              throw new java.lang.RuntimeException("Unsupported type " + namespaceURI + " " + typeName);
           }
 

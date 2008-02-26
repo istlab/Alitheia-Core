@@ -79,35 +79,6 @@
                             
 
                         /**
-                        * field for ProjectFileMetadata
-                        */
-
-                        protected eu.sqooss.ws.client.datatypes.WSFileMetadata localProjectFileMetadata ;
-                        
-
-                           /**
-                           * Auto generated getter method
-                           * @return eu.sqooss.ws.client.datatypes.WSFileMetadata
-                           */
-                           public  eu.sqooss.ws.client.datatypes.WSFileMetadata getProjectFileMetadata(){
-                               return localProjectFileMetadata;
-                           }
-
-                           
-                        
-                            /**
-                               * Auto generated setter method
-                               * @param param ProjectFileMetadata
-                               */
-                               public void setProjectFileMetadata(eu.sqooss.ws.client.datatypes.WSFileMetadata param){
-                            
-                                    this.localProjectFileMetadata=param;
-                            
-
-                               }
-                            
-
-                        /**
                         * field for ProjectVersion
                         */
 
@@ -265,38 +236,6 @@
                                     
                                    xmlWriter.writeEndElement();
                              
-                                    if (localProjectFileMetadata==null){
-
-                                            java.lang.String namespace2 = "http://datatypes.services.web.service.impl.sqooss.eu/xsd";
-
-                                        if (! namespace2.equals("")) {
-                                            java.lang.String prefix2 = xmlWriter.getPrefix(namespace2);
-
-                                            if (prefix2 == null) {
-                                                prefix2 = org.apache.axis2.databinding.utils.BeanUtil.getUniquePrefix();
-
-                                                xmlWriter.writeStartElement(prefix2,"projectFileMetadata", namespace2);
-                                                xmlWriter.writeNamespace(prefix2, namespace2);
-                                                xmlWriter.setPrefix(prefix2, namespace2);
-
-                                            } else {
-                                                xmlWriter.writeStartElement(namespace2,"projectFileMetadata");
-                                            }
-
-                                        } else {
-                                            xmlWriter.writeStartElement("projectFileMetadata");
-                                        }
-
-
-                                       // write the nil attribute
-                                      writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","true",xmlWriter);
-                                      xmlWriter.writeEndElement();
-                                    }else{
-                                     localProjectFileMetadata.getOMElement(
-                                       new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd","projectFileMetadata"),
-                                        factory).serialize(xmlWriter);
-                                    }
-                                
                                     namespace = "http://datatypes.services.web.service.impl.sqooss.eu/xsd";
                                     if (! namespace.equals("")) {
                                         prefix = xmlWriter.getPrefix(namespace);
@@ -451,13 +390,6 @@
                                          elementList.add(localName==null?null:
                                          org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localName));
                                     
-                            elementList.add(new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd",
-                                                                      "projectFileMetadata"));
-                            
-                            
-                                    elementList.add(localProjectFileMetadata==null?null:
-                                    localProjectFileMetadata);
-                                
                              elementList.add(new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd",
                                                                       "projectVersion"));
                             
@@ -577,30 +509,6 @@
                                       
                                         reader.next();
                                     
-                              }  // End of if for expected property start element
-                            
-                                else{
-                                    // A start element we are not expecting indicates an invalid parameter was passed
-                                    throw new java.lang.RuntimeException("Unexpected subelement " + reader.getLocalName());
-                                }
-                            
-                                    
-                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
-                                
-                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd","projectFileMetadata").equals(reader.getName())){
-                                
-                                      if ("true".equals(reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil"))){
-                                          object.setProjectFileMetadata(null);
-                                          reader.next();
-                                            
-                                            reader.next();
-                                          
-                                      }else{
-                                    
-                                        object.setProjectFileMetadata(eu.sqooss.ws.client.datatypes.WSFileMetadata.Factory.parse(reader));
-                                      
-                                        reader.next();
-                                    }
                               }  // End of if for expected property start element
                             
                                 else{
