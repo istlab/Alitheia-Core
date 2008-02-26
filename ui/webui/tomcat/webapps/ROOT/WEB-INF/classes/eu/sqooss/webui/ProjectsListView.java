@@ -60,17 +60,16 @@ public class ProjectsListView extends ListView {
     }
 
     public void setProjectId(String projectId) {
+        if ((projectId == null) || (terrier == null)) return;
+
+        Long pid = null;
         try {
-            if (new Long(projectId) != null) {
-                this.projectId = new Long(projectId);
-                if (terrier != null) {
-                    setCurrentProject(
-                            terrier.getProject(this.projectId));
-                }
-            }
+            pid = new Long(projectId);
+            this.projectId = pid;
+            setCurrentProject(terrier.getProject(pid));
         }
         catch (NumberFormatException ex){
-            
+            return;
         }
     }
 

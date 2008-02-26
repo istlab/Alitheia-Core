@@ -37,34 +37,19 @@ import eu.sqooss.ws.client.datatypes.WSProjectFile;
 
 class File {
 
-    String name;
-    String status;
-    String protection;
-    Integer links;
-    Long userId;
-    Long groupId;
-    Long accessTime;
-    Long modificationTime;
-    String fileStatus;
-    Integer size;
-    Integer blocks;
+    private static final String COMMENT = "<!-- File -->\n";
+    private String name;
+    private String status;
+    private Long version;
 
     public File (WSProjectFile wsFile) {
+        version = wsFile.getProjectVersion();
         name = wsFile.getName();
         status = wsFile.getStatus();
+    }
 
-//        WSFileMetadata fileMeta = wsFile.getProjectFileMetadata();
-//        if (fileMeta != null) {
-//            protection = fileMeta.getProtection();
-//            links = fileMeta.getLinks();
-//            userId = fileMeta.getUserId();
-//            groupId = fileMeta.getGroupId();
-//            accessTime = fileMeta.getAccessTime();
-//            modificationTime = fileMeta.getModificationTime();
-//            fileStatus = fileMeta.getFileStatusChange();
-//            size = fileMeta.getSize();
-//            blocks = fileMeta.getBlocks();
-//        }
+    public Long getVersion () {
+        return version;
     }
 
     public String getName () {
@@ -75,43 +60,12 @@ class File {
         return status;
     }
 
-    public Long getUserId () {
-        return userId;
-    }
-    
-    public Long getGroupId () {
-            return groupId;
-    }
-    
-    public Long getAccessTime () {
-        return accessTime;
-    }
-    
-    public Long getModificationTime () {
-        return modificationTime;
-    }
-    
-    public String getFileStatus () {
-            return fileStatus;
-    }
-
-    public Integer getSize () {
-        return size;
-    }
-
-    public Integer getBlocks () {
-        return blocks;
-    }
-
     public String getHtml() {
-        StringBuilder html = new StringBuilder("<!-- File -->\n");
-        html.append("<h3>File: " + getName() + "</h3>");
-        html.append("<ul>");
-        html.append("<li>Size (blocks): " + getSize() + "(" + getBlocks() + ")</li>");
-        html.append("<li>Last accessed (modified): " + getAccessTime() + "(" + getModificationTime() + ")</li>");
-        html.append("<li>User (group): " + getUserId() + "(" + getGroupId() + ")</li>");
-        html.append("<li>Status (changed): " + getStatus() + "(" + getFileStatus() + ")</li>");
-        html.append("</ul>");
+        StringBuilder html = new StringBuilder(COMMENT);
+        html.append("<b>File:</b> " + getName());
+        html.append(" <i>(ver." + getVersion() + ")</i>"); // Version
+        html.append(" <i>(" + getStatus() + ")</i>"); // Status
+        html.append("<br />");
         return html.toString();
     }
 }
