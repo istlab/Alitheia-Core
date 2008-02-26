@@ -33,8 +33,6 @@
 
 package eu.sqooss.impl.service.updater;
 
-import java.io.File;
-import java.sql.Time;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -52,13 +50,10 @@ import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.abstractmetric.Metric;
 import eu.sqooss.service.abstractmetric.MetricMismatchException;
 import eu.sqooss.service.db.DBService;
-import eu.sqooss.service.db.FileMetadata;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.db.Tag;
-import eu.sqooss.service.fds.Checkout;
-import eu.sqooss.service.fds.FDSService;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.tds.CommitEntry;
@@ -76,7 +71,6 @@ class SourceUpdater extends Job {
     private UpdaterServiceImpl updater;
     private StoredProject project;
     private TDSService tds;
-    private FDSService fds;
     private DBService dbs;
     private Logger logger;
     private AlitheiaCore core;
@@ -94,7 +88,6 @@ class SourceUpdater extends Job {
         this.logger = logger;
         this.core = core;
         this.tds = core.getTDSService();
-        this.fds = core.getFDSService();
         this.dbs = core.getDBService();
         
         versionMetrics = core.getPluginManager().listMetricProviders(ProjectVersion.class);
@@ -115,11 +108,6 @@ class SourceUpdater extends Job {
         SortedSet<Long> updProjectVersions = new TreeSet<Long>();
         SortedSet<Long> updFiles = new TreeSet<Long>();
 
-        // The project version that is currently being updated.
-        Long currentRevision = null;
-        // The local root of the project version checkout
-        File currentRoot;
-
         logger.info("Running source update for project " + project.getName());
         Session s = dbs.getSession(this);
         long ts = System.currentTimeMillis();
@@ -134,15 +122,6 @@ class SourceUpdater extends Job {
                     new ProjectRevision(lastVersion.getVersion()),
                     new ProjectRevision(lastSCMVersion));
 
-            // Locally checkout the last known stored project's version
-            // NOTE: Feels like this version will be checked out twice between
-            // two successive updates.
-            currentRevision = lastVersion.getVersion();
-            Checkout revCheckout = fds.getCheckout(
-                    project.getId(),
-                    new ProjectRevision(currentRevision));
-            currentRoot = revCheckout.getRoot();
-
             logger.info(project.getName() + ": Log entries: " + commitLog.size());
             logger.info(project.getName() + ": Time to get log: " + 
                     (int)((System.currentTimeMillis() - ts)/1000));
@@ -151,17 +130,6 @@ class SourceUpdater extends Job {
             for (CommitEntry entry : commitLog) {
                 
                 //logger.info(entry.toString());
-
-                // Run checkout on the current project revision
-                if (entry.getRevision().getSVNRevision() > currentRevision) {
-                    currentRevision = entry.getRevision().getSVNRevision();
-                    // Run a new checkout
-                    revCheckout = fds.getCheckout(
-                            project.getId(),
-                            new ProjectRevision(currentRevision));
-                    // Get the new checkout's root (local)
-                    currentRoot = revCheckout.getRoot();
-                }
 
                 ProjectVersion curVersion = new ProjectVersion();
                 curVersion.setProject(project);
@@ -187,52 +155,7 @@ class SourceUpdater extends Job {
                     pf.setStatus(entry.getChangedPathsStatus().get(chPath).toString());
                     //logger.info(project.getName() + ": Saving path: " + chPath);
                     s.save(pf);
-                   
                     updFiles.add(pf.getId());
-                    
-                    // Retrieve the file's meta-data
-                    FileMetadata fm = new FileMetadata();
-                    fm.setProjectFile(pf.getId());
-                    File currentFile = new File (
-                            currentRoot.getAbsolutePath()
-                            + pf.getName());
-                    if (currentFile.exists()) {
-                        // Dummy
-                        fm.setAccessTime(
-                                new Time(System.currentTimeMillis()));
-                        fm.setBlocks(1);
-                        fm.setFileStatusChange("unknown");
-                        fm.setGroupId(100);
-                        fm.setLinks(0);
-                        fm.setProtection("unknown");
-                        fm.setUserId(101);
-                        // Implemented
-                        fm.setModificationTime(
-                                new Time(currentFile.lastModified()));
-                        if (currentFile.isFile()) {
-                            fm.setSize((int)(currentFile.length())); // Why int?
-                        }
-                        else {
-                            fm.setSize(0);
-                        }
-                    }
-                    else {
-                        // Fill up with dummy data
-                        fm.setAccessTime(
-                                new Time(System.currentTimeMillis()));
-                        fm.setModificationTime(
-                                new Time(System.currentTimeMillis()));
-                        fm.setBlocks(1);
-                        fm.setFileStatusChange("unknown");
-                        fm.setGroupId(100);
-                        fm.setLinks(0);
-                        fm.setProtection("unknown");
-                        fm.setSize(1234);
-                        fm.setUserId(101);
-                    }
-                    // Store the file's meta-data in the DB
-                    s.save(fm);
-                    
                 }
             }
             tx.commit();
