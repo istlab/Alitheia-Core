@@ -33,7 +33,6 @@
 
 package eu.sqooss.webui;
 
-import eu.sqooss.ws.client.datatypes.WSFileMetadata;
 import eu.sqooss.ws.client.datatypes.WSProjectFile;
 
 class File {
@@ -54,18 +53,18 @@ class File {
         name = wsFile.getName();
         status = wsFile.getStatus();
 
-        WSFileMetadata fileMeta = wsFile.getProjectFileMetadata();
-        if (fileMeta != null) {
-            protection = fileMeta.getProtection();
-            links = fileMeta.getLinks();
-            userId = fileMeta.getUserId();
-            groupId = fileMeta.getGroupId();
-            accessTime = fileMeta.getAccessTime();
-            modificationTime = fileMeta.getModificationTime();
-            fileStatus = fileMeta.getFileStatusChange();
-            size = fileMeta.getSize();
-            blocks = fileMeta.getBlocks();
-        }
+//        WSFileMetadata fileMeta = wsFile.getProjectFileMetadata();
+//        if (fileMeta != null) {
+//            protection = fileMeta.getProtection();
+//            links = fileMeta.getLinks();
+//            userId = fileMeta.getUserId();
+//            groupId = fileMeta.getGroupId();
+//            accessTime = fileMeta.getAccessTime();
+//            modificationTime = fileMeta.getModificationTime();
+//            fileStatus = fileMeta.getFileStatusChange();
+//            size = fileMeta.getSize();
+//            blocks = fileMeta.getBlocks();
+//        }
     }
 
     public String getName () {
