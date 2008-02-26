@@ -34,15 +34,11 @@ package eu.sqooss.scl;
 
 import java.util.ArrayList;
 
-import eu.sqooss.ws.client.datatypes.WSFileMetadata;
-import eu.sqooss.ws.client.datatypes.WSMetric;
-import eu.sqooss.ws.client.datatypes.WSProjectFile;
-import eu.sqooss.ws.client.datatypes.WSProjectVersion;
-import eu.sqooss.ws.client.datatypes.WSStoredProject;
-import eu.sqooss.ws.client.datatypes.WSUser;
-import eu.sqooss.ws.client.datatypes.WSUserGroup;
 import eu.sqooss.scl.result.WSResult;
 import eu.sqooss.scl.result.WSResultEntry;
+import eu.sqooss.ws.client.datatypes.WSMetric;
+import eu.sqooss.ws.client.datatypes.WSUser;
+import eu.sqooss.ws.client.datatypes.WSUserGroup;
 
 /**
  * This utility parses the data from the web services service.  
@@ -95,37 +91,37 @@ class WSResponseParser {
         return result;   
     }
     
-    /**
-     * This method parses the array of <code>WSProjectFile</code>s to the <code>WSResult</code>.
-     */
-    public static WSResult parseProjectFiles(WSProjectFile[] projectFiles) {
-        WSResult result = new WSResult();
-        //if the web service returns null, it is the first element in the array
-        if (projectFiles[0] != null) {
-            ArrayList<WSResultEntry> currentRow;
-            WSFileMetadata currentFileMetadata;
-            for (WSProjectFile projectFile : projectFiles) {
-                currentRow = new ArrayList<WSResultEntry>();
-                currentRow.add(new WSResultEntry(projectFile.getId(), WSResultEntry.MIME_TYPE_TYPE_LONG));
-                currentRow.add(new WSResultEntry(projectFile.getName(), WSResultEntry.MIME_TYPE_TEXT_PLAIN));
-                currentRow.add(new WSResultEntry(projectFile.getStatus(), WSResultEntry.MIME_TYPE_TEXT_PLAIN));
-                
-                currentFileMetadata = projectFile.getProjectFileMetadata();
-                currentRow.add(new WSResultEntry(currentFileMetadata.getId(), WSResultEntry.MIME_TYPE_TYPE_LONG));
-                currentRow.add(new WSResultEntry(currentFileMetadata.getProtection(), WSResultEntry.MIME_TYPE_TEXT_PLAIN));
-                currentRow.add(new WSResultEntry(currentFileMetadata.getLinks(), WSResultEntry.MIME_TYPE_TYPE_INTEGER));
-                currentRow.add(new WSResultEntry(currentFileMetadata.getUserId(), WSResultEntry.MIME_TYPE_TYPE_LONG));
-                currentRow.add(new WSResultEntry(currentFileMetadata.getGroupId(), WSResultEntry.MIME_TYPE_TYPE_LONG));
-                currentRow.add(new WSResultEntry(currentFileMetadata.getAccessTime(), WSResultEntry.MIME_TYPE_TYPE_LONG));
-                currentRow.add(new WSResultEntry(currentFileMetadata.getModificationTime(), WSResultEntry.MIME_TYPE_TYPE_LONG));
-                currentRow.add(new WSResultEntry(currentFileMetadata.getFileStatusChange(), WSResultEntry.MIME_TYPE_TEXT_PLAIN));
-                currentRow.add(new WSResultEntry(currentFileMetadata.getSize(), WSResultEntry.MIME_TYPE_TYPE_INTEGER));
-                currentRow.add(new WSResultEntry(currentFileMetadata.getBlocks(), WSResultEntry.MIME_TYPE_TYPE_INTEGER));
-                result.addResultRow(currentRow);
-            }
-        }
-        return result;
-    }
+//    /**
+//     * This method parses the array of <code>WSProjectFile</code>s to the <code>WSResult</code>.
+//     */
+//    public static WSResult parseProjectFiles(WSProjectFile[] projectFiles) {
+//        WSResult result = new WSResult();
+//        //if the web service returns null, it is the first element in the array
+//        if (projectFiles[0] != null) {
+//            ArrayList<WSResultEntry> currentRow;
+//            WSFileMetadata currentFileMetadata;
+//            for (WSProjectFile projectFile : projectFiles) {
+//                currentRow = new ArrayList<WSResultEntry>();
+//                currentRow.add(new WSResultEntry(projectFile.getId(), WSResultEntry.MIME_TYPE_TYPE_LONG));
+//                currentRow.add(new WSResultEntry(projectFile.getName(), WSResultEntry.MIME_TYPE_TEXT_PLAIN));
+//                currentRow.add(new WSResultEntry(projectFile.getStatus(), WSResultEntry.MIME_TYPE_TEXT_PLAIN));
+//                
+//                currentFileMetadata = projectFile.getProjectFileMetadata();
+//                currentRow.add(new WSResultEntry(currentFileMetadata.getId(), WSResultEntry.MIME_TYPE_TYPE_LONG));
+//                currentRow.add(new WSResultEntry(currentFileMetadata.getProtection(), WSResultEntry.MIME_TYPE_TEXT_PLAIN));
+//                currentRow.add(new WSResultEntry(currentFileMetadata.getLinks(), WSResultEntry.MIME_TYPE_TYPE_INTEGER));
+//                currentRow.add(new WSResultEntry(currentFileMetadata.getUserId(), WSResultEntry.MIME_TYPE_TYPE_LONG));
+//                currentRow.add(new WSResultEntry(currentFileMetadata.getGroupId(), WSResultEntry.MIME_TYPE_TYPE_LONG));
+//                currentRow.add(new WSResultEntry(currentFileMetadata.getAccessTime(), WSResultEntry.MIME_TYPE_TYPE_LONG));
+//                currentRow.add(new WSResultEntry(currentFileMetadata.getModificationTime(), WSResultEntry.MIME_TYPE_TYPE_LONG));
+//                currentRow.add(new WSResultEntry(currentFileMetadata.getFileStatusChange(), WSResultEntry.MIME_TYPE_TEXT_PLAIN));
+//                currentRow.add(new WSResultEntry(currentFileMetadata.getSize(), WSResultEntry.MIME_TYPE_TYPE_INTEGER));
+//                currentRow.add(new WSResultEntry(currentFileMetadata.getBlocks(), WSResultEntry.MIME_TYPE_TYPE_INTEGER));
+//                result.addResultRow(currentRow);
+//            }
+//        }
+//        return result;
+//    }
     
     /**
      * This method parses the array of <code>WSUser</code>s to the <code>WSResult</code>.
