@@ -91,7 +91,7 @@ public class Project {
         return versionLow;
     }
 
-    public void serVersionLow (Long version) {
+    public void setVersionLow (Long version) {
         this.versionLow = version;
     }
 
@@ -99,7 +99,7 @@ public class Project {
         return versionHigh;
     }
 
-    public void serVersionHigh (Long version) {
+    public void setVersionHigh (Long version) {
         this.versionHigh = version;
     }
 
