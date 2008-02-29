@@ -52,7 +52,7 @@
 # This is where OSGi / Equinox is installed under this directory.
 PREFIX=equinox
 # Use Derby? If set to anything other than "YES", we assume Postgres.
-DB_DERBY?=YES
+#DB_DERBY?=YES
 
 #
 # END OF USER CONFIGURATION AREA
@@ -212,7 +212,7 @@ show-db-tables :
 	echo "\dt" | $(RUN_POSTGRES)
 
 fill-db :
-	cat examples/db-psql.sql | $(RUN_POSTGRES)
+	cat examples/db-postgres.sql | $(RUN_POSTGRES)
 
 clean-db :
 	cat examples/clear-db-psql.sql | $(RUN_POSTGRES)
