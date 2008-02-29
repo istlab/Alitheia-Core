@@ -77,8 +77,8 @@ insert into @@SCHEMA@@USERS values (
 	1,
 	'Fluffy Bunny',
 	0,
-	'1970-1-1@@HOUR@@,
-	'2008-1-14@@HOUR@@,
+	'1970-1-1@@HOUR@@',
+	'2008-1-14@@HOUR@@',
 	'carrot',
 	'bunny@kde.org'
 	) ;
