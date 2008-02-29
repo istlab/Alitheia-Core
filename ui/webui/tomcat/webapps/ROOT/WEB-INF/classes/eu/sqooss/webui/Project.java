@@ -109,28 +109,27 @@ public class Project {
 
     public String getInfo() {
         StringBuilder html = new StringBuilder();
-        html.append("<br />Website: "
+        html.append("\n<table>\n\t<tr>\n\t\t<td>");
+        html.append("Website: \n\t\t</td><td>\n"
                 + (getWebsite() != null 
                         ? "<a href=\"" + getWebsite() + "\">" + getWebsite() + "</a>"
                         : "<i>undefined</i>"));
-
-        html.append("<br />Contact: "
+        html.append("\n\t\t</td>\n\t</tr>\n\t<tr>\n\t\t<td>");
+        html.append("Contact: \n\t\t</td><td>\n"
                 + (getContact() != null 
                         ? "<a href=\"" + getContact() + "\">" + getContact() + "</a>"
                         : "<i>undefined</i>"));
-                        
-        html.append("<br />SVN Mirror: "
+        html.append("\n\t\t</td>\n\t</tr>\n\t<tr>\n\t\t<td>");
+        html.append("SVN Mirror: \n\t\t</td><td>\n"
                 + (getRepository() != null 
                         ? "<a href=\"files.jsp" + getId() + "\">" + getRepository() + "</a>"
                         : "<i>undefined</i>"));
-
-
-
-        html.append("<br />BTS: "
+        html.append("\n\t\t</td>\n\t</tr>\n\t<tr>\n\t\t<td>");
+        html.append("Bug Tracking System: \n\t\t</td><td>\n"
                 + (getBts() != null 
                         ? "<a href=\"" + getBts() + "\">" + getBts() + "</a>"
                         : "<i>undefined</i>"));
-
+        html.append("\n\t\t</td>\n\t</tr>\n</table>");
         return html.toString();
     }
 
