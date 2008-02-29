@@ -197,7 +197,9 @@ show-db-tables :
 	echo "show tables;" | $(RUN_DERBY_IJ) | grep "^ALITHEIA"
 
 fill-db :
-	cat examples/db-derby.sql | $(RUN_DERBY_IJ)
+	sed -e 's/@@SCHEMA@@/ALITHEIA./' \
+		-e 's/@@HOUR@@/12.37.01.1234/' \
+		 examples/db.sql | $(RUN_DERBY_IJ)
 
 clean-db :
 	cat examples/clear-db-derby.sql|$(RUN_DERBY_IJ)
@@ -212,7 +214,10 @@ show-db-tables :
 	echo "\dt" | $(RUN_POSTGRES)
 
 fill-db :
-	cat examples/db-postgres.sql | $(RUN_POSTGRES)
+	sed -e 's/@@SCHEMA@@//' \
+		-e 's/@@HOUR@@//' \
+		 examples/db.sql | $(RUN_POSTGRES)
+
 
 clean-db :
 	cat examples/clear-db-postgres.sql | $(RUN_POSTGRES)
