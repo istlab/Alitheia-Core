@@ -107,7 +107,7 @@ public class MetricsTableView {
         metricNames.put(0, "Line Count");
         metricDescriptions.put(0, "Implements wc -l");
 
-        metricNames.put(1, "Cyclic Complexity");
+        metricNames.put(1, "Cyclomatic Complexity");
         metricDescriptions.put(1, "How complex is the code?");
 
         metricNames.put(2, "Developer Interaction");
@@ -116,7 +116,7 @@ public class MetricsTableView {
         metricNames.put(3, "Commit Statistics");
         metricDescriptions.put(3, "Number of commits");
 
-        metricNames.put(4, "Mailinglist Activity");
+        metricNames.put(4, "Mailing List Activity");
         metricDescriptions.put(4, "How many emails have been sent?");
 
     }
