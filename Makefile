@@ -215,10 +215,10 @@ fill-db :
 	cat examples/db-postgres.sql | $(RUN_POSTGRES)
 
 clean-db :
-	cat examples/clear-db-psql.sql | $(RUN_POSTGRES)
+	cat examples/clear-db-postgres.sql | $(RUN_POSTGRES)
 
 drop-db:
-	echo "drop database alitheia" | $(RUN_POSTGRES)
+	cat examples/drop-db-postgres.sql | $(RUN_POSTGRES)
 	echo "Most likely, this failed. If it did indeed, su postgres && dropdb alitheia"
 endif
 
