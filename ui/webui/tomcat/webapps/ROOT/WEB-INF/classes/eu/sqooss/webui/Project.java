@@ -125,12 +125,11 @@ public class Project {
                         : "<i>undefined</i>"));
 
 
-        /*
+
         html.append("<br />BTS: "
                 + (getBts() != null 
                         ? "<a href=\"" + getBts() + "\">" + getBts() + "</a>"
                         : "<i>undefined</i>"));
-        */
 
         return html.toString();
     }
