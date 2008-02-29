@@ -39,7 +39,6 @@ if (request_id == null) {
         html.append(error(terrier.getError()));
     } else {
         html.append(projectView.getHtml());
-        
         if (terrier.projectHasVersion(id)) {
             html.append("<hr>");
             MetricsTableView metricView = terrier.getMetrics4Project(id);
@@ -54,8 +53,6 @@ if (request_id == null) {
     }
 }
 
-Long id = new Long(1);
-html.append("<hr />" + terrier.getDebug());
 out.println(html.toString());
 
 %>
