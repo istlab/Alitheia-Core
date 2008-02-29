@@ -218,7 +218,7 @@ clean-db :
 	cat examples/clear-db-psql.sql | $(RUN_POSTGRES)
 
 drop-db:
-	echo "drop db alitheia" | $(RUN_POSTGRES)
+	echo "drop database alitheia" | $(RUN_POSTGRES)
 endif
 
 
