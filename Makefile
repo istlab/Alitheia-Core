@@ -219,6 +219,7 @@ clean-db :
 
 drop-db:
 	echo "drop database alitheia" | $(RUN_POSTGRES)
+	echo "Most likely, this failed. If it did indeed, su postgres && dropdb alitheia"
 endif
 
 
