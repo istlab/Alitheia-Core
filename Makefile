@@ -147,7 +147,8 @@ run-bg :
 	cd $(PREFIX) && \
 	java $(CONFIG) \
 		-DDEBUG $(CL_CONFIG) $(LOG4J_CONFIG) $(JETTY_CONFIG) \
-		-jar org.eclipse.osgi_3.3.0.v20070321.jar -no-exit &
+		-jar org.eclipse.osgi_3.3.0.v20070321.jar \
+		 -no-exit -console 2525 &
 
 debug :
 	cd $(PREFIX) && \
