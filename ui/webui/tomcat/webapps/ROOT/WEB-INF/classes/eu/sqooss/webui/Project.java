@@ -42,7 +42,7 @@ public class Project {
     private Long    id;
     private String  name;
     private String  bts;
-    private String  scm;
+    private String  repository;
     private String  mail;
     private String  contact;
     private String  website;
@@ -57,7 +57,7 @@ public class Project {
         id = p.getId();
         name = p.getName();
         bts = p.getBugs();
-        scm = p.getRepository();
+        repository = p.getRepository();
         mail = p.getMail();
         contact = p.getContact();
         website = p.getWebsite();
@@ -87,6 +87,10 @@ public class Project {
         return bts;
     }
 
+    public String getRepository() {
+        return repository;
+    }
+
     public Long getVersionLow () {
         return versionLow;
     }
@@ -114,6 +118,12 @@ public class Project {
                 + (getContact() != null 
                         ? "<a href=\"" + getContact() + "\">" + getContact() + "</a>"
                         : "<i>undefined</i>"));
+                        
+        html.append("<br />SVN Mirror: "
+                + (getRepository() != null 
+                        ? "<a href=\"files.jsp" + getId() + "\">" + getRepository() + "</a>"
+                        : "<i>undefined</i>"));
+
 
         /*
         html.append("<br />BTS: "
