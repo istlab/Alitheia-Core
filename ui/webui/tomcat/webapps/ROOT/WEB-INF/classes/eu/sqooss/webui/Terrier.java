@@ -90,8 +90,10 @@ public class Terrier {
 
             // Retrieve the first and last project versions
             Vector<Long> prjVersions = getProjectVersions(projectId);
-            prj.setVersionLow(prjVersions.firstElement());
-            prj.setVersionHigh(prjVersions.lastElement());
+            if (prjVersions.size() > 1) {
+                prj.setVersionLow(prjVersions.firstElement());
+                prj.setVersionHigh(prjVersions.lastElement());
+            }
         } catch (WSException wse) {
             error = "Could not receive a list of projects.";
             return null;
