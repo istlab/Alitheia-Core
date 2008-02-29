@@ -94,6 +94,8 @@ public class Terrier {
                 prj.setVersionLow(prjVersions.firstElement());
                 prj.setVersionHigh(prjVersions.lastElement());
             }
+            
+            prj.setFileCount(getFiles4Project(projectId).size());
         } catch (WSException wse) {
             error = "Could not receive a list of projects.";
             return null;

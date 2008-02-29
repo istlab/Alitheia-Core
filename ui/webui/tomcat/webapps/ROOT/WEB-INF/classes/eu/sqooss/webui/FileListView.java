@@ -53,6 +53,10 @@ public class FileListView extends ListView {
         this.projectId = projectId;
         //retrieveData();
     }
+    
+    public Integer size() {
+        return files.size();
+    }
 
 
     public void addFile(eu.sqooss.webui.File file) {

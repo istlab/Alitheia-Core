@@ -48,7 +48,8 @@ public class Project {
     private String  website;
     private Long    versionLow;
     private Long    versionHigh;
-
+    private Integer  fileCount;
+    
     public Project () {
         
     }
@@ -106,6 +107,14 @@ public class Project {
     public void setVersionHigh (Long version) {
         this.versionHigh = version;
     }
+    
+    public Integer getFileCount() {
+        return fileCount;
+    }
+    
+    public void setFileCount(Integer n) {
+        fileCount = n;
+    }
 
     public String getInfo() {
         StringBuilder html = new StringBuilder();
@@ -125,9 +134,14 @@ public class Project {
                         ? "<a href=\"files.jsp" + getId() + "\">" + getRepository() + "</a>"
                         : "<i>undefined</i>"));
         html.append("\n\t\t</td>\n\t</tr>\n\t<tr>\n\t\t<td>");
-        html.append("Bug Tracking System: \n\t\t</td><td>\n"
+        html.append("Bug Data: \n\t\t</td><td>\n"
                 + (getBts() != null 
                         ? "<a href=\"" + getBts() + "\">" + getBts() + "</a>"
+                        : "<i>undefined</i>"));
+        html.append("\n\t\t</td>\n\t</tr>\n\t<tr>\n\t\t<td>");
+        html.append("Files: \n\t\t</td><td>\n"
+                + (getBts() != null 
+                        ? "<a href=\"/playground/files.jsp?project=" + getId() + "\">" + getFileCount() + "</a>"
                         : "<i>undefined</i>"));
         html.append("\n\t\t</td>\n\t</tr>\n</table>");
         return html.toString();
