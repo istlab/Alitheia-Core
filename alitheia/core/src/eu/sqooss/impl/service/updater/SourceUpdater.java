@@ -34,16 +34,12 @@
 package eu.sqooss.impl.service.updater;
 
 import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.ArrayList;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-
 import org.osgi.framework.ServiceReference;
 
 import eu.sqooss.core.AlitheiaCore;
@@ -60,8 +56,8 @@ import eu.sqooss.service.tds.CommitEntry;
 import eu.sqooss.service.tds.CommitLog;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
 import eu.sqooss.service.tds.InvalidRepositoryException;
-import eu.sqooss.service.tds.ProjectRevision;
 import eu.sqooss.service.tds.PathChangeType;
+import eu.sqooss.service.tds.ProjectRevision;
 import eu.sqooss.service.tds.SCMAccessor;
 import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.updater.UpdaterException;
@@ -119,7 +115,7 @@ class SourceUpdater extends Job {
             SCMAccessor scm = tds.getAccessor(project.getId()).getSCMAccessor();
             long lastSCMVersion = scm.getHeadRevision();
             CommitLog commitLog = scm.getCommitLog(
-                    new ProjectRevision(lastVersion.getVersion()),
+                    new ProjectRevision(lastVersion.getVersion() + 1),
                     new ProjectRevision(lastSCMVersion));
 
             logger.info(project.getName() + ": Log entries: " + commitLog.size());

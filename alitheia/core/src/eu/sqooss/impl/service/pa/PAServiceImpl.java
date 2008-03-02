@@ -31,30 +31,20 @@
  */
 package eu.sqooss.impl.service.pa;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import org.eclipse.osgi.framework.console.CommandProvider;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
-import org.osgi.framework.Constants;
-
-import org.eclipse.osgi.framework.console.CommandProvider;
 
 import eu.sqooss.service.abstractmetric.Metric;
-import eu.sqooss.service.abstractmetric.FileGroupMetric;
-import eu.sqooss.service.abstractmetric.ProjectFileMetric;
 import eu.sqooss.service.abstractmetric.ProjectVersionMetric;
-import eu.sqooss.service.abstractmetric.StoredProjectMetric;
-import eu.sqooss.service.db.DAObject;
-import eu.sqooss.service.db.FileGroup;
-import eu.sqooss.service.db.ProjectFile;
-import eu.sqooss.service.db.ProjectVersion;
-import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.pa.ConfigUtils;
 import eu.sqooss.service.pa.MetricConfig;
 import eu.sqooss.service.pa.MetricInfo;

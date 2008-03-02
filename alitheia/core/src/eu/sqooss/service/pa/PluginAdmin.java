@@ -32,10 +32,8 @@
 package eu.sqooss.service.pa;
 
 import java.util.Collection;
-import org.osgi.framework.ServiceReference;
 
-import eu.sqooss.service.abstractmetric.Metric;
-import eu.sqooss.service.db.DAObject;
+import org.osgi.framework.ServiceReference;
 
 // TODO: Auto-generated Javadoc
 /**
