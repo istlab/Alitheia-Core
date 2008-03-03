@@ -55,7 +55,11 @@ CorbaHandler::~CorbaHandler()
 void CorbaHandler::run()
 {
     orb_thread->join();
-    //orb->run();
+}
+
+void CorbaHandler::shutdown()
+{
+    orb->shutdown( TRUE );
 }
 
 CorbaHandler* CorbaHandler::instance()
@@ -88,4 +92,17 @@ void CorbaHandler::exportObject( CORBA::Object_ptr obj, const char* name )
     cosName[ 0 ].kind = CORBA::string_dup( "" );
 
     nc->rebind( cosName, obj );
+}
+
+void CorbaHandler::unexportObject( const char* name )
+{
+    const CORBA::Object_var nsobj = orb->resolve_initial_references( "NameService" );
+    const CosNaming::NamingContext_var nc = CosNaming::NamingContext::_narrow( nsobj );
+
+    CosNaming::Name cosName;
+    cosName.length( 1 );
+    cosName[ 0 ].id = CORBA::string_dup( name );
+    cosName[ 0 ].kind = CORBA::string_dup( "" );
+
+    nc->unbind( cosName );    
 }

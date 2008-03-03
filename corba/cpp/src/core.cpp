@@ -4,8 +4,10 @@
 #include "job.h"
 #include "metric.h"
 
+#include <csignal>
 #include <string>
 #include <sstream>
+
 
 namespace Alitheia
 {
@@ -26,14 +28,29 @@ namespace Alitheia
 using namespace std;
 using namespace Alitheia;
 
+// singleton object
+static Core* core = 0;
+
 Core::Private::Private( Core* q )
     : q( q )
 {
 };
 
+static void signal_handler( int sig )
+{
+    if( sig == SIGINT )
+    {
+        delete Core::instance();
+        exit( 1 );
+    }
+}
+
 Core::Core()
     : d( new Private( this ) )
 {
+    // install signal handler to shutdown nicely
+    signal( SIGINT, signal_handler );
+
     try
     {
         d->core = alitheia::Core::_narrow( CorbaHandler::instance()->getObject( "Core" ) );
@@ -53,21 +70,35 @@ Core::Core()
 
 Core::~Core()
 {
+    shutdown();
+    core = 0;
     delete d;
 }
 
 Core* Core::instance()
 {
-    static Core core;
-    return &core;
+    if( core == 0 )
+        core = new Core();
+    return core;
 }
 
-int Core::registerMetric( const std::string& name, Metric* metric )
+int Core::registerMetric( Metric* metric )
 {
+    static int metricCount = 0;
+    std::stringstream ss;
+    ss << "Alitheia_Metric_" << ++metricCount;
+    const std::string name = ss.str();
+    metric->setName( name );
     CorbaHandler::instance()->exportObject( metric->_this(), name.c_str() );
     const int id = d->core->registerMetric( CORBA::string_dup( name.c_str() ) );
+    metric->setId( id );
     d->registeredServices[ id ] = name;
     return id;
+}
+
+void Core::unregisterMetric( Metric* metric )
+{
+    unregisterMetric( metric->id() );
 }
 
 void Core::unregisterMetric( int id )
@@ -116,4 +147,12 @@ void Core::waitForJobFinished( Job* job )
 void Core::run()
 {
     CorbaHandler::instance()->run();
+}
+
+void Core::shutdown()
+{
+    for( map< int, string >::iterator it = d->registeredServices.begin(); it != d->registeredServices.end(); ++it )
+    {
+        unregisterMetric( it->first );
+    }
 }

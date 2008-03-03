@@ -11,10 +11,10 @@ namespace std
 namespace Alitheia
 {
     class Core;
-   
+
     class Job : virtual public POA_alitheia::Job
     {
-        friend class Core;
+        friend class ::Alitheia::Core;
     public:
         Job();
         ~Job();

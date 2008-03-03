@@ -8,6 +8,10 @@
 using namespace std;
 using namespace Alitheia;
 
+class MyMetric : public Metric
+{
+};
+
 int main( int argc, char **argv)
 {
     Core& c = *Core::instance();
@@ -15,10 +19,10 @@ int main( int argc, char **argv)
     Logger logger( Logger::NameSqoOssMetric );
     logger.setTeeStream( cout );
     
-    Metric* const m = new Metric;
+    Metric* const m = new MyMetric;
     logger << "Registering C++ client metric..." << endl;
     
-    const int id = c.registerMetric( "MyCorbaMetric", m );
+    const int id = c.registerMetric( m );
     logger << "C++ client metric registered, id is " << id << "." << endl;
     logger << "Metric waiting for orders..." << endl;
     

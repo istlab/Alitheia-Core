@@ -40,14 +40,16 @@ namespace Alitheia
         static Core* instance();
         
         /**
-         * Registers \a metric in the Alitheia core by using \a name
-         * as it's name in the ORB.
+         * Registers \a metric in the Alitheia core.
          * @return The ID assigned by Alitheia
          */
-        int registerMetric( const std::string& name, Metric* metric );
+        int registerMetric( Metric* metric );
         /**
-         * Unregisters a metric with \a id from the Alitheia core. The ID
-         * is the one returned by registerMetric.
+         * Unregisters \a metric from the Alitheia core.
+         */
+        void unregisterMetric( Metric* metric );
+        /**
+         * Unregisters the metric with \a id from the Alitheia core.
          */
         void unregisterMetric( int id );
 
@@ -67,6 +69,13 @@ namespace Alitheia
          * This method is blocking as long as the ORB is running.
          */
         void run();
+
+        /**
+         * Shut down the core.
+         * This method is unregistering all registered objects and then stopping
+         * the ORB.
+         */
+        void shutdown();
 
         /** Enqueue \a job.
          * \a job is registered in Alitheia's job scheduler and executed

@@ -21,8 +21,10 @@ public:
 
     CORBA::Object_var getObject( const char* name ) const throw (CORBA::Exception);
     void exportObject( CORBA::Object_ptr obj, const char* name );
+    void unexportObject( const char* name );
 
     void run();
+    void shutdown();
 
 private:
     OrbThread* orb_thread;
