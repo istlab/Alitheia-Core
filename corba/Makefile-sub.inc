@@ -27,6 +27,9 @@ EXTRA_CP:=$(EXTRA_CP)../../alitheia/core/src:
 # This is a historical mistake, but not easy to correct.
 BUNDLE_MANIFEST_NAME?=$(BUNDLE_NAME)
 
+# Namespace to prefix to jar names.
+NAMESPACE=eu.sqooss.service
+
 #
 # END OF USER CONFIGURATION
 #

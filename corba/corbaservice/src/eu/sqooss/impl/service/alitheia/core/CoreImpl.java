@@ -12,7 +12,8 @@ import eu.sqooss.impl.service.alitheia.JobHelper;
 import eu.sqooss.impl.service.alitheia.Metric;
 import eu.sqooss.impl.service.alitheia.MetricHelper;
 import eu.sqooss.impl.service.alitheia.job.CorbaJobImpl;
-import eu.sqooss.impl.service.alitheia.metric.CorbaMetricImpl;
+
+import eu.sqooss.impl.metrics.corba.CorbaMetricImpl;
 
 public class CoreImpl extends CorePOA {
 

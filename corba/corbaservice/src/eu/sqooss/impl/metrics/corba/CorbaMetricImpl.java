@@ -1,4 +1,4 @@
-package eu.sqooss.impl.service.alitheia.metric;
+package eu.sqooss.impl.metrics.corba;
 
 import org.osgi.framework.BundleContext;
 
