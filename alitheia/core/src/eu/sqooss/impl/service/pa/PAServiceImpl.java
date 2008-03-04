@@ -228,7 +228,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
         // Dispose from the list of available metric any old metric, that
         // uses the same ID. Should not be required, as long as metric
         // services got properly unregistered.
-        if (!registeredMetrics.containsKey(serviceId)) {
+        if (registeredMetrics.containsKey(serviceId)) {
             registeredMetrics.remove(serviceId);
         }
 
