@@ -36,42 +36,42 @@ Metric::~Metric()
 
 char* Metric::getAuthor()
 {
-    return CORBA::string_dup( "Metric::getAuthor()" );
+    return CORBA::string_dup( author().c_str() );
 }
 
 char* Metric::getDescription()
 {
-    return CORBA::string_dup( "Metric::getDescription()" );
+    return CORBA::string_dup( description().c_str() );
 }
 
 char* Metric::getName()
 {
-    return CORBA::string_dup( "Metric::getName()" );
+    return CORBA::string_dup( name().c_str() );
 }
 
 char* Metric::getVersion()
 {
-    return CORBA::string_dup( "Metric::getVersion()" );
+    return CORBA::string_dup( version().c_str() );
 }
 
 char* Metric::getResult()
 {
-    return CORBA::string_dup( "Metric::getResult()" );
+    return CORBA::string_dup( result().c_str() );
 }
 
 char* Metric::getDateInstalled()
 {
-    return CORBA::string_dup( "Metric::getDateInstalled()" );
+    return CORBA::string_dup( dateInstalled().c_str() );
 }
 
-const std::string& Metric::name() const
+const std::string& Metric::orbName() const
 {
     return d->name;
 }
 
-void Metric::setName( const std::string& name )
+void Metric::setOrbName( const std::string& orbName )
 {
-    d->name = name;
+    d->name = orbName;
 }
 
 int Metric::id() const

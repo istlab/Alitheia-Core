@@ -88,7 +88,7 @@ int Core::registerMetric( Metric* metric )
     std::stringstream ss;
     ss << "Alitheia_Metric_" << ++metricCount;
     const std::string name = ss.str();
-    metric->setName( name );
+    metric->setOrbName( name );
     CorbaHandler::instance()->exportObject( metric->_this(), name.c_str() );
     const int id = d->core->registerMetric( CORBA::string_dup( name.c_str() ) );
     metric->setId( id );

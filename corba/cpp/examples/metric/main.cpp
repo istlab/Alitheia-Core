@@ -10,6 +10,36 @@ using namespace Alitheia;
 
 class MyMetric : public Metric
 {
+public:
+    string name() const
+    {
+        return "Example CORBA metric";
+    }
+
+    string author() const
+    {
+        return "Max Mustermann";
+    }
+
+    string description() const
+    {
+        return "This is just an example about how to put CORBA metrics into alitheia.";
+    }
+
+    string version() const
+    {
+        return "1.0.0.0";
+    }
+
+    string result() const
+    {
+        return string();
+    }
+
+    string dateInstalled() const
+    {
+        return string();
+    }
 };
 
 int main( int argc, char **argv)

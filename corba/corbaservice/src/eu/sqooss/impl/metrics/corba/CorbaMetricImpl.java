@@ -9,49 +9,46 @@ import eu.sqooss.service.db.DAObject;
 
 public class CorbaMetricImpl extends AbstractMetric {
 
-	public CorbaMetricImpl(BundleContext bc, Metric m) {
-		super(bc);
-		// TODO Auto-generated constructor stub
-	}
+    Metric m;
 
-	public String getAuthor() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public CorbaMetricImpl(BundleContext bc, Metric m) {
+        super(bc);
+        this.m = m;
+    }
 
-	public String getDescription() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public String getAuthor() {
+        return m.getAuthor();
+    }
 
-	@Override
-	public String getName() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public String getDescription() {
+        return m.getDescription();
+    }
 
-	@Override
-	public Result getResult(DAObject o) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public String getName() {
+        return m.getName();
+    }
 
-	@Override
-	public String getVersion() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public Result getResult(DAObject o) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public boolean remove() {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    @Override
+    public String getVersion() {
+        return m.getVersion();
+    }
 
-	@Override
-	public boolean update() {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    @Override
+    public boolean remove() {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
+    @Override
+    public boolean update() {
+        // TODO Auto-generated method stub
+        return false;
+    }
 }
