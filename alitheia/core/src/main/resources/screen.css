@@ -177,6 +177,10 @@ body.section-4 #menu li#nav-4 a {
     	background-color: #fcfbf2;
 }
 
+#contents h2 {
+        font-size: 12pt;
+}
+
 #contents .logs {
 	font-family: monospace;
 }
@@ -211,7 +215,7 @@ form p {
 	clear: left;
 	border: 1px dotted #ccc;
 	margin: 15px 0 10px 0;
-	font-size: small;
+	font-size: 10pt;
 }
 
 #start {
