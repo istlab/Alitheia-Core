@@ -131,7 +131,8 @@ public class SCMAccessorImpl extends NamedAccessorImpl implements SCMAccessor {
 
         if (r.hasSVNRevision()) {
             if (r.getSVNRevision() > getHeadRevision()) {
-                throw new InvalidProjectRevisionException("Revision > HEAD", null);
+                throw new InvalidProjectRevisionException(
+                        r.getSVNRevision() + " > HEAD", null);
             }
             return r.getSVNRevision();
         } else {
