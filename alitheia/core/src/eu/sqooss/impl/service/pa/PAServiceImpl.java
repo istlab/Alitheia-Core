@@ -444,7 +444,6 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
     }
 
     public ServiceReference[] listMetricProviders(Class<?> o) {
-        System.out.println(o.getName());
         // There should be at least one registered metric
         if (!registeredMetrics.isEmpty()) {
             // All registered metrics
@@ -459,7 +458,6 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
                 if ((nextMetric.isType(o.getName()))
                     && (nextMetric.getServiceRef() != null)) {
                         matching.add(nextMetric.getServiceRef());
-                        System.out.println(nextMetric.getMetricName());
                     }
             }
             // Return the matching ones
