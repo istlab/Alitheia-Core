@@ -1,5 +1,7 @@
 package eu.sqooss.service.pa;
 
+import org.osgi.framework.ServiceReference;
+
 /**
  * The Class MetricInfo.
  */
@@ -7,9 +9,11 @@ public class MetricInfo {
     private long        bundleID        = -1;
     private String      bundleName      = null;
     private Long        serviceID       = new Long(-1);
+    private ServiceReference serviceRef = null;
     private String      metricName      = null;
     private String      metricVersion   = null;
     private String[]    objectClass     = null;
+    private String[]    metricType      = null;
     public boolean      installed       = false;
 
     /**
@@ -106,6 +110,46 @@ public class MetricInfo {
         }
         
         return false;
+    }
+
+    /**
+     * @return the metricClass
+     */
+    public String[] getMetricType() {
+        return metricType;
+    }
+
+    /**
+     * @param metricClass the metricClass to set
+     */
+    public void setMetricType(String[] objectType) {
+        this.metricType = objectType;
+    }
+
+    public boolean isType(String class_name) {
+        if ((metricType != null) && (metricType.length > 0)) {
+            for (int i=0 ; i < metricType.length ; i++) {
+                if (metricType[i].equals(class_name)) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
+    }
+
+    /**
+     * @return the serviceRef
+     */
+    public ServiceReference getServiceRef() {
+        return serviceRef;
+    }
+
+    /**
+     * @param serviceRef the serviceRef to set
+     */
+    public void setServiceRef(ServiceReference serviceRef) {
+        this.serviceRef = serviceRef;
     }
 
 }

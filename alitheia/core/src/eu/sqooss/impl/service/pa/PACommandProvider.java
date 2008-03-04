@@ -130,7 +130,8 @@ public class PACommandProvider implements CommandProvider {
                             + " " + nextMetric.getBundleName());
 
                     String[] metricClasses = nextMetric.getObjectClass();
-                    if (metricClasses.length > 0) {
+                    if ((metricClasses != null)
+                            && (metricClasses.length > 0)) {
                         if (metricClasses.length == 1) {
                             ci.print("  Service class\t\t: ");
                         }
@@ -146,6 +147,27 @@ public class PACommandProvider implements CommandProvider {
                             }
                             else {
                                 ci.println("\t\t" + metricClasses[nextClass]);
+                            }
+                        }
+                    }
+
+                    String[] metricType = nextMetric.getMetricType();
+                    if ((metricType != null) && (metricType.length > 0)) {
+                        if (metricType.length == 1) {
+                            ci.print("  Metric type\t\t: ");
+                        }
+                        else {
+                            ci.println("  Metric types\t\t: ");
+                        }
+
+                        for (int nextType = 0;
+                        nextType < metricType.length;
+                        nextType++) {
+                            if (metricType.length == 1) {
+                                ci.println(metricType[nextType]);
+                            }
+                            else {
+                                ci.println("\t\t\t  " + metricType[nextType]);
                             }
                         }
                     }

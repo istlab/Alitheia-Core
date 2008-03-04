@@ -34,6 +34,7 @@ package eu.sqooss.impl.service.pa;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Vector;
 
 import org.eclipse.osgi.framework.console.CommandProvider;
 import org.osgi.framework.BundleContext;
@@ -43,8 +44,15 @@ import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
 
+import eu.sqooss.service.abstractmetric.FileGroupMetric;
 import eu.sqooss.service.abstractmetric.Metric;
+import eu.sqooss.service.abstractmetric.ProjectFileMetric;
 import eu.sqooss.service.abstractmetric.ProjectVersionMetric;
+import eu.sqooss.service.abstractmetric.StoredProjectMetric;
+import eu.sqooss.service.db.FileGroup;
+import eu.sqooss.service.db.ProjectFile;
+import eu.sqooss.service.db.ProjectVersion;
+import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.pa.ConfigUtils;
 import eu.sqooss.service.pa.MetricConfig;
 import eu.sqooss.service.pa.MetricInfo;
@@ -148,9 +156,10 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
         if (srefMetric != null) {
             MetricInfo metricInfo = new MetricInfo();
 
-            // Set the metric's service ID
+            // Set the metric's service ID and service reference
             metricInfo.setServiceID(
                     (Long) srefMetric.getProperty(Constants.SERVICE_ID));
+            metricInfo.setServiceRef(srefMetric);
 
             // Set the class name(s) of the object(s) used in the
             // service registration
@@ -166,10 +175,30 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
                     srefMetric.getBundle().getSymbolicName());
 
             // SQO-OSS related info fields
-            Metric metric_object = (Metric) bc.getService(srefMetric);
-            if (metric_object != null) {
-                metricInfo.setMetricName(metric_object.getName());
-                metricInfo.setMetricVersion(metric_object.getVersion());
+            Metric metricObject = (Metric) bc.getService(srefMetric);
+            if (metricObject != null) {
+                metricInfo.setMetricName(metricObject.getName());
+                metricInfo.setMetricVersion(metricObject.getVersion());
+                
+                // Retrieve all object types that this metric can calculate
+                Vector<String> metricType = new Vector<String>();
+                if (metricObject instanceof ProjectFileMetric) {
+                    metricType.add(ProjectFile.class.getName());
+                }
+                if (metricObject instanceof ProjectVersionMetric) {
+                    metricType.add(ProjectVersion.class.getName());
+                }
+                if (metricObject instanceof StoredProjectMetric) {
+                    metricType.add(StoredProject.class.getName());
+                }
+                if (metricObject instanceof FileGroupMetric) {
+                    metricType.add(FileGroup.class.getName());
+                }
+                if (!metricType.isEmpty()) {
+                    String[] types = new String[metricType.size()];
+                    types = metricType.toArray(types);
+                    metricInfo.setMetricType(types);
+                }
             }
 
             return metricInfo;
@@ -340,7 +369,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
 /* ===[ Implementation of the PluginAdmin interface ]===================== */
 
     public Collection<MetricInfo> listMetrics() {
-        if (registeredMetrics.isEmpty() == false) {
+        if (!registeredMetrics.isEmpty()) {
             return registeredMetrics.values();
         }
         return null;
@@ -415,31 +444,35 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
     }
 
     public ServiceReference[] listMetricProviders(Class<?> o) {
-/*       String targetClassName = null;
-        if (o.equals(StoredProject.class))
-            targetClassName = StoredProjectMetric.class.getName();
-        else if (o.equals(ProjectVersion.class))
-            targetClassName = ProjectVersionMetric.class.getName();
-        else if (o instanceof ProjectFile)
-            targetClassName = ProjectFileMetric.class.getName();
-        else if (o instanceof FileGroup)
-            targetClassName = FileGroupMetric.class.getName();
-        else {
-            // Just bail out if we don't know what to do with this
-            return null;
+        System.out.println(o.getName());
+        // There should be at least one registered metric
+        if (!registeredMetrics.isEmpty()) {
+            // All registered metrics
+            Iterator<MetricInfo> metrics =
+                registeredMetrics.values().iterator();
+            // Metrics matching this search
+            Vector<ServiceReference> matching =
+                new Vector<ServiceReference>();
+            // Search for metric of compatible type
+            while (metrics.hasNext()) {
+                MetricInfo nextMetric = metrics.next();
+                if ((nextMetric.isType(o.getName()))
+                    && (nextMetric.getServiceRef() != null)) {
+                        matching.add(nextMetric.getServiceRef());
+                        System.out.println(nextMetric.getMetricName());
+                    }
+            }
+            // Return the matching ones
+            if (matching.size() > 0) {
+                ServiceReference[] metricsList =
+                    new ServiceReference[matching.size()];
+                metricsList = matching.toArray(metricsList);
+                return metricsList;
+            }
         }
-*/
-        ServiceReference[] metricsList = null;
-        try {
-            metricsList = bc.getServiceReferences(o.getName(), SREF_FILTER_METRIC);
-        } catch (InvalidSyntaxException e) {
-            logError(INVALID_FILTER_SYNTAX);
-            return null;
-        }
-
-        return metricsList;
+        return null;
     }
-    
+
     public ServiceReference[] listProjectVersionMetrics() {
         try {
             return bc.getServiceReferences(ProjectVersionMetric.class.getName(), SREF_FILTER_METRIC);
