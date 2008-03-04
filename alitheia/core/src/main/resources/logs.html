@@ -37,6 +37,24 @@
             </li>
           </ul>
         </fieldset>
+        <fieldset id="status">
+          <legend>Job Info</legend>	
+          Jobs Executing: 
+          	@@JOB_EXEC 
+          	<br />
+          Jobs Waiting: 
+          	@@JOB_WAIT 
+          	<br />
+          Failed Jobss: 
+          	@@JOB_FAILED 
+          	<br />
+          Worker Threads: 
+          	@@JOB_WORKTHR 
+          	<br />
+          Total Jobs: 
+          	@@JOB_TOTAL 
+          	<br />
+        </fieldset>
         <fieldset id="options">
           <legend>Options</legend>	
           <form id="start" method="post" action="restart">
