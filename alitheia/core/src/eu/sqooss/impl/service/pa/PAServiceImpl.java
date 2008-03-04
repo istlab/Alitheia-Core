@@ -472,12 +472,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
     }
 
     public ServiceReference[] listProjectVersionMetrics() {
-        try {
-            return bc.getServiceReferences(ProjectVersionMetric.class.getName(), SREF_FILTER_METRIC);
-        } catch (InvalidSyntaxException e) {
-            logError(INVALID_FILTER_SYNTAX);
-            return null;
-        }
+        return (listMetricProviders(ProjectVersion.class));
     }
 
     private void logError(String msgText) {
