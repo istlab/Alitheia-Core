@@ -35,21 +35,65 @@ package eu.sqooss.impl.service.fds;
 
 import eu.sqooss.service.fds.Timeline;
 import eu.sqooss.service.fds.ProjectEvent;
+import eu.sqooss.service.fds.RepositoryEvent;
+
 import eu.sqooss.service.db.StoredProject;
+import eu.sqooss.service.db.ProjectVersion;
+
+import java.net.URL;
+import java.net.MalformedURLException;
 
 import java.util.Calendar;
+import java.util.Date;
 import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.List;
 
 /**
  * The TimelineImpl implements the Timeline interface. It represents a
  * chronological view of the events that change a project's state.
  */
-class TimelineImplImpl implements Timeline {
-    
+class TimelineImpl implements Timeline {
+   
+    private StoredProject project;
+
+    public TimelineImpl(StoredProject project) {
+        this.project = project;
+    }
+
     // Interface Timeline
     /** {@inheritDoc} */
-    public SortedSet<ProjectEvent> getTimeLine(StoredProject project, Calendar from, Calendar to, EventType rt) {
-        return null;
+    public SortedSet<ProjectEvent> getTimeLine(Calendar from, Calendar to, EventType rt) {
+        SortedSet<ProjectEvent> result = new TreeSet<ProjectEvent>();
+
+        final long begin = (long)(from.getTime().getTime());
+        final long end = (long)(to.getTime().getTime());
+
+        if (rt==EventType.SVN || rt==EventType.ALL) {
+            // get all versions
+            List<ProjectVersion> versions = project.getProjectVersions();
+            for(ProjectVersion version : versions) {
+                // compare the version's timestop to \a from ond \a to
+                if (version.getTimestamp() < begin || version.getTimestamp() > end)
+                    continue;
+                // TODO: How to I create the URL?
+                URL url = null;
+                try {
+                    url = new URL("repo://...");
+                } catch(MalformedURLException e) {
+                }
+
+                result.add(new RepositoryEvent(version.getTimestamp(), url, version));
+            }
+        }
+        if( rt==EventType.MAIL || rt==EventType.ALL) {
+            // TODO
+        }
+        if( rt==EventType.BTS || rt==EventType.ALL) {
+            // TODO
+        }
+
+        return result;
     }
 }
 

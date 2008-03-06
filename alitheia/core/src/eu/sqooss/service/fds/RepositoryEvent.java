@@ -42,7 +42,7 @@ import eu.sqooss.service.db.ProjectVersion;
  */
 public class RepositoryEvent extends ProjectEvent {
     
-    RepositoryEvent(long ts, URL url, ProjectVersion dao) {
+    public RepositoryEvent(long ts, URL url, ProjectVersion dao) {
         this.timestamp = ts;
         this.resourceURL = url;
         this.associatedDAO = dao;
