@@ -33,9 +33,13 @@
 
 package eu.sqooss.service.db;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import eu.sqooss.service.db.DAObject;
+
+import eu.sqooss.impl.service.CoreActivator;
 
 public class ProjectVersion extends DAObject {
     private StoredProject project;
@@ -81,6 +85,26 @@ public class ProjectVersion extends DAObject {
     
     public Tag addTag() {
         return new Tag(this);
+    }
+
+    public List<Commit> getCommits() {
+        DBService dbs = CoreActivator.getDBService();
+        
+        String paramProjectVersion = "project_version";
+        String query = "select ci " +
+                       "from Commit ci " +
+                       "where ci.projectVersion.project_version=:" +
+                       paramProjectVersion;
+
+        Map<String,Object> parameters = new HashMap<String,Object>();
+        parameters.put(paramProjectVersion, this.getVersion());
+        
+        List<?> commits = dbs.doHQL(query, parameters);
+        if ((commits == null) || (commits.isEmpty())) {
+            return null;
+        } else {
+            return (List<Commit>) commits;
+        }
     }
 }
 
