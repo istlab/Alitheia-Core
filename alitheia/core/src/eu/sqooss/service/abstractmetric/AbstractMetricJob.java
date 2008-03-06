@@ -43,7 +43,6 @@ import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.tds.TDSService;
 
-
 /**
  * A scheduler job for calculating metric results. This class
  * basically initializes references to common core services to
@@ -63,44 +62,30 @@ public class AbstractMetricJob extends Job {
         
         ServiceReference serviceRef = null;
         serviceRef = owner.bc.getServiceReference(AlitheiaCore.class.getName());
-        logService = ((AlitheiaCore) owner.bc.getService(serviceRef)).getLogManager();
+        core = (AlitheiaCore) owner.bc.getService(serviceRef);
+        logService = core.getLogManager();
 
-        if (logService != null) {
+        if (logService != null) 
             log = logService.createLogger(Logger.NAME_SQOOSS_METRIC);
 
-        if (log != null)
-            log.info("Got a valid reference to the logger");
-        }
-
-        if (log == null) {
+        if (log == null)
             System.out.println("ERROR: Got no logger");
-        }
 
         tds = core.getTDSService();
 
-        if (tds != null) {
-            log.info("Got TDS Service!");
-        } else {
+        if (tds == null) 
             log.error("Didn't get TDS Service");
-        }
 
         fds = core.getFDSService();
 
-        if (fds != null) {
-            log.info("Got FDS Service!");
-        } else {
+        if (fds == null) 
             log.error("Didn't get FDS Service");
-        }
 
         db = core.getDBService();
 
-        if (db != null) {
-            log.info("Got DB Service!");
-        } else {
+        if (db == null) 
             log.error("Didn't get DB Service");
-        }
     }
-    
     
     @Override
     public int priority() {
