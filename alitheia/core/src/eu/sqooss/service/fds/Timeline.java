@@ -33,6 +33,8 @@
 
 package eu.sqooss.service.fds;
 
+import eu.sqooss.service.db.StoredProject;
+
 import java.util.Calendar;
 import java.util.SortedSet;
 
@@ -66,19 +68,20 @@ public interface Timeline {
     }
     
     /**
-     * Return a timeline of events for project p, starting from and including 
+     * Return a timeline of events for \a project, starting from and including 
      * events occurred at timestamp <tt>from</tt> ending up and including
      * events occurred at timestamp <tt>to</tt> for the specified EventType.
      * If the resource type parameter is ALL, then a timeline of all events
      * is returned
      *  
+     * @param project Project to get events from
      * @param from Timeline start
      * @param to Timeline end
      * @param rt The resource type to include in the event timeline. If 
      *  equals to EventType.ALL then event types for all resources are returned.
      * @return A sorted list of TimeLineEntries
      */
-    SortedSet<ProjectEvent> getTimeLine(Calendar from, Calendar to, EventType rt);
+    SortedSet<ProjectEvent> getTimeLine(StoredProject project, Calendar from, Calendar to, EventType rt);
 }
 
 
