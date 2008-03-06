@@ -10,4 +10,5 @@ Import-Package: eu.sqooss.service.logging,
     eu.sqooss.service.abstractmetric,
     eu.sqooss.service.scheduler,
     eu.sqooss.service.db,
+    eu.sqooss.core,
     eu.sqooss.lib.result
