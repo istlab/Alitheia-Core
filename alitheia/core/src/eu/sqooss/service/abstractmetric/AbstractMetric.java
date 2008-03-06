@@ -194,41 +194,11 @@ implements eu.sqooss.service.abstractmetric.Metric {
      *          is to be measured by that sub-interface.
      * @throws MetricMismatchException if the DAO is of a type
      *          not supported by this metric.
+     *          
+     * FIXME: 
      */
-    public void run(DAObject o)
-        throws MetricMismatchException {
-        // A DAObject might match multiple dispatches, so we keep
-        // track of whether it has matched any at all; at the end
-        // of this method, if no match was found (meaning that
-        // the type of the DAO is inappropriate for this metric)
-        // we throw a MetricMismatchException.
-        boolean matched = false;
-
-        if ((this instanceof ProjectVersionMetric) &&
-            (o instanceof ProjectVersion)) {
-            run((ProjectVersion) o);
-            matched = true;
-        }
-        if ((this instanceof StoredProjectMetric) &&
-            (o instanceof StoredProject)) {
-            run((StoredProject) o);
-            matched = true;
-        }
-        if ((this instanceof ProjectFileMetric) &&
-            (o instanceof ProjectFile)) {
-            run((ProjectFile) o);
-            matched = true;
-        }
-        if ((this instanceof FileGroupMetric) &&
-            (o instanceof FileGroup)) {
-            run((FileGroup) o);
-            matched = true;
-        }
-        if (!matched) {
-            throw new MetricMismatchException(o);
-        }
-    }
-
+    public abstract void run(DAObject o) throws MetricMismatchException;
+   
     /**
      * Add a supported metric description to the database.
      *

@@ -43,6 +43,8 @@ import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.lib.result.Result;
 import eu.sqooss.metrics.wc.Wc;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
+import eu.sqooss.service.abstractmetric.MetricMismatchException;
+import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.scheduler.Scheduler;
@@ -74,16 +76,27 @@ public class WcImplementation extends AbstractMetric implements Wc {
     }
 
     public void run(ProjectFile a) {
-        WcJob w = new WcJob(this, (ProjectFile)a);
-        
-        ServiceReference serviceRef = null;
-        serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
-        Scheduler s = ((AlitheiaCore)bc.getService(serviceRef)).getScheduler();
         try {
+            WcJob w = new WcJob(this, a);
+
+            ServiceReference serviceRef = null;
+            serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
+            Scheduler s = ((AlitheiaCore) bc.getService(serviceRef)).getScheduler();
+
             s.enqueue(w);
         } catch (Exception e) {
             log.error("Could not schedule wc job for project file: " + ((ProjectFile)a).getName());
         }
+    }
+
+    @Override
+    /*FIXME: There must be some way to push this to the parent class*/
+    public final void run(DAObject o) throws MetricMismatchException {
+        if(! (o instanceof ProjectFile))
+            throw new MetricMismatchException(o);
+        
+        run((ProjectFile) o);
+        
     }
 }
 

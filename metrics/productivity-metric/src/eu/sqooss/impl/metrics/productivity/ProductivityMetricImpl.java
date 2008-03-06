@@ -38,6 +38,8 @@ import org.osgi.framework.BundleContext;
 import eu.sqooss.lib.result.Result;
 import eu.sqooss.metrics.productivity.ProductivityMetric;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
+import eu.sqooss.service.abstractmetric.MetricMismatchException;
+import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 
@@ -82,8 +84,6 @@ public class ProductivityMetricImpl extends AbstractMetric implements
     }
 
     public boolean run(ProjectVersion a, ProjectVersion b) {
-        CodeCommitsJob ccj = new CodeCommitsJob(this, a, b);
-        //
         return false;
     }
 
@@ -94,6 +94,17 @@ public class ProductivityMetricImpl extends AbstractMetric implements
 
         return null;
     }
+
+    @Override
+    /*FIXME: There must be some way to push this to the parent class*/
+    public void run(DAObject o) throws MetricMismatchException {
+        if(! (o instanceof ProjectVersion) && 
+                ! (o instanceof StoredProject))
+            throw new MetricMismatchException(o);
+        
+        run((ProjectVersion) o);
+    }
+
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab
