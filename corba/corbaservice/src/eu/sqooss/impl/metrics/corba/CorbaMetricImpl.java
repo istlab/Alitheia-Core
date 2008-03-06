@@ -51,4 +51,8 @@ public class CorbaMetricImpl extends AbstractMetric {
         // TODO Auto-generated method stub
         return false;
     }
+
+    @Override
+    public void run(DAObject obj) {
+    }
 }

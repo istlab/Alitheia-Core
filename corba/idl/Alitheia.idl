@@ -43,6 +43,51 @@ module alitheia
     void error( in string logger, in string text );
   };
 
+  struct ProjectVersion;
+  struct ProjectFile;
+  typedef sequence<ProjectFile> ProjectFileList;
+  typedef sequence<ProjectVersion> ProjectVersionList;
+
+  struct StoredProject
+  {
+    string name;
+    string website;
+    string contact;
+    string bugs;
+    string repository;
+    string mail;
+  };
+
+  struct ProjectVersion
+  {
+    StoredProject project;
+    long version;
+    long timeStamp;
+  };
+
+  struct ProjectFile
+  {
+    string name;
+    ProjectVersion projectVersion;
+    string status;
+  };
+
+  struct Tag
+  {
+    ProjectVersion projectVersion;
+    string name;
+  };
+
+  struct FileGroup
+  {
+     string name;
+     string subPath;
+     string regex;
+     long recalcFreq;
+     string lastUsed;
+     ProjectVersion projectVersion;
+  };
+
   interface Metric
   {
     // Get information about the metric author
