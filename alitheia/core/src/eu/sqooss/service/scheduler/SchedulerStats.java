@@ -33,6 +33,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package eu.sqooss.service.scheduler;
 
+import java.util.HashMap;
+
 public class SchedulerStats {
     // the number of jobs currently in the scheduler
     private long totalJobs = 0;
@@ -48,6 +50,8 @@ public class SchedulerStats {
     private long idleWorkerThreads = 0;
     // the number of jobs which failed
     private long failedJobs = 0;
+    //Classname->Failed Jobs 
+    private HashMap<String, Integer> failedJobTypes = new HashMap<String, Integer>();
     
     public synchronized void incTotalJobs() {
         totalJobs++;
@@ -77,10 +81,6 @@ public class SchedulerStats {
         runningJobs--;
     }
     
-    public synchronized void incFailedJobs() {
-        failedJobs++;
-    }
-    
     public synchronized void incWorkerThreads() {
         workerThreads++;
     }
@@ -95,6 +95,14 @@ public class SchedulerStats {
     
     public synchronized void decIdleWorkerThreads() {
         idleWorkerThreads--;
+    }
+    
+    public synchronized void addFailedJob(String classname) {
+        this.failedJobs++;
+        if (failedJobTypes.containsKey(classname))
+            failedJobTypes.put(classname, (failedJobTypes.get(classname) + 1));
+        else
+            failedJobTypes.put(classname, 1);
     }
 
     public long getTotalJobs() {
@@ -125,6 +133,8 @@ public class SchedulerStats {
         return failedJobs;
     }
     
-    
+    public HashMap<String, Integer> getFailedJobTypes() {
+        return failedJobTypes;
+    }
     
 }

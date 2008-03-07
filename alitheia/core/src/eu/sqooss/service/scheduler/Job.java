@@ -81,7 +81,6 @@ public abstract class Job implements Comparable<Job> {
 
     private Exception m_errorException;
 
-
     /**
      * @return The current state of the job.
      */
@@ -132,7 +131,7 @@ public abstract class Job implements Comparable<Job> {
     }
 
     /**
-     * Checks recursive wheter this job depends on job \a other.
+     * Checks recursive whether this job depends on job \a other.
      * @param other the job to check dependency of.
      * @return true, when the job depends on \a other, otherwise false.
      */
@@ -160,7 +159,7 @@ public abstract class Job implements Comparable<Job> {
             run();
             setState(State.Finished);
         } catch(Exception e) {
-            // I case of an exception, state becomes Error
+            // In case of an exception, state becomes Error
             m_errorException = e;
             setState(State.Error);
             // the Exception itself is forwarded
@@ -255,6 +254,14 @@ public abstract class Job implements Comparable<Job> {
             }
         }
         return true;
+    }
+    
+    /**
+     * Return the exception that caused this Job to quit
+     * @return An exception object or null if the job has finished normally
+     */
+    public final Exception getErrorException() {
+        return this.m_errorException;
     }
 
     /**

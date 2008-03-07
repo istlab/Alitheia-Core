@@ -120,6 +120,12 @@ input {
 	border-bottom : 1px solid #ccc;
 }
 
+#menu li#nav-4 a {
+	background : #eee url(/gear.png) 0 3px no-repeat;
+	padding-left: 25px;
+	border-bottom : 1px solid #ccc;
+}
+
 body.section-1 #menu li#nav-1 a, 
 body.section-2 #menu li#nav-2 a,
 body.section-3 #menu li#nav-3 a,
@@ -128,8 +134,6 @@ body.section-4 #menu li#nav-4 a {
 	border-bottom : 1px solid #fff;
 	color : #000;
 }
-
-
 
 #menu ul a:hover {
 	color : #f00 !important;

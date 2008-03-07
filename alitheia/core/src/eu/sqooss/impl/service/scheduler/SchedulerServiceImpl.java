@@ -36,12 +36,11 @@ package eu.sqooss.impl.service.scheduler;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
 
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
-import org.osgi.service.http.HttpService;
 
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.scheduler.Job;
@@ -51,10 +50,6 @@ import eu.sqooss.service.scheduler.SchedulerStats;
 
 public class SchedulerServiceImpl implements Scheduler {
 
-    private ServiceReference serviceRef = null;
-
-    private HttpService httpService = null;
-
     private Logger logger = null;
 
     private SchedulerStats stats = new SchedulerStats();
@@ -62,6 +57,8 @@ public class SchedulerServiceImpl implements Scheduler {
     // thread safe job queue
     private BlockingQueue< Job > blockedQueue = new PriorityBlockingQueue< Job >( 1, new JobPriorityComparator() );
     private BlockingQueue< Job > workQueue = new PriorityBlockingQueue< Job >( 1, new JobPriorityComparator() );
+    
+    private BlockingQueue< Job > failedQueue = new ArrayBlockingQueue<Job>(1000);
 
     private List< WorkerThread > myWorkerThreads = null;
 
@@ -89,8 +86,6 @@ public class SchedulerServiceImpl implements Scheduler {
         job.callAboutToBeDequeued(this);
         blockedQueue.remove(job);
         workQueue.remove(job);
-        stats.incWaitingJobs();
-        stats.decTotalJobs();
         if (logger != null) {
             logger.info("SchedulerServiceImpl: job " + job.toString() + " not found in the queue." );
         }
@@ -110,22 +105,20 @@ public class SchedulerServiceImpl implements Scheduler {
             logger.info("Job " + job + " changed to state " + state);
         }
        
-        if (state == Job.State.Finished)
-        {
-            stats.decTotalJobs();
+        if (state == Job.State.Finished) {
             stats.decRunningJobs();
             stats.incFinishedJobs();
-        }
-        else if (state == Job.State.Running)
-        {
+        } else if (state == Job.State.Running) {
             stats.decWaitingJobs();
             stats.incRunningJobs();
-        }
-        else if (state == Job.State.Error)
-        {
-            stats.decTotalJobs();
+        } else if (state == Job.State.Error) {
+            
+            if(failedQueue.remainingCapacity() == 1)
+                failedQueue.remove();
+            failedQueue.add(job);
+            
             stats.decRunningJobs();
-            stats.incFailedJobs();
+            stats.addFailedJob(job.getClass().toString());
         }
     }
 
@@ -307,5 +300,15 @@ public class SchedulerServiceImpl implements Scheduler {
 
     public SchedulerStats getSchedulerStats() {
         return stats;
+    }
+
+    public Job[] getFailedQueue() {
+        Job[] failedJobs = new Job[failedQueue.size()];
+        return failedQueue.toArray(failedJobs);
+    }
+    
+    public Job[] getWaitQueue() {
+        Job[] blockedJobs = new Job[blockedQueue.size()];
+        return blockedQueue.toArray(blockedJobs);   
     }
 }

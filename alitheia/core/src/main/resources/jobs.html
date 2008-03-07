@@ -20,10 +20,33 @@
 		  <li id="nav-4"><a href="/jobs">Jobs</a></li>
 	</ul>
 	<div id="contents">
-          <h2>Installed Bundles</h2>
-          <div id="bundles">
-            @@BUNDLE
-          </div>	
+	<h2>Job statistics</h2>
+		<ul>
+          <li>Jobs Executing: 
+          	@@JOB_EXEC
+          </li>
+          <li> 
+          Jobs Waiting: 
+          	@@JOB_WAIT
+          </li>
+          <li> 
+          Failed Jobs: 
+          	@@JOB_FAILED
+          </li>
+          <li> 
+          Worker Threads: 
+          	@@JOB_WORKTHR
+          </li>
+          <li> 
+          Total Jobs: 
+          	@@JOB_TOTAL
+          </li> 
+        </ul>
+        <a href="alljobs">Job details</a>
+	<h2>Job failure statistics</h2>
+		<div id="bundles">
+    	@@JOBFAILSTATS
+    	</div>    
 	</div>
       </div>
       <div id="sidebar">
@@ -37,24 +60,6 @@
             @@QUEUE_LENGTH
             </li>
           </ul>
-        </fieldset>
-        <fieldset id="status">
-          <legend>Job Info</legend>	
-          Jobs Executing: 
-          	@@JOB_EXEC 
-          	<br />
-          Jobs Waiting: 
-          	@@JOB_WAIT 
-          	<br />
-          Failed Jobss: 
-          	@@JOB_FAILED 
-          	<br />
-          Worker Threads: 
-          	@@JOB_WORKTHR 
-          	<br />
-          Total Jobs: 
-          	@@JOB_TOTAL 
-          	<br />
         </fieldset>
         <fieldset id="options">
           <legend>Options</legend>	

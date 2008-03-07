@@ -34,6 +34,23 @@
 
 package eu.sqooss.impl.service.webadmin;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+
+import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -44,34 +61,12 @@ import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.scheduler.Scheduler;
-import eu.sqooss.service.scheduler.SchedulerStats;
 import eu.sqooss.service.tds.TDSService;
+import eu.sqooss.service.updater.UpdaterService;
 import eu.sqooss.service.util.Pair;
 import eu.sqooss.service.util.StringUtils;
-import eu.sqooss.service.updater.UpdaterService;
-
-import java.lang.management.RuntimeMXBean;
-import java.lang.management.ManagementFactory;
-
-import java.util.Date;
-import java.util.Formatter;
-import java.util.Hashtable;
-import java.util.List;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.IOException;
-import java.io.PrintWriter;
-
-// Java Extensions
-import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpServlet;
 
 public class AdminServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
@@ -184,6 +179,7 @@ public class AdminServlet extends HttpServlet {
             addStaticContent("/projects.png", "image/x-png");
             addStaticContent("/logs.png", "image/x-png");
             addStaticContent("/bundles.png", "image/x-png");
+            addStaticContent("/gear.png", "image/x-png");
             addStaticContent("/header-repeat.png", "image/x-png");
 
             // Pages
@@ -193,7 +189,8 @@ public class AdminServlet extends HttpServlet {
             dynamicContentMap.put("/index", "/index.html");
             dynamicContentMap.put("/projects", "/projects.html");
             dynamicContentMap.put("/logs", "/logs.html");
-
+            dynamicContentMap.put("/jobs", "/jobs.html");
+            dynamicContentMap.put("/alljobs", "/alljobs.html");
             dynamicSubstitutions = new Hashtable<String,String>();
         }
     }
@@ -219,6 +216,116 @@ public class AdminServlet extends HttpServlet {
         } else {
             return null;
         }
+    }
+    
+    /**
+     * Creates and HTML table with information about the jobs that 
+     * failed and the recorded exceptions
+     * @return
+     */
+    protected String renderFailedJobs() {
+        StringBuilder result = new StringBuilder();
+        Job[] jobs = sobjSched.getFailedQueue();
+        result.append("<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n");
+        result.append("\t<thead>\n");
+        result.append("\t\t<tr>\n");
+        result.append("\t\t\t<td>Job Type</td>\n");
+        result.append("\t\t\t<td>Exception type</td>\n");
+        result.append("\t\t\t<td>Exception text</td>\n");
+        result.append("\t\t\t<td>Exception backtrace</td>\n");
+        result.append("\t\t</tr>\n");
+        result.append("\t</thead>\n");
+        result.append("\t<tbody>\n");
+
+        for(Job j: jobs) {
+            result.append("\t\t<tr>\n\t\t\t<td>");
+            result.append(j.getClass().toString());
+            result.append("</td>\n\t\t\t<td>");
+            result.append(j.getErrorException().getClass().toString());
+            result.append("</td>\n\t\t\t<td>");
+            result.append(j.getErrorException().getMessage());
+            result.append("</td>\n\t\t\t<td>");
+            for(StackTraceElement m: j.getErrorException().getStackTrace()) {
+                result.append(m.getClassName());
+                result.append(".");
+                result.append(m.getMethodName());
+                result.append("(), (");
+                result.append(m.getFileName());
+                result.append(":");
+                result.append(m.getLineNumber());
+                result.append(")<br/>");
+            }
+            
+            result.append("\t\t\t</td>\n\t\t</tr>");
+        }
+        
+        result.append("\t</tbody>\n");
+        result.append("</table>");
+        
+        return result.toString();
+    }
+
+    protected String renderWaitJobs() {
+        StringBuilder result = new StringBuilder();
+        Job[] jobs = sobjSched.getWaitQueue();
+        result.append("<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n");
+        result.append("\t<thead>\n");
+        result.append("\t\t<tr>\n");
+        result.append("\t\t\t<td>Queue pos</td>\n");
+        result.append("\t\t\t<td>Job Type</td>\n");
+        result.append("\t\t\t<td>Job depedencies</td>\n");
+        result.append("\t\t</tr>\n");
+        result.append("\t</thead>\n");
+        result.append("\t<tbody>\n");
+
+        int i = 0;
+        for(Job j: jobs) {
+            i++;
+            result.append("\t\t<tr>\n\t\t\t<td>");
+            result.append(i);
+            result.append("</td>\n\t\t\t<td>");
+            result.append(j.getClass().toString());
+            result.append("</td>\n\t\t\t<td>");
+            Iterator<Job> ji = j.dependencies().iterator();
+            
+            while(ji.hasNext()) {
+                result.append(ji.next().getClass().toString());
+                if(ji.hasNext())
+                    result.append(",");
+            }
+            result.append("</td>\n\t\t\t<td>");
+            
+            result.append("\t\t\t</td>\n\t\t</tr>");
+        }
+        
+        result.append("\t</tbody>\n");
+        result.append("</table>");
+        
+        return result.toString();
+    }
+
+    protected String renderJobFailStats() {
+        StringBuilder result = new StringBuilder();
+        HashMap<String,Integer> fjobs = sobjSched.getSchedulerStats().getFailedJobTypes();
+        result.append("<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n");
+        result.append("\t<thead>\n");
+        result.append("\t\t<tr>\n");
+        result.append("\t\t\t<td>Job Type</td>\n");
+        result.append("\t\t\t<td>Num Jobs Failed</td>\n");
+        result.append("\t\t</tr>\n");
+        result.append("\t</thead>\n");
+        result.append("\t<tbody>\n");
+
+        for(String key : fjobs.keySet().toArray(new String[1])) {
+            result.append("\t\t<tr>\n\t\t\t<td>");
+            result.append(key);
+            result.append("</td>\n\t\t\t<td>");
+            result.append(fjobs.get(key));
+            result.append("\t\t\t</td>\n\t\t</tr>");
+        }
+        result.append("\t</tbody>\n");
+        result.append("</table>");
+        return result.toString();
     }
 
     /**
@@ -364,6 +471,9 @@ public class AdminServlet extends HttpServlet {
         dynamicSubstitutions.put("@@JOB_WORKTHR", String.valueOf(sobjSched.getSchedulerStats().getWorkerThreads()));
         dynamicSubstitutions.put("@@JOB_FAILED", String.valueOf(sobjSched.getSchedulerStats().getFailedJobs()));
         dynamicSubstitutions.put("@@JOB_TOTAL", String.valueOf(sobjSched.getSchedulerStats().getTotalJobs()));
+        dynamicSubstitutions.put("@@WAITJOBS", renderWaitJobs());
+        dynamicSubstitutions.put("@@FAILJOBS", renderFailedJobs());
+        dynamicSubstitutions.put("@@JOBFAILSTATS", renderJobFailStats());
     }
 
     private void doServletException(HttpServletRequest request,

@@ -1,0 +1,36 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+  <head>
+    <title>SQO-OSS : All Jobs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+    <link rel="stylesheet" type="text/css" media="screen" href="screen.css" />
+  </head>
+  <body class="section-2">
+    <div id="wrap">
+      <div id="header">
+        <h1>Admin Panel</h1>
+        <img src="sqo-oss.png" alt="SQO-OSS Logo" />
+      </div>
+      <div>
+	
+	<div id="contents">
+          <h2>Failed Jobs (Last 1000)</h2>
+          <div id="bundles">
+            @@FAILJOBS
+          </div>	
+          <h2>Waiting Jobs</h2>
+          <div id="bundles">
+            @@WAITJOBS
+          </div>	
+	</div>
+      </div>
+    
+      <div id="footer">
+        <p>
+        @@COPYRIGHT
+        </p>
+      </div>
+    </div>
+  </body>
+</html>

@@ -83,5 +83,19 @@ public interface Scheduler {
      */
     boolean isExecuting();
     
+    /**
+     * Get statistics
+     * @return A copy of the current statistics object
+     */
     SchedulerStats getSchedulerStats();
+    
+    /**
+     * Get a copy of the failed job queue
+     */
+    Job[] getFailedQueue();
+    
+    /**
+     * Get a copy of the failed job queue
+     */
+    Job[] getWaitQueue();
 }
