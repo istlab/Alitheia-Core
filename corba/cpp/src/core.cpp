@@ -82,7 +82,7 @@ Core* Core::instance()
     return core;
 }
 
-int Core::registerMetric( Metric* metric )
+int Core::registerMetric( AbstractMetric* metric )
 {
     static int metricCount = 0;
     std::stringstream ss;
@@ -96,7 +96,7 @@ int Core::registerMetric( Metric* metric )
     return id;
 }
 
-void Core::unregisterMetric( Metric* metric )
+void Core::unregisterMetric( AbstractMetric* metric )
 {
     unregisterMetric( metric->id() );
 }

@@ -5,81 +5,76 @@
 
 using namespace Alitheia;
 
-class Metric::Private
+class AbstractMetric::Private
 {
 public:
-    Private( Metric *q )
+    Private( AbstractMetric *q )
         : q( q ),
           id( -1 )
     {
     }
 
 private:
-    Metric* const q;
+    AbstractMetric* const q;
 
 public:
     std::string name;
     int id;
 };
 
-Metric::Metric()
+AbstractMetric::AbstractMetric()
     : d( new Private( this ) )
 {
 }
 
-Metric::~Metric()
+AbstractMetric::~AbstractMetric()
 {
     if( d->id != -1 )
         Core::instance()->unregisterMetric( this );
     delete d;
 }
 
-char* Metric::getAuthor()
+char* AbstractMetric::getAuthor()
 {
     return CORBA::string_dup( author().c_str() );
 }
 
-char* Metric::getDescription()
+char* AbstractMetric::getDescription()
 {
     return CORBA::string_dup( description().c_str() );
 }
 
-char* Metric::getName()
+char* AbstractMetric::getName()
 {
     return CORBA::string_dup( name().c_str() );
 }
 
-char* Metric::getVersion()
+char* AbstractMetric::getVersion()
 {
     return CORBA::string_dup( version().c_str() );
 }
 
-char* Metric::getResult()
-{
-    return CORBA::string_dup( result().c_str() );
-}
-
-char* Metric::getDateInstalled()
+char* AbstractMetric::getDateInstalled()
 {
     return CORBA::string_dup( dateInstalled().c_str() );
 }
 
-const std::string& Metric::orbName() const
+const std::string& AbstractMetric::orbName() const
 {
     return d->name;
 }
 
-void Metric::setOrbName( const std::string& orbName )
+void AbstractMetric::setOrbName( const std::string& orbName )
 {
     d->name = orbName;
 }
 
-int Metric::id() const
+int AbstractMetric::id() const
 {
     return d->id;
 }
 
-void Metric::setId( int id )
+void AbstractMetric::setId( int id )
 {
     d->id = id;
 }

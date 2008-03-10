@@ -11,7 +11,7 @@ namespace std
 namespace Alitheia
 {
     class Job;
-    class Metric;
+    class AbstractMetric;
 
     /**
      * @brief The main connection to register metrics in the Alitheia system.
@@ -43,11 +43,11 @@ namespace Alitheia
          * Registers \a metric in the Alitheia core.
          * @return The ID assigned by Alitheia
          */
-        int registerMetric( Metric* metric );
+        int registerMetric( AbstractMetric* metric );
         /**
          * Unregisters \a metric from the Alitheia core.
          */
-        void unregisterMetric( Metric* metric );
+        void unregisterMetric( AbstractMetric* metric );
         /**
          * Unregisters the metric with \a id from the Alitheia core.
          */

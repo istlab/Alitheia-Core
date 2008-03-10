@@ -88,7 +88,7 @@ module alitheia
      ProjectVersion projectVersion;
   };
 
-  interface Metric
+  interface AbstractMetric
   {
     // Get information about the metric author
     string getAuthor();
@@ -96,12 +96,34 @@ module alitheia
     string getDescription();
     // Get the metric name
     string getName();
-    // Get the metric version. Free from text.
+    // Get the metric version. Free form text.
     string getVersion();
-    /* Generic run plug-in method
-     * Returns a XML-serialized MetricResult */
-    string getResult(); 
     // Get the date this version of the metric has been installed
     string getDateInstalled();
+  };
+
+  interface ProjectVersionMetric : AbstractMetric
+  {
+    /* Generic run plug-in method
+     * Returns a XML-serialized MetricResult */
+    string getResult( in ProjectVersion projectVersion ); 
+  };
+  interface StoredProjectMetric : AbstractMetric
+  {
+    /* Generic run plug-in method
+     * Returns a XML-serialized MetricResult */
+    string getResult( in StoredProject storedProject ); 
+  };
+  interface ProjectFileMetric : AbstractMetric
+  {
+    /* Generic run plug-in method
+     * Returns a XML-serialized MetricResult */
+    string getResult( in ProjectFile projectFile ); 
+  };
+  interface FileGroupMetric : AbstractMetric
+  {
+    /* Generic run plug-in method
+     * Returns a XML-serialized MetricResult */
+    string getResult( in FileGroup fileGroup ); 
   };
 };
