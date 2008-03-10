@@ -37,6 +37,7 @@ import eu.sqooss.service.fds.Timeline;
 import eu.sqooss.service.fds.ProjectEvent;
 import eu.sqooss.service.fds.MailingListEvent;
 import eu.sqooss.service.fds.RepositoryEvent;
+import eu.sqooss.service.fds.BugDBEvent;
 
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.db.ProjectVersion;
@@ -65,8 +66,8 @@ class TimelineImpl implements Timeline {
         this.project = project;
     }
 
-    private SortedSet<ProjectEvent> getSvnTimeLine(Calendar from, Calendar to) {
-        SortedSet<ProjectEvent> result = new TreeSet<ProjectEvent>();
+    private SortedSet<RepositoryEvent> getSvnTimeLine(Calendar from, Calendar to) {
+        SortedSet<RepositoryEvent> result = new TreeSet<RepositoryEvent>();
         
         final long begin = (long)(from.getTime().getTime());
         final long end = (long)(to.getTime().getTime());
@@ -90,8 +91,8 @@ class TimelineImpl implements Timeline {
         return result;
     }
     
-    private SortedSet<ProjectEvent> getMailTimeLine(Calendar from, Calendar to) {
-        SortedSet<ProjectEvent> result = new TreeSet<ProjectEvent>();
+    private SortedSet<MailingListEvent> getMailTimeLine(Calendar from, Calendar to) {
+        SortedSet<MailingListEvent> result = new TreeSet<MailingListEvent>();
         
         final Date begin = from.getTime();
         final Date end = to.getTime();
@@ -128,6 +129,12 @@ class TimelineImpl implements Timeline {
         return result;
     }
 
+    private SortedSet<BugDBEvent> getBugTimeLine(Calendar from, Calendar to) {
+        SortedSet<BugDBEvent> result = new TreeSet<BugDBEvent>();
+        // TODO: implement me!
+        return result;
+    }
+ 
     // Interface Timeline
     /** {@inheritDoc} */
     public SortedSet<ProjectEvent> getTimeLine(Calendar from, Calendar to, EventType rt) {
@@ -140,7 +147,7 @@ class TimelineImpl implements Timeline {
             result.addAll(getMailTimeLine(from, to));
         }
         if( rt==EventType.BTS || rt==EventType.ALL) {
-            // TODO
+            result.addAll(getBugTimeLine(from, to ));
         }
 
         return result;

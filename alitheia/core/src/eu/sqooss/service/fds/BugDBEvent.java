@@ -42,7 +42,7 @@ import eu.sqooss.service.db.Bug;
  */
 public class BugDBEvent extends ProjectEvent {
     
-    BugDBEvent(long ts, URL url, Bug dao) {
+    public BugDBEvent(long ts, URL url, Bug dao) {
         this.timestamp = ts;
         this.resourceURL = url;
         this.associatedDAO = dao;
