@@ -78,3 +78,8 @@ void AbstractMetric::setId( int id )
 {
     d->id = id;
 }
+
+char* ProjectVersionMetric::getResult( const alitheia::ProjectVersion& projectVersion )
+{
+    return CORBA::string_dup( getResult( ProjectVersion( projectVersion ) ).c_str() );
+}

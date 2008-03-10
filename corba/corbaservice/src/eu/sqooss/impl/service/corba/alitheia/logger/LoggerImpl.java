@@ -1,10 +1,10 @@
-package eu.sqooss.impl.service.alitheia.logger;
+package eu.sqooss.impl.service.corba.alitheia.logger;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.impl.service.alitheia.LoggerPOA;
+import eu.sqooss.impl.service.corba.alitheia.LoggerPOA;
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
 

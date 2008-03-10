@@ -2,7 +2,6 @@ package eu.sqooss.impl.service;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 import org.omg.CORBA.ORB;
 import org.omg.CosNaming.NameComponent;
@@ -17,14 +16,14 @@ import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
-import org.osgi.framework.Constants;
 
-import eu.sqooss.impl.service.alitheia.CoreHelper;
-import eu.sqooss.impl.service.alitheia.LoggerHelper;
-import eu.sqooss.impl.service.alitheia.core.CoreImpl;
-import eu.sqooss.impl.service.alitheia.logger.LoggerImpl;
+import eu.sqooss.impl.service.corba.alitheia.CoreHelper;
+import eu.sqooss.impl.service.corba.alitheia.LoggerHelper;
+import eu.sqooss.impl.service.corba.alitheia.core.CoreImpl;
+import eu.sqooss.impl.service.corba.alitheia.logger.LoggerImpl;
 
 public class CorbaActivator implements BundleActivator {
 

@@ -106,7 +106,7 @@ module alitheia
   {
     /* Generic run plug-in method
      * Returns a XML-serialized MetricResult */
-    string getResult( in ProjectVersion projectVersion ); 
+    string getResult( in ProjectVersion projectVersion );
   };
   interface StoredProjectMetric : AbstractMetric
   {

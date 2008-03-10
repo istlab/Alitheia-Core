@@ -1,4 +1,4 @@
-package eu.sqooss.impl.service.alitheia.core;
+package eu.sqooss.impl.service.corba.alitheia.core;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -6,12 +6,14 @@ import java.util.Map;
 import org.osgi.framework.BundleContext;
 
 import eu.sqooss.impl.service.CorbaActivator;
-import eu.sqooss.impl.service.alitheia.CorePOA;
-import eu.sqooss.impl.service.alitheia.Job;
-import eu.sqooss.impl.service.alitheia.JobHelper;
-import eu.sqooss.impl.service.alitheia.Metric;
-import eu.sqooss.impl.service.alitheia.MetricHelper;
-import eu.sqooss.impl.service.alitheia.job.CorbaJobImpl;
+import eu.sqooss.impl.service.corba.alitheia.CorePOA;
+import eu.sqooss.impl.service.corba.alitheia.Job;
+import eu.sqooss.impl.service.corba.alitheia.JobHelper;
+import eu.sqooss.impl.service.corba.alitheia.AbstractMetric;
+import eu.sqooss.impl.service.corba.alitheia.AbstractMetricHelper;
+import eu.sqooss.impl.service.corba.alitheia.ProjectVersionMetric;
+import eu.sqooss.impl.service.corba.alitheia.ProjectVersionMetricHelper;
+import eu.sqooss.impl.service.corba.alitheia.job.CorbaJobImpl;
 
 import eu.sqooss.impl.metrics.corba.CorbaMetricImpl;
 
@@ -34,7 +36,8 @@ public class CoreImpl extends CorePOA {
 			e.printStackTrace();
 			return -1;
 		}
-		Metric m = MetricHelper.narrow(o);
+		// TODO: Different types
+		ProjectVersionMetric m = ProjectVersionMetricHelper.narrow(o);
 		CorbaMetricImpl impl = new CorbaMetricImpl(bc,m);
 		return CorbaActivator.instance().registerExternalCorbaObject(CorbaMetricImpl.class.getName(), impl);
 	}

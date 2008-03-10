@@ -1,19 +1,19 @@
-package eu.sqooss.impl.service.alitheia.job;
+package eu.sqooss.impl.service.corba.alitheia.job;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.impl.service.alitheia.JobPackage.JobState;
+import eu.sqooss.impl.service.corba.alitheia.JobPackage.JobState;
 import eu.sqooss.service.scheduler.Job;
 
 public class CorbaJobImpl extends Job {
 
-	private eu.sqooss.impl.service.alitheia.Job j;
+	private eu.sqooss.impl.service.corba.alitheia.Job j;
     
 	private AlitheiaCore core;
     	
-	public CorbaJobImpl(BundleContext bc, eu.sqooss.impl.service.alitheia.Job j)
+	public CorbaJobImpl(BundleContext bc, eu.sqooss.impl.service.corba.alitheia.Job j)
 	{
 		this.j = j;
 		stateChanged(state());

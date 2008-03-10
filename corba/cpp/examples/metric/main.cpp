@@ -8,7 +8,7 @@
 using namespace std;
 using namespace Alitheia;
 
-class MyMetric : public Metric
+class MyMetric : public ProjectVersionMetric
 {
 public:
     string name() const
@@ -40,6 +40,11 @@ public:
     {
         return string();
     }
+
+    string getResult( const ProjectVersion& ) const
+    {
+        return "getResult";
+    }
 };
 
 int main( int argc, char **argv)
@@ -49,7 +54,7 @@ int main( int argc, char **argv)
     Logger logger( Logger::NameSqoOssMetric );
     logger.setTeeStream( cout );
     
-    Metric* const m = new MyMetric;
+    AbstractMetric* const m = new MyMetric;
     logger << "Registering C++ client metric..." << endl;
     
     const int id = c.registerMetric( m );

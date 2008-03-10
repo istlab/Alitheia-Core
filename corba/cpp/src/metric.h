@@ -7,6 +7,13 @@ namespace Alitheia
 {
     class Core;
 
+    struct ProjectVersion
+    {
+        ProjectVersion( const alitheia::ProjectVersion& )
+        {
+        }
+    };
+
     class AbstractMetric : virtual public POA_alitheia::AbstractMetric
     {
         friend class ::Alitheia::Core;
@@ -45,6 +52,14 @@ namespace Alitheia
     private:
         class Private;
         Private* d;
+    };
+
+    class ProjectVersionMetric : public AbstractMetric, virtual public POA_alitheia::ProjectVersionMetric
+    {
+    public:
+        virtual char* getResult( const alitheia::ProjectVersion& projectVersion );
+
+        virtual std::string getResult( const ProjectVersion& projectVersion ) const = 0;
     };
 }
 
