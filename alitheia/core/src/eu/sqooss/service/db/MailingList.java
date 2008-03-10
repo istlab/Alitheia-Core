@@ -35,6 +35,8 @@ package eu.sqooss.service.db;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -65,6 +67,27 @@ public class MailingList extends DAObject {
 
     public void setStoredProject(StoredProject sp) {
         this.storedProject = sp;
+    }
+
+    public List<MailMessage> getMessages()
+    {
+        DBService dbs = CoreActivator.getDBService();
+
+        String paramListId = "mlist_listid";
+        String query = "Select mm " +
+                       "from MailMessage mm " + 
+                       "where mm.MailingList.mlist_listid=:" +
+                       paramListId;
+
+        Map<String,Object> parameters = new HashMap<String,Object>();
+        parameters.put(paramListId, this.getListId());
+
+        List<?> msgList = dbs.doHQL(query, parameters);
+	    if ((msgList == null) || (msgList.size()==0)) {
+	        return null;
+    	}
+	
+        return (List<MailMessage>)msgList;
     }
 
     public static List<MailingList> getListsPerProject(StoredProject sp) throws DAOException {
