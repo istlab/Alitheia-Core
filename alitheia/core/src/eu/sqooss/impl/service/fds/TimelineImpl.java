@@ -35,10 +35,14 @@ package eu.sqooss.impl.service.fds;
 
 import eu.sqooss.service.fds.Timeline;
 import eu.sqooss.service.fds.ProjectEvent;
+import eu.sqooss.service.fds.MailingListEvent;
 import eu.sqooss.service.fds.RepositoryEvent;
 
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.db.ProjectVersion;
+import eu.sqooss.service.db.MailMessage;
+import eu.sqooss.service.db.MailingList;
+import eu.sqooss.service.db.DAOException;
 
 import java.net.URL;
 import java.net.MalformedURLException;
@@ -61,33 +65,79 @@ class TimelineImpl implements Timeline {
         this.project = project;
     }
 
+    private SortedSet<ProjectEvent> getSvnTimeLine(Calendar from, Calendar to) {
+        SortedSet<ProjectEvent> result = new TreeSet<ProjectEvent>();
+        
+        final long begin = (long)(from.getTime().getTime());
+        final long end = (long)(to.getTime().getTime());
+
+        // get all versions
+        List<ProjectVersion> versions = project.getProjectVersions();
+        for(ProjectVersion version : versions) {
+            // compare the version's timestop to \a from ond \a to
+            if (version.getTimestamp() < begin || version.getTimestamp() > end)
+                continue;
+            // TODO: How to I create the URL?
+            URL url = null;
+            try {
+                url = new URL("repo://...");
+            } catch(MalformedURLException e) {
+            }
+
+            result.add(new RepositoryEvent(version.getTimestamp(), url, version));
+        }
+
+        return result;
+    }
+    
+    private SortedSet<ProjectEvent> getMailTimeLine(Calendar from, Calendar to) {
+        SortedSet<ProjectEvent> result = new TreeSet<ProjectEvent>();
+        
+        final Date begin = from.getTime();
+        final Date end = to.getTime();
+
+        // get all watched mailing lists
+        List<MailingList> lists = null;
+        try {
+            lists = MailingList.getListsPerProject(project);
+        } catch(DAOException ex) {
+        }
+        if (lists != null) {
+            for (MailingList list : lists) {
+                // get all messages
+                List<MailMessage> messages = list.getMessages();
+                // compare the version's timestop to \a from ond \a to
+                for (MailMessage message : messages)
+                {
+                    // compare the messages's timestop to \a from ond \a to
+                    if (message.getSendDate().before(begin) || message.getSendDate().after(end))
+                        continue;
+
+                    // TODO: Create the URL...
+                    URL url = null;
+                    try {
+                        url = new URL("mail://...");
+                    } catch(MalformedURLException e) {
+                    }
+
+                    result.add(new MailingListEvent((long)message.getSendDate().getTime(), url, message));
+                }
+            }
+        }
+
+        return result;
+    }
+
     // Interface Timeline
     /** {@inheritDoc} */
     public SortedSet<ProjectEvent> getTimeLine(Calendar from, Calendar to, EventType rt) {
         SortedSet<ProjectEvent> result = new TreeSet<ProjectEvent>();
 
-        final long begin = (long)(from.getTime().getTime());
-        final long end = (long)(to.getTime().getTime());
-
         if (rt==EventType.SVN || rt==EventType.ALL) {
-            // get all versions
-            List<ProjectVersion> versions = project.getProjectVersions();
-            for(ProjectVersion version : versions) {
-                // compare the version's timestop to \a from ond \a to
-                if (version.getTimestamp() < begin || version.getTimestamp() > end)
-                    continue;
-                // TODO: How to I create the URL?
-                URL url = null;
-                try {
-                    url = new URL("repo://...");
-                } catch(MalformedURLException e) {
-                }
-
-                result.add(new RepositoryEvent(version.getTimestamp(), url, version));
-            }
+            result.addAll(getSvnTimeLine(from, to));
         }
         if( rt==EventType.MAIL || rt==EventType.ALL) {
-            // TODO
+            result.addAll(getMailTimeLine(from, to));
         }
         if( rt==EventType.BTS || rt==EventType.ALL) {
             // TODO
@@ -100,4 +150,3 @@ class TimelineImpl implements Timeline {
 
 
 // vi: ai nosi sw=4 ts=4 expandtab
-

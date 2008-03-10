@@ -41,8 +41,8 @@ import eu.sqooss.service.db.MailMessage;
  * Data transfer object for mailing list events
  */
 public class MailingListEvent extends ProjectEvent {
-    
-    MailingListEvent(long ts, URL url, MailMessage dao) {
+
+    public MailingListEvent(long ts, URL url, MailMessage dao) {
         this.timestamp = ts;
         this.resourceURL = url;
         this.associatedDAO = dao;

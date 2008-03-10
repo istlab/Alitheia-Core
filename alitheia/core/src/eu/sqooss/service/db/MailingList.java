@@ -98,6 +98,7 @@ public class MailingList extends DAObject {
         List mllist = dbs.doHQL("from MailingList where PROJECT_ID = " + sp.getId());
         int mllistLen = mllist.size();
         if (mllistLen == 0) {
+            // TODO: Why throw? Why not just return an empty list here?
             throw new DAOException("MailingList", "No list found for project " + sp.getName());
         }
         for (int i = 0;i < mllistLen;i++) {
