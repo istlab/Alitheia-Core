@@ -83,3 +83,18 @@ char* ProjectVersionMetric::getResult( const alitheia::ProjectVersion& projectVe
 {
     return CORBA::string_dup( getResult( ProjectVersion( projectVersion ) ).c_str() );
 }
+
+char* ProjectFileMetric::getResult( const alitheia::ProjectFile& projectFile )
+{
+    return CORBA::string_dup( getResult( ProjectFile( projectFile ) ).c_str() );
+}
+
+char* StoredProjectMetric::getResult( const alitheia::StoredProject& storedProject )
+{
+    return CORBA::string_dup( getResult( StoredProject( storedProject ) ).c_str() );
+}
+
+char* FileGroupMetric::getResult( const alitheia::FileGroup& fileGroup )
+{
+    return CORBA::string_dup( getResult( FileGroup( fileGroup ) ).c_str() );
+}

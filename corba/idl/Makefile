@@ -1,31 +1,9 @@
 JAVA_RESULTS=CoreHelper.java \
-	CoreHolder.java \
-	Core.java \
-	CoreOperations.java \
-	CorePOA.java \
-	_CoreStub.java \
-	LoggerHelper.java \
-	LoggerHolder.java \
-	Logger.java \
-	LoggerOperations.java \
-	LoggerPOA.java \
-	_LoggerStub.java \
-	MetricHelper.java \
-	MetricHolder.java \
-	Metric.java \
-	MetricOperations.java \
-	MetricPOA.java \
-	_MetricStub.java \
-	JobHelper.java \
-	JobHolder.java \
-	Job.java \
-	JobOperations.java \
-	JobPOA.java \
-	_JobStub.java \
 	JobPackage/JobStateHelper.java \
 	JobPackage/JobStateHolder.java \
 	JobPackage/JobState.java \
 	JobPackage
+
 
 CPP_RESULTS=Alitheia.cpp \
 	Alitheia.h
@@ -47,8 +25,8 @@ install:
 
 clean:
 	-DIR=../corbaservice/src/eu/sqooss/impl/service/corba/alitheia/; \
-	for file in ${JAVA_RESULTS}; \
-	do test -f $$DIR/$$file && rm $$DIR/$$file; \
+	for file in `ls $$DIR/*.java`; \
+	do test -f $$file && rm $$file; \
 	done
 	-DIR=../corbaservice/src/eu/sqooss/impl/service/corba/alitheia/; \
 	for file in ${JAVA_RESULTS}; \

@@ -14,6 +14,27 @@ namespace Alitheia
         }
     };
 
+    struct ProjectFile
+    {
+        ProjectFile( const alitheia::ProjectFile& )
+        {
+        }
+    };
+
+    struct StoredProject
+    {
+        StoredProject( const alitheia::StoredProject& )
+        {
+        }
+    };
+
+    struct FileGroup
+    {
+        FileGroup( const alitheia::FileGroup& )
+        {
+        }
+    };
+    
     class AbstractMetric : virtual public POA_alitheia::AbstractMetric
     {
         friend class ::Alitheia::Core;
@@ -57,9 +78,33 @@ namespace Alitheia
     class ProjectVersionMetric : public AbstractMetric, virtual public POA_alitheia::ProjectVersionMetric
     {
     public:
-        virtual char* getResult( const alitheia::ProjectVersion& projectVersion );
+        char* getResult( const alitheia::ProjectVersion& projectVersion );
 
         virtual std::string getResult( const ProjectVersion& projectVersion ) const = 0;
+    };
+
+    class ProjectFileMetric : public AbstractMetric, virtual public POA_alitheia::ProjectFileMetric
+    {
+    public:
+        char* getResult( const alitheia::ProjectFile& projectFile );
+
+        virtual std::string getResult( const ProjectFile& projectFile ) const = 0;
+    };
+
+    class StoredProjectMetric : public AbstractMetric, virtual public POA_alitheia::StoredProjectMetric
+    {
+    public:
+        char* getResult( const alitheia::StoredProject& storedProject );
+
+        virtual std::string getResult( const StoredProject& storedProject ) const = 0;
+    };
+
+    class FileGroupMetric : public AbstractMetric, virtual public POA_alitheia::FileGroupMetric
+    {
+    public:
+        char* getResult( const alitheia::FileGroup& fileGroup );
+
+        virtual std::string getResult( const FileGroup& fileGroup ) const = 0;
     };
 }
 

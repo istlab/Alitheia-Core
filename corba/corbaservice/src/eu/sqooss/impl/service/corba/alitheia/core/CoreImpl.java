@@ -11,11 +11,22 @@ import eu.sqooss.impl.service.corba.alitheia.Job;
 import eu.sqooss.impl.service.corba.alitheia.JobHelper;
 import eu.sqooss.impl.service.corba.alitheia.AbstractMetric;
 import eu.sqooss.impl.service.corba.alitheia.AbstractMetricHelper;
+import eu.sqooss.impl.service.corba.alitheia.ProjectFileMetric;
+import eu.sqooss.impl.service.corba.alitheia.ProjectFileMetricHelper;
 import eu.sqooss.impl.service.corba.alitheia.ProjectVersionMetric;
 import eu.sqooss.impl.service.corba.alitheia.ProjectVersionMetricHelper;
+import eu.sqooss.impl.service.corba.alitheia.StoredProjectMetric;
+import eu.sqooss.impl.service.corba.alitheia.StoredProjectMetricHelper;
+import eu.sqooss.impl.service.corba.alitheia.FileGroupMetric;
+import eu.sqooss.impl.service.corba.alitheia.FileGroupMetricHelper;
 import eu.sqooss.impl.service.corba.alitheia.job.CorbaJobImpl;
 
 import eu.sqooss.impl.metrics.corba.CorbaMetricImpl;
+import eu.sqooss.impl.metrics.corba.CorbaProjectFileMetricImpl;
+import eu.sqooss.impl.metrics.corba.CorbaProjectVersionMetricImpl;
+import eu.sqooss.impl.metrics.corba.CorbaStoredProjectMetricImpl;
+import eu.sqooss.impl.metrics.corba.CorbaFileGroupMetricImpl;
+
 
 public class CoreImpl extends CorePOA {
 
@@ -37,9 +48,29 @@ public class CoreImpl extends CorePOA {
 			return -1;
 		}
 		// TODO: Different types
-		ProjectVersionMetric m = ProjectVersionMetricHelper.narrow(o);
-		CorbaMetricImpl impl = new CorbaMetricImpl(bc,m);
-		return CorbaActivator.instance().registerExternalCorbaObject(CorbaMetricImpl.class.getName(), impl);
+		CorbaMetricImpl wrapper = null;
+		if (o._is_a(ProjectVersionMetricHelper.id()))
+		{
+			ProjectVersionMetric m = ProjectVersionMetricHelper.narrow(o);
+			wrapper = new CorbaProjectVersionMetricImpl(bc,m);
+		}
+		else if (o._is_a(ProjectFileMetricHelper.id()))
+		{
+			ProjectFileMetric m = ProjectFileMetricHelper.narrow(o);
+			wrapper = new CorbaProjectFileMetricImpl(bc,m);
+		}
+		else if (o._is_a(StoredProjectMetricHelper.id()))
+		{
+			StoredProjectMetric m = StoredProjectMetricHelper.narrow(o);
+			wrapper = new CorbaStoredProjectMetricImpl(bc,m);
+		}
+		else if (o._is_a(FileGroupMetricHelper.id()))
+		{
+			FileGroupMetric m = FileGroupMetricHelper.narrow(o);
+			wrapper = new CorbaFileGroupMetricImpl(bc,m);
+		}
+		
+		return CorbaActivator.instance().registerExternalCorbaObject(CorbaMetricImpl.class.getName(), wrapper);
 	}
 
 	public void unregisterMetric(int id) {

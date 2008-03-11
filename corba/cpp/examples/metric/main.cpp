@@ -8,7 +8,8 @@
 using namespace std;
 using namespace Alitheia;
 
-class MyMetric : public ProjectVersionMetric
+template< class METRIC >
+class MyMetric : virtual public METRIC
 {
 public:
     string name() const
@@ -41,7 +42,22 @@ public:
         return string();
     }
 
+    string getResult( const ProjectFile& ) const
+    {
+        return "getResult";
+    }
+
     string getResult( const ProjectVersion& ) const
+    {
+        return "getResult";
+    }
+
+    string getResult( const StoredProject& ) const
+    {
+        return "getResult";
+    }
+
+    string getResult( const FileGroup& ) const
     {
         return "getResult";
     }
@@ -54,12 +70,31 @@ int main( int argc, char **argv)
     Logger logger( Logger::NameSqoOssMetric );
     logger.setTeeStream( cout );
     
-    AbstractMetric* const m = new MyMetric;
+    AbstractMetric* m = new MyMetric< ProjectFileMetric >;
     logger << "Registering C++ client metric..." << endl;
-    
-    const int id = c.registerMetric( m );
+    int id = c.registerMetric( m );
     logger << "C++ client metric registered, id is " << id << "." << endl;
-    logger << "Metric waiting for orders..." << endl;
+
+
+    m = new MyMetric< ProjectVersionMetric >;
+    logger << "Registering C++ client metric..." << endl;
+    id = c.registerMetric( m );
+    logger << "C++ client metric registered, id is " << id << "." << endl;
+
+
+    m = new MyMetric< FileGroupMetric >;
+    logger << "Registering C++ client metric..." << endl;
+    id = c.registerMetric( m );
+    logger << "C++ client metric registered, id is " << id << "." << endl;
+
+
+    m = new MyMetric< StoredProjectMetric >;
+    logger << "Registering C++ client metric..." << endl;
+    id = c.registerMetric( m );
+    logger << "C++ client metric registered, id is " << id << "." << endl;
+
+
+    logger << "Metrics waiting for orders..." << endl;
     
     c.run();
 }
