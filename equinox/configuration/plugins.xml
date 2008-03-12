@@ -1,5 +1,5 @@
 <plugins>
-  <metric name="eu.sqooss.impl.metrics.wc.WcServiceImpl">
+  <metric name="eu.sqooss.impl.metrics.wc.WcImplementation">
     <autoinstall>true</autoinstall>
     <barray>
       <values>3</values>
