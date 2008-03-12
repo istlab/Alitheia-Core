@@ -47,6 +47,7 @@ import org.osgi.framework.ServiceReference;
 import org.apache.commons.codec.binary.Hex;
 
 import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.fds.Checkout;
 import eu.sqooss.service.fds.FDSService;
@@ -54,6 +55,7 @@ import eu.sqooss.service.fds.Timeline;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
+import eu.sqooss.service.tds.PathChangeType;
 import eu.sqooss.service.tds.ProjectRevision;
 import eu.sqooss.service.tds.SCMAccessor;
 import eu.sqooss.service.tds.TDAccessor;
@@ -154,7 +156,7 @@ public class FDSServiceImpl implements FDSService {
      *
      * @param bc bundlecontext for configuration parameters.
      */
-    public FDSServiceImpl(final BundleContext bc, Logger l) {
+    public FDSServiceImpl(BundleContext bc, Logger l) {
         bundleContext = bc;
         logger = l;
 
@@ -368,6 +370,68 @@ public class FDSServiceImpl implements FDSService {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
+    }
+
+    public File getFile (ProjectFile pf) {
+        // Make sure that the file exists in the specified project version
+        String fileStatus = pf.getStatus();
+        if (PathChangeType.valueOf(fileStatus) == PathChangeType.DELETED) {
+            return null;
+        }
+
+        /* NOTE: The following code expects that a project version equals to
+         *       a project revision
+         */
+        long projectVersion = pf.getProjectVersion().getVersion();
+        ProjectRevision projectRevision = new ProjectRevision(projectVersion);
+
+        // Get a TDS handle for the selected ProjectFile
+        long pid = pf.getProjectVersion().getProject().getId();
+        SCMAccessor scm = tds.getAccessor(pid).getSCMAccessor();
+
+        try {
+            // Path generation for a "single file checkout"
+            /* TODO: Check if the path generation algorithm used by
+             *       getCheckout() is applicable here. 
+             */ 
+            File checkoutFile = new File(
+                    fdsCheckoutRoot
+                    + System.getProperty("file.separator")
+                    + pid
+                    + System.getProperty("file.separator")
+                    + projectVersion
+                    + System.getProperty("file.separator")
+                    + pf.getName());
+
+            // Skip, in case this ProjectFile is still available
+            // (from a previous checkout for example)
+            if (!checkoutFile.exists()) {
+                // Make sure that the path to the target file exists
+                new File(checkoutFile.getParent()).mkdirs();
+                // Try to checkout the target file
+                scm.getFile(
+                        pf.getName(),
+                        projectRevision,
+                        checkoutFile);
+            }
+
+            // Make sure that the target file has been checked out
+            if ((checkoutFile.exists())
+                    && (checkoutFile.isFile())
+                    && (checkoutFile.canRead())) {
+                return checkoutFile;
+            }
+        } catch (InvalidRepositoryException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (InvalidProjectRevisionException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (FileNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return null;
     }
 
     // Interface methods

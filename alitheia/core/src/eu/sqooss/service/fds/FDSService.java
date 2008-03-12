@@ -33,6 +33,9 @@
 
 package eu.sqooss.service.fds;
 
+import java.io.File;
+
+import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
@@ -89,7 +92,14 @@ public interface FDSService {
      */
     Timeline getTimeline(StoredProject c);
     
-    
+    /**
+     * Retrieve a file handle corresponding to the selected ProjectFile entry.
+     * 
+     * @param pf ProjectFile entry
+     * 
+     * @return the file handle
+     */
+    File getFile(ProjectFile pf);
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

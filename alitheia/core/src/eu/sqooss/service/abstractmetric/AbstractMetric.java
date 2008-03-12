@@ -207,11 +207,31 @@ implements eu.sqooss.service.abstractmetric.Metric {
      * @return True if the operation succeeds, false otherwise (i.e. duplicates etc)
      */
     protected final boolean addSupportedMetrics(String desc, MetricType.Type type) {
+        /* NOTE: In its current status the DB doesn't provide predefined
+         *       metric type records. Therefore the following block is
+         *       used to create them explicitly when required.
+         */
+        if (MetricType.getMetricType(db, type) == null) {
+            MetricType newType = new MetricType(type);
+            db.addRecord(newType);
+        }
         Metric m = new Metric();
         m.setDescription(desc);
         m.setMetricType(MetricType.getMetricType(db, type));
         m.setPlugin(Plugin.getPlugin(db, getName()));
         return db.addRecord(m);
+    }
+
+    public List<Metric> getSupportedMetrics() {
+        List<Metric> metrics = Plugin.getSupportedMetrics(
+                db,
+                Plugin.getPlugin(db, getName()));
+        if (metrics.isEmpty()) {
+            return null;
+        }
+        else {
+            return metrics;
+        }
     }
 
     /**

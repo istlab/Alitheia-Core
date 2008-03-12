@@ -66,13 +66,13 @@ public class Plugin extends DAObject{
     public static Plugin getPlugin(DBService db, String name) {
         HashMap<String, Object> s = new HashMap<String, Object>();
         s.put("name", name);
-        return (Plugin)db.doHQL("from Plugin where name = ?", s).get(0);
+        return (Plugin)db.doHQL("from Plugin pg where pg.name=:name", s).get(0);
     }
     
     public static List<Metric> getSupportedMetrics(DBService db, Plugin p) {
         HashMap<String, Object> s = new HashMap<String, Object>();
         s.put("plugin", p);
-        return (List<Metric>)db.doHQL("from Metric where plugin = ?", s);
+        return (List<Metric>)db.doHQL("from Metric me where me.plugin=:plugin", s);
     }
 }
 

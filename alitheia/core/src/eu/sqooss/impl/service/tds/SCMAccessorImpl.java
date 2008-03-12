@@ -304,7 +304,7 @@ public class SCMAccessorImpl extends NamedAccessorImpl implements SCMAccessor {
         } catch (SVNException e) {
             throw new FileNotFoundException(e.getMessage());
         } catch (IOException e) {
-            logger.warn("Failed to close output stream on SVN request.");
+            logger.warn("Failed to close output stream on SVN request." + e);
             // Swallow this exception.
         }
     }
