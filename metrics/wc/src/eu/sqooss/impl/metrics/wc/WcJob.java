@@ -49,9 +49,11 @@ import eu.sqooss.service.db.ProjectFile;
 public class WcJob extends AbstractMetricJob {
 
     private ProjectFile pf;
+    AbstractMetric parent = null;
 
     public WcJob(AbstractMetric owner, ProjectFile a) {
         super(owner);
+        parent = owner;
         pf = a;
     }
 
@@ -61,27 +63,47 @@ public class WcJob extends AbstractMetricJob {
     
     public void run() {
         Measurement m = new Measurement();
-        
-        File f = null;
         int lines = 0;
-        //File f = fds.getFile(pf);
-        try {
-            LineNumberReader lnr = new LineNumberReader(new FileReader(f));
-            while(true) {
-                lnr.readLine();
-                lines++;
+
+        File f = fds.getFile(pf);
+        if (f != null) {
+            try {
+                log.info(
+                        this.getClass().getName()
+                        + " Measuring: "
+                        + f.getAbsolutePath());
+                LineNumberReader lnr = new LineNumberReader(new FileReader(f));
+                while(lnr.readLine() != null) {
+                    lines++;
+                }
+                lnr.close();
+            } catch (FileNotFoundException e) {
+                log.error(
+                        this.getClass().getName()
+                        + " Cannot open file: "
+                        + f.getAbsolutePath());
+            } catch (IOException e) {
+                log.error(
+                        this.getClass().getName()
+                        + " IO Error ("
+                        + e
+                        + "): "
+                        + f.getAbsolutePath());
             }
-        } catch (FileNotFoundException e) {
-            System.out.println(this.getClass().getName() + " Cannot open file: " +
-                    f.getAbsolutePath());
-        } catch (IOException ignored) {
+            
+            // Create the measurement DAO and add it to the DB
+            m.setMetric(parent.getSupportedMetrics().get(0));
+            m.setProjectVersion(pf.getProjectVersion());
+            /* NOTE: nanoTime() can not be directly used for creating a 
+             *       Time object, use currentTimeMillis() instead
+             */
+            //m.setWhenRun(new Time(System.nanoTime()));
+            m.setWhenRun(new Time(System.currentTimeMillis()));
+            m.setResult(String.valueOf(lines));
+            
+            // Try to store the Measurement DAO into the DB
+            db.addRecord(m);
         }
-        
-        // Create the measurement and add it to the DB
-        m.setProjectVersion(pf.getProjectVersion());
-        m.setWhenRun(new Time(System.nanoTime()));
-        m.setResult(String.valueOf(lines));
-        db.addRecord(m);
     }
 }
 

@@ -46,6 +46,7 @@ import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.MetricMismatchException;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.Metric;
+import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.scheduler.Scheduler;
 
@@ -58,7 +59,13 @@ public class WcImplementation extends AbstractMetric implements Wc {
     }
 
     public boolean install() {
-        return super.install();
+        boolean result = super.install();
+        if (result) {
+            result &= super.addSupportedMetrics(
+                    this.getDescription(),
+                    MetricType.Type.SOURCE_CODE);
+        }
+        return result;
     }
 
     public boolean remove() {

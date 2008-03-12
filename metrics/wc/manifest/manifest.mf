@@ -5,8 +5,11 @@ Bundle-SymbolicName: eu.sqooss.metric.wc
 Bundle-Version: 0.0.1
 Bundle-Activator: eu.sqooss.impl.service.WcActivator
 Bundle-Vendor: AUEB
-Import-Package: eu.sqooss.service.logging,
-    eu.sqooss.service.tds, org.osgi.framework,
+Bundle-Description: Line counting metric
+Import-Package:  org.osgi.framework,
+    eu.sqooss.service.logging,
+    eu.sqooss.service.tds,
+    eu.sqooss.service.fds,
     eu.sqooss.service.abstractmetric,
     eu.sqooss.service.scheduler,
     eu.sqooss.service.db,
