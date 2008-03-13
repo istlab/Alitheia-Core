@@ -288,6 +288,12 @@ public class SCMAccessorImpl extends NamedAccessorImpl implements SCMAccessor {
         long revno = resolveProjectRevision(revision);
         try {
             SVNNodeKind nodeKind = svnRepository.checkPath(repoPath, revno);
+            // Seems like checkPath() sometimes returns a node kind "dir"
+            // instead of "DIR". Converting it to upper case solves the
+            // "problem", although the reason for such behaviour is unclear.
+            nodeKind = SVNNodeKind.parseKind(
+                    nodeKind.toString().toUpperCase());
+
             if (SVNNodeKind.NONE == nodeKind) {
                 logger.info("Requested path " + repoPath + " does not exist.");
                 throw new FileNotFoundException(repoPath);
