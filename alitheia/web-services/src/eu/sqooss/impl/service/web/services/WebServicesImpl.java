@@ -34,7 +34,6 @@ package eu.sqooss.impl.service.web.services;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Dictionary;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
@@ -455,12 +454,7 @@ public class WebServicesImpl implements SecurityConstants {
         logger.info("Retrieve stored project! user: " + userName +
                 "; project's id: " + projectId );
         
-        Dictionary<String, String> privileges = new Hashtable<String, String>();
-        privileges.put(PRIVILEGES.PROJECT_ID.toString(), Long.toString(projectId));
-        
-        if (!securityManager.checkPermission(URL_SQOOSS_DATABASE, privileges, userName, password)) {
-            throw new SecurityException("The user: " + userName + " - has no permissions!");
-        }
+        //TODO: check the security
         
         StoredProject storedProject;
         
