@@ -86,8 +86,6 @@ class SourceUpdater extends Job {
         this.tds = core.getTDSService();
         this.dbs = core.getDBService();
         
-        versionMetrics = core.getPluginManager().listMetricProviders(ProjectVersion.class);
-        fileMetrics = core.getPluginManager().listMetricProviders(ProjectFile.class);
     }
 
     public int priority() {
@@ -103,6 +101,10 @@ class SourceUpdater extends Job {
          */
         SortedSet<Long> updProjectVersions = new TreeSet<Long>();
         SortedSet<Long> updFiles = new TreeSet<Long>();
+
+        // get a new list of metrics
+        versionMetrics = core.getPluginManager().listMetricProviders(ProjectVersion.class);
+        fileMetrics = core.getPluginManager().listMetricProviders(ProjectFile.class);
 
         logger.info("Running source update for project " + project.getName());
         Session s = dbs.getSession(this);
