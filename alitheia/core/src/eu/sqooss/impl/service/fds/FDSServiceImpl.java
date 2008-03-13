@@ -324,14 +324,13 @@ public class FDSServiceImpl implements FDSService {
             if (checkoutRoot.isDirectory()) {
                 logger.info("Recycling the checkout root.");
             } else {
-                // TODO: throw instead?
+                logger.warn("Already existing root <" + checkoutRoot + "> is not a directory. Can't use that one.");
                 return null;
             }
         } else {
             if (!checkoutRoot.mkdirs()) {
                 logger.warn("Could not create checkout root <" +
                     checkoutRoot + ">");
-                // TODO: throw instead?
                 return null;
             }
         }
@@ -396,9 +395,6 @@ public class FDSServiceImpl implements FDSService {
 
         try {
             // Path generation for a "single file checkout"
-            /* TODO: Check if the path generation algorithm used by
-             *       getCheckout() is applicable here. 
-             */ 
             File checkoutFile = new File(
                     fdsCheckoutRoot
                     + System.getProperty("file.separator")
@@ -429,15 +425,13 @@ public class FDSServiceImpl implements FDSService {
                     && (checkoutFile.canRead())) {
                 return checkoutFile;
             }
+        // returning null here is fine
         } catch (InvalidRepositoryException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            logger.error("The repository for " + pf.toString() + " is invalid.");
         } catch (InvalidProjectRevisionException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            logger.error("The repository for " + pf.toString() + " has no revision " + projectVersion + ".");
         } catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            logger.error("File " + pf.toString() + " not found in the given repository.");
         }
         return null;
     }
