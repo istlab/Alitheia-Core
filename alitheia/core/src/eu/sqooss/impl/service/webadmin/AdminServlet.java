@@ -112,12 +112,6 @@ public class AdminServlet extends HttpServlet {
         return String.format("%d:%02d:%02d:%02d", days, hours, mins, secs);
     }
 
-    private void doLogInfo (String logMessage) {
-        if (sobjLogger != null) {
-            sobjLogger.info(logMessage);
-        }
-    }
-
     public void addStaticContent(String path, String type) {
         Pair < String, String > p = new Pair < String, String > (path,type);
         staticContentMap.put(path, p);
@@ -139,30 +133,30 @@ public class AdminServlet extends HttpServlet {
             sobjLogManager = sobjAlitheiaCore.getLogManager();
             if (sobjLogManager != null) {
                 sobjLogger = sobjLogManager.createLogger(
-                    LogManagerConstants.loggerNames[10]);
+                    Logger.NAME_SQOOSS_WEBADMIN);
             }
 
             // Get the DB Service object
             sobjDB = sobjAlitheiaCore.getDBService();
             if (sobjDB != null) {
-                doLogInfo("WebAdmin got DB Service object.");
+                sobjLogger.debug("WebAdmin got DB Service object.");
             }
 
             // Get the TDS Service object
             sobjTDS = sobjAlitheiaCore.getTDSService();
             if (sobjTDS != null) {
-                doLogInfo("WebAdmin got TDS Service object.");
+                sobjLogger.debug("WebAdmin got TDS Service object.");
             }
 
             sobjSched = sobjAlitheiaCore.getScheduler();
             if (sobjSched != null) {
-                doLogInfo("WebAdmin got Scheduler Service object.");
+                sobjLogger.debug("WebAdmin got Scheduler Service object.");
             }
             
             // Get the Updater Service object
             sobjUpdater = sobjAlitheiaCore.getUpdater();
             if (sobjUpdater != null) {
-                doLogInfo("WebAdmin got Updater Service object.");
+                sobjLogger.debug("WebAdmin got Updater Service object.");
             }
 
             Stuffer myStuffer = new Stuffer(sobjDB, sobjLogger, sobjTDS);
@@ -422,7 +416,7 @@ public class AdminServlet extends HttpServlet {
         // TODO: Check that the bytes written were as many as the
         //  file size in the JAR (how? it's an InputStream).
         if ( sobjLogger != null ) {
-            // doLogInfo("Wrote " + totalBytes + " from " + source.first);
+            sobjLogger.debug("Wrote " + totalBytes + " from " + source.first);
         }
     }
 
@@ -487,7 +481,7 @@ public class AdminServlet extends HttpServlet {
                          HttpServletResponse response) throws ServletException,
                                                               IOException {
         try {
-            // doLogInfo("GET path=" + request.getPathInfo());
+            sobjLogger.debug("GET path=" + request.getPathInfo());
 
             String query = request.getPathInfo();
             if ( (query != null) && (staticContentMap.containsKey(query)) ) {
@@ -551,7 +545,8 @@ public class AdminServlet extends HttpServlet {
 
             // Check if the update works
             if (sobjUpdater.update(project, UpdaterService.UpdateTarget.ALL, null)) {
-                doLogInfo("Added a new project.");
+                sobjLogger.info("Added a new project <" + name + "> with ID " +
+                        project.getId());
                 dynamicSubstitutions.put("@@RESULTS","<p>New project added successfully.</p>");
             }
             else {
@@ -575,10 +570,12 @@ public class AdminServlet extends HttpServlet {
                 dynamicSubstitutions.put("@@RESULTS", "<p>Alitheia Core is now shutdown.</p>");
                 sendTemplate(response,"/results.html",dynamicSubstitutions);
                 // Stop the system
+                sobjLogger.info("System stopped by user request to webadmin.");
                 bundlecontext.getBundle(0).stop();
             } else if ("/restart".equals(request.getPathInfo())) {
                 dynamicSubstitutions.put("@@RESULTS", "<p>Alitheia Core is now restarting. Please wait.</p>");
                 startTime = new Date().getTime();
+                sobjLogger.warn("BOGUS system restart by user request to webadmin.");
                 sendTemplate(response,"/results.html",dynamicSubstitutions);
             } else {
                 doGet(request,response);
@@ -591,3 +588,4 @@ public class AdminServlet extends HttpServlet {
 
 
 // vi: ai nosi sw=4 ts=4 expandtab
+//

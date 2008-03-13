@@ -57,11 +57,11 @@ class Stuffer implements Runnable {
         this.logger = l;
         this.tds = t;
 
-        logger.info("Stuffer ready.");
+        logger.debug("Stuffer ready.");
     }
 
     private void bogusStuffer() {
-        logger.info("Stuffing bogus project into TDS");
+        logger.debug("Stuffing bogus project into TDS");
         // Some dorky default project so the TDS is not empty
         // for the test later.
         tds.addAccessor(1, "KPilot", "", "",
@@ -69,7 +69,7 @@ class Stuffer implements Runnable {
     }
 
     public void run() {
-        logger.info("Now running stuffer.");
+        logger.debug("Now running stuffer.");
 
         if (db != null) {
             List l = db.doHQL("from StoredProject");
@@ -85,6 +85,8 @@ class Stuffer implements Runnable {
         } else {
             bogusStuffer();
         }
+
+        logger.info("WebAdmin Stuffer is finished.");
     }
 }
 
