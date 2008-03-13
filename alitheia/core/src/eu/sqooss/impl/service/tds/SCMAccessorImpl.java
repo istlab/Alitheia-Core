@@ -289,7 +289,7 @@ public class SCMAccessorImpl extends NamedAccessorImpl implements SCMAccessor {
         long revno = resolveProjectRevision(revision);
         try {
             SVNNodeKind nodeKind = svnRepository.checkPath(repoPath, revno);
-            logger.info("Requesting path \"" + repoPath + "\", resision " + revno);
+            logger.info("Requesting path \"" + repoPath + "\", revision " + revno);
             logger.info("nodeKind=" + nodeKind.toString());
             /* NOTE: Seems like checkPath() sometimes returns a node kind in
              *       small letter (i.e. "dir" instead of "DIR"). Converting it
