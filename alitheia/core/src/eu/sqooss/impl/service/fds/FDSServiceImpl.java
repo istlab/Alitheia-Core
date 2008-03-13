@@ -663,8 +663,7 @@ public class FDSServiceImpl implements FDSService {
     }
 
     public Timeline getTimeline(StoredProject c) {
-        // TODO: Write the actual implementation
-        return null;
+        return new TimelineImpl(c);
     }
 }
 
