@@ -412,10 +412,6 @@ public class AdminServlet extends HttpServlet {
         int bytesRead = 0;
         int totalBytes = 0;
 
-        if ( sobjLogger != null ) {
-            sobjLogger.info("Serving " + source.first + " (" + source.second + ")");
-        }
-
         response.setContentType(source.second);
         ServletOutputStream ostream = response.getOutputStream();
         while ( (bytesRead = istream.read(buffer)) > 0 ) {
@@ -426,7 +422,7 @@ public class AdminServlet extends HttpServlet {
         // TODO: Check that the bytes written were as many as the
         //  file size in the JAR (how? it's an InputStream).
         if ( sobjLogger != null ) {
-            sobjLogger.info("Wrote " + totalBytes + " from " + source.first);
+            // doLogInfo("Wrote " + totalBytes + " from " + source.first);
         }
     }
 
@@ -437,10 +433,6 @@ public class AdminServlet extends HttpServlet {
         if ( istream == null ) {
             // TODO: Is there a more specific exception?
             throw new IOException( "Path not found: " + path );
-        }
-
-        if ( sobjLogger != null ) {
-            sobjLogger.info("Serving template " + path);
         }
 
         response.setContentType("text/html");
@@ -495,7 +487,7 @@ public class AdminServlet extends HttpServlet {
                          HttpServletResponse response) throws ServletException,
                                                               IOException {
         try {
-            sobjLogger.info("GET path=" + request.getPathInfo());
+            // doLogInfo("GET path=" + request.getPathInfo());
 
             String query = request.getPathInfo();
             if ( (query != null) && (staticContentMap.containsKey(query)) ) {
@@ -559,7 +551,7 @@ public class AdminServlet extends HttpServlet {
 
             // Check if the update works
             if (sobjUpdater.update(project, UpdaterService.UpdateTarget.ALL, null)) {
-                sobjLogger.info("Added a new project.");
+                doLogInfo("Added a new project.");
                 dynamicSubstitutions.put("@@RESULTS","<p>New project added successfully.</p>");
             }
             else {
@@ -574,7 +566,7 @@ public class AdminServlet extends HttpServlet {
                           HttpServletResponse response) throws ServletException,
                                                                IOException {
         try {
-            sobjLogger.info("POST path=" + request.getPathInfo());
+            doLogInfo("POST path=" + request.getPathInfo());
             if ("/addproject".equals(request.getPathInfo())) {
                 addProject(request);
                 // addProject() has filled in the substitutions by now

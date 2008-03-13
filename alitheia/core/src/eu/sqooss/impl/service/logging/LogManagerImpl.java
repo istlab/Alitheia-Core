@@ -71,6 +71,7 @@ public class LogManagerImpl implements LogManager {
             org.apache.log4j.Logger.getRootLogger().info("Logging to buffer with simple layout.");
             l.setLayout(new SimpleLayout());
         }
+        l.setThreshold(org.apache.log4j.Level.WARN);
         org.apache.log4j.Logger.getRootLogger().addAppender(l);
         cyclicLogger = l;
 
