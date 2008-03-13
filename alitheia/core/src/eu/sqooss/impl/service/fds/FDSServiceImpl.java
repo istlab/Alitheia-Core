@@ -372,6 +372,9 @@ public class FDSServiceImpl implements FDSService {
         }
     }
 
+    // ===[ INTERFACE METHODS ]===============================================
+
+    /** {@inheritDoc} */
     public File getFile (ProjectFile pf) {
         // Make sure that the file exists in the specified project version
         String fileStatus = pf.getStatus();
@@ -379,15 +382,17 @@ public class FDSServiceImpl implements FDSService {
             return null;
         }
 
-        /* NOTE: The following code expects that a project version equals to
+        /* NOTE: The following code assumes that a project version equals to
          *       a project revision
          */
         long projectVersion = pf.getProjectVersion().getVersion();
         ProjectRevision projectRevision = new ProjectRevision(projectVersion);
 
+        // Retrieve the project ID
+        long projectId = pf.getProjectVersion().getProject().getId();
+
         // Get a TDS handle for the selected ProjectFile
-        long pid = pf.getProjectVersion().getProject().getId();
-        SCMAccessor scm = tds.getAccessor(pid).getSCMAccessor();
+        SCMAccessor scm = tds.getAccessor(projectId).getSCMAccessor();
 
         try {
             // Path generation for a "single file checkout"
@@ -397,17 +402,20 @@ public class FDSServiceImpl implements FDSService {
             File checkoutFile = new File(
                     fdsCheckoutRoot
                     + System.getProperty("file.separator")
-                    + pid
+                    + projectId
                     + System.getProperty("file.separator")
                     + projectVersion
                     + System.getProperty("file.separator")
                     + pf.getName());
 
-            // Skip, in case this ProjectFile is still available
-            // (from a previous checkout for example)
+            // Skip the checkout, in case this ProjectFile is already
+            // available (i.e. retrieved in a previous checkout)
             if (!checkoutFile.exists()) {
-                // Make sure that the path to the target file exists
-                new File(checkoutFile.getParent()).mkdirs();
+                // Create the path to the target file if it doesn't exist
+                if ((checkoutFile.getParentFile() != null)
+                        && (!checkoutFile.getParentFile().exists())) {
+                    checkoutFile.getParentFile().mkdirs();
+                }
                 // Try to checkout the target file
                 scm.getFile(
                         pf.getName(),
@@ -415,7 +423,7 @@ public class FDSServiceImpl implements FDSService {
                         checkoutFile);
             }
 
-            // Make sure that the target file has been checked out
+            // Make sure that the target file is accessible
             if ((checkoutFile.exists())
                     && (checkoutFile.isFile())
                     && (checkoutFile.canRead())) {
@@ -434,7 +442,6 @@ public class FDSServiceImpl implements FDSService {
         return null;
     }
 
-    // Interface methods
     /** {@inheritDoc} */
     public CheckoutImpl getCheckout(long projectId, ProjectRevision r)
         throws InvalidRepositoryException,
