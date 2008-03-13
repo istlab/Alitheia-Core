@@ -277,10 +277,11 @@ public class SCMAccessorImpl extends NamedAccessorImpl implements SCMAccessor {
     }
 
     public void getFile(String repoPath,
-        ProjectRevision revision, File localPath)
+            ProjectRevision revision, File localPath)
         throws InvalidProjectRevisionException,
                InvalidRepositoryException,
                FileNotFoundException {
+        // Connect to the repository if a connection has not yet been created
         if (svnRepository == null) {
             connectToRepository();
         }
@@ -288,19 +289,34 @@ public class SCMAccessorImpl extends NamedAccessorImpl implements SCMAccessor {
         long revno = resolveProjectRevision(revision);
         try {
             SVNNodeKind nodeKind = svnRepository.checkPath(repoPath, revno);
-            // Seems like checkPath() sometimes returns a node kind "dir"
-            // instead of "DIR". Converting it to upper case solves the
-            // "problem", although the reason for such behaviour is unclear.
+            /* NOTE: Seems like checkPath() sometimes returns a node kind in
+             *       small letter (i.e. "dir" instead of "DIR"). Converting it
+             *       to upper case solves the "problem", although the actual
+             *       reason for such a behavior is not clear.
+             */
             nodeKind = SVNNodeKind.parseKind(
                     nodeKind.toString().toUpperCase());
 
             if (SVNNodeKind.NONE == nodeKind) {
-                logger.info("Requested path " + repoPath + " does not exist.");
+                logger.info(
+                        "Requested path "
+                        + repoPath
+                        + " does not exist.");
                 throw new FileNotFoundException(repoPath);
             }
             if (SVNNodeKind.DIR == nodeKind) {
-                logger.info("Requested path " + repoPath + " is a directory.");
+                logger.info(
+                        "Requested path "
+                        + repoPath
+                        + " is a directory.");
                 throw new FileNotFoundException(repoPath + " (dir)");
+            }
+            if (SVNNodeKind.UNKNOWN == nodeKind) {
+                logger.info(
+                        "Requested path "
+                        + repoPath
+                        + " is of unknown type.");
+                throw new FileNotFoundException(repoPath + " (unknown)");
             }
 
             FileOutputStream stream = new FileOutputStream(localPath);
