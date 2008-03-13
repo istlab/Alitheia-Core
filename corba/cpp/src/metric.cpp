@@ -84,9 +84,25 @@ char* ProjectVersionMetric::getResult( const alitheia::ProjectVersion& projectVe
     return CORBA::string_dup( getResult( ProjectVersion( projectVersion ) ).c_str() );
 }
 
+void ProjectVersionMetric::run( const alitheia::ProjectVersion& projectVersion )
+{
+//    return CORBA::string_dup( getResult( ProjectVersion( projectVersion ) ).c_str() );
+}
+
+CORBA::Boolean ProjectVersionMetric::run2nd( const alitheia::ProjectVersion& a, const alitheia::ProjectVersion& b )
+{
+//    return CORBA::string_dup( getResult( ProjectVersion( projectVersion ) ).c_str() );
+    return false;
+}
+
 char* ProjectFileMetric::getResult( const alitheia::ProjectFile& projectFile )
 {
     return CORBA::string_dup( getResult( ProjectFile( projectFile ) ).c_str() );
+}
+
+void ProjectFileMetric::run( const alitheia::ProjectFile& projectFile )
+{
+//    return CORBA::string_dup( getResult( ProjectFile( projectFile ) ).c_str() );
 }
 
 char* StoredProjectMetric::getResult( const alitheia::StoredProject& storedProject )
@@ -94,7 +110,17 @@ char* StoredProjectMetric::getResult( const alitheia::StoredProject& storedProje
     return CORBA::string_dup( getResult( StoredProject( storedProject ) ).c_str() );
 }
 
+void StoredProjectMetric::run( const alitheia::StoredProject& storedProject )
+{
+//    return CORBA::string_dup( getResult( StoredProject( storedProject ) ).c_str() );
+}
+
 char* FileGroupMetric::getResult( const alitheia::FileGroup& fileGroup )
 {
     return CORBA::string_dup( getResult( FileGroup( fileGroup ) ).c_str() );
+}
+
+void FileGroupMetric::run( const alitheia::FileGroup& fileGroup )
+{
+//    return CORBA::string_dup( getResult( FileGroup( fileGroup ) ).c_str() );
 }

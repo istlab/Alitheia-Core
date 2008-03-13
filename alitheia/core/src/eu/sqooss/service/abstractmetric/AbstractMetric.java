@@ -197,8 +197,31 @@ implements eu.sqooss.service.abstractmetric.Metric {
      *          
      * FIXME: 
      */
-    public abstract void run(DAObject o) throws MetricMismatchException;
-   
+    public void run(DAObject o) throws MetricMismatchException {
+        if ((this instanceof ProjectVersionMetric) &&
+            (o instanceof ProjectVersion)) {
+            run((ProjectVersion) o);
+            return;
+        }
+        if ((this instanceof StoredProjectMetric) &&
+            (o instanceof StoredProject)) {
+            run((StoredProject) o);
+            return;
+        }
+        if ((this instanceof ProjectFileMetric) &&
+            (o instanceof ProjectFile)) {
+            run((ProjectFile) o);
+            return;
+        }
+        if ((this instanceof FileGroupMetric) &&
+            (o instanceof FileGroup)) {
+            run((FileGroup) o);
+            return;
+        }
+
+        throw new MetricMismatchException(o);
+    }
+
     /**
      * Add a supported metric description to the database.
      *

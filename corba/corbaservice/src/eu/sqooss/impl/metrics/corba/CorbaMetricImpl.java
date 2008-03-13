@@ -32,24 +32,16 @@ abstract public class CorbaMetricImpl extends AbstractMetric {
     }
 
     public boolean install() {
-        // TODO Auto-generated method stub
-        return false;
+        return super.install();
     }
 
     public boolean remove() {
-        // TODO Auto-generated method stub
-        return false;
+        return super.remove();
     }
 
     public boolean update() {
         // TODO Auto-generated method stub
         return false;
-    }
-
-    @Override
-    public void run(DAObject o) throws MetricMismatchException {
-        // TODO Auto-generated method stub
-        
     }
 }
 

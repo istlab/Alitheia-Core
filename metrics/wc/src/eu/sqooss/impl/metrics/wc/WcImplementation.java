@@ -95,16 +95,6 @@ public class WcImplementation extends AbstractMetric implements Wc {
             log.error("Could not schedule wc job for project file: " + ((ProjectFile)a).getName());
         }
     }
-
-    @Override
-    /*FIXME: There must be some way to push this to the parent class*/
-    public final void run(DAObject o) throws MetricMismatchException {
-        if(! (o instanceof ProjectFile))
-            throw new MetricMismatchException(o);
-        
-        run((ProjectFile) o);
-        
-    }
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

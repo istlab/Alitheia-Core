@@ -79,6 +79,8 @@ namespace Alitheia
     {
     public:
         char* getResult( const alitheia::ProjectVersion& projectVersion );
+        void run( const alitheia::ProjectVersion& v );
+        CORBA::Boolean run2nd( const alitheia::ProjectVersion& a, const alitheia::ProjectVersion& b );
 
         virtual std::string getResult( const ProjectVersion& projectVersion ) const = 0;
     };
@@ -87,6 +89,7 @@ namespace Alitheia
     {
     public:
         char* getResult( const alitheia::ProjectFile& projectFile );
+        void run( const alitheia::ProjectFile& projectFile );
 
         virtual std::string getResult( const ProjectFile& projectFile ) const = 0;
     };
@@ -95,6 +98,7 @@ namespace Alitheia
     {
     public:
         char* getResult( const alitheia::StoredProject& storedProject );
+        void run( const alitheia::StoredProject& storedProject );
 
         virtual std::string getResult( const StoredProject& storedProject ) const = 0;
     };
@@ -103,6 +107,7 @@ namespace Alitheia
     {
     public:
         char* getResult( const alitheia::FileGroup& fileGroup );
+        void run( const alitheia::FileGroup& fileGroup );
 
         virtual std::string getResult( const FileGroup& fileGroup ) const = 0;
     };

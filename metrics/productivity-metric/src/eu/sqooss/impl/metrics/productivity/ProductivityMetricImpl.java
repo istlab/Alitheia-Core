@@ -94,17 +94,6 @@ public class ProductivityMetricImpl extends AbstractMetric implements
 
         return null;
     }
-
-    @Override
-    /*FIXME: There must be some way to push this to the parent class*/
-    public void run(DAObject o) throws MetricMismatchException {
-        if(! (o instanceof ProjectVersion) && 
-                ! (o instanceof StoredProject))
-            throw new MetricMismatchException(o);
-        
-        run((ProjectVersion) o);
-    }
-
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab
