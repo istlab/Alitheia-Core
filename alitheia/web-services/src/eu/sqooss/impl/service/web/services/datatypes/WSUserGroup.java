@@ -32,13 +32,13 @@
 
 package eu.sqooss.impl.service.web.services.datatypes;
 
-import eu.sqooss.service.security.SecurityGroup;
+import eu.sqooss.service.db.Group;
 
 public class WSUserGroup {
     
-    private SecurityGroup securityGroup;
+    private Group securityGroup;
     
-    public WSUserGroup(SecurityGroup securityGroup) {
+    public WSUserGroup(Group securityGroup) {
         this.securityGroup = securityGroup;
     }
     

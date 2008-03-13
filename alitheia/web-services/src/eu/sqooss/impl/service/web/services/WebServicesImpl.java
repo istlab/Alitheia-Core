@@ -34,6 +34,7 @@ package eu.sqooss.impl.service.web.services;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Dictionary;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
@@ -59,10 +60,11 @@ import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.security.SecurityConstants;
 import eu.sqooss.service.security.SecurityManager;
 import eu.sqooss.service.tds.TDSService;
 
-public class WebServicesImpl {
+public class WebServicesImpl implements SecurityConstants {
     
     private SecurityManager securityManager;
     private Logger logger;
@@ -372,7 +374,7 @@ public class WebServicesImpl {
         //TODO: check the security
         
         //TODO: add all fields to the security
-        return new WSUser(securityManager.createUser(newUserName, newPassword));
+        return null;
         
     }
     //5.1.10
@@ -385,8 +387,7 @@ public class WebServicesImpl {
             long userId) {
         
         //TODO: check the security
-        
-        return new WSUser(securityManager.getUser(userId));
+        return null;
     }
     
     /**
@@ -397,8 +398,6 @@ public class WebServicesImpl {
             String newUserClass, String newOtherInfo) {
         
         //TODO: check the security and implement
-        
-        securityManager.modifyUser(null);
     }
     
     /**
@@ -407,8 +406,6 @@ public class WebServicesImpl {
     public void deleteUser(String userNameForAccess, String passwordForAccess, long userId) {
         
         //TODO: check the security
-        
-        securityManager.deleteUser(userId);
     }
     //5.1.11
     
@@ -458,7 +455,12 @@ public class WebServicesImpl {
         logger.info("Retrieve stored project! user: " + userName +
                 "; project's id: " + projectId );
         
-        //TODO: check the security
+        Dictionary<String, String> privileges = new Hashtable<String, String>();
+        privileges.put(PRIVILEGES.PROJECT_ID.toString(), Long.toString(projectId));
+        
+        if (!securityManager.checkPermission(URL_SQOOSS_DATABASE, privileges, userName, password)) {
+            throw new SecurityException("The user: " + userName + " - has no permissions!");
+        }
         
         StoredProject storedProject;
         

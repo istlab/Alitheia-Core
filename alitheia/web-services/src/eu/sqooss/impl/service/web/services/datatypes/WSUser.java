@@ -32,14 +32,18 @@
 
 package eu.sqooss.impl.service.web.services.datatypes;
 
-import eu.sqooss.service.security.SecurityGroup;
-import eu.sqooss.service.security.SecurityUser;
+import java.util.Collection;
+import java.util.Iterator;
+
+import eu.sqooss.service.db.Group;
+import eu.sqooss.service.db.User;
+
 
 public class WSUser {
     
-    private SecurityUser securityUser;
+    private User securityUser;
     
-    public WSUser(SecurityUser securityUser) {
+    public WSUser(User securityUser) {
         this.securityUser = securityUser;
     }
     
@@ -48,19 +52,24 @@ public class WSUser {
     }
     
     public String getUserName() {
-        return securityUser.getUserName();
+        return securityUser.getName();
     }
     
     public WSUserGroup[] getUserGroups() {
         return parseSecurityGroups(securityUser.getGroups());
     }
     
-    private WSUserGroup[] parseSecurityGroups(SecurityGroup[] securityGroups) {
-        WSUserGroup[] userGroups = new WSUserGroup[securityGroups.length];
-        for (int i = 0; i < securityGroups.length; i++) {
-            userGroups[i] = new WSUserGroup(securityGroups[i]);
+    private WSUserGroup[] parseSecurityGroups(Collection<?> securityGroups) {
+        if ((securityGroups != null) && (securityGroups.size() != 0)) {
+            WSUserGroup[] userGroups = new WSUserGroup[securityGroups.size()];
+            Iterator<?> iterator = securityGroups.iterator();
+            for (int i = 0; i < userGroups.length; i++) {
+                userGroups[i] = new WSUserGroup((Group)iterator.next());
+            }
+            return userGroups;
+        } else {
+            return new WSUserGroup[] {null};
         }
-        return userGroups;
     }
     
 }
