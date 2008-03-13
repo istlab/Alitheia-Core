@@ -8,8 +8,11 @@ import eu.sqooss.service.db.StoredProject;
 
 public class CorbaStoredProjectMetricImpl extends CorbaMetricImpl implements eu.sqooss.service.abstractmetric.StoredProjectMetric {
 
+    private StoredProjectMetric metric;
+
 	public CorbaStoredProjectMetricImpl(BundleContext bc, StoredProjectMetric m) {
 		super(bc, m);
+        metric = m;
 	}
 
 	public Result getResult(StoredProject a) {
@@ -18,8 +21,7 @@ public class CorbaStoredProjectMetricImpl extends CorbaMetricImpl implements eu.
 	}
 
 	public void run(StoredProject a) {
-		// TODO Auto-generated method stub
-		
+	    metric.run(fromDBObject(a));
 	}
 
 }

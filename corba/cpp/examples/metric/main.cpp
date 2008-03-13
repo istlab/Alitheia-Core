@@ -61,6 +61,13 @@ public:
     {
         return "getResult";
     }
+
+    void run( const ProjectFile& file ) const
+    {
+        Logger logger( Logger::NameSqoOssMetric );
+        logger.setTeeStream( cout );
+        logger << "MyMetric::run: " << file.name << endl;
+    }
 };
 
 int main( int argc, char **argv)
@@ -76,7 +83,7 @@ int main( int argc, char **argv)
     logger << "C++ client metric registered, id is " << id << "." << endl;
 
 
-    m = new MyMetric< ProjectVersionMetric >;
+/*    m = new MyMetric< ProjectVersionMetric >;
     logger << "Registering C++ client metric..." << endl;
     id = c.registerMetric( m );
     logger << "C++ client metric registered, id is " << id << "." << endl;
@@ -91,7 +98,7 @@ int main( int argc, char **argv)
     m = new MyMetric< StoredProjectMetric >;
     logger << "Registering C++ client metric..." << endl;
     id = c.registerMetric( m );
-    logger << "C++ client metric registered, id is " << id << "." << endl;
+    logger << "C++ client metric registered, id is " << id << "." << endl;*/
 
 
     logger << "Metrics waiting for orders..." << endl;

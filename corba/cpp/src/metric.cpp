@@ -102,7 +102,7 @@ char* ProjectFileMetric::getResult( const alitheia::ProjectFile& projectFile )
 
 void ProjectFileMetric::run( const alitheia::ProjectFile& projectFile )
 {
-//    return CORBA::string_dup( getResult( ProjectFile( projectFile ) ).c_str() );
+    run( ProjectFile( projectFile ) );
 }
 
 char* StoredProjectMetric::getResult( const alitheia::StoredProject& storedProject )

@@ -7,32 +7,74 @@ namespace Alitheia
 {
     class Core;
 
-    struct ProjectVersion
+
+    struct StoredProject
     {
-        ProjectVersion( const alitheia::ProjectVersion& )
+        StoredProject( const alitheia::StoredProject& project )
+            : name( project.name ),
+              website( project.website ),
+              contact( project.contact ),
+              bugs( project.bugs ),
+              repository( project.repository ),
+              mail( project.mail )
         {
         }
+
+        const std::string name;
+        const std::string website;
+        const std::string contact;
+        const std::string bugs;
+        const std::string repository;
+        const std::string mail;
+    };
+
+    struct ProjectVersion
+    {
+        ProjectVersion( const alitheia::ProjectVersion& version )
+            : project( version.project ),
+              version( version.version ),
+              timeStamp( version.timeStamp )
+        {
+        }
+
+        const StoredProject project;
+        const int version;
+        const int timeStamp;
     };
 
     struct ProjectFile
     {
-        ProjectFile( const alitheia::ProjectFile& )
+        ProjectFile( const alitheia::ProjectFile& file )
+            : name( file.name ),
+              projectVersion( file.projectVersion ),
+              status( file.status )
         {
         }
+
+        const std::string name;
+        const ProjectVersion projectVersion;
+        const std::string status;
     };
 
-    struct StoredProject
-    {
-        StoredProject( const alitheia::StoredProject& )
-        {
-        }
-    };
 
     struct FileGroup
     {
-        FileGroup( const alitheia::FileGroup& )
+        FileGroup( const alitheia::FileGroup& group )
+            : name( group.name ),
+              subPath( group.subPath ),
+              regex( group.regex ),
+              recalcFreq( group.recalcFreq ),
+              lastUsed( group.lastUsed ),
+              projectVersion( group.projectVersion )
         {
         }
+
+        const std::string name;
+        const std::string subPath;
+        const std::string regex;
+        const int recalcFreq;
+        const std::string lastUsed;
+        const ProjectVersion projectVersion;
     };
     
     class AbstractMetric : virtual public POA_alitheia::AbstractMetric
@@ -92,6 +134,7 @@ namespace Alitheia
         void run( const alitheia::ProjectFile& projectFile );
 
         virtual std::string getResult( const ProjectFile& projectFile ) const = 0;
+        virtual void run( const ProjectFile& projectFile ) const = 0;
     };
 
     class StoredProjectMetric : public AbstractMetric, virtual public POA_alitheia::StoredProjectMetric

@@ -6,6 +6,8 @@ import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.MetricMismatchException;
 import eu.sqooss.service.db.DAObject;
 
+import eu.sqooss.impl.service.corba.alitheia.*;
+
 abstract public class CorbaMetricImpl extends AbstractMetric {
 
     eu.sqooss.impl.service.corba.alitheia.AbstractMetric m;
@@ -42,6 +44,44 @@ abstract public class CorbaMetricImpl extends AbstractMetric {
     public boolean update() {
         // TODO Auto-generated method stub
         return false;
+    }
+   
+    protected static FileGroup fromDBObject(eu.sqooss.service.db.FileGroup o) {
+        FileGroup group = new FileGroup();
+        group.name = o.getName();
+        group.subPath = o.getSubPath();
+        group.regex = o.getRegex();
+        group.recalcFreq = o.getRecalcFreq();
+        group.lastUsed = o.getLastUsed().toString();
+        group.projectVersion = fromDBObject(o.getProjectVersion());
+        return group;
+    }
+
+    protected static StoredProject fromDBObject(eu.sqooss.service.db.StoredProject o) {
+        StoredProject project = new StoredProject();
+        project.name = o.getName();
+        project.website = o.getWebsite();
+        project.contact = o.getContact();
+        project.bugs = o.getBugs();
+        project.repository = o.getRepository();
+        project.mail = o.getMail();
+        return project;
+    }
+
+    protected static ProjectVersion fromDBObject(eu.sqooss.service.db.ProjectVersion o) {
+        ProjectVersion version = new ProjectVersion();
+        version.project = fromDBObject(o.getProject());
+        version.version = (int)o.getVersion();
+        version.timeStamp = (int)o.getTimestamp();
+        return version;
+    }
+
+    protected static ProjectFile fromDBObject(eu.sqooss.service.db.ProjectFile o) {
+        ProjectFile file = new ProjectFile();
+        file.name = o.getName();
+        file.status = o.getStatus();
+        file.projectVersion = fromDBObject(o.getProjectVersion());
+        return file;
     }
 }
 

@@ -8,8 +8,11 @@ import eu.sqooss.service.db.ProjectVersion;
 
 public class CorbaProjectVersionMetricImpl extends CorbaMetricImpl implements eu.sqooss.service.abstractmetric.ProjectVersionMetric {
 
+    private ProjectVersionMetric metric;
+
     public CorbaProjectVersionMetricImpl(BundleContext bc, ProjectVersionMetric m) {
         super(bc, m);
+        metric = m;
     }
 
 	public Result getResult(ProjectVersion a) {
@@ -18,13 +21,11 @@ public class CorbaProjectVersionMetricImpl extends CorbaMetricImpl implements eu
 	}
 
 	public boolean run(ProjectVersion a, ProjectVersion b) {
-		// TODO Auto-generated method stub
-		return false;
-	}
+	    return metric.run2nd(fromDBObject(a), fromDBObject(b));
+    }
 
 	public void run(ProjectVersion v) {
-		// TODO Auto-generated method stub
-		
+	    metric.run(fromDBObject(v));	
 	}
 
 }

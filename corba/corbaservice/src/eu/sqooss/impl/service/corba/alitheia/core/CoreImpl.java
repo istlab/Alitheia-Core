@@ -47,7 +47,6 @@ public class CoreImpl extends CorePOA {
 			e.printStackTrace();
 			return -1;
 		}
-		// TODO: Different types
 		CorbaMetricImpl wrapper = null;
 		if (o._is_a(ProjectVersionMetricHelper.id()))
 		{
