@@ -20,6 +20,7 @@ drop table plugin;
 drop table privilege;
 drop table privilege cascade;
 drop table project_file cascade;
+drop table project_file_join;
 drop table project_version;
 drop table sender;
 drop table service_url;
