@@ -32,7 +32,9 @@
 # JAVA_LINT	- lint parameters shared across Alitheia
 
 ABS_PREFIX?=$(shell cd $(PREFIX) && pwd)
+ifeq (${JAVA_LINT},)
 JAVA_LINT=-Xlint
+endif
 
 # Template to pass targets on to sub-directories.
 define subdir_template
