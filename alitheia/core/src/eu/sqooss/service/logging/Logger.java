@@ -54,6 +54,8 @@ package eu.sqooss.service.logging;
  *   - info logs actions and largers algorithmic steps; log the sucessful
  *          completion of an action as info. The flow of info log statements
  *          should give an indication of what is happening in the application.
+ *          With info messages, the high-level picture of what the system is doing
+ *          should be clear.
  *   - warn is used to indicate that something recoverable is wrong. Typically
  *          used when configuration values are unusual or resources are not
  *          available. Warnings should indicate the nature of the problem
@@ -133,6 +135,11 @@ public interface Logger {
 
     /**
     * Log a message with debug (lower than lowest) logging level.
+    * The debug level is used for micro-steps in an algorithm, for
+    * logging individual computations and for providing ongoing
+    * status information. It really only makes sense in log files
+    * when examining specific issues.
+    *
     * @param message a log message
     * @note In the default configuration, debug messages will never
     *   be seen anywhere.
@@ -140,7 +147,10 @@ public interface Logger {
     public void debug(String message);
 
     /**
-    * Logs a message with a info(lowest) logging level
+    * Logs a message with a info (lowest) logging level. The info
+    * level is used to give an idea of what is going on in the system
+    * at a global level.
+    *
     * @param message a log message
     */
     public void info(String message);
