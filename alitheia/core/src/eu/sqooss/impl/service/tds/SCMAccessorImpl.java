@@ -289,13 +289,16 @@ public class SCMAccessorImpl extends NamedAccessorImpl implements SCMAccessor {
         long revno = resolveProjectRevision(revision);
         try {
             SVNNodeKind nodeKind = svnRepository.checkPath(repoPath, revno);
+            logger.info("Requesting path \"" + repoPath + "\", resision " + revno);
+            logger.info("nodeKind=" + nodeKind.toString());
             /* NOTE: Seems like checkPath() sometimes returns a node kind in
              *       small letter (i.e. "dir" instead of "DIR"). Converting it
              *       to upper case solves the "problem", although the actual
              *       reason for such a behavior is not clear.
              */
-            nodeKind = SVNNodeKind.parseKind(
-                    nodeKind.toString().toUpperCase());
+            // TODO: aboves NOTE should not matter, actually it didn't worked :-/
+            //nodeKind = SVNNodeKind.parseKind(
+            //        nodeKind.toString().toUpperCase());
 
             if (SVNNodeKind.NONE == nodeKind) {
                 logger.info(
