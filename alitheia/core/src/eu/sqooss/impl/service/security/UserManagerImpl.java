@@ -53,6 +53,9 @@ public class UserManagerImpl implements UserManager {
         this.logger = logger;
     }
 
+    /**
+     * @see eu.sqooss.service.security.UserManager#createUser(java.lang.String, java.lang.String, java.lang.String)
+     */
     public User createUser(String userName, String password, String email) {
         logger.info("Create user! username: " + userName + "; e-mail: " + email);
         User newUser = new User();
@@ -67,21 +70,33 @@ public class UserManagerImpl implements UserManager {
         }
     }
 
+    /**
+     * @see eu.sqooss.service.security.UserManager#deleteUser(long)
+     */
     public boolean deleteUser(long userId) {
         logger.info("Delete user! user's id: " + userId);
         return dbWrapper.deleteUser(getUser(userId));
     }
 
+    /**
+     * @see eu.sqooss.service.security.UserManager#deleteUser(java.lang.String)
+     */
     public boolean deleteUser(String userName) {
         logger.info("Delete user! username: " + userName);
         return dbWrapper.deleteUser(getUser(userName));
     }
 
+    /**
+     * @see eu.sqooss.service.security.UserManager#getUser(long)
+     */
     public User getUser(long userId) {
         logger.info("Get user! user's id: " + userId);
         return dbWrapper.getUser(userId);
     }
 
+    /**
+     * @see eu.sqooss.service.security.UserManager#getUser(java.lang.String)
+     */
     public User getUser(String userName) {
         logger.info("Get user! username: " + userName);
         List<User> users = dbWrapper.getUsers(userName);
@@ -92,10 +107,16 @@ public class UserManagerImpl implements UserManager {
         }
     }
 
+    /**
+     * @see eu.sqooss.service.security.UserManager#getUsers()
+     */
     public User[] getUsers() {
         return convertUsers(dbWrapper.getUsers());
     }
 
+    /**
+     * @see eu.sqooss.service.security.UserManager#getUsers(long)
+     */
     public User[] getUsers(long groupId) {
         return convertUsers(dbWrapper.getUsers(groupId));
     }

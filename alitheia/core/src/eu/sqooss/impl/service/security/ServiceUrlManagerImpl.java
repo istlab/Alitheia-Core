@@ -51,6 +51,9 @@ public class ServiceUrlManagerImpl implements ServiceUrlManager {
         this.logger = logger;
     }
 
+    /**
+     * @see eu.sqooss.service.security.ServiceUrlManager#createServiceUrl(java.lang.String)
+     */
     public ServiceUrl createServiceUrl(String url) {
         logger.info("Create service url! url: " + url);
         ServiceUrl newServiceUrl = new ServiceUrl();
@@ -62,16 +65,25 @@ public class ServiceUrlManagerImpl implements ServiceUrlManager {
         }
     }
 
-    public void deleteServiceUrl(long serviceUrlId) {
+    /**
+     * @see eu.sqooss.service.security.ServiceUrlManager#deleteServiceUrl(long)
+     */
+    public boolean deleteServiceUrl(long serviceUrlId) {
         logger.info("Delete service url! url's id: " + serviceUrlId);
-        dbWrapper.deleteServiceUrl(getServiceUrl(serviceUrlId));
+        return dbWrapper.deleteServiceUrl(getServiceUrl(serviceUrlId));
     }
 
+    /**
+     * @see eu.sqooss.service.security.ServiceUrlManager#getServiceUrl(long)
+     */
     public ServiceUrl getServiceUrl(long serviceUrlId) {
         logger.info("Get service url! url's id: " + serviceUrlId);
         return dbWrapper.getServiceUrl(serviceUrlId);
     }
 
+    /**
+     * @see eu.sqooss.service.security.ServiceUrlManager#getServiceUrls()
+     */
     public ServiceUrl[] getServiceUrls() {
         logger.info("Get service urls!");
         return convertServiceUrls(dbWrapper.getServiceUrls());

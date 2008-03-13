@@ -66,6 +66,9 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
         serviceUrlManager = new ServiceUrlManagerImpl(db, logger);
     }
 
+    /**
+     * @see eu.sqooss.service.security.SecurityManager#checkPermission(java.lang.String, java.lang.String, java.lang.String)
+     */
     public boolean checkPermission(String fullUrl, String userName, String password) {
         Dictionary<String, String> privileges = new Hashtable<String, String>();
         String resourceUrl;
@@ -78,6 +81,9 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
         return checkPermission(resourceUrl, privileges, userName, password);
     }
 
+    /**
+     * @see eu.sqooss.service.security.SecurityManager#checkPermission(java.lang.String, java.util.Dictionary, java.lang.String, java.lang.String)
+     */
     public boolean checkPermission(String resourceUrl, Dictionary<String, String> privileges, String userName, String password) {
         
         logger.info("Check Permission! resourceUrl: " + resourceUrl + "; user name: " + userName);
@@ -96,18 +102,30 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
         }
     }
 
+    /**
+     * @see eu.sqooss.service.security.SecurityManager#getGroupManager()
+     */
     public GroupManager getGroupManager() {
         return groupManager;
     }
 
+    /**
+     * @see eu.sqooss.service.security.SecurityManager#getPrivilegeManager()
+     */
     public PrivilegeManager getPrivilegeManager() {
         return privilegeManager;
     }
 
+    /**
+     * @see eu.sqooss.service.security.SecurityManager#getServiceUrlManager()
+     */
     public ServiceUrlManager getServiceUrlManager() {
         return serviceUrlManager;
     }
 
+    /**
+     * @see eu.sqooss.service.security.SecurityManager#getUserManager()
+     */
     public UserManager getUserManager() {
         return userManager;
     }

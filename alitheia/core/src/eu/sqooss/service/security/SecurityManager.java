@@ -59,12 +59,32 @@ public interface SecurityManager {
      */
     public boolean checkPermission(String resourceUrl, Dictionary<String, String> privileges, String userName, String password);
 
+    /**
+     * This method returns the group manager.
+     * @return the group manager
+     * @see eu.sqooss.service.security.GroupManager
+     */
     public GroupManager getGroupManager();
     
+    /**
+     * This method returns the privilege manager.
+     * @return the privilege manager
+     * @see eu.sqooss.service.security.PrivilegeManager
+     */
     public PrivilegeManager getPrivilegeManager();
     
+    /**
+     * This method returns the user manager.
+     * @return the user manager
+     * @see eu.sqooss.service.security.UserManager
+     */
     public UserManager getUserManager();
     
+    /**
+     * This method returns the service url manager.
+     * @return the service url manager
+     * @see eu.sqooss.service.security.ServiceUrlManager
+     */
     public ServiceUrlManager getServiceUrlManager();
     
 }

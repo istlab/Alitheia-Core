@@ -35,20 +35,57 @@ package eu.sqooss.service.security;
 import eu.sqooss.service.db.Group;
 import eu.sqooss.service.db.GroupPrivilege;
 
+/**
+ * <code>GroupManager</code> gives an access to the groups and their relations.
+ */
 public interface GroupManager {
     
+    /**
+     * @param groupId
+     * @return <code>Group</code> with given identifier,
+     * null - if the group doesn't exist  
+     */
     public Group getGroup(long groupId);
     
+    /**
+     * @return all groups in the system
+     */
     public Group[] getGroups();
     
+    /**
+     * @param userId the user identifier
+     * @return the user's groups
+     */
     public Group[] getGroups(long userId);
     
+    /**
+     * This method creates a new group.
+     * @param description the group's description
+     * @return the new Group, null if the group isn't created
+     */
     public Group createGroup(String description);
     
+    /**
+     * This method deletes the group with given identifier.
+     * @param groupId the group's identifier
+     * @return true - if the group is deleted successfully, false - otherwise 
+     */
     public boolean deleteGroup(long groupId);
     
+    /**
+     * This method adds the user to the given group.
+     * @param groupId
+     * @param userId
+     * @return true - if the relation is created successfully, false otherwise
+     */
     public boolean addUserToGroup(long groupId, long userId);
     
+    /**
+     * This method removes the user from the given group.
+     * @param groupId
+     * @param userId
+     * @return true - if the relation is deleted successfully, false otherwise
+     */
     public boolean deleteUserFromGroup(long groupId, long userId);
     
     public GroupPrivilege[] getGroupPrivileges();

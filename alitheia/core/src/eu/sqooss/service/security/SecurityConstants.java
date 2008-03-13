@@ -38,15 +38,21 @@ package eu.sqooss.service.security;
  *  <p>
  *  For example:
  *  <p><code>
- *  SecurityConstants.URL_SQOOSS_DATABASE and SecurityConstants.PRIVILEGE_ACTION are used in the URL:
+ *  SecurityConstants.URL_SQOOSS_DATABASE and SecurityConstants.PRIVILEGES.ACTION are used in the url:
  *  </p></code>
  *  svc://sqooss.database?action=DeleteProject
  *  </p>
  */
 public interface SecurityConstants {
     
+    /**
+     * This character splits the resource url from the privileges in the security url.
+     */
     public static final char URL_DELIMITER_RESOURCE  = '?';
     
+    /**
+     * This character splits the privileges in the security url. 
+     */
     public static final char URL_DELIMITER_PRIVILEGE = '&';
     
     /**
@@ -89,6 +95,10 @@ public interface SecurityConstants {
      */
     public static final String URL_SQOOSS_UPDATER      = SecurityConstants.URL_SQOOSS + ".updater";
     
+    /**
+     * Represents some of the privileges.
+     * The user should use the toString() method.
+     */
     public static enum PRIVILEGES{
         ACTION,
         PROJECT_ID,

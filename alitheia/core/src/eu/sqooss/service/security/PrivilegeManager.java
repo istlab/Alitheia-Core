@@ -35,24 +35,70 @@ package eu.sqooss.service.security;
 import eu.sqooss.service.db.Privilege;
 import eu.sqooss.service.db.PrivilegeValue;
 
+/**
+ * <code>PrivilegeManager</code> gives an access to the privilege's management. 
+ */
 public interface PrivilegeManager {
     
+    /**
+     * @param privilegeId
+     * @return the privilege with given identifier,
+     * null - if the privilege doesn't exist
+     */
     public Privilege getPrivilege(long privilegeId);
     
+    /**
+     * @return all privileges in the system
+     */
     public Privilege[] getPrivileges();
     
+    /**
+     * @param privilegeValueId
+     * @return the privilege value with given identifier,
+     * null - if the privilege value doesn't exist
+     */
     public PrivilegeValue getPrivilegeValue(long privilegeValueId);
     
+    /**
+     * @return all privileges values in the system
+     */
     public PrivilegeValue[] getPrivilegeValues();
     
+    /**
+     * @param privilegeId the privilege's identifier
+     * @return the privilege's values 
+     */
     public PrivilegeValue[] getPrivilegeValues(long privilegeId);
     
+    /**
+     * This method creates a new privilege.
+     * @param privilegeName the privilege's name (description)
+     * @return the new privilege,
+     * null - if the privilege isn't created
+     */
     public Privilege createPrivilege(String privilegeName);
     
+    /**
+     * This method creates a new privilege value.
+     * @param privilegeId the privilege identifier
+     * @param privilegeValue the privilege's value
+     * @return the new privilege value,
+     * null - if the privilege value isn't created
+     */
     public PrivilegeValue createPrivilegeValue(long privilegeId, String privilegeValue);
     
+    /**
+     * This method deletes the privilege with given identifier.
+     * @param privilegeId the privilege's identifier
+     * @return true - if the privilege is deleted successfully, false - otherwise
+     */
     public boolean deletePrivilege(long privilegeId);
     
+    /**
+     * This method deletes the privilege value with given identifier.
+     * @param privilegeValueId the privilege value's identifier
+     * @return true - if the privilege value is deleted successfully, false - otherwise
+     */
     public boolean deletePrivilegeValue(long privilegeValueId);
     
 }

@@ -34,15 +34,36 @@ package eu.sqooss.service.security;
 
 import eu.sqooss.service.db.ServiceUrl;
 
+/**
+ * <code>ServiceUrlManager</code> gives access to the service url's management. 
+ */
 public interface ServiceUrlManager {
     
+    /**
+     * @param serviceUrlId
+     * @return the service url with given identifier,
+     * null - if the service url doesn't exist
+     */
     public ServiceUrl getServiceUrl(long serviceUrlId);
     
+    /**
+     * @return all service urls in the system
+     */
     public ServiceUrl[] getServiceUrls();
     
+    /**
+     * This method creates a new service url.
+     * @param url the url
+     * @return new service url, null - if the service url isn't created
+     */
     public ServiceUrl createServiceUrl(String url);
     
-    public void deleteServiceUrl(long serviceUrlId);
+    /**
+     * This method deletes the service url with given identifier.
+     * @param serviceUrlId
+     * @return true - if the service url is deleted successfully, false - otherwise
+     */
+    public boolean deleteServiceUrl(long serviceUrlId);
     
 }
 

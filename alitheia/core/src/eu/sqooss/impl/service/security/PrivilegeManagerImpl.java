@@ -52,6 +52,9 @@ public class PrivilegeManagerImpl implements PrivilegeManager {
         this.logger = logger;
     }
 
+    /**
+     * @see eu.sqooss.service.security.PrivilegeManager#createPrivilege(java.lang.String)
+     */
     public Privilege createPrivilege(String privilegeName) {
         logger.info("Create privilege! privilege's name: " + privilegeName);
         Privilege newPrivilege = new Privilege();
@@ -63,6 +66,9 @@ public class PrivilegeManagerImpl implements PrivilegeManager {
         }
     }
 
+    /**
+     * @see eu.sqooss.service.security.PrivilegeManager#createPrivilegeValue(long, java.lang.String)
+     */
     public PrivilegeValue createPrivilegeValue(long privilegeId,
             String privilegeValue) {
         logger.info("Create privilege value! privilege's id: " + privilegeId +
@@ -79,36 +85,57 @@ public class PrivilegeManagerImpl implements PrivilegeManager {
         return  null;
     }
 
+    /**
+     * @see eu.sqooss.service.security.PrivilegeManager#deletePrivilege(long)
+     */
     public boolean deletePrivilege(long privilegeId) {
         logger.info("Delete privilege! privilege's id: " + privilegeId);
         return dbWrapper.delete(getPrivilege(privilegeId));
     }
 
+    /**
+     * @see eu.sqooss.service.security.PrivilegeManager#deletePrivilegeValue(long)
+     */
     public boolean deletePrivilegeValue(long privilegeValueId) {
         logger.info("Delete privilege value! privilege value's id: " + privilegeValueId);
         return dbWrapper.delete(getPrivilegeValue(privilegeValueId));
     }
 
+    /**
+     * @see eu.sqooss.service.security.PrivilegeManager#getPrivilege(long)
+     */
     public Privilege getPrivilege(long privilegeId) {
         logger.info("Get privilege! privilege's id: " + privilegeId);
         return dbWrapper.getPrivilege(privilegeId);
     }
 
+    /**
+     * @see eu.sqooss.service.security.PrivilegeManager#getPrivilegeValue(long)
+     */
     public PrivilegeValue getPrivilegeValue(long privilegeValueId) {
         logger.info("Get privilege value! privilege value's id: " + privilegeValueId);
         return dbWrapper.getPrivilegeValue(privilegeValueId);
     }
 
+    /**
+     * @see eu.sqooss.service.security.PrivilegeManager#getPrivilegeValues()
+     */
     public PrivilegeValue[] getPrivilegeValues() {
         logger.info("Get privilege values!");
         return convertPrivilegeValues(dbWrapper.getPrivilegeValues());
     }
 
+    /**
+     * @see eu.sqooss.service.security.PrivilegeManager#getPrivilegeValues(long)
+     */
     public PrivilegeValue[] getPrivilegeValues(long privilegeId) {
         logger.info("Get privilege values! privilege's id: " + privilegeId);
         return convertPrivilegeValues(dbWrapper.getPrivilegeValues(privilegeId));
     }
 
+    /**
+     * @see eu.sqooss.service.security.PrivilegeManager#getPrivileges()
+     */
     public Privilege[] getPrivileges() {
         logger.info("Get privileges!");
         return convertPrivileges(dbWrapper.getPrivileges());

@@ -34,20 +34,58 @@ package eu.sqooss.service.security;
 
 import eu.sqooss.service.db.User;
 
+/**
+ * <code>UserManager</code> gives an access to the user's management. 
+ */
 public interface UserManager {
     
+    /**
+     * @param userId user's identifier
+     * @return the user with given identifier,
+     * null - if the user doesn't exist
+     */
     public User getUser(long userId);
     
+    /**
+     * @param userName user's name
+     * @return the user with given name,
+     * null - if the user doesn't exist
+     */
     public User getUser(String userName);
     
+    /**
+     * @return all users in the system
+     */
     public User[] getUsers();
     
+    /**
+     * This method returns the users from the group.
+     * @param groupId group's identifier
+     * @return
+     */
     public User[] getUsers(long groupId);
     
+    /**
+     * This method creates a new user.
+     * @param userName user's name
+     * @param password user's password
+     * @param email user's e-mail
+     * @return the new user, null - if the user isn't created
+     */
     public User createUser(String userName, String password, String email);
     
+    /**
+     * This method deletes the user with given identifier.
+     * @param userId user's identifier
+     * @return true - if the user is deleted successfully, false - otherwise
+     */
     public boolean deleteUser(long userId);
     
+    /**
+     * This method deletes the user with given name.
+     * @param userName user's name
+     * @return true - if the user is deleted successfully, false - otherwise
+     */
     public boolean deleteUser(String userName);
     
 }
