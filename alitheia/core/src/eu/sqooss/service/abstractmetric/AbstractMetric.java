@@ -167,19 +167,19 @@ implements eu.sqooss.service.abstractmetric.Metric {
         throws MetricMismatchException {
         if ((this instanceof ProjectVersionMetric) &&
             (o instanceof ProjectVersion)) {
-            return getResult((ProjectVersion) o);
+            return ((ProjectVersionMetric)this).getResult((ProjectVersion) o);
         }
         if ((this instanceof StoredProjectMetric) &&
             (o instanceof StoredProject)) {
-            return getResult((StoredProject) o);
+            return ((StoredProjectMetric)this).getResult((StoredProject) o);
         }
         if ((this instanceof ProjectFileMetric) &&
             (o instanceof ProjectFile)) {
-            return getResult((ProjectFile) o);
+            return ((ProjectFileMetric)this).getResult((ProjectFile) o);
         }
         if ((this instanceof FileGroupMetric) &&
             (o instanceof FileGroup)) {
-            return getResult((FileGroup) o);
+            return ((FileGroupMetric)this).getResult((FileGroup) o);
         }
 
         throw new MetricMismatchException(o);
@@ -200,22 +200,22 @@ implements eu.sqooss.service.abstractmetric.Metric {
     public void run(DAObject o) throws MetricMismatchException {
         if ((this instanceof ProjectVersionMetric) &&
             (o instanceof ProjectVersion)) {
-            run((ProjectVersion) o);
+            ((ProjectVersionMetric)this).run((ProjectVersion) o);
             return;
         }
         if ((this instanceof StoredProjectMetric) &&
             (o instanceof StoredProject)) {
-            run((StoredProject) o);
+            ((StoredProjectMetric)this).run((StoredProject) o);
             return;
         }
         if ((this instanceof ProjectFileMetric) &&
             (o instanceof ProjectFile)) {
-            run((ProjectFile) o);
+            ((ProjectFileMetric)this).run((ProjectFile) o);
             return;
         }
         if ((this instanceof FileGroupMetric) &&
             (o instanceof FileGroup)) {
-            run((FileGroup) o);
+            ((FileGroupMetric)this).run((FileGroup) o);
             return;
         }
 
