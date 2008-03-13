@@ -259,3 +259,14 @@ form p {
 legend {
 	font-weight: bold;
 }
+
+tr.newgroup td {
+	margin-top: 3px;
+	padding-top: 3px;
+	border-top: 1px dotted #ccc;
+}
+
+td.number {
+	text-align: right;
+}
+
