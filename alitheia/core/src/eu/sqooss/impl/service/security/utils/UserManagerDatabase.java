@@ -30,42 +30,61 @@
  *
  */
 
-package eu.sqooss.service.security;
+package eu.sqooss.impl.service.security.utils;
 
-import java.util.Dictionary;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-/**
- * The <code>SecurityManager</code> class is used for validating the access to the SQO-OSS resources and
- * their management.
- */
-public interface SecurityManager {
+import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.Group;
+import eu.sqooss.service.db.User;
 
-    /**
-     * Validate the access to the SQO-OSS resource based on the full URL (with privileges), user name and password.
-     * @param fullURL the full URL contains the privileges
-     * @param userName
-     * @param password
-     * @return <code>true</code> if the access is allowed, <code>false</code> otherwise
-     */
-    public boolean checkPermission(String fullURL, String userName, String password);
+public class UserManagerDatabase implements UserManagerDBQueries {
 
-    /**
-     * Validates the access to the SQO-OSS resource based on the resourceURL, privileges, user name and password.
-     * @param resourceURL
-     * @param privileges
-     * @param userName
-     * @param password
-     * @return <code>true</code> if the access is allowed, <code>false</code> otherwise
-     */
-    public boolean checkPermission(String resourceUrl, Dictionary<String, String> privileges, String userName, String password);
-
-    public GroupManager getGroupManager();
+    private static final String ATTRIBUTE_USER_NAME = "name";
     
-    public PrivilegeManager getPrivilegeManager();
+    private DBService db;
+    private Map<String, Object> userProps;
     
-    public UserManager getUserManager();
+    public UserManagerDatabase(DBService db) {
+        super();
+        this.db = db;
+        userProps = new Hashtable<String, Object>(1);
+    }
+
+    public User getUser(long userId) {
+        return db.findObjectById(User.class, userId);
+    }
     
-    public ServiceUrlManager getServiceUrlManager();
+    public List<User> getUsers(String userName) {
+        synchronized (userProps) {
+            userProps.put(ATTRIBUTE_USER_NAME, userName);
+            return db.findObjectByProperties(User.class, userProps);
+        }
+    }
+    
+    public List<?> getUsers() {
+        return db.doHQL(GET_USERS);
+    }
+    
+    public Set<?> getUsers(long groupId) {
+        Group group = db.findObjectById(Group.class, groupId);
+        if (group != null) {
+            return group.getUsers();
+        } else {
+            return null;
+        }
+    }
+    
+    public boolean createUser(User newUser) {
+        return db.addRecord(newUser);
+    }
+
+    public boolean deleteUser(User user) {
+        return db.deleteRecord(user);
+    }
     
 }
 

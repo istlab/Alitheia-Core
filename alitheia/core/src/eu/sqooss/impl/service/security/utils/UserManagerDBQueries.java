@@ -30,31 +30,12 @@
  *
  */
 
-package eu.sqooss.service.security;
+package eu.sqooss.impl.service.security.utils;
 
-public interface SecurityGroup {
-
-    /**
-     * @return the id of the group
-     */
-    public long getId();
-
-    /**
-     * @return the description of the group
-     */
-    public String getDescription();
-
-    /**
-     * Sets a new group description.
-     * @param description the new description
-     */
-    public void setDescription(String description);
-
-    /**
-     * Removes the group.
-     */
-    public void remove();
-
+public interface UserManagerDBQueries {
+    
+    public static final String GET_USERS = "from User";
+    
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

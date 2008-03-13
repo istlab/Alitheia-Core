@@ -30,42 +30,13 @@
  *
  */
 
-package eu.sqooss.service.security;
+package eu.sqooss.impl.service.security.utils;
 
-import java.util.Dictionary;
-
-/**
- * The <code>SecurityManager</code> class is used for validating the access to the SQO-OSS resources and
- * their management.
- */
-public interface SecurityManager {
-
-    /**
-     * Validate the access to the SQO-OSS resource based on the full URL (with privileges), user name and password.
-     * @param fullURL the full URL contains the privileges
-     * @param userName
-     * @param password
-     * @return <code>true</code> if the access is allowed, <code>false</code> otherwise
-     */
-    public boolean checkPermission(String fullURL, String userName, String password);
-
-    /**
-     * Validates the access to the SQO-OSS resource based on the resourceURL, privileges, user name and password.
-     * @param resourceURL
-     * @param privileges
-     * @param userName
-     * @param password
-     * @return <code>true</code> if the access is allowed, <code>false</code> otherwise
-     */
-    public boolean checkPermission(String resourceUrl, Dictionary<String, String> privileges, String userName, String password);
-
-    public GroupManager getGroupManager();
+public interface GroupManagerDBQueries {
     
-    public PrivilegeManager getPrivilegeManager();
+    public static final String GET_GROUPS = "from Group";
     
-    public UserManager getUserManager();
-    
-    public ServiceUrlManager getServiceUrlManager();
+    public static final String GET_GROUP_PRIVILEGES = "from GroupPrivilege";
     
 }
 

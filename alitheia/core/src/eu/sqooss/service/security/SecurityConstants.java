@@ -45,6 +45,10 @@ package eu.sqooss.service.security;
  */
 public interface SecurityConstants {
     
+    public static final char URL_DELIMITER_RESOURCE  = '?';
+    
+    public static final char URL_DELIMITER_PRIVILEGE = '&';
+    
     /**
      * Represents the url of the SQO-OSS system.
      */
@@ -85,15 +89,22 @@ public interface SecurityConstants {
      */
     public static final String URL_SQOOSS_UPDATER      = SecurityConstants.URL_SQOOSS + ".updater";
     
-    /**
-     * Represents the metric id parameter. It can be a part of the URL.
-     */
-    public static final String URL_PARAMETER_METRIC_ID       = "mid";
-    
-    /**
-     * Represent the action privilege. It can be a part of the URL. 
-     */
-    public static final String URL_PRIVILEGE_ACTION = "action";
+    public static enum PRIVILEGES{
+        ACTION,
+        PROJECT_ID,
+        METRIC_ID,
+        ALL;
+        
+        public String toString() {
+            String name = name();
+            if (name.equals(ALL.name())) {
+                return "<all privileges>";
+            } else {
+                return name.toLowerCase(); 
+            }
+        }
+        
+    };
     
 }
 

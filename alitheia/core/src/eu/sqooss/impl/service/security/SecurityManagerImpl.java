@@ -32,262 +32,151 @@
 
 package eu.sqooss.impl.service.security;
 
+import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.StringTokenizer;
 
-import eu.sqooss.impl.service.security.utils.DatabaseWrapper;
-import eu.sqooss.impl.service.security.utils.ParserUtility;
-import eu.sqooss.impl.service.security.utils.PrivilegeDatabaseUtility;
-import eu.sqooss.impl.service.security.utils.ValidateUtility;
+import eu.sqooss.impl.service.security.utils.SecurityManagerDatabase;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.logging.Logger;
-import eu.sqooss.service.security.SecurityAuthorizationRule;
-import eu.sqooss.service.security.SecurityGroup;
+import eu.sqooss.service.security.GroupManager;
+import eu.sqooss.service.security.PrivilegeManager;
+import eu.sqooss.service.security.SecurityConstants;
 import eu.sqooss.service.security.SecurityManager;
-import eu.sqooss.service.security.SecurityPrivilege;
-import eu.sqooss.service.security.SecurityResourceURL;
-import eu.sqooss.service.security.SecurityUser;
+import eu.sqooss.service.security.ServiceUrlManager;
+import eu.sqooss.service.security.UserManager;
 
-public class SecurityManagerImpl implements SecurityManager {
+public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
 
-    private DatabaseWrapper dbWrapper;
+    private UserManager userManager;
+    private GroupManager groupManager;
+    private PrivilegeManager privilegeManager;
+    private ServiceUrlManager serviceUrlManager;
+    private SecurityManagerDatabase dbWrapper;
     private Logger logger;
 
     public SecurityManagerImpl(DBService db, Logger logger) {
-        this.dbWrapper = new DatabaseWrapper(db);
+        this.dbWrapper = new SecurityManagerDatabase(db);
         this.logger = logger;
+        
+        userManager = new UserManagerImpl(db, logger);
+        groupManager = new GroupManagerImpl(db, logger);
+        privilegeManager = new PrivilegeManagerImpl(db, logger);
+        serviceUrlManager = new ServiceUrlManagerImpl(db, logger);
     }
 
-    /**
-     * @see eu.sqooss.service.security.SecurityManager#checkPermission(java.lang.String, java.lang.String, java.lang.String)
-     */
     public boolean checkPermission(String fullUrl, String userName, String password) {
-        Hashtable < String, String > privileges = new Hashtable < String, String >();
-        String resourceUrl = ParserUtility.mangleUrlWithPrivileges(fullUrl, privileges);
+        Dictionary<String, String> privileges = new Hashtable<String, String>();
+        String resourceUrl;
+        try {
+            resourceUrl = parseFullUrl(fullUrl, privileges);
+        } catch (RuntimeException re) {
+            logger.warn("The url isn't correct! url: " + fullUrl);
+            return false;
+        }
         return checkPermission(resourceUrl, privileges, userName, password);
     }
 
-    /**
-     * @see eu.sqooss.service.security.SecurityManager#checkPermission(java.lang.String, java.util.Hashtable, java.lang.String, java.lang.String)
-     */
-    public boolean checkPermission(String resourceURL, Hashtable<String, String> privileges, String userName, String password) {
-        ValidateUtility.validateValue(resourceURL);
+    public boolean checkPermission(String resourceUrl, Dictionary<String, String> privileges, String userName, String password) {
+        
+        logger.info("Check Permission! resourceUrl: " + resourceUrl + "; user name: " + userName);
 
-        String tmpUrl = resourceURL;
-        while (true) {
-            if (dbWrapper.isExistentResourceUrl(tmpUrl)) {
-//            if (DatabaseUtility.isExistentResourceUrl(tmpUrl)) {
-                String currentPrivilegeName;
-                String currentPrivilegeValue;
-                for (Enumeration<String> keys = privileges.keys(); keys.hasMoreElements(); ) {
-                    currentPrivilegeName = keys.nextElement();
-                    currentPrivilegeValue = privileges.get(currentPrivilegeName);
-//                    if (!(DatabaseUtility.checkAuthorizationRule(tmpUrl, currentPrivilegeName, currentPrivilegeValue, userName, password))) {
-                    if (!dbWrapper.checkAuthorizationRule(tmpUrl, currentPrivilegeName, currentPrivilegeValue, userName, password)) {
-                        return false;
-                    }
-                }
-                return true;
+        try {
+            if (dbWrapper.isExistentResourceUrl(resourceUrl, userName, password)) {
+                return checkPermissionPrivileges(resourceUrl, privileges, userName, password);
+            } else if (dbWrapper.isExistentResourceUrl(URL_SQOOSS, userName, password)) {
+                return checkPermissionPrivileges(URL_SQOOSS, privileges, userName, password);
             } else {
-                int lastIndexOfAmpersand = tmpUrl.lastIndexOf('&');
-                if (lastIndexOfAmpersand == -1) {
-                    int firstIndexOfQuestionMark = tmpUrl.indexOf('?');
-                    if (firstIndexOfQuestionMark == -1) {
-                        return false;
-                    } else {
-                        tmpUrl = tmpUrl.substring(0, firstIndexOfQuestionMark);
-                    }
-                } else {
-                    tmpUrl = tmpUrl.substring(0, lastIndexOfAmpersand);
-                }
+                return false; //there aren't privileges
             }
+        } catch (RuntimeException re) {
+            logger.warn(re.getMessage());
+            return false;
         }
     }
 
-    /**
-     * @see eu.sqooss.service.security.SecurityManager#createAuthorizationRule(eu.sqooss.service.security.SecurityGroup, long, eu.sqooss.service.security.SecurityResourceURL)
-     */
-    public SecurityAuthorizationRule createAuthorizationRule(SecurityGroup group,
-            long privilegeValueId, SecurityResourceURL resourceURL) {
+    public GroupManager getGroupManager() {
+        return groupManager;
+    }
 
-        if ((PrivilegeDatabaseUtility.isExistentPrivilegeValue(privilegeValueId)) &&
-                (group instanceof SecurityGroupImpl) &&
-                (resourceURL instanceof SecurityResourceURLImpl)) {
-            SecurityAuthorizationRule newRule = new SecurityAuthorizationRuleImpl(group.getId(), resourceURL.getId(), privilegeValueId);
-            logger.info(newRule + " is created");
-            return newRule;
-        } else {
-            logger.info("Can't create a authorization rule with: group id = " + group.getId() +
-                    "; privilege value id = " + privilegeValueId + "; url id = " + resourceURL.getId());
-            return null;
+    public PrivilegeManager getPrivilegeManager() {
+        return privilegeManager;
+    }
+
+    public ServiceUrlManager getServiceUrlManager() {
+        return serviceUrlManager;
+    }
+
+    public UserManager getUserManager() {
+        return userManager;
+    }
+
+    private boolean checkPermissionPrivileges(String resourceUrl, Dictionary<String, String> privileges, String userName, String password) {
+        
+        if (dbWrapper.checkAuthorizationRule(resourceUrl, PRIVILEGES.ALL.toString(),
+                PRIVILEGES.ALL.toString(), userName, password)) {
+            return true;
         }
-    }
 
-    /**
-     * @see eu.sqooss.service.security.SecurityManager#createGroup(java.lang.String)
-     */
-    public SecurityGroup createGroup(String description) {
-        ValidateUtility.validateValue(description);
-        long groupId = dbWrapper.createGroup(description);
-        SecurityGroup newGroup = new SecurityGroupImpl(groupId);
-        logger.info(newGroup + " is created");
-        return newGroup;
-    }
-
-    /**
-     * @see eu.sqooss.service.security.SecurityManager#createPrivilege(java.lang.String)
-     */
-    public SecurityPrivilege createPrivilege(String description) {
-        ValidateUtility.validateValue(description);
-        long privilegeId = PrivilegeDatabaseUtility.createPrivilege(description);
-        SecurityPrivilege newPrivilege = new SecurityPrivilegeImpl(privilegeId);
-        logger.info(newPrivilege + " is created");
-        return newPrivilege;
-    }
-
-    /**
-     * @see eu.sqooss.service.security.SecurityManager#createResourceURL(java.lang.String)
-     */
-    public SecurityResourceURL createResourceURL(String resourceURL) {
-        ValidateUtility.validateValue(resourceURL);
-
-        String mangledUrl = ParserUtility.mangleUrl(resourceURL);
-        long urlId = dbWrapper.createURL(mangledUrl);
-        SecurityResourceURL newResourceUrl = new SecurityResourceURLImpl(urlId);
-        logger.info(newResourceUrl + " is created");
-        return newResourceUrl;
-    }
-
-    /**
-     * @see eu.sqooss.service.security.SecurityManager#createUser(java.lang.String, java.lang.String)
-     */
-    public SecurityUser createUser(String userName, String password) {
-        ValidateUtility.validateValue(userName);
-        ValidateUtility.validateValue(password);
-        long userId = dbWrapper.createUser(userName, password);
-        SecurityUser newUser = new SecurityUserImpl(userId);
-        logger.info(newUser + " is created");
-        return newUser;
-    }
-
-    /**
-     * @see eu.sqooss.service.security.SecurityManager#getGroup(long)
-     */
-    public SecurityGroup getGroup(long id) {
-        if (dbWrapper.isExistentGroup(id)) {
-            return new SecurityGroupImpl(id);
-        } else {
-            logger.info("The group with id = " + id + " doesn't exist");
-            return null;
+        String currentPrivilegeName;
+        String currentPrivilegeValue;
+        for (Enumeration<String> keys = privileges.keys(); keys.hasMoreElements(); ) {
+            currentPrivilegeName = keys.nextElement();
+            currentPrivilegeValue = privileges.get(currentPrivilegeName);
+            return (dbWrapper.checkAuthorizationRule(resourceUrl, currentPrivilegeName, 
+                            currentPrivilegeValue, userName, password) ||
+                    dbWrapper.checkAuthorizationRule(resourceUrl, PRIVILEGES.ALL.toString(), 
+                            currentPrivilegeValue, userName, password) ||
+                    dbWrapper.checkAuthorizationRule(resourceUrl, currentPrivilegeName,
+                            PRIVILEGES.ALL.toString(), userName, password));
         }
+        
+        return false;
     }
-
-    /**
-     * @see eu.sqooss.service.security.SecurityManager#getPrivilege(long)
-     */
-    public SecurityPrivilege getPrivilege(long id) {
-        if (PrivilegeDatabaseUtility.isExistentPrivilege(id)) {
-            return new SecurityPrivilegeImpl(id);
-        } else {
-            logger.info("The privilege with id = " + id + " doesn't exist");
-            return null;
+    
+    private static String parseFullUrl(String fullUrl, Dictionary<String, String> privileges) {
+        int resourceDelimiterIndex = fullUrl.indexOf(
+                SecurityConstants.URL_DELIMITER_RESOURCE);
+        if (resourceDelimiterIndex == -1) {
+            return fullUrl;
         }
-    }
-
-    /**
-     * @see eu.sqooss.service.security.SecurityManager#getResourceURL(long)
-     */
-    public SecurityResourceURL getResourceURL(long id) {
-        if (dbWrapper.isExistentResourceUrl(id)) {
-            return new SecurityResourceURLImpl(id);
-        } else {
-            logger.info("The resource url with id = " + id + " doesn't exist");
-            return null;
+        String resourceUrl = fullUrl.substring(0, resourceDelimiterIndex);
+        String privilegesString = fullUrl.substring(resourceDelimiterIndex + 1);
+        
+        StringTokenizer privilegesTokenizer = new StringTokenizer(privilegesString,
+                Character.toString(URL_DELIMITER_PRIVILEGE));
+        
+        String currentToken;
+        int firstIndexOfEquals;
+        int lastIndexOfEquals;
+        String privilege;
+        String privilegeValue;
+        while (privilegesTokenizer.hasMoreTokens()) {
+            currentToken = privilegesTokenizer.nextToken();
+            firstIndexOfEquals = currentToken.indexOf('=');
+            lastIndexOfEquals = currentToken.lastIndexOf('=');
+            if ((firstIndexOfEquals == -1) || (firstIndexOfEquals == 0) ||
+                    (firstIndexOfEquals != lastIndexOfEquals)) {
+                throw new IllegalArgumentException("The parameter is not valid: " + currentToken);
+            }
+            privilege = currentToken.substring(0, firstIndexOfEquals);
+            privilegeValue = currentToken.substring(firstIndexOfEquals + 1);
+            privileges.put(privilege, privilegeValue);
         }
-    }
-
-    /**
-     * @see eu.sqooss.service.security.SecurityManager#getUser(long)
-     */
-    public SecurityUser getUser(long id) {
-        if (dbWrapper.isExistentUser(id)) {
-            return new SecurityUserImpl(id);
-        } else {
-            logger.info("The user with id = " + id + " doesn't exist");
-            return null;
-        }
-    }
-
-    /**
-     * @see eu.sqooss.service.security.SecurityManager#getAuthorizationRules()
-     */
-    public SecurityAuthorizationRule[] getAuthorizationRules() {
-        return dbWrapper.getAuthorizationRules();
-    }
-
-    /**
-     * @see eu.sqooss.service.security.SecurityManager#deleteUser(long)
-     */
-    public void deleteUser(long userId) {
-        if (dbWrapper.isExistentUser(userId)) {
-            dbWrapper.deleteUser(userId);
-        } else {
-            //TODO: throws exception
-        }
-    }
-
-    /**
-     * @see eu.sqooss.service.security.SecurityManager#modifyUser(eu.sqooss.service.security.SecurityUser)
-     */
-    public void modifyUser(SecurityUser modifiedUser) {
-        if (dbWrapper.isExistentUser(modifiedUser.getId())) {
-            dbWrapper.momifyUser(modifiedUser);
-        } else {
-            //TODO: throws exception
-        }
+        return resourceUrl;
     }
 
     public Object selfTest() {
-        if (logger == null) {
-            return new String("No logger available.");
+        try {
+            System.out.println("-------------Start security self test--------------");
+            SelfTester tester = new SelfTester(this);
+            return tester.test();
+        } finally {
+            System.out.println("-------------Finish security self test - PASSED--------------");
         }
-
-        SecurityGroup myGroup = createGroup("BCM");
-        SecurityUser myUser = createUser("adriaan","baaaaa");
-
-        if ( (myGroup == null) || (myUser == null) ) {
-            return new String("Could not create test user and group.");
-        }
-
-        myUser.addToGroup(myGroup);
-
-        SecurityPrivilege myPrivilege = createPrivilege("egcs");
-        SecurityResourceURL myUrl = createResourceURL("http://www.lolcats.com/");
-
-        if ( (myPrivilege == null) || (myUrl == null) ) {
-            return new String("Could not create test privilege and URL.");
-        }
-
-
-        if (createAuthorizationRule(myGroup, myPrivilege.getId(), myUrl) == null) {
-            return new String("Could not create authorization rule.");
-        }
-
-        if (!checkPermission(myUrl.getURL(), myUser.getUserName(), "baaaaa")) {
-            return new String("Permission denied -- falsely");
-        }
-        if (checkPermission(myUrl.getURL(), myUser.getUserName(), "baaa")) {
-            return new String("Permission granted -- falsely");
-        }
-        if (checkPermission(myUrl.getURL(), null, null)) {
-            return new String("Permission granted to null user.");
-        }
-        if (checkPermission("http://thedailywtf.com/", myUser.getUserName(), "baaaaa")) {
-            return new String("Permission granted to bogus URL.");
-        }
-
-        return null;
     }
+
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

@@ -32,27 +32,18 @@
 
 package eu.sqooss.service.security;
 
-public interface SecurityAuthorizationRule {
+import eu.sqooss.service.db.ServiceUrl;
 
-    /**
-     * @return the url from the authorization rule
-     */
-    public SecurityResourceURL getUrl();
-
-    /**
-     * @return the group from the authorization rule
-     */
-    public SecurityGroup getGroup();
-
-    /**
-     * @return the privilege value id from the authorization rule
-     */
-    public long getPrivilegeValueId();
-
-    /**
-     * Removes the association between  group, privilege value and resource URL.
-     */
-    public void remove();
+public interface ServiceUrlManager {
+    
+    public ServiceUrl getServiceUrl(long serviceUrlId);
+    
+    public ServiceUrl[] getServiceUrls();
+    
+    public ServiceUrl createServiceUrl(String url);
+    
+    public void deleteServiceUrl(long serviceUrlId);
+    
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

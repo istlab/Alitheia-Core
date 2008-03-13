@@ -32,40 +32,28 @@
 
 package eu.sqooss.service.security;
 
-import java.util.Dictionary;
+import eu.sqooss.service.db.Privilege;
+import eu.sqooss.service.db.PrivilegeValue;
 
-/**
- * The <code>SecurityManager</code> class is used for validating the access to the SQO-OSS resources and
- * their management.
- */
-public interface SecurityManager {
-
-    /**
-     * Validate the access to the SQO-OSS resource based on the full URL (with privileges), user name and password.
-     * @param fullURL the full URL contains the privileges
-     * @param userName
-     * @param password
-     * @return <code>true</code> if the access is allowed, <code>false</code> otherwise
-     */
-    public boolean checkPermission(String fullURL, String userName, String password);
-
-    /**
-     * Validates the access to the SQO-OSS resource based on the resourceURL, privileges, user name and password.
-     * @param resourceURL
-     * @param privileges
-     * @param userName
-     * @param password
-     * @return <code>true</code> if the access is allowed, <code>false</code> otherwise
-     */
-    public boolean checkPermission(String resourceUrl, Dictionary<String, String> privileges, String userName, String password);
-
-    public GroupManager getGroupManager();
+public interface PrivilegeManager {
     
-    public PrivilegeManager getPrivilegeManager();
+    public Privilege getPrivilege(long privilegeId);
     
-    public UserManager getUserManager();
+    public Privilege[] getPrivileges();
     
-    public ServiceUrlManager getServiceUrlManager();
+    public PrivilegeValue getPrivilegeValue(long privilegeValueId);
+    
+    public PrivilegeValue[] getPrivilegeValues();
+    
+    public PrivilegeValue[] getPrivilegeValues(long privilegeId);
+    
+    public Privilege createPrivilege(String privilegeName);
+    
+    public PrivilegeValue createPrivilegeValue(long privilegeId, String privilegeValue);
+    
+    public boolean deletePrivilege(long privilegeId);
+    
+    public boolean deletePrivilegeValue(long privilegeValueId);
     
 }
 

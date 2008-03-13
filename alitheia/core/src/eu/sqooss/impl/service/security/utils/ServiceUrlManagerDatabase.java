@@ -32,70 +32,36 @@
 
 package eu.sqooss.impl.service.security.utils;
 
-public class PrivilegeDatabaseUtility {
+import java.util.List;
 
-    /* create methods */
-    public static long createPrivilege(String description) {
-        return 0;
+import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.ServiceUrl;
+
+public class ServiceUrlManagerDatabase implements ServiceUrlManagerDBQueries {
+
+    private DBService db;
+    
+    public ServiceUrlManagerDatabase(DBService db) {
+        super();
+        this.db = db;
     }
 
-    public static long addPrivilegeValue(long privilegeId, String privilegeValue) {
-        return 0; //privilege value id
+    public ServiceUrl getServiceUrl(long serviceUrlId) {
+        return db.findObjectById(ServiceUrl.class, serviceUrlId);
     }
-    /* create methods */
-
-    /* remove methods */
-    public static void removePrivilege(long privilegeId) {
+    
+    public List<?> getServiceUrls() {
+        return db.doHQL(GET_SERVICE_URLS);
     }
-
-    public static boolean removePrivilegeValue(long privilegeId, long privilegeValueId) {
-        return false;
+    
+    public boolean deleteServiceUrl(ServiceUrl serviceUrl) {
+        return db.deleteRecord(serviceUrl);
     }
-
-    public static void removePrivilegeValues(long privilegeId) {
-
+    
+    public boolean createServiceUrl(ServiceUrl newServiceUrl) {
+        return db.addRecord(newServiceUrl);
     }
-    /* remove methods */
-
-    /* get methods */
-    public static String getPrivilegeDescription(long privilegeId) {
-        return null;
-    }
-
-    public static long getPrivilegeValueId(long privilegeId, String value) {
-        return 0;
-    }
-
-    public static String[] getPrivilegeValues(long privilegeId) {
-        return null;
-    }
-
-    public static boolean isExistentPrivilege(long privilegeId) {
-        return false;
-    }
-
-    public static boolean isExistentPrivilege(String privilegeName) {
-//      return false;
-        if (DatabaseUtility.privilegeName.equals(privilegeName)) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public static boolean isExistentPrivilegeValue(long privilegeValueId) {
-        return false;
-    }
-    /* get methods */
-
-    /* set methods */
-    public static void setPrivilegeDescription(long privilegeId, String description) {
-    }
-
-    public static void setPrivilegeValues(long privilegeId, String[] privilegeValues) {
-    }
-    /* set methods */
-
+    
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

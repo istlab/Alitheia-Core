@@ -30,26 +30,33 @@
  *
  */
 
-package eu.sqooss.impl.service.security.utils;
+package eu.sqooss.service.security;
 
-public class ValidateUtility {
+import eu.sqooss.service.db.Group;
+import eu.sqooss.service.db.GroupPrivilege;
 
-    /**
-     * Checks the value (represents with the string).
-     * 
-     * @param value
-     * 
-     * @exception NullPointerException - if <code>value</code> is <code>null</code>
-     * @exception IllegalArgumentException - if <code>value</code> is empty string
-     */
-    public static void validateValue(String value) {
-        if (value == null) {
-            throw new NullPointerException();
-        } else if ("".equals(value.trim())) {
-            throw new IllegalArgumentException("The value is empty!");
-        }
-    }
-
+public interface GroupManager {
+    
+    public Group getGroup(long groupId);
+    
+    public Group[] getGroups();
+    
+    public Group[] getGroups(long userId);
+    
+    public Group createGroup(String description);
+    
+    public boolean deleteGroup(long groupId);
+    
+    public boolean addUserToGroup(long groupId, long userId);
+    
+    public boolean deleteUserFromGroup(long groupId, long userId);
+    
+    public GroupPrivilege[] getGroupPrivileges();
+    
+    public GroupPrivilege addPrivilegeToGroup(long groupId, long urlId, long privilegeValueId);
+    
+    public boolean deletePrivilegeFromGroup(long groupId, long urlId, long privilegeValueId);
+    
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
