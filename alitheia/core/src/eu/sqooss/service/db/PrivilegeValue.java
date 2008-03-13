@@ -37,7 +37,7 @@ import eu.sqooss.service.db.DAObject;
 
 public class PrivilegeValue extends DAObject {
     private Privilege privilege;
-    private int value;
+    private String value;
 
     public PrivilegeValue(){}
 
@@ -45,7 +45,7 @@ public class PrivilegeValue extends DAObject {
         this.privilege = privilege;
     }
 
-    public void setValue(int value) {
+    public void setValue(String value) {
         this.value = value;
     }
 
@@ -53,7 +53,7 @@ public class PrivilegeValue extends DAObject {
         return privilege;
     }
 
-    public int getValue() {
+    public String getValue() {
         return value;
     }
 }

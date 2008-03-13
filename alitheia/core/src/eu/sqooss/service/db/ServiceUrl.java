@@ -33,21 +33,19 @@
 
 package eu.sqooss.service.db;
 
-import java.net.URL;
-
 import eu.sqooss.service.db.DAObject;
 
 public class ServiceUrl extends DAObject{
-    private URL url;
+    private String url;
 
     // Nothing to do here
     public ServiceUrl(){}
 
-    public void setUrl(URL url) {
+    public void setUrl(String url) {
         this.url = url;
     }
 
-    public URL getUrl() {
+    public String getUrl() {
         return url;
     }
 }
