@@ -561,7 +561,7 @@ public class AdminServlet extends HttpServlet {
                           HttpServletResponse response) throws ServletException,
                                                                IOException {
         try {
-            doLogInfo("POST path=" + request.getPathInfo());
+            sobjLogger.debug("POST path=" + request.getPathInfo());
             if ("/addproject".equals(request.getPathInfo())) {
                 addProject(request);
                 // addProject() has filled in the substitutions by now
