@@ -77,6 +77,24 @@ public class WcJob extends AbstractMetricJob {
                     lines++;
                 }
                 lnr.close();
+                
+                // Create the measurement DAO
+                // TODO: What to do if this plug-in has registered more that
+                //       one metric. Create a separate Measurement for all
+                //       of them ?
+                if (!parent.getSupportedMetrics().isEmpty()) {
+                    m.setMetric(parent.getSupportedMetrics().get(0));
+                    m.setProjectVersion(pf.getProjectVersion());
+                    /* NOTE: nanoTime() can not be directly used for creating 
+                     *       a Time object, use currentTimeMillis() instead
+                     */
+                    //m.setWhenRun(new Time(System.nanoTime()));
+                    m.setWhenRun(new Time(System.currentTimeMillis()));
+                    m.setResult(String.valueOf(lines));
+                    
+                    // Try to store the Measurement DAO into the DB
+                    db.addRecord(m);
+                }
             } catch (FileNotFoundException e) {
                 log.error(
                         this.getClass().getName()
@@ -90,19 +108,6 @@ public class WcJob extends AbstractMetricJob {
                         + "): "
                         + f.getAbsolutePath());
             }
-            
-            // Create the measurement DAO and add it to the DB
-            m.setMetric(parent.getSupportedMetrics().get(0));
-            m.setProjectVersion(pf.getProjectVersion());
-            /* NOTE: nanoTime() can not be directly used for creating a 
-             *       Time object, use currentTimeMillis() instead
-             */
-            //m.setWhenRun(new Time(System.nanoTime()));
-            m.setWhenRun(new Time(System.currentTimeMillis()));
-            m.setResult(String.valueOf(lines));
-            
-            // Try to store the Measurement DAO into the DB
-            db.addRecord(m);
         }
     }
 }
