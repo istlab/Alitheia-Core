@@ -424,6 +424,21 @@ public class FDSServiceImpl implements FDSService {
         return checkoutFile;
     }
 
+    /**
+     * For a given project file, return the SCM accessor that can
+     * be used to get at the file contents.
+     *
+     * @param pf The project file to look up.
+     * @return The accessor or null on failure.
+     */
+    private SCMAccessor projectFileAccessor(ProjectFile pf) {
+        // Retrieve the project ID
+        long projectId = pf.getProjectVersion().getProject().getId();
+
+        // Get a TDS handle for the selected ProjectFile
+        return tds.getAccessor(projectId).getSCMAccessor();
+    }
+
     // ===[ INTERFACE METHODS ]===============================================
 
     /** {@inheritDoc} */
@@ -433,15 +448,17 @@ public class FDSServiceImpl implements FDSService {
             return null;
         }
 
-        // Retrieve the project ID
-        long projectId = pf.getProjectVersion().getProject().getId();
+        File checkoutFile = projectFileLocal(pf, projectRevision);
+        if (checkoutFile == null) {
+            return null;
+        }
 
-        // Get a TDS handle for the selected ProjectFile
-        SCMAccessor scm = tds.getAccessor(projectId).getSCMAccessor();
+        SCMAccessor scm = projectFileAccessor(pf);
+        if (scm == null) {
+            return null;
+        }
 
         try {
-            File checkoutFile = projectFileLocal(pf, projectRevision);
-
             // Skip the checkout, in case this ProjectFile is already
             // available (i.e. retrieved in a previous checkout)
             if (!checkoutFile.exists()) {
@@ -476,7 +493,33 @@ public class FDSServiceImpl implements FDSService {
 
     /** {@inheritDoc} */
     public byte[] getFileContents(ProjectFile pf) {
-        return null;
+        // Let's see if the file is cached already.
+        ProjectRevision pr = projectFileRevision(pf);
+        if (pr == null) {
+            return null;
+        }
+
+        File checkoutFile = projectFileLocal(pf, pr);
+
+        if ((checkoutFile != null) &&
+            checkoutFile.exists() &&
+            checkoutFile.isFile() &&
+            checkoutFile.canRead()) {
+            // TODO: read bytes from file
+            return null;
+        }
+
+        // We get here if the file isn't locally cached,
+        // so we need to get it from the SCM.
+        SCMAccessor scm = projectFileAccessor(pf);
+        if (scm == null) {
+            return null;
+        }
+
+        // Need to get file from SCM
+        java.io.ByteArrayOutputStream output = new java.io.ByteArrayOutputStream();
+	// TODO: read bytes from SCM
+        return output.toByteArray();
     }
 
     /** {@inheritDoc} */
