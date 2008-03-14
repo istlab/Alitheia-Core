@@ -6,14 +6,20 @@
 
 #include "CORBA.h"
 
+#include <sstream>
+
 using namespace Alitheia;
 
 using std::string;
 using std::istream;
-using std::streambuf;
+using std::stringbuf;
+
+using std::cout;
+using std::endl;
 
 StoredProject::StoredProject( const alitheia::StoredProject& project )
-    : name( project.name ),
+    : id( project.id ),
+      name( project.name ),
       website( project.website ),
       contact( project.contact ),
       bugs( project.bugs ),
@@ -25,6 +31,7 @@ StoredProject::StoredProject( const alitheia::StoredProject& project )
 alitheia::StoredProject StoredProject::toCorba() const
 {
     alitheia::StoredProject result;
+    result.id = id;
     result.name = CORBA::string_dup( name.c_str() );
     result.website = CORBA::string_dup( website.c_str() );
     result.contact = CORBA::string_dup( contact.c_str() );
@@ -34,7 +41,8 @@ alitheia::StoredProject StoredProject::toCorba() const
 }
 
 ProjectVersion::ProjectVersion( const alitheia::ProjectVersion& version )
-    : project( version.project ),
+    : id( version.id ),
+      project( version.project ),
       version( version.version ),
       timeStamp( version.timeStamp )
 {
@@ -43,53 +51,48 @@ ProjectVersion::ProjectVersion( const alitheia::ProjectVersion& version )
 alitheia::ProjectVersion ProjectVersion::toCorba() const
 {
     alitheia::ProjectVersion result;
+    result.id = id;
     result.project = project.toCorba();
     result.version = version;
     result.timeStamp = timeStamp;
     return result;
 }
 
-class ProjectFileBuffer : public streambuf
+class ProjectFileBuffer : public stringbuf
 {
 public:
     ProjectFileBuffer( const ProjectFile* file )
         : file( file ),
-          buffer( 0 )
+          read( false )
     {
-    }
-
-    ~ProjectFileBuffer()
-    {
-        if( buffer != 0 )
-            delete[] buffer;
     }
 
 protected:
     int underflow()
     {
-        if( buffer == 0 )
+        if( !read )
         {
             string data = Core::instance()->getFileContents( *file );
-            // hm... empty file?
-            if( data.size() == 0 )
-                return EOF;
-            buffer = new char[data.size()];
-            memcpy( buffer, data.c_str(), data.size() );
-            return buffer[ 0 ];
+            sputn( data.c_str(), data.size() );
+            read = true;
         }
-        else
-        {
-            return EOF;
-        }
+        return stringbuf::underflow();
     }
 
 private:
     const ProjectFile* const file;
-    char* buffer;
+    bool read;
 };
+
+ProjectFile::ProjectFile()
+    : istream( new ProjectFileBuffer( this ) ),
+      id( 0 )
+{
+}
 
 ProjectFile::ProjectFile( const alitheia::ProjectFile& file )
     : istream( new ProjectFileBuffer( this ) ),
+      id( file.id ),
       name( file.name ),
       projectVersion( file.projectVersion ),
       status( file.status )
@@ -97,7 +100,8 @@ ProjectFile::ProjectFile( const alitheia::ProjectFile& file )
 }
 
 ProjectFile::ProjectFile( const ProjectFile& other )
-    : istream( new ProjectFileBuffer( this ) ),
+    : istream( other.rdbuf() ),
+      id( other.id ),
       name( other.name ),
       projectVersion( other.projectVersion ),
       status( other.status )
@@ -107,6 +111,7 @@ ProjectFile::ProjectFile( const ProjectFile& other )
 alitheia::ProjectFile ProjectFile::toCorba() const
 {
     alitheia::ProjectFile result;
+    result.id = id;
     result.name = CORBA::string_dup( name.c_str() );
     result.projectVersion = projectVersion.toCorba();
     result.status = CORBA::string_dup( status.c_str() );
@@ -119,7 +124,8 @@ ProjectFile::~ProjectFile()
 }
 
 FileGroup::FileGroup( const alitheia::FileGroup& group )
-    : name( group.name ),
+    : id( group.id ),
+      name( group.name ),
       subPath( group.subPath ),
       regex( group.regex ),
       recalcFreq( group.recalcFreq ),

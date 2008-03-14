@@ -68,9 +68,11 @@ public:
         Logger logger( Logger::NameSqoOssMetric );
         logger.setTeeStream( cout );
         logger << "MyMetric::run: " << file.name << endl;
+        logger << "MyMetric::run: " << file.status << endl;
+        logger << "MyMetric::run: " << file.projectVersion.version << endl;
         string line;
         std::getline( file, line );
-        logger << "MyMetry::run: First line: " << line << endl;
+        logger << "MyMetric::run: First line: " << line << endl;
     }
 };
 
@@ -81,11 +83,10 @@ int main( int argc, char **argv)
     Logger logger( Logger::NameSqoOssMetric );
     logger.setTeeStream( cout );
     
-    AbstractMetric* m = new MyMetric< ProjectFileMetric >;
+    MyMetric< ProjectFileMetric>* m = new MyMetric< ProjectFileMetric >;
     logger << "Registering C++ client metric..." << endl;
     int id = c.registerMetric( m );
     logger << "C++ client metric registered, id is " << id << "." << endl;
-
 
 /*    m = new MyMetric< ProjectVersionMetric >;
     logger << "Registering C++ client metric..." << endl;

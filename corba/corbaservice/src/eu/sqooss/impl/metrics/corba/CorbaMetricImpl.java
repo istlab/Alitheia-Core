@@ -48,6 +48,7 @@ abstract public class CorbaMetricImpl extends AbstractMetric {
    
     protected static FileGroup fromDBObject(eu.sqooss.service.db.FileGroup o) {
         FileGroup group = new FileGroup();
+        group.id = (int)o.getId();
         group.name = o.getName();
         group.subPath = o.getSubPath();
         group.regex = o.getRegex();
@@ -59,6 +60,7 @@ abstract public class CorbaMetricImpl extends AbstractMetric {
 
     protected static StoredProject fromDBObject(eu.sqooss.service.db.StoredProject o) {
         StoredProject project = new StoredProject();
+        project.id = (int)o.getId();
         project.name = o.getName();
         project.website = o.getWebsite();
         project.contact = o.getContact();
@@ -70,6 +72,7 @@ abstract public class CorbaMetricImpl extends AbstractMetric {
 
     protected static ProjectVersion fromDBObject(eu.sqooss.service.db.ProjectVersion o) {
         ProjectVersion version = new ProjectVersion();
+        version.id = (int)o.getId();
         version.project = fromDBObject(o.getProject());
         version.version = (int)o.getVersion();
         version.timeStamp = (int)o.getTimestamp();
@@ -78,10 +81,10 @@ abstract public class CorbaMetricImpl extends AbstractMetric {
 
     protected static ProjectFile fromDBObject(eu.sqooss.service.db.ProjectFile o) {
         ProjectFile file = new ProjectFile();
+        file.id = (int)o.getId();
         file.name = o.getName();
         file.status = o.getStatus();
         file.projectVersion = fromDBObject(o.getProjectVersion());
         return file;
     }
 }
-

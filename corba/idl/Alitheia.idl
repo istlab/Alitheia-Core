@@ -8,6 +8,7 @@ module alitheia
 
   struct StoredProject
   {
+    long id;
     string name;
     string website;
     string contact;
@@ -18,6 +19,7 @@ module alitheia
 
   struct ProjectVersion
   {
+    long id;
     StoredProject project;
     long version;
     long timeStamp;
@@ -25,6 +27,7 @@ module alitheia
 
   struct ProjectFile
   {
+    long id;
     string name;
     ProjectVersion projectVersion;
     string status;
@@ -38,6 +41,7 @@ module alitheia
 
   struct FileGroup
   {
+     long id;
      string name;
      string subPath;
      string regex;

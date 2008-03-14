@@ -129,6 +129,7 @@ public class CoreImpl extends CorePOA {
   
     protected static StoredProject fromCorbaObject(eu.sqooss.impl.service.corba.alitheia.StoredProject project) {
         StoredProject storedProject = new StoredProject();
+        storedProject.setId(project.id);
         storedProject.setName(project.name);
         storedProject.setWebsite(project.website);
         storedProject.setContact(project.contact);
@@ -140,6 +141,7 @@ public class CoreImpl extends CorePOA {
 
     protected static ProjectVersion fromCorbaObject(eu.sqooss.impl.service.corba.alitheia.ProjectVersion version) {
         ProjectVersion projectVersion = new ProjectVersion();
+        projectVersion.setId(version.id);
         projectVersion.setProject(fromCorbaObject(version.project));
         projectVersion.setVersion(version.version);
         projectVersion.setTimestamp(version.timeStamp);
@@ -148,6 +150,7 @@ public class CoreImpl extends CorePOA {
 
     protected static ProjectFile fromCorbaObject(eu.sqooss.impl.service.corba.alitheia.ProjectFile file) {
         ProjectFile projectFile = new ProjectFile();
+        projectFile.setId(file.id);
         projectFile.setName(file.name);
         projectFile.setProjectVersion(fromCorbaObject(file.projectVersion));
         projectFile.setStatus(file.status);
@@ -155,7 +158,13 @@ public class CoreImpl extends CorePOA {
     }
 
     public int getFileContents(eu.sqooss.impl.service.corba.alitheia.ProjectFile file, org.omg.CORBA.StringHolder contents) {
-        byte[] content = fds.getFileContents(fromCorbaObject(file));
+        byte[] content = null;
+        try {
+            content = fds.getFileContents(fromCorbaObject(file));
+        } catch ( Exception e ) {
+            System.out.println(e.toString());
+            e.printStackTrace();
+        }
         if( content == null ) {
             // return an empty string
             contents.value = new String();
