@@ -34,10 +34,9 @@
 
 package eu.sqooss.impl.metrics.wc;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.sql.Time;
 
@@ -62,51 +61,47 @@ public class WcJob extends AbstractMetricJob {
     }
     
     public void run() {
-        Measurement m = new Measurement();
-        int lines = 0;
-
-        File f = fds.getFile(pf);
-        if (f != null) {
+        // Retrieve the content of the selected project file
+        byte[] content = fds.getFileContents(pf);
+        if (content != null) {
+            // Create an input stream from the project file' content
+            ByteArrayInputStream in = new ByteArrayInputStream(content);
             try {
                 log.info(
                         this.getClass().getName()
                         + " Measuring: "
-                        + f.getAbsolutePath());
-                LineNumberReader lnr = new LineNumberReader(new FileReader(f));
+                        + pf.getName());
+
+                // Measure the number of lines in the project file
+                LineNumberReader lnr =
+                    new LineNumberReader(new InputStreamReader(in));
+                int lines = 0;
                 while(lnr.readLine() != null) {
                     lines++;
                 }
                 lnr.close();
-                
+
                 // Create the measurement DAO
                 // TODO: What to do if this plug-in has registered more that
                 //       one metric. Create a separate Measurement for all
                 //       of them ?
                 if (!parent.getSupportedMetrics().isEmpty()) {
+                    Measurement m = new Measurement();
                     m.setMetric(parent.getSupportedMetrics().get(0));
                     m.setProjectVersion(pf.getProjectVersion());
-                    /* NOTE: nanoTime() can not be directly used for creating 
-                     *       a Time object, use currentTimeMillis() instead
-                     */
-                    //m.setWhenRun(new Time(System.nanoTime()));
                     m.setWhenRun(new Time(System.currentTimeMillis()));
                     m.setResult(String.valueOf(lines));
                     
                     // Try to store the Measurement DAO into the DB
                     db.addRecord(m);
                 }
-            } catch (FileNotFoundException e) {
-                log.error(
-                        this.getClass().getName()
-                        + " Cannot open file: "
-                        + f.getAbsolutePath());
             } catch (IOException e) {
                 log.error(
                         this.getClass().getName()
-                        + " IO Error ("
+                        + " IO Error <"
                         + e
-                        + "): "
-                        + f.getAbsolutePath());
+                        + "> while measuring: "
+                        + pf.getName());
             }
         }
     }
