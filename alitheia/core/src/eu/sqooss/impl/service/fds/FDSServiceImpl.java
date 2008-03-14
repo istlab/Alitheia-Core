@@ -392,6 +392,38 @@ public class FDSServiceImpl implements FDSService {
         return new ProjectRevision(projectVersion);
     }
 
+    /**
+     * Get the File where the given project file will be cached locally
+     * by the FDS.
+     *
+     * @param pf ProjectFile to look up.
+     * @param r  Revision of the project file; this is a minor optimization,
+     *      if r is null the revision is retrieved from @p pf anyway.
+     * @return File for this project file, or null if there is no such
+     *      file in the given revision.
+     */
+    private File projectFileLocal(ProjectFile pf, ProjectRevision r) {
+        ProjectRevision pr = null;
+        if (r == null) {
+            pr = projectFileRevision(pf);
+        } else {
+            pr = r;
+        }
+
+        // Path generation for a "single file checkout"
+        File checkoutFile = new File(
+                fdsCheckoutRoot
+                + System.getProperty("file.separator")
+                + pf.getProjectVersion().getProject().getId()
+                + System.getProperty("file.separator")
+                + pr.getSVNRevision()
+                + System.getProperty("file.separator")
+                + pf.getName());
+
+        // TODO: possibly also look in existing checkouts?
+        return checkoutFile;
+    }
+
     // ===[ INTERFACE METHODS ]===============================================
 
     /** {@inheritDoc} */
@@ -408,15 +440,7 @@ public class FDSServiceImpl implements FDSService {
         SCMAccessor scm = tds.getAccessor(projectId).getSCMAccessor();
 
         try {
-            // Path generation for a "single file checkout"
-            File checkoutFile = new File(
-                    fdsCheckoutRoot
-                    + System.getProperty("file.separator")
-                    + projectId
-                    + System.getProperty("file.separator")
-                    + projectRevision.getSVNRevision()
-                    + System.getProperty("file.separator")
-                    + pf.getName());
+            File checkoutFile = projectFileLocal(pf, projectRevision);
 
             // Skip the checkout, in case this ProjectFile is already
             // available (i.e. retrieved in a previous checkout)
