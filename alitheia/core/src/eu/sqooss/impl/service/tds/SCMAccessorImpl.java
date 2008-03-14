@@ -37,6 +37,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -277,7 +278,7 @@ public class SCMAccessorImpl extends NamedAccessorImpl implements SCMAccessor {
     }
 
     public void getFile(String repoPath,
-            ProjectRevision revision, File localPath)
+            ProjectRevision revision, OutputStream stream)
         throws InvalidProjectRevisionException,
                InvalidRepositoryException,
                FileNotFoundException {
@@ -322,7 +323,6 @@ public class SCMAccessorImpl extends NamedAccessorImpl implements SCMAccessor {
                 throw new FileNotFoundException(repoPath + " (unknown)");
             }
 
-            FileOutputStream stream = new FileOutputStream(localPath);
             long retrieved_revision = svnRepository.getFile(
                 repoPath, revno, null, stream);
             stream.close();
@@ -332,6 +332,16 @@ public class SCMAccessorImpl extends NamedAccessorImpl implements SCMAccessor {
             logger.warn("Failed to close output stream on SVN request." + e);
             // Swallow this exception.
         }
+    }
+
+    public void getFile(String repoPath,
+            ProjectRevision revision, File localPath)
+        throws InvalidProjectRevisionException,
+               InvalidRepositoryException,
+               FileNotFoundException {
+        FileOutputStream stream = new FileOutputStream(localPath);
+        getFile(repoPath, revision, stream);
+        // Stream was closed by other getFile()
     }
 
     public CommitEntryImpl getCommitLog(String repoPath, ProjectRevision r1)

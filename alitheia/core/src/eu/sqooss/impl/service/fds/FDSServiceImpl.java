@@ -517,7 +517,15 @@ public class FDSServiceImpl implements FDSService {
 
         // Need to get file from SCM
         java.io.ByteArrayOutputStream output = new java.io.ByteArrayOutputStream();
-	// TODO: read bytes from SCM
+        try {
+            scm.getFile(pf.getName(), pr, output);
+        } catch (InvalidRepositoryException e) {
+            logger.error("The repository for " + pf.toString() + " is invalid.");
+        } catch (InvalidProjectRevisionException e) {
+            logger.error("The repository for " + pf.toString() + " has no revision " + pr + ".");
+        } catch (FileNotFoundException e) {
+            logger.error("File " + pf.toString() + " not found in the given repository.");
+        }
         return output.toByteArray();
     }
 

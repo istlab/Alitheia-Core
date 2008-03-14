@@ -96,13 +96,32 @@ public interface SCMAccessor extends NamedAccessor {
         throws InvalidProjectRevisionException,
                InvalidRepositoryException,
                FileNotFoundException;
+
     /**
      * Retrieve a single file from the source repository, relative
      * to the root URL of the project to which this accessor is
      * attached. The checked-out file is written to the local
      * path @p localPath.
+     *
+     * @param repoPath File within this repository to retrieve
+     * @param revision Revision to use for the file
+     * @param localPath Where to write the results.
      */
     void getFile(String repoPath, ProjectRevision revision, File localPath)
+        throws InvalidProjectRevisionException,
+               InvalidRepositoryException,
+               FileNotFoundException;
+
+    /**
+     * Retrieve a single file from the source repository, relative
+     * to the root URL of the project to which this accessor is
+     * attached. The checked-out file is written to the given stream.
+     *
+     * @param repoPath File within this repository to retrieve
+     * @param revision Revision to use for the file
+     * @param stream   Where to write the results.
+     */
+    void getFile(String repoPath, ProjectRevision revision, java.io.OutputStream stream)
         throws InvalidProjectRevisionException,
                InvalidRepositoryException,
                FileNotFoundException;
