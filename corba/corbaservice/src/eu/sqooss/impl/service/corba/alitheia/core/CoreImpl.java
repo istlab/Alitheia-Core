@@ -156,6 +156,11 @@ public class CoreImpl extends CorePOA {
 
     public int getFileContents(eu.sqooss.impl.service.corba.alitheia.ProjectFile file, org.omg.CORBA.StringHolder contents) {
         byte[] content = fds.getFileContents(fromCorbaObject(file));
+        if( content == null ) {
+            // return an empty string
+            contents.value = new String();
+            return 0;
+        }
         contents.value = new String(content);
         return content.length;
     }
