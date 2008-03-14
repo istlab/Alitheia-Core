@@ -371,10 +371,14 @@ public class FDSServiceImpl implements FDSService {
         }
     }
 
-    // ===[ INTERFACE METHODS ]===============================================
-
-    /** {@inheritDoc} */
-    public File getFile (ProjectFile pf) {
+    /**
+     * For a project file, return the SVN revision that it refers to.
+     *
+     * @param pf The ProjectFile to look up.
+     * @return The SVN revision (as a number!) for the project or null
+     *      if the project file is deleted or otherwise unavailable.
+     */
+    private ProjectRevision projectFileRevision(ProjectFile pf) {
         // Make sure that the file exists in the specified project version
         String fileStatus = pf.getStatus();
         if (PathChangeType.valueOf(fileStatus) == PathChangeType.DELETED) {
@@ -385,7 +389,17 @@ public class FDSServiceImpl implements FDSService {
          *       a project revision
          */
         long projectVersion = pf.getProjectVersion().getVersion();
-        ProjectRevision projectRevision = new ProjectRevision(projectVersion);
+        return new ProjectRevision(projectVersion);
+    }
+
+    // ===[ INTERFACE METHODS ]===============================================
+
+    /** {@inheritDoc} */
+    public File getFile (ProjectFile pf) {
+        ProjectRevision projectRevision = projectFileRevision(pf);
+        if (projectRevision == null) {
+            return null;
+        }
 
         // Retrieve the project ID
         long projectId = pf.getProjectVersion().getProject().getId();
@@ -400,7 +414,7 @@ public class FDSServiceImpl implements FDSService {
                     + System.getProperty("file.separator")
                     + projectId
                     + System.getProperty("file.separator")
-                    + projectVersion
+                    + projectRevision.getSVNRevision()
                     + System.getProperty("file.separator")
                     + pf.getName());
 
@@ -429,10 +443,15 @@ public class FDSServiceImpl implements FDSService {
         } catch (InvalidRepositoryException e) {
             logger.error("The repository for " + pf.toString() + " is invalid.");
         } catch (InvalidProjectRevisionException e) {
-            logger.error("The repository for " + pf.toString() + " has no revision " + projectVersion + ".");
+            logger.error("The repository for " + pf.toString() + " has no revision " + projectRevision + ".");
         } catch (FileNotFoundException e) {
             logger.error("File " + pf.toString() + " not found in the given repository.");
         }
+        return null;
+    }
+
+    /** {@inheritDoc} */
+    public byte[] getFileContents(ProjectFile pf) {
         return null;
     }
 

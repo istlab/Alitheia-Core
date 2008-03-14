@@ -94,12 +94,24 @@ public interface FDSService {
     
     /**
      * Retrieve a file handle corresponding to the selected ProjectFile entry.
+     * The file handle lives somewhere in the temporary space where the FDS
+     * stores all of its local files.
      * 
      * @param pf ProjectFile entry
      * 
-     * @return the file handle
+     * @return the file handle or null if there is no such file.
      */
     File getFile(ProjectFile pf);
+
+    /**
+     * Retrieve the file contents corresponding to the given ProjectFile entry.
+     * Returns null if there is no such file or it is empty.
+     * 
+     * @param pf ProjectFile entry
+     * 
+     * @return the file contents or null if none.
+     */
+    byte[] getFileContents(ProjectFile pf);
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab
