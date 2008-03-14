@@ -38,7 +38,17 @@ package eu.sqooss.service.util;
 import java.io.File;
 import java.io.ByteArrayOutputStream;
 
+/**
+ * This is a static utility class for various file manipulations.
+ */
 public class FileUtils {
+    /**
+     * Read the contents of a file and return them as a byte array.
+     *
+     * @param f File to read.
+     * @return File contents as a byte array or null on error (such
+     *      as empty file, no such file, or IO error).
+     */
     public static byte[] fileContents(File f) {
         if (f==null) {
             // Bad parameters
