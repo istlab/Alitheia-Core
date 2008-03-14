@@ -3,7 +3,7 @@
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  *
  * Copyright 2007-2008 by the SQO-OSS consortium members <info@sqo-oss.eu>
- * Copyright 2007-2008 by Paul J. Adams <paul.adams@siriusit.co.uk>
+ * Copyright 2007-2008 by Georgios Gousios <gousiosg@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -33,17 +33,15 @@
 
 package eu.sqooss.service.db;
 
-import eu.sqooss.service.db.DAObject;
-
 import java.sql.Time;
 
-public class Measurement extends DAObject{
+public class ProjectFileMeasurement extends DAObject {
     private Metric metric;
-    private ProjectVersion projectVersion;
+    private ProjectFile projectFile;
     private Time whenRun;
     private String result;
 
-    public Measurement() {
+    public ProjectFileMeasurement() {
         // Nothing to do here
     }
 
@@ -55,12 +53,12 @@ public class Measurement extends DAObject{
         this.metric = metric;
     }
 
-    public ProjectVersion getProjectVersion() {
-        return projectVersion;
+    public ProjectFile getProjectFile() {
+        return projectFile;
     }
 
-    public void setProjectVersion(ProjectVersion projectVersion) {
-        this.projectVersion = projectVersion;
+    public void setProjectFile(ProjectFile pf) {
+        this.projectFile = pf;
     }
 
     public Time getWhenRun() {
@@ -81,4 +79,3 @@ public class Measurement extends DAObject{
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
-

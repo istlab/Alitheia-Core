@@ -4,12 +4,12 @@
         "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-  <class name="eu.sqooss.service.db.Measurement" table="MEASUREMENT">
-    <id name="id" column="MEASUREMENT_ID">
+  <class name="eu.sqooss.service.db.ProjectFileMeasurement" table="PROJECT_FILE_MEASUREMENT">
+    <id name="id" column="PROJECT_FILE_MEASUREMENT_ID">
       <generator class="native" />
     </id>
-    <many-to-one name="metric" column="METRIC" not-null="true"/>
-    <many-to-one name="projectVersion" column="PROJECT_VERSION_ID" not-null="true"/>
+    <many-to-one name="metric" column="METRIC_ID" not-null="true"/>
+    <many-to-one name="projectFile" column="PROJECT_FILE_ID" not-null="true"/>
     <property name="whenRun" column="WHEN_RUN" type="java.util.Date" />
     <property name="result" column="RESULT" type="string" />
   </class>

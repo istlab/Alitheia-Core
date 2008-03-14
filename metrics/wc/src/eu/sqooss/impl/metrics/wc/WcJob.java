@@ -42,7 +42,7 @@ import java.sql.Time;
 
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.AbstractMetricJob;
-import eu.sqooss.service.db.Measurement;
+import eu.sqooss.service.db.ProjectFileMeasurement;
 import eu.sqooss.service.db.ProjectFile;
 
 public class WcJob extends AbstractMetricJob {
@@ -86,9 +86,9 @@ public class WcJob extends AbstractMetricJob {
                 //       one metric. Create a separate Measurement for all
                 //       of them ?
                 if (!parent.getSupportedMetrics().isEmpty()) {
-                    Measurement m = new Measurement();
+                    ProjectFileMeasurement m = new ProjectFileMeasurement();
                     m.setMetric(parent.getSupportedMetrics().get(0));
-                    m.setProjectVersion(pf.getProjectVersion());
+                    m.setProjectFile(pf);
                     m.setWhenRun(new Time(System.currentTimeMillis()));
                     m.setResult(String.valueOf(lines));
                     

@@ -43,7 +43,7 @@
         <mapping resource="eu/sqooss/service/db/ServiceUrl.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/FileMetadata.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/MailMessage.hbm.xml"/>
-        <mapping resource="eu/sqooss/service/db/Measurement.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/ProjectVersionMeasurement.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/Metric.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/MetricType.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/Plugin.hbm.xml"/>
@@ -62,6 +62,7 @@
         <mapping resource="eu/sqooss/service/db/MailingList.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/Committer.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/ProjectFileJoin.hbm.xml" />
+        <mapping resource="eu/sqooss/service/db/ProjectFileMeasurement.hbm.xml"/>
     </session-factory>
 
 </hibernate-configuration>
