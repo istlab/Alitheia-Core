@@ -505,8 +505,7 @@ public class FDSServiceImpl implements FDSService {
             checkoutFile.exists() &&
             checkoutFile.isFile() &&
             checkoutFile.canRead()) {
-            // TODO: read bytes from file
-            return null;
+            return eu.sqooss.service.util.FileUtils.fileContents(checkoutFile);
         }
 
         // We get here if the file isn't locally cached,
