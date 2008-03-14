@@ -34,7 +34,9 @@ package eu.sqooss.service.web.services;
 
 import org.osgi.framework.BundleContext;
 
-import eu.sqooss.impl.service.web.services.WebServicesImpl;
+import eu.sqooss.impl.service.web.services.MetricManager;
+import eu.sqooss.impl.service.web.services.ProjectManager;
+import eu.sqooss.impl.service.web.services.UserManager;
 import eu.sqooss.impl.service.web.services.datatypes.WSMetric;
 import eu.sqooss.impl.service.web.services.datatypes.WSProjectFile;
 import eu.sqooss.impl.service.web.services.datatypes.WSProjectVersion;
@@ -64,12 +66,15 @@ import eu.sqooss.service.tds.TDSService;
  */
 public class WebServices {
     
-    private WebServicesImpl webServices;
+    private MetricManager metricManager;
+    private ProjectManager projectManager;
+    private UserManager userManager;
     
     public WebServices(BundleContext bc, SecurityManager securityManager,
             DBService db, TDSService tds, Logger logger) {
-        
-        webServices = new WebServicesImpl(bc, securityManager, db, tds, logger);
+        metricManager = new MetricManager(logger, db);
+        projectManager = new ProjectManager(logger, db, tds);
+        userManager = new UserManager();
     }
     
     //5.1.1
@@ -81,11 +86,11 @@ public class WebServices {
      * @return
      */
     public WSStoredProject[] evaluatedProjectsList(String userName, String password) {
-        return webServices.evaluatedProjectsList(userName, password);
+        return projectManager.evaluatedProjectsList(userName, password);
     }
     
     public WSStoredProject[] storedProjectsList(String userName, String password) {
-        return webServices.storedProjectsList(userName, password);
+        return projectManager.storedProjectsList(userName, password);
     }
     
     /**
@@ -98,7 +103,7 @@ public class WebServices {
      */
     public WSMetric[] retrieveMetrics4SelectedProject(String userName,
             String password, long projectId) {
-        return webServices.retrieveMetrics4SelectedProject(userName, password, projectId);
+        return metricManager.retrieveMetrics4SelectedProject(userName, password, projectId);
     }
     
     /**
@@ -112,7 +117,7 @@ public class WebServices {
      */
     public WSMetric retrieveSelectedMetric(String userName, String password,
             long projectId, long metricId) {
-        return webServices.retrieveSelectedMetric(userName, password, projectId, metricId);
+        return metricManager.retrieveSelectedMetric(userName, password, projectId, metricId);
     }
     //5.1.1
     
@@ -126,7 +131,7 @@ public class WebServices {
      * @return
      */
     public WSProjectFile[] retrieveFileList(String userName, String password, long projectId) {
-        return webServices.retrieveFileList(userName, password, projectId);
+        return projectManager.retrieveFileList(userName, password, projectId);
     }
     
     /**
@@ -142,7 +147,7 @@ public class WebServices {
      */
     public WSMetric[] retrieveMetrics4SelectedFiles(String userName, String password,
             long projectId, String[] folders, String[] fileNames) {
-        return webServices.retrieveMetrics4SelectedFiles(userName, password, projectId, folders, fileNames);
+        return metricManager.retrieveMetrics4SelectedFiles(userName, password, projectId, folders, fileNames);
     }
     //5.1.2
     
@@ -167,7 +172,7 @@ public class WebServices {
             String projectName, long projectVersion,
             String srcRepositoryLocation, String mailingListLocation,
             String BTSLocation, String userEmailAddress,String website) {
-        return webServices.requestEvaluation4Project(userName, password,
+        return projectManager.requestEvaluation4Project(userName, password,
                 projectName,projectVersion, srcRepositoryLocation,
                 mailingListLocation, BTSLocation, userEmailAddress, website);
     }
@@ -257,7 +262,7 @@ public class WebServices {
     public WSUser submitUser(String userNameForAccess, String passwordForAccess,
             String newUserName, String newNames, String newPassword,
             String newUserClass, String newOtherInfo) {
-        return webServices.submitUser(userNameForAccess, passwordForAccess,
+        return userManager.submitUser(userNameForAccess, passwordForAccess,
                 newUserName, newNames, newPassword, newUserClass, newOtherInfo);
     }
     //5.1.10
@@ -273,7 +278,7 @@ public class WebServices {
      */
     public WSUser displayUser(String userNameForAccess, String passwordForAccess,
             long userId) {
-        return webServices.displayUser(userNameForAccess, passwordForAccess, userId);
+        return userManager.displayUser(userNameForAccess, passwordForAccess, userId);
     }
     
     /**
@@ -290,7 +295,7 @@ public class WebServices {
     public void modifyUser(String userNameForAccess, String passwordForAccess,
             String userName, String newNames, String newPassword,
             String newUserClass, String newOtherInfo) {
-        webServices.modifyUser(userNameForAccess, passwordForAccess,
+        userManager.modifyUser(userNameForAccess, passwordForAccess,
                 userName, newNames, newPassword, newUserClass, newOtherInfo);
     }
     
@@ -302,7 +307,7 @@ public class WebServices {
      * @param userId
      */
     public void deleteUser(String userNameForAccess, String passwordForAccess, long userId) {
-        webServices.deleteUser(userNameForAccess, passwordForAccess, userId);
+        userManager.deleteUser(userNameForAccess, passwordForAccess, userId);
     }
     //5.1.11
     
@@ -316,15 +321,15 @@ public class WebServices {
      * @return
      */
     public long retrieveProjectId(String userName, String passwrod, String projectName) {
-        return webServices.retrieveProjectId(userName, passwrod, projectName);
+        return projectManager.retrieveProjectId(userName, passwrod, projectName);
     }
     
     public WSProjectVersion[] retrieveStoredProjectVersions(String userName, String password, long projectId) {
-        return webServices.retrieveStoredProjectVersions(userName, password, projectId);
+        return projectManager.retrieveStoredProjectVersions(userName, password, projectId);
     }
     
     public WSStoredProject retrieveStoredProject(String userName, String password, long projectId) {
-        return webServices.retrieveStoredProject(userName, password, projectId);
+        return projectManager.retrieveStoredProject(userName, password, projectId);
     }
     //retrieve methods
     
@@ -336,7 +341,7 @@ public class WebServices {
      * @return
      */
     public boolean validateAccount(String userName, String password) {
-        return webServices.validateAccount(userName, password);
+        return userManager.validateAccount(userName, password);
     }
     //validation
     

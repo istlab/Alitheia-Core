@@ -32,16 +32,8 @@
 
 package eu.sqooss.impl.service.web.services.utils;
 
-public class DatabaseQueries {
+interface MetricManagerDBQueries {
     
-    //5.1.1
-    public static final String EVALUATED_PROJECTS_LIST = "select sp " +
-                                                         "from StoredProject sp, ProjectVersion pv, Measurement measurement " +
-                                                         "where sp.id=pv.project " +
-                                                         " and pv.id=measurement.projectVersion ";
-
-    public static final String STORED_PROJECTS_LIST    = "from StoredProject";
-
     public static final String RETRIEVE_METRICS_4_SELECTED_PROJECT_PARAM = "project_id";
     
     public static final String RETRIEVE_METRICS_4_SELECTED_PROJECT = "select distinct metric, metricType " +
@@ -51,30 +43,22 @@ public class DatabaseQueries {
                                                                       " and metricType.id=metric.metricType " +
                                                                       " and pv.project.id=:" +
                                                                       RETRIEVE_METRICS_4_SELECTED_PROJECT_PARAM;
- 
+    
+    
     public static final String RETRIEVE_SELECTED_METRIC_PARAM_PR = "project_id";
     
     public static final String RETRIEVE_SELECTED_METRIC_PARAM_METRIC = "metric_id";
     
     public static final String RETRIEVE_SELECTED_METRIC = "select distinct metric, metricType " +
-    		                                              "from ProjectVersion pv, Measurement measurement, Metric metric, MetricType metricType " +
-    		                                              "where pv.id=measurement.projectVersion " +
-    		                                              " and metric.id=measurement.metric " +
-    		                                              " and metricType.id=metric.metricType " +
-    		                                              " and pv.project=:" +
-    		                                              RETRIEVE_SELECTED_METRIC_PARAM_PR + " " +
-    		                                              " and metric.id=:" +
-    		                                              RETRIEVE_SELECTED_METRIC_PARAM_METRIC;
-    //5.1.1
+                                                          "from ProjectVersion pv, Measurement measurement, Metric metric, MetricType metricType " +
+                                                          "where pv.id=measurement.projectVersion " +
+                                                          " and metric.id=measurement.metric " +
+                                                          " and metricType.id=metric.metricType " +
+                                                          " and pv.project=:" +
+                                                          RETRIEVE_SELECTED_METRIC_PARAM_PR + " " +
+                                                          " and metric.id=:" +
+                                                          RETRIEVE_SELECTED_METRIC_PARAM_METRIC;
     
-    //5.1.2
-    public static final String RETRIEVE_FILE_LIST_PARAM = "project_id";
-    
-    public static final String RETRIEVE_FILE_LIST = "select distinct pf " +
-                                                    "from ProjectVersion pv, ProjectFile pf " +
-                                                    "where pf.projectVersion=pv.id " +
-                                                    " and pv.project.id=:" +
-                                                    RETRIEVE_FILE_LIST_PARAM;
     
     public static final String RETRIEVE_METRICS_4_SELECTED_FILES_PARAM_LIST = "list_of_filenames";
     
@@ -91,7 +75,7 @@ public class DatabaseQueries {
                                                                    RETRIEVE_METRICS_4_SELECTED_FILES_PARAM_LIST + ") " +
                                                                    " and pv.project.id=:" +
                                                                    RETRIEVE_METRICS_4_SELECTED_FILES_PARAM_PR;
-                                                                   
+                                                 
     
     public static final String RETRIEVE_METRICS_4_SELECTED_FILES_DIRS_PARAM = "dir_name";
     
@@ -101,23 +85,7 @@ public class DatabaseQueries {
                                                                         RETRIEVE_METRICS_4_SELECTED_FILES_DIRS_PARAM + " " +
                                                                         " and pv.project.id=:" +
                                                                         RETRIEVE_METRICS_4_SELECTED_FILES_PARAM_PR;
-                                                                        
     
-    //5.1.2
-    
-    //5.1.3
-    public static final String REQUEST_EVALUATION_4_PROJECT_PARAM_PR_NAME    = "project_name";
-    
-    public static final String REQUEST_EVALUATION_4_PROJECT_PARAM_PR_VERSION = "project_ver";
-    
-    public static final String REQUEST_EVALUATION_4_PROJECT = "select sp " +
-                                                              "from StoredProject sp, ProjectVersion pv " +
-                                                              "where sp.id=pv.project " +
-                                                              " and sp.name=:" +
-                                                              REQUEST_EVALUATION_4_PROJECT_PARAM_PR_NAME + " " +
-                                                              " and pv.version=:" +
-                                                              REQUEST_EVALUATION_4_PROJECT_PARAM_PR_VERSION;
-    //5.1.3
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

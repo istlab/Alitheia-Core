@@ -30,39 +30,60 @@
  *
  */
 
-package eu.sqooss.impl.service.web.services.utils;
+package eu.sqooss.impl.service.web.services;
 
-public class WSPair {
-    
-    private String first;
-    private String second;
+import eu.sqooss.impl.service.web.services.datatypes.WSUser;
+
+public class UserManager {
     
     /**
-     * @return the first
+     * @see eu.sqooss.service.web.services.WebServices#submitUser(String, String, String, String, String, String, String)
      */
-    public String getFirst() {
-        return first;
+    public WSUser submitUser(String userNameForAccess, String passwordForAccess,
+            String newUserName, String newNames, String newPassword,
+            String newUserClass, String newOtherInfo) {
+        
+        //TODO: check the security
+        
+        //TODO: add all fields to the security
+        return null;
+        
     }
     
     /**
-     * @param first the first to set
+     * @see eu.sqooss.service.web.services.WebServices#displayUser(String, String, long)
      */
-    public void setFirst(String first) {
-        this.first = first;
+    public WSUser displayUser(String userNameForAccess, String passwordForAccess,
+            long userId) {
+        
+        //TODO: check the security
+        return null;
     }
     
     /**
-     * @return the second
+     * @see eu.sqooss.service.web.services.WebServices#modifyUser(String, String, String, String, String, String, String)
      */
-    public String getSecond() {
-        return second;
+    public void modifyUser(String userNameForAccess, String passwordForAccess,
+            String userName, String newNames, String newPassword,
+            String newUserClass, String newOtherInfo) {
+        
+        //TODO: check the security and implement
     }
     
     /**
-     * @param second the second to set
+     * @see eu.sqooss.service.web.services.WebServices#deleteUser(String, String, long)
      */
-    public void setSecond(String second) {
-        this.second = second;
+    public void deleteUser(String userNameForAccess, String passwordForAccess, long userId) {
+        
+        //TODO: check the security
+    }
+    
+    /**
+     * @see eu.sqooss.service.web.services.WebServices#validateAccount(String, String)
+     */
+    public boolean validateAccount(String userName, String password) {
+        //TODO:
+        return true;
     }
     
 }
