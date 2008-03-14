@@ -3,11 +3,11 @@
 #include "corbahandler.h"
 #include "job.h"
 #include "metric.h"
+#include "dbobject.h"
 
 #include <csignal>
 #include <string>
 #include <sstream>
-
 
 namespace Alitheia
 {
@@ -142,6 +142,13 @@ void Core::waitForJobFinished( Job* job )
     if( job->name().length() == 0 )
         registerJob( job );
     d->core->waitForJobFinished( CORBA::string_dup( job->name().c_str() ) );
+}
+
+std::string Core::getFileContents( const ProjectFile& file )
+{
+    CORBA::String_var content;
+    const int length = d->core->getFileContents( file.toCorba(), content.out() );
+    return std::string( content, length );
 }
 
 void Core::run()

@@ -1,6 +1,7 @@
 #include <Logger>
 #include <Core>
 #include <Metric>
+#include <DBObject>
 
 #include <sstream>
 #include <ostream>
@@ -62,11 +63,14 @@ public:
         return "getResult";
     }
 
-    void run( const ProjectFile& file ) const
+    void run( ProjectFile& file ) const
     {
         Logger logger( Logger::NameSqoOssMetric );
         logger.setTeeStream( cout );
         logger << "MyMetric::run: " << file.name << endl;
+        string line;
+        std::getline( file, line );
+        logger << "MyMetry::run: First line: " << line << endl;
     }
 };
 

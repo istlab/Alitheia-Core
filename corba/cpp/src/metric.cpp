@@ -1,5 +1,7 @@
 #include "metric.h"
+
 #include "core.h"
+#include "dbobject.h"
 
 #include <CORBA.h>
 
@@ -97,12 +99,14 @@ CORBA::Boolean ProjectVersionMetric::run2nd( const alitheia::ProjectVersion& a, 
 
 char* ProjectFileMetric::getResult( const alitheia::ProjectFile& projectFile )
 {
-    return CORBA::string_dup( getResult( ProjectFile( projectFile ) ).c_str() );
+    ProjectFile file( projectFile );
+    return CORBA::string_dup( getResult( file ).c_str() );
 }
 
 void ProjectFileMetric::run( const alitheia::ProjectFile& projectFile )
 {
-    run( ProjectFile( projectFile ) );
+    ProjectFile file( projectFile );
+    run( file );
 }
 
 char* StoredProjectMetric::getResult( const alitheia::StoredProject& storedProject )

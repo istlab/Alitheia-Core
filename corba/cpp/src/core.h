@@ -1,17 +1,13 @@
 #ifndef CORE_H
 #define CORE_H
 
-#include "Alitheia.h"
-
-namespace std
-{
-    typedef basic_string< char >    string;
-}
+#include <string>
 
 namespace Alitheia
 {
     class Job;
     class AbstractMetric;
+    class ProjectFile;
 
     /**
      * @brief The main connection to register metrics in the Alitheia system.
@@ -22,6 +18,8 @@ namespace Alitheia
     class Core
     {
         friend class Job;
+        friend class ProjectFileBuffer;
+
     protected:
         /**
          * Constructor.
@@ -82,11 +80,13 @@ namespace Alitheia
          * as soon as all dependencies are met.
          */
         void enqueueJob( Job* job );
+        
+        std::string getFileContents( const ProjectFile& file );
    
     protected:
         void addJobDependency( Job* job, Job* dependency );
         void waitForJobFinished( Job* job );
-        
+
     private:
         class Private;
         Private* d;
