@@ -40,9 +40,7 @@ public class DatabaseQueries {
                                                          "where sp.id=pv.project " +
                                                          " and pv.id=measurement.projectVersion ";
 
-    public static final String STORED_PROJECTS_LIST    = "select sp " +
-                                                         "from StoredProject sp " +
-                                                         "order by sp.id asc";
+    public static final String STORED_PROJECTS_LIST    = "from StoredProject";
 
     public static final String RETRIEVE_METRICS_4_SELECTED_PROJECT_PARAM = "project_id";
     
@@ -120,16 +118,6 @@ public class DatabaseQueries {
                                                               " and pv.version=:" +
                                                               REQUEST_EVALUATION_4_PROJECT_PARAM_PR_VERSION;
     //5.1.3
-    
-    //retrieve methods
-    public static final String RETRIEVE_PROJECT_ID_PARAM_PR_NAME = "project_name";
-    
-    public static final String RETRIEVE_PROJECT_ID_PARAM = "select sp.id " +
-                                                           "from StoredProject sp " +
-                                                           "where sp.name=:" +
-                                                           RETRIEVE_PROJECT_ID_PARAM_PR_NAME;
-    //retrieve methods
-    
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

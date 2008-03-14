@@ -99,8 +99,6 @@ public class WebServicesImpl implements SecurityConstants {
 
         //TODO: check the security
 
-        // This query just gets stored projects, so we will give
-        // them fake project versions.
         List queryResult = db.doHQL(DatabaseQueries.STORED_PROJECTS_LIST);
 
         List<StoredProject> l = (List<StoredProject>) queryResult;
@@ -416,19 +414,15 @@ public class WebServicesImpl implements SecurityConstants {
         
         //TODO: check the security
         
-        Map<String, Object> queryParameters = new Hashtable<String, Object>(1);
-        queryParameters.put(DatabaseQueries.RETRIEVE_PROJECT_ID_PARAM_PR_NAME, projectName);
-        List<?> queryResult = db.doHQL(DatabaseQueries.RETRIEVE_PROJECT_ID_PARAM, queryParameters);
+        Map<String, Object> properties = new Hashtable<String, Object>(1);
+        properties.put("name", projectName);
+        List<StoredProject> projects = db.findObjectByProperties(StoredProject.class, properties);
         
-        Long projectId;
-        
-        if (queryResult.size() != 0) {
-            projectId = (Long) queryResult.get(0);
-            return projectId;
+        if (projects.size() != 0) {
+            return projects.get(0).getId();
         } else {
             throw new IllegalArgumentException("Can't find the project with name: " + projectName);
         }
-        
     }
     
     public WSProjectVersion[] retrieveStoredProjectVersions(String userName, String password, long projectId) {
