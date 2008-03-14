@@ -91,6 +91,8 @@ public class SelfTester {
     private String testUserManager() {
         User newUser = null;
 
+        userManager.deleteUser("fldhfkjs");
+        
         try {
             newUser = userManager.createUser("alitheia", "alitheia", "NA");
             if (newUser == null) {

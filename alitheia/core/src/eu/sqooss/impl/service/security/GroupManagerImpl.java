@@ -89,7 +89,12 @@ public class GroupManagerImpl implements GroupManager {
      */
     public boolean deleteGroup(long groupId) {
         logger.info("Delete group! group's id: " + groupId);
-        return dbWrapper.delete(getGroup(groupId));
+        Group group = getGroup(groupId);
+        if (group != null) {
+            return dbWrapper.delete(getGroup(groupId));            
+        } else {
+            return false;
+        }
     }
 
     /**

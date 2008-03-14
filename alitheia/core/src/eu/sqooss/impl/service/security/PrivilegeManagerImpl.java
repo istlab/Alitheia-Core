@@ -90,7 +90,12 @@ public class PrivilegeManagerImpl implements PrivilegeManager {
      */
     public boolean deletePrivilege(long privilegeId) {
         logger.info("Delete privilege! privilege's id: " + privilegeId);
-        return dbWrapper.delete(getPrivilege(privilegeId));
+        Privilege privilege = getPrivilege(privilegeId);
+        if (privilege != null) {
+            return dbWrapper.delete(privilege);
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -98,7 +103,12 @@ public class PrivilegeManagerImpl implements PrivilegeManager {
      */
     public boolean deletePrivilegeValue(long privilegeValueId) {
         logger.info("Delete privilege value! privilege value's id: " + privilegeValueId);
-        return dbWrapper.delete(getPrivilegeValue(privilegeValueId));
+        PrivilegeValue privilegeValue = getPrivilegeValue(privilegeValueId);
+        if (privilegeValue != null) {
+            return dbWrapper.delete(privilegeValue);
+        } else {
+            return false;
+        }
     }
 
     /**

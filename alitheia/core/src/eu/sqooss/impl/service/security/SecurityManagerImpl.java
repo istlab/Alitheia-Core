@@ -186,13 +186,8 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
     }
 
     public Object selfTest() {
-        try {
-            System.out.println("-------------Start security self test--------------");
-            SelfTester tester = new SelfTester(this);
-            return tester.test();
-        } finally {
-            System.out.println("-------------Finish security self test - PASSED--------------");
-        }
+        SelfTester tester = new SelfTester(this);
+        return tester.test();
     }
 
 }

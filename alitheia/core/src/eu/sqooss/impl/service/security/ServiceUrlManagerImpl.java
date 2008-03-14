@@ -70,7 +70,12 @@ public class ServiceUrlManagerImpl implements ServiceUrlManager {
      */
     public boolean deleteServiceUrl(long serviceUrlId) {
         logger.info("Delete service url! url's id: " + serviceUrlId);
-        return dbWrapper.deleteServiceUrl(getServiceUrl(serviceUrlId));
+        ServiceUrl serviceUrl = getServiceUrl(serviceUrlId);
+        if (serviceUrl != null) {
+            return dbWrapper.deleteServiceUrl(serviceUrl);
+        } else {
+            return false;
+        }
     }
 
     /**

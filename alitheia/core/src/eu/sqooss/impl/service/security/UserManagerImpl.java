@@ -75,7 +75,12 @@ public class UserManagerImpl implements UserManager {
      */
     public boolean deleteUser(long userId) {
         logger.info("Delete user! user's id: " + userId);
-        return dbWrapper.deleteUser(getUser(userId));
+        User user = getUser(userId);
+        if (user != null) {
+            return dbWrapper.deleteUser(user);
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -83,7 +88,12 @@ public class UserManagerImpl implements UserManager {
      */
     public boolean deleteUser(String userName) {
         logger.info("Delete user! username: " + userName);
-        return dbWrapper.deleteUser(getUser(userName));
+        User user = getUser(userName);
+        if (user != null) {
+            return dbWrapper.deleteUser(user);
+        } else {
+            return false;
+        }
     }
 
     /**
