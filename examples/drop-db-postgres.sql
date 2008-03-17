@@ -14,6 +14,8 @@ drop table mailinglist cascade;
 drop table file_metadata cascade;
 drop table mailmessage cascade;
 drop table measurement cascade;
+drop table project_file_measurement cascade;
+drop table project_version_measurement cascade;
 drop table metric ;
 drop table metric_type;
 drop table plugin;
