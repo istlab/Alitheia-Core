@@ -35,9 +35,7 @@
 package eu.sqooss.impl.metrics.wc;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 
 import org.hibernate.Session;
@@ -49,11 +47,8 @@ import eu.sqooss.lib.result.Result;
 import eu.sqooss.lib.result.ResultEntry;
 import eu.sqooss.metrics.wc.Wc;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
-import eu.sqooss.service.abstractmetric.MetricMismatchException;
-import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
-import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectFileMeasurement;
 import eu.sqooss.service.scheduler.Scheduler;
