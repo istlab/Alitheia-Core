@@ -104,7 +104,6 @@ public class WcImplementation extends AbstractMetric implements Wc {
         if (! measurement.isEmpty()) {
             // There is only one measurement per metric and project file
             Integer value = new Integer(measurement.get(0).getResult());
-            System.out.println (a.getName() + " " + value);
             // ... and therefore only one result entry
             ArrayList<ResultEntry> entries = new ArrayList<ResultEntry>();
             /* TODO: The above mentioned problem has its influence here too.
