@@ -245,10 +245,15 @@ implements eu.sqooss.service.abstractmetric.Metric {
         return db.addRecord(m);
     }
 
+    /**
+     * Get the description objects for all metrics supported by this plug-in
+     * as found in the database.
+     * 
+     * @return the list of metric descriptors, or null if none
+     */
     public List<Metric> getSupportedMetrics() {
-        List<Metric> metrics = Plugin.getSupportedMetrics(
-                db,
-                Plugin.getPlugin(db, getName()));
+        List<Metric> metrics =
+            Plugin.getSupportedMetrics(db, Plugin.getPlugin(db, getName()));
         if (metrics.isEmpty()) {
             return null;
         }
