@@ -47,7 +47,10 @@ import eu.sqooss.service.db.ProjectFile;
 
 public class WcJob extends AbstractMetricJob {
 
+    // DAO of the project file that has to be measured
     private ProjectFile pf;
+
+    // Reference to the metric that created this job
     AbstractMetric parent = null;
 
     public WcJob(AbstractMetric owner, ProjectFile a) {
@@ -59,12 +62,12 @@ public class WcJob extends AbstractMetricJob {
     public int priority() {
         return 0xbeef;
     }
-    
+
     public void run() {
         // Retrieve the content of the selected project file
         byte[] content = fds.getFileContents(pf);
         if (content != null) {
-            // Create an input stream from the project file' content
+            // Create an input stream from the project file's content
             ByteArrayInputStream in = new ByteArrayInputStream(content);
             try {
                 log.info(
