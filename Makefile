@@ -223,7 +223,7 @@ show-db-tables :
 	echo "\dt" | $(RUN_POSTGRES)
 
 fill-db :
-	gzcat examples/db-postgres.sql.gz | $(RUN_POSTGRES)
+	cat examples/db-postgres.sql | $(RUN_POSTGRES)
 
 clean-db :
 	cat examples/clear-db-postgres.sql | $(RUN_POSTGRES)
