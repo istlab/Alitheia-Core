@@ -19,6 +19,10 @@
 --
 
 
+-- Projects stored in the system. Project 1, yoyo, is bogus.
+-- It amalgamates SQO-OSS resources and a CodeYard project
+-- called YoYo which is just a playground.
+
 insert into @@SCHEMA@@STORED_PROJECT values ( 
 	1, 
 	'yoyo', 
@@ -69,9 +73,15 @@ insert into @@SCHEMA@@STORED_PROJECT values (
         'maildir:../examples/mail/SQO-OSS'
 ) ;
 
+-- These are mailing lists for project 1, which is the
+-- yoyo / SQO-OSS amalgam.
+
 insert into @@SCHEMA@@MAILINGLIST values (1,'all',1);
 insert into @@SCHEMA@@MAILINGLIST values (2,'wp1',1);
 insert into @@SCHEMA@@MAILINGLIST values (3,'wp3',1);
+
+
+-- This is the user database.
 
 insert into @@SCHEMA@@USERS values (
 	1,
