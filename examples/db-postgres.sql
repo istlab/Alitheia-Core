@@ -9,7 +9,7 @@ SET client_min_messages = warning;
 SET escape_string_warning = off;
 
 --
--- Name: SCHEMA public; Type: COMMENT; Schema: -; Owner: gousiosg
+-- Name: SCHEMA public; Type: COMMENT; Schema: -; Owner: alitheia
 --
 
 COMMENT ON SCHEMA public IS 'Standard public schema';
@@ -1702,12 +1702,12 @@ ALTER TABLE ONLY project_file_measurement
 
 
 --
--- Name: public; Type: ACL; Schema: -; Owner: gousiosg
+-- Name: public; Type: ACL; Schema: -; Owner: alitheia
 --
 
 REVOKE ALL ON SCHEMA public FROM PUBLIC;
-REVOKE ALL ON SCHEMA public FROM gousiosg;
-GRANT ALL ON SCHEMA public TO gousiosg;
+REVOKE ALL ON SCHEMA public FROM alitheia;
+GRANT ALL ON SCHEMA public TO alitheia;
 GRANT ALL ON SCHEMA public TO PUBLIC;
 
 
