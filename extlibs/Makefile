@@ -3,7 +3,7 @@
 TOP_SRCDIR?=..
 
 BUILDDIR=build
-DIRS=$(shell find . -maxdepth 1 -mindepth 1 -not -regex ".*build" -not -regex ".*svn" -type d)
+DIRS=$(shell for i in * ; do test -d "$$i" && echo "$$i" ; done | grep -v build)
 
 ECLIPSEFILES=.project .settings .classpath build.properties
 EXCLUDEFILES=.svn  META-INF 
@@ -31,8 +31,8 @@ builddir:
 build: builddir $(addprefix $(BUILDDIR)/,$(JARS))
 
 install: build
-	-cp -v ${BUILDDIR}/*.jar ${TOP_SRCDIR}/equinox
-	-cp -v $(LOCAL_JARS) ${TOP_SRCDIR}/equinox
+	-cp ${BUILDDIR}/*.jar ${TOP_SRCDIR}/equinox
+	-cp $(LOCAL_JARS) ${TOP_SRCDIR}/equinox
 
 clean:
 	rm -Rf ${BUILDDIR}
