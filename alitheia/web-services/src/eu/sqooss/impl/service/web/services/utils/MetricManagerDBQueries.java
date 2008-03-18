@@ -36,6 +36,7 @@ interface MetricManagerDBQueries {
     
     public static final String RETRIEVE_METRICS_4_SELECTED_PROJECT_PARAM = "project_id";
     
+    /* COMMENTED
     public static final String RETRIEVE_METRICS_4_SELECTED_PROJECT = "select distinct metric, metricType " +
                                                                       "from ProjectVersion pv, Measurement measurement, Metric metric, MetricType metricType " +
                                                                       "where pv.id=measurement.projectVersion " +
@@ -43,6 +44,15 @@ interface MetricManagerDBQueries {
                                                                       " and metricType.id=metric.metricType " +
                                                                       " and pv.project.id=:" +
                                                                       RETRIEVE_METRICS_4_SELECTED_PROJECT_PARAM;
+    */
+
+    public static final String RETRIEVE_METRICS_4_SELECTED_PROJECT =
+        "select distinct metric, metricType"
+        + " from EvaluationMark em, Metric metric, MetricType metricType"
+        + " where"
+            + " em.storedProject.id=:" + RETRIEVE_METRICS_4_SELECTED_PROJECT_PARAM
+            + " and metric.id=em.metric"
+            + " and metricType.id=metric.metricType";
     
     
     public static final String RETRIEVE_SELECTED_METRIC_PARAM_PR = "project_id";
