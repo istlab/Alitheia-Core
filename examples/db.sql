@@ -93,3 +93,14 @@ insert into @@SCHEMA@@USERS values (
 	'bunny@kde.org'
 	) ;
 
+insert into @@SCHEMA@@USERS values (
+	2,
+	'Adriaan Bunny',
+	0,
+	'2008-1-1@@HOUR@@',
+	'2008-2-14@@HOUR@@',
+	'celery',
+	'bunny@example.com'
+	) ;
+
+
