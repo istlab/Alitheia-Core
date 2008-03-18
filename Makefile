@@ -129,6 +129,8 @@ CONFIG=-Xmx512M
 
 DEBUGOPT=-Xdebug -Xrunjdwp:transport=dt_socket,server=y,address=8000,suspend=y 
 
+MONITOROPT=-Dcom.sun.management.jmxremote
+
 CL_CONFIG=-Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.Log4JLogger
 LOG4J_CONFIG=-Dlog4j.configuration=file://$(LOG4J_PREFIX)/configuration/log4j.properties
 JETTY_CONFIG=-DDEBUG_VERBOSE=1 -DDEBUG_PATTERNS=main,org.mortbay.http -Dorg.mortbay.log.LogFactory.noDiscovery=false
@@ -155,6 +157,13 @@ debug :
 	java $(DEBUGOPT) $(CONFIG) \
 		-DDEBUG $(CL_CONFIG) $(LOG4J_CONFIG) $(JETTY_CONFIG) \
 		-jar org.eclipse.osgi_3.3.0.v20070321.jar -console 
+
+monitor :
+	cd $(PREFIX) && \
+	java $(MONITOROPT) $(CONFIG) \
+		-DDEBUG $(CL_CONFIG) $(LOG4J_CONFIG) $(JETTY_CONFIG) \
+		$(HIBERNATE_CONFIG) \
+		-jar org.eclipse.osgi_3.3.0.v20070321.jar -console
 
 run-ui :
 	cd ui/webui && $(MAKE) start
