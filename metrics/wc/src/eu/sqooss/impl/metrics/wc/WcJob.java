@@ -43,10 +43,8 @@ import java.sql.Time;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.AbstractMetricJob;
 import eu.sqooss.service.db.Metric;
-import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.ProjectFileMeasurement;
 import eu.sqooss.service.db.ProjectFile;
-import eu.sqooss.service.db.StoredProject;
 
 public class WcJob extends AbstractMetricJob {
 
