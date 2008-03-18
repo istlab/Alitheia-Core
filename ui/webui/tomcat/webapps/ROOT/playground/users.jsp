@@ -1,3 +1,15 @@
+<%!
+public static String loginForm() {
+    String form = "<form id=\"loginform\">" +
+    "<input type=\"text\" name=\"user_id\" /><br />" +
+    "<input type=\"password\" name=\"password\" /><br />" +
+    "<input type=\"submit\" value=\"Log in\" />" +
+    "</form>";
+    //String form = "bl\'\"a";
+    return form;
+}
+%>
+
 <%@ include file="/inc/init.jsp" %>
 <%
     title = "Users";
@@ -11,19 +23,16 @@
 <h1>Users</h1>
 
     <%
-    String uid = request.getParameter("uid");
+
+    String uid = request.getParameter("user_id");
     if ( (uid!=null) && uid.length() > 0 ) {
         out.println("You are:");
         out.println("<ul><li> Foobar [" + uid + "]</li></ul>");
+    } else if ((uid!=null) && uid.length() < 3)  {
+        out.println(loginForm());
+        out.println("Invalid User ID.");
     } else {
-%>
-<form id="loginform">
-    <input type="text" name="user_id" />
-    <input type="password" name="password" />
-</form>
-
-<%
-        out.println("Your User ID is not known to the system yet.");
+        out.println(loginForm());
     }
     %>
 
