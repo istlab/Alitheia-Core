@@ -42,8 +42,11 @@ import java.sql.Time;
 
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.AbstractMetricJob;
+import eu.sqooss.service.db.Metric;
+import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.ProjectFileMeasurement;
 import eu.sqooss.service.db.ProjectFile;
+import eu.sqooss.service.db.StoredProject;
 
 public class WcJob extends AbstractMetricJob {
 
@@ -89,14 +92,21 @@ public class WcJob extends AbstractMetricJob {
                 //       one metric. Create a separate Measurement for all
                 //       of them ?
                 if (!parent.getSupportedMetrics().isEmpty()) {
+                    Metric metric = parent.getSupportedMetrics().get(0);
                     ProjectFileMeasurement m = new ProjectFileMeasurement();
-                    m.setMetric(parent.getSupportedMetrics().get(0));
+                    m.setMetric(metric);
                     m.setProjectFile(pf);
                     m.setWhenRun(new Time(System.currentTimeMillis()));
                     m.setResult(String.valueOf(lines));
                     
                     // Try to store the Measurement DAO into the DB
                     db.addRecord(m);
+                    
+                    // Check for a first time evaluation of this metric
+                    // on this project
+                    parent.markEvaluation (
+                            metric,
+                            pf.getProjectVersion().getProject());
                 }
             } catch (IOException e) {
                 log.error(
