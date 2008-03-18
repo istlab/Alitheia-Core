@@ -2,12 +2,19 @@
     class="eu.sqooss.webui.MetricsTableView"
     scope="page"/>
 
-<% // Let's list all projects.
+<%@ page import="eu.sqooss.webui.*" %>
+
+<% // List metrics per selected project or as total
 
 if (ProjectsListView.getProjectId() != null) {
-    out.println(terrier
-        .getMetrics4Project(ProjectsListView.getProjectId())
-            .getHtmlList());
+    MetricsTableView metrics =
+        terrier.getMetrics4Project(ProjectsListView.getProjectId());
+    if (metrics != null ) {
+        metrics.getHtmlList();
+    }
+    else {
+      out.println(error(terrier.getError()));
+    }
 }
 else {
     MetricsListView.showDescription = false;
