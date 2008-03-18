@@ -34,6 +34,7 @@
 package eu.sqooss.service.abstractmetric;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import org.osgi.framework.BundleContext;
@@ -45,11 +46,13 @@ import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.lib.result.Result;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.EvaluationMark;
 import eu.sqooss.service.db.FileGroup;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.db.ProjectFile;
+import eu.sqooss.service.db.ProjectFileMeasurement;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.LogManager;
@@ -260,6 +263,36 @@ implements eu.sqooss.service.abstractmetric.Metric {
         else {
             return metrics;
         }
+    }
+
+    /**
+     * Creates a record in the database, when the specified metric has been
+     * evaluated for a first time in the scope of the selected project.
+     * 
+     * @param me Evaluated metric
+     * @param sp Evaluated project
+     */
+    public void markEvaluation (Metric me, StoredProject sp) {
+        // Get a DB session
+        Session s = db.getSession(this);
+
+        // Search for a previous evaluation of this metric on this project
+        HashMap<String, Object> filter = new HashMap<String, Object>();
+        filter.put("metric", me);
+        filter.put("storedProject", sp);
+        List<EvaluationMark> wasEvaluated =
+            db.findObjectByProperties(s, EvaluationMark.class, filter);
+
+        // If this is a first time evaluation, then remember this in the DB
+        if (wasEvaluated.isEmpty()) {
+            EvaluationMark evaluationMark = new EvaluationMark();
+            evaluationMark.setMetric(me);
+            evaluationMark.setStoredProject(sp);
+            db.addRecord(evaluationMark);
+        }
+
+        // Free the DB session
+        db.returnSession(s);
     }
 
     /**

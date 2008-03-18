@@ -63,6 +63,7 @@
         <mapping resource="eu/sqooss/service/db/Committer.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/ProjectFileJoin.hbm.xml" />
         <mapping resource="eu/sqooss/service/db/ProjectFileMeasurement.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/EvaluationMark.hbm.xml"/>
     </session-factory>
 
 </hibernate-configuration>
