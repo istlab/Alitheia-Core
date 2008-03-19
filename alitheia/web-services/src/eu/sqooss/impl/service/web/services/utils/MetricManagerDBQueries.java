@@ -60,11 +60,10 @@ interface MetricManagerDBQueries {
     public static final String RETRIEVE_SELECTED_METRIC_PARAM_METRIC = "metric_id";
     
     public static final String RETRIEVE_SELECTED_METRIC = "select distinct metric, metricType " +
-                                                          "from ProjectVersion pv, Measurement measurement, Metric metric, MetricType metricType " +
-                                                          "where pv.id=measurement.projectVersion " +
-                                                          " and metric.id=measurement.metric " +
+                                                          "from EvaluationMark em, Metric metric, MetricType metricType " +
+                                                          "where metric.id=em.metric " +
                                                           " and metricType.id=metric.metricType " +
-                                                          " and pv.project=:" +
+                                                          " and em.storedProject.id=:" +
                                                           RETRIEVE_SELECTED_METRIC_PARAM_PR + " " +
                                                           " and metric.id=:" +
                                                           RETRIEVE_SELECTED_METRIC_PARAM_METRIC;
@@ -75,11 +74,11 @@ interface MetricManagerDBQueries {
     public static final String RETRIEVE_METRICS_4_SELECTED_FILES_PARAM_PR = "project_id";
     
     public static final String RETRIEVE_METRICS_4_SELECTED_FILES = "select distinct metric, metricType " +
-                                                                   "from ProjectFile pf, ProjectVersion pv, Measurement measurement, " +
+                                                                   "from ProjectFile pf, ProjectVersion pv, ProjectFileMeasurement pfm, " +
                                                                    "     Metric metric, MetricType metricType " +
                                                                    "where pv.id=pf.projectVersion " +
-                                                                   " and pv.id=measurement.projectVersion " +
-                                                                   " and metric.id=measurement.metric " +
+                                                                   " and pf.id=pfm.projectFile " +
+                                                                   " and metric.id=pfm.metric " +
                                                                    " and metricType.id=metric.metricType " +
                                                                    " and pf.name in (:" +
                                                                    RETRIEVE_METRICS_4_SELECTED_FILES_PARAM_LIST + ") " +

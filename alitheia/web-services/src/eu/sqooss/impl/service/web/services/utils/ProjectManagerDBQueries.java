@@ -35,9 +35,8 @@ package eu.sqooss.impl.service.web.services.utils;
 interface ProjectManagerDBQueries {
 
     public static final String EVALUATED_PROJECTS_LIST = "select sp " +
-                                                         "from StoredProject sp, ProjectVersion pv, Measurement measurement " +
-                                                         "where sp.id=pv.project " +
-                                                         " and pv.id=measurement.projectVersion ";
+                                                         "from StoredProject sp, EvaluationMark em " +
+                                                         "where sp.id=em.storedProject ";
     
     
     public static final String STORED_PROJECTS_LIST    = "from StoredProject";
