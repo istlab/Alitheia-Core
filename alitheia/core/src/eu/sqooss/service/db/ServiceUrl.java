@@ -35,8 +35,13 @@ package eu.sqooss.service.db;
 
 import eu.sqooss.service.db.DAObject;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class ServiceUrl extends DAObject{
     private String url;
+    private Set groups = new HashSet();
+    private Set privilegeValues = new HashSet();
 
     // Nothing to do here
     public ServiceUrl(){}
@@ -47,5 +52,21 @@ public class ServiceUrl extends DAObject{
 
     public String getUrl() {
         return url;
+    }
+
+    public void setGroups(Set groups) {
+        this.groups = groups;
+    }
+
+    public Set getGroups() {
+        return groups;
+    }
+
+    public void setPrivilegeValues(Set privilegeValues) {
+        this.privilegeValues = privilegeValues;
+    }
+
+    public Set getPrivilegeValues() {
+        return privilegeValues;
     }
 }

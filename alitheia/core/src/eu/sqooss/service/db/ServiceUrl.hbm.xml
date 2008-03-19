@@ -9,5 +9,13 @@
       <generator class="native" />
     </id>
     <property name="url" column="URL" />
+    <set name="groups" table="SERVICE_URL_GROUPS" inverse="true">
+      <key column="SERVICE_URL_ID"/>
+      <one-to-many class="eu.sqooss.service.db.Group"/>
+    </set>
+    <set name="privilegeValues" table="SERVICE_PRIVILEGEVALUES" inverse="true">
+      <key column="SERVICE_URL_ID"/>
+      <one-to-many class="eu.sqooss.service.db.PrivilegeValue"/>
+    </set>
   </class>
 </hibernate-mapping>
