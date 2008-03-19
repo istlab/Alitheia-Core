@@ -39,10 +39,12 @@ public class ProjectFile extends DAObject{
     private String name;
     private ProjectVersion projectVersion;
     private String status;
+    private Boolean isDirectory;
 
 
     public ProjectFile() {
         // Nothing to see here
+        isDirectory = false; //By default, all entries are files
     }
 
     public ProjectFile(ProjectVersion pv) {
@@ -71,6 +73,14 @@ public class ProjectFile extends DAObject{
 
     public String getStatus() {
         return status;
+    }
+
+    public Boolean getIsDirectory() {
+        return isDirectory;
+    }
+
+    public void setIsDirectory(Boolean isDirectory) {
+        this.isDirectory = isDirectory;
     }
 }
 

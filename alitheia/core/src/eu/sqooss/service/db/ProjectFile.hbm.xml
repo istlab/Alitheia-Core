@@ -11,5 +11,6 @@
     <property name="name" column="FILE_NAME" />
     <many-to-one name="projectVersion" column="PROJECT_VERSION_ID" not-null="true"/>
     <property name="status" column="FILE_STATUS" />
+    <property name="isDirectory" column="IS_DIRECTORY" />
   </class>
 </hibernate-mapping>

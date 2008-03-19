@@ -59,6 +59,7 @@ import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.PathChangeType;
 import eu.sqooss.service.tds.ProjectRevision;
 import eu.sqooss.service.tds.SCMAccessor;
+import eu.sqooss.service.tds.SCMNodeType;
 import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.updater.UpdaterException;
 import eu.sqooss.service.updater.UpdaterService;
@@ -147,11 +148,17 @@ class SourceUpdater extends Job {
                         s.save(t);
                         break;
                     }
-
+                    
                     ProjectFile pf = curVersion.addProjectFile();
                     pf.setName(chPath);
                     pf.setStatus(entry.getChangedPathsStatus().get(chPath).toString());
-                    //logger.info(project.getName() + ": Saving path: " + chPath);
+                    SCMNodeType t = scm.getNodeType(chPath, entry.getRevision());
+                    
+                    if(t == SCMNodeType.DIR)
+                        pf.setIsDirectory(true);
+                    else
+                        pf.setIsDirectory(false);
+                    
                     s.save(pf);
                     updFiles.add(pf.getId());
                 }
