@@ -30,42 +30,26 @@
  *
  */
 
-package eu.sqooss.scl;
+package eu.sqooss.scl.accessor;
 
-import eu.sqooss.scl.accessor.WSAccessor;
-import eu.sqooss.scl.accessor.WSMetricAccessor;
-import eu.sqooss.scl.accessor.WSProjectAccessor;
-import eu.sqooss.scl.accessor.WSUserAccessor;
+import java.lang.reflect.Array;
 
-public class WSSession {
+
+public abstract class WSAccessor {
     
-    private WSProjectAccessor projectAccessor;
-    private WSMetricAccessor metricAccessor;
-    private WSUserAccessor userAccessor;
-
-    public WSSession(String userName, String password, String webServiceUrl) throws WSException {
-        this.projectAccessor = new WSProjectAccessorImpl(userName, password, webServiceUrl);
-        this.metricAccessor  = new WSMetricAccessorImpl(userName, password, webServiceUrl);
-        this.userAccessor    = new WSUserAccessorImpl(userName, password, webServiceUrl);
+    public static enum Type {
+        PROJECT,
+        USER,
+        METRIC
     }
     
-    public WSAccessor getAccessor(WSAccessor.Type type) {
-        switch (type) {
-        case PROJECT : return projectAccessor;
-        case METRIC  : return metricAccessor;
-        case USER    : return userAccessor;
-        default      : return null;
+    protected Object parseWSResult(Object result) {
+        if ((result != null) && (result.getClass().isArray()) &&
+                (Array.getLength(result) != 0) && (Array.get(result, 0) == null)) {
+            return Array.newInstance(result.getClass().getComponentType(), 0);
+        } else {
+            return result;
         }
-    }
-    
-    public void addWebServiceListener(String webServiceMethodUrl, WSEventListener listener) {
-        //TODO:
-        throw new UnsupportedOperationException("Coming soon");
-    }
-    
-    public void removeWebServiceListener(String webServiceMethodUrl, WSEventListener listener) {
-        //TODO:
-        throw new UnsupportedOperationException("Coming soon");
     }
     
 }
