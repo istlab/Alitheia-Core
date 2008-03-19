@@ -52,6 +52,22 @@ interface ProjectManagerDBQueries {
                                                     RETRIEVE_FILE_LIST_PARAM;
     
     
+    public static final String GET_FILE_LIST_4_PROJECT_VERSION_PARAM = "project_ver";
+    
+    public static final String GET_FILE_LIST_4_PROJECT_VERSION = "select pf " +
+                                                                 "from ProjectFile pf " +
+                                                                 "where pf.projectVersion.id=:" +
+                                                                 GET_FILE_LIST_4_PROJECT_VERSION_PARAM;
+    
+    
+    public static final String GET_FILES_NUMBER_4_PROJECT_VERSION_PARAM = "project_ver";
+    
+    public static final String GET_FILES_NUMBER_4_PROJECT_VERSION = "select count(pf)" +
+    		                                                        "from ProjectFile pf " +
+    		                                                        "where pf.projectVersion.id=:" +
+    		                                                        GET_FILES_NUMBER_4_PROJECT_VERSION_PARAM;
+    
+    
     public static final String GET_STORED_PROJECTS_PARAM_PR_NAME    = "project_name";
     
     public static final String GET_STORED_PROJECTS_PARAM_PR_VERSION = "project_ver";

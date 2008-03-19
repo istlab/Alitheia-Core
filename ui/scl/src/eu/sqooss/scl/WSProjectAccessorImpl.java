@@ -45,6 +45,10 @@ import eu.sqooss.ws.client.datatypes.WSProjectVersion;
 import eu.sqooss.ws.client.datatypes.WSStoredProject;
 import eu.sqooss.ws.client.ws.EvaluatedProjectsList;
 import eu.sqooss.ws.client.ws.EvaluatedProjectsListResponse;
+import eu.sqooss.ws.client.ws.GetFileList4ProjectVersion;
+import eu.sqooss.ws.client.ws.GetFileList4ProjectVersionResponse;
+import eu.sqooss.ws.client.ws.GetFilesNumber4ProjectVersion;
+import eu.sqooss.ws.client.ws.GetFilesNumber4ProjectVersionResponse;
 import eu.sqooss.ws.client.ws.RequestEvaluation4Project;
 import eu.sqooss.ws.client.ws.RequestEvaluation4ProjectResponse;
 import eu.sqooss.ws.client.ws.RetrieveFileList;
@@ -73,6 +77,10 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
     private static final String METHOD_NAME_RETRIEVE_STORED_PROJECT_VERSIONS     = "retrieveStoredProjectVersions";
     
     private static final String METHOD_NAME_RETRIEVE_STORED_PROJECT              = "retrieveStoredProject";
+    
+    private static final String METHOD_NAME_GET_FILES_NUMBER_4_PROJECT_VERSION   = "getFilesNumber4ProjectVersion";
+    
+    private static final String METHOD_NAME_GET_FILE_LIST_4_PROJECT_VERSION      = "getFileList4ProjectVersion";
     
     private Map<String, Object> parameters;
     private String userName;
@@ -143,6 +151,45 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
             }
         }
         return (WSProjectFile[]) parseWSResult(response.get_return());
+    }
+    
+    /**
+     * @see eu.sqooss.scl.accessor.WSProjectAccessor#getFileList4ProjectVersion(long)
+     */
+    @Override
+    public WSProjectFile[] getFileList4ProjectVersion(long projectVersionId) throws WSException {
+        GetFileList4ProjectVersionResponse response;
+        GetFileList4ProjectVersion params = (GetFileList4ProjectVersion) parameters.get(
+                METHOD_NAME_GET_FILE_LIST_4_PROJECT_VERSION);
+        synchronized (params) {
+            params.setProjectVersionId(projectVersionId);
+            try {
+                response = wsStub.getFileList4ProjectVersion(params);
+            } catch (RemoteException re) {
+                throw new WSException(re);
+            }
+        }
+        return (WSProjectFile[]) parseWSResult(response.get_return());
+    }
+    
+    /**
+     * @see eu.sqooss.scl.accessor.WSProjectAccessor#getFilesNumber4ProjectVersion(long)
+     */
+    @Override
+    public long getFilesNumber4ProjectVersion(long projectVersionId) throws WSException {
+        GetFilesNumber4ProjectVersionResponse response;
+        GetFilesNumber4ProjectVersion params = (GetFilesNumber4ProjectVersion) parameters.get(
+                METHOD_NAME_GET_FILES_NUMBER_4_PROJECT_VERSION);
+        synchronized (params) {
+            params.setProjectVersionId(projectVersionId);
+            try {
+                response = wsStub.getFilesNumber4ProjectVersion(params);
+            } catch (RemoteException re) {
+                throw new WSException(re);
+            }
+        }
+        
+        return response.get_return();
     }
     
     /**
@@ -274,6 +321,19 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
         retrieveStoredProjectParam.setUserName(userName);
         parameters.put(METHOD_NAME_RETRIEVE_STORED_PROJECT,
                 retrieveStoredProjectParam);
+        
+        GetFilesNumber4ProjectVersion getFilesNumber4ProjectVersionParam = new GetFilesNumber4ProjectVersion();
+        getFilesNumber4ProjectVersionParam.setPassword(password);
+        getFilesNumber4ProjectVersionParam.setUserName(userName);
+        parameters.put(METHOD_NAME_GET_FILES_NUMBER_4_PROJECT_VERSION,
+                getFilesNumber4ProjectVersionParam);
+        
+        GetFileList4ProjectVersion getFileList4ProjectVersionParam = new GetFileList4ProjectVersion();
+        getFileList4ProjectVersionParam.setPassword(password);
+        getFileList4ProjectVersionParam.setUserName(userName);
+        parameters.put(METHOD_NAME_GET_FILE_LIST_4_PROJECT_VERSION,
+                getFileList4ProjectVersionParam);
+        
         
     }
     

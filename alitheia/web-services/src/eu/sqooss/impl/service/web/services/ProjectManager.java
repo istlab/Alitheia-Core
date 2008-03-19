@@ -208,6 +208,28 @@ public class ProjectManager {
         return convertToWSProjectFiles(queryResult);
     }
     
+    public WSProjectFile[] getFileList4ProjectVersion(String userName, String password, long projectVersionId) {
+        logger.info("Get file list for project version! user: " + userName +
+                "; project version id: " + projectVersionId);
+        
+        //TODO: check the security
+        
+        List<?> queryResult = dbWrapper.getFileList4ProjectVersion(projectVersionId);
+        
+        return convertToWSProjectFiles(queryResult);
+    }
+    
+    public long getFilesNumber4ProjectVersion(String userName, String password, long projectVersionId) {
+        logger.info("Get files's number for project version! user: " + userName +
+                "; project version id: " + projectVersionId);
+        
+        //TODO: check the security
+        
+        List<?> queryResult = dbWrapper.getFilesNumber4ProjectVersion(projectVersionId);
+        
+        return ((Long)queryResult.get(0)).longValue();
+    }
+    
     private WSProjectFile[] convertToWSProjectFiles(List<?> projectFilesWithMetadata) {
         WSProjectFile[] result = null;
         if ((projectFilesWithMetadata != null) && (projectFilesWithMetadata.size() != 0)) {

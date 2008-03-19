@@ -331,6 +331,14 @@ public class WebServices {
     public WSStoredProject retrieveStoredProject(String userName, String password, long projectId) {
         return projectManager.retrieveStoredProject(userName, password, projectId);
     }
+    
+    public WSProjectFile[] getFileList4ProjectVersion(String userName, String password, long projectVersionId) {
+        return projectManager.getFileList4ProjectVersion(userName, password, projectVersionId);
+    }
+    
+    public long getFilesNumber4ProjectVersion(String userName, String password, long projectVersionId) {
+        return projectManager.getFilesNumber4ProjectVersion(userName, password, projectVersionId);
+    }
     //retrieve methods
     
     //validation

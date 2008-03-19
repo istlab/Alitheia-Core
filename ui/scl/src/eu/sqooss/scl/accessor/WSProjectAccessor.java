@@ -77,6 +77,10 @@ public abstract class WSProjectAccessor extends WSAccessor {
      * <ul>
      */
     public abstract WSProjectFile[] retrieveFileList(long projectId) throws WSException;
+
+    public abstract WSProjectFile[] getFileList4ProjectVersion(long projectVersionId) throws WSException;
+    
+    public abstract long getFilesNumber4ProjectVersion(long projectVersionId) throws WSException;
     
     /**
      * This method makes request for OSS project evaluation.
