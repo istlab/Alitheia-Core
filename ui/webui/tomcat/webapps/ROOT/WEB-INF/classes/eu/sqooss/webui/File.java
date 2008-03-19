@@ -40,16 +40,16 @@ class File {
     private static final String COMMENT = "<!-- File -->\n";
     private String name;
     private String status;
-    private Long version;
+    private Long versionId;
 
     public File (WSProjectFile wsFile) {
-        version = wsFile.getProjectVersion();
+        versionId = wsFile.getProjectVersion();
         name = wsFile.getName();
         status = wsFile.getStatus();
     }
 
     public Long getVersion () {
-        return version;
+        return versionId;
     }
 
     public String getName () {
@@ -63,7 +63,8 @@ class File {
     public String getHtml() {
         StringBuilder html = new StringBuilder(COMMENT);
         html.append("<b>File:</b> " + getName());
-        html.append(" <i>(ver." + getVersion() + ")</i>"); // Version
+        // The next line shows the version ID, not the version number
+        //html.append(" <i>(ver." + getVersion() + ")</i>"); // Version
         html.append(" <i>(" + getStatus() + ")</i>"); // Status
         html.append("<br />");
         return html.toString();

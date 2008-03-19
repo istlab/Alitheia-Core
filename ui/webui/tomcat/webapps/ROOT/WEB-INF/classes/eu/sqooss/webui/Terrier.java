@@ -95,8 +95,6 @@ public class Terrier {
 
             // Retrieve all project versions
             prj.setVersions(getProjectVersions(projectId));
-
-            prj.setFileCount(getFiles4Project(projectId).size());
         } catch (WSException wse) {
             error = "Could not receive a list of projects.";
             return null;
@@ -134,8 +132,9 @@ public class Terrier {
         if (!isConnected()) return projects;
         debug += "ok";
         try {
+            // TODO: Retrieve only evaluated project later on
             WSStoredProject projectsResult[] =
-                projectAccessor.storedProjectsList(); // TODO: Use evaluated instead
+                projectAccessor.storedProjectsList();
             debug += ":gotresults";
             debug += ":projects=" + projectsResult.length;
             for (WSStoredProject wssp : projectsResult) {
@@ -151,8 +150,8 @@ public class Terrier {
     }
 
     /**
-     * Retrieves all metrics that has been evaluated for the selected projects
-     * and generates a proper view for displaying them.
+     * Retrieves all metrics that has been evaluated for the selected
+     * projects, and generates a proper view for displaying them.
      * 
      * @param projectId The ID of selected project
      * @return The corresponding view object
@@ -173,21 +172,44 @@ public class Terrier {
         return view;
     }
 
-    public FileListView getFiles4Project(Long projectId) {
+    /**
+     * Retrieves all files that exist in the specified project version,
+     * and generates a proper view for displaying them.
+     * 
+     * @param versionId The ID of selected project version
+     * @return The corresponding view object
+     */
+    public FileListView getFiles4ProjectVersion(Long versionId) {
         if (!isConnected()) return null;
-        FileListView view = new FileListView(projectId);
+        FileListView view = new FileListView(versionId);
         try {
             WSProjectFile[] files =
-                projectAccessor.retrieveFileList(projectId);
-            debug += ":files="+files.length;
+                projectAccessor.getFileList4ProjectVersion(versionId);
             for (WSProjectFile file : files) {
                 view.addFile(new eu.sqooss.webui.File(file));
             }
         } catch (WSException e) {
-            error = "Can not retrieve the list of files for this project.";
+            error = "Can not retrieve the list of files for this version.";
             return null;
         }
         return view;
+    }
+
+    /**
+     * Retrieves the number of all files that exist in the specified project
+     * version.
+     * 
+     * @param versionId The ID of selected project version
+     * @return The number of files.
+     */
+    public Long getFilesNumber4ProjectVersion(Long versionId) {
+        if (!isConnected()) return null;
+        try {
+            return projectAccessor.getFilesNumber4ProjectVersion(versionId);
+        } catch (WSException e) {
+            error = "Can not retrieve the number of files for this version.";
+        }
+        return null;
     }
 
     public Metric getMetric(Long metricId) {

@@ -18,6 +18,21 @@ if (projects == null) {
     } else {
         out.println("<strong>" + selectedProject.getName() + "</strong>");
         out.println(selectedProject.getInfo());
+        
+        // Display the number of files in the selected project version
+        // TODO: Add user interface for selecting project version. Currently
+        //       defaults to the last known version
+        // TODO: The files number should be cached in the Project object,
+        //       instead of calling the Terrier each time.
+        if (selectedProject.getLastVersion() != null) {
+            Long versionNum = selectedProject.getLastVersion();
+            Long versionId = selectedProject.getVersionId(versionNum);
+            out.println ("<br />Files: "
+                + terrier.getFilesNumber4ProjectVersion(versionId)
+                + " (in version " + versionNum + ")");
+        }
+
+        // Display the first and last known project versions
         if (selectedProject.getFirstVersion() != null) {
             if (selectedProject.getFirstVersion()
                 != selectedProject.getLastVersion()) {

@@ -126,11 +126,6 @@ public class Project {
                 + (getBts() != null 
                         ? "<a href=\"" + getBts() + "\">" + getBts() + "</a>"
                         : "<i>undefined</i>"));
-        html.append("\n\t\t</td>\n\t</tr>\n\t<tr>\n\t\t<td>");
-        html.append("Files: \n\t\t</td><td>\n"
-                + (getBts() != null 
-                        ? "<a href=\"/playground/files.jsp?project=" + getId() + "\">" + getFileCount() + "</a>"
-                        : "<i>undefined</i>"));
         html.append("\n\t\t</td>\n\t</tr>\n</table>");
         return html.toString();
     }
