@@ -1,4 +1,4 @@
-<jsp:useBean id="MetricsListView"
+<jsp:useBean id="metricsView"
     class="eu.sqooss.webui.MetricsTableView"
     scope="page"/>
 
@@ -7,18 +7,18 @@
 <% // List metrics per selected project or as total
 
 if (ProjectsListView.getProjectId() != null) {
-    MetricsTableView metrics =
+    metricsView =
         terrier.getMetrics4Project(ProjectsListView.getProjectId());
-    if (metrics != null ) {
-        metrics.getHtmlList();
+    if (metricsView != null ) {
+        out.println(metricsView.getHtmlList());
     }
     else {
-      out.println(error(terrier.getError()));
+      out.println(Functions.error(terrier.getError()));
     }
 }
 else {
-    MetricsListView.showDescription = false;
-    out.println(MetricsListView.getHtmlList());
+    metricsView.setShowDescription(false);
+    out.println(metricsView.getHtmlList());
 }
 
 %>

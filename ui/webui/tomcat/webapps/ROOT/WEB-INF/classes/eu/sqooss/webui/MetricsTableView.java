@@ -65,7 +65,7 @@ public class MetricsTableView {
     boolean showName = true;
 
     // Show the description of the metric in the table HTML output?
-    public boolean showDescription = true;
+    boolean showDescription = true;
 
     /* Show the header of the table? */
     boolean showHeader = true;
@@ -80,7 +80,7 @@ public class MetricsTableView {
     String cellClass = new String();
 
     /* Identifier in the HTML output */
-    String tableId = new String(); // identifier in the HTML output
+    String tableId = new String();
 
     public MetricsTableView () {
         retrieveData();
@@ -198,24 +198,36 @@ public class MetricsTableView {
         return html.toString();
     }
 
-    /* @return HTML code representing a simple, unordered list of metrics.
-    *
-    */
-    public String getHtmlList () {
+    /**
+     * Generates a simple, unordered list of all metric descriptors in a HTML
+     * format.
+     * 
+     * @return The list of metric descriptors in a HTML format.
+     */
+    public String getHtmlList() {
         StringBuilder html = new StringBuilder("<!-- MetricsList -->\n<ul>");
-        for (Integer key: metricNames.keySet()) {
-            html.append("\n\t<li>");
-            html.append(metricNames.get(key));
-            if (showDescription) {
-                html.append(" <i>" + metricDescriptions.get(key) + "</i>");
+
+        if (! metricNames.isEmpty()) {
+            for (Integer key: metricNames.keySet()) {
+                html.append("\n\t<li>");
+                html.append(metricNames.get(key));
+                if (showDescription) {
+                    html.append(" <i>" + metricDescriptions.get(key) + "</i>");
+                }
+                html.append("</li>");
             }
-            html.append("</li>");
+            html.append("\n</ul>");
         }
-        html.append("\n</ul>");
+        else {
+            html.append (Functions.NOT_YET_EVALUATED);
+        }
+
         return html.toString();
     }
 
-    /*
+    // ===[ GETTERS AND SETTERS ]=============================================
+
+    /**
      * @return The CSS class that is used for the whole table.
      */
     public String getTableClass () {
