@@ -11,8 +11,8 @@ if (ProjectsListView.getCurrentProject () != null) {
     //       defaults to the last known version
     // TODO: The files list should be cached in the Project object,
     //       instead of calling the Terrier each time.
-    if (selectedProject.getLastVersion() != null) {
-        Long versionNum = selectedProject.getLastVersion();
+    if (selectedProject.getSelectedVersion() != null) {
+        Long versionNum = selectedProject.getSelectedVersion();
         Long versionId = selectedProject.getVersionId(versionNum);
         out.println (
             terrier.getFiles4ProjectVersion(versionId).getHtml());

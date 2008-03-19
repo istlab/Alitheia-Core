@@ -51,6 +51,9 @@ public class Project {
     private String  website;
     private Integer fileCount;
     
+    // Contains the version number of the last selected version 
+    private Long selectedVersion;
+    
     // Contains a sorted list of all project versions mapped to their ID.
     private SortedMap<Long, Long> versions;
     
@@ -198,5 +201,25 @@ public class Project {
      */
     public void setVersions(SortedMap<Long, Long> versions) {
         this.versions = versions;
+        
+        // Initialise the selected version
+        setSelectedVersion(getLastVersion());
+    }
+
+    /**
+     * Returns the last selected version of this project.
+     * 
+     * @return the version number, or null if there is no selected version.
+     */
+    public Long getSelectedVersion() {
+        return selectedVersion;
+    }
+
+    /**
+     * Sets the specified version as selected version for this project
+     * @param versionNumber the version number
+     */
+    public void setSelectedVersion(Long versionNumber) {
+        this.selectedVersion = versionNumber;
     }
 }
