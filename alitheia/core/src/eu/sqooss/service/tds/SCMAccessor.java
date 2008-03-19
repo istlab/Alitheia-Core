@@ -173,7 +173,12 @@ public interface SCMAccessor extends NamedAccessor {
         throws InvalidProjectRevisionException,
                InvalidRepositoryException,
                FileNotFoundException;
-
+    
+    /**
+     * Get the type of the node (File, Dir or Unknown)
+     */
+    SCMNodeType getNodeType(String repoPath, ProjectRevision r) 
+    	throws InvalidRepositoryException;
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

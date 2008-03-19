@@ -62,6 +62,7 @@ import eu.sqooss.service.tds.Diff;
 import eu.sqooss.service.tds.ProjectRevision;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
 import eu.sqooss.service.tds.InvalidRepositoryException;
+import eu.sqooss.service.tds.SCMNodeType;
 
 public class SCMAccessorImpl extends NamedAccessorImpl implements SCMAccessor {
     private String url;
@@ -480,6 +481,24 @@ public class SCMAccessorImpl extends NamedAccessorImpl implements SCMAccessor {
             InvalidRepositoryException,
             FileNotFoundException {
         return getDiff(repoPath, r.prev(), r);
+    }
+
+    public SCMNodeType getNodeType(String repoPath, ProjectRevision r)
+            throws InvalidRepositoryException {
+        try {
+            SVNNodeKind k = svnRepository.checkPath(repoPath, r.getSVNRevision());
+            if (k == SVNNodeKind.DIR)
+                return SCMNodeType.DIR;
+            
+            if (k == SVNNodeKind.FILE)
+                return SCMNodeType.FILE;
+            
+            return SCMNodeType.UNKNOWN;
+            
+        } catch (SVNException e) {
+            logger.warn(e.getMessage());
+            throw new InvalidRepositoryException(getName(),url,e.getMessage());
+        }
     }
 }
 
