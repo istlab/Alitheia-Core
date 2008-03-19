@@ -10,6 +10,14 @@
     </id>
     <property name="value" column="VALUE" />
     <many-to-one name="privilege" column="PRIVILEGE_ID" not-null="true"/>
+    <set name="serviceUrls" table="PRIVILEGE_SERVICE_URLS" inverse="true">
+      <key column="PRIVILEGE_VALUE_ID"/>
+      <one-to-many class="eu.sqooss.service.db.ServiceUrl"/>
+    </set>
+    <set name="groups" table="SERVICE_GROUPS" inverse="true">
+      <key column="SERVICE_URL_ID"/>
+      <one-to-many class="eu.sqooss.service.db.Group"/>
+    </set>
   </class>
 </hibernate-mapping>
 
