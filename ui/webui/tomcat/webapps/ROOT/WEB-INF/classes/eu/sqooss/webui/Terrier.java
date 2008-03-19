@@ -34,29 +34,25 @@
 package eu.sqooss.webui;
 
 import java.util.Vector;
-import java.util.Iterator;
-import java.util.ArrayList;
 
 import eu.sqooss.scl.WSException;
 import eu.sqooss.scl.WSSession;
-import eu.sqooss.scl.WSConnection;
+import eu.sqooss.scl.accessor.WSAccessor;
+import eu.sqooss.scl.accessor.WSMetricAccessor;
+import eu.sqooss.scl.accessor.WSProjectAccessor;
 import eu.sqooss.scl.result.WSResult;
-import eu.sqooss.scl.result.WSResultEntry;
+import eu.sqooss.ws.client.datatypes.WSMetric;
 import eu.sqooss.ws.client.datatypes.WSProjectFile;
 import eu.sqooss.ws.client.datatypes.WSProjectVersion;
 import eu.sqooss.ws.client.datatypes.WSStoredProject;
-import eu.sqooss.ws.client.datatypes.WSMetric;
-
-import eu.sqooss.webui.User;
-import eu.sqooss.webui.File;
-import eu.sqooss.webui.Metric;
-import eu.sqooss.webui.Project;
 
 
 public class Terrier {
 
     WSSession session;
-    WSConnection connection;
+//    WSConnection connection;
+    WSProjectAccessor projectAccessor;
+    WSMetricAccessor metricAccessor;
     WSResult result;
 
     String error = "No problems.";
@@ -67,10 +63,10 @@ public class Terrier {
     }
     
     public boolean isConnected () {
-        if (connection == null) {
+        if (session == null) {
             connect();
         }
-        if (connection == null) {
+        if (session == null) {
             debug = "noconnection ";
             error = "Connection to Alitheia failed.";
             return false;
@@ -86,7 +82,7 @@ public class Terrier {
         try {
             // Retrieve information about this project
             prj = new Project(
-                    connection.retrieveStoredProject(projectId));
+                    projectAccessor.retrieveStoredProject(projectId));
 
             // Retrieve the first and last project versions
             Vector<Long> prjVersions = getProjectVersions(projectId);
@@ -107,8 +103,9 @@ public class Terrier {
         Vector<Long> projectVersions = new Vector<Long>();
         if (!isConnected()) return projectVersions;
         try {
-            for (WSProjectVersion nextVersion
-                    : connection.retrieveStoredProjectVersions(projectId)){
+            WSProjectVersion[] actualProjectVersions =
+                projectAccessor.retrieveStoredProjectVersions(projectId);
+            for (WSProjectVersion nextVersion : actualProjectVersions){
                 projectVersions.add(nextVersion.getId());
             };
         } catch (WSException e) {
@@ -128,7 +125,7 @@ public class Terrier {
         debug += "ok";
         try {
             WSStoredProject projectsResult[] =
-                connection.storedProjectsList(); // TODO: Use evaluated instead
+                projectAccessor.storedProjectsList(); // TODO: Use evaluated instead
             debug += ":gotresults";
             debug += ":projects=" + projectsResult.length;
             for (WSStoredProject wssp : projectsResult) {
@@ -148,7 +145,7 @@ public class Terrier {
         MetricsTableView view = new MetricsTableView(projectId);
         try {
             WSMetric[] metrics =
-                connection.retrieveMetrics4SelectedProject(projectId);
+                metricAccessor.retrieveMetrics4SelectedProject(projectId);
             for (WSMetric met : metrics) {
                 view.addMetric(new Metric(met));
             }
@@ -164,7 +161,7 @@ public class Terrier {
         FileListView view = new FileListView(projectId);
         try {
             WSProjectFile[] files =
-                connection.retrieveFileList(projectId);
+                projectAccessor.retrieveFileList(projectId);
             debug += ":files="+files.length;
             for (WSProjectFile file : files) {
                 view.addFile(new eu.sqooss.webui.File(file));
@@ -209,16 +206,17 @@ public class Terrier {
             debug += "nosession";
             wse.printStackTrace();
             session = null;
-            connection = null;
             return;
         }
-        try {
-            connection = session.getConnection();
-        } catch (WSException wse) {
-            debug += "noconnection";
-            error = "Couldn't connect to Alitheia's webservice.";
-            wse.printStackTrace();
-            connection = null;
-        }
+        projectAccessor = (WSProjectAccessor) session.getAccessor(WSAccessor.Type.PROJECT);
+        metricAccessor = (WSMetricAccessor) session.getAccessor(WSAccessor.Type.METRIC);
+//        try {
+//            connection = session.getConnection();
+//        } catch (WSException wse) {
+//            debug += "noconnection";
+//            error = "Couldn't connect to Alitheia's webservice.";
+//            wse.printStackTrace();
+//            connection = null;
+//        }
     }
 }
