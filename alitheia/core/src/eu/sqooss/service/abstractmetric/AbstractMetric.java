@@ -37,10 +37,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import org.hibernate.Session;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
-
-import org.hibernate.Session;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.lib.result.Result;
@@ -52,7 +51,6 @@ import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.db.ProjectFile;
-import eu.sqooss.service.db.ProjectFileMeasurement;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.LogManager;
@@ -81,6 +79,12 @@ implements eu.sqooss.service.abstractmetric.Metric {
     /** Reference to the DB service, not to be passed to metric jobs */
     protected DBService db;
 
+    /** Cache the metrics list on first access*/
+    protected List<Metric> metrics = null;
+    
+    /** Cache the result of the mark evaluation function*/
+    protected HashMap<Long, Boolean> evaluationMarked = new HashMap<Long, Boolean>();
+   
     /**
      * Init basic services common to all implementing classes
      * @param bc - The bundle context of the implementing metric - to be passed
@@ -255,8 +259,9 @@ implements eu.sqooss.service.abstractmetric.Metric {
      * @return the list of metric descriptors, or null if none
      */
     public List<Metric> getSupportedMetrics() {
-        List<Metric> metrics =
-            Plugin.getSupportedMetrics(db, Plugin.getPlugin(db, getName()));
+    	if(metrics == null)
+    		metrics = Plugin.getSupportedMetrics(db, Plugin.getPlugin(db, getName()));
+    	
         if (metrics.isEmpty()) {
             return null;
         }
@@ -273,33 +278,36 @@ implements eu.sqooss.service.abstractmetric.Metric {
      * @param sp Evaluated project
      */
     public void markEvaluation (Metric me, StoredProject sp) {
-        // Get a DB session
-        Session s = db.getSession(this);
+    	if(evaluationMarked.containsKey(sp.getId()) && 
+    			!evaluationMarked.get(sp.getId())) {
+    		// Get a DB session
+			Session s = db.getSession(this);
 
-        // Search for a previous evaluation of this metric on this project
-        HashMap<String, Object> filter = new HashMap<String, Object>();
-        filter.put("metric", me);
-        filter.put("storedProject", sp);
-        List<EvaluationMark> wasEvaluated =
-            db.findObjectByProperties(s, EvaluationMark.class, filter);
+			// Search for a previous evaluation of this metric on this project
+			HashMap<String, Object> filter = new HashMap<String, Object>();
+			filter.put("metric", me);
+			filter.put("storedProject", sp);
+			List<EvaluationMark> wasEvaluated = db.findObjectByProperties(s,
+					EvaluationMark.class, filter);
 
-        // If this is a first time evaluation, then remember this in the DB
-        if (wasEvaluated.isEmpty()) {
-            EvaluationMark evaluationMark = new EvaluationMark();
-            evaluationMark.setMetric(me);
-            evaluationMark.setStoredProject(sp);
-            db.addRecord(evaluationMark);
-        }
-
-        // Free the DB session
-        db.returnSession(s);
+			// If this is a first time evaluation, then remember this in the DB
+			if (wasEvaluated.isEmpty()) {
+				EvaluationMark evaluationMark = new EvaluationMark();
+				evaluationMark.setMetric(me);
+				evaluationMark.setStoredProject(sp);
+				db.addRecord(evaluationMark);
+			}
+			evaluationMarked.put(sp.getId(), true);
+			// Free the DB session
+			db.returnSession(s);
+    	}
     }
 
     /**
-     * Register the metric to the DB. Subclasses can run
-     * their custom initialization routines (i.e. registering DAOs or tables)
-     * after calling super()
-     */
+	 * Register the metric to the DB. Subclasses can run their custom
+	 * initialization routines (i.e. registering DAOs or tables) after calling
+	 * super()
+	 */
     public boolean install() {
 
         Session s = db.getSession(this);
