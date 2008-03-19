@@ -33,6 +33,8 @@
 
 package eu.sqooss.webui;
 
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.Vector;
 
 import eu.sqooss.scl.WSException;
@@ -74,6 +76,13 @@ public class Terrier {
         return true;
     }
 
+    /**
+     * Retrieves descriptive information about the selected project from
+     * the SQO-OSS framework, and constructs a Project object from it.
+     * 
+     * @param projectId The ID of the selected project.
+     * @return A Project object.
+     */
     public Project getProject(Long projectId) {
         if (!isConnected()) return null;
         debug += "ok";
@@ -84,13 +93,9 @@ public class Terrier {
             prj = new Project(
                     projectAccessor.retrieveStoredProject(projectId));
 
-            // Retrieve the first and last project versions
-            Vector<Long> prjVersions = getProjectVersions(projectId);
-            if (prjVersions.size() > 1) {
-                prj.setVersionLow(prjVersions.firstElement());
-                prj.setVersionHigh(prjVersions.lastElement());
-            }
-            
+            // Retrieve all project versions
+            prj.setVersions(getProjectVersions(projectId));
+
             prj.setFileCount(getFiles4Project(projectId).size());
         } catch (WSException wse) {
             error = "Could not receive a list of projects.";
@@ -99,24 +104,29 @@ public class Terrier {
         return prj;
     }
 
-    public Vector<Long> getProjectVersions(Long projectId) {
-        Vector<Long> projectVersions = new Vector<Long>();
+    /**
+     * Gets the list of all known project versions. The first field in each
+     * version token contains the version number. The second field contains
+     * the corresponding version ID.
+     * 
+     * @param projectId The ID of the selected project.
+     * @return the list of project versions
+     */
+    public SortedMap<Long,Long> getProjectVersions(Long projectId) {
+        SortedMap<Long, Long> projectVersions = new TreeMap<Long, Long>();
         if (!isConnected()) return projectVersions;
         try {
             WSProjectVersion[] actualProjectVersions =
                 projectAccessor.retrieveStoredProjectVersions(projectId);
             for (WSProjectVersion nextVersion : actualProjectVersions){
-                projectVersions.add(nextVersion.getId());
+                projectVersions.put(
+                        nextVersion.getVersion(),
+                        nextVersion.getId());
             };
         } catch (WSException e) {
             error = "Could not receive a list of project versions.";
         }
         return projectVersions;
-    }
-
-    public boolean projectHasVersion(Long projectId) {
-        if (getProjectVersions(projectId).size() > 0) return true;
-        return false;
     }
 
     public Vector<Project> getEvaluatedProjects() {
@@ -140,6 +150,13 @@ public class Terrier {
         return projects;
     }
 
+    /**
+     * Retrieves all metrics that has been evaluated for the selected projects
+     * and generates a proper view for displaying them.
+     * 
+     * @param projectId The ID of selected project
+     * @return The corresponding view object
+     */
     public MetricsTableView getMetrics4Project(Long projectId) {
         if (!isConnected()) return null;
         MetricsTableView view = new MetricsTableView(projectId);

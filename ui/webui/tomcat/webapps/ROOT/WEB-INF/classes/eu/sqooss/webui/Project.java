@@ -33,7 +33,10 @@
 
 package eu.sqooss.webui;
 
-import java.util.ArrayList;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.SortedSet;
+
 import eu.sqooss.ws.client.datatypes.WSStoredProject;
 
 
@@ -46,9 +49,10 @@ public class Project {
     private String  mail;
     private String  contact;
     private String  website;
-    private Long    versionLow;
-    private Long    versionHigh;
-    private Integer  fileCount;
+    private Integer fileCount;
+    
+    // Contains a sorted list of all project versions mapped to their ID.
+    private SortedMap<Long, Long> versions;
     
     public Project () {
         
@@ -92,22 +96,6 @@ public class Project {
         return repository;
     }
 
-    public Long getVersionLow () {
-        return versionLow;
-    }
-
-    public void setVersionLow (Long version) {
-        this.versionLow = version;
-    }
-
-    public Long getVersionHigh () {
-        return versionHigh;
-    }
-
-    public void setVersionHigh (Long version) {
-        this.versionHigh = version;
-    }
-    
     public Integer getFileCount() {
         return fileCount;
     }
@@ -152,5 +140,68 @@ public class Project {
         html.append("<h2>" + getName() + " (" + getId() + ")</h2>");
         html.append(getInfo());
         return html.toString();
+    }
+
+    /**
+     * Gets the first known version of this project.
+     * 
+     * @return the version number, or null if the project has no version.
+     */
+    public Long getFirstVersion() {
+        if ((versions != null) && (versions.size() > 0)) {
+            return versions.firstKey();
+        }
+        return null;
+    }
+
+    /**
+     * Gets the last known version of this project.
+     * 
+     * @return the version number, or null if the project has no version.
+     */
+    public Long getLastVersion() {
+        if ((versions != null) && (versions.size() > 0)) {
+            return versions.lastKey();
+        }
+        return null;
+    }
+
+    /**
+     * Gets a list of all known project version numbers.
+     * 
+     * @return the list of version numbers, or null if the project has no
+     * version.
+     */
+    public Set<Long> getVersions() {
+        if (versions != null) {
+            return versions.keySet();
+        }
+        return null;
+    }
+
+    /**
+     * Gets the version Id belonging to the specified project version number.
+     * 
+     * @param versionNumber the version number
+     * 
+     * @return the version Id, or null when the specified version number is
+     * unknown for this project
+     */
+    public Long getVersionId(Long versionNumber) {
+        if (versions != null) {
+            return versions.get(versionNumber);
+        }
+        return null;
+    }
+
+    /**
+     * Sets the list of all known project versions. The first field in each
+     * version token must be the version number. The second field must be the
+     * corresponding version ID.
+     * 
+     * @param versions the list of project versions
+     */
+    public void setVersions(SortedMap<Long, Long> versions) {
+        this.versions = versions;
     }
 }

@@ -2,7 +2,10 @@
 
 <%
 
+// Retrieve the list of evaluated project from the connected SQO-OSS system
 ProjectsListView.retrieveData(terrier);
+
+// Generate the view dispaying all evaluated projects
 String projects = ProjectsListView.getHtml();
 
 if (projects == null) {
@@ -15,18 +18,17 @@ if (projects == null) {
     } else {
         out.println("<strong>" + selectedProject.getName() + "</strong>");
         out.println(selectedProject.getInfo());
-        if (selectedProject.getVersionLow() != null) {
-            if ((selectedProject.getVersionHigh() != null)
-                && (selectedProject.getVersionLow()
-                    != selectedProject.getVersionHigh())) {
+        if (selectedProject.getFirstVersion() != null) {
+            if (selectedProject.getFirstVersion()
+                != selectedProject.getLastVersion()) {
                 out.println ("<br />Versions: "
-                    + selectedProject.getVersionLow()
+                    + selectedProject.getFirstVersion()
                     + " - "
-                    + selectedProject.getVersionHigh());
+                    + selectedProject.getLastVersion());
             }
             else {
                 out.println ("<br />Version: "
-                    + selectedProject.getVersionLow());
+                    + selectedProject.getFirstVersion());
             }
         }
         out.println("<hr>");
