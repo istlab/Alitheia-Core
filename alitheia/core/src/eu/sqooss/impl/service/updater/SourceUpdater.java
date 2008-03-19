@@ -191,7 +191,7 @@ class SourceUpdater extends Job {
                     Metric m = (Metric) core.getService(r);
                     if (m != null) {
                         try {
-                            m.run(dbs.findObjectById(ProjectVersion.class, currentVersion));
+                            m.run(dbs.findObjectById(s, ProjectVersion.class, currentVersion));
                         } catch (MetricMismatchException e) {
                             logger.warn("Metric " + m.getName() + " failed");
                         }
@@ -208,7 +208,7 @@ class SourceUpdater extends Job {
                     Metric m = (Metric) core.getService(r);
                     if (m != null) {
                         try {
-                            m.run(dbs.findObjectById(ProjectFile.class, currentFileId));
+                            m.run(dbs.findObjectById(s, ProjectFile.class, currentFileId));
                         } catch (MetricMismatchException e) {
                             logger.warn("Metric " + m.getName() + " failed");
                         }
