@@ -17,13 +17,16 @@ core.o: Alitheia.h core.cpp corbahandler.h core.h metric.h job.h
 job.o: Alitheia.h job.cpp job.h corbahandler.h
 	mico-c++ -c job.cpp
 
+database.o: Alitheia.h dbobject.h database.cpp database.h corbahandler.h
+	mico-c++ -c database.cpp
+
 corbahandler.o: Alitheia.cpp corbahandler.cpp corbahandler.h
 	mico-c++ -c corbahandler.cpp
 
-../lib/libalitheia.a: Alitheia.o logger.o corbahandler.o core.o metric.o job.o dbobject.o
+../lib/libalitheia.a: Alitheia.o logger.o corbahandler.o core.o metric.o job.o dbobject.o database.o
 	test -d ../lib || mkdir ../lib
 	test ! -f ../lib/libalitheia.a || rm ../lib/libalitheia.a
-	ar cqs ../lib/libalitheia.a Alitheia.o logger.o corbahandler.o core.o metric.o job.o dbobject.o
+	ar cqs ../lib/libalitheia.a Alitheia.o logger.o corbahandler.o core.o metric.o job.o dbobject.o database.o
 
 clean:
 	test ! -f Alitheia.o || rm Alitheia.o

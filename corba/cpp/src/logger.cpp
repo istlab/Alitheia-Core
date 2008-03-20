@@ -51,9 +51,15 @@ namespace Alitheia
     };
 }
 
-using namespace std;
 using namespace Alitheia;
-   
+
+using std::exception;
+using std::cerr;
+using std::endl;
+using std::string;
+using std::streambuf;
+using std::ostream;
+
 Logger::Private::LoggerBuffer::LoggerBuffer( Logger* logger )
     : streambuf(),
       logger( logger )

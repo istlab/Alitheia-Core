@@ -21,6 +21,7 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 
 import eu.sqooss.impl.service.corba.alitheia.CoreHelper;
+import eu.sqooss.impl.service.corba.alitheia.DatabaseHelper;
 import eu.sqooss.impl.service.corba.alitheia.LoggerHelper;
 import eu.sqooss.impl.service.corba.alitheia.core.CoreImpl;
 import eu.sqooss.impl.service.corba.alitheia.logger.LoggerImpl;
@@ -107,7 +108,7 @@ public class CorbaActivator implements BundleActivator {
             registerCorbaObject("Core", CoreHelper.narrow(rootpoa.servant_to_reference(new CoreImpl(bc))));
  
             // register the database in CORBA
-            registerCorbaObject("Database", CoreHelper.narrow(rootpoa.servant_to_reference(new DbImpl(bc))));
+            registerCorbaObject("Database", DatabaseHelper.narrow(rootpoa.servant_to_reference(new DbImpl(bc))));
             
             // start the ORB thread in the background
             orbthread = new ORBThread(orb);

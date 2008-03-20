@@ -23,6 +23,6 @@ public class DbImpl extends DatabasePOA {
     }
 
     public boolean addRecord(org.omg.CORBA.Any dbObject) {
-        return false;
+        return db.addRecord(DAObject.fromCorbaObject(dbObject));
     }
 }

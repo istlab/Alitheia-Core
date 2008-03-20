@@ -16,15 +16,29 @@
 
 namespace Alitheia
 {
-    class StoredProject
+    class DAObject
+    {
+    protected:
+        DAObject() : id( 0 ) {}
+        DAObject( int id );
+
+    public:
+        virtual ~DAObject();
+
+        virtual operator CORBA::Any() const = 0;
+
+        const int id;
+    };
+
+    class StoredProject : public DAObject
     {
     public:
-        StoredProject() : id(0){}
+        StoredProject() {}
         explicit StoredProject( const alitheia::StoredProject& project );
 
         alitheia::StoredProject toCorba() const;
+        operator CORBA::Any() const;
        
-        const int id;
         const std::string name;
         const std::string website;
         const std::string contact;
@@ -33,21 +47,21 @@ namespace Alitheia
         const std::string mail;
     };
 
-    class ProjectVersion
+    class ProjectVersion : public DAObject
     {
     public:
-        ProjectVersion() : id(0), version(0), timeStamp(0){}
+        ProjectVersion() : version(0), timeStamp(0){}
         explicit ProjectVersion( const alitheia::ProjectVersion& version );
         
         alitheia::ProjectVersion toCorba() const;
+        operator CORBA::Any() const;
 
-        const int id;
         const StoredProject project;
         const int version;
         const int timeStamp;
     };
 
-    class ProjectFile : public std::istream
+    class ProjectFile : public std::istream, public DAObject
     {
     public:
         ProjectFile();
@@ -56,20 +70,22 @@ namespace Alitheia
         ~ProjectFile();
 
         alitheia::ProjectFile toCorba() const;
+        operator CORBA::Any() const;
 
-        const int id;
         const std::string name;
         const ProjectVersion projectVersion;
         const std::string status;
     };
 
 
-    class FileGroup
+    class FileGroup : public DAObject
     {
     public:
         explicit FileGroup( const alitheia::FileGroup& group );
 
-        const int id;
+        alitheia::FileGroup toCorba() const;
+        operator CORBA::Any() const;
+
         const std::string name;
         const std::string subPath;
         const std::string regex;

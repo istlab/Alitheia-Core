@@ -12,9 +12,50 @@ import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.ProjectFileMeasurement;
 
+import org.omg.CORBA.TypeCodePackage.BadKind;
+
 public abstract class DAObject {
 
     public static eu.sqooss.service.db.DAObject fromCorbaObject(org.omg.CORBA.Any object) {
+        try
+        {
+            String type = object.type().name();
+            if (type.equals("ProjectFile") )
+            {
+                return fromCorbaObject(eu.sqooss.impl.service.corba.alitheia.ProjectFileHelper.extract(object));
+            }
+            else if (type.equals("ProjectVersion") )
+            {
+                return fromCorbaObject(eu.sqooss.impl.service.corba.alitheia.ProjectVersionHelper.extract(object));
+            }
+            if (type.equals("StoredProject") )
+            {
+                return fromCorbaObject(eu.sqooss.impl.service.corba.alitheia.StoredProjectHelper.extract(object));
+            }
+            if (type.equals("FileGroup") )
+            {
+                return fromCorbaObject(eu.sqooss.impl.service.corba.alitheia.FileGroupHelper.extract(object));
+            }
+            if (type.equals("Plugin") )
+            {
+                return fromCorbaObject(eu.sqooss.impl.service.corba.alitheia.PluginHelper.extract(object));
+            }
+            if (type.equals("MetricType") )
+            {
+                return fromCorbaObject(eu.sqooss.impl.service.corba.alitheia.MetricTypeHelper.extract(object));
+            }
+            if (type.equals("Metric") )
+            {
+                return fromCorbaObject(eu.sqooss.impl.service.corba.alitheia.MetricHelper.extract(object));
+            }
+            if (type.equals("ProjectFileMeasurement") )
+            {
+                return fromCorbaObject(eu.sqooss.impl.service.corba.alitheia.ProjectFileMeasurementHelper.extract(object));
+            }
+        }
+        catch( org.omg.CORBA.TypeCodePackage.BadKind e )
+        {
+        }
         return null;
     }
 

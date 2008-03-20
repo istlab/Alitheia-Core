@@ -17,8 +17,17 @@ using std::stringbuf;
 using std::cout;
 using std::endl;
 
+DAObject::DAObject( int id )
+    : id( id )
+{
+}
+
+DAObject::~DAObject()
+{
+}
+
 StoredProject::StoredProject( const alitheia::StoredProject& project )
-    : id( project.id ),
+    : DAObject( project.id ),
       name( project.name ),
       website( project.website ),
       contact( project.contact ),
@@ -40,8 +49,15 @@ alitheia::StoredProject StoredProject::toCorba() const
     return result;
 }
 
+StoredProject::operator CORBA::Any() const
+{
+    CORBA::Any any;
+    any <<= toCorba();
+    return any;
+}
+
 ProjectVersion::ProjectVersion( const alitheia::ProjectVersion& version )
-    : id( version.id ),
+    : DAObject( version.id ),
       project( version.project ),
       version( version.version ),
       timeStamp( version.timeStamp )
@@ -57,6 +73,14 @@ alitheia::ProjectVersion ProjectVersion::toCorba() const
     result.timeStamp = timeStamp;
     return result;
 }
+
+ProjectVersion::operator CORBA::Any() const
+{
+    CORBA::Any any;
+    any <<= toCorba();
+    return any;
+}
+
 
 class ProjectFileBuffer : public stringbuf
 {
@@ -86,13 +110,13 @@ private:
 
 ProjectFile::ProjectFile()
     : istream( new ProjectFileBuffer( this ) ),
-      id( 0 )
+      DAObject( 0 )
 {
 }
 
 ProjectFile::ProjectFile( const alitheia::ProjectFile& file )
     : istream( new ProjectFileBuffer( this ) ),
-      id( file.id ),
+      DAObject( file.id ),
       name( file.name ),
       projectVersion( file.projectVersion ),
       status( file.status )
@@ -101,7 +125,7 @@ ProjectFile::ProjectFile( const alitheia::ProjectFile& file )
 
 ProjectFile::ProjectFile( const ProjectFile& other )
     : istream( other.rdbuf() ),
-      id( other.id ),
+      DAObject( other.id ),
       name( other.name ),
       projectVersion( other.projectVersion ),
       status( other.status )
@@ -118,13 +142,20 @@ alitheia::ProjectFile ProjectFile::toCorba() const
     return result;
 }
 
+ProjectFile::operator CORBA::Any() const
+{
+    CORBA::Any any;
+    any <<= toCorba();
+    return any;
+}
+
 ProjectFile::~ProjectFile()
 {
     delete rdbuf();
 }
 
 FileGroup::FileGroup( const alitheia::FileGroup& group )
-    : id( group.id ),
+    : DAObject( group.id ),
       name( group.name ),
       subPath( group.subPath ),
       regex( group.regex ),
@@ -132,4 +163,24 @@ FileGroup::FileGroup( const alitheia::FileGroup& group )
       lastUsed( group.lastUsed ),
       projectVersion( group.projectVersion )
 {
+}
+
+alitheia::FileGroup FileGroup::toCorba() const
+{
+    alitheia::FileGroup result;
+    result.id = id;
+    result.name = CORBA::string_dup( name.c_str() );
+    result.subPath = CORBA::string_dup( subPath.c_str() );
+    result.regex = CORBA::string_dup( regex.c_str() );
+    result.recalcFreq = recalcFreq;
+    result.lastUsed = CORBA::string_dup( lastUsed.c_str() );
+    result.projectVersion = projectVersion.toCorba();
+    return result;
+}
+
+FileGroup::operator CORBA::Any() const
+{
+    CORBA::Any any;
+    any <<= toCorba();
+    return any;
 }
