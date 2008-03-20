@@ -10,9 +10,9 @@
     </id>
     <property name="description" column="DESCRIPTION" />
 
-    <set name="users" table="GROUP_USER" inverse="true">
+    <set name="users" table="GROUP_USER">
       <key column="GROUP_ID"/>
-      <one-to-many class="eu.sqooss.service.db.GroupUser"/>
+      <many-to-many class="eu.sqooss.service.db.User" column="USER_ID"/>
     </set>
     <set name="privilegeValues" table="GROUP_PRIVILEGE_VALUES" inverse="true">
       <key column="GROUP_ID"/>
