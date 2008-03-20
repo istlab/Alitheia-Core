@@ -87,7 +87,7 @@ public class GroupManagerDatabase implements GroupManagerDBQueries {
             Group group = db.findObjectById(session, Group.class, groupId);
             User user = db.findObjectById(session, User.class, userId);
             if ((group!=null) && (user != null)) {
-                return (group.getUsers().add(user) &&
+                return ((group.getUsers().add(user)) &&
                         (user.getGroups().add(group)));
             } else {
                 return false;
@@ -104,7 +104,7 @@ public class GroupManagerDatabase implements GroupManagerDBQueries {
             Group group = db.findObjectById(session, Group.class, groupId);
             User user = db.findObjectById(session, User.class, userId);
             if ((group!=null) && (user != null)) {
-                return (group.getUsers().remove(user) &&
+                return ((group.getUsers().remove(user)) &&
                         (user.getGroups().remove(group)));
             } else {
                 return false;

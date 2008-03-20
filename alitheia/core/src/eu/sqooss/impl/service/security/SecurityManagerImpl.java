@@ -132,22 +132,24 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
 
     private boolean checkPermissionPrivileges(String resourceUrl, Dictionary<String, String> privileges, String userName, String password) {
         
-        if (dbWrapper.checkAuthorizationRule(resourceUrl, PRIVILEGES.ALL.toString(),
-                PRIVILEGES.ALL.toString(), userName, password)) {
+        if (dbWrapper.checkAuthorizationRule(resourceUrl, Privilege.ALL.toString(),
+                Privilege.ALL.toString(), userName, password)) {
             return true;
         }
 
-        String currentPrivilegeName;
-        String currentPrivilegeValue;
-        for (Enumeration<String> keys = privileges.keys(); keys.hasMoreElements(); ) {
-            currentPrivilegeName = keys.nextElement();
-            currentPrivilegeValue = privileges.get(currentPrivilegeName);
-            return (dbWrapper.checkAuthorizationRule(resourceUrl, currentPrivilegeName, 
+        if (privileges != null) {
+            String currentPrivilegeName;
+            String currentPrivilegeValue;
+            for (Enumeration<String> keys = privileges.keys(); keys.hasMoreElements(); ) {
+                currentPrivilegeName = keys.nextElement();
+                currentPrivilegeValue = privileges.get(currentPrivilegeName);
+                return (dbWrapper.checkAuthorizationRule(resourceUrl, currentPrivilegeName, 
                             currentPrivilegeValue, userName, password) ||
-                    dbWrapper.checkAuthorizationRule(resourceUrl, PRIVILEGES.ALL.toString(), 
+                        dbWrapper.checkAuthorizationRule(resourceUrl, Privilege.ALL.toString(), 
                             currentPrivilegeValue, userName, password) ||
-                    dbWrapper.checkAuthorizationRule(resourceUrl, currentPrivilegeName,
-                            PRIVILEGES.ALL.toString(), userName, password));
+                        dbWrapper.checkAuthorizationRule(resourceUrl, currentPrivilegeName,
+                            Privilege.ALL.toString(), userName, password));
+            }
         }
         
         return false;

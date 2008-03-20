@@ -99,7 +99,7 @@ public interface SecurityConstants {
      * Represents some of the privileges.
      * The user should use the toString() method.
      */
-    public static enum PRIVILEGES{
+    public static enum Privilege{
         ACTION,
         PROJECT_ID,
         METRIC_ID,

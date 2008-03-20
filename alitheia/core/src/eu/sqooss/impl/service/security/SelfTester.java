@@ -173,7 +173,7 @@ public class SelfTester {
         
         try {
             newPrivilege = privilegeManager.createPrivilege(
-                    SecurityConstants.PRIVILEGES.ALL.toString());
+                    SecurityConstants.Privilege.ALL.toString());
             if (newPrivilege == null) {
                 return "Could not create a test privilege!";
             }
@@ -183,7 +183,7 @@ public class SelfTester {
             }
             
             newPrivilegeValue = privilegeManager.createPrivilegeValue(newPrivilege.getId(),
-                    SecurityConstants.PRIVILEGES.ALL.toString());
+                    SecurityConstants.Privilege.ALL.toString());
             if (newPrivilegeValue == null) {
                 return "Could not create a test privilege value!";
             }
@@ -214,6 +214,9 @@ public class SelfTester {
     
     private void testClear(User user, Group group, ServiceUrl serviceUrl,
             Privilege privilege, PrivilegeValue privilegeValue) {
+        if ((user != null) && (group != null)) {
+            groupManager.deleteUserFromGroup(group.getId(), user.getId());
+        }
         if (user != null) {
             userManager.deleteUser(user.getId());
         }

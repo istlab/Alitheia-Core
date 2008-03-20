@@ -79,6 +79,14 @@ public interface PrivilegeManager {
     public Privilege createPrivilege(String privilegeName);
     
     /**
+     * This method creates a new privilege.
+     * @param privilegeName the privilege's name
+     * @return the new privilege,
+     * null - if the privilege isn't created
+     */
+    public Privilege createPrivilege(SecurityConstants.Privilege privilege);
+    
+    /**
      * This method creates a new privilege value.
      * @param privilegeId the privilege identifier
      * @param privilegeValue the privilege's value
