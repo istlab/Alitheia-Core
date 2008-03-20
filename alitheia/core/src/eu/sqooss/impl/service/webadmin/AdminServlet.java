@@ -351,9 +351,13 @@ public class AdminServlet extends HttpServlet {
 
             for( Bundle b : bundles ){
                 String[] names = getServiceNames(b.getRegisteredServices());
+		String symbolicName = b.getSymbolicName();
+		if (symbolicName == null) {
+			symbolicName = "<none>";
+		}
 
                 resultString.append("\t\t<tr>\n\t\t\t<td>");
-                resultString.append(StringUtils.makeXHTMLSafe(b.getSymbolicName()));
+                resultString.append(StringUtils.makeXHTMLSafe(symbolicName));
                 resultString.append("</td>\n\t\t\t<td>");
                 resultString.append(StringUtils.bitfieldToString(statenames,b.getState()));
                 resultString.append("</td>\n\t\t\t<td>\n\t\t\t\t<ul>\n");
