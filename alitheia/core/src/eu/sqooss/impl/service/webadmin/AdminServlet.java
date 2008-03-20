@@ -56,13 +56,14 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.impl.service.logging.LogManagerConstants;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.scheduler.Scheduler;
+import eu.sqooss.service.tds.InvalidRepositoryException;
+import eu.sqooss.service.tds.TDAccessor;
 import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.updater.UpdaterService;
 import eu.sqooss.service.util.Pair;
@@ -85,7 +86,7 @@ public class AdminServlet extends HttpServlet {
 
     private DBService sobjDB = null;
     private TDSService sobjTDS = null;
-    private Scheduler sobjSched = null;    
+    private Scheduler sobjSched = null;
     private UpdaterService sobjUpdater = null;
 
     private Hashtable<String,Pair<String,String>> staticContentMap;
@@ -530,33 +531,79 @@ public class AdminServlet extends HttpServlet {
         if ( (name == null) ||
             (website == null) ||
             (contact == null) ||
-            (bts == null) ||
-            (mail == null) ||
+          /*  (bts == null) || FIXME: For now, BTS and Mailing lists can be empty
+            (mail == null) || */
             (scm == null) ) {
             dynamicSubstitutions.put("@@RESULTS","<p>Add project failed because some of the required information was missing.</p>");
             return;
         }
 
         if (sobjDB != null) {
-            StoredProject project = new StoredProject();
-            project.setName(name);
-            project.setWebsite(website);
-            project.setContact(contact);
-            project.setBugs(bts);
-            project.setRepository(scm);
-            project.setMail(mail);
-            sobjDB.addRecord(project);
+            StoredProject p = new StoredProject();
+            p.setName(name);
+            p.setWebsite(website);
+            p.setContact(contact);
+            p.setBugs(bts);
+            p.setRepository(scm);
+            p.setMail(mail);
 
-            // Check if the update works
-            if (sobjUpdater.update(project, UpdaterService.UpdateTarget.ALL, null)) {
+            sobjDB.addRecord(p);
+
+            /* Run a few checks before actually storing the project */
+            
+            //1. Duplicate project
+            HashMap<String, Object> pname = new HashMap<String, Object>();
+            pname.put("name", (Object)p.getName());
+            if(sobjDB.findObjectByProperties(StoredProject.class, pname).size() > 1) {
+                //Duplicate project, remove
+                sobjDB.deleteRecord(sobjDB.findObjectById(StoredProject.class, p.getId()));
+                sobjLogger.warn("A project with the same name already exists");
+                dynamicSubstitutions.put("@@RESULTS","<p> ERROR: A project" +
+                        " with the same name already exists</p> " +
+                        "Project not added");
+                return;
+            }
+            
+            //2. Add accessor and try to access project resources
+            sobjTDS.addAccessor(p.getId(), p.getName(), p.getBugs(), 
+                    p.getMail(), p.getRepository());
+            TDAccessor a = sobjTDS.getAccessor(p.getId());
+            
+            try {
+                a.getSCMAccessor().getHeadRevision();
+                //FIXME: fix this when we have a proper bug accessor
+                if(bts != null) {
+                    //Bug b = a.getBTSAccessor().getBug(1);
+                }
+                if(mail != null) {
+                    //FIXME: fix this when the TDS supports returning 
+                    // list information
+                    //a.getMailAccessor().getNewMessages(0);
+                }
+            } catch (InvalidRepositoryException e) {
+                sobjLogger.warn("Error accessing repository. Project not added");
+                dynamicSubstitutions.put("@@RESULTS","<p> ERROR: accessing " +
+                		"repository:" + p.getRepository() + "</p>" +
+                		" Project not added");
+              //Invalid repository, remove and remove accessor
+                sobjDB.deleteRecord(sobjDB.findObjectById(StoredProject.class, p.getId()));
+                sobjTDS.releaseAccessor(a);
+                return;
+            }
+            
+            sobjTDS.releaseAccessor(a);
+            
+            // 3. Call the updater and check if it starts
+            if (sobjUpdater.update(p, UpdaterService.UpdateTarget.ALL, null)) {
                 sobjLogger.info("Added a new project <" + name + "> with ID " +
-                        project.getId());
+                        p.getId());
                 dynamicSubstitutions.put("@@RESULTS","<p>New project added successfully.</p>");
             }
             else {
-                sobjLogger.warn("Adding new project failed.");
-                dynamicSubstitutions.put("@@RESULTS","<p>Failed to add new project. " +
-                                         "Please check paths to data.");
+                sobjLogger.warn("The updater failed to start while adding project");
+                sobjDB.deleteRecord(sobjDB.findObjectById(StoredProject.class, p.getId()));
+                dynamicSubstitutions.put("@@RESULTS","<p> ERROR: The updater failed " +
+                        "to start while adding project</p> Project not added");
             }
         }
     }
