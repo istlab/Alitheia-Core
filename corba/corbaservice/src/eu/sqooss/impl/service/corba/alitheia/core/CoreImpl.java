@@ -10,10 +10,9 @@ import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.fds.FDSService;
 
 import eu.sqooss.service.db.ProjectFile;
-import eu.sqooss.service.db.ProjectVersion;
-import eu.sqooss.service.db.StoredProject;
 
 import eu.sqooss.impl.service.CorbaActivator;
+import eu.sqooss.impl.service.corba.alitheia.db.DAObject;
 import eu.sqooss.impl.service.corba.alitheia.CorePOA;
 import eu.sqooss.impl.service.corba.alitheia.Job;
 import eu.sqooss.impl.service.corba.alitheia.JobHelper;
@@ -127,40 +126,11 @@ public class CoreImpl extends CorePOA {
 		}
 	}
   
-    protected static StoredProject fromCorbaObject(eu.sqooss.impl.service.corba.alitheia.StoredProject project) {
-        StoredProject storedProject = new StoredProject();
-        storedProject.setId(project.id);
-        storedProject.setName(project.name);
-        storedProject.setWebsite(project.website);
-        storedProject.setContact(project.contact);
-        storedProject.setBugs(project.bugs);
-        storedProject.setRepository(project.repository);
-        storedProject.setMail(project.mail);
-        return storedProject;
-    }
-
-    protected static ProjectVersion fromCorbaObject(eu.sqooss.impl.service.corba.alitheia.ProjectVersion version) {
-        ProjectVersion projectVersion = new ProjectVersion();
-        projectVersion.setId(version.id);
-        projectVersion.setProject(fromCorbaObject(version.project));
-        projectVersion.setVersion(version.version);
-        projectVersion.setTimestamp(version.timeStamp);
-        return projectVersion;
-    }
-
-    protected static ProjectFile fromCorbaObject(eu.sqooss.impl.service.corba.alitheia.ProjectFile file) {
-        ProjectFile projectFile = new ProjectFile();
-        projectFile.setId(file.id);
-        projectFile.setName(file.name);
-        projectFile.setProjectVersion(fromCorbaObject(file.projectVersion));
-        projectFile.setStatus(file.status);
-        return projectFile;
-    }
 
     public int getFileContents(eu.sqooss.impl.service.corba.alitheia.ProjectFile file, org.omg.CORBA.StringHolder contents) {
         byte[] content = null;
         try {
-            content = fds.getFileContents(fromCorbaObject(file));
+            content = fds.getFileContents(DAObject.fromCorbaObject(file));
         } catch ( Exception e ) {
             System.out.println(e.toString());
             e.printStackTrace();

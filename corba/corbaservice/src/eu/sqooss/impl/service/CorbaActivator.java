@@ -24,6 +24,7 @@ import eu.sqooss.impl.service.corba.alitheia.CoreHelper;
 import eu.sqooss.impl.service.corba.alitheia.LoggerHelper;
 import eu.sqooss.impl.service.corba.alitheia.core.CoreImpl;
 import eu.sqooss.impl.service.corba.alitheia.logger.LoggerImpl;
+import eu.sqooss.impl.service.corba.alitheia.db.DbImpl;
 
 public class CorbaActivator implements BundleActivator {
 
@@ -104,6 +105,9 @@ public class CorbaActivator implements BundleActivator {
             
             // register the core in CORBA
             registerCorbaObject("Core", CoreHelper.narrow(rootpoa.servant_to_reference(new CoreImpl(bc))));
+ 
+            // register the database in CORBA
+            registerCorbaObject("Database", CoreHelper.narrow(rootpoa.servant_to_reference(new DbImpl(bc))));
             
             // start the ORB thread in the background
             orbthread = new ORBThread(orb);

@@ -41,13 +41,50 @@ module alitheia
 
   struct FileGroup
   {
-     long id;
-     string name;
-     string subPath;
-     string regex;
-     long recalcFreq;
-     string lastUsed;
-     ProjectVersion projectVersion;
+    long id;
+    string name;
+    string subPath;
+    string regex;
+    long recalcFreq;
+    string lastUsed;
+    ProjectVersion projectVersion;
+  };
+
+  enum MetricTypeType
+  {
+    SourceCode,
+    MailingList,
+    BugDatabase
+  };
+
+  struct MetricType
+  {
+    long id;
+    MetricTypeType type;
+  };
+
+  struct Plugin
+  {
+    long id;
+    string name;
+    string installdate;
+  };
+
+  struct Metric
+  {
+    long id;
+    Plugin plugin;
+    MetricType metricType;
+    string description;
+  };
+
+  struct ProjectFileMeasurement
+  {
+    long id;
+    Metric metric;
+    ProjectFile projectFile;
+    string whenRun;
+    string result;
   };
 
   interface Core
@@ -67,6 +104,11 @@ module alitheia
     // puts the contents of \a file into \a contents
     // returns the length of the file
     long getFileContents( in ProjectFile file, out string contents );
+  };
+
+  interface Database
+  {
+    boolean addRecord( in any record );
   };
 
   interface Job

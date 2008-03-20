@@ -15,7 +15,7 @@ build : all
 -include ../../Makefile.common
 
 ../cpp/src/Alitheia.cpp: Alitheia.idl
-	cd ../cpp/src; idl --poa --c++-suffix cpp ../../idl/Alitheia.idl; cd ../../idl
+	cd ../cpp/src; idl --any --poa --c++-suffix cpp ../../idl/Alitheia.idl; cd ../../idl
 	
 ../corbaservice/src/eu/sqooss/impl/service/corba/alitheia/CoreHelper.java: Alitheia.idl
 	idlj -td ../corbaservice/src -pkgPrefix alitheia eu.sqooss.impl.service.corba -fall Alitheia.idl
