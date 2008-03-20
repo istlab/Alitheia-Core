@@ -55,6 +55,8 @@ public class TDAccessorImpl extends NamedAccessorImpl implements TDAccessor {
         this.bts = bts;
         this.mail = mail;
         this.scm = scm;
+        
+        //TODO: Why do we need the following assignment?
         if (mail == null) {
             this.mail = "maildir:///var/spool/mail";
         }

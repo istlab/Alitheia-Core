@@ -33,23 +33,18 @@
 package eu.sqooss.impl.service.tds;
 
 import java.util.HashMap;
-import java.util.Set;
 import java.util.Iterator;
+import java.util.Set;
 
 import org.tmatesoft.svn.core.internal.io.dav.DAVRepositoryFactory;
 import org.tmatesoft.svn.core.internal.io.fs.FSRepositoryFactory;
 import org.tmatesoft.svn.core.internal.io.svn.SVNRepositoryFactoryImpl;
 
-import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
-import eu.sqooss.service.tds.CommitLog;
-import eu.sqooss.service.tds.ProjectRevision;
 import eu.sqooss.service.tds.TDAccessor;
-import eu.sqooss.service.tds.TDSException;
 import eu.sqooss.service.tds.TDSService;
 
 public class TDSServiceImpl implements TDSService {
-    private LogManager logService = null;
     private Logger logger = null;
     private HashMap<Long, TDAccessorImpl> accessorPool;
 

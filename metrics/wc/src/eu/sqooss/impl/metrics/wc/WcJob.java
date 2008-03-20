@@ -67,8 +67,9 @@ public class WcJob extends AbstractMetricJob {
     public void run() {
         
         //We do not support directories
-        if(pf.getIsDirectory())
+        if(pf.getIsDirectory()) {
             return;
+        }
         
         // Retrieve the content of the selected project file
         byte[] content = fds.getFileContents(pf);

@@ -60,7 +60,7 @@ public interface TDAccessor extends NamedAccessor {
     public MailAccessor getMailAccessor();
 
     /**
-     * Get the BTS sub-accessor for the project associated with this
+     * Get the SCM sub-accessor for the project associated with this
      * TDAccessor.
      */
     public SCMAccessor getSCMAccessor();

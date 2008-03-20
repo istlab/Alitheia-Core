@@ -41,27 +41,25 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 
 import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.SVNLogEntry;
 import org.tmatesoft.svn.core.SVNNodeKind;
 import org.tmatesoft.svn.core.SVNURL;
-import org.tmatesoft.svn.core.io.SVNRepository;
-import org.tmatesoft.svn.core.io.SVNRepositoryFactory;
 import org.tmatesoft.svn.core.io.ISVNEditor;
 import org.tmatesoft.svn.core.io.ISVNReporterBaton;
+import org.tmatesoft.svn.core.io.SVNRepository;
+import org.tmatesoft.svn.core.io.SVNRepositoryFactory;
 import org.tmatesoft.svn.core.wc.SVNDiffClient;
 import org.tmatesoft.svn.core.wc.SVNRevision;
 
 import eu.sqooss.service.logging.Logger;
-import eu.sqooss.service.tds.SCMAccessor;
 import eu.sqooss.service.tds.CommitEntry;
-import eu.sqooss.service.tds.CommitLog;
 import eu.sqooss.service.tds.Diff;
-import eu.sqooss.service.tds.ProjectRevision;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
 import eu.sqooss.service.tds.InvalidRepositoryException;
+import eu.sqooss.service.tds.ProjectRevision;
+import eu.sqooss.service.tds.SCMAccessor;
 import eu.sqooss.service.tds.SCMNodeType;
 
 public class SCMAccessorImpl extends NamedAccessorImpl implements SCMAccessor {
