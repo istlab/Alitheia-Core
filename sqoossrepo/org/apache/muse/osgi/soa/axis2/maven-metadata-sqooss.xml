@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?><metadata>
+  <groupId>org.apache.muse.osgi.soa</groupId>
+  <artifactId>axis2</artifactId>
+  <version>1.0.0</version>
+  <versioning>
+    <versions>
+      <version>1.0.0</version>
+    </versions>
+    <lastUpdated>20080318224035</lastUpdated>
+  </versioning>
+</metadata>

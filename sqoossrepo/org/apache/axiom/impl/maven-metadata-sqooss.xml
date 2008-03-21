@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?><metadata>
+  <groupId>org.apache.axiom</groupId>
+  <artifactId>impl</artifactId>
+  <version>1.2.2</version>
+  <versioning>
+    <versions>
+      <version>1.2.2</version>
+    </versions>
+    <lastUpdated>20080318221814</lastUpdated>
+  </versioning>
+</metadata>

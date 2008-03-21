@@ -1,0 +1,6 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.eclipse.osgi</groupId>
+  <artifactId>services</artifactId>
+  <version>3.1.100.v20060918</version>
+</project>

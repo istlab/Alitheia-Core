@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?><metadata>
+  <groupId>org.apache.axis2</groupId>
+  <artifactId>databinding</artifactId>
+  <version>1.1.0</version>
+  <versioning>
+    <versions>
+      <version>1.1.0</version>
+    </versions>
+    <lastUpdated>20080318223742</lastUpdated>
+  </versioning>
+</metadata>
