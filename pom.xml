@@ -1,0 +1,121 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>eu</groupId>
+  <artifactId>sqooss</artifactId>
+  <version>0.0.1</version>
+  <packaging>pom</packaging>
+
+  <name>Alitheia</name>
+
+  <licenses>
+    <license>
+      <name>2-Clause BSD License</name>
+      <url>http://www.gnu.org/licenses/info/BSD_2Clause.html</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <organization>
+    <name>SQO-OSS</name>
+    <url>http://www.sqo-oss.eu/</url>
+  </organization>
+
+
+  <developers>
+    <developer>
+      <id>e_grigorov</id>
+      <name>Evgeni Grigorov</name>
+      <email>e.grigorov@prosyst.com</email>
+      <organization>ProSyst Software GmbH</organization>
+      <timezone>+2</timezone>
+    </developer>
+    <developer>
+      <id>byotov</id>
+      <name>Boryan Yotov</name>
+      <email>b.yotov@prosyst.com</email>
+      <organization>ProSyst Software GmbH</organization>
+      <timezone>+2</timezone>
+    </developer>
+    <developer>
+      <id>gousiosg</id>
+      <name>Georgios Gousios</name>
+      <email>gousiosg@gmail.com</email>
+      <organization>AUEB</organization>
+      <timezone>+2</timezone>
+    </developer>
+  </developers>
+
+  <!-- The remainder has default configurations for many Maven plugins
+       while building Alitheia parts. This includes external repositories
+       (well, the repo included with an Alitheia checkout).
+    -->
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId> 
+        <configuration>
+          <showWarnings>true</showWarnings>
+          <showDeprecation>true</showDeprecation>
+          <compilerArgument>-Xlint</compilerArgument>
+          <source>1.5</source>
+          <target>1.5</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>2.1</version>
+        <configuration>
+          <outputDirectory>${topdir}</outputDirectory>
+          <finalName>equinox</finalName>
+          <appendAssemblyId>false</appendAssemblyId>
+          <descriptors>
+            <descriptor>assembly.xml</descriptor>
+          </descriptors>
+          <executions>
+            <execution>
+              <id>${artifactId}</id>
+              <phase>package</phase>
+              <goals>
+                <goal>directory-inline</goal>
+              </goals>
+            </execution>
+          </executions>
+        </configuration>
+      </plugin>
+     <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+      </plugin>
+
+    </plugins>
+  </build>
+
+  <repositories>
+    <repository>
+      <id>sqoossrepo</id>
+      <name>SQO-OSS Local Maven Repository</name>
+      <url>file://${repodir}/sqoossrepo</url>
+    </repository>
+  </repositories>
+
+  <distributionManagement>
+    <repository>
+      <id>sqoossdeploy</id>
+      <name>SQO-OSS Deployment Directory</name>
+      <url>file://${topdir}/equinox</url>
+    </repository>
+  </distributionManagement>
+
+  <modules>
+    <module>sharedlibs</module>
+    <module>alitheia</module>
+    <module>metrics</module>
+    <!-- 
+      UI is a separate build that refers to this POM, but is not
+      a module of this POM.
+    -->
+  </modules>
+</project>
+

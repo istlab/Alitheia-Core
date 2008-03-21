@@ -1,83 +1,59 @@
 <project>
   <modelVersion>4.0.0</modelVersion>
 
-  <!-- Parent POM -->
   <parent>
     <groupId>eu.sqooss</groupId>
     <artifactId>metrics</artifactId>
     <version>1.0.0</version>
   </parent>
 
-  <!-- Productivity Metric - main POM -->
   <groupId>eu.sqooss.metrics</groupId>
   <artifactId>wc</artifactId>
   <version>0.0.1</version>
   <packaging>jar</packaging>
 
-  <!-- Project description -->
-  <name>Word Count Metric</name>
+  <name>Alitheia Metric 'wc'</name>
+  <url>http://ikaria.dmst.aueb.gr/metrics/wc</url>
+  <inceptionYear>2006</inceptionYear>
   <description>
-  	A metric that evaluates developer productivity	
-        through volumetrics of their loquacious verbosity.
+    This metric is an unfaithful implementation of 'wc -l' as a plugin
+    to the Alitheia platform. Its one redeeming feature is that it is
+    easy to explain and can be used to show some graphic about a project's
+    growth.
   </description>
 
-  <!-- Build properties -->
+  <scm>
+    <connection>
+      scm:svn:https://svn.sqo-oss.eu/devel/trunk/metrics/wc
+    </connection>
+    <developerConnection>
+      scm:svn:https://svn.sqo-oss.eu/devel/trunk/metrics/wc
+    </developerConnection>
+  </scm>
+
   <build>
-    <!-- Tells Maven to search for source code here -->
+    <defaultGoal>deploy:deploy</defaultGoal>
     <sourceDirectory>${basedir}/src</sourceDirectory>
-    <!-- Tells Maven to build Java class files here -->
     <outputDirectory>${basedir}/build</outputDirectory>
-    <!-- Tells Maven where to find the bundle manifest file -->
     <plugins>
       <plugin>
         <artifactId>maven-jar-plugin</artifactId>
         <configuration>
+          <finalName>${groupId}.${artifactId}-${version}</finalName>
           <archive>
-            <manifestFile>
-              ${basedir}/manifest/manifest.mf
-            </manifestFile>
+            <manifestFile>${basedir}/manifest/manifest.mf</manifestFile>
+            <addMavenDescriptor>false</addMavenDescriptor>
           </archive>
         </configuration> 
+      </plugin>
+      <plugin>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <configuration>
+          <generatePom>false</generatePom>
+        </configuration>
       </plugin>
     </plugins>
   </build>
 
-  <!-- Dependencies -->
-  <dependencies>
-    <!-- [sqooss repo] Dependant on OSGi R4 Framework Package -->
-    <dependency>
-      <groupId>org.eclipse.equinox</groupId>
-      <artifactId>osgi</artifactId>
-      <version>3.3.0</version>
-      <type>jar</type>
-      <scope>provided</scope>
-    </dependency>
-    <!-- [sqooss repo] Dependant on OSGi R4 Services Package -->
-    <dependency>
-      <groupId>org.eclipse.osgi</groupId>
-      <artifactId>services</artifactId>
-      <version>3.1.100.v20060918</version>
-      <type>jar</type>
-      <scope>provided</scope>
-    </dependency>
-    <!-- [local repo] Dependant on SQO-OSS Core Package -->
-    <dependency>
-      <groupId>eu.sqooss</groupId>
-      <artifactId>core</artifactId>
-      <version>[0.0.1,)</version>
-      <type>jar</type>
-      <scope>provided</scope>
-    </dependency>
-  </dependencies>
-  
-  <!-- Developers working on this module -->
-  <developers>
-    <developer>
-      <id>gousiosg</id>
-      <name>Georgios Gousios</name>
-      <email>gousiosg@aueb.gr</email>
-      <organization>AUEB</organization>
-      <timezone>+2</timezone>
-    </developer>
-  </developers>
 </project>
+

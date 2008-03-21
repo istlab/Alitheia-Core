@@ -1,45 +1,52 @@
-# This is a GNU Makefile.
-
 # This Makefile is part of the Alitheia system produced by the SQO-OSS
 # consortium and is covered by the same LICENSE as the rest of the system:
-# the 2-Clause FreeBSD license which you may find in the LICENSE file.
+# the 2-Clause FreeBSD license which you may find in the LICENSE file
+# in the devel/trunk/ directory of the Alitheia development repository.
 
-# This Makefile contains common definitions for top-level Makefiles (e.g.
-# the Alitheia core, the metrics collection, and others). It is not intended
-# to be used as a stand-alone Makefile.
+# Common targets for intermediate directories (e.g. alitheia/ and metrics/)
+# are defined here. This is used to either propagate builds downwards to
+# subdirectories or to provide a convenient command-line build point
+# (e.g. 'make' in the alitheia/ directory should build everything under 
+# there without mucking about with Maven invocations).
 #
-# This makefile should be included *after* your default target has been
-# defined (e.g. all) or you need to use a .DEFAULT setting in your makefile.
+# Useful targets are:
 #
-# Targets which are defined:
+# clean           - Remove build artifacts from subdirectories
+# build (default) - Compile all the subdirectories
+# install         - Install build artifacts from subdirectories
 #
-# check		- check the subdirectories and BUNDLES against each other
-#		  in order to flag mismatches.
-#
-# Templates which are defined:
-#
-# subdir_template <type> <subdir> <target>
-#		- define target <type>-<subdir> to cd into <subdir>
-#		  and call a sub-make with <target>. Usually <type>
-#		  and <target> will be the same.
-# build_classpath <result> <jars> <path>
-#		- set variable result to a claspath based on the list
-#		  of jars in variable jars which live in variable path.
-#
-# Variables which are defined:
-#
-# ABS_PREFIX	- absolute path to the PREFIX
-# JAVA_LINT	- lint parameters shared across Alitheia
+# You should set SUBDIRS and TOP_SRCDIR before including this Makefile.
 
-ABS_PREFIX?=$(shell cd $(PREFIX) && pwd)
-JAVA_LINT?=-Xlint
+include $(TOP_SRCDIR)/Makefile.config
 
-# Template to pass targets on to sub-directories.
-define subdir_template
-$(1)-$(2) :
-	@echo "# Entering" `cd $(2) && pwd | sed 's+$(TOP_SRCDIR)/*++'` "($(3))"
-	@cd $(2) && $(MAKE) $(3) TOP_SRCDIR=$(TOP_SRCDIR) PREFIX=$(ABS_PREFIX) WITH_MAVEN=$(WITH_MAVEN)
-endef
+# By default, build everything. We just invoke Maven to do the work.
+all : build
+
+build :
+	$(MAVEN) package install
+
+# Clean is propagated to the subdirectories, as is install. We don't
+# do this with Maven because of the way files are named in the installation
+# directory.
+clean : clean-subdirs clean-dir
+
+clean-subdirs :
+	for i in $(SUBDIRS) ; do ( cd $$i && $(MAKE) clean ) || exit 1; done
+
+clean-dir :
+
+install : install-subdirs install-dir
+
+install-subdirs :
+	for i in $(SUBDIRS) ; do ( cd $$i && $(MAKE) install ) || exit 1; done
+
+install-dir :
+
+# Just in case someone needs to be reminded of how to invoke Maven.
+help :
+	@echo $(MAVEN)
+
+.PHONY : all build clean install help
 
 # This macro constructs a classpath out of a list of jar names,
 # a path where those jars live and a variable name to put the
@@ -64,15 +71,4 @@ ifeq ($$(OS),Windows_NT)
 $(1):=$$(subst :,;,$$(subst /,\,$$($(1))))
 endif
 endef
-
-
-
-# This is a double check that all of the subdirectories listed in 
-# BUNDLES exist and that all of the subdirectories that exist are
-# listed in BUNDLES. This helps avoid embarrassing mismatches between
-# the Maven, Makefile and filesystem setups.
-check:
-	@SUBDIRS=`find . -maxdepth 1 -type d -name '[a-zA-Z0-9]*' | sed 's+./++' ` ; \
-	UNUSED=`for i in $$SUBDIRS $(BUNDLES) ; do echo $$i ; done | sort | uniq -u` ; \
-	test -z "$$UNUSED" || { echo "# Unused subdirs: $$UNUSED" ; }
 

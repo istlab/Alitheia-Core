@@ -1,44 +1,56 @@
 <project>
   <modelVersion>4.0.0</modelVersion>
 
-  <!-- =[ Parent POM ]==================================================== -->
   <parent>
     <groupId>eu.sqooss</groupId>
     <artifactId>alitheia</artifactId>
     <version>1.0.0</version>
   </parent>
 
-  <!-- [ Web-Services Service - main POM ]================================ -->
-  <groupId>eu.sqooss</groupId>
+  <groupId>eu.sqooss.alitheia</groupId>
   <artifactId>core</artifactId>
   <version>0.0.1</version>
   <packaging>jar</packaging>
 
-  <!-- =[ Project description ]=========================================== -->
-  <name>Core Services</name>
+  <name>Alitheia Core Platform</name>
+  <url>http://ikaria.dmst.aueb.gr/alitheia/core</url>
+  <inceptionYear>2006</inceptionYear>
   <description>
-    This bundle provided the set of core services for Alitheia.
-    (... more description to come later on)
+    This is the core bundle for the Alitheia platform. It contains
+    the basic system services for the platform - data access, metric
+    support, job handling. It is a single OSGi bundle and is not
+    expected to be field-upgradable.
   </description>
 
-  <!-- =[ Build properties ]============================================== -->
+  <scm>
+    <connection>
+      scm:svn:https://svn.sqo-oss.eu/devel/trunk/alitheia/core
+    </connection>
+    <developerConnection>
+      scm:svn:https://svn.sqo-oss.eu/devel/trunk/alitheia/core
+    </developerConnection>
+  </scm>
+
   <build>
-    <!-- Tells Maven to search for source code here -->
+    <defaultGoal>deploy:deploy</defaultGoal>
     <sourceDirectory>${basedir}/src</sourceDirectory>
-    <!-- Tells Maven to build Java class files here -->
-    <outputDirectory>${basedir}/bin</outputDirectory>
-    <!-- Tells Maven where to look for a manifest file -->
+    <outputDirectory>${basedir}/build</outputDirectory>
     <plugins>
       <plugin>
         <artifactId>maven-jar-plugin</artifactId>
         <configuration>
-          <outputDirectory>${user.dir}/equinox</outputDirectory>
-          <finalName>eu.sqooss.service.${artifactId}_${version}</finalName>
+          <finalName>${groupId}.${artifactId}-${version}</finalName>
           <archive>
             <manifestFile>${basedir}/manifest/core.mf</manifestFile>
             <addMavenDescriptor>false</addMavenDescriptor>
           </archive>
         </configuration> 
+      </plugin>
+      <plugin>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <configuration>
+          <generatePom>false</generatePom>
+        </configuration>
       </plugin>
     </plugins>
     <resources>
@@ -59,65 +71,16 @@
     </resources>
   </build>
 
-  <!-- =[ Dependencies ]================================================== -->
   <dependencies>
-    <!-- [sqooss repo] Dependant on SQO-OSS shared libraries -->
+    <!-- ======== SQO-OSS shared libraries ======================== -->
     <dependency>
-      <groupId>eu.sqooss.lib</groupId>
-      <artifactId>resultlib</artifactId>
+      <groupId>eu.sqooss</groupId>
+      <artifactId>lib</artifactId>
       <version>[0.0.1,)</version>
       <type>jar</type>
       <scope>provided</scope>
     </dependency>
-    <!-- [sqooss repo] Dependant on OSGi R4 Framework Package -->
-    <dependency>
-      <groupId>org.eclipse.equinox</groupId>
-      <artifactId>osgi</artifactId>
-      <version>3.3.0</version>
-      <type>jar</type>
-      <scope>provided</scope>
-    </dependency>
-    <!-- [sqooss repo] Dependant on OSGi R4 Services Package -->
-    <dependency>
-      <groupId>org.eclipse.osgi</groupId>
-      <artifactId>services</artifactId>
-      <version>3.1.100.v20060918</version>
-      <type>jar</type>
-      <scope>provided</scope>
-    </dependency>
-    <!-- [sqooss repo] Dependant on Java Servlet Extension -->
-    <dependency>
-      <groupId>javax</groupId>
-      <artifactId>servlet</artifactId>
-      <version>2.4.0.v200612120446</version>
-      <type>jar</type>
-      <scope>provided</scope>
-    </dependency>
-    <!-- [sqooss repo] Dependant on Java Mail Extension -->
-    <dependency>
-      <groupId>javax</groupId>
-      <artifactId>mail</artifactId>
-      <version>1.4</version>
-      <type>jar</type>
-      <scope>provided</scope>
-    </dependency>
-    <!-- [sqooss repo] Dependant on Java Activation Extension -->
-    <dependency>
-      <groupId>javax</groupId>
-      <artifactId>activation</artifactId>
-      <version>1.1</version>
-      <type>jar</type>
-      <scope>provided</scope>
-    </dependency>
-    <!-- [sqooss repo] Dependant on Apache Log4j -->
-    <dependency>
-      <groupId>org.apache</groupId>
-      <artifactId>log4j</artifactId>
-      <version>1.2.15</version>
-      <type>jar</type>
-      <scope>provided</scope>
-    </dependency>
-    <!-- [sqooss repo] Dependant on Apache Commons - Codec -->
+    <!-- ======== Third-party libraries ========================== -->
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>codec</artifactId>
@@ -125,19 +88,38 @@
       <type>jar</type>
       <scope>provided</scope>
     </dependency>
-    <!-- [sqooss repo] Dependant on Hibernate -->
-    <dependency>
-      <groupId>org</groupId>
-      <artifactId>hibernate</artifactId>
-      <version>3.2.5</version>
-      <type>jar</type>
-      <scope>provided</scope>
-    </dependency>
-    <!-- [sqooss repo] Dependant on SVN Kit -->
     <dependency>
       <groupId>org.tmatesoft</groupId>
       <artifactId>svnkit</artifactId>
       <version>1.1.4</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>javax</groupId>
+      <artifactId>mail</artifactId>
+      <version>1.4</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>javax</groupId>
+      <artifactId>servlet</artifactId>
+      <version>2.4.0.v200612120446</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache</groupId>
+      <artifactId>log4j</artifactId>
+      <version>1.2.15</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org</groupId>
+      <artifactId>hibernate</artifactId>
+      <version>3.2.5</version>
       <type>jar</type>
       <scope>provided</scope>
     </dependency>
@@ -148,16 +130,27 @@
       <type>jar</type>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>org.eclipse.equinox</groupId>
+      <artifactId>osgi</artifactId>
+      <version>3.3.0</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.osgi</groupId>
+      <artifactId>services</artifactId>
+      <version>3.1.100.v20060918</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.osgi</groupId>
+      <artifactId>util</artifactId>
+      <version>3.1.100.v20060918</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
-
-  <!-- =[ Developers working on this module ]============================= -->
-  <developers>
-    <developer>
-      <id>e_grigorov</id>
-      <name>Evgeni Grigorov</name>
-      <email>e.grigorov@prosyst.com</email>
-      <organization>ProSyst Software GmbH</organization>
-      <timezone>+2</timezone>
-    </developer>
-  </developers>
 </project>
+

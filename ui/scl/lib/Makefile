@@ -3,7 +3,7 @@ all : build-all
 TOP_SRCDIR=../../..
 include $(TOP_SRCDIR)/Makefile.common
 
-EXT_PATH=../../../extlibs
+EXT_PATH=$(PREFIX)
 EXT_LIBS=org.apache.axiom.api_1.2.2/axiom-api-1.2.2.jar \
 	org.apache.axiom.dom_1.2.2/axiom-dom-1.2.2.jar \
 	org.apache.axiom.impl_1.2.2/axiom-impl-1.2.2.jar \
@@ -49,11 +49,17 @@ install: build-all
 	test -d $(DEPLOY_DIR) || mkdir $(DEPLOY_DIR)
 	cp $(BUILD_DIR)$(DEPLOY_NAME) $(DEPLOY_DIR)
 
-fetch-wsdl :
+fetch-wsdl : clean-wsdl ws.wsdl
+
+clean-wsdl :
 	rm -f ws.wsdl
+
+ws.wsdl :
 	java -cp ../../../tools/GetHTML.jar GetHTML "http://localhost:8088/sqooss/services/ws?wsdl" ws.wsdl
 
-EXT_PATH=../../../extlibs
+.PHONY : clean-wsdl
+
+EXT_PATH=$(PREFIX)
 EXT_LIBS=org.apache.axis2_1.1.0/axis2-kernel-1.1.jar \
 	org.apache.wsdl4j_1.6.1/wsdl4j-1.6.1.jar \
 	org.apache.commons.logging-1.1.1.jar \
@@ -68,7 +74,7 @@ CODEGEN_LIBS=axis2-adb-codegen-1.1.jar axis2-codegen-1.1.jar
 $(eval $(call build_classpath,WSDL_CLASSPATH,EXT_LIBS,EXT_PATH))
 $(eval $(call build_classpath,WSDL_CLASSPATH,CODEGEN_LIBS,CODEGEN_PATH))
 
-compile-wsdl :
+compile-wsdl : ws.wsdl
 	java -cp $(WSDL_CLASSPATH) org.apache.axis2.wsdl.WSDL2Java \
 		-uri ws.wsdl -s -u -o src.new \
 		-p eu.sqooss.ws.client \

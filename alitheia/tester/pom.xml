@@ -1,60 +1,67 @@
 <project>
   <modelVersion>4.0.0</modelVersion>
 
-  <!-- =[ Parent POM ]==================================================== -->
   <parent>
     <groupId>eu.sqooss</groupId>
     <artifactId>alitheia</artifactId>
     <version>1.0.0</version>
   </parent>
 
-  <!-- [ Tester Service - main POM ]====================================== -->
-  <groupId>eu.sqooss</groupId>
+  <groupId>eu.sqooss.alitheia</groupId>
   <artifactId>tester</artifactId>
   <version>0.0.1</version>
   <packaging>jar</packaging>
 
-  <!-- =[ Project description ]=========================================== -->
-  <name>Tester Service</name>
+  <name>Alitheia Core Tester</name>
+  <url>http://ikaria.dmst.aueb.gr/alitheia/tester</url>
+  <inceptionYear>2006</inceptionYear>
   <description>
-    This bundle provides the Tester service for Alitheia. This
-    service runs a bunch of self-tests on startup and provides
-    no actual services.
+    This is the testing bundle for the Alitheia Core Platform. It contains
+    a single service which can run a configurable set of self-tests on 
+    system start-up; there are no services for long-term use.
   </description>
 
-  <!-- =[ Build properties ]============================================== -->
+  <scm>
+    <connection>
+      scm:svn:https://svn.sqo-oss.eu/devel/trunk/alitheia/tester
+    </connection>
+    <developerConnection>
+      scm:svn:https://svn.sqo-oss.eu/devel/trunk/alitheia/tester
+    </developerConnection>
+  </scm>
+
   <build>
-    <!-- Tells Maven to search for source code here -->
+    <defaultGoal>deploy:deploy</defaultGoal>
     <sourceDirectory>${basedir}/src</sourceDirectory>
-    <!-- Tells Maven to build Java class files here -->
-    <outputDirectory>${basedir}/bin</outputDirectory>
-    <!-- Tells Maven where to find the bundle manifest file -->
+    <outputDirectory>${basedir}/build</outputDirectory>
     <plugins>
       <plugin>
         <artifactId>maven-jar-plugin</artifactId>
         <configuration>
-          <outputDirectory>${user.dir}/equinox</outputDirectory>
-          <finalName>eu.sqooss.service.${artifactId}_${version}</finalName>
+          <finalName>${groupId}.${artifactId}-${version}</finalName>
           <archive>
             <manifestFile>${basedir}/manifest/tester.mf</manifestFile>
             <addMavenDescriptor>false</addMavenDescriptor>
           </archive>
         </configuration> 
       </plugin>
+      <plugin>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <configuration>
+          <generatePom>false</generatePom>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 
-  <!-- =[ Dependencies ]================================================== -->
   <dependencies>
-    <!-- [sqooss repo] Dependant on SQO-OSS Core services -->
     <dependency>
-      <groupId>eu.sqooss</groupId>
+      <groupId>eu.sqooss.alitheia</groupId>
       <artifactId>core</artifactId>
       <version>[0.0.1,)</version>
       <type>jar</type>
       <scope>provided</scope>
     </dependency>
-    <!-- [sqooss repo] Dependant on OSGi R4 Framework Package -->
     <dependency>
       <groupId>org.eclipse.equinox</groupId>
       <artifactId>osgi</artifactId>
@@ -63,8 +70,5 @@
       <scope>provided</scope>
     </dependency>
   </dependencies>
-
-  <!-- Developers working on this module -->
-  <developers>
-  </developers>
 </project>
+

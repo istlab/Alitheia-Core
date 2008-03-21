@@ -8,27 +8,27 @@
   </parent>
 
   <groupId>eu.sqooss</groupId>
-  <artifactId>alitheia</artifactId>
+  <artifactId>ui</artifactId>
   <version>1.0.0</version>
   <packaging>pom</packaging>
 
-  <name>Alitheia Core</name>
-  <url>http://ikaria.dmst.aueb.gr/alitheia</url>
+  <name>Alitheia UI</name>
+  <url>http://ikaria.dmst.aueb.gr/ui</url>
   <inceptionYear>2006</inceptionYear>
   <description>
-    This is the core platform of the Alitheia system. It is based
-    around OSGi and consists of a Core bundle that performs basic
-    system services such as logging and data access, a web-services
-    bundle for access to the core, and a testing bundle that drives
-    the system self-test.
+    The UI components of an Alitheia deployment vary; the SQO-OSS
+    connector library (SCL) is the core part of the UI, providing
+    access to the Alitheia Core Platform for the UI. Different UI
+    models -- public facing website, Eclipse plugin, CLI -- are
+    provided that use the SCL.
   </description>
 
   <scm>
     <connection>
-      scm:svn:https://svn.sqo-oss.eu/devel/trunk/alitheia
+      scm:svn:https://svn.sqo-oss.eu/devel/trunk/ui
     </connection>
     <developerConnection>
-      scm:svn:https://svn.sqo-oss.eu/devel/trunk/alitheia
+      scm:svn:https://svn.sqo-oss.eu/devel/trunk/ui
     </developerConnection>
   </scm>
 
@@ -45,11 +45,8 @@
     </plugins>
   </build>
 
-
   <modules>
-    <module>core</module>
-    <module>tester</module>
-    <module>web-services</module>
+    <module>scl</module>
   </modules>
 </project>
 

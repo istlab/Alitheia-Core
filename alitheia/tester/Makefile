@@ -1,6 +1,4 @@
-BUNDLE_NAME=tester
-BUNDLE_VERSION=0.0.1
-EXTRA_CP=../../sharedlibs/result/src:
+TOP_SRCDIR=../..
 
-include ../Makefile-sub.inc
+include $(TOP_SRCDIR)/Makefile.bundle
 

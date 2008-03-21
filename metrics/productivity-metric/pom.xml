@@ -1,81 +1,67 @@
 <project>
   <modelVersion>4.0.0</modelVersion>
 
-  <!-- Parent POM -->
   <parent>
     <groupId>eu.sqooss</groupId>
     <artifactId>metrics</artifactId>
     <version>1.0.0</version>
   </parent>
 
-  <!-- Productivity Metric - main POM -->
   <groupId>eu.sqooss.metrics</groupId>
-  <artifactId>productivity-metric</artifactId>
+  <artifactId>productivity</artifactId>
   <version>0.0.1</version>
   <packaging>jar</packaging>
 
-  <!-- Project description -->
-  <name>Productivity Metric</name>
+  <name>Alitheia Metric 'productivity'</name>
+  <url>http://ikaria.dmst.aueb.gr/metrics/productivity-metric</url>
+  <inceptionYear>2006</inceptionYear>
   <description>
-  	A metric that evaluates developer productivity	
+    Research plugin that attempts to quantify how productive developers
+    are based on the number and size and type of their commits;
+    research done by Giorgos Gousios.
   </description>
 
-  <!-- Build properties -->
+  <scm>
+    <connection>
+      scm:svn:https://svn.sqo-oss.eu/devel/trunk/metrics/productivity-metric
+    </connection>
+    <developerConnection>
+      scm:svn:https://svn.sqo-oss.eu/devel/trunk/metrics/productivity-metric
+    </developerConnection>
+  </scm>
+
   <build>
-    <!-- Tells Maven to search for source code here -->
+    <defaultGoal>deploy:deploy</defaultGoal>
     <sourceDirectory>${basedir}/src</sourceDirectory>
-    <!-- Tells Maven to build Java class files here -->
     <outputDirectory>${basedir}/build</outputDirectory>
-    <!-- Tells Maven where to find the bundle manifest file -->
     <plugins>
       <plugin>
         <artifactId>maven-jar-plugin</artifactId>
         <configuration>
+          <finalName>${groupId}.${artifactId}-${version}</finalName>
           <archive>
-            <manifestFile>
-              ${basedir}/manifest/productivitymetric.mf
-            </manifestFile>
+            <manifestFile>${basedir}/manifest/manifest.mf</manifestFile>
+            <addMavenDescriptor>false</addMavenDescriptor>
           </archive>
         </configuration> 
+      </plugin>
+      <plugin>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <configuration>
+          <generatePom>false</generatePom>
+        </configuration>
       </plugin>
     </plugins>
   </build>
 
-  <!-- Dependencies -->
   <dependencies>
-    <!-- [sqooss repo] Dependant on OSGi R4 Framework Package -->
     <dependency>
-      <groupId>org.eclipse.equinox</groupId>
-      <artifactId>osgi</artifactId>
-      <version>3.3.0</version>
-      <type>jar</type>
-      <scope>provided</scope>
-    </dependency>
-    <!-- [sqooss repo] Dependant on OSGi R4 Services Package -->
-    <dependency>
-      <groupId>org.eclipse.osgi</groupId>
-      <artifactId>services</artifactId>
-      <version>3.1.100.v20060918</version>
-      <type>jar</type>
-      <scope>provided</scope>
-    </dependency>
-    <!-- [local repo] Dependant on SQO-OSS Core Package -->
-    <dependency>
-      <groupId>eu.sqooss</groupId>
+      <groupId>eu.sqooss.alitheia</groupId>
       <artifactId>core</artifactId>
       <version>[0.0.1,)</version>
       <type>jar</type>
       <scope>provided</scope>
     </dependency>
   </dependencies>
-  <!-- Developers working on this module -->
-  <developers>
-    <developer>
-      <id>gousiosg</id>
-      <name>Georgios Gousios</name>
-      <email>gousiosg@aueb.gr</email>
-      <organization>AUEB</organization>
-      <timezone>+2</timezone>
-    </developer>
-  </developers>
 </project>
+

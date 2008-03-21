@@ -1,8 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Vendor: PostgreSQL Global Development Group
-Bundle-Name: PostgreSQL JDBC Driver
-Bundle-Version: 8.2.505
-Bundle-SymbolicName: org.postgresql.jdbc
-Bundle-ClassPath: org.postgresql.jdbc-8.2.505.jar
-Export-Package: org.postgresql;version="8.2.505"

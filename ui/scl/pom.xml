@@ -1,36 +1,26 @@
 <project>
   <modelVersion>4.0.0</modelVersion>
 
-  <!-- =======[ SCL library - main POM                     ]============== -->
-  <groupId>eu.sqooss</groupId>
+  <parent>
+    <groupId>eu.sqooss</groupId>
+    <artifactId>ui</artifactId>
+    <version>1.0.0</version>
+  </parent>
+
+  <groupId>eu.sqooss.ui</groupId>
   <artifactId>scl</artifactId>
   <version>0.0.1</version>
   <packaging>jar</packaging>
 
-  <!-- =======[ Project description                               ]======= -->
-  <name>SQO-OSS Connector Library</name>
-  <url>http://ikaria.dmst.aueb.gr:8088/ui/scl</url>
+  <name>Alitheia UI Connector Library</name>
+  <url>http://ikaria.dmst.aueb.gr/ui/scl</url>
   <inceptionYear>2006</inceptionYear>
   <description>
-    Contains the SQO-OSS Connector Library
+    The SQO-OSS connector library (SCL) provides a Java interface to the
+    web-services of the Alitheia Core so that the UI can retrieve project
+    and measurement data from the Core.
   </description>
 
-  <!-- =======[ Project license                                   ]======= -->
-  <licenses>
-    <license>
-      <name>2-Clause BSD License</name>
-      <url>http://www.gnu.org/licenses/info/BSD_2Clause.html</url>
-      <distribution>repo</distribution>
-    </license>
-  </licenses>
-
-  <!-- =======[ Organisation description                          ]======= -->
-  <organization>
-    <name>SQO-OSS</name>
-    <url>http://www.sqo-oss.eu/</url>
-  </organization>
-
-  <!-- =======[ Source code repository for this project           ]======= -->
   <scm>
     <connection>
       scm:svn:https://svn.sqo-oss.eu/devel/trunk/ui/scl
@@ -38,404 +28,54 @@
     <developerConnection>
       scm:svn:https://svn.sqo-oss.eu/devel/trunk/ui/scl
     </developerConnection>
-    <!-- Configure and enable this, in case we provide an anonymous SVN viewer
-    -->
-<!--
-    <url>http://hostname/sqooss</url>
--->
-  </scm> 
+  </scm>
 
-  <!-- =======[ Build options, goals and plug-ins configurations  ]======= -->
   <build>
-    <defaultGoal>clean deploy</defaultGoal>
-    <!-- Tells Maven to search for source code here -->
+    <defaultGoal>deploy:deploy</defaultGoal>
     <sourceDirectory>${basedir}/src</sourceDirectory>
-    <!-- Tells Maven to build Java class files here -->
-    <outputDirectory>${basedir}/bin</outputDirectory>
-    <!-- Tells Maven which resources to include into the end package -->
-    <resources>
-      <resource>
-        <directory>${basedir}/configuration</directory>
-        <targetPath>configuration</targetPath>
-        <includes>
-          <include>**/*</include>
-        </includes>
-      </resource>
-      <resource>
-        <directory>${basedir}</directory>
-        <targetPath>.</targetPath>
-        <includes>
-          <include>eu.sqooss.ws.client_*.jar</include>
-        </includes>
-      </resource>
-      <!-- External libraries that needs to be bundle with the SCL library
-        extlibs/org.apache.axiom.api_1.2.2/axiom-api-1.2.2.jar
-        extlibs/org.apache.axiom.dom_1.2.2/axiom-dom-1.2.2.jar
-        extlibs/org.apache.axiom.impl_1.2.2/axiom-impl-1.2.2.jar
-        extlibs/org.apache.axis2_1.1.0/axis2-kernel-1.1.jar
-        extlibs/org.apache.axis2.databinding_1.1.0/axis2-adb-1.1.jar
-        extlibs/org.apache.commons.collections_2.1.1/org.apache.commons.collections-2.1.1.jar
-        extlibs/org.apache.commons.httpclient-3.0.1.jar
-        extlibs/org.apache.commons.logging-1.1.1.jar
-        extlibs/org.apache.ws.commons.schema_1.2.0/XmlSchema-1.2.jar
-        extlibs/org.apache.wsdl4j_1.6.1/wsdl4j-1.6.1.jar
-        extlibs/javax.mail.api_1.4.0/activation-1.1.jar
-        extlibs/javax.mail.api_1.4.0/mail-1.4.jar
-        extlibs/javax.stax.api_1.0.1/stax-api-1.0.1.jar
-        extlibs/org.codehaus.stax2_3.0.1/wstx-asl-3.0.1.jar
-      -->
-      <!-- TODO: the following is against the Maven's good practices. It has
-        to be performed by the assembly plug-in, once all dependancies are
-        made available through a Maven repo. But since they are currently
-        provided in a system scope, and Maven Assembly NPEs when resolving
-        those, a fast solution is to use a dirty trick -->
-      <resource>
-        <directory>${user.dir}/extlibs/org.apache.axiom.api_1.2.2</directory>
-        <targetPath>.</targetPath>
-        <includes>
-          <include>axiom-api-1.2.2.jar</include>
-        </includes>
-      </resource>
-      <resource>
-        <directory>${user.dir}/extlibs/org.apache.axiom.dom_1.2.2</directory>
-        <targetPath>.</targetPath>
-        <includes>
-          <include>axiom-dom-1.2.2.jar</include>
-        </includes>
-      </resource>
-      <resource>
-        <directory>${user.dir}/extlibs/org.apache.axiom.impl_1.2.2</directory>
-        <targetPath>.</targetPath>
-        <includes>
-          <include>axiom-impl-1.2.2.jar</include>
-        </includes>
-      </resource>
-      <resource>
-        <directory>${user.dir}/extlibs/org.apache.axis2_1.1.0</directory>
-        <targetPath>.</targetPath>
-        <includes>
-          <include>axis2-kernel-1.1.jar</include>
-        </includes>
-      </resource>
-      <resource>
-        <directory>${user.dir}/extlibs/org.apache.axis2.databinding_1.1.0</directory>
-        <targetPath>.</targetPath>
-        <includes>
-          <include>axis2-adb-1.1.jar</include>
-        </includes>
-      </resource>
-      <resource>
-        <directory>${user.dir}/extlibs/org.apache.commons.collections_2.1.1</directory>
-        <targetPath>.</targetPath>
-        <includes>
-          <include>org.apache.commons.collections-2.1.1.jar</include>
-        </includes>
-      </resource>
-      <resource>
-        <directory>${user.dir}/extlibs</directory>
-        <targetPath>.</targetPath>
-        <includes>
-          <include>org.apache.commons.httpclient-3.0.1.jar</include>
-        </includes>
-      </resource>
-      <resource>
-        <directory>${user.dir}/extlibs</directory>
-        <targetPath>.</targetPath>
-        <includes>
-          <include>org.apache.commons.logging-1.1.1.jar</include>
-        </includes>
-      </resource>
-      <resource>
-        <directory>${user.dir}/extlibs/org.apache.ws.commons.schema_1.2.0</directory>
-        <targetPath>.</targetPath>
-        <includes>
-          <include>XmlSchema-1.2.jar</include>
-        </includes>
-      </resource>
-      <resource>
-        <directory>${user.dir}/extlibs/org.apache.wsdl4j_1.6.1</directory>
-        <targetPath>.</targetPath>
-        <includes>
-          <include>wsdl4j-1.6.1.jar</include>
-        </includes>
-      </resource>
-      <resource>
-        <directory>${user.dir}/extlibs/javax.mail.api_1.4.0</directory>
-        <targetPath>.</targetPath>
-        <includes>
-          <include>activation-1.1.jar</include>
-        </includes>
-      </resource>
-      <resource>
-        <directory>${user.dir}/extlibs/javax.mail.api_1.4.0</directory>
-        <targetPath>.</targetPath>
-        <includes>
-          <include>mail-1.4.jar</include>
-        </includes>
-      </resource>
-      <resource>
-        <directory>>${user.dir}/extlibs/javax.stax.api_1.0.1</directory>
-        <targetPath>.</targetPath>
-        <includes>
-          <include>stax-api-1.0.1.jar</include>
-        </includes>
-      </resource>
-      <resource>
-        <directory>>${user.dir}/extlibs/org.codehaus.stax2_3.0.1</directory>
-        <targetPath>.</targetPath>
-        <includes>
-          <include>wstx-asl-3.0.1.jar</include>
-        </includes>
-      </resource>
-    </resources>
+    <outputDirectory>${basedir}/build</outputDirectory>
     <plugins>
-      <!-- JAR-PACKER plug-in configuration                                -->
       <plugin>
         <artifactId>maven-jar-plugin</artifactId>
         <configuration>
+          <finalName>${groupId}.${artifactId}-${version}</finalName>
           <archive>
+            <manifestFile>${basedir}/manifest/manifest.mf</manifestFile>
             <addMavenDescriptor>false</addMavenDescriptor>
           </archive>
-        </configuration>
+        </configuration> 
       </plugin>
-      <!-- SITE-GENERATOR plug-in configuration                            -->
-      <plugin>
-        <artifactId>maven-site-plugin</artifactId>
-        <configuration>
-          <locales>en</locales>
-        </configuration>
-        <executions>
-          <execution>
-            <phase>deploy</phase>
-            <goals>
-              <goal>site</goal>
-              <goal>deploy</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <!-- DEPLOY plug-in configuration                                    -->
       <plugin>
         <artifactId>maven-deploy-plugin</artifactId>
         <configuration>
           <generatePom>false</generatePom>
         </configuration>
       </plugin>
-      <!-- COMPILER plug-in configuration                                  -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId> 
-        <configuration>
-          <showWarnings>true</showWarnings>
-          <showDeprecation>true</showDeprecation>
-          <compilerArgument>-Xlint</compilerArgument>
-          <source>1.5</source>
-          <target>1.5</target>
-        </configuration>
-      </plugin>
-      <!-- CLEAN plug-in configuration                                     -->
-      <plugin>
-        <artifactId>maven-clean-plugin</artifactId>
-        <configuration>
-          <!-- [byotov] Cleanup the previous SQO-OSS SCL deployment -->
-          <filesets>
-            <fileset>
-              <directory>${user.dir}/ui/build</directory>
-              <includes>
-                <include>**/eu.sqooss.scl_*</include>
-              </includes>
-              <followSymlinks>false</followSymlinks>
-            </fileset>
-          </filesets>
-        </configuration>
-      </plugin>
-      <!-- ASSEMBLY plug-in configuration                                  -->
-      <plugin>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <version>2.1</version>
-        <configuration>
-          <outputDirectory>${user.dir}</outputDirectory>
-          <finalName>ui/build</finalName>
-          <appendAssemblyId>false</appendAssemblyId>
-          <descriptors>
-            <descriptor>assembly.xml</descriptor>
-          </descriptors>
-          <executions>
-            <execution>
-              <id>sqooss.scl</id>
-              <phase>package</phase>
-              <goals>
-                <goal>directory-inline</goal>
-              </goals>
-            </execution>
-          </executions>
-        </configuration>
-      </plugin>
     </plugins>
-  </build> 
+  </build>
 
-  <!-- =======[ Extra repositories for build dependencies ]=============== -->
-  <repositories>
-    <repository>
-      <id>sqoossrepo</id>
-      <name>SQO-OSS Local Maven Repository</name>
-      <!-- Enable this, once the certificate for svn.sqo-oss.eu is fixed,
-        and disable/remove the line that follows it
-      -->
-<!--
-      <url>https://svn.sqo-oss.eu/devel/trunk/extlibs</url>
--->
-      <url>http://ikaria.dmst.aueb.gr:8088/sqoossrepo</url>
-    </repository>
-  </repositories>
-
-  <!-- =======[ Snapshot repositories for Maven plugins ]================= -->
-  <distributionManagement>
-    <!-- Deploy the project reports site in this location                  -->
-    <site>
-      <id>buildsite</id>
-      <url>scp://ikaria.dmst.aueb.gr/home/byotov/builds/site/alitheia</url>
-    </site>
-    <!-- Deploy project(s) releases into the following repository          -->
-    <repository>
-      <id>buildsite</id>
-      <name>SQO-OSS Releases Repository</name>
-      <url>scp://ikaria.dmst.aueb.gr/home/byotov/builds/releases</url>
-    </repository>
-    <!-- COMMENTED OUT
-    <snapshotRepository>
-      <id>buildsite</id>
-      <name>SQO-OSS Snapshots Repository</name>
-      <url>scp://ikaria.dmst.aueb.gr/home/byotov/builds/snapshots</url>
-    </snapshotRepository>
-    -->
-  </distributionManagement>
-
-  <!-- =======[ Tools for creating project reports                ]======= -->
-  <reporting>
-    <plugins>
-      <!-- Plugin for generating JavaDoc from the project's sources        -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <configuration>
-          <charset>UTF-8</charset>
-          <docencoding>UTF-8</docencoding>
-          <excludePackageNames>eu.sqooss.impl</excludePackageNames>
-        </configuration>
-      </plugin>
-      <!-- Plugin for checking the coding style of the project's sources   -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-checkstyle-plugin</artifactId>
-        <configuration>
-          <!-- [byotov] Using a predefined checkstyle configuration is not
-            that flexible (especially when you want to switch off an annoying
-            report considered as critical by the configuration creator),
-            therefore IMHO it's better if Checkstyle behaviour is fed by a 
-            configuration file, that can be easily modified -->
-<!--
-          <format>sun</format>
--->
-          <configLocation>sqooss_checks.xml</configLocation>
-          <includes>**/*.java</includes>
-          <enableRulesSummary>false</enableRulesSummary>
-        </configuration>
-      </plugin>
-      <!-- Plugin for checking the project source against some codding rules
-      -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-pmd-plugin</artifactId>
-        <!-- Tell PMD explicitly to run in JDK 1.5 mode -->
-        <configuration>  
-          <targetJdk>1.5</targetJdk>  
-        </configuration> 
-        <reportSets>
-          <reportSet>
-            <reports>
-              <report>pmd</report>
-              <!-- Don't need Copy&Paste detector
-              <report>cpd</report>
-              -->
-            </reports>
-          </reportSet>
-        </reportSets>
-      </plugin>
-      <!-- Create cross references between reports and source files        -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jxr-plugin</artifactId>
-        <configuration>
-          <!-- Don't need aggregation into the parent project
-          <aggregate>true</aggregate>
-          -->
-        </configuration>
-      </plugin>
-    </plugins>
-  </reporting>
-
-  <!-- =======[ Mailing lists associated with this project        ]======= -->
-  <!-- COMMENTED OUT
-  <mailingLists>
-    <mailingList>
-      <name>SQO-OSS WP3 Mailing List</name>
-      <subscribe>project-subscribe@localhost</subscribe>
-      <unsubscribe>project-unsubscribe@localhost</unsubscribe>
-      <post>project@localhost</post>
-      <archive>http://localhost/pipermail/project/</archive>
-    </mailingList>
-  </mailingLists>
-  -->
-
-  <!-- =======[ CIS configuration                                 ]======= -->
-  <ciManagement>
-    <system>Apache Maven Continuum</system>
-    <url>http://ikaria.dmst.aueb.gr:8089/continuum/servlet/continuum</url>
-    <notifiers>
-      <notifier>
-        <type>mail</type>
-        <configuration>
-          <!-- Replace with the mailing list dedicated to the CIS results -->
-          <!--
-          <address>continuum@sqo-oss.eu</address>
-          -->
-          <address>b.yotov@prosyst.com</address>
-        </configuration>
-      </notifier>
-    </notifiers>
-  </ciManagement>
-
-  <!-- =[ Dependencies ]================================================== -->
   <dependencies>
-    <!-- [sqooss repo] Dependant on SQO-OSS WS Client Library -->
     <dependency>
-      <groupId>eu.sqooss.ws</groupId>
-      <artifactId>client</artifactId>
+      <groupId>eu.sqooss.alitheia</groupId>
+      <artifactId>core</artifactId>
       <version>[0.0.1,)</version>
       <type>jar</type>
       <scope>provided</scope>
     </dependency>
-    <!-- [sqooss repo] Dependant on Apache Commons - Codec -->
     <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>codec</artifactId>
-      <version>1.3.0</version>
+      <groupId>eu.sqooss.alitheia</groupId>
+      <artifactId>web-services</artifactId>
+      <version>[0.0.1,)</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>eu.sqooss</groupId>
+      <artifactId>lib</artifactId>
+      <version>[0.0.1,)</version>
       <type>jar</type>
       <scope>provided</scope>
     </dependency>
   </dependencies>
-
-  <!-- =======[ List of developers working on this project        ]======= -->
-  <developers>
-    <developer>
-      <id>e_grigorov</id>
-      <name>Evgeni Grigorov</name>
-      <email>e.grigorov@prosyst.com</email>
-      <organization>ProSyst Software GmbH</organization>
-      <!-- Unfortunatelly Maven does not support daylight saving           -->
-      <timezone>+2</timezone>
-    </developer>
-  </developers>
 </project>
 

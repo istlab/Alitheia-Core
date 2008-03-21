@@ -1,0 +1,18 @@
+include $(TOP_SRCDIR)/Makefile.config
+
+all : build
+
+build :
+	$(MAVEN) package install
+
+clean :
+	rm -rf build target
+
+install :
+	cp target/*.jar $(PREFIX)
+
+help :
+	@echo $(MAVEN)
+
+.PHONY : all build clean install help
+
