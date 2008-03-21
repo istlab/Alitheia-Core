@@ -55,7 +55,13 @@ public class CoreImpl extends CorePOA {
         ServiceReference serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
         fds = ((AlitheiaCore)bc.getService(serviceRef)).getFDSService();
     }
-    
+
+    private static int nextId = 0;
+
+    public synchronized int getUniqueId() {
+            return ++nextId;
+    }
+
     public int registerMetric(String name) {
         org.omg.CORBA.Object o;
         try {

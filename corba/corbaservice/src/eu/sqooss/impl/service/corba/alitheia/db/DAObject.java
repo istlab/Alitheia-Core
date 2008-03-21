@@ -4,6 +4,7 @@ import java.sql.Time;
 import java.util.Date;
 import java.util.Locale;
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
@@ -61,13 +62,16 @@ public abstract class DAObject {
         return null;
     }
 
+    // use ISO date time format
+    private static DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd'T'HHmmss");
+
     private static String formatDate(Date date) {
-        return DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.LONG, Locale.US).format(date);
+        return dateFormat.format(date);
     }
 
     private static Date parseDate(String date) {
         try {
-            return DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.LONG, Locale.US).parse(date);
+            return dateFormat.parse(date);
         } catch( Exception e ) {
             return null;
         }

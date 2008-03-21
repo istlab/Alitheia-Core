@@ -124,7 +124,7 @@ ProjectFile::ProjectFile( const alitheia::ProjectFile& file )
 }
 
 ProjectFile::ProjectFile( const ProjectFile& other )
-    : istream( other.rdbuf() )
+    : istream( new ProjectFileBuffer( this ) )
 {
     *this = other;
 }

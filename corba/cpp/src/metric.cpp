@@ -7,6 +7,9 @@
 
 using namespace Alitheia;
 
+using std::string;
+using std::vector;
+
 class AbstractMetric::Private
 {
 public:
@@ -20,7 +23,7 @@ private:
     AbstractMetric* const q;
 
 public:
-    std::string name;
+    string name;
     int id;
 };
 
@@ -66,6 +69,15 @@ bool AbstractMetric::update()
     return false;
 }
 
+string AbstractMetric::dateInstalled() const
+{
+    vector<Metric> metrics = getSupportedMetrics();
+    if( metrics.empty() )
+        return string();
+
+    return metrics.front().plugin.installdate;
+}
+
 char* AbstractMetric::getAuthor()
 {
     return CORBA::string_dup( author().c_str() );
@@ -91,12 +103,12 @@ char* AbstractMetric::getDateInstalled()
     return CORBA::string_dup( dateInstalled().c_str() );
 }
 
-const std::string& AbstractMetric::orbName() const
+const string& AbstractMetric::orbName() const
 {
     return d->name;
 }
 
-void AbstractMetric::setOrbName( const std::string& orbName )
+void AbstractMetric::setOrbName( const string& orbName )
 {
     d->name = orbName;
 }
@@ -111,12 +123,12 @@ void AbstractMetric::setId( int id )
     d->id = id;
 }
 
-std::vector<Metric> AbstractMetric::getSupportedMetrics() const
+vector<Metric> AbstractMetric::getSupportedMetrics() const
 {
     return Core::instance()->getSupportedMetrics( this );
 }
 
-bool AbstractMetric::addSupportedMetrics( const std::string& description, MetricType::Type type )
+bool AbstractMetric::addSupportedMetrics( const string& description, MetricType::Type type )
 {
     return Core::instance()->addSupportedMetrics( this, description, type );
 }

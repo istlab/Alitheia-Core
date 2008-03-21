@@ -85,6 +85,7 @@ module alitheia
 
   interface Core
   {
+    long getUniqueId();
     // registers a metric accesible by 'name' in the ORB at the core
     // returns an id which can be used to unregister the metric again
     long registerMetric( in string name );

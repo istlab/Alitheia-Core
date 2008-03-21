@@ -21,7 +21,8 @@ namespace Alitheia
 
     public:
         alitheia::Core_var core;
-        std::map< int, std::string > registeredServices;
+        std::map< int, std::string > registeredMetrics;
+        std::map< int, std::string > registeredJobs;
     };
 }
 
@@ -84,15 +85,14 @@ Core* Core::instance()
 
 int Core::registerMetric( AbstractMetric* metric )
 {
-    static int metricCount = 0;
     std::stringstream ss;
-    ss << "Alitheia_Metric_" << ++metricCount;
+    ss << "Alitheia_Metric_" << d->core->getUniqueId();
     const std::string name = ss.str();
     metric->setOrbName( name );
     CorbaHandler::instance()->exportObject( metric->_this(), name.c_str() );
     const int id = d->core->registerMetric( CORBA::string_dup( name.c_str() ) );
     metric->setId( id );
-    d->registeredServices[ id ] = name;
+    d->registeredMetrics[ id ] = name;
     return id;
 }
 
@@ -104,19 +104,18 @@ void Core::unregisterMetric( AbstractMetric* metric )
 void Core::unregisterMetric( int id )
 {
     d->core->unregisterMetric( id );
-    d->registeredServices.erase( id );
+    d->registeredMetrics.erase( id );
 }
 
 int Core::registerJob( Job* job )
 {
-    static int jobCount = 0;
     std::stringstream ss;
-    ss << "Alitheia_Job_" << ++jobCount;
+    ss << "Alitheia_Job_" << d->core->getUniqueId();
     const std::string name = ss.str();
     job->setName( name );
     CorbaHandler::instance()->exportObject( job->_this(), name.c_str() );
     const int id = d->core->registerJob( CORBA::string_dup( name.c_str() ) );
-    d->registeredServices[ id ] = name;
+    d->registeredJobs[ id ] = name;
     return id;
 }
 
@@ -178,7 +177,7 @@ void Core::run()
 
 void Core::shutdown()
 {
-    for( map< int, string >::iterator it = d->registeredServices.begin(); it != d->registeredServices.end(); ++it )
+    for( map< int, string >::iterator it = d->registeredMetrics.begin(); it != d->registeredMetrics.end(); ++it )
     {
         unregisterMetric( it->first );
     }

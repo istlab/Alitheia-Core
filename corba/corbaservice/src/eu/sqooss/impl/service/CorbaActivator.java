@@ -136,12 +136,18 @@ public class CorbaActivator implements BundleActivator {
         Long serviceId = (Long) ref.getProperty(Constants.SERVICE_ID);
         int id = serviceId.intValue();
         registrations.put(id, sr);
+        loggerImpl.debug(eu.sqooss.service.logging.Logger.NAME_SQOOSS, "Registered a CORBA object to ID " + id);
         return id;
     }
     
     public synchronized void unregisterExternalCorbaObject(int id) {
-        registrations.get(id).unregister();
-        registrations.remove(id);
+        try {
+            registrations.get(id).unregister();
+            registrations.remove(id);
+        } catch( Exception e ) {
+            loggerImpl.error(eu.sqooss.service.logging.Logger.NAME_SQOOSS,
+                             "Exception when trying ro unregister a CORBA object with ID " + id);
+        }
     }
     
     protected void registerCorbaObject(String name, org.omg.CORBA.Object obj) throws InvalidName, NotFound, CannotProceed {

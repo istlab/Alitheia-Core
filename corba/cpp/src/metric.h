@@ -34,7 +34,7 @@ namespace Alitheia
         virtual std::string description() const = 0;
         virtual std::string name() const = 0;
         virtual std::string version() const = 0;
-        virtual std::string dateInstalled() const = 0;
+        virtual std::string dateInstalled() const;
 
     protected:
         /**
@@ -51,7 +51,10 @@ namespace Alitheia
         int id() const;
         void setId( int id );
 
+    public:
         std::vector<Metric> getSupportedMetrics() const;
+
+    protected:
         bool addSupportedMetrics( const std::string& description, MetricType::Type type );
 
     private:
