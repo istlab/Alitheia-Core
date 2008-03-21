@@ -1,6 +1,7 @@
 all : build-all
 
-include ../../../Makefile.common
+TOP_SRCDIR=../../..
+include $(TOP_SRCDIR)/Makefile.common
 
 EXT_PATH=../../../extlibs
 EXT_LIBS=org.apache.axiom.api_1.2.2/axiom-api-1.2.2.jar \
