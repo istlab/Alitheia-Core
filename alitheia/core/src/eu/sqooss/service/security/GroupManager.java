@@ -90,7 +90,7 @@ public interface GroupManager {
     
     public GroupPrivilege[] getGroupPrivileges();
     
-    public GroupPrivilege addPrivilegeToGroup(long groupId, long urlId, long privilegeValueId);
+    public boolean addPrivilegeToGroup(long groupId, long urlId, long privilegeValueId);
     
     public boolean deletePrivilegeFromGroup(long groupId, long urlId, long privilegeValueId);
     

@@ -46,6 +46,11 @@ import eu.sqooss.service.security.UserManager;
 
 public class SelfTester {
     
+    private static final String TEST_USER  = "alitheia_test_user";
+    private static final String TEST_PASS  = "alitheia_test_pass";
+    private static final String TEST_MAIL  = "alihteia_test_mail";
+    private static final String TEST_GROUP = "alitheia_test_group";
+    
     private SecurityManager securityManager;
     private UserManager userManager;
     private GroupManager groupManager;
@@ -61,31 +66,32 @@ public class SelfTester {
     }
     
     public String test() {
-        
-        String testResult;
-        
-        if ((testResult = testUserManager()) != null) {
-            return testResult;
+        try {
+            String testResult;
+
+            if ((testResult = testUserManager()) != null) {
+                return testResult;
+            }
+
+            if ((testResult = testGroupManager()) != null) {
+                return testResult;
+            }
+
+            if ((testResult = testServiceUrlManager()) != null) {
+                return testResult;
+            }
+
+            if ((testResult = testPrivilegeManager()) != null) {
+                return testResult;
+            }
+
+            if ((testResult = testSecurityManager()) != null) {
+                return testResult;
+            }
+        } catch (Throwable t) {
+            return "Unexpected exception: " + t.getMessage();
         }
-        
-        if ((testResult = testGroupManager()) != null) {
-            return testResult;
-        }
-        
-        if ((testResult = testServiceUrlManager()) != null) {
-            return testResult;
-        }
-        
-        if ((testResult = testPrivilegeManager()) != null) {
-            return testResult;
-        }
-        
-        if ((testResult = testSecurityManager()) != null) {
-            return testResult;
-        }
-        
         return null;
-        
     }
     
     private String testUserManager() {
@@ -94,7 +100,7 @@ public class SelfTester {
         userManager.deleteUser("fldhfkjs");
         
         try {
-            newUser = userManager.createUser("alitheia", "alitheia", "NA");
+            newUser = userManager.createUser(TEST_USER, TEST_PASS, TEST_PASS);
             if (newUser == null) {
                 return "Could not create a test user!";
             }
@@ -115,7 +121,7 @@ public class SelfTester {
         User newUser = null;
 
         try {
-            newGroup = groupManager.createGroup("root");
+            newGroup = groupManager.createGroup(TEST_GROUP);
             if (newGroup == null) {
                 return "Could not create a test group!";
             }
@@ -124,7 +130,7 @@ public class SelfTester {
                 return "The test group isn't created correct!";
             }
 
-            newUser = userManager.createUser("alitheia", "alitheia", "NA");
+            newUser = userManager.createUser(TEST_USER, TEST_PASS, TEST_MAIL);
 
             groupManager.addUserToGroup(newGroup.getId(), newUser.getId());
 
@@ -209,11 +215,51 @@ public class SelfTester {
             return "Permission granted to the null user!";
         }
         
+        if (!testSecurityManagerCustomRule()) {
+            return "Custom test failed!";
+        }
+        
         return null;
+    }
+    
+    private boolean testSecurityManagerCustomRule() {
+        User user = null;
+        Group group = null;
+        ServiceUrl serviceUrl = null;
+        Privilege privilege = null;
+        PrivilegeValue privilegeValue = null;
+        try {
+            user = userManager.createUser(TEST_USER, TEST_PASS, TEST_MAIL);
+            group = groupManager.createGroup(TEST_GROUP);
+            serviceUrl = serviceUrlManager.createServiceUrl(
+                    SecurityConstants.URL_SQOOSS);
+            privilege = privilegeManager.createPrivilege(
+                    SecurityConstants.Privilege.ALL);
+            privilegeValue = privilegeManager.createPrivilegeValue(
+                    privilege.getId(), SecurityConstants.Privilege.ALL.toString());
+
+            if (!groupManager.addUserToGroup(group.getId(), user.getId())) {
+                return false;
+            }
+
+            if (!groupManager.addPrivilegeToGroup(group.getId(), serviceUrl.getId(),
+                    privilegeValue.getId())) {
+                return false;
+            }
+
+            return securityManager.checkPermission(SecurityConstants.URL_SQOOSS_DATABASE,
+                    null, TEST_USER, TEST_PASS);
+        } finally {
+            testClear(user, group, serviceUrl, privilege, privilegeValue);
+        }
     }
     
     private void testClear(User user, Group group, ServiceUrl serviceUrl,
             Privilege privilege, PrivilegeValue privilegeValue) {
+        if ((serviceUrl != null) && (group != null) && (privilegeValue != null)) {
+            groupManager.deletePrivilegeFromGroup(group.getId(),
+                    serviceUrl.getId(), privilegeValue.getId());
+        }
         if ((user != null) && (group != null)) {
             groupManager.deleteUserFromGroup(group.getId(), user.getId());
         }

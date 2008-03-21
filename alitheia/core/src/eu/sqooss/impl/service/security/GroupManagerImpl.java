@@ -55,10 +55,11 @@ public class GroupManagerImpl implements GroupManager {
     /**
      * @see eu.sqooss.service.security.GroupManager#addPrivilegeToGroup(long, long, long)
      */
-    public GroupPrivilege addPrivilegeToGroup(long groupId, long urlId,
+    public boolean addPrivilegeToGroup(long groupId, long urlId,
             long privilegeValueId) {
-        // TODO:
-        return null;
+        logger.info("Add privilege to group! group's id: " + groupId +
+                "; privilege value's id: " + privilegeValueId + "; url's id: " + urlId);
+        return dbWrapper.addPrivilegeToGroup(groupId, urlId, privilegeValueId);
     }
 
     /**
@@ -102,8 +103,9 @@ public class GroupManagerImpl implements GroupManager {
      */
     public boolean deletePrivilegeFromGroup(long groupId, long urlId,
             long privilegeValueId) {
-        // TODO:
-        return false;
+        logger.info("Delete privilege from group! group's id: " + groupId +
+                "; url's id: " + urlId + "; privilege value's id: " + privilegeValueId);
+        return dbWrapper.deletePrivilegeFromGroup(groupId, urlId, privilegeValueId);
     }
 
     /**

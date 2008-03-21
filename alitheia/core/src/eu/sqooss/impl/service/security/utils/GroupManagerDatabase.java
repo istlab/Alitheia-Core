@@ -35,11 +35,16 @@ package eu.sqooss.impl.service.security.utils;
 import java.util.List;
 import java.util.Set;
 
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
+import org.hibernate.Transaction;
 
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Group;
+import eu.sqooss.service.db.GroupPrivilege;
+import eu.sqooss.service.db.PrivilegeValue;
+import eu.sqooss.service.db.ServiceUrl;
 import eu.sqooss.service.db.User;
 
 public class GroupManagerDatabase implements GroupManagerDBQueries {
@@ -78,6 +83,82 @@ public class GroupManagerDatabase implements GroupManagerDBQueries {
     
     public boolean delete(DAObject dao) {
         return db.deleteRecord(dao);
+    }
+    
+    public boolean addPrivilegeToGroup(long groupId, long urlId,
+            long privilegeValueId) {
+        Session session = db.getSession(this);
+        try {
+            Group group = db.findObjectById(session, Group.class, groupId);
+            PrivilegeValue privilegeValue = db.findObjectById(session, PrivilegeValue.class,
+                    privilegeValueId);
+            ServiceUrl serviceUrl = db.findObjectById(session, ServiceUrl.class, urlId);
+            if ((group != null) && (privilegeValue != null) && (serviceUrl != null)) {
+                GroupPrivilege newGroupPrivilege = new GroupPrivilege();
+                newGroupPrivilege.setGroup(group);
+                newGroupPrivilege.setPv(privilegeValue);
+                newGroupPrivilege.setUrl(serviceUrl);
+                Transaction transaction = null;
+                try {
+                    transaction = session.beginTransaction();
+                    session.persist(newGroupPrivilege);
+                    session.refresh(group);
+                    session.refresh(privilegeValue);
+                    session.refresh(serviceUrl);
+                    transaction.commit();
+                } catch (HibernateException he) {
+                    if (transaction != null) {
+                        transaction.rollback();
+                    }
+                    return false;
+                }
+                return true;
+            } else {
+                return false;
+            }
+        } finally {
+            session.flush();
+            db.returnSession(session);
+        }
+    }
+    
+    public boolean deletePrivilegeFromGroup(long groupId, long urlId, long privilegeValueId) {
+        Session session = db.getSession(this);
+        try {
+            Group group = db.findObjectById(session, Group.class, groupId);
+            PrivilegeValue privilegeValue = db.findObjectById(session, PrivilegeValue.class,
+                    privilegeValueId);
+            ServiceUrl serviceUrl = db.findObjectById(session, ServiceUrl.class, urlId);
+            if ((group != null) && (privilegeValue != null) && (serviceUrl != null)) {
+                GroupPrivilege groupPrivilege = new GroupPrivilege();
+                groupPrivilege.setGroup(group);
+                groupPrivilege.setPv(privilegeValue);
+                groupPrivilege.setUrl(serviceUrl);
+                Object storedGroupPrivilege =
+                    session.get(GroupPrivilege.class, groupPrivilege);
+                if (storedGroupPrivilege != null) {
+                    Transaction transaction = null;
+                    try {
+                        transaction = session.beginTransaction();
+                        session.delete(storedGroupPrivilege);
+                        session.refresh(group);
+                        session.refresh(privilegeValue);
+                        session.refresh(serviceUrl);
+                        transaction.commit();
+                    } catch (HibernateException he) {
+                        if (transaction != null) {
+                            transaction.rollback();
+                        }
+                        return false;
+                    }
+                    return true;
+                }
+            }
+            return false;
+        } finally {
+            session.flush();
+            db.returnSession(session);
+        }
     }
     
     @SuppressWarnings("unchecked")
