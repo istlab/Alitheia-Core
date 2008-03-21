@@ -5,8 +5,10 @@ all : build
 build :
 	$(MAVEN) package install
 
-clean :
+clean : clean-dir
 	rm -rf build target
+
+clean-dir :
 
 install :
 	cp target/*.jar $(PREFIX)
@@ -14,5 +16,5 @@ install :
 help :
 	@echo $(MAVEN)
 
-.PHONY : all build clean install help
+.PHONY : all build clean clean-dir install help
 

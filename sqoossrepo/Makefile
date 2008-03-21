@@ -11,16 +11,20 @@
 # repository).
 #
 # For a development environment in a given directory 
-# you must run
+# you must run the following command once.
 #
 # make install TOP_SRCDIR=/path/to/trunk
 #
-# once to install all the external libraries. If you
+# (If you are working in trunk/ and not in a branch,
+# you may leave out the TOP_SRCDIR, as the default is
+# .., which *is* the path to trunk/)
+#
+# This will install all the external libraries. If you
 # use 'make clean-all' in the development environment
 # or otherwise damage the third-party libraries in 
 # there, run make install again.
 
-TOP_SRCDIR?=../trunk
+TOP_SRCDIR?=..
 include $(TOP_SRCDIR)/Makefile.config
 
 all : build
