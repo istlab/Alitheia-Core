@@ -41,8 +41,7 @@ import java.util.Set;
 public class PrivilegeValue extends DAObject {
     private Privilege privilege;
     private String value;
-    private Set groups = new HashSet();
-    private Set serviceUrls = new HashSet();
+    private Set groupPrivileges = new HashSet();
     
     public PrivilegeValue(){}
 
@@ -62,19 +61,12 @@ public class PrivilegeValue extends DAObject {
         return value;
     }
 
-    public void setGroups(Set groups) {
-        this.groups = groups;
+    public Set getGroupPrivileges() {
+        return groupPrivileges;
     }
 
-    public Set getGroups() {
-        return groups;
+    public void setGroupPrivileges(Set groupPrivileges) {
+        this.groupPrivileges = groupPrivileges;
     }
 
-    public void setServiceUrls(Set serviceUrls) {
-        this.serviceUrls = serviceUrls;
-    }
-
-    public Set getServiceUrls() {
-        return serviceUrls;
-    }
 }

@@ -41,8 +41,7 @@ import eu.sqooss.service.db.DAObject;
 public class Group extends DAObject {
     private String description;
     private Set users = new HashSet();
-    private Set privilegeValues = new HashSet();
-    private Set serviceUrls = new HashSet();
+    private Set groupPrivileges = new HashSet();
 
     // Nothing to do here
     public Group(){}
@@ -63,19 +62,12 @@ public class Group extends DAObject {
         this.users = users;
     }
 
-    public Set getPrivilegeValues() {
-        return privilegeValues;
-    }
-    
-    public void setPrivilegeValues(Set privilegeValues) {
-        this.privilegeValues = privilegeValues;
+    public Set getGroupPrivileges() {
+        return groupPrivileges;
     }
 
-    public Set getServiceUrls() {
-        return serviceUrls;
+    public void setGroupPrivileges(Set groupPrivileges) {
+        this.groupPrivileges = groupPrivileges;
     }
     
-    public void setServiceUrls(Set serviceUrls) {
-        this.serviceUrls = serviceUrls;
-    }
 }
