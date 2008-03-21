@@ -18,6 +18,7 @@ namespace Alitheia
      */
     class Core
     {
+        friend class AbstractMetric;
         friend class Job;
         friend class ProjectFileBuffer;
 
@@ -88,7 +89,8 @@ namespace Alitheia
         void addJobDependency( Job* job, Job* dependency );
         void waitForJobFinished( Job* job );
 
-        bool addSupportedMetrics( const std::string& name, const std::string& description, MetricType::Type type );
+        bool addSupportedMetrics( AbstractMetric* metric, const std::string& description, MetricType::Type type ) const;
+        std::vector< Metric > getSupportedMetrics( const AbstractMetric* metric ) const;
 
     private:
         class Private;

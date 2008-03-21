@@ -39,57 +39,14 @@ abstract public class CorbaMetricImpl extends AbstractMetric {
     }
 
     public boolean install() {
-        return super.install();
+        return super.install() && m.doInstall();
     }
 
     public boolean remove() {
-        return super.remove();
+        return m.doRemove();
     }
 
     public boolean update() {
-        // TODO Auto-generated method stub
-        return false;
-    }
-   
-    protected static FileGroup fromDBObject(eu.sqooss.service.db.FileGroup o) {
-        FileGroup group = new FileGroup();
-        group.id = (int)o.getId();
-        group.name = o.getName();
-        group.subPath = o.getSubPath();
-        group.regex = o.getRegex();
-        group.recalcFreq = o.getRecalcFreq();
-        group.lastUsed = o.getLastUsed().toString();
-        group.projectVersion = fromDBObject(o.getProjectVersion());
-        return group;
-    }
-
-    protected static StoredProject fromDBObject(eu.sqooss.service.db.StoredProject o) {
-        StoredProject project = new StoredProject();
-        project.id = (int)o.getId();
-        project.name = o.getName();
-        project.website = o.getWebsite();
-        project.contact = o.getContact();
-        project.bugs = o.getBugs();
-        project.repository = o.getRepository();
-        project.mail = o.getMail();
-        return project;
-    }
-
-    protected static ProjectVersion fromDBObject(eu.sqooss.service.db.ProjectVersion o) {
-        ProjectVersion version = new ProjectVersion();
-        version.id = (int)o.getId();
-        version.project = fromDBObject(o.getProject());
-        version.version = (int)o.getVersion();
-        version.timeStamp = (int)o.getTimestamp();
-        return version;
-    }
-
-    protected static ProjectFile fromDBObject(eu.sqooss.service.db.ProjectFile o) {
-        ProjectFile file = new ProjectFile();
-        file.id = (int)o.getId();
-        file.name = o.getName();
-        file.status = o.getStatus();
-        file.projectVersion = fromDBObject(o.getProjectVersion());
-        return file;
+        return m.doUpdate();
     }
 }

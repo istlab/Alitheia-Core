@@ -3,6 +3,7 @@ package eu.sqooss.impl.metrics.corba;
 import org.osgi.framework.BundleContext;
 
 import eu.sqooss.impl.service.corba.alitheia.FileGroupMetric;
+import eu.sqooss.impl.service.corba.alitheia.db.DAObject;
 import eu.sqooss.lib.result.Result;
 import eu.sqooss.service.db.FileGroup;
 
@@ -21,8 +22,6 @@ public class CorbaFileGroupMetricImpl extends CorbaMetricImpl implements eu.sqoo
 	}
 
 	public void run(FileGroup a) {
-        metric.run(fromDBObject(a));
+        metric.run(DAObject.toCorbaObject(a));
     }
-
-
 }

@@ -2,6 +2,7 @@ package eu.sqooss.impl.metrics.corba;
 
 import org.osgi.framework.BundleContext;
 
+import eu.sqooss.impl.service.corba.alitheia.db.DAObject;
 import eu.sqooss.impl.service.corba.alitheia.ProjectVersionMetric;
 import eu.sqooss.lib.result.Result;
 import eu.sqooss.service.db.ProjectVersion;
@@ -21,11 +22,10 @@ public class CorbaProjectVersionMetricImpl extends CorbaMetricImpl implements eu
 	}
 
 	public boolean run(ProjectVersion a, ProjectVersion b) {
-	    return metric.run2nd(fromDBObject(a), fromDBObject(b));
+	    return metric.run2nd(DAObject.toCorbaObject(a), DAObject.toCorbaObject(b));
     }
 
 	public void run(ProjectVersion v) {
-	    metric.run(fromDBObject(v));	
+	    metric.run(DAObject.toCorbaObject(v));	
 	}
-
 }

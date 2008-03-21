@@ -140,6 +140,9 @@ module alitheia
 
   interface AbstractMetric
   {
+    boolean doInstall();
+    boolean doRemove();
+    boolean doUpdate();
     // Get information about the metric author
     string getAuthor();
     // Get a free text description of what this metric calculates

@@ -19,7 +19,7 @@ namespace Alitheia
 
         virtual operator CORBA::Any() const = 0;
 
-        const int id;
+        int id;
     };
 
     class StoredProject : public DAObject
@@ -31,12 +31,12 @@ namespace Alitheia
         alitheia::StoredProject toCorba() const;
         operator CORBA::Any() const;
        
-        const std::string name;
-        const std::string website;
-        const std::string contact;
-        const std::string bugs;
-        const std::string repository;
-        const std::string mail;
+        std::string name;
+        std::string website;
+        std::string contact;
+        std::string bugs;
+        std::string repository;
+        std::string mail;
     };
 
     class ProjectVersion : public DAObject
@@ -48,9 +48,9 @@ namespace Alitheia
         alitheia::ProjectVersion toCorba() const;
         operator CORBA::Any() const;
 
-        const StoredProject project;
-        const int version;
-        const int timeStamp;
+        StoredProject project;
+        int version;
+        int timeStamp;
     };
 
     class ProjectFile : public std::istream, public DAObject
@@ -64,9 +64,11 @@ namespace Alitheia
         alitheia::ProjectFile toCorba() const;
         operator CORBA::Any() const;
 
-        const std::string name;
-        const ProjectVersion projectVersion;
-        const std::string status;
+        ProjectFile& operator=( const ProjectFile& other );
+
+        std::string name;
+        ProjectVersion projectVersion;
+        std::string status;
     };
 
 
@@ -78,22 +80,17 @@ namespace Alitheia
         alitheia::FileGroup toCorba() const;
         operator CORBA::Any() const;
 
-        const std::string name;
-        const std::string subPath;
-        const std::string regex;
-        const int recalcFreq;
-        const std::string lastUsed;
-        const ProjectVersion projectVersion;
+        std::string name;
+        std::string subPath;
+        std::string regex;
+        int recalcFreq;
+        std::string lastUsed;
+        ProjectVersion projectVersion;
     };
 
     class MetricType : public DAObject
     {
     public:
-        explicit MetricType( const alitheia::MetricType& metrictype );
-
-        alitheia::MetricType toCorba() const;
-        operator CORBA::Any() const;
-
         enum Type
         {
             SourceCode = ::alitheia::SourceCode,
@@ -101,32 +98,55 @@ namespace Alitheia
             BugDatabase = ::alitheia::BugDatabase
         };
 
-        const Type type;
+        MetricType() : type( SourceCode ) {}
+        explicit MetricType( const alitheia::MetricType& metrictype );
+
+        alitheia::MetricType toCorba() const;
+        operator CORBA::Any() const;
+
+        Type type;
     };
 
     class Plugin : public DAObject
     {
     public:
+        Plugin() {}
         explicit Plugin( const alitheia::Plugin& plugin );
 
         alitheia::Plugin toCorba() const;
         operator CORBA::Any() const;
 
-        const std::string name;
-        const std::string installdate;
+        std::string name;
+        std::string installdate;
     };
 
     class Metric : public DAObject
     {
     public:
+        Metric() {}
         explicit Metric( const alitheia::Metric& metric );
 
         alitheia::Metric toCorba() const;
         operator CORBA::Any() const;
 
-        const Plugin plugin;
-        const MetricType metricType;
-        const std::string description;
+        Plugin plugin;
+        MetricType metricType;
+        std::string description;
+    };
+
+    class ProjectFileMeasurement : public DAObject
+    {
+    public:
+        ProjectFileMeasurement() {}
+        explicit ProjectFileMeasurement( const alitheia::ProjectFileMeasurement& measurement );
+
+        alitheia::ProjectFileMeasurement toCorba() const;
+        operator CORBA::Any() const;
+
+        Metric metric;
+        ProjectFile projectFile;
+        std::string whenRun;
+        std::string result;
     };
 }
 

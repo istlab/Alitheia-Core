@@ -17,11 +17,18 @@ namespace Alitheia
     public:
         ~AbstractMetric();
 
+        virtual CORBA::Boolean doInstall();
+        virtual CORBA::Boolean doRemove();
+        virtual CORBA::Boolean doUpdate();
         virtual char* getAuthor();
         virtual char* getDescription();
         virtual char* getName();
         virtual char* getVersion();
         virtual char* getDateInstalled();
+
+        virtual bool install();
+        virtual bool remove();
+        virtual bool update();
 
         virtual std::string author() const = 0;
         virtual std::string description() const = 0;
@@ -69,7 +76,7 @@ namespace Alitheia
         void run( const alitheia::ProjectFile& projectFile );
 
         virtual std::string getResult( const ProjectFile& projectFile ) const = 0;
-        virtual void run( ProjectFile& projectFile ) const = 0;
+        virtual void run( ProjectFile& projectFile ) = 0;
     };
 
     class StoredProjectMetric : public AbstractMetric, virtual public POA_alitheia::StoredProjectMetric

@@ -2,6 +2,7 @@ package eu.sqooss.impl.metrics.corba;
 
 import org.osgi.framework.BundleContext;
 
+import eu.sqooss.impl.service.corba.alitheia.db.DAObject;
 import eu.sqooss.impl.service.corba.alitheia.ProjectFileMetric;
 import eu.sqooss.impl.service.corba.alitheia.ProjectFile;
 import eu.sqooss.lib.result.Result;
@@ -21,7 +22,7 @@ public class CorbaProjectFileMetricImpl extends CorbaMetricImpl implements eu.sq
     }
 
     public void run(eu.sqooss.service.db.ProjectFile a) {
-        ProjectFile file = fromDBObject(a);
+        ProjectFile file = DAObject.toCorbaObject(a);
         metric.run(file);
     }
 }

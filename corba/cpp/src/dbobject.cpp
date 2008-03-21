@@ -124,12 +124,18 @@ ProjectFile::ProjectFile( const alitheia::ProjectFile& file )
 }
 
 ProjectFile::ProjectFile( const ProjectFile& other )
-    : istream( other.rdbuf() ),
-      DAObject( other.id ),
-      name( other.name ),
-      projectVersion( other.projectVersion ),
-      status( other.status )
+    : istream( other.rdbuf() )
 {
+    *this = other;
+}
+
+ProjectFile& ProjectFile::operator=( const ProjectFile& other )
+{
+    id = other.id;
+    name = other.name;
+    projectVersion = other.projectVersion;
+    status = other.status;
+    return *this;
 }
 
 alitheia::ProjectFile ProjectFile::toCorba() const
@@ -218,7 +224,7 @@ alitheia::Plugin Plugin::toCorba() const
     alitheia::Plugin result;
     result.id = id;
     result.name = CORBA::string_dup( name.c_str() );
-    result.installdate = CORBA::string_dup( name.c_str() );
+    result.installdate = CORBA::string_dup( installdate.c_str() );
     return result;
 }
 
@@ -248,6 +254,33 @@ alitheia::Metric Metric::toCorba() const
 }
 
 Metric::operator CORBA::Any() const
+{
+    CORBA::Any any;
+    any <<= toCorba();
+    return any;
+}
+
+ProjectFileMeasurement::ProjectFileMeasurement( const alitheia::ProjectFileMeasurement& measurement )
+    : DAObject( measurement.id ),
+      metric( measurement.metric ),
+      projectFile( measurement.projectFile ),
+      whenRun( measurement.whenRun ),
+      result( measurement.result )
+{
+}
+
+alitheia::ProjectFileMeasurement ProjectFileMeasurement::toCorba() const
+{
+    alitheia::ProjectFileMeasurement result;
+    result.id = id;
+    result.metric = metric.toCorba();
+    result.projectFile = projectFile.toCorba();
+    result.whenRun = CORBA::string_dup( whenRun.c_str() );
+    result.result = CORBA::string_dup( this->result.c_str() );
+    return result;
+}
+
+ProjectFileMeasurement::operator CORBA::Any() const
 {
     CORBA::Any any;
     any <<= toCorba();

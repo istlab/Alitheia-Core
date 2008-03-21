@@ -2,6 +2,8 @@ package eu.sqooss.impl.service.corba.alitheia.db;
 
 import java.sql.Time;
 import java.util.Date;
+import java.util.Locale;
+import java.text.DateFormat;
 
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
@@ -59,12 +61,24 @@ public abstract class DAObject {
         return null;
     }
 
+    private static String formatDate(Date date) {
+        return DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.LONG, Locale.US).format(date);
+    }
+
+    private static Date parseDate(String date) {
+        try {
+            return DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.LONG, Locale.US).parse(date);
+        } catch( Exception e ) {
+            return null;
+        }
+    }
+
     public static eu.sqooss.impl.service.corba.alitheia.ProjectFileMeasurement toCorbaObject(ProjectFileMeasurement m) {
         eu.sqooss.impl.service.corba.alitheia.ProjectFileMeasurement measurement = new eu.sqooss.impl.service.corba.alitheia.ProjectFileMeasurement();
         measurement.id = (int)m.getId();
         measurement.metric = toCorbaObject(m.getMetric());
         measurement.projectFile = toCorbaObject(m.getProjectFile());
-        measurement.whenRun = m.getWhenRun().toString();
+        measurement.whenRun = formatDate(m.getWhenRun());
         measurement.result = m.getResult();
         return measurement;
     }
@@ -74,7 +88,7 @@ public abstract class DAObject {
         measurement.setId(m.id);
         measurement.setMetric(fromCorbaObject(m.metric));
         measurement.setProjectFile(fromCorbaObject(m.projectFile));
-        measurement.setWhenRun(Time.valueOf(m.whenRun));
+        measurement.setWhenRun(new Time(parseDate(m.whenRun).getTime()));
         measurement.setResult(m.result);
         return measurement;
     }
@@ -139,7 +153,7 @@ public abstract class DAObject {
         eu.sqooss.impl.service.corba.alitheia.Plugin plugin = new eu.sqooss.impl.service.corba.alitheia.Plugin();
         plugin.id = (int)p.getId();
         plugin.name = p.getName();
-        plugin.installdate = p.getInstalldate().toString();
+        plugin.installdate = formatDate(p.getInstalldate());
         return plugin;
     }
 
@@ -147,7 +161,7 @@ public abstract class DAObject {
         Plugin plugin = new Plugin();
         plugin.setId(p.id);
         plugin.setName(p.name);
-        plugin.setInstalldate(new Date(Date.parse(p.installdate)));
+        plugin.setInstalldate(parseDate((p.installdate)));
         return plugin;
     }
 
@@ -158,7 +172,7 @@ public abstract class DAObject {
         fileGroup.subPath = group.getSubPath();
         fileGroup.regex = group.getRegex();
         fileGroup.recalcFreq = group.getRecalcFreq();
-        fileGroup.lastUsed = group.getLastUsed().toString();
+        fileGroup.lastUsed = formatDate(group.getLastUsed());
         fileGroup.projectVersion = toCorbaObject(group.getProjectVersion());
         return fileGroup;
     }
@@ -170,7 +184,7 @@ public abstract class DAObject {
         fileGroup.setSubPath(group.subPath);
         fileGroup.setRegex(group.regex);
         fileGroup.setRecalcFreq(group.recalcFreq);
-        fileGroup.setLastUsed(Time.valueOf(group.lastUsed));
+        fileGroup.setLastUsed(new Time(parseDate(group.lastUsed).getTime()));
         fileGroup.setProjectVersion(fromCorbaObject(group.projectVersion));
         return fileGroup;
     }

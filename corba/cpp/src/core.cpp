@@ -151,6 +151,26 @@ std::string Core::getFileContents( const ProjectFile& file )
     return std::string( content, length );
 }
 
+bool Core::addSupportedMetrics( AbstractMetric* metric, const std::string& description, MetricType::Type type ) const
+{
+    return d->core->addSupportedMetrics( CORBA::string_dup( metric->orbName().c_str() ), 
+                                         CORBA::string_dup( description.c_str() ),
+                                         static_cast< alitheia::MetricTypeType >( type ) );
+}
+
+std::vector< Metric > Core::getSupportedMetrics( const AbstractMetric* metric ) const
+{
+    const alitheia::MetricList& metrics = *(d->core->getSupportedMetrics( CORBA::string_dup( metric->orbName().c_str() ) ));
+
+    std::vector< Metric > result;
+
+    const uint length = metrics.length();
+    for( uint i = 0; i < length; ++i )
+        result.push_back( Metric( metrics[ i ] ) );
+
+    return result;
+}
+
 void Core::run()
 {
     CorbaHandler::instance()->run();

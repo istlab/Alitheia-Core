@@ -155,12 +155,13 @@ public class CoreImpl extends CorePOA {
     public Metric[] getSupportedMetrics(String metricname) {
         CorbaMetricImpl metric = registeredMetrics.get(metricname);
         List<eu.sqooss.service.db.Metric> metrics = metric.getSupportedMetrics();
-        List<Metric> result = new LinkedList();
-        for( eu.sqooss.service.db.Metric m : metrics )
-        {
-            result.add(DAObject.toCorbaObject(m));
+        
+        Metric[] result = new Metric[metrics.size()];
+        for( int i = 0; i < metrics.size(); ++i ) {
+            result[ i ] = DAObject.toCorbaObject(metrics.get(i));
         }
-        return (Metric[])result.toArray();
+
+        return result;
     }
 
     public boolean addSupportedMetrics(String metricname, String description, MetricTypeType type) {

@@ -2,17 +2,23 @@
 #include <Core>
 #include <Metric>
 #include <DBObject>
+#include <Database>
 
 #include <sstream>
 #include <ostream>
+#include <vector>
 
 using namespace std;
 using namespace Alitheia;
 
-template< class METRIC >
-class MyMetric : virtual public METRIC
+class MyMetric : virtual public ProjectFileMetric
 {
 public:
+    bool install()
+    {
+        return addSupportedMetrics( description(), MetricType::SourceCode );
+    }
+
     string name() const
     {
         return "Example CORBA metric";
@@ -63,17 +69,36 @@ public:
         return "getResult";
     }
 
-    void run( ProjectFile& file ) const
+    void run( ProjectFile& file )
     {
         Logger logger( Logger::NameSqoOssMetric );
         logger.setTeeStream( cout );
-        logger << "MyMetric::run: " << file.name << endl;
-        logger << "MyMetric::run: " << file.status << endl;
-        logger << "MyMetric::run: " << file.projectVersion.version << endl;
+        logger << "MyMetric: Measuring " << file.name << endl;
         string line;
-        std::getline( file, line );
-        logger << "MyMetric::run: First line: " << line << endl;
+        int count = -1;
+        do
+        {
+            ++count;
+            std::getline( file, line );
+        } while( !file.eof() );
+
+        vector<Metric> metrics = getSupportedMetrics();
+        if( metrics.empty() )
+            return;
+
+        // add the result
+        ProjectFileMeasurement m;
+        m.metric = metrics.front();
+        m.projectFile = file;
+        m.whenRun = m.metric.plugin.installdate;
+        stringstream ss;
+        ss << count;
+        m.result = ss.str();
+        db.addRecord( m );
     }
+
+private:
+    Database db;
 };
 
 int main( int argc, char **argv)
@@ -83,30 +108,12 @@ int main( int argc, char **argv)
     Logger logger( Logger::NameSqoOssMetric );
     logger.setTeeStream( cout );
     
-    MyMetric< ProjectFileMetric>* m = new MyMetric< ProjectFileMetric >;
+    MyMetric* m = new MyMetric;
     logger << "Registering C++ client metric..." << endl;
     int id = c.registerMetric( m );
     logger << "C++ client metric registered, id is " << id << "." << endl;
 
-/*    m = new MyMetric< ProjectVersionMetric >;
-    logger << "Registering C++ client metric..." << endl;
-    id = c.registerMetric( m );
-    logger << "C++ client metric registered, id is " << id << "." << endl;
-
-
-    m = new MyMetric< FileGroupMetric >;
-    logger << "Registering C++ client metric..." << endl;
-    id = c.registerMetric( m );
-    logger << "C++ client metric registered, id is " << id << "." << endl;
-
-
-    m = new MyMetric< StoredProjectMetric >;
-    logger << "Registering C++ client metric..." << endl;
-    id = c.registerMetric( m );
-    logger << "C++ client metric registered, id is " << id << "." << endl;*/
-
-
-    logger << "Metrics waiting for orders..." << endl;
+    logger << "Metric waiting for orders..." << endl;
     
     c.run();
 }

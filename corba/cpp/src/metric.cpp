@@ -36,6 +36,36 @@ AbstractMetric::~AbstractMetric()
     delete d;
 }
 
+CORBA::Boolean AbstractMetric::doInstall()
+{
+    return install();
+}
+
+CORBA::Boolean AbstractMetric::doRemove()
+{
+    return remove();
+}
+
+CORBA::Boolean AbstractMetric::doUpdate()
+{
+    return update();
+}
+
+bool AbstractMetric::install()
+{
+    return false;
+}
+
+bool AbstractMetric::remove()
+{
+    return false;
+}
+
+bool AbstractMetric::update()
+{
+    return false;
+}
+
 char* AbstractMetric::getAuthor()
 {
     return CORBA::string_dup( author().c_str() );
@@ -79,6 +109,16 @@ int AbstractMetric::id() const
 void AbstractMetric::setId( int id )
 {
     d->id = id;
+}
+
+std::vector<Metric> AbstractMetric::getSupportedMetrics() const
+{
+    return Core::instance()->getSupportedMetrics( this );
+}
+
+bool AbstractMetric::addSupportedMetrics( const std::string& description, MetricType::Type type )
+{
+    return Core::instance()->addSupportedMetrics( this, description, type );
 }
 
 char* ProjectVersionMetric::getResult( const alitheia::ProjectVersion& projectVersion )
