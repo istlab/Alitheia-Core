@@ -3,11 +3,12 @@
 
 #include <string>
 
+#include "dbobject.h"
+
 namespace Alitheia
 {
     class Job;
     class AbstractMetric;
-    class ProjectFile;
 
     /**
      * @brief The main connection to register metrics in the Alitheia system.
@@ -86,6 +87,8 @@ namespace Alitheia
     protected:
         void addJobDependency( Job* job, Job* dependency );
         void waitForJobFinished( Job* job );
+
+        bool addSupportedMetrics( const std::string& name, const std::string& description, MetricType::Type type );
 
     private:
         class Private;

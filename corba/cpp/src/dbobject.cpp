@@ -184,3 +184,72 @@ FileGroup::operator CORBA::Any() const
     any <<= toCorba();
     return any;
 }
+
+MetricType::MetricType( const alitheia::MetricType& type )
+    : DAObject( type.id ),
+      type( static_cast< Type >( type.type ) )
+{
+}
+
+alitheia::MetricType MetricType::toCorba() const
+{
+    alitheia::MetricType result;
+    result.id = id;
+    result.type = static_cast< alitheia::MetricTypeType >( type );
+    return result;
+}
+
+MetricType::operator CORBA::Any() const
+{
+    CORBA::Any any;
+    any <<= toCorba();
+    return any;
+}
+
+Plugin::Plugin( const alitheia::Plugin& plugin )
+    : DAObject( plugin.id ),
+      name( plugin.name ),
+      installdate( plugin.installdate )
+{
+}
+
+alitheia::Plugin Plugin::toCorba() const
+{
+    alitheia::Plugin result;
+    result.id = id;
+    result.name = CORBA::string_dup( name.c_str() );
+    result.installdate = CORBA::string_dup( name.c_str() );
+    return result;
+}
+
+Plugin::operator CORBA::Any() const
+{
+    CORBA::Any any;
+    any <<= toCorba();
+    return any;
+}
+
+Metric::Metric( const alitheia::Metric& metric )
+    : DAObject( metric.id ),
+      plugin( metric.plugin ),
+      metricType( metric.metricType ),
+      description( metric.description )
+{
+}
+
+alitheia::Metric Metric::toCorba() const
+{
+    alitheia::Metric result;
+    result.id = id;
+    result.plugin = plugin.toCorba();
+    result.metricType = metricType.toCorba();
+    result.description = CORBA::string_dup( description.c_str() );
+    return result;
+}
+
+Metric::operator CORBA::Any() const
+{
+    CORBA::Any any;
+    any <<= toCorba();
+    return any;
+}

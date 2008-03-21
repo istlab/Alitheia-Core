@@ -3,8 +3,10 @@ module alitheia
 {
   struct ProjectVersion;
   struct ProjectFile;
+  struct Metric;
   typedef sequence<ProjectFile> ProjectFileList;
   typedef sequence<ProjectVersion> ProjectVersionList;
+  typedef sequence<Metric> MetricList;
 
   struct StoredProject
   {
@@ -31,12 +33,6 @@ module alitheia
     string name;
     ProjectVersion projectVersion;
     string status;
-  };
-
-  struct Tag
-  {
-    ProjectVersion projectVersion;
-    string name;
   };
 
   struct FileGroup
@@ -104,6 +100,9 @@ module alitheia
     // puts the contents of \a file into \a contents
     // returns the length of the file
     long getFileContents( in ProjectFile file, out string contents );
+
+    boolean addSupportedMetrics( in string metricname, in string description, in MetricTypeType type );
+    MetricList getSupportedMetrics( in string metricname );
   };
 
   interface Database

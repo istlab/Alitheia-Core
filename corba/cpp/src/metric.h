@@ -3,14 +3,11 @@
 
 #include "Alitheia.h"
 
+#include "dbobject.h"
+
 namespace Alitheia
 {
     class Core;
-
-    class StoredProject;
-    class ProjectVersion;
-    class ProjectFile;
-    class FileGroup;
 
     class AbstractMetric : virtual public POA_alitheia::AbstractMetric
     {
@@ -46,6 +43,9 @@ namespace Alitheia
 
         int id() const;
         void setId( int id );
+
+        std::vector<Metric> getSupportedMetrics() const;
+        bool addSupportedMetrics( const std::string& description, MetricType::Type type );
 
     private:
         class Private;

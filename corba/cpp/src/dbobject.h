@@ -1,16 +1,8 @@
 #ifndef DBOBJECT_H
-#define DBOBJECT
+#define DBOBJECT_H
 
 #include <istream>
 #include <string>    
-
-/*namespace alitheia
-{
-    class StoredProject;
-    class ProjectVersion;
-    class ProjectFile;
-    class FileGroup;
-}*/
 
 #include "Alitheia.h"
 
@@ -92,6 +84,49 @@ namespace Alitheia
         const int recalcFreq;
         const std::string lastUsed;
         const ProjectVersion projectVersion;
+    };
+
+    class MetricType : public DAObject
+    {
+    public:
+        explicit MetricType( const alitheia::MetricType& metrictype );
+
+        alitheia::MetricType toCorba() const;
+        operator CORBA::Any() const;
+
+        enum Type
+        {
+            SourceCode = ::alitheia::SourceCode,
+            MailingList = ::alitheia::MailingList,
+            BugDatabase = ::alitheia::BugDatabase
+        };
+
+        const Type type;
+    };
+
+    class Plugin : public DAObject
+    {
+    public:
+        explicit Plugin( const alitheia::Plugin& plugin );
+
+        alitheia::Plugin toCorba() const;
+        operator CORBA::Any() const;
+
+        const std::string name;
+        const std::string installdate;
+    };
+
+    class Metric : public DAObject
+    {
+    public:
+        explicit Metric( const alitheia::Metric& metric );
+
+        alitheia::Metric toCorba() const;
+        operator CORBA::Any() const;
+
+        const Plugin plugin;
+        const MetricType metricType;
+        const std::string description;
     };
 }
 

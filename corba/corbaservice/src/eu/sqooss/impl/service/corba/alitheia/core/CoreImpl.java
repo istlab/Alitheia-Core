@@ -2,6 +2,8 @@ package eu.sqooss.impl.service.corba.alitheia.core;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
+import java.util.LinkedList;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -26,6 +28,8 @@ import eu.sqooss.impl.service.corba.alitheia.StoredProjectMetric;
 import eu.sqooss.impl.service.corba.alitheia.StoredProjectMetricHelper;
 import eu.sqooss.impl.service.corba.alitheia.FileGroupMetric;
 import eu.sqooss.impl.service.corba.alitheia.FileGroupMetricHelper;
+import eu.sqooss.impl.service.corba.alitheia.Metric;
+import eu.sqooss.impl.service.corba.alitheia.MetricTypeType;
 import eu.sqooss.impl.service.corba.alitheia.job.CorbaJobImpl;
 
 import eu.sqooss.impl.metrics.corba.CorbaMetricImpl;
@@ -37,94 +41,98 @@ import eu.sqooss.impl.metrics.corba.CorbaFileGroupMetricImpl;
 
 public class CoreImpl extends CorePOA {
 
-	BundleContext bc = null;
+    BundleContext bc = null;
     FDSService fds = null;
 
-	Map< String, CorbaJobImpl > registeredJobs = null;
-	
-	public CoreImpl(BundleContext bc) {
-		this.bc = bc;
-		registeredJobs = new HashMap< String, CorbaJobImpl >();
+    Map< String, CorbaJobImpl > registeredJobs = null;
+    Map< String, CorbaMetricImpl > registeredMetrics = null;
+    
+    public CoreImpl(BundleContext bc) {
+        this.bc = bc;
+        registeredJobs = new HashMap< String, CorbaJobImpl >();
+        registeredMetrics = new HashMap< String, CorbaMetricImpl >();
 
         ServiceReference serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
         fds = ((AlitheiaCore)bc.getService(serviceRef)).getFDSService();
-	}
-	
-	public int registerMetric(String name) {
-		org.omg.CORBA.Object o;
-		try {
-			o = CorbaActivator.instance().getExternalCorbaObject(name);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return -1;
-		}
-		CorbaMetricImpl wrapper = null;
-		if (o._is_a(ProjectVersionMetricHelper.id()))
-		{
-			ProjectVersionMetric m = ProjectVersionMetricHelper.narrow(o);
-			wrapper = new CorbaProjectVersionMetricImpl(bc,m);
-		}
-		else if (o._is_a(ProjectFileMetricHelper.id()))
-		{
-			ProjectFileMetric m = ProjectFileMetricHelper.narrow(o);
-			wrapper = new CorbaProjectFileMetricImpl(bc,m);
-		}
-		else if (o._is_a(StoredProjectMetricHelper.id()))
-		{
-			StoredProjectMetric m = StoredProjectMetricHelper.narrow(o);
-			wrapper = new CorbaStoredProjectMetricImpl(bc,m);
-		}
-		else if (o._is_a(FileGroupMetricHelper.id()))
-		{
-			FileGroupMetric m = FileGroupMetricHelper.narrow(o);
-			wrapper = new CorbaFileGroupMetricImpl(bc,m);
-		}
-		
-		return CorbaActivator.instance().registerExternalCorbaObject(CorbaMetricImpl.class.getName(), wrapper);
-	}
+    }
+    
+    public int registerMetric(String name) {
+        org.omg.CORBA.Object o;
+        try {
+            o = CorbaActivator.instance().getExternalCorbaObject(name);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
+        CorbaMetricImpl wrapper = null;
+        if (o._is_a(ProjectVersionMetricHelper.id()))
+        {
+            ProjectVersionMetric m = ProjectVersionMetricHelper.narrow(o);
+            wrapper = new CorbaProjectVersionMetricImpl(bc,m);
+        }
+        else if (o._is_a(ProjectFileMetricHelper.id()))
+        {
+            ProjectFileMetric m = ProjectFileMetricHelper.narrow(o);
+            wrapper = new CorbaProjectFileMetricImpl(bc,m);
+        }
+        else if (o._is_a(StoredProjectMetricHelper.id()))
+        {
+            StoredProjectMetric m = StoredProjectMetricHelper.narrow(o);
+            wrapper = new CorbaStoredProjectMetricImpl(bc,m);
+        }
+        else if (o._is_a(FileGroupMetricHelper.id()))
+        {
+            FileGroupMetric m = FileGroupMetricHelper.narrow(o);
+            wrapper = new CorbaFileGroupMetricImpl(bc,m);
+        }
+        
+        registeredMetrics.put(name, wrapper);
+        
+        return CorbaActivator.instance().registerExternalCorbaObject(CorbaMetricImpl.class.getName(), wrapper);
+    }
 
-	public void unregisterMetric(int id) {
-		CorbaActivator.instance().unregisterExternalCorbaObject(id);
-	}
+    public void unregisterMetric(int id) {
+        CorbaActivator.instance().unregisterExternalCorbaObject(id);
+    }
 
-	public int registerJob(String name) {
-		org.omg.CORBA.Object o;
-		try {
-			o = CorbaActivator.instance().getExternalCorbaObject(name);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return -1;
-		}
-		Job j = JobHelper.narrow(o);
-		CorbaJobImpl impl = new CorbaJobImpl(bc,j);
-		registeredJobs.put(name, impl);
-		return impl.hashCode();
-	}
+    public int registerJob(String name) {
+        org.omg.CORBA.Object o;
+        try {
+            o = CorbaActivator.instance().getExternalCorbaObject(name);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
+        Job j = JobHelper.narrow(o);
+        CorbaJobImpl impl = new CorbaJobImpl(bc,j);
+        registeredJobs.put(name, impl);
+        return impl.hashCode();
+    }
 
-	public void unregisterJob(int id) {
-		// TODO Auto-generated method stub
-		
-	}
+    public void unregisterJob(int id) {
+        // TODO Auto-generated method stub
+        
+    }
 
-	public void enqueueJob(String name) {
-		registeredJobs.get(name).enqueue();
-	}
+    public void enqueueJob(String name) {
+        registeredJobs.get(name).enqueue();
+    }
 
-	public void addJobDependency(String job, String dependency) {
-		try {
-			registeredJobs.get(job).addDependency(registeredJobs.get(dependency));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
-	public void waitForJobFinished(String job) {
-		try {
-			registeredJobs.get(job).waitForFinished();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+    public void addJobDependency(String job, String dependency) {
+        try {
+            registeredJobs.get(job).addDependency(registeredJobs.get(dependency));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public void waitForJobFinished(String job) {
+        try {
+            registeredJobs.get(job).waitForFinished();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
   
 
     public int getFileContents(eu.sqooss.impl.service.corba.alitheia.ProjectFile file, org.omg.CORBA.StringHolder contents) {
@@ -142,5 +150,21 @@ public class CoreImpl extends CorePOA {
         }
         contents.value = new String(content);
         return content.length;
+    }
+
+    public Metric[] getSupportedMetrics(String metricname) {
+        CorbaMetricImpl metric = registeredMetrics.get(metricname);
+        List<eu.sqooss.service.db.Metric> metrics = metric.getSupportedMetrics();
+        List<Metric> result = new LinkedList();
+        for( eu.sqooss.service.db.Metric m : metrics )
+        {
+            result.add(DAObject.toCorbaObject(m));
+        }
+        return (Metric[])result.toArray();
+    }
+
+    public boolean addSupportedMetrics(String metricname, String description, MetricTypeType type) {
+        CorbaMetricImpl metric = registeredMetrics.get(metricname);
+        return metric.doAddSupportedMetrics(description, DAObject.fromCorbaObject(type));
     }
 }
