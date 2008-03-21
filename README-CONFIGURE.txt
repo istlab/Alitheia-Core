@@ -8,15 +8,18 @@ This README explains how to configure an Alitheia Core Platform for use.
 *** Runtime configuration
 ***
 
-The "make run" target launches a local Alitheia system. You may optionally
-add an argument CONFIG= to the command line specifying options to pass
+The 'make run' target launches a local Alitheia system. You may optionally
+add an argument JAVA_ARGS= to the command line specifying options to pass
 to the JVM. Typical use would be something like this:
 
-	make run CONFIG="-Dlog4j.configuration=file:///tmp/l4j.config"
+	make run JAVA_ARGS=-Xmx4096M
 
 The following system properties are (at the very least) used:
 
-[ No system properties are used at this time. ]
+log4j.configuration
+	Set this to the URL of a log4j configuration file. The default
+	is the log4j configuration file in equinox/configuration,
+	which logs everything to a file and errors to the console.
 
 ***
 *** Runtime configuration of OSGi
@@ -46,9 +49,9 @@ passed in as an argument to the JVM: Add
 to "VM Arguments" under "Arguments" in the debug configuration used to
 run the Alitheia OSGi bundles. 
 
-Then each service object
-registered with the OSGi framework (on startup of the tester bundle)
-will be examined. Those with a selfTest() method will be called.
+Then each service object registered with the OSGi framework (on startup 
+of the tester bundle) will be examined. Those with a selfTest() method 
+will be called.
 
 The selfTest() method should return null on success and an Object
 which describes the failure (for instance, a String) on failure.
@@ -67,20 +70,4 @@ This selfTest() method must be defined in the object which is passed
 to BundleContext.registerService().
 
 
-***
-*** Alternate logging subsystem
-***
-
-The branches/logger-log4j directory contains an alternative logger 
-implementation based on Apache log4j. You may move away the alitheia/logger
-directory and move in the log4j directory as it is source compatible.
-Rebuild the system. This adds one runtime configuration option:
-
-log4j.configuration
-	Set this to the URL of a log4j configuration file. The default
-	configuration is contained within the logger bundle; you may override
-	this by setting the configuration URL explicitly.
-
-	The default logging sends errors to the console and logs everything
-	else to a file alitheia.log in the runtime directory.
 

@@ -34,7 +34,7 @@
   </scm>
 
   <build>
-    <defaultGoal>deploy:deploy</defaultGoal>
+    <defaultGoal>package</defaultGoal>
     <sourceDirectory>${basedir}/result/src</sourceDirectory>
     <outputDirectory>${basedir}/build</outputDirectory>
     <plugins>

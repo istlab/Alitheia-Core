@@ -32,7 +32,7 @@
   </scm>
 
   <build>
-    <defaultGoal>deploy:deploy</defaultGoal>
+    <defaultGoal>package</defaultGoal>
     <sourceDirectory>${basedir}/src</sourceDirectory>
     <outputDirectory>${basedir}/build</outputDirectory>
     <plugins>
