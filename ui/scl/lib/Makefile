@@ -62,7 +62,7 @@ EXT_LIBS=org.apache.axis2_1.1.0/axis2-kernel-1.1.jar \
 	org.apache.axiom.api_1.2.2/axiom-api-1.2.2.jar \
 	org.apache.axis2.databinding_1.1.0/axis2-adb-1.1.jar \
 	javax.mail.api_1.4.0/activation-1.1.jar
-CODEGEN_PATH=../../../../../tools/javatools/wsdl2java
+CODEGEN_PATH=$(HOME)/Research/sqo/tools/javatools/wsdl2java
 CODEGEN_LIBS=axis2-adb-codegen-1.1.jar axis2-codegen-1.1.jar
 
 $(eval $(call build_classpath,WSDL_CLASSPATH,EXT_LIBS,EXT_PATH))
@@ -75,4 +75,5 @@ compile-wsdl :
 		-ns2p http://datatypes.services.web.service.impl.sqooss.eu/xsd=eu.sqooss.ws.client.datatypes,http://services.web.service.sqooss.eu/xsd=eu.sqooss.ws.client.ws 
 
 
-
+install-wsdl :
+	( cd src.new && tar cf - src ) | tar xvf - 
