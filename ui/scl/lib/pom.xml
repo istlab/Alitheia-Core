@@ -75,6 +75,20 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
+      <groupId>org.apache.axis2</groupId>
+      <artifactId>schema</artifactId>
+      <version>1.1</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.axis2</groupId>
+      <artifactId>wsdl</artifactId>
+      <version>1.1</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>org.apache.axiom</groupId>
       <artifactId>api</artifactId>
       <version>1.2.2</version>
@@ -85,6 +99,13 @@
       <groupId>org.apache.axiom</groupId>
       <artifactId>impl</artifactId>
       <version>1.2.2</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>logging</artifactId>
+      <version>1.1.1</version>
       <type>jar</type>
       <scope>provided</scope>
     </dependency>
