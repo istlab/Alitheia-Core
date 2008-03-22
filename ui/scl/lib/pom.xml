@@ -33,7 +33,7 @@
   <build>
     <defaultGoal>package</defaultGoal>
     <sourceDirectory>${basedir}/src</sourceDirectory>
-    <outputDirectory>${basedir}/bin</outputDirectory>
+    <outputDirectory>${basedir}/build</outputDirectory>
     <plugins>
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
@@ -61,8 +61,8 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.apache</groupId>
-      <artifactId>axis2</artifactId>
+      <groupId>org.apache.axis2</groupId>
+      <artifactId>kernel</artifactId>
       <version>1.1.0</version>
       <type>jar</type>
       <scope>provided</scope>
