@@ -56,6 +56,15 @@
         </configuration>
       </plugin>
     </plugins>
+    <resources>
+      <resource>
+        <directory>${basedir}/result/configuration/</directory>
+        <targetPath>.</targetPath>
+        <includes>
+          <include>WSResult.xsd</include>
+        </includes>
+      </resource>
+    </resources>
   </build>
 
   <dependencies>
