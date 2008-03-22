@@ -78,7 +78,8 @@ public class TesterActivator implements BundleActivator {
 
         Bundle[] bundles = bc.getBundles();
         for (Bundle b : bundles) {
-            if (!b.getSymbolicName().startsWith("eu.sqooss")) {
+            String bundleName = b.getSymbolicName();
+            if ((bundleName == null) || (!bundleName.startsWith("eu.sqooss"))) {
                 continue;
             }
             ServiceReference[] services = b.getRegisteredServices();
