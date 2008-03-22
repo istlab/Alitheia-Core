@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?><project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.apache.axis2</groupId>
+  <artifactId>kernel</artifactId>
+  <version>1.1.0</version>
+  <description>POM was created from install:install-file</description>
+</project>

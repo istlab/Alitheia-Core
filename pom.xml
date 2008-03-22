@@ -44,6 +44,13 @@
       <organization>AUEB</organization>
       <timezone>+2</timezone>
     </developer>
+    <developer>
+      <id>adriaan</id>
+      <name>Adriaan de Groot</name>
+      <email>groot@kde.org</email>
+      <organization>KDE</organization>
+      <timezone>+1</timezone>
+    </developer>  
   </developers>
 
   <!-- The remainder has default configurations for many Maven plugins
@@ -112,10 +119,7 @@
     <module>sharedlibs</module>
     <module>alitheia</module>
     <module>metrics</module>
-    <!-- 
-      UI is a separate build that refers to this POM, but is not
-      a module of this POM.
-    -->
+    <module>ui</module>
   </modules>
 </project>
 
