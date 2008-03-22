@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Export-Package: org.apache.axis2.databinding;version="1.1.0",org.apach
+ e.axis2.databinding.i18n;version="1.1.0",org.apache.axis2.databinding
+ .typemapping;version="1.1.0",org.apache.axis2.databinding.types;versi
+ on="1.1.0",org.apache.axis2.databinding.utils;version="1.1.0",org.apa
+ che.axis2.databinding.utils.reader;version="1.1.0",org.apache.axis2.r
+ pc.client;version="1.1.0",org.apache.axis2.rpc.receivers;version="1.1
+ .0",org.apache.axis2.util;version="1.1.0"
+Bundle-Vendor: Apache
+Fragment-Host: org.apache.axis2;version="1.1.0"
+Bundle-ClassPath: axis2-adb-1.1.jar
+Bundle-Version: 1.1.0
+Bundle-Localization: plugin
+Bundle-Name: Axis2 Databinding Plug-in
+Created-By: 1.6.0_04 (Sun Microsystems Inc.)
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: org.apache.axis2.databinding
+

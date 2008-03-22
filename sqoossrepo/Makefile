@@ -87,6 +87,7 @@ endef
 	
 $(eval $(call rejar_template,javax,mail,1.4,cp javax/activation/1.1/activation-1.1.jar tmp))
 $(eval $(call rejar_template,javax,servlet,2.4.0.v200612120446))
+$(eval $(call rejar_template,org/apache/axis2,databinding,1.1.0))
 $(eval $(call rejar_template,org/apache/commons,codec,1.3.0))
 $(eval $(call rejar_template,org/apache/commons,collections,2.1.1))
 $(eval $(call rejar_template,org/apache/commons,logging,1.1.1))
