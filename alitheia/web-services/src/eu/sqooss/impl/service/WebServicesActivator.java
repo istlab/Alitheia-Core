@@ -85,18 +85,12 @@ public class WebServicesActivator implements BundleActivator {
         Properties props = initProperties(bc);
         String serviceClass = props.getProperty(Constants.PROPERTY_KEY_WEB_SERVICES_INTERFACE); 
         webServicesReg = bc.registerService(serviceClass, serviceObject, props);
-        
-        logger.info("The web services bundle is started!");
     }
 
     /**
      * @see org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
      */
     public void stop(BundleContext bc) throws Exception {
-        if (logger != null) {
-            logger.info("The web services bundle is stopped!");
-        }
-        
         if (webServicesReg != null) {
             webServicesReg.unregister();
         }
