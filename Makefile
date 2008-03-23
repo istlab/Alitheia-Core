@@ -140,6 +140,7 @@ start-core-monitor : clean-osgi
 # Stop the core system. This works only if the system is running
 # on the default port (8088) as configured in config.ini.
 stop-core :
+	curl -qF "submit=stop" http://localhost:8088/stop
 
 # Display the system log (if it is in its default location).
 show-log :
