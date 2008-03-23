@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<chapter id="pref">
+<title>Preface</title>
+<sect1 id="pref:whatis">
+    <title>What is SQO-OSS?</title>
+    <para></para>
+</sect1>
+<sect1 id="pref:hist">
+    <title>A bried history of SQO-OSS</title>
+    <para></para>
+</sect1>
+<sect1 id="pref:conventions">
+    <title>Conventions</title>
+    <para></para>
+</sect1>
+<sect1 id="pref:info">
+    <title>Further Information</title>
+    <para></para>
+</sect1>
+<sect1 id="pref:involve">
+    <title>Getting involved</title>
+    <para></para>
+</sect1>
+<sect1 id="pref:bugrep">
+    <title>Bug Reporting</title>
+    <para></para>
+</sect1>
+</chapter>

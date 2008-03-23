@@ -1,0 +1,38 @@
+<bookinfo>
+  <author>
+    <firstname>Georgios</firstname>
+    <surname>Gousios</surname>
+    <authorblurb>
+      <para>Athens University of Economics and Business</para>
+    </authorblurb>
+  </author>
+  <author>
+    <firstname>Other</firstname>
+    <surname>Author</surname>
+    <authorblurb>
+      <para></para>
+    </authorblurb>
+  </author>
+  <author>
+    <firstname>Georgios</firstname>
+    <surname>Gousios</surname>
+    <authorblurb>
+      <para>Athens University of Economics and Business</para>
+    </authorblurb>
+  </author>
+  <copyright>
+    <year>2008</year>
+    <holder>
+        The SQO-OSS consortium
+    </holder>
+  </copyright>
+  <legalnotice role="trademarks">
+    <para>
+        This document is licenced under the 
+        <ulink url="http://creativecommons.org/licenses/by-sa/3.0/">
+            <citetitle>Creative Commons Attribution Share Alike license.
+            </citetitle>
+        </ulink>
+   </para>
+  </legalnotice>
+</bookinfo>

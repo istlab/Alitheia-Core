@@ -70,6 +70,7 @@ clean-log :
 clean-all : clean clean-osgi clean-log
 	rm -f $(PREFIX)/*.jar
 	cd sqoossrepo && $(MAKE) clean-all
+	cd doc && $(MAKE) clean
 
 # Clean everything and remove all kinds of cruft files that might
 # have shown up in the source tree.
@@ -140,7 +141,7 @@ start-core-monitor : clean-osgi
 # Stop the core system. This works only if the system is running
 # on the default port (8088) as configured in config.ini.
 stop-core :
-	curl -qF "submit=stop" http://localhost:8088/stop
+	curl -qF "submit=stop" http://localhost:8088/stop > /dev/null
 
 # Display the system log (if it is in its default location).
 show-log :
@@ -149,6 +150,21 @@ show-log :
 .PHONY : start-core start-core-bg start-core-debug start-core-monitor 
 .PHONY : stop-core show-log
 
+
+###
+#
+# Documentation targets
+#
+#
+
+.PHONY : doc javadoc manual
+
+doc : javadoc manual
+
+manual :  
+	cd doc && XSLTS=${XSLT} $(MAKE)
+
+javadoc: ## Write maven based javadoc rules	
 
 ###
 #

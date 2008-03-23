@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<chapter id="user">
+<title>User Manual</title>
+<sect1 id="user:interfaces">
+    <title>Interfaces</title>
+    <para></para>
+    <sect2  id="user:interfaces:web" >
+        <title>Web</title>
+        <para></para>
+    </sect2>
+    <sect2  id="user:interfaces:eclipse">
+        <title>Eclipse</title>
+        <para></para>
+    </sect2>
+</sect1>
+<sect1 id="user:plugins">
+    <title>Plug-ins and Measurements</title>
+    <para></para>
+    <sect2 id="user:plugins:wc">
+        <title>WC plugin</title>
+        <para></para>
+    </sect2>
+    <sect2 id="user:plugins:contrib">
+        <title>Contribution plugin</title>
+        <para></para>
+    </sect2>
+</sect1>
+</chapter>

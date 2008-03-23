@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<chapter id="admin">
+<title>Installation and administration</title>
+<sect1 id="prereq">
+    <title>Prerequisites</title>
+    <para></para>
+</sect1>
+<sect1 id="admin:compile">
+    <title>Compilation procedure</title>
+    <para></para>
+</sect1>
+<sect1 id="admin:task">
+    <title>Administrative tasks</title>
+    <para></para>
+    <sect2 id="admin:task:cons">
+        <title>The admin console</title>
+        <para></para>
+    </sect2>
+    <sect2 id="admin:task:addpr">
+        <title>Adding projects</title>
+        <para></para>
+    </sect2>
+    <sect2 id="admin:task:addplug">
+        <title>Adding new plug-ins</title>
+        <para></para>
+    </sect2>
+</sect1>
+<sect1 id="admin:config">
+    <title>Configuration</title>
+    <para></para>
+    <sect2 id="admin:config:console">
+        <title>The admin console</title>
+        <para></para>
+    </sect2>
+</sect1>
+<sect1 id="admin:plug">
+    <title>Plug-in specific documentation</title>
+    <para></para>
+    <sect2 id="admin:plug:wc">
+        <title>WC Plugin</title>
+        <para></para>
+    </sect2>
+    <sect2 id="admin:plug:contib">
+        <title>Contribution plugin</title>
+        <para></para>
+    </sect2>
+</sect1>
+
+</chapter>

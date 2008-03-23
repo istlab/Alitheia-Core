@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<chapter id="devel">
+<title>Developing for SQO-OSS</title>
+<sect1 id="devel:arch">
+    <title>Architectural Overview</title>
+    <para></para>
+     <sect2 id="devel:arch:tds">
+        <title>Thin Data Access - TDS</title>
+        <para></para>
+    </sect2>
+    <sect2 id="devel:arch:fds">
+        <title>Fat Data Access - FDS</title>
+        <para></para>
+    </sect2>
+    <sect2 id="devel:arch:db">
+        <title>Database Service</title>
+        <para></para>
+    </sect2>
+    <sect2 id="devel:arch:pa">
+        <title>Plug-in Administrator</title>
+        <para></para>
+    </sect2>
+    <sect2 id="devel:arch:updater">
+        <title>Updater</title>
+        <para></para>
+    </sect2>
+</sect1>
+
+<sect1 id="devel:plugins">
+    <title>Developing Plugins</title>
+    <para></para>
+</sect1>
+</chapter>
