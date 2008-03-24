@@ -38,23 +38,27 @@ import eu.sqooss.impl.service.web.services.datatypes.WSProjectFile;
 import eu.sqooss.impl.service.web.services.datatypes.WSProjectVersion;
 import eu.sqooss.impl.service.web.services.datatypes.WSStoredProject;
 import eu.sqooss.impl.service.web.services.utils.ProjectManagerDatabase;
+import eu.sqooss.impl.service.web.services.utils.SecurityWrapper;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.TDSService;
+import eu.sqooss.service.security.SecurityManager;
 
 public class ProjectManager {
     
     private Logger logger;
     private TDSService tds;
     private ProjectManagerDatabase dbWrapper;
+    private SecurityWrapper securityWrapper;
     
-    public ProjectManager(Logger logger, DBService db, TDSService tds) {
+    public ProjectManager(Logger logger, DBService db, TDSService tds, SecurityManager security) {
         this.logger = logger;
         this.tds = tds;
         this.dbWrapper = new ProjectManagerDatabase(db);
+        this.securityWrapper = new SecurityWrapper(security);
     }
     
     /**
@@ -63,8 +67,8 @@ public class ProjectManager {
     public WSStoredProject[] evaluatedProjectsList(String userName, String password) {
         logger.info("Gets the evaluated project list! user: " + userName);
 
-        //TODO: check the security
-
+        securityWrapper.checkDBReadAccess(userName, password);
+        
         List<?> projects = dbWrapper.evaluatedProjectsList();
 
         return convertToWSStoredProject(projects);
@@ -73,8 +77,8 @@ public class ProjectManager {
     public WSStoredProject[] storedProjectsList(String userName, String password) {
         logger.info("Gets the stored project list! user: " + userName);
 
-        //TODO: check the security
-
+        securityWrapper.checkDBReadAccess(userName, password);
+        
         List queryResult = dbWrapper.storedProjectsList();
 
         List<StoredProject> l = (List<StoredProject>) queryResult;
@@ -100,7 +104,7 @@ public class ProjectManager {
                 ";\n BTS: " + BTSLocation + "; user's e-mail: " + userEmailAddress +
                 "; website: " + website);
         
-        //TODO: check the security
+        securityWrapper.checkDBWriteAccess(userName, password);
         
         List<?> projects;
         
@@ -139,17 +143,17 @@ public class ProjectManager {
     /**
      * @see eu.sqooss.service.web.services.WebServices#retrieveProjectId(String, String, String)
      */
-    public long retrieveProjectId(String userName, String passwrod, String projectName) {
+    public long retrieveProjectId(String userName, String password, String projectName) {
 
         logger.info("Retrieve project id! user: " + userName +
                 "; project name: " + projectName);
 
-        //TODO: check the security
-
         List<StoredProject> projects = dbWrapper.getStoredProjects(projectName);
 
         if (projects.size() != 0) {
-            return projects.get(0).getId();
+            long projectId = projects.get(0).getId();
+            securityWrapper.checkProjectReadAccess(userName, password, projectId);
+            return projectId;
         } else {
             throw new IllegalArgumentException("Can't find the project with name: " + projectName);
         }
@@ -163,7 +167,7 @@ public class ProjectManager {
         logger.info("Retrieve stored project versions! user: " + userName +
                 "; project's id: " + projectId);
 
-        //TODO: check the security
+        securityWrapper.checkProjectReadAccess(userName, password, projectId);
 
         StoredProject storedProject = dbWrapper.getStoredProject(projectId);
 
@@ -181,7 +185,7 @@ public class ProjectManager {
         logger.info("Retrieve stored project! user: " + userName +
                 "; project's id: " + projectId );
 
-        //TODO: check the security
+        securityWrapper.checkProjectReadAccess(userName, password, projectId);
 
         StoredProject storedProject;
 
@@ -201,7 +205,7 @@ public class ProjectManager {
     public WSProjectFile[] retrieveFileList(String userName, String password, long projectId) {
         logger.info("Retrieve file list! user: " + userName + "; project id: " + projectId);
 
-        //TODO: check the security
+        securityWrapper.checkProjectReadAccess(userName, password, projectId);
 
         List<?> queryResult = dbWrapper.retrieveFileList(projectId);
 
@@ -212,7 +216,7 @@ public class ProjectManager {
         logger.info("Get file list for project version! user: " + userName +
                 "; project version id: " + projectVersionId);
         
-        //TODO: check the security
+        securityWrapper.checkProjectVersionReadAccess(userName, password, projectVersionId);
         
         List<?> queryResult = dbWrapper.getFileList4ProjectVersion(projectVersionId);
         
@@ -223,7 +227,7 @@ public class ProjectManager {
         logger.info("Get files's number for project version! user: " + userName +
                 "; project version id: " + projectVersionId);
         
-        //TODO: check the security
+        securityWrapper.checkProjectVersionReadAccess(userName, password, projectVersionId);
         
         List<?> queryResult = dbWrapper.getFilesNumber4ProjectVersion(projectVersionId);
         

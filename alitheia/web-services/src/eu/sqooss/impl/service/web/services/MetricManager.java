@@ -41,19 +41,23 @@ import java.util.Set;
 
 import eu.sqooss.impl.service.web.services.datatypes.WSMetric;
 import eu.sqooss.impl.service.web.services.utils.MetricManagerDatabase;
+import eu.sqooss.impl.service.web.services.utils.SecurityWrapper;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.security.SecurityManager;
 
 public class MetricManager {
     
     private Logger logger;
     private MetricManagerDatabase dbWrapper;
+    private SecurityWrapper securityWrapper;
     
-    public MetricManager(Logger logger, DBService db) {
+    public MetricManager(Logger logger, DBService db, SecurityManager security) {
         this.logger = logger;
         this.dbWrapper = new MetricManagerDatabase(db);
+        this.securityWrapper = new SecurityWrapper(security);
     }
     
     /**
@@ -65,7 +69,7 @@ public class MetricManager {
         logger.info("Retrieve metrics for selected project! user: " + userName +
                 "; project id:" + projectId);
         
-        //TODO: check the security
+        securityWrapper.checkProjectReadAccess(userName, password, projectId);
         
         List<?> metrics = dbWrapper.retrieveMetrics4SelectedProject(projectId);
         return convertToWSMetrics(metrics);
@@ -80,7 +84,7 @@ public class MetricManager {
         logger.info("Retrieve selected metric! user: " + userName +
                 "; project id: " + projectId + "; metricId: " + metricId);
         
-        //TODO: check the security
+        securityWrapper.checkProjectMetricReadAccess(userName, password, projectId, metricId);
         
         List<?> queryResult = dbWrapper.retrieveSelectedMetric(projectId, metricId);
         
@@ -99,7 +103,7 @@ public class MetricManager {
             long projectId, String[] folders, String[] fileNames) {
         logger.info("Retrieve metrics for selected files! user: " + userName + "; project id: " + projectId);
 
-        //TODO: check the security
+        securityWrapper.checkProjectReadAccess(userName, password, projectId);
 
         Set<String> fileNamesSet;
         if ((fileNames.length == 0) || (fileNames[0] == null)) {

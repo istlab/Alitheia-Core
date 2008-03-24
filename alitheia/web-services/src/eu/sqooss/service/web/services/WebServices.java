@@ -72,8 +72,8 @@ public class WebServices {
     
     public WebServices(BundleContext bc, SecurityManager securityManager,
             DBService db, TDSService tds, Logger logger) {
-        metricManager = new MetricManager(logger, db);
-        projectManager = new ProjectManager(logger, db, tds);
+        metricManager = new MetricManager(logger, db, securityManager);
+        projectManager = new ProjectManager(logger, db, tds, securityManager);
         userManager = new UserManager();
     }
     
@@ -320,8 +320,8 @@ public class WebServices {
      * @param projectName - the name of the project as stored in the SQO-OSS.
      * @return
      */
-    public long retrieveProjectId(String userName, String passwrod, String projectName) {
-        return projectManager.retrieveProjectId(userName, passwrod, projectName);
+    public long retrieveProjectId(String userName, String password, String projectName) {
+        return projectManager.retrieveProjectId(userName, password, projectName);
     }
     
     public WSProjectVersion[] retrieveStoredProjectVersions(String userName, String password, long projectId) {
