@@ -49,7 +49,7 @@ class ListView {
     public ListView () {
         // Try to connect
         try {
-            session = new WSSession("bla", "foo", "http://localhost:8088/sqooss/services/ws");
+            session = new WSSession("alitheia", "alitheia", "http://localhost:8088/sqooss/services/ws");
         } catch (WSException wse) {
             //TODO
             wse.printStackTrace();

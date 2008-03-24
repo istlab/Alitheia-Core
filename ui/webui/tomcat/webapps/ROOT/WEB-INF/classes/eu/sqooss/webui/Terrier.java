@@ -238,7 +238,7 @@ public class Terrier {
     private void connect() {
         // Try to connect the SCL to the Alitheia system
         try {
-            session = new WSSession("bla", "foo", "http://localhost:8088/sqooss/services/ws"); // WTF?
+            session = new WSSession("alitheia", "alitheia", "http://localhost:8088/sqooss/services/ws"); // WTF?
             error = "connected";
         } catch (WSException wse) {
             error = "Couldn't start Alitheia session.";
