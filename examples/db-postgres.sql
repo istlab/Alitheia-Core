@@ -471,26 +471,11 @@ COPY file_metadata (metadata_id, protection_mode, number_of_links, user_id, grou
 
 
 --
--- Data for Name: group_privilege; Type: TABLE DATA; Schema: public; Owner: alitheia
---
-
-COPY group_privilege (service_url_id, group_id, privilege_value_id) FROM stdin;
-\.
-
-
---
--- Data for Name: group_user; Type: TABLE DATA; Schema: public; Owner: alitheia
---
-
-COPY group_user (user_id, group_id) FROM stdin;
-\.
-
-
---
 -- Data for Name: groups; Type: TABLE DATA; Schema: public; Owner: alitheia
 --
 
 COPY groups (group_id, description) FROM stdin;
+1	alitheia
 \.
 
 
@@ -541,10 +526,20 @@ COPY plugin (plugin_id, name, install_date) FROM stdin;
 
 
 --
+-- Data for Name: service_url; Type: TABLE DATA; Schema: public; Owner: alitheia
+--
+
+COPY service_url (service_url_id, url) FROM stdin;
+1	svc://sqooss
+\.
+
+
+--
 -- Data for Name: privilege; Type: TABLE DATA; Schema: public; Owner: alitheia
 --
 
 COPY privilege (privilege_id, description) FROM stdin;
+1	<all privileges>
 \.
 
 
@@ -553,6 +548,25 @@ COPY privilege (privilege_id, description) FROM stdin;
 --
 
 COPY privilege_value (privilege_value_id, value, privilege_id) FROM stdin;
+1	<all privileges>	1
+\.
+
+
+--
+-- Data for Name: group_privilege; Type: TABLE DATA; Schema: public; Owner: alitheia
+--
+
+COPY group_privilege (service_url_id, group_id, privilege_value_id) FROM stdin;
+1	1	1
+\.
+
+
+--
+-- Data for Name: group_user; Type: TABLE DATA; Schema: public; Owner: alitheia
+--
+
+COPY group_user (user_id, group_id) FROM stdin;
+3	1
 \.
 
 
@@ -1275,14 +1289,6 @@ COPY sender (sender_id, sender_email) FROM stdin;
 
 
 --
--- Data for Name: service_url; Type: TABLE DATA; Schema: public; Owner: alitheia
---
-
-COPY service_url (service_url_id, url) FROM stdin;
-\.
-
-
---
 -- Data for Name: stored_project; Type: TABLE DATA; Schema: public; Owner: alitheia
 --
 
@@ -1306,6 +1312,7 @@ COPY tag (tag_id, tag_name) FROM stdin;
 COPY users (user_id, name, "level", registered, lastlogin, "password", email) FROM stdin;
 1	'Fluffy Bunny'	0	1970-01-01 00:00:00	2008-01-14 00:00:00	carrot	bunny@kde.org
 2	'Adriaan Bunny'	0	2008-01-01 00:00:00	2008-02-14 00:00:00	celery	bynny@example.com
+3	alitheia	0	2008-01-01 00:00:00	2008-02-14 00:00:00	alitheia	NA
 \.
 
 
