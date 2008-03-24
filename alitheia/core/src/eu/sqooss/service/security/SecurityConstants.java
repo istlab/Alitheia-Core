@@ -95,16 +95,18 @@ public interface SecurityConstants {
      */
     public static final String URL_SQOOSS_UPDATER      = SecurityConstants.URL_SQOOSS + ".updater";
     
+    public static final String URL_SQOOSS_PROJECTS     = SecurityConstants.URL_SQOOSS + ".projects";
+    
     /**
      * Represents some of the privileges.
      * The user should use the toString() method.
      */
-    public static enum Privilege{
+    public static enum Privilege {
         ACTION,
         PROJECT_ID,
+        PROJECT_VERSION_ID,
         METRIC_ID,
         ALL;
-        
         public String toString() {
             String name = name();
             if (name.equals(ALL.name())) {
@@ -115,6 +117,14 @@ public interface SecurityConstants {
         }
         
     };
+    
+    public static enum PrivilegeValue {
+        READ,
+        WRITE;
+        public String toString() {
+            return name().toLowerCase();
+        }
+    }
     
 }
 

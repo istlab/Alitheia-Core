@@ -88,6 +88,10 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
         
         logger.info("Check Permission! resourceUrl: " + resourceUrl + "; user name: " + userName);
 
+        if ((resourceUrl == null) || (userName == null) || (password == null)) {
+            return false;
+        }
+        
         try {
             if (dbWrapper.isExistentResourceUrl(resourceUrl, userName, password)) {
                 return checkPermissionPrivileges(resourceUrl, privileges, userName, password);
@@ -137,13 +141,16 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
             return true;
         }
 
-        if (privileges != null) {
+        boolean result = false;
+        if ((privileges != null) && (privileges.size() != 0)) {
             String currentPrivilegeName;
             String currentPrivilegeValue;
-            for (Enumeration<String> keys = privileges.keys(); keys.hasMoreElements(); ) {
+            result = true;
+            for (Enumeration<String> keys = privileges.keys(); (keys.hasMoreElements() && result); ) {
                 currentPrivilegeName = keys.nextElement();
                 currentPrivilegeValue = privileges.get(currentPrivilegeName);
-                return (dbWrapper.checkAuthorizationRule(resourceUrl, currentPrivilegeName, 
+                result = result &&
+                       (dbWrapper.checkAuthorizationRule(resourceUrl, currentPrivilegeName, 
                             currentPrivilegeValue, userName, password) ||
                         dbWrapper.checkAuthorizationRule(resourceUrl, Privilege.ALL.toString(), 
                             currentPrivilegeValue, userName, password) ||
@@ -152,7 +159,7 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
             }
         }
         
-        return false;
+        return result;
     }
     
     private static String parseFullUrl(String fullUrl, Dictionary<String, String> privileges) {
