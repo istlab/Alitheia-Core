@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Wsdl4J Plug-in
 Bundle-SymbolicName: org.apache.wsdl4j
 Bundle-Version: 1.6.1
-Bundle-ClassPath: wsdl4j-1.6.1.jar
+Bundle-ClassPath: org.apache.wsdl4j-1.6.1.jar
 Bundle-Localization: plugin
 Export-Package: com.ibm.wsdl;version="1.6.1",
  com.ibm.wsdl.extensions;version="1.6.1",
