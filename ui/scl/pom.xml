@@ -31,19 +31,17 @@
   </scm>
 
   <build>
-    <defaultGoal>deploy:deploy</defaultGoal>
+    <defaultGoal>assembly:assembly</defaultGoal>
     <sourceDirectory>${basedir}/src</sourceDirectory>
     <outputDirectory>${basedir}/build</outputDirectory>
     <plugins>
       <plugin>
-        <artifactId>maven-jar-plugin</artifactId>
-        <configuration>
-          <finalName>${groupId}.${artifactId}-${version}</finalName>
-          <archive>
-            <manifestFile>${basedir}/manifest/manifest.mf</manifestFile>
-            <addMavenDescriptor>false</addMavenDescriptor>
-          </archive>
-        </configuration> 
+        <artifactId>maven-assembly-plugin</artifactId>
+          <configuration>
+          <descriptors>
+            <descriptor>assembly.xml</descriptor>
+          </descriptors>
+        </configuration>
       </plugin>
       <plugin>
         <artifactId>maven-deploy-plugin</artifactId>
