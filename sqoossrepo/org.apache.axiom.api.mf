@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Axiom API Plug-in
 Bundle-SymbolicName: org.apache.axiom.api
 Bundle-Version: 1.2.2
-Bundle-ClassPath: axiom-api-1.2.2.jar,.
+Bundle-ClassPath: org.apache.axiom.api-1.2.2.jar
 Bundle-Vendor: Apache
 Bundle-Localization: plugin
 Export-Package: org.apache.axiom.attachments;version="1.2.2",
