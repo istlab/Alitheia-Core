@@ -2,7 +2,7 @@
   <id>sqooss.scl</id>
   <includeBaseDirectory>false</includeBaseDirectory>
   <formats>
-     <format>dir</format>
+     <format>jar</format>
   </formats>
   <moduleSets>
     <moduleSet>
@@ -12,6 +12,15 @@
       <binaries>
         <outputDirectory>${artifactId}</outputDirectory>
         <unpack>false</unpack>
+      </binaries>
+    </moduleSet>
+    <moduleSet>
+      <includes>
+        <include>eu.sqooss.ui.scl:scl</include>
+      </includes>
+      <binaries>
+        <outputDirectory>${artifactId}</outputDirectory>
+        <unpack>true</unpack>
       </binaries>
     </moduleSet>
   </moduleSets>

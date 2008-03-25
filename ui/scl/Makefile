@@ -7,4 +7,4 @@ clean-dir :
 	for i in $(SUBDIRS) ; do ( cd $$i && $(MAKE) clean ) || exit 1 ; done
 
 assembly :
-	$(MAVEN) package assembly:assembly
+	$(MAVEN) package assembly:assembly install
