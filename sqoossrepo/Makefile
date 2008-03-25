@@ -142,3 +142,17 @@ install : $(foreach j,$(REJARS),install-$(j)) $(foreach j,$(INSTALLS),install-$(
 
 .PHONY : all clean clean-all build install
 
+
+help :
+	@echo $(MAVEN) install:install-file \
+		-DcreateChecksum=true \
+		-DgeneratePom=true \
+		-Dpackaging=jar \
+		-DlocalRepositoryId=sqooss \
+		-DlocalRepositoryPath=. \
+		-DgroupId=id \
+		-DartifactId=id \
+		-Dversion=ver \
+		-Dfile=file
+
+.PHONY : help
