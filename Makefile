@@ -16,6 +16,10 @@
 # build (default) - Compile the system
 # install         - Install the system into the equinox/ directory
 # start-core      - Run the Core Platform
+# stop-core       - Stop the Core Platform, regardless of how it was started
+#                   (This requires curl).
+#
+# TODO: self-contained means to stop-core
 # 
 # Most of the time, those four targets (in that order) are what you
 # need to (re)build the system from scratch. For details and 
