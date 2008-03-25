@@ -10,7 +10,7 @@
   <groupId>eu.sqooss.ui</groupId>
   <artifactId>scl</artifactId>
   <version>0.0.1</version>
-  <packaging>jar</packaging>
+  <packaging>pom</packaging>
 
   <name>Alitheia UI Connector Library</name>
   <url>http://ikaria.dmst.aueb.gr/ui/scl</url>
@@ -91,5 +91,9 @@
       <scope>provided</scope>
     </dependency>
   </dependencies>
+
+  <modules>
+    <module>wslib</module>
+  </modules>
 </project>
 
