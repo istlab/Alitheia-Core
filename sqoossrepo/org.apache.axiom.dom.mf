@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Axiom Dom Plug-in
 Bundle-SymbolicName: org.apache.axiom.dom
 Bundle-Version: 1.2.2
-Bundle-ClassPath: axiom-dom-1.2.2.jar
+Bundle-ClassPath: org.apache.axiom.dom-1.2.2.jar
 Bundle-Vendor: Apache
 Bundle-Localization: plugin
 Fragment-Host: org.apache.axiom.api;version="1.2.2"
