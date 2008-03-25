@@ -37,15 +37,24 @@
     <plugins>
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
-          <configuration>
-            <outputDirectory>${basedir}/target</outputDirectory>
-            <finalName>${groupId}.${artifactId}-${version}</finalName>
-            <archive>
-              <manifestFile>${basedir}/manifest/manifest.mf</manifestFile>
-            </archive>
-            <descriptors>
-              <descriptor>assembly.xml</descriptor>
-            </descriptors>
+        <configuration>
+          <outputDirectory>${basedir}/target</outputDirectory>
+          <finalName>${groupId}.${artifactId}-${version}</finalName>
+          <archive>
+            <manifestFile>${basedir}/manifest/manifest.mf</manifestFile>
+          </archive>
+          <descriptors>
+            <descriptor>assembly.xml</descriptor>
+          </descriptors>
+          <executions>
+            <execution>
+              <id>${artifactId}</id>
+              <phase>package</phase>
+              <goals>
+                <goal>assembly</goal>
+              </goals>
+            </execution>
+          </executions>
         </configuration>
       </plugin>
       <plugin>
