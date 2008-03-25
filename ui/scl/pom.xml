@@ -9,7 +9,7 @@
 
   <groupId>eu.sqooss.ui</groupId>
   <artifactId>scl</artifactId>
-  <version>0.0.1</version>
+  <version>1.0.0</version>
   <packaging>pom</packaging>
 
   <name>Alitheia UI Connector Library</name>
@@ -54,46 +54,9 @@
     </plugins>
   </build>
 
-  <dependencies>
-    <dependency>
-      <groupId>eu.sqooss.alitheia</groupId>
-      <artifactId>core</artifactId>
-      <version>[0.0.1,)</version>
-      <type>jar</type>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>eu.sqooss.alitheia</groupId>
-      <artifactId>web-services</artifactId>
-      <version>[0.0.1,)</version>
-      <type>jar</type>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>eu.sqooss.ui.scl</groupId>
-      <artifactId>client</artifactId>
-      <version>[0.0.1,)</version>
-      <type>jar</type>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>codec</artifactId>
-      <version>1.3.0</version>
-      <type>jar</type>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.axis2</groupId>
-      <artifactId>kernel</artifactId>
-      <version>1.1.0</version>
-      <type>jar</type>
-      <scope>provided</scope>
-    </dependency>
-  </dependencies>
-
   <modules>
     <module>wslib</module>
+    <module>sclib</module>
   </modules>
 </project>
 

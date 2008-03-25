@@ -2,31 +2,31 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>eu.sqooss</groupId>
-    <artifactId>ui</artifactId>
+    <groupId>eu.sqooss.ui</groupId>
+    <artifactId>scl</artifactId>
     <version>1.0.0</version>
   </parent>
 
-  <groupId>eu.sqooss.ui</groupId>
+  <groupId>eu.sqooss.ui.scl</groupId>
   <artifactId>scl</artifactId>
   <version>0.0.1</version>
-  <packaging>pom</packaging>
+  <packaging>jar</packaging>
 
-  <name>Alitheia UI Connector Library</name>
-  <url>http://ikaria.dmst.aueb.gr/ui/scl</url>
+  <name>Alitheia SCL Public Interface</name>
+  <url>http://ikaria.dmst.aueb.gr/ui/scl/sclib</url>
   <inceptionYear>2006</inceptionYear>
   <description>
     The SQO-OSS connector library (SCL) provides a Java interface to the
-    web-services of the Alitheia Core so that the UI can retrieve project
-    and measurement data from the Core.
+    web-services of the Alitheia Core. This library provides the
+    public interface.
   </description>
 
   <scm>
     <connection>
-      scm:svn:https://svn.sqo-oss.eu/devel/trunk/ui/scl
+      scm:svn:https://svn.sqo-oss.eu/devel/trunk/ui/scl/sclib
     </connection>
     <developerConnection>
-      scm:svn:https://svn.sqo-oss.eu/devel/trunk/ui/scl
+      scm:svn:https://svn.sqo-oss.eu/devel/trunk/ui/scl/sclib
     </developerConnection>
   </scm>
 
@@ -92,8 +92,5 @@
     </dependency>
   </dependencies>
 
-  <modules>
-    <module>wslib</module>
-  </modules>
 </project>
 
