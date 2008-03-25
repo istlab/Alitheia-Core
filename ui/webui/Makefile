@@ -52,18 +52,28 @@ define set_java_home
 	export JAVA_HOME ;
 endef
 
+ifeq ($(shell uname),SunOS)
+RED=
+GREEN=
+RESTORE=
+else
+RED="\033[0;34m"
+GREEN="\033[0;31m"
+RESTORE="\033[1;37m"
+endif
+
 start :
 	$(call set_java_home) \
 	cd tomcat && \
         echo ${CLASSPATH} && \
 	sh bin/catalina.sh start && \
-	echo "\033[0;34m  Tomcat started: go to http://localhost:8080 to find it ...\033[1;37m"
+	echo $(RED)"  Tomcat started: go to http://localhost:8080 to find it ..."$(RESTORE)
 
 stop :
 	$(call set_java_home) \
 	cd tomcat && \
 	sh bin/catalina.sh stop && \
-	echo "\033[0;31m  Tomcat stopped...\033[1;37m"
+	echo $(GREEN)"  Tomcat stopped..."$(RESTORE)
 
 
 rebuild : build restart
