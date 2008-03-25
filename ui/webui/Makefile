@@ -23,8 +23,9 @@ install :
 	for i in $(EXT_LIBS) ; do cp $(EXT_PATH)/$$i $(TOMCAT_LIB) || break ; done
 
 install-scl:
-	cd ../scl && $(MAKE)
-	cp ../build/eu.sqooss.*.jar $(TOMCAT_LIB)
+	# cd ../scl && $(MAKE)
+	# cp ../build/eu.sqooss.*.jar $(TOMCAT_LIB)
+	true
 
 # this is where the libs live relative to the beans classes in the webui
 RELATIVE_TOMCAT_LIB=../../../..
