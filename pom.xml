@@ -103,7 +103,7 @@
     <repository>
       <id>sqoossrepo</id>
       <name>SQO-OSS Local Maven Repository</name>
-      <url>file://${user.dir}/sqoossrepo</url>
+      <url>file://${topdir}/sqoossrepo</url>
     </repository>
   </repositories>
 
