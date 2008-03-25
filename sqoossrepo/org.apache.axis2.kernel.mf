@@ -4,8 +4,7 @@ Bundle-Name: Axis2 Plug-in
 Bundle-SymbolicName: org.apache.axis2
 Bundle-Version: 1.1.0
 Bundle-Localization: plugin
-Bundle-ClassPath: axis2-kernel-1.1.jar,
- backport-util-concurrent-2.2.jar
+Bundle-ClassPath: backport-util-concurrent-2.2.jar, org.apache.axis2.kernel-1.1.0.jar
 Import-Package: javax.servlet;version="2.3.0",
  javax.servlet.http;version="2.3.0",
  javax.servlet.resources;version="2.3.0",
