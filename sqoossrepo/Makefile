@@ -112,7 +112,7 @@ extra-hibernate :
 	
 $(eval $(call install_template,javax/saaj,api,1.3.0))
 $(eval $(call install_template,javax/stax,api,1.0.1))
-$(eval $(call install_template,org/apache,axis2,1.1.0))
+$(eval $(call install_template,org/apache/axis2,kernel,1.1.0))
 $(eval $(call install_template,org/apache/axis2,databinding,1.1.0))
 $(eval $(call install_template,org/apache/muse,complete,2.2.0))
 $(eval $(call install_template,org/apache/muse/osgi/soa,axis2,1.0.0))
