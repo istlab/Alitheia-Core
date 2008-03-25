@@ -2,8 +2,6 @@ TOMCAT_LIB=tomcat/webapps/ROOT/WEB-INF/lib/
 
 all : stop build install run
 
-include ../../Makefile.common
-
 EXT_PATH=../../extlibs
 EXT_LIBS=org.apache.axiom.api_1.2.2/axiom-api-1.2.2.jar \
 	org.apache.axiom.dom_1.2.2/axiom-dom-1.2.2.jar \
@@ -49,8 +47,9 @@ run : stop start
 restart: stop start
 
 define set_java_home
-	test -z "$$JAVA_HOME" -a -x /usr/bin/javac && export JAVA_HOME=/usr ; \
-	test -z "$$JAVA_HOME" -a -x /usr/local/bin/javac && export JAVA_HOME=/usr/local ;
+	test -z "$$JAVA_HOME" -a -x /usr/bin/javac && JAVA_HOME=/usr ; \
+	test -z "$$JAVA_HOME" -a -x /usr/local/bin/javac && JAVA_HOME=/usr/local ; \
+	export JAVA_HOME ;
 endef
 
 start :
