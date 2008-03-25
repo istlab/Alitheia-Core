@@ -489,6 +489,9 @@ public class AdminServlet extends HttpServlet {
             sobjLogger.debug("GET path=" + request.getPathInfo());
 
             String query = request.getPathInfo();
+            if (query.startsWith("/sqooss/services")) {
+                sobjLogger.warn("Web services query <" + request.getPathInfo() + "> reached the Webadmin servlet.");
+            }
             if ( (query != null) && (staticContentMap.containsKey(query)) ) {
                 sendResource(response, staticContentMap.get(query));
             } else {
