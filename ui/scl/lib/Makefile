@@ -7,7 +7,7 @@ clean-wsdl :
 	rm -f ws.wsdl
 
 ws.wsdl :
-	java -cp ../../../tools/GetHTML.jar GetHTML "http://localhost:8088/sqooss/services/ws?wsdl" ws.wsdl
+	java -cp $(TOP_SRCDIR)/tools/GetHTML.jar GetHTML "http://localhost:8088/sqooss/services/ws?wsdl" ws.wsdl
 
 .PHONY : clean-wsdl
 
@@ -20,7 +20,8 @@ EXT_LIBS=org.apache.axis2_1.1.0/axis2-kernel-1.1.jar \
 	org.apache.axiom.api_1.2.2/axiom-api-1.2.2.jar \
 	org.apache.axis2.databinding_1.1.0/axis2-adb-1.1.jar \
 	javax.mail.api_1.4.0/activation-1.1.jar
-CODEGEN_PATH=$(HOME)/Research/sqo/tools/javatools/wsdl2java/
+# CODEGEN_PATH=$(HOME)/Research/sqo/tools/javatools/wsdl2java/
+CODEGEN_PATH=$(TOP_SRCDIR)/tools
 CODEGEN_LIBS=axis2-adb-codegen-1.1.jar axis2-codegen-1.1.jar
 
 # TODO: use target/dependency/*.jar instead
