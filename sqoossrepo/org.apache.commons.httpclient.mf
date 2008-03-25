@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Httpclient Plug-in
 Bundle-SymbolicName: org.apache.commons.httpclient
 Bundle-Version: 3.0.1
-Bundle-ClassPath: commons-httpclient-3.0.1.jar
+Bundle-ClassPath: org.apache.commons.httpclient-3.0.1.jar
 Bundle-Vendor: Apache
 Bundle-Localization: plugin
 Export-Package: org.apache.commons.httpclient;version="3.0.1",
