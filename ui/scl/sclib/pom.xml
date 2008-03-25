@@ -1,0 +1,99 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>eu.sqooss</groupId>
+    <artifactId>ui</artifactId>
+    <version>1.0.0</version>
+  </parent>
+
+  <groupId>eu.sqooss.ui</groupId>
+  <artifactId>scl</artifactId>
+  <version>0.0.1</version>
+  <packaging>pom</packaging>
+
+  <name>Alitheia UI Connector Library</name>
+  <url>http://ikaria.dmst.aueb.gr/ui/scl</url>
+  <inceptionYear>2006</inceptionYear>
+  <description>
+    The SQO-OSS connector library (SCL) provides a Java interface to the
+    web-services of the Alitheia Core so that the UI can retrieve project
+    and measurement data from the Core.
+  </description>
+
+  <scm>
+    <connection>
+      scm:svn:https://svn.sqo-oss.eu/devel/trunk/ui/scl
+    </connection>
+    <developerConnection>
+      scm:svn:https://svn.sqo-oss.eu/devel/trunk/ui/scl
+    </developerConnection>
+  </scm>
+
+  <build>
+    <defaultGoal>deploy:deploy</defaultGoal>
+    <sourceDirectory>${basedir}/src</sourceDirectory>
+    <outputDirectory>${basedir}/build</outputDirectory>
+    <plugins>
+      <plugin>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <finalName>${groupId}.${artifactId}-${version}</finalName>
+          <archive>
+            <manifestFile>${basedir}/manifest/manifest.mf</manifestFile>
+            <addMavenDescriptor>false</addMavenDescriptor>
+          </archive>
+        </configuration> 
+      </plugin>
+      <plugin>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <configuration>
+          <generatePom>false</generatePom>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <dependencies>
+    <dependency>
+      <groupId>eu.sqooss.alitheia</groupId>
+      <artifactId>core</artifactId>
+      <version>[0.0.1,)</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>eu.sqooss.alitheia</groupId>
+      <artifactId>web-services</artifactId>
+      <version>[0.0.1,)</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>eu.sqooss.ui.scl</groupId>
+      <artifactId>client</artifactId>
+      <version>[0.0.1,)</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>codec</artifactId>
+      <version>1.3.0</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.axis2</groupId>
+      <artifactId>kernel</artifactId>
+      <version>1.1.0</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+
+  <modules>
+    <module>wslib</module>
+  </modules>
+</project>
+
