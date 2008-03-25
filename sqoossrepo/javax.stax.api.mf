@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-Name: Stax Plug-in
 Created-By: 1.6.0_04 (Sun Microsystems Inc.)
-Bundle-ClassPath: stax-api-1.0.1.jar,.
+Bundle-ClassPath: javax.stax.api-1.0.1.jar,.
 Bundle-Version: 1.0.1
 Bundle-Localization: plugin
 Bundle-ManifestVersion: 2
