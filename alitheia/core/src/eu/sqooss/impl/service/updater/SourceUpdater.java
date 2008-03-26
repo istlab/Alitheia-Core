@@ -46,6 +46,7 @@ import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.abstractmetric.Metric;
 import eu.sqooss.service.abstractmetric.MetricMismatchException;
 import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.Directory;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
@@ -140,24 +141,36 @@ class SourceUpdater extends Job {
                 
                 for(String chPath: entry.getChangedPaths()) {
 
-                    if(isTag(entry, chPath)) {
+                    SCMNodeType t = scm.getNodeType(chPath, entry.getRevision());
+                    
+                    /* TODO: We make the assumption that tags entries
+                     * can only be directories, based on info obtained 
+                     * from the SVN manual
+                     * See: http://svnbook.red-bean.com/en/1.1/ch04s06.html 
+                     */
+                    if(t == SCMNodeType.DIR && isTag(entry, chPath)) {
+                        
                         logger.info(project.getName() + ": SVN Tag revision: " + 
                                 entry.getRevision().getSVNRevision());
-                        Tag t = curVersion.addTag();
-                        t.setName(chPath.substring(5));
-                        s.save(t);
+                        Tag tag = curVersion.addTag();
+                        tag.setName(chPath.substring(5));
+                        s.save(tag);
                         break;
                     }
                     
                     ProjectFile pf = curVersion.addProjectFile();
-                    pf.setName(chPath);
+                    String path = chPath.substring(0, chPath.lastIndexOf('/'));
+                    String fname = chPath.substring(chPath.lastIndexOf('/') + 1);
+
+                    pf.setName(fname);
+                    pf.setDir(Directory.getDirectory(path));
                     pf.setStatus(entry.getChangedPathsStatus().get(chPath).toString());
-                    SCMNodeType t = scm.getNodeType(chPath, entry.getRevision());
-                    
-                    if(t == SCMNodeType.DIR)
+                     
+                    if (t == SCMNodeType.DIR) {
                         pf.setIsDirectory(true);
-                    else
+                    } else {
                         pf.setIsDirectory(false);
+                    }
                     
                     s.save(pf);
                     updFiles.add(pf.getId());

@@ -140,7 +140,7 @@ public class WcImplementation extends AbstractMetric implements Wc {
 
             s.enqueue(w);
         } catch (Exception e) {
-            log.error("Could not schedule wc job for project file: " + ((ProjectFile)a).getName());
+            log.error("Could not schedule wc job for project file: " + ((ProjectFile)a).getFileName());
         }
     }
 }

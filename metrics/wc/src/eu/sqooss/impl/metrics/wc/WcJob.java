@@ -80,7 +80,7 @@ public class WcJob extends AbstractMetricJob {
                 log.info(
                         this.getClass().getName()
                         + " Measuring: "
-                        + pf.getName());
+                        + pf.getFileName());
 
                 // Measure the number of lines in the project file
                 LineNumberReader lnr =
@@ -118,7 +118,7 @@ public class WcJob extends AbstractMetricJob {
                         + " IO Error <"
                         + e
                         + "> while measuring: "
-                        + pf.getName());
+                        + pf.getFileName());
             }
         }
     }

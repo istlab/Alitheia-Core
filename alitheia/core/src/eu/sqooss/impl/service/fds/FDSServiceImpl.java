@@ -418,7 +418,7 @@ public class FDSServiceImpl implements FDSService {
                 + System.getProperty("file.separator")
                 + pr.getSVNRevision()
                 + System.getProperty("file.separator")
-                + pf.getName());
+                + pf.getFileName());
 
         // TODO: possibly also look in existing checkouts?
         return checkoutFile;
@@ -469,7 +469,7 @@ public class FDSServiceImpl implements FDSService {
                 }
                 // Try to checkout the target file
                 scm.getFile(
-                        pf.getName(),
+                        pf.getFileName(),
                         projectRevision,
                         checkoutFile);
             }
@@ -518,7 +518,7 @@ public class FDSServiceImpl implements FDSService {
         // Need to get file from SCM
         java.io.ByteArrayOutputStream output = new java.io.ByteArrayOutputStream();
         try {
-            scm.getFile(pf.getName(), pr, output);
+            scm.getFile(pf.getFileName() , pr, output);
         } catch (InvalidRepositoryException e) {
             logger.error("The repository for " + pf.toString() + " is invalid.");
         } catch (InvalidProjectRevisionException e) {

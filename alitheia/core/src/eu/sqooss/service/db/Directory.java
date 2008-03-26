@@ -3,7 +3,7 @@
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  *
  * Copyright 2007-2008 by the SQO-OSS consortium members <info@sqo-oss.eu>
- * Copyright 2007-2008 by Paul J. Adams <paul.adams@siriusit.co.uk>
+ * Copyright 2007-2008 by Georgios Gousios <gousiosg@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -33,73 +33,50 @@
 
 package eu.sqooss.service.db;
 
-import eu.sqooss.service.db.DAObject;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-public class ProjectFile extends DAObject{
-    private String name;
-    private ProjectVersion projectVersion;
-    private String status;
-    private Boolean isDirectory;
-    private Directory dir;
+import eu.sqooss.impl.service.CoreActivator;
 
+public class Directory extends DAObject {
+    String path;
 
-    public ProjectFile() {
-        // Nothing to see here
-        isDirectory = false; //By default, all entries are files
+    public String getPath() {
+        return path;
     }
 
-    public ProjectFile(ProjectVersion pv) {
-        this.projectVersion = pv;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setProjectVersion(ProjectVersion projectVersion ) {
-        this.projectVersion = projectVersion;
-    }
-
-    public ProjectVersion getProjectVersion() {
-        return projectVersion;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public Boolean getIsDirectory() {
-        return isDirectory;
-    }
-
-    public void setIsDirectory(Boolean isDirectory) {
-        this.isDirectory = isDirectory;
-    }
-
-    public Directory getDir() {
-        return dir;
-    }
-
-    public void setDir(Directory dir) {
-        this.dir = dir;
-    }
+    public void setPath(String path) {
+        this.path = path;
+    }    
     
     /**
-     * Returns the full path to the file, relative to the repository root
-     * @return 
+     * Return the entry in the Directory table that corresponds to the
+     * passed argument. If the entry does not exist, it will be created 
+     * and saved. 
+     *  
+     * @param path The path of the Directory to return
+     * @return A Directory record for the specified path
      */
-    public String getFileName() {
-        return dir.path + "/" + name;
+    public static Directory getDirectory(String path) {
+        
+        DBService dbs = CoreActivator.getDBService();
+        Map<String,Object> parameterMap = new HashMap<String,Object>();
+        parameterMap.put("path", path);
+        
+        List<Directory> dirs = dbs.findObjectByProperties(Directory.class,
+                parameterMap);
+        
+        /* Dir path in table, return it */
+        if(dirs.size() > 0)
+            return dirs.get(0);
+        
+        /* Dir path not in table create it */ 
+        Directory d = new Directory();
+        d.setPath(path);
+        dbs.addRecord(d);
+        return d;
     }
-    
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

@@ -51,7 +51,7 @@ public class WSProjectFile {
     }
     
     public String getName() {
-        return projectFile.getName();
+        return projectFile.getFileName();
     }
 
     public long getProjectVersion() {
