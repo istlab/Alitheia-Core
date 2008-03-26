@@ -51,29 +51,29 @@
                             
 
                         /**
-                        * field for Passwrod
+                        * field for Password
                         */
 
-                        protected java.lang.String localPasswrod ;
+                        protected java.lang.String localPassword ;
                         
 
                            /**
                            * Auto generated getter method
                            * @return java.lang.String
                            */
-                           public  java.lang.String getPasswrod(){
-                               return localPasswrod;
+                           public  java.lang.String getPassword(){
+                               return localPassword;
                            }
 
                            
                         
                             /**
                                * Auto generated setter method
-                               * @param param Passwrod
+                               * @param param Password
                                */
-                               public void setPasswrod(java.lang.String param){
+                               public void setPassword(java.lang.String param){
                             
-                                    this.localPasswrod=param;
+                                    this.localPassword=param;
                             
 
                                }
@@ -192,20 +192,20 @@
                                         if (prefix == null) {
                                             prefix = org.apache.axis2.databinding.utils.BeanUtil.getUniquePrefix();
 
-                                            xmlWriter.writeStartElement(prefix,"passwrod", namespace);
+                                            xmlWriter.writeStartElement(prefix,"password", namespace);
                                             xmlWriter.writeNamespace(prefix, namespace);
                                             xmlWriter.setPrefix(prefix, namespace);
 
                                         } else {
-                                            xmlWriter.writeStartElement(namespace,"passwrod");
+                                            xmlWriter.writeStartElement(namespace,"password");
                                         }
 
                                     } else {
-                                        xmlWriter.writeStartElement("passwrod");
+                                        xmlWriter.writeStartElement("password");
                                     }
                                 
 
-                                          if (localPasswrod==null){
+                                          if (localPassword==null){
                                               // write the nil attribute
                                               
                                                      writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","true",xmlWriter);
@@ -213,7 +213,7 @@
                                           }else{
 
                                         
-                                                   xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localPasswrod));
+                                                   xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localPassword));
                                             
                                           }
                                     
@@ -345,10 +345,10 @@
                                          org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localUserName));
                                     
                              elementList.add(new javax.xml.namespace.QName("http://services.web.service.sqooss.eu/xsd",
-                                                                      "passwrod"));
+                                                                      "password"));
                             
-                                         elementList.add(localPasswrod==null?null:
-                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localPasswrod));
+                                         elementList.add(localPassword==null?null:
+                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localPassword));
                                     
                              elementList.add(new javax.xml.namespace.QName("http://services.web.service.sqooss.eu/xsd",
                                                                       "projectName"));
@@ -454,13 +454,13 @@
                                     
                                     while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
                                 
-                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://services.web.service.sqooss.eu/xsd","passwrod").equals(reader.getName())){
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://services.web.service.sqooss.eu/xsd","password").equals(reader.getName())){
                                 
                                        if (!"true".equals(reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil"))){
                                     
                                     java.lang.String content = reader.getElementText();
                                     
-                                              object.setPasswrod(
+                                              object.setPassword(
                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
                                             
                                        } else {
