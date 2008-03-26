@@ -1,9 +1,11 @@
 Manifest-Version: 1.0
 Require-Bundle: javax.stax.api
-Export-Package: org.apache.neethi,org.apache.neethi.builders,org.apach
- e.neethi.builders.xml,org.apache.neethi.util
+Export-Package: org.apache.neethi,
+  org.apache.neethi.builders,
+  org.apache.neethi.builders.xml,
+  org.apache.neethi.util
 Bundle-Vendor: Apache
-Bundle-ClassPath: neethi-2.0.jar
+Bundle-ClassPath: org.apache.neethi-2.0.0.jar
 Bundle-Version: 2.0.0
 Bundle-Localization: plugin
 Bundle-Name: Neethi Plug-in
