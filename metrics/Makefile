@@ -1,7 +1,6 @@
-# This is the Makefile for the Alitheia Metrics.
-
 TOP_SRCDIR=..
-SUBDIRS=wc productivity-metric
 
-include $(TOP_SRCDIR)/Makefile.common
+include $(TOP_SRCDIR)/Makefile.metrics
 
+#clean-dir :
+#	rm -rf result/build result/target
