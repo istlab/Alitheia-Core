@@ -1,0 +1,20 @@
+include $(TOP_SRCDIR)/Makefile.config
+
+all : build
+
+build :
+	$(MAVEN) compile install
+
+clean : clean-dir
+	$(MAVEN) clean
+
+clean-dir :
+
+install :
+	$(MAVEN) package
+
+help :
+	@echo $(MAVEN)
+
+.PHONY : all build clean clean-dir install help
+
