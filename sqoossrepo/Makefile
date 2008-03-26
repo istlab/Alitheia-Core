@@ -29,16 +29,37 @@ include $(TOP_SRCDIR)/Makefile.config
 
 all : build
 
+# We replace the standard clean with a message, because re-jarring 
+# is a slow and expensive operation. Use clean-all to get rid of
+# everything which was installed into the eu/sqooss/extlibs group
+# and force a rebuild.
 clean :
 	@echo "# Use 'make clean-all' to remove the re-jarred packages."
 
+# This throws out all the re-jarred bundles.
 clean-all :
 	rm -rf eu/sqooss/extlibs/*
 
-# $1 group (org/foo)
-# $2 artifact (bar) without the jar
+# This macro does the major magic of re-jarring an existing jar
+# into a bundle with a new manifest and (optionally) extra content.
+# It is called with four arguments:
+#
+# $1 group
+#	This is the groupId of the jar as it is installed in the
+#	repo. The separator is / not . so it looks like a directory.
+# $2 artifact
+#	This is the artifactId of the jar. 
 # $3 version
-# $4 extra commands
+#	The version of the jar. You should be able to find the
+#	jar itself at $1/$2/$3/$2-$3.jar in the repo.
+# $4 commands
+#	These are extra commands that are run while re-jarring.
+#	You can use these to add extra files to the jar.
+#
+# Normally you call this macro with only the first three parameters.
+# This will re-jar the library into a bundle. The new bundle manifest
+# is taken from $1.$2.mf with the / replaced by . in the group name.
+#
 define rejar_template
 REJARS+=$(1)$(2)
 
