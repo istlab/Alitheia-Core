@@ -2,7 +2,7 @@ FILES= $(wildcard src/*)
 BUILDDIR=build
 
 INPUT=${BUILDDIR}/documentation.xml
-PDFOUTPUT=documnetation.pdf
+PDFOUTPUT=documentation.pdf
 HTMLOUTPUT=documentation.html
 
 .PHONY: all pdf html clean
@@ -26,5 +26,5 @@ ${PDFOUTPUT} : ${INPUT} ${FILES}
 	rm tmp.fo
 
 clean:
-	-rm -R ${BUILDDIR}
-	-rm ${HTMLOUTPUT} ${PDFOUTPUT} 
+	rm -fR ${BUILDDIR}
+	rm -f ${HTMLOUTPUT} ${PDFOUTPUT} 
