@@ -3,6 +3,7 @@ Created-By: 1.6.0_04 (Sun Microsystems Inc.)
 Bundle-Vendor: Apache
 Bundle-ClassPath: org.apache.axis2.databinding-1.1.0.jar
 Bundle-Version: 1.1.0
+Fragment-Host: org.apache.axis2;version="1.1.0"
 Bundle-Localization: plugin
 Bundle-Name: Axis2 Databinding Plug-in
 Bundle-ManifestVersion: 2
