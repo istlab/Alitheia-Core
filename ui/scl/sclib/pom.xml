@@ -12,7 +12,7 @@
   <version>0.0.1</version>
   <packaging>jar</packaging>
 
-  <name>Alitheia SCL Public Interface</name>
+  <name>Alitheia UI Connector Public Interface</name>
   <url>http://ikaria.dmst.aueb.gr/ui/scl/sclib</url>
   <inceptionYear>2006</inceptionYear>
   <description>
