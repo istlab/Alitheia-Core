@@ -40,7 +40,6 @@ import eu.sqooss.service.db.DAObject;
 public class User extends DAObject {
 
     private String name;
-    private Integer level;
     private Date registered;
     private Date lastLogin;
     private String password;

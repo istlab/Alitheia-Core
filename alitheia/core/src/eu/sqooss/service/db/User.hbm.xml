@@ -9,7 +9,6 @@
       <generator class="native" />
     </id>
     <property name="name" column="NAME" not-null="true" />
-    <property name="level" column="LEVEL" />
     <property name="registered" column="REGISTERED" />
     <property name="lastLogin" column="LASTLOGIN" />
     <property name="password" column="PASSWORD" not-null="true" />
