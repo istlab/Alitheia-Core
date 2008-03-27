@@ -233,7 +233,7 @@ public class AlitheiaCore {
                     try {
                         Object r = m.invoke(o);
                         if (r != null) {
-                            l.info("Test failed: " + r.toString());
+                            l.info(className + "'s test failed: " + r.toString());
                             result.add(r);
                         }
                     } catch (SecurityException e) {
