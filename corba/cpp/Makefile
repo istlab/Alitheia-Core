@@ -1,5 +1,7 @@
 all: examples
 
+build : examples
+
 idl:
 	${MAKE} -C ../idl
 	

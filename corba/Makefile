@@ -22,5 +22,5 @@ include $(TOP_SRCDIR)/Makefile.common
 
 build-dir :
 	cd idl && $(MAKE) build
-	cd cpp && $(MAKE) build
+	-cd cpp && $(MAKE) build
 

@@ -14,9 +14,13 @@ CPP_RESULTS=Alitheia.cpp \
 build : ../cpp/src/Alitheia.cpp ../corbaservice/src/eu/sqooss/impl/service/corba/alitheia/CoreHelper.java
 	:
 
+# Since the C++ parts are optional, this is allowed to fail. That's
+# why there is a true at the end of the command, to force successful
+# completion of the command always.
 ../cpp/src/Alitheia.cpp: Alitheia.idl
-	cd ../cpp/src; idl --any --poa --c++-suffix cpp ../../idl/Alitheia.idl; cd ../../idl
+	cd ../cpp/src; idl --any --poa --c++-suffix cpp ../../idl/Alitheia.idl; true
 	
+# Since Java is *not* optional, this must succeed.
 ../corbaservice/src/eu/sqooss/impl/service/corba/alitheia/CoreHelper.java: Alitheia.idl
 	idlj -td ../corbaservice/src -pkgPrefix alitheia eu.sqooss.impl.service.corba -fall Alitheia.idl
 
