@@ -1,0 +1,21 @@
+<!DOCTYPE web-app 
+  PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN" 
+  "http://java.sun.com/j2ee/dtds/web-app_2_2.dtd">
+
+<web-app>
+
+  <display-name>SQO-OSS Web Interface</display-name>
+  <description>
+    Add later.
+  </description>
+
+  <servlet>
+    <servlet-name>index.jsp</servlet-name>
+    <jsp-file>/index.jsp</jsp-file>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>index.jsp</servlet-name>
+    <url-pattern>/index.jsp</url-pattern>
+  </servlet-mapping>
+
+</web-app>

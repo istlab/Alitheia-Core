@@ -1,0 +1,54 @@
+#contents {
+    border-top: 1px solid #ccc;
+    margin-top: 1ex;
+    background: #fcfbf3;
+    margin-bottom: 2ex;
+    margin-left: 220px;
+    margin-right: 2ex;
+    font-size: 0.8em;
+}
+
+#sidebar, #menu {
+    background: #fcfbf3;
+    width: 180px;
+    float: left;
+    clear: left;
+    border: 1px solid #cccccc;
+    padding: 1ex 1em;
+    margin: 1ex 1ex 0ex 1ex;
+    font-size: 0.8em;
+}
+
+#menu ul {
+    list-style-type: none;
+    margin: 0px;
+    padding: 0px;
+}
+
+#menu li {
+    margin-left: 0px;
+    padding-left: 0px;
+    padding-right: 5px;
+    font-weight: bold;
+}
+
+#news {
+    padding: 1ex 1em 1ex 22%;
+}
+
+.metrics {
+    margin: 0px;
+    padding: 4px;
+    border: 1px solid #cccccc;
+}
+
+
+table.metrics {
+    margin: 0px;
+    border: 2px solid #cccccc;
+}
+
+div.green {
+    display: inline;
+    color: green;
+}
