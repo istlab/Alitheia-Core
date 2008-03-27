@@ -55,6 +55,7 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
     private ServiceUrlManager serviceUrlManager;
     private SecurityManagerDatabase dbWrapper;
     private Logger logger;
+    private boolean isEnable;
 
     public SecurityManagerImpl(DBService db, Logger logger) {
         this.dbWrapper = new SecurityManagerDatabase(db);
@@ -64,6 +65,8 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
         groupManager = new GroupManagerImpl(db, logger);
         privilegeManager = new PrivilegeManagerImpl(db, logger);
         serviceUrlManager = new ServiceUrlManagerImpl(db, logger);
+        
+        isEnable = Boolean.valueOf(System.getProperty("eu.sqooss.security.enable", "true"));
     }
 
     /**
@@ -88,6 +91,10 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
         
         logger.info("Check Permission! resourceUrl: " + resourceUrl + "; user name: " + userName);
 
+        if (!isEnable) {
+        	return true;
+        }
+        
         if ((resourceUrl == null) || (userName == null) || (password == null)) {
             return false;
         }
