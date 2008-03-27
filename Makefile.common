@@ -27,6 +27,10 @@ build : build-dir
 
 build-dir :
 
+# Duplicate target if you *just* want to invoke Maven
+build-maven :
+	$(MAVEN) package install
+
 # Clean is propagated to the subdirectories, as is install. We don't
 # do this with Maven because of the way files are named in the installation
 # directory.

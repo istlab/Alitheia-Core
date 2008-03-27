@@ -39,7 +39,7 @@
         <configuration>
           <finalName>${groupId}.${artifactId}-${version}</finalName>
           <archive>
-            <manifestFile>${basedir}/manifest/core.mf</manifestFile>
+            <manifestFile>${basedir}/manifest/corbaservice.mf</manifestFile>
             <addMavenDescriptor>false</addMavenDescriptor>
           </archive>
         </configuration> 
