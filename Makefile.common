@@ -32,15 +32,23 @@ build-dir :
 # directory.
 clean : clean-subdirs clean-dir
 
+ifeq ($(SUBDIRS),)
+clean-subdirs :
+else
 clean-subdirs :
 	for i in $(SUBDIRS) ; do ( cd $$i && $(MAKE) clean ) || exit 1; done
+endif
 
 clean-dir :
 
 install : install-subdirs install-dir
 
+ifeq ($(SUBDIRS),)
+install-subdirs :
+else
 install-subdirs :
 	for i in $(SUBDIRS) ; do ( cd $$i && $(MAKE) install ) || exit 1; done
+endif
 
 install-dir :
 

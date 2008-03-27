@@ -23,7 +23,7 @@ build : ../cpp/src/Alitheia.cpp ../corbaservice/src/eu/sqooss/impl/service/corba
 install:
 #bogus rule, nothing to do here
 
-clean:
+clean-dir :
 	-DIR=../corbaservice/src/eu/sqooss/impl/service/corba/alitheia/; \
 	for file in `ls $$DIR/*.java`; \
 	do test -f $$file && rm $$file; \
