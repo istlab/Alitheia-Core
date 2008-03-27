@@ -8,7 +8,7 @@
   </parent>
 
   <groupId>eu.sqooss.ui</groupId>
-  <artifactId>webui2</artifactId>
+  <artifactId>webui</artifactId>
   <version>1.0.0</version>
   <packaging>war</packaging>
 
@@ -20,10 +20,10 @@
 
   <scm>
     <connection>
-      scm:svn:https://svn.sqo-oss.eu/devel/trunk/ui/webui2
+      scm:svn:https://svn.sqo-oss.eu/devel/trunk/ui/webui
     </connection>
     <developerConnection>
-      scm:svn:https://svn.sqo-oss.eu/devel/trunk/ui/webui2
+      scm:svn:https://svn.sqo-oss.eu/devel/trunk/ui/webui
     </developerConnection>
   </scm>
 
