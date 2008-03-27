@@ -10,7 +10,7 @@
     </id>
     <property name="name" column="NAME" not-null="true" />
     <property name="registered" column="REGISTERED" />
-    <property name="lastLogin" column="LASTLOGIN" />
+    <property name="lastActivity" column="LAST_ACTIVITY" />
     <property name="password" column="PASSWORD" not-null="true" />
     <property name="email" column="EMAIL" not-null="true" />
     

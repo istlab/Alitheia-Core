@@ -41,7 +41,7 @@ public class User extends DAObject {
 
     private String name;
     private Date registered;
-    private Date lastLogin;
+    private Date lastActivity;
     private String password;
     private String email;
     private Set groups = new HashSet();
@@ -64,12 +64,12 @@ public class User extends DAObject {
         registered = value;
     }
 
-    public Date getLastLogin() {
-        return lastLogin;
+    public Date getLastActivity() {
+        return lastActivity;
     }
 
-    public void setLastLogin( Date value ) {
-        lastLogin = value;
+    public void setLastActivity( Date value ) {
+        lastActivity = value;
     }
 
     public String getPassword() {
