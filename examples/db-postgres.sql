@@ -1312,7 +1312,7 @@ COPY tag (tag_id, tag_name) FROM stdin;
 COPY users (user_id, name, "level", registered, lastlogin, "password", email) FROM stdin;
 1	'Fluffy Bunny'	0	1970-01-01 00:00:00	2008-01-14 00:00:00	carrot	bunny@kde.org
 2	'Adriaan Bunny'	0	2008-01-01 00:00:00	2008-02-14 00:00:00	celery	bynny@example.com
-3	alitheia	0	2008-01-01 00:00:00	2008-02-14 00:00:00	alitheia	NA
+3	alitheia	0	2008-01-01 00:00:00	2008-02-14 00:00:00	aa055fc92ac0e92be352a5a27bb5eacca8bf1b10cb22496f4dc4315b963eeaaa	NA
 \.
 
 
