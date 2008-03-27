@@ -32,6 +32,9 @@
 
 package eu.sqooss.impl.service.security;
 
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -44,13 +47,22 @@ import eu.sqooss.service.security.UserManager;
 
 public class UserManagerImpl implements UserManager {
 
+	private static final String CHARSET_NAME_UTF8 = "UTF-8";
+	
     private UserManagerDatabase dbWrapper;
     private Logger logger;
+    private MessageDigest messageDigest;
     
     public UserManagerImpl(DBService db, Logger logger) {
         super();
         this.dbWrapper = new UserManagerDatabase(db);
         this.logger = logger;
+        
+        try {
+        	messageDigest = MessageDigest.getInstance("SHA-256");
+        } catch (NoSuchAlgorithmException e) {
+        	messageDigest = null;
+        }
     }
 
     /**
@@ -58,9 +70,13 @@ public class UserManagerImpl implements UserManager {
      */
     public User createUser(String userName, String password, String email) {
         logger.info("Create user! username: " + userName + "; e-mail: " + email);
+        String passwordHash = getHash(password);
+        if (passwordHash == null) {
+        	return null;
+        }
         User newUser = new User();
         newUser.setName(userName);
-        newUser.setPassword(password);
+        newUser.setPassword(passwordHash);
         newUser.setEmail(email);
         newUser.setRegistered(new Date());
         if (dbWrapper.createUser(newUser)) {
@@ -129,6 +145,36 @@ public class UserManagerImpl implements UserManager {
      */
     public User[] getUsers(long groupId) {
         return convertUsers(dbWrapper.getUsers(groupId));
+    }
+    
+    /**
+     * @see eu.sqooss.service.security.UserManager#getHash(java.lang.String)
+     */
+    public String getHash(String password) {
+    	if ((messageDigest == null) || (password == null)) {
+    		return null;
+    	}
+    	byte[] passwordBytes = null;
+    	try {
+    		passwordBytes = password.getBytes(CHARSET_NAME_UTF8);
+    	} catch (UnsupportedEncodingException uee) {
+    		return null;
+    	}
+    	byte[] passwordHashBytes;
+    	synchronized (messageDigest) {
+    		messageDigest.reset();
+    		passwordHashBytes = messageDigest.digest(passwordBytes);
+    	}
+    	StringBuilder passwordHash = new StringBuilder();
+    	String currentSymbol;
+    	for (byte currentByte : passwordHashBytes) {
+    		currentSymbol = Integer.toHexString(currentByte & 0xff);
+    		if (currentSymbol.length() == 1) {
+    			passwordHash.append("0");
+    		}
+    		passwordHash.append(currentSymbol);
+    	}
+    	return passwordHash.toString();
     }
     
     private static User[] convertUsers(Collection<?> users) {

@@ -88,6 +88,14 @@ public interface UserManager {
      */
     public boolean deleteUser(String userName);
     
+    /**
+     * This method returns the password's hash.
+     * The method uses SHA-256.
+     * @param password
+     * @return the password's hash
+     */
+    public String getHash(String password);
+    
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

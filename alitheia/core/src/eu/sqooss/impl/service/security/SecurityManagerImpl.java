@@ -95,15 +95,17 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
         	return true;
         }
         
-        if ((resourceUrl == null) || (userName == null) || (password == null)) {
+        String passwordHash = userManager.getHash(password);
+        
+        if ((resourceUrl == null) || (userName == null) || (passwordHash == null)) {
             return false;
         }
         
         try {
-            if (dbWrapper.isExistentResourceUrl(resourceUrl, userName, password)) {
-                return checkPermissionPrivileges(resourceUrl, privileges, userName, password);
-            } else if (dbWrapper.isExistentResourceUrl(URL_SQOOSS, userName, password)) {
-                return checkPermissionPrivileges(URL_SQOOSS, privileges, userName, password);
+            if (dbWrapper.isExistentResourceUrl(resourceUrl, userName, passwordHash)) {
+                return checkPermissionPrivileges(resourceUrl, privileges, userName, passwordHash);
+            } else if (dbWrapper.isExistentResourceUrl(URL_SQOOSS, userName, passwordHash)) {
+                return checkPermissionPrivileges(URL_SQOOSS, privileges, userName, passwordHash);
             } else {
                 return false; //there aren't privileges
             }

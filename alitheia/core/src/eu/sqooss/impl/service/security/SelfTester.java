@@ -97,7 +97,9 @@ public class SelfTester {
     private String testUserManager() {
         User newUser = null;
 
-        userManager.deleteUser("fldhfkjs");
+        if (!testPasswordHash()) {
+    		return "The hash function doesn't work correctly";
+    	}
         
         try {
             newUser = userManager.createUser(TEST_USER, TEST_PASS, TEST_PASS);
@@ -220,6 +222,21 @@ public class SelfTester {
         }
         
         return null;
+    }
+    
+    private boolean testPasswordHash() {
+    	//SHA-256 hashes
+    	String firstSequence = "The quick brown fox jumps over the lazy dog";
+    	String firstSequenceHash = "d7a8fbb307d7809469ca9abcb0082e4f8d5651e46d3cdb762d02d0bf37c9e592";
+    	String secondSequence = "The quick brown fox jumps over the lazy cog";
+    	String secondSequenceHash = "e4c4d8f3bf76b692de791a173e05321150f7a345b46484fe427f6acc7ecc81be";
+    	String thirdSequence = "";
+    	String thirdSequenceHash = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
+    	
+    	return ((firstSequenceHash.equals(userManager.getHash(firstSequence))) &&
+    			(secondSequenceHash.equals(userManager.getHash(secondSequence))) &&
+    			(thirdSequenceHash.equals(userManager.getHash(thirdSequence))));
+    	
     }
     
     private boolean testSecurityManagerCustomRule() {
