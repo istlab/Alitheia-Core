@@ -47,7 +47,7 @@
 
   <modules>
     <module>scl</module>
-    <module>webui2</module>
+    <module>webui</module>
   </modules>
 </project>
 
