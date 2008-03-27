@@ -305,7 +305,7 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
         parameters.put(METHOD_NAME_REQUEST_EVALUATION_4_PROJECT, requestEvaluation4ProjectParams);
         
         RetrieveProjectId retrieveProjectIdParam = new RetrieveProjectId();
-        retrieveProjectIdParam.setPasswrod(password);
+        retrieveProjectIdParam.setPassword(password);
         retrieveProjectIdParam.setUserName(userName);
         parameters.put(METHOD_NAME_RETRIEVE_PROJECT_ID, retrieveProjectIdParam);
         
