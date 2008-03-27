@@ -21,6 +21,35 @@
             
 
                         /**
+                        * field for Email
+                        */
+
+                        protected java.lang.String localEmail ;
+                        
+
+                           /**
+                           * Auto generated getter method
+                           * @return java.lang.String
+                           */
+                           public  java.lang.String getEmail(){
+                               return localEmail;
+                           }
+
+                           
+                        
+                            /**
+                               * Auto generated setter method
+                               * @param param Email
+                               */
+                               public void setEmail(java.lang.String param){
+                            
+                                    this.localEmail=param;
+                            
+
+                               }
+                            
+
+                        /**
                         * field for Id
                         */
 
@@ -44,6 +73,64 @@
                                public void setId(long param){
                             
                                     this.localId=param;
+                            
+
+                               }
+                            
+
+                        /**
+                        * field for LastActivity
+                        */
+
+                        protected java.lang.String localLastActivity ;
+                        
+
+                           /**
+                           * Auto generated getter method
+                           * @return java.lang.String
+                           */
+                           public  java.lang.String getLastActivity(){
+                               return localLastActivity;
+                           }
+
+                           
+                        
+                            /**
+                               * Auto generated setter method
+                               * @param param LastActivity
+                               */
+                               public void setLastActivity(java.lang.String param){
+                            
+                                    this.localLastActivity=param;
+                            
+
+                               }
+                            
+
+                        /**
+                        * field for Registered
+                        */
+
+                        protected java.lang.String localRegistered ;
+                        
+
+                           /**
+                           * Auto generated getter method
+                           * @return java.lang.String
+                           */
+                           public  java.lang.String getRegistered(){
+                               return localRegistered;
+                           }
+
+                           
+                        
+                            /**
+                               * Auto generated setter method
+                               * @param param Registered
+                               */
+                               public void setRegistered(java.lang.String param){
+                            
+                                    this.localRegistered=param;
                             
 
                                }
@@ -196,6 +283,40 @@
                                         if (prefix == null) {
                                             prefix = org.apache.axis2.databinding.utils.BeanUtil.getUniquePrefix();
 
+                                            xmlWriter.writeStartElement(prefix,"email", namespace);
+                                            xmlWriter.writeNamespace(prefix, namespace);
+                                            xmlWriter.setPrefix(prefix, namespace);
+
+                                        } else {
+                                            xmlWriter.writeStartElement(namespace,"email");
+                                        }
+
+                                    } else {
+                                        xmlWriter.writeStartElement("email");
+                                    }
+                                
+
+                                          if (localEmail==null){
+                                              // write the nil attribute
+                                              
+                                                     writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","true",xmlWriter);
+                                                  
+                                          }else{
+
+                                        
+                                                   xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localEmail));
+                                            
+                                          }
+                                    
+                                   xmlWriter.writeEndElement();
+                             
+                                    namespace = "http://datatypes.services.web.service.impl.sqooss.eu/xsd";
+                                    if (! namespace.equals("")) {
+                                        prefix = xmlWriter.getPrefix(namespace);
+
+                                        if (prefix == null) {
+                                            prefix = org.apache.axis2.databinding.utils.BeanUtil.getUniquePrefix();
+
                                             xmlWriter.writeStartElement(prefix,"id", namespace);
                                             xmlWriter.writeNamespace(prefix, namespace);
                                             xmlWriter.setPrefix(prefix, namespace);
@@ -209,6 +330,74 @@
                                     }
                                 
                                        xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localId));
+                                    
+                                   xmlWriter.writeEndElement();
+                             
+                                    namespace = "http://datatypes.services.web.service.impl.sqooss.eu/xsd";
+                                    if (! namespace.equals("")) {
+                                        prefix = xmlWriter.getPrefix(namespace);
+
+                                        if (prefix == null) {
+                                            prefix = org.apache.axis2.databinding.utils.BeanUtil.getUniquePrefix();
+
+                                            xmlWriter.writeStartElement(prefix,"lastActivity", namespace);
+                                            xmlWriter.writeNamespace(prefix, namespace);
+                                            xmlWriter.setPrefix(prefix, namespace);
+
+                                        } else {
+                                            xmlWriter.writeStartElement(namespace,"lastActivity");
+                                        }
+
+                                    } else {
+                                        xmlWriter.writeStartElement("lastActivity");
+                                    }
+                                
+
+                                          if (localLastActivity==null){
+                                              // write the nil attribute
+                                              
+                                                     writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","true",xmlWriter);
+                                                  
+                                          }else{
+
+                                        
+                                                   xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localLastActivity));
+                                            
+                                          }
+                                    
+                                   xmlWriter.writeEndElement();
+                             
+                                    namespace = "http://datatypes.services.web.service.impl.sqooss.eu/xsd";
+                                    if (! namespace.equals("")) {
+                                        prefix = xmlWriter.getPrefix(namespace);
+
+                                        if (prefix == null) {
+                                            prefix = org.apache.axis2.databinding.utils.BeanUtil.getUniquePrefix();
+
+                                            xmlWriter.writeStartElement(prefix,"registered", namespace);
+                                            xmlWriter.writeNamespace(prefix, namespace);
+                                            xmlWriter.setPrefix(prefix, namespace);
+
+                                        } else {
+                                            xmlWriter.writeStartElement(namespace,"registered");
+                                        }
+
+                                    } else {
+                                        xmlWriter.writeStartElement("registered");
+                                    }
+                                
+
+                                          if (localRegistered==null){
+                                              // write the nil attribute
+                                              
+                                                     writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","true",xmlWriter);
+                                                  
+                                          }else{
+
+                                        
+                                                   xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localRegistered));
+                                            
+                                          }
                                     
                                    xmlWriter.writeEndElement();
                              
@@ -395,11 +584,29 @@
 
                 
                              elementList.add(new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd",
+                                                                      "email"));
+                            
+                                         elementList.add(localEmail==null?null:
+                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localEmail));
+                                    
+                             elementList.add(new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd",
                                                                       "id"));
                             
                                 elementList.add(
                                    org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localId));
                             
+                             elementList.add(new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd",
+                                                                      "lastActivity"));
+                            
+                                         elementList.add(localLastActivity==null?null:
+                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localLastActivity));
+                                    
+                             elementList.add(new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd",
+                                                                      "registered"));
+                            
+                                         elementList.add(localRegistered==null?null:
+                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localRegistered));
+                                    
                              if (localUserGroups!=null) {
                                  for (int i = 0;i < localUserGroups.length;i++){
 
@@ -501,8 +708,33 @@
                     
                     reader.next();
                 
-                        java.util.ArrayList list2 = new java.util.ArrayList();
+                        java.util.ArrayList list5 = new java.util.ArrayList();
                     
+                                    
+                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
+                                
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd","email").equals(reader.getName())){
+                                
+                                       if (!"true".equals(reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil"))){
+                                    
+                                    java.lang.String content = reader.getElementText();
+                                    
+                                              object.setEmail(
+                                        org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                                            
+                                       } else {
+                                           reader.getElementText(); // throw away text nodes if any.
+                                       }
+                                      
+                                        reader.next();
+                                    
+                              }  // End of if for expected property start element
+                            
+                                else{
+                                    // A start element we are not expecting indicates an invalid parameter was passed
+                                    throw new java.lang.RuntimeException("Unexpected subelement " + reader.getLocalName());
+                                }
+                            
                                     
                                     while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
                                 
@@ -525,6 +757,56 @@
                                     
                                     while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
                                 
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd","lastActivity").equals(reader.getName())){
+                                
+                                       if (!"true".equals(reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil"))){
+                                    
+                                    java.lang.String content = reader.getElementText();
+                                    
+                                              object.setLastActivity(
+                                        org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                                            
+                                       } else {
+                                           reader.getElementText(); // throw away text nodes if any.
+                                       }
+                                      
+                                        reader.next();
+                                    
+                              }  // End of if for expected property start element
+                            
+                                else{
+                                    // A start element we are not expecting indicates an invalid parameter was passed
+                                    throw new java.lang.RuntimeException("Unexpected subelement " + reader.getLocalName());
+                                }
+                            
+                                    
+                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
+                                
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd","registered").equals(reader.getName())){
+                                
+                                       if (!"true".equals(reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil"))){
+                                    
+                                    java.lang.String content = reader.getElementText();
+                                    
+                                              object.setRegistered(
+                                        org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                                            
+                                       } else {
+                                           reader.getElementText(); // throw away text nodes if any.
+                                       }
+                                      
+                                        reader.next();
+                                    
+                              }  // End of if for expected property start element
+                            
+                                else{
+                                    // A start element we are not expecting indicates an invalid parameter was passed
+                                    throw new java.lang.RuntimeException("Unexpected subelement " + reader.getLocalName());
+                                }
+                            
+                                    
+                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
+                                
                                     if (reader.isStartElement() && new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd","userGroups").equals(reader.getName())){
                                 
                                     
@@ -532,14 +814,14 @@
                                     // Process the array and step past its final element's end.
                                     
                                               if ("true".equals(reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil"))){
-                                                  list2.add(null);
+                                                  list5.add(null);
                                                   reader.next();
                                               } else {
-                                            list2.add(eu.sqooss.ws.client.datatypes.WSUserGroup.Factory.parse(reader));
+                                            list5.add(eu.sqooss.ws.client.datatypes.WSUserGroup.Factory.parse(reader));
                                             }
                                             //loop until we find a start element that is not part of this array
-                                            boolean loopDone2 = false;
-                                            while(!loopDone2){
+                                            boolean loopDone5 = false;
+                                            while(!loopDone5){
                                                 // We should be at the end element, but make sure
                                                 while (!reader.isEndElement())
                                                     reader.next();
@@ -550,18 +832,18 @@
                                                     reader.next();
                                                 if (reader.isEndElement()){
                                                     //two continuous end elements means we are exiting the xml structure
-                                                    loopDone2 = true;
+                                                    loopDone5 = true;
                                                 } else {
                                                     if (new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd","userGroups").equals(reader.getName())){
                                                         
                                                           if ("true".equals(reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil"))){
-                                                              list2.add(null);
+                                                              list5.add(null);
                                                               reader.next();
                                                           } else {
-                                                        list2.add(eu.sqooss.ws.client.datatypes.WSUserGroup.Factory.parse(reader));
+                                                        list5.add(eu.sqooss.ws.client.datatypes.WSUserGroup.Factory.parse(reader));
                                                         }
                                                     }else{
-                                                        loopDone2 = true;
+                                                        loopDone5 = true;
                                                     }
                                                 }
                                             }
@@ -569,7 +851,7 @@
                                             object.setUserGroups((eu.sqooss.ws.client.datatypes.WSUserGroup[])
                                                 org.apache.axis2.databinding.utils.ConverterUtil.convertToArray(
                                                     eu.sqooss.ws.client.datatypes.WSUserGroup.class,
-                                                    list2));
+                                                    list5));
                                         
                               }  // End of if for expected property start element
                             
