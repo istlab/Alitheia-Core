@@ -1,0 +1,88 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>eu.sqooss</groupId>
+    <artifactId>corba</artifactId>
+    <version>1.0.0</version>
+  </parent>
+
+  <groupId>eu.sqooss.corba</groupId>
+  <artifactId>service</artifactId>
+  <version>0.0.1</version>
+  <packaging>jar</packaging>
+
+  <name>Alitheia CORBA Service</name>
+  <url>http://ikaria.dmst.aueb.gr/alitheia/corba/corbaservice</url>
+  <inceptionYear>2006</inceptionYear>
+  <description>
+    An OSGi service for use in the Alitheia Core Platform to
+    support CORBA ORB requests.
+  </description>
+
+  <scm>
+    <connection>
+      scm:svn:https://svn.sqo-oss.eu/devel/trunk/corba/corbaservice
+    </connection>
+    <developerConnection>
+      scm:svn:https://svn.sqo-oss.eu/devel/trunk/corba/corbaservice
+    </developerConnection>
+  </scm>
+
+  <build>
+    <defaultGoal>deploy:deploy</defaultGoal>
+    <sourceDirectory>${basedir}/src</sourceDirectory>
+    <outputDirectory>${basedir}/build</outputDirectory>
+    <plugins>
+      <plugin>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <finalName>${groupId}.${artifactId}-${version}</finalName>
+          <archive>
+            <manifestFile>${basedir}/manifest/core.mf</manifestFile>
+            <addMavenDescriptor>false</addMavenDescriptor>
+          </archive>
+        </configuration> 
+      </plugin>
+      <plugin>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <configuration>
+          <generatePom>false</generatePom>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <dependencies>
+    <dependency>
+      <groupId>org</groupId>
+      <artifactId>hibernate</artifactId>
+      <version>3.2.5</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.equinox</groupId>
+      <artifactId>osgi</artifactId>
+      <version>3.3.0</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.osgi</groupId>
+      <artifactId>services</artifactId>
+      <version>3.1.100.v20060918</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>eu.sqooss.alitheia</groupId>
+      <artifactId>core</artifactId>
+      <version>[0.0.1,)</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+
+  </dependencies>
+</project>
+

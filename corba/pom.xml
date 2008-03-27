@@ -1,0 +1,71 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>eu</groupId>
+    <artifactId>sqooss</artifactId>
+    <version>0.0.1</version>
+  </parent>
+
+  <groupId>eu.sqooss</groupId>
+  <artifactId>corba</artifactId>
+  <version>1.0.0</version>
+  <packaging>pom</packaging>
+
+  <name>Alitheia CORBA Connector</name>
+  <url>http://ikaria.dmst.aueb.gr/corba</url>
+  <inceptionYear>2006</inceptionYear>
+  <description>
+    The CORBA connector for Alitheia allows you to use CORBA
+    ORB to communicate with the Alitheia Core Platform and makes
+    it easier to write metrics in languages other than Java.
+  </description>
+
+  <scm>
+    <connection>
+      scm:svn:https://svn.sqo-oss.eu/devel/trunk/corba
+    </connection>
+    <developerConnection>
+      scm:svn:https://svn.sqo-oss.eu/devel/trunk/corba
+    </developerConnection>
+  </scm>
+
+  <build>
+    <defaultGoal>package</defaultGoal>
+    <sourceDirectory>${basedir}/result/src</sourceDirectory>
+    <outputDirectory>${basedir}/build</outputDirectory>
+    <plugins>
+      <plugin>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <finalName>${groupId}.${artifactId}-${version}</finalName>
+          <archive>
+            <manifestFile>
+              ${basedir}/result/manifest/manifest.mf
+            </manifestFile>
+          </archive>
+        </configuration> 
+      </plugin>
+      <plugin>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <configuration>
+          <generatePom>false</generatePom>
+        </configuration>
+      </plugin>
+    </plugins>
+    <resources>
+      <resource>
+        <directory>${basedir}/result/configuration/</directory>
+        <targetPath>.</targetPath>
+        <includes>
+          <include>WSResult.xsd</include>
+        </includes>
+      </resource>
+    </resources>
+  </build>
+
+  <modules>
+    <module>corbaservice</module>
+  </modules>
+</project>
+
