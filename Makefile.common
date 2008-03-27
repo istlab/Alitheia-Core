@@ -22,8 +22,10 @@ include $(TOP_SRCDIR)/Makefile.config
 # By default, build everything. We just invoke Maven to do the work.
 all : build
 
-build :
+build : build-dir
 	$(MAVEN) package install
+
+build-dir :
 
 # Clean is propagated to the subdirectories, as is install. We don't
 # do this with Maven because of the way files are named in the installation
@@ -46,7 +48,7 @@ install-dir :
 help :
 	@echo $(MAVEN)
 
-.PHONY : all build clean install help
+.PHONY : all build build-maven build-dir clean clean-subdirs clean-dir install install-subdirs install-dir help
 
 # This macro constructs a classpath out of a list of jar names,
 # a path where those jars live and a variable name to put the

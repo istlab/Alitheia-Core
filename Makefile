@@ -62,6 +62,7 @@ clean-dir : clean-osgi clean-log
 # newest bundles.
 clean-osgi :
 	rm -rf $(PREFIX)/configuration/org.eclipse.osgi/
+	rm -f $(PREFIX)/configuration/*.log
 
 # Throw away all the logs that the system creates.
 clean-log :
