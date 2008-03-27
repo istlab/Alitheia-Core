@@ -56,14 +56,6 @@ public class User extends DAObject {
         name = value;
     }
 
-    public Integer getLevel() {
-        return level;
-    }
-
-    public void setLevel( Integer value ) {
-        level = value;
-    }
-
     public Date getRegistered() {
         return registered;
     }
