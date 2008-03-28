@@ -39,7 +39,7 @@
           <warName>ROOT</warName>
           <webResources>
             <resource>
-              <directory>webapp</directory>
+              <directory>${basedir}/webapp</directory>
             </resource>
           </webResources>
         </configuration> 
