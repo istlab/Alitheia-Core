@@ -33,12 +33,12 @@
 
 package eu.sqooss.service.db;
 
-import java.sql.Time;
+import java.sql.Timestamp;
 
 public class ProjectFileMeasurement extends DAObject {
     private Metric metric;
     private ProjectFile projectFile;
-    private Time whenRun;
+    private Timestamp whenRun;
     private String result;
 
     public ProjectFileMeasurement() {
@@ -61,11 +61,11 @@ public class ProjectFileMeasurement extends DAObject {
         this.projectFile = pf;
     }
 
-    public Time getWhenRun() {
+    public Timestamp getWhenRun() {
         return whenRun;
     }
 
-    public void setWhenRun(Time whenRun) {
+    public void setWhenRun(Timestamp whenRun) {
         this.whenRun = whenRun;
     }
         

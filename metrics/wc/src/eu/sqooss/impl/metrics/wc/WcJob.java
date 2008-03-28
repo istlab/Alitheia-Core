@@ -38,7 +38,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
-import java.sql.Time;
+import java.sql.Timestamp;
 
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.AbstractMetricJob;
@@ -100,7 +100,7 @@ public class WcJob extends AbstractMetricJob {
                     ProjectFileMeasurement m = new ProjectFileMeasurement();
                     m.setMetric(metric);
                     m.setProjectFile(pf);
-                    m.setWhenRun(new Time(System.currentTimeMillis()));
+                    m.setWhenRun(new Timestamp(System.currentTimeMillis()));
                     m.setResult(String.valueOf(lines));
                     
                     // Try to store the Measurement DAO into the DB

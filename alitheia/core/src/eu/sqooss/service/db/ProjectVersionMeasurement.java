@@ -35,12 +35,12 @@ package eu.sqooss.service.db;
 
 import eu.sqooss.service.db.DAObject;
 
-import java.sql.Time;
+import java.sql.Timestamp;
 
 public class ProjectVersionMeasurement extends DAObject{
     private Metric metric;
     private ProjectVersion projectVersion;
-    private Time whenRun;
+    private Timestamp whenRun;
     private String result;
 
     public ProjectVersionMeasurement() {
@@ -63,11 +63,11 @@ public class ProjectVersionMeasurement extends DAObject{
         this.projectVersion = projectVersion;
     }
 
-    public Time getWhenRun() {
+    public Timestamp getWhenRun() {
         return whenRun;
     }
 
-    public void setWhenRun(Time whenRun) {
+    public void setWhenRun(Timestamp whenRun) {
         this.whenRun = whenRun;
     }
         
