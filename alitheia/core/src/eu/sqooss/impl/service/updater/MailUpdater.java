@@ -46,9 +46,9 @@ import eu.sqooss.core.AlitheiaCore;
 
 import eu.sqooss.service.db.DAOException;
 import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.Developer;
 import eu.sqooss.service.db.MailMessage;
 import eu.sqooss.service.db.MailingList;
-import eu.sqooss.service.db.Sender;
 import eu.sqooss.service.db.StoredProject;
 
 import eu.sqooss.service.logging.Logger;
@@ -138,11 +138,8 @@ class MailUpdater extends Job {
                     InternetAddress inet = new InternetAddress(actualSender.toString());
                     senderEmail = inet.getAddress();
                 }
-                Sender sender = Sender.getSenderByEmail(senderEmail);
-                if (sender == null) {
-                    sender = new Sender(senderEmail);
-                    dbs.addRecord(sender);
-                }
+                Developer sender = Developer.getDeveloperByEmail(senderEmail,
+						mllist.getStoredProject());
                 MailMessage mmsg = MailMessage.getMessageById(messageId);
                 if (mmsg == null) {
                     mmsg = new MailMessage();

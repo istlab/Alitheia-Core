@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import eu.sqooss.impl.service.db.DBServiceImpl;
-import eu.sqooss.service.db.BugReporter;
+import eu.sqooss.service.db.Developer;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 
@@ -15,19 +15,19 @@ import org.junit.After;
 import org.junit.Test;
 import org.junit.Assert;
 
-public class BugReporterTest {
+public class DeveloperTest {
 
-    private BugReporter br1;
-    private BugReporter br2;
-    private BugReporter br3;
+    private Developer br1;
+    private Developer br2;
+    private Developer br3;
     private List<DAObject> bugReporters = new LinkedList<DAObject>();
     
     DBService dbs;
     
     @Before public void setUp() {
-        br1 = new BugReporter();
-        br2 = new BugReporter();
-        br3 = new BugReporter();
+        br1 = new Developer();
+        br2 = new Developer();
+        br3 = new Developer();
         
         bugReporters.add(br1);
         bugReporters.add(br2);
@@ -47,13 +47,13 @@ public class BugReporterTest {
     }
     
     @Test public void addRecords() {
-        List<BugReporter> results;
+        List<Developer> results;
         
         System.err.println("Inside the test...");
         dbs.addRecords(bugReporters);
         Map<String, Object> properties = new HashMap<String, Object>();
         properties.put("name", "foo");
-        results = dbs.findObjectByProperties(BugReporter.class, properties);
+        results = dbs.findObjectByProperties(Developer.class, properties);
         Assert.assertTrue(results.size() ==  1);
     }
     

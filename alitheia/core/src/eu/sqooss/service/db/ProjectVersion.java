@@ -33,18 +33,15 @@
 
 package eu.sqooss.service.db;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import eu.sqooss.service.db.DAObject;
-
-import eu.sqooss.impl.service.CoreActivator;
 
 public class ProjectVersion extends DAObject {
     private StoredProject project;
     private long version;
     private long timestamp;
+    private Developer committer;
+    private String commitMsg;
+    private String properties;
 
     public ProjectVersion() {
         // Nothing to do
@@ -66,7 +63,7 @@ public class ProjectVersion extends DAObject {
         this.version = version;
     }
     
-    public List<ProjectFile> getProjectFiles() {
+    public List<ProjectFile> getVersionFiles() {
         //TODO: implement
         return null;
     }
@@ -87,25 +84,29 @@ public class ProjectVersion extends DAObject {
         return new Tag(this);
     }
 
-    public List<Commit> getCommits() {
-        DBService dbs = CoreActivator.getDBService();
-        
-        String paramProjectVersion = "project_version";
-        String query = "select ci " +
-                       "from Commit ci " +
-                       "where ci.projectVersion.project_version=:" +
-                       paramProjectVersion;
-
-        Map<String,Object> parameters = new HashMap<String,Object>();
-        parameters.put(paramProjectVersion, this.getVersion());
-        
-        List<?> commits = dbs.doHQL(query, parameters);
-        if ((commits == null) || (commits.isEmpty())) {
-            return null;
-        } else {
-            return (List<Commit>) commits;
-        }
+    public Developer getCommitter() {
+        return committer;
     }
+
+    public void setCommitter(Developer committer) {
+        this.committer = committer;
+    }
+
+    public String getProperties() {
+        return properties;
+    }
+
+    public void setProperties(String properties) {
+        this.properties = properties;
+    }
+
+	public String getCommitMsg() {
+		return commitMsg;
+	}
+
+	public void setCommitMsg(String commitMsg) {
+		this.commitMsg = commitMsg;
+	}
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

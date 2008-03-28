@@ -37,6 +37,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+
 import eu.sqooss.impl.service.CoreActivator;
 
 public class Directory extends DAObject {
@@ -56,15 +59,15 @@ public class Directory extends DAObject {
      * and saved. 
      *  
      * @param path The path of the Directory to return
-     * @return A Directory record for the specified path
+     * @return A Directory record for the specified path or null on failure
      */
-    public static Directory getDirectory(String path) {
+    public static Directory getDirectory(Session s, String path) {
         
         DBService dbs = CoreActivator.getDBService();
         Map<String,Object> parameterMap = new HashMap<String,Object>();
         parameterMap.put("path", path);
         
-        List<Directory> dirs = dbs.findObjectByProperties(Directory.class,
+        List<Directory> dirs = dbs.findObjectByProperties(s, Directory.class,
                 parameterMap);
         
         /* Dir path in table, return it */
@@ -74,8 +77,24 @@ public class Directory extends DAObject {
         /* Dir path not in table create it */ 
         Directory d = new Directory();
         d.setPath(path);
-        dbs.addRecord(d);
+        s.save(d);
         return d;
+    }
+    
+    public static Directory getDirectory(String path) {
+    	Object sessionHolder = new Object();
+    	DBService dbs = CoreActivator.getDBService();
+    	Session s = dbs.getSession(sessionHolder);
+    	Directory d = getDirectory(s, path);
+    	try {
+    		s.getTransaction().commit();
+    	} catch (HibernateException e) {
+    		s.getTransaction().rollback();
+    		d = null;
+    	} finally {
+    		dbs.returnSession(s);
+    	}
+    	return d;
     }
 }
 

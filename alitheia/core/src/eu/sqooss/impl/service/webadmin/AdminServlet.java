@@ -508,8 +508,8 @@ public class AdminServlet extends HttpServlet {
     }
 
     private String[] listProjects() {
-        List l = sobjDB.doHQL("from StoredProject");
-        if (l==null) {
+        List<StoredProject> l = sobjDB.doHQL("from StoredProject");
+        if (l == null) {
             return null;
         }
         String[] results = new String[l.size()];

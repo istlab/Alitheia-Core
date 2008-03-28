@@ -46,7 +46,7 @@ public class BugReportMessage extends DAObject {
     /**
      * The original reporter of the bug
      */
-    private BugReporter bugReporter;
+    private Developer bugReporter;
     /**
      * The description of the bug
      */
@@ -68,11 +68,11 @@ public class BugReportMessage extends DAObject {
         this.bug = bug;
     }
     
-    public BugReporter getBugReporter() {
+    public Developer getBugReporter() {
         return bugReporter;
     }
     
-    public void setBugReporter(BugReporter bugReporter) {
+    public void setBugReporter(Developer bugReporter) {
         this.bugReporter = bugReporter;
     }
     

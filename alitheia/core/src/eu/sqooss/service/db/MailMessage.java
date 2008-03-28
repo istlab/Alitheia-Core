@@ -44,7 +44,7 @@ import eu.sqooss.impl.service.CoreActivator;
  * @author Vassilios Karakoidas (bkarak@aueb.gr)
  */
 public class MailMessage extends DAObject {
-    Sender sender;
+    Developer sender;
     MailingList listId;
     String messageId;
     String subject;
@@ -61,11 +61,11 @@ public class MailMessage extends DAObject {
 	this.arrivalDate = ad;
     }
 
-    public Sender getSender() {
+    public Developer getSender() {
         return sender;
     }
 
-    public void setSender( Sender value ) {
+    public void setSender( Developer value ) {
         sender = value;
     }
 

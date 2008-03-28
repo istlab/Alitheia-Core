@@ -46,6 +46,7 @@ import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.abstractmetric.Metric;
 import eu.sqooss.service.abstractmetric.MetricMismatchException;
 import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.Developer;
 import eu.sqooss.service.db.Directory;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
@@ -75,7 +76,8 @@ class SourceUpdater extends Job {
     private ServiceReference[] versionMetrics = null;
     private ServiceReference[] fileMetrics = null;
 
-    public SourceUpdater(StoredProject project, UpdaterServiceImpl updater, AlitheiaCore core, Logger logger) throws UpdaterException {
+    public SourceUpdater(StoredProject project, UpdaterServiceImpl updater, 
+            AlitheiaCore core, Logger logger) throws UpdaterException {
         if ((project == null) || (core == null) || (logger == null)) {
             throw new UpdaterException(
                     "The components required by the updater are unavailable.");
@@ -136,8 +138,19 @@ class SourceUpdater extends Job {
                 // Assertion: this value is the same as lastSCMVersion
                 curVersion.setVersion(entry.getRevision().getSVNRevision());
                 curVersion.setTimestamp((long)(entry.getDate().getTime() / 1000));
+                curVersion.setCommitter(Developer.getDeveloperByUsername(s, entry.getAuthor(), project));
+                
+                /* TODO: get column length info from Hibernate */
+                String commitMsg = entry.getMessage();
+                if(commitMsg.length() > 512)
+                	commitMsg = commitMsg.substring(0, 511);
+                
+                curVersion.setCommitMsg(commitMsg);
+                /*TODO: Fix this when the TDS starts supporting TDS properties*/
+                //curVersion.setProperties(entry.getProperties);
                 s.save(curVersion);
                 updProjectVersions.add(new Long(curVersion.getId()));
+                
                 
                 for(String chPath: entry.getChangedPaths()) {
 
@@ -154,6 +167,7 @@ class SourceUpdater extends Job {
                                 entry.getRevision().getSVNRevision());
                         Tag tag = curVersion.addTag();
                         tag.setName(chPath.substring(5));
+                        
                         s.save(tag);
                         break;
                     }
@@ -163,7 +177,7 @@ class SourceUpdater extends Job {
                     String fname = chPath.substring(chPath.lastIndexOf('/') + 1);
 
                     pf.setName(fname);
-                    pf.setDir(Directory.getDirectory(path));
+                    pf.setDir(Directory.getDirectory(s, path));
                     pf.setStatus(entry.getChangedPathsStatus().get(chPath).toString());
                      
                     if (t == SCMNodeType.DIR) {
@@ -249,7 +263,7 @@ class SourceUpdater extends Job {
      * @return True if <tt>entry</tt> represents a tag
      */
     private boolean isTag(CommitEntry entry, String path) {
-        if(!path.startsWith("/tags"))
+        if(!path.contains("/tags/"))
             return false;
 
         /* Prevent commits that create the tags/ directory

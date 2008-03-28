@@ -43,7 +43,7 @@ public class Bug extends DAObject {
     /**
      * The commit which resolves the bug
      */
-    private Commit commit;
+    private ProjectVersion commit;
     /**
      * A description of the bug
      */
@@ -57,11 +57,11 @@ public class Bug extends DAObject {
         // Nothing to do here
     }
 
-    public Commit getCommit() {
+    public ProjectVersion getCommit() {
         return commit;
     }
     
-    public void setCommit(Commit commit) {
+    public void setCommit(ProjectVersion commit) {
         this.commit = commit;
     }
     

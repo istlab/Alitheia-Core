@@ -41,7 +41,7 @@ public class Message extends DAObject {
     private StoredProject project;
     private String status;
     private MailingList mailingList;
-    private Sender sender;
+    private Developer sender;
     private Date sendDate;
     private Date arrivalDate;
     private String subject;
@@ -83,11 +83,11 @@ public class Message extends DAObject {
         this.mailingList = mailingList;
     }
 
-    public void setSender(Sender sender) {
+    public void setSender(Developer sender) {
         this.sender = sender;
     }
 
-    public Sender getSender() {
+    public Developer getSender() {
         return sender;
     }
 
