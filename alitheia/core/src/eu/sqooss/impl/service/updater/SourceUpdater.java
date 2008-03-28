@@ -37,6 +37,7 @@ import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import org.apache.commons.collections.LRUMap;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -106,6 +107,10 @@ class SourceUpdater extends Job {
         SortedSet<Long> updProjectVersions = new TreeSet<Long>();
         SortedSet<Long> updFiles = new TreeSet<Long>();
 
+        /*Avoid Hibernate thrasing by caching frequently accessed objects*/
+        LRUMap devCache = new LRUMap(1000);
+        LRUMap dirCache = new LRUMap(3000);
+        
         // get a new list of metrics
         versionMetrics = core.getPluginManager().listMetricProviders(ProjectVersion.class);
         fileMetrics = core.getPluginManager().listMetricProviders(ProjectFile.class);
@@ -138,7 +143,17 @@ class SourceUpdater extends Job {
                 // Assertion: this value is the same as lastSCMVersion
                 curVersion.setVersion(entry.getRevision().getSVNRevision());
                 curVersion.setTimestamp((long)(entry.getDate().getTime() / 1000));
-                curVersion.setCommitter(Developer.getDeveloperByUsername(s, entry.getAuthor(), project));
+                
+                String author = entry.getAuthor();
+                Developer d = null;
+                d = (Developer)devCache.get(author);
+                
+                if (d == null) {
+                	d = Developer.getDeveloperByUsername(s, entry.getAuthor(), project);
+                	devCache.put(author, d);
+                }
+                
+                curVersion.setCommitter(d);
                 
                 /* TODO: get column length info from Hibernate */
                 String commitMsg = entry.getMessage();
@@ -176,8 +191,15 @@ class SourceUpdater extends Job {
                     String path = chPath.substring(0, chPath.lastIndexOf('/'));
                     String fname = chPath.substring(chPath.lastIndexOf('/') + 1);
 
+                    Directory dir = null;
+                    dir = (Directory)dirCache.get(path);
+                    if (dir == null) {
+                    	dir = Directory.getDirectory(s, path);
+                    	dirCache.put(path, dir);
+                    }
+                    
                     pf.setName(fname);
-                    pf.setDir(Directory.getDirectory(s, path));
+                    pf.setDir(dir);
                     pf.setStatus(entry.getChangedPathsStatus().get(chPath).toString());
                      
                     if (t == SCMNodeType.DIR) {
