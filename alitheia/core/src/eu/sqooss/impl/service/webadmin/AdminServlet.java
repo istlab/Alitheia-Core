@@ -453,7 +453,7 @@ public class AdminServlet extends HttpServlet {
         dynamicSubstitutions.put("@@LOGO","<img src='/logo' id='logo' alt='Logo' />");
         dynamicSubstitutions.put("@@COPYRIGHT","Copyright 2007-2008 <a href=\"http://www.sqo-oss.eu/about/\">SQO-OSS Consortium Members</a>");
         dynamicSubstitutions.put("@@GETLOGS", renderList(sobjLogManager.getRecentEntries()));
-        dynamicSubstitutions.put("@@PROJECTS",renderList(listProjects()));
+        dynamicSubstitutions.put("@@PROJECTS", listProjects());
         dynamicSubstitutions.put("@@BUNDLE", renderBundles());
         dynamicSubstitutions.put("@@UPTIME",getUptime());
         dynamicSubstitutions.put("@@QUEUE_LENGTH", String.valueOf(sobjSched.getSchedulerStats().getWaitingJobs()));
@@ -507,18 +507,34 @@ public class AdminServlet extends HttpServlet {
         }
     }
 
-    private String[] listProjects() {
+    private String listProjects() {
         List<StoredProject> l = sobjDB.doHQL("from StoredProject");
+        
         if (l == null) {
             return null;
         }
-        String[] results = new String[l.size()];
+        
+        StringBuilder s = new StringBuilder();
+        
         for (int i=0; i<l.size(); i++) {
             StoredProject p = (StoredProject) l.get(i);
-            results[i] = p.getName() + " (" + p.getWebsite() + ") [id="
-                + p.getId() + "]";
+            s.append("<li>");
+            s.append(p.getName());
+            s.append(" ([id=");
+            s.append(p.getId());
+            s.append("]) Update:");
+            for (String updTarget: UpdaterService.UpdateTarget.toStringArray()) {
+                s.append("<a href=\"http://localhost:8088/updater?project=");
+                s.append(p.getName());
+                s.append("&target=");
+                s.append(updTarget);
+                s.append("\">");
+                s.append(updTarget);
+                s.append("</a>&nbsp");
+            }
+            s.append("</li>");
         }
-        return results;
+        return s.toString();
     }
 
     private void addProject(HttpServletRequest request) {

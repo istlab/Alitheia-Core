@@ -73,7 +73,17 @@ public interface UpdaterService {
         /** Request to update bug metadata */
         BUGS,
         /** Request to update all metadata */
-        ALL
+        ALL;
+        
+        public static String[] toStringArray() {
+            String[] targets = new String[4];
+            targets[0] = "CODE";
+            targets[1] = "MAIL";
+            targets[2] = "BUGS";
+            targets[3] = "ALL";
+            
+            return targets;
+        }
     }
 
     /**
