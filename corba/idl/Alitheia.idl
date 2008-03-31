@@ -18,6 +18,12 @@ module alitheia
   typedef sequence<ProjectVersion> ProjectVersionList;
   typedef sequence<Metric> MetricList;
 
+  struct Directory
+  {
+    long id;
+    string path;
+  };
+
   struct StoredProject
   {
     long id;
@@ -29,12 +35,24 @@ module alitheia
     string mail;
   };
 
+  struct Developer
+  {
+    long id;
+    string name;
+    string email;
+    string username;
+    StoredProject storedProject;
+  };
+
   struct ProjectVersion
   {
     long id;
     StoredProject project;
     long version;
     long timeStamp;
+    Developer committer;
+    string commitMsg;
+    string properties;
   };
 
   struct ProjectFile
@@ -43,6 +61,8 @@ module alitheia
     string name;
     ProjectVersion projectVersion;
     string status;
+    boolean isDirectory;
+    Directory directory;
   };
 
   struct FileGroup
@@ -89,6 +109,15 @@ module alitheia
     long id;
     Metric metric;
     ProjectFile projectFile;
+    string whenRun;
+    string result;
+  };
+
+  struct ProjectVersionMeasurement
+  {
+    long id;
+    Metric metric;
+    ProjectVersion projectVersion;
     string whenRun;
     string result;
   };

@@ -1,6 +1,6 @@
 all: ../lib/libalitheia.a
 
-Alitheia.o: Alitheia.cpp Alitheia.h
+Alitheia.o: Alitheia.h
 	mico-c++ -I. -c Alitheia.cpp
 
 logger.o: Alitheia.h logger.cpp corbahandler.h logger.h
@@ -9,7 +9,8 @@ logger.o: Alitheia.h logger.cpp corbahandler.h logger.h
 metric.o: Alitheia.h metric.cpp metric.h
 	mico-c++ -c metric.cpp
 
-dbobject.o: Alitheia.h dbobject.h
+dbobject.o: Alitheia.h dbobject.cpp dbobject.h
+	mico-c++ -c dbobject.cpp
 
 core.o: Alitheia.h core.cpp corbahandler.h core.h metric.h job.h
 	mico-c++ -c core.cpp
@@ -20,8 +21,11 @@ job.o: Alitheia.h job.cpp job.h corbahandler.h
 database.o: Alitheia.h dbobject.h database.cpp database.h corbahandler.h
 	mico-c++ -c database.cpp
 
-corbahandler.o: Alitheia.cpp corbahandler.cpp corbahandler.h
+corbahandler.o: Alitheia.h corbahandler.cpp corbahandler.h
 	mico-c++ -c corbahandler.cpp
+
+Alitheia.h: ../../idl/Alitheia.idl
+	idl --any --poa --c++-suffix cpp ../../idl/Alitheia.idl
 
 ../lib/libalitheia.a: Alitheia.o logger.o corbahandler.o core.o metric.o job.o dbobject.o database.o
 	test -d ../lib || mkdir ../lib
@@ -30,6 +34,8 @@ corbahandler.o: Alitheia.cpp corbahandler.cpp corbahandler.h
 
 clean:
 	test ! -f Alitheia.o || rm Alitheia.o
+	test ! -f Alitheia.cpp || rm Alitheia.cpp
+	test ! -f Alitheia.h || rm Alitheia.h
 	test ! -f logger.o || rm logger.o
 	test ! -f corbahandler.o || rm corbahandler.o
 	test ! -f core.o || rm core.o

@@ -10,6 +10,8 @@
 
 using namespace Alitheia;
 
+using namespace eu::sqooss::impl::service::corba;
+
 using std::string;
 using std::istream;
 using std::stringbuf;
@@ -60,7 +62,10 @@ ProjectVersion::ProjectVersion( const alitheia::ProjectVersion& version )
     : DAObject( version.id ),
       project( version.project ),
       version( version.version ),
-      timeStamp( version.timeStamp )
+      timeStamp( version.timeStamp ),
+      committer( version.committer ),
+      commitMsg( version.commitMsg ),
+      properties( version.properties )
 {
 }
 
@@ -71,6 +76,9 @@ alitheia::ProjectVersion ProjectVersion::toCorba() const
     result.project = project.toCorba();
     result.version = version;
     result.timeStamp = timeStamp;
+    result.committer = committer.toCorba();
+    result.commitMsg = CORBA::string_dup( commitMsg.c_str() );
+    result.properties = CORBA::string_dup( properties.c_str() );
     return result;
 }
 
@@ -110,7 +118,8 @@ private:
 
 ProjectFile::ProjectFile()
     : istream( new ProjectFileBuffer( this ) ),
-      DAObject( 0 )
+      DAObject( 0 ),
+      isDirectory( false )
 {
 }
 
@@ -119,7 +128,9 @@ ProjectFile::ProjectFile( const alitheia::ProjectFile& file )
       DAObject( file.id ),
       name( file.name ),
       projectVersion( file.projectVersion ),
-      status( file.status )
+      status( file.status ),
+      isDirectory( file.isDirectory ),
+      directory( file.directory )
 {
 }
 
@@ -135,6 +146,8 @@ ProjectFile& ProjectFile::operator=( const ProjectFile& other )
     name = other.name;
     projectVersion = other.projectVersion;
     status = other.status;
+    isDirectory = other.isDirectory;
+    directory = other.directory;
     return *this;
 }
 
@@ -145,6 +158,8 @@ alitheia::ProjectFile ProjectFile::toCorba() const
     result.name = CORBA::string_dup( name.c_str() );
     result.projectVersion = projectVersion.toCorba();
     result.status = CORBA::string_dup( status.c_str() );
+    result.isDirectory = isDirectory;
+    result.directory = directory.toCorba();
     return result;
 }
 
@@ -281,6 +296,81 @@ alitheia::ProjectFileMeasurement ProjectFileMeasurement::toCorba() const
 }
 
 ProjectFileMeasurement::operator CORBA::Any() const
+{
+    CORBA::Any any;
+    any <<= toCorba();
+    return any;
+}
+
+ProjectVersionMeasurement::ProjectVersionMeasurement( const alitheia::ProjectVersionMeasurement& measurement )
+    : DAObject( measurement.id ),
+      metric( measurement.metric ),
+      projectVersion( measurement.projectVersion ),
+      whenRun( measurement.whenRun ),
+      result( measurement.result )
+{
+}
+
+alitheia::ProjectVersionMeasurement ProjectVersionMeasurement::toCorba() const
+{
+    alitheia::ProjectVersionMeasurement result;
+    result.id = id;
+    result.metric = metric.toCorba();
+    result.projectVersion = projectVersion.toCorba();
+    result.whenRun = CORBA::string_dup( whenRun.c_str() );
+    result.result = CORBA::string_dup( this->result.c_str() );
+    return result;
+}
+
+ProjectVersionMeasurement::operator CORBA::Any() const
+{
+    CORBA::Any any;
+    any <<= toCorba();
+    return any;
+}
+
+Developer::Developer( const alitheia::Developer& developer )
+    : DAObject( developer.id ),
+      name( developer.name ),
+      email( developer.email ),
+      username( developer.username ),
+      storedProject( developer.storedProject )
+{
+}
+
+alitheia::Developer Developer::toCorba() const
+{
+    alitheia::Developer result;
+    result.id = id;
+    result.name = CORBA::string_dup( name.c_str() );
+    result.email = CORBA::string_dup( email.c_str() );
+    result.username = CORBA::string_dup( username.c_str() );
+    result.storedProject = storedProject.toCorba();
+    return result;
+}
+
+Developer::operator CORBA::Any() const
+{
+    CORBA::Any any;
+    any <<= toCorba();
+    return any;
+}
+
+Directory::Directory( const alitheia::Directory& directory )
+    : DAObject( directory.id ),
+      path( directory.path )
+{
+}
+
+alitheia::Directory Directory::toCorba() const
+{
+    alitheia::Directory result;
+    result.id = id;
+    result.path = CORBA::string_dup( path.c_str() );
+    return result;
+}
+
+Directory::operator CORBA::Any() const
 {
     CORBA::Any any;
     any <<= toCorba();

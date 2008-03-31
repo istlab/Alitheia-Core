@@ -46,7 +46,7 @@ namespace Alitheia
 
     public:
         std::string name;
-        alitheia::Logger_var logger;
+        eu::sqooss::impl::service::corba::alitheia::Logger_var logger;
         std::ostream* copy_stream;
     };
 }
@@ -100,7 +100,7 @@ Logger::Logger( const string& name )
     d->name = name;
     try
     {
-        d->logger = alitheia::Logger::_narrow( CorbaHandler::instance()->getObject( "Logger" ) );
+        d->logger = eu::sqooss::impl::service::corba::alitheia::Logger::_narrow( CorbaHandler::instance()->getObject( "Logger" ) );
     }
     catch( ... )
     {

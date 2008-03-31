@@ -19,11 +19,12 @@ namespace Alitheia
         Database* const q;
 
     public:
-        alitheia::Database_var database;
+        eu::sqooss::impl::service::corba::alitheia::Database_var database;
     };
 }
 
 using namespace Alitheia;
+using namespace eu::sqooss::impl::service::corba;
 using std::cerr;
 using std::endl;
 using std::exception;

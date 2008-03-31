@@ -1,11 +1,8 @@
 all: examples
 
-build : examples
+build: examples
 
-idl:
-	${MAKE} -C ../idl
-	
-src: idl
+src:
 	${MAKE} -C src
 	
 examples: src

@@ -12,7 +12,7 @@ namespace Alitheia
 {
     class Core;
 
-    class Job : virtual public POA_alitheia::Job
+    class Job : virtual public POA_eu::sqooss::impl::service::corba::alitheia::Job
     {
         friend class ::Alitheia::Core;
     public:
@@ -21,11 +21,11 @@ namespace Alitheia
         
         enum State
         {
-            Created   = ::alitheia::Job::Created,
-            Queued    = ::alitheia::Job::Queued,
-            Running   = ::alitheia::Job::Running,
-            Finished  = ::alitheia::Job::Finished,
-            Error     = ::alitheia::Job::Error
+            Created   = ::eu::sqooss::impl::service::corba::alitheia::Job::Created,
+            Queued    = ::eu::sqooss::impl::service::corba::alitheia::Job::Queued,
+            Running   = ::eu::sqooss::impl::service::corba::alitheia::Job::Running,
+            Finished  = ::eu::sqooss::impl::service::corba::alitheia::Job::Finished,
+            Error     = ::eu::sqooss::impl::service::corba::alitheia::Job::Error
         };
         
         virtual CORBA::Long priority();
@@ -40,7 +40,7 @@ namespace Alitheia
         void waitForFinished();
 
     protected:
-        void setState( alitheia::Job::JobState state );
+        void setState( eu::sqooss::impl::service::corba::alitheia::Job::JobState state );
         
         const std::string& name() const;
         void setName( const std::string& name );

@@ -32,7 +32,16 @@
     <defaultGoal>package</defaultGoal>
     <sourceDirectory>${basedir}/src</sourceDirectory>
     <outputDirectory>${basedir}/build</outputDirectory>
+    
     <plugins>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <compilerArguments>
+            <Xlint:-unchecked/>
+          </compilerArguments>
+        </configuration>
+      </plugin>
       <plugin>
         <artifactId>maven-jar-plugin</artifactId>
         <configuration>

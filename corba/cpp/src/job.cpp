@@ -24,6 +24,7 @@ namespace Alitheia
 }
 
 using namespace Alitheia;
+using namespace eu::sqooss::impl::service::corba;
 
 Job::Private::Private( Job* q )
     : q( q ),

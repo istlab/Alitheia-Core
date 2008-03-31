@@ -14,7 +14,10 @@ import eu.sqooss.service.db.FileGroup;
 import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.Metric;
+import eu.sqooss.service.db.Developer;
+import eu.sqooss.service.db.Directory;
 import eu.sqooss.service.db.ProjectFileMeasurement;
+import eu.sqooss.service.db.ProjectVersionMeasurement;
 
 import org.omg.CORBA.TypeCodePackage.BadKind;
 
@@ -32,29 +35,33 @@ public abstract class DAObject {
             {
                 return fromCorbaObject(eu.sqooss.impl.service.corba.alitheia.ProjectVersionHelper.extract(object));
             }
-            if (type.equals("StoredProject") )
+            else if (type.equals("StoredProject") )
             {
                 return fromCorbaObject(eu.sqooss.impl.service.corba.alitheia.StoredProjectHelper.extract(object));
             }
-            if (type.equals("FileGroup") )
+            else if (type.equals("FileGroup") )
             {
                 return fromCorbaObject(eu.sqooss.impl.service.corba.alitheia.FileGroupHelper.extract(object));
             }
-            if (type.equals("Plugin") )
+            else if (type.equals("Plugin") )
             {
                 return fromCorbaObject(eu.sqooss.impl.service.corba.alitheia.PluginHelper.extract(object));
             }
-            if (type.equals("MetricType") )
+            else if (type.equals("MetricType") )
             {
                 return fromCorbaObject(eu.sqooss.impl.service.corba.alitheia.MetricTypeHelper.extract(object));
             }
-            if (type.equals("Metric") )
+            else if (type.equals("Metric") )
             {
                 return fromCorbaObject(eu.sqooss.impl.service.corba.alitheia.MetricHelper.extract(object));
             }
-            if (type.equals("ProjectFileMeasurement") )
+            else if (type.equals("ProjectFileMeasurement") )
             {
                 return fromCorbaObject(eu.sqooss.impl.service.corba.alitheia.ProjectFileMeasurementHelper.extract(object));
+            }
+            else if (type.equals("ProjectVersionMeasurement") )
+            {
+                return fromCorbaObject(eu.sqooss.impl.service.corba.alitheia.ProjectVersionMeasurementHelper.extract(object));
             }
         }
         catch( org.omg.CORBA.TypeCodePackage.BadKind e )
@@ -84,7 +91,7 @@ public abstract class DAObject {
         measurement.metric = toCorbaObject(m.getMetric());
         measurement.projectFile = toCorbaObject(m.getProjectFile());
         measurement.whenRun = formatDate(m.getWhenRun());
-        measurement.result = m.getResult();
+        measurement.result = m.getResult() == null ? "" : m.getResult();
         return measurement;
     }
 
@@ -93,6 +100,26 @@ public abstract class DAObject {
         measurement.setId(m.id);
         measurement.setMetric(fromCorbaObject(m.metric));
         measurement.setProjectFile(fromCorbaObject(m.projectFile));
+        measurement.setWhenRun(new Timestamp(parseDate(m.whenRun).getTime()));
+        measurement.setResult(m.result);
+        return measurement;
+    }
+
+    public static eu.sqooss.impl.service.corba.alitheia.ProjectVersionMeasurement toCorbaObject(ProjectVersionMeasurement m) {
+        eu.sqooss.impl.service.corba.alitheia.ProjectVersionMeasurement measurement = new eu.sqooss.impl.service.corba.alitheia.ProjectVersionMeasurement();
+        measurement.id = (int)m.getId();
+        measurement.metric = toCorbaObject(m.getMetric());
+        measurement.projectVersion = toCorbaObject(m.getProjectVersion());
+        measurement.whenRun = formatDate(m.getWhenRun());
+        measurement.result = m.getResult() == null ? "" : m.getResult();
+        return measurement;
+    }
+
+    public static ProjectVersionMeasurement fromCorbaObject(eu.sqooss.impl.service.corba.alitheia.ProjectVersionMeasurement m) {
+        ProjectVersionMeasurement measurement = new ProjectVersionMeasurement();
+        measurement.setId(m.id);
+        measurement.setMetric(fromCorbaObject(m.metric));
+        measurement.setProjectVersion(fromCorbaObject(m.projectVersion));
         measurement.setWhenRun(new Timestamp(parseDate(m.whenRun).getTime()));
         measurement.setResult(m.result);
         return measurement;
@@ -157,7 +184,7 @@ public abstract class DAObject {
     public static eu.sqooss.impl.service.corba.alitheia.Plugin toCorbaObject(Plugin p) {
         eu.sqooss.impl.service.corba.alitheia.Plugin plugin = new eu.sqooss.impl.service.corba.alitheia.Plugin();
         plugin.id = (int)p.getId();
-        plugin.name = p.getName();
+        plugin.name = p.getName() == null ? "" : p.getName();
         plugin.installdate = formatDate(p.getInstalldate());
         return plugin;
     }
@@ -224,6 +251,9 @@ public abstract class DAObject {
         projectVersion.project = toCorbaObject(version.getProject());
         projectVersion.version = (int)version.getVersion();
         projectVersion.timeStamp = (int)version.getTimestamp();
+        projectVersion.committer = toCorbaObject(version.getCommitter());
+        projectVersion.commitMsg = version.getCommitMsg();
+        projectVersion.properties = version.getProperties() == null ? "" : version.getProperties();
         return projectVersion;
     }
 
@@ -233,6 +263,9 @@ public abstract class DAObject {
         projectVersion.setProject(fromCorbaObject(version.project));
         projectVersion.setVersion(version.version);
         projectVersion.setTimestamp(version.timeStamp);
+        projectVersion.setCommitter(fromCorbaObject(version.committer));
+        projectVersion.setCommitMsg(version.commitMsg);
+        projectVersion.setProperties(version.properties);
         return projectVersion;
     }
 
@@ -242,6 +275,8 @@ public abstract class DAObject {
         projectFile.name = file.getName();
         projectFile.projectVersion = toCorbaObject(file.getProjectVersion());
         projectFile.status = file.getStatus();
+        projectFile.isDirectory = file.getIsDirectory();
+        projectFile.directory = toCorbaObject(file.getDir());
         return projectFile;
     }
 
@@ -251,6 +286,42 @@ public abstract class DAObject {
         projectFile.setName(file.name);
         projectFile.setProjectVersion(fromCorbaObject(file.projectVersion));
         projectFile.setStatus(file.status);
+        projectFile.setIsDirectory(file.isDirectory);
+        projectFile.setDir(fromCorbaObject(file.directory));
         return projectFile;
+    }
+
+    public static eu.sqooss.impl.service.corba.alitheia.Developer toCorbaObject(Developer dev) {
+        eu.sqooss.impl.service.corba.alitheia.Developer developer = new eu.sqooss.impl.service.corba.alitheia.Developer();
+        developer.id = (int)dev.getId();
+        developer.name = dev.getName() == null ? "" : dev.getName();
+        developer.email = dev.getEmail() == null ? "" : dev.getEmail();
+        developer.username = dev.getUsername();
+        developer.storedProject = toCorbaObject(dev.getStoredProject());
+        return developer;
+    }
+
+    public static Developer fromCorbaObject(eu.sqooss.impl.service.corba.alitheia.Developer dev) {
+        Developer developer = new Developer();
+        developer.setId(dev.id);
+        developer.setName(dev.name);
+        developer.setEmail(dev.email);
+        developer.setUsername(dev.username);
+        developer.setStoredProject(fromCorbaObject(dev.storedProject));
+        return developer;
+    }
+    
+    public static eu.sqooss.impl.service.corba.alitheia.Directory toCorbaObject(Directory dir) {
+        eu.sqooss.impl.service.corba.alitheia.Directory directory = new eu.sqooss.impl.service.corba.alitheia.Directory();
+        directory.id = (int)dir.getId();
+        directory.path = dir.getPath();
+        return directory;
+    }
+
+    public static Directory fromCorbaObject(eu.sqooss.impl.service.corba.alitheia.Directory dir) {
+        Directory directory = new Directory();
+        directory.setId(dir.id);
+        directory.setPath(dir.path);
+        return directory;
     }
 }

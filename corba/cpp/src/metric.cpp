@@ -6,7 +6,7 @@
 #include <CORBA.h>
 
 using namespace Alitheia;
-
+using namespace eu::sqooss::impl::service::corba;
 using std::string;
 using std::vector;
 

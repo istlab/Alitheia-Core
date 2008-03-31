@@ -20,7 +20,7 @@ namespace Alitheia
         Core* q;
 
     public:
-        alitheia::Core_var core;
+        eu::sqooss::impl::service::corba::alitheia::Core_var core;
         std::map< int, std::string > registeredMetrics;
         std::map< int, std::string > registeredJobs;
     };
@@ -28,6 +28,7 @@ namespace Alitheia
 
 using namespace std;
 using namespace Alitheia;
+using namespace eu::sqooss::impl::service::corba;
 
 // singleton object
 static Core* core = 0;
