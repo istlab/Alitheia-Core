@@ -55,6 +55,14 @@ public abstract class DAObject {
             {
                 return fromCorbaObject(eu.sqooss.impl.service.corba.alitheia.MetricHelper.extract(object));
             }
+            else if (type.equals("Developer") )
+            {
+                return fromCorbaObject(eu.sqooss.impl.service.corba.alitheia.DeveloperHelper.extract(object));
+            }
+            else if (type.equals("Directory") )
+            {
+                return fromCorbaObject(eu.sqooss.impl.service.corba.alitheia.DirectoryHelper.extract(object));
+            }
             else if (type.equals("ProjectFileMeasurement") )
             {
                 return fromCorbaObject(eu.sqooss.impl.service.corba.alitheia.ProjectFileMeasurementHelper.extract(object));
