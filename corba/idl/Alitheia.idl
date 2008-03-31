@@ -1,4 +1,14 @@
 //Alitheia.idl
+module eu 
+{
+module sqooss
+{
+module impl
+{
+module service
+{
+module corba
+{
 module alitheia
 {
   struct ProjectVersion;
@@ -187,4 +197,9 @@ module alitheia
 
     void run( in FileGroup g );
   };
+};
+};
+};
+};
+};
 };

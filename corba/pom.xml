@@ -12,13 +12,12 @@
   <version>1.0.0</version>
   <packaging>pom</packaging>
 
-  <name>Alitheia CORBA Connector</name>
+  <name>Alitheia Corba Interface</name>
   <url>http://ikaria.dmst.aueb.gr/corba</url>
   <inceptionYear>2006</inceptionYear>
   <description>
-    The CORBA connector for Alitheia allows you to use CORBA
-    ORB to communicate with the Alitheia Core Platform and makes
-    it easier to write metrics in languages other than Java.
+    This is the collection of Alitheia stuff related to the Corba
+    subsystem. It can be used to connect non-Java stuff to Alitheia.
   </description>
 
   <scm>
@@ -31,20 +30,19 @@
   </scm>
 
   <build>
-    <defaultGoal>package</defaultGoal>
-    <sourceDirectory>${basedir}/result/src</sourceDirectory>
+    <defaultGoal>deploy:deploy</defaultGoal>
     <outputDirectory>${basedir}/build</outputDirectory>
     <plugins>
       <plugin>
         <artifactId>maven-jar-plugin</artifactId>
         <configuration>
-          <finalName>${groupId}.${artifactId}-${version}</finalName>
+          <outputDirectory>${topdir}/equinox</outputDirectory>
+          <finalName>${artifactId}_${version}</finalName>
           <archive>
-            <manifestFile>
-              ${basedir}/result/manifest/manifest.mf
-            </manifestFile>
+            <manifestFile>${basedir}/META-INF/MANIFEST.MF</manifestFile>
+            <addMavenDescriptor>false</addMavenDescriptor>
           </archive>
-        </configuration> 
+        </configuration>
       </plugin>
       <plugin>
         <artifactId>maven-deploy-plugin</artifactId>
@@ -53,18 +51,45 @@
         </configuration>
       </plugin>
     </plugins>
-    <resources>
-      <resource>
-        <directory>${basedir}/result/configuration/</directory>
-        <targetPath>.</targetPath>
-        <includes>
-          <include>WSResult.xsd</include>
-        </includes>
-      </resource>
-    </resources>
   </build>
 
+  <!-- All the metrics should have the same basic dependencies. -->
+  <dependencies>
+    <dependency>
+      <groupId>eu.sqooss.alitheia</groupId>
+      <artifactId>core</artifactId>
+      <version>[0.0.1,)</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>eu.sqooss</groupId>
+      <artifactId>lib</artifactId>
+      <version>[0.0.1,)</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.eclipse.equinox</groupId>
+      <artifactId>osgi</artifactId>
+      <version>3.3.0</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org</groupId>
+      <artifactId>hibernate</artifactId>
+      <version>3.2.5</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+
+
   <modules>
+    <module>idl</module>
     <module>corbaservice</module>
   </modules>
 </project>

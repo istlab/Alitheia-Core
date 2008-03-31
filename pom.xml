@@ -120,6 +120,7 @@
     <module>alitheia</module>
     <module>metrics</module>
     <module>ui</module>
+    <module>corba</module>
   </modules>
 </project>
 

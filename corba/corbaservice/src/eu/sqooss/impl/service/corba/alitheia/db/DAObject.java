@@ -1,6 +1,7 @@
 package eu.sqooss.impl.service.corba.alitheia.db;
 
 import java.sql.Time;
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.Locale;
 import java.text.DateFormat;
@@ -92,7 +93,7 @@ public abstract class DAObject {
         measurement.setId(m.id);
         measurement.setMetric(fromCorbaObject(m.metric));
         measurement.setProjectFile(fromCorbaObject(m.projectFile));
-        measurement.setWhenRun(new Time(parseDate(m.whenRun).getTime()));
+        measurement.setWhenRun(new Timestamp(parseDate(m.whenRun).getTime()));
         measurement.setResult(m.result);
         return measurement;
     }

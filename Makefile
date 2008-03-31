@@ -38,7 +38,7 @@ TOP_SRCDIR=.
 # Note that ui/ is not included here.
 # 
 # TODO: Add ui/ to the build.
-SUBDIRS=sqoossrepo sharedlibs alitheia metrics
+SUBDIRS=sqoossrepo sharedlibs alitheia metrics corba
 
 ###
 #
