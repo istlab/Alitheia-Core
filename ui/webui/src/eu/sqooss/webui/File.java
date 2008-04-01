@@ -44,7 +44,7 @@ class File {
 
     public File (WSProjectFile wsFile) {
         versionId = wsFile.getProjectVersion();
-        name = wsFile.getName();
+        name = wsFile.getFileName();
         status = wsFile.getStatus();
     }
 

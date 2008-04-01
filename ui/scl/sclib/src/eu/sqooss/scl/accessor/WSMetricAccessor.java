@@ -34,6 +34,7 @@ package eu.sqooss.scl.accessor;
 
 import eu.sqooss.scl.WSException;
 import eu.sqooss.ws.client.datatypes.WSMetric;
+import eu.sqooss.ws.client.datatypes.WSMetricMeasurement;
 
 public abstract class WSMetricAccessor extends WSAccessor {
     
@@ -76,6 +77,10 @@ public abstract class WSMetricAccessor extends WSAccessor {
      * <ul>
      */
     public abstract WSMetric[] retrieveMetrics4SelectedFiles(long projectId, String folderNames, String fileNames) throws WSException;
+    
+    public abstract WSMetricMeasurement[] getProjectFileMetricMeasurement(long metricId, long projectFileId) throws WSException;
+    
+    public abstract WSMetricMeasurement[] getProjectVersionMetricMeasurement(long metricId, long projectVersionId) throws WSException;
     
 }
 

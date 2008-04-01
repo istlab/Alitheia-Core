@@ -90,12 +90,12 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
     public WSProjectAccessorImpl(String userName, String password, String webServiceUrl) throws WSException {
         this.userName = userName;
         this.password = password;
+        parameters = new Hashtable<String, Object>();
         try {
             this.wsStub = new WsStub(webServiceUrl);
         } catch (AxisFault af) {
             throw new WSException(af);
         }
-        initParameters();
     }
     
     /**
@@ -104,8 +104,16 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
     @Override
     public WSStoredProject[] evaluatedProjectsList() throws WSException {
         EvaluatedProjectsListResponse response; 
-        EvaluatedProjectsList params = (EvaluatedProjectsList) parameters.get(
-                METHOD_NAME_EVALUATED_PROJECTS_LIST);
+        EvaluatedProjectsList params;
+        if (!parameters.containsKey(METHOD_NAME_EVALUATED_PROJECTS_LIST)) {
+            params = new EvaluatedProjectsList();
+            params.setPassword(password);
+            params.setUserName(userName);
+            parameters.put(METHOD_NAME_EVALUATED_PROJECTS_LIST, params);
+        } else {
+            params = (EvaluatedProjectsList) parameters.get(
+                    METHOD_NAME_EVALUATED_PROJECTS_LIST);
+        }
         synchronized (params) {
             try {
                 response = wsStub.evaluatedProjectsList(params);
@@ -122,8 +130,16 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
     @Override
     public WSStoredProject[] storedProjectsList() throws WSException {
         StoredProjectsListResponse response; 
-        StoredProjectsList params = (StoredProjectsList) parameters.get(
-                METHOD_NAME_STORED_PROJECTS_LIST);
+        StoredProjectsList params;
+        if (!parameters.containsKey(METHOD_NAME_STORED_PROJECTS_LIST)) {
+            params = new StoredProjectsList();
+            params.setPassword(password);
+            params.setUserName(userName);
+            parameters.put(METHOD_NAME_STORED_PROJECTS_LIST, params);
+        } else {
+            params = (StoredProjectsList) parameters.get(
+                    METHOD_NAME_STORED_PROJECTS_LIST);
+        }
         synchronized (params) {
             try {
                 response = wsStub.storedProjectsList(params);
@@ -140,8 +156,16 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
     @Override
     public WSProjectFile[] retrieveFileList(long projectId) throws WSException {
         RetrieveFileListResponse response;
-        RetrieveFileList params = (RetrieveFileList) parameters.get(
-                METHOD_NAME_RETRIEVE_FILE_LIST);
+        RetrieveFileList params;
+        if (!parameters.containsKey(METHOD_NAME_RETRIEVE_FILE_LIST)) {
+            params = new RetrieveFileList();
+            params.setPassword(password);
+            params.setUserName(userName);
+            parameters.put(METHOD_NAME_RETRIEVE_FILE_LIST, params);
+        } else {
+            params = (RetrieveFileList) parameters.get(
+                    METHOD_NAME_RETRIEVE_FILE_LIST);
+        }
         synchronized (params) {
             params.setProjectId(projectId);
             try {
@@ -159,8 +183,16 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
     @Override
     public WSProjectFile[] getFileList4ProjectVersion(long projectVersionId) throws WSException {
         GetFileList4ProjectVersionResponse response;
-        GetFileList4ProjectVersion params = (GetFileList4ProjectVersion) parameters.get(
-                METHOD_NAME_GET_FILE_LIST_4_PROJECT_VERSION);
+        GetFileList4ProjectVersion params;
+        if (!parameters.containsKey(METHOD_NAME_GET_FILE_LIST_4_PROJECT_VERSION)) {
+            params = new GetFileList4ProjectVersion();
+            params.setPassword(password);
+            params.setUserName(userName);
+            parameters.put(METHOD_NAME_GET_FILE_LIST_4_PROJECT_VERSION, params);
+        } else {
+            params = (GetFileList4ProjectVersion) parameters.get(
+                    METHOD_NAME_GET_FILE_LIST_4_PROJECT_VERSION);
+        }
         synchronized (params) {
             params.setProjectVersionId(projectVersionId);
             try {
@@ -178,8 +210,16 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
     @Override
     public long getFilesNumber4ProjectVersion(long projectVersionId) throws WSException {
         GetFilesNumber4ProjectVersionResponse response;
-        GetFilesNumber4ProjectVersion params = (GetFilesNumber4ProjectVersion) parameters.get(
-                METHOD_NAME_GET_FILES_NUMBER_4_PROJECT_VERSION);
+        GetFilesNumber4ProjectVersion params;
+        if (!parameters.containsKey(METHOD_NAME_GET_FILES_NUMBER_4_PROJECT_VERSION)) {
+            params = new GetFilesNumber4ProjectVersion();
+            params.setPassword(password);
+            params.setUserName(userName);
+            parameters.put(METHOD_NAME_GET_FILES_NUMBER_4_PROJECT_VERSION, params);
+        } else {
+            params = (GetFilesNumber4ProjectVersion) parameters.get(
+                    METHOD_NAME_GET_FILES_NUMBER_4_PROJECT_VERSION);
+        }
         synchronized (params) {
             params.setProjectVersionId(projectVersionId);
             try {
@@ -200,8 +240,16 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
             String srcRepositoryLocation, String mailingListLocation,
             String BTSLocation, String userEmailAddress, String website) throws WSException {
         RequestEvaluation4ProjectResponse response;
-        RequestEvaluation4Project params = (RequestEvaluation4Project) parameters.get(
-                METHOD_NAME_REQUEST_EVALUATION_4_PROJECT);
+        RequestEvaluation4Project params;
+        if (!parameters.containsKey(METHOD_NAME_REQUEST_EVALUATION_4_PROJECT)) {
+            params = new RequestEvaluation4Project();
+            params.setPassword(password);
+            params.setUserName(userName);
+            parameters.put(METHOD_NAME_REQUEST_EVALUATION_4_PROJECT, params);
+        } else {
+            params = (RequestEvaluation4Project) parameters.get(
+                    METHOD_NAME_REQUEST_EVALUATION_4_PROJECT);
+        }
         synchronized (params) {
             params.setProjectName(projectName);
             params.setProjectVersion(projectVersion);
@@ -225,8 +273,16 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
     @Override
     public long retrieveProjectId(String projectName) throws WSException {
         RetrieveProjectIdResponse response;
-        RetrieveProjectId params = (RetrieveProjectId) parameters.get(
-                METHOD_NAME_RETRIEVE_PROJECT_ID);
+        RetrieveProjectId params;
+        if (!parameters.containsKey(METHOD_NAME_RETRIEVE_PROJECT_ID)) {
+            params = new RetrieveProjectId();
+            params.setPassword(password);
+            params.setUserName(userName);
+            parameters.put(METHOD_NAME_RETRIEVE_PROJECT_ID, params);
+        } else {
+            params = (RetrieveProjectId) parameters.get(
+                    METHOD_NAME_RETRIEVE_PROJECT_ID);
+        }
         synchronized (params) {
             params.setProjectName(projectName);
             try {
@@ -245,8 +301,16 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
     @Override
     public WSProjectVersion[] retrieveStoredProjectVersions(long projectId) throws WSException {
         RetrieveStoredProjectVersionsResponse response;
-        RetrieveStoredProjectVersions params = (RetrieveStoredProjectVersions) parameters.get(
-                METHOD_NAME_RETRIEVE_STORED_PROJECT_VERSIONS);
+        RetrieveStoredProjectVersions params;
+        if (!parameters.containsKey(METHOD_NAME_RETRIEVE_STORED_PROJECT_VERSIONS)) {
+            params = new RetrieveStoredProjectVersions();
+            params.setPassword(password);
+            params.setUserName(userName);
+            parameters.put(METHOD_NAME_RETRIEVE_STORED_PROJECT_VERSIONS, params);
+        } else {
+            params = (RetrieveStoredProjectVersions) parameters.get(
+                    METHOD_NAME_RETRIEVE_STORED_PROJECT_VERSIONS);
+        }
         synchronized (params) {
             params.setProjectId(projectId);
             try {
@@ -268,6 +332,15 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
         RetrieveStoredProjectResponse response;
         RetrieveStoredProject params = (RetrieveStoredProject) parameters.get(
                 METHOD_NAME_RETRIEVE_STORED_PROJECT);
+        if (!parameters.containsKey(METHOD_NAME_RETRIEVE_STORED_PROJECT)) {
+            params = new RetrieveStoredProject();
+            params.setPassword(password);
+            params.setUserName(userName);
+            parameters.put(METHOD_NAME_RETRIEVE_STORED_PROJECT, params);
+        } else {
+            params = (RetrieveStoredProject) parameters.get(
+                    METHOD_NAME_RETRIEVE_STORED_PROJECT);
+        }
         synchronized (params) {
             params.setProjectId(projectId);
             try {
@@ -278,62 +351,6 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
         }
         
         return (WSStoredProject) parseWSResult(response.get_return());
-        
-    }
-    
-    private void initParameters() {
-        parameters = new Hashtable<String, Object>();
-        
-        EvaluatedProjectsList evaluatedProjectsListParams = new EvaluatedProjectsList();
-        evaluatedProjectsListParams.setPassword(password);
-        evaluatedProjectsListParams.setUserName(userName);
-        parameters.put(METHOD_NAME_EVALUATED_PROJECTS_LIST, evaluatedProjectsListParams);
- 
-        StoredProjectsList storedProjectsListParams = new StoredProjectsList();
-        storedProjectsListParams.setPassword(password);
-        storedProjectsListParams.setUserName(userName);
-        parameters.put(METHOD_NAME_STORED_PROJECTS_LIST, storedProjectsListParams);
-        
-        RetrieveFileList retrieveFileListParams = new RetrieveFileList();
-        retrieveFileListParams.setPassword(password);
-        retrieveFileListParams.setUserName(userName);
-        parameters.put(METHOD_NAME_RETRIEVE_FILE_LIST, retrieveFileListParams);
-        
-        RequestEvaluation4Project requestEvaluation4ProjectParams = new RequestEvaluation4Project();
-        requestEvaluation4ProjectParams.setPassword(password);
-        requestEvaluation4ProjectParams.setUserName(userName);
-        parameters.put(METHOD_NAME_REQUEST_EVALUATION_4_PROJECT, requestEvaluation4ProjectParams);
-        
-        RetrieveProjectId retrieveProjectIdParam = new RetrieveProjectId();
-        retrieveProjectIdParam.setPassword(password);
-        retrieveProjectIdParam.setUserName(userName);
-        parameters.put(METHOD_NAME_RETRIEVE_PROJECT_ID, retrieveProjectIdParam);
-        
-        RetrieveStoredProjectVersions retrieveStoredProjectVersionsParam =
-            new RetrieveStoredProjectVersions();
-        retrieveStoredProjectVersionsParam.setPassword(password);
-        retrieveStoredProjectVersionsParam.setUserName(userName);
-        parameters.put(METHOD_NAME_RETRIEVE_STORED_PROJECT_VERSIONS,
-                retrieveStoredProjectVersionsParam);
-        
-        RetrieveStoredProject retrieveStoredProjectParam = new RetrieveStoredProject();
-        retrieveStoredProjectParam.setPassword(password);
-        retrieveStoredProjectParam.setUserName(userName);
-        parameters.put(METHOD_NAME_RETRIEVE_STORED_PROJECT,
-                retrieveStoredProjectParam);
-        
-        GetFilesNumber4ProjectVersion getFilesNumber4ProjectVersionParam = new GetFilesNumber4ProjectVersion();
-        getFilesNumber4ProjectVersionParam.setPassword(password);
-        getFilesNumber4ProjectVersionParam.setUserName(userName);
-        parameters.put(METHOD_NAME_GET_FILES_NUMBER_4_PROJECT_VERSION,
-                getFilesNumber4ProjectVersionParam);
-        
-        GetFileList4ProjectVersion getFileList4ProjectVersionParam = new GetFileList4ProjectVersion();
-        getFileList4ProjectVersionParam.setPassword(password);
-        getFileList4ProjectVersionParam.setUserName(userName);
-        parameters.put(METHOD_NAME_GET_FILE_LIST_4_PROJECT_VERSION,
-                getFileList4ProjectVersionParam);
-        
         
     }
     

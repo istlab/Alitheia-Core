@@ -30,6 +30,16 @@
               
                   if (
                   "http://datatypes.services.web.service.impl.sqooss.eu/xsd".equals(namespaceURI) &&
+                  "WSMetricMeasurement".equals(typeName)){
+                   
+                            return  eu.sqooss.ws.client.datatypes.WSMetricMeasurement.Factory.parse(reader);
+                        
+
+                  }
+
+              
+                  if (
+                  "http://datatypes.services.web.service.impl.sqooss.eu/xsd".equals(namespaceURI) &&
                   "WSProjectVersion".equals(typeName)){
                    
                             return  eu.sqooss.ws.client.datatypes.WSProjectVersion.Factory.parse(reader);

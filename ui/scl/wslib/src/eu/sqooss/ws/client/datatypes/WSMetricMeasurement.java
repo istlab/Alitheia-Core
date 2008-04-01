@@ -1,6 +1,6 @@
 
             /**
-            * WSProjectFile.java
+            * WSMetricMeasurement.java
             *
             * This file was auto-generated from WSDL
             * by the Apache Axis2 version: #axisVersion# #today#
@@ -8,46 +8,17 @@
 
             package eu.sqooss.ws.client.datatypes;
             /**
-            *  WSProjectFile bean class
+            *  WSMetricMeasurement bean class
             */
         
-        public  class WSProjectFile
+        public  class WSMetricMeasurement
         implements org.apache.axis2.databinding.ADBBean{
         /* This type was generated from the piece of schema that had
-                name = WSProjectFile
+                name = WSMetricMeasurement
                 Namespace URI = http://datatypes.services.web.service.impl.sqooss.eu/xsd
                 Namespace Prefix = ns1
                 */
             
-
-                        /**
-                        * field for FileName
-                        */
-
-                        protected java.lang.String localFileName ;
-                        
-
-                           /**
-                           * Auto generated getter method
-                           * @return java.lang.String
-                           */
-                           public  java.lang.String getFileName(){
-                               return localFileName;
-                           }
-
-                           
-                        
-                            /**
-                               * Auto generated setter method
-                               * @param param FileName
-                               */
-                               public void setFileName(java.lang.String param){
-                            
-                                    this.localFileName=param;
-                            
-
-                               }
-                            
 
                         /**
                         * field for Id
@@ -79,58 +50,116 @@
                             
 
                         /**
-                        * field for ProjectVersion
+                        * field for Metric
                         */
 
-                        protected long localProjectVersion ;
+                        protected eu.sqooss.ws.client.datatypes.WSMetric localMetric ;
                         
 
                            /**
                            * Auto generated getter method
-                           * @return long
+                           * @return eu.sqooss.ws.client.datatypes.WSMetric
                            */
-                           public  long getProjectVersion(){
-                               return localProjectVersion;
+                           public  eu.sqooss.ws.client.datatypes.WSMetric getMetric(){
+                               return localMetric;
                            }
 
                            
                         
                             /**
                                * Auto generated setter method
-                               * @param param ProjectVersion
+                               * @param param Metric
                                */
-                               public void setProjectVersion(long param){
+                               public void setMetric(eu.sqooss.ws.client.datatypes.WSMetric param){
                             
-                                    this.localProjectVersion=param;
+                                    this.localMetric=param;
                             
 
                                }
                             
 
                         /**
-                        * field for Status
+                        * field for Result
                         */
 
-                        protected java.lang.String localStatus ;
+                        protected java.lang.String localResult ;
                         
 
                            /**
                            * Auto generated getter method
                            * @return java.lang.String
                            */
-                           public  java.lang.String getStatus(){
-                               return localStatus;
+                           public  java.lang.String getResult(){
+                               return localResult;
                            }
 
                            
                         
                             /**
                                * Auto generated setter method
-                               * @param param Status
+                               * @param param Result
                                */
-                               public void setStatus(java.lang.String param){
+                               public void setResult(java.lang.String param){
                             
-                                    this.localStatus=param;
+                                    this.localResult=param;
+                            
+
+                               }
+                            
+
+                        /**
+                        * field for TargetId
+                        */
+
+                        protected long localTargetId ;
+                        
+
+                           /**
+                           * Auto generated getter method
+                           * @return long
+                           */
+                           public  long getTargetId(){
+                               return localTargetId;
+                           }
+
+                           
+                        
+                            /**
+                               * Auto generated setter method
+                               * @param param TargetId
+                               */
+                               public void setTargetId(long param){
+                            
+                                    this.localTargetId=param;
+                            
+
+                               }
+                            
+
+                        /**
+                        * field for WhenRun
+                        */
+
+                        protected long localWhenRun ;
+                        
+
+                           /**
+                           * Auto generated getter method
+                           * @return long
+                           */
+                           public  long getWhenRun(){
+                               return localWhenRun;
+                           }
+
+                           
+                        
+                            /**
+                               * Auto generated setter method
+                               * @param param WhenRun
+                               */
+                               public void setWhenRun(long param){
+                            
+                                    this.localWhenRun=param;
                             
 
                                }
@@ -186,40 +215,6 @@
                                         if (prefix == null) {
                                             prefix = org.apache.axis2.databinding.utils.BeanUtil.getUniquePrefix();
 
-                                            xmlWriter.writeStartElement(prefix,"fileName", namespace);
-                                            xmlWriter.writeNamespace(prefix, namespace);
-                                            xmlWriter.setPrefix(prefix, namespace);
-
-                                        } else {
-                                            xmlWriter.writeStartElement(namespace,"fileName");
-                                        }
-
-                                    } else {
-                                        xmlWriter.writeStartElement("fileName");
-                                    }
-                                
-
-                                          if (localFileName==null){
-                                              // write the nil attribute
-                                              
-                                                     writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","true",xmlWriter);
-                                                  
-                                          }else{
-
-                                        
-                                                   xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localFileName));
-                                            
-                                          }
-                                    
-                                   xmlWriter.writeEndElement();
-                             
-                                    namespace = "http://datatypes.services.web.service.impl.sqooss.eu/xsd";
-                                    if (! namespace.equals("")) {
-                                        prefix = xmlWriter.getPrefix(namespace);
-
-                                        if (prefix == null) {
-                                            prefix = org.apache.axis2.databinding.utils.BeanUtil.getUniquePrefix();
-
                                             xmlWriter.writeStartElement(prefix,"id", namespace);
                                             xmlWriter.writeNamespace(prefix, namespace);
                                             xmlWriter.setPrefix(prefix, namespace);
@@ -236,6 +231,38 @@
                                     
                                    xmlWriter.writeEndElement();
                              
+                                    if (localMetric==null){
+
+                                            java.lang.String namespace2 = "http://datatypes.services.web.service.impl.sqooss.eu/xsd";
+
+                                        if (! namespace2.equals("")) {
+                                            java.lang.String prefix2 = xmlWriter.getPrefix(namespace2);
+
+                                            if (prefix2 == null) {
+                                                prefix2 = org.apache.axis2.databinding.utils.BeanUtil.getUniquePrefix();
+
+                                                xmlWriter.writeStartElement(prefix2,"metric", namespace2);
+                                                xmlWriter.writeNamespace(prefix2, namespace2);
+                                                xmlWriter.setPrefix(prefix2, namespace2);
+
+                                            } else {
+                                                xmlWriter.writeStartElement(namespace2,"metric");
+                                            }
+
+                                        } else {
+                                            xmlWriter.writeStartElement("metric");
+                                        }
+
+
+                                       // write the nil attribute
+                                      writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","true",xmlWriter);
+                                      xmlWriter.writeEndElement();
+                                    }else{
+                                     localMetric.getOMElement(
+                                       new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd","metric"),
+                                        factory).serialize(xmlWriter);
+                                    }
+                                
                                     namespace = "http://datatypes.services.web.service.impl.sqooss.eu/xsd";
                                     if (! namespace.equals("")) {
                                         prefix = xmlWriter.getPrefix(namespace);
@@ -243,19 +270,30 @@
                                         if (prefix == null) {
                                             prefix = org.apache.axis2.databinding.utils.BeanUtil.getUniquePrefix();
 
-                                            xmlWriter.writeStartElement(prefix,"projectVersion", namespace);
+                                            xmlWriter.writeStartElement(prefix,"result", namespace);
                                             xmlWriter.writeNamespace(prefix, namespace);
                                             xmlWriter.setPrefix(prefix, namespace);
 
                                         } else {
-                                            xmlWriter.writeStartElement(namespace,"projectVersion");
+                                            xmlWriter.writeStartElement(namespace,"result");
                                         }
 
                                     } else {
-                                        xmlWriter.writeStartElement("projectVersion");
+                                        xmlWriter.writeStartElement("result");
                                     }
                                 
-                                       xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localProjectVersion));
+
+                                          if (localResult==null){
+                                              // write the nil attribute
+                                              
+                                                     writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","true",xmlWriter);
+                                                  
+                                          }else{
+
+                                        
+                                                   xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localResult));
+                                            
+                                          }
                                     
                                    xmlWriter.writeEndElement();
                              
@@ -266,30 +304,42 @@
                                         if (prefix == null) {
                                             prefix = org.apache.axis2.databinding.utils.BeanUtil.getUniquePrefix();
 
-                                            xmlWriter.writeStartElement(prefix,"status", namespace);
+                                            xmlWriter.writeStartElement(prefix,"targetId", namespace);
                                             xmlWriter.writeNamespace(prefix, namespace);
                                             xmlWriter.setPrefix(prefix, namespace);
 
                                         } else {
-                                            xmlWriter.writeStartElement(namespace,"status");
+                                            xmlWriter.writeStartElement(namespace,"targetId");
                                         }
 
                                     } else {
-                                        xmlWriter.writeStartElement("status");
+                                        xmlWriter.writeStartElement("targetId");
                                     }
                                 
+                                       xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localTargetId));
+                                    
+                                   xmlWriter.writeEndElement();
+                             
+                                    namespace = "http://datatypes.services.web.service.impl.sqooss.eu/xsd";
+                                    if (! namespace.equals("")) {
+                                        prefix = xmlWriter.getPrefix(namespace);
 
-                                          if (localStatus==null){
-                                              // write the nil attribute
-                                              
-                                                     writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","true",xmlWriter);
-                                                  
-                                          }else{
+                                        if (prefix == null) {
+                                            prefix = org.apache.axis2.databinding.utils.BeanUtil.getUniquePrefix();
 
-                                        
-                                                   xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localStatus));
-                                            
-                                          }
+                                            xmlWriter.writeStartElement(prefix,"whenRun", namespace);
+                                            xmlWriter.writeNamespace(prefix, namespace);
+                                            xmlWriter.setPrefix(prefix, namespace);
+
+                                        } else {
+                                            xmlWriter.writeStartElement(namespace,"whenRun");
+                                        }
+
+                                    } else {
+                                        xmlWriter.writeStartElement("whenRun");
+                                    }
+                                
+                                       xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localWhenRun));
                                     
                                    xmlWriter.writeEndElement();
                              
@@ -379,29 +429,36 @@
 
                 
                              elementList.add(new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd",
-                                                                      "fileName"));
-                            
-                                         elementList.add(localFileName==null?null:
-                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localFileName));
-                                    
-                             elementList.add(new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd",
                                                                       "id"));
                             
                                 elementList.add(
                                    org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localId));
                             
+                            elementList.add(new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd",
+                                                                      "metric"));
+                            
+                            
+                                    elementList.add(localMetric==null?null:
+                                    localMetric);
+                                
                              elementList.add(new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd",
-                                                                      "projectVersion"));
+                                                                      "result"));
+                            
+                                         elementList.add(localResult==null?null:
+                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localResult));
+                                    
+                             elementList.add(new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd",
+                                                                      "targetId"));
                             
                                 elementList.add(
-                                   org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localProjectVersion));
+                                   org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localTargetId));
                             
                              elementList.add(new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd",
-                                                                      "status"));
+                                                                      "whenRun"));
                             
-                                         elementList.add(localStatus==null?null:
-                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localStatus));
-                                    
+                                elementList.add(
+                                   org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localWhenRun));
+                            
 
                 return new org.apache.axis2.databinding.utils.reader.ADBXMLStreamReaderImpl(qName, elementList.toArray(), attribList.toArray());
             
@@ -424,8 +481,8 @@
         * Postcondition: If this object is an element, the reader is positioned at its end element
         *                If this object is a complex type, the reader is positioned at the end element of its outer element
         */
-        public static WSProjectFile parse(javax.xml.stream.XMLStreamReader reader) throws java.lang.Exception{
-            WSProjectFile object = new WSProjectFile();
+        public static WSMetricMeasurement parse(javax.xml.stream.XMLStreamReader reader) throws java.lang.Exception{
+            WSMetricMeasurement object = new WSMetricMeasurement();
             int event;
             try {
                 
@@ -441,10 +498,10 @@
                     nsPrefix = nsPrefix==null?"":nsPrefix;
 
                     java.lang.String type = fullTypeName.substring(fullTypeName.indexOf(":")+1);
-                    if (!"WSProjectFile".equals(type)){
+                    if (!"WSMetricMeasurement".equals(type)){
                         //find namespace for the prefix
                         java.lang.String nsUri = reader.getNamespaceContext().getNamespaceURI(nsPrefix);
-                        return (WSProjectFile)eu.sqooss.impl.service.web.services.datatypes.xsd.ExtensionMapper.getTypeObject(
+                        return (WSMetricMeasurement)eu.sqooss.impl.service.web.services.datatypes.xsd.ExtensionMapper.getTypeObject(
                              nsUri,type,reader);
                       }
 
@@ -475,31 +532,6 @@
                                     
                                     while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
                                 
-                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd","fileName").equals(reader.getName())){
-                                
-                                       if (!"true".equals(reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil"))){
-                                    
-                                    java.lang.String content = reader.getElementText();
-                                    
-                                              object.setFileName(
-                                        org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
-                                            
-                                       } else {
-                                           reader.getElementText(); // throw away text nodes if any.
-                                       }
-                                      
-                                        reader.next();
-                                    
-                              }  // End of if for expected property start element
-                            
-                                else{
-                                    // A start element we are not expecting indicates an invalid parameter was passed
-                                    throw new java.lang.RuntimeException("Unexpected subelement " + reader.getLocalName());
-                                }
-                            
-                                    
-                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
-                                
                                     if (reader.isStartElement() && new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd","id").equals(reader.getName())){
                                 
                                     java.lang.String content = reader.getElementText();
@@ -519,11 +551,60 @@
                                     
                                     while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
                                 
-                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd","projectVersion").equals(reader.getName())){
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd","metric").equals(reader.getName())){
+                                
+                                      if ("true".equals(reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil"))){
+                                          object.setMetric(null);
+                                          reader.next();
+                                            
+                                            reader.next();
+                                          
+                                      }else{
+                                    
+                                        object.setMetric(eu.sqooss.ws.client.datatypes.WSMetric.Factory.parse(reader));
+                                      
+                                        reader.next();
+                                    }
+                              }  // End of if for expected property start element
+                            
+                                else{
+                                    // A start element we are not expecting indicates an invalid parameter was passed
+                                    throw new java.lang.RuntimeException("Unexpected subelement " + reader.getLocalName());
+                                }
+                            
+                                    
+                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
+                                
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd","result").equals(reader.getName())){
+                                
+                                       if (!"true".equals(reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil"))){
+                                    
+                                    java.lang.String content = reader.getElementText();
+                                    
+                                              object.setResult(
+                                        org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                                            
+                                       } else {
+                                           reader.getElementText(); // throw away text nodes if any.
+                                       }
+                                      
+                                        reader.next();
+                                    
+                              }  // End of if for expected property start element
+                            
+                                else{
+                                    // A start element we are not expecting indicates an invalid parameter was passed
+                                    throw new java.lang.RuntimeException("Unexpected subelement " + reader.getLocalName());
+                                }
+                            
+                                    
+                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
+                                
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd","targetId").equals(reader.getName())){
                                 
                                     java.lang.String content = reader.getElementText();
                                     
-                                              object.setProjectVersion(
+                                              object.setTargetId(
                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToLong(content));
                                               
                                         reader.next();
@@ -538,19 +619,13 @@
                                     
                                     while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
                                 
-                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd","status").equals(reader.getName())){
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd","whenRun").equals(reader.getName())){
                                 
-                                       if (!"true".equals(reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil"))){
-                                    
                                     java.lang.String content = reader.getElementText();
                                     
-                                              object.setStatus(
-                                        org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
-                                            
-                                       } else {
-                                           reader.getElementText(); // throw away text nodes if any.
-                                       }
-                                      
+                                              object.setWhenRun(
+                                        org.apache.axis2.databinding.utils.ConverterUtil.convertToLong(content));
+                                              
                                         reader.next();
                                     
                               }  // End of if for expected property start element

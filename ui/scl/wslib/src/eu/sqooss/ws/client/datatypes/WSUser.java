@@ -82,14 +82,14 @@
                         * field for LastActivity
                         */
 
-                        protected java.lang.String localLastActivity ;
+                        protected long localLastActivity ;
                         
 
                            /**
                            * Auto generated getter method
-                           * @return java.lang.String
+                           * @return long
                            */
-                           public  java.lang.String getLastActivity(){
+                           public  long getLastActivity(){
                                return localLastActivity;
                            }
 
@@ -99,7 +99,7 @@
                                * Auto generated setter method
                                * @param param LastActivity
                                */
-                               public void setLastActivity(java.lang.String param){
+                               public void setLastActivity(long param){
                             
                                     this.localLastActivity=param;
                             
@@ -111,14 +111,14 @@
                         * field for Registered
                         */
 
-                        protected java.lang.String localRegistered ;
+                        protected long localRegistered ;
                         
 
                            /**
                            * Auto generated getter method
-                           * @return java.lang.String
+                           * @return long
                            */
-                           public  java.lang.String getRegistered(){
+                           public  long getRegistered(){
                                return localRegistered;
                            }
 
@@ -128,7 +128,7 @@
                                * Auto generated setter method
                                * @param param Registered
                                */
-                               public void setRegistered(java.lang.String param){
+                               public void setRegistered(long param){
                             
                                     this.localRegistered=param;
                             
@@ -352,18 +352,7 @@
                                         xmlWriter.writeStartElement("lastActivity");
                                     }
                                 
-
-                                          if (localLastActivity==null){
-                                              // write the nil attribute
-                                              
-                                                     writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","true",xmlWriter);
-                                                  
-                                          }else{
-
-                                        
-                                                   xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localLastActivity));
-                                            
-                                          }
+                                       xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localLastActivity));
                                     
                                    xmlWriter.writeEndElement();
                              
@@ -386,18 +375,7 @@
                                         xmlWriter.writeStartElement("registered");
                                     }
                                 
-
-                                          if (localRegistered==null){
-                                              // write the nil attribute
-                                              
-                                                     writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","true",xmlWriter);
-                                                  
-                                          }else{
-
-                                        
-                                                   xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localRegistered));
-                                            
-                                          }
+                                       xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localRegistered));
                                     
                                    xmlWriter.writeEndElement();
                              
@@ -598,15 +576,15 @@
                              elementList.add(new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd",
                                                                       "lastActivity"));
                             
-                                         elementList.add(localLastActivity==null?null:
-                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localLastActivity));
-                                    
+                                elementList.add(
+                                   org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localLastActivity));
+                            
                              elementList.add(new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd",
                                                                       "registered"));
                             
-                                         elementList.add(localRegistered==null?null:
-                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localRegistered));
-                                    
+                                elementList.add(
+                                   org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localRegistered));
+                            
                              if (localUserGroups!=null) {
                                  for (int i = 0;i < localUserGroups.length;i++){
 
@@ -759,17 +737,11 @@
                                 
                                     if (reader.isStartElement() && new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd","lastActivity").equals(reader.getName())){
                                 
-                                       if (!"true".equals(reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil"))){
-                                    
                                     java.lang.String content = reader.getElementText();
                                     
                                               object.setLastActivity(
-                                        org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
-                                            
-                                       } else {
-                                           reader.getElementText(); // throw away text nodes if any.
-                                       }
-                                      
+                                        org.apache.axis2.databinding.utils.ConverterUtil.convertToLong(content));
+                                              
                                         reader.next();
                                     
                               }  // End of if for expected property start element
@@ -784,17 +756,11 @@
                                 
                                     if (reader.isStartElement() && new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd","registered").equals(reader.getName())){
                                 
-                                       if (!"true".equals(reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil"))){
-                                    
                                     java.lang.String content = reader.getElementText();
                                     
                                               object.setRegistered(
-                                        org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
-                                            
-                                       } else {
-                                           reader.getElementText(); // throw away text nodes if any.
-                                       }
-                                      
+                                        org.apache.axis2.databinding.utils.ConverterUtil.convertToLong(content));
+                                              
                                         reader.next();
                                     
                               }  // End of if for expected property start element

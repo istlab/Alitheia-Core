@@ -66,12 +66,12 @@ class WSUserAccessorImpl extends WSUserAccessor {
     public WSUserAccessorImpl(String userName, String password, String webServiceUrl) throws WSException {
         this.userName = userName;
         this.password = password;
+        parameters = new Hashtable<String, Object>();
         try {
             this.wsStub = new WsStub(webServiceUrl);
         } catch (AxisFault af) {
             throw new WSException(af);
         }
-        initParameters();
     }
     
     /**
@@ -81,7 +81,16 @@ class WSUserAccessorImpl extends WSUserAccessor {
     public WSUser submitUser(String newUserName, String newNames, String newPassword,
             String newUserClass, String newOtherInfo) throws WSException {
         SubmitUserResponse response;
-        SubmitUser params = (SubmitUser) parameters.get(METHOD_NAME_SUBMIT_USER);
+        SubmitUser params;
+        if (!parameters.containsKey(METHOD_NAME_SUBMIT_USER)) {
+            params = new SubmitUser();
+            params.setPasswordForAccess(password);
+            params.setUserNameForAccess(userName);
+            parameters.put(METHOD_NAME_SUBMIT_USER, params);
+        } else {
+            params = (SubmitUser) parameters.get(
+                    METHOD_NAME_SUBMIT_USER);
+        }
         synchronized (params) {
             params.setNewUserName(newUserName);
             params.setNewNames(newNames);
@@ -104,7 +113,16 @@ class WSUserAccessorImpl extends WSUserAccessor {
     @Override
     public WSUser displayUser(long userId) throws WSException {
         DisplayUserResponse response;
-        DisplayUser params = (DisplayUser) parameters.get(METHOD_NAME_DISPLAY_USER);
+        DisplayUser params;
+        if (!parameters.containsKey(METHOD_NAME_DISPLAY_USER)) {
+            params = new DisplayUser();
+            params.setPasswordForAccess(password);
+            params.setUserNameForAccess(userName);
+            parameters.put(METHOD_NAME_DISPLAY_USER, params);
+        } else {
+            params = (DisplayUser) parameters.get(
+                    METHOD_NAME_DISPLAY_USER);
+        }
         synchronized (params) {
             params.setUserId(userId);
             try {
@@ -122,7 +140,16 @@ class WSUserAccessorImpl extends WSUserAccessor {
     @Override
     public void modifyUser(String userName, String newNames, String newPassword,
             String newUserClass, String newOtherInfo) throws WSException {
-        ModifyUser params = (ModifyUser) parameters.get(METHOD_NAME_MODIFY_USER);
+        ModifyUser params;
+        if (!parameters.containsKey(METHOD_NAME_MODIFY_USER)) {
+            params = new ModifyUser();
+            params.setPasswordForAccess(password);
+            params.setUserNameForAccess(userName);
+            parameters.put(METHOD_NAME_MODIFY_USER, params);
+        } else {
+            params = (ModifyUser) parameters.get(
+                    METHOD_NAME_MODIFY_USER);
+        }
         synchronized (params) {
             params.setUserName(userName);
             params.setNewNames(newNames);
@@ -142,7 +169,16 @@ class WSUserAccessorImpl extends WSUserAccessor {
      */
     @Override
     public void deleteUser(long userId) throws WSException {
-        DeleteUser params = (DeleteUser) parameters.get(METHOD_NAME_DELETE_USER);
+        DeleteUser params;
+        if (!parameters.containsKey(METHOD_NAME_DELETE_USER)) {
+            params = new DeleteUser();
+            params.setPasswordForAccess(password);
+            params.setUserNameForAccess(userName);
+            parameters.put(METHOD_NAME_DELETE_USER, params);
+        } else {
+            params = (DeleteUser) parameters.get(
+                    METHOD_NAME_DELETE_USER);
+        }
         synchronized (params) {
             params.setUserId(userId);
             try {
@@ -153,30 +189,6 @@ class WSUserAccessorImpl extends WSUserAccessor {
         }
     }
     
-    private void initParameters() {
-        parameters = new Hashtable<String, Object>();
-        
-        SubmitUser submitUser = new SubmitUser();
-        submitUser.setPasswordForAccess(password);
-        submitUser.setUserNameForAccess(userName);
-        parameters.put(METHOD_NAME_SUBMIT_USER, submitUser);
-        
-        DisplayUser displayUser = new DisplayUser();
-        displayUser.setPasswordForAccess(password);
-        displayUser.setUserNameForAccess(userName);
-        parameters.put(METHOD_NAME_DISPLAY_USER, displayUser);
-        
-        ModifyUser modifyUser = new ModifyUser();
-        modifyUser.setPasswordForAccess(password);
-        modifyUser.setUserNameForAccess(userName);
-        parameters.put(METHOD_NAME_MODIFY_USER, modifyUser);
-        
-        DeleteUser deleteUser = new DeleteUser();
-        deleteUser.setPasswordForAccess(password);
-        deleteUser.setUserNameForAccess(userName);
-        parameters.put(METHOD_NAME_DELETE_USER, deleteUser);
-        
-    }
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
