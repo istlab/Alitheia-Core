@@ -38,6 +38,7 @@ import eu.sqooss.impl.service.web.services.MetricManager;
 import eu.sqooss.impl.service.web.services.ProjectManager;
 import eu.sqooss.impl.service.web.services.UserManager;
 import eu.sqooss.impl.service.web.services.datatypes.WSMetric;
+import eu.sqooss.impl.service.web.services.datatypes.WSMetricMeasurement;
 import eu.sqooss.impl.service.web.services.datatypes.WSProjectFile;
 import eu.sqooss.impl.service.web.services.datatypes.WSProjectVersion;
 import eu.sqooss.impl.service.web.services.datatypes.WSStoredProject;
@@ -352,6 +353,18 @@ public class WebServices {
         return userManager.validateAccount(userName, password);
     }
     //validation
+    
+    //metric results
+    public WSMetricMeasurement[] getProjectFileMetricMeasurement(String userName, String password,
+            long metricId, long projectFileId) {
+    	return metricManager.getProjectFileMetricMeasurement(userName, password, metricId, projectFileId);
+    }
+    
+    public WSMetricMeasurement[] getProjectVersionMetricMeasurement(String userName, String password,
+            long metricId, long projectVersionId) {
+    	return metricManager.getProjectVersionMetricMeasurement(userName, password, metricId, projectVersionId);
+    }
+    //metric results
     
 }
 

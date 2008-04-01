@@ -36,30 +36,42 @@ import eu.sqooss.service.db.ProjectFile;
 
 /**
  * This class wraps the <code>eu.sqooss.service.db.ProjectFile</code>
- * with  the <code>eu.sqooss.service.db.FileMetadata</code>.
  */
 public class WSProjectFile {
     
-    private ProjectFile projectFile;
+    private long id;
+    private long projectVersion;
+    private String fileName;
+    private String status;
     
     public WSProjectFile(ProjectFile projectFile) {
-        this.projectFile = projectFile;
+        id = projectFile.getId();
+        fileName = projectFile.getFileName();
+        projectVersion = projectFile.getProjectVersion().getId();
+        status = projectFile.getStatus();
     }
 
-    public long getId() {
-        return projectFile.getId();
+    public WSProjectFile(long id, String fileName, long projectVersion, String status) {
+        this.id = id;
+        this.fileName = fileName;
+        this.projectVersion = projectVersion;
+        this.status = status;
     }
     
-    public String getName() {
-        return projectFile.getFileName();
+    public long getId() {
+        return id;
+    }
+    
+    public String getFileName() {
+        return fileName;
     }
 
     public long getProjectVersion() {
-        return projectFile.getProjectVersion().getId();
+        return projectVersion;
     }
 
     public String getStatus() {
-        return projectFile.getStatus();
+        return status;
     }
     
 }

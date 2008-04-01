@@ -32,6 +32,7 @@
 
 package eu.sqooss.impl.service.web.services;
 
+import java.math.BigInteger;
 import java.util.List;
 
 import eu.sqooss.impl.service.web.services.datatypes.WSProjectFile;
@@ -231,17 +232,34 @@ public class ProjectManager {
         
         List<?> queryResult = dbWrapper.getFilesNumber4ProjectVersion(projectVersionId);
         
-        return ((Long)queryResult.get(0)).longValue();
+        return ((BigInteger)queryResult.get(0)).longValue();
     }
     
-    private WSProjectFile[] convertToWSProjectFiles(List<?> projectFilesWithMetadata) {
+    private WSProjectFile[] convertToWSProjectFiles(List<?> projectFiles) {
         WSProjectFile[] result = null;
-        if ((projectFilesWithMetadata != null) && (projectFilesWithMetadata.size() != 0)) {
-            result = new WSProjectFile[projectFilesWithMetadata.size()];
-            Object currentProject;
-            for (int i = 0; i < result.length; i++) {
-                currentProject = projectFilesWithMetadata.get(i);
-                result[i] = new WSProjectFile((ProjectFile) currentProject);
+        if ((projectFiles != null) && (projectFiles.size() != 0)) {
+            result = new WSProjectFile[projectFiles.size()];
+            Object currentElem = projectFiles.get(0);
+            if (currentElem instanceof ProjectFile) { //parse HQL
+                for (int i = 0; i < result.length; i++) {
+                    currentElem = projectFiles.get(i);
+                    result[i] = new WSProjectFile((ProjectFile) currentElem);
+                }
+            } else if (currentElem.getClass().isArray()) { //parse SQL
+                BigInteger fileId;
+                BigInteger projectVersion;
+                String fileName;
+                String status;
+                Object[] currentFile;
+                for (int i = 0; i < result.length; i++) {
+                    currentFile = (Object[])projectFiles.get(i);
+                    fileId = (BigInteger)currentFile[0];
+                    fileName = (String)currentFile[1];
+                    projectVersion = (BigInteger)currentFile[2];
+                    status = (String)currentFile[3];
+                    result[i] = new WSProjectFile(fileId.longValue(), fileName,
+                            projectVersion.longValue(), status);
+                }
             }
         }
         return result;

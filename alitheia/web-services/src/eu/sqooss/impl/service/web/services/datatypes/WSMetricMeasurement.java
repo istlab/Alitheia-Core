@@ -32,41 +32,61 @@
 
 package eu.sqooss.impl.service.web.services.datatypes;
 
-import eu.sqooss.service.db.Metric;
-import eu.sqooss.service.db.MetricType;
+import eu.sqooss.service.db.ProjectFileMeasurement;
+import eu.sqooss.service.db.ProjectVersionMeasurement;
 
-/**
- * This class wraps the <code>eu.sqooss.service.db.Metric</code>
- * with the <code>eu.sqooss.service.db.MetricType</code>.
- */
-public class WSMetric {
-    
-    private Metric metric;
-    private WSMetricType wsMetricType;
-    
-    public WSMetric(Metric metric) {
-    	this(metric, metric.getMetricType());
-    }
-    
-    public WSMetric(Metric metric, MetricType metricType) {
-        this.metric = metric;
-        this.wsMetricType = new WSMetricType(metricType);
+public class WSMetricMeasurement {
+
+    private long id;
+    private long targetId;
+    private WSMetric metric;
+    private long whenRun;
+    private String result;
+
+    private WSMetricMeasurement(ProjectFileMeasurement measurement) {
+        this.id = measurement.getId();
+        this.targetId = measurement.getProjectFile().getId();
+        this.metric = new WSMetric(measurement.getMetric());
+        this.whenRun = measurement.getWhenRun().getTime();
+        this.result = measurement.getResult();
     }
 
-    public WSMetricType getMetricType() {
-        return wsMetricType;
+    private WSMetricMeasurement(ProjectVersionMeasurement measurement) {
+        this.id = measurement.getId();
+        this.targetId = measurement.getProjectVersion().getId();
+        this.metric = new WSMetric(measurement.getMetric());
+        this.whenRun = measurement.getWhenRun().getTime();
+        this.result = measurement.getResult();
     }
-    
+
+    public static WSMetricMeasurement createInstance(Object metricMeasurement) {
+        if (metricMeasurement instanceof ProjectFileMeasurement) {
+            return new WSMetricMeasurement((ProjectFileMeasurement)metricMeasurement);
+        } else if (metricMeasurement instanceof ProjectVersionMeasurement) {
+            return new WSMetricMeasurement((ProjectVersionMeasurement)metricMeasurement);
+        } else {
+            return null;
+        }
+    }
+
     public long getId() {
-        return metric.getId();
-    }
-    
-    public long getMetricTypeId() {
-        return metric.getMetricType().getId();
+        return id;
     }
 
-    public String getDescription() {
-        return metric.getDescription();
+    public String getResult() {
+        return result;
+    }
+
+    public WSMetric getMetric() {
+        return metric;
+    }
+
+    public long getWhenRun() {
+        return whenRun;
+    }
+
+    public long getTargetId() {
+        return targetId;
     }
 
 }

@@ -32,7 +32,6 @@
 
 package eu.sqooss.impl.service.web.services.datatypes;
 
-import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -42,12 +41,10 @@ import eu.sqooss.service.db.User;
 
 public class WSUser {
     
-	private SimpleDateFormat formater;
     private User securityUser;
     
     public WSUser(User securityUser) {
         this.securityUser = securityUser;
-        formater = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     }
     
     public long getId() {
@@ -62,12 +59,12 @@ public class WSUser {
     	return securityUser.getEmail();
     }
     
-    public String getRegistered() {
-    	return formater.format(securityUser.getRegistered());
+    public long getRegistered() {
+    	return securityUser.getRegistered().getTime();
     }
     
-    public String getLastActivity() {
-    	return formater.format(securityUser.getLastActivity());
+    public long getLastActivity() {
+    	return securityUser.getLastActivity().getTime();
     }
     
     public WSUserGroup[] getUserGroups() {

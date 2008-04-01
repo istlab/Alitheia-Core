@@ -89,14 +89,14 @@ public class ProjectManagerDatabase implements ProjectManagerDBQueries {
         Map<String, Object> queryParameters = new Hashtable<String, Object>(1);
         queryParameters.put(GET_FILE_LIST_4_PROJECT_VERSION_PARAM, projectVersionId);
         
-        return db.doHQL(GET_FILE_LIST_4_PROJECT_VERSION, queryParameters);
+        return db.doSQL(GET_FILE_LIST_4_PROJECT_VERSION, queryParameters);
     }
     
     public List<?> getFilesNumber4ProjectVersion(long projectVersionId) {
         Map<String, Object> queryParameters = new Hashtable<String, Object>(1);
         queryParameters.put(GET_FILES_NUMBER_4_PROJECT_VERSION_PARAM, projectVersionId);
         
-        return db.doHQL(GET_FILES_NUMBER_4_PROJECT_VERSION, queryParameters);
+        return db.doSQL(GET_FILES_NUMBER_4_PROJECT_VERSION, queryParameters);
     }
     
     public long createNewProject(StoredProject newProject, ProjectVersion newProjectVersion) {

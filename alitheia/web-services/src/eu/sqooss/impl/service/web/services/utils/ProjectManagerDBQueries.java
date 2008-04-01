@@ -32,6 +32,8 @@
 
 package eu.sqooss.impl.service.web.services.utils;
 
+import java.io.File;
+
 interface ProjectManagerDBQueries {
 
     public static final String EVALUATED_PROJECTS_LIST = "select sp " +
@@ -53,18 +55,50 @@ interface ProjectManagerDBQueries {
     
     public static final String GET_FILE_LIST_4_PROJECT_VERSION_PARAM = "project_ver";
     
-    public static final String GET_FILE_LIST_4_PROJECT_VERSION = "select pf " +
-                                                                 "from ProjectFile pf " +
-                                                                 "where pf.projectVersion.id=:" +
-                                                                 GET_FILE_LIST_4_PROJECT_VERSION_PARAM;
+    public static final String GET_FILE_LIST_4_PROJECT_VERSION = "select pf.project_file_id, d.path || '" + File.separator + 
+                                                                 "'       || head.fname, head.headrev, pf.file_status " +
+    		                                                     "from (select pf.directory_id as dir, " +
+    		                                                     "             pf.file_name as fname, " +
+    		                                                     "             max(pv.project_version_id) as headrev " +
+    		                                                     "      from project_file pf, project_version pv " +
+    		                                                     "      where pf.project_version_id=pv.project_version_id " +
+    		                                                     "            and pv.timestamp<= ( " +
+    		                                                     "                select pv2.timestamp " +
+    		                                                     "                from project_version pv2 " +
+    		                                                     "                where pv2.project_version_id=:" +
+    		                                                     GET_FILE_LIST_4_PROJECT_VERSION_PARAM +
+    		                                                     "                ) " +       
+    		                                                     "      group by pf.directory_id, pf.file_name) head," +
+    		                                                     "      project_file pf, directory d " +
+    		                                                     "where d.directory_id=pf.directory_id " +
+    		                                                     "      and head.dir=pf.directory_id " +
+    		                                                     "      and head.fname=pf.file_name " +
+    		                                                     "      and pf.project_version_id=head.headrev " +
+    		                                                     "      and pf.file_status<>'DELETED' " +
+    		                                                     "order by d.path, head.fname";
     
     
     public static final String GET_FILES_NUMBER_4_PROJECT_VERSION_PARAM = "project_ver";
     
-    public static final String GET_FILES_NUMBER_4_PROJECT_VERSION = "select count(pf)" +
-    		                                                        "from ProjectFile pf " +
-    		                                                        "where pf.projectVersion.id=:" +
-    		                                                        GET_FILES_NUMBER_4_PROJECT_VERSION_PARAM;
+    public static final String GET_FILES_NUMBER_4_PROJECT_VERSION = "select count(*) " +
+                                                                    "from (select pf.directory_id as dir, " +
+                                                                    "             pf.file_name as fname, " +
+                                                                    "             max(pv.project_version_id) as headrev " +
+                                                                    "      from project_file pf, project_version pv " +
+                                                                    "      where pf.project_version_id=pv.project_version_id " +
+                                                                    "            and pv.timestamp<= ( " +
+                                                                    "                select pv2.timestamp " +
+                                                                    "                from project_version pv2 " +
+                                                                    "                where pv2.project_version_id=:" +
+                                                                    GET_FILE_LIST_4_PROJECT_VERSION_PARAM +
+                                                                    "                ) " +       
+                                                                    "      group by pf.directory_id, pf.file_name) head," +
+                                                                    "      project_file pf, directory d " +
+                                                                    "where d.directory_id=pf.directory_id " +
+                                                                    "      and head.dir=pf.directory_id " +
+                                                                    "      and head.fname=pf.file_name " +
+                                                                    "      and pf.project_version_id=head.headrev " +
+                                                                    "      and pf.file_status<>'DELETED' ";
     
     
     public static final String GET_STORED_PROJECTS_PARAM_PR_NAME    = "project_name";

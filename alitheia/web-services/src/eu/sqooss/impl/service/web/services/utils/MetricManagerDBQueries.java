@@ -95,6 +95,31 @@ interface MetricManagerDBQueries {
                                                                         " and pv.project.id=:" +
                                                                         RETRIEVE_METRICS_4_SELECTED_FILES_PARAM_PR;
     
+    
+    public static final String GET_PROJECT_FILE_METRIC_MEASUREMENT_PARAM_FILE   = "project_file_id";
+    
+    public static final String GET_PROJECT_FILE_METRIC_MEASUREMENT_PARAM_METRIC = "metric_id";
+    
+    public static final String GET_PROJECT_FILE_METRIC_MEASUREMENT = "select m " + 
+                                                                     "from ProjectFileMeasurement m " +
+                                                                     "where m.projectFile.id=:" +
+                                                                     GET_PROJECT_FILE_METRIC_MEASUREMENT_PARAM_FILE + " " +
+                                                                     " and m.metric.id=:" +
+                                                                     GET_PROJECT_FILE_METRIC_MEASUREMENT_PARAM_METRIC;
+    
+    
+    public static final String GET_PROJECT_VERSION_METRIC_MEASUREMENT_PARAM_VERSION   = "project_file_id";
+    
+    public static final String GET_PROJECT_VERSION_METRIC_MEASUREMENT_PARAM_METRIC    = "metric_id";
+    
+    public static final String GET_PROJECT_VERSION_METRIC_MEASUREMENT = "select m " + 
+                                                                        "from ProjectVersionMeasurement m " +
+                                                                        "where m.projectVersion.id=:" +
+                                                                        GET_PROJECT_VERSION_METRIC_MEASUREMENT_PARAM_VERSION + " " +
+                                                                        " and m.metric.id=:" +
+                                                                        GET_PROJECT_VERSION_METRIC_MEASUREMENT_PARAM_METRIC;
+    
+    
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

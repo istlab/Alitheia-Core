@@ -40,6 +40,7 @@ import java.util.Map;
 import java.util.Set;
 
 import eu.sqooss.impl.service.web.services.datatypes.WSMetric;
+import eu.sqooss.impl.service.web.services.datatypes.WSMetricMeasurement;
 import eu.sqooss.impl.service.web.services.utils.MetricManagerDatabase;
 import eu.sqooss.impl.service.web.services.utils.SecurityWrapper;
 import eu.sqooss.service.db.DBService;
@@ -130,6 +131,30 @@ public class MetricManager {
         return convertToWSMetrics(result);
     }
     
+    public WSMetricMeasurement[] getProjectFileMetricMeasurement(String userName, String password,
+            long metricId, long projectFileId) {
+        
+        logger.info("Get project file metric measurement! user: " + userName +
+                "; metric id: " + metricId + "; project file id: " + projectFileId);
+        
+        securityWrapper.checkMetricReadAccess(userName, password, metricId);
+        
+        return convertToWSMetricMeasurements(
+                dbWrapper.getProjectFileMetricMeasurement(metricId, projectFileId));
+    }
+    
+    public WSMetricMeasurement[] getProjectVersionMetricMeasurement(String userName, String password,
+            long metricId, long projectVersionId) {
+        
+        logger.info("Get project version metric measurement! user: " + userName +
+                "; metric is: " + metricId + "; project version id: " + projectVersionId);
+        
+        securityWrapper.checkMetricReadAccess(userName, password, metricId);
+        
+    	return convertToWSMetricMeasurements(
+    	        dbWrapper.getProjectVersionMetricMeasurement(metricId, projectVersionId));
+    }
+    
     private WSMetric[] convertToWSMetrics(List<?> metricsWithTypes) {
         WSMetric[] result = null;
         if ((metricsWithTypes != null) && (metricsWithTypes.size() != 0)) {
@@ -138,6 +163,19 @@ public class MetricManager {
             for (int i = 0; i < result.length; i++) {
                 currentElem = (Object[]) metricsWithTypes.get(i);
                 result[i] = new WSMetric((Metric) currentElem[0], (MetricType) currentElem[1]);
+            }
+        }
+        return result;
+    }
+    
+    private WSMetricMeasurement[] convertToWSMetricMeasurements(List<?> measurements) {
+        WSMetricMeasurement[] result = null;
+        if ((measurements != null) && (measurements.size() != 0)) {
+            result = new WSMetricMeasurement[measurements.size()];
+            Object currentElem;
+            for (int i = 0; i < result.length; i++) {
+                currentElem = measurements.get(i);
+                result[i] = WSMetricMeasurement.createInstance(currentElem);
             }
         }
         return result;

@@ -83,6 +83,20 @@ public class MetricManagerDatabase implements MetricManagerDBQueries {
                 folderNameParameters);
     }
     
+    public List<?> getProjectFileMetricMeasurement(long metricId, long projectFileId) {
+        Map<String, Object> params = new Hashtable<String, Object>(2);
+        params.put(GET_PROJECT_FILE_METRIC_MEASUREMENT_PARAM_FILE, projectFileId);
+        params.put(GET_PROJECT_FILE_METRIC_MEASUREMENT_PARAM_METRIC, metricId);
+        return db.doHQL(GET_PROJECT_FILE_METRIC_MEASUREMENT, params);
+    }
+    
+    public List<?> getProjectVersionMetricMeasurement(long metricId, long projectVersionId) {
+        Map<String, Object> params = new Hashtable<String, Object>(2);
+        params.put(GET_PROJECT_VERSION_METRIC_MEASUREMENT_PARAM_VERSION, projectVersionId);
+        params.put(GET_PROJECT_VERSION_METRIC_MEASUREMENT_PARAM_METRIC, metricId);
+        return db.doHQL(GET_PROJECT_VERSION_METRIC_MEASUREMENT, params);
+    }
+    
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
