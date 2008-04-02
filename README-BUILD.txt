@@ -74,6 +74,23 @@ settings here would be appropriate to a FreeBSD system):
 PREFIX=/usr/local/www/data/alitheia
 MAVEN_CMD=/usr/local/bin/mvn
 
+On Windows, you can use cygwin or just MSYS to get a sh command interpreter
+with the basic tools. Note that the version of GNU make shipped with MSYS
+might be too old (you need GNU make version 3.81 or higher), so you 
+will need to download and install the newer version manually (it's
+available from the MSYS website as a separate package). Then you need to
+adjust the style of paths returned by pwd, to return windows-style paths
+instead of unix-style paths, since maven expects windows paths when
+locating and installing plugins. You can do so by adding the
+following line to your Makefile.config.local :
+
+PWD_CMD=pwd -W
+
+For Maven on Windows, just download the binary package from the Maven
+website and follow the windows installation instructions on the same page.
+It's recommended to add the Maven bin dir to the PATH env var in windows
+then just set MAVEN_CMD=mvn in Makefile.config.local
+
 The first time you compile the Alitheia sources, you should use
 the make-based build system to build and install the system (just once)
 to the default location. Remove any setting of PREFIX from the
