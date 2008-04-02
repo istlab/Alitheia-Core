@@ -89,7 +89,13 @@ ProjectVersion::operator CORBA::Any() const
     return any;
 }
 
+std::vector< ProjectFile > ProjectVersion::getVersionFiles() const
+{
+    return Core::instance()->getVersionFiles( *this );
+}
 
+namespace Alitheia
+{
 class ProjectFileBuffer : public stringbuf
 {
 public:
@@ -115,6 +121,7 @@ private:
     const ProjectFile* const file;
     bool read;
 };
+}
 
 ProjectFile::ProjectFile()
     : istream( new ProjectFileBuffer( this ) ),

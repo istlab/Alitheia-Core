@@ -158,15 +158,30 @@ bool Core::addSupportedMetrics( AbstractMetric* metric, const std::string& descr
                                          static_cast< alitheia::MetricTypeType >( type ) );
 }
 
-std::vector< Metric > Core::getSupportedMetrics( const AbstractMetric* metric ) const
+vector< Metric > Core::getSupportedMetrics( const AbstractMetric* metric ) const
 {
     const alitheia::MetricList& metrics = *(d->core->getSupportedMetrics( CORBA::string_dup( metric->orbName().c_str() ) ));
 
-    std::vector< Metric > result;
+    vector< Metric > result;
 
     const uint length = metrics.length();
     for( uint i = 0; i < length; ++i )
         result.push_back( Metric( metrics[ i ] ) );
+
+    return result;
+}
+
+vector< ProjectFile > Core::getVersionFiles( const ProjectVersion& version ) const
+{
+    const alitheia::ProjectFileList& files = *(d->core->getVersionFiles( version.toCorba() ) );
+
+    vector< ProjectFile > result;
+
+    const uint length = files.length();
+    for( uint i = 0; i < length; ++i )
+    {
+        result.push_back( ProjectFile( files[ i ] ) );
+    }
 
     return result;
 }

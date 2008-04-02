@@ -11,8 +11,6 @@ import org.osgi.framework.ServiceReference;
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.fds.FDSService;
 
-import eu.sqooss.service.db.ProjectFile;
-
 import eu.sqooss.impl.service.CorbaActivator;
 import eu.sqooss.impl.service.corba.alitheia.db.DAObject;
 import eu.sqooss.impl.service.corba.alitheia.CorePOA;
@@ -30,6 +28,8 @@ import eu.sqooss.impl.service.corba.alitheia.FileGroupMetric;
 import eu.sqooss.impl.service.corba.alitheia.FileGroupMetricHelper;
 import eu.sqooss.impl.service.corba.alitheia.Metric;
 import eu.sqooss.impl.service.corba.alitheia.MetricTypeType;
+import eu.sqooss.impl.service.corba.alitheia.ProjectFile;
+import eu.sqooss.impl.service.corba.alitheia.ProjectVersion;
 import eu.sqooss.impl.service.corba.alitheia.job.CorbaJobImpl;
 
 import eu.sqooss.impl.metrics.corba.CorbaMetricImpl;
@@ -141,7 +141,7 @@ public class CoreImpl extends CorePOA {
     }
   
 
-    public int getFileContents(eu.sqooss.impl.service.corba.alitheia.ProjectFile file, org.omg.CORBA.StringHolder contents) {
+    public int getFileContents(ProjectFile file, org.omg.CORBA.StringHolder contents) {
         byte[] content = null;
         try {
             content = fds.getFileContents(DAObject.fromCorbaObject(file));
@@ -173,5 +173,16 @@ public class CoreImpl extends CorePOA {
     public boolean addSupportedMetrics(String metricname, String description, MetricTypeType type) {
         CorbaMetricImpl metric = registeredMetrics.get(metricname);
         return metric.doAddSupportedMetrics(description, DAObject.fromCorbaObject(type));
+    }
+  
+    public ProjectFile[] getVersionFiles (ProjectVersion version) {
+        List<eu.sqooss.service.db.ProjectFile> files = DAObject.fromCorbaObject(version).getVersionFiles();
+
+        ProjectFile[] result = new ProjectFile[files.size()];
+        for( int i = 0; i < files.size(); ++i ) {
+            result[ i ] = DAObject.toCorbaObject(files.get(i));
+        }
+
+        return result;
     }
 }

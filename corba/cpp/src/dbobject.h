@@ -66,6 +66,7 @@ namespace Alitheia
         std::string path;
     };
 
+    class ProjectFile;
     class ProjectVersion : public DAObject
     {
     public:
@@ -74,6 +75,8 @@ namespace Alitheia
         
         eu::sqooss::impl::service::corba::alitheia::ProjectVersion toCorba() const;
         operator CORBA::Any() const;
+
+        std::vector< ProjectFile > getVersionFiles() const;
 
         StoredProject project;
         int version;
@@ -88,7 +91,7 @@ namespace Alitheia
     public:
         ProjectFile();
         explicit ProjectFile( const eu::sqooss::impl::service::corba::alitheia::ProjectFile& file );
-        explicit ProjectFile( const ProjectFile& other );
+        ProjectFile( const ProjectFile& other );
         ~ProjectFile();
 
         eu::sqooss::impl::service::corba::alitheia::ProjectFile toCorba() const;

@@ -143,6 +143,8 @@ module alitheia
 
     boolean addSupportedMetrics( in string metricname, in string description, in MetricTypeType type );
     MetricList getSupportedMetrics( in string metricname );
+
+    ProjectFileList getVersionFiles( in ProjectVersion version );
   };
 
   interface Database

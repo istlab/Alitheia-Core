@@ -9,6 +9,8 @@ namespace Alitheia
 {
     class Job;
     class AbstractMetric;
+    class ProjectVersion;
+    class ProjectFileBuffe;
 
     /**
      * @brief The main connection to register metrics in the Alitheia system.
@@ -20,6 +22,7 @@ namespace Alitheia
     {
         friend class AbstractMetric;
         friend class Job;
+        friend class ProjectVersion;
         friend class ProjectFileBuffer;
 
     protected:
@@ -83,14 +86,15 @@ namespace Alitheia
          */
         void enqueueJob( Job* job );
         
-        std::string getFileContents( const ProjectFile& file );
-   
     protected:
         void addJobDependency( Job* job, Job* dependency );
         void waitForJobFinished( Job* job );
+        
+        std::string getFileContents( const ProjectFile& file );
 
         bool addSupportedMetrics( AbstractMetric* metric, const std::string& description, MetricType::Type type ) const;
         std::vector< Metric > getSupportedMetrics( const AbstractMetric* metric ) const;
+        std::vector< ProjectFile > getVersionFiles( const ProjectVersion& version ) const;
 
     private:
         class Private;

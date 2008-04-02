@@ -33,7 +33,11 @@
 
 package eu.sqooss.service.db;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import eu.sqooss.impl.service.CoreActivator;
 
 public class ProjectVersion extends DAObject {
     private StoredProject project;
@@ -64,8 +68,23 @@ public class ProjectVersion extends DAObject {
     }
     
     public List<ProjectFile> getVersionFiles() {
-        //TODO: implement
-        return null;
+        DBService dbs = CoreActivator.getDBService();
+        
+        String paramVersionId = "project_version_id";
+        String query = "select pf " +
+                       "from ProjectFile pf " +
+                       "where pf.projectVersion.id=:" +
+                       paramVersionId;
+
+        Map<String,Object> parameters = new HashMap<String,Object>();
+        parameters.put(paramVersionId, this.getId());
+        
+        List<?> projectFiles = dbs.doHQL(query, parameters);
+        if ((projectFiles == null) || (projectFiles.size() == 0)) {
+            return null;
+        } else {
+            return (List<ProjectFile>) projectFiles;
+        }
     }
     
     public ProjectFile addProjectFile() {
