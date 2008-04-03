@@ -543,6 +543,9 @@ public class AdminServlet extends HttpServlet {
     private void addProject(HttpServletRequest request) {
         resetSubstitutions();
 
+        final String tryAgain = "<p><a href=\"/projects\">Try again</a>.</p>";
+        final String returnToList = "<p><a href=\"/projects\">Try again</a>.</p>";
+
         String name = request.getParameter("name");
         String website = request.getParameter("website");
         String contact = request.getParameter("contact");
@@ -550,13 +553,20 @@ public class AdminServlet extends HttpServlet {
         String mail = request.getParameter("mail");
         String scm = request.getParameter("scm");
 
+        // Avoid missing-entirely kinds of parameters.
         if ( (name == null) ||
             (website == null) ||
             (contact == null) ||
           /*  (bts == null) || FIXME: For now, BTS and Mailing lists can be empty
             (mail == null) || */
             (scm == null) ) {
-            dynamicSubstitutions.put("@@RESULTS","<p>Add project failed because some of the required information was missing.</p>");
+            dynamicSubstitutions.put("@@RESULTS","<p>Add project failed because some of the required information was missing.</p>" + tryAgain);
+            return;
+        }
+
+        // Avoid adding projects with empty names or SVN.
+        if (name.trim().isEmpty() || scm.trim().isEmpty()) {
+            dynamicSubstitutions.put("@@RESULTS","<p>Add project failed because the project name or Subversion repository were missing.</p>" + tryAgain);
             return;
         }
 
@@ -580,9 +590,9 @@ public class AdminServlet extends HttpServlet {
                 //Duplicate project, remove
                 sobjDB.deleteRecord(sobjDB.findObjectById(StoredProject.class, p.getId()));
                 sobjLogger.warn("A project with the same name already exists");
-                dynamicSubstitutions.put("@@RESULTS","<p> ERROR: A project" +
-                        " with the same name already exists</p> " +
-                        "Project not added");
+                dynamicSubstitutions.put("@@RESULTS","<p>ERROR: A project" +
+                        " with the same name (" + p.getName() + ") already exists. " +
+                        "Project not added.</p>" + tryAgain);
                 return;
             }
             
@@ -604,10 +614,10 @@ public class AdminServlet extends HttpServlet {
                 }
             } catch (InvalidRepositoryException e) {
                 sobjLogger.warn("Error accessing repository. Project not added");
-                dynamicSubstitutions.put("@@RESULTS","<p> ERROR: accessing " +
-                		"repository:" + p.getRepository() + "</p>" +
-                		" Project not added");
-              //Invalid repository, remove and remove accessor
+                dynamicSubstitutions.put("@@RESULTS","<p>ERROR: Can not access " +
+                		"repository: &lt;" + p.getRepository() + "&gt;," +
+                		" project not added.</p>" + tryAgain);
+                //Invalid repository, remove and remove accessor
                 sobjDB.deleteRecord(sobjDB.findObjectById(StoredProject.class, p.getId()));
                 sobjTDS.releaseAccessor(a);
                 return;
@@ -619,13 +629,15 @@ public class AdminServlet extends HttpServlet {
             if (sobjUpdater.update(p, UpdaterService.UpdateTarget.ALL, null)) {
                 sobjLogger.info("Added a new project <" + name + "> with ID " +
                         p.getId());
-                dynamicSubstitutions.put("@@RESULTS","<p>New project added successfully.</p>");
+                dynamicSubstitutions.put("@@RESULTS","<p>New project added successfully.</p>" +
+                    returnToList);
             }
             else {
                 sobjLogger.warn("The updater failed to start while adding project");
                 sobjDB.deleteRecord(sobjDB.findObjectById(StoredProject.class, p.getId()));
-                dynamicSubstitutions.put("@@RESULTS","<p> ERROR: The updater failed " +
-                        "to start while adding project</p> Project not added");
+                dynamicSubstitutions.put("@@RESULTS","<p>ERROR: The updater failed " +
+                        "to start while adding project. Project was not added.</p>" +
+                        tryAgain);
             }
         }
     }
@@ -638,15 +650,18 @@ public class AdminServlet extends HttpServlet {
             if ("/addproject".equals(request.getPathInfo())) {
                 addProject(request);
                 // addProject() has filled in the substitutions by now
+                dynamicSubstitutions.put("@@ACTIVE","class=\"section-3\"");
                 sendTemplate(response,"/results.html",dynamicSubstitutions);
             } else if ("/stop".equals(request.getPathInfo())) {
                 dynamicSubstitutions.put("@@RESULTS", "<p>Alitheia Core is now shutdown.</p>");
+                dynamicSubstitutions.put("@@ACTIVE","class=\"section-1\"");
                 sendTemplate(response,"/results.html",dynamicSubstitutions);
                 // Stop the system
                 sobjLogger.info("System stopped by user request to webadmin.");
                 bundlecontext.getBundle(0).stop();
             } else if ("/restart".equals(request.getPathInfo())) {
                 dynamicSubstitutions.put("@@RESULTS", "<p>Alitheia Core is now restarting. Please wait.</p>");
+                dynamicSubstitutions.put("@@ACTIVE","class=\"section-1\"");
                 startTime = new Date().getTime();
                 sobjLogger.warn("BOGUS system restart by user request to webadmin.");
                 sendTemplate(response,"/results.html",dynamicSubstitutions);
