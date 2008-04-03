@@ -35,10 +35,7 @@
 # The top of the source tree. That's here.
 TOP_SRCDIR=.
 # Subdirectories that need special building.
-# Note that ui/ is not included here.
-# 
-# TODO: Add ui/ to the build.
-SUBDIRS=sqoossrepo sharedlibs alitheia metrics corba
+SUBDIRS=sqoossrepo sharedlibs alitheia metrics corba ui
 
 ###
 #
