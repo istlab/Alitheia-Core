@@ -21,13 +21,23 @@
 	</ul>
 
 	<div id="contents">
-        <fieldset id="newproject">
-          <legend>Install new project</legend>
+          <fieldset id="newproject">
+            <legend>Install new project</legend>
             <form id="addproject" method="post" action="addproject">
               <table>
                 <tr>
                   <td>Project Name:</td>
                   <td><input name="name" type="text" class="form" /></td>
+<!-- TODO: this kind of texts needs i18n support -->
+		  <td rowspan="6" valign="top">Enter project information here. The project name
+		  is a human-readable short name for the project and is displayed
+		  to users, so use the common name for it. Website is the main
+		  project website for that project and is also displayed
+		  to users. Contact is for the project contact and not
+		  displayed for users; usually you enter a sysadmin address.<br/><br/>
+		  Bugs, mail and subversion refer to the Alitheia data stores
+		  for each of the project data types.
+		  </td>
                 </tr>
                 <tr>
                   <td>Website:</td>
@@ -56,8 +66,8 @@
               </table>
             </form>
           </fieldset>
-          <h2>Installed Projects</h2>
           <div id="projectlist">
+            <h2>Installed Projects</h2>
             <ul>
               @@PROJECTS
             </ul>

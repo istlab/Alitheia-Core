@@ -205,6 +205,10 @@ body.section-4 #menu li#nav-4 a {
 	background: url(/greyBack.jpg) top repeat-x; 
 }
 
+#projectlist {
+	clear : left;
+}
+
 /* Sidebar Content */
 
 form p {
