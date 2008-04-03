@@ -29,8 +29,8 @@ Therefore, the build system for Alitheia is a two-stage affair:
 - Make invokes Maven for building the Java parts
 
 You will find Makefiles and POM files in most of the source directories.
-Often the Makefiles have nothing buy a build target that invokes Maven;
-this accomodates UNIX dinosaurs who like to run 'make' from the command
+Often the Makefiles have nothing but a build target that invokes Maven;
+this accommodates UNIX dinosaurs who like to run 'make' from the command
 line and watch what happens.
 
 The design goals for the build system as a whole are:
@@ -42,7 +42,7 @@ The design goals for the build system as a whole are:
 As a consequence, there are no Makefiles down in the actual Java sources,
 but only at the level of whole bundles.
 
-You must run the make-based build system at least once to initialize
+You must run the make-based build system at least once to initialise
 all the Maven bits properly. See the 'Build with Make' section; you
 will probably need to run
 
@@ -80,7 +80,7 @@ might be too old (you need GNU make version 3.81 or higher), so you
 will need to download and install the newer version manually (it's
 available from the MSYS website as a separate package). Then you need to
 adjust the style of paths returned by pwd, to return windows-style paths
-instead of unix-style paths, since maven expects windows paths when
+instead of UNIX-style paths, since maven expects windows paths when
 locating and installing plugins. You can do so by adding the
 following line to your Makefile.config.local :
 
@@ -126,3 +126,4 @@ show-log
 
 Intermediate levels of the source tree have targets 'build', 'install' and
 'clean'
+
