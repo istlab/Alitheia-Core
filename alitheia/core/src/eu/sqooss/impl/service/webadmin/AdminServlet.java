@@ -453,7 +453,7 @@ public class AdminServlet extends HttpServlet {
         dynamicSubstitutions.put("@@LOGO","<img src='/logo' id='logo' alt='Logo' />");
         dynamicSubstitutions.put("@@COPYRIGHT","Copyright 2007-2008 <a href=\"http://www.sqo-oss.eu/about/\">SQO-OSS Consortium Members</a>");
         dynamicSubstitutions.put("@@GETLOGS", renderList(sobjLogManager.getRecentEntries()));
-        dynamicSubstitutions.put("@@PROJECTS", listProjects());
+        dynamicSubstitutions.put("@@PROJECTS", renderProjects());
         dynamicSubstitutions.put("@@BUNDLE", renderBundles());
         dynamicSubstitutions.put("@@UPTIME",getUptime());
         dynamicSubstitutions.put("@@QUEUE_LENGTH", String.valueOf(sobjSched.getSchedulerStats().getWaitingJobs()));
@@ -507,7 +507,7 @@ public class AdminServlet extends HttpServlet {
         }
     }
 
-    private String listProjects() {
+    private String renderProjects() {
         List<StoredProject> l = sobjDB.doHQL("from StoredProject");
         
         if (l == null) {
@@ -522,16 +522,19 @@ public class AdminServlet extends HttpServlet {
             s.append(p.getName());
             s.append(" ([id=");
             s.append(p.getId());
-            s.append("]) Update:");
+            s.append("]) <br/>Update:");
             for (String updTarget: UpdaterService.UpdateTarget.toStringArray()) {
                 s.append("<a href=\"http://localhost:8088/updater?project=");
                 s.append(p.getName());
                 s.append("&target=");
                 s.append(updTarget);
-                s.append("\">");
+                s.append("\" title=\"Tell the updater to check for new data in this category.\">");
                 s.append(updTarget);
                 s.append("</a>&nbsp");
             }
+	    s.append("<br/>Sites: <a href=\"");
+	    s.append(p.getWebsite());
+	    s.append("\">Website</a>&nbsp;Alitheia Reports");
             s.append("</li>");
         }
         return s.toString();
