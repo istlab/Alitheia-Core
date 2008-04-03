@@ -565,7 +565,7 @@ public class AdminServlet extends HttpServlet {
         }
 
         // Avoid adding projects with empty names or SVN.
-        if (name.trim().isEmpty() || scm.trim().isEmpty()) {
+        if (name.trim().length() == 0 || scm.trim().length() == 0) {
             dynamicSubstitutions.put("@@RESULTS","<p>Add project failed because the project name or Subversion repository were missing.</p>" + tryAgain);
             return;
         }
