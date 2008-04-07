@@ -61,6 +61,13 @@ public class MailingListEvent extends ProjectEvent {
     public void setAssociatedDAO(MailMessage associatedDAO) {
         this.associatedDAO = associatedDAO;
     }
+
+    /**
+     * @return 1, the priority for mailing list events
+     */
+    public int eventPriority() {
+        return 1;
+    }
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

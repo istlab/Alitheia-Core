@@ -42,8 +42,8 @@ import eu.sqooss.service.db.DAObject;
  * resources describing a project event.  
  * 
  */
-public abstract class ProjectEvent {
-
+public abstract class ProjectEvent implements Comparable<ProjectEvent> {
+    
     /**
      * Second-accurate timestamp
      */
@@ -73,25 +73,37 @@ public abstract class ProjectEvent {
     }
 
     /**
-     * @param timestamp the timestamp to set
-     */
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    /**
      * @return the resourceURL
      */
     public URL getResourceURL() {
         return resourceURL;
     }
-
+    
     /**
-     * @param resourceURL the resourceURL to set
+     * @return an integer representing the "priority" of the event.
+     * This value is used to further sort events with identical timestamps.
      */
-    public void setResourceURL(URL resourceURL) {
-        this.resourceURL = resourceURL;
+    public abstract int eventPriority();
+    
+    /**
+     * Compare events using the following discriminants in order :
+     * timestamp -> priority -> URL
+     * @return -1/0/1 if the event is more prioritary/equal/less prioritary than other
+     */
+    public int compareTo(ProjectEvent other)
+    {
+        if ( getTimestamp() == other.getTimestamp() ) {
+            if ( eventPriority() == other.eventPriority() ) {
+                // The URL embeds the identifier, and it should be the only
+                // difference between the two project events at this point
+                return getResourceURL().toString().compareTo( 
+                        other.getResourceURL().toString() );
+            }
+            return eventPriority() > other.eventPriority() ? 1 : -1;
+        }
+        return getTimestamp() > other.getTimestamp() ? 1 : -1;
     }
+
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

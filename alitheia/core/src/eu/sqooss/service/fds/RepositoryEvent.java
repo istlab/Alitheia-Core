@@ -61,6 +61,13 @@ public class RepositoryEvent extends ProjectEvent {
     public void setAssociatedDAO(ProjectVersion associatedDAO) {
         this.associatedDAO = associatedDAO;
     }
+
+    /**
+     * @return 0, the priority for repository events (highest)
+     */
+    public int eventPriority() {
+        return 0;
+    }
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

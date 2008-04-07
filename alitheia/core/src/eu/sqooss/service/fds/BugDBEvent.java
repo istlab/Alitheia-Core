@@ -61,6 +61,13 @@ public class BugDBEvent extends ProjectEvent {
     public void setAssociatedDAO(Bug associatedDAO) {
         this.associatedDAO = associatedDAO;
     }
+    
+    /**
+     * @return 2, the priority for bug events
+     */
+    public int eventPriority() {
+        return 2;
+    }
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
