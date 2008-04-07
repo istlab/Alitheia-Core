@@ -61,7 +61,7 @@ public interface Timeline {
     
     /* Yes, we have this all over the place */
     public enum EventType {
-        SVN,
+        SCM,
         MAIL,
         BTS, 
         ALL
