@@ -66,26 +66,27 @@ class TimelineImpl implements Timeline {
         this.project = project;
     }
 
-    private SortedSet<RepositoryEvent> getSvnTimeLine(Calendar from, Calendar to) {
+    private SortedSet<RepositoryEvent> getScmTimeLine(Calendar from, Calendar to) {
         SortedSet<RepositoryEvent> result = new TreeSet<RepositoryEvent>();
         
-        final long begin = (long)(from.getTime().getTime());
-        final long end = (long)(to.getTime().getTime());
+        final long begin = from.getTimeInMillis();
+        final long end = to.getTimeInMillis();
 
         // get all versions
         List<ProjectVersion> versions = project.getProjectVersions();
         for(ProjectVersion version : versions) {
-            // compare the version's timestop to \a from ond \a to
             if (version.getTimestamp() < begin || version.getTimestamp() > end)
                 continue;
-            // TODO: How to I create the URL?
             URL url = null;
             try {
-                url = new URL("repo://...");
+                url = new URL( "repo://"
+                             + project.getName() + "/"
+                             + version.getVersion() + "/"
+                             + version.getVersionFiles().get(0).getFileName() );
+
+                result.add(new RepositoryEvent(version.getTimestamp(), url, version));
             } catch(MalformedURLException e) {
             }
-
-            result.add(new RepositoryEvent(version.getTimestamp(), url, version));
         }
 
         return result;
@@ -96,7 +97,8 @@ class TimelineImpl implements Timeline {
         
         final Date begin = from.getTime();
         final Date end = to.getTime();
-
+        Calendar cal = Calendar.getInstance();
+        
         // get all watched mailing lists
         List<MailingList> lists = null;
         try {
@@ -107,21 +109,28 @@ class TimelineImpl implements Timeline {
             for (MailingList list : lists) {
                 // get all messages
                 List<MailMessage> messages = list.getMessages();
-                // compare the version's timestop to \a from ond \a to
                 for (MailMessage message : messages)
                 {
-                    // compare the messages's timestop to \a from ond \a to
-                    if (message.getSendDate().before(begin) || message.getSendDate().after(end))
+                    if (message.getSendDate().before(begin) ||
+                        message.getSendDate().after(end))
                         continue;
-
-                    // TODO: Create the URL...
+                    cal.setTime(message.getSendDate());
                     URL url = null;
                     try {
-                        url = new URL("mail://...");
+                        url = new URL( "mail://"
+                                     + project.getName() + "/"
+                                     + list.getListId() + "/"
+                                     + cal.get(Calendar.YEAR) + "/"
+                                     + cal.get(Calendar.MONTH) + "/"
+                                     + cal.get(Calendar.DATE) + "/"
+                                     + message.getMessageId() );
+                        result.add(
+                            new MailingListEvent( message.getSendDate().getTime(),
+                                                  url,
+                                                  message ) );
                     } catch(MalformedURLException e) {
                     }
 
-                    result.add(new MailingListEvent((long)message.getSendDate().getTime(), url, message));
                 }
             }
         }
@@ -140,8 +149,8 @@ class TimelineImpl implements Timeline {
     public SortedSet<ProjectEvent> getTimeLine(Calendar from, Calendar to, EventType rt) {
         SortedSet<ProjectEvent> result = new TreeSet<ProjectEvent>();
 
-        if (rt==EventType.SVN || rt==EventType.ALL) {
-            result.addAll(getSvnTimeLine(from, to));
+        if (rt==EventType.SCM || rt==EventType.ALL) {
+            result.addAll(getScmTimeLine(from, to));
         }
         if( rt==EventType.MAIL || rt==EventType.ALL) {
             result.addAll(getMailTimeLine(from, to));
