@@ -33,6 +33,13 @@
 
 package eu.sqooss.impl.service.updater;
 
+import org.dom4j.Document;
+import org.dom4j.Element;
+import org.dom4j.DocumentException;
+import org.dom4j.io.SAXReader;
+
+import java.util.Iterator;
+
 import eu.sqooss.service.db.DBService;
 
 import eu.sqooss.service.logging.Logger;
@@ -43,6 +50,7 @@ import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.updater.UpdaterException;
 import eu.sqooss.service.scheduler.Job;
 
+import eu.sqooss.service.db.Bug;
 
 /** 
  * Provides the entrypoint for updating bug-related data.
@@ -98,6 +106,25 @@ public class BugUpdater extends Job {
     public void doUpdate() throws UpdaterException {	
     }
 
+        public static void processBugs() throws UpdaterException {
+        SAXReader reader = new SAXReader();
+        Document document = null;
+
+        try {
+            document = reader.read("asdasd");
+        } catch (DocumentException dex) {
+            throw new UpdaterException(dex.getMessage());
+        }
+        
+        Element root = document.getRootElement();
+
+        for (Iterator i = root.elementIterator("bug"); i.hasNext(); ) {
+            Element element = (Element) i.next();
+            Bug bug = new Bug();
+            String description = element.element("short_desc").getStringValue();
+        }
+    }
+    
     @Override
     public int priority() {
         return 1;
