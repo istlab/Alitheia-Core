@@ -18,10 +18,12 @@ if (!loggedIn) {
     <script language="JavaScript">
     var registerShown = false;
     
-    function showRegister(id) {
+    function showRegister(table,button) {
       var displayType = (registerShown) ? 'none' : '';
-      document.getElementById(id).rows[2].style.display = displayType;
-      document.getElementById(id).rows[3].style.display = displayType;
+      var buttonValue = (registerShown) ? 'Sign in' : 'Register';
+      document.getElementById(table).rows[2].style.display = displayType;
+      document.getElementById(table).rows[3].style.display = displayType;
+      document.getElementById(button).value = buttonValue;
       registerShown = !registerShown;
     }
     
@@ -54,11 +56,11 @@ if (!loggedIn) {
             </td>
         </tr>
         <tr>
-            <td colspan="2">
-                &nbsp;
-                <input type="submit" value="Sign in" class="form" />
-                <input type="button" value="Register" class="form"
-                    onclick="javascript:showRegister('registerForm')"/>
+            <td>&nbsp;</td>
+            <td align="right">
+                <input type="submit" value="Sign in" class="form" id="loginButton"/>
+                <input type="button" value="New user" class="form"
+                    onclick="javascript:showRegister('registerForm','loginButton')"/>
             </td>
         </tr>
     </table>
