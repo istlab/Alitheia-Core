@@ -93,6 +93,7 @@
   <modules>
     <module>wc</module>
     <module>productivity-metric</module>
+    <module>skeleton</module>
   </modules>
 </project>
 

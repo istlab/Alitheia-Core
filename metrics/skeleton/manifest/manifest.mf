@@ -1,11 +1,11 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Wc metric plug-in
-Bundle-SymbolicName: eu.sqooss.metric.wc
+Bundle-Name: 
+Bundle-SymbolicName: eu.sqooss.metric.skeleton
 Bundle-Version: 0.0.1
-Bundle-Activator: eu.sqooss.impl.service.WcActivator
+Bundle-Activator: eu.sqooss.impl.service.SkeletonActivator
 Bundle-Vendor: AUEB
-Bundle-Description: Line counting metric
+Bundle-Description: Skeleton metric
 Import-Package:  org.osgi.framework,
     eu.sqooss.service.logging,
     eu.sqooss.service.tds,

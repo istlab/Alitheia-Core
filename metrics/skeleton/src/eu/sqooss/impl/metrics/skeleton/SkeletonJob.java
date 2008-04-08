@@ -30,10 +30,28 @@
  *
  */
 
-package eu.sqooss.metrics.wc;
+package eu.sqooss.impl.metrics.skeleton;
 
-import eu.sqooss.service.abstractmetric.ProjectFileMetric;
+import eu.sqooss.service.abstractmetric.AbstractMetric;
+import eu.sqooss.service.abstractmetric.AbstractMetricJob;
 
-public interface Wc extends ProjectFileMetric {
-    
+public class SkeletonJob extends AbstractMetricJob {
+
+    // Reference to the metric that created this job
+    AbstractMetric parent = null;
+
+    public SkeletonJob(AbstractMetric owner) {
+        super(owner);
+        parent = owner;
+    }
+
+    public int priority() {
+        return 0xbeef;
+    }
+
+    public void run() {  
+      
+    }
 }
+
+//vi: ai nosi sw=4 ts=4 expandtab

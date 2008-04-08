@@ -1,34 +1,199 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <chapter id="devel">
-<title>Developing for SQO-OSS</title>
-<sect1 id="devel:arch">
+  <title>Developing for SQO-OSS</title>
+  <sect1 id="devel:arch">
     <title>Architectural Overview</title>
     <para></para>
-     <sect2 id="devel:arch:tds">
-        <title>Thin Data Access - TDS</title>
-        <para></para>
+    <sect2 id="devel:arch:tds">
+      <title>Thin Data Access - TDS</title>
+      <para></para>
     </sect2>
     <sect2 id="devel:arch:fds">
-        <title>Fat Data Access - FDS</title>
-        <para></para>
+      <title>Fat Data Access - FDS</title>
+      <para></para>
     </sect2>
     <sect2 id="devel:arch:db">
-        <title>Database Service</title>
-        <para></para>
+      <title>Database Service</title>
+      <para></para>
     </sect2>
     <sect2 id="devel:arch:pa">
-        <title>Plug-in Administrator</title>
-        <para></para>
+      <title>Plug-in Administrator</title>
+      <para></para>
     </sect2>
     <sect2 id="devel:arch:updater">
-        <title>Updater</title>
-        <para></para>
+      <title>Updater</title>
+      <para></para>
     </sect2>
-</sect1>
+  </sect1>
 
-<sect1 id="devel:plugins">
+  <sect1 id="devel:plugins">
     <title>Developing Plugins</title>
-    <para></para>
-</sect1>
+    <para>
+      In this section, we provide an overview of how plug-ins work in
+      Alitheia.
+    </para>
+    <sect2 id="devel:plugins:quick">
+      <title>Quick and dirty guide</title>
+      <para>
+        To follow the instructions replace:
+        <itemizedlist mark='opencircle'>
+          <listitem>
+            <para>
+              <command>$ALITHEIA</command>
+              with path where you unbundled or checked out the Alitheia
+              source code distribution.
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              <command>$YOURMETRIC</command>
+              with the symbolic name of you metric
+            </para>
+          </listitem>
+        </itemizedlist>
+        Then, you do:
+        <orderedlist numeration="arabic">
+          <listitem>
+            <para>
+              <command>
+                svn cp $ALITHEIA/metrics/skeleton
+                $ALITHEIA/metrics/$YOURMETRIC
+              </command>
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              Change the name of the packages:
+              <itemizedlist mark='opencircle'>
+                <listitem>
+                  <para>
+                    <classname>
+                      eu.sqooss.impl.metrics.skeleton
+                    </classname>
+                    to
+                    <classname>
+                      eu.sqooss.impl.metrics.$YOURMETRIC
+                    </classname>
+                  </para>
+                </listitem>
+                <listitem>
+                  <para>
+                    <classname>eu.sqooss.metrics.skeleton</classname>
+                    to
+                    <classname>eu.sqooss.metrics.$YOURMETRIC</classname>
+                  </para>
+                </listitem>
+              </itemizedlist>
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              Change the name of the classes:
+              <itemizedlist mark='opencircle'>
+                <listitem>
+                  <para>
+                    <classname>
+                      eu.sqooss.impl.metrics.skeleton.SkeletomImplemenation
+                    </classname>
+                    to
+                    <classname>
+                      eu.sqooss.impl.metrics.$YOURMETRIC.$YOURMETRICImplementation
+                    </classname>
+                  </para>
+                </listitem>
+                <listitem>
+                  <para>
+                    <classname>
+                      eu.sqooss.impl.service.SkeletonActivator
+                    </classname>
+                    to
+                    <classname>
+                      eu.sqooss.impl.service.$YOURMETRICActivator
+                    </classname>
+                  </para>
+                </listitem>
+                <listitem>
+                  <para>
+                    <classname>
+                      eu.sqooss.metrics.skeleton.Skeleton
+                    </classname>
+                    to
+                    <classname>
+                      eu.sqooss.metrics.$YOURMETRIC.$YOURMETRIC
+                    </classname>
+                  </para>
+                </listitem>
+              </itemizedlist>
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              Add the required interfaces to the definition of the
+              <classname>
+                eu.sqooss.metrics.$YOURMETRIC.$YOURMETRIC
+              </classname>
+              interface
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              Implement one job for each metric your plug-in calculates.
+              This can be performed by copying the class
+              <classname>
+                eu.sqooss.metrics.skeleton.SkeletonJob
+              </classname>
+              to
+              <classname>
+                eu.sqooss.metrics.$YOURMETRIC.$YOURMETRICJob
+              </classname>
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              Implement the required
+              <methodname>getResult(*)</methodname>
+              and
+              <methodname>run(*)</methodname>
+              methods in the class
+              <classname>
+                eu.sqooss.impl.metrics.$YOURMETRIC.$YOURMETRICImplementation
+              </classname>
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              Change the following entries in the manifest file (
+              <filename>$ALITHEIA/metrics/$YOURMETRIC/manifest</filename>)
+              to much your metric
+              <itemizedlist>
+                <listitem>
+                  <para>Bundle-SymbolicName</para>
+                </listitem>
+                <listitem>
+                  <para>Bundle-Activator</para>
+                </listitem>
+                <listitem>
+                  <para>Bundle-Description</para>
+                </listitem>
+                <listitem>
+                  <para>Bundle-Name</para>
+                </listitem>
+              </itemizedlist>
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              Modify the <filename>pom.xml</filename> to match your metric configuration
+            </para>
+          </listitem>
+        </orderedlist>
+      </para>
+      <para>
+      If you follow these steps closely, you will have a metric bundle that can be loaded in Alitheia,
+      start its own metric jobs and retrieve results from the database. All you need to do now is to
+      implement the <methodname>run()</methodname> method in each metric job.
+      </para> 
+    </sect2>
+  </sect1>
 </chapter>

@@ -8,26 +8,26 @@
   </parent>
 
   <groupId>eu.sqooss.metrics</groupId>
-  <artifactId>wc</artifactId>
+  <artifactId>skeleton</artifactId>
   <version>0.0.1</version>
   <packaging>jar</packaging>
 
-  <name>Alitheia Metric 'wc'</name>
-  <url>http://ikaria.dmst.aueb.gr/metrics/wc</url>
-  <inceptionYear>2006</inceptionYear>
+  <name>Alitheia Plug-in 'skeleton'</name>
+  <url>http://ikaria.dmst.aueb.gr/metrics/skeleton</url>
+  <inceptionYear>2008</inceptionYear>
   <description>
-    This metric is an unfaithful implementation of 'wc -l' as a plugin
-    to the Alitheia platform. Its one redeeming feature is that it is
-    easy to explain and can be used to show some graphic about a project's
-    growth.
+    This metric is a 'no-op' type of metric, intended to function 
+    as the basis for plug-in development. Potential developers
+    are encouraged to svn cp this metric code to their custom 
+    namespace.
   </description>
 
   <scm>
     <connection>
-      scm:svn:https://svn.sqo-oss.eu/devel/trunk/metrics/wc
+      scm:svn:https://svn.sqo-oss.eu/devel/trunk/metrics/skeleton
     </connection>
     <developerConnection>
-      scm:svn:https://svn.sqo-oss.eu/devel/trunk/metrics/wc
+      scm:svn:https://svn.sqo-oss.eu/devel/trunk/metrics/skeleton
     </developerConnection>
   </scm>
 
