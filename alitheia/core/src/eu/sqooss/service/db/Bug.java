@@ -34,7 +34,6 @@
 package eu.sqooss.service.db;
 
 import eu.sqooss.service.db.DAObject;
-import java.util.Properties;
 
 import java.util.Date;
 
@@ -142,7 +141,7 @@ public class Bug extends DAObject {
      */
     private String shortDesc;
      
-        public String getBugFileLoc() {
+    public String getBugFileLoc() {
         return bugFileLoc;
     }
 
