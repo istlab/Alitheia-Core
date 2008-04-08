@@ -14,6 +14,21 @@ if (!loggedIn) {
     out.println("<h1>Login to the Alitheia System</h1>");
     out.println("<font color=\"red\">" + errorMsg + "</font>");
     %>
+
+    <script language="JavaScript">
+    var registerShown = false;
+    
+    function showRegister(id) {
+      if (registerShown) {
+        document.getElementById(id).style.display = 'none';
+      }
+      else {
+        document.getElementById(id).style.display = 'block';
+      }
+      registerShown = !registerShown;
+    }
+    
+    </script>
     <form id="loginform" method="POST">
 
     <table>
@@ -37,9 +52,15 @@ if (!loggedIn) {
         </td>
         <td>
             <input type="submit" value="Sign in" class="form" />
+            <input type="button" value="Register" class="form"
+              onclick="javascript:showRegister('registerForm')"/>
         </td>
     </tr>
     </table>
+    
+    <div id="registerForm" style="display: none;">
+      Register form comes here ...
+    </div>
 
     </form>
 
