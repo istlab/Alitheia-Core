@@ -9,7 +9,22 @@
       <generator class="native" />
     </id>
     <many-to-one name="commit" column="COMMIT_ID" />
-    <property name="description" column="DESCRIPTION" />
+    <property name="bugFileLoc" column="BUG_FILE_LOC" />
+    <property name="severity" column="SEVERITY" />
+    <property name="status" column="STATUS" />
+    <property name="creationTS" column="CREATION_TS" />
+    <property name="deadline" column="DEADLINE" />
+    <property name="deltaTS" column="DELTA_TS" />
+    <property name="estimatedTime" column="ESTIMATED_TIME" />
+    <property name="keywords" column="KEYWORDS" />
+    <property name="operatingSystem" column="OPERATING_SYSTEM" />
+    <property name="priority" column="PRIORITY" />
+    <property name="product" column="PRODUCT" />
+    <property name="remainingTime" column="REMAINING_TIME" />
+    <property name="reportPlatform" column="REPORT_PLATFORM" />
+    <property name="reporter" column="REPORTER" />
+    <property name="resolution" column="RESOLUTION" />
+    <property name="shortDesc" column="SHORT_DESC" />
     <property name="properties" column="PROPERTIES" />
   </class>
 </hibernate-mapping>
