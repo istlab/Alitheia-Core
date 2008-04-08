@@ -1,0 +1,59 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>eu.sqooss</groupId>
+    <artifactId>metrics</artifactId>
+    <version>1.0.0</version>
+  </parent>
+
+  <groupId>eu.sqooss.metrics</groupId>
+  <artifactId>wc</artifactId>
+  <version>0.0.1</version>
+  <packaging>jar</packaging>
+
+  <name>Alitheia Metric 'wc'</name>
+  <url>http://ikaria.dmst.aueb.gr/metrics/wc</url>
+  <inceptionYear>2006</inceptionYear>
+  <description>
+    This metric is an unfaithful implementation of 'wc -l' as a plugin
+    to the Alitheia platform. Its one redeeming feature is that it is
+    easy to explain and can be used to show some graphic about a project's
+    growth.
+  </description>
+
+  <scm>
+    <connection>
+      scm:svn:https://svn.sqo-oss.eu/devel/trunk/metrics/wc
+    </connection>
+    <developerConnection>
+      scm:svn:https://svn.sqo-oss.eu/devel/trunk/metrics/wc
+    </developerConnection>
+  </scm>
+
+  <build>
+    <defaultGoal>package</defaultGoal>
+    <sourceDirectory>${basedir}/src</sourceDirectory>
+    <outputDirectory>${basedir}/build</outputDirectory>
+    <plugins>
+      <plugin>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <finalName>${groupId}.${artifactId}-${version}</finalName>
+          <archive>
+            <manifestFile>${basedir}/manifest/manifest.mf</manifestFile>
+            <addMavenDescriptor>false</addMavenDescriptor>
+          </archive>
+        </configuration> 
+      </plugin>
+      <plugin>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <configuration>
+          <generatePom>false</generatePom>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>
+
