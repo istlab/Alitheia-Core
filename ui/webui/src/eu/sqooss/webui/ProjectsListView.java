@@ -47,6 +47,10 @@ public class ProjectsListView extends ListView {
     private Terrier terrier;
     private Project currentProject;
 
+    // Projects cache and number
+    Vector<Project> currentProjects = null;
+    private long totalProjects = 0;
+
     public ProjectsListView () {
         
     }
@@ -77,28 +81,31 @@ public class ProjectsListView extends ListView {
         return projectId;
     }
 
+    /**
+     * Checks if this object stores information for at least one project.
+     * 
+     * @return true, if one or more projects are stored, otherwise false
+     */
+    public boolean hasProjects() {
+        if (totalProjects > 0) {
+            return true;
+        }
+        return false;
+    }
+
     public void retrieveData (Terrier terrier) {
         this.terrier = terrier;
-//        try {
-//            result = session.getConnection().evaluatedProjectsList();//.next().get(0).getLong() + "=";
-//            setItems(result);
-//            //TODO:
-//        } catch (WSException wse) {
-//            error += "<br />Something went wrong getting evaluatedProjectsList() ... :/";
-//        } catch (NullPointerException npe) {
-//            error += "<br />We didn't connect ...";
-//        }
-        //TODO:
+        currentProjects = terrier.getEvaluatedProjects();
+        totalProjects = currentProjects.size();
     }
 
     public String getHtml() {
         StringBuilder html = new StringBuilder();
-        if (terrier != null) {
-            Vector<Project> projects = terrier.getEvaluatedProjects();
-            if (projects.size() > 0) {
+        if (currentProjects != null) {
+            if (currentProjects.size() > 0) {
                 html.append("\n<!-- Projects -->");
                 html.append("\n<ul>");
-                for (Project p: projects) {
+                for (Project p: currentProjects) {
                     html.append(
                             "\n\t<li>"
                             + "<a href=\"?pid=" + p.getId() + "\">"
