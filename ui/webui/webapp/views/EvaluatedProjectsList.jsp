@@ -21,12 +21,10 @@ public static String versionSelector(Long projectId, Long currentVer) {
 // Retrieve the list of evaluated project from the connected SQO-OSS system
 ProjectsListView.retrieveData(terrier);
 
-// Generate the view dispaying all evaluated projects
-String projects = ProjectsListView.getHtml();
-
-if (projects == null) {
-    out.println(error("Unable to find any evaluated projects."));
-} else {
+if (ProjectsListView.hasProjects()) {
+    // Generate the HTML content dispaying all evaluated projects
+    String projects = ProjectsListView.getHtml();
+    
     out.println("<p />Selected:");
     Project selectedProject = ProjectsListView.getCurrentProject();
     if (selectedProject == null) {
@@ -88,6 +86,9 @@ if (projects == null) {
         out.println("<hr>");
     }
     out.println(projects);
+}
+else {
+    out.println(error("Unable to find any evaluated projects."));
 }
 
 %>
