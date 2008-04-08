@@ -118,6 +118,13 @@
     </dependency>
     <dependency>
       <groupId>org</groupId>
+      <artifactId>dom4j</artifactId>
+      <version>1.6.1</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org</groupId>
       <artifactId>hibernate</artifactId>
       <version>3.2.5</version>
       <type>jar</type>
