@@ -19,48 +19,49 @@ if (!loggedIn) {
     var registerShown = false;
     
     function showRegister(id) {
-      if (registerShown) {
-        document.getElementById(id).style.display = 'none';
-      }
-      else {
-        document.getElementById(id).style.display = 'block';
-      }
+      var displayType = (registerShown) ? 'none' : '';
+      document.getElementById(id).rows[2].style.display = displayType;
+      document.getElementById(id).rows[3].style.display = displayType;
       registerShown = !registerShown;
     }
     
     </script>
     <form id="loginform" method="POST">
 
-    <table>
-    <tr>
-        <td>
-            Username:
-        </td>
-        <td>
-            <input type="text" name="username" class="form" />
-        </td>
-    </tr><tr>
-        <td>
-            Password:
-        </td>
-        <td>
-            <input type="password" name="password" class="form" />
-        </td>
-    </tr><tr>
-        <td>
-            &nbsp;
-        </td>
-        <td>
-            <input type="submit" value="Sign in" class="form" />
-            <input type="button" value="Register" class="form"
-              onclick="javascript:showRegister('registerForm')"/>
-        </td>
-    </tr>
+    <table id="registerForm">
+        <tr>
+            <td>Username:</td>
+            <td>
+                <input type="text" name="username" class="form" />
+            </td>
+        </tr>
+        <tr>
+            <td>Password:</td>
+            <td>
+                <input type="password" name="password" class="form" />
+            </td>
+        </tr>
+        <tr style="display: none;">
+            <td>Confirm:</td>
+            <td>
+                <input type="password" name="confirm" class="form" />
+            </td>
+        </tr>
+        <tr style="display: none;">
+            <td>Email:</td>
+            <td>
+                <input type="text" name="email" class="form" />
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                &nbsp;
+                <input type="submit" value="Sign in" class="form" />
+                <input type="button" value="Register" class="form"
+                    onclick="javascript:showRegister('registerForm')"/>
+            </td>
+        </tr>
     </table>
-    
-    <div id="registerForm" style="display: none;">
-      Register form comes here ...
-    </div>
 
     </form>
 
