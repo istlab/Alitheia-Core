@@ -36,6 +36,8 @@ package eu.sqooss.service.db;
 import eu.sqooss.service.db.DAObject;
 import java.util.Properties;
 
+import java.util.Date;
+
 /**
  * This class represents the data relating to bugs, stored in the database
  */
@@ -44,16 +46,231 @@ public class Bug extends DAObject {
      * The commit which resolves the bug
      */
     private ProjectVersion commit;
-    /**
-     * A description of the bug
+    
+   /**
+     * A URL which points to more information about the bug.
      */
-    private String description;
+    private String bugFileLoc;
+    
     /**
-     * The properties related to the bug
+     * Each bug has a "severity" field, indicating the severity of the impact of the bug. 
+     * The intended meanings of the built-in values of this field are as follows:
+     * Blocker          Blocks development and/or testing work
+     * Critical         Crashes, loss of data, severe memory leak
+     * Major            Major loss of function
+     * Minor            Minor loss of function, or other problem where easy workaround is present
+     * Trivial          Cosmetic problem
+     * Enhancement      Request for enhancement
      */
-    private Properties properties;
+    private String severity;
+    
+    /**
+     * Each bug has a status. If a bug has a status which shows it has been resolved, 
+     * it also has a resolution, otherwise the resolution field is empty. Values of the field include:
+     * UNCONFIRMED
+     * NEW 
+     * ASSIGNED
+     * REOPENED
+     * RESOLVED
+     * VERIFIED
+     * CLOSED
+     */
+    private String status;
+    
+    /**
+     * Creation timestamp.
+     */
+    private Date creationTS;
+    
+    /**
+     * The deadline for this bug.
+     */
+    private Date deadline;
+    
+    /**
+     * The timestamp of the last update.
+     */
+    private Date deltaTS;
+    
+    /**
+     * The original estimate of the total effort required to fix this bug (in hours).
+     */
+    private float estimatedTime;
+    
+    /**
+     * A set of keywords.
+     */
+    private String keywords;
+    
+    /**
+     * The operating system on which the bug was observed.
+     */
+    private String operatingSystem;
+    
+    /**
+     * The priority of the bug.
+     */
+    private String priority;
+    
+    /**
+     * The product.
+     */
+    private String product;
+    
+    /**
+     * The current estimate of the remaining effort required to fix this bug (in hours).
+     */
+    private float remainingTime;
+    
+    /**
+     * The platform on which the bug was reported.
+     */
+    private String reportPlatform;
+    
+    /**
+     * The user who reported this.
+     */
+    private String reporter;
+    
+    /**
+     * The bug's resolution status.
+     */
+    private String resolution;
+    
+    /**
+     * A short description of the bug.
+     */
+    private String shortDesc;
+     
+        public String getBugFileLoc() {
+        return bugFileLoc;
+    }
 
-    public Bug() {
+    public void setBugFileLoc(String bugFileLoc) {
+        this.bugFileLoc = bugFileLoc;
+    }
+
+    public String getSeverity() {
+        return severity;
+    }
+
+    public void setSeverity(String severity) {
+        this.severity = severity;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Date getCreationTS() {
+        return creationTS;
+    }
+
+    public void setCreationTS(Date creationTS) {
+        this.creationTS = creationTS;
+    }
+
+    public Date getDeadline() {
+        return deadline;
+    }
+
+    public void setDeadline(Date deadline) {
+        this.deadline = deadline;
+    }
+
+    public Date getDeltaTS() {
+        return deltaTS;
+    }
+
+    public void setDeltaTS(Date deltaTS) {
+        this.deltaTS = deltaTS;
+    }
+
+    public float getEstimatedTime() {
+        return estimatedTime;
+    }
+
+    public void setEstimatedTime(float estimatedTime) {
+        this.estimatedTime = estimatedTime;
+    }
+
+    public String getKeywords() {
+        return keywords;
+    }
+
+    public void setKeywords(String keywords) {
+        this.keywords = keywords;
+    }
+
+    public String getOperatingSystem() {
+        return operatingSystem;
+    }
+
+    public void setOperatingSystem(String operatingSystem) {
+        this.operatingSystem = operatingSystem;
+    }
+
+    public String getPriority() {
+        return priority;
+    }
+
+    public void setPriority(String priority) {
+        this.priority = priority;
+    }
+
+    public String getProduct() {
+        return product;
+    }
+
+    public void setProduct(String product) {
+        this.product = product;
+    }
+
+    public float getRemainingTime() {
+        return remainingTime;
+    }
+
+    public void setRemainingTime(float remainingTime) {
+        this.remainingTime = remainingTime;
+    }
+
+    public String getReportPlatform() {
+        return reportPlatform;
+    }
+
+    public void setReportPlatform(String reportPlatform) {
+        this.reportPlatform = reportPlatform;
+    }
+
+    public String getReporter() {
+        return reporter;
+    }
+
+    public void setReporter(String reporter) {
+        this.reporter = reporter;
+    }
+
+    public String getResolution() {
+        return resolution;
+    }
+
+    public void setResolution(String resolution) {
+        this.resolution = resolution;
+    }
+
+    public String getShortDesc() {
+        return shortDesc;
+    }
+
+    public void setShortDesc(String shortDesc) {
+        this.shortDesc = shortDesc;
+    }
+
+        public Bug() {
         // Nothing to do here
     }
 
@@ -63,22 +280,6 @@ public class Bug extends DAObject {
     
     public void setCommit(ProjectVersion commit) {
         this.commit = commit;
-    }
-    
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-    
-    public Properties getProperties() {
-        return properties;
-    }
-    
-    public void setProperties(Properties properties) {
-        this.properties = properties;
     }
 }
 
