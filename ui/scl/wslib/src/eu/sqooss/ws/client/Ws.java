@@ -186,7 +186,7 @@
                     * @param param22
                 
          */
-         public void modifyUser(
+         public eu.sqooss.ws.client.ws.ModifyUserResponse modifyUser(
 
                 eu.sqooss.ws.client.ws.ModifyUser param22)
                 throws java.rmi.RemoteException

@@ -66,20 +66,14 @@ public abstract class WSUserAccessor extends WSAccessor {
     
     /**
      * This method modifies the existent user with a given user name.
-     * 
-     * @param userName - the user name
-     * @param newNames - the new user's names (optional)
-     * @param newPassword - the new password
-     * @param newUserClass - the new user's class (general user, OSS developer, etc.)
-     * @param newOtherInfo - (optional)
      * @throws WSException
      * <ul>
      *  <li>if the connection can't be establish to the SQO-OSS's web services service</li>
      *  <li>if web services service throws a exception</li>
      * <ul>
      */
-    public abstract void modifyUser(String userName, String newNames, String newPassword,
-            String newUserClass, String newOtherInfo) throws WSException;
+    public abstract boolean modifyUser(String userName, String newPassword,
+            String newEmail) throws WSException;
     
     /**
      * This method deletes the user with a given id.

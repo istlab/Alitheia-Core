@@ -46,6 +46,7 @@ import eu.sqooss.ws.client.ws.DeleteUserResponse;
 import eu.sqooss.ws.client.ws.DisplayUser;
 import eu.sqooss.ws.client.ws.DisplayUserResponse;
 import eu.sqooss.ws.client.ws.ModifyUser;
+import eu.sqooss.ws.client.ws.ModifyUserResponse;
 import eu.sqooss.ws.client.ws.SubmitUser;
 import eu.sqooss.ws.client.ws.SubmitUserResponse;
 
@@ -136,8 +137,9 @@ class WSUserAccessorImpl extends WSUserAccessor {
      * @see eu.sqooss.scl.accessor.WSUserAccessor#modifyUser(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)
      */
     @Override
-    public void modifyUser(String userName, String newNames, String newPassword,
-            String newUserClass, String newOtherInfo) throws WSException {
+    public boolean modifyUser(String userName, String newPassword,
+            String newEmail) throws WSException {
+        ModifyUserResponse response;
         ModifyUser params;
         if (!parameters.containsKey(METHOD_NAME_MODIFY_USER)) {
             params = new ModifyUser();
@@ -150,16 +152,15 @@ class WSUserAccessorImpl extends WSUserAccessor {
         }
         synchronized (params) {
             params.setUserName(userName);
-            params.setNewNames(newNames);
             params.setNewPassword(newPassword);
-            params.setNewUserClass(newUserClass);
-            params.setNewOtherInfo(newOtherInfo);
+            params.setNewEmail(newEmail);
             try {
-                wsStub.modifyUser(params);
+                response = wsStub.modifyUser(params);
             } catch (RemoteException re) {
                 throw new WSException(re);
             }
         }
+        return response.get_return();
     }
     
     /**

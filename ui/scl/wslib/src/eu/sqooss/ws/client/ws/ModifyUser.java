@@ -109,35 +109,6 @@
                             
 
                         /**
-                        * field for NewNames
-                        */
-
-                        protected java.lang.String localNewNames ;
-                        
-
-                           /**
-                           * Auto generated getter method
-                           * @return java.lang.String
-                           */
-                           public  java.lang.String getNewNames(){
-                               return localNewNames;
-                           }
-
-                           
-                        
-                            /**
-                               * Auto generated setter method
-                               * @param param NewNames
-                               */
-                               public void setNewNames(java.lang.String param){
-                            
-                                    this.localNewNames=param;
-                            
-
-                               }
-                            
-
-                        /**
                         * field for NewPassword
                         */
 
@@ -167,58 +138,29 @@
                             
 
                         /**
-                        * field for NewUserClass
+                        * field for NewEmail
                         */
 
-                        protected java.lang.String localNewUserClass ;
+                        protected java.lang.String localNewEmail ;
                         
 
                            /**
                            * Auto generated getter method
                            * @return java.lang.String
                            */
-                           public  java.lang.String getNewUserClass(){
-                               return localNewUserClass;
+                           public  java.lang.String getNewEmail(){
+                               return localNewEmail;
                            }
 
                            
                         
                             /**
                                * Auto generated setter method
-                               * @param param NewUserClass
+                               * @param param NewEmail
                                */
-                               public void setNewUserClass(java.lang.String param){
+                               public void setNewEmail(java.lang.String param){
                             
-                                    this.localNewUserClass=param;
-                            
-
-                               }
-                            
-
-                        /**
-                        * field for NewOtherInfo
-                        */
-
-                        protected java.lang.String localNewOtherInfo ;
-                        
-
-                           /**
-                           * Auto generated getter method
-                           * @return java.lang.String
-                           */
-                           public  java.lang.String getNewOtherInfo(){
-                               return localNewOtherInfo;
-                           }
-
-                           
-                        
-                            /**
-                               * Auto generated setter method
-                               * @param param NewOtherInfo
-                               */
-                               public void setNewOtherInfo(java.lang.String param){
-                            
-                                    this.localNewOtherInfo=param;
+                                    this.localNewEmail=param;
                             
 
                                }
@@ -376,40 +318,6 @@
                                         if (prefix == null) {
                                             prefix = org.apache.axis2.databinding.utils.BeanUtil.getUniquePrefix();
 
-                                            xmlWriter.writeStartElement(prefix,"newNames", namespace);
-                                            xmlWriter.writeNamespace(prefix, namespace);
-                                            xmlWriter.setPrefix(prefix, namespace);
-
-                                        } else {
-                                            xmlWriter.writeStartElement(namespace,"newNames");
-                                        }
-
-                                    } else {
-                                        xmlWriter.writeStartElement("newNames");
-                                    }
-                                
-
-                                          if (localNewNames==null){
-                                              // write the nil attribute
-                                              
-                                                     writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","true",xmlWriter);
-                                                  
-                                          }else{
-
-                                        
-                                                   xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localNewNames));
-                                            
-                                          }
-                                    
-                                   xmlWriter.writeEndElement();
-                             
-                                    namespace = "http://services.web.service.sqooss.eu/xsd";
-                                    if (! namespace.equals("")) {
-                                        prefix = xmlWriter.getPrefix(namespace);
-
-                                        if (prefix == null) {
-                                            prefix = org.apache.axis2.databinding.utils.BeanUtil.getUniquePrefix();
-
                                             xmlWriter.writeStartElement(prefix,"newPassword", namespace);
                                             xmlWriter.writeNamespace(prefix, namespace);
                                             xmlWriter.setPrefix(prefix, namespace);
@@ -444,20 +352,20 @@
                                         if (prefix == null) {
                                             prefix = org.apache.axis2.databinding.utils.BeanUtil.getUniquePrefix();
 
-                                            xmlWriter.writeStartElement(prefix,"newUserClass", namespace);
+                                            xmlWriter.writeStartElement(prefix,"newEmail", namespace);
                                             xmlWriter.writeNamespace(prefix, namespace);
                                             xmlWriter.setPrefix(prefix, namespace);
 
                                         } else {
-                                            xmlWriter.writeStartElement(namespace,"newUserClass");
+                                            xmlWriter.writeStartElement(namespace,"newEmail");
                                         }
 
                                     } else {
-                                        xmlWriter.writeStartElement("newUserClass");
+                                        xmlWriter.writeStartElement("newEmail");
                                     }
                                 
 
-                                          if (localNewUserClass==null){
+                                          if (localNewEmail==null){
                                               // write the nil attribute
                                               
                                                      writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","true",xmlWriter);
@@ -465,41 +373,7 @@
                                           }else{
 
                                         
-                                                   xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localNewUserClass));
-                                            
-                                          }
-                                    
-                                   xmlWriter.writeEndElement();
-                             
-                                    namespace = "http://services.web.service.sqooss.eu/xsd";
-                                    if (! namespace.equals("")) {
-                                        prefix = xmlWriter.getPrefix(namespace);
-
-                                        if (prefix == null) {
-                                            prefix = org.apache.axis2.databinding.utils.BeanUtil.getUniquePrefix();
-
-                                            xmlWriter.writeStartElement(prefix,"newOtherInfo", namespace);
-                                            xmlWriter.writeNamespace(prefix, namespace);
-                                            xmlWriter.setPrefix(prefix, namespace);
-
-                                        } else {
-                                            xmlWriter.writeStartElement(namespace,"newOtherInfo");
-                                        }
-
-                                    } else {
-                                        xmlWriter.writeStartElement("newOtherInfo");
-                                    }
-                                
-
-                                          if (localNewOtherInfo==null){
-                                              // write the nil attribute
-                                              
-                                                     writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","true",xmlWriter);
-                                                  
-                                          }else{
-
-                                        
-                                                   xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localNewOtherInfo));
+                                                   xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localNewEmail));
                                             
                                           }
                                     
@@ -609,28 +483,16 @@
                                          org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localUserName));
                                     
                              elementList.add(new javax.xml.namespace.QName("http://services.web.service.sqooss.eu/xsd",
-                                                                      "newNames"));
-                            
-                                         elementList.add(localNewNames==null?null:
-                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localNewNames));
-                                    
-                             elementList.add(new javax.xml.namespace.QName("http://services.web.service.sqooss.eu/xsd",
                                                                       "newPassword"));
                             
                                          elementList.add(localNewPassword==null?null:
                                          org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localNewPassword));
                                     
                              elementList.add(new javax.xml.namespace.QName("http://services.web.service.sqooss.eu/xsd",
-                                                                      "newUserClass"));
+                                                                      "newEmail"));
                             
-                                         elementList.add(localNewUserClass==null?null:
-                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localNewUserClass));
-                                    
-                             elementList.add(new javax.xml.namespace.QName("http://services.web.service.sqooss.eu/xsd",
-                                                                      "newOtherInfo"));
-                            
-                                         elementList.add(localNewOtherInfo==null?null:
-                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localNewOtherInfo));
+                                         elementList.add(localNewEmail==null?null:
+                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localNewEmail));
                                     
 
                 return new org.apache.axis2.databinding.utils.reader.ADBXMLStreamReaderImpl(qName, elementList.toArray(), attribList.toArray());
@@ -780,31 +642,6 @@
                                     
                                     while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
                                 
-                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://services.web.service.sqooss.eu/xsd","newNames").equals(reader.getName())){
-                                
-                                       if (!"true".equals(reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil"))){
-                                    
-                                    java.lang.String content = reader.getElementText();
-                                    
-                                              object.setNewNames(
-                                        org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
-                                            
-                                       } else {
-                                           reader.getElementText(); // throw away text nodes if any.
-                                       }
-                                      
-                                        reader.next();
-                                    
-                              }  // End of if for expected property start element
-                            
-                                else{
-                                    // A start element we are not expecting indicates an invalid parameter was passed
-                                    throw new java.lang.RuntimeException("Unexpected subelement " + reader.getLocalName());
-                                }
-                            
-                                    
-                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
-                                
                                     if (reader.isStartElement() && new javax.xml.namespace.QName("http://services.web.service.sqooss.eu/xsd","newPassword").equals(reader.getName())){
                                 
                                        if (!"true".equals(reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil"))){
@@ -830,38 +667,13 @@
                                     
                                     while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
                                 
-                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://services.web.service.sqooss.eu/xsd","newUserClass").equals(reader.getName())){
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://services.web.service.sqooss.eu/xsd","newEmail").equals(reader.getName())){
                                 
                                        if (!"true".equals(reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil"))){
                                     
                                     java.lang.String content = reader.getElementText();
                                     
-                                              object.setNewUserClass(
-                                        org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
-                                            
-                                       } else {
-                                           reader.getElementText(); // throw away text nodes if any.
-                                       }
-                                      
-                                        reader.next();
-                                    
-                              }  // End of if for expected property start element
-                            
-                                else{
-                                    // A start element we are not expecting indicates an invalid parameter was passed
-                                    throw new java.lang.RuntimeException("Unexpected subelement " + reader.getLocalName());
-                                }
-                            
-                                    
-                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
-                                
-                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://services.web.service.sqooss.eu/xsd","newOtherInfo").equals(reader.getName())){
-                                
-                                       if (!"true".equals(reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil"))){
-                                    
-                                    java.lang.String content = reader.getElementText();
-                                    
-                                              object.setNewOtherInfo(
+                                              object.setNewEmail(
                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
                                             
                                        } else {

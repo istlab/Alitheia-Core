@@ -1435,7 +1435,7 @@
                         * @param param60
                     
                     */
-                    public void modifyUser(
+                    public eu.sqooss.ws.client.ws.ModifyUserResponse modifyUser(
 
                     eu.sqooss.ws.client.ws.ModifyUser param60)
                     throws java.rmi.RemoteException
@@ -1472,8 +1472,18 @@
         _operationClient.execute(true);
 
          
-                return;
-            
+               org.apache.axis2.context.MessageContext _returnMessageContext = _operationClient.getMessageContext(
+                                           org.apache.axis2.wsdl.WSDLConstants.MESSAGE_LABEL_IN_VALUE);
+                org.apache.axiom.soap.SOAPEnvelope _returnEnv = _returnMessageContext.getEnvelope();
+                
+                
+                           java.lang.Object object = fromOM(
+                                        _returnEnv.getBody().getFirstElement() ,
+                                        eu.sqooss.ws.client.ws.ModifyUserResponse.class,
+                                         getEnvelopeNamespaces(_returnEnv));
+                           _messageContext.getTransportOut().getSender().cleanup(_messageContext);
+                           return (eu.sqooss.ws.client.ws.ModifyUserResponse)object;
+                    
          }catch(org.apache.axis2.AxisFault f){
             org.apache.axiom.om.OMElement faultElt = f.getDetail();
             if (faultElt!=null){
@@ -2458,6 +2468,14 @@
 
             }
         
+            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.ModifyUserResponse param, boolean optimizeContent){
+            
+                     return param.getOMElement(eu.sqooss.ws.client.ws.ModifyUserResponse.MY_QNAME,
+                                  org.apache.axiom.om.OMAbstractFactory.getOMFactory());
+                    
+
+            }
+        
             private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.ValidateAccount param, boolean optimizeContent){
             
                      return param.getOMElement(eu.sqooss.ws.client.ws.ValidateAccount.MY_QNAME,
@@ -2953,6 +2971,13 @@
                 if (eu.sqooss.ws.client.ws.ModifyUser.class.equals(type)){
                 
                            return eu.sqooss.ws.client.ws.ModifyUser.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+                    
+
+                }
+           
+                if (eu.sqooss.ws.client.ws.ModifyUserResponse.class.equals(type)){
+                
+                           return eu.sqooss.ws.client.ws.ModifyUserResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
                     
 
                 }
