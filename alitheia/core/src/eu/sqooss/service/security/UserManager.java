@@ -75,6 +75,16 @@ public interface UserManager {
     public User createUser(String userName, String password, String email);
     
     /**
+     * This method modifies the user with given user name.
+     * @param userName
+     * @param newPassword
+     * @param newEmail
+     * @return <code>true</code> if the user is changed, false otherwise
+     * 
+     */
+    public boolean modifyUser(String userName, String newPassword, String newEmail);
+    
+    /**
      * This method deletes the user with given identifier.
      * @param userId user's identifier
      * @return true - if the user is deleted successfully, false - otherwise

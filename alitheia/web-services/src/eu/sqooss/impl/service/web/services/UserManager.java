@@ -82,13 +82,14 @@ public class UserManager {
     }
     
     /**
-     * @see eu.sqooss.service.web.services.WebServices#modifyUser(String, String, String, String, String, String, String)
+     * @see eu.sqooss.service.web.services.WebServices#modifyUser(String, String, String, String, String)
      */
-    public void modifyUser(String userNameForAccess, String passwordForAccess,
-            String userName, String newNames, String newPassword,
-            String newUserClass, String newOtherInfo) {
+    public boolean modifyUser(String userNameForAccess, String passwordForAccess,
+            String userName, String newPassword, String newEmail) {
         
-        //TODO: check the security and implement
+        //TODO: check the security
+        
+        return userManager.modifyUser(userName, newPassword, newEmail);
     }
     
     /**

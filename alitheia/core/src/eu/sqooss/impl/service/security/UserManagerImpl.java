@@ -86,6 +86,12 @@ public class UserManagerImpl implements UserManager {
         }
     }
 
+    public boolean modifyUser(String userName, String newPassword,
+            String newEmail) {
+        return false;
+        //TODO:
+    }
+
     /**
      * @see eu.sqooss.service.security.UserManager#deleteUser(long)
      */

@@ -274,20 +274,11 @@ public class WebServices {
     
     /**
      * This method modifies the existent user with a given user name.
-     * 
-     * @param userNameForAccess
-     * @param passwordForAccess
-     * @param userName
-     * @param newNames
-     * @param newPassword
-     * @param newUserClass
-     * @param newOtherInfo
      */
-    public void modifyUser(String userNameForAccess, String passwordForAccess,
-            String userName, String newNames, String newPassword,
-            String newUserClass, String newOtherInfo) {
-        userManager.modifyUser(userNameForAccess, passwordForAccess,
-                userName, newNames, newPassword, newUserClass, newOtherInfo);
+    public boolean modifyUser(String userNameForAccess, String passwordForAccess,
+            String userName, String newPassword, String newEmail) {
+        return userManager.modifyUser(userNameForAccess, passwordForAccess,
+                userName, newPassword, newEmail);
     }
     
     /**
