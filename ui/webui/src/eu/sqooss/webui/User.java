@@ -33,32 +33,28 @@
 
 package eu.sqooss.webui;
 
-import java.util.ArrayList;
-
-
 class User {
 
-    Long id;
-    String name;
-    // TODO: collect group ids and descriptions in some list
-    
-    /** Parses an ArrayList of WSResult and offers convenience methods to get data
-     *  out of it.
-     * 
-     * @param data The ArrayList for one user
-     * 
-     */
-    public User (ArrayList data) {
-        id = Long.parseLong(data.get(0).toString());
-        name = data.get(1).toString();
+    private Long id;
+    private String name;
+    private String email;
+
+    public User (Long id, String name, String email) {
+        this.id = id;
+        this.name = name;
+        this.email = (email != null) ? email : "";
+    }
+
+    public Long getId () {
+        return id;
     }
 
     public String getName () {
         return name;
     }
 
-    public Long getId () {
-        return id;
+    public String getEmail () {
+        return email;
     }
 
     public String getHtml() {
