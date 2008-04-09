@@ -34,7 +34,6 @@
 
 package eu.sqooss.webui;
 
-import java.util.*;
 import eu.sqooss.webui.ListView;
 
 public class MetricsListView extends ListView {
@@ -56,6 +55,12 @@ public class MetricsListView extends ListView {
 
     public void retrieveData () {
         // TODO: get some data ...
+    }
+
+    @Override
+    public String getHtml() {
+        // TODO: get html
+        return null;
     }
 
 };

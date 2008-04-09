@@ -38,7 +38,6 @@ import java.util.Vector;
 import eu.sqooss.webui.ListView;
 import eu.sqooss.scl.WSException;
 import eu.sqooss.scl.WSSession;
-import eu.sqooss.scl.result.WSResult;
 
 
 public class ProjectsListView extends ListView {
@@ -115,5 +114,10 @@ public class ProjectsListView extends ListView {
             }
         }
         return html.toString();
+    }
+
+    @Override
+    public void retrieveData() {
+        //TODO: retrieve some data
     }
 }

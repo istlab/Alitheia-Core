@@ -33,17 +33,12 @@
 
 package eu.sqooss.webui;
 
-import java.util.Iterator;
-import java.util.ArrayList;
-import eu.sqooss.scl.WSSession;
 import eu.sqooss.scl.WSException;
-import eu.sqooss.scl.result.WSResult;
-import eu.sqooss.scl.result.WSResultEntry;
+import eu.sqooss.scl.WSSession;
 
-class ListView {
+abstract class ListView {
 
     WSSession session;
-    WSResult items = null;
     String error;
 
     public ListView () {
@@ -59,43 +54,8 @@ class ListView {
         }
     }
 
-    public void setItems (WSResult _items) {
-        items = _items;
-    }
+    public abstract String getHtml();
 
-    public WSResult getItems () {
-        return items;
-    }
-
-
-    public String getHtml() {
-        if (session == null) {
-            return null;
-        }
-        StringBuilder html = new StringBuilder("<!-- ListView -->\n<ul>");
-        if (items == null) {
-            return "hhhhhhhhh.";
-            //return null;
-        } else {
-            html.append("<h2>Found " + items.getRowCount() + " projects ...</h2>");
-        }
-        Iterator <ArrayList<WSResultEntry>> itemlist = items.iterator();
-        if (!itemlist.hasNext()) {
-            html.append("No project records found.");
-        }
-        
-        while (itemlist.hasNext()) {
-            ArrayList <WSResultEntry> p_item = itemlist.next();
-            Iterator <WSResultEntry> oneitemlist = p_item.iterator();
-            Project nextProject = new Project(); // TODO: Fix this
-            html.append("<li>" + nextProject.getHtml() + "</li>");
-        }
-        html = html.append("\n</ul>\n");
-        return html.toString();
-    }
-
-    public void retrieveData () {
-        return;
-    }
+    public abstract void retrieveData ();
 
 }

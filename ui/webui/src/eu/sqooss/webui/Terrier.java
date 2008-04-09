@@ -42,7 +42,6 @@ import eu.sqooss.scl.WSSession;
 import eu.sqooss.scl.accessor.WSAccessor;
 import eu.sqooss.scl.accessor.WSMetricAccessor;
 import eu.sqooss.scl.accessor.WSProjectAccessor;
-import eu.sqooss.scl.result.WSResult;
 import eu.sqooss.ws.client.datatypes.WSMetric;
 import eu.sqooss.ws.client.datatypes.WSProjectFile;
 import eu.sqooss.ws.client.datatypes.WSProjectVersion;
@@ -55,7 +54,6 @@ public class Terrier {
 //    WSConnection connection;
     WSProjectAccessor projectAccessor;
     WSMetricAccessor metricAccessor;
-    WSResult result;
 
     String error = "No problems.";
     String debug = "...";
