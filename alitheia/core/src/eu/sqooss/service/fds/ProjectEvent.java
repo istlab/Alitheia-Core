@@ -51,14 +51,7 @@ public abstract class ProjectEvent implements Comparable<ProjectEvent> {
      * Database record about the event.
      */
     protected DAObject associatedDAO;
-    
-    /**
-     * @return the timestamp
-     */
-    public long getTimestamp() {
-        return timestamp;
-    }
-    
+        
     /**
      * @return the associated DAO
      */
@@ -67,30 +60,45 @@ public abstract class ProjectEvent implements Comparable<ProjectEvent> {
     }
     
     /**
-     * @return an integer representing the "priority" of the event.
-     * This value is used to further sort events with identical timestamps.
+     * This value is used as the primary sorting discriminant for events.
+     * @return the timestamp in second-accuracy.
      */
-    protected abstract int eventPriority();
+    public long getTimestamp() {
+        return timestamp;
+    }
     
     /**
+     * This value is used to further sort events with identical timestamps.
+     * @return an integer representing the "priority" of the event.
+     */
+    protected abstract int getEventPriority();
+
+    /**
+     * This value is used to further sort elements with identical timestamps and priorities.
+     * (e.g. two SCM commits happening in the same second)
+     * @return an integer representing the event id.
+     */
+    protected abstract long getEventId();
+
+        
+    /**
      * Compare events using the following discriminants in order :
-     * timestamp -> priority -> DAO id
+     * timestamp -> priority -> event id
      * @return -1/0/1 if the event is more prioritary/equal/less prioritary than other
      */
     public int compareTo(ProjectEvent other)
     {
         if ( getTimestamp() == other.getTimestamp() ) {
-            if ( eventPriority() == other.eventPriority() ) {
-                if ( getAssociatedDAO().getId() == other.getAssociatedDAO().getId() ) {
+            if ( getEventPriority() == other.getEventPriority() ) {
+                if ( getEventId() == other.getEventId() ) {
                     return 0;
                 }
-                return getAssociatedDAO().getId() > other.getAssociatedDAO().getId() ? 1 : -1;
+                return getEventId() > other.getEventId() ? 1 : -1;
             }
-            return eventPriority() > other.eventPriority() ? 1 : -1;
+            return getEventPriority() > other.getEventPriority() ? 1 : -1;
         }
         return getTimestamp() > other.getTimestamp() ? 1 : -1;
     }
-
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

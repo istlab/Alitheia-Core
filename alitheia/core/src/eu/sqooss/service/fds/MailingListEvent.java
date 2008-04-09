@@ -55,8 +55,12 @@ public class MailingListEvent extends ProjectEvent {
     /**
      * @return 1, the priority for mailing list events
      */
-    public int eventPriority() {
+    public int getEventPriority() {
         return 1;
+    }
+
+    protected long getEventId() {
+        return getAssociatedDAO().getId();
     }
 }
 

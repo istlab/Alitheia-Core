@@ -55,8 +55,12 @@ public class RepositoryEvent extends ProjectEvent {
     /**
      * @return 0, the priority for repository events (highest)
      */
-    public int eventPriority() {
+    public int getEventPriority() {
         return 0;
+    }
+
+    protected long getEventId() {
+        return getAssociatedDAO().getVersion();
     }
 }
 

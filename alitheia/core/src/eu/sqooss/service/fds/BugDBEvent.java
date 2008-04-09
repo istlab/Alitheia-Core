@@ -55,8 +55,13 @@ public class BugDBEvent extends ProjectEvent {
     /**
      * @return 2, the priority for bug events
      */
-    public int eventPriority() {
+    public int getEventPriority() {
         return 2;
+    }
+
+    protected long getEventId() {
+        // Bug has no Bug-Id (?)
+        return getAssociatedDAO().getId();
     }
 }
 
