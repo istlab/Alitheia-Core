@@ -91,7 +91,7 @@ public abstract class WSUserAccessor extends WSAccessor {
      *  <li>if web services service throws a exception</li>
      * <ul>
      */
-    public abstract void deleteUser(long userId) throws WSException;
+    public abstract boolean deleteUser(long userId) throws WSException;
     
 }
 

@@ -42,6 +42,7 @@ import eu.sqooss.scl.accessor.WSUserAccessor;
 import eu.sqooss.ws.client.WsStub;
 import eu.sqooss.ws.client.datatypes.WSUser;
 import eu.sqooss.ws.client.ws.DeleteUser;
+import eu.sqooss.ws.client.ws.DeleteUserResponse;
 import eu.sqooss.ws.client.ws.DisplayUser;
 import eu.sqooss.ws.client.ws.DisplayUserResponse;
 import eu.sqooss.ws.client.ws.ModifyUser;
@@ -165,7 +166,8 @@ class WSUserAccessorImpl extends WSUserAccessor {
      * @see eu.sqooss.scl.accessor.WSUserAccessor#deleteUser(long)
      */
     @Override
-    public void deleteUser(long userId) throws WSException {
+    public boolean deleteUser(long userId) throws WSException {
+        DeleteUserResponse response;
         DeleteUser params;
         if (!parameters.containsKey(METHOD_NAME_DELETE_USER)) {
             params = new DeleteUser();
@@ -179,11 +181,12 @@ class WSUserAccessorImpl extends WSUserAccessor {
         synchronized (params) {
             params.setUserId(userId);
             try {
-                wsStub.deleteUser(params);
+                response = wsStub.deleteUser(params);
             } catch (RemoteException re) {
                 throw new WSException(re);
             }
         }
+        return response.get_return();
     }
     
 }

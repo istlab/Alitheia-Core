@@ -714,7 +714,7 @@
                         * @param param46
                     
                     */
-                    public void deleteUser(
+                    public eu.sqooss.ws.client.ws.DeleteUserResponse deleteUser(
 
                     eu.sqooss.ws.client.ws.DeleteUser param46)
                     throws java.rmi.RemoteException
@@ -751,8 +751,18 @@
         _operationClient.execute(true);
 
          
-                return;
-            
+               org.apache.axis2.context.MessageContext _returnMessageContext = _operationClient.getMessageContext(
+                                           org.apache.axis2.wsdl.WSDLConstants.MESSAGE_LABEL_IN_VALUE);
+                org.apache.axiom.soap.SOAPEnvelope _returnEnv = _returnMessageContext.getEnvelope();
+                
+                
+                           java.lang.Object object = fromOM(
+                                        _returnEnv.getBody().getFirstElement() ,
+                                        eu.sqooss.ws.client.ws.DeleteUserResponse.class,
+                                         getEnvelopeNamespaces(_returnEnv));
+                           _messageContext.getTransportOut().getSender().cleanup(_messageContext);
+                           return (eu.sqooss.ws.client.ws.DeleteUserResponse)object;
+                    
          }catch(org.apache.axis2.AxisFault f){
             org.apache.axiom.om.OMElement faultElt = f.getDetail();
             if (faultElt!=null){
@@ -2336,6 +2346,14 @@
 
             }
         
+            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.DeleteUserResponse param, boolean optimizeContent){
+            
+                     return param.getOMElement(eu.sqooss.ws.client.ws.DeleteUserResponse.MY_QNAME,
+                                  org.apache.axiom.om.OMAbstractFactory.getOMFactory());
+                    
+
+            }
+        
             private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.RetrieveSelectedMetric param, boolean optimizeContent){
             
                      return param.getOMElement(eu.sqooss.ws.client.ws.RetrieveSelectedMetric.MY_QNAME,
@@ -2837,6 +2855,13 @@
                 if (eu.sqooss.ws.client.ws.DeleteUser.class.equals(type)){
                 
                            return eu.sqooss.ws.client.ws.DeleteUser.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+                    
+
+                }
+           
+                if (eu.sqooss.ws.client.ws.DeleteUserResponse.class.equals(type)){
+                
+                           return eu.sqooss.ws.client.ws.DeleteUserResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
                     
 
                 }

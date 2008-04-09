@@ -81,7 +81,7 @@
                     * @param param8
                 
          */
-         public void deleteUser(
+         public eu.sqooss.ws.client.ws.DeleteUserResponse deleteUser(
 
                 eu.sqooss.ws.client.ws.DeleteUser param8)
                 throws java.rmi.RemoteException
