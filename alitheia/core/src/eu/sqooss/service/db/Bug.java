@@ -286,6 +286,13 @@ public class Bug extends DAObject {
         this.commit = commit;
     }
     
+    /**
+     * Returns a list of bugs associated with the specified project.
+     * Note that only bugs associated to a commit will be retrieved.
+     * @param project the project to find bugs in
+     * @return the list of bugs corresponding to commits for the project,
+     * or null if an error occured
+     */
     @SuppressWarnings("unchecked")
     public static List<Bug> getProjectBugs(StoredProject project) {
         DBService dbs = CoreActivator.getDBService();
@@ -294,6 +301,7 @@ public class Bug extends DAObject {
         parameterMap.put("sp", project);
         List<Bug> bugList = null;
         try {
+            // PENDING should maybe check for "b.commit not null" first ?
             bugList = dbs.doHQL("from Bug b where b.commit.project=:sp",
                                             parameterMap);
         } catch (RuntimeException e) {
