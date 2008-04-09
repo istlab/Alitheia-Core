@@ -41,19 +41,15 @@ public abstract class WSUserAccessor extends WSAccessor {
      * This method creates a new user.
      * 
      * @param newUserName - user name
-     * @param newNames - user's names (optional)
      * @param newPassword - user's password
-     * @param newUserClass - user's class (general user, OSS developer, etc.)
-     * @param newOtherInfo - (optional)
-     * 
      * @throws WSException
      * <ul>
      *  <li>if the connection can't be establish to the SQO-OSS's web services service</li>
      *  <li>if web services service throws a exception</li>
      * <ul>
      */
-    public abstract WSUser submitUser(String newUserName, String newNames, String newPassword,
-            String newUserClass, String newOtherInfo) throws WSException;
+    public abstract WSUser submitUser(String newUserName, String newPassword,
+            String email) throws WSException;
     
     /**
      * This method returns information about the user with a given id.

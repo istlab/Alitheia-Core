@@ -89,8 +89,7 @@ public class Terrier {
     public User registerUser (String username, String password, String email) {
         if (!isConnected()) return null;
         try {
-            WSUser regUser = userAccessor.submitUser(
-                    username, email, password, "developer", "");
+            WSUser regUser = userAccessor.submitUser(username, email, password);
             if (regUser != null) {
                 User newUser = new User(
                         regUser.getId(),

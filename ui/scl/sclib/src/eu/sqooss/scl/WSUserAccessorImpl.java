@@ -78,8 +78,8 @@ class WSUserAccessorImpl extends WSUserAccessor {
      * @see eu.sqooss.scl.accessor.WSUserAccessor#submitUser(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)
      */
     @Override
-    public WSUser submitUser(String newUserName, String newNames, String newPassword,
-            String newUserClass, String newOtherInfo) throws WSException {
+    public WSUser submitUser(String newUserName, String newPassword,
+            String email) throws WSException {
         SubmitUserResponse response;
         SubmitUser params;
         if (!parameters.containsKey(METHOD_NAME_SUBMIT_USER)) {
@@ -93,11 +93,8 @@ class WSUserAccessorImpl extends WSUserAccessor {
         }
         synchronized (params) {
             params.setNewUserName(newUserName);
-            params.setNewNames(newNames);
             params.setNewPassword(newPassword);
-            params.setNewUserClass(newUserClass);
-            params.setNewOtherInfo(newOtherInfo);
-
+            params.setEmail(email);
             try {
                 response = wsStub.submitUser(params);
             } catch (RemoteException re) {
