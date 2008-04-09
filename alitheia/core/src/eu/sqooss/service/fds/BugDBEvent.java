@@ -33,8 +33,6 @@
 
 package eu.sqooss.service.fds;
 
-import java.net.URL;
-
 import eu.sqooss.service.db.Bug;
 
 /**
@@ -42,9 +40,8 @@ import eu.sqooss.service.db.Bug;
  */
 public class BugDBEvent extends ProjectEvent {
     
-    public BugDBEvent(long ts, URL url, Bug dao) {
+    public BugDBEvent(long ts, Bug dao) {
         this.timestamp = ts;
-        this.resourceURL = url;
         this.associatedDAO = dao;
     }
     
@@ -53,13 +50,6 @@ public class BugDBEvent extends ProjectEvent {
      */
     public Bug getAssociatedDAO() {
         return (Bug) associatedDAO;
-    }
-
-    /**
-     * @param associatedDAO the associatedDAO to set
-     */
-    public void setAssociatedDAO(Bug associatedDAO) {
-        this.associatedDAO = associatedDAO;
     }
     
     /**

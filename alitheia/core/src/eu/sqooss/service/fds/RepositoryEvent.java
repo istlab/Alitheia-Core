@@ -33,8 +33,6 @@
 
 package eu.sqooss.service.fds;
 
-import java.net.URL;
-
 import eu.sqooss.service.db.ProjectVersion;
 
 /**
@@ -42,9 +40,8 @@ import eu.sqooss.service.db.ProjectVersion;
  */
 public class RepositoryEvent extends ProjectEvent {
     
-    public RepositoryEvent(long ts, URL url, ProjectVersion dao) {
+    public RepositoryEvent(long ts, ProjectVersion dao) {
         this.timestamp = ts;
-        this.resourceURL = url;
         this.associatedDAO = dao;
     }
     
@@ -53,13 +50,6 @@ public class RepositoryEvent extends ProjectEvent {
      */
     public ProjectVersion getAssociatedDAO() {
         return (ProjectVersion) associatedDAO;
-    }
-
-    /**
-     * @param associatedDAO the associatedDAO to set
-     */
-    public void setAssociatedDAO(ProjectVersion associatedDAO) {
-        this.associatedDAO = associatedDAO;
     }
 
     /**

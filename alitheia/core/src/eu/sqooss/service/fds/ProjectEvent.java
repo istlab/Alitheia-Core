@@ -33,8 +33,6 @@
 
 package eu.sqooss.service.fds;
 
-import java.net.URL;
-
 import eu.sqooss.service.db.DAObject;
 
 /**
@@ -50,17 +48,6 @@ public abstract class ProjectEvent implements Comparable<ProjectEvent> {
     protected long timestamp;
     
     /**
-     * REST-like resource access. A rough example format for
-     * each one of the supported resources is the following.
-     * <pre>
-     *   repo://project/<revision-number>/path/to/file-or-dir
-     *   mail://project/mailinglist/year/month/date/messageid
-     *   bts://project/report-id
-     * </pre>
-     */
-    protected URL resourceURL;
-
-    /**
      * Database record about the event.
      */
     protected DAObject associatedDAO;
@@ -71,33 +58,33 @@ public abstract class ProjectEvent implements Comparable<ProjectEvent> {
     public long getTimestamp() {
         return timestamp;
     }
-
+    
     /**
-     * @return the resourceURL
+     * @return the associated DAO
      */
-    public URL getResourceURL() {
-        return resourceURL;
+    public DAObject getAssociatedDAO() {
+        return associatedDAO;
     }
     
     /**
      * @return an integer representing the "priority" of the event.
      * This value is used to further sort events with identical timestamps.
      */
-    public abstract int eventPriority();
+    protected abstract int eventPriority();
     
     /**
      * Compare events using the following discriminants in order :
-     * timestamp -> priority -> URL
+     * timestamp -> priority -> DAO id
      * @return -1/0/1 if the event is more prioritary/equal/less prioritary than other
      */
     public int compareTo(ProjectEvent other)
     {
         if ( getTimestamp() == other.getTimestamp() ) {
             if ( eventPriority() == other.eventPriority() ) {
-                // The URL embeds the identifier, and it should be the only
-                // difference between the two project events at this point
-                return getResourceURL().toString().compareTo( 
-                        other.getResourceURL().toString() );
+                if ( getAssociatedDAO().getId() == other.getAssociatedDAO().getId() ) {
+                    return 0;
+                }
+                return getAssociatedDAO().getId() > other.getAssociatedDAO().getId() ? 1 : -1;
             }
             return eventPriority() > other.eventPriority() ? 1 : -1;
         }

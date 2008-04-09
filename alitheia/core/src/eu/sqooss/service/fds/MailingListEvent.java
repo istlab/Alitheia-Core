@@ -33,8 +33,6 @@
 
 package eu.sqooss.service.fds;
 
-import java.net.URL;
-
 import eu.sqooss.service.db.MailMessage;
 
 /**
@@ -42,9 +40,8 @@ import eu.sqooss.service.db.MailMessage;
  */
 public class MailingListEvent extends ProjectEvent {
 
-    public MailingListEvent(long ts, URL url, MailMessage dao) {
+    public MailingListEvent(long ts, MailMessage dao) {
         this.timestamp = ts;
-        this.resourceURL = url;
         this.associatedDAO = dao;
     }
     
@@ -53,13 +50,6 @@ public class MailingListEvent extends ProjectEvent {
      */
     public MailMessage getAssociatedDAO() {
         return (MailMessage) associatedDAO;
-    }
-
-    /**
-     * @param associatedDAO the associatedDAO to set
-     */
-    public void setAssociatedDAO(MailMessage associatedDAO) {
-        this.associatedDAO = associatedDAO;
     }
 
     /**

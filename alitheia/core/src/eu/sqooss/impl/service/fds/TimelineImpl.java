@@ -45,9 +45,6 @@ import eu.sqooss.service.db.MailMessage;
 import eu.sqooss.service.db.MailingList;
 import eu.sqooss.service.db.DAOException;
 
-import java.net.URL;
-import java.net.MalformedURLException;
-
 import java.util.Calendar;
 import java.util.Date;
 import java.util.SortedSet;
@@ -77,16 +74,7 @@ class TimelineImpl implements Timeline {
         for(ProjectVersion version : versions) {
             if (version.getTimestamp() < begin || version.getTimestamp() > end)
                 continue;
-            URL url = null;
-            try {
-                url = new URL( "repo://"
-                             + project.getName() + "/"
-                             + version.getVersion() + "/"
-                             + version.getVersionFiles().get(0).getFileName() );
-
-                result.add(new RepositoryEvent(version.getTimestamp(), url, version));
-            } catch(MalformedURLException e) {
-            }
+            result.add(new RepositoryEvent(version.getTimestamp(), version));
         }
 
         return result;
@@ -97,7 +85,6 @@ class TimelineImpl implements Timeline {
         
         final Date begin = from.getTime();
         final Date end = to.getTime();
-        Calendar cal = Calendar.getInstance();
         
         // get all watched mailing lists
         List<MailingList> lists = null;
@@ -114,23 +101,7 @@ class TimelineImpl implements Timeline {
                     if (message.getSendDate().before(begin) ||
                         message.getSendDate().after(end))
                         continue;
-                    cal.setTime(message.getSendDate());
-                    URL url = null;
-                    try {
-                        url = new URL( "mail://"
-                                     + project.getName() + "/"
-                                     + list.getListId() + "/"
-                                     + cal.get(Calendar.YEAR) + "/"
-                                     + cal.get(Calendar.MONTH) + "/"
-                                     + cal.get(Calendar.DATE) + "/"
-                                     + message.getMessageId() );
-                        result.add(
-                            new MailingListEvent( message.getSendDate().getTime(),
-                                                  url,
-                                                  message ) );
-                    } catch(MalformedURLException e) {
-                    }
-
+                    new MailingListEvent( message.getSendDate().getTime(), message );
                 }
             }
         }
