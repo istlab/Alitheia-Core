@@ -25,6 +25,5 @@
     <property name="reporter" column="REPORTER" />
     <property name="resolution" column="RESOLUTION" />
     <property name="shortDesc" column="SHORT_DESC" />
-    <property name="properties" column="PROPERTIES" />
   </class>
 </hibernate-mapping>
