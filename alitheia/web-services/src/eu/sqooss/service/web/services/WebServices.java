@@ -75,7 +75,7 @@ public class WebServices {
             DBService db, TDSService tds, Logger logger) {
         metricManager = new MetricManager(logger, db, securityManager);
         projectManager = new ProjectManager(logger, db, tds, securityManager);
-        userManager = new UserManager();
+        userManager = new UserManager(securityManager);
     }
     
     //5.1.1
@@ -250,21 +250,11 @@ public class WebServices {
     //5.1.10
     /**
      * This method creates a new user.
-     * 
-     * @param userNameForAccess
-     * @param passwordForAccess
-     * @param newUserName
-     * @param newNames
-     * @param newPassword
-     * @param newUserClass
-     * @param newOtherInfo
-     * @return
      */
     public WSUser submitUser(String userNameForAccess, String passwordForAccess,
-            String newUserName, String newNames, String newPassword,
-            String newUserClass, String newOtherInfo) {
+            String newUserName, String newPassword, String email) {
         return userManager.submitUser(userNameForAccess, passwordForAccess,
-                newUserName, newNames, newPassword, newUserClass, newOtherInfo);
+                newUserName, newPassword, email);
     }
     //5.1.10
     

@@ -32,22 +32,35 @@
 
 package eu.sqooss.impl.service.web.services;
 
+import eu.sqooss.service.db.User;
+import eu.sqooss.service.security.SecurityManager;
 import eu.sqooss.impl.service.web.services.datatypes.WSUser;
 
 public class UserManager {
     
+    private SecurityManager security;
+    private eu.sqooss.service.security.UserManager userManager;
+    
+    public UserManager(SecurityManager security) {
+        this.security = security;
+        this.userManager = security.getUserManager();
+    }
+    
     /**
-     * @see eu.sqooss.service.web.services.WebServices#submitUser(String, String, String, String, String, String, String)
+     * @see eu.sqooss.service.web.services.WebServices#submitUser(String, String, String, String, String)
      */
     public WSUser submitUser(String userNameForAccess, String passwordForAccess,
-            String newUserName, String newNames, String newPassword,
-            String newUserClass, String newOtherInfo) {
+            String newUserName, String newPassword, String email) {
         
         //TODO: check the security
         
-        //TODO: add all fields to the security
-        return null;
+        User newUser = userManager.createUser(newUserName, newPassword, email);
         
+        if (newUser != null) {
+            return new WSUser(newUser);
+        } else {
+            return null;
+        }
     }
     
     /**
