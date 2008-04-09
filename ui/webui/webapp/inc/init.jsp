@@ -34,7 +34,7 @@ String msg      = "";
 // Action parameter sent by various input forms
 String postAction = request.getParameter("action");
 if (postAction == null) {
-  postAction = new String("");
+    postAction = new String("");
 }
 
 // Login form parameters
@@ -47,9 +47,6 @@ String regEmail = request.getParameter("email");
 
 // Flag for authenticated user
 boolean loggedIn = false;
-
-// Flag for failed authentication or registration
-boolean loginFailure = false;
 
 ProjectsListView.setProjectId(request.getParameter("pid"));
 
@@ -64,23 +61,18 @@ if (user.isLoggedIn(null)) {
 else if (postAction.compareToIgnoreCase("Register") == 0) {
     if (validator.isEmpty(username)) {
         errorMsg += "Invalid username!<br />";
-        loginFailure = true;
     }
     if (validator.isEmpty(password)) {
         errorMsg += "Invalid password!<br />";
-        loginFailure = true;
     }
     if (validator.isEmpty(regPassword)) {
         errorMsg += "Invalid password!<br />";
-        loginFailure = true;
     }
     if (validator.isEmpty(regEmail)) {
         errorMsg += "Invalid email address!<br />";
-        loginFailure = true;
     }
     if (password.compareTo(regPassword) != 0) {
         errorMsg += "Passwords do not match!<br />";
-        loginFailure = true;
     }
 }
 // Check for login request
