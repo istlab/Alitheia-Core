@@ -10,6 +10,7 @@ title = "Login";
 <%
 if (!loggedIn) {
     out.println("<h1>Login to the Alitheia System</h1>");
+    errorMsg += "<tr />" + terrier.getError();
     out.println("<font color=\"red\">" + errorMsg + "</font>");
     
     // Retrieve the form parameters from the previous login attempt (if any)
@@ -18,7 +19,7 @@ if (!loggedIn) {
     String prvConfirm = (validator.isEmpty(regPassword)) ? "" : regPassword;
     String prvEmail = (validator.isEmpty(regEmail)) ? "" : regEmail;
     
-    // Retrive the type of the previous login page (login or register)
+    // Retrieve the type of the previous login page (login or register)
     String displayRegister = "display: none;";
     String loginType = "Sign in";
     String registerShown = "false";

@@ -48,6 +48,9 @@ String regEmail = request.getParameter("email");
 // Flag for authenticated user
 boolean loggedIn = false;
 
+// Flag for failed authentication or registration
+boolean loginFailure = false;
+
 ProjectsListView.setProjectId(request.getParameter("pid"));
 
 String errorMsg = "";
@@ -61,18 +64,28 @@ if (user.isLoggedIn(null)) {
 else if (postAction.compareToIgnoreCase("Register") == 0) {
     if (validator.isEmpty(username)) {
         errorMsg += "Invalid username!<br />";
+        loginFailure = true;
     }
     if (validator.isEmpty(password)) {
         errorMsg += "Invalid password!<br />";
+        loginFailure = true;
     }
     if (validator.isEmpty(regPassword)) {
         errorMsg += "Invalid password!<br />";
+        loginFailure = true;
     }
     if (validator.isEmpty(regEmail)) {
         errorMsg += "Invalid email address!<br />";
+        loginFailure = true;
     }
+    // Check if both password match
     if (password.compareTo(regPassword) != 0) {
         errorMsg += "Passwords do not match!<br />";
+        loginFailure = true;
+    }
+    // Try to register the new user for Alitheia
+    if (!loginFailure) {
+        terrier.registerUser(username, password, regEmail);
     }
 }
 // Check for login request

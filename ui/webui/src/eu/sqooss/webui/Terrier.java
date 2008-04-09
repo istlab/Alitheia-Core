@@ -42,10 +42,12 @@ import eu.sqooss.scl.WSSession;
 import eu.sqooss.scl.accessor.WSAccessor;
 import eu.sqooss.scl.accessor.WSMetricAccessor;
 import eu.sqooss.scl.accessor.WSProjectAccessor;
+import eu.sqooss.scl.accessor.WSUserAccessor;
 import eu.sqooss.ws.client.datatypes.WSMetric;
 import eu.sqooss.ws.client.datatypes.WSProjectFile;
 import eu.sqooss.ws.client.datatypes.WSProjectVersion;
 import eu.sqooss.ws.client.datatypes.WSStoredProject;
+import eu.sqooss.ws.client.datatypes.WSUser;
 
 
 public class Terrier {
@@ -54,8 +56,9 @@ public class Terrier {
 //    WSConnection connection;
     WSProjectAccessor projectAccessor;
     WSMetricAccessor metricAccessor;
+    WSUserAccessor userAccessor;
 
-    String error = "No problems.";
+    String error = "";
     String debug = "...";
 
     public Terrier () {
@@ -72,6 +75,17 @@ public class Terrier {
             return false;
         }
         return true;
+    }
+
+    public WSUser registerUser (String username, String password, String email) {
+        if (!isConnected()) return null;
+        try {
+            return userAccessor.submitUser(
+                    username, email, password, "developer", "");
+        } catch (WSException e) {
+            error = "An user with the same name already exist!";
+            return null;
+        }
     }
 
     /**
@@ -237,7 +251,6 @@ public class Terrier {
         // Try to connect the SCL to the Alitheia system
         try {
             session = new WSSession("alitheia", "alitheia", "http://localhost:8088/sqooss/services/ws"); // WTF?
-            error = "connected";
         } catch (WSException wse) {
             error = "Couldn't start Alitheia session.";
             debug += "nosession";
