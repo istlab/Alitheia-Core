@@ -77,6 +77,15 @@ public class Terrier {
         return true;
     }
 
+    /**
+     * Registers a new user into the SQO-OSS framework.
+     * 
+     * @param username The user's name
+     * @param password The user's password
+     * @param email The user's email address
+     * 
+     * @return A WSUser object upon successful registration, or null on failure.
+     */
     public WSUser registerUser (String username, String password, String email) {
         if (!isConnected()) return null;
         try {
@@ -260,6 +269,7 @@ public class Terrier {
         }
         projectAccessor = (WSProjectAccessor) session.getAccessor(WSAccessor.Type.PROJECT);
         metricAccessor = (WSMetricAccessor) session.getAccessor(WSAccessor.Type.METRIC);
+        userAccessor = (WSUserAccessor) session.getAccessor(WSAccessor.Type.USER);
 //        try {
 //            connection = session.getConnection();
 //        } catch (WSException wse) {
