@@ -32,12 +32,28 @@
 
 package eu.sqooss.impl.service.security;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.lang.management.ManagementFactory;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
 
+import javax.servlet.Servlet;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.http.HttpService;
+
 import eu.sqooss.impl.service.security.utils.SecurityManagerDatabase;
+import eu.sqooss.impl.service.webadmin.AdminServlet;
+import eu.sqooss.impl.service.webadmin.AdminWS;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.security.GroupManager;
@@ -49,15 +65,36 @@ import eu.sqooss.service.security.UserManager;
 
 public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
 
+    private BundleContext bc;
     private UserManager userManager;
     private GroupManager groupManager;
     private PrivilegeManager privilegeManager;
     private ServiceUrlManager serviceUrlManager;
     private SecurityManagerDatabase dbWrapper;
     private Logger logger;
+    private ServiceReference srefHttpService = null;
+    private HttpService sobjHttpService = null;
     private boolean isEnable;
+    
+    private class ConfirmationServlet extends HttpServlet {
+        protected void doGet(HttpServletRequest req, HttpServletResponse res)
+            throws ServletException, IOException {
 
-    public SecurityManagerImpl(DBService db, Logger logger) {
+            res.setContentType("text/html");
+            PrintWriter content = res.getWriter();
+            String confId = req.getParameter("confid");
+            if ((confId != null) && (confId.length() > 0 )) 
+                content.println(
+                        "Thank you."
+                        + " Your user account is now active.");
+            else {
+                content.println("Wrong parameters!");
+            }
+        }
+    }
+
+    public SecurityManagerImpl(BundleContext bc, DBService db, Logger logger) {
+        this.bc = bc;
         this.dbWrapper = new SecurityManagerDatabase(db);
         this.logger = logger;
         
@@ -67,6 +104,31 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
         serviceUrlManager = new ServiceUrlManagerImpl(db, logger);
         
         isEnable = Boolean.valueOf(System.getProperty("eu.sqooss.security.enable", "true"));
+        
+        // Get a reference to the HTTPService, and its object
+        srefHttpService = bc.getServiceReference(HttpService.class.getName());
+        if (srefHttpService != null) {
+            sobjHttpService = (HttpService) bc.getService(srefHttpService);
+            if (sobjHttpService != null) {
+                try {
+                    sobjHttpService.registerServlet(
+                        "/confirmRegistration",
+                        new ConfirmationServlet(),
+                        new Hashtable<String, String>(),
+                        null);
+                }
+                catch (Exception e) {
+                    logger.error(ConfirmationServlet.class
+                            + " registration has failed with: " + e);
+                }
+            }
+            else {
+                logger.error("Unable to obtain a HttpService object!");
+            }
+        }
+        else {
+            logger.error("Unable to obtain a HttpService reference!");
+        }
     }
 
     /**

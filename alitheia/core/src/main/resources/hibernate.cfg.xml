@@ -51,6 +51,7 @@
         <mapping resource="eu/sqooss/service/db/StoredProject.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/Tag.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/User.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/PendingUser.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/Group.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/GroupUser.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/Bug.hbm.xml"/>

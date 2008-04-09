@@ -144,7 +144,9 @@ public class AlitheiaCore {
 
     public SecurityManager getSecurityManager() {
         if (sec == null) {
-            sec = new SecurityManagerImpl(this.getDBService(),
+            sec = new SecurityManagerImpl(
+                    bc,
+                    this.getDBService(),
                     this.getLogManager().createLogger(Logger.NAME_SQOOSS_SECURITY));
         }
 
