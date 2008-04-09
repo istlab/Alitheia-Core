@@ -96,8 +96,8 @@ public abstract class DAObject {
     public static eu.sqooss.impl.service.corba.alitheia.ProjectFileMeasurement toCorbaObject(ProjectFileMeasurement m) {
         eu.sqooss.impl.service.corba.alitheia.ProjectFileMeasurement measurement = new eu.sqooss.impl.service.corba.alitheia.ProjectFileMeasurement();
         measurement.id = (int)m.getId();
-        measurement.metric = toCorbaObject(m.getMetric());
-        measurement.projectFile = toCorbaObject(m.getProjectFile());
+        measurement.measureMetric = toCorbaObject(m.getMetric());
+        measurement.file = toCorbaObject(m.getProjectFile());
         measurement.whenRun = formatDate(m.getWhenRun());
         measurement.result = m.getResult() == null ? "" : m.getResult();
         return measurement;
@@ -106,8 +106,8 @@ public abstract class DAObject {
     public static ProjectFileMeasurement fromCorbaObject(eu.sqooss.impl.service.corba.alitheia.ProjectFileMeasurement m) {
         ProjectFileMeasurement measurement = new ProjectFileMeasurement();
         measurement.setId(m.id);
-        measurement.setMetric(fromCorbaObject(m.metric));
-        measurement.setProjectFile(fromCorbaObject(m.projectFile));
+        measurement.setMetric(fromCorbaObject(m.measureMetric));
+        measurement.setProjectFile(fromCorbaObject(m.file));
         measurement.setWhenRun(new Timestamp(parseDate(m.whenRun).getTime()));
         measurement.setResult(m.result);
         return measurement;
@@ -116,8 +116,8 @@ public abstract class DAObject {
     public static eu.sqooss.impl.service.corba.alitheia.ProjectVersionMeasurement toCorbaObject(ProjectVersionMeasurement m) {
         eu.sqooss.impl.service.corba.alitheia.ProjectVersionMeasurement measurement = new eu.sqooss.impl.service.corba.alitheia.ProjectVersionMeasurement();
         measurement.id = (int)m.getId();
-        measurement.metric = toCorbaObject(m.getMetric());
-        measurement.projectVersion = toCorbaObject(m.getProjectVersion());
+        measurement.measureMetric = toCorbaObject(m.getMetric());
+        measurement.version = toCorbaObject(m.getProjectVersion());
         measurement.whenRun = formatDate(m.getWhenRun());
         measurement.result = m.getResult() == null ? "" : m.getResult();
         return measurement;
@@ -126,8 +126,8 @@ public abstract class DAObject {
     public static ProjectVersionMeasurement fromCorbaObject(eu.sqooss.impl.service.corba.alitheia.ProjectVersionMeasurement m) {
         ProjectVersionMeasurement measurement = new ProjectVersionMeasurement();
         measurement.setId(m.id);
-        measurement.setMetric(fromCorbaObject(m.metric));
-        measurement.setProjectVersion(fromCorbaObject(m.projectVersion));
+        measurement.setMetric(fromCorbaObject(m.measureMetric));
+        measurement.setProjectVersion(fromCorbaObject(m.version));
         measurement.setWhenRun(new Timestamp(parseDate(m.whenRun).getTime()));
         measurement.setResult(m.result);
         return measurement;
@@ -136,8 +136,8 @@ public abstract class DAObject {
     public static eu.sqooss.impl.service.corba.alitheia.Metric toCorbaObject(Metric m) {
         eu.sqooss.impl.service.corba.alitheia.Metric metric = new eu.sqooss.impl.service.corba.alitheia.Metric();
         metric.id = (int)m.getId();
-        metric.plugin = toCorbaObject(m.getPlugin());
-        metric.metricType = toCorbaObject(m.getMetricType());
+        metric.metricPlugin = toCorbaObject(m.getPlugin());
+        metric.type = toCorbaObject(m.getMetricType());
         metric.description = m.getDescription();
         return metric;
     }
@@ -145,8 +145,8 @@ public abstract class DAObject {
     public static Metric fromCorbaObject(eu.sqooss.impl.service.corba.alitheia.Metric m) {
         Metric metric = new Metric();
         metric.setId(m.id);
-        metric.setPlugin(fromCorbaObject(m.plugin));
-        metric.setMetricType(fromCorbaObject(m.metricType));
+        metric.setPlugin(fromCorbaObject(m.metricPlugin));
+        metric.setMetricType(fromCorbaObject(m.type));
         metric.setDescription(m.description);
         return metric;
     }
@@ -213,7 +213,7 @@ public abstract class DAObject {
         fileGroup.regex = group.getRegex();
         fileGroup.recalcFreq = group.getRecalcFreq();
         fileGroup.lastUsed = formatDate(group.getLastUsed());
-        fileGroup.projectVersion = toCorbaObject(group.getProjectVersion());
+        fileGroup.version = toCorbaObject(group.getProjectVersion());
         return fileGroup;
     }
 
@@ -225,7 +225,7 @@ public abstract class DAObject {
         fileGroup.setRegex(group.regex);
         fileGroup.setRecalcFreq(group.recalcFreq);
         fileGroup.setLastUsed(new Time(parseDate(group.lastUsed).getTime()));
-        fileGroup.setProjectVersion(fromCorbaObject(group.projectVersion));
+        fileGroup.setProjectVersion(fromCorbaObject(group.version));
         return fileGroup;
     }
 
@@ -281,10 +281,10 @@ public abstract class DAObject {
         eu.sqooss.impl.service.corba.alitheia.ProjectFile projectFile = new eu.sqooss.impl.service.corba.alitheia.ProjectFile();
         projectFile.id = (int)file.getId();
         projectFile.name = file.getName();
-        projectFile.projectVersion = toCorbaObject(file.getProjectVersion());
+        projectFile.version = toCorbaObject(file.getProjectVersion());
         projectFile.status = file.getStatus();
         projectFile.isDirectory = file.getIsDirectory();
-        projectFile.directory = toCorbaObject(file.getDir());
+        projectFile.dir = toCorbaObject(file.getDir());
         return projectFile;
     }
 
@@ -292,10 +292,10 @@ public abstract class DAObject {
         ProjectFile projectFile = new ProjectFile();
         projectFile.setId(file.id);
         projectFile.setName(file.name);
-        projectFile.setProjectVersion(fromCorbaObject(file.projectVersion));
+        projectFile.setProjectVersion(fromCorbaObject(file.version));
         projectFile.setStatus(file.status);
         projectFile.setIsDirectory(file.isDirectory);
-        projectFile.setDir(fromCorbaObject(file.directory));
+        projectFile.setDir(fromCorbaObject(file.dir));
         return projectFile;
     }
 
@@ -305,7 +305,7 @@ public abstract class DAObject {
         developer.name = dev.getName() == null ? "" : dev.getName();
         developer.email = dev.getEmail() == null ? "" : dev.getEmail();
         developer.username = dev.getUsername();
-        developer.storedProject = toCorbaObject(dev.getStoredProject());
+        developer.project = toCorbaObject(dev.getStoredProject());
         return developer;
     }
 
@@ -315,7 +315,7 @@ public abstract class DAObject {
         developer.setName(dev.name);
         developer.setEmail(dev.email);
         developer.setUsername(dev.username);
-        developer.setStoredProject(fromCorbaObject(dev.storedProject));
+        developer.setStoredProject(fromCorbaObject(dev.project));
         return developer;
     }
     

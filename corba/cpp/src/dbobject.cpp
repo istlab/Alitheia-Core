@@ -134,10 +134,10 @@ ProjectFile::ProjectFile( const alitheia::ProjectFile& file )
     : istream( new ProjectFileBuffer( this ) ),
       DAObject( file.id ),
       name( file.name ),
-      projectVersion( file.projectVersion ),
+      projectVersion( file.version ),
       status( file.status ),
       isDirectory( file.isDirectory ),
-      directory( file.directory )
+      directory( file.dir )
 {
 }
 
@@ -163,10 +163,10 @@ alitheia::ProjectFile ProjectFile::toCorba() const
     alitheia::ProjectFile result;
     result.id = id;
     result.name = CORBA::string_dup( name.c_str() );
-    result.projectVersion = projectVersion.toCorba();
+    result.version = projectVersion.toCorba();
     result.status = CORBA::string_dup( status.c_str() );
     result.isDirectory = isDirectory;
-    result.directory = directory.toCorba();
+    result.dir = directory.toCorba();
     return result;
 }
 
@@ -189,7 +189,7 @@ FileGroup::FileGroup( const alitheia::FileGroup& group )
       regex( group.regex ),
       recalcFreq( group.recalcFreq ),
       lastUsed( group.lastUsed ),
-      projectVersion( group.projectVersion )
+      projectVersion( group.version )
 {
 }
 
@@ -202,7 +202,7 @@ alitheia::FileGroup FileGroup::toCorba() const
     result.regex = CORBA::string_dup( regex.c_str() );
     result.recalcFreq = recalcFreq;
     result.lastUsed = CORBA::string_dup( lastUsed.c_str() );
-    result.projectVersion = projectVersion.toCorba();
+    result.version = projectVersion.toCorba();
     return result;
 }
 
@@ -259,8 +259,8 @@ Plugin::operator CORBA::Any() const
 
 Metric::Metric( const alitheia::Metric& metric )
     : DAObject( metric.id ),
-      plugin( metric.plugin ),
-      metricType( metric.metricType ),
+      plugin( metric.metricPlugin ),
+      metricType( metric.type ),
       description( metric.description )
 {
 }
@@ -269,8 +269,8 @@ alitheia::Metric Metric::toCorba() const
 {
     alitheia::Metric result;
     result.id = id;
-    result.plugin = plugin.toCorba();
-    result.metricType = metricType.toCorba();
+    result.metricPlugin = plugin.toCorba();
+    result.type = metricType.toCorba();
     result.description = CORBA::string_dup( description.c_str() );
     return result;
 }
@@ -284,8 +284,8 @@ Metric::operator CORBA::Any() const
 
 ProjectFileMeasurement::ProjectFileMeasurement( const alitheia::ProjectFileMeasurement& measurement )
     : DAObject( measurement.id ),
-      metric( measurement.metric ),
-      projectFile( measurement.projectFile ),
+      metric( measurement.measureMetric ),
+      projectFile( measurement.file ),
       whenRun( measurement.whenRun ),
       result( measurement.result )
 {
@@ -295,8 +295,8 @@ alitheia::ProjectFileMeasurement ProjectFileMeasurement::toCorba() const
 {
     alitheia::ProjectFileMeasurement result;
     result.id = id;
-    result.metric = metric.toCorba();
-    result.projectFile = projectFile.toCorba();
+    result.measureMetric = metric.toCorba();
+    result.file = projectFile.toCorba();
     result.whenRun = CORBA::string_dup( whenRun.c_str() );
     result.result = CORBA::string_dup( this->result.c_str() );
     return result;
@@ -311,8 +311,8 @@ ProjectFileMeasurement::operator CORBA::Any() const
 
 ProjectVersionMeasurement::ProjectVersionMeasurement( const alitheia::ProjectVersionMeasurement& measurement )
     : DAObject( measurement.id ),
-      metric( measurement.metric ),
-      projectVersion( measurement.projectVersion ),
+      metric( measurement.measureMetric ),
+      projectVersion( measurement.version ),
       whenRun( measurement.whenRun ),
       result( measurement.result )
 {
@@ -322,8 +322,8 @@ alitheia::ProjectVersionMeasurement ProjectVersionMeasurement::toCorba() const
 {
     alitheia::ProjectVersionMeasurement result;
     result.id = id;
-    result.metric = metric.toCorba();
-    result.projectVersion = projectVersion.toCorba();
+    result.measureMetric = metric.toCorba();
+    result.version = projectVersion.toCorba();
     result.whenRun = CORBA::string_dup( whenRun.c_str() );
     result.result = CORBA::string_dup( this->result.c_str() );
     return result;
@@ -341,7 +341,7 @@ Developer::Developer( const alitheia::Developer& developer )
       name( developer.name ),
       email( developer.email ),
       username( developer.username ),
-      storedProject( developer.storedProject )
+      storedProject( developer.project )
 {
 }
 
@@ -352,7 +352,7 @@ alitheia::Developer Developer::toCorba() const
     result.name = CORBA::string_dup( name.c_str() );
     result.email = CORBA::string_dup( email.c_str() );
     result.username = CORBA::string_dup( username.c_str() );
-    result.storedProject = storedProject.toCorba();
+    result.project = storedProject.toCorba();
     return result;
 }
 

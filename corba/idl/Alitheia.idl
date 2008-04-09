@@ -11,13 +11,6 @@ module corba
 {
 module alitheia
 {
-  struct ProjectVersion;
-  struct ProjectFile;
-  struct Metric;
-  typedef sequence<ProjectFile> ProjectFileList;
-  typedef sequence<ProjectVersion> ProjectVersionList;
-  typedef sequence<Metric> MetricList;
-
   struct Directory
   {
     long id;
@@ -41,7 +34,7 @@ module alitheia
     string name;
     string email;
     string username;
-    StoredProject storedProject;
+    StoredProject project;
   };
 
   struct ProjectVersion
@@ -59,10 +52,10 @@ module alitheia
   {
     long id;
     string name;
-    ProjectVersion projectVersion;
+    ProjectVersion version;
     string status;
     boolean isDirectory;
-    Directory directory;
+    Directory dir;
   };
 
   struct FileGroup
@@ -73,7 +66,7 @@ module alitheia
     string regex;
     long recalcFreq;
     string lastUsed;
-    ProjectVersion projectVersion;
+    ProjectVersion version;
   };
 
   enum MetricTypeType
@@ -99,16 +92,16 @@ module alitheia
   struct Metric
   {
     long id;
-    Plugin plugin;
-    MetricType metricType;
+    Plugin metricPlugin;
+    MetricType type;
     string description;
   };
 
   struct ProjectFileMeasurement
   {
     long id;
-    Metric metric;
-    ProjectFile projectFile;
+    Metric measureMetric;
+    ProjectFile file;
     string whenRun;
     string result;
   };
@@ -116,11 +109,15 @@ module alitheia
   struct ProjectVersionMeasurement
   {
     long id;
-    Metric metric;
-    ProjectVersion projectVersion;
+    Metric measureMetric;
+    ProjectVersion version;
     string whenRun;
     string result;
   };
+
+  typedef sequence<ProjectFile> ProjectFileList;
+  typedef sequence<ProjectVersion> ProjectVersionList;
+  typedef sequence<Metric> MetricList;
 
   interface Core
   {
@@ -145,6 +142,11 @@ module alitheia
     MetricList getSupportedMetrics( in string metricname );
 
     ProjectFileList getVersionFiles( in ProjectVersion version );
+  };
+
+  interface FDS
+  {
+    long getFileContents( in ProjectFile file, out string contents );
   };
 
   interface Database
@@ -179,7 +181,6 @@ module alitheia
     void error( in string logger, in string text );
   };
 
-
   interface AbstractMetric
   {
     boolean doInstall();
@@ -199,7 +200,7 @@ module alitheia
   {
     /* Generic run plug-in method
      * Returns a XML-serialized MetricResult */
-    string getResult( in ProjectVersion projectVersion );
+    string getResult( in ProjectVersion version );
 
     void run( in ProjectVersion v );
     boolean run2nd( in ProjectVersion a, in ProjectVersion b );
@@ -208,7 +209,7 @@ module alitheia
   {
     /* Generic run plug-in method
      * Returns a XML-serialized MetricResult */
-    string getResult( in StoredProject storedProject );
+    string getResult( in StoredProject project );
 
     void run( in StoredProject p );
   };
@@ -216,7 +217,7 @@ module alitheia
   {
     /* Generic run plug-in method
      * Returns a XML-serialized MetricResult */
-    string getResult( in ProjectFile projectFile );
+    string getResult( in ProjectFile file );
 
     void run( in ProjectFile f );
   };
@@ -224,7 +225,7 @@ module alitheia
   {
     /* Generic run plug-in method
      * Returns a XML-serialized MetricResult */
-    string getResult( in FileGroup fileGroup );
+    string getResult( in FileGroup group );
 
     void run( in FileGroup g );
   };

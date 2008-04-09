@@ -140,12 +140,13 @@ char* ProjectVersionMetric::getResult( const alitheia::ProjectVersion& projectVe
 
 void ProjectVersionMetric::run( const alitheia::ProjectVersion& projectVersion )
 {
-//    return CORBA::string_dup( getResult( ProjectVersion( projectVersion ) ).c_str() );
+    ProjectVersion version( projectVersion );
+    run( version );
 }
 
 CORBA::Boolean ProjectVersionMetric::run2nd( const alitheia::ProjectVersion& a, const alitheia::ProjectVersion& b )
 {
-//    return CORBA::string_dup( getResult( ProjectVersion( projectVersion ) ).c_str() );
+    //return CORBA::string_dup( getResult( ProjectVersion( projectVersion ) ).c_str() );
     return false;
 }
 

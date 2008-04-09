@@ -70,6 +70,7 @@ namespace Alitheia
         CORBA::Boolean run2nd( const eu::sqooss::impl::service::corba::alitheia::ProjectVersion& a, const eu::sqooss::impl::service::corba::alitheia::ProjectVersion& b );
 
         virtual std::string getResult( const ProjectVersion& projectVersion ) const = 0;
+        virtual void run( ProjectVersion& version ) = 0;
     };
 
     class ProjectFileMetric : public AbstractMetric, virtual public POA_eu::sqooss::impl::service::corba::alitheia::ProjectFileMetric
