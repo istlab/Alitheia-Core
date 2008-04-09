@@ -71,10 +71,12 @@ class TimelineImpl implements Timeline {
         final long end = to.getTimeInMillis();
 
         List<ProjectVersion> versions = project.getProjectVersions();
-        for(ProjectVersion version : versions) {
-            if (version.getTimestamp() < begin || version.getTimestamp() > end)
-                continue;
-            result.add( new RepositoryEvent(version.getTimestamp(), version) );
+        if (versions != null) {
+            for(ProjectVersion version : versions) {
+                if (version.getTimestamp() < begin || version.getTimestamp() > end)
+                    continue;
+                result.add( new RepositoryEvent(version.getTimestamp(), version) );
+            }
         }
 
         return result;
@@ -88,15 +90,19 @@ class TimelineImpl implements Timeline {
         
         try {
             List<MailingList> lists = MailingList.getListsPerProject(project);
-            for (MailingList list : lists) {
-                // get all messages
-                List<MailMessage> messages = list.getMessages();
-                for (MailMessage message : messages)
-                {
-                    if (message.getSendDate().before(begin) ||
-                        message.getSendDate().after(end))
+            if (lists != null) {
+                for (MailingList list : lists) {
+                    // get all messages
+                    List<MailMessage> messages = list.getMessages();
+                    if (messages == null)
                         continue;
-                    result.add( new MailingListEvent( message.getSendDate().getTime(), message ) );
+                    for (MailMessage message : messages)
+                    {
+                        if (message.getSendDate().before(begin) ||
+                            message.getSendDate().after(end))
+                            continue;
+                        result.add( new MailingListEvent( message.getSendDate().getTime(), message ) );
+                    }
                 }
             }
         } catch(DAOException ex) {
@@ -113,12 +119,14 @@ class TimelineImpl implements Timeline {
         final Date end = to.getTime();
 
         List<Bug> bugs = Bug.getProjectBugs(project);
-        for (Bug bug : bugs) {
-            // PENDING: Use creation date or last update date ?
-            if ( bug.getCreationTS().before(begin) ||
-                 bug.getCreationTS().after(end) )
-                continue;
-            result.add( new BugDBEvent( bug.getCreationTS().getTime(), bug ) );
+        if (bugs != null) {
+            for (Bug bug : bugs) {
+                // PENDING: Use creation date or last update date ?
+                if ( bug.getCreationTS().before(begin) ||
+                     bug.getCreationTS().after(end) )
+                    continue;
+                result.add( new BugDBEvent( bug.getCreationTS().getTime(), bug ) );
+            }
         }
 
         return result;
