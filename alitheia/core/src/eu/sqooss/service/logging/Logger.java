@@ -122,6 +122,11 @@ public interface Logger {
      * Represents FDS logger name.
      */
     public static final String NAME_SQOOSS_FDS          = "sqooss.fds";
+    
+    /**
+     * Represents PluginAdmin logger name.
+     */
+    public static final String NAME_SQOOSS_PA           = "sqooss.pa";
 
     /**
      * Represents Metric logger name.

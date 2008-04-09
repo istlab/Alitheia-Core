@@ -93,7 +93,7 @@ public class AlitheiaCore {
     
     public void initPluginAdmin() {
         if (padmin == null) {
-            padmin = new PAServiceImpl(bc);
+            padmin = new PAServiceImpl(bc, getLogManager().createLogger(Logger.NAME_SQOOSS_PA));
         }
     }
     

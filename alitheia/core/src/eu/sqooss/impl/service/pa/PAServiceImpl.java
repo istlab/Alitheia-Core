@@ -53,6 +53,7 @@ import eu.sqooss.service.db.FileGroup;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
+import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.pa.ConfigUtils;
 import eu.sqooss.service.pa.MetricConfig;
 import eu.sqooss.service.pa.MetricInfo;
@@ -95,6 +96,8 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
 
     /* ===[ Global variables ]============================================ */
 
+    private Logger logger;
+    
     // Store our parent's bundle context here
     private BundleContext bc;
 
@@ -111,7 +114,8 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
 
     /* ===[ Constructors ]================================================ */
 
-    public PAServiceImpl (BundleContext bc) {
+    public PAServiceImpl (BundleContext bc, Logger logger) {
+        this.logger = logger;
         this.bc = bc;
 
         // Read the default configuration file
@@ -476,21 +480,15 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
     }
 
     private void logError(String msgText) {
-        // TODO Use Logger instead
-        System.out.println ("[ERROR] " + msgText);
-
+        logger.error(msgText);
     }
 
     private void logWarning(String msgText) {
-        // TODO Use Logger instead
-        System.out.println ("[WARNING] " + msgText);
-
+        logger.warn(msgText);
     }
 
     private void logInfo(String msgText) {
-        // TODO Use Logger instead
-        System.out.println ("[INFO] " + msgText);
-
+        logger.info(msgText);
     }
 
 }
