@@ -17,10 +17,20 @@ if (!loggedIn) {
     String prvPassword = (validator.isEmpty(password)) ? "" : password;
     String prvConfirm = (validator.isEmpty(regPassword)) ? "" : regPassword;
     String prvEmail = (validator.isEmpty(regEmail)) ? "" : regEmail;
+    
+    // Retrive the type of the previous login page (login or register)
+    String displayRegister = "display: none;";
+    String loginType = "Sign in";
+    String registerShown = "false";
+    if (postAction.compareToIgnoreCase("Register") == 0) {
+        displayRegister = "";
+        loginType = "Register";
+        registerShown = "true";
+    }
 %>
 
     <script language="JavaScript">
-    var registerShown = false;
+    var registerShown = <% out.print (registerShown); %>;
     
     function showRegister(table,button) {
       var displayType = (registerShown) ? 'none' : '';
@@ -40,43 +50,44 @@ if (!loggedIn) {
             <td>Username:</td>
             <td>
                 <input type="text" name="username" class="form" 
-                  value="<% out.println(prvUsername); %>"/>
+                    value="<% out.println(prvUsername); %>"/>
             </td>
         </tr>
         <tr>
             <td>Password:</td>
             <td>
                 <input type="password" name="password" class="form" 
-                  value="<% out.println(prvPassword); %>"/>
+                    value="<% out.println(prvPassword); %>"/>
             </td>
         </tr>
-        <tr style="display: none;">
+        <tr style="<% out.print (displayRegister); %>">
             <td>Confirm:</td>
             <td>
                 <input type="password" name="confirm" class="form" 
-                  value="<% out.println(prvConfirm); %>"/>
+                    value="<% out.println(prvConfirm); %>"/>
             </td>
         </tr>
-        <tr style="display: none;">
+        <tr style="<% out.print (displayRegister); %>">
             <td>Email:</td>
             <td>
                 <input type="text" name="email" class="form" 
-                  value="<% out.println(prvEmail); %>"/>
+                    value="<% out.println(prvEmail); %>"/>
             </td>
         </tr>
         <tr>
             <td>&nbsp;</td>
             <td align="right">
-                <input type="submit" value="Sign in" class="form" id="loginButton"/>
-                <input type="button" value="New user" class="form"
+                <input type="submit" class="form" id="loginButton"
+                    value="<% out.print (loginType); %>"/>
+                <input type="button" class="form" value="New user"
                     onclick="javascript:showRegister('registerForm','loginButton')"/>
             </td>
         </tr>
     </table>
-    <input id="action" type="hidden" name="action" value="Sign in">
+    <input id="action" type="hidden" name="action" value="<% out.print (loginType); %>">
     </form>
 
-    <%
+<%
 } else {
     out.println("You are signed in. To sign in as a different user, please sign out first.");
 }
