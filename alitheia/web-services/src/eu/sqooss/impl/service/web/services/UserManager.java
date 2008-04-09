@@ -70,7 +70,15 @@ public class UserManager {
             long userId) {
         
         //TODO: check the security
-        return null;
+        
+        User user = userManager.getUser(userId); 
+        
+        if (user != null) {
+            return new WSUser(user);
+        } else {
+            return null;
+        }
+        
     }
     
     /**
@@ -86,9 +94,11 @@ public class UserManager {
     /**
      * @see eu.sqooss.service.web.services.WebServices#deleteUser(String, String, long)
      */
-    public void deleteUser(String userNameForAccess, String passwordForAccess, long userId) {
+    public boolean deleteUser(String userNameForAccess, String passwordForAccess, long userId) {
         
         //TODO: check the security
+        
+        return userManager.deleteUser(userId);
     }
     
     /**

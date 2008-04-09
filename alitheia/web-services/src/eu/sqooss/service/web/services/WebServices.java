@@ -297,8 +297,8 @@ public class WebServices {
      * @param passwordForAccess
      * @param userId
      */
-    public void deleteUser(String userNameForAccess, String passwordForAccess, long userId) {
-        userManager.deleteUser(userNameForAccess, passwordForAccess, userId);
+    public boolean deleteUser(String userNameForAccess, String passwordForAccess, long userId) {
+        return userManager.deleteUser(userNameForAccess, passwordForAccess, userId);
     }
     //5.1.11
     
