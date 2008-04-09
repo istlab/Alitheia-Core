@@ -128,7 +128,7 @@ start-core : clean-osgi
 # Start the core without a console. Use 'make stop-core' to stop it.
 start-core-bg : clean-osgi
 	cd $(PREFIX) && \
-	$(JAVA_CMD) $(JAVA_CORE_ARGS) -no-exit
+	$(JAVA_CMD) $(JAVA_CORE_ARGS) -no-exit &
 
 # Start the core in debug mode with console.
 start-core-debug : clean-osgi
