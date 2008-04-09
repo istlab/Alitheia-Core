@@ -33,11 +33,14 @@
 
 package eu.sqooss.service.db;
 
+import eu.sqooss.impl.service.CoreActivator;
 import eu.sqooss.service.db.DAObject;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * This class represents the data relating to bugs, stored in the database
@@ -283,9 +286,19 @@ public class Bug extends DAObject {
         this.commit = commit;
     }
     
+    @SuppressWarnings("unchecked")
     public static List<Bug> getProjectBugs(StoredProject project) {
-        // TODO
-        return new ArrayList<Bug>();
+        DBService dbs = CoreActivator.getDBService();
+
+        Map<String,Object> parameterMap = new HashMap<String,Object>();
+        parameterMap.put("sp", project);
+        List<Bug> bugList = null;
+        try {
+            bugList = dbs.doHQL("from Bug b where b.commit.project=:sp",
+                                            parameterMap);
+        } catch (RuntimeException e) {
+        }
+        return bugList;
     }
 }
 
