@@ -35,7 +35,9 @@ package eu.sqooss.service.db;
 
 import eu.sqooss.service.db.DAObject;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * This class represents the data relating to bugs, stored in the database
@@ -279,6 +281,11 @@ public class Bug extends DAObject {
     
     public void setCommit(ProjectVersion commit) {
         this.commit = commit;
+    }
+    
+    public static List<Bug> getProjectBugs(StoredProject project) {
+        // TODO
+        return new ArrayList<Bug>();
     }
 }
 

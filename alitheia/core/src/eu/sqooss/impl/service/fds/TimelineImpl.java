@@ -43,6 +43,7 @@ import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.MailMessage;
 import eu.sqooss.service.db.MailingList;
+import eu.sqooss.service.db.Bug;
 import eu.sqooss.service.db.DAOException;
 
 import java.util.Calendar;
@@ -69,12 +70,11 @@ class TimelineImpl implements Timeline {
         final long begin = from.getTimeInMillis();
         final long end = to.getTimeInMillis();
 
-        // get all versions
         List<ProjectVersion> versions = project.getProjectVersions();
         for(ProjectVersion version : versions) {
             if (version.getTimestamp() < begin || version.getTimestamp() > end)
                 continue;
-            result.add(new RepositoryEvent(version.getTimestamp(), version));
+            result.add( new RepositoryEvent(version.getTimestamp(), version) );
         }
 
         return result;
@@ -86,13 +86,8 @@ class TimelineImpl implements Timeline {
         final Date begin = from.getTime();
         final Date end = to.getTime();
         
-        // get all watched mailing lists
-        List<MailingList> lists = null;
         try {
-            lists = MailingList.getListsPerProject(project);
-        } catch(DAOException ex) {
-        }
-        if (lists != null) {
+            List<MailingList> lists = MailingList.getListsPerProject(project);
             for (MailingList list : lists) {
                 // get all messages
                 List<MailMessage> messages = list.getMessages();
@@ -101,9 +96,11 @@ class TimelineImpl implements Timeline {
                     if (message.getSendDate().before(begin) ||
                         message.getSendDate().after(end))
                         continue;
-                    new MailingListEvent( message.getSendDate().getTime(), message );
+                    result.add( new MailingListEvent( message.getSendDate().getTime(), message ) );
                 }
             }
+        } catch(DAOException ex) {
+            // Will be removed when the DB code is refactored
         }
 
         return result;
@@ -111,7 +108,19 @@ class TimelineImpl implements Timeline {
 
     private SortedSet<BugDBEvent> getBugTimeLine(Calendar from, Calendar to) {
         SortedSet<BugDBEvent> result = new TreeSet<BugDBEvent>();
-        // TODO: implement me!
+
+        final Date begin = from.getTime();
+        final Date end = to.getTime();
+
+        List<Bug> bugs = Bug.getProjectBugs(project);
+        for (Bug bug : bugs) {
+            // PENDING: Use creation date or last update date ?
+            if ( bug.getCreationTS().before(begin) ||
+                 bug.getCreationTS().after(end) )
+                continue;
+            result.add( new BugDBEvent( bug.getCreationTS().getTime(), bug ) );
+        }
+
         return result;
     }
  
