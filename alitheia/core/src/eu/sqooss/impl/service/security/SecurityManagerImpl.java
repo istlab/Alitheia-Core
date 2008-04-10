@@ -34,12 +34,9 @@ package eu.sqooss.impl.service.security;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.lang.management.ManagementFactory;
 import java.util.Dictionary;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.StringTokenizer;
 
 import javax.servlet.ServletException;
@@ -47,17 +44,14 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.http.HttpService;
 
 import eu.sqooss.impl.service.security.utils.SecurityManagerDatabase;
-import eu.sqooss.impl.service.webadmin.AdminServlet;
-import eu.sqooss.impl.service.webadmin.AdminWS;
 import eu.sqooss.service.db.DBService;
-import eu.sqooss.service.db.ProjectFileMeasurement;
 import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.messaging.MessagingService;
 import eu.sqooss.service.security.GroupManager;
 import eu.sqooss.service.security.PrivilegeManager;
 import eu.sqooss.service.security.SecurityConstants;
@@ -111,12 +105,13 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
         }
     }
 
-    public SecurityManagerImpl(BundleContext bc, DBService db, Logger logger) {
+    public SecurityManagerImpl(BundleContext bc, DBService db,
+            MessagingService messaging, Logger logger) {
         this.bc = bc;
         this.dbWrapper = new SecurityManagerDatabase(db);
         this.logger = logger;
         
-        userManager = new UserManagerImpl(db, logger);
+        userManager = new UserManagerImpl(db, messaging, logger);
         groupManager = new GroupManagerImpl(db, logger);
         privilegeManager = new PrivilegeManagerImpl(db, logger);
         serviceUrlManager = new ServiceUrlManagerImpl(db, logger);

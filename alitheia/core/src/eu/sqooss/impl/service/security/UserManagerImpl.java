@@ -33,30 +33,40 @@
 package eu.sqooss.impl.service.security;
 
 import java.io.UnsupportedEncodingException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Vector;
 
 import eu.sqooss.impl.service.security.utils.UserManagerDatabase;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.PendingUser;
 import eu.sqooss.service.db.User;
 import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.messaging.Message;
+import eu.sqooss.service.messaging.MessagingService;
 import eu.sqooss.service.security.UserManager;
 
 public class UserManagerImpl implements UserManager {
 
+    private static final String PROPERTY_SERVER_URL = "eu.sqooss.security.server.url";
+    private static final String PROPERTY_HTTP_PORT  = "org.osgi.service.http.port";
+    
 	private static final String CHARSET_NAME_UTF8 = "UTF-8";
 	
     private UserManagerDatabase dbWrapper;
+    private MessagingService messaging;
     private Logger logger;
     private MessageDigest messageDigest;
     
-    public UserManagerImpl(DBService db, Logger logger) {
+    public UserManagerImpl(DBService db, MessagingService messaging, Logger logger) {
         super();
         this.dbWrapper = new UserManagerDatabase(db);
+        this.messaging = messaging;
         this.logger = logger;
         
         try {
@@ -70,7 +80,7 @@ public class UserManagerImpl implements UserManager {
      * @see eu.sqooss.service.security.UserManager#createUser(java.lang.String, java.lang.String, java.lang.String)
      */
     public User createUser(String userName, String password, String email) {
-        logger.info("Create user! username: " + userName + "; e-mail: " + email);
+        logger.debug("Create user! username: " + userName + "; e-mail: " + email);
         String passwordHash = getHash(password);
         if (passwordHash == null) {
         	return null;
@@ -91,8 +101,35 @@ public class UserManagerImpl implements UserManager {
      * @see eu.sqooss.service.security.UserManager#createPendingUser(java.lang.String, java.lang.String, java.lang.String)
      */
     public boolean createPendingUser(String userName, String password, String email) {
-        // TODO: implement
-        return false;
+        logger.debug("Create pending user! user name: " + userName +
+                "; e-mail: " + email);
+        
+        if (getUser(userName) != null) {
+            return false;
+        }
+        
+        String pendingHash = getHash(userName + password + email);
+        String passwordHash = getHash(password);
+        
+        if ((passwordHash == null) ||
+                (dbWrapper.isPendingUser(pendingHash))) {
+            return false;
+        }
+        
+        PendingUser newPendingUser = new PendingUser();
+        newPendingUser.setName(userName);
+        newPendingUser.setPassword(passwordHash);
+        newPendingUser.setEmail(email);
+        newPendingUser.setHash(pendingHash);
+        newPendingUser.setCreated(new Date(System.currentTimeMillis()));
+        
+        if (!dbWrapper.createPendingUser(newPendingUser)) {
+            return false;
+        }
+        
+        sendMail(newPendingUser);
+        
+        return true;
     }
 
     /**
@@ -108,7 +145,7 @@ public class UserManagerImpl implements UserManager {
      * @see eu.sqooss.service.security.UserManager#deleteUser(long)
      */
     public boolean deleteUser(long userId) {
-        logger.info("Delete user! user's id: " + userId);
+        logger.debug("Delete user! user's id: " + userId);
         User user = getUser(userId);
         if (user != null) {
             return dbWrapper.deleteUser(user);
@@ -121,7 +158,7 @@ public class UserManagerImpl implements UserManager {
      * @see eu.sqooss.service.security.UserManager#deleteUser(java.lang.String)
      */
     public boolean deleteUser(String userName) {
-        logger.info("Delete user! username: " + userName);
+        logger.debug("Delete user! username: " + userName);
         User user = getUser(userName);
         if (user != null) {
             return dbWrapper.deleteUser(user);
@@ -134,7 +171,7 @@ public class UserManagerImpl implements UserManager {
      * @see eu.sqooss.service.security.UserManager#getUser(long)
      */
     public User getUser(long userId) {
-        logger.info("Get user! user's id: " + userId);
+        logger.debug("Get user! user's id: " + userId);
         return dbWrapper.getUser(userId);
     }
 
@@ -142,7 +179,7 @@ public class UserManagerImpl implements UserManager {
      * @see eu.sqooss.service.security.UserManager#getUser(java.lang.String)
      */
     public User getUser(String userName) {
-        logger.info("Get user! username: " + userName);
+        logger.debug("Get user! username: " + userName);
         List<User> users = dbWrapper.getUsers(userName);
         if (users.size() == 1) {
             return users.get(0);
@@ -195,6 +232,35 @@ public class UserManagerImpl implements UserManager {
     	return passwordHash.toString();
     }
     
+    private void sendMail(PendingUser pendingUser) {
+        String body = getHashUrl(pendingUser.getHash());
+        String title = "User registration confirmation!";
+        String protocol = null; // use default (SMTP)
+        Vector<String> recipients = new Vector<String>(1);
+        recipients.add(pendingUser.getEmail());
+        
+        Message newMessage = Message.getInstance(body, recipients, title, protocol);
+        messaging.sendMessage(newMessage);
+    }
+    
+    private static String getHashUrl(String hash) {
+        String addressProp = System.getProperty(PROPERTY_SERVER_URL);
+        StringBuilder serverAddress = new StringBuilder();
+        if (addressProp == null) {
+            serverAddress.append("http://");
+            try {
+                serverAddress.append(InetAddress.getLocalHost().getHostAddress());
+            } catch (UnknownHostException e) {
+                return null;
+            }
+            serverAddress.append(":" + System.getProperty(PROPERTY_HTTP_PORT, "80"));
+        } else {
+            serverAddress.append(addressProp);
+        }
+        serverAddress.append("/confirmRegistration?confid="+hash);
+        return serverAddress.toString();
+    }
+    
     private static User[] convertUsers(Collection<?> users) {
         if (users != null) {
             User[] result = new User[users.size()];
@@ -205,6 +271,9 @@ public class UserManagerImpl implements UserManager {
         }
     }
 
+    /**
+     * @see eu.sqooss.service.security.UserManager#isPendingUser(java.lang.String)
+     */
     /**
      * @see eu.sqooss.service.security.UserManager#isPendingUser(java.lang.String)
      */

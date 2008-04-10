@@ -88,6 +88,10 @@ public class UserManagerDatabase implements UserManagerDBQueries {
         return db.addRecord(newUser);
     }
 
+    public boolean createPendingUser(PendingUser newPendingUser) {
+        return db.addRecord(newPendingUser);
+    }
+    
     public boolean modifyUser(String userName, String newPasswordHash,
             String newEmail) {
         Session session = null;
