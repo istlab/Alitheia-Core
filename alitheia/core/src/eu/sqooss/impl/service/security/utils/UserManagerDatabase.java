@@ -37,6 +37,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.hibernate.Session;
+
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Group;
 import eu.sqooss.service.db.User;
@@ -47,6 +49,7 @@ public class UserManagerDatabase implements UserManagerDBQueries {
     
     private DBService db;
     private Map<String, Object> userProps;
+    private Object lockObject = new Object();
     
     public UserManagerDatabase(DBService db) {
         super();
@@ -59,7 +62,8 @@ public class UserManagerDatabase implements UserManagerDBQueries {
     }
     
     public List<User> getUsers(String userName) {
-        synchronized (userProps) {
+        synchronized (lockObject) {
+            userProps.clear();
             userProps.put(ATTRIBUTE_USER_NAME, userName);
             return db.findObjectByProperties(User.class, userProps);
         }
@@ -82,6 +86,38 @@ public class UserManagerDatabase implements UserManagerDBQueries {
         return db.addRecord(newUser);
     }
 
+    public boolean modifyUser(String userName, String newPasswordHash,
+            String newEmail) {
+        Session session = null;
+        List<User> users = null;
+        boolean isModified = false;
+        try {
+            session = db.getSession(this);
+            synchronized (lockObject) {
+                userProps.clear();
+                userProps.put(ATTRIBUTE_USER_NAME, userName);
+                users = db.findObjectByProperties(session, User.class, userProps);
+            }
+            if (users.size() == 1) {
+                User user = users.get(0);
+                if (newPasswordHash != null) {
+                    user.setPassword(newPasswordHash);
+                    isModified = true;
+                }
+                if (newEmail != null) {
+                    user.setEmail(newEmail);
+                    isModified = true;
+                }
+            }
+        } finally {
+            if (session != null) {
+                session.flush();
+                db.returnSession(session);
+            }
+        }
+        return isModified;
+    }
+    
     public boolean deleteUser(User user) {
         return db.deleteRecord(user);
     }

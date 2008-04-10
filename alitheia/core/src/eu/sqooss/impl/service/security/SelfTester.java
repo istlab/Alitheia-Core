@@ -102,7 +102,7 @@ public class SelfTester {
     	}
         
         try {
-            newUser = userManager.createUser(TEST_USER, TEST_PASS, TEST_PASS);
+            newUser = userManager.createUser(TEST_USER, TEST_PASS, TEST_MAIL);
             if (newUser == null) {
                 return "Could not create a test user!";
             }
@@ -111,6 +111,14 @@ public class SelfTester {
                 return "The test user isn't created correct!";
             }
 
+            String modifiedMail = TEST_MAIL + "_modify";
+            
+            userManager.modifyUser(newUser.getName(), TEST_PASS, modifiedMail);
+            
+            if (!modifiedMail.equals(userManager.getUser(newUser.getName()).getEmail())) {
+                return "The test user isn't modified correct!";
+            }
+            
         } finally {
             testClear(newUser, null, null, null, null);
         }

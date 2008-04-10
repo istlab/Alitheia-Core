@@ -86,10 +86,13 @@ public class UserManagerImpl implements UserManager {
         }
     }
 
+    /**
+     * @see eu.sqooss.service.security.UserManager#modifyUser(java.lang.String, java.lang.String, java.lang.String)
+     */
     public boolean modifyUser(String userName, String newPassword,
             String newEmail) {
-        return false;
-        //TODO:
+        logger.debug("Modify user! userName: " + userName + "; e-mail: " + newEmail);
+        return dbWrapper.modifyUser(userName, getHash(newPassword), newEmail);
     }
 
     /**
