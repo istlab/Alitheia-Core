@@ -37,10 +37,11 @@ import java.io.PrintWriter;
 import java.lang.management.ManagementFactory;
 import java.util.Dictionary;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.StringTokenizer;
 
-import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -55,6 +56,7 @@ import eu.sqooss.impl.service.security.utils.SecurityManagerDatabase;
 import eu.sqooss.impl.service.webadmin.AdminServlet;
 import eu.sqooss.impl.service.webadmin.AdminWS;
 import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.ProjectFileMeasurement;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.security.GroupManager;
 import eu.sqooss.service.security.PrivilegeManager;
@@ -77,16 +79,26 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
     private boolean isEnable;
     
     private class ConfirmationServlet extends HttpServlet {
+        private static final long serialVersionUID = 1L;
+
         protected void doGet(HttpServletRequest req, HttpServletResponse res)
             throws ServletException, IOException {
 
             res.setContentType("text/html");
             PrintWriter content = res.getWriter();
+
             String confId = req.getParameter("confid");
-            if ((confId != null) && (confId.length() > 0 )) 
-                content.println(
-                        "Thank you."
-                        + " Your user account is now active.");
+            if ((confId != null) && (confId.length() > 0 )) {
+                
+                if (dbWrapper.isPendingUser(confId)) {
+                    content.println(
+                            "Thank you."
+                            + " Your user account is now active.");
+                }
+                else {
+                    content.println("User not found!");
+                }
+            }
             else {
                 content.println("Wrong parameters!");
             }
