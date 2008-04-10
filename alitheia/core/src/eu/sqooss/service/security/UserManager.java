@@ -38,44 +38,61 @@ import eu.sqooss.service.db.User;
  * <code>UserManager</code> gives an access to the user's management. 
  */
 public interface UserManager {
-    
+
     /**
+     * This method returns a User object encapsulating the user record that
+     * corresponds to the specified user ID.
+     * 
      * @param userId user's identifier
-     * @return the user with given identifier,
-     * null - if the user doesn't exist
+     * @return the corresponding User object, or
+     * <code>null</code> when such user record doesn't exist
      */
     public User getUser(long userId);
-    
+
     /**
+     * This method returns an User object encapsulating the user record that
+     * corresponds to the specified user name.
+     * 
      * @param userName user's name
-     * @return the user with given name,
-     * null - if the user doesn't exist
+     * @return the corresponding User object, or
+     * <code>null</code> when such user record doesn't exist
      */
     public User getUser(String userName);
-    
+
     /**
+     * This method returns a list of all users currently registered in the
+     * SQO-OSS system.
+     * 
      * @return all users in the system
      */
     public User[] getUsers();
-    
+
     /**
-     * This method returns the users from the group.
+     * This method returns a list of users belonging to the specified 
+     * users group ID.
+     * 
      * @param groupId group's identifier
      * @return
      */
     public User[] getUsers(long groupId);
-    
+
     /**
-     * This method creates a new user.
+     * This method creates a new user record from the specified user account
+     * parameters
+     * 
      * @param userName user's name
      * @param password user's password
-     * @param email user's e-mail
-     * @return the new user, null - if the user isn't created
+     * @param email user's email
+     * @return an User object corresponding to the created user record, or
+     * <code>null</code> if the record can't be created.
      */
     public User createUser(String userName, String password, String email);
-    
+
     /**
-     * This method sends a notification about a new user.
+     * This method creates a pending user record upon user registration
+     * request, and sends a confirmation request notification too the user's
+     * email address.
+     * 
      * @param userName
      * @param password
      * @param email
@@ -83,57 +100,67 @@ public interface UserManager {
      * <code>false</code> otherwise
      */
     public boolean createPendingUser(String userName, String password, String email);
-    
+
     /**
-     * This method modifies the user with given user name.
+     * This method modifies the user record corresponding to the given user
+     * name.
+     * 
      * @param userName
      * @param newPassword
      * @param newEmail
-     * @return <code>true</code> if the user is changed, false otherwise
+     * @return <code>true</code> if the user record is successfully modified,
+     * <code>false</code> otherwise
      * 
      */
     public boolean modifyUser(String userName, String newPassword, String newEmail);
-    
+
     /**
-     * This method deletes the user with given identifier.
-     * @param userId user's identifier
-     * @return true - if the user is deleted successfully, false - otherwise
+     * This method deletes the user record matching the specified user's
+     * ID parameter.
+     * 
+     * @param userId user's ID 
+     * @return <code>true</code> if the user is deleted successfully,
+     * <code>false</code> otherwise
      */
     public boolean deleteUser(long userId);
-    
+
     /**
-     * This method deletes the user with given name.
+     * This method deletes the user record that corresponds to the specified
+     * user's name.
+     * 
      * @param userName user's name
-     * @return true - if the user is deleted successfully, false - otherwise
+     * @return <code>true</code> if the user is deleted successfully,
+     * <code>false</code> in case of failure
      */
     public boolean deleteUser(String userName);
-    
+
     /**
-     * This method returns the password's hash.
-     * The method uses SHA-256.
+     * This method generates a SHA-256 based hash from the specified password
+     * string.
+     * 
      * @param password
      * @return the password's hash
      */
     public String getHash(String password);
 
-    // TODO: Javadoc
     /**
      * Checks if there is a pending user record that contains the same hash
      * value.
      * 
      * @param hashValue the hash value
      * 
-     * @return true, if a corresponding pending user record is found
+     * @return <code>true</code>, if a corresponding pending user record is
+     * found
      */
     public boolean isPendingUser(String hashValue);
 
-    // TODO: Javadoc
     /**
      * Activates the pending user record with the same hash value.
      * 
      * @param hashValue the hash value
      * 
-     * @return true, if the corresponding pending user record is activated
+     * @return <code>true</code>, if the corresponding pending user record is
+     * activated
      */
     public boolean activatePendingUser (String hashValue);
 }
