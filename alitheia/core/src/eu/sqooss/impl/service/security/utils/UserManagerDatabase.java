@@ -32,6 +32,7 @@
 
 package eu.sqooss.impl.service.security.utils;
 
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +42,7 @@ import org.hibernate.Session;
 
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Group;
+import eu.sqooss.service.db.PendingUser;
 import eu.sqooss.service.db.User;
 
 public class UserManagerDatabase implements UserManagerDBQueries {
@@ -122,6 +124,23 @@ public class UserManagerDatabase implements UserManagerDBQueries {
         return db.deleteRecord(user);
     }
     
+    public boolean isPendingUser (String hashValue) {
+        // Get a DB session
+        Session s = db.getSession(this);
+
+        // Search for a matching pending user's record
+        HashMap<String, Object> filter = new HashMap<String, Object>();
+        filter.put("hash", hashValue);
+        List<PendingUser> pending =
+            db.findObjectByProperties(s, PendingUser.class, filter);
+
+        // Free the DB session
+        db.returnSession(s);
+
+        if (! pending.isEmpty()) return true;
+        return false;
+
+    }
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

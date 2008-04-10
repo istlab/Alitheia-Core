@@ -77,24 +77,6 @@ public class SecurityManagerDatabase implements SecurityManagerDBQueries {
         }
     }
 
-    public boolean isPendingUser (String hashValue) {
-        // Get a DB session
-        Session s = db.getSession(this);
-
-        // Search for a matching pending user's record
-        HashMap<String, Object> filter = new HashMap<String, Object>();
-        filter.put("hash", hashValue);
-        List<PendingUser> pending =
-            db.findObjectByProperties(s, PendingUser.class, filter);
-
-        // Free the DB session
-        db.returnSession(s);
-
-        if (! pending.isEmpty()) return true;
-        return false;
-
-    }
-
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

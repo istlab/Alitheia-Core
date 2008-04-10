@@ -90,7 +90,7 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
             String confId = req.getParameter("confid");
             if ((confId != null) && (confId.length() > 0 )) {
                 
-                if (dbWrapper.isPendingUser(confId)) {
+                if (userManager.isPendingUser(confId)) {
                     content.println(
                             "Thank you."
                             + " Your user account is now active.");

@@ -204,6 +204,9 @@ public class UserManagerImpl implements UserManager {
         }
     }
     
+    public boolean isPendingUser (String hashValue) {
+        return dbWrapper.isPendingUser(hashValue);
+    }
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
