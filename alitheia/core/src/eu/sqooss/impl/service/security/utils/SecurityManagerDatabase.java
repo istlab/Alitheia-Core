@@ -32,15 +32,10 @@
 
 package eu.sqooss.impl.service.security.utils;
 
-import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Map;
 
-import org.hibernate.Session;
-
 import eu.sqooss.service.db.DBService;
-import eu.sqooss.service.db.PendingUser;
 
 public class SecurityManagerDatabase implements SecurityManagerDBQueries {
     
