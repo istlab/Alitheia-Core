@@ -117,9 +117,24 @@ public interface UserManager {
     public String getHash(String password);
 
     // TODO: Javadoc
+    /**
+     * Checks if there is a pending user record that contains the same hash
+     * value.
+     * 
+     * @param hashValue the hash value
+     * 
+     * @return true, if a corresponding pending user record is found
+     */
     public boolean isPendingUser(String hashValue);
 
     // TODO: Javadoc
+    /**
+     * Activates the pending user record with the same hash value.
+     * 
+     * @param hashValue the hash value
+     * 
+     * @return true, if the corresponding pending user record is activated
+     */
     public boolean activatePendingUser (String hashValue);
 }
 
