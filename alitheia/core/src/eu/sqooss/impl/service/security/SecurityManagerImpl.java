@@ -91,9 +91,15 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
             if ((confId != null) && (confId.length() > 0 )) {
                 
                 if (userManager.isPendingUser(confId)) {
-                    content.println(
-                            "Thank you."
-                            + " Your user account is now active.");
+                    if (userManager.activatePendingUser(confId)) {
+                        content.println(
+                                "Thank you."
+                                + " Your user account is now active.");
+                    }
+                    else {
+                        content.println(
+                                "Account activation has failed!");
+                    }
                 }
                 else {
                     content.println("User not found!");
