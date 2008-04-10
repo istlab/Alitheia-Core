@@ -115,8 +115,12 @@ public interface UserManager {
      * @return the password's hash
      */
     public String getHash(String password);
-    
+
+    // TODO: Javadoc
     public boolean isPendingUser(String hashValue);
+
+    // TODO: Javadoc
+    public boolean activatePendingUser (String hashValue);
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

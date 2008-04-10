@@ -41,6 +41,7 @@ import java.util.List;
 
 import eu.sqooss.impl.service.security.utils.UserManagerDatabase;
 import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.PendingUser;
 import eu.sqooss.service.db.User;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.security.UserManager;
@@ -206,6 +207,15 @@ public class UserManagerImpl implements UserManager {
     
     public boolean isPendingUser (String hashValue) {
         return dbWrapper.isPendingUser(hashValue);
+    }
+    
+    public boolean activatePendingUser (String hashValue) {
+        PendingUser p = dbWrapper.getPendingUser(hashValue);
+        if (createUser(p.getName(), p.getPassword(), p.getEmail()) != null) {
+            // TODO: Delete the pending user record
+            return true;
+        }
+        return false;
     }
 }
 
