@@ -256,6 +256,12 @@ public class WebServices {
         return userManager.submitUser(userNameForAccess, passwordForAccess,
                 newUserName, newPassword, email);
     }
+    
+    public boolean submitPendingUser(String userNameForAccess, String passwordForAccess,
+            String newUserName, String newPassword, String email) {
+        return userManager.submitPendingUser(userNameForAccess, passwordForAccess,
+                newUserName, newPassword, email);
+    }
     //5.1.10
     
     //5.1.11

@@ -75,6 +75,16 @@ public interface UserManager {
     public User createUser(String userName, String password, String email);
     
     /**
+     * This method sends a notification about a new user.
+     * @param userName
+     * @param password
+     * @param email
+     * @return <code>true</code> if the user name is available,
+     * <code>false</code> otherwise
+     */
+    public boolean createPendingUser(String userName, String password, String email);
+    
+    /**
      * This method modifies the user with given user name.
      * @param userName
      * @param newPassword

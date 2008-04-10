@@ -63,6 +63,14 @@ public class UserManager {
         }
     }
     
+    public boolean submitPendingUser(String userNameForAccess, String passwordForAccess,
+            String newUserName, String newPassword, String email) {
+        
+        //TODO: check the security
+        
+        return userManager.createPendingUser(newUserName, newPassword, email);
+    }
+    
     /**
      * @see eu.sqooss.service.web.services.WebServices#displayUser(String, String, long)
      */

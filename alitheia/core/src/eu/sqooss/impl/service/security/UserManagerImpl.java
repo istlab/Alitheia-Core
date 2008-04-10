@@ -87,6 +87,14 @@ public class UserManagerImpl implements UserManager {
     }
 
     /**
+     * @see eu.sqooss.service.security.UserManager#createPendingUser(java.lang.String, java.lang.String, java.lang.String)
+     */
+    public boolean createPendingUser(String userName, String password, String email) {
+        // TODO: implement
+        return false;
+    }
+
+    /**
      * @see eu.sqooss.service.security.UserManager#modifyUser(java.lang.String, java.lang.String, java.lang.String)
      */
     public boolean modifyUser(String userName, String newPassword,
