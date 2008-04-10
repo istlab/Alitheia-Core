@@ -11,6 +11,7 @@
     <property name="name" column="NAME" not-null="true" />
     <property name="password" column="PASSWORD" not-null="true" />
     <property name="email" column="EMAIL" not-null="true" />
+    <property name="created" column="CREATED" />
     <property name="hash" column="HASH" not-null="true" />
   </class>
 </hibernate-mapping>

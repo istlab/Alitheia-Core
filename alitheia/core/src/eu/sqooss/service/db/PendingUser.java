@@ -29,9 +29,10 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
- 
 
 package eu.sqooss.service.db;
+
+import java.util.Date;
 
 import eu.sqooss.service.db.DAObject;
 
@@ -41,6 +42,7 @@ public class PendingUser extends DAObject {
     private String password;
     private String email;
     private String hash;
+    private Date created;
 
     public PendingUser() {};
 
@@ -48,7 +50,7 @@ public class PendingUser extends DAObject {
         return name;
     }
 
-    public void setName( String value ) {
+    public void setName(String value) {
         name = value;
     }
 
@@ -56,7 +58,7 @@ public class PendingUser extends DAObject {
         return password;
     }
 
-    public void setPassword( String value ) {
+    public void setPassword(String value) {
         password = value;
     }
 
@@ -64,7 +66,7 @@ public class PendingUser extends DAObject {
         return email;
     }
 
-    public void setEmail( String value ) {
+    public void setEmail(String value) {
         email = value;
     }
 
@@ -88,7 +90,26 @@ public class PendingUser extends DAObject {
         this.hash = hash;
     }
 
+    /**
+     * Returns the exact time when this pending user record was created.
+     * 
+     * @return the creation time
+     */
+    public Date getCreated() {
+        return created;
+    }
+
+    /**
+     * Sets the time that will be later on used as a creation time for this
+     * record
+     * 
+     * @param time the time stamp to set as a record's creation time
+     */
+    public void setCreated(Date time) {
+        this.created = time;
+    }
+
 }
 
-// vi: ai nosi sw=4 ts=4 expandtab
+//vi: ai nosi sw=4 ts=4 expandtab
 
