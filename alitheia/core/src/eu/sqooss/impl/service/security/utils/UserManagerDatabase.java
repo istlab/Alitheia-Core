@@ -123,8 +123,13 @@ public class UserManagerDatabase implements UserManagerDBQueries {
     public boolean deleteUser(User user) {
         return db.deleteRecord(user);
     }
-    
+
     public boolean isPendingUser (String hashValue) {
+        if (getPendingUser(hashValue) != null) return true;
+        return false;
+    }
+
+    public PendingUser getPendingUser (String hashValue) {
         // Get a DB session
         Session s = db.getSession(this);
 
@@ -137,9 +142,10 @@ public class UserManagerDatabase implements UserManagerDBQueries {
         // Free the DB session
         db.returnSession(s);
 
-        if (! pending.isEmpty()) return true;
-        return false;
-
+        if (! pending.isEmpty()) {
+            return pending.get(0);
+        }
+        return null;
     }
 }
 
