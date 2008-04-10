@@ -47,12 +47,16 @@ import eu.sqooss.ws.client.ws.DisplayUser;
 import eu.sqooss.ws.client.ws.DisplayUserResponse;
 import eu.sqooss.ws.client.ws.ModifyUser;
 import eu.sqooss.ws.client.ws.ModifyUserResponse;
+import eu.sqooss.ws.client.ws.SubmitPendingUser;
+import eu.sqooss.ws.client.ws.SubmitPendingUserResponse;
 import eu.sqooss.ws.client.ws.SubmitUser;
 import eu.sqooss.ws.client.ws.SubmitUserResponse;
 
 class WSUserAccessorImpl extends WSUserAccessor {
     
-    private static final String METHOD_NAME_SUBMIT_USER  = "submitUser";
+    private static final String METHOD_NAME_SUBMIT_USER          = "submitUser";
+    
+    private static final String METHOD_NAME_SUBMIT_PENDING_USER  = "submitPendingUser";
     
     private static final String METHOD_NAME_DISPLAY_USER = "displayUser";
     
@@ -106,6 +110,36 @@ class WSUserAccessorImpl extends WSUserAccessor {
         return (WSUser) parseWSResult(response.get_return());
     }
     
+    /**
+     * @see eu.sqooss.scl.accessor.WSUserAccessor#submitPendingUser(java.lang.String, java.lang.String, java.lang.String)
+     */
+    @Override
+    public boolean submitPendingUser(String newUserName, String newPassword,
+            String email) throws WSException {
+        SubmitPendingUserResponse response;
+        SubmitPendingUser params;
+        if (!parameters.containsKey(METHOD_NAME_SUBMIT_PENDING_USER)) {
+            params = new SubmitPendingUser();
+            params.setPasswordForAccess(password);
+            params.setUserNameForAccess(userName);
+            parameters.put(METHOD_NAME_SUBMIT_PENDING_USER, params);
+        } else {
+            params = (SubmitPendingUser) parameters.get(
+                    METHOD_NAME_SUBMIT_PENDING_USER);
+        }
+        synchronized (params) {
+            params.setNewUserName(newUserName);
+            params.setNewPassword(newPassword);
+            params.setEmail(email);
+            try {
+                response = wsStub.submitPendingUser(params);
+            } catch (RemoteException re) {
+                throw new WSException(re);
+            }
+        }
+        return response.get_return();
+    }
+
     /**
      * @see eu.sqooss.scl.accessor.WSUserAccessor#displayUser(long)
      */

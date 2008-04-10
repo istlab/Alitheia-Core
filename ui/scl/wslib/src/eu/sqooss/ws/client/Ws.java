@@ -81,9 +81,9 @@
                     * @param param8
                 
          */
-         public eu.sqooss.ws.client.ws.DeleteUserResponse deleteUser(
+         public eu.sqooss.ws.client.ws.SubmitPendingUserResponse submitPendingUser(
 
-                eu.sqooss.ws.client.ws.DeleteUser param8)
+                eu.sqooss.ws.client.ws.SubmitPendingUser param8)
                 throws java.rmi.RemoteException
           
           ;
@@ -96,9 +96,9 @@
                     * @param param10
                 
          */
-         public eu.sqooss.ws.client.ws.RetrieveSelectedMetricResponse retrieveSelectedMetric(
+         public eu.sqooss.ws.client.ws.DeleteUserResponse deleteUser(
 
-                eu.sqooss.ws.client.ws.RetrieveSelectedMetric param10)
+                eu.sqooss.ws.client.ws.DeleteUser param10)
                 throws java.rmi.RemoteException
           
           ;
@@ -111,9 +111,9 @@
                     * @param param12
                 
          */
-         public eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedFilesResponse retrieveMetrics4SelectedFiles(
+         public eu.sqooss.ws.client.ws.RetrieveSelectedMetricResponse retrieveSelectedMetric(
 
-                eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedFiles param12)
+                eu.sqooss.ws.client.ws.RetrieveSelectedMetric param12)
                 throws java.rmi.RemoteException
           
           ;
@@ -126,9 +126,9 @@
                     * @param param14
                 
          */
-         public eu.sqooss.ws.client.ws.StoredProjectsListResponse storedProjectsList(
+         public eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedFilesResponse retrieveMetrics4SelectedFiles(
 
-                eu.sqooss.ws.client.ws.StoredProjectsList param14)
+                eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedFiles param14)
                 throws java.rmi.RemoteException
           
           ;
@@ -141,9 +141,9 @@
                     * @param param16
                 
          */
-         public eu.sqooss.ws.client.ws.DisplayUserResponse displayUser(
+         public eu.sqooss.ws.client.ws.StoredProjectsListResponse storedProjectsList(
 
-                eu.sqooss.ws.client.ws.DisplayUser param16)
+                eu.sqooss.ws.client.ws.StoredProjectsList param16)
                 throws java.rmi.RemoteException
           
           ;
@@ -156,9 +156,9 @@
                     * @param param18
                 
          */
-         public eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProjectResponse retrieveMetrics4SelectedProject(
+         public eu.sqooss.ws.client.ws.DisplayUserResponse displayUser(
 
-                eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProject param18)
+                eu.sqooss.ws.client.ws.DisplayUser param18)
                 throws java.rmi.RemoteException
           
           ;
@@ -186,9 +186,9 @@
                     * @param param22
                 
          */
-         public eu.sqooss.ws.client.ws.ModifyUserResponse modifyUser(
+         public eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProjectResponse retrieveMetrics4SelectedProject(
 
-                eu.sqooss.ws.client.ws.ModifyUser param22)
+                eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProject param22)
                 throws java.rmi.RemoteException
           
           ;
@@ -201,9 +201,9 @@
                     * @param param24
                 
          */
-         public eu.sqooss.ws.client.ws.ValidateAccountResponse validateAccount(
+         public eu.sqooss.ws.client.ws.ModifyUserResponse modifyUser(
 
-                eu.sqooss.ws.client.ws.ValidateAccount param24)
+                eu.sqooss.ws.client.ws.ModifyUser param24)
                 throws java.rmi.RemoteException
           
           ;
@@ -216,9 +216,9 @@
                     * @param param26
                 
          */
-         public eu.sqooss.ws.client.ws.RequestEvaluation4ProjectResponse requestEvaluation4Project(
+         public eu.sqooss.ws.client.ws.ValidateAccountResponse validateAccount(
 
-                eu.sqooss.ws.client.ws.RequestEvaluation4Project param26)
+                eu.sqooss.ws.client.ws.ValidateAccount param26)
                 throws java.rmi.RemoteException
           
           ;
@@ -231,9 +231,9 @@
                     * @param param28
                 
          */
-         public eu.sqooss.ws.client.ws.GetFileList4ProjectVersionResponse getFileList4ProjectVersion(
+         public eu.sqooss.ws.client.ws.RequestEvaluation4ProjectResponse requestEvaluation4Project(
 
-                eu.sqooss.ws.client.ws.GetFileList4ProjectVersion param28)
+                eu.sqooss.ws.client.ws.RequestEvaluation4Project param28)
                 throws java.rmi.RemoteException
           
           ;
@@ -246,9 +246,9 @@
                     * @param param30
                 
          */
-         public eu.sqooss.ws.client.ws.RetrieveStoredProjectResponse retrieveStoredProject(
+         public eu.sqooss.ws.client.ws.GetFileList4ProjectVersionResponse getFileList4ProjectVersion(
 
-                eu.sqooss.ws.client.ws.RetrieveStoredProject param30)
+                eu.sqooss.ws.client.ws.GetFileList4ProjectVersion param30)
                 throws java.rmi.RemoteException
           
           ;
@@ -261,9 +261,9 @@
                     * @param param32
                 
          */
-         public eu.sqooss.ws.client.ws.RetrieveProjectIdResponse retrieveProjectId(
+         public eu.sqooss.ws.client.ws.RetrieveStoredProjectResponse retrieveStoredProject(
 
-                eu.sqooss.ws.client.ws.RetrieveProjectId param32)
+                eu.sqooss.ws.client.ws.RetrieveStoredProject param32)
                 throws java.rmi.RemoteException
           
           ;
@@ -276,9 +276,9 @@
                     * @param param34
                 
          */
-         public eu.sqooss.ws.client.ws.RetrieveFileListResponse retrieveFileList(
+         public eu.sqooss.ws.client.ws.RetrieveProjectIdResponse retrieveProjectId(
 
-                eu.sqooss.ws.client.ws.RetrieveFileList param34)
+                eu.sqooss.ws.client.ws.RetrieveProjectId param34)
                 throws java.rmi.RemoteException
           
           ;
@@ -291,9 +291,24 @@
                     * @param param36
                 
          */
+         public eu.sqooss.ws.client.ws.RetrieveFileListResponse retrieveFileList(
+
+                eu.sqooss.ws.client.ws.RetrieveFileList param36)
+                throws java.rmi.RemoteException
+          
+          ;
+
+        
+
+        /**
+                * Auto generated method signature
+                
+                    * @param param38
+                
+         */
          public eu.sqooss.ws.client.ws.GetProjectVersionMetricMeasurementResponse getProjectVersionMetricMeasurement(
 
-                eu.sqooss.ws.client.ws.GetProjectVersionMetricMeasurement param36)
+                eu.sqooss.ws.client.ws.GetProjectVersionMetricMeasurement param38)
                 throws java.rmi.RemoteException
           
           ;

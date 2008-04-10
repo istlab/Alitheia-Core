@@ -52,6 +52,20 @@ public abstract class WSUserAccessor extends WSAccessor {
             String email) throws WSException;
     
     /**
+     * 
+     * This method sends a request for a new user account.
+     * 
+     * @param newUserName
+     * @param newPassword
+     * @param email
+     * @return <code>true</code> if the request is sent,
+     * <code>false</code> otherwise
+     * @throws WSException
+     */
+    public abstract boolean submitPendingUser(String newUserName, String newPassword,
+            String email) throws WSException;
+    
+    /**
      * This method returns information about the user with a given id.
      *  
      * @param userId - user's id
