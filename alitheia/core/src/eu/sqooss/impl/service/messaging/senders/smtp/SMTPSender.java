@@ -111,6 +111,7 @@ public class SMTPSender implements MessageSender {
                 messageBody.append(", ");
             }
             messageBody.append("\r\n");
+            messageBody.append("\r\n");
             //adds text
             messageBody.append(message.getBody());
             session.send(message.getRecipients(), reply, messageBody.toString());

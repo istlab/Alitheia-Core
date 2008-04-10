@@ -415,6 +415,14 @@ public class MessagingServiceImpl implements MessagingService {
         } catch (FileNotFoundException fnfe) {
             log("The properties file doesn't exist!", MessagingService.LOGGING_INFO_LEVEL);
             //the properties must be set manual
+            props.setProperty(MessagingConstants.KEY_SMTP_HOST,
+                    System.getProperty("eu.sqooss.messaging.smtp.host", ""));
+            props.setProperty(MessagingConstants.KEY_SMTP_REPLY,
+                    System.getProperty("eu.sqooss.messaging.smtp.reply", ""));
+            props.setProperty(MessagingConstants.KEY_SMTP_USER,
+                    System.getProperty("eu.sqooss.messaging.smtp.user", ""));
+            props.setProperty(MessagingConstants.KEY_SMTP_PASS,
+                    System.getProperty("eu.sqooss.messaging.smtp.pass", ""));
         } catch (IOException ioe) {
             throw new RuntimeException(ioe);
         }
