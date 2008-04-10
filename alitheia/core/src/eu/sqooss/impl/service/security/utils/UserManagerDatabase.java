@@ -147,6 +147,14 @@ public class UserManagerDatabase implements UserManagerDBQueries {
         }
         return null;
     }
+
+    public boolean deletePendingUser (PendingUser pending) {
+        // Get a DB session and delete the record
+        Session s = db.getSession(this);
+        boolean result = db.deleteRecord(s, pending);
+        db.returnSession(s);
+        return result;
+    }
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

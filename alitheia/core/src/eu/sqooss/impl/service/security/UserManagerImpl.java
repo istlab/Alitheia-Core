@@ -218,8 +218,7 @@ public class UserManagerImpl implements UserManager {
     public boolean activatePendingUser (String hashValue) {
         PendingUser p = dbWrapper.getPendingUser(hashValue);
         if (createUser(p.getName(), p.getPassword(), p.getEmail()) != null) {
-            // TODO: Delete the pending user record
-            return true;
+            return dbWrapper.deletePendingUser(p);
         }
         return false;
     }
