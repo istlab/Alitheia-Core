@@ -43,19 +43,23 @@ public class WSProjectFile {
     private long projectVersion;
     private String fileName;
     private String status;
+    private boolean isDirectory;
     
     public WSProjectFile(ProjectFile projectFile) {
         id = projectFile.getId();
         fileName = projectFile.getFileName();
         projectVersion = projectFile.getProjectVersion().getId();
         status = projectFile.getStatus();
+        isDirectory = projectFile.getIsDirectory();
     }
 
-    public WSProjectFile(long id, String fileName, long projectVersion, String status) {
+    public WSProjectFile(long id, String fileName, long projectVersion,
+            String status, boolean isDirectory) {
         this.id = id;
         this.fileName = fileName;
         this.projectVersion = projectVersion;
         this.status = status;
+        this.isDirectory = isDirectory;
     }
     
     public long getId() {
@@ -72,6 +76,10 @@ public class WSProjectFile {
 
     public String getStatus() {
         return status;
+    }
+
+    public boolean isDirectory() {
+        return isDirectory;
     }
     
 }

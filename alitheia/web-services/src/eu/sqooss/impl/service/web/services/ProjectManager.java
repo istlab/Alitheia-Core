@@ -250,6 +250,7 @@ public class ProjectManager {
                 BigInteger projectVersion;
                 String fileName;
                 String status;
+                Boolean isDirectory;
                 Object[] currentFile;
                 for (int i = 0; i < result.length; i++) {
                     currentFile = (Object[])projectFiles.get(i);
@@ -257,8 +258,9 @@ public class ProjectManager {
                     fileName = (String)currentFile[1];
                     projectVersion = (BigInteger)currentFile[2];
                     status = (String)currentFile[3];
+                    isDirectory = (Boolean)currentFile[4];
                     result[i] = new WSProjectFile(fileId.longValue(), fileName,
-                            projectVersion.longValue(), status);
+                            projectVersion.longValue(), status, isDirectory);
                 }
             }
         }

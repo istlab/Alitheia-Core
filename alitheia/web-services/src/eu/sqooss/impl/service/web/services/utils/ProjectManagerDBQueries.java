@@ -56,7 +56,7 @@ interface ProjectManagerDBQueries {
     public static final String GET_FILE_LIST_4_PROJECT_VERSION_PARAM = "project_ver";
     
     public static final String GET_FILE_LIST_4_PROJECT_VERSION = "select pf.project_file_id, d.path || '" + File.separator + 
-                                                                 "'       || head.fname, head.headrev, pf.file_status " +
+                                                                 "'       || head.fname, head.headrev, pf.file_status, pf.is_directory " +
     		                                                     "from (select pf.directory_id as dir, " +
     		                                                     "             pf.file_name as fname, " +
     		                                                     "             max(pv.project_version_id) as headrev " +

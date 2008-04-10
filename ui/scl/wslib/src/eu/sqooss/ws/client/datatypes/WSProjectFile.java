@@ -21,6 +21,35 @@
             
 
                         /**
+                        * field for Directory
+                        */
+
+                        protected boolean localDirectory ;
+                        
+
+                           /**
+                           * Auto generated getter method
+                           * @return boolean
+                           */
+                           public  boolean getDirectory(){
+                               return localDirectory;
+                           }
+
+                           
+                        
+                            /**
+                               * Auto generated setter method
+                               * @param param Directory
+                               */
+                               public void setDirectory(boolean param){
+                            
+                                    this.localDirectory=param;
+                            
+
+                               }
+                            
+
+                        /**
                         * field for FileName
                         */
 
@@ -179,6 +208,29 @@
 
                 
                
+                                    namespace = "http://datatypes.services.web.service.impl.sqooss.eu/xsd";
+                                    if (! namespace.equals("")) {
+                                        prefix = xmlWriter.getPrefix(namespace);
+
+                                        if (prefix == null) {
+                                            prefix = org.apache.axis2.databinding.utils.BeanUtil.getUniquePrefix();
+
+                                            xmlWriter.writeStartElement(prefix,"directory", namespace);
+                                            xmlWriter.writeNamespace(prefix, namespace);
+                                            xmlWriter.setPrefix(prefix, namespace);
+
+                                        } else {
+                                            xmlWriter.writeStartElement(namespace,"directory");
+                                        }
+
+                                    } else {
+                                        xmlWriter.writeStartElement("directory");
+                                    }
+                                
+                                       xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localDirectory));
+                                    
+                                   xmlWriter.writeEndElement();
+                             
                                     namespace = "http://datatypes.services.web.service.impl.sqooss.eu/xsd";
                                     if (! namespace.equals("")) {
                                         prefix = xmlWriter.getPrefix(namespace);
@@ -379,6 +431,12 @@
 
                 
                              elementList.add(new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd",
+                                                                      "directory"));
+                            
+                                elementList.add(
+                                   org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localDirectory));
+                            
+                             elementList.add(new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd",
                                                                       "fileName"));
                             
                                          elementList.add(localFileName==null?null:
@@ -472,6 +530,25 @@
                     
                     reader.next();
                 
+                                    
+                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
+                                
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd","directory").equals(reader.getName())){
+                                
+                                    java.lang.String content = reader.getElementText();
+                                    
+                                              object.setDirectory(
+                                        org.apache.axis2.databinding.utils.ConverterUtil.convertToBoolean(content));
+                                              
+                                        reader.next();
+                                    
+                              }  // End of if for expected property start element
+                            
+                                else{
+                                    // A start element we are not expecting indicates an invalid parameter was passed
+                                    throw new java.lang.RuntimeException("Unexpected subelement " + reader.getLocalName());
+                                }
+                            
                                     
                                     while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
                                 
