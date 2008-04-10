@@ -204,11 +204,17 @@ public class UserManagerImpl implements UserManager {
             return null;
         }
     }
-    
+
+    /**
+     * @see eu.sqooss.service.security.UserManager#isPendingUser(java.lang.String)
+     */
     public boolean isPendingUser (String hashValue) {
         return dbWrapper.isPendingUser(hashValue);
     }
-    
+
+    /**
+     * @see eu.sqooss.service.security.UserManager#activatePendingUser(java.lang.String)
+     */
     public boolean activatePendingUser (String hashValue) {
         PendingUser p = dbWrapper.getPendingUser(hashValue);
         if (createUser(p.getName(), p.getPassword(), p.getEmail()) != null) {
