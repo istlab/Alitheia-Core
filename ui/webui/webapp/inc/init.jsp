@@ -35,6 +35,7 @@ String msg      = "";
 final String ACT_REQ_LOGIN = "Sign in";
 final String ACT_REQ_REGISTER = "Register";
 final String ACT_REG_SUCCESS = "RegistrationSuccessful";
+final String ACT_LOGIN_SUCCESS = "LoginSuccessful";
 
 // Action parameter sent by various input forms
 String postAction = request.getParameter("action");
@@ -88,7 +89,7 @@ else if (postAction.compareToIgnoreCase(ACT_REQ_REGISTER) == 0) {
         errorMsg += "Passwords do not match!<br />";
         loginFailure = true;
     }
-    // Try to register the new user for Alitheia
+    // Try to register the new user for the SQO-OSS framework
     if (!loginFailure) {
         if (terrier.registerUser(username, password, regEmail)) {
             postAction = ACT_REG_SUCCESS;
@@ -102,22 +103,15 @@ else if (postAction.compareToIgnoreCase(ACT_REQ_REGISTER) == 0) {
 else if (postAction.compareToIgnoreCase(ACT_REQ_LOGIN) == 0) {
     if (validator.isEmpty(username)) {
         errorMsg += "Invalid username!<br />";
+        loginFailure = true;
     }
-    else {
-        boolean username_is_valid = false;
-        Integer uid = user.getUsersId(username);
-        if (uid > 0) {
-            user.setCurrentUsersId(uid);
-            if (user.isLoggedIn(null)) {
-                msg = "<div class=\"green\">You are now signed in as ";
-                msg = msg + user.getCurrentUsers() + ".";
-                msg = msg + " <a href=\"/logout.jsp\">Sign out</a></div>";
-                loggedIn = true;
-            } else {
-                errorMsg = "You are not logged in.";
-            }
-        } else {
-            errorMsg = "You are not known to the system.";
+    // Try to login with the provided account into the SQO-OSS framework
+    if (!loginFailure) {
+        if (terrier.loginUser(username, password)) {
+            postAction = ACT_LOGIN_SUCCESS;
+        }
+        else {
+            errorMsg = "Wrong username or password!";
         }
     }
 }

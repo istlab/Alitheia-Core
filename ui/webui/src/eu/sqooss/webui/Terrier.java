@@ -53,18 +53,42 @@ import eu.sqooss.ws.client.datatypes.WSUser;
 public class Terrier {
 
     WSSession session;
-//    WSConnection connection;
+
     WSProjectAccessor projectAccessor;
     WSMetricAccessor metricAccessor;
     WSUserAccessor userAccessor;
 
     String error = "";
-    String debug = "...";
+    String debug = "";
+    
+    /**
+     * User name and password used for establishing a session between the
+     * WebUI and the SQO-OSS framework.
+     * 
+     */
+    private String sessionUser;
+    private String sessionPass;
 
+    /**
+     * The predefined initial account grants only a unprivileged session,
+     * enough for performing a user login or user registration only.
+     */
+    private static String unprivUser = "alitheia";
+    private static String unprivPass = "alitheia";
+
+    /**
+     * Keeps the URL of the SQO-OSS framework, that the WebUI should connect
+     * to.
+     */
+    private String frameworkURL = "http://localhost:8088/sqooss/services/ws";
+
+    /**
+     * Simple constructor. Instantiates a new <code>Terrier</code> object.
+     */
     public Terrier () {
         connect();
     }
-    
+
     public boolean isConnected () {
         if (session == null) {
             connect();
@@ -99,6 +123,32 @@ public class Terrier {
             error += " Please try again later.";
             return false;
         }
+    }
+
+    /**
+     * Performs a login to the SQO-OSS framework with the specified user
+     * account.
+     * 
+     * @param username The user's name
+     * @param password The user's password
+     * 
+     * @return <code>true</code> upon successful login, or
+     * <code>false</code> on failure.
+     */
+    public boolean loginUser (String username, String password) {
+        // Clean up the old session (if any)
+        session = null;
+
+        // Try to login with the specified account
+        sessionUser = username;
+        sessionPass = password;
+        if (isConnected()) return true;
+
+        // Fall back to the system account
+        sessionUser = null;
+        sessionPass = null;
+        connect();
+        return false;
     }
 
     /**
@@ -261,11 +311,21 @@ public class Terrier {
     }
 
     private void connect() {
-        // Try to connect the SCL to the Alitheia system
         try {
-            session = new WSSession("alitheia", "alitheia", "http://localhost:8088/sqooss/services/ws"); // WTF?
+            // Try to establish a session with the logged user's account
+            if ((sessionUser != null) && (sessionPass != null)) {
+                session =
+                    new WSSession(sessionUser, sessionPass, frameworkURL);
+                error="User account.";
+            }
+            // Fall back to the unprivileged account
+            else if (session == null) {
+                session =
+                    new WSSession(unprivUser, unprivPass, frameworkURL);
+                error = "System account.";
+            }
         } catch (WSException wse) {
-            error = "Couldn't start Alitheia session.";
+            error = "Couldn't establish a session with Alitheia.";
             debug += "nosession";
             wse.printStackTrace();
             session = null;
@@ -274,13 +334,5 @@ public class Terrier {
         projectAccessor = (WSProjectAccessor) session.getAccessor(WSAccessor.Type.PROJECT);
         metricAccessor = (WSMetricAccessor) session.getAccessor(WSAccessor.Type.METRIC);
         userAccessor = (WSUserAccessor) session.getAccessor(WSAccessor.Type.USER);
-//        try {
-//            connection = session.getConnection();
-//        } catch (WSException wse) {
-//            debug += "noconnection";
-//            error = "Couldn't connect to Alitheia's webservice.";
-//            wse.printStackTrace();
-//            connection = null;
-//        }
     }
 }
