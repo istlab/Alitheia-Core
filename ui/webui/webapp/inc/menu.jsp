@@ -21,13 +21,9 @@ if (ProjectsListView.getProjectId() != null) {
         <li><a href="/playground/files.jsp" title="Click here for a random list of files">Files</a></li>
 <%
 }
-%>
-        <li><a href="/playground/terrier.jsp" title="Click here to see if Terrier works">Terriertest</a></li>
-        
-<%
 if (!loggedIn) {
 %>
-        <li><a href="/login.jsp" title="Click here to log in">Login</a></li>
+        <li><a href="/login.jsp" title="Click here to log in or register">Login</a></li>
 <%
 } else {
 %>
