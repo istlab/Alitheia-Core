@@ -8,17 +8,18 @@ title = "Login";
 <%@ include file="/inc/header.jsp" %>
 
 <%
+// Display login page's title and accumulated errors (if any)
+out.println("<h1>Login to the Alitheia System</h1>");
+errorMsg += "<tr />" + terrier.getError();
+out.println("<font color=\"red\">" + errorMsg + "</font>");
+
 if (postAction.compareToIgnoreCase(ACT_REG_SUCCESS) == 0) {
-    out.println ("Thank you for registering to SQO-OSS!");
+    out.println ("Thank you for your registeration to SQO-OSS!");
     out.println ("<br />");
     out.println ("A confirmation email will in short be sent to you.");
     out.println ("<br />");
 }
 else if (!loggedIn) {
-    out.println("<h1>Login to the Alitheia System</h1>");
-    errorMsg += "<tr />" + terrier.getError();
-    out.println("<font color=\"red\">" + errorMsg + "</font>");
-    
     // Retrieve the form parameters from the previous login attempt (if any)
     String prvUsername = (validator.isEmpty(username)) ? "" : username;
     String prvPassword = (validator.isEmpty(password)) ? "" : password;
@@ -96,7 +97,9 @@ else if (!loggedIn) {
 
 <%
 } else {
-    out.println("You are signed in. To sign in as a different user, please sign out first.");
+    out.println("You are signed in.");
+    out.println("<br />");
+    out.println("To sign in as a different user, please sign out first.");
 }
 %>
 
