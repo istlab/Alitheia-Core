@@ -12,6 +12,7 @@ title = "Login";
 out.println("<h1>Login to the Alitheia System</h1>");
 errorMsg += "<tr />" + terrier.getError();
 out.println("<font color=\"red\">" + errorMsg + "</font>");
+out.println("<br />");
 
 if (postAction.compareToIgnoreCase(ACT_REG_SUCCESS) == 0) {
     out.println ("Thank you for your registeration to SQO-OSS!");

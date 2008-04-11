@@ -93,6 +93,9 @@ else if (postAction.compareToIgnoreCase(ACT_REQ_REGISTER) == 0) {
         if (terrier.registerUser(username, password, regEmail)) {
             postAction = ACT_REG_SUCCESS;
         }
+        else {
+            errorMsg += "An user with the same name already exists!";
+        }
     }
 }
 // Check for login request

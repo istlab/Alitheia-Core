@@ -95,7 +95,8 @@ public class Terrier {
         try {
             return userAccessor.submitPendingUser(username, password, email);
         } catch (WSException e) {
-            error = "An user with the same name already exists!";
+            error = "An error occured during the registration process!";
+            error += " Please try again later.";
             return false;
         }
     }
