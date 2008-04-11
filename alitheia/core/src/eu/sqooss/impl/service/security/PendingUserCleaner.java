@@ -30,16 +30,39 @@
  *
  */
 
-package eu.sqooss.impl.service.security.utils;
+package eu.sqooss.impl.service.security;
 
-public interface UserManagerDBQueries {
+import java.util.Date;
+import java.util.List;
+import java.util.TimerTask;
+
+import eu.sqooss.impl.service.security.utils.UserManagerDatabase;
+import eu.sqooss.service.db.PendingUser;
+
+class PendingUserCleaner extends TimerTask {
+
+    private UserManagerDatabase db;
+    private long expirationPeriod;
     
-    public static final String GET_USERS = "from User";
+    PendingUserCleaner(UserManagerDatabase db, long expirationPeriod) {
+        this.db = db;
+        this.expirationPeriod = expirationPeriod;
+    }
     
-    public static final String GET_FIRST_PENDING_USER = "from PendingUser pu " +
-    		                                            "where pu.created=" +
-    		                                            "      (select min(pu1.created) " +
-    		                                            "       from PendingUser pu1) ";
+    /**
+     * @see java.util.TimerTask#run()
+     */
+    @Override
+    public void run() {
+        List<?> pendingUser = db.getFirstPendingUser();
+        if ((pendingUser != null) && (pendingUser.size() != 0)) {
+            PendingUser firstPendingUser = (PendingUser) pendingUser.get(0);
+            Date expirationDate = new Date(firstPendingUser.getCreated().getTime() + expirationPeriod);
+            if (System.currentTimeMillis() >= expirationDate.getTime()) {
+                db.deletePendingUser(firstPendingUser);
+            }
+        }
+    }
     
 }
 

@@ -40,6 +40,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Timer;
 import java.util.Vector;
 
 import eu.sqooss.impl.service.security.utils.UserManagerDatabase;
@@ -58,10 +59,13 @@ public class UserManagerImpl implements UserManager {
     
 	private static final String CHARSET_NAME_UTF8 = "UTF-8";
 	
+	private static final long EXPIRATION_PERIOD = 24*3600*1000;
+	
     private UserManagerDatabase dbWrapper;
     private MessagingService messaging;
     private Logger logger;
     private MessageDigest messageDigest;
+    private Timer pendingTimer;
     
     public UserManagerImpl(DBService db, MessagingService messaging, Logger logger) {
         super();
@@ -127,6 +131,7 @@ public class UserManagerImpl implements UserManager {
             return false;
         }
         
+        updateTimer(newPendingUser);
         sendMail(newPendingUser);
         
         return true;
@@ -259,6 +264,17 @@ public class UserManagerImpl implements UserManager {
         }
         serverAddress.append("/confirmRegistration?confid="+hash);
         return serverAddress.toString();
+    }
+    
+    /**
+     * This method updates the timer and returns the expiration date.
+     */
+    private void updateTimer(PendingUser pendingUser) {
+        if (pendingTimer == null) {
+            pendingTimer = new Timer("Security timer");
+        }
+        Date expirationDate = new Date(pendingUser.getCreated().getTime() + EXPIRATION_PERIOD);
+        pendingTimer.schedule(new PendingUserCleaner(dbWrapper, EXPIRATION_PERIOD), expirationDate);
     }
     
     private static User[] convertUsers(Collection<?> users) {

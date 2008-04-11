@@ -152,6 +152,10 @@ public class UserManagerDatabase implements UserManagerDBQueries {
         return null;
     }
 
+    public List<?> getFirstPendingUser() {
+        return db.doHQL(GET_FIRST_PENDING_USER);
+    }
+    
     public boolean deletePendingUser (PendingUser pending) {
         // Get a DB session and delete the record
         Session s = db.getSession(this);
