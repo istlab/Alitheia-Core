@@ -79,6 +79,19 @@ public abstract class WSUserAccessor extends WSAccessor {
     public abstract WSUser displayUser(long userId) throws WSException;
     
     /**
+     * This method returns information about the user with a given user name.
+     *  
+     * @param userName - user's name
+     * 
+     * @throws WSException
+     * <ul>
+     *  <li>if the connection can't be establish to the SQO-OSS's web services service</li>
+     *  <li>if web services service throws a exception</li>
+     * <ul>
+     */
+    public abstract WSUser getUserByName (String name) throws WSException;
+    
+    /**
      * This method modifies the existent user with a given user name.
      * @throws WSException
      * <ul>

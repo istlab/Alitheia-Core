@@ -51,6 +51,8 @@ import eu.sqooss.ws.client.ws.SubmitPendingUser;
 import eu.sqooss.ws.client.ws.SubmitPendingUserResponse;
 import eu.sqooss.ws.client.ws.SubmitUser;
 import eu.sqooss.ws.client.ws.SubmitUserResponse;
+import eu.sqooss.ws.client.ws.GetUserByName;
+import eu.sqooss.ws.client.ws.GetUserByNameResponse;
 
 class WSUserAccessorImpl extends WSUserAccessor {
     
@@ -59,6 +61,8 @@ class WSUserAccessorImpl extends WSUserAccessor {
     private static final String METHOD_NAME_SUBMIT_PENDING_USER  = "submitPendingUser";
     
     private static final String METHOD_NAME_DISPLAY_USER = "displayUser";
+    
+    private static final String METHOD_NAME_GET_USER_BY_NAME = "getUserByName";
     
     private static final String METHOD_NAME_MODIFY_USER  = "modifyUser";
     
@@ -160,6 +164,33 @@ class WSUserAccessorImpl extends WSUserAccessor {
             params.setUserId(userId);
             try {
                 response = wsStub.displayUser(params);
+            } catch (RemoteException re) {
+                throw new WSException(re);
+            }
+        }
+        return (WSUser) parseWSResult(response.get_return());
+    }
+    
+    /**
+     * @see eu.sqooss.scl.accessor.WSUserAccessor#getUserByName(String)
+     */
+    @Override
+    public WSUser getUserByName(String name) throws WSException {
+        GetUserByNameResponse response;
+        GetUserByName params;
+        if (!parameters.containsKey(METHOD_NAME_GET_USER_BY_NAME)) {
+            params = new GetUserByName();
+            params.setPasswordForAccess(password);
+            params.setUserNameForAccess(userName);
+            parameters.put(METHOD_NAME_GET_USER_BY_NAME, params);
+        } else {
+            params = (GetUserByName) parameters.get(
+                    METHOD_NAME_GET_USER_BY_NAME);
+        }
+        synchronized (params) {
+            params.setUserName(name);
+            try {
+                response = wsStub.getUserByName(params);
             } catch (RemoteException re) {
                 throw new WSException(re);
             }
