@@ -19,7 +19,7 @@ if ((actionResult != null)
     out.println ("You have been successfuly loged in.");
     out.println ("<br />");
 }
-if ((actionResult != null)
+else if ((actionResult != null)
         && (actionResult.compareToIgnoreCase(RES_REG_SUCCESS) == 0)) {
     out.println ("Thank you for your registeration to SQO-OSS!");
     out.println ("<br />");
