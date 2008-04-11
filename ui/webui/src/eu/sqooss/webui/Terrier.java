@@ -93,7 +93,7 @@ public class Terrier {
             String email) {
         if (!isConnected()) return false;
         try {
-            return userAccessor.submitPendingUser(username, email, password);
+            return userAccessor.submitPendingUser(username, password, email);
         } catch (WSException e) {
             error = "An user with the same name already exists!";
             return false;
