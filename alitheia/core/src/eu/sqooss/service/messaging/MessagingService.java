@@ -37,11 +37,6 @@ package eu.sqooss.service.messaging;
  */
 public interface MessagingService {
     
-    public static final int LOGGING_INFO_LEVEL    = 0;
-    public static final int LOGGING_CONFIG_LEVEL  = 1;
-    public static final int LOGGING_WARNING_LEVEL = 2;
-    public static final int LOGGING_SEVERE_LEVEL  = 3;
-
     /**
      * Adds the listener to the collection of listeners, which will be notified when the message's status is modified.
      * @param listener a message listener

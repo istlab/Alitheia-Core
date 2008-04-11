@@ -61,6 +61,11 @@ import eu.sqooss.service.messaging.sender.MessageSender;
  */
 public class MessagingServiceImpl implements MessagingService {
 
+    public static final int LOGGING_DEBUG_LEVEL    = 0;
+    public static final int LOGGING_INFO_LEVEL     = 1;
+    public static final int LOGGING_WARNING_LEVEL  = 2;
+    public static final int LOGGING_ERROR_LEVEL    = 3;
+    
     private Object lockObjectListeners = new Object();
     private Object lockObjectThreads = new Object();
 
@@ -78,6 +83,13 @@ public class MessagingServiceImpl implements MessagingService {
     private static Logger logger;
 
     public MessagingServiceImpl(BundleContext bc){
+        ServiceReference coreRef = bc.getServiceReference(AlitheiaCore.class.getName());
+        if (logger == null && coreRef != null)
+        {
+            LogManager logManager = ((AlitheiaCore)bc.getService(coreRef)).getLogManager();
+            logger = logManager.createLogger(Logger.NAME_SQOOSS_MESSAGING);
+        }
+        
         SMTPSender defaultSender = new SMTPSender(bc);
         Properties serviceProps = new Properties();
         serviceProps.setProperty(MessageSender.PROTOCOL_PROPERTY, SMTPSender.PROTOCOL_PROPERTY_VALUE);
@@ -94,13 +106,6 @@ public class MessagingServiceImpl implements MessagingService {
         messageQueue = new MessageQueue();
         messagingThreads = new Vector < MessagingServiceThread >();
         startThreadIfNeeded();
-
-        ServiceReference coreRef = bc.getServiceReference(AlitheiaCore.class.getName());
-        if (logger == null && coreRef != null)
-        {
-            LogManager logManager = ((AlitheiaCore)bc.getService(coreRef)).getLogManager();
-            logger = logManager.createLogger(Logger.NAME_SQOOSS_MESSAGING);
-        }
     }
 
     /**
@@ -190,7 +195,7 @@ public class MessagingServiceImpl implements MessagingService {
      */
     public void setConfigurationProperty(String key, String value) {
         log("Set a configuration property: key=" + key + ", value=" + value,
-                MessagingService.LOGGING_INFO_LEVEL);
+                MessagingServiceImpl.LOGGING_INFO_LEVEL);
         if (key.equals(MessagingConstants.KEY_QUEUERING_TIME)) {
             try {
                 long qTime = Long.parseLong(value);
@@ -294,7 +299,7 @@ public class MessagingServiceImpl implements MessagingService {
             properties.store(new FileOutputStream(bc.getDataFile(MessagingConstants.FILE_NAME_PROPERTIES)), null);
         } catch (IOException ioe) {
             log("An error occurs while saving the properties: " + ioe.getMessage(),
-                    MessagingService.LOGGING_WARNING_LEVEL);
+                    MessagingServiceImpl.LOGGING_WARNING_LEVEL);
         }
         return id;
     }
@@ -413,16 +418,38 @@ public class MessagingServiceImpl implements MessagingService {
         try {
             props.load(new FileInputStream(bc.getDataFile(MessagingConstants.FILE_NAME_PROPERTIES)));
         } catch (FileNotFoundException fnfe) {
-            log("The properties file doesn't exist!", MessagingService.LOGGING_INFO_LEVEL);
+            log("The properties file doesn't exist!", MessagingServiceImpl.LOGGING_INFO_LEVEL);
             //the properties must be set manual
-            props.setProperty(MessagingConstants.KEY_SMTP_HOST,
-                    System.getProperty("eu.sqooss.messaging.smtp.host", ""));
-            props.setProperty(MessagingConstants.KEY_SMTP_REPLY,
-                    System.getProperty("eu.sqooss.messaging.smtp.reply", ""));
-            props.setProperty(MessagingConstants.KEY_SMTP_USER,
-                    System.getProperty("eu.sqooss.messaging.smtp.user", ""));
-            props.setProperty(MessagingConstants.KEY_SMTP_PASS,
-                    System.getProperty("eu.sqooss.messaging.smtp.pass", ""));
+            String propValue = System.getProperty("eu.sqooss.messaging.smtp.host");
+            if (propValue == null) {
+                log("Can't find property: eu.sqooss.messaging.smtp.host!", LOGGING_ERROR_LEVEL);
+            } else {
+                props.setProperty(MessagingConstants.KEY_SMTP_HOST, propValue);
+            }
+            propValue = System.getProperty("eu.sqooss.messaging.smtp.port");
+            if (propValue == null) {
+                log("Can't find property: eu.sqooss.messaging.smtp.port!", LOGGING_ERROR_LEVEL);
+            } else {
+                props.setProperty(MessagingConstants.KEY_SMTP_PORT, propValue);
+            }
+            propValue = System.getProperty("eu.sqooss.messaging.smtp.reply");
+            if (propValue == null) {
+                log("Can't find property: eu.sqooss.messaging.smtp.reply!", LOGGING_ERROR_LEVEL);
+            } else {
+                props.setProperty(MessagingConstants.KEY_SMTP_REPLY, propValue);
+            }
+            propValue = System.getProperty("eu.sqooss.messaging.smtp.user");
+            if (propValue == null) {
+                log("Can't find property: eu.sqooss.messaging.smtp.user!", LOGGING_ERROR_LEVEL);
+            } else {
+                props.setProperty(MessagingConstants.KEY_SMTP_USER, propValue);
+            }
+            propValue = System.getProperty("eu.sqooss.messaging.smtp.pass");
+            if (propValue == null) {
+                log("Can't find property: eu.sqooss.messaging.smtp.pass!", LOGGING_ERROR_LEVEL);
+            } else {
+                props.setProperty(MessagingConstants.KEY_SMTP_PASS, propValue);
+            }
         } catch (IOException ioe) {
             throw new RuntimeException(ioe);
         }
@@ -443,10 +470,10 @@ public class MessagingServiceImpl implements MessagingService {
         /*synchronized (lockObject)*/ {
             if (logger != null) {
                 switch (level) {
-                case MessagingService.LOGGING_CONFIG_LEVEL: logger.debug(message); break;
-                case MessagingService.LOGGING_INFO_LEVEL: logger.info(message); break;
-                case MessagingService.LOGGING_WARNING_LEVEL: logger.warn(message); break;
-                case MessagingService.LOGGING_SEVERE_LEVEL: logger.error(message); break;
+                case MessagingServiceImpl.LOGGING_DEBUG_LEVEL: logger.debug(message); break;
+                case MessagingServiceImpl.LOGGING_INFO_LEVEL: logger.info(message); break;
+                case MessagingServiceImpl.LOGGING_WARNING_LEVEL: logger.warn(message); break;
+                case MessagingServiceImpl.LOGGING_ERROR_LEVEL: logger.error(message); break;
                 default: logger.info(message); break;
                 }
             }
