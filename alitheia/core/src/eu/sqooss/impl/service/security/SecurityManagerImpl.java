@@ -84,7 +84,7 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
             String confId = req.getParameter("confid");
             if ((confId != null) && (confId.length() > 0 )) {
                 
-                if (userManager.isPendingUser(confId)) {
+                if (userManager.hasPendingUserHash(confId)) {
                     if (userManager.activatePendingUser(confId)) {
                         content.println(
                                 "Thank you."

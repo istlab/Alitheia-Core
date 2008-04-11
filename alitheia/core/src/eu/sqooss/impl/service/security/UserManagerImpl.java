@@ -108,7 +108,8 @@ public class UserManagerImpl implements UserManager {
         logger.debug("Create pending user! user name: " + userName +
                 "; e-mail: " + email);
         
-        if (getUser(userName) != null) {
+        // Check if there is an existing user (or pending) with the same name
+        if ((getUser(userName) != null) || (hasPendingUserName(userName))) {
             return false;
         }
         
@@ -116,7 +117,7 @@ public class UserManagerImpl implements UserManager {
         String passwordHash = getHash(password);
         
         if ((passwordHash == null) ||
-                (dbWrapper.isPendingUser(pendingHash))) {
+                (dbWrapper.hasPendingUserHash(pendingHash))) {
             return false;
         }
         
@@ -288,25 +289,30 @@ public class UserManagerImpl implements UserManager {
     }
 
     /**
-     * @see eu.sqooss.service.security.UserManager#isPendingUser(java.lang.String)
+     * @see eu.sqooss.service.security.UserManager#hasPendingUserHash(java.lang.String)
      */
+    public boolean hasPendingUserHash (String hashValue) {
+        return dbWrapper.hasPendingUserHash(hashValue);
+    }
+
     /**
-     * @see eu.sqooss.service.security.UserManager#isPendingUser(java.lang.String)
+     * @see eu.sqooss.service.security.UserManager#hasPendingUserName(java.lang.String)
      */
-    public boolean isPendingUser (String hashValue) {
-        return dbWrapper.isPendingUser(hashValue);
+    public boolean hasPendingUserName(String userName) {
+        return dbWrapper.hasPendingUserName(userName);
     }
 
     /**
      * @see eu.sqooss.service.security.UserManager#activatePendingUser(java.lang.String)
      */
     public boolean activatePendingUser (String hashValue) {
-        PendingUser p = dbWrapper.getPendingUser(hashValue);
+        PendingUser p = dbWrapper.getPendingUser("hash", hashValue);
         if (createUser(p.getName(), p.getPassword(), p.getEmail()) != null) {
             return dbWrapper.deletePendingUser(p);
         }
         return false;
     }
+
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

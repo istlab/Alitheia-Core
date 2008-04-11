@@ -128,18 +128,23 @@ public class UserManagerDatabase implements UserManagerDBQueries {
         return db.deleteRecord(user);
     }
 
-    public boolean isPendingUser (String hashValue) {
-        if (getPendingUser(hashValue) != null) return true;
+    public boolean hasPendingUserHash (String hashValue) {
+        if (getPendingUser("hash", hashValue) != null) return true;
         return false;
     }
 
-    public PendingUser getPendingUser (String hashValue) {
+    public boolean hasPendingUserName(String userName) {
+        if (getPendingUser("name", userName) != null) return true;
+        return false;
+    }
+
+    public PendingUser getPendingUser (String field, String value) {
         // Get a DB session
         Session s = db.getSession(this);
 
         // Search for a matching pending user's record
         HashMap<String, Object> filter = new HashMap<String, Object>();
-        filter.put("hash", hashValue);
+        filter.put(field, value);
         List<PendingUser> pending =
             db.findObjectByProperties(s, PendingUser.class, filter);
 
@@ -163,6 +168,7 @@ public class UserManagerDatabase implements UserManagerDBQueries {
         db.returnSession(s);
         return result;
     }
+
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

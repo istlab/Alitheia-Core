@@ -152,7 +152,7 @@ public interface UserManager {
      * @return <code>true</code>, if a corresponding pending user record is
      * found
      */
-    public boolean isPendingUser(String hashValue);
+    public boolean hasPendingUserHash(String hashValue);
 
     /**
      * Activates the pending user record with the same hash value.
@@ -163,6 +163,17 @@ public interface UserManager {
      * activated
      */
     public boolean activatePendingUser (String hashValue);
+
+    /**
+     * Checks if there is a pending user record that contains the same user
+     * name
+     * 
+     * @param userName the user's name
+     * 
+     * @return <code>true</code>, if a corresponding pending user record is
+     * found
+     */
+    public boolean hasPendingUserName(String userName);
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
