@@ -34,14 +34,19 @@ String msg      = "";
 // TODO: Move into a separate Java class file
 final String ACT_REQ_LOGIN = "Sign in";
 final String ACT_REQ_REGISTER = "Register";
-final String ACT_REG_SUCCESS = "RegistrationSuccessful";
-final String ACT_LOGIN_SUCCESS = "LoginSuccessful";
 
 // Action parameter sent by various input forms
 String postAction = request.getParameter("action");
 if (postAction == null) {
     postAction = new String("");
 }
+
+// TODO: Move into a separate Java class file
+final String RES_REG_SUCCESS = "RegistrationSuccessful";
+final String RES_LOGIN_SUCCESS = "LoginSuccessful";
+
+// Final result from the action execution
+String actionResult = null;
 
 // Login form parameters
 String username = request.getParameter("username");
@@ -92,7 +97,7 @@ else if (postAction.compareToIgnoreCase(ACT_REQ_REGISTER) == 0) {
     // Try to register the new user for the SQO-OSS framework
     if (!loginFailure) {
         if (terrier.registerUser(username, password, regEmail)) {
-            postAction = ACT_REG_SUCCESS;
+            actionResult = RES_REG_SUCCESS;
         }
         else {
             errorMsg += "An user with the same name already exists!";
@@ -108,7 +113,7 @@ else if (postAction.compareToIgnoreCase(ACT_REQ_LOGIN) == 0) {
     // Try to login with the provided account into the SQO-OSS framework
     if (!loginFailure) {
         if (terrier.loginUser(username, password)) {
-            postAction = ACT_LOGIN_SUCCESS;
+            actionResult = RES_LOGIN_SUCCESS;
         }
         else {
             errorMsg = "Wrong username or password!";
