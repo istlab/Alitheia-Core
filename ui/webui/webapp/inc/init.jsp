@@ -31,6 +31,11 @@ String msg      = "";
 
 <%
 
+// TODO: Move into a separate Java class file
+final String ACT_REQ_LOGIN = "Sign in";
+final String ACT_REQ_REGISTER = "Register";
+final String ACT_REG_SUCCESS = "RegistrationSuccessful";
+
 // Action parameter sent by various input forms
 String postAction = request.getParameter("action");
 if (postAction == null) {
@@ -61,7 +66,7 @@ if (user.isLoggedIn(null)) {
     loggedIn = true;
 }
 // Check for registration request
-else if (postAction.compareToIgnoreCase("Register") == 0) {
+else if (postAction.compareToIgnoreCase(ACT_REQ_REGISTER) == 0) {
     if (validator.isEmpty(username)) {
         errorMsg += "Invalid username!<br />";
         loginFailure = true;
@@ -85,11 +90,13 @@ else if (postAction.compareToIgnoreCase("Register") == 0) {
     }
     // Try to register the new user for Alitheia
     if (!loginFailure) {
-        terrier.registerUser(username, password, regEmail);
+        if (terrier.registerUser(username, password, regEmail)) {
+            postAction = ACT_REG_SUCCESS;
+        }
     }
 }
 // Check for login request
-else if (postAction.compareToIgnoreCase("Sign in") == 0) {
+else if (postAction.compareToIgnoreCase(ACT_REQ_LOGIN) == 0) {
     if (validator.isEmpty(username)) {
         errorMsg += "Invalid username!<br />";
     }

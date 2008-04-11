@@ -84,24 +84,19 @@ public class Terrier {
      * @param password The user's password
      * @param email The user's email address
      * 
-     * @return A WSUser object upon successful registration, or null on failure.
+     * @return <code>true</code> upon successful registration, or
+     * <code>false</code> on failure.
      */
-    public User registerUser (String username, String password, String email) {
-        if (!isConnected()) return null;
+    public boolean registerUser (
+            String username,
+            String password,
+            String email) {
+        if (!isConnected()) return false;
         try {
-            WSUser regUser = userAccessor.submitUser(username, email, password);
-            if (regUser != null) {
-                User newUser = new User(
-                        regUser.getId(),
-                        regUser.getUserName(),
-                        regUser.getEmail());
-                return newUser;
-            }
-            error = "An user with the same name already exist!";
-            return null;
+            return userAccessor.submitPendingUser(username, email, password);
         } catch (WSException e) {
-            error = "Registration failure!";
-            return null;
+            error = "An user with the same name already exists!";
+            return false;
         }
     }
 

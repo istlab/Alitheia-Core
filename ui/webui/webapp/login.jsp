@@ -8,7 +8,13 @@ title = "Login";
 <%@ include file="/inc/header.jsp" %>
 
 <%
-if (!loggedIn) {
+if (postAction.compareToIgnoreCase(ACT_REG_SUCCESS) == 0) {
+    out.println ("Thank you for registering to SQO-OSS!");
+    out.println ("<br />");
+    out.println ("A confirmation email will in short be sent to you.");
+    out.println ("<br />");
+}
+else if (!loggedIn) {
     out.println("<h1>Login to the Alitheia System</h1>");
     errorMsg += "<tr />" + terrier.getError();
     out.println("<font color=\"red\">" + errorMsg + "</font>");
