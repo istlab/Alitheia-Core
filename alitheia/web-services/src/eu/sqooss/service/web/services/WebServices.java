@@ -279,6 +279,22 @@ public class WebServices {
     }
     
     /**
+     * This method returns information about the user with a given user name.
+     * 
+     * @param userNameForAccess
+     * @param passwordForAccess
+     * @param userId
+     * @return
+     */
+    public WSUser getUserByName(
+            String userNameForAccess,
+            String passwordForAccess,
+            String userName) {
+        return userManager.getUserByName(
+                userNameForAccess, passwordForAccess, userName);
+    }
+    
+    /**
      * This method modifies the existent user with a given user name.
      */
     public boolean modifyUser(String userNameForAccess, String passwordForAccess,

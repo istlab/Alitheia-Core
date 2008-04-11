@@ -117,7 +117,23 @@ public class UserManager {
         //TODO:
         return true;
     }
-    
+
+    /**
+     * @see eu.sqooss.service.web.services.WebServices#getUserByName(String, String, String)
+     */
+    public WSUser getUserByName(String userNameForAccess,
+            String passwordForAccess, String userName) {
+        //TODO: check the security
+        
+        User user = userManager.getUser(userName); 
+        
+        if (user != null) {
+            return new WSUser(user);
+        } else {
+            return null;
+        }
+    }
+
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
