@@ -22,6 +22,8 @@ include $(TOP_SRCDIR)/Makefile.config
 # By default, build everything. We just invoke Maven to do the work.
 all : build
 
+.DEFAULT : all
+
 build : build-dir
 	$(MAVEN) package install
 

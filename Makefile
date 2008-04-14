@@ -45,6 +45,15 @@ SUBDIRS=sqoossrepo sharedlibs alitheia metrics corba ui
 # Get all of the common targets like 'all' 'build' and 'install'.
 include Makefile.common
 
+build-extlibs :
+	cd sqoossrepo && $(MAKE) && $(MAKE) install
+
+build-shared :
+	cd sharedlibs && $(MAKE) && $(MAKE) install
+
+build-core : build-extlibs build-shared
+	cd alitheia && $(MAKE) && $(MAKE) install
+	
 # The standard clean target calls clean-dir to clean up things *here*,
 # so we remove the installed bundles from the prefix. That's like
 # uninstall, so we might want to reconsider that long-term.
