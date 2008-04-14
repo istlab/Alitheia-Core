@@ -12,22 +12,16 @@
 <div id="wrap">
 	<div id="header"><h1>Admin Panel</h1><img src="sqo-oss.png" title="SQO-OSS" /></div>
 	<div id="main">
-	
-	<ul id="menu">
- 		<li id="nav-1"><a href="/index">Bundles</a></li>
-  		<li id="nav-2"><a href="/logs">Logs</a>
-  		<li id="nav-3"><a href="/projects">Projects</a>
-		<li id="nav-4"><a href="/jobs">Jobs</a></li>
-	</ul>
 
+        @@MENU
 	<div id="contents">
         @@RESULTS
-  	</div>	
+  	</div>
 	</div>
 	</div>
 	<div id="sidebar">
 		<fieldset id="options">
-			<legend>Options</legend>	
+			<legend>Options</legend>
 			<form id="start" method="POST" action="restart">
 				<input type="submit" value="Restart" />
 			</form>
@@ -37,12 +31,12 @@
 		</fieldset>
 
 		<fieldset id="status">
-			<legend>Status</legend>	
+			<legend>Status</legend>
 			<ul>
 				<li class="uptime">Uptime:
                                 @@UPTIME
                                 </li>
-			
+
 				<li class="queue">Job Queue Length:
                                 @@QUEUE_LENGTH
                                 </li>
@@ -55,6 +49,6 @@
                 </p>
 	</div>
 </div>
-  
+
 </body>
 </html>

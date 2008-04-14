@@ -77,7 +77,7 @@ input {
 	padding : 0;
 }
 
-	
+
 #menu a:link, #menu a:visited	{
 	background : #E8EBF0;
 	border : 1px solid #ccc;
@@ -101,13 +101,13 @@ input {
 	color : #f00;
 }
 
-	
+
 #menu li#nav-1 a {
 	background : #eee url(/bundles.png) 0 3px no-repeat;
 	padding-left: 25px;
 	border-bottom : 1px solid #ccc;
 }
- 
+
 #menu li#nav-2 a {
 	background : #eee url(/logs.png) 0 3px no-repeat;
 	padding-left: 25px;
@@ -126,10 +126,17 @@ input {
 	border-bottom : 1px solid #ccc;
 }
 
-body.section-1 #menu li#nav-1 a, 
+#menu li#nav-5 a {
+	background : #eee url(/metrics.png) 0 3px no-repeat;
+	padding-left: 25px;
+	border-bottom : 1px solid #ccc;
+}
+
+body.section-1 #menu li#nav-1 a,
 body.section-2 #menu li#nav-2 a,
 body.section-3 #menu li#nav-3 a,
-body.section-4 #menu li#nav-4 a {
+body.section-4 #menu li#nav-4 a,
+body.section-5 #menu li#nav-5 a {
 	background-color: #fff;
 	border-bottom : 1px solid #fff;
 	color : #000;
@@ -141,7 +148,7 @@ body.section-4 #menu li#nav-4 a {
 
 /* Tabs Content */
 
-#contents {	
+#contents {
 	background : #fff;
 	border : 1px solid #ccc;
 	border-top : none;
@@ -169,7 +176,7 @@ body.section-4 #menu li#nav-4 a {
 
 #bundles thead {
 	text-align: center;
-	font-weight: bold;	
+	font-weight: bold;
 }
 
 #bundles td {
@@ -202,7 +209,7 @@ body.section-4 #menu li#nav-4 a {
 #newproject .form {
 	width: 100%;
 	border: 1px solid #ccc;
-	background: url(/greyBack.jpg) top repeat-x; 
+	background: url(/greyBack.jpg) top repeat-x;
 }
 
 #projectlist {

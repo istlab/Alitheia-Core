@@ -13,45 +13,40 @@
         <img src="sqo-oss.png" alt="SQO-OSS Logo"/>
       </div>
       <div id="main">
-        <ul id="menu">
-          <li id="nav-1"><a href="/index">Bundles</a></li>
-          <li id="nav-2"><a href="/logs">Logs</a></li>
-          <li id="nav-3"><a href="/projects">Projects</a></li>
-          <li id="nav-4"><a href="/jobs">Jobs</a></li>
-	</ul>
+        @@MENU
 	<div id="contents">
 	<h2>Job statistics</h2>
 		<ul>
-          <li>Jobs Executing: 
+          <li>Jobs Executing:
           	@@JOB_EXEC
           </li>
-          <li> 
-          Jobs Waiting: 
+          <li>
+          Jobs Waiting:
           	@@JOB_WAIT
           </li>
-          <li> 
-          Failed Jobs: 
+          <li>
+          Failed Jobs:
           	@@JOB_FAILED
           </li>
-          <li> 
-          Worker Threads: 
+          <li>
+          Worker Threads:
           	@@JOB_WORKTHR
           </li>
-          <li> 
-          Total Jobs: 
+          <li>
+          Total Jobs:
           	@@JOB_TOTAL
-          </li> 
+          </li>
         </ul>
         <a href="alljobs">Job details</a>
 	<h2>Job failure statistics</h2>
 		<div id="bundles">
     	@@JOBFAILSTATS
-    	</div>    
+    	</div>
 	</div>
       </div>
       <div id="sidebar">
         <fieldset id="status">
-          <legend>Status</legend>	
+          <legend>Status</legend>
           <ul>
             <li class="uptime">Uptime:
             @@UPTIME
@@ -62,7 +57,7 @@
           </ul>
         </fieldset>
         <fieldset id="options">
-          <legend>Options</legend>	
+          <legend>Options</legend>
           <form id="start" method="post" action="restart">
             <p><input type="submit" value="Restart" /></p>
           </form>

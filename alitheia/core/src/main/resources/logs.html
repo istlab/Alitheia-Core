@@ -13,33 +13,28 @@
         <img src="sqo-oss.png" alt="SQO-OSS Logo" />
       </div>
       <div id="main">
-	<ul id="menu">
- 	  <li id="nav-1"><a href="/index">Bundles</a></li>
-          <li id="nav-2"><a href="/logs">Logs</a></li>
-          <li id="nav-3"><a href="/projects">Projects</a></li>
-          <li id="nav-4"><a href="/jobs">Jobs</a></li>
-        </ul>
+        @@MENU
 	<div id="contents">
           <h2>Alitheia Logs</h2>
           <ul class="logs">
-            @@GETLOGS  	
-          </ul>	
+            @@GETLOGS
+          </ul>
 	</div>
       </div>
       <div id="sidebar">
 	<fieldset id="status">
-          <legend>Status</legend>	
+          <legend>Status</legend>
           <ul>
-            <li class="uptime">Uptime: 
+            <li class="uptime">Uptime:
             @@UPTIME
             </li>
-            <li class="queue">Job Queue Length: 
+            <li class="queue">Job Queue Length:
             @@QUEUE_LENGTH
             </li>
           </ul>
         </fieldset>
         <fieldset id="status">
-          <legend>Job Info</legend>	
+          <legend>Job Info</legend>
             <table width='100%' cellspacing=0 cellpadding=3>
               <tr><td>Executing:</td><td class="number">
                 @@JOB_EXEC
@@ -59,7 +54,7 @@
             </table>
         </fieldset>
         <fieldset id="options">
-          <legend>Options</legend>	
+          <legend>Options</legend>
           <form id="start" method="post" action="restart">
             <p><input type="submit" value="Restart" /></p>
 	  </form>

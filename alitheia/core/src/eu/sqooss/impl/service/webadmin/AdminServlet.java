@@ -189,7 +189,6 @@ public class AdminServlet extends HttpServlet {
 
             // Pages
             dynamicContentMap = new Hashtable<String,String>();
-            dynamicContentMap.put("/about", "/about.html");
             dynamicContentMap.put("/status", "/index.html");
             dynamicContentMap.put("/index", "/index.html");
             dynamicContentMap.put("/projects", "/projects.html");
@@ -475,6 +474,14 @@ public class AdminServlet extends HttpServlet {
         dynamicSubstitutions.put("@@WAITJOBS", renderWaitJobs());
         dynamicSubstitutions.put("@@FAILJOBS", renderFailedJobs());
         dynamicSubstitutions.put("@@JOBFAILSTATS", renderJobFailStats());
+        dynamicSubstitutions.put("@@MENU",
+            "<ul id=\"menu\">" +
+            "<li id=\"nav-1\"><a href=\"/index\">Bundles</a></li>" +
+            "<li id=\"nav-5\"><a href=\"/metrics\">Metrics</a></li>" +
+            "<li id=\"nav-2\"><a href=\"/logs\">Logs</a></li>" +
+            "<li id=\"nav-3\"><a href=\"/projects\">Projects</a></li>" +
+            "<li id=\"nav-4\"><a href=\"/jobs\">Jobs</a></li>" +
+            "</ul>");
     }
 
     private void doServletException(HttpServletRequest request,
