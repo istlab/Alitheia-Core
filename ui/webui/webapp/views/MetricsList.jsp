@@ -4,6 +4,7 @@
 
 <%@ page import="eu.sqooss.webui.*" %>
 
+<div class="group">
 <% // List metrics per selected project or as total
 
 if (ProjectsListView.getProjectId() != null) {
@@ -22,3 +23,4 @@ else {
 }
 
 %>
+</div>

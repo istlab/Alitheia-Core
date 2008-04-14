@@ -1,5 +1,6 @@
 <%@ page import="eu.sqooss.webui.*" %>
 
+<div class="group">
 <%!
 public static String versionSelector(Long projectId, Long currentVer) {
     String form =
@@ -83,7 +84,6 @@ if (ProjectsListView.hasProjects()) {
                     + selectedProject.getFirstVersion());
             }
         }
-        out.println("<hr>");
     }
     out.println(projects);
 }
@@ -92,4 +92,5 @@ else {
 }
 
 %>
-</strong>
+</div>
+
