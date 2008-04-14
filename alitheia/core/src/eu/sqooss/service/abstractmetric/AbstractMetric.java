@@ -33,6 +33,7 @@
  */
 package eu.sqooss.service.abstractmetric;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -55,6 +56,9 @@ import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.scheduler.Scheduler;
+import eu.sqooss.service.scheduler.SchedulerException;
+import eu.sqooss.service.util.Pair;
 
 
 /**
@@ -345,13 +349,28 @@ implements eu.sqooss.service.abstractmetric.Metric {
         return db.deleteRecord(p);
     }
 
-    public abstract boolean update();
+    public boolean update() {
+        HashMap<String, Object> h = new HashMap<String, Object>();
+        List<StoredProject> l = db.findObjectByProperties(StoredProject.class, h);
+        
+        for(StoredProject sp : l) {
+            Scheduler s = ((AlitheiaCore) bc.getService(this.bc.getServiceReference(AlitheiaCore.class.getName()))).getScheduler();
+            try {
+                s.enqueue(new DefaultUpdateJob(this, sp));
+            } catch (SchedulerException e) {
+                log.error("Cannot schedule update job");
+            }
+        }
+        
+        return true;
+    }
 
-    /** {@inheritdoc} */
-    public java.util.Collection<eu.sqooss.service.util.Pair<String, ConfigurationTypes> >
-        getConfigurationSchema() {
-        // Pretend that there are no configuration values.
+    /** {@inheritDoc} */
+    public Collection<Pair<String, ConfigurationTypes>> getConfigurationSchema() {
         return null;
+        // Pretend that there are no configuration values.
+        
+//        return null;
     }
 }
 
