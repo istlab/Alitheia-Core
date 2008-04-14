@@ -20,28 +20,9 @@
 	</div>
 	</div>
 	<div id="sidebar">
-		<fieldset id="options">
-			<legend>Options</legend>
-			<form id="start" method="POST" action="restart">
-				<input type="submit" value="Restart" />
-			</form>
-			<form id="stop" method="POST" action="stop">
-				<input type="submit" value="Stop" />
-			</form>
-		</fieldset>
-
-		<fieldset id="status">
-			<legend>Status</legend>
-			<ul>
-				<li class="uptime">Uptime:
-                                @@UPTIME
-                                </li>
-
-				<li class="queue">Job Queue Length:
-                                @@QUEUE_LENGTH
-                                </li>
-			</ul>
-		</fieldset>
+          @@STATUS_CORE
+          @@STATUS_JOBS
+          @@OPTIONS
 	</div>
 	<div id="footer">
 		<p>

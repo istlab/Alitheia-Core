@@ -463,6 +463,44 @@ public class AdminServlet extends HttpServlet {
             "<li id=\"nav-4\"><a href=\"/jobs\">Jobs</a></li>" +
             "</ul>");
         dynamicSubstitutions.put("@@METRICS", renderMetrics());
+
+        // These are composite values
+        dynamicSubstitutions.put("@@STATUS_CORE","<fieldset id=\"status\">" +
+            "<legend>Status</legend>" +
+            "<ul>" +
+            "<li class=\"uptime\">Uptime: " +
+            dynamicSubstitutions.get("@@UPTIME") +
+            "</li>" +
+            "<li class=\"queue\">Job Queue Length: " +
+            dynamicSubstitutions.get("@@QUEUE_LENGTH") +
+            "</li></ul></fieldset>");
+        dynamicSubstitutions.put("@@STATUS_JOBS","<fieldset id=\"jobs\">" +
+            "<legend>Job Info</legend>" +
+            "<table width='100%' cellspacing=0 cellpadding=3>" +
+            "<tr><td>Executing:</td><td class=\"number\">" +
+            dynamicSubstitutions.get("@@JOB_EXEC") +
+            "</td></tr>" +
+            "<tr><td>Waiting:</td><td class=\"number\">" +
+            dynamicSubstitutions.get("@@JOB_WAIT") +
+            "</td></tr>" +
+            "<tr><td>Failed:</td><td class=\"number\">" +
+            dynamicSubstitutions.get("@@JOB_FAILED") +
+            "</td></tr>" +
+            "<tr><td>Total:</td><td class=\"number\">" +
+            dynamicSubstitutions.get("@@JOB_TOTAL") +
+            "</td></tr>" +
+            "<tr class=\"newgroup\"><td>Workers:</td><td class=\"number\">" +
+            dynamicSubstitutions.get("@@JOB_WORKTHR") +
+            "</td></tr></table></fieldset>");
+        dynamicSubstitutions.put("@@OPTIONS","<fieldset id=\"options\">" +
+            "<legend>Options</legend>" +
+            "<form id=\"start\" method=\"post\" action=\"restart\">" +
+            "<p><input type=\"submit\" value=\"Restart\" /></p>" +
+            "</form>" +
+            "<form id=\"stop\" method=\"post\" action=\"stop\">" +
+            "<p><input type=\"submit\" value=\"Stop\" /></p>" +
+            "</form></fieldset>");
+
     }
 
     private void doServletException(HttpServletRequest request,

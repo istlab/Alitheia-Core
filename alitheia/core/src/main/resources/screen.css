@@ -221,7 +221,7 @@ form p {
 	display: inline;
 }
 
-#status, #options, #newproject {
+#status, #jobs, #options, #newproject {
 	display: inline;
 	background-color: #f6f6f6;
 	width: 89%;

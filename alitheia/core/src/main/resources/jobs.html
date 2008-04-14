@@ -45,26 +45,9 @@
 	</div>
       </div>
       <div id="sidebar">
-        <fieldset id="status">
-          <legend>Status</legend>
-          <ul>
-            <li class="uptime">Uptime:
-            @@UPTIME
-            </li>
-            <li class="queue">Job Queue Length:
-            @@QUEUE_LENGTH
-            </li>
-          </ul>
-        </fieldset>
-        <fieldset id="options">
-          <legend>Options</legend>
-          <form id="start" method="post" action="restart">
-            <p><input type="submit" value="Restart" /></p>
-          </form>
-          <form id="stop" method="post" action="stop">
-            <p><input type="submit" value="Stop" /></p>
-          </form>
-        </fieldset>
+        @@STATUS_CORE
+        @@STATUS_JOBS
+        @@OPTIONS
       </div>
       <div id="footer">
         <p>
