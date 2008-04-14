@@ -1,6 +1,10 @@
 <%@ include file="/inc/init.jsp" %>
 <%
     title = "Logout";
-    user.logout();
-    response.sendRedirect("/login.jsp");
+    if (user.isLoggedIn) {
+      terrier.logoutUser(user.getName());
+      response.sendRedirect("/login.jsp");
+    }
+    out.println ("You must login first!");
+    out.println ("<br />");
 %>

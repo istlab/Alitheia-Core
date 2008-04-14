@@ -152,6 +152,22 @@ public class Terrier {
     }
 
     /**
+     * Performs a logout from the SQO-OSS framework for the specified user
+     * account.
+     * 
+     * @param username The user's name
+     */
+    public void logoutUser (String username) {
+        // Clean up the old session (if any)
+        session = null;
+        
+        // Fall back to the system account
+        sessionUser = null;
+        sessionPass = null;
+        connect();
+    }
+
+    /**
      * Retrieves descriptive information about the selected project from
      * the SQO-OSS framework, and constructs a Project object from it.
      * 

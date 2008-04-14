@@ -110,9 +110,9 @@ else if (postAction.compareToIgnoreCase(ACT_REQ_LOGIN) == 0) {
     // Try to login with the provided account into the SQO-OSS framework
     if (!loginFailure) {
         if (terrier.loginUser(username, password)) {
-            actionResult = RES_LOGIN_SUCCESS;
             user = terrier.getUserByName(username);
             if (user != null) {
+                actionResult = RES_LOGIN_SUCCESS;
                 user.isLoggedIn = true;
             }
             else {
