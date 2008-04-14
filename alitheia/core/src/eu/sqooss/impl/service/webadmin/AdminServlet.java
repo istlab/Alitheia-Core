@@ -496,12 +496,11 @@ public class AdminServlet extends HttpServlet {
         dynamicSubstitutions.put("@@JOBFAILSTATS", renderJobFailStats());
         dynamicSubstitutions.put("@@MENU",
             "<ul id=\"menu\">" +
-            "<li id=\"nav-1\"><a href=\"/index\">Bundles</a></li>" +
-            "<li id=\"nav-5\"><a href=\"/metrics\">Metrics</a></li>" +
-            "<li id=\"nav-2\"><a href=\"/logs\">Logs</a></li>" +
+            "<li id=\"nav-1\"><a href=\"/index\">Metrics</a></li>" +
             "<li id=\"nav-3\"><a href=\"/projects\">Projects</a></li>" +
-            "<li id=\"nav-4\"><a href=\"/jobs\">Jobs</a></li>" +
             "<li id=\"nav-6\"><a href=\"/users\">Users</a></li>" +
+            "<li id=\"nav-2\"><a href=\"/logs\">Logs</a></li>" +
+            "<li id=\"nav-4\"><a href=\"/jobs\">Jobs</a></li>" +
             "</ul>");
         dynamicSubstitutions.put("@@METRICS", renderMetrics());
     }
