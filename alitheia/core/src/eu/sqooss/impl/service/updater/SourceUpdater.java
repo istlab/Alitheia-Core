@@ -98,6 +98,9 @@ class SourceUpdater extends Job {
     }
 
     protected void run() {
+        
+        int numRevisions = 0;
+        
         /* 
          * Cache project version and project file IDs for kick-starting
          * metric update jobs after the metadata update. This is done
@@ -136,8 +139,6 @@ class SourceUpdater extends Job {
             
             for (CommitEntry entry : commitLog) {
                 
-                //logger.info(entry.toString());
-
                 ProjectVersion curVersion = new ProjectVersion();
                 curVersion.setProject(project);
                 // Assertion: this value is the same as lastSCMVersion
@@ -149,8 +150,9 @@ class SourceUpdater extends Job {
                 d = (Developer)devCache.get(author);
                 
                 if (d == null) {
-                	d = Developer.getDeveloperByUsername(s, entry.getAuthor(), project);
-                	devCache.put(author, d);
+                    d = Developer.getDeveloperByUsername(s, entry.getAuthor(),
+                            project);
+                    devCache.put(author, d);
                 }
                 
                 curVersion.setCommitter(d);
@@ -178,8 +180,6 @@ class SourceUpdater extends Job {
                      */
                     if(t == SCMNodeType.DIR && isTag(entry, chPath)) {
                         
-                        logger.info(project.getName() + ": SVN Tag revision: " + 
-                                entry.getRevision().getSVNRevision());
                         Tag tag = curVersion.addTag();
                         tag.setName(chPath.substring(5));
                         
@@ -192,10 +192,10 @@ class SourceUpdater extends Job {
                     String fname = chPath.substring(chPath.lastIndexOf('/') + 1);
 
                     Directory dir = null;
-                    dir = (Directory)dirCache.get(path);
+                    dir = (Directory) dirCache.get(path);
                     if (dir == null) {
-                    	dir = Directory.getDirectory(s, path);
-                    	dirCache.put(path, dir);
+                        dir = Directory.getDirectory(s, path);
+                        dirCache.put(path, dir);
                     }
                     
                     pf.setName(fname);
@@ -211,9 +211,19 @@ class SourceUpdater extends Job {
                     s.save(pf);
                     updFiles.add(pf.getId());
                 }
+                
+                numRevisions ++;
+                
+                /*Cleanup for huge projects*/
+                if (numRevisions % 10000 == 0) {
+                    tx.commit();
+                    devCache.clear();
+                    dirCache.clear();
+                    tx = s.beginTransaction();
+                }
             }
             tx.commit();
-            
+            logger.info("Processed " + numRevisions + " revisions");
         } catch (InvalidRepositoryException e) {
             logger.error("Not such repository:" + e.getMessage());
             setState(State.Error);
