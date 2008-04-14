@@ -28,7 +28,7 @@ if (ProjectsListView.hasProjects()) {
     out.println("<p />Selected:");
     Project selectedProject = ProjectsListView.getCurrentProject();
     if (selectedProject == null) {
-        out.println(error("No project selected."));
+        out.println(Functions.error("No project selected."));
     } else {
         out.println("<strong>" + selectedProject.getName() + "</strong>");
         out.println(selectedProject.getInfo());
@@ -65,7 +65,7 @@ if (ProjectsListView.hasProjects()) {
                 + " (in version " + versionNum + ")");
             out.println (versionSelector(projectId, versionNum));
             if (inputError != null) {
-                out.println(error(inputError));
+                out.println(Functions.error(inputError));
             }
         }
 
@@ -88,7 +88,7 @@ if (ProjectsListView.hasProjects()) {
     out.println(projects);
 }
 else {
-    out.println(error("Unable to find any evaluated projects."));
+    out.println(Functions.error("Unable to find any evaluated projects."));
 }
 
 %>

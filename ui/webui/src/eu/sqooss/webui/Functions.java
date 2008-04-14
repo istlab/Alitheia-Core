@@ -6,7 +6,7 @@ public class Functions {
         "This project has not yet been evaluated!";
 
     public static String dude() {
-        return "<h1>Duuuuuuude!</h1>";
+        return "<h1>Boogers!</h1>";
     }
 
     public static String error(String msg) {

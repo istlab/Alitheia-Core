@@ -1,5 +1,4 @@
 <%@ include file="/inc/init.jsp" %>
-<%@ include file="/inc/functions.jsp" %>
 
 <%
     title = "Homepage";
@@ -10,7 +9,7 @@
 <h2>This is the Alitheia System</h2>
 
 <%
-out.println(dude());
+out.println(eu.sqooss.webui.Functions.dude());
 %>
 <%@ include file="/inc/news.jsp" %>
 
