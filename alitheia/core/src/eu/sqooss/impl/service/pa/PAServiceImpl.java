@@ -97,7 +97,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
     /* ===[ Global variables ]============================================ */
 
     private Logger logger;
-    
+
     // Store our parent's bundle context here
     private BundleContext bc;
 
@@ -119,10 +119,10 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
         this.bc = bc;
 
         // Read the default configuration file
-        // TODO: Refactor the XSD schema and XML data file name constructors
+        String configDir = CWD_PATH + FILE_SEP + CONF_DIR + FILE_SEP;
         configReader = new XMLConfigParser(
-                CWD_PATH + FILE_SEP + CONF_DIR + FILE_SEP + "plugins.xml",
-                CWD_PATH + FILE_SEP + CONF_DIR + FILE_SEP + "plugins.xsd");
+                configDir + "plugins.xml",
+                configDir + "plugins.xsd");
         // ... and retrieve all available metrics configurations
         if (configReader != null) {
             metricConfigurations = configReader.getMetricsConfiguration();
@@ -183,7 +183,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
             if (metricObject != null) {
                 metricInfo.setMetricName(metricObject.getName());
                 metricInfo.setMetricVersion(metricObject.getVersion());
-                
+
                 // Retrieve all object types that this metric can calculate
                 Vector<String> metricType = new Vector<String>();
                 if (metricObject instanceof ProjectFileMetric) {
@@ -448,30 +448,33 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
     }
 
     public ServiceReference[] listMetricProviders(Class<?> o) {
-        // There should be at least one registered metric
-        if (!registeredMetrics.isEmpty()) {
-            // All registered metrics
-            Iterator<MetricInfo> metrics =
-                registeredMetrics.values().iterator();
-            // Metrics matching this search
-            Vector<ServiceReference> matching =
-                new Vector<ServiceReference>();
-            // Search for metric of compatible type
-            while (metrics.hasNext()) {
-                MetricInfo nextMetric = metrics.next();
-                if ((nextMetric.isType(o.getName()))
-                    && (nextMetric.getServiceRef() != null)) {
-                        matching.add(nextMetric.getServiceRef());
-                    }
-            }
-            // Return the matching ones
-            if (matching.size() > 0) {
-                ServiceReference[] metricsList =
-                    new ServiceReference[matching.size()];
-                metricsList = matching.toArray(metricsList);
-                return metricsList;
-            }
+        if (registeredMetrics.isEmpty()) {
+            // No metrics. Don't bother looking.
+            return null;
         }
+        // There should be at least one registered metric
+        // All registered metrics
+        Iterator<MetricInfo> metrics =
+            registeredMetrics.values().iterator();
+        // Metrics matching this search
+        Vector<ServiceReference> matching =
+            new Vector<ServiceReference>();
+        // Search for metric of compatible type
+        while (metrics.hasNext()) {
+            MetricInfo nextMetric = metrics.next();
+            if ((nextMetric.isType(o.getName()))
+                && (nextMetric.getServiceRef() != null)) {
+                    matching.add(nextMetric.getServiceRef());
+                }
+        }
+        // Return the matching ones
+        if (matching.size() > 0) {
+            ServiceReference[] metricsList =
+                new ServiceReference[matching.size()];
+            metricsList = matching.toArray(metricsList);
+            return metricsList;
+        }
+        // None found
         return null;
     }
 
