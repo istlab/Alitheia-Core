@@ -54,6 +54,7 @@ import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.db.Tag;
 import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.metricactivator.MetricActivator;
 import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.tds.CommitEntry;
 import eu.sqooss.service.tds.CommitLog;
@@ -73,6 +74,7 @@ class SourceUpdater extends Job {
     private TDSService tds;
     private DBService dbs;
     private Logger logger;
+    private MetricActivator ma;
     private AlitheiaCore core;
     private ServiceReference[] versionMetrics = null;
     private ServiceReference[] fileMetrics = null;
@@ -90,6 +92,7 @@ class SourceUpdater extends Job {
         this.core = core;
         this.tds = core.getTDSService();
         this.dbs = core.getDBService();
+        this.ma = core.getMetricActivator();
         
     }
 
@@ -246,39 +249,8 @@ class SourceUpdater extends Job {
             logger.info(project.getName() + ": Time to process entries: "
                     + (int) ((System.currentTimeMillis() - ts) / 1000));
 
-            /* Start project version metrics */
-            Iterator<Long> i = updProjectVersions.iterator();
-
-            while (i.hasNext()) {
-                long currentVersion = i.next().longValue();
-                for (ServiceReference r : versionMetrics) {
-                    Metric m = (Metric) core.getService(r);
-                    if (m != null) {
-                        try {
-                            m.run(dbs.findObjectById(s, ProjectVersion.class, currentVersion));
-                        } catch (MetricMismatchException e) {
-                            logger.warn("Metric " + m.getName() + " failed");
-                        }
-                    }
-                }
-            }
-
-            /* Start project file metrics */
-            i = updFiles.iterator();
-
-            while (i.hasNext()) {
-                long currentFileId = i.next().longValue();
-                for (ServiceReference r : fileMetrics) {
-                    Metric m = (Metric) core.getService(r);
-                    if (m != null) {
-                        try {
-                            m.run(dbs.findObjectById(s, ProjectFile.class, currentFileId));
-                        } catch (MetricMismatchException e) {
-                            logger.warn("Metric " + m.getName() + " failed");
-                        }
-                    }
-                }
-            }
+            ma.runMetrics(ProjectVersion.class, updProjectVersions);
+            ma.runMetrics(ProjectVersion.class, updFiles);
 
             dbs.returnSession(s);
             updater.removeUpdater(project.getName(), UpdaterService.UpdateTarget.CODE);

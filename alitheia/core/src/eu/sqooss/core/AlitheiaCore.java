@@ -47,6 +47,7 @@ import eu.sqooss.impl.service.db.DBServiceImpl;
 import eu.sqooss.impl.service.fds.FDSServiceImpl;
 import eu.sqooss.impl.service.logging.LogManagerImpl;
 import eu.sqooss.impl.service.messaging.MessagingServiceImpl;
+import eu.sqooss.impl.service.metricactivator.MetricActivatorImpl;
 import eu.sqooss.impl.service.pa.PAServiceImpl;
 import eu.sqooss.impl.service.scheduler.SchedulerServiceImpl;
 import eu.sqooss.impl.service.security.SecurityManagerImpl;
@@ -58,6 +59,7 @@ import eu.sqooss.service.fds.FDSService;
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.messaging.MessagingService;
+import eu.sqooss.service.metricactivator.MetricActivator;
 import eu.sqooss.service.pa.PluginAdmin;
 import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.security.SecurityManager;
@@ -77,7 +79,8 @@ public class AlitheiaCore {
     private UpdaterService updater;
     private WebadminService webadmin;
     private PAServiceImpl padmin;
-
+    private MetricActivator ma;
+    
     private org.osgi.framework.BundleContext bc;
 
     public AlitheiaCore(BundleContext bc) {
@@ -172,6 +175,14 @@ public class AlitheiaCore {
             }
         }
         return updater;
+    }
+    
+    public MetricActivator getMetricActivator() {
+        if (ma == null) {
+            ma = new MetricActivatorImpl(bc, getLogManager().createLogger(Logger.NAME_SQOOSS_METRICACTIVATOR));
+        }
+        
+        return ma;
     }
 
     public Object getService(ServiceReference r) {

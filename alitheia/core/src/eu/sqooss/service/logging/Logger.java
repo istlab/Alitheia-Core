@@ -139,6 +139,11 @@ public interface Logger {
     public static final String NAME_SQOOSS_TESTER       = "sqooss.tester";
 
     /**
+     * Represents Metric logger name.
+     */
+    public static final String NAME_SQOOSS_METRICACTIVATOR = "sqooss.metricactivator";
+    
+    /**
     * Log a message with debug (lower than lowest) logging level.
     * The debug level is used for micro-steps in an algorithm, for
     * logging individual computations and for providing ongoing

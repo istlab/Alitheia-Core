@@ -30,7 +30,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-package eu.sqooss.service.pa;
+package eu.sqooss.service.metricactivator;
 
 import java.util.SortedSet;
 
