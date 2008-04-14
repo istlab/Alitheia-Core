@@ -766,33 +766,36 @@ public class FDSServiceImpl implements FDSService {
         } else {
             logger.info("Testing timeline over project " + testProject.getName());
             Timeline timeline = getTimeline(testProject);
-            long lastButOneVersionNum = StoredProject.getLastProjectVersion(testProject)
-                                     .getVersion()-1;
-            if ( lastButOneVersionNum < 2 ) {
+            final long lastVersionNum = StoredProject.getLastProjectVersion(testProject)
+                                     .getVersion();
+            if ( lastVersionNum < 5 ) {
                 logger.info("Project has too little versions to test timeline, skipping tests.");
             } else {
+                final long fromVersionNumber = lastVersionNum * 1 / 4;
+                final long toVersionNumber = lastVersionNum * 3 / 4;
                 Map<String,Object> props = new HashMap<String, Object>(2);
                 props.put("project", testProject);
-                props.put("version", 2L);
-                List<ProjectVersion> secondVersion =
+                props.put("version", fromVersionNumber);
+                List<ProjectVersion> fromVersion =
                     dbs.findObjectByProperties(ProjectVersion.class, props);
-                if ( secondVersion.size() != 1) {
-                    return "Found less or more than one ProjectVersion for version 2 of project "
-                        + testProject.getName();
-                }
-                props.put("version", lastButOneVersionNum);
-                List<ProjectVersion> lastButOneVersion =
-                    dbs.findObjectByProperties(ProjectVersion.class, props);
-                if ( lastButOneVersion.size() != 1) {
+                if ( fromVersion.size() != 1) {
                     return "Found less or more than one ProjectVersion for version "
-                        + lastButOneVersionNum + " of project " + testProject.getName();
+                        + fromVersionNumber + " of project " + testProject.getName();
+                }
+                props.put("version", toVersionNumber);
+                List<ProjectVersion> toVersion =
+                    dbs.findObjectByProperties(ProjectVersion.class, props);
+                if ( toVersion.size() != 1) {
+                    return "Found less or more than one ProjectVersion for version "
+                        + toVersionNumber + " of project " + testProject.getName();
                 }
                 
-                logger.info("Testing timeline over revision range 2-" + lastButOneVersionNum);
+                logger.info("Testing timeline over revision range " 
+                        + fromVersionNumber + "-" + toVersionNumber);
                 Calendar from = Calendar.getInstance();
-                from.setTimeInMillis(secondVersion.get(0).getTimestamp());
+                from.setTimeInMillis(fromVersion.get(0).getTimestamp());
                 Calendar to = Calendar.getInstance();
-                to.setTimeInMillis(lastButOneVersion.get(0).getTimestamp());
+                to.setTimeInMillis(toVersion.get(0).getTimestamp());
                 SortedSet<ProjectEvent> events = null;
                 
                 events = timeline.getTimeLine( from, to, ResourceType.SCM );
