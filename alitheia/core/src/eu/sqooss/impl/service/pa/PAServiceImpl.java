@@ -167,9 +167,6 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
 
         MetricInfo metricInfo = new MetricInfo();
 
-        // Set the metric's configurable attributes
-        metricInfo.setAttributes(new HashMap());
-
         // Set the metric's service ID and service reference
         metricInfo.setServiceID(
                 (Long) srefMetric.getProperty(Constants.SERVICE_ID));
@@ -194,6 +191,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
         if (metricObject != null) {
             metricInfo.setMetricName(metricObject.getName());
             metricInfo.setMetricVersion(metricObject.getVersion());
+            metricInfo.setAttributes(metricObject.getConfigurationSchema());
 
             // Retrieve all object types that this metric can calculate
             Vector<String> metricType = new Vector<String>();
@@ -236,7 +234,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
         if ((metricsList != null) && (metricsList.length > 0)) {
             for (ServiceReference s : metricsList) {
                 MetricInfo metric_info = getMetricInfo(s);
-
+   
                 // Add this metric's info to the list
                 if (metric_info != null) {
                     registeredMetrics.put(
