@@ -118,6 +118,8 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
         this.logger = logger;
         this.bc = bc;
 
+        logger.info("PluginAdmin service starting.");
+
         // Read the default configuration file
         String configDir = CWD_PATH + FILE_SEP + CONF_DIR + FILE_SEP;
         configReader = new XMLConfigParser(
@@ -127,6 +129,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
         if (configReader != null) {
             metricConfigurations = configReader.getMetricsConfiguration();
         }
+        logger.debug("Done reading from file " + configDir + "plugins.xml");
 
         // Collect information about pre-existing metric services
         this.collectMetricsInfo();
@@ -144,6 +147,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
                 CommandProvider.class.getName(),
                 new PACommandProvider(this) ,
                 null);
+        logger.debug("PluginAdmin registered successfully.");
     }
 
     /**
@@ -180,6 +184,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
                 srefMetric.getBundle().getBundleId());
         metricInfo.setBundleName(
                 srefMetric.getBundle().getSymbolicName());
+        logger.debug("Getting info for metric " + metricInfo.getBundleName());
 
         // SQO-OSS related info fields
         Metric metricObject = (Metric) bc.getService(srefMetric);
@@ -215,6 +220,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
      * Collects information about all registered metrics
      */
     private void collectMetricsInfo() {
+        logger.debug("Collecting metrics info.");
         // Retrieve a list of all references to registered metric services
         ServiceReference[] metricsList = null;
         try {
