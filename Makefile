@@ -111,7 +111,7 @@ LOG4J_PREFIX=$(PREFIX)
 ifeq ($(OS),Windows_NT)
 LOG4J_PREFIX:=$(subst /cygdrive/c,,$(LOG4J_PREFIX))
 endif
-LOG4J_CONFIG=-Dlog4j.configuration=file://$(LOG4J_PREFIX)/configuration/log4j.properties
+LOG4J_CONFIG=-Dlog4j.configuration=file:///$(LOG4J_PREFIX)/configuration/log4j.properties
 
 # Jetty configuration.
 JETTY_CONFIG=-DDEBUG_VERBOSE=1 \
