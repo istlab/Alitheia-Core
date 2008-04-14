@@ -35,15 +35,16 @@ package eu.sqooss.impl.service.web.services;
 import eu.sqooss.service.db.User;
 import eu.sqooss.service.security.SecurityManager;
 import eu.sqooss.impl.service.web.services.datatypes.WSUser;
+import eu.sqooss.impl.service.web.services.utils.SecurityWrapper;
 
 public class UserManager {
     
-    private SecurityManager security;
+    private SecurityWrapper security;
     private eu.sqooss.service.security.UserManager userManager;
     
-    public UserManager(SecurityManager security) {
-        this.security = security;
-        this.userManager = security.getUserManager();
+    public UserManager(SecurityManager securityManager) {
+        this.security = new SecurityWrapper(securityManager);
+        this.userManager = securityManager.getUserManager();
     }
     
     /**
@@ -52,7 +53,7 @@ public class UserManager {
     public WSUser submitUser(String userNameForAccess, String passwordForAccess,
             String newUserName, String newPassword, String email) {
         
-        //TODO: check the security
+        security.checkUserWriteAccess(userNameForAccess, passwordForAccess, -1, null);
         
         User newUser = userManager.createUser(newUserName, newPassword, email);
         
@@ -66,7 +67,7 @@ public class UserManager {
     public boolean submitPendingUser(String userNameForAccess, String passwordForAccess,
             String newUserName, String newPassword, String email) {
         
-        //TODO: check the security
+        security.checkUserWriteAccess(userNameForAccess, passwordForAccess, -1, null);
         
         return userManager.createPendingUser(newUserName, newPassword, email);
     }
@@ -77,7 +78,7 @@ public class UserManager {
     public WSUser displayUser(String userNameForAccess, String passwordForAccess,
             long userId) {
         
-        //TODO: check the security
+        security.checkUserReadAccess(userNameForAccess, passwordForAccess, userId, null);
         
         User user = userManager.getUser(userId); 
         
@@ -95,7 +96,8 @@ public class UserManager {
     public boolean modifyUser(String userNameForAccess, String passwordForAccess,
             String userName, String newPassword, String newEmail) {
         
-        //TODO: check the security
+        security.checkUserWriteAccess(userNameForAccess, passwordForAccess,
+                -1, userName);
         
         return userManager.modifyUser(userName, newPassword, newEmail);
     }
@@ -105,7 +107,7 @@ public class UserManager {
      */
     public boolean deleteUser(String userNameForAccess, String passwordForAccess, long userId) {
         
-        //TODO: check the security
+        security.checkUserWriteAccess(userNameForAccess, passwordForAccess, userId, null);
         
         return userManager.deleteUser(userId);
     }
@@ -123,9 +125,10 @@ public class UserManager {
      */
     public WSUser getUserByName(String userNameForAccess,
             String passwordForAccess, String userName) {
-        //TODO: check the security
         
-        User user = userManager.getUser(userName); 
+        security.checkUserReadAccess(userNameForAccess, passwordForAccess, -1, userName);
+        
+        User user = userManager.getUser(userName);
         
         if (user != null) {
             return new WSUser(user);

@@ -106,6 +106,7 @@ public interface SecurityConstants {
         PROJECT_ID,
         PROJECT_VERSION_ID,
         METRIC_ID,
+        USER_ID,
         ALL;
         public String toString() {
             String name = name();

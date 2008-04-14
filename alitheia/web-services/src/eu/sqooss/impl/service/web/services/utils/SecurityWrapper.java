@@ -116,6 +116,38 @@ public class SecurityWrapper implements SecurityConstants {
         }
     }
     
+    public void checkUserReadAccess(String userName, String password,
+            long userId, String privilegeUserName) {
+        synchronized (privilegesLockObject) {
+            privileges.clear();
+            privileges.put(Privilege.ACTION.toString(), PrivilegeValue.READ.toString());
+            if (privilegeUserName != null) {
+                privileges.put(Privilege.USER_ID.toString(), privilegeUserName);
+            } else if (userId >= 0) {
+                privileges.put(Privilege.USER_ID.toString(), Long.toString(userId));
+            }
+            if (!security.checkPermission(URL_SQOOSS_SECURITY, privileges, userName, password)) {
+                throw new SecurityException("Security violation!");
+            }
+        }
+    }
+    
+    public void checkUserWriteAccess(String userName, String password,
+            long userId, String privilegeUserName) {
+        synchronized (privilegesLockObject) {
+            privileges.clear();
+            privileges.put(Privilege.ACTION.toString(), PrivilegeValue.WRITE.toString());
+            if (privilegeUserName != null) {
+                privileges.put(Privilege.USER_ID.toString(), privilegeUserName);
+            } else if (userId >= 0) {
+                privileges.put(Privilege.USER_ID.toString(), Long.toString(userId));
+            }
+            if (!security.checkPermission(URL_SQOOSS_SECURITY, privileges, userName, password)) {
+                throw new SecurityException("Security violation!");
+            }
+        }
+    }
+    
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
