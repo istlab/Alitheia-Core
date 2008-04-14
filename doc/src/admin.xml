@@ -10,6 +10,69 @@
     <title>Compilation procedure</title>
     <para></para>
 </sect1>
+<sect1 id="admin:install">
+    <title>Installation procedure</title>
+    <para></para>
+    <sect2 id="admin:install:webui">
+        <title>Installing WebUI</title>
+        <para>
+          The Alithea's WebUI web application has to be deployed into an
+          Apache Tomcat environment. The WebUI WAR file is named and has to be
+          installed as a Tomcat ROOT application.
+        </para>
+        <para>
+          For a manual installation we expect, that you know the location of
+          the WebUI WAR file and the the Tomcat's installation folder:
+        <itemizedlist mark='opencircle'>
+          <listitem>
+            <para>
+              <command>$WEBUI</command>
+              must point to the location of the WebUI WAR file
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              <command>$TOMCAT</command>
+              must point to the Tomcat's installation folder
+            </para>
+          </listitem>
+        </itemizedlist>
+          The installation process is as simple as copying the WAR file into
+          the Tomcat's application folder:
+        <orderedlist numeration="arabic">
+          <listitem>
+            <para>
+              On Unix/Linux:
+              <command>
+                cp $WEBUI $TOMCAT/webapps
+              </command>
+              Then start Tomcat as usuall:
+              <command>
+                $TOMCAT/bin/catalina.sh start
+              </command>
+              Tomcat itself takes care of unpacking and deploying the WebUI
+              apllication from the WAR file.
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              If you want to reinstall the WebUI, first you should remove its
+              previous deployment. On Unix/Linux use the following steps:
+              <command>
+                rm -rf $TOMCAT/webapps/ROOT
+              </command>
+              and the corresponding application cache tree from the Tomcat
+              work folder (the following example is for a Tomcat listening
+              on localhost):
+              <command>
+                rm -rf $TOMCAT/work/Catalina/localhost/_
+              </command>
+            </para>
+          </listitem>
+        </orderedlist>
+        </para>
+    </sect2>
+</sect1>
 <sect1 id="admin:task">
     <title>Administrative tasks</title>
     <para></para>
