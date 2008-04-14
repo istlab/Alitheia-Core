@@ -356,12 +356,12 @@ public class AdminServlet extends HttpServlet {
      * given MetricInfor object
      */
     protected String renderMetricAttributes(MetricInfo i) {
-        Hashtable attributes = i.getAttributes();
+        HashMap attributes = i.getAttributes();
         if(attributes == null) {
             return "<ul><li>This metric has no configurable attributes.</li></ul>";
         }
         else {
-            return "<ul><li>Baz</li><li>Barfle</li>";
+            return "<ul><li>Baz</li><li>Barfle</li></ul>";
         }
     }
 

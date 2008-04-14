@@ -167,6 +167,9 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
 
         MetricInfo metricInfo = new MetricInfo();
 
+        // Set the metric's configurable attributes
+        metricInfo.setAttributes(new HashMap());
+
         // Set the metric's service ID and service reference
         metricInfo.setServiceID(
                 (Long) srefMetric.getProperty(Constants.SERVICE_ID));

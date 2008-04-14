@@ -1,10 +1,8 @@
 package eu.sqooss.service.pa;
 
 import org.osgi.framework.ServiceReference;
-
 import eu.sqooss.service.util.StringUtils;
-
-import java.util.Hashtable;
+import java.util.HashMap;
 
 /**
  * The Class MetricInfo.
@@ -19,7 +17,7 @@ public class MetricInfo {
     private String[]    objectClass     = null;
     private String[]    metricType      = null;
     public boolean      installed       = false;
-    public Hashtable    attributes      = null;
+    public HashMap      attributes      = null;
 
     /**
      * @param bundleID the bundleID to set
@@ -154,11 +152,11 @@ public class MetricInfo {
         return b.toString();
     }
 
-    public void setAttributes(Hashtable attrbutes) {
+    public void setAttributes(HashMap attributes) {
         this.attributes = attributes;
     }
 
-    public Hashtable getAttributes() {
+    public HashMap getAttributes() {
         return attributes;
     }
 }
