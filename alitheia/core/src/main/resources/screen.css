@@ -100,7 +100,6 @@ input {
 	color : #f00;
 }
 
-
 #menu li#nav-1 a {
 	background : #eee url(/metrics.png) 0 3px no-repeat;
 	padding-left: 25px;
@@ -121,12 +120,6 @@ input {
 
 #menu li#nav-4 a {
 	background : #eee url(/gear.png) 0 3px no-repeat;
-	padding-left: 25px;
-	border-bottom : 1px solid #ccc;
-}
-
-#menu li#nav-5 a {
-	background : #eee url(/metrics.png) 0 3px no-repeat;
 	padding-left: 25px;
 	border-bottom : 1px solid #ccc;
 }

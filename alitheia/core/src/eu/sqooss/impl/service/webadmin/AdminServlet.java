@@ -182,7 +182,6 @@ public class AdminServlet extends HttpServlet {
             addStaticContent("/greyBack.jpg", "image/x-jpg");
             addStaticContent("/projects.png", "image/x-png");
             addStaticContent("/logs.png", "image/x-png");
-            addStaticContent("/bundles.png", "image/x-png");
             addStaticContent("/metrics.png", "image/x-png");
             addStaticContent("/gear.png", "image/x-png");
             addStaticContent("/header-repeat.png", "image/x-png");
@@ -195,7 +194,6 @@ public class AdminServlet extends HttpServlet {
             dynamicContentMap.put("/projects", "/projects.html");
             dynamicContentMap.put("/logs", "/logs.html");
             dynamicContentMap.put("/jobs", "/jobs.html");
-            dynamicContentMap.put("/metrics", "/metrics.html");
             dynamicContentMap.put("/alljobs", "/alljobs.html");
             dynamicContentMap.put("/users", "/users.html");
             dynamicSubstitutions = new Hashtable<String,String>();
