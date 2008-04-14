@@ -56,7 +56,8 @@ a:visited {
 	border-top: 1px solid #ccc;
 	text-align: center;
 	font-size: 0.8em;
-    margin-top: 20px;
+	margin-top: 20px;
+	padding-top: 1ex;
 	clear:both;
 }
 
