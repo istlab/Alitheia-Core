@@ -2,6 +2,8 @@ package eu.sqooss.service.pa;
 
 import org.osgi.framework.ServiceReference;
 
+import eu.sqooss.service.util.StringUtils;
+
 /**
  * The Class MetricInfo.
  */
@@ -101,15 +103,7 @@ public class MetricInfo {
     }
 
     public boolean usesClassName(String class_name) {
-        if ((objectClass != null) && (objectClass.length > 0)) {
-            for (int i=0 ; i < objectClass.length ; i++) {
-                if (objectClass[i].equals(class_name)) {
-                    return true;
-                }
-            }
-        }
-        
-        return false;
+        return StringUtils.contains(objectClass, class_name);
     }
 
     /**
@@ -127,15 +121,7 @@ public class MetricInfo {
     }
 
     public boolean isType(String class_name) {
-        if ((metricType != null) && (metricType.length > 0)) {
-            for (int i=0 ; i < metricType.length ; i++) {
-                if (metricType[i].equals(class_name)) {
-                    return true;
-                }
-            }
-        }
-        
-        return false;
+        return StringUtils.contains(metricType, class_name);
     }
 
     /**
@@ -152,4 +138,16 @@ public class MetricInfo {
         this.serviceRef = serviceRef;
     }
 
+    public String toString() {
+        StringBuilder b = new StringBuilder();
+        b.append(getMetricName());
+        b.append(" ");
+        b.append(getMetricVersion());
+        b.append(" [");
+        b.append(StringUtils.join(getMetricType(),","));
+        b.append(" : ");
+        b.append(StringUtils.join(getObjectClass(),","));
+        b.append("]");
+        return b.toString();
+    }
 }
