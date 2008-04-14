@@ -34,16 +34,18 @@ package eu.sqooss.service.metricactivator;
 
 import java.util.SortedSet;
 
+import eu.sqooss.service.abstractmetric.Metric;
 import eu.sqooss.service.db.DAObject;
-import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.StoredProject;
 
 /**
- * MetricActivator is responsible for kickstarting metric jobs
+ * The MetricActivator service is responsible for kickstarting metric jobs 
+ * either after project metadata updates or  
  */
 public interface MetricActivator {
 
     /**
+     * Run the metrics that  
      * 
      * @param clazz 
      * @param objectIDs 
@@ -51,6 +53,8 @@ public interface MetricActivator {
     public <T extends DAObject> void runMetrics(Class<T> clazz, SortedSet<Long> objectIDs);
     
     /**
+     * Synchronize metric results for all metrics that get activated by the
+     * event types identified by clazz with the latest project state
      * 
      * @param clazz
      * @param sp
@@ -58,6 +62,7 @@ public interface MetricActivator {
     public <T extends DAObject> void syncMetrics(Class<T> clazz, StoredProject sp);
     
     /**
+     * 
      * 
      * @param m
      * @param sp
