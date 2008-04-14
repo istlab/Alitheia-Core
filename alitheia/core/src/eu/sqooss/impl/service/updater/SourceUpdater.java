@@ -217,8 +217,6 @@ class SourceUpdater extends Job {
                 /*Cleanup for huge projects*/
                 if (numRevisions % 10000 == 0) {
                     tx.commit();
-                    devCache.clear();
-                    dirCache.clear();
                     tx = s.beginTransaction();
                 }
             }
