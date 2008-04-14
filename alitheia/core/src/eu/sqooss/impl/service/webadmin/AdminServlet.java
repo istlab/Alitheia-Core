@@ -498,7 +498,15 @@ public class AdminServlet extends HttpServlet {
             String query = request.getPathInfo();
             if (query.startsWith("/sqooss/services")) {
                 sobjLogger.warn("Web services query <" + request.getPathInfo() + "> reached the Webadmin servlet.");
+            } else if (query.startsWith("/stop")) {
+                dynamicSubstitutions.put("@@RESULTS", "<p>Alitheia Core is now shutdown.</p>");
+                dynamicSubstitutions.put("@@ACTIVE","class=\"section-1\"");
+                sendTemplate(response,"/results.html",dynamicSubstitutions);
+                // Stop the system
+                sobjLogger.info("System stopped by user request to webadmin.");
+                bundlecontext.getBundle(0).stop();
             }
+
             if ( (query != null) && (staticContentMap.containsKey(query)) ) {
                 sendResource(response, staticContentMap.get(query));
             } else {
@@ -659,13 +667,6 @@ public class AdminServlet extends HttpServlet {
                 // addProject() has filled in the substitutions by now
                 dynamicSubstitutions.put("@@ACTIVE","class=\"section-3\"");
                 sendTemplate(response,"/results.html",dynamicSubstitutions);
-            } else if ("/stop".equals(request.getPathInfo())) {
-                dynamicSubstitutions.put("@@RESULTS", "<p>Alitheia Core is now shutdown.</p>");
-                dynamicSubstitutions.put("@@ACTIVE","class=\"section-1\"");
-                sendTemplate(response,"/results.html",dynamicSubstitutions);
-                // Stop the system
-                sobjLogger.info("System stopped by user request to webadmin.");
-                bundlecontext.getBundle(0).stop();
             } else if ("/restart".equals(request.getPathInfo())) {
                 dynamicSubstitutions.put("@@RESULTS", "<p>Alitheia Core is now restarting. Please wait.</p>");
                 dynamicSubstitutions.put("@@ACTIVE","class=\"section-1\"");
