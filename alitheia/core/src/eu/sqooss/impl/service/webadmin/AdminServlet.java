@@ -344,10 +344,15 @@ public class AdminServlet extends HttpServlet {
         for(MetricInfo i : l) {
             b.append("<li>");
             b.append(i.toString());
+            b.append(renderMetricAttributes(i.toString()));
             b.append("</li>");
         }
         b.append("</ul>");
         return b.toString();
+    }
+
+    protected String renderMetricAttributes(String metric) {
+        return "<ul><li>Foo</li><li>Bar</li><li>Baz</li><li>Barfle</li></ul>";
     }
 
     public String renderList(String[] names) {
