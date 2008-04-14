@@ -99,12 +99,45 @@ public class StringUtils {
     }
 
     /**
-     * Given a String, this function returns an XHTML-safe version of the same 
+     * Given a String, this function returns an XHTML-safe version of the same
      */
     public static String makeXHTMLSafe(String line){
 	return line.replace("&", "&amp;")
 	    .replace("<", "&lt;")
 	    .replace(">", "&gt;");
+    }
+
+    /**
+     * Find the given needle string in an array (haystack) of strings.
+     * Returns the index of the needle in the haystack, or -1 if not found.
+     *
+     * @param haystack Array of strings to search.
+     * @param needle String to search for.
+     * @return -1 if the needle is not found or the needle or haystack
+     *      is invalid. Otherwise the index (>=0) of the needle in the
+     *      haystack.
+     */
+    public static int indexOf(String[] haystack, String needle) {
+        if ( (haystack == null) || (needle == null) ) {
+            return -1;
+        }
+        for (int i = 0; i<haystack.length; i++) {
+            if (haystack[i].equals(needle)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * State whether the given needle string is to be found in the haystack.
+     *
+     * @param haystack Array of strings to search through.
+     * @param needle String to search for.
+     * @return true iff the needle occurs in the haystack.
+     */
+    public static boolean contains(String[] haystack, String needle) {
+        return indexOf(haystack,needle) >= 0;
     }
 }
 
