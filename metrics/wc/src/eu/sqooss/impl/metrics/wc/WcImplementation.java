@@ -149,11 +149,15 @@ public class WcImplementation extends AbstractMetric implements Wc {
     /** {@inheritdoc} */
     public Collection<Pair<String, eu.sqooss.service.abstractmetric.Metric.ConfigurationTypes> >
         getConfigurationSchema() {
-        ArrayList<Pair<String, eu.sqooss.service.abstractmetric.Metric.ConfigurationTypes> > l = new
-            ArrayList<Pair<String, eu.sqooss.service.abstractmetric.Metric.ConfigurationTypes> >(1);
-        l.add(new Pair<String, eu.sqooss.service.abstractmetric.Metric.ConfigurationTypes>("smart-whitespace",
-            eu.sqooss.service.abstractmetric.Metric.ConfigurationTypes.BOOLEAN));
-        return l;
+
+        Pair<String, eu.sqooss.service.abstractmetric.Metric.ConfigurationTypes> p = new Pair<String, eu.sqooss.service.abstractmetric.Metric.ConfigurationTypes>( new String("Hello"), eu.sqooss.service.abstractmetric.Metric.ConfigurationTypes.INTEGER );
+
+
+	Collection c = new java.util.LinkedList< Pair<String, eu.sqooss.service.abstractmetric.Metric.ConfigurationTypes> > ();
+System.out.println("Booger 0");
+	c.add(p);
+System.out.println("Booger 1");
+	return c;
     }
 }
 
