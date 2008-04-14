@@ -186,6 +186,7 @@ public class AdminServlet extends HttpServlet {
             addStaticContent("/metrics.png", "image/x-png");
             addStaticContent("/gear.png", "image/x-png");
             addStaticContent("/header-repeat.png", "image/x-png");
+            addStaticContent("/add_user.png", "image/x-png");
 
             // Pages
             dynamicContentMap = new Hashtable<String,String>();
@@ -196,6 +197,7 @@ public class AdminServlet extends HttpServlet {
             dynamicContentMap.put("/jobs", "/jobs.html");
             dynamicContentMap.put("/metrics", "/metrics.html");
             dynamicContentMap.put("/alljobs", "/alljobs.html");
+            dynamicContentMap.put("/users", "/users.html");
             dynamicSubstitutions = new Hashtable<String,String>();
         }
     }
@@ -499,6 +501,7 @@ public class AdminServlet extends HttpServlet {
             "<li id=\"nav-2\"><a href=\"/logs\">Logs</a></li>" +
             "<li id=\"nav-3\"><a href=\"/projects\">Projects</a></li>" +
             "<li id=\"nav-4\"><a href=\"/jobs\">Jobs</a></li>" +
+            "<li id=\"nav-6\"><a href=\"/users\">Users</a></li>" +
             "</ul>");
         dynamicSubstitutions.put("@@METRICS", renderMetrics());
     }
