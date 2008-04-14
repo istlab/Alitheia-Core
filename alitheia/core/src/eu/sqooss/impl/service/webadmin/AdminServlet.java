@@ -246,8 +246,13 @@ public class AdminServlet extends HttpServlet {
             result.append("\t\t<tr>\n\t\t\t<td>");
             result.append(j.getClass().toString());
             result.append("</td>\n\t\t\t<td>");
-            result.append(j.getErrorException().getClass().toString());
-            result.append("</td>\n\t\t\t<td>");
+            if (j.getErrorException().getClass().toString() != null) {
+                result.append(j.getErrorException().getClass().toString());
+                result.append("</td>\n\t\t\t<td>");
+            } else {
+                result.append("null");
+                result.append("</td>\n\t\t\t<td>");    
+            }
             result.append(j.getErrorException().getMessage());
             result.append("</td>\n\t\t\t<td>");
             for(StackTraceElement m: j.getErrorException().getStackTrace()) {
