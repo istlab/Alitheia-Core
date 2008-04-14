@@ -343,16 +343,26 @@ public class AdminServlet extends HttpServlet {
         b.append("<ul>");
         for(MetricInfo i : l) {
             b.append("<li>");
-            b.append(i.toString());
-            b.append(renderMetricAttributes(i.toString()));
+            b.append("<b>" + i.toString() + "</b>");
+            b.append(renderMetricAttributes(i));
             b.append("</li>");
         }
         b.append("</ul>");
         return b.toString();
     }
 
-    protected String renderMetricAttributes(String metric) {
-        return "<ul><li>Foo</li><li>Bar</li><li>Baz</li><li>Barfle</li></ul>";
+    /**
+     * Creates a <ul> populated with the attributes and default values of the
+     * given MetricInfor object
+     */
+    protected String renderMetricAttributes(MetricInfo i) {
+        Hashtable attributes = i.getAttributes();
+        if(attributes == null) {
+            return "<ul><li>This metric has no configurable attributes.</li></ul>";
+        }
+        else {
+            return "<ul><li>Baz</li><li>Barfle</li>";
+        }
     }
 
     public String renderList(String[] names) {

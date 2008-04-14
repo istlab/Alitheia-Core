@@ -4,6 +4,8 @@ import org.osgi.framework.ServiceReference;
 
 import eu.sqooss.service.util.StringUtils;
 
+import java.util.Hashtable;
+
 /**
  * The Class MetricInfo.
  */
@@ -17,6 +19,7 @@ public class MetricInfo {
     private String[]    objectClass     = null;
     private String[]    metricType      = null;
     public boolean      installed       = false;
+    public Hashtable    attributes      = null;
 
     /**
      * @param bundleID the bundleID to set
@@ -149,5 +152,13 @@ public class MetricInfo {
         b.append(StringUtils.join(getObjectClass(),","));
         b.append("]");
         return b.toString();
+    }
+
+    public void setAttributes(Hashtable attrbutes) {
+        this.attributes = attributes;
+    }
+
+    public Hashtable getAttributes() {
+        return attributes;
     }
 }
