@@ -225,13 +225,8 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
 
         // Retrieve information about all registered metrics found
         if ((metricsList != null) && (metricsList.length > 0)) {
-
-            for (int nextMetric = 0;
-            nextMetric < metricsList.length;
-            nextMetric++) {
-
-                ServiceReference sref_metric = metricsList[nextMetric];
-                MetricInfo metric_info = getMetricInfo(sref_metric);
+            for (ServiceReference s : metricsList) {
+                MetricInfo metric_info = getMetricInfo(s);
 
                 // Add this metric's info to the list
                 if (metric_info != null) {
