@@ -39,6 +39,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -60,6 +61,7 @@ import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.pa.MetricInfo;
 import eu.sqooss.service.pa.PluginAdmin;
 import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.scheduler.Scheduler;
@@ -181,6 +183,7 @@ public class AdminServlet extends HttpServlet {
             addStaticContent("/projects.png", "image/x-png");
             addStaticContent("/logs.png", "image/x-png");
             addStaticContent("/bundles.png", "image/x-png");
+            addStaticContent("/metrics.png", "image/x-png");
             addStaticContent("/gear.png", "image/x-png");
             addStaticContent("/header-repeat.png", "image/x-png");
 
@@ -505,12 +508,14 @@ public class AdminServlet extends HttpServlet {
                 // Stop the system
                 sobjLogger.info("System stopped by user request to webadmin.");
                 bundlecontext.getBundle(0).stop();
+                return;
             } else if (query.startsWith("/restart")) {
                 dynamicSubstitutions.put("@@RESULTS", "<p>Alitheia Core is now restarting. Please wait.</p>");
                 dynamicSubstitutions.put("@@ACTIVE","class=\"section-1\"");
                 startTime = new Date().getTime();
                 sobjLogger.warn("BOGUS system restart by user request to webadmin.");
                 sendTemplate(response,"/results.html",dynamicSubstitutions);
+                return;
             }
 
             if ( (query != null) && (staticContentMap.containsKey(query)) ) {
