@@ -13,5 +13,6 @@ Import-Package:  org.osgi.framework,
     eu.sqooss.service.abstractmetric,
     eu.sqooss.service.scheduler,
     eu.sqooss.service.db,
+    eu.sqooss.serivce.util,
     eu.sqooss.core,
     eu.sqooss.lib.result
