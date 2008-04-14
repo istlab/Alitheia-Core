@@ -194,6 +194,7 @@ public class AdminServlet extends HttpServlet {
             dynamicContentMap.put("/projects", "/projects.html");
             dynamicContentMap.put("/logs", "/logs.html");
             dynamicContentMap.put("/jobs", "/jobs.html");
+            dynamicContentMap.put("/metrics", "/metrics.html");
             dynamicContentMap.put("/alljobs", "/alljobs.html");
             dynamicSubstitutions = new Hashtable<String,String>();
         }
@@ -384,6 +385,23 @@ public class AdminServlet extends HttpServlet {
         }
     }
 
+    protected String renderMetrics() {
+        Collection<MetricInfo> l = sobjPluginAdmin.listMetrics();
+        if (l.isEmpty()) {
+            return "";
+        }
+
+        StringBuilder b = new StringBuilder();
+        b.append("<ul>");
+        for(MetricInfo i : l) {
+            b.append("<li>");
+            b.append(i.toString());
+            b.append("</li>");
+        }
+        b.append("</ul>");
+        return b.toString();
+    }
+
     public String renderList(String[] names) {
         if ((names != null) && (names.length > 0)) {
             StringBuilder b = new StringBuilder();
@@ -482,6 +500,7 @@ public class AdminServlet extends HttpServlet {
             "<li id=\"nav-3\"><a href=\"/projects\">Projects</a></li>" +
             "<li id=\"nav-4\"><a href=\"/jobs\">Jobs</a></li>" +
             "</ul>");
+        dynamicSubstitutions.put("@@METRICS", renderMetrics());
     }
 
     private void doServletException(HttpServletRequest request,
