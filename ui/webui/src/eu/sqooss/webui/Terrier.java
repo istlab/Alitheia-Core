@@ -297,6 +297,19 @@ public class Terrier {
         return null;
     }
 
+    public User getUserByName (String userName) {
+        if (!isConnected()) return null;
+        try {
+            WSUser user = userAccessor.getUserByName(userName);
+            if (user != null) {
+                return new User(user.getId(), user.getUserName(), user.getEmail());
+            }
+        } catch (WSException e) {
+            error = "Can not retrieve information about the selected user.";
+        }
+        return null;
+    }
+
     public File getFile(Long fileId) {
         // TODO
         return null;
@@ -316,13 +329,11 @@ public class Terrier {
             if ((sessionUser != null) && (sessionPass != null)) {
                 session =
                     new WSSession(sessionUser, sessionPass, frameworkURL);
-                error="User account.";
             }
             // Fall back to the unprivileged account
             else if (session == null) {
                 session =
                     new WSSession(unprivUser, unprivPass, frameworkURL);
-                error = "System account.";
             }
         } catch (WSException wse) {
             error = "Couldn't establish a session with Alitheia.";

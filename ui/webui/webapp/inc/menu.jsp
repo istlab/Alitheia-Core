@@ -21,13 +21,16 @@ if (ProjectsListView.getProjectId() != null) {
         <li><a href="/playground/files.jsp" title="Click here for a random list of files">Files</a></li>
 <%
 }
-if (!loggedIn) {
+/**
+ * Login and Logout menu entries
+ */
+if (user.isLoggedIn) {
 %>
-        <li><a href="/login.jsp" title="Click here to log in or register">Login</a></li>
+        <li><a href="/logout.jsp" title="Click here to log out">Logout</a></li>
 <%
 } else {
 %>
-        <li><a href="/logout.jsp" title="Click here to log out">Logout</a></li>
+        <li><a href="/login.jsp" title="Click here to log in or register">Login</a></li>
 <%
 }
 %>

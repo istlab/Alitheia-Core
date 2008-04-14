@@ -1,3 +1,4 @@
+<%@ page import="eu.sqooss.webui.*" %>
 <%
 /*
     This file instaniates shared objects and defines shared variables
@@ -20,7 +21,7 @@ String msg      = "";
 <jsp:setProperty name="terrier" property="*"/>
 
 <jsp:useBean id="user"
-    class="eu.sqooss.webui.Users"
+    class="eu.sqooss.webui.User"
     scope="session"/>
 <jsp:setProperty name="user" property="*"/>
 
@@ -56,9 +57,6 @@ String password = request.getParameter("password");
 String regPassword = request.getParameter("confirm");
 String regEmail = request.getParameter("email");
 
-// Flag for authenticated user
-boolean loggedIn = false;
-
 // Flag for failed authentication or registration
 boolean loginFailure = false;
 
@@ -66,10 +64,9 @@ ProjectsListView.setProjectId(request.getParameter("pid"));
 
 String errorMsg = "";
 
-if (user.isLoggedIn(null)) {
-    msg = "Signed in as " + user.getCurrentUsers() + ".";
+if (user.isLoggedIn) {
+    msg = "Signed in as " + user.getName() + ".";
     msg = msg + " <a href=\"/logout.jsp\">sign out</a>";
-    loggedIn = true;
 }
 // Check for registration request
 else if (postAction.compareToIgnoreCase(ACT_REQ_REGISTER) == 0) {
@@ -114,6 +111,13 @@ else if (postAction.compareToIgnoreCase(ACT_REQ_LOGIN) == 0) {
     if (!loginFailure) {
         if (terrier.loginUser(username, password)) {
             actionResult = RES_LOGIN_SUCCESS;
+            user = terrier.getUserByName(username);
+            if (user != null) {
+                user.isLoggedIn = true;
+            }
+            else {
+                user = new User();
+            }
         }
         else {
             errorMsg = "Wrong username or password!";

@@ -33,11 +33,19 @@
 
 package eu.sqooss.webui;
 
-class User {
+public class User {
 
     private Long id;
     private String name;
     private String email;
+    public boolean isLoggedIn = false;
+
+    /**
+     * Simple constructor. Instantiates a new <code>User</code> object.
+     */
+    public User () {
+        
+    }
 
     public User (Long id, String name, String email) {
         this.id = id;

@@ -26,7 +26,7 @@ else if ((actionResult != null)
     out.println ("A confirmation email will in short be sent to you.");
     out.println ("<br />");
 }
-else if (!loggedIn) {
+else if (!user.isLoggedIn) {
     // Retrieve the form parameters from the previous login attempt (if any)
     String prvUsername = (validator.isEmpty(username)) ? "" : username;
     String prvPassword = (validator.isEmpty(password)) ? "" : password;
