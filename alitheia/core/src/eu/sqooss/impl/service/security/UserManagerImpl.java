@@ -94,6 +94,7 @@ public class UserManagerImpl implements UserManager {
         newUser.setPassword(passwordHash);
         newUser.setEmail(email);
         newUser.setRegistered(new Date());
+        newUser.setLastActivity(newUser.getRegistered());
         if (dbWrapper.createUser(newUser)) {
             return newUser;
         } else {
