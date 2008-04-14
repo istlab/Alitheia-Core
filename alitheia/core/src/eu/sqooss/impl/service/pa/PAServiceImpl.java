@@ -248,6 +248,30 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
     }
 
     /**
+     * Apply a configuration to a given metric. The metric is identified
+     * in three ways, by service reference, id and metric info -- the caller
+     * must ensure that these are all in-sync or undefined behavior may
+     * occur.
+     *
+     * Depending on the values in the configuration set, the metric
+     * may be installed automatically.
+     */
+    private void configureMetric(ServiceReference s, Long serviceId, MetricInfo info, MetricConfig config) {
+        // Checks if this metric has to be automatically
+        // installed upon registration
+        if (Boolean.valueOf(config.getString(MetricConfig.KEY_AUTOINSTALL))) {
+            if (installMetric(serviceId)) {
+                logger.debug("Metric " + serviceId + " installed OK.");
+            }
+            else {
+                logger.warn (
+                        "The install method of metric with"
+                        + " service ID " + serviceId+ " failed.");
+            }
+        }
+    }
+
+    /**
      * Performs various maintenance operations upon registration of a new
      * metric service
      *
@@ -291,24 +315,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
 
                 // Execute the necessary post-registration actions
                 if (configSet != null) {
-                    // Checks if this metric has to be automatically
-                    // installed upon registration
-                    if ((configSet.containsKey(MetricConfig.KEY_AUTOINSTALL)
-                            && (configSet.getString(MetricConfig.KEY_AUTOINSTALL)
-                                    .equalsIgnoreCase("true")))) {
-                        if (installMetric(serviceId)) {
-                            logger.debug (
-                                    "The install method of metric with"
-                                    + " service ID " + serviceId
-                                    + " was successfully executed.");
-                        }
-                        else {
-                            logger.warn (
-                                    "The install method of metric with"
-                                    + " service ID " + serviceId
-                                    + " failed.");
-                        }
-                    }
+                    configureMetric(srefMetric, serviceId, metricInfo, configSet);
                 }
             }
         }
