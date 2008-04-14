@@ -1,3 +1,6 @@
+TOP_SRCDIR=..
+include $(TOP_SRCDIR)/Makefile.config
+
 FILES= $(wildcard src/*)
 BUILDDIR=build
 
