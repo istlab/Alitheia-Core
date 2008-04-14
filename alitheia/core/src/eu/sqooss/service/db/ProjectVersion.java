@@ -39,6 +39,8 @@ import java.util.Map;
 
 import eu.sqooss.impl.service.CoreActivator;
 
+import eu.sqooss.service.tds.ProjectRevision;
+
 public class ProjectVersion extends DAObject {
     private StoredProject project;
     private long version;
@@ -84,6 +86,28 @@ public class ProjectVersion extends DAObject {
             return null;
         } else {
             return (List<ProjectFile>) projectFiles;
+        }
+    }
+   
+    public static ProjectVersion getVersionByRevision( StoredProject project, ProjectRevision revision ) {
+        DBService dbs = CoreActivator.getDBService();
+   
+        String paramProjectId = "stored_project_id";
+        String paramRevision = "revision_nr";
+        String query = "select pv " +
+                       "from ProjectVersion pv " +
+                       "where pv.project.id=:" + paramProjectId + " and " +
+                       "pv.version=" + paramRevision;
+
+        Map<String,Object> parameters = new HashMap<String,Object>();
+        parameters.put(paramProjectId, project.getId());
+        parameters.put(paramRevision, revision.getSVNRevision());
+
+        List<?> projectVersions = dbs.doHQL(query, parameters);
+        if (projectVersions == null || projectVersions.size() == 0) {
+            return null;
+        } else {
+            return (ProjectVersion) projectVersions.get(0);
         }
     }
     

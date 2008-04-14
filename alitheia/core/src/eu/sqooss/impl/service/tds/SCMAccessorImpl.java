@@ -61,6 +61,7 @@ import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.ProjectRevision;
 import eu.sqooss.service.tds.SCMAccessor;
 import eu.sqooss.service.tds.SCMNodeType;
+import eu.sqooss.service.fds.InMemoryDirectory;
 
 public class SCMAccessorImpl extends NamedAccessorImpl implements SCMAccessor {
     private String url;
@@ -214,7 +215,7 @@ public class SCMAccessorImpl extends NamedAccessorImpl implements SCMAccessor {
             throw new FileNotFoundException(repoPath);
         }
 
-        ISVNReporterBaton baton = new CheckoutBaton(revno,localPath);
+        ISVNReporterBaton baton = new CheckoutBaton(revno);
         ISVNEditor editor = new CheckoutEditor(revno,localPath);
 
         try {
@@ -265,8 +266,109 @@ public class SCMAccessorImpl extends NamedAccessorImpl implements SCMAccessor {
         }
 
         ISVNReporterBaton baton = new CheckoutBaton(src.getSVNRevision(),
-            dst.getSVNRevision(),localPath);
+            dst.getSVNRevision());
         ISVNEditor editor = new CheckoutEditor(dst.getSVNRevision(),localPath);
+
+        try {
+            svnRepository.update(revno,repoPath,true,baton,editor);
+        } catch (SVNException e) {
+            e.printStackTrace();
+            throw new InvalidRepositoryException(getName(),url,e.getMessage());
+        }
+    }
+
+    public void getCheckout(String repoPath, ProjectRevision revision, InMemoryDirectory root)
+        throws InvalidProjectRevisionException,
+               InvalidRepositoryException,
+               FileNotFoundException {
+        if (svnRepository == null) {
+            connectToRepository();
+        }
+        CheckoutEditor.logger = logger;
+        CheckoutBaton.logger = logger;
+
+        logger.info("Checking out project " + getName() + " path <" +
+            repoPath + "> in " + revision + " in <" +
+            root.getPath() + ">");
+
+        long revno = resolveProjectRevision(revision);
+        SVNNodeKind nodeKind;
+        try {
+            nodeKind = svnRepository.checkPath(repoPath, revno);
+        } catch (SVNException e) {
+            throw new FileNotFoundException(repoPath);
+        }
+
+        // Handle the various kinds of nodes that repoPath may refer to
+        if ( (SVNNodeKind.NONE == nodeKind) ||
+                (SVNNodeKind.UNKNOWN == nodeKind) ) {
+            logger.info("Requested path " + repoPath + " does not exist.");
+            throw new FileNotFoundException(repoPath);
+        }
+        /*
+        if (SVNNodeKind.FILE == nodeKind) {
+            getFile(repoPath, revision, new File(localPath, repoPath));
+            return;
+        }*/
+        // It must be a directory now.
+        if (SVNNodeKind.DIR != nodeKind) {
+            logger.warn("Node " + repoPath + " has weird type.");
+            throw new FileNotFoundException(repoPath);
+        }
+
+        ISVNReporterBaton baton = new CheckoutBaton(revno);
+        ISVNEditor editor = new CheckoutEditor(revno,root);
+
+        try {
+            svnRepository.update(revno,repoPath,true,baton,editor);
+        } catch (SVNException e) {
+            throw new InvalidRepositoryException(getName(),url,e.getMessage());
+        }
+    }
+
+    public void updateCheckout(String repoPath, ProjectRevision src,
+        ProjectRevision dst, InMemoryDirectory root)
+        throws InvalidProjectRevisionException,
+               InvalidRepositoryException,
+               FileNotFoundException {
+        if (svnRepository == null) {
+            connectToRepository();
+        }
+        CheckoutEditor.logger = logger;
+        CheckoutBaton.logger = logger;
+
+        logger.info("Updating project " + getName() + " path <" +
+            repoPath + "> from " + src + " to " + dst + " in <" +
+            root.getPath() + ">");
+
+        resolveProjectRevision(src);
+        long revno = resolveProjectRevision(dst);
+        SVNNodeKind nodeKind;
+        try {
+            nodeKind = svnRepository.checkPath(repoPath, revno);
+        } catch (SVNException e) {
+            throw new FileNotFoundException(repoPath);
+        }
+
+        // Handle the various kinds of nodes that repoPath may refer to
+        if ( (SVNNodeKind.NONE == nodeKind) ||
+                (SVNNodeKind.UNKNOWN == nodeKind) ) {
+            logger.info("Requested path " + repoPath + " does not exist.");
+            throw new FileNotFoundException(repoPath);
+        }
+        /*if (SVNNodeKind.FILE == nodeKind) {
+            getFile(repoPath, dst, new File(localPath, repoPath));
+            return;
+        }*/
+        // It must be a directory now.
+        if (SVNNodeKind.DIR != nodeKind) {
+            logger.warn("Node " + repoPath + " has weird type.");
+            throw new FileNotFoundException(repoPath);
+        }
+
+        ISVNReporterBaton baton = new CheckoutBaton(src.getSVNRevision(),
+            dst.getSVNRevision());
+        ISVNEditor editor = new CheckoutEditor(dst.getSVNRevision(),root);
 
         try {
             svnRepository.update(revno,repoPath,true,baton,editor);

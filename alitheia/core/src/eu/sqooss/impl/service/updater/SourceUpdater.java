@@ -128,7 +128,7 @@ class SourceUpdater extends Job {
         try {
 
             // This is the last version we actually know about
-            ProjectVersion lastVersion = StoredProject.getLastProjectVersion(project, logger);
+            ProjectVersion lastVersion = StoredProject.getLastProjectVersion(project);
             SCMAccessor scm = tds.getAccessor(project.getId()).getSCMAccessor();
             long lastSCMVersion = scm.getHeadRevision();
             CommitLog commitLog = scm.getCommitLog(

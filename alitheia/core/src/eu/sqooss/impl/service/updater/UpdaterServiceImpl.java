@@ -333,7 +333,7 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
      * kinds of errors returned by update().
      */
     public boolean update(String p, UpdateTarget t, Set<Integer> results) {
-        StoredProject project = StoredProject.getProjectByName(p, logger);
+        StoredProject project = StoredProject.getProjectByName(p);
         if (project == null) {
             //the project was not found, so the job can not continue
             logger.warn("The project <" + p + "> was not found");
@@ -381,7 +381,7 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
             return;
         }
 
-        StoredProject project = StoredProject.getProjectByName(p, logger);
+        StoredProject project = StoredProject.getProjectByName(p);
         if (project == null) {
             //the project was not found, so the job can not continue
             logger.warn("The project <" + p + "> was not found");

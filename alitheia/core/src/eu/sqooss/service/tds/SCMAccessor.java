@@ -41,6 +41,7 @@ import eu.sqooss.service.tds.Diff;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
 import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.ProjectRevision;
+import eu.sqooss.service.fds.InMemoryDirectory;
 
 public interface SCMAccessor extends NamedAccessor {
     /**
@@ -93,6 +94,17 @@ public interface SCMAccessor extends NamedAccessor {
 
     void updateCheckout(String repoPath, ProjectRevision src,
         ProjectRevision dst, File localPath)
+        throws InvalidProjectRevisionException,
+               InvalidRepositoryException,
+               FileNotFoundException;
+
+    void getCheckout(String repoPath, ProjectRevision revision, InMemoryDirectory root)
+        throws InvalidProjectRevisionException,
+               InvalidRepositoryException,
+               FileNotFoundException;
+
+    void updateCheckout(String repoPath, ProjectRevision src,
+        ProjectRevision dst, InMemoryDirectory root)
         throws InvalidProjectRevisionException,
                InvalidRepositoryException,
                FileNotFoundException;

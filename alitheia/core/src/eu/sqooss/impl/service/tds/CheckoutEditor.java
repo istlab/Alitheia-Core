@@ -43,6 +43,8 @@ import org.tmatesoft.svn.core.io.ISVNEditor;
 import org.tmatesoft.svn.core.io.diff.SVNDeltaProcessor;
 import org.tmatesoft.svn.core.io.diff.SVNDiffWindow;
 
+import eu.sqooss.service.fds.InMemoryDirectory;
+
 import eu.sqooss.service.logging.Logger;
 
 public class CheckoutEditor implements ISVNEditor {
@@ -50,6 +52,7 @@ public class CheckoutEditor implements ISVNEditor {
     private File localPath;
     private String repoDir; // Directory path within the repo
     private String repoFilePathName; // Filename below that dir
+    private InMemoryDirectory rootDirectory;
     private SVNDeltaProcessor deltaProcessor;
     public static Logger logger;
 
@@ -58,6 +61,13 @@ public class CheckoutEditor implements ISVNEditor {
         localPath = p;
         deltaProcessor = new SVNDeltaProcessor();
         logger.info("Checkout editor created for r." + r + " in " + p);
+    }
+
+    public CheckoutEditor(long r, InMemoryDirectory dir) {
+        targetRevision = r;
+        rootDirectory = dir;
+        deltaProcessor = new SVNDeltaProcessor();
+        logger.info("Checkout editor created for r." + r + " in " + dir.getPath());
     }
 
     public void targetRevision(long revision) {
@@ -120,8 +130,14 @@ public class CheckoutEditor implements ISVNEditor {
     static int filecount = 0;
     public void applyTextDelta(String path, String checksum)
         throws SVNException {
-        repoFilePathName = normalisePath(path);
-        deltaProcessor.applyTextDelta(null,new File(localPath,repoFilePathName), false);
+        if (localPath != null ) {
+            repoFilePathName = normalisePath(path);
+            deltaProcessor.applyTextDelta(null,new File(localPath,repoFilePathName), false);
+        } else if (rootDirectory != null ) {
+            rootDirectory.addFile(path);
+        } else {
+            logger.error("Tried to checkout to nowhere...");
+        }
         filecount++;
     }
 

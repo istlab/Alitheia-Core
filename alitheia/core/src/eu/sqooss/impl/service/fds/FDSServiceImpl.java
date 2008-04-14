@@ -56,7 +56,7 @@ import eu.sqooss.service.db.Bug;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.StoredProject;
-import eu.sqooss.service.db.ProjectVersion;;
+import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.fds.Checkout;
 import eu.sqooss.service.fds.FDSService;
 import eu.sqooss.service.fds.ProjectEvent;
@@ -766,7 +766,7 @@ public class FDSServiceImpl implements FDSService {
         } else {
             logger.info("Testing timeline over project " + testProject.getName());
             Timeline timeline = getTimeline(testProject);
-            long lastButOneVersionNum = StoredProject.getLastProjectVersion(testProject, logger)
+            long lastButOneVersionNum = StoredProject.getLastProjectVersion(testProject)
                                      .getVersion()-1;
             if ( lastButOneVersionNum < 2 ) {
                 logger.info("Project has too little versions to test timeline, skipping tests.");

@@ -43,7 +43,6 @@ import eu.sqooss.impl.service.CoreActivator;
 
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
-import eu.sqooss.service.logging.Logger;
 
 
 /**
@@ -136,7 +135,7 @@ public class StoredProject extends DAObject {
         this.mailUrl = url;
     }
 
-    public static StoredProject getProjectByName(String name, Logger logger) {
+    public static StoredProject getProjectByName(String name) {
         StoredProject project = null;
         DBService dbs = CoreActivator.getDBService();
 
@@ -144,7 +143,6 @@ public class StoredProject extends DAObject {
         parameterMap.put("name",name);
         List prList = dbs.doHQL("from StoredProject where PROJECT_NAME=:name",parameterMap);
         if ((prList == null) || (prList.size() != 1)) {
-            logger.error("The requested project was not found");
             return null;
         }
 
@@ -152,7 +150,7 @@ public class StoredProject extends DAObject {
         return project;
     }
 
-    public static ProjectVersion getLastProjectVersion(StoredProject project, Logger logger) {
+    public static ProjectVersion getLastProjectVersion(StoredProject project) {
         ProjectVersion lastVersion = null;
         DBService dbs = CoreActivator.getDBService();
 
@@ -164,7 +162,6 @@ public class StoredProject extends DAObject {
                 parameterMap);
 
         if ((pvList == null) || (pvList.size()==0)) {
-            logger.warn("No last stored version of project " + project.getName());
             lastVersion = new ProjectVersion();
             lastVersion.setProject(project);
             lastVersion.setVersion(0);
@@ -174,11 +171,9 @@ public class StoredProject extends DAObject {
         for (Object o : pvList) {
             if (o instanceof ProjectVersion) {
                 ProjectVersion op = (ProjectVersion)o;
-                logger.info("Found last project version " + op.getVersion());
             }
         }
         if (pvList.size() > 1) {
-            logger.warn("Found " + pvList.size() + " 'last' versions. Using the first one.");
         }
         
         lastVersion = (ProjectVersion) pvList.get(0);

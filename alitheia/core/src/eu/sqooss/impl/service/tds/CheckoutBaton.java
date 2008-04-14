@@ -33,8 +33,6 @@
 
 package eu.sqooss.impl.service.tds;
 
-import java.io.File;
-
 import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.io.ISVNReporter;
 import org.tmatesoft.svn.core.io.ISVNReporterBaton;
@@ -54,19 +52,16 @@ import eu.sqooss.service.logging.Logger;
 public class CheckoutBaton implements ISVNReporterBaton {
     private long sourceRevision;
     private long targetRevision;
-    private File localPath;
     public static Logger logger;
 
-    public CheckoutBaton(long revision, File path) {
+    public CheckoutBaton(long revision) {
         sourceRevision = 0;
         targetRevision = revision;
-        localPath = path;
     }
 
-    public CheckoutBaton(long src, long dst, File path) {
+    public CheckoutBaton(long src, long dst) {
         sourceRevision = src;
         targetRevision = dst;
-        localPath = path;
     }
 
     public void report(ISVNReporter reporter)
