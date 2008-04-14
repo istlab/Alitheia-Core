@@ -333,58 +333,6 @@ public class AdminServlet extends HttpServlet {
         return result.toString();
     }
 
-    /**
-     * Creates an HTML table displaying the key information on
-     * bundles and the services that they supply
-    */
-    protected String renderBundles() {
-        if( bundlecontext != null ) {
-            Bundle[] bundles = bundlecontext.getBundles();
-            String[] statenames = {
-                "uninstalled",
-                "installed",
-                "resolved",
-                "starting",
-                "stopping",
-                "active"
-            };
-
-            StringBuilder resultString = new StringBuilder();
-            resultString.append("<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n");
-            resultString.append("\t<thead>\n");
-            resultString.append("\t\t<tr>\n");
-            resultString.append("\t\t\t<td>Bundle</td>\n");
-            resultString.append("\t\t\t<td>Status</td>\n");
-            resultString.append("\t\t\t<td>Services Utilised</td>\n");
-            resultString.append("\t\t</tr>\n");
-            resultString.append("\t</thead>\n");
-            resultString.append("\t<tbody>\n");
-
-            for( Bundle b : bundles ){
-                String[] names = getServiceNames(b.getRegisteredServices());
-                String symbolicName = b.getSymbolicName();
-                if (symbolicName == null) {
-                        symbolicName = "<none>";
-                }
-
-                resultString.append("\t\t<tr>\n\t\t\t<td>");
-                resultString.append(StringUtils.makeXHTMLSafe(symbolicName));
-                resultString.append("</td>\n\t\t\t<td>");
-                resultString.append(StringUtils.bitfieldToString(statenames,b.getState()));
-                resultString.append("</td>\n\t\t\t<td>\n\t\t\t\t<ul>\n");
-                resultString.append(renderList(names));
-                resultString.append("\t\t\t\t</ul>\n\t\t\t</td>\n\t\t</tr>\n");
-            }
-
-            resultString.append("\t</tbody>\n");
-            resultString.append("</table>");
-
-            return resultString.toString();
-        } else {
-            return null;
-        }
-    }
-
     protected String renderMetrics() {
         Collection<MetricInfo> l = sobjPluginAdmin.listMetrics();
         if (l.isEmpty()) {
@@ -481,7 +429,6 @@ public class AdminServlet extends HttpServlet {
         dynamicSubstitutions.put("@@COPYRIGHT","Copyright 2007-2008 <a href=\"http://www.sqo-oss.eu/about/\">SQO-OSS Consortium Members</a>");
         dynamicSubstitutions.put("@@GETLOGS", renderList(sobjLogManager.getRecentEntries()));
         dynamicSubstitutions.put("@@PROJECTS", renderProjects());
-        dynamicSubstitutions.put("@@BUNDLE", renderBundles());
         dynamicSubstitutions.put("@@UPTIME",getUptime());
         dynamicSubstitutions.put("@@QUEUE_LENGTH", String.valueOf(sobjSched.getSchedulerStats().getWaitingJobs()));
         dynamicSubstitutions.put("@@JOB_EXEC", String.valueOf(sobjSched.getSchedulerStats().getRunningJobs()));
