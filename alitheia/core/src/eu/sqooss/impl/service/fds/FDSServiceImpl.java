@@ -35,11 +35,15 @@ package eu.sqooss.impl.service.fds;
 import java.io.File;
 import java.io.FileNotFoundException;
 
+import java.util.Calendar;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Random;
+import java.util.SortedSet;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -47,11 +51,17 @@ import org.osgi.framework.ServiceReference;
 import org.apache.commons.codec.binary.Hex;
 
 import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.impl.service.CoreActivator;
+import eu.sqooss.service.db.Bug;
+import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.StoredProject;
+import eu.sqooss.service.db.ProjectVersion;;
 import eu.sqooss.service.fds.Checkout;
 import eu.sqooss.service.fds.FDSService;
+import eu.sqooss.service.fds.ProjectEvent;
 import eu.sqooss.service.fds.Timeline;
+import eu.sqooss.service.fds.Timeline.ResourceType;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
@@ -745,6 +755,63 @@ public class FDSServiceImpl implements FDSService {
             }
         } else {
             logger.info("Skipping update self-test.");
+        }
+        
+        // Timeline tests
+        DBService dbs = CoreActivator.getDBService();
+        // Try to find an installed project to work on
+        StoredProject testProject= dbs.findObjectById(StoredProject.class, 1);
+        if (testProject == null) {
+            logger.info("No installed projects found, skipping Timeline tests");
+        } else {
+            logger.info("Testing timeline over project " + testProject.getName());
+            Timeline timeline = getTimeline(testProject);
+            long lastButOneVersionNum = StoredProject.getLastProjectVersion(testProject, logger)
+                                     .getVersion()-1;
+            if ( lastButOneVersionNum < 2 ) {
+                logger.info("Project has too little versions to test timeline, skipping tests.");
+            } else {
+                Map<String,Object> props = new HashMap<String, Object>(2);
+                props.put("project", testProject);
+                props.put("version", 2L);
+                List<ProjectVersion> secondVersion =
+                    dbs.findObjectByProperties(ProjectVersion.class, props);
+                if ( secondVersion.size() != 1) {
+                    return "Found less or more than one ProjectVersion for version 2 of project "
+                        + testProject.getName();
+                }
+                props.put("version", lastButOneVersionNum);
+                List<ProjectVersion> lastButOneVersion =
+                    dbs.findObjectByProperties(ProjectVersion.class, props);
+                if ( lastButOneVersion.size() != 1) {
+                    return "Found less or more than one ProjectVersion for version "
+                        + lastButOneVersionNum + " of project " + testProject.getName();
+                }
+                
+                logger.info("Testing timeline over revision range 2-" + lastButOneVersionNum);
+                Calendar from = Calendar.getInstance();
+                from.setTimeInMillis(secondVersion.get(0).getTimestamp());
+                Calendar to = Calendar.getInstance();
+                to.setTimeInMillis(lastButOneVersion.get(0).getTimestamp());
+                SortedSet<ProjectEvent> events = null;
+                
+                events = timeline.getTimeLine( from, to, ResourceType.SCM );
+                if (events.isEmpty()) {
+                    return "The timeline returned an empty list of SCM events";
+                }
+                logger.info("Timeline returned " + events.size() + " SCM events");
+                events = timeline.getTimeLine( from, to, ResourceType.MAIL );
+                // empty list of mails is ok
+                logger.info("Timeline returned " + events.size() + " Mail events");
+                events = timeline.getTimeLine( from, to, ResourceType.BTS );
+                // empty list of bugs is ok
+                logger.info("Timeline returned " + events.size() + " BTS events");
+                events = timeline.getTimeLine( from, to, EnumSet.allOf(ResourceType.class) );
+                if (events.isEmpty()) {
+                    return "The timeline returned an empty total list of events";
+                }
+                logger.info("Timeline returned " + events.size() + " events in total");
+            }
         }
         return null;
     }
