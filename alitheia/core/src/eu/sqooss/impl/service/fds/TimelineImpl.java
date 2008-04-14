@@ -48,6 +48,7 @@ import eu.sqooss.service.db.DAOException;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.List;
@@ -134,16 +135,20 @@ class TimelineImpl implements Timeline {
  
     // Interface Timeline
     /** {@inheritDoc} */
-    public SortedSet<ProjectEvent> getTimeLine(Calendar from, Calendar to, EventType rt) {
+    public SortedSet<ProjectEvent> getTimeLine(Calendar from, Calendar to, ResourceType rt) {
+        return getTimeLine( from, to, EnumSet.of(rt) );
+    }
+
+    public SortedSet<ProjectEvent> getTimeLine(Calendar from, Calendar to, EnumSet<ResourceType> rts) {
         SortedSet<ProjectEvent> result = new TreeSet<ProjectEvent>();
 
-        if (rt==EventType.SCM || rt==EventType.ALL) {
+        if (rts.contains(ResourceType.SCM)) {
             result.addAll(getScmTimeLine(from, to));
         }
-        if( rt==EventType.MAIL || rt==EventType.ALL) {
+        if(rts.contains(ResourceType.MAIL)) {
             result.addAll(getMailTimeLine(from, to));
         }
-        if( rt==EventType.BTS || rt==EventType.ALL) {
+        if(rts.contains(ResourceType.BTS)) {
             result.addAll(getBugTimeLine(from, to ));
         }
 

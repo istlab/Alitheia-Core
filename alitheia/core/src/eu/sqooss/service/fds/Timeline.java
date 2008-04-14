@@ -36,6 +36,7 @@ package eu.sqooss.service.fds;
 import eu.sqooss.service.db.StoredProject;
 
 import java.util.Calendar;
+import java.util.EnumSet;
 import java.util.SortedSet;
 
 /**
@@ -60,27 +61,39 @@ import java.util.SortedSet;
 public interface Timeline {
     
     /* Yes, we have this all over the place */
-    public enum EventType {
+    public enum ResourceType {
         SCM,
         MAIL,
-        BTS, 
-        ALL
+        BTS
     }
     
     /**
      * Return a timeline of events for project, starting from and including 
      * events occurred at timestamp <tt>from</tt> ending up and including
-     * events occurred at timestamp <tt>to</tt> for the specified EventType.
-     * If the resource type parameter is ALL, then a timeline of all events
-     * is returned
+     * events occurred at timestamp <tt>to</tt> for the specified {@link ResourceType}.
      *  
      * @param from Timeline start
      * @param to Timeline end
-     * @param rt The resource type to include in the event timeline. If 
-     *  equals to EventType.ALL then event types for all resources are returned.
-     * @return A sorted list of TimeLineEntries
+     * @param rt The resource type to include in the event timeline. 
+     * @return A sorted set of {@link ProjectEvent} entries
      */
-    SortedSet<ProjectEvent> getTimeLine(Calendar from, Calendar to, EventType rt);
+    SortedSet<ProjectEvent> getTimeLine(Calendar from, Calendar to, ResourceType rt);
+
+    /**
+     * Return a timeline of events for project, starting from and including 
+     * events occurred at timestamp <tt>from</tt> ending up and including
+     * events occurred at timestamp <tt>to</tt> for the specified set of {@link ResourceType} events.
+     * For example, specifying EnumSet.addAll(ResourceType.class) will return a timeline
+     * containing events for all the resource types.
+     *  
+     * @param from Timeline start
+     * @param to Timeline end
+     * @param rt The set of {@link ResourceType} events to include in the event timeline. 
+     * @return A sorted set of {@link ProjectEvent} entries
+     */
+    SortedSet<ProjectEvent> getTimeLine(Calendar from, Calendar to, EnumSet<ResourceType> rts);
+    
+    
 }
 
 
