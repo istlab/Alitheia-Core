@@ -156,59 +156,59 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
      * information
      */
     private MetricInfo getMetricInfo (ServiceReference srefMetric) {
-
-        if (srefMetric != null) {
-            MetricInfo metricInfo = new MetricInfo();
-
-            // Set the metric's service ID and service reference
-            metricInfo.setServiceID(
-                    (Long) srefMetric.getProperty(Constants.SERVICE_ID));
-            metricInfo.setServiceRef(srefMetric);
-
-            // Set the class name(s) of the object(s) used in the
-            // service registration
-            String[] metric_classes =
-                (String[]) srefMetric.getProperty(Constants.OBJECTCLASS);
-            metricInfo.setObjectClass(metric_classes);
-
-            // Set the ID and name of the bundle which has registered
-            // this service
-            metricInfo.setBundleID(
-                    srefMetric.getBundle().getBundleId());
-            metricInfo.setBundleName(
-                    srefMetric.getBundle().getSymbolicName());
-
-            // SQO-OSS related info fields
-            Metric metricObject = (Metric) bc.getService(srefMetric);
-            if (metricObject != null) {
-                metricInfo.setMetricName(metricObject.getName());
-                metricInfo.setMetricVersion(metricObject.getVersion());
-
-                // Retrieve all object types that this metric can calculate
-                Vector<String> metricType = new Vector<String>();
-                if (metricObject instanceof ProjectFileMetric) {
-                    metricType.add(ProjectFile.class.getName());
-                }
-                if (metricObject instanceof ProjectVersionMetric) {
-                    metricType.add(ProjectVersion.class.getName());
-                }
-                if (metricObject instanceof StoredProjectMetric) {
-                    metricType.add(StoredProject.class.getName());
-                }
-                if (metricObject instanceof FileGroupMetric) {
-                    metricType.add(FileGroup.class.getName());
-                }
-                if (!metricType.isEmpty()) {
-                    String[] types = new String[metricType.size()];
-                    types = metricType.toArray(types);
-                    metricInfo.setMetricType(types);
-                }
-            }
-
-            return metricInfo;
+        if (srefMetric == null) {
+            logger.debug("Got a null service reference, ignoring.");
+            return null;
         }
 
-        return null;
+        MetricInfo metricInfo = new MetricInfo();
+
+        // Set the metric's service ID and service reference
+        metricInfo.setServiceID(
+                (Long) srefMetric.getProperty(Constants.SERVICE_ID));
+        metricInfo.setServiceRef(srefMetric);
+
+        // Set the class name(s) of the object(s) used in the
+        // service registration
+        String[] metric_classes =
+            (String[]) srefMetric.getProperty(Constants.OBJECTCLASS);
+        metricInfo.setObjectClass(metric_classes);
+
+        // Set the ID and name of the bundle which has registered
+        // this service
+        metricInfo.setBundleID(
+                srefMetric.getBundle().getBundleId());
+        metricInfo.setBundleName(
+                srefMetric.getBundle().getSymbolicName());
+
+        // SQO-OSS related info fields
+        Metric metricObject = (Metric) bc.getService(srefMetric);
+        if (metricObject != null) {
+            metricInfo.setMetricName(metricObject.getName());
+            metricInfo.setMetricVersion(metricObject.getVersion());
+
+            // Retrieve all object types that this metric can calculate
+            Vector<String> metricType = new Vector<String>();
+            if (metricObject instanceof ProjectFileMetric) {
+                metricType.add(ProjectFile.class.getName());
+            }
+            if (metricObject instanceof ProjectVersionMetric) {
+                metricType.add(ProjectVersion.class.getName());
+            }
+            if (metricObject instanceof StoredProjectMetric) {
+                metricType.add(StoredProject.class.getName());
+            }
+            if (metricObject instanceof FileGroupMetric) {
+                metricType.add(FileGroup.class.getName());
+            }
+            if (!metricType.isEmpty()) {
+                String[] types = new String[metricType.size()];
+                types = metricType.toArray(types);
+                metricInfo.setMetricType(types);
+            }
+        }
+
+        return metricInfo;
     }
 
     /**
