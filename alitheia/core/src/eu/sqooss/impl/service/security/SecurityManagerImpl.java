@@ -111,10 +111,11 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
         this.dbWrapper = new SecurityManagerDatabase(db);
         this.logger = logger;
         
-        userManager = new UserManagerImpl(db, messaging, logger);
         groupManager = new GroupManagerImpl(db, logger);
         privilegeManager = new PrivilegeManagerImpl(db, logger);
         serviceUrlManager = new ServiceUrlManagerImpl(db, logger);
+        userManager = new UserManagerImpl(db, messaging, logger,
+                privilegeManager, groupManager, serviceUrlManager);
         
         isEnable = Boolean.valueOf(System.getProperty("eu.sqooss.security.enable", "true"));
         
