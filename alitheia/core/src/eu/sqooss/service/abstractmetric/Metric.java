@@ -40,7 +40,26 @@ import eu.sqooss.service.db.DAObject;
 
 /**
  * Common metric plug-in related functionality. Must be implemented
- * by all metrics plug-ins.
+ * by all metrics plug-ins. There are four areas of functionality covered
+ * by this interface: metric metadata (about the metric itself),
+ * measurement (applying the metric to something), lifecycle (installation
+ * and removal) and configuration (of the metric, for future measurements).
+ *
+ * The metric metadata comprises name, description, author information
+ * and dates installed; this is static in the metric.
+ *
+ * Measurement comprises two methods: run which actually performs a measure-
+ * ment on some project artifact (which one depends on the type of DAObject
+ * which is passed in) and getResult which returns the value obtained
+ * by a previous measurement.
+ *
+ * Lifecycle management is done through three verbs: install, remove and
+ * update. These do what is on the box and should modify the database
+ * schemas as appropriate.
+ *
+ * Finally, configuration management is for settings that each plugin
+ * may have. These are (name,type) and (name,value) pairs; the former
+ * is the configuration schema, the latter the values in that schema.
  *
  * All metrics are bound to one or more of the following
  * project entities:
