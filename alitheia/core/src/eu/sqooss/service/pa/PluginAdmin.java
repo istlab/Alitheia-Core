@@ -35,6 +35,8 @@ import java.util.Collection;
 
 import org.osgi.framework.ServiceReference;
 
+import eu.sqooss.service.abstractmetric.Metric;
+
 // TODO: Auto-generated Javadoc
 /**
  * PluginAdmin defines an interface for classes that provide utilities for
@@ -54,6 +56,14 @@ public interface PluginAdmin {
      * @return the list of all metrics currently registered in the framework
      */
     public Collection<MetricInfo> listMetrics();
+    
+    /**
+     * Returns the metric info object for a specific metric
+     * 
+     * @param m The metric to return info about
+     * @return Information that the system has about a specific metric
+     */
+    public MetricInfo getMetricInfo(Metric m);
 
     /**
      * Get the list of metrics that have (sub-)interfaces for the given
@@ -66,17 +76,6 @@ public interface PluginAdmin {
      *          if no such interfaces exist.
      */
     public ServiceReference[] listMetricProviders(Class<?> o);
-    
-    /**
-     * Get the list of metrics that are interested in ProjectVersions;
-     * equivalent to passing a DAObject of class ProjectVersion to
-     * listMetricProviders, above.
-     * 
-     * @return Collection of service references. May be null if no
-     *          such interfaces exist.
-     */
-    public ServiceReference[] listProjectVersionMetrics();
-    
     
     /**
      * Calls the install() method of the metric object provided from a metric

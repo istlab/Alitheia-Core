@@ -489,8 +489,20 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
         return null;
     }
 
-    public ServiceReference[] listProjectVersionMetrics() {
-        return (listMetricProviders(ProjectVersion.class));
+    public MetricInfo getMetricInfo(Metric m) {
+        MetricInfo mi = null;
+        Collection<MetricInfo> c = listMetrics();
+        Iterator<MetricInfo> i = c.iterator();
+        
+        while (i.hasNext()) {
+            mi = i.next();
+
+            if (mi.getMetricName() == m.getName()
+                    && mi.getMetricVersion() == m.getVersion()) {
+                return mi;
+            }
+        }
+        return null;
     }
 }
 
