@@ -248,11 +248,13 @@ class SourceUpdater extends Job {
         } finally {
             logger.info(project.getName() + ": Time to process entries: "
                     + (int) ((System.currentTimeMillis() - ts) / 1000));
-
-            ma.runMetrics(ProjectVersion.class, updProjectVersions);
-            ma.runMetrics(ProjectVersion.class, updFiles);
-
+            
             dbs.returnSession(s);
+            
+            /*Kickstart metrics*/
+            ma.runMetrics(ProjectVersion.class, updProjectVersions);
+            ma.runMetrics(ProjectFile.class, updFiles);
+
             updater.removeUpdater(project.getName(), UpdaterService.UpdateTarget.CODE);
         }
     }

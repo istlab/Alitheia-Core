@@ -11,8 +11,6 @@ import eu.sqooss.service.abstractmetric.MetricMismatchException;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Metric;
-import eu.sqooss.service.db.ProjectFile;
-import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.metricactivator.MetricActivator;
@@ -36,22 +34,20 @@ public class MetricActivatorImpl implements MetricActivator {
     
     public <T extends DAObject> void runMetrics(Class<T> clazz,
             SortedSet<Long> objectIDs) {
-        ServiceReference[] versionMetrics = null;
-        ServiceReference[] fileMetrics = null;
+        ServiceReference[] metrics = null;
         
-        versionMetrics = core.getPluginManager().listMetricProviders(ProjectVersion.class);
-        fileMetrics = core.getPluginManager().listMetricProviders(ProjectFile.class);
+        metrics = core.getPluginManager().listMetricProviders(clazz);
         
         Iterator<Long> i = objectIDs.iterator();
 
         while (i.hasNext()) {
             long currentVersion = i.next().longValue();
-            for (ServiceReference r : versionMetrics) {
+            for (ServiceReference r : metrics) {
                 eu.sqooss.service.abstractmetric.Metric m = 
                     (eu.sqooss.service.abstractmetric.Metric) core.getService(r);
                 if (m != null) {
                     try {
-                        m.run(dbs.findObjectById(ProjectVersion.class, currentVersion));
+                        m.run(dbs.findObjectById(clazz, currentVersion));
                     } catch (MetricMismatchException e) {
                         logger.warn("Metric " + m.getName() + " failed");
                     }
