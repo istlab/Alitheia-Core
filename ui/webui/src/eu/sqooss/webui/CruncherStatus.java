@@ -76,11 +76,10 @@ public class CruncherStatus {
                     URLConnection c = url.openConnection();
                     p.load(c.getInputStream());
                     if (p.getProperty("online").equals("true")) {
-                        s = "The cruncher is online (" +
-                            p.getProperty("uptime") + "), " +
+                        s = "The cruncher is online, " +
                             p.getProperty("load") + " jobs running, " +
-                            p.getProperty("projects") + "x" +
-                            p.getProperty("metrics") + " things to do.";
+                            p.getProperty("projects") + " projects and " +
+                            p.getProperty("metrics") + " metrics available.";
                     } else {
                         s = "The cruncher is offline.";
                     }
