@@ -135,7 +135,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
         try {
             bc.addServiceListener(this, SREF_FILTER_METRIC);
         } catch (InvalidSyntaxException e) {
-            logError(INVALID_FILTER_SYNTAX);
+            logger.error(INVALID_FILTER_SYNTAX);
         }
 
         // Register an extension to the Equinox console, in order to
@@ -220,7 +220,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
         try {
             metricsList = bc.getServiceReferences(null, SREF_FILTER_METRIC);
         } catch (InvalidSyntaxException e) {
-            logError(INVALID_FILTER_SYNTAX);
+            logger.warn(INVALID_FILTER_SYNTAX);
         }
 
         // Retrieve information about all registered metrics found
@@ -242,7 +242,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
             }
         }
         else {
-            logInfo("No pre-existing metrics were found!");
+            logger.info("No pre-existing metrics were found!");
         }
     }
 
@@ -256,7 +256,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
         // Retrieve the service ID
         Long serviceId =
             (Long) srefMetric.getProperty(Constants.SERVICE_ID);
-        logInfo("A metric service was registered with ID " + serviceId);
+        logger.info("A metric service was registered with ID " + serviceId);
 
         // Dispose from the list of available metric any old metric, that
         // uses the same ID. Should not be required, as long as metric
@@ -281,7 +281,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
             // two or more matching configuration sets exists.
             if (metricInfo.usesClassName(className)) {
                 // Apply the current configuration set to this metric
-                logInfo(
+                logger.debug(
                         "A configuration set was found for metric with"
                         + " object class name " + className
                         + " and service ID "    + serviceId);
@@ -296,13 +296,13 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
                             && (configSet.getString(MetricConfig.KEY_AUTOINSTALL)
                                     .equalsIgnoreCase("true")))) {
                         if (installMetric(serviceId)) {
-                            logInfo (
+                            logger.debug (
                                     "The install method of metric with"
                                     + " service ID " + serviceId
                                     + " was successfully executed.");
                         }
                         else {
-                            logError (
+                            logger.warn (
                                     "The install method of metric with"
                                     + " service ID " + serviceId
                                     + " failed.");
@@ -323,7 +323,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
         // Retrieve the service ID
         Long serviceId =
             (Long) srefMetric.getProperty(Constants.SERVICE_ID);
-        logInfo(
+        logger.info(
                 "A metric service with ID "
                 + serviceId + " is unregistering.");
 
@@ -343,7 +343,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
         // Retrieve the service ID
         Long serviceId =
             (Long) srefMetric.getProperty(Constants.SERVICE_ID);
-        logInfo(
+        logger.info(
                 "A metric service with ID "
                 + serviceId + " was modified.");
     }
@@ -383,7 +383,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
         // Format a search filter for the metric service with <sid> serviceId
         String serviceFilter =
             "(" + Constants.SERVICE_ID +"=" + sid + ")";
-        logInfo (
+        logger.info (
                 "Installing metric with service ID " + sid);
 
         final String INSTALL_FAILED =
@@ -425,23 +425,23 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
                             return installed;
                         }
                         else {
-                            logError (INSTALL_FAILED + CANT_GET_SOBJ);
+                            logger.warn(INSTALL_FAILED + CANT_GET_SOBJ);
                         }
                     } catch (ClassCastException e) {
-                        logError (INSTALL_FAILED + NOT_A_METRIC);
+                        logger.warn(INSTALL_FAILED + NOT_A_METRIC);
                     } catch (Error e) {
-                        logError (INSTALL_FAILED + e);
+                        logger.warn(INSTALL_FAILED + e);
                     }
                 }
                 else {
-                    logWarning(NO_MATCHING_SERVICES);
+                    logger.warn(NO_MATCHING_SERVICES);
                 }
             }
             else {
-                logWarning(NO_MATCHING_SERVICES);
+                logger.warn(NO_MATCHING_SERVICES);
             }
         } catch (InvalidSyntaxException e) {
-            logError(INVALID_FILTER_SYNTAX);
+            logger.warn(INVALID_FILTER_SYNTAX);
         }
 
         return false;
@@ -481,19 +481,6 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
     public ServiceReference[] listProjectVersionMetrics() {
         return (listMetricProviders(ProjectVersion.class));
     }
-
-    private void logError(String msgText) {
-        logger.error(msgText);
-    }
-
-    private void logWarning(String msgText) {
-        logger.warn(msgText);
-    }
-
-    private void logInfo(String msgText) {
-        logger.info(msgText);
-    }
-
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
