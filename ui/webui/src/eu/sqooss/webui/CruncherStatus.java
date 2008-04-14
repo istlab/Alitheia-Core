@@ -31,7 +31,6 @@
  *
  */
 
-// Need a package name
 package eu.sqooss.webui;
 
 import java.io.BufferedReader;
@@ -57,7 +56,7 @@ public class CruncherStatus {
             URL url = null;
             Properties p = new Properties();
             try {
-                url = new URL("http://localhost:8090/ws");
+                url = new URL("http://localhost:8088/ws");
             } catch (java.net.MalformedURLException e) {
                 synchronized(lock) {
                     m = "Invalid cruncher URL.";
