@@ -104,21 +104,6 @@ public class MetricsTableView {
      */
     public void retrieveData () {
 
-        metricNames.put(0, "Line Count");
-        metricDescriptions.put(0, "Implements wc -l");
-
-        metricNames.put(1, "Cyclomatic Complexity");
-        metricDescriptions.put(1, "How complex is the code?");
-
-        metricNames.put(2, "Developer Interaction");
-        metricDescriptions.put(2, "Communication between developers");
-
-        metricNames.put(3, "Commit Statistics");
-        metricDescriptions.put(3, "Number of commits");
-
-        metricNames.put(4, "Mailing List Activity");
-        metricDescriptions.put(4, "How many emails have been sent?");
-
     }
 
     /* @return HTML code representing a list of Metrics.
@@ -205,9 +190,10 @@ public class MetricsTableView {
      * @return The list of metric descriptors in a HTML format.
      */
     public String getHtmlList() {
-        StringBuilder html = new StringBuilder("<!-- MetricsList -->\n<ul>");
+        StringBuilder html = new StringBuilder("<!-- MetricsList -->\n");
 
         if (! metricNames.isEmpty()) {
+            html.append("<ul>");
             for (Integer key: metricNames.keySet()) {
                 html.append("\n\t<li>");
                 html.append(metricNames.get(key));
@@ -217,9 +203,8 @@ public class MetricsTableView {
                 html.append("</li>");
             }
             html.append("\n</ul>");
-        }
-        else {
-            html.append (Functions.NOT_YET_EVALUATED);
+        } else {
+            html.append(Functions.error(Functions.NOT_YET_EVALUATED));
         }
 
         return html.toString();
