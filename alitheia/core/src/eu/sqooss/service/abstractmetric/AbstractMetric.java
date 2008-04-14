@@ -81,10 +81,10 @@ implements eu.sqooss.service.abstractmetric.Metric {
 
     /** Cache the metrics list on first access*/
     protected List<Metric> metrics = null;
-    
+
     /** Cache the result of the mark evaluation function*/
     protected HashMap<Long, Boolean> evaluationMarked = new HashMap<Long, Boolean>();
-   
+
     /**
      * Init basic services common to all implementing classes
      * @param bc - The bundle context of the implementing metric - to be passed
@@ -201,8 +201,8 @@ implements eu.sqooss.service.abstractmetric.Metric {
      *          is to be measured by that sub-interface.
      * @throws MetricMismatchException if the DAO is of a type
      *          not supported by this metric.
-     *          
-     * FIXME: 
+     *
+     * FIXME:
      */
     public void run(DAObject o) throws MetricMismatchException {
         if ((this instanceof ProjectVersionMetric) &&
@@ -255,13 +255,13 @@ implements eu.sqooss.service.abstractmetric.Metric {
     /**
      * Get the description objects for all metrics supported by this plug-in
      * as found in the database.
-     * 
+     *
      * @return the list of metric descriptors, or null if none
      */
     public List<Metric> getSupportedMetrics() {
     	if(metrics == null)
     		metrics = Plugin.getSupportedMetrics(db, Plugin.getPlugin(db, getName()));
-    	
+
         if (metrics.isEmpty()) {
             return null;
         }
@@ -273,12 +273,12 @@ implements eu.sqooss.service.abstractmetric.Metric {
     /**
      * Creates a record in the database, when the specified metric has been
      * evaluated for a first time in the scope of the selected project.
-     * 
+     *
      * @param me Evaluated metric
      * @param sp Evaluated project
      */
     public void markEvaluation (Metric me, StoredProject sp) {
-    	if(evaluationMarked.containsKey(sp.getId()) && 
+    	if(evaluationMarked.containsKey(sp.getId()) &&
     			!evaluationMarked.get(sp.getId())) {
     		// Get a DB session
 			Session s = db.getSession(this);
@@ -347,6 +347,12 @@ implements eu.sqooss.service.abstractmetric.Metric {
 
     public abstract boolean update();
 
+    /** {@inheritdoc} */
+    public java.util.Collection<eu.sqooss.service.util.Pair<String, ConfigurationTypes> >
+        getConfigurationSchema() {
+        // Pretend that there are no configuration values.
+        return null;
+    }
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

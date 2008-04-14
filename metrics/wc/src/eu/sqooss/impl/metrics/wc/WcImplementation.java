@@ -35,6 +35,7 @@
 package eu.sqooss.impl.metrics.wc;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
@@ -52,13 +53,14 @@ import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectFileMeasurement;
 import eu.sqooss.service.scheduler.Scheduler;
+import eu.sqooss.service.util.Pair;
 
 public class WcImplementation extends AbstractMetric implements Wc {
 
     List<Metric> supportedMetrics;
-    
+
     public WcImplementation(BundleContext bc) {
-        super(bc);        
+        super(bc);
     }
 
     public boolean install() {
@@ -78,7 +80,7 @@ public class WcImplementation extends AbstractMetric implements Wc {
 
     public boolean update() {
 
-        return remove() && install(); 
+        return remove() && install();
     }
 
     public Result getResult(ProjectFile a) {
@@ -142,6 +144,16 @@ public class WcImplementation extends AbstractMetric implements Wc {
         } catch (Exception e) {
             log.error("Could not schedule wc job for project file: " + ((ProjectFile)a).getFileName());
         }
+    }
+
+    /** {@inheritdoc} */
+    public Collection<Pair<String, eu.sqooss.service.abstractmetric.Metric.ConfigurationTypes> >
+        getConfigurationSchema() {
+        ArrayList<Pair<String, eu.sqooss.service.abstractmetric.Metric.ConfigurationTypes> > l = new
+            ArrayList<Pair<String, eu.sqooss.service.abstractmetric.Metric.ConfigurationTypes> >(1);
+        l.add(new Pair<String, eu.sqooss.service.abstractmetric.Metric.ConfigurationTypes>("smart-whitespace",
+            eu.sqooss.service.abstractmetric.Metric.ConfigurationTypes.BOOLEAN));
+        return l;
     }
 }
 

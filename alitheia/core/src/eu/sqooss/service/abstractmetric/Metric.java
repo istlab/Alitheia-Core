@@ -149,4 +149,22 @@ public interface Metric {
      */
     boolean remove();
 
+    /**
+     * These are the types of configuration values that metrics can
+     * support. This is used mostly for rendering and validation purposes.
+     */
+    public enum ConfigurationTypes {
+        INTEGER,
+        STRING,
+        BOOLEAN
+    } ;
+
+    /**
+     * A metric has a set of configuration values, together called the
+     * configuration schema of the metric. These configuration values
+     * are basic typed name=value pairs. The schema itself is a
+     * set of pairs of name and type.
+     */
+    public java.util.Collection<eu.sqooss.service.util.Pair<String, ConfigurationTypes> >
+        getConfigurationSchema();
 }
