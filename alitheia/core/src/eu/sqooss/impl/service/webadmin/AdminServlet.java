@@ -505,6 +505,12 @@ public class AdminServlet extends HttpServlet {
                 // Stop the system
                 sobjLogger.info("System stopped by user request to webadmin.");
                 bundlecontext.getBundle(0).stop();
+            } else if (query.startsWith("/restart")) {
+                dynamicSubstitutions.put("@@RESULTS", "<p>Alitheia Core is now restarting. Please wait.</p>");
+                dynamicSubstitutions.put("@@ACTIVE","class=\"section-1\"");
+                startTime = new Date().getTime();
+                sobjLogger.warn("BOGUS system restart by user request to webadmin.");
+                sendTemplate(response,"/results.html",dynamicSubstitutions);
             }
 
             if ( (query != null) && (staticContentMap.containsKey(query)) ) {
@@ -666,12 +672,6 @@ public class AdminServlet extends HttpServlet {
                 addProject(request);
                 // addProject() has filled in the substitutions by now
                 dynamicSubstitutions.put("@@ACTIVE","class=\"section-3\"");
-                sendTemplate(response,"/results.html",dynamicSubstitutions);
-            } else if ("/restart".equals(request.getPathInfo())) {
-                dynamicSubstitutions.put("@@RESULTS", "<p>Alitheia Core is now restarting. Please wait.</p>");
-                dynamicSubstitutions.put("@@ACTIVE","class=\"section-1\"");
-                startTime = new Date().getTime();
-                sobjLogger.warn("BOGUS system restart by user request to webadmin.");
                 sendTemplate(response,"/results.html",dynamicSubstitutions);
             } else {
                 doGet(request,response);
