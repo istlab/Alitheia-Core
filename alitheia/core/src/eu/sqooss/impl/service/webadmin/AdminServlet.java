@@ -60,6 +60,7 @@ import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.pa.PluginAdmin;
 import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.tds.InvalidRepositoryException;
@@ -88,6 +89,7 @@ public class AdminServlet extends HttpServlet {
     private TDSService sobjTDS = null;
     private Scheduler sobjSched = null;
     private UpdaterService sobjUpdater = null;
+    private PluginAdmin sobjPluginAdmin = null;
 
     private Hashtable<String,Pair<String,String>> staticContentMap;
     private Hashtable<String,String> dynamicContentMap;
@@ -153,11 +155,16 @@ public class AdminServlet extends HttpServlet {
             if (sobjSched != null) {
                 sobjLogger.debug("WebAdmin got Scheduler Service object.");
             }
-            
+
             // Get the Updater Service object
             sobjUpdater = sobjAlitheiaCore.getUpdater();
             if (sobjUpdater != null) {
                 sobjLogger.debug("WebAdmin got Updater Service object.");
+            }
+
+            sobjPluginAdmin = sobjAlitheiaCore.getPluginManager();
+            if (sobjPluginAdmin != null) {
+                sobjLogger.debug("WebAdmin got Plugin Admin object.");
             }
 
             Stuffer myStuffer = new Stuffer(sobjDB, sobjLogger, sobjTDS);
@@ -212,9 +219,9 @@ public class AdminServlet extends HttpServlet {
             return null;
         }
     }
-    
+
     /**
-     * Creates and HTML table with information about the jobs that 
+     * Creates and HTML table with information about the jobs that
      * failed and the recorded exceptions
      * @return
      */
@@ -250,13 +257,13 @@ public class AdminServlet extends HttpServlet {
                 result.append(m.getLineNumber());
                 result.append(")<br/>");
             }
-            
+
             result.append("\t\t\t</td>\n\t\t</tr>");
         }
-        
+
         result.append("\t</tbody>\n");
         result.append("</table>");
-        
+
         return result.toString();
     }
 
@@ -282,20 +289,20 @@ public class AdminServlet extends HttpServlet {
             result.append(j.getClass().toString());
             result.append("</td>\n\t\t\t<td>");
             Iterator<Job> ji = j.dependencies().iterator();
-            
+
             while(ji.hasNext()) {
                 result.append(ji.next().getClass().toString());
                 if(ji.hasNext())
                     result.append(",");
             }
             result.append("</td>\n\t\t\t<td>");
-            
+
             result.append("\t\t\t</td>\n\t\t</tr>");
         }
-        
+
         result.append("\t</tbody>\n");
         result.append("</table>");
-        
+
         return result.toString();
     }
 
@@ -352,10 +359,10 @@ public class AdminServlet extends HttpServlet {
 
             for( Bundle b : bundles ){
                 String[] names = getServiceNames(b.getRegisteredServices());
-		String symbolicName = b.getSymbolicName();
-		if (symbolicName == null) {
-			symbolicName = "<none>";
-		}
+                String symbolicName = b.getSymbolicName();
+                if (symbolicName == null) {
+                        symbolicName = "<none>";
+                }
 
                 resultString.append("\t\t<tr>\n\t\t\t<td>");
                 resultString.append(StringUtils.makeXHTMLSafe(symbolicName));
@@ -509,13 +516,13 @@ public class AdminServlet extends HttpServlet {
 
     private String renderProjects() {
         List<StoredProject> l = sobjDB.doHQL("from StoredProject");
-        
+
         if (l == null) {
             return null;
         }
-        
+
         StringBuilder s = new StringBuilder();
-        
+
         for (int i=0; i<l.size(); i++) {
             StoredProject p = (StoredProject) l.get(i);
             s.append("<li>");
@@ -532,9 +539,9 @@ public class AdminServlet extends HttpServlet {
                 s.append(updTarget);
                 s.append("</a>&nbsp");
             }
-	    s.append("<br/>Sites: <a href=\"");
-	    s.append(p.getWebsite());
-	    s.append("\">Website</a>&nbsp;Alitheia Reports");
+            s.append("<br/>Sites: <a href=\"");
+            s.append(p.getWebsite());
+            s.append("\">Website</a>&nbsp;Alitheia Reports");
             s.append("</li>");
         }
         return s.toString();
@@ -582,7 +589,7 @@ public class AdminServlet extends HttpServlet {
             sobjDB.addRecord(p);
 
             /* Run a few checks before actually storing the project */
-            
+
             //1. Duplicate project
             HashMap<String, Object> pname = new HashMap<String, Object>();
             pname.put("name", (Object)p.getName());
@@ -595,12 +602,12 @@ public class AdminServlet extends HttpServlet {
                         "Project not added.</p>" + tryAgain);
                 return;
             }
-            
+
             //2. Add accessor and try to access project resources
-            sobjTDS.addAccessor(p.getId(), p.getName(), p.getBugs(), 
+            sobjTDS.addAccessor(p.getId(), p.getName(), p.getBugs(),
                     p.getMail(), p.getRepository());
             TDAccessor a = sobjTDS.getAccessor(p.getId());
-            
+
             try {
                 a.getSCMAccessor().getHeadRevision();
                 //FIXME: fix this when we have a proper bug accessor
@@ -608,23 +615,23 @@ public class AdminServlet extends HttpServlet {
                     //Bug b = a.getBTSAccessor().getBug(1);
                 }
                 if(mail != null) {
-                    //FIXME: fix this when the TDS supports returning 
+                    //FIXME: fix this when the TDS supports returning
                     // list information
                     //a.getMailAccessor().getNewMessages(0);
                 }
             } catch (InvalidRepositoryException e) {
                 sobjLogger.warn("Error accessing repository. Project not added");
                 dynamicSubstitutions.put("@@RESULTS","<p>ERROR: Can not access " +
-                		"repository: &lt;" + p.getRepository() + "&gt;," +
-                		" project not added.</p>" + tryAgain);
+                                "repository: &lt;" + p.getRepository() + "&gt;," +
+                                " project not added.</p>" + tryAgain);
                 //Invalid repository, remove and remove accessor
                 sobjDB.deleteRecord(sobjDB.findObjectById(StoredProject.class, p.getId()));
                 sobjTDS.releaseAccessor(a);
                 return;
             }
-            
+
             sobjTDS.releaseAccessor(a);
-            
+
             // 3. Call the updater and check if it starts
             if (sobjUpdater.update(p, UpdaterService.UpdateTarget.ALL, null)) {
                 sobjLogger.info("Added a new project <" + name + "> with ID " +
