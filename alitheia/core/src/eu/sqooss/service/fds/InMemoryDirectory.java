@@ -164,6 +164,10 @@ public class InMemoryDirectory {
         }
     }
 
+    public void deleteFile(String path) {
+        // TODO: Delete the file
+    }
+    
     protected InMemoryDirectory getSubdirectoryByName(String name) {
         for (InMemoryDirectory dir : directories) {
             if (dir.getName().equals(name) ) {

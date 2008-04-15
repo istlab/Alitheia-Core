@@ -164,6 +164,14 @@ public class CheckoutEditor implements ISVNEditor {
 
     public void deleteEntry(String path, long revision) {
         logger.info("Server deletes " + path);
+        if( localPath != null ) {
+            File file = new File(localPath, normalisePath(path));
+            file.delete();
+        } else if (rootDirectory != null ) {
+            rootDirectory.deleteFile(path);
+        } else {
+            logger.error("Tried to checkout to nowhere...");
+        }
     }
 
     public void absentDir(String path) {
