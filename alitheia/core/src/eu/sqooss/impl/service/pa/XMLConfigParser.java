@@ -57,11 +57,11 @@ import eu.sqooss.service.pa.ConfigUtils;
 import eu.sqooss.service.pa.PluginConfig;
 
 public class XMLConfigParser implements ConfigUtils{
-    private static final String METRIC_ELEMENT  = "metric";
+    private static final String ELEMENT_METRIC  = "metric";
 
-    private static final String METRIC_NAME     = "name";
-    
-    // User-defined XML datatypes
+    private static final String ATTR_METRIC_NAME     = "name";
+
+    // User-defined XML data-types
     private static final String TYPE_BYTE_ARRAY     = "ByteArray";
     private static final Object TYPE_STRING_ARRAY   = "StringArray";
 
@@ -160,7 +160,7 @@ public class XMLConfigParser implements ConfigUtils{
             if (node.hasAttributes()) {
                 NamedNodeMap attributes = node.getAttributes();
                 for (int i = 0; i < attributes.getLength(); i++) {
-                    if (attributes.item(i).getNodeName() != METRIC_NAME) {
+                    if (attributes.item(i).getNodeName() != ATTR_METRIC_NAME) {
                         stringValues.put (
                                 attributes.item(i).getNodeName(),
                                 attributes.item(i).getNodeValue());
@@ -296,14 +296,14 @@ public class XMLConfigParser implements ConfigUtils{
 
         if (config_parser != null) {
             NodeList configuration =
-                config_parser.getElementsByTagName(METRIC_ELEMENT);
+                config_parser.getElementsByTagName(ELEMENT_METRIC);
             for (int i = 0; i < configuration.getLength(); i++) {
                 Element metric_element = (Element) configuration.item(i);
                 PluginConfig next_metric_config =
                     new MetricConfigImpl(metric_element);
 
                 metrics_config.put(
-                        metric_element.getAttribute(METRIC_NAME),
+                        metric_element.getAttribute(ATTR_METRIC_NAME),
                         next_metric_config);
             }
 
