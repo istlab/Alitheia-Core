@@ -363,9 +363,9 @@ public class AdminServlet extends HttpServlet {
     protected String renderMetricAttributes(MetricInfo i) {
         Collection attributes =  i.getAttributes();
         if (attributes == null) {
-            return "<ul><li>There are no attributes.</li></ul>";
+            return "<ul><li>This metric has no configurable attibutes.</li></ul>";
         } else {
-            return "<ul><li>There are attributes.</li></ul>";
+            return "<p>Arrrgh! Heeere be attributes. Now walk my plank!</p><ul><li>There are attribu</li></ul>";
         }
     }
 
