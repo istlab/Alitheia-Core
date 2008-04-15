@@ -33,8 +33,6 @@
 
 package eu.sqooss.service.fds;
 
-import eu.sqooss.service.db.StoredProject;
-
 import java.util.Calendar;
 import java.util.EnumSet;
 import java.util.SortedSet;

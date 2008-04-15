@@ -39,7 +39,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 
 import org.tmatesoft.svn.core.SVNException;
@@ -53,6 +52,7 @@ import org.tmatesoft.svn.core.io.SVNRepositoryFactory;
 import org.tmatesoft.svn.core.wc.SVNDiffClient;
 import org.tmatesoft.svn.core.wc.SVNRevision;
 
+import eu.sqooss.service.fds.InMemoryDirectory;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.CommitEntry;
 import eu.sqooss.service.tds.Diff;
@@ -61,7 +61,6 @@ import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.ProjectRevision;
 import eu.sqooss.service.tds.SCMAccessor;
 import eu.sqooss.service.tds.SCMNodeType;
-import eu.sqooss.service.fds.InMemoryDirectory;
 
 public class SCMAccessorImpl extends NamedAccessorImpl implements SCMAccessor {
     private String url;
@@ -424,7 +423,7 @@ public class SCMAccessorImpl extends NamedAccessorImpl implements SCMAccessor {
                 throw new FileNotFoundException(repoPath + " (unknown)");
             }
 
-            long retrieved_revision = svnRepository.getFile(
+            svnRepository.getFile(
                 repoPath, revno, null, stream);
             stream.close();
         } catch (SVNException e) {
@@ -490,7 +489,7 @@ public class SCMAccessorImpl extends NamedAccessorImpl implements SCMAccessor {
         CommitLogImpl result = new CommitLogImpl();
         
         try {
-            Collection logEntries = svnRepository.log(new String[]{repoPath},
+            svnRepository.log(new String[]{repoPath},
                 l,revstart, revend, true, true);
         } catch (SVNException e) {
             throw new InvalidRepositoryException(getName(), url, e.getMessage());

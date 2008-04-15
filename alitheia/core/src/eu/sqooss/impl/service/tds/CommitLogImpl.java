@@ -38,12 +38,10 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import org.tmatesoft.svn.core.SVNLogEntry;
-
 import eu.sqooss.service.tds.CommitEntry;
 import eu.sqooss.service.tds.CommitLog;
-import eu.sqooss.service.tds.ProjectRevision;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
+import eu.sqooss.service.tds.ProjectRevision;
 
 public class CommitLogImpl implements CommitLog {
     private LinkedList<CommitEntry> entries;

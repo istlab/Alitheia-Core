@@ -35,11 +35,9 @@ package eu.sqooss.impl.service.tds;
 
 import java.io.File;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.tds.Diff;
 import eu.sqooss.service.tds.PathChangeType;
 import eu.sqooss.service.tds.ProjectRevision;

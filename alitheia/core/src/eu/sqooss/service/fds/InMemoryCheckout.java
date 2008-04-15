@@ -33,14 +33,9 @@
 
 package eu.sqooss.service.fds;
 
-import java.io.File;
-
+import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.tds.CommitEntry;
 import eu.sqooss.service.tds.ProjectRevision;
-
-import eu.sqooss.service.db.StoredProject;
-
-import eu.sqooss.service.fds.InMemoryDirectory;
 
 /**
  * A checkout represents a working copy (checkout) of a project

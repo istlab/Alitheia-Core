@@ -34,7 +34,6 @@
 package eu.sqooss.impl.service.tds;
 
 import java.util.Date;
-import java.util.List;
 import java.util.LinkedList;
 
 import eu.sqooss.service.logging.Logger;
@@ -54,7 +53,7 @@ class BTSAccessorImpl extends NamedAccessorImpl implements BTSAccessor {
         super(id,projectName);
     }
 
-    // Interface methds
+    // Interface methods
     public BugNumberList getBugs() {
         return null;
     }

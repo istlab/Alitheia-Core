@@ -72,6 +72,10 @@ public interface FDSService {
         throws InvalidRepositoryException,
                InvalidProjectRevisionException;
 
+    InMemoryCheckout getInMemoryCheckout(long id, ProjectRevision r)
+    	throws InvalidRepositoryException,
+    		   InvalidProjectRevisionException;
+    
     /**
      * Release a previously obtained checkout.
      *
@@ -82,7 +86,9 @@ public interface FDSService {
      *              normally, this indicates an inconsistency in the TDS.
      */
     void releaseCheckout(Checkout c)
-        throws InvalidRepositoryException;
+    	throws InvalidRepositoryException;
+    void releaseCheckout(InMemoryCheckout c)
+    	throws InvalidRepositoryException;
     
     /**
      * This function returns a timeline view (combined metadata and pointers 

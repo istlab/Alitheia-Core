@@ -141,11 +141,18 @@ public class CheckoutEditor implements ISVNEditor {
 
     public OutputStream textDeltaChunk(String path, SVNDiffWindow w)
         throws SVNException {
-        return deltaProcessor.textDeltaChunk(w);
+    	try {
+    		return deltaProcessor.textDeltaChunk(w);
+    	} catch(NullPointerException e) {
+    		return null;
+    	}
     }
 
     public void textDeltaEnd(String path) {
-        deltaProcessor.textDeltaEnd();
+    	try {
+    		deltaProcessor.textDeltaEnd();
+    	} catch(NullPointerException e) {
+    	}
     }
 
     public void closeFile(String path, String checksum) {

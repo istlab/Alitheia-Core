@@ -56,6 +56,7 @@ import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.fds.Checkout;
 import eu.sqooss.service.fds.FDSService;
+import eu.sqooss.service.fds.InMemoryCheckout;
 import eu.sqooss.service.fds.ProjectEvent;
 import eu.sqooss.service.fds.Timeline;
 import eu.sqooss.service.fds.Timeline.ResourceType;
@@ -98,6 +99,7 @@ public class FDSServiceImpl implements FDSService {
      * checkouts all have different revisions.
      */
     private HashMap < Long, List < CheckoutImpl > > checkoutCollection;
+    private HashMap < Long, List < InMemoryCheckoutImpl > > inMemoryCheckoutCollection;
 
     /*
      * The following constants influence the formatting of checkout
@@ -174,6 +176,7 @@ public class FDSServiceImpl implements FDSService {
         logger.info("Got TDS service for FDS.");
 
         checkoutCollection = new HashMap < Long, List < CheckoutImpl > >();
+        inMemoryCheckoutCollection = new HashMap< Long, List< InMemoryCheckoutImpl > >();
 
         // Get the checkout root from the properties file.
         String s = bc.getProperty("eu.sqooss.fds.root");
@@ -222,6 +225,20 @@ public class FDSServiceImpl implements FDSService {
         return null;
     }
 
+    private InMemoryCheckoutImpl findCheckout(final List < InMemoryCheckoutImpl > l,
+            final ProjectRevision r) {
+            if (!r.hasSVNRevision()) {
+                return null;
+            }
+            for (Iterator < InMemoryCheckoutImpl > i = l.iterator(); i.hasNext(); ) {
+                InMemoryCheckoutImpl c = i.next();
+                if (c.getRevision().getSVNRevision() == r.getSVNRevision()) {
+                    return c;
+                }
+            }
+            return null;
+        }
+
     /**
      * Scan a list of checkouts heuristically for one checkout that is
      * 'close enough' and which may be updated.
@@ -257,7 +274,33 @@ public class FDSServiceImpl implements FDSService {
 
         return null;
     }
+    private InMemoryCheckoutImpl findUpdatableCheckout(final List < InMemoryCheckoutImpl > l,
+            final ProjectRevision r) {
+    	if (!r.hasSVNRevision()) {
+    		return null;
+        }
 
+            // This is the acceptable distance between the desired revision
+            // and the revision of the checkout which will be returned.
+            // As a crude first heuristic for what's acceptable, we use a
+            // distance that grows with the number of checkouts.
+            long acceptableDistance = l.size() * 37;
+            long lowerBound = r.getSVNRevision() - acceptableDistance;
+            long upperBound = r.getSVNRevision() + acceptableDistance;
+
+            for (Iterator < InMemoryCheckoutImpl > i = l.iterator(); i.hasNext(); ) {
+                InMemoryCheckoutImpl c = i.next();
+                if (c.getReferenceCount() == 0) {
+                    // This is a candidate
+                    long rev = c.getRevision().getSVNRevision();
+                    if ((lowerBound <= rev) && (rev <= upperBound)) {
+                        return c;
+                    }
+                }
+            }
+
+            return null;
+        }
     /**
      * This is for consistency checks: any project p should have exactly
      * *one* checkout for a revision r, no more than that
@@ -293,6 +336,47 @@ public class FDSServiceImpl implements FDSService {
         }
     }
 
+    private InMemoryCheckoutImpl findInMemoryCheckout(InMemoryCheckout c)
+    	throws InvalidRepositoryException {
+    	List<InMemoryCheckoutImpl> l = inMemoryCheckoutCollection.get(c.getId());
+    	if (l == null) {
+        	throw new InvalidRepositoryException(c.getName(),"",
+        		"No managed checkout for this project.");
+    	}
+    	if (!c.getRevision().isValid() || !c.getRevision().hasSVNRevision()) {
+        	throw new InvalidRepositoryException(c.getName(),"",
+            	"Bogus checkout has bad revision attached.");
+    	}
+
+    	InMemoryCheckoutImpl candidate = findCheckout(l, c.getRevision());
+    	if (candidate == c) {
+        	return candidate;
+    	} else {
+        	// This means that we have two objects in the checkoutCollection
+        	// with the same project name and the same SVN revision, but
+        	// they are different objects. This must not happen.
+    		throw new RuntimeException("Duplicate checkouts for "
+        		+ c.getName() + " " + c.getRevision());
+    	}
+    }
+
+    private InMemoryCheckoutImpl createInMemoryCheckout(SCMAccessor svn, ProjectRevision r) 
+    	throws InvalidRepositoryException,
+    	       InvalidProjectRevisionException {
+        // Side effect: throws if the revision is invalid
+        svn.resolveProjectRevision(r);
+        
+        try {
+        	InMemoryCheckoutImpl c = new InMemoryCheckoutImpl(svn, "",r);
+        	c.claim();
+        	return c;
+    	} catch (FileNotFoundException e) {
+    		logger.warn("Root of project " + svn.getName()
+    	          + " does not exist: " + e.getMessage());
+    	    return null;
+    	}
+   }
+    
     /**
      * Create, for a given SCM accessor, a checkout at a given revision.
      * This assumes that there is not already a checkout for this
@@ -376,6 +460,20 @@ public class FDSServiceImpl implements FDSService {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
+    }
+    private void updateCheckout(InMemoryCheckoutImpl c, ProjectRevision r)
+    throws InvalidProjectRevisionException,
+           InvalidRepositoryException {
+    	logger.info("Updating project " + c.getId() + " from "
+    			+ c.getRevision() + " to " + r);
+    	TDAccessor a = tds.getAccessor(c.getId());
+    	SCMAccessor svn = a.getSCMAccessor();
+    	svn.resolveProjectRevision(r);
+    	try {
+    		c.updateCheckout(svn, r);
+    	} catch (FileNotFoundException e) {
+    		e.printStackTrace();
+    	}
     }
 
     /**
@@ -536,6 +634,70 @@ public class FDSServiceImpl implements FDSService {
         return output.toByteArray();
     }
 
+
+    /** {@inheritDoc} */
+	public InMemoryCheckoutImpl getInMemoryCheckout(long projectId, ProjectRevision r)
+			throws InvalidRepositoryException, InvalidProjectRevisionException {
+		if(!tds.projectExists(projectId)) {
+			throw new InvalidRepositoryException(String.valueOf(projectId),
+					"", "No such project to check out.");
+		}
+		if(!tds.accessorExists(projectId)) {
+			throw new InvalidRepositoryException(String.valueOf(projectId),
+					"", "No accessor available.");
+		}
+		
+		TDAccessor a = tds.getAccessor(projectId);
+		if (a == null) {
+			logger.warn("Accessor not available even thought it exists.");
+			throw new InvalidRepositoryException(String.valueOf(projectId),
+					"", "No accessor available.");
+		}
+		
+		SCMAccessor svn = a.getSCMAccessor();
+		if (svn == null ) {
+			logger.warn("No SCM available for " + svn.getName());
+			throw new InvalidRepositoryException(svn.getName(),"",
+            		"No SCM accessor available.");
+		}
+
+		svn.resolveProjectRevision(r);
+	    logger.info("Finding available checkout for "
+	               + svn.getName() + " " + r);
+	    List<InMemoryCheckoutImpl> l = inMemoryCheckoutCollection.get(projectId);
+	    if (l!=null) {
+	    	synchronized(l) {
+	    		InMemoryCheckoutImpl c = findCheckout(l,r);
+	            if (c != null) {
+	            	c.claim();
+	            } else {
+	                c = findUpdatableCheckout(l,r);
+	                if (c != null) {
+	                	updateCheckout(c, r);
+	                    c.claim();
+	                } else {
+	                	c = createInMemoryCheckout(svn,r);
+	                    l.add(c);
+	                }
+	            }
+	            return c;
+	    	}
+	    } else {
+	    	// This is the very first checkout of the project,
+	        // isn't that exciting.
+	        synchronized(checkoutCollection) {
+	        	InMemoryCheckoutImpl c = null;
+	            l = new LinkedList<InMemoryCheckoutImpl>();
+	            synchronized(l) {
+	            	inMemoryCheckoutCollection.put(projectId,l);
+	                c = createInMemoryCheckout(svn,r);
+	                l.add(c);
+	            }
+	            return c;
+	        }
+	    }
+	}
+	
     /** {@inheritDoc} */
     public CheckoutImpl getCheckout(long projectId, ProjectRevision r)
         throws InvalidRepositoryException,
@@ -603,12 +765,21 @@ public class FDSServiceImpl implements FDSService {
 
     /** {@inheritDoc} */
     public void releaseCheckout(Checkout c)
-        throws InvalidRepositoryException {
-        CheckoutImpl i = findCheckout(c);
-        if (i.release() < 1) {
-            logger.info("Checkout of " + c.getName() + " (" +
-                c.getRevision() + ") is free.");
-        }
+    	throws InvalidRepositoryException {
+    	CheckoutImpl i = findCheckout(c);
+    	if (i.release() < 1) {
+    		logger.info("Checkout of " + c.getName() + " (" +
+    				c.getRevision() + ") is free.");
+    	}
+    }
+
+    public void releaseCheckout(InMemoryCheckout c)
+    	throws InvalidRepositoryException {
+    	InMemoryCheckoutImpl i = findInMemoryCheckout(c);
+    	if (i.release() < 1) {
+    		logger.info("Checkout of " + c.getName() + " (" +
+    				c.getRevision() + ") is free.");
+    	}
     }
 
     /**
@@ -714,6 +885,48 @@ public class FDSServiceImpl implements FDSService {
                 logger.warn("Project ID " + TEST_PROJECT_ID + " is no longer managed.");
             }
         }
+        
+        // now we try the same stuff with in-memory
+        InMemoryCheckoutImpl inMemoryProjectCheckout = null;
+        try {
+            logger.info("Getting something sensible out of FDS using in-memory technique");
+            inMemoryProjectCheckout = getInMemoryCheckout(TEST_PROJECT_ID, new ProjectRevision(1));
+        } catch (InvalidRepositoryException e) {
+            logger.warn("(Still) no project with ID " + TEST_PROJECT_ID);
+            e.printStackTrace();
+            thrown = true;
+        } catch (InvalidProjectRevisionException e) {
+            logger.warn("Project ID " + TEST_PROJECT_ID + " has no revision 1");
+            thrown = true;
+        } catch (NullPointerException e) {
+            logger.warn("Null pointer in checkout.");
+            e.printStackTrace();
+        }
+        if (thrown) {
+            return new String("Unexpected exception thrown for p." + TEST_PROJECT_ID + " r.1");
+        }
+        
+        if (inMemoryProjectCheckout != null) {
+            try {
+                // Normally you don't do an update on a checkout that
+                // is claimed by someone.
+                updateCheckout(inMemoryProjectCheckout, new ProjectRevision(4));
+                logger.info(inMemoryProjectCheckout.getCommitLog().toString());
+            } catch (InvalidRepositoryException e) {
+                logger.warn("Project ID " + TEST_PROJECT_ID + " has vanished again.");
+            } catch (InvalidProjectRevisionException e) {
+                logger.warn("Project ID " + TEST_PROJECT_ID + " has no revision 4");
+            }
+        }
+
+        if (inMemoryProjectCheckout != null) {
+            try {
+                releaseCheckout(inMemoryProjectCheckout);
+            } catch (InvalidRepositoryException e) {
+                logger.warn("Project ID " + TEST_PROJECT_ID + " is no longer managed.");
+            }
+        }
+        
 
         // This test goes through and updates the KPilot checkout from r.4 to
         // r.60, which will take some time. It should demonstrate that the
@@ -744,6 +957,35 @@ public class FDSServiceImpl implements FDSService {
                     logger.warn("Sixtieth request for " + TEST_PROJECT_ID + " r.60 returned "
                         + "different object.");
                 }
+            } catch (InvalidRepositoryException e) {
+                logger.warn("Project ID " + TEST_PROJECT_ID + " has vanished again.");
+            } catch (InvalidProjectRevisionException e) {
+                logger.warn("Project ID " + TEST_PROJECT_ID + " has no revision "
+                    + currentRevision);
+            }
+            
+            // check in-memory checkouts
+            InMemoryCheckout otherInMemoryCheckout = null;
+            currentRevision = 4;
+            try {
+            	logger.info("Advancing single checkout object.");
+            	otherInMemoryCheckout = getInMemoryCheckout(TEST_PROJECT_ID,
+            			new ProjectRevision(currentRevision));
+            	if (otherInMemoryCheckout != inMemoryProjectCheckout) {
+            		logger.warn("Second in-memory request for " + TEST_PROJECT_ID + " r.4 returned "
+            				+ "different object.");
+            	}
+                while (currentRevision < 60) {
+                    releaseCheckout(otherInMemoryCheckout);
+                    currentRevision++;
+                    otherInMemoryCheckout = getInMemoryCheckout(TEST_PROJECT_ID,
+                        new ProjectRevision(currentRevision));
+                }
+                if (otherInMemoryCheckout != inMemoryProjectCheckout) {
+                    logger.warn("Sixtieth request for " + TEST_PROJECT_ID + " r.60 returned "
+                        + "different object.");
+                }
+
             } catch (InvalidRepositoryException e) {
                 logger.warn("Project ID " + TEST_PROJECT_ID + " has vanished again.");
             } catch (InvalidProjectRevisionException e) {
