@@ -63,7 +63,7 @@ public class ProjectManagerDatabase implements ProjectManagerDBQueries {
     public List<StoredProject> getStoredProjects(String projectName) {
         Map<String, Object> properties = new Hashtable<String, Object>(1);
         properties.put("name", projectName);
-        return db.findObjectByProperties(StoredProject.class, properties);
+        return db.findObjectsByProperties(StoredProject.class, properties);
     }
 
     public StoredProject getStoredProject(long projectId) {
