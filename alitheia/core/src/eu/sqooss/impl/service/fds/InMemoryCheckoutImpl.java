@@ -33,9 +33,9 @@
 
 package eu.sqooss.impl.service.fds;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 
+import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.fds.InMemoryCheckout;
 import eu.sqooss.service.fds.InMemoryDirectory;
 import eu.sqooss.service.tds.CommitEntry;
@@ -43,8 +43,6 @@ import eu.sqooss.service.tds.InvalidProjectRevisionException;
 import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.ProjectRevision;
 import eu.sqooss.service.tds.SCMAccessor;
-
-import eu.sqooss.service.db.StoredProject;
 
 /**
  * The CheckoutImpl implements the Checkout interface. It represents a

@@ -34,37 +34,34 @@ package eu.sqooss.impl.service.fds;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-
 import java.util.Calendar;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.SortedSet;
 
+import org.apache.commons.codec.binary.Hex;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
-import org.apache.commons.codec.binary.Hex;
-
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.impl.service.CoreActivator;
-import eu.sqooss.service.db.Bug;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.ProjectFile;
-import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.db.ProjectVersion;
+import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.fds.Checkout;
 import eu.sqooss.service.fds.FDSService;
 import eu.sqooss.service.fds.ProjectEvent;
 import eu.sqooss.service.fds.Timeline;
 import eu.sqooss.service.fds.Timeline.ResourceType;
 import eu.sqooss.service.logging.Logger;
-import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
+import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.PathChangeType;
 import eu.sqooss.service.tds.ProjectRevision;
 import eu.sqooss.service.tds.SCMAccessor;
@@ -641,7 +638,7 @@ public class FDSServiceImpl implements FDSService {
         boolean thrown = false;
         try {
             logger.info("Intentionally throwing InvalidRepository.");
-            Checkout c = getCheckout(-1, new ProjectRevision(1));
+            getCheckout(-1, new ProjectRevision(1));
         } catch (InvalidRepositoryException e) {
             logger.info("Exception triggered as expected.");
             thrown = true;
@@ -661,7 +658,7 @@ public class FDSServiceImpl implements FDSService {
         try {
             logger.info("Intentionally triggering InvalidRevision exception.");
             // Assuming KDE doesn't reach 1 billion commits before 2038
-            Checkout c = getCheckout(TEST_PROJECT_ID, new ProjectRevision(1000000000));
+            getCheckout(TEST_PROJECT_ID, new ProjectRevision(1000000000));
         } catch (InvalidRepositoryException e) {
             logger.warn("No project with ID " + TEST_PROJECT_ID);
             thrown = true;
