@@ -88,7 +88,11 @@ if (ProjectsListView.hasProjects()) {
     out.println(projects);
 }
 else {
-    out.println(Functions.error("Unable to find any evaluated projects."));
+    if (cruncher.isOnline()) {
+        out.println(Functions.error("Unable to find any evaluated projects."));
+    } else {
+        out.println(cruncher.getStatus());
+    }
 }
 
 %>

@@ -12,8 +12,4 @@
 <h2>Evaluated Projects</h2>
 <%@ include file="/views/EvaluatedProjectsList.jsp" %>
 
-<h2>Available Metrics</h2>
-<%@ include file="/views/MetricsList.jsp" %>
-
-
 <%@ include file="/inc/footer.jsp" %>

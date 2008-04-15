@@ -81,13 +81,15 @@ public class CruncherStatus {
                             p.getProperty("projects") + " projects and " +
                             p.getProperty("metrics") + " metrics available.";
                     } else {
-                        s = "The cruncher is offline.";
+                        s = null;
                     }
                     synchronized(lock) {
                         m = s;
                     }
                 } catch (java.io.IOException e) {
-                    m = "The cruncher is offline.";
+                    synchronized(lock) {
+                        m = null;
+                    }
                 }
 
                 // Sleep one minute?
@@ -108,9 +110,11 @@ public class CruncherStatus {
 
     private long hits = 0;
     private Worker worker = null;
+    private boolean online = false;
 
     public CruncherStatus() {
         hits = 0;
+        online = false;
         Worker w = new Worker();
         Thread t = new Thread(w);
         t.start();
@@ -130,10 +134,24 @@ public class CruncherStatus {
     }
 
     public String getStatus() {
-        return worker.getM() + " (" + getHits() + " hits)";
+        String s = worker.getM();
+        if (s != null) {
+            online = true;
+            return worker.getM() + " (" + getHits() + " hits)";
+        } else {
+            online = false;
+            return "The cruncher is offline.";
+        }
     }
 
     private void setStatus(String s) {
+    }
+
+    public boolean isOnline() {
+        return online;
+    }
+
+    private void setOnline(boolean b) {
     }
 }
 
