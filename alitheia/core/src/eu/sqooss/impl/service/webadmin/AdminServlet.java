@@ -39,6 +39,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -55,6 +56,11 @@ import javax.servlet.http.HttpServletResponse;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
+
+import org.apache.velocity.Template;
+import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.VelocityEngine;
+
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin.ConfigurationTypes;
@@ -127,6 +133,35 @@ public class AdminServlet extends HttpServlet {
 
     public AdminServlet(BundleContext bc) {
         bundlecontext = bc;
+
+try {
+VelocityEngine ve = new org.apache.velocity.app.VelocityEngine();
+ve.setProperty( 
+    // There's actually a runtime constant for this, but
+    // that entails even more imports and manifest futzing.
+    "runtime.log.logsystem.class",
+    "org.apache.velocity.runtime.log.SimpleLog4JLogSystem" );
+ve.setProperty("runtime.log.logsystem.log4j.category", 
+    Logger.NAME_SQOOSS_WEBADMIN);
+ve.setProperty("resource.loader","bundle");
+ve.setProperty("bundle.resource.loader.description",
+   "Loader from the bundle.");
+ve.setProperty("bundle.resource.loader.class",
+   "org.apache.velocity.runtime.resource.loader.JarResourceLoader");
+ve.setProperty("bundle.resource.loader.path",
+   "jar:file:eu.sqooss.alitheia.core-0.0.1.jar");
+ve.init();
+Template t = ve.getTemplate("index.html");
+VelocityContext context = new VelocityContext();
+context.put("name", "World");
+/* now render the template into a StringWriter */
+StringWriter writer = new StringWriter();
+t.merge( context, writer );
+/* show the World */
+System.out.println( writer.toString() );
+} catch (Exception e) {
+e.printStackTrace();
+}
 
         srefCore = bc.getServiceReference(AlitheiaCore.class.getName());
         if (srefCore != null) {

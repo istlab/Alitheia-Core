@@ -117,6 +117,13 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
+      <groupId>org.apache</groupId>
+      <artifactId>velocity</artifactId>
+      <version>1.5</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>org</groupId>
       <artifactId>dom4j</artifactId>
       <version>1.6.1</version>
