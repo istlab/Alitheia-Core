@@ -49,7 +49,7 @@ import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.metricactivator.MetricActivator;
-import eu.sqooss.service.pa.MetricInfo;
+import eu.sqooss.service.pa.PluginInfo;
 import eu.sqooss.service.pa.PluginAdmin;
 
 public class MetricActivatorImpl implements MetricActivator {
@@ -98,7 +98,7 @@ public class MetricActivatorImpl implements MetricActivator {
     }
 
     public void syncMetric(AlitheiaPlugin m, StoredProject sp) {
-        MetricInfo mi = pa.getMetricInfo(m);
+        PluginInfo mi = pa.getMetricInfo(m);
         
         
     }
@@ -109,7 +109,9 @@ public class MetricActivatorImpl implements MetricActivator {
     }
 
     public ProjectVersion getLastAppliedVersion(AlitheiaPlugin m, StoredProject sp) {
-        MetricInfo mi = pa.getMetricInfo(m);
+        PluginInfo mi = pa.getMetricInfo(m);
+        
+        //dbs.findObjectsByProperties(, properties);
         return null;
     }
 

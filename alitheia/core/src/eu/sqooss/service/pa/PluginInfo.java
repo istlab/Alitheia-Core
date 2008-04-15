@@ -10,7 +10,7 @@ import java.util.Collection;
 /**
  * The Class MetricInfo.
  */
-public class MetricInfo {
+public class PluginInfo {
     private long        bundleID        = -1;
     private String      bundleName      = null;
     private Long        serviceID       = new Long(-1);

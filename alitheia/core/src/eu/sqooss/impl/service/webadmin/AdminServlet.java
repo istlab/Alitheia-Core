@@ -63,7 +63,7 @@ import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.metricactivator.MetricActivator;
-import eu.sqooss.service.pa.MetricInfo;
+import eu.sqooss.service.pa.PluginInfo;
 import eu.sqooss.service.pa.PluginAdmin;
 import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.scheduler.Scheduler;
@@ -347,14 +347,14 @@ public class AdminServlet extends HttpServlet {
     }
 
     protected String renderMetrics() {
-        Collection<MetricInfo> l = sobjPluginAdmin.listMetrics();
+        Collection<PluginInfo> l = sobjPluginAdmin.listMetrics();
         if (l.isEmpty()) {
             return "";
         }
 
         StringBuilder b = new StringBuilder();
         b.append("<ul>");
-        for(MetricInfo i : l) {
+        for(PluginInfo i : l) {
             b.append("<li>");
             b.append("<b>" + i.toString() + "</b>");
             b.append(renderMetricAttributes(i));
@@ -368,7 +368,7 @@ public class AdminServlet extends HttpServlet {
      * Creates a <ul> populated with the attributes and default values of the
      * given MetricInfor object
      */
-    protected String renderMetricAttributes(MetricInfo i) {
+    protected String renderMetricAttributes(PluginInfo i) {
         Collection<Pair<String, ConfigurationTypes>> attributes =  i.getAttributes();
         if (attributes == null) {
             return "<ul><li>This metric has no configurable attibutes.</li></ul>";
@@ -579,7 +579,7 @@ public class AdminServlet extends HttpServlet {
 
     private String renderProjects() {
         List<StoredProject> projects = sobjDB.doHQL("from StoredProject");
-        Collection<MetricInfo> metrics = sobjPluginAdmin.listMetrics();
+        Collection<PluginInfo> metrics = sobjPluginAdmin.listMetrics();
         
         if (projects == null || metrics == null) {
             return null;
@@ -591,7 +591,7 @@ public class AdminServlet extends HttpServlet {
         s.append("<tr>");
         s.append("<td><b>Project</b></td>");
         
-        for(MetricInfo m : metrics) {
+        for(PluginInfo m : metrics) {
             s.append("<td><b>");
             s.append(m.getMetricName());
             s.append("</b></td>");
@@ -619,7 +619,7 @@ public class AdminServlet extends HttpServlet {
             s.append(p.getWebsite());
             s.append("\">Website</a>&nbsp;Alitheia Reports");
             s.append("</font></td>");
-            for(MetricInfo m : metrics) {
+            for(PluginInfo m : metrics) {
                 s.append("<td>");
                 s.append(sobjMetricActivator.getLastAppliedVersion(
                         sobjPluginAdmin.getMetric(m), p));

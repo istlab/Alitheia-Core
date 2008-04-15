@@ -55,7 +55,7 @@ public interface PluginAdmin {
      *
      * @return the list of all metrics currently registered in the framework
      */
-    public Collection<MetricInfo> listMetrics();
+    public Collection<PluginInfo> listMetrics();
     
     /**
      * Returns the metric info object for a specific metric
@@ -63,14 +63,14 @@ public interface PluginAdmin {
      * @param m The metric to return info about
      * @return Information that the system has about a specific metric
      */
-    public MetricInfo getMetricInfo(AlitheiaPlugin m);
+    public PluginInfo getMetricInfo(AlitheiaPlugin m);
     
     /**
      * Get the metric interface from a metric object object 
      * @param m
      * @return The metric interface
      */
-    public AlitheiaPlugin getMetric(MetricInfo m);
+    public AlitheiaPlugin getMetric(PluginInfo m);
 
     /**
      * Get the list of metrics that have (sub-)interfaces for the given

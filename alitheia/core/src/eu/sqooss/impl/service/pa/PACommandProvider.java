@@ -38,7 +38,7 @@ import org.eclipse.osgi.framework.console.CommandInterpreter;
 import org.eclipse.osgi.framework.console.CommandProvider;
 
 import eu.sqooss.service.pa.PluginAdmin;
-import eu.sqooss.service.pa.MetricInfo;
+import eu.sqooss.service.pa.PluginInfo;
 
 public class PACommandProvider implements CommandProvider {
     private PluginAdmin sobjPA = null;
@@ -113,12 +113,12 @@ public class PACommandProvider implements CommandProvider {
     public void _list_metrics (CommandInterpreter ci) {
         if (sobjPA != null) {
             // Dump a formated list of registered metrics, if any where found
-            Collection<MetricInfo> metricsList = sobjPA.listMetrics();
+            Collection<PluginInfo> metricsList = sobjPA.listMetrics();
             if ((metricsList != null) && (metricsList.isEmpty() == false)) {
                 // Iterate through the available metrics
-                Iterator<MetricInfo> listIterator = metricsList.iterator();
+                Iterator<PluginInfo> listIterator = metricsList.iterator();
                 while ( listIterator.hasNext()) {
-                    MetricInfo nextMetric = listIterator.next();
+                    PluginInfo nextMetric = listIterator.next();
 
                     ci.println(
                             "\r\nService ID : "

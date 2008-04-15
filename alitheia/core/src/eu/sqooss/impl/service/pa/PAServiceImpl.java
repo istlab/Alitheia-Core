@@ -56,7 +56,7 @@ import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.pa.ConfigUtils;
 import eu.sqooss.service.pa.MetricConfig;
-import eu.sqooss.service.pa.MetricInfo;
+import eu.sqooss.service.pa.PluginInfo;
 import eu.sqooss.service.pa.PluginAdmin;
 
 public class PAServiceImpl implements PluginAdmin, ServiceListener {
@@ -102,8 +102,8 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
     private BundleContext bc;
 
     // Keeps a list of registered metric services, indexed by service ID
-    private HashMap<Long, MetricInfo> registeredMetrics =
-        new HashMap<Long, MetricInfo>();
+    private HashMap<Long, PluginInfo> registeredMetrics =
+        new HashMap<Long, PluginInfo>();
 
     // Holds the current set of metrics configurations, indexed by class name
     private HashMap<String, MetricConfig> metricConfigurations =
@@ -159,13 +159,13 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
      * @return a MetricInfo object containing the extracted metric
      * information
      */
-    private MetricInfo getMetricInfo (ServiceReference srefMetric) {
+    private PluginInfo getMetricInfo (ServiceReference srefMetric) {
         if (srefMetric == null) {
             logger.debug("Got a null service reference, ignoring.");
             return null;
         }
 
-        MetricInfo metricInfo = new MetricInfo();
+        PluginInfo metricInfo = new PluginInfo();
 
         // Set the metric's service ID and service reference
         metricInfo.setServiceID(
@@ -233,7 +233,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
         // Retrieve information about all registered metrics found
         if ((metricsList != null) && (metricsList.length > 0)) {
             for (ServiceReference s : metricsList) {
-                MetricInfo metric_info = getMetricInfo(s);
+                PluginInfo metric_info = getMetricInfo(s);
    
                 // Add this metric's info to the list
                 if (metric_info != null) {
@@ -257,7 +257,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
      * Depending on the values in the configuration set, the metric
      * may be installed automatically.
      */
-    private void configureMetric(ServiceReference s, Long serviceId, MetricInfo info, MetricConfig config) {
+    private void configureMetric(ServiceReference s, Long serviceId, PluginInfo info, MetricConfig config) {
         // Checks if this metric has to be automatically
         // installed upon registration
         if (Boolean.valueOf(config.getString(MetricConfig.KEY_AUTOINSTALL))) {
@@ -293,7 +293,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
 
         // Retrieve information about this metric and add this metric to the
         // list of registered/available metrics
-        MetricInfo metricInfo = getMetricInfo(srefMetric);
+        PluginInfo metricInfo = getMetricInfo(srefMetric);
         registeredMetrics.put(serviceId, metricInfo);
 
         // Search for an applicable configuration set and apply it
@@ -381,7 +381,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
 
 /* ===[ Implementation of the PluginAdmin interface ]===================== */
 
-    public Collection<MetricInfo> listMetrics() {
+    public Collection<PluginInfo> listMetrics() {
         if (!registeredMetrics.isEmpty()) {
             return registeredMetrics.values();
         }
@@ -425,7 +425,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
                                     (registeredMetrics.containsKey(sid))) {
                                 // Retrieve the corresponding information
                                 // object
-                                MetricInfo metricInfo =
+                                PluginInfo metricInfo =
                                     registeredMetrics.get(sid);
                                 if (metricInfo != null) {
                                     metricInfo.installed = true;
@@ -463,14 +463,14 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
         }
         // There should be at least one registered metric
         // All registered metrics
-        Iterator<MetricInfo> metrics =
+        Iterator<PluginInfo> metrics =
             registeredMetrics.values().iterator();
         // Metrics matching this search
         Vector<ServiceReference> matching =
             new Vector<ServiceReference>();
         // Search for metric of compatible type
         while (metrics.hasNext()) {
-            MetricInfo nextMetric = metrics.next();
+            PluginInfo nextMetric = metrics.next();
             if ((nextMetric.isType(o.getName()))
                 && (nextMetric.getServiceRef() != null)) {
                     matching.add(nextMetric.getServiceRef());
@@ -487,10 +487,10 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
         return null;
     }
 
-    public MetricInfo getMetricInfo(AlitheiaPlugin m) {
-        MetricInfo mi = null;
-        Collection<MetricInfo> c = listMetrics();
-        Iterator<MetricInfo> i = c.iterator();
+    public PluginInfo getMetricInfo(AlitheiaPlugin m) {
+        PluginInfo mi = null;
+        Collection<PluginInfo> c = listMetrics();
+        Iterator<PluginInfo> i = c.iterator();
         
         while (i.hasNext()) {
             mi = i.next();
@@ -503,7 +503,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
         return null;
     }
 
-    public AlitheiaPlugin getMetric(MetricInfo m) {
+    public AlitheiaPlugin getMetric(PluginInfo m) {
         ServiceReference s = m.getServiceRef();
         return (AlitheiaPlugin) bc.getService(s);
     }
