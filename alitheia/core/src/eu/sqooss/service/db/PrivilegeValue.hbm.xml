@@ -8,7 +8,7 @@
     <id name="id" column="PRIVILEGE_VALUE_ID">
       <generator class="native" />
     </id>
-    <property name="value" column="VALUE" />
+    <property name="value" column="VALUE" unique="true" />
     <many-to-one name="privilege" column="PRIVILEGE_ID" not-null="true"/>
     <set name="groupPrivileges" table="GROUP_PRIVILEGE" inverse="true">
       <key column="PRIVILEGE_VALUE_ID"/>

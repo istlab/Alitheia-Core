@@ -8,7 +8,7 @@
     <id name="id" column="USER_ID">
       <generator class="native" />
     </id>
-    <property name="name" column="NAME" not-null="true" />
+    <property name="name" column="NAME" not-null="true" unique="true" />
     <property name="registered" column="REGISTERED" />
     <property name="lastActivity" column="LAST_ACTIVITY" />
     <property name="password" column="PASSWORD" not-null="true" />

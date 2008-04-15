@@ -8,7 +8,7 @@
     <id name="id" column="PRIVILEGE_ID">
       <generator class="native" />
     </id>
-    <property name="description" column="DESCRIPTION" />
+    <property name="description" column="DESCRIPTION" unique="true" />
   </class>
 </hibernate-mapping>
 

@@ -8,7 +8,7 @@
     <id name="id" column="GROUP_ID">
       <generator class="native" />
     </id>
-    <property name="description" column="DESCRIPTION" />
+    <property name="description" column="DESCRIPTION" unique="true" />
 
     <set name="users" table="GROUP_USER">
       <key column="GROUP_ID"/>
