@@ -36,17 +36,23 @@ import eu.sqooss.scl.accessor.WSAccessor;
 import eu.sqooss.scl.accessor.WSMetricAccessor;
 import eu.sqooss.scl.accessor.WSProjectAccessor;
 import eu.sqooss.scl.accessor.WSUserAccessor;
+import eu.sqooss.ws.client.datatypes.WSUser;
 
 public class WSSession {
     
     private WSProjectAccessor projectAccessor;
     private WSMetricAccessor metricAccessor;
     private WSUserAccessor userAccessor;
+    private WSUser sessionUser;
 
     public WSSession(String userName, String password, String webServiceUrl) throws WSException {
         this.projectAccessor = new WSProjectAccessorImpl(userName, password, webServiceUrl);
         this.metricAccessor  = new WSMetricAccessorImpl(userName, password, webServiceUrl);
         this.userAccessor    = new WSUserAccessorImpl(userName, password, webServiceUrl);
+        initSessionUser(userName);
+        if (sessionUser == null) {
+            throw new WSException("The parameters of the session are not valid!");
+        }
     }
     
     public WSAccessor getAccessor(WSAccessor.Type type) {
@@ -58,6 +64,10 @@ public class WSSession {
         }
     }
     
+    public WSUser getUser() {
+        return sessionUser;
+    }
+    
     public void addWebServiceListener(String webServiceMethodUrl, WSEventListener listener) {
         //TODO:
         throw new UnsupportedOperationException("Coming soon");
@@ -66,6 +76,14 @@ public class WSSession {
     public void removeWebServiceListener(String webServiceMethodUrl, WSEventListener listener) {
         //TODO:
         throw new UnsupportedOperationException("Coming soon");
+    }
+    
+    private void initSessionUser(String userName) {
+        try {
+            sessionUser = userAccessor.getUserByName(userName);
+        } catch(WSException wse) {
+            sessionUser = null;
+        }
     }
     
 }
