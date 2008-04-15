@@ -26,11 +26,9 @@ if (ProjectsListView.hasProjects()) {
     // Generate the HTML content dispaying all evaluated projects
     String projects = ProjectsListView.getHtml();
     
-    out.println("<p />Selected:");
     Project selectedProject = ProjectsListView.getCurrentProject();
-    if (selectedProject == null) {
-        out.println(Functions.error("No project selected."));
-    } else {
+    if (selectedProject != null) {
+        out.println("<p />Selected:");
         out.println("<strong>" + selectedProject.getName() + "</strong>");
         out.println(selectedProject.getInfo());
         
@@ -44,7 +42,7 @@ if (ProjectsListView.hasProjects()) {
                 Long changeSelected = null;
                 try {
                     changeSelected =
-                        new Long(request.getParameter("version1"));
+                        new Long(request.getParameter("version" + projectId));
                 }
                 catch (NumberFormatException e) {
                     inputError = new String("Wrong version format!");
