@@ -35,10 +35,13 @@ package eu.sqooss.service.db;
 
 import eu.sqooss.service.db.DAObject;
 
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.hibernate.HibernateException;
+import org.hibernate.QueryException;
 import org.hibernate.Session;
 
 public interface DBService {
@@ -49,7 +52,7 @@ public interface DBService {
      * @param daoClass the actual class of the DAObject. 
      * @param id the DAObject's identifier
      * @return the DAOObject if a match for the class and the identifier was found in the database,
-     *          or null otherwise
+     *          or null otherwise or if a database access error occured
      */
     public <T extends DAObject> T findObjectById(Class<T> daoClass, long id);
     
@@ -58,12 +61,14 @@ public interface DBService {
      * The return value is parameterized to the actual type of DAObject queried
      * so no downcast is needed.
      * The caller is responsible for having a transaction initialized before calling the method,
-     * and committing it or rolling it back afterwards.
+     * and committing it or rolling it back afterwards. He's also responsible for catching
+     * exceptions from Hibernate, e.g. in case of database access errors.
      * @param s the session to use for this transaction
      * @param daoClass the actual class of the DAObject. 
      * @param id the DAObject's identifier
      * @return the DAOObject if a match for the class and the identifier was found in the database,
      *          or null otherwise
+     * @throws HibernateException
      */
     public <T extends DAObject> T findObjectById(Session s, Class<T> daoClass, long id);
 
@@ -85,7 +90,7 @@ public interface DBService {
      *          of the DAObject subclass
      * @return a list of DAObjects matching the class and the set of properties,
      *          possibly empty if no match was found in the database or if the properties map
-     *          contains invalid entries
+     *          contains invalid entries or if a database access error occured
      */
     public <T extends DAObject> List<T> findObjectsByProperties(Class<T> daoClass, Map<String,Object> properties );
     
@@ -101,7 +106,8 @@ public interface DBService {
      * If any property in the map isn't valid (either an unknown name or a value of the wrong type)
      * the call will fail and an empty list will be returned.
      * The caller is responsible for having a transaction initialized before calling the method,
-     * and committing it or rolling it back afterwards.
+     * and committing it or rolling it back afterwards. He's also responsible for catching
+     * exceptions from Hibernate, e.g. in case of database access errors.
      * 
      * @param s the session to use for this transaction
      * @param daoClass the actual class of the DAObjects
@@ -110,6 +116,7 @@ public interface DBService {
      * @return a list of DAObjects matching the class and the set of properties,
      *          possibly empty if no match was found in the database or if the properties map
      *          contains invalid entries
+     * @throws HibernateException
      */
     public <T extends DAObject> List<T> findObjectsByProperties(Session s, Class<T> daoClass, Map<String,Object> properties );
 
@@ -123,10 +130,9 @@ public interface DBService {
     public boolean addRecord(DAObject record);
 
     /**
-     * Add a new record to the system database, using a separate database session.
+     * Add a new record to the system database using a separate database session.
+     * The transaction is still created and managed internally.
      * This should initialize any tables that are needed for storage of project information.
-     * The caller is responsible for having a transaction initialized before calling the method,
-     * and committing it or rolling it back afterwards.
      * 
      * @param s the session to use for this transaction
      * @param record the record to persist into the database
@@ -148,11 +154,10 @@ public interface DBService {
 
     /**
      * Add multiple new records to the system database, using a separate database session.
+     * The transaction is still created and managed internally.
      * This should initialize any tables that are needed for storage of project information.
      * The results will be committed only if all the insertions are successful,
      * so if any insertion fails then no record will be added.
-     * The caller is responsible for having a transaction initialized before calling the method,
-     * and committing it or rolling it back afterwards.
      * 
      * @param s the session to use for this transaction
      * @param records the list of records to persist into the database
@@ -161,18 +166,15 @@ public interface DBService {
     public boolean addRecords(Session s, List<DAObject> records);
 
     /**
-     * Update an existing record in the system database, using the
-     * default database session.
+     * Update an existing record in the system database, using the default database session.
      *
      * @param record the record to update in the database
      */
     public boolean updateRecord(DAObject record);
     
     /**
-     * Update an existing record in the system database, using a
-     * separate database session.
-     * The caller is responsible for having a transaction initialized before calling the method,
-     * and committing it or rolling it back afterwards.
+     * Update an existing record in the system database, using a separate database session.
+     * The transaction is still created and managed internally.
      *
      * @param s session to use for this transaction
      * @param record the record to update in the database
@@ -191,10 +193,9 @@ public interface DBService {
     
     /**
      * Update multiple existing records in the system database, using a separate database session.
+     * The transaction is still created and managed internally.
      * The results will be committed only if all the updates are successful,
      * so if any update fails then no record will be updated.
-     * The caller is responsible for having a transaction initialized before calling the method,
-     * and committing it or rolling it back afterwards.
      * 
      * @param s the session to use for this transaction
      * @param records the list of records to update in the database
@@ -203,18 +204,15 @@ public interface DBService {
     public boolean updateRecords(Session s, List<DAObject> records);
 
     /**
-     * Delete an existing record from the system database, using the
-     * default database session.
+     * Delete an existing record from the system database, using the default database session.
      *
      * @param record the record to remove from the database
      */
     public boolean deleteRecord(DAObject record);
     
     /**
-     * Delete an existing record from the system database, using a
-     * separate database session.
-     * The caller is responsible for having a transaction initialized before calling the method,
-     * and committing it or rolling it back afterwards.
+     * Delete an existing record from the system database, using a separate database session.
+     * The transaction is still created and managed internally.
      *
      * @param s session to use for this transaction
      * @param record the record to remove from the database
@@ -233,10 +231,9 @@ public interface DBService {
     
     /**
      * Delete multiple existing records from the system database, using a separate database session.
+     * The transaction is still created and managed internally.
      * The results will be committed only if all the deletions are successful,
      * so if any deletion fails then no record will be deleted.
-     * The caller is responsible for having a transaction initialized before calling the method,
-     * and committing it or rolling it back afterwards.
      * 
      * @param s the session to use for this transaction
      * @param records the list of records to remove from the database
@@ -245,87 +242,157 @@ public interface DBService {
     public boolean deleteRecords(Session s, List<DAObject> records);
     
     /**
-     * Allows the intelligent C++ programmer to simply fire complete SQL
-     * statements to the database. This allows low-level manipulation
-     * of the database contents outside of the DAO types.
-     * These methods will forward any exceptions coming from Hibernate, 
-     * such as SQL query errors or database access errors
+     * Execute a complete SQL query to the database, using the default database session.
+     * This allows low-level manipulation of the database contents outside of the DAO types.
+     * To limit risks of SQL injection exploits, please do not execute queries like
+     * <code>"SELECT * FROM " + tableName</code>.
+     * If you need dynamic SQL queries, please use the overload with the params argument.
+     * 
+     * @param sql the sql query string
+     * @return a list of records. If the query contains multiple columns,
+     *          the results are returned in an instance of Object[]
+     * @throws SQLException
+     * 
+     * @see doSQL(String sql, Map<String, Object> params)
      */
     public List doSQL(String sql);
     
+    /**
+     * Execute a parameterized SQL query to the database, using the default database session.
+     * This allows low-level manipulation of the database contents outside of the DAO types.
+     * 
+     * @param sql the sql query string
+     * @param params the map of parameters to be substituted in the SQL query
+     * @return a list of records. If the query contains multiple columns,
+     *          the results are returned in an instance of Object[]
+     * @throws SQLException
+     */
     public List doSQL(String sql, Map<String, Object> params);
     
+    /**
+     * Execute a complete SQL query to the database, using a separate database session.
+     * This allows low-level manipulation of the database contents outside of the DAO types.
+     * To limit risks of SQL injection exploits, please do not execute queries like
+     * <code>"SELECT * FROM " + tableName</code>.
+     * If you need dynamic SQL queries, please use the overload with the params argument.
+     * 
+     * The caller is responsible for having a transaction initialized before calling the method,
+     * and committing it or rolling it back afterwards. He's also responsible for catching
+     * exceptions from Hibernate, e.g. in case of database access errors or SQL errors.
+     * 
+     * @param s the session to use for the query
+     * @param sql the sql query string
+     * @return a list of records. If the query contains multiple columns,
+     *          the results are returned in an instance of Object[]
+     * @throws HibernateException
+     * 
+     * @see doSQL(String sql, Map<String, Object> params)
+     */
     public List doSQL(Session s, String sql);
     
+    /**
+     * Execute a parameterized SQL query to the database, using a separate database session.
+     * This allows low-level manipulation of the database contents outside of the DAO types.
+     * 
+     * The caller is responsible for having a transaction initialized before calling the method,
+     * and committing it or rolling it back afterwards. He's also responsible for catching
+     * exceptions from Hibernate, e.g. in case of database access errors or SQL errors.
+     * 
+     * @param s the session to use for the query
+     * @param sql the sql query string
+     * @param params the map of parameters to be substituted in the SQL query
+     * @return a list of records. If the query contains multiple columns,
+     *          the results are returned in an instance of Object[]
+     * @throws HibernateException
+     */
     public List doSQL(Session s, String sql, Map<String, Object> params);
 
     /**
-     * Do an HQL query with the default session as a single transaction.
-     * This method will forward any exceptions coming from Hibernate, 
-     * such as SQL query errors or database access errors
-     *
-     * @param hql HQL query string
-     * @see doHQL(Session, String, Map<String, Object>)
+     * Execute a complete HQL query to the database, using the default database session.
+     * To limit risks of HQL injection exploits, please do not execute queries like
+     * <code>"FROM " + objectClass</code>.
+     * If you need dynamic HQL queries, please use the overload with the params argument.
+     * 
+     * @param hql the HQL query string
+     * @return a list of {@link DAObject}. If the query contains multiple columns,
+     *          the results are returned in an instance of Object[]
+     * @throws QueryException
+     * 
+     * @see doHQL(String, Map<String, Object>)
      */
     public List doHQL(String hql);
     
     /**
-     * Do an HQL query with the default session as a single transaction.
-     * This method will forward any exceptions coming from Hibernate, 
-     * such as SQL query errors or database access errors
+     * Execute a parameterized HQL query to the database, using the default database session.
      *
-     * @param hql HQL query string
-     * @param params parameters in the query
-     * @see doHQL(Session, String, Map<String, Object>, Map<String,Collection>)
+     * @param hql the HQL query string
+     * @param params the map of parameters to be substituted in the HQL query
+     * @return a list of {@link DAObject}. If the query contains multiple columns,
+     *          the results are returned in an instance of Object[]
+     * @throws QueryException
+     * 
+     * @see doHQL(String, Map<String, Object>, Map<String,Collection>)
      */
     public List doHQL(String hql, Map<String, Object> params);
 
     /**
-     * Do an HQL query with the default session as a single transaction.
-     * This method will forward any exceptions coming from Hibernate, 
-     * such as SQL query errors or database access errors
+     * Execute a parameterized HQL query to the database, using the default database session.
      *
      * @param hql HQL query string
-     * @param params parameters in the query
-     * @param collectionParams list-based parameters in the query
-     * @see doHQL(Session, String, Map<String, Object>, Map<String,Collection>)
+     * @param params the map of parameters to be substituted in the HQL query
+     * @param collectionParams the map of collection parameters to be substituted in the HQL query
+     * @return a list of {@link DAObject}. If the query contains multiple columns,
+     *          the results are returned in an instance of Object[]
+     * @throws QueryException
      */
     public List doHQL(String hql, Map<String, Object> params,
         Map<String, Collection> collectionParams);
     
     /**
-     * Do an HQL query with the given session.
-     * This method will forward any exceptions coming from Hibernate, 
-     * such as SQL query errors or database access errors
-     *
-     * @param s session to use
-     * @param hql HQL query string
-     * @see doHQL(Session, String, Map<String, Object>, Map<String,Collection>)
+     * Execute a complete HQL query to the database, using a separate database session.
+     * To limit risks of HQL injection exploits, please do not execute queries like
+     * <code>"FROM " + objectClass</code>.
+     * If you need dynamic HQL queries, please use the overload with the params argument.
+     * 
+     * The caller is responsible for having a transaction initialized before calling the method,
+     * and committing it or rolling it back afterwards. He's also responsible for catching
+     * exceptions from Hibernate, e.g. in case of database access errors or HQL errors.
+     * 
+     * @param s the session to use for the query
+     * @param hql the HQL query string
+     * @return a list of {@link DAObject}. If the query contains multiple columns,
+     *          the results are returned in an instance of Object[]
+     * @throws HibernateException
+     * 
+     * @see doHQL(Session, String, Map<String, Object>)
      */
     public List doHQL(Session s, String hql);
     
     /**
-     * Do an HQL query with the given session.
-     * This method will forward any exceptions coming from Hibernate, 
-     * such as SQL query errors or database access errors
+     * Execute a parameterized HQL query to the database, using a separate database session.
      *
-     * @param s session to use
-     * @param hql HQL query string
-     * @param params parameters in the query
+     * The caller is responsible for having a transaction initialized before calling the method,
+     * and committing it or rolling it back afterwards. He's also responsible for catching
+     * exceptions from Hibernate, e.g. in case of database access errors or HQL errors.
+     * 
+     * @param s the session to use for the query
+     * @param hql the HQL query string
+     * @param params the map of parameters to be substituted in the HQL query
+     * @return a list of {@link DAObject}. If the query contains multiple columns,
+     *          the results are returned in an instance of Object[]
+     * @throws HibernateException
+     * 
      * @see doHQL(Session, String, Map<String, Object>, Map<String,Collection>)
      */
     public List doHQL(Session s, String hql, Map<String, Object> params);
 
     /**
-     * Allows the intelligent C++ programmer to simply fire complete HQL
-     * statements to the DBS. The HQL is very similar to SQL, but differs
-     * in a variety of important ways. See the hibernate documentation at
+     * Execute a parameterized HQL query to the database, using a separate database session.
+     * HQL is very similar to SQL, but differs in a variety of important ways.
+     * See the hibernate documentation at
      * http://www.hibernate.org/hib_docs/reference/en/html/queryhql.html
      * for details. As a rule, you do not write 'SELECT *' but only
      * 'FROM <ClassName>' (note: not the table name, the @em class).
-     *
-     * The query is not performed as a complete transaction. The caller
-     * must handle transactions.
      *
      * The query string may contain named parameters, for which values
      * will be substituted from the params and lparams arguments to this
@@ -335,13 +402,17 @@ public interface DBService {
      * may be placed in the lparams argument. Either may be null if there
      * are no paramaters of that kind.
      * 
-     * This method will forward any exceptions coming from Hibernate, 
-     * such as SQL query errors or database access errors
-     *
-     * @param s        the database session to use
-     * @param hql      the HQL query string
-     * @param params   named parameters to substitute in the query
-     * @param lparams  list parameters to substitute in the query
+     * The caller is responsible for having a transaction initialized before calling the method,
+     * and committing it or rolling it back afterwards. He's also responsible for catching
+     * exceptions from Hibernate, e.g. in case of database access errors or HQL errors.
+     * 
+     * @param s the session to use for the query
+     * @param hql the HQL query string
+     * @param params the map of parameters to be substituted in the HQL query
+     * @param collectionParams the map of collection parameters to be substituted in the HQL query
+     * @return a list of {@link DAObject}. If the query contains multiple columns,
+     *          the results are returned in an instance of Object[]
+     * @throws HibernateException
      */
     public List doHQL(Session s, String hql, Map<String, Object> params,
         Map<String, Collection> lparams);
@@ -349,6 +420,7 @@ public interface DBService {
     /**
      * Get a session to the alitheia DB from the session manager
      * 
+     * @param holder the object this session belongs to
      * @return An initialised hibernate session to the SQO-OSS DB
      */
     public Session getSession(Object holder);

@@ -61,12 +61,11 @@ import eu.sqooss.service.logging.Logger;
 import eu.sqooss.impl.service.logging.LoggerImpl;
 
 /**
- * @author Romain
- *
- */
-/**
- * @author Romain
- *
+ * Implementation of the Database service, providing a Hibernate Session pool
+ * and high-level and low-level data access APIs.
+ * 
+ * @author ???, Romain Pokrzywka
+ * 
  */
 public class DBServiceImpl implements DBService {
 
