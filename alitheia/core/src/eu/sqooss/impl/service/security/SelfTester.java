@@ -32,6 +32,9 @@
 
 package eu.sqooss.impl.service.security;
 
+import java.util.Dictionary;
+import java.util.Hashtable;
+
 import eu.sqooss.service.db.Group;
 import eu.sqooss.service.db.Privilege;
 import eu.sqooss.service.db.PrivilegeValue;
@@ -46,6 +49,12 @@ import eu.sqooss.service.security.UserManager;
 
 public class SelfTester {
     
+    private static final String PROPERTY_DEFAULT_USER_NAME     = "eu.sqooss.security.user.name";
+    private static final String PROPERTY_DEFAULT_USER_PASSWORD = "eu.sqooss.security.user.password";
+    private static final String PROPERTY_DEFAULT_USER_EMAIL    = "eu.sqooss.security.user.email";
+    private static final String PROPERTY_DEFAULT_USER_GROUP    = "eu.sqooss.security.user.group";
+    private static final String PROPERTY_ENABLE                = "eu.sqooss.security.enable";
+    
     private static final String TEST_USER  = "alitheia_test_user";
     private static final String TEST_PASS  = "alitheia_test_pass";
     private static final String TEST_MAIL  = "alihteia_test_mail";
@@ -56,6 +65,7 @@ public class SelfTester {
     private GroupManager groupManager;
     private ServiceUrlManager serviceUrlManager;
     private PrivilegeManager privilegeManager;
+    private boolean isEnable;
     
     public SelfTester(SecurityManager securityManager) {
         this.securityManager = securityManager;
@@ -63,12 +73,20 @@ public class SelfTester {
         this.groupManager = securityManager.getGroupManager();
         this.serviceUrlManager = securityManager.getServiceUrlManager();
         this.privilegeManager = securityManager.getPrivilegeManager();
+        this.isEnable = Boolean.valueOf(System.getProperty(PROPERTY_ENABLE, "true"));
     }
     
     public String test() {
+        if (!isEnable) {
+            return null; //the security control is not enabled
+        }
         try {
             String testResult;
 
+            if ((testResult = testDefaultUser()) != null) {
+                return testResult;
+            }
+            
             if ((testResult = testUserManager()) != null) {
                 return testResult;
             }
@@ -90,6 +108,53 @@ public class SelfTester {
             }
         } catch (Throwable t) {
             return "Unexpected exception: " + t.getMessage();
+        }
+        return null;
+    }
+    
+    private String testDefaultUser() {
+        String defaultUserName = System.getProperty(PROPERTY_DEFAULT_USER_NAME);
+        String defaultUserPassword = System.getProperty(PROPERTY_DEFAULT_USER_PASSWORD);
+        String defaultUserEmail = System.getProperty(PROPERTY_DEFAULT_USER_EMAIL);
+        String defaultUserGroupDescription = System.getProperty(PROPERTY_DEFAULT_USER_GROUP);
+        if ((defaultUserName == null) || (defaultUserPassword == null)
+                || (defaultUserEmail == null) || (defaultUserGroupDescription == null)) {
+            return "Can't find the properties of the default user!";
+        }
+        //check default user
+        User defaultUser = userManager.getUser(defaultUserName);
+        if (defaultUser == null) {
+            return "Can't find default user!";
+        }
+        if (!defaultUserName.equals(defaultUser.getName())) {
+            return "The default user's name is not correct!";
+        }
+        if (!userManager.getHash(defaultUserPassword).equals(defaultUser.getPassword())) {
+            return "The default user's password is not correct!";
+        }
+        if (!defaultUserEmail.equals(defaultUser.getEmail())) {
+            return "The default user's e-mail is not correct!";
+        }
+        //check default user's group
+        Group defaultUserGroup = null;
+        Group[] groups = groupManager.getGroups(defaultUser.getId());
+        if (groups.length == 0) {
+            return "Can't find default user's group!";
+        }
+        for (int i = 0; i < groups.length; i++) {
+            if (defaultUserGroupDescription.equals(groups[i].getDescription())) {
+                defaultUserGroup = groups[i];
+            }
+        }
+        if (defaultUserGroup == null) {
+            return "Can't find default user's group!";
+        }
+        Dictionary<String, String> privileges = new Hashtable<String, String>();
+        privileges.put(SecurityConstants.Privilege.ACTION.toString(),
+                SecurityConstants.PrivilegeValue.WRITE.toString());
+        if(!securityManager.checkPermission(SecurityConstants.URL_SQOOSS_SECURITY,
+                privileges, defaultUserName, defaultUserPassword)){
+            return "The default user's permissions are not set!";
         }
         return null;
     }
@@ -145,12 +210,8 @@ public class SelfTester {
             groupManager.addUserToGroup(newGroup.getId(), newUser.getId());
 
             Group[] newUserGroups = groupManager.getGroups(newUser.getId());
-            if ((newUserGroups == null) || (newUserGroups.length != 1)) {
+            if ((newUserGroups == null) || (newUserGroups.length != 2)) {
                 return "The user's groups are incorrect!";
-            }
-
-            if (newGroup.getId() != newUserGroups[0].getId()) {
-                return "The user's groups is incorrect!";
             }
 
         } finally {
@@ -272,11 +333,35 @@ public class SelfTester {
                 return false;
             }
 
-            return securityManager.checkPermission(SecurityConstants.URL_SQOOSS_DATABASE,
-                    null, TEST_USER, TEST_PASS);
+            if (!securityManager.checkPermission(SecurityConstants.URL_SQOOSS_DATABASE,
+                    null, TEST_USER, TEST_PASS)) {
+                return false;
+            }
+            
+            if (!securityManager.deleteSecurityConfiguration(group.getDescription(),
+                    privilege.getDescription(), privilegeValue.getValue(), serviceUrl.getUrl())) {
+                return false;
+            }
+            
+            if (!securityManager.createSecurityConfiguration(group.getDescription(),
+                    privilege.getDescription(), privilegeValue.getValue(), serviceUrl.getUrl())) {
+                return false;
+            }
+            
+            if (!securityManager.checkPermission(SecurityConstants.URL_SQOOSS_DATABASE,
+                    null, TEST_USER, TEST_PASS)) {
+                return false;
+            }
+            
+            if (!securityManager.deleteSecurityConfiguration(group.getDescription(),
+                    privilege.getDescription(), privilegeValue.getValue(), serviceUrl.getUrl())) {
+                return false;
+            }
+            
         } finally {
-            testClear(user, group, serviceUrl, privilege, privilegeValue);
+            testClear(user, group, null, null, null);
         }
+        return true;
     }
     
     private void testClear(User user, Group group, ServiceUrl serviceUrl,
