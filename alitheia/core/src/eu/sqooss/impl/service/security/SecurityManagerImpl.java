@@ -50,6 +50,9 @@ import org.osgi.service.http.HttpService;
 
 import eu.sqooss.impl.service.security.utils.SecurityManagerDatabase;
 import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.Group;
+import eu.sqooss.service.db.ServiceUrl;
+import eu.sqooss.service.db.User;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.messaging.MessagingService;
 import eu.sqooss.service.security.GroupManager;
@@ -61,6 +64,12 @@ import eu.sqooss.service.security.UserManager;
 
 public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
 
+    private static final String PROPERTY_DEFAULT_USER_NAME     = "eu.sqooss.security.user.name";
+    private static final String PROPERTY_DEFAULT_USER_PASSWORD = "eu.sqooss.security.user.password";
+    private static final String PROPERTY_DEFAULT_USER_EMAIL    = "eu.sqooss.security.user.email";
+    private static final String PROPERTY_DEFAULT_USER_GROUP    = "eu.sqooss.security.user.group";
+    private static final String PROPERTY_ENABLE                = "eu.sqooss.security.enable";
+    
     private BundleContext bc;
     private UserManager userManager;
     private GroupManager groupManager;
@@ -117,7 +126,9 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
         userManager = new UserManagerImpl(db, messaging, logger,
                 privilegeManager, groupManager, serviceUrlManager);
         
-        isEnable = Boolean.valueOf(System.getProperty("eu.sqooss.security.enable", "true"));
+        isEnable = Boolean.valueOf(System.getProperty(PROPERTY_ENABLE, "true"));
+        
+        initDefaultUser();
         
         // Get a reference to the HTTPService, and its object
         srefHttpService = bc.getServiceReference(HttpService.class.getName());
@@ -219,6 +230,69 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
         return userManager;
     }
 
+    private boolean createSecurityConfiguration(String userName, String userPassword,
+            String groupDescription, String privilege, String privilegeValue,
+            String serviceUrl) {
+        
+        User user = userManager.getUser(userName);
+        if ((user == null) ||
+                (!user.getPassword().equals(userManager.getHash(userPassword)))) {
+            return false;
+        } else {
+            Group userGroup = null;
+            eu.sqooss.service.db.Privilege userPrivilege = null;
+            eu.sqooss.service.db.PrivilegeValue userPrivilegeValue = null;
+            ServiceUrl userServiceUrl = null;
+            Group[] groups = groupManager.getGroups();
+            for (Group group : groups) {
+                if (groupDescription.equals(group.getDescription())) {
+                    userGroup = group;
+                    break;
+                }
+            }
+            if (userGroup == null) {
+                userGroup = groupManager.createGroup(groupDescription);
+            }
+            eu.sqooss.service.db.Privilege[] privileges = privilegeManager.getPrivileges();
+            for (eu.sqooss.service.db.Privilege priv : privileges) {
+                if (privilege.equals(priv.getDescription())) {
+                    userPrivilege = priv;
+                    break;
+                }
+            }
+            if (userPrivilege == null) {
+                userPrivilege = privilegeManager.createPrivilege(privilege);
+            }
+            eu.sqooss.service.db.PrivilegeValue[] privilegeValues = privilegeManager.getPrivilegeValues(
+                    userPrivilege.getId());
+            for (eu.sqooss.service.db.PrivilegeValue privValue : privilegeValues) {
+                if (privilegeValue.equals(privValue.getValue())) {
+                    userPrivilegeValue = privValue;
+                    break;
+                }
+            }
+            if (userPrivilegeValue == null) {
+                userPrivilegeValue = privilegeManager.createPrivilegeValue(
+                        userPrivilege.getId(), privilegeValue);
+            }
+            ServiceUrl[] serviceUrls = serviceUrlManager.getServiceUrls();
+            for (ServiceUrl url : serviceUrls) {
+                if (serviceUrl.equals(url.getUrl())) {
+                    userServiceUrl = url;
+                    break;
+                }
+            }
+            if (userServiceUrl == null) {
+                userServiceUrl = serviceUrlManager.createServiceUrl(serviceUrl);
+            }
+            return (groupManager.addUserToGroup(userGroup.getId(), user.getId()) &&
+                    groupManager.addPrivilegeToGroup(userGroup.getId(),
+                            userServiceUrl.getId(), userPrivilegeValue.getId()));
+
+        }
+        
+    }
+    
     private boolean checkPermissionPrivileges(String resourceUrl, Dictionary<String, String> privileges, String userName, String password) {
         
         if (dbWrapper.checkAuthorizationRule(resourceUrl, Privilege.ALL.toString(),
@@ -279,6 +353,31 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
         return resourceUrl;
     }
 
+    private void initDefaultUser() {
+        String userName = bc.getProperty(PROPERTY_DEFAULT_USER_NAME);
+        String userPassword = bc.getProperty(PROPERTY_DEFAULT_USER_PASSWORD);
+        String userEmail = bc.getProperty(PROPERTY_DEFAULT_USER_EMAIL);
+        String userGroup = bc.getProperty(PROPERTY_DEFAULT_USER_GROUP);
+        if ((userName == null) || (userPassword == null) ||
+                (userEmail == null) || (userGroup == null)) {
+            logger.error("The default security user is not created! " +
+            		"See the configuration properties of the security service!");
+        } else {
+            User defaultUser = userManager.getUser(userName);
+            if (defaultUser != null) {
+                if (!defaultUser.getPassword().equals(userManager.getHash(userPassword))) {
+                    userManager.modifyUser(userName, userPassword, userEmail);
+                }
+            } else {
+                defaultUser = userManager.createUser(userName, userPassword, userEmail);
+                if (!createSecurityConfiguration(userName, userPassword, userGroup, Privilege.ACTION.toString(),
+                        PrivilegeValue.WRITE.toString(), URL_SQOOSS_SECURITY)) {
+                    logger.error("The permissions of the default security user are not set!");
+                }
+            }
+        }
+    }
+    
     public Object selfTest() {
         SelfTester tester = new SelfTester(this);
         return tester.test();
