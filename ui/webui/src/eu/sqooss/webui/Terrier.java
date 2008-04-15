@@ -84,8 +84,8 @@ public class Terrier {
      * Simple constructor. Instantiates a new <code>Terrier</code> object.
      */
     public Terrier () {
-        connect();
         initConfig();
+        connect();
     }
 
     private void initConfig() {
