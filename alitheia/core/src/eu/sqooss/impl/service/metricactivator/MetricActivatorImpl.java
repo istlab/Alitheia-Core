@@ -41,7 +41,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.service.abstractmetric.Metric;
+import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.abstractmetric.MetricMismatchException;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
@@ -84,7 +84,7 @@ public class MetricActivatorImpl implements MetricActivator {
         while (i.hasNext()) {
             long currentVersion = i.next().longValue();
             for (ServiceReference r : metrics) {
-                Metric m = (Metric) core.getService(r);
+                AlitheiaPlugin m = (AlitheiaPlugin) core.getService(r);
                 if (m != null) {
                     try {
                         m.run(dbs.findObjectById(s, clazz, currentVersion));
@@ -97,7 +97,7 @@ public class MetricActivatorImpl implements MetricActivator {
         dbs.returnSession(s);
     }
 
-    public void syncMetric(Metric m, StoredProject sp) {
+    public void syncMetric(AlitheiaPlugin m, StoredProject sp) {
         MetricInfo mi = pa.getMetricInfo(m);
         
         
@@ -108,8 +108,8 @@ public class MetricActivatorImpl implements MetricActivator {
         
     }
 
-    public ProjectVersion getLastAppliedVersion(Metric m, StoredProject sp) {
-        // TODO Auto-generated method stub
+    public ProjectVersion getLastAppliedVersion(AlitheiaPlugin m, StoredProject sp) {
+        MetricInfo mi = pa.getMetricInfo(m);
         return null;
     }
 

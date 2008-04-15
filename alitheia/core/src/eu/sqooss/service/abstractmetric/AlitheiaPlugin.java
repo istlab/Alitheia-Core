@@ -86,7 +86,7 @@ import eu.sqooss.service.db.DAObject;
  *  </ul>
  *
  */
-public interface Metric {
+public interface AlitheiaPlugin {
 
     /**
      * Get the metric version. Free form text.

@@ -35,7 +35,7 @@ import java.util.Collection;
 
 import org.osgi.framework.ServiceReference;
 
-import eu.sqooss.service.abstractmetric.Metric;
+import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -63,14 +63,14 @@ public interface PluginAdmin {
      * @param m The metric to return info about
      * @return Information that the system has about a specific metric
      */
-    public MetricInfo getMetricInfo(Metric m);
+    public MetricInfo getMetricInfo(AlitheiaPlugin m);
     
     /**
-     * 
+     * Get the metric interface from a metric object object 
      * @param m
-     * @return
+     * @return The metric interface
      */
-    public Metric getMetric(MetricInfo m);
+    public AlitheiaPlugin getMetric(MetricInfo m);
 
     /**
      * Get the list of metrics that have (sub-)interfaces for the given

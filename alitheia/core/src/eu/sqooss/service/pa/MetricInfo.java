@@ -2,7 +2,7 @@ package eu.sqooss.service.pa;
 
 import org.osgi.framework.ServiceReference;
 
-import eu.sqooss.service.abstractmetric.Metric;
+import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.util.Pair;
 import eu.sqooss.service.util.StringUtils;
 import java.util.Collection;
@@ -20,7 +20,7 @@ public class MetricInfo {
     private String[]    objectClass     = null;
     private String[]    metricType      = null;
     public boolean      installed       = false;
-    private Collection<Pair<String,Metric.ConfigurationTypes>> attributes = null;
+    private Collection<Pair<String,AlitheiaPlugin.ConfigurationTypes>> attributes = null;
 
     /**
      * @param bundleID the bundleID to set
@@ -155,7 +155,7 @@ public class MetricInfo {
         return b.toString();
     }
 
-    public void setAttributes(Collection<eu.sqooss.service.util.Pair<String,eu.sqooss.service.abstractmetric.Metric.ConfigurationTypes>> attributes) {
+    public void setAttributes(Collection<eu.sqooss.service.util.Pair<String,eu.sqooss.service.abstractmetric.AlitheiaPlugin.ConfigurationTypes>> attributes) {
         this.attributes = attributes;
     }
 

@@ -45,7 +45,7 @@ import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
 
 import eu.sqooss.service.abstractmetric.FileGroupMetric;
-import eu.sqooss.service.abstractmetric.Metric;
+import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.abstractmetric.ProjectFileMetric;
 import eu.sqooss.service.abstractmetric.ProjectVersionMetric;
 import eu.sqooss.service.abstractmetric.StoredProjectMetric;
@@ -187,7 +187,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
         logger.debug("Getting info for metric " + metricInfo.getBundleName());
 
         // SQO-OSS related info fields
-        Metric metricObject = (Metric) bc.getService(srefMetric);
+        AlitheiaPlugin metricObject = (AlitheiaPlugin) bc.getService(srefMetric);
         if (metricObject != null) {
             metricInfo.setMetricName(metricObject.getName());
             metricInfo.setMetricVersion(metricObject.getVersion());
@@ -413,7 +413,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
                     try {
                         // Retrieve the Metric object registered with this
                         // service
-                        Metric sobj = (Metric) bc.getService(sref);
+                        AlitheiaPlugin sobj = (AlitheiaPlugin) bc.getService(sref);
                         if (sobj != null) {
                             // Try to execute the install() method of this
                             // metric
@@ -487,7 +487,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
         return null;
     }
 
-    public MetricInfo getMetricInfo(Metric m) {
+    public MetricInfo getMetricInfo(AlitheiaPlugin m) {
         MetricInfo mi = null;
         Collection<MetricInfo> c = listMetrics();
         Iterator<MetricInfo> i = c.iterator();
@@ -503,9 +503,9 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
         return null;
     }
 
-    public Metric getMetric(MetricInfo m) {
-        // TODO Auto-generated method stub
-        return null;
+    public AlitheiaPlugin getMetric(MetricInfo m) {
+        ServiceReference s = m.getServiceRef();
+        return (AlitheiaPlugin) bc.getService(s);
     }
 }
 

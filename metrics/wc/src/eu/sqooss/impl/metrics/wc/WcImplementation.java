@@ -147,14 +147,14 @@ public class WcImplementation extends AbstractMetric implements Wc {
     }
 
     /** {@inheritdoc} */
-    public Collection<Pair<String, eu.sqooss.service.abstractmetric.Metric.ConfigurationTypes> >
+    public Collection<Pair<String, eu.sqooss.service.abstractmetric.AlitheiaPlugin.ConfigurationTypes> >
         getConfigurationSchema() {
 
-        ArrayList<Pair<String, eu.sqooss.service.abstractmetric.Metric.ConfigurationTypes> > l = new
-            ArrayList<Pair<String, eu.sqooss.service.abstractmetric.Metric.ConfigurationTypes> >(1);
+        ArrayList<Pair<String, eu.sqooss.service.abstractmetric.AlitheiaPlugin.ConfigurationTypes> > l = new
+            ArrayList<Pair<String, eu.sqooss.service.abstractmetric.AlitheiaPlugin.ConfigurationTypes> >(1);
 
-        Pair foo = new Pair<String, eu.sqooss.service.abstractmetric.Metric.ConfigurationTypes>
-            ("smart-whitespace", eu.sqooss.service.abstractmetric.Metric.ConfigurationTypes.BOOLEAN);
+        Pair foo = new Pair<String, eu.sqooss.service.abstractmetric.AlitheiaPlugin.ConfigurationTypes>
+            ("smart-whitespace", eu.sqooss.service.abstractmetric.AlitheiaPlugin.ConfigurationTypes.BOOLEAN);
 
         l.add(foo);
         return l;

@@ -57,7 +57,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.service.abstractmetric.Metric.ConfigurationTypes;
+import eu.sqooss.service.abstractmetric.AlitheiaPlugin.ConfigurationTypes;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.LogManager;

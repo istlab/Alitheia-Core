@@ -65,11 +65,11 @@ import eu.sqooss.service.util.Pair;
  * A base class for all metrics. Implements basic functionality such as
  * logging setup and plug-in information retrieval from the OSGi bundle
  * manifest file. Metrics can choose to directly implement
- * the {@link eu.sqooss.abstractmetric.Metric} interface instead of extending
+ * the {@link eu.sqooss.abstractmetric.AlitheiaPlugin} interface instead of extending
  * this class.
  */
 public abstract class AbstractMetric
-implements eu.sqooss.service.abstractmetric.Metric {
+implements eu.sqooss.service.abstractmetric.AlitheiaPlugin {
 
     /** Reference to the metric bundle context */
     protected BundleContext bc;

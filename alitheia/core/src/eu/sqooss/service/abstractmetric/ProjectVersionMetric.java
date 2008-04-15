@@ -41,7 +41,7 @@ import eu.sqooss.service.db.ProjectVersion;
  * indicate that its results are linked to the ProjectVersion table, and
  * consequently needs to be recalculated on every new project version.
  */
-public interface ProjectVersionMetric extends Metric {
+public interface ProjectVersionMetric extends AlitheiaPlugin {
 
     /**
      * Run the metric to update the metric results when new versions

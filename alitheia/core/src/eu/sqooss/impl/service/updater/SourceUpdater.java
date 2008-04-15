@@ -44,7 +44,7 @@ import org.hibernate.Transaction;
 import org.osgi.framework.ServiceReference;
 
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.service.abstractmetric.Metric;
+import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.abstractmetric.MetricMismatchException;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Developer;

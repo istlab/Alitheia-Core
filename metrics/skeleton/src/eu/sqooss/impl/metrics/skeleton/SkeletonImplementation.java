@@ -44,7 +44,7 @@ import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.lib.result.Result;
 import eu.sqooss.metrics.skeleton.Skeleton;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
-import eu.sqooss.service.abstractmetric.Metric;
+import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.scheduler.Scheduler;
@@ -97,14 +97,14 @@ public class SkeletonImplementation extends AbstractMetric implements Skeleton {
         }
     }
 
-    public Collection<Pair<String,Metric.ConfigurationTypes>>
+    public Collection<Pair<String,AlitheiaPlugin.ConfigurationTypes>>
         getConfigurationSchema() {
         System.out.println("Strange type errors can occur here.");
-        Pair<String,Metric.ConfigurationTypes> p0 = new Pair<String,Metric.ConfigurationTypes>( new String("funky-count"),Metric.ConfigurationTypes.INTEGER);
-        Pair<String,Metric.ConfigurationTypes> p1 = new Pair<String,Metric.ConfigurationTypes>( new String("is-funky"),Metric.ConfigurationTypes.BOOLEAN);
-        Pair<String,Metric.ConfigurationTypes> p2 = new Pair<String,Metric.ConfigurationTypes>( new String("funky-name"),Metric.ConfigurationTypes.STRING);
+        Pair<String,AlitheiaPlugin.ConfigurationTypes> p0 = new Pair<String,AlitheiaPlugin.ConfigurationTypes>( new String("funky-count"),AlitheiaPlugin.ConfigurationTypes.INTEGER);
+        Pair<String,AlitheiaPlugin.ConfigurationTypes> p1 = new Pair<String,AlitheiaPlugin.ConfigurationTypes>( new String("is-funky"),AlitheiaPlugin.ConfigurationTypes.BOOLEAN);
+        Pair<String,AlitheiaPlugin.ConfigurationTypes> p2 = new Pair<String,AlitheiaPlugin.ConfigurationTypes>( new String("funky-name"),AlitheiaPlugin.ConfigurationTypes.STRING);
 
-        Collection<Pair<String,Metric.ConfigurationTypes>> c = new ArrayList<Pair<String,Metric.ConfigurationTypes>>(3);
+        Collection<Pair<String,AlitheiaPlugin.ConfigurationTypes>> c = new ArrayList<Pair<String,AlitheiaPlugin.ConfigurationTypes>>(3);
         c.add(p0);
         c.add(p1);
         c.add(p2);
