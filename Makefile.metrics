@@ -11,7 +11,7 @@ clean : clean-dir
 clean-dir :
 
 install :
-	$(MAVEN) package
+	for i in $(SUBDIRS) ; do cp $$i/target/*.jar $(PREFIX) ; done
 
 help :
 	@echo $(MAVEN)

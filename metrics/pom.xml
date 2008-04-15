@@ -38,10 +38,9 @@
       <plugin>
         <artifactId>maven-jar-plugin</artifactId>
         <configuration>
-          <outputDirectory>${topdir}/equinox</outputDirectory>
-          <finalName>${artifactId}_${version}</finalName>
+          <outputDirectory>${basedir}/target</outputDirectory>
           <archive>
-            <manifestFile>${basedir}/META-INF/MANIFEST.MF</manifestFile>
+            <manifestFile>${basedir}/manifest/manifest.mf</manifestFile>
             <addMavenDescriptor>false</addMavenDescriptor>
           </archive>
         </configuration>
@@ -49,6 +48,8 @@
       <plugin>
         <artifactId>maven-deploy-plugin</artifactId>
         <configuration>
+          <outputDirectory>${topdir}/equinox</outputDirectory>
+          <finalName>${artifactId}-${version}</finalName>
           <generatePom>false</generatePom>
         </configuration>
       </plugin>
