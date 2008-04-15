@@ -220,7 +220,7 @@ class SourceUpdater extends Job {
                 numRevisions ++;
                 
                 /*Cleanup for huge projects*/
-                if (numRevisions % 10000 == 0) {
+                if (numRevisions / 10000 == 0) {
                     tx.commit();
                     tx = s.beginTransaction();
                 }
