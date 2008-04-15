@@ -62,6 +62,7 @@ import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.metricactivator.MetricActivator;
 import eu.sqooss.service.pa.MetricInfo;
 import eu.sqooss.service.pa.PluginAdmin;
 import eu.sqooss.service.scheduler.Job;
@@ -93,6 +94,7 @@ public class AdminServlet extends HttpServlet {
     private Scheduler sobjSched = null;
     private UpdaterService sobjUpdater = null;
     private PluginAdmin sobjPluginAdmin = null;
+    private MetricActivator sobjMetricActivator = null;
 
     private Hashtable<String,Pair<String,String>> staticContentMap;
     private Hashtable<String,String> dynamicContentMap;
@@ -170,6 +172,11 @@ public class AdminServlet extends HttpServlet {
                 sobjLogger.debug("WebAdmin got Plugin Admin object.");
             }
 
+            sobjMetricActivator = sobjAlitheiaCore.getMetricActivator();
+            if (sobjMetricActivator != null) {
+                sobjLogger.debug("WebAdmin got Metric Activator object.");
+            }
+            
             Stuffer myStuffer = new Stuffer(sobjDB, sobjLogger, sobjTDS);
             myStuffer.run();
 
@@ -571,19 +578,32 @@ public class AdminServlet extends HttpServlet {
     }
 
     private String renderProjects() {
-        List<StoredProject> l = sobjDB.doHQL("from StoredProject");
-
-        if (l == null) {
+        List<StoredProject> projects = sobjDB.doHQL("from StoredProject");
+        Collection<MetricInfo> metrics = sobjPluginAdmin.listMetrics();
+        
+        if (projects == null || metrics == null) {
             return null;
         }
 
         StringBuilder s = new StringBuilder();
-
-        for (int i=0; i<l.size(); i++) {
-            StoredProject p = (StoredProject) l.get(i);
-            s.append("<li>");
+        
+        s.append("<table border=\"1\">");
+        s.append("<tr>");
+        s.append("<td><b>Project</b></td>");
+        
+        for(MetricInfo m : metrics) {
+            s.append("<td><b>");
+            s.append(m.getMetricName());
+            s.append("</b></td>");
+        }
+        s.append("</tr>");
+       
+        for (int i=0; i<projects.size(); i++) {
+            s.append("<tr>");
+            StoredProject p = (StoredProject) projects.get(i);
+            s.append("<td><font size=\"-2\"><b>");
             s.append(p.getName());
-            s.append(" ([id=");
+            s.append("</b> ([id=");
             s.append(p.getId());
             s.append("]) <br/>Update:");
             for (String updTarget: UpdaterService.UpdateTarget.toStringArray()) {
@@ -598,8 +618,16 @@ public class AdminServlet extends HttpServlet {
             s.append("<br/>Sites: <a href=\"");
             s.append(p.getWebsite());
             s.append("\">Website</a>&nbsp;Alitheia Reports");
-            s.append("</li>");
+            s.append("</font></td>");
+            for(MetricInfo m : metrics) {
+                s.append("<td>");
+                s.append(sobjMetricActivator.getLastAppliedVersion(
+                        sobjPluginAdmin.getMetric(m), p));
+                s.append("</td>");
+            }
+            s.append("</tr>");
         }
+        s.append("</table>");
         return s.toString();
     }
 

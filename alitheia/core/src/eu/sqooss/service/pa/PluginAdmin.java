@@ -64,6 +64,13 @@ public interface PluginAdmin {
      * @return Information that the system has about a specific metric
      */
     public MetricInfo getMetricInfo(Metric m);
+    
+    /**
+     * 
+     * @param m
+     * @return
+     */
+    public Metric getMetric(MetricInfo m);
 
     /**
      * Get the list of metrics that have (sub-)interfaces for the given

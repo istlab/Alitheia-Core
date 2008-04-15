@@ -1,6 +1,9 @@
 package eu.sqooss.service.pa;
 
 import org.osgi.framework.ServiceReference;
+
+import eu.sqooss.service.abstractmetric.Metric;
+import eu.sqooss.service.util.Pair;
 import eu.sqooss.service.util.StringUtils;
 import java.util.Collection;
 
@@ -17,7 +20,7 @@ public class MetricInfo {
     private String[]    objectClass     = null;
     private String[]    metricType      = null;
     public boolean      installed       = false;
-    private Collection<eu.sqooss.service.util.Pair<String,eu.sqooss.service.abstractmetric.Metric.ConfigurationTypes>>   attributes      = null;
+    private Collection<Pair<String,Metric.ConfigurationTypes>> attributes = null;
 
     /**
      * @param bundleID the bundleID to set

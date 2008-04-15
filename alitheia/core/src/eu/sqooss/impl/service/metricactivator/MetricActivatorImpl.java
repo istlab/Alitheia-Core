@@ -45,21 +45,21 @@ import eu.sqooss.service.abstractmetric.Metric;
 import eu.sqooss.service.abstractmetric.MetricMismatchException;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.metricactivator.MetricActivator;
+import eu.sqooss.service.pa.MetricInfo;
 import eu.sqooss.service.pa.PluginAdmin;
 
 public class MetricActivatorImpl implements MetricActivator {
-
-    private BundleContext bc;
+    
     private AlitheiaCore core;
     private DBService dbs;
     private Logger logger;
     private PluginAdmin pa;
     
     public MetricActivatorImpl(BundleContext bc, Logger logger) {
-        this.bc = bc;
         ServiceReference serviceRef = null;
         serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
         core = (AlitheiaCore) bc.getService(serviceRef);
@@ -98,6 +98,8 @@ public class MetricActivatorImpl implements MetricActivator {
     }
 
     public void syncMetric(Metric m, StoredProject sp) {
+        MetricInfo mi = pa.getMetricInfo(m);
+        
         
     }
 
@@ -105,6 +107,12 @@ public class MetricActivatorImpl implements MetricActivator {
             StoredProject sp) {
         
     }
+
+    public ProjectVersion getLastAppliedVersion(Metric m, StoredProject sp) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

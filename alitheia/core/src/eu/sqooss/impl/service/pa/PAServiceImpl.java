@@ -502,6 +502,11 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
         }
         return null;
     }
+
+    public Metric getMetric(MetricInfo m) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

@@ -36,6 +36,7 @@ import java.util.SortedSet;
 
 import eu.sqooss.service.abstractmetric.Metric;
 import eu.sqooss.service.db.DAObject;
+import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 
 /**
@@ -68,4 +69,7 @@ public interface MetricActivator {
      * @param sp
      */
     public void syncMetric(Metric m, StoredProject sp);
+    
+    public ProjectVersion getLastAppliedVersion(Metric m, StoredProject sp);
+    
 }
