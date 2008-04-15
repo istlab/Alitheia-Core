@@ -774,14 +774,14 @@ public class FDSServiceImpl implements FDSService {
                 props.put("project", testProject);
                 props.put("version", fromVersionNumber);
                 List<ProjectVersion> fromVersion =
-                    dbs.findObjectByProperties(ProjectVersion.class, props);
+                    dbs.findObjectsByProperties(ProjectVersion.class, props);
                 if ( fromVersion.size() != 1) {
                     return "Found less or more than one ProjectVersion for version "
                         + fromVersionNumber + " of project " + testProject.getName();
                 }
                 props.put("version", toVersionNumber);
                 List<ProjectVersion> toVersion =
-                    dbs.findObjectByProperties(ProjectVersion.class, props);
+                    dbs.findObjectsByProperties(ProjectVersion.class, props);
                 if ( toVersion.size() != 1) {
                     return "Found less or more than one ProjectVersion for version "
                         + toVersionNumber + " of project " + testProject.getName();

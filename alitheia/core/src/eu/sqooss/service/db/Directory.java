@@ -67,7 +67,7 @@ public class Directory extends DAObject {
         Map<String,Object> parameterMap = new HashMap<String,Object>();
         parameterMap.put("path", path);
         
-        List<Directory> dirs = dbs.findObjectByProperties(s, Directory.class,
+        List<Directory> dirs = dbs.findObjectsByProperties(s, Directory.class,
                 parameterMap);
         
         /* Dir path in table, return it */

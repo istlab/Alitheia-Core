@@ -392,13 +392,13 @@ public class DBServiceImpl implements DBService {
      * @see eu.sqooss.service.db.DBService#findObjectByProperties(java.lang.Class, java.util.Map)
      */
     @SuppressWarnings("unchecked")
-    public <T extends DAObject> List<T> findObjectByProperties(Class<T> daoClass, Map<String,Object> properties ) {
+    public <T extends DAObject> List<T> findObjectsByProperties(Class<T> daoClass, Map<String,Object> properties ) {
 
         Session s = getSession(this);
         Transaction tx = null;
         try {
             tx = s.beginTransaction();
-            List result = findObjectByProperties(s, daoClass, properties);
+            List result = findObjectsByProperties(s, daoClass, properties);
             tx.commit();
             return result;
         } catch( TransactionException e ) {
@@ -416,7 +416,7 @@ public class DBServiceImpl implements DBService {
      * @see eu.sqooss.service.db.DBService#findObjectByProperties(org.hibernate.Session, java.lang.Class, java.util.Map)
      */
     @SuppressWarnings("unchecked")
-    public <T extends DAObject> List<T> findObjectByProperties(Session s, Class<T> daoClass, Map<String,Object> properties ) {
+    public <T extends DAObject> List<T> findObjectsByProperties(Session s, Class<T> daoClass, Map<String,Object> properties ) {
 
         if ( !DAObject.class.isAssignableFrom(daoClass) ) {
             // throw an exception instead ?

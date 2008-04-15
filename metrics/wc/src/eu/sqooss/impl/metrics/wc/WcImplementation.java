@@ -100,7 +100,7 @@ public class WcImplementation extends AbstractMetric implements Wc {
          */
         filter.put("metric", this.getSupportedMetrics().get(0));
         List<ProjectFileMeasurement> measurement =
-            db.findObjectByProperties(s, ProjectFileMeasurement.class, filter);
+            db.findObjectsByProperties(s, ProjectFileMeasurement.class, filter);
 
         // Convert the measurement into a result object
         if (! measurement.isEmpty()) {

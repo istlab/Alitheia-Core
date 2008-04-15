@@ -291,7 +291,7 @@ implements eu.sqooss.service.abstractmetric.Metric {
 			HashMap<String, Object> filter = new HashMap<String, Object>();
 			filter.put("metric", me);
 			filter.put("storedProject", sp);
-			List<EvaluationMark> wasEvaluated = db.findObjectByProperties(s,
+			List<EvaluationMark> wasEvaluated = db.findObjectsByProperties(s,
 					EvaluationMark.class, filter);
 
 			// If this is a first time evaluation, then remember this in the DB
@@ -351,7 +351,7 @@ implements eu.sqooss.service.abstractmetric.Metric {
 
     public boolean update() {
         HashMap<String, Object> h = new HashMap<String, Object>();
-        List<StoredProject> l = db.findObjectByProperties(StoredProject.class, h);
+        List<StoredProject> l = db.findObjectsByProperties(StoredProject.class, h);
         
         for(StoredProject sp : l) {
             Scheduler s = ((AlitheiaCore) bc.getService(this.bc.getServiceReference(AlitheiaCore.class.getName()))).getScheduler();

@@ -67,7 +67,7 @@ public class UserManagerDatabase implements UserManagerDBQueries {
         synchronized (lockObject) {
             userProps.clear();
             userProps.put(ATTRIBUTE_USER_NAME, userName);
-            return db.findObjectByProperties(User.class, userProps);
+            return db.findObjectsByProperties(User.class, userProps);
         }
     }
     
@@ -102,7 +102,7 @@ public class UserManagerDatabase implements UserManagerDBQueries {
             synchronized (lockObject) {
                 userProps.clear();
                 userProps.put(ATTRIBUTE_USER_NAME, userName);
-                users = db.findObjectByProperties(session, User.class, userProps);
+                users = db.findObjectsByProperties(session, User.class, userProps);
             }
             if (users.size() == 1) {
                 User user = users.get(0);
@@ -146,7 +146,7 @@ public class UserManagerDatabase implements UserManagerDBQueries {
         HashMap<String, Object> filter = new HashMap<String, Object>();
         filter.put(field, value);
         List<PendingUser> pending =
-            db.findObjectByProperties(s, PendingUser.class, filter);
+            db.findObjectsByProperties(s, PendingUser.class, filter);
 
         // Free the DB session
         db.returnSession(s);

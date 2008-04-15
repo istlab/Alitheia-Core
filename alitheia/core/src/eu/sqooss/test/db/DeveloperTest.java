@@ -53,7 +53,7 @@ public class DeveloperTest {
         dbs.addRecords(bugReporters);
         Map<String, Object> properties = new HashMap<String, Object>();
         properties.put("name", "foo");
-        results = dbs.findObjectByProperties(Developer.class, properties);
+        results = dbs.findObjectsByProperties(Developer.class, properties);
         Assert.assertTrue(results.size() ==  1);
     }
     

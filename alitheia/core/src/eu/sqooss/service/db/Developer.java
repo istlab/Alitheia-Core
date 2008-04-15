@@ -123,7 +123,7 @@ public class Developer extends DAObject{
         parameterMap.put("email", email);
         parameterMap.put("storedProject", sp);
         
-        List<Developer> devs = dbs.findObjectByProperties(s, Developer.class,
+        List<Developer> devs = dbs.findObjectsByProperties(s, Developer.class,
                 parameterMap);
         
         /* Developer in the DB, return it */
@@ -139,7 +139,7 @@ public class Developer extends DAObject{
         parameterMap.put("username", unameFromEmail);
         parameterMap.put("storedProject", sp);
         
-        devs = dbs.findObjectByProperties(s, Developer.class,
+        devs = dbs.findObjectsByProperties(s, Developer.class,
                 parameterMap);
         
         /* Developer's uname in table, update with email and return it */
@@ -205,7 +205,7 @@ public class Developer extends DAObject{
 		parameterMap.put("username", username);
 		parameterMap.put("storedProject", sp);
 
-		List<Developer> devs = dbs.findObjectByProperties(s, Developer.class,
+		List<Developer> devs = dbs.findObjectsByProperties(s, Developer.class,
 				parameterMap);
 
 		/* 

@@ -677,7 +677,7 @@ public class AdminServlet extends HttpServlet {
             //1. Duplicate project
             HashMap<String, Object> pname = new HashMap<String, Object>();
             pname.put("name", (Object)p.getName());
-            if(sobjDB.findObjectByProperties(StoredProject.class, pname).size() > 1) {
+            if(sobjDB.findObjectsByProperties(StoredProject.class, pname).size() > 1) {
                 //Duplicate project, remove
                 sobjDB.deleteRecord(sobjDB.findObjectById(StoredProject.class, p.getId()));
                 sobjLogger.warn("A project with the same name already exists");

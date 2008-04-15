@@ -76,7 +76,7 @@ public interface DBService {
      * @param properties a map of property name/value pairs corresponding to properties of the DAObject subclass
      * @return a list of DAObjects matching the class and the set of properties, possibly empty if no match was found in the database or if the properties map contains invalid entries
      */
-    public <T extends DAObject> List<T> findObjectByProperties(Class<T> daoClass, Map<String,Object> properties );
+    public <T extends DAObject> List<T> findObjectsByProperties(Class<T> daoClass, Map<String,Object> properties );
     
     /**
      * A generic query method to retrieve a list of DAObjects of a same subclass matching a set of properties.
@@ -92,7 +92,7 @@ public interface DBService {
      * @param properties a map of property name/value pairs corresponding to properties of the DAObject subclass
      * @return a list of DAObjects matching the class and the set of properties, possibly empty if no match was found in the database or if the properties map contains invalid entries
      */
-    public <T extends DAObject> List<T> findObjectByProperties(Session s, Class<T> daoClass, Map<String,Object> properties );
+    public <T extends DAObject> List<T> findObjectsByProperties(Session s, Class<T> daoClass, Map<String,Object> properties );
 
     /**
      * Add a new record to the system database, using the default database session.

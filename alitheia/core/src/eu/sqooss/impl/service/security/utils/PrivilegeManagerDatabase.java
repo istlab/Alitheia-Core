@@ -67,7 +67,7 @@ public class PrivilegeManagerDatabase implements PrivilegeManagerDBQueries {
         if (privilege != null) {
             synchronized (privilegeValueProps) {
                 privilegeValueProps.put(ATTRIBUTE_PRIVILEGE, privilege);
-                return db.findObjectByProperties(PrivilegeValue.class, privilegeValueProps);
+                return db.findObjectsByProperties(PrivilegeValue.class, privilegeValueProps);
             }
         } else {
             return null;
