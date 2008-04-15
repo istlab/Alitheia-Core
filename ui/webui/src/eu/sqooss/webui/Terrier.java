@@ -73,20 +73,43 @@ public class Terrier {
      * The predefined initial account grants only a unprivileged session,
      * enough for performing a user login or user registration only.
      */
-    private static String unprivUser = "alitheia";
-    private static String unprivPass = "alitheia";
+    private static String cfgUnprivUser    = "unprivUser";
+    private static String cfgUnprivPass    = "unprivPass";
+    private static String cfgFrameworkURL  = "frameworkUrl";
 
-    /**
-     * Keeps the URL of the SQO-OSS framework, that the WebUI should connect
-     * to.
-     */
-    private String frameworkURL = "http://localhost:8088/sqooss/services/ws";
+    // Load the configuration file (if any)
+    private Configurator confParams = new Configurator("webui.cfg");
 
     /**
      * Simple constructor. Instantiates a new <code>Terrier</code> object.
      */
     public Terrier () {
         connect();
+        initConfig();
+    }
+
+    private void initConfig() {
+        boolean flush = false;
+        if ((confParams.getProperty(cfgUnprivUser) == null)) {
+            confParams.setProperty(
+                    cfgUnprivUser,
+                    "alitheia");
+            flush = true;
+        }
+        if ((confParams.getProperty(cfgUnprivPass) == null)) {
+            confParams.setProperty(
+                    cfgUnprivPass,
+                    "alitheia");
+            flush = true;
+        }
+        if ((confParams.getProperty(cfgFrameworkURL) == null)) {
+            confParams.setProperty(
+                    cfgFrameworkURL,
+                    "http://localhost:8088/sqooss/services/ws");
+            flush = true;
+        }
+        // Write the configuration state change into the configuration file
+        if (flush) confParams.flush();
     }
 
     public boolean isConnected () {
@@ -344,12 +367,18 @@ public class Terrier {
             // Try to establish a session with the logged user's account
             if ((sessionUser != null) && (sessionPass != null)) {
                 session =
-                    new WSSession(sessionUser, sessionPass, frameworkURL);
+                    new WSSession(
+                            sessionUser,
+                            sessionPass,
+                            confParams.getProperty(cfgFrameworkURL));
             }
             // Fall back to the unprivileged account
             else if (session == null) {
                 session =
-                    new WSSession(unprivUser, unprivPass, frameworkURL);
+                    new WSSession(
+                            confParams.getProperty(cfgUnprivUser),
+                            confParams.getProperty(cfgUnprivPass),
+                            confParams.getProperty(cfgFrameworkURL));
             }
         } catch (WSException wse) {
             error = "Couldn't establish a session with Alitheia.";
