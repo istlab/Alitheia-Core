@@ -47,14 +47,27 @@ import javax.servlet.http.HttpServlet;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 
+import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.service.scheduler.Scheduler;
+import eu.sqooss.service.scheduler.SchedulerStats;
 
 public class AdminWS extends HttpServlet {
     private static final long serialVersionUID = 1L;
-    private BundleContext bundleContext;
+    private BundleContext bundleContext = null;
+    private Scheduler scheduler = null;
 
     public AdminWS( BundleContext bc ) {
         bundleContext = bc;
+        ServiceReference srefCore = 
+            bc.getServiceReference(AlitheiaCore.class.getName());
+        if (srefCore != null) {
+            AlitheiaCore core = (AlitheiaCore) bc.getService(srefCore);
+            scheduler = core.getScheduler();
+        } else {
+            System.out.println("No CORE");
+        }
     }
 
     protected void doGet(HttpServletRequest request,
@@ -62,11 +75,11 @@ public class AdminWS extends HttpServlet {
                                                               IOException {
         long upTime = ManagementFactory.getRuntimeMXBean().getUptime();
 
-        response.setContentType("text/x-ini");
+        response.setContentType("text/plain");
         PrintWriter print = response.getWriter();
         print.println("online=true");
         print.println("uptime=" + upTime);
-        print.println("load=0");
+        print.println("load=" + scheduler.getSchedulerStats().getWaitingJobs());
         print.println("projects=2");
 
         int count = 0;
