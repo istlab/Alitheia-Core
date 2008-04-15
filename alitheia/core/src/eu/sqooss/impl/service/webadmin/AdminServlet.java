@@ -4,7 +4,7 @@
  *
  * Copyright 2007-2008 by the SQO-OSS consortium members <info@sqo-oss.eu>
  * Copyright 2007-2008 by Adriaan de Groot <groot@kde.org>
- *
+ * Copyright 2008 by Paul J. Adams <paul.adams@siriusit.co.uk>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -34,18 +34,23 @@
 
 package eu.sqooss.impl.service.webadmin;
 
+import eu.sqooss.core.AlitheiaCore;
+
+import eu.sqooss.impl.service.webadmin.WebAdminRenderer;
+import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.logging.LogManager;
+import eu.sqooss.service.util.Pair;
+import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.pa.PluginAdmin;
+
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
+
 import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -53,130 +58,116 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.velocity.app.VelocityEngine;
+import org.apache.velocity.Template;
+import org.apache.velocity.VelocityContext;
+
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
-import org.apache.velocity.Template;
-import org.apache.velocity.VelocityContext;
-import org.apache.velocity.app.VelocityEngine;
-
-
-import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.service.abstractmetric.AlitheiaPlugin.ConfigurationTypes;
-import eu.sqooss.service.db.DBService;
-import eu.sqooss.service.db.StoredProject;
-import eu.sqooss.service.logging.LogManager;
-import eu.sqooss.service.logging.Logger;
-import eu.sqooss.service.metricactivator.MetricActivator;
-import eu.sqooss.service.pa.PluginInfo;
-import eu.sqooss.service.pa.PluginAdmin;
-import eu.sqooss.service.scheduler.Job;
-import eu.sqooss.service.scheduler.Scheduler;
-import eu.sqooss.service.tds.InvalidRepositoryException;
-import eu.sqooss.service.tds.TDAccessor;
-import eu.sqooss.service.tds.TDSService;
-import eu.sqooss.service.updater.UpdaterService;
-import eu.sqooss.service.util.Pair;
-import eu.sqooss.service.util.StringUtils;
-
 public class AdminServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
-    private long startTime = new Date().getTime();
-
     private BundleContext bundlecontext = null;
 
-    // AlitheiaCore reference and object
-    private ServiceReference srefCore = null;
-    private AlitheiaCore sobjAlitheiaCore = null;
+    // Content tables
+    private Hashtable<String, String> dynamicContentMap = null;
+    private Hashtable<String, Pair<String, String>> staticContentMap = null;
 
-    // LogManager and Logger objects
+    // Dynamic substitutions
+    VelocityContext vc = null;
+    VelocityEngine ve = null;
+
+    // Critical logging components
     private LogManager sobjLogManager = null;
     private Logger sobjLogger = null;
 
+    private AlitheiaCore sobjAlitheiaCore = null;
+    private ServiceReference srefCore = null;
+
+    // Service objects
     private DBService sobjDB = null;
-    private TDSService sobjTDS = null;
-    private Scheduler sobjSched = null;
-    private UpdaterService sobjUpdater = null;
     private PluginAdmin sobjPluginAdmin = null;
-    private MetricActivator sobjMetricActivator = null;
 
-    private Hashtable<String,Pair<String,String>> staticContentMap;
-    private Hashtable<String,String> dynamicContentMap;
-    private Hashtable<String,String> dynamicSubstitutions;
+    public AdminServlet(BundleContext bc) {
+        // Setup the crucial components
+        bundlecontext = bc;
+        getComponents();
 
-    /**
-     * Returns a string representing the uptime of the Alitheia core
-     * in dd:hh:mm:ss format
-     */
-    private String getUptime() {
-        long remainder;
-        long timeRunning = new Date().getTime() - startTime;
+        // Create the static content map
+        staticContentMap = new Hashtable<String, Pair<String, String>>();
+        addStaticContent("/screen.css", "text/css");
+        addStaticContent("/sqo-oss.png", "image/x-png");
+        addStaticContent("/queue.png", "image/x-png");
+        addStaticContent("/uptime.png", "image/x-png");
+        addStaticContent("/greyBack.jpg", "image/x-jpg");
+        addStaticContent("/projects.png", "image/x-png");
+        addStaticContent("/logs.png", "image/x-png");
+        addStaticContent("/metrics.png", "image/x-png");
+        addStaticContent("/gear.png", "image/x-png");
+        addStaticContent("/header-repeat.png", "image/x-png");
+        addStaticContent("/add_user.png", "image/x-png");
 
-        // Get the elapsed time in days, hours, mins, secs
-        int days = new Long(timeRunning / 86400000).intValue();
-        remainder = timeRunning % 86400000;
-        int hours = new Long(remainder / 3600000).intValue();
-        remainder = remainder % 3600000;
-        int mins = new Long(remainder / 60000).intValue();
-        remainder = remainder % 60000;
-        int secs = new Long(remainder / 1000).intValue();
+        // Create the dynamic content map
+        dynamicContentMap = new Hashtable<String, String>();
+        dynamicContentMap.put("/", "index.html");
+        dynamicContentMap.put("/index", "index.html");
+        dynamicContentMap.put("/projects", "projects.html");
+        dynamicContentMap.put("/logs", "logs.html");
+        dynamicContentMap.put("/jobs", "jobs.html");
+        dynamicContentMap.put("/alljobs", "alljobs.html");
+        dynamicContentMap.put("/users", "users.html");
 
-        return String.format("%d:%02d:%02d:%02d", days, hours, mins, secs);
+        // Now the dynamic substitutions
+        vc = new VelocityContext();
+        createSubstitutions(true);
+
+        try {
+            ve = new VelocityEngine();
+            ve.setProperty("runtime.log.logsystem.class",
+                           "org.apache.velocity.runtime.log.SimpleLog4JLogSystem");
+            ve.setProperty("runtime.log.logsystem.log4j.category", 
+                           Logger.NAME_SQOOSS_WEBADMIN);
+            ve.setProperty("resource.loader","bundle");
+            ve.setProperty("bundle.resource.loader.description",
+                           "Loader from the bundle.");
+            ve.setProperty("bundle.resource.loader.class",
+                           "org.apache.velocity.runtime.resource.loader.JarResourceLoader");
+            ve.setProperty("bundle.resource.loader.path",
+                           "jar:file:eu.sqooss.alitheia.core-0.0.1.jar");
+        }
+        catch (Exception e) {
+            System.out.println(e);
+        }
     }
 
-    public void addStaticContent(String path, String type) {
-        Pair < String, String > p = new Pair < String, String > (path,type);
+    /**
+     * Add content to the static map
+     */
+    private void addStaticContent(String path, String type) {
+        Pair<String, String> p = new Pair<String, String> (path,type);
         staticContentMap.put(path, p);
     }
 
-    public AdminServlet(BundleContext bc) {
-        bundlecontext = bc;
+    /**
+     * This function retrieves all of the service components required by the AdminServlet
+     */
+    private void getComponents() {
+        srefCore = bundlecontext.getServiceReference(AlitheiaCore.class.getName());
 
-try {
-VelocityEngine ve = new org.apache.velocity.app.VelocityEngine();
-ve.setProperty( 
-    // There's actually a runtime constant for this, but
-    // that entails even more imports and manifest futzing.
-    "runtime.log.logsystem.class",
-    "org.apache.velocity.runtime.log.SimpleLog4JLogSystem" );
-ve.setProperty("runtime.log.logsystem.log4j.category", 
-    Logger.NAME_SQOOSS_WEBADMIN);
-ve.setProperty("resource.loader","bundle");
-ve.setProperty("bundle.resource.loader.description",
-   "Loader from the bundle.");
-ve.setProperty("bundle.resource.loader.class",
-   "org.apache.velocity.runtime.resource.loader.JarResourceLoader");
-ve.setProperty("bundle.resource.loader.path",
-   "jar:file:eu.sqooss.alitheia.core-0.0.1.jar");
-ve.init();
-Template t = ve.getTemplate("index.html");
-VelocityContext context = new VelocityContext();
-context.put("name", "World");
-/* now render the template into a StringWriter */
-StringWriter writer = new StringWriter();
-t.merge( context, writer );
-/* show the World */
-System.out.println( writer.toString() );
-} catch (Exception e) {
-e.printStackTrace();
-}
-
-        srefCore = bc.getServiceReference(AlitheiaCore.class.getName());
         if (srefCore != null) {
-            sobjAlitheiaCore = (AlitheiaCore) bc.getService(srefCore);
+            sobjAlitheiaCore = (AlitheiaCore) bundlecontext.getService(srefCore);
         }
         else {
-            System.out.println("No CORE");
+            System.out.println("AdminServlet: No Alitheia Core found.");
         }
 
         if (sobjAlitheiaCore != null) {
             //Get the LogManager and Logger objects
             sobjLogManager = sobjAlitheiaCore.getLogManager();
             if (sobjLogManager != null) {
-                sobjLogger = sobjLogManager.createLogger(
-                    Logger.NAME_SQOOSS_WEBADMIN);
+                sobjLogger = sobjLogManager.createLogger(Logger.NAME_SQOOSS_WEBADMIN);
             }
 
             // Get the DB Service object
@@ -185,269 +176,55 @@ e.printStackTrace();
                 sobjLogger.debug("WebAdmin got DB Service object.");
             }
 
-            // Get the TDS Service object
-            sobjTDS = sobjAlitheiaCore.getTDSService();
-            if (sobjTDS != null) {
-                sobjLogger.debug("WebAdmin got TDS Service object.");
-            }
-
-            sobjSched = sobjAlitheiaCore.getScheduler();
-            if (sobjSched != null) {
-                sobjLogger.debug("WebAdmin got Scheduler Service object.");
-            }
-
-            // Get the Updater Service object
-            sobjUpdater = sobjAlitheiaCore.getUpdater();
-            if (sobjUpdater != null) {
-                sobjLogger.debug("WebAdmin got Updater Service object.");
-            }
-
+            // Get the Plugin Administration object
             sobjPluginAdmin = sobjAlitheiaCore.getPluginManager();
             if (sobjPluginAdmin != null) {
                 sobjLogger.debug("WebAdmin got Plugin Admin object.");
             }
+        }
+    }
 
-            sobjMetricActivator = sobjAlitheiaCore.getMetricActivator();
-            if (sobjMetricActivator != null) {
-                sobjLogger.debug("WebAdmin got Metric Activator object.");
-            }
+    protected void doGet(HttpServletRequest request,
+                         HttpServletResponse response) throws ServletException,
+                                                              IOException {
+        try {
+            sobjLogger.debug("GET path=" + request.getPathInfo());
+            String query = request.getPathInfo();
             
-            Stuffer myStuffer = new Stuffer(sobjDB, sobjLogger, sobjTDS);
-            myStuffer.run();
-
-            staticContentMap = new Hashtable < String, Pair < String, String > >();
-
-            // Images and CSS
-            addStaticContent("/screen.css", "text/css");
-            addStaticContent("/sqo-oss.png", "image/x-png");
-            addStaticContent("/queue.png", "image/x-png");
-            addStaticContent("/uptime.png", "image/x-png");
-            addStaticContent("/greyBack.jpg", "image/x-jpg");
-            addStaticContent("/projects.png", "image/x-png");
-            addStaticContent("/logs.png", "image/x-png");
-            addStaticContent("/metrics.png", "image/x-png");
-            addStaticContent("/gear.png", "image/x-png");
-            addStaticContent("/header-repeat.png", "image/x-png");
-            addStaticContent("/add_user.png", "image/x-png");
-
-            // Pages
-            dynamicContentMap = new Hashtable<String,String>();
-            dynamicContentMap.put("/status", "/index.html");
-            dynamicContentMap.put("/index", "/index.html");
-            dynamicContentMap.put("/projects", "/projects.html");
-            dynamicContentMap.put("/logs", "/logs.html");
-            dynamicContentMap.put("/jobs", "/jobs.html");
-            dynamicContentMap.put("/alljobs", "/alljobs.html");
-            dynamicContentMap.put("/users", "/users.html");
-            dynamicSubstitutions = new Hashtable<String,String>();
+            // This is static content
+            if ((query != null) && (staticContentMap.containsKey(query))) {
+                sendResource(response, staticContentMap.get(query));
+            }
+            else if ((query != null) && (dynamicContentMap.containsKey(query))) {
+                sendPage(response, dynamicContentMap.get(query));
+            }
+        }
+        catch (Exception e) {
+            System.out.println(e);
         }
     }
 
-    protected String[] getServiceNames(ServiceReference[] servicerefs) {
-        if( servicerefs != null ){
-            String s, names[] = new String[servicerefs.length];
-            int i = 0;
-
-            for (ServiceReference r : servicerefs) {
-                Object clazz =
-                    r.getProperty( org.osgi.framework.Constants.OBJECTCLASS );
-                if (clazz != null) {
-                    s = StringUtils.join( (String[])clazz, ", ");
-                } else {
-                    s = "No class defined";
-                }
-
-                names[i++] = s;
-            }
-
-            return names;
-        } else {
-            return null;
-        }
+    protected void doPost(HttpServletRequest request,
+                          HttpServletResponse response) throws ServletException,
+                                                               IOException {
     }
 
     /**
-     * Creates and HTML table with information about the jobs that
-     * failed and the recorded exceptions
-     * @return
+     * Sends a resource (stored in the jar file) as a response. The mime-type
+     * is set to @p mimeType . The @p path to the resource should start
+     * with a / .
+     *
+     * Test cases:
+     *   - null mimetype, null path, bad path, relative path, path not found,
+     *   - null response
+     *
+     * TODO: How to simulate conditions that will cause IOException
      */
-    protected String renderFailedJobs() {
-        StringBuilder result = new StringBuilder();
-        Job[] jobs = sobjSched.getFailedQueue();
-        result.append("<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n");
-        result.append("\t<thead>\n");
-        result.append("\t\t<tr>\n");
-        result.append("\t\t\t<td>Job Type</td>\n");
-        result.append("\t\t\t<td>Exception type</td>\n");
-        result.append("\t\t\t<td>Exception text</td>\n");
-        result.append("\t\t\t<td>Exception backtrace</td>\n");
-        result.append("\t\t</tr>\n");
-        result.append("\t</thead>\n");
-        result.append("\t<tbody>\n");
-
-        for(Job j: jobs) {
-            result.append("\t\t<tr>\n\t\t\t<td>");
-            result.append(j.getClass().toString());
-            result.append("</td>\n\t\t\t<td>");
-            if (j.getErrorException().getClass().toString() != null) {
-                result.append(j.getErrorException().getClass().toString());
-                result.append("</td>\n\t\t\t<td>");
-            } else {
-                result.append("null");
-                result.append("</td>\n\t\t\t<td>");    
-            }
-            result.append(j.getErrorException().getMessage());
-            result.append("</td>\n\t\t\t<td>");
-            for(StackTraceElement m: j.getErrorException().getStackTrace()) {
-                result.append(m.getClassName());
-                result.append(".");
-                result.append(m.getMethodName());
-                result.append("(), (");
-                result.append(m.getFileName());
-                result.append(":");
-                result.append(m.getLineNumber());
-                result.append(")<br/>");
-            }
-
-            result.append("\t\t\t</td>\n\t\t</tr>");
-        }
-
-        result.append("\t</tbody>\n");
-        result.append("</table>");
-
-        return result.toString();
-    }
-
-    protected String renderWaitJobs() {
-        StringBuilder result = new StringBuilder();
-        Job[] jobs = sobjSched.getWaitQueue();
-        result.append("<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n");
-        result.append("\t<thead>\n");
-        result.append("\t\t<tr>\n");
-        result.append("\t\t\t<td>Queue pos</td>\n");
-        result.append("\t\t\t<td>Job Type</td>\n");
-        result.append("\t\t\t<td>Job depedencies</td>\n");
-        result.append("\t\t</tr>\n");
-        result.append("\t</thead>\n");
-        result.append("\t<tbody>\n");
-
-        int i = 0;
-        for(Job j: jobs) {
-            i++;
-            result.append("\t\t<tr>\n\t\t\t<td>");
-            result.append(i);
-            result.append("</td>\n\t\t\t<td>");
-            result.append(j.getClass().toString());
-            result.append("</td>\n\t\t\t<td>");
-            Iterator<Job> ji = j.dependencies().iterator();
-
-            while(ji.hasNext()) {
-                result.append(ji.next().getClass().toString());
-                if(ji.hasNext())
-                    result.append(",");
-            }
-            result.append("</td>\n\t\t\t<td>");
-
-            result.append("\t\t\t</td>\n\t\t</tr>");
-        }
-
-        result.append("\t</tbody>\n");
-        result.append("</table>");
-
-        return result.toString();
-    }
-
-    protected String renderJobFailStats() {
-        StringBuilder result = new StringBuilder();
-        HashMap<String,Integer> fjobs = sobjSched.getSchedulerStats().getFailedJobTypes();
-        result.append("<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n");
-        result.append("\t<thead>\n");
-        result.append("\t\t<tr>\n");
-        result.append("\t\t\t<td>Job Type</td>\n");
-        result.append("\t\t\t<td>Num Jobs Failed</td>\n");
-        result.append("\t\t</tr>\n");
-        result.append("\t</thead>\n");
-        result.append("\t<tbody>\n");
-
-        for(String key : fjobs.keySet().toArray(new String[1])) {
-            result.append("\t\t<tr>\n\t\t\t<td>");
-            result.append(key);
-            result.append("</td>\n\t\t\t<td>");
-            result.append(fjobs.get(key));
-            result.append("\t\t\t</td>\n\t\t</tr>");
-        }
-        result.append("\t</tbody>\n");
-        result.append("</table>");
-        return result.toString();
-    }
-
-    protected String renderMetrics() {
-        Collection<PluginInfo> l = sobjPluginAdmin.listPlugins();
-        if (l.isEmpty()) {
-            return "";
-        }
-
-        StringBuilder b = new StringBuilder();
-        b.append("<ul>");
-        for(PluginInfo i : l) {
-            b.append("<li>");
-            b.append("<b>" + i.toString() + "</b>");
-            b.append(renderMetricAttributes(i));
-            b.append("</li>");
-        }
-        b.append("</ul>");
-        return b.toString();
-    }
-
-    /**
-     * Creates a <ul> populated with the attributes and default values of the
-     * given MetricInfor object
-     */
-    protected String renderMetricAttributes(PluginInfo i) {
-        Collection<Pair<String, ConfigurationTypes>> attributes =  i.getAttributes();
-        if (attributes == null) {
-            return "<ul><li>This metric has no configurable attibutes.</li></ul>";
-        } else {
-            StringBuilder b = new StringBuilder();
-            b.append("<ul>");
-            for (Pair<String, ConfigurationTypes> pair : attributes) {
-                b.append("<li>Attribute: " + pair.first + " Type: " + pair.second + "</li>");
-            }
-            b.append("</ul>");
-            return b.toString();
-        }
-    }
-
-    public String renderList(String[] names) {
-        if ((names != null) && (names.length > 0)) {
-            StringBuilder b = new StringBuilder();
-            for (String s : names) {
-                b.append("\t\t\t\t\t<li>" + StringUtils.makeXHTMLSafe(s) + "</li>\n");
-            }
-
-            return b.toString();
-        } else {
-            return "\t\t\t\t\t<li>&lt;none&gt;</li>\n";
-        }
-    }
-
-    /**
-    * Sends a resource (stored in the jar file) as a response. The mime-type
-    * is set to @p mimeType . The @p path to the resource should start
-    * with a / .
-    *
-    * Test cases:
-    *   - null mimetype, null path, bad path, relative path, path not found,
-    *   - null response
-    *
-    * TODO: How to simulate conditions that will cause IOException
-    */
     protected void sendResource(HttpServletResponse response, Pair<String,String> source)
         throws ServletException, IOException {
         InputStream istream = getClass().getResourceAsStream(source.first);
         if ( istream == null ) {
-            // TODO: Is there a more specific exception?
-            throw new IOException( "Path not found: " + source.first);
+            throw new IOException("Path not found: " + source.first);
         }
 
         byte[] buffer = new byte[1024];
@@ -456,337 +233,97 @@ e.printStackTrace();
 
         response.setContentType(source.second);
         ServletOutputStream ostream = response.getOutputStream();
-        while ( (bytesRead = istream.read(buffer)) > 0 ) {
+        while ((bytesRead = istream.read(buffer)) > 0) {
             ostream.write(buffer,0,bytesRead);
             totalBytes += bytesRead;
         }
 
-        // TODO: Check that the bytes written were as many as the
-        //  file size in the JAR (how? it's an InputStream).
-        if ( sobjLogger != null ) {
+        if (sobjLogger != null) {
             sobjLogger.debug("Wrote " + totalBytes + " from " + source.first);
         }
     }
 
-    protected void sendTemplate(HttpServletResponse response, String path, Hashtable<String,String> subs)
-        throws ServletException, IOException {
-        BufferedReader istream = new BufferedReader(
-            new InputStreamReader(getClass().getResourceAsStream(path)));
-        if ( istream == null ) {
-            // TODO: Is there a more specific exception?
-            throw new IOException( "Path not found: " + path );
-        }
-
-        response.setContentType("text/html");
+    protected void sendPage(HttpServletResponse response, String path)
+        throws ServletException, IOException, Exception {
+        Template t = ve.getTemplate( path );
+        StringWriter writer = new StringWriter();
         PrintWriter print = response.getWriter();
-        while ( istream.ready() ) {
-            String line = istream.readLine().trim();
-            if ( line.startsWith("@@") && subs.containsKey(line) ) {
-                print.println(subs.get(line));
-            } else {
-                print.println(line);
-            }
-        }
-    }
 
-    private void resetSubstitutions() {
-        dynamicSubstitutions.clear();
-        dynamicSubstitutions.put("@@ABOUT","<p class='box'>This is the administrative interface.</p>");
-        dynamicSubstitutions.put("@@STATUS","The cruncher is offline.");
-        dynamicSubstitutions.put("@@LOGO","<img src='/logo' id='logo' alt='Logo' />");
-        dynamicSubstitutions.put("@@COPYRIGHT","Copyright 2007-2008 <a href=\"http://www.sqo-oss.eu/about/\">SQO-OSS Consortium Members</a>");
-        dynamicSubstitutions.put("@@GETLOGS", renderList(sobjLogManager.getRecentEntries()));
-        dynamicSubstitutions.put("@@PROJECTS", renderProjects());
-        dynamicSubstitutions.put("@@UPTIME",getUptime());
-        dynamicSubstitutions.put("@@QUEUE_LENGTH", String.valueOf(sobjSched.getSchedulerStats().getWaitingJobs()));
-        dynamicSubstitutions.put("@@JOB_EXEC", String.valueOf(sobjSched.getSchedulerStats().getRunningJobs()));
-        dynamicSubstitutions.put("@@JOB_WAIT", String.valueOf(sobjSched.getSchedulerStats().getWaitingJobs()));
-        dynamicSubstitutions.put("@@JOB_WORKTHR", String.valueOf(sobjSched.getSchedulerStats().getWorkerThreads()));
-        dynamicSubstitutions.put("@@JOB_FAILED", String.valueOf(sobjSched.getSchedulerStats().getFailedJobs()));
-        dynamicSubstitutions.put("@@JOB_TOTAL", String.valueOf(sobjSched.getSchedulerStats().getTotalJobs()));
-        dynamicSubstitutions.put("@@WAITJOBS", renderWaitJobs());
-        dynamicSubstitutions.put("@@FAILJOBS", renderFailedJobs());
-        dynamicSubstitutions.put("@@JOBFAILSTATS", renderJobFailStats());
-        dynamicSubstitutions.put("@@MENU",
-            "<ul id=\"menu\">" +
-            "<li id=\"nav-1\"><a href=\"/index\">Metrics</a></li>" +
-            "<li id=\"nav-3\"><a href=\"/projects\">Projects</a></li>" +
-            "<li id=\"nav-6\"><a href=\"/users\">Users</a></li>" +
-            "<li id=\"nav-2\"><a href=\"/logs\">Logs</a></li>" +
-            "<li id=\"nav-4\"><a href=\"/jobs\">Jobs</a></li>" +
-            "</ul>");
-        dynamicSubstitutions.put("@@METRICS", renderMetrics());
-
-        // These are composite values
-        dynamicSubstitutions.put("@@STATUS_CORE","<fieldset id=\"status\">" +
-            "<legend>Status</legend>" +
-            "<ul>" +
-            "<li class=\"uptime\">Uptime: " +
-            dynamicSubstitutions.get("@@UPTIME") +
-            "</li>" +
-            "<li class=\"queue\">Job Queue Length: " +
-            dynamicSubstitutions.get("@@QUEUE_LENGTH") +
-            "</li></ul></fieldset>");
-        dynamicSubstitutions.put("@@STATUS_JOBS","<fieldset id=\"jobs\">" +
-            "<legend>Job Info</legend>" +
-            "<table width='100%' cellspacing=0 cellpadding=3>" +
-            "<tr><td>Executing:</td><td class=\"number\">" +
-            dynamicSubstitutions.get("@@JOB_EXEC") +
-            "</td></tr>" +
-            "<tr><td>Waiting:</td><td class=\"number\">" +
-            dynamicSubstitutions.get("@@JOB_WAIT") +
-            "</td></tr>" +
-            "<tr><td>Failed:</td><td class=\"number\">" +
-            dynamicSubstitutions.get("@@JOB_FAILED") +
-            "</td></tr>" +
-            "<tr><td>Total:</td><td class=\"number\">" +
-            dynamicSubstitutions.get("@@JOB_TOTAL") +
-            "</td></tr>" +
-            "<tr class=\"newgroup\"><td>Workers:</td><td class=\"number\">" +
-            dynamicSubstitutions.get("@@JOB_WORKTHR") +
-            "</td></tr></table></fieldset>");
-        dynamicSubstitutions.put("@@OPTIONS","<fieldset id=\"options\">" +
-            "<legend>Options</legend>" +
-            "<form id=\"start\" method=\"post\" action=\"restart\">" +
-            "<p><input type=\"submit\" value=\"Restart\" /></p>" +
-            "</form>" +
-            "<form id=\"stop\" method=\"post\" action=\"stop\">" +
-            "<p><input type=\"submit\" value=\"Stop\" /></p>" +
-            "</form></fieldset>");
-
-    }
-
-    private void doServletException(HttpServletRequest request,
-        HttpServletResponse response, Throwable e)
-        throws ServletException, IOException {
+        // Do any substitutions that may be required
         response.setContentType("text/html");
-        PrintWriter print = response.getWriter();
-        print.println("<html><head><title>Alitheia Exception</title></head>");
-        print.println("<body>An exception was encountered. The message is:");
-        print.println("<blockquote>" + e.getMessage() + "</blockquote>");
-        print.println("The stack trace is:");
-        print.println("<blockquote>");
-        e.printStackTrace(print);
-        print.println("</blockquote>");
-        print.println("</body></html>");
+        t.merge(vc, writer);
+
+        print.print(writer.toString());
     }
 
-    protected void doGet(HttpServletRequest request,
-                         HttpServletResponse response) throws ServletException,
-                                                              IOException {
-        try {
-            sobjLogger.debug("GET path=" + request.getPathInfo());
-
-            String query = request.getPathInfo();
-            if (query.startsWith("/sqooss/services")) {
-                sobjLogger.warn("Web services query <" + request.getPathInfo() + "> reached the Webadmin servlet.");
-            } else if (query.startsWith("/stop")) {
-                dynamicSubstitutions.put("@@RESULTS", "<p>Alitheia Core is now shutdown.</p>");
-                dynamicSubstitutions.put("@@ACTIVE","class=\"section-1\"");
-                sendTemplate(response,"/results.html",dynamicSubstitutions);
-                // Stop the system
-                sobjLogger.info("System stopped by user request to webadmin.");
-                bundlecontext.getBundle(0).stop();
-                return;
-            } else if (query.startsWith("/restart")) {
-                dynamicSubstitutions.put("@@RESULTS", "<p>Alitheia Core is now restarting. Please wait.</p>");
-                dynamicSubstitutions.put("@@ACTIVE","class=\"section-1\"");
-                startTime = new Date().getTime();
-                sobjLogger.warn("BOGUS system restart by user request to webadmin.");
-                sendTemplate(response,"/results.html",dynamicSubstitutions);
-                return;
-            }
-
-            if ( (query != null) && (staticContentMap.containsKey(query)) ) {
-                sendResource(response, staticContentMap.get(query));
-            } else {
-                resetSubstitutions();
-                if ( (query != null) && dynamicContentMap.containsKey(query) ) {
-                    sendTemplate(response,dynamicContentMap.get(query),dynamicSubstitutions);
-                } else {
-                    sendTemplate(response,"/index.html",dynamicSubstitutions);
-                }
-            }
-        } catch (Exception e) {
-            doServletException(request,response,e);
-        }
-    }
-
-    private String renderProjects() {
-        List<StoredProject> projects = sobjDB.doHQL("from StoredProject");
-        Collection<PluginInfo> metrics = sobjPluginAdmin.listPlugins();
-        
-        if (projects == null || metrics == null) {
-            return null;
+    private void createSubstitutions(boolean initialRun) {
+        if (initialRun) {
+            // Simple string substitutions
+            vc.put("COPYRIGHT", "Copyright 2007-2008 <a href=\"http://www.sqo-oss.eu/about/\">SQO-OSS Consortium Members</a>");
+            vc.put("LOGO", "<img src='/logo' id='logo' alt='Logo' />");
+            vc.put("MENU",
+                   "<ul id=\"menu\">" +
+                   "<li id=\"nav-1\"><a href=\"/index\">Metrics</a></li>" +
+                   "<li id=\"nav-3\"><a href=\"/projects\">Projects</a></li>" +
+                   "<li id=\"nav-6\"><a href=\"/users\">Users</a></li>" +
+                   "<li id=\"nav-2\"><a href=\"/logs\">Logs</a></li>" +
+                   "<li id=\"nav-4\"><a href=\"/jobs\">Jobs</a></li>" +
+                   "</ul>");
+            vc.put("OPTIONS","<fieldset id=\"options\">" +
+                   "<legend>Options</legend>" +
+                   "<form id=\"start\" method=\"post\" action=\"restart\">" +
+                   "<p><input type=\"submit\" value=\"Restart\" /></p>" +
+                   "</form>" +
+                   "<form id=\"stop\" method=\"post\" action=\"stop\">" +
+                   "<p><input type=\"submit\" value=\"Stop\" /></p>" +
+                   "</form></fieldset>");
         }
 
-        StringBuilder s = new StringBuilder();
-        
-        s.append("<table border=\"1\">");
-        s.append("<tr>");
-        s.append("<td><b>Project</b></td>");
-        
-        for(PluginInfo m : metrics) {
-            s.append("<td><b>");
-            s.append(m.getPluginName());
-            s.append("</b></td>");
-        }
-        s.append("</tr>");
-       
-        for (int i=0; i<projects.size(); i++) {
-            s.append("<tr>");
-            StoredProject p = (StoredProject) projects.get(i);
-            s.append("<td><font size=\"-2\"><b>");
-            s.append(p.getName());
-            s.append("</b> ([id=");
-            s.append(p.getId());
-            s.append("]) <br/>Update:");
-            for (String updTarget: UpdaterService.UpdateTarget.toStringArray()) {
-                s.append("<a href=\"http://localhost:8088/updater?project=");
-                s.append(p.getName());
-                s.append("&target=");
-                s.append(updTarget);
-                s.append("\" title=\"Tell the updater to check for new data in this category.\">");
-                s.append(updTarget);
-                s.append("</a>&nbsp");
-            }
-            s.append("<br/>Sites: <a href=\"");
-            s.append(p.getWebsite());
-            s.append("\">Website</a>&nbsp;Alitheia Reports");
-            s.append("</font></td>");
-            for(PluginInfo m : metrics) {
-                s.append("<td>");
-                s.append(sobjMetricActivator.getLastAppliedVersion(
-                        sobjPluginAdmin.getPlugin(m), p));
-                s.append("</td>");
-            }
-            s.append("</tr>");
-        }
-        s.append("</table>");
-        return s.toString();
-    }
+        // Function-based substitutions
+        //vc.put("STATUS", someFunction); FIXME
+        vc.put("GETLOGS", WebAdminRenderer.renderList(sobjLogManager.getRecentEntries()));
+        //vc.put("PROJECTS", renderProjects(sobjDB.doHQL("from StoredProject"), sobjPluginAdmin.listPlugins()));
+        //vc.put("UPTIME",getUptime());
+        //vc.put("QUEUE_LENGTH", String.valueOf(sobjSched.getSchedulerStats().getWaitingJobs()));
+        //vc.put("JOB_EXEC", String.valueOf(sobjSched.getSchedulerStats().getRunningJobs()));
+        //vc.put("JOB_WAIT", String.valueOf(sobjSched.getSchedulerStats().getWaitingJobs()));
+        //vc.put("JOB_WORKTHR", String.valueOf(sobjSched.getSchedulerStats().getWorkerThreads()));
+        //vc.put("JOB_FAILED", String.valueOf(sobjSched.getSchedulerStats().getFailedJobs()));
+        //vc.put("JOB_TOTAL", String.valueOf(sobjSched.getSchedulerStats().getTotalJobs()));
+        //vc.put("WAITJOBS", renderWaitJobs());
+        //vc.put("FAILJOBS", renderFailedJobs());
+        //vc.put("JOBFAILSTATS", renderJobFailStats());
+        //vc.put("METRICS", renderMetrics());
 
-    private void addProject(HttpServletRequest request) {
-        resetSubstitutions();
-
-        final String tryAgain = "<p><a href=\"/projects\">Try again</a>.</p>";
-        final String returnToList = "<p><a href=\"/projects\">Try again</a>.</p>";
-
-        String name = request.getParameter("name");
-        String website = request.getParameter("website");
-        String contact = request.getParameter("contact");
-        String bts = request.getParameter("bts");
-        String mail = request.getParameter("mail");
-        String scm = request.getParameter("scm");
-
-        // Avoid missing-entirely kinds of parameters.
-        if ( (name == null) ||
-            (website == null) ||
-            (contact == null) ||
-          /*  (bts == null) || FIXME: For now, BTS and Mailing lists can be empty
-            (mail == null) || */
-            (scm == null) ) {
-            dynamicSubstitutions.put("@@RESULTS","<p>Add project failed because some of the required information was missing.</p>" + tryAgain);
-            return;
-        }
-
-        // Avoid adding projects with empty names or SVN.
-        if (name.trim().length() == 0 || scm.trim().length() == 0) {
-            dynamicSubstitutions.put("@@RESULTS","<p>Add project failed because the project name or Subversion repository were missing.</p>" + tryAgain);
-            return;
-        }
-
-        if (sobjDB != null) {
-            StoredProject p = new StoredProject();
-            p.setName(name);
-            p.setWebsite(website);
-            p.setContact(contact);
-            p.setBugs(bts);
-            p.setRepository(scm);
-            p.setMail(mail);
-
-            sobjDB.addRecord(p);
-
-            /* Run a few checks before actually storing the project */
-
-            //1. Duplicate project
-            HashMap<String, Object> pname = new HashMap<String, Object>();
-            pname.put("name", (Object)p.getName());
-            if(sobjDB.findObjectsByProperties(StoredProject.class, pname).size() > 1) {
-                //Duplicate project, remove
-                sobjDB.deleteRecord(sobjDB.findObjectById(StoredProject.class, p.getId()));
-                sobjLogger.warn("A project with the same name already exists");
-                dynamicSubstitutions.put("@@RESULTS","<p>ERROR: A project" +
-                        " with the same name (" + p.getName() + ") already exists. " +
-                        "Project not added.</p>" + tryAgain);
-                return;
-            }
-
-            //2. Add accessor and try to access project resources
-            sobjTDS.addAccessor(p.getId(), p.getName(), p.getBugs(),
-                    p.getMail(), p.getRepository());
-            TDAccessor a = sobjTDS.getAccessor(p.getId());
-
-            try {
-                a.getSCMAccessor().getHeadRevision();
-                //FIXME: fix this when we have a proper bug accessor
-                if(bts != null) {
-                    //Bug b = a.getBTSAccessor().getBug(1);
-                }
-                if(mail != null) {
-                    //FIXME: fix this when the TDS supports returning
-                    // list information
-                    //a.getMailAccessor().getNewMessages(0);
-                }
-            } catch (InvalidRepositoryException e) {
-                sobjLogger.warn("Error accessing repository. Project not added");
-                dynamicSubstitutions.put("@@RESULTS","<p>ERROR: Can not access " +
-                                "repository: &lt;" + p.getRepository() + "&gt;," +
-                                " project not added.</p>" + tryAgain);
-                //Invalid repository, remove and remove accessor
-                sobjDB.deleteRecord(sobjDB.findObjectById(StoredProject.class, p.getId()));
-                sobjTDS.releaseAccessor(a);
-                return;
-            }
-
-            sobjTDS.releaseAccessor(a);
-
-            // 3. Call the updater and check if it starts
-            if (sobjUpdater.update(p, UpdaterService.UpdateTarget.ALL, null)) {
-                sobjLogger.info("Added a new project <" + name + "> with ID " +
-                        p.getId());
-                dynamicSubstitutions.put("@@RESULTS","<p>New project added successfully.</p>" +
-                    returnToList);
-            }
-            else {
-                sobjLogger.warn("The updater failed to start while adding project");
-                sobjDB.deleteRecord(sobjDB.findObjectById(StoredProject.class, p.getId()));
-                dynamicSubstitutions.put("@@RESULTS","<p>ERROR: The updater failed " +
-                        "to start while adding project. Project was not added.</p>" +
-                        tryAgain);
-            }
-        }
-    }
-
-    protected void doPost(HttpServletRequest request,
-                          HttpServletResponse response) throws ServletException,
-                                                               IOException {
-        try {
-            sobjLogger.debug("POST path=" + request.getPathInfo());
-            if ("/addproject".equals(request.getPathInfo())) {
-                addProject(request);
-                // addProject() has filled in the substitutions by now
-                dynamicSubstitutions.put("@@ACTIVE","class=\"section-3\"");
-                sendTemplate(response,"/results.html",dynamicSubstitutions);
-            } else {
-                doGet(request,response);
-            }
-        } catch (Exception e) {
-            doServletException(request,response,e);
-        }
+        // These are composite substitutions
+        //vc.put("STATUS_CORE","<fieldset id=\"status\">" +
+        //             "<legend>Status</legend>" +
+        //             "<ul>" +
+        //             "<li class=\"uptime\">Uptime: " +
+        //                                  dynamicSubstitutions.get("UPTIME") +
+        //             "</li>" +
+        //             "<li class=\"queue\">Job Queue Length: " +
+        //                                  dynamicSubstitutions.get("QUEUE_LENGTH") +
+        //                                  "</li></ul></fieldset>");
+        //vc.put("STATUS_JOBS","<fieldset id=\"jobs\">" +
+        //             "<legend>Job Info</legend>" +
+        //             "<table width='100%' cellspacing=0 cellpadding=3>" +
+        //             "<tr><td>Executing:</td><td class=\"number\">" +
+        //                                  dynamicSubstitutions.get("JOB_EXEC") +
+        //             "</td></tr>" +
+        //             "<tr><td>Waiting:</td><td class=\"number\">" +
+        //                                  dynamicSubstitutions.get("JOB_WAIT") +
+        //             "</td></tr>" +
+        //             "<tr><td>Failed:</td><td class=\"number\">" +
+        //                                  dynamicSubstitutions.get("JOB_FAILED") +
+        //             "</td></tr>" +
+        //             "<tr><td>Total:</td><td class=\"number\">" +
+        //                                  dynamicSubstitutions.get("JOB_TOTAL") +
+        //             "</td></tr>" +
+        //             "<tr class=\"newgroup\"><td>Workers:</td><td class=\"number\">" +
+        //                                  dynamicSubstitutions.get("JOB_WORKTHR") +
+        //                                  "</td></tr></table></fieldset>");
     }
 }
 
-
 // vi: ai nosi sw=4 ts=4 expandtab
-//

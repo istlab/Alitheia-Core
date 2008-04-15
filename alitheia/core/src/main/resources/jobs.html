@@ -13,45 +13,45 @@
         <img src="sqo-oss.png" alt="SQO-OSS Logo"/>
       </div>
       <div id="main">
-        @@MENU
+        $MENU
 	<div id="contents">
 	<h2>Job statistics</h2>
 		<ul>
           <li>Jobs Executing:
-          	@@JOB_EXEC
+          	$JOB_EXEC
           </li>
           <li>
           Jobs Waiting:
-          	@@JOB_WAIT
+          	$JOB_WAIT
           </li>
           <li>
           Failed Jobs:
-          	@@JOB_FAILED
+          	$JOB_FAILED
           </li>
           <li>
           Worker Threads:
-          	@@JOB_WORKTHR
+          	$JOB_WORKTHR
           </li>
           <li>
           Total Jobs:
-          	@@JOB_TOTAL
+          	$JOB_TOTAL
           </li>
         </ul>
         <a href="alljobs">Job details</a>
 	<h2>Job failure statistics</h2>
 		<div id="bundles">
-    	@@JOBFAILSTATS
+    	$JOBFAILSTATS
     	</div>
 	</div>
       </div>
       <div id="sidebar">
-        @@STATUS_CORE
-        @@STATUS_JOBS
-        @@OPTIONS
+        $STATUS_CORE
+        $STATUS_JOBS
+        $OPTIONS
       </div>
       <div id="footer">
         <p>
-        @@COPYRIGHT
+        $COPYRIGHT
         </p>
       </div>
     </div>
