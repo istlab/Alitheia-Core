@@ -1,19 +1,38 @@
 <plugins>
   <metric name="eu.sqooss.impl.metrics.wc.WcImplementation">
     <autoinstall>true</autoinstall>
+    
     <barray>
       <values>3</values>
       <values>14</values>
       <values>115</values>
     </barray>
+    
     <sarray>
       <values>one</values>
       <values>one two</values>
       <values>one two three</values>
     </sarray>
+
+    <extensions>
+      <foo>1</foo>
+      <bar>true</bar>
+      <baz>test</baz>
+    </extensions>
   </metric>
 
   <metric name="eu.sqooss.impl.metrics.productivity.ProductivityMetricImpl">
+    <autoinstall>false</autoinstall>
+    
+    <extensions>
+      <par8>1</par8>
+      <par2>true</par2>
+      <par4>test</par4>
+      <par1>true</par1>
+    </extensions>
+  </metric>
+
+  <metric name="another.metric.class.name">
     <autoinstall>false</autoinstall>
   </metric>
 </plugins>
