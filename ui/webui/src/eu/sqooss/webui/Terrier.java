@@ -69,15 +69,12 @@ public class Terrier {
     private String sessionUser;
     private String sessionPass;
 
-    /**
-     * The predefined initial account grants only a unprivileged session,
-     * enough for performing a user login or user registration only.
-     */
+    // Various configuration parameters
     private static String cfgUnprivUser    = "unprivUser";
     private static String cfgUnprivPass    = "unprivPass";
     private static String cfgFrameworkURL  = "frameworkUrl";
 
-    // Load the configuration file (if any)
+    // Load the WebUI's configuration file (if any)
     private Configurator confParams = new Configurator("webui.cfg");
 
     /**
@@ -88,6 +85,11 @@ public class Terrier {
         connect();
     }
 
+    /**
+     * This function will create a configuration when one doesn't exist,
+     * and/or fill the base configuration parameters (with pre-defined values)
+     * when these can't be found in the configuration file.
+     */
     private void initConfig() {
         boolean flush = false;
         if ((confParams.getProperty(cfgUnprivUser) == null)) {
@@ -362,6 +364,13 @@ public class Terrier {
         return debug;
     }
 
+    /**
+     * Connects to the SQO-OSS framework with the specified user account.
+     * Prior successful user login, this function will use the system account.
+     * 
+     * Note: The system account grants only an unprivileged session, but
+     * enough for performing a user login or user registration.
+     */
     private void connect() {
         try {
             // Try to establish a session with the logged user's account
@@ -372,7 +381,7 @@ public class Terrier {
                             sessionPass,
                             confParams.getProperty(cfgFrameworkURL));
             }
-            // Fall back to the unprivileged account
+            // Fall back to the system account
             else if (session == null) {
                 session =
                     new WSSession(
