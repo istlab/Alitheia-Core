@@ -17,7 +17,7 @@ public class MetricInfo {
     private String[]    objectClass     = null;
     private String[]    metricType      = null;
     public boolean      installed       = false;
-    private Collection   attributes      = null;
+    private Collection<eu.sqooss.service.util.Pair<String,eu.sqooss.service.abstractmetric.Metric.ConfigurationTypes>>   attributes      = null;
 
     /**
      * @param bundleID the bundleID to set
@@ -152,7 +152,7 @@ public class MetricInfo {
         return b.toString();
     }
 
-    public void setAttributes(Collection attributes) {
+    public void setAttributes(Collection<eu.sqooss.service.util.Pair<String,eu.sqooss.service.abstractmetric.Metric.ConfigurationTypes>> attributes) {
         this.attributes = attributes;
     }
 
