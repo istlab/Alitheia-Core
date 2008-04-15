@@ -44,53 +44,72 @@ import org.hibernate.Session;
 public interface DBService {
     /**
      * A generic query method to retrieve a single DAObject subclass using its identifier.
-     * The return value is parameterized to the actual type of DAObject queried so no downcast is needed.
+     * The return value is parameterized to the actual type of DAObject queried
+     * so no downcast is needed.
      * @param daoClass the actual class of the DAObject. 
      * @param id the DAObject's identifier
-     * @return the DAOObject if a match for the class and the identifier was found in the database, or null otherwise
+     * @return the DAOObject if a match for the class and the identifier was found in the database,
+     *          or null otherwise
      */
     public <T extends DAObject> T findObjectById(Class<T> daoClass, long id);
     
     /**
      * A generic query method to retrieve a single DAObject subclass using its identifier.
-     * The return value is parameterized to the actual type of DAObject queried so no downcast is needed.
+     * The return value is parameterized to the actual type of DAObject queried
+     * so no downcast is needed.
      * The caller is responsible for having a transaction initialized before calling the method,
      * and committing it or rolling it back afterwards.
      * @param s the session to use for this transaction
      * @param daoClass the actual class of the DAObject. 
      * @param id the DAObject's identifier
-     * @return the DAOObject if a match for the class and the identifier was found in the database, or null otherwise
+     * @return the DAOObject if a match for the class and the identifier was found in the database,
+     *          or null otherwise
      */
     public <T extends DAObject> T findObjectById(Session s, Class<T> daoClass, long id);
 
     /**
-     * A generic query method to retrieve a list of DAObjects of a same subclass matching a set of properties.
-     * The returned list contains the objects matching <b>all</b> of the properties specified. It is parameterized to the actual type of DAObject queried so no downcast is needed.
-     * The map key should be the property name as a string, and the value should be a value with a matching type for the property.
-     * For example, if a class has a String property called name (ie. a getName()/setName() accessor pair),
-     * then you would use "name" as the map key and a String object as the map value.
-     * If any property in the map isn't valid (either an unknown name or a value of the wrong type) the call will fail and an empty list will be returned.
+     * A generic query method to retrieve a list of DAObjects of a same subclass
+     * matching a set of properties.
+     * The returned list contains the objects matching <b>all</b> of the properties specified.
+     * It is parameterized to the actual type of DAObject queried so no downcast is needed.
+     * The map key should be the property name as a string, and the value should be a value
+     * with a matching type for the property. For example, if a class has a String property
+     * called name (ie. a getName()/setName() accessor pair), then you would use "name" as
+     * the map key and a String object as the map value.
+     * If any property in the map isn't valid (either an unknown name or a value of the wrong type)
+     * the call will fail and an empty list will be returned.
      * It uses its own session.
      * 
      * @param daoClass the actual class of the DAObjects
-     * @param properties a map of property name/value pairs corresponding to properties of the DAObject subclass
-     * @return a list of DAObjects matching the class and the set of properties, possibly empty if no match was found in the database or if the properties map contains invalid entries
+     * @param properties a map of property name/value pairs corresponding to properties
+     *          of the DAObject subclass
+     * @return a list of DAObjects matching the class and the set of properties,
+     *          possibly empty if no match was found in the database or if the properties map
+     *          contains invalid entries
      */
     public <T extends DAObject> List<T> findObjectsByProperties(Class<T> daoClass, Map<String,Object> properties );
     
     /**
-     * A generic query method to retrieve a list of DAObjects of a same subclass matching a set of properties.
-     * The returned list contains the objects matching <b>all</b> of the properties specified. It is parameterized to the actual type of DAObject queried so no downcast is needed.
-     * The map key should be the property name as a string, and the value should be a value with a matching type for the property.
-     * For example, if a class has a String property called name (ie. a getName()/setName() accessor pair),
-     * then you would use "name" as the map key and a String object as the map value.
-     * If any property in the map isn't valid (either an unknown name or a value of the wrong type) the call will fail and an empty list will be returned.
+     * A generic query method to retrieve a list of DAObjects of a same subclass
+     * matching a set of properties.
+     * The returned list contains the objects matching <b>all</b> of the properties specified.
+     * It is parameterized to the actual type of DAObject queried so no downcast is needed.
+     * The map key should be the property name as a string, and the value should be a value
+     * with a matching type for the property. For example, if a class has a String property
+     * called name (ie. a getName()/setName() accessor pair), then you would use "name" as
+     * the map key and a String object as the map value.
+     * If any property in the map isn't valid (either an unknown name or a value of the wrong type)
+     * the call will fail and an empty list will be returned.
      * The caller is responsible for having a transaction initialized before calling the method,
      * and committing it or rolling it back afterwards.
+     * 
      * @param s the session to use for this transaction
      * @param daoClass the actual class of the DAObjects
-     * @param properties a map of property name/value pairs corresponding to properties of the DAObject subclass
-     * @return a list of DAObjects matching the class and the set of properties, possibly empty if no match was found in the database or if the properties map contains invalid entries
+     * @param properties a map of property name/value pairs corresponding to properties
+     *          of the DAObject subclass
+     * @return a list of DAObjects matching the class and the set of properties,
+     *          possibly empty if no match was found in the database or if the properties map
+     *          contains invalid entries
      */
     public <T extends DAObject> List<T> findObjectsByProperties(Session s, Class<T> daoClass, Map<String,Object> properties );
 
@@ -99,8 +118,7 @@ public interface DBService {
      * This should initialize any tables that are needed for storage of project information.
      * 
      * @param record the record to persist into the database
-     * @return True, if record insertion succeeded. False + log message
-     *         otherwise
+     * @return True, if record insertion succeeded. False + log message otherwise
      */
     public boolean addRecord(DAObject record);
 
@@ -124,8 +142,7 @@ public interface DBService {
      * so if any insertion fails then no record will be added.
      * 
      * @param records the list of records to persist into the database
-     * @return True, if all the record insertions succeeded. False + log message
-     *         otherwise
+     * @return True, if all the record insertions succeeded. False + log message otherwise
      */
     public boolean addRecords(List<DAObject> records);
 
@@ -139,10 +156,51 @@ public interface DBService {
      * 
      * @param s the session to use for this transaction
      * @param records the list of records to persist into the database
-     * @return True, if all the record insertions succeeded. False + log message
-     *         otherwise
+     * @return True, if all the record insertions succeeded. False + log message otherwise
      */
     public boolean addRecords(Session s, List<DAObject> records);
+
+    /**
+     * Update an existing record in the system database, using the
+     * default database session.
+     *
+     * @param record the record to update in the database
+     */
+    public boolean updateRecord(DAObject record);
+    
+    /**
+     * Update an existing record in the system database, using a
+     * separate database session.
+     * The caller is responsible for having a transaction initialized before calling the method,
+     * and committing it or rolling it back afterwards.
+     *
+     * @param s session to use for this transaction
+     * @param record the record to update in the database
+     */
+    public boolean updateRecord(Session s, DAObject record);
+    
+    /**
+     * Update multiple existing records in the system database, using the default database session.
+     * The results will be committed only if all the updates are successful,
+     * so if any update fails then no record will be updated.
+     * 
+     * @param records the list of records to update in the database
+     * @return True, if all the record updates succeeded. False + log message otherwise
+     */
+    public boolean updateRecords(List<DAObject> records);
+    
+    /**
+     * Update multiple existing records in the system database, using a separate database session.
+     * The results will be committed only if all the updates are successful,
+     * so if any update fails then no record will be updated.
+     * The caller is responsible for having a transaction initialized before calling the method,
+     * and committing it or rolling it back afterwards.
+     * 
+     * @param s the session to use for this transaction
+     * @param records the list of records to update in the database
+     * @return True, if all the record updates succeeded. False + log message otherwise
+     */
+    public boolean updateRecords(Session s, List<DAObject> records);
 
     /**
      * Delete an existing record from the system database, using the
@@ -169,8 +227,7 @@ public interface DBService {
      * so if any deletion fails then no record will be deleted.
      * 
      * @param records the list of records to remove from the database
-     * @return True, if all the record deletions succeeded. False + log message
-     *         otherwise
+     * @return True, if all the record deletions succeeded. False + log message otherwise
      */
     public boolean deleteRecords(List<DAObject> records);
     
@@ -183,8 +240,7 @@ public interface DBService {
      * 
      * @param s the session to use for this transaction
      * @param records the list of records to remove from the database
-     * @return True, if all the record deletions succeeded. False + log message
-     *         otherwise
+     * @return True, if all the record deletions succeeded. False + log message otherwise
      */
     public boolean deleteRecords(Session s, List<DAObject> records);
     

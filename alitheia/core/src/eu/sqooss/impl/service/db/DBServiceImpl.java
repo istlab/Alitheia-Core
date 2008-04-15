@@ -60,6 +60,14 @@ import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.impl.service.logging.LoggerImpl;
 
+/**
+ * @author Romain
+ *
+ */
+/**
+ * @author Romain
+ *
+ */
 public class DBServiceImpl implements DBService {
 
     private static final String DB_DRIVER_PROPERTY = "eu.sqooss.db.driver";
@@ -437,6 +445,9 @@ public class DBServiceImpl implements DBService {
         return (List<T>) doHQL( s, "from " + daoClass.getName() + " as foo " + whereClause, parameterMap );
     }
 
+    /* (non-Javadoc)
+     * @see eu.sqooss.service.db.DBService#doSQL(java.lang.String)
+     */
     public List doSQL(String sql) {
         Session s = getSession(this);
         Transaction tx = null;
@@ -456,6 +467,9 @@ public class DBServiceImpl implements DBService {
         }
     }
 
+    /* (non-Javadoc)
+     * @see eu.sqooss.service.db.DBService#doSQL(org.hibernate.Session, java.lang.String)
+     */
     public List doSQL(Session s, String sql) {
         try {
             return s.createSQLQuery(sql).list();
@@ -465,6 +479,9 @@ public class DBServiceImpl implements DBService {
         }
     }
 
+    /* (non-Javadoc)
+     * @see eu.sqooss.service.db.DBService#doSQL(java.lang.String, java.util.Map)
+     */
     public List doSQL(String sql, Map<String, Object> params) {
         Session s = getSession(this);
         Transaction tx = null;
@@ -484,6 +501,9 @@ public class DBServiceImpl implements DBService {
         }
     }
 
+    /* (non-Javadoc)
+     * @see eu.sqooss.service.db.DBService#doSQL(org.hibernate.Session, java.lang.String, java.util.Map)
+     */
     public List doSQL(Session s, String sql, Map<String, Object> params) {
         try {
             Query query = s.createSQLQuery(sql);
@@ -499,14 +519,23 @@ public class DBServiceImpl implements DBService {
         }
     }
 
+    /* (non-Javadoc)
+     * @see eu.sqooss.service.db.DBService#doHQL(java.lang.String)
+     */
     public List doHQL(String hql) {
         return doHQL(hql, null, null);
     }
 
+    /* (non-Javadoc)
+     * @see eu.sqooss.service.db.DBService#doHQL(java.lang.String, java.util.Map)
+     */
     public List doHQL(String hql, Map<String, Object> params) {
         return doHQL(hql, params, null);
     }
 
+    /* (non-Javadoc)
+     * @see eu.sqooss.service.db.DBService#doHQL(java.lang.String, java.util.Map, java.util.Map)
+     */
     public List doHQL(String hql, Map<String, Object> params,
             Map<String, Collection> collectionParams) {
         Session s = getSession(this);
@@ -527,14 +556,23 @@ public class DBServiceImpl implements DBService {
         }
     }
 
+    /* (non-Javadoc)
+     * @see eu.sqooss.service.db.DBService#doHQL(org.hibernate.Session, java.lang.String)
+     */
     public List doHQL(Session s, String hql) {
         return doHQL(s, hql, null, null);
     }
 
+    /* (non-Javadoc)
+     * @see eu.sqooss.service.db.DBService#doHQL(org.hibernate.Session, java.lang.String, java.util.Map)
+     */
     public List doHQL(Session s, String hql, Map<String, Object> params) {
         return doHQL(s, hql, params, null);
     }
 
+    /* (non-Javadoc)
+     * @see eu.sqooss.service.db.DBService#doHQL(org.hibernate.Session, java.lang.String, java.util.Map, java.util.Map)
+     */
     public List doHQL(Session s, String hql, Map<String, Object> params,
             Map<String, Collection> collectionParams) {
         try {
@@ -559,6 +597,9 @@ public class DBServiceImpl implements DBService {
         }
     }
 
+    /* (non-Javadoc)
+     * @see eu.sqooss.service.db.DBService#getSession(java.lang.Object)
+     */
     public Session getSession(Object holder) {
         Session s = null;
         try {
@@ -569,10 +610,16 @@ public class DBServiceImpl implements DBService {
         return s;
     }
 
+    /* (non-Javadoc)
+     * @see eu.sqooss.service.db.DBService#returnSession(org.hibernate.Session)
+     */
     public void returnSession(Session s) {
         sm.returnSession(s);
     }
 
+    /* (non-Javadoc)
+     * @see eu.sqooss.service.db.DBService#addRecord(eu.sqooss.service.db.DAObject)
+     */
     public boolean addRecord(DAObject record) {
         Session s = getSession(this);
         try {
@@ -582,12 +629,39 @@ public class DBServiceImpl implements DBService {
         }
     }
 
+    /* (non-Javadoc)
+     * @see eu.sqooss.service.db.DBService#addRecord(org.hibernate.Session, eu.sqooss.service.db.DAObject)
+     */
     public boolean addRecord(Session s, DAObject record) {
         ArrayList<DAObject> tmpList = new ArrayList<DAObject>(1);
         tmpList.add(record);
         return addRecords(s, tmpList);
     }
 
+    /* (non-Javadoc)
+     * @see eu.sqooss.service.db.DBService#updateRecord(eu.sqooss.service.db.DAObject)
+     */
+    public boolean updateRecord(DAObject record) {
+        Session s = getSession(this);
+        try {
+            return updateRecord(s, record);            
+        } finally {
+            returnSession(s);            
+        }
+    }
+
+    /* (non-Javadoc)
+     * @see eu.sqooss.service.db.DBService#updateRecord(org.hibernate.Session, eu.sqooss.service.db.DAObject)
+     */
+    public boolean updateRecord(Session s, DAObject record) {
+        ArrayList<DAObject> tmpList = new ArrayList<DAObject>(1);
+        tmpList.add(record);
+        return updateRecords(s, tmpList);
+    }
+
+    /* (non-Javadoc)
+     * @see eu.sqooss.service.db.DBService#deleteRecord(eu.sqooss.service.db.DAObject)
+     */
     public boolean deleteRecord(DAObject record) {
         Session s = getSession(this);
         try {
@@ -597,6 +671,9 @@ public class DBServiceImpl implements DBService {
         }
     }
 
+    /* (non-Javadoc)
+     * @see eu.sqooss.service.db.DBService#deleteRecord(org.hibernate.Session, eu.sqooss.service.db.DAObject)
+     */
     public boolean deleteRecord(Session s, DAObject record) {
         ArrayList<DAObject> tmpList = new ArrayList<DAObject>(1);
         tmpList.add(record);
@@ -606,7 +683,6 @@ public class DBServiceImpl implements DBService {
     /* (non-Javadoc)
      * @see eu.sqooss.service.db.DBService#addRecords(java.util.List)
      */
-
     public boolean addRecords(List<DAObject> records) {
         Session s = getSession(this);
         try {
@@ -619,7 +695,6 @@ public class DBServiceImpl implements DBService {
     /* (non-Javadoc)
      * @see eu.sqooss.service.db.DBService#addRecords(org.hibernate.Session, java.util.List)
      */
-
     public boolean addRecords(Session s, List<DAObject> records) {
 
         if( s == null )
@@ -651,9 +726,53 @@ public class DBServiceImpl implements DBService {
     }
 
     /* (non-Javadoc)
+     * @see eu.sqooss.service.db.DBService#updateRecords(java.util.List)
+     */
+    public boolean updateRecords(List<DAObject> records) {
+        Session s = getSession(this);
+        try {
+            return updateRecords(s, records);
+        } finally {
+            returnSession(s);
+        }
+    }
+
+    /* (non-Javadoc)
+     * @see eu.sqooss.service.db.DBService#updateRecords(org.hibernate.Session, java.util.List)
+     */
+    public boolean updateRecords(Session s, List<DAObject> records) {
+
+        if( s == null )
+            return false;
+
+        Transaction tx = null;
+        DAObject lastRecord = null;
+        try {
+            tx = s.beginTransaction();
+            for (DAObject record : records) {
+                lastRecord = record;
+                s.update(record);               
+            }
+            lastRecord = null;
+            tx.commit();
+            return true;
+        } catch( TransactionException e ) {
+            logger.error("Transaction error: " + e.getMessage());
+            return false;
+        } catch (HibernateException e) {
+            if (lastRecord != null) {
+                logger.error("Failed to update object "
+                        + "[" + lastRecord.getClass().getName() + ":" + lastRecord.getId() + "]"
+                        + " from the database: " + e.getMessage());
+            }
+            logExceptionAndRollbackTransaction(e,tx);
+            return false;
+        }
+    }
+
+    /* (non-Javadoc)
      * @see eu.sqooss.service.db.DBService#deleteRecords(java.util.List)
      */
-
     public boolean deleteRecords(List<DAObject> records) {
         Session s = getSession(this);
         try {
@@ -666,7 +785,6 @@ public class DBServiceImpl implements DBService {
     /* (non-Javadoc)
      * @see eu.sqooss.service.db.DBService#deleteRecords(org.hibernate.Session, java.util.List)
      */
-
     public boolean deleteRecords(Session s, List<DAObject> records) {
 
         if( s == null )
