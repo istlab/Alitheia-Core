@@ -87,4 +87,27 @@ public class Pair<T1 extends Comparable<T1>, T2 extends Comparable<T2>> implemen
         
         return (firstComp != 0) ? firstComp : second.compareTo(other.second);
     }
+
+    public String toString() {
+        StringBuilder b = new StringBuilder();
+        b.append("(");
+        if (first != null) {
+            b.append(first.toString());
+        } else {
+            b.append("null");
+        }
+        b.append(",");
+        if (second != null) {
+            b.append(second.toString());
+        } else {
+            b.append("null");
+        }
+        b.append(")");
+
+        return b.toString();
+    }
 }
+
+
+// vi: ai nosi sw=4 ts=4 expandtab
+
