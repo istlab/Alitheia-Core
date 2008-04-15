@@ -15,10 +15,10 @@ public class PluginInfo {
     private String      bundleName      = null;
     private Long        serviceID       = new Long(-1);
     private ServiceReference serviceRef = null;
-    private String      metricName      = null;
-    private String      metricVersion   = null;
+    private String      pluginName      = null;
+    private String      pluginVersion   = null;
     private String[]    objectClass     = null;
-    private String[]    metricType      = null;
+    private String[]    pluginType      = null;
     public boolean      installed       = false;
     private Collection<Pair<String,AlitheiaPlugin.ConfigurationTypes>> attributes = null;
 
@@ -68,28 +68,28 @@ public class PluginInfo {
      * @param metricName the metricName to set
      */
     public void setMetricName(String metricName) {
-        this.metricName = metricName;
+        this.pluginName = metricName;
     }
 
     /**
      * @return the metricName
      */
     public String getMetricName() {
-        return metricName;
+        return pluginName;
     }
 
     /**
      * @param metricVersion the metricVersion to set
      */
     public void setMetricVersion(String metricVersion) {
-        this.metricVersion = metricVersion;
+        this.pluginVersion = metricVersion;
     }
 
     /**
      * @return the metricVersion
      */
     public String getMetricVersion() {
-        return metricVersion;
+        return pluginVersion;
     }
 
     /**
@@ -113,19 +113,19 @@ public class PluginInfo {
     /**
      * @return the metricClass
      */
-    public String[] getMetricType() {
-        return metricType;
+    public String[] getPluginType() {
+        return pluginType;
     }
 
     /**
      * @param metricClass the metricClass to set
      */
-    public void setMetricType(String[] objectType) {
-        this.metricType = objectType;
+    public void setPluginType(String[] objectType) {
+        this.pluginType = objectType;
     }
 
     public boolean isType(String class_name) {
-        return StringUtils.contains(metricType, class_name);
+        return StringUtils.contains(pluginType, class_name);
     }
 
     /**
@@ -148,7 +148,7 @@ public class PluginInfo {
         b.append(" ");
         b.append(getMetricVersion());
         b.append(" [");
-        b.append(StringUtils.join(getMetricType(),","));
+        b.append(StringUtils.join(getPluginType(),","));
         b.append(" : ");
         b.append(StringUtils.join(getObjectClass(),","));
         b.append("]");

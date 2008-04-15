@@ -151,7 +151,7 @@ public class PACommandProvider implements CommandProvider {
                         }
                     }
 
-                    String[] metricType = nextMetric.getMetricType();
+                    String[] metricType = nextMetric.getPluginType();
                     if ((metricType != null) && (metricType.length > 0)) {
                         if (metricType.length == 1) {
                             ci.print("  Metric type\t\t: ");

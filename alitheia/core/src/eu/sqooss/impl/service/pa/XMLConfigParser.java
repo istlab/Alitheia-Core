@@ -54,7 +54,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import eu.sqooss.service.pa.ConfigUtils;
-import eu.sqooss.service.pa.MetricConfig;
+import eu.sqooss.service.pa.PluginConfig;
 
 public class XMLConfigParser implements ConfigUtils{
     private static final String METRIC_ELEMENT  = "metric";
@@ -74,7 +74,7 @@ public class XMLConfigParser implements ConfigUtils{
     // Holds the DOM parser for the supplied configuration file
     private Document config_parser = null;
 
-    private static class MetricConfigImpl implements MetricConfig {
+    private static class MetricConfigImpl implements PluginConfig {
 
         // A storage for string based configuration parameters
         private Hashtable<String, String> stringValues =
@@ -290,16 +290,16 @@ public class XMLConfigParser implements ConfigUtils{
         }
     }
 
-    public HashMap<String, MetricConfig> getMetricsConfiguration() {
-        HashMap<String, MetricConfig> metrics_config =
-            new HashMap<String, MetricConfig>();
+    public HashMap<String, PluginConfig> getMetricsConfiguration() {
+        HashMap<String, PluginConfig> metrics_config =
+            new HashMap<String, PluginConfig>();
 
         if (config_parser != null) {
             NodeList configuration =
                 config_parser.getElementsByTagName(METRIC_ELEMENT);
             for (int i = 0; i < configuration.getLength(); i++) {
                 Element metric_element = (Element) configuration.item(i);
-                MetricConfig next_metric_config =
+                PluginConfig next_metric_config =
                     new MetricConfigImpl(metric_element);
 
                 metrics_config.put(

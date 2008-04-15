@@ -100,7 +100,6 @@ public class MetricActivatorImpl implements MetricActivator {
     public void syncMetric(AlitheiaPlugin m, StoredProject sp) {
         PluginInfo mi = pa.getMetricInfo(m);
         
-        
     }
 
     public <T extends DAObject> void syncMetrics(Class<T> clazz,

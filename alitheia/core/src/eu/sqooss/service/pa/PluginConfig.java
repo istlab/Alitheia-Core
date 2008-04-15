@@ -38,7 +38,7 @@ import java.util.Set;
  * MetricConfig defines a default interface for classes that stores the
  *  configuration set of a single unnamed metric.
  */
-public interface MetricConfig {
+public interface PluginConfig {
 
     /************************************************************************
      * OBLIGATORY CONFIGURATION KEYS
