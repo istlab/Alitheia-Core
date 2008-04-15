@@ -135,6 +135,13 @@ public class StoredProject extends DAObject {
         this.mailUrl = url;
     }
 
+    public static int getProjectCount() {
+        DBService dbs = CoreActivator.getDBService();
+        List l = dbs.doSQL("SELECT COUNT(*) FROM STORED_PROJECT");
+        System.out.println(l);
+        return 0;
+    }
+
     public static StoredProject getProjectByName(String name) {
         StoredProject project = null;
         DBService dbs = CoreActivator.getDBService();

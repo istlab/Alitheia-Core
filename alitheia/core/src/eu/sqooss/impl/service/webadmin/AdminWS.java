@@ -52,6 +52,7 @@ import org.osgi.framework.ServiceReference;
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.scheduler.SchedulerStats;
+import eu.sqooss.service.db.StoredProject;
 
 public class AdminWS extends HttpServlet {
     private static final long serialVersionUID = 1L;
@@ -80,7 +81,7 @@ public class AdminWS extends HttpServlet {
         print.println("online=true");
         print.println("uptime=" + upTime);
         print.println("load=" + scheduler.getSchedulerStats().getWaitingJobs());
-        print.println("projects=2");
+        print.println("projects=" + StoredProject.getProjectCount());
 
         int count = 0;
         if (bundleContext != null) {
