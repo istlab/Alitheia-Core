@@ -46,6 +46,7 @@
         <mapping resource="eu/sqooss/service/db/Metric.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/MetricType.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/Plugin.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/PluginConfiguration.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/ProjectFile.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/ProjectVersion.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/StoredProject.hbm.xml"/>

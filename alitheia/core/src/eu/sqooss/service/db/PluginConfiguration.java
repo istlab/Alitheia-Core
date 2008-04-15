@@ -33,75 +33,34 @@
 
 package eu.sqooss.service.db;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-
-import eu.sqooss.impl.service.CoreActivator;
-import eu.sqooss.service.db.DAObject;
-
-public class Plugin extends DAObject{ 
-    private String name;
-    private Date installdate;
-    private String version;
-    private String description;
-    private boolean active;
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Date getInstalldate() {
-        return installdate;
-    }
-
-    public void setInstalldate(Date installdate) {
-        this.installdate = installdate;
-    }
+public class PluginConfiguration extends DAObject {
+    private String key;
+    private String value;
+    private String type;
+    private Plugin plugin;
     
-    public String getVersion() {
-        return version;
+    public String getKey() {
+        return key;
     }
-
-    public void setVersion(String version) {
-        this.version = version;
+    public void setKey(String key) {
+        this.key = key;
     }
-
-    public String getDescription() {
-        return description;
+    public String getValue() {
+        return value;
     }
-
-    public void setDescription(String description) {
-        this.description = description;
+    public void setValue(String value) {
+        this.value = value;
     }
-
-    public boolean isActive() {
-        return active;
+    public String getType() {
+        return type;
     }
-
-    public void setActive(boolean active) {
-        this.active = active;
+    public void setType(String type) {
+        this.type = type;
     }
-    
-    public static Plugin getPlugin(String name) {
-        DBService db = CoreActivator.getDBService();
-        HashMap<String, Object> s = new HashMap<String, Object>();
-        s.put("name", name);
-        return db.findObjectsByProperties(Plugin.class, s).get(0);
-        
+    public Plugin getPlugin() {
+        return plugin;
     }
-    
-    public static List<Metric> getSupportedMetrics(Plugin p) {
-        DBService db = CoreActivator.getDBService();
-        HashMap<String, Object> s = new HashMap<String, Object>();
-        s.put("plugin", p);
-        return (List<Metric>)db.doHQL("from Metric me where me.plugin=:plugin", s);
-    }   
+    public void setPlugin(Plugin p) {
+        this.plugin = p;
+    }
 }
-
-//vi: ai nosi sw=4 ts=4 expandtab
-
