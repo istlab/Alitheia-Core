@@ -57,6 +57,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.service.abstractmetric.Metric.ConfigurationTypes;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.LogManager;
@@ -361,11 +362,17 @@ public class AdminServlet extends HttpServlet {
      * given MetricInfor object
      */
     protected String renderMetricAttributes(MetricInfo i) {
-        Collection attributes =  i.getAttributes();
+        Collection<Pair<String, ConfigurationTypes>> attributes =  i.getAttributes();
         if (attributes == null) {
             return "<ul><li>This metric has no configurable attibutes.</li></ul>";
         } else {
-            return "<p>Arrrgh! Heeere be attributes. Now walk my plank!</p><ul><li>There are attribu</li></ul>";
+            StringBuilder b = new StringBuilder();
+            b.append("<ul>");
+            for (Pair<String, ConfigurationTypes> pair : attributes) {
+                b.append("<li>Attribute: " + pair.first + "Type: " + pair.second + "</li>");
+            }
+            b.append("</ul>");
+            return b.toString();
         }
     }
 
