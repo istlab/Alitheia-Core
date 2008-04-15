@@ -34,7 +34,6 @@
 package eu.sqooss.impl.service.tds;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.OutputStream;
 
 import org.tmatesoft.svn.core.SVNCommitInfo;
@@ -84,7 +83,6 @@ public class CheckoutEditor implements ISVNEditor {
     }
 
     public void openDir(String path, long revision) {
-        repoDir = path;
         logger.info("Server changed to directory " + path);
     }
 
@@ -154,6 +152,7 @@ public class CheckoutEditor implements ISVNEditor {
     }
 
     public void closeDir() {
+    	logger.info("Server left the last directory.");
     }
 
     public void deleteEntry(String path, long revision) {
