@@ -230,15 +230,12 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
         return userManager;
     }
 
-    private boolean createSecurityConfiguration(String userName, String userPassword,
-            String groupDescription, String privilege, String privilegeValue,
-            String serviceUrl) {
-        
-        User user = userManager.getUser(userName);
-        if ((user == null) ||
-                (!user.getPassword().equals(userManager.getHash(userPassword)))) {
-            return false;
-        } else {
+    /**
+     * @see eu.sqooss.service.security.SecurityManager#createSecurityConfiguration(java.lang.String, java.lang.String, java.lang.String, java.lang.String)
+     */
+    public boolean createSecurityConfiguration(String groupDescription,
+            String privilege, String privilegeValue, String serviceUrl) {
+
             Group userGroup = null;
             eu.sqooss.service.db.Privilege userPrivilege = null;
             eu.sqooss.service.db.PrivilegeValue userPrivilegeValue = null;
@@ -251,7 +248,7 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
                 }
             }
             if (userGroup == null) {
-                userGroup = groupManager.createGroup(groupDescription);
+                return false;
             }
             eu.sqooss.service.db.Privilege[] privileges = privilegeManager.getPrivileges();
             for (eu.sqooss.service.db.Privilege priv : privileges) {
@@ -285,12 +282,70 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
             if (userServiceUrl == null) {
                 userServiceUrl = serviceUrlManager.createServiceUrl(serviceUrl);
             }
-            return (groupManager.addUserToGroup(userGroup.getId(), user.getId()) &&
-                    groupManager.addPrivilegeToGroup(userGroup.getId(),
-                            userServiceUrl.getId(), userPrivilegeValue.getId()));
+            if (groupManager.addPrivilegeToGroup(userGroup.getId(),
+                    userServiceUrl.getId(), userPrivilegeValue.getId())) {
+                return true;
+            } else {
+                //clean if possible
+                privilegeManager.deletePrivilegeValue(userPrivilegeValue.getId());
+                privilegeManager.deletePrivilege(userPrivilege.getId());
+                serviceUrlManager.deleteServiceUrl(userServiceUrl.getId());
+                return false;
+            }
 
-        }
+    }
+    
+    /**
+     * @see eu.sqooss.service.security.SecurityManager#deleteSecurityConfiguration(java.lang.String, java.lang.String, java.lang.String, java.lang.String)
+     */
+    public boolean deleteSecurityConfiguration(String groupDescription,
+            String privilege, String privilegeValue, String serviceUrl) {
         
+            Group userGroup = null;
+            eu.sqooss.service.db.Privilege userPrivilege = null;
+            eu.sqooss.service.db.PrivilegeValue userPrivilegeValue = null;
+            ServiceUrl userServiceUrl = null;
+            Group[] groups = groupManager.getGroups();
+            for (Group group : groups) {
+                if (groupDescription.equals(group.getDescription())) {
+                    userGroup = group;
+                    break;
+                }
+            }
+            eu.sqooss.service.db.Privilege[] privileges = privilegeManager.getPrivileges();
+            for (eu.sqooss.service.db.Privilege priv : privileges) {
+                if (privilege.equals(priv.getDescription())) {
+                    userPrivilege = priv;
+                    break;
+                }
+            }
+            eu.sqooss.service.db.PrivilegeValue[] privilegeValues = privilegeManager.getPrivilegeValues(
+                    userPrivilege.getId());
+            for (eu.sqooss.service.db.PrivilegeValue privValue : privilegeValues) {
+                if (privilegeValue.equals(privValue.getValue())) {
+                    userPrivilegeValue = privValue;
+                    break;
+                }
+            }
+            ServiceUrl[] serviceUrls = serviceUrlManager.getServiceUrls();
+            for (ServiceUrl url : serviceUrls) {
+                if (serviceUrl.equals(url.getUrl())) {
+                    userServiceUrl = url;
+                    break;
+                }
+            }
+            if ((userGroup == null) || (userPrivilege == null)
+                    || (userPrivilegeValue == null) || (userServiceUrl == null)) {
+                return false;
+            } else {
+                boolean result = groupManager.deletePrivilegeFromGroup(userGroup.getId(),
+                        userServiceUrl.getId(), userPrivilegeValue.getId());
+                //clean if possible
+                privilegeManager.deletePrivilegeValue(userPrivilegeValue.getId());
+                privilegeManager.deletePrivilege(userPrivilege.getId());
+                serviceUrlManager.deleteServiceUrl(userServiceUrl.getId());
+                return result;
+            }
     }
     
     private boolean checkPermissionPrivileges(String resourceUrl, Dictionary<String, String> privileges, String userName, String password) {
@@ -370,10 +425,31 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
                 }
             } else {
                 defaultUser = userManager.createUser(userName, userPassword, userEmail);
-                if (!createSecurityConfiguration(userName, userPassword, userGroup, Privilege.ACTION.toString(),
-                        PrivilegeValue.WRITE.toString(), URL_SQOOSS_SECURITY)) {
-                    logger.error("The permissions of the default security user are not set!");
+                Group defaultUserGroup = null;
+                Group[] groups = groupManager.getGroups();
+                for (Group group : groups) {
+                    if (userGroup.equals(group.getDescription())) {
+                        defaultUserGroup = group;
+                        break;
+                    }
                 }
+                if (defaultUserGroup == null) {
+                    defaultUserGroup = groupManager.createGroup(userGroup);
+                }
+                if (groupManager.addUserToGroup(defaultUserGroup.getId(), defaultUser.getId())) {
+                    if (createSecurityConfiguration(userGroup, Privilege.ACTION.toString(),
+                            PrivilegeValue.WRITE.toString(), URL_SQOOSS_SECURITY)) {
+                        return;
+                    } else {
+                        logger.error("The permissions of the default security user are not set!");
+                    }
+                } else {
+                    logger.error("The default user isn't created!");
+                }
+                //clean if possible
+                groupManager.deleteUserFromGroup(defaultUserGroup.getId(), defaultUser.getId());
+                userManager.deleteUser(defaultUser.getId());
+                groupManager.deleteGroup(defaultUserGroup.getId());
             }
         }
     }

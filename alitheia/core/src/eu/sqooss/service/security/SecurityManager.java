@@ -87,6 +87,31 @@ public interface SecurityManager {
      */
     public ServiceUrlManager getServiceUrlManager();
     
+    /**
+     * This method creates a new security configuration.
+     * If some of the arguments doesn't exist then they are created.
+     * @param groupDescription
+     * @param privilege
+     * @param privilegeValue
+     * @param serviceUrl
+     * @return <code>true</code> if the configuration is created,
+     * <code>false</code> otherwise
+     */
+    public boolean createSecurityConfiguration(String groupDescription,
+            String privilege, String privilegeValue, String serviceUrl);
+    
+    /**
+     * This method deletes the security configuration.
+     * @param groupDescription
+     * @param privilege
+     * @param privilegeValue
+     * @param serviceUrl
+     * @return <code>true</code> if the configuration is deleted,
+     * <code>false</code> otherwise
+     */
+    public boolean deleteSecurityConfiguration(String groupDescription,
+            String privilege, String privilegeValue, String serviceUrl);
+
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
