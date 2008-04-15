@@ -138,7 +138,18 @@ public class StoredProject extends DAObject {
     public static int getProjectCount() {
         DBService dbs = CoreActivator.getDBService();
         List l = dbs.doSQL("SELECT COUNT(*) FROM STORED_PROJECT");
-        System.out.println(l);
+        if (l == null) {
+            return 0;
+        }
+        Object i = l.get(0);
+        if (i == null) {
+            return 0;
+        }
+        Integer p = (Integer)i;
+        if (p != null) {
+            return p;
+        }
+        // That's borked
         return 0;
     }
 
