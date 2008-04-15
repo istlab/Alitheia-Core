@@ -122,6 +122,7 @@ $(eval $(call rejar_template,org/apache/ws/commons,schema,1.2.0))
 $(eval $(call rejar_template,org/apache,derby,10.3.2.1,cp org/apache/derby/10.3.2.1/derbyLocale*.jar tmp))
 $(eval $(call rejar_template,org/apache,log4j,1.2.15))
 $(eval $(call rejar_template,org/apache,neethi,2.0.0))
+$(eval $(call rejar_template,org/apache,velocity,1.5,$(MAKE) extra-velocity))
 $(eval $(call rejar_template,org/apache,wsdl4j,1.6.1))
 $(eval $(call rejar_template,org/codehaus,stax2,3.0.1))
 $(eval $(call rejar_template,org,dom4j,1.6.1))
@@ -135,7 +136,13 @@ extra-hibernate :
 	cp org/objectweb/asm/1.5.3/asm-1.5.3.jar tmp/org.objectweb.asm-1.5.3.jar
 	cp org/objectweb/asm/attrs/1.5.3/attrs-1.5.3.jar tmp/org.objectweb.asm.attrs-1.5.3.jar
 	cp org/antlr/2.7.6/antlr-2.7.6.jar tmp/
-	
+
+extra-velocity :
+	cp org/apache/commons/collections/3.2/collections-3.2.jar tmp/
+	cp org/apache/commons/lang/2.4/lang-2.4.jar tmp/
+	cp org/apache/jakarta/oro/2.0.8/oro-2.0.8.jar tmp/
+
+
 $(eval $(call install_template,javax/saaj,api,1.3.0))
 $(eval $(call install_template,org/apache/muse,complete,2.2.0))
 $(eval $(call install_template,org/apache/muse/osgi/soa,axis2,1.0.0))

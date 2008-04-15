@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Vendor: Apache Software Foundation
+Bundle-Name: Apache Velocity
+Bundle-Version: 1.5
+Bundle-SymbolicName: org.apache.velocity
+Bundle-ClassPath: org.apache.velocity-1.5.jar,
+  collections-3.2.jar,
+  lang-2.4.jar,
+  oro-2.0.8.jar
+Export-Package: org.apache.velocity;version="1.5"
