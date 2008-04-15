@@ -33,7 +33,9 @@
 
 package eu.sqooss.impl.metrics.skeleton;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.ArrayList;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -42,15 +44,14 @@ import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.lib.result.Result;
 import eu.sqooss.metrics.skeleton.Skeleton;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
-import eu.sqooss.service.db.Metric;
+import eu.sqooss.service.abstractmetric.Metric;
 import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.scheduler.Scheduler;
+import eu.sqooss.service.util.Pair;
+
 
 public class SkeletonImplementation extends AbstractMetric implements Skeleton {
-
-    List<Metric> supportedMetrics;
-    
     public SkeletonImplementation(BundleContext bc) {
         super(bc);        
     }
@@ -89,13 +90,28 @@ public class SkeletonImplementation extends AbstractMetric implements Skeleton {
             ServiceReference serviceRef = null;
             serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
             Scheduler s = ((AlitheiaCore) bc.getService(serviceRef)).getScheduler();
-
             s.enqueue(w);
         } catch (Exception e) {
             log.error("Could not schedule "+ w.getClass().getName() + 
                     " for project file: " + ((ProjectFile)a).getFileName());
         }
     }
+
+    public Collection<Pair<String,Metric.ConfigurationTypes>>
+        getConfigurationSchema() {
+        System.out.println("Strange type errors can occur here.");
+        Pair<String,Metric.ConfigurationTypes> p0 = new Pair<String,Metric.ConfigurationTypes>( new String("funky-count"),Metric.ConfigurationTypes.INTEGER);
+        Pair<String,Metric.ConfigurationTypes> p1 = new Pair<String,Metric.ConfigurationTypes>( new String("is-funky"),Metric.ConfigurationTypes.BOOLEAN);
+        Pair<String,Metric.ConfigurationTypes> p2 = new Pair<String,Metric.ConfigurationTypes>( new String("funky-name"),Metric.ConfigurationTypes.STRING);
+
+        Collection<Pair<String,Metric.ConfigurationTypes>> c = new ArrayList<Pair<String,Metric.ConfigurationTypes>>(3);
+        c.add(p0);
+        c.add(p1);
+        c.add(p2);
+
+        return c;
+    }
 }
 
-//vi: ai nosi sw=4 ts=4 expandtab
+// vi: ai nosi sw=4 ts=4 expandtab
+
