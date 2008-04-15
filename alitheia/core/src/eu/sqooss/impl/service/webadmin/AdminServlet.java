@@ -369,7 +369,7 @@ public class AdminServlet extends HttpServlet {
             StringBuilder b = new StringBuilder();
             b.append("<ul>");
             for (Pair<String, ConfigurationTypes> pair : attributes) {
-                b.append("<li>Attribute: " + pair.first + "Type: " + pair.second + "</li>");
+                b.append("<li>Attribute: " + pair.first + " Type: " + pair.second + "</li>");
             }
             b.append("</ul>");
             return b.toString();
