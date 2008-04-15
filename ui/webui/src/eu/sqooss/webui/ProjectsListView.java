@@ -51,7 +51,7 @@ public class ProjectsListView extends ListView {
     private long totalProjects = 0;
 
     public ProjectsListView () {
-        
+
     }
 
     public void setCurrentProject (Project project ) {
@@ -63,17 +63,26 @@ public class ProjectsListView extends ListView {
     }
 
     public void setProjectId(String projectId) {
-        if ((projectId == null) || (terrier == null)) return;
+        if ((terrier == null) || (projectId == null)) {
+            return;
+        }
+
+        if ("none".equals(projectId)) {
+            this.projectId = 0L;
+            setCurrentProject(null);
+        }
 
         Long pid = null;
         try {
             pid = new Long(projectId);
             this.projectId = pid;
-            setCurrentProject(terrier.getProject(pid));
         }
         catch (NumberFormatException ex){
+            this.projectId = 0L;
+            setCurrentProject(null);
             return;
         }
+        setCurrentProject(terrier.getProject(pid));
     }
 
     public Long getProjectId() {
@@ -82,7 +91,7 @@ public class ProjectsListView extends ListView {
 
     /**
      * Checks if this object stores information for at least one project.
-     * 
+     *
      * @return true, if one or more projects are stored, otherwise false
      */
     public boolean hasProjects() {
@@ -103,7 +112,7 @@ public class ProjectsListView extends ListView {
         if (currentProjects != null) {
             if (currentProjects.size() > 0) {
                 html.append("\n<!-- Projects -->");
-                html.append("\n<ul>");
+                html.append("\n<ul class=\"projectslist\">");
                 for (Project p: currentProjects) {
                     html.append(
                             "\n\t<li>"

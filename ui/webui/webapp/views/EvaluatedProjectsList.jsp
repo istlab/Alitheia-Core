@@ -25,13 +25,15 @@ ProjectsListView.retrieveData(terrier);
 if (ProjectsListView.hasProjects()) {
     // Generate the HTML content dispaying all evaluated projects
     String projects = ProjectsListView.getHtml();
-    
+
     Project selectedProject = ProjectsListView.getCurrentProject();
     if (selectedProject != null) {
         out.println("<p />Selected:");
         out.println("<strong>" + selectedProject.getName() + "</strong>");
+        out.println("<span class=\"forget\"><a href=\".?pid=none\">(forget)</a></span>");
+
         out.println(selectedProject.getInfo());
-        
+
         // Display the number of files in the selected project version
         // TODO: The files number should be cached in the Project object,
         //       instead of calling the Terrier each time.
@@ -82,6 +84,7 @@ if (ProjectsListView.hasProjects()) {
                     + selectedProject.getFirstVersion());
             }
         }
+        out.println("<div style=\"margin-bottom: 20px;\"></div>");
     }
     out.println(projects);
 }
