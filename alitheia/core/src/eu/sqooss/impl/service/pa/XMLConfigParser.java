@@ -290,7 +290,7 @@ public class XMLConfigParser implements ConfigUtils{
         }
     }
 
-    public HashMap<String, PluginConfig> getMetricsConfiguration() {
+    public HashMap<String, PluginConfig> getPluginConfiguration() {
         HashMap<String, PluginConfig> metrics_config =
             new HashMap<String, PluginConfig>();
 

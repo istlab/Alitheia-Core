@@ -47,7 +47,7 @@ public interface PluginAdmin {
 
     /** The Constant METRICS_CLASS shall be used as a filter when searching
      * for registered metric services. */
-    public final static String METRICS_CLASS = "eu.sqooss.impl.metrics.*";
+    public final static String PLUGIN_CLASS = "eu.sqooss.impl.metrics.*";
 
     /**
      * Returns a collection containing information about all metrics services
@@ -55,7 +55,7 @@ public interface PluginAdmin {
      *
      * @return the list of all metrics currently registered in the framework
      */
-    public Collection<PluginInfo> listMetrics();
+    public Collection<PluginInfo> listPlugins();
     
     /**
      * Returns the metric info object for a specific metric
@@ -63,14 +63,14 @@ public interface PluginAdmin {
      * @param m The metric to return info about
      * @return Information that the system has about a specific metric
      */
-    public PluginInfo getMetricInfo(AlitheiaPlugin m);
+    public PluginInfo getPluginInfo(AlitheiaPlugin m);
     
     /**
      * Get the metric interface from a metric object object 
      * @param m
      * @return The metric interface
      */
-    public AlitheiaPlugin getMetric(PluginInfo m);
+    public AlitheiaPlugin getPlugin(PluginInfo m);
 
     /**
      * Get the list of metrics that have (sub-)interfaces for the given
@@ -82,7 +82,7 @@ public interface PluginAdmin {
      * @return Collection of services references. May be null
      *          if no such interfaces exist.
      */
-    public ServiceReference[] listMetricProviders(Class<?> o);
+    public ServiceReference[] listPluginProviders(Class<?> o);
     
     /**
      * Calls the install() method of the metric object provided from a metric
@@ -92,7 +92,7 @@ public interface PluginAdmin {
      *
      * @return true, if successful; false otherwise
      */
-    public boolean installMetric(Long service_ID);
+    public boolean installPlugin(Long service_ID);
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

@@ -118,8 +118,8 @@ class SourceUpdater extends Job {
         LRUMap dirCache = new LRUMap(3000);
         
         // get a new list of metrics
-        versionMetrics = core.getPluginManager().listMetricProviders(ProjectVersion.class);
-        fileMetrics = core.getPluginManager().listMetricProviders(ProjectFile.class);
+        versionMetrics = core.getPluginManager().listPluginProviders(ProjectVersion.class);
+        fileMetrics = core.getPluginManager().listPluginProviders(ProjectFile.class);
 
         logger.info("Running source update for project " + project.getName());
         Session s = dbs.getSession(this);

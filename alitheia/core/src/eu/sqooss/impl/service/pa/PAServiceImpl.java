@@ -79,15 +79,15 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
 
     /* ===[ Constants: Service search filters ]=========================== */
 
-    private static final String SREF_FILTER_METRIC =
-        "(" + Constants.OBJECTCLASS + "=" + PluginAdmin.METRICS_CLASS + ")";
+    private static final String SREF_FILTER_PLUGIN =
+        "(" + Constants.OBJECTCLASS + "=" + PluginAdmin.PLUGIN_CLASS + ")";
 
     /* ===[ Constants: Common log messages ]============================== */
 
     private static final String NO_MATCHING_SERVICES =
         "No matching services were found!";
-    private static final String NOT_A_METRIC =
-        "Not a metric service!";
+    private static final String NOT_A_PLUGIN =
+        "Not a plugin service!";
     private static final String INVALID_FILTER_SYNTAX =
         "Invalid filter syntax!";
     private static final String CANT_GET_SOBJ =
@@ -101,11 +101,11 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
     // Store our parent's bundle context here
     private BundleContext bc;
 
-    // Keeps a list of registered metric services, indexed by service ID
+    // Keeps a list of registered plugin services, indexed by service ID
     private HashMap<Long, PluginInfo> registeredPlugins =
         new HashMap<Long, PluginInfo>();
 
-    // Holds the current set of metrics configurations, indexed by class name
+    // Holds the current set of plugins configurations, indexed by class name
     private HashMap<String, PluginConfig> pluginConfigurations =
         new HashMap<String, PluginConfig>();
 
@@ -125,24 +125,24 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
         configReader = new XMLConfigParser(
                 configDir + "plugins.xml",
                 configDir + "plugins.xsd");
-        // ... and retrieve all available metrics configurations
+        // ... and retrieve all available plugins configurations
         if (configReader != null) {
-            pluginConfigurations = configReader.getMetricsConfiguration();
+            pluginConfigurations = configReader.getPluginConfiguration();
         }
         logger.debug("Done reading from file " + configDir + "plugins.xml");
 
-        // Collect information about pre-existing metric services
-        this.collectMetricsInfo();
+        // Collect information about pre-existing plugin services
+        this.collectPluginInfo();
 
         // Attach this object as a listener for metric services
         try {
-            bc.addServiceListener(this, SREF_FILTER_METRIC);
+            bc.addServiceListener(this, SREF_FILTER_PLUGIN);
         } catch (InvalidSyntaxException e) {
             logger.error(INVALID_FILTER_SYNTAX);
         }
 
         // Register an extension to the Equinox console, in order to
-        // provide commands for managing metric services
+        // provide commands for managing plugin services
         bc.registerService(
                 CommandProvider.class.getName(),
                 new PACommandProvider(this) ,
@@ -151,122 +151,122 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
     }
 
     /**
-     * Constructs a MetricInfo object, from the available information
-     * regarding the selected metric service reference
+     * Constructs a PluginInfo object, from the available information
+     * regarding the selected plugin service reference
      *
-     * @param srefMetric the service reference object
+     * @param srefPlugin the service reference object
      *
      * @return a MetricInfo object containing the extracted metric
      * information
      */
-    private PluginInfo getMetricInfo (ServiceReference srefMetric) {
-        if (srefMetric == null) {
+    private PluginInfo getPluginInfo (ServiceReference srefPlugin) {
+        if (srefPlugin == null) {
             logger.debug("Got a null service reference, ignoring.");
             return null;
         }
 
-        PluginInfo metricInfo = new PluginInfo();
+        PluginInfo pluginInfo = new PluginInfo();
 
-        // Set the metric's service ID and service reference
-        metricInfo.setServiceID(
-                (Long) srefMetric.getProperty(Constants.SERVICE_ID));
-        metricInfo.setServiceRef(srefMetric);
+        // Set the plugin's service ID and service reference
+        pluginInfo.setServiceID(
+                (Long) srefPlugin.getProperty(Constants.SERVICE_ID));
+        pluginInfo.setServiceRef(srefPlugin);
 
         // Set the class name(s) of the object(s) used in the
         // service registration
-        String[] metric_classes =
-            (String[]) srefMetric.getProperty(Constants.OBJECTCLASS);
-        metricInfo.setObjectClass(metric_classes);
+        String[] plugin_classes =
+            (String[]) srefPlugin.getProperty(Constants.OBJECTCLASS);
+        pluginInfo.setObjectClass(plugin_classes);
 
         // Set the ID and name of the bundle which has registered
         // this service
-        metricInfo.setBundleID(
-                srefMetric.getBundle().getBundleId());
-        metricInfo.setBundleName(
-                srefMetric.getBundle().getSymbolicName());
-        logger.debug("Getting info for metric " + metricInfo.getBundleName());
+        pluginInfo.setBundleID(
+                srefPlugin.getBundle().getBundleId());
+        pluginInfo.setBundleName(
+                srefPlugin.getBundle().getSymbolicName());
+        logger.debug("Getting info for plugin " + pluginInfo.getBundleName());
 
         // SQO-OSS related info fields
-        AlitheiaPlugin metricObject = (AlitheiaPlugin) bc.getService(srefMetric);
-        if (metricObject != null) {
-            metricInfo.setMetricName(metricObject.getName());
-            metricInfo.setMetricVersion(metricObject.getVersion());
-            metricInfo.setAttributes(metricObject.getConfigurationSchema());
+        AlitheiaPlugin pluginObject = (AlitheiaPlugin) bc.getService(srefPlugin);
+        if (pluginObject != null) {
+            pluginInfo.setPluginName(pluginObject.getName());
+            pluginInfo.setPluginVersion(pluginObject.getVersion());
+            pluginInfo.setAttributes(pluginObject.getConfigurationSchema());
 
-            // Retrieve all object types that this metric can calculate
+            // Retrieve all object types that this plugin can calculate
             Vector<String> metricType = new Vector<String>();
-            if (metricObject instanceof ProjectFileMetric) {
+            if (pluginObject instanceof ProjectFileMetric) {
                 metricType.add(ProjectFile.class.getName());
             }
-            if (metricObject instanceof ProjectVersionMetric) {
+            if (pluginObject instanceof ProjectVersionMetric) {
                 metricType.add(ProjectVersion.class.getName());
             }
-            if (metricObject instanceof StoredProjectMetric) {
+            if (pluginObject instanceof StoredProjectMetric) {
                 metricType.add(StoredProject.class.getName());
             }
-            if (metricObject instanceof FileGroupMetric) {
+            if (pluginObject instanceof FileGroupMetric) {
                 metricType.add(FileGroup.class.getName());
             }
             if (!metricType.isEmpty()) {
                 String[] types = new String[metricType.size()];
                 types = metricType.toArray(types);
-                metricInfo.setPluginType(types);
+                pluginInfo.setPluginType(types);
             }
         }
 
-        return metricInfo;
+        return pluginInfo;
     }
 
     /**
      * Collects information about all registered metrics
      */
-    private void collectMetricsInfo() {
-        logger.debug("Collecting metrics info.");
+    private void collectPluginInfo() {
+        logger.debug("Collecting plugin info.");
         // Retrieve a list of all references to registered metric services
-        ServiceReference[] metricsList = null;
+        ServiceReference[] pluginList = null;
         try {
-            metricsList = bc.getServiceReferences(null, SREF_FILTER_METRIC);
+            pluginList = bc.getServiceReferences(null, SREF_FILTER_PLUGIN);
         } catch (InvalidSyntaxException e) {
             logger.warn(INVALID_FILTER_SYNTAX);
         }
 
         // Retrieve information about all registered metrics found
-        if ((metricsList != null) && (metricsList.length > 0)) {
-            for (ServiceReference s : metricsList) {
-                PluginInfo metric_info = getMetricInfo(s);
+        if ((pluginList != null) && (pluginList.length > 0)) {
+            for (ServiceReference s : pluginList) {
+                PluginInfo pluginInfo = getPluginInfo(s);
    
                 // Add this metric's info to the list
-                if (metric_info != null) {
+                if (pluginInfo != null) {
                     registeredPlugins.put(
-                            metric_info.getServiceID(),
-                            metric_info);
+                            pluginInfo.getServiceID(),
+                            pluginInfo);
                 }
             }
         }
         else {
-            logger.info("No pre-existing metrics were found!");
+            logger.info("No pre-existing plugins were found!");
         }
     }
 
     /**
-     * Apply a configuration to a given metric. The metric is identified
-     * in three ways, by service reference, id and metric info -- the caller
+     * Apply a configuration to a given plugin. The plugin is identified
+     * in three ways, by service reference, id and plugin info -- the caller
      * must ensure that these are all in-sync or undefined behavior may
      * occur.
      *
-     * Depending on the values in the configuration set, the metric
+     * Depending on the values in the configuration set, the plugin
      * may be installed automatically.
      */
-    private void configureMetric(ServiceReference s, Long serviceId, PluginInfo info, PluginConfig config) {
-        // Checks if this metric has to be automatically
+    private void configurePlugin(ServiceReference s, Long serviceId, PluginInfo info, PluginConfig config) {
+        // Checks if this plugin has to be automatically
         // installed upon registration
         if (Boolean.valueOf(config.getString(PluginConfig.KEY_AUTOINSTALL))) {
-            if (installMetric(serviceId)) {
-                logger.debug("Metric " + serviceId + " installed OK.");
+            if (installPlugin(serviceId)) {
+                logger.debug("Plugin " + serviceId + " installed OK.");
             }
             else {
                 logger.warn (
-                        "The install method of metric with"
+                        "The install method of plugin with"
                         + " service ID " + serviceId+ " failed.");
             }
         }
@@ -274,41 +274,41 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
 
     /**
      * Performs various maintenance operations upon registration of a new
-     * metric service
+     * plugin service
      *
-     * @param srefMetric the reference to the registered metric service
+     * @param srefPlugin the reference to the registered metric service
      */
-    private void metricRegistered (ServiceReference srefMetric) {
+    private void pluginRegistered (ServiceReference srefPlugin) {
         // Retrieve the service ID
         Long serviceId =
-            (Long) srefMetric.getProperty(Constants.SERVICE_ID);
-        logger.info("A metric service was registered with ID " + serviceId);
+            (Long) srefPlugin.getProperty(Constants.SERVICE_ID);
+        logger.info("A plugin service was registered with ID " + serviceId);
 
-        // Dispose from the list of available metric any old metric, that
-        // uses the same ID. Should not be required, as long as metric
+        // Dispose from the list of available plugins any old plugin, that
+        // uses the same ID. Should not be required, as long as plugin
         // services got properly unregistered.
         if (registeredPlugins.containsKey(serviceId)) {
             registeredPlugins.remove(serviceId);
         }
 
-        // Retrieve information about this metric and add this metric to the
-        // list of registered/available metrics
-        PluginInfo metricInfo = getMetricInfo(srefMetric);
-        registeredPlugins.put(serviceId, metricInfo);
+        // Retrieve information about this plugin and add this plugin to the
+        // list of registered/available plugins
+        PluginInfo plugInfo = getPluginInfo(srefPlugin);
+        registeredPlugins.put(serviceId, plugInfo);
 
         // Search for an applicable configuration set and apply it
         Iterator<String> configSets =
             pluginConfigurations.keySet().iterator();
         while (configSets.hasNext()) {
-            // Match is performed against the metric's class name(s)
+            // Match is performed against the plugin's class name(s)
             String className = configSets.next();
             // TODO: It could happen that a service get registered with more
             // than one class. In this case a situation can arise where
             // two or more matching configuration sets exists.
-            if (metricInfo.usesClassName(className)) {
-                // Apply the current configuration set to this metric
+            if (plugInfo.usesClassName(className)) {
+                // Apply the current configuration set to this plugin
                 logger.debug(
-                        "A configuration set was found for metric with"
+                        "A configuration set was found for plugin with"
                         + " object class name " + className
                         + " and service ID "    + serviceId);
                 PluginConfig configSet =
@@ -316,7 +316,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
 
                 // Execute the necessary post-registration actions
                 if (configSet != null) {
-                    configureMetric(srefMetric, serviceId, metricInfo, configSet);
+                    configurePlugin(srefPlugin, serviceId, plugInfo, configSet);
                 }
             }
         }
@@ -324,19 +324,19 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
 
     /**
      * Performs various maintenance operations during unregistering of a
-     * metric service
+     * plugin service
      *
-     * @param srefMetric the reference to the registered metric service
+     * @param srefPlugin the reference to the registered metric service
      */
-    private void metricUnregistering (ServiceReference srefMetric) {
+    private void pluginUnregistering (ServiceReference srefPlugin) {
         // Retrieve the service ID
         Long serviceId =
-            (Long) srefMetric.getProperty(Constants.SERVICE_ID);
+            (Long) srefPlugin.getProperty(Constants.SERVICE_ID);
         logger.info(
-                "A metric service with ID "
+                "A plugin service with ID "
                 + serviceId + " is unregistering.");
 
-        // Remove this service from the list of available metric services
+        // Remove this service from the list of available plugin services
         if (registeredPlugins.containsKey(serviceId)) {
             registeredPlugins.remove(serviceId);
         }
@@ -344,16 +344,16 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
 
     /**
      * Performs various maintenance operations upon a change in an existing
-     * metric service
+     * plugin service
      *
-     * @param srefMetric the reference to the registered metric service
+     * @param srefPlugin the reference to the registered metric service
      */
-    private void metricModified (ServiceReference srefMetric) {
+    private void pluginModified (ServiceReference srefPlugin) {
         // Retrieve the service ID
         Long serviceId =
-            (Long) srefMetric.getProperty(Constants.SERVICE_ID);
+            (Long) srefPlugin.getProperty(Constants.SERVICE_ID);
         logger.info(
-                "A metric service with ID "
+                "A plugin service with ID "
                 + serviceId + " was modified.");
     }
 
@@ -367,36 +367,36 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
         switch (event.getType()) {
         // New service was registered
         case ServiceEvent.REGISTERED:
-            metricRegistered(affectedService);
+            pluginRegistered(affectedService);
             break;
         // An existing service is unregistering
         case ServiceEvent.UNREGISTERING:
-            metricUnregistering(affectedService);
+            pluginUnregistering(affectedService);
             break;
         // The configuration of an existing service was modified
         case ServiceEvent.MODIFIED:
-            metricModified (affectedService);
+            pluginModified (affectedService);
         }
     }
 
 /* ===[ Implementation of the PluginAdmin interface ]===================== */
 
-    public Collection<PluginInfo> listMetrics() {
+    public Collection<PluginInfo> listPlugins() {
         if (!registeredPlugins.isEmpty()) {
             return registeredPlugins.values();
         }
         return null;
     }
 
-    public boolean installMetric(Long sid) {
-        // Format a search filter for the metric service with <sid> serviceId
+    public boolean installPlugin(Long sid) {
+        // Format a search filter for the plugin service with <sid> serviceId
         String serviceFilter =
             "(" + Constants.SERVICE_ID +"=" + sid + ")";
         logger.info (
-                "Installing metric with service ID " + sid);
+                "Installing plugin with service ID " + sid);
 
         final String INSTALL_FAILED =
-            "The installation of metric with"
+            "The installation of plugin with"
             + " service ID "+ sid
             + " failed : ";
 
@@ -411,24 +411,24 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
 
                 if (sref != null) {
                     try {
-                        // Retrieve the Metric object registered with this
+                        // Retrieve the plugin object registered with this
                         // service
                         AlitheiaPlugin sobj = (AlitheiaPlugin) bc.getService(sref);
                         if (sobj != null) {
                             // Try to execute the install() method of this
-                            // metric
+                            // plugin
                             boolean installed = sobj.install();
 
                             // If the install() is successful, then note this
-                            // into the metric's information object
+                            // into the plugin's information object
                             if ((installed) &&
                                     (registeredPlugins.containsKey(sid))) {
                                 // Retrieve the corresponding information
                                 // object
-                                PluginInfo metricInfo =
+                                PluginInfo pluginInfo =
                                     registeredPlugins.get(sid);
-                                if (metricInfo != null) {
-                                    metricInfo.installed = true;
+                                if (pluginInfo != null) {
+                                    pluginInfo.installed = true;
                                 }
                             }
                             return installed;
@@ -437,7 +437,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
                             logger.warn(INSTALL_FAILED + CANT_GET_SOBJ);
                         }
                     } catch (ClassCastException e) {
-                        logger.warn(INSTALL_FAILED + NOT_A_METRIC);
+                        logger.warn(INSTALL_FAILED + NOT_A_PLUGIN);
                     } catch (Error e) {
                         logger.warn(INSTALL_FAILED + e);
                     }
@@ -456,54 +456,54 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
         return false;
     }
 
-    public ServiceReference[] listMetricProviders(Class<?> o) {
+    public ServiceReference[] listPluginProviders(Class<?> o) {
         if (registeredPlugins.isEmpty()) {
             // No metrics. Don't bother looking.
             return null;
         }
         // There should be at least one registered metric
         // All registered metrics
-        Iterator<PluginInfo> metrics =
+        Iterator<PluginInfo> plugins =
             registeredPlugins.values().iterator();
-        // Metrics matching this search
+        // Plugins matching this search
         Vector<ServiceReference> matching =
             new Vector<ServiceReference>();
-        // Search for metric of compatible type
-        while (metrics.hasNext()) {
-            PluginInfo nextMetric = metrics.next();
-            if ((nextMetric.isType(o.getName()))
-                && (nextMetric.getServiceRef() != null)) {
-                    matching.add(nextMetric.getServiceRef());
+        // Search for plugin of compatible type
+        while (plugins.hasNext()) {
+            PluginInfo nextPlugin = plugins.next();
+            if ((nextPlugin.isType(o.getName()))
+                && (nextPlugin.getServiceRef() != null)) {
+                    matching.add(nextPlugin.getServiceRef());
                 }
         }
         // Return the matching ones
         if (matching.size() > 0) {
-            ServiceReference[] metricsList =
+            ServiceReference[] pluginsList =
                 new ServiceReference[matching.size()];
-            metricsList = matching.toArray(metricsList);
-            return metricsList;
+            pluginsList = matching.toArray(pluginsList);
+            return pluginsList;
         }
         // None found
         return null;
     }
 
-    public PluginInfo getMetricInfo(AlitheiaPlugin m) {
+    public PluginInfo getPluginInfo(AlitheiaPlugin m) {
         PluginInfo mi = null;
-        Collection<PluginInfo> c = listMetrics();
+        Collection<PluginInfo> c = listPlugins();
         Iterator<PluginInfo> i = c.iterator();
         
         while (i.hasNext()) {
             mi = i.next();
 
-            if (mi.getMetricName() == m.getName()
-                    && mi.getMetricVersion() == m.getVersion()) {
+            if (mi.getPluginName() == m.getName()
+                    && mi.getPluginVersion() == m.getVersion()) {
                 return mi;
             }
         }
         return null;
     }
 
-    public AlitheiaPlugin getMetric(PluginInfo m) {
+    public AlitheiaPlugin getPlugin(PluginInfo m) {
         ServiceReference s = m.getServiceRef();
         return (AlitheiaPlugin) bc.getService(s);
     }

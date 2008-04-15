@@ -67,28 +67,28 @@ public class PluginInfo {
     /**
      * @param metricName the metricName to set
      */
-    public void setMetricName(String metricName) {
+    public void setPluginName(String metricName) {
         this.pluginName = metricName;
     }
 
     /**
      * @return the metricName
      */
-    public String getMetricName() {
+    public String getPluginName() {
         return pluginName;
     }
 
     /**
      * @param metricVersion the metricVersion to set
      */
-    public void setMetricVersion(String metricVersion) {
+    public void setPluginVersion(String metricVersion) {
         this.pluginVersion = metricVersion;
     }
 
     /**
      * @return the metricVersion
      */
-    public String getMetricVersion() {
+    public String getPluginVersion() {
         return pluginVersion;
     }
 
@@ -144,9 +144,9 @@ public class PluginInfo {
 
     public String toString() {
         StringBuilder b = new StringBuilder();
-        b.append(getMetricName());
+        b.append(getPluginName());
         b.append(" ");
-        b.append(getMetricVersion());
+        b.append(getPluginVersion());
         b.append(" [");
         b.append(StringUtils.join(getPluginType(),","));
         b.append(" : ");

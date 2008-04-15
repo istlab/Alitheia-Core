@@ -45,7 +45,7 @@ public interface ConfigUtils {
      * 
      * @return the metrics configuration
      */
-    public HashMap<String, PluginConfig> getMetricsConfiguration();
+    public HashMap<String, PluginConfig> getPluginConfiguration();
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

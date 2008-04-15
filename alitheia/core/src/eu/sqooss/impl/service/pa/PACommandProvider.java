@@ -87,7 +87,7 @@ public class PACommandProvider implements CommandProvider {
         if ((serviceId != null) && (sobjPA != null)){
             try {
                 // Trigger install on the selected metric
-                if (sobjPA.installMetric(new Long(serviceId))) {
+                if (sobjPA.installPlugin(new Long(serviceId))) {
                     ci.println (
                             "[INFO]"
                             + " "
@@ -113,7 +113,7 @@ public class PACommandProvider implements CommandProvider {
     public void _list_metrics (CommandInterpreter ci) {
         if (sobjPA != null) {
             // Dump a formated list of registered metrics, if any where found
-            Collection<PluginInfo> metricsList = sobjPA.listMetrics();
+            Collection<PluginInfo> metricsList = sobjPA.listPlugins();
             if ((metricsList != null) && (metricsList.isEmpty() == false)) {
                 // Iterate through the available metrics
                 Iterator<PluginInfo> listIterator = metricsList.iterator();
@@ -176,16 +176,16 @@ public class PACommandProvider implements CommandProvider {
                             "  Install performed\t: "
                             + (nextMetric.installed ? "yes" : "no"));
 
-                    if (nextMetric.getMetricName() != null) {
+                    if (nextMetric.getPluginName() != null) {
                         ci.println(
                                 "  Metric name\t\t: "
-                                + nextMetric.getMetricName());
+                                + nextMetric.getPluginName());
                     }
 
-                    if (nextMetric.getMetricVersion() != null) {
+                    if (nextMetric.getPluginVersion() != null) {
                         ci.println(
                                 "  Metric version\t: "
-                                + nextMetric.getMetricVersion());
+                                + nextMetric.getPluginVersion());
                     }
                 }
             }

@@ -382,7 +382,7 @@ e.printStackTrace();
     }
 
     protected String renderMetrics() {
-        Collection<PluginInfo> l = sobjPluginAdmin.listMetrics();
+        Collection<PluginInfo> l = sobjPluginAdmin.listPlugins();
         if (l.isEmpty()) {
             return "";
         }
@@ -614,7 +614,7 @@ e.printStackTrace();
 
     private String renderProjects() {
         List<StoredProject> projects = sobjDB.doHQL("from StoredProject");
-        Collection<PluginInfo> metrics = sobjPluginAdmin.listMetrics();
+        Collection<PluginInfo> metrics = sobjPluginAdmin.listPlugins();
         
         if (projects == null || metrics == null) {
             return null;
@@ -628,7 +628,7 @@ e.printStackTrace();
         
         for(PluginInfo m : metrics) {
             s.append("<td><b>");
-            s.append(m.getMetricName());
+            s.append(m.getPluginName());
             s.append("</b></td>");
         }
         s.append("</tr>");
@@ -657,7 +657,7 @@ e.printStackTrace();
             for(PluginInfo m : metrics) {
                 s.append("<td>");
                 s.append(sobjMetricActivator.getLastAppliedVersion(
-                        sobjPluginAdmin.getMetric(m), p));
+                        sobjPluginAdmin.getPlugin(m), p));
                 s.append("</td>");
             }
             s.append("</tr>");

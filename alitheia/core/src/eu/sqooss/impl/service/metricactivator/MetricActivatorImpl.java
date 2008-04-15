@@ -72,7 +72,7 @@ public class MetricActivatorImpl implements MetricActivator {
     public <T extends DAObject> void runMetrics(Class<T> clazz,
             SortedSet<Long> objectIDs) {
         ServiceReference[] metrics = null;
-        metrics = core.getPluginManager().listMetricProviders(clazz);
+        metrics = core.getPluginManager().listPluginProviders(clazz);
         
         if (metrics == null || metrics.length == 0) {
             logger.warn("No metrics found for activation type " + clazz.getName());
@@ -98,7 +98,7 @@ public class MetricActivatorImpl implements MetricActivator {
     }
 
     public void syncMetric(AlitheiaPlugin m, StoredProject sp) {
-        PluginInfo mi = pa.getMetricInfo(m);
+        PluginInfo mi = pa.getPluginInfo(m);
         
     }
 
@@ -108,7 +108,7 @@ public class MetricActivatorImpl implements MetricActivator {
     }
 
     public ProjectVersion getLastAppliedVersion(AlitheiaPlugin m, StoredProject sp) {
-        PluginInfo mi = pa.getMetricInfo(m);
+        PluginInfo mi = pa.getPluginInfo(m);
         
         //dbs.findObjectsByProperties(, properties);
         return null;
