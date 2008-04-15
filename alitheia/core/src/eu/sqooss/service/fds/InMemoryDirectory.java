@@ -35,6 +35,7 @@ package eu.sqooss.service.fds;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -58,8 +59,8 @@ public class InMemoryDirectory {
    
     public InMemoryDirectory() {
         name = new String();
-        files = new ArrayList<String>();
-        directories = new ArrayList<InMemoryDirectory>();
+        files = new LinkedList<String>();
+        directories = new LinkedList<InMemoryDirectory>();
     }
     
     public InMemoryDirectory(String name) {
@@ -118,7 +119,7 @@ public class InMemoryDirectory {
      * Returns the list of files this directory contains.
      */
     public List<ProjectFile> getFiles() {
-        ArrayList<ProjectFile> result = new ArrayList<ProjectFile>();
+        ArrayList<ProjectFile> result = new ArrayList<ProjectFile>(files.size());
 
         DBService dbs = CoreActivator.getDBService();
       
@@ -174,6 +175,28 @@ public class InMemoryDirectory {
         InMemoryDirectory dir = new InMemoryDirectory(this, name);
         directories.add(dir);
         return dir;
+    }
+    
+    protected String toString(int indentation) {
+    	String result = "";
+    	String indent = "";
+    	for (int i=0; i < indentation; ++i)
+    		indent = indent + " ";
+    	
+    	result = result + indent + getName() + "\n";
+    	
+    	for (InMemoryDirectory d: directories) {
+    		result = result + d.toString(indentation + 1);
+    	}
+    	for (String file: files) {
+    		result = result + indent + " " + file + "\n";
+    	}
+    	
+    	return result;
+    }
+    
+    public String toString() {
+    	return toString(0);
     }
 }
 
