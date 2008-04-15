@@ -170,7 +170,8 @@ class SourceUpdater extends Job {
                 //curVersion.setProperties(entry.getProperties);
                 s.save(curVersion);
                 updProjectVersions.add(new Long(curVersion.getId()));
-                
+
+                logger.debug("Stored project version " + curVersion.toString());
                 
                 for(String chPath: entry.getChangedPaths()) {
 
@@ -185,6 +186,7 @@ class SourceUpdater extends Job {
                         
                         Tag tag = curVersion.addTag();
                         tag.setName(chPath.substring(5));
+                        logger.info("Creating tag <" + tag.getName() + ">");
                         
                         s.save(tag);
                         break;
