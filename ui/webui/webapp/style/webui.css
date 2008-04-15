@@ -66,6 +66,10 @@ ul.projectslist {
 /* These are little link spans to unselect something. */
 span.forget {
     margin-left: 30px;
-    font-size: small;
-    color: #aaaaaa;
+    font-size: 0.6em;
+    color: #ccc;
+}
+
+span.forget a {
+    color: #ccc;
 }
