@@ -8,6 +8,7 @@ Bundle-ClassPath: org.apache.velocity-1.5.jar,
   collections-3.2.jar,
   lang-2.4.jar,
   oro-2.0.8.jar
+Import-Package: org.apache.log4j
 Export-Package: org.apache.velocity;version="1.5",
   org.apache.velocity.app;version="1.5",
   org.apache.velocity.context;version="1.5"
