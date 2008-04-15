@@ -5,5 +5,8 @@ SUBDIRS=idl corbaservice
 
 include $(TOP_SRCDIR)/Makefile.metrics
 
+install :
+	$(MAVEN) package
+
 clean-dir :
 	cd idl && $(MAKE) clean
