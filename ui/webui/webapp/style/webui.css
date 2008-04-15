@@ -52,3 +52,20 @@ div.green {
     display: inline;
     color: green;
 }
+
+ul.projectslist {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    margin-left: 0px;
+    border-left: 1px dotted #cccccc;
+    border-top: 1px dotted #cccccc;
+    padding-left: 3px;
+}
+
+/* These are little link spans to unselect something. */
+span.forget {
+    margin-left: 30px;
+    font-size: small;
+    color: #aaaaaa;
+}
