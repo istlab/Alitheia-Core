@@ -9,4 +9,5 @@ Bundle-ClassPath: org.apache.velocity-1.5.jar,
   lang-2.4.jar,
   oro-2.0.8.jar
 Export-Package: org.apache.velocity;version="1.5",
-  org.apache.velocity.app;version="1.5"
+  org.apache.velocity.app;version="1.5",
+  org.apache.velocity.context;version="1.5"
