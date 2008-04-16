@@ -101,12 +101,11 @@ public class AdminServlet extends HttpServlet {
         dynamicContentMap.put("/alljobs", "alljobs.html");
         dynamicContentMap.put("/users", "users.html");
 
-        // Now the dynamic substitutions
+        // Now the dynamic substitutions and renderer
         vc = new VelocityContext();
+        render = new WebAdminRenderer(bc, vc);
         createSubstitutions(true);
 
-        // Create the renderer
-        render = new WebAdminRenderer(bc, vc);
 
         try {
             ve = new VelocityEngine();
