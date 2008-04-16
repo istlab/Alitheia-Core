@@ -33,6 +33,7 @@
 package eu.sqooss.impl.service.security;
 
 import java.util.Collection;
+import java.util.List;
 
 import eu.sqooss.impl.service.security.utils.PrivilegeManagerDatabase;
 import eu.sqooss.service.db.DBService;
@@ -57,7 +58,7 @@ public class PrivilegeManagerImpl implements PrivilegeManager {
      * @see eu.sqooss.service.security.PrivilegeManager#createPrivilege(java.lang.String)
      */
     public Privilege createPrivilege(String privilegeName) {
-        logger.info("Create privilege! privilege's name: " + privilegeName);
+        logger.debug("Create privilege! privilege's name: " + privilegeName);
         Privilege newPrivilege = new Privilege();
         newPrivilege.setDescription(privilegeName);
         if (dbWrapper.create(newPrivilege)) {
@@ -79,7 +80,7 @@ public class PrivilegeManagerImpl implements PrivilegeManager {
      */
     public PrivilegeValue createPrivilegeValue(long privilegeId,
             String privilegeValue) {
-        logger.info("Create privilege value! privilege's id: " + privilegeId +
+        logger.debug("Create privilege value! privilege's id: " + privilegeId +
                 "; privilege's value: " + privilegeValue);
         Privilege privilege = getPrivilege(privilegeId);
         if (privilege != null) {
@@ -97,7 +98,7 @@ public class PrivilegeManagerImpl implements PrivilegeManager {
      * @see eu.sqooss.service.security.PrivilegeManager#deletePrivilege(long)
      */
     public boolean deletePrivilege(long privilegeId) {
-        logger.info("Delete privilege! privilege's id: " + privilegeId);
+        logger.debug("Delete privilege! privilege's id: " + privilegeId);
         Privilege privilege = getPrivilege(privilegeId);
         if (privilege != null) {
             return dbWrapper.delete(privilege);
@@ -110,7 +111,7 @@ public class PrivilegeManagerImpl implements PrivilegeManager {
      * @see eu.sqooss.service.security.PrivilegeManager#deletePrivilegeValue(long)
      */
     public boolean deletePrivilegeValue(long privilegeValueId) {
-        logger.info("Delete privilege value! privilege value's id: " + privilegeValueId);
+        logger.debug("Delete privilege value! privilege value's id: " + privilegeValueId);
         PrivilegeValue privilegeValue = getPrivilegeValue(privilegeValueId);
         if (privilegeValue != null) {
             return dbWrapper.delete(privilegeValue);
@@ -123,23 +124,52 @@ public class PrivilegeManagerImpl implements PrivilegeManager {
      * @see eu.sqooss.service.security.PrivilegeManager#getPrivilege(long)
      */
     public Privilege getPrivilege(long privilegeId) {
-        logger.info("Get privilege! privilege's id: " + privilegeId);
+        logger.debug("Get privilege! privilege's id: " + privilegeId);
         return dbWrapper.getPrivilege(privilegeId);
+    }
+
+    /**
+     * @see eu.sqooss.service.security.PrivilegeManager#getPrivilege(java.lang.String)
+     */
+    public Privilege getPrivilege(String description) {
+        logger.debug("Get privilege! privilege description: " + description);
+        List<Privilege> privileges = dbWrapper.getPrivilege(description);
+        if (privileges.size() != 0) { //privilege description is unique
+            return privileges.get(0);
+        } else {
+            return null;
+        }
     }
 
     /**
      * @see eu.sqooss.service.security.PrivilegeManager#getPrivilegeValue(long)
      */
     public PrivilegeValue getPrivilegeValue(long privilegeValueId) {
-        logger.info("Get privilege value! privilege value's id: " + privilegeValueId);
+        logger.debug("Get privilege value! privilege value's id: " + privilegeValueId);
         return dbWrapper.getPrivilegeValue(privilegeValueId);
     }
 
     /**
+     * @see eu.sqooss.service.security.PrivilegeManager#getPrivilegeValue(long, java.lang.String)
+     */
+    public PrivilegeValue getPrivilegeValue(long privilegeId,
+            String privilegeValue) {
+        logger.debug("Get privilege value! privilege value: " + privilegeValue +
+                "; privilege id: " + privilegeId);
+        List<PrivilegeValue> privilegeValues = dbWrapper.getPrivilegeValue(
+                privilegeId, privilegeValue);
+        if (privilegeValues.size() != 0) {
+            return privilegeValues.get(0);
+        } else {
+            return null;
+        }
+    }
+    
+    /**
      * @see eu.sqooss.service.security.PrivilegeManager#getPrivilegeValues()
      */
     public PrivilegeValue[] getPrivilegeValues() {
-        logger.info("Get privilege values!");
+        logger.debug("Get privilege values!");
         return convertPrivilegeValues(dbWrapper.getPrivilegeValues());
     }
 
@@ -147,7 +177,7 @@ public class PrivilegeManagerImpl implements PrivilegeManager {
      * @see eu.sqooss.service.security.PrivilegeManager#getPrivilegeValues(long)
      */
     public PrivilegeValue[] getPrivilegeValues(long privilegeId) {
-        logger.info("Get privilege values! privilege's id: " + privilegeId);
+        logger.debug("Get privilege values! privilege's id: " + privilegeId);
         return convertPrivilegeValues(dbWrapper.getPrivilegeValues(privilegeId));
     }
 
@@ -155,7 +185,7 @@ public class PrivilegeManagerImpl implements PrivilegeManager {
      * @see eu.sqooss.service.security.PrivilegeManager#getPrivileges()
      */
     public Privilege[] getPrivileges() {
-        logger.info("Get privileges!");
+        logger.debug("Get privileges!");
         return convertPrivileges(dbWrapper.getPrivileges());
     }
     

@@ -43,15 +43,18 @@ import eu.sqooss.service.db.PrivilegeValue;
 
 public class PrivilegeManagerDatabase implements PrivilegeManagerDBQueries {
 
-    private static final String ATTRIBUTE_PRIVILEGE = "privilege";
+    private static final String ATTRIBUTE_PRIVILEGE             = "privilege";
+    private static final String ATTRIBUTE_PRIVILEGE_DESCRIPTION = "description";
+    private static final String ATTRIBUTE_PRIVILEGE_VALUE       = "value";
     
     private DBService db;
-    private Map<String, Object> privilegeValueProps;
+    private Map<String, Object> privilegeProps;
+    private Object lockObject = new Object();
     
     public PrivilegeManagerDatabase(DBService db) {
         super();
         this.db = db;
-        privilegeValueProps = new Hashtable<String, Object>(1);
+        privilegeProps = new Hashtable<String, Object>(1);
     }
 
     public List<?> getPrivileges() {
@@ -65,9 +68,10 @@ public class PrivilegeManagerDatabase implements PrivilegeManagerDBQueries {
     public List<PrivilegeValue> getPrivilegeValues(long privilegeId) {
         Privilege privilege = db.findObjectById(Privilege.class, privilegeId);
         if (privilege != null) {
-            synchronized (privilegeValueProps) {
-                privilegeValueProps.put(ATTRIBUTE_PRIVILEGE, privilege);
-                return db.findObjectsByProperties(PrivilegeValue.class, privilegeValueProps);
+            synchronized (lockObject) {
+                privilegeProps.clear();
+                privilegeProps.put(ATTRIBUTE_PRIVILEGE, privilege);
+                return db.findObjectsByProperties(PrivilegeValue.class, privilegeProps);
             }
         } else {
             return null;
@@ -78,8 +82,32 @@ public class PrivilegeManagerDatabase implements PrivilegeManagerDBQueries {
         return db.findObjectById(PrivilegeValue.class, privilegeValueId);
     }
     
+    public List<PrivilegeValue> getPrivilegeValue(long privilegeId,
+            String privilegeValue) {
+        Privilege privilege = db.findObjectById(Privilege.class, privilegeId);
+        if (privilege != null) {
+            synchronized (lockObject) {
+                privilegeProps.clear();
+                privilegeProps.put(ATTRIBUTE_PRIVILEGE, privilege);
+                privilegeProps.put(ATTRIBUTE_PRIVILEGE_VALUE, privilegeValue);
+                return db.findObjectsByProperties(PrivilegeValue.class,
+                        privilegeProps);
+            }
+        } else {
+            return null;
+        }
+    }
+    
     public Privilege getPrivilege(long privilegeId) {
         return db.findObjectById(Privilege.class, privilegeId);
+    }
+    
+    public List<Privilege> getPrivilege(String description) {
+        synchronized (lockObject) {
+            privilegeProps.clear();
+            privilegeProps.put(ATTRIBUTE_PRIVILEGE_DESCRIPTION, description);
+            return db.findObjectsByProperties(Privilege.class, privilegeProps);
+        }
     }
     
     public boolean delete(DAObject dao) {

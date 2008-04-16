@@ -32,7 +32,9 @@
 
 package eu.sqooss.impl.service.security.utils;
 
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.hibernate.HibernateException;
@@ -49,11 +51,16 @@ import eu.sqooss.service.db.User;
 
 public class GroupManagerDatabase implements GroupManagerDBQueries {
 
+    private static final String ATTRIBUTE_GROUP_DESCRIPTION = "description";
+    
     private DBService db;
+    private Map<String, Object> groupProps;
+    private Object lockObject = new Object();
     
     public GroupManagerDatabase(DBService db) {
         super();
         this.db = db;
+        groupProps = new Hashtable<String, Object>(1);
     }
 
     public List<?> getGroups() {
@@ -71,6 +78,14 @@ public class GroupManagerDatabase implements GroupManagerDBQueries {
     
     public Group getGroup(long groupId) {
         return db.findObjectById(Group.class, groupId);
+    }
+    
+    public List<Group> getGroup(String description) {
+        synchronized(lockObject) {
+            groupProps.clear();
+            groupProps.put(ATTRIBUTE_GROUP_DESCRIPTION, description);
+            return db.findObjectsByProperties(Group.class, groupProps);
+        }
     }
     
     public List<?> getGroupPrivileges() {

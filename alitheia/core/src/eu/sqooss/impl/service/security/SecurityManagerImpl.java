@@ -176,7 +176,7 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
      */
     public boolean checkPermission(String resourceUrl, Dictionary<String, String> privileges, String userName, String password) {
         
-        logger.info("Check Permission! resourceUrl: " + resourceUrl + "; user name: " + userName);
+        logger.debug("Check Permission! resourceUrl: " + resourceUrl + "; user name: " + userName);
 
         if (!isEnable) {
         	return true;
@@ -236,118 +236,66 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
     public boolean createSecurityConfiguration(String groupDescription,
             String privilege, String privilegeValue, String serviceUrl) {
 
-            Group userGroup = null;
-            eu.sqooss.service.db.Privilege userPrivilege = null;
-            eu.sqooss.service.db.PrivilegeValue userPrivilegeValue = null;
-            ServiceUrl userServiceUrl = null;
-            Group[] groups = groupManager.getGroups();
-            for (Group group : groups) {
-                if (groupDescription.equals(group.getDescription())) {
-                    userGroup = group;
-                    break;
-                }
-            }
-            if (userGroup == null) {
-                return false;
-            }
-            eu.sqooss.service.db.Privilege[] privileges = privilegeManager.getPrivileges();
-            for (eu.sqooss.service.db.Privilege priv : privileges) {
-                if (privilege.equals(priv.getDescription())) {
-                    userPrivilege = priv;
-                    break;
-                }
-            }
-            if (userPrivilege == null) {
-                userPrivilege = privilegeManager.createPrivilege(privilege);
-            }
-            eu.sqooss.service.db.PrivilegeValue[] privilegeValues = privilegeManager.getPrivilegeValues(
-                    userPrivilege.getId());
-            for (eu.sqooss.service.db.PrivilegeValue privValue : privilegeValues) {
-                if (privilegeValue.equals(privValue.getValue())) {
-                    userPrivilegeValue = privValue;
-                    break;
-                }
-            }
-            if (userPrivilegeValue == null) {
-                userPrivilegeValue = privilegeManager.createPrivilegeValue(
-                        userPrivilege.getId(), privilegeValue);
-            }
-            ServiceUrl[] serviceUrls = serviceUrlManager.getServiceUrls();
-            for (ServiceUrl url : serviceUrls) {
-                if (serviceUrl.equals(url.getUrl())) {
-                    userServiceUrl = url;
-                    break;
-                }
-            }
-            if (userServiceUrl == null) {
-                userServiceUrl = serviceUrlManager.createServiceUrl(serviceUrl);
-            }
-            if (groupManager.addPrivilegeToGroup(userGroup.getId(),
-                    userServiceUrl.getId(), userPrivilegeValue.getId())) {
-                return true;
-            } else {
-                //clean if possible
-                privilegeManager.deletePrivilegeValue(userPrivilegeValue.getId());
-                privilegeManager.deletePrivilege(userPrivilege.getId());
-                serviceUrlManager.deleteServiceUrl(userServiceUrl.getId());
-                return false;
-            }
-
+        Group userGroup = groupManager.getGroup(groupDescription);
+        if (userGroup == null) {
+            return false;
+        }
+        eu.sqooss.service.db.Privilege userPrivilege =
+            privilegeManager.getPrivilege(privilege); 
+        if (userPrivilege == null) {
+            userPrivilege = privilegeManager.createPrivilege(privilege);
+        }
+        eu.sqooss.service.db.PrivilegeValue userPrivilegeValue =
+            privilegeManager.getPrivilegeValue(
+                userPrivilege.getId(), privilegeValue);
+        if (userPrivilegeValue == null) {
+            userPrivilegeValue = privilegeManager.createPrivilegeValue(
+                    userPrivilege.getId(), privilegeValue);
+        }
+        ServiceUrl userServiceUrl = serviceUrlManager.getServiceUrl(serviceUrl);
+        if (userServiceUrl == null) {
+            userServiceUrl = serviceUrlManager.createServiceUrl(serviceUrl);
+        }
+        if (groupManager.addPrivilegeToGroup(userGroup.getId(),
+                userServiceUrl.getId(), userPrivilegeValue.getId())) {
+            return true;
+        } else {
+            //clean if possible
+            privilegeManager.deletePrivilegeValue(userPrivilegeValue.getId());
+            privilegeManager.deletePrivilege(userPrivilege.getId());
+            serviceUrlManager.deleteServiceUrl(userServiceUrl.getId());
+            return false;
+        }
     }
-    
+
     /**
      * @see eu.sqooss.service.security.SecurityManager#deleteSecurityConfiguration(java.lang.String, java.lang.String, java.lang.String, java.lang.String)
      */
     public boolean deleteSecurityConfiguration(String groupDescription,
             String privilege, String privilegeValue, String serviceUrl) {
-        
-            Group userGroup = null;
-            eu.sqooss.service.db.Privilege userPrivilege = null;
-            eu.sqooss.service.db.PrivilegeValue userPrivilegeValue = null;
-            ServiceUrl userServiceUrl = null;
-            Group[] groups = groupManager.getGroups();
-            for (Group group : groups) {
-                if (groupDescription.equals(group.getDescription())) {
-                    userGroup = group;
-                    break;
-                }
-            }
-            eu.sqooss.service.db.Privilege[] privileges = privilegeManager.getPrivileges();
-            for (eu.sqooss.service.db.Privilege priv : privileges) {
-                if (privilege.equals(priv.getDescription())) {
-                    userPrivilege = priv;
-                    break;
-                }
-            }
-            eu.sqooss.service.db.PrivilegeValue[] privilegeValues = privilegeManager.getPrivilegeValues(
-                    userPrivilege.getId());
-            for (eu.sqooss.service.db.PrivilegeValue privValue : privilegeValues) {
-                if (privilegeValue.equals(privValue.getValue())) {
-                    userPrivilegeValue = privValue;
-                    break;
-                }
-            }
-            ServiceUrl[] serviceUrls = serviceUrlManager.getServiceUrls();
-            for (ServiceUrl url : serviceUrls) {
-                if (serviceUrl.equals(url.getUrl())) {
-                    userServiceUrl = url;
-                    break;
-                }
-            }
-            if ((userGroup == null) || (userPrivilege == null)
-                    || (userPrivilegeValue == null) || (userServiceUrl == null)) {
-                return false;
-            } else {
-                boolean result = groupManager.deletePrivilegeFromGroup(userGroup.getId(),
-                        userServiceUrl.getId(), userPrivilegeValue.getId());
-                //clean if possible
-                privilegeManager.deletePrivilegeValue(userPrivilegeValue.getId());
-                privilegeManager.deletePrivilege(userPrivilege.getId());
-                serviceUrlManager.deleteServiceUrl(userServiceUrl.getId());
-                return result;
-            }
+
+        Group userGroup = groupManager.getGroup(groupDescription);
+        eu.sqooss.service.db.Privilege userPrivilege =
+            privilegeManager.getPrivilege(privilege);
+        ServiceUrl userServiceUrl = serviceUrlManager.getServiceUrl(serviceUrl);
+        if ((userGroup == null) || (userPrivilege == null) || (userServiceUrl == null)) {
+            return false;
+        }
+        eu.sqooss.service.db.PrivilegeValue userPrivilegeValue = 
+            privilegeManager.getPrivilegeValue(userPrivilege.getId(),
+                    privilegeValue);
+        if (userPrivilegeValue == null) {
+            return false;
+        }
+        boolean result = groupManager.deletePrivilegeFromGroup(userGroup.getId(),
+                userServiceUrl.getId(), userPrivilegeValue.getId());
+        //clean if possible
+        privilegeManager.deletePrivilegeValue(userPrivilegeValue.getId());
+        privilegeManager.deletePrivilege(userPrivilege.getId());
+        serviceUrlManager.deleteServiceUrl(userServiceUrl.getId());
+        return result;
     }
-    
+
     private boolean checkPermissionPrivileges(String resourceUrl, Dictionary<String, String> privileges, String userName, String password) {
         
         if (dbWrapper.checkAuthorizationRule(resourceUrl, Privilege.ALL.toString(),

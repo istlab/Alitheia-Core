@@ -33,6 +33,7 @@
 package eu.sqooss.impl.service.security;
 
 import java.util.Collection;
+import java.util.List;
 
 import eu.sqooss.impl.service.security.utils.GroupManagerDatabase;
 import eu.sqooss.service.db.DBService;
@@ -57,7 +58,7 @@ public class GroupManagerImpl implements GroupManager {
      */
     public boolean addPrivilegeToGroup(long groupId, long urlId,
             long privilegeValueId) {
-        logger.info("Add privilege to group! group's id: " + groupId +
+        logger.debug("Add privilege to group! group's id: " + groupId +
                 "; privilege value's id: " + privilegeValueId + "; url's id: " + urlId);
         return dbWrapper.addPrivilegeToGroup(groupId, urlId, privilegeValueId);
     }
@@ -66,7 +67,7 @@ public class GroupManagerImpl implements GroupManager {
      * @see eu.sqooss.service.security.GroupManager#addUserToGroup(long, long)
      */
     public boolean addUserToGroup(long groupId, long userId) {
-        logger.info("Add user to group! group's id: " + groupId +
+        logger.debug("Add user to group! group's id: " + groupId +
                 "; user's id: " + userId);
         return dbWrapper.addUserToGroup(groupId, userId);
     }
@@ -75,7 +76,7 @@ public class GroupManagerImpl implements GroupManager {
      * @see eu.sqooss.service.security.GroupManager#createGroup(java.lang.String)
      */
     public Group createGroup(String description) {
-        logger.info("Create group! description: " + description);
+        logger.debug("Create group! description: " + description);
         Group newGroup = new Group();
         newGroup.setDescription(description);
         if (dbWrapper.create(newGroup)) {
@@ -89,7 +90,7 @@ public class GroupManagerImpl implements GroupManager {
      * @see eu.sqooss.service.security.GroupManager#deleteGroup(long)
      */
     public boolean deleteGroup(long groupId) {
-        logger.info("Delete group! group's id: " + groupId);
+        logger.debug("Delete group! group's id: " + groupId);
         Group group = getGroup(groupId);
         if (group != null) {
             return dbWrapper.delete(getGroup(groupId));            
@@ -103,7 +104,7 @@ public class GroupManagerImpl implements GroupManager {
      */
     public boolean deletePrivilegeFromGroup(long groupId, long urlId,
             long privilegeValueId) {
-        logger.info("Delete privilege from group! group's id: " + groupId +
+        logger.debug("Delete privilege from group! group's id: " + groupId +
                 "; url's id: " + urlId + "; privilege value's id: " + privilegeValueId);
         return dbWrapper.deletePrivilegeFromGroup(groupId, urlId, privilegeValueId);
     }
@@ -112,7 +113,7 @@ public class GroupManagerImpl implements GroupManager {
      * @see eu.sqooss.service.security.GroupManager#deleteUserFromGroup(long, long)
      */
     public boolean deleteUserFromGroup(long groupId, long userId) {
-        logger.info("Delete user from group! group's id: " + groupId +
+        logger.debug("Delete user from group! group's id: " + groupId +
                 "; userId: " + userId);
         return dbWrapper.deleteUserFromGroup(groupId, userId);
     }
@@ -121,15 +122,28 @@ public class GroupManagerImpl implements GroupManager {
      * @see eu.sqooss.service.security.GroupManager#getGroup(long)
      */
     public Group getGroup(long groupId) {
-        logger.info("Get group! group's id: " + groupId);
+        logger.debug("Get group! group's id: " + groupId);
         return dbWrapper.getGroup(groupId);
+    }
+
+    /**
+     * @see eu.sqooss.service.security.GroupManager#getGroup(java.lang.String)
+     */
+    public Group getGroup(String description) {
+        logger.debug("Get group! group description: "+ description);
+        List<Group> groups = dbWrapper.getGroup(description);
+        if (groups.size() != 0) { //the group description is unique
+            return groups.get(0);
+        } else {
+            return null;
+        }
     }
 
     /**
      * @see eu.sqooss.service.security.GroupManager#getGroupPrivileges()
      */
     public GroupPrivilege[] getGroupPrivileges() {
-        logger.info("Get group privileges!");
+        logger.debug("Get group privileges!");
         return convertGroupPrivileges(dbWrapper.getGroupPrivileges());
     }
 
@@ -137,7 +151,7 @@ public class GroupManagerImpl implements GroupManager {
      * @see eu.sqooss.service.security.GroupManager#getGroups()
      */
     public Group[] getGroups() {
-        logger.info("Get gorups!");
+        logger.debug("Get gorups!");
         return convertGroups(dbWrapper.getGroups());
     }
 
@@ -145,7 +159,7 @@ public class GroupManagerImpl implements GroupManager {
      * @see eu.sqooss.service.security.GroupManager#getGroups(long)
      */
     public Group[] getGroups(long userId) {
-        logger.info("Get gorups! userId: " + userId);
+        logger.debug("Get gorups! userId: " + userId);
         return convertGroups(dbWrapper.getGroups(userId));
     }
     

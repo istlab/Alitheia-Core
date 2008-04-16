@@ -33,6 +33,7 @@
 package eu.sqooss.impl.service.security;
 
 import java.util.Collection;
+import java.util.List;
 
 import eu.sqooss.impl.service.security.utils.ServiceUrlManagerDatabase;
 import eu.sqooss.service.db.DBService;
@@ -55,7 +56,7 @@ public class ServiceUrlManagerImpl implements ServiceUrlManager {
      * @see eu.sqooss.service.security.ServiceUrlManager#createServiceUrl(java.lang.String)
      */
     public ServiceUrl createServiceUrl(String url) {
-        logger.info("Create service url! url: " + url);
+        logger.debug("Create service url! url: " + url);
         ServiceUrl newServiceUrl = new ServiceUrl();
         newServiceUrl.setUrl(url);
         if (dbWrapper.createServiceUrl(newServiceUrl)) {
@@ -69,7 +70,7 @@ public class ServiceUrlManagerImpl implements ServiceUrlManager {
      * @see eu.sqooss.service.security.ServiceUrlManager#deleteServiceUrl(long)
      */
     public boolean deleteServiceUrl(long serviceUrlId) {
-        logger.info("Delete service url! url's id: " + serviceUrlId);
+        logger.debug("Delete service url! url's id: " + serviceUrlId);
         ServiceUrl serviceUrl = getServiceUrl(serviceUrlId);
         if (serviceUrl != null) {
             return dbWrapper.deleteServiceUrl(serviceUrl);
@@ -82,15 +83,28 @@ public class ServiceUrlManagerImpl implements ServiceUrlManager {
      * @see eu.sqooss.service.security.ServiceUrlManager#getServiceUrl(long)
      */
     public ServiceUrl getServiceUrl(long serviceUrlId) {
-        logger.info("Get service url! url's id: " + serviceUrlId);
+        logger.debug("Get service url! url's id: " + serviceUrlId);
         return dbWrapper.getServiceUrl(serviceUrlId);
+    }
+
+    /**
+     * @see eu.sqooss.service.security.ServiceUrlManager#getServiceUrl(java.lang.String)
+     */
+    public ServiceUrl getServiceUrl(String serviceUrl) {
+        logger.debug("Get service url! url: " + serviceUrl);
+        List<ServiceUrl> urls = dbWrapper.getServiceUrl(serviceUrl);
+        if (urls.size() != 0) { //the service urls are unique
+            return urls.get(0);
+        } else {
+            return null;
+        }
     }
 
     /**
      * @see eu.sqooss.service.security.ServiceUrlManager#getServiceUrls()
      */
     public ServiceUrl[] getServiceUrls() {
-        logger.info("Get service urls!");
+        logger.debug("Get service urls!");
         return convertServiceUrls(dbWrapper.getServiceUrls());
     }
 

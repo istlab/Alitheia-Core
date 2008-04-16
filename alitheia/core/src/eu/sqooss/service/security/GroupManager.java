@@ -48,6 +48,15 @@ public interface GroupManager {
     public Group getGroup(long groupId);
     
     /**
+     * The description of the group is unique.
+     * The method returns the group with given description. 
+     * @param description - the description of the group
+     * @return <code>Group</code> with given description,
+     * null - if the group doesn't exist
+     */
+    public Group getGroup(String description);
+    
+    /**
      * @return all groups in the system
      */
     public Group[] getGroups();

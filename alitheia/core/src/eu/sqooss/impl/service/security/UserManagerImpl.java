@@ -260,8 +260,8 @@ public class UserManagerImpl implements UserManager {
      */
     public User getUser(String userName) {
         logger.debug("Get user! username: " + userName);
-        List<User> users = dbWrapper.getUsers(userName);
-        if (users.size() == 1) {
+        List<User> users = dbWrapper.getUser(userName);
+        if (users.size() != 0) { //the user name is unique
             return users.get(0);
         } else {
             return null;

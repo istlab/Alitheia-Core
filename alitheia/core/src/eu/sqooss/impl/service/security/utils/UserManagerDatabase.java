@@ -63,7 +63,7 @@ public class UserManagerDatabase implements UserManagerDBQueries {
         return db.findObjectById(User.class, userId);
     }
     
-    public List<User> getUsers(String userName) {
+    public List<User> getUser(String userName) {
         synchronized (lockObject) {
             userProps.clear();
             userProps.put(ATTRIBUTE_USER_NAME, userName);

@@ -47,6 +47,15 @@ public interface ServiceUrlManager {
     public ServiceUrl getServiceUrl(long serviceUrlId);
     
     /**
+     * The service url is unique.
+     * The method returns the service url object with given url. 
+     * @param serviceUrl - the service url
+     * @return <code>ServiceUrl</code> object with given url,
+     * null - if the service url doesn't exist
+     */
+    public ServiceUrl getServiceUrl(String serviceUrl);
+    
+    /**
      * @return all service urls in the system
      */
     public ServiceUrl[] getServiceUrls();

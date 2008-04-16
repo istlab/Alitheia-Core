@@ -32,22 +32,37 @@
 
 package eu.sqooss.impl.service.security.utils;
 
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.ServiceUrl;
 
 public class ServiceUrlManagerDatabase implements ServiceUrlManagerDBQueries {
 
+    private static final String ATTRIBUTE_SERVICE_URL = "url";
+    
     private DBService db;
+    private Map<String, Object> serviceUrlProps;
+    private Object lockObject = new Object();
     
     public ServiceUrlManagerDatabase(DBService db) {
         super();
         this.db = db;
+        serviceUrlProps = new Hashtable<String, Object>(1);
     }
 
     public ServiceUrl getServiceUrl(long serviceUrlId) {
         return db.findObjectById(ServiceUrl.class, serviceUrlId);
+    }
+    
+    public List<ServiceUrl> getServiceUrl(String serviceUrl) {
+        synchronized (lockObject) {
+            serviceUrlProps.clear();
+            serviceUrlProps.put(ATTRIBUTE_SERVICE_URL, serviceUrl);
+            return db.findObjectsByProperties(ServiceUrl.class, serviceUrlProps);
+        }
     }
     
     public List<?> getServiceUrls() {

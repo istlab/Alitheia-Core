@@ -48,6 +48,15 @@ public interface PrivilegeManager {
     public Privilege getPrivilege(long privilegeId);
     
     /**
+     * The description of the privilege is unique.
+     * The method returns the privilege with given description. 
+     * @param description - the description of the privilege
+     * @return <code>Privilege</code> with given description,
+     * null - if the privilege doesn't exist
+     */
+    public Privilege getPrivilege(String description);
+    
+    /**
      * @return all privileges in the system
      */
     public Privilege[] getPrivileges();
@@ -58,6 +67,16 @@ public interface PrivilegeManager {
      * null - if the privilege value doesn't exist
      */
     public PrivilegeValue getPrivilegeValue(long privilegeValueId);
+    
+    /**
+     * The privilege values are unique.
+     * The method returns the privilege value.
+     * @param privilegeId
+     * @param privilegeValue
+     * @return null - if the privilege value daesn't exist 
+     */
+    public PrivilegeValue getPrivilegeValue(long privilegeId,
+            String privilegeValue);
     
     /**
      * @return all privileges values in the system
