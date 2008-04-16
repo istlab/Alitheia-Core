@@ -263,13 +263,13 @@ implements eu.sqooss.service.abstractmetric.AlitheiaPlugin {
      * @return the list of metric descriptors, or null if none
      */
     public List<Metric> getSupportedMetrics() {
-    	if(metrics == null)
-    		metrics = Plugin.getSupportedMetrics(Plugin.getPlugin(getName()));
-
+        if (metrics == null) {
+            metrics = Plugin.getSupportedMetrics(Plugin.getPlugin(getName()));
+        }
+        
         if (metrics.isEmpty()) {
             return null;
-        }
-        else {
+        } else {
             return metrics;
         }
     }
@@ -285,67 +285,65 @@ implements eu.sqooss.service.abstractmetric.AlitheiaPlugin {
     	if(evaluationMarked.containsKey(sp.getId()) &&
     			!evaluationMarked.get(sp.getId())) {
     		// Get a DB session
-			Session s = db.getSession(this);
+            Session s = db.getSession(this);
 
-			// Search for a previous evaluation of this metric on this project
-			HashMap<String, Object> filter = new HashMap<String, Object>();
-			filter.put("metric", me);
-			filter.put("storedProject", sp);
-			List<EvaluationMark> wasEvaluated = db.findObjectsByProperties(s,
-					EvaluationMark.class, filter);
+            // Search for a previous evaluation of this metric on this project
+            HashMap<String, Object> filter = new HashMap<String, Object>();
+            filter.put("metric", me);
+            filter.put("storedProject", sp);
+            List<EvaluationMark> wasEvaluated = db.findObjectsByProperties(s,
+                    EvaluationMark.class, filter);
 
-			// If this is a first time evaluation, then remember this in the DB
-			if (wasEvaluated.isEmpty()) {
-				EvaluationMark evaluationMark = new EvaluationMark();
-				evaluationMark.setMetric(me);
-				evaluationMark.setStoredProject(sp);
-				db.addRecord(evaluationMark);
-			}
-			evaluationMarked.put(sp.getId(), true);
-			// Free the DB session
-			db.returnSession(s);
+            // If this is a first time evaluation, then remember this in the DB
+            if (wasEvaluated.isEmpty()) {
+                EvaluationMark evaluationMark = new EvaluationMark();
+                evaluationMark.setMetric(me);
+                evaluationMark.setStoredProject(sp);
+                db.addRecord(evaluationMark);
+            }
+            evaluationMarked.put(sp.getId(), true);
+            // Free the DB session
+            db.returnSession(s);
     	}
     }
 
     /**
-	 * Register the metric to the DB. Subclasses can run their custom
-	 * initialization routines (i.e. registering DAOs or tables) after calling
-	 * super()
-	 */
-    public boolean install() {
-
-        Session s = db.getSession(this);
-
-        List plugins = s.createQuery("from Plugin as m where m.name = ? ")
-                .setString(0, getName())
-                .list();
-
+     * Register the metric to the DB. Subclasses can run their custom
+     * initialization routines (i.e. registering DAOs or tables) after calling
+     * super()
+     */
+    public Long install() {
+        HashMap<String, Object> h = new HashMap<String, Object>();
+        h.put("name", this.getName());
+        
+        List<Plugin> plugins = db.findObjectsByProperties(Plugin.class, h);
+        
         if (!plugins.isEmpty()) {
-            log.warn("Plugin <" + getName()
+            log.warn("A plugin with name <" + getName()
                     + "> is already installed, won't re-install.");
-            return false;
+            return null;
         }
 
         Plugin p = new Plugin();
         p.setName(getName());
         p.setInstalldate(new Date(System.currentTimeMillis()));
-        db.returnSession(s);
-
-        return db.addRecord(p);
+        p.setVersion(getVersion());
+        p.setActive(true);
+        db.addRecord(p);
+        
+        return p.getId();
     }
 
     /**
-     * Remove a metric's record from the DB. The DB's referential integrity
+     * Remove a plug-in's record from the DB. The DB's referential integrity
      * mechanisms are expected to automatically remove associated records.
      * Subclasses should also clean up any custom tables created.
      *
      * TODO: Remove metric registrations from the plugin registry
      */
     public boolean remove() {
-        Session s = db.getSession(this);
-        Plugin p = Plugin.getPlugin(getName());
-        db.returnSession(s);
 
+        Plugin p = Plugin.getPlugin(getName());
         return db.deleteRecord(p);
     }
 
@@ -354,7 +352,9 @@ implements eu.sqooss.service.abstractmetric.AlitheiaPlugin {
         List<StoredProject> l = db.findObjectsByProperties(StoredProject.class, h);
         
         for(StoredProject sp : l) {
-            Scheduler s = ((AlitheiaCore) bc.getService(this.bc.getServiceReference(AlitheiaCore.class.getName()))).getScheduler();
+            Scheduler s = ((AlitheiaCore) bc.getService(this.bc
+                    .getServiceReference(AlitheiaCore.class.getName())))
+                    .getScheduler();
             try {
                 s.enqueue(new DefaultUpdateJob(this, sp));
             } catch (SchedulerException e) {
