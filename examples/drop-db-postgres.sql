@@ -34,6 +34,11 @@ drop table privilege_value cascade;
 drop table evaluation_mark;
 drop sequence hibernate_sequence;
 drop table hibernate_unique_key;
+drop table developer;
+drop table directory;
+drop table pending_user;
+drop table plugin_configuration;
+drop table plugin;
 
 -- Display remaining tables, just in case
 --
