@@ -32,20 +32,21 @@
     font-weight: bold;
 }
 
-#news {
+#news, #tagcloud, #selectedproject,
+#projectslist {
     padding: 1ex 1em;
     padding-left: 76px;
-    background: #fff url(/img/news_section.png) no-repeat;
-    background-position: 12px 8px;
     min-height: 52px; /* 36px for image + 8px padding */
 }
 
+#news {
+    background: #fff url(/img/news_section.png) no-repeat;
+    background-position: 12px 8px;
+}
+
 #tagcloud {
-    padding: 1ex 1em;
-    padding-left: 76px;
     background: #fff url(/img/toys_section.png) no-repeat;
     background-position: 12px 8px;
-    min-height: 52px; /* 36px for image + 8px padding */
 }
 
 #tagcloud td {
@@ -82,8 +83,6 @@ ul.projectslist {
     margin: 0;
     padding: 0;
     margin-left: 0px;
-    border-left: 1px dotted #cccccc;
-    border-top: 1px dotted #cccccc;
     padding-left: 3px;
 }
 

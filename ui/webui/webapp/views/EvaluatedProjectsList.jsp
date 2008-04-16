@@ -1,6 +1,5 @@
 <%@ page import="eu.sqooss.webui.*" %>
 
-<div class="group">
 <%!
 public static String versionSelector(Long projectId, Long currentVer) {
     String form =
@@ -28,7 +27,8 @@ if (ProjectsListView.hasProjects()) {
 
     Project selectedProject = ProjectsListView.getCurrentProject();
     if (selectedProject != null) {
-        out.println("<p />Selected:");
+        out.println("<div id=\"selectedproject\" class=\"group\">");
+        out.println("Selected:");
         out.println("<strong>" + selectedProject.getName() + "</strong>");
         out.println("<span class=\"forget\"><a href=\".?pid=none\">(forget)</a></span>");
 
@@ -84,18 +84,22 @@ if (ProjectsListView.hasProjects()) {
                     + selectedProject.getFirstVersion());
             }
         }
+        out.println("</div>"); // End of this group
         out.println("<div style=\"margin-bottom: 20px;\"></div>");
     }
+    out.println("<div id=\"projectslist\" class=\"group\">");
     out.println(projects);
+    out.println("</div>");
 }
 else {
+    out.println("<div class=\"group\">");
     if (cruncher.isOnline()) {
         out.println(Functions.error("Unable to find any evaluated projects."));
     } else {
         out.println(cruncher.getStatus());
     }
+    out.println("</div>");
 }
 
 %>
-</div>
 
