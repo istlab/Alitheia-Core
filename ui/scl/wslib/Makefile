@@ -75,6 +75,7 @@ endif
 
 # Magic invocation of WSDL2Java.
 compile-wsdl : ws.wsdl
+	rm -rf src.new
 	java -cp $(ALL_CP) org.apache.axis2.wsdl.WSDL2Java \
 		-uri ws.wsdl -s -u -o src.new \
 		-p eu.sqooss.ws.client \
