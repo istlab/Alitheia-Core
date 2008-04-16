@@ -32,18 +32,154 @@
 
 package eu.sqooss.impl.service.webadmin;
 
+import java.util.Date;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import eu.sqooss.core.AlitheiaCore;
+
+import eu.sqooss.service.abstractmetric.AlitheiaPlugin.ConfigurationTypes;
+import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.StoredProject;
+import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.logging.LogManager;
+import eu.sqooss.service.metricactivator.MetricActivator;
+import eu.sqooss.service.pa.PluginAdmin;
 import eu.sqooss.service.pa.PluginInfo;
+import eu.sqooss.service.updater.UpdaterService;
+import eu.sqooss.service.util.Pair;
 import eu.sqooss.service.util.StringUtils;
 import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.scheduler.Scheduler;
 
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
+
 public class WebAdminRenderer {
-    public static String renderWaitJobs(Scheduler sobjSched) {
+    // Core components
+    private static AlitheiaCore sobjAlitheiaCore = null;
+    private static ServiceReference srefCore = null;
+
+    // Critical logging components
+    private static LogManager sobjLogManager = null;
+    private static Logger sobjLogger = null;
+
+    // Service components
+    private static DBService sobjDB = null;
+    private static MetricActivator sobjMetricActivator = null;
+    private static PluginAdmin sobjPluginAdmin = null;
+    private static Scheduler sobjSched = null;
+
+    // Current time
+    private static long startTime = new Date().getTime();
+
+    public WebAdminRenderer(BundleContext bundlecontext) {
+        srefCore = bundlecontext.getServiceReference(AlitheiaCore.class.getName());
+
+        if (srefCore != null) {
+            sobjAlitheiaCore = (AlitheiaCore) bundlecontext.getService(srefCore);
+        }
+        else {
+            System.out.println("AdminServlet: No Alitheia Core found.");
+        }
+
+        if (sobjAlitheiaCore != null) {
+            //Get the LogManager and Logger objects
+            sobjLogManager = sobjAlitheiaCore.getLogManager();
+            if (sobjLogManager != null) {
+                sobjLogger = sobjLogManager.createLogger(Logger.NAME_SQOOSS_WEBADMIN);
+            }
+
+            // Get the DB Service object
+            sobjDB = sobjAlitheiaCore.getDBService();
+            if (sobjDB != null) {
+                sobjLogger.debug("WebAdmin got DB Service object.");
+            }
+
+            // Get the Plugin Administration object
+            sobjPluginAdmin = sobjAlitheiaCore.getPluginManager();
+            if (sobjPluginAdmin != null) {
+                sobjLogger.debug("WebAdmin got Plugin Admin object.");
+            }
+
+            // Get the scheduler
+            sobjSched = sobjAlitheiaCore.getScheduler();
+            if (sobjSched != null) {
+                sobjLogger.debug("WebAdmin got Scheduler Service object.");
+            }
+
+            // Get the metric activator, whatever that is
+            sobjMetricActivator = sobjAlitheiaCore.getMetricActivator();
+            if (sobjMetricActivator != null) {
+                sobjLogger.debug("WebAdmin got Metric Activator object.");
+            }
+        }
+    }
+
+    public static String renderMetrics() {
+        Collection<PluginInfo> l = sobjPluginAdmin.listPlugins();
+        if (l == null) {
+            return "";
+        }
+
+        StringBuilder b = new StringBuilder();
+        b.append("<ul>");
+        for(PluginInfo i : l) {
+            b.append("<li>");
+            b.append("<b>" + i.toString() + "</b>");
+            b.append(renderMetricAttributes(i));
+            b.append("</li>");
+        }
+        b.append("</ul>");
+        return b.toString();
+    }
+
+    /**
+     * Creates a <ul> populated with the attributes and default values of the
+     * given MetricInfor object
+     */
+    private static String renderMetricAttributes(PluginInfo i) {
+        Collection<Pair<String, ConfigurationTypes>> attributes =  i.getAttributes();
+        if (attributes == null) {
+            return "<ul><li>This metric has no configurable attibutes.</li></ul>";
+        } else {
+            StringBuilder b = new StringBuilder();
+            b.append("<ul>");
+            for (Pair<String, ConfigurationTypes> pair : attributes) {
+                b.append("<li>Attribute: " + pair.first + " Type: " + pair.second + "</li>");
+            }
+            b.append("</ul>");
+            return b.toString();
+        }
+    }
+
+    public static String renderJobFailStats() {
+        StringBuilder result = new StringBuilder();
+        HashMap<String,Integer> fjobs = sobjSched.getSchedulerStats().getFailedJobTypes();
+        result.append("<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n");
+        result.append("\t<thead>\n");
+        result.append("\t\t<tr>\n");
+        result.append("\t\t\t<td>Job Type</td>\n");
+        result.append("\t\t\t<td>Num Jobs Failed</td>\n");
+        result.append("\t\t</tr>\n");
+        result.append("\t</thead>\n");
+        result.append("\t<tbody>\n");
+
+        for(String key : fjobs.keySet().toArray(new String[1])) {
+            result.append("\t\t<tr>\n\t\t\t<td>");
+            result.append(key);
+            result.append("</td>\n\t\t\t<td>");
+            result.append(fjobs.get(key));
+            result.append("\t\t\t</td>\n\t\t</tr>");
+        }
+        result.append("\t</tbody>\n");
+        result.append("</table>");
+        return result.toString();
+    }
+
+    public static String renderWaitJobs() {
         StringBuilder result = new StringBuilder();
         Job[] jobs = sobjSched.getWaitQueue();
         result.append("<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n");
@@ -87,7 +223,7 @@ public class WebAdminRenderer {
      * failed and the recorded exceptions
      * @return
      */
-    public static String renderFailedJobs(Scheduler sobjSched) {
+    public static String renderFailedJobs() {
         StringBuilder result = new StringBuilder();
         Job[] jobs = sobjSched.getFailedQueue();
         result.append("<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n");
@@ -134,7 +270,9 @@ public class WebAdminRenderer {
         return result.toString();
     }
 
-    public static String renderList(String[] names) {
+    public static String renderLogs() {
+        String[] names = sobjLogManager.getRecentEntries();
+
         if ((names != null) && (names.length > 0)) {
             StringBuilder b = new StringBuilder();
             for (String s : names) {
@@ -147,12 +285,33 @@ public class WebAdminRenderer {
         }
     }
 
+    public static String getSchedulerDetails(String attribute) {
+        if (attribute.equals("WAITING")) {
+            return String.valueOf(sobjSched.getSchedulerStats().getWaitingJobs());
+        }
+        else if (attribute.equals("RUNNING")) {
+            return String.valueOf(sobjSched.getSchedulerStats().getRunningJobs());
+        }
+        else if (attribute.equals("WORKER")) {
+            return String.valueOf(sobjSched.getSchedulerStats().getWorkerThreads());
+        }
+        else if (attribute.equals("FAILED")) {
+            return String.valueOf(sobjSched.getSchedulerStats().getFailedJobs());
+        }
+        else if (attribute.equals("TOTAL")) {
+            return String.valueOf(sobjSched.getSchedulerStats().getTotalJobs());
+        }
+
+        return "";
+    }
+
     /**
      * Returns a string representing the uptime of the Alitheia core
      * in dd:hh:mm:ss format
      */
-    public static String getUptime(long startTime, long currentTime) {
+    public static String getUptime() {
         long remainder;
+        long currentTime = new Date().getTime();
         long timeRunning = currentTime - startTime;
 
         // Get the elapsed time in days, hours, mins, secs
@@ -167,53 +326,56 @@ public class WebAdminRenderer {
         return String.format("%d:%02d:%02d:%02d", days, hours, mins, secs);
     }
 
-    // private String renderProjects(List<StoredProject> projects, Collection<PluginInfo> metrics) {
-//         if (projects == null || metrics == null) {
-//             return null;
-//         }
+    public static String renderProjects() {
+        List projects = sobjDB.doHQL("from StoredProject");
+        Collection<PluginInfo> metrics = sobjPluginAdmin.listPlugins();
 
-//         StringBuilder s = new StringBuilder();
+        if (projects == null || metrics == null) {
+            return null;
+        }
+
+        StringBuilder s = new StringBuilder();
         
-//         s.append("<table border=\"1\">");
-//         s.append("<tr>");
-//         s.append("<td><b>Project</b></td>");
+        s.append("<table border=\"1\">");
+        s.append("<tr>");
+        s.append("<td><b>Project</b></td>");
         
-//         for(PluginInfo m : metrics) {
-//             s.append("<td><b>");
-//             s.append(m.getPluginName());
-//             s.append("</b></td>");
-//         }
-//         s.append("</tr>");
+        for(PluginInfo m : metrics) {
+            s.append("<td><b>");
+            s.append(m.getPluginName());
+            s.append("</b></td>");
+        }
+        s.append("</tr>");
        
-//         for (int i=0; i<projects.size(); i++) {
-//             s.append("<tr>");
-//             StoredProject p = (StoredProject) projects.get(i);
-//             s.append("<td><font size=\"-2\"><b>");
-//             s.append(p.getName());
-//             s.append("</b> ([id=");
-//             s.append(p.getId());
-//             s.append("]) <br/>Update:");
-//             for (String updTarget: UpdaterService.UpdateTarget.toStringArray()) {
-//                 s.append("<a href=\"http://localhost:8088/updater?project=");
-//                 s.append(p.getName());
-//                 s.append("&target=");
-//                 s.append(updTarget);
-//                 s.append("\" title=\"Tell the updater to check for new data in this category.\">");
-//                 s.append(updTarget);
-//                 s.append("</a>&nbsp");
-//             }
-//             s.append("<br/>Sites: <a href=\"");
-//             s.append(p.getWebsite());
-//             s.append("\">Website</a>&nbsp;Alitheia Reports");
-//             s.append("</font></td>");
-//             for(PluginInfo m : metrics) {
-//                 s.append("<td>");
-//                 s.append(sobjMetricActivator.getLastAppliedVersion(sobjPluginAdmin.getPlugin(m), p));
-//                 s.append("</td>");
-//             }
-//             s.append("</tr>");
-//         }
-//         s.append("</table>");
-//         return s.toString();
-//     }
+        for (int i=0; i<projects.size(); i++) {
+            s.append("<tr>");
+            StoredProject p = (StoredProject) projects.get(i);
+            s.append("<td><font size=\"-2\"><b>");
+            s.append(p.getName());
+            s.append("</b> ([id=");
+            s.append(p.getId());
+            s.append("]) <br/>Update:");
+            for (String updTarget: UpdaterService.UpdateTarget.toStringArray()) {
+                s.append("<a href=\"http://localhost:8088/updater?project=");
+                s.append(p.getName());
+                s.append("&target=");
+                s.append(updTarget);
+                s.append("\" title=\"Tell the updater to check for new data in this category.\">");
+                s.append(updTarget);
+                s.append("</a>&nbsp");
+            }
+            s.append("<br/>Sites: <a href=\"");
+            s.append(p.getWebsite());
+            s.append("\">Website</a>&nbsp;Alitheia Reports");
+            s.append("</font></td>");
+            for(PluginInfo m : metrics) {
+                s.append("<td>");
+                s.append(sobjMetricActivator.getLastAppliedVersion(sobjPluginAdmin.getPlugin(m), p));
+                s.append("</td>");
+            }
+            s.append("</tr>");
+        }
+        s.append("</table>");
+        return s.toString();
+    }
 }

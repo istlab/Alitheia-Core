@@ -34,13 +34,9 @@
 
 package eu.sqooss.impl.service.webadmin;
 
-import eu.sqooss.core.AlitheiaCore;
-
 import eu.sqooss.impl.service.webadmin.WebAdminRenderer;
 import eu.sqooss.service.logging.Logger;
-import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.util.Pair;
-import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.pa.PluginAdmin;
 import eu.sqooss.service.scheduler.Scheduler;
 
@@ -51,7 +47,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-import java.util.Date;
 import java.util.Hashtable;
 
 import javax.servlet.ServletException;
@@ -66,14 +61,9 @@ import org.apache.velocity.VelocityContext;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 
 public class AdminServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
-
-    private long startTime = new Date().getTime();
-
-    private BundleContext bundlecontext = null;
 
     // Content tables
     private Hashtable<String, String> dynamicContentMap = null;
@@ -83,22 +73,12 @@ public class AdminServlet extends HttpServlet {
     VelocityContext vc = null;
     VelocityEngine ve = null;
 
-    // Critical logging components
-    private LogManager sobjLogManager = null;
-    private Logger sobjLogger = null;
-
-    private AlitheiaCore sobjAlitheiaCore = null;
-    private ServiceReference srefCore = null;
-
-    // Service objects
-    private DBService sobjDB = null;
-    private PluginAdmin sobjPluginAdmin = null;
-    private Scheduler sobjSched = null;
+    // Renderer of content
+    WebAdminRenderer render = null;
 
     public AdminServlet(BundleContext bc) {
-        // Setup the crucial components
-        bundlecontext = bc;
-        getComponents();
+        // Create the renderer
+        render = new WebAdminRenderer(bc);
 
         // Create the static content map
         staticContentMap = new Hashtable<String, Pair<String, String>>();
@@ -155,51 +135,10 @@ public class AdminServlet extends HttpServlet {
         staticContentMap.put(path, p);
     }
 
-    /**
-     * This function retrieves all of the service components required by the AdminServlet
-     */
-    private void getComponents() {
-        srefCore = bundlecontext.getServiceReference(AlitheiaCore.class.getName());
-
-        if (srefCore != null) {
-            sobjAlitheiaCore = (AlitheiaCore) bundlecontext.getService(srefCore);
-        }
-        else {
-            System.out.println("AdminServlet: No Alitheia Core found.");
-        }
-
-        if (sobjAlitheiaCore != null) {
-            //Get the LogManager and Logger objects
-            sobjLogManager = sobjAlitheiaCore.getLogManager();
-            if (sobjLogManager != null) {
-                sobjLogger = sobjLogManager.createLogger(Logger.NAME_SQOOSS_WEBADMIN);
-            }
-
-            // Get the DB Service object
-            sobjDB = sobjAlitheiaCore.getDBService();
-            if (sobjDB != null) {
-                sobjLogger.debug("WebAdmin got DB Service object.");
-            }
-
-            // Get the Plugin Administration object
-            sobjPluginAdmin = sobjAlitheiaCore.getPluginManager();
-            if (sobjPluginAdmin != null) {
-                sobjLogger.debug("WebAdmin got Plugin Admin object.");
-            }
-
-            // Get the scheduler
-            sobjSched = sobjAlitheiaCore.getScheduler();
-            if (sobjSched != null) {
-                sobjLogger.debug("WebAdmin got Scheduler Service object.");
-            }
-        }
-    }
-
     protected void doGet(HttpServletRequest request,
                          HttpServletResponse response) throws ServletException,
                                                               IOException {
         try {
-            sobjLogger.debug("GET path=" + request.getPathInfo());
             String query = request.getPathInfo();
             
             // This is static content
@@ -248,10 +187,6 @@ public class AdminServlet extends HttpServlet {
             ostream.write(buffer,0,bytesRead);
             totalBytes += bytesRead;
         }
-
-        if (sobjLogger != null) {
-            sobjLogger.debug("Wrote " + totalBytes + " from " + source.first);
-        }
     }
 
     protected void sendPage(HttpServletResponse response, String path)
@@ -293,20 +228,20 @@ public class AdminServlet extends HttpServlet {
 
         // Function-based substitutions
         //vc.put("STATUS", someFunction); FIXME
-        vc.put("GETLOGS", WebAdminRenderer.renderList(sobjLogManager.getRecentEntries()));
-        //vc.put("PROJECTS", renderProjects(sobjDB.doHQL("from StoredProject"), sobjPluginAdmin.listPlugins()));
-        vc.put("UPTIME", WebAdminRenderer.getUptime(startTime, new Date().getTime()));
-        vc.put("QUEUE_LENGTH", String.valueOf(sobjSched.getSchedulerStats().getWaitingJobs()));
-        vc.put("JOB_EXEC", String.valueOf(sobjSched.getSchedulerStats().getRunningJobs()));
-        vc.put("JOB_WAIT", String.valueOf(sobjSched.getSchedulerStats().getWaitingJobs()));
-        vc.put("JOB_WORKTHR", String.valueOf(sobjSched.getSchedulerStats().getWorkerThreads()));
-        vc.put("JOB_FAILED", String.valueOf(sobjSched.getSchedulerStats().getFailedJobs()));
-        vc.put("JOB_TOTAL", String.valueOf(sobjSched.getSchedulerStats().getTotalJobs()));
-        vc.put("WAITJOBS", WebAdminRenderer.renderWaitJobs(sobjSched));
-        vc.put("FAILJOBS", WebAdminRenderer.renderFailedJobs(sobjSched));
-        //vc.put("JOBFAILSTATS", renderJobFailStats());
-        //vc.put("METRICS", renderMetrics());
-
+        vc.put("GETLOGS", render.renderLogs());
+        vc.put("PROJECTS", render.renderProjects());
+        vc.put("UPTIME", render.getUptime());
+        vc.put("QUEUE_LENGTH", render.getSchedulerDetails("WAITING"));
+        vc.put("JOB_EXEC", render.getSchedulerDetails("RUNNING"));
+        vc.put("JOB_WAIT", render.getSchedulerDetails("WAITING"));
+        vc.put("JOB_WORKTHR", render.getSchedulerDetails("WORKER"));
+        vc.put("JOB_FAILED", render.getSchedulerDetails("FAILED"));
+        vc.put("JOB_TOTAL", render.getSchedulerDetails("TOTAL"));
+        vc.put("WAITJOBS", render.renderWaitJobs());
+        vc.put("FAILJOBS", render.renderFailedJobs());
+        vc.put("JOBFAILSTATS", render.renderJobFailStats());
+        vc.put("METRICS", render.renderMetrics());
+        
         // These are composite substitutions
         vc.put("STATUS_CORE","<fieldset id=\"status\">" +
                      "<legend>Status</legend>" +
