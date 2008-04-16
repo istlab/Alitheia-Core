@@ -155,7 +155,9 @@ public class InMemoryDirectory {
 
     public void addFile(String path) {
         if (path.indexOf('/') == -1 ) {
-            files.add(path);
+        	if (!files.contains(path)) {
+        		files.add(path);
+        	}
         } else {
             String pathName = path.substring(0, path.indexOf('/'));
             String fileName = path.substring(path.indexOf('/') + 1);
@@ -165,10 +167,20 @@ public class InMemoryDirectory {
     }
 
     public void deleteFile(String path) {
-        // TODO: Delete the file
+    	if (path.indexOf('/') == -1) {
+    		// might be a file
+    		files.remove(path);
+    		// but it might even be a directory...
+    		directories.remove(getSubdirectoryByName(path));
+    	} else {
+    		String pathName = path.substring(0, path.indexOf('/'));
+    		String fileName = path.substring(path.indexOf('/') + 1);
+    		InMemoryDirectory dir = getSubdirectoryByName(pathName);
+    		dir.deleteFile(fileName);
+    	}
     }
     
-    protected InMemoryDirectory getSubdirectoryByName(String name) {
+    public InMemoryDirectory getSubdirectoryByName(String name) {
         for (InMemoryDirectory dir : directories) {
             if (dir.getName().equals(name) ) {
                 return dir;
