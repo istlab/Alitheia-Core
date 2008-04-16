@@ -36,6 +36,15 @@
     padding: 1ex 1em 1ex 22%;
 }
 
+#tagcloud {
+    padding: 1ex 1em;
+    text-align: center;
+}
+
+#contents .group {
+    border: 1px dotted #cccccc;
+}
+
 .metrics {
     margin: 0px;
     padding: 4px;
