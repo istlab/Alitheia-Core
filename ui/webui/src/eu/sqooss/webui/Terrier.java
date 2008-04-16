@@ -33,6 +33,9 @@
 
 package eu.sqooss.webui;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.Vector;
@@ -327,9 +330,13 @@ public class Terrier {
             }
             return connection.getUserAccessor().getUserMessageOfTheDay(user);
         } catch (WSException e) {
-            return null;
+            return e.toString();
         } catch (NullPointerException e) {
-            return null;
+            ByteArrayOutputStream o = new ByteArrayOutputStream();
+            PrintStream p = new PrintStream(o);
+            e.printStackTrace(p);
+            p.close();
+            return o.toString();
         }
     }
 

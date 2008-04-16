@@ -370,8 +370,8 @@ public class WebServices {
     //metric results
     
     public String getUserMessageOfTheDay(String userName) {
-        if (userName.length() > 7) {
-            return "Expand your unit, [" + userName.substring(2,3) + "]";
+        if (userName.length() < 12 /* inches ? */) {
+            return "Expand your unit, " + userName;
         }
         return "Share and enjoy.";
     }
