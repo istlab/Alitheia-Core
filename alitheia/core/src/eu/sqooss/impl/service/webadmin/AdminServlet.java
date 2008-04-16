@@ -297,13 +297,13 @@ public class AdminServlet extends HttpServlet {
         //vc.put("PROJECTS", renderProjects(sobjDB.doHQL("from StoredProject"), sobjPluginAdmin.listPlugins()));
         vc.put("UPTIME", WebAdminRenderer.getUptime(startTime, new Date().getTime()));
         vc.put("QUEUE_LENGTH", String.valueOf(sobjSched.getSchedulerStats().getWaitingJobs()));
-        //vc.put("JOB_EXEC", String.valueOf(sobjSched.getSchedulerStats().getRunningJobs()));
-        //vc.put("JOB_WAIT", String.valueOf(sobjSched.getSchedulerStats().getWaitingJobs()));
-        //vc.put("JOB_WORKTHR", String.valueOf(sobjSched.getSchedulerStats().getWorkerThreads()));
-        //vc.put("JOB_FAILED", String.valueOf(sobjSched.getSchedulerStats().getFailedJobs()));
-        //vc.put("JOB_TOTAL", String.valueOf(sobjSched.getSchedulerStats().getTotalJobs()));
+        vc.put("JOB_EXEC", String.valueOf(sobjSched.getSchedulerStats().getRunningJobs()));
+        vc.put("JOB_WAIT", String.valueOf(sobjSched.getSchedulerStats().getWaitingJobs()));
+        vc.put("JOB_WORKTHR", String.valueOf(sobjSched.getSchedulerStats().getWorkerThreads()));
+        vc.put("JOB_FAILED", String.valueOf(sobjSched.getSchedulerStats().getFailedJobs()));
+        vc.put("JOB_TOTAL", String.valueOf(sobjSched.getSchedulerStats().getTotalJobs()));
         //vc.put("WAITJOBS", renderWaitJobs());
-        //vc.put("FAILJOBS", renderFailedJobs());
+        vc.put("JOBFAILSTATS", WebAdminRenderer.renderFailedJobs(sobjSched));
         //vc.put("JOBFAILSTATS", renderJobFailStats());
         //vc.put("METRICS", renderMetrics());
 
@@ -317,24 +317,24 @@ public class AdminServlet extends HttpServlet {
                      "<li class=\"queue\">Job Queue Length: " +
                                           vc.get("QUEUE_LENGTH") +
                                           "</li></ul></fieldset>");
-        //vc.put("STATUS_JOBS","<fieldset id=\"jobs\">" +
-        //             "<legend>Job Info</legend>" +
-        //             "<table width='100%' cellspacing=0 cellpadding=3>" +
-        //             "<tr><td>Executing:</td><td class=\"number\">" +
-        //                                  dynamicSubstitutions.get("JOB_EXEC") +
-        //             "</td></tr>" +
-        //             "<tr><td>Waiting:</td><td class=\"number\">" +
-        //                                  dynamicSubstitutions.get("JOB_WAIT") +
-        //             "</td></tr>" +
-        //             "<tr><td>Failed:</td><td class=\"number\">" +
-        //                                  dynamicSubstitutions.get("JOB_FAILED") +
-        //             "</td></tr>" +
-        //             "<tr><td>Total:</td><td class=\"number\">" +
-        //                                  dynamicSubstitutions.get("JOB_TOTAL") +
-        //             "</td></tr>" +
-        //             "<tr class=\"newgroup\"><td>Workers:</td><td class=\"number\">" +
-        //                                  dynamicSubstitutions.get("JOB_WORKTHR") +
-        //                                  "</td></tr></table></fieldset>");
+        vc.put("STATUS_JOBS","<fieldset id=\"jobs\">" +
+                     "<legend>Job Info</legend>" +
+                     "<table width='100%' cellspacing=0 cellpadding=3>" +
+                     "<tr><td>Executing:</td><td class=\"number\">" +
+                                          vc.get("JOB_EXEC") +
+                     "</td></tr>" +
+                     "<tr><td>Waiting:</td><td class=\"number\">" +
+                                          vc.get("JOB_WAIT") +
+                     "</td></tr>" +
+                     "<tr><td>Failed:</td><td class=\"number\">" +
+                                          vc.get("JOB_FAILED") +
+                     "</td></tr>" +
+                     "<tr><td>Total:</td><td class=\"number\">" +
+                                          vc.get("JOB_TOTAL") +
+                     "</td></tr>" +
+                     "<tr class=\"newgroup\"><td>Workers:</td><td class=\"number\">" +
+                                          vc.get("JOB_WORKTHR") +
+                                          "</td></tr></table></fieldset>");
     }
 }
 

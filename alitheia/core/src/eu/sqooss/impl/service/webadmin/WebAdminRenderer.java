@@ -38,9 +38,62 @@ import java.util.List;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.pa.PluginInfo;
 import eu.sqooss.service.util.StringUtils;
-
+import eu.sqooss.service.scheduler.Job;
+import eu.sqooss.service.scheduler.Scheduler;
 
 public class WebAdminRenderer {
+    /**
+     * Creates and HTML table with information about the jobs that
+     * failed and the recorded exceptions
+     * @return
+     */
+    protected static String renderFailedJobs(Scheduler sobjSched) {
+        StringBuilder result = new StringBuilder();
+        Job[] jobs = sobjSched.getFailedQueue();
+        result.append("<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n");
+        result.append("\t<thead>\n");
+        result.append("\t\t<tr>\n");
+        result.append("\t\t\t<td>Job Type</td>\n");
+        result.append("\t\t\t<td>Exception type</td>\n");
+        result.append("\t\t\t<td>Exception text</td>\n");
+        result.append("\t\t\t<td>Exception backtrace</td>\n");
+        result.append("\t\t</tr>\n");
+        result.append("\t</thead>\n");
+        result.append("\t<tbody>\n");
+
+        for(Job j: jobs) {
+            result.append("\t\t<tr>\n\t\t\t<td>");
+            result.append(j.getClass().toString());
+            result.append("</td>\n\t\t\t<td>");
+            if (j.getErrorException().getClass().toString() != null) {
+                result.append(j.getErrorException().getClass().toString());
+                result.append("</td>\n\t\t\t<td>");
+            } else {
+                result.append("null");
+                result.append("</td>\n\t\t\t<td>");    
+            }
+            result.append(j.getErrorException().getMessage());
+            result.append("</td>\n\t\t\t<td>");
+            for(StackTraceElement m: j.getErrorException().getStackTrace()) {
+                result.append(m.getClassName());
+                result.append(".");
+                result.append(m.getMethodName());
+                result.append("(), (");
+                result.append(m.getFileName());
+                result.append(":");
+                result.append(m.getLineNumber());
+                result.append(")<br/>");
+            }
+
+            result.append("\t\t\t</td>\n\t\t</tr>");
+        }
+
+        result.append("\t</tbody>\n");
+        result.append("</table>");
+
+        return result.toString();
+    }
+
     public static String renderList(String[] names) {
         if ((names != null) && (names.length > 0)) {
             StringBuilder b = new StringBuilder();
