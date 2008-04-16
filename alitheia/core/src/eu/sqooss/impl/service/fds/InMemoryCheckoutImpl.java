@@ -35,6 +35,7 @@ package eu.sqooss.impl.service.fds;
 
 import java.io.FileNotFoundException;
 
+import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.fds.InMemoryCheckout;
 import eu.sqooss.service.fds.InMemoryDirectory;
@@ -139,6 +140,10 @@ class InMemoryCheckoutImpl implements InMemoryCheckout {
     /** {@inheritDoc} */
     public long getId() {
         return projectId;
+    }
+    
+    public ProjectFile getFile(String name) {
+    	return root.getFile(name);
     }
 }
 
