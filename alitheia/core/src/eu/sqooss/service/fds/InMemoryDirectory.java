@@ -90,7 +90,11 @@ public class InMemoryDirectory {
      * Returns the complete path of this directory.
      */
     public String getPath() {
-        return parentDirectory == null ? getName() : parentDirectory.getPath() + "/" + getName();
+    	if (parentDirectory==null || parentDirectory.getPath().length() == 0) {
+    		return getName();
+    	} else {
+    		return parentDirectory.getPath() + "/" + getName();
+    	}
     }
    
     /**
@@ -116,6 +120,51 @@ public class InMemoryDirectory {
     }
 
     /**
+     * Returns one file living in this directory or below.
+     * @param name The filename relative to this directory.
+     * @return A reference to a ProjectFile
+     */
+    public ProjectFile getFile(String name) {
+        if (name.indexOf('/') != -1 ) {
+            String pathName = name.substring(0, name.indexOf('/'));
+            String fileName = name.substring(name.indexOf('/') + 1);
+            InMemoryDirectory dir = getSubdirectoryByName(pathName);
+            return dir == null ? null : dir.getFile(fileName);
+        }
+        
+        DBService dbs = CoreActivator.getDBService();
+        
+        StoredProject project = getCheckout().getProject();
+        ProjectVersion version = ProjectVersion.getVersionByRevision(project, getCheckout().getRevision() );
+        
+        String paramRevision = "project_revision";
+        String paramProjectId = "project_id";
+        String paramName = "file_name";
+        String paramPath = "path_name";
+
+        String query = "select pf " +
+                       "from ProjectFile pf " +
+                       "where pf.projectVersion.version<=:" + paramRevision + " and " +
+                       "pf.name=:" + paramName + " and " +
+                       "pf.dir.path=:" + paramPath + " and " +
+                       "pf.projectVersion.project.id=:" + paramProjectId + " " +
+                       "order by pf.projectVersion.version desc";
+
+        Map<String,Object> parameters = new HashMap<String,Object>();
+        parameters.put(paramRevision, version.getVersion() );
+        parameters.put(paramProjectId, project.getId() );
+        parameters.put(paramName, name);
+        parameters.put(paramPath, getPath());
+        
+        List<?> projectFiles = dbs.doHQL(query, parameters);
+        if (projectFiles != null && projectFiles.size() != 0) {
+        	return (ProjectFile)projectFiles.get(0);
+        }
+        
+        return null;
+    }
+    
+    /**
      * Returns the list of files this directory contains.
      */
     public List<ProjectFile> getFiles() {
@@ -129,17 +178,20 @@ public class InMemoryDirectory {
         String paramRevision = "project_revision";
         String paramProjectId = "project_id";
         String paramName = "file_name";
+        String paramPath = "path_name";
 
         String query = "select pf " +
                        "from ProjectFile pf " +
-                       "where pf.projectVersion.version<=:" + paramRevision + "and " +
-                       "pf.name=:" + paramName + "and " +
-                       "pf.projectVersion.id=:" + paramProjectId + " " +
+                       "where pf.projectVersion.version<=:" + paramRevision + " and " +
+                       "pf.name=:" + paramName + " and " +
+                       "pf.dir.path=:" + paramPath + " and " +
+                       "pf.projectVersion.project.id=:" + paramProjectId + " " +
                        "order by pf.projectVersion.version desc";
 
         Map<String,Object> parameters = new HashMap<String,Object>();
         parameters.put(paramRevision, version.getVersion() );
         parameters.put(paramProjectId, project.getId() );
+        parameters.put(paramPath, getPath());
 
         for (String file: files) {
             parameters.put(paramName, file);
@@ -153,6 +205,10 @@ public class InMemoryDirectory {
         return result;
     }
 
+    /**
+     * Adds a file.
+     * @param path The filename relative to this directory.
+     */
     public void addFile(String path) {
         if (path.indexOf('/') == -1 ) {
         	if (!files.contains(path)) {
@@ -161,11 +217,15 @@ public class InMemoryDirectory {
         } else {
             String pathName = path.substring(0, path.indexOf('/'));
             String fileName = path.substring(path.indexOf('/') + 1);
-            InMemoryDirectory dir = getSubdirectoryByName(pathName);
+            InMemoryDirectory dir = getOrCreateSubdirectoryByName(pathName);
             dir.addFile(fileName);
         }
     }
 
+    /**
+     * Deletes a file.
+     * @param path The filename relative to this directory.
+     */
     public void deleteFile(String path) {
     	if (path.indexOf('/') == -1) {
     		// might be a file
@@ -176,10 +236,17 @@ public class InMemoryDirectory {
     		String pathName = path.substring(0, path.indexOf('/'));
     		String fileName = path.substring(path.indexOf('/') + 1);
     		InMemoryDirectory dir = getSubdirectoryByName(pathName);
-    		dir.deleteFile(fileName);
+    		if (dir != null ) {
+    			dir.deleteFile(fileName);
+    		}
     	}
     }
     
+    /**
+     * Gets a subdirectory.
+     * @param name The name of the directory.
+     * @return An InMemoryDirectory reference.
+     */
     public InMemoryDirectory getSubdirectoryByName(String name) {
         for (InMemoryDirectory dir : directories) {
             if (dir.getName().equals(name) ) {
@@ -188,11 +255,54 @@ public class InMemoryDirectory {
         }
 
         // not found? create it
-        InMemoryDirectory dir = new InMemoryDirectory(this, name);
-        directories.add(dir);
-        return dir;
+        return null;
+    }
+ 
+    /**
+     * Creates a subdirectory
+     * @param name The name of the subdirectory to create.
+     * @return A reference to the new directory.
+     */
+    public InMemoryDirectory createSubDirectory(String name) {
+       	if (name.indexOf('/') == -1) {
+          	InMemoryDirectory dir = getSubdirectoryByName(name);
+          	if (dir == null ) {
+          		dir = new InMemoryDirectory(this, name);
+          	}
+          	if (!directories.contains(dir)) {
+          		directories.add(dir);
+          	}
+        	return getSubdirectoryByName(name);
+    	} else {
+    		String pathName = name.substring(0, name.indexOf('/'));
+    		String fileName = name.substring(name.indexOf('/') + 1);
+    		InMemoryDirectory dir = getOrCreateSubdirectoryByName(pathName);
+    		return dir.createSubDirectory(fileName);
+    	}
+ 
     }
     
+    /**
+     * Gets a subdirectory. If the wanted one couldn't be found, it's created.
+     * @param name The name of the directory.
+     * @return An InMemoryDirectory reference.
+     */
+    protected InMemoryDirectory getOrCreateSubdirectoryByName(String name) {
+        for (InMemoryDirectory dir : directories) {
+            if (dir.getName().equals(name) ) {
+                return dir;
+            }
+        }
+
+        // not found? create it
+        return createSubDirectory(name);
+    }
+    
+    /**
+     * Nice formatting of this directory including subdirectories and files.
+     * @param indentation The indentation of the root.
+     * @return A String containing a nicely formatted directory tree.
+     */
     protected String toString(int indentation) {
     	String result = "";
     	String indent = "";
@@ -210,7 +320,8 @@ public class InMemoryDirectory {
     	
     	return result;
     }
-    
+   
+    /** {@inheritDoc} */
     public String toString() {
     	return toString(0);
     }

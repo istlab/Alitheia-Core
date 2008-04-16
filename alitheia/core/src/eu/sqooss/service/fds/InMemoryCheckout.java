@@ -33,6 +33,7 @@
 
 package eu.sqooss.service.fds;
 
+import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.tds.CommitEntry;
 import eu.sqooss.service.tds.ProjectRevision;
@@ -75,6 +76,12 @@ public interface InMemoryCheckout extends eu.sqooss.service.tds.NamedAccessor {
      * Get the root directory of this checkout.
      */
     InMemoryDirectory getRoot();
+    
+    /**
+     * Get a file inside of the checkout.
+     * @param name The filename.
+     */
+    ProjectFile getFile(String name);
 
     /**
      * Get the stored project this checkout belongs to.
