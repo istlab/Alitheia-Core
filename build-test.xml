@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- You may freely edit this file. See commented blocks below for -->
-<!-- some examples of how to customize the build. -->
-<!-- (If you delete it and reopen the project it will be recreated.) -->
+<!--
+  Generic build test file. To run a specific JUnit test class, use:
+  ant -f build-test.xml -Dtestclass="fully.qualified.name.of.your.class"
+-->
 <project name="SQO-OSS" default="compile" basedir=".">
     <description>Builds and tests DB-related SQO-OSS code.</description>
-    <!-- set global properties for this build -->
 	
     <property name="eu.sqooss.db.driver" value="src"/>
     <property name="eu.sqooss.db.url" value="jars"/>
@@ -16,7 +16,9 @@
     <property name="sharedlibs" value="sharedlibs/"/>
     <property name="bin" value="bin"/>
     <property name="builddir" value="alitheia/core/build"/>
-	
+
+    <property name="testclass" value="eu.sqooss.test.updater.BugFactoryTester"/>
+
     <path id="cp">
       <fileset dir="${repo}">
         <include name="**/*.jar"/>
@@ -45,7 +47,7 @@
     </target>
 
     <target name="run" depends="compile">
-      <java classname="eu.sqooss.test.updater.BugFactoryTester" classpathref="rcp"/>
+      <java classname="${testclass}" classpathref="rcp"/>
     </target>
     	
 </project>
