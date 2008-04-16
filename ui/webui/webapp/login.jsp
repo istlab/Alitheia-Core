@@ -21,7 +21,7 @@ if ((actionResult != null)
 }
 else if ((actionResult != null)
         && (actionResult.compareToIgnoreCase(RES_REG_SUCCESS) == 0)) {
-    out.println ("Thank you for your registeration to SQO-OSS!");
+    out.println ("Thank you for your registration to SQO-OSS!");
     out.println ("<br />");
     out.println ("A confirmation email will in short be sent to you.");
     out.println ("<br />");
