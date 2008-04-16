@@ -72,6 +72,7 @@ public class WcJob extends AbstractMetricJob {
         }
         
         // Retrieve the content of the selected project file
+        // FIXME change to use streams for processing
         byte[] content = fds.getFileContents(pf);
         if (content != null) {
             // Create an input stream from the project file's content
