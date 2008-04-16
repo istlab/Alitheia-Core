@@ -54,6 +54,26 @@ public class WebAdminRenderer {
         }
     }
 
+    /**
+     * Returns a string representing the uptime of the Alitheia core
+     * in dd:hh:mm:ss format
+     */
+    public static String getUptime(long startTime, long currentTime) {
+        long remainder;
+        long timeRunning = currentTime - startTime;
+
+        // Get the elapsed time in days, hours, mins, secs
+        int days = new Long(timeRunning / 86400000).intValue();
+        remainder = timeRunning % 86400000;
+        int hours = new Long(remainder / 3600000).intValue();
+        remainder = remainder % 3600000;
+        int mins = new Long(remainder / 60000).intValue();
+        remainder = remainder % 60000;
+        int secs = new Long(remainder / 1000).intValue();
+
+        return String.format("%d:%02d:%02d:%02d", days, hours, mins, secs);
+    }
+
     // private String renderProjects(List<StoredProject> projects, Collection<PluginInfo> metrics) {
 //         if (projects == null || metrics == null) {
 //             return null;

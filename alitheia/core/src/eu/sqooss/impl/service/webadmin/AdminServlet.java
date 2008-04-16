@@ -50,6 +50,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
+import java.util.Date;
 import java.util.Hashtable;
 
 import javax.servlet.ServletException;
@@ -68,6 +69,8 @@ import org.osgi.framework.ServiceReference;
 
 public class AdminServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
+
+    private long startTime = new Date().getTime();
 
     private BundleContext bundlecontext = null;
 
@@ -283,7 +286,7 @@ public class AdminServlet extends HttpServlet {
         //vc.put("STATUS", someFunction); FIXME
         vc.put("GETLOGS", WebAdminRenderer.renderList(sobjLogManager.getRecentEntries()));
         //vc.put("PROJECTS", renderProjects(sobjDB.doHQL("from StoredProject"), sobjPluginAdmin.listPlugins()));
-        //vc.put("UPTIME",getUptime());
+        vc.put("UPTIME", WebAdminRenderer.getUptime(startTime, new Date().getTime()));
         //vc.put("QUEUE_LENGTH", String.valueOf(sobjSched.getSchedulerStats().getWaitingJobs()));
         //vc.put("JOB_EXEC", String.valueOf(sobjSched.getSchedulerStats().getRunningJobs()));
         //vc.put("JOB_WAIT", String.valueOf(sobjSched.getSchedulerStats().getWaitingJobs()));
