@@ -46,6 +46,7 @@ public class Plugin extends DAObject{
     private String version;
     private String description;
     private boolean active;
+    private String hashcode;
 
     public String getName() {
         return name;
@@ -87,6 +88,14 @@ public class Plugin extends DAObject{
         this.active = active;
     }
     
+    public String getHashcode() {
+        return hashcode;
+    }
+
+    public void setHashcode(String hashcode) {
+        this.hashcode = hashcode;
+    }   
+    
     public static Plugin getPlugin(String name) {
         DBService db = CoreActivator.getDBService();
         HashMap<String, Object> s = new HashMap<String, Object>();
@@ -100,7 +109,7 @@ public class Plugin extends DAObject{
         HashMap<String, Object> s = new HashMap<String, Object>();
         s.put("plugin", p);
         return (List<Metric>)db.doHQL("from Metric me where me.plugin=:plugin", s);
-    }   
+    }
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

@@ -36,6 +36,7 @@ package eu.sqooss.service.db;
 import java.util.HashMap;
 import java.util.List;
 
+import eu.sqooss.impl.service.CoreActivator;
 import eu.sqooss.service.db.DAObject;
 
 public class MetricType extends DAObject {
@@ -81,10 +82,16 @@ public class MetricType extends DAObject {
         this.type = Type.fromString(s).toString();
     }
     
-    public static MetricType getMetricType(DBService db, Type t) {
+    /**
+     * Get the corresponding DAO for the provided metric type
+     * @param t
+     * @return A MetricType DAO representing the metric type
+     */
+    public static MetricType getMetricType(Type t) {
+        DBService db = CoreActivator.getDBService();
         HashMap<String, Object> s = new HashMap<String, Object>();
         s.put("type", t.toString());
-        List<?> result = db.doHQL("from MetricType mt where mt.type=:type", s);
+        List<MetricType> result = db.findObjectsByProperties(MetricType.class, s);
         if (result.isEmpty()) {
             return null;
         }

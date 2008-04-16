@@ -8,10 +8,11 @@
     <id name="id" column="PLUGIN_ID">
       <generator class="native" />
     </id>
-    <property name="name" column="NAME" type="string" unique="true" />
+    <property name="name" column="NAME" />
     <property name="installdate" column="INSTALL_DATE" type="java.util.Date" />
     <property name="version" column="VERSION" />
     <property name="description" column="DESCRIPTION" />
     <property name="active" column="IS_ACTIVE" />
+    <property name="hashcode" column="HASHCODE" unique="true" />
   </class>
 </hibernate-mapping>
