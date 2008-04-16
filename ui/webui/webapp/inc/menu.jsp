@@ -6,6 +6,7 @@
 <div id="menu">
     <ul>
         <li><a href="/" title="Alitheia overview">Home</a></li>
+        <li><a href="/projects.jsp" title="Project details">Projects</a></li>
 <%
 if (user.getLoggedIn()) {
 %>
