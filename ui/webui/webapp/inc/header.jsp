@@ -4,16 +4,17 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 
 <head>
-    <title><%= "Alitheia :: " + title %></title>
+    <title><%= "Alitheia : " + title %></title>
     <link rel="stylesheet" type="text/css" href="/style/shared.css" />
     <link rel="stylesheet" type="text/css" href="/style/webui.css" />
 </head>
 
-<body>
-<div id="header">
-    <h1><%= title %></h1>
-    <img src="/style/sqo-oss.png" alt="SQO-OSS Logo"/>
-</div>
+<body class="section-1">
+  <div id="wrap">
+    <div id="header">
+      <h1><%= title %></h1>
+      <img src="/style/sqo-oss.png" alt="SQO-OSS Logo"/>
+    </div>
 
     <%@ include file="/inc/menu.jsp" %>
 

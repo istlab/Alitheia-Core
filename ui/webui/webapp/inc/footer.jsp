@@ -4,6 +4,7 @@
     Copyright 2007-2008 by members of the
     <a href="http://www.sqo-oss.eu/">SQO-OSS consortium</a>.
 </div>
+</div>
 
 </body>
 
