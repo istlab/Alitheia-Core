@@ -302,8 +302,8 @@ public class AdminServlet extends HttpServlet {
         vc.put("JOB_WORKTHR", String.valueOf(sobjSched.getSchedulerStats().getWorkerThreads()));
         vc.put("JOB_FAILED", String.valueOf(sobjSched.getSchedulerStats().getFailedJobs()));
         vc.put("JOB_TOTAL", String.valueOf(sobjSched.getSchedulerStats().getTotalJobs()));
-        //vc.put("WAITJOBS", renderWaitJobs());
-        vc.put("JOBFAILSTATS", WebAdminRenderer.renderFailedJobs(sobjSched));
+        vc.put("WAITJOBS", WebAdminRenderer.renderWaitJobs(sobjSched));
+        vc.put("FAILJOBS", WebAdminRenderer.renderFailedJobs(sobjSched));
         //vc.put("JOBFAILSTATS", renderJobFailStats());
         //vc.put("METRICS", renderMetrics());
 
