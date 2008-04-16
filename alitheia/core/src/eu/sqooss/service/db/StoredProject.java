@@ -137,7 +137,7 @@ public class StoredProject extends DAObject {
 
     public static int getProjectCount() {
         DBService dbs = CoreActivator.getDBService();
-        List l = dbs.doHQL("SELECT COUNT(*) FROM StoredProject");
+        List<?> l = dbs.doHQL("SELECT COUNT(*) FROM StoredProject");
         if (l == null) {
             return 0;
         }
@@ -155,7 +155,7 @@ public class StoredProject extends DAObject {
 
         Map<String,Object> parameterMap = new HashMap<String,Object>();
         parameterMap.put("name",name);
-        List prList = dbs.doHQL("from StoredProject where PROJECT_NAME=:name",parameterMap);
+        List<?> prList = dbs.doHQL("from StoredProject where PROJECT_NAME=:name",parameterMap);
         if ((prList == null) || (prList.size() != 1)) {
             return null;
         }
@@ -170,7 +170,7 @@ public class StoredProject extends DAObject {
 
         Map<String,Object> parameterMap = new HashMap<String,Object>();
         parameterMap.put("sp", project);
-        List pvList = dbs.doHQL("from ProjectVersion pv where pv.project=:sp"
+        List<?> pvList = dbs.doHQL("from ProjectVersion pv where pv.project=:sp"
                 + " and pv.version = (select max(pv2.version) from "
                 + " ProjectVersion pv2 where pv2.project=:sp)",
                 parameterMap);
@@ -194,7 +194,8 @@ public class StoredProject extends DAObject {
         return lastVersion;
     }
 
-    public List<ProjectVersion> getProjectVersions() {
+    @SuppressWarnings("unchecked")
+	public List<ProjectVersion> getProjectVersions() {
         
         DBService dbs = CoreActivator.getDBService();
         
