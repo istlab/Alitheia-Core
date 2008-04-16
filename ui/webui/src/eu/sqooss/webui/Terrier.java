@@ -265,9 +265,9 @@ public class Terrier {
     /**
      * Retrieves information about the specified user from the SQO-OSS
      * framework.
-     * 
+     *
      * @param userId the user's account Id
-     * 
+     *
      * @return an User object holding information about the requested user, or
      * <code>null</code> when no information is available
      */
@@ -289,9 +289,9 @@ public class Terrier {
     /**
      * Retrieves information about the specified user from the SQO-OSS
      * framework.
-     * 
+     *
      * @param userName the user's name
-     * 
+     *
      * @return an User object holding information about the requested user, or
      * <code>null</code> when no information is available
      */
@@ -321,8 +321,14 @@ public class Terrier {
      */
     public String getUserMessageOfTheDay() {
         try {
-            return connection.getUserAccessor().getUserMessageOfTheDay(connection.getUserName());
+            String user = connection.getUserName();
+            if (user == null) {
+                user = confParams.getProperty(cfgUnprivUser);
+            }
+            return connection.getUserAccessor().getUserMessageOfTheDay(user);
         } catch (WSException e) {
+            return null;
+        } catch (NullPointerException e) {
             return null;
         }
     }

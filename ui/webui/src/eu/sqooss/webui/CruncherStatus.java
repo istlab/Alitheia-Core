@@ -48,7 +48,7 @@ public class CruncherStatus {
 
         public Worker() {
             lock = new Object();
-            m = "The cruncher is offline.";
+            m = null;
         }
 
         public void run() {
@@ -59,7 +59,7 @@ public class CruncherStatus {
                 url = new URL("http://localhost:8088/ws");
             } catch (java.net.MalformedURLException e) {
                 synchronized(lock) {
-                    m = "Invalid cruncher URL.";
+                    m = null;
                 }
                 // Wait forever
                 while(true) {
