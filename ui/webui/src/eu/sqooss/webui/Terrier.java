@@ -288,6 +288,14 @@ public class Terrier {
     }
 
     /**
+     * The Alitheia core may have a message-of-the-day stored in it,
+     * which is then printed when the user hits the front page.
+     */
+    public String getMOTD() {
+        return null;
+    }
+
+    /**
      * Add a user to the system.
      */
     public boolean registerUser (

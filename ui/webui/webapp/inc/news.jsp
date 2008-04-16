@@ -1,6 +1,11 @@
 
 
+<%
+if (terrier.getMOTD() != null) {
+%>
 <div id="news" class="group">
-News items would be here
-for this specific deployment.
+<% out.println(terrier.getMOTD()); %>
 </div>
+<%
+}
+%>
