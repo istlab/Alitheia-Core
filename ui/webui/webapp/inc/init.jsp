@@ -28,7 +28,7 @@ String msg      = "";
 <jsp:useBean id="validator"
     class="eu.sqooss.webui.InputValidator"
     scope="session"/>
-<jsp:setProperty name="user" property="*"/>
+<jsp:setProperty name="validator" property="*"/>
 
 <%
 
