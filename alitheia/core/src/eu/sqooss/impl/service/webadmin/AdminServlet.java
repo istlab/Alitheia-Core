@@ -164,9 +164,7 @@ public class AdminServlet extends HttpServlet {
                 sendPage(response, "/results.html");
             } 
             else if (query.startsWith("/motd")) {
-                vc.put("RESULTS", 
-                       "<p>The Message Of The Day was successfully updated with: <i>" +
-                       request.getParameter("motdtext") + "</i></p>");
+                render.setMOTD(request);
                 sendPage(response, "/results.html");
             }
             else {
