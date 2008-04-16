@@ -58,6 +58,7 @@ import org.osgi.framework.BundleContext;
 
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.impl.service.logging.LoggerImpl;
 
@@ -888,6 +889,62 @@ public class DBServiceImpl implements DBService {
 
         for (int i = 0; i < MAX_POOL_SIZE + 3; i++) {
             returnSession(s[i]);
+        }
+        
+        // API tests
+        
+        StoredProject testProject = findObjectById(StoredProject.class, 1);
+        if ( testProject != null ) {
+            logger.info("found a project with ID 1 : " + testProject.getName());
+        } else {
+            // Not an error, there may just not be any projects installed yet
+            logger.info("found no project with ID 1, findObjectById() returned null");
+            return null;
+        }
+        // This one should fail
+        StoredProject unknownProject = findObjectById(StoredProject.class, -1);
+        if ( unknownProject != null ) {
+            return "found a project with ID -1 !";
+        }
+        // This doesn't even compile - good
+        //ProjectVersion testVersion = findObjectById(StoredProject.class, 1);
+        
+        Map<String, Object> props = Collections.emptyMap();
+        List<StoredProject> projectList = findObjectsByProperties(StoredProject.class, props);
+        if ( projectList.size() != StoredProject.getProjectCount() ) {
+            return "findObjectsByProperties() empty params test failed";
+        }
+        
+        props.put("name", testProject.getName());
+        projectList = findObjectsByProperties(StoredProject.class, props);
+        if ( projectList.size() != 1 || projectList.get(0).equals(testProject) ) {
+            return "findObjectsByProperties() name param test failed";
+        }
+        
+        props.put("name", "no_project_would_ever_be_called_that");
+        projectList = findObjectsByProperties(StoredProject.class, props);
+        if ( !projectList.isEmpty() ) {
+            return "findObjectsByProperties invalid name param test failed";
+        }
+        
+        props.clear();
+        props.put("name", testProject.getName());
+        props.put("id", testProject.getId());
+        projectList = findObjectsByProperties(StoredProject.class, props);
+        if ( projectList.size() != 1 || projectList.get(0).equals(testProject) ) {
+            return "findObjectsByProperties() name+id param test failed";
+        }
+        
+        props.put("id", 0);
+        projectList = findObjectsByProperties(StoredProject.class, props);
+        if ( !projectList.isEmpty() ) {
+            return "findObjectsByProperties() invalid id param test failed";
+        }
+
+        props.put("id", "oops");
+        projectList = findObjectsByProperties(StoredProject.class, props);
+        if ( !projectList.isEmpty() ) {
+            return "findObjectsByProperties() invalid param type test failed";
         }
 
         return null;
