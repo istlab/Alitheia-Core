@@ -33,12 +33,19 @@
 }
 
 #news {
-    padding: 1ex 1em 1ex 22%;
+    padding: 1ex 1em;
+    padding-left: 76px;
+    background: #fff url(/img/news_section.png) no-repeat;
+    background-position: 12px 8px;
+    min-height: 52px; /* 36px for image + 8px padding */
 }
 
 #tagcloud {
     padding: 1ex 1em;
-    text-align: center;
+    padding-left: 76px;
+    background: #fff url(/img/toys_section.png) no-repeat;
+    background-position: 12px 8px;
+    min-height: 52px; /* 36px for image + 8px padding */
 }
 
 #contents .group {
