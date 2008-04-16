@@ -241,6 +241,7 @@ public class AdminServlet extends HttpServlet {
         vc.put("FAILJOBS", render.renderFailedJobs());
         vc.put("JOBFAILSTATS", render.renderJobFailStats());
         vc.put("METRICS", render.renderMetrics());
+        vc.put("USERS", render.renderUsers());
         
         // These are composite substitutions
         vc.put("STATUS_CORE","<fieldset id=\"status\">" +
