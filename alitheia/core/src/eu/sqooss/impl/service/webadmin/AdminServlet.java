@@ -39,6 +39,7 @@ import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.util.Pair;
 import eu.sqooss.service.pa.PluginAdmin;
 import eu.sqooss.service.scheduler.Scheduler;
+import eu.sqooss.service.webadmin.WebadminService;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -64,6 +65,7 @@ import org.osgi.framework.BundleContext;
 
 public class AdminServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
+    private static WebadminService webadmin = null;
 
     // Content tables
     private Hashtable<String, String> dynamicContentMap = null;
@@ -76,7 +78,9 @@ public class AdminServlet extends HttpServlet {
     // Renderer of content
     WebAdminRenderer render = null;
 
-    public AdminServlet(BundleContext bc) {
+    public AdminServlet(BundleContext bc, WebadminService webadmin) {
+        this.webadmin = webadmin;
+
         // Create the static content map
         staticContentMap = new Hashtable<String, Pair<String, String>>();
         addStaticContent("/screen.css", "text/css");
@@ -164,7 +168,7 @@ public class AdminServlet extends HttpServlet {
                 sendPage(response, "/results.html");
             } 
             else if (query.startsWith("/motd")) {
-                render.setMOTD(request);
+                render.setMOTD(webadmin, request);
                 sendPage(response, "/results.html");
             }
             else {

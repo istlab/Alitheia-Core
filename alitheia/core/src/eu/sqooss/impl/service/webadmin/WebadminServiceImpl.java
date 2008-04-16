@@ -63,7 +63,7 @@ public class WebadminServiceImpl implements WebadminService {
 
         // Register the front-end servlets
         if (sobjHTTPService != null) {
-            servlet = new AdminServlet(bc);
+            servlet = new AdminServlet(bc, this);
             try {
                 sobjHTTPService.registerServlet(
                     "/",

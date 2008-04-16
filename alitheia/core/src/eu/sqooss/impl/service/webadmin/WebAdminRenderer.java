@@ -59,6 +59,7 @@ import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.TDAccessor;
 import eu.sqooss.service.tds.TDSService;
+import eu.sqooss.service.webadmin.WebadminService;
 
 import org.apache.velocity.VelocityContext;
 
@@ -546,7 +547,8 @@ public class WebAdminRenderer {
         }
     }
 
-    public void setMOTD(HttpServletRequest request) {
+    public void setMOTD(WebadminService webadmin, HttpServletRequest request) {
+        webadmin.setConfigurationProperty("eu.sqoooss.alitheia.core.motd", request.getParameter("motdtext"));
         vc.put("RESULTS", 
                "<p>The Message Of The Day was successfully updated with: <i>" +
                request.getParameter("motdtext") + "</i></p>");
