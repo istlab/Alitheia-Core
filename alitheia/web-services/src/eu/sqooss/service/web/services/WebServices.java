@@ -369,6 +369,9 @@ public class WebServices {
     }
     //metric results
     
+    public String getMOTD(String userName) {
+        return "Share and enjoy.";
+    }
 }
 
-//vi: ai nosi sw=4 ts=4 expandtab
+// vi: ai nosi sw=4 ts=4 expandtab
