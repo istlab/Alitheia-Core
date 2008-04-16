@@ -120,10 +120,22 @@ public class Plugin extends DAObject{
         HashMap<String, Object> s = new HashMap<String, Object>();
         s.put("hashcode", String.valueOf(hashcode));
         List<Plugin> l = db.findObjectsByProperties(Plugin.class, s); 
-        if (! l.isEmpty() )
+        if (!l.isEmpty())
             return l.get(0);
         
         return null;
+    }
+    
+    /**
+     * Get plugin configuration entries
+     * @param p
+     * @return
+     */
+    public static List<PluginConfiguration> getConfigEntries(Plugin p) {
+        DBService db = CoreActivator.getDBService();
+        HashMap<String, Object> s = new HashMap<String, Object>();
+        s.put("plugin", p);
+        return (List<PluginConfiguration>)db.findObjectsByProperties(PluginConfiguration.class, s);
     }
     
     public static List<Metric> getSupportedMetrics(Plugin p) {
