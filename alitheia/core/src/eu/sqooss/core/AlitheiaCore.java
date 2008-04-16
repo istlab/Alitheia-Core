@@ -94,6 +94,10 @@ public class AlitheiaCore {
 		}
 	}
 
+    public WebadminService getWebadminService() {
+        return webadmin;
+    }
+
 	public void initPluginAdmin() {
 		if (padmin == null) {
 			padmin = new PAServiceImpl(bc, getLogManager().createLogger(
