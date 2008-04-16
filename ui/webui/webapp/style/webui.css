@@ -48,6 +48,14 @@
     min-height: 52px; /* 36px for image + 8px padding */
 }
 
+#tagcloud td {
+    text-align: center;
+}
+
+#tagcloud a {
+    text-decoration: none;
+}
+
 #contents .group {
     border: 1px dotted #cccccc;
 }

@@ -33,6 +33,7 @@
 
 package eu.sqooss.webui;
 
+import java.util.Random;
 import java.util.Vector;
 
 import eu.sqooss.webui.ListView;
@@ -129,4 +130,27 @@ public class ProjectsListView extends ListView {
     public void retrieveData() {
         //TODO: retrieve some data
     }
+
+
+    /**
+     * This method selects up to 13 projects from the list
+     * which are somehow "interesting" and which can be displayed
+     * in the tag cloud.
+     */
+    public Vector<Project> getCloudProjects() {
+        Vector<Project> v = new Vector<Project>(13);
+        Random r = new Random();
+
+        for (int i = 0; (i<13) && (i<totalProjects); ++i) {
+            int j = r.nextInt((int)totalProjects);
+            if (!v.contains(currentProjects.elementAt(j))) {
+                v.add(currentProjects.elementAt(j));
+            }
+        }
+
+        return v;
+    }
 }
+
+// vi: ai nosi sw=4 ts=4 expandtab
+
