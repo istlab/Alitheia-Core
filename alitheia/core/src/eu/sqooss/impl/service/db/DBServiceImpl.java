@@ -39,6 +39,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -391,7 +392,8 @@ public class DBServiceImpl implements DBService {
      * @see eu.sqooss.service.db.DBService#findObjectById(org.hibernate.Session, java.lang.Class, long)
      */
     @SuppressWarnings("unchecked")
-    public <T extends DAObject> T findObjectById(Session s, Class<T> daoClass, long id) {
+    public <T extends DAObject> T findObjectById(Session s, Class<T> daoClass, long id)
+        throws HibernateException {
         return (T) s.get(daoClass, id);
     }
 
@@ -405,15 +407,15 @@ public class DBServiceImpl implements DBService {
         Transaction tx = null;
         try {
             tx = s.beginTransaction();
-            List result = findObjectsByProperties(s, daoClass, properties);
+            List<T> result = findObjectsByProperties(s, daoClass, properties);
             tx.commit();
             return result;
         } catch( TransactionException e ) {
             logger.error("Transaction error: " + e.getMessage());
-            return new ArrayList<T>(0);
+            return Collections.emptyList();
         } catch( HibernateException e ) {
             logExceptionAndRollbackTransaction(e,tx);
-            return new ArrayList<T>(0);
+            return Collections.emptyList();
         } finally {
             returnSession(s);
         }
@@ -423,12 +425,8 @@ public class DBServiceImpl implements DBService {
      * @see eu.sqooss.service.db.DBService#findObjectByProperties(org.hibernate.Session, java.lang.Class, java.util.Map)
      */
     @SuppressWarnings("unchecked")
-    public <T extends DAObject> List<T> findObjectsByProperties(Session s, Class<T> daoClass, Map<String,Object> properties ) {
-
-        if ( !DAObject.class.isAssignableFrom(daoClass) ) {
-            // throw an exception instead ?
-            return new ArrayList<T>(0);
-        }
+    public <T extends DAObject> List<T> findObjectsByProperties(Session s, Class<T> daoClass, Map<String,Object> properties )
+        throws HibernateException {
 
         // TODO maybe check that the properties are valid (e.g. with java.bean.PropertyDescriptor)
 
@@ -447,20 +445,25 @@ public class DBServiceImpl implements DBService {
     /* (non-Javadoc)
      * @see eu.sqooss.service.db.DBService#doSQL(java.lang.String)
      */
-    public List doSQL(String sql) {
+    public List<?> doSQL(String sql)
+        throws SQLException {
         Session s = getSession(this);
         Transaction tx = null;
         try {
             tx = s.beginTransaction();
-            List result = doSQL(s, sql);
+            List<?> result = doSQL(s, sql);
             tx.commit();
             return result;
+        } catch ( JDBCException e ) {
+            logSQLException(e.getSQLException());
+            logExceptionAndRollbackTransaction(e,tx);
+            throw e.getSQLException();
         } catch( TransactionException e ) {
             logger.error("Transaction error: " + e.getMessage());
-            throw e;
+            return Collections.emptyList();
         } catch( HibernateException e ) {
             logExceptionAndRollbackTransaction(e,tx);
-            throw e;
+            return Collections.emptyList();
         } finally {
             returnSession(s);
         }
@@ -469,11 +472,15 @@ public class DBServiceImpl implements DBService {
     /* (non-Javadoc)
      * @see eu.sqooss.service.db.DBService#doSQL(org.hibernate.Session, java.lang.String)
      */
-    public List doSQL(Session s, String sql) {
+    public List<?> doSQL(Session s, String sql)
+        throws HibernateException {
         try {
             return s.createSQLQuery(sql).list();
         } catch( JDBCException e ) {
             logSQLException(e.getSQLException());
+            throw e;
+        } catch ( HibernateException e) {
+            logger.error("Hibernate exception: " + e.getMessage());
             throw e;
         }
     }
@@ -481,20 +488,25 @@ public class DBServiceImpl implements DBService {
     /* (non-Javadoc)
      * @see eu.sqooss.service.db.DBService#doSQL(java.lang.String, java.util.Map)
      */
-    public List doSQL(String sql, Map<String, Object> params) {
+    public List<?> doSQL(String sql, Map<String, Object> params)
+        throws SQLException {
         Session s = getSession(this);
         Transaction tx = null;
         try {
             tx = s.beginTransaction();
-            List result = doSQL(s, sql, params);
+            List<?> result = doSQL(s, sql, params);
             tx.commit();
             return result;
+        } catch ( JDBCException e ) {
+            logSQLException(e.getSQLException());
+            logExceptionAndRollbackTransaction(e,tx);
+            throw e.getSQLException();
         } catch( TransactionException e ) {
             logger.error("Transaction error: " + e.getMessage());
-            throw e;
+            return Collections.emptyList();
         } catch( HibernateException e ) {
             logExceptionAndRollbackTransaction(e,tx);
-            throw e;
+            return Collections.emptyList();
         } finally {
             returnSession(s);
         }
@@ -503,7 +515,8 @@ public class DBServiceImpl implements DBService {
     /* (non-Javadoc)
      * @see eu.sqooss.service.db.DBService#doSQL(org.hibernate.Session, java.lang.String, java.util.Map)
      */
-    public List doSQL(Session s, String sql, Map<String, Object> params) {
+    public List<?> doSQL(Session s, String sql, Map<String, Object> params)
+        throws HibernateException {
         try {
             Query query = s.createSQLQuery(sql);
             Iterator<String> i = params.keySet().iterator();
@@ -515,41 +528,55 @@ public class DBServiceImpl implements DBService {
         } catch (JDBCException e) {
             logSQLException(e.getSQLException());
             throw e;
+        } catch (HibernateException e) {
+            logger.error("Hibernate error: " + e.getMessage());
+            throw e;
         }
     }
 
     /* (non-Javadoc)
      * @see eu.sqooss.service.db.DBService#doHQL(java.lang.String)
      */
-    public List doHQL(String hql) {
+    public List<?> doHQL(String hql)
+        throws QueryException {
         return doHQL(hql, null, null);
     }
 
     /* (non-Javadoc)
      * @see eu.sqooss.service.db.DBService#doHQL(java.lang.String, java.util.Map)
      */
-    public List doHQL(String hql, Map<String, Object> params) {
+    public List<?> doHQL(String hql, Map<String, Object> params) 
+        throws QueryException {
         return doHQL(hql, params, null);
     }
 
     /* (non-Javadoc)
      * @see eu.sqooss.service.db.DBService#doHQL(java.lang.String, java.util.Map, java.util.Map)
      */
-    public List doHQL(String hql, Map<String, Object> params,
-            Map<String, Collection> collectionParams) {
+    public List<?> doHQL(String hql, Map<String, Object> params,
+            Map<String, Collection> collectionParams) 
+        throws QueryException {
         Session s = getSession(this);
         Transaction tx = null;
         try {
             tx = s.beginTransaction();
-            List result = doHQL(s, hql, params, collectionParams);
+            List<?> result = doHQL(s, hql, params, collectionParams);
             tx.commit();
             return result;
-        } catch( TransactionException e ) {
-            logger.error("Transaction error: " + e.getMessage());
-            throw e;
-        } catch( HibernateException e ) {
+        } catch (QueryException e) {
+            logger.error("Error while executing HQL query: " +  e.getMessage() + ". HQL query was : " + e.getQueryString());
             logExceptionAndRollbackTransaction(e,tx);
             throw e;
+        } catch (JDBCException e) {
+            logSQLException(e.getSQLException());
+            logExceptionAndRollbackTransaction(e,tx);
+            return Collections.emptyList();
+        } catch( TransactionException e ) {
+            logger.error("Transaction error: " + e.getMessage());
+            return Collections.emptyList();
+        } catch( HibernateException e ) {
+            logExceptionAndRollbackTransaction(e,tx);
+            return Collections.emptyList();
         } finally {
             returnSession(s);
         }
@@ -558,22 +585,25 @@ public class DBServiceImpl implements DBService {
     /* (non-Javadoc)
      * @see eu.sqooss.service.db.DBService#doHQL(org.hibernate.Session, java.lang.String)
      */
-    public List doHQL(Session s, String hql) {
+    public List<?> doHQL(Session s, String hql) 
+        throws HibernateException {
         return doHQL(s, hql, null, null);
     }
 
     /* (non-Javadoc)
      * @see eu.sqooss.service.db.DBService#doHQL(org.hibernate.Session, java.lang.String, java.util.Map)
      */
-    public List doHQL(Session s, String hql, Map<String, Object> params) {
+    public List<?> doHQL(Session s, String hql, Map<String, Object> params) 
+        throws HibernateException {
         return doHQL(s, hql, params, null);
     }
 
     /* (non-Javadoc)
      * @see eu.sqooss.service.db.DBService#doHQL(org.hibernate.Session, java.lang.String, java.util.Map, java.util.Map)
      */
-    public List doHQL(Session s, String hql, Map<String, Object> params,
-            Map<String, Collection> collectionParams) {
+    public List<?> doHQL(Session s, String hql, Map<String, Object> params,
+            Map<String, Collection> collectionParams) 
+        throws HibernateException {
         try {
             Query query = s.createQuery(hql);
             if (params != null) {
@@ -592,6 +622,9 @@ public class DBServiceImpl implements DBService {
             throw e;
         } catch (QueryException e) {
             logger.error("Error while executing HQL query: " +  e.getMessage() + ". HQL query was : " + e.getQueryString());
+            throw e;
+        } catch (HibernateException e) {
+            logger.error("Hibernate error: " + e.getMessage());
             throw e;
         }
     }

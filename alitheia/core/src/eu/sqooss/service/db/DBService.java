@@ -70,7 +70,8 @@ public interface DBService {
      *          or null otherwise
      * @throws HibernateException
      */
-    public <T extends DAObject> T findObjectById(Session s, Class<T> daoClass, long id);
+    public <T extends DAObject> T findObjectById(Session s, Class<T> daoClass, long id)
+        throws HibernateException;
 
     /**
      * A generic query method to retrieve a list of DAObjects of a same subclass
@@ -92,7 +93,8 @@ public interface DBService {
      *          possibly empty if no match was found in the database or if the properties map
      *          contains invalid entries or if a database access error occured
      */
-    public <T extends DAObject> List<T> findObjectsByProperties(Class<T> daoClass, Map<String,Object> properties );
+    public <T extends DAObject> List<T> findObjectsByProperties(Class<T> daoClass,
+                                                                Map<String,Object> properties );
     
     /**
      * A generic query method to retrieve a list of DAObjects of a same subclass
@@ -118,7 +120,10 @@ public interface DBService {
      *          contains invalid entries
      * @throws HibernateException
      */
-    public <T extends DAObject> List<T> findObjectsByProperties(Session s, Class<T> daoClass, Map<String,Object> properties );
+    public <T extends DAObject> List<T> findObjectsByProperties(Session s,
+                                                                Class<T> daoClass,
+                                                                Map<String,Object> properties )
+        throws HibernateException;
 
     /**
      * Add a new record to the system database, using the default database session.
@@ -255,7 +260,8 @@ public interface DBService {
      * 
      * @see doSQL(String sql, Map<String, Object> params)
      */
-    public List doSQL(String sql);
+    public List<?> doSQL(String sql)
+        throws SQLException;
     
     /**
      * Execute a parameterized SQL query to the database, using the default database session.
@@ -267,7 +273,8 @@ public interface DBService {
      *          the results are returned in an instance of Object[]
      * @throws SQLException
      */
-    public List doSQL(String sql, Map<String, Object> params);
+    public List<?> doSQL(String sql, Map<String, Object> params)
+        throws SQLException;
     
     /**
      * Execute a complete SQL query to the database, using a separate database session.
@@ -288,7 +295,8 @@ public interface DBService {
      * 
      * @see doSQL(String sql, Map<String, Object> params)
      */
-    public List doSQL(Session s, String sql);
+    public List<?> doSQL(Session s, String sql)
+        throws HibernateException;
     
     /**
      * Execute a parameterized SQL query to the database, using a separate database session.
@@ -305,7 +313,8 @@ public interface DBService {
      *          the results are returned in an instance of Object[]
      * @throws HibernateException
      */
-    public List doSQL(Session s, String sql, Map<String, Object> params);
+    public List<?> doSQL(Session s, String sql, Map<String, Object> params)
+        throws HibernateException;
 
     /**
      * Execute a complete HQL query to the database, using the default database session.
@@ -320,7 +329,8 @@ public interface DBService {
      * 
      * @see doHQL(String, Map<String, Object>)
      */
-    public List doHQL(String hql);
+    public List<?> doHQL(String hql)
+        throws QueryException;
     
     /**
      * Execute a parameterized HQL query to the database, using the default database session.
@@ -333,7 +343,8 @@ public interface DBService {
      * 
      * @see doHQL(String, Map<String, Object>, Map<String,Collection>)
      */
-    public List doHQL(String hql, Map<String, Object> params);
+    public List<?> doHQL(String hql, Map<String, Object> params)
+        throws QueryException;
 
     /**
      * Execute a parameterized HQL query to the database, using the default database session.
@@ -345,8 +356,9 @@ public interface DBService {
      *          the results are returned in an instance of Object[]
      * @throws QueryException
      */
-    public List doHQL(String hql, Map<String, Object> params,
-        Map<String, Collection> collectionParams);
+    public List<?> doHQL(String hql, Map<String, Object> params,
+                          Map<String, Collection> collectionParams)
+        throws QueryException;
     
     /**
      * Execute a complete HQL query to the database, using a separate database session.
@@ -366,7 +378,8 @@ public interface DBService {
      * 
      * @see doHQL(Session, String, Map<String, Object>)
      */
-    public List doHQL(Session s, String hql);
+    public List<?> doHQL(Session s, String hql)
+        throws HibernateException;
     
     /**
      * Execute a parameterized HQL query to the database, using a separate database session.
@@ -384,7 +397,8 @@ public interface DBService {
      * 
      * @see doHQL(Session, String, Map<String, Object>, Map<String,Collection>)
      */
-    public List doHQL(Session s, String hql, Map<String, Object> params);
+    public List<?> doHQL(Session s, String hql, Map<String, Object> params)
+        throws HibernateException;
 
     /**
      * Execute a parameterized HQL query to the database, using a separate database session.
@@ -414,8 +428,9 @@ public interface DBService {
      *          the results are returned in an instance of Object[]
      * @throws HibernateException
      */
-    public List doHQL(Session s, String hql, Map<String, Object> params,
-        Map<String, Collection> lparams);
+    public List<?> doHQL(Session s, String hql, Map<String, Object> params,
+                          Map<String, Collection> lparams)
+        throws HibernateException;
     
     /**
      * Get a session to the alitheia DB from the session manager

@@ -32,6 +32,8 @@
 
 package eu.sqooss.impl.service.web.services.utils;
 
+import java.sql.SQLException;
+import java.util.Collections;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -89,14 +91,22 @@ public class ProjectManagerDatabase implements ProjectManagerDBQueries {
         Map<String, Object> queryParameters = new Hashtable<String, Object>(1);
         queryParameters.put(GET_FILE_LIST_4_PROJECT_VERSION_PARAM, projectVersionId);
         
-        return db.doSQL(GET_FILE_LIST_4_PROJECT_VERSION, queryParameters);
+        try {
+            return db.doSQL(GET_FILE_LIST_4_PROJECT_VERSION, queryParameters);
+        } catch (SQLException e) {
+            return Collections.emptyList();
+        }
     }
     
     public List<?> getFilesNumber4ProjectVersion(long projectVersionId) {
         Map<String, Object> queryParameters = new Hashtable<String, Object>(1);
         queryParameters.put(GET_FILES_NUMBER_4_PROJECT_VERSION_PARAM, projectVersionId);
         
-        return db.doSQL(GET_FILES_NUMBER_4_PROJECT_VERSION, queryParameters);
+        try {
+            return db.doSQL(GET_FILES_NUMBER_4_PROJECT_VERSION, queryParameters);
+        } catch (SQLException e) {
+            return Collections.emptyList();
+        }
     }
     
     public long createNewProject(StoredProject newProject, ProjectVersion newProjectVersion) {
