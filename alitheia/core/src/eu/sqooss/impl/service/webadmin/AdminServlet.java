@@ -42,6 +42,7 @@ import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.util.Pair;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.pa.PluginAdmin;
+import eu.sqooss.service.scheduler.Scheduler;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -92,6 +93,7 @@ public class AdminServlet extends HttpServlet {
     // Service objects
     private DBService sobjDB = null;
     private PluginAdmin sobjPluginAdmin = null;
+    private Scheduler sobjSched = null;
 
     public AdminServlet(BundleContext bc) {
         // Setup the crucial components
@@ -184,6 +186,12 @@ public class AdminServlet extends HttpServlet {
             if (sobjPluginAdmin != null) {
                 sobjLogger.debug("WebAdmin got Plugin Admin object.");
             }
+
+            // Get the scheduler
+            sobjSched = sobjAlitheiaCore.getScheduler();
+            if (sobjSched != null) {
+                sobjLogger.debug("WebAdmin got Scheduler Service object.");
+            }
         }
     }
 
@@ -253,6 +261,7 @@ public class AdminServlet extends HttpServlet {
         PrintWriter print = response.getWriter();
 
         // Do any substitutions that may be required
+        createSubstitutions(false);
         response.setContentType("text/html");
         t.merge(vc, writer);
 
@@ -287,7 +296,7 @@ public class AdminServlet extends HttpServlet {
         vc.put("GETLOGS", WebAdminRenderer.renderList(sobjLogManager.getRecentEntries()));
         //vc.put("PROJECTS", renderProjects(sobjDB.doHQL("from StoredProject"), sobjPluginAdmin.listPlugins()));
         vc.put("UPTIME", WebAdminRenderer.getUptime(startTime, new Date().getTime()));
-        //vc.put("QUEUE_LENGTH", String.valueOf(sobjSched.getSchedulerStats().getWaitingJobs()));
+        vc.put("QUEUE_LENGTH", String.valueOf(sobjSched.getSchedulerStats().getWaitingJobs()));
         //vc.put("JOB_EXEC", String.valueOf(sobjSched.getSchedulerStats().getRunningJobs()));
         //vc.put("JOB_WAIT", String.valueOf(sobjSched.getSchedulerStats().getWaitingJobs()));
         //vc.put("JOB_WORKTHR", String.valueOf(sobjSched.getSchedulerStats().getWorkerThreads()));
@@ -299,15 +308,15 @@ public class AdminServlet extends HttpServlet {
         //vc.put("METRICS", renderMetrics());
 
         // These are composite substitutions
-        //vc.put("STATUS_CORE","<fieldset id=\"status\">" +
-        //             "<legend>Status</legend>" +
-        //             "<ul>" +
-        //             "<li class=\"uptime\">Uptime: " +
-        //                                  dynamicSubstitutions.get("UPTIME") +
-        //             "</li>" +
-        //             "<li class=\"queue\">Job Queue Length: " +
-        //                                  dynamicSubstitutions.get("QUEUE_LENGTH") +
-        //                                  "</li></ul></fieldset>");
+        vc.put("STATUS_CORE","<fieldset id=\"status\">" +
+                     "<legend>Status</legend>" +
+                     "<ul>" +
+                     "<li class=\"uptime\">Uptime: " +
+                                          vc.get("UPTIME") +
+                     "</li>" +
+                     "<li class=\"queue\">Job Queue Length: " +
+                                          vc.get("QUEUE_LENGTH") +
+                                          "</li></ul></fieldset>");
         //vc.put("STATUS_JOBS","<fieldset id=\"jobs\">" +
         //             "<legend>Job Info</legend>" +
         //             "<table width='100%' cellspacing=0 cellpadding=3>" +
