@@ -1,6 +1,6 @@
 
             /**
-            * WSMetricMeasurement2.java
+            * WSMetricMeasurement0.java
             *
             * This file was auto-generated from WSDL
             * by the Apache Axis2 version: #axisVersion# #today#
@@ -8,10 +8,10 @@
 
             package eu.sqooss.ws.client.datatypes;
             /**
-            *  WSMetricMeasurement2 bean class
+            *  WSMetricMeasurement0 bean class
             */
         
-        public  class WSMetricMeasurement2
+        public  class WSMetricMeasurement0
         implements org.apache.axis2.databinding.ADBBean{
         
                 public static final javax.xml.namespace.QName MY_QNAME = new javax.xml.namespace.QName(
@@ -177,8 +177,8 @@
         * Postcondition: If this object is an element, the reader is positioned at its end element
         *                If this object is a complex type, the reader is positioned at the end element of its outer element
         */
-        public static WSMetricMeasurement2 parse(javax.xml.stream.XMLStreamReader reader) throws java.lang.Exception{
-            WSMetricMeasurement2 object = new WSMetricMeasurement2();
+        public static WSMetricMeasurement0 parse(javax.xml.stream.XMLStreamReader reader) throws java.lang.Exception{
+            WSMetricMeasurement0 object = new WSMetricMeasurement0();
             int event;
             try {
                 

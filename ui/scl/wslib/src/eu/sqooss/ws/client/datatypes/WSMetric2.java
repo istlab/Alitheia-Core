@@ -1,6 +1,6 @@
 
             /**
-            * WSProjectVersion2.java
+            * WSMetric2.java
             *
             * This file was auto-generated from WSDL
             * by the Apache Axis2 version: #axisVersion# #today#
@@ -8,43 +8,43 @@
 
             package eu.sqooss.ws.client.datatypes;
             /**
-            *  WSProjectVersion2 bean class
+            *  WSMetric2 bean class
             */
         
-        public  class WSProjectVersion2
+        public  class WSMetric2
         implements org.apache.axis2.databinding.ADBBean{
         
                 public static final javax.xml.namespace.QName MY_QNAME = new javax.xml.namespace.QName(
                 "http://datatypes.services.web.service.impl.sqooss.eu/xsd",
-                "WSProjectVersion",
+                "WSMetric",
                 "ns1");
 
             
 
                         /**
-                        * field for WSProjectVersion
+                        * field for WSMetric
                         */
 
-                        protected eu.sqooss.ws.client.datatypes.WSProjectVersion localWSProjectVersion ;
+                        protected eu.sqooss.ws.client.datatypes.WSMetric localWSMetric ;
                         
 
                            /**
                            * Auto generated getter method
-                           * @return eu.sqooss.ws.client.datatypes.WSProjectVersion
+                           * @return eu.sqooss.ws.client.datatypes.WSMetric
                            */
-                           public  eu.sqooss.ws.client.datatypes.WSProjectVersion getWSProjectVersion(){
-                               return localWSProjectVersion;
+                           public  eu.sqooss.ws.client.datatypes.WSMetric getWSMetric(){
+                               return localWSMetric;
                            }
 
                            
                         
                             /**
                                * Auto generated setter method
-                               * @param param WSProjectVersion
+                               * @param param WSMetric
                                */
-                               public void setWSProjectVersion(eu.sqooss.ws.client.datatypes.WSProjectVersion param){
+                               public void setWSMetric(eu.sqooss.ws.client.datatypes.WSMetric param){
                             
-                                    this.localWSProjectVersion=param;
+                                    this.localWSMetric=param;
                             
 
                                }
@@ -72,10 +72,10 @@
                 
                 //We can safely assume an element has only one type associated with it
                 
-                                 if (localWSProjectVersion==null){
+                                 if (localWSMetric==null){
                                    throw new RuntimeException("Property cannot be null!");
                                  }
-                                 localWSProjectVersion.getOMElement(
+                                 localWSMetric.getOMElement(
                                          MY_QNAME,
                                          factory).serialize(xmlWriter);
                             
@@ -158,7 +158,7 @@
         
                 
                 //We can safely assume an element has only one type associated with it
-                return localWSProjectVersion.getPullParser(MY_QNAME);
+                return localWSMetric.getPullParser(MY_QNAME);
 
         }
 
@@ -177,8 +177,8 @@
         * Postcondition: If this object is an element, the reader is positioned at its end element
         *                If this object is a complex type, the reader is positioned at the end element of its outer element
         */
-        public static WSProjectVersion2 parse(javax.xml.stream.XMLStreamReader reader) throws java.lang.Exception{
-            WSProjectVersion2 object = new WSProjectVersion2();
+        public static WSMetric2 parse(javax.xml.stream.XMLStreamReader reader) throws java.lang.Exception{
+            WSMetric2 object = new WSMetric2();
             int event;
             try {
                 
@@ -206,9 +206,9 @@
                 while(!reader.isEndElement()) {
                     if (reader.isStartElement() ){
                 
-                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd","WSProjectVersion").equals(reader.getName())){
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd","WSMetric").equals(reader.getName())){
                                 
-                                        object.setWSProjectVersion(eu.sqooss.ws.client.datatypes.WSProjectVersion.Factory.parse(reader));
+                                        object.setWSMetric(eu.sqooss.ws.client.datatypes.WSMetric.Factory.parse(reader));
                                     
                               }  // End of if for expected property start element
                             

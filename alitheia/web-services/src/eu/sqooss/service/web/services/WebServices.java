@@ -369,7 +369,10 @@ public class WebServices {
     }
     //metric results
     
-    public String getMOTD(String userName) {
+    public String getUserMessageOfTheDay(String userName) {
+        if (userName.length() > 7) {
+            return "Expand your unit, [" + userName.substring(2,3) + "]";
+        }
         return "Share and enjoy.";
     }
 }

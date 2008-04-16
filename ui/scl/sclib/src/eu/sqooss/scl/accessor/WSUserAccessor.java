@@ -114,6 +114,11 @@ public abstract class WSUserAccessor extends WSAccessor {
      */
     public abstract boolean deleteUser(long userId) throws WSException;
     
+    /**
+     * Get the message-of-the-day for the user. This comes from
+     * the Alitheia Core platform and may be user-specific.
+     */
+    public abstract String getUserMessageOfTheDay(String userId) throws WSException;
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

@@ -185,6 +185,13 @@ public class TerrierConnection {
     }
 
     /**
+     * Find out what user is in use for this connection.
+     */
+    public String getUserName() {
+        return sessionUser;
+    }
+
+    /**
      * Performs a logout from the SQO-OSS framework for the specified user
      * account. The user name is not used -- only one connection is supported
      * at a time anyway.

@@ -53,6 +53,8 @@ import eu.sqooss.ws.client.ws.SubmitUser;
 import eu.sqooss.ws.client.ws.SubmitUserResponse;
 import eu.sqooss.ws.client.ws.GetUserByName;
 import eu.sqooss.ws.client.ws.GetUserByNameResponse;
+import eu.sqooss.ws.client.ws.GetUserMessageOfTheDay;
+import eu.sqooss.ws.client.ws.GetUserMessageOfTheDayResponse;
 
 class WSUserAccessorImpl extends WSUserAccessor {
     
@@ -67,6 +69,8 @@ class WSUserAccessorImpl extends WSUserAccessor {
     private static final String METHOD_NAME_MODIFY_USER  = "modifyUser";
     
     private static final String METHOD_NAME_DELETE_USER  = "deleteUser";
+
+    private static final String METHOD_NAME_GET_USER_MESSAGE  = "getUserMessageOfTheDay";
     
     private Map<String, Object> parameters;
     private String userName;
@@ -255,6 +259,27 @@ class WSUserAccessorImpl extends WSUserAccessor {
         return response.get_return();
     }
     
+    public String getUserMessageOfTheDay(String userId) throws WSException {
+        GetUserMessageOfTheDayResponse response;
+        GetUserMessageOfTheDay params;
+        if (!parameters.containsKey(METHOD_NAME_GET_USER_MESSAGE)) {
+            params = new GetUserMessageOfTheDay();
+            params.setUserName(userId);
+            parameters.put(METHOD_NAME_GET_USER_MESSAGE, params);
+        } else {
+            params = (GetUserMessageOfTheDay) parameters.get(
+                    METHOD_NAME_GET_USER_MESSAGE);
+        }
+        synchronized (params) {
+            params.setUserName(userId);
+            try {
+                response = wsStub.getUserMessageOfTheDay(params);
+            } catch (RemoteException re) {
+                throw new WSException(re);
+            }
+        }
+        return response.get_return();
+    }
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
