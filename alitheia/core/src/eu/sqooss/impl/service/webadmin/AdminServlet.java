@@ -161,9 +161,15 @@ public class AdminServlet extends HttpServlet {
 
             if (query.startsWith("/addproject")) {
                 render.addProject(request);
-                //dynamicSubstitutions.put("@@ACTIVE","class=\"section-3\"");
                 sendPage(response, "/results.html");
-            } else {
+            } 
+            else if (query.startsWith("/motd")) {
+                vc.put("RESULTS", 
+                       "<p>The Message Of The Day was successfully updated with: <i>" +
+                       request.getParameter("motdtext") + "</i></p>");
+                sendPage(response, "/results.html");
+            }
+            else {
                 doGet(request,response);
             }
         } catch (Exception e) {
