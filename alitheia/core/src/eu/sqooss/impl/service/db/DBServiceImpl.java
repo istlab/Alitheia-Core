@@ -796,7 +796,7 @@ public class DBServiceImpl implements DBService {
             if (lastRecord != null) {
                 logger.error("Failed to update object "
                         + "[" + lastRecord.getClass().getName() + ":" + lastRecord.getId() + "]"
-                        + " from the database: " + e.getMessage());
+                        + " in the database: " + e.getMessage());
             }
             logExceptionAndRollbackTransaction(e,tx);
             return false;
