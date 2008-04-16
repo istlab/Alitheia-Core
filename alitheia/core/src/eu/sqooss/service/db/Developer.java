@@ -222,7 +222,7 @@ public class Developer extends DAObject{
 		 * TODO: "like" is NOT a Hibernate keyword. The following query might 
 		 * only work with postgres  
 		 */
-		devs = dbs.doHQL(s, "from Developer where email like '" + username + "'");
+		devs = (List<Developer>) dbs.doHQL(s, "from Developer where email like '" + username + "'");
 
 		for (Developer d : devs) {
 			String email = d.getEmail();

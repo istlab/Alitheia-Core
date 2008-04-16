@@ -302,7 +302,7 @@ public class Bug extends DAObject {
         List<Bug> bugList = null;
         try {
             // PENDING should maybe check for "b.commit not null" first ?
-            bugList = dbs.doHQL("from Bug b where b.commit.project=:sp",
+            bugList = (List<Bug>) dbs.doHQL("from Bug b where b.commit.project=:sp",
                                             parameterMap);
         } catch (RuntimeException e) {
         }
