@@ -245,13 +245,13 @@ implements eu.sqooss.service.abstractmetric.AlitheiaPlugin {
          *       metric type records. Therefore the following block is
          *       used to create them explicitly when required.
          */
-        if (MetricType.getMetricType(db, type) == null) {
+        if (MetricType.getMetricType(type) == null) {
             MetricType newType = new MetricType(type);
             db.addRecord(newType);
         }
         Metric m = new Metric();
         m.setDescription(desc);
-        m.setMetricType(MetricType.getMetricType(db, type));
+        m.setMetricType(MetricType.getMetricType(type));
         m.setPlugin(Plugin.getPlugin(getName()));
         return db.addRecord(m);
     }
