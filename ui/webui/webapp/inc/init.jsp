@@ -117,14 +117,8 @@ else if (postAction.compareToIgnoreCase(ACT_REQ_LOGIN) == 0) {
             User userInfo = terrier.getUserByName(username);
             if (userInfo != null) {
                 actionResult = RES_LOGIN_SUCCESS;
+                user.copy(userInfo);
                 user.setLoggedIn(true);
-                // TODO: Move into a copyFrom(User) method
-                user.setId(userInfo.getId());
-                user.setName(userInfo.getName());
-                user.setEmail(userInfo.getEmail());
-            }
-            else {
-                user = new User();
             }
         }
         else {

@@ -85,24 +85,17 @@ public class User {
         return html.toString();
     }
 
-    /**
-     * @param id the id to set
+    /** 
+     * Copies the values of the mutable properties from an object of the same
+     * type into the corresponding local properties.
+     * 
+     * @param from an User object used as a values source
      */
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    /**
-     * @param name the name to set
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    /**
-     * @param email the email to set
-     */
-    public void setEmail(String email) {
-        this.email = email;
+    public void copy (User from) {
+        if (from != null) {
+            this.id = from.getId();
+            this.name = from.getName();
+            this.email = from.getEmail();
+        }
     }
 }
