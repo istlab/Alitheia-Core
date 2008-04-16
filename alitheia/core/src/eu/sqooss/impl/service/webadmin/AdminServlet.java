@@ -230,7 +230,7 @@ public class AdminServlet extends HttpServlet {
                    "</ul>");
             vc.put("OPTIONS","<fieldset id=\"options\">" +
                    "<legend>Options</legend>" +
-                   "<form id=\"motd\" method=\"post\" acrion=\"motd\">" +
+                   "<form id=\"motd\" method=\"post\" action=\"motd\">" +
                    "<p>Message of the day:</p><br/>"+ 
                    "<input id=\"motdinput\" type=\"text\" name=\"motdtext\" class=\"form\"/>" +
                    "<br/><input type=\"submit\" value=\"Set\" id=\"motdbutton\" /></form>" +
