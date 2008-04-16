@@ -312,7 +312,7 @@ implements eu.sqooss.service.abstractmetric.AlitheiaPlugin {
      * initialization routines (i.e. registering DAOs or tables) after calling
      * super()
      */
-    public Long install() {
+    public boolean install() {
         HashMap<String, Object> h = new HashMap<String, Object>();
         h.put("name", this.getName());
         
@@ -321,7 +321,7 @@ implements eu.sqooss.service.abstractmetric.AlitheiaPlugin {
         if (!plugins.isEmpty()) {
             log.warn("A plugin with name <" + getName()
                     + "> is already installed, won't re-install.");
-            return null;
+            return false;
         }
 
         Plugin p = new Plugin();
@@ -331,7 +331,7 @@ implements eu.sqooss.service.abstractmetric.AlitheiaPlugin {
         p.setActive(true);
         db.addRecord(p);
         
-        return p.getId();
+        return true;
     }
 
     /**
