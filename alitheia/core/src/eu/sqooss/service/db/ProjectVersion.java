@@ -69,7 +69,8 @@ public class ProjectVersion extends DAObject {
         this.version = version;
     }
     
-    public List<ProjectFile> getVersionFiles() {
+    @SuppressWarnings("unchecked")
+	public List<ProjectFile> getVersionFiles() {
         DBService dbs = CoreActivator.getDBService();
         
         String paramVersionId = "project_version_id";
@@ -97,7 +98,7 @@ public class ProjectVersion extends DAObject {
         String query = "select pv " +
                        "from ProjectVersion pv " +
                        "where pv.project.id=:" + paramProjectId + " and " +
-                       "pv.version=" + paramRevision;
+                       "pv.version=:" + paramRevision;
 
         Map<String,Object> parameters = new HashMap<String,Object>();
         parameters.put(paramProjectId, project.getId());
