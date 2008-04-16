@@ -39,6 +39,7 @@ install-deps :
 
 # Copy over the source trees.
 install-wsdl :
+	cd src && rm `find . -type f | grep -v /.svn/`
 	( cd src.new && tar cf - src ) | tar xvf - 
 
 # Retrieve the actual WSDL sources. This requires a running
