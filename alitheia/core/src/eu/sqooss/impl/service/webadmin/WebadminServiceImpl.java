@@ -88,15 +88,26 @@ public class WebadminServiceImpl implements WebadminService {
         }
     }
 
+    private static final String keyMOTD = "eu.sqoooss.alitheia.core.motd";
+    private String valueMOTD = null;
+
     public String[] getConfigurationKeys() {
-        return null;
+        String[] s = new String[1];
+        s[0] = keyMOTD;
+        return s;
     }
 
     public String getConfigurationProperty(String key) {
-        return key;
+        if (keyMOTD.equals(key)) {
+            return valueMOTD;
+        }
+        return null;
     }
 
     public void setConfigurationProperty(String key, String val) {
+        if (keyMOTD.equals(key)) {
+            valueMOTD = val;
+        }
     }
 
     // Perform a self-test
