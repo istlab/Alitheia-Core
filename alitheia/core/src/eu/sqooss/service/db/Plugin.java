@@ -96,19 +96,41 @@ public class Plugin extends DAObject{
         this.hashcode = hashcode;
     }   
     
-    public static Plugin getPlugin(String name) {
+    public static List<Plugin> getPlugin(String name) {
         DBService db = CoreActivator.getDBService();
         HashMap<String, Object> s = new HashMap<String, Object>();
         s.put("name", name);
-        return db.findObjectsByProperties(Plugin.class, s).get(0);
+        return db.findObjectsByProperties(Plugin.class, s);
         
+    }
+    
+    /**
+     * Get Plugin by hashcode
+     * 
+     * @param hashcode
+     *                The object's hashcode for the plugin class that implements
+     *                the
+     *                {@link eu.sqooss.service.abstractmetric.AlitheiaPlugin}
+     *                interface
+     * @return A Plugin object if the hashcode was found in the DB; null
+     *         otherwise
+     */
+    public static Plugin getPlugin(int hashcode) {
+        DBService db = CoreActivator.getDBService();
+        HashMap<String, Object> s = new HashMap<String, Object>();
+        s.put("hashcode", String.valueOf(hashcode));
+        List<Plugin> l = db.findObjectsByProperties(Plugin.class, s); 
+        if (! l.isEmpty() )
+            return l.get(0);
+        
+        return null;
     }
     
     public static List<Metric> getSupportedMetrics(Plugin p) {
         DBService db = CoreActivator.getDBService();
         HashMap<String, Object> s = new HashMap<String, Object>();
         s.put("plugin", p);
-        return (List<Metric>)db.doHQL("from Metric me where me.plugin=:plugin", s);
+        return (List<Metric>)db.findObjectsByProperties(Metric.class, s);
     }
 }
 

@@ -159,7 +159,7 @@ implements eu.sqooss.service.abstractmetric.AlitheiaPlugin {
      * Retrieve the installation date for this plug-in version
      */
     public final Date getDateInstalled() {
-        return Plugin.getPlugin(getName()).getInstalldate();
+        return Plugin.getPlugin(hashCode()).getInstalldate();
     }
 
     /**
@@ -252,7 +252,7 @@ implements eu.sqooss.service.abstractmetric.AlitheiaPlugin {
         Metric m = new Metric();
         m.setDescription(desc);
         m.setMetricType(MetricType.getMetricType(type));
-        m.setPlugin(Plugin.getPlugin(getName()));
+        m.setPlugin(Plugin.getPlugin(hashCode()));
         return db.addRecord(m);
     }
 
@@ -264,7 +264,7 @@ implements eu.sqooss.service.abstractmetric.AlitheiaPlugin {
      */
     public List<Metric> getSupportedMetrics() {
         if (metrics == null) {
-            metrics = Plugin.getSupportedMetrics(Plugin.getPlugin(getName()));
+            metrics = Plugin.getSupportedMetrics(Plugin.getPlugin(hashCode()));
         }
         
         if (metrics.isEmpty()) {
@@ -343,7 +343,7 @@ implements eu.sqooss.service.abstractmetric.AlitheiaPlugin {
      */
     public boolean remove() {
 
-        Plugin p = Plugin.getPlugin(getName());
+        Plugin p = Plugin.getPlugin(hashCode());
         return db.deleteRecord(p);
     }
 
