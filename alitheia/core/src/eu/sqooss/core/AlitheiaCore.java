@@ -69,211 +69,215 @@ import eu.sqooss.service.webadmin.WebadminService;
 
 public class AlitheiaCore {
 
-    private LogManagerImpl logger;
-    private DBService db;
-    private FDSService fds;
-    private MessagingService msg;
-    private Scheduler sched;
-    private SecurityManager sec;
-    private TDSService tds;
-    private UpdaterService updater;
-    private WebadminService webadmin;
-    private PAServiceImpl padmin;
-    private MetricActivator ma;
-    
-    private org.osgi.framework.BundleContext bc;
+	private LogManagerImpl logger;
+	private DBService db;
+	private FDSService fds;
+	private MessagingService msg;
+	private Scheduler sched;
+	private SecurityManager sec;
+	private TDSService tds;
+	private UpdaterService updater;
+	private WebadminService webadmin;
+	private PAServiceImpl padmin;
+	private MetricActivator ma;
 
-    public AlitheiaCore(BundleContext bc) {
-        this.bc = bc;
-        getLogManager();
-    }
+	private org.osgi.framework.BundleContext bc;
 
-    public void initWebAdmin() {
-        if (webadmin == null) {
-            webadmin = new WebadminServiceImpl(bc);
-        }
-    }
-    
-    public void initPluginAdmin() {
-        if (padmin == null) {
-            padmin = new PAServiceImpl(bc, getLogManager().createLogger(Logger.NAME_SQOOSS_PA));
-        }
-    }
-    
-    public PluginAdmin getPluginManager() {
-        initPluginAdmin();
-        return padmin;
-    }
-    
-    public LogManager getLogManager() {
-        if (logger == null) {
-            logger = new LogManagerImpl(bc);
-        }
-        return logger;
-    }
+	public AlitheiaCore(BundleContext bc) {
+		this.bc = bc;
+		getLogManager();
+	}
 
-    public DBService getDBService() {
-        if (db == null) {
-            db = new DBServiceImpl(bc, getLogManager().createLogger(Logger.NAME_SQOOSS_DATABASE));
-        }
+	public void initWebAdmin() {
+		if (webadmin == null) {
+			webadmin = new WebadminServiceImpl(bc);
+		}
+	}
 
-        return db;
-    }
+	public void initPluginAdmin() {
+		if (padmin == null) {
+			padmin = new PAServiceImpl(bc, getLogManager().createLogger(
+					Logger.NAME_SQOOSS_PA));
+		}
+	}
 
-    public FDSService getFDSService() {
-        if (fds == null) {
-            fds = new FDSServiceImpl(bc, getLogManager().createLogger(Logger.NAME_SQOOSS_FDS));
-        }
+	public PluginAdmin getPluginManager() {
+		initPluginAdmin();
+		return padmin;
+	}
 
-        return fds;
-    }
+	public LogManager getLogManager() {
+		if (logger == null) {
+			logger = new LogManagerImpl(bc);
+		}
+		return logger;
+	}
 
-    public MessagingService getMessagingService() {
-        if (msg == null) {
-            // The messaging service doesn't log.
-            msg = new MessagingServiceImpl(bc);
-        }
+	public DBService getDBService() {
+		if (db == null) {
+			db = new DBServiceImpl(bc, getLogManager().createLogger(
+					Logger.NAME_SQOOSS_DATABASE));
+		}
 
-        return msg;
-    }
+		return db;
+	}
 
-    public Scheduler getScheduler() {
-        if (sched == null) {
-            sched = new SchedulerServiceImpl(bc, getLogManager().createLogger(Logger.NAME_SQOOSS_SCHEDULING));
-        }
+	public FDSService getFDSService() {
+		if (fds == null) {
+			fds = new FDSServiceImpl(bc, getLogManager().createLogger(
+					Logger.NAME_SQOOSS_FDS));
+		}
 
-        return sched;
-    }
+		return fds;
+	}
 
-    public SecurityManager getSecurityManager() {
-        if (sec == null) {
-            sec = new SecurityManagerImpl(
-                    bc,
-                    this.getDBService(),
-                    this.getMessagingService(),
-                    this.getLogManager().createLogger(Logger.NAME_SQOOSS_SECURITY));
-        }
+	public MessagingService getMessagingService() {
+		if (msg == null) {
+			// The messaging service doesn't log.
+			msg = new MessagingServiceImpl(bc);
+		}
 
-        return sec;
-    }
+		return msg;
+	}
 
-    public TDSService getTDSService() {
-        if (tds == null) {
-            tds = new TDSServiceImpl(getLogManager().createLogger(Logger.NAME_SQOOSS_TDS));
-        }
-        return tds;
-    }
+	public Scheduler getScheduler() {
+		if (sched == null) {
+			sched = new SchedulerServiceImpl(bc, getLogManager().createLogger(
+					Logger.NAME_SQOOSS_SCHEDULING));
+			sched.startExecute(3 * Runtime.getRuntime().availableProcessors());
+		}
 
-    public UpdaterService getUpdater() {
-        if (updater == null) {
-            try {
-                updater = new UpdaterServiceImpl(bc, getLogManager().createLogger(Logger.NAME_SQOOSS_UPDATER));
-            } catch (ServletException e) {
-                e.printStackTrace();
-            } catch (NamespaceException e) {
-                e.printStackTrace();
-            }
-        }
-        return updater;
-    }
-    
-    public MetricActivator getMetricActivator() {
-        if (ma == null) {
-            ma = new MetricActivatorImpl(bc, getLogManager().createLogger(Logger.NAME_SQOOSS_METRICACTIVATOR));
-        }
-        
-        return ma;
-    }
+		return sched;
+	}
 
-    public Object getService(ServiceReference r) {
-        return bc.getService(r);
-    }
-    
-    /*
-     * This is the selfTest() method which is called by the system
-     * tester at startup. The method itself serves only as a dispatcher
-     * to call the selfTest() methods of all of the sub-services of
-     * the Alitheia core. It does this much like the tester does:
-     * use reflection to get the selfTest() method. There is probably
-     * some duplicated logging if failures occur (by this method
-     * and the calling TesterService.selfTest()).
-     *
-     * @return object representing all of the failures of the test
-     *          (we use a List of Object to collect the failures
-     *          across sub-services).
-     */
-    public final Object selfTest() {
-        // We are going to push all of the test failures onto this
-        // list to dump in one go later.
-        List <Object > result = new LinkedList < Object >();
+	public SecurityManager getSecurityManager() {
+		if (sec == null) {
+			sec = new SecurityManagerImpl(bc, this.getDBService(), this
+					.getMessagingService(), this.getLogManager().createLogger(
+					Logger.NAME_SQOOSS_SECURITY));
+		}
 
-        List < Object > testObjects = new LinkedList < Object >();
-        try {
-            testObjects.add(getScheduler());
-            testObjects.add(getDBService());
-            testObjects.add(getFDSService());
-            testObjects.add(getLogManager());
-            testObjects.add(getMessagingService());
-            testObjects.add(getSecurityManager());
-            testObjects.add(getTDSService());
-            testObjects.add(getUpdater());
-        } catch (Throwable t) {
-            t.printStackTrace();
-            return t.toString();
-        }
+		return sec;
+	}
 
-        Logger l = getLogManager().createLogger(Logger.NAME_SQOOSS_TESTER);
+	public TDSService getTDSService() {
+		if (tds == null) {
+			tds = new TDSServiceImpl(getLogManager().createLogger(
+					Logger.NAME_SQOOSS_TDS));
+		}
+		return tds;
+	}
 
-        for (Object o : testObjects) {
-            String className = o.getClass().getName();
-            try {
-                Method m = o.getClass().getMethod("selfTest");
-                if (m != null) {
-                    l.info("BEGIN SubTest " + className);
+	public UpdaterService getUpdater() {
+		if (updater == null) {
+			try {
+				updater = new UpdaterServiceImpl(bc, getLogManager()
+						.createLogger(Logger.NAME_SQOOSS_UPDATER));
+			} catch (ServletException e) {
+				e.printStackTrace();
+			} catch (NamespaceException e) {
+				e.printStackTrace();
+			}
+		}
+		return updater;
+	}
 
-                    // Now trim down to only the class name
-                    int lastDot = className.lastIndexOf('.');
-                    if (lastDot > 0) {
-                        className = className.substring(lastDot + 1);
-                    }
+	public MetricActivator getMetricActivator() {
+		if (ma == null) {
+			ma = new MetricActivatorImpl(bc, getLogManager().createLogger(
+					Logger.NAME_SQOOSS_METRICACTIVATOR));
+		}
 
-                    String enabled = bc.getProperty("eu.sqooss.tester.enable."
-                            + className);
-                    if ((enabled != null) && !Boolean.valueOf(enabled)) {
-                        l.info("SKIP  Test (disabled in configuration)");
-                        continue;
-                    }
+		return ma;
+	}
 
-                    try {
-                        Object r = m.invoke(o);
-                        if (r != null) {
-                            l.info(className + "'s test failed: " + r.toString());
-                            result.add(r);
-                        }
-                    } catch (SecurityException e) {
-                        l.info("Can't access selfTest() method.");
-                    } catch (IllegalAccessException e) {
-                        l.info("Failed to invoke selfTest() method: "
-                                + e.getMessage());
-                    } catch (InvocationTargetException e) {
-                        l.info("Failed to invoke selfTest() on service: "
-                                + e.getMessage());
-                    } catch (Exception e) {
-                        l.warn("selfTest() method failed: "
-                                + e.getMessage());
-                        e.printStackTrace();
-                    }
+	public Object getService(ServiceReference r) {
+		return bc.getService(r);
+	}
 
-                    l.info("END   SubTest " + o.getClass().getName());
-                    m = null;
-                }
-            } catch (NoSuchMethodException e) {
-                l.warn("Core component " + className + " has no selfTest()");
-            }
-        }
+	/*
+	 * This is the selfTest() method which is called by the system tester at
+	 * startup. The method itself serves only as a dispatcher to call the
+	 * selfTest() methods of all of the sub-services of the Alitheia core. It
+	 * does this much like the tester does: use reflection to get the selfTest()
+	 * method. There is probably some duplicated logging if failures occur (by
+	 * this method and the calling TesterService.selfTest()).
+	 * 
+	 * @return object representing all of the failures of the test (we use a
+	 * List of Object to collect the failures across sub-services).
+	 */
+	public final Object selfTest() {
+		// We are going to push all of the test failures onto this
+		// list to dump in one go later.
+		List<Object> result = new LinkedList<Object>();
 
-        return result;
-    }
+		List<Object> testObjects = new LinkedList<Object>();
+		try {
+			testObjects.add(getScheduler());
+			testObjects.add(getDBService());
+			testObjects.add(getFDSService());
+			testObjects.add(getLogManager());
+			testObjects.add(getMessagingService());
+			testObjects.add(getSecurityManager());
+			testObjects.add(getTDSService());
+			testObjects.add(getUpdater());
+		} catch (Throwable t) {
+			t.printStackTrace();
+			return t.toString();
+		}
+
+		Logger l = getLogManager().createLogger(Logger.NAME_SQOOSS_TESTER);
+
+		for (Object o : testObjects) {
+			String className = o.getClass().getName();
+			try {
+				Method m = o.getClass().getMethod("selfTest");
+				if (m != null) {
+					l.info("BEGIN SubTest " + className);
+
+					// Now trim down to only the class name
+					int lastDot = className.lastIndexOf('.');
+					if (lastDot > 0) {
+						className = className.substring(lastDot + 1);
+					}
+
+					String enabled = bc.getProperty("eu.sqooss.tester.enable."
+							+ className);
+					if ((enabled != null) && !Boolean.valueOf(enabled)) {
+						l.info("SKIP  Test (disabled in configuration)");
+						continue;
+					}
+
+					try {
+						Object r = m.invoke(o);
+						if (r != null) {
+							l.info(className + "'s test failed: "
+									+ r.toString());
+							result.add(r);
+						}
+					} catch (SecurityException e) {
+						l.info("Can't access selfTest() method.");
+					} catch (IllegalAccessException e) {
+						l.info("Failed to invoke selfTest() method: "
+								+ e.getMessage());
+					} catch (InvocationTargetException e) {
+						l.info("Failed to invoke selfTest() on service: "
+								+ e.getMessage());
+					} catch (Exception e) {
+						l.warn("selfTest() method failed: " + e.getMessage());
+						e.printStackTrace();
+					}
+
+					l.info("END   SubTest " + o.getClass().getName());
+					m = null;
+				}
+			} catch (NoSuchMethodException e) {
+				l.warn("Core component " + className + " has no selfTest()");
+			}
+		}
+
+		return result;
+	}
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

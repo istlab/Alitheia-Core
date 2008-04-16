@@ -234,10 +234,6 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
                 logger.info("Using a non-empty results return variable.");
             }
         }
-        if (!core.getScheduler().isExecuting()) {
-            // Make sure there are enough threads for the updater.
-            core.getScheduler().startExecute(Runtime.getRuntime().availableProcessors());
-        }
 
         Set<UpdateTarget> s = currentJobs.get(project.getName());
         if (s != null) logger.info("Update set is:" + explain(s));
