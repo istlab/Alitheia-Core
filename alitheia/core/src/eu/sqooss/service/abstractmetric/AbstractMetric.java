@@ -329,6 +329,7 @@ implements eu.sqooss.service.abstractmetric.AlitheiaPlugin {
         p.setInstalldate(new Date(System.currentTimeMillis()));
         p.setVersion(getVersion());
         p.setActive(true);
+        p.setHashcode(String.valueOf(hashCode()));
         db.addRecord(p);
         
         return true;

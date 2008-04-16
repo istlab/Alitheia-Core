@@ -101,7 +101,6 @@ public class Plugin extends DAObject{
         HashMap<String, Object> s = new HashMap<String, Object>();
         s.put("name", name);
         return db.findObjectsByProperties(Plugin.class, s);
-        
     }
     
     /**
