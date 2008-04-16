@@ -8,7 +8,7 @@
     <id name="id" column="PLUGIN_CONFIGURATION_ID">
       <generator class="native" />
     </id>
-    <property name="key" column="KEY" type="string" />
+    <property name="name" column="NAME" type="string" />
     <property name="value" column="VALUE" type="string"/>
     <property name="type" column="TYPE"/>
     <many-to-one name="plugin" column="PLUGIN_ID" />
