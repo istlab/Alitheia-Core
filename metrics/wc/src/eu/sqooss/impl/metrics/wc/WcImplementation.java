@@ -79,8 +79,7 @@ public class WcImplementation extends AbstractMetric implements Wc {
     }
 
     public boolean update() {
-
-        return remove() && install();
+        return super.update();
     }
 
     public Result getResult(ProjectFile a) {
@@ -146,15 +145,13 @@ public class WcImplementation extends AbstractMetric implements Wc {
         }
     }
 
-    /** {@inheritdoc} */
-    public Collection<Pair<String, eu.sqooss.service.abstractmetric.AlitheiaPlugin.ConfigurationTypes> >
-        getConfigurationSchema() {
+    public Collection<Pair<String, ConfigurationTypes>> getConfigurationSchema() {
 
-        ArrayList<Pair<String, eu.sqooss.service.abstractmetric.AlitheiaPlugin.ConfigurationTypes> > l = new
-            ArrayList<Pair<String, eu.sqooss.service.abstractmetric.AlitheiaPlugin.ConfigurationTypes> >(1);
+        ArrayList<Pair<String, ConfigurationTypes> > l = new
+            ArrayList<Pair<String, ConfigurationTypes> >(1);
 
-        Pair foo = new Pair<String, eu.sqooss.service.abstractmetric.AlitheiaPlugin.ConfigurationTypes>
-            ("smart-whitespace", eu.sqooss.service.abstractmetric.AlitheiaPlugin.ConfigurationTypes.BOOLEAN);
+        Pair<String, ConfigurationTypes> foo = new Pair<String, ConfigurationTypes>(
+                "smart-whitespace", ConfigurationTypes.BOOLEAN);
 
         l.add(foo);
         return l;

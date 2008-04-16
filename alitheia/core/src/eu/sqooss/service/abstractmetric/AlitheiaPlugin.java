@@ -33,10 +33,13 @@
 
 package eu.sqooss.service.abstractmetric;
 
+import java.util.Collection;
 import java.util.Date;
 
 import eu.sqooss.lib.result.Result;
 import eu.sqooss.service.db.DAObject;
+import eu.sqooss.service.util.Pair;
+
 
 /**
  * Common metric plug-in related functionality. Must be implemented
@@ -157,14 +160,14 @@ public interface AlitheiaPlugin {
      * Perform maintenance operations when installing a new
      * version of the metric
      *
-     * @return True, if the installation succeeded, false otherwise
+     * @return True if installation succeeded, false otherwise 
      */
     boolean install();
 
     /**
      * Free the used resources and clean up on metric removal
      *
-     * @return True, if the installation succeeded, false otherwise
+     * @return True, if the removal succeeded, false otherwise
      */
     boolean remove();
 
@@ -177,13 +180,4 @@ public interface AlitheiaPlugin {
         STRING,
         BOOLEAN
     } ;
-
-    /**
-     * A metric has a set of configuration values, together called the
-     * configuration schema of the metric. These configuration values
-     * are basic typed name=value pairs. The schema itself is a
-     * set of pairs of name and type.
-     */
-    public java.util.Collection<eu.sqooss.service.util.Pair<String, ConfigurationTypes> >
-        getConfigurationSchema();
 }
