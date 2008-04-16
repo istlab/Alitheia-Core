@@ -143,6 +143,10 @@ public class WebAdminRenderer {
                 sobjLogger.debug("WebAdmin got Updater Service object.");
             }
         }
+
+        // Do some stuffing
+        Stuffer myStuffer = new Stuffer(sobjDB, sobjLogger, sobjTDS);
+        myStuffer.run();
     }
 
     public static String renderMetrics() {
