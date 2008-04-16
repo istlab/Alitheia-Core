@@ -127,6 +127,7 @@ $(eval $(call rejar_template,org/apache,wsdl4j,1.6.1))
 $(eval $(call rejar_template,org/codehaus,stax2,3.0.1))
 $(eval $(call rejar_template,org,dom4j,1.6.1))
 $(eval $(call rejar_template,org,hibernate,3.2.5,$(MAKE) extra-hibernate))
+$(eval $(call rejar_template,org,junit,4.4))
 $(eval $(call rejar_template,org/postgresql,jdbc,8.2.505))
 $(eval $(call rejar_template,org/tmatesoft,svnkit,1.1.4))
 
