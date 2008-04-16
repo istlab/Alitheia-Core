@@ -77,9 +77,6 @@ public class AdminServlet extends HttpServlet {
     WebAdminRenderer render = null;
 
     public AdminServlet(BundleContext bc) {
-        // Create the renderer
-        render = new WebAdminRenderer(bc);
-
         // Create the static content map
         staticContentMap = new Hashtable<String, Pair<String, String>>();
         addStaticContent("/screen.css", "text/css");
@@ -107,6 +104,9 @@ public class AdminServlet extends HttpServlet {
         // Now the dynamic substitutions
         vc = new VelocityContext();
         createSubstitutions(true);
+
+        // Create the renderer
+        render = new WebAdminRenderer(bc, vc);
 
         try {
             ve = new VelocityEngine();
@@ -157,6 +157,19 @@ public class AdminServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request,
                           HttpServletResponse response) throws ServletException,
                                                                IOException {
+        try {
+            String query = request.getPathInfo();
+
+            if (query.startsWith("/addproject")) {
+                render.addProject(request);
+                //dynamicSubstitutions.put("@@ACTIVE","class=\"section-3\"");
+                sendPage(response, "/results.html");
+            } else {
+                doGet(request,response);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**

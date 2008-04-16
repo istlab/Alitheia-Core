@@ -38,6 +38,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
 import eu.sqooss.core.AlitheiaCore;
 
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin.ConfigurationTypes;
@@ -54,6 +56,11 @@ import eu.sqooss.service.util.Pair;
 import eu.sqooss.service.util.StringUtils;
 import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.scheduler.Scheduler;
+import eu.sqooss.service.tds.InvalidRepositoryException;
+import eu.sqooss.service.tds.TDAccessor;
+import eu.sqooss.service.tds.TDSService;
+
+import org.apache.velocity.VelocityContext;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -72,12 +79,18 @@ public class WebAdminRenderer {
     private static MetricActivator sobjMetricActivator = null;
     private static PluginAdmin sobjPluginAdmin = null;
     private static Scheduler sobjSched = null;
+    private static TDSService sobjTDS = null;
+    private static UpdaterService sobjUpdater = null;
+
+    // Velocity stuff
+    private VelocityContext vc = null;
 
     // Current time
     private static long startTime = new Date().getTime();
 
-    public WebAdminRenderer(BundleContext bundlecontext) {
+    public WebAdminRenderer(BundleContext bundlecontext, VelocityContext vc) {
         srefCore = bundlecontext.getServiceReference(AlitheiaCore.class.getName());
+        this.vc = vc;
 
         if (srefCore != null) {
             sobjAlitheiaCore = (AlitheiaCore) bundlecontext.getService(srefCore);
@@ -115,6 +128,18 @@ public class WebAdminRenderer {
             sobjMetricActivator = sobjAlitheiaCore.getMetricActivator();
             if (sobjMetricActivator != null) {
                 sobjLogger.debug("WebAdmin got Metric Activator object.");
+            }
+
+            // Get the TDS Service object
+            sobjTDS = sobjAlitheiaCore.getTDSService();
+            if (sobjTDS != null) {
+                sobjLogger.debug("WebAdmin got TDS Service object.");
+            }
+
+            // Get the Updater Service object
+            sobjUpdater = sobjAlitheiaCore.getUpdater();
+            if (sobjUpdater != null) {
+                sobjLogger.debug("WebAdmin got Updater Service object.");
             }
         }
     }
@@ -378,6 +403,109 @@ public class WebAdminRenderer {
         }
         s.append("</table>");
         return s.toString();
+    }
+
+    public void addProject(HttpServletRequest request) {        
+        final String tryAgain = "<p><a href=\"/projects\">Try again</a>.</p>";
+        final String returnToList = "<p><a href=\"/projects\">Try again</a>.</p>";
+        
+        String name = request.getParameter("name");
+        String website = request.getParameter("website");
+        String contact = request.getParameter("contact");
+        String bts = request.getParameter("bts");
+        String mail = request.getParameter("mail");
+        String scm = request.getParameter("scm");
+        
+        // Avoid missing-entirely kinds of parameters.
+        if ( (name == null) ||
+             (website == null) ||
+             (contact == null) ||
+             /*  (bts == null) || FIXME: For now, BTS and Mailing lists can be empty
+                 (mail == null) || */
+             (scm == null) ) {
+            vc.put("RESULTS",
+                   "<p>Add project failed because some of the required information was missing.</p>" 
+                   + tryAgain);
+            return;
+        }
+
+        // Avoid adding projects with empty names or SVN.
+        if (name.trim().length() == 0 || scm.trim().length() == 0) {
+            vc.put("RESULTS", "<p>Add project failed because the project name or Subversion repository were missing.</p>" 
+                   + tryAgain);
+            return;
+        }
+
+        if (sobjDB != null) {
+            StoredProject p = new StoredProject();
+            p.setName(name);
+            p.setWebsite(website);
+            p.setContact(contact);
+            p.setBugs(bts);
+            p.setRepository(scm);
+            p.setMail(mail);
+
+            sobjDB.addRecord(p);
+
+            /* Run a few checks before actually storing the project */
+            //1. Duplicate project
+            HashMap<String, Object> pname = new HashMap<String, Object>();
+            pname.put("name", (Object)p.getName());
+            if(sobjDB.findObjectsByProperties(StoredProject.class, pname).size() > 1) {
+                //Duplicate project, remove
+                sobjDB.deleteRecord(sobjDB.findObjectById(StoredProject.class, p.getId()));
+                sobjLogger.warn("A project with the same name already exists");
+                vc.put("RESULTS","<p>ERROR: A project" +
+                       " with the same name (" + p.getName() + ") already exists. " +
+                       "Project not added.</p>" + tryAgain);
+                return;
+            }
+
+            //2. Add accessor and try to access project resources
+            sobjTDS.addAccessor(p.getId(), p.getName(), p.getBugs(),
+                                p.getMail(), p.getRepository());
+            TDAccessor a = sobjTDS.getAccessor(p.getId());
+            
+            try {
+                a.getSCMAccessor().getHeadRevision();
+                //FIXME: fix this when we have a proper bug accessor
+                if(bts != null) {
+                    //Bug b = a.getBTSAccessor().getBug(1);
+                }
+                if(mail != null) {
+                    //FIXME: fix this when the TDS supports returning
+                    // list information
+                    //a.getMailAccessor().getNewMessages(0);
+                }
+            } catch (InvalidRepositoryException e) {
+                sobjLogger.warn("Error accessing repository. Project not added");
+                vc.put("RESULTS","<p>ERROR: Can not access " +
+                                         "repository: &lt;" + p.getRepository() + "&gt;," +
+                                         " project not added.</p>" + tryAgain);
+                //Invalid repository, remove and remove accessor
+                sobjDB.deleteRecord(sobjDB.findObjectById(StoredProject.class, p.getId()));
+                sobjTDS.releaseAccessor(a);
+                return;
+            }
+            
+            sobjTDS.releaseAccessor(a);
+            
+            // 3. Call the updater and check if it starts
+            if (sobjUpdater.update(p, UpdaterService.UpdateTarget.ALL, null)) {
+                sobjLogger.info("Added a new project <" + name + "> with ID " +
+                                p.getId());
+                vc.put("RESULTS",
+                                         "<p>New project added successfully.</p>" +
+                                         returnToList);
+            }
+            else {
+                sobjLogger.warn("The updater failed to start while adding project");
+                sobjDB.deleteRecord(sobjDB.findObjectById(StoredProject.class, p.getId()));
+                vc.put("RESULTS","<p>ERROR: The updater failed " +
+                                         "to start while adding project. Project was not added.</p>" +
+                                         tryAgain);
+            }
+        }
     }
 
     public static String renderUsers() {
