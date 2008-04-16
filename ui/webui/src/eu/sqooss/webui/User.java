@@ -38,7 +38,7 @@ public class User {
     private Long id;
     private String name;
     private String email;
-    public boolean isLoggedIn = false;
+    private boolean isLoggedIn;
 
     /**
      * Simple constructor. Instantiates a new <code>User</code> object.
@@ -65,9 +65,44 @@ public class User {
         return email;
     }
 
+    /**
+     * @return the isLoggedIn
+     */
+    public boolean getLoggedIn() {
+        return isLoggedIn;
+    }
+
+    /**
+     * @param isLoggedIn the isLoggedIn to set
+     */
+    public void setLoggedIn(boolean isLoggedIn) {
+        this.isLoggedIn = isLoggedIn;
+    }
+
     public String getHtml() {
         StringBuilder html = new StringBuilder("<!-- User -->\n<ul>");
         html.append("<h3>User: " + getName() + "(" + getId() + ")</h3>");
         return html.toString();
+    }
+
+    /**
+     * @param id the id to set
+     */
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    /**
+     * @param name the name to set
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * @param email the email to set
+     */
+    public void setEmail(String email) {
+        this.email = email;
     }
 }

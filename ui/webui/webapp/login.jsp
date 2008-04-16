@@ -1,6 +1,7 @@
-<%@ page session="true" %>
 <%@ page import="java.util.*" %>
 <%@ include file="/inc/init.jsp" %>
+<%@ page session="true" %>
+
 <%
 title = "Login";
 %>
@@ -26,7 +27,12 @@ else if ((actionResult != null)
     out.println ("A confirmation email will in short be sent to you.");
     out.println ("<br />");
 }
-else if (!user.isLoggedIn) {
+else if (user.getLoggedIn()) {
+    out.println("You are signed in.");
+    out.println("<br />");
+    out.println("To sign in as a different user, please sign out first.");
+}
+else {
     // Retrieve the form parameters from the previous login attempt (if any)
     String prvUsername = (validator.isEmpty(username)) ? "" : username;
     String prvPassword = (validator.isEmpty(password)) ? "" : password;
@@ -101,12 +107,7 @@ else if (!user.isLoggedIn) {
     </table>
     <input id="action" type="hidden" name="action" value="<% out.print (loginType); %>">
     </form>
-
 <%
-} else {
-    out.println("You are signed in.");
-    out.println("<br />");
-    out.println("To sign in as a different user, please sign out first.");
 }
 %>
 

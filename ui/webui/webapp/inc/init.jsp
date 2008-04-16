@@ -1,4 +1,5 @@
 <%@ page import="eu.sqooss.webui.*" %>
+<%@ page session="true" %>
 <%
 /*
     This file instaniates shared objects and defines shared variables
@@ -20,10 +21,13 @@ String msg      = "";
     scope="session"/>
 <jsp:setProperty name="terrier" property="*"/>
 
-<jsp:useBean id="user"
+<jsp:useBean
+    id="user"
     class="eu.sqooss.webui.User"
-    scope="session"/>
-<jsp:setProperty name="user" property="*"/>
+    scope="session">
+    <jsp:setProperty name="user" property="loggedIn" value="false"/>
+</jsp:useBean>
+
 
 <jsp:useBean id="validator"
     class="eu.sqooss.webui.InputValidator"
@@ -64,7 +68,7 @@ ProjectsListView.setProjectId(request.getParameter("pid"));
 
 String errorMsg = "";
 
-if (user.isLoggedIn) {
+if (user.getLoggedIn()) {
     msg = "Signed in as " + user.getName() + ".";
     msg = msg + " <a href=\"/logout.jsp\">sign out</a>";
 }
@@ -110,10 +114,14 @@ else if (postAction.compareToIgnoreCase(ACT_REQ_LOGIN) == 0) {
     // Try to login with the provided account into the SQO-OSS framework
     if (!loginFailure) {
         if (terrier.loginUser(username, password)) {
-            user = terrier.getUserByName(username);
-            if (user != null) {
+            User userInfo = terrier.getUserByName(username);
+            if (userInfo != null) {
                 actionResult = RES_LOGIN_SUCCESS;
-                user.isLoggedIn = true;
+                user.setLoggedIn(true);
+                // TODO: Move into a copyFrom(User) method
+                user.setId(userInfo.getId());
+                user.setName(userInfo.getName());
+                user.setEmail(userInfo.getEmail());
             }
             else {
                 user = new User();

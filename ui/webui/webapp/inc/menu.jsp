@@ -7,7 +7,7 @@
     <ul>
         <li><a href="/" title="Alitheia overview">Home</a></li>
 <%
-if (user.isLoggedIn) {
+if (user.getLoggedIn()) {
 %>
         <li><a href="/logout.jsp" title="Click here to log out">Logout</a></li>
 <%
