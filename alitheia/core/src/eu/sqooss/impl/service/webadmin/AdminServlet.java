@@ -143,7 +143,10 @@ public class AdminServlet extends HttpServlet {
                                                               IOException {
         try {
             String query = request.getPathInfo();
-            
+
+            // Add the request to the log
+            render.logRequest("GET:" + query);
+
             // This is static content
             if ((query != null) && (staticContentMap.containsKey(query))) {
                 sendResource(response, staticContentMap.get(query));
@@ -162,6 +165,9 @@ public class AdminServlet extends HttpServlet {
                                                                IOException {
         try {
             String query = request.getPathInfo();
+
+            // Add the request to the log
+            render.logRequest("POST:" + query);
 
             if (query.startsWith("/addproject")) {
                 render.addProject(request);

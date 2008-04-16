@@ -362,7 +362,7 @@ public class WebAdminRenderer {
         Collection<PluginInfo> metrics = sobjPluginAdmin.listPlugins();
 
         if (projects == null || metrics == null) {
-            return null;
+            return "<li>Nothing to display.</li>";
         }
 
         StringBuilder s = new StringBuilder();
@@ -556,5 +556,9 @@ public class WebAdminRenderer {
         vc.put("RESULTS", 
                "<p>The Message Of The Day was successfully updated with: <i>" +
                request.getParameter("motdtext") + "</i></p>");
+    }
+
+    public static void logRequest(String request) {
+        sobjLogger.info(request);
     }
 }
