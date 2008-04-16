@@ -262,11 +262,39 @@ public class Terrier {
         return null;
     }
 
-    public User getUser (Long userId) {
-        // TODO
+    /**
+     * Retrieves information about the specified user from the SQO-OSS
+     * framework.
+     * 
+     * @param userId the user's account Id
+     * 
+     * @return an User object holding information about the requested user, or
+     * <code>null</code> when no information is available
+     */
+    public User getUserById (Long userId) {
+        if (!connection.isConnected()) {
+            return null;
+        }
+        try {
+            WSUser user = connection.getUserAccessor().displayUser(userId);
+            if (user != null) {
+                return new User(user.getId(), user.getUserName(), user.getEmail());
+            }
+        } catch (WSException e) {
+            error = "Can not retrieve information about the selected user.";
+        }
         return null;
     }
 
+    /**
+     * Retrieves information about the specified user from the SQO-OSS
+     * framework.
+     * 
+     * @param userName the user's name
+     * 
+     * @return an User object holding information about the requested user, or
+     * <code>null</code> when no information is available
+     */
     public User getUserByName (String userName) {
         if (!connection.isConnected()) {
             return null;
