@@ -41,11 +41,6 @@ public abstract class WSMetricAccessor extends WSAccessor {
     /**
      * This method returns the metrics for a given project.
      * 
-     * <p>
-     * The method's url is: <br>
-     * http://sqo-oss/retrieveMetrics4SelectedProject?pid={project_id}
-     * </p>
-     * 
      * @param projectId the project's id
      * 
      * @throws WSException
@@ -60,12 +55,6 @@ public abstract class WSMetricAccessor extends WSAccessor {
      * This method returns the metrics for a given files.
      * All files in the folder can be selected with the folder's name.
      * 
-     * <p>
-     * The method's url is: <br>
-     * http://sqo-oss/retrieveMetrics4SelectedFiles?pid={project_id}&
-     * folders={list-of-folder-names}&filenames={list-of-file-names}
-     * </p>
-     * 
      * @param projectId the project's id
      * @param folderNames the folders' names; the folders' delimiter is a comma
      * @param fileNames the files' names, the files' delimiter is a comma
@@ -77,6 +66,12 @@ public abstract class WSMetricAccessor extends WSAccessor {
      * <ul>
      */
     public abstract WSMetric[] retrieveMetrics4SelectedFiles(long projectId, String folderNames, String fileNames) throws WSException;
+    
+    /**
+     * This method returns all installed metrics.
+     * @return the empty array if there aren't metrics
+     */
+    public abstract WSMetric[] getMetrics() throws WSException;
     
     public abstract WSMetricMeasurement[] getProjectFileMetricMeasurement(long metricId, long projectFileId) throws WSException;
     

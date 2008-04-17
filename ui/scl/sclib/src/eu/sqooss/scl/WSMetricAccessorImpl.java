@@ -43,6 +43,8 @@ import eu.sqooss.scl.accessor.WSMetricAccessor;
 import eu.sqooss.ws.client.WsStub;
 import eu.sqooss.ws.client.datatypes.WSMetric;
 import eu.sqooss.ws.client.datatypes.WSMetricMeasurement;
+import eu.sqooss.ws.client.ws.GetMetrics;
+import eu.sqooss.ws.client.ws.GetMetricsResponse;
 import eu.sqooss.ws.client.ws.GetProjectFileMetricMeasurement;
 import eu.sqooss.ws.client.ws.GetProjectFileMetricMeasurementResponse;
 import eu.sqooss.ws.client.ws.GetProjectVersionMetricMeasurement;
@@ -57,6 +59,8 @@ class WSMetricAccessorImpl extends WSMetricAccessor {
     private static final String METHOD_NAME_RETRIEVE_METRICS_4_SELECTED_PROJECT  = "retrieveMetrics4SelectedProject";
 
     private static final String METHOD_NAME_RETRIEVE_METRICS_4_SELECTED_FILES    = "retrieveMetrics4SelectedFiles";
+    
+    private static final String METHOD_NAME_GET_METRICS                          = "getMetrics";
 
     private static final String METHOD_NAME_GET_PROJECT_FILE_METRIC_MEASUREMENT     = "getFileMetricMeasurement";
 
@@ -167,6 +171,31 @@ class WSMetricAccessorImpl extends WSMetricAccessor {
             params.setFileNames(fileNamesArray);
             try {
                 response = wsStub.retrieveMetrics4SelectedFiles(params);
+            } catch (RemoteException re) {
+                throw new WSException(re);
+            }
+        }
+        return (WSMetric[]) normaliseWSArrayResult(response.get_return());
+    }
+
+    /**
+     * @see eu.sqooss.scl.accessor.WSMetricAccessor#getMetrics()
+     */
+    @Override
+    public WSMetric[] getMetrics() throws WSException {
+        GetMetricsResponse response;
+        GetMetrics params;
+        if (!parameters.containsKey(METHOD_NAME_GET_METRICS)) {
+            params = new GetMetrics();
+            params.setPassword(password);
+            params.setUserName(userName);
+            parameters.put(METHOD_NAME_GET_METRICS, params);
+        } else {
+            params = (GetMetrics) parameters.get(METHOD_NAME_GET_METRICS);
+        }
+        synchronized (params) {
+            try {
+                response = wsStub.getMetrics(params);
             } catch (RemoteException re) {
                 throw new WSException(re);
             }
