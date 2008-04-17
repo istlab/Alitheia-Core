@@ -8,7 +8,7 @@
     <id name="id" column="TAG_ID">
       <generator class="native" />
     </id>
-    <one-to-one name="pv" class="eu.sqooss.service.db.ProjectVersion" />
+    <many-to-one name="projectVersion" column="TAG_VERSION" not-null="true"/>
     <property name="name" column="TAG_NAME" />
   </class>
 </hibernate-mapping>

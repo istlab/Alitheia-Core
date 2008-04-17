@@ -42,16 +42,12 @@ public class Tag extends DAObject {
     public Tag() {
         // Nothing to do
     }
-
-    public Tag(ProjectVersion pv) {
-        this.pv = pv;
-    }
     
-    public ProjectVersion getPv() {
+    public ProjectVersion getProjectVersion() {
         return pv;
     }
 
-    public void setPv(ProjectVersion pv) {
+    public void setProjectVersion(ProjectVersion pv) {
         this.pv = pv;
     }
 

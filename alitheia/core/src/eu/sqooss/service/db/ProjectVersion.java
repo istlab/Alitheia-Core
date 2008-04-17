@@ -125,7 +125,9 @@ public class ProjectVersion extends DAObject {
     }
     
     public Tag addTag() {
-        return new Tag(this);
+        Tag tag = new Tag();
+        tag.setProjectVersion(this);
+        return tag;
     }
 
     public Developer getCommitter() {
