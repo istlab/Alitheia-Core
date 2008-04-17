@@ -131,6 +131,17 @@ public class MetricManager {
         return convertToWSMetrics(result);
     }
     
+    /**
+     * @see eu.sqooss.service.web.services.WebServices#getMetrics(String, String)
+     */
+    public WSMetric[] getMetrics(String userName, String password) {
+        logger.info("Get metrics! user: " + userName);
+        
+        //TODO: check the security
+        
+        return convertToWSMetrics(dbWrapper.getMetrics());
+    }
+    
     public WSMetricMeasurement[] getProjectFileMetricMeasurement(String userName, String password,
             long metricId, long projectFileId) {
         

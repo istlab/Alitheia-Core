@@ -123,6 +123,14 @@ public class WebServices {
             long projectId, long metricId) {
         return metricManager.retrieveSelectedMetric(userName, password, projectId, metricId);
     }
+    
+    /**
+     * This method returns all installed metrics.
+     * @return
+     */
+    public WSMetric[] getMetrics(String userName, String password) {
+        return metricManager.getMetrics(userName, password);
+    }
     //5.1.1
     
     //5.1.2

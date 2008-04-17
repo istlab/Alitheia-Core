@@ -95,6 +95,9 @@ interface MetricManagerDBQueries {
                                                                         " and pv.project.id=:" +
                                                                         RETRIEVE_METRICS_4_SELECTED_FILES_PARAM_PR;
     
+    public static final String GET_METRICS = "select metric, metricType " +
+    		                                 "from Metric metric, MetricType metricType " +
+    		                                 "where metric.metricType=metricType ";
     
     public static final String GET_PROJECT_FILE_METRIC_MEASUREMENT_PARAM_FILE   = "project_file_id";
     

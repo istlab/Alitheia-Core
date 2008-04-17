@@ -73,6 +73,10 @@ public class MetricManagerDatabase implements MetricManagerDBQueries {
                 projectIdParameter, fileNamesParameter);
     }
     
+    public List<?> getMetrics() {
+        return db.doHQL(GET_METRICS);
+    }
+    
     public List<?> getFilesFromFolder(long projectId, String folder) {
         Map<String, Object> folderNameParameters = new Hashtable<String, Object>(2);
         folderNameParameters.put(RETRIEVE_METRICS_4_SELECTED_FILES_PARAM_PR,
