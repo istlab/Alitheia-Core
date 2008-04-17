@@ -1,11 +1,11 @@
-<!-- *** footer.jsp begins here *** -->
-    </div> <!-- id content -->
-<div id="footer">
-    Copyright 2007-2008 by members of the
-    <a href="http://www.sqo-oss.eu/">SQO-OSS consortium</a>.
-</div>
-</div>
+      </div>
+    </div>
+<%@ include file="/inc/menu.jsp" %>
+    <div id="footer">
+      <p>Copyright 2007-2008 by members of the
+      <a href="http://www.sqo-oss.eu/">SQO-OSS consortium</a>.</p>
+    </div>
+  </div>
 
-</body>
-
+  </body>
 </html>

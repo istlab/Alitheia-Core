@@ -47,6 +47,7 @@ import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.security.SecurityManager;
 import eu.sqooss.service.tds.TDSService;
+import eu.sqooss.service.webadmin.WebadminService;
 
 /* 
  * NOTES:
@@ -70,12 +71,14 @@ public class WebServices {
     private MetricManager metricManager;
     private ProjectManager projectManager;
     private UserManager userManager;
+    private WebadminService webadmin;
     
     public WebServices(BundleContext bc, SecurityManager securityManager,
-            DBService db, TDSService tds, Logger logger) {
+            DBService db, TDSService tds, Logger logger, WebadminService wa) {
         metricManager = new MetricManager(logger, db, securityManager);
         projectManager = new ProjectManager(logger, db, tds, securityManager);
         userManager = new UserManager(securityManager);
+        webadmin = wa;
     }
     
     //5.1.1
@@ -370,8 +373,17 @@ public class WebServices {
     //metric results
     
     public String getUserMessageOfTheDay(String userName) {
-        if (userName.length() < 12 /* inches ? */) {
+        String s = null;
+        if (webadmin != null) {
+            s = webadmin.getMessageOfTheDay();
+        } else {
+            s = "No connection to MOTD server.";
+        }
+        if (userName.length() < 3 /* inches ? */) {
             return "Expand your unit, " + userName;
+        }
+        if (s != null) {
+            return s;
         }
         return "Share and enjoy.";
     }

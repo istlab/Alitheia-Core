@@ -330,13 +330,9 @@ public class Terrier {
             }
             return connection.getUserAccessor().getUserMessageOfTheDay(user);
         } catch (WSException e) {
-            return e.toString();
+            return null;
         } catch (NullPointerException e) {
-            ByteArrayOutputStream o = new ByteArrayOutputStream();
-            PrintStream p = new PrintStream(o);
-            e.printStackTrace(p);
-            p.close();
-            return o.toString();
+            return null;
         }
     }
 

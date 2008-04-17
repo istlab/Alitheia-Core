@@ -3,43 +3,42 @@
     class="eu.sqooss.webui.CruncherStatus"
     scope="application" />
 
-<div id="menu">
-    <ul>
-        <li><a href="/" title="Alitheia overview">Home</a></li>
-        <li><a href="/projects.jsp" title="Project details">Projects</a></li>
+    <div id="sidebar">
+      <fieldset id="pages">
+        <legend>Menu</legend>
+        <ul>
+          <li><a href="/" title="Alitheia overview">Home</a></li>
+          <li><a href="/projects.jsp" title="Project details">Projects</a></li>
 <%
 if (user.getLoggedIn()) {
 %>
-        <li><a href="/logout.jsp" title="Click here to log out">Logout</a></li>
+          <li><a href="/logout.jsp" title="Click here to log out">Logout</a></li>
 <%
 } else {
 %>
-        <li><a href="/login.jsp" title="Click here to log in or register">Login</a></li>
+          <li><a href="/login.jsp" title="Click here to log in or register">Login</a></li>
 <%
 }
 %>
-    </ul>
-</div>
+        </ul>
+      </fieldset>
 
 <%
     //msg = msg + request.getParameter("msg");
     if ( (msg!=null) && msg.length() > 0 ) {
 %>
-<div id="sidebar">
-<legend>Messages:</legend>
-    <%= msg %>
-</div>
+      <fieldset id="messages">
+        <legend>Messages</legend>
+<%= msg %>
+      </fieldset>
 <%
 }
 %>
-<div id="sidebar">
-<legend>Status:</legend>
-<!-- First call to cruncher to obtain status -->
+      <fieldset id="status">
+        <legend>Status</legend>
 <%
 cruncher.hit();
 out.println(cruncher.getStatus());
 %>
-
-</div>
-
-<!-- *** menu.jsp ends here *** -->
+      </fieldset>
+    </div>

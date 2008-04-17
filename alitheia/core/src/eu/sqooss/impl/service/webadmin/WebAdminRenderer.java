@@ -552,7 +552,7 @@ public class WebAdminRenderer {
     }
 
     public void setMOTD(WebadminService webadmin, HttpServletRequest request) {
-        webadmin.setConfigurationProperty("eu.sqoooss.alitheia.core.motd", request.getParameter("motdtext"));
+        webadmin.setMessageOfTheDay(request.getParameter("motdtext"));
         vc.put("RESULTS", 
                "<p>The Message Of The Day was successfully updated with: <i>" +
                request.getParameter("motdtext") + "</i></p>");
