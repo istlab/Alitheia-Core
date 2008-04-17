@@ -191,7 +191,6 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
         if (pluginObject != null) {
             pluginInfo.setPluginName(pluginObject.getName());
             pluginInfo.setPluginVersion(pluginObject.getVersion());
-            pluginInfo.setAttributes(pluginObject.getConfigurationSchema());
 
             // Retrieve all object types that this plugin can calculate
             Vector<String> metricType = new Vector<String>();

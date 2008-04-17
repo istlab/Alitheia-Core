@@ -20,7 +20,6 @@ public class PluginInfo {
     private String[]    objectClass     = null;
     private String[]    pluginType      = null;
     public boolean      installed       = false;
-    private Collection<Pair<String,AlitheiaPlugin.ConfigurationTypes>> attributes = null;
 
     /**
      * @param bundleID the bundleID to set
@@ -153,13 +152,5 @@ public class PluginInfo {
         b.append(StringUtils.join(getObjectClass(),","));
         b.append("]");
         return b.toString();
-    }
-
-    public void setAttributes(Collection<eu.sqooss.service.util.Pair<String,eu.sqooss.service.abstractmetric.AlitheiaPlugin.ConfigurationTypes>> attributes) {
-        this.attributes = attributes;
-    }
-
-    public Collection getAttributes() {
-        return attributes;
     }
 }
