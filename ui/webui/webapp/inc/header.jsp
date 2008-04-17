@@ -16,3 +16,8 @@
       </div>
       <div id="main">
         <div id="contents">
+
+<jsp:useBean id="cruncher"
+    class="eu.sqooss.webui.CruncherStatus"
+    scope="application" />
+

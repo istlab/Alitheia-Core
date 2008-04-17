@@ -109,7 +109,7 @@ public class Project {
 
     public String getInfo() {
         StringBuilder html = new StringBuilder();
-        html.append("\n<table>\n\t<tr>\n\t\t<td>");
+        html.append("\n<table class=\"projectinfo\">\n\t<tr>\n\t\t<td>");
         html.append("Website: \n\t\t</td><td>\n"
                 + (getWebsite() != null 
                         ? "<a href=\"" + getWebsite() + "\">" + getWebsite() + "</a>"

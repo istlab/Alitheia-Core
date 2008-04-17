@@ -30,7 +30,7 @@ if (ProjectsListView.hasProjects()) {
         out.println("<div id=\"selectedproject\" class=\"group\">");
         out.println("Selected:");
         out.println("<strong>" + selectedProject.getName() + "</strong>");
-        out.println("<span class=\"forget\"><a href=\".?pid=none\">(forget)</a></span>");
+        out.println("<span class=\"forget\"><a href=\"?pid=none\">(forget)</a></span>");
 
         out.println(selectedProject.getInfo());
 
@@ -92,7 +92,7 @@ if (ProjectsListView.hasProjects()) {
     out.println("</div>");
 }
 else {
-    out.println("<div class=\"group\">");
+    out.println("<div id=\"error\" class=\"group\">");
     if (cruncher.isOnline()) {
         out.println(Functions.error("Unable to find any evaluated projects."));
     } else {

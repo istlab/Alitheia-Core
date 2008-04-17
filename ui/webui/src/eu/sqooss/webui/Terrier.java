@@ -217,6 +217,19 @@ public class Terrier {
     }
 
     /**
+     * Retrieves all metrics and generates a proper view for displaying them.
+     *
+     * @return The corresponding view object
+     */
+    public MetricsTableView getAllMetrics() {
+        if (!connection.isConnected()) {
+            return null;
+        }
+        error = "There is no way to retrieve the list of metrics.";
+        return null;
+    }
+
+    /**
      * Retrieves all files that exist in the specified project version,
      * and generates a proper view for displaying them.
      *

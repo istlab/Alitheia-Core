@@ -1,14 +1,10 @@
-<!-- *** menu.jsp begins here *** -->
-<jsp:useBean id="cruncher"
-    class="eu.sqooss.webui.CruncherStatus"
-    scope="application" />
-
     <div id="sidebar">
       <fieldset id="pages">
         <legend>Menu</legend>
         <ul>
           <li><a href="/" title="Alitheia overview">Home</a></li>
           <li><a href="/projects.jsp" title="Project details">Projects</a></li>
+          <li><a href="/metrics.jsp" title="Metric details">Metrics</a></li>
 <%
 if (user.getLoggedIn()) {
 %>

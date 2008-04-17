@@ -1,5 +1,11 @@
+#sidebar ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
 #news, #tagcloud, #selectedproject,
-#projectslist {
+#projectslist, #metricslist {
     padding: 1ex 1em;
     padding-left: 76px;
     min-height: 52px; /* 36px for image + 8px padding */
@@ -33,10 +39,8 @@
     margin-bottom: 20px;
 }
 
-#sidebar ul {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
+#selectedproject table.projectinfo {
+    margin: 3px 0px 3px 3em;
 }
 
 ul.projectslist {
@@ -51,9 +55,9 @@ ul.projectslist {
 span.forget {
     margin-left: 30px;
     font-size: 0.6em;
-    color: #ccc;
+    color: #666;
 }
 
 span.forget a {
-    color: #ccc;
+    color: #666;
 }

@@ -4,22 +4,24 @@
 
 <%@ page import="eu.sqooss.webui.*" %>
 
-<div class="group">
+<div id="metricslist" class="group">
 <% // List metrics per selected project or as total
 
 if (ProjectsListView.getProjectId() != null) {
     metricsView =
         terrier.getMetrics4Project(ProjectsListView.getProjectId());
-    if (metricsView != null ) {
-        out.println(metricsView.getHtmlList());
-    }
-    else {
-      out.println(Functions.error(terrier.getError()));
-    }
 }
 else {
-    metricsView.setShowDescription(false);
+    metricsView = terrier.getAllMetrics();
+    if (metricsView != null) {
+        metricsView.setShowDescription(false);
+    }
+}
+
+if (metricsView != null ) {
     out.println(metricsView.getHtmlList());
+} else {
+    out.println(Functions.error(terrier.getError()));
 }
 
 %>

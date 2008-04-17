@@ -69,8 +69,9 @@ public class ProjectsListView extends ListView {
         }
 
         if ("none".equals(projectId)) {
-            this.projectId = 0L;
+            this.projectId = null;
             setCurrentProject(null);
+            return;
         }
 
         Long pid = null;
@@ -79,7 +80,7 @@ public class ProjectsListView extends ListView {
             this.projectId = pid;
         }
         catch (NumberFormatException ex){
-            this.projectId = 0L;
+            this.projectId = null;
             setCurrentProject(null);
             return;
         }
