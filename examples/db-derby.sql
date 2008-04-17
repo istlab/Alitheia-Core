@@ -2,20 +2,6 @@
 -- The database must already exist and the tables
 -- and schemata must exist.
 --
--- We use a few place-markers of the form @@NAME@@
--- to indicate where the script varies between 
--- Derby and Postgres, since they are not 100%
--- compatible. These markers are:
---
---
--- @@SCHEMA@@
---	Derby requires ALITHEIA. schema specified,
---	Postgres requires this to be absent.
--- @@HOUR@@
---	Derby's timestamp format is more rigid than
---	Postgres, but incompatible. Includes the '-'
---	that separates the day from the hour.
---
 --
 
 
@@ -23,7 +9,7 @@
 -- It amalgamates SQO-OSS resources and a CodeYard project
 -- called YoYo which is just a playground.
 
-insert into @@SCHEMA@@STORED_PROJECT values ( 
+insert into ALITHEIA.STORED_PROJECT values ( 
 	1, 
 	'yoyo', 
 	'http://www.yoyo.com',
@@ -33,7 +19,7 @@ insert into @@SCHEMA@@STORED_PROJECT values (
 	'maildir:../examples/mail/SQO-OSS'
 	) ;
 
-insert into @@SCHEMA@@STORED_PROJECT values (
+insert into ALITHEIA.STORED_PROJECT values (
         2,
 	'VLC',   
 	'http://www.videolan.org',
@@ -43,7 +29,7 @@ insert into @@SCHEMA@@STORED_PROJECT values (
         'maildir:../examples/mail/SQO-OSS'
 ) ;
 
-insert into @@SCHEMA@@STORED_PROJECT values (
+insert into ALITHEIA.STORED_PROJECT values (
         3,
 	'NMAP',
         'http://www.nmap.org',
@@ -53,7 +39,7 @@ insert into @@SCHEMA@@STORED_PROJECT values (
         'maildir:../examples/mail/SQO-OSS'
 ) ;
 
-insert into @@SCHEMA@@STORED_PROJECT values (
+insert into ALITHEIA.STORED_PROJECT values (
         4,
 	'SVN',
         'http://www.subversion.org',
@@ -63,7 +49,7 @@ insert into @@SCHEMA@@STORED_PROJECT values (
         'maildir:../examples/mail/SQO-OSS'
 ) ;
 
-insert into @@SCHEMA@@STORED_PROJECT values (
+insert into ALITHEIA.STORED_PROJECT values (
         5,
 	'GCC',
         'http://www.gcc.org',
@@ -76,29 +62,27 @@ insert into @@SCHEMA@@STORED_PROJECT values (
 -- These are mailing lists for project 1, which is the
 -- yoyo / SQO-OSS amalgam.
 
-insert into @@SCHEMA@@MAILINGLIST values (1,'all',1);
-insert into @@SCHEMA@@MAILINGLIST values (2,'wp1',1);
-insert into @@SCHEMA@@MAILINGLIST values (3,'wp3',1);
+insert into ALITHEIA.MAILINGLIST values (1,'all',1);
+insert into ALITHEIA.MAILINGLIST values (2,'wp1',1);
+insert into ALITHEIA.MAILINGLIST values (3,'wp3',1);
 
 
 -- This is the user database.
 
-insert into @@SCHEMA@@USERS values (
+insert into ALITHEIA.USERS values (
 	1,
 	'Fluffy Bunny',
-	0,
-	'1970-1-1@@HOUR@@',
-	'2008-1-14@@HOUR@@',
+	'1970-1-1-12.27.38.4950',
+	'2008-1-14-12.27.38.4950',
 	'carrot',
 	'bunny@kde.org'
 	) ;
 
-insert into @@SCHEMA@@USERS values (
+insert into ALITHEIA.USERS values (
 	2,
 	'Adriaan Bunny',
-	0,
-	'2008-1-1@@HOUR@@',
-	'2008-2-14@@HOUR@@',
+	'2008-1-1-12.27.38.4950',
+	'2008-2-14-12.27.38.4950',
 	'celery',
 	'bunny@example.com'
 	) ;
