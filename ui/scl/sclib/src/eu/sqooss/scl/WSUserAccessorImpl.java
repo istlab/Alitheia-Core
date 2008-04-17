@@ -57,26 +57,26 @@ import eu.sqooss.ws.client.ws.GetUserMessageOfTheDay;
 import eu.sqooss.ws.client.ws.GetUserMessageOfTheDayResponse;
 
 class WSUserAccessorImpl extends WSUserAccessor {
-    
+
     private static final String METHOD_NAME_SUBMIT_USER          = "submitUser";
-    
+
     private static final String METHOD_NAME_SUBMIT_PENDING_USER  = "submitPendingUser";
-    
+
     private static final String METHOD_NAME_DISPLAY_USER = "displayUser";
-    
+
     private static final String METHOD_NAME_GET_USER_BY_NAME = "getUserByName";
-    
+
     private static final String METHOD_NAME_MODIFY_USER  = "modifyUser";
-    
+
     private static final String METHOD_NAME_DELETE_USER  = "deleteUser";
 
     private static final String METHOD_NAME_GET_USER_MESSAGE  = "getUserMessageOfTheDay";
-    
+
     private Map<String, Object> parameters;
     private String userName;
     private String password;
     private WsStub wsStub;
-    
+
     public WSUserAccessorImpl(String userName, String password, String webServiceUrl) throws WSException {
         this.userName = userName;
         this.password = password;
@@ -87,7 +87,7 @@ class WSUserAccessorImpl extends WSUserAccessor {
             throw new WSException(af);
         }
     }
-    
+
     /**
      * @see eu.sqooss.scl.accessor.WSUserAccessor#submitUser(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)
      */
@@ -115,9 +115,9 @@ class WSUserAccessorImpl extends WSUserAccessor {
                 throw new WSException(re);
             }
         }
-        return (WSUser) parseWSResult(response.get_return());
+        return (WSUser) normaliseWSArrayResult(response.get_return());
     }
-    
+
     /**
      * @see eu.sqooss.scl.accessor.WSUserAccessor#submitPendingUser(java.lang.String, java.lang.String, java.lang.String)
      */
@@ -172,9 +172,9 @@ class WSUserAccessorImpl extends WSUserAccessor {
                 throw new WSException(re);
             }
         }
-        return (WSUser) parseWSResult(response.get_return());
+        return (WSUser) normaliseWSArrayResult(response.get_return());
     }
-    
+
     /**
      * @see eu.sqooss.scl.accessor.WSUserAccessor#getUserByName(String)
      */
@@ -199,9 +199,9 @@ class WSUserAccessorImpl extends WSUserAccessor {
                 throw new WSException(re);
             }
         }
-        return (WSUser) parseWSResult(response.get_return());
+        return (WSUser) normaliseWSArrayResult(response.get_return());
     }
-    
+
     /**
      * @see eu.sqooss.scl.accessor.WSUserAccessor#modifyUser(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)
      */
@@ -231,7 +231,7 @@ class WSUserAccessorImpl extends WSUserAccessor {
         }
         return response.get_return();
     }
-    
+
     /**
      * @see eu.sqooss.scl.accessor.WSUserAccessor#deleteUser(long)
      */
@@ -258,7 +258,8 @@ class WSUserAccessorImpl extends WSUserAccessor {
         }
         return response.get_return();
     }
-    
+
+    /** {@inheritdoc} */
     public String getUserMessageOfTheDay(String userId) throws WSException {
         GetUserMessageOfTheDayResponse response;
         GetUserMessageOfTheDay params;

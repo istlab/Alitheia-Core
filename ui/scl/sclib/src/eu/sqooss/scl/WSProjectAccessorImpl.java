@@ -65,28 +65,28 @@ import eu.sqooss.ws.client.ws.StoredProjectsListResponse;
 class WSProjectAccessorImpl extends WSProjectAccessor {
 
     private static final String METHOD_NAME_EVALUATED_PROJECTS_LIST     = "evaluatedProjectsList";
-    
+
     private static final String METHOD_NAME_STORED_PROJECTS_LIST        = "storedProjectsList";
-    
+
     private static final String METHOD_NAME_RETRIEVE_FILE_LIST          = "retrieveFileList";
-    
+
     private static final String METHOD_NAME_REQUEST_EVALUATION_4_PROJECT = "requestEvaluation4Project";
-    
+
     private static final String METHOD_NAME_RETRIEVE_PROJECT_ID          = "retrieveProjectId";
-    
+
     private static final String METHOD_NAME_RETRIEVE_STORED_PROJECT_VERSIONS     = "retrieveStoredProjectVersions";
-    
+
     private static final String METHOD_NAME_RETRIEVE_STORED_PROJECT              = "retrieveStoredProject";
-    
+
     private static final String METHOD_NAME_GET_FILES_NUMBER_4_PROJECT_VERSION   = "getFilesNumber4ProjectVersion";
-    
+
     private static final String METHOD_NAME_GET_FILE_LIST_4_PROJECT_VERSION      = "getFileList4ProjectVersion";
-    
+
     private Map<String, Object> parameters;
     private String userName;
     private String password;
     private WsStub wsStub;
-    
+
     public WSProjectAccessorImpl(String userName, String password, String webServiceUrl) throws WSException {
         this.userName = userName;
         this.password = password;
@@ -97,13 +97,13 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
             throw new WSException(af);
         }
     }
-    
+
     /**
      * @see eu.sqooss.scl.accessor.WSProjectAccessor#evaluatedProjectsList()
      */
     @Override
     public WSStoredProject[] evaluatedProjectsList() throws WSException {
-        EvaluatedProjectsListResponse response; 
+        EvaluatedProjectsListResponse response;
         EvaluatedProjectsList params;
         if (!parameters.containsKey(METHOD_NAME_EVALUATED_PROJECTS_LIST)) {
             params = new EvaluatedProjectsList();
@@ -121,15 +121,15 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
                 throw new WSException(e);
             }
         }
-        return (WSStoredProject[]) parseWSResult(response.get_return());
+        return (WSStoredProject[]) normaliseWSArrayResult(response.get_return());
     }
-    
+
     /**
      * @see eu.sqooss.scl.accessor.WSProjectAccessor#storedProjectsList()
      */
     @Override
     public WSStoredProject[] storedProjectsList() throws WSException {
-        StoredProjectsListResponse response; 
+        StoredProjectsListResponse response;
         StoredProjectsList params;
         if (!parameters.containsKey(METHOD_NAME_STORED_PROJECTS_LIST)) {
             params = new StoredProjectsList();
@@ -147,9 +147,9 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
                 throw new WSException(e);
             }
         }
-        return (WSStoredProject[]) parseWSResult(response.get_return());
+        return (WSStoredProject[]) normaliseWSArrayResult(response.get_return());
     }
-    
+
     /**
      * @see eu.sqooss.scl.accessor.WSProjectAccessor#retrieveFileList(long)
      */
@@ -174,9 +174,9 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
                 throw new WSException(re);
             }
         }
-        return (WSProjectFile[]) parseWSResult(response.get_return());
+        return (WSProjectFile[]) normaliseWSArrayResult(response.get_return());
     }
-    
+
     /**
      * @see eu.sqooss.scl.accessor.WSProjectAccessor#getFileList4ProjectVersion(long)
      */
@@ -201,9 +201,9 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
                 throw new WSException(re);
             }
         }
-        return (WSProjectFile[]) parseWSResult(response.get_return());
+        return (WSProjectFile[]) normaliseWSArrayResult(response.get_return());
     }
-    
+
     /**
      * @see eu.sqooss.scl.accessor.WSProjectAccessor#getFilesNumber4ProjectVersion(long)
      */
@@ -228,10 +228,10 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
                 throw new WSException(re);
             }
         }
-        
+
         return response.get_return();
     }
-    
+
     /**
      * @see eu.sqooss.scl.accessor.WSProjectAccessor#requestEvaluation4Project(java.lang.String, long, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)
      */
@@ -266,7 +266,7 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
         }
         return response.get_return();
     }
-    
+
     /**
      * @see eu.sqooss.scl.accessor.WSProjectAccessor#retrieveProjectId(java.lang.String)
      */
@@ -291,10 +291,10 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
                 throw new WSException(re);
             }
         }
-        
+
         return response.get_return();
     }
-    
+
     /**
      * @see eu.sqooss.scl.accessor.WSProjectAccessor#retrieveStoredProjectVersions(long)
      */
@@ -319,11 +319,11 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
                 throw new WSException(re);
             }
         }
-        
-        return (WSProjectVersion[]) parseWSResult(response.get_return());
-        
+
+        return (WSProjectVersion[]) normaliseWSArrayResult(response.get_return());
+
     }
-    
+
     /**
      * @see eu.sqooss.scl.accessor.WSProjectAccessor#retrieveStoredProject(long)
      */
@@ -349,11 +349,11 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
                 throw new WSException(re);
             }
         }
-        
-        return (WSStoredProject) parseWSResult(response.get_return());
-        
+
+        return (WSStoredProject) normaliseWSArrayResult(response.get_return());
+
     }
-    
+
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

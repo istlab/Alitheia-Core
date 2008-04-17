@@ -36,14 +36,27 @@ import java.lang.reflect.Array;
 
 
 public abstract class WSAccessor {
-    
+
     public static enum Type {
         PROJECT,
         USER,
         METRIC
     }
-    
-    protected Object parseWSResult(Object result) {
+
+    /**
+     * Normalise a web-service result which is an array to
+     * undo the munging applied by Axis. You can't send zero-
+     * length arrays or null arrays, apparently, so this
+     * function un-munges the representation [null] into
+     * a zero length array.
+     *
+     * If the web-service result is not an array, nothing
+     * happens, so this is safe to apply to any web-service result.
+     *
+     * @param result Object, possibly an array, to de-munge
+     * @return Un-munged object, if applicable
+     */
+    protected Object normaliseWSArrayResult(Object result) {
         if ((result != null) && (result.getClass().isArray()) &&
                 (Array.getLength(result) != 0) && (Array.get(result, 0) == null)) {
             return Array.newInstance(result.getClass().getComponentType(), 0);
@@ -51,7 +64,7 @@ public abstract class WSAccessor {
             return result;
         }
     }
-    
+
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

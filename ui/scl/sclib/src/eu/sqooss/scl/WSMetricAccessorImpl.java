@@ -55,18 +55,18 @@ import eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProjectResponse;
 class WSMetricAccessorImpl extends WSMetricAccessor {
 
     private static final String METHOD_NAME_RETRIEVE_METRICS_4_SELECTED_PROJECT  = "retrieveMetrics4SelectedProject";
-    
+
     private static final String METHOD_NAME_RETRIEVE_METRICS_4_SELECTED_FILES    = "retrieveMetrics4SelectedFiles";
-    
+
     private static final String METHOD_NAME_GET_PROJECT_FILE_METRIC_MEASUREMENT     = "getFileMetricMeasurement";
-    
+
     private static final String METHOD_NAME_GET_PROJECT_VERSION_METRIC_MEASUREMENT  = "getVersionMetricMeasurement";
-    
+
     private Map<String, Object> parameters;
     private String userName;
     private String password;
     private WsStub wsStub;
-    
+
     public WSMetricAccessorImpl(String userName, String password, String webServiceUrl) throws WSException {
         this.userName = userName;
         this.password = password;
@@ -77,7 +77,7 @@ class WSMetricAccessorImpl extends WSMetricAccessor {
             throw new WSException(af);
         }
     }
-    
+
     /**
      * @see eu.sqooss.scl.accessor.WSMetricAccessor#retrieveMetrics4SelectedProject(long)
      */
@@ -102,43 +102,54 @@ class WSMetricAccessorImpl extends WSMetricAccessor {
                 throw new WSException(re);
             }
         }
-        return (WSMetric[]) parseWSResult(response.get_return());
+        return (WSMetric[]) normaliseWSArrayResult(response.get_return());
     }
-    
+
+    /**
+     * Utility function for retrieveMetrics4SelectedFiles, which
+     * gets a String representing a comma-separated list of directories
+     * or files. This is basically java.lang.String.split() with some
+     * additional munging - leading and trailing spaces are not
+     * supported (e.g. "foo , bar" is the same as "foo,bar") and empty
+     * entries (e.g. "foo,,bar" is the same as "foo,bar") aren't either.
+     *
+     * Also, this method hides the en_US spelling behind a better name.
+     *
+     * @param s String to tokenize
+     * @return An array of string tokens. This array is never null;
+     *      this array is never empty; if it would be empty, then
+     *      an array of length 1 with a single null is used instead.
+     */
+    private String[] tokeniseCommaSeparatedString(String s) {
+        // Degenerate case: null strings map to [null]
+        if (s == null) {
+            return new String[]{null};
+        }
+
+        StringTokenizer tokenizer = new StringTokenizer(s, ",");
+        int tokenCount = tokenizer.countTokens();
+        // If there are no tokens, map to [null]
+        if (tokenCount == 0) {
+            return new String[]{null};
+        }
+
+        String[] tokens = new String[tokenCount];
+        for (int i = 0; i < tokenCount; ++i) {
+            tokens[i] = tokenizer.nextToken().trim();
+        }
+
+        return tokens;
+    }
+
     /**
      * @see eu.sqooss.scl.accessor.WSMetricAccessor#retrieveMetrics4SelectedFiles(long, java.lang.String, java.lang.String)
      */
     @Override
     public WSMetric[] retrieveMetrics4SelectedFiles(long projectId, String folderNames,
             String fileNames) throws WSException {
-        String delimiter = ",";
-        
-        StringTokenizer folderNamesTokenizer = new StringTokenizer(folderNames, delimiter);
-        int folderNamesNumber = folderNamesTokenizer.countTokens();
-        String[] folderNamesArray;
-        if (folderNamesNumber == 0) {
-            folderNamesArray = new String[1];
-            folderNamesArray[0] = null;
-        } else {
-            folderNamesArray = new String[folderNamesNumber];
-            for (int i = 0; i < folderNamesArray.length; i++) {
-                folderNamesArray[i] = folderNamesTokenizer.nextToken().trim();
-            }
-        }
-        
-        StringTokenizer fileNamesTokenizer = new StringTokenizer(fileNames, delimiter);
-        int fileNamesNumber = fileNamesTokenizer.countTokens();
-        String[] fileNamesArray;
-        if (fileNamesNumber == 0) {
-            fileNamesArray = new String[1];
-            fileNamesArray[0] = null;
-        } else {
-            fileNamesArray = new String[fileNamesNumber];
-            for (int i = 0; i < fileNamesArray.length; i++) {
-                fileNamesArray[i] = fileNamesTokenizer.nextToken().trim();
-            }
-        }
-        
+        String[] folderNamesArray = tokeniseCommaSeparatedString(folderNames);
+        String[] fileNamesArray = tokeniseCommaSeparatedString(fileNames);
+
         RetrieveMetrics4SelectedFilesResponse response;
         RetrieveMetrics4SelectedFiles params;
         if (!parameters.containsKey(METHOD_NAME_RETRIEVE_METRICS_4_SELECTED_FILES)) {
@@ -160,7 +171,7 @@ class WSMetricAccessorImpl extends WSMetricAccessor {
                 throw new WSException(re);
             }
         }
-        return (WSMetric[]) parseWSResult(response.get_return());
+        return (WSMetric[]) normaliseWSArrayResult(response.get_return());
     }
 
     /**
@@ -189,9 +200,9 @@ class WSMetricAccessorImpl extends WSMetricAccessor {
                 throw new WSException(re);
             }
         }
-        return (WSMetricMeasurement[]) parseWSResult(response.get_return());
+        return (WSMetricMeasurement[]) normaliseWSArrayResult(response.get_return());
     }
-    
+
     /**
      * @see eu.sqooss.scl.accessor.WSMetricAccessor#getProjectVersionMetricMeasurement(long, long)
      */
@@ -218,9 +229,9 @@ class WSMetricAccessorImpl extends WSMetricAccessor {
                 throw new WSException(re);
             }
         }
-        return (WSMetricMeasurement[]) parseWSResult(response.get_return());
+        return (WSMetricMeasurement[]) normaliseWSArrayResult(response.get_return());
     }
-    
+
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
