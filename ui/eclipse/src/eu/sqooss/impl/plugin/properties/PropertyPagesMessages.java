@@ -54,6 +54,7 @@ public class PropertyPagesMessages extends NLS {
     
     //ConfigurationPropertyPage's messages
     public static String ConfigurationPropertyPage_Label_Server_Url;
+    public static String ConfigurationPropertyPage_Text_Server_Url_Default_Value;
     public static String ConfigurationPropertyPage_Label_User_Name;
     public static String ConfigurationPropertyPage_Label_Password;
     public static String ConfigurationPropertyPage_Label_Project_Name;

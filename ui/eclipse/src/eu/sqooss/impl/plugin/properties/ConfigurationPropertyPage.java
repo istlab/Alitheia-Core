@@ -55,7 +55,6 @@ import eu.sqooss.plugin.util.EnabledState;
 
 public class ConfigurationPropertyPage extends AbstractConfigurationPropertyPage implements SelectionListener{
 
-    private static final String TEXT_FIELD_SERVER_URL_DEFAULT_VALUE   = "http://";
     private static final String TEXT_FIELD_USER_NAME_DEFAULT_VALUE    = "";
     private static final String TEXT_FIELD_PASSWORD_DEFAULT_VALUE     = "";
     private static final String TEXT_FIELD_PROJECT_NAME_DEFAULT_VALUE = "";
@@ -80,7 +79,8 @@ public class ConfigurationPropertyPage extends AbstractConfigurationPropertyPage
             
             propertyValue = project.getPersistentProperty(ConnectionUtils.PROPERTY_SERVER_URL);
             if (propertyValue == null) {
-                propertyValue = TEXT_FIELD_SERVER_URL_DEFAULT_VALUE;
+                propertyValue = PropertyPagesMessages.
+                ConfigurationPropertyPage_Text_Server_Url_Default_Value;
             }
             textFieldServerUrl.setText(propertyValue);
             
@@ -122,7 +122,8 @@ public class ConfigurationPropertyPage extends AbstractConfigurationPropertyPage
     @Override
     protected void performDefaults() {
         super.performDefaults();
-        textFieldServerUrl.setText(TEXT_FIELD_SERVER_URL_DEFAULT_VALUE);
+        textFieldServerUrl.setText(PropertyPagesMessages.
+                ConfigurationPropertyPage_Text_Server_Url_Default_Value);
         textFieldUserName.setText(TEXT_FIELD_USER_NAME_DEFAULT_VALUE);
         textFieldPassword.setText(TEXT_FIELD_PASSWORD_DEFAULT_VALUE);
         textFieldProjectName.setText(TEXT_FIELD_PROJECT_NAME_DEFAULT_VALUE);
@@ -201,7 +202,8 @@ public class ConfigurationPropertyPage extends AbstractConfigurationPropertyPage
             String propertyValue;
 
             propertyValue = textFieldServerUrl.getText().trim();
-            if (!TEXT_FIELD_SERVER_URL_DEFAULT_VALUE.equals(propertyValue)) {
+            if (!PropertyPagesMessages.
+                    ConfigurationPropertyPage_Text_Server_Url_Default_Value.equals(propertyValue)) {
                 project.setPersistentProperty(ConnectionUtils.PROPERTY_SERVER_URL, propertyValue);
             } else {
                 project.setPersistentProperty(ConnectionUtils.PROPERTY_SERVER_URL, null);
