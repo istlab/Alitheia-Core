@@ -151,7 +151,7 @@ public class AdminServlet extends HttpServlet {
 
             // This is static content
             if (query.startsWith("/stop")) {
-                vc.put("RESULTS","<p>Alitheia core is now shutdown.</p>");
+                vc.put("RESULTS", "<p>Alitheia Core is now shutdown.</p>");
                 sendPage(response, "/results.html");
 
                 // Now stop the system
@@ -160,6 +160,11 @@ public class AdminServlet extends HttpServlet {
                 return;
             }
             if (query.startsWith("/restart")) {
+                vc.put("RESULTS", "<p>Alitheia Core is now restarting.</p>");
+                sendPage(response, "/results.html");
+
+                //FIXME: How do we do a restart?
+                return;
             }
             else if ((query != null) && (staticContentMap.containsKey(query))) {
                 sendResource(response, staticContentMap.get(query));
