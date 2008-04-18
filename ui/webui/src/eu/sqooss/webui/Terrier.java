@@ -225,8 +225,17 @@ public class Terrier {
         if (!connection.isConnected()) {
             return null;
         }
-        error = "There is no way to retrieve the list of metrics.";
-        return null;
+        MetricsTableView metricTableView = new MetricsTableView();
+        try {
+            WSMetric[] allMetrics = connection.getMetricAccessor().getMetrics();
+            for (WSMetric wsMetric : allMetrics) {
+                metricTableView.addMetric(new Metric(wsMetric));
+            }
+        } catch (WSException wse) {
+            error = "Cannot retrieve the list of all metrics.";
+            return null;
+        }
+        return metricTableView;
     }
 
     /**
