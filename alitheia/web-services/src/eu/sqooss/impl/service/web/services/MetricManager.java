@@ -45,7 +45,6 @@ import eu.sqooss.impl.service.web.services.utils.MetricManagerDatabase;
 import eu.sqooss.impl.service.web.services.utils.SecurityWrapper;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Metric;
-import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.security.SecurityManager;
 
@@ -90,8 +89,7 @@ public class MetricManager {
         List<?> queryResult = dbWrapper.retrieveSelectedMetric(projectId, metricId);
         
         if (queryResult.size() != 0) {
-            Object[] elem = (Object[]) queryResult.get(0);
-            return new WSMetric((Metric) elem[0], (MetricType) elem[1]);
+            return new WSMetric((Metric) queryResult.get(0));
         } else {
             return null;
         }
@@ -166,14 +164,12 @@ public class MetricManager {
     	        dbWrapper.getProjectVersionMetricMeasurement(metricId, projectVersionId));
     }
     
-    private WSMetric[] convertToWSMetrics(List<?> metricsWithTypes) {
+    private WSMetric[] convertToWSMetrics(List<?> metrics) {
         WSMetric[] result = null;
-        if ((metricsWithTypes != null) && (metricsWithTypes.size() != 0)) {
-            result = new WSMetric[metricsWithTypes.size()];
-            Object[] currentElem;
+        if ((metrics != null) && (metrics.size() != 0)) {
+            result = new WSMetric[metrics.size()];
             for (int i = 0; i < result.length; i++) {
-                currentElem = (Object[]) metricsWithTypes.get(i);
-                result[i] = new WSMetric((Metric) currentElem[0], (MetricType) currentElem[1]);
+                result[i] = new WSMetric((Metric) metrics.get(i));
             }
         }
         return result;

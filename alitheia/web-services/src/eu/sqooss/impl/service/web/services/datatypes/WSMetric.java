@@ -33,7 +33,6 @@
 package eu.sqooss.impl.service.web.services.datatypes;
 
 import eu.sqooss.service.db.Metric;
-import eu.sqooss.service.db.MetricType;
 
 /**
  * This class wraps the <code>eu.sqooss.service.db.Metric</code>
@@ -45,14 +44,10 @@ public class WSMetric {
     private WSMetricType wsMetricType;
     
     public WSMetric(Metric metric) {
-    	this(metric, metric.getMetricType());
+    	this.metric = metric;
+    	this.wsMetricType = new WSMetricType(metric.getMetricType());
     }
     
-    public WSMetric(Metric metric, MetricType metricType) {
-        this.metric = metric;
-        this.wsMetricType = new WSMetricType(metricType);
-    }
-
     public WSMetricType getMetricType() {
         return wsMetricType;
     }

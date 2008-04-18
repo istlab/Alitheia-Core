@@ -46,23 +46,20 @@ interface MetricManagerDBQueries {
                                                                       RETRIEVE_METRICS_4_SELECTED_PROJECT_PARAM;
     */
 
-    public static final String RETRIEVE_METRICS_4_SELECTED_PROJECT =
-        "select distinct metric, metricType"
-        + " from EvaluationMark em, Metric metric, MetricType metricType"
-        + " where"
-            + " em.storedProject.id=:" + RETRIEVE_METRICS_4_SELECTED_PROJECT_PARAM
-            + " and metric.id=em.metric"
-            + " and metricType.id=metric.metricType";
+    public static final String RETRIEVE_METRICS_4_SELECTED_PROJECT = "select distinct metric " +
+                                                                     "from EvaluationMark em, Metric metric " +
+                                                                     "where metric.id=em.metric " +
+                                                                     " and em.storedProject.id=:" +
+                                                                     RETRIEVE_METRICS_4_SELECTED_PROJECT_PARAM;
     
     
     public static final String RETRIEVE_SELECTED_METRIC_PARAM_PR = "project_id";
     
     public static final String RETRIEVE_SELECTED_METRIC_PARAM_METRIC = "metric_id";
     
-    public static final String RETRIEVE_SELECTED_METRIC = "select distinct metric, metricType " +
-                                                          "from EvaluationMark em, Metric metric, MetricType metricType " +
+    public static final String RETRIEVE_SELECTED_METRIC = "select distinct metric " +
+                                                          "from EvaluationMark em, Metric metric " +
                                                           "where metric.id=em.metric " +
-                                                          " and metricType.id=metric.metricType " +
                                                           " and em.storedProject.id=:" +
                                                           RETRIEVE_SELECTED_METRIC_PARAM_PR + " " +
                                                           " and metric.id=:" +
@@ -73,13 +70,12 @@ interface MetricManagerDBQueries {
     
     public static final String RETRIEVE_METRICS_4_SELECTED_FILES_PARAM_PR = "project_id";
     
-    public static final String RETRIEVE_METRICS_4_SELECTED_FILES = "select distinct metric, metricType " +
-                                                                   "from ProjectFile pf, ProjectVersion pv, ProjectFileMeasurement pfm, " +
-                                                                   "     Metric metric, MetricType metricType " +
+    public static final String RETRIEVE_METRICS_4_SELECTED_FILES = "select distinct metric " +
+                                                                   "from ProjectFile pf, ProjectVersion pv, " +
+                                                                   "     ProjectFileMeasurement pfm, Metric metric " +
                                                                    "where pv.id=pf.projectVersion " +
                                                                    " and pf.id=pfm.projectFile " +
                                                                    " and metric.id=pfm.metric " +
-                                                                   " and metricType.id=metric.metricType " +
                                                                    " and pf.name in (:" +
                                                                    RETRIEVE_METRICS_4_SELECTED_FILES_PARAM_LIST + ") " +
                                                                    " and pv.project.id=:" +
@@ -95,9 +91,7 @@ interface MetricManagerDBQueries {
                                                                         " and pv.project.id=:" +
                                                                         RETRIEVE_METRICS_4_SELECTED_FILES_PARAM_PR;
     
-    public static final String GET_METRICS = "select metric, metricType " +
-    		                                 "from Metric metric, MetricType metricType " +
-    		                                 "where metric.metricType=metricType ";
+    public static final String GET_METRICS = "from Metric";
     
     public static final String GET_PROJECT_FILE_METRIC_MEASUREMENT_PARAM_FILE   = "project_file_id";
     
