@@ -121,9 +121,15 @@ public interface SecurityConstants {
     
     public static enum PrivilegeValue {
         READ,
-        WRITE;
+        WRITE,
+        ALL;
         public String toString() {
-            return name().toLowerCase();
+            String name = name();
+            if (name.equals(ALL.name())) {
+                return "<all privilege values";
+            } else {
+                return name().toLowerCase();
+            }
         }
     }
     

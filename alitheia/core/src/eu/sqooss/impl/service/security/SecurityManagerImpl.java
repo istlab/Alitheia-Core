@@ -299,7 +299,7 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
     private boolean checkPermissionPrivileges(String resourceUrl, Dictionary<String, String> privileges, String userName, String password) {
         
         if (dbWrapper.checkAuthorizationRule(resourceUrl, Privilege.ALL.toString(),
-                Privilege.ALL.toString(), userName, password)) {
+                PrivilegeValue.ALL.toString(), userName, password)) {
             return true;
         }
 
@@ -317,7 +317,7 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
                         dbWrapper.checkAuthorizationRule(resourceUrl, Privilege.ALL.toString(), 
                             currentPrivilegeValue, userName, password) ||
                         dbWrapper.checkAuthorizationRule(resourceUrl, currentPrivilegeName,
-                            Privilege.ALL.toString(), userName, password));
+                            PrivilegeValue.ALL.toString(), userName, password));
             }
         }
         

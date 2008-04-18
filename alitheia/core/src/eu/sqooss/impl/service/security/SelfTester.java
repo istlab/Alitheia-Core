@@ -322,7 +322,7 @@ public class SelfTester {
             privilege = privilegeManager.createPrivilege(
                     SecurityConstants.Privilege.ALL);
             privilegeValue = privilegeManager.createPrivilegeValue(
-                    privilege.getId(), SecurityConstants.Privilege.ALL.toString());
+                    privilege.getId(), SecurityConstants.PrivilegeValue.ALL.toString());
 
             if (!groupManager.addUserToGroup(group.getId(), user.getId())) {
                 return false;
