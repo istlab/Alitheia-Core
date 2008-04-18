@@ -116,6 +116,17 @@ public class SecurityWrapper implements SecurityConstants {
         }
     }
     
+    public void checkMetricsReadAccess(String userName, String password) {
+        synchronized (privilegesLockObject) {
+            privileges.clear();
+            privileges.put(Privilege.ACTION.toString(), PrivilegeValue.READ.toString());
+            privileges.put(Privilege.METRIC_ID.toString(), PrivilegeValue.ALL.toString());
+            if (!security.checkPermission(URL_SQOOSS_PROJECTS, privileges, userName, password)) {
+                throw new SecurityException("Security violation!");
+            }
+        }
+    }
+    
     public void checkUserReadAccess(String userName, String password,
             long userId, String privilegeUserName) {
         synchronized (privilegesLockObject) {

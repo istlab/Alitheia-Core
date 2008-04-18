@@ -135,7 +135,7 @@ public class MetricManager {
     public WSMetric[] getMetrics(String userName, String password) {
         logger.info("Get metrics! user: " + userName);
         
-        //TODO: check the security
+        securityWrapper.checkMetricsReadAccess(userName, password);
         
         return convertToWSMetrics(dbWrapper.getMetrics());
     }
