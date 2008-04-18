@@ -42,6 +42,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import eu.sqooss.core.AlitheiaCore;
 
+import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin.ConfigurationTypes;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.StoredProject;
@@ -172,7 +173,8 @@ public class WebAdminRenderer {
      * given MetricInfor object
      */
     private static String renderMetricAttributes(PluginInfo i) {
-        Collection<Pair<String, ConfigurationTypes>> attributes =  i.getAttributes();
+        AlitheiaPlugin plugin = sobjPluginAdmin.getPlugin(i);
+        Collection<Pair<String, ConfigurationTypes>> attributes =  plugin.getConfigurationSchema();
         if (attributes == null) {
             return "<ul><li>This metric has no configurable attibutes.</li></ul>";
         } else {

@@ -172,6 +172,15 @@ public interface AlitheiaPlugin {
     boolean remove();
 
     /**
+     * Returns the configuration schema.
+     * The schema is collection of <code>Pair</code>s.
+     * The first element of the pair represents the name
+     * and the second is the configuration type.
+     * @return
+     */
+    public Collection<Pair<String, ConfigurationTypes>> getConfigurationSchema();
+    
+    /**
      * These are the types of configuration values that metrics can
      * support. This is used mostly for rendering and validation purposes.
      */
