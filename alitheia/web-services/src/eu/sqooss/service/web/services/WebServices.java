@@ -77,7 +77,7 @@ public class WebServices {
             DBService db, TDSService tds, Logger logger, WebadminService wa) {
         metricManager = new MetricManager(logger, db, securityManager);
         projectManager = new ProjectManager(logger, db, tds, securityManager);
-        userManager = new UserManager(securityManager);
+        userManager = new UserManager(securityManager, db);
         webadmin = wa;
     }
     

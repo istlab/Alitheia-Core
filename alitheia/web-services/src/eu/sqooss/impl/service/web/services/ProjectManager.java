@@ -48,7 +48,7 @@ import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.security.SecurityManager;
 
-public class ProjectManager {
+public class ProjectManager extends AbstractManager {
     
     private Logger logger;
     private TDSService tds;
@@ -56,6 +56,7 @@ public class ProjectManager {
     private SecurityWrapper securityWrapper;
     
     public ProjectManager(Logger logger, DBService db, TDSService tds, SecurityManager security) {
+        super(db);
         this.logger = logger;
         this.tds = tds;
         this.dbWrapper = new ProjectManagerDatabase(db);
@@ -70,6 +71,8 @@ public class ProjectManager {
 
         securityWrapper.checkDBReadAccess(userName, password);
         
+        super.updateUserActivity(userName);
+        
         List<?> projects = dbWrapper.evaluatedProjectsList();
 
         return convertToWSStoredProject(projects);
@@ -79,6 +82,8 @@ public class ProjectManager {
         logger.info("Gets the stored project list! user: " + userName);
 
         securityWrapper.checkDBReadAccess(userName, password);
+        
+        super.updateUserActivity(userName);
         
         List queryResult = dbWrapper.storedProjectsList();
 
@@ -106,6 +111,8 @@ public class ProjectManager {
                 "; website: " + website);
         
         securityWrapper.checkDBWriteAccess(userName, password);
+        
+        super.updateUserActivity(userName);
         
         List<?> projects;
         
@@ -154,6 +161,7 @@ public class ProjectManager {
         if (projects.size() != 0) {
             long projectId = projects.get(0).getId();
             securityWrapper.checkProjectReadAccess(userName, password, projectId);
+            super.updateUserActivity(userName);
             return projectId;
         } else {
             throw new IllegalArgumentException("Can't find the project with name: " + projectName);
@@ -170,6 +178,8 @@ public class ProjectManager {
 
         securityWrapper.checkProjectReadAccess(userName, password, projectId);
 
+        super.updateUserActivity(userName);
+        
         StoredProject storedProject = dbWrapper.getStoredProject(projectId);
 
         if (storedProject != null) {
@@ -188,6 +198,8 @@ public class ProjectManager {
 
         securityWrapper.checkProjectReadAccess(userName, password, projectId);
 
+        super.updateUserActivity(userName);
+        
         StoredProject storedProject;
 
         storedProject = dbWrapper.getStoredProject(projectId);
@@ -208,6 +220,8 @@ public class ProjectManager {
 
         securityWrapper.checkProjectReadAccess(userName, password, projectId);
 
+        super.updateUserActivity(userName);
+        
         List<?> queryResult = dbWrapper.retrieveFileList(projectId);
 
         return convertToWSProjectFiles(queryResult);
@@ -219,6 +233,8 @@ public class ProjectManager {
         
         securityWrapper.checkProjectVersionReadAccess(userName, password, projectVersionId);
         
+        super.updateUserActivity(userName);
+        
         List<?> queryResult = dbWrapper.getFileList4ProjectVersion(projectVersionId);
         
         return convertToWSProjectFiles(queryResult);
@@ -229,6 +245,8 @@ public class ProjectManager {
                 "; project version id: " + projectVersionId);
         
         securityWrapper.checkProjectVersionReadAccess(userName, password, projectVersionId);
+        
+        super.updateUserActivity(userName);
         
         List<?> queryResult = dbWrapper.getFilesNumber4ProjectVersion(projectVersionId);
         

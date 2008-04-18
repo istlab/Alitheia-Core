@@ -48,13 +48,14 @@ import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.security.SecurityManager;
 
-public class MetricManager {
+public class MetricManager extends AbstractManager {
     
     private Logger logger;
     private MetricManagerDatabase dbWrapper;
     private SecurityWrapper securityWrapper;
     
     public MetricManager(Logger logger, DBService db, SecurityManager security) {
+        super(db);
         this.logger = logger;
         this.dbWrapper = new MetricManagerDatabase(db);
         this.securityWrapper = new SecurityWrapper(security);
@@ -71,6 +72,8 @@ public class MetricManager {
         
         securityWrapper.checkProjectReadAccess(userName, password, projectId);
         
+        super.updateUserActivity(userName);
+        
         List<?> metrics = dbWrapper.retrieveMetrics4SelectedProject(projectId);
         return convertToWSMetrics(metrics);
     }
@@ -85,6 +88,8 @@ public class MetricManager {
                 "; project id: " + projectId + "; metricId: " + metricId);
         
         securityWrapper.checkProjectMetricReadAccess(userName, password, projectId, metricId);
+        
+        super.updateUserActivity(userName);
         
         List<?> queryResult = dbWrapper.retrieveSelectedMetric(projectId, metricId);
         
@@ -104,6 +109,8 @@ public class MetricManager {
 
         securityWrapper.checkProjectReadAccess(userName, password, projectId);
 
+        super.updateUserActivity(userName);
+        
         Set<String> fileNamesSet;
         if ((fileNames.length == 0) || (fileNames[0] == null)) {
             fileNamesSet = new HashSet<String>();
@@ -137,6 +144,8 @@ public class MetricManager {
         
         securityWrapper.checkMetricsReadAccess(userName, password);
         
+        super.updateUserActivity(userName);
+        
         return convertToWSMetrics(dbWrapper.getMetrics());
     }
     
@@ -147,6 +156,8 @@ public class MetricManager {
                 "; metric id: " + metricId + "; project file id: " + projectFileId);
         
         securityWrapper.checkMetricReadAccess(userName, password, metricId);
+        
+        super.updateUserActivity(userName);
         
         return convertToWSMetricMeasurements(
                 dbWrapper.getProjectFileMetricMeasurement(metricId, projectFileId));
@@ -159,6 +170,8 @@ public class MetricManager {
                 "; metric is: " + metricId + "; project version id: " + projectVersionId);
         
         securityWrapper.checkMetricReadAccess(userName, password, metricId);
+        
+        super.updateUserActivity(userName);
         
     	return convertToWSMetricMeasurements(
     	        dbWrapper.getProjectVersionMetricMeasurement(metricId, projectVersionId));

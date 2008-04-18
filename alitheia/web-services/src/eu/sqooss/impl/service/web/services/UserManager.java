@@ -32,17 +32,19 @@
 
 package eu.sqooss.impl.service.web.services;
 
+import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.User;
 import eu.sqooss.service.security.SecurityManager;
 import eu.sqooss.impl.service.web.services.datatypes.WSUser;
 import eu.sqooss.impl.service.web.services.utils.SecurityWrapper;
 
-public class UserManager {
+public class UserManager extends AbstractManager {
     
     private SecurityWrapper security;
     private eu.sqooss.service.security.UserManager userManager;
     
-    public UserManager(SecurityManager securityManager) {
+    public UserManager(SecurityManager securityManager, DBService db) {
+        super(db);
         this.security = new SecurityWrapper(securityManager);
         this.userManager = securityManager.getUserManager();
     }
@@ -54,6 +56,8 @@ public class UserManager {
             String newUserName, String newPassword, String email) {
         
         security.checkUserWriteAccess(userNameForAccess, passwordForAccess, -1, null);
+        
+        super.updateUserActivity(userNameForAccess);
         
         User newUser = userManager.createUser(newUserName, newPassword, email);
         
@@ -69,6 +73,8 @@ public class UserManager {
         
         security.checkUserWriteAccess(userNameForAccess, passwordForAccess, -1, null);
         
+        super.updateUserActivity(userNameForAccess);
+        
         return userManager.createPendingUser(newUserName, newPassword, email);
     }
     
@@ -79,6 +85,8 @@ public class UserManager {
             long userId) {
         
         security.checkUserReadAccess(userNameForAccess, passwordForAccess, userId, null);
+        
+        super.updateUserActivity(userNameForAccess);
         
         User user = userManager.getUser(userId); 
         
@@ -99,6 +107,8 @@ public class UserManager {
         security.checkUserWriteAccess(userNameForAccess, passwordForAccess,
                 -1, userName);
         
+        super.updateUserActivity(userNameForAccess);
+        
         return userManager.modifyUser(userName, newPassword, newEmail);
     }
     
@@ -108,6 +118,8 @@ public class UserManager {
     public boolean deleteUser(String userNameForAccess, String passwordForAccess, long userId) {
         
         security.checkUserWriteAccess(userNameForAccess, passwordForAccess, userId, null);
+        
+        super.updateUserActivity(userNameForAccess);
         
         return userManager.deleteUser(userId);
     }
@@ -127,6 +139,8 @@ public class UserManager {
             String passwordForAccess, String userName) {
         
         security.checkUserReadAccess(userNameForAccess, passwordForAccess, -1, userName);
+        
+        super.updateUserActivity(userNameForAccess);
         
         User user = userManager.getUser(userName);
         
