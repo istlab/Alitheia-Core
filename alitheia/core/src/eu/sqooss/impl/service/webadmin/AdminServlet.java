@@ -66,6 +66,7 @@ import org.osgi.framework.BundleContext;
 public class AdminServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static WebadminService webadmin = null;
+    private static BundleContext bc = null;
 
     // Content tables
     private Hashtable<String, String> dynamicContentMap = null;
@@ -80,6 +81,7 @@ public class AdminServlet extends HttpServlet {
 
     public AdminServlet(BundleContext bc, WebadminService webadmin) {
         this.webadmin = webadmin;
+        this.bc = bc;
 
         // Create the static content map
         staticContentMap = new Hashtable<String, Pair<String, String>>();
@@ -148,7 +150,18 @@ public class AdminServlet extends HttpServlet {
             render.logRequest("GET:" + query);
 
             // This is static content
-            if ((query != null) && (staticContentMap.containsKey(query))) {
+            if (query.startsWith("/stop")) {
+                vc.put("RESULTS","<p>Alitheia core is now shutdown.</p>");
+                sendPage(response, "/results.html");
+
+                // Now stop the system
+                render.logRequest("System stopped by user request to webadmin.");
+                bc.getBundle(0).stop();
+                return;
+            }
+            if (query.startsWith("/restart")) {
+            }
+            else if ((query != null) && (staticContentMap.containsKey(query))) {
                 sendResource(response, staticContentMap.get(query));
             }
             else if ((query != null) && (dynamicContentMap.containsKey(query))) {
