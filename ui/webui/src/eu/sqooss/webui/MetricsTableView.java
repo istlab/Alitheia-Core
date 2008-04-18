@@ -56,7 +56,7 @@ public class MetricsTableView {
     Map<Integer,String> metricDescriptions = new HashMap<Integer,String>();
 
     // Holds the ID of the selected project, if any
-    Long projectId;
+    Long projectId = null;
 
     /* Show the ID in the table HTML output? */
     boolean showId = true;
@@ -204,7 +204,13 @@ public class MetricsTableView {
             }
             html.append("\n</ul>");
         } else {
-            html.append(Functions.error(Functions.NOT_YET_EVALUATED));
+            // Distinguish between "all metric for project" and "all metrics"
+            if (projectId != null) {
+                html.append(Functions.error(Functions.NOT_YET_EVALUATED));
+            }
+            else {
+                html.append(Functions.error(Functions.NO_INSTALLED_METRICS));
+            }
         }
 
         return html.toString();

@@ -42,6 +42,9 @@ public class Functions {
     public static final String NOT_YET_EVALUATED =
         "This project has not yet been evaluated!";
 
+    public static final String NO_INSTALLED_METRICS =
+        "No installed metrics has been found!";
+
     public static String error(String msg) {
         return "<strong><font color=\"red\">" + msg + "</font></strong>";
     }
