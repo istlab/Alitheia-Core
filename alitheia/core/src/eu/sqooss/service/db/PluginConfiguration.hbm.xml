@@ -11,6 +11,7 @@
     <property name="name" column="NAME" type="string" />
     <property name="value" column="VALUE" type="string"/>
     <property name="type" column="TYPE"/>
+    <property name="msg" column="MSG" type="string" length="255"/>
     <many-to-one name="plugin" column="PLUGIN_ID" />
   </class>
 </hibernate-mapping>

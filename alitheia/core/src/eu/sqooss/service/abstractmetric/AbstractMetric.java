@@ -35,10 +35,11 @@ package eu.sqooss.service.abstractmetric;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Iterator;
+import java.util.List;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.hibernate.Session;
@@ -50,19 +51,16 @@ import eu.sqooss.lib.result.Result;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.EvaluationMark;
-import eu.sqooss.service.db.FileGroup;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.Plugin;
-import eu.sqooss.service.db.ProjectFile;
-import eu.sqooss.service.db.ProjectVersion;
+import eu.sqooss.service.db.PluginConfiguration;
 import eu.sqooss.service.db.StoredProject;
-import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
-import eu.sqooss.service.pa.PluginInfo.ConfigurationType;
+import eu.sqooss.service.pa.PluginAdmin;
+import eu.sqooss.service.pa.PluginInfo;
 import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.scheduler.SchedulerException;
-import eu.sqooss.service.util.Pair;
 
 /**
  * A base class for all metrics. Implements basic functionality such as
@@ -76,18 +74,24 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     /** Reference to the metric bundle context */
     protected BundleContext bc;
 
-    /** Log manager for administrative operations */
-    protected LogManager logService = null;
-
     /** Logger for administrative operations */
     protected Logger log = null;
 
     /** Reference to the DB service, not to be passed to metric jobs */
     protected DBService db;
 
+    /** Reference to the DB service, not to be passed to metric jobs */
+    protected PluginAdmin pa;
+    
+    /**PLug-in configuration schema*/
+    protected List<PluginConfiguration> config = null;
+    
     /** Cache the metrics list on first access*/
     protected List<Metric> metrics = null;
 
+    /**Types used to activate this metric*/
+    protected List<Class<? extends DAObject>> activationTypes;  
+    
     /** Cache the result of the mark evaluation function*/
     protected HashMap<Long, Boolean> evaluationMarked = new HashMap<Long, Boolean>();
 
@@ -102,14 +106,8 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         ServiceReference serviceRef = null;
         serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
 
-        logService = ((AlitheiaCore) bc.getService(serviceRef)).getLogManager();
-
-        if (logService != null) {
-            log = logService.createLogger(Logger.NAME_SQOOSS_METRIC);
-
-            if (log != null)
-                log.info("Got a valid reference to the logger");
-        }
+        log = ((AlitheiaCore) bc.getService(serviceRef)).
+                getLogManager().createLogger(Logger.NAME_SQOOSS_METRIC);
 
         if (log == null) {
             System.out.println("ERROR: Got no logger");
@@ -119,6 +117,12 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
 
         if(db == null)
             log.error("Could not get a reference to the DB service");
+        
+        pa = ((AlitheiaCore) bc.getService(serviceRef)).getPluginManager();
+
+        if(pa == null)
+            log.error("Could not get a reference to the Plugin Administation " +
+            		"service");
     }
 
     /**
@@ -257,7 +261,8 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      * @param type The metric type of the supported metric
      * @return True if the operation succeeds, false otherwise (i.e. duplicates etc)
      */
-    protected final boolean addSupportedMetrics(String desc, MetricType.Type type) {
+    protected final boolean addSupportedMetrics(String desc, String mnemonic, 
+            MetricType.Type type) {
         /* NOTE: In its current status the DB doesn't provide predefined
          *       metric type records. Therefore the following block is
          *       used to create them explicitly when required.
@@ -268,6 +273,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         }
         Metric m = new Metric();
         m.setDescription(desc);
+        m.setMnemonic(mnemonic);
         m.setMetricType(MetricType.getMetricType(type));
         m.setPlugin(Plugin.getPluginByHashcode(getUniqueKey()));
         return db.addRecord(m);
@@ -357,8 +363,6 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      * Remove a plug-in's record from the DB. The DB's referential integrity
      * mechanisms are expected to automatically remove associated records.
      * Subclasses should also clean up any custom tables created.
-     *
-     * TODO: Remove metric registrations from the plugin registry
      */
     public boolean remove() {
 
@@ -384,17 +388,95 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         return true;
     }
     
-    public abstract List<Class<? extends DAObject>> getActivationTypes();
+    /**
+     * {@inheritDoc}
+     */
+    public final List<Class<? extends DAObject>> getActivationTypes() {
+        return activationTypes;
+    }
     
+    protected final void addActivationType(Class<? extends DAObject> c) {
+        if (activationTypes == null) {
+            activationTypes = new ArrayList<Class<? extends DAObject>>();
+        }
+        activationTypes.add(c);
+        pa.pluginUpdated(this);
+    }
+    
+    /**
+     * Return an MD5 hex key. 
+     */
     public final String getUniqueKey() {
         return DigestUtils.md5Hex(this.getClass().getCanonicalName());
     }
     
-    protected void addConfigEntry(Pair<String, ConfigurationType> entry) {
-        
+    /**
+     * Get the configuration options for this plug-in. Concrete plug-ins
+     * can use the addConfigEntry and removeConfigEntry methods to 
+     * change the configuration schema.
+     */
+    public final List<PluginConfiguration> getConfigurationSchema() {
+        return config;
     }
     
-    protected void removeConfigEntry(Pair<String, ConfigurationType> entry) {
+    /**
+     * Add an entry to this plug-in's configuration schema.
+     * 
+     * @param name The name of the configuration property
+     * @param defValue The default value for the configuration property
+     * @param type The type of the configuration property
+     */
+    protected final void addConfigEntry(String name, String defValue, 
+            String msg, PluginInfo.ConfigurationType type) {
+        Plugin p = Plugin.getPluginByHashcode(getUniqueKey());
+        List<PluginConfiguration> pcList = Plugin.getConfigEntries(p);
+        Iterator<PluginConfiguration> i = pcList.iterator();
+        PluginConfiguration pc = null;
+        boolean found = false;
         
+        while(i.hasNext()) {
+            pc = i.next();
+            /*Found entry, update*/
+            if (pc.getName() == name) {
+                pc.setValue(defValue);
+                pc.setMsg(msg);
+                pc.setType(type.toString());
+                found = true;
+                db.updateRecord(pc);
+                break;
+            }
+        }
+        /*Not found, create entry*/
+        if (!found) {
+            pc = new PluginConfiguration();
+            pc.setName(name);
+            pc.setValue(defValue);
+            pc.setMsg(msg);
+            pc.setType(type.toString());
+            db.addRecord(pc);
+        }
+        pa.pluginUpdated(this);
+    }
+    
+    /**
+     * Remove an entry from the plug-in's configuration schema
+     * @param name The name of the configuration property to remove
+     */
+    protected final void removeConfigEntry(String name) {
+        Plugin p = Plugin.getPluginByHashcode(getUniqueKey());
+        List<PluginConfiguration> pcList = Plugin.getConfigEntries(p);
+        Iterator<PluginConfiguration> i = pcList.iterator();
+        PluginConfiguration pc = null;
+        boolean found = false;
+        
+        while(i.hasNext()) {
+            pc = i.next();
+            /*Found entry, remove*/
+            if (pc.getName() == name) {
+                db.deleteRecord(pc);
+                break;
+            }
+        }
+        pa.pluginUpdated(this);
     }
 }

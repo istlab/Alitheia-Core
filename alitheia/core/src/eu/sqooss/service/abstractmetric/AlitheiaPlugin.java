@@ -38,14 +38,15 @@ import java.util.List;
 
 import eu.sqooss.lib.result.Result;
 import eu.sqooss.service.db.DAObject;
+import eu.sqooss.service.db.PluginConfiguration;
 
 
 /**
  * Common metric plug-in related functionality. Must be implemented
- * by all metrics plug-ins. There are four areas of functionality covered
+ * by all metric plug-ins. There are four areas of functionality covered
  * by this interface: metric metadata (about the metric itself),
  * measurement (applying the metric to something), lifecycle (installation
- * and removal) and configuration (of the metric, for future measurements).
+ * and removal) and configuration (of the plug-in, for future measurements).
  *
  * The metric metadata comprises name, description, author information
  * and dates installed; this is static in the metric.
@@ -60,8 +61,9 @@ import eu.sqooss.service.db.DAObject;
  * schemas as appropriate.
  *
  * Finally, configuration management is for settings that each plugin
- * may have. These are (name,type) and (name,value) pairs; the former
- * is the configuration schema, the latter the values in that schema.
+ * may have. A configuration property comprises of a 
+ * {name, value, type, helpmsg} tuple, stored directly in the database
+ * object that represents the associated configuration entry in the database.
  *
  * All metrics are bound to one or more of the following
  * project entities:
@@ -124,7 +126,7 @@ public interface AlitheiaPlugin {
      * @throws MetricMismatchException if the DAO type is one not supported by
      *          this metric.
      */
-    <T extends DAObject> Result getResult(T o)
+    Result getResult(DAObject o)
         throws MetricMismatchException;
 
     /**
@@ -178,13 +180,20 @@ public interface AlitheiaPlugin {
      */
     String getUniqueKey();
     
-    
     /**
-     * An activation type is DAO subclass which is passed as argument to
-     * the {@link AlitheiaPlugin.run()} and {@link AlitheiaPlugin.getResult()}}
-     * methods to trigger metric calculation and result retrieval. 
-     *  
+     * Get the types supported by this plug-in for data processing and result
+     * retrieval. An activation type is DAO subclass which is passed as argument
+     * to the {@link AlitheiaPlugin.run()} and
+     * {@link AlitheiaPlugin.getResult()}} methods to trigger metric
+     * calculation and result retrieval.
+     * 
      * @return A list of DAObject subclasses
      */     
     List<Class<? extends DAObject>> getActivationTypes();
+    
+    /**
+     * Get the plugin's configuration schema. 
+     * @return A list of PluginConfiguration objects
+     */
+    List<PluginConfiguration> getConfigurationSchema();
 }

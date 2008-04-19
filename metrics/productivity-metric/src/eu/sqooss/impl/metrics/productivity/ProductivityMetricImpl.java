@@ -33,17 +33,11 @@
 
 package eu.sqooss.impl.metrics.productivity;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.osgi.framework.BundleContext;
 
 import eu.sqooss.lib.result.Result;
 import eu.sqooss.metrics.productivity.ProductivityMetric;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
-import eu.sqooss.service.abstractmetric.MetricMismatchException;
-import eu.sqooss.service.db.DAObject;
-import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 
@@ -51,7 +45,6 @@ public class ProductivityMetricImpl extends AbstractMetric implements
         ProductivityMetric {
 
     private static final long serialVersionUID = 1L;
-    private List<Class<? extends DAObject>> activationTypes;  
     
     public ProductivityMetricImpl(BundleContext bc) {
         super(bc);
@@ -98,15 +91,6 @@ public class ProductivityMetricImpl extends AbstractMetric implements
     public Object selfTest() {
 
         return null;
-    }
-
-    @Override
-    public List<Class<? extends DAObject>> getActivationTypes() {
-        if (this.activationTypes == null) {
-            activationTypes = new ArrayList<Class<? extends DAObject>>();
-            activationTypes.add(ProjectFile.class);
-        }
-        return this.activationTypes;
     }
 }
 

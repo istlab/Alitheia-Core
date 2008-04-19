@@ -47,20 +47,16 @@ import eu.sqooss.lib.result.Result;
 import eu.sqooss.lib.result.ResultEntry;
 import eu.sqooss.metrics.wc.Wc;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
-import eu.sqooss.service.db.DAObject;
-import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectFileMeasurement;
 import eu.sqooss.service.scheduler.Scheduler;
 
 public class WcImplementation extends AbstractMetric implements Wc {
-
-    private List<Metric> supportedMetrics;
-    private List<Class<? extends DAObject>> activationTypes;  
     
     public WcImplementation(BundleContext bc) {
         super(bc);
+        super.addActivationType(ProjectFile.class);
     }
 
     public boolean install() {
@@ -68,18 +64,10 @@ public class WcImplementation extends AbstractMetric implements Wc {
         if (result) {
             result &= super.addSupportedMetrics(
                     this.getDescription(),
+                    "LOC",
                     MetricType.Type.SOURCE_CODE);
         }
         return result;
-    }
-
-    public boolean remove() {
-
-        return false;
-    }
-
-    public boolean update() {
-        return super.update();
     }
 
     public Result getResult(ProjectFile a) {
@@ -141,16 +129,9 @@ public class WcImplementation extends AbstractMetric implements Wc {
 
             s.enqueue(w);
         } catch (Exception e) {
-            log.error("Could not schedule wc job for project file: " + ((ProjectFile)a).getFileName());
+            log.error("Could not schedule wc job for project file: " 
+                    + a.getFileName());
         }
-    }
-
-    public List<Class<? extends DAObject>> getActivationTypes() {
-        if (this.activationTypes == null) {
-            activationTypes = new ArrayList<Class<? extends DAObject>>();
-            activationTypes.add(ProjectFile.class);
-        }
-        return this.activationTypes;
     }
 }
 

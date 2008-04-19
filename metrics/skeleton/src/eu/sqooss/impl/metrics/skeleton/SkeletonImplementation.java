@@ -63,6 +63,7 @@ public class SkeletonImplementation extends AbstractMetric implements Skeleton {
         boolean result = super.install();
         if (result) {
             result &= super.addSupportedMetrics(
+                    "SKEL",
                     this.getDescription(),
                     MetricType.Type.SOURCE_CODE);
         }
@@ -98,13 +99,6 @@ public class SkeletonImplementation extends AbstractMetric implements Skeleton {
             log.error("Could not schedule "+ w.getClass().getName() + 
                     " for project file: " + ((ProjectFile)a).getFileName());
         }
-    }
-    
-    public List<Class<? extends DAObject>> getActivationTypes() {
-        if (this.activationTypes == null) {
-            activationTypes = new ArrayList<Class<? extends DAObject>>();
-        }
-        return this.activationTypes;
     }
 }
 

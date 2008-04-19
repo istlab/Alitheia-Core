@@ -42,6 +42,7 @@ public class PluginConfiguration extends DAObject {
     private String name;
     private String value;
     private String type;
+    private String msg;
     private Plugin plugin;
     
     public String getValue() {
@@ -74,6 +75,14 @@ public class PluginConfiguration extends DAObject {
 
     public void setName(String name) {
         this.name = name;
+    }
+    
+    public String getMsg() {
+        return msg;
+    }
+
+    public void setMsg(String msg) {
+        this.msg = msg;
     }
     
     /**

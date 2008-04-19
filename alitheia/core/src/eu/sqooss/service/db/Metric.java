@@ -38,6 +38,7 @@ import eu.sqooss.service.db.DAObject;
 public class Metric extends DAObject{
     private Plugin plugin;
     private MetricType metricType;
+    private String mnemonic;
     private String description;
 
     public Metric() {
@@ -67,6 +68,14 @@ public class Metric extends DAObject{
     public void setPlugin(Plugin plugin) {
         this.plugin = plugin;
     }
+
+    public String getMnemonic() {
+        return mnemonic;
+    }
+
+    public void setMnemonic(String mnemonic) {
+        this.mnemonic = mnemonic;
+    }   
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
