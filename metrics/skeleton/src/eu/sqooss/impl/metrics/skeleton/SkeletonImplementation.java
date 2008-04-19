@@ -45,6 +45,7 @@ import eu.sqooss.lib.result.Result;
 import eu.sqooss.metrics.skeleton.Skeleton;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
+import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.scheduler.Scheduler;
@@ -56,6 +57,8 @@ public class SkeletonImplementation extends AbstractMetric implements Skeleton {
         super(bc);        
     }
 
+    private List<Class<? extends DAObject>> activationTypes;  
+    
     public boolean install() {
         boolean result = super.install();
         if (result) {
@@ -96,23 +99,12 @@ public class SkeletonImplementation extends AbstractMetric implements Skeleton {
                     " for project file: " + ((ProjectFile)a).getFileName());
         }
     }
-
-    public Collection<Pair<String,AlitheiaPlugin.ConfigurationTypes>>
-        getConfigurationSchema() {
-        // There is a reason why we do this in such a peculiar fashion:
-        // in our experience doing this in a "quicker" fashion we
-        // get bizzarre execution failures. So we build pairs
-        // carefully, then add them to the collection.
-        Pair<String,AlitheiaPlugin.ConfigurationTypes> p0 = new Pair<String,AlitheiaPlugin.ConfigurationTypes>( new String("funky-count"),AlitheiaPlugin.ConfigurationTypes.INTEGER);
-        Pair<String,AlitheiaPlugin.ConfigurationTypes> p1 = new Pair<String,AlitheiaPlugin.ConfigurationTypes>( new String("is-funky"),AlitheiaPlugin.ConfigurationTypes.BOOLEAN);
-        Pair<String,AlitheiaPlugin.ConfigurationTypes> p2 = new Pair<String,AlitheiaPlugin.ConfigurationTypes>( new String("funky-name"),AlitheiaPlugin.ConfigurationTypes.STRING);
-
-        Collection<Pair<String,AlitheiaPlugin.ConfigurationTypes>> c = new ArrayList<Pair<String,AlitheiaPlugin.ConfigurationTypes>>(3);
-        c.add(p0);
-        c.add(p1);
-        c.add(p2);
-
-        return c;
+    
+    public List<Class<? extends DAObject>> getActivationTypes() {
+        if (this.activationTypes == null) {
+            activationTypes = new ArrayList<Class<? extends DAObject>>();
+        }
+        return this.activationTypes;
     }
 }
 

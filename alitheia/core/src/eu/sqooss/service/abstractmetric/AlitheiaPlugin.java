@@ -33,12 +33,11 @@
 
 package eu.sqooss.service.abstractmetric;
 
-import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 import eu.sqooss.lib.result.Result;
 import eu.sqooss.service.db.DAObject;
-import eu.sqooss.service.util.Pair;
 
 
 /**
@@ -125,7 +124,7 @@ public interface AlitheiaPlugin {
      * @throws MetricMismatchException if the DAO type is one not supported by
      *          this metric.
      */
-    Result getResult(DAObject o)
+    <T extends DAObject> Result getResult(T o)
         throws MetricMismatchException;
 
     /**
@@ -170,23 +169,22 @@ public interface AlitheiaPlugin {
      * @return True, if the removal succeeded, false otherwise
      */
     boolean remove();
-
-    /**
-     * Returns the configuration schema.
-     * The schema is collection of <code>Pair</code>s.
-     * The first element of the pair represents the name
-     * and the second is the configuration type.
-     * @return
-     */
-    public Collection<Pair<String, ConfigurationTypes>> getConfigurationSchema();
     
     /**
-     * These are the types of configuration values that metrics can
-     * support. This is used mostly for rendering and validation purposes.
+     * Return a string that is unique for this plugin, used for indexing this
+     * plugin to the system database
+     * 
+     * @return A unique string, max length 255 characters
      */
-    public enum ConfigurationTypes {
-        INTEGER,
-        STRING,
-        BOOLEAN
-    } ;
+    String getUniqueKey();
+    
+    
+    /**
+     * An activation type is DAO subclass which is passed as argument to
+     * the {@link AlitheiaPlugin.run()} and {@link AlitheiaPlugin.getResult()}}
+     * methods to trigger metric calculation and result retrieval. 
+     *  
+     * @return A list of DAObject subclasses
+     */     
+    List<Class<? extends DAObject>> getActivationTypes();
 }

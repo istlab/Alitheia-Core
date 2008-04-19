@@ -3,7 +3,7 @@
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  *
  * Copyright 2007-2008 by the SQO-OSS consortium members <info@sqo-oss.eu>
- * Copyright 2007-2008 by Paul J. Adams <paul.adams@siriusit.co.uk>
+ * Copyright 2007-2008 by Georgios Gousios<gousiosg@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -32,6 +32,11 @@
  */
 
 package eu.sqooss.service.db;
+
+import java.util.HashMap;
+import java.util.List;
+
+import eu.sqooss.impl.service.CoreActivator;
 
 public class PluginConfiguration extends DAObject {
     private String name;
@@ -69,5 +74,48 @@ public class PluginConfiguration extends DAObject {
 
     public void setName(String name) {
         this.name = name;
+    }
+    
+    /**
+     * Get a PluginConfiguration entry DAO or null in 
+     */
+    public static PluginConfiguration getConfigurationEntry(Plugin p, HashMap<String, Object> names) {
+        DBService db = CoreActivator.getDBService();
+        
+        names.put("plugin", p);
+                
+        List<PluginConfiguration> l = db.findObjectsByProperties(PluginConfiguration.class, names);
+        
+        if(l.isEmpty()) {
+            return null;
+        }
+        
+        return l.get(0);
+    }
+    
+    /**
+     * Update a configuration entry. If the entry is found and updated 
+     * successfully true will be returned. If not found or the update 
+     * fails, false will be returned.
+     */
+    public static boolean updConfigurationEntry(Plugin p, HashMap<String, Object> names) {
+        DBService db = CoreActivator.getDBService();
+        PluginConfiguration pc = getConfigurationEntry(p, names);
+        
+        if (pc == null) {
+            return false;
+        }
+        
+        HashMap<String, Object> s = new HashMap<String, Object>();
+        
+        names.put("plugin", p);
+        
+        List<PluginConfiguration> l = db.findObjectsByProperties(PluginConfiguration.class, s);
+        
+        if (l.isEmpty()) {
+            return false;
+        }
+        
+        return true;
     }
 }

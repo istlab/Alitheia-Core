@@ -32,10 +32,13 @@
 package eu.sqooss.service.pa;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.osgi.framework.ServiceReference;
 
+
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
+import eu.sqooss.service.db.DAObject;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -66,7 +69,7 @@ public interface PluginAdmin {
     public PluginInfo getPluginInfo(AlitheiaPlugin m);
     
     /**
-     * Get the metric interface from a metric object object 
+     * Get the plugin interface from a plugin information object 
      * @param m
      * @return The metric interface
      */
@@ -82,7 +85,7 @@ public interface PluginAdmin {
      * @return Collection of services references. May be null
      *          if no such interfaces exist.
      */
-    public ServiceReference[] listPluginProviders(Class<?> o);
+    public <T extends DAObject> List<PluginInfo> listPluginProviders(Class<T> o);
     
     /**
      * Calls the install() method of the metric object provided from a metric

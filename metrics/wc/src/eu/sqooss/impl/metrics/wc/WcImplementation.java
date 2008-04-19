@@ -35,7 +35,6 @@
 package eu.sqooss.impl.metrics.wc;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
@@ -48,17 +47,18 @@ import eu.sqooss.lib.result.Result;
 import eu.sqooss.lib.result.ResultEntry;
 import eu.sqooss.metrics.wc.Wc;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
+import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectFileMeasurement;
 import eu.sqooss.service.scheduler.Scheduler;
-import eu.sqooss.service.util.Pair;
 
 public class WcImplementation extends AbstractMetric implements Wc {
 
-    List<Metric> supportedMetrics;
-
+    private List<Metric> supportedMetrics;
+    private List<Class<? extends DAObject>> activationTypes;  
+    
     public WcImplementation(BundleContext bc) {
         super(bc);
     }
@@ -145,16 +145,12 @@ public class WcImplementation extends AbstractMetric implements Wc {
         }
     }
 
-    public Collection<Pair<String, ConfigurationTypes>> getConfigurationSchema() {
-
-        ArrayList<Pair<String, ConfigurationTypes> > l = new
-            ArrayList<Pair<String, ConfigurationTypes> >(1);
-
-        Pair<String, ConfigurationTypes> foo = new Pair<String, ConfigurationTypes>(
-                "smart-whitespace", ConfigurationTypes.BOOLEAN);
-
-        l.add(foo);
-        return l;
+    public List<Class<? extends DAObject>> getActivationTypes() {
+        if (this.activationTypes == null) {
+            activationTypes = new ArrayList<Class<? extends DAObject>>();
+            activationTypes.add(ProjectFile.class);
+        }
+        return this.activationTypes;
     }
 }
 

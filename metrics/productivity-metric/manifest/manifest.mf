@@ -12,6 +12,8 @@ Import-Package: eu.sqooss.service.logging,
     eu.sqooss.service.fds,
     eu.sqooss.service.scheduler,
     eu.sqooss.service.db,
-    eu.sqooss.lib.result
+    eu.sqooss.lib.result,
+    org.apache.commons.codec.digest 
+    
 
 

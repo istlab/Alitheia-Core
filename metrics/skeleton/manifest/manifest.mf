@@ -15,4 +15,5 @@ Import-Package:  org.osgi.framework,
     eu.sqooss.service.logging,
     eu.sqooss.service.scheduler,
     eu.sqooss.service.tds,
-    eu.sqooss.service.util
+    eu.sqooss.service.util,
+    org.apache.commons.codec.digest

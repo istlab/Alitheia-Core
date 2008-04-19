@@ -33,11 +33,14 @@
  */
 package eu.sqooss.service.abstractmetric;
 
-import java.util.Collection;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Iterator;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.hibernate.Session;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -56,10 +59,10 @@ import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.pa.PluginInfo.ConfigurationType;
 import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.scheduler.SchedulerException;
 import eu.sqooss.service.util.Pair;
-
 
 /**
  * A base class for all metrics. Implements basic functionality such as
@@ -68,8 +71,7 @@ import eu.sqooss.service.util.Pair;
  * the {@link eu.sqooss.abstractmetric.AlitheiaPlugin} interface instead of extending
  * this class.
  */
-public abstract class AbstractMetric
-implements eu.sqooss.service.abstractmetric.AlitheiaPlugin {
+public abstract class AbstractMetric implements AlitheiaPlugin {
 
     /** Reference to the metric bundle context */
     protected BundleContext bc;
@@ -159,7 +161,7 @@ implements eu.sqooss.service.abstractmetric.AlitheiaPlugin {
      * Retrieve the installation date for this plug-in version
      */
     public final Date getDateInstalled() {
-        return Plugin.getPlugin(hashCode()).getInstalldate();
+        return Plugin.getPluginByHashcode(getUniqueKey()).getInstalldate();
     }
 
     /**
@@ -174,26 +176,36 @@ implements eu.sqooss.service.abstractmetric.AlitheiaPlugin {
      * @throws MetricMismatchException if the DAO is of a type
      *      not supported by this metric.
      */
-    public Result getResult(DAObject o)
-        throws MetricMismatchException {
-        if ((this instanceof ProjectVersionMetric) &&
-            (o instanceof ProjectVersion)) {
-            return ((ProjectVersionMetric)this).getResult((ProjectVersion) o);
+    public Result getResult(DAObject o) throws MetricMismatchException {
+ 
+        boolean found = false;
+        Iterator<Class<? extends DAObject>> i = getActivationTypes().iterator();
+        
+        while(i.hasNext()) {
+            Class<? extends DAObject> c = i.next();
+            if (c.isInstance(o)) {
+                found = true;
+                try {
+                    Method m = this.getClass().getMethod("getResult", c);
+                    return (Result) m.invoke(this, o);
+                } catch (SecurityException e) {
+                    log.error("Unable to invoke getResult method:" + e.getMessage());
+                } catch (NoSuchMethodException e) {
+                    log.error("No method getResult(" + c.getName() +") for type " 
+                            + this.getClass().getName());
+                } catch (IllegalArgumentException e) {
+                    log.error("Unable to invoke getResult method:" + e.getMessage()); 
+                } catch (IllegalAccessException e) {
+                    log.error("Unable to invoke getResult method:" + e.getMessage());
+                } catch (InvocationTargetException e) {
+                    log.error("Unable to invoke getResult method:" + e.getMessage());
+                }
+            }
         }
-        if ((this instanceof StoredProjectMetric) &&
-            (o instanceof StoredProject)) {
-            return ((StoredProjectMetric)this).getResult((StoredProject) o);
-        }
-        if ((this instanceof ProjectFileMetric) &&
-            (o instanceof ProjectFile)) {
-            return ((ProjectFileMetric)this).getResult((ProjectFile) o);
-        }
-        if ((this instanceof FileGroupMetric) &&
-            (o instanceof FileGroup)) {
-            return ((FileGroupMetric)this).getResult((FileGroup) o);
-        }
-
-        throw new MetricMismatchException(o);
+        if(!found)
+            throw new MetricMismatchException(o);
+        
+        return null;
     }
 
     /**
@@ -209,28 +221,33 @@ implements eu.sqooss.service.abstractmetric.AlitheiaPlugin {
      * FIXME:
      */
     public void run(DAObject o) throws MetricMismatchException {
-        if ((this instanceof ProjectVersionMetric) &&
-            (o instanceof ProjectVersion)) {
-            ((ProjectVersionMetric)this).run((ProjectVersion) o);
-            return;
+        
+        boolean found = false;
+        Iterator<Class<? extends DAObject>> i = getActivationTypes().iterator();
+        
+        while(i.hasNext()) {
+            Class<? extends DAObject> c = i.next();
+            if (c.isInstance(o)) {
+                found = true;
+                try {
+                    Method m = this.getClass().getMethod("run", c);
+                    m.invoke(this, o);
+                } catch (SecurityException e) {
+                    log.error("Unable to invoke run method:" + e.getMessage());
+                } catch (NoSuchMethodException e) {
+                    log.error("No method run(" + c.getName() +") for type " 
+                            + this.getClass().getName());
+                } catch (IllegalArgumentException e) {
+                    log.error("Unable to invoke run method:" + e.getMessage()); 
+                } catch (IllegalAccessException e) {
+                    log.error("Unable to invoke run method:" + e.getMessage());
+                } catch (InvocationTargetException e) {
+                    log.error("Unable to invoke run method:" + e.getMessage());
+                }
+            }
         }
-        if ((this instanceof StoredProjectMetric) &&
-            (o instanceof StoredProject)) {
-            ((StoredProjectMetric)this).run((StoredProject) o);
-            return;
-        }
-        if ((this instanceof ProjectFileMetric) &&
-            (o instanceof ProjectFile)) {
-            ((ProjectFileMetric)this).run((ProjectFile) o);
-            return;
-        }
-        if ((this instanceof FileGroupMetric) &&
-            (o instanceof FileGroup)) {
-            ((FileGroupMetric)this).run((FileGroup) o);
-            return;
-        }
-
-        throw new MetricMismatchException(o);
+        if(!found)
+            throw new MetricMismatchException(o);
     }
 
     /**
@@ -252,7 +269,7 @@ implements eu.sqooss.service.abstractmetric.AlitheiaPlugin {
         Metric m = new Metric();
         m.setDescription(desc);
         m.setMetricType(MetricType.getMetricType(type));
-        m.setPlugin(Plugin.getPlugin(hashCode()));
+        m.setPlugin(Plugin.getPluginByHashcode(getUniqueKey()));
         return db.addRecord(m);
     }
 
@@ -264,7 +281,7 @@ implements eu.sqooss.service.abstractmetric.AlitheiaPlugin {
      */
     public List<Metric> getSupportedMetrics() {
         if (metrics == null) {
-            metrics = Plugin.getSupportedMetrics(Plugin.getPlugin(hashCode()));
+            metrics = Plugin.getSupportedMetrics(Plugin.getPluginByHashcode(getUniqueKey()));
         }
         
         if (metrics.isEmpty()) {
@@ -329,7 +346,8 @@ implements eu.sqooss.service.abstractmetric.AlitheiaPlugin {
         p.setInstalldate(new Date(System.currentTimeMillis()));
         p.setVersion(getVersion());
         p.setActive(true);
-        p.setHashcode(String.valueOf(hashCode()));
+        p.setHashcode(getUniqueKey());
+        
         db.addRecord(p);
         
         return true;
@@ -344,7 +362,7 @@ implements eu.sqooss.service.abstractmetric.AlitheiaPlugin {
      */
     public boolean remove() {
 
-        Plugin p = Plugin.getPlugin(hashCode());
+        Plugin p = Plugin.getPluginByHashcode(getUniqueKey());
         return db.deleteRecord(p);
     }
 
@@ -365,15 +383,18 @@ implements eu.sqooss.service.abstractmetric.AlitheiaPlugin {
         
         return true;
     }
-
-    /** {@inheritDoc} */
-    public Collection<Pair<String, ConfigurationTypes>> getConfigurationSchema() {
-        return null;
-        // Pretend that there are no configuration values.
+    
+    public abstract List<Class<? extends DAObject>> getActivationTypes();
+    
+    public final String getUniqueKey() {
+        return DigestUtils.md5Hex(this.getClass().getCanonicalName());
+    }
+    
+    protected void addConfigEntry(Pair<String, ConfigurationType> entry) {
         
-//        return null;
+    }
+    
+    protected void removeConfigEntry(Pair<String, ConfigurationType> entry) {
+        
     }
 }
-
-// vi: ai nosi sw=4 ts=4 expandtab
-

@@ -94,7 +94,7 @@ public class DefaultUpdateJob extends Job {
 
     @Override
     protected void run() throws Exception {
-        log.info("Updating metric " + owner.getName() + " for project " + sp.getName());
+        
     }
 }
 

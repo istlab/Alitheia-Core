@@ -54,13 +54,12 @@ public interface MetricActivator {
     public <T extends DAObject> void runMetrics(Class<T> clazz, SortedSet<Long> objectIDs);
     
     /**
-     * Synchronize metric results for all metrics that get activated by the
-     * event types identified by clazz with the latest project state
+     * Synchronize metric results for all metrics for a specific project
      * 
      * @param clazz
      * @param sp
      */
-    public <T extends DAObject> void syncMetrics(Class<T> clazz, StoredProject sp);
+    public <T extends DAObject> void syncMetrics(StoredProject sp);
     
     /**
      * 

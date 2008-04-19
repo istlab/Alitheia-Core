@@ -94,9 +94,9 @@ public class Plugin extends DAObject{
 
     public void setHashcode(String hashcode) {
         this.hashcode = hashcode;
-    }   
+    }
     
-    public static List<Plugin> getPlugin(String name) {
+    public static List<Plugin> getPluginByName(String name) {
         DBService db = CoreActivator.getDBService();
         HashMap<String, Object> s = new HashMap<String, Object>();
         s.put("name", name);
@@ -114,10 +114,10 @@ public class Plugin extends DAObject{
      * @return A Plugin object if the hashcode was found in the DB; null
      *         otherwise
      */
-    public static Plugin getPlugin(int hashcode) {
+    public static Plugin getPluginByHashcode(String hashcode) {
         DBService db = CoreActivator.getDBService();
         HashMap<String, Object> s = new HashMap<String, Object>();
-        s.put("hashcode", String.valueOf(hashcode));
+        s.put("hashcode", hashcode);
         List<Plugin> l = db.findObjectsByProperties(Plugin.class, s); 
         if (!l.isEmpty())
             return l.get(0);
@@ -137,6 +137,11 @@ public class Plugin extends DAObject{
         return (List<PluginConfiguration>)db.findObjectsByProperties(PluginConfiguration.class, s);
     }
     
+    /**
+     * Get supported metrics for the plugin
+     * @param p
+     * @return A, possibly empty, list of metric DAOs
+     */
     public static List<Metric> getSupportedMetrics(Plugin p) {
         DBService db = CoreActivator.getDBService();
         HashMap<String, Object> s = new HashMap<String, Object>();

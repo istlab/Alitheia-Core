@@ -33,7 +33,6 @@
 
 package eu.sqooss.impl.service.updater;
 
-import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -41,11 +40,8 @@ import org.apache.commons.collections.LRUMap;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.osgi.framework.ServiceReference;
 
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
-import eu.sqooss.service.abstractmetric.MetricMismatchException;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Developer;
 import eu.sqooss.service.db.Directory;
@@ -75,9 +71,6 @@ class SourceUpdater extends Job {
     private DBService dbs;
     private Logger logger;
     private MetricActivator ma;
-    private AlitheiaCore core;
-    private ServiceReference[] versionMetrics = null;
-    private ServiceReference[] fileMetrics = null;
 
     public SourceUpdater(StoredProject project, UpdaterServiceImpl updater, 
             AlitheiaCore core, Logger logger) throws UpdaterException {
@@ -89,7 +82,6 @@ class SourceUpdater extends Job {
         this.project = project;
         this.updater = updater;
         this.logger = logger;
-        this.core = core;
         this.tds = core.getTDSService();
         this.dbs = core.getDBService();
         this.ma = core.getMetricActivator();
@@ -116,10 +108,6 @@ class SourceUpdater extends Job {
         /*Avoid Hibernate thrasing by caching frequently accessed objects*/
         LRUMap devCache = new LRUMap(1000);
         LRUMap dirCache = new LRUMap(3000);
-        
-        // get a new list of metrics
-        versionMetrics = core.getPluginManager().listPluginProviders(ProjectVersion.class);
-        fileMetrics = core.getPluginManager().listPluginProviders(ProjectFile.class);
 
         logger.info("Running source update for project " + project.getName());
         Session s = dbs.getSession(this);

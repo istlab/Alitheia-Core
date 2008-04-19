@@ -15,5 +15,6 @@ Import-Package:  org.osgi.framework,
     eu.sqooss.service.db,
     eu.sqooss.service.util,
     eu.sqooss.core,
-    eu.sqooss.lib.result
+    eu.sqooss.lib.result,
+    org.apache.commons.codec.digest
 

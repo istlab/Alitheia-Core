@@ -43,8 +43,8 @@ import javax.servlet.http.HttpServletRequest;
 import eu.sqooss.core.AlitheiaCore;
 
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
-import eu.sqooss.service.abstractmetric.AlitheiaPlugin.ConfigurationTypes;
 import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.PluginConfiguration;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.db.User;
 import eu.sqooss.service.logging.Logger;
@@ -52,6 +52,7 @@ import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.metricactivator.MetricActivator;
 import eu.sqooss.service.pa.PluginAdmin;
 import eu.sqooss.service.pa.PluginInfo;
+import eu.sqooss.service.pa.PluginInfo.ConfigurationType;
 import eu.sqooss.service.updater.UpdaterService;
 import eu.sqooss.service.util.Pair;
 import eu.sqooss.service.util.StringUtils;
@@ -173,15 +174,15 @@ public class WebAdminRenderer {
      * given MetricInfor object
      */
     private static String renderMetricAttributes(PluginInfo i) {
-        AlitheiaPlugin plugin = sobjPluginAdmin.getPlugin(i);
-        Collection<Pair<String, ConfigurationTypes>> attributes =  plugin.getConfigurationSchema();
-        if (attributes == null) {
+        List<PluginConfiguration> l =  i.getConfiguration();
+        if (l.size() == 0) {
+
             return "<ul><li>This metric has no configurable attibutes.</li></ul>";
         } else {
             StringBuilder b = new StringBuilder();
             b.append("<ul>");
-            for (Pair<String, ConfigurationTypes> pair : attributes) {
-                b.append("<li>Attribute: " + pair.first + " Type: " + pair.second + "</li>");
+            for (PluginConfiguration c : l) {
+                b.append("<li>Attribute: " + c.getName() + " Type: " + c.getType() + "</li>");
             }
             b.append("</ul>");
             return b.toString();

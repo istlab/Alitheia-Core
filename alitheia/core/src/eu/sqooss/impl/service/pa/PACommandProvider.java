@@ -36,7 +36,9 @@ import java.util.Iterator;
 
 import org.eclipse.osgi.framework.console.CommandInterpreter;
 import org.eclipse.osgi.framework.console.CommandProvider;
+import org.osgi.framework.Constants;
 
+import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.pa.PluginAdmin;
 import eu.sqooss.service.pa.PluginInfo;
 
@@ -111,95 +113,51 @@ public class PACommandProvider implements CommandProvider {
     }
 
     public void _list_metrics (CommandInterpreter ci) {
-        if (sobjPA != null) {
-            // Dump a formated list of registered metrics, if any where found
-            Collection<PluginInfo> metricsList = sobjPA.listPlugins();
-            if ((metricsList != null) && (metricsList.isEmpty() == false)) {
-                // Iterate through the available metrics
-                Iterator<PluginInfo> listIterator = metricsList.iterator();
-                while ( listIterator.hasNext()) {
-                    PluginInfo nextMetric = listIterator.next();
-
-                    ci.println(
-                            "\r\nService ID : "
-                            + nextMetric.getServiceID());
-
-                    ci.println(
-                            "  Registered by\t\t: "
-                            + "[" + nextMetric.getBundleID() + "]"
-                            + " " + nextMetric.getBundleName());
-
-                    String[] metricClasses = nextMetric.getObjectClass();
-                    if ((metricClasses != null)
-                            && (metricClasses.length > 0)) {
-                        if (metricClasses.length == 1) {
-                            ci.print("  Service class\t\t: ");
-                        }
-                        else {
-                            ci.println("  Service classes\t: ");
-                        }
-
-                        for (int nextClass = 0;
-                        nextClass < metricClasses.length;
-                        nextClass++) {
-                            if (metricClasses.length == 1) {
-                                ci.println(metricClasses[nextClass]);
-                            }
-                            else {
-                                ci.println("\t\t" + metricClasses[nextClass]);
-                            }
-                        }
-                    }
-
-                    String[] metricType = nextMetric.getPluginType();
-                    if ((metricType != null) && (metricType.length > 0)) {
-                        if (metricType.length == 1) {
-                            ci.print("  Metric type\t\t: ");
-                        }
-                        else {
-                            ci.println("  Metric types\t\t: ");
-                        }
-
-                        for (int nextType = 0;
-                        nextType < metricType.length;
-                        nextType++) {
-                            if (metricType.length == 1) {
-                                ci.println(metricType[nextType]);
-                            }
-                            else {
-                                ci.println("\t\t\t  " + metricType[nextType]);
-                            }
-                        }
-                    }
-
-                    ci.println (
-                            "  Install performed\t: "
-                            + (nextMetric.installed ? "yes" : "no"));
-
-                    if (nextMetric.getPluginName() != null) {
-                        ci.println(
-                                "  Metric name\t\t: "
-                                + nextMetric.getPluginName());
-                    }
-
-                    if (nextMetric.getPluginVersion() != null) {
-                        ci.println(
-                                "  Metric version\t: "
-                                + nextMetric.getPluginVersion());
-                    }
-                }
-            }
-            else {
-                //
-                ci.println("No metrics found!");
-            }
-        }
-        else {
-            //
+        if (sobjPA == null) {
             ci.println("No PluginAdmin available!");
+            return;
+        }
+        
+        Collection<PluginInfo> metricsList = sobjPA.listPlugins();
+        if ((metricsList == null) || (metricsList.isEmpty())) {
+            ci.println("No metrics found!");
+            return;
+        }
+
+        /* Iterate through the available metrics */
+        Iterator<PluginInfo> listIterator = metricsList.iterator();
+        while (listIterator.hasNext()) {
+            PluginInfo nextMetric = listIterator.next();
+
+            ci.println("\r\nService ID : "
+                    + nextMetric.getServiceRef().getProperty(
+                            Constants.SERVICE_ID));
+
+            ci.println("  Registered by bundle\t: " + "["
+                    + nextMetric.getServiceRef().getBundle().getBundleId()
+                    + "] "
+                    + nextMetric.getServiceRef().getBundle().getSymbolicName());
+
+            Iterator<Class<? extends DAObject>> i = nextMetric.getActivationTypes().iterator();
+            ci.print("  Activation type(s)\t: ");
+            if(i.hasNext()) {
+                ci.println(i.next().getName());
+            }
+            while (i.hasNext()) {
+                ci.println("\t\t\t " + i.next().getName());
+            }
+
+
+            ci.println("  Installed? \t\t: "
+                    + (nextMetric.installed ? "yes" : "no"));
+            
+            ci.println("  Plugin name\t\t: " + nextMetric.getPluginName());
+            ci.println("  Plugin version\t: " + nextMetric.getPluginVersion());
+            
+            ci.println("  Supported Metrics\t: ");
+            
         }
     }
-
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

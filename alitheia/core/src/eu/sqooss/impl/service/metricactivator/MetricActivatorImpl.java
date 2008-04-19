@@ -33,7 +33,10 @@
 
 package eu.sqooss.impl.service.metricactivator;
 
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.SortedSet;
 
 import org.hibernate.Session;
@@ -69,12 +72,13 @@ public class MetricActivatorImpl implements MetricActivator {
         this.pa = core.getPluginManager();
     }
     
+    /*TODO: Remove type unsafety */
     public <T extends DAObject> void runMetrics(Class<T> clazz,
             SortedSet<Long> objectIDs) {
-        ServiceReference[] metrics = null;
+        List<PluginInfo> metrics = null;
         metrics = core.getPluginManager().listPluginProviders(clazz);
         
-        if (metrics == null || metrics.length == 0) {
+        if (metrics == null || metrics.size() == 0) {
             logger.warn("No metrics found for activation type " + clazz.getName());
             return;
         }
@@ -83,8 +87,8 @@ public class MetricActivatorImpl implements MetricActivator {
 
         while (i.hasNext()) {
             long currentVersion = i.next().longValue();
-            for (ServiceReference r : metrics) {
-                AlitheiaPlugin m = (AlitheiaPlugin) core.getService(r);
+            for (PluginInfo pi : metrics) {
+                AlitheiaPlugin m = (AlitheiaPlugin) core.getService(pi.getServiceRef());
                 if (m != null) {
                     try {
                         m.run(dbs.findObjectById(s, clazz, currentVersion));
@@ -102,15 +106,16 @@ public class MetricActivatorImpl implements MetricActivator {
         
     }
 
-    public <T extends DAObject> void syncMetrics(Class<T> clazz,
-            StoredProject sp) {
+    public <T extends DAObject> void syncMetrics(StoredProject sp) {
         
     }
 
     public ProjectVersion getLastAppliedVersion(AlitheiaPlugin m, StoredProject sp) {
         PluginInfo mi = pa.getPluginInfo(m);
         
-        //dbs.findObjectsByProperties(, properties);
+        Map<String, Object> properties = new HashMap<String, Object>();
+     //   mi.
+       // List<Metric> metrics = dbs.findObjectsByProperties(Metric.class , properties);
         return null;
     }
 
