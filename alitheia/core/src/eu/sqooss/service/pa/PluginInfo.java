@@ -72,7 +72,7 @@ public class PluginInfo {
 
             return null;
         }
-    } ;
+    };
     
     /** The bundle id as returned from OSGi */
     private ServiceReference serviceRef = null;
@@ -172,6 +172,9 @@ public class PluginInfo {
         this.activationTypes.add(activator);
     }
 
+   /**
+    * Return true if the plug-in supports the provided activation type
+    */
    public boolean isActivationType(Class<? extends DAObject> o) {
        
        Iterator<Class<? extends DAObject>> i = this.activationTypes.iterator();
@@ -202,16 +205,13 @@ public class PluginInfo {
     public void setHashcode(String hashcode) {
         this.hashcode = hashcode;
     }
-
     
     public String toString() {
         StringBuilder b = new StringBuilder();
         b.append(getPluginName());
-        b.append(" ");
+        b.append("-");
         b.append(getPluginVersion());
         b.append(" [");
-      //  b.append(StringUtils.join(getActivationType().toString(),","));
-        b.append(" : ");
         b.append(StringUtils.join((String[]) (serviceRef.getProperty(Constants.OBJECTCLASS)),","));
         b.append("]");
         return b.toString();

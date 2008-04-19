@@ -52,38 +52,38 @@ public class PACommandProvider implements CommandProvider {
     }
 
     public String getHelp() {
-        StringBuffer help = new StringBuffer(32);
-        help.append(
-                "---SQO-OSS Plug-ins Administration Commands---\n\r");
-        help.append(
-                "\t" + "install_metric <id>"
-                + " - " + "calls the install method of metric with"
-                + "this service ID\n\r");
-        help.append(
-                "\t" + "im <id>"
-                + " - " + "shortcut for \"install_metric\"\n\r");
-        help.append(
-                "\t" + "list_metrics"
-                + " - " + "list all registered metric services\n\r");
-        help.append(
-                "\t" + "lm"
-                + " - " + "shortcut for \"list_metrics\"\n\r");
+        StringBuffer help = new StringBuffer();
+        
+        help.append("---SQO-OSS Plug-ins Administration Commands---\n\r");
+        help.append("\t install_plugin <id> - " +
+                "calls the install method of plugin with this service ID\n\r");
+        help.append("\t im <id> - shortcut for \"install_plugin\"\n\r");
+        help.append("\t list_metrics - " +
+        		"list all registered metric services\n\r");
+        help.append("\t lm - shortcut for \"list_metrics\"\n\r");
+        help.append("\t remove_plugin <id> - "
+                        + "removes the plugin with this service ID\n\r");
+        help.append("\t rm <id> - shortcut for \"remove_plugin\"\n\r");
         return help.toString();
     }
 
     /* ===[ Command shortcuts ]=========================================== */
 
-    public void _im (CommandInterpreter ci) {
-        _install_metric(ci);
+    public void _ip (CommandInterpreter ci) {
+        _install_plugin(ci);
     }
 
-    public void _lm (CommandInterpreter ci) {
-        _list_metrics(ci);
+    public void _lp (CommandInterpreter ci) {
+        _list_plugins(ci);
+    }
+    
+    public void _rp (CommandInterpreter ci) {
+        _remove_plugin(ci);
     }
 
     /* ===[ Command methods ]============================================= */
 
-    public void _install_metric (CommandInterpreter ci) {
+    public void _install_plugin (CommandInterpreter ci) {
         // Retrieve the service ID from the command's parameters list
         String serviceId = ci.nextArgument();
         if ((serviceId != null) && (sobjPA != null)){
@@ -93,14 +93,14 @@ public class PACommandProvider implements CommandProvider {
                     ci.println (
                             "[INFO]"
                             + " "
-                            + "Install on metric with ID "
+                            + "Install on plug-in with ID "
                             + serviceId + " was successfull.");
                 }
                 else {
                     ci.println (
                             "[ERROR]"
                             + " "
-                            + "Install on metric with ID "
+                            + "Install on plug-in with ID "
                             + serviceId + " was unsuccessfull!");
                 }
             } catch (NumberFormatException e) {
@@ -112,7 +112,7 @@ public class PACommandProvider implements CommandProvider {
         }
     }
 
-    public void _list_metrics (CommandInterpreter ci) {
+    public void _list_plugins (CommandInterpreter ci) {
         if (sobjPA == null) {
             ci.println("No PluginAdmin available!");
             return;
@@ -120,7 +120,7 @@ public class PACommandProvider implements CommandProvider {
         
         Collection<PluginInfo> metricsList = sobjPA.listPlugins();
         if ((metricsList == null) || (metricsList.isEmpty())) {
-            ci.println("No metrics found!");
+            ci.println("No plug-ins found!");
             return;
         }
 
@@ -156,6 +156,27 @@ public class PACommandProvider implements CommandProvider {
             
             ci.println("  Supported Metrics\t: ");
             
+        }
+    }
+    
+    public void _remove_plugin(CommandInterpreter ci) {
+        String serviceId = ci.nextArgument();
+        if ((serviceId != null) && (sobjPA != null)){
+           try {
+            boolean rm = sobjPA.uninstallPlugin(new Long(serviceId));
+            if(!rm) {
+                ci.println("[ERROR] Uninstall of metric with service id" +
+                        serviceId + " failed.");
+            } else {
+                ci.println("[ERROR] Uninstall of metric with service id" +
+                        serviceId + " was successful.");
+            }
+           } catch (NumberFormatException e) {
+               ci.println (
+                       "[ERROR]"
+                       + " "
+                       + "The specified service ID is not a number");
+           }
         }
     }
 }

@@ -131,7 +131,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
                     + "> is not installed");
             return null;
         }
-
+        logger.debug("Getting info for plugin " + p.getName());
         AlitheiaPlugin pluginObject = (AlitheiaPlugin) bc.getService(srefPlugin);
         
         PluginInfo pluginInfo = new PluginInfo(Plugin.getConfigEntries(p));
@@ -140,12 +140,9 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
         pluginInfo.setHashcode(p.getHashcode());
         pluginInfo.installed = true;
         
-        logger.debug("Getting info for plugin " + p.getName());
-        
         if (pluginObject != null) {
             pluginInfo.setPluginName(pluginObject.getName());
             pluginInfo.setPluginVersion(pluginObject.getVersion());
-            
             pluginInfo.setActivationTypes(pluginObject.getActivationTypes());
         }
         
@@ -340,6 +337,11 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
         }
         return matching;
     }
+    
+    public boolean uninstallPlugin(Long serviceID) {
+        
+        return false;
+    }
 
     public PluginInfo getPluginInfo(AlitheiaPlugin m) {
         PluginInfo mi = null;
@@ -360,6 +362,16 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
     public AlitheiaPlugin getPlugin(PluginInfo m) {
         ServiceReference s = m.getServiceRef();
         return (AlitheiaPlugin) bc.getService(s);
+    }
+
+    public void pluginUpdated(AlitheiaPlugin p) {
+        ServiceReference srefPlugin = getPluginInfo(p).getServiceRef(); 
+        Plugin pDao = pluginRefToPluginDAO(srefPlugin);
+        
+        PluginInfo plugInfo = getPluginInfo(srefPlugin, pDao);
+        registeredPlugins.put(plugInfo.getHashcode(), plugInfo);
+
+        logger.info("Plugin (" + plugInfo.getPluginName() + ") updated");
     }
 }
 

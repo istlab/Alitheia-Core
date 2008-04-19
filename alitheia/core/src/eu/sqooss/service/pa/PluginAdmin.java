@@ -34,21 +34,16 @@ package eu.sqooss.service.pa;
 import java.util.Collection;
 import java.util.List;
 
-import org.osgi.framework.ServiceReference;
-
-
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.db.DAObject;
 
-// TODO: Auto-generated Javadoc
 /**
  * PluginAdmin defines an interface for classes that provide utilities for
- *  managing SQO-OSS plug-ins, and more specifically metric plug-ins.
+ *  managing SQO-OSS plug-ins.
  */
-
 public interface PluginAdmin {
 
-    /** The Constant METRICS_CLASS shall be used as a filter when searching
+    /** The Constant PLUGINS_CLASS is used as a filter when searching
      * for registered metric services. */
     public final static String PLUGIN_CLASS = "eu.sqooss.impl.metrics.*";
 
@@ -61,7 +56,7 @@ public interface PluginAdmin {
     public Collection<PluginInfo> listPlugins();
     
     /**
-     * Returns the metric info object for a specific metric
+     * Returns a plug-in info object for a specific plug-in
      * 
      * @param m The metric to return info about
      * @return Information that the system has about a specific metric
@@ -69,7 +64,7 @@ public interface PluginAdmin {
     public PluginInfo getPluginInfo(AlitheiaPlugin m);
     
     /**
-     * Get the plugin interface from a plugin information object 
+     * Get the plugin's interface from a plug-in information object 
      * @param m
      * @return The metric interface
      */
@@ -77,9 +72,7 @@ public interface PluginAdmin {
 
     /**
      * Get the list of metrics that have (sub-)interfaces for the given
-     * DAO object's type. The service references are returned, not the
-     * services themselves, since the metrics may disappear or be un-registered
-     * during the lifetime of this collection.
+     * DAO object's type. 
      *
      * @param o Object that implies the type of interface that is wanted.
      * @return Collection of services references. May be null
@@ -96,6 +89,21 @@ public interface PluginAdmin {
      * @return true, if successful; false otherwise
      */
     public boolean installPlugin(Long service_ID);
+    
+    /**
+     * Remove the plug-in and the associated entries from the database
+     * @param serviceID The plug-in's service ID
+     * @return True if removal succeeded, false otherwise
+     */
+    public boolean uninstallPlugin(Long serviceID);
+    
+    /**
+     * Update the plugin registration info when the plug-in has updated
+     * its database records
+     * @param p The updated plugin
+     * @return
+     */
+    public void pluginUpdated(AlitheiaPlugin p); 
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
