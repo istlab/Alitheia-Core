@@ -18,8 +18,8 @@ abstract public class CorbaMetricImpl extends AbstractMetric {
         this.m = m;
     }
 
-    public boolean doAddSupportedMetrics(String desc, MetricType.Type type) {
-        return addSupportedMetrics(desc, type);
+    public boolean doAddSupportedMetrics(String desc, String mnemonic, MetricType.Type type) {
+        return addSupportedMetrics(desc, mnemonic, type);
     }
 
     public String getAuthor() {

@@ -172,7 +172,8 @@ public class CoreImpl extends CorePOA {
 
     public boolean addSupportedMetrics(String metricname, String description, MetricTypeType type) {
         CorbaMetricImpl metric = registeredMetrics.get(metricname);
-        return metric.doAddSupportedMetrics(description, DAObject.fromCorbaObject(type));
+        // TODO: Verify if "metricname" can be used as "mnemonic" parameter
+        return metric.doAddSupportedMetrics(description, metricname, DAObject.fromCorbaObject(type));
     }
   
     public ProjectFile[] getVersionFiles (ProjectVersion version) {
