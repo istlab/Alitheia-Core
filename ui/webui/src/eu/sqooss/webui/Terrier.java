@@ -36,6 +36,7 @@ package eu.sqooss.webui;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
+import java.util.ResourceBundle;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.Vector;
@@ -62,54 +63,46 @@ public class Terrier {
     private String error = "";
     private String debug = "";
 
-    // Various configuration parameters
-    private static String cfgUnprivUser    = "unprivUser";
-    private static String cfgUnprivPass    = "unprivPass";
-    private static String cfgFrameworkURL  = "frameworkUrl";
-
-    // Load the WebUI's configuration file (if any)
-    private Configurator confParams = new Configurator("webui.cfg");
+    // Points to the the WebUI's configuration bundle
+    private ResourceBundle confParams;
 
     private TerrierConnection connection = null;
 
     /**
-     * Simple constructor. Instantiates a new <code>Terrier</code> object.
+     * Empty constructor. Instantiates a new <code>Terrier</code> object.
      */
     public Terrier () {
-        initConfig();
-        connection = new TerrierConnection(
-            confParams.getProperty(cfgFrameworkURL),
-            confParams.getProperty(cfgUnprivUser),
-            confParams.getProperty(cfgUnprivPass));
     }
 
     /**
-     * This function will create a configuration when one doesn't exist,
-     * and/or fill the base configuration parameters (with pre-defined values)
-     * when these can't be found in the configuration file.
+     * Loads the <code>Terrier</code>'s configuration setting from the
+     * specified <code>ResourceBundle</code> object. In the exceptional case,
+     * when the specified configuration object is invalid, this function will
+     * fall back to a set of predefined configuration settings.
+     * 
+     * @param configuration a <code>ResourceBunde</code> configuration object
      */
-    private void initConfig() {
-        boolean flush = false;
-        if ((confParams.getProperty(cfgUnprivUser) == null)) {
-            confParams.setProperty(
-                    cfgUnprivUser,
-                    "alitheia");
-            flush = true;
+    public void initConfig(ResourceBundle configuration) {
+        this.confParams = configuration;
+
+        String userName = Constants.conUserName;
+        String userPass = Constants.conUserPass;
+        String connUrl  = Constants.conConnURL;
+
+        if (confParams != null) {
+            if (confParams.getString(Constants.cfgUnprivUser) != null) {
+                userName = confParams.getString(Constants.cfgUnprivUser);
+            }
+            if (confParams.getString(Constants.cfgUnprivPass) != null) {
+                userPass = confParams.getString(Constants.cfgUnprivPass);
+            }
+            if (confParams.getString(Constants.cfgFrameworkURL) != null) {
+                connUrl = confParams.getString(Constants.cfgFrameworkURL);
+            }
         }
-        if ((confParams.getProperty(cfgUnprivPass) == null)) {
-            confParams.setProperty(
-                    cfgUnprivPass,
-                    "alitheia");
-            flush = true;
-        }
-        if ((confParams.getProperty(cfgFrameworkURL) == null)) {
-            confParams.setProperty(
-                    cfgFrameworkURL,
-                    "http://localhost:8088/sqooss/services/ws");
-            flush = true;
-        }
-        // Write the configuration state change into the configuration file
-        if (flush) confParams.flush();
+
+        // Instantiate an object for connecting to SQO-OSS
+        connection = new TerrierConnection(connUrl, userName, userPass);
     }
 
     /**
@@ -348,7 +341,12 @@ public class Terrier {
         try {
             String user = connection.getUserName();
             if (user == null) {
-                user = confParams.getProperty(cfgUnprivUser);
+                if (confParams.getString(Constants.cfgUnprivUser) != null) {
+                    user = confParams.getString(Constants.cfgUnprivUser);
+                }
+                else {
+                    user = Constants.cfgUnprivUser;
+                }
             }
             return connection.getUserAccessor().getUserMessageOfTheDay(user);
         } catch (WSException e) {
@@ -359,7 +357,7 @@ public class Terrier {
     }
 
     /**
-     * Add a user to the system.
+     * Adds a (pending) user to the connected SQO-OSS system.
      */
     public boolean registerUser (
             String username,
@@ -377,12 +375,16 @@ public class Terrier {
         }
     }
 
-    /** Forwarding function to TerrierConnection.loginUser */
+    /**
+     * Forwarding function to TerrierConnection.loginUser
+     */
     public boolean loginUser(String user, String pass) {
         return connection.loginUser(user,pass);
     }
 
-    /** Forwarding function to TerrierConnection.logoutUser */
+    /**
+     * Forwarding function to TerrierConnection.logoutUser
+     */
     public void logoutUser(String user) {
         connection.logoutUser(user);
     }

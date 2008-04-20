@@ -1,5 +1,20 @@
+<%@ page import="java.util.*" %>
 <%@ page import="eu.sqooss.webui.*" %>
 <%@ page session="true" %>
+<%!
+ResourceBundle configProperties = null;
+String initError = null;
+
+public void jspInit() {
+    try {
+        configProperties = ResourceBundle.getBundle("/config");
+    }
+    catch (MissingResourceException ex) {
+        configProperties = null;
+        initError = ex.toString();
+    }
+}
+%>
 <%
 /*
     This file instaniates shared objects and defines shared variables
@@ -9,6 +24,7 @@
 
 String title    = "Alitheia";
 String msg      = "";
+
 %>
 
 <jsp:useBean id="ProjectsListView"
@@ -18,7 +34,12 @@ String msg      = "";
 
 <jsp:useBean id="terrier"
     class="eu.sqooss.webui.Terrier"
-    scope="session"/>
+    scope="session">
+    <%
+        // Initialise the Terrier's configuration properties
+        terrier.initConfig(configProperties);
+    %>
+</jsp:useBean>
 <jsp:setProperty name="terrier" property="*"/>
 
 <jsp:useBean
