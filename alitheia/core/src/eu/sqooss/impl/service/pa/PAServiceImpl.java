@@ -90,8 +90,6 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
         
         core.getDBService();
         
-      //  collectPluginInfo();
-        
         logger.info("PluginAdmin service starting.");
         
         // Attach this object as a listener for metric services

@@ -57,10 +57,10 @@ public class PACommandProvider implements CommandProvider {
         help.append("---SQO-OSS Plug-ins Administration Commands---\n\r");
         help.append("\t install_plugin <id> - " +
                 "calls the install method of plugin with this service ID\n\r");
-        help.append("\t im <id> - shortcut for \"install_plugin\"\n\r");
-        help.append("\t list_metrics - " +
-        		"list all registered metric services\n\r");
-        help.append("\t lm - shortcut for \"list_metrics\"\n\r");
+        help.append("\t ip <id> - shortcut for \"install_plugin\"\n\r");
+        help.append("\t list_plugins - " +
+        		"list all registered plugins services\n\r");
+        help.append("\t lp - shortcut for \"list_metrics\"\n\r");
         help.append("\t remove_plugin <id> - "
                         + "removes the plugin with this service ID\n\r");
         help.append("\t rm <id> - shortcut for \"remove_plugin\"\n\r");
@@ -80,7 +80,7 @@ public class PACommandProvider implements CommandProvider {
     public void _rp (CommandInterpreter ci) {
         _remove_plugin(ci);
     }
-
+    
     /* ===[ Command methods ]============================================= */
 
     public void _install_plugin (CommandInterpreter ci) {
