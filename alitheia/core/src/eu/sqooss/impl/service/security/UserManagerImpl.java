@@ -32,6 +32,8 @@
 
 package eu.sqooss.impl.service.security;
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -42,6 +44,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Timer;
 import java.util.Vector;
+
+import org.apache.velocity.Template;
+import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.VelocityEngine;
+import org.apache.velocity.runtime.RuntimeConstants;
 
 import eu.sqooss.impl.service.security.utils.UserManagerDatabase;
 import eu.sqooss.service.db.DBService;
@@ -82,6 +89,8 @@ public class UserManagerImpl implements UserManager {
     private Logger logger;
     private MessageDigest messageDigest;
     private Timer pendingTimer;
+    private Template velocityTemplate;
+    private VelocityContext velocityContext;
     
     public UserManagerImpl(DBService db, MessagingService messaging, Logger logger,
             PrivilegeManager privilegeManager, GroupManager groupManager,
@@ -100,6 +109,8 @@ public class UserManagerImpl implements UserManager {
         } catch (NoSuchAlgorithmException e) {
         	messageDigest = null;
         }
+        
+        initVelocityTemplate();
     }
 
     /**
@@ -202,8 +213,8 @@ public class UserManagerImpl implements UserManager {
             return false;
         }
         
-        updateTimer(newPendingUser);
-        sendMail(newPendingUser);
+        Date expirationDate = updateTimer(newPendingUser);
+        sendMail(newPendingUser, expirationDate, password);
         
         return true;
     }
@@ -346,15 +357,56 @@ public class UserManagerImpl implements UserManager {
                     SecurityConstants.Privilege.USER_ID);
         }
     }
+
+    private void initVelocityTemplate() {
+        velocityContext = new VelocityContext();
+        VelocityEngine velocityEngine = new VelocityEngine();
+        velocityEngine.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS,
+                                   "org.apache.velocity.runtime.log.SimpleLog4JLogSystem");
+        velocityEngine.setProperty("runtime.log.logsystem.log4j.category", 
+                                   Logger.NAME_SQOOSS_SECURITY);
+        velocityEngine.setProperty(RuntimeConstants.RESOURCE_LOADER,"bundle");
+        velocityEngine.setProperty("bundle.resource.loader.description",
+                                   "Loader from the bundle.");
+        velocityEngine.setProperty("bundle.resource.loader.class",
+                                   "org.apache.velocity.runtime.resource.loader.JarResourceLoader");
+        velocityEngine.setProperty("bundle.resource.loader.path",
+                                   "jar:file:eu.sqooss.alitheia.core-0.0.1.jar");
+        try {
+            velocityTemplate = velocityEngine.getTemplate(
+                    "/security/UserConfirmation.vtl");
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+        }
+    }
     
-    private void sendMail(PendingUser pendingUser) {
-        String body = getHashUrl(pendingUser.getHash());
-        String title = "User registration confirmation!";
+    private void sendMail(PendingUser pendingUser,
+            Date expirationDate, String password) {
+        StringWriter bodyWriter = new StringWriter();
+        String url = getHashUrl(pendingUser.getHash());
+        if (velocityTemplate != null) {
+            velocityContext.put("URL", url);
+            velocityContext.put("EXPIRATION_TIME", expirationDate.toString());
+            velocityContext.put("USER_NAME", pendingUser.getName());
+            velocityContext.put("PASSWORD", password);
+            velocityContext.put("E_MAIL", pendingUser.getEmail());
+            velocityContext.put("CREATED_TIME", pendingUser.getCreated().toString());
+            try {
+                velocityTemplate.merge(velocityContext, bodyWriter);
+            } catch (IOException ioe) {
+                logger.error(ioe.getMessage());
+                bodyWriter.write(url);
+            }
+        } else {
+            bodyWriter.write(url);
+        }
+        String title = "SQO-OSS - Confirm your user registration!";
         String protocol = null; // use default (SMTP)
         Vector<String> recipients = new Vector<String>(1);
         recipients.add(pendingUser.getEmail());
         
-        Message newMessage = Message.getInstance(body, recipients, title, protocol);
+        Message newMessage = Message.getInstance(bodyWriter.toString(),
+                recipients, title, protocol);
         messaging.sendMessage(newMessage);
     }
     
@@ -379,12 +431,13 @@ public class UserManagerImpl implements UserManager {
     /**
      * This method updates the timer and returns the expiration date.
      */
-    private void updateTimer(PendingUser pendingUser) {
+    private Date updateTimer(PendingUser pendingUser) {
         if (pendingTimer == null) {
             pendingTimer = new Timer("Security timer");
         }
         Date expirationDate = new Date(pendingUser.getCreated().getTime() + EXPIRATION_PERIOD);
         pendingTimer.schedule(new PendingUserCleaner(dbWrapper, EXPIRATION_PERIOD), expirationDate);
+        return expirationDate;
     }
     
     private static User[] convertUsers(Collection<?> users) {
