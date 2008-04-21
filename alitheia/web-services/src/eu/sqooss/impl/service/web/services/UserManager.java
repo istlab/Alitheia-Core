@@ -125,14 +125,6 @@ public class UserManager extends AbstractManager {
     }
     
     /**
-     * @see eu.sqooss.service.web.services.WebServices#validateAccount(String, String)
-     */
-    public boolean validateAccount(String userName, String password) {
-        //TODO:
-        return true;
-    }
-
-    /**
      * @see eu.sqooss.service.web.services.WebServices#getUserByName(String, String, String)
      */
     public WSUser getUserByName(String userNameForAccess,

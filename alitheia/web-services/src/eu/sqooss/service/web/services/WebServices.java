@@ -190,73 +190,6 @@ public class WebServices {
     }
     //5.1.3
     
-//    //5.1.4
-//    public WSPair[] requestPastEvolEstimProjects(String userName, String password) {
-//        return null;
-//    }
-//    
-//    public String[] requestProjectEvolutionEstimates(String userName, String password,
-//            String projectId, String startDate, String endDate) {
-//        return null;
-//    }
-//    
-//    public String[] requestProjectEvolutionEstimatesDuration(String userName, String password,
-//            String projectId, String duration) {
-//        return null;
-//    }
-//    
-//    public String[] requestEvolEstimates4Project(String userName, String password,
-//            String projectName, String projectVersion, String srcRepositoryLocation,
-//            String srcRepositoryType, String mailingListLocation, String BTSLocation) {
-//        return null;
-//    }
-//    //5.1.4
-//    
-//    //5.1.5
-//    public WSPair[] requestProjectsWithBTS(String userName, String password) {
-//        return null;
-//    }
-//    
-//    public String[] requestDefectStatistics(String userName, String password,
-//            String prokectId, String searchQuery, String statisticalScheme) {
-//        return null;
-//    }
-//    //5.1.5
-//    
-//    //5.1.6
-//    public WSPair[] retrieveDevelopers4SelectedProject(String userName, String password,
-//            String projectId) {
-//        return null;
-//    }
-//    
-//    public WSPair[] retrieveCriteria4SelectedDeveloper(String userName, String password,
-//            String projectId, String developerId) {
-//        return null;
-//    }
-//    
-//    public String displayDeveloperInfoTimeDiagram(String userName, String password,
-//            String projectId, String developerId, String criterioId,
-//            String tdStart, String tdEnd) {
-//        return null;
-//    }
-//    
-//    public String displayDeveloperInfo(String userName, String password,
-//            String projectId, String developerId, String criterioId, String display) {
-//        return null;
-//    }
-//    //5.1.6
-//    
-//    //5.1.9
-//    public String subscriptionsStatus(String userName, String password) {
-//        return null;
-//    }
-//    
-//    public void modifySubscriptions(String userName, String password,
-//            String newProjectNotification, String newMetricPlugin,
-//            String projectEvalFinished, String newProjectVersion,
-//            String newQualityRatings, String statistics) {
-//    }
-//    //5.1.9
     
     //5.1.10
     /**
@@ -355,18 +288,6 @@ public class WebServices {
         return projectManager.getFilesNumber4ProjectVersion(userName, password, projectVersionId);
     }
     //retrieve methods
-    
-    //validation
-    /**
-     * This method checks the user's name and the given password.
-     * @param userName
-     * @param password
-     * @return
-     */
-    public boolean validateAccount(String userName, String password) {
-        return userManager.validateAccount(userName, password);
-    }
-    //validation
     
     //metric results
     public WSMetricMeasurement[] getProjectFileMetricMeasurement(String userName, String password,
