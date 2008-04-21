@@ -138,6 +138,7 @@ public abstract class DAObject {
         metric.id = (int)m.getId();
         metric.metricPlugin = toCorbaObject(m.getPlugin());
         metric.type = toCorbaObject(m.getMetricType());
+        metric.mnemonic = m.getMnemonic();
         metric.description = m.getDescription();
         return metric;
     }
@@ -147,6 +148,7 @@ public abstract class DAObject {
         metric.setId(m.id);
         metric.setPlugin(fromCorbaObject(m.metricPlugin));
         metric.setMetricType(fromCorbaObject(m.type));
+        metric.setMnemonic(m.mnemonic);
         metric.setDescription(m.description);
         return metric;
     }

@@ -165,6 +165,7 @@ namespace Alitheia
 
         Plugin plugin;
         MetricType metricType;
+        std::string mnemonic;
         std::string description;
     };
 

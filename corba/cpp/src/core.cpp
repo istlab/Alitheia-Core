@@ -151,10 +151,12 @@ std::string Core::getFileContents( const ProjectFile& file )
     return std::string( content, length );
 }
 
-bool Core::addSupportedMetrics( AbstractMetric* metric, const std::string& description, MetricType::Type type ) const
+bool Core::addSupportedMetrics( AbstractMetric* metric, const std::string& description, 
+                                const std::string& mnemonic, MetricType::Type type ) const
 {
     return d->core->addSupportedMetrics( CORBA::string_dup( metric->orbName().c_str() ), 
                                          CORBA::string_dup( description.c_str() ),
+                                         CORBA::string_dup( mnemonic.c_str() ),
                                          static_cast< alitheia::MetricTypeType >( type ) );
 }
 

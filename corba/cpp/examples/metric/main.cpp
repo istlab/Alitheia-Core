@@ -16,7 +16,7 @@ class MyMetric : virtual public ProjectFileMetric
 public:
     bool install()
     {
-        return addSupportedMetrics( description(), MetricType::SourceCode );
+        return addSupportedMetrics( description(), "Test", MetricType::SourceCode );
     }
 
     string name() const

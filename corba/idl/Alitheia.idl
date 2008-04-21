@@ -94,6 +94,7 @@ module alitheia
     long id;
     Plugin metricPlugin;
     MetricType type;
+    string mnemonic;
     string description;
   };
 
@@ -138,7 +139,10 @@ module alitheia
     // returns the length of the file
     long getFileContents( in ProjectFile file, out string contents );
 
-    boolean addSupportedMetrics( in string metricname, in string description, in MetricTypeType type );
+    boolean addSupportedMetrics( in string metricname, 
+                                 in string description, 
+                                 in string mnemonic, 
+                                 in MetricTypeType type );
     MetricList getSupportedMetrics( in string metricname );
 
     ProjectFileList getVersionFiles( in ProjectVersion version );

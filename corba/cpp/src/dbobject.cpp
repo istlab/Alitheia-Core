@@ -261,6 +261,7 @@ Metric::Metric( const alitheia::Metric& metric )
     : DAObject( metric.id ),
       plugin( metric.metricPlugin ),
       metricType( metric.type ),
+      mnemonic( metric.mnemonic ),
       description( metric.description )
 {
 }
@@ -271,6 +272,7 @@ alitheia::Metric Metric::toCorba() const
     result.id = id;
     result.metricPlugin = plugin.toCorba();
     result.type = metricType.toCorba();
+    result.mnemonic = CORBA::string_dup( mnemonic.c_str() );
     result.description = CORBA::string_dup( description.c_str() );
     return result;
 }

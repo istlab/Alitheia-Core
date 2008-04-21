@@ -128,9 +128,9 @@ vector<Metric> AbstractMetric::getSupportedMetrics() const
     return Core::instance()->getSupportedMetrics( this );
 }
 
-bool AbstractMetric::addSupportedMetrics( const string& description, MetricType::Type type )
+bool AbstractMetric::addSupportedMetrics( const string& description, const string& mnemonic, MetricType::Type type )
 {
-    return Core::instance()->addSupportedMetrics( this, description, type );
+    return Core::instance()->addSupportedMetrics( this, description, mnemonic, type );
 }
 
 char* ProjectVersionMetric::getResult( const alitheia::ProjectVersion& projectVersion )

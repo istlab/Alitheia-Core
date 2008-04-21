@@ -55,7 +55,7 @@ namespace Alitheia
         std::vector<Metric> getSupportedMetrics() const;
 
     protected:
-        bool addSupportedMetrics( const std::string& description, MetricType::Type type );
+        bool addSupportedMetrics( const std::string& description, const std::string& mnemonic, MetricType::Type type );
 
     private:
         class Private;

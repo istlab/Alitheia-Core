@@ -47,7 +47,7 @@ ProjectFileWrapperMetric::ProjectFileWrapperMetric( const string& program, const
 bool ProjectFileWrapperMetric::install()
 {
     logger << name() << ": installing" << endl;
-    return addSupportedMetrics( description(), MetricType::SourceCode );
+    return addSupportedMetrics( description(), "", MetricType::SourceCode );
 }
 
 string ProjectFileWrapperMetric::name() const
@@ -92,7 +92,7 @@ ProjectVersionWrapperMetric::ProjectVersionWrapperMetric( const string& program,
 bool ProjectVersionWrapperMetric::install()
 {
     logger << name() << ": installing" << endl;
-    return addSupportedMetrics( description(), MetricType::SourceCode );
+    return addSupportedMetrics( description(), "", MetricType::SourceCode );
 }
 
 string ProjectVersionWrapperMetric::name() const

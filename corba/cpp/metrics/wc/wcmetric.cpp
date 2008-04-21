@@ -20,7 +20,7 @@ WcMetric::WcMetric()
 bool WcMetric::install()
 {
     logger << name() << ": installing" << endl;
-    return addSupportedMetrics( description(), MetricType::SourceCode );
+    return addSupportedMetrics( description(), "LOC", MetricType::SourceCode );
 }
 
 string WcMetric::name() const

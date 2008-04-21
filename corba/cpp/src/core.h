@@ -92,7 +92,8 @@ namespace Alitheia
         
         std::string getFileContents( const ProjectFile& file );
 
-        bool addSupportedMetrics( AbstractMetric* metric, const std::string& description, MetricType::Type type ) const;
+        bool addSupportedMetrics( AbstractMetric* metric, const std::string& description, 
+                                  const std::string& mnemonic, MetricType::Type type ) const;
         std::vector< Metric > getSupportedMetrics( const AbstractMetric* metric ) const;
         std::vector< ProjectFile > getVersionFiles( const ProjectVersion& version ) const;
 
