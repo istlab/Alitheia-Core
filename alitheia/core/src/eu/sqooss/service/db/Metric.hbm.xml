@@ -11,6 +11,6 @@
     <many-to-one name="plugin" column="PLUGIN_ID" not-null="true"/>
     <many-to-one name="metricType" column="METRIC_TYPE" />
     <property name="description" column="DESCRIPTION" not-null="true" />
-    <property name="mnemonic" column="MNEMONIC" not-null="true" length="10" />
+    <property name="mnemonic" column="MNEMONIC" not-null="true" length="10" unique="true" />
   </class>
 </hibernate-mapping>

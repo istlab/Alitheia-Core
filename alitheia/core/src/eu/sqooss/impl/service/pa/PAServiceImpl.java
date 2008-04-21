@@ -48,6 +48,7 @@ import org.osgi.framework.ServiceReference;
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.db.DAObject;
+import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.pa.PluginAdmin;
@@ -373,6 +374,24 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
         registeredPlugins.put(plugInfo.getHashcode(), plugInfo);
 
         logger.info("Plugin (" + plugInfo.getPluginName() + ") updated");
+    }
+
+    public AlitheiaPlugin getImplementingPlugin(String mnemonic) {
+        Iterator<String> i = registeredPlugins.keySet().iterator();
+        
+        while (i.hasNext()) {
+            PluginInfo pi = registeredPlugins.get(i.next());
+            ServiceReference sr = pi.getServiceRef();
+            Plugin p = pluginRefToPluginDAO(sr);
+            List<Metric> lm = Plugin.getSupportedMetrics(p);
+            for (Metric m : lm){
+                if (m.getMnemonic() == mnemonic) {
+                    return getPlugin(pi);
+                }
+            }
+        }
+        
+        return null;
     }
 }
 

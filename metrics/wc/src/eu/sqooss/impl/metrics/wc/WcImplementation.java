@@ -63,7 +63,7 @@ public class WcImplementation extends AbstractMetric implements Wc {
         boolean result = super.install();
         if (result) {
             result &= super.addSupportedMetrics(
-                    this.getDescription(),
+                    "Lines of Code",
                     "LOC",
                     MetricType.Type.SOURCE_CODE);
         }

@@ -71,14 +71,23 @@ public interface PluginAdmin {
     public AlitheiaPlugin getPlugin(PluginInfo m);
 
     /**
-     * Get the list of metrics that have (sub-)interfaces for the given
-     * DAO object's type. 
+     * Get the list of metrics whose activation types match the provided
+     * class
      *
      * @param o Object that implies the type of interface that is wanted.
      * @return Collection of services references. May be null
      *          if no such interfaces exist.
      */
     public <T extends DAObject> List<PluginInfo> listPluginProviders(Class<T> o);
+    
+    /**
+     * Get a reference to the plug-in interface that implements the metric 
+     * whose name matches the provided mnemonic name. 
+     *  
+     * @param mnemonic 
+     * @return A reference to the implementing plugin interface
+     */
+    public AlitheiaPlugin getImplementingPlugin(String mnemonic);
     
     /**
      * Calls the install() method of the metric object provided from a metric
