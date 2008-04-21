@@ -182,7 +182,9 @@ public class WebAdminRenderer {
             StringBuilder b = new StringBuilder();
             b.append("<ul>");
             for (PluginConfiguration c : l) {
-                b.append("<li>Attribute: " + c.getName() + " Type: " + c.getType() + "</li>");
+                b.append("<li>Attribute: " + c.getName() + 
+                        " Type: " + c.getType() +
+                        " Value: " + c.getValue() + "</li>");
             }
             b.append("</ul>");
             return b.toString();

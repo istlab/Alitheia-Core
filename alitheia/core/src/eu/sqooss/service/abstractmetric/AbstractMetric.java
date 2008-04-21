@@ -453,6 +453,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
             pc.setValue(defValue);
             pc.setMsg(msg);
             pc.setType(type.toString());
+            pc.setPlugin(p);
             db.addRecord(pc);
         }
         pa.pluginUpdated(this);

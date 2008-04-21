@@ -50,6 +50,7 @@ import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectFileMeasurement;
+import eu.sqooss.service.pa.PluginInfo;
 import eu.sqooss.service.scheduler.Scheduler;
 
 public class WcImplementation extends AbstractMetric implements Wc {
@@ -66,6 +67,10 @@ public class WcImplementation extends AbstractMetric implements Wc {
                     "Lines of Code",
                     "LOC",
                     MetricType.Type.SOURCE_CODE);
+            addConfigEntry("ignore-emptylines", 
+                    Boolean.FALSE.toString() , 
+                    "Ignore empty lines when counting", 
+                    PluginInfo.ConfigurationType.BOOLEAN);
         }
         return result;
     }
