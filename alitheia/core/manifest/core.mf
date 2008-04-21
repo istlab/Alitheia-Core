@@ -51,6 +51,7 @@ Export-Package: eu.sqooss.core,
     eu.sqooss.service.tds,
     eu.sqooss.service.updater,
     eu.sqooss.service.webadmin,
+    eu.sqooss.service.pa,
     eu.sqooss.service.util
 
 
