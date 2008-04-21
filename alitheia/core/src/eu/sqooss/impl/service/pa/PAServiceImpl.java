@@ -362,7 +362,13 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
     }
 
     public void pluginUpdated(AlitheiaPlugin p) {
-        ServiceReference srefPlugin = getPluginInfo(p).getServiceRef(); 
+        PluginInfo pi = getPluginInfo(p);
+        if (pi == null) {
+            logger.warn("Ignoring configuration update for not registered " +
+            		"plugin <" + p.getName() + ">");
+            return;
+        }
+        ServiceReference srefPlugin = pi.getServiceRef(); 
         Plugin pDao = pluginRefToPluginDAO(srefPlugin);
         
         PluginInfo plugInfo = getPluginInfo(srefPlugin, pDao);
