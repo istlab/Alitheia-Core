@@ -50,7 +50,7 @@ import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.webadmin.WebadminService;
 
 /* 
- * NOTES:
+ * IMPORTANT NOTES:
  * 
  * 1. The WebServices's implementation and the data types are specially in this form.
  * The Axis2's wsdl generator is the reason.
@@ -58,7 +58,8 @@ import eu.sqooss.service.webadmin.WebadminService;
  * 
  * 2. java2wsdl doesn't support methods overloading.
  * 
- * 3. The returned arrays must not be empty. You can return null.
+ * 3. The returned arrays must not be empty because the client can't parse them.
+ * The method can return null then the client receives the array with null element ([null]).
  */
 
 /**
