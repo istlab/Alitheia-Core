@@ -208,8 +208,11 @@ public class PluginInfo {
     
     public String toString() {
         StringBuilder b = new StringBuilder();
-        b.append(getPluginName());
-        b.append("-");
+        b.append((
+                (getPluginName().length() > 0)
+                ? getPluginName()
+                        : "[UNKNOWN]"));
+        b.append(" - ");
         b.append(getPluginVersion());
         b.append(" [");
         b.append(StringUtils.join((String[]) (serviceRef.getProperty(Constants.OBJECTCLASS)),","));

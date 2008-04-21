@@ -153,14 +153,18 @@ public class WebAdminRenderer {
 
     public static String renderMetrics() {
         Collection<PluginInfo> l = sobjPluginAdmin.listPlugins();
-        if (l == null) {
-            return "";
-        }
 
         StringBuilder b = new StringBuilder();
         b.append("<ul>");
         for(PluginInfo i : l) {
             b.append("<li>");
+            // TODO: Encapsulate in a HTML form
+            if (i.installed) {
+                b.append("INSTALLED&nbsp;");
+            }
+            else {
+                b.append("REGISTERED&nbsp;");
+            }
             b.append("<b>" + i.toString() + "</b>");
             b.append(renderMetricAttributes(i));
             b.append("</li>");
@@ -174,15 +178,22 @@ public class WebAdminRenderer {
      * given MetricInfor object
      */
     private static String renderMetricAttributes(PluginInfo i) {
+        // Retrieve the configuration set of this metric
         List<PluginConfiguration> l =  i.getConfiguration();
-        if (l.size() == 0) {
 
-            return "<ul><li>This metric has no configurable attibutes.</li></ul>";
-        } else {
+        // Skip metrics that are registered but not installed
+        if (i.installed) {
+            return "";
+        }
+        // Skip metrics that aren't configured or don't have configuration
+        else if ((l == null) || (l.isEmpty())) {
+            return "<ul><li>This metric plug-in has no configurable attibutes.</li></ul>";
+        }
+        else {
             StringBuilder b = new StringBuilder();
             b.append("<ul>");
             for (PluginConfiguration c : l) {
-                b.append("<li>Attribute: " + c.getName() + 
+                b.append("<li>Attribute: " + c.getName() +
                         " Type: " + c.getType() +
                         " Value: " + c.getValue() + "</li>");
             }
