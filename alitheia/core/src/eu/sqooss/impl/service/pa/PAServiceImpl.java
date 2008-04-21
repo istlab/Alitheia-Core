@@ -175,9 +175,9 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
      * @param srefPlugin the reference to the registered metric service
      */
     private void pluginRegistered (ServiceReference srefPlugin) {
-        //
+        // Try to get the DAO that belongs to this metric plug-in
         Plugin pDao = pluginRefToPluginDAO(srefPlugin);
-        // Service ID as String
+        // Store this metric service's ID as a string
         String srefId = srefPlugin.getProperty(
                 Constants.SERVICE_ID).toString();
 
@@ -186,7 +186,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
 
         // Check for a plug-in that were installed
         if (pluginInfo != null) {
-            // Remove the "not yet installed" info entry
+            // Remove the old "not yet installed" info entry (if any)
             if (registeredPlugins.containsKey(srefId))
                 registeredPlugins.remove(srefId);
             // Store in the registered plug-ins list
@@ -398,8 +398,13 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
     public void pluginUpdated(AlitheiaPlugin p) {
         PluginInfo pi = getPluginInfo(p);
         if (pi == null) {
-            logger.warn("Ignoring configuration update for not registered " +
-            		"plugin <" + p.getName() + ">");
+            logger.warn("Ignoring configuration update for not registered" +
+                    " plugin <" + p.getName() + ">");
+            return;
+        }
+        if (pi.installed == false) {
+            logger.warn("Ignoring configuration update for not installed" +
+                    " plugin <" + p.getName() + ">");
             return;
         }
         ServiceReference srefPlugin = pi.getServiceRef(); 
@@ -413,19 +418,22 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
 
     public AlitheiaPlugin getImplementingPlugin(String mnemonic) {
         Iterator<String> i = registeredPlugins.keySet().iterator();
-        
+
         while (i.hasNext()) {
             PluginInfo pi = registeredPlugins.get(i.next());
-            ServiceReference sr = pi.getServiceRef();
-            Plugin p = pluginRefToPluginDAO(sr);
-            List<Metric> lm = Plugin.getSupportedMetrics(p);
-            for (Metric m : lm){
-                if (m.getMnemonic() == mnemonic) {
-                    return getPlugin(pi);
+            // Skip metric plug-ins that are registered but not installed
+            if (pi.installed) {
+                ServiceReference sr = pi.getServiceRef();
+                Plugin p = pluginRefToPluginDAO(sr);
+                List<Metric> lm = Plugin.getSupportedMetrics(p);
+                for (Metric m : lm){
+                    if (m.getMnemonic() == mnemonic) {
+                        return getPlugin(pi);
+                    }
                 }
             }
         }
-        
+        // No plug-ins found
         return null;
     }
 }
