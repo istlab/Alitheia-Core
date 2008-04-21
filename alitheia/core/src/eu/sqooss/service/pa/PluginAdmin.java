@@ -51,7 +51,7 @@ public interface PluginAdmin {
      * Returns a collection containing information about all metrics services
      * currently registered in the framework.
      *
-     * @return the list of all metrics currently registered in the framework
+     * @return the list of all metrics services registered in the framework
      */
     public Collection<PluginInfo> listPlugins();
     

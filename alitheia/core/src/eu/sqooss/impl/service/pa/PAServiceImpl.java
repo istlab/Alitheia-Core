@@ -256,10 +256,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
 /* ===[ Implementation of the PluginAdmin interface ]===================== */
 
     public Collection<PluginInfo> listPlugins() {
-        if (!registeredPlugins.isEmpty()) {
-            return registeredPlugins.values();
-        }
-        return null;
+        return registeredPlugins.values();
     }
 
     public boolean installPlugin(Long sid) {
