@@ -155,21 +155,62 @@ public class WebAdminRenderer {
         Collection<PluginInfo> l = sobjPluginAdmin.listPlugins();
 
         StringBuilder b = new StringBuilder();
-        b.append("<ul>");
+        b.append("<form id=\"metrics\" method=\"post\" action=\"metrics\">\n");
+        b.append("<table style=\"border-collapse: collapse; width: 100%;\">\n");
+        b.append("<thead>\n");
+        b.append("<tr>\n");
+        b.append("<td style=\"padding-left: 10px; text-align: left; font-weight: bold; width: 80px;\">Status</td>\n");
+        b.append("<td style=\"padding-left: 10px; text-align: left; font-weight: bold;\">Description</td>\n");
+        b.append("</tr>\n");
+        b.append("</thead>\n");
+        b.append("<tbody>\n");
+        // Not-installed plug-ins first
         for(PluginInfo i : l) {
-            b.append("<li>");
-            // TODO: Encapsulate in a HTML form
-            if (i.installed) {
-                b.append("INSTALLED&nbsp;");
+            if (i.installed == false) {
+                b.append("<tr style=\"background-color: WhiteSmoke;\">");
+                
+                // Command bar
+                b.append("<td>");
+                b.append("<input style=\"width: 100%;\""
+                        + " type=\"button\""
+                        + " name=\"metric_install\""
+                        + " value=\"INSTALL\""
+                        + ">");
+                b.append("</td>\n");
+                
+                // Info bar
+                b.append("<td style=\"padding-left: 10px;\"><b>" + i.toString() + "</b></td>\n");
+                b.append("</tr>\n");
+                
+                // Configuration bar
+                b.append(renderMetricAttributes(i));
             }
-            else {
-                b.append("REGISTERED&nbsp;");
-            }
-            b.append("<b>" + i.toString() + "</b>");
-            b.append(renderMetricAttributes(i));
-            b.append("</li>");
         }
-        b.append("</ul>");
+        // Installed plug-ins
+        for(PluginInfo i : l) {
+            if (i.installed) {
+                b.append("<tr>");
+                
+                // Command bar
+                b.append("<td>");
+                b.append("<input style=\"width: 100%;\""
+                        + " type=\"button\""
+                        + " name=\"metric_uninstall\""
+                        + " value=\"UNINSTALL\""
+                        + ">");
+                b.append("</td>\n");
+                
+                // Info bar
+                b.append("<td style=\"padding-left: 10px;\"><b>" + i.toString() + "</b></td>\n");
+                b.append("</tr>\n");
+                
+                // Configuration bar
+                b.append(renderMetricAttributes(i));
+            }
+        }
+        b.append("</tbody>\n");
+        b.append("</table>\n");
+        b.append("</form>\n");
         return b.toString();
     }
 
@@ -182,22 +223,30 @@ public class WebAdminRenderer {
         List<PluginConfiguration> l =  i.getConfiguration();
 
         // Skip metrics that are registered but not installed
-        if (i.installed) {
+        if (i.installed == false) {
             return "";
         }
         // Skip metrics that aren't configured or don't have configuration
         else if ((l == null) || (l.isEmpty())) {
-            return "<ul><li>This metric plug-in has no configurable attibutes.</li></ul>";
+            return ("<tr>"
+                    + "<td>&nbsp;</td>\n"
+                    + "<td style=\"padding-left: 10px;\">This metric plug-in has no configurable attibutes.</td>\n"
+                    + "</tr>\n");
         }
         else {
             StringBuilder b = new StringBuilder();
-            b.append("<ul>");
+            
             for (PluginConfiguration c : l) {
-                b.append("<li>Attribute: " + c.getName() +
-                        " Type: " + c.getType() +
-                        " Value: " + c.getValue() + "</li>");
+                b.append("<tr>");
+                b.append("<td>&nbsp;</td>\n");
+                b.append("<td style=\"padding-left: 10px; background-color: Bisque;\">"
+                        + " Attribute: " + c.getName()
+                        + " Type: " + c.getType()
+                        + " Value: " + c.getValue()
+                        + "</td>\n");
+                b.append("</tr>\n");
             }
-            b.append("</ul>");
+            
             return b.toString();
         }
     }
