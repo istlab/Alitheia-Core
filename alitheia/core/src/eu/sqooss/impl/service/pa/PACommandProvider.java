@@ -147,6 +147,9 @@ public class PACommandProvider implements CommandProvider {
                     if(i.hasNext()) {
                         ci.println(i.next().getName());
                     }
+                    else {
+                        ci.println(" none available!");
+                    }
                     while (i.hasNext()) {
                         ci.println("\t\t\t " + i.next().getName());
                     }
