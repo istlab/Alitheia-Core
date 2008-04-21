@@ -33,12 +33,15 @@ package eu.sqooss.impl.service.pa;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 import org.eclipse.osgi.framework.console.CommandInterpreter;
 import org.eclipse.osgi.framework.console.CommandProvider;
 import org.osgi.framework.Constants;
 
 import eu.sqooss.service.db.DAObject;
+import eu.sqooss.service.db.Metric;
+import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.pa.PluginAdmin;
 import eu.sqooss.service.pa.PluginInfo;
 
@@ -165,8 +168,15 @@ public class PACommandProvider implements CommandProvider {
             ci.println("  Plugin name\t\t: " + nextMetric.getPluginName());
             ci.println("  Plugin version\t: " + nextMetric.getPluginVersion());
             
-            ci.println("  Supported Metrics\t: ");
-            
+            if(nextMetric.installed) {
+                ci.print("  Supported Metrics\t: ");
+                List<Metric> lm = Plugin.getSupportedMetrics(
+                        Plugin.getPluginByHashcode(nextMetric.getHashcode()));
+                for (Metric m : lm) 
+                    ci.print(m.getMnemonic() + " ");
+
+                ci.print("\n");
+            }                        
         }
     }
     

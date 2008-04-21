@@ -153,7 +153,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
      * @param srefPlugin
      * @return A Plugin DAO object if entry in the database, or null
      */
-    private Plugin pluginRefToPluginDAO(ServiceReference srefPlugin) {
+    Plugin pluginRefToPluginDAO(ServiceReference srefPlugin) {
         AlitheiaPlugin plugin = (AlitheiaPlugin) bc.getService(srefPlugin);
 
         if (plugin == null) {
