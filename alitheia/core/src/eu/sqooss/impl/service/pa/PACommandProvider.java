@@ -53,17 +53,18 @@ public class PACommandProvider implements CommandProvider {
 
     public String getHelp() {
         StringBuffer help = new StringBuffer();
-        
+
         help.append("---SQO-OSS Plug-ins Administration Commands---\n\r");
-        help.append("\t install_plugin <id> - " +
-                "calls the install method of plugin with this service ID\n\r");
+        help.append("\t install_plugin <id> -" +
+                " calls the install method of the metric plugin" +
+                " with this service ID\n\r");
         help.append("\t ip <id> - shortcut for \"install_plugin\"\n\r");
-        help.append("\t list_plugins - " +
-        		"list all registered plugins services\n\r");
+        help.append("\t list_plugins -" +
+                " list all registered metric plugin services\n\r");
         help.append("\t lp - shortcut for \"list_metrics\"\n\r");
-        help.append("\t remove_plugin <id> - "
-                        + "removes the plugin with this service ID\n\r");
-        help.append("\t rm <id> - shortcut for \"remove_plugin\"\n\r");
+        help.append("\t remove_plugin <id> -" +
+                " removes the metric plugin with this service ID\n\r");
+        help.append("\t rp <id> - shortcut for \"remove_plugin\"\n\r");
         return help.toString();
     }
 
@@ -138,15 +139,22 @@ public class PACommandProvider implements CommandProvider {
                     + "] "
                     + nextMetric.getServiceRef().getBundle().getSymbolicName());
 
-            Iterator<Class<? extends DAObject>> i = nextMetric.getActivationTypes().iterator();
-            ci.print("  Activation type(s)\t: ");
-            if(i.hasNext()) {
-                ci.println(i.next().getName());
+            if (nextMetric.installed) {
+                ci.print("  Activation type(s)\t: ");
+                if (nextMetric.getActivationTypes() != null) {
+                    Iterator<Class<? extends DAObject>> i =
+                        nextMetric.getActivationTypes().iterator();
+                    if(i.hasNext()) {
+                        ci.println(i.next().getName());
+                    }
+                    while (i.hasNext()) {
+                        ci.println("\t\t\t " + i.next().getName());
+                    }
+                }
+                else {
+                    ci.println(" invalid value!");
+                }
             }
-            while (i.hasNext()) {
-                ci.println("\t\t\t " + i.next().getName());
-            }
-
 
             ci.println("  Installed? \t\t: "
                     + (nextMetric.installed ? "yes" : "no"));

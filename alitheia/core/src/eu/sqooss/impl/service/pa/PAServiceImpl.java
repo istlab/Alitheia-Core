@@ -170,21 +170,43 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
     
     /**
      * Performs various maintenance operations upon registration of a new 
-     * plugin service
+     * metric plug-in service
      * 
      * @param srefPlugin the reference to the registered metric service
      */
     private void pluginRegistered (ServiceReference srefPlugin) {
-        
-        Plugin pDao = pluginRefToPluginDAO(srefPlugin); 
-      
-        /* Retrieve information about this plugin and add this plugin to the
-         * list of registered/available plugins 
-         */
-        PluginInfo plugInfo = getPluginInfo(srefPlugin, pDao);
-        registeredPlugins.put(plugInfo.getHashcode(), plugInfo);
+        //
+        Plugin pDao = pluginRefToPluginDAO(srefPlugin);
+        // Service ID as String
+        String srefId = srefPlugin.getProperty(
+                Constants.SERVICE_ID).toString();
 
-        logger.info("Plugin (" + plugInfo.getPluginName() + ") registered");
+        // Retrieve information about this metric plug-in
+        PluginInfo pluginInfo = getPluginInfo(srefPlugin, pDao);
+
+        // Check for a plug-in that were installed
+        if (pluginInfo != null) {
+            // Remove the "not yet installed" info entry
+            if (registeredPlugins.containsKey(srefId))
+                registeredPlugins.remove(srefId);
+            // Store in the registered plug-ins list
+            registeredPlugins.put(pluginInfo.getHashcode(), pluginInfo);
+            logger.info("Plugin (" + pluginInfo.getPluginName() + ") registered");
+        }
+        // This plug-in is not yet installed
+        else {
+            AlitheiaPlugin sobjPlugin =
+                (AlitheiaPlugin) bc.getService(srefPlugin);
+            // Create a plug-in info object
+            pluginInfo = new PluginInfo(null);
+            pluginInfo.setPluginName(sobjPlugin.getName());
+            pluginInfo.setPluginVersion(sobjPlugin.getVersion());
+            pluginInfo.setServiceRef(srefPlugin);
+            // Mark as not installed
+            pluginInfo.installed = false;
+            // Store in the registered plug-ins list
+            registeredPlugins.put(srefId, pluginInfo);
+        }
     }
 
     /**
@@ -196,17 +218,27 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
      */
     private void pluginUnregistering (ServiceReference srefPlugin) {
         PluginInfo pi = getPluginInfo(srefPlugin);
+        // Service ID as String
+        String srefId = srefPlugin.getProperty(
+                Constants.SERVICE_ID).toString();
 
         if (pi == null) {
             logger.warn("Plugin info not found, plug-in already " +
-            		"unregistered?");
+                    "unregistered?");
             return;
         }
-        
-        logger.info("Plugin service \""+ pi.getPluginName() 
+
+        logger.info("Plugin service \"" + pi.getPluginName() 
                 + "\" is unregistering.");
 
-        registeredPlugins.remove(pi.getHashcode());
+        // Check for metric plug-ins that were registered but not installed
+        if (registeredPlugins.containsKey(srefId)) {
+            registeredPlugins.remove(srefId);
+        }
+        // Check for metric plug-ins that were registered and installed
+        else {
+            registeredPlugins.remove(pi.getHashcode());
+        }
     }
 
     /**
@@ -259,8 +291,9 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
     }
 
     public boolean installPlugin(Long sid) {
-        // Format a search filter for the plugin service with <sid> serviceId
+        // Flag for a successful installation
         boolean installed = false;
+        // Format a search filter for the plugin service with <sid> serviceId
         String serviceFilter =
             "(" + Constants.SERVICE_ID +"=" + sid + ")";
         logger.info (
@@ -270,7 +303,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
             "The installation of plugin with"
             + " service ID "+ sid
             + " failed : ";
-        
+
         ServiceReference[] matchingServices = null;
 
         try {
@@ -296,7 +329,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
                 return installed;
             }
 
-            /* Execute the install() method for the plugin */
+            /* Execute the install() method of this metric plug-in */
             installed = sobj.install();
 
             /* If installation is successful, then report this 
@@ -327,7 +360,9 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
 
         while (plugins.hasNext()) {
             PluginInfo pi = plugins.next();
-            if ((pi.isActivationType(o)) && (pi.getServiceRef() != null)) {
+            if ((pi.installed)
+                    && (pi.isActivationType(o))
+                    && (pi.getServiceRef() != null)) {
                 matching.add(pi);
             }
         }
