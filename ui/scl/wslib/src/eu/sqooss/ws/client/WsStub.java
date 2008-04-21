@@ -36,12 +36,12 @@
     
 
 
-        _operations = new org.apache.axis2.description.AxisOperation[23];
+        _operations = new org.apache.axis2.description.AxisOperation[22];
         
                    __operation = new org.apache.axis2.description.OutInAxisOperation();
                 
 
-            __operation.setName(new javax.xml.namespace.QName("", "submitUser"));
+            __operation.setName(new javax.xml.namespace.QName("", "getFilesNumber4ProjectVersion"));
 	    _service.addOperation(__operation);
 	    
 	    
@@ -52,7 +52,7 @@
                    __operation = new org.apache.axis2.description.OutInAxisOperation();
                 
 
-            __operation.setName(new javax.xml.namespace.QName("", "getUserMessageOfTheDay"));
+            __operation.setName(new javax.xml.namespace.QName("", "evaluatedProjectsList"));
 	    _service.addOperation(__operation);
 	    
 	    
@@ -63,7 +63,7 @@
                    __operation = new org.apache.axis2.description.OutInAxisOperation();
                 
 
-            __operation.setName(new javax.xml.namespace.QName("", "retrieveStoredProjectVersions"));
+            __operation.setName(new javax.xml.namespace.QName("", "getProjectFileMetricMeasurement"));
 	    _service.addOperation(__operation);
 	    
 	    
@@ -74,7 +74,7 @@
                    __operation = new org.apache.axis2.description.OutInAxisOperation();
                 
 
-            __operation.setName(new javax.xml.namespace.QName("", "getProjectFileMetricMeasurement"));
+            __operation.setName(new javax.xml.namespace.QName("", "submitUser"));
 	    _service.addOperation(__operation);
 	    
 	    
@@ -85,7 +85,7 @@
                    __operation = new org.apache.axis2.description.OutInAxisOperation();
                 
 
-            __operation.setName(new javax.xml.namespace.QName("", "getFileList4ProjectVersion"));
+            __operation.setName(new javax.xml.namespace.QName("", "submitPendingUser"));
 	    _service.addOperation(__operation);
 	    
 	    
@@ -107,7 +107,7 @@
                    __operation = new org.apache.axis2.description.OutInAxisOperation();
                 
 
-            __operation.setName(new javax.xml.namespace.QName("", "evaluatedProjectsList"));
+            __operation.setName(new javax.xml.namespace.QName("", "deleteUser"));
 	    _service.addOperation(__operation);
 	    
 	    
@@ -118,7 +118,7 @@
                    __operation = new org.apache.axis2.description.OutInAxisOperation();
                 
 
-            __operation.setName(new javax.xml.namespace.QName("", "storedProjectsList"));
+            __operation.setName(new javax.xml.namespace.QName("", "getUserByName"));
 	    _service.addOperation(__operation);
 	    
 	    
@@ -129,7 +129,7 @@
                    __operation = new org.apache.axis2.description.OutInAxisOperation();
                 
 
-            __operation.setName(new javax.xml.namespace.QName("", "retrieveStoredProject"));
+            __operation.setName(new javax.xml.namespace.QName("", "retrieveSelectedMetric"));
 	    _service.addOperation(__operation);
 	    
 	    
@@ -140,7 +140,7 @@
                    __operation = new org.apache.axis2.description.OutInAxisOperation();
                 
 
-            __operation.setName(new javax.xml.namespace.QName("", "displayUser"));
+            __operation.setName(new javax.xml.namespace.QName("", "retrieveMetrics4SelectedFiles"));
 	    _service.addOperation(__operation);
 	    
 	    
@@ -151,7 +151,7 @@
                    __operation = new org.apache.axis2.description.OutInAxisOperation();
                 
 
-            __operation.setName(new javax.xml.namespace.QName("", "retrieveMetrics4SelectedFiles"));
+            __operation.setName(new javax.xml.namespace.QName("", "storedProjectsList"));
 	    _service.addOperation(__operation);
 	    
 	    
@@ -162,7 +162,7 @@
                    __operation = new org.apache.axis2.description.OutInAxisOperation();
                 
 
-            __operation.setName(new javax.xml.namespace.QName("", "requestEvaluation4Project"));
+            __operation.setName(new javax.xml.namespace.QName("", "displayUser"));
 	    _service.addOperation(__operation);
 	    
 	    
@@ -173,7 +173,7 @@
                    __operation = new org.apache.axis2.description.OutInAxisOperation();
                 
 
-            __operation.setName(new javax.xml.namespace.QName("", "getUserByName"));
+            __operation.setName(new javax.xml.namespace.QName("", "retrieveMetrics4SelectedProject"));
 	    _service.addOperation(__operation);
 	    
 	    
@@ -184,7 +184,7 @@
                    __operation = new org.apache.axis2.description.OutInAxisOperation();
                 
 
-            __operation.setName(new javax.xml.namespace.QName("", "retrieveProjectId"));
+            __operation.setName(new javax.xml.namespace.QName("", "retrieveStoredProjectVersions"));
 	    _service.addOperation(__operation);
 	    
 	    
@@ -195,7 +195,7 @@
                    __operation = new org.apache.axis2.description.OutInAxisOperation();
                 
 
-            __operation.setName(new javax.xml.namespace.QName("", "validateAccount"));
+            __operation.setName(new javax.xml.namespace.QName("", "modifyUser"));
 	    _service.addOperation(__operation);
 	    
 	    
@@ -206,7 +206,7 @@
                    __operation = new org.apache.axis2.description.OutInAxisOperation();
                 
 
-            __operation.setName(new javax.xml.namespace.QName("", "modifyUser"));
+            __operation.setName(new javax.xml.namespace.QName("", "requestEvaluation4Project"));
 	    _service.addOperation(__operation);
 	    
 	    
@@ -217,7 +217,7 @@
                    __operation = new org.apache.axis2.description.OutInAxisOperation();
                 
 
-            __operation.setName(new javax.xml.namespace.QName("", "retrieveMetrics4SelectedProject"));
+            __operation.setName(new javax.xml.namespace.QName("", "getFileList4ProjectVersion"));
 	    _service.addOperation(__operation);
 	    
 	    
@@ -228,7 +228,7 @@
                    __operation = new org.apache.axis2.description.OutInAxisOperation();
                 
 
-            __operation.setName(new javax.xml.namespace.QName("", "retrieveFileList"));
+            __operation.setName(new javax.xml.namespace.QName("", "retrieveStoredProject"));
 	    _service.addOperation(__operation);
 	    
 	    
@@ -239,7 +239,7 @@
                    __operation = new org.apache.axis2.description.OutInAxisOperation();
                 
 
-            __operation.setName(new javax.xml.namespace.QName("", "submitPendingUser"));
+            __operation.setName(new javax.xml.namespace.QName("", "retrieveProjectId"));
 	    _service.addOperation(__operation);
 	    
 	    
@@ -250,7 +250,7 @@
                    __operation = new org.apache.axis2.description.OutInAxisOperation();
                 
 
-            __operation.setName(new javax.xml.namespace.QName("", "deleteUser"));
+            __operation.setName(new javax.xml.namespace.QName("", "retrieveFileList"));
 	    _service.addOperation(__operation);
 	    
 	    
@@ -272,23 +272,12 @@
                    __operation = new org.apache.axis2.description.OutInAxisOperation();
                 
 
-            __operation.setName(new javax.xml.namespace.QName("", "retrieveSelectedMetric"));
+            __operation.setName(new javax.xml.namespace.QName("", "getUserMessageOfTheDay"));
 	    _service.addOperation(__operation);
 	    
 	    
 	    
             _operations[21]=__operation;
-            
-        
-                   __operation = new org.apache.axis2.description.OutInAxisOperation();
-                
-
-            __operation.setName(new javax.xml.namespace.QName("", "getFilesNumber4ProjectVersion"));
-	    _service.addOperation(__operation);
-	    
-	    
-	    
-            _operations[22]=__operation;
             
         
         }
@@ -318,9 +307,6 @@
         _serviceClient.getOptions().setTo(new org.apache.axis2.addressing.EndpointReference(
                 targetEndpoint));
         
-            //Set the soap version
-            _serviceClient.getOptions().setSoapVersionURI(org.apache.axiom.soap.SOAP12Constants.SOAP_ENVELOPE_NAMESPACE_URI);
-        
     
     }
 
@@ -345,19 +331,19 @@
         
                     /**
                     * Auto generated method signature
-                    * @see eu.sqooss.ws.client.Ws#submitUser
-                        * @param param46
+                    * @see eu.sqooss.ws.client.Ws#getFilesNumber4ProjectVersion
+                        * @param param44
                     
                     */
-                    public eu.sqooss.ws.client.ws.SubmitUserResponse submitUser(
+                    public eu.sqooss.ws.client.ws.GetFilesNumber4ProjectVersionResponse getFilesNumber4ProjectVersion(
 
-                    eu.sqooss.ws.client.ws.SubmitUser param46)
+                    eu.sqooss.ws.client.ws.GetFilesNumber4ProjectVersion param44)
                     throws java.rmi.RemoteException
                     
                     {
               try{
                org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[0].getName());
-              _operationClient.getOptions().setAction("urn:submitUser");
+              _operationClient.getOptions().setAction("urn:getFilesNumber4ProjectVersion");
               _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
               
@@ -369,9 +355,9 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    param46,
+                                                    param44,
                                                     optimizeContent(new javax.xml.namespace.QName("",
-                                                    "submitUser")));
+                                                    "getFilesNumber4ProjectVersion")));
                                                 
         //adding SOAP headers
          _serviceClient.addHeadersToEnvelope(env);
@@ -393,525 +379,10 @@
                 
                            java.lang.Object object = fromOM(
                                         _returnEnv.getBody().getFirstElement() ,
-                                        eu.sqooss.ws.client.ws.SubmitUserResponse.class,
+                                        eu.sqooss.ws.client.ws.GetFilesNumber4ProjectVersionResponse.class,
                                          getEnvelopeNamespaces(_returnEnv));
                            _messageContext.getTransportOut().getSender().cleanup(_messageContext);
-                           return (eu.sqooss.ws.client.ws.SubmitUserResponse)object;
-                    
-         }catch(org.apache.axis2.AxisFault f){
-            org.apache.axiom.om.OMElement faultElt = f.getDetail();
-            if (faultElt!=null){
-                if (faultExeptionNameMap.containsKey(faultElt.getQName())){
-                    //make the fault by reflection
-                    try{
-                        java.lang.String exceptionClassName = (java.lang.String)faultExeptionClassNameMap.get(faultElt.getQName());
-                        java.lang.Class exceptionClass = java.lang.Class.forName(exceptionClassName);
-                        java.lang.Exception ex=
-                                (java.lang.Exception) exceptionClass.newInstance();
-                        //message class
-                        java.lang.String messageClassName = (java.lang.String)faultMessageMap.get(faultElt.getQName());
-                        java.lang.Class messageClass = java.lang.Class.forName(messageClassName);
-                        java.lang.Object messageObject = fromOM(faultElt,messageClass,null);
-                        java.lang.reflect.Method m = exceptionClass.getMethod("setFaultMessage",
-                                   new java.lang.Class[]{messageClass});
-                        m.invoke(ex,new java.lang.Object[]{messageObject});
-                        
-
-                        throw new java.rmi.RemoteException(ex.getMessage(), ex);
-                    }catch(java.lang.ClassCastException e){
-                       // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    } catch (java.lang.ClassNotFoundException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    }catch (java.lang.NoSuchMethodException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    } catch (java.lang.reflect.InvocationTargetException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    }  catch (java.lang.IllegalAccessException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    }   catch (java.lang.InstantiationException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    }
-                }else{
-                    throw f;
-                }
-            }else{
-                throw f;
-            }
-        }
-        }
-            
-                    /**
-                    * Auto generated method signature
-                    * @see eu.sqooss.ws.client.Ws#getUserMessageOfTheDay
-                        * @param param48
-                    
-                    */
-                    public eu.sqooss.ws.client.ws.GetUserMessageOfTheDayResponse getUserMessageOfTheDay(
-
-                    eu.sqooss.ws.client.ws.GetUserMessageOfTheDay param48)
-                    throws java.rmi.RemoteException
-                    
-                    {
-              try{
-               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[1].getName());
-              _operationClient.getOptions().setAction("urn:getUserMessageOfTheDay");
-              _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
-
-              
-
-              // create SOAP envelope with that payload
-              org.apache.axiom.soap.SOAPEnvelope env = null;
-                    
-                                    //Style is Doc.
-                                    
-                                                    
-                                                    env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    param48,
-                                                    optimizeContent(new javax.xml.namespace.QName("",
-                                                    "getUserMessageOfTheDay")));
-                                                
-        //adding SOAP headers
-         _serviceClient.addHeadersToEnvelope(env);
-        // create message context with that soap envelope
-        org.apache.axis2.context.MessageContext _messageContext = new org.apache.axis2.context.MessageContext() ;
-        _messageContext.setEnvelope(env);
-
-        // add the message contxt to the operation client
-        _operationClient.addMessageContext(_messageContext);
-
-        //execute the operation client
-        _operationClient.execute(true);
-
-         
-               org.apache.axis2.context.MessageContext _returnMessageContext = _operationClient.getMessageContext(
-                                           org.apache.axis2.wsdl.WSDLConstants.MESSAGE_LABEL_IN_VALUE);
-                org.apache.axiom.soap.SOAPEnvelope _returnEnv = _returnMessageContext.getEnvelope();
-                
-                
-                           java.lang.Object object = fromOM(
-                                        _returnEnv.getBody().getFirstElement() ,
-                                        eu.sqooss.ws.client.ws.GetUserMessageOfTheDayResponse.class,
-                                         getEnvelopeNamespaces(_returnEnv));
-                           _messageContext.getTransportOut().getSender().cleanup(_messageContext);
-                           return (eu.sqooss.ws.client.ws.GetUserMessageOfTheDayResponse)object;
-                    
-         }catch(org.apache.axis2.AxisFault f){
-            org.apache.axiom.om.OMElement faultElt = f.getDetail();
-            if (faultElt!=null){
-                if (faultExeptionNameMap.containsKey(faultElt.getQName())){
-                    //make the fault by reflection
-                    try{
-                        java.lang.String exceptionClassName = (java.lang.String)faultExeptionClassNameMap.get(faultElt.getQName());
-                        java.lang.Class exceptionClass = java.lang.Class.forName(exceptionClassName);
-                        java.lang.Exception ex=
-                                (java.lang.Exception) exceptionClass.newInstance();
-                        //message class
-                        java.lang.String messageClassName = (java.lang.String)faultMessageMap.get(faultElt.getQName());
-                        java.lang.Class messageClass = java.lang.Class.forName(messageClassName);
-                        java.lang.Object messageObject = fromOM(faultElt,messageClass,null);
-                        java.lang.reflect.Method m = exceptionClass.getMethod("setFaultMessage",
-                                   new java.lang.Class[]{messageClass});
-                        m.invoke(ex,new java.lang.Object[]{messageObject});
-                        
-
-                        throw new java.rmi.RemoteException(ex.getMessage(), ex);
-                    }catch(java.lang.ClassCastException e){
-                       // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    } catch (java.lang.ClassNotFoundException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    }catch (java.lang.NoSuchMethodException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    } catch (java.lang.reflect.InvocationTargetException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    }  catch (java.lang.IllegalAccessException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    }   catch (java.lang.InstantiationException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    }
-                }else{
-                    throw f;
-                }
-            }else{
-                throw f;
-            }
-        }
-        }
-            
-                    /**
-                    * Auto generated method signature
-                    * @see eu.sqooss.ws.client.Ws#retrieveStoredProjectVersions
-                        * @param param50
-                    
-                    */
-                    public eu.sqooss.ws.client.ws.RetrieveStoredProjectVersionsResponse retrieveStoredProjectVersions(
-
-                    eu.sqooss.ws.client.ws.RetrieveStoredProjectVersions param50)
-                    throws java.rmi.RemoteException
-                    
-                    {
-              try{
-               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[2].getName());
-              _operationClient.getOptions().setAction("urn:retrieveStoredProjectVersions");
-              _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
-
-              
-
-              // create SOAP envelope with that payload
-              org.apache.axiom.soap.SOAPEnvelope env = null;
-                    
-                                    //Style is Doc.
-                                    
-                                                    
-                                                    env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    param50,
-                                                    optimizeContent(new javax.xml.namespace.QName("",
-                                                    "retrieveStoredProjectVersions")));
-                                                
-        //adding SOAP headers
-         _serviceClient.addHeadersToEnvelope(env);
-        // create message context with that soap envelope
-        org.apache.axis2.context.MessageContext _messageContext = new org.apache.axis2.context.MessageContext() ;
-        _messageContext.setEnvelope(env);
-
-        // add the message contxt to the operation client
-        _operationClient.addMessageContext(_messageContext);
-
-        //execute the operation client
-        _operationClient.execute(true);
-
-         
-               org.apache.axis2.context.MessageContext _returnMessageContext = _operationClient.getMessageContext(
-                                           org.apache.axis2.wsdl.WSDLConstants.MESSAGE_LABEL_IN_VALUE);
-                org.apache.axiom.soap.SOAPEnvelope _returnEnv = _returnMessageContext.getEnvelope();
-                
-                
-                           java.lang.Object object = fromOM(
-                                        _returnEnv.getBody().getFirstElement() ,
-                                        eu.sqooss.ws.client.ws.RetrieveStoredProjectVersionsResponse.class,
-                                         getEnvelopeNamespaces(_returnEnv));
-                           _messageContext.getTransportOut().getSender().cleanup(_messageContext);
-                           return (eu.sqooss.ws.client.ws.RetrieveStoredProjectVersionsResponse)object;
-                    
-         }catch(org.apache.axis2.AxisFault f){
-            org.apache.axiom.om.OMElement faultElt = f.getDetail();
-            if (faultElt!=null){
-                if (faultExeptionNameMap.containsKey(faultElt.getQName())){
-                    //make the fault by reflection
-                    try{
-                        java.lang.String exceptionClassName = (java.lang.String)faultExeptionClassNameMap.get(faultElt.getQName());
-                        java.lang.Class exceptionClass = java.lang.Class.forName(exceptionClassName);
-                        java.lang.Exception ex=
-                                (java.lang.Exception) exceptionClass.newInstance();
-                        //message class
-                        java.lang.String messageClassName = (java.lang.String)faultMessageMap.get(faultElt.getQName());
-                        java.lang.Class messageClass = java.lang.Class.forName(messageClassName);
-                        java.lang.Object messageObject = fromOM(faultElt,messageClass,null);
-                        java.lang.reflect.Method m = exceptionClass.getMethod("setFaultMessage",
-                                   new java.lang.Class[]{messageClass});
-                        m.invoke(ex,new java.lang.Object[]{messageObject});
-                        
-
-                        throw new java.rmi.RemoteException(ex.getMessage(), ex);
-                    }catch(java.lang.ClassCastException e){
-                       // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    } catch (java.lang.ClassNotFoundException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    }catch (java.lang.NoSuchMethodException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    } catch (java.lang.reflect.InvocationTargetException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    }  catch (java.lang.IllegalAccessException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    }   catch (java.lang.InstantiationException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    }
-                }else{
-                    throw f;
-                }
-            }else{
-                throw f;
-            }
-        }
-        }
-            
-                    /**
-                    * Auto generated method signature
-                    * @see eu.sqooss.ws.client.Ws#getProjectFileMetricMeasurement
-                        * @param param52
-                    
-                    */
-                    public eu.sqooss.ws.client.ws.GetProjectFileMetricMeasurementResponse getProjectFileMetricMeasurement(
-
-                    eu.sqooss.ws.client.ws.GetProjectFileMetricMeasurement param52)
-                    throws java.rmi.RemoteException
-                    
-                    {
-              try{
-               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[3].getName());
-              _operationClient.getOptions().setAction("urn:getProjectFileMetricMeasurement");
-              _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
-
-              
-
-              // create SOAP envelope with that payload
-              org.apache.axiom.soap.SOAPEnvelope env = null;
-                    
-                                    //Style is Doc.
-                                    
-                                                    
-                                                    env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    param52,
-                                                    optimizeContent(new javax.xml.namespace.QName("",
-                                                    "getProjectFileMetricMeasurement")));
-                                                
-        //adding SOAP headers
-         _serviceClient.addHeadersToEnvelope(env);
-        // create message context with that soap envelope
-        org.apache.axis2.context.MessageContext _messageContext = new org.apache.axis2.context.MessageContext() ;
-        _messageContext.setEnvelope(env);
-
-        // add the message contxt to the operation client
-        _operationClient.addMessageContext(_messageContext);
-
-        //execute the operation client
-        _operationClient.execute(true);
-
-         
-               org.apache.axis2.context.MessageContext _returnMessageContext = _operationClient.getMessageContext(
-                                           org.apache.axis2.wsdl.WSDLConstants.MESSAGE_LABEL_IN_VALUE);
-                org.apache.axiom.soap.SOAPEnvelope _returnEnv = _returnMessageContext.getEnvelope();
-                
-                
-                           java.lang.Object object = fromOM(
-                                        _returnEnv.getBody().getFirstElement() ,
-                                        eu.sqooss.ws.client.ws.GetProjectFileMetricMeasurementResponse.class,
-                                         getEnvelopeNamespaces(_returnEnv));
-                           _messageContext.getTransportOut().getSender().cleanup(_messageContext);
-                           return (eu.sqooss.ws.client.ws.GetProjectFileMetricMeasurementResponse)object;
-                    
-         }catch(org.apache.axis2.AxisFault f){
-            org.apache.axiom.om.OMElement faultElt = f.getDetail();
-            if (faultElt!=null){
-                if (faultExeptionNameMap.containsKey(faultElt.getQName())){
-                    //make the fault by reflection
-                    try{
-                        java.lang.String exceptionClassName = (java.lang.String)faultExeptionClassNameMap.get(faultElt.getQName());
-                        java.lang.Class exceptionClass = java.lang.Class.forName(exceptionClassName);
-                        java.lang.Exception ex=
-                                (java.lang.Exception) exceptionClass.newInstance();
-                        //message class
-                        java.lang.String messageClassName = (java.lang.String)faultMessageMap.get(faultElt.getQName());
-                        java.lang.Class messageClass = java.lang.Class.forName(messageClassName);
-                        java.lang.Object messageObject = fromOM(faultElt,messageClass,null);
-                        java.lang.reflect.Method m = exceptionClass.getMethod("setFaultMessage",
-                                   new java.lang.Class[]{messageClass});
-                        m.invoke(ex,new java.lang.Object[]{messageObject});
-                        
-
-                        throw new java.rmi.RemoteException(ex.getMessage(), ex);
-                    }catch(java.lang.ClassCastException e){
-                       // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    } catch (java.lang.ClassNotFoundException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    }catch (java.lang.NoSuchMethodException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    } catch (java.lang.reflect.InvocationTargetException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    }  catch (java.lang.IllegalAccessException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    }   catch (java.lang.InstantiationException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    }
-                }else{
-                    throw f;
-                }
-            }else{
-                throw f;
-            }
-        }
-        }
-            
-                    /**
-                    * Auto generated method signature
-                    * @see eu.sqooss.ws.client.Ws#getFileList4ProjectVersion
-                        * @param param54
-                    
-                    */
-                    public eu.sqooss.ws.client.ws.GetFileList4ProjectVersionResponse getFileList4ProjectVersion(
-
-                    eu.sqooss.ws.client.ws.GetFileList4ProjectVersion param54)
-                    throws java.rmi.RemoteException
-                    
-                    {
-              try{
-               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[4].getName());
-              _operationClient.getOptions().setAction("urn:getFileList4ProjectVersion");
-              _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
-
-              
-
-              // create SOAP envelope with that payload
-              org.apache.axiom.soap.SOAPEnvelope env = null;
-                    
-                                    //Style is Doc.
-                                    
-                                                    
-                                                    env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    param54,
-                                                    optimizeContent(new javax.xml.namespace.QName("",
-                                                    "getFileList4ProjectVersion")));
-                                                
-        //adding SOAP headers
-         _serviceClient.addHeadersToEnvelope(env);
-        // create message context with that soap envelope
-        org.apache.axis2.context.MessageContext _messageContext = new org.apache.axis2.context.MessageContext() ;
-        _messageContext.setEnvelope(env);
-
-        // add the message contxt to the operation client
-        _operationClient.addMessageContext(_messageContext);
-
-        //execute the operation client
-        _operationClient.execute(true);
-
-         
-               org.apache.axis2.context.MessageContext _returnMessageContext = _operationClient.getMessageContext(
-                                           org.apache.axis2.wsdl.WSDLConstants.MESSAGE_LABEL_IN_VALUE);
-                org.apache.axiom.soap.SOAPEnvelope _returnEnv = _returnMessageContext.getEnvelope();
-                
-                
-                           java.lang.Object object = fromOM(
-                                        _returnEnv.getBody().getFirstElement() ,
-                                        eu.sqooss.ws.client.ws.GetFileList4ProjectVersionResponse.class,
-                                         getEnvelopeNamespaces(_returnEnv));
-                           _messageContext.getTransportOut().getSender().cleanup(_messageContext);
-                           return (eu.sqooss.ws.client.ws.GetFileList4ProjectVersionResponse)object;
-                    
-         }catch(org.apache.axis2.AxisFault f){
-            org.apache.axiom.om.OMElement faultElt = f.getDetail();
-            if (faultElt!=null){
-                if (faultExeptionNameMap.containsKey(faultElt.getQName())){
-                    //make the fault by reflection
-                    try{
-                        java.lang.String exceptionClassName = (java.lang.String)faultExeptionClassNameMap.get(faultElt.getQName());
-                        java.lang.Class exceptionClass = java.lang.Class.forName(exceptionClassName);
-                        java.lang.Exception ex=
-                                (java.lang.Exception) exceptionClass.newInstance();
-                        //message class
-                        java.lang.String messageClassName = (java.lang.String)faultMessageMap.get(faultElt.getQName());
-                        java.lang.Class messageClass = java.lang.Class.forName(messageClassName);
-                        java.lang.Object messageObject = fromOM(faultElt,messageClass,null);
-                        java.lang.reflect.Method m = exceptionClass.getMethod("setFaultMessage",
-                                   new java.lang.Class[]{messageClass});
-                        m.invoke(ex,new java.lang.Object[]{messageObject});
-                        
-
-                        throw new java.rmi.RemoteException(ex.getMessage(), ex);
-                    }catch(java.lang.ClassCastException e){
-                       // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    } catch (java.lang.ClassNotFoundException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    }catch (java.lang.NoSuchMethodException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    } catch (java.lang.reflect.InvocationTargetException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    }  catch (java.lang.IllegalAccessException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    }   catch (java.lang.InstantiationException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    }
-                }else{
-                    throw f;
-                }
-            }else{
-                throw f;
-            }
-        }
-        }
-            
-                    /**
-                    * Auto generated method signature
-                    * @see eu.sqooss.ws.client.Ws#getMetrics
-                        * @param param56
-                    
-                    */
-                    public eu.sqooss.ws.client.ws.GetMetricsResponse getMetrics(
-
-                    eu.sqooss.ws.client.ws.GetMetrics param56)
-                    throws java.rmi.RemoteException
-                    
-                    {
-              try{
-               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[5].getName());
-              _operationClient.getOptions().setAction("urn:getMetrics");
-              _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
-
-              
-
-              // create SOAP envelope with that payload
-              org.apache.axiom.soap.SOAPEnvelope env = null;
-                    
-                                    //Style is Doc.
-                                    
-                                                    
-                                                    env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    param56,
-                                                    optimizeContent(new javax.xml.namespace.QName("",
-                                                    "getMetrics")));
-                                                
-        //adding SOAP headers
-         _serviceClient.addHeadersToEnvelope(env);
-        // create message context with that soap envelope
-        org.apache.axis2.context.MessageContext _messageContext = new org.apache.axis2.context.MessageContext() ;
-        _messageContext.setEnvelope(env);
-
-        // add the message contxt to the operation client
-        _operationClient.addMessageContext(_messageContext);
-
-        //execute the operation client
-        _operationClient.execute(true);
-
-         
-               org.apache.axis2.context.MessageContext _returnMessageContext = _operationClient.getMessageContext(
-                                           org.apache.axis2.wsdl.WSDLConstants.MESSAGE_LABEL_IN_VALUE);
-                org.apache.axiom.soap.SOAPEnvelope _returnEnv = _returnMessageContext.getEnvelope();
-                
-                
-                           java.lang.Object object = fromOM(
-                                        _returnEnv.getBody().getFirstElement() ,
-                                        eu.sqooss.ws.client.ws.GetMetricsResponse.class,
-                                         getEnvelopeNamespaces(_returnEnv));
-                           _messageContext.getTransportOut().getSender().cleanup(_messageContext);
-                           return (eu.sqooss.ws.client.ws.GetMetricsResponse)object;
+                           return (eu.sqooss.ws.client.ws.GetFilesNumber4ProjectVersionResponse)object;
                     
          }catch(org.apache.axis2.AxisFault f){
             org.apache.axiom.om.OMElement faultElt = f.getDetail();
@@ -964,17 +435,17 @@
                     /**
                     * Auto generated method signature
                     * @see eu.sqooss.ws.client.Ws#evaluatedProjectsList
-                        * @param param58
+                        * @param param46
                     
                     */
                     public eu.sqooss.ws.client.ws.EvaluatedProjectsListResponse evaluatedProjectsList(
 
-                    eu.sqooss.ws.client.ws.EvaluatedProjectsList param58)
+                    eu.sqooss.ws.client.ws.EvaluatedProjectsList param46)
                     throws java.rmi.RemoteException
                     
                     {
               try{
-               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[6].getName());
+               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[1].getName());
               _operationClient.getOptions().setAction("urn:evaluatedProjectsList");
               _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
@@ -987,7 +458,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    param58,
+                                                    param46,
                                                     optimizeContent(new javax.xml.namespace.QName("",
                                                     "evaluatedProjectsList")));
                                                 
@@ -1066,19 +537,19 @@
             
                     /**
                     * Auto generated method signature
-                    * @see eu.sqooss.ws.client.Ws#storedProjectsList
-                        * @param param60
+                    * @see eu.sqooss.ws.client.Ws#getProjectFileMetricMeasurement
+                        * @param param48
                     
                     */
-                    public eu.sqooss.ws.client.ws.StoredProjectsListResponse storedProjectsList(
+                    public eu.sqooss.ws.client.ws.GetProjectFileMetricMeasurementResponse getProjectFileMetricMeasurement(
 
-                    eu.sqooss.ws.client.ws.StoredProjectsList param60)
+                    eu.sqooss.ws.client.ws.GetProjectFileMetricMeasurement param48)
                     throws java.rmi.RemoteException
                     
                     {
               try{
-               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[7].getName());
-              _operationClient.getOptions().setAction("urn:storedProjectsList");
+               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[2].getName());
+              _operationClient.getOptions().setAction("urn:getProjectFileMetricMeasurement");
               _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
               
@@ -1090,9 +561,9 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    param60,
+                                                    param48,
                                                     optimizeContent(new javax.xml.namespace.QName("",
-                                                    "storedProjectsList")));
+                                                    "getProjectFileMetricMeasurement")));
                                                 
         //adding SOAP headers
          _serviceClient.addHeadersToEnvelope(env);
@@ -1114,10 +585,10 @@
                 
                            java.lang.Object object = fromOM(
                                         _returnEnv.getBody().getFirstElement() ,
-                                        eu.sqooss.ws.client.ws.StoredProjectsListResponse.class,
+                                        eu.sqooss.ws.client.ws.GetProjectFileMetricMeasurementResponse.class,
                                          getEnvelopeNamespaces(_returnEnv));
                            _messageContext.getTransportOut().getSender().cleanup(_messageContext);
-                           return (eu.sqooss.ws.client.ws.StoredProjectsListResponse)object;
+                           return (eu.sqooss.ws.client.ws.GetProjectFileMetricMeasurementResponse)object;
                     
          }catch(org.apache.axis2.AxisFault f){
             org.apache.axiom.om.OMElement faultElt = f.getDetail();
@@ -1169,19 +640,19 @@
             
                     /**
                     * Auto generated method signature
-                    * @see eu.sqooss.ws.client.Ws#retrieveStoredProject
-                        * @param param62
+                    * @see eu.sqooss.ws.client.Ws#submitUser
+                        * @param param50
                     
                     */
-                    public eu.sqooss.ws.client.ws.RetrieveStoredProjectResponse retrieveStoredProject(
+                    public eu.sqooss.ws.client.ws.SubmitUserResponse submitUser(
 
-                    eu.sqooss.ws.client.ws.RetrieveStoredProject param62)
+                    eu.sqooss.ws.client.ws.SubmitUser param50)
                     throws java.rmi.RemoteException
                     
                     {
               try{
-               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[8].getName());
-              _operationClient.getOptions().setAction("urn:retrieveStoredProject");
+               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[3].getName());
+              _operationClient.getOptions().setAction("urn:submitUser");
               _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
               
@@ -1193,9 +664,9 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    param62,
+                                                    param50,
                                                     optimizeContent(new javax.xml.namespace.QName("",
-                                                    "retrieveStoredProject")));
+                                                    "submitUser")));
                                                 
         //adding SOAP headers
          _serviceClient.addHeadersToEnvelope(env);
@@ -1217,937 +688,10 @@
                 
                            java.lang.Object object = fromOM(
                                         _returnEnv.getBody().getFirstElement() ,
-                                        eu.sqooss.ws.client.ws.RetrieveStoredProjectResponse.class,
+                                        eu.sqooss.ws.client.ws.SubmitUserResponse.class,
                                          getEnvelopeNamespaces(_returnEnv));
                            _messageContext.getTransportOut().getSender().cleanup(_messageContext);
-                           return (eu.sqooss.ws.client.ws.RetrieveStoredProjectResponse)object;
-                    
-         }catch(org.apache.axis2.AxisFault f){
-            org.apache.axiom.om.OMElement faultElt = f.getDetail();
-            if (faultElt!=null){
-                if (faultExeptionNameMap.containsKey(faultElt.getQName())){
-                    //make the fault by reflection
-                    try{
-                        java.lang.String exceptionClassName = (java.lang.String)faultExeptionClassNameMap.get(faultElt.getQName());
-                        java.lang.Class exceptionClass = java.lang.Class.forName(exceptionClassName);
-                        java.lang.Exception ex=
-                                (java.lang.Exception) exceptionClass.newInstance();
-                        //message class
-                        java.lang.String messageClassName = (java.lang.String)faultMessageMap.get(faultElt.getQName());
-                        java.lang.Class messageClass = java.lang.Class.forName(messageClassName);
-                        java.lang.Object messageObject = fromOM(faultElt,messageClass,null);
-                        java.lang.reflect.Method m = exceptionClass.getMethod("setFaultMessage",
-                                   new java.lang.Class[]{messageClass});
-                        m.invoke(ex,new java.lang.Object[]{messageObject});
-                        
-
-                        throw new java.rmi.RemoteException(ex.getMessage(), ex);
-                    }catch(java.lang.ClassCastException e){
-                       // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    } catch (java.lang.ClassNotFoundException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    }catch (java.lang.NoSuchMethodException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    } catch (java.lang.reflect.InvocationTargetException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    }  catch (java.lang.IllegalAccessException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    }   catch (java.lang.InstantiationException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    }
-                }else{
-                    throw f;
-                }
-            }else{
-                throw f;
-            }
-        }
-        }
-            
-                    /**
-                    * Auto generated method signature
-                    * @see eu.sqooss.ws.client.Ws#displayUser
-                        * @param param64
-                    
-                    */
-                    public eu.sqooss.ws.client.ws.DisplayUserResponse displayUser(
-
-                    eu.sqooss.ws.client.ws.DisplayUser param64)
-                    throws java.rmi.RemoteException
-                    
-                    {
-              try{
-               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[9].getName());
-              _operationClient.getOptions().setAction("urn:displayUser");
-              _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
-
-              
-
-              // create SOAP envelope with that payload
-              org.apache.axiom.soap.SOAPEnvelope env = null;
-                    
-                                    //Style is Doc.
-                                    
-                                                    
-                                                    env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    param64,
-                                                    optimizeContent(new javax.xml.namespace.QName("",
-                                                    "displayUser")));
-                                                
-        //adding SOAP headers
-         _serviceClient.addHeadersToEnvelope(env);
-        // create message context with that soap envelope
-        org.apache.axis2.context.MessageContext _messageContext = new org.apache.axis2.context.MessageContext() ;
-        _messageContext.setEnvelope(env);
-
-        // add the message contxt to the operation client
-        _operationClient.addMessageContext(_messageContext);
-
-        //execute the operation client
-        _operationClient.execute(true);
-
-         
-               org.apache.axis2.context.MessageContext _returnMessageContext = _operationClient.getMessageContext(
-                                           org.apache.axis2.wsdl.WSDLConstants.MESSAGE_LABEL_IN_VALUE);
-                org.apache.axiom.soap.SOAPEnvelope _returnEnv = _returnMessageContext.getEnvelope();
-                
-                
-                           java.lang.Object object = fromOM(
-                                        _returnEnv.getBody().getFirstElement() ,
-                                        eu.sqooss.ws.client.ws.DisplayUserResponse.class,
-                                         getEnvelopeNamespaces(_returnEnv));
-                           _messageContext.getTransportOut().getSender().cleanup(_messageContext);
-                           return (eu.sqooss.ws.client.ws.DisplayUserResponse)object;
-                    
-         }catch(org.apache.axis2.AxisFault f){
-            org.apache.axiom.om.OMElement faultElt = f.getDetail();
-            if (faultElt!=null){
-                if (faultExeptionNameMap.containsKey(faultElt.getQName())){
-                    //make the fault by reflection
-                    try{
-                        java.lang.String exceptionClassName = (java.lang.String)faultExeptionClassNameMap.get(faultElt.getQName());
-                        java.lang.Class exceptionClass = java.lang.Class.forName(exceptionClassName);
-                        java.lang.Exception ex=
-                                (java.lang.Exception) exceptionClass.newInstance();
-                        //message class
-                        java.lang.String messageClassName = (java.lang.String)faultMessageMap.get(faultElt.getQName());
-                        java.lang.Class messageClass = java.lang.Class.forName(messageClassName);
-                        java.lang.Object messageObject = fromOM(faultElt,messageClass,null);
-                        java.lang.reflect.Method m = exceptionClass.getMethod("setFaultMessage",
-                                   new java.lang.Class[]{messageClass});
-                        m.invoke(ex,new java.lang.Object[]{messageObject});
-                        
-
-                        throw new java.rmi.RemoteException(ex.getMessage(), ex);
-                    }catch(java.lang.ClassCastException e){
-                       // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    } catch (java.lang.ClassNotFoundException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    }catch (java.lang.NoSuchMethodException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    } catch (java.lang.reflect.InvocationTargetException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    }  catch (java.lang.IllegalAccessException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    }   catch (java.lang.InstantiationException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    }
-                }else{
-                    throw f;
-                }
-            }else{
-                throw f;
-            }
-        }
-        }
-            
-                    /**
-                    * Auto generated method signature
-                    * @see eu.sqooss.ws.client.Ws#retrieveMetrics4SelectedFiles
-                        * @param param66
-                    
-                    */
-                    public eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedFilesResponse retrieveMetrics4SelectedFiles(
-
-                    eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedFiles param66)
-                    throws java.rmi.RemoteException
-                    
-                    {
-              try{
-               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[10].getName());
-              _operationClient.getOptions().setAction("urn:retrieveMetrics4SelectedFiles");
-              _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
-
-              
-
-              // create SOAP envelope with that payload
-              org.apache.axiom.soap.SOAPEnvelope env = null;
-                    
-                                    //Style is Doc.
-                                    
-                                                    
-                                                    env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    param66,
-                                                    optimizeContent(new javax.xml.namespace.QName("",
-                                                    "retrieveMetrics4SelectedFiles")));
-                                                
-        //adding SOAP headers
-         _serviceClient.addHeadersToEnvelope(env);
-        // create message context with that soap envelope
-        org.apache.axis2.context.MessageContext _messageContext = new org.apache.axis2.context.MessageContext() ;
-        _messageContext.setEnvelope(env);
-
-        // add the message contxt to the operation client
-        _operationClient.addMessageContext(_messageContext);
-
-        //execute the operation client
-        _operationClient.execute(true);
-
-         
-               org.apache.axis2.context.MessageContext _returnMessageContext = _operationClient.getMessageContext(
-                                           org.apache.axis2.wsdl.WSDLConstants.MESSAGE_LABEL_IN_VALUE);
-                org.apache.axiom.soap.SOAPEnvelope _returnEnv = _returnMessageContext.getEnvelope();
-                
-                
-                           java.lang.Object object = fromOM(
-                                        _returnEnv.getBody().getFirstElement() ,
-                                        eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedFilesResponse.class,
-                                         getEnvelopeNamespaces(_returnEnv));
-                           _messageContext.getTransportOut().getSender().cleanup(_messageContext);
-                           return (eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedFilesResponse)object;
-                    
-         }catch(org.apache.axis2.AxisFault f){
-            org.apache.axiom.om.OMElement faultElt = f.getDetail();
-            if (faultElt!=null){
-                if (faultExeptionNameMap.containsKey(faultElt.getQName())){
-                    //make the fault by reflection
-                    try{
-                        java.lang.String exceptionClassName = (java.lang.String)faultExeptionClassNameMap.get(faultElt.getQName());
-                        java.lang.Class exceptionClass = java.lang.Class.forName(exceptionClassName);
-                        java.lang.Exception ex=
-                                (java.lang.Exception) exceptionClass.newInstance();
-                        //message class
-                        java.lang.String messageClassName = (java.lang.String)faultMessageMap.get(faultElt.getQName());
-                        java.lang.Class messageClass = java.lang.Class.forName(messageClassName);
-                        java.lang.Object messageObject = fromOM(faultElt,messageClass,null);
-                        java.lang.reflect.Method m = exceptionClass.getMethod("setFaultMessage",
-                                   new java.lang.Class[]{messageClass});
-                        m.invoke(ex,new java.lang.Object[]{messageObject});
-                        
-
-                        throw new java.rmi.RemoteException(ex.getMessage(), ex);
-                    }catch(java.lang.ClassCastException e){
-                       // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    } catch (java.lang.ClassNotFoundException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    }catch (java.lang.NoSuchMethodException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    } catch (java.lang.reflect.InvocationTargetException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    }  catch (java.lang.IllegalAccessException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    }   catch (java.lang.InstantiationException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    }
-                }else{
-                    throw f;
-                }
-            }else{
-                throw f;
-            }
-        }
-        }
-            
-                    /**
-                    * Auto generated method signature
-                    * @see eu.sqooss.ws.client.Ws#requestEvaluation4Project
-                        * @param param68
-                    
-                    */
-                    public eu.sqooss.ws.client.ws.RequestEvaluation4ProjectResponse requestEvaluation4Project(
-
-                    eu.sqooss.ws.client.ws.RequestEvaluation4Project param68)
-                    throws java.rmi.RemoteException
-                    
-                    {
-              try{
-               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[11].getName());
-              _operationClient.getOptions().setAction("urn:requestEvaluation4Project");
-              _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
-
-              
-
-              // create SOAP envelope with that payload
-              org.apache.axiom.soap.SOAPEnvelope env = null;
-                    
-                                    //Style is Doc.
-                                    
-                                                    
-                                                    env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    param68,
-                                                    optimizeContent(new javax.xml.namespace.QName("",
-                                                    "requestEvaluation4Project")));
-                                                
-        //adding SOAP headers
-         _serviceClient.addHeadersToEnvelope(env);
-        // create message context with that soap envelope
-        org.apache.axis2.context.MessageContext _messageContext = new org.apache.axis2.context.MessageContext() ;
-        _messageContext.setEnvelope(env);
-
-        // add the message contxt to the operation client
-        _operationClient.addMessageContext(_messageContext);
-
-        //execute the operation client
-        _operationClient.execute(true);
-
-         
-               org.apache.axis2.context.MessageContext _returnMessageContext = _operationClient.getMessageContext(
-                                           org.apache.axis2.wsdl.WSDLConstants.MESSAGE_LABEL_IN_VALUE);
-                org.apache.axiom.soap.SOAPEnvelope _returnEnv = _returnMessageContext.getEnvelope();
-                
-                
-                           java.lang.Object object = fromOM(
-                                        _returnEnv.getBody().getFirstElement() ,
-                                        eu.sqooss.ws.client.ws.RequestEvaluation4ProjectResponse.class,
-                                         getEnvelopeNamespaces(_returnEnv));
-                           _messageContext.getTransportOut().getSender().cleanup(_messageContext);
-                           return (eu.sqooss.ws.client.ws.RequestEvaluation4ProjectResponse)object;
-                    
-         }catch(org.apache.axis2.AxisFault f){
-            org.apache.axiom.om.OMElement faultElt = f.getDetail();
-            if (faultElt!=null){
-                if (faultExeptionNameMap.containsKey(faultElt.getQName())){
-                    //make the fault by reflection
-                    try{
-                        java.lang.String exceptionClassName = (java.lang.String)faultExeptionClassNameMap.get(faultElt.getQName());
-                        java.lang.Class exceptionClass = java.lang.Class.forName(exceptionClassName);
-                        java.lang.Exception ex=
-                                (java.lang.Exception) exceptionClass.newInstance();
-                        //message class
-                        java.lang.String messageClassName = (java.lang.String)faultMessageMap.get(faultElt.getQName());
-                        java.lang.Class messageClass = java.lang.Class.forName(messageClassName);
-                        java.lang.Object messageObject = fromOM(faultElt,messageClass,null);
-                        java.lang.reflect.Method m = exceptionClass.getMethod("setFaultMessage",
-                                   new java.lang.Class[]{messageClass});
-                        m.invoke(ex,new java.lang.Object[]{messageObject});
-                        
-
-                        throw new java.rmi.RemoteException(ex.getMessage(), ex);
-                    }catch(java.lang.ClassCastException e){
-                       // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    } catch (java.lang.ClassNotFoundException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    }catch (java.lang.NoSuchMethodException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    } catch (java.lang.reflect.InvocationTargetException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    }  catch (java.lang.IllegalAccessException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    }   catch (java.lang.InstantiationException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    }
-                }else{
-                    throw f;
-                }
-            }else{
-                throw f;
-            }
-        }
-        }
-            
-                    /**
-                    * Auto generated method signature
-                    * @see eu.sqooss.ws.client.Ws#getUserByName
-                        * @param param70
-                    
-                    */
-                    public eu.sqooss.ws.client.ws.GetUserByNameResponse getUserByName(
-
-                    eu.sqooss.ws.client.ws.GetUserByName param70)
-                    throws java.rmi.RemoteException
-                    
-                    {
-              try{
-               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[12].getName());
-              _operationClient.getOptions().setAction("urn:getUserByName");
-              _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
-
-              
-
-              // create SOAP envelope with that payload
-              org.apache.axiom.soap.SOAPEnvelope env = null;
-                    
-                                    //Style is Doc.
-                                    
-                                                    
-                                                    env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    param70,
-                                                    optimizeContent(new javax.xml.namespace.QName("",
-                                                    "getUserByName")));
-                                                
-        //adding SOAP headers
-         _serviceClient.addHeadersToEnvelope(env);
-        // create message context with that soap envelope
-        org.apache.axis2.context.MessageContext _messageContext = new org.apache.axis2.context.MessageContext() ;
-        _messageContext.setEnvelope(env);
-
-        // add the message contxt to the operation client
-        _operationClient.addMessageContext(_messageContext);
-
-        //execute the operation client
-        _operationClient.execute(true);
-
-         
-               org.apache.axis2.context.MessageContext _returnMessageContext = _operationClient.getMessageContext(
-                                           org.apache.axis2.wsdl.WSDLConstants.MESSAGE_LABEL_IN_VALUE);
-                org.apache.axiom.soap.SOAPEnvelope _returnEnv = _returnMessageContext.getEnvelope();
-                
-                
-                           java.lang.Object object = fromOM(
-                                        _returnEnv.getBody().getFirstElement() ,
-                                        eu.sqooss.ws.client.ws.GetUserByNameResponse.class,
-                                         getEnvelopeNamespaces(_returnEnv));
-                           _messageContext.getTransportOut().getSender().cleanup(_messageContext);
-                           return (eu.sqooss.ws.client.ws.GetUserByNameResponse)object;
-                    
-         }catch(org.apache.axis2.AxisFault f){
-            org.apache.axiom.om.OMElement faultElt = f.getDetail();
-            if (faultElt!=null){
-                if (faultExeptionNameMap.containsKey(faultElt.getQName())){
-                    //make the fault by reflection
-                    try{
-                        java.lang.String exceptionClassName = (java.lang.String)faultExeptionClassNameMap.get(faultElt.getQName());
-                        java.lang.Class exceptionClass = java.lang.Class.forName(exceptionClassName);
-                        java.lang.Exception ex=
-                                (java.lang.Exception) exceptionClass.newInstance();
-                        //message class
-                        java.lang.String messageClassName = (java.lang.String)faultMessageMap.get(faultElt.getQName());
-                        java.lang.Class messageClass = java.lang.Class.forName(messageClassName);
-                        java.lang.Object messageObject = fromOM(faultElt,messageClass,null);
-                        java.lang.reflect.Method m = exceptionClass.getMethod("setFaultMessage",
-                                   new java.lang.Class[]{messageClass});
-                        m.invoke(ex,new java.lang.Object[]{messageObject});
-                        
-
-                        throw new java.rmi.RemoteException(ex.getMessage(), ex);
-                    }catch(java.lang.ClassCastException e){
-                       // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    } catch (java.lang.ClassNotFoundException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    }catch (java.lang.NoSuchMethodException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    } catch (java.lang.reflect.InvocationTargetException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    }  catch (java.lang.IllegalAccessException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    }   catch (java.lang.InstantiationException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    }
-                }else{
-                    throw f;
-                }
-            }else{
-                throw f;
-            }
-        }
-        }
-            
-                    /**
-                    * Auto generated method signature
-                    * @see eu.sqooss.ws.client.Ws#retrieveProjectId
-                        * @param param72
-                    
-                    */
-                    public eu.sqooss.ws.client.ws.RetrieveProjectIdResponse retrieveProjectId(
-
-                    eu.sqooss.ws.client.ws.RetrieveProjectId param72)
-                    throws java.rmi.RemoteException
-                    
-                    {
-              try{
-               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[13].getName());
-              _operationClient.getOptions().setAction("urn:retrieveProjectId");
-              _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
-
-              
-
-              // create SOAP envelope with that payload
-              org.apache.axiom.soap.SOAPEnvelope env = null;
-                    
-                                    //Style is Doc.
-                                    
-                                                    
-                                                    env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    param72,
-                                                    optimizeContent(new javax.xml.namespace.QName("",
-                                                    "retrieveProjectId")));
-                                                
-        //adding SOAP headers
-         _serviceClient.addHeadersToEnvelope(env);
-        // create message context with that soap envelope
-        org.apache.axis2.context.MessageContext _messageContext = new org.apache.axis2.context.MessageContext() ;
-        _messageContext.setEnvelope(env);
-
-        // add the message contxt to the operation client
-        _operationClient.addMessageContext(_messageContext);
-
-        //execute the operation client
-        _operationClient.execute(true);
-
-         
-               org.apache.axis2.context.MessageContext _returnMessageContext = _operationClient.getMessageContext(
-                                           org.apache.axis2.wsdl.WSDLConstants.MESSAGE_LABEL_IN_VALUE);
-                org.apache.axiom.soap.SOAPEnvelope _returnEnv = _returnMessageContext.getEnvelope();
-                
-                
-                           java.lang.Object object = fromOM(
-                                        _returnEnv.getBody().getFirstElement() ,
-                                        eu.sqooss.ws.client.ws.RetrieveProjectIdResponse.class,
-                                         getEnvelopeNamespaces(_returnEnv));
-                           _messageContext.getTransportOut().getSender().cleanup(_messageContext);
-                           return (eu.sqooss.ws.client.ws.RetrieveProjectIdResponse)object;
-                    
-         }catch(org.apache.axis2.AxisFault f){
-            org.apache.axiom.om.OMElement faultElt = f.getDetail();
-            if (faultElt!=null){
-                if (faultExeptionNameMap.containsKey(faultElt.getQName())){
-                    //make the fault by reflection
-                    try{
-                        java.lang.String exceptionClassName = (java.lang.String)faultExeptionClassNameMap.get(faultElt.getQName());
-                        java.lang.Class exceptionClass = java.lang.Class.forName(exceptionClassName);
-                        java.lang.Exception ex=
-                                (java.lang.Exception) exceptionClass.newInstance();
-                        //message class
-                        java.lang.String messageClassName = (java.lang.String)faultMessageMap.get(faultElt.getQName());
-                        java.lang.Class messageClass = java.lang.Class.forName(messageClassName);
-                        java.lang.Object messageObject = fromOM(faultElt,messageClass,null);
-                        java.lang.reflect.Method m = exceptionClass.getMethod("setFaultMessage",
-                                   new java.lang.Class[]{messageClass});
-                        m.invoke(ex,new java.lang.Object[]{messageObject});
-                        
-
-                        throw new java.rmi.RemoteException(ex.getMessage(), ex);
-                    }catch(java.lang.ClassCastException e){
-                       // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    } catch (java.lang.ClassNotFoundException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    }catch (java.lang.NoSuchMethodException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    } catch (java.lang.reflect.InvocationTargetException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    }  catch (java.lang.IllegalAccessException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    }   catch (java.lang.InstantiationException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    }
-                }else{
-                    throw f;
-                }
-            }else{
-                throw f;
-            }
-        }
-        }
-            
-                    /**
-                    * Auto generated method signature
-                    * @see eu.sqooss.ws.client.Ws#validateAccount
-                        * @param param74
-                    
-                    */
-                    public eu.sqooss.ws.client.ws.ValidateAccountResponse validateAccount(
-
-                    eu.sqooss.ws.client.ws.ValidateAccount param74)
-                    throws java.rmi.RemoteException
-                    
-                    {
-              try{
-               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[14].getName());
-              _operationClient.getOptions().setAction("urn:validateAccount");
-              _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
-
-              
-
-              // create SOAP envelope with that payload
-              org.apache.axiom.soap.SOAPEnvelope env = null;
-                    
-                                    //Style is Doc.
-                                    
-                                                    
-                                                    env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    param74,
-                                                    optimizeContent(new javax.xml.namespace.QName("",
-                                                    "validateAccount")));
-                                                
-        //adding SOAP headers
-         _serviceClient.addHeadersToEnvelope(env);
-        // create message context with that soap envelope
-        org.apache.axis2.context.MessageContext _messageContext = new org.apache.axis2.context.MessageContext() ;
-        _messageContext.setEnvelope(env);
-
-        // add the message contxt to the operation client
-        _operationClient.addMessageContext(_messageContext);
-
-        //execute the operation client
-        _operationClient.execute(true);
-
-         
-               org.apache.axis2.context.MessageContext _returnMessageContext = _operationClient.getMessageContext(
-                                           org.apache.axis2.wsdl.WSDLConstants.MESSAGE_LABEL_IN_VALUE);
-                org.apache.axiom.soap.SOAPEnvelope _returnEnv = _returnMessageContext.getEnvelope();
-                
-                
-                           java.lang.Object object = fromOM(
-                                        _returnEnv.getBody().getFirstElement() ,
-                                        eu.sqooss.ws.client.ws.ValidateAccountResponse.class,
-                                         getEnvelopeNamespaces(_returnEnv));
-                           _messageContext.getTransportOut().getSender().cleanup(_messageContext);
-                           return (eu.sqooss.ws.client.ws.ValidateAccountResponse)object;
-                    
-         }catch(org.apache.axis2.AxisFault f){
-            org.apache.axiom.om.OMElement faultElt = f.getDetail();
-            if (faultElt!=null){
-                if (faultExeptionNameMap.containsKey(faultElt.getQName())){
-                    //make the fault by reflection
-                    try{
-                        java.lang.String exceptionClassName = (java.lang.String)faultExeptionClassNameMap.get(faultElt.getQName());
-                        java.lang.Class exceptionClass = java.lang.Class.forName(exceptionClassName);
-                        java.lang.Exception ex=
-                                (java.lang.Exception) exceptionClass.newInstance();
-                        //message class
-                        java.lang.String messageClassName = (java.lang.String)faultMessageMap.get(faultElt.getQName());
-                        java.lang.Class messageClass = java.lang.Class.forName(messageClassName);
-                        java.lang.Object messageObject = fromOM(faultElt,messageClass,null);
-                        java.lang.reflect.Method m = exceptionClass.getMethod("setFaultMessage",
-                                   new java.lang.Class[]{messageClass});
-                        m.invoke(ex,new java.lang.Object[]{messageObject});
-                        
-
-                        throw new java.rmi.RemoteException(ex.getMessage(), ex);
-                    }catch(java.lang.ClassCastException e){
-                       // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    } catch (java.lang.ClassNotFoundException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    }catch (java.lang.NoSuchMethodException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    } catch (java.lang.reflect.InvocationTargetException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    }  catch (java.lang.IllegalAccessException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    }   catch (java.lang.InstantiationException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    }
-                }else{
-                    throw f;
-                }
-            }else{
-                throw f;
-            }
-        }
-        }
-            
-                    /**
-                    * Auto generated method signature
-                    * @see eu.sqooss.ws.client.Ws#modifyUser
-                        * @param param76
-                    
-                    */
-                    public eu.sqooss.ws.client.ws.ModifyUserResponse modifyUser(
-
-                    eu.sqooss.ws.client.ws.ModifyUser param76)
-                    throws java.rmi.RemoteException
-                    
-                    {
-              try{
-               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[15].getName());
-              _operationClient.getOptions().setAction("urn:modifyUser");
-              _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
-
-              
-
-              // create SOAP envelope with that payload
-              org.apache.axiom.soap.SOAPEnvelope env = null;
-                    
-                                    //Style is Doc.
-                                    
-                                                    
-                                                    env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    param76,
-                                                    optimizeContent(new javax.xml.namespace.QName("",
-                                                    "modifyUser")));
-                                                
-        //adding SOAP headers
-         _serviceClient.addHeadersToEnvelope(env);
-        // create message context with that soap envelope
-        org.apache.axis2.context.MessageContext _messageContext = new org.apache.axis2.context.MessageContext() ;
-        _messageContext.setEnvelope(env);
-
-        // add the message contxt to the operation client
-        _operationClient.addMessageContext(_messageContext);
-
-        //execute the operation client
-        _operationClient.execute(true);
-
-         
-               org.apache.axis2.context.MessageContext _returnMessageContext = _operationClient.getMessageContext(
-                                           org.apache.axis2.wsdl.WSDLConstants.MESSAGE_LABEL_IN_VALUE);
-                org.apache.axiom.soap.SOAPEnvelope _returnEnv = _returnMessageContext.getEnvelope();
-                
-                
-                           java.lang.Object object = fromOM(
-                                        _returnEnv.getBody().getFirstElement() ,
-                                        eu.sqooss.ws.client.ws.ModifyUserResponse.class,
-                                         getEnvelopeNamespaces(_returnEnv));
-                           _messageContext.getTransportOut().getSender().cleanup(_messageContext);
-                           return (eu.sqooss.ws.client.ws.ModifyUserResponse)object;
-                    
-         }catch(org.apache.axis2.AxisFault f){
-            org.apache.axiom.om.OMElement faultElt = f.getDetail();
-            if (faultElt!=null){
-                if (faultExeptionNameMap.containsKey(faultElt.getQName())){
-                    //make the fault by reflection
-                    try{
-                        java.lang.String exceptionClassName = (java.lang.String)faultExeptionClassNameMap.get(faultElt.getQName());
-                        java.lang.Class exceptionClass = java.lang.Class.forName(exceptionClassName);
-                        java.lang.Exception ex=
-                                (java.lang.Exception) exceptionClass.newInstance();
-                        //message class
-                        java.lang.String messageClassName = (java.lang.String)faultMessageMap.get(faultElt.getQName());
-                        java.lang.Class messageClass = java.lang.Class.forName(messageClassName);
-                        java.lang.Object messageObject = fromOM(faultElt,messageClass,null);
-                        java.lang.reflect.Method m = exceptionClass.getMethod("setFaultMessage",
-                                   new java.lang.Class[]{messageClass});
-                        m.invoke(ex,new java.lang.Object[]{messageObject});
-                        
-
-                        throw new java.rmi.RemoteException(ex.getMessage(), ex);
-                    }catch(java.lang.ClassCastException e){
-                       // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    } catch (java.lang.ClassNotFoundException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    }catch (java.lang.NoSuchMethodException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    } catch (java.lang.reflect.InvocationTargetException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    }  catch (java.lang.IllegalAccessException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    }   catch (java.lang.InstantiationException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    }
-                }else{
-                    throw f;
-                }
-            }else{
-                throw f;
-            }
-        }
-        }
-            
-                    /**
-                    * Auto generated method signature
-                    * @see eu.sqooss.ws.client.Ws#retrieveMetrics4SelectedProject
-                        * @param param78
-                    
-                    */
-                    public eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProjectResponse retrieveMetrics4SelectedProject(
-
-                    eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProject param78)
-                    throws java.rmi.RemoteException
-                    
-                    {
-              try{
-               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[16].getName());
-              _operationClient.getOptions().setAction("urn:retrieveMetrics4SelectedProject");
-              _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
-
-              
-
-              // create SOAP envelope with that payload
-              org.apache.axiom.soap.SOAPEnvelope env = null;
-                    
-                                    //Style is Doc.
-                                    
-                                                    
-                                                    env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    param78,
-                                                    optimizeContent(new javax.xml.namespace.QName("",
-                                                    "retrieveMetrics4SelectedProject")));
-                                                
-        //adding SOAP headers
-         _serviceClient.addHeadersToEnvelope(env);
-        // create message context with that soap envelope
-        org.apache.axis2.context.MessageContext _messageContext = new org.apache.axis2.context.MessageContext() ;
-        _messageContext.setEnvelope(env);
-
-        // add the message contxt to the operation client
-        _operationClient.addMessageContext(_messageContext);
-
-        //execute the operation client
-        _operationClient.execute(true);
-
-         
-               org.apache.axis2.context.MessageContext _returnMessageContext = _operationClient.getMessageContext(
-                                           org.apache.axis2.wsdl.WSDLConstants.MESSAGE_LABEL_IN_VALUE);
-                org.apache.axiom.soap.SOAPEnvelope _returnEnv = _returnMessageContext.getEnvelope();
-                
-                
-                           java.lang.Object object = fromOM(
-                                        _returnEnv.getBody().getFirstElement() ,
-                                        eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProjectResponse.class,
-                                         getEnvelopeNamespaces(_returnEnv));
-                           _messageContext.getTransportOut().getSender().cleanup(_messageContext);
-                           return (eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProjectResponse)object;
-                    
-         }catch(org.apache.axis2.AxisFault f){
-            org.apache.axiom.om.OMElement faultElt = f.getDetail();
-            if (faultElt!=null){
-                if (faultExeptionNameMap.containsKey(faultElt.getQName())){
-                    //make the fault by reflection
-                    try{
-                        java.lang.String exceptionClassName = (java.lang.String)faultExeptionClassNameMap.get(faultElt.getQName());
-                        java.lang.Class exceptionClass = java.lang.Class.forName(exceptionClassName);
-                        java.lang.Exception ex=
-                                (java.lang.Exception) exceptionClass.newInstance();
-                        //message class
-                        java.lang.String messageClassName = (java.lang.String)faultMessageMap.get(faultElt.getQName());
-                        java.lang.Class messageClass = java.lang.Class.forName(messageClassName);
-                        java.lang.Object messageObject = fromOM(faultElt,messageClass,null);
-                        java.lang.reflect.Method m = exceptionClass.getMethod("setFaultMessage",
-                                   new java.lang.Class[]{messageClass});
-                        m.invoke(ex,new java.lang.Object[]{messageObject});
-                        
-
-                        throw new java.rmi.RemoteException(ex.getMessage(), ex);
-                    }catch(java.lang.ClassCastException e){
-                       // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    } catch (java.lang.ClassNotFoundException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    }catch (java.lang.NoSuchMethodException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    } catch (java.lang.reflect.InvocationTargetException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    }  catch (java.lang.IllegalAccessException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    }   catch (java.lang.InstantiationException e) {
-                        // we cannot intantiate the class - throw the original Axis fault
-                        throw f;
-                    }
-                }else{
-                    throw f;
-                }
-            }else{
-                throw f;
-            }
-        }
-        }
-            
-                    /**
-                    * Auto generated method signature
-                    * @see eu.sqooss.ws.client.Ws#retrieveFileList
-                        * @param param80
-                    
-                    */
-                    public eu.sqooss.ws.client.ws.RetrieveFileListResponse retrieveFileList(
-
-                    eu.sqooss.ws.client.ws.RetrieveFileList param80)
-                    throws java.rmi.RemoteException
-                    
-                    {
-              try{
-               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[17].getName());
-              _operationClient.getOptions().setAction("urn:retrieveFileList");
-              _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
-
-              
-
-              // create SOAP envelope with that payload
-              org.apache.axiom.soap.SOAPEnvelope env = null;
-                    
-                                    //Style is Doc.
-                                    
-                                                    
-                                                    env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    param80,
-                                                    optimizeContent(new javax.xml.namespace.QName("",
-                                                    "retrieveFileList")));
-                                                
-        //adding SOAP headers
-         _serviceClient.addHeadersToEnvelope(env);
-        // create message context with that soap envelope
-        org.apache.axis2.context.MessageContext _messageContext = new org.apache.axis2.context.MessageContext() ;
-        _messageContext.setEnvelope(env);
-
-        // add the message contxt to the operation client
-        _operationClient.addMessageContext(_messageContext);
-
-        //execute the operation client
-        _operationClient.execute(true);
-
-         
-               org.apache.axis2.context.MessageContext _returnMessageContext = _operationClient.getMessageContext(
-                                           org.apache.axis2.wsdl.WSDLConstants.MESSAGE_LABEL_IN_VALUE);
-                org.apache.axiom.soap.SOAPEnvelope _returnEnv = _returnMessageContext.getEnvelope();
-                
-                
-                           java.lang.Object object = fromOM(
-                                        _returnEnv.getBody().getFirstElement() ,
-                                        eu.sqooss.ws.client.ws.RetrieveFileListResponse.class,
-                                         getEnvelopeNamespaces(_returnEnv));
-                           _messageContext.getTransportOut().getSender().cleanup(_messageContext);
-                           return (eu.sqooss.ws.client.ws.RetrieveFileListResponse)object;
+                           return (eu.sqooss.ws.client.ws.SubmitUserResponse)object;
                     
          }catch(org.apache.axis2.AxisFault f){
             org.apache.axiom.om.OMElement faultElt = f.getDetail();
@@ -2200,17 +744,17 @@
                     /**
                     * Auto generated method signature
                     * @see eu.sqooss.ws.client.Ws#submitPendingUser
-                        * @param param82
+                        * @param param52
                     
                     */
                     public eu.sqooss.ws.client.ws.SubmitPendingUserResponse submitPendingUser(
 
-                    eu.sqooss.ws.client.ws.SubmitPendingUser param82)
+                    eu.sqooss.ws.client.ws.SubmitPendingUser param52)
                     throws java.rmi.RemoteException
                     
                     {
               try{
-               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[18].getName());
+               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[4].getName());
               _operationClient.getOptions().setAction("urn:submitPendingUser");
               _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
@@ -2223,7 +767,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    param82,
+                                                    param52,
                                                     optimizeContent(new javax.xml.namespace.QName("",
                                                     "submitPendingUser")));
                                                 
@@ -2302,18 +846,121 @@
             
                     /**
                     * Auto generated method signature
-                    * @see eu.sqooss.ws.client.Ws#deleteUser
-                        * @param param84
+                    * @see eu.sqooss.ws.client.Ws#getMetrics
+                        * @param param54
                     
                     */
-                    public eu.sqooss.ws.client.ws.DeleteUserResponse deleteUser(
+                    public eu.sqooss.ws.client.ws.GetMetricsResponse getMetrics(
 
-                    eu.sqooss.ws.client.ws.DeleteUser param84)
+                    eu.sqooss.ws.client.ws.GetMetrics param54)
                     throws java.rmi.RemoteException
                     
                     {
               try{
-               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[19].getName());
+               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[5].getName());
+              _operationClient.getOptions().setAction("urn:getMetrics");
+              _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
+
+              
+
+              // create SOAP envelope with that payload
+              org.apache.axiom.soap.SOAPEnvelope env = null;
+                    
+                                    //Style is Doc.
+                                    
+                                                    
+                                                    env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
+                                                    param54,
+                                                    optimizeContent(new javax.xml.namespace.QName("",
+                                                    "getMetrics")));
+                                                
+        //adding SOAP headers
+         _serviceClient.addHeadersToEnvelope(env);
+        // create message context with that soap envelope
+        org.apache.axis2.context.MessageContext _messageContext = new org.apache.axis2.context.MessageContext() ;
+        _messageContext.setEnvelope(env);
+
+        // add the message contxt to the operation client
+        _operationClient.addMessageContext(_messageContext);
+
+        //execute the operation client
+        _operationClient.execute(true);
+
+         
+               org.apache.axis2.context.MessageContext _returnMessageContext = _operationClient.getMessageContext(
+                                           org.apache.axis2.wsdl.WSDLConstants.MESSAGE_LABEL_IN_VALUE);
+                org.apache.axiom.soap.SOAPEnvelope _returnEnv = _returnMessageContext.getEnvelope();
+                
+                
+                           java.lang.Object object = fromOM(
+                                        _returnEnv.getBody().getFirstElement() ,
+                                        eu.sqooss.ws.client.ws.GetMetricsResponse.class,
+                                         getEnvelopeNamespaces(_returnEnv));
+                           _messageContext.getTransportOut().getSender().cleanup(_messageContext);
+                           return (eu.sqooss.ws.client.ws.GetMetricsResponse)object;
+                    
+         }catch(org.apache.axis2.AxisFault f){
+            org.apache.axiom.om.OMElement faultElt = f.getDetail();
+            if (faultElt!=null){
+                if (faultExeptionNameMap.containsKey(faultElt.getQName())){
+                    //make the fault by reflection
+                    try{
+                        java.lang.String exceptionClassName = (java.lang.String)faultExeptionClassNameMap.get(faultElt.getQName());
+                        java.lang.Class exceptionClass = java.lang.Class.forName(exceptionClassName);
+                        java.lang.Exception ex=
+                                (java.lang.Exception) exceptionClass.newInstance();
+                        //message class
+                        java.lang.String messageClassName = (java.lang.String)faultMessageMap.get(faultElt.getQName());
+                        java.lang.Class messageClass = java.lang.Class.forName(messageClassName);
+                        java.lang.Object messageObject = fromOM(faultElt,messageClass,null);
+                        java.lang.reflect.Method m = exceptionClass.getMethod("setFaultMessage",
+                                   new java.lang.Class[]{messageClass});
+                        m.invoke(ex,new java.lang.Object[]{messageObject});
+                        
+
+                        throw new java.rmi.RemoteException(ex.getMessage(), ex);
+                    }catch(java.lang.ClassCastException e){
+                       // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    } catch (java.lang.ClassNotFoundException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }catch (java.lang.NoSuchMethodException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    } catch (java.lang.reflect.InvocationTargetException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }  catch (java.lang.IllegalAccessException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }   catch (java.lang.InstantiationException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }
+                }else{
+                    throw f;
+                }
+            }else{
+                throw f;
+            }
+        }
+        }
+            
+                    /**
+                    * Auto generated method signature
+                    * @see eu.sqooss.ws.client.Ws#deleteUser
+                        * @param param56
+                    
+                    */
+                    public eu.sqooss.ws.client.ws.DeleteUserResponse deleteUser(
+
+                    eu.sqooss.ws.client.ws.DeleteUser param56)
+                    throws java.rmi.RemoteException
+                    
+                    {
+              try{
+               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[6].getName());
               _operationClient.getOptions().setAction("urn:deleteUser");
               _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
@@ -2326,7 +973,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    param84,
+                                                    param56,
                                                     optimizeContent(new javax.xml.namespace.QName("",
                                                     "deleteUser")));
                                                 
@@ -2405,19 +1052,19 @@
             
                     /**
                     * Auto generated method signature
-                    * @see eu.sqooss.ws.client.Ws#getProjectVersionMetricMeasurement
-                        * @param param86
+                    * @see eu.sqooss.ws.client.Ws#getUserByName
+                        * @param param58
                     
                     */
-                    public eu.sqooss.ws.client.ws.GetProjectVersionMetricMeasurementResponse getProjectVersionMetricMeasurement(
+                    public eu.sqooss.ws.client.ws.GetUserByNameResponse getUserByName(
 
-                    eu.sqooss.ws.client.ws.GetProjectVersionMetricMeasurement param86)
+                    eu.sqooss.ws.client.ws.GetUserByName param58)
                     throws java.rmi.RemoteException
                     
                     {
               try{
-               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[20].getName());
-              _operationClient.getOptions().setAction("urn:getProjectVersionMetricMeasurement");
+               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[7].getName());
+              _operationClient.getOptions().setAction("urn:getUserByName");
               _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
               
@@ -2429,9 +1076,9 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    param86,
+                                                    param58,
                                                     optimizeContent(new javax.xml.namespace.QName("",
-                                                    "getProjectVersionMetricMeasurement")));
+                                                    "getUserByName")));
                                                 
         //adding SOAP headers
          _serviceClient.addHeadersToEnvelope(env);
@@ -2453,10 +1100,10 @@
                 
                            java.lang.Object object = fromOM(
                                         _returnEnv.getBody().getFirstElement() ,
-                                        eu.sqooss.ws.client.ws.GetProjectVersionMetricMeasurementResponse.class,
+                                        eu.sqooss.ws.client.ws.GetUserByNameResponse.class,
                                          getEnvelopeNamespaces(_returnEnv));
                            _messageContext.getTransportOut().getSender().cleanup(_messageContext);
-                           return (eu.sqooss.ws.client.ws.GetProjectVersionMetricMeasurementResponse)object;
+                           return (eu.sqooss.ws.client.ws.GetUserByNameResponse)object;
                     
          }catch(org.apache.axis2.AxisFault f){
             org.apache.axiom.om.OMElement faultElt = f.getDetail();
@@ -2509,17 +1156,17 @@
                     /**
                     * Auto generated method signature
                     * @see eu.sqooss.ws.client.Ws#retrieveSelectedMetric
-                        * @param param88
+                        * @param param60
                     
                     */
                     public eu.sqooss.ws.client.ws.RetrieveSelectedMetricResponse retrieveSelectedMetric(
 
-                    eu.sqooss.ws.client.ws.RetrieveSelectedMetric param88)
+                    eu.sqooss.ws.client.ws.RetrieveSelectedMetric param60)
                     throws java.rmi.RemoteException
                     
                     {
               try{
-               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[21].getName());
+               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[8].getName());
               _operationClient.getOptions().setAction("urn:retrieveSelectedMetric");
               _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
@@ -2532,7 +1179,7 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    param88,
+                                                    param60,
                                                     optimizeContent(new javax.xml.namespace.QName("",
                                                     "retrieveSelectedMetric")));
                                                 
@@ -2611,19 +1258,19 @@
             
                     /**
                     * Auto generated method signature
-                    * @see eu.sqooss.ws.client.Ws#getFilesNumber4ProjectVersion
-                        * @param param90
+                    * @see eu.sqooss.ws.client.Ws#retrieveMetrics4SelectedFiles
+                        * @param param62
                     
                     */
-                    public eu.sqooss.ws.client.ws.GetFilesNumber4ProjectVersionResponse getFilesNumber4ProjectVersion(
+                    public eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedFilesResponse retrieveMetrics4SelectedFiles(
 
-                    eu.sqooss.ws.client.ws.GetFilesNumber4ProjectVersion param90)
+                    eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedFiles param62)
                     throws java.rmi.RemoteException
                     
                     {
               try{
-               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[22].getName());
-              _operationClient.getOptions().setAction("urn:getFilesNumber4ProjectVersion");
+               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[9].getName());
+              _operationClient.getOptions().setAction("urn:retrieveMetrics4SelectedFiles");
               _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
               
@@ -2635,9 +1282,9 @@
                                     
                                                     
                                                     env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                                                    param90,
+                                                    param62,
                                                     optimizeContent(new javax.xml.namespace.QName("",
-                                                    "getFilesNumber4ProjectVersion")));
+                                                    "retrieveMetrics4SelectedFiles")));
                                                 
         //adding SOAP headers
          _serviceClient.addHeadersToEnvelope(env);
@@ -2659,10 +1306,1246 @@
                 
                            java.lang.Object object = fromOM(
                                         _returnEnv.getBody().getFirstElement() ,
-                                        eu.sqooss.ws.client.ws.GetFilesNumber4ProjectVersionResponse.class,
+                                        eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedFilesResponse.class,
                                          getEnvelopeNamespaces(_returnEnv));
                            _messageContext.getTransportOut().getSender().cleanup(_messageContext);
-                           return (eu.sqooss.ws.client.ws.GetFilesNumber4ProjectVersionResponse)object;
+                           return (eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedFilesResponse)object;
+                    
+         }catch(org.apache.axis2.AxisFault f){
+            org.apache.axiom.om.OMElement faultElt = f.getDetail();
+            if (faultElt!=null){
+                if (faultExeptionNameMap.containsKey(faultElt.getQName())){
+                    //make the fault by reflection
+                    try{
+                        java.lang.String exceptionClassName = (java.lang.String)faultExeptionClassNameMap.get(faultElt.getQName());
+                        java.lang.Class exceptionClass = java.lang.Class.forName(exceptionClassName);
+                        java.lang.Exception ex=
+                                (java.lang.Exception) exceptionClass.newInstance();
+                        //message class
+                        java.lang.String messageClassName = (java.lang.String)faultMessageMap.get(faultElt.getQName());
+                        java.lang.Class messageClass = java.lang.Class.forName(messageClassName);
+                        java.lang.Object messageObject = fromOM(faultElt,messageClass,null);
+                        java.lang.reflect.Method m = exceptionClass.getMethod("setFaultMessage",
+                                   new java.lang.Class[]{messageClass});
+                        m.invoke(ex,new java.lang.Object[]{messageObject});
+                        
+
+                        throw new java.rmi.RemoteException(ex.getMessage(), ex);
+                    }catch(java.lang.ClassCastException e){
+                       // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    } catch (java.lang.ClassNotFoundException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }catch (java.lang.NoSuchMethodException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    } catch (java.lang.reflect.InvocationTargetException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }  catch (java.lang.IllegalAccessException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }   catch (java.lang.InstantiationException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }
+                }else{
+                    throw f;
+                }
+            }else{
+                throw f;
+            }
+        }
+        }
+            
+                    /**
+                    * Auto generated method signature
+                    * @see eu.sqooss.ws.client.Ws#storedProjectsList
+                        * @param param64
+                    
+                    */
+                    public eu.sqooss.ws.client.ws.StoredProjectsListResponse storedProjectsList(
+
+                    eu.sqooss.ws.client.ws.StoredProjectsList param64)
+                    throws java.rmi.RemoteException
+                    
+                    {
+              try{
+               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[10].getName());
+              _operationClient.getOptions().setAction("urn:storedProjectsList");
+              _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
+
+              
+
+              // create SOAP envelope with that payload
+              org.apache.axiom.soap.SOAPEnvelope env = null;
+                    
+                                    //Style is Doc.
+                                    
+                                                    
+                                                    env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
+                                                    param64,
+                                                    optimizeContent(new javax.xml.namespace.QName("",
+                                                    "storedProjectsList")));
+                                                
+        //adding SOAP headers
+         _serviceClient.addHeadersToEnvelope(env);
+        // create message context with that soap envelope
+        org.apache.axis2.context.MessageContext _messageContext = new org.apache.axis2.context.MessageContext() ;
+        _messageContext.setEnvelope(env);
+
+        // add the message contxt to the operation client
+        _operationClient.addMessageContext(_messageContext);
+
+        //execute the operation client
+        _operationClient.execute(true);
+
+         
+               org.apache.axis2.context.MessageContext _returnMessageContext = _operationClient.getMessageContext(
+                                           org.apache.axis2.wsdl.WSDLConstants.MESSAGE_LABEL_IN_VALUE);
+                org.apache.axiom.soap.SOAPEnvelope _returnEnv = _returnMessageContext.getEnvelope();
+                
+                
+                           java.lang.Object object = fromOM(
+                                        _returnEnv.getBody().getFirstElement() ,
+                                        eu.sqooss.ws.client.ws.StoredProjectsListResponse.class,
+                                         getEnvelopeNamespaces(_returnEnv));
+                           _messageContext.getTransportOut().getSender().cleanup(_messageContext);
+                           return (eu.sqooss.ws.client.ws.StoredProjectsListResponse)object;
+                    
+         }catch(org.apache.axis2.AxisFault f){
+            org.apache.axiom.om.OMElement faultElt = f.getDetail();
+            if (faultElt!=null){
+                if (faultExeptionNameMap.containsKey(faultElt.getQName())){
+                    //make the fault by reflection
+                    try{
+                        java.lang.String exceptionClassName = (java.lang.String)faultExeptionClassNameMap.get(faultElt.getQName());
+                        java.lang.Class exceptionClass = java.lang.Class.forName(exceptionClassName);
+                        java.lang.Exception ex=
+                                (java.lang.Exception) exceptionClass.newInstance();
+                        //message class
+                        java.lang.String messageClassName = (java.lang.String)faultMessageMap.get(faultElt.getQName());
+                        java.lang.Class messageClass = java.lang.Class.forName(messageClassName);
+                        java.lang.Object messageObject = fromOM(faultElt,messageClass,null);
+                        java.lang.reflect.Method m = exceptionClass.getMethod("setFaultMessage",
+                                   new java.lang.Class[]{messageClass});
+                        m.invoke(ex,new java.lang.Object[]{messageObject});
+                        
+
+                        throw new java.rmi.RemoteException(ex.getMessage(), ex);
+                    }catch(java.lang.ClassCastException e){
+                       // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    } catch (java.lang.ClassNotFoundException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }catch (java.lang.NoSuchMethodException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    } catch (java.lang.reflect.InvocationTargetException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }  catch (java.lang.IllegalAccessException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }   catch (java.lang.InstantiationException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }
+                }else{
+                    throw f;
+                }
+            }else{
+                throw f;
+            }
+        }
+        }
+            
+                    /**
+                    * Auto generated method signature
+                    * @see eu.sqooss.ws.client.Ws#displayUser
+                        * @param param66
+                    
+                    */
+                    public eu.sqooss.ws.client.ws.DisplayUserResponse displayUser(
+
+                    eu.sqooss.ws.client.ws.DisplayUser param66)
+                    throws java.rmi.RemoteException
+                    
+                    {
+              try{
+               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[11].getName());
+              _operationClient.getOptions().setAction("urn:displayUser");
+              _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
+
+              
+
+              // create SOAP envelope with that payload
+              org.apache.axiom.soap.SOAPEnvelope env = null;
+                    
+                                    //Style is Doc.
+                                    
+                                                    
+                                                    env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
+                                                    param66,
+                                                    optimizeContent(new javax.xml.namespace.QName("",
+                                                    "displayUser")));
+                                                
+        //adding SOAP headers
+         _serviceClient.addHeadersToEnvelope(env);
+        // create message context with that soap envelope
+        org.apache.axis2.context.MessageContext _messageContext = new org.apache.axis2.context.MessageContext() ;
+        _messageContext.setEnvelope(env);
+
+        // add the message contxt to the operation client
+        _operationClient.addMessageContext(_messageContext);
+
+        //execute the operation client
+        _operationClient.execute(true);
+
+         
+               org.apache.axis2.context.MessageContext _returnMessageContext = _operationClient.getMessageContext(
+                                           org.apache.axis2.wsdl.WSDLConstants.MESSAGE_LABEL_IN_VALUE);
+                org.apache.axiom.soap.SOAPEnvelope _returnEnv = _returnMessageContext.getEnvelope();
+                
+                
+                           java.lang.Object object = fromOM(
+                                        _returnEnv.getBody().getFirstElement() ,
+                                        eu.sqooss.ws.client.ws.DisplayUserResponse.class,
+                                         getEnvelopeNamespaces(_returnEnv));
+                           _messageContext.getTransportOut().getSender().cleanup(_messageContext);
+                           return (eu.sqooss.ws.client.ws.DisplayUserResponse)object;
+                    
+         }catch(org.apache.axis2.AxisFault f){
+            org.apache.axiom.om.OMElement faultElt = f.getDetail();
+            if (faultElt!=null){
+                if (faultExeptionNameMap.containsKey(faultElt.getQName())){
+                    //make the fault by reflection
+                    try{
+                        java.lang.String exceptionClassName = (java.lang.String)faultExeptionClassNameMap.get(faultElt.getQName());
+                        java.lang.Class exceptionClass = java.lang.Class.forName(exceptionClassName);
+                        java.lang.Exception ex=
+                                (java.lang.Exception) exceptionClass.newInstance();
+                        //message class
+                        java.lang.String messageClassName = (java.lang.String)faultMessageMap.get(faultElt.getQName());
+                        java.lang.Class messageClass = java.lang.Class.forName(messageClassName);
+                        java.lang.Object messageObject = fromOM(faultElt,messageClass,null);
+                        java.lang.reflect.Method m = exceptionClass.getMethod("setFaultMessage",
+                                   new java.lang.Class[]{messageClass});
+                        m.invoke(ex,new java.lang.Object[]{messageObject});
+                        
+
+                        throw new java.rmi.RemoteException(ex.getMessage(), ex);
+                    }catch(java.lang.ClassCastException e){
+                       // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    } catch (java.lang.ClassNotFoundException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }catch (java.lang.NoSuchMethodException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    } catch (java.lang.reflect.InvocationTargetException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }  catch (java.lang.IllegalAccessException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }   catch (java.lang.InstantiationException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }
+                }else{
+                    throw f;
+                }
+            }else{
+                throw f;
+            }
+        }
+        }
+            
+                    /**
+                    * Auto generated method signature
+                    * @see eu.sqooss.ws.client.Ws#retrieveMetrics4SelectedProject
+                        * @param param68
+                    
+                    */
+                    public eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProjectResponse retrieveMetrics4SelectedProject(
+
+                    eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProject param68)
+                    throws java.rmi.RemoteException
+                    
+                    {
+              try{
+               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[12].getName());
+              _operationClient.getOptions().setAction("urn:retrieveMetrics4SelectedProject");
+              _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
+
+              
+
+              // create SOAP envelope with that payload
+              org.apache.axiom.soap.SOAPEnvelope env = null;
+                    
+                                    //Style is Doc.
+                                    
+                                                    
+                                                    env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
+                                                    param68,
+                                                    optimizeContent(new javax.xml.namespace.QName("",
+                                                    "retrieveMetrics4SelectedProject")));
+                                                
+        //adding SOAP headers
+         _serviceClient.addHeadersToEnvelope(env);
+        // create message context with that soap envelope
+        org.apache.axis2.context.MessageContext _messageContext = new org.apache.axis2.context.MessageContext() ;
+        _messageContext.setEnvelope(env);
+
+        // add the message contxt to the operation client
+        _operationClient.addMessageContext(_messageContext);
+
+        //execute the operation client
+        _operationClient.execute(true);
+
+         
+               org.apache.axis2.context.MessageContext _returnMessageContext = _operationClient.getMessageContext(
+                                           org.apache.axis2.wsdl.WSDLConstants.MESSAGE_LABEL_IN_VALUE);
+                org.apache.axiom.soap.SOAPEnvelope _returnEnv = _returnMessageContext.getEnvelope();
+                
+                
+                           java.lang.Object object = fromOM(
+                                        _returnEnv.getBody().getFirstElement() ,
+                                        eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProjectResponse.class,
+                                         getEnvelopeNamespaces(_returnEnv));
+                           _messageContext.getTransportOut().getSender().cleanup(_messageContext);
+                           return (eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProjectResponse)object;
+                    
+         }catch(org.apache.axis2.AxisFault f){
+            org.apache.axiom.om.OMElement faultElt = f.getDetail();
+            if (faultElt!=null){
+                if (faultExeptionNameMap.containsKey(faultElt.getQName())){
+                    //make the fault by reflection
+                    try{
+                        java.lang.String exceptionClassName = (java.lang.String)faultExeptionClassNameMap.get(faultElt.getQName());
+                        java.lang.Class exceptionClass = java.lang.Class.forName(exceptionClassName);
+                        java.lang.Exception ex=
+                                (java.lang.Exception) exceptionClass.newInstance();
+                        //message class
+                        java.lang.String messageClassName = (java.lang.String)faultMessageMap.get(faultElt.getQName());
+                        java.lang.Class messageClass = java.lang.Class.forName(messageClassName);
+                        java.lang.Object messageObject = fromOM(faultElt,messageClass,null);
+                        java.lang.reflect.Method m = exceptionClass.getMethod("setFaultMessage",
+                                   new java.lang.Class[]{messageClass});
+                        m.invoke(ex,new java.lang.Object[]{messageObject});
+                        
+
+                        throw new java.rmi.RemoteException(ex.getMessage(), ex);
+                    }catch(java.lang.ClassCastException e){
+                       // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    } catch (java.lang.ClassNotFoundException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }catch (java.lang.NoSuchMethodException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    } catch (java.lang.reflect.InvocationTargetException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }  catch (java.lang.IllegalAccessException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }   catch (java.lang.InstantiationException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }
+                }else{
+                    throw f;
+                }
+            }else{
+                throw f;
+            }
+        }
+        }
+            
+                    /**
+                    * Auto generated method signature
+                    * @see eu.sqooss.ws.client.Ws#retrieveStoredProjectVersions
+                        * @param param70
+                    
+                    */
+                    public eu.sqooss.ws.client.ws.RetrieveStoredProjectVersionsResponse retrieveStoredProjectVersions(
+
+                    eu.sqooss.ws.client.ws.RetrieveStoredProjectVersions param70)
+                    throws java.rmi.RemoteException
+                    
+                    {
+              try{
+               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[13].getName());
+              _operationClient.getOptions().setAction("urn:retrieveStoredProjectVersions");
+              _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
+
+              
+
+              // create SOAP envelope with that payload
+              org.apache.axiom.soap.SOAPEnvelope env = null;
+                    
+                                    //Style is Doc.
+                                    
+                                                    
+                                                    env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
+                                                    param70,
+                                                    optimizeContent(new javax.xml.namespace.QName("",
+                                                    "retrieveStoredProjectVersions")));
+                                                
+        //adding SOAP headers
+         _serviceClient.addHeadersToEnvelope(env);
+        // create message context with that soap envelope
+        org.apache.axis2.context.MessageContext _messageContext = new org.apache.axis2.context.MessageContext() ;
+        _messageContext.setEnvelope(env);
+
+        // add the message contxt to the operation client
+        _operationClient.addMessageContext(_messageContext);
+
+        //execute the operation client
+        _operationClient.execute(true);
+
+         
+               org.apache.axis2.context.MessageContext _returnMessageContext = _operationClient.getMessageContext(
+                                           org.apache.axis2.wsdl.WSDLConstants.MESSAGE_LABEL_IN_VALUE);
+                org.apache.axiom.soap.SOAPEnvelope _returnEnv = _returnMessageContext.getEnvelope();
+                
+                
+                           java.lang.Object object = fromOM(
+                                        _returnEnv.getBody().getFirstElement() ,
+                                        eu.sqooss.ws.client.ws.RetrieveStoredProjectVersionsResponse.class,
+                                         getEnvelopeNamespaces(_returnEnv));
+                           _messageContext.getTransportOut().getSender().cleanup(_messageContext);
+                           return (eu.sqooss.ws.client.ws.RetrieveStoredProjectVersionsResponse)object;
+                    
+         }catch(org.apache.axis2.AxisFault f){
+            org.apache.axiom.om.OMElement faultElt = f.getDetail();
+            if (faultElt!=null){
+                if (faultExeptionNameMap.containsKey(faultElt.getQName())){
+                    //make the fault by reflection
+                    try{
+                        java.lang.String exceptionClassName = (java.lang.String)faultExeptionClassNameMap.get(faultElt.getQName());
+                        java.lang.Class exceptionClass = java.lang.Class.forName(exceptionClassName);
+                        java.lang.Exception ex=
+                                (java.lang.Exception) exceptionClass.newInstance();
+                        //message class
+                        java.lang.String messageClassName = (java.lang.String)faultMessageMap.get(faultElt.getQName());
+                        java.lang.Class messageClass = java.lang.Class.forName(messageClassName);
+                        java.lang.Object messageObject = fromOM(faultElt,messageClass,null);
+                        java.lang.reflect.Method m = exceptionClass.getMethod("setFaultMessage",
+                                   new java.lang.Class[]{messageClass});
+                        m.invoke(ex,new java.lang.Object[]{messageObject});
+                        
+
+                        throw new java.rmi.RemoteException(ex.getMessage(), ex);
+                    }catch(java.lang.ClassCastException e){
+                       // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    } catch (java.lang.ClassNotFoundException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }catch (java.lang.NoSuchMethodException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    } catch (java.lang.reflect.InvocationTargetException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }  catch (java.lang.IllegalAccessException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }   catch (java.lang.InstantiationException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }
+                }else{
+                    throw f;
+                }
+            }else{
+                throw f;
+            }
+        }
+        }
+            
+                    /**
+                    * Auto generated method signature
+                    * @see eu.sqooss.ws.client.Ws#modifyUser
+                        * @param param72
+                    
+                    */
+                    public eu.sqooss.ws.client.ws.ModifyUserResponse modifyUser(
+
+                    eu.sqooss.ws.client.ws.ModifyUser param72)
+                    throws java.rmi.RemoteException
+                    
+                    {
+              try{
+               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[14].getName());
+              _operationClient.getOptions().setAction("urn:modifyUser");
+              _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
+
+              
+
+              // create SOAP envelope with that payload
+              org.apache.axiom.soap.SOAPEnvelope env = null;
+                    
+                                    //Style is Doc.
+                                    
+                                                    
+                                                    env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
+                                                    param72,
+                                                    optimizeContent(new javax.xml.namespace.QName("",
+                                                    "modifyUser")));
+                                                
+        //adding SOAP headers
+         _serviceClient.addHeadersToEnvelope(env);
+        // create message context with that soap envelope
+        org.apache.axis2.context.MessageContext _messageContext = new org.apache.axis2.context.MessageContext() ;
+        _messageContext.setEnvelope(env);
+
+        // add the message contxt to the operation client
+        _operationClient.addMessageContext(_messageContext);
+
+        //execute the operation client
+        _operationClient.execute(true);
+
+         
+               org.apache.axis2.context.MessageContext _returnMessageContext = _operationClient.getMessageContext(
+                                           org.apache.axis2.wsdl.WSDLConstants.MESSAGE_LABEL_IN_VALUE);
+                org.apache.axiom.soap.SOAPEnvelope _returnEnv = _returnMessageContext.getEnvelope();
+                
+                
+                           java.lang.Object object = fromOM(
+                                        _returnEnv.getBody().getFirstElement() ,
+                                        eu.sqooss.ws.client.ws.ModifyUserResponse.class,
+                                         getEnvelopeNamespaces(_returnEnv));
+                           _messageContext.getTransportOut().getSender().cleanup(_messageContext);
+                           return (eu.sqooss.ws.client.ws.ModifyUserResponse)object;
+                    
+         }catch(org.apache.axis2.AxisFault f){
+            org.apache.axiom.om.OMElement faultElt = f.getDetail();
+            if (faultElt!=null){
+                if (faultExeptionNameMap.containsKey(faultElt.getQName())){
+                    //make the fault by reflection
+                    try{
+                        java.lang.String exceptionClassName = (java.lang.String)faultExeptionClassNameMap.get(faultElt.getQName());
+                        java.lang.Class exceptionClass = java.lang.Class.forName(exceptionClassName);
+                        java.lang.Exception ex=
+                                (java.lang.Exception) exceptionClass.newInstance();
+                        //message class
+                        java.lang.String messageClassName = (java.lang.String)faultMessageMap.get(faultElt.getQName());
+                        java.lang.Class messageClass = java.lang.Class.forName(messageClassName);
+                        java.lang.Object messageObject = fromOM(faultElt,messageClass,null);
+                        java.lang.reflect.Method m = exceptionClass.getMethod("setFaultMessage",
+                                   new java.lang.Class[]{messageClass});
+                        m.invoke(ex,new java.lang.Object[]{messageObject});
+                        
+
+                        throw new java.rmi.RemoteException(ex.getMessage(), ex);
+                    }catch(java.lang.ClassCastException e){
+                       // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    } catch (java.lang.ClassNotFoundException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }catch (java.lang.NoSuchMethodException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    } catch (java.lang.reflect.InvocationTargetException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }  catch (java.lang.IllegalAccessException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }   catch (java.lang.InstantiationException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }
+                }else{
+                    throw f;
+                }
+            }else{
+                throw f;
+            }
+        }
+        }
+            
+                    /**
+                    * Auto generated method signature
+                    * @see eu.sqooss.ws.client.Ws#requestEvaluation4Project
+                        * @param param74
+                    
+                    */
+                    public eu.sqooss.ws.client.ws.RequestEvaluation4ProjectResponse requestEvaluation4Project(
+
+                    eu.sqooss.ws.client.ws.RequestEvaluation4Project param74)
+                    throws java.rmi.RemoteException
+                    
+                    {
+              try{
+               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[15].getName());
+              _operationClient.getOptions().setAction("urn:requestEvaluation4Project");
+              _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
+
+              
+
+              // create SOAP envelope with that payload
+              org.apache.axiom.soap.SOAPEnvelope env = null;
+                    
+                                    //Style is Doc.
+                                    
+                                                    
+                                                    env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
+                                                    param74,
+                                                    optimizeContent(new javax.xml.namespace.QName("",
+                                                    "requestEvaluation4Project")));
+                                                
+        //adding SOAP headers
+         _serviceClient.addHeadersToEnvelope(env);
+        // create message context with that soap envelope
+        org.apache.axis2.context.MessageContext _messageContext = new org.apache.axis2.context.MessageContext() ;
+        _messageContext.setEnvelope(env);
+
+        // add the message contxt to the operation client
+        _operationClient.addMessageContext(_messageContext);
+
+        //execute the operation client
+        _operationClient.execute(true);
+
+         
+               org.apache.axis2.context.MessageContext _returnMessageContext = _operationClient.getMessageContext(
+                                           org.apache.axis2.wsdl.WSDLConstants.MESSAGE_LABEL_IN_VALUE);
+                org.apache.axiom.soap.SOAPEnvelope _returnEnv = _returnMessageContext.getEnvelope();
+                
+                
+                           java.lang.Object object = fromOM(
+                                        _returnEnv.getBody().getFirstElement() ,
+                                        eu.sqooss.ws.client.ws.RequestEvaluation4ProjectResponse.class,
+                                         getEnvelopeNamespaces(_returnEnv));
+                           _messageContext.getTransportOut().getSender().cleanup(_messageContext);
+                           return (eu.sqooss.ws.client.ws.RequestEvaluation4ProjectResponse)object;
+                    
+         }catch(org.apache.axis2.AxisFault f){
+            org.apache.axiom.om.OMElement faultElt = f.getDetail();
+            if (faultElt!=null){
+                if (faultExeptionNameMap.containsKey(faultElt.getQName())){
+                    //make the fault by reflection
+                    try{
+                        java.lang.String exceptionClassName = (java.lang.String)faultExeptionClassNameMap.get(faultElt.getQName());
+                        java.lang.Class exceptionClass = java.lang.Class.forName(exceptionClassName);
+                        java.lang.Exception ex=
+                                (java.lang.Exception) exceptionClass.newInstance();
+                        //message class
+                        java.lang.String messageClassName = (java.lang.String)faultMessageMap.get(faultElt.getQName());
+                        java.lang.Class messageClass = java.lang.Class.forName(messageClassName);
+                        java.lang.Object messageObject = fromOM(faultElt,messageClass,null);
+                        java.lang.reflect.Method m = exceptionClass.getMethod("setFaultMessage",
+                                   new java.lang.Class[]{messageClass});
+                        m.invoke(ex,new java.lang.Object[]{messageObject});
+                        
+
+                        throw new java.rmi.RemoteException(ex.getMessage(), ex);
+                    }catch(java.lang.ClassCastException e){
+                       // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    } catch (java.lang.ClassNotFoundException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }catch (java.lang.NoSuchMethodException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    } catch (java.lang.reflect.InvocationTargetException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }  catch (java.lang.IllegalAccessException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }   catch (java.lang.InstantiationException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }
+                }else{
+                    throw f;
+                }
+            }else{
+                throw f;
+            }
+        }
+        }
+            
+                    /**
+                    * Auto generated method signature
+                    * @see eu.sqooss.ws.client.Ws#getFileList4ProjectVersion
+                        * @param param76
+                    
+                    */
+                    public eu.sqooss.ws.client.ws.GetFileList4ProjectVersionResponse getFileList4ProjectVersion(
+
+                    eu.sqooss.ws.client.ws.GetFileList4ProjectVersion param76)
+                    throws java.rmi.RemoteException
+                    
+                    {
+              try{
+               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[16].getName());
+              _operationClient.getOptions().setAction("urn:getFileList4ProjectVersion");
+              _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
+
+              
+
+              // create SOAP envelope with that payload
+              org.apache.axiom.soap.SOAPEnvelope env = null;
+                    
+                                    //Style is Doc.
+                                    
+                                                    
+                                                    env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
+                                                    param76,
+                                                    optimizeContent(new javax.xml.namespace.QName("",
+                                                    "getFileList4ProjectVersion")));
+                                                
+        //adding SOAP headers
+         _serviceClient.addHeadersToEnvelope(env);
+        // create message context with that soap envelope
+        org.apache.axis2.context.MessageContext _messageContext = new org.apache.axis2.context.MessageContext() ;
+        _messageContext.setEnvelope(env);
+
+        // add the message contxt to the operation client
+        _operationClient.addMessageContext(_messageContext);
+
+        //execute the operation client
+        _operationClient.execute(true);
+
+         
+               org.apache.axis2.context.MessageContext _returnMessageContext = _operationClient.getMessageContext(
+                                           org.apache.axis2.wsdl.WSDLConstants.MESSAGE_LABEL_IN_VALUE);
+                org.apache.axiom.soap.SOAPEnvelope _returnEnv = _returnMessageContext.getEnvelope();
+                
+                
+                           java.lang.Object object = fromOM(
+                                        _returnEnv.getBody().getFirstElement() ,
+                                        eu.sqooss.ws.client.ws.GetFileList4ProjectVersionResponse.class,
+                                         getEnvelopeNamespaces(_returnEnv));
+                           _messageContext.getTransportOut().getSender().cleanup(_messageContext);
+                           return (eu.sqooss.ws.client.ws.GetFileList4ProjectVersionResponse)object;
+                    
+         }catch(org.apache.axis2.AxisFault f){
+            org.apache.axiom.om.OMElement faultElt = f.getDetail();
+            if (faultElt!=null){
+                if (faultExeptionNameMap.containsKey(faultElt.getQName())){
+                    //make the fault by reflection
+                    try{
+                        java.lang.String exceptionClassName = (java.lang.String)faultExeptionClassNameMap.get(faultElt.getQName());
+                        java.lang.Class exceptionClass = java.lang.Class.forName(exceptionClassName);
+                        java.lang.Exception ex=
+                                (java.lang.Exception) exceptionClass.newInstance();
+                        //message class
+                        java.lang.String messageClassName = (java.lang.String)faultMessageMap.get(faultElt.getQName());
+                        java.lang.Class messageClass = java.lang.Class.forName(messageClassName);
+                        java.lang.Object messageObject = fromOM(faultElt,messageClass,null);
+                        java.lang.reflect.Method m = exceptionClass.getMethod("setFaultMessage",
+                                   new java.lang.Class[]{messageClass});
+                        m.invoke(ex,new java.lang.Object[]{messageObject});
+                        
+
+                        throw new java.rmi.RemoteException(ex.getMessage(), ex);
+                    }catch(java.lang.ClassCastException e){
+                       // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    } catch (java.lang.ClassNotFoundException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }catch (java.lang.NoSuchMethodException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    } catch (java.lang.reflect.InvocationTargetException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }  catch (java.lang.IllegalAccessException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }   catch (java.lang.InstantiationException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }
+                }else{
+                    throw f;
+                }
+            }else{
+                throw f;
+            }
+        }
+        }
+            
+                    /**
+                    * Auto generated method signature
+                    * @see eu.sqooss.ws.client.Ws#retrieveStoredProject
+                        * @param param78
+                    
+                    */
+                    public eu.sqooss.ws.client.ws.RetrieveStoredProjectResponse retrieveStoredProject(
+
+                    eu.sqooss.ws.client.ws.RetrieveStoredProject param78)
+                    throws java.rmi.RemoteException
+                    
+                    {
+              try{
+               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[17].getName());
+              _operationClient.getOptions().setAction("urn:retrieveStoredProject");
+              _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
+
+              
+
+              // create SOAP envelope with that payload
+              org.apache.axiom.soap.SOAPEnvelope env = null;
+                    
+                                    //Style is Doc.
+                                    
+                                                    
+                                                    env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
+                                                    param78,
+                                                    optimizeContent(new javax.xml.namespace.QName("",
+                                                    "retrieveStoredProject")));
+                                                
+        //adding SOAP headers
+         _serviceClient.addHeadersToEnvelope(env);
+        // create message context with that soap envelope
+        org.apache.axis2.context.MessageContext _messageContext = new org.apache.axis2.context.MessageContext() ;
+        _messageContext.setEnvelope(env);
+
+        // add the message contxt to the operation client
+        _operationClient.addMessageContext(_messageContext);
+
+        //execute the operation client
+        _operationClient.execute(true);
+
+         
+               org.apache.axis2.context.MessageContext _returnMessageContext = _operationClient.getMessageContext(
+                                           org.apache.axis2.wsdl.WSDLConstants.MESSAGE_LABEL_IN_VALUE);
+                org.apache.axiom.soap.SOAPEnvelope _returnEnv = _returnMessageContext.getEnvelope();
+                
+                
+                           java.lang.Object object = fromOM(
+                                        _returnEnv.getBody().getFirstElement() ,
+                                        eu.sqooss.ws.client.ws.RetrieveStoredProjectResponse.class,
+                                         getEnvelopeNamespaces(_returnEnv));
+                           _messageContext.getTransportOut().getSender().cleanup(_messageContext);
+                           return (eu.sqooss.ws.client.ws.RetrieveStoredProjectResponse)object;
+                    
+         }catch(org.apache.axis2.AxisFault f){
+            org.apache.axiom.om.OMElement faultElt = f.getDetail();
+            if (faultElt!=null){
+                if (faultExeptionNameMap.containsKey(faultElt.getQName())){
+                    //make the fault by reflection
+                    try{
+                        java.lang.String exceptionClassName = (java.lang.String)faultExeptionClassNameMap.get(faultElt.getQName());
+                        java.lang.Class exceptionClass = java.lang.Class.forName(exceptionClassName);
+                        java.lang.Exception ex=
+                                (java.lang.Exception) exceptionClass.newInstance();
+                        //message class
+                        java.lang.String messageClassName = (java.lang.String)faultMessageMap.get(faultElt.getQName());
+                        java.lang.Class messageClass = java.lang.Class.forName(messageClassName);
+                        java.lang.Object messageObject = fromOM(faultElt,messageClass,null);
+                        java.lang.reflect.Method m = exceptionClass.getMethod("setFaultMessage",
+                                   new java.lang.Class[]{messageClass});
+                        m.invoke(ex,new java.lang.Object[]{messageObject});
+                        
+
+                        throw new java.rmi.RemoteException(ex.getMessage(), ex);
+                    }catch(java.lang.ClassCastException e){
+                       // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    } catch (java.lang.ClassNotFoundException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }catch (java.lang.NoSuchMethodException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    } catch (java.lang.reflect.InvocationTargetException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }  catch (java.lang.IllegalAccessException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }   catch (java.lang.InstantiationException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }
+                }else{
+                    throw f;
+                }
+            }else{
+                throw f;
+            }
+        }
+        }
+            
+                    /**
+                    * Auto generated method signature
+                    * @see eu.sqooss.ws.client.Ws#retrieveProjectId
+                        * @param param80
+                    
+                    */
+                    public eu.sqooss.ws.client.ws.RetrieveProjectIdResponse retrieveProjectId(
+
+                    eu.sqooss.ws.client.ws.RetrieveProjectId param80)
+                    throws java.rmi.RemoteException
+                    
+                    {
+              try{
+               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[18].getName());
+              _operationClient.getOptions().setAction("urn:retrieveProjectId");
+              _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
+
+              
+
+              // create SOAP envelope with that payload
+              org.apache.axiom.soap.SOAPEnvelope env = null;
+                    
+                                    //Style is Doc.
+                                    
+                                                    
+                                                    env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
+                                                    param80,
+                                                    optimizeContent(new javax.xml.namespace.QName("",
+                                                    "retrieveProjectId")));
+                                                
+        //adding SOAP headers
+         _serviceClient.addHeadersToEnvelope(env);
+        // create message context with that soap envelope
+        org.apache.axis2.context.MessageContext _messageContext = new org.apache.axis2.context.MessageContext() ;
+        _messageContext.setEnvelope(env);
+
+        // add the message contxt to the operation client
+        _operationClient.addMessageContext(_messageContext);
+
+        //execute the operation client
+        _operationClient.execute(true);
+
+         
+               org.apache.axis2.context.MessageContext _returnMessageContext = _operationClient.getMessageContext(
+                                           org.apache.axis2.wsdl.WSDLConstants.MESSAGE_LABEL_IN_VALUE);
+                org.apache.axiom.soap.SOAPEnvelope _returnEnv = _returnMessageContext.getEnvelope();
+                
+                
+                           java.lang.Object object = fromOM(
+                                        _returnEnv.getBody().getFirstElement() ,
+                                        eu.sqooss.ws.client.ws.RetrieveProjectIdResponse.class,
+                                         getEnvelopeNamespaces(_returnEnv));
+                           _messageContext.getTransportOut().getSender().cleanup(_messageContext);
+                           return (eu.sqooss.ws.client.ws.RetrieveProjectIdResponse)object;
+                    
+         }catch(org.apache.axis2.AxisFault f){
+            org.apache.axiom.om.OMElement faultElt = f.getDetail();
+            if (faultElt!=null){
+                if (faultExeptionNameMap.containsKey(faultElt.getQName())){
+                    //make the fault by reflection
+                    try{
+                        java.lang.String exceptionClassName = (java.lang.String)faultExeptionClassNameMap.get(faultElt.getQName());
+                        java.lang.Class exceptionClass = java.lang.Class.forName(exceptionClassName);
+                        java.lang.Exception ex=
+                                (java.lang.Exception) exceptionClass.newInstance();
+                        //message class
+                        java.lang.String messageClassName = (java.lang.String)faultMessageMap.get(faultElt.getQName());
+                        java.lang.Class messageClass = java.lang.Class.forName(messageClassName);
+                        java.lang.Object messageObject = fromOM(faultElt,messageClass,null);
+                        java.lang.reflect.Method m = exceptionClass.getMethod("setFaultMessage",
+                                   new java.lang.Class[]{messageClass});
+                        m.invoke(ex,new java.lang.Object[]{messageObject});
+                        
+
+                        throw new java.rmi.RemoteException(ex.getMessage(), ex);
+                    }catch(java.lang.ClassCastException e){
+                       // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    } catch (java.lang.ClassNotFoundException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }catch (java.lang.NoSuchMethodException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    } catch (java.lang.reflect.InvocationTargetException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }  catch (java.lang.IllegalAccessException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }   catch (java.lang.InstantiationException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }
+                }else{
+                    throw f;
+                }
+            }else{
+                throw f;
+            }
+        }
+        }
+            
+                    /**
+                    * Auto generated method signature
+                    * @see eu.sqooss.ws.client.Ws#retrieveFileList
+                        * @param param82
+                    
+                    */
+                    public eu.sqooss.ws.client.ws.RetrieveFileListResponse retrieveFileList(
+
+                    eu.sqooss.ws.client.ws.RetrieveFileList param82)
+                    throws java.rmi.RemoteException
+                    
+                    {
+              try{
+               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[19].getName());
+              _operationClient.getOptions().setAction("urn:retrieveFileList");
+              _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
+
+              
+
+              // create SOAP envelope with that payload
+              org.apache.axiom.soap.SOAPEnvelope env = null;
+                    
+                                    //Style is Doc.
+                                    
+                                                    
+                                                    env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
+                                                    param82,
+                                                    optimizeContent(new javax.xml.namespace.QName("",
+                                                    "retrieveFileList")));
+                                                
+        //adding SOAP headers
+         _serviceClient.addHeadersToEnvelope(env);
+        // create message context with that soap envelope
+        org.apache.axis2.context.MessageContext _messageContext = new org.apache.axis2.context.MessageContext() ;
+        _messageContext.setEnvelope(env);
+
+        // add the message contxt to the operation client
+        _operationClient.addMessageContext(_messageContext);
+
+        //execute the operation client
+        _operationClient.execute(true);
+
+         
+               org.apache.axis2.context.MessageContext _returnMessageContext = _operationClient.getMessageContext(
+                                           org.apache.axis2.wsdl.WSDLConstants.MESSAGE_LABEL_IN_VALUE);
+                org.apache.axiom.soap.SOAPEnvelope _returnEnv = _returnMessageContext.getEnvelope();
+                
+                
+                           java.lang.Object object = fromOM(
+                                        _returnEnv.getBody().getFirstElement() ,
+                                        eu.sqooss.ws.client.ws.RetrieveFileListResponse.class,
+                                         getEnvelopeNamespaces(_returnEnv));
+                           _messageContext.getTransportOut().getSender().cleanup(_messageContext);
+                           return (eu.sqooss.ws.client.ws.RetrieveFileListResponse)object;
+                    
+         }catch(org.apache.axis2.AxisFault f){
+            org.apache.axiom.om.OMElement faultElt = f.getDetail();
+            if (faultElt!=null){
+                if (faultExeptionNameMap.containsKey(faultElt.getQName())){
+                    //make the fault by reflection
+                    try{
+                        java.lang.String exceptionClassName = (java.lang.String)faultExeptionClassNameMap.get(faultElt.getQName());
+                        java.lang.Class exceptionClass = java.lang.Class.forName(exceptionClassName);
+                        java.lang.Exception ex=
+                                (java.lang.Exception) exceptionClass.newInstance();
+                        //message class
+                        java.lang.String messageClassName = (java.lang.String)faultMessageMap.get(faultElt.getQName());
+                        java.lang.Class messageClass = java.lang.Class.forName(messageClassName);
+                        java.lang.Object messageObject = fromOM(faultElt,messageClass,null);
+                        java.lang.reflect.Method m = exceptionClass.getMethod("setFaultMessage",
+                                   new java.lang.Class[]{messageClass});
+                        m.invoke(ex,new java.lang.Object[]{messageObject});
+                        
+
+                        throw new java.rmi.RemoteException(ex.getMessage(), ex);
+                    }catch(java.lang.ClassCastException e){
+                       // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    } catch (java.lang.ClassNotFoundException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }catch (java.lang.NoSuchMethodException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    } catch (java.lang.reflect.InvocationTargetException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }  catch (java.lang.IllegalAccessException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }   catch (java.lang.InstantiationException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }
+                }else{
+                    throw f;
+                }
+            }else{
+                throw f;
+            }
+        }
+        }
+            
+                    /**
+                    * Auto generated method signature
+                    * @see eu.sqooss.ws.client.Ws#getProjectVersionMetricMeasurement
+                        * @param param84
+                    
+                    */
+                    public eu.sqooss.ws.client.ws.GetProjectVersionMetricMeasurementResponse getProjectVersionMetricMeasurement(
+
+                    eu.sqooss.ws.client.ws.GetProjectVersionMetricMeasurement param84)
+                    throws java.rmi.RemoteException
+                    
+                    {
+              try{
+               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[20].getName());
+              _operationClient.getOptions().setAction("urn:getProjectVersionMetricMeasurement");
+              _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
+
+              
+
+              // create SOAP envelope with that payload
+              org.apache.axiom.soap.SOAPEnvelope env = null;
+                    
+                                    //Style is Doc.
+                                    
+                                                    
+                                                    env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
+                                                    param84,
+                                                    optimizeContent(new javax.xml.namespace.QName("",
+                                                    "getProjectVersionMetricMeasurement")));
+                                                
+        //adding SOAP headers
+         _serviceClient.addHeadersToEnvelope(env);
+        // create message context with that soap envelope
+        org.apache.axis2.context.MessageContext _messageContext = new org.apache.axis2.context.MessageContext() ;
+        _messageContext.setEnvelope(env);
+
+        // add the message contxt to the operation client
+        _operationClient.addMessageContext(_messageContext);
+
+        //execute the operation client
+        _operationClient.execute(true);
+
+         
+               org.apache.axis2.context.MessageContext _returnMessageContext = _operationClient.getMessageContext(
+                                           org.apache.axis2.wsdl.WSDLConstants.MESSAGE_LABEL_IN_VALUE);
+                org.apache.axiom.soap.SOAPEnvelope _returnEnv = _returnMessageContext.getEnvelope();
+                
+                
+                           java.lang.Object object = fromOM(
+                                        _returnEnv.getBody().getFirstElement() ,
+                                        eu.sqooss.ws.client.ws.GetProjectVersionMetricMeasurementResponse.class,
+                                         getEnvelopeNamespaces(_returnEnv));
+                           _messageContext.getTransportOut().getSender().cleanup(_messageContext);
+                           return (eu.sqooss.ws.client.ws.GetProjectVersionMetricMeasurementResponse)object;
+                    
+         }catch(org.apache.axis2.AxisFault f){
+            org.apache.axiom.om.OMElement faultElt = f.getDetail();
+            if (faultElt!=null){
+                if (faultExeptionNameMap.containsKey(faultElt.getQName())){
+                    //make the fault by reflection
+                    try{
+                        java.lang.String exceptionClassName = (java.lang.String)faultExeptionClassNameMap.get(faultElt.getQName());
+                        java.lang.Class exceptionClass = java.lang.Class.forName(exceptionClassName);
+                        java.lang.Exception ex=
+                                (java.lang.Exception) exceptionClass.newInstance();
+                        //message class
+                        java.lang.String messageClassName = (java.lang.String)faultMessageMap.get(faultElt.getQName());
+                        java.lang.Class messageClass = java.lang.Class.forName(messageClassName);
+                        java.lang.Object messageObject = fromOM(faultElt,messageClass,null);
+                        java.lang.reflect.Method m = exceptionClass.getMethod("setFaultMessage",
+                                   new java.lang.Class[]{messageClass});
+                        m.invoke(ex,new java.lang.Object[]{messageObject});
+                        
+
+                        throw new java.rmi.RemoteException(ex.getMessage(), ex);
+                    }catch(java.lang.ClassCastException e){
+                       // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    } catch (java.lang.ClassNotFoundException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }catch (java.lang.NoSuchMethodException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    } catch (java.lang.reflect.InvocationTargetException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }  catch (java.lang.IllegalAccessException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }   catch (java.lang.InstantiationException e) {
+                        // we cannot intantiate the class - throw the original Axis fault
+                        throw f;
+                    }
+                }else{
+                    throw f;
+                }
+            }else{
+                throw f;
+            }
+        }
+        }
+            
+                    /**
+                    * Auto generated method signature
+                    * @see eu.sqooss.ws.client.Ws#getUserMessageOfTheDay
+                        * @param param86
+                    
+                    */
+                    public eu.sqooss.ws.client.ws.GetUserMessageOfTheDayResponse getUserMessageOfTheDay(
+
+                    eu.sqooss.ws.client.ws.GetUserMessageOfTheDay param86)
+                    throws java.rmi.RemoteException
+                    
+                    {
+              try{
+               org.apache.axis2.client.OperationClient _operationClient = _serviceClient.createClient(_operations[21].getName());
+              _operationClient.getOptions().setAction("urn:getUserMessageOfTheDay");
+              _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
+
+              
+
+              // create SOAP envelope with that payload
+              org.apache.axiom.soap.SOAPEnvelope env = null;
+                    
+                                    //Style is Doc.
+                                    
+                                                    
+                                                    env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
+                                                    param86,
+                                                    optimizeContent(new javax.xml.namespace.QName("",
+                                                    "getUserMessageOfTheDay")));
+                                                
+        //adding SOAP headers
+         _serviceClient.addHeadersToEnvelope(env);
+        // create message context with that soap envelope
+        org.apache.axis2.context.MessageContext _messageContext = new org.apache.axis2.context.MessageContext() ;
+        _messageContext.setEnvelope(env);
+
+        // add the message contxt to the operation client
+        _operationClient.addMessageContext(_messageContext);
+
+        //execute the operation client
+        _operationClient.execute(true);
+
+         
+               org.apache.axis2.context.MessageContext _returnMessageContext = _operationClient.getMessageContext(
+                                           org.apache.axis2.wsdl.WSDLConstants.MESSAGE_LABEL_IN_VALUE);
+                org.apache.axiom.soap.SOAPEnvelope _returnEnv = _returnMessageContext.getEnvelope();
+                
+                
+                           java.lang.Object object = fromOM(
+                                        _returnEnv.getBody().getFirstElement() ,
+                                        eu.sqooss.ws.client.ws.GetUserMessageOfTheDayResponse.class,
+                                         getEnvelopeNamespaces(_returnEnv));
+                           _messageContext.getTransportOut().getSender().cleanup(_messageContext);
+                           return (eu.sqooss.ws.client.ws.GetUserMessageOfTheDayResponse)object;
                     
          }catch(org.apache.axis2.AxisFault f){
             org.apache.axiom.om.OMElement faultElt = f.getDetail();
@@ -2743,97 +2626,17 @@
         return false;
     }
      //http://localhost:8088//services/ws
-            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.SubmitUser param, boolean optimizeContent){
+            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.GetFilesNumber4ProjectVersion param, boolean optimizeContent){
             
-                     return param.getOMElement(eu.sqooss.ws.client.ws.SubmitUser.MY_QNAME,
+                     return param.getOMElement(eu.sqooss.ws.client.ws.GetFilesNumber4ProjectVersion.MY_QNAME,
                                   org.apache.axiom.om.OMAbstractFactory.getOMFactory());
                     
 
             }
         
-            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.SubmitUserResponse param, boolean optimizeContent){
+            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.GetFilesNumber4ProjectVersionResponse param, boolean optimizeContent){
             
-                     return param.getOMElement(eu.sqooss.ws.client.ws.SubmitUserResponse.MY_QNAME,
-                                  org.apache.axiom.om.OMAbstractFactory.getOMFactory());
-                    
-
-            }
-        
-            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.GetUserMessageOfTheDay param, boolean optimizeContent){
-            
-                     return param.getOMElement(eu.sqooss.ws.client.ws.GetUserMessageOfTheDay.MY_QNAME,
-                                  org.apache.axiom.om.OMAbstractFactory.getOMFactory());
-                    
-
-            }
-        
-            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.GetUserMessageOfTheDayResponse param, boolean optimizeContent){
-            
-                     return param.getOMElement(eu.sqooss.ws.client.ws.GetUserMessageOfTheDayResponse.MY_QNAME,
-                                  org.apache.axiom.om.OMAbstractFactory.getOMFactory());
-                    
-
-            }
-        
-            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.RetrieveStoredProjectVersions param, boolean optimizeContent){
-            
-                     return param.getOMElement(eu.sqooss.ws.client.ws.RetrieveStoredProjectVersions.MY_QNAME,
-                                  org.apache.axiom.om.OMAbstractFactory.getOMFactory());
-                    
-
-            }
-        
-            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.RetrieveStoredProjectVersionsResponse param, boolean optimizeContent){
-            
-                     return param.getOMElement(eu.sqooss.ws.client.ws.RetrieveStoredProjectVersionsResponse.MY_QNAME,
-                                  org.apache.axiom.om.OMAbstractFactory.getOMFactory());
-                    
-
-            }
-        
-            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.GetProjectFileMetricMeasurement param, boolean optimizeContent){
-            
-                     return param.getOMElement(eu.sqooss.ws.client.ws.GetProjectFileMetricMeasurement.MY_QNAME,
-                                  org.apache.axiom.om.OMAbstractFactory.getOMFactory());
-                    
-
-            }
-        
-            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.GetProjectFileMetricMeasurementResponse param, boolean optimizeContent){
-            
-                     return param.getOMElement(eu.sqooss.ws.client.ws.GetProjectFileMetricMeasurementResponse.MY_QNAME,
-                                  org.apache.axiom.om.OMAbstractFactory.getOMFactory());
-                    
-
-            }
-        
-            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.GetFileList4ProjectVersion param, boolean optimizeContent){
-            
-                     return param.getOMElement(eu.sqooss.ws.client.ws.GetFileList4ProjectVersion.MY_QNAME,
-                                  org.apache.axiom.om.OMAbstractFactory.getOMFactory());
-                    
-
-            }
-        
-            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.GetFileList4ProjectVersionResponse param, boolean optimizeContent){
-            
-                     return param.getOMElement(eu.sqooss.ws.client.ws.GetFileList4ProjectVersionResponse.MY_QNAME,
-                                  org.apache.axiom.om.OMAbstractFactory.getOMFactory());
-                    
-
-            }
-        
-            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.GetMetrics param, boolean optimizeContent){
-            
-                     return param.getOMElement(eu.sqooss.ws.client.ws.GetMetrics.MY_QNAME,
-                                  org.apache.axiom.om.OMAbstractFactory.getOMFactory());
-                    
-
-            }
-        
-            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.GetMetricsResponse param, boolean optimizeContent){
-            
-                     return param.getOMElement(eu.sqooss.ws.client.ws.GetMetricsResponse.MY_QNAME,
+                     return param.getOMElement(eu.sqooss.ws.client.ws.GetFilesNumber4ProjectVersionResponse.MY_QNAME,
                                   org.apache.axiom.om.OMAbstractFactory.getOMFactory());
                     
 
@@ -2855,177 +2658,33 @@
 
             }
         
-            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.StoredProjectsList param, boolean optimizeContent){
+            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.GetProjectFileMetricMeasurement param, boolean optimizeContent){
             
-                     return param.getOMElement(eu.sqooss.ws.client.ws.StoredProjectsList.MY_QNAME,
+                     return param.getOMElement(eu.sqooss.ws.client.ws.GetProjectFileMetricMeasurement.MY_QNAME,
                                   org.apache.axiom.om.OMAbstractFactory.getOMFactory());
                     
 
             }
         
-            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.StoredProjectsListResponse param, boolean optimizeContent){
+            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.GetProjectFileMetricMeasurementResponse param, boolean optimizeContent){
             
-                     return param.getOMElement(eu.sqooss.ws.client.ws.StoredProjectsListResponse.MY_QNAME,
+                     return param.getOMElement(eu.sqooss.ws.client.ws.GetProjectFileMetricMeasurementResponse.MY_QNAME,
                                   org.apache.axiom.om.OMAbstractFactory.getOMFactory());
                     
 
             }
         
-            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.RetrieveStoredProject param, boolean optimizeContent){
+            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.SubmitUser param, boolean optimizeContent){
             
-                     return param.getOMElement(eu.sqooss.ws.client.ws.RetrieveStoredProject.MY_QNAME,
+                     return param.getOMElement(eu.sqooss.ws.client.ws.SubmitUser.MY_QNAME,
                                   org.apache.axiom.om.OMAbstractFactory.getOMFactory());
                     
 
             }
         
-            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.RetrieveStoredProjectResponse param, boolean optimizeContent){
+            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.SubmitUserResponse param, boolean optimizeContent){
             
-                     return param.getOMElement(eu.sqooss.ws.client.ws.RetrieveStoredProjectResponse.MY_QNAME,
-                                  org.apache.axiom.om.OMAbstractFactory.getOMFactory());
-                    
-
-            }
-        
-            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.DisplayUser param, boolean optimizeContent){
-            
-                     return param.getOMElement(eu.sqooss.ws.client.ws.DisplayUser.MY_QNAME,
-                                  org.apache.axiom.om.OMAbstractFactory.getOMFactory());
-                    
-
-            }
-        
-            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.DisplayUserResponse param, boolean optimizeContent){
-            
-                     return param.getOMElement(eu.sqooss.ws.client.ws.DisplayUserResponse.MY_QNAME,
-                                  org.apache.axiom.om.OMAbstractFactory.getOMFactory());
-                    
-
-            }
-        
-            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedFiles param, boolean optimizeContent){
-            
-                     return param.getOMElement(eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedFiles.MY_QNAME,
-                                  org.apache.axiom.om.OMAbstractFactory.getOMFactory());
-                    
-
-            }
-        
-            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedFilesResponse param, boolean optimizeContent){
-            
-                     return param.getOMElement(eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedFilesResponse.MY_QNAME,
-                                  org.apache.axiom.om.OMAbstractFactory.getOMFactory());
-                    
-
-            }
-        
-            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.RequestEvaluation4Project param, boolean optimizeContent){
-            
-                     return param.getOMElement(eu.sqooss.ws.client.ws.RequestEvaluation4Project.MY_QNAME,
-                                  org.apache.axiom.om.OMAbstractFactory.getOMFactory());
-                    
-
-            }
-        
-            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.RequestEvaluation4ProjectResponse param, boolean optimizeContent){
-            
-                     return param.getOMElement(eu.sqooss.ws.client.ws.RequestEvaluation4ProjectResponse.MY_QNAME,
-                                  org.apache.axiom.om.OMAbstractFactory.getOMFactory());
-                    
-
-            }
-        
-            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.GetUserByName param, boolean optimizeContent){
-            
-                     return param.getOMElement(eu.sqooss.ws.client.ws.GetUserByName.MY_QNAME,
-                                  org.apache.axiom.om.OMAbstractFactory.getOMFactory());
-                    
-
-            }
-        
-            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.GetUserByNameResponse param, boolean optimizeContent){
-            
-                     return param.getOMElement(eu.sqooss.ws.client.ws.GetUserByNameResponse.MY_QNAME,
-                                  org.apache.axiom.om.OMAbstractFactory.getOMFactory());
-                    
-
-            }
-        
-            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.RetrieveProjectId param, boolean optimizeContent){
-            
-                     return param.getOMElement(eu.sqooss.ws.client.ws.RetrieveProjectId.MY_QNAME,
-                                  org.apache.axiom.om.OMAbstractFactory.getOMFactory());
-                    
-
-            }
-        
-            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.RetrieveProjectIdResponse param, boolean optimizeContent){
-            
-                     return param.getOMElement(eu.sqooss.ws.client.ws.RetrieveProjectIdResponse.MY_QNAME,
-                                  org.apache.axiom.om.OMAbstractFactory.getOMFactory());
-                    
-
-            }
-        
-            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.ValidateAccount param, boolean optimizeContent){
-            
-                     return param.getOMElement(eu.sqooss.ws.client.ws.ValidateAccount.MY_QNAME,
-                                  org.apache.axiom.om.OMAbstractFactory.getOMFactory());
-                    
-
-            }
-        
-            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.ValidateAccountResponse param, boolean optimizeContent){
-            
-                     return param.getOMElement(eu.sqooss.ws.client.ws.ValidateAccountResponse.MY_QNAME,
-                                  org.apache.axiom.om.OMAbstractFactory.getOMFactory());
-                    
-
-            }
-        
-            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.ModifyUser param, boolean optimizeContent){
-            
-                     return param.getOMElement(eu.sqooss.ws.client.ws.ModifyUser.MY_QNAME,
-                                  org.apache.axiom.om.OMAbstractFactory.getOMFactory());
-                    
-
-            }
-        
-            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.ModifyUserResponse param, boolean optimizeContent){
-            
-                     return param.getOMElement(eu.sqooss.ws.client.ws.ModifyUserResponse.MY_QNAME,
-                                  org.apache.axiom.om.OMAbstractFactory.getOMFactory());
-                    
-
-            }
-        
-            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProject param, boolean optimizeContent){
-            
-                     return param.getOMElement(eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProject.MY_QNAME,
-                                  org.apache.axiom.om.OMAbstractFactory.getOMFactory());
-                    
-
-            }
-        
-            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProjectResponse param, boolean optimizeContent){
-            
-                     return param.getOMElement(eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProjectResponse.MY_QNAME,
-                                  org.apache.axiom.om.OMAbstractFactory.getOMFactory());
-                    
-
-            }
-        
-            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.RetrieveFileList param, boolean optimizeContent){
-            
-                     return param.getOMElement(eu.sqooss.ws.client.ws.RetrieveFileList.MY_QNAME,
-                                  org.apache.axiom.om.OMAbstractFactory.getOMFactory());
-                    
-
-            }
-        
-            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.RetrieveFileListResponse param, boolean optimizeContent){
-            
-                     return param.getOMElement(eu.sqooss.ws.client.ws.RetrieveFileListResponse.MY_QNAME,
+                     return param.getOMElement(eu.sqooss.ws.client.ws.SubmitUserResponse.MY_QNAME,
                                   org.apache.axiom.om.OMAbstractFactory.getOMFactory());
                     
 
@@ -3047,6 +2706,22 @@
 
             }
         
+            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.GetMetrics param, boolean optimizeContent){
+            
+                     return param.getOMElement(eu.sqooss.ws.client.ws.GetMetrics.MY_QNAME,
+                                  org.apache.axiom.om.OMAbstractFactory.getOMFactory());
+                    
+
+            }
+        
+            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.GetMetricsResponse param, boolean optimizeContent){
+            
+                     return param.getOMElement(eu.sqooss.ws.client.ws.GetMetricsResponse.MY_QNAME,
+                                  org.apache.axiom.om.OMAbstractFactory.getOMFactory());
+                    
+
+            }
+        
             private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.DeleteUser param, boolean optimizeContent){
             
                      return param.getOMElement(eu.sqooss.ws.client.ws.DeleteUser.MY_QNAME,
@@ -3063,17 +2738,17 @@
 
             }
         
-            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.GetProjectVersionMetricMeasurement param, boolean optimizeContent){
+            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.GetUserByName param, boolean optimizeContent){
             
-                     return param.getOMElement(eu.sqooss.ws.client.ws.GetProjectVersionMetricMeasurement.MY_QNAME,
+                     return param.getOMElement(eu.sqooss.ws.client.ws.GetUserByName.MY_QNAME,
                                   org.apache.axiom.om.OMAbstractFactory.getOMFactory());
                     
 
             }
         
-            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.GetProjectVersionMetricMeasurementResponse param, boolean optimizeContent){
+            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.GetUserByNameResponse param, boolean optimizeContent){
             
-                     return param.getOMElement(eu.sqooss.ws.client.ws.GetProjectVersionMetricMeasurementResponse.MY_QNAME,
+                     return param.getOMElement(eu.sqooss.ws.client.ws.GetUserByNameResponse.MY_QNAME,
                                   org.apache.axiom.om.OMAbstractFactory.getOMFactory());
                     
 
@@ -3095,17 +2770,209 @@
 
             }
         
-            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.GetFilesNumber4ProjectVersion param, boolean optimizeContent){
+            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedFiles param, boolean optimizeContent){
             
-                     return param.getOMElement(eu.sqooss.ws.client.ws.GetFilesNumber4ProjectVersion.MY_QNAME,
+                     return param.getOMElement(eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedFiles.MY_QNAME,
                                   org.apache.axiom.om.OMAbstractFactory.getOMFactory());
                     
 
             }
         
-            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.GetFilesNumber4ProjectVersionResponse param, boolean optimizeContent){
+            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedFilesResponse param, boolean optimizeContent){
             
-                     return param.getOMElement(eu.sqooss.ws.client.ws.GetFilesNumber4ProjectVersionResponse.MY_QNAME,
+                     return param.getOMElement(eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedFilesResponse.MY_QNAME,
+                                  org.apache.axiom.om.OMAbstractFactory.getOMFactory());
+                    
+
+            }
+        
+            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.StoredProjectsList param, boolean optimizeContent){
+            
+                     return param.getOMElement(eu.sqooss.ws.client.ws.StoredProjectsList.MY_QNAME,
+                                  org.apache.axiom.om.OMAbstractFactory.getOMFactory());
+                    
+
+            }
+        
+            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.StoredProjectsListResponse param, boolean optimizeContent){
+            
+                     return param.getOMElement(eu.sqooss.ws.client.ws.StoredProjectsListResponse.MY_QNAME,
+                                  org.apache.axiom.om.OMAbstractFactory.getOMFactory());
+                    
+
+            }
+        
+            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.DisplayUser param, boolean optimizeContent){
+            
+                     return param.getOMElement(eu.sqooss.ws.client.ws.DisplayUser.MY_QNAME,
+                                  org.apache.axiom.om.OMAbstractFactory.getOMFactory());
+                    
+
+            }
+        
+            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.DisplayUserResponse param, boolean optimizeContent){
+            
+                     return param.getOMElement(eu.sqooss.ws.client.ws.DisplayUserResponse.MY_QNAME,
+                                  org.apache.axiom.om.OMAbstractFactory.getOMFactory());
+                    
+
+            }
+        
+            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProject param, boolean optimizeContent){
+            
+                     return param.getOMElement(eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProject.MY_QNAME,
+                                  org.apache.axiom.om.OMAbstractFactory.getOMFactory());
+                    
+
+            }
+        
+            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProjectResponse param, boolean optimizeContent){
+            
+                     return param.getOMElement(eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProjectResponse.MY_QNAME,
+                                  org.apache.axiom.om.OMAbstractFactory.getOMFactory());
+                    
+
+            }
+        
+            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.RetrieveStoredProjectVersions param, boolean optimizeContent){
+            
+                     return param.getOMElement(eu.sqooss.ws.client.ws.RetrieveStoredProjectVersions.MY_QNAME,
+                                  org.apache.axiom.om.OMAbstractFactory.getOMFactory());
+                    
+
+            }
+        
+            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.RetrieveStoredProjectVersionsResponse param, boolean optimizeContent){
+            
+                     return param.getOMElement(eu.sqooss.ws.client.ws.RetrieveStoredProjectVersionsResponse.MY_QNAME,
+                                  org.apache.axiom.om.OMAbstractFactory.getOMFactory());
+                    
+
+            }
+        
+            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.ModifyUser param, boolean optimizeContent){
+            
+                     return param.getOMElement(eu.sqooss.ws.client.ws.ModifyUser.MY_QNAME,
+                                  org.apache.axiom.om.OMAbstractFactory.getOMFactory());
+                    
+
+            }
+        
+            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.ModifyUserResponse param, boolean optimizeContent){
+            
+                     return param.getOMElement(eu.sqooss.ws.client.ws.ModifyUserResponse.MY_QNAME,
+                                  org.apache.axiom.om.OMAbstractFactory.getOMFactory());
+                    
+
+            }
+        
+            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.RequestEvaluation4Project param, boolean optimizeContent){
+            
+                     return param.getOMElement(eu.sqooss.ws.client.ws.RequestEvaluation4Project.MY_QNAME,
+                                  org.apache.axiom.om.OMAbstractFactory.getOMFactory());
+                    
+
+            }
+        
+            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.RequestEvaluation4ProjectResponse param, boolean optimizeContent){
+            
+                     return param.getOMElement(eu.sqooss.ws.client.ws.RequestEvaluation4ProjectResponse.MY_QNAME,
+                                  org.apache.axiom.om.OMAbstractFactory.getOMFactory());
+                    
+
+            }
+        
+            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.GetFileList4ProjectVersion param, boolean optimizeContent){
+            
+                     return param.getOMElement(eu.sqooss.ws.client.ws.GetFileList4ProjectVersion.MY_QNAME,
+                                  org.apache.axiom.om.OMAbstractFactory.getOMFactory());
+                    
+
+            }
+        
+            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.GetFileList4ProjectVersionResponse param, boolean optimizeContent){
+            
+                     return param.getOMElement(eu.sqooss.ws.client.ws.GetFileList4ProjectVersionResponse.MY_QNAME,
+                                  org.apache.axiom.om.OMAbstractFactory.getOMFactory());
+                    
+
+            }
+        
+            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.RetrieveStoredProject param, boolean optimizeContent){
+            
+                     return param.getOMElement(eu.sqooss.ws.client.ws.RetrieveStoredProject.MY_QNAME,
+                                  org.apache.axiom.om.OMAbstractFactory.getOMFactory());
+                    
+
+            }
+        
+            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.RetrieveStoredProjectResponse param, boolean optimizeContent){
+            
+                     return param.getOMElement(eu.sqooss.ws.client.ws.RetrieveStoredProjectResponse.MY_QNAME,
+                                  org.apache.axiom.om.OMAbstractFactory.getOMFactory());
+                    
+
+            }
+        
+            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.RetrieveProjectId param, boolean optimizeContent){
+            
+                     return param.getOMElement(eu.sqooss.ws.client.ws.RetrieveProjectId.MY_QNAME,
+                                  org.apache.axiom.om.OMAbstractFactory.getOMFactory());
+                    
+
+            }
+        
+            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.RetrieveProjectIdResponse param, boolean optimizeContent){
+            
+                     return param.getOMElement(eu.sqooss.ws.client.ws.RetrieveProjectIdResponse.MY_QNAME,
+                                  org.apache.axiom.om.OMAbstractFactory.getOMFactory());
+                    
+
+            }
+        
+            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.RetrieveFileList param, boolean optimizeContent){
+            
+                     return param.getOMElement(eu.sqooss.ws.client.ws.RetrieveFileList.MY_QNAME,
+                                  org.apache.axiom.om.OMAbstractFactory.getOMFactory());
+                    
+
+            }
+        
+            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.RetrieveFileListResponse param, boolean optimizeContent){
+            
+                     return param.getOMElement(eu.sqooss.ws.client.ws.RetrieveFileListResponse.MY_QNAME,
+                                  org.apache.axiom.om.OMAbstractFactory.getOMFactory());
+                    
+
+            }
+        
+            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.GetProjectVersionMetricMeasurement param, boolean optimizeContent){
+            
+                     return param.getOMElement(eu.sqooss.ws.client.ws.GetProjectVersionMetricMeasurement.MY_QNAME,
+                                  org.apache.axiom.om.OMAbstractFactory.getOMFactory());
+                    
+
+            }
+        
+            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.GetProjectVersionMetricMeasurementResponse param, boolean optimizeContent){
+            
+                     return param.getOMElement(eu.sqooss.ws.client.ws.GetProjectVersionMetricMeasurementResponse.MY_QNAME,
+                                  org.apache.axiom.om.OMAbstractFactory.getOMFactory());
+                    
+
+            }
+        
+            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.GetUserMessageOfTheDay param, boolean optimizeContent){
+            
+                     return param.getOMElement(eu.sqooss.ws.client.ws.GetUserMessageOfTheDay.MY_QNAME,
+                                  org.apache.axiom.om.OMAbstractFactory.getOMFactory());
+                    
+
+            }
+        
+            private  org.apache.axiom.om.OMElement  toOM(eu.sqooss.ws.client.ws.GetUserMessageOfTheDayResponse param, boolean optimizeContent){
+            
+                     return param.getOMElement(eu.sqooss.ws.client.ws.GetUserMessageOfTheDayResponse.MY_QNAME,
                                   org.apache.axiom.om.OMAbstractFactory.getOMFactory());
                     
 
@@ -3113,65 +2980,10 @@
         
 
                             
-                        private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, eu.sqooss.ws.client.ws.SubmitUser param, boolean optimizeContent){
+                        private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, eu.sqooss.ws.client.ws.GetFilesNumber4ProjectVersion param, boolean optimizeContent){
                         org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
                              
-                                    emptyEnvelope.getBody().addChild(param.getOMElement(eu.sqooss.ws.client.ws.SubmitUser.MY_QNAME,factory));
-                                
-                         return emptyEnvelope;
-                        }
-
-                        
-
-                            
-                        private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, eu.sqooss.ws.client.ws.GetUserMessageOfTheDay param, boolean optimizeContent){
-                        org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
-                             
-                                    emptyEnvelope.getBody().addChild(param.getOMElement(eu.sqooss.ws.client.ws.GetUserMessageOfTheDay.MY_QNAME,factory));
-                                
-                         return emptyEnvelope;
-                        }
-
-                        
-
-                            
-                        private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, eu.sqooss.ws.client.ws.RetrieveStoredProjectVersions param, boolean optimizeContent){
-                        org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
-                             
-                                    emptyEnvelope.getBody().addChild(param.getOMElement(eu.sqooss.ws.client.ws.RetrieveStoredProjectVersions.MY_QNAME,factory));
-                                
-                         return emptyEnvelope;
-                        }
-
-                        
-
-                            
-                        private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, eu.sqooss.ws.client.ws.GetProjectFileMetricMeasurement param, boolean optimizeContent){
-                        org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
-                             
-                                    emptyEnvelope.getBody().addChild(param.getOMElement(eu.sqooss.ws.client.ws.GetProjectFileMetricMeasurement.MY_QNAME,factory));
-                                
-                         return emptyEnvelope;
-                        }
-
-                        
-
-                            
-                        private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, eu.sqooss.ws.client.ws.GetFileList4ProjectVersion param, boolean optimizeContent){
-                        org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
-                             
-                                    emptyEnvelope.getBody().addChild(param.getOMElement(eu.sqooss.ws.client.ws.GetFileList4ProjectVersion.MY_QNAME,factory));
-                                
-                         return emptyEnvelope;
-                        }
-
-                        
-
-                            
-                        private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, eu.sqooss.ws.client.ws.GetMetrics param, boolean optimizeContent){
-                        org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
-                             
-                                    emptyEnvelope.getBody().addChild(param.getOMElement(eu.sqooss.ws.client.ws.GetMetrics.MY_QNAME,factory));
+                                    emptyEnvelope.getBody().addChild(param.getOMElement(eu.sqooss.ws.client.ws.GetFilesNumber4ProjectVersion.MY_QNAME,factory));
                                 
                          return emptyEnvelope;
                         }
@@ -3190,10 +3002,10 @@
                         
 
                             
-                        private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, eu.sqooss.ws.client.ws.StoredProjectsList param, boolean optimizeContent){
+                        private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, eu.sqooss.ws.client.ws.GetProjectFileMetricMeasurement param, boolean optimizeContent){
                         org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
                              
-                                    emptyEnvelope.getBody().addChild(param.getOMElement(eu.sqooss.ws.client.ws.StoredProjectsList.MY_QNAME,factory));
+                                    emptyEnvelope.getBody().addChild(param.getOMElement(eu.sqooss.ws.client.ws.GetProjectFileMetricMeasurement.MY_QNAME,factory));
                                 
                          return emptyEnvelope;
                         }
@@ -3201,109 +3013,10 @@
                         
 
                             
-                        private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, eu.sqooss.ws.client.ws.RetrieveStoredProject param, boolean optimizeContent){
+                        private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, eu.sqooss.ws.client.ws.SubmitUser param, boolean optimizeContent){
                         org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
                              
-                                    emptyEnvelope.getBody().addChild(param.getOMElement(eu.sqooss.ws.client.ws.RetrieveStoredProject.MY_QNAME,factory));
-                                
-                         return emptyEnvelope;
-                        }
-
-                        
-
-                            
-                        private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, eu.sqooss.ws.client.ws.DisplayUser param, boolean optimizeContent){
-                        org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
-                             
-                                    emptyEnvelope.getBody().addChild(param.getOMElement(eu.sqooss.ws.client.ws.DisplayUser.MY_QNAME,factory));
-                                
-                         return emptyEnvelope;
-                        }
-
-                        
-
-                            
-                        private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedFiles param, boolean optimizeContent){
-                        org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
-                             
-                                    emptyEnvelope.getBody().addChild(param.getOMElement(eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedFiles.MY_QNAME,factory));
-                                
-                         return emptyEnvelope;
-                        }
-
-                        
-
-                            
-                        private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, eu.sqooss.ws.client.ws.RequestEvaluation4Project param, boolean optimizeContent){
-                        org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
-                             
-                                    emptyEnvelope.getBody().addChild(param.getOMElement(eu.sqooss.ws.client.ws.RequestEvaluation4Project.MY_QNAME,factory));
-                                
-                         return emptyEnvelope;
-                        }
-
-                        
-
-                            
-                        private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, eu.sqooss.ws.client.ws.GetUserByName param, boolean optimizeContent){
-                        org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
-                             
-                                    emptyEnvelope.getBody().addChild(param.getOMElement(eu.sqooss.ws.client.ws.GetUserByName.MY_QNAME,factory));
-                                
-                         return emptyEnvelope;
-                        }
-
-                        
-
-                            
-                        private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, eu.sqooss.ws.client.ws.RetrieveProjectId param, boolean optimizeContent){
-                        org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
-                             
-                                    emptyEnvelope.getBody().addChild(param.getOMElement(eu.sqooss.ws.client.ws.RetrieveProjectId.MY_QNAME,factory));
-                                
-                         return emptyEnvelope;
-                        }
-
-                        
-
-                            
-                        private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, eu.sqooss.ws.client.ws.ValidateAccount param, boolean optimizeContent){
-                        org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
-                             
-                                    emptyEnvelope.getBody().addChild(param.getOMElement(eu.sqooss.ws.client.ws.ValidateAccount.MY_QNAME,factory));
-                                
-                         return emptyEnvelope;
-                        }
-
-                        
-
-                            
-                        private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, eu.sqooss.ws.client.ws.ModifyUser param, boolean optimizeContent){
-                        org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
-                             
-                                    emptyEnvelope.getBody().addChild(param.getOMElement(eu.sqooss.ws.client.ws.ModifyUser.MY_QNAME,factory));
-                                
-                         return emptyEnvelope;
-                        }
-
-                        
-
-                            
-                        private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProject param, boolean optimizeContent){
-                        org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
-                             
-                                    emptyEnvelope.getBody().addChild(param.getOMElement(eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProject.MY_QNAME,factory));
-                                
-                         return emptyEnvelope;
-                        }
-
-                        
-
-                            
-                        private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, eu.sqooss.ws.client.ws.RetrieveFileList param, boolean optimizeContent){
-                        org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
-                             
-                                    emptyEnvelope.getBody().addChild(param.getOMElement(eu.sqooss.ws.client.ws.RetrieveFileList.MY_QNAME,factory));
+                                    emptyEnvelope.getBody().addChild(param.getOMElement(eu.sqooss.ws.client.ws.SubmitUser.MY_QNAME,factory));
                                 
                          return emptyEnvelope;
                         }
@@ -3322,6 +3035,17 @@
                         
 
                             
+                        private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, eu.sqooss.ws.client.ws.GetMetrics param, boolean optimizeContent){
+                        org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
+                             
+                                    emptyEnvelope.getBody().addChild(param.getOMElement(eu.sqooss.ws.client.ws.GetMetrics.MY_QNAME,factory));
+                                
+                         return emptyEnvelope;
+                        }
+
+                        
+
+                            
                         private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, eu.sqooss.ws.client.ws.DeleteUser param, boolean optimizeContent){
                         org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
                              
@@ -3333,10 +3057,10 @@
                         
 
                             
-                        private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, eu.sqooss.ws.client.ws.GetProjectVersionMetricMeasurement param, boolean optimizeContent){
+                        private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, eu.sqooss.ws.client.ws.GetUserByName param, boolean optimizeContent){
                         org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
                              
-                                    emptyEnvelope.getBody().addChild(param.getOMElement(eu.sqooss.ws.client.ws.GetProjectVersionMetricMeasurement.MY_QNAME,factory));
+                                    emptyEnvelope.getBody().addChild(param.getOMElement(eu.sqooss.ws.client.ws.GetUserByName.MY_QNAME,factory));
                                 
                          return emptyEnvelope;
                         }
@@ -3355,10 +3079,142 @@
                         
 
                             
-                        private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, eu.sqooss.ws.client.ws.GetFilesNumber4ProjectVersion param, boolean optimizeContent){
+                        private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedFiles param, boolean optimizeContent){
                         org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
                              
-                                    emptyEnvelope.getBody().addChild(param.getOMElement(eu.sqooss.ws.client.ws.GetFilesNumber4ProjectVersion.MY_QNAME,factory));
+                                    emptyEnvelope.getBody().addChild(param.getOMElement(eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedFiles.MY_QNAME,factory));
+                                
+                         return emptyEnvelope;
+                        }
+
+                        
+
+                            
+                        private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, eu.sqooss.ws.client.ws.StoredProjectsList param, boolean optimizeContent){
+                        org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
+                             
+                                    emptyEnvelope.getBody().addChild(param.getOMElement(eu.sqooss.ws.client.ws.StoredProjectsList.MY_QNAME,factory));
+                                
+                         return emptyEnvelope;
+                        }
+
+                        
+
+                            
+                        private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, eu.sqooss.ws.client.ws.DisplayUser param, boolean optimizeContent){
+                        org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
+                             
+                                    emptyEnvelope.getBody().addChild(param.getOMElement(eu.sqooss.ws.client.ws.DisplayUser.MY_QNAME,factory));
+                                
+                         return emptyEnvelope;
+                        }
+
+                        
+
+                            
+                        private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProject param, boolean optimizeContent){
+                        org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
+                             
+                                    emptyEnvelope.getBody().addChild(param.getOMElement(eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProject.MY_QNAME,factory));
+                                
+                         return emptyEnvelope;
+                        }
+
+                        
+
+                            
+                        private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, eu.sqooss.ws.client.ws.RetrieveStoredProjectVersions param, boolean optimizeContent){
+                        org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
+                             
+                                    emptyEnvelope.getBody().addChild(param.getOMElement(eu.sqooss.ws.client.ws.RetrieveStoredProjectVersions.MY_QNAME,factory));
+                                
+                         return emptyEnvelope;
+                        }
+
+                        
+
+                            
+                        private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, eu.sqooss.ws.client.ws.ModifyUser param, boolean optimizeContent){
+                        org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
+                             
+                                    emptyEnvelope.getBody().addChild(param.getOMElement(eu.sqooss.ws.client.ws.ModifyUser.MY_QNAME,factory));
+                                
+                         return emptyEnvelope;
+                        }
+
+                        
+
+                            
+                        private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, eu.sqooss.ws.client.ws.RequestEvaluation4Project param, boolean optimizeContent){
+                        org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
+                             
+                                    emptyEnvelope.getBody().addChild(param.getOMElement(eu.sqooss.ws.client.ws.RequestEvaluation4Project.MY_QNAME,factory));
+                                
+                         return emptyEnvelope;
+                        }
+
+                        
+
+                            
+                        private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, eu.sqooss.ws.client.ws.GetFileList4ProjectVersion param, boolean optimizeContent){
+                        org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
+                             
+                                    emptyEnvelope.getBody().addChild(param.getOMElement(eu.sqooss.ws.client.ws.GetFileList4ProjectVersion.MY_QNAME,factory));
+                                
+                         return emptyEnvelope;
+                        }
+
+                        
+
+                            
+                        private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, eu.sqooss.ws.client.ws.RetrieveStoredProject param, boolean optimizeContent){
+                        org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
+                             
+                                    emptyEnvelope.getBody().addChild(param.getOMElement(eu.sqooss.ws.client.ws.RetrieveStoredProject.MY_QNAME,factory));
+                                
+                         return emptyEnvelope;
+                        }
+
+                        
+
+                            
+                        private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, eu.sqooss.ws.client.ws.RetrieveProjectId param, boolean optimizeContent){
+                        org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
+                             
+                                    emptyEnvelope.getBody().addChild(param.getOMElement(eu.sqooss.ws.client.ws.RetrieveProjectId.MY_QNAME,factory));
+                                
+                         return emptyEnvelope;
+                        }
+
+                        
+
+                            
+                        private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, eu.sqooss.ws.client.ws.RetrieveFileList param, boolean optimizeContent){
+                        org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
+                             
+                                    emptyEnvelope.getBody().addChild(param.getOMElement(eu.sqooss.ws.client.ws.RetrieveFileList.MY_QNAME,factory));
+                                
+                         return emptyEnvelope;
+                        }
+
+                        
+
+                            
+                        private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, eu.sqooss.ws.client.ws.GetProjectVersionMetricMeasurement param, boolean optimizeContent){
+                        org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
+                             
+                                    emptyEnvelope.getBody().addChild(param.getOMElement(eu.sqooss.ws.client.ws.GetProjectVersionMetricMeasurement.MY_QNAME,factory));
+                                
+                         return emptyEnvelope;
+                        }
+
+                        
+
+                            
+                        private  org.apache.axiom.soap.SOAPEnvelope toEnvelope(org.apache.axiom.soap.SOAPFactory factory, eu.sqooss.ws.client.ws.GetUserMessageOfTheDay param, boolean optimizeContent){
+                        org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
+                             
+                                    emptyEnvelope.getBody().addChild(param.getOMElement(eu.sqooss.ws.client.ws.GetUserMessageOfTheDay.MY_QNAME,factory));
                                 
                          return emptyEnvelope;
                         }
@@ -3381,86 +3237,16 @@
 
         try {
         
-                if (eu.sqooss.ws.client.ws.SubmitUser.class.equals(type)){
+                if (eu.sqooss.ws.client.ws.GetFilesNumber4ProjectVersion.class.equals(type)){
                 
-                           return eu.sqooss.ws.client.ws.SubmitUser.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+                           return eu.sqooss.ws.client.ws.GetFilesNumber4ProjectVersion.Factory.parse(param.getXMLStreamReaderWithoutCaching());
                     
 
                 }
            
-                if (eu.sqooss.ws.client.ws.SubmitUserResponse.class.equals(type)){
+                if (eu.sqooss.ws.client.ws.GetFilesNumber4ProjectVersionResponse.class.equals(type)){
                 
-                           return eu.sqooss.ws.client.ws.SubmitUserResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
-                    
-
-                }
-           
-                if (eu.sqooss.ws.client.ws.GetUserMessageOfTheDay.class.equals(type)){
-                
-                           return eu.sqooss.ws.client.ws.GetUserMessageOfTheDay.Factory.parse(param.getXMLStreamReaderWithoutCaching());
-                    
-
-                }
-           
-                if (eu.sqooss.ws.client.ws.GetUserMessageOfTheDayResponse.class.equals(type)){
-                
-                           return eu.sqooss.ws.client.ws.GetUserMessageOfTheDayResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
-                    
-
-                }
-           
-                if (eu.sqooss.ws.client.ws.RetrieveStoredProjectVersions.class.equals(type)){
-                
-                           return eu.sqooss.ws.client.ws.RetrieveStoredProjectVersions.Factory.parse(param.getXMLStreamReaderWithoutCaching());
-                    
-
-                }
-           
-                if (eu.sqooss.ws.client.ws.RetrieveStoredProjectVersionsResponse.class.equals(type)){
-                
-                           return eu.sqooss.ws.client.ws.RetrieveStoredProjectVersionsResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
-                    
-
-                }
-           
-                if (eu.sqooss.ws.client.ws.GetProjectFileMetricMeasurement.class.equals(type)){
-                
-                           return eu.sqooss.ws.client.ws.GetProjectFileMetricMeasurement.Factory.parse(param.getXMLStreamReaderWithoutCaching());
-                    
-
-                }
-           
-                if (eu.sqooss.ws.client.ws.GetProjectFileMetricMeasurementResponse.class.equals(type)){
-                
-                           return eu.sqooss.ws.client.ws.GetProjectFileMetricMeasurementResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
-                    
-
-                }
-           
-                if (eu.sqooss.ws.client.ws.GetFileList4ProjectVersion.class.equals(type)){
-                
-                           return eu.sqooss.ws.client.ws.GetFileList4ProjectVersion.Factory.parse(param.getXMLStreamReaderWithoutCaching());
-                    
-
-                }
-           
-                if (eu.sqooss.ws.client.ws.GetFileList4ProjectVersionResponse.class.equals(type)){
-                
-                           return eu.sqooss.ws.client.ws.GetFileList4ProjectVersionResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
-                    
-
-                }
-           
-                if (eu.sqooss.ws.client.ws.GetMetrics.class.equals(type)){
-                
-                           return eu.sqooss.ws.client.ws.GetMetrics.Factory.parse(param.getXMLStreamReaderWithoutCaching());
-                    
-
-                }
-           
-                if (eu.sqooss.ws.client.ws.GetMetricsResponse.class.equals(type)){
-                
-                           return eu.sqooss.ws.client.ws.GetMetricsResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+                           return eu.sqooss.ws.client.ws.GetFilesNumber4ProjectVersionResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
                     
 
                 }
@@ -3479,156 +3265,30 @@
 
                 }
            
-                if (eu.sqooss.ws.client.ws.StoredProjectsList.class.equals(type)){
+                if (eu.sqooss.ws.client.ws.GetProjectFileMetricMeasurement.class.equals(type)){
                 
-                           return eu.sqooss.ws.client.ws.StoredProjectsList.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+                           return eu.sqooss.ws.client.ws.GetProjectFileMetricMeasurement.Factory.parse(param.getXMLStreamReaderWithoutCaching());
                     
 
                 }
            
-                if (eu.sqooss.ws.client.ws.StoredProjectsListResponse.class.equals(type)){
+                if (eu.sqooss.ws.client.ws.GetProjectFileMetricMeasurementResponse.class.equals(type)){
                 
-                           return eu.sqooss.ws.client.ws.StoredProjectsListResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+                           return eu.sqooss.ws.client.ws.GetProjectFileMetricMeasurementResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
                     
 
                 }
            
-                if (eu.sqooss.ws.client.ws.RetrieveStoredProject.class.equals(type)){
+                if (eu.sqooss.ws.client.ws.SubmitUser.class.equals(type)){
                 
-                           return eu.sqooss.ws.client.ws.RetrieveStoredProject.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+                           return eu.sqooss.ws.client.ws.SubmitUser.Factory.parse(param.getXMLStreamReaderWithoutCaching());
                     
 
                 }
            
-                if (eu.sqooss.ws.client.ws.RetrieveStoredProjectResponse.class.equals(type)){
+                if (eu.sqooss.ws.client.ws.SubmitUserResponse.class.equals(type)){
                 
-                           return eu.sqooss.ws.client.ws.RetrieveStoredProjectResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
-                    
-
-                }
-           
-                if (eu.sqooss.ws.client.ws.DisplayUser.class.equals(type)){
-                
-                           return eu.sqooss.ws.client.ws.DisplayUser.Factory.parse(param.getXMLStreamReaderWithoutCaching());
-                    
-
-                }
-           
-                if (eu.sqooss.ws.client.ws.DisplayUserResponse.class.equals(type)){
-                
-                           return eu.sqooss.ws.client.ws.DisplayUserResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
-                    
-
-                }
-           
-                if (eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedFiles.class.equals(type)){
-                
-                           return eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedFiles.Factory.parse(param.getXMLStreamReaderWithoutCaching());
-                    
-
-                }
-           
-                if (eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedFilesResponse.class.equals(type)){
-                
-                           return eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedFilesResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
-                    
-
-                }
-           
-                if (eu.sqooss.ws.client.ws.RequestEvaluation4Project.class.equals(type)){
-                
-                           return eu.sqooss.ws.client.ws.RequestEvaluation4Project.Factory.parse(param.getXMLStreamReaderWithoutCaching());
-                    
-
-                }
-           
-                if (eu.sqooss.ws.client.ws.RequestEvaluation4ProjectResponse.class.equals(type)){
-                
-                           return eu.sqooss.ws.client.ws.RequestEvaluation4ProjectResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
-                    
-
-                }
-           
-                if (eu.sqooss.ws.client.ws.GetUserByName.class.equals(type)){
-                
-                           return eu.sqooss.ws.client.ws.GetUserByName.Factory.parse(param.getXMLStreamReaderWithoutCaching());
-                    
-
-                }
-           
-                if (eu.sqooss.ws.client.ws.GetUserByNameResponse.class.equals(type)){
-                
-                           return eu.sqooss.ws.client.ws.GetUserByNameResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
-                    
-
-                }
-           
-                if (eu.sqooss.ws.client.ws.RetrieveProjectId.class.equals(type)){
-                
-                           return eu.sqooss.ws.client.ws.RetrieveProjectId.Factory.parse(param.getXMLStreamReaderWithoutCaching());
-                    
-
-                }
-           
-                if (eu.sqooss.ws.client.ws.RetrieveProjectIdResponse.class.equals(type)){
-                
-                           return eu.sqooss.ws.client.ws.RetrieveProjectIdResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
-                    
-
-                }
-           
-                if (eu.sqooss.ws.client.ws.ValidateAccount.class.equals(type)){
-                
-                           return eu.sqooss.ws.client.ws.ValidateAccount.Factory.parse(param.getXMLStreamReaderWithoutCaching());
-                    
-
-                }
-           
-                if (eu.sqooss.ws.client.ws.ValidateAccountResponse.class.equals(type)){
-                
-                           return eu.sqooss.ws.client.ws.ValidateAccountResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
-                    
-
-                }
-           
-                if (eu.sqooss.ws.client.ws.ModifyUser.class.equals(type)){
-                
-                           return eu.sqooss.ws.client.ws.ModifyUser.Factory.parse(param.getXMLStreamReaderWithoutCaching());
-                    
-
-                }
-           
-                if (eu.sqooss.ws.client.ws.ModifyUserResponse.class.equals(type)){
-                
-                           return eu.sqooss.ws.client.ws.ModifyUserResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
-                    
-
-                }
-           
-                if (eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProject.class.equals(type)){
-                
-                           return eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProject.Factory.parse(param.getXMLStreamReaderWithoutCaching());
-                    
-
-                }
-           
-                if (eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProjectResponse.class.equals(type)){
-                
-                           return eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProjectResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
-                    
-
-                }
-           
-                if (eu.sqooss.ws.client.ws.RetrieveFileList.class.equals(type)){
-                
-                           return eu.sqooss.ws.client.ws.RetrieveFileList.Factory.parse(param.getXMLStreamReaderWithoutCaching());
-                    
-
-                }
-           
-                if (eu.sqooss.ws.client.ws.RetrieveFileListResponse.class.equals(type)){
-                
-                           return eu.sqooss.ws.client.ws.RetrieveFileListResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+                           return eu.sqooss.ws.client.ws.SubmitUserResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
                     
 
                 }
@@ -3647,6 +3307,20 @@
 
                 }
            
+                if (eu.sqooss.ws.client.ws.GetMetrics.class.equals(type)){
+                
+                           return eu.sqooss.ws.client.ws.GetMetrics.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+                    
+
+                }
+           
+                if (eu.sqooss.ws.client.ws.GetMetricsResponse.class.equals(type)){
+                
+                           return eu.sqooss.ws.client.ws.GetMetricsResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+                    
+
+                }
+           
                 if (eu.sqooss.ws.client.ws.DeleteUser.class.equals(type)){
                 
                            return eu.sqooss.ws.client.ws.DeleteUser.Factory.parse(param.getXMLStreamReaderWithoutCaching());
@@ -3661,16 +3335,16 @@
 
                 }
            
-                if (eu.sqooss.ws.client.ws.GetProjectVersionMetricMeasurement.class.equals(type)){
+                if (eu.sqooss.ws.client.ws.GetUserByName.class.equals(type)){
                 
-                           return eu.sqooss.ws.client.ws.GetProjectVersionMetricMeasurement.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+                           return eu.sqooss.ws.client.ws.GetUserByName.Factory.parse(param.getXMLStreamReaderWithoutCaching());
                     
 
                 }
            
-                if (eu.sqooss.ws.client.ws.GetProjectVersionMetricMeasurementResponse.class.equals(type)){
+                if (eu.sqooss.ws.client.ws.GetUserByNameResponse.class.equals(type)){
                 
-                           return eu.sqooss.ws.client.ws.GetProjectVersionMetricMeasurementResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+                           return eu.sqooss.ws.client.ws.GetUserByNameResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
                     
 
                 }
@@ -3689,16 +3363,184 @@
 
                 }
            
-                if (eu.sqooss.ws.client.ws.GetFilesNumber4ProjectVersion.class.equals(type)){
+                if (eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedFiles.class.equals(type)){
                 
-                           return eu.sqooss.ws.client.ws.GetFilesNumber4ProjectVersion.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+                           return eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedFiles.Factory.parse(param.getXMLStreamReaderWithoutCaching());
                     
 
                 }
            
-                if (eu.sqooss.ws.client.ws.GetFilesNumber4ProjectVersionResponse.class.equals(type)){
+                if (eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedFilesResponse.class.equals(type)){
                 
-                           return eu.sqooss.ws.client.ws.GetFilesNumber4ProjectVersionResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+                           return eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedFilesResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+                    
+
+                }
+           
+                if (eu.sqooss.ws.client.ws.StoredProjectsList.class.equals(type)){
+                
+                           return eu.sqooss.ws.client.ws.StoredProjectsList.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+                    
+
+                }
+           
+                if (eu.sqooss.ws.client.ws.StoredProjectsListResponse.class.equals(type)){
+                
+                           return eu.sqooss.ws.client.ws.StoredProjectsListResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+                    
+
+                }
+           
+                if (eu.sqooss.ws.client.ws.DisplayUser.class.equals(type)){
+                
+                           return eu.sqooss.ws.client.ws.DisplayUser.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+                    
+
+                }
+           
+                if (eu.sqooss.ws.client.ws.DisplayUserResponse.class.equals(type)){
+                
+                           return eu.sqooss.ws.client.ws.DisplayUserResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+                    
+
+                }
+           
+                if (eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProject.class.equals(type)){
+                
+                           return eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProject.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+                    
+
+                }
+           
+                if (eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProjectResponse.class.equals(type)){
+                
+                           return eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProjectResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+                    
+
+                }
+           
+                if (eu.sqooss.ws.client.ws.RetrieveStoredProjectVersions.class.equals(type)){
+                
+                           return eu.sqooss.ws.client.ws.RetrieveStoredProjectVersions.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+                    
+
+                }
+           
+                if (eu.sqooss.ws.client.ws.RetrieveStoredProjectVersionsResponse.class.equals(type)){
+                
+                           return eu.sqooss.ws.client.ws.RetrieveStoredProjectVersionsResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+                    
+
+                }
+           
+                if (eu.sqooss.ws.client.ws.ModifyUser.class.equals(type)){
+                
+                           return eu.sqooss.ws.client.ws.ModifyUser.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+                    
+
+                }
+           
+                if (eu.sqooss.ws.client.ws.ModifyUserResponse.class.equals(type)){
+                
+                           return eu.sqooss.ws.client.ws.ModifyUserResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+                    
+
+                }
+           
+                if (eu.sqooss.ws.client.ws.RequestEvaluation4Project.class.equals(type)){
+                
+                           return eu.sqooss.ws.client.ws.RequestEvaluation4Project.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+                    
+
+                }
+           
+                if (eu.sqooss.ws.client.ws.RequestEvaluation4ProjectResponse.class.equals(type)){
+                
+                           return eu.sqooss.ws.client.ws.RequestEvaluation4ProjectResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+                    
+
+                }
+           
+                if (eu.sqooss.ws.client.ws.GetFileList4ProjectVersion.class.equals(type)){
+                
+                           return eu.sqooss.ws.client.ws.GetFileList4ProjectVersion.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+                    
+
+                }
+           
+                if (eu.sqooss.ws.client.ws.GetFileList4ProjectVersionResponse.class.equals(type)){
+                
+                           return eu.sqooss.ws.client.ws.GetFileList4ProjectVersionResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+                    
+
+                }
+           
+                if (eu.sqooss.ws.client.ws.RetrieveStoredProject.class.equals(type)){
+                
+                           return eu.sqooss.ws.client.ws.RetrieveStoredProject.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+                    
+
+                }
+           
+                if (eu.sqooss.ws.client.ws.RetrieveStoredProjectResponse.class.equals(type)){
+                
+                           return eu.sqooss.ws.client.ws.RetrieveStoredProjectResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+                    
+
+                }
+           
+                if (eu.sqooss.ws.client.ws.RetrieveProjectId.class.equals(type)){
+                
+                           return eu.sqooss.ws.client.ws.RetrieveProjectId.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+                    
+
+                }
+           
+                if (eu.sqooss.ws.client.ws.RetrieveProjectIdResponse.class.equals(type)){
+                
+                           return eu.sqooss.ws.client.ws.RetrieveProjectIdResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+                    
+
+                }
+           
+                if (eu.sqooss.ws.client.ws.RetrieveFileList.class.equals(type)){
+                
+                           return eu.sqooss.ws.client.ws.RetrieveFileList.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+                    
+
+                }
+           
+                if (eu.sqooss.ws.client.ws.RetrieveFileListResponse.class.equals(type)){
+                
+                           return eu.sqooss.ws.client.ws.RetrieveFileListResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+                    
+
+                }
+           
+                if (eu.sqooss.ws.client.ws.GetProjectVersionMetricMeasurement.class.equals(type)){
+                
+                           return eu.sqooss.ws.client.ws.GetProjectVersionMetricMeasurement.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+                    
+
+                }
+           
+                if (eu.sqooss.ws.client.ws.GetProjectVersionMetricMeasurementResponse.class.equals(type)){
+                
+                           return eu.sqooss.ws.client.ws.GetProjectVersionMetricMeasurementResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+                    
+
+                }
+           
+                if (eu.sqooss.ws.client.ws.GetUserMessageOfTheDay.class.equals(type)){
+                
+                           return eu.sqooss.ws.client.ws.GetUserMessageOfTheDay.Factory.parse(param.getXMLStreamReaderWithoutCaching());
+                    
+
+                }
+           
+                if (eu.sqooss.ws.client.ws.GetUserMessageOfTheDayResponse.class.equals(type)){
+                
+                           return eu.sqooss.ws.client.ws.GetUserMessageOfTheDayResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
                     
 
                 }
