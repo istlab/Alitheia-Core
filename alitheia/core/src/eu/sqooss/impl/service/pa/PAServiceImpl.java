@@ -291,13 +291,18 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
         return registeredPlugins.values();
     }
 
-    /* (non-Javadoc)
-     * @see eu.sqooss.service.pa.PluginAdmin#installPlugin(java.lang.String)
+    /**
+     * Extracts the service ID of the metric plug-in service described in the
+     * information object located by the specified hash value.
+     * 
+     * @param hash the hash value
+     * 
+     * @return the service ID
      */
-    public boolean installPlugin(String hashcode) {
-        if ((hashcode != null) && (registeredPlugins.containsKey(hashcode))) {
+    private Long getServiceID (String hash) {
+        if ((hash != null) && (registeredPlugins.containsKey(hash))) {
             // Get the plug-in info object pointed by the given hash
-            PluginInfo infoPlugin = registeredPlugins.get(hashcode);
+            PluginInfo infoPlugin = registeredPlugins.get(hash);
 
             // Retrieve the plug-in service from the info object
             ServiceReference srefPlugin = infoPlugin.getServiceRef();
@@ -306,17 +311,31 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
                 try {
                     Long sid =
                         (Long) srefPlugin.getProperty(Constants.SERVICE_ID);
-                    return installPlugin (sid);
+                    return sid;
                 }
                 catch (ClassCastException e) {
-                    return false;
+                    return null;
                 }
             }
         }
 
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see eu.sqooss.service.pa.PluginAdmin#installPlugin(java.lang.String)
+     */
+    public boolean installPlugin(String hash) {
+        Long sid = getServiceID(hash);
+        if (sid != null) {
+            return installPlugin (sid);
+        }
         return false;
     }
 
+    /* (non-Javadoc)
+     * @see eu.sqooss.service.pa.PluginAdmin#installPlugin(java.lang.Long)
+     */
     public boolean installPlugin(Long sid) {
         // Flag for a successful installation
         boolean installed = false;
@@ -385,6 +404,26 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
         return installed;
     }
 
+    /* (non-Javadoc)
+     * @see eu.sqooss.service.pa.PluginAdmin#uninstallPlugin(java.lang.String)
+     */
+    public boolean uninstallPlugin(String hash) {
+        Long sid = getServiceID(hash);
+        if (sid != null) {
+            return uninstallPlugin (sid);
+        }
+        return false;
+    }
+
+    /* (non-Javadoc)
+     * @see eu.sqooss.service.pa.PluginAdmin#uninstallPlugin(java.lang.Long)
+     */
+    public boolean uninstallPlugin(Long serviceID) {
+        // TODO: Implementation
+
+        return false;
+    }
+
     public <T extends DAObject> List<PluginInfo> listPluginProviders(Class<T> o) {
 
         Iterator<PluginInfo> plugins = registeredPlugins.values().iterator();
@@ -399,11 +438,6 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
             }
         }
         return matching;
-    }
-    
-    public boolean uninstallPlugin(Long serviceID) {
-        
-        return false;
     }
 
     public PluginInfo getPluginInfo(AlitheiaPlugin m) {
@@ -468,6 +502,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
         // No plug-ins found
         return null;
     }
+
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

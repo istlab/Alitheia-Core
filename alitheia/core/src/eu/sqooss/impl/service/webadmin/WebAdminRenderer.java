@@ -182,8 +182,13 @@ public class WebAdminRenderer {
                     }
                     // Metric un-install request
                     else if (metricAction.equalsIgnoreCase(reqValUninstall)) {
-                        // TODO: Uninstall - check what PA method to call
-                        b.append("Uninstall - check what PA method to call");
+                        if (sobjPluginAdmin.uninstallPlugin(metricNumber)) {
+                            b.append("Metric successfuly uninstalled.");
+                        }
+                        else {
+                            b.append("Metric can not be uninstalled.");
+                            b.append(" Check log for details.");
+                        }
                     }
                 }
             }

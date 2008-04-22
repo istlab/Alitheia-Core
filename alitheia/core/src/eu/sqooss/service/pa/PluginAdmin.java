@@ -88,41 +88,70 @@ public interface PluginAdmin {
      * @return A reference to the implementing plugin interface
      */
     public AlitheiaPlugin getImplementingPlugin(String mnemonic);
-    
+
     /**
-     * Calls the install() method of the metric object provided from a metric
-     * service registered with the specified service ID.
+     * This method calls the <code>install()</code> method of the metric
+     * plug-in object provided from the metric plug-in service registered with
+     * the given service ID.<br/>
+     * The installation process involves updating the plug-in information
+     * object and creating the corresponding database records.
      *
      * @param service_ID the service ID of the selected metric service
      *
-     * @return true, if successful; false otherwise
+     * @return true, if successfully installed; false otherwise
      */
     public boolean installPlugin(Long service_ID);
 
     /**
-     * TODO: Better explanation
-     * Calls the install() method of the metric object provided from a metric
-     * service located by the given hashcode value.
+     * The <code>PluginAdmin</code> internally keeps a list of information
+     * objects (<code>PluginInfo</code>) describing the registered metric 
+     * plug-in services and indexed by unique hash values.<br/>
+     * This method calls the <code>install()</code> method of the metric
+     * plug-in object provided from the metric plug-in service, that is
+     * located by the specified hash value.<br/>
+     * The installation process involves updating the plug-in information
+     * object and creating the corresponding database records.
      *
-     * @param hashcode the hashcode used to index the <code>PluginInfo</code>
-     * object that points to the affected metric service
-     *
-     * @return true, if successful; false otherwise
+     * @param hash the hash value
+     * 
+     * @return true, if successfully installed; false otherwise
      */
-    public boolean installPlugin(String hashcode);
+    public boolean installPlugin(String hash);
 
     /**
-     * Remove the plug-in and the associated entries from the database
+     * This method calls the <code>uninstall()</code> method of the metric
+     * plug-in object provided from the metric plug-in service registered with
+     * the specified service ID.<br/>
+     * The de-installation process involves updating the plug-in information
+     * object and removing the associated database records.
+     * 
      * @param serviceID The plug-in's service ID
+     * 
      * @return True if removal succeeded, false otherwise
      */
     public boolean uninstallPlugin(Long serviceID);
-    
+
     /**
-     * Update the plugin registration info when the plug-in has updated
+     * The <code>PluginAdmin</code> internally keeps a list of information
+     * objects (<code>PluginInfo</code>) describing the registered metric 
+     * plug-in services and indexed by unique hash values.<br/>
+     * This method calls the <code>uninstall()</code> method of the metric
+     * plug-in object provided from the metric plug-in service, that is
+     * located by the specified hash value.<br/>
+     * The de-installation process involves updating the plug-in information
+     * object and removing the associated database records.
+     * 
+     * @param hash the hash value
+     * 
+     * @return True if removal succeeded, false otherwise
+     */
+    public boolean uninstallPlugin(String hash);
+
+    /**
+     * Updates the plug-in registration info when the plug-in has updated
      * its database records
-     * @param p The updated plugin
-     * @return
+     * 
+     * @param p The updated plug-in
      */
     public void pluginUpdated(AlitheiaPlugin p);
 
