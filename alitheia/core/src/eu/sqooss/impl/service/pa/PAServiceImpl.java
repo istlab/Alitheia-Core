@@ -202,6 +202,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
             pluginInfo.setPluginName(sobjPlugin.getName());
             pluginInfo.setPluginVersion(sobjPlugin.getVersion());
             pluginInfo.setServiceRef(srefPlugin);
+            pluginInfo.setHashcode(srefId);
             // Mark as not installed
             pluginInfo.installed = false;
             // Store in the registered plug-ins list

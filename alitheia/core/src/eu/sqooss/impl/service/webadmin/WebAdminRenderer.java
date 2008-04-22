@@ -152,10 +152,12 @@ public class WebAdminRenderer {
     }
 
     public static String renderMetrics() {
+        StringBuilder b = new StringBuilder();
+        // Indentation spacer
+        String IN = "              ";
         Collection<PluginInfo> l = sobjPluginAdmin.listPlugins();
 
-        StringBuilder b = new StringBuilder();
-        b.append("<form id=\"metrics\" method=\"post\" action=\"metrics\">\n");
+        b.append("<form id=\"metrics\" name=\"metrics\" method=\"post\" action=\"metrics\">\n");
         b.append("<table style=\"border-collapse: collapse; width: 100%;\">\n");
         b.append("<thead>\n");
         b.append("<tr>\n");
@@ -173,8 +175,12 @@ public class WebAdminRenderer {
                 b.append("<td>");
                 b.append("<input style=\"width: 100%;\""
                         + " type=\"button\""
-                        + " name=\"metric_install\""
+                        + " id=\"metricInstall\""
                         + " value=\"INSTALL\""
+                        + " onclick=\"javascript:"
+                        + "document.getElementById('metricAction').value='install';"
+                        + "document.getElementById('metricNumber').value='" + i.getHashcode() + "';"
+                        + "document.metrics.submit();\""
                         + ">");
                 b.append("</td>\n");
                 
@@ -195,8 +201,12 @@ public class WebAdminRenderer {
                 b.append("<td>");
                 b.append("<input style=\"width: 100%;\""
                         + " type=\"button\""
-                        + " name=\"metric_uninstall\""
+                        + " id=\"metricUninstall\""
                         + " value=\"UNINSTALL\""
+                        + " onclick=\"javascript:"
+                        + "document.getElementById('metricAction').value='uninstall';"
+                        + "document.getElementById('metricNumber').value='" + i.getHashcode() + "';"
+                        + "document.metrics.submit();\""
                         + ">");
                 b.append("</td>\n");
                 
@@ -210,27 +220,34 @@ public class WebAdminRenderer {
         }
         b.append("</tbody>\n");
         b.append("</table>\n");
+        b.append("<input type=\"hidden\" id=\"metricAction\" name=\"metricAction\" value=\"\">");
+        b.append("<input type=\"hidden\" id=\"metricNumber\" name=\"metricNumber\" value=\"\">");
+        b.append("");
         b.append("</form>\n");
         return b.toString();
     }
 
     /**
-     * Creates a <ul> populated with the attributes and default values of the
-     * given MetricInfor object
+     * Creates a set of table rows populated with the attributes and their
+     * values of the given <code>PluginInfo</code> object
+     * 
+     * @param pluginInfo a <code>PluginInfo</code> object
      */
-    private static String renderMetricAttributes(PluginInfo i) {
-        // Retrieve the configuration set of this metric
-        List<PluginConfiguration> l =  i.getConfiguration();
+    private static String renderMetricAttributes(PluginInfo pluginInfo) {
+        // Retrieve the configuration set of this plug-in
+        List<PluginConfiguration> l =  pluginInfo.getConfiguration();
 
-        // Skip metrics that are registered but not installed
-        if (i.installed == false) {
+        // Skip metric plug-ins that are registered but not installed
+        if (pluginInfo.installed == false) {
             return "";
         }
-        // Skip metrics that aren't configured or don't have configuration
+        // Skip plug-ins that aren't configured or don't have configuration
         else if ((l == null) || (l.isEmpty())) {
             return ("<tr>"
                     + "<td>&nbsp;</td>\n"
-                    + "<td style=\"padding-left: 10px;\">This metric plug-in has no configurable attibutes.</td>\n"
+                    + "<td style=\"padding-left: 10px;\">"
+                    + "This metric plug-in has no configurable attibutes."
+                    + "</td>\n"
                     + "</tr>\n");
         }
         else {
