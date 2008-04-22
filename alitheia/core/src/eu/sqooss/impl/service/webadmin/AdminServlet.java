@@ -78,6 +78,9 @@ public class AdminServlet extends HttpServlet {
 
     // Renderer of content
     WebAdminRenderer render = null;
+    
+    // Flag for refreshing the metrics content
+    private boolean refreshMetrics = true;
 
     public AdminServlet(BundleContext bc, WebadminService webadmin) {
         this.webadmin = webadmin;
@@ -160,6 +163,7 @@ public class AdminServlet extends HttpServlet {
                 return;
             }
             if (query.startsWith("/restart")) {
+                refreshMetrics  = false;
                 vc.put("RESULTS", "<p>Alitheia Core is now restarting.</p>");
                 sendPage(response, "/results.html");
 
@@ -194,6 +198,11 @@ public class AdminServlet extends HttpServlet {
             else if (query.startsWith("/motd")) {
                 render.setMOTD(webadmin, request);
                 sendPage(response, "/results.html");
+            }
+            else if (query.startsWith("/index")) {
+                refreshMetrics = false;
+                vc.put("METRICS", render.renderMetrics(request));
+                sendPage(response, "/index.html");
             }
             else {
                 doGet(request,response);
@@ -288,7 +297,12 @@ public class AdminServlet extends HttpServlet {
         vc.put("WAITJOBS", render.renderWaitJobs());
         vc.put("FAILJOBS", render.renderFailedJobs());
         vc.put("JOBFAILSTATS", render.renderJobFailStats());
-        vc.put("METRICS", render.renderMetrics());
+        if (refreshMetrics) {
+            vc.put("METRICS", render.renderMetrics(null));
+        }
+        else {
+            refreshMetrics = true;
+        }
         vc.put("USERS", render.renderUsers());
         
         // These are composite substitutions

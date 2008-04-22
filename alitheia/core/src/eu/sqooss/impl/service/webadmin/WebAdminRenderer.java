@@ -151,79 +151,116 @@ public class WebAdminRenderer {
         myStuffer.run();
     }
 
-    public static String renderMetrics() {
+    public static String renderMetrics(HttpServletRequest request) {
+        // Stores the assembled HTML content
         StringBuilder b = new StringBuilder();
         // Indentation spacer
         String IN = "              ";
+        // Retrieve information for all registered metric plug-ins
         Collection<PluginInfo> l = sobjPluginAdmin.listPlugins();
 
-        b.append("<form id=\"metrics\" name=\"metrics\" method=\"post\" action=\"metrics\">\n");
-        b.append("<table style=\"border-collapse: collapse; width: 100%;\">\n");
-        b.append("<thead>\n");
-        b.append("<tr>\n");
-        b.append("<td style=\"padding-left: 10px; text-align: left; font-weight: bold; width: 80px;\">Status</td>\n");
-        b.append("<td style=\"padding-left: 10px; text-align: left; font-weight: bold;\">Description</td>\n");
-        b.append("</tr>\n");
-        b.append("</thead>\n");
-        b.append("<tbody>\n");
-        // Not-installed plug-ins first
-        for(PluginInfo i : l) {
-            if (i.installed == false) {
-                b.append("<tr style=\"background-color: WhiteSmoke;\">");
-                
-                // Command bar
-                b.append("<td>");
-                b.append("<input style=\"width: 100%;\""
-                        + " type=\"button\""
-                        + " id=\"metricInstall\""
-                        + " value=\"INSTALL\""
-                        + " onclick=\"javascript:"
-                        + "document.getElementById('metricAction').value='install';"
-                        + "document.getElementById('metricNumber').value='" + i.getHashcode() + "';"
-                        + "document.metrics.submit();\""
-                        + ">");
-                b.append("</td>\n");
-                
-                // Info bar
-                b.append("<td style=\"padding-left: 10px;\"><b>" + i.toString() + "</b></td>\n");
-                b.append("</tr>\n");
-                
-                // Configuration bar
-                b.append(renderMetricAttributes(i));
+        // Request parameters
+        String reqParAction         = "metricAction";
+        String reqParNumber         = "metricNumber";
+        // Request values
+        String reqValInstall        = "install";
+        String reqValUninstall      = "uninstall";
+        if (request != null) {
+            String metricAction = request.getParameter(reqParAction);
+            String metricNumber = request.getParameter(reqParNumber);
+            if (metricAction != null) {
+                if (metricNumber != null) {
+                    // Metric install request
+                    if (metricAction.equalsIgnoreCase(reqValInstall)) {
+                        if (sobjPluginAdmin.installPlugin(metricNumber)) {
+                            b.append("Metric successfuly installed.");
+                        }
+                        else {
+                            b.append("Metric can not be installed.");
+                            b.append(" Check log for details.");
+                        }
+                    }
+                    // Metric un-install request
+                    else if (metricAction.equalsIgnoreCase(reqValUninstall)) {
+                        // TODO: Uninstall - check what PA method to call
+                        b.append("Uninstall - check what PA method to call");
+                    }
+                }
             }
         }
-        // Installed plug-ins
-        for(PluginInfo i : l) {
-            if (i.installed) {
-                b.append("<tr>");
-                
-                // Command bar
-                b.append("<td>");
-                b.append("<input style=\"width: 100%;\""
-                        + " type=\"button\""
-                        + " id=\"metricUninstall\""
-                        + " value=\"UNINSTALL\""
-                        + " onclick=\"javascript:"
-                        + "document.getElementById('metricAction').value='uninstall';"
-                        + "document.getElementById('metricNumber').value='" + i.getHashcode() + "';"
-                        + "document.metrics.submit();\""
-                        + ">");
-                b.append("</td>\n");
-                
-                // Info bar
-                b.append("<td style=\"padding-left: 10px;\"><b>" + i.toString() + "</b></td>\n");
-                b.append("</tr>\n");
-                
-                // Configuration bar
-                b.append(renderMetricAttributes(i));
-            }
+
+        if (l.isEmpty()) {
+            b.append("No metrics found!");
         }
-        b.append("</tbody>\n");
-        b.append("</table>\n");
-        b.append("<input type=\"hidden\" id=\"metricAction\" name=\"metricAction\" value=\"\">");
-        b.append("<input type=\"hidden\" id=\"metricNumber\" name=\"metricNumber\" value=\"\">");
-        b.append("");
-        b.append("</form>\n");
+        else {
+            b.append("<form id=\"metrics\" name=\"metrics\" method=\"post\" action=\"/index\">\n");
+            b.append("<table style=\"border-collapse: collapse; width: 100%;\">\n");
+            b.append("<thead>\n");
+            b.append("<tr>\n");
+            b.append("<td style=\"padding-left: 10px; text-align: left; font-weight: bold; width: 80px;\">Status</td>\n");
+            b.append("<td style=\"padding-left: 10px; text-align: left; font-weight: bold;\">Description</td>\n");
+            b.append("</tr>\n");
+            b.append("</thead>\n");
+            b.append("<tbody>\n");
+            // Not-installed plug-ins first
+            for(PluginInfo i : l) {
+                if (i.installed == false) {
+                    b.append("<tr style=\"background-color: WhiteSmoke;\">");
+                    
+                    // Command bar
+                    b.append("<td>");
+                    b.append("<input style=\"width: 100%;\""
+                            + " type=\"button\""
+                            + " id=\"metricInstall\""
+                            + " value=\"INSTALL\""
+                            + " onclick=\"javascript:"
+                            + "document.getElementById('" + reqParAction + "').value='" + reqValInstall + "';"
+                            + "document.getElementById('" + reqParNumber +"').value='" + i.getHashcode() + "';"
+                            + "document.metrics.submit();\""
+                            + ">");
+                    b.append("</td>\n");
+                    
+                    // Info bar
+                    b.append("<td style=\"padding-left: 10px;\"><b>" + i.toString() + "</b></td>\n");
+                    b.append("</tr>\n");
+                    
+                    // Configuration bar
+                    b.append(renderMetricAttributes(i));
+                }
+            }
+            // Installed plug-ins
+            for(PluginInfo i : l) {
+                if (i.installed) {
+                    b.append("<tr>");
+                    
+                    // Command bar
+                    b.append("<td>");
+                    b.append("<input style=\"width: 100%;\""
+                            + " type=\"button\""
+                            + " id=\"metricUninstall\""
+                            + " value=\"UNINSTALL\""
+                            + " onclick=\"javascript:"
+                            + "document.getElementById('" + reqParAction + "').value='" + reqValUninstall  +"';"
+                            + "document.getElementById('" + reqParNumber +"').value='" + i.getHashcode() + "';"
+                            + "document.metrics.submit();\""
+                            + ">");
+                    b.append("</td>\n");
+                    
+                    // Info bar
+                    b.append("<td style=\"padding-left: 10px;\"><b>" + i.toString() + "</b></td>\n");
+                    b.append("</tr>\n");
+                    
+                    // Configuration bar
+                    b.append(renderMetricAttributes(i));
+                }
+            }
+            b.append("</tbody>\n");
+            b.append("</table>\n");
+            b.append("<input type=\"hidden\" id=\"" + reqParAction + "\" name=\"metricAction\" value=\"\">\n");
+            b.append("<input type=\"hidden\" id=\"" + reqParNumber + "\" name=\"metricNumber\" value=\"\">\n");
+            b.append("</form>\n");
+        }
+
         return b.toString();
     }
 

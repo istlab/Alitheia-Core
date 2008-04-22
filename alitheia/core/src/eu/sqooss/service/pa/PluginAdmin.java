@@ -98,7 +98,19 @@ public interface PluginAdmin {
      * @return true, if successful; false otherwise
      */
     public boolean installPlugin(Long service_ID);
-    
+
+    /**
+     * TODO: Better explanation
+     * Calls the install() method of the metric object provided from a metric
+     * service located by the given hashcode value.
+     *
+     * @param hashcode the hashcode used to index the <code>PluginInfo</code>
+     * object that points to the affected metric service
+     *
+     * @return true, if successful; false otherwise
+     */
+    public boolean installPlugin(String hashcode);
+
     /**
      * Remove the plug-in and the associated entries from the database
      * @param serviceID The plug-in's service ID
@@ -112,7 +124,8 @@ public interface PluginAdmin {
      * @param p The updated plugin
      * @return
      */
-    public void pluginUpdated(AlitheiaPlugin p); 
+    public void pluginUpdated(AlitheiaPlugin p);
+
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

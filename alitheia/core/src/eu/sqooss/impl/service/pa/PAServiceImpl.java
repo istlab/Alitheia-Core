@@ -291,6 +291,26 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
         return registeredPlugins.values();
     }
 
+    /* (non-Javadoc)
+     * @see eu.sqooss.service.pa.PluginAdmin#installPlugin(java.lang.String)
+     */
+    public boolean installPlugin(String hashcode) {
+        if ((hashcode != null) && (registeredPlugins.containsKey(hashcode))) {
+            PluginInfo infoPlugin = registeredPlugins.get(hashcode);
+            ServiceReference srefPlugin = infoPlugin.getServiceRef();
+            if (srefPlugin != null) {
+                try {
+                    Long sid = (Long) srefPlugin.getProperty(Constants.SERVICE_ID);
+                    return installPlugin (sid);
+                }
+                catch (ClassCastException e) {
+                    return false;
+                }
+            }
+        }
+        return false;
+    }
+
     public boolean installPlugin(Long sid) {
         // Flag for a successful installation
         boolean installed = false;
