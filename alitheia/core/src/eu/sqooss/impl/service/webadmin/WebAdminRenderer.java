@@ -196,7 +196,7 @@ public class WebAdminRenderer {
             b.append("<form id=\"metrics\" name=\"metrics\" method=\"post\" action=\"/index\">\n");
             b.append("<table style=\"border-collapse: collapse; width: 100%;\">\n");
             b.append("<thead>\n");
-            b.append("<tr>\n");
+            b.append("<tr style=\"background-color: LightSteelBlue;\">\n");
             b.append("<td style=\"padding-left: 10px; text-align: left; font-weight: bold; width: 80px;\">Status</td>\n");
             b.append("<td style=\"padding-left: 10px; text-align: left; font-weight: bold;\">Description</td>\n");
             b.append("</tr>\n");
@@ -282,7 +282,7 @@ public class WebAdminRenderer {
         else if ((l == null) || (l.isEmpty())) {
             return ("<tr>"
                     + "<td>&nbsp;</td>\n"
-                    + "<td style=\"padding-left: 10px;\">"
+                    + "<td style=\"padding-left: 10px; background-color: Bisque; font-style: italic;\">"
                     + "This metric plug-in has no configurable attibutes."
                     + "</td>\n"
                     + "</tr>\n");
