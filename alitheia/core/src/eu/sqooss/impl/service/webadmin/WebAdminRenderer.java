@@ -194,24 +194,23 @@ public class WebAdminRenderer {
         }
         else {
             b.append("<form id=\"metrics\" name=\"metrics\" method=\"post\" action=\"/index\">\n");
-            b.append("<table style=\"border-collapse: collapse; width: 100%;\">\n");
+            b.append("<table>\n");
             b.append("<thead>\n");
-            b.append("<tr style=\"background-color: LightSteelBlue;\">\n");
-            b.append("<td style=\"padding-left: 10px; text-align: left; font-weight: bold; width: 80px;\">Status</td>\n");
-            b.append("<td style=\"padding-left: 10px; text-align: left; font-weight: bold;\">Description</td>\n");
+            b.append("<tr class=\"head\">\n");
+            b.append("<td class=\"head\" style=\"width: 80px;\">Status</td>\n");
+            b.append("<td class=\"head\">Description</td>\n");
             b.append("</tr>\n");
             b.append("</thead>\n");
             b.append("<tbody>\n");
             // Not-installed plug-ins first
             for(PluginInfo i : l) {
                 if (i.installed == false) {
-                    b.append("<tr style=\"background-color: WhiteSmoke;\">");
+                    b.append("<tr class=\"uninstalled\">");
                     
                     // Command bar
-                    b.append("<td>");
-                    b.append("<input style=\"width: 100%;\""
+                    b.append("<td style=\"padding: 0;\">");
+                    b.append("<input class=\"install\""
                             + " type=\"button\""
-                            + " id=\"metricInstall\""
                             + " value=\"INSTALL\""
                             + " onclick=\"javascript:"
                             + "document.getElementById('" + reqParAction + "').value='" + reqValInstall + "';"
@@ -221,7 +220,7 @@ public class WebAdminRenderer {
                     b.append("</td>\n");
                     
                     // Info bar
-                    b.append("<td style=\"padding-left: 10px;\"><b>" + i.toString() + "</b></td>\n");
+                    b.append("<td class=\"name\">" + i.toString() + "</td>\n");
                     b.append("</tr>\n");
                     
                     // Configuration bar
@@ -234,10 +233,9 @@ public class WebAdminRenderer {
                     b.append("<tr>");
                     
                     // Command bar
-                    b.append("<td>");
-                    b.append("<input style=\"width: 100%;\""
+                    b.append("<td style=\"padding: 0;\">");
+                    b.append("<input class=\"uninstall\""
                             + " type=\"button\""
-                            + " id=\"metricUninstall\""
                             + " value=\"UNINSTALL\""
                             + " onclick=\"javascript:"
                             + "document.getElementById('" + reqParAction + "').value='" + reqValUninstall  +"';"
@@ -247,7 +245,7 @@ public class WebAdminRenderer {
                     b.append("</td>\n");
                     
                     // Info bar
-                    b.append("<td style=\"padding-left: 10px;\"><b>" + i.toString() + "</b></td>\n");
+                    b.append("<td class=\"name\">" + i.toString() + "</td>\n");
                     b.append("</tr>\n");
                     
                     // Configuration bar
@@ -282,8 +280,8 @@ public class WebAdminRenderer {
         else if ((l == null) || (l.isEmpty())) {
             return ("<tr>"
                     + "<td>&nbsp;</td>\n"
-                    + "<td style=\"padding-left: 10px; background-color: Bisque; font-style: italic;\">"
-                    + "This metric plug-in has no configurable attibutes."
+                    + "<td class=\"noattr\">"
+                    + "This metric plug-in has no configurable attributes."
                     + "</td>\n"
                     + "</tr>\n");
         }
@@ -293,7 +291,7 @@ public class WebAdminRenderer {
             for (PluginConfiguration c : l) {
                 b.append("<tr>");
                 b.append("<td>&nbsp;</td>\n");
-                b.append("<td style=\"padding-left: 10px; background-color: Bisque;\">"
+                b.append("<td class=\"attr\">"
                         + " Attribute: " + c.getName()
                         + " Type: " + c.getType()
                         + " Value: " + c.getValue()
