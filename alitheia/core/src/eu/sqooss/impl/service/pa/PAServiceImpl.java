@@ -357,6 +357,10 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
              * into the plugin's information object
              */
             if (installed) {
+                // Remove the old "not yet installed" info entry (if any)
+                if (registeredPlugins.containsKey(sid.toString()))
+                    registeredPlugins.remove(sid.toString());
+                // Append/update the plug-in info entry
                 Plugin pdao = this.pluginRefToPluginDAO(sref);
                 PluginInfo pi = getPluginInfo(sref, pdao);
                 pi.installed = true;
