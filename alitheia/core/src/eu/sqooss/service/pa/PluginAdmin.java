@@ -119,7 +119,7 @@ public interface PluginAdmin {
     public boolean installPlugin(String hash);
 
     /**
-     * This method calls the <code>uninstall()</code> method of the metric
+     * This method calls the <code>remove()</code> method of the metric
      * plug-in object provided from the metric plug-in service registered with
      * the specified service ID.<br/>
      * The de-installation process involves updating the plug-in information
@@ -135,7 +135,7 @@ public interface PluginAdmin {
      * The <code>PluginAdmin</code> internally keeps a list of information
      * objects (<code>PluginInfo</code>) describing the registered metric 
      * plug-in services and indexed by unique hash values.<br/>
-     * This method calls the <code>uninstall()</code> method of the metric
+     * This method calls the <code>remove()</code> method of the metric
      * plug-in object provided from the metric plug-in service, that is
      * located by the specified hash value.<br/>
      * The de-installation process involves updating the plug-in information
