@@ -296,11 +296,16 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
      */
     public boolean installPlugin(String hashcode) {
         if ((hashcode != null) && (registeredPlugins.containsKey(hashcode))) {
+            // Get the plug-in info object pointed by the given hash
             PluginInfo infoPlugin = registeredPlugins.get(hashcode);
+
+            // Retrieve the plug-in service from the info object
             ServiceReference srefPlugin = infoPlugin.getServiceRef();
             if (srefPlugin != null) {
+                // Call the install() method on the plug-in service's object
                 try {
-                    Long sid = (Long) srefPlugin.getProperty(Constants.SERVICE_ID);
+                    Long sid =
+                        (Long) srefPlugin.getProperty(Constants.SERVICE_ID);
                     return installPlugin (sid);
                 }
                 catch (ClassCastException e) {
@@ -308,65 +313,67 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
                 }
             }
         }
+
         return false;
     }
 
     public boolean installPlugin(Long sid) {
         // Flag for a successful installation
         boolean installed = false;
-        // Format a search filter for the plugin service with <sid> serviceId
+
+        // Format a search filter for a service with the given service ID
         String serviceFilter =
             "(" + Constants.SERVICE_ID +"=" + sid + ")";
         logger.info (
                 "Installing plugin with service ID " + sid);
 
+        // Pre-formated error messages
         final String INSTALL_FAILED =
             "The installation of plugin with"
             + " service ID "+ sid
             + " failed : ";
 
+        // Stores all services that match the search filter
         ServiceReference[] matchingServices = null;
-
         try {
+            /* Since the search is performed using a service ID, it MUST
+             * return only one service reference
+             */
             matchingServices = bc.getServiceReferences(null, serviceFilter);
-
-            // Since the search was performed using a serviceId, it must
-            // be only one service reference that is found
             if ((matchingServices == null) && (matchingServices.length != 1)) {
                 logger.warn(NO_MATCHING_SERVICES);
                 return installed;
             }
 
+            // Get an instance of the matching service
             ServiceReference sref = matchingServices[0];
-
             if (sref == null) {
                 logger.warn(NO_MATCHING_SERVICES);
             }
 
-            /*Retrieve the plugin object registered with this service */
+            // Retrieve the plug-in object registered with this service
             AlitheiaPlugin sobj = (AlitheiaPlugin) bc.getService(sref);
             if (sobj == null) {
                 logger.warn(INSTALL_FAILED + CANT_GET_SOBJ);
                 return installed;
             }
 
-            /* Execute the install() method of this metric plug-in */
+            // Execute the install() method of this metric plug-in
             installed = sobj.install();
 
-            /* If installation is successful, then report this 
-             * into the plugin's information object
+            /* Create/update the plug-in's information object, upon successful
+             * installation. 
              */
             if (installed) {
                 // Remove the old "not yet installed" info entry (if any)
                 if (registeredPlugins.containsKey(sid.toString()))
                     registeredPlugins.remove(sid.toString());
-                // Append/update the plug-in info entry
+                // Create/update the plug-in info entry
                 Plugin pdao = this.pluginRefToPluginDAO(sref);
                 PluginInfo pi = getPluginInfo(sref, pdao);
                 pi.installed = true;
                 this.registeredPlugins.put(pi.getHashcode(), pi);
             }
-
         } catch (InvalidSyntaxException e) {
             logger.warn(INVALID_FILTER_SYNTAX);
         } catch (ClassCastException e) {
@@ -374,7 +381,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
         } catch (Error e) {
             logger.warn(INSTALL_FAILED + e);
         } 
-            
+
         return installed;
     }
 
