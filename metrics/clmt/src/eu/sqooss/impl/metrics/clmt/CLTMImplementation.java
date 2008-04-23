@@ -38,14 +38,14 @@ import org.osgi.framework.ServiceReference;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.lib.result.Result;
-import eu.sqooss.metrics.skeleton.Skeleton;
+import eu.sqooss.metrics.clmt.CLMT;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.scheduler.Scheduler;
 
 
-public class CLTMImplementation extends AbstractMetric implements Skeleton {
+public class CLTMImplementation extends AbstractMetric implements CLMT {
     public CLTMImplementation(BundleContext bc) {
         super(bc);        
     }
@@ -54,28 +54,28 @@ public class CLTMImplementation extends AbstractMetric implements Skeleton {
         boolean result = super.install();
         if (result) {
             result &= super.addSupportedMetrics(
-                    "NOCL",
                     "Number of Classes",
+                    "NOCL",
                     MetricType.Type.SOURCE_CODE);
             result &= super.addSupportedMetrics(
-                    "NOPA",
                     "Number of Public Attributes",
+                    "NOPA",
                     MetricType.Type.SOURCE_CODE);
             result &= super.addSupportedMetrics(
-                    "NOC",
                     "Number of Children",
+                    "NOC",
                     MetricType.Type.SOURCE_CODE);
             result &= super.addSupportedMetrics(
-                    "NPM",
                     "Number of Public Methods",
+                    "NPM",
                     MetricType.Type.SOURCE_CODE);
             result &= super.addSupportedMetrics(
-                    "NOPRM",
                     "Number of Projected Methods",
+                    "NOPRM",
                     MetricType.Type.SOURCE_CODE);
             result &= super.addSupportedMetrics(
-                    "WMC",
                     "Weighted Methods per Class",
+                    "WMC",
                     MetricType.Type.SOURCE_CODE);
             
         }

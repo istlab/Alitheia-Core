@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: 
+Bundle-Name: CLTM Plugin 
 Bundle-SymbolicName: eu.sqooss.metric.clmt
 Bundle-Version: 0.0.1
-Bundle-Activator: eu.sqooss.impl.service.clmt
+Bundle-Activator: eu.sqooss.impl.service.CLMTActivator
 Bundle-Vendor: AUEB
 Bundle-Description: Cross-Language Metric Tool wrapper
 Import-Package:  org.osgi.framework,
