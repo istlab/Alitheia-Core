@@ -38,6 +38,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 import javax.xml.XMLConstants;
@@ -123,8 +124,8 @@ import javax.xml.validation.SchemaFactory;
  * </p>
  * 
  */
-public class Result implements Iterable<ArrayList<ResultEntry>>,
-                                          Iterator<ArrayList<ResultEntry>> {
+public class Result implements Iterable<List<ResultEntry>>,
+                                          Iterator<List<ResultEntry>> {
     
     private static final String XML_DECLARATION         = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
     private static final String XML_ELEM_NAME_ROOT   = "Result";
@@ -134,7 +135,7 @@ public class Result implements Iterable<ArrayList<ResultEntry>>,
     private static final String XML_ELEM_NAME_ROOT_ROW_FIELD_VALUE = "Value";
     private static final String XML_ELEM_NAME_ROOT_ROW_FIELD_MNEM = "Mnemonic";
     
-    private ArrayList<ArrayList<ResultEntry>> ResultTable;
+    private ArrayList<List<ResultEntry>> ResultTable;
     private int currentRow;
 
     private Object lockObject = new Object();
@@ -145,7 +146,7 @@ public class Result implements Iterable<ArrayList<ResultEntry>>,
             XML_ELEM_NAME_ROOT_ROW_FIELD_VALUE, XML_ELEM_NAME_ROOT_ROW_FIELD_MNEM);
     
     public Result() {
-        ResultTable = new ArrayList<ArrayList<ResultEntry>>();
+        ResultTable = new ArrayList<List<ResultEntry>>();
         currentRow = -1;
     }
 
@@ -182,7 +183,7 @@ public class Result implements Iterable<ArrayList<ResultEntry>>,
     /**
      * @see java.util.Iterator#next()
      */
-    public ArrayList<ResultEntry> next() {
+    public List<ResultEntry> next() {
         synchronized (lockObject) {
             if (hasNext()) {
                 currentRow++;
@@ -205,7 +206,7 @@ public class Result implements Iterable<ArrayList<ResultEntry>>,
     /**
      * @see java.lang.Iterable#iterator()
      */
-    public Iterator<ArrayList<ResultEntry>> iterator() {
+    public Iterator<List<ResultEntry>> iterator() {
         return this;
     }
     /* Iterable's method */
@@ -249,7 +250,7 @@ public class Result implements Iterable<ArrayList<ResultEntry>>,
      * @return The row at the current position of the cursor.
      * @throws IllegalStateException if the Result is empty.
      */
-    public ArrayList<ResultEntry> get() {
+    public List<ResultEntry> get() {
         synchronized (lockObject) {
             if (currentRow == -1) {
                 throw new IllegalStateException("Can't get the row with index -1!");
@@ -265,7 +266,7 @@ public class Result implements Iterable<ArrayList<ResultEntry>>,
      * @return The specified row
      * @throws IndexOutOfBoundsException if the row index is out of range
      */
-    public ArrayList<ResultEntry> getRow(int i) {
+    public List<ResultEntry> getRow(int i) {
         return ResultTable.get(i);
     }
 
@@ -278,7 +279,7 @@ public class Result implements Iterable<ArrayList<ResultEntry>>,
      * of range 
      */
     public ResultEntry getFieldAt(int x, int y) {
-        ArrayList<ResultEntry> line = getRow(x);
+        List<ResultEntry> line = getRow(x);
         return line.get(y);
     }
 
@@ -286,7 +287,7 @@ public class Result implements Iterable<ArrayList<ResultEntry>>,
      * Appends a result row to the end of results table
      * @param result The result row to add
      */
-    public void addResultRow(ArrayList<ResultEntry> result) {
+    public void addResultRow(List<ResultEntry> result) {
         synchronized (lockObject) {
             this.ResultTable.add(result);
         }
@@ -322,7 +323,7 @@ public class Result implements Iterable<ArrayList<ResultEntry>>,
         StringBuffer result   = new StringBuffer();
         result.append(XML_DECLARATION);
         result.append(rootStartTag);
-        for (ArrayList<ResultEntry> currentRow : ResultTable) {
+        for (List<ResultEntry> currentRow : ResultTable) {
             result.append(rowStartTag);
             for (ResultEntry currentField : currentRow) {
                 result.append(fieldStartTag);
@@ -338,6 +339,13 @@ public class Result implements Iterable<ArrayList<ResultEntry>>,
                 result.append(currentField.toString());
                 result.append('\n');
                 result.append(valueEndTag);
+                
+                result.append(mnemStartTag);
+                result.append(ResultEntryIndentation);
+                result.append(currentField.toString());
+                result.append('\n');
+                result.append(mnemEndTag);
+                
                 
                 result.append(fieldEndTag);
             }
