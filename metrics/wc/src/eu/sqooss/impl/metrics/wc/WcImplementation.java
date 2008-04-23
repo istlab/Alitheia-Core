@@ -38,15 +38,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.hibernate.Session;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.lib.result.Result;
 import eu.sqooss.lib.result.ResultEntry;
 import eu.sqooss.metrics.wc.Wc;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
+import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectFileMeasurement;
@@ -75,53 +74,29 @@ public class WcImplementation extends AbstractMetric implements Wc {
         return result;
     }
 
-    public Result getResult(ProjectFile a) {
-        Result result = null;
-
-        // Get a DB session
-        Session s = db.getSession(this);
-
+    public List<ResultEntry> getResult(ProjectFile a, Metric m) {
+        
+        ArrayList<ResultEntry> results = new ArrayList<ResultEntry>();
         // Search for a matching project file measurement
         HashMap<String, Object> filter = new HashMap<String, Object>();
         filter.put("projectFile", a);
-        /* TODO: getResult() itself must contain a metric descriptor as a
-         *       parameter. Otherwise, if this plug-in has registered more
-         *       than one metric descriptors (of the same type), then it will
-         *       be impossible to find out which measurement result needs to
-         *       be retrieved.
-         */
-        filter.put("metric", this.getSupportedMetrics().get(0));
+        filter.put("metric", m);
         List<ProjectFileMeasurement> measurement =
-            db.findObjectsByProperties(s, ProjectFileMeasurement.class, filter);
+            db.findObjectsByProperties(ProjectFileMeasurement.class, filter);
 
         // Convert the measurement into a result object
         if (! measurement.isEmpty()) {
             // There is only one measurement per metric and project file
-            Integer value = new Integer(measurement.get(0).getResult());
+            Integer value = Integer.parseInt(measurement.get(0).getResult());
             // ... and therefore only one result entry
             ArrayList<ResultEntry> entries = new ArrayList<ResultEntry>();
-            /* TODO: The above mentioned problem has its influence here too.
-             *       If a plug-in supports more than one metric of the same
-             *       type, each providing its own metric job, then how do we
-             *       know:
-             *       1. Which metric calculated this measurement (what we know
-             *          from this measurement is the metric descriptor only)?
-             *       2. What is the concrete result type of this measurement
-             *          (Long, Integer ...)? In a Measurement DB entry the
-             *          result is always stored as String and we don't have a
-             *          hint about which metric (job) calculated it.
-             */
-            ResultEntry entry =
-                new ResultEntry(value, ResultEntry.MIME_TYPE_TYPE_INTEGER);
+            ResultEntry entry = 
+                new ResultEntry(value, ResultEntry.MIME_TYPE_TYPE_INTEGER, m.getMnemonic());
             entries.add(entry);
-            result = new Result();
-            result.addResultRow(entries);
+            results.add(entry);
+            return results;
         }
-
-        // Free the DB session
-        db.returnSession(s);
-
-        return result;
+        return null;
     }
 
     public void run(ProjectFile a) {

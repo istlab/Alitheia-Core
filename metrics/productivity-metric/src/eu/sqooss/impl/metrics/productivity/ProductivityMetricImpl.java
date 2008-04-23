@@ -33,65 +33,49 @@
 
 package eu.sqooss.impl.metrics.productivity;
 
+import java.util.List;
+
 import org.osgi.framework.BundleContext;
 
-import eu.sqooss.lib.result.Result;
+import eu.sqooss.lib.result.ResultEntry;
 import eu.sqooss.metrics.productivity.ProductivityMetric;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
+import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 
 public class ProductivityMetricImpl extends AbstractMetric implements
         ProductivityMetric {
-
-    private static final long serialVersionUID = 1L;
     
     public ProductivityMetricImpl(BundleContext bc) {
         super(bc);
     }
 
-    public boolean install() {
-        return super.install();
-    }
-
-    public boolean remove() {
-        return false;
-    }
-
-    public boolean update() {
-        return false;
-    }
-
-    public boolean delete(StoredProject a) {
-        return false;
-    }
-
-    public Result getResult(StoredProject a) {
+    public List<ResultEntry> getResult(StoredProject a, Metric m) {
+        // TODO Auto-generated method stub
         return null;
     }
 
     public void run(StoredProject a) {
+        // TODO Auto-generated method stub
+        
     }
 
-    public boolean delete(ProjectVersion a) {
-        return false;
-    }
-
-    public Result getResult(ProjectVersion a) {
+    public List<ResultEntry> getResult(ProjectVersion a, Metric m) {
+        // TODO Auto-generated method stub
         return null;
     }
 
     public boolean run(ProjectVersion a, ProjectVersion b) {
+        // TODO Auto-generated method stub
         return false;
     }
 
-    public void run(ProjectVersion a) {
-        run(a,a);
+    public void run(ProjectVersion v) {
+        // TODO Auto-generated method stub
+        
     }
-    public Object selfTest() {
 
-        return null;
-    }
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab
