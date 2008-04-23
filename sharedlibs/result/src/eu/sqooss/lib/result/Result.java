@@ -132,6 +132,7 @@ public class Result implements Iterable<ArrayList<ResultEntry>>,
     private static final String XML_ELEM_NAME_ROOT_ROW_FIELD  = "Field";
     private static final String XML_ELEM_NAME_ROOT_ROW_FIELD_MIME  = "MimeType";
     private static final String XML_ELEM_NAME_ROOT_ROW_FIELD_VALUE = "Value";
+    private static final String XML_ELEM_NAME_ROOT_ROW_FIELD_MNEM = "Mnemonic";
     
     private ArrayList<ArrayList<ResultEntry>> ResultTable;
     private int currentRow;
@@ -141,28 +142,28 @@ public class Result implements Iterable<ArrayList<ResultEntry>>,
     private static SAXParser saxParser;
     private static SAXDefaultHandler saxHandler = new SAXDefaultHandler(XML_ELEM_NAME_ROOT_ROW,
             XML_ELEM_NAME_ROOT_ROW_FIELD, XML_ELEM_NAME_ROOT_ROW_FIELD_MIME,
-            XML_ELEM_NAME_ROOT_ROW_FIELD_VALUE);
+            XML_ELEM_NAME_ROOT_ROW_FIELD_VALUE, XML_ELEM_NAME_ROOT_ROW_FIELD_MNEM);
     
     public Result() {
         ResultTable = new ArrayList<ArrayList<ResultEntry>>();
         currentRow = -1;
     }
 
-    public Result(String plainText) {
+   /* public Result(String plainText) {
         this();
         if (plainText != null) {
             ArrayList<ResultEntry> row = new ArrayList<ResultEntry>(1);
             row.add(new ResultEntry(plainText, ResultEntry.MIME_TYPE_TEXT_PLAIN));
             addResultRow(row);
         }
-    }
+    }*/
     
-    public Result(long longValue) {
+  /*  public Result(long longValue) {
         this();
         ArrayList<ResultEntry> row = new ArrayList<ResultEntry>(1);
         row.add(new ResultEntry(longValue, ResultEntry.MIME_TYPE_TYPE_LONG));
         addResultRow(row);
-    }
+    }*/
     
     /* Iterator's methods */
     /**
@@ -315,6 +316,8 @@ public class Result implements Iterable<ArrayList<ResultEntry>>,
         String mimeTypeEndTag   = "\t\t\t</" + XML_ELEM_NAME_ROOT_ROW_FIELD_MIME + ">\n";
         String valueStartTag    = "\t\t\t<" + XML_ELEM_NAME_ROOT_ROW_FIELD_VALUE + ">\n";
         String valueEndTag      = "\t\t\t</" + XML_ELEM_NAME_ROOT_ROW_FIELD_VALUE + ">\n";
+        String mnemStartTag    = "\t\t\t<" + XML_ELEM_NAME_ROOT_ROW_FIELD_MNEM + ">\n";
+        String mnemEndTag      = "\t\t\t</" + XML_ELEM_NAME_ROOT_ROW_FIELD_MNEM + ">\n";
         String ResultEntryIndentation = "\t\t\t\t";
         StringBuffer result   = new StringBuffer();
         result.append(XML_DECLARATION);

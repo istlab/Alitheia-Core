@@ -34,9 +34,11 @@
       <xsd:sequence>
         <xsd:element ref="MimeType"/>
         <xsd:element ref="Value"/>
+        <xsd:element ref="Mnemonic"/>
       </xsd:sequence>
     </xsd:complexType>
   </xsd:element>
   <xsd:element name="MimeType" type="xsd:string"/>
   <xsd:element name="Value" type="xsd:string"/>
+  <xsd:element name="Mnemonic" type="xsd:string"/>
 </xsd:schema>

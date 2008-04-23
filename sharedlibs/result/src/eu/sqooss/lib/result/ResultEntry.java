@@ -93,6 +93,7 @@ public class ResultEntry {
     private byte[] valueByteArray;
     private String mimeType;
     private boolean isSimpleMimeType;
+    private String mnemonic;
     
     /**
      * Creates a new ResultEntry object.
@@ -104,12 +105,12 @@ public class ResultEntry {
      * @throws RuntimeException - When serialization of the passed object fails
      * @throws IllegalArgumentException if MIME type isn't compatible with the value
      */
-    public ResultEntry(Object value, String mimeType) {
+    public ResultEntry(Object value, String mimeType, String mnemonic) {
         validate(value, mimeType);
         
         this.value = value;
         this.mimeType = mimeType;
-
+        this.mnemonic = mnemonic;
         initValueBytes(value);
     }
 
@@ -214,23 +215,23 @@ public class ResultEntry {
         }
     }
 
-    public static ResultEntry fromString(String value, String mimeType) {
+    public static ResultEntry fromString(String value, String mimeType, String mnemonic) {
         if (MIME_TYPE_TYPE_INTEGER.equals(mimeType)) {
-            return new ResultEntry(Integer.parseInt(value), mimeType);
+            return new ResultEntry(Integer.parseInt(value), mimeType, mnemonic);
         } else if (MIME_TYPE_TYPE_LONG.equals(mimeType)) {
-            return new ResultEntry(Long.parseLong(value), mimeType);
+            return new ResultEntry(Long.parseLong(value), mimeType, mnemonic);
         } else if (MIME_TYPE_TYPE_DOUBLE.equals(mimeType)) {
-            return new ResultEntry(Double.parseDouble(value), mimeType);
+            return new ResultEntry(Double.parseDouble(value), mimeType, mnemonic);
         } else if (MIME_TYPE_TYPE_FLOAT.equals(mimeType)) {
-            return new ResultEntry(Float.parseFloat(value), mimeType);
+            return new ResultEntry(Float.parseFloat(value), mimeType, mnemonic);
         } else if (MIME_TYPE_TEXT_PLAIN.equals(mimeType)) {
-            return new ResultEntry(value, mimeType);
+            return new ResultEntry(value, mimeType, mnemonic);
         } else {
             byte[] sequenceInBase64 = new byte[value.length()];
             for (int i = 0; i < value.length(); i++) {
                 sequenceInBase64[i] = (byte)value.charAt(i);
             }
-            return new ResultEntry(Base64.decodeBase64(sequenceInBase64), mimeType);
+            return new ResultEntry(Base64.decodeBase64(sequenceInBase64), mimeType, mnemonic);
         }
     }
     

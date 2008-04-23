@@ -48,23 +48,28 @@ class SAXDefaultHandler extends DefaultHandler {
     private String fieldElemName;
     private String mimeTypeElemName;
     private String valueElemName;
+    private String mnemonicElemName;
     
     private String currentElemName;
     private StringBuffer currentMimeTypeElemVal;
     private StringBuffer currentValueElemVal;
+    private StringBuffer currentMnemonicElemVal;
     
     private Result tableResult;
     private ArrayList<ResultEntry> currentRow;
 
     public SAXDefaultHandler(String rowElemName, String fieldElemName,
-            String mimeTypeElemName, String valueElemName) {
+            String mimeTypeElemName, String valueElemName, 
+            String mnemonicElemName) {
         this.rowElemName = rowElemName;
         this.fieldElemName = fieldElemName;
         this.mimeTypeElemName = mimeTypeElemName;
         this.valueElemName = valueElemName;
+        this.mnemonicElemName = mnemonicElemName;
         
         currentMimeTypeElemVal = new StringBuffer();
         currentValueElemVal = new StringBuffer();
+        currentMnemonicElemVal = new StringBuffer();
     }
     
     /**
@@ -102,6 +107,8 @@ class SAXDefaultHandler extends DefaultHandler {
             currentMimeTypeElemVal.append(new String(ch, start, length).trim());
         } else if (valueElemName.equals(currentElemName)) {
             currentValueElemVal.append(new String(ch, start, length).trim());
+        } else if (mnemonicElemName.equals(currentElemName)) {
+            currentMnemonicElemVal.append(new String(ch, start, length).trim());
         }
     }
     
@@ -117,10 +124,12 @@ class SAXDefaultHandler extends DefaultHandler {
             tableResult.addResultRow(currentRow);
             currentRow = null;
         } else if (fieldElemName.equals(name)) {
-            String mimeType = currentMimeTypeElemVal.toString();
-            currentRow.add(ResultEntry.fromString(currentValueElemVal.toString(), mimeType));
+            currentRow.add(ResultEntry.fromString(currentValueElemVal.toString(), 
+                    currentMimeTypeElemVal.toString(),
+                    currentMnemonicElemVal.toString()));
             currentValueElemVal.setLength(0);
             currentMimeTypeElemVal.setLength(0);
+            currentMnemonicElemVal.setLength(0);
         }
     }
 
