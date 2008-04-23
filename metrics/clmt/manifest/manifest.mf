@@ -1,0 +1,20 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: 
+Bundle-SymbolicName: eu.sqooss.metric.clmt
+Bundle-Version: 0.0.1
+Bundle-Activator: eu.sqooss.impl.service.clmt
+Bundle-Vendor: AUEB
+Bundle-Description: Cross-Language Metric Tool wrapper
+Import-Package:  org.osgi.framework,
+    eu.sqooss.core,
+    eu.sqooss.lib.result,
+    eu.sqooss.service.abstractmetric,
+    eu.sqooss.service.db,
+    eu.sqooss.service.fds,
+    eu.sqooss.service.logging,
+    eu.sqooss.service.scheduler,
+    eu.sqooss.service.tds,
+    eu.sqooss.service.util,
+    eu.sqooss.service.pa,
+    org.apache.commons.codec.digest
