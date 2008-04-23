@@ -48,6 +48,7 @@ import org.osgi.framework.ServiceReference;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.lib.result.Result;
+import eu.sqooss.lib.result.ResultEntry;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.EvaluationMark;
@@ -180,48 +181,65 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      * @throws MetricMismatchException if the DAO is of a type
      *      not supported by this metric.
      */
-    public Result getResult(DAObject o) throws MetricMismatchException {
+    public Result getResult(DAObject o, List<Metric> l) throws MetricMismatchException {
  
         boolean found = false;
+        Result r = new Result();
+        
         Iterator<Class<? extends DAObject>> i = getActivationTypes().iterator();
         
-        while(i.hasNext()) {
-            Class<? extends DAObject> c = i.next();
-            if (c.isInstance(o)) {
-                found = true;
-                try {
-                    Method m = this.getClass().getMethod("getResult", c);
-                    return (Result) m.invoke(this, o);
-                } catch (SecurityException e) {
-                    log.error("Unable to invoke getResult method:" + e.getMessage());
-                } catch (NoSuchMethodException e) {
-                    log.error("No method getResult(" + c.getName() +") for type " 
-                            + this.getClass().getName());
-                } catch (IllegalArgumentException e) {
-                    log.error("Unable to invoke getResult method:" + e.getMessage()); 
-                } catch (IllegalAccessException e) {
-                    log.error("Unable to invoke getResult method:" + e.getMessage());
-                } catch (InvocationTargetException e) {
-                    log.error("Unable to invoke getResult method:" + e.getMessage());
+        for (Metric m : l) {
+            if (!metrics.contains(m)) {
+                throw new MetricMismatchException("Metric " + m.getMnemonic()
+                        + " not defined by plugin "
+                        + Plugin.getPluginByHashcode(getUniqueKey()).getName());
+            }
+
+            ArrayList<ResultEntry> re = null;
+            while (i.hasNext()) {
+                Class<? extends DAObject> c = i.next();
+                if (c.isInstance(o)) {
+                    found = true;
+                    try {
+                        Method method = this.getClass().getMethod("getResult", c, Metric.class);
+                        re =  (ArrayList<ResultEntry>) method.invoke(this, o, m);
+                    } catch (SecurityException e) {
+                        log.error("Unable to invoke getResult method:"
+                                + e.getMessage());
+                    } catch (NoSuchMethodException e) {
+                        log.error("No method getResult(" + c.getName()
+                                + ") for type " + this.getClass().getName());
+                    } catch (IllegalArgumentException e) {
+                        log.error("Unable to invoke getResult method:"
+                                + e.getMessage());
+                    } catch (IllegalAccessException e) {
+                        log.error("Unable to invoke getResult method:"
+                                + e.getMessage());
+                    } catch (InvocationTargetException e) {
+                        log.error("Unable to invoke getResult method:"
+                                + e.getMessage());
+                    }
                 }
             }
+            if (!found)
+                throw new MetricMismatchException(o);
+            
+            r.addResultRow(new ArrayList<ResultEntry> (re));
         }
-        if(!found)
-            throw new MetricMismatchException(o);
-        
         return null;
     }
 
     /**
-     * Call the appropriate run() method according to
-     * the type of the entity that is measured.
-     *
-     * @param o DAO which determines which sub-interface run
-     *          method is called and also determines what
-     *          is to be measured by that sub-interface.
-     * @throws MetricMismatchException if the DAO is of a type
-     *          not supported by this metric.
-     *
+     * Call the appropriate run() method according to the type of the entity
+     * that is measured.
+     * 
+     * @param o
+     *                DAO which determines which sub-interface run method is
+     *                called and also determines what is to be measured by that
+     *                sub-interface.
+     * @throws MetricMismatchException
+     *                 if the DAO is of a type not supported by this metric.
+     * 
      * FIXME:
      */
     public void run(DAObject o) throws MetricMismatchException {

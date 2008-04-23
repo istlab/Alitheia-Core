@@ -38,6 +38,7 @@ import java.util.List;
 
 import eu.sqooss.lib.result.Result;
 import eu.sqooss.service.db.DAObject;
+import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.PluginConfiguration;
 
 
@@ -122,11 +123,12 @@ public interface AlitheiaPlugin {
      *
      * @param o DAO whose type specifies the specialised sub-interface to use
      *          and whose value determines which result to get.
+     * @return l A list of metrics 
      * @return value of the measurement or null if there is no such measurement.
      * @throws MetricMismatchException if the DAO type is one not supported by
      *          this metric.
      */
-    Result getResult(DAObject o)
+    Result getResult(DAObject o, List<Metric> l)
         throws MetricMismatchException;
 
     /**

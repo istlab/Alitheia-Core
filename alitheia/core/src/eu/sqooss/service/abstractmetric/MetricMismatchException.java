@@ -51,6 +51,10 @@ public class MetricMismatchException extends Exception {
     public MetricMismatchException(DAObject o) {
         super("DAO type " + o.getClass().getName() + " is unsupported.");
     }
+    
+    public MetricMismatchException(String s) {
+        super(s);
+    }
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

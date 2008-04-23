@@ -33,7 +33,10 @@
 
 package eu.sqooss.service.abstractmetric;
 
-import eu.sqooss.lib.result.Result;
+import java.util.List;
+
+import eu.sqooss.lib.result.ResultEntry;
+import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.ProjectFile;
 
 /**
@@ -60,5 +63,5 @@ public interface ProjectFileMetric {
      * @param ProjectFile DAO
      * @return The metric result
      */
-    Result getResult(ProjectFile a);
+    List<ResultEntry> getResult(ProjectFile a, Metric m);
 }

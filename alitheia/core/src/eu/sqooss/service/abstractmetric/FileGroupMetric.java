@@ -33,9 +33,11 @@
 
 package eu.sqooss.service.abstractmetric;
 
-import eu.sqooss.lib.result.Result;
-import eu.sqooss.service.db.FileGroup;
+import java.util.List;
 
+import eu.sqooss.lib.result.ResultEntry;
+import eu.sqooss.service.db.FileGroup;
+import eu.sqooss.service.db.Metric;
 /**
  * A metric plug-in implements the <tt>FileGroupMetric</tt> interface to
  * indicate that its results are linked to the FileGroup table, and
@@ -63,5 +65,5 @@ public interface FileGroupMetric {
      * @param metricTypeDAO
      * @return
      */
-    Result getResult(FileGroup a);
+    List<ResultEntry> getResult(FileGroup a, Metric m);
 }
