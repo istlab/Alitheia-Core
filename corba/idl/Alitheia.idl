@@ -120,6 +120,12 @@ module alitheia
   typedef sequence<ProjectVersion> ProjectVersionList;
   typedef sequence<Metric> MetricList;
 
+  struct Checkout
+  {
+    ProjectVersion version;
+    ProjectFileList files;
+  };
+
   interface Core
   {
     long getUniqueId();
@@ -135,10 +141,6 @@ module alitheia
     void addJobDependency( in string job, in string dependency );
     void waitForJobFinished( in string name );
 
-    // puts the contents of \a file into \a contents
-    // returns the length of the file
-    long getFileContents( in ProjectFile file, out string contents );
-
     boolean addSupportedMetrics( in string metricname, 
                                  in string description, 
                                  in string mnemonic, 
@@ -150,7 +152,15 @@ module alitheia
 
   interface FDS
   {
+    // puts the contents of \a file into \a contents
+    // returns the length of the file
     long getFileContents( in ProjectFile file, out string contents );
+
+    // creates a checkout of all files of the current \a version
+    Checkout getCheckout( in ProjectVersion version );
+
+    // releases a checkout
+    void releaseCheckout( in ProjectVersion version );
   };
 
   interface Database

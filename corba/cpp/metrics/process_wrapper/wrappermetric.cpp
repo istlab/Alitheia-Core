@@ -1,6 +1,7 @@
 #include "wrappermetric.h"
 
 #include <Core>
+#include <FDS>
 
 #include "wrappermetricjob.h"
 
@@ -36,8 +37,10 @@ T join( const vector< T >& v, const C& c )
     return join( v, T( c ) );
 }
 
-ProjectFileWrapperMetric::ProjectFileWrapperMetric( const string& program, const vector< string >& arguments )
+ProjectFileWrapperMetric::ProjectFileWrapperMetric( const string& metric, const string& program, 
+                                                    const vector< string >& arguments )
     : logger( Logger::NameSqoOssMetric ),
+      metric( metric ),
       program( program ),
       arguments( arguments )
 {
@@ -47,7 +50,7 @@ ProjectFileWrapperMetric::ProjectFileWrapperMetric( const string& program, const
 bool ProjectFileWrapperMetric::install()
 {
     logger << name() << ": installing" << endl;
-    return addSupportedMetrics( description(), "", MetricType::SourceCode );
+    return addSupportedMetrics( description(), metric, MetricType::SourceCode );
 }
 
 string ProjectFileWrapperMetric::name() const
@@ -81,18 +84,21 @@ void ProjectFileWrapperMetric::run( ProjectFile& file )
     Core::instance()->enqueueJob( new ProjectFileWrapperMetricJob( this, program, arguments, file ) );
 }
 
-ProjectVersionWrapperMetric::ProjectVersionWrapperMetric( const string& program, const vector< string >& arguments )
+ProjectVersionWrapperMetric::ProjectVersionWrapperMetric( const string& metric, const string& program, 
+                                                          const vector< string >& arguments )
     : logger( Logger::NameSqoOssMetric ),
+      metric( metric ),
       program( program ),
       arguments( arguments )
 {
     logger.setTeeStream( cout );
+    FDS fds;
 }
 
 bool ProjectVersionWrapperMetric::install()
 {
     logger << name() << ": installing" << endl;
-    return addSupportedMetrics( description(), "", MetricType::SourceCode );
+    return addSupportedMetrics( description(), metric, MetricType::SourceCode );
 }
 
 string ProjectVersionWrapperMetric::name() const

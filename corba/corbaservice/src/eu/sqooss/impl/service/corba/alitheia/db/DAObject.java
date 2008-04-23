@@ -2,24 +2,21 @@ package eu.sqooss.impl.service.corba.alitheia.db;
 
 import java.sql.Time;
 import java.sql.Timestamp;
-import java.util.Date;
-import java.util.Locale;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
-import eu.sqooss.service.db.ProjectFile;
-import eu.sqooss.service.db.ProjectVersion;
-import eu.sqooss.service.db.StoredProject;
-import eu.sqooss.service.db.FileGroup;
-import eu.sqooss.service.db.Plugin;
-import eu.sqooss.service.db.MetricType;
-import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.Developer;
 import eu.sqooss.service.db.Directory;
+import eu.sqooss.service.db.FileGroup;
+import eu.sqooss.service.db.Metric;
+import eu.sqooss.service.db.MetricType;
+import eu.sqooss.service.db.Plugin;
+import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectFileMeasurement;
+import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.ProjectVersionMeasurement;
-
-import org.omg.CORBA.TypeCodePackage.BadKind;
+import eu.sqooss.service.db.StoredProject;
 
 public abstract class DAObject {
 

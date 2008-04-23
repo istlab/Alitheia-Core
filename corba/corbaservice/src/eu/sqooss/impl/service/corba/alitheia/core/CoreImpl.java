@@ -1,42 +1,37 @@
 package eu.sqooss.impl.service.corba.alitheia.core;
 
 import java.util.HashMap;
-import java.util.Map;
 import java.util.List;
-import java.util.LinkedList;
+import java.util.Map;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.service.fds.FDSService;
-
-import eu.sqooss.impl.service.CorbaActivator;
-import eu.sqooss.impl.service.corba.alitheia.db.DAObject;
-import eu.sqooss.impl.service.corba.alitheia.CorePOA;
-import eu.sqooss.impl.service.corba.alitheia.Job;
-import eu.sqooss.impl.service.corba.alitheia.JobHelper;
-import eu.sqooss.impl.service.corba.alitheia.AbstractMetric;
-import eu.sqooss.impl.service.corba.alitheia.AbstractMetricHelper;
-import eu.sqooss.impl.service.corba.alitheia.ProjectFileMetric;
-import eu.sqooss.impl.service.corba.alitheia.ProjectFileMetricHelper;
-import eu.sqooss.impl.service.corba.alitheia.ProjectVersionMetric;
-import eu.sqooss.impl.service.corba.alitheia.ProjectVersionMetricHelper;
-import eu.sqooss.impl.service.corba.alitheia.StoredProjectMetric;
-import eu.sqooss.impl.service.corba.alitheia.StoredProjectMetricHelper;
-import eu.sqooss.impl.service.corba.alitheia.FileGroupMetric;
-import eu.sqooss.impl.service.corba.alitheia.FileGroupMetricHelper;
-import eu.sqooss.impl.service.corba.alitheia.Metric;
-import eu.sqooss.impl.service.corba.alitheia.MetricTypeType;
-import eu.sqooss.impl.service.corba.alitheia.ProjectFile;
-import eu.sqooss.impl.service.corba.alitheia.ProjectVersion;
-import eu.sqooss.impl.service.corba.alitheia.job.CorbaJobImpl;
-
+import eu.sqooss.impl.metrics.corba.CorbaFileGroupMetricImpl;
 import eu.sqooss.impl.metrics.corba.CorbaMetricImpl;
 import eu.sqooss.impl.metrics.corba.CorbaProjectFileMetricImpl;
 import eu.sqooss.impl.metrics.corba.CorbaProjectVersionMetricImpl;
 import eu.sqooss.impl.metrics.corba.CorbaStoredProjectMetricImpl;
-import eu.sqooss.impl.metrics.corba.CorbaFileGroupMetricImpl;
+import eu.sqooss.impl.service.CorbaActivator;
+import eu.sqooss.impl.service.corba.alitheia.CorePOA;
+import eu.sqooss.impl.service.corba.alitheia.FileGroupMetric;
+import eu.sqooss.impl.service.corba.alitheia.FileGroupMetricHelper;
+import eu.sqooss.impl.service.corba.alitheia.Job;
+import eu.sqooss.impl.service.corba.alitheia.JobHelper;
+import eu.sqooss.impl.service.corba.alitheia.Metric;
+import eu.sqooss.impl.service.corba.alitheia.MetricTypeType;
+import eu.sqooss.impl.service.corba.alitheia.ProjectFile;
+import eu.sqooss.impl.service.corba.alitheia.ProjectFileMetric;
+import eu.sqooss.impl.service.corba.alitheia.ProjectFileMetricHelper;
+import eu.sqooss.impl.service.corba.alitheia.ProjectVersion;
+import eu.sqooss.impl.service.corba.alitheia.ProjectVersionMetric;
+import eu.sqooss.impl.service.corba.alitheia.ProjectVersionMetricHelper;
+import eu.sqooss.impl.service.corba.alitheia.StoredProjectMetric;
+import eu.sqooss.impl.service.corba.alitheia.StoredProjectMetricHelper;
+import eu.sqooss.impl.service.corba.alitheia.db.DAObject;
+import eu.sqooss.impl.service.corba.alitheia.job.CorbaJobImpl;
+import eu.sqooss.service.fds.FDSService;
 
 
 public class CoreImpl extends CorePOA {
@@ -140,24 +135,6 @@ public class CoreImpl extends CorePOA {
         }
     }
   
-
-    public int getFileContents(ProjectFile file, org.omg.CORBA.StringHolder contents) {
-        byte[] content = null;
-        try {
-            content = fds.getFileContents(DAObject.fromCorbaObject(file));
-        } catch ( Exception e ) {
-            System.out.println(e.toString());
-            e.printStackTrace();
-        }
-        if( content == null ) {
-            // return an empty string
-            contents.value = new String();
-            return 0;
-        }
-        contents.value = new String(content);
-        return content.length;
-    }
-
     public Metric[] getSupportedMetrics(String metricname) {
         CorbaMetricImpl metric = registeredMetrics.get(metricname);
         List<eu.sqooss.service.db.Metric> metrics = metric.getSupportedMetrics();

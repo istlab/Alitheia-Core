@@ -37,12 +37,14 @@ int main( int argc, char* argv[] )
     desc.add_options()
         ( "help", "produce help message" )
         ( "type", value< string >(), "the type of the metric \n\"ProjectFile\" or \n\"ProjectVersion\"" )
+        ( "metric", value< string >(), "short metric name, like \"LOC\"" )
         ( "command", value< vector< string > >()->multitoken(), "the command used for execution" )
     ;
     positional_options_description pd;
     pd.add( "command", -1 );
 
     string type;
+    string metric;
     string program;
     vector< string > arguments;
 
@@ -59,6 +61,7 @@ int main( int argc, char* argv[] )
         }
 
         type = vm[ "type" ].as< string >();
+        metric = vm[ "metric" ].as< string >();
 
         arguments = vm[ "command" ].as< vector< string > >();
         // boost makes sure, that arguments isn't empty
@@ -73,9 +76,9 @@ int main( int argc, char* argv[] )
     }
 
     if( type == "ProjectFile" )
-        Core::instance()->registerMetric( new ProjectFileWrapperMetric( program, arguments ) );
+        Core::instance()->registerMetric( new ProjectFileWrapperMetric( metric, program, arguments ) );
     else if( type == "ProjectVersion" )
-        Core::instance()->registerMetric( new ProjectVersionWrapperMetric( program, arguments ) );
+        Core::instance()->registerMetric( new ProjectVersionWrapperMetric( metric, program, arguments ) );
     else
     {
         cerr << "unknown type: '" << type << "'" << endl;

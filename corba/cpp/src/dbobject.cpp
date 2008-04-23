@@ -1,6 +1,7 @@
 #include "dbobject.h"
 
 #include "core.h"
+#include "fds.h"
 
 #include "Alitheia.h"
 
@@ -110,7 +111,8 @@ protected:
     {
         if( !read )
         {
-            string data = Core::instance()->getFileContents( *file );
+            FDS fds;
+            string data = fds.getFileContents( *file );
             sputn( data.c_str(), data.size() );
             read = true;
         }

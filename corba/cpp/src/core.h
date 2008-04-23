@@ -90,7 +90,6 @@ namespace Alitheia
         void addJobDependency( Job* job, Job* dependency );
         void waitForJobFinished( Job* job );
         
-        std::string getFileContents( const ProjectFile& file );
 
         bool addSupportedMetrics( AbstractMetric* metric, const std::string& description, 
                                   const std::string& mnemonic, MetricType::Type type ) const;

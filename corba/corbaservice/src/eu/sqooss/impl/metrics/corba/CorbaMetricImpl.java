@@ -3,11 +3,7 @@ package eu.sqooss.impl.metrics.corba;
 import org.osgi.framework.BundleContext;
 
 import eu.sqooss.service.abstractmetric.AbstractMetric;
-import eu.sqooss.service.abstractmetric.MetricMismatchException;
-import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.MetricType;
-
-import eu.sqooss.impl.service.corba.alitheia.*;
 
 abstract public class CorbaMetricImpl extends AbstractMetric {
 

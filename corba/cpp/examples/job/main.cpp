@@ -50,10 +50,13 @@ private:
 
 boost::mutex TestJob::mutex;
 
+#include <FDS>
 int main( int argc, char **argv)
 {
     Core& c = *Core::instance();
-    
+   
+    FDS fds;  
+
     Logger logger( Logger::NameSqoOssMetric );
     logger.setTeeStream( cout );
   

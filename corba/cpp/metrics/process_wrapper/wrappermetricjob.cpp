@@ -2,6 +2,7 @@
 
 #include <Metric>
 #include <Database>
+#include <FDS>
 
 #include "temporaryfile.h"
 
@@ -24,7 +25,7 @@ using namespace boost;
 
 using namespace Alitheia;
 
-ProjectFileWrapperMetricJob::ProjectFileWrapperMetricJob( const AbstractMetric* metric, const string& program, 
+ProjectFileWrapperMetricJob::ProjectFileWrapperMetricJob( const ProjectFileWrapperMetric* metric, const string& program, 
                                                           const vector< string >& arguments, const ProjectFile& file )
     : metric( metric ),
       projectFile( file ),
@@ -144,7 +145,7 @@ void ProjectFileWrapperMetricJob::stateChanged( State state )
         delete this;
 }
 
-ProjectVersionWrapperMetricJob::ProjectVersionWrapperMetricJob( const AbstractMetric* metric, const string& program, 
+ProjectVersionWrapperMetricJob::ProjectVersionWrapperMetricJob( const ProjectVersionWrapperMetric* metric, const string& program, 
                                                                 const vector< string >& arguments, const ProjectVersion& version )
     : metric( metric ),
       projectVersion( version ),
@@ -157,8 +158,20 @@ ProjectVersionWrapperMetricJob::~ProjectVersionWrapperMetricJob()
 {
 }
 
+#include <iostream>
 void ProjectVersionWrapperMetricJob::run()
 {
+    Checkout co = metric->fds.getCheckout( projectVersion );
+    
+    std::cout << "start rev" << projectVersion.version << std::endl;
+
+    for( vector< ProjectFile >::const_iterator it = co.files.begin(); it != co.files.end(); ++it )
+    {
+        std::cout << it->directory.path << "/" << it->name << std::endl;
+    }
+
+    std::cout << "done" << std::endl;
+
 /*    QProcess p;
     process = &p;
    

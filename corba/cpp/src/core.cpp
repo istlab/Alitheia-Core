@@ -144,13 +144,6 @@ void Core::waitForJobFinished( Job* job )
     d->core->waitForJobFinished( CORBA::string_dup( job->name().c_str() ) );
 }
 
-std::string Core::getFileContents( const ProjectFile& file )
-{
-    CORBA::String_var content;
-    const int length = d->core->getFileContents( file.toCorba(), content.out() );
-    return std::string( content, length );
-}
-
 bool Core::addSupportedMetrics( AbstractMetric* metric, const std::string& description, 
                                 const std::string& mnemonic, MetricType::Type type ) const
 {

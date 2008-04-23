@@ -1,11 +1,14 @@
 package eu.sqooss.impl.metrics.corba;
 
+import java.util.List;
+
 import org.osgi.framework.BundleContext;
 
 import eu.sqooss.impl.service.corba.alitheia.FileGroupMetric;
 import eu.sqooss.impl.service.corba.alitheia.db.DAObject;
-import eu.sqooss.lib.result.Result;
+import eu.sqooss.service.abstractmetric.ResultEntry;
 import eu.sqooss.service.db.FileGroup;
+import eu.sqooss.service.db.Metric;
 
 public class CorbaFileGroupMetricImpl extends CorbaMetricImpl implements eu.sqooss.service.abstractmetric.FileGroupMetric {
 
@@ -13,15 +16,16 @@ public class CorbaFileGroupMetricImpl extends CorbaMetricImpl implements eu.sqoo
 
 	public CorbaFileGroupMetricImpl(BundleContext bc, FileGroupMetric m) {
 		super(bc, m);
+		super.addActivationType(FileGroup.class);
         metric = m;
-	}
-
-	public Result getResult(FileGroup a) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	public void run(FileGroup a) {
         metric.run(DAObject.toCorbaObject(a));
     }
+
+	public List<ResultEntry> getResult(FileGroup a, Metric m) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

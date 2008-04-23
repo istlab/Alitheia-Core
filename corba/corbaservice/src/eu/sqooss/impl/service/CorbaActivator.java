@@ -22,10 +22,12 @@ import org.osgi.framework.ServiceRegistration;
 
 import eu.sqooss.impl.service.corba.alitheia.CoreHelper;
 import eu.sqooss.impl.service.corba.alitheia.DatabaseHelper;
+import eu.sqooss.impl.service.corba.alitheia.FDSHelper;
 import eu.sqooss.impl.service.corba.alitheia.LoggerHelper;
 import eu.sqooss.impl.service.corba.alitheia.core.CoreImpl;
 import eu.sqooss.impl.service.corba.alitheia.logger.LoggerImpl;
 import eu.sqooss.impl.service.corba.alitheia.db.DbImpl;
+import eu.sqooss.impl.service.corba.alitheia.fds.FDSImpl;
 
 public class CorbaActivator implements BundleActivator {
 
@@ -109,6 +111,9 @@ public class CorbaActivator implements BundleActivator {
  
             // register the database in CORBA
             registerCorbaObject("Database", DatabaseHelper.narrow(rootpoa.servant_to_reference(new DbImpl(bc))));
+            
+            // register the FDS in CORBA
+            registerCorbaObject("FDS", FDSHelper.narrow(rootpoa.servant_to_reference(new FDSImpl(bc))));
             
             // start the ORB thread in the background
             orbthread = new ORBThread(orb);
