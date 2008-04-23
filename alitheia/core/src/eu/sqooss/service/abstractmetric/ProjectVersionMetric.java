@@ -35,8 +35,6 @@ package eu.sqooss.service.abstractmetric;
 
 import java.util.List;
 
-import eu.sqooss.lib.result.Result;
-import eu.sqooss.lib.result.ResultEntry;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.ProjectVersion;
 

@@ -36,7 +36,6 @@ package eu.sqooss.service.abstractmetric;
 import java.util.Date;
 import java.util.List;
 
-import eu.sqooss.lib.result.Result;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.PluginConfiguration;
