@@ -32,6 +32,7 @@
 
 package eu.sqooss.impl.service.webadmin;
 
+import java.text.DateFormat;
 import java.util.Date;
 import java.util.Collection;
 import java.util.HashMap;
@@ -538,7 +539,7 @@ public class WebAdminRenderer {
     }
 
     public static String renderUsers() {
-     // Stores the assembled HTML content
+        // Stores the assembled HTML content
         StringBuilder b = new StringBuilder();
         // Indentation spacer
         String IN = "            ";
@@ -554,9 +555,10 @@ public class WebAdminRenderer {
             b.append("<table>\n");
             b.append("<thead>\n");
             b.append("<tr class=\"head\">\n");
-            b.append("<td class=\"head\" style=\"width: 60px;\">User Id</td>\n");
-            b.append("<td class=\"head\" style=\"width: 40%;\">User Name</td>\n");
-            b.append("<td class=\"head\">User Email</td>\n");
+            b.append("<td class=\"head\" style=\"width: 10%;\">User Id</td>\n");
+            b.append("<td class=\"head\" style=\"width: 30%;\">User Name</td>\n");
+            b.append("<td class=\"head\" style=\"width: 30%;\">User Email</td>\n");
+            b.append("<td class=\"head\" style=\"width: 30%;\">Created</td>\n");
             b.append("</tr>\n");
             b.append("</thead>\n");
             b.append("<tbody>\n");
@@ -566,6 +568,8 @@ public class WebAdminRenderer {
                 b.append("<td>" + nextUser.getId() + "</td>\n");
                 b.append("<td>" + nextUser.getName() + "</td>\n");
                 b.append("<td>" + nextUser.getEmail() + "</td>\n");
+                DateFormat date = DateFormat.getDateInstance();
+                b.append("<td>" + date.format(nextUser.getRegistered()) + "</td>\n");
                 b.append("</tr>\n");
             }
             // Close the table

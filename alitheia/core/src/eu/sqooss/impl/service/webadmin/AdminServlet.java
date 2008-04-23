@@ -82,6 +82,9 @@ public class AdminServlet extends HttpServlet {
     // Flag for refreshing the metrics content
     private boolean refreshMetrics = true;
 
+    // Flag for refreshing the users content
+    private boolean refreshUsers = true;
+
     public AdminServlet(BundleContext bc, WebadminService webadmin) {
         this.webadmin = webadmin;
         this.bc = bc;
@@ -204,6 +207,11 @@ public class AdminServlet extends HttpServlet {
                 vc.put("METRICS", render.renderMetrics(request));
                 sendPage(response, "/index.html");
             }
+            else if (query.startsWith("/users")) {
+                refreshUsers = false;
+                vc.put("Users", render.renderMetrics(request));
+                sendPage(response, "/users.html");
+            }
             else {
                 doGet(request,response);
             }
@@ -297,13 +305,20 @@ public class AdminServlet extends HttpServlet {
         vc.put("WAITJOBS", render.renderWaitJobs());
         vc.put("FAILJOBS", render.renderFailedJobs());
         vc.put("JOBFAILSTATS", render.renderJobFailStats());
+        // Metrics content
         if (refreshMetrics) {
             vc.put("METRICS", render.renderMetrics(null));
         }
         else {
             refreshMetrics = true;
         }
-        vc.put("USERS", render.renderUsers());
+        // Users content
+        if (refreshUsers) {
+            vc.put("USERS", render.renderUsers());
+        }
+        else {
+            refreshUsers = true;
+        }
         
         // These are composite substitutions
         vc.put("STATUS_CORE","<fieldset id=\"status\">" +
