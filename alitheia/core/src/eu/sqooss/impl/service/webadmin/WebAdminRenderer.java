@@ -500,9 +500,11 @@ public class WebAdminRenderer {
         s.append("<td><b>Project</b></td>");
         
         for(PluginInfo m : metrics) {
-            s.append("<td><b>");
-            s.append(m.getPluginName());
-            s.append("</b></td>");
+            if(m.installed) {
+                s.append("<td><b>");
+                s.append(m.getPluginName());
+                s.append("</b></td>");
+            }
         }
         s.append("</tr>");
        
