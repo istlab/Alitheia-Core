@@ -1,8 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Vendor: Prosyst, AUEB   
-Bundle-Name: Share Metric and WS result library
-Bundle-Version: 0.0.1
-Bundle-SymbolicName: eu.sqooss.lib.result 
-Export-Package: eu.sqooss.lib.result
-
