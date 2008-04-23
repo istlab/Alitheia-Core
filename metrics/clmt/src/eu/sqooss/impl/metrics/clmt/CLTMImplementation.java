@@ -31,11 +31,7 @@
  *
  */
 
-package eu.sqooss.impl.metrics.skeleton;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.ArrayList;
+package eu.sqooss.impl.metrics.clmt;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -44,42 +40,48 @@ import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.lib.result.Result;
 import eu.sqooss.metrics.skeleton.Skeleton;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
-import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
-import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.scheduler.Scheduler;
-import eu.sqooss.service.util.Pair;
 
 
-public class SkeletonImplementation extends AbstractMetric implements Skeleton {
-    public SkeletonImplementation(BundleContext bc) {
+public class CLTMImplementation extends AbstractMetric implements Skeleton {
+    public CLTMImplementation(BundleContext bc) {
         super(bc);        
     }
-
-    private List<Class<? extends DAObject>> activationTypes;  
     
     public boolean install() {
         boolean result = super.install();
         if (result) {
             result &= super.addSupportedMetrics(
-                    "SKEL",
-                    this.getDescription(),
+                    "NOCL",
+                    "Number of Classes",
                     MetricType.Type.SOURCE_CODE);
+            result &= super.addSupportedMetrics(
+                    "NOPA",
+                    "Number of Public Attributes",
+                    MetricType.Type.SOURCE_CODE);
+            result &= super.addSupportedMetrics(
+                    "NOC",
+                    "Number of Children",
+                    MetricType.Type.SOURCE_CODE);
+            result &= super.addSupportedMetrics(
+                    "NPM",
+                    "Number of Public Methods",
+                    MetricType.Type.SOURCE_CODE);
+            result &= super.addSupportedMetrics(
+                    "NOPRM",
+                    "Number of Projected Methods",
+                    MetricType.Type.SOURCE_CODE);
+            result &= super.addSupportedMetrics(
+                    "WMC",
+                    "Weighted Methods per Class",
+                    MetricType.Type.SOURCE_CODE);
+            
         }
         return result;
     }
-
-    public boolean remove() {
-
-        return false;
-    }
-
-    public boolean update() {
-
-        return remove() && install(); 
-    }
-
+    
     public Result getResult(ProjectFile a) {
         Result result = null;
         
@@ -87,9 +89,9 @@ public class SkeletonImplementation extends AbstractMetric implements Skeleton {
     }
 
     public void run(ProjectFile a) {
-        SkeletonJob w = null;
+        CLTMJob w = null;
         try {
-            w = new SkeletonJob(this);
+            w = new CLTMJob(this);
 
             ServiceReference serviceRef = null;
             serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());

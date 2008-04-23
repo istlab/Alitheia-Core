@@ -30,17 +30,17 @@
  *
  */
 
-package eu.sqooss.impl.metrics.skeleton;
+package eu.sqooss.impl.metrics.clmt;
 
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.AbstractMetricJob;
 
-public class SkeletonJob extends AbstractMetricJob {
+public class CLTMJob extends AbstractMetricJob {
 
     // Reference to the metric that created this job
     AbstractMetric parent = null;
 
-    public SkeletonJob(AbstractMetric owner) {
+    public CLTMJob(AbstractMetric owner) {
         super(owner);
         parent = owner;
     }

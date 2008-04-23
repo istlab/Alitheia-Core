@@ -30,10 +30,9 @@
  *
  */
 
-package eu.sqooss.metrics.skeleton;
+package eu.sqooss.metrics.clmt;
 
-public interface Skeleton 
-//extends  
+public interface CLMT
 {
     
 }

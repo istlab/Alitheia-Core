@@ -95,6 +95,7 @@
     <module>wc</module>
     <module>productivity-metric</module>
     <module>skeleton</module>
+    <module>clmt</module>
   </modules>
 </project>
 

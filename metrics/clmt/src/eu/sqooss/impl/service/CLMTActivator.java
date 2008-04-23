@@ -7,7 +7,7 @@ import org.osgi.framework.ServiceRegistration;
 import eu.sqooss.impl.metrics.skeleton.SkeletonImplementation;
 
 
-public class SkeletonActivator implements BundleActivator {
+public class CLMTActivator implements BundleActivator {
 
     private ServiceRegistration registration;
 
