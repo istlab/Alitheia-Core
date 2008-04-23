@@ -80,14 +80,16 @@ public class FDSImpl extends FDSPOA {
 	}
 	
 	public Checkout getCheckout(ProjectVersion version) {
-		if (!checkouts.containsKey(version)) {
-			try {
-				checkouts.put(version, createCheckout(DAObject.fromCorbaObject(version)));
-			} catch (Exception e) {
-				return null;
+		synchronized( checkouts ) {
+			if (!checkouts.containsKey(version)) {
+				try {
+					checkouts.put(version, createCheckout(DAObject.fromCorbaObject(version)));
+				} catch (Exception e) {
+					return null;
+				}
 			}
+			return checkouts.get(version);
 		}
-		return checkouts.get(version);
 	}
 
 	public void releaseCheckout(ProjectVersion version) {

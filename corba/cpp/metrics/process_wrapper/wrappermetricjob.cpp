@@ -161,7 +161,8 @@ ProjectVersionWrapperMetricJob::~ProjectVersionWrapperMetricJob()
 #include <iostream>
 void ProjectVersionWrapperMetricJob::run()
 {
-    Checkout co = metric->fds.getCheckout( projectVersion );
+    FDS fds;
+    Checkout co = fds.getCheckout( projectVersion );
     
     std::cout << "start rev" << projectVersion.version << std::endl;
 

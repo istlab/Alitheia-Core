@@ -1,7 +1,6 @@
 #include "wrappermetric.h"
 
 #include <Core>
-#include <FDS>
 
 #include "wrappermetricjob.h"
 
@@ -92,7 +91,6 @@ ProjectVersionWrapperMetric::ProjectVersionWrapperMetric( const string& metric, 
       arguments( arguments )
 {
     logger.setTeeStream( cout );
-    FDS fds;
 }
 
 bool ProjectVersionWrapperMetric::install()

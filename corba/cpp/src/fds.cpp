@@ -36,7 +36,7 @@ Checkout::Checkout( const eu::sqooss::impl::service::corba::alitheia::Checkout& 
     const uint length = checkout.files.length();
     for( uint i = 0; i < length; ++i )
     {
-        files.push_back( ProjectFile( files[ i ] ) );
+        files.push_back( ProjectFile( checkout.files[ i ] ) );
     }
 }
 
