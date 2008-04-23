@@ -60,7 +60,7 @@ public class CommitEntryImpl implements CommitEntry {
     private Map<String, PathChangeType> changedPaths;
 
     @SuppressWarnings("unchecked")
-    public CommitEntryImpl(SVNLogEntry l) {
+    public CommitEntryImpl(SVNLogEntry l, String root) {
         revision = new ProjectRevision(l.getRevision());
         author = l.getAuthor();
         message = l.getMessage();
@@ -71,8 +71,10 @@ public class CommitEntryImpl implements CommitEntry {
         
         for (Iterator i = paths.keySet().iterator(); i.hasNext();) {
             String path = (String) i.next();
-            changedPaths.put(path, parseSVNLogEntryPath(paths.get(path)
-                    .getType()));
+            if (path.startsWith(root)) {
+            	changedPaths.put(path, parseSVNLogEntryPath(paths.get(path)
+            			.getType()));
+            }
         }
     }
 

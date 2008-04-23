@@ -488,17 +488,20 @@ public class SCMAccessorImpl extends NamedAccessorImpl implements SCMAccessor {
         ArrayList<SVNLogEntry> l = new ArrayList<SVNLogEntry>();
         CommitLogImpl result = new CommitLogImpl();
         
+        String checkoutRoot;
         try {
+            checkoutRoot = svnRepository.getRepositoryPath("");
             svnRepository.log(new String[]{repoPath},
                 l,revstart, revend, true, true);
         } catch (SVNException e) {
             throw new InvalidRepositoryException(getName(), url, e.getMessage());
         }
 
+        
         Iterator<SVNLogEntry> i = l.iterator();
         while(i.hasNext()) {
             SVNLogEntry entry = i.next();
-            result.getEntriesReference().add(new CommitEntryImpl(entry));   
+            result.getEntriesReference().add(new CommitEntryImpl(entry, checkoutRoot));   
         }
         
         return result;
