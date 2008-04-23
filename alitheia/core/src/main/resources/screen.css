@@ -288,39 +288,39 @@ td.number {
 	text-align: right;
 }
 /* ===[ METRICS CSS ]===================================================== */
-#metrics table {
+#table table {
     border-collapse: collapse;
     width: 100%;
 }
-#metrics td {
+#table td {
     padding-left: 10px;
 }
-#metrics input {
+#table input {
     width: 100%;
 }
-#metrics input.install {
+#table input.install {
     color: Green;
 }
-#metrics input.uninstall {
+#table input.uninstall {
     color: Red;
 }
-#metrics tr.head {
+#table tr.head {
     background-color: LightSteelBlue;
 }
-#metrics td.head {
+#table td.head {
     text-align: left;
     font-weight: bold;
 }
-#metrics td.name {
+#table td.name {
     font-weight: bold;
 }
-#metrics td.uninstalled {
+#table td.uninstalled {
     background-color: WhiteSmoke;
 }
-#metrics td.attr {
+#table td.attr {
     background-color: Bisque;
 }
-#metrics td.noattr {
+#table td.noattr {
     background-color: Bisque;
     font-style: italic;
 }

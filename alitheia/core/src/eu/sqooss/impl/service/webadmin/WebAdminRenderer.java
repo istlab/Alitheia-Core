@@ -155,7 +155,7 @@ public class WebAdminRenderer {
         // Stores the assembled HTML content
         StringBuilder b = new StringBuilder();
         // Indentation spacer
-        String IN = "              ";
+        String IN = "            ";
         // Retrieve information for all registered metric plug-ins
         Collection<PluginInfo> l = sobjPluginAdmin.listPlugins();
 
@@ -198,7 +198,9 @@ public class WebAdminRenderer {
             b.append("No metrics found!");
         }
         else {
+            // Create the form
             b.append("<form id=\"metrics\" name=\"metrics\" method=\"post\" action=\"/index\">\n");
+            // Create the table
             b.append("<table>\n");
             b.append("<thead>\n");
             b.append("<tr class=\"head\">\n");
@@ -207,6 +209,7 @@ public class WebAdminRenderer {
             b.append("</tr>\n");
             b.append("</thead>\n");
             b.append("<tbody>\n");
+            // Push the metrics info
             // Not-installed plug-ins first
             for(PluginInfo i : l) {
                 if (i.installed == false) {
@@ -257,10 +260,12 @@ public class WebAdminRenderer {
                     b.append(renderMetricAttributes(i));
                 }
             }
+            // Close the table
             b.append("</tbody>\n");
             b.append("</table>\n");
             b.append("<input type=\"hidden\" id=\"" + reqParAction + "\" name=\"metricAction\" value=\"\">\n");
             b.append("<input type=\"hidden\" id=\"" + reqParNumber + "\" name=\"metricNumber\" value=\"\">\n");
+            // Close the form
             b.append("</form>\n");
         }
 
@@ -533,41 +538,47 @@ public class WebAdminRenderer {
     }
 
     public static String renderUsers() {
-        StringBuilder result = new StringBuilder();
-
+     // Stores the assembled HTML content
+        StringBuilder b = new StringBuilder();
+        // Indentation spacer
+        String IN = "            ";
+        // Retrieve information for all registered users
         List<?> dbUsers = sobjDB.doHQL("from User");
+
         if ((dbUsers != null) && (dbUsers.size() > 0)) {
             User[] users = new User[dbUsers.size()];
             dbUsers.toArray(users);
+            // Create the form
+            b.append("<form id=\"users\" name=\"users\" method=\"post\" action=\"/users\">\n");
             // Create the table
-            result.append("<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n");
-            result.append("\t<thead>\n");
-            result.append("\t\t<tr>\n");
-            result.append("\t\t\t<td>User Id</td>\n");
-            result.append("\t\t\t<td>User Name</td>\n");
-            result.append("\t\t\t<td>User Email</td>\n");
-            result.append("\t\t</tr>\n");
-            result.append("\t</thead>\n");
-            result.append("\t<tbody>\n");
-            // Push user info
+            b.append("<table>\n");
+            b.append("<thead>\n");
+            b.append("<tr class=\"head\">\n");
+            b.append("<td class=\"head\" style=\"width: 60px;\">User Id</td>\n");
+            b.append("<td class=\"head\" style=\"width: 40%;\">User Name</td>\n");
+            b.append("<td class=\"head\">User Email</td>\n");
+            b.append("</tr>\n");
+            b.append("</thead>\n");
+            b.append("<tbody>\n");
+            // Push the users info
             for (User nextUser : users) {
-                result.append("\t\t<tr>\n\t\t\t<td>");
-                result.append(nextUser.getId());
-                result.append("</td>\n\t\t\t<td>");
-                result.append(nextUser.getName());
-                result.append("</td>\n\t\t\t<td>");
-                result.append(nextUser.getEmail());
-                result.append("\t\t\t</td>\n\t\t</tr>");
+                b.append("<tr>\n");
+                b.append("<td>" + nextUser.getId() + "</td>\n");
+                b.append("<td>" + nextUser.getName() + "</td>\n");
+                b.append("<td>" + nextUser.getEmail() + "</td>\n");
+                b.append("</tr>\n");
             }
             // Close the table
-            result.append("\t</tbody>\n");
-            result.append("</table>");
-            
+            b.append("</tbody>\n");
+            b.append("</table>\n");
+            // Close the form
+            b.append("</form>\n");
         }
         else {
-            result.append("No users found!");
+            b.append("No users found!");
         }
-        return result.toString();
+
+        return b.toString();
     }
 
     public void addProject(HttpServletRequest request) {        
