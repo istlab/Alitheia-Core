@@ -82,7 +82,7 @@ class InMemoryCheckoutImpl implements InMemoryCheckout {
         repoPath = path;
         root = new InMemoryDirectory(this);
         
-        scm.getCheckout(path, r, root);
+        scm.getCheckout(path, r, root.createSubDirectory(scm.getSubProjectPath()));
         entry = scm.getCommitLog(repoPath, r);
 
         setRevision(r);

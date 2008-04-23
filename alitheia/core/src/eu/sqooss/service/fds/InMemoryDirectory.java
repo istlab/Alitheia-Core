@@ -90,7 +90,7 @@ public class InMemoryDirectory {
      * Returns the complete path of this directory.
      */
     public String getPath() {
-    	if (parentDirectory==null || parentDirectory.getPath().length() == 0) {
+    	if (parentDirectory==null) {
     		return getName();
     	} else {
     		return parentDirectory.getPath() + "/" + getName();
@@ -288,6 +288,11 @@ public class InMemoryDirectory {
      * @return An InMemoryDirectory reference.
      */
     protected InMemoryDirectory getOrCreateSubdirectoryByName(String name) {
+    	// if it's empty, it's us!
+    	if (name.length() == 0) {
+    		return this;
+    	}
+    	
         for (InMemoryDirectory dir : directories) {
             if (dir.getName().equals(name) ) {
                 return dir;

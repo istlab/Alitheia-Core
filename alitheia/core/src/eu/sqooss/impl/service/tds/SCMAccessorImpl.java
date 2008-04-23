@@ -602,6 +602,19 @@ public class SCMAccessorImpl extends NamedAccessorImpl implements SCMAccessor {
             throw new InvalidRepositoryException(getName(),url,e.getMessage());
         }
     }
+
+	public String getSubProjectPath() throws InvalidRepositoryException {
+        if (svnRepository == null) {
+            connectToRepository();
+        }
+        
+        try {
+			return svnRepository.getRepositoryPath("");
+		} catch (SVNException e) {
+            logger.warn(e.getMessage());
+            throw new InvalidRepositoryException(getName(),url,e.getMessage());
+		}
+	}
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

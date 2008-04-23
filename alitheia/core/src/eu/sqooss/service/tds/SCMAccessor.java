@@ -191,6 +191,12 @@ public interface SCMAccessor extends NamedAccessor {
      */
     SCMNodeType getNodeType(String repoPath, ProjectRevision r) 
     	throws InvalidRepositoryException;
+    
+    /**
+     * Get the subdirectory of the project within the SVN repsitory.
+     * @throws InvalidRepositoryException 
+     */
+    String getSubProjectPath() throws InvalidRepositoryException;
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab
