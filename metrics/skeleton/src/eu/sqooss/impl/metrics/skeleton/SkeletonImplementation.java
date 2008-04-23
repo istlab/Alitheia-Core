@@ -41,10 +41,10 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.lib.result.Result;
 import eu.sqooss.metrics.skeleton.Skeleton;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
+import eu.sqooss.service.abstractmetric.Result;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.ProjectFile;

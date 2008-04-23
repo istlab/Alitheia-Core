@@ -8,7 +8,6 @@ Bundle-Vendor: AUEB
 Bundle-Description: Cross-Language Metric Tool wrapper
 Import-Package:  org.osgi.framework,
     eu.sqooss.core,
-    eu.sqooss.lib.result,
     eu.sqooss.service.abstractmetric,
     eu.sqooss.service.db,
     eu.sqooss.service.fds,

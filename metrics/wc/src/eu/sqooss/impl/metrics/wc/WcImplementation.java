@@ -42,9 +42,9 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.lib.result.ResultEntry;
 import eu.sqooss.metrics.wc.Wc;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
+import eu.sqooss.service.abstractmetric.ResultEntry;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.ProjectFile;

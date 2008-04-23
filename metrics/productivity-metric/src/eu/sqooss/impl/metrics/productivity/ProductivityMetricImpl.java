@@ -37,9 +37,9 @@ import java.util.List;
 
 import org.osgi.framework.BundleContext;
 
-import eu.sqooss.lib.result.ResultEntry;
 import eu.sqooss.metrics.productivity.ProductivityMetric;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
+import eu.sqooss.service.abstractmetric.ResultEntry;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
