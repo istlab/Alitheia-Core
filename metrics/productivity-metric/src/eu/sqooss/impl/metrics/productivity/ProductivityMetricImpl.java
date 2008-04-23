@@ -49,6 +49,7 @@ public class ProductivityMetricImpl extends AbstractMetric implements
     
     public ProductivityMetricImpl(BundleContext bc) {
         super(bc);
+        super.addActivationType(StoredProject.class);
     }
 
     public List<ResultEntry> getResult(StoredProject a, Metric m) {

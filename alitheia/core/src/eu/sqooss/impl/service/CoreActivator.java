@@ -1,11 +1,10 @@
 package eu.sqooss.impl.service;
 
-import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleActivator;
+import org.osgi.framework.BundleContext;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DBService;
-import eu.sqooss.service.logging.Logger;
 
 public class CoreActivator implements BundleActivator {
 

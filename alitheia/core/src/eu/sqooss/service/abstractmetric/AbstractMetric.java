@@ -89,7 +89,8 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     protected List<Metric> metrics = null;
 
     /**Types used to activate this metric*/
-    protected List<Class<? extends DAObject>> activationTypes;  
+    protected List<Class<? extends DAObject>> activationTypes = new ArrayList<Class<? extends DAObject>>();
+
     
     /** Cache the result of the mark evaluation function*/
     protected HashMap<Long, Boolean> evaluationMarked = new HashMap<Long, Boolean>();
@@ -412,9 +413,6 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     }
     
     protected final void addActivationType(Class<? extends DAObject> c) {
-        if (activationTypes == null) {
-            activationTypes = new ArrayList<Class<? extends DAObject>>();
-        }
         activationTypes.add(c);
         pa.pluginUpdated(this);
     }
