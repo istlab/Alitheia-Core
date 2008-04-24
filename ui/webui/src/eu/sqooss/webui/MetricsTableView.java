@@ -45,26 +45,19 @@ import java.util.*;
  */
 public class MetricsTableView {
 
-    /* Holds the mnemonic names of Metrics, indexed by ID: ID, Name
-     * This Map should be in sync with metricDescriptions.
-     */
-    Map<Integer,String> metricNames = new HashMap<Integer,String>();
+    // Stores the list of metric indexed by metric Id
+    Map<Long,Metric> metrics = new HashMap<Long,Metric>();
 
-    /* Holds the descriptions of Metrics, indexed by ID: ID, Description
-     * This Map should be in sync with metricNames.
-     */
-    Map<Integer,String> metricDescriptions = new HashMap<Integer,String>();
-
-    // Holds the ID of the selected project, if any
+    // Holds the Id of the project, on which this metrics were evaluated
     Long projectId = null;
 
-    /** Show the ID of the metric in the table HTML output? */
+    // Flag for enabling the visualization of metrics' Ids
     boolean showId = true;
 
-    /** Show the mnemonic name of the metric in the table HTML output? */
+    // Flag for enabling the visualization of metrics' mnemonic names
     boolean showMnemonic = true;
 
-    /** Show the description of the metric in the table HTML output? */
+    // Flag for enabling the visualization of metrics' descriptions
     boolean showDescription = true;
 
     /** Show the header of the metric's table? */
@@ -82,28 +75,31 @@ public class MetricsTableView {
     /* Identifier in the HTML output */
     String tableId = new String();
 
+    /**
+     * Instantiates a new metrics table view. Empty constructor.
+     */
     public MetricsTableView () {
-        retrieveData();
+        
     }
 
+    /**
+     * Instantiates a new metrics table view, that on a later stage should be
+     * filled with information about all metrics evaluated on the project with
+     * the given Id.
+     * 
+     * @param projectId the Id of the project
+     */
     public MetricsTableView (Long projectId) {
         this.projectId = projectId;
     }
 
-    public void addMetric (Metric metric) {
-        metricNames.put(
-                metric.getId().intValue(),
-                metric.getMnemonic());
-        metricDescriptions.put(
-                metric.getId().intValue(),
-                metric.getDescription());
-    }
-
-    /* Retrieves data (right now, we're setting Dummy data, later on,
-     * this function retrieves data from the database.
+    /**
+     * Adds another metric to the locally stored metrics list.
+     * 
+     * @param metric a <code>Metric</code> instance
      */
-    public void retrieveData () {
-
+    public void addMetric (Metric metric) {
+        metrics.put(metric.getId().longValue(), metric);
     }
 
     /* @return HTML code representing a list of Metrics.
@@ -163,16 +159,16 @@ public class MetricsTableView {
         }
         // Table rows
         html.append("<tbody>");
-        for (Integer key: metricNames.keySet()) {
+        for (Long key: metrics.keySet()) {
             html.append("\n<tr>");
             if (showId) {
                 html.append("\n\t<td " + cell_class + ">" + key + "</td>");
             }
             if (showMnemonic) {
-                html.append("\n\t<td " + cell_class + ">" + metricNames.get(key) + "</td>");
+                html.append("\n\t<td " + cell_class + ">" + metrics.get(key).getMnemonic() + "</td>");
             }
             if (showDescription) {
-                html.append("\n\t<td " + cell_class + ">" + metricDescriptions.get(key) + "</td>");
+                html.append("\n\t<td " + cell_class + ">" + metrics.get(key).getDescription() + "</td>");
             }
             html.append("\n</tr>");
         }
@@ -192,13 +188,13 @@ public class MetricsTableView {
     public String getHtmlList() {
         StringBuilder html = new StringBuilder("<!-- MetricsList -->\n");
 
-        if (! metricNames.isEmpty()) {
+        if (! metrics.isEmpty()) {
             html.append("<ul>");
-            for (Integer key: metricNames.keySet()) {
+            for (Long key: metrics.keySet()) {
                 html.append("\n\t<li>");
-                html.append(metricNames.get(key));
+                html.append(metrics.get(key).getMnemonic());
                 if (showDescription) {
-                    html.append(" <i>" + metricDescriptions.get(key) + "</i>");
+                    html.append(" <i>" + metrics.get(key).getDescription() + "</i>");
                 }
                 html.append("</li>");
             }

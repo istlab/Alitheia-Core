@@ -72,14 +72,6 @@
   </build>
 
   <dependencies>
-    <!-- ======== SQO-OSS shared libraries ======================== -->
-    <dependency>
-      <groupId>eu.sqooss</groupId>
-      <artifactId>lib</artifactId>
-      <version>[0.0.1,)</version>
-      <type>jar</type>
-      <scope>provided</scope>
-    </dependency>
     <!-- ======== Third-party libraries ========================== -->
     <dependency>
       <groupId>org.apache.commons</groupId>

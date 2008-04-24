@@ -69,25 +69,19 @@
       <type>jar</type>
       <scope>provided</scope>
     </dependency>
-    <!-- ======== SQO-OSS shared libraries ======================== -->
-    <dependency>
-      <groupId>eu.sqooss</groupId>
-      <artifactId>lib</artifactId>
-      <version>[0.0.1,)</version>
-      <type>jar</type>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org</groupId>
-      <artifactId>hibernate</artifactId>
-      <version>3.2.5</version>
-      <type>jar</type>
-      <scope>provided</scope>
-    </dependency>
+    <!-- ======== Equinox libraries =============================== -->
     <dependency>
       <groupId>org.eclipse.equinox</groupId>
       <artifactId>osgi</artifactId>
       <version>3.3.0</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <!-- ======== 3rd-party libraries =============================== -->
+    <dependency>
+      <groupId>org</groupId>
+      <artifactId>hibernate</artifactId>
+      <version>3.2.5</version>
       <type>jar</type>
       <scope>provided</scope>
     </dependency>
