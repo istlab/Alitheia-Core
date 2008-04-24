@@ -45,7 +45,7 @@ import java.util.*;
  */
 public class MetricsTableView {
 
-    /* Holds the names of Metrics, indexed by ID: ID, Name
+    /* Holds the mnemonic names of Metrics, indexed by ID: ID, Name
      * This Map should be in sync with metricDescriptions.
      */
     Map<Integer,String> metricNames = new HashMap<Integer,String>();
@@ -58,19 +58,19 @@ public class MetricsTableView {
     // Holds the ID of the selected project, if any
     Long projectId = null;
 
-    /* Show the ID in the table HTML output? */
+    /** Show the ID of the metric in the table HTML output? */
     boolean showId = true;
 
-    /* Show the name of the metric in the table HTML output? */
-    boolean showName = true;
+    /** Show the mnemonic name of the metric in the table HTML output? */
+    boolean showMnemonic = true;
 
-    // Show the description of the metric in the table HTML output?
+    /** Show the description of the metric in the table HTML output? */
     boolean showDescription = true;
 
-    /* Show the header of the table? */
+    /** Show the header of the metric's table? */
     boolean showHeader = true;
 
-    /* Show the footer of the table? */
+    /** Show the footer of the metric's table? */
     boolean showFooter = false;
 
     /* CSS class to use for the table element */
@@ -93,7 +93,7 @@ public class MetricsTableView {
     public void addMetric (Metric metric) {
         metricNames.put(
                 metric.getId().intValue(),
-                metric.getName());
+                metric.getMnemonic());
         metricDescriptions.put(
                 metric.getId().intValue(),
                 metric.getDescription());
@@ -116,7 +116,7 @@ public class MetricsTableView {
         if (showId) {
             columns++;
         }
-        if (showName) {
+        if (showMnemonic) {
             columns++;
         }
         if (showDescription) {
@@ -146,7 +146,7 @@ public class MetricsTableView {
         if (showId) {
             html.append("\n\t<td " + cell_class + ">ID</td>");
         }
-        if (showName) {
+        if (showMnemonic) {
             html.append("\n\t<td " + cell_class + ">Metric</td>");
         }
         if (showDescription) {
@@ -168,7 +168,7 @@ public class MetricsTableView {
             if (showId) {
                 html.append("\n\t<td " + cell_class + ">" + key + "</td>");
             }
-            if (showName) {
+            if (showMnemonic) {
                 html.append("\n\t<td " + cell_class + ">" + metricNames.get(key) + "</td>");
             }
             if (showDescription) {
@@ -278,14 +278,14 @@ public class MetricsTableView {
     * @return The CSS class that is used for the whole table.
     */
     public void setShowName (boolean show) {
-        showName = show;
+        showMnemonic = show;
     }
 
     /*
     * @return true or false (show the name in the table or not?).
     */
     public boolean getShowName () {
-        return showName;
+        return showMnemonic;
     }
 
     /*

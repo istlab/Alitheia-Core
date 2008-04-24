@@ -38,12 +38,12 @@ import eu.sqooss.ws.client.datatypes.WSMetric;
 class Metric {
 
     private Long id;
-    private String name;
+    private String mnemonic;
     private String type;
     private String description;
 
     public Metric (WSMetric metric) {
-        name        = "NONAME"; // TODO: find out how WSMetric provides it
+        mnemonic    = metric.getMnemonic();
         id          = metric.getId();
         type        = metric.getMetricType().getType();
         description = metric.getDescription();
@@ -53,8 +53,8 @@ class Metric {
         return id;
     }
 
-    public String getName() {
-        return name;
+    public String getMnemonic() {
+        return mnemonic;
     }
 
     public String getType () {
@@ -66,8 +66,9 @@ class Metric {
     }
 
     public String getHtml() {
-        StringBuilder html = new StringBuilder("<!-- Metric -->");
+        StringBuilder html = new StringBuilder("");
         html.append("<h3>Metric: " + getId() + "</h3>");
+        html.append("<br />Mnemonic: " + getMnemonic());
         html.append("<br />Type: " + getType());
         html.append("<br />Description: " + getDescription());
         return html.toString();
