@@ -7,6 +7,7 @@
 
 <%@ include file="/inc/header.jsp" %>
 
+<div id="loginpage" class="group">
 <%
     // Display page's title and accumulated errors (if any)
     out.println("<h1>Logout from the Alitheia System</h1>");
@@ -22,5 +23,6 @@
     out.println ("You must login first!");
     out.println ("<br />");
 %>
+</div>
 
 <%@ include file="/inc/footer.jsp" %>

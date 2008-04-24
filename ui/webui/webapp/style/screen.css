@@ -289,3 +289,40 @@ td.number {
 	text-align: right;
 }
 
+/* ===[ TABLES CSS ]===================================================== */
+#table table {
+    border-collapse: collapse;
+    width: 100%;
+}
+#table td {
+    padding-left: 10px;
+}
+#table input {
+    width: 100%;
+}
+#table input.install {
+    color: Green;
+}
+#table input.uninstall {
+    color: Red;
+}
+#table tr.head {
+    background-color: LightSteelBlue;
+}
+#table td.head {
+    text-align: left;
+    font-weight: bold;
+}
+#table td.name {
+    font-weight: bold;
+}
+#table td.uninstalled {
+    background-color: WhiteSmoke;
+}
+#table td.attr {
+    background-color: Bisque;
+}
+#table td.noattr {
+    background-color: Bisque;
+    font-style: italic;
+}

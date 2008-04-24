@@ -70,13 +70,13 @@ public class MetricsTableView {
     boolean showFooter = true;
 
     /* CSS class to use for the table element */
-    String tableClass = new String();
+    String tableClass = new String("table");
 
     /* CSS class to use for the individual cells of the table */
     String cellClass = new String();
 
     /* Identifier in the HTML output */
-    String tableId = new String();
+    String tableId = new String("table");
 
     /**
      * Instantiates a new metrics table view. Empty constructor.
@@ -106,6 +106,22 @@ public class MetricsTableView {
     }
 
     /**
+     * Constructs a logically correct error message when the list of metric
+     * is empty
+     * 
+     * @return the error message content
+     */
+    private String errNoMetrics () {
+        // Distinguish between "all metric for project" and "all metrics"
+        if (projectId != null) {
+            return Functions.error(Functions.NOT_YET_EVALUATED);
+        }
+        else {
+            return Functions.error(Functions.NO_INSTALLED_METRICS);
+        }
+    }
+
+    /**
      * Produces a HTML table, that displays the locally stored metric
      * information. The table content can be prior adjusted by using the
      * various display flags.
@@ -113,6 +129,9 @@ public class MetricsTableView {
      * @return HTML code representing the list of metrics
      */
     public String getHtml() {
+        if (metrics.isEmpty()) {
+            return errNoMetrics();
+        }
 
         // Count the table columns so we know how an empty table row looks like
         int columns = 0;
@@ -132,52 +151,64 @@ public class MetricsTableView {
         // Prepare some CSS tricks
         // TODO: Wouldn't it be easier to simply switch the CSS file instead
         // and keep the id and class names the same?
-        String css_class = new String();
-        String cell_class = new String();
         String table_id = new String();
+        String css_class = new String();
+        String head_class = new String(" class=\"head\"");
+        String foot_class = new String(" class=\"head\"");
+        String cell_class = new String();
+        String cell_name_class = new String(" class=\"name\"");
+        
+        // Construct the table's CSS Id
+        if (tableId.length() > 0) {
+            table_id = " id=\"" + tableId + "\" ";
+        }
+        // Construct the table's CSS class name
         if (tableClass.length() > 0) {
             css_class = " class=\"" + tableClass + "\" ";
         }
         if (cellClass.length() > 0) {
             cell_class = " class=\"" + cellClass + "\" ";
         }
-        if (tableId.length() > 0) {
-            table_id = " class=\"" + tableId + "\" ";
-        }
 
         StringBuilder html = new StringBuilder("<!-- MetricsTableView -->\n");
         // Create a table
-        html.append("<table " + table_id + " " + css_class + " cellspacing=\"0\">\n");
+        html.append("\n<div" + table_id + ">");
+        html.append("\n<table>");
 
         // Table header
         if (showHeader) {
-            html.append("<thead><tr>");
+            html.append("\n<thead>");
+            html.append("\n\t<tr" + head_class + ">");
             if (showId) {
-                html.append("\n\t<td " + cell_class + ">ID</td>");
+                html.append("\n\t\t<td" + head_class + ">ID</td>");
             }
             if (showMnemonic) {
-                html.append("\n\t<td " + cell_class + ">Name</td>");
+                html.append("\n\t\t<td" + head_class + ">Name</td>");
             }
             if (showDescription) {
-                html.append("\n\t<td " + cell_class + ">Description</td>");
+                html.append("\n\t\t<td" + head_class + ">Description</td>");
             }
             if (showType) {
-                html.append("\n\t<td " + cell_class + ">Type</td>");
+                html.append("\n\t\t<td" + head_class + ">Type</td>");
             }
-            html.append("\n</tr></thead>\n\n");
+            html.append("\n\t</tr>");
+            html.append("\n</thead>\n");
         }
 
         // Table footer
         if (showFooter) {
-            html.append("\n<tfoot>\n<tr>");
-            html.append("\n\t<td  " + cell_class + " colspan=\"" + columns + "\">"
-                    + "TOTAL: " + metrics.size()
+            html.append("\n<tfoot>");
+            html.append("\n\t<tr" + foot_class + ">");
+            html.append("\n\t\t<td" + foot_class
+                    + " colspan=\"" + columns + "\">"
+                    + "TOTAL: " + metrics.size() + " metrics"
                     + "</td>");
-            html.append("\n</tr>\n</tfoot>\n\n");
+            html.append("\n\t</tr>");
+            html.append("\n</tfoot>\n");
         }
 
         // Table rows
-        html.append("<tbody>");
+        html.append("\n<tbody>");
         for (Long key: metrics.keySet()) {
             html.append("\n<tr>");
             if (showId) {
@@ -185,7 +216,7 @@ public class MetricsTableView {
                         + key + "</td>");
             }
             if (showMnemonic) {
-                html.append("\n\t<td " + cell_class + ">"
+                html.append("\n\t<td " + cell_name_class + ">"
                         + metrics.get(key).getMnemonic() + "</td>");
             }
             if (showDescription) {
@@ -202,40 +233,36 @@ public class MetricsTableView {
 
         // Close the table
         html.append("\n</table>");
+        html.append("\n</div>");
 
         return html.toString();
     }
 
     /**
      * Generates a simple, unordered list of all metric descriptors in a HTML
-     * format.
+     * format. The list's row content can be prior adjusted by using the
+     * various display flags.
      * 
      * @return The list of metric descriptors in a HTML format.
      */
     public String getHtmlList() {
-        StringBuilder html = new StringBuilder("<!-- MetricsList -->\n");
-
-        if (! metrics.isEmpty()) {
-            html.append("<ul>");
-            for (Long key: metrics.keySet()) {
-                html.append("\n\t<li>");
-                html.append(metrics.get(key).getMnemonic());
-                if (showDescription) {
-                    html.append(" <i>" + metrics.get(key).getDescription() + "</i>");
-                }
-                html.append("</li>");
-            }
-            html.append("\n</ul>");
-        } else {
-            // Distinguish between "all metric for project" and "all metrics"
-            if (projectId != null) {
-                html.append(Functions.error(Functions.NOT_YET_EVALUATED));
-            }
-            else {
-                html.append(Functions.error(Functions.NO_INSTALLED_METRICS));
-            }
+        if (metrics.isEmpty()) {
+            return errNoMetrics();
         }
-
+        StringBuilder html = new StringBuilder("<!-- MetricsList -->\n");
+        html.append("\n<ul>");
+        for (Long key: metrics.keySet()) {
+            html.append("\n\t<li>");
+            html.append(metrics.get(key).getMnemonic());
+            if (showDescription) {
+                html.append(" <i>"
+                        + metrics.get(key).getDescription()
+                        + "</i>");
+            }
+            html.append("</li>");
+        }
+        html.append("\n</ul>");
+        
         return html.toString();
     }
 

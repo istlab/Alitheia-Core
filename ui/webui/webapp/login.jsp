@@ -7,10 +7,9 @@ title = "Login";
 %>
 
 <%@ include file="/inc/header.jsp" %>
-
+<div id="loginpage" class="group">
 <%
 // Display login page's title and accumulated errors (if any)
-out.println("<h1>Login to the Alitheia System</h1>");
 errorMsg += "<tr />" + terrier.getError();
 out.println("<font color=\"red\">" + errorMsg + "</font>");
 out.println("<br />");
@@ -110,5 +109,5 @@ else {
 <%
 }
 %>
-
+</div>
 <%@ include file="/inc/footer.jsp" %>
