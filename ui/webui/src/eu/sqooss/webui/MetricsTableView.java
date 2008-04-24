@@ -60,11 +60,11 @@ public class MetricsTableView {
     // Flag for enabling the visualization of metrics' descriptions
     boolean showDescription = true;
 
-    /** Show the header of the metric's table? */
+    // Flag for enabling the visualization of metrics' table header
     boolean showHeader = true;
 
-    /** Show the footer of the metric's table? */
-    boolean showFooter = false;
+    // Flag for enabling the visualization of metrics' table footer
+    boolean showFooter = true;
 
     /* CSS class to use for the table element */
     String tableClass = new String();
@@ -102,12 +102,16 @@ public class MetricsTableView {
         metrics.put(metric.getId().longValue(), metric);
     }
 
-    /* @return HTML code representing a list of Metrics.
-     *
+    /**
+     * Produces a HTML table, that displays the locally stored metric
+     * information. The table content can be prior adjusted by using the
+     * various display flags.
+     * 
+     * @return HTML code representing the list of metrics
      */
     public String getHtml() {
 
-        // Count columns so we know how an empty table row looks like
+        // Count the table columns so we know how an empty table row looks like
         int columns = 0;
         if (showId) {
             columns++;
@@ -120,10 +124,11 @@ public class MetricsTableView {
         }
 
         // Prepare some CSS tricks
+        // TODO: Wouldn't it be easier to simply switch the CSS file instead
+        // and keep the id and class names the same?
         String css_class = new String();
         String cell_class = new String();
         String table_id = new String();
-
         if (tableClass.length() > 0) {
             css_class = " class=\"" + tableClass + "\" ";
         }
@@ -135,45 +140,54 @@ public class MetricsTableView {
         }
 
         StringBuilder html = new StringBuilder("<!-- MetricsTableView -->\n");
+        // Create a table
         html.append("<table " + table_id + " " + css_class + " cellspacing=\"0\">\n");
 
         // Table header
-        html.append("<thead><tr>");
-        if (showId) {
-            html.append("\n\t<td " + cell_class + ">ID</td>");
+        if (showHeader) {
+            html.append("<thead><tr>");
+            if (showId) {
+                html.append("\n\t<td " + cell_class + ">ID</td>");
+            }
+            if (showMnemonic) {
+                html.append("\n\t<td " + cell_class + ">Name</td>");
+            }
+            if (showDescription) {
+                html.append("\n\t<td " + cell_class + ">Description</td>");
+            }
+            html.append("\n</tr></thead>\n\n");
         }
-        if (showMnemonic) {
-            html.append("\n\t<td " + cell_class + ">Metric</td>");
-        }
-        if (showDescription) {
-            html.append("\n\t<td " + cell_class + ">Description</td>");
-        }
-        html.append("\n</tr></thead>\n\n");
 
         // Table footer
         if (showFooter) {
-            // Dummy.
             html.append("\n<tfoot>\n<tr>");
-            html.append("\n\t<td  " + cell_class + " colspan=\"" + columns + "\">&nbsp;</td>");
+            html.append("\n\t<td  " + cell_class + " colspan=\"" + columns + "\">"
+                    + "TOTAL: " + metrics.size()
+                    + "</td>");
             html.append("\n</tr>\n</tfoot>\n\n");
         }
+
         // Table rows
         html.append("<tbody>");
         for (Long key: metrics.keySet()) {
             html.append("\n<tr>");
             if (showId) {
-                html.append("\n\t<td " + cell_class + ">" + key + "</td>");
+                html.append("\n\t<td " + cell_class + ">"
+                        + key + "</td>");
             }
             if (showMnemonic) {
-                html.append("\n\t<td " + cell_class + ">" + metrics.get(key).getMnemonic() + "</td>");
+                html.append("\n\t<td " + cell_class + ">"
+                        + metrics.get(key).getMnemonic() + "</td>");
             }
             if (showDescription) {
-                html.append("\n\t<td " + cell_class + ">" + metrics.get(key).getDescription() + "</td>");
+                html.append("\n\t<td " + cell_class + ">"
+                        + metrics.get(key).getDescription() + "</td>");
             }
             html.append("\n</tr>");
         }
-
         html.append("\n</tbody>");
+
+        // Close the table
         html.append("\n</table>");
 
         return html.toString();

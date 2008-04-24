@@ -23,7 +23,7 @@ else {
 
 // Display the accumulated metrics list
 if (metricsView != null ) {
-    out.println(metricsView.getHtmlList());
+    out.println(metricsView.getHtml());
 } else {
     out.println(Functions.error(terrier.getError()));
 }
