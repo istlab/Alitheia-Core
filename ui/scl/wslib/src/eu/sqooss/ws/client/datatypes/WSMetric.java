@@ -136,6 +136,35 @@
                                }
                             
 
+                        /**
+                        * field for Mnemonic
+                        */
+
+                        protected java.lang.String localMnemonic ;
+                        
+
+                           /**
+                           * Auto generated getter method
+                           * @return java.lang.String
+                           */
+                           public  java.lang.String getMnemonic(){
+                               return localMnemonic;
+                           }
+
+                           
+                        
+                            /**
+                               * Auto generated setter method
+                               * @param param Mnemonic
+                               */
+                               public void setMnemonic(java.lang.String param){
+                            
+                                    this.localMnemonic=param;
+                            
+
+                               }
+                            
+
      
      
      /**
@@ -291,6 +320,40 @@
                                     
                                    xmlWriter.writeEndElement();
                              
+                                    namespace = "http://datatypes.services.web.service.impl.sqooss.eu/xsd";
+                                    if (! namespace.equals("")) {
+                                        prefix = xmlWriter.getPrefix(namespace);
+
+                                        if (prefix == null) {
+                                            prefix = org.apache.axis2.databinding.utils.BeanUtil.getUniquePrefix();
+
+                                            xmlWriter.writeStartElement(prefix,"mnemonic", namespace);
+                                            xmlWriter.writeNamespace(prefix, namespace);
+                                            xmlWriter.setPrefix(prefix, namespace);
+
+                                        } else {
+                                            xmlWriter.writeStartElement(namespace,"mnemonic");
+                                        }
+
+                                    } else {
+                                        xmlWriter.writeStartElement("mnemonic");
+                                    }
+                                
+
+                                          if (localMnemonic==null){
+                                              // write the nil attribute
+                                              
+                                                     writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","true",xmlWriter);
+                                                  
+                                          }else{
+
+                                        
+                                                   xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localMnemonic));
+                                            
+                                          }
+                                    
+                                   xmlWriter.writeEndElement();
+                             
                    
                xmlWriter.writeEndElement();
             
@@ -401,6 +464,12 @@
                                 elementList.add(
                                    org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localMetricTypeId));
                             
+                             elementList.add(new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd",
+                                                                      "mnemonic"));
+                            
+                                         elementList.add(localMnemonic==null?null:
+                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localMnemonic));
+                                    
 
                 return new org.apache.axis2.databinding.utils.reader.ADBXMLStreamReaderImpl(qName, elementList.toArray(), attribList.toArray());
             
@@ -549,6 +618,31 @@
                                               object.setMetricTypeId(
                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToLong(content));
                                               
+                                        reader.next();
+                                    
+                              }  // End of if for expected property start element
+                            
+                                else{
+                                    // A start element we are not expecting indicates an invalid parameter was passed
+                                    throw new java.lang.RuntimeException("Unexpected subelement " + reader.getLocalName());
+                                }
+                            
+                                    
+                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
+                                
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd","mnemonic").equals(reader.getName())){
+                                
+                                       if (!"true".equals(reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil"))){
+                                    
+                                    java.lang.String content = reader.getElementText();
+                                    
+                                              object.setMnemonic(
+                                        org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                                            
+                                       } else {
+                                           reader.getElementText(); // throw away text nodes if any.
+                                       }
+                                      
                                         reader.next();
                                     
                               }  // End of if for expected property start element
