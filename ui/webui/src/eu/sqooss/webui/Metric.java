@@ -65,13 +65,4 @@ class Metric {
         return description;
     }
 
-    public String getHtml() {
-        StringBuilder html = new StringBuilder("");
-        html.append("<h3>Metric: " + getId() + "</h3>");
-        html.append("<br />Mnemonic: " + getMnemonic());
-        html.append("<br />Type: " + getType());
-        html.append("<br />Description: " + getDescription());
-        return html.toString();
-    }
-
 }
