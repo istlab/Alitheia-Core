@@ -60,6 +60,9 @@ public class MetricsTableView {
     // Flag for enabling the visualization of metrics' descriptions
     boolean showDescription = true;
 
+    // Flag for enabling the visualization of metrics' types
+    boolean showType = true;
+
     // Flag for enabling the visualization of metrics' table header
     boolean showHeader = true;
 
@@ -122,6 +125,9 @@ public class MetricsTableView {
         if (showDescription) {
             columns++;
         }
+        if (showType) {
+            columns++;
+        }
 
         // Prepare some CSS tricks
         // TODO: Wouldn't it be easier to simply switch the CSS file instead
@@ -155,6 +161,9 @@ public class MetricsTableView {
             if (showDescription) {
                 html.append("\n\t<td " + cell_class + ">Description</td>");
             }
+            if (showType) {
+                html.append("\n\t<td " + cell_class + ">Type</td>");
+            }
             html.append("\n</tr></thead>\n\n");
         }
 
@@ -182,6 +191,10 @@ public class MetricsTableView {
             if (showDescription) {
                 html.append("\n\t<td " + cell_class + ">"
                         + metrics.get(key).getDescription() + "</td>");
+            }
+            if (showType) {
+                html.append("\n\t<td " + cell_class + ">"
+                        + metrics.get(key).getType() + "</td>");
             }
             html.append("\n</tr>");
         }
@@ -310,5 +323,13 @@ public class MetricsTableView {
     */
     public boolean getShowDescription () {
         return showDescription;
+    }
+
+    public boolean getShowType() {
+        return showType;
+    }
+
+    public void setShowType(boolean showType) {
+        this.showType = showType;
     }
 }
