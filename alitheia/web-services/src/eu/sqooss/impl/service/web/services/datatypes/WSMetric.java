@@ -44,8 +44,8 @@ public class WSMetric {
     private WSMetricType wsMetricType;
     
     public WSMetric(Metric metric) {
-    	this.metric = metric;
-    	this.wsMetricType = new WSMetricType(metric.getMetricType());
+        this.metric = metric;
+        this.wsMetricType = new WSMetricType(metric.getMetricType());
     }
     
     public WSMetricType getMetricType() {
@@ -62,6 +62,10 @@ public class WSMetric {
 
     public String getDescription() {
         return metric.getDescription();
+    }
+
+    public String getMnemonic() {
+        return metric.getMnemonic();
     }
 
 }
