@@ -48,7 +48,7 @@ public abstract class WSUserAccessor extends WSAccessor {
      *  <li>if web services service throws a exception</li>
      * <ul>
      */
-    public abstract WSUser submitUser(String newUserName, String newPassword,
+    public abstract WSUser createUser(String newUserName, String newPassword,
             String email) throws WSException;
     
     /**
@@ -62,7 +62,7 @@ public abstract class WSUserAccessor extends WSAccessor {
      * <code>false</code> otherwise
      * @throws WSException
      */
-    public abstract boolean submitPendingUser(String newUserName, String newPassword,
+    public abstract boolean createPendingUser(String newUserName, String newPassword,
             String email) throws WSException;
     
     /**
@@ -76,7 +76,7 @@ public abstract class WSUserAccessor extends WSAccessor {
      *  <li>if web services service throws a exception</li>
      * <ul>
      */
-    public abstract WSUser displayUser(long userId) throws WSException;
+    public abstract WSUser getUserById(long userId) throws WSException;
     
     /**
      * This method returns information about the user with a given user name.
@@ -112,7 +112,7 @@ public abstract class WSUserAccessor extends WSAccessor {
      *  <li>if web services service throws a exception</li>
      * <ul>
      */
-    public abstract boolean deleteUser(long userId) throws WSException;
+    public abstract boolean deleteUserById(long userId) throws WSException;
     
     /**
      * Get the message-of-the-day for the user. This comes from

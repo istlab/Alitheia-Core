@@ -44,23 +44,23 @@ import eu.sqooss.ws.client.WsStub;
 import eu.sqooss.ws.client.datatypes.WSMetric;
 import eu.sqooss.ws.client.datatypes.WSMetricMeasurement;
 import eu.sqooss.ws.client.ws.GetMetrics;
+import eu.sqooss.ws.client.ws.GetMetricsByFileNames;
+import eu.sqooss.ws.client.ws.GetMetricsByFileNamesResponse;
+import eu.sqooss.ws.client.ws.GetMetricsByProjectId;
+import eu.sqooss.ws.client.ws.GetMetricsByProjectIdResponse;
 import eu.sqooss.ws.client.ws.GetMetricsResponse;
 import eu.sqooss.ws.client.ws.GetProjectFileMetricMeasurement;
 import eu.sqooss.ws.client.ws.GetProjectFileMetricMeasurementResponse;
 import eu.sqooss.ws.client.ws.GetProjectVersionMetricMeasurement;
 import eu.sqooss.ws.client.ws.GetProjectVersionMetricMeasurementResponse;
-import eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedFiles;
-import eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedFilesResponse;
-import eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProject;
-import eu.sqooss.ws.client.ws.RetrieveMetrics4SelectedProjectResponse;
 
 class WSMetricAccessorImpl extends WSMetricAccessor {
 
-    private static final String METHOD_NAME_RETRIEVE_METRICS_4_SELECTED_PROJECT  = "retrieveMetrics4SelectedProject";
+    private static final String METHOD_NAME_GET_METRICS_BY_PROJECT_ID  = "retrieveMetrics4SelectedProject";
 
-    private static final String METHOD_NAME_RETRIEVE_METRICS_4_SELECTED_FILES    = "retrieveMetrics4SelectedFiles";
+    private static final String METHOD_NAME_GET_METRICS_BY_FILE_NAMES  = "retrieveMetrics4SelectedFiles";
     
-    private static final String METHOD_NAME_GET_METRICS                          = "getMetrics";
+    private static final String METHOD_NAME_GET_METRICS                = "getMetrics";
 
     private static final String METHOD_NAME_GET_PROJECT_FILE_METRIC_MEASUREMENT     = "getFileMetricMeasurement";
 
@@ -83,25 +83,25 @@ class WSMetricAccessorImpl extends WSMetricAccessor {
     }
 
     /**
-     * @see eu.sqooss.scl.accessor.WSMetricAccessor#retrieveMetrics4SelectedProject(long)
+     * @see eu.sqooss.scl.accessor.WSMetricAccessor#getMetricsByProjectId(long)
      */
     @Override
-    public WSMetric[] retrieveMetrics4SelectedProject(long projectId) throws WSException {
-        RetrieveMetrics4SelectedProjectResponse response;
-        RetrieveMetrics4SelectedProject params;
-        if (!parameters.containsKey(METHOD_NAME_RETRIEVE_METRICS_4_SELECTED_PROJECT)) {
-            params = new RetrieveMetrics4SelectedProject();
+    public WSMetric[] getMetricsByProjectId(long projectId) throws WSException {
+        GetMetricsByProjectIdResponse response;
+        GetMetricsByProjectId params;
+        if (!parameters.containsKey(METHOD_NAME_GET_METRICS_BY_PROJECT_ID)) {
+            params = new GetMetricsByProjectId();
             params.setPassword(password);
             params.setUserName(userName);
-            parameters.put(METHOD_NAME_RETRIEVE_METRICS_4_SELECTED_PROJECT, params);
+            parameters.put(METHOD_NAME_GET_METRICS_BY_PROJECT_ID, params);
         } else {
-            params = (RetrieveMetrics4SelectedProject) parameters.get(
-                    METHOD_NAME_RETRIEVE_METRICS_4_SELECTED_PROJECT);
+            params = (GetMetricsByProjectId) parameters.get(
+                    METHOD_NAME_GET_METRICS_BY_PROJECT_ID);
         }
         synchronized (params) {
             params.setProjectId(projectId);
             try {
-                response = wsStub.retrieveMetrics4SelectedProject(params);
+                response = wsStub.getMetricsByProjectId(params);
             } catch (RemoteException re) {
                 throw new WSException(re);
             }
@@ -146,31 +146,31 @@ class WSMetricAccessorImpl extends WSMetricAccessor {
     }
 
     /**
-     * @see eu.sqooss.scl.accessor.WSMetricAccessor#retrieveMetrics4SelectedFiles(long, java.lang.String, java.lang.String)
+     * @see eu.sqooss.scl.accessor.WSMetricAccessor#getMetricsByFileNames(long, java.lang.String, java.lang.String)
      */
     @Override
-    public WSMetric[] retrieveMetrics4SelectedFiles(long projectId, String folderNames,
+    public WSMetric[] getMetricsByFileNames(long projectId, String folderNames,
             String fileNames) throws WSException {
         String[] folderNamesArray = tokeniseCommaSeparatedString(folderNames);
         String[] fileNamesArray = tokeniseCommaSeparatedString(fileNames);
 
-        RetrieveMetrics4SelectedFilesResponse response;
-        RetrieveMetrics4SelectedFiles params;
-        if (!parameters.containsKey(METHOD_NAME_RETRIEVE_METRICS_4_SELECTED_FILES)) {
-            params = new RetrieveMetrics4SelectedFiles();
+        GetMetricsByFileNamesResponse response;
+        GetMetricsByFileNames params;
+        if (!parameters.containsKey(METHOD_NAME_GET_METRICS_BY_FILE_NAMES)) {
+            params = new GetMetricsByFileNames();
             params.setPassword(password);
             params.setUserName(userName);
-            parameters.put(METHOD_NAME_RETRIEVE_METRICS_4_SELECTED_FILES, params);
+            parameters.put(METHOD_NAME_GET_METRICS_BY_FILE_NAMES, params);
         } else {
-            params = (RetrieveMetrics4SelectedFiles) parameters.get(
-                    METHOD_NAME_RETRIEVE_METRICS_4_SELECTED_FILES);
+            params = (GetMetricsByFileNames) parameters.get(
+                    METHOD_NAME_GET_METRICS_BY_FILE_NAMES);
         }
         synchronized (params) {
             params.setProjectId(projectId);
             params.setFolders(folderNamesArray);
             params.setFileNames(fileNamesArray);
             try {
-                response = wsStub.retrieveMetrics4SelectedFiles(params);
+                response = wsStub.getMetricsByFileNames(params);
             } catch (RemoteException re) {
                 throw new WSException(re);
             }

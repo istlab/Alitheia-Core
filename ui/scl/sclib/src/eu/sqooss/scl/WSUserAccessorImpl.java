@@ -41,36 +41,36 @@ import org.apache.axis2.AxisFault;
 import eu.sqooss.scl.accessor.WSUserAccessor;
 import eu.sqooss.ws.client.WsStub;
 import eu.sqooss.ws.client.datatypes.WSUser;
-import eu.sqooss.ws.client.ws.DeleteUser;
-import eu.sqooss.ws.client.ws.DeleteUserResponse;
-import eu.sqooss.ws.client.ws.DisplayUser;
-import eu.sqooss.ws.client.ws.DisplayUserResponse;
-import eu.sqooss.ws.client.ws.ModifyUser;
-import eu.sqooss.ws.client.ws.ModifyUserResponse;
-import eu.sqooss.ws.client.ws.SubmitPendingUser;
-import eu.sqooss.ws.client.ws.SubmitPendingUserResponse;
-import eu.sqooss.ws.client.ws.SubmitUser;
-import eu.sqooss.ws.client.ws.SubmitUserResponse;
+import eu.sqooss.ws.client.ws.CreatePendingUser;
+import eu.sqooss.ws.client.ws.CreatePendingUserResponse;
+import eu.sqooss.ws.client.ws.CreateUser;
+import eu.sqooss.ws.client.ws.CreateUserResponse;
+import eu.sqooss.ws.client.ws.DeleteUserById;
+import eu.sqooss.ws.client.ws.DeleteUserByIdResponse;
+import eu.sqooss.ws.client.ws.GetUserById;
+import eu.sqooss.ws.client.ws.GetUserByIdResponse;
 import eu.sqooss.ws.client.ws.GetUserByName;
 import eu.sqooss.ws.client.ws.GetUserByNameResponse;
 import eu.sqooss.ws.client.ws.GetUserMessageOfTheDay;
 import eu.sqooss.ws.client.ws.GetUserMessageOfTheDayResponse;
+import eu.sqooss.ws.client.ws.ModifyUser;
+import eu.sqooss.ws.client.ws.ModifyUserResponse;
 
 class WSUserAccessorImpl extends WSUserAccessor {
 
-    private static final String METHOD_NAME_SUBMIT_USER          = "submitUser";
+    private static final String METHOD_NAME_CREATE_USER          = "submitUser";
 
-    private static final String METHOD_NAME_SUBMIT_PENDING_USER  = "submitPendingUser";
+    private static final String METHOD_NAME_CREATE_PENDING_USER  = "submitPendingUser";
 
-    private static final String METHOD_NAME_DISPLAY_USER = "displayUser";
+    private static final String METHOD_NAME_GET_USER_BY_ID       = "displayUser";
 
-    private static final String METHOD_NAME_GET_USER_BY_NAME = "getUserByName";
+    private static final String METHOD_NAME_GET_USER_BY_NAME     = "getUserByName";
 
-    private static final String METHOD_NAME_MODIFY_USER  = "modifyUser";
+    private static final String METHOD_NAME_MODIFY_USER          = "modifyUser";
 
-    private static final String METHOD_NAME_DELETE_USER  = "deleteUser";
+    private static final String METHOD_NAME_DELETE_USER_BY_ID    = "deleteUser";
 
-    private static final String METHOD_NAME_GET_USER_MESSAGE  = "getUserMessageOfTheDay";
+    private static final String METHOD_NAME_GET_USER_MESSAGE     = "getUserMessageOfTheDay";
 
     private Map<String, Object> parameters;
     private String userName;
@@ -89,28 +89,28 @@ class WSUserAccessorImpl extends WSUserAccessor {
     }
 
     /**
-     * @see eu.sqooss.scl.accessor.WSUserAccessor#submitUser(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)
+     * @see eu.sqooss.scl.accessor.WSUserAccessor#createUser(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)
      */
     @Override
-    public WSUser submitUser(String newUserName, String newPassword,
+    public WSUser createUser(String newUserName, String newPassword,
             String email) throws WSException {
-        SubmitUserResponse response;
-        SubmitUser params;
-        if (!parameters.containsKey(METHOD_NAME_SUBMIT_USER)) {
-            params = new SubmitUser();
+        CreateUserResponse response;
+        CreateUser params;
+        if (!parameters.containsKey(METHOD_NAME_CREATE_USER)) {
+            params = new CreateUser();
             params.setPasswordForAccess(password);
             params.setUserNameForAccess(userName);
-            parameters.put(METHOD_NAME_SUBMIT_USER, params);
+            parameters.put(METHOD_NAME_CREATE_USER, params);
         } else {
-            params = (SubmitUser) parameters.get(
-                    METHOD_NAME_SUBMIT_USER);
+            params = (CreateUser) parameters.get(
+                    METHOD_NAME_CREATE_USER);
         }
         synchronized (params) {
             params.setNewUserName(newUserName);
             params.setNewPassword(newPassword);
             params.setEmail(email);
             try {
-                response = wsStub.submitUser(params);
+                response = wsStub.createUser(params);
             } catch (RemoteException re) {
                 throw new WSException(re);
             }
@@ -119,28 +119,28 @@ class WSUserAccessorImpl extends WSUserAccessor {
     }
 
     /**
-     * @see eu.sqooss.scl.accessor.WSUserAccessor#submitPendingUser(java.lang.String, java.lang.String, java.lang.String)
+     * @see eu.sqooss.scl.accessor.WSUserAccessor#createPendingUser(java.lang.String, java.lang.String, java.lang.String)
      */
     @Override
-    public boolean submitPendingUser(String newUserName, String newPassword,
+    public boolean createPendingUser(String newUserName, String newPassword,
             String email) throws WSException {
-        SubmitPendingUserResponse response;
-        SubmitPendingUser params;
-        if (!parameters.containsKey(METHOD_NAME_SUBMIT_PENDING_USER)) {
-            params = new SubmitPendingUser();
+        CreatePendingUserResponse response;
+        CreatePendingUser params;
+        if (!parameters.containsKey(METHOD_NAME_CREATE_PENDING_USER)) {
+            params = new CreatePendingUser();
             params.setPasswordForAccess(password);
             params.setUserNameForAccess(userName);
-            parameters.put(METHOD_NAME_SUBMIT_PENDING_USER, params);
+            parameters.put(METHOD_NAME_CREATE_PENDING_USER, params);
         } else {
-            params = (SubmitPendingUser) parameters.get(
-                    METHOD_NAME_SUBMIT_PENDING_USER);
+            params = (CreatePendingUser) parameters.get(
+                    METHOD_NAME_CREATE_PENDING_USER);
         }
         synchronized (params) {
             params.setNewUserName(newUserName);
             params.setNewPassword(newPassword);
             params.setEmail(email);
             try {
-                response = wsStub.submitPendingUser(params);
+                response = wsStub.createPendingUser(params);
             } catch (RemoteException re) {
                 throw new WSException(re);
             }
@@ -149,25 +149,25 @@ class WSUserAccessorImpl extends WSUserAccessor {
     }
 
     /**
-     * @see eu.sqooss.scl.accessor.WSUserAccessor#displayUser(long)
+     * @see eu.sqooss.scl.accessor.WSUserAccessor#getUserById(long)
      */
     @Override
-    public WSUser displayUser(long userId) throws WSException {
-        DisplayUserResponse response;
-        DisplayUser params;
-        if (!parameters.containsKey(METHOD_NAME_DISPLAY_USER)) {
-            params = new DisplayUser();
+    public WSUser getUserById(long userId) throws WSException {
+        GetUserByIdResponse response;
+        GetUserById params;
+        if (!parameters.containsKey(METHOD_NAME_GET_USER_BY_ID)) {
+            params = new GetUserById();
             params.setPasswordForAccess(password);
             params.setUserNameForAccess(userName);
-            parameters.put(METHOD_NAME_DISPLAY_USER, params);
+            parameters.put(METHOD_NAME_GET_USER_BY_ID, params);
         } else {
-            params = (DisplayUser) parameters.get(
-                    METHOD_NAME_DISPLAY_USER);
+            params = (GetUserById) parameters.get(
+                    METHOD_NAME_GET_USER_BY_ID);
         }
         synchronized (params) {
             params.setUserId(userId);
             try {
-                response = wsStub.displayUser(params);
+                response = wsStub.getUserById(params);
             } catch (RemoteException re) {
                 throw new WSException(re);
             }
@@ -233,25 +233,25 @@ class WSUserAccessorImpl extends WSUserAccessor {
     }
 
     /**
-     * @see eu.sqooss.scl.accessor.WSUserAccessor#deleteUser(long)
+     * @see eu.sqooss.scl.accessor.WSUserAccessor#deleteUserById(long)
      */
     @Override
-    public boolean deleteUser(long userId) throws WSException {
-        DeleteUserResponse response;
-        DeleteUser params;
-        if (!parameters.containsKey(METHOD_NAME_DELETE_USER)) {
-            params = new DeleteUser();
+    public boolean deleteUserById(long userId) throws WSException {
+        DeleteUserByIdResponse response;
+        DeleteUserById params;
+        if (!parameters.containsKey(METHOD_NAME_DELETE_USER_BY_ID)) {
+            params = new DeleteUserById();
             params.setPasswordForAccess(password);
             params.setUserNameForAccess(userName);
-            parameters.put(METHOD_NAME_DELETE_USER, params);
+            parameters.put(METHOD_NAME_DELETE_USER_BY_ID, params);
         } else {
-            params = (DeleteUser) parameters.get(
-                    METHOD_NAME_DELETE_USER);
+            params = (DeleteUserById) parameters.get(
+                    METHOD_NAME_DELETE_USER_BY_ID);
         }
         synchronized (params) {
             params.setUserId(userId);
             try {
-                response = wsStub.deleteUser(params);
+                response = wsStub.deleteUserById(params);
             } catch (RemoteException re) {
                 throw new WSException(re);
             }

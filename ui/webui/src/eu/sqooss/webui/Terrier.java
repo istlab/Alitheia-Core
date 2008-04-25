@@ -122,7 +122,7 @@ public class Terrier {
         try {
             // Retrieve information about this project
             prj = new Project(
-                    connection.getProjectAccessor().retrieveStoredProject(projectId));
+                    connection.getProjectAccessor().getProjectById(projectId));
 
             // Retrieve all project versions
             prj.setVersions(getProjectVersions(projectId));
@@ -148,7 +148,7 @@ public class Terrier {
         }
         try {
             WSProjectVersion[] actualProjectVersions =
-                connection.getProjectAccessor().retrieveStoredProjectVersions(projectId);
+                connection.getProjectAccessor().getProjectVersionsById(projectId);
             for (WSProjectVersion nextVersion : actualProjectVersions){
                 projectVersions.put(
                         nextVersion.getVersion(),
@@ -169,7 +169,7 @@ public class Terrier {
         try {
             // TODO: Retrieve only evaluated project later on
             WSStoredProject projectsResult[] =
-                connection.getProjectAccessor().storedProjectsList();
+                connection.getProjectAccessor().getStoredProjects();
             debug += ":gotresults";
             debug += ":projects=" + projectsResult.length;
             for (WSStoredProject wssp : projectsResult) {
@@ -198,7 +198,7 @@ public class Terrier {
         MetricsTableView view = new MetricsTableView(projectId);
         try {
             WSMetric[] metrics =
-                connection.getMetricAccessor().retrieveMetrics4SelectedProject(projectId);
+                connection.getMetricAccessor().getMetricsByProjectId(projectId);
             for (WSMetric met : metrics) {
                 view.addMetric(new Metric(met));
             }
@@ -245,7 +245,7 @@ public class Terrier {
         FileListView view = new FileListView(versionId);
         try {
             WSProjectFile[] files =
-                connection.getProjectAccessor().getFileList4ProjectVersion(versionId);
+                connection.getProjectAccessor().getFilesByProjectVersionId(versionId);
             for (WSProjectFile file : files) {
                 view.addFile(new eu.sqooss.webui.File(file));
             }
@@ -268,7 +268,7 @@ public class Terrier {
             return null;
         }
         try {
-            return connection.getProjectAccessor().getFilesNumber4ProjectVersion(versionId);
+            return connection.getProjectAccessor().getFilesNumberByProjectVersionId(versionId);
         } catch (WSException e) {
             error = "Can not retrieve the number of files for this version.";
         }
@@ -294,7 +294,7 @@ public class Terrier {
             return null;
         }
         try {
-            WSUser user = connection.getUserAccessor().displayUser(userId);
+            WSUser user = connection.getUserAccessor().getUserById(userId);
             if (user != null) {
                 return new User(user.getId(), user.getUserName(), user.getEmail());
             }
@@ -367,7 +367,7 @@ public class Terrier {
             return false;
         }
         try {
-            return connection.getUserAccessor().submitPendingUser(username, password, email);
+            return connection.getUserAccessor().createPendingUser(username, password, email);
         } catch (WSException e) {
             error = "An error occured during the registration process!";
             error += " Please try again later.";

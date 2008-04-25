@@ -43,44 +43,44 @@ import eu.sqooss.ws.client.WsStub;
 import eu.sqooss.ws.client.datatypes.WSProjectFile;
 import eu.sqooss.ws.client.datatypes.WSProjectVersion;
 import eu.sqooss.ws.client.datatypes.WSStoredProject;
-import eu.sqooss.ws.client.ws.EvaluatedProjectsList;
-import eu.sqooss.ws.client.ws.EvaluatedProjectsListResponse;
-import eu.sqooss.ws.client.ws.GetFileList4ProjectVersion;
-import eu.sqooss.ws.client.ws.GetFileList4ProjectVersionResponse;
-import eu.sqooss.ws.client.ws.GetFilesNumber4ProjectVersion;
-import eu.sqooss.ws.client.ws.GetFilesNumber4ProjectVersionResponse;
+import eu.sqooss.ws.client.ws.GetEvaluatedProjects;
+import eu.sqooss.ws.client.ws.GetEvaluatedProjectsResponse;
+import eu.sqooss.ws.client.ws.GetFilesByProjectId;
+import eu.sqooss.ws.client.ws.GetFilesByProjectIdResponse;
+import eu.sqooss.ws.client.ws.GetFilesByProjectVersionId;
+import eu.sqooss.ws.client.ws.GetFilesByProjectVersionIdResponse;
+import eu.sqooss.ws.client.ws.GetFilesNumberByProjectVersionId;
+import eu.sqooss.ws.client.ws.GetFilesNumberByProjectVersionIdResponse;
+import eu.sqooss.ws.client.ws.GetProjectById;
+import eu.sqooss.ws.client.ws.GetProjectByIdResponse;
+import eu.sqooss.ws.client.ws.GetProjectIdByName;
+import eu.sqooss.ws.client.ws.GetProjectIdByNameResponse;
+import eu.sqooss.ws.client.ws.GetProjectVersionsByProjectId;
+import eu.sqooss.ws.client.ws.GetProjectVersionsByProjectIdResponse;
+import eu.sqooss.ws.client.ws.GetStoredProjects;
+import eu.sqooss.ws.client.ws.GetStoredProjectsResponse;
 import eu.sqooss.ws.client.ws.RequestEvaluation4Project;
 import eu.sqooss.ws.client.ws.RequestEvaluation4ProjectResponse;
-import eu.sqooss.ws.client.ws.RetrieveFileList;
-import eu.sqooss.ws.client.ws.RetrieveFileListResponse;
-import eu.sqooss.ws.client.ws.RetrieveProjectId;
-import eu.sqooss.ws.client.ws.RetrieveProjectIdResponse;
-import eu.sqooss.ws.client.ws.RetrieveStoredProject;
-import eu.sqooss.ws.client.ws.RetrieveStoredProjectResponse;
-import eu.sqooss.ws.client.ws.RetrieveStoredProjectVersions;
-import eu.sqooss.ws.client.ws.RetrieveStoredProjectVersionsResponse;
-import eu.sqooss.ws.client.ws.StoredProjectsList;
-import eu.sqooss.ws.client.ws.StoredProjectsListResponse;
 
 class WSProjectAccessorImpl extends WSProjectAccessor {
 
-    private static final String METHOD_NAME_EVALUATED_PROJECTS_LIST     = "evaluatedProjectsList";
+    private static final String METHOD_NAME_GET_EVALUATED_PROJECTS       = "evaluatedProjectsList";
 
-    private static final String METHOD_NAME_STORED_PROJECTS_LIST        = "storedProjectsList";
+    private static final String METHOD_NAME_GET_STORED_PROJECTS          = "storedProjectsList";
 
-    private static final String METHOD_NAME_RETRIEVE_FILE_LIST          = "retrieveFileList";
+    private static final String METHOD_NAME_GET_FILES_BY_PROJECT_ID      = "retrieveFileList";
 
     private static final String METHOD_NAME_REQUEST_EVALUATION_4_PROJECT = "requestEvaluation4Project";
 
-    private static final String METHOD_NAME_RETRIEVE_PROJECT_ID          = "retrieveProjectId";
+    private static final String METHOD_NAME_GET_PROJECT_ID_BY_NAME       = "retrieveProjectId";
 
-    private static final String METHOD_NAME_RETRIEVE_STORED_PROJECT_VERSIONS     = "retrieveStoredProjectVersions";
+    private static final String METHOD_NAME_GET_PROJECT_VERSIONS_BY_ID   = "retrieveStoredProjectVersions";
 
-    private static final String METHOD_NAME_RETRIEVE_STORED_PROJECT              = "retrieveStoredProject";
+    private static final String METHOD_NAME_GET_PROJECT_BY_ID            = "retrieveStoredProject";
 
-    private static final String METHOD_NAME_GET_FILES_NUMBER_4_PROJECT_VERSION   = "getFilesNumber4ProjectVersion";
+    private static final String METHOD_NAME_GET_FILES_NUMBER_BY_PROJECT_VERSION_ID   = "getFilesNumber4ProjectVersion";
 
-    private static final String METHOD_NAME_GET_FILE_LIST_4_PROJECT_VERSION      = "getFileList4ProjectVersion";
+    private static final String METHOD_NAME_GET_FILES_BY_PROJECT_VERSION_ID          = "getFileList4ProjectVersion";
 
     private Map<String, Object> parameters;
     private String userName;
@@ -99,24 +99,24 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
     }
 
     /**
-     * @see eu.sqooss.scl.accessor.WSProjectAccessor#evaluatedProjectsList()
+     * @see eu.sqooss.scl.accessor.WSProjectAccessor#getEvaluatedProjects()
      */
     @Override
-    public WSStoredProject[] evaluatedProjectsList() throws WSException {
-        EvaluatedProjectsListResponse response;
-        EvaluatedProjectsList params;
-        if (!parameters.containsKey(METHOD_NAME_EVALUATED_PROJECTS_LIST)) {
-            params = new EvaluatedProjectsList();
+    public WSStoredProject[] getEvaluatedProjects() throws WSException {
+        GetEvaluatedProjectsResponse response;
+        GetEvaluatedProjects params;
+        if (!parameters.containsKey(METHOD_NAME_GET_EVALUATED_PROJECTS)) {
+            params = new GetEvaluatedProjects();
             params.setPassword(password);
             params.setUserName(userName);
-            parameters.put(METHOD_NAME_EVALUATED_PROJECTS_LIST, params);
+            parameters.put(METHOD_NAME_GET_EVALUATED_PROJECTS, params);
         } else {
-            params = (EvaluatedProjectsList) parameters.get(
-                    METHOD_NAME_EVALUATED_PROJECTS_LIST);
+            params = (GetEvaluatedProjects) parameters.get(
+                    METHOD_NAME_GET_EVALUATED_PROJECTS);
         }
         synchronized (params) {
             try {
-                response = wsStub.evaluatedProjectsList(params);
+                response = wsStub.getEvaluatedProjects(params);
             } catch (RemoteException e) {
                 throw new WSException(e);
             }
@@ -125,24 +125,24 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
     }
 
     /**
-     * @see eu.sqooss.scl.accessor.WSProjectAccessor#storedProjectsList()
+     * @see eu.sqooss.scl.accessor.WSProjectAccessor#getStoredProjects()
      */
     @Override
-    public WSStoredProject[] storedProjectsList() throws WSException {
-        StoredProjectsListResponse response;
-        StoredProjectsList params;
-        if (!parameters.containsKey(METHOD_NAME_STORED_PROJECTS_LIST)) {
-            params = new StoredProjectsList();
+    public WSStoredProject[] getStoredProjects() throws WSException {
+        GetStoredProjectsResponse response;
+        GetStoredProjects params;
+        if (!parameters.containsKey(METHOD_NAME_GET_STORED_PROJECTS)) {
+            params = new GetStoredProjects();
             params.setPassword(password);
             params.setUserName(userName);
-            parameters.put(METHOD_NAME_STORED_PROJECTS_LIST, params);
+            parameters.put(METHOD_NAME_GET_STORED_PROJECTS, params);
         } else {
-            params = (StoredProjectsList) parameters.get(
-                    METHOD_NAME_STORED_PROJECTS_LIST);
+            params = (GetStoredProjects) parameters.get(
+                    METHOD_NAME_GET_STORED_PROJECTS);
         }
         synchronized (params) {
             try {
-                response = wsStub.storedProjectsList(params);
+                response = wsStub.getStoredProjects(params);
             } catch (RemoteException e) {
                 throw new WSException(e);
             }
@@ -151,25 +151,25 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
     }
 
     /**
-     * @see eu.sqooss.scl.accessor.WSProjectAccessor#retrieveFileList(long)
+     * @see eu.sqooss.scl.accessor.WSProjectAccessor#getFilesByProjectId(long)
      */
     @Override
-    public WSProjectFile[] retrieveFileList(long projectId) throws WSException {
-        RetrieveFileListResponse response;
-        RetrieveFileList params;
-        if (!parameters.containsKey(METHOD_NAME_RETRIEVE_FILE_LIST)) {
-            params = new RetrieveFileList();
+    public WSProjectFile[] getFilesByProjectId(long projectId) throws WSException {
+        GetFilesByProjectIdResponse response;
+        GetFilesByProjectId params;
+        if (!parameters.containsKey(METHOD_NAME_GET_FILES_BY_PROJECT_ID)) {
+            params = new GetFilesByProjectId();
             params.setPassword(password);
             params.setUserName(userName);
-            parameters.put(METHOD_NAME_RETRIEVE_FILE_LIST, params);
+            parameters.put(METHOD_NAME_GET_FILES_BY_PROJECT_ID, params);
         } else {
-            params = (RetrieveFileList) parameters.get(
-                    METHOD_NAME_RETRIEVE_FILE_LIST);
+            params = (GetFilesByProjectId) parameters.get(
+                    METHOD_NAME_GET_FILES_BY_PROJECT_ID);
         }
         synchronized (params) {
             params.setProjectId(projectId);
             try {
-                response = wsStub.retrieveFileList(params);
+                response = wsStub.getFilesByProjectId(params);
             } catch (RemoteException re) {
                 throw new WSException(re);
             }
@@ -178,25 +178,25 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
     }
 
     /**
-     * @see eu.sqooss.scl.accessor.WSProjectAccessor#getFileList4ProjectVersion(long)
+     * @see eu.sqooss.scl.accessor.WSProjectAccessor#getFilesByProjectVersionId(long)
      */
     @Override
-    public WSProjectFile[] getFileList4ProjectVersion(long projectVersionId) throws WSException {
-        GetFileList4ProjectVersionResponse response;
-        GetFileList4ProjectVersion params;
-        if (!parameters.containsKey(METHOD_NAME_GET_FILE_LIST_4_PROJECT_VERSION)) {
-            params = new GetFileList4ProjectVersion();
+    public WSProjectFile[] getFilesByProjectVersionId(long projectVersionId) throws WSException {
+        GetFilesByProjectVersionIdResponse response;
+        GetFilesByProjectVersionId params;
+        if (!parameters.containsKey(METHOD_NAME_GET_FILES_BY_PROJECT_VERSION_ID)) {
+            params = new GetFilesByProjectVersionId();
             params.setPassword(password);
             params.setUserName(userName);
-            parameters.put(METHOD_NAME_GET_FILE_LIST_4_PROJECT_VERSION, params);
+            parameters.put(METHOD_NAME_GET_FILES_BY_PROJECT_VERSION_ID, params);
         } else {
-            params = (GetFileList4ProjectVersion) parameters.get(
-                    METHOD_NAME_GET_FILE_LIST_4_PROJECT_VERSION);
+            params = (GetFilesByProjectVersionId) parameters.get(
+                    METHOD_NAME_GET_FILES_BY_PROJECT_VERSION_ID);
         }
         synchronized (params) {
             params.setProjectVersionId(projectVersionId);
             try {
-                response = wsStub.getFileList4ProjectVersion(params);
+                response = wsStub.getFilesByProjectVersionId(params);
             } catch (RemoteException re) {
                 throw new WSException(re);
             }
@@ -205,25 +205,25 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
     }
 
     /**
-     * @see eu.sqooss.scl.accessor.WSProjectAccessor#getFilesNumber4ProjectVersion(long)
+     * @see eu.sqooss.scl.accessor.WSProjectAccessor#getFilesNumberByProjectVersionId(long)
      */
     @Override
-    public long getFilesNumber4ProjectVersion(long projectVersionId) throws WSException {
-        GetFilesNumber4ProjectVersionResponse response;
-        GetFilesNumber4ProjectVersion params;
-        if (!parameters.containsKey(METHOD_NAME_GET_FILES_NUMBER_4_PROJECT_VERSION)) {
-            params = new GetFilesNumber4ProjectVersion();
+    public long getFilesNumberByProjectVersionId(long projectVersionId) throws WSException {
+        GetFilesNumberByProjectVersionIdResponse response;
+        GetFilesNumberByProjectVersionId params;
+        if (!parameters.containsKey(METHOD_NAME_GET_FILES_NUMBER_BY_PROJECT_VERSION_ID)) {
+            params = new GetFilesNumberByProjectVersionId();
             params.setPassword(password);
             params.setUserName(userName);
-            parameters.put(METHOD_NAME_GET_FILES_NUMBER_4_PROJECT_VERSION, params);
+            parameters.put(METHOD_NAME_GET_FILES_NUMBER_BY_PROJECT_VERSION_ID, params);
         } else {
-            params = (GetFilesNumber4ProjectVersion) parameters.get(
-                    METHOD_NAME_GET_FILES_NUMBER_4_PROJECT_VERSION);
+            params = (GetFilesNumberByProjectVersionId) parameters.get(
+                    METHOD_NAME_GET_FILES_NUMBER_BY_PROJECT_VERSION_ID);
         }
         synchronized (params) {
             params.setProjectVersionId(projectVersionId);
             try {
-                response = wsStub.getFilesNumber4ProjectVersion(params);
+                response = wsStub.getFilesNumberByProjectVersionId(params);
             } catch (RemoteException re) {
                 throw new WSException(re);
             }
@@ -268,25 +268,25 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
     }
 
     /**
-     * @see eu.sqooss.scl.accessor.WSProjectAccessor#retrieveProjectId(java.lang.String)
+     * @see eu.sqooss.scl.accessor.WSProjectAccessor#getProjectIdByName(java.lang.String)
      */
     @Override
-    public long retrieveProjectId(String projectName) throws WSException {
-        RetrieveProjectIdResponse response;
-        RetrieveProjectId params;
-        if (!parameters.containsKey(METHOD_NAME_RETRIEVE_PROJECT_ID)) {
-            params = new RetrieveProjectId();
+    public long getProjectIdByName(String projectName) throws WSException {
+        GetProjectIdByNameResponse response;
+        GetProjectIdByName params;
+        if (!parameters.containsKey(METHOD_NAME_GET_PROJECT_ID_BY_NAME)) {
+            params = new GetProjectIdByName();
             params.setPassword(password);
             params.setUserName(userName);
-            parameters.put(METHOD_NAME_RETRIEVE_PROJECT_ID, params);
+            parameters.put(METHOD_NAME_GET_PROJECT_ID_BY_NAME, params);
         } else {
-            params = (RetrieveProjectId) parameters.get(
-                    METHOD_NAME_RETRIEVE_PROJECT_ID);
+            params = (GetProjectIdByName) parameters.get(
+                    METHOD_NAME_GET_PROJECT_ID_BY_NAME);
         }
         synchronized (params) {
             params.setProjectName(projectName);
             try {
-                response = wsStub.retrieveProjectId(params);
+                response = wsStub.getProjectIdByName(params);
             } catch (RemoteException re) {
                 throw new WSException(re);
             }
@@ -296,25 +296,25 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
     }
 
     /**
-     * @see eu.sqooss.scl.accessor.WSProjectAccessor#retrieveStoredProjectVersions(long)
+     * @see eu.sqooss.scl.accessor.WSProjectAccessor#getProjectVersionsById(long)
      */
     @Override
-    public WSProjectVersion[] retrieveStoredProjectVersions(long projectId) throws WSException {
-        RetrieveStoredProjectVersionsResponse response;
-        RetrieveStoredProjectVersions params;
-        if (!parameters.containsKey(METHOD_NAME_RETRIEVE_STORED_PROJECT_VERSIONS)) {
-            params = new RetrieveStoredProjectVersions();
+    public WSProjectVersion[] getProjectVersionsById(long projectId) throws WSException {
+        GetProjectVersionsByProjectIdResponse response;
+        GetProjectVersionsByProjectId params;
+        if (!parameters.containsKey(METHOD_NAME_GET_PROJECT_VERSIONS_BY_ID)) {
+            params = new GetProjectVersionsByProjectId();
             params.setPassword(password);
             params.setUserName(userName);
-            parameters.put(METHOD_NAME_RETRIEVE_STORED_PROJECT_VERSIONS, params);
+            parameters.put(METHOD_NAME_GET_PROJECT_VERSIONS_BY_ID, params);
         } else {
-            params = (RetrieveStoredProjectVersions) parameters.get(
-                    METHOD_NAME_RETRIEVE_STORED_PROJECT_VERSIONS);
+            params = (GetProjectVersionsByProjectId) parameters.get(
+                    METHOD_NAME_GET_PROJECT_VERSIONS_BY_ID);
         }
         synchronized (params) {
             params.setProjectId(projectId);
             try {
-                response = wsStub.retrieveStoredProjectVersions(params);
+                response = wsStub.getProjectVersionsByProjectId(params);
             } catch (RemoteException re) {
                 throw new WSException(re);
             }
@@ -325,26 +325,25 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
     }
 
     /**
-     * @see eu.sqooss.scl.accessor.WSProjectAccessor#retrieveStoredProject(long)
+     * @see eu.sqooss.scl.accessor.WSProjectAccessor#getProjectById(long)
      */
     @Override
-    public WSStoredProject retrieveStoredProject(long projectId) throws WSException {
-        RetrieveStoredProjectResponse response;
-        RetrieveStoredProject params = (RetrieveStoredProject) parameters.get(
-                METHOD_NAME_RETRIEVE_STORED_PROJECT);
-        if (!parameters.containsKey(METHOD_NAME_RETRIEVE_STORED_PROJECT)) {
-            params = new RetrieveStoredProject();
+    public WSStoredProject getProjectById(long projectId) throws WSException {
+        GetProjectByIdResponse response;
+        GetProjectById params;
+        if (!parameters.containsKey(METHOD_NAME_GET_PROJECT_BY_ID)) {
+            params = new GetProjectById();
             params.setPassword(password);
             params.setUserName(userName);
-            parameters.put(METHOD_NAME_RETRIEVE_STORED_PROJECT, params);
+            parameters.put(METHOD_NAME_GET_PROJECT_BY_ID, params);
         } else {
-            params = (RetrieveStoredProject) parameters.get(
-                    METHOD_NAME_RETRIEVE_STORED_PROJECT);
+            params = (GetProjectById) parameters.get(
+                    METHOD_NAME_GET_PROJECT_BY_ID);
         }
         synchronized (params) {
             params.setProjectId(projectId);
             try {
-                response = wsStub.retrieveStoredProject(params);
+                response = wsStub.getProjectById(params);
             } catch (RemoteException re) {
                 throw new WSException(re);
             }

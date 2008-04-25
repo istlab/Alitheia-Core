@@ -53,12 +53,12 @@ public abstract class WSProjectAccessor extends WSAccessor {
      *  <li>if web services service throws a exception</li>
      * <ul>
      */
-    public abstract WSStoredProject[] evaluatedProjectsList() throws WSException;
+    public abstract WSStoredProject[] getEvaluatedProjects() throws WSException;
     
     /**
      * All the projects in the database.
      */
-    public abstract WSStoredProject[] storedProjectsList() throws WSException;
+    public abstract WSStoredProject[] getStoredProjects() throws WSException;
     
     /**
      * This method returns the project's files.
@@ -76,11 +76,11 @@ public abstract class WSProjectAccessor extends WSAccessor {
      *  <li>if web services service throws a exception</li>
      * <ul>
      */
-    public abstract WSProjectFile[] retrieveFileList(long projectId) throws WSException;
+    public abstract WSProjectFile[] getFilesByProjectId(long projectId) throws WSException;
 
-    public abstract WSProjectFile[] getFileList4ProjectVersion(long projectVersionId) throws WSException;
+    public abstract WSProjectFile[] getFilesByProjectVersionId(long projectVersionId) throws WSException;
     
-    public abstract long getFilesNumber4ProjectVersion(long projectVersionId) throws WSException;
+    public abstract long getFilesNumberByProjectVersionId(long projectVersionId) throws WSException;
     
     /**
      * This method makes request for OSS project evaluation.
@@ -112,11 +112,11 @@ public abstract class WSProjectAccessor extends WSAccessor {
      * @return
      * @throws WSException
      */
-    public abstract long retrieveProjectId(String projectName) throws WSException;
+    public abstract long getProjectIdByName(String projectName) throws WSException;
     
-    public abstract WSProjectVersion[] retrieveStoredProjectVersions(long projectId) throws WSException;
+    public abstract WSProjectVersion[] getProjectVersionsById(long projectId) throws WSException;
     
-    public abstract WSStoredProject retrieveStoredProject(long projectId) throws WSException;
+    public abstract WSStoredProject getProjectById(long projectId) throws WSException;
     
 }
 

@@ -49,7 +49,7 @@ public abstract class WSMetricAccessor extends WSAccessor {
      *  <li>if web services service throws a exception</li>
      * <ul>
      */
-    public abstract WSMetric[] retrieveMetrics4SelectedProject(long projectId) throws WSException;
+    public abstract WSMetric[] getMetricsByProjectId(long projectId) throws WSException;
     
     /**
      * This method returns the metrics for a given files.
@@ -65,7 +65,7 @@ public abstract class WSMetricAccessor extends WSAccessor {
      *  <li>if web services service throws a exception</li>
      * <ul>
      */
-    public abstract WSMetric[] retrieveMetrics4SelectedFiles(long projectId, String folderNames, String fileNames) throws WSException;
+    public abstract WSMetric[] getMetricsByFileNames(long projectId, String folderNames, String fileNames) throws WSException;
     
     /**
      * This method returns all installed metrics.
