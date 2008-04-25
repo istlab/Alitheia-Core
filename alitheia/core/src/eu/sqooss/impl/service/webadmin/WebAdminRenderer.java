@@ -44,6 +44,7 @@ import javax.servlet.http.HttpServletRequest;
 import eu.sqooss.core.AlitheiaCore;
 
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
+import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.PluginConfiguration;
 import eu.sqooss.service.db.StoredProject;
@@ -67,6 +68,7 @@ import eu.sqooss.service.webadmin.WebadminService;
 import org.apache.velocity.VelocityContext;
 
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 
 public class WebAdminRenderer {
@@ -206,7 +208,9 @@ public class WebAdminRenderer {
             b.append("<thead>\n");
             b.append("<tr class=\"head\">\n");
             b.append("<td class=\"head\" style=\"width: 80px;\">Status</td>\n");
-            b.append("<td class=\"head\">Description</td>\n");
+            b.append("<td class=\"head\" style=\"width: 30%;\">Name</td>\n");
+            b.append("<td class=\"head\" style=\"width: 40%;\">Class</td>\n");
+            b.append("<td class=\"head\">Version</td>\n");
             b.append("</tr>\n");
             b.append("</thead>\n");
             b.append("<tbody>\n");
@@ -229,7 +233,13 @@ public class WebAdminRenderer {
                     b.append("</td>\n");
                     
                     // Info bar
-                    b.append("<td class=\"name\">" + i.toString() + "</td>\n");
+                    b.append("<td>" + i.getPluginName() + "</td>\n");
+                    b.append("<td>"
+                            + StringUtils.join((String[]) (
+                                    i.getServiceRef().getProperty(
+                                            Constants.OBJECTCLASS)),",")
+                            + "</td>\n");
+                    b.append("<td>" + i.getPluginVersion() + "</td>\n");
                     b.append("</tr>\n");
                     
                     // Configuration bar
@@ -254,7 +264,13 @@ public class WebAdminRenderer {
                     b.append("</td>\n");
                     
                     // Info bar
-                    b.append("<td class=\"name\">" + i.toString() + "</td>\n");
+                    b.append("<td>" + i.getPluginName() + "</td>\n");
+                    b.append("<td>"
+                            + StringUtils.join((String[]) (
+                                    i.getServiceRef().getProperty(
+                                            Constants.OBJECTCLASS)),",")
+                            + "</td>\n");
+                    b.append("<td>" + i.getPluginVersion() + "</td>\n");
                     b.append("</tr>\n");
                     
                     // Configuration bar
@@ -291,7 +307,7 @@ public class WebAdminRenderer {
         else if ((l == null) || (l.isEmpty())) {
             return ("<tr>"
                     + "<td>&nbsp;</td>\n"
-                    + "<td class=\"noattr\">"
+                    + "<td colspan=\"3\" class=\"noattr\">"
                     + "This metric plug-in has no configurable attributes."
                     + "</td>\n"
                     + "</tr>\n");
@@ -299,15 +315,31 @@ public class WebAdminRenderer {
         else {
             StringBuilder b = new StringBuilder();
             
+            // List the metric plug-in's configuration attributes
             for (PluginConfiguration c : l) {
                 b.append("<tr>");
                 b.append("<td>&nbsp;</td>\n");
-                b.append("<td class=\"attr\">"
-                        + " Attribute: " + c.getName()
-                        + " Type: " + c.getType()
-                        + " Value: " + c.getValue()
+                b.append("<td colspan=\"3\" class=\"attr\">"
+                        + "<b>Attribute:</b> " + c.getName()
+                        + "&nbsp;<b>Type:</b> " + c.getType()
+                        + "&nbsp;<b>Value:</b> " + c.getValue()
                         + "</td>\n");
                 b.append("</tr>\n");
+            }
+            
+            // List the metric plug-in's activator types
+            List<Class<? extends DAObject>> activationTypesList =
+                pluginInfo.getActivationTypes();
+            if (activationTypesList != null) {
+                for (Class<? extends DAObject> activationType : activationTypesList) {
+                    b.append("<tr>");
+                    b.append("<td>&nbsp;</td>\n");
+                    b.append("<td colspan=\"3\" class=\"attr\">"
+                            + "<b>Activator:</b> "
+                            + activationType.getName()
+                            + "</td>");
+                    b.append("</tr>\n");
+                }
             }
             
             return b.toString();
