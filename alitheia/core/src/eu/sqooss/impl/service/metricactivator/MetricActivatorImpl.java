@@ -75,6 +75,7 @@ public class MetricActivatorImpl implements MetricActivator {
     /*TODO: Remove type unsafety */
     public <T extends DAObject> void runMetrics(Class<T> clazz,
             SortedSet<Long> objectIDs) {
+        // Get a list of all metrics that support the given activation type
         List<PluginInfo> metrics = null;
         metrics = core.getPluginManager().listPluginProviders(clazz);
         
@@ -82,15 +83,19 @@ public class MetricActivatorImpl implements MetricActivator {
             logger.warn("No metrics found for activation type " + clazz.getName());
             return;
         }
+        
+        // Run all metric in the list, on the specified resource objects
         Session s = dbs.getSession(this);
         Iterator<Long> i = objectIDs.iterator();
-
         while (i.hasNext()) {
             long currentVersion = i.next().longValue();
             for (PluginInfo pi : metrics) {
+                // Get the metric plug-in that installed this metric
                 AlitheiaPlugin m = (AlitheiaPlugin) core.getService(pi.getServiceRef());
                 if (m != null) {
                     try {
+                        // Retrieve the resource object's DAO from the
+                        // database and run the metric on it
                         m.run(dbs.findObjectById(s, clazz, currentVersion));
                     } catch (MetricMismatchException e) {
                         logger.warn("Metric " + m.getName() + " failed");
