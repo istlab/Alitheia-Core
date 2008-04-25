@@ -64,28 +64,31 @@ public class ProjectManager extends AbstractManager {
     }
     
     /**
-     * @see eu.sqooss.service.web.services.WebServices#evaluatedProjectsList(String, String)
+     * @see eu.sqooss.service.web.services.WebServices#getEvaluatedProjects(String, String)
      */
-    public WSStoredProject[] evaluatedProjectsList(String userName, String password) {
+    public WSStoredProject[] getEvaluatedProjects(String userName, String password) {
         logger.info("Gets the evaluated project list! user: " + userName);
 
         securityWrapper.checkDBReadAccess(userName, password);
         
         super.updateUserActivity(userName);
         
-        List<?> projects = dbWrapper.evaluatedProjectsList();
+        List<?> projects = dbWrapper.getEvaluatedProjects();
 
         return convertToWSStoredProject(projects);
     }
     
-    public WSStoredProject[] storedProjectsList(String userName, String password) {
+    /**
+     * @see eu.sqooss.service.web.services.WebServices#getStoredProjects(String, String)
+     */
+    public WSStoredProject[] getStoredProjects(String userName, String password) {
         logger.info("Gets the stored project list! user: " + userName);
 
         securityWrapper.checkDBReadAccess(userName, password);
         
         super.updateUserActivity(userName);
         
-        List queryResult = dbWrapper.storedProjectsList();
+        List queryResult = dbWrapper.getStoredProjects();
 
         List<StoredProject> l = (List<StoredProject>) queryResult;
         if (l==null) {
@@ -149,9 +152,9 @@ public class ProjectManager extends AbstractManager {
     }
     
     /**
-     * @see eu.sqooss.service.web.services.WebServices#retrieveProjectId(String, String, String)
+     * @see eu.sqooss.service.web.services.WebServices#getProjectIdByName(String, String, String)
      */
-    public long retrieveProjectId(String userName, String password, String projectName) {
+    public long getProjectIdByName(String userName, String password, String projectName) {
 
         logger.info("Retrieve project id! user: " + userName +
                 "; project name: " + projectName);
@@ -169,9 +172,9 @@ public class ProjectManager extends AbstractManager {
     }
     
     /**
-     * @see eu.sqooss.service.web.services.WebServices#retrieveStoredProjectVersions(String, String, long)
+     * @see eu.sqooss.service.web.services.WebServices#getProjectVersionsByProjectId(String, String, long)
      */
-    public WSProjectVersion[] retrieveStoredProjectVersions(String userName, String password, long projectId) {
+    public WSProjectVersion[] getProjectVersionsByProjectId(String userName, String password, long projectId) {
 
         logger.info("Retrieve stored project versions! user: " + userName +
                 "; project's id: " + projectId);
@@ -180,7 +183,7 @@ public class ProjectManager extends AbstractManager {
 
         super.updateUserActivity(userName);
         
-        StoredProject storedProject = dbWrapper.getStoredProject(projectId);
+        StoredProject storedProject = dbWrapper.getProjectById(projectId);
 
         if (storedProject != null) {
             List<ProjectVersion> projectVersions = storedProject.getProjectVersions();
@@ -191,7 +194,10 @@ public class ProjectManager extends AbstractManager {
 
     }
     
-    public WSStoredProject retrieveStoredProject(String userName, String password, long projectId) {
+    /**
+     *  @see eu.sqooss.service.web.services.WebServices#getProjectById(String, String, long)
+     */
+    public WSStoredProject getProjectById(String userName, String password, long projectId) {
 
         logger.info("Retrieve stored project! user: " + userName +
                 "; project's id: " + projectId );
@@ -202,7 +208,7 @@ public class ProjectManager extends AbstractManager {
         
         StoredProject storedProject;
 
-        storedProject = dbWrapper.getStoredProject(projectId);
+        storedProject = dbWrapper.getProjectById(projectId);
         
         if (storedProject != null) {
             return new WSStoredProject(storedProject);
@@ -213,21 +219,24 @@ public class ProjectManager extends AbstractManager {
     }
     
     /**
-     * @see eu.sqooss.service.web.services.WebServices#retrieveFileList(String, String, String)
+     * @see eu.sqooss.service.web.services.WebServices#getFilesByProjectId(String, String, String)
      */
-    public WSProjectFile[] retrieveFileList(String userName, String password, long projectId) {
+    public WSProjectFile[] getFilesByProjectId(String userName, String password, long projectId) {
         logger.info("Retrieve file list! user: " + userName + "; project id: " + projectId);
 
         securityWrapper.checkProjectReadAccess(userName, password, projectId);
 
         super.updateUserActivity(userName);
         
-        List<?> queryResult = dbWrapper.retrieveFileList(projectId);
+        List<?> queryResult = dbWrapper.getFilesByProjectId(projectId);
 
         return convertToWSProjectFiles(queryResult);
     }
     
-    public WSProjectFile[] getFileList4ProjectVersion(String userName, String password, long projectVersionId) {
+    /**
+     * @see eu.sqooss.service.web.services.WebServices#getFilesByProjectVersionId(String, String, long)
+     */
+    public WSProjectFile[] getFilesByProjectVersionId(String userName, String password, long projectVersionId) {
         logger.info("Get file list for project version! user: " + userName +
                 "; project version id: " + projectVersionId);
         
@@ -235,12 +244,15 @@ public class ProjectManager extends AbstractManager {
         
         super.updateUserActivity(userName);
         
-        List<?> queryResult = dbWrapper.getFileList4ProjectVersion(projectVersionId);
+        List<?> queryResult = dbWrapper.getFilesByProjectVersionId(projectVersionId);
         
         return convertToWSProjectFiles(queryResult);
     }
     
-    public long getFilesNumber4ProjectVersion(String userName, String password, long projectVersionId) {
+    /**
+     * @see eu.sqooss.service.web.services.WebServices#getFilesNumberByProjectVersionId(String, String, long)
+     */
+    public long getFilesNumberByProjectVersionId(String userName, String password, long projectVersionId) {
         logger.info("Get files's number for project version! user: " + userName +
                 "; project version id: " + projectVersionId);
         
@@ -248,7 +260,7 @@ public class ProjectManager extends AbstractManager {
         
         super.updateUserActivity(userName);
         
-        List<?> queryResult = dbWrapper.getFilesNumber4ProjectVersion(projectVersionId);
+        List<?> queryResult = dbWrapper.getFilesNumberByProjectVersionId(projectVersionId);
         
         return ((BigInteger)queryResult.get(0)).longValue();
     }

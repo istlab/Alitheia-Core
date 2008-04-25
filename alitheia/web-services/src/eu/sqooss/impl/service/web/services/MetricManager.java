@@ -62,9 +62,9 @@ public class MetricManager extends AbstractManager {
     }
     
     /**
-     * @see eu.sqooss.service.web.services.WebServices#retrieveMetrics4SelectedProject(String, String, String)
+     * @see eu.sqooss.service.web.services.WebServices#getMetricsByProjectId(String, String, long)
      */
-    public WSMetric[] retrieveMetrics4SelectedProject(String userName,
+    public WSMetric[] getMetricsByProjectId(String userName,
             String password, long projectId) {
         
         logger.info("Retrieve metrics for selected project! user: " + userName +
@@ -74,36 +74,14 @@ public class MetricManager extends AbstractManager {
         
         super.updateUserActivity(userName);
         
-        List<?> metrics = dbWrapper.retrieveMetrics4SelectedProject(projectId);
+        List<?> metrics = dbWrapper.getMetricsByProjectId(projectId);
         return convertToWSMetrics(metrics);
     }
     
     /**
-     * @see eu.sqooss.service.web.services.WebServices#retrieveSelectedMetric(String, String, String, String)
+     * @see eu.sqooss.service.web.services.WebServices#getMetricsByFileNames(String, String, String, String[], String[])
      */
-    public WSMetric retrieveSelectedMetric(String userName, String password,
-            long projectId, long metricId) {
-        
-        logger.info("Retrieve selected metric! user: " + userName +
-                "; project id: " + projectId + "; metricId: " + metricId);
-        
-        securityWrapper.checkProjectMetricReadAccess(userName, password, projectId, metricId);
-        
-        super.updateUserActivity(userName);
-        
-        List<?> queryResult = dbWrapper.retrieveSelectedMetric(projectId, metricId);
-        
-        if (queryResult.size() != 0) {
-            return new WSMetric((Metric) queryResult.get(0));
-        } else {
-            return null;
-        }
-    }
-    
-    /**
-     * @see eu.sqooss.service.web.services.WebServices#retrieveMetrics4SelectedFiles(String, String, String, String[], String[])
-     */
-    public WSMetric[] retrieveMetrics4SelectedFiles(String userName, String password,
+    public WSMetric[] getMetricsByFileNames(String userName, String password,
             long projectId, String[] folders, String[] fileNames) {
         logger.info("Retrieve metrics for selected files! user: " + userName + "; project id: " + projectId);
 
@@ -130,7 +108,7 @@ public class MetricManager extends AbstractManager {
         List<?> result = null;
         
         if (fileNamesSet.size() != 0) {
-            result = dbWrapper.retrieveMetrics4SelectedFiles(projectId, fileNamesSet);
+            result = dbWrapper.getMetricsByFileNames(projectId, fileNamesSet);
         }
         
         return convertToWSMetrics(result);

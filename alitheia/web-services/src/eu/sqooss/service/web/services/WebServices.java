@@ -82,7 +82,6 @@ public class WebServices {
         webadmin = wa;
     }
     
-    //5.1.1
     /**
      * This method returns evaluated projects.
      * The user's name and password must be valid. 
@@ -90,81 +89,94 @@ public class WebServices {
      * @param password
      * @return
      */
-    public WSStoredProject[] evaluatedProjectsList(String userName, String password) {
-        return projectManager.evaluatedProjectsList(userName, password);
-    }
-    
-    public WSStoredProject[] storedProjectsList(String userName, String password) {
-        return projectManager.storedProjectsList(userName, password);
+    public WSStoredProject[] getEvaluatedProjects(String userName, String password) {
+        return projectManager.getEvaluatedProjects(userName, password);
     }
     
     /**
-     * This method returns the metrics for a given project.
-     * The user's name and password must be valid.
+     * This method returns stored projects.
+     * They are all projects in the system.
      * @param userName
      * @param password
-     * @param projectId
-     * @return
+     * @return the list of stored projects,
+     * if there are not stored projects then
+     * the method returns an array with null element ([null]).
      */
-    public WSMetric[] retrieveMetrics4SelectedProject(String userName,
-            String password, long projectId) {
-        return metricManager.retrieveMetrics4SelectedProject(userName, password, projectId);
+    public WSStoredProject[] getStoredProjects(String userName, String password) {
+        return projectManager.getStoredProjects(userName, password);
     }
     
-    /**
-     * This method returns the metric with a given id.
-     * The user's name and password must be valid.
-     * @param userName
-     * @param password
-     * @param projectId
-     * @param metricId
-     * @return
-     */
-    public WSMetric retrieveSelectedMetric(String userName, String password,
-            long projectId, long metricId) {
-        return metricManager.retrieveSelectedMetric(userName, password, projectId, metricId);
-    }
-    
-    /**
-     * This method returns all installed metrics.
-     * @return
-     */
-    public WSMetric[] getMetrics(String userName, String password) {
-        return metricManager.getMetrics(userName, password);
-    }
-    //5.1.1
-    
-    //5.1.2
     /**
      * This method returns the project's files.
      * The user's name and password must be valid.
-     * @param userName
-     * @param password
-     * @param projectId
-     * @return
+     * @return the list of files, 
+     * if there are not files for the project then
+     * the method returns an array with null element ([null]).
+     * For example, if the project is stored but not evaluated.
      */
-    public WSProjectFile[] retrieveFileList(String userName, String password, long projectId) {
-        return projectManager.retrieveFileList(userName, password, projectId);
+    public WSProjectFile[] getFilesByProjectId(String userName, String password,
+            long projectId) {
+        return projectManager.getFilesByProjectId(userName, password, projectId);
     }
     
     /**
-     * This method returns the metrics for a given files.
-     * All files in the folder can be selected with the folder's name.
-     * The user's name and password must be valid.
-     * @param userName
-     * @param password
-     * @param projectId
-     * @param folders
-     * @param fileNames
-     * @return
+     * The method returns the files of the specific project version.
+     * @return the list of project version files 
+     * if there are not files for the project version then
+     * the method returns an array with null element ([null]).
      */
-    public WSMetric[] retrieveMetrics4SelectedFiles(String userName, String password,
-            long projectId, String[] folders, String[] fileNames) {
-        return metricManager.retrieveMetrics4SelectedFiles(userName, password, projectId, folders, fileNames);
+    public WSProjectFile[] getFilesByProjectVersionId(
+            String userName, String password, long projectVersionId) {
+        return projectManager.getFilesByProjectVersionId(
+                userName, password, projectVersionId);
     }
-    //5.1.2
     
-    //5.1.3
+    /**
+     * This method returns the project id. 
+     * @param userName
+     * @param passwrod
+     * @param projectName - the name of the project as stored in the SQO-OSS.
+     * @return the identifier of the project
+     * @throws IllegalArgumentException -
+     * if the system cannot find a project
+     */
+    public long getProjectIdByName(String userName,
+            String password, String projectName) {
+        return projectManager.getProjectIdByName(
+                userName, password, projectName);
+    }
+    
+    /**
+     * The method returns the versions of the project.
+     * The project is represented with its identifier.
+     * @return the list of project versions 
+     * if there are not versions for the project then
+     * the method returns an array with null element ([null]).
+     */
+    public WSProjectVersion[] getProjectVersionsByProjectId(
+            String userName, String password, long projectId) {
+        return projectManager.getProjectVersionsByProjectId(
+                userName, password, projectId);
+    }
+    
+    /**
+     * The method returns information about specific project.
+     * The project is represented with its identifier. 
+     */
+    public WSStoredProject getProjectById(
+            String userName, String password, long projectId) {
+        return projectManager.getProjectById(userName, password, projectId);
+    }
+    
+    /**
+     * The method returns total number of the project version files.
+     */
+    public long getFilesNumberByProjectVersionId(String userName,
+            String password, long projectVersionId) {
+        return projectManager.getFilesNumberByProjectVersionId(
+                userName, password, projectVersionId);
+    }
+    
     /**
      * This method makes request for OSS project evaluation.
      * If a project with same name and version is known to the system
@@ -180,7 +192,10 @@ public class WebServices {
      * @param userEmailAddress user's e-mail address
      * @param website project's website
      * @return the project or old one if exist
+     * 
+     * @deprecated the method is unused
      */
+    @Deprecated
     public WSStoredProject requestEvaluation4Project(String userName, String password,
             String projectName, long projectVersion,
             String srcRepositoryLocation, String mailingListLocation,
@@ -189,58 +204,97 @@ public class WebServices {
                 projectName,projectVersion, srcRepositoryLocation,
                 mailingListLocation, BTSLocation, userEmailAddress, website);
     }
-    //5.1.3
     
+    /**
+     * This method returns the metrics for a given project.
+     * @param userName
+     * @param password
+     * @param projectId
+     * @return the list of metrics, 
+     * if there are not metrics for the project then
+     * the method returns an array with null element ([null]).
+     */
+    public WSMetric[] getMetricsByProjectId(String userName,
+            String password, long projectId) {
+        return metricManager.getMetricsByProjectId(userName, password, projectId);
+    }
     
-    //5.1.10
+    /**
+     * This method returns all installed metrics.
+     * @return
+     */
+    public WSMetric[] getMetrics(String userName, String password) {
+        return metricManager.getMetrics(userName, password);
+    }
+    
+    /**
+     * This method returns the metrics for a given files.
+     * All files in the folder can be selected with the folder's name.
+     * The user's name and password must be valid.
+     * @return the list of metrics, 
+     * if there are not metrics for the files then
+     * the method returns an array with null element ([null]).
+     */
+    public WSMetric[] getMetricsByFileNames(String userName, String password,
+            long projectId, String[] folders, String[] fileNames) {
+        return metricManager.getMetricsByFileNames(userName, password,
+                projectId, folders, fileNames);
+    }
+    
+    public WSMetricMeasurement[] getProjectFileMetricMeasurement(String userName, String password,
+            long metricId, long projectFileId) {
+        return metricManager.getProjectFileMetricMeasurement(userName, password, metricId, projectFileId);
+    }
+    
+    public WSMetricMeasurement[] getProjectVersionMetricMeasurement(String userName, String password,
+            long metricId, long projectVersionId) {
+        return metricManager.getProjectVersionMetricMeasurement(userName, password, metricId, projectVersionId);
+    }
+    
     /**
      * This method creates a new user.
      */
-    public WSUser submitUser(String userNameForAccess, String passwordForAccess,
+    public WSUser createUser(String userNameForAccess, String passwordForAccess,
             String newUserName, String newPassword, String email) {
-        return userManager.submitUser(userNameForAccess, passwordForAccess,
+        return userManager.createUser(userNameForAccess, passwordForAccess,
                 newUserName, newPassword, email);
     }
     
-    public boolean submitPendingUser(String userNameForAccess, String passwordForAccess,
-            String newUserName, String newPassword, String email) {
-        return userManager.submitPendingUser(userNameForAccess, passwordForAccess,
-                newUserName, newPassword, email);
-    }
-    //5.1.10
-    
-    //5.1.11
     /**
-     * This method returns information about the user with a given id.
-     * 
-     * @param userNameForAccess
-     * @param passwordForAccess
-     * @param userId
-     * @return
+     * This method makes a user request for a new account.
+     * The request sends the confirmation e-mail to the user.
+     * If the user doesn't confirm the request then the system
+     * removes automatically the request.
      */
-    public WSUser displayUser(String userNameForAccess, String passwordForAccess,
-            long userId) {
-        return userManager.displayUser(userNameForAccess, passwordForAccess, userId);
+    public boolean createPendingUser(String userNameForAccess, String passwordForAccess,
+            String newUserName, String newPassword, String email) {
+        return userManager.createPendingUser(userNameForAccess, passwordForAccess,
+                newUserName, newPassword, email);
+    }
+    
+    /**
+     * This method returns information about user with given user id.
+     * The information does not contain the password hash. 
+     */
+    public WSUser getUserById(String userNameForAccess,
+            String passwordForAccess, long userId) {
+        return userManager.getUserById(
+                userNameForAccess, passwordForAccess, userId);
     }
     
     /**
      * This method returns information about the user with a given user name.
-     * 
-     * @param userNameForAccess
-     * @param passwordForAccess
-     * @param userId
-     * @return
+     * The information does not contain the password hash.
      */
-    public WSUser getUserByName(
-            String userNameForAccess,
-            String passwordForAccess,
-            String userName) {
+    public WSUser getUserByName(String userNameForAccess,
+            String passwordForAccess, String userName) {
         return userManager.getUserByName(
                 userNameForAccess, passwordForAccess, userName);
     }
     
     /**
      * This method modifies the existent user with a given user name.
+     * The method can change the user's password and e-mail.
      */
     public boolean modifyUser(String userNameForAccess, String passwordForAccess,
             String userName, String newPassword, String newEmail) {
@@ -250,57 +304,12 @@ public class WebServices {
     
     /**
      * This method deletes the user with a given id.
-     * 
-     * @param userNameForAccess
-     * @param passwordForAccess
-     * @param userId
      */
-    public boolean deleteUser(String userNameForAccess, String passwordForAccess, long userId) {
-        return userManager.deleteUser(userNameForAccess, passwordForAccess, userId);
+    public boolean deleteUserById(String userNameForAccess,
+            String passwordForAccess, long userId) {
+        return userManager.deleteUserById(userNameForAccess,
+                passwordForAccess, userId);
     }
-    //5.1.11
-    
-    //retrieve methods
-    /**
-     * This method retrieves the project's identifier.
-     * 
-     * @param userName
-     * @param passwrod
-     * @param projectName - the name of the project as stored in the SQO-OSS.
-     * @return
-     */
-    public long retrieveProjectId(String userName, String password, String projectName) {
-        return projectManager.retrieveProjectId(userName, password, projectName);
-    }
-    
-    public WSProjectVersion[] retrieveStoredProjectVersions(String userName, String password, long projectId) {
-        return projectManager.retrieveStoredProjectVersions(userName, password, projectId);
-    }
-    
-    public WSStoredProject retrieveStoredProject(String userName, String password, long projectId) {
-        return projectManager.retrieveStoredProject(userName, password, projectId);
-    }
-    
-    public WSProjectFile[] getFileList4ProjectVersion(String userName, String password, long projectVersionId) {
-        return projectManager.getFileList4ProjectVersion(userName, password, projectVersionId);
-    }
-    
-    public long getFilesNumber4ProjectVersion(String userName, String password, long projectVersionId) {
-        return projectManager.getFilesNumber4ProjectVersion(userName, password, projectVersionId);
-    }
-    //retrieve methods
-    
-    //metric results
-    public WSMetricMeasurement[] getProjectFileMetricMeasurement(String userName, String password,
-            long metricId, long projectFileId) {
-    	return metricManager.getProjectFileMetricMeasurement(userName, password, metricId, projectFileId);
-    }
-    
-    public WSMetricMeasurement[] getProjectVersionMetricMeasurement(String userName, String password,
-            long metricId, long projectVersionId) {
-    	return metricManager.getProjectVersionMetricMeasurement(userName, password, metricId, projectVersionId);
-    }
-    //metric results
     
     public String getUserMessageOfTheDay(String userName) {
         String s = null;

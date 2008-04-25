@@ -36,26 +36,26 @@ import java.io.File;
 
 interface ProjectManagerDBQueries {
 
-    public static final String EVALUATED_PROJECTS_LIST = "select sp " +
-                                                         "from StoredProject sp, EvaluationMark em " +
-                                                         "where sp.id=em.storedProject ";
+    public static final String GET_EVALUATED_PROJECTS = "select sp " +
+                                                        "from StoredProject sp, EvaluationMark em " +
+                                                        "where sp.id=em.storedProject ";
     
     
-    public static final String STORED_PROJECTS_LIST    = "from StoredProject";
+    public static final String GET_STORED_PROJECTS = "from StoredProject";
 
     
-    public static final String RETRIEVE_FILE_LIST_PARAM = "project_id";
+    public static final String GET_FILES_BY_PROJECT_ID_PARAM = "project_id";
     
-    public static final String RETRIEVE_FILE_LIST = "select distinct pf " +
+    public static final String GET_FILES_BY_PROJECT_ID = "select distinct pf " +
                                                     "from ProjectVersion pv, ProjectFile pf " +
                                                     "where pf.projectVersion=pv.id " +
                                                     " and pv.project.id=:" +
-                                                    RETRIEVE_FILE_LIST_PARAM;
+                                                    GET_FILES_BY_PROJECT_ID_PARAM;
     
     
-    public static final String GET_FILE_LIST_4_PROJECT_VERSION_PARAM = "project_ver";
+    public static final String GET_FILES_BY_PROJECT_VERSION_ID_PARAM = "project_ver";
     
-    public static final String GET_FILE_LIST_4_PROJECT_VERSION = "select pf.project_file_id, d.path || '" + File.separator + 
+    public static final String GET_FILES_BY_PROJECT_VERSION_ID = "select pf.project_file_id, d.path || '" + File.separator + 
                                                                  "'       || head.fname, head.headrev, pf.file_status, pf.is_directory " +
     		                                                     "from (select pf.directory_id as dir, " +
     		                                                     "             pf.file_name as fname, " +
@@ -66,7 +66,7 @@ interface ProjectManagerDBQueries {
     		                                                     "                select pv2.timestamp " +
     		                                                     "                from project_version pv2 " +
     		                                                     "                where pv2.project_version_id=:" +
-    		                                                     GET_FILE_LIST_4_PROJECT_VERSION_PARAM +
+    		                                                     GET_FILES_BY_PROJECT_VERSION_ID_PARAM +
     		                                                     "                ) " +       
     		                                                     "      group by pf.directory_id, pf.file_name) head," +
     		                                                     "      project_file pf, directory d " +
@@ -78,9 +78,9 @@ interface ProjectManagerDBQueries {
     		                                                     "order by d.path, head.fname";
     
     
-    public static final String GET_FILES_NUMBER_4_PROJECT_VERSION_PARAM = "project_ver";
+    public static final String GET_FILES_NUMBER_BY_PROJECT_VERSION_ID_PARAM = "project_ver";
     
-    public static final String GET_FILES_NUMBER_4_PROJECT_VERSION = "select count(*) " +
+    public static final String GET_FILES_NUMBER_BY_PROJECT_VERSION_ID = "select count(*) " +
                                                                     "from (select pf.directory_id as dir, " +
                                                                     "             pf.file_name as fname, " +
                                                                     "             max(pv.project_version_id) as headrev " +
@@ -90,7 +90,7 @@ interface ProjectManagerDBQueries {
                                                                     "                select pv2.timestamp " +
                                                                     "                from project_version pv2 " +
                                                                     "                where pv2.project_version_id=:" +
-                                                                    GET_FILE_LIST_4_PROJECT_VERSION_PARAM +
+                                                                    GET_FILES_BY_PROJECT_VERSION_ID_PARAM +
                                                                     "                ) " +       
                                                                     "      group by pf.directory_id, pf.file_name) head," +
                                                                     "      project_file pf, directory d " +
@@ -105,7 +105,7 @@ interface ProjectManagerDBQueries {
     
     public static final String GET_STORED_PROJECTS_PARAM_PR_VERSION = "project_ver";
     
-    public static final String GET_STORED_PROJECTS = "select sp " +
+    public static final String GET_STORED_PROJECTS_BY_NAME_VERSION = "select sp " +
                                                      "from StoredProject sp, ProjectVersion pv " +
                                                      "where sp.id=pv.project " +
                                                      " and sp.name=:" +

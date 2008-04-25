@@ -34,52 +34,29 @@ package eu.sqooss.impl.service.web.services.utils;
 
 interface MetricManagerDBQueries {
     
-    public static final String RETRIEVE_METRICS_4_SELECTED_PROJECT_PARAM = "project_id";
+    public static final String GET_METRICS_BY_PROJECT_ID_PARAM = "project_id";
     
-    /* COMMENTED
-    public static final String RETRIEVE_METRICS_4_SELECTED_PROJECT = "select distinct metric, metricType " +
-                                                                      "from ProjectVersion pv, Measurement measurement, Metric metric, MetricType metricType " +
-                                                                      "where pv.id=measurement.projectVersion " +
-                                                                      " and metric.id=measurement.metric " +
-                                                                      " and metricType.id=metric.metricType " +
-                                                                      " and pv.project.id=:" +
-                                                                      RETRIEVE_METRICS_4_SELECTED_PROJECT_PARAM;
-    */
-
-    public static final String RETRIEVE_METRICS_4_SELECTED_PROJECT = "select distinct metric " +
-                                                                     "from EvaluationMark em, Metric metric " +
-                                                                     "where metric.id=em.metric " +
-                                                                     " and em.storedProject.id=:" +
-                                                                     RETRIEVE_METRICS_4_SELECTED_PROJECT_PARAM;
+    public static final String GET_METRICS_BY_PROJECT_ID = "select distinct metric " +
+                                                           "from EvaluationMark em, Metric metric " +
+                                                           "where metric.id=em.metric " +
+                                                           " and em.storedProject.id=:" +
+                                                           GET_METRICS_BY_PROJECT_ID_PARAM;
     
     
-    public static final String RETRIEVE_SELECTED_METRIC_PARAM_PR = "project_id";
+    public static final String GET_METRICS_BY_FILE_NAMES_PARAM_LIST = "list_of_filenames";
     
-    public static final String RETRIEVE_SELECTED_METRIC_PARAM_METRIC = "metric_id";
+    public static final String GET_METRICS_BY_FILE_NAMES_PARAM_PR = "project_id";
     
-    public static final String RETRIEVE_SELECTED_METRIC = "select distinct metric " +
-                                                          "from EvaluationMark em, Metric metric " +
-                                                          "where metric.id=em.metric " +
-                                                          " and em.storedProject.id=:" +
-                                                          RETRIEVE_SELECTED_METRIC_PARAM_PR + " " +
-                                                          " and metric.id=:" +
-                                                          RETRIEVE_SELECTED_METRIC_PARAM_METRIC;
-    
-    
-    public static final String RETRIEVE_METRICS_4_SELECTED_FILES_PARAM_LIST = "list_of_filenames";
-    
-    public static final String RETRIEVE_METRICS_4_SELECTED_FILES_PARAM_PR = "project_id";
-    
-    public static final String RETRIEVE_METRICS_4_SELECTED_FILES = "select distinct metric " +
+    public static final String GET_METRICS_BY_FILE_NAMES = "select distinct metric " +
                                                                    "from ProjectFile pf, ProjectVersion pv, " +
                                                                    "     ProjectFileMeasurement pfm, Metric metric " +
                                                                    "where pv.id=pf.projectVersion " +
                                                                    " and pf.id=pfm.projectFile " +
                                                                    " and metric.id=pfm.metric " +
                                                                    " and pf.name in (:" +
-                                                                   RETRIEVE_METRICS_4_SELECTED_FILES_PARAM_LIST + ") " +
+                                                                   GET_METRICS_BY_FILE_NAMES_PARAM_LIST + ") " +
                                                                    " and pv.project.id=:" +
-                                                                   RETRIEVE_METRICS_4_SELECTED_FILES_PARAM_PR;
+                                                                   GET_METRICS_BY_FILE_NAMES_PARAM_PR;
                                                  
     
     public static final String RETRIEVE_METRICS_4_SELECTED_FILES_DIRS_PARAM = "dir_name";
@@ -89,7 +66,7 @@ interface MetricManagerDBQueries {
                                                                         "where pf.name like :" +
                                                                         RETRIEVE_METRICS_4_SELECTED_FILES_DIRS_PARAM + " " +
                                                                         " and pv.project.id=:" +
-                                                                        RETRIEVE_METRICS_4_SELECTED_FILES_PARAM_PR;
+                                                                        GET_METRICS_BY_FILE_NAMES_PARAM_PR;
     
     public static final String GET_METRICS = "from Metric";
     

@@ -50,9 +50,9 @@ public class UserManager extends AbstractManager {
     }
     
     /**
-     * @see eu.sqooss.service.web.services.WebServices#submitUser(String, String, String, String, String)
+     * @see eu.sqooss.service.web.services.WebServices#createUser(String, String, String, String, String)
      */
-    public WSUser submitUser(String userNameForAccess, String passwordForAccess,
+    public WSUser createUser(String userNameForAccess, String passwordForAccess,
             String newUserName, String newPassword, String email) {
         
         security.checkUserWriteAccess(userNameForAccess, passwordForAccess, -1, null);
@@ -68,7 +68,10 @@ public class UserManager extends AbstractManager {
         }
     }
     
-    public boolean submitPendingUser(String userNameForAccess, String passwordForAccess,
+    /**
+     * @see eu.sqooss.service.web.services.WebServices#createPendingUser(String, String, String, String, String)
+     */
+    public boolean createPendingUser(String userNameForAccess, String passwordForAccess,
             String newUserName, String newPassword, String email) {
         
         security.checkUserWriteAccess(userNameForAccess, passwordForAccess, -1, null);
@@ -79,12 +82,13 @@ public class UserManager extends AbstractManager {
     }
     
     /**
-     * @see eu.sqooss.service.web.services.WebServices#displayUser(String, String, long)
+     * @see eu.sqooss.service.web.services.WebServices#getUserById(String, String, long)
      */
-    public WSUser displayUser(String userNameForAccess, String passwordForAccess,
-            long userId) {
+    public WSUser getUserById(String userNameForAccess,
+            String passwordForAccess, long userId) {
         
-        security.checkUserReadAccess(userNameForAccess, passwordForAccess, userId, null);
+        security.checkUserReadAccess(userNameForAccess,
+                passwordForAccess, userId, null);
         
         super.updateUserActivity(userNameForAccess);
         
@@ -113,9 +117,9 @@ public class UserManager extends AbstractManager {
     }
     
     /**
-     * @see eu.sqooss.service.web.services.WebServices#deleteUser(String, String, long)
+     * @see eu.sqooss.service.web.services.WebServices#deleteUserById(String, String, long)
      */
-    public boolean deleteUser(String userNameForAccess, String passwordForAccess, long userId) {
+    public boolean deleteUserById(String userNameForAccess, String passwordForAccess, long userId) {
         
         security.checkUserWriteAccess(userNameForAccess, passwordForAccess, userId, null);
         

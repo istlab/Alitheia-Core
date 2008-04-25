@@ -47,29 +47,21 @@ public class MetricManagerDatabase implements MetricManagerDBQueries {
         this.db = db;
     }
     
-    public List<?> retrieveMetrics4SelectedProject(long projectId) {
+    public List<?> getMetricsByProjectId(long projectId) {
         Map<String, Object> queryParameters = new Hashtable<String, Object>(1);
-        queryParameters.put(RETRIEVE_METRICS_4_SELECTED_PROJECT_PARAM, projectId);
+        queryParameters.put(GET_METRICS_BY_PROJECT_ID_PARAM, projectId);
         
-        return db.doHQL(RETRIEVE_METRICS_4_SELECTED_PROJECT, queryParameters);
+        return db.doHQL(GET_METRICS_BY_PROJECT_ID, queryParameters);
     }
     
-    public List<?> retrieveSelectedMetric(long projectId, long metricId) {
-        Map<String, Object> queryParameters = new Hashtable<String, Object>(2);
-        queryParameters.put(RETRIEVE_SELECTED_METRIC_PARAM_PR, projectId);
-        queryParameters.put(RETRIEVE_SELECTED_METRIC_PARAM_METRIC, metricId);
-
-        return db.doHQL(RETRIEVE_SELECTED_METRIC, queryParameters);
-    }
-    
-    public List<?> retrieveMetrics4SelectedFiles(long projectId, Collection fileNames) {
+    public List<?> getMetricsByFileNames(long projectId, Collection fileNames) {
         Map<String, Object> projectIdParameter = new Hashtable<String, Object>(1);
-        projectIdParameter.put(RETRIEVE_METRICS_4_SELECTED_FILES_PARAM_PR,
+        projectIdParameter.put(GET_METRICS_BY_FILE_NAMES_PARAM_PR,
                 projectId);
         Map<String, Collection> fileNamesParameter = new Hashtable<String, Collection>(1);
-        fileNamesParameter.put(RETRIEVE_METRICS_4_SELECTED_FILES_PARAM_LIST,
+        fileNamesParameter.put(GET_METRICS_BY_FILE_NAMES_PARAM_LIST,
                 fileNames);
-        return db.doHQL(RETRIEVE_METRICS_4_SELECTED_FILES,
+        return db.doHQL(GET_METRICS_BY_FILE_NAMES,
                 projectIdParameter, fileNamesParameter);
     }
     
@@ -79,7 +71,7 @@ public class MetricManagerDatabase implements MetricManagerDBQueries {
     
     public List<?> getFilesFromFolder(long projectId, String folder) {
         Map<String, Object> folderNameParameters = new Hashtable<String, Object>(2);
-        folderNameParameters.put(RETRIEVE_METRICS_4_SELECTED_FILES_PARAM_PR,
+        folderNameParameters.put(GET_METRICS_BY_FILE_NAMES_PARAM_PR,
                 projectId);
         folderNameParameters.put(RETRIEVE_METRICS_4_SELECTED_FILES_DIRS_PARAM,
                 folder + "%");

@@ -54,12 +54,12 @@ public class ProjectManagerDatabase implements ProjectManagerDBQueries {
         this.db = db;
     }
     
-    public List<?> evaluatedProjectsList() {
-        return db.doHQL(EVALUATED_PROJECTS_LIST);
+    public List<?> getEvaluatedProjects() {
+        return db.doHQL(GET_EVALUATED_PROJECTS);
     }
     
-    public List<?> storedProjectsList() {
-        return db.doHQL(STORED_PROJECTS_LIST);
+    public List<?> getStoredProjects() {
+        return db.doHQL(GET_STORED_PROJECTS);
     }
     
     public List<StoredProject> getStoredProjects(String projectName) {
@@ -68,7 +68,7 @@ public class ProjectManagerDatabase implements ProjectManagerDBQueries {
         return db.findObjectsByProperties(StoredProject.class, properties);
     }
 
-    public StoredProject getStoredProject(long projectId) {
+    public StoredProject getProjectById(long projectId) {
         return db.findObjectById(StoredProject.class, projectId);
     }
 
@@ -77,33 +77,33 @@ public class ProjectManagerDatabase implements ProjectManagerDBQueries {
         queryParameters.put(GET_STORED_PROJECTS_PARAM_PR_NAME, projectName);
         queryParameters.put(GET_STORED_PROJECTS_PARAM_PR_VERSION, projectVersion);
         
-        return db.doHQL(GET_STORED_PROJECTS, queryParameters);
+        return db.doHQL(GET_STORED_PROJECTS_BY_NAME_VERSION, queryParameters);
     }
     
-    public List<?> retrieveFileList(long projectId) {
+    public List<?> getFilesByProjectId(long projectId) {
         Map<String, Object> queryParameters = new Hashtable<String, Object>(1);
-        queryParameters.put(RETRIEVE_FILE_LIST_PARAM, projectId);
+        queryParameters.put(GET_FILES_BY_PROJECT_ID_PARAM, projectId);
 
-        return db.doHQL(RETRIEVE_FILE_LIST, queryParameters);
+        return db.doHQL(GET_FILES_BY_PROJECT_ID, queryParameters);
     }
     
-    public List<?> getFileList4ProjectVersion(long projectVersionId) {
+    public List<?> getFilesByProjectVersionId(long projectVersionId) {
         Map<String, Object> queryParameters = new Hashtable<String, Object>(1);
-        queryParameters.put(GET_FILE_LIST_4_PROJECT_VERSION_PARAM, projectVersionId);
+        queryParameters.put(GET_FILES_BY_PROJECT_VERSION_ID_PARAM, projectVersionId);
         
         try {
-            return db.doSQL(GET_FILE_LIST_4_PROJECT_VERSION, queryParameters);
+            return db.doSQL(GET_FILES_BY_PROJECT_VERSION_ID, queryParameters);
         } catch (SQLException e) {
             return Collections.emptyList();
         }
     }
     
-    public List<?> getFilesNumber4ProjectVersion(long projectVersionId) {
+    public List<?> getFilesNumberByProjectVersionId(long projectVersionId) {
         Map<String, Object> queryParameters = new Hashtable<String, Object>(1);
-        queryParameters.put(GET_FILES_NUMBER_4_PROJECT_VERSION_PARAM, projectVersionId);
+        queryParameters.put(GET_FILES_NUMBER_BY_PROJECT_VERSION_ID_PARAM, projectVersionId);
         
         try {
-            return db.doSQL(GET_FILES_NUMBER_4_PROJECT_VERSION, queryParameters);
+            return db.doSQL(GET_FILES_NUMBER_BY_PROJECT_VERSION_ID, queryParameters);
         } catch (SQLException e) {
             return Collections.emptyList();
         }
