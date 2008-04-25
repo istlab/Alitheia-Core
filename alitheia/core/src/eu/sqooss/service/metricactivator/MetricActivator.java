@@ -46,10 +46,12 @@ import eu.sqooss.service.db.StoredProject;
 public interface MetricActivator {
 
     /**
-     * Run the metrics that  
+     * Runs all metrics that support the given project's resource type,
+     * on all project resources (of the same resource type) pointed
+     * by the specified resource IDs list. 
      * 
-     * @param clazz 
-     * @param objectIDs 
+     * @param clazz resource type 
+     * @param objectIDs resource IDs list
      */
     public <T extends DAObject> void runMetrics(Class<T> clazz, SortedSet<Long> objectIDs);
     
