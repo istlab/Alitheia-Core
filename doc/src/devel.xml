@@ -184,16 +184,194 @@
           </listitem>
           <listitem>
             <para>
-              Modify the <filename>pom.xml</filename> to match your metric configuration
+              Modify the <filename>pom.xml</filename> to match your
+              metric configuration
             </para>
           </listitem>
         </orderedlist>
       </para>
       <para>
-      If you follow these steps closely, you will have a metric bundle that can be loaded in Alitheia,
-      start its own metric jobs and retrieve results from the database. All you need to do now is to
-      implement the <methodname>run()</methodname> method in each metric job.
+      If you follow these steps closely, you will have a metric bundle
+      that can be loaded in Alitheia, start its own metric jobs and
+      retrieve results from the database. All you need to do now is to
+      implement the <methodname>run()</methodname> method in each
+      metric job.
       </para> 
+    </sect2>
+    <sect2>
+    <sect3 id="devel:plugins:defs">
+      <title>Definitions</title>
+      <para>Following is a list of definitions of common terms in the
+      context of SQO-OSS</para>
+      <variablelist>
+      <varlistentry>
+          <term>Plugin</term>
+          <listitem>
+              <para>
+                  An OSGi bundle that implements and exports the
+                  <classname>eu.sqooss.service.abstactmetric.AlitheiaPlugin
+                  </classname>
+                  interface
+              </para>
+          </listitem>
+      </varlistentry>
+      <varlistentry>
+          <term>Asset</term>
+          <listitem>
+              <para>
+                  A collection of development data, such as a source code
+                  repository, a mailing list or a bug managemnet database
+              </para>
+          </listitem>
+      </varlistentry>
+      <varlistentry>
+          <term>Project</term>
+          <listitem>
+              <para>
+                  A set of assets consisting of at least a Subversion
+                  repository and additionally a collection of mailing
+                  lists and a bug management system
+              </para>
+          </listitem>
+      </varlistentry>
+      <varlistentry>
+          <term>Metric</term>
+          <listitem>
+              <para>
+                  An algorith that evaluates a property of a project
+                  asset or a change in a project asset and returns a result
+              </para>
+          </listitem>
+      </varlistentry>
+      </variablelist>
+    </sect3>
+    <title>Developing plugins</title>
+    <sect3 id="devel:plugins:general">
+      <title>General</title>
+      <para>
+          <itemizedlist mark='opencircle'>
+          <listitem>
+            <para>
+                Plugins define one or more metrics. A metric operates on 
+                a project asset and produces results. 
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+                Metrics can produce an arbitrary set of results per evaluated
+                project asset. Metric results can be of arbitrary datatypes.
+                Metric results always have a mime type attached.
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+                The result of a metric calculation is stored in the database.
+                The Alitheia system provides a default storage facility for
+                metrics for each one of the evaluated project assets. The 
+                default storage facility can only store a single value for
+                each metric per evaluated resource type. However, plug-ins are
+                free to implement custom DB tables for intermediate or final 
+                results, provided that the final results are associated with
+                the project asset on which the metric operated.
+            </para>
+          </listitem> 
+        </itemizedlist>
+      </para>
+    </sect3>
+    <sect3 id="devel:plugins:activation">
+      <title>Plugin Activation</title>
+      <para>
+          Each plugin is associated with a set of activation types. An
+          activation type indicates that a plug-in should be activated to
+          evaluate new project data when the corresponding project assets have
+          been updated. Also, the plug-in can only return metric results
+          for the supported activation types. An activation type is essentially
+          the class type for the DAO that represents the asset type that the
+          plug-in defined metrics can evaluate.
+      </para>
+      <para>
+          Currently, the supported activation types are the following:
+      <variablelist>
+      <varlistentry>
+          <term><classname>StoredProject</classname></term>
+          <listitem>
+              <para>
+                  Project wide activations. Plug-ins
+                  implementing this activation type are triggered when
+                  a new project is added to the system. Metrics might
+                  can use this activation type to store project wide
+                  results
+              </para>
+          </listitem>
+      </varlistentry>
+      <varlistentry>
+          <term><classname>ProjectVersion</classname></term>
+          <listitem>
+              <para>
+                  Per-version activations. Metrics are activated when the 
+                  a new project version is commited to the source code 
+                  repository.
+              </para>
+          </listitem>
+      </varlistentry>
+      <varlistentry>
+          <term><classname>ProjectFile</classname></term>
+          <listitem>
+              <para>
+                  Per-file activations. Metrics are activated when a project
+                  file has been added, changed or removed from the source code
+                  repository. 
+              </para>
+          </listitem>
+      </varlistentry>
+      <varlistentry>
+          <term><classname>FileGroup</classname></term>
+          <listitem>
+              <para>
+                  Per-filegroup activations. Metrics are activated when
+                  the file group has changed, e.g. a when a file was modified
+                  in a regular expression based file group.
+              </para>
+          </listitem>
+      </varlistentry>
+      </variablelist>
+      More activation types will be supported as the corresponding subsystems
+      continue to develop.
+      </para>
+      <para>
+          To denote their support for an activation type, plugins must implement
+          one or more of the interfaces residing under <classname>
+          eu.sqooss.service.abstractmetric</classname>.
+      </para>
+    </sect3>
+    <sect3 id="devel:plugins:iface">
+      <title>The AlitheiaPlugin interface</title>
+      <para>
+      <programlisting>
+public interface AlitheiaPlugin {
+    String getVersion();
+    String getAuthor();
+    Date getDateInstalled();
+    String getName();
+    String getDescription();
+    Result getResult(DAObject o, List&lt;Metric&gt; l)
+        throws MetricMismatchException;
+    void run(DAObject o)
+        throws MetricMismatchException;
+    boolean update();
+    boolean install();
+    boolean remove();
+    String getUniqueKey();
+    List &lt;Class&lt;? extends DAObject&gt;&gt; getActivationTypes();    
+    List&lt;PluginConfiguration&gt; getConfigurationSchema();
+}
+      </programlisting>
+    </para>
+    </sect3>
+    <sect3 id="devel:plugins:implscr">
+      <title>Implementing a plug-in from scratch</title>
+      <para></para>
+    </sect3>
     </sect2>
   </sect1>
 </chapter>
