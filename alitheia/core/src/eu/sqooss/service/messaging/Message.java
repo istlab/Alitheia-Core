@@ -37,39 +37,47 @@ import java.util.Vector;
 import eu.sqooss.impl.service.messaging.MessageImpl;
 
 /**
- * The <code>Message</code> class represents a message used from the messaging service.
- * The messaging service works only with the messages created from a <code>getInstance</code> method.
- * This class is not intended to be subclassed. 
+ * The <code>Message</code> abstract class represents a message that can be
+ * sent through an object instance of a <code>MessagingService</code>
+ * implementation class to the specified recipients.<br/><br/>
+ * The <code>MessagingService</code> supports only <code>Messages</code>
+ * created by calling the <code>getInstance</code> method of the
+ * implementation class <code>MessageImpl</code>.<br/><br/>
+ * This class is not intended to be sub-classed.
  */
 public abstract class Message {
 
     /**
-     * The message is in the queue.
+     * Delivery flags - The message is in the queue.
      */
     public static final int STATUS_QUEUED = 1;
 
     /**
-     * The message is sent successfully.
+     * Delivery flags - The message was sent successfully.
      */
     public static final int STATUS_SENT   = 2;
 
     /**
-     * The sending of the message is failed.
+     * Delivery flags - The sending of the message has failed.
      */
     public static final int STATUS_FAILED = 3;
 
     /**
-     * The message is new and is not processed in a messaging service.
+     * Delivery flags - The message is new and is not being processed by a
+     * <code>MessagingService</code>.
      */
     public static final int STATUS_NEW    = 0;
 
     /**
-     * @return returns the body of the message.
+     * Gets the current content of the message's body.
+     * 
+     * @return the body of this message.
      */
     public abstract String getBody();
 
     /**
-     * Sets a new message body.
+     * Sets the body content of this messsage.
+     * 
      * @param body the message's body
      * 
      * @exception NullPointerException - if <code>body</code> is null
@@ -78,98 +86,130 @@ public abstract class Message {
     public abstract void setBody(String body);
 
     /**
-     * Gets the recipients of the message.
-     * @return returns the recipients
+     * Gets the list of recipient addresses of this message.
+     * 
+     * @return the current recipients list
      */
     public abstract Vector<String> getRecipients();
 
     /**
-     * Sets the new message's recipients.
-     * The old recipients are replaced.
+     * Sets the list of recipient addresses of this message.<br/>
+     * Note: The old list of recipients is replaced.
      * 
      * @param recipients
      * 
-     * @exception NullPointerException - if <code>recipients</code> parameter is null or contains null value
-     * @exception IllegalArgumentException - if <code>recipients</code> parameter is empty
+     * @exception NullPointerException - when the <code>recipients</code>
+     * parameter is <code>null</code> or contains one or more
+     * <code>null</code> values
+     * @exception IllegalArgumentException - when the <code>recipients</code>
+     * parameter contains an empty list
      */
     public abstract void setRecipients(Vector<String> recipients);
 
     /**
-     * Gets the title(subject) of the message.
-     * @return returns a title(subject)
+     * Gets the title (i.e. subject line) of that message.
+     * 
+     * @return the title text
      */
     public abstract String getTitle();
 
     /**
-     * Sets a new message title(subject).
-     * @param title a new message title(subject)
+     * Sets the title (i.e. subject line) of this message.
      * 
-     * @exception NullPointerException - if <code>title</code> is null.
+     * @param title a title text
+     * 
+     * @exception NullPointerException - if <code>title</code> is null
      * @exception IllegalArgumentException - if <code>title</code> is empty
      */
     public abstract void setTitle(String title);
 
     /**
-     * Returns a message id. <b>The messaging service</b> assigns a unique identifier to every message,
-     * before this the identifier is 0. 
-     * @return returns a message unique identifier
+     * Returns the ID (unique identifier) of this message.<br/>
+     * Note: During <code>Message</code> creation, the ID's value is set to 0.
+     * After the message is queued into a <code>MessagingService</code>,
+     * it is assigned an unique identifier by that
+     * <code>MessagingService</code>.
+     * 
+     * @return the message's unique identifier
      */
     public abstract long getId();
 
     /**
-     * Returns a message's status. <b>The messaging service</b> sets a message status.
+     * Returns the current status of this message. Newly created messsages are
+     * always put in a <code>Message.STATUS_NEW</code> state. The messages
+     * status is automatically modified by the <code>MessagingService</code>
+     * that handles this message. A message can be in one of the following
+     * states:
      * <ul>
      *  <li><code>Message.STATUS_QUEUED</code> - the message is in the queue
-     *  <li><code>Message.STATUS_SENT</code> - the message is sent
-     *  <li><code>Message.STATUS_FAILED</code> - the sending of the message is failed
-     *  <li><code>Message.STATUS_NEW</code> - the message is new and is not processed in a messaging service 
+     *  <li><code>Message.STATUS_SENT</code> - the message was sent
+     *  <li><code>Message.STATUS_FAILED</code> - the sending of the message
+     *    has failed
+     *  <li><code>Message.STATUS_NEW</code> - The message is new and is not
+     *  being processed by a <code>MessagingService</code>
      * </ul>
-     * @return message's status
+     * 
+     * @return the current status if this message
      */
     public abstract int getStatus();
 
     /**
-     * Returns a message's protocol.
-     * @return message's protocol
+     * Returns the signature (e.g. class name of a <code>MessageSender</code>
+     * implementation) of the messaging protocol, that will be used for
+     * sending this message.
+     * 
+     * @return the messaging protocol's signature (e.g. class name)
      */
     public abstract String getProtocol();
 
     /**
-     * Sets a new message protocol. The messaging service uses SMTP if a message's protocol is not set.
-     * <code>MessagingService</code> uses a specified MessageSender when the message protocol and <code>MessageSender.PROTOCOL_PROPERTY</code> value are equal.
+     * Sets the the messaging protocol, that will be used for sending this
+     * message. The <code>MessagingService</code> will use SMTP as default
+     * transport, in case a messaging protocol wasn't set.<br/>
+     * The <code>MessagingService</code> will use the specified
+     * <code>MessageSender</code> to send the message, when an OSGi service 
+     * providing such sender is found, or fallback to the 
+     * <code>SMTPSender</code> service if not.
      * 
-     * @param protocol a message protocol used for transmission of the message
+     * @param protocol a messaging protocol signature (e.g. class name)
      */
     public abstract void setProtocol(String protocol);
 
     /**
      * Creates a new message with body, recipients, title and protocol.
-     * The message identifier and status aren't set. Their values are 0 and Message.STATUS_NEW respectively. 
-     * The messaging service changes this values after a message posting with <code>sendMessage</code> method.
-     * The messaging service works only with the messages created from this method.
+     * The message identifier and status are set to their initial values 0 and
+     * <code>Message.STATUS_NEW</code> respectively.<br/>
+     * The <code>MessagingService</code> works only with <code>Messages</code>
+     * created by calling this method.
      * 
      * @param body the message's body
      * @param recipients the message's recipients
      * @param title the message's title
-     * @param protocol the message's protocol
+     * @param protocol the message's protocol signature
      * @return a new message
      * 
      * @exception NullPointerException:
      * <ul>
-     *  <li>if <code>body</code> is null
-     *  <li>if <code>title</code> is null
-     *  <li>if <code>recipients</code> parameter is null or contains null value
+     *  <li>when <code>body</code> is null
+     *  <li>when <code>title</code> is null
+     *  <li>when <code>recipients</code> parameter is <code>null</code>,
+     *    or contains a <code>null</code> value
      * </ul>
-     * 
      * @exception IllegalArgumentException:
      * <ul>
-     * <li>if <code>body</code> is empty
-     * <li>if <code>title</code> is empty
-     * <li>if <code>recipients</code> parameter is empty
+     * <li>when the <code>body</code> parameter is empty
+     * <li>when the <code>title</code> parameter is empty
+     * <li>when the <code>recipients</code> parameter is empty
      * </ul>   
      */
-    public static Message getInstance(String body, Vector<String> recipients, String title, String protocol) {
-        Message newMessage = new MessageImpl(body, recipients, title, protocol);
+    public static Message getInstance(
+            String body,
+            Vector<String> recipients,
+            String title,
+            String protocol) {
+        // Create and return a new message
+        Message newMessage =
+            new MessageImpl(body, recipients, title, protocol);
         return newMessage;
     }
 

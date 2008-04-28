@@ -33,25 +33,34 @@
 package eu.sqooss.service.messaging;
 
 /**
- * Classes which implement this interface provide methods that deal with the changes of the the message status. 
+ * Classes, which implement this interface, can attach themselves as a
+ * listeners to a <code>MessagingService</code> instance, and get notified
+ * about status change events on all messages, that are queued for delivery
+ * in this <code>MessagingService</code>.<br/>
+ * <br/>
+ * Note: Listener methods can compared messages by using their
+ * <code>equals</code> method.
  */
 public interface MessageListener {
 
     /**
-     * Sent when the message is queued. 
-     * @param message The messages are compared with a equals method.
+     * Triggered, when the given message is queued.
+     * 
+     * @param message - the message that triggered the event
      */
     public void messageQueued(Message message);
 
     /**
-     * Sent when the message is sent.
-     * @param message The messages are compared with a equals method.
+     * Triggered, after the given message is sent.
+     * 
+     * @param message - the message that triggered the event
      */
     public void messageSent(Message message);
 
     /**
-     * Sent when the message's sending fail.
-     * @param message The messages are compared with a equals method.
+     * Triggered, when the message's deliver has failed
+     * 
+     * @param message - the message that triggered the event
      */
     public void messageFailed(Message message);
 }

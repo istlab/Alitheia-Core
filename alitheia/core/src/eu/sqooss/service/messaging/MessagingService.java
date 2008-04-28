@@ -33,11 +33,17 @@
 package eu.sqooss.service.messaging;
 
 /**
- * The <code>MessagingService</code> is used for sending messages to selected
- * recipients. Each message has to be encapsulated into a <code>Message</code>
- * object's instance (see eu.sqooss.service.messaging.Message) and put for
- * delivery by calling the <code>sendMessage</code> method of
- * <code>MessagingService</code>.<br/>
+ * The <code>MessagingService</code> implementation classes are used for
+ * sending messages to one or more recipients.<br/>
+ * 
+ * <p><b>Message delivery</b></p>
+ * Each message has to be encapsulated into an instance of the
+ * <code>Message</code> class (see eu.sqooss.service.messaging.Message).
+ * During message creation the required messaging protocol must be set as
+ * well (see Message#setProtocol(String)).<br/>
+ * Once the message's setup is finished, it can be queued for delivery by
+ * calling the <code>sendMessage</code> method of a
+ * <code>MessagingService</code> object instance.<br/>
  * 
  * <p><b>Configuration</b></p>
  * During creation, each <code>MessagingService</code> instance is configured
