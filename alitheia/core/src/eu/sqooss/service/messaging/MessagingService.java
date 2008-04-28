@@ -38,34 +38,50 @@ package eu.sqooss.service.messaging;
 public interface MessagingService {
     
     /**
-     * Adds the listener to the collection of listeners, which will be notified when the message's status is modified.
+     * Adds the provided listener to the collection of listeners, that will
+     * be notified when the matching message's status is modified.
+     * 
      * @param listener a message listener
      */ 
     public void addMessageListener(MessageListener listener);
 
     /**
-     * Removes the listener from the collection of listeners, which will be notified when the message's status is modified. 
-     * @param listener the listener
-     * @return true if the listener was in the collection of listeners; false otherwise.
+     * Removes the selected listener from the collection of listeners, that
+     * will be notified when the matching message's status is modified.
+     * 
+     * @param listener the message listener
+     * @return true if the listener was in the collection of listeners;
+     * false otherwise.
      */
     public boolean removeMessageListener(MessageListener listener);
 
     /**
-     * Sets a message's status, unique identifier and sends the message to the recipients. 
-     * If there is no Sender service for a message's protocol or protocol is SMTP, then the message will be send as an e-mail.
-     *   
-     * @param message the message for sending
+     * This method queues the given message for sending. It sets a message's
+     * status, an unique identifier, and finally tries to send the message to
+     * the specified recipients.<br/>
+     * If there is no <code>Sender</code> service for the specified messaging
+     * protocol, or the protocol is SMTP, then this message will be send as
+     * an e-mail.
      * 
-     * @exception NullPointerException - if the message is null
-     * @exception IllegalArgumentException - if the message isn't created with the <code>Message.getInstance()</code> method!
+     * @param message the message that has to be sent
+     * 
+     * @exception NullPointerException - if the <code>Message<code/> is null
+     * @exception IllegalArgumentException - if the <code>Message<code> isn't
+     * created with the <code>Message.getInstance()</code> method
      */
     public void sendMessage(Message message);
 
     /**
-     * Sets the service property indicated by the specified key.
-     * The <code>getConfigurationKeys</code> methods returns the available keys.
-     * The configuration settings are read from messaging.properties (the configuration file is the properties file see java.util.Properties).
-     * If the configuration file doesn't exist then the default configuration settings are used:
+     * Sets the service's configuration property indicated by the specified
+     * key.<br/>
+     * The <code>getConfigurationKeys</code> methods, can be used for
+     * retrieving the set of available keys.<br/>
+     * The configuration settings are initially read from a file named
+     * <b>messaging.properties</b> located in the framework's configuration
+     * folder. The configuration file uses the Java properties file format
+     * (see java.util.Properties).<br/>
+     * If the configuration file doesn't exist, then a number of default
+     * configuration values are used:
      * <ul>
      * <li> queuering.time - 60*1000 milliseconds
      * <li> max.threads.number - 10
