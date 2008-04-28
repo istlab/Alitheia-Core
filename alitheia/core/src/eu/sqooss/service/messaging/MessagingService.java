@@ -33,7 +33,97 @@
 package eu.sqooss.service.messaging;
 
 /**
- * The messaging service is used to send messages.
+ * The <code>MessagingService</code> is used for sending messages to selected
+ * recipients. Each message has to be encapsulated into a <code>Message</code>
+ * object's instance (see eu.sqooss.service.messaging.Message) and put for
+ * delivery by calling the <code>sendMessage</code> method of
+ * <code>MessagingService</code>.<br/>
+ * 
+ * <p><b>Configuration</b></p>
+ * During creation, each <code>MessagingService</code> instance is configured
+ * with a set of predefined configuration settings that specify various
+ * features in the object's logic. Those setting can be modified later on, by
+ * calling the <code>setConfigurationProperty</code> method.
+ * The <code>getConfigurationKeys</code> method provided in a
+ * <code>MesssagingService</code> instance, can be used for retrieving the set
+ * of predefined configuration settings for that instance.<br/>
+ * The configuration settings (prefixed by <i>eu.sqooss.messaging</i>) are
+ * initially read from a file named <i>config.ini</i> located in the
+ * framework's configuration folder. The configuration file itself uses the
+ * Java properties file format (see java.util.Properties).<br/><br/>
+ * 
+ * The messaging service support the following configuration properties.
+ * <ul>
+ *   <li> <code>queueing.time</code> - sets the message queueing time
+ *     i.e. how long the message can stay in the send queue, before being
+ *     released as undeliverable.
+ *   <li> <code>max.threads.number</code> - sets the number of simultaneously
+ *     working messaging threads in the send queue.
+ *   <li> <code>thread.factor</code> - single messaging thread can serve up to
+ *     <code>thread.factor</code> number of messages at any time.
+ *   <li> <code>message.preserving.time</code> - defines how long can a
+ *     message be kept in the messages history store.
+ *   <li> <code>smtp.host</code> - sets the SMTP server's host name
+ *   <li> <code>smtp.port</code> - sets the SMTP server's port number
+ *   <li> <code>smtp.user</code> - sets the user name required for
+ *     authentication with the selected SMTP server (<i>if required</i>)
+ *   <li> <code>smtp.pass</code> - sets the password required for
+ *     authentication with the selected SMTP server (<i>if required</i>)
+ *   <li> <code>smtp.reply</code> - sets the email address used in the SMTP
+ *     reply field
+ *   <li> <code>smtp.timeout</code> - sets the time for the sending of the
+ *     message
+ * </ul>
+ * The values of the various configuration properties must be in the following
+ * formats:
+ * <ul>
+ *   <li> queueing.time, message.preserving.time and smtp.timeout
+ *     - a valid <code>long</code>
+ *   <li> max.threads.number and thread.factor
+ *     - a valid <code>integer</code>
+ *   <li> smtp.host, smtp.user, smtp.pass, smtp.reply
+ *     - a valid <code>String</code>
+ * </ul>
+ * If the configuration file doesn't exist or doesn't specify some of the
+ * required settings, then a number of default configuration values are
+ * used:
+ * <ul>
+ *   <li> <code>queueing.time</code> - 60*1000 milliseconds
+ *   <li> <code>max.threads.number</code> - 10
+ *   <li> <code>message.preserving.time</code> - 0
+ *   <li> <code>smtp.host</code> - localhost
+ *   <li> <code>smtp.port</code> - 25
+ *   <li> <code>smtp.timeout</code> - 2*60*1000 milliseconds
+ *   <li> <code>thread.factor</code> - 10
+ * </ul>
+ * Some of the configuration properties must be explicitly specified in the
+ * configuration file, since they can not be initialised with a default value:
+ * <ul>
+ *   <li> <code>smtp.user</code> - must be set from the configuration file
+ *   <li> <code>smtp.pass</code> - must be set from the configuration file
+ *   <li> <code>smtp.reply</code> - must be set from the configuration file
+ * </ul>
+ * 
+ * <p><b>Using listeners</b></p>
+ * The <code>MessagingService</code> provides mechanisms for tracking the
+ * message delivery. For this goal the client must attach its own
+ * <code>MessageListener</code> listener
+ * (see eu.sqooss.service.messaging.MessageListener). Each attached listener
+ * gets notified on the following events:
+ * <ul>
+ *   <li> when a <code>Message</code> is queued for delivery
+ *   <li> when a <code>Message</code> has been successfully sent
+ *   <li> when a <code>Message</code> delivery has failed
+ * </ul>
+ * 
+ * <p><b>Messages history</b></p>
+ * Each <code>MessagingService<code> instance keeps a history of all messages
+ * that went through it, for later observation. For retrieving a message from
+ * the history store the client must know the ID of that message, and then
+ * call the <code>getMessage</code> method with that message ID. The behavior
+ * of the history store is configurable i.e. the creator of the
+ * <code>MessagingService</code> can specify for example how long a single
+ * message should should be kept, before being disposed.
  */
 public interface MessagingService {
     
@@ -72,73 +162,37 @@ public interface MessagingService {
     public void sendMessage(Message message);
 
     /**
-     * Sets the service's configuration property indicated by the specified
-     * key.<br/>
-     * The <code>getConfigurationKeys</code> methods, can be used for
-     * retrieving the set of available keys.<br/>
-     * The configuration settings are initially read from a file named
-     * <b>messaging.properties</b> located in the framework's configuration
-     * folder. The configuration file uses the Java properties file format
-     * (see java.util.Properties).<br/>
-     * If the configuration file doesn't exist, then a number of default
-     * configuration values are used:
-     * <ul>
-     * <li> queuering.time - 60*1000 milliseconds
-     * <li> max.threads.number - 10
-     * <li> message.preserving.time - 0
-     * <li> smtp.host - localhost
-     * <li> smtp.port - 25
-     * <li> smtp.user - must be set
-     * <li> smtp.pass - must be set
-     * <li> smtp.reply - must be set
-     * <li> smtp.timeout - 2*60*1000 milliseconds
-     * <li> thread.factor - 10
-     * </ul>
+     * Sets the configuration property indicated by the specified key.
      * 
-     * @param key the name of the service property
-     * The available keys are:
-     * <ul>
-     * <li> queuering.time - sets the message queuering time i.e. how long can the message stay in the queue
-     * <li> max.threads.number - sets the number if the messaging threads (these threads send the messages)
-     * <li> message.preserving.time - sets the preserving time of the message i.e how long can the message stay in the history
-     * <li> smtp.host - sets the SMTP server
-     * <li> smtp.port - sets the SMTP port
-     * <li> smtp.user - sets the SMTP user's e-mail address
-     * <li> smtp.pass - sets the user's password
-     * <li> smtp.reply - sets the SMTP reply e-mail address
-     * <li> smtp.timeout - sets the time for the sending of the message
-     * <li> thread.factor - a messaging thread is responsible for a number of messages;
-     * this number is the thread.factor value
-     * </ul>
-     * 
-     * @param value the value of the service property
-     * The correct values are:
-     * <ul>
-     * <li> queuering.time, message.preserving.time and smtp.timeout - a valid long
-     * <li> max.threads.number and thread.factor - a valid integer
-     * </ul>
+     * @param key the name of the configuration property
+     * @param value the value of the configuration property
      * 
      * @exception IllegalArgumentException - if the value of the property isn't correct
      */
     public void setConfigurationProperty(String key, String value);
 
     /**
-     * Gets the service property indicated by the key.
-     * @param key the name of the service property
-     * @return the value of the service property; <code>null</code> if there is no property with that key.
+     * Gets the value of the configuration property, indicated by the given
+     * key name.
+     * 
+     * @param key the name of the configuration property
+     * @return the value of the configuration property, or <code>null</code>
+     * if there is no property with that name
      */
     public String getConfigurationProperty(String key);
 
     /**
-     * Returns a string array of the configuration keys.
+     * Returns a string array containing the names of all configuration
+     * properties defined for this <code>MessagingService<code>'s instance.
      * @return the configuration keys
      */
     public String[] getConfigurationKeys();
 
     /**
-     * Gets the message from the message history.
-     * @param id the unique identifier of the message
-     * @return the message instance
+     * Retrieves the message with the given ID from the message history store.
+     * 
+     * @param id the unique message identifier
+     * @return a <code>Message</code> instance
      */
     public Message getMessage(long id);
 }
