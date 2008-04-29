@@ -36,6 +36,10 @@ import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
+import eu.sqooss.service.abstractmetric.FileGroupMetric;
+import eu.sqooss.service.abstractmetric.ProjectFileMetric;
+import eu.sqooss.service.abstractmetric.ProjectVersionMetric;
+import eu.sqooss.service.abstractmetric.StoredProjectMetric;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.db.PluginConfiguration;
@@ -46,14 +50,24 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Runtime and configuration information for plugins. This class is 
- * automatically generated for all the plug-ins the system knows of.
+ * This class holds runtime and configuration information about single metric
+ * plug-in.
+ * <br/>
+ * Usually an instance of a <code>PluginInfo</code> is created from the
+ * <code>PluginAdmin<code> implementation, just after a new metric plug-in
+ * bundle is installed in the OSGi framework, who registers a metric
+ * plug-in service. Some of the information provided from the metric
+ * plug-in object registered with that OSGi service, as well as part of
+ * the service's information are copied into this new <code>PluginInfo</code>
+ * instance.
  */
 public class PluginInfo {
 
     /**
-     * These are the types of configuration values that metrics can
-     * support. This is used mostly for rendering and validation purposes.
+     * This enumeration includes all permitted types of configuration values,
+     * that a metrics can support. The various configuration parameters and
+     * their values are used mostly from internal metric processes, like
+     * results rendering and validation.
      */
     public enum ConfigurationType {
         INTEGER,
@@ -73,44 +87,92 @@ public class PluginInfo {
             return null;
         }
     };
-    
-    /** The bundle id as returned from OSGi */
+
+    /**
+     * The service reference of the service that registered this metric
+     * plug-in
+     */
     private ServiceReference serviceRef = null;
-    
-    /** The bundle id as returned from the plugin */
+
+    /**
+     * The name of the associated  metric plug-in
+     */
     private String pluginName = null;
-    
-    /** The bundle id as returned from the plugin */
+
+    /**
+     * The version of the associated metric plug-in
+     */
     private String pluginVersion = null;
-    
-    /** Sub-interfaces of the {@link AlitheiaPlugin} interface*/
+
+    /**
+     * This list include all activation interfaces supported by the associated
+     * metric plug-in.
+     * <br/>
+     * The list of permitted activation interfaces is described in the
+     * {@link AlitheiaPlugin} interface and currently includes:
+     * <ul>
+     *   <li>{@link StoredProjectMetric}</li>
+     *   <li>{@link ProjectVersionMetric}</li>
+     *   <li>{@link ProjectFileMetric}</li>
+     *   <li>{@link FileGroupMetric}</li>
+     * </ul>
+     */
     List<Class<? extends DAObject>> activationTypes; 
-    
-    /** Is the plug-in registered to the system? */
-    public boolean installed = false;
-    
-    /** The metric implementation class hashcode */
+
+    /**
+     * The hash code's value of the associated metric metric plug-in.
+     * <br/>
+     * After a new metric plug-in is registered as service in the OSGi
+     * framework, the <code>PluginAdmin</code> initializes this field with
+     * the service's ID value, by calling the <code>setHashcode(String)</code>
+     * method.
+     * <br/>
+     * Once the metric plug-in's <code>install()</code> method is called,
+     * the <code>PluginAdmin</code> replaces the old <code>PluginInfo</code>
+     * with a new one, whose <code>hashcode</code> field is initialized with
+     * the hash code's value, that this metric plug-in stored in its database
+     * record.
+     */
     private String hashcode;
-    
-    /** A list containing plugin configuration entries*/
+
+    /**
+     * A list containing the current set of configuration parameters of the
+     * associated metric plug-in
+     */
     private List<PluginConfiguration> config = null;
 
     /**
-     * Constructor
-     * @param c
+     * This flag is set to <code>false<code> on a newly registered metric
+     * plug-ins, and changed to <code>true</code> after the metric plug-in's
+     * <code>install()</code> method is called (and successfully performed).
+     */
+    public boolean installed = false;
+
+    /**
+     * Simple constructor, that creates a new <code>PluginInfo</code> instance
+     * and initializes it with the given metric plug-in's configuration
+     * parameters.
+     * 
+     * @param c - the list of configuration parameters
      */
     public PluginInfo(List<PluginConfiguration> c) {
         this.config = c;
     }
         
     /**
-     * Update a configuration entry for a plugin.
+     * Updates the given metric plugin's configuration parameter with a new
+     * value.
      * 
-     * @param name The configuration property name
-     * @param newValue The new value to assign to the config property
+     * @param name - the configuration property name
+     * @param newValue - the new value, that should be assigned to the
+     *   given configuration property
      * 
-     * @return True if the value change operation succeeded. False might 
-     * indicate incorrect new value type or error updating the database
+     * @return <code>true</code> if the value has been successfully modified.
+     *   Return value of <code>false</code> might indicate:
+     *   <ul>
+     *     <li>incorrect value type
+     *     <li>failed update on the corresponding database record
+     *   </ul>
      */
     public boolean updateConfigEntry(String name, String newValue) {
 
@@ -122,7 +184,7 @@ public class PluginInfo {
                 if (c == null) {
                     return false;
                 }
-                
+
                 if (c == ConfigurationType.BOOLEAN) {
                     if (newValue != "true" && newValue != "false") {
                         return false;
