@@ -38,6 +38,7 @@ public class CoreImpl extends CorePOA {
 
     BundleContext bc = null;
     FDSService fds = null;
+    AlitheiaCore core = null;
 
     Map< String, CorbaJobImpl > registeredJobs = null;
     Map< String, CorbaMetricImpl > registeredMetrics = null;
@@ -48,7 +49,8 @@ public class CoreImpl extends CorePOA {
         registeredMetrics = new HashMap< String, CorbaMetricImpl >();
 
         ServiceReference serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
-        fds = ((AlitheiaCore)bc.getService(serviceRef)).getFDSService();
+        core = (AlitheiaCore)bc.getService(serviceRef);
+        fds = core.getFDSService();
     }
 
     private static int nextId = 0;
@@ -110,9 +112,13 @@ public class CoreImpl extends CorePOA {
         return impl.hashCode();
     }
 
-    public void unregisterJob(int id) {
-        // TODO Auto-generated method stub
-        
+    public void unregisterJob(String name) {
+    	CorbaJobImpl j = registeredJobs.get(name);
+    	registeredJobs.remove(name);
+    	if (j!=null)
+    	{
+    		j.invalidate();
+    	}
     }
 
     public void enqueueJob(String name) {

@@ -128,4 +128,5 @@ void ProjectVersionWrapperMetric::run( ProjectVersion& version )
 {
     logger << name() << ": Measuring " << version.project.name << ", version " << version.version << endl;
     Core::instance()->enqueueJob( new ProjectVersionWrapperMetricJob( this, program, arguments, version ) );
+    logger << name() << ": Job enqueued." << endl;
 }

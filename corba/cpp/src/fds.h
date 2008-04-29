@@ -17,6 +17,8 @@ namespace Alitheia
 
         ProjectVersion version;
         std::vector< ProjectFile > files;
+
+        void save( const std::string& directory ) const;
     };
 
     class FDS

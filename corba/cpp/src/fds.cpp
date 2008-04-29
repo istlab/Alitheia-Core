@@ -4,6 +4,10 @@
 #include "corbahandler.h"
 
 #include <exception>
+#include <fstream>
+
+#include <sys/stat.h>
+#include <sys/types.h>
 
 namespace Alitheia
 {
@@ -29,6 +33,8 @@ using std::cerr;
 using std::endl;
 using std::exception;
 using std::string;
+using std::vector;
+using std::ofstream;
 
 Checkout::Checkout( const eu::sqooss::impl::service::corba::alitheia::Checkout& checkout )
     : version( checkout.version )
@@ -42,6 +48,28 @@ Checkout::Checkout( const eu::sqooss::impl::service::corba::alitheia::Checkout& 
 
 Checkout::~Checkout()
 {
+}
+
+
+void Checkout::save( const std::string& directory ) const
+{
+    for( vector< ProjectFile >::const_iterator it = files.begin(); it != files.end(); ++it )
+    {
+        // copy intented
+        ProjectFile projectFile = *it;
+        string line;
+        const string dirname = directory + "/" + projectFile.directory.path;
+        const string filename = dirname + "/" + projectFile.name;
+        mkdir( dirname.c_str(), S_IRWXU );
+        ofstream file( filename.c_str() );
+        do
+        {
+            std::getline( projectFile, line );
+            if( !projectFile.eof() )
+                line.push_back( '\n' );
+            file.write( line.c_str(), line.size() );
+        } while( !projectFile.eof() );
+    }
 }
 
 FDS::FDS()

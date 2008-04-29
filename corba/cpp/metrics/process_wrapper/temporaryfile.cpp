@@ -1,6 +1,7 @@
 #include "temporaryfile.h"
 
 #include <fstream>
+#include <boost/filesystem/operations.hpp>
 
 using std::string;
 using std::ios_base;
@@ -25,11 +26,23 @@ TemporaryDirectory::TemporaryDirectory( const char* templateName )
 }
 
 /**
+ * Helper function deleting a directory.
+ */
+/*void deleteDir( const char* name )
+{
+    if( unlink( name ) == -1 && errno == EISDIR )
+    {
+        chdir( name );
+        
+    }
+}*/
+
+/**
  * Destroys the temporary directory object. The directory is deleted.
  */
 TemporaryDirectory::~TemporaryDirectory()
 {
-    unlink( m_name );
+    boost::filesystem::remove_all( m_name );
     delete m_name;
 }
 

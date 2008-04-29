@@ -2,7 +2,7 @@
 
 #include <CORBA.h>
 
-#include <iostream>
+#include <vector>
 
 #include "core.h"
 
@@ -36,6 +36,8 @@ Job::Private::~Private()
 {
 }
 
+static std::vector< Job* > doomedJobs;
+
 Job::Job()
     : d( new Private( this ) )
 {
@@ -44,8 +46,21 @@ Job::Job()
 
 Job::~Job()
 {
+    if( d->name.length() != 0 )
+        Core::instance()->unregisterJob( this );
     delete d;
 }
+
+void* Job::operator new( size_t s )
+{
+    return malloc( s );
+}
+
+void Job::operator delete( void* o )
+{
+    doomedJobs.push_back( static_cast< Job* >( o ) );
+}
+
 
 CORBA::Long Job::priority()
 {

@@ -22,7 +22,7 @@ public:
     
     void run()
     {
-        for( int i = 0; i < 10; ++i )
+        for( int i = 0; i < 4; ++i )
         {
             {
                 boost::mutex::scoped_lock scoped_lock( mutex );
@@ -38,6 +38,21 @@ public:
     void stateChanged( State state )
     {
         boost::mutex::scoped_lock scoped_lock( mutex );
+        if( state == Finished )
+        {
+            l << "Deleting job..." << std::endl;
+            try{
+                Logger log( Logger::NameSqoOssMetric );
+                log.setTeeStream( std::cout );
+                log << "deleting..." << std::endl;
+            delete this;
+                log << "deleting done." << std::endl;
+            } catch( ... )
+            {
+            }
+            return;
+            l << "Done deleting job..." << std::endl;
+        }
         l << "TestJob::stateChanged(): Our job " << name << " changed to state " << state << endl;
     }
 

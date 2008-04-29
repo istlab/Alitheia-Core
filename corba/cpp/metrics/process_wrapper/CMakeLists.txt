@@ -27,4 +27,5 @@ target_link_libraries( process_wrapper
   -lboost_thread-mt
   -lboost_date_time
   -lboost_program_options
+  -lboost_filesystem
 )

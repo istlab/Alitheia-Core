@@ -1,5 +1,6 @@
 package eu.sqooss.impl.service.corba.alitheia.job;
 
+import org.omg.CORBA.COMM_FAILURE;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
@@ -26,16 +27,38 @@ public class CorbaJobImpl extends Job {
 	
 	@Override
 	public int priority() {
-		return j.priority();
+		try{
+			if (j==null || j._non_existent()) {
+				return 0xffff;
+			}
+			return j.priority();
+		}
+		catch( COMM_FAILURE e)
+		{
+			invalidate();
+			return 0xffff;
+		}
 	}
 
 	@Override
 	protected void run() throws Exception {
-		j.run();
+		if (j==null || j._non_existent()) {
+			return;
+		}
+		try{
+			j.run();
+		}
+		catch(COMM_FAILURE e)
+		{
+			invalidate();
+			throw e;
+		}
 	}
 	
 	protected void stateChanged(State state) {
-		if (j==null) {
+		try
+		{
+		if (j==null || j._non_existent()) {
 			return;
 		}
 		switch (state) {
@@ -55,6 +78,11 @@ public class CorbaJobImpl extends Job {
 			j.setState(JobState.Running);
 			break;
 		}
+		}
+		catch(Exception e)
+		{
+			// this should just never fail
+		}
 	}
 	
 	public void enqueue()
@@ -64,5 +92,9 @@ public class CorbaJobImpl extends Job {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	public void invalidate() {
+		j = null;
 	}
 }

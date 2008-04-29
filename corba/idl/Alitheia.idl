@@ -137,7 +137,7 @@ module alitheia
 
     long registerJob( in string name );
     void enqueueJob( in string name );
-    void unregisterJob( in long id );
+    void unregisterJob( in string name );
     void addJobDependency( in string job, in string dependency );
     void waitForJobFinished( in string name );
 

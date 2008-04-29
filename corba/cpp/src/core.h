@@ -63,6 +63,8 @@ namespace Alitheia
          * \note The job is executed in a different thread.
          */
         int registerJob( Job* job );
+        void unregisterJob( const std::string& name );
+        void unregisterJob( Job* job );
        
         /**
          * Runs the local ORB.

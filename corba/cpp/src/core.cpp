@@ -9,6 +9,8 @@
 #include <string>
 #include <sstream>
 
+#include <boost/thread.hpp>
+
 namespace Alitheia
 {
     class Core::Private
@@ -27,11 +29,13 @@ namespace Alitheia
 }
 
 using namespace std;
+using boost::mutex;
 using namespace Alitheia;
 using namespace eu::sqooss::impl::service::corba;
 
 // singleton object
 static Core* core = 0;
+static mutex core_mutex;
 
 Core::Private::Private( Core* q )
     : q( q )
@@ -104,6 +108,7 @@ void Core::unregisterMetric( AbstractMetric* metric )
 
 void Core::unregisterMetric( int id )
 {
+    CorbaHandler::instance()->unexportObject( CORBA::string_dup( d->registeredMetrics[ id ].c_str() ) );
     d->core->unregisterMetric( id );
     d->registeredMetrics.erase( id );
 }
@@ -118,6 +123,17 @@ int Core::registerJob( Job* job )
     const int id = d->core->registerJob( CORBA::string_dup( name.c_str() ) );
     d->registeredJobs[ id ] = name;
     return id;
+}
+
+void Core::unregisterJob( const string& name )
+{
+    d->core->unregisterJob( CORBA::string_dup( name.c_str() ) );
+    CorbaHandler::instance()->unexportObject( CORBA::string_dup( name.c_str() ) );
+}
+
+void Core::unregisterJob( Job* job )
+{
+    unregisterJob( job->name() );
 }
 
 void Core::enqueueJob( Job* job )
@@ -191,5 +207,9 @@ void Core::shutdown()
     for( map< int, string >::iterator it = d->registeredMetrics.begin(); it != d->registeredMetrics.end(); ++it )
     {
         unregisterMetric( it->first );
+    }
+    for( map< int, string >::iterator it = d->registeredJobs.begin(); it != d->registeredJobs.end(); ++it )
+    {
+        unregisterJob( it->second );
     }
 }

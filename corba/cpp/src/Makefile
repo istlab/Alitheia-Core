@@ -1,31 +1,31 @@
 all: ../lib/libalitheia.a
 
 Alitheia.o: Alitheia.h
-	mico-c++ -I. -c Alitheia.cpp
+	mico-c++ -g -I. -c Alitheia.cpp
 
 logger.o: Alitheia.h logger.cpp corbahandler.h logger.h
-	mico-c++ -c logger.cpp
+	mico-c++ -g -c logger.cpp
 
 metric.o: Alitheia.h metric.cpp metric.h
-	mico-c++ -c metric.cpp
+	mico-c++ -g -c metric.cpp
 
 dbobject.o: Alitheia.h dbobject.cpp dbobject.h fds.h
-	mico-c++ -c dbobject.cpp
+	mico-c++ -g -c dbobject.cpp
 
 core.o: Alitheia.h core.cpp corbahandler.h core.h metric.h job.h
-	mico-c++ -c core.cpp
+	mico-c++ -g -c core.cpp
 
 job.o: Alitheia.h job.cpp job.h corbahandler.h
-	mico-c++ -c job.cpp
+	mico-c++ -g -c job.cpp
 
 fds.o: Alitheia.h fds.cpp fds.h corbahandler.h
-	mico-c++ -c fds.cpp
+	mico-c++ -g -c fds.cpp
 
 database.o: Alitheia.h dbobject.h database.cpp database.h corbahandler.h
-	mico-c++ -c database.cpp
+	mico-c++ -g -c database.cpp
 
 corbahandler.o: Alitheia.h corbahandler.cpp corbahandler.h
-	mico-c++ -c corbahandler.cpp
+	mico-c++ -g -c corbahandler.cpp
 
 Alitheia.h: ../../idl/Alitheia.idl
 	idl --any --poa --c++-suffix cpp ../../idl/Alitheia.idl

@@ -32,19 +32,25 @@ namespace Alitheia
         virtual void run();
 
         void addDependency( Job* other );
-       
+      
         State state() const;
 
         virtual void stateChanged( State state );
 
         void waitForFinished();
 
+        static void* operator new( size_t s );
+        static void operator delete( void* o );
+
     protected:
         void setState( eu::sqooss::impl::service::corba::alitheia::Job::JobState state );
         
         const std::string& name() const;
         void setName( const std::string& name );
-        
+
+        int id() const;
+        void setId( int id );
+
     private:
         class Private;
         Private* d;

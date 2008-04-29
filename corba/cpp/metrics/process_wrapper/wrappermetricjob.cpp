@@ -3,6 +3,7 @@
 #include <Metric>
 #include <Database>
 #include <FDS>
+#include <Logger>
 
 #include "temporaryfile.h"
 
@@ -158,70 +159,67 @@ ProjectVersionWrapperMetricJob::~ProjectVersionWrapperMetricJob()
 {
 }
 
-#include <iostream>
 void ProjectVersionWrapperMetricJob::run()
 {
+    // get a checkout
     FDS fds;
     Checkout co = fds.getCheckout( projectVersion );
-    
-    std::cout << "start rev" << projectVersion.version << std::endl;
 
-    for( vector< ProjectFile >::const_iterator it = co.files.begin(); it != co.files.end(); ++it )
+    // save it
+    TemporaryDirectory dir( "tempco" );
+    co.save( dir.name() );
+
+    // run the program on it
+    command_line cl( program );
+    bool gotDirectory = false;
+    for( vector< string >::const_iterator it = arguments.begin(); it != arguments.end(); ++it )
     {
-        std::cout << it->directory.path << "/" << it->name << std::endl;
+        if( *it != "%directory%" )
+            cl.argument( *it );
+        else
+            cl.argument( dir.name() );
+    }
+    if( !gotDirectory )
+        cl.argument( dir.name() );
+
+    launcher l;
+    l.set_stdout_behavior( redirect_stream );
+    child c = l.start( cl );
+
+    pistream& stdout_stream = c.get_stdout();
+
+    string line;
+    string result;
+    while( std::getline( stdout_stream, line ) )
+    {
+        result += line + '\n';
     }
 
-    std::cout << "done" << std::endl;
-
-/*    QProcess p;
-    process = &p;
-   
-    result.clear();
-
-    connect( &p, SIGNAL( readyReadStandardOutput() ), this, SLOT( readyReadStandardOutput() ) );
-
-    TemporaryDirectory dir( QString::fromStdString( projectVersion.project.name ) );
-        
-    if( arguments.contains( "%directory%" ) )
-        arguments.replace( arguments.indexOf( "%directory%" ), dir.name() );
-    else
-        arguments.push_back( dir.name() );
-
-    vector< ProjectFile > files = projectVersion.getVersionFiles();
-    Q_FOREACH( const ProjectFile& file, files )
+    if( !c.wait().exited() )
     {
-        qDebug() << QString::fromStdString( file.name );
-    }*/
+        std::cout << "Abnormal program termination." << std::endl;
+        return;
+    }
 
-    /*string line;
-    do
-    {
-        std::getline( projectFile, line );
-        if( !projectFile.eof() )
-            line.push_back( '\n' );
-        file.write( line.c_str(), line.size() );
-    } while( !projectFile.eof() );
-    file.close();
-    p.start( program, arguments );
-    p.waitForFinished( -1 );*/
 
-/*    vector<Metric> metrics = metric->getSupportedMetrics();
+    vector<Metric> metrics = metric->getSupportedMetrics();
     if( metrics.empty() )
         return;
 
     // add the result
-    ProjectFileMeasurement m;
+    ProjectVersionMeasurement m;
     m.metric = metrics.front();
-    m.projectFile = projectFile;
-    
+    m.projectVersion = projectVersion;
     m.whenRun = to_iso_string( second_clock::local_time() );
-    m.result = result.toStdString();
+    m.result = result;
     Database db;
-    db.addRecord( m );*/
+    db.addRecord( m );
 }
 
 void ProjectVersionWrapperMetricJob::stateChanged( State state )
 {
     if( state == Finished )
+    {
         delete this;
+    }
 }
