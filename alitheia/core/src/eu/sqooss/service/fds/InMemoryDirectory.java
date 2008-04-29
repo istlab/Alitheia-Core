@@ -264,7 +264,9 @@ public class InMemoryDirectory {
      * @return A reference to the new directory.
      */
     public InMemoryDirectory createSubDirectory(String name) {
-       	if (name.indexOf('/') == -1) {
+    	if (name == null || name.equals("")) {
+    		return this;
+    	} else if (name.indexOf('/') == -1) {
           	InMemoryDirectory dir = getSubdirectoryByName(name);
           	if (dir == null ) {
           		dir = new InMemoryDirectory(this, name);
