@@ -77,8 +77,9 @@ package eu.sqooss.service.messaging;
  *     authentication with the selected SMTP server (<i>if required</i>)
  *   <li> <code>smtp.reply</code> - sets the email address used in the SMTP
  *     reply field
- *   <li> <code>smtp.timeout</code> - sets the time for the sending of the
- *     message
+ *   <li> <code>smtp.timeout</code> - defines how long the
+ *     <code>MessagingService</code> will try to establish a session with the
+ *     specified SMTP server.
  * </ul>
  * The values of the various configuration properties must be in the following
  * formats:
