@@ -6,8 +6,8 @@
 #include <exception>
 #include <fstream>
 
-#include <sys/stat.h>
-#include <sys/types.h>
+#include <boost/bind.hpp>
+#include <boost/filesystem/operations.hpp>
 
 namespace Alitheia
 {
@@ -29,6 +29,7 @@ namespace Alitheia
 
 using namespace Alitheia;
 using namespace eu::sqooss::impl::service::corba;
+using namespace boost;
 using std::cerr;
 using std::endl;
 using std::exception;
@@ -50,26 +51,17 @@ Checkout::~Checkout()
 {
 }
 
+void Checkout::saveFile( const string& directory, const ProjectFile& file ) const
+{
+    const string dirname = directory + "/" + file.directory.path;
+    const string filename = dirname + "/" + file.name;
+    boost::filesystem::create_directory( dirname );
+    file.save( filename );
+}
 
 void Checkout::save( const std::string& directory ) const
 {
-    for( vector< ProjectFile >::const_iterator it = files.begin(); it != files.end(); ++it )
-    {
-        // copy intented
-        ProjectFile projectFile = *it;
-        string line;
-        const string dirname = directory + "/" + projectFile.directory.path;
-        const string filename = dirname + "/" + projectFile.name;
-        mkdir( dirname.c_str(), S_IRWXU );
-        ofstream file( filename.c_str() );
-        do
-        {
-            std::getline( projectFile, line );
-            if( !projectFile.eof() )
-                line.push_back( '\n' );
-            file.write( line.c_str(), line.size() );
-        } while( !projectFile.eof() );
-    }
+    for_each( files.begin(), files.end(), bind( &Checkout::saveFile, this, directory, _1 ) );
 }
 
 FDS::FDS()

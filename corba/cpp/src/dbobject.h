@@ -1,7 +1,7 @@
 #ifndef DBOBJECT_H
 #define DBOBJECT_H
 
-#include <istream>
+#include <iostream>
 #include <string>    
 
 #include "Alitheia.h"
@@ -98,6 +98,9 @@ namespace Alitheia
         operator CORBA::Any() const;
 
         ProjectFile& operator=( const ProjectFile& other );
+
+        void save( std::ostream& stream ) const;
+        void save( const std::string& filename ) const;
 
         std::string name;
         ProjectVersion projectVersion;

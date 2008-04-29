@@ -56,14 +56,7 @@ void ProjectFileWrapperMetricJob::run()
                 cl.argument( file.name() );
         }
 
-        string line;
-        do
-        {
-            std::getline( projectFile, line );
-            if( !projectFile.eof() )
-                line.push_back( '\n' );
-            file.write( line.c_str(), line.size() );
-        } while( !projectFile.eof() );
+        projectFile.save( file );
         file.close();
 
         launcher l;
@@ -72,6 +65,7 @@ void ProjectFileWrapperMetricJob::run()
 
         pistream& stdout_stream = c.get_stdout();
     
+        string line;
         while( std::getline( stdout_stream, line ) )
         {
             result += line + '\n';

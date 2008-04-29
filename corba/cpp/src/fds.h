@@ -18,6 +18,7 @@ namespace Alitheia
         ProjectVersion version;
         std::vector< ProjectFile > files;
 
+        void saveFile( const std::string& directory, const ProjectFile& file ) const;
         void save( const std::string& directory ) const;
     };
 

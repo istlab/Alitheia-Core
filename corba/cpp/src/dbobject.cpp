@@ -8,6 +8,7 @@
 #include "CORBA.h"
 
 #include <sstream>
+#include <fstream>
 
 using namespace Alitheia;
 
@@ -16,7 +17,8 @@ using namespace eu::sqooss::impl::service::corba;
 using std::string;
 using std::istream;
 using std::stringbuf;
-
+using std::ostream;
+using std::ofstream;
 using std::cout;
 using std::endl;
 
@@ -158,6 +160,26 @@ ProjectFile& ProjectFile::operator=( const ProjectFile& other )
     isDirectory = other.isDirectory;
     directory = other.directory;
     return *this;
+}
+
+void ProjectFile::save( ostream& stream ) const
+{
+    // copy intented
+    ProjectFile projectFile = *this;
+    string line;
+    do
+    {
+        std::getline( projectFile, line );
+        if( !projectFile.eof() )
+            line.push_back( '\n' );
+        stream.write( line.c_str(), line.size() );
+    } while( !projectFile.eof() );
+}
+
+void ProjectFile::save( const string& filename ) const
+{
+    ofstream file( filename.c_str() );
+    save( file );
 }
 
 alitheia::ProjectFile ProjectFile::toCorba() const

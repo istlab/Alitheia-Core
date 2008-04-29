@@ -8,6 +8,8 @@ using std::ios_base;
 using std::iostream;
 using std::filebuf;
 
+using namespace boost::filesystem;
+
 /**
  * Constructs a TemporaryDirectory with a template filename of \a templateName.
  * This will be used to create a unique filename. If the \a templateName does 
@@ -26,23 +28,11 @@ TemporaryDirectory::TemporaryDirectory( const char* templateName )
 }
 
 /**
- * Helper function deleting a directory.
- */
-/*void deleteDir( const char* name )
-{
-    if( unlink( name ) == -1 && errno == EISDIR )
-    {
-        chdir( name );
-        
-    }
-}*/
-
-/**
  * Destroys the temporary directory object. The directory is deleted.
  */
 TemporaryDirectory::~TemporaryDirectory()
 {
-    boost::filesystem::remove_all( m_name );
+    remove_all( m_name );
     delete m_name;
 }
 
@@ -81,7 +71,7 @@ TemporaryFile::TemporaryFile( const char* templateName, ios_base::openmode mode 
 TemporaryFile::~TemporaryFile()
 {
     delete rdbuf();
-    unlink( m_name );
+    remove( m_name );
     delete m_name;
 }
 
