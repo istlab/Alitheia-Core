@@ -40,9 +40,11 @@ import eu.sqooss.impl.service.messaging.MessageImpl;
  * The <code>Message</code> abstract class represents a message that can be
  * sent through an object instance of a <code>MessagingService</code>
  * implementation class to the specified recipients.<br/><br/>
+ * 
  * The <code>MessagingService</code> supports only <code>Messages</code>
  * created by calling the <code>getInstance</code> method of the
  * implementation class <code>MessageImpl</code>.<br/><br/>
+ * 
  * This class is not intended to be sub-classed.
  */
 public abstract class Message {
