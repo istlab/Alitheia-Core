@@ -38,120 +38,137 @@ import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.db.DAObject;
 
 /**
- * PluginAdmin defines an interface for classes that provide utilities for
- *  managing SQO-OSS plug-ins.
+ * <code>PluginAdmin</code> defines an interface for classes, that provide
+ * utilities for managing SQO-OSS metric plug-ins.<br/>
+ * <br/>
+ * A <code>PluginAdmin</code> implementation should keep a list of metric
+ * plug-in's information objects
+ * (see <code>eu.sqooss.service.pa.PluginInfo</code>), describing the
+ * available metric plug-ins, and indexed by a unique hash value.<br/>
  */
 public interface PluginAdmin {
 
-    /** The Constant PLUGINS_CLASS is used as a filter when searching
-     * for registered metric services. */
+    /**
+     * The constant <code>PLUGINS_CLASS</code> represents a filter, that can
+     * be used during OSGi-based service search, and matches all
+     * registered metric plug-in services.
+     */
     public final static String PLUGIN_CLASS = "eu.sqooss.impl.metrics.*";
 
     /**
-     * Returns a collection containing information about all metrics services
-     * currently registered in the framework.
+     * Returns a collection containing information about all metrics plug-ins
+     * currently available in the SQO-OSS framework.
      *
-     * @return the list of all metrics services registered in the framework
+     * @return The list of all metrics plug-in services.
      */
     public Collection<PluginInfo> listPlugins();
-    
+
     /**
-     * Returns a plug-in info object for a specific plug-in
+     * Returns the metric plug-in's information object, that belongs to the
+     * given metric plug-in object.
      * 
-     * @param m The metric to return info about
-     * @return Information that the system has about a specific metric
+     * @param m - the metric plug-in object
+     * 
+     * @return All information that <code>PluginAdmin</code> has collected
+     * about this metric plug-in.
      */
     public PluginInfo getPluginInfo(AlitheiaPlugin m);
-    
+
     /**
-     * Get the plugin's interface from a plug-in information object 
-     * @param m
-     * @return The metric interface
+     * Get the metric plug-in object, that corresponds to the given plug-in's
+     * information object.
+     * 
+     * @param m - the metric plug-in information object
+     * 
+     * @return The metric plug-in object.
      */
     public AlitheiaPlugin getPlugin(PluginInfo m);
 
     /**
-     * Get the list of metrics whose activation types match the provided
-     * class
+     * Get the list of metric plug-ins, whose list of activation types include
+     * a type, that matches the interface of the provided object.
      *
-     * @param o Object that implies the type of interface that is wanted.
-     * @return Collection of services references. May be null
-     *          if no such interfaces exist.
+     * @param o - object that implies the type of interface, that is wanted
+     * 
+     * @return Collection of services references, or <code>null</code>
+     *   if no such interface type exist.
      */
     public <T extends DAObject> List<PluginInfo> listPluginProviders(Class<T> o);
     
     /**
-     * Get a reference to the plug-in interface that implements the metric 
-     * whose name matches the provided mnemonic name. 
+     * Get the metric plug-in object, that implements the metric, 
+     * whose name matches the provided mnemonic name.
      *  
-     * @param mnemonic 
-     * @return A reference to the implementing plugin interface
+     * @param mnemonic - the metric's mnemonic name
+     * 
+     * @return The metric plug-in object, that implements this metric.
      */
     public AlitheiaPlugin getImplementingPlugin(String mnemonic);
 
     /**
      * This method calls the <code>install()</code> method of the metric
-     * plug-in object provided from the metric plug-in service registered with
-     * the given service ID.<br/>
-     * The installation process involves updating the plug-in information
-     * object and creating the corresponding database records.
+     * plug-in object, that is provided from the metric plug-in service
+     * registered with the given service ID.<br/>
+     * The installation process involves updating the metric plug-in's
+     * information object and creating the corresponding database records.
      *
-     * @param service_ID the service ID of the selected metric service
+     * @param service_ID - the OSGi service ID of the selected metric
+     *   plug-in service
      *
-     * @return true, if successfully installed; false otherwise
+     * @return <code>true</code>, if successfully installed,
+     *   or <code>false</code> otherwise
      */
     public boolean installPlugin(Long service_ID);
 
     /**
-     * The <code>PluginAdmin</code> internally keeps a list of information
-     * objects (<code>PluginInfo</code>) describing the registered metric 
-     * plug-in services and indexed by unique hash values.<br/>
      * This method calls the <code>install()</code> method of the metric
-     * plug-in object provided from the metric plug-in service, that is
+     * plug-in object, that is provided from the metric plug-in service
      * located by the specified hash value.<br/>
-     * The installation process involves updating the plug-in information
-     * object and creating the corresponding database records.
+     * The installation process involves updating the metric plug-in's
+     * information object and creating the corresponding database records.
      *
-     * @param hash the hash value
+     * @param hash - the hash value
      * 
-     * @return true, if successfully installed; false otherwise
+     * @return <code>true</code>, if successfully installed,
+     *   or <code>false</code> otherwise
      */
     public boolean installPlugin(String hash);
 
     /**
      * This method calls the <code>remove()</code> method of the metric
-     * plug-in object provided from the metric plug-in service registered with
-     * the specified service ID.<br/>
-     * The de-installation process involves updating the plug-in information
-     * object and removing the associated database records.
+     * plug-in object, that is provided from the metric plug-in service
+     * registered with the specified service ID.<br/>
+     * The de-installation process involves updating the metric plug-in's
+     * information object and removing the associated database records.
      * 
-     * @param serviceID The plug-in's service ID
+     * @param serviceID - the OSGi service ID of the selected metric
+     *   plug-in service
      * 
-     * @return True if removal succeeded, false otherwise
+     * @return <code>true</code>, if successfully removed,
+     *   or <code>false</code> otherwise
      */
     public boolean uninstallPlugin(Long serviceID);
 
     /**
-     * The <code>PluginAdmin</code> internally keeps a list of information
-     * objects (<code>PluginInfo</code>) describing the registered metric 
-     * plug-in services and indexed by unique hash values.<br/>
      * This method calls the <code>remove()</code> method of the metric
-     * plug-in object provided from the metric plug-in service, that is
+     * plug-in object, that is provided from the metric plug-in service
      * located by the specified hash value.<br/>
-     * The de-installation process involves updating the plug-in information
-     * object and removing the associated database records.
+     * The de-installation process involves updating the metric plug-in's
+     * information object and removing the associated database records.
      * 
-     * @param hash the hash value
+     * @param hash - the hash value
      * 
-     * @return True if removal succeeded, false otherwise
+     * @return <code>true</code>, if successfully removed,
+     *   or <code>false</code> otherwise
      */
     public boolean uninstallPlugin(String hash);
 
     /**
-     * Updates the plug-in registration info when the plug-in has updated
-     * its database records
+     * Refreshes the metric plug-in's information object, when the database
+     * records associated with the corresponding metric plug-in has been
+     * updated.
      * 
-     * @param p The updated plug-in
+     * @param p The updated metric plug-in
      */
     public void pluginUpdated(AlitheiaPlugin p);
 
