@@ -97,7 +97,7 @@ public class ProjectFile extends DAObject{
      * @return 
      */
     public String getFileName() {
-        return dir.path + "/" + name;
+        return dir.getPath() + "/" + name;
     }
     
 }
