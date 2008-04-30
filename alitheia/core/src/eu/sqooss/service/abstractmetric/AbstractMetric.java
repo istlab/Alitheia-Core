@@ -123,6 +123,13 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         if(pa == null)
             log.error("Could not get a reference to the Plugin Administation " +
             		"service");
+        
+        //init the metrics if the plug-in exists
+        Plugin plugin = Plugin.getPluginByHashcode(getUniqueKey());
+        if (plugin != null) {
+            metrics = Plugin.getSupportedMetrics(plugin);
+        }
+        
     }
 
     /**
@@ -225,7 +232,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
             
             r.addResultRow(new ArrayList<ResultEntry> (re));
         }
-        return null;
+        return r;
     }
 
     /**
@@ -306,7 +313,6 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         if (metrics == null) {
             metrics = Plugin.getSupportedMetrics(Plugin.getPluginByHashcode(getUniqueKey()));
         }
-        
         if (metrics.isEmpty()) {
             return null;
         } else {
