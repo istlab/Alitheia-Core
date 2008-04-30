@@ -443,10 +443,10 @@ public class DBServiceImpl implements DBService {
             // We use "foo" as the name of the object
             return (List<T>) doHQL( s, "from " + daoClass.getName() + " as foo " + whereClause, parameterMap );
         } catch (QueryException e) {
-            logger.warning("Invalid property name: " + e.getMessage());
+            logger.warn("Invalid property name: " + e.getMessage());
             return Collections.emptyList();
         } catch (ClassCastException e) {
-            logger.warning("Invalid property type: " + e.getMessage());
+            logger.warn("Invalid property type: " + e.getMessage());
             return Collections.emptyList();
         }
     }
@@ -544,7 +544,7 @@ public class DBServiceImpl implements DBService {
             logger.error("Hibernate error: " + e.getMessage());
             throw e;
         } catch (ClassCastException e) {
-            logger.warning("Invalid SQL query parameter type: " + e.getMessage());
+            logger.warn("Invalid SQL query parameter type: " + e.getMessage());
             throw e;
         }
     }
@@ -634,13 +634,13 @@ public class DBServiceImpl implements DBService {
             logSQLException(e.getSQLException());
             throw e;
         } catch (QueryException e) {
-            logger.warning("Error while executing HQL query: " +  e.getMessage());
+            logger.warn("Error while executing HQL query: " +  e.getMessage());
             throw e;
         } catch (HibernateException e) {
             logger.error("Hibernate error: " + e.getMessage());
             throw e;
         } catch (ClassCastException e) {
-            logger.warning("Invalid HQL query parameter type: " + e.getMessage());
+            logger.warn("Invalid HQL query parameter type: " + e.getMessage());
             throw e;
         }
         
