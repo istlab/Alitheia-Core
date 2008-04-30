@@ -75,6 +75,28 @@ public class Metric extends DAObject{
 
     public void setMnemonic(String mnemonic) {
         this.mnemonic = mnemonic;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if ((obj == null) || (!(obj instanceof Metric))) {
+            return false;
+        }
+        Metric anotherMetric = (Metric) obj;
+        if (mnemonic == null) {
+            return this.getId() == anotherMetric.getId(); 
+        } else {
+            return (this.mnemonic.equals(anotherMetric.getMnemonic()));
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        if (mnemonic != null) {
+            return mnemonic.hashCode(); 
+        } else {
+            return Long.valueOf(this.getId()).hashCode();
+        }
     }   
 }
 
