@@ -464,7 +464,6 @@ public class DBServiceImpl implements DBService {
             tx.commit();
             return result;
         } catch ( JDBCException e ) {
-            logSQLException(e.getSQLException());
             logExceptionAndRollbackTransaction(e,tx);
             throw e.getSQLException();
         } catch( TransactionException e ) {
@@ -507,7 +506,6 @@ public class DBServiceImpl implements DBService {
             tx.commit();
             return result;
         } catch ( JDBCException e ) {
-            logSQLException(e.getSQLException());
             logExceptionAndRollbackTransaction(e,tx);
             throw e.getSQLException();
         } catch( TransactionException e ) {
@@ -983,7 +981,87 @@ public class DBServiceImpl implements DBService {
         if ( !projectList.isEmpty() ) {
             return "findObjectsByProperties() invalid param name failed";
         }
+        
+        // Test doHQL and doSQL error handling
+        
+        boolean exceptionThrown = false;
+        try {
+            doHQL("from Something as a where a.id = 1");
+        } catch (QueryException e) {
+            exceptionThrown = true;
+        } catch (Exception e) {
+            return "unexpected exception thrown during doHQL() invalid query test"; 
+        }
+        if (!exceptionThrown) {
+            return "doHQL() invalid query failed";
+        }
 
+        exceptionThrown = false;
+        props.clear();
+        props.put("id", "duh");
+        try {
+            doHQL("from StoredProject as p where p.id = :id", props);
+        } catch (QueryException e) {
+            exceptionThrown = true;
+        } catch (Exception e) {
+            return "unexpected exception thrown during doHQL() invalid param test"; 
+        }
+        if (!exceptionThrown) {
+            return "doHQL() invalid param failed";
+        }
+
+        exceptionThrown = false;
+        props.clear();
+        try {
+            doHQL("from StoredProject as p where p.id = :id", props);
+        } catch (QueryException e) {
+            exceptionThrown = true;
+        } catch (Exception e) {
+            return "unexpected exception thrown during doHQL() missing param test"; 
+        }
+        if (!exceptionThrown) {
+            return "doHQL() missing param failed";
+        }
+        
+        exceptionThrown = false;
+        try {
+            doSQL("SELECT * FROM NADA");
+        } catch (SQLException e) {
+            exceptionThrown = true;
+        } catch (Exception e) {
+            return "unexpected exception thrown during doSQL() invalid query test"; 
+        }
+        if (!exceptionThrown) {
+            return "doSQL() invalid query failed";
+        }
+        
+        exceptionThrown = false;
+        props.clear();
+        props.put("id", "duh");
+        try {
+            doSQL("SELECT * FROM STORED_PROJECT WHERE PROJECT_ID=:id", props);
+        } catch (SQLException e) {
+            exceptionThrown = true;
+        } catch (Exception e) {
+            return "unexpected exception thrown during doSQL() invalid param test"; 
+        }
+        if (!exceptionThrown) {
+            return "doSQL() invalid param failed";
+        }
+
+        exceptionThrown = false;
+        props.clear();
+        try {
+            doSQL("SELECT * FROM STORED_PROJECT WHERE PROJECT_ID=:id", props);
+        } catch (SQLException e) {
+            exceptionThrown = true;
+        } catch (Exception e) {
+            return "unexpected exception thrown during doSQL() missing param test"; 
+        }
+        if (!exceptionThrown) {
+            return "doSQL() missing param failed";
+        }
+        
         return null;
     }
 }
