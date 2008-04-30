@@ -150,7 +150,7 @@ public class ResultEntry {
         if (value instanceof Long) {
             return (Long)value;
         } else {
-            throw new IllegalArgumentException("The metric result entry is'nt long!");
+            throw new IllegalStateException("The metric result entry is'nt long!");
         }
     }
     
@@ -196,6 +196,13 @@ public class ResultEntry {
      */
     public Object getObject() {
         return value;
+    }
+    
+    /**
+     * @return The mnemonic of the metric that generated this result entry. 
+     */
+    public String getMnemonic() {
+        return mnemonic;
     }
     
     /**
