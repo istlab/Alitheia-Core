@@ -187,7 +187,7 @@ public class DBServiceImpl implements DBService {
         }
     }
 
-    private void logExceptionAndRollbackTransaction( HibernateException e, Transaction tx) {
+    private void logExceptionAndRollbackTransaction( Exception e, Transaction tx) {
         if (tx != null) {
             logger.error("Error during database transaction: " + e.getMessage() + ". Rolling back transaction.");
             try {
@@ -439,8 +439,16 @@ public class DBServiceImpl implements DBService {
             whereClause.append("foo" + "." + key + "=:_" + key );
             parameterMap.put( "_" + key, properties.get(key) );
         }
-        // We use "foo" as the name of the object
-        return (List<T>) doHQL( s, "from " + daoClass.getName() + " as foo " + whereClause, parameterMap );
+        try {
+            // We use "foo" as the name of the object
+            return (List<T>) doHQL( s, "from " + daoClass.getName() + " as foo " + whereClause, parameterMap );
+        } catch (QueryException e) {
+            logger.error("Invalid property name: " + e.getMessage());
+            return Collections.emptyList();
+        } catch (ClassCastException e) {
+            logger.error("Invalid property type: " + e.getMessage());
+            return Collections.emptyList();
+        }
     }
 
     /* (non-Javadoc)
@@ -508,6 +516,9 @@ public class DBServiceImpl implements DBService {
         } catch( HibernateException e ) {
             logExceptionAndRollbackTransaction(e,tx);
             return Collections.emptyList();
+        } catch (ClassCastException e) {
+            logExceptionAndRollbackTransaction(e,tx);
+            throw e;
         } finally {
             returnSession(s);
         }
@@ -531,6 +542,9 @@ public class DBServiceImpl implements DBService {
             throw e;
         } catch (HibernateException e) {
             logger.error("Hibernate error: " + e.getMessage());
+            throw e;
+        } catch (ClassCastException e) {
+            logger.error("Invalid SQL query parameter type: " + e.getMessage());
             throw e;
         }
     }
@@ -565,19 +579,17 @@ public class DBServiceImpl implements DBService {
             tx.commit();
             return result;
         } catch (QueryException e) {
-            logger.error("Error while executing HQL query: " +  e.getMessage() + ". HQL query was : " + e.getQueryString());
             logExceptionAndRollbackTransaction(e,tx);
             throw e;
-        } catch (JDBCException e) {
-            logSQLException(e.getSQLException());
-            logExceptionAndRollbackTransaction(e,tx);
-            return Collections.emptyList();
         } catch( TransactionException e ) {
             logger.error("Transaction error: " + e.getMessage());
             return Collections.emptyList();
         } catch( HibernateException e ) {
             logExceptionAndRollbackTransaction(e,tx);
             return Collections.emptyList();
+        } catch (ClassCastException e) {
+            logExceptionAndRollbackTransaction(e,tx);
+            throw e;
         } finally {
             returnSession(s);
         }
@@ -622,12 +634,16 @@ public class DBServiceImpl implements DBService {
             logSQLException(e.getSQLException());
             throw e;
         } catch (QueryException e) {
-            logger.error("Error while executing HQL query: " +  e.getMessage() + ". HQL query was : " + e.getQueryString());
+            logger.error("Error while executing HQL query: " +  e.getMessage());
             throw e;
         } catch (HibernateException e) {
             logger.error("Hibernate error: " + e.getMessage());
             throw e;
+        } catch (ClassCastException e) {
+            logger.error("Invalid HQL query parameter type: " + e.getMessage());
+            throw e;
         }
+        
     }
 
     /* (non-Javadoc)
@@ -915,23 +931,22 @@ public class DBServiceImpl implements DBService {
             return "findObjectsByProperties() empty params test failed";
         }
         
+        props = new HashMap<String, Object>();
         props.put("name", testProject.getName());
         projectList = findObjectsByProperties(StoredProject.class, props);
-        if ( projectList.size() != 1 || projectList.get(0).equals(testProject) ) {
+        if ( projectList.size() != 1 || !projectList.get(0).equals(testProject) ) {
             return "findObjectsByProperties() name param test failed";
         }
-        
         props.put("name", "no_project_would_ever_be_called_that");
         projectList = findObjectsByProperties(StoredProject.class, props);
         if ( !projectList.isEmpty() ) {
             return "findObjectsByProperties invalid name param test failed";
         }
-        
         props.clear();
         props.put("name", testProject.getName());
         props.put("id", testProject.getId());
         projectList = findObjectsByProperties(StoredProject.class, props);
-        if ( projectList.size() != 1 || projectList.get(0).equals(testProject) ) {
+        if ( projectList.size() != 1 || !projectList.get(0).equals(testProject) ) {
             return "findObjectsByProperties() name+id param test failed";
         }
         
@@ -945,6 +960,28 @@ public class DBServiceImpl implements DBService {
         projectList = findObjectsByProperties(StoredProject.class, props);
         if ( !projectList.isEmpty() ) {
             return "findObjectsByProperties() invalid param type test failed";
+        }
+
+        // Watch out for that one : 1 is an int constant, so it gets boxed in an Integer
+        // however the id is a Long, so this yields a ClassCastException when the query is
+        // executed
+        props.put("id", 1);
+        projectList = findObjectsByProperties(StoredProject.class, props);
+        if ( !projectList.isEmpty() ) {
+            return "findObjectsByProperties() int constant param test failed";
+        }
+        // This is correct
+        props.put("id", 1L);
+        projectList = findObjectsByProperties(StoredProject.class, props);
+        if ( projectList.isEmpty() ) {
+            return "findObjectsByProperties() long constant param test failed";
+        }
+        
+        props.clear();
+        props.put("thatonedoesntexist", "duh");
+        projectList = findObjectsByProperties(StoredProject.class, props);
+        if ( !projectList.isEmpty() ) {
+            return "findObjectsByProperties() invalid param name failed";
         }
 
         return null;
