@@ -388,3 +388,5 @@ public class PluginInfo {
         return b.toString();
     }
 }
+
+//vi: ai nosi sw=4 ts=4 expandtab
