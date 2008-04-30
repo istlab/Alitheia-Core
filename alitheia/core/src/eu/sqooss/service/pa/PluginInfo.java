@@ -158,14 +158,23 @@ public class PluginInfo {
     public PluginInfo(List<PluginConfiguration> c) {
         this.config = c;
     }
-        
+
+    /**
+     * Returns the list of currently store metric configuration parameters.
+     * 
+     * @return The list of configuration parameters.
+     */
+    public List<PluginConfiguration> getConfiguration() {
+        return this.config;
+    }
+
     /**
      * Updates the given metric plugin's configuration parameter with a new
      * value.
      * 
-     * @param name - the configuration property name
+     * @param name - the configuration property's name
      * @param newValue - the new value, that should be assigned to the
-     *   given configuration property
+     *   selected configuration property
      * 
      * @return <code>true</code> if the value has been successfully modified.
      *   Return value of <code>false</code> might indicate:
@@ -205,79 +214,176 @@ public class PluginInfo {
         return false;
     }
 
-    
+    /**
+     * Sets the metric's name. In practice the <code>metricName</code>
+     * parameter must be equal with the name of the associated metric
+     * plug-in.
+     * 
+     * @param metricName - the metric name
+     */
     public void setPluginName(String metricName) {
         this.pluginName = metricName;
     }
 
+    /**
+     * Returns the metric name stored in this <code>MetricInfo</code>
+     * object.
+     * 
+     * @return Metric name.
+     */
     public String getPluginName() {
         return pluginName;
     }
 
+    /**
+     * Sets the metric's version. In practice the <code>metricVersion</code>
+     * parameter must be equal with the version of the associated metric
+     * plug-in.
+     * 
+     * @param metricVersion - a metric version
+     */
     public void setPluginVersion(String metricVersion) {
         this.pluginVersion = metricVersion;
     }
 
+    /**
+     * Returns the metric version stored in this <code>MetricInfo</code>
+     * object.
+     * 
+     * @return Metric version.
+     */
     public String getPluginVersion() {
         return pluginVersion;
     }
 
-    public List<Class<? extends DAObject>> getActivationTypes() {
-        return this.activationTypes;
-    }
-    
+    /**
+     * Sets the list of supported activation interfaces (types). In practice
+     * the given list must contain the same entries like those supported by
+     * the associated metric plug-in.<br/>
+     * <br/>
+     * Note: Any previous entries in this list will be deleted by this action.
+     * 
+     * @param l - the list of supported activation interfaces
+     */
     public void setActivationTypes(List<Class<? extends DAObject>> l) {
         this.activationTypes = l;
     }
 
+    /**
+     * Returns the list off all activation interfaces (types) supported by the
+     * associated metric plug-in.
+     * 
+     * @return - the list of supported activation interfaces
+     */
+    public List<Class<? extends DAObject>> getActivationTypes() {
+        return this.activationTypes;
+    }
+
+    /**
+     * Adds one or more additional activation interfaces (types) to the
+     * locally stored list of supported activation interfaces.
+     * 
+     * @param activator - the list of additional activation interfaces
+     */
     public void addActivationType(Class<? extends DAObject> activator) {
         this.activationTypes.add(activator);
     }
 
-   /**
-    * Return true if the plug-in supports the provided activation type
-    */
-   public boolean isActivationType(Class<? extends DAObject> o) {
-       
-       Iterator<Class<? extends DAObject>> i = this.activationTypes.iterator();
-       
-       while (i.hasNext()) {
-           if (i.next().equals(o)) 
-               return true;
-       }
-       return false;
-   }
+    /**
+     * Compares the provided activation interface to the locally stored list
+     * of supported activation interfaces.
+     * 
+     * @return <code>true</code> when the given activation interface is found
+     * in the list, or <code>false</code> otherwise.
+     */
+    public boolean isActivationType(Class<? extends DAObject> o) {
+        // Compare the activation list's entries to the given activation
+        // interface, until a match is found
+        Iterator<Class<? extends DAObject>> i =
+            this.activationTypes.iterator();
+        while (i.hasNext()) {
+            if (i.next().equals(o)) 
+                return true;
+        }
+        return false;
+    }
 
+    /**
+     * Initializes the corresponding local field with the reference to the
+     * service, that registered the associated metric plug-in.
+     * 
+     * @param serviceRef - the service reference
+     */
+    public void setServiceRef(ServiceReference serviceRef) {
+        this.serviceRef = serviceRef;
+    }
+
+    /**
+     * Returns the service reference that points to the associated metric
+     * plug-in.
+     * 
+     * @return The service reference.
+     */
     public ServiceReference getServiceRef() {
         return serviceRef;
     }
 
-    public void setServiceRef(ServiceReference serviceRef) {
-        this.serviceRef = serviceRef;
+    /**
+     * Sets the hash code's value of this <code>MetricInfo</code> instance.
+     * <br/>
+     * The value must be unique, which means that no other
+     * <code>MetricInfo</code> with the same hash code should be kept by
+     * the <code>PluginAdmin</code> instance that created this object.
+     *  
+     * @param hashcode - the hash code's value of this object
+     */
+    public void setHashcode(String hashcode) {
+        this.hashcode = hashcode;
     }
-    
-    public List<PluginConfiguration> getConfiguration() {
-        return this.config;
-    }
-   
+
+    /**
+     * Returns the hash code's value of this <code>MetricInfo</code> instance.
+     * 
+     * @return The hash code's value of this object.
+     */
     public String getHashcode() {
         return hashcode;
     }
 
-    public void setHashcode(String hashcode) {
-        this.hashcode = hashcode;
-    }
-    
+    /**
+     * Creates a text representation of this <code>MetricInfo</code>
+     * instance.
+     * 
+     * @return The text representation of this object.
+     */
     public String toString() {
         StringBuilder b = new StringBuilder();
+        // Add the metric plug-in's name
         b.append((
-                (getPluginName().length() > 0)
+                ((getPluginName() != null)
+                        && (getPluginName().length() > 0))
                 ? getPluginName()
                         : "[UNKNOWN]"));
-        b.append(" - ");
-        b.append(getPluginVersion());
+        // Add the metric plug-in's version
+        b.append((
+                ((getPluginVersion() != null)
+                        && (getPluginVersion().length() > 0))
+                ? getPluginVersion()
+                        : "[UNKNOWN]"));
+        // Add the metric plug-in's class name
         b.append(" [");
-        b.append(StringUtils.join((String[]) (serviceRef.getProperty(Constants.OBJECTCLASS)),","));
+        if (getServiceRef() != null) {
+            String[] classNames =
+                (String[]) serviceRef.getProperty(Constants.OBJECTCLASS);
+            b.append ((
+                    ((classNames != null)
+                            && (classNames.length > 0))
+                    ? (StringUtils.join(classNames, ","))
+                            : "UNKNOWN"));
+        }
+        else {
+            b.append("UNKNOWN");
+        }
         b.append("]");
         return b.toString();
     }
