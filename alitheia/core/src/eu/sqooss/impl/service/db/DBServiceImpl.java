@@ -561,7 +561,7 @@ public class DBServiceImpl implements DBService {
      * @see eu.sqooss.service.db.DBService#doHQL(java.lang.String, java.util.Map)
      */
     public List<?> doHQL(String hql, Map<String, Object> params) 
-        throws QueryException {
+        throws QueryException, ClassCastException {
         return doHQL(hql, params, null);
     }
 
@@ -570,7 +570,7 @@ public class DBServiceImpl implements DBService {
      */
     public List<?> doHQL(String hql, Map<String, Object> params,
             Map<String, Collection> collectionParams) 
-        throws QueryException {
+        throws QueryException, ClassCastException {
         Session s = getSession(this);
         Transaction tx = null;
         try {
@@ -607,7 +607,7 @@ public class DBServiceImpl implements DBService {
      * @see eu.sqooss.service.db.DBService#doHQL(org.hibernate.Session, java.lang.String, java.util.Map)
      */
     public List<?> doHQL(Session s, String hql, Map<String, Object> params) 
-        throws HibernateException {
+        throws HibernateException, ClassCastException {
         return doHQL(s, hql, params, null);
     }
 
@@ -616,7 +616,7 @@ public class DBServiceImpl implements DBService {
      */
     public List<?> doHQL(Session s, String hql, Map<String, Object> params,
             Map<String, Collection> collectionParams) 
-        throws HibernateException {
+        throws HibernateException, ClassCastException {
         try {
             Query query = s.createQuery(hql);
             if (params != null) {

@@ -372,11 +372,12 @@ public interface DBService {
      *           an empty list will be returned.
      *           
      * @throws QueryException if the query is invalid
+     * @throws ClassCastException if there is a type mismatch with the parameters
      * 
      * @see doHQL(String, Map<String, Object>, Map<String,Collection>)
      */
     public List<?> doHQL(String hql, Map<String, Object> params)
-        throws QueryException;
+        throws QueryException, ClassCastException;
 
     /**
      * Execute a parameterized HQL query to the database, using the default database session.
@@ -390,10 +391,11 @@ public interface DBService {
      *           an empty list will be returned.
      *           
      * @throws QueryException if the query is invalid
+     * @throws ClassCastException if there is a type mismatch with the parameters
      */
     public List<?> doHQL(String hql, Map<String, Object> params,
                           Map<String, Collection> collectionParams)
-        throws QueryException;
+        throws QueryException, ClassCastException;
     
     /**
      * Execute a complete HQL query to the database, using a separate database session.
@@ -429,11 +431,12 @@ public interface DBService {
      *          the results are returned in an instance of Object[]
      * @throws HibernateException if the query is invalid,
      *          or a Hibernate error or database access error occurs
+     * @throws ClassCastException if there is a type mismatch with the parameters
      * 
      * @see doHQL(Session, String, Map<String, Object>, Map<String,Collection>)
      */
     public List<?> doHQL(Session s, String hql, Map<String, Object> params)
-        throws HibernateException;
+        throws HibernateException, ClassCastException;
 
     /**
      * Execute a parameterized HQL query to the database, using a separate database session.
@@ -462,10 +465,11 @@ public interface DBService {
      *          the results are returned in an instance of Object[]
      * @throws HibernateException if the query is invalid,
      *          or a Hibernate error or database access error occurs
+     * @throws ClassCastException if there is a type mismatch with the parameters
      */
     public List<?> doHQL(Session s, String hql, Map<String, Object> params,
                           Map<String, Collection> lparams)
-        throws HibernateException;
+        throws HibernateException, ClassCastException;
     
     /**
      * Get a session to the alitheia DB from the session manager
