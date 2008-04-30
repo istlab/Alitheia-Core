@@ -66,7 +66,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
     private static final String NO_MATCHING_SERVICES =
         "No matching services were found!";
     private static final String NOT_A_PLUGIN =
-        "Not a plugin service!";
+        "Not a metric plug-in service!";
     private static final String INVALID_FILTER_SYNTAX =
         "Invalid filter syntax!";
     private static final String CANT_GET_SOBJ =
@@ -110,42 +110,45 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
     }
 
     /**
-     * Constructs a PluginInfo object, by combining information
-     * from OSGi and the plug-in's record in the database
+     * Creates a new <code>PluginInfo</code> object, by combining information
+     * provided from the OSGi framework and the metric plug-in's record in
+     * the database
      *
-     * @param srefPlugin the service reference object
+     * @param srefPlugin - the service reference object
+     * @param p - the DAO object associated with this metric plug-in
      *
-     * @return a {@link PluginInfo} object containing the extracted metric
+     * @return A {@link PluginInfo} object containing the extracted metric
      * information
      */
     private PluginInfo getPluginInfo (ServiceReference srefPlugin, Plugin p) {
+        // Check for a valid service reference
         if (srefPlugin == null) {
             logger.error("Got a null service reference while getting plugin info");
             return null;
         }
-        
+        // Check for a valid DAO object
         if (p == null) {
             logger.error("Plugin record not in DB, plugin with service id <"
                     + srefPlugin.getProperty(Constants.SERVICE_ID)
                     + "> is not installed");
             return null;
         }
-        logger.debug("Getting info for plugin " + p.getName());
+        // Begin with the info object's creation
+        logger.debug("Creating info onject for plug-in " + p.getName());
+        // Retrieve the metric plug-in's object from the service reference
         AlitheiaPlugin pluginObject = (AlitheiaPlugin) bc.getService(srefPlugin);
-        
-        PluginInfo pluginInfo = new PluginInfo(Plugin.getConfigEntries(p));
-
-        pluginInfo.setServiceRef(srefPlugin);
-        pluginInfo.setHashcode(p.getHashcode());
-        pluginInfo.installed = true;
-        
         if (pluginObject != null) {
-            pluginInfo.setPluginName(pluginObject.getName());
-            pluginInfo.setPluginVersion(pluginObject.getVersion());
-            pluginInfo.setActivationTypes(pluginObject.getActivationTypes());
+            PluginInfo pluginInfo =
+                new PluginInfo(Plugin.getConfigEntries(p), pluginObject);
+
+            pluginInfo.setServiceRef(srefPlugin);
+            pluginInfo.setHashcode(p.getHashcode());
+            pluginInfo.installed = true;
+
+            return pluginInfo;
         }
-        
-        return pluginInfo;
+
+        return null;
     }
 
     /**
@@ -198,7 +201,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
             AlitheiaPlugin sobjPlugin =
                 (AlitheiaPlugin) bc.getService(srefPlugin);
             // Create a plug-in info object
-            pluginInfo = new PluginInfo(null);
+            pluginInfo = new PluginInfo();
             pluginInfo.setPluginName(sobjPlugin.getName());
             pluginInfo.setPluginVersion(sobjPlugin.getVersion());
             pluginInfo.setServiceRef(srefPlugin);

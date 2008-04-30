@@ -149,6 +149,13 @@ public class PluginInfo {
     public boolean installed = false;
 
     /**
+     * Empty constructor.
+     */
+    public PluginInfo() {
+        
+    }
+
+    /**
      * Simple constructor, that creates a new <code>PluginInfo</code> instance
      * and initializes it with the given metric plug-in's configuration
      * parameters.
@@ -157,6 +164,22 @@ public class PluginInfo {
      */
     public PluginInfo(List<PluginConfiguration> c) {
         this.config = c;
+    }
+
+    /**
+     * Creates a new <code>PluginInfo</code> instance, and initializes it with
+     * the given metric plug-in's configuration parameters and description
+     * fields.
+     * 
+     * @param c - the list of configuration parameters
+     */
+    public PluginInfo(List<PluginConfiguration> c, AlitheiaPlugin p) {
+        this.config = c;
+        if (p != null) {
+            setPluginName(p.getName());
+            setPluginVersion(p.getVersion());
+            setActivationTypes(p.getActivationTypes());
+        }
     }
 
     /**
