@@ -182,14 +182,14 @@ public class DBServiceImpl implements DBService {
         while (e != null) {
             String message = String.format("SQLException: SQL State:%s, Error Code:%d, Message:%s",
                     e.getSQLState(), e.getErrorCode(), e.getMessage());
-            logger.error(message);
+            logger.warn(message);
             e = e.getNextException();
         }
     }
 
     private void logExceptionAndRollbackTransaction( Exception e, Transaction tx) {
         if (tx != null) {
-            logger.error("Error during database transaction: " + e.getMessage() + ". Rolling back transaction.");
+            logger.warn("Error during database transaction: " + e.getMessage() + ". Rolling back transaction.");
             try {
                 tx.rollback();
             } catch (HibernateException ex) {
@@ -508,15 +508,15 @@ public class DBServiceImpl implements DBService {
         } catch ( JDBCException e ) {
             logExceptionAndRollbackTransaction(e,tx);
             throw e.getSQLException();
+        } catch ( QueryException e ) {
+            logExceptionAndRollbackTransaction(e, tx);
+            throw e;
         } catch( TransactionException e ) {
             logger.error("Transaction error: " + e.getMessage());
             return Collections.emptyList();
         } catch( HibernateException e ) {
             logExceptionAndRollbackTransaction(e,tx);
             return Collections.emptyList();
-        } catch (ClassCastException e) {
-            logExceptionAndRollbackTransaction(e,tx);
-            throw e;
         } finally {
             returnSession(s);
         }
@@ -538,11 +538,11 @@ public class DBServiceImpl implements DBService {
         } catch (JDBCException e) {
             logSQLException(e.getSQLException());
             throw e;
+        } catch (QueryException e) {
+            logger.warn("Error while executing SQL query: " + e.getMessage());
+            throw e;
         } catch (HibernateException e) {
             logger.error("Hibernate error: " + e.getMessage());
-            throw e;
-        } catch (ClassCastException e) {
-            logger.warn("Invalid SQL query parameter type: " + e.getMessage());
             throw e;
         }
     }
@@ -1053,7 +1053,7 @@ public class DBServiceImpl implements DBService {
         props.clear();
         try {
             doSQL("SELECT * FROM STORED_PROJECT WHERE PROJECT_ID=:id", props);
-        } catch (SQLException e) {
+        } catch (QueryException e) {
             exceptionThrown = true;
         } catch (Exception e) {
             return "unexpected exception thrown during doSQL() missing param test"; 
