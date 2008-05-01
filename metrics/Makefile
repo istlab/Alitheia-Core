@@ -1,5 +1,5 @@
 TOP_SRCDIR=..
-SUBDIRS=skeleton wc productivity-metric
+SUBDIRS=clmt skeleton wc productivity-metric
 
 include $(TOP_SRCDIR)/Makefile.metrics
 

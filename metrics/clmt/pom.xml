@@ -33,6 +33,14 @@
     <defaultGoal>package</defaultGoal>
     <sourceDirectory>${basedir}/src</sourceDirectory>
     <outputDirectory>${basedir}/build</outputDirectory>
+    <resources>
+      <resource>
+        <directory> ${basedir}/lib </directory>
+	  <includes>
+	    <include>clmt.jar</include>
+	  </includes>
+       </resource>
+    </resources>
     <plugins>
       <plugin>
         <artifactId>maven-jar-plugin</artifactId>
