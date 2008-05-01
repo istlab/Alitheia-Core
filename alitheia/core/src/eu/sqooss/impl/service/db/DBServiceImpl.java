@@ -443,10 +443,7 @@ public class DBServiceImpl implements DBService {
             // We use "foo" as the name of the object
             return (List<T>) doHQL( s, "from " + daoClass.getName() + " as foo " + whereClause, parameterMap );
         } catch (QueryException e) {
-            logger.warn("Invalid property name: " + e.getMessage());
-            return Collections.emptyList();
-        } catch (ClassCastException e) {
-            logger.warn("Invalid property type: " + e.getMessage());
+                logger.warn("findObjectsByProperties(): invalid properties map");
             return Collections.emptyList();
         }
     }
@@ -559,7 +556,7 @@ public class DBServiceImpl implements DBService {
      * @see eu.sqooss.service.db.DBService#doHQL(java.lang.String, java.util.Map)
      */
     public List<?> doHQL(String hql, Map<String, Object> params) 
-        throws QueryException, ClassCastException {
+        throws QueryException {
         return doHQL(hql, params, null);
     }
 
@@ -568,7 +565,7 @@ public class DBServiceImpl implements DBService {
      */
     public List<?> doHQL(String hql, Map<String, Object> params,
             Map<String, Collection> collectionParams) 
-        throws QueryException, ClassCastException {
+        throws QueryException {
         Session s = getSession(this);
         Transaction tx = null;
         try {
@@ -585,9 +582,6 @@ public class DBServiceImpl implements DBService {
         } catch( HibernateException e ) {
             logExceptionAndRollbackTransaction(e,tx);
             return Collections.emptyList();
-        } catch (ClassCastException e) {
-            logExceptionAndRollbackTransaction(e,tx);
-            throw e;
         } finally {
             returnSession(s);
         }
@@ -605,7 +599,7 @@ public class DBServiceImpl implements DBService {
      * @see eu.sqooss.service.db.DBService#doHQL(org.hibernate.Session, java.lang.String, java.util.Map)
      */
     public List<?> doHQL(Session s, String hql, Map<String, Object> params) 
-        throws HibernateException, ClassCastException {
+        throws HibernateException {
         return doHQL(s, hql, params, null);
     }
 
@@ -614,7 +608,7 @@ public class DBServiceImpl implements DBService {
      */
     public List<?> doHQL(Session s, String hql, Map<String, Object> params,
             Map<String, Collection> collectionParams) 
-        throws HibernateException, ClassCastException {
+        throws HibernateException {
         try {
             Query query = s.createQuery(hql);
             if (params != null) {
@@ -638,8 +632,10 @@ public class DBServiceImpl implements DBService {
             logger.error("Hibernate error: " + e.getMessage());
             throw e;
         } catch (ClassCastException e) {
+            // Throw a QueryException instead of forwarding the ClassCastException
+            // it's more explicit
             logger.warn("Invalid HQL query parameter type: " + e.getMessage());
-            throw e;
+            throw new QueryException("Invalid query parameter type: " + e.getMessage(), e);
         }
         
     }
@@ -948,7 +944,7 @@ public class DBServiceImpl implements DBService {
             return "findObjectsByProperties() name+id param test failed";
         }
         
-        props.put("id", 0);
+        props.put("id", 0L);
         projectList = findObjectsByProperties(StoredProject.class, props);
         if ( !projectList.isEmpty() ) {
             return "findObjectsByProperties() invalid id param test failed";
@@ -961,8 +957,7 @@ public class DBServiceImpl implements DBService {
         }
 
         // Watch out for that one : 1 is an int constant, so it gets boxed in an Integer
-        // however the id is a Long, so this yields a ClassCastException when the query is
-        // executed
+        // however the id is a Long, so this yields an exception when the query is executed
         props.put("id", 1);
         projectList = findObjectsByProperties(StoredProject.class, props);
         if ( !projectList.isEmpty() ) {
