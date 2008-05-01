@@ -3,6 +3,7 @@
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  *
  * Copyright 2007-2008 by the SQO-OSS consortium members <info@sqo-oss.eu>
+ * Copyright 2007-2008 by Georgios Gousios <gousiosg@gmail.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -32,6 +33,8 @@
 
 package eu.sqooss.impl.metrics.clmt;
 
+import org.clmt.configuration.Source;
+
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.AbstractMetricJob;
 
@@ -50,7 +53,7 @@ public class CLTMJob extends AbstractMetricJob {
     }
 
     public void run() {  
-      
+        
     }
 }
 

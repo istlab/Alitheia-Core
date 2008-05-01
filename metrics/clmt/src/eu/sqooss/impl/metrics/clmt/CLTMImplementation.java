@@ -40,14 +40,16 @@ import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.metrics.clmt.CLMT;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.Result;
+import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
-import eu.sqooss.service.db.ProjectFile;
+import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.scheduler.Scheduler;
 
 
 public class CLTMImplementation extends AbstractMetric implements CLMT {
     public CLTMImplementation(BundleContext bc) {
-        super(bc);        
+        super(bc);      
+        this.addActivationType(ProjectVersion.class);
     }
     
     public boolean install() {
@@ -82,13 +84,7 @@ public class CLTMImplementation extends AbstractMetric implements CLMT {
         return result;
     }
     
-    public Result getResult(ProjectFile a) {
-        Result result = null;
-        
-        return result;
-    }
-
-    public void run(ProjectFile a) {
+    public void run(ProjectVersion v) {
         CLTMJob w = null;
         try {
             w = new CLTMJob(this);
@@ -99,9 +95,14 @@ public class CLTMImplementation extends AbstractMetric implements CLMT {
             s.enqueue(w);
         } catch (Exception e) {
             log.error("Could not schedule "+ w.getClass().getName() + 
-                    " for project file: " + ((ProjectFile)a).getFileName());
+                    " for project version: " + (v.getVersion()));
         }
     }
+    
+    public Result getResult(ProjectVersion a, Metric m) {
+        
+        return null;
+    }    
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab
