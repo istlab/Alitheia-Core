@@ -298,9 +298,10 @@ public interface DBService {
      * @return a list of records. If the query contains multiple columns,
      *          the results are returned in an instance of Object[]
      * @throws SQLException if the query is invalid or a database access error occurs
+     * @throws QueryException if some parameters are missing
      */
     public List<?> doSQL(String sql, Map<String, Object> params)
-        throws SQLException;
+        throws SQLException, QueryException;
     
     /**
      * Execute a complete SQL query to the database, using a separate database session.

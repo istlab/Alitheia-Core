@@ -497,7 +497,7 @@ public class DBServiceImpl implements DBService {
      * @see eu.sqooss.service.db.DBService#doSQL(java.lang.String, java.util.Map)
      */
     public List<?> doSQL(String sql, Map<String, Object> params)
-        throws SQLException {
+        throws SQLException, QueryException {
         Session s = getSession(this);
         Transaction tx = null;
         try {
