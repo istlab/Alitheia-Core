@@ -182,8 +182,9 @@ class SourceUpdater extends Job {
                     
                     ProjectFile pf = curVersion.addProjectFile();
                     String path = chPath.substring(0, chPath.lastIndexOf('/'));
-                    if (path == "")
+                    if (path == null || path.equalsIgnoreCase("")) {
                         path = "/"; //SVN entry does not have a path
+		    }
                     String fname = chPath.substring(chPath.lastIndexOf('/') + 1);
 
                     Directory dir = null;
