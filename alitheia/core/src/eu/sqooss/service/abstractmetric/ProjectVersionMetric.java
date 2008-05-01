@@ -46,20 +46,6 @@ import eu.sqooss.service.db.ProjectVersion;
 public interface ProjectVersionMetric extends AlitheiaPlugin {
 
     /**
-     * Run the metric to update the metric results when new versions
-     * of the evaluated project are available.
-     *
-     * By default, the run method will start updating metric results from
-     * version <tt>a</tt> to version <tt>b</tt>.
-     *
-     * @param The first new version DAO
-     * @param The last new version DAO
-     * @return True, if the metric run succesfuly, false otherwise
-     * @see eu.sqooss.service.db.ProjectVersion
-     */
-    boolean run(ProjectVersion a, ProjectVersion b);
-
-    /**
      * Specialization of run(DAObject) for project versions.
      */
     void run(ProjectVersion v);
