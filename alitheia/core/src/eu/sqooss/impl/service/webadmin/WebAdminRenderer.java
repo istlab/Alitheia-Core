@@ -119,7 +119,7 @@ public class WebAdminRenderer {
             }
 
             // Get the Plugin Administration object
-            sobjPluginAdmin = sobjAlitheiaCore.getPluginManager();
+            sobjPluginAdmin = sobjAlitheiaCore.getPluginAdmin();
             if (sobjPluginAdmin != null) {
                 sobjLogger.debug("WebAdmin got Plugin Admin object.");
             }

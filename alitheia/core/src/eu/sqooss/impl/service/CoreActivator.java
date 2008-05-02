@@ -2,37 +2,55 @@ package eu.sqooss.impl.service;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DBService;
 
 public class CoreActivator implements BundleActivator {
 
-    private static BundleContext bundleContext = null;
-    private static DBService dbService = null;
+    /** Keeps the <code>AlitheaCore</code> instance. */
+    private AlitheiaCore core;
     
-    public void start(BundleContext bc) throws Exception {
-        AlitheiaCore core = new AlitheiaCore(bc);
-        bc.registerService(core.getClass().getName(), core, null);
+    /** Keeps the <code>AlitheaCore</code>'s service registration instance. */
+    private ServiceRegistration sregCore;
 
-        // Run an instance of the WebAdmin
-        core.initWebAdmin();
-        
-        // Run an instance of the PluginAdmin
-        core.initPluginAdmin();
-        
-        bundleContext = bc;
+    // TODO: See the next TODO
+    private static DBService dbService = null;
+
+    /* (non-Javadoc)
+     * @see org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext)
+     */
+    public void start(BundleContext bc) throws Exception {
+        // Create an AlitheiaCore instance and register it as a service
+        core = new AlitheiaCore(bc);
+        bc.registerService(AlitheiaCore.class.getName(), core, null);
+        // Initialize the AlitheiaCore instance
+        core.init();
+
+        /**
+         * TODO: Is there a specific reason, why some of the core components
+         * obtain a DB component instance from here, and not from the
+         * AlitheaCore service.
+         */
         dbService = core.getDBService();
     }
 
+    /* (non-Javadoc)
+     * @see org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
+     */
     public void stop(BundleContext bc) throws Exception {
-       
+       if (sregCore != null) {
+           sregCore.unregister();
+       }
     }
     
-    public static BundleContext getBundleContext() {
-        return bundleContext; 
-    }
-    
+
+    /**
+     * TODO: Is there a specific reason, why some of the core components
+     * obtain a DB component instance from here, and not from the
+     * AlitheaCore service.
+     */
     public static DBService getDBService() {
         return dbService;
     }

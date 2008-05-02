@@ -118,7 +118,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         if(db == null)
             log.error("Could not get a reference to the DB service");
         
-        pa = ((AlitheiaCore) bc.getService(serviceRef)).getPluginManager();
+        pa = ((AlitheiaCore) bc.getService(serviceRef)).getPluginAdmin();
 
         if(pa == null)
             log.error("Could not get a reference to the Plugin Administation " +

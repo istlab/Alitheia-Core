@@ -56,20 +56,25 @@ import eu.sqooss.service.pa.PluginInfo;
 import eu.sqooss.service.pa.PluginAdmin;
 
 public class MetricActivatorImpl implements MetricActivator {
-    
+
+    /** The parent bundle's context object. */
+    private BundleContext bc;
+
     private AlitheiaCore core;
     private DBService dbs;
     private Logger logger;
     private PluginAdmin pa;
     
     public MetricActivatorImpl(BundleContext bc, Logger logger) {
+        this.bc=bc;
+
         ServiceReference serviceRef = null;
         serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
         core = (AlitheiaCore) bc.getService(serviceRef);
         
         this.logger = logger;
         this.dbs = core.getDBService();
-        this.pa = core.getPluginManager();
+        this.pa = core.getPluginAdmin();
     }
     
     /*TODO: Remove type unsafety */
@@ -77,7 +82,7 @@ public class MetricActivatorImpl implements MetricActivator {
             SortedSet<Long> objectIDs) {
         // Get a list of all metrics that support the given activation type
         List<PluginInfo> metrics = null;
-        metrics = core.getPluginManager().listPluginProviders(clazz);
+        metrics = core.getPluginAdmin().listPluginProviders(clazz);
         
         if (metrics == null || metrics.size() == 0) {
             logger.warn("No metrics found for activation type " + clazz.getName());
@@ -91,7 +96,8 @@ public class MetricActivatorImpl implements MetricActivator {
             long currentVersion = i.next().longValue();
             for (PluginInfo pi : metrics) {
                 // Get the metric plug-in that installed this metric
-                AlitheiaPlugin m = (AlitheiaPlugin) core.getService(pi.getServiceRef());
+                AlitheiaPlugin m =
+                    (AlitheiaPlugin) bc.getService(pi.getServiceRef());
                 if (m != null) {
                     try {
                         // Retrieve the resource object's DAO from the
