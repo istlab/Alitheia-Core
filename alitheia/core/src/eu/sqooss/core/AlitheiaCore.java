@@ -150,11 +150,11 @@ public class AlitheiaCore {
 
     /**
      * This method performs initialization of the <code>AlitheiaCore</code>
-     * object by creating instances of some of the core components, that are
-     * either used by this object or have to be initialized before any other
-     * component is initialized or metric plug-in service is started.
+     * object by instantiating some of the core components, that are
+     * either used by this object, or have to be created before any other
+     * component is initialized or any metric plug-in service started.
      * <br/>
-     * The list of pre-initialized <i>(in this order)</i> components include:
+     * The list of created <i>(in this order)</i> instances include:
      * <ul>
      *   <li> Logger component
      *   <li> DB component
