@@ -41,25 +41,31 @@ ProjectFileWrapperMetricJob::~ProjectFileWrapperMetricJob()
 
 void ProjectFileWrapperMetricJob::run()
 {
+    Logger logger( Logger::Logger::NameSqoOssMetric );
+    logger.setTeeStream( std::cout );
+
     string result;
 
     // program reads from file
     if( find( arguments.begin(), arguments.end(), "%file%" ) != arguments.end() )
     { 
         TemporaryFile file( projectFile.name.c_str() );
-        command_line cl( program );
+        vector< string > command;
+        command.push_back( program );
+
         for( vector< string >::const_iterator it = arguments.begin(); it != arguments.end(); ++it )
         {
             if( *it != "%file%" )
-                cl.argument( *it );
+                command.push_back( *it );
             else
-                cl.argument( file.name() );
+                command.push_back( file.name() );
         }
 
         projectFile.save( file );
         file.close();
 
         launcher l;
+        command_line cl = command_line::shell( join( command, " " ) );
         l.set_stdout_behavior( redirect_stream );
         child c = l.start( cl );
 
@@ -73,7 +79,7 @@ void ProjectFileWrapperMetricJob::run()
 
         if( !c.wait().exited() )
         {
-            std::cout << "Abnormal program termination." << std::endl;
+            logger << "Abnormal program termination." << std::endl;
             return;
         }
 
@@ -81,13 +87,17 @@ void ProjectFileWrapperMetricJob::run()
     // program reads from standard input
     else
     {
-        command_line cl( program );
+        vector< string > command;
+        command.push_back( program );
+
         for( vector< string >::const_iterator it = arguments.begin(); it != arguments.end(); ++it )
         {
-            cl.argument( *it );
+            command.push_back( *it );
         }
 
         launcher l;
+        command_line cl = command_line::shell( join( command, " " ) );
+        logger << join( command, " " ) << std::endl;
         l.set_stdout_behavior( redirect_stream );
         l.set_stdin_behavior( redirect_stream );
         child c = l.start( cl );
@@ -114,7 +124,7 @@ void ProjectFileWrapperMetricJob::run()
 
         if( !c.wait().exited() )
         {
-            std::cout << "Abnormal program termination." << std::endl;
+            logger << "Abnormal program termination." << std::endl;
             return;
         }
     }
@@ -155,6 +165,9 @@ ProjectVersionWrapperMetricJob::~ProjectVersionWrapperMetricJob()
 
 void ProjectVersionWrapperMetricJob::run()
 {
+    Logger logger( Logger::Logger::NameSqoOssMetric );
+    logger.setTeeStream( std::cout );
+
     // get a checkout
     FDS fds;
     Checkout co = fds.getCheckout( projectVersion );
@@ -164,19 +177,27 @@ void ProjectVersionWrapperMetricJob::run()
     co.save( dir.name() );
 
     // run the program on it
-    command_line cl( program );
     bool gotDirectory = false;
+    vector< string > command;
+    command.push_back( program );
+
     for( vector< string >::const_iterator it = arguments.begin(); it != arguments.end(); ++it )
     {
         if( *it != "%directory%" )
-            cl.argument( *it );
+        {
+            command.push_back( *it );
+        }
         else
-            cl.argument( dir.name() );
+        {
+            command.push_back( dir.name() );
+            gotDirectory = true;
+        }
     }
     if( !gotDirectory )
-        cl.argument( dir.name() );
+        command.push_back( dir.name() );
 
     launcher l;
+    command_line cl = command_line::shell( join( command, " " ) );
     l.set_stdout_behavior( redirect_stream );
     child c = l.start( cl );
 
@@ -189,9 +210,11 @@ void ProjectVersionWrapperMetricJob::run()
         result += line + '\n';
     }
 
+    logger << "Running " << join( command, " " ) << std::endl;
+
     if( !c.wait().exited() )
     {
-        std::cout << "Abnormal program termination." << std::endl;
+        logger << "Abnormal program termination." << std::endl;
         return;
     }
 

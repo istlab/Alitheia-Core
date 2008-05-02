@@ -8,6 +8,28 @@
 #include <string>
 #include <vector>
 
+template< typename T>
+T join( const std::vector< T >& v, const T& t = T() )
+{
+    T result;
+    if( v.empty() )
+        return result;
+    for( typename std::vector< T >::const_iterator it = v.begin(); it != v.end() - 1; ++it )
+    {
+        result += *it;
+        result += t;
+    }
+    result += v.back();
+
+    return result;
+}
+
+template< typename T, typename C>
+T join( const std::vector< T >& v, const C& c )
+{
+    return join( v, T( c ) );
+}
+
 class ProjectFileWrapperMetric : public Alitheia::ProjectFileMetric
 {
 public:

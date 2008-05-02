@@ -14,28 +14,6 @@ using std::endl;
 using std::string;
 using std::vector;
 
-template< typename T>
-T join( const vector< T >& v, const T& t = T() )
-{
-    T result;
-    if( v.empty() )
-        return result;
-    for( typename vector< T >::const_iterator it = v.begin(); it != v.end() - 1; ++it )
-    {
-        result += *it;
-        result += t;
-    }
-    result += v.back();
-
-    return result;
-}
-
-template< typename T, typename C>
-T join( const vector< T >& v, const C& c )
-{
-    return join( v, T( c ) );
-}
-
 ProjectFileWrapperMetric::ProjectFileWrapperMetric( const string& metric, const string& program, 
                                                     const vector< string >& arguments )
     : logger( Logger::NameSqoOssMetric ),
