@@ -48,6 +48,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.http.HttpService;
 
+import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.impl.service.security.utils.SecurityManagerDatabase;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Group;
@@ -114,20 +115,33 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
         }
     }
 
-    public SecurityManagerImpl(BundleContext bc, DBService db,
-            MessagingService messaging, Logger logger) {
+    public SecurityManagerImpl(BundleContext bc, Logger logger) {
         this.bc = bc;
-        this.dbWrapper = new SecurityManagerDatabase(db);
+
+        // Get the AlitheaCore's object
+        ServiceReference srefCore = null;
+        srefCore = bc.getServiceReference(AlitheiaCore.class.getName());
+        AlitheiaCore sobjCore = (AlitheiaCore) bc.getService(srefCore);
+
+        // Obtain the required core components
+        DBService db = sobjCore.getDBService();
+        MessagingService messaging = sobjCore.getMessagingService();
         this.logger = logger;
-        
+
+        // Instantiate a wrapper around the DB component
+        this.dbWrapper = new SecurityManagerDatabase(sobjCore.getDBService());
+
+        // Instantiate the various security managers
         groupManager = new GroupManagerImpl(db, logger);
         privilegeManager = new PrivilegeManagerImpl(db, logger);
         serviceUrlManager = new ServiceUrlManagerImpl(db, logger);
         userManager = new UserManagerImpl(db, messaging, logger,
                 privilegeManager, groupManager, serviceUrlManager);
-        
+
+        // Check if security is enabled in the configuration file
         isEnable = Boolean.valueOf(System.getProperty(PROPERTY_ENABLE, "true"));
-        
+
+        // Create the unprivileged SQO-OSS user
         initDefaultUser();
         
         // Get a reference to the HTTPService, and its object
@@ -136,6 +150,7 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
             sobjHttpService = (HttpService) bc.getService(srefHttpService);
             if (sobjHttpService != null) {
                 try {
+                    // Register the user's confirmation servlet
                     sobjHttpService.registerServlet(
                         "/confirmRegistration",
                         new ConfirmationServlet(),
@@ -323,7 +338,7 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
         
         return result;
     }
-    
+
     private static String parseFullUrl(String fullUrl, Dictionary<String, String> privileges) {
         int resourceDelimiterIndex = fullUrl.indexOf(
                 SecurityConstants.URL_DELIMITER_RESOURCE);
@@ -335,7 +350,7 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
         
         StringTokenizer privilegesTokenizer = new StringTokenizer(privilegesString,
                 Character.toString(URL_DELIMITER_PRIVILEGE));
-        
+
         String currentToken;
         int firstIndexOfEquals;
         int lastIndexOfEquals;
@@ -401,7 +416,7 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
             }
         }
     }
-    
+
     public Object selfTest() {
         SelfTester tester = new SelfTester(this);
         return tester.test();
