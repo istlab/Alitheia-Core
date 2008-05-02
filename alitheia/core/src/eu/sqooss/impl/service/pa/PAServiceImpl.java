@@ -296,11 +296,12 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
 
     /**
      * Extracts the service ID of the metric plug-in service described in the
-     * information object located by the specified hash value.
+     * metric plug-in's information object located by the specified hash 
+     * code's value.
      * 
-     * @param hash the hash value
+     * @param hash the hash code's value
      * 
-     * @return the service ID
+     * @return The service ID.
      */
     private Long getServiceID (String hash) {
         if ((hash != null) && (registeredPlugins.containsKey(hash))) {

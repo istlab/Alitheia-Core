@@ -42,8 +42,7 @@ import eu.sqooss.service.db.DAObject;
  * utilities for managing SQO-OSS metric plug-ins.<br/>
  * <br/>
  * A <code>PluginAdmin</code> implementation should keep a list of metric
- * plug-in's information objects
- * (see <code>eu.sqooss.service.pa.PluginInfo</code>), describing the
+ * plug-in's information objects of type {@link PluginInfo}, describing the
  * available metric plug-ins, and indexed by a unique hash value.<br/>
  */
 public interface PluginAdmin {
