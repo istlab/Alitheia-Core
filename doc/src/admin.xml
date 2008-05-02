@@ -51,7 +51,7 @@
                 $TOMCAT/bin/catalina.sh start
               </command>
               Tomcat itself takes care of unpacking and deploying the WebUI
-              apllication from the WAR file.
+              application from the WAR file.
             </para>
           </listitem>
           <listitem>
