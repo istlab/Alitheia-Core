@@ -8,6 +8,11 @@ import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.impl.service.corba.alitheia.JobPackage.JobState;
 import eu.sqooss.service.scheduler.Job;
 
+/**
+ * Wrapper class provided to import jobs from the Corba ORB into
+ * Alitheia's job scheduler.
+ * @author Christoph Schleifenbaum, KDAB
+ */
 public class CorbaJobImpl extends Job {
 
 	private eu.sqooss.impl.service.corba.alitheia.Job j;
@@ -25,7 +30,9 @@ public class CorbaJobImpl extends Job {
        	}
 	}
 	
-	@Override
+	/**
+	 * {@inheritDoc}
+	 */
 	public int priority() {
 		try{
 			if (j==null || j._non_existent()) {
@@ -40,7 +47,10 @@ public class CorbaJobImpl extends Job {
 		}
 	}
 
-	@Override
+	/**
+	 * Runs the external job.
+	 * {@inheritDoc}
+	 */
 	protected void run() throws Exception {
 		if (j==null || j._non_existent()) {
 			return;
@@ -55,6 +65,9 @@ public class CorbaJobImpl extends Job {
 		}
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	protected void stateChanged(State state) {
 		try
 		{
@@ -85,6 +98,9 @@ public class CorbaJobImpl extends Job {
 		}
 	}
 	
+	/**
+	 * Enqueues the job in the default scheduler.
+	 */
 	public void enqueue()
 	{
 		try{
@@ -94,6 +110,9 @@ public class CorbaJobImpl extends Job {
 		}
 	}
 
+	/**
+	 * Invalidates the job.
+	 */
 	public void invalidate() {
 		j = null;
 	}

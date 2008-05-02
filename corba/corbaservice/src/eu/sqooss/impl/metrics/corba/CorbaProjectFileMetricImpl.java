@@ -10,6 +10,10 @@ import eu.sqooss.impl.service.corba.alitheia.db.DAObject;
 import eu.sqooss.service.abstractmetric.ResultEntry;
 import eu.sqooss.service.db.Metric;
 
+/**
+ * Wrapper class to import a ProjectFile metric from the Corba ORB.
+ * @author Christoph Schleifenbaum, KDAB
+ */
 public class CorbaProjectFileMetricImpl extends CorbaMetricImpl implements eu.sqooss.service.abstractmetric.ProjectFileMetric {
 
     private ProjectFileMetric metric;
@@ -20,11 +24,17 @@ public class CorbaProjectFileMetricImpl extends CorbaMetricImpl implements eu.sq
         metric = m;
     }
 
-     public void run(eu.sqooss.service.db.ProjectFile a) {
+    /**
+     * {@inheritDoc}
+     */
+    public void run(eu.sqooss.service.db.ProjectFile a) {
         ProjectFile file = DAObject.toCorbaObject(a);
         metric.run(file);
     }
 
+    /**
+     * {@inheritDoc}
+     */
 	public List<ResultEntry> getResult(eu.sqooss.service.db.ProjectFile a,
 			Metric m) {
 		// TODO Auto-generated method stub

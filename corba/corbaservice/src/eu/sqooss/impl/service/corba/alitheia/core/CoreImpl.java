@@ -33,7 +33,12 @@ import eu.sqooss.impl.service.corba.alitheia.db.DAObject;
 import eu.sqooss.impl.service.corba.alitheia.job.CorbaJobImpl;
 import eu.sqooss.service.fds.FDSService;
 
-
+/**
+ * Core of the CorbaService.
+ * Handles all methods to register/unregister services within/from the Corba ORB.
+ * Provides even some Service dependent misc methods.
+ * @author Christoph Schleifenbaum
+ */
 public class CoreImpl extends CorePOA {
 
     BundleContext bc = null;
@@ -55,10 +60,19 @@ public class CoreImpl extends CorePOA {
 
     private static int nextId = 0;
 
+    /**
+     * Creates an unique ID.
+     * This ID is should be used to create unique names for the Corba ORB.
+     */
     public synchronized int getUniqueId() {
-            return ++nextId;
+    	return ++nextId;
     }
 
+    /**
+     * Registers a metric in the ORB.
+     * @param name The name of the metric within the ORB.
+     * @return A service ID which can be used to unregister the metric later.
+     */
     public int registerMetric(String name) {
         org.omg.CORBA.Object o;
         try {
@@ -94,10 +108,19 @@ public class CoreImpl extends CorePOA {
         return CorbaActivator.instance().registerExternalCorbaObject(CorbaMetricImpl.class.getName(), wrapper);
     }
 
+    /**
+     * Unregisters a metric previously registered with registerMetric.
+     * @param id The id returned by registerMetric.
+     */
     public void unregisterMetric(int id) {
         CorbaActivator.instance().unregisterExternalCorbaObject(id);
     }
 
+    /**
+     * Registers a job in the Alitheia Scheduler system.
+     * @param name The name of the object within the ORB.
+     * @return An ID.
+     */
     public int registerJob(String name) {
         org.omg.CORBA.Object o;
         try {
@@ -112,6 +135,10 @@ public class CoreImpl extends CorePOA {
         return impl.hashCode();
     }
 
+    /**
+     * Unregisters a job previously registered with registerJob.
+     * @param name The name of the job within the ORB.
+     */
     public void unregisterJob(String name) {
     	CorbaJobImpl j = registeredJobs.get(name);
     	registeredJobs.remove(name);
@@ -121,10 +148,19 @@ public class CoreImpl extends CorePOA {
     	}
     }
 
+    /**
+     * Enqueues a job previously registered with registerJob in the scheduler.
+     * @parem name The name of the job within the ORB.
+     */
     public void enqueueJob(String name) {
         registeredJobs.get(name).enqueue();
     }
 
+    /**
+     * Marks a job being dependent on another job.
+     * @param job The name of the job which is dependent.
+     * @param dependency The name ob the job \a job depends on.
+     */
     public void addJobDependency(String job, String dependency) {
         try {
             registeredJobs.get(job).addDependency(registeredJobs.get(dependency));
@@ -133,6 +169,10 @@ public class CoreImpl extends CorePOA {
         }
     }
     
+    /**
+     * Waits for a job to finish.
+     * @param job The name of the job to wait for.
+     */
     public void waitForJobFinished(String job) {
         try {
             registeredJobs.get(job).waitForFinished();
@@ -141,6 +181,10 @@ public class CoreImpl extends CorePOA {
         }
     }
   
+    /**
+     * Get a list of metric types supported by a special metric.
+     * @param metricname The name of the metric within the Corba ORB.
+     */
     public Metric[] getSupportedMetrics(String metricname) {
         CorbaMetricImpl metric = registeredMetrics.get(metricname);
         List<eu.sqooss.service.db.Metric> metrics = metric.getSupportedMetrics();
@@ -153,11 +197,21 @@ public class CoreImpl extends CorePOA {
         return result;
     }
 
+    /** 
+     * Adds metric types supporetd by a special metric to it.
+     * @param metricname The name of the metric within the Corba ORB.
+     * @param description String description of the metric.
+     * @param mnemoic Short description code of the metric type.
+     * @param type The metric type of the supported metric.
+     */
     public boolean addSupportedMetrics(String metricname, String description, String mnemonic, MetricTypeType type) {
         CorbaMetricImpl metric = registeredMetrics.get(metricname);
         return metric.doAddSupportedMetrics(description, mnemonic, DAObject.fromCorbaObject(type));
     }
   
+    /**
+     * Get a list of all files added/deleted/changed in \a version.
+     */
     public ProjectFile[] getVersionFiles (ProjectVersion version) {
         List<eu.sqooss.service.db.ProjectFile> files = DAObject.fromCorbaObject(version).getVersionFiles();
 

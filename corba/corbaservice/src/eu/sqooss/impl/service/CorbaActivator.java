@@ -31,18 +31,34 @@ import eu.sqooss.impl.service.corba.alitheia.fds.FDSImpl;
 
 public class CorbaActivator implements BundleActivator {
 
+	/**
+	 * ORBThread is a tread running an ORB in the background.
+	 * @author Christoph Schleifenbaum, KDAB
+	 */
     private class ORBThread extends Thread
     {
         private ORB orb;
         
+        /**
+         * Creates a new ORBThread instance
+         * @param orb The 
+         */
         public ORBThread(ORB orb) {
             this.orb = orb;
         }
-        
+    
+        /**
+         * Runs the ORB in his thread, until it's stopped
+         * using shutdown().
+         * {@inheritDoc}
+         */
         public void run() {
             orb.run();
         }
         
+        /**
+         * Stops the ORB thread.
+         */
         public void shutdown() {
             orb.shutdown(true);
         }
@@ -60,6 +76,9 @@ public class CorbaActivator implements BundleActivator {
     
     private Map< Integer, ServiceRegistration > registrations;
     
+    /**
+     * {@inheritDoc}
+     */
     public void start(BundleContext bc) throws Exception {
         
         instance = this;
@@ -125,6 +144,9 @@ public class CorbaActivator implements BundleActivator {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public synchronized void stop(BundleContext context) throws Exception {
         orbthread.shutdown();
         
@@ -135,6 +157,12 @@ public class CorbaActivator implements BundleActivator {
         instance = null;
     }
     
+    /**
+     * Registers an object from the ORB within Alitheia.
+     * @param clazz The class name used used to register the service in the OSGi framework. 
+     * @param service The service object.
+     * @return The service ID of the registered service.
+     */
     public synchronized int registerExternalCorbaObject(String clazz, Object service) {
         ServiceRegistration sr = bc.registerService(clazz, service, null);
         ServiceReference ref = sr.getReference();
@@ -145,6 +173,10 @@ public class CorbaActivator implements BundleActivator {
         return id;
     }
     
+    /**
+     * Unregisters a service previously registered using registerExternalCorbaObject
+     * @param id The id returned by registerExternalCorbaObject upon registration.
+     */
     public synchronized void unregisterExternalCorbaObject(int id) {
         try {
             registrations.get(id).unregister();
@@ -155,11 +187,21 @@ public class CorbaActivator implements BundleActivator {
         }
     }
     
+    /**
+     * Registers an object in the ORB.
+     * @param name The name used to identify the object in the ORB.
+     * @param obj The object to be registered.
+     */
     protected void registerCorbaObject(String name, org.omg.CORBA.Object obj) throws InvalidName, NotFound, CannotProceed {
         NameComponent path[] = ncRef.to_name(name);
         ncRef.rebind(path, obj);
     }
-    
+
+    /**
+     * Gets an external object out of the ORB.
+     * @param name The name of the object in the ORB.
+     * @return An corba object reference
+     */
     public org.omg.CORBA.Object getExternalCorbaObject(String name) throws NotFound, CannotProceed, InvalidName
     {
         org.omg.CORBA.Object nameservice;
@@ -173,7 +215,10 @@ public class CorbaActivator implements BundleActivator {
         NameComponent path[] = { new NameComponent(name, "") };
         return ncRef.resolve(path);
     }
-    
+
+    /**
+     * Returns the singleton instance of the CorbaActivator class.
+     */
     public static CorbaActivator instance() {
         return instance;
     }

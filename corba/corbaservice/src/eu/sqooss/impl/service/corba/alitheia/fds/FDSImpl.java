@@ -21,6 +21,10 @@ import eu.sqooss.service.tds.InvalidProjectRevisionException;
 import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.ProjectRevision;
 
+/**
+ * Wrapper class provided to export the FDS into the Corba ORB.
+ * @author Christoph Schleifenbaum, KDAB
+ */
 public class FDSImpl extends FDSPOA {
 
 	protected FDSService fds = null;
@@ -37,7 +41,12 @@ public class FDSImpl extends FDSPOA {
         fds = core.getFDSService();
 	
 	}
-	
+
+	/**
+	 * Gets the contents of \a file.
+	 * @param contents Corba string holder to put the content int.
+	 * @return The size of the file. 
+	 */
 	public int getFileContents(ProjectFile file, StringHolder contents) {
         byte[] content = null;
         try {
@@ -55,6 +64,10 @@ public class FDSImpl extends FDSPOA {
         return content.length;
 	}
 
+	/**
+	 * Get all files within \a dir.
+	 * Works recursively.
+	 */
 	protected List<eu.sqooss.service.db.ProjectFile> getFiles(InMemoryDirectory dir) {
 		List<eu.sqooss.service.db.ProjectFile> files = dir.getFiles();
 		for (InMemoryDirectory subdir : dir.getSubDirectories()) {
@@ -63,6 +76,11 @@ public class FDSImpl extends FDSPOA {
 		return files;
 	}
 	
+	/**
+	 * Creates a new checkout.
+	 * @param version The ProjectVersion to create the checkout for.
+	 * @return A reference to a Corba style checkout.
+	 */
 	protected Checkout createCheckout(eu.sqooss.service.db.ProjectVersion version) throws InvalidRepositoryException, InvalidProjectRevisionException {
 		ProjectRevision rev = new ProjectRevision(version.getVersion());
 		InMemoryCheckout co = fds.getInMemoryCheckout(version.getProject().getId(), rev);
@@ -78,7 +96,11 @@ public class FDSImpl extends FDSPOA {
 
 		return result;
 	}
-	
+
+	/**
+	 * Gets a checkout.
+	 * @param version The ProjectVersion to create the checkout for.
+	 */
 	public Checkout getCheckout(ProjectVersion version) {
 		synchronized( checkouts ) {
 			if (!checkouts.containsKey(version)) {
@@ -92,8 +114,11 @@ public class FDSImpl extends FDSPOA {
 		}
 	}
 
+	/**
+	 * Releases a checkout. I.e. delete it from the cache.
+	 * @param version The ProjectVersion to release the checkout for.
+	 */
 	public void releaseCheckout(ProjectVersion version) {
 		checkouts.remove(version);
 	}
-
 }

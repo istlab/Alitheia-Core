@@ -18,8 +18,18 @@ import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.ProjectVersionMeasurement;
 import eu.sqooss.service.db.StoredProject;
 
+/**
+ * Helper class providing mappings between Alitheia's DAObject
+ * and the Corba version.
+ * @author Christoph Schleifenbaum, KDAB
+ */
 public abstract class DAObject {
 
+	/**
+	 * Translates a Corba DBObject into the Alitheia format.
+	 * @param object The corba object to be translated.
+	 * @return A reference to the Alitheia style DAObject.
+	 */
     public static eu.sqooss.service.db.DAObject fromCorbaObject(org.omg.CORBA.Any object) {
         try
         {
@@ -78,10 +88,16 @@ public abstract class DAObject {
     // use ISO date time format
     private static DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd'T'HHmmss");
 
+    /**
+     * Formats a date as ISO date time format.
+     */
     private static String formatDate(Date date) {
         return dateFormat.format(date);
     }
 
+    /**
+     * Parses a date from ISO date time format.
+     */
     private static Date parseDate(String date) {
         try {
             return dateFormat.parse(date);
@@ -90,6 +106,9 @@ public abstract class DAObject {
         }
     }
 
+    /**
+     * Translates an Alitheia-ProjectFileMeasurement into a Corba one. 
+     */
     public static eu.sqooss.impl.service.corba.alitheia.ProjectFileMeasurement toCorbaObject(ProjectFileMeasurement m) {
         eu.sqooss.impl.service.corba.alitheia.ProjectFileMeasurement measurement = new eu.sqooss.impl.service.corba.alitheia.ProjectFileMeasurement();
         measurement.id = (int)m.getId();
@@ -100,6 +119,9 @@ public abstract class DAObject {
         return measurement;
     }
 
+    /**
+     * Translates a Corba-ProjectFileMeasurement into an Alitheia one.
+     */
     public static ProjectFileMeasurement fromCorbaObject(eu.sqooss.impl.service.corba.alitheia.ProjectFileMeasurement m) {
         ProjectFileMeasurement measurement = new ProjectFileMeasurement();
         measurement.setId(m.id);
@@ -110,6 +132,9 @@ public abstract class DAObject {
         return measurement;
     }
 
+    /**
+     * Translates an Alitheia ProjectVersionMeasurement into a Corba one.
+     */
     public static eu.sqooss.impl.service.corba.alitheia.ProjectVersionMeasurement toCorbaObject(ProjectVersionMeasurement m) {
         eu.sqooss.impl.service.corba.alitheia.ProjectVersionMeasurement measurement = new eu.sqooss.impl.service.corba.alitheia.ProjectVersionMeasurement();
         measurement.id = (int)m.getId();
@@ -120,6 +145,9 @@ public abstract class DAObject {
         return measurement;
     }
 
+    /**
+     * Translates a Corba-ProjectVersionMeasurement into an Alitheia one.
+     */
     public static ProjectVersionMeasurement fromCorbaObject(eu.sqooss.impl.service.corba.alitheia.ProjectVersionMeasurement m) {
         ProjectVersionMeasurement measurement = new ProjectVersionMeasurement();
         measurement.setId(m.id);
@@ -130,6 +158,9 @@ public abstract class DAObject {
         return measurement;
     }
 
+    /**
+     * Translates an Alitheia Metric into a Corba one.
+     */
     public static eu.sqooss.impl.service.corba.alitheia.Metric toCorbaObject(Metric m) {
         eu.sqooss.impl.service.corba.alitheia.Metric metric = new eu.sqooss.impl.service.corba.alitheia.Metric();
         metric.id = (int)m.getId();
@@ -140,6 +171,9 @@ public abstract class DAObject {
         return metric;
     }
 
+    /**
+     * Translates a Corba-Metric into an Alitheia one.
+     */
     public static Metric fromCorbaObject(eu.sqooss.impl.service.corba.alitheia.Metric m) {
         Metric metric = new Metric();
         metric.setId(m.id);
@@ -150,7 +184,10 @@ public abstract class DAObject {
         return metric;
     }
 
-    public static eu.sqooss.impl.service.corba.alitheia.MetricTypeType toCorbaObject(MetricType.Type type) {
+    /**
+     * Translates an Alitheia MetricType.Type into a Corba one.
+     */
+   public static eu.sqooss.impl.service.corba.alitheia.MetricTypeType toCorbaObject(MetricType.Type type) {
         switch (type) {
         case SOURCE_CODE:
             return eu.sqooss.impl.service.corba.alitheia.MetricTypeType.SourceCode;
@@ -162,6 +199,9 @@ public abstract class DAObject {
         return null;
     }
 
+   /**
+    * Translates a Corba-MetricTypeType into an Alitheia one.
+    */
     public static MetricType.Type fromCorbaObject(eu.sqooss.impl.service.corba.alitheia.MetricTypeType type) {
         switch (type.value()) {
         case eu.sqooss.impl.service.corba.alitheia.MetricTypeType._SourceCode:
@@ -174,13 +214,19 @@ public abstract class DAObject {
         return null;
     }
 
-    public static eu.sqooss.impl.service.corba.alitheia.MetricType toCorbaObject(MetricType type) {
+    /**
+     * Translates an Alitheia MetricType into a Corba one.
+     */
+   public static eu.sqooss.impl.service.corba.alitheia.MetricType toCorbaObject(MetricType type) {
         eu.sqooss.impl.service.corba.alitheia.MetricType metricType = new eu.sqooss.impl.service.corba.alitheia.MetricType();
         metricType.id = (int)type.getId();
         metricType.type = toCorbaObject(type.getEnumType());
         return metricType;
     }
 
+   /**
+    * Translates a Corba-MetricType into an Alitheia one.
+    */
     public static MetricType fromCorbaObject(eu.sqooss.impl.service.corba.alitheia.MetricType type) {
         MetricType metricType = new MetricType();
         metricType.setId(type.id);
@@ -188,6 +234,9 @@ public abstract class DAObject {
         return metricType;
     }
 
+    /**
+     * Translates an Alitheia Plugin into a Corba one.
+     */
     public static eu.sqooss.impl.service.corba.alitheia.Plugin toCorbaObject(Plugin p) {
         eu.sqooss.impl.service.corba.alitheia.Plugin plugin = new eu.sqooss.impl.service.corba.alitheia.Plugin();
         plugin.id = (int)p.getId();
@@ -196,6 +245,9 @@ public abstract class DAObject {
         return plugin;
     }
 
+    /**
+     * Translates a Corba-Plugin into an Alitheia one.
+     */
     public static Plugin fromCorbaObject(eu.sqooss.impl.service.corba.alitheia.Plugin p) {
         Plugin plugin = new Plugin();
         plugin.setId(p.id);
@@ -204,6 +256,9 @@ public abstract class DAObject {
         return plugin;
     }
 
+    /**
+     * Translates an Alitheia FileGroup into a Corba one.
+     */
     public static eu.sqooss.impl.service.corba.alitheia.FileGroup toCorbaObject(FileGroup group) {
         eu.sqooss.impl.service.corba.alitheia.FileGroup fileGroup = new eu.sqooss.impl.service.corba.alitheia.FileGroup();
         fileGroup.id = (int)group.getId();
@@ -216,6 +271,9 @@ public abstract class DAObject {
         return fileGroup;
     }
 
+    /**
+     * Translates a Corba-FileGroup into an Alitheia one.
+     */
     public static FileGroup fromCorbaObject(eu.sqooss.impl.service.corba.alitheia.FileGroup group) {
         FileGroup fileGroup = new FileGroup();
         fileGroup.setId(group.id);
@@ -228,6 +286,9 @@ public abstract class DAObject {
         return fileGroup;
     }
 
+    /**
+     * Translates an Alitheia StoredProject into a Corba one.
+     */
     public static eu.sqooss.impl.service.corba.alitheia.StoredProject toCorbaObject(StoredProject project) {
         eu.sqooss.impl.service.corba.alitheia.StoredProject storedProject = new eu.sqooss.impl.service.corba.alitheia.StoredProject();
         storedProject.id = (int)project.getId();
@@ -240,6 +301,9 @@ public abstract class DAObject {
         return storedProject;
     }
 
+    /**
+     * Translates a Corba-StoredProject into an Alitheia one.
+     */
     public static StoredProject fromCorbaObject(eu.sqooss.impl.service.corba.alitheia.StoredProject project) {
         StoredProject storedProject = new StoredProject();
         storedProject.setId(project.id);
@@ -252,6 +316,9 @@ public abstract class DAObject {
         return storedProject;
     }
 
+    /**
+     * Translates an Alitheia ProjectVersion into a Corba one.
+     */
     public static eu.sqooss.impl.service.corba.alitheia.ProjectVersion toCorbaObject(ProjectVersion version ) {
         eu.sqooss.impl.service.corba.alitheia.ProjectVersion projectVersion = new eu.sqooss.impl.service.corba.alitheia.ProjectVersion();
         projectVersion.id = (int)version.getId();
@@ -264,6 +331,9 @@ public abstract class DAObject {
         return projectVersion;
     }
 
+    /**
+     * Translates a Corba-ProjectVersion into an Alitheia one.
+     */
     public static ProjectVersion fromCorbaObject(eu.sqooss.impl.service.corba.alitheia.ProjectVersion version) {
         ProjectVersion projectVersion = new ProjectVersion();
         projectVersion.setId(version.id);
@@ -276,6 +346,9 @@ public abstract class DAObject {
         return projectVersion;
     }
 
+    /**
+     * Translates an Alitheia ProjectFile into a Corba one.
+     */
     public static eu.sqooss.impl.service.corba.alitheia.ProjectFile toCorbaObject(ProjectFile file) {
         eu.sqooss.impl.service.corba.alitheia.ProjectFile projectFile = new eu.sqooss.impl.service.corba.alitheia.ProjectFile();
         projectFile.id = (int)file.getId();
@@ -287,6 +360,9 @@ public abstract class DAObject {
         return projectFile;
     }
 
+    /**
+     * Translates a Corba-ProjectFile into an Alitheia one.
+     */
     public static ProjectFile fromCorbaObject(eu.sqooss.impl.service.corba.alitheia.ProjectFile file) {
         ProjectFile projectFile = new ProjectFile();
         projectFile.setId(file.id);
@@ -298,6 +374,9 @@ public abstract class DAObject {
         return projectFile;
     }
 
+    /**
+     * Translates an Alitheia Developer into a Corba one.
+     */
     public static eu.sqooss.impl.service.corba.alitheia.Developer toCorbaObject(Developer dev) {
         eu.sqooss.impl.service.corba.alitheia.Developer developer = new eu.sqooss.impl.service.corba.alitheia.Developer();
         developer.id = (int)dev.getId();
@@ -308,6 +387,9 @@ public abstract class DAObject {
         return developer;
     }
 
+    /**
+     * Translates a Corba-Developer into an Alitheia one.
+     */
     public static Developer fromCorbaObject(eu.sqooss.impl.service.corba.alitheia.Developer dev) {
         Developer developer = new Developer();
         developer.setId(dev.id);
@@ -318,6 +400,9 @@ public abstract class DAObject {
         return developer;
     }
     
+    /**
+     * Translates an Alitheia Directory into a Corba one.
+     */
     public static eu.sqooss.impl.service.corba.alitheia.Directory toCorbaObject(Directory dir) {
         eu.sqooss.impl.service.corba.alitheia.Directory directory = new eu.sqooss.impl.service.corba.alitheia.Directory();
         directory.id = (int)dir.getId();
@@ -325,6 +410,9 @@ public abstract class DAObject {
         return directory;
     }
 
+    /**
+     * Translates a Corba-Directory into an Alitheia one.
+     */
     public static Directory fromCorbaObject(eu.sqooss.impl.service.corba.alitheia.Directory dir) {
         Directory directory = new Directory();
         directory.setId(dir.id);

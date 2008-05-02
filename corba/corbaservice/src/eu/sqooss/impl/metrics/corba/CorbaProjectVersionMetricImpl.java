@@ -8,6 +8,10 @@ import eu.sqooss.service.abstractmetric.Result;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.ProjectVersion;
 
+/**
+ * Wrapper class to import a ProjectVersion metric from the Corba ORB.
+ * @author Christoph Schleifenbaum, KDAB
+ */
 public class CorbaProjectVersionMetricImpl extends CorbaMetricImpl implements eu.sqooss.service.abstractmetric.ProjectVersionMetric {
 
     private ProjectVersionMetric metric;
@@ -18,14 +22,16 @@ public class CorbaProjectVersionMetricImpl extends CorbaMetricImpl implements eu
         metric = m;
     }
 
-	public boolean run(ProjectVersion a, ProjectVersion b) {
-	    return metric.run2nd(DAObject.toCorbaObject(a), DAObject.toCorbaObject(b));
-    }
-
+    /**
+     * {@inheritDoc}
+     */
 	public void run(ProjectVersion v) {
 	    metric.run(DAObject.toCorbaObject(v));	
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public Result getResult(ProjectVersion a, Metric m) {
 		// TODO Auto-generated method stub
 		return null;
