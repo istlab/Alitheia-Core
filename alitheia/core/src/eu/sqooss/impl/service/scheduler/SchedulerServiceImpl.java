@@ -50,294 +50,296 @@ import eu.sqooss.service.scheduler.SchedulerStats;
 
 public class SchedulerServiceImpl implements Scheduler {
 
-	private Logger logger = null;
+    private Logger logger = null;
 
-	private SchedulerStats stats = new SchedulerStats();
+    private SchedulerStats stats = new SchedulerStats();
 
-	// thread safe job queue
-	private BlockingQueue<Job> blockedQueue = new PriorityBlockingQueue<Job>(1,
-			new JobPriorityComparator());
-	private BlockingQueue<Job> workQueue = new PriorityBlockingQueue<Job>(1,
-			new JobPriorityComparator());
+    // thread safe job queue
+    private BlockingQueue<Job> blockedQueue = new PriorityBlockingQueue<Job>(1,
+            new JobPriorityComparator());
+    private BlockingQueue<Job> workQueue = new PriorityBlockingQueue<Job>(1,
+            new JobPriorityComparator());
 
-	private BlockingQueue<Job> failedQueue = new ArrayBlockingQueue<Job>(1000);
+    private BlockingQueue<Job> failedQueue = new ArrayBlockingQueue<Job>(1000);
 
-	private List<WorkerThread> myWorkerThreads = null;
+    private List<WorkerThread> myWorkerThreads = null;
 
-	public SchedulerServiceImpl(BundleContext bc, Logger l) {
-		logger = l;
-		logger.info("Got scheduling!");
-		
+    public SchedulerServiceImpl(BundleContext bc, Logger l) {
+        logger = l;
+        logger.info("Got scheduling!");
+
         startExecute(3 * Runtime.getRuntime().availableProcessors());
-	}
+    }
 
-	synchronized public void enqueue(Job job) throws SchedulerException {
-		logger.info("SchedulerServiceImpl: queuing job " + job.toString());
-		job.callAboutToBeEnqueued(this);
-		blockedQueue.add(job);
-		stats.incWaitingJobs();
-		stats.incTotalJobs();
-		jobDependenciesChanged(job);
-	}
+    synchronized public void enqueue(Job job) throws SchedulerException {
+        logger.info("SchedulerServiceImpl: queuing job " + job.toString());
+        job.callAboutToBeEnqueued(this);
+        blockedQueue.add(job);
+        stats.incWaitingJobs();
+        stats.incTotalJobs();
+        jobDependenciesChanged(job);
+    }
 
-	synchronized public void dequeue(Job job) {
-		if (!blockedQueue.contains(job) && !workQueue.contains(job)) {
-			if (logger != null) {
-				logger.info("SchedulerServiceImpl: job " + job.toString()
-						+ " not found in the queue.");
-			}
-			return;
-		}
-		job.callAboutToBeDequeued(this);
-		blockedQueue.remove(job);
-		workQueue.remove(job);
-		if (logger != null) {
-			logger.info("SchedulerServiceImpl: job " + job.toString()
-					+ " not found in the queue.");
-		}
-	}
+    synchronized public void dequeue(Job job) {
+        if (!blockedQueue.contains(job) && !workQueue.contains(job)) {
+            if (logger != null) {
+                logger.info("SchedulerServiceImpl: job " + job.toString()
+                        + " not found in the queue.");
+            }
+            return;
+        }
+        job.callAboutToBeDequeued(this);
+        blockedQueue.remove(job);
+        workQueue.remove(job);
+        if (logger != null) {
+            logger.info("SchedulerServiceImpl: job " + job.toString()
+                    + " not found in the queue.");
+        }
+    }
 
-	public Job takeJob() throws java.lang.InterruptedException {
-		/*
-		 * no synchronize needed here, the queue is doing that adding
-		 * synchronize here would actually dead-lock this, since no new items
-		 * can be added as long someone is waiting for items
-		 */
-		return workQueue.take();
-	}
+    public Job takeJob() throws java.lang.InterruptedException {
+        /*
+         * no synchronize needed here, the queue is doing that adding
+         * synchronize here would actually dead-lock this, since no new items
+         * can be added as long someone is waiting for items
+         */
+        return workQueue.take();
+    }
 
-	public void jobStateChanged(Job job, Job.State state) {
-		if (logger != null) {
-			logger.info("Job " + job + " changed to state " + state);
-		}
+    public void jobStateChanged(Job job, Job.State state) {
+        if (logger != null) {
+            logger.info("Job " + job + " changed to state " + state);
+        }
 
-		if (state == Job.State.Finished) {
-			stats.decRunningJobs();
-			stats.incFinishedJobs();
-		} else if (state == Job.State.Running) {
-			stats.decWaitingJobs();
-			stats.incRunningJobs();
-		} else if (state == Job.State.Error) {
+        if (state == Job.State.Finished) {
+            stats.decRunningJobs();
+            stats.incFinishedJobs();
+        } else if (state == Job.State.Running) {
+            stats.decWaitingJobs();
+            stats.incRunningJobs();
+        } else if (state == Job.State.Error) {
+            
+            if (failedQueue.remainingCapacity() == 1)
+                failedQueue.remove();
+            failedQueue.add(job);
+            
+            stats.decRunningJobs();
+            stats.addFailedJob(job.getClass().toString());
+        }
+    }
 
-			if (failedQueue.remainingCapacity() == 1)
-				failedQueue.remove();
-			failedQueue.add(job);
+    synchronized public void jobDependenciesChanged(Job job) {
+        if (workQueue.contains(job) && !job.canExecute()) {
+            workQueue.remove(job);
+            blockedQueue.add(job);
+        } else if (job.canExecute()) {
+            blockedQueue.remove(job);
+            workQueue.add(job);
+        }
+    }
 
-			stats.decRunningJobs();
-			stats.addFailedJob(job.getClass().toString());
-		}
-	}
+    synchronized public void startExecute(int n) {
+        if (myWorkerThreads == null) {
+            myWorkerThreads = new LinkedList<WorkerThread>();
+        }
+        
+        for (int i = 0; i < n; ++i) {
+            WorkerThread t = new WorkerThread(this);
+            t.start();
+            myWorkerThreads.add(t);
+            stats.incWorkerThreads();
+        }
+    }
 
-	synchronized public void jobDependenciesChanged(Job job) {
-		if (workQueue.contains(job) && !job.canExecute()) {
-			workQueue.remove(job);
-			blockedQueue.add(job);
-		} else if (job.canExecute()) {
-			blockedQueue.remove(job);
-			workQueue.add(job);
-		}
-	}
+    synchronized public void stopExecute() {
+        if (myWorkerThreads == null) {
+            return;
+        }
+        
+        for (WorkerThread t : myWorkerThreads) {
+            t.stopProcessing();
+            stats.decWorkerThreads();
+        }
+        
+        myWorkerThreads.clear();
+    }
 
-	synchronized public void startExecute(int n) {
-		if (myWorkerThreads == null) {
-			myWorkerThreads = new LinkedList<WorkerThread>();
-		}
+    synchronized public boolean isExecuting() {
+        if (myWorkerThreads == null) {
+            return false;
+        } else {
+            return !myWorkerThreads.isEmpty();
+        }
+    }
 
-		for (int i = 0; i < n; ++i) {
-			WorkerThread t = new WorkerThread(this);
-			t.start();
-			myWorkerThreads.add(t);
-			stats.incWorkerThreads();
-		}
-	}
+    /**
+     * Manually schedule a job to a given worker thread.
+     */
+    private void handJob(Job e, WorkerThread t) {
+        // Worker thread API needs extension to push a job to it.
+    }
 
-	synchronized public void stopExecute() {
-		if (myWorkerThreads == null) {
-			return;
-		}
+    public Object selfTest() {
+        
+        /*
+        try {
+            SchedulerTestSuite.run();
+        } catch (Exception e) {
+            System.out.println( e.getMessage() );
+            e.printStackTrace();
+        }
+        if (logger != null) {
+            logger.info("Starting scheduler selftest...");
+        }
 
-		for (WorkerThread t : myWorkerThreads) {
-			t.stopProcessing();
-			stats.decWorkerThreads();
-		}
+        Job firstJob = new TestJob(5, "firstJob");
+        Job secondJob = new TestJob(10, "secondJob");
+        Job thirdJob = new TestJob(15, "thirdJob");
+        Job forthJob = new TestJob(20, "forthJob");
+        Job fifthJob = new TestJob(1, "fifthJob");
 
-		myWorkerThreads.clear();
-	}
+        try {
+            // secondJob depends on firstJob
+            secondJob.addDependency(firstJob);
+            // thirdJob depends on firstJob
+            thirdJob.addDependency(firstJob);
+            // forthJob depends on secondJob and thirdJob
+            forthJob.addDependency(secondJob);
+            forthJob.addDependency(thirdJob);
+            fifthJob.addDependency(secondJob);
+        } catch (SchedulerException e) {
+            return new String("Scheduler test failed: " + e.getMessage());
+        }
 
-	synchronized public boolean isExecuting() {
-		if (myWorkerThreads == null) {
-			return false;
-		} else {
-			return !myWorkerThreads.isEmpty();
-		}
-	}
+        try {
+            // that must fail, since cyclic dependencies are not allowed
+            firstJob.addDependency(forthJob);
+            // nothing was thrown? ohh...
+            return new String(
+            "Scheduler test failed: Adding cyclic dependencies should not be possible");
+        } catch (SchedulerException e) {
+        }
 
-	/**
-	 * Manually schedule a job to a given worker thread.
-	 */
-	private void handJob(Job e, WorkerThread t) {
-		// Worker thread API needs extension to push a job to it.
-	}
+        // firstJob should not end up with any dependencies
+        if (firstJob.dependencies().size() != 0) {
+            return new String(
+            "Scheduler test failed: firstJob.dependencies().size() != 0");
+        }
 
-	public Object selfTest() {
-		
-		/* 
-		try {
-			SchedulerTestSuite.run();
-		} catch (Exception e) {
-			System.out.println( e.getMessage() );
-			e.printStackTrace();
-		}
-		if (logger != null) {
-			logger.info("Starting scheduler selftest...");
-		}
+        // secondJob should end up with exactly one dependency
+        List<Job> dependencies = secondJob.dependencies();
+        if (dependencies.size() != 1) {
+            return new String("Scheduler test failed: dependencies.size() != 0");
+        } else if (!dependencies.contains(firstJob)) {
+            return new String(
+            "Scheduler test failed: !dependencies.contains(firstJob)");
+        }
 
-		Job firstJob = new TestJob(5, "firstJob");
-		Job secondJob = new TestJob(10, "secondJob");
-		Job thirdJob = new TestJob(15, "thirdJob");
-		Job forthJob = new TestJob(20, "forthJob");
-		Job fifthJob = new TestJob(1, "fifthJob");
+        // removing dependencies works?
+        secondJob.removeDependency(firstJob);
+        if (secondJob.dependencies().size() != 0) {
+            return new String(
+            "Scheduler test failed: secondJob.dependencies().size() != 0");
+        }
+        try {
+            // secondJob depends on firstJob
+            secondJob.addDependency(firstJob);
+        } catch (SchedulerException e) {
+            return new String("Scheduler test failed: " + e.getMessage());
+        }
 
-		try {
-			// secondJob depends on firstJob
-			secondJob.addDependency(firstJob);
-			// thirdJob depends on firstJob
-			thirdJob.addDependency(firstJob);
-			// forthJob depends on secondJob and thirdJob
-			forthJob.addDependency(secondJob);
-			forthJob.addDependency(thirdJob);
-			fifthJob.addDependency(secondJob);
-		} catch (SchedulerException e) {
-			return new String("Scheduler test failed: " + e.getMessage());
-		}
+        // even thirdJob should end up with exactly one dependency
+        dependencies = thirdJob.dependencies();
+        if (dependencies.size() != 1) {
+            return new String("Scheduler test failed: dependencies.size() != 0");
+        } else if (!dependencies.contains(firstJob)) {
+            return new String(
+            "Scheduler test failed: !dependencies.contains(firstJob)");
+        }
 
-		try {
-			// that must fail, since cyclic dependencies are not allowed
-			firstJob.addDependency(forthJob);
-			// nothing was thrown? ohh...
-			return new String(
-					"Scheduler test failed: Adding cyclic dependencies should not be possible");
-		} catch (SchedulerException e) {
-		}
+        // forthJob should end up having two dependencies: secondJob and
+        // thirdJob
+        dependencies = forthJob.dependencies();
+        if (dependencies.size() != 2) {
+            return new String("Scheduler test failed: dependencies.size() != 2");
+        } else if (!dependencies.contains(secondJob)) {
+            return new String(
+            "Scheduler test failed: !dependencies.contains(secondJob)");
+        } else if (!dependencies.contains(thirdJob)) {
+            return new String(
+            "Scheduler test failed: !dependencies.contains(thirdJob)");
+        }
 
-		// firstJob should not end up with any dependencies
-		if (firstJob.dependencies().size() != 0) {
-			return new String(
-					"Scheduler test failed: firstJob.dependencies().size() != 0");
-		}
+        // check whether canExecute() returns true only for firstJob
+        if (!firstJob.canExecute()) {
+            return new String("Scheduler test failed: !firstJob.canExecute()");
+        } else if (secondJob.canExecute()) {
+            return new String("Scheduler test failed: secondJob.canExecute()");
+        } else if (thirdJob.canExecute()) {
+            return new String("Scheduler test failed: thirdJob.canExecute()");
+        } else if (forthJob.canExecute()) {
+            return new String("Scheduler test failed: forthJob.canExecute()");
+        }
 
-		// secondJob should end up with exactly one dependency
-		List<Job> dependencies = secondJob.dependencies();
-		if (dependencies.size() != 1) {
-			return new String("Scheduler test failed: dependencies.size() != 0");
-		} else if (!dependencies.contains(firstJob)) {
-			return new String(
-					"Scheduler test failed: !dependencies.contains(firstJob)");
-		}
+        // start execution using four worker threads
+        startExecute(4);
+        try {
+            enqueue(firstJob);
+            enqueue(secondJob);
+            enqueue(thirdJob);
+            enqueue(forthJob);
+            enqueue(fifthJob);
 
-		// removing dependencies works?
-		secondJob.removeDependency(firstJob);
-		if (secondJob.dependencies().size() != 0) {
-			return new String(
-					"Scheduler test failed: secondJob.dependencies().size() != 0");
-		}
-		try {
-			// secondJob depends on firstJob
-			secondJob.addDependency(firstJob);
-		} catch (SchedulerException e) {
-			return new String("Scheduler test failed: " + e.getMessage());
-		}
+            // this is blocking until the forthJob is done or has failed
+            fifthJob.waitForFinished();
 
-		// even thirdJob should end up with exactly one dependency
-		dependencies = thirdJob.dependencies();
-		if (dependencies.size() != 1) {
-			return new String("Scheduler test failed: dependencies.size() != 0");
-		} else if (!dependencies.contains(firstJob)) {
-			return new String(
-					"Scheduler test failed: !dependencies.contains(firstJob)");
-		}
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return new String("Scheduler test failed: " + e.getMessage());
+        } finally {
+            stopExecute();
+        }
+        */
 
-		// forthJob should end up having two dependencies: secondJob and
-		// thirdJob
-		dependencies = forthJob.dependencies();
-		if (dependencies.size() != 2) {
-			return new String("Scheduler test failed: dependencies.size() != 2");
-		} else if (!dependencies.contains(secondJob)) {
-			return new String(
-					"Scheduler test failed: !dependencies.contains(secondJob)");
-		} else if (!dependencies.contains(thirdJob)) {
-			return new String(
-					"Scheduler test failed: !dependencies.contains(thirdJob)");
-		}
+        /*
+         * since the fifth should start and finish before the forth can be
+         * started and the execution is stopped after the fifth, forth should
+         * still be in Queued state and the third in Running.
+         */
+        /*
+        if (firstJob.state() != Job.State.Finished) {
+            return new String(
+            "Scheduler test failed: firstJob.state() != Job.State.Finished");
+        } else if (secondJob.state() != Job.State.Finished) {
+            return new String(
+            "Scheduler test failed: secondJob.state() != Job.State.Finished");
+        } else if (thirdJob.state() != Job.State.Running) {
+            return new String(
+            "Scheduler test failed: thirdJob.state() != Job.State.Running");
+        } else if (forthJob.state() != Job.State.Queued) {
+            return new String(
+            "Scheduler test failed: forthJob.state() != Job.State.Queued");
+        } else if (fifthJob.state() != Job.State.Finished) {
+            return new String(
+            "Scheduler test failed: fifthJob.state() != Job.State.Finished");
+        }
+        */
+        return null;
+    }
 
-		// check whether canExecute() returns true only for firstJob
-		if (!firstJob.canExecute()) {
-			return new String("Scheduler test failed: !firstJob.canExecute()");
-		} else if (secondJob.canExecute()) {
-			return new String("Scheduler test failed: secondJob.canExecute()");
-		} else if (thirdJob.canExecute()) {
-			return new String("Scheduler test failed: thirdJob.canExecute()");
-		} else if (forthJob.canExecute()) {
-			return new String("Scheduler test failed: forthJob.canExecute()");
-		}
+    public SchedulerStats getSchedulerStats() {
+        return stats;
+    }
 
-		// start execution using four worker threads
-		startExecute(4);
-		try {
-			enqueue(firstJob);
-			enqueue(secondJob);
-			enqueue(thirdJob);
-			enqueue(forthJob);
-			enqueue(fifthJob);
+    public Job[] getFailedQueue() {
+        Job[] failedJobs = new Job[failedQueue.size()];
+        return failedQueue.toArray(failedJobs);
+    }
 
-			// this is blocking until the forthJob is done or has failed
-			fifthJob.waitForFinished();
-
-		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			return new String("Scheduler test failed: " + e.getMessage());
-		} finally {
-			stopExecute();
-		}
-		*/
-		
-		/*
-		 * since the fifth should start and finish before the forth can be
-		 * started and the execution is stopped after the fifth, forth should
-		 * still be in Queued state and the third in Running.
-		 */
-		/*
-		if (firstJob.state() != Job.State.Finished) {
-			return new String(
-					"Scheduler test failed: firstJob.state() != Job.State.Finished");
-		} else if (secondJob.state() != Job.State.Finished) {
-			return new String(
-					"Scheduler test failed: secondJob.state() != Job.State.Finished");
-		} else if (thirdJob.state() != Job.State.Running) {
-			return new String(
-					"Scheduler test failed: thirdJob.state() != Job.State.Running");
-		} else if (forthJob.state() != Job.State.Queued) {
-			return new String(
-					"Scheduler test failed: forthJob.state() != Job.State.Queued");
-		} else if (fifthJob.state() != Job.State.Finished) {
-			return new String(
-					"Scheduler test failed: fifthJob.state() != Job.State.Finished");
-		}
-		*/
-		return null;
-	}
-
-	public SchedulerStats getSchedulerStats() {
-		return stats;
-	}
-
-	public Job[] getFailedQueue() {
-		Job[] failedJobs = new Job[failedQueue.size()];
-		return failedQueue.toArray(failedJobs);
-	}
-
-	public Job[] getWaitQueue() {
-		Job[] blockedJobs = new Job[blockedQueue.size()];
-		return blockedQueue.toArray(blockedJobs);
-	}
+    public Job[] getWaitQueue() {
+        Job[] blockedJobs = new Job[blockedQueue.size()];
+        return blockedQueue.toArray(blockedJobs);
+    }
 }
+
+//vi: ai nosi sw=4 ts=4 expandtab
