@@ -36,9 +36,9 @@
     <resources>
       <resource>
         <directory> ${basedir}/lib </directory>
-	  <includes>
-	    <include>clmt.jar</include>
-	  </includes>
+	     <includes>
+	       <include>clmt.jar</include>
+	     </includes>
        </resource>
     </resources>
     <plugins>
@@ -60,6 +60,17 @@
       </plugin>
     </plugins>
   </build>
+  
+  <dependencies>
+    <dependency>
+      <groupId>org</groupId>
+      <artifactId>clmt</artifactId>
+      <version>0.1</version>
+      <type>jar</type>
+      <systemPath>${basedir}/lib/clmt.jar</systemPath>
+      <scope>system</scope>
+    </dependency>
+  </dependencies>
 
 </project>
 

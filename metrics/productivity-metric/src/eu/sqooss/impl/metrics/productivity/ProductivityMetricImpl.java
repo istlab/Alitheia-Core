@@ -39,6 +39,7 @@ import org.osgi.framework.BundleContext;
 
 import eu.sqooss.metrics.productivity.ProductivityMetric;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
+import eu.sqooss.service.abstractmetric.Result;
 import eu.sqooss.service.abstractmetric.ResultEntry;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.ProjectVersion;
@@ -62,11 +63,6 @@ public class ProductivityMetricImpl extends AbstractMetric implements
         
     }
 
-    public List<ResultEntry> getResult(ProjectVersion a, Metric m) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
     public boolean run(ProjectVersion a, ProjectVersion b) {
         // TODO Auto-generated method stub
         return false;
@@ -75,6 +71,11 @@ public class ProductivityMetricImpl extends AbstractMetric implements
     public void run(ProjectVersion v) {
         // TODO Auto-generated method stub
         
+    }
+
+    public Result getResult(ProjectVersion a, Metric m) {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }
