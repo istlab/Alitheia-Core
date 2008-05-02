@@ -67,6 +67,8 @@ public class SchedulerServiceImpl implements Scheduler {
 	public SchedulerServiceImpl(BundleContext bc, Logger l) {
 		logger = l;
 		logger.info("Got scheduling!");
+		
+        startExecute(3 * Runtime.getRuntime().availableProcessors());
 	}
 
 	synchronized public void enqueue(Job job) throws SchedulerException {

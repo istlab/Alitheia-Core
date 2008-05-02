@@ -254,7 +254,6 @@ public class AlitheiaCore {
             sched = new SchedulerServiceImpl(bc,
                     getLogManager().createLogger(
                             Logger.NAME_SQOOSS_SCHEDULING));
-            sched.startExecute(3 * Runtime.getRuntime().availableProcessors());
         }
         return sched;
     }
