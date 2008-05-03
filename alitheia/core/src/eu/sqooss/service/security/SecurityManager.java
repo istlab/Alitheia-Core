@@ -60,7 +60,10 @@ public interface SecurityManager {
      *   granted for that resource with the specified user account,
      *   or <code>false</code> otherwise.
      */
-    public boolean checkPermission(String fullURL, String userName, String password);
+    public boolean checkPermission(
+            String fullURL,
+            String userName,
+            String password);
 
     /**
      * Validates the access to a SQO-OSS resource located by the given
@@ -76,7 +79,11 @@ public interface SecurityManager {
      *   granted for that resource with the specified user account,
      *   or <code>false</code> otherwise.
      */
-    public boolean checkPermission(String resourceUrl, Dictionary<String, String> privileges, String userName, String password);
+    public boolean checkPermission(
+            String resourceUrl,
+            Dictionary<String, String> privileges,
+            String userName,
+            String password);
 
     /**
      * This method returns the locally stored <code>GroupManager</code>
@@ -130,8 +137,11 @@ public interface SecurityManager {
      * @return <code>true</code> if the access model is successfully created,
      *   or <code>false</code> otherwise
      */
-    public boolean createSecurityConfiguration(String groupDescription,
-            String privilege, String privilegeValue, String serviceUrl);
+    public boolean createSecurityConfiguration(
+            String groupDescription,
+            String privilege,
+            String privilegeValue,
+            String serviceUrl);
 
     /**
      * This method deletes an existing access model.
@@ -143,8 +153,11 @@ public interface SecurityManager {
      * @return <code>true</code> if the specified access model is successfully
      *   deleted, or <code>false</code> otherwise
      */
-    public boolean deleteSecurityConfiguration(String groupDescription,
-            String privilege, String privilegeValue, String serviceUrl);
+    public boolean deleteSecurityConfiguration(
+            String groupDescription,
+            String privilege,
+            String privilegeValue,
+            String serviceUrl);
 
 }
 
