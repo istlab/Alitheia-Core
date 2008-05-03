@@ -1057,6 +1057,57 @@ public class DBServiceImpl implements DBService {
             return "doSQL() missing param failed";
         }
         
+        // Now test the addRecord/updateRecord/deleteRecord methods
+        
+        final String testProjectName = "selfTestTempProject";
+        props.clear();
+        props.put("name", testProjectName);
+        projectList = findObjectsByProperties(StoredProject.class, props);
+        if ( !projectList.isEmpty() ) {
+            return "a project named 'selfTestTempProject' already exists, aborting tests";
+        }
+        
+        testProject = new StoredProject(testProjectName);
+        testProject.setBugs("bugz");
+        testProject.setContact("kontactz");
+        testProject.setMail("mailz");
+        testProject.setRepository("repoz");
+        testProject.setWebsite("webz");
+
+        // Should still not be in the db yet
+        projectList = findObjectsByProperties(StoredProject.class, props);
+        if ( !projectList.isEmpty() ) {
+            return "project 'selfTestTempProject' in the database before calling addRecord ?!";
+        }
+
+        addRecord(testProject);
+        projectList = findObjectsByProperties(StoredProject.class, props);
+        if ( projectList.isEmpty() || projectList.get(0) != testProject ) {
+            return "project 'selfTestTempProject' not saved in the db";
+        }
+
+        // testProject is detached at that point, so changes should not be automatically
+        // persisted in the db
+        testProject.setContact("duh");
+        props.clear();
+        props.put("contact", "duh");
+        projectList = findObjectsByProperties(StoredProject.class, props);
+        if ( !projectList.isEmpty() ) {
+            return "new contact property was set in the db";
+        }
+        
+        updateRecord(testProject);
+        // now it should have made it to the db
+        if ( projectList.isEmpty() || projectList.get(0) != testProject ) {
+            return "project 'selfTestTempProject' not updated in the db";
+        }
+
+        deleteRecord(testProject);
+        projectList = findObjectsByProperties(StoredProject.class, props);
+        if ( !projectList.isEmpty() ) {
+            return "project 'selfTestTempProject' not deleted in the db";
+        }
+        
         return null;
     }
 }
