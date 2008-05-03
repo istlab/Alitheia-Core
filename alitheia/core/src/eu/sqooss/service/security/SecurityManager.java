@@ -36,8 +36,12 @@ import java.util.Dictionary;
 
 /**
  * The <code>SecurityManager</code> class is used for validating the access
- * to the SQO-OSS resources, and provides methods for creation and management
- * of access privileges.
+ * to resources, and provides methods for creation and management of access
+ * privileges.
+ * <br/>
+ * A resource in the SQO-OSS security scope could be either a project
+ * resource, or a service that is mapped and accessible through the SQO-OSS
+ * user interfaces.
  */
 public interface SecurityManager {
 
