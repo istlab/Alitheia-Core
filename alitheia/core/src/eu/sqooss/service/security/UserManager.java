@@ -35,102 +35,108 @@ package eu.sqooss.service.security;
 import eu.sqooss.service.db.User;
 
 /**
- * <code>UserManager</code> gives an access to the user's management. 
+ * <code>UserManager</code> provides methods for users management,
+ * and group membership assignment.
  */
 public interface UserManager {
 
     /**
-     * This method returns a User object encapsulating the user record that
-     * corresponds to the specified user ID.
+     * Returns the user's object referenced by the given user identifier.
      * 
-     * @param userId user's identifier
-     * @return the corresponding User object, or
-     * <code>null</code> when such user record doesn't exist
+     * @param userId - the user's identifier
+     * 
+     * @return The <code>User</code> object referenced by the given
+     *   user identifier, or <code>null</code> when such user
+     *   doesn't exist.
      */
     public User getUser(long userId);
 
     /**
-     * This method returns an User object encapsulating the user record that
-     * corresponds to the specified user name.
+     * Returns the user's object associated with the given user name.
+     * <br/>
+     * <i>Note: The user names have unique values.</i>
      * 
-     * @param userName user's name
-     * @return the corresponding User object, or
-     * <code>null</code> when such user record doesn't exist
+     * @param userName - the user's name
+     * 
+     * @return The <code>User</code> object associated with the given
+     *   user name, or <code>null</code> when such user doesn't exist.
      */
     public User getUser(String userName);
 
     /**
-     * This method returns a list of all users currently registered in the
-     * SQO-OSS system.
+     * Returns an array of <code>User</code> objects, that represent all
+     * currently registered users in the SQO-OSS framework.
      * 
-     * @return all users in the system
+     * @return All users registered in the SQO-OSS framework.
      */
     public User[] getUsers();
 
     /**
-     * This method returns a list of users belonging to the specified 
-     * users group ID.
+     * This method returns an array of all users, which are members of the
+     * given group.
      * 
-     * @param groupId group's identifier
-     * @return
+     * @param groupId - the group's identifier
+     * 
+     * @return All user members of the specified group.
      */
     public User[] getUsers(long groupId);
 
     /**
-     * This method creates a new user record from the specified user account
-     * parameters
+     * This method creates a new user from the specified user parameters
      * 
-     * @param userName user's name
-     * @param password user's password
-     * @param email user's email
-     * @return an User object corresponding to the created user record, or
-     * <code>null</code> if the record can't be created.
+     * @param userName - the user's name
+     * @param password - the user's password
+     * @param email -the user's email
+     * 
+     * @return The new user's <code>User</code> object, or <code>null</code>
+     *   if the user can't be created.
      */
     public User createUser(String userName, String password, String email);
 
     /**
-     * This method creates a pending user record upon user registration
-     * request, and sends a confirmation request notification too the user's
+     * This method creates a pending user, following a user registration
+     * request, and upon success sends a confirmation notice to the given
      * email address.
      * 
-     * @param userName
-     * @param password
-     * @param email
-     * @return <code>true</code> if the user name is available,
+     * @param userName - the user's name
+     * @param password - the user's password
+     * @param email -the user's email
+     * 
+     * @return <code>true</code> if the given user's name is not in use,
      * <code>false</code> otherwise
      */
     public boolean createPendingUser(String userName, String password, String email);
 
     /**
-     * This method modifies the user record corresponding to the given user
-     * name.
+     * This method modifies the user associated with the given user name.
      * 
-     * @param userName
-     * @param newPassword
-     * @param newEmail
-     * @return <code>true</code> if the user record is successfully modified,
-     * <code>false</code> otherwise
+     * @param userName - the user's name
+     * @param newPassword - the new user's password
+     * @param newEmail - the new user's email
+     * 
+     * @return <code>true</code> if the user is modified successfully,
+     *   or <code>false</code> upon failure.
      * 
      */
     public boolean modifyUser(String userName, String newPassword, String newEmail);
 
     /**
-     * This method deletes the user record matching the specified user's
-     * ID parameter.
+     * This method deletes the user referenced by the give user's identifier.
      * 
-     * @param userId user's ID 
-     * @return <code>true</code> if the user is deleted successfully,
-     * <code>false</code> otherwise
+     * @param userId - the user's identifier
+     * 
+     * @return <code>true</code> if the user is successfully removed,
+     *   or <code>false</code> upon failure.
      */
     public boolean deleteUser(long userId);
 
     /**
-     * This method deletes the user record that corresponds to the specified
-     * user's name.
+     * This method deletes the user associated with the give user's name.
      * 
-     * @param userName user's name
-     * @return <code>true</code> if the user is deleted successfully,
-     * <code>false</code> in case of failure
+     * @param userName - the user's name
+     * 
+     * @return <code>true</code> if the user is successfully removed,
+     *   or <code>false</code> upon failure.
      */
     public boolean deleteUser(String userName);
 
@@ -138,42 +144,44 @@ public interface UserManager {
      * This method generates a SHA-256 based hash from the specified password
      * string.
      * 
-     * @param password
-     * @return the password's hash
+     * @param password - the password string.
+     * 
+     * @return The SHA-256 hash of the given password.
      */
     public String getHash(String password);
 
     /**
-     * Checks if there is a pending user record that contains the same hash
-     * value.
+     * Verifies the existence of a pending user, associated with the given
+     * hash value.
      * 
-     * @param hashValue the hash value
+     * @param hashValue - the hash value
      * 
-     * @return <code>true</code>, if a corresponding pending user record is
-     * found
+     * @return <code>true</code>, if a corresponding pending user has been
+     * found, or <code>false</code> when such user doesn't exists.
      */
     public boolean hasPendingUserHash(String hashValue);
 
     /**
-     * Activates the pending user record with the same hash value.
+     * Verifies the existence of a pending user, associated with the given
+     * user name.
      * 
-     * @param hashValue the hash value
+     * @param userName - the user's name
      * 
-     * @return <code>true</code>, if the corresponding pending user record is
-     * activated
+     * @return <code>true</code>, if a corresponding pending user has been
+     * found, or <code>false</code> when such user doesn't exists.
+     */
+    public boolean hasPendingUserName(String userName);
+
+    /**
+     * Activates the pending user, associated with the given hash value.
+     * 
+     * @param hashValue - the hash value
+     * 
+     * @return <code>true</code>, if the corresponding pending user is
+     * activated successfully, or <code>false</code> upon failure.
      */
     public boolean activatePendingUser (String hashValue);
 
-    /**
-     * Checks if there is a pending user record that contains the same user
-     * name
-     * 
-     * @param userName the user's name
-     * 
-     * @return <code>true</code>, if a corresponding pending user record is
-     * found
-     */
-    public boolean hasPendingUserName(String userName);
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

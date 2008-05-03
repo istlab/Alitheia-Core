@@ -36,8 +36,8 @@ import eu.sqooss.service.db.Group;
 import eu.sqooss.service.db.GroupPrivilege;
 
 /**
- * The <code>GroupManager</code> provides methods for group management and
- * group privileges assignment.
+ * The <code>GroupManager</code> provides methods for group management,
+ * and group privileges assignment.
  */
 public interface GroupManager {
 
@@ -52,19 +52,20 @@ public interface GroupManager {
     public Group getGroup(long groupId);
 
     /**
-     * Returns the group object identified by the given group descriptor.
+     * Returns the group object associated with the given group descriptor.
      * <br/>
      * <i>Note: The group descriptors have unique values.</i>
      * 
      * @param description - the descriptor of the requested group
-     * @return The <code>Group</code> object identified by the given
+     * 
+     * @return The <code>Group</code> object associated with the given
      *   group descriptor, or <code>null</code> when such group doesn't exist.
      */
     public Group getGroup(String description);
 
     /**
-     * Return an array of group objects about all groups that are currently
-     * defined in the SQO-OSS framework.
+     * Returns an array of <code>Group</code> objects, that represent all
+     * currently defined groups in the SQO-OSS framework.
      * 
      * @return All groups in the SQO-OSS framework.
      */
@@ -75,6 +76,7 @@ public interface GroupManager {
      * <code>Group</code> objects), where the referenced user is a member.
      * 
      * @param userId - the user identifier
+     * 
      * @return All groups, that this user belongs to.
      */
     public Group[] getGroups(long userId);
@@ -83,6 +85,7 @@ public interface GroupManager {
      * This method creates a new group.
      * 
      * @param description - the new group's descriptor
+     * 
      * @return The new group's <code>Group</code> object, or <code>null</code>
      *   if the group can not be created.
      */
@@ -92,6 +95,7 @@ public interface GroupManager {
      * This method deletes the group referenced by the given identifier.
      * 
      * @param groupId - the group's identifier
+     * 
      * @return <code>true</code> upon successful deletion,
      *   or <code>false</code> otherwise.
      */
@@ -102,6 +106,7 @@ public interface GroupManager {
      * 
      * @param groupId - the group's identifier
      * @param userId - the user's identifier
+     * 
      * @return <code>true</code> if the membership is created successfully,
      *   or <code>false</code> otherwise.
      */
@@ -111,6 +116,7 @@ public interface GroupManager {
      * This method removes the selected user from the specified group.
      * @param groupId - the group's identifier
      * @param userId - the user's identifier
+     * 
      * @return <code>true</code> if the membership is successfully terminated,
      *   or <code>false</code> otherwise.
      */
@@ -131,7 +137,7 @@ public interface GroupManager {
      * 
      * @param groupId - the group's identifier
      * @param urlId - the resource URL's identifier
-     * @param privilegeValueId - eeeh ??? TODO
+     * @param privilegeValueId - the privilege value's identifier
      * @return <code>true</code> when the given privilege is successfully
      *   granted to the group, or <code>false</code> otherwise.
      */
@@ -145,7 +151,8 @@ public interface GroupManager {
      * 
      * @param groupId - the group's identifier
      * @param urlId - the resource URL's identifier
-     * @param privilegeValueId - eeeh ??? TODO
+     * @param privilegeValueId - the privilege value's identifier
+     * 
      * @return <code>true</code> when the given privilege is successfully
      *   withdrawn from that group, or <code>false</code> otherwise.
      */

@@ -36,95 +36,142 @@ import eu.sqooss.service.db.Privilege;
 import eu.sqooss.service.db.PrivilegeValue;
 
 /**
- * <code>PrivilegeManager</code> gives an access to the privilege's management. 
+ * The <code>GroupManager</code> provides methods for privileges management.
  */
 public interface PrivilegeManager {
-    
+
     /**
-     * @param privilegeId
-     * @return the privilege with given identifier,
-     * null - if the privilege doesn't exist
+     * Returns the privilege's object referenced by the given privilege
+     * identifier.
+     * 
+     * @param privilegeId - the privilege's identifier
+     * 
+     * @return The <code>Privilege</code> object referenced by the given
+     *   privilege identifier, or <code>null</code> when such privilege
+     *   doesn't exist.
      */
     public Privilege getPrivilege(long privilegeId);
-    
+
     /**
-     * The description of the privilege is unique.
-     * The method returns the privilege with given description. 
-     * @param description - the description of the privilege
-     * @return <code>Privilege</code> with given description,
-     * null - if the privilege doesn't exist
+     * Returns the privilege's object associated with the given privilege
+     * descriptor.
+     * <br/>
+     * <i>Note: The privilege descriptors have unique values.</i>
+     *  
+     * @param description - the privilege's descriptor
+     * 
+     * @return The <code>Privilege</code> object associated with the given
+     *   privilege descriptor, or <code>null</code> when such privilege
+     *   doesn't exist.
      */
     public Privilege getPrivilege(String description);
-    
+
     /**
-     * @return all privileges in the system
+     * Returns an array of <code>Privilege</code> objects, that represent all
+     * currently defined privileges in the SQO-OSS framework.
+     * 
+     * @return All privileges defined in the SQO-OSS framework.
      */
     public Privilege[] getPrivileges();
-    
+
     /**
-     * @param privilegeValueId
-     * @return the privilege value with given identifier,
-     * null - if the privilege value doesn't exist
+     * Returns the privilege's value object referenced by the given
+     * privilege's value identifier.
+     * 
+     * @param privilegeValueId - the privilege's value identifier
+     * 
+     * @return The <code>PrivilegeValue</code> object referenced by the
+     *   given privilege's value identifier, or <code>null</code> when such
+     *   privilege's value doesn't exist.
      */
     public PrivilegeValue getPrivilegeValue(long privilegeValueId);
-    
+
     /**
-     * The privilege values are unique.
-     * The method returns the privilege value.
-     * @param privilegeId
-     * @param privilegeValue
-     * @return null - if the privilege value daesn't exist 
+     * Returns the privilege's value object associated with the given
+     * privilege's value descriptor, and assigned to the privilege referenced
+     * by the specified privilege identifier.
+     * <i>Note: The privilege's value's descriptors have unique values.</i>
+     * 
+     * @param privilegeId  - the privilege's identifier
+     * @param privilegeValue  - the privilege's value descriptor
+     * 
+     * @return The <code>PrivilegeValue</code> object, or <code>null</code>
+     *  when such privilege's value doesn't exists. 
      */
     public PrivilegeValue getPrivilegeValue(long privilegeId,
             String privilegeValue);
-    
+
     /**
-     * @return all privileges values in the system
+     * Returns an array of <code>PrivilegeValue</code> objects, that represent
+     * all currently defined privileges' values in the SQO-OSS framework.
+     * 
+     * @return All privileges' values defined in the SQO-OSS framework.
      */
     public PrivilegeValue[] getPrivilegeValues();
-    
+
     /**
-     * @param privilegeId the privilege's identifier
-     * @return the privilege's values 
+     * Returns an array of <code>PrivilegeValue</code> objects, that represent
+     * all privilege's values, assigned to the privilege referenced
+     * by the given privilege identifier.
+     * 
+     * @param privilegeId - the privilege's identifier
+     * 
+     * @return All privilege's values assigned to that privilege.
      */
     public PrivilegeValue[] getPrivilegeValues(long privilegeId);
-    
+
     /**
      * This method creates a new privilege.
-     * @param privilegeName the privilege's name (description)
-     * @return the new privilege,
-     * null - if the privilege isn't created
+     * 
+     * @param privilegeName - the new privilege's descriptor
+     * 
+     * @return The new privilege's <code>Privilege</code> object,
+     *   or <code>null</code> if the privilege can not be created.
      */
     public Privilege createPrivilege(String privilegeName);
-    
+
     /**
-     * This method creates a new privilege.
-     * @param privilegeName the privilege's name
-     * @return the new privilege,
-     * null - if the privilege isn't created
+     * This method creates a new privilege, based on one of the pre-defined
+     * privilege's descriptors {@link SecurityConstants.Privilege}.
+     * 
+     * @param privilegeName - the privilege's descriptor
+     * 
+     * @return The new privilege's <code>Privilege</code> object,
+     *   or <code>null</code> if the privilege can not be created.
      */
     public Privilege createPrivilege(SecurityConstants.Privilege privilege);
-    
+
     /**
-     * This method creates a new privilege value.
-     * @param privilegeId the privilege identifier
-     * @param privilegeValue the privilege's value
-     * @return the new privilege value,
-     * null - if the privilege value isn't created
+     * This method creates a new privilege's value associated with the given
+     * privilege's value descriptor, and assigns it to the privilege
+     * referenced with the specified privilege identifier.
+     * 
+     * @param privilegeId - the privilege's identifier
+     * @param privilegeValue the privilege's value descriptor
+     * 
+     * @return The new privilege's <code>PrivilegeValue</code> object,
+     *   or <code>null</code> if the privilege's value can not be created.
      */
     public PrivilegeValue createPrivilegeValue(long privilegeId, String privilegeValue);
-    
+
     /**
-     * This method deletes the privilege with given identifier.
-     * @param privilegeId the privilege's identifier
-     * @return true - if the privilege is deleted successfully, false - otherwise
+     * This method deletes the privilege referenced by the given identifier.
+     * 
+     * @param privilegeId - the privilege's identifier
+     * 
+     * @return <code>true</code> upon successful removal,
+     *   or <code>false</code> otherwise.
      */
     public boolean deletePrivilege(long privilegeId);
-    
+
     /**
-     * This method deletes the privilege value with given identifier.
-     * @param privilegeValueId the privilege value's identifier
-     * @return true - if the privilege value is deleted successfully, false - otherwise
+     * This method deletes the privilege's value referenced by the given
+     * identifier.
+     * 
+     * @param privilegeValueId - the privilege's value identifier
+     * 
+     * @return <code>true</code> upon successful removal,
+     *   or <code>false</code> otherwise.
      */
     public boolean deletePrivilegeValue(long privilegeValueId);
     

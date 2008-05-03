@@ -54,8 +54,9 @@ public interface SecurityManager {
      * @param fullURL - the URL location (plus access privileges) of the
      *   requested resource
      * @param privileges - a list of access privileges for that resource 
-     * @param userName - user account's name
-     * @param password - user account's password
+     * @param userName - user's name
+     * @param password - user's password
+     * 
      * @return <code>true</code> if the set of access privileges can be
      *   granted for that resource with the specified user account,
      *   or <code>false</code> otherwise.
@@ -73,8 +74,9 @@ public interface SecurityManager {
      * 
      * @param resourceURL - the URL location of the requested resource
      * @param privileges - a list of access privileges for that resource 
-     * @param userName - user account's name
-     * @param password - user account's password
+     * @param userName - user's name
+     * @param password - user's password
+     * 
      * @return <code>true</code> if the set of access privileges can be
      *   granted for that resource with the specified user account,
      *   or <code>false</code> otherwise.
@@ -134,6 +136,7 @@ public interface SecurityManager {
      * @param privilege - the privilege's name
      * @param privilegeValue - the privilege's value
      * @param serviceUrl - the URL locating the affected resource
+     * 
      * @return <code>true</code> if the access model is successfully created,
      *   or <code>false</code> otherwise
      */
@@ -150,6 +153,7 @@ public interface SecurityManager {
      * @param privilege - the privilege's name
      * @param privilegeValue - the privilege' value
      * @param serviceUrl - the URL locating the affected resource
+     * 
      * @return <code>true</code> if the specified access model is successfully
      *   deleted, or <code>false</code> otherwise
      */
