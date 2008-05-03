@@ -130,10 +130,10 @@ public interface SecurityManager {
      *   an associated record in the underlying database, then the
      *   corresponding record(s) is(are) created automatically.</i>
      * 
-     * @param groupDescription -- group name
-     * @param privilege -- privilege name
-     * @param privilegeValue -- privilege value
-     * @param serviceUrl -- the URL location of the affected resource
+     * @param groupDescription - the group's descriptor
+     * @param privilege - the privilege's name
+     * @param privilegeValue - the privilege's value
+     * @param serviceUrl - the URL locating the affected resource
      * @return <code>true</code> if the access model is successfully created,
      *   or <code>false</code> otherwise
      */
@@ -146,10 +146,10 @@ public interface SecurityManager {
     /**
      * This method deletes an existing access model.
      * 
-     * @param groupDescription -- group name
-     * @param privilege -- privilege name
-     * @param privilegeValue -- privilege value
-     * @param serviceUrl -- the URL location of the affected resource
+     * @param groupDescription - the group's descriptor
+     * @param privilege - the privilege's name
+     * @param privilegeValue - the privilege' value
+     * @param serviceUrl - the URL locating the affected resource
      * @return <code>true</code> if the specified access model is successfully
      *   deleted, or <code>false</code> otherwise
      */

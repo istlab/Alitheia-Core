@@ -36,73 +36,124 @@ import eu.sqooss.service.db.Group;
 import eu.sqooss.service.db.GroupPrivilege;
 
 /**
- * <code>GroupManager</code> gives an access to the groups and their relations.
+ * The <code>GroupManager</code> provides methods for group management and
+ * group privileges assignment.
  */
 public interface GroupManager {
-    
+
     /**
-     * @param groupId
-     * @return <code>Group</code> with given identifier,
-     * null - if the group doesn't exist  
+     * Returns the group object identified by the given group Id.
+     * 
+     * @param groupId - The group Id
+     * 
+     * @return The <code>Group</code> object referenced by the given
+     *   group identifier, or <code>null</code> when such group doesn't exist.
      */
     public Group getGroup(long groupId);
-    
+
     /**
-     * The description of the group is unique.
-     * The method returns the group with given description. 
-     * @param description - the description of the group
-     * @return <code>Group</code> with given description,
-     * null - if the group doesn't exist
+     * Returns the group object identified by the given group descriptor.
+     * <br/>
+     * <i>Note: The group descriptors have unique values.</i>
+     * 
+     * @param description - the descriptor of the requested group
+     * @return The <code>Group</code> object identified by the given
+     *   group descriptor, or <code>null</code> when such group doesn't exist.
      */
     public Group getGroup(String description);
-    
+
     /**
-     * @return all groups in the system
+     * Return an array of group objects about all groups that are currently
+     * defined in the SQO-OSS framework.
+     * 
+     * @return All groups in the SQO-OSS framework.
      */
     public Group[] getGroups();
-    
+
     /**
-     * @param userId the user identifier
-     * @return the user's groups
+     * Given an user Id, this method returns an array of all groups (their 
+     * <code>Group</code> objects), where the referenced user is a member.
+     * 
+     * @param userId - the user identifier
+     * @return All groups, that this user belongs to.
      */
     public Group[] getGroups(long userId);
-    
+
     /**
      * This method creates a new group.
-     * @param description the group's description
-     * @return the new Group, null if the group isn't created
+     * 
+     * @param description - the new group's descriptor
+     * @return The new group's <code>Group</code> object, or <code>null</code>
+     *   if the group can not be created.
      */
     public Group createGroup(String description);
     
     /**
-     * This method deletes the group with given identifier.
-     * @param groupId the group's identifier
-     * @return true - if the group is deleted successfully, false - otherwise 
+     * This method deletes the group referenced by the given identifier.
+     * 
+     * @param groupId - the group's identifier
+     * @return <code>true</code> upon successful deletion,
+     *   or <code>false</code> otherwise.
      */
     public boolean deleteGroup(long groupId);
-    
+
     /**
-     * This method adds the user to the given group.
-     * @param groupId
-     * @param userId
-     * @return true - if the relation is created successfully, false otherwise
+     * This method adds the selected user to the specified group.
+     * 
+     * @param groupId - the group's identifier
+     * @param userId - the user's identifier
+     * @return <code>true</code> if the membership is created successfully,
+     *   or <code>false</code> otherwise.
      */
     public boolean addUserToGroup(long groupId, long userId);
-    
+
     /**
-     * This method removes the user from the given group.
-     * @param groupId
-     * @param userId
-     * @return true - if the relation is deleted successfully, false otherwise
+     * This method removes the selected user from the specified group.
+     * @param groupId - the group's identifier
+     * @param userId - the user's identifier
+     * @return <code>true</code> if the membership is successfully terminated,
+     *   or <code>false</code> otherwise.
      */
     public boolean deleteUserFromGroup(long groupId, long userId);
-    
+
+    /**
+     * This method returns an array with all group privileges <i>(each stored
+     * in a separate <code>GroupPrivelege</code> object)</i>, that are
+     * currently defined in the SQO-OSS framework.
+     * 
+     * @return The array of all group privileges defined in the SQO-OSS
+     *   framework.
+     */
     public GroupPrivilege[] getGroupPrivileges();
-    
-    public boolean addPrivilegeToGroup(long groupId, long urlId, long privilegeValueId);
-    
-    public boolean deletePrivilegeFromGroup(long groupId, long urlId, long privilegeValueId);
-    
+
+    /**
+     * This method grants a new privilege to the specified group.
+     * 
+     * @param groupId - the group's identifier
+     * @param urlId - the resource URL's identifier
+     * @param privilegeValueId - eeeh ??? TODO
+     * @return <code>true</code> when the given privilege is successfully
+     *   granted to the group, or <code>false</code> otherwise.
+     */
+    public boolean addPrivilegeToGroup(
+            long groupId,
+            long urlId,
+            long privilegeValueId);
+
+    /**
+     * This method removes a granted privilege from the specified group.
+     * 
+     * @param groupId - the group's identifier
+     * @param urlId - the resource URL's identifier
+     * @param privilegeValueId - eeeh ??? TODO
+     * @return <code>true</code> when the given privilege is successfully
+     *   withdrawn from that group, or <code>false</code> otherwise.
+     */
+    public boolean deletePrivilegeFromGroup(
+            long groupId,
+            long urlId,
+            long privilegeValueId);
+
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
