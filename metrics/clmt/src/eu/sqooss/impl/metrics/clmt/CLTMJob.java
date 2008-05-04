@@ -36,13 +36,18 @@ package eu.sqooss.impl.metrics.clmt;
 import java.io.ByteArrayInputStream;
 import java.util.List;
 
+import org.clmt.cache.Cache;
 import org.clmt.configuration.Calculation;
 import org.clmt.configuration.Source;
 import org.clmt.configuration.Task;
 import org.clmt.configuration.TaskException;
+import org.clmt.configuration.properties.CLMTProperties;
+import org.clmt.configuration.properties.Config;
 import org.clmt.metrics.MetricInstantiationException;
 import org.clmt.metrics.MetricList;
 import org.clmt.metrics.MetricResultList;
+import org.clmt.sqooss.AlitheiaFileAdapter;
+import org.clmt.sqooss.AlitheiaLoggerAdapter;
 
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.AbstractMetricJob;
@@ -82,6 +87,14 @@ public class CLTMJob extends AbstractMetricJob {
     public void run() {
         List<Metric> lm = parent.getSupportedMetrics();
         StringBuilder metricCalc = new StringBuilder();
+        
+        /*CMLT Init*/
+        CLMTProperties clmtProp = CLMTProperties.getInstance();
+        clmtProp.setLogger(new AlitheiaLoggerAdapter(log));
+        clmtProp.setFileType(new AlitheiaFileAdapter("."));
+        MetricList.getInstance();
+        Cache cache = Cache.getInstance();
+        cache.setCacheSize(Integer.valueOf(clmtProp.get(Config.CACHE_SIZE)));
         
         /*Java tasks*/
         for(Metric m : lm) {

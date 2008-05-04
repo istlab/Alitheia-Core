@@ -40,6 +40,12 @@
 	       <include>clmt.jar</include>
 	     </includes>
        </resource>
+       <resource>
+        <directory> ${basedir}/src</directory>
+       <includes>
+         <include>clmt.properties</include>
+       </includes>
+       </resource>
     </resources>
     <plugins>
       <plugin>

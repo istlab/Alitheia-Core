@@ -4,70 +4,78 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.clmt.io.CLMTFile;
-import org.w3c.dom.Document;
 
-public class AlitheiaFile extends CLMTFile {
+public final class AlitheiaFileAdapter extends CLMTFile {
 
-    public AlitheiaFile(String path) {
-        
+    private String path;
+    
+    public AlitheiaFileAdapter(String p) {
+        path = p;
     }
     
-    public boolean delete() {
-        
+    @Override
+    public boolean delete() {   
+        Thread.dumpStack();
         return false;
     }
 
+    @Override
     public boolean exists() {
+        Thread.dumpStack();
         return false;
     }
 
+    @Override
     public String getAbsolutePath() {
+        Thread.dumpStack();
         return null;
     }
 
+    @Override
     public InputStream getInputStream() {
+        Thread.dumpStack();
         return null;
     }
 
+    @Override
     public String getName() {
+        Thread.dumpStack();
         return null;
     }
 
+    @Override
     public OutputStream getOutputStream() {
+        Thread.dumpStack();
         return null;
     }
 
+    @Override
     public boolean isDirectory() {
+        Thread.dumpStack();
         return false;
     }
 
+    @Override
     public boolean isFile() {
+        Thread.dumpStack();
         return false;
     }
 
+    @Override
     public CLMTFile[] listFiles() {
+        Thread.dumpStack();
         return null;
     }
 
+    @Override
     public boolean mkdirs() {
+        Thread.dumpStack();
         return false;
     }
 
-    public CLMTFile newFile() {
-        return null;
-    }
-
+    @Override
     public CLMTFile newFile(String path) {
-
-        return null;
-    }
-
-    public Document getDocument() {
-        return null;
-    }
-
-    public void setDocument(Document d) {
-        
+        return new AlitheiaFileAdapter(path);
     }
 
 }
