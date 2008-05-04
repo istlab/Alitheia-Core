@@ -53,6 +53,10 @@ import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.AbstractMetricJob;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.ProjectVersion;
+import eu.sqooss.service.fds.InMemoryCheckout;
+import eu.sqooss.service.tds.InvalidProjectRevisionException;
+import eu.sqooss.service.tds.InvalidRepositoryException;
+import eu.sqooss.service.tds.ProjectRevision;
 
 public class CLTMJob extends AbstractMetricJob {
 
@@ -87,16 +91,35 @@ public class CLTMJob extends AbstractMetricJob {
     public void run() {
         List<Metric> lm = parent.getSupportedMetrics();
         StringBuilder metricCalc = new StringBuilder();
+        InMemoryCheckout imc = null;
+        
+        /*Get a checkout for this revision*/
+        try {
+            imc = fds.getInMemoryCheckout(pv.getProject().getId(), 
+                    new ProjectRevision(pv.getVersion()));
+        } catch (InvalidRepositoryException e) {
+            log.error("Cannot get in memory checkout for project " + 
+                    pv.getProject().getName() + " revision " + pv.getVersion() 
+                    + ":" + e.getMessage());
+        } catch (InvalidProjectRevisionException e) {
+            log.error("Cannot get in memory checkout for project " + 
+                    pv.getProject().getName() + " revision " + pv.getVersion() 
+                    + ":" + e.getMessage());   
+        }
+       
+        FileOps.getInstance().setInMemoryCheckout(imc);
         
         /*CMLT Init*/
         CLMTProperties clmtProp = CLMTProperties.getInstance();
         clmtProp.setLogger(new AlitheiaLoggerAdapter(log));
-        clmtProp.setFileType(new AlitheiaFileAdapter("."));
+        clmtProp.setFileType(new AlitheiaFileAdapter(""));
         MetricList.getInstance();
         Cache cache = Cache.getInstance();
         cache.setCacheSize(Integer.valueOf(clmtProp.get(Config.CACHE_SIZE)));
         
-        /*Java tasks*/
+        
+        
+        /*Construct task for parsing Java files*/
         for(Metric m : lm) {
             metricCalc.append(String.format(XMLCalcProto, 
                     m.getMnemonic(),

@@ -31,83 +31,37 @@
  *
  */
 
-package org.clmt.sqooss;
+package eu.sqooss.impl.metrics.clmt;
 
-import java.io.InputStream;
-import java.io.OutputStream;
+import eu.sqooss.service.fds.InMemoryCheckout;
 
-import org.clmt.io.CLMTFile;
-
-import eu.sqooss.impl.metrics.clmt.FileOps;
-
-public final class AlitheiaFileAdapter extends CLMTFile {
-
-    private String path;
-
-    public AlitheiaFileAdapter(String path) {
-        this.path = path;
+public class FileOps {
+    
+    private static final FileOps instance;
+    
+    private InMemoryCheckout imc;
+    
+    static {
+        instance = new FileOps();
     }
     
-    @Override
-    public boolean delete() {   
-        Thread.dumpStack();
+    public static FileOps getInstance() {
+        return instance;
+    }
+    
+    public void setInMemoryCheckout(InMemoryCheckout imc) {
+        this.imc = imc;
+    }
+
+    public boolean exists(String path) {
+        if (imc.getRoot().getFile(path) != null)
+            return true;
         return false;
     }
-
-    @Override
-    public boolean exists() {
-        return FileOps.getInstance().exists(path);
+    
+    public boolean isDirectory(String path) {
+        return imc.getRoot().getFile(path).getIsDirectory();
     }
-
-    @Override
-    public String getAbsolutePath() {
-        Thread.dumpStack();
-        return null;
-    }
-
-    @Override
-    public InputStream getInputStream() {
-        Thread.dumpStack();
-        return null;
-    }
-
-    @Override
-    public String getName() {
-        Thread.dumpStack();
-        return null;
-    }
-
-    @Override
-    public OutputStream getOutputStream() {
-        Thread.dumpStack();
-        return null;
-    }
-
-    @Override
-    public boolean isDirectory() {
-        return FileOps.getInstance().isDirectory(path);
-    }
-
-    @Override
-    public boolean isFile() {
-        return !isDirectory();
-    }
-
-    @Override
-    public CLMTFile[] listFiles() {
-        Thread.dumpStack();
-        return null;
-    }
-
-    @Override
-    public boolean mkdirs() {
-        Thread.dumpStack();
-        return false;
-    }
-
-    @Override
-    public CLMTFile newFile(String path) {
-        return new AlitheiaFileAdapter(path);
-    }
-
+    
+    
 }

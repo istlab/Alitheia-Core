@@ -72,6 +72,18 @@ public interface FDSService {
         throws InvalidRepositoryException,
                InvalidProjectRevisionException;
 
+    /**
+     * Maintains an in-memory representation of a project checkout for a
+     * specific revision. 
+     * 
+     * @param id Stored project id
+     * @param r The revision to retrieve the checkout from
+     * @return An in-memory representation of the working copy for a specific
+     *              revision
+     * @throws InvalidRepositoryException if the project repository is not valid
+     * @throws InvalidProjectRevisionException if this revision number does not
+     *              exist in the project repository
+     */
     InMemoryCheckout getInMemoryCheckout(long id, ProjectRevision r)
     	throws InvalidRepositoryException,
     		   InvalidProjectRevisionException;
