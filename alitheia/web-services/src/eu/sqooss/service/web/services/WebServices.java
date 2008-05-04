@@ -68,11 +68,13 @@ import eu.sqooss.service.webadmin.WebadminService;
  * The wsdl file is: http:/.../[web.service.context]/services/[web.service.name]?wsdl
  */
 public class WebServices {
-    
+
+    // Instances of the manager classes
     private MetricManager metricManager;
     private ProjectManager projectManager;
     private UserManager userManager;
     private WebadminService webadmin;
+
     
     public WebServices(BundleContext bc, SecurityManager securityManager,
             DBService db, TDSService tds, Logger logger, WebadminService wa) {
@@ -81,130 +83,205 @@ public class WebServices {
         userManager = new UserManager(securityManager, db);
         webadmin = wa;
     }
-    
+
+    // ===[ ProjectManager methods]===========================================
+
     /**
-     * This method returns evaluated projects.
-     * The user's name and password must be valid. 
-     * @param userName
-     * @param password
-     * @return
+     * This method returns an array of all projects accessible from the given
+     * user, that the SQO-OSS framework has had evaluated.
+     * 
+     * @param userName - the user's name
+     * @param password - the user's password
+     * @return The array of evaluated projects, or a <code>null</code> array
+     *   when none are found.
      */
-    public WSStoredProject[] getEvaluatedProjects(String userName, String password) {
+    public WSStoredProject[] getEvaluatedProjects(
+            String userName,
+            String password) {
         return projectManager.getEvaluatedProjects(userName, password);
     }
-    
+
     /**
-     * This method returns stored projects.
-     * They are all projects in the system.
-     * @param userName
-     * @param password
-     * @return the list of stored projects,
-     * if there are not stored projects then
-     * the method returns an array with null element ([null]).
+     * This method returns an array of all projects accessible from the given
+     * user, no matter if the SQO-OSS framework had evaluated them or not.
+     * 
+     * @param userName - the user's name
+     * @param password - the user's password
+     * 
+     * @return The array of stored projects, or a <code>null</code> array when
+     *   none are found.
      */
-    public WSStoredProject[] getStoredProjects(String userName, String password) {
+    public WSStoredProject[] getStoredProjects(
+            String userName,
+            String password) {
         return projectManager.getStoredProjects(userName, password);
     }
-    
+
     /**
-     * This method returns the project's files.
-     * The user's name and password must be valid.
-     * @return the list of files, 
-     * if there are not files for the project then
-     * the method returns an array with null element ([null]).
-     * For example, if the project is stored but not evaluated.
+     * This method returns an array of all files that belongs to the project
+     * with the given Id.
+     * 
+     * @param userName - the user's name
+     * @param password - the user's password
+     * @param projectId - the project's identifier
+     * 
+     * @return The array of project's files, or a <code>null</code> array when
+     *   none are found <i>(for example, when the project is not yet not
+     *   evaluated)</i>.
      */
-    public WSProjectFile[] getFilesByProjectId(String userName, String password,
+    public WSProjectFile[] getFilesByProjectId(
+            String userName,
+            String password,
             long projectId) {
         return projectManager.getFilesByProjectId(userName, password, projectId);
     }
-    
+
     /**
-     * The method returns the files of the specific project version.
-     * @return the list of project version files 
-     * if there are not files for the project version then
-     * the method returns an array with null element ([null]).
+     * The method returns an array of all files that exists in the specified
+     * project version.
+     * 
+     * @param userName - the user's name
+     * @param password - the user's password
+     * @param projectVersionId - the project's version identifier
+     * 
+     * @return The array of project's files in that project version, or a
+     *   <code>null</code> array when none are found.
      */
     public WSProjectFile[] getFilesByProjectVersionId(
-            String userName, String password, long projectVersionId) {
+            String userName,
+            String password,
+            long projectVersionId) {
         return projectManager.getFilesByProjectVersionId(
                 userName, password, projectVersionId);
     }
-    
+
     /**
-     * This method returns the project id. 
-     * @param userName
-     * @param passwrod
-     * @param projectName - the name of the project as stored in the SQO-OSS.
-     * @return the identifier of the project
-     * @throws IllegalArgumentException -
-     * if the system cannot find a project
+     * This method returns the identifier of the project associated with the
+     * given project name.
+     * 
+     * @param userName - the user's name
+     * @param password - the user's password
+     * @param projectName - the project's name
+     * 
+     * @return The identifier of the matching project.
+     * @throws IllegalArgumentException - when a matching project can not be
+     *   found.
      */
-    public long getProjectIdByName(String userName,
-            String password, String projectName) {
+    public long getProjectIdByName(
+            String userName,
+            String password,
+            String projectName) {
         return projectManager.getProjectIdByName(
                 userName, password, projectName);
     }
-    
+
     /**
-     * The method returns the versions of the project.
-     * The project is represented with its identifier.
-     * @return the list of project versions 
-     * if there are not versions for the project then
-     * the method returns an array with null element ([null]).
+     * The method returns an array representing all evaluated versions of the
+     * given project.
+     * 
+     * @param userName - the user's name
+     * @param password - the user's password
+     * @param projectId - the project's identifier
+     * 
+     * @return The array with all evaluated project versions, or a
+     *   <code>null</code> array when none are found.
      */
     public WSProjectVersion[] getProjectVersionsByProjectId(
-            String userName, String password, long projectId) {
+            String userName,
+            String password,
+            long projectId) {
         return projectManager.getProjectVersionsByProjectId(
                 userName, password, projectId);
     }
-    
+
     /**
-     * The method returns information about specific project.
-     * The project is represented with its identifier. 
+     * The method returns all information, that the SQO-OSS framework has
+     * collected about the specified project.
+     * 
+     * @param userName - the user's name
+     * @param password - the user's password
+     * @param projectId - the project's identifier
+     * 
+     * @return The <code>WSStoredProject</code> object that describes the
+     * project, or <code>null</code> when such project does not exist.
      */
     public WSStoredProject getProjectById(
-            String userName, String password, long projectId) {
+            String userName,
+            String password,
+            long projectId) {
         return projectManager.getProjectById(userName, password, projectId);
     }
-    
+
     /**
-     * The method returns total number of the project version files.
+     * The method returns the total number of files, that exists in the given
+     * project version.
+     * 
+     * @param userName - the user's name
+     * @param password - the user's password
+     * @param projectVersionId - the project's version identifier
+     * 
+     * @return The number of project's files in that project version.
      */
-    public long getFilesNumberByProjectVersionId(String userName,
-            String password, long projectVersionId) {
+    public long getFilesNumberByProjectVersionId(
+            String userName,
+            String password,
+            long projectVersionId) {
         return projectManager.getFilesNumberByProjectVersionId(
                 userName, password, projectVersionId);
     }
-    
+
     /**
-     * This method makes request for OSS project evaluation.
-     * If a project with same name and version is known to the system
-     * then the method returns the existent project.
-     *  
-     * @param userName for an authentication
-     * @param password for an authentication 
-     * @param projectName project's name
-     * @param projectVersion project's version
-     * @param srcRepositoryLocation URL for the source repository
-     * @param mailingListLocation URL for the mailing list
-     * @param BTSLocation URL for the bug tracking system
-     * @param userEmailAddress user's e-mail address
-     * @param website project's website
-     * @return the project or old one if exist
+     * This method creates a request for a project evaluation. The SQO-OSS
+     * framework administrator can then decide, if the project should be
+     * included for evaluation or not.
+     * <br/>
+     * If a project with the same characteristics is already stored in the
+     * SQO-OSS framework, then this method returns information about the
+     * existing project.
      * 
-     * @deprecated the method is unused
+     * @param userName - the user's name
+     * @param password - the user's password
+     * @param projectName - the project's name
+     * @param projectVersion - the project's version (optional)
+     * @param srcRepositoryLocation - URL of the project's source repository
+     * @param mailingListLocation - URL of the project's mailing list
+     * @param BTSLocation - URL of the project's bug tracking system
+     * @param userEmailAddress - alternative user's e-mail address, for
+     *   receiving the administrator's decision (optional)
+     * @param website - the project's web site
+     * 
+     * @return The <code>WSStoredProject</code> object that describes the
+     * new project, or the <code>WSStoredProject</code> object of the existing
+     * project.
+     * 
+     * @deprecated This method has been deprecated, since the users where
+     *   withdrawn rights to request a project evaluation.
      */
     @Deprecated
-    public WSStoredProject requestEvaluation4Project(String userName, String password,
-            String projectName, long projectVersion,
-            String srcRepositoryLocation, String mailingListLocation,
-            String BTSLocation, String userEmailAddress,String website) {
-        return projectManager.requestEvaluation4Project(userName, password,
-                projectName,projectVersion, srcRepositoryLocation,
-                mailingListLocation, BTSLocation, userEmailAddress, website);
+    public WSStoredProject requestEvaluation4Project(
+            String userName,
+            String password,
+            String projectName,
+            long projectVersion,
+            String srcRepositoryLocation,
+            String mailingListLocation,
+            String BTSLocation,
+            String userEmailAddress,
+            String website) {
+        return projectManager.requestEvaluation4Project(
+                userName,
+                password,
+                projectName,
+                projectVersion,
+                srcRepositoryLocation,
+                mailingListLocation,
+                BTSLocation,
+                userEmailAddress,
+                website);
     }
-    
+
+    // ===[ ProjectManager methods]===========================================
+
     /**
      * This method returns the metrics for a given project.
      * @param userName
