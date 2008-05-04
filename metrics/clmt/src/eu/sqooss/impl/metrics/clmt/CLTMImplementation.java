@@ -87,7 +87,7 @@ public class CLTMImplementation extends AbstractMetric implements CLMT {
     public void run(ProjectVersion v) {
         CLTMJob w = null;
         try {
-            w = new CLTMJob(this);
+            w = new CLTMJob(this, v);
 
             ServiceReference serviceRef = null;
             serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());

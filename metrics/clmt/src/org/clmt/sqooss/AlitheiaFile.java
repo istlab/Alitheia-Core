@@ -9,10 +9,11 @@ import org.w3c.dom.Document;
 public class AlitheiaFile extends CLMTFile {
 
     public AlitheiaFile(String path) {
-	
+        
     }
     
     public boolean delete() {
+        
         return false;
     }
 

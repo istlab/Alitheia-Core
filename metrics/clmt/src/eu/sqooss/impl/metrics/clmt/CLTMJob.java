@@ -33,27 +33,93 @@
 
 package eu.sqooss.impl.metrics.clmt;
 
+import java.io.ByteArrayInputStream;
+import java.util.List;
+
+import org.clmt.configuration.Calculation;
 import org.clmt.configuration.Source;
+import org.clmt.configuration.Task;
+import org.clmt.configuration.TaskException;
+import org.clmt.metrics.MetricInstantiationException;
+import org.clmt.metrics.MetricList;
+import org.clmt.metrics.MetricResultList;
 
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.AbstractMetricJob;
+import eu.sqooss.service.db.Metric;
+import eu.sqooss.service.db.ProjectVersion;
 
 public class CLTMJob extends AbstractMetricJob {
 
-    // Reference to the metric that created this job
-    AbstractMetric parent = null;
+    // Reference to the plugin that created this job
+    private AbstractMetric parent = null;
+    
+    private ProjectVersion pv;
+    
+    private final String XMLTaskProto = "<task>\n"     +
+    "  <description>%s </description>\n"               +
+    "   <source id=\"%s\" language=\"%s\">\n"          +
+    "    <directory path=\"%s\" recursive=\"true\">\n" +
+    "      <include mask=\"%s\" />\n"                  +
+    "    </directory>\n"                               +
+    "   </source>\n"                                   + 
+    "%s\n" +
+    "</task>";
+    
+    private final String XMLCalcProto = 
+        "<calculation name=\"%s\" ids=\"%s\" />"; 
 
-    public CLTMJob(AbstractMetric owner) {
+    public CLTMJob(AbstractMetric owner, ProjectVersion p) {
         super(owner);
         parent = owner;
+        this.pv = p;
     }
 
     public int priority() {
         return 0xbeef;
     }
 
-    public void run() {  
+    public void run() {
+        List<Metric> lm = parent.getSupportedMetrics();
+        StringBuilder metricCalc = new StringBuilder();
         
+        /*Java tasks*/
+        for(Metric m : lm) {
+            metricCalc.append(String.format(XMLCalcProto, 
+                    m.getMnemonic(),
+                    pv.getProject().getName()+"-Java"));
+            metricCalc.append("\n");
+        }
+        
+        /*Yes, string based XML construction and stuff*/
+        String taskXML = String.format(XMLTaskProto, 
+                pv.getProject().getName(), 
+                pv.getProject().getName()+"-Java", 
+                "Java",
+                "/",
+                ".*java",
+                metricCalc);
+        Task t = null;
+        try {
+            t = new Task(pv.getProject().getName(), 
+                    new ByteArrayInputStream(taskXML.getBytes()));
+        } catch (TaskException e) {
+            log.error(this.getClass().getName() + ": Invalid task file:" 
+                    + e.getMessage());
+            return;
+        }
+        
+        MetricList mlist = MetricList.getInstance();
+        MetricResultList mrlist = new MetricResultList();
+        for (Calculation calc : t.getCalculations()) {
+            try {
+                Source[] sources = t.getSourceByIds(calc.getIDs());
+                org.clmt.metrics.Metric metric = mlist.getMetric(calc.getName(),sources);
+                mrlist.merge(metric.calculate());
+            } catch (MetricInstantiationException mie) {
+                log.warn("Could not load plugin - " + mie.getMessage());
+            }
+        }
     }
 }
 
