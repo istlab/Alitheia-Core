@@ -35,45 +35,57 @@ package eu.sqooss.service.security;
 import eu.sqooss.service.db.ServiceUrl;
 
 /**
- * <code>ServiceUrlManager</code> gives access to the service url's management. 
+ * <code>ServiceUrlManager</code> provides methods for service URL's
+ * management.
  */
 public interface ServiceUrlManager {
-    
+
     /**
-     * @param serviceUrlId
-     * @return the service url with given identifier,
-     * null - if the service url doesn't exist
+     * Returns the service URL referenced by the given identifier.
+     * 
+     * @param serviceUrlId - the service URL's identifier
+     * @return The <code>ServiceUrl</code> object referenced by the given
+     *   identifier, or <code>null</code> when such service doesn't exist.
      */
     public ServiceUrl getServiceUrl(long serviceUrlId);
-    
+
     /**
-     * The service url is unique.
-     * The method returns the service url object with given url. 
-     * @param serviceUrl - the service url
-     * @return <code>ServiceUrl</code> object with given url,
-     * null - if the service url doesn't exist
+     * Returns the service URL associated with the given service URL
+     * descriptor.
+     * 
+     * @param serviceUrl - the service URL's descriptor
+     * @return The <code>ServiceUrl</code> object associated with the given
+     *   descriptor, or <code>null</code> when such service doesn't exist.
      */
     public ServiceUrl getServiceUrl(String serviceUrl);
-    
+
     /**
-     * @return all service urls in the system
+     * Returns an array of all service URLs, that are currently defined in the
+     * SQO-OSS framework.
+     * 
+     * @return The array of all service URLs.
      */
     public ServiceUrl[] getServiceUrls();
-    
+
     /**
-     * This method creates a new service url.
-     * @param url the url
-     * @return new service url, null - if the service url isn't created
+     * This method creates a new service URL from the given service URL
+     * descriptor.
+     * 
+     * @param url - the service URL's descriptor
+     * @return The new <code>ServiceUrl</code> object, or <code>null</code>
+     *   upon failure.
      */
     public ServiceUrl createServiceUrl(String url);
-    
+
     /**
-     * This method deletes the service url with given identifier.
-     * @param serviceUrlId
-     * @return true - if the service url is deleted successfully, false - otherwise
+     * This method deletes service URL referenced by the given identifier.
+     * 
+     * @param serviceUrlId - the service URL's identifier
+     * @return <code>true</code> or the service URL is deleted successfully,
+     *   or <code>false</code> upon failure.
      */
     public boolean deleteServiceUrl(long serviceUrlId);
-    
+
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
