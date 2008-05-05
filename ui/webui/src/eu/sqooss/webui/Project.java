@@ -38,6 +38,7 @@ import java.util.SortedMap;
 import java.util.SortedSet;
 
 import eu.sqooss.ws.client.datatypes.WSStoredProject;
+import eu.sqooss.ws.client.datatypes.WSProjectVersion;
 
 
 public class Project {
@@ -50,18 +51,21 @@ public class Project {
     private String  contact;
     private String  website;
     private Integer fileCount;
-    
+    private WSProjectVersion currentVersion;
+    private WSStoredProject currentProject;
+
     // Contains the version number of the last selected version 
     private Long selectedVersion;
-    
+
     // Contains a sorted list of all project versions mapped to their ID.
     private SortedMap<Long, Long> versions;
-    
+
     public Project () {
-        
+
     }
 
     public Project (WSStoredProject p) {
+        currentProject = p;
         id = p.getId();
         name = p.getName();
         bts = p.getBugs();
@@ -102,7 +106,7 @@ public class Project {
     public Integer getFileCount() {
         return fileCount;
     }
-    
+
     public void setFileCount(Integer n) {
         fileCount = n;
     }
@@ -201,7 +205,10 @@ public class Project {
      */
     public void setVersions(SortedMap<Long, Long> versions) {
         this.versions = versions;
-        
+        // FIXME: need to get a WSProjectVersion with
+        // access to most of ProjectVersion
+        //currentVersion = ...
+
         // Initialise the selected version
         setSelectedVersion(getLastVersion());
     }
