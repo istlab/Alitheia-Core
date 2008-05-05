@@ -42,45 +42,55 @@ import eu.sqooss.service.db.PluginConfiguration;
 
 
 /**
- * Common metric plug-in related functionality. Must be implemented
- * by all metric plug-ins. There are four areas of functionality covered
- * by this interface: metric metadata (about the metric itself),
- * measurement (applying the metric to something), lifecycle (installation
- * and removal) and configuration (of the plug-in, for future measurements).
- *
- * The metric metadata comprises name, description, author information
- * and dates installed; this is static in the metric.
- *
- * Measurement comprises two methods: run which actually performs a measure-
- * ment on some project artifact (which one depends on the type of DAObject
- * which is passed in) and getResult which returns the value obtained
- * by a previous measurement.
- *
- * Lifecycle management is done through three verbs: install, remove and
- * update. These do what is on the box and should modify the database
- * schemas as appropriate.
- *
- * Finally, configuration management is for settings that each plugin
- * may have. A configuration property comprises of a 
- * {name, value, type, helpmsg} tuple, stored directly in the database
- * object that represents the associated configuration entry in the database.
- *
- * All metrics are bound to one or more of the following
- * project entities:
- *
+ * This interface defines the common metric plug-in related functionality.
+ * It must be implemented by all metric plug-ins.
+ * <br/>
+ * There are four areas of functionality covered by this interface:
  * <ul>
- *  <li>Project</li>
- *  <li>Project Version</li>
- *  <li>File Group</li>
- *  <li>File</li>
+ *   <li> metric meta-data (describing the metric plug-in)
+ *   <li> evaluation measurements
+ *   <li> plug-in life cycle (installation and removal routines)
+ *   <li> configuration management
  * </ul>
- *
- * As a result, all metric implementations need to implement at least 2 interfaces:
- *
+ * <br/><br/>
+ * The metric meta-data comprises plug-in name, description, author
+ * information and installation date; which are static for each metric
+ * plug-in.
+ *<br/><br/>
+ * Measurement comprises two methods: <code>run()<c/ode> which performs a
+ * measurement on some project artifact (<i>which one depends on the type of
+ * <code>DAObject</code> which is passed in</i>) and <code>getResult()</code>,
+ * which returns the value(s) obtained by a previous measurement.
+ * <br/><br/>
+ * Life-cycle management is implemented in three methods:
+ * <ul>
+ *   <li> install
+ *   <li> remove
+ *   <li> update
+ * </ul>
+ * These takes care of the proper initialization and setup of a metric plug-in
+ * during installation, as well as its proper removal when it is no more
+ * needed.
+ * <br/><br/>
+ * Finally, configuration management deals with configuration settings, that
+ * each plug-in can be accompanied with. A configuration property comprises of
+ * a name, value, type, and a description tuple, and is stored directly into a
+ * SQO-OSS database object that represents that configuration entry.
+ *<br/><br/>
+ * All metrics are bound to one or more of the following project resources:
+ * <ul>
+ *   <li>Project</li>
+ *   <li>Project Version</li>
+ *   <li>File Group</li>
+ *   <li>File</li>
+ *  </ul>
+ * 
+ * As a result, all metric plug-in implementations must implement at least two
+ * interfaces:
  *  <ul>
  *      <li>This interface</li>
  *      <li>One or more of the following interfaces, depending on the type of
- *      the entity the metric is bound to</li>
+ *      the resource the metric plug-in is bound to</li>
  *      <ul>
  *          <li>{@link StoredProjectMetric}</li>
  *          <li>{@link ProjectVersionMetric}</li>
@@ -94,31 +104,41 @@ public interface AlitheiaPlugin {
 
     /**
      * Get the metric version. Free form text.
+     * 
+     * @return The metric's version.
      */
     String getVersion();
 
     /**
      * Get information about the metric author
+     * 
+     * @return The metric's author.
      */
     String getAuthor();
 
     /**
      * Get the date this version of the metric has been installed
+     * 
+     * @return The metric's installation date.
      */
     Date getDateInstalled();
 
     /**
      * Get the metric name
+     * 
+     * @return The metric's name.
      */
     String getName();
 
     /**
      * Get a free text description of what this metric calculates
+     * 
+     * @return The metric's description.
      */
     String getDescription();
 
     /**
-     * Generic "get results" function, it is specialised by sub-interfaces.
+     * Generic "get results" method, it is specialised by sub-interfaces.
      *
      * @param o DAO whose type specifies the specialised sub-interface to use
      *          and whose value determines which result to get.
@@ -131,7 +151,7 @@ public interface AlitheiaPlugin {
         throws MetricMismatchException;
 
     /**
-     * Generic run plug-in method. This method performs a measurement for
+     * Generic "run plug-in" method. This method performs a measurement for
      * the given DAO, if possible. The DAO might be any one of the types
      * that make sense for measurements -- ProjectVersion, projectFile,
      * some others. If a DAO of a type that the metric doesn't support
