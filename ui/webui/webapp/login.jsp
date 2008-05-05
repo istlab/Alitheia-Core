@@ -16,7 +16,7 @@ out.println("<br />");
 
 if ((actionResult != null)
         && (actionResult.compareToIgnoreCase(RES_LOGIN_SUCCESS) == 0)) {
-    out.println ("You have been successfuly logged in.");
+    out.println ("Logged in as " + user.getName());
     out.println ("<br />");
 }
 else if ((actionResult != null)
@@ -37,7 +37,7 @@ else {
     String prvPassword = (validator.isEmpty(password)) ? "" : password;
     String prvConfirm = (validator.isEmpty(regPassword)) ? "" : regPassword;
     String prvEmail = (validator.isEmpty(regEmail)) ? "" : regEmail;
-    
+
     // Retrieve the type of the previous login page (login or register)
     String displayRegister = "display: none;";
     String loginType = "Sign in";

@@ -38,3 +38,6 @@ install :
 		cp ../build/ROOT.war $(TOMCAT_WEBAPPS) ; \
 	else echo "# Installation of webui disabled." ; fi
 
+restart :
+	${TOMCAT_WEBAPPS}../bin/catalina.sh stop
+	${TOMCAT_WEBAPPS}../bin/catalina.sh start
