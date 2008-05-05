@@ -34,8 +34,14 @@
 package eu.sqooss.impl.service.fds;
 
 import java.io.FileNotFoundException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+import eu.sqooss.impl.service.CoreActivator;
+import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.ProjectFile;
+import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.fds.InMemoryCheckout;
 import eu.sqooss.service.fds.InMemoryDirectory;
@@ -81,13 +87,47 @@ class InMemoryCheckoutImpl implements InMemoryCheckout {
         projectName = scm.getName();
         repoPath = path;
         root = new InMemoryDirectory(this);
-        
-        scm.getCheckout(path, r, root.createSubDirectory(scm.getSubProjectPath()));
-        entry = scm.getCommitLog(repoPath, r);
 
         setRevision(r);
+        createCheckout(root.createSubDirectory(scm.getSubProjectPath()));
+        
+         entry = scm.getCommitLog(repoPath, r);
     }
 
+    @SuppressWarnings("unchecked")
+	protected void createCheckout(InMemoryDirectory dir) {
+
+    	DBService dbs = CoreActivator.getDBService();
+  
+    	StoredProject project = getProject();
+    	ProjectVersion version = ProjectVersion.getVersionByRevision(project, getRevision() );
+    
+    	String paramRevision = "project_revision";
+    	String paramProjectId = "project_id";
+
+    	String query = "select pf " +
+    				   "from ProjectFile pf " +
+                       "where pf.projectVersion.version<=:" + paramRevision + " and " +
+                       "pf.projectVersion.project.id=:" + paramProjectId + " " +
+                       "order by pf.id asc";
+
+    	Map<String,Object> parameters = new HashMap<String,Object>();
+    	parameters.put(paramRevision, version.getVersion() );
+    	parameters.put(paramProjectId, project.getId() );
+
+        List<ProjectFile> projectFiles = (List<ProjectFile>) dbs.doHQL(query, parameters);
+        if (projectFiles != null && projectFiles.size() != 0) {
+			for (ProjectFile f : projectFiles) {
+				if (f.getStatus().equals("DELETED")) {
+					dir.deleteFile(f.getFileName());
+				}
+				else if (!f.getIsDirectory()) {
+					dir.createSubDirectory(f.getDir().getPath()).addFile(f.getName());
+				}
+        	}
+        }
+    }
+        
     public int claim() {
         return ++claims;
     }
@@ -98,15 +138,6 @@ class InMemoryCheckoutImpl implements InMemoryCheckout {
 
     public int getReferenceCount() {
         return claims;
-    }
-
-    public void updateCheckout(SCMAccessor scm, ProjectRevision r)
-        throws FileNotFoundException,
-               InvalidProjectRevisionException,
-               InvalidRepositoryException {
-        scm.updateCheckout(repoPath, getRevision(), r, root);
-        entry = scm.getCommitLog(repoPath, r);
-        setRevision(r);
     }
 
     public void setRevision(ProjectRevision r) {

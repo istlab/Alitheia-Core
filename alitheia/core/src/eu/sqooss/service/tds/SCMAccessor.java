@@ -36,13 +36,6 @@ package eu.sqooss.service.tds;
 import java.io.File;
 import java.io.FileNotFoundException;
 
-import eu.sqooss.service.tds.CommitLog;
-import eu.sqooss.service.tds.Diff;
-import eu.sqooss.service.tds.InvalidProjectRevisionException;
-import eu.sqooss.service.tds.InvalidRepositoryException;
-import eu.sqooss.service.tds.ProjectRevision;
-import eu.sqooss.service.fds.InMemoryDirectory;
-
 public interface SCMAccessor extends NamedAccessor {
     /**
      * Get the numeric revision number for HEAD in this project.
@@ -98,7 +91,7 @@ public interface SCMAccessor extends NamedAccessor {
                InvalidRepositoryException,
                FileNotFoundException;
 
-    void getCheckout(String repoPath, ProjectRevision revision, InMemoryDirectory root)
+/*    void getCheckout(String repoPath, ProjectRevision revision, InMemoryDirectory root)
         throws InvalidProjectRevisionException,
                InvalidRepositoryException,
                FileNotFoundException;
@@ -107,7 +100,7 @@ public interface SCMAccessor extends NamedAccessor {
         ProjectRevision dst, InMemoryDirectory root)
         throws InvalidProjectRevisionException,
                InvalidRepositoryException,
-               FileNotFoundException;
+               FileNotFoundException;*/
 
     /**
      * Retrieve a single file from the source repository, relative

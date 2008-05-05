@@ -252,14 +252,20 @@ public class InMemoryDirectory {
      * @return An InMemoryDirectory reference.
      */
     public InMemoryDirectory getSubdirectoryByName(String name) {
-        for (InMemoryDirectory dir : directories) {
-            if (dir.getName().equals(name) ) {
-                return dir;
-            }
-        }
+    	if (name == null || name.equals("")) {
+    		return this;
+    	} else if (name.indexOf('/') == -1 ) {
+    		for (InMemoryDirectory dir : directories) {
+            	if (dir.getName().equals(name) ) {
+            		return dir;
+            	}
+    		}
+    		return null;
+    	}
+		String pathName = name.substring(0, name.indexOf('/'));
+		String fileName = name.substring(name.indexOf('/') + 1);
 
-        // not found? create it
-        return null;
+		return getSubdirectoryByName(pathName).getSubdirectoryByName(fileName);
     }
  
     /**
