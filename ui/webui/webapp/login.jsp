@@ -16,7 +16,7 @@ out.println("<br />");
 
 if ((actionResult != null)
         && (actionResult.compareToIgnoreCase(RES_LOGIN_SUCCESS) == 0)) {
-    out.println ("You have been successfuly loged in.");
+    out.println ("You have been successfuly logged in.");
     out.println ("<br />");
 }
 else if ((actionResult != null)
