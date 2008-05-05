@@ -57,7 +57,7 @@ import eu.sqooss.service.db.PluginConfiguration;
  * information and installation date; which are static for each metric
  * plug-in.
  *<br/><br/>
- * Measurement comprises two methods: <code>run()<c/ode> which performs a
+ * Measurement comprises two methods: <code>run()</code> which performs a
  * measurement on some project artifact (<i>which one depends on the type of
  * <code>DAObject</code> which is passed in</i>) and <code>getResult()</code>,
  * which returns the value(s) obtained by a previous measurement.
