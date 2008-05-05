@@ -123,11 +123,10 @@ class InMemoryCheckoutImpl implements InMemoryCheckout {
         List<ProjectFile> projectFiles = (List<ProjectFile>) dbs.doHQL(query, parameters);
         if (projectFiles != null && projectFiles.size() != 0) {
 			for (ProjectFile f : projectFiles) {
-				if (f.getStatus().equals("DELETED")) {
-					dir.deleteFile(f.getFileName());
-				}
-				else if (!f.getIsDirectory()) {
+				if (!f.getIsDirectory()) {
 					dir.createSubDirectory(f.getDir().getPath()).addFile(f.getName());
+				} else {
+					dir.createSubDirectory(f.getFileName());
 				}
         	}
         }
