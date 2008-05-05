@@ -102,17 +102,22 @@ class InMemoryCheckoutImpl implements InMemoryCheckout {
     	StoredProject project = getProject();
     	ProjectVersion version = ProjectVersion.getVersionByRevision(project, getRevision() );
     
-    	String paramRevision = "project_revision";
+    	String paramVersionId = "version_id";
     	String paramProjectId = "project_id";
-
-    	String query = "select pf " +
-    				   "from ProjectFile pf " +
-                       "where pf.projectVersion.version<=:" + paramRevision + " and " +
-                       "pf.projectVersion.project.id=:" + paramProjectId + " " +
-                       "order by pf.id asc";
-
+    	
+     	String query = "select pf " +
+    	               "from ProjectFile pf " +
+    	               "where pf.projectVersion.version in ( " +
+    	               "    select max(pf2.projectVersion.version) " +
+    	               "    from ProjectFile pf2 " +
+    	               "    where pf2.projectVersion.project.id=:" + paramProjectId + " " +
+    	               "    and pf2.projectVersion.version <=:" + paramVersionId + " " +
+    	               "    group by pf2.dir, pf2.name " +
+    	               ") " +
+    	               "and pf.status <> 'DELETED'";
+    	                   	           
     	Map<String,Object> parameters = new HashMap<String,Object>();
-    	parameters.put(paramRevision, version.getVersion() );
+    	parameters.put(paramVersionId, version.getId() );
     	parameters.put(paramProjectId, project.getId() );
 
         List<ProjectFile> projectFiles = (List<ProjectFile>) dbs.doHQL(query, parameters);
