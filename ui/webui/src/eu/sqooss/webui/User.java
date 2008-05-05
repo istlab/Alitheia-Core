@@ -44,41 +44,56 @@ public class User {
      * Simple constructor. Instantiates a new <code>User</code> object.
      */
     public User () {
-        
+
     }
 
+    /**
+     * Instantiates a new <code>User</code> object, and sets id, name and email.
+     */
     public User (Long id, String name, String email) {
         this.id = id;
         this.name = name;
         this.email = (email != null) ? email : "";
     }
 
+    /**
+     * Returns the user id.
+     */
     public Long getId () {
         return id;
     }
 
+    /**
+     * Returns the user's name.
+     */
     public String getName () {
         return name;
     }
 
+    /**
+     * Returns the user's email address.
+     */
     public String getEmail () {
         return email;
     }
 
     /**
-     * @return the isLoggedIn
+     * @return if the user is logged in.
      */
     public boolean getLoggedIn() {
         return isLoggedIn;
     }
 
     /**
-     * @param isLoggedIn the isLoggedIn to set
+     * @param isLoggedIn Set login statush
      */
     public void setLoggedIn(boolean isLoggedIn) {
         this.isLoggedIn = isLoggedIn;
     }
 
+    /**
+     * @return An HTML representation of the user.
+     */
     public String getHtml() {
         StringBuilder html = new StringBuilder("<!-- User -->\n<ul>");
         html.append("<h3>User: " + getName() + "(" + getId() + ")</h3>");
