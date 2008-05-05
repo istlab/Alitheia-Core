@@ -79,9 +79,23 @@ public class WebServices {
     private UserManager userManager;
     private WebadminService webadmin;
 
-    
-    public WebServices(BundleContext bc, SecurityManager securityManager,
-            DBService db, TDSService tds, Logger logger, WebadminService wa) {
+    /**
+     * Instantiates a new WebServices object.
+     * 
+     * @param bc - the parent's bundle context
+     * @param securityManager - the Security component's instance
+     * @param db - the DB component's instance
+     * @param tds - the TDS component's instance
+     * @param logger the Logger component's instance
+     * @param wa - the WebAdmin component's instance
+     */
+    public WebServices(
+            BundleContext bc,
+            SecurityManager securityManager,
+            DBService db,
+            TDSService tds,
+            Logger logger,
+            WebadminService wa) {
         metricManager = new MetricManager(logger, db, securityManager);
         projectManager = new ProjectManager(logger, db, tds, securityManager);
         userManager = new UserManager(securityManager, db);
