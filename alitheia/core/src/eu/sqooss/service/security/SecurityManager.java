@@ -37,23 +37,18 @@ import java.util.Dictionary;
 /**
  * The <code>SecurityManager</code> class is used for validating the access
  * to resources, and provides methods for creation and management of access
- * privileges.
- * <br/>
- * A resource in the SQO-OSS security scope could be either a project
- * resource, or a service that is mapped and accessible through the SQO-OSS
- * user interfaces.
+ * models.
  */
 public interface SecurityManager {
 
     /**
-     * Validates the access to a SQO-OSS resource located by the given
-     * resource's URL. The URL must include the access privileges as well.
-     * The validation process is then performed against the specified user
-     * name and password.
+     * Validates the access to a SQO-OSS resources identified by the given
+     * privileges and accessed through the specified service's URL (<i>the URL
+     * must include the access privileges<i>). The validation process is then
+     * performed against the specified user name and password.
      * 
-     * @param fullURL - the URL location (plus access privileges) of the
-     *   requested resource
-     * @param privileges - a list of access privileges for that resource 
+     * @param fullURL - the URL-based description (plus access privileges) of
+     *   the requested service
      * @param userName - user's name
      * @param password - user's password
      * 
@@ -67,13 +62,15 @@ public interface SecurityManager {
             String password);
 
     /**
-     * Validates the access to a SQO-OSS resource located by the given
-     * resource's URL. The URL must not include access privileges, since they
-     * are provided in additional parameter. The validation process is then
-     * performed against the specified user name and password.
+     * Validates the access to a SQO-OSS resources identified by the given
+     * privileges and accessed through the specified service's URL. The URL
+     * must not include the privileges, since they are provided in additional
+     * parameter. The validation process is then performed against the
+     * specified user name and password.
      * 
-     * @param resourceURL - the URL location of the requested resource
-     * @param privileges - a list of access privileges for that resource 
+     * @param fullURL - the URL-based description of the requested service
+     * @param privileges - a list of privileges identifying the set of
+     *   requested resources
      * @param userName - user's name
      * @param password - user's password
      * 
@@ -124,18 +121,19 @@ public interface SecurityManager {
     public ServiceUrlManager getServiceUrlManager();
 
     /**
-     * This method creates a new access model for the SQO-OSS resource located
-     * by the given URL. Access to that resource are granted or denied for
-     * the specified group depending on the given access privilege.
+     * This method creates a new access model for the SQO-OSS resource
+     * identified by the given privilege and accessible through the specified
+     * service. Access to that resource are then granted or denied for the
+     * specified group depending on the given access privilege's value.
      * <br/>
      * <i>When some of the arguments (like group or privilege) doesn't have
      *   an associated record in the underlying database, then the
      *   corresponding record(s) is(are) created automatically.</i>
      * 
      * @param groupDescription - the group's descriptor
-     * @param privilege - the privilege's name
+     * @param privilege - the privilege's name (resource type)
      * @param privilegeValue - the privilege's value
-     * @param serviceUrl - the URL locating the affected resource
+     * @param serviceUrl - the URL identifying the requested service
      * 
      * @return <code>true</code> if the access model is successfully created,
      *   or <code>false</code> otherwise
@@ -150,9 +148,9 @@ public interface SecurityManager {
      * This method deletes an existing access model.
      * 
      * @param groupDescription - the group's descriptor
-     * @param privilege - the privilege's name
+     * @param privilege - the privilege's name (resource type)
      * @param privilegeValue - the privilege' value
-     * @param serviceUrl - the URL locating the affected resource
+     * @param serviceUrl - the URL identifying the requested service
      * 
      * @return <code>true</code> if the specified access model is successfully
      *   deleted, or <code>false</code> otherwise
