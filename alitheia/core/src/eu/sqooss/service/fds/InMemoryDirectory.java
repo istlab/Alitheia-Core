@@ -91,7 +91,7 @@ public class InMemoryDirectory {
      */
     public String getPath() {
     	if (parentDirectory==null) {
-    		return getName();
+    		return "/" + getName();
     	} else {
     		return parentDirectory.getPath() + "/" + getName();
     	}
