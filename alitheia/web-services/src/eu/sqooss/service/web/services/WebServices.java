@@ -86,7 +86,7 @@ public class WebServices {
      * @param securityManager - the Security component's instance
      * @param db - the DB component's instance
      * @param tds - the TDS component's instance
-     * @param logger the Logger component's instance
+     * @param logger - the Logger component's instance
      * @param wa - the WebAdmin component's instance
      */
     public WebServices(
