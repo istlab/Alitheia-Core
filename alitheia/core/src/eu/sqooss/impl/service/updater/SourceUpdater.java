@@ -33,6 +33,10 @@
 
 package eu.sqooss.impl.service.updater;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -154,7 +158,7 @@ class SourceUpdater extends Job {
                 	commitMsg = commitMsg.substring(0, 511);
                 
                 curVersion.setCommitMsg(commitMsg);
-                /*TODO: Fix this when the TDS starts supporting TDS properties*/
+                /*TODO: Fix this when the TDS starts supporting SVN properties*/
                 //curVersion.setProperties(entry.getProperties);
                 s.save(curVersion);
                 updProjectVersions.add(new Long(curVersion.getId()));
@@ -204,6 +208,12 @@ class SourceUpdater extends Job {
                         pf.setIsDirectory(false);
                     }
                     
+                    /*If a dir was deleted, mark all children as deleted*/
+                    if (t == SCMNodeType.DIR && 
+                            pf.getStatus().equalsIgnoreCase("DELETED")) {
+                        //markDeleted(s, pf, pf.getProjectVersion());
+                    }
+                    
                     s.save(pf);
                     updFiles.add(pf.getId());
                 }
@@ -211,7 +221,7 @@ class SourceUpdater extends Job {
                 numRevisions ++;
                 
                 /*Cleanup for huge projects*/
-                if (numRevisions / 10000 == 0) {
+                if (numRevisions % 10000 == 0) {
                     tx.commit();
                     tx = s.beginTransaction();
                 }
@@ -249,6 +259,47 @@ class SourceUpdater extends Job {
             ma.runMetrics(ProjectFile.class, updFiles);
 
             updater.removeUpdater(project.getName(), UpdaterService.UpdateTarget.CODE);
+        }
+    }
+
+    /**
+     * Mark the contents of a directory as DELETED when the directory has
+     * been DELETED 
+     * @param s The Hibernate session to operate on
+     * @param pf The project file representing the deleted directory
+     */
+    private void markDeleted(Session s, ProjectFile pf, ProjectVersion pv) {
+        if (pf.getIsDirectory() == false)
+            return;
+        
+        String paramVersion = "projectversion";
+        String paramPath = "path";
+        
+        String query = "from ProjectFile pf where pf.projectVersion=:" +
+        		paramVersion + " and pf.dir=:" + paramPath;         
+        
+        Map<String,Object> parameters = new HashMap<String,Object>();
+        parameters.put(paramVersion, ProjectVersion.getPreviousVersion(pv));
+        parameters.put(paramPath, pf.getDir());
+
+        List<ProjectFile> projectFiles = (List<ProjectFile>) dbs.doHQL(query, parameters);
+        Iterator<ProjectFile> i = projectFiles.iterator();
+        
+        while (i.hasNext()) {
+            ProjectFile pf1 = i.next();
+            
+            ProjectFile pf2 = new ProjectFile();
+            pf2.setDir(pf1.getDir());
+            pf2.setIsDirectory(pf1.getIsDirectory());
+            pf2.setName(pf1.getName());
+            pf2.setProjectVersion(pf1.getProjectVersion());
+            pf2.setStatus("DELETED");
+            
+            s.save(pf2);
+            
+            if(pf1.getIsDirectory()) {
+                markDeleted(s, pf1, pv);
+            } 
         }
     }
 
