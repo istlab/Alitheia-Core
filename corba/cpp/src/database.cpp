@@ -48,7 +48,22 @@ Database::~Database()
     delete d;
 }
 
-bool Database::addRecord( const DAObject& object )
+bool Database::addCorbaRecord( CORBA::Any& record )
 {
-    return d->database->addRecord( object );
+    return d->database->addRecord( record );
+}
+
+bool Database::updateCorbaRecord( CORBA::Any& record )
+{
+    return d->database->updateRecord( record );
+}
+
+bool Database::deleteRecord( const DAObject& object )
+{
+    return d->database->deleteRecord( object );
+}
+
+CORBA::Any* Database::findCorbaObjectById( const CORBA::Any& type, int id )
+{
+    return d->database->findObjectById( type, id );
 }

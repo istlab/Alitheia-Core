@@ -104,7 +104,18 @@ private:
 int main( int argc, char **argv)
 {
     Core& c = *Core::instance();
+   
+    Database db;
+    StoredProject p = db.findObjectById< StoredProject >( 34578 );
+    cout << p.name << endl;
+    p.name = "PDFCreator";
+    db.updateRecord( p );
     
+    p = db.findObjectById< StoredProject >( p.id );
+    cout << p.name << endl;
+
+    return 0;
+
     Logger logger( Logger::NameSqoOssMetric );
     logger.setTeeStream( cout );
     

@@ -165,7 +165,10 @@ module alitheia
 
   interface Database
   {
-    boolean addRecord( in any record );
+    boolean addRecord( inout any record );
+    boolean updateRecord( inout any record );
+    boolean deleteRecord( in any record );
+    any findObjectById( in any type, in long id );
   };
 
   interface Job
@@ -217,7 +220,6 @@ module alitheia
     string getResult( in ProjectVersion version );
 
     void run( in ProjectVersion v );
-    boolean run2nd( in ProjectVersion a, in ProjectVersion b );
   };
   interface StoredProjectMetric : AbstractMetric
   {

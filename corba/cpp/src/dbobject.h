@@ -27,6 +27,7 @@ namespace Alitheia
     public:
         StoredProject() {}
         explicit StoredProject( const eu::sqooss::impl::service::corba::alitheia::StoredProject& project );
+        static StoredProject fromCorba( const CORBA::Any& project );
 
         eu::sqooss::impl::service::corba::alitheia::StoredProject toCorba() const;
         operator CORBA::Any() const;
@@ -44,6 +45,7 @@ namespace Alitheia
     public:
         Developer() {}
         explicit Developer( const eu::sqooss::impl::service::corba::alitheia::Developer& developer );
+        static Developer fromCorba( const CORBA::Any& developer );
 
         eu::sqooss::impl::service::corba::alitheia::Developer toCorba() const;
         operator CORBA::Any() const;
@@ -59,6 +61,7 @@ namespace Alitheia
     public:
         Directory() {}
         explicit Directory( const eu::sqooss::impl::service::corba::alitheia::Directory& directory );
+        static Directory fromCorba( const CORBA::Any& directory );
 
         eu::sqooss::impl::service::corba::alitheia::Directory toCorba() const;
         operator CORBA::Any() const;
@@ -72,6 +75,7 @@ namespace Alitheia
     public:
         ProjectVersion() : version(0), timeStamp(0){}
         explicit ProjectVersion( const eu::sqooss::impl::service::corba::alitheia::ProjectVersion& version );
+        static ProjectVersion fromCorba( const CORBA::Any& version );
         
         eu::sqooss::impl::service::corba::alitheia::ProjectVersion toCorba() const;
         operator CORBA::Any() const;
@@ -91,6 +95,7 @@ namespace Alitheia
     public:
         ProjectFile();
         explicit ProjectFile( const eu::sqooss::impl::service::corba::alitheia::ProjectFile& file );
+        static ProjectFile fromCorba( const CORBA::Any& file );
         ProjectFile( const ProjectFile& other );
         ~ProjectFile();
 
@@ -113,6 +118,7 @@ namespace Alitheia
     {
     public:
         explicit FileGroup( const eu::sqooss::impl::service::corba::alitheia::FileGroup& group );
+        static FileGroup fromCorba( const CORBA::Any& group );
 
         eu::sqooss::impl::service::corba::alitheia::FileGroup toCorba() const;
         operator CORBA::Any() const;
@@ -137,6 +143,7 @@ namespace Alitheia
 
         MetricType() : type( SourceCode ) {}
         explicit MetricType( const eu::sqooss::impl::service::corba::alitheia::MetricType& metrictype );
+        static MetricType fromCorba( const CORBA::Any& metrictype );
 
         eu::sqooss::impl::service::corba::alitheia::MetricType toCorba() const;
         operator CORBA::Any() const;
@@ -149,6 +156,7 @@ namespace Alitheia
     public:
         Plugin() {}
         explicit Plugin( const eu::sqooss::impl::service::corba::alitheia::Plugin& plugin );
+        static Plugin fromCorba( const CORBA::Any& plugin );
 
         eu::sqooss::impl::service::corba::alitheia::Plugin toCorba() const;
         operator CORBA::Any() const;
@@ -162,6 +170,7 @@ namespace Alitheia
     public:
         Metric() {}
         explicit Metric( const eu::sqooss::impl::service::corba::alitheia::Metric& metric );
+        static Metric fromCorba( const CORBA::Any& metric );
 
         eu::sqooss::impl::service::corba::alitheia::Metric toCorba() const;
         operator CORBA::Any() const;
@@ -177,6 +186,7 @@ namespace Alitheia
     public:
         ProjectFileMeasurement() {}
         explicit ProjectFileMeasurement( const eu::sqooss::impl::service::corba::alitheia::ProjectFileMeasurement& measurement );
+        static ProjectFileMeasurement fromCorba( const CORBA::Any& measurement );
 
         eu::sqooss::impl::service::corba::alitheia::ProjectFileMeasurement toCorba() const;
         operator CORBA::Any() const;
@@ -192,6 +202,7 @@ namespace Alitheia
     public:
         ProjectVersionMeasurement() {}
         explicit ProjectVersionMeasurement( const eu::sqooss::impl::service::corba::alitheia::ProjectVersionMeasurement& measurement );
+        static ProjectVersionMeasurement fromCorba( const CORBA::Any& measurement );
 
         eu::sqooss::impl::service::corba::alitheia::ProjectVersionMeasurement toCorba() const;
         operator CORBA::Any() const;

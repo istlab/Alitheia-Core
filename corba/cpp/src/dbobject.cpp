@@ -61,6 +61,13 @@ StoredProject::operator CORBA::Any() const
     return any;
 }
 
+StoredProject StoredProject::fromCorba( const CORBA::Any& any )
+{
+    alitheia::StoredProject project;
+    any >>= project;
+    return StoredProject( project );
+}
+
 ProjectVersion::ProjectVersion( const alitheia::ProjectVersion& version )
     : DAObject( version.id ),
       project( version.project ),
@@ -90,6 +97,13 @@ ProjectVersion::operator CORBA::Any() const
     CORBA::Any any;
     any <<= toCorba();
     return any;
+}
+
+ProjectVersion ProjectVersion::fromCorba( const CORBA::Any& any )
+{
+    alitheia::ProjectVersion version;
+    any >>= version;
+    return ProjectVersion( version );
 }
 
 std::vector< ProjectFile > ProjectVersion::getVersionFiles() const
@@ -201,6 +215,13 @@ ProjectFile::operator CORBA::Any() const
     return any;
 }
 
+ProjectFile ProjectFile::fromCorba( const CORBA::Any& any )
+{
+    alitheia::ProjectFile file;
+    any >>= file;
+    return ProjectFile( file );
+}
+
 ProjectFile::~ProjectFile()
 {
     delete rdbuf();
@@ -237,6 +258,13 @@ FileGroup::operator CORBA::Any() const
     return any;
 }
 
+FileGroup FileGroup::fromCorba( const CORBA::Any& any )
+{
+    alitheia::FileGroup group;
+    any >>= group;
+    return FileGroup( group );
+}
+
 MetricType::MetricType( const alitheia::MetricType& type )
     : DAObject( type.id ),
       type( static_cast< Type >( type.type ) )
@@ -256,6 +284,13 @@ MetricType::operator CORBA::Any() const
     CORBA::Any any;
     any <<= toCorba();
     return any;
+}
+
+MetricType MetricType::fromCorba( const CORBA::Any& any )
+{
+    alitheia::MetricType type;
+    any >>= type;
+    return MetricType( type );
 }
 
 Plugin::Plugin( const alitheia::Plugin& plugin )
@@ -279,6 +314,13 @@ Plugin::operator CORBA::Any() const
     CORBA::Any any;
     any <<= toCorba();
     return any;
+}
+
+Plugin Plugin::fromCorba( const CORBA::Any& any )
+{
+    alitheia::Plugin plugin;
+    any >>= plugin;
+    return Plugin( plugin );
 }
 
 Metric::Metric( const alitheia::Metric& metric )
@@ -308,6 +350,13 @@ Metric::operator CORBA::Any() const
     return any;
 }
 
+Metric Metric::fromCorba( const CORBA::Any& any )
+{
+    alitheia::Metric metric;
+    any >>= metric;
+    return Metric( metric );
+}
+
 ProjectFileMeasurement::ProjectFileMeasurement( const alitheia::ProjectFileMeasurement& measurement )
     : DAObject( measurement.id ),
       metric( measurement.measureMetric ),
@@ -333,6 +382,13 @@ ProjectFileMeasurement::operator CORBA::Any() const
     CORBA::Any any;
     any <<= toCorba();
     return any;
+}
+
+ProjectFileMeasurement ProjectFileMeasurement::fromCorba( const CORBA::Any& any )
+{
+    alitheia::ProjectFileMeasurement measurement;
+    any >>= measurement;
+    return ProjectFileMeasurement( measurement );
 }
 
 ProjectVersionMeasurement::ProjectVersionMeasurement( const alitheia::ProjectVersionMeasurement& measurement )
@@ -362,6 +418,13 @@ ProjectVersionMeasurement::operator CORBA::Any() const
     return any;
 }
 
+ProjectVersionMeasurement ProjectVersionMeasurement::fromCorba( const CORBA::Any& any )
+{
+    alitheia::ProjectVersionMeasurement measurement;
+    any >>= measurement;
+    return ProjectVersionMeasurement( measurement );
+}
+
 Developer::Developer( const alitheia::Developer& developer )
     : DAObject( developer.id ),
       name( developer.name ),
@@ -389,6 +452,13 @@ Developer::operator CORBA::Any() const
     return any;
 }
 
+Developer Developer::fromCorba( const CORBA::Any& any )
+{
+    alitheia::Developer dev;
+    any >>= dev;
+    return Developer( dev );
+}
+
 Directory::Directory( const alitheia::Directory& directory )
     : DAObject( directory.id ),
       path( directory.path )
@@ -408,4 +478,11 @@ Directory::operator CORBA::Any() const
     CORBA::Any any;
     any <<= toCorba();
     return any;
+}
+
+Directory Directory::fromCorba( const CORBA::Any& any )
+{
+    alitheia::Directory dir;
+    any >>= dir;
+    return Directory( dir );
 }
