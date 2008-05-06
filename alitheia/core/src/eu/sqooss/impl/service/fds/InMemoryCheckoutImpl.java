@@ -95,40 +95,40 @@ class InMemoryCheckoutImpl implements InMemoryCheckout {
     }
 
     @SuppressWarnings("unchecked")
-	protected void createCheckout(InMemoryDirectory dir) {
+    protected void createCheckout(InMemoryDirectory dir) {
 
-    	DBService dbs = CoreActivator.getDBService();
+        DBService dbs = CoreActivator.getDBService();
   
-    	StoredProject project = getProject();
-    	ProjectVersion version = ProjectVersion.getVersionByRevision(project, getRevision() );
+        StoredProject project = getProject();
+        ProjectVersion version = ProjectVersion.getVersionByRevision(project, getRevision() );
     
-    	String paramVersionId = "version_id";
-    	String paramProjectId = "project_id";
-    	
-     	String query = "select pf " +
-    	               "from ProjectFile pf " +
-    	               "where pf.projectVersion.version in ( " +
-    	               "    select max(pf2.projectVersion.version) " +
-    	               "    from ProjectFile pf2 " +
-    	               "    where pf2.projectVersion.project.id=:" + paramProjectId + " " +
-    	               "    and pf2.projectVersion.version <=:" + paramVersionId + " " +
-    	               "    group by pf2.dir, pf2.name " +
-    	               ") " +
-    	               "and pf.status <> 'DELETED'";
-    	                   	           
-    	Map<String,Object> parameters = new HashMap<String,Object>();
-    	parameters.put(paramVersionId, version.getId() );
-    	parameters.put(paramProjectId, project.getId() );
+        String paramVersionId = "version_id";
+        String paramProjectId = "project_id";
+        
+        String query = "select pf " +
+                       "from ProjectFile pf " +
+                       "where pf.projectVersion.version in ( " +
+                       "    select max(pf2.projectVersion.version) " +
+                       "    from ProjectFile pf2 " +
+                       "    where pf2.projectVersion.project.id=:" + paramProjectId + " " +
+                       "    and pf2.projectVersion.version <=:" + paramVersionId + " " +
+                       "    group by pf2.dir, pf2.name " +
+                       ") " +
+                       "and pf.status <> 'DELETED'";
+                                       
+        Map<String,Object> parameters = new HashMap<String,Object>();
+        parameters.put(paramVersionId, version.getId() );
+        parameters.put(paramProjectId, project.getId() );
 
         List<ProjectFile> projectFiles = (List<ProjectFile>) dbs.doHQL(query, parameters);
         if (projectFiles != null && projectFiles.size() != 0) {
-			for (ProjectFile f : projectFiles) {
-				if (!f.getIsDirectory()) {
-					dir.createSubDirectory(f.getDir().getPath()).addFile(f.getName());
-				} else {
-					dir.createSubDirectory(f.getFileName());
-				}
-        	}
+            for (ProjectFile f : projectFiles) {
+                if (!f.getIsDirectory()) {
+                    dir.createSubDirectory(f.getDir().getPath()).addFile(f.getName());
+                } else {
+                    dir.createSubDirectory(f.getFileName());
+                }
+            }
         }
     }
         
@@ -178,7 +178,7 @@ class InMemoryCheckoutImpl implements InMemoryCheckout {
     }
     
     public ProjectFile getFile(String name) {
-    	return root.getFile(name);
+        return root.getFile(name);
     }
 }
 
