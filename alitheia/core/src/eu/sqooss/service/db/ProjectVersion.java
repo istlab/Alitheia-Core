@@ -112,6 +112,28 @@ public class ProjectVersion extends DAObject {
         }
     }
     
+    public static ProjectVersion getPreviousVersion(ProjectVersion pv) {
+        DBService dbs = CoreActivator.getDBService();
+        
+        String paramTS = "paramTS"; 
+        
+        String query = "from ProjectVersion pv where pv.timestamp in (" +
+        		"select max(pv2.timestamp) " +
+        		"from ProjectVersion pv2 " +
+        		"where pv2.timestamp < :)" + paramTS;
+        
+        Map<String,Object> parameters = new HashMap<String,Object>();
+        parameters.put(paramTS, pv.getTimestamp());
+
+        List<?> projectVersions = dbs.doHQL(query, parameters);
+        
+        if(projectVersions == null || projectVersions.size() == 0) {
+            return null;
+        }else {
+            return (ProjectVersion) projectVersions.get(0);
+        }
+    }
+    
     public ProjectFile addProjectFile() {
         return new ProjectFile(this);
     }
