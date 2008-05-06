@@ -56,12 +56,12 @@ import eu.sqooss.service.pa.PluginInfo;
 
 public class PAServiceImpl implements PluginAdmin, ServiceListener {
 
-    /* ===[ Constants: Service search filters ]=========================== */
+    /* ===[ Constants: Service search filters ]=============== ============ */
 
     private static final String SREF_FILTER_PLUGIN =
         "(" + Constants.OBJECTCLASS + "=" + PluginAdmin.PLUGIN_CLASS + ")";
 
-    /* ===[ Constants: Common log messages ]============================== */
+    /* ===[ Constants: Common log messages ]=================== =========== */
 
     private static final String NO_MATCHING_SERVICES =
         "No matching services were found!";
@@ -69,30 +69,37 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
         "Not a metric plug-in service!";
     private static final String INVALID_FILTER_SYNTAX =
         "Invalid filter syntax!";
+    private static final String INVALID_SREF =
+        "Invalid service reference!";
     private static final String CANT_GET_SOBJ =
         "The service object can not be retrieved!";
 
-    private Logger logger;
+    /* ===[ Global variable ]================== =========================== */
+
+    // The parent bundle's context object
     private BundleContext bc;
 
+    // Required SQO-OSS components
+    private Logger logger;
+
     /** 
-     * Keeps a list of registered plugin services, indexed by each 
-     * plugin's database hashcode
+     * Keeps a list of registered metric plug-in's services, indexed by the 
+     * plugin's hash code (stored in the database).
      */
     private HashMap<String, PluginInfo> registeredPlugins =
         new HashMap<String, PluginInfo>();
 
+    /**
+     * Instantiates a new <code>PluginAdmin</code>.
+     * 
+     * @param bc - the parent bundle's context object
+     * @param logger - the Logger component's instance
+     */
     public PAServiceImpl (BundleContext bc, Logger logger) {
-        this.logger = logger;
+        logger.info("Starting the PluginAdmin component.");
         this.bc = bc;
+        this.logger = logger;
 
-        ServiceReference serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
-        AlitheiaCore core = (AlitheiaCore) bc.getService(serviceRef);
-        
-        core.getDBService();
-        
-        logger.info("PluginAdmin service starting.");
-        
         // Attach this object as a listener for metric services
         try {
             bc.addServiceListener(this, SREF_FILTER_PLUGIN);
@@ -101,50 +108,119 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
         }
 
         // Register an extension to the Equinox console, in order to
-        // provide commands for managing plugin services
+        // provide commands for managing plug-in's services
         bc.registerService(
                 CommandProvider.class.getName(),
                 new PACommandProvider(this) ,
                 null);
-        logger.debug("PluginAdmin registered successfully.");
+
+        logger.debug("The PluginAdmin component was successfully started.");
     }
 
     /**
-     * Creates a new <code>PluginInfo</code> object, by combining information
-     * provided from the OSGi framework and the metric plug-in's record in
-     * the database
-     *
-     * @param srefPlugin - the service reference object
-     * @param p - the DAO object associated with this metric plug-in
-     *
-     * @return A {@link PluginInfo} object containing the extracted metric
-     * information
+     * Retrieves the service Id of the specified service reference.
+     * 
+     * @param sref - the service reference
+     * 
+     * @return The service Id.
      */
-    private PluginInfo getPluginInfo (ServiceReference srefPlugin, Plugin p) {
+    private Long getServiceId (ServiceReference sref) {
+        // Check for a valid service reference
+        if (sref == null) {
+            logger.error(INVALID_SREF);
+            return null;
+        }
+        return (Long) sref.getProperty(Constants.SERVICE_ID);
+    }
+
+    /**
+     * Gets the metric plug-in's service reference, that is registered with
+     * the given service Id.
+     * 
+     * @param serviceId - the service Id
+     * 
+     * @return The metric plug-in's service reference.
+     */
+    private ServiceReference getPluginService (Long serviceId) {
+        // Format a search filter for a service with the given service Id
+        String serviceFilter =
+            "(" + Constants.SERVICE_ID +"=" + serviceId + ")";
+
+        // Retrieve all services that match the search filter
+        ServiceReference[] matchingServices = null;
+        try {
+            /* Since the service search is performed using a service Id,
+             * it MUST return only one service reference.
+             */
+            matchingServices = bc.getServiceReferences(null, serviceFilter);
+            if ((matchingServices == null) && (matchingServices.length != 1)) {
+                logger.error(NO_MATCHING_SERVICES);
+            }
+            else {
+                return matchingServices[0];
+            }
+        }
+        catch (InvalidSyntaxException e) {
+            logger.error(INVALID_FILTER_SYNTAX);
+        }
+
+        return null;
+    }
+
+    /**
+     * Gets the metric plug-in's object registered with the given service.
+     * 
+     * @param srefPlugin - the metric plug-in's service reference
+     * 
+     * @return The metric plug-in's object.
+     */
+    private AlitheiaPlugin getPluginObject (ServiceReference srefPlugin) {
         // Check for a valid service reference
         if (srefPlugin == null) {
-            logger.error("Got a null service reference while getting plugin info");
+            logger.error(INVALID_SREF);
             return null;
         }
-        // Check for a valid DAO object
-        if (p == null) {
-            logger.error("Plugin record not in DB, plugin with service id <"
-                    + srefPlugin.getProperty(Constants.SERVICE_ID)
-                    + "> is not installed");
-            return null;
+        try {
+            // Retrieve the metric plug-in's object from the service reference
+            AlitheiaPlugin sobjPlugin = (AlitheiaPlugin) bc.getService(srefPlugin);
+            // Check for a valid plug-in object
+            if (sobjPlugin == null) {
+                logger.error(CANT_GET_SOBJ);
+            }
+            return sobjPlugin;
         }
-        // Begin with the info object's creation
-        logger.debug("Creating info onject for plug-in " + p.getName());
-        // Retrieve the metric plug-in's object from the service reference
-        AlitheiaPlugin pluginObject = (AlitheiaPlugin) bc.getService(srefPlugin);
-        if (pluginObject != null) {
-            PluginInfo pluginInfo =
-                new PluginInfo(Plugin.getConfigEntries(p), pluginObject);
+        catch (ClassCastException e) {
+            logger.warn(NOT_A_PLUGIN);
+        }
 
+        return null;
+    }
+
+    /**
+     * Creates a new <code>PluginInfo</code> object for registered plug-in
+     * from the given metric plug-in's service.
+     * 
+     * @param srefPlugin - the metric plug-in's service reference
+     * 
+     * @return The new <code>PluginInfo</code> object, or <code>null</code>
+     *   upon failure.
+     */
+    private PluginInfo createRegisteredPI (ServiceReference srefPlugin) {
+        // Get the metric plug-in's object
+        AlitheiaPlugin sobjPlugin = getPluginObject(srefPlugin);
+
+        // Create a plug-in info object
+        if (sobjPlugin != null) {
+            logger.debug(
+                    "Creating info object for registered plug-in "
+                    + sobjPlugin.getName());
+            PluginInfo pluginInfo = new PluginInfo();
+            pluginInfo.setPluginName(sobjPlugin.getName());
+            pluginInfo.setPluginVersion(sobjPlugin.getVersion());
             pluginInfo.setServiceRef(srefPlugin);
-            pluginInfo.setHashcode(p.getHashcode());
-            pluginInfo.installed = true;
-
+            pluginInfo.setHashcode(getServiceId(srefPlugin).toString());
+            // Mark as not installed
+            pluginInfo.installed = false;
             return pluginInfo;
         }
 
@@ -152,118 +228,153 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
     }
 
     /**
-     * Try to associate a plugin service reference to a database plugin record
-     * @param srefPlugin
-     * @return A Plugin DAO object if entry in the database, or null
+     * Creates a new <code>PluginInfo</code> object for installed plug-in
+     * from the given metric plug-in's service and database record.
+     *
+     * @param srefPlugin - the metric plug-in's service reference
+     * @param p - the DAO object associated with this metric plug-in
+     *
+     * @return The new <code>PluginInfo</code> object, or <code>null</code>
+     *   upon failure.
+     */
+    private PluginInfo createInstalledPI (ServiceReference srefPlugin, Plugin p) {
+        // Get the metric plug-in's object
+        AlitheiaPlugin sobjPlugin = getPluginObject(srefPlugin);
+        // Create a plug-in info object
+        if (sobjPlugin != null) {
+            logger.debug(
+                    "Creating info object for installed plug-in "
+                    + sobjPlugin.getName());
+            PluginInfo pluginInfo =
+                new PluginInfo(Plugin.getConfigEntries(p), sobjPlugin);
+            pluginInfo.setServiceRef(srefPlugin);
+            pluginInfo.setHashcode(p.getHashcode());
+            // Mark as installed
+            pluginInfo.installed = true;
+            return pluginInfo;
+        }
+
+        return null;
+    }
+
+    /**
+     * Returns the database record associated with the metric plug-in that is
+     * referenced by the given service reference.
+     * 
+     * @param srefPlugin - the plug-in's service reference
+     * 
+     * @return The <code>Plugin</code> DAO object if found in the database,
+     *   or <code>null</code> when a matching record does not exist.
      */
     Plugin pluginRefToPluginDAO(ServiceReference srefPlugin) {
-        AlitheiaPlugin plugin = (AlitheiaPlugin) bc.getService(srefPlugin);
+        // Get the metric plug-in's object
+        AlitheiaPlugin sobjPlugin = getPluginObject(srefPlugin);
 
-        if (plugin == null) {
-            logger.error("Error retrieving plugin interface from service"
-                    + " reference. Uncaught error in plugin installation?");
-            return null;
+        // Return the DAO object associated with this plug-in
+        if (sobjPlugin != null) {
+            return Plugin.getPluginByHashcode(sobjPlugin.getUniqueKey());
         }
 
-        /* The DB object representing the Plugin */
-        Plugin pluginDAO = Plugin.getPluginByHashcode(plugin.getUniqueKey());
-
-        return pluginDAO;
+        return null;
     }
-    
+
+    /**
+     * Gets the <code>PluginInfo</code> object assigned to the given metric
+     * plug-in's service.
+     * 
+     * @param srefPlugin - the plug-in's service reference
+     * 
+     * @return The <code>PluginInfo</code> object, or <code>null</code> when
+     *  this plug-in has no <code>PluginInfo</code> object assigned to it.
+     */
+    private PluginInfo getPluginInfo(ServiceReference srefPlugin) {
+        // Search for a match through all PluginInfo objects
+        if (srefPlugin != null) {
+            for (PluginInfo p : registeredPlugins.values()) {
+                if (p.getServiceRef().equals(srefPlugin))
+                    return p;
+            }
+        }
+        
+        return null;
+    }
+
     /**
      * Performs various maintenance operations upon registration of a new 
-     * metric plug-in service
+     * metric plug-in's service.
      * 
-     * @param srefPlugin the reference to the registered metric service
+     * @param srefPlugin - the metric plug-in's service reference
      */
     private void pluginRegistered (ServiceReference srefPlugin) {
+        // Keeps the PluginInfo object
+        PluginInfo pluginInfo;
+
         // Try to get the DAO that belongs to this metric plug-in
-        Plugin pDao = pluginRefToPluginDAO(srefPlugin);
-        // Store this metric service's ID as a string
-        String srefId = srefPlugin.getProperty(
-                Constants.SERVICE_ID).toString();
+        Plugin daoPlugin = pluginRefToPluginDAO(srefPlugin);
 
-        // Retrieve information about this metric plug-in
-        PluginInfo pluginInfo = getPluginInfo(srefPlugin, pDao);
-
-        // Check for a plug-in that were installed
-        if (pluginInfo != null) {
-            // Remove the old "not yet installed" info entry (if any)
-            if (registeredPlugins.containsKey(srefId))
-                registeredPlugins.remove(srefId);
-            // Store in the registered plug-ins list
-            registeredPlugins.put(pluginInfo.getHashcode(), pluginInfo);
-            logger.info("Plugin (" + pluginInfo.getPluginName() + ") registered");
+        // Plug-in that is already installed, has a valid DAO
+        if (daoPlugin != null) {
+            // Create an info object for installed plug-in
+            pluginInfo = createInstalledPI(srefPlugin, daoPlugin);
         }
-        // This plug-in is not yet installed
+        // This plug-in is just registered
         else {
-            AlitheiaPlugin sobjPlugin =
-                (AlitheiaPlugin) bc.getService(srefPlugin);
-            // Create a plug-in info object
-            pluginInfo = new PluginInfo();
-            pluginInfo.setPluginName(sobjPlugin.getName());
-            pluginInfo.setPluginVersion(sobjPlugin.getVersion());
-            pluginInfo.setServiceRef(srefPlugin);
-            pluginInfo.setHashcode(srefId);
-            // Mark as not installed
-            pluginInfo.installed = false;
-            // Store in the registered plug-ins list
-            registeredPlugins.put(srefId, pluginInfo);
+            // Create an info object for registered plug-in
+            pluginInfo = createRegisteredPI(srefPlugin);
+        }
+
+        if (pluginInfo == null) {
+            logger.error(
+                    "Upon plug-in service registration - "
+                    + " can not create a PluginInfo object!");
+        }
+        else {
+            // Store the info object into the info object's list
+            registeredPlugins.put(pluginInfo.getHashcode(), pluginInfo);
+            logger.info(
+                    "Plug-in service (" + pluginInfo.getPluginName() + ")"
+                    + " was registered.");
         }
     }
 
     /**
-     * Performs various maintenance operations during unregistering of a plugin
-     * service
+     * Performs various maintenance operations during unregistration of an
+     * existing metric plug-in's service.
      * 
-     * @param srefPlugin
-     *                the reference to the registered metric service
+     * @param srefPlugin - the metric plug-in's service reference
      */
     private void pluginUnregistering (ServiceReference srefPlugin) {
-        PluginInfo pi = getPluginInfo(srefPlugin);
-        // Service ID as String
-        String srefId = srefPlugin.getProperty(
-                Constants.SERVICE_ID).toString();
-
-        if (pi == null) {
-            logger.warn("Plugin info not found, plug-in already " +
-                    "unregistered?");
+        // Get the PluginInfo object assigned to this plug-in
+        PluginInfo pluginInfo = getPluginInfo(srefPlugin);
+        if (pluginInfo == null) {
+            logger.error(
+                    "During plug-in service unregistration - "
+                    + " a matching PluginInfo object was not found!");
             return;
         }
-
-        logger.info("Plugin service \"" + pi.getPluginName() 
-                + "\" is unregistering.");
-
-        // Check for metric plug-ins that were registered but not installed
-        if (registeredPlugins.containsKey(srefId)) {
-            registeredPlugins.remove(srefId);
-        }
-        // Check for metric plug-ins that were registered and installed
         else {
-            registeredPlugins.remove(pi.getHashcode());
+            // Remove the info object from the info object's list
+            registeredPlugins.remove(pluginInfo.getHashcode());
+            logger.info(
+                    "Plug-in service (" + pluginInfo.getPluginName() + ")"
+                    + " is unregistering.");
         }
     }
 
     /**
      * Performs various maintenance operations upon a change in an existing
-     * plugin service
+     * metric plug-in's service
      *
-     * @param srefPlugin the reference to the registered metric service
+     * @param srefPlugin - the metric plug-in's service reference
      */
     private void pluginModified (ServiceReference srefPlugin) {
-        PluginInfo pi = getPluginInfo(srefPlugin);
-        logger.info("Plugin service \" "
-                + pi.getPluginName() + " \" was modified.");
-    }
-    
-    private PluginInfo getPluginInfo(ServiceReference sref) {
-        
-        for (PluginInfo p : this.registeredPlugins.values()) {
-            if(p.getServiceRef().equals(sref))
-                return p;
+        // Get the PluginInfo object assigned to this plug-in
+        PluginInfo pluginInfo = getPluginInfo(srefPlugin);
+        if (pluginInfo != null) {
+            logger.info(
+                    "Plug-in service (" + pluginInfo.getPluginName() + ")"
+                    + " was modified.");
         }
-        return null;
     }
 
 /* ===[ Implementation of the ServiceListener interface ]================= */
@@ -284,12 +395,15 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
             break;
         // The configuration of an existing service was modified
         case ServiceEvent.MODIFIED:
-            pluginModified (affectedService);
+            pluginModified(affectedService);
         }
     }
 
 /* ===[ Implementation of the PluginAdmin interface ]===================== */
 
+    /* (non-Javadoc)
+     * @see eu.sqooss.service.pa.PluginAdmin#listPlugins()
+     */
     public Collection<PluginInfo> listPlugins() {
         return registeredPlugins.values();
     }
@@ -340,72 +454,51 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
     /* (non-Javadoc)
      * @see eu.sqooss.service.pa.PluginAdmin#installPlugin(java.lang.Long)
      */
-    public boolean installPlugin(Long sid) {
-        // Flag for a successful installation
-        boolean installed = false;
-
-        // Format a search filter for a service with the given service ID
-        String serviceFilter =
-            "(" + Constants.SERVICE_ID +"=" + sid + ")";
+    public boolean installPlugin(Long serviceID) {
         logger.info (
-                "Installing plugin with service ID " + sid);
+                "Installing plugin with service ID " + serviceID);
 
         // Pre-formated error messages
         final String INSTALL_FAILED =
             "The installation of plugin with"
-            + " service ID "+ sid
+            + " service ID "+ serviceID
             + " failed : ";
 
-        // Stores all services that match the search filter
-        ServiceReference[] matchingServices = null;
         try {
-            /* Since the search is performed using a service ID, it MUST
-             * return only one service reference
-             */
-            matchingServices = bc.getServiceReferences(null, serviceFilter);
-            if ((matchingServices == null) && (matchingServices.length != 1)) {
-                logger.warn(NO_MATCHING_SERVICES);
-                return installed;
-            }
+            // Get the metric plug-in's service
+            ServiceReference srefPlugin = getPluginService(serviceID);
 
-            // Get an instance of the matching service
-            ServiceReference sref = matchingServices[0];
-            if (sref == null) {
-                logger.warn(NO_MATCHING_SERVICES);
+            // Get the metric plug-in's object
+            AlitheiaPlugin sobjPlugin = getPluginObject(srefPlugin);
+            if (sobjPlugin != null) {
+                // Execute the install() method of this metric plug-in,
+                // and update the plug-in's information object upon success.
+                if (sobjPlugin.install()) {
+                    // Get the DAO that belongs to this metric plug-in
+                    Plugin daoPlugin = pluginRefToPluginDAO(srefPlugin);
+                    if (daoPlugin != null) {
+                        // Create an info object for installed plug-in
+                        PluginInfo pluginInfo =
+                            createInstalledPI(srefPlugin, daoPlugin);
+                        if (pluginInfo != null) {
+                            // Remove the old "registered" info object
+                            registeredPlugins.remove(serviceID.toString());
+                            // Store the info object
+                            registeredPlugins.put(
+                                    pluginInfo.getHashcode(), pluginInfo);
+                            return true;
+                        }
+                    }
+                }
             }
-
-            // Retrieve the plug-in object registered with this service
-            AlitheiaPlugin sobj = (AlitheiaPlugin) bc.getService(sref);
-            if (sobj == null) {
+            else {
                 logger.warn(INSTALL_FAILED + CANT_GET_SOBJ);
-                return installed;
             }
-
-            // Execute the install() method of this metric plug-in
-            installed = sobj.install();
-
-            /* Create/update the plug-in's information object, upon successful
-             * installation. 
-             */
-            if (installed) {
-                // Remove the old "not yet installed" info entry (if any)
-                if (registeredPlugins.containsKey(sid.toString()))
-                    registeredPlugins.remove(sid.toString());
-                // Create/update the plug-in info entry
-                Plugin pdao = this.pluginRefToPluginDAO(sref);
-                PluginInfo pi = getPluginInfo(sref, pdao);
-                pi.installed = true;
-                this.registeredPlugins.put(pi.getHashcode(), pi);
-            }
-        } catch (InvalidSyntaxException e) {
-            logger.warn(INVALID_FILTER_SYNTAX);
-        } catch (ClassCastException e) {
-            logger.warn(INSTALL_FAILED + NOT_A_PLUGIN);
         } catch (Error e) {
             logger.warn(INSTALL_FAILED + e);
         } 
 
-        return installed;
+        return false;
     }
 
     /* (non-Javadoc)
@@ -423,7 +516,45 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
      * @see eu.sqooss.service.pa.PluginAdmin#uninstallPlugin(java.lang.Long)
      */
     public boolean uninstallPlugin(Long serviceID) {
-        // TODO: Implementation
+        logger.info (
+                "Uninstalling plugin with service ID " + serviceID);
+
+        // Pre-formated error messages
+        final String INSTALL_FAILED =
+            "The uninstallation of plugin with"
+            + " service ID "+ serviceID
+            + " failed : ";
+
+        try {
+            // Get the metric plug-in's service
+            ServiceReference srefPlugin = getPluginService(serviceID);
+
+            // Get the metric plug-in's object
+            AlitheiaPlugin sobjPlugin = getPluginObject(srefPlugin);
+            if (sobjPlugin != null) {
+                // Execute the remove() method of this metric plug-in,
+                // and update the plug-in's information object upon success.
+                if (sobjPlugin.remove()) {
+                        // Create an info object for registered plug-in
+                        PluginInfo pluginInfo =
+                            createRegisteredPI(srefPlugin);
+                        if (pluginInfo != null) {
+                            // Remove the old "installed" info object
+                            registeredPlugins.remove(
+                                    sobjPlugin.getUniqueKey());
+                            // Store the info object
+                            registeredPlugins.put(
+                                    pluginInfo.getHashcode(), pluginInfo);
+                            return true;
+                        }
+                }
+            }
+            else {
+                logger.warn(INSTALL_FAILED + CANT_GET_SOBJ);
+            }
+        } catch (Error e) {
+            logger.warn(INSTALL_FAILED + e);
+        } 
 
         return false;
     }
@@ -480,7 +611,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
         ServiceReference srefPlugin = pi.getServiceRef(); 
         Plugin pDao = pluginRefToPluginDAO(srefPlugin);
         
-        PluginInfo plugInfo = getPluginInfo(srefPlugin, pDao);
+        PluginInfo plugInfo = createInstalledPI(srefPlugin, pDao);
         registeredPlugins.put(plugInfo.getHashcode(), plugInfo);
 
         logger.info("Plugin (" + plugInfo.getPluginName() + ") updated");
