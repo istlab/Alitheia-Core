@@ -56,12 +56,12 @@ import eu.sqooss.service.pa.PluginInfo;
 
 public class PAServiceImpl implements PluginAdmin, ServiceListener {
 
-    /* ===[ Constants: Service search filters ]=============== ============ */
+    /* ===[ Constants: Service search filters ]=========================== */
 
     private static final String SREF_FILTER_PLUGIN =
         "(" + Constants.OBJECTCLASS + "=" + PluginAdmin.PLUGIN_CLASS + ")";
 
-    /* ===[ Constants: Common log messages ]=================== =========== */
+    /* ===[ Constants: Common log messages ]============================== */
 
     private static final String NO_MATCHING_SERVICES =
         "No matching services were found!";
@@ -74,7 +74,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
     private static final String CANT_GET_SOBJ =
         "The service object can not be retrieved!";
 
-    /* ===[ Global variable ]================== =========================== */
+    /* ===[ Global variable ]============================================= */
 
     // The parent bundle's context object
     private BundleContext bc;
@@ -130,7 +130,33 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
             logger.error(INVALID_SREF);
             return null;
         }
-        return (Long) sref.getProperty(Constants.SERVICE_ID);
+        try {
+            return (Long) sref.getProperty(Constants.SERVICE_ID);
+        }
+        catch (ClassCastException e) {
+            return null;
+        }
+    }
+
+    /**
+     * Extracts the service Id of the metric plug-in service described in the
+     * metric plug-in's information object located by the specified hash 
+     * code's value.
+     * 
+     * @param hash - the hash code's value
+     * 
+     * @return The service Id.
+     */
+    private Long getServiceID (String hash) {
+        if ((hash != null) && (registeredPlugins.containsKey(hash))) {
+            // Get the plug-in info object pointed by the given hash
+            PluginInfo infoPlugin = registeredPlugins.get(hash);
+
+            // Return the service's Id
+            return getServiceId(infoPlugin.getServiceRef());
+        }
+
+        return null;
     }
 
     /**
@@ -295,7 +321,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
                     return p;
             }
         }
-        
+
         return null;
     }
 
@@ -406,38 +432,6 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
      */
     public Collection<PluginInfo> listPlugins() {
         return registeredPlugins.values();
-    }
-
-    /**
-     * Extracts the service ID of the metric plug-in service described in the
-     * metric plug-in's information object located by the specified hash 
-     * code's value.
-     * 
-     * @param hash the hash code's value
-     * 
-     * @return The service ID.
-     */
-    private Long getServiceID (String hash) {
-        if ((hash != null) && (registeredPlugins.containsKey(hash))) {
-            // Get the plug-in info object pointed by the given hash
-            PluginInfo infoPlugin = registeredPlugins.get(hash);
-
-            // Retrieve the plug-in service from the info object
-            ServiceReference srefPlugin = infoPlugin.getServiceRef();
-            if (srefPlugin != null) {
-                // Call the install() method on the plug-in service's object
-                try {
-                    Long sid =
-                        (Long) srefPlugin.getProperty(Constants.SERVICE_ID);
-                    return sid;
-                }
-                catch (ClassCastException e) {
-                    return null;
-                }
-            }
-        }
-
-        return null;
     }
 
     /* (non-Javadoc)
