@@ -105,6 +105,10 @@ public class Terrier {
         connection = new TerrierConnection(connUrl, userName, userPass);
     }
 
+    public TerrierConnection connection() {
+        return connection;
+    }
+
     /**
      * Retrieves descriptive information about the selected project from
      * the SQO-OSS framework, and constructs a Project object from it.

@@ -51,14 +51,13 @@ public class Project {
     private String  contact;
     private String  website;
     private Integer fileCount;
-    private WSProjectVersion currentVersion;
     private WSStoredProject currentProject;
-
     // Contains the version number of the last selected version 
-    private Long selectedVersion;
+    private Long currentVersion;
 
     // Contains a sorted list of all project versions mapped to their ID.
     private SortedMap<Long, Long> versions;
+    private Terrier terrier;
 
     public Project () {
 
@@ -73,6 +72,10 @@ public class Project {
         mail = p.getMail();
         contact = p.getContact();
         website = p.getWebsite();
+    }
+
+    public void setTerrier(Terrier t) {
+        terrier = t;
     }
 
     public Long getId () {
@@ -103,8 +106,21 @@ public class Project {
         return repository;
     }
 
-    public Integer getFileCount() {
-        return fileCount;
+    public Long getCurrentProjectId() {
+        return currentProject.getId();
+    }
+
+    //public void setCurrentProject(Long id) {
+    //    currentProject = terrier.getProject(id);
+    //}
+
+    /** Returns an HTML table with files in the current project version.
+     *
+     * @param versionId The ID field of the version
+     */
+    public String listFiles() {
+        FileListView f = terrier.getFiles4ProjectVersion(currentVersion);
+        return f.getHtml();
     }
 
     public void setFileCount(Integer n) {
@@ -210,7 +226,7 @@ public class Project {
         //currentVersion = ...
 
         // Initialise the selected version
-        setSelectedVersion(getLastVersion());
+        setCurrentVersion(getLastVersion());
     }
 
     /**
@@ -218,15 +234,15 @@ public class Project {
      * 
      * @return the version number, or null if there is no selected version.
      */
-    public Long getSelectedVersion() {
-        return selectedVersion;
+    public Long getCurrentVersion() {
+        return currentVersion;
     }
 
     /**
      * Sets the specified version as selected version for this project
      * @param versionNumber the version number
      */
-    public void setSelectedVersion(Long versionNumber) {
-        this.selectedVersion = versionNumber;
+    public void setCurrentVersion(Long versionNumber) {
+        this.currentVersion = versionNumber;
     }
 }

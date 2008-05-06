@@ -57,6 +57,7 @@ public class ProjectsListView extends ListView {
 
     public void setCurrentProject (Project project ) {
         currentProject = project;
+        currentProject.setTerrier(terrier);
     }
 
     public Project getCurrentProject () {

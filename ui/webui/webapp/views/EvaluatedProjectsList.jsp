@@ -4,7 +4,7 @@
 public static String versionSelector(Long projectId, Long currentVer) {
     String form =
         "<form id=\"selectversion\">"
-        + "Selected version:"
+        + "Current version:"
         + "&nbsp;"
         + "<input type=\"text\" name=\"version" + projectId
             + "\" value=\"" + currentVer+ "\" class=\"form\"/>"
@@ -28,7 +28,7 @@ if (ProjectsListView.hasProjects()) {
     Project selectedProject = ProjectsListView.getCurrentProject();
     if (selectedProject != null) {
         out.println("<div id=\"selectedproject\" class=\"group\">");
-        out.println("Selected:");
+        out.println("Currently selected:");
         out.println("<strong>" + selectedProject.getName() + "</strong>");
         out.println("<span class=\"forget\"><a href=\"?pid=none\">(forget)</a></span>");
 
@@ -37,7 +37,7 @@ if (ProjectsListView.hasProjects()) {
         // Display the number of files in the selected project version
         // TODO: The files number should be cached in the Project object,
         //       instead of calling the Terrier each time.
-        if (selectedProject.getSelectedVersion() != null) {
+        if (selectedProject.getCurrentVersion() != null) {
             Long projectId = selectedProject.getId();
             String inputError = null;
             if (request.getParameter("version" + projectId) != null) {
@@ -50,16 +50,17 @@ if (ProjectsListView.hasProjects()) {
                     inputError = new String("Wrong version format!");
                 }
                 if ((changeSelected != null)
-                    && (changeSelected != selectedProject.getSelectedVersion())) {
+                    && (changeSelected != selectedProject.getCurrentVersion())) {
                     if (selectedProject.getVersionId(changeSelected) != null) {
-                        selectedProject.setSelectedVersion(changeSelected);
+                        selectedProject = ProjectsListView.getCurrentProject();
+//.setVersion(changeSelected);
                     }
                     else {
                         inputError = "No such project version!";
                     }
                 }
             }
-            Long versionNum = selectedProject.getSelectedVersion();
+            Long versionNum = selectedProject.getCurrentVersion();
             Long versionId = selectedProject.getVersionId(versionNum);
             out.println ("<br />Files: "
                 + terrier.getFilesNumber4ProjectVersion(versionId)
@@ -78,12 +79,12 @@ if (ProjectsListView.hasProjects()) {
                     + selectedProject.getFirstVersion()
                     + " - "
                     + selectedProject.getLastVersion());
-            }
-            else {
+            } else {
                 out.println ("<br />Version: "
                     + selectedProject.getFirstVersion());
             }
         }
+        out.println("<pre>" + selectedProject.listFiles() + "</pre>");
         out.println("</div>"); // End of this group
         out.println("<div style=\"margin-bottom: 20px;\"></div>");
     }
