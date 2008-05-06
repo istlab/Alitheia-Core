@@ -39,5 +39,5 @@ install :
 	else echo "# Installation of webui disabled." ; fi
 
 restart :
-	${TOMCAT_WEBAPPS}../bin/catalina.sh stop
-	${TOMCAT_WEBAPPS}../bin/catalina.sh start
+	${TOMCAT_WEBAPPS}/../bin/catalina.sh stop
+	${TOMCAT_WEBAPPS}/../bin/catalina.sh start
