@@ -1,0 +1,63 @@
+WEB-UI Notes
+=============
+
+measurements are applications of a specific metric to a specific version of a specific project.
+
+
+project -> version -> metrics -> measurements
+
+-> BreadCrumb
+- /Project/Version/Measurements/Metrics
+
+- Save in session: Current project, current version, current
+
+Pages
+======
+-> Home
+- Project could
+- intro text
+- example measurement (random?)
+
+-> Project
+- Metainformation
+- set current version to latest version
+- Projectversions browser with file and measurement numbers
+
+-> Version
+- Filebrowser with measurement numbers
+- latest version, version browser
+
+-> Files
+- Filebrowser
+- Versions and measurements per file
+
+-> Metrics
+- Metric overview
+- Metric detailed information
+
+
+
+Views
+======
+-> ProjectView
+- short: name (versions)
+- long: website, contact, vcs, bts, files (measurements)
+- Go: latest version,
+
+-> VersionView
+- Project info
+- files (measurements)
+- Go: previous version, [next version]
+
+-> FileView
+- short: short filename, measurement number
+- long:
+    - full filename,
+    - version,
+    - metainfo,
+    - measurement numbers, 
+
+-> MetricsView
+- short: name (desription)
+- long: name, description
+
