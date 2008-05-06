@@ -40,4 +40,5 @@ install :
 
 restart :
 	${TOMCAT_WEBAPPS}/../bin/catalina.sh stop
+	rm -rf ${TOMCAT_WEBAPPS}/ROOT/
 	${TOMCAT_WEBAPPS}/../bin/catalina.sh start
