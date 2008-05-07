@@ -1,11 +1,9 @@
 package eu.sqooss.impl.service.corba.alitheia.db;
 
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.hibernate.QueryException;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.AnyHolder;
 import org.osgi.framework.BundleContext;

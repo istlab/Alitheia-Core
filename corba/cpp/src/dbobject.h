@@ -50,6 +50,9 @@ namespace Alitheia
         eu::sqooss::impl::service::corba::alitheia::Developer toCorba() const;
         operator CORBA::Any() const;
 
+        static Developer byEmail( const std::string& email, const StoredProject& sp );
+        static Developer byUsername( const std::string& email, const StoredProject& sp );
+
         std::string name;
         std::string email;
         std::string username;

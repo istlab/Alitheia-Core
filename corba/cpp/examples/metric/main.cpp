@@ -109,7 +109,7 @@ int main( int argc, char **argv)
    
     Database db;
     Database::property_map properties;
-    properties[ "name" ] = "PDFCreator";
+    properties[ "name" ] = std::string( "PDFCreator" );
     const std::vector<StoredProject> projects = db.findObjectsByProperties< StoredProject >( properties );
     cout << projects.size() << endl;
     const StoredProject& p = projects.front();
@@ -117,9 +117,12 @@ int main( int argc, char **argv)
     cout << p.id << " " << p.name << endl;
 /*    p.name = "PDFCreator";
     db.updateRecord( p );
-    
+   
     p = db.findObjectById< StoredProject >( p.id );
     cout << p.name << endl;*/
+
+    const Developer dev = Developer::byUsername( "christoph", p );
+    cout << dev.id << endl;
 
     return 0;
 

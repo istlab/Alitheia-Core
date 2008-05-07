@@ -2,6 +2,7 @@
 
 #include "core.h"
 #include "fds.h"
+#include "database.h"
 
 #include "Alitheia.h"
 
@@ -9,6 +10,7 @@
 
 #include <sstream>
 #include <fstream>
+#include <vector>
 
 using namespace Alitheia;
 
@@ -19,8 +21,7 @@ using std::istream;
 using std::stringbuf;
 using std::ostream;
 using std::ofstream;
-using std::cout;
-using std::endl;
+using std::vector;
 
 DAObject::DAObject( int id )
     : id( id )
@@ -458,6 +459,77 @@ Developer Developer::fromCorba( const CORBA::Any& any )
     any >>= dev;
     return Developer( dev );
 }
+
+Developer Developer::byEmail( const std::string& email, const StoredProject& sp )
+{
+    Database db;
+    Database::property_map properties;
+    properties[ "email" ] = email;
+    properties[ "storedProject" ] = sp;
+    vector< Developer > devs = db.findObjectsByProperties< Developer >( properties );
+
+    if( !devs.empty() )
+        return devs.front();
+
+    properties.clear();
+
+    const size_t atPos = email.find( '@' );
+    if( atPos == string::npos )
+        return Developer();
+
+    properties[ "username" ] = email.substr( 0, atPos );
+    properties[ "storedProject" ] = sp;
+    devs = db.findObjectsByProperties< Developer >( properties );
+
+    if( !devs.empty() )
+    {
+        Developer& d = devs.front();
+        d.email = email;
+        db.updateRecord( d );
+        return d;
+    }
+
+    Developer d;
+    d.email = email;
+    d.storedProject = sp;
+
+    db.addRecord( d );
+
+    return d;
+}
+
+Developer Developer::byUsername( const std::string& username, const StoredProject& sp )
+{
+    Database db;
+    Database::property_map properties;
+    properties[ "username" ] = username;
+    properties[ "storedProject" ] = sp;
+    vector< Developer > devs = db.findObjectsByProperties< Developer >( properties );
+    
+    if( !devs.empty() )
+        return devs.front();
+
+    properties.clear();
+    properties[ "username" ] = username + '%';
+    const vector< Database::db_row_entry > entries = db.doHQL( "from Developer dev "
+                                                               "where dev.email like :username",
+                                                               properties );
+    for( vector< Database::db_row_entry >::const_iterator it = entries.begin(); it != entries.end(); ++it )
+    {
+        const Developer dev = boost::get<Developer>( *it );
+        if( dev.email.substr( 0, username.length() ) == username )
+            return dev;
+    }
+
+    Developer d;
+    d.username = username;
+    d.storedProject = sp;
+
+    db.addRecord( d );
+
+    return d;
+}
+
 
 Directory::Directory( const alitheia::Directory& directory )
     : DAObject( directory.id ),
