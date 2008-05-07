@@ -32,7 +32,9 @@
 
 package eu.sqooss.impl.service.web.services;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
@@ -40,23 +42,33 @@ import java.util.Map;
 import java.util.Set;
 
 import eu.sqooss.impl.service.web.services.datatypes.WSMetric;
-import eu.sqooss.impl.service.web.services.datatypes.WSMetricMeasurement;
+import eu.sqooss.impl.service.web.services.datatypes.WSMetricsResultRequest;
+import eu.sqooss.impl.service.web.services.datatypes.WSResultEntry;
 import eu.sqooss.impl.service.web.services.utils.MetricManagerDatabase;
 import eu.sqooss.impl.service.web.services.utils.SecurityWrapper;
+import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
+import eu.sqooss.service.abstractmetric.MetricMismatchException;
+import eu.sqooss.service.abstractmetric.Result;
+import eu.sqooss.service.abstractmetric.ResultEntry;
+import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.pa.PluginAdmin;
 import eu.sqooss.service.security.SecurityManager;
 
 public class MetricManager extends AbstractManager {
     
     private Logger logger;
+    private PluginAdmin pluginAdmin;
     private MetricManagerDatabase dbWrapper;
     private SecurityWrapper securityWrapper;
     
-    public MetricManager(Logger logger, DBService db, SecurityManager security) {
+    public MetricManager(Logger logger, DBService db,
+            PluginAdmin pluginAdmin, SecurityManager security) {
         super(db);
         this.logger = logger;
+        this.pluginAdmin = pluginAdmin;
         this.dbWrapper = new MetricManagerDatabase(db);
         this.securityWrapper = new SecurityWrapper(security);
     }
@@ -120,39 +132,87 @@ public class MetricManager extends AbstractManager {
     public WSMetric[] getMetrics(String userName, String password) {
         logger.info("Get metrics! user: " + userName);
         
-        securityWrapper.checkMetricsReadAccess(userName, password);
+        securityWrapper.checkMetricsReadAccess(userName, password, null);
         
         super.updateUserActivity(userName);
         
         return convertToWSMetrics(dbWrapper.getMetrics());
     }
     
-    public WSMetricMeasurement[] getProjectFileMetricMeasurement(String userName, String password,
-            long metricId, long projectFileId) {
+    @SuppressWarnings("unchecked")
+    public WSResultEntry[] getMetricsResult(String userName, String password,
+            WSMetricsResultRequest resultRequest) {
+        logger.info("Get metrics result! user: " + userName +
+                "; request: " + resultRequest.toString());
         
-        logger.info("Get project file metric measurement! user: " + userName +
-                "; metric id: " + metricId + "; project file id: " + projectFileId);
-        
-        securityWrapper.checkMetricReadAccess(userName, password, metricId);
+        securityWrapper.checkMetricsReadAccess(userName, password, resultRequest.getMnemonics());
         
         super.updateUserActivity(userName);
         
-        return convertToWSMetricMeasurements(
-                dbWrapper.getProjectFileMetricMeasurement(metricId, projectFileId));
+        WSResultEntry[] result = null;
+        List<WSResultEntry> resultList = null;
+        DAObject daObject = dbWrapper.getMetricsResultDAObject(resultRequest);
+        if (daObject != null) {
+            List<Metric> metrics = (List<Metric>) dbWrapper.getMetricsResultMetricsList(resultRequest);
+            resultList = getMetricsResult(metrics, daObject);
+        }
+        if ((resultList != null) && (resultList.size() != 0)) {
+            result = new WSResultEntry[resultList.size()];
+            resultList.toArray(result);
+        }
+        return result;
     }
     
-    public WSMetricMeasurement[] getProjectVersionMetricMeasurement(String userName, String password,
-            long metricId, long projectVersionId) {
-        
-        logger.info("Get project version metric measurement! user: " + userName +
-                "; metric is: " + metricId + "; project version id: " + projectVersionId);
-        
-        securityWrapper.checkMetricReadAccess(userName, password, metricId);
-        
-        super.updateUserActivity(userName);
-        
-    	return convertToWSMetricMeasurements(
-    	        dbWrapper.getProjectVersionMetricMeasurement(metricId, projectVersionId));
+    private List<WSResultEntry> getMetricsResult(List<Metric> metrics, DAObject daObject) {
+        if ((metrics == null) || (metrics.size() == 0) || (daObject == null)) {
+            return null;
+        }
+        List<WSResultEntry> resultList = new ArrayList<WSResultEntry>();
+        Hashtable<AlitheiaPlugin, List<Metric>> plugins = groupMetricsByPlugins(metrics);
+        AlitheiaPlugin currentPlugin;
+        Result currentResult = null;
+        List<Metric> currentPluginMetrics;
+        for (Enumeration<AlitheiaPlugin> keys = plugins.keys(); keys.hasMoreElements(); /*empty*/) {
+            currentPlugin = keys.nextElement();
+            currentPluginMetrics = plugins.get(currentPlugin);
+            try {
+                currentResult = currentPlugin.getResult(daObject, currentPluginMetrics);
+            } catch (MetricMismatchException e) {
+                currentResult = null;
+            }
+        }
+        if (currentResult != null) {
+            List<ResultEntry> currentRow;
+            for (int i = 0; i < currentResult.getRowCount(); i++) {
+                currentRow = currentResult.getRow(i);
+                for (int j = 0; j < currentRow.size(); j++) {
+                    resultList.add(new WSResultEntry(currentRow.get(j)));
+                }
+            }
+        }
+        return resultList;
+    }
+    
+    private Hashtable<AlitheiaPlugin, List<Metric>>  groupMetricsByPlugins(List<Metric> metrics) {
+        Hashtable<AlitheiaPlugin, List<Metric>> plugins =
+            new Hashtable<AlitheiaPlugin, List<Metric>>();
+        if ((metrics != null) && (metrics.size() != 0)) {
+            AlitheiaPlugin currentPlugin = null;
+            for (Metric metric : metrics) {
+                currentPlugin = pluginAdmin.getImplementingPlugin(
+                        metric.getMnemonic());
+                if (currentPlugin != null) {
+                    if (plugins.containsKey(currentPlugin)) {
+                        plugins.get(currentPlugin).add(metric); 
+                    } else {
+                        List<Metric> metricList = new ArrayList<Metric>(1);
+                        metricList.add(metric);
+                        plugins.put(currentPlugin, metricList);
+                    }
+                }
+            }
+        }
+        return plugins;
     }
     
     private WSMetric[] convertToWSMetrics(List<?> metrics) {
@@ -161,19 +221,6 @@ public class MetricManager extends AbstractManager {
             result = new WSMetric[metrics.size()];
             for (int i = 0; i < result.length; i++) {
                 result[i] = new WSMetric((Metric) metrics.get(i));
-            }
-        }
-        return result;
-    }
-    
-    private WSMetricMeasurement[] convertToWSMetricMeasurements(List<?> measurements) {
-        WSMetricMeasurement[] result = null;
-        if ((measurements != null) && (measurements.size() != 0)) {
-            result = new WSMetricMeasurement[measurements.size()];
-            Object currentElem;
-            for (int i = 0; i < result.length; i++) {
-                currentElem = measurements.get(i);
-                result[i] = WSMetricMeasurement.createInstance(currentElem);
             }
         }
         return result;

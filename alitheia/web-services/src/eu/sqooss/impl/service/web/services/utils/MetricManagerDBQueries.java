@@ -70,29 +70,12 @@ interface MetricManagerDBQueries {
     
     public static final String GET_METRICS = "from Metric";
     
-    public static final String GET_PROJECT_FILE_METRIC_MEASUREMENT_PARAM_FILE   = "project_file_id";
     
-    public static final String GET_PROJECT_FILE_METRIC_MEASUREMENT_PARAM_METRIC = "metric_id";
+    public static final String GET_METRICS_RESULT_METRICS_LIST_PARAM = "metrics";
     
-    public static final String GET_PROJECT_FILE_METRIC_MEASUREMENT = "select m " + 
-                                                                     "from ProjectFileMeasurement m " +
-                                                                     "where m.projectFile.id=:" +
-                                                                     GET_PROJECT_FILE_METRIC_MEASUREMENT_PARAM_FILE + " " +
-                                                                     " and m.metric.id=:" +
-                                                                     GET_PROJECT_FILE_METRIC_MEASUREMENT_PARAM_METRIC;
-    
-    
-    public static final String GET_PROJECT_VERSION_METRIC_MEASUREMENT_PARAM_VERSION   = "project_file_id";
-    
-    public static final String GET_PROJECT_VERSION_METRIC_MEASUREMENT_PARAM_METRIC    = "metric_id";
-    
-    public static final String GET_PROJECT_VERSION_METRIC_MEASUREMENT = "select m " + 
-                                                                        "from ProjectVersionMeasurement m " +
-                                                                        "where m.projectVersion.id=:" +
-                                                                        GET_PROJECT_VERSION_METRIC_MEASUREMENT_PARAM_VERSION + " " +
-                                                                        " and m.metric.id=:" +
-                                                                        GET_PROJECT_VERSION_METRIC_MEASUREMENT_PARAM_METRIC;
-    
+    public static final String GET_METRICS_RESULT_METRICS_LIST       = "from Metric m "+
+                                                                       "where m.mnemonic in (:" +
+                                                                       GET_METRICS_RESULT_METRICS_LIST_PARAM +")";
     
 }
 

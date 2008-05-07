@@ -32,12 +32,19 @@
 
 package eu.sqooss.impl.service.web.services.utils;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
+import eu.sqooss.impl.service.web.services.datatypes.WSMetricsResultRequest;
+import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.FileGroup;
+import eu.sqooss.service.db.ProjectFile;
+import eu.sqooss.service.db.ProjectVersion;
+import eu.sqooss.service.db.StoredProject;
 
 public class MetricManagerDatabase implements MetricManagerDBQueries {
     
@@ -79,18 +86,31 @@ public class MetricManagerDatabase implements MetricManagerDBQueries {
                 folderNameParameters);
     }
     
-    public List<?> getProjectFileMetricMeasurement(long metricId, long projectFileId) {
-        Map<String, Object> params = new Hashtable<String, Object>(2);
-        params.put(GET_PROJECT_FILE_METRIC_MEASUREMENT_PARAM_FILE, projectFileId);
-        params.put(GET_PROJECT_FILE_METRIC_MEASUREMENT_PARAM_METRIC, metricId);
-        return db.doHQL(GET_PROJECT_FILE_METRIC_MEASUREMENT, params);
+    public DAObject getMetricsResultDAObject(WSMetricsResultRequest resultRequest) {
+        long daObjectId = resultRequest.getDaObjectId();
+        DAObject result = null;
+        if (resultRequest.isFileGroup()) {
+            result = db.findObjectById(FileGroup.class, daObjectId);
+        } else if (resultRequest.isProjectFile()) {
+            result = db.findObjectById(ProjectFile.class, daObjectId);
+        } else if (resultRequest.isProjectVersion()) {
+            result = db.findObjectById(ProjectVersion.class, daObjectId);
+        } else if (resultRequest.isStoredProject()) {
+            result = db.findObjectById(StoredProject.class, daObjectId);
+        }
+        return result;
     }
     
-    public List<?> getProjectVersionMetricMeasurement(long metricId, long projectVersionId) {
-        Map<String, Object> params = new Hashtable<String, Object>(2);
-        params.put(GET_PROJECT_VERSION_METRIC_MEASUREMENT_PARAM_VERSION, projectVersionId);
-        params.put(GET_PROJECT_VERSION_METRIC_MEASUREMENT_PARAM_METRIC, metricId);
-        return db.doHQL(GET_PROJECT_VERSION_METRIC_MEASUREMENT, params);
+    public List<?> getMetricsResultMetricsList(WSMetricsResultRequest resultRequest) {
+        String[] mnemonics = resultRequest.getMnemonics();
+        if ((mnemonics != null) && (mnemonics.length != 0)) {
+            Collection<String> mnemonicsCollection = Arrays.asList(mnemonics);
+            Map<String, Collection> params = new Hashtable<String, Collection>(1);
+            params.put(GET_METRICS_RESULT_METRICS_LIST_PARAM, mnemonicsCollection);
+            return db.doHQL(GET_METRICS_RESULT_METRICS_LIST, null, params);
+        } else {
+            return null;
+        }
     }
     
 }

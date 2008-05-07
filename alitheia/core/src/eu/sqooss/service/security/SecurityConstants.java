@@ -105,7 +105,7 @@ public interface SecurityConstants {
         ACTION,
         PROJECT_ID,
         PROJECT_VERSION_ID,
-        METRIC_ID,
+        METRIC_MNEMONIC,
         USER_ID,
         ALL;
         public String toString() {

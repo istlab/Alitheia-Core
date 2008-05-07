@@ -92,35 +92,19 @@ public class SecurityWrapper implements SecurityConstants {
         }
     }
     
-    public void checkProjectMetricReadAccess(String userName, String password,
-            long projectId, long metricId) {
+    public void checkMetricsReadAccess(String userName, String password,
+            String[] mnemonics) {
         synchronized (privilegesLockObject) {
             privileges.clear();
             privileges.put(Privilege.ACTION.toString(), PrivilegeValue.READ.toString());
-            privileges.put(Privilege.PROJECT_ID.toString(), Long.toString(projectId));
-            privileges.put(Privilege.METRIC_ID.toString(), Long.toString(metricId));
-            if (!security.checkPermission(URL_SQOOSS_PROJECTS, privileges, userName, password)) {
-                throw new SecurityException("Security violation!");
+            if ((mnemonics == null) || (mnemonics.length == 0)) {
+                privileges.put(Privilege.METRIC_MNEMONIC.toString(), PrivilegeValue.ALL.toString());
+            } else {
+                for (String currentMnemonic : mnemonics) {
+                    privileges.put(Privilege.METRIC_MNEMONIC.toString(),
+                            currentMnemonic);
+                }
             }
-        }
-    }
-    
-    public void checkMetricReadAccess(String userName, String password, long metricId) {
-        synchronized (privilegesLockObject) {
-            privileges.clear();
-            privileges.put(Privilege.ACTION.toString(), PrivilegeValue.READ.toString());
-            privileges.put(Privilege.METRIC_ID.toString(), Long.toString(metricId));
-            if (!security.checkPermission(URL_SQOOSS_PROJECTS, privileges, userName, password)) {
-                throw new SecurityException("Security violation!");
-            }
-        }
-    }
-    
-    public void checkMetricsReadAccess(String userName, String password) {
-        synchronized (privilegesLockObject) {
-            privileges.clear();
-            privileges.put(Privilege.ACTION.toString(), PrivilegeValue.READ.toString());
-            privileges.put(Privilege.METRIC_ID.toString(), PrivilegeValue.ALL.toString());
             if (!security.checkPermission(URL_SQOOSS_PROJECTS, privileges, userName, password)) {
                 throw new SecurityException("Security violation!");
             }

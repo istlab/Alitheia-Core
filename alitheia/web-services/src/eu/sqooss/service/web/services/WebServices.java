@@ -38,13 +38,15 @@ import eu.sqooss.impl.service.web.services.MetricManager;
 import eu.sqooss.impl.service.web.services.ProjectManager;
 import eu.sqooss.impl.service.web.services.UserManager;
 import eu.sqooss.impl.service.web.services.datatypes.WSMetric;
-import eu.sqooss.impl.service.web.services.datatypes.WSMetricMeasurement;
+import eu.sqooss.impl.service.web.services.datatypes.WSMetricsResultRequest;
 import eu.sqooss.impl.service.web.services.datatypes.WSProjectFile;
 import eu.sqooss.impl.service.web.services.datatypes.WSProjectVersion;
+import eu.sqooss.impl.service.web.services.datatypes.WSResultEntry;
 import eu.sqooss.impl.service.web.services.datatypes.WSStoredProject;
 import eu.sqooss.impl.service.web.services.datatypes.WSUser;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.pa.PluginAdmin;
 import eu.sqooss.service.security.SecurityManager;
 import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.webadmin.WebadminService;
@@ -94,9 +96,10 @@ public class WebServices {
             SecurityManager securityManager,
             DBService db,
             TDSService tds,
+            PluginAdmin pluginAdmin,
             Logger logger,
             WebadminService wa) {
-        metricManager = new MetricManager(logger, db, securityManager);
+        metricManager = new MetricManager(logger, db, pluginAdmin, securityManager);
         projectManager = new ProjectManager(logger, db, tds, securityManager);
         userManager = new UserManager(securityManager, db);
         webadmin = wa;
@@ -365,53 +368,21 @@ public class WebServices {
 
     /**
      * Returns the array of results from the evaluation of the specified
-     * metric on the given project file.
+     * metrics on the given data access object.
      * 
      * @param userName - the user's name used for authentication
      * @param password - the user's password used for authentication
-     * @param metricId - the metric's identifier
-     * @param projectFileId - the project's file identifier
+     * @param resultRequest - the request object,
+     * the object contains the request information
      * 
-     * @return The array of all metric evaluation results on that project's
-     *   file, or a <code>null</code> array when none are found.
-     * 
-     * @deprecated Use the methods with return type
-     *   <code>WSResultEntry[]</code> instead.
+     * @return The array of all metric evaluation results on that request,
+     * or a <code>null</code> array when none are found.
      */
-    @Deprecated
-    public WSMetricMeasurement[] getProjectFileMetricMeasurement(
-            String userName,
-            String password,
-            long metricId,
-            long projectFileId) {
-        return metricManager.getProjectFileMetricMeasurement(
-                userName, password, metricId, projectFileId);
+    public WSResultEntry[] getMetricsResult(String userName, String password,
+            WSMetricsResultRequest resultRequest) {
+        return metricManager.getMetricsResult(userName, password, resultRequest);
     }
-
-    /**
-     * Returns the array of results from the evaluation of the specified
-     * metric on the given project version.
-     * 
-     * @param userName - the user's name used for authentication
-     * @param password - the user's password used for authentication
-     * @param metricId - the metric's identifier
-     * @param projectVersionId - the project's version identifier
-     * 
-     * @return The array of all metric evaluation results on that project's
-     *   version, or a <code>null</code> array when none are found.
-     * 
-     * @deprecated Use the methods with return type
-     *   <code>WSResultEntry[]</code> instead.
-     */
-    @Deprecated
-    public WSMetricMeasurement[] getProjectVersionMetricMeasurement(
-            String userName,
-            String password,
-            long metricId,
-            long projectVersionId) {
-        return metricManager.getProjectVersionMetricMeasurement(userName, password, metricId, projectVersionId);
-    }
-
+    
     // ===[ UserManager methods]==============================================
 
     /**
