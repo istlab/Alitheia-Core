@@ -365,23 +365,26 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
             throws ServletException, IOException {
         String p = request.getParameter("project");
         String t = request.getParameter("target");
-
+        String errorMessage;
         if (p == null) {
-            logger.warn("Bad updater request is missing project name.");
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+            errorMessage = "Bad updater request is missing project name.";
+            logger.warn(errorMessage);
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, errorMessage);
             return;
         }
         if (t == null) {
-            logger.warn("Bad updater request is missing update target.");
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+            errorMessage = "Bad updater request is missing update target.";
+            logger.warn(errorMessage);
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, errorMessage);
             return;
         }
 
         StoredProject project = StoredProject.getProjectByName(p);
         if (project == null) {
             //the project was not found, so the job can not continue
-            logger.warn("The project <" + p + "> was not found");
-            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            errorMessage = "The project <" + p + "> was not found";
+            logger.warn(errorMessage);
+            response.sendError(HttpServletResponse.SC_NOT_FOUND, errorMessage);
             return;
         }
 
@@ -389,8 +392,9 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
         try {
             target = UpdateTarget.valueOf(t.toUpperCase());
         } catch (IllegalArgumentException e) {
-            logger.warn("Bad updater request for target <" + t + ">");
-            response.sendError(HttpServletResponse.SC_NOT_IMPLEMENTED);
+            errorMessage = "Bad updater request for target <" + t + ">";
+            logger.warn(errorMessage);
+            response.sendError(HttpServletResponse.SC_NOT_IMPLEMENTED, errorMessage);
         }
 
         logger.info("Updating project " + p + " target " + t);
