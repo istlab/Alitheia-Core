@@ -101,18 +101,25 @@ private:
     Database db;
 };
 
+#include <vector>
+
 int main( int argc, char **argv)
 {
     Core& c = *Core::instance();
    
     Database db;
-    StoredProject p = db.findObjectById< StoredProject >( 34578 );
-    cout << p.name << endl;
-    p.name = "PDFCreator";
+    Database::property_map properties;
+    properties[ "name" ] = "PDFCreator";
+    const std::vector<StoredProject> projects = db.findObjectsByProperties< StoredProject >( properties );
+    cout << projects.size() << endl;
+    const StoredProject& p = projects.front();
+    //const StoredProject p = db.findObjectById< StoredProject >( 34578 );
+    cout << p.id << " " << p.name << endl;
+/*    p.name = "PDFCreator";
     db.updateRecord( p );
     
     p = db.findObjectById< StoredProject >( p.id );
-    cout << p.name << endl;
+    cout << p.name << endl;*/
 
     return 0;
 

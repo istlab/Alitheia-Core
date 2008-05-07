@@ -8,8 +8,20 @@ import java.util.Date;
 
 import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
+import org.omg.CORBA.TCKind;
 import org.omg.CORBA.TypeCodePackage.BadKind;
 
+import eu.sqooss.impl.service.corba.alitheia.DeveloperHelper;
+import eu.sqooss.impl.service.corba.alitheia.DirectoryHelper;
+import eu.sqooss.impl.service.corba.alitheia.FileGroupHelper;
+import eu.sqooss.impl.service.corba.alitheia.MetricHelper;
+import eu.sqooss.impl.service.corba.alitheia.MetricTypeHelper;
+import eu.sqooss.impl.service.corba.alitheia.PluginHelper;
+import eu.sqooss.impl.service.corba.alitheia.ProjectFileHelper;
+import eu.sqooss.impl.service.corba.alitheia.ProjectFileMeasurementHelper;
+import eu.sqooss.impl.service.corba.alitheia.ProjectVersionHelper;
+import eu.sqooss.impl.service.corba.alitheia.ProjectVersionMeasurementHelper;
+import eu.sqooss.impl.service.corba.alitheia.StoredProjectHelper;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Developer;
 import eu.sqooss.service.db.Directory;
@@ -40,16 +52,22 @@ public abstract class DAObject {
      * @return The corresponding java.lang.Class
      */
     public static Class<?> fromCorbaType(Any type) {
-        String typeName;
+        String typeName = "";
         try {
             typeName = type.type().name();
             return Class.forName("eu.sqooss.service.db." + typeName);
         } catch (BadKind e) {
+            if (type.type().kind().value() == TCKind.tk_long.value() )
+                return Long.class;
+            else if (type.type().kind().value() == TCKind.tk_boolean.value() )
+                return Boolean.class;
+            else if (type.type().kind().value() == TCKind.tk_string.value() )
+                return String.class;
         } catch (ClassNotFoundException e) {
         }
         return null;
     }
-    
+     
     /**
      * Gets an object from the DB or creates a new one of the corresponding type.
      * @param <T> The type
@@ -77,53 +95,67 @@ public abstract class DAObject {
 	 * @param object The corba object to be translated.
 	 * @return A reference to the Alitheia style DAObject.
 	 */
-    public static eu.sqooss.service.db.DAObject fromCorbaObject(org.omg.CORBA.Any object) {
+    public static eu.sqooss.service.db.DAObject fromCorbaObject(Any object) {
+        return fromCorbaObject(eu.sqooss.service.db.DAObject.class, object);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> T fromCorbaObject(Class<T> c, Any object) {
+        if (object.type().kind().value() == TCKind.tk_long.value() ) {
+            return (T) new Long(object.extract_long() );
+        }
+        else if (object.type().kind().value() == TCKind.tk_string.value() ) {
+            return (T) object.extract_string();
+        }
+        else if (object.type().kind().value() == TCKind.tk_boolean.value() ) {
+            return (T) new Boolean(object.extract_boolean() );
+        }
         try
         {
             String type = object.type().name();
             if (type.equals("ProjectFile") )
             {
-                return fromCorbaObject(eu.sqooss.impl.service.corba.alitheia.ProjectFileHelper.extract(object));
+                return (T) fromCorbaObject(ProjectFileHelper.extract(object));
             }
             else if (type.equals("ProjectVersion") )
             {
-                return fromCorbaObject(eu.sqooss.impl.service.corba.alitheia.ProjectVersionHelper.extract(object));
+                return (T) fromCorbaObject(ProjectVersionHelper.extract(object));
             }
             else if (type.equals("StoredProject") )
             {
-                return fromCorbaObject(eu.sqooss.impl.service.corba.alitheia.StoredProjectHelper.extract(object));
+                return (T) fromCorbaObject(StoredProjectHelper.extract(object));
             }
             else if (type.equals("FileGroup") )
             {
-                return fromCorbaObject(eu.sqooss.impl.service.corba.alitheia.FileGroupHelper.extract(object));
+                return (T) fromCorbaObject(FileGroupHelper.extract(object));
             }
             else if (type.equals("Plugin") )
             {
-                return fromCorbaObject(eu.sqooss.impl.service.corba.alitheia.PluginHelper.extract(object));
+                return (T) fromCorbaObject(PluginHelper.extract(object));
             }
             else if (type.equals("MetricType") )
             {
-                return fromCorbaObject(eu.sqooss.impl.service.corba.alitheia.MetricTypeHelper.extract(object));
+                return (T) fromCorbaObject(MetricTypeHelper.extract(object));
             }
             else if (type.equals("Metric") )
             {
-                return fromCorbaObject(eu.sqooss.impl.service.corba.alitheia.MetricHelper.extract(object));
+                return (T) fromCorbaObject(MetricHelper.extract(object));
             }
             else if (type.equals("Developer") )
             {
-                return fromCorbaObject(eu.sqooss.impl.service.corba.alitheia.DeveloperHelper.extract(object));
+                return (T) fromCorbaObject(DeveloperHelper.extract(object));
             }
             else if (type.equals("Directory") )
             {
-                return fromCorbaObject(eu.sqooss.impl.service.corba.alitheia.DirectoryHelper.extract(object));
+                return (T) fromCorbaObject(DirectoryHelper.extract(object));
             }
             else if (type.equals("ProjectFileMeasurement") )
             {
-                return fromCorbaObject(eu.sqooss.impl.service.corba.alitheia.ProjectFileMeasurementHelper.extract(object));
+                return (T) fromCorbaObject(ProjectFileMeasurementHelper.extract(object));
             }
             else if (type.equals("ProjectVersionMeasurement") )
             {
-                return fromCorbaObject(eu.sqooss.impl.service.corba.alitheia.ProjectVersionMeasurementHelper.extract(object));
+                return (T) fromCorbaObject(ProjectVersionMeasurementHelper.extract(object));
             }
         }
         catch( BadKind e )

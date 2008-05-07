@@ -1,5 +1,11 @@
 package eu.sqooss.impl.service.corba.alitheia.db;
 
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.hibernate.QueryException;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.AnyHolder;
 import org.osgi.framework.BundleContext;
@@ -7,6 +13,7 @@ import org.osgi.framework.ServiceReference;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.impl.service.corba.alitheia.DatabasePOA;
+import eu.sqooss.impl.service.corba.alitheia.map_entry;
 import eu.sqooss.service.db.DBService;
 
 /**
@@ -81,4 +88,65 @@ public class DbImpl extends DatabasePOA {
         eu.sqooss.service.db.DAObject obj = db.findObjectById(classType, id);
         return DAObject.toCorbaObject(obj);
     }
+
+    protected static Map<String, Object> arrayToMap(map_entry[] array) {
+        Map<String, Object> result = new HashMap<String, Object>();
+        for(map_entry e : array) {
+            result.put(e.key, DAObject.fromCorbaObject(Object.class, e.value));
+        }
+        return result;
+    }
+    
+    @SuppressWarnings("unchecked")
+    public Any[] findObjectsByProperties(Any type, map_entry[] properties) {
+        Map<String, Object> propMap = arrayToMap(properties);
+        Class<eu.sqooss.service.db.DAObject> classType = 
+            (Class<eu.sqooss.service.db.DAObject>) DAObject.fromCorbaType(type);
+        List<eu.sqooss.service.db.DAObject> objects = db.findObjectsByProperties(classType, propMap);
+        Any[] result = new Any[objects.size()];
+        for (int i = 0; i < objects.size(); ++i) {
+            result[i] = DAObject.toCorbaObject(objects.get(i));
+        }
+        return result;
+    }
+
+    public Any[] doHQL(String hql, map_entry[] params) {
+        Map<String, Object> propMap = arrayToMap(params);
+        List<?> objects = db.doHQL(hql, propMap);
+        Any[] result = new Any[objects.size()];
+        for (int i = 0; i < objects.size(); ++i) {
+            Object o = objects.get(i);
+            if (o instanceof eu.sqooss.service.db.DAObject)
+                result[i] = DAObject.toCorbaObject((eu.sqooss.service.db.DAObject) objects.get(i));
+            else if (o instanceof Long)
+                result[i].insert_long(((Long)o).intValue());
+            else if (o instanceof Boolean)
+                result[i].insert_boolean(((Boolean)o).booleanValue());
+            else if (o instanceof String)
+                result[i].insert_string((String)o);
+        }
+        return result;
+    }
+
+    public Any[] doSQL(String sql, map_entry[] params) {
+        Map<String, Object> propMap = arrayToMap(params);
+        List<?> objects;
+        try {
+            objects = db.doSQL(sql, propMap);
+        } catch (Exception e) {
+            return null;
+        }
+        Any[] result = new Any[objects.size()];
+        for (int i = 0; i < objects.size(); ++i) {
+            Object o = objects.get(i);
+            if (o instanceof eu.sqooss.service.db.DAObject)
+                result[i] = DAObject.toCorbaObject((eu.sqooss.service.db.DAObject) objects.get(i));
+            else if (o instanceof Long)
+                result[i].insert_long(((Long)o).intValue());
+            else if (o instanceof Boolean)
+                result[i].insert_boolean(((Boolean)o).booleanValue());
+            else if (o instanceof String)
+                result[i].insert_string((String)o);
+        }
+        return result;    }
 }

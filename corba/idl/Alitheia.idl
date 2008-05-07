@@ -163,12 +163,28 @@ module alitheia
     void releaseCheckout( in ProjectVersion version );
   };
 
+  struct map_entry
+  {
+    string key;
+    any value;
+  };
+  typedef sequence<map_entry> map;
+  typedef sequence<any> list;
+
   interface Database
   {
+    // adds a record to the database
     boolean addRecord( inout any record );
+    // updates a record in the database
     boolean updateRecord( inout any record );
+    // deletes a record from the database
     boolean deleteRecord( in any record );
+    // finds an object by its id
     any findObjectById( in any type, in long id );
+    // finds objects by properties
+    list findObjectsByProperties( in any type, in map properties );
+    list doSQL( in string sql, in map params );
+    list doHQL( in string hql, in map params );
   };
 
   interface Job
