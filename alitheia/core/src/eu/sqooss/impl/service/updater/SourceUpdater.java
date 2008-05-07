@@ -163,8 +163,6 @@ class SourceUpdater extends Job {
                 s.save(curVersion);
                 updProjectVersions.add(new Long(curVersion.getId()));
 
-                logger.debug("Stored project version " + curVersion.toString());
-                
                 for(String chPath: entry.getChangedPaths()) {
 
                     SCMNodeType t = scm.getNodeType(chPath, entry.getRevision());
@@ -211,7 +209,8 @@ class SourceUpdater extends Job {
                     /*If a dir was deleted, mark all children as deleted*/
                     if (t == SCMNodeType.DIR && 
                             pf.getStatus().equalsIgnoreCase("DELETED")) {
-                        //markDeleted(s, pf, pf.getProjectVersion());
+                   	logger.warn("Deleted directory not processed");
+		   	//markDeleted(s, pf, pf.getProjectVersion());
                     }
                     
                     s.save(pf);
@@ -222,7 +221,8 @@ class SourceUpdater extends Job {
                 
                 /*Cleanup for huge projects*/
                 if (numRevisions % 10000 == 0) {
-                    tx.commit();
+                    logger.info("Commited 10000 revisions");
+		    tx.commit();
                     tx = s.beginTransaction();
                 }
             }

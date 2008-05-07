@@ -34,26 +34,25 @@
 package eu.sqooss.impl.service.metricactivator;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 
-import org.hibernate.Session;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
-import eu.sqooss.service.abstractmetric.MetricMismatchException;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.metricactivator.MetricActivator;
-import eu.sqooss.service.pa.PluginInfo;
 import eu.sqooss.service.pa.PluginAdmin;
+import eu.sqooss.service.pa.PluginInfo;
+import eu.sqooss.service.scheduler.Scheduler;
+import eu.sqooss.service.scheduler.SchedulerException;
 
 public class MetricActivatorImpl implements MetricActivator {
 
@@ -61,9 +60,10 @@ public class MetricActivatorImpl implements MetricActivator {
     private BundleContext bc;
 
     private AlitheiaCore core;
-    private DBService dbs;
     private Logger logger;
     private PluginAdmin pa;
+    private Scheduler sched;
+    private DBService dbs;
     
     public MetricActivatorImpl(BundleContext bc, Logger logger) {
         this.bc=bc;
@@ -73,11 +73,11 @@ public class MetricActivatorImpl implements MetricActivator {
         core = (AlitheiaCore) bc.getService(serviceRef);
         
         this.logger = logger;
-        this.dbs = core.getDBService();
         this.pa = core.getPluginAdmin();
+        this.dbs = core.getDBService();
+        this.sched = core.getScheduler();
     }
     
-    /*TODO: Remove type unsafety */
     public <T extends DAObject> void runMetrics(Class<T> clazz,
             SortedSet<Long> objectIDs) {
         // Get a list of all metrics that support the given activation type
@@ -89,27 +89,31 @@ public class MetricActivatorImpl implements MetricActivator {
             return;
         }
         
-        // Run all metric in the list, on the specified resource objects
-        Session s = dbs.getSession(this);
-        Iterator<Long> i = objectIDs.iterator();
-        while (i.hasNext()) {
-            long currentVersion = i.next().longValue();
-            for (PluginInfo pi : metrics) {
-                // Get the metric plug-in that installed this metric
-                AlitheiaPlugin m =
-                    (AlitheiaPlugin) bc.getService(pi.getServiceRef());
-                if (m != null) {
-                    try {
-                        // Retrieve the resource object's DAO from the
-                        // database and run the metric on it
-                        m.run(dbs.findObjectById(s, clazz, currentVersion));
-                    } catch (MetricMismatchException e) {
-                        logger.warn("Metric " + m.getName() + " failed");
-                    }
-                }
+        // Start a job per processor to schedule metrics
+       int cpus = Runtime.getRuntime().availableProcessors();
+       int sliceSize = (objectIDs.size() / cpus);
+       Long[] entries = objectIDs.toArray(new Long[] {}); 
+       
+       for (int i = 0; i < cpus; i++) {
+           Long [] slice = null;
+           if (i < cpus - 1) {
+               slice = new Long[sliceSize]; 
+               System.arraycopy(entries, i*sliceSize, slice, 0, sliceSize);
+           } else {
+               int remainder = entries.length - i * sliceSize;
+               slice = new Long[remainder];
+               System.arraycopy(entries, i*sliceSize, slice, 0, remainder);
+           }
+           
+           MetricActivatorJob maj = new MetricActivatorJob(metrics, clazz,
+                    slice, logger, dbs, bc);
+            
+            try {
+                sched.enqueue(maj);
+            } catch (SchedulerException e) {
+                logger.error("Error creating scheduler job:" + e.getMessage());
             }
         }
-        dbs.returnSession(s);
     }
 
     public void syncMetric(AlitheiaPlugin m, StoredProject sp) {
