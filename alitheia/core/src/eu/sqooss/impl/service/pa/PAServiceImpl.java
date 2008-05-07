@@ -585,9 +585,15 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
         return null;
     }
 
-    public AlitheiaPlugin getPlugin(PluginInfo m) {
-        ServiceReference s = m.getServiceRef();
-        return (AlitheiaPlugin) bc.getService(s);
+    /* (non-Javadoc)
+     * @see eu.sqooss.service.pa.PluginAdmin#getPlugin(eu.sqooss.service.pa.PluginInfo)
+     */
+    public AlitheiaPlugin getPlugin(PluginInfo pluginInfo) {
+        if (pluginInfo != null) {
+            return getPluginObject(pluginInfo.getServiceRef());
+        }
+
+        return null;
     }
 
     public void pluginUpdated(AlitheiaPlugin p) {
