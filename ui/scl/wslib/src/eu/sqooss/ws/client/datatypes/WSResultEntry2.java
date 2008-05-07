@@ -1,6 +1,6 @@
 
             /**
-            * WSUser7.java
+            * WSResultEntry2.java
             *
             * This file was auto-generated from WSDL
             * by the Apache Axis2 version: #axisVersion# #today#
@@ -8,43 +8,43 @@
 
             package eu.sqooss.ws.client.datatypes;
             /**
-            *  WSUser7 bean class
+            *  WSResultEntry2 bean class
             */
         
-        public  class WSUser7
+        public  class WSResultEntry2
         implements org.apache.axis2.databinding.ADBBean{
         
                 public static final javax.xml.namespace.QName MY_QNAME = new javax.xml.namespace.QName(
                 "http://datatypes.services.web.service.impl.sqooss.eu/xsd",
-                "WSUser",
+                "WSResultEntry",
                 "ns1");
 
             
 
                         /**
-                        * field for WSUser
+                        * field for WSResultEntry
                         */
 
-                        protected eu.sqooss.ws.client.datatypes.WSUser localWSUser ;
+                        protected eu.sqooss.ws.client.datatypes.WSResultEntry localWSResultEntry ;
                         
 
                            /**
                            * Auto generated getter method
-                           * @return eu.sqooss.ws.client.datatypes.WSUser
+                           * @return eu.sqooss.ws.client.datatypes.WSResultEntry
                            */
-                           public  eu.sqooss.ws.client.datatypes.WSUser getWSUser(){
-                               return localWSUser;
+                           public  eu.sqooss.ws.client.datatypes.WSResultEntry getWSResultEntry(){
+                               return localWSResultEntry;
                            }
 
                            
                         
                             /**
                                * Auto generated setter method
-                               * @param param WSUser
+                               * @param param WSResultEntry
                                */
-                               public void setWSUser(eu.sqooss.ws.client.datatypes.WSUser param){
+                               public void setWSResultEntry(eu.sqooss.ws.client.datatypes.WSResultEntry param){
                             
-                                    this.localWSUser=param;
+                                    this.localWSResultEntry=param;
                             
 
                                }
@@ -72,10 +72,10 @@
                 
                 //We can safely assume an element has only one type associated with it
                 
-                                 if (localWSUser==null){
+                                 if (localWSResultEntry==null){
                                    throw new RuntimeException("Property cannot be null!");
                                  }
-                                 localWSUser.getOMElement(
+                                 localWSResultEntry.getOMElement(
                                          MY_QNAME,
                                          factory).serialize(xmlWriter);
                             
@@ -158,7 +158,7 @@
         
                 
                 //We can safely assume an element has only one type associated with it
-                return localWSUser.getPullParser(MY_QNAME);
+                return localWSResultEntry.getPullParser(MY_QNAME);
 
         }
 
@@ -177,8 +177,8 @@
         * Postcondition: If this object is an element, the reader is positioned at its end element
         *                If this object is a complex type, the reader is positioned at the end element of its outer element
         */
-        public static WSUser7 parse(javax.xml.stream.XMLStreamReader reader) throws java.lang.Exception{
-            WSUser7 object = new WSUser7();
+        public static WSResultEntry2 parse(javax.xml.stream.XMLStreamReader reader) throws java.lang.Exception{
+            WSResultEntry2 object = new WSResultEntry2();
             int event;
             try {
                 
@@ -206,9 +206,9 @@
                 while(!reader.isEndElement()) {
                     if (reader.isStartElement() ){
                 
-                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd","WSUser").equals(reader.getName())){
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd","WSResultEntry").equals(reader.getName())){
                                 
-                                        object.setWSUser(eu.sqooss.ws.client.datatypes.WSUser.Factory.parse(reader));
+                                        object.setWSResultEntry(eu.sqooss.ws.client.datatypes.WSResultEntry.Factory.parse(reader));
                                     
                               }  // End of if for expected property start element
                             

@@ -1,6 +1,6 @@
 
             /**
-            * WSStoredProject5.java
+            * WSProjectFile4.java
             *
             * This file was auto-generated from WSDL
             * by the Apache Axis2 version: #axisVersion# #today#
@@ -8,43 +8,43 @@
 
             package eu.sqooss.ws.client.datatypes;
             /**
-            *  WSStoredProject5 bean class
+            *  WSProjectFile4 bean class
             */
         
-        public  class WSStoredProject5
+        public  class WSProjectFile4
         implements org.apache.axis2.databinding.ADBBean{
         
                 public static final javax.xml.namespace.QName MY_QNAME = new javax.xml.namespace.QName(
                 "http://datatypes.services.web.service.impl.sqooss.eu/xsd",
-                "WSStoredProject",
+                "WSProjectFile",
                 "ns1");
 
             
 
                         /**
-                        * field for WSStoredProject
+                        * field for WSProjectFile
                         */
 
-                        protected eu.sqooss.ws.client.datatypes.WSStoredProject localWSStoredProject ;
+                        protected eu.sqooss.ws.client.datatypes.WSProjectFile localWSProjectFile ;
                         
 
                            /**
                            * Auto generated getter method
-                           * @return eu.sqooss.ws.client.datatypes.WSStoredProject
+                           * @return eu.sqooss.ws.client.datatypes.WSProjectFile
                            */
-                           public  eu.sqooss.ws.client.datatypes.WSStoredProject getWSStoredProject(){
-                               return localWSStoredProject;
+                           public  eu.sqooss.ws.client.datatypes.WSProjectFile getWSProjectFile(){
+                               return localWSProjectFile;
                            }
 
                            
                         
                             /**
                                * Auto generated setter method
-                               * @param param WSStoredProject
+                               * @param param WSProjectFile
                                */
-                               public void setWSStoredProject(eu.sqooss.ws.client.datatypes.WSStoredProject param){
+                               public void setWSProjectFile(eu.sqooss.ws.client.datatypes.WSProjectFile param){
                             
-                                    this.localWSStoredProject=param;
+                                    this.localWSProjectFile=param;
                             
 
                                }
@@ -72,10 +72,10 @@
                 
                 //We can safely assume an element has only one type associated with it
                 
-                                 if (localWSStoredProject==null){
+                                 if (localWSProjectFile==null){
                                    throw new RuntimeException("Property cannot be null!");
                                  }
-                                 localWSStoredProject.getOMElement(
+                                 localWSProjectFile.getOMElement(
                                          MY_QNAME,
                                          factory).serialize(xmlWriter);
                             
@@ -158,7 +158,7 @@
         
                 
                 //We can safely assume an element has only one type associated with it
-                return localWSStoredProject.getPullParser(MY_QNAME);
+                return localWSProjectFile.getPullParser(MY_QNAME);
 
         }
 
@@ -177,8 +177,8 @@
         * Postcondition: If this object is an element, the reader is positioned at its end element
         *                If this object is a complex type, the reader is positioned at the end element of its outer element
         */
-        public static WSStoredProject5 parse(javax.xml.stream.XMLStreamReader reader) throws java.lang.Exception{
-            WSStoredProject5 object = new WSStoredProject5();
+        public static WSProjectFile4 parse(javax.xml.stream.XMLStreamReader reader) throws java.lang.Exception{
+            WSProjectFile4 object = new WSProjectFile4();
             int event;
             try {
                 
@@ -206,9 +206,9 @@
                 while(!reader.isEndElement()) {
                     if (reader.isStartElement() ){
                 
-                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd","WSStoredProject").equals(reader.getName())){
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd","WSProjectFile").equals(reader.getName())){
                                 
-                                        object.setWSStoredProject(eu.sqooss.ws.client.datatypes.WSStoredProject.Factory.parse(reader));
+                                        object.setWSProjectFile(eu.sqooss.ws.client.datatypes.WSProjectFile.Factory.parse(reader));
                                     
                               }  // End of if for expected property start element
                             

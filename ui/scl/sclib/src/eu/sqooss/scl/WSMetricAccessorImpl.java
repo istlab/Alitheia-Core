@@ -42,17 +42,16 @@ import org.apache.axis2.AxisFault;
 import eu.sqooss.scl.accessor.WSMetricAccessor;
 import eu.sqooss.ws.client.WsStub;
 import eu.sqooss.ws.client.datatypes.WSMetric;
-import eu.sqooss.ws.client.datatypes.WSMetricMeasurement;
+import eu.sqooss.ws.client.datatypes.WSMetricsResultRequest;
+import eu.sqooss.ws.client.datatypes.WSResultEntry;
 import eu.sqooss.ws.client.ws.GetMetrics;
 import eu.sqooss.ws.client.ws.GetMetricsByFileNames;
 import eu.sqooss.ws.client.ws.GetMetricsByFileNamesResponse;
 import eu.sqooss.ws.client.ws.GetMetricsByProjectId;
 import eu.sqooss.ws.client.ws.GetMetricsByProjectIdResponse;
 import eu.sqooss.ws.client.ws.GetMetricsResponse;
-import eu.sqooss.ws.client.ws.GetProjectFileMetricMeasurement;
-import eu.sqooss.ws.client.ws.GetProjectFileMetricMeasurementResponse;
-import eu.sqooss.ws.client.ws.GetProjectVersionMetricMeasurement;
-import eu.sqooss.ws.client.ws.GetProjectVersionMetricMeasurementResponse;
+import eu.sqooss.ws.client.ws.GetMetricsResult;
+import eu.sqooss.ws.client.ws.GetMetricsResultResponse;
 
 class WSMetricAccessorImpl extends WSMetricAccessor {
 
@@ -62,9 +61,7 @@ class WSMetricAccessorImpl extends WSMetricAccessor {
     
     private static final String METHOD_NAME_GET_METRICS                = "getMetrics";
 
-    private static final String METHOD_NAME_GET_PROJECT_FILE_METRIC_MEASUREMENT     = "getFileMetricMeasurement";
-
-    private static final String METHOD_NAME_GET_PROJECT_VERSION_METRIC_MEASUREMENT  = "getVersionMetricMeasurement";
+    private static final String METHOD_NAME_GET_METRIC_RESULT          = "getMetricResult";
 
     private Map<String, Object> parameters;
     private String userName;
@@ -204,61 +201,30 @@ class WSMetricAccessorImpl extends WSMetricAccessor {
     }
 
     /**
-     * @see eu.sqooss.scl.accessor.WSMetricAccessor#getProjectFileMetricMeasurement(long, long)
+     * @see eu.sqooss.scl.accessor.WSMetricAccessor#getMetricsResult(eu.sqooss.ws.client.datatypes.WSMetricResultRequest)
      */
     @Override
-    public WSMetricMeasurement[] getProjectFileMetricMeasurement(
-            long metricId, long projectFileId) throws WSException {
-        GetProjectFileMetricMeasurement params;
-        GetProjectFileMetricMeasurementResponse response;
-        if (!parameters.containsKey(METHOD_NAME_GET_PROJECT_FILE_METRIC_MEASUREMENT)) {
-            params = new GetProjectFileMetricMeasurement();
+    public WSResultEntry[] getMetricsResult(WSMetricsResultRequest resultRequest)
+            throws WSException {
+        GetMetricsResult params;
+        GetMetricsResultResponse response;
+        if (!parameters.containsKey(METHOD_NAME_GET_METRIC_RESULT)) {
+            params = new GetMetricsResult();
             params.setPassword(password);
             params.setUserName(userName);
-            parameters.put(METHOD_NAME_GET_PROJECT_FILE_METRIC_MEASUREMENT, params);
+            parameters.put(METHOD_NAME_GET_METRIC_RESULT, params);
         } else {
-            params = (GetProjectFileMetricMeasurement) parameters.get(
-                    METHOD_NAME_GET_PROJECT_FILE_METRIC_MEASUREMENT);
+            params = (GetMetricsResult) parameters.get(METHOD_NAME_GET_METRIC_RESULT);
         }
         synchronized (params) {
-            params.setMetricId(metricId);
-            params.setProjectFileId(projectFileId);
+            params.setResultRequest(resultRequest);
             try {
-                response = wsStub.getProjectFileMetricMeasurement(params);
+                response = wsStub.getMetricsResult(params);
             } catch (RemoteException re) {
                 throw new WSException(re);
             }
         }
-        return (WSMetricMeasurement[]) normaliseWSArrayResult(response.get_return());
-    }
-
-    /**
-     * @see eu.sqooss.scl.accessor.WSMetricAccessor#getProjectVersionMetricMeasurement(long, long)
-     */
-    @Override
-    public WSMetricMeasurement[] getProjectVersionMetricMeasurement(
-            long metricId, long projectVersionId) throws WSException {
-        GetProjectVersionMetricMeasurement params;
-        GetProjectVersionMetricMeasurementResponse response;
-        if (!parameters.containsKey(METHOD_NAME_GET_PROJECT_VERSION_METRIC_MEASUREMENT)) {
-            params = new GetProjectVersionMetricMeasurement();
-            params.setPassword(password);
-            params.setUserName(userName);
-            parameters.put(METHOD_NAME_GET_PROJECT_VERSION_METRIC_MEASUREMENT, params);
-        } else {
-            params = (GetProjectVersionMetricMeasurement) parameters.get(
-                    METHOD_NAME_GET_PROJECT_VERSION_METRIC_MEASUREMENT);
-        }
-        synchronized (params) {
-            params.setMetricId(metricId);
-            params.setProjectVersionId(projectVersionId);
-            try {
-                response = wsStub.getProjectVersionMetricMeasurement(params);
-            } catch (RemoteException re) {
-                throw new WSException(re);
-            }
-        }
-        return (WSMetricMeasurement[]) normaliseWSArrayResult(response.get_return());
+        return (WSResultEntry[]) normaliseWSArrayResult(response.get_return());
     }
 
 }

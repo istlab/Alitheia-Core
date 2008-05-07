@@ -30,16 +30,6 @@
               
                   if (
                   "http://datatypes.services.web.service.impl.sqooss.eu/xsd".equals(namespaceURI) &&
-                  "WSMetricMeasurement".equals(typeName)){
-                   
-                            return  eu.sqooss.ws.client.datatypes.WSMetricMeasurement.Factory.parse(reader);
-                        
-
-                  }
-
-              
-                  if (
-                  "http://datatypes.services.web.service.impl.sqooss.eu/xsd".equals(namespaceURI) &&
                   "WSProjectVersion".equals(typeName)){
                    
                             return  eu.sqooss.ws.client.datatypes.WSProjectVersion.Factory.parse(reader);
@@ -53,6 +43,26 @@
                   "WSProjectFile".equals(typeName)){
                    
                             return  eu.sqooss.ws.client.datatypes.WSProjectFile.Factory.parse(reader);
+                        
+
+                  }
+
+              
+                  if (
+                  "http://datatypes.services.web.service.impl.sqooss.eu/xsd".equals(namespaceURI) &&
+                  "WSMetricsResultRequest".equals(typeName)){
+                   
+                            return  eu.sqooss.ws.client.datatypes.WSMetricsResultRequest.Factory.parse(reader);
+                        
+
+                  }
+
+              
+                  if (
+                  "http://datatypes.services.web.service.impl.sqooss.eu/xsd".equals(namespaceURI) &&
+                  "WSResultEntry".equals(typeName)){
+                   
+                            return  eu.sqooss.ws.client.datatypes.WSResultEntry.Factory.parse(reader);
                         
 
                   }

@@ -1,6 +1,6 @@
 
             /**
-            * GetProjectFileMetricMeasurement.java
+            * GetMetricsResult.java
             *
             * This file was auto-generated from WSDL
             * by the Apache Axis2 version: #axisVersion# #today#
@@ -8,15 +8,15 @@
 
             package eu.sqooss.ws.client.ws;
             /**
-            *  GetProjectFileMetricMeasurement bean class
+            *  GetMetricsResult bean class
             */
         
-        public  class GetProjectFileMetricMeasurement
+        public  class GetMetricsResult
         implements org.apache.axis2.databinding.ADBBean{
         
                 public static final javax.xml.namespace.QName MY_QNAME = new javax.xml.namespace.QName(
                 "http://services.web.service.sqooss.eu/xsd",
-                "getProjectFileMetricMeasurement",
+                "getMetricsResult",
                 "ns2");
 
             
@@ -80,58 +80,29 @@
                             
 
                         /**
-                        * field for MetricId
+                        * field for ResultRequest
                         */
 
-                        protected long localMetricId ;
+                        protected eu.sqooss.ws.client.datatypes.WSMetricsResultRequest localResultRequest ;
                         
 
                            /**
                            * Auto generated getter method
-                           * @return long
+                           * @return eu.sqooss.ws.client.datatypes.WSMetricsResultRequest
                            */
-                           public  long getMetricId(){
-                               return localMetricId;
+                           public  eu.sqooss.ws.client.datatypes.WSMetricsResultRequest getResultRequest(){
+                               return localResultRequest;
                            }
 
                            
                         
                             /**
                                * Auto generated setter method
-                               * @param param MetricId
+                               * @param param ResultRequest
                                */
-                               public void setMetricId(long param){
+                               public void setResultRequest(eu.sqooss.ws.client.datatypes.WSMetricsResultRequest param){
                             
-                                    this.localMetricId=param;
-                            
-
-                               }
-                            
-
-                        /**
-                        * field for ProjectFileId
-                        */
-
-                        protected long localProjectFileId ;
-                        
-
-                           /**
-                           * Auto generated getter method
-                           * @return long
-                           */
-                           public  long getProjectFileId(){
-                               return localProjectFileId;
-                           }
-
-                           
-                        
-                            /**
-                               * Auto generated setter method
-                               * @param param ProjectFileId
-                               */
-                               public void setProjectFileId(long param){
-                            
-                                    this.localProjectFileId=param;
+                                    this.localResultRequest=param;
                             
 
                                }
@@ -248,52 +219,38 @@
                                     
                                    xmlWriter.writeEndElement();
                              
-                                    namespace = "http://services.web.service.sqooss.eu/xsd";
-                                    if (! namespace.equals("")) {
-                                        prefix = xmlWriter.getPrefix(namespace);
+                                    if (localResultRequest==null){
 
-                                        if (prefix == null) {
-                                            prefix = org.apache.axis2.databinding.utils.BeanUtil.getUniquePrefix();
+                                            java.lang.String namespace2 = "http://services.web.service.sqooss.eu/xsd";
 
-                                            xmlWriter.writeStartElement(prefix,"metricId", namespace);
-                                            xmlWriter.writeNamespace(prefix, namespace);
-                                            xmlWriter.setPrefix(prefix, namespace);
+                                        if (! namespace2.equals("")) {
+                                            java.lang.String prefix2 = xmlWriter.getPrefix(namespace2);
 
-                                        } else {
-                                            xmlWriter.writeStartElement(namespace,"metricId");
-                                        }
+                                            if (prefix2 == null) {
+                                                prefix2 = org.apache.axis2.databinding.utils.BeanUtil.getUniquePrefix();
 
-                                    } else {
-                                        xmlWriter.writeStartElement("metricId");
-                                    }
-                                
-                                       xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localMetricId));
-                                    
-                                   xmlWriter.writeEndElement();
-                             
-                                    namespace = "http://services.web.service.sqooss.eu/xsd";
-                                    if (! namespace.equals("")) {
-                                        prefix = xmlWriter.getPrefix(namespace);
+                                                xmlWriter.writeStartElement(prefix2,"resultRequest", namespace2);
+                                                xmlWriter.writeNamespace(prefix2, namespace2);
+                                                xmlWriter.setPrefix(prefix2, namespace2);
 
-                                        if (prefix == null) {
-                                            prefix = org.apache.axis2.databinding.utils.BeanUtil.getUniquePrefix();
-
-                                            xmlWriter.writeStartElement(prefix,"projectFileId", namespace);
-                                            xmlWriter.writeNamespace(prefix, namespace);
-                                            xmlWriter.setPrefix(prefix, namespace);
+                                            } else {
+                                                xmlWriter.writeStartElement(namespace2,"resultRequest");
+                                            }
 
                                         } else {
-                                            xmlWriter.writeStartElement(namespace,"projectFileId");
+                                            xmlWriter.writeStartElement("resultRequest");
                                         }
 
-                                    } else {
-                                        xmlWriter.writeStartElement("projectFileId");
+
+                                       // write the nil attribute
+                                      writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","true",xmlWriter);
+                                      xmlWriter.writeEndElement();
+                                    }else{
+                                     localResultRequest.getOMElement(
+                                       new javax.xml.namespace.QName("http://services.web.service.sqooss.eu/xsd","resultRequest"),
+                                        factory).serialize(xmlWriter);
                                     }
                                 
-                                       xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localProjectFileId));
-                                    
-                                   xmlWriter.writeEndElement();
-                             
                    
                xmlWriter.writeEndElement();
             
@@ -391,18 +348,13 @@
                                          elementList.add(localPassword==null?null:
                                          org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localPassword));
                                     
-                             elementList.add(new javax.xml.namespace.QName("http://services.web.service.sqooss.eu/xsd",
-                                                                      "metricId"));
+                            elementList.add(new javax.xml.namespace.QName("http://services.web.service.sqooss.eu/xsd",
+                                                                      "resultRequest"));
                             
-                                elementList.add(
-                                   org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localMetricId));
                             
-                             elementList.add(new javax.xml.namespace.QName("http://services.web.service.sqooss.eu/xsd",
-                                                                      "projectFileId"));
-                            
-                                elementList.add(
-                                   org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localProjectFileId));
-                            
+                                    elementList.add(localResultRequest==null?null:
+                                    localResultRequest);
+                                
 
                 return new org.apache.axis2.databinding.utils.reader.ADBXMLStreamReaderImpl(qName, elementList.toArray(), attribList.toArray());
             
@@ -425,8 +377,8 @@
         * Postcondition: If this object is an element, the reader is positioned at its end element
         *                If this object is a complex type, the reader is positioned at the end element of its outer element
         */
-        public static GetProjectFileMetricMeasurement parse(javax.xml.stream.XMLStreamReader reader) throws java.lang.Exception{
-            GetProjectFileMetricMeasurement object = new GetProjectFileMetricMeasurement();
+        public static GetMetricsResult parse(javax.xml.stream.XMLStreamReader reader) throws java.lang.Exception{
+            GetMetricsResult object = new GetMetricsResult();
             int event;
             try {
                 
@@ -442,10 +394,10 @@
                     nsPrefix = nsPrefix==null?"":nsPrefix;
 
                     java.lang.String type = fullTypeName.substring(fullTypeName.indexOf(":")+1);
-                    if (!"getProjectFileMetricMeasurement".equals(type)){
+                    if (!"getMetricsResult".equals(type)){
                         //find namespace for the prefix
                         java.lang.String nsUri = reader.getNamespaceContext().getNamespaceURI(nsPrefix);
-                        return (GetProjectFileMetricMeasurement)eu.sqooss.impl.service.web.services.datatypes.xsd.ExtensionMapper.getTypeObject(
+                        return (GetMetricsResult)eu.sqooss.impl.service.web.services.datatypes.xsd.ExtensionMapper.getTypeObject(
                              nsUri,type,reader);
                       }
 
@@ -526,46 +478,20 @@
                                     
                                     while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
                                 
-                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://services.web.service.sqooss.eu/xsd","metricId").equals(reader.getName())){
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://services.web.service.sqooss.eu/xsd","resultRequest").equals(reader.getName())){
                                 
-                                       if (!"true".equals(reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil"))){
-                                    
-                                    java.lang.String content = reader.getElementText();
-                                    
-                                              object.setMetricId(
-                                        org.apache.axis2.databinding.utils.ConverterUtil.convertToLong(content));
+                                      if ("true".equals(reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil"))){
+                                          object.setResultRequest(null);
+                                          reader.next();
                                             
-                                       } else {
-                                           reader.getElementText(); // throw away text nodes if any.
-                                       }
+                                            reader.next();
+                                          
+                                      }else{
+                                    
+                                        object.setResultRequest(eu.sqooss.ws.client.datatypes.WSMetricsResultRequest.Factory.parse(reader));
                                       
                                         reader.next();
-                                    
-                              }  // End of if for expected property start element
-                            
-                                else{
-                                    // A start element we are not expecting indicates an invalid parameter was passed
-                                    throw new java.lang.RuntimeException("Unexpected subelement " + reader.getLocalName());
-                                }
-                            
-                                    
-                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
-                                
-                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://services.web.service.sqooss.eu/xsd","projectFileId").equals(reader.getName())){
-                                
-                                       if (!"true".equals(reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil"))){
-                                    
-                                    java.lang.String content = reader.getElementText();
-                                    
-                                              object.setProjectFileId(
-                                        org.apache.axis2.databinding.utils.ConverterUtil.convertToLong(content));
-                                            
-                                       } else {
-                                           reader.getElementText(); // throw away text nodes if any.
-                                       }
-                                      
-                                        reader.next();
-                                    
+                                    }
                               }  // End of if for expected property start element
                             
                                 else{

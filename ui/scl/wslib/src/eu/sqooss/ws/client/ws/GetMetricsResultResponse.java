@@ -1,6 +1,6 @@
 
             /**
-            * GetProjectVersionMetricMeasurementResponse.java
+            * GetMetricsResultResponse.java
             *
             * This file was auto-generated from WSDL
             * by the Apache Axis2 version: #axisVersion# #today#
@@ -8,15 +8,15 @@
 
             package eu.sqooss.ws.client.ws;
             /**
-            *  GetProjectVersionMetricMeasurementResponse bean class
+            *  GetMetricsResultResponse bean class
             */
         
-        public  class GetProjectVersionMetricMeasurementResponse
+        public  class GetMetricsResultResponse
         implements org.apache.axis2.databinding.ADBBean{
         
                 public static final javax.xml.namespace.QName MY_QNAME = new javax.xml.namespace.QName(
                 "http://services.web.service.sqooss.eu/xsd",
-                "getProjectVersionMetricMeasurementResponse",
+                "getMetricsResultResponse",
                 "ns2");
 
             
@@ -26,14 +26,14 @@
                         * This was an Array!
                         */
 
-                        protected eu.sqooss.ws.client.datatypes.WSMetricMeasurement[] local_return ;
+                        protected eu.sqooss.ws.client.datatypes.WSResultEntry[] local_return ;
                         
 
                            /**
                            * Auto generated getter method
-                           * @return eu.sqooss.ws.client.datatypes.WSMetricMeasurement[]
+                           * @return eu.sqooss.ws.client.datatypes.WSResultEntry[]
                            */
-                           public  eu.sqooss.ws.client.datatypes.WSMetricMeasurement[] get_return(){
+                           public  eu.sqooss.ws.client.datatypes.WSResultEntry[] get_return(){
                                return local_return;
                            }
 
@@ -45,7 +45,7 @@
                               /**
                                * validate the array for _return
                                */
-                              protected void validate_return(eu.sqooss.ws.client.datatypes.WSMetricMeasurement[] param){
+                              protected void validate_return(eu.sqooss.ws.client.datatypes.WSResultEntry[] param){
                              
                               if ((param != null) && (param.length < 1)){
                                 throw new java.lang.RuntimeException();
@@ -58,7 +58,7 @@
                               * Auto generated setter method
                               * @param param _return
                               */
-                              public void set_return(eu.sqooss.ws.client.datatypes.WSMetricMeasurement[] param){
+                              public void set_return(eu.sqooss.ws.client.datatypes.WSResultEntry[] param){
                               
                                    validate_return(param);
 
@@ -70,11 +70,11 @@
                              
                              /**
                              * Auto generated add method for the array for convenience
-                             * @param param eu.sqooss.ws.client.datatypes.WSMetricMeasurement
+                             * @param param eu.sqooss.ws.client.datatypes.WSResultEntry
                              */
-                             public void add_return(eu.sqooss.ws.client.datatypes.WSMetricMeasurement param){
+                             public void add_return(eu.sqooss.ws.client.datatypes.WSResultEntry param){
                                    if (local_return == null){
-                                   local_return = new eu.sqooss.ws.client.datatypes.WSMetricMeasurement[]{};
+                                   local_return = new eu.sqooss.ws.client.datatypes.WSResultEntry[]{};
                                    }
 
                             
@@ -83,8 +83,8 @@
                             org.apache.axis2.databinding.utils.ConverterUtil.toList(local_return);
                                list.add(param);
                                this.local_return =
-                             (eu.sqooss.ws.client.datatypes.WSMetricMeasurement[])list.toArray(
-                            new eu.sqooss.ws.client.datatypes.WSMetricMeasurement[list.size()]);
+                             (eu.sqooss.ws.client.datatypes.WSResultEntry[])list.toArray(
+                            new eu.sqooss.ws.client.datatypes.WSResultEntry[list.size()]);
 
                              }
                              
@@ -327,8 +327,8 @@
         * Postcondition: If this object is an element, the reader is positioned at its end element
         *                If this object is a complex type, the reader is positioned at the end element of its outer element
         */
-        public static GetProjectVersionMetricMeasurementResponse parse(javax.xml.stream.XMLStreamReader reader) throws java.lang.Exception{
-            GetProjectVersionMetricMeasurementResponse object = new GetProjectVersionMetricMeasurementResponse();
+        public static GetMetricsResultResponse parse(javax.xml.stream.XMLStreamReader reader) throws java.lang.Exception{
+            GetMetricsResultResponse object = new GetMetricsResultResponse();
             int event;
             try {
                 
@@ -344,10 +344,10 @@
                     nsPrefix = nsPrefix==null?"":nsPrefix;
 
                     java.lang.String type = fullTypeName.substring(fullTypeName.indexOf(":")+1);
-                    if (!"getProjectVersionMetricMeasurementResponse".equals(type)){
+                    if (!"getMetricsResultResponse".equals(type)){
                         //find namespace for the prefix
                         java.lang.String nsUri = reader.getNamespaceContext().getNamespaceURI(nsPrefix);
-                        return (GetProjectVersionMetricMeasurementResponse)eu.sqooss.impl.service.web.services.datatypes.xsd.ExtensionMapper.getTypeObject(
+                        return (GetMetricsResultResponse)eu.sqooss.impl.service.web.services.datatypes.xsd.ExtensionMapper.getTypeObject(
                              nsUri,type,reader);
                       }
 
@@ -390,7 +390,7 @@
                                                   list1.add(null);
                                                   reader.next();
                                               } else {
-                                            list1.add(eu.sqooss.ws.client.datatypes.WSMetricMeasurement.Factory.parse(reader));
+                                            list1.add(eu.sqooss.ws.client.datatypes.WSResultEntry.Factory.parse(reader));
                                             }
                                             //loop until we find a start element that is not part of this array
                                             boolean loopDone1 = false;
@@ -413,7 +413,7 @@
                                                               list1.add(null);
                                                               reader.next();
                                                           } else {
-                                                        list1.add(eu.sqooss.ws.client.datatypes.WSMetricMeasurement.Factory.parse(reader));
+                                                        list1.add(eu.sqooss.ws.client.datatypes.WSResultEntry.Factory.parse(reader));
                                                         }
                                                     }else{
                                                         loopDone1 = true;
@@ -421,9 +421,9 @@
                                                 }
                                             }
                                             // call the converter utility  to convert and set the array
-                                            object.set_return((eu.sqooss.ws.client.datatypes.WSMetricMeasurement[])
+                                            object.set_return((eu.sqooss.ws.client.datatypes.WSResultEntry[])
                                                 org.apache.axis2.databinding.utils.ConverterUtil.convertToArray(
-                                                    eu.sqooss.ws.client.datatypes.WSMetricMeasurement.class,
+                                                    eu.sqooss.ws.client.datatypes.WSResultEntry.class,
                                                     list1));
                                         
                               }  // End of if for expected property start element

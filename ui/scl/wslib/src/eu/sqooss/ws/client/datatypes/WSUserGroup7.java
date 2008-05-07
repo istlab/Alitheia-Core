@@ -1,6 +1,6 @@
 
             /**
-            * WSMetricType4.java
+            * WSUserGroup7.java
             *
             * This file was auto-generated from WSDL
             * by the Apache Axis2 version: #axisVersion# #today#
@@ -8,43 +8,43 @@
 
             package eu.sqooss.ws.client.datatypes;
             /**
-            *  WSMetricType4 bean class
+            *  WSUserGroup7 bean class
             */
         
-        public  class WSMetricType4
+        public  class WSUserGroup7
         implements org.apache.axis2.databinding.ADBBean{
         
                 public static final javax.xml.namespace.QName MY_QNAME = new javax.xml.namespace.QName(
                 "http://datatypes.services.web.service.impl.sqooss.eu/xsd",
-                "WSMetricType",
+                "WSUserGroup",
                 "ns1");
 
             
 
                         /**
-                        * field for WSMetricType
+                        * field for WSUserGroup
                         */
 
-                        protected eu.sqooss.ws.client.datatypes.WSMetricType localWSMetricType ;
+                        protected eu.sqooss.ws.client.datatypes.WSUserGroup localWSUserGroup ;
                         
 
                            /**
                            * Auto generated getter method
-                           * @return eu.sqooss.ws.client.datatypes.WSMetricType
+                           * @return eu.sqooss.ws.client.datatypes.WSUserGroup
                            */
-                           public  eu.sqooss.ws.client.datatypes.WSMetricType getWSMetricType(){
-                               return localWSMetricType;
+                           public  eu.sqooss.ws.client.datatypes.WSUserGroup getWSUserGroup(){
+                               return localWSUserGroup;
                            }
 
                            
                         
                             /**
                                * Auto generated setter method
-                               * @param param WSMetricType
+                               * @param param WSUserGroup
                                */
-                               public void setWSMetricType(eu.sqooss.ws.client.datatypes.WSMetricType param){
+                               public void setWSUserGroup(eu.sqooss.ws.client.datatypes.WSUserGroup param){
                             
-                                    this.localWSMetricType=param;
+                                    this.localWSUserGroup=param;
                             
 
                                }
@@ -72,10 +72,10 @@
                 
                 //We can safely assume an element has only one type associated with it
                 
-                                 if (localWSMetricType==null){
+                                 if (localWSUserGroup==null){
                                    throw new RuntimeException("Property cannot be null!");
                                  }
-                                 localWSMetricType.getOMElement(
+                                 localWSUserGroup.getOMElement(
                                          MY_QNAME,
                                          factory).serialize(xmlWriter);
                             
@@ -158,7 +158,7 @@
         
                 
                 //We can safely assume an element has only one type associated with it
-                return localWSMetricType.getPullParser(MY_QNAME);
+                return localWSUserGroup.getPullParser(MY_QNAME);
 
         }
 
@@ -177,8 +177,8 @@
         * Postcondition: If this object is an element, the reader is positioned at its end element
         *                If this object is a complex type, the reader is positioned at the end element of its outer element
         */
-        public static WSMetricType4 parse(javax.xml.stream.XMLStreamReader reader) throws java.lang.Exception{
-            WSMetricType4 object = new WSMetricType4();
+        public static WSUserGroup7 parse(javax.xml.stream.XMLStreamReader reader) throws java.lang.Exception{
+            WSUserGroup7 object = new WSUserGroup7();
             int event;
             try {
                 
@@ -206,9 +206,9 @@
                 while(!reader.isEndElement()) {
                     if (reader.isStartElement() ){
                 
-                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd","WSMetricType").equals(reader.getName())){
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://datatypes.services.web.service.impl.sqooss.eu/xsd","WSUserGroup").equals(reader.getName())){
                                 
-                                        object.setWSMetricType(eu.sqooss.ws.client.datatypes.WSMetricType.Factory.parse(reader));
+                                        object.setWSUserGroup(eu.sqooss.ws.client.datatypes.WSUserGroup.Factory.parse(reader));
                                     
                               }  // End of if for expected property start element
                             
