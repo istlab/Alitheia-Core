@@ -64,23 +64,23 @@ import eu.sqooss.ws.client.ws.RequestEvaluation4ProjectResponse;
 
 class WSProjectAccessorImpl extends WSProjectAccessor {
 
-    private static final String METHOD_NAME_GET_EVALUATED_PROJECTS       = "evaluatedProjectsList";
+    private static final String METHOD_NAME_GET_EVALUATED_PROJECTS       = "getEvaluatedProjects";
 
-    private static final String METHOD_NAME_GET_STORED_PROJECTS          = "storedProjectsList";
+    private static final String METHOD_NAME_GET_STORED_PROJECTS          = "getStoredProjects";
 
-    private static final String METHOD_NAME_GET_FILES_BY_PROJECT_ID      = "retrieveFileList";
+    private static final String METHOD_NAME_GET_FILES_BY_PROJECT_ID      = "getFilesByProjectId";
 
     private static final String METHOD_NAME_REQUEST_EVALUATION_4_PROJECT = "requestEvaluation4Project";
 
-    private static final String METHOD_NAME_GET_PROJECT_ID_BY_NAME       = "retrieveProjectId";
+    private static final String METHOD_NAME_GET_PROJECT_ID_BY_NAME       = "getProjectIdByName";
 
-    private static final String METHOD_NAME_GET_PROJECT_VERSIONS_BY_ID   = "retrieveStoredProjectVersions";
+    private static final String METHOD_NAME_GET_PROJECT_VERSIONS_BY_PROJECT_ID       = "getProjectVersionsByProjectId";
 
-    private static final String METHOD_NAME_GET_PROJECT_BY_ID            = "retrieveStoredProject";
+    private static final String METHOD_NAME_GET_PROJECT_BY_ID                        = "getProjectById";
 
-    private static final String METHOD_NAME_GET_FILES_NUMBER_BY_PROJECT_VERSION_ID   = "getFilesNumber4ProjectVersion";
+    private static final String METHOD_NAME_GET_FILES_NUMBER_BY_PROJECT_VERSION_ID   = "getFilesNumberByProjectVersionId";
 
-    private static final String METHOD_NAME_GET_FILES_BY_PROJECT_VERSION_ID          = "getFileList4ProjectVersion";
+    private static final String METHOD_NAME_GET_FILES_BY_PROJECT_VERSION_ID          = "getFilesByProjectVersionId";
 
     private Map<String, Object> parameters;
     private String userName;
@@ -302,14 +302,14 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
     public WSProjectVersion[] getProjectVersionsById(long projectId) throws WSException {
         GetProjectVersionsByProjectIdResponse response;
         GetProjectVersionsByProjectId params;
-        if (!parameters.containsKey(METHOD_NAME_GET_PROJECT_VERSIONS_BY_ID)) {
+        if (!parameters.containsKey(METHOD_NAME_GET_PROJECT_VERSIONS_BY_PROJECT_ID)) {
             params = new GetProjectVersionsByProjectId();
             params.setPassword(password);
             params.setUserName(userName);
-            parameters.put(METHOD_NAME_GET_PROJECT_VERSIONS_BY_ID, params);
+            parameters.put(METHOD_NAME_GET_PROJECT_VERSIONS_BY_PROJECT_ID, params);
         } else {
             params = (GetProjectVersionsByProjectId) parameters.get(
-                    METHOD_NAME_GET_PROJECT_VERSIONS_BY_ID);
+                    METHOD_NAME_GET_PROJECT_VERSIONS_BY_PROJECT_ID);
         }
         synchronized (params) {
             params.setProjectId(projectId);
