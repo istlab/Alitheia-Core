@@ -60,8 +60,8 @@ if (ProjectsListView.hasProjects()) {
                     }
                 }
             }
-            Long versionNum = selectedProject.getCurrentVersion();
-            Long versionId = selectedProject.getVersionId(versionNum);
+            Long versionNum = selectedProject.getCurrentVersion().getName();
+            Long versionId = selectedProject.getCurrentVersionId().getId();
             out.println ("<br />Files: "
                 + terrier.getFilesNumber4ProjectVersion(versionId)
                 + " (in version " + versionNum + ")");

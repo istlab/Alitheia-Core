@@ -223,6 +223,29 @@ public class Terrier {
         return versions;
     }
 
+    public Version getVersionById(Long projectId, Long versionId) {
+        // FIXME: UGLY UGLY UGLY, performance--
+        if (!connection.isConnected()) {
+            addError(connection.getError());
+            return null;
+        }
+        try {
+            // Retrieve evaluated projects only
+            WSProjectVersion versionsResult[] =
+                connection.getProjectAccessor().getProjectVersionsByProjectId(projectId);
+
+            for (WSProjectVersion wssp : versionsResult) {
+                if (wssp.getId() == versionId) {
+                    Version v = new Version(wssp, this);
+                    return v;
+                }
+            }
+        } catch (WSException wse) {
+            addError("Cannot retrieve the list of versions for project " + projectId + ".");
+        }
+        return null;
+    }
+
     /**
      * Retrieves all metrics that has been evaluated for the selected
      * projects, and generates a proper view for displaying them.
