@@ -96,6 +96,11 @@ class SourceUpdater extends Job {
         return 1;
     }
 
+    /**
+     * @see eu.sqooss.service.scheduler.Job#run()
+     * 
+     * @throws Exception as per the general contract of Job.run()
+     */
     protected void run() throws Exception {
         
         int numRevisions = 0;
