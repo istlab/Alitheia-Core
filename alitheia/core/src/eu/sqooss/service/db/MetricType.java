@@ -44,7 +44,7 @@ public class MetricType extends DAObject {
 
     public enum Type {
 
-        SOURCE_CODE, MAILING_LIST, BUG_DATABASE;
+        SOURCE_CODE, MAILING_LIST, BUG_DATABASE, PROJECT_WIDE;
 
         public static Type fromString(String s) {
             if ("SOURCE_CODE".equals(s))
@@ -53,6 +53,8 @@ public class MetricType extends DAObject {
                 return Type.MAILING_LIST;
             else if ("BUG_DATABASE".equals(s))
                 return Type.BUG_DATABASE;
+            else if ("PROJECT_WIDE".equals(s))
+                return Type.PROJECT_WIDE;
             else
                 return null;
         }
