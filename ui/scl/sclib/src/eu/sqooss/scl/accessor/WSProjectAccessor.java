@@ -186,7 +186,7 @@ public abstract class WSProjectAccessor extends WSAccessor {
      *  <li>if web services service throws a exception</li>
      * <ul>
      */
-    public abstract WSProjectVersion[] getProjectVersionsById(long projectId) throws WSException;
+    public abstract WSProjectVersion[] getProjectVersionsByProjectId(long projectId) throws WSException;
     
     /**
      * The method returns all information, that the SQO-OSS framework has

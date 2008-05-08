@@ -296,10 +296,10 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
     }
 
     /**
-     * @see eu.sqooss.scl.accessor.WSProjectAccessor#getProjectVersionsById(long)
+     * @see eu.sqooss.scl.accessor.WSProjectAccessor#getProjectVersionsByProjectId(long)
      */
     @Override
-    public WSProjectVersion[] getProjectVersionsById(long projectId) throws WSException {
+    public WSProjectVersion[] getProjectVersionsByProjectId(long projectId) throws WSException {
         GetProjectVersionsByProjectIdResponse response;
         GetProjectVersionsByProjectId params;
         if (!parameters.containsKey(METHOD_NAME_GET_PROJECT_VERSIONS_BY_PROJECT_ID)) {

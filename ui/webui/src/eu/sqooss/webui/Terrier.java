@@ -152,7 +152,7 @@ public class Terrier {
         }
         try {
             WSProjectVersion[] actualProjectVersions =
-                connection.getProjectAccessor().getProjectVersionsById(projectId);
+                connection.getProjectAccessor().getProjectVersionsByProjectId(projectId);
             for (WSProjectVersion nextVersion : actualProjectVersions){
                 projectVersions.put(
                         nextVersion.getVersion(),
