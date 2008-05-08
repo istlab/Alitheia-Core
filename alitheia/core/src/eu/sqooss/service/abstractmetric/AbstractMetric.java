@@ -327,9 +327,12 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      * @param me Evaluated metric
      * @param sp Evaluated project
      */
-    public void markEvaluation (Metric me, StoredProject sp) {
+    public synchronized void markEvaluation (Metric me, StoredProject sp) {
         if((evaluationMarked.containsKey(sp.getId()) == false) ||
                 (evaluationMarked.get(sp.getId()) != me.getId())) {
+            // Store the evaluation mark locally
+            evaluationMarked.put(sp.getId(), me.getId());
+
             // Get a DB session
             Session s = db.getSession(this);
 
@@ -347,7 +350,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
                 evaluationMark.setStoredProject(sp);
                 db.addRecord(evaluationMark);
             }
-            evaluationMarked.put(sp.getId(), me.getId());
+
             // Free the DB session
             db.returnSession(s);
     	}
