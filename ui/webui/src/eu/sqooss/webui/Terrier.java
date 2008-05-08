@@ -164,27 +164,30 @@ public class Terrier {
         return projectVersions;
     }
 
+    /**
+     * Gets the list of all project that were evaluated in the attached
+     * SQO-OSS framework.
+     *
+     * @return The list of evaluated projects.
+     */
     public Vector<Project> getEvaluatedProjects() {
         Vector<Project> projects = new Vector<Project>();
         if (!connection.isConnected()) {
+            addError(connection.getError());
             return projects;
         }
-        debug += "ok";
         try {
-            // TODO: Retrieve only evaluated project later on
+            // Retrieve evaluated projects only
             WSStoredProject projectsResult[] =
-                connection.getProjectAccessor().getStoredProjects();
-            debug += ":gotresults";
-            debug += ":projects=" + projectsResult.length;
+                connection.getProjectAccessor().getEvaluatedProjects();
+            
             for (WSStoredProject wssp : projectsResult) {
                 projects.addElement(new Project(wssp));
             }
         } catch (WSException wse) {
-            debug+= ":wse";
-            error = "Could not receive a list of projects.";
+            addError("Can not retrieve the list of evaluated projects.");
             return projects;
         }
-        debug += ":done";
         return projects;
     }
 
@@ -395,6 +398,17 @@ public class Terrier {
 
     public String getError() {
         return error;
+    }
+
+    public void addError(String message) {
+        if (error != "") {
+            error += " ";
+        }
+        error += message;
+    }
+
+    public void flushError() {
+        error = "";
     }
 
     public String getDebug() {
