@@ -33,6 +33,9 @@
 
 package eu.sqooss.webui;
 
+import java.util.SortedMap;
+import java.util.TreeMap;
+
 import eu.sqooss.ws.client.datatypes.WSProjectVersion;
 
 import eu.sqooss.webui.Project;
@@ -45,6 +48,8 @@ public class Version {
     private Long number;
     private Long id;
     private Terrier terrier;
+    // Contains a sorted list of all files in this version mapped to their ID.
+    private SortedMap<Long, File> files;
 
     public Version () {
 
@@ -96,7 +101,41 @@ public class Version {
     }
 
     public File[] getFiles () {
-        return terrier.getProjectVersionFiles(id);
+        File fs[] = terrier.getProjectVersionFiles(id);
+        return fs;
+    }
+
+    public void setFiles() {
+        SortedMap<Long, File> files = new TreeMap<Long, File>();
+        File fs[] = getFiles();
+        if (fs != null && fs.length > 0) {
+            for (File f: fs) {
+                files.put(f.getId(), f);
+            }
+            terrier.addError(files.size() + " files found in version " + id);
+        } else {
+            terrier.addError("Zero files found in version " + id);
+        }
+        this.files = files;
+    }
+
+    public String listFiles() {
+        setFiles();
+        try {
+            StringBuilder html = new StringBuilder();
+            //if (files == null) {
+            //    setFiles();
+            //}
+            for (File f: files.values()) {
+                String s = "FF:" + f.getName() + f.getId();
+                terrier.addError(s);
+                html.append(s);
+            }
+            return html.toString();
+        } catch (NullPointerException npe) {
+            terrier.addError("No files to list");
+            return "No files to list.";
+        }
     }
 
     public String getHtml() {

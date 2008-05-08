@@ -113,9 +113,10 @@ public class Project {
      *
      * @param versionId The ID field of the version
      */
+    // FIXME: deprecated, this happens in Version, forward?
     public String listFiles() {
-        FileListView f = terrier.getFiles4ProjectVersion(currentVersionId);
-        return f.getHtml();
+        //FileListView f = terrier.getFiles4ProjectVersion(currentVersionId);
+        return getCurrentVersion().listFiles();
     }
 
     public void setFileCount(Integer n) {
@@ -268,7 +269,11 @@ public class Project {
     public int countVersions() {
         return versions.size();
     }
-
+/*
+    public Version getCurrentVersion() {
+        return versions.get(getCurrentVersionId());
+    }
+*/
     /**
      * Sets the specified version as selected version for this project
      * @param versionNumber the version number

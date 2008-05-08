@@ -78,7 +78,7 @@ if (ProjectsListView.hasProjects()) {
                 out.println("Project doesn't seem to have versions recorded.");
             }
             out.println (versionSelector(projectId, versionId));
-            out.println ("<br />Files: "
+            out.println ("<br /><strong>Files:</strong> "
                 + terrier.getFilesNumber4ProjectVersion(versionId)
                 + " in version " + versionId + " (" + selectedProject.countVersions() + " total)");
             if (inputError != null) {
@@ -86,7 +86,7 @@ if (ProjectsListView.hasProjects()) {
             }
         }
 
-        out.println("<pre>" + selectedProject.listFiles() + "</pre>");
+        out.println("<strong>Files:</strong><pre>" + selectedProject.getCurrentVersion().listFiles() + "</pre>");
         out.println("</div>"); // End of this group
         out.println("<div style=\"margin-bottom: 20px;\"></div>");
     }

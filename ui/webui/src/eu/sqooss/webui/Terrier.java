@@ -341,12 +341,13 @@ public class Terrier {
 
             WSProjectFile[] wsfiles =
                 connection.getProjectAccessor().getFilesByProjectVersionId(versionId);
+            addError("FILES:." + wsfiles.length);
             for (int i = 0; i < wsfiles.length; i++) {
-            //for (WSProjectFile file : files) {
                 files[i] = new File(wsfiles[i]);
+                addError("File added." + versionId + files[i].getName());
             }
         } catch (WSException e) {
-            error = "Can not retrieve the list of files for this version.";
+            addError("Can not retrieve the list of files for this version.");
             return null;
         }
         return files;
