@@ -93,7 +93,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
 
     
     /** Cache the result of the mark evaluation function*/
-    protected HashMap<Long, Boolean> evaluationMarked = new HashMap<Long, Boolean>();
+    protected HashMap<Long, Long> evaluationMarked = new HashMap<Long, Long>();
 
     /**
      * Init basic services common to all implementing classes
@@ -328,9 +328,9 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      * @param sp Evaluated project
      */
     public void markEvaluation (Metric me, StoredProject sp) {
-    	if(evaluationMarked.containsKey(sp.getId()) &&
-    			!evaluationMarked.get(sp.getId())) {
-    		// Get a DB session
+        if((evaluationMarked.containsKey(sp.getId()) == false) ||
+                (evaluationMarked.get(sp.getId()) != me.getId())) {
+            // Get a DB session
             Session s = db.getSession(this);
 
             // Search for a previous evaluation of this metric on this project
@@ -347,7 +347,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
                 evaluationMark.setStoredProject(sp);
                 db.addRecord(evaluationMark);
             }
-            evaluationMarked.put(sp.getId(), true);
+            evaluationMarked.put(sp.getId(), me.getId());
             // Free the DB session
             db.returnSession(s);
     	}
