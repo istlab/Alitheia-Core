@@ -5,7 +5,7 @@
 }
 
 #news, #tagcloud, #selectedproject,
-#projectslist, #metricslist, #loginpage {
+#projectslist, #metricslist, #fileslits,  #loginpage {
     padding: 1ex 1em;
     padding-left: 76px;
     min-height: 52px; /* 36px for image + 8px padding */

@@ -2,7 +2,8 @@
 
 <%@ include file="/inc/functions.jsp" %>
 
-<% // Let's list all project's files.
+<div id="fileslist" class="group">
+<% // List files per selected project
 
 if (ProjectsListView.getCurrentProject() != null) {
     Project selectedProject = ProjectsListView.getCurrentProject();
@@ -23,3 +24,4 @@ else {
 }
 
 %>
+</div>
