@@ -96,7 +96,7 @@ class SourceUpdater extends Job {
         return 1;
     }
 
-    protected void run() {
+    protected void run() throws Exception {
         
         int numRevisions = 0;
         
@@ -230,10 +230,10 @@ class SourceUpdater extends Job {
             logger.info("Processed " + numRevisions + " revisions");
         } catch (InvalidRepositoryException e) {
             logger.error("Not such repository:" + e.getMessage());
-            setState(State.Error);
+            throw e;
         } catch (InvalidProjectRevisionException e) {
             logger.error("Not such repository revision:" + e.getMessage());
-            setState(State.Error);
+            throw e;
         } catch (HibernateException e) {
             if (tx != null) {
                 try {
@@ -247,7 +247,7 @@ class SourceUpdater extends Job {
                 logger.error("Failed to commit updates to the database: "
                         + e.getMessage() + " Transaction rollbacked");
             }
-            setState(State.Error);
+            throw e;
         } finally {
             logger.info(project.getName() + ": Time to process entries: "
                     + (int) ((System.currentTimeMillis() - ts) / 1000));
