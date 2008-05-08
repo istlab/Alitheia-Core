@@ -57,10 +57,6 @@ class Version {
         project = terrier.getProject(wsVersion.getProject());
     }
 
-    public void setTerrier(Terrier t) {
-        terrier = t;
-    }
-
     public Long getId () {
         return id;
     }
@@ -78,11 +74,11 @@ class Version {
     }
 
     public Project getProject() {
-        return Project;
+        return project;
     }
 
     public void setProject( Project p ) {
-        return project = p;
+        project = p;
     }
 
     public Terrier getTerrier () {
