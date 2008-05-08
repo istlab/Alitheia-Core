@@ -63,8 +63,9 @@ public class Project {
 
     }
 
-    public Project (WSStoredProject p) {
+    public Project (WSStoredProject p, Terrier t) {
         id = p.getId();
+        terrier = t;
         name = p.getName();
         bts = p.getBugs();
         repository = p.getRepository();

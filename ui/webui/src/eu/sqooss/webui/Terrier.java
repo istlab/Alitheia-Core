@@ -132,7 +132,7 @@ public class Terrier {
         try {
             // Retrieve information about this project
             prj = new Project(
-                    connection.getProjectAccessor().getProjectById(projectId));
+                    connection.getProjectAccessor().getProjectById(projectId), this);
 
             // Retrieve all project versions
             prj.setVersions(getProjectVersions(projectId));
@@ -188,7 +188,7 @@ public class Terrier {
                 connection.getProjectAccessor().getEvaluatedProjects();
 
             for (WSStoredProject wssp : projectsResult) {
-                projects.addElement(new Project(wssp));
+                projects.addElement(new Project(wssp, this));
             }
         } catch (WSException wse) {
             addError("Can not retrieve the list of evaluated projects.");
