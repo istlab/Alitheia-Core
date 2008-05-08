@@ -62,6 +62,7 @@ namespace Alitheia
                                 Metric,
                                 MetricType,
                                 Plugin,
+                                PluginConfiguration,
                                 ProjectFile,
                                 ProjectFileMeasurement,
                                 ProjectVersion,

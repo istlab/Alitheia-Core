@@ -16,6 +16,7 @@ import eu.sqooss.impl.service.corba.alitheia.DirectoryHelper;
 import eu.sqooss.impl.service.corba.alitheia.FileGroupHelper;
 import eu.sqooss.impl.service.corba.alitheia.MetricHelper;
 import eu.sqooss.impl.service.corba.alitheia.MetricTypeHelper;
+import eu.sqooss.impl.service.corba.alitheia.PluginConfigurationHelper;
 import eu.sqooss.impl.service.corba.alitheia.PluginHelper;
 import eu.sqooss.impl.service.corba.alitheia.ProjectFileHelper;
 import eu.sqooss.impl.service.corba.alitheia.ProjectFileMeasurementHelper;
@@ -29,6 +30,7 @@ import eu.sqooss.service.db.FileGroup;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.Plugin;
+import eu.sqooss.service.db.PluginConfiguration;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectFileMeasurement;
 import eu.sqooss.service.db.ProjectVersion;
@@ -133,6 +135,10 @@ public abstract class DAObject {
             {
                 return (T) fromCorbaObject(PluginHelper.extract(object));
             }
+            else if (type.equals("PluginConfiguration") )
+            {
+                return (T) fromCorbaObject(PluginConfigurationHelper.extract(object));
+            }
             else if (type.equals("MetricType") )
             {
                 return (T) fromCorbaObject(MetricTypeHelper.extract(object));
@@ -181,6 +187,8 @@ public abstract class DAObject {
             eu.sqooss.impl.service.corba.alitheia.FileGroupHelper.insert(result, toCorbaObject((eu.sqooss.service.db.FileGroup)obj));
         else if (obj instanceof eu.sqooss.service.db.Plugin)
             eu.sqooss.impl.service.corba.alitheia.PluginHelper.insert(result, toCorbaObject((eu.sqooss.service.db.Plugin)obj));
+        else if (obj instanceof eu.sqooss.service.db.PluginConfiguration)
+            eu.sqooss.impl.service.corba.alitheia.PluginConfigurationHelper.insert(result, toCorbaObject((eu.sqooss.service.db.PluginConfiguration)obj));
         else if (obj instanceof eu.sqooss.service.db.MetricType)
             eu.sqooss.impl.service.corba.alitheia.MetricTypeHelper.insert(result, toCorbaObject((eu.sqooss.service.db.MetricType)obj));
         else if (obj instanceof eu.sqooss.service.db.Metric)
@@ -364,6 +372,34 @@ public abstract class DAObject {
         plugin.setId(p.id);
         plugin.setName(p.name);
         plugin.setInstalldate(parseDate((p.installdate)));
+        return plugin;
+    }
+
+    /**
+     * Translates an Alitheia Plugin into a Corba one.
+     */
+    public static eu.sqooss.impl.service.corba.alitheia.PluginConfiguration toCorbaObject(PluginConfiguration p) {
+        eu.sqooss.impl.service.corba.alitheia.PluginConfiguration plugin = new eu.sqooss.impl.service.corba.alitheia.PluginConfiguration();
+        plugin.id = (int)p.getId();
+        plugin.name = p.getName() == null ? "" : p.getName();
+        plugin.value = p.getValue() == null ? "" : p.getValue();
+        plugin.type = p.getType() == null ? "" : p.getType();
+        plugin.msg = p.getMsg() == null ? "" : p.getMsg();
+        plugin.plugin = p.getPlugin() == null ? new eu.sqooss.impl.service.corba.alitheia.Plugin() : toCorbaObject(p.getPlugin());
+        return plugin;
+    }
+
+    /**
+     * Translates a Corba-Plugin into an Alitheia one.
+     */
+    public static PluginConfiguration fromCorbaObject(eu.sqooss.impl.service.corba.alitheia.PluginConfiguration p) {
+        PluginConfiguration plugin = getOrCreateObject(PluginConfiguration.class, p.id);
+        plugin.setId(p.id);
+        plugin.setName(p.name);
+        plugin.setValue(p.value);
+        plugin.setType(p.type);
+        plugin.setMsg(p.msg);
+        plugin.setPlugin(fromCorbaObject(p.plugin));
         return plugin;
     }
 

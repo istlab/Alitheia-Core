@@ -294,6 +294,32 @@ MetricType MetricType::fromCorba( const CORBA::Any& any )
     return MetricType( type );
 }
 
+MetricType MetricType::getMetricType( Type t )
+{
+    Database db;
+    Database::property_map properties;
+    switch( t )
+    {
+    case SourceCode:
+        properties[ "type" ] = string( "SOURCE_CODE" );
+        break;
+    case MailingList:
+        properties[ "type" ] = string( "MAILING_LIST" );
+        break;
+    case BugDatabase:
+        properties[ "type" ] = string( "BUG_DATABASE" );
+        break;
+    }
+    vector< MetricType > types = db.findObjectsByProperties< MetricType >( properties );
+    if( !types.empty() )
+        return types.front();
+
+    MetricType type;
+    type.type = t;
+    db.addRecord( type );
+    return type;
+}
+
 Plugin::Plugin( const alitheia::Plugin& plugin )
     : DAObject( plugin.id ),
       name( plugin.name ),
@@ -322,6 +348,42 @@ Plugin Plugin::fromCorba( const CORBA::Any& any )
     alitheia::Plugin plugin;
     any >>= plugin;
     return Plugin( plugin );
+}
+
+PluginConfiguration::PluginConfiguration( const alitheia::PluginConfiguration& config )
+    : DAObject( config.id ),
+      name( config.name ),
+      value( config.value ),
+      type( config.type ),
+      msg( config.msg ),
+      plugin( config.plugin )
+{
+}
+
+PluginConfiguration PluginConfiguration::fromCorba( const CORBA::Any& any )
+{
+    alitheia::PluginConfiguration config;
+    any >>= config;
+    return PluginConfiguration( config );
+}
+
+alitheia::PluginConfiguration PluginConfiguration::toCorba() const
+{
+    alitheia::PluginConfiguration result;
+    result.id = id;
+    result.name = CORBA::string_dup( name.c_str() );
+    result.value = CORBA::string_dup( value.c_str() );
+    result.type = CORBA::string_dup( type.c_str() );
+    result.msg = CORBA::string_dup( msg.c_str() );
+    result.plugin = plugin.toCorba();
+    return result;
+}
+
+PluginConfiguration::operator CORBA::Any() const
+{
+    CORBA::Any any;
+    any <<= toCorba();
+    return any;
 }
 
 Metric::Metric( const alitheia::Metric& metric )
@@ -557,4 +619,20 @@ Directory Directory::fromCorba( const CORBA::Any& any )
     alitheia::Directory dir;
     any >>= dir;
     return Directory( dir );
+}
+
+Directory Directory::getDirectory( const std::string& path )
+{
+    Database db;
+    Database::property_map properties;
+    properties[ "path" ] = path;
+
+    const vector< Directory > dirs = db.findObjectsByProperties< Directory >( properties );
+    if( !dirs.empty() )
+        return dirs.front();
+
+    Directory d;
+    d.path = path;
+    db.addRecord( d );
+    return d;
 }

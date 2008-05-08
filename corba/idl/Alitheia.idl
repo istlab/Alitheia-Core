@@ -89,6 +89,16 @@ module alitheia
     string installdate;
   };
 
+  struct PluginConfiguration
+  {
+    long id;
+    string name;
+    string value;
+    string type;
+    string msg;
+    Plugin plugin;
+  };
+
   struct Metric
   {
     long id;

@@ -110,6 +110,10 @@ Database::property_map_value any_to_variant( const CORBA::Any& any )
     if( any >>= plugin )
         return result = Plugin::fromCorba( any );
 
+    alitheia::PluginConfiguration pluginConfiguration;
+    if( any >>= pluginConfiguration )
+        return result = PluginConfiguration::fromCorba( any );
+
     alitheia::ProjectFile projectFile;
     if( any >>= projectFile )
         return result = ProjectFile::fromCorba( any );
@@ -157,8 +161,11 @@ CORBA::Any variant_to_any( const Database::property_map_value& variant )
     else if( variant.type() == typeid( MetricType ) )
         result = boost::get< MetricType >( variant );
     
-    else if( variant.type() == typeid( Plugin ) )
-        result = boost::get< Plugin >( variant );
+    else if( variant.type() == typeid( PluginConfiguration ) )
+        result = boost::get< PluginConfiguration >( variant );
+
+    else if( variant.type() == typeid( PluginConfiguration ) )
+        result = boost::get< PluginConfiguration >( variant );
 
     else if( variant.type() == typeid( ProjectFile ) )
         result = boost::get< ProjectFile >( variant );

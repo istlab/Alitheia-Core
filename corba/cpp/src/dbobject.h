@@ -66,6 +66,8 @@ namespace Alitheia
         explicit Directory( const eu::sqooss::impl::service::corba::alitheia::Directory& directory );
         static Directory fromCorba( const CORBA::Any& directory );
 
+        Directory getDirectory( const std::string& path );
+
         eu::sqooss::impl::service::corba::alitheia::Directory toCorba() const;
         operator CORBA::Any() const;
 
@@ -148,6 +150,8 @@ namespace Alitheia
         explicit MetricType( const eu::sqooss::impl::service::corba::alitheia::MetricType& metrictype );
         static MetricType fromCorba( const CORBA::Any& metrictype );
 
+        static MetricType getMetricType( Type t );
+
         eu::sqooss::impl::service::corba::alitheia::MetricType toCorba() const;
         operator CORBA::Any() const;
 
@@ -166,6 +170,23 @@ namespace Alitheia
 
         std::string name;
         std::string installdate;
+    };
+
+    class PluginConfiguration : public DAObject
+    {
+    public:
+        PluginConfiguration() {}
+        explicit PluginConfiguration( const eu::sqooss::impl::service::corba::alitheia::PluginConfiguration& config );
+        static PluginConfiguration fromCorba( const CORBA::Any& config );
+
+        eu::sqooss::impl::service::corba::alitheia::PluginConfiguration toCorba() const;
+        operator CORBA::Any() const;
+
+        std::string name;
+        std::string value;
+        std::string type;
+        std::string msg;
+        Plugin plugin;
     };
 
     class Metric : public DAObject
