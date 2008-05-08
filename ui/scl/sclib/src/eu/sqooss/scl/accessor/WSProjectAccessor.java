@@ -37,15 +37,17 @@ import eu.sqooss.ws.client.datatypes.WSProjectFile;
 import eu.sqooss.ws.client.datatypes.WSProjectVersion;
 import eu.sqooss.ws.client.datatypes.WSStoredProject;
 
+/**
+ * This class contains the projects methods. 
+ */
 public abstract class WSProjectAccessor extends WSAccessor {
     
     /**
-     * This method returns evaluated projects.
+     * This method returns an array of all projects accessible from the given
+     * user, that the SQO-OSS framework has had evaluated.
      * 
-     * <p>
-     * The method's url is: <br>
-     * http://sqo-oss/evaluatedProjectsList
-     * </p>
+     * @return The array of evaluated projects, or a empty array
+     * when none are found.
      * 
      * @throws WSException
      * <ul>
@@ -56,19 +58,25 @@ public abstract class WSProjectAccessor extends WSAccessor {
     public abstract WSStoredProject[] getEvaluatedProjects() throws WSException;
     
     /**
-     * All the projects in the database.
+     * This method returns an array of all projects accessible from the given
+     * user, no matter if the SQO-OSS framework had evaluated them or not.
+     * 
+     * @return The array of stored projects, or a empty array when
+     * none are found.
+     * 
+     * @throws WSException
+     * <ul>
+     *  <li>if the connection can't be establish to the SQO-OSS's web services service</li>
+     *  <li>if web services service throws a exception</li>
+     * <ul>
      */
     public abstract WSStoredProject[] getStoredProjects() throws WSException;
     
     /**
-     * This method returns the project's files.
+     * This method returns an array of all files that belongs to the project
+     * with the given Id.
      * 
-     * <p>
-     * The method's url is: <br>
-     * http://sqo-oss/retrieveFileList?pid={project_id}
-     * </p>
-     * 
-     * @param projectId the project's id
+     * @param projectId - the project's identifier
      * 
      * @throws WSException
      * <ul>
@@ -78,22 +86,14 @@ public abstract class WSProjectAccessor extends WSAccessor {
      */
     public abstract WSProjectFile[] getFilesByProjectId(long projectId) throws WSException;
 
-    public abstract WSProjectFile[] getFilesByProjectVersionId(long projectVersionId) throws WSException;
-    
-    public abstract long getFilesNumberByProjectVersionId(long projectVersionId) throws WSException;
-    
     /**
-     * This method makes request for OSS project evaluation.
-     * If a project with same name and version is known to the system
-     * then the method returns the existent project.
-     *  
-     * @param projectName the project's name
-     * @param projectVersion the project's version
-     * @param srcRepositoryLocation URL for the source repository
-     * @param mailingListLocation URL for the mailing list
-     * @param BTSLocation URL for the bug tracking system
-     * @param userEmailAddress user's e-mail address
-     * @param website project's website
+     * The method returns an array of all files that exists in the specified
+     * project version.
+     * 
+     * @param projectVersionId - the project's version identifier
+     * 
+     * @return The array of project's files in that project version,
+     * or a empty array when none are found.
      * 
      * @throws WSException
      * <ul>
@@ -101,21 +101,108 @@ public abstract class WSProjectAccessor extends WSAccessor {
      *  <li>if web services service throws a exception</li>
      * <ul>
      */
+    public abstract WSProjectFile[] getFilesByProjectVersionId(long projectVersionId) throws WSException;
+    
+    /**
+     * The method returns the total number of files, that exists in the given
+     * project version.
+     * 
+     * @param projectVersionId - the project's version identifier
+     * 
+     * @return The number of project's files in that project version.
+     * 
+     * @throws WSException
+     * <ul>
+     *  <li>if the connection can't be establish to the SQO-OSS's web services service</li>
+     *  <li>if web services service throws a exception</li>
+     * <ul>
+     */
+    public abstract long getFilesNumberByProjectVersionId(long projectVersionId) throws WSException;
+    
+    /**
+     * This method creates a request for a project evaluation. The SQO-OSS
+     * framework administrator can then decide, if the project should be
+     * included for evaluation or not.
+     * <br/>
+     * If a project with the same characteristics is already stored in the
+     * SQO-OSS framework, then this method returns information about the
+     * existing project.
+     *  
+     * @param projectName - the project's name
+     * @param projectVersion - the project's version (optional)
+     * @param srcRepositoryLocation - URL of the project's source repository
+     * @param mailingListLocation - URL of the project's mailing list
+     * @param BTSLocation - URL of the project's bug tracking system
+     * @param userEmailAddress - alternative user's e-mail address, for
+     *   receiving the administrator's decision (optional)
+     * @param website - the project's web site
+     * 
+     * @return The <code>WSStoredProject</code> object that describes the
+     * new project, or the <code>WSStoredProject</code> object of the existing
+     * project.
+     * 
+     * @throws WSException
+     * <ul>
+     *  <li>if the connection can't be establish to the SQO-OSS's web services service</li>
+     *  <li>if web services service throws a exception</li>
+     * <ul>
+     * 
+     * @deprecated This method has been deprecated, since the users where
+     *   withdrawn rights to request a project evaluation.
+     */
+    @Deprecated
     public abstract WSStoredProject requestEvaluation4Project(String projectName, long projectVersion,
             String srcRepositoryLocation, String mailingListLocation,
             String BTSLocation, String userEmailAddress, String website) throws WSException;
     
     /**
-     * This method retrieves the project's identifier.
+     * This method returns the identifier of the project associated with the
+     * given project name.
      * 
      * @param projectName - the name of the project as stored in the SQO-OSS.
-     * @return
+     * 
+     * @return The identifier of the matching project.
+     * 
      * @throws WSException
+     * <ul>
+     *  <li>if the connection can't be establish to the SQO-OSS's web services service</li>
+     *  <li>if web services service throws a exception</li>
+     * <ul>
      */
     public abstract long getProjectIdByName(String projectName) throws WSException;
     
+    /**
+     * The method returns an array representing all evaluated versions of the
+     * given project.
+     * 
+     * @param projectId - the project's identifier
+     * 
+     * @return The array with all evaluated project versions,
+     * or a empty array when none are found.
+     * 
+     * @throws WSException
+     * <ul>
+     *  <li>if the connection can't be establish to the SQO-OSS's web services service</li>
+     *  <li>if web services service throws a exception</li>
+     * <ul>
+     */
     public abstract WSProjectVersion[] getProjectVersionsById(long projectId) throws WSException;
     
+    /**
+     * The method returns all information, that the SQO-OSS framework has
+     * collected about the specified project.
+     * 
+     * @param projectId - the project's identifier
+     * 
+     * @return The <code>WSStoredProject</code> object that describes the
+     * project, or <code>null</code> when such project does not exist.
+     * 
+     * @throws WSException
+     * <ul>
+     *  <li>if the connection can't be establish to the SQO-OSS's web services service</li>
+     *  <li>if web services service throws a exception</li>
+     * <ul>
+     */
     public abstract WSStoredProject getProjectById(long projectId) throws WSException;
     
 }

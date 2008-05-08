@@ -34,9 +34,16 @@ package eu.sqooss.scl.accessor;
 
 import java.lang.reflect.Array;
 
-
+/**
+ * The <code>WSAccessor</code> class is the superclass of all accessors.
+ * It contains a type constant for each accessor. 
+ */
 public abstract class WSAccessor {
 
+    /**
+     * The <code>Type</code> constants are used in
+     * {@link WSSession#getAccessor(Type)}
+     */
     public static enum Type {
         PROJECT,
         USER,

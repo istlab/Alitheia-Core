@@ -37,12 +37,19 @@ import eu.sqooss.ws.client.datatypes.WSMetric;
 import eu.sqooss.ws.client.datatypes.WSMetricsResultRequest;
 import eu.sqooss.ws.client.datatypes.WSResultEntry;
 
+/**
+ * This class contains the metrics methods. 
+ */
 public abstract class WSMetricAccessor extends WSAccessor {
     
     /**
-     * This method returns the metrics for a given project.
+     * This method returns an array with all metrics, that have been evaluated
+     * for the given project.
      * 
-     * @param projectId the project's id
+     * @param projectId - the project's identifier
+     * 
+     * @return The array with all evaluated metrics,
+     * or a empty array when none are found.
      * 
      * @throws WSException
      * <ul>
@@ -53,12 +60,21 @@ public abstract class WSMetricAccessor extends WSAccessor {
     public abstract WSMetric[] getMetricsByProjectId(long projectId) throws WSException;
     
     /**
-     * This method returns the metrics for a given files.
-     * All files in the folder can be selected with the folder's name.
+     * This method returns an array of all metrics that have been evaluated on
+     * the selected set of project files.
+     * <br/>
+     * Separate files can be selected by including them in the
+     * <code>fileNames</code> array.
+     * <br/>
+     * For selecting all files in a specific folder, the folder name must be 
+     * included in the <code>folders</code> array.
      * 
-     * @param projectId the project's id
-     * @param folderNames the folders' names; the folders' delimiter is a comma
-     * @param fileNames the files' names, the files' delimiter is a comma
+     * @param projectId - the project's identifier
+     * @param folderNames - the folders' names; the folders' delimiter is a comma
+     * @param fileNames - the files' names, the files' delimiter is a comma
+     * 
+     * @return The array with all evaluated metrics,
+     * or a empty array when none are found.
      * 
      * @throws WSException
      * <ul>
@@ -69,11 +85,36 @@ public abstract class WSMetricAccessor extends WSAccessor {
     public abstract WSMetric[] getMetricsByFileNames(long projectId, String folderNames, String fileNames) throws WSException;
     
     /**
-     * This method returns all installed metrics.
-     * @return the empty array if there aren't metrics
+     * This method returns an array with all metrics, that are currently
+     * installed in the SQO-OSS framework.
+     * 
+     * @return The array with all installed metrics,
+     * or a empty array when none are found.
+     * 
+     * @throws WSException
+     * <ul>
+     *  <li>if the connection can't be establish to the SQO-OSS's web services service</li>
+     *  <li>if web services service throws a exception</li>
+     * <ul>
      */
     public abstract WSMetric[] getMetrics() throws WSException;
     
+    /**
+     * This method returns the array of results from the evaluation of the specified
+     * metrics on the given data access object.
+     * 
+     * @param resultRequest the request object,
+     * the object contains the request information
+     * 
+     * @return The array of all metric evaluation results on that request,
+     * or a empty array when none are found.
+     * 
+     * @throws WSException
+     * <ul>
+     *  <li>if the connection can't be establish to the SQO-OSS's web services service</li>
+     *  <li>if web services service throws a exception</li>
+     * <ul>
+     */
     public abstract WSResultEntry[] getMetricsResult(WSMetricsResultRequest resultRequest) throws WSException;
     
 }

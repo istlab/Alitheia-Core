@@ -262,19 +262,19 @@ class WSUserAccessorImpl extends WSUserAccessor {
     /**
      * @see eu.sqooss.scl.accessor.WSUserAccessor#getUserMessageOfTheDay(java.lang.String)
      */
-    public String getUserMessageOfTheDay(String userId) throws WSException {
+    public String getUserMessageOfTheDay(String userName) throws WSException {
         GetUserMessageOfTheDayResponse response;
         GetUserMessageOfTheDay params;
         if (!parameters.containsKey(METHOD_NAME_GET_USER_MESSAGE_OF_THE_DAY)) {
             params = new GetUserMessageOfTheDay();
-            params.setUserName(userId);
+            params.setUserName(userName);
             parameters.put(METHOD_NAME_GET_USER_MESSAGE_OF_THE_DAY, params);
         } else {
             params = (GetUserMessageOfTheDay) parameters.get(
                     METHOD_NAME_GET_USER_MESSAGE_OF_THE_DAY);
         }
         synchronized (params) {
-            params.setUserName(userId);
+            params.setUserName(userName);
             try {
                 response = wsStub.getUserMessageOfTheDay(params);
             } catch (RemoteException re) {

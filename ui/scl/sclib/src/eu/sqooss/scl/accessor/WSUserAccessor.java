@@ -35,40 +35,69 @@ package eu.sqooss.scl.accessor;
 import eu.sqooss.scl.WSException;
 import eu.sqooss.ws.client.datatypes.WSUser;
 
+/**
+ * This class contains the users methods. 
+ */
 public abstract class WSUserAccessor extends WSAccessor {
     
     /**
-     * This method creates a new user.
+     * This method creates a new SQO-OSS user with the given characteristics.
      * 
-     * @param newUserName - user name
-     * @param newPassword - user's password
+     * @param newUserName - name for the new user
+     * @param newPassword - password of the new user
+     * @param email - email address of the new user
+     * 
+     * @return The <code>WSUser</code> object, that describes the newly created
+     * user.
+     * 
+     * @throws WSException
+     * <ul>
+     *  <li>if the connection can't be establish to the SQO-OSS's web services service</li>
+     *  <li>if web services service throws a exception</li>
+     * <ul>
+     * 
+     * @deprecated This method is deprecated, in favor of
+     * <code>createPendingUser()<code>.
+     */
+    @Deprecated
+    public abstract WSUser createUser(String newUserName, String newPassword,
+            String email) throws WSException;
+    
+    /**
+     * 
+     * This method creates a new pending user entry, and sends an email to the
+     * given user address with a request for confirmation. After successful
+     * confirmation, the pending user entry is converted into a SQO-OSS user.
+     * <br/>
+     * Note: If the user doesn't confirm the request in time, then the pending
+     * user entry is automatically removed from the system, after its
+     * expiration.
+     * 
+     * @param newUserName - name for the new user
+     * @param newPassword - password of the new user
+     * @param email - email address of the new user
+     * 
+     * @return <code>true</code> upon success, or <code>false</code> when a
+     * user with the same name already exists.
+     * 
      * @throws WSException
      * <ul>
      *  <li>if the connection can't be establish to the SQO-OSS's web services service</li>
      *  <li>if web services service throws a exception</li>
      * <ul>
      */
-    public abstract WSUser createUser(String newUserName, String newPassword,
-            String email) throws WSException;
-    
-    /**
-     * 
-     * This method sends a request for a new user account.
-     * 
-     * @param newUserName
-     * @param newPassword
-     * @param email
-     * @return <code>true</code> if the request is sent,
-     * <code>false</code> otherwise
-     * @throws WSException
-     */
     public abstract boolean createPendingUser(String newUserName, String newPassword,
             String email) throws WSException;
     
     /**
-     * This method returns information about the user with a given id.
+     * This method returns all known information about the user referenced by
+     * the given identifier.
+     * <br/>
+     * <i>The information does not include the user's password hash.<i>
      *  
-     * @param userId - user's id
+     * @param userId - the identifier of the requested user
+     * 
+     * @return The <code>WSUser</code> object describing the requested user.
      * 
      * @throws WSException
      * <ul>
@@ -79,9 +108,14 @@ public abstract class WSUserAccessor extends WSAccessor {
     public abstract WSUser getUserById(long userId) throws WSException;
     
     /**
-     * This method returns information about the user with a given user name.
+     * This method returns all known information about the user associated
+     * with the given user name.
+     * <br/>
+     * <i>The information does not include the user's password hash.<i>
      *  
-     * @param userName - user's name
+     * @param userName - the name of the requested user
+     * 
+     * @return The <code>WSUser</code> object describing the requested user.
      * 
      * @throws WSException
      * <ul>
@@ -92,7 +126,19 @@ public abstract class WSUserAccessor extends WSAccessor {
     public abstract WSUser getUserByName (String name) throws WSException;
     
     /**
-     * This method modifies the existent user with a given user name.
+     * This method modifies the information of the existing user associated
+     * with the given user name.
+     * <br/>
+     * <i>This method can change the user's password and email address
+     *   only.</i>
+     * 
+     * @param userName - the name of the requested user
+     * @param newPassword - the new password
+     * @param newEmail - the new email address
+     * 
+     * @return <code>true</code> upon successful modification,
+     * or <code>false</code> in case of failure.
+     * 
      * @throws WSException
      * <ul>
      *  <li>if the connection can't be establish to the SQO-OSS's web services service</li>
@@ -103,9 +149,13 @@ public abstract class WSUserAccessor extends WSAccessor {
             String newEmail) throws WSException;
     
     /**
-     * This method deletes the user with a given id.
+     * This method deletes the user referenced by the given identifier.
      * 
-     * @param userId - user's id
+     * @param userId - the identifier of the requested user
+     * 
+     * @return <code>true</code> upon successful removal,
+     * or <code>false</code> in case of failure.
+     * 
      * @throws WSException
      * <ul>
      *  <li>if the connection can't be establish to the SQO-OSS's web services service</li>
@@ -115,10 +165,21 @@ public abstract class WSUserAccessor extends WSAccessor {
     public abstract boolean deleteUserById(long userId) throws WSException;
     
     /**
-     * Get the message-of-the-day for the user. This comes from
-     * the Alitheia Core platform and may be user-specific.
+     * Returns the user's message of the day. MOTD's are usually created by
+     * the SQO-OSS system administrator or the SQO-OSS framework itself,
+     * upon occurrence of specific events (like addition of a new project).
+     * 
+     * @param userName - the user's name
+     * 
+     * @return The message of the day, which is valid for that user.
+     * 
+     * @throws WSException
+     * <ul>
+     *  <li>if the connection can't be establish to the SQO-OSS's web services service</li>
+     *  <li>if web services service throws a exception</li>
+     * <ul>
      */
-    public abstract String getUserMessageOfTheDay(String userId) throws WSException;
+    public abstract String getUserMessageOfTheDay(String userName) throws WSException;
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
