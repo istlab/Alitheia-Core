@@ -143,7 +143,8 @@ namespace Alitheia
         {
             SourceCode = ::eu::sqooss::impl::service::corba::alitheia::SourceCode,
             MailingList = ::eu::sqooss::impl::service::corba::alitheia::MailingList,
-            BugDatabase = ::eu::sqooss::impl::service::corba::alitheia::BugDatabase
+            BugDatabase = ::eu::sqooss::impl::service::corba::alitheia::BugDatabase,
+            ProjectWide = ::eu::sqooss::impl::service::corba::alitheia::ProjectWide
         };
 
         MetricType() : type( SourceCode ) {}

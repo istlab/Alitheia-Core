@@ -73,7 +73,8 @@ module alitheia
   {
     SourceCode,
     MailingList,
-    BugDatabase
+    BugDatabase,
+    ProjectWide
   };
 
   struct MetricType

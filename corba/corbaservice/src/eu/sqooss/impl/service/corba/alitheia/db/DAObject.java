@@ -329,6 +329,8 @@ public abstract class DAObject {
             return MetricType.Type.MAILING_LIST;
         case eu.sqooss.impl.service.corba.alitheia.MetricTypeType._BugDatabase:
             return MetricType.Type.BUG_DATABASE;
+        case eu.sqooss.impl.service.corba.alitheia.MetricTypeType._ProjectWide:
+            return MetricType.Type.PROJECT_WIDE;
         }
         return null;
     }

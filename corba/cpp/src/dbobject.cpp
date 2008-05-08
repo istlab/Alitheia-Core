@@ -309,6 +309,9 @@ MetricType MetricType::getMetricType( Type t )
     case BugDatabase:
         properties[ "type" ] = string( "BUG_DATABASE" );
         break;
+    case ProjectWide:
+        properties[ "type" ] = string( "PROJECT_WIDE" );
+        break;
     }
     vector< MetricType > types = db.findObjectsByProperties< MetricType >( properties );
     if( !types.empty() )
