@@ -49,8 +49,12 @@ public class WSProjectVersion {
         return projectVersion.getId();
     }
 
-    public long getProject() {
+    public long getProjectId() {
         return projectVersion.getProject().getId();
+    }
+
+    public WStoredProject getProject() {
+        return projectVersion.getProject();
     }
 
     public long getVersion() {
