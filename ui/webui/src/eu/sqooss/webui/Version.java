@@ -41,7 +41,7 @@ import eu.sqooss.webui.Project;
 public class Version {
 
     private static final String COMMENT = "<!-- Version -->\n";
-    private Project project;
+    private Long projectId;
     private Long number;
     private Long id;
     private Terrier terrier;
@@ -54,7 +54,7 @@ public class Version {
         id = wsVersion.getId();
         terrier = t;
         number = wsVersion.getVersion();
-        project = terrier.getProject(wsVersion.getProject());
+        projectId = wsVersion.getProject();
     }
 
     public Long getId () {
@@ -73,12 +73,12 @@ public class Version {
         number = new_number;
     }
 
-    public Project getProject() {
-        return project;
+    public Long getProjectId() {
+        return projectId;
     }
 
-    public void setProject( Project p ) {
-        project = p;
+    public void setProjectId(Long p) {
+        projectId = p;
     }
 
     public Terrier getTerrier () {

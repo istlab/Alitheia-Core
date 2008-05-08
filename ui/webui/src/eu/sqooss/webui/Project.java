@@ -74,7 +74,6 @@ public class Project {
         mail = p.getMail();
         contact = p.getContact();
         website = p.getWebsite();
-
    }
 
     public void setTerrier(Terrier t) {
@@ -218,7 +217,7 @@ public class Project {
      * @return The Version under that id.
      */
     public Version getCurrentVersion() {
-        return terrier.getVersionById(id, currentVersionId);
+        return terrier.getVersionById(id, getCurrentVersionId());
     }
 
     /**
@@ -230,8 +229,12 @@ public class Project {
      */
     public void setVersions(SortedMap<Long, Long> vs) {
         for (Long nextVersion: vs.values()) {
+            try {
             Version v = terrier.getVersionById(id, nextVersion); // This is horribly inefficient
             versions.put(nextVersion, v);
+            } catch (NullPointerException e) {
+                // Nevermind
+            }
         }
         //setCurrentVersion(getLastVersion()); //FIXME
     }
@@ -242,7 +245,15 @@ public class Project {
      * @return the version number, or null if there is no selected version.
      */
     public Long getCurrentVersionId() {
-        return currentVersionId;
+        try {
+            if ( currentVersionId == null ) {
+                return getLastVersion().getId();
+            }
+            return currentVersionId;
+        } catch (NullPointerException e) {
+            terrier.addError("Could not retrieve current version.");
+            return null;
+        }
     }
     /**
      * Sets the specified version as selected version for this project

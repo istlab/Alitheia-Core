@@ -53,7 +53,6 @@ if (ProjectsListView.hasProjects()) {
                     && (changeSelected != selectedProject.getCurrentVersionId())) {
                     if (selectedProject.getCurrentVersionId() != null) {
                         selectedProject = ProjectsListView.getCurrentProject();
-//.setVersion(changeSelected);
                     }
                     else {
                         inputError = "No such project version!";
@@ -83,6 +82,8 @@ if (ProjectsListView.hasProjects()) {
                 out.println ("<br />Version: "
                     + selectedProject.getFirstVersion());
             }
+        } else {
+            out.println("Project doesn't seem to have versions recorded.");
         }
         out.println("<pre>" + selectedProject.listFiles() + "</pre>");
         out.println("</div>"); // End of this group

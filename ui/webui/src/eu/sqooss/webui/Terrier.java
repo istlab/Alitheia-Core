@@ -308,11 +308,14 @@ public class Terrier {
         }
         FileListView view = new FileListView(versionId);
         try {
-            WSProjectFile[] files =
-                connection.getProjectAccessor().getFilesByProjectVersionId(versionId);
-            for (WSProjectFile file : files) {
-                view.addFile(new File(file));
-            }
+            try {
+                WSProjectFile[] files = connection.getProjectAccessor().getFilesByProjectVersionId(versionId);
+                for (WSProjectFile file : files) {
+                    view.addFile(new File(file));
+                }
+        } catch (NullPointerException e) {
+            // Nevermind?
+        }
         } catch (WSException e) {
             error = "Can not retrieve the list of files for this version.";
             return null;
