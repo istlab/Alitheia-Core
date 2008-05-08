@@ -44,6 +44,7 @@ class Version {
     private Project project;
     private Long number;
     private Long id;
+    private Terrier terrier;
 
     public Version (WSProjectVersion wsVersion) {
         //project = new Project(wsVersion.getProject()); // FIXME: pending "getProject returns ID"
@@ -51,13 +52,16 @@ class Version {
         number = new Long(99999999); // TODO;
     }
 
+    public void setTerrier(Terrier t) {
+        terrier = t;
+    }
+
     public Long getId () {
         return id;
     }
 
     public File[] getFiles () {
-        // TODO
-        return null;
+        return terrier.getProjectVersionFiles(id);
     }
 
     public String getHtml() {

@@ -248,6 +248,8 @@ public class Terrier {
      * Retrieves all files that exist in the specified project version,
      * and generates a proper view for displaying them.
      *
+     * FIXME: THis returns a listview and should not be in terrier.
+     *
      * @param versionId The ID of selected project version
      * @return The corresponding view object
      */
@@ -260,13 +262,33 @@ public class Terrier {
             WSProjectFile[] files =
                 connection.getProjectAccessor().getFilesByProjectVersionId(versionId);
             for (WSProjectFile file : files) {
-                view.addFile(new eu.sqooss.webui.File(file));
+                view.addFile(new File(file));
             }
         } catch (WSException e) {
             error = "Can not retrieve the list of files for this version.";
             return null;
         }
         return view;
+    }
+
+    public File[] getProjectVersionFiles(Long versionId) {
+        if (!connection.isConnected()) {
+            return null;
+        }
+        try {
+
+            File[] files;
+            WSProjectFile[] wsfiles =
+                connection.getProjectAccessor().getFilesByProjectVersionId(versionId);
+            for (int i = 0; i < wsfiles.length; i++) {
+            //for (WSProjectFile file : files) {
+                files.append(new File(wsfiles[i]));
+            }
+        } catch (WSException e) {
+            error = "Can not retrieve the list of files for this version.";
+            return null;
+        }
+        return files;
     }
 
     /**
