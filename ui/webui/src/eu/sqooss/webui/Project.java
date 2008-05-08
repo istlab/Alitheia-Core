@@ -51,8 +51,8 @@ public class Project {
     private String  contact;
     private String  website;
     private Integer fileCount;
-    private WSStoredProject currentProject;
-    // Contains the version number of the last selected version 
+
+    // Contains the version number of the last selected version
     private Long currentVersion;
 
     // Contains a sorted list of all project versions mapped to their ID.
@@ -64,7 +64,6 @@ public class Project {
     }
 
     public Project (WSStoredProject p) {
-        currentProject = p;
         id = p.getId();
         name = p.getName();
         bts = p.getBugs();
@@ -105,14 +104,6 @@ public class Project {
     public String getRepository() {
         return repository;
     }
-
-    public Long getCurrentProjectId() {
-        return currentProject.getId();
-    }
-
-    //public void setCurrentProject(Long id) {
-    //    currentProject = terrier.getProject(id);
-    //}
 
     /** Returns an HTML table with files in the current project version.
      *
