@@ -233,7 +233,7 @@ public class Project {
             Version v = terrier.getVersionById(id, nextVersion); // This is horribly inefficient
             versions.put(nextVersion, v);
             } catch (NullPointerException e) {
-                // Nevermind
+                terrier.addError("Couldn't add Version" + nextVersion);
             }
         }
         //setCurrentVersion(getLastVersion()); //FIXME
