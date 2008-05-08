@@ -8,9 +8,9 @@ if (ProjectsListView.getCurrentProject() != null) {
     Project selectedProject = ProjectsListView.getCurrentProject();
 
     // Retrieve the selected project's version ()
-    Long selectedVersion = selectedProject.getCurrentVersion();
+    Long selectedVersion = selectedProject.getCurrentVersion().getId();
     if (selectedVersion != null) {
-        selectedVersion = selectedProject.getLastVersion();
+        selectedVersion = selectedProject.getLastVersioIdn();
     }
 
     if (selectedVersion != null) {

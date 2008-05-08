@@ -37,7 +37,7 @@ if (ProjectsListView.hasProjects()) {
         // Display the number of files in the selected project version
         // TODO: The files number should be cached in the Project object,
         //       instead of calling the Terrier each time.
-        if (selectedProject.getCurrentVersion() != null) {
+        if (selectedProject.getCurrentVersionId() != null) {
             Long projectId = selectedProject.getId();
             String inputError = null;
             if (request.getParameter("version" + projectId) != null) {
@@ -50,8 +50,8 @@ if (ProjectsListView.hasProjects()) {
                     inputError = new String("Wrong version format!");
                 }
                 if ((changeSelected != null)
-                    && (changeSelected != selectedProject.getCurrentVersion())) {
-                    if (selectedProject.getVersionId(changeSelected) != null) {
+                    && (changeSelected != selectedProject.getCurrentVersionId())) {
+                    if (selectedProject.getCurrentVersionId() != null) {
                         selectedProject = ProjectsListView.getCurrentProject();
 //.setVersion(changeSelected);
                     }
@@ -61,7 +61,7 @@ if (ProjectsListView.hasProjects()) {
                 }
             }
             Long versionNum = selectedProject.getCurrentVersion().getName();
-            Long versionId = selectedProject.getCurrentVersionId().getId();
+            Long versionId = selectedProject.getCurrentVersion().getId();
             out.println ("<br />Files: "
                 + terrier.getFilesNumber4ProjectVersion(versionId)
                 + " (in version " + versionNum + ")");

@@ -55,7 +55,7 @@ public class Project {
     private Integer fileCount;
 
     // Contains the version number of the last selected version
-    private Long currentVersion;
+    private Long currentVersionId;
 
     // Contains a sorted list of all project versions mapped to their ID.
     private SortedMap<Long, Version> versions;
@@ -114,7 +114,7 @@ public class Project {
      * @param versionId The ID field of the version
      */
     public String listFiles() {
-        FileListView f = terrier.getFiles4ProjectVersion(currentVersion);
+        FileListView f = terrier.getFiles4ProjectVersion(currentVersionId);
         return f.getHtml();
     }
 
@@ -192,7 +192,7 @@ public class Project {
 
     /**
      * Gets a list of all known project version numbers.
-     * 
+     *
      * @return the list of version numbers, or null if the project has no
      * version.
      */
@@ -204,6 +204,24 @@ public class Project {
     }
 
     /**
+     * Gets a version by its ID.
+     *
+     * @return The Version under that id.
+     */
+    public Version getVersion(Long versionId) {
+        return terrier.getVersionById(id, versionId);
+    }
+
+    /**
+     * Gets the current version.
+     *
+     * @return The Version under that id.
+     */
+    public Version getCurrentVersion() {
+        return terrier.getVersionById(id, currentVersionId);
+    }
+
+    /**
      * Sets the list of all known project versions. The first field in each
      * version token must be the version number. The second field must be the
      * corresponding version ID.
@@ -211,11 +229,11 @@ public class Project {
      * @param versions the list of project versions
      */
     public void setVersions(SortedMap<Long, Long> vs) {
-        setCurrentVersion(getLastVersion());
         for (Long nextVersion: vs.values()) {
-            //Version v = terrier.getVersionById(id, nextVersion); // This is horribly inefficient
-            //versions.put(nextVersion, v);
+            Version v = terrier.getVersionById(id, nextVersion); // This is horribly inefficient
+            versions.put(nextVersion, v);
         }
+        //setCurrentVersion(getLastVersion()); //FIXME
     }
 
     /**
@@ -223,15 +241,15 @@ public class Project {
      * 
      * @return the version number, or null if there is no selected version.
      */
-    public Long getCurrentVersion() {
-        return currentVersion;
+    public Long getCurrentVersionId() {
+        return currentVersionId;
     }
 
     /**
      * Sets the specified version as selected version for this project
      * @param versionNumber the version number
      */
-    public void setCurrentVersion(Long versionNumber) {
-        this.currentVersion = versionNumber;
+    public void setCurrentVersionId(Long versionNumber) {
+        this.currentVersionId = versionNumber;
     }
 }

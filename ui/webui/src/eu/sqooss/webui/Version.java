@@ -42,9 +42,13 @@ class Version {
 
     private static final String COMMENT = "<!-- Version -->\n";
     private Project project;
-    public Long number;
+    private Long number;
     private Long id;
     private Terrier terrier;
+
+    public Version () {
+
+    }
 
     public Version (WSProjectVersion wsVersion, Terrier t) {
         id = wsVersion.getId();
@@ -59,6 +63,10 @@ class Version {
 
     public Long getId () {
         return id;
+    }
+
+    public void setid (Long new_id) {
+        id = new_id;
     }
 
     public File[] getFiles () {
