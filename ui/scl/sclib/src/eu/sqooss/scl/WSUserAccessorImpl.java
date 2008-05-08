@@ -58,19 +58,19 @@ import eu.sqooss.ws.client.ws.ModifyUserResponse;
 
 class WSUserAccessorImpl extends WSUserAccessor {
 
-    private static final String METHOD_NAME_CREATE_USER          = "submitUser";
+    private static final String METHOD_NAME_CREATE_USER          = "createUser";
 
-    private static final String METHOD_NAME_CREATE_PENDING_USER  = "submitPendingUser";
+    private static final String METHOD_NAME_CREATE_PENDING_USER  = "createPendingUser";
 
-    private static final String METHOD_NAME_GET_USER_BY_ID       = "displayUser";
+    private static final String METHOD_NAME_GET_USER_BY_ID       = "getUserById";
 
     private static final String METHOD_NAME_GET_USER_BY_NAME     = "getUserByName";
 
     private static final String METHOD_NAME_MODIFY_USER          = "modifyUser";
 
-    private static final String METHOD_NAME_DELETE_USER_BY_ID    = "deleteUser";
+    private static final String METHOD_NAME_DELETE_USER_BY_ID    = "deleteUserById";
 
-    private static final String METHOD_NAME_GET_USER_MESSAGE     = "getUserMessageOfTheDay";
+    private static final String METHOD_NAME_GET_USER_MESSAGE_OF_THE_DAY = "getUserMessageOfTheDay";
 
     private Map<String, Object> parameters;
     private String userName;
@@ -259,17 +259,19 @@ class WSUserAccessorImpl extends WSUserAccessor {
         return response.get_return();
     }
 
-    /** {@inheritdoc} */
+    /**
+     * @see eu.sqooss.scl.accessor.WSUserAccessor#getUserMessageOfTheDay(java.lang.String)
+     */
     public String getUserMessageOfTheDay(String userId) throws WSException {
         GetUserMessageOfTheDayResponse response;
         GetUserMessageOfTheDay params;
-        if (!parameters.containsKey(METHOD_NAME_GET_USER_MESSAGE)) {
+        if (!parameters.containsKey(METHOD_NAME_GET_USER_MESSAGE_OF_THE_DAY)) {
             params = new GetUserMessageOfTheDay();
             params.setUserName(userId);
-            parameters.put(METHOD_NAME_GET_USER_MESSAGE, params);
+            parameters.put(METHOD_NAME_GET_USER_MESSAGE_OF_THE_DAY, params);
         } else {
             params = (GetUserMessageOfTheDay) parameters.get(
-                    METHOD_NAME_GET_USER_MESSAGE);
+                    METHOD_NAME_GET_USER_MESSAGE_OF_THE_DAY);
         }
         synchronized (params) {
             params.setUserName(userId);
