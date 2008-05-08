@@ -1415,7 +1415,7 @@ COPY project_version_measurement (project_version_measurement_id, metric_id, pro
 1	3	425	2008-05-05 10:23:54	1337
 2	698	425	2008-05-05 10:23:54	1337
 3	3	423	2008-05-05 10:23:54	2048
-4	3	421	\N	\N
+4	3	421	2008-05-05 10:23:54	404
 \.
 
 
