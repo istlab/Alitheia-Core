@@ -131,13 +131,11 @@ public class Terrier {
         Project prj;
         try {
             // Retrieve information about this project
-            prj = new Project(
-                    connection.getProjectAccessor().getProjectById(projectId), this);
-
+            prj = new Project(connection.getProjectAccessor().getProjectById(projectId), this);
             // Retrieve all project versions
             prj.setVersions(getProjectVersions(projectId));
         } catch (WSException wse) {
-            error = "Could not receive a list of projects.";
+            error = "Could not retrieve the project:" + wse.getMessage();
             return null;
         }
         return prj;
@@ -205,20 +203,26 @@ public class Terrier {
     public Vector<Version> getVersions4Project(Long projectId) {
         Vector<Version> versions = new Vector<Version>();
         if (!connection.isConnected()) {
-            addError(connection.getError());
+            addError("Error: No Connection: " + connection.getError());
             return versions;
         }
         try {
             // Retrieve evaluated projects only
             WSProjectVersion versionsResult[] =
                 connection.getProjectAccessor().getProjectVersionsByProjectId(projectId);
-
+            addError("#Versions: " + versionsResult.length);
             for (WSProjectVersion wssp : versionsResult) {
-                versions.addElement(new Version(wssp, this));
+                Version v = new Version(wssp, this);
+                //Version v = new Version(projectId, wssp.getId(), this);
+                versions.addElement(v);
+                addError("Version added: " + v.getId());
             }
         } catch (WSException wse) {
             addError("Cannot retrieve the list of versions for project " + projectId + ".");
             return versions;
+        }
+        if ( versions.size() == 0 ) {
+            addError("Zero versions in getVersions4Project()");
         }
         return versions;
     }
@@ -227,16 +231,21 @@ public class Terrier {
         // FIXME: UGLY UGLY UGLY, performance--
         if (!connection.isConnected()) {
             addError(connection.getError());
+            addError("Not connected.");
             return null;
         }
         try {
             // Retrieve evaluated projects only
             WSProjectVersion versionsResult[] =
                 connection.getProjectAccessor().getProjectVersionsByProjectId(projectId);
-
             for (WSProjectVersion wssp : versionsResult) {
-                if (wssp.getId() == versionId) {
+                if (versionId.equals(wssp.getId())) {
+                    //addError("Strike: " + wssp.getId() + " == " + versionId);
                     Version v = new Version(wssp, this);
+                    //Version v = new Version(projectId, wssp.getId(), this);
+                    if ( v == null ) {
+                        addError("IsNull: " + wssp.getId() + " == " + versionId);
+                    }
                     return v;
                 }
             }
@@ -484,7 +493,7 @@ public class Terrier {
         if (error != "") {
             error += " ";
         }
-        error += message;
+        error += message + "<br />";
     }
 
     public void flushError() {

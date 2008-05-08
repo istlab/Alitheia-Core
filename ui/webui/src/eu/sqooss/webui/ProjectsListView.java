@@ -85,7 +85,10 @@ public class ProjectsListView extends ListView {
             setCurrentProject(null);
             return;
         }
-        setCurrentProject(terrier.getProject(pid));
+        Project p = terrier.getProject(pid);
+        if (p != null) {
+            setCurrentProject(p);
+        }
     }
 
     public Long getProjectId() {

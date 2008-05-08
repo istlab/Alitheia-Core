@@ -59,32 +59,33 @@ if (ProjectsListView.hasProjects()) {
                     }
                 }
             }
+            //out.println("Number of versions: " + selectedProject.countVersions());
             Long versionNum = selectedProject.getCurrentVersion().getNumber();
-            Long versionId = selectedProject.getCurrentVersion().getId();
+            Long versionId = selectedProject.getCurrentVersionId();
+            // Display the first and last known project versions
+            if (selectedProject.getFirstVersion() != null) {
+                if (selectedProject.getFirstVersion()
+                    != selectedProject.getLastVersion()) {
+                    out.println ("<br />Versions: "
+                        + selectedProject.getFirstVersion().getId()
+                        + " - "
+                        + selectedProject.getLastVersion().getId());
+                } else {
+                    out.println ("<br />Version: "
+                        + selectedProject.getFirstVersion());
+                }
+            } else {
+                out.println("Project doesn't seem to have versions recorded.");
+            }
+            out.println (versionSelector(projectId, versionId));
             out.println ("<br />Files: "
                 + terrier.getFilesNumber4ProjectVersion(versionId)
-                + " (in version " + versionNum + ")");
-            out.println (versionSelector(projectId, versionNum));
+                + " in version " + versionId + " (" + selectedProject.countVersions() + " total)");
             if (inputError != null) {
                 out.println(Functions.error(inputError));
             }
         }
 
-        // Display the first and last known project versions
-        if (selectedProject.getFirstVersion() != null) {
-            if (selectedProject.getFirstVersion()
-                != selectedProject.getLastVersion()) {
-                out.println ("<br />Versions: "
-                    + selectedProject.getFirstVersion()
-                    + " - "
-                    + selectedProject.getLastVersion());
-            } else {
-                out.println ("<br />Version: "
-                    + selectedProject.getFirstVersion());
-            }
-        } else {
-            out.println("Project doesn't seem to have versions recorded.");
-        }
         out.println("<pre>" + selectedProject.listFiles() + "</pre>");
         out.println("</div>"); // End of this group
         out.println("<div style=\"margin-bottom: 20px;\"></div>");
@@ -102,6 +103,7 @@ else {
     }
     out.println("</div>");
 }
+//out.println(Functions.error(terrier.getError()));
 
 %>
 

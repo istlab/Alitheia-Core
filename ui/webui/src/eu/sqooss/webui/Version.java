@@ -57,6 +57,12 @@ public class Version {
         projectId = wsVersion.getProject();
     }
 
+    public Version(Long projectId, Long versionId, Terrier t) {
+        id = versionId;
+        this.projectId = projectId;
+        terrier = t;
+    }
+
     public Long getId () {
         return id;
     }

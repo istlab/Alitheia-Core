@@ -35,6 +35,7 @@ package eu.sqooss.webui;
 
 import java.util.Set;
 import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.SortedSet;
 import java.util.Iterator;
 import java.util.Vector;
@@ -174,6 +175,7 @@ public class Project {
         if ((versions != null) && (versions.size() > 0)) {
             return versions.get(versions.firstKey());
         }
+        terrier.addError("FirstVersion null");
         return null;
     }
 
@@ -186,6 +188,7 @@ public class Project {
         if ((versions != null) && (versions.size() > 0)) {
             return versions.get(versions.lastKey());
         }
+        terrier.addError("LastVersion null" + versions.size());
         return null;
     }
 
@@ -217,7 +220,7 @@ public class Project {
      * @return The Version under that id.
      */
     public Version getCurrentVersion() {
-        return terrier.getVersionById(id, getCurrentVersionId());
+        return versions.get(getCurrentVersionId());
     }
 
     /**
@@ -228,15 +231,21 @@ public class Project {
      * @param versions the list of project versions
      */
     public void setVersions(SortedMap<Long, Long> vs) {
-        for (Long nextVersion: vs.values()) {
-            try {
-            Version v = terrier.getVersionById(id, nextVersion); // This is horribly inefficient
-            versions.put(nextVersion, v);
-            } catch (NullPointerException e) {
-                terrier.addError("Couldn't add Version" + nextVersion);
-            }
+        Boolean changed = false;
+        Long i = new Long(1337);
+        SortedMap<Long, Version> versions = new TreeMap<Long, Version>();
+        for (Long vid: vs.values()) {
+            //Long vid = vs.get(k);
+            Version v = terrier.getVersionById(id, vid); // This is horribly inefficient
+            versions.put(vid, v);
+            changed = true;
+            i++;
         }
-        //setCurrentVersion(getLastVersion()); //FIXME
+        if (changed) {
+            terrier.addError("Number of versions:" + versions.size());
+        }
+        this.versions = versions;
+        setCurrentVersionId(getLastVersion().getId());
     }
 
     /**
@@ -255,11 +264,16 @@ public class Project {
             return null;
         }
     }
+
+    public int countVersions() {
+        return versions.size();
+    }
+
     /**
      * Sets the specified version as selected version for this project
      * @param versionNumber the version number
      */
     public void setCurrentVersionId(Long versionNumber) {
-        this.currentVersionId = versionNumber;
+        currentVersionId = versionNumber;
     }
 }
