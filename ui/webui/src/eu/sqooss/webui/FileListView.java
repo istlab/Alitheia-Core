@@ -77,13 +77,17 @@ public class FileListView extends ListView {
     public String getHtml() {
         StringBuffer html = new StringBuffer();
         Iterator<File> filesIterator = files.iterator();
+        //html.append(pre);
+        html.append(files.size() + " Files found \n<ul>\n");
+        html.append("\n<li> TheFirstFile </li>");
         while (filesIterator.hasNext()) {
             File nextFile = filesIterator.next();
             html.append(
                     (nextFile != null)
-                    ? nextFile.getHtml()
+                    ? "\n<li>" + nextFile.getHtml() + "</li>"
                     : "");
         }
+        html.append("\n</ul>");
         return html.toString();
     }
 }

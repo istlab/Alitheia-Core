@@ -38,8 +38,8 @@ import eu.sqooss.ws.client.datatypes.WSProjectFile;
 class File {
 
     private static final String COMMENT = "<!-- File -->\n";
-    private String name;
-    private String status;
+    private String name = "FILE_NAME_UNSET";
+    private String status = "FILE_STATUS_UNSET";
     private Long versionId;
 
     public File (WSProjectFile wsFile) {
@@ -62,7 +62,7 @@ class File {
 
     public String getHtml() {
         StringBuilder html = new StringBuilder(COMMENT);
-        html.append("<b>File:</b> " + getName());
+        html.append("<b>File:</b> <a href=\"files.jsp?id= " + getId() + "\">" + getName() +"</a>");
         // The next line shows the version ID, not the version number
         //html.append(" <i>(ver." + getVersion() + ")</i>"); // Version
         html.append(" <i>(" + getStatus() + ")</i>"); // Status
