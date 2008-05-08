@@ -55,13 +55,13 @@ import eu.sqooss.ws.client.ws.GetMetricsResultResponse;
 
 class WSMetricAccessorImpl extends WSMetricAccessor {
 
-    private static final String METHOD_NAME_GET_METRICS_BY_PROJECT_ID  = "retrieveMetrics4SelectedProject";
+    private static final String METHOD_NAME_GET_METRICS_BY_PROJECT_ID  = "getMetricsByProjectId";
 
-    private static final String METHOD_NAME_GET_METRICS_BY_FILE_NAMES  = "retrieveMetrics4SelectedFiles";
+    private static final String METHOD_NAME_GET_METRICS_BY_FILE_NAMES  = "getMetricsByFileNames";
     
     private static final String METHOD_NAME_GET_METRICS                = "getMetrics";
 
-    private static final String METHOD_NAME_GET_METRIC_RESULT          = "getMetricResult";
+    private static final String METHOD_NAME_GET_METRICS_RESULT         = "getMetricsResult";
 
     private Map<String, Object> parameters;
     private String userName;
@@ -208,13 +208,13 @@ class WSMetricAccessorImpl extends WSMetricAccessor {
             throws WSException {
         GetMetricsResult params;
         GetMetricsResultResponse response;
-        if (!parameters.containsKey(METHOD_NAME_GET_METRIC_RESULT)) {
+        if (!parameters.containsKey(METHOD_NAME_GET_METRICS_RESULT)) {
             params = new GetMetricsResult();
             params.setPassword(password);
             params.setUserName(userName);
-            parameters.put(METHOD_NAME_GET_METRIC_RESULT, params);
+            parameters.put(METHOD_NAME_GET_METRICS_RESULT, params);
         } else {
-            params = (GetMetricsResult) parameters.get(METHOD_NAME_GET_METRIC_RESULT);
+            params = (GetMetricsResult) parameters.get(METHOD_NAME_GET_METRICS_RESULT);
         }
         synchronized (params) {
             params.setResultRequest(resultRequest);
