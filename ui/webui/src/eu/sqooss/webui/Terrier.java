@@ -336,22 +336,6 @@ public class Terrier {
         return null;
     }
 
-    /** Returns an Array of Versions belonging to the projectId;
-     * @param Long projectId Id of the project the versions are retrieved from.
-     */
-    public Version[] getAllProjectVersions(Long projectId) {
-        /* // FIXME: retrieveStoredProjectVersions(projectId) returns bunches of ints, need to convert it
-           // to Version directly (or at least WSProjectVersion).
-        WSProjectVersion[] WSVersions = connection.getProjectAccessor().retrieveStoredProjectVersions(projectId);
-        Version[] projectVersions;
-        for (int i = 0; i < WSVersions.length; i++) {
-            projectVersions[i] = new Version(WSVersions[i]);
-        }
-        return projectVersions;
-        */
-        return null;
-    }
-
     public Metric getMetric(Long metricId) {
         // TODO
         return null;
