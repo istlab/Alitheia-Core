@@ -41,11 +41,13 @@ class File {
     private String name = "FILE_NAME_UNSET";
     private String status = "FILE_STATUS_UNSET";
     private Long versionId;
+    private Long id;
 
     public File (WSProjectFile wsFile) {
         versionId = wsFile.getProjectVersion();
         name = wsFile.getFileName();
         status = wsFile.getStatus();
+        id = wsFile.getId();
     }
 
     public Long getVersion () {
@@ -60,9 +62,13 @@ class File {
         return status;
     }
 
+    public Long getId() {
+        return id;
+    }
+
     public String getHtml() {
         StringBuilder html = new StringBuilder(COMMENT);
-        html.append("<b>File:</b> <a href=\"files.jsp?id= " + getId() + "\">" + getName() +"</a>");
+        html.append("<b>File:</b> <a href=\"files.jsp?id= " + id + "\">" + getName() +"</a>");
         // The next line shows the version ID, not the version number
         //html.append(" <i>(ver." + getVersion() + ")</i>"); // Version
         html.append(" <i>(" + getStatus() + ")</i>"); // Status
