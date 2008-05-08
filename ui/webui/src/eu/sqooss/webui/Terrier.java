@@ -275,14 +275,14 @@ public class Terrier {
         if (!connection.isConnected()) {
             return null;
         }
+        File[] files = null;
         try {
 
-            File[] files;
             WSProjectFile[] wsfiles =
                 connection.getProjectAccessor().getFilesByProjectVersionId(versionId);
             for (int i = 0; i < wsfiles.length; i++) {
             //for (WSProjectFile file : files) {
-                files.append(new File(wsfiles[i]));
+                files[i] = new File(wsfiles[i]);
             }
         } catch (WSException e) {
             error = "Can not retrieve the list of files for this version.";
@@ -314,13 +314,16 @@ public class Terrier {
      * @param Long projectId Id of the project the versions are retrieved from.
      */
     public Version[] getAllProjectVersions(Long projectId) {
-        WSProjectVersion[] WSVersions =  connection.getProjectAccessor().retrieveStoredProjectVersions(projectId);
+        /* // FIXME: retrieveStoredProjectVersions(projectId) returns bunches of ints, need to convert it
+           // to Version directly (or at least WSStoredProjectVersion).
+        WSProjectVersion[] WSVersions = connection.getProjectAccessor().retrieveStoredProjectVersions(projectId);
         Version[] projectVersions;
         for (int i = 0; i < WSVersions.length; i++) {
-        //for (WSProjectVersion pv: WSVersions) {
             projectVersions[i] = new Version(WSVersions[i]);
         }
         return projectVersions;
+        */
+        return null;
     }
 
     public Metric getMetric(Long metricId) {
