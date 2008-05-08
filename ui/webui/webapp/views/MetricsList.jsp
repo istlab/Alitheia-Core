@@ -9,7 +9,8 @@
 
 // Show metric per project, when a project selection exists
 if (ProjectsListView.getProjectId() != null) {
-    out.println("<h2>Metrics for this Project</h2>");
+    out.println("<h2>Metrics for project "
+        + ProjectsListView.getCurrentProject().getName() + "</h2>");
     metricsView = terrier.getMetrics4Project(ProjectsListView.getProjectId());
     //metricsView = terrier.getAllMetrics();
     if (metricsView != null ) {
@@ -18,10 +19,13 @@ if (ProjectsListView.getProjectId() != null) {
         out.println(Functions.error(terrier.getError()));
     }
     metricsView = null;
+    
+    // Add some space
+    out.println("<br/>");
 }
 
 
-out.println("<h2>All available Metrics</h2>");
+out.println("<h2>All available metrics</h2>");
 // Show all installed metrics available
 metricsView = terrier.getAllMetrics();
 // We don't provide metric names yet, therefore show the description
