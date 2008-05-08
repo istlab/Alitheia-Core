@@ -5,6 +5,7 @@
           <li><a href="/" title="Alitheia overview">Home</a></li>
           <li><a href="/projects.jsp" title="Project details">Projects</a></li>
           <li><a href="/metrics.jsp" title="Metric details">Metrics</a></li>
+          <li><a href="/files.jsp" title="Project Files">Files</a></li>
 <%
 if (user.getLoggedIn()) {
 %>
