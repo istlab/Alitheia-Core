@@ -53,6 +53,12 @@ import eu.sqooss.ws.client.datatypes.WSProjectVersion;
 import eu.sqooss.ws.client.datatypes.WSStoredProject;
 import eu.sqooss.ws.client.datatypes.WSUser;
 
+import eu.sqooss.webui.User;
+import eu.sqooss.webui.File;
+import eu.sqooss.webui.Project;
+import eu.sqooss.webui.Version;
+
+
 
 /**
  * This class is the entry point for retrieving data from the
@@ -280,6 +286,19 @@ public class Terrier {
             error = "Can not retrieve the number of files for this version.";
         }
         return null;
+    }
+
+    /** Returns an Array of Versions belonging to the projectId;
+     * @param Long projectId Id of the project the versions are retrieved from.
+     */
+    public Version[] getAllProjectVersions(Long projectId) {
+        WSProjectVersion[] WSVersions =  connection.getProjectAccessor().retrieveStoredProjectVersions(projectId);
+        Version[] projectVersions;
+        for (int i = 0; i < WSVersions.length; i++) {
+        //for (WSProjectVersion pv: WSVersions) {
+            projectVersions[i] = new Version(WSVersions[i]);
+        }
+        return projectVersions;
     }
 
     public Metric getMetric(Long metricId) {
