@@ -46,10 +46,11 @@ class Version {
     private Long id;
     private Terrier terrier;
 
-    public Version (WSProjectVersion wsVersion) {
-        //project = new Project(wsVersion.getProject()); // FIXME: pending "getProject returns ID"
+    public Version (WSProjectVersion wsVersion, Terrier t) {
         id = wsVersion.getId();
-        number = new Long(99999999); // TODO;
+        terrier = t;
+        number = wsVersion.getVersion();
+        project = terrier.getProject(wsVersion.getProject());
     }
 
     public void setTerrier(Terrier t) {

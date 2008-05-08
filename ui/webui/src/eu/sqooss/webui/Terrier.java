@@ -186,7 +186,7 @@ public class Terrier {
             // Retrieve evaluated projects only
             WSStoredProject projectsResult[] =
                 connection.getProjectAccessor().getEvaluatedProjects();
-            
+
             for (WSStoredProject wssp : projectsResult) {
                 projects.addElement(new Project(wssp));
             }
@@ -195,6 +195,32 @@ public class Terrier {
             return projects;
         }
         return projects;
+    }
+
+    /**
+     * Gets the list of all versions for a project
+     *
+     * @return The list of versions in this project.
+     */
+    public Vector<Version> getVersions4Project(Long projectId) {
+        Vector<Version> versions = new Vector<Version>();
+        if (!connection.isConnected()) {
+            addError(connection.getError());
+            return versions;
+        }
+        try {
+            // Retrieve evaluated projects only
+            WSProjectVersion versionsResult[] =
+                connection.getProjectAccessor().getProjectVersionsByProjectId(projectId);
+
+            for (WSProjectVersion wssp : versionsResult) {
+                versions.addElement(new Version(wssp, this));
+            }
+        } catch (WSException wse) {
+            addError("Cannot retrieve the list of versions for project " + projectId + ".");
+            return versions;
+        }
+        return versions;
     }
 
     /**
@@ -315,7 +341,7 @@ public class Terrier {
      */
     public Version[] getAllProjectVersions(Long projectId) {
         /* // FIXME: retrieveStoredProjectVersions(projectId) returns bunches of ints, need to convert it
-           // to Version directly (or at least WSStoredProjectVersion).
+           // to Version directly (or at least WSProjectVersion).
         WSProjectVersion[] WSVersions = connection.getProjectAccessor().retrieveStoredProjectVersions(projectId);
         Version[] projectVersions;
         for (int i = 0; i < WSVersions.length; i++) {
