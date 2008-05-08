@@ -353,7 +353,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
 
             // Free the DB session
             db.returnSession(s);
-    	}
+        }
     }
 
     /**
