@@ -428,12 +428,17 @@ public class WebAdminRenderer {
         result.append("\t</thead>\n");
         result.append("\t<tbody>\n");
 
+        Class<?> tmpClass;
         for(Job j: jobs) {
             result.append("\t\t<tr>\n\t\t\t<td>");
-            result.append(j.getClass().toString());
+            tmpClass = j.getClass();
+            result.append(tmpClass.getPackage().getName());
+            result.append(". " + tmpClass.getSimpleName());
             result.append("</td>\n\t\t\t<td>");
             if (j.getErrorException().getClass().toString() != null) {
-                result.append(j.getErrorException().getClass().toString());
+                tmpClass = j.getErrorException().getClass();
+                result.append(tmpClass.getPackage().getName());
+                result.append(". " + tmpClass.getSimpleName());
                 result.append("</td>\n\t\t\t<td>");
             } else {
                 result.append("null");
@@ -443,7 +448,7 @@ public class WebAdminRenderer {
             result.append("</td>\n\t\t\t<td>");
             for(StackTraceElement m: j.getErrorException().getStackTrace()) {
                 result.append(m.getClassName());
-                result.append(".");
+                result.append(". ");
                 result.append(m.getMethodName());
                 result.append("(), (");
                 result.append(m.getFileName());
