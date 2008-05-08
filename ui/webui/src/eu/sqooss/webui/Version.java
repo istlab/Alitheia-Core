@@ -65,8 +65,32 @@ class Version {
         return id;
     }
 
-    public void setid (Long new_id) {
+    public void setId (Long new_id) {
         id = new_id;
+    }
+
+    public Long getNumber () {
+        return number;
+    }
+
+    public void setNumber (Long new_number) {
+        number = new_number;
+    }
+
+    public Project getProject() {
+        return Project;
+    }
+
+    public void setProject( Project p ) {
+        return project = p;
+    }
+
+    public Terrier getTerrier () {
+        return terrier;
+    }
+
+    public void setTerrier (Terrier t) {
+        terrier = t;
     }
 
     public File[] getFiles () {

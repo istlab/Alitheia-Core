@@ -241,7 +241,7 @@ public class Terrier {
                 }
             }
         } catch (WSException wse) {
-            addError("Cannot retrieve the list of versions for project " + projectId + ".");
+            addError("Cannot this version " + versionId + "for project " + projectId + ".");
         }
         return null;
     }
