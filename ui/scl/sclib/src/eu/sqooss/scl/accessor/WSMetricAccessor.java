@@ -53,8 +53,8 @@ public abstract class WSMetricAccessor extends WSAccessor {
      * 
      * @throws WSException
      * <ul>
-     *  <li>if the connection can't be establish to the SQO-OSS's web services service</li>
-     *  <li>if web services service throws a exception</li>
+     *  <li>if the connection can't be established to the SQO-OSS's web services service</li>
+     *  <li>if web services service throws an exception</li>
      * <ul>
      */
     public abstract WSMetric[] getMetricsByProjectId(long projectId) throws WSException;
@@ -78,8 +78,8 @@ public abstract class WSMetricAccessor extends WSAccessor {
      * 
      * @throws WSException
      * <ul>
-     *  <li>if the connection can't be establish to the SQO-OSS's web services service</li>
-     *  <li>if web services service throws a exception</li>
+     *  <li>if the connection can't be established to the SQO-OSS's web services service</li>
+     *  <li>if web services service throws an exception</li>
      * <ul>
      */
     public abstract WSMetric[] getMetricsByFileNames(long projectId, String folderNames, String fileNames) throws WSException;
@@ -93,8 +93,8 @@ public abstract class WSMetricAccessor extends WSAccessor {
      * 
      * @throws WSException
      * <ul>
-     *  <li>if the connection can't be establish to the SQO-OSS's web services service</li>
-     *  <li>if web services service throws a exception</li>
+     *  <li>if the connection can't be established to the SQO-OSS's web services service</li>
+     *  <li>if web services service throws an exception</li>
      * <ul>
      */
     public abstract WSMetric[] getMetrics() throws WSException;
@@ -111,8 +111,8 @@ public abstract class WSMetricAccessor extends WSAccessor {
      * 
      * @throws WSException
      * <ul>
-     *  <li>if the connection can't be establish to the SQO-OSS's web services service</li>
-     *  <li>if web services service throws a exception</li>
+     *  <li>if the connection can't be established to the SQO-OSS's web services service</li>
+     *  <li>if web services service throws an exception</li>
      * <ul>
      */
     public abstract WSResultEntry[] getMetricsResult(WSMetricsResultRequest resultRequest) throws WSException;

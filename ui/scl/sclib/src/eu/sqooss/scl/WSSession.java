@@ -45,6 +45,13 @@ public class WSSession {
     private WSUserAccessor userAccessor;
     private WSUser sessionUser;
 
+    /**
+     * @param userName - the name of the user
+     * @param password - the password of the user
+     * @param webServiceUrl - the URL to the web services service of the SQO-OSS framework
+     * 
+     * @throws WSException - if some of the parameters are not valid
+     */
     public WSSession(String userName, String password, String webServiceUrl) throws WSException {
         this.projectAccessor = new WSProjectAccessorImpl(userName, password, webServiceUrl);
         this.metricAccessor  = new WSMetricAccessorImpl(userName, password, webServiceUrl);
@@ -55,6 +62,14 @@ public class WSSession {
         }
     }
     
+    /**
+     * This method returns a specific accessor.
+     * The user must cast the result to the desired accessor.
+     *   
+     * @param type - describes the type of the accessor
+     * 
+     * @return - the specific accessor
+     */
     public WSAccessor getAccessor(WSAccessor.Type type) {
         switch (type) {
         case PROJECT : return projectAccessor;
@@ -64,6 +79,11 @@ public class WSSession {
         }
     }
     
+    /**
+     * This method returns all known information about the session user.
+     * 
+     * @return - the session user, can't be null
+     */
     public WSUser getUser() {
         return sessionUser;
     }

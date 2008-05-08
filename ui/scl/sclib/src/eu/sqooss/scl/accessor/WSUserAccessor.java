@@ -52,8 +52,8 @@ public abstract class WSUserAccessor extends WSAccessor {
      * 
      * @throws WSException
      * <ul>
-     *  <li>if the connection can't be establish to the SQO-OSS's web services service</li>
-     *  <li>if web services service throws a exception</li>
+     *  <li>if the connection can't be established to the SQO-OSS's web services service</li>
+     *  <li>if web services service throws an exception</li>
      * <ul>
      * 
      * @deprecated This method is deprecated, in favor of
@@ -82,8 +82,8 @@ public abstract class WSUserAccessor extends WSAccessor {
      * 
      * @throws WSException
      * <ul>
-     *  <li>if the connection can't be establish to the SQO-OSS's web services service</li>
-     *  <li>if web services service throws a exception</li>
+     *  <li>if the connection can't be established to the SQO-OSS's web services service</li>
+     *  <li>if web services service throws an exception</li>
      * <ul>
      */
     public abstract boolean createPendingUser(String newUserName, String newPassword,
@@ -101,8 +101,8 @@ public abstract class WSUserAccessor extends WSAccessor {
      * 
      * @throws WSException
      * <ul>
-     *  <li>if the connection can't be establish to the SQO-OSS's web services service</li>
-     *  <li>if web services service throws a exception</li>
+     *  <li>if the connection can't be established to the SQO-OSS's web services service</li>
+     *  <li>if web services service throws an exception</li>
      * <ul>
      */
     public abstract WSUser getUserById(long userId) throws WSException;
@@ -119,8 +119,8 @@ public abstract class WSUserAccessor extends WSAccessor {
      * 
      * @throws WSException
      * <ul>
-     *  <li>if the connection can't be establish to the SQO-OSS's web services service</li>
-     *  <li>if web services service throws a exception</li>
+     *  <li>if the connection can't be established to the SQO-OSS's web services service</li>
+     *  <li>if web services service throws an exception</li>
      * <ul>
      */
     public abstract WSUser getUserByName (String name) throws WSException;
@@ -141,8 +141,8 @@ public abstract class WSUserAccessor extends WSAccessor {
      * 
      * @throws WSException
      * <ul>
-     *  <li>if the connection can't be establish to the SQO-OSS's web services service</li>
-     *  <li>if web services service throws a exception</li>
+     *  <li>if the connection can't be established to the SQO-OSS's web services service</li>
+     *  <li>if web services service throws an exception</li>
      * <ul>
      */
     public abstract boolean modifyUser(String userName, String newPassword,
@@ -158,8 +158,8 @@ public abstract class WSUserAccessor extends WSAccessor {
      * 
      * @throws WSException
      * <ul>
-     *  <li>if the connection can't be establish to the SQO-OSS's web services service</li>
-     *  <li>if web services service throws a exception</li>
+     *  <li>if the connection can't be established to the SQO-OSS's web services service</li>
+     *  <li>if web services service throws an exception</li>
      * <ul>
      */
     public abstract boolean deleteUserById(long userId) throws WSException;
@@ -175,8 +175,8 @@ public abstract class WSUserAccessor extends WSAccessor {
      * 
      * @throws WSException
      * <ul>
-     *  <li>if the connection can't be establish to the SQO-OSS's web services service</li>
-     *  <li>if web services service throws a exception</li>
+     *  <li>if the connection can't be established to the SQO-OSS's web services service</li>
+     *  <li>if web services service throws an exception</li>
      * <ul>
      */
     public abstract String getUserMessageOfTheDay(String userName) throws WSException;

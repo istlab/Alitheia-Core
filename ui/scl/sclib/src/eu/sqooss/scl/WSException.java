@@ -32,6 +32,10 @@
 
 package eu.sqooss.scl;
 
+/**
+ * Thrown when the connection can't be established to the SQO-OSS's web services service or
+ * web services service throws an exception.
+ */
 public class WSException extends Exception {
     
     private static final long serialVersionUID = 2075296057326742881L;

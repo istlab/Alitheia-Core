@@ -66,8 +66,8 @@ public abstract class WSProjectAccessor extends WSAccessor {
      * 
      * @throws WSException
      * <ul>
-     *  <li>if the connection can't be establish to the SQO-OSS's web services service</li>
-     *  <li>if web services service throws a exception</li>
+     *  <li>if the connection can't be established to the SQO-OSS's web services service</li>
+     *  <li>if web services service throws an exception</li>
      * <ul>
      */
     public abstract WSStoredProject[] getStoredProjects() throws WSException;
@@ -80,8 +80,8 @@ public abstract class WSProjectAccessor extends WSAccessor {
      * 
      * @throws WSException
      * <ul>
-     *  <li>if the connection can't be establish to the SQO-OSS's web services service</li>
-     *  <li>if web services service throws a exception</li>
+     *  <li>if the connection can't be established to the SQO-OSS's web services service</li>
+     *  <li>if web services service throws an exception</li>
      * <ul>
      */
     public abstract WSProjectFile[] getFilesByProjectId(long projectId) throws WSException;
@@ -97,8 +97,8 @@ public abstract class WSProjectAccessor extends WSAccessor {
      * 
      * @throws WSException
      * <ul>
-     *  <li>if the connection can't be establish to the SQO-OSS's web services service</li>
-     *  <li>if web services service throws a exception</li>
+     *  <li>if the connection can't be established to the SQO-OSS's web services service</li>
+     *  <li>if web services service throws an exception</li>
      * <ul>
      */
     public abstract WSProjectFile[] getFilesByProjectVersionId(long projectVersionId) throws WSException;
@@ -113,8 +113,8 @@ public abstract class WSProjectAccessor extends WSAccessor {
      * 
      * @throws WSException
      * <ul>
-     *  <li>if the connection can't be establish to the SQO-OSS's web services service</li>
-     *  <li>if web services service throws a exception</li>
+     *  <li>if the connection can't be established to the SQO-OSS's web services service</li>
+     *  <li>if web services service throws an exception</li>
      * <ul>
      */
     public abstract long getFilesNumberByProjectVersionId(long projectVersionId) throws WSException;
@@ -143,8 +143,8 @@ public abstract class WSProjectAccessor extends WSAccessor {
      * 
      * @throws WSException
      * <ul>
-     *  <li>if the connection can't be establish to the SQO-OSS's web services service</li>
-     *  <li>if web services service throws a exception</li>
+     *  <li>if the connection can't be established to the SQO-OSS's web services service</li>
+     *  <li>if web services service throws an exception</li>
      * <ul>
      * 
      * @deprecated This method has been deprecated, since the users where
@@ -165,8 +165,8 @@ public abstract class WSProjectAccessor extends WSAccessor {
      * 
      * @throws WSException
      * <ul>
-     *  <li>if the connection can't be establish to the SQO-OSS's web services service</li>
-     *  <li>if web services service throws a exception</li>
+     *  <li>if the connection can't be established to the SQO-OSS's web services service</li>
+     *  <li>if web services service throws an exception</li>
      * <ul>
      */
     public abstract long getProjectIdByName(String projectName) throws WSException;
@@ -182,8 +182,8 @@ public abstract class WSProjectAccessor extends WSAccessor {
      * 
      * @throws WSException
      * <ul>
-     *  <li>if the connection can't be establish to the SQO-OSS's web services service</li>
-     *  <li>if web services service throws a exception</li>
+     *  <li>if the connection can't be established to the SQO-OSS's web services service</li>
+     *  <li>if web services service throws an exception</li>
      * <ul>
      */
     public abstract WSProjectVersion[] getProjectVersionsByProjectId(long projectId) throws WSException;
@@ -199,8 +199,8 @@ public abstract class WSProjectAccessor extends WSAccessor {
      * 
      * @throws WSException
      * <ul>
-     *  <li>if the connection can't be establish to the SQO-OSS's web services service</li>
-     *  <li>if web services service throws a exception</li>
+     *  <li>if the connection can't be established to the SQO-OSS's web services service</li>
+     *  <li>if web services service throws an exception</li>
      * <ul>
      */
     public abstract WSStoredProject getProjectById(long projectId) throws WSException;
