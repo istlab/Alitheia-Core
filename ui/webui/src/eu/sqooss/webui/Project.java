@@ -36,6 +36,8 @@ package eu.sqooss.webui;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.SortedSet;
+import java.util.Iterator;
+import java.util.Vector;
 
 import eu.sqooss.ws.client.datatypes.WSStoredProject;
 import eu.sqooss.ws.client.datatypes.WSProjectVersion;
@@ -56,7 +58,7 @@ public class Project {
     private Long currentVersion;
 
     // Contains a sorted list of all project versions mapped to their ID.
-    private SortedMap<Long, Long> versions;
+    private SortedMap<Long, Version> versions;
     private Terrier terrier;
 
     public Project () {
@@ -72,7 +74,13 @@ public class Project {
         mail = p.getMail();
         contact = p.getContact();
         website = p.getWebsite();
-    }
+
+        Iterator<Version> versionsIterator = terrier.getVersions4Project(id).iterator();
+        while (versionsIterator.hasNext()) {
+            Version nextVersion = versionsIterator.next();
+            versions.put(nextVersion.getId(), nextVersion);
+        }
+   }
 
     public void setTerrier(Terrier t) {
         terrier = t;
@@ -117,6 +125,17 @@ public class Project {
 
     public void setFileCount(Integer n) {
         fileCount = n;
+    }
+
+    public String showVersions() {
+        StringBuilder html = new StringBuilder();
+        html.append("\n<table class=\"projectversions\">");
+        html.append("\n\t<tr>\n\t\t<td><strong>version</strong></td>\n\t</tr>" );
+        for (Version v: versions.values()) {
+            html.append("\n\t<tr>\n\t\t<td><strong>No: " + v.number + "</strong></td>\n\t</tr>" );
+        }
+        html.append("\n</table");
+        return html.toString();
     }
 
     public String getInfo() {
@@ -189,37 +208,38 @@ public class Project {
         return null;
     }
 
-    /**
-     * Gets the version Id belonging to the specified project version number.
-     * 
-     * @param versionNumber the version number
-     * 
-     * @return the version Id, or null when the specified version number is
-     * unknown for this project
-     */
-    public Long getVersionId(Long versionNumber) {
-        if (versions != null) {
-            return versions.get(versionNumber);
-        }
-        return null;
-    }
 
-    /**
-     * Sets the list of all known project versions. The first field in each
-     * version token must be the version number. The second field must be the
-     * corresponding version ID.
-     * 
-     * @param versions the list of project versions
-     */
-    public void setVersions(SortedMap<Long, Long> versions) {
-        this.versions = versions;
-        // FIXME: need to get a WSProjectVersion with
-        // access to most of ProjectVersion
-        //currentVersion = ...
+//     /**
+//      * Gets the version Id belonging to the specified project version number.
+//      * 
+//      * @param versionNumber the version number
+//      * 
+//      * @return the version Id, or null when the specified version number is
+//      * unknown for this project
+//      */
+//     public Long getVersionId(Long versionNumber) {
+//         if (versions != null) {
+//             return versions.get(versionNumber);
+//         }
+//         return null;
+//     }
+//     /**
+//      * Sets the list of all known project versions. The first field in each
+//      * version token must be the version number. The second field must be the
+//      * corresponding version ID.
+//      * 
+//      * @param versions the list of project versions
+//      */
+//     public void setVersions(SortedMap<Long, Long> versions) {
+//         this.versions = versions;
+//         // FIXME: need to get a WSProjectVersion with
+//         // access to most of ProjectVersion
+//         //currentVersion = ...
+// 
+//         // Initialise the selected version
+//         setCurrentVersion(getLastVersion());
+//     }
 
-        // Initialise the selected version
-        setCurrentVersion(getLastVersion());
-    }
 
     /**
      * Returns the last selected version of this project.

@@ -42,7 +42,7 @@ class Version {
 
     private static final String COMMENT = "<!-- Version -->\n";
     private Project project;
-    private Long number;
+    public Long number;
     private Long id;
     private Terrier terrier;
 

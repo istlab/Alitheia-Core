@@ -48,6 +48,7 @@ class File {
         name = wsFile.getFileName();
         status = wsFile.getStatus();
         id = wsFile.getId();
+        // TODO: measurements (and metrics?)
     }
 
     public Long getVersion () {
