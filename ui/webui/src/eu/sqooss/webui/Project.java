@@ -127,7 +127,7 @@ public class Project {
         html.append("\n<table class=\"projectversions\">");
         html.append("\n\t<tr>\n\t\t<td><strong>version</strong></td>\n\t</tr>" );
         for (Version v: versions.values()) {
-            html.append("\n\t<tr>\n\t\t<td><strong>No: " + v.number + "</strong></td>\n\t</tr>" );
+            html.append("\n\t<tr>\n\t\t<td><strong>No: " + v.getNumber() + "</strong></td>\n\t</tr>" );
         }
         html.append("\n</table");
         return html.toString();
@@ -171,9 +171,9 @@ public class Project {
      * 
      * @return the version number, or null if the project has no version.
      */
-    public Long getFirstVersion() {
+    public Version getFirstVersion() {
         if ((versions != null) && (versions.size() > 0)) {
-            return versions.firstKey();
+            return versions.get(versions.firstKey());
         }
         return null;
     }
@@ -183,9 +183,9 @@ public class Project {
      * 
      * @return the version number, or null if the project has no version.
      */
-    public Long getLastVersion() {
+    public Version getLastVersion() {
         if ((versions != null) && (versions.size() > 0)) {
-            return versions.lastKey();
+            return versions.get(versions.lastKey());
         }
         return null;
     }
@@ -244,7 +244,6 @@ public class Project {
     public Long getCurrentVersionId() {
         return currentVersionId;
     }
-
     /**
      * Sets the specified version as selected version for this project
      * @param versionNumber the version number

@@ -38,7 +38,7 @@ import eu.sqooss.ws.client.datatypes.WSProjectVersion;
 import eu.sqooss.webui.Project;
 
 
-class Version {
+public class Version {
 
     private static final String COMMENT = "<!-- Version -->\n";
     private Project project;
