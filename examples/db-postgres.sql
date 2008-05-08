@@ -637,7 +637,6 @@ COPY mailmessage (id, sender_id, mlist_id, messageid, send_date, arrival_date, s
 --
 
 COPY metric (metric_id, plugin_id, metric_type, description, mnemonic) FROM stdin;
-3	1	2	Line counting metric	\N
 698	697	2	Lines of Code	LOC
 701	700	2	Number of Classes	NOCL
 702	700	2	Number of Public Attributes	NOPA
@@ -645,6 +644,7 @@ COPY metric (metric_id, plugin_id, metric_type, description, mnemonic) FROM stdi
 704	700	2	Number of Public Methods	NPM
 705	700	2	Number of Projected Methods	NOPRM
 706	700	2	Weighted Methods per Class	WMC
+3	1	2	Line counting metric	SLOC
 \.
 
 
@@ -1459,7 +1459,7 @@ COPY tag (tag_id, tag_name, tag_version) FROM stdin;
 --
 
 COPY users (user_id, name, registered, last_activity, password, email) FROM stdin;
-3	alitheia	2008-01-01 00:00:00	2008-05-08 12:46:17.942	aa055fc92ac0e92be352a5a27bb5eacca8bf1b10cb22496f4dc4315b963eeaaa	NA
+3	alitheia	2008-01-01 00:00:00	2008-05-08 13:43:59.842	aa055fc92ac0e92be352a5a27bb5eacca8bf1b10cb22496f4dc4315b963eeaaa	NA
 1	Fluffy Bunny	1970-01-01 00:00:00	2008-05-05 18:50:24.692	carrot	bunny@kde.org
 2	Adriaan Bunny	2008-01-01 00:00:00	2008-02-14 00:00:00	celery	bynny@example.com
 \.
