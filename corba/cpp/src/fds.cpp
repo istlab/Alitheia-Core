@@ -69,7 +69,7 @@ FDS::FDS()
 {
     try
     {
-        d->fds = alitheia::FDS::_narrow( CorbaHandler::instance()->getObject( "FDS" ) );
+        d->fds = alitheia::FDS::_narrow( CorbaHandler::instance()->getObject( "AlitheiaFDS" ) );
     }
     catch( ... )
     {

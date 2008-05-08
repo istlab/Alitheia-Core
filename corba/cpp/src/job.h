@@ -11,10 +11,12 @@ namespace std
 namespace Alitheia
 {
     class Core;
+    class Scheduler;
 
     class Job : virtual public POA_eu::sqooss::impl::service::corba::alitheia::Job
     {
-        friend class ::Alitheia::Core;
+        friend class ::Alitheia::Scheduler;
+
     public:
         Job();
         ~Job();

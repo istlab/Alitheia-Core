@@ -1,6 +1,6 @@
 #include <Logger>
-#include <Core>
 #include <Job>
+#include <Scheduler>
 
 #include <sstream>
 #include <ostream>
@@ -65,12 +65,9 @@ private:
 
 boost::mutex TestJob::mutex;
 
-#include <FDS>
 int main( int argc, char **argv)
 {
-    Core& c = *Core::instance();
-   
-    FDS fds;  
+    Scheduler sched;
 
     Logger logger( Logger::NameSqoOssMetric );
     logger.setTeeStream( cout );
@@ -94,10 +91,10 @@ int main( int argc, char **argv)
     
     logger << "Job waiting for execution..." << endl;
    
-    c.enqueueJob( j1 );
-    c.enqueueJob( j2 );
-    c.enqueueJob( j3 );
-    c.enqueueJob( j4 );
+    sched.enqueueJob( j1 );
+    sched.enqueueJob( j2 );
+    sched.enqueueJob( j3 );
+    sched.enqueueJob( j4 );
     
     j4->waitForFinished();
 }

@@ -145,12 +145,6 @@ module alitheia
     // unregisters a metric previously registered
     void unregisterMetric( in long id );
 
-    long registerJob( in string name );
-    void enqueueJob( in string name );
-    void unregisterJob( in string name );
-    void addJobDependency( in string job, in string dependency );
-    void waitForJobFinished( in string name );
-
     boolean addSupportedMetrics( in string metricname, 
                                  in string description, 
                                  in string mnemonic, 
@@ -158,6 +152,26 @@ module alitheia
     MetricList getSupportedMetrics( in string metricname );
 
     ProjectFileList getVersionFiles( in ProjectVersion version );
+  };
+
+  interface Scheduler
+  {
+    // enqueues the job which is registered in ORB with
+    // name
+    void enqueueJob( in string name );
+
+    // starts job execution using \a n additional worker
+    // threads
+    void startExecute( in long n );
+    // stops job execution of all current worker threads
+    void stopExecute();
+    // returns, wheter the scheduler ist currently executing
+    boolean isExecuting();
+
+    long registerJob( in string name );
+    void unregisterJob( in string name );
+    void addJobDependency( in string job, in string dependency );
+    void waitForJobFinished( in string name );
   };
 
   interface FDS

@@ -24,8 +24,10 @@ import eu.sqooss.impl.service.corba.alitheia.CoreHelper;
 import eu.sqooss.impl.service.corba.alitheia.DatabaseHelper;
 import eu.sqooss.impl.service.corba.alitheia.FDSHelper;
 import eu.sqooss.impl.service.corba.alitheia.LoggerHelper;
+import eu.sqooss.impl.service.corba.alitheia.SchedulerHelper;
 import eu.sqooss.impl.service.corba.alitheia.core.CoreImpl;
 import eu.sqooss.impl.service.corba.alitheia.logger.LoggerImpl;
+import eu.sqooss.impl.service.corba.alitheia.scheduler.SchedulerImpl;
 import eu.sqooss.impl.service.corba.alitheia.db.DbImpl;
 import eu.sqooss.impl.service.corba.alitheia.fds.FDSImpl;
 
@@ -123,17 +125,20 @@ public class CorbaActivator implements BundleActivator {
             registrations = new HashMap< Integer, ServiceRegistration >();
             
             // register the logger in CORBA
-            registerCorbaObject("Logger", LoggerHelper.narrow(rootpoa.servant_to_reference(loggerImpl)));
+            registerCorbaObject("AlitheiaLogger", LoggerHelper.narrow(rootpoa.servant_to_reference(loggerImpl)));
             
             // register the core in CORBA
-            registerCorbaObject("Core", CoreHelper.narrow(rootpoa.servant_to_reference(new CoreImpl(bc))));
+            registerCorbaObject("AlitheiaCore", CoreHelper.narrow(rootpoa.servant_to_reference(new CoreImpl(bc))));
  
             // register the database in CORBA
-            registerCorbaObject("Database", DatabaseHelper.narrow(rootpoa.servant_to_reference(new DbImpl(bc))));
+            registerCorbaObject("AlitheiaDatabase", DatabaseHelper.narrow(rootpoa.servant_to_reference(new DbImpl(bc))));
             
             // register the FDS in CORBA
-            registerCorbaObject("FDS", FDSHelper.narrow(rootpoa.servant_to_reference(new FDSImpl(bc))));
-            
+            registerCorbaObject("AlitheiaFDS", FDSHelper.narrow(rootpoa.servant_to_reference(new FDSImpl(bc))));
+
+            // register the Scheduler in CORBA
+            registerCorbaObject("AlitheiaScheduler", SchedulerHelper.narrow(rootpoa.servant_to_reference(new SchedulerImpl(bc))));
+
             // start the ORB thread in the background
             orbthread = new ORBThread(orb);
             orbthread.start();

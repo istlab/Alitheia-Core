@@ -1,5 +1,7 @@
 #include "job.h"
 
+#include "scheduler.h"
+
 #include <CORBA.h>
 
 #include <vector>
@@ -20,8 +22,12 @@ namespace Alitheia
     public:
         std::string name;
         Job::State state;
+
+        static Scheduler scheduler;
     };
 }
+
+Alitheia::Scheduler Alitheia::Job::Private::scheduler;
 
 using namespace Alitheia;
 using namespace eu::sqooss::impl::service::corba;
@@ -47,7 +53,7 @@ Job::Job()
 Job::~Job()
 {
     if( d->name.length() != 0 )
-        Core::instance()->unregisterJob( this );
+        d->scheduler.unregisterJob( this );
     delete d;
 }
 
@@ -92,12 +98,12 @@ void Job::setState( alitheia::Job::JobState state )
 
 void Job::addDependency( Job* other )
 {
-    Core::instance()->addJobDependency( this, other );
+    d->scheduler.addJobDependency( this, other );
 }
 
 void Job::waitForFinished()
 {
-    Core::instance()->waitForJobFinished( this );
+    d->scheduler.waitForJobFinished( this );
 }
 
 const std::string& Job::name() const

@@ -10,7 +10,8 @@ namespace Alitheia
     class Job;
     class AbstractMetric;
     class ProjectVersion;
-    class ProjectFileBuffe;
+    class ProjectFileBuffer;
+    class Scheduler;
 
     /**
      * @brief The main connection to register metrics in the Alitheia system.
@@ -20,10 +21,10 @@ namespace Alitheia
      */
     class Core
     {
-        friend class AbstractMetric;
-        friend class Job;
-        friend class ProjectVersion;
-        friend class ProjectFileBuffer;
+        friend class ::Alitheia::AbstractMetric;
+        friend class ::Alitheia::ProjectVersion;
+        friend class ::Alitheia::ProjectFileBuffer;
+        friend class ::Alitheia::Scheduler;
 
     protected:
         /**
@@ -57,16 +58,6 @@ namespace Alitheia
         void unregisterMetric( int id );
 
         /**
-         * Registers \a job in the Alitheia core.
-         * The job is executed as possible.
-         *
-         * \note The job is executed in a different thread.
-         */
-        int registerJob( Job* job );
-        void unregisterJob( const std::string& name );
-        void unregisterJob( Job* job );
-       
-        /**
          * Runs the local ORB.
          * You need to call run after registered metrics. Otherwise it would
          * not be possible to call their methods.
@@ -82,21 +73,13 @@ namespace Alitheia
          */
         void shutdown();
 
-        /** Enqueue \a job.
-         * \a job is registered in Alitheia's job scheduler and executed
-         * as soon as all dependencies are met.
-         */
-        void enqueueJob( Job* job );
-        
     protected:
-        void addJobDependency( Job* job, Job* dependency );
-        void waitForJobFinished( Job* job );
-        
-
         bool addSupportedMetrics( AbstractMetric* metric, const std::string& description, 
                                   const std::string& mnemonic, MetricType::Type type ) const;
         std::vector< Metric > getSupportedMetrics( const AbstractMetric* metric ) const;
         std::vector< ProjectFile > getVersionFiles( const ProjectVersion& version ) const;
+
+        int getUniqueId() const;
 
     private:
         class Private;

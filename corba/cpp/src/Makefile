@@ -21,6 +21,9 @@ job.o: Alitheia.h job.cpp job.h corbahandler.h
 fds.o: Alitheia.h fds.cpp fds.h corbahandler.h
 	mico-c++ -g -c fds.cpp
 
+scheduler.o: Alitheia.h scheduler.cpp scheduler.h corbahandler.h
+	mico-c++ -g -c scheduler.cpp
+
 database.o: Alitheia.h dbobject.h database.cpp database.h corbahandler.h
 	mico-c++ -g -c database.cpp
 
@@ -30,10 +33,10 @@ corbahandler.o: Alitheia.h corbahandler.cpp corbahandler.h
 Alitheia.h: ../../idl/Alitheia.idl
 	idl --any --poa --c++-suffix cpp ../../idl/Alitheia.idl
 
-../lib/libalitheia.a: Alitheia.o logger.o corbahandler.o core.o metric.o job.o dbobject.o database.o fds.o
+../lib/libalitheia.a: Alitheia.o logger.o corbahandler.o core.o metric.o job.o dbobject.o database.o fds.o scheduler.o
 	test -d ../lib || mkdir ../lib
 	test ! -f ../lib/libalitheia.a || rm ../lib/libalitheia.a
-	ar cqs ../lib/libalitheia.a Alitheia.o logger.o corbahandler.o core.o metric.o job.o dbobject.o database.o fds.o
+	ar cqs ../lib/libalitheia.a Alitheia.o logger.o corbahandler.o core.o metric.o job.o dbobject.o database.o fds.o scheduler.o
 
 clean:
 	test ! -f Alitheia.o || rm Alitheia.o

@@ -37,7 +37,7 @@ Database::Database()
 {
     try
     {
-        d->database = alitheia::Database::_narrow( CorbaHandler::instance()->getObject( "Database" ) );
+        d->database = alitheia::Database::_narrow( CorbaHandler::instance()->getObject( "AlitheiaDatabase" ) );
     }
     catch( ... )
     {

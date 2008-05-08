@@ -52,7 +52,7 @@ namespace Alitheia
 }
 
 using namespace Alitheia;
-
+using namespace eu::sqooss::impl::service::corba;
 using std::exception;
 using std::cerr;
 using std::endl;
@@ -100,7 +100,7 @@ Logger::Logger( const string& name )
     d->name = name;
     try
     {
-        d->logger = eu::sqooss::impl::service::corba::alitheia::Logger::_narrow( CorbaHandler::instance()->getObject( "Logger" ) );
+        d->logger = alitheia::Logger::_narrow( CorbaHandler::instance()->getObject( "AlitheiaLogger" ) );
     }
     catch( ... )
     {

@@ -24,7 +24,6 @@ namespace Alitheia
     public:
         eu::sqooss::impl::service::corba::alitheia::Core_var core;
         std::map< int, std::string > registeredMetrics;
-        std::map< int, std::string > registeredJobs;
     };
 }
 
@@ -59,7 +58,7 @@ Core::Core()
 
     try
     {
-        d->core = alitheia::Core::_narrow( CorbaHandler::instance()->getObject( "Core" ) );
+        d->core = alitheia::Core::_narrow( CorbaHandler::instance()->getObject( "AlitheiaCore" ) );
     }
     catch( CORBA::SystemException_catch& ex )
     {
@@ -91,7 +90,7 @@ Core* Core::instance()
 int Core::registerMetric( AbstractMetric* metric )
 {
     std::stringstream ss;
-    ss << "Alitheia_Metric_" << d->core->getUniqueId();
+    ss << "Alitheia_Metric_" << getUniqueId();
     const std::string name = ss.str();
     metric->setOrbName( name );
     CorbaHandler::instance()->exportObject( metric->_this(), name.c_str() );
@@ -99,6 +98,11 @@ int Core::registerMetric( AbstractMetric* metric )
     metric->setId( id );
     d->registeredMetrics[ id ] = name;
     return id;
+}
+
+int Core::getUniqueId() const
+{
+    return d->core->getUniqueId();
 }
 
 void Core::unregisterMetric( AbstractMetric* metric )
@@ -111,53 +115,6 @@ void Core::unregisterMetric( int id )
     CorbaHandler::instance()->unexportObject( CORBA::string_dup( d->registeredMetrics[ id ].c_str() ) );
     d->core->unregisterMetric( id );
     d->registeredMetrics.erase( id );
-}
-
-int Core::registerJob( Job* job )
-{
-    std::stringstream ss;
-    ss << "Alitheia_Job_" << d->core->getUniqueId();
-    const std::string name = ss.str();
-    job->setName( name );
-    CorbaHandler::instance()->exportObject( job->_this(), name.c_str() );
-    const int id = d->core->registerJob( CORBA::string_dup( name.c_str() ) );
-    d->registeredJobs[ id ] = name;
-    return id;
-}
-
-void Core::unregisterJob( const string& name )
-{
-    d->core->unregisterJob( CORBA::string_dup( name.c_str() ) );
-    CorbaHandler::instance()->unexportObject( CORBA::string_dup( name.c_str() ) );
-}
-
-void Core::unregisterJob( Job* job )
-{
-    unregisterJob( job->name() );
-}
-
-void Core::enqueueJob( Job* job )
-{
-    if( job->name().length() == 0 )
-        registerJob( job );
-    d->core->enqueueJob( CORBA::string_dup( job->name().c_str() ) );
-}
-
-void Core::addJobDependency( Job* job, Job* dependency )
-{
-    if( job->name().length() == 0 )
-        registerJob( job );
-    if( dependency->name().length() == 0 )
-        registerJob( dependency );
-    d->core->addJobDependency( CORBA::string_dup( job->name().c_str() ),
-                               CORBA::string_dup( dependency->name().c_str() ) );
-}
-
-void Core::waitForJobFinished( Job* job )
-{
-    if( job->name().length() == 0 )
-        registerJob( job );
-    d->core->waitForJobFinished( CORBA::string_dup( job->name().c_str() ) );
 }
 
 bool Core::addSupportedMetrics( AbstractMetric* metric, const std::string& description, 
@@ -202,14 +159,12 @@ void Core::run()
     CorbaHandler::instance()->run();
 }
 
+#include <iostream>
 void Core::shutdown()
 {
+    std::cerr << "shutdown" << std::endl;
     for( map< int, string >::iterator it = d->registeredMetrics.begin(); it != d->registeredMetrics.end(); ++it )
     {
         unregisterMetric( it->first );
-    }
-    for( map< int, string >::iterator it = d->registeredJobs.begin(); it != d->registeredJobs.end(); ++it )
-    {
-        unregisterJob( it->second );
     }
 }
