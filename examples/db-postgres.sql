@@ -2,18 +2,11 @@
 -- PostgreSQL database dump
 --
 
-SET client_encoding = 'UTF8';
+SET client_encoding = 'SQL_ASCII';
 SET standard_conforming_strings = off;
 SET check_function_bodies = false;
 SET client_min_messages = warning;
 SET escape_string_warning = off;
-
---
--- Name: SCHEMA public; Type: COMMENT; Schema: -; Owner: alitheia
---
-
-COMMENT ON SCHEMA public IS 'Standard public schema';
-
 
 SET search_path = public, pg_catalog;
 
@@ -29,7 +22,23 @@ CREATE TABLE bug (
     bug_id bigint NOT NULL,
     commit_id bigint,
     description character varying(255),
-    properties bytea
+    properties bytea,
+    bug_file_loc character varying(255),
+    severity character varying(255),
+    status character varying(255),
+    creation_ts timestamp without time zone,
+    deadline timestamp without time zone,
+    delta_ts timestamp without time zone,
+    estimated_time real,
+    keywords character varying(255),
+    operating_system character varying(255),
+    priority character varying(255),
+    product character varying(255),
+    remaining_time real,
+    report_platform character varying(255),
+    reporter character varying(255),
+    resolution character varying(255),
+    short_desc character varying(255)
 );
 
 
@@ -44,7 +53,7 @@ CREATE TABLE bug_report_message (
     bug_id bigint NOT NULL,
     bug_reporter_id bigint NOT NULL,
     description character varying(255),
-    "action" character varying(255)
+    action character varying(255)
 );
 
 
@@ -88,6 +97,46 @@ CREATE TABLE committer (
 
 
 ALTER TABLE public.committer OWNER TO alitheia;
+
+--
+-- Name: developer; Type: TABLE; Schema: public; Owner: alitheia; Tablespace: 
+--
+
+CREATE TABLE developer (
+    developer_id bigint NOT NULL,
+    name character varying(255),
+    email character varying(255),
+    username character varying(255),
+    stored_project_id bigint
+);
+
+
+ALTER TABLE public.developer OWNER TO alitheia;
+
+--
+-- Name: directory; Type: TABLE; Schema: public; Owner: alitheia; Tablespace: 
+--
+
+CREATE TABLE directory (
+    directory_id bigint NOT NULL,
+    path character varying(255)
+);
+
+
+ALTER TABLE public.directory OWNER TO alitheia;
+
+--
+-- Name: evaluation_mark; Type: TABLE; Schema: public; Owner: alitheia; Tablespace: 
+--
+
+CREATE TABLE evaluation_mark (
+    evaluation_mark_id bigint NOT NULL,
+    metric_id bigint NOT NULL,
+    stored_project_id bigint NOT NULL
+);
+
+
+ALTER TABLE public.evaluation_mark OWNER TO alitheia;
 
 --
 -- Name: feature; Type: TABLE; Schema: public; Owner: alitheia; Tablespace: 
@@ -160,26 +209,6 @@ CREATE TABLE groups (
 ALTER TABLE public.groups OWNER TO alitheia;
 
 --
--- Name: hibernate_sequence; Type: SEQUENCE; Schema: public; Owner: alitheia
---
-
-CREATE SEQUENCE hibernate_sequence
-    INCREMENT BY 1
-    NO MAXVALUE
-    NO MINVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.hibernate_sequence OWNER TO alitheia;
-
---
--- Name: hibernate_sequence; Type: SEQUENCE SET; Schema: public; Owner: alitheia
---
-
-SELECT pg_catalog.setval('hibernate_sequence', 692, true);
-
-
---
 -- Name: mailinglist; Type: TABLE; Schema: public; Owner: alitheia; Tablespace: 
 --
 
@@ -217,7 +246,8 @@ CREATE TABLE metric (
     metric_id bigint NOT NULL,
     plugin_id bigint NOT NULL,
     metric_type bigint,
-    description character varying(255) NOT NULL
+    description character varying(255) NOT NULL,
+    mnemonic character varying(10)
 );
 
 
@@ -229,11 +259,27 @@ ALTER TABLE public.metric OWNER TO alitheia;
 
 CREATE TABLE metric_type (
     metric_type_id bigint NOT NULL,
-    "type" character varying(255) NOT NULL
+    type character varying(255) NOT NULL
 );
 
 
 ALTER TABLE public.metric_type OWNER TO alitheia;
+
+--
+-- Name: pending_user; Type: TABLE; Schema: public; Owner: alitheia; Tablespace: 
+--
+
+CREATE TABLE pending_user (
+    user_id bigint NOT NULL,
+    name character varying(255) NOT NULL,
+    password character varying(255) NOT NULL,
+    email character varying(255) NOT NULL,
+    created timestamp without time zone,
+    hash character varying(255) NOT NULL
+);
+
+
+ALTER TABLE public.pending_user OWNER TO alitheia;
 
 --
 -- Name: plugin; Type: TABLE; Schema: public; Owner: alitheia; Tablespace: 
@@ -242,11 +288,31 @@ ALTER TABLE public.metric_type OWNER TO alitheia;
 CREATE TABLE plugin (
     plugin_id bigint NOT NULL,
     name character varying(255),
-    install_date timestamp without time zone
+    install_date timestamp without time zone,
+    version character varying(255),
+    description character varying(255),
+    is_active boolean,
+    hashcode character varying(255)
 );
 
 
 ALTER TABLE public.plugin OWNER TO alitheia;
+
+--
+-- Name: plugin_configuration; Type: TABLE; Schema: public; Owner: alitheia; Tablespace: 
+--
+
+CREATE TABLE plugin_configuration (
+    plugin_configuration_id bigint NOT NULL,
+    name character varying(255),
+    value character varying(255),
+    type character varying(255),
+    msg character varying(255),
+    plugin_id bigint
+);
+
+
+ALTER TABLE public.plugin_configuration OWNER TO alitheia;
 
 --
 -- Name: privilege; Type: TABLE; Schema: public; Owner: alitheia; Tablespace: 
@@ -281,7 +347,9 @@ CREATE TABLE project_file (
     project_file_id bigint NOT NULL,
     file_name character varying(255),
     project_version_id bigint NOT NULL,
-    file_status character varying(255)
+    file_status character varying(255),
+    is_directory boolean,
+    directory_id bigint
 );
 
 
@@ -323,7 +391,10 @@ CREATE TABLE project_version (
     project_version_id bigint NOT NULL,
     stored_project_id bigint NOT NULL,
     version bigint,
-    "timestamp" bigint
+    "timestamp" bigint,
+    committer_id bigint,
+    commit_message character varying(512),
+    properties character varying(512)
 );
 
 
@@ -391,7 +462,8 @@ ALTER TABLE public.stored_project OWNER TO alitheia;
 
 CREATE TABLE tag (
     tag_id bigint NOT NULL,
-    tag_name character varying(255)
+    tag_name character varying(255),
+    tag_version bigint
 );
 
 
@@ -406,7 +478,7 @@ CREATE TABLE users (
     name character varying(255) NOT NULL,
     registered timestamp without time zone,
     last_activity timestamp without time zone,
-    "password" character varying(255) NOT NULL,
+    password character varying(255) NOT NULL,
     email character varying(255) NOT NULL
 );
 
@@ -414,10 +486,30 @@ CREATE TABLE users (
 ALTER TABLE public.users OWNER TO alitheia;
 
 --
+-- Name: hibernate_sequence; Type: SEQUENCE; Schema: public; Owner: alitheia
+--
+
+CREATE SEQUENCE hibernate_sequence
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.hibernate_sequence OWNER TO alitheia;
+
+--
+-- Name: hibernate_sequence; Type: SEQUENCE SET; Schema: public; Owner: alitheia
+--
+
+SELECT pg_catalog.setval('hibernate_sequence', 706, true);
+
+
+--
 -- Data for Name: bug; Type: TABLE DATA; Schema: public; Owner: alitheia
 --
 
-COPY bug (bug_id, commit_id, description, properties) FROM stdin;
+COPY bug (bug_id, commit_id, description, properties, bug_file_loc, severity, status, creation_ts, deadline, delta_ts, estimated_time, keywords, operating_system, priority, product, remaining_time, report_platform, reporter, resolution, short_desc) FROM stdin;
 \.
 
 
@@ -425,7 +517,7 @@ COPY bug (bug_id, commit_id, description, properties) FROM stdin;
 -- Data for Name: bug_report_message; Type: TABLE DATA; Schema: public; Owner: alitheia
 --
 
-COPY bug_report_message (bug_report_message_id, bug_id, bug_reporter_id, description, "action") FROM stdin;
+COPY bug_report_message (bug_report_message_id, bug_id, bug_reporter_id, description, action) FROM stdin;
 \.
 
 
@@ -454,6 +546,30 @@ COPY committer (committer_id, name) FROM stdin;
 
 
 --
+-- Data for Name: developer; Type: TABLE DATA; Schema: public; Owner: alitheia
+--
+
+COPY developer (developer_id, name, email, username, stored_project_id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: directory; Type: TABLE DATA; Schema: public; Owner: alitheia
+--
+
+COPY directory (directory_id, path) FROM stdin;
+\.
+
+
+--
+-- Data for Name: evaluation_mark; Type: TABLE DATA; Schema: public; Owner: alitheia
+--
+
+COPY evaluation_mark (evaluation_mark_id, metric_id, stored_project_id) FROM stdin;
+\.
+
+
+--
 -- Data for Name: feature; Type: TABLE DATA; Schema: public; Owner: alitheia
 --
 
@@ -470,11 +586,30 @@ COPY file_metadata (metadata_id, protection_mode, number_of_links, user_id, grou
 
 
 --
+-- Data for Name: group_privilege; Type: TABLE DATA; Schema: public; Owner: alitheia
+--
+
+COPY group_privilege (service_url_id, group_id, privilege_value_id) FROM stdin;
+1	1	1
+\.
+
+
+--
+-- Data for Name: group_user; Type: TABLE DATA; Schema: public; Owner: alitheia
+--
+
+COPY group_user (user_id, group_id) FROM stdin;
+3	1
+\.
+
+
+--
 -- Data for Name: groups; Type: TABLE DATA; Schema: public; Owner: alitheia
 --
 
 COPY groups (group_id, description) FROM stdin;
 1	alitheia
+693	new users
 \.
 
 
@@ -501,8 +636,15 @@ COPY mailmessage (id, sender_id, mlist_id, messageid, send_date, arrival_date, s
 -- Data for Name: metric; Type: TABLE DATA; Schema: public; Owner: alitheia
 --
 
-COPY metric (metric_id, plugin_id, metric_type, description) FROM stdin;
-3	1	2	Line counting metric
+COPY metric (metric_id, plugin_id, metric_type, description, mnemonic) FROM stdin;
+3	1	2	Line counting metric	\N
+698	697	2	Lines of Code	LOC
+701	700	2	Number of Classes	NOCL
+702	700	2	Number of Public Attributes	NOPA
+703	700	2	Number of Children	NOC
+704	700	2	Number of Public Methods	NPM
+705	700	2	Number of Projected Methods	NOPRM
+706	700	2	Weighted Methods per Class	WMC
 \.
 
 
@@ -510,8 +652,16 @@ COPY metric (metric_id, plugin_id, metric_type, description) FROM stdin;
 -- Data for Name: metric_type; Type: TABLE DATA; Schema: public; Owner: alitheia
 --
 
-COPY metric_type (metric_type_id, "type") FROM stdin;
+COPY metric_type (metric_type_id, type) FROM stdin;
 2	SOURCE_CODE
+\.
+
+
+--
+-- Data for Name: pending_user; Type: TABLE DATA; Schema: public; Owner: alitheia
+--
+
+COPY pending_user (user_id, name, password, email, created, hash) FROM stdin;
 \.
 
 
@@ -519,17 +669,20 @@ COPY metric_type (metric_type_id, "type") FROM stdin;
 -- Data for Name: plugin; Type: TABLE DATA; Schema: public; Owner: alitheia
 --
 
-COPY plugin (plugin_id, name, install_date) FROM stdin;
-1	Wc metric plug-in	2008-03-18 16:40:31.893
+COPY plugin (plugin_id, name, install_date, version, description, is_active, hashcode) FROM stdin;
+1	Wc metric plug-in	2008-03-18 16:40:31.893	\N	\N	\N	\N
+696	Productivity metric plug-in	2008-05-05 12:14:09.02	0.0.1	\N	t	b22f77e27aff03629a421aef7d674933
+697	Wc metric plug-in	2008-05-05 12:14:11.274	0.0.1	\N	t	ed91efb60acef103285c197fb665f311
+700	CLTM Plugin	2008-05-05 18:53:36.032	0.0.1	\N	t	32b853b7ae71eb4d9936a6a38471e4a2
 \.
 
 
 --
--- Data for Name: service_url; Type: TABLE DATA; Schema: public; Owner: alitheia
+-- Data for Name: plugin_configuration; Type: TABLE DATA; Schema: public; Owner: alitheia
 --
 
-COPY service_url (service_url_id, url) FROM stdin;
-1	svc://sqooss
+COPY plugin_configuration (plugin_configuration_id, name, value, type, msg, plugin_id) FROM stdin;
+699	ignore-emptylines	false	BOOLEAN	Ignore empty lines when counting	697
 \.
 
 
@@ -539,6 +692,7 @@ COPY service_url (service_url_id, url) FROM stdin;
 
 COPY privilege (privilege_id, description) FROM stdin;
 1	<all privileges>
+695	user_id
 \.
 
 
@@ -552,291 +706,273 @@ COPY privilege_value (privilege_value_id, value, privilege_id) FROM stdin;
 
 
 --
--- Data for Name: group_privilege; Type: TABLE DATA; Schema: public; Owner: alitheia
---
-
-COPY group_privilege (service_url_id, group_id, privilege_value_id) FROM stdin;
-1	1	1
-\.
-
-
---
--- Data for Name: group_user; Type: TABLE DATA; Schema: public; Owner: alitheia
---
-
-COPY group_user (user_id, group_id) FROM stdin;
-3	1
-\.
-
-
---
 -- Data for Name: project_file; Type: TABLE DATA; Schema: public; Owner: alitheia
 --
 
-COPY project_file (project_file_id, file_name, project_version_id, file_status) FROM stdin;
-18	/.project	17	ADDED
-20	/src/com/edsdev/jconvert/presentation/component/test/MyListCellRenderer.java	19	ADDED
-21	/.classpath	19	ADDED
-22	/test/com/edsdev/jconvert	19	ADDED
-23	/src/com/edsdev/jconvert/presentation/component/NumericalTextField.java	19	ADDED
-24	/build	19	ADDED
-25	/test/com/edsdev/jconvert/test/ConversionTestCase.java	19	ADDED
-26	/build/build.properties	19	ADDED
-27	/test/com/edsdev/jconvert/test/TestList.java	19	ADDED
-28	/src/com/edsdev/jconvert/logic/ConversionGapBuilder.java	19	ADDED
-29	/build/build.xml	19	ADDED
-30	/src/com/edsdev/jconvert/presentation/ConversionPanel.java	19	ADDED
-31	/src/com/edsdev/jconvert/domain/Conversion.java	19	ADDED
-32	/src/com/edsdev/jconvert/presentation/component/test/TestList.java	19	ADDED
-33	/src/com/edsdev/jconvert/presentation/component/test/TestObject.java	19	ADDED
-34	/resource	19	ADDED
-35	/src/com	19	ADDED
-36	/lib/junit-3.8.1.jar	19	ADDED
-37	/resource/icon.bmp	19	ADDED
-38	/src/com/edsdev/jconvert/presentation/component/ConvertListCellRenderer.java	19	ADDED
-39	/src/com/edsdev/jconvert	19	ADDED
-40	/resource/convert.dat	19	ADDED
-41	/src/com/edsdev/jconvert/domain/ConversionType.java	19	ADDED
-42	/src/com/edsdev	19	ADDED
-43	/src/com/edsdev/jconvert/presentation/component/BaseTextField.java	19	ADDED
-44	/src/com/edsdev/jconvert/persistence	19	ADDED
-45	/src/com/edsdev/jconvert/util	19	ADDED
-46	/lib	19	ADDED
-47	/src/com/edsdev/jconvert/presentation/MainFrame.java	19	ADDED
-48	/src/com/edsdev/jconvert/domain/DecimalConversion.java	19	ADDED
-49	/resource/icon.jpg	19	ADDED
-50	/src/com/edsdev/jconvert/presentation/ConversionTypeData.java	19	ADDED
-51	/test/com	19	ADDED
-52	/src/com/edsdev/jconvert/presentation/component	19	ADDED
-53	/src/com/edsdev/jconvert/domain/Conversion_old.tmp	19	ADDED
-54	/src/com/edsdev/jconvert/util/ResourceManager.java	19	ADDED
-55	/src/com/edsdev/jconvert/common/exception	19	ADDED
-56	/src/com/edsdev/jconvert/domain/FractionalConversion.java	19	ADDED
-57	/src/com/edsdev/jconvert/presentation/component/test/MyListModel.java	19	ADDED
-58	/src/com/edsdev/jconvert/presentation	19	ADDED
-59	/src/com/edsdev/jconvert/common	19	ADDED
-60	/src/com/edsdev/jconvert/presentation/component/test	19	ADDED
-61	/test/com/edsdev/jconvert/test	19	ADDED
-62	/src/com/edsdev/jconvert/persistence/DataLoader.java	19	ADDED
-63	/test/com/edsdev	19	ADDED
-64	/src	19	ADDED
-65	/test	19	ADDED
-66	/src/com/edsdev/jconvert/domain	19	ADDED
-67	/src/com/edsdev/jconvert/presentation/component/ConvertListModel.java	19	ADDED
-68	/src/com/edsdev/jconvert/logic	19	ADDED
-70	/resource/convert.dat	69	MODIFIED
-72	/src/com/edsdev/jconvert/util/Logger.java	71	ADDED
-74	/src/com/edsdev/jconvert/util/Logger.java	73	MODIFIED
-76	/src/com/edsdev/jconvert/util/Logger.java	75	MODIFIED
-78	/src/com/edsdev/jconvert/presentation/ConversionPanel.java	77	MODIFIED
-80	/resource/convert.dat	79	MODIFIED
-82	/test/convert_custom.dat	81	ADDED
-83	/test/convert.dat	81	ADDED
-85	/src/com/edsdev/jconvert/domain/Conversion.java	84	MODIFIED
-87	/src/com/edsdev/jconvert/util/ResourceManager.java	86	MODIFIED
-89	/src/com/edsdev/jconvert/logic/ConversionGapBuilder.java	88	MODIFIED
-91	/src/com/edsdev/jconvert/persistence/DataLoader.java	90	MODIFIED
-93	/test/com/edsdev/jconvert/test/DataLoaderTestCase.java	92	ADDED
-95	/src/com/edsdev/jconvert/domain/FractionalConversion.java	94	MODIFIED
-97	/src/com/edsdev/jconvert/domain/ConversionType.java	96	MODIFIED
-99	/build/build.xml	98	MODIFIED
-101	/website/howto.html	100	ADDED
-102	/website/style/purple.css	100	ADDED
-103	/website	100	ADDED
-104	/website/style/green.png	100	ADDED
-105	/website/style/site_logo.jpg	100	ADDED
-106	/website/style/orange_sbi.png	100	ADDED
-107	/website/style/Copy of site_logo.jpg	100	ADDED
-108	/website/style/orange.css	100	ADDED
-109	/website/style/graphic.jpg	100	ADDED
-110	/website/index_orange.html	100	ADDED
-111	/website/images	100	ADDED
-112	/website/style/blue_menu.png	100	ADDED
-113	/website/style/style.css	100	ADDED
-114	/website/index_green.html	100	ADDED
-115	/website/index_purple.html	100	ADDED
-116	/website/style/green_sbi.png	100	ADDED
-117	/website/style/orange_menu.png	100	ADDED
-118	/website/images/doswindow.jpg	100	ADDED
-119	/website/style/green_menu.png	100	ADDED
-120	/website/style/purple.png	100	ADDED
-121	/website/style/blue.png	100	ADDED
-122	/website/style/purple_menu.png	100	ADDED
-123	/website/style	100	ADDED
-124	/website/style/blue.css	100	ADDED
-125	/website/images/download.jpg	100	ADDED
-126	/website/style/main.png	100	ADDED
-127	/website/index_blue.html	100	ADDED
-128	/website/style/blue_sbi.png	100	ADDED
-129	/website/style/purple_sbi.png	100	ADDED
-130	/website/style/green.css	100	ADDED
-131	/website/style/menu.png	100	ADDED
-132	/website/style/link.png	100	ADDED
-133	/website/index.html	100	ADDED
-134	/website/style/orange.png	100	ADDED
-135	/website/style/Copy of style.css	100	ADDED
-137	/website/howto.html	136	MODIFIED
-139	/resource/convert.dat	138	MODIFIED
-141	/build/build.xml	140	MODIFIED
-142	/build/build.properties	140	MODIFIED
-144	/src/com/edsdev/jconvert/domain/FractionalConversion.java	143	MODIFIED
-145	/src/com/edsdev/jconvert/domain/DecimalConversion.java	143	MODIFIED
-146	/src/com/edsdev/jconvert/domain/Conversion.java	143	MODIFIED
-148	/resource/convert.dat	147	MODIFIED
-150	/build/build.xml	149	MODIFIED
-152	/resource/convert.dat	151	MODIFIED
-154	/test/com/edsdev/jconvert/test/DataLoaderTestCase.java	153	MODIFIED
-156	/build/build.xml	155	MODIFIED
-157	/build/build.properties	155	MODIFIED
-159	/src/com/edsdev/jconvert/presentation/component/test	158	DELETED
-161	/src/com/edsdev/jconvert/domain/Conversion_old.tmp	160	DELETED
-163	/src/com/edsdev/jconvert/domain/Conversion.java	162	MODIFIED
-165	/src/com/edsdev/jconvert/presentation/ConversionUnitData.java	164	ADDED
-167	/src/com/edsdev/jconvert/presentation/component/ConvertListModel.java	166	MODIFIED
-169	/src/com/edsdev/jconvert/presentation/component/ConvertListCellRenderer.java	168	REPLACED
-171	/src/com/edsdev/jconvert/presentation/ConversionTypeData.java	170	MODIFIED
-173	/src/com/edsdev/jconvert/presentation/ConversionPanel.java	172	MODIFIED
-175	/src/com/edsdev/jconvert/presentation/ConversionUnitData.java	174	MODIFIED
-177	/website/style/blue.css	176	MODIFIED
-178	/website/style/style.css	176	MODIFIED
-180	/src/com/edsdev/jconvert/util/Browser.java	179	ADDED
-182	/src/com/edsdev/jconvert/presentation/AboutDialog.java	181	ADDED
-184	/resource/jconvert.properties	183	ADDED
-186	/resource/convert.dat	185	MODIFIED
-188	/build/build.xml	187	MODIFIED
-190	/src/com/edsdev/jconvert/presentation/MainFrame.java	189	MODIFIED
-192	/src/com/edsdev/jconvert/presentation/ConversionPanel.java	191	MODIFIED
-194	/build/build.xml	193	MODIFIED
-196	/resource/jconvert.properties	195	MODIFIED
-198	/src/com/edsdev/jconvert/presentation/ConversionsChangedListener.java	197	ADDED
-199	/src/com/edsdev/jconvert/presentation/AddCustomConversionDlg.java	197	ADDED
-201	/build/build.xml	200	MODIFIED
-202	/resource/jconvert.properties	200	MODIFIED
-204	/src/com/edsdev/jconvert/logic/ConversionGapBuilder.java	203	MODIFIED
-206	/src/com/edsdev/jconvert/presentation/AboutDialog.java	205	MODIFIED
-208	/src/com/edsdev/jconvert/presentation/MainFrame.java	207	MODIFIED
-210	/resource/jconvert.properties	209	MODIFIED
-212	/website/howto.html	211	MODIFIED
-214	/.classpath	213	MODIFIED
-216	/src/com/edsdev/jconvert/util/JConvertSettingsProperties.java	215	ADDED
-217	/src/com/edsdev/jconvert/util/JConvertProperties.java	215	ADDED
-219	/src/com/edsdev/jconvert/util/ResourceManager.java	218	MODIFIED
-221	/src/com/edsdev/jconvert/presentation/AboutDialog.java	220	MODIFIED
-223	/src/com/edsdev/jconvert/presentation/AddCustomConversionDlg.java	222	MODIFIED
-225	/src/com/edsdev/jconvert/presentation/ConversionPanel.java	224	MODIFIED
-227	/src/com/edsdev/jconvert/presentation/MainFrame.java	226	MODIFIED
-229	/src/com/edsdev/jconvert/util/JConvertSettingsProperties.java	228	MODIFIED
-231	/src/com/edsdev/jconvert/util/ResourceManager.java	230	MODIFIED
-233	/resource/jconvert.properties	232	MODIFIED
-235	/resource/jcMessages.properties	234	ADDED
-237	/src/com/edsdev/jconvert/util/Messages.java	236	ADDED
-239	/src/com/edsdev/jconvert/util/JConvertSettingsProperties.java	238	MODIFIED
-241	/test/convert.dat	240	MODIFIED
-243	/website/style/blue.css	242	MODIFIED
-245	/website/howto.html	244	MODIFIED
-247	/src/com/edsdev/jconvert/util/Messages.java	246	MODIFIED
-249	/src/com/edsdev/jconvert/presentation/component/NumericalTextField.java	248	MODIFIED
-251	/src/com/edsdev/jconvert/domain/FractionalConversion.java	250	MODIFIED
-253	/build/releaseNotes.txt	252	ADDED
-255	/resource/convert.dat	254	MODIFIED
-257	/resource/jcMessages.properties	256	MODIFIED
-259	/build/releaseNotes.txt	258	MODIFIED
-261	/src/com/edsdev/jconvert/logic/ConversionGapBuilder.java	260	MODIFIED
-263	/test/com/edsdev/jconvert/test/ConversionTestCase.java	262	MODIFIED
-265	/test/com/edsdev/jconvert/test/DataLoaderTestCase.java	264	MODIFIED
-267	/src/com/edsdev/jconvert/util/JConvertSettingsProperties.java	266	MODIFIED
-269	/src/com/edsdev/jconvert/presentation/component/ConvertListCellRenderer.java	268	MODIFIED
-271	/src/com/edsdev/jconvert/presentation/AboutDialog.java	270	MODIFIED
-273	/src/com/edsdev/jconvert/presentation/AddCustomConversionDlg.java	272	MODIFIED
-275	/src/com/edsdev/jconvert/presentation/ConversionPanel.java	274	MODIFIED
-277	/src/com/edsdev/jconvert/presentation/ConversionUnitData.java	276	MODIFIED
-279	/src/com/edsdev/jconvert/presentation/MainFrame.java	278	MODIFIED
-281	/resource/jconvert.properties	280	MODIFIED
-283	/resource/convert.dat	282	MODIFIED
-285	/resource/jcMessages.properties	284	MODIFIED
-287	/src/com/edsdev/jconvert/presentation/MainFrame.java	286	MODIFIED
-289	/test/convert.dat	288	MODIFIED
-291	/resource/jcMessages_es.properties	290	ADDED
-292	/resource/jcMessages_fr.properties	290	ADDED
-294	/build/releaseNotes.txt	293	MODIFIED
-296	/resource/convert.dat	295	MODIFIED
-298	/resource/jcMessages_es.properties	297	MODIFIED
-300	/src/com/edsdev/jconvert/presentation/MainFrame.java	299	MODIFIED
-302	/build/releaseNotes.txt	301	MODIFIED
-304	/resource/convert.dat	303	MODIFIED
-306	/resource/jcMessages.properties	305	MODIFIED
-308	/resource/jconvert.properties	307	MODIFIED
-310	/src/com/edsdev/jconvert/persistence/DataLoader.java	309	MODIFIED
-312	/website/howto.html	311	MODIFIED
-313	/website/index.html	311	MODIFIED
-315	/build/build.xml	314	MODIFIED
-317	/resource/jcMessages_ru.properties	316	ADDED
-319	/src/com/edsdev/jconvert/logic/ConversionGapBuilder.java	318	MODIFIED
-321	/src/com/edsdev/jconvert/persistence/DataLoader.java	320	MODIFIED
-323	/src/com/edsdev/jconvert/presentation/AboutDialog.java	322	MODIFIED
-325	/src/com/edsdev/jconvert/presentation/AddCustomConversionDlg.java	324	MODIFIED
-327	/src/com/edsdev/jconvert/presentation/ConversionPanel.java	326	MODIFIED
-329	/src/com/edsdev/jconvert/presentation/ConversionTypeData.java	328	MODIFIED
-331	/src/com/edsdev/jconvert/presentation/SettingsDlg.java	330	ADDED
-333	/src/com/edsdev/jconvert/presentation/UpgradeVersionChecker.java	332	ADDED
-335	/src/com/edsdev/jconvert/presentation/component/VisibleTabsListCellRenderer.java	334	ADDED
-337	/src/com/edsdev/jconvert/util/ByteBuffer.java	336	ADDED
-338	/src/com/edsdev/jconvert/util/Http.java	336	ADDED
-340	/src/com/edsdev/jconvert/util/JConvertProperties.java	339	MODIFIED
-342	/src/com/edsdev/jconvert/util/JConvertSettingsProperties.java	341	MODIFIED
-344	/test/com/edsdev/jconvert/test/DataLoaderTestCase.java	343	MODIFIED
-345	/test/com/edsdev/jconvert/test/ConversionTestCase.java	343	MODIFIED
-347	/website/index.html	346	MODIFIED
-349	/src/com/edsdev/jconvert/util/Messages.java	348	MODIFIED
-351	/src/com/edsdev/jconvert/presentation/UpgradeVersionChecker.java	350	MODIFIED
-353	/src/com/edsdev/jconvert/presentation/MainFrame.java	352	MODIFIED
-355	/resource/jcMessages_ru.properties	354	MODIFIED
-356	/resource/jcMessages_es.properties	354	MODIFIED
-357	/resource/jcMessages_fr.properties	354	MODIFIED
-359	/resource/jcMessages.properties	358	MODIFIED
-361	/src/com/edsdev/jconvert/presentation/UpgradeVersionChecker.java	360	MODIFIED
-363	/build/build.xml	362	MODIFIED
-365	/build/build.xml	364	MODIFIED
-367	/website/howto.html	366	MODIFIED
-368	/website/index.html	366	MODIFIED
-370	/resource/jcMessages.properties	369	MODIFIED
-371	/resource/jconvert.properties	369	MODIFIED
-372	/resource/jcMessages_ru.properties	369	MODIFIED
-373	/resource/jcMessages_es.properties	369	MODIFIED
-374	/resource/jcMessages_fr.properties	369	MODIFIED
-376	/src/com/edsdev/jconvert/presentation/SettingsDlg.java	375	MODIFIED
-378	/build/releaseNotes.txt	377	MODIFIED
-380	/resource/jconvert.properties	379	MODIFIED
-382	/build/build.xml	381	MODIFIED
-383	/build/build.properties	381	MODIFIED
-385	/src/com/edsdev/jconvert/domain/FractionalConversion.java	384	MODIFIED
-386	/src/com/edsdev/jconvert/domain/DecimalConversion.java	384	MODIFIED
-388	/src/com/edsdev/jconvert/persistence/DataLoader.java	387	MODIFIED
-390	/src/com/edsdev/jconvert/presentation/ConversionsChangedListener.java	389	MODIFIED
-391	/src/com/edsdev/jconvert/presentation/ConversionUnitData.java	389	MODIFIED
-392	/src/com/edsdev/jconvert/presentation/MainFrame.java	389	MODIFIED
-393	/src/com/edsdev/jconvert/presentation/AboutDialog.java	389	MODIFIED
-395	/src/com/edsdev/jconvert/presentation/component/NumericalTextField.java	394	MODIFIED
-396	/src/com/edsdev/jconvert/presentation/component/ConvertListCellRenderer.java	394	MODIFIED
-397	/src/com/edsdev/jconvert/presentation/component/ConvertListModel.java	394	MODIFIED
-398	/src/com/edsdev/jconvert/presentation/component/BaseTextField.java	394	MODIFIED
-400	/src/com/edsdev/jconvert/util/JConvertSettingsProperties.java	399	MODIFIED
-402	/src/com/edsdev/jconvert/util/Http.java	401	MODIFIED
-403	/src/com/edsdev/jconvert/util/Browser.java	401	MODIFIED
-404	/src/com/edsdev/jconvert/util/Messages.java	401	MODIFIED
-405	/src/com/edsdev/jconvert/util/ResourceManager.java	401	MODIFIED
-406	/src/com/edsdev/jconvert/util/JConvertProperties.java	401	MODIFIED
-408	/test/com/edsdev/jconvert/test/TestList.java	407	MODIFIED
-409	/test/com/edsdev/jconvert/test/DataLoaderTestCase.java	407	MODIFIED
-410	/test/com/edsdev/jconvert/test/ConversionTestCase.java	407	MODIFIED
-412	/website/howto.html	411	MODIFIED
-414	/build/build.properties	413	MODIFIED
-416	/test/com/edsdev/jconvert/test/InternationalizeTestCase.java	415	ADDED
-418	/build/build.xml	417	MODIFIED
-420	/src/com/edsdev/jconvert/util/JConvertSettingsProperties.java	419	MODIFIED
-422	/src/com/edsdev/jconvert/util/Logger.java	421	MODIFIED
-424	/src/com/edsdev/jconvert/logic/ConversionGapBuilder.java	423	MODIFIED
-426	/website/index.html	425	MODIFIED
+COPY project_file (project_file_id, file_name, project_version_id, file_status, is_directory, directory_id) FROM stdin;
+18	/.project	17	ADDED	\N	\N
+20	/src/com/edsdev/jconvert/presentation/component/test/MyListCellRenderer.java	19	ADDED	\N	\N
+21	/.classpath	19	ADDED	\N	\N
+22	/test/com/edsdev/jconvert	19	ADDED	\N	\N
+23	/src/com/edsdev/jconvert/presentation/component/NumericalTextField.java	19	ADDED	\N	\N
+24	/build	19	ADDED	\N	\N
+25	/test/com/edsdev/jconvert/test/ConversionTestCase.java	19	ADDED	\N	\N
+26	/build/build.properties	19	ADDED	\N	\N
+27	/test/com/edsdev/jconvert/test/TestList.java	19	ADDED	\N	\N
+28	/src/com/edsdev/jconvert/logic/ConversionGapBuilder.java	19	ADDED	\N	\N
+29	/build/build.xml	19	ADDED	\N	\N
+30	/src/com/edsdev/jconvert/presentation/ConversionPanel.java	19	ADDED	\N	\N
+31	/src/com/edsdev/jconvert/domain/Conversion.java	19	ADDED	\N	\N
+32	/src/com/edsdev/jconvert/presentation/component/test/TestList.java	19	ADDED	\N	\N
+33	/src/com/edsdev/jconvert/presentation/component/test/TestObject.java	19	ADDED	\N	\N
+34	/resource	19	ADDED	\N	\N
+35	/src/com	19	ADDED	\N	\N
+36	/lib/junit-3.8.1.jar	19	ADDED	\N	\N
+37	/resource/icon.bmp	19	ADDED	\N	\N
+38	/src/com/edsdev/jconvert/presentation/component/ConvertListCellRenderer.java	19	ADDED	\N	\N
+39	/src/com/edsdev/jconvert	19	ADDED	\N	\N
+40	/resource/convert.dat	19	ADDED	\N	\N
+41	/src/com/edsdev/jconvert/domain/ConversionType.java	19	ADDED	\N	\N
+42	/src/com/edsdev	19	ADDED	\N	\N
+43	/src/com/edsdev/jconvert/presentation/component/BaseTextField.java	19	ADDED	\N	\N
+44	/src/com/edsdev/jconvert/persistence	19	ADDED	\N	\N
+45	/src/com/edsdev/jconvert/util	19	ADDED	\N	\N
+46	/lib	19	ADDED	\N	\N
+47	/src/com/edsdev/jconvert/presentation/MainFrame.java	19	ADDED	\N	\N
+48	/src/com/edsdev/jconvert/domain/DecimalConversion.java	19	ADDED	\N	\N
+49	/resource/icon.jpg	19	ADDED	\N	\N
+50	/src/com/edsdev/jconvert/presentation/ConversionTypeData.java	19	ADDED	\N	\N
+51	/test/com	19	ADDED	\N	\N
+52	/src/com/edsdev/jconvert/presentation/component	19	ADDED	\N	\N
+53	/src/com/edsdev/jconvert/domain/Conversion_old.tmp	19	ADDED	\N	\N
+54	/src/com/edsdev/jconvert/util/ResourceManager.java	19	ADDED	\N	\N
+55	/src/com/edsdev/jconvert/common/exception	19	ADDED	\N	\N
+56	/src/com/edsdev/jconvert/domain/FractionalConversion.java	19	ADDED	\N	\N
+57	/src/com/edsdev/jconvert/presentation/component/test/MyListModel.java	19	ADDED	\N	\N
+58	/src/com/edsdev/jconvert/presentation	19	ADDED	\N	\N
+59	/src/com/edsdev/jconvert/common	19	ADDED	\N	\N
+60	/src/com/edsdev/jconvert/presentation/component/test	19	ADDED	\N	\N
+61	/test/com/edsdev/jconvert/test	19	ADDED	\N	\N
+62	/src/com/edsdev/jconvert/persistence/DataLoader.java	19	ADDED	\N	\N
+63	/test/com/edsdev	19	ADDED	\N	\N
+64	/src	19	ADDED	\N	\N
+65	/test	19	ADDED	\N	\N
+66	/src/com/edsdev/jconvert/domain	19	ADDED	\N	\N
+67	/src/com/edsdev/jconvert/presentation/component/ConvertListModel.java	19	ADDED	\N	\N
+68	/src/com/edsdev/jconvert/logic	19	ADDED	\N	\N
+70	/resource/convert.dat	69	MODIFIED	\N	\N
+72	/src/com/edsdev/jconvert/util/Logger.java	71	ADDED	\N	\N
+74	/src/com/edsdev/jconvert/util/Logger.java	73	MODIFIED	\N	\N
+76	/src/com/edsdev/jconvert/util/Logger.java	75	MODIFIED	\N	\N
+78	/src/com/edsdev/jconvert/presentation/ConversionPanel.java	77	MODIFIED	\N	\N
+80	/resource/convert.dat	79	MODIFIED	\N	\N
+82	/test/convert_custom.dat	81	ADDED	\N	\N
+83	/test/convert.dat	81	ADDED	\N	\N
+85	/src/com/edsdev/jconvert/domain/Conversion.java	84	MODIFIED	\N	\N
+87	/src/com/edsdev/jconvert/util/ResourceManager.java	86	MODIFIED	\N	\N
+89	/src/com/edsdev/jconvert/logic/ConversionGapBuilder.java	88	MODIFIED	\N	\N
+91	/src/com/edsdev/jconvert/persistence/DataLoader.java	90	MODIFIED	\N	\N
+93	/test/com/edsdev/jconvert/test/DataLoaderTestCase.java	92	ADDED	\N	\N
+95	/src/com/edsdev/jconvert/domain/FractionalConversion.java	94	MODIFIED	\N	\N
+97	/src/com/edsdev/jconvert/domain/ConversionType.java	96	MODIFIED	\N	\N
+99	/build/build.xml	98	MODIFIED	\N	\N
+101	/website/howto.html	100	ADDED	\N	\N
+102	/website/style/purple.css	100	ADDED	\N	\N
+103	/website	100	ADDED	\N	\N
+104	/website/style/green.png	100	ADDED	\N	\N
+105	/website/style/site_logo.jpg	100	ADDED	\N	\N
+106	/website/style/orange_sbi.png	100	ADDED	\N	\N
+107	/website/style/Copy of site_logo.jpg	100	ADDED	\N	\N
+108	/website/style/orange.css	100	ADDED	\N	\N
+109	/website/style/graphic.jpg	100	ADDED	\N	\N
+110	/website/index_orange.html	100	ADDED	\N	\N
+111	/website/images	100	ADDED	\N	\N
+112	/website/style/blue_menu.png	100	ADDED	\N	\N
+113	/website/style/style.css	100	ADDED	\N	\N
+114	/website/index_green.html	100	ADDED	\N	\N
+115	/website/index_purple.html	100	ADDED	\N	\N
+116	/website/style/green_sbi.png	100	ADDED	\N	\N
+117	/website/style/orange_menu.png	100	ADDED	\N	\N
+118	/website/images/doswindow.jpg	100	ADDED	\N	\N
+119	/website/style/green_menu.png	100	ADDED	\N	\N
+120	/website/style/purple.png	100	ADDED	\N	\N
+121	/website/style/blue.png	100	ADDED	\N	\N
+122	/website/style/purple_menu.png	100	ADDED	\N	\N
+123	/website/style	100	ADDED	\N	\N
+124	/website/style/blue.css	100	ADDED	\N	\N
+125	/website/images/download.jpg	100	ADDED	\N	\N
+126	/website/style/main.png	100	ADDED	\N	\N
+127	/website/index_blue.html	100	ADDED	\N	\N
+128	/website/style/blue_sbi.png	100	ADDED	\N	\N
+129	/website/style/purple_sbi.png	100	ADDED	\N	\N
+130	/website/style/green.css	100	ADDED	\N	\N
+131	/website/style/menu.png	100	ADDED	\N	\N
+132	/website/style/link.png	100	ADDED	\N	\N
+133	/website/index.html	100	ADDED	\N	\N
+134	/website/style/orange.png	100	ADDED	\N	\N
+135	/website/style/Copy of style.css	100	ADDED	\N	\N
+137	/website/howto.html	136	MODIFIED	\N	\N
+139	/resource/convert.dat	138	MODIFIED	\N	\N
+141	/build/build.xml	140	MODIFIED	\N	\N
+142	/build/build.properties	140	MODIFIED	\N	\N
+144	/src/com/edsdev/jconvert/domain/FractionalConversion.java	143	MODIFIED	\N	\N
+145	/src/com/edsdev/jconvert/domain/DecimalConversion.java	143	MODIFIED	\N	\N
+146	/src/com/edsdev/jconvert/domain/Conversion.java	143	MODIFIED	\N	\N
+148	/resource/convert.dat	147	MODIFIED	\N	\N
+150	/build/build.xml	149	MODIFIED	\N	\N
+152	/resource/convert.dat	151	MODIFIED	\N	\N
+154	/test/com/edsdev/jconvert/test/DataLoaderTestCase.java	153	MODIFIED	\N	\N
+156	/build/build.xml	155	MODIFIED	\N	\N
+157	/build/build.properties	155	MODIFIED	\N	\N
+159	/src/com/edsdev/jconvert/presentation/component/test	158	DELETED	\N	\N
+161	/src/com/edsdev/jconvert/domain/Conversion_old.tmp	160	DELETED	\N	\N
+163	/src/com/edsdev/jconvert/domain/Conversion.java	162	MODIFIED	\N	\N
+165	/src/com/edsdev/jconvert/presentation/ConversionUnitData.java	164	ADDED	\N	\N
+167	/src/com/edsdev/jconvert/presentation/component/ConvertListModel.java	166	MODIFIED	\N	\N
+169	/src/com/edsdev/jconvert/presentation/component/ConvertListCellRenderer.java	168	REPLACED	\N	\N
+171	/src/com/edsdev/jconvert/presentation/ConversionTypeData.java	170	MODIFIED	\N	\N
+173	/src/com/edsdev/jconvert/presentation/ConversionPanel.java	172	MODIFIED	\N	\N
+175	/src/com/edsdev/jconvert/presentation/ConversionUnitData.java	174	MODIFIED	\N	\N
+177	/website/style/blue.css	176	MODIFIED	\N	\N
+178	/website/style/style.css	176	MODIFIED	\N	\N
+180	/src/com/edsdev/jconvert/util/Browser.java	179	ADDED	\N	\N
+182	/src/com/edsdev/jconvert/presentation/AboutDialog.java	181	ADDED	\N	\N
+184	/resource/jconvert.properties	183	ADDED	\N	\N
+186	/resource/convert.dat	185	MODIFIED	\N	\N
+188	/build/build.xml	187	MODIFIED	\N	\N
+190	/src/com/edsdev/jconvert/presentation/MainFrame.java	189	MODIFIED	\N	\N
+192	/src/com/edsdev/jconvert/presentation/ConversionPanel.java	191	MODIFIED	\N	\N
+194	/build/build.xml	193	MODIFIED	\N	\N
+196	/resource/jconvert.properties	195	MODIFIED	\N	\N
+198	/src/com/edsdev/jconvert/presentation/ConversionsChangedListener.java	197	ADDED	\N	\N
+199	/src/com/edsdev/jconvert/presentation/AddCustomConversionDlg.java	197	ADDED	\N	\N
+201	/build/build.xml	200	MODIFIED	\N	\N
+202	/resource/jconvert.properties	200	MODIFIED	\N	\N
+204	/src/com/edsdev/jconvert/logic/ConversionGapBuilder.java	203	MODIFIED	\N	\N
+206	/src/com/edsdev/jconvert/presentation/AboutDialog.java	205	MODIFIED	\N	\N
+208	/src/com/edsdev/jconvert/presentation/MainFrame.java	207	MODIFIED	\N	\N
+210	/resource/jconvert.properties	209	MODIFIED	\N	\N
+212	/website/howto.html	211	MODIFIED	\N	\N
+214	/.classpath	213	MODIFIED	\N	\N
+216	/src/com/edsdev/jconvert/util/JConvertSettingsProperties.java	215	ADDED	\N	\N
+217	/src/com/edsdev/jconvert/util/JConvertProperties.java	215	ADDED	\N	\N
+219	/src/com/edsdev/jconvert/util/ResourceManager.java	218	MODIFIED	\N	\N
+221	/src/com/edsdev/jconvert/presentation/AboutDialog.java	220	MODIFIED	\N	\N
+223	/src/com/edsdev/jconvert/presentation/AddCustomConversionDlg.java	222	MODIFIED	\N	\N
+225	/src/com/edsdev/jconvert/presentation/ConversionPanel.java	224	MODIFIED	\N	\N
+227	/src/com/edsdev/jconvert/presentation/MainFrame.java	226	MODIFIED	\N	\N
+229	/src/com/edsdev/jconvert/util/JConvertSettingsProperties.java	228	MODIFIED	\N	\N
+231	/src/com/edsdev/jconvert/util/ResourceManager.java	230	MODIFIED	\N	\N
+233	/resource/jconvert.properties	232	MODIFIED	\N	\N
+235	/resource/jcMessages.properties	234	ADDED	\N	\N
+237	/src/com/edsdev/jconvert/util/Messages.java	236	ADDED	\N	\N
+239	/src/com/edsdev/jconvert/util/JConvertSettingsProperties.java	238	MODIFIED	\N	\N
+241	/test/convert.dat	240	MODIFIED	\N	\N
+243	/website/style/blue.css	242	MODIFIED	\N	\N
+245	/website/howto.html	244	MODIFIED	\N	\N
+247	/src/com/edsdev/jconvert/util/Messages.java	246	MODIFIED	\N	\N
+249	/src/com/edsdev/jconvert/presentation/component/NumericalTextField.java	248	MODIFIED	\N	\N
+251	/src/com/edsdev/jconvert/domain/FractionalConversion.java	250	MODIFIED	\N	\N
+253	/build/releaseNotes.txt	252	ADDED	\N	\N
+255	/resource/convert.dat	254	MODIFIED	\N	\N
+257	/resource/jcMessages.properties	256	MODIFIED	\N	\N
+259	/build/releaseNotes.txt	258	MODIFIED	\N	\N
+261	/src/com/edsdev/jconvert/logic/ConversionGapBuilder.java	260	MODIFIED	\N	\N
+263	/test/com/edsdev/jconvert/test/ConversionTestCase.java	262	MODIFIED	\N	\N
+265	/test/com/edsdev/jconvert/test/DataLoaderTestCase.java	264	MODIFIED	\N	\N
+267	/src/com/edsdev/jconvert/util/JConvertSettingsProperties.java	266	MODIFIED	\N	\N
+269	/src/com/edsdev/jconvert/presentation/component/ConvertListCellRenderer.java	268	MODIFIED	\N	\N
+271	/src/com/edsdev/jconvert/presentation/AboutDialog.java	270	MODIFIED	\N	\N
+273	/src/com/edsdev/jconvert/presentation/AddCustomConversionDlg.java	272	MODIFIED	\N	\N
+275	/src/com/edsdev/jconvert/presentation/ConversionPanel.java	274	MODIFIED	\N	\N
+277	/src/com/edsdev/jconvert/presentation/ConversionUnitData.java	276	MODIFIED	\N	\N
+279	/src/com/edsdev/jconvert/presentation/MainFrame.java	278	MODIFIED	\N	\N
+281	/resource/jconvert.properties	280	MODIFIED	\N	\N
+283	/resource/convert.dat	282	MODIFIED	\N	\N
+285	/resource/jcMessages.properties	284	MODIFIED	\N	\N
+287	/src/com/edsdev/jconvert/presentation/MainFrame.java	286	MODIFIED	\N	\N
+289	/test/convert.dat	288	MODIFIED	\N	\N
+291	/resource/jcMessages_es.properties	290	ADDED	\N	\N
+292	/resource/jcMessages_fr.properties	290	ADDED	\N	\N
+294	/build/releaseNotes.txt	293	MODIFIED	\N	\N
+296	/resource/convert.dat	295	MODIFIED	\N	\N
+298	/resource/jcMessages_es.properties	297	MODIFIED	\N	\N
+300	/src/com/edsdev/jconvert/presentation/MainFrame.java	299	MODIFIED	\N	\N
+302	/build/releaseNotes.txt	301	MODIFIED	\N	\N
+304	/resource/convert.dat	303	MODIFIED	\N	\N
+306	/resource/jcMessages.properties	305	MODIFIED	\N	\N
+308	/resource/jconvert.properties	307	MODIFIED	\N	\N
+310	/src/com/edsdev/jconvert/persistence/DataLoader.java	309	MODIFIED	\N	\N
+312	/website/howto.html	311	MODIFIED	\N	\N
+313	/website/index.html	311	MODIFIED	\N	\N
+315	/build/build.xml	314	MODIFIED	\N	\N
+317	/resource/jcMessages_ru.properties	316	ADDED	\N	\N
+319	/src/com/edsdev/jconvert/logic/ConversionGapBuilder.java	318	MODIFIED	\N	\N
+321	/src/com/edsdev/jconvert/persistence/DataLoader.java	320	MODIFIED	\N	\N
+323	/src/com/edsdev/jconvert/presentation/AboutDialog.java	322	MODIFIED	\N	\N
+325	/src/com/edsdev/jconvert/presentation/AddCustomConversionDlg.java	324	MODIFIED	\N	\N
+327	/src/com/edsdev/jconvert/presentation/ConversionPanel.java	326	MODIFIED	\N	\N
+329	/src/com/edsdev/jconvert/presentation/ConversionTypeData.java	328	MODIFIED	\N	\N
+331	/src/com/edsdev/jconvert/presentation/SettingsDlg.java	330	ADDED	\N	\N
+333	/src/com/edsdev/jconvert/presentation/UpgradeVersionChecker.java	332	ADDED	\N	\N
+335	/src/com/edsdev/jconvert/presentation/component/VisibleTabsListCellRenderer.java	334	ADDED	\N	\N
+337	/src/com/edsdev/jconvert/util/ByteBuffer.java	336	ADDED	\N	\N
+338	/src/com/edsdev/jconvert/util/Http.java	336	ADDED	\N	\N
+340	/src/com/edsdev/jconvert/util/JConvertProperties.java	339	MODIFIED	\N	\N
+342	/src/com/edsdev/jconvert/util/JConvertSettingsProperties.java	341	MODIFIED	\N	\N
+344	/test/com/edsdev/jconvert/test/DataLoaderTestCase.java	343	MODIFIED	\N	\N
+345	/test/com/edsdev/jconvert/test/ConversionTestCase.java	343	MODIFIED	\N	\N
+347	/website/index.html	346	MODIFIED	\N	\N
+349	/src/com/edsdev/jconvert/util/Messages.java	348	MODIFIED	\N	\N
+351	/src/com/edsdev/jconvert/presentation/UpgradeVersionChecker.java	350	MODIFIED	\N	\N
+353	/src/com/edsdev/jconvert/presentation/MainFrame.java	352	MODIFIED	\N	\N
+355	/resource/jcMessages_ru.properties	354	MODIFIED	\N	\N
+356	/resource/jcMessages_es.properties	354	MODIFIED	\N	\N
+357	/resource/jcMessages_fr.properties	354	MODIFIED	\N	\N
+359	/resource/jcMessages.properties	358	MODIFIED	\N	\N
+361	/src/com/edsdev/jconvert/presentation/UpgradeVersionChecker.java	360	MODIFIED	\N	\N
+363	/build/build.xml	362	MODIFIED	\N	\N
+365	/build/build.xml	364	MODIFIED	\N	\N
+367	/website/howto.html	366	MODIFIED	\N	\N
+368	/website/index.html	366	MODIFIED	\N	\N
+370	/resource/jcMessages.properties	369	MODIFIED	\N	\N
+371	/resource/jconvert.properties	369	MODIFIED	\N	\N
+372	/resource/jcMessages_ru.properties	369	MODIFIED	\N	\N
+373	/resource/jcMessages_es.properties	369	MODIFIED	\N	\N
+374	/resource/jcMessages_fr.properties	369	MODIFIED	\N	\N
+376	/src/com/edsdev/jconvert/presentation/SettingsDlg.java	375	MODIFIED	\N	\N
+378	/build/releaseNotes.txt	377	MODIFIED	\N	\N
+380	/resource/jconvert.properties	379	MODIFIED	\N	\N
+382	/build/build.xml	381	MODIFIED	\N	\N
+383	/build/build.properties	381	MODIFIED	\N	\N
+385	/src/com/edsdev/jconvert/domain/FractionalConversion.java	384	MODIFIED	\N	\N
+386	/src/com/edsdev/jconvert/domain/DecimalConversion.java	384	MODIFIED	\N	\N
+388	/src/com/edsdev/jconvert/persistence/DataLoader.java	387	MODIFIED	\N	\N
+390	/src/com/edsdev/jconvert/presentation/ConversionsChangedListener.java	389	MODIFIED	\N	\N
+391	/src/com/edsdev/jconvert/presentation/ConversionUnitData.java	389	MODIFIED	\N	\N
+392	/src/com/edsdev/jconvert/presentation/MainFrame.java	389	MODIFIED	\N	\N
+393	/src/com/edsdev/jconvert/presentation/AboutDialog.java	389	MODIFIED	\N	\N
+395	/src/com/edsdev/jconvert/presentation/component/NumericalTextField.java	394	MODIFIED	\N	\N
+396	/src/com/edsdev/jconvert/presentation/component/ConvertListCellRenderer.java	394	MODIFIED	\N	\N
+397	/src/com/edsdev/jconvert/presentation/component/ConvertListModel.java	394	MODIFIED	\N	\N
+398	/src/com/edsdev/jconvert/presentation/component/BaseTextField.java	394	MODIFIED	\N	\N
+400	/src/com/edsdev/jconvert/util/JConvertSettingsProperties.java	399	MODIFIED	\N	\N
+402	/src/com/edsdev/jconvert/util/Http.java	401	MODIFIED	\N	\N
+403	/src/com/edsdev/jconvert/util/Browser.java	401	MODIFIED	\N	\N
+404	/src/com/edsdev/jconvert/util/Messages.java	401	MODIFIED	\N	\N
+405	/src/com/edsdev/jconvert/util/ResourceManager.java	401	MODIFIED	\N	\N
+406	/src/com/edsdev/jconvert/util/JConvertProperties.java	401	MODIFIED	\N	\N
+408	/test/com/edsdev/jconvert/test/TestList.java	407	MODIFIED	\N	\N
+409	/test/com/edsdev/jconvert/test/DataLoaderTestCase.java	407	MODIFIED	\N	\N
+410	/test/com/edsdev/jconvert/test/ConversionTestCase.java	407	MODIFIED	\N	\N
+412	/website/howto.html	411	MODIFIED	\N	\N
+414	/build/build.properties	413	MODIFIED	\N	\N
+416	/test/com/edsdev/jconvert/test/InternationalizeTestCase.java	415	ADDED	\N	\N
+418	/build/build.xml	417	MODIFIED	\N	\N
+420	/src/com/edsdev/jconvert/util/JConvertSettingsProperties.java	419	MODIFIED	\N	\N
+422	/src/com/edsdev/jconvert/util/Logger.java	421	MODIFIED	\N	\N
+424	/src/com/edsdev/jconvert/logic/ConversionGapBuilder.java	423	MODIFIED	\N	\N
+426	/website/index.html	425	MODIFIED	\N	\N
 \.
 
 
@@ -1120,154 +1256,154 @@ COPY project_file_measurement (project_file_measurement_id, metric_id, project_f
 -- Data for Name: project_version; Type: TABLE DATA; Schema: public; Owner: alitheia
 --
 
-COPY project_version (project_version_id, stored_project_id, version, "timestamp") FROM stdin;
-17	10	1	1184808175
-19	10	2	1184808391
-69	10	3	1184896508
-71	10	4	1185846431
-73	10	5	1185846677
-75	10	6	1185847966
-77	10	7	1185848876
-79	10	8	1186094655
-81	10	9	1186099467
-84	10	10	1186099690
-86	10	11	1186099749
-88	10	12	1186099850
-90	10	13	1186100112
-92	10	14	1186100665
-94	10	15	1186100717
-96	10	16	1186100754
-98	10	17	1186100792
-100	10	18	1186359884
-136	10	19	1186456532
-138	10	20	1186533534
-140	10	21	1186534227
-143	10	22	1186534451
-147	10	23	1186539311
-149	10	24	1186539363
-151	10	25	1186539734
-153	10	26	1186539766
-155	10	27	1186541493
-158	10	28	1187132084
-160	10	29	1187132114
-162	10	30	1187312221
-164	10	31	1187312265
-166	10	32	1187312330
-168	10	33	1187314249
-170	10	34	1187314462
-172	10	35	1187314507
-174	10	36	1187317190
-176	10	37	1187318289
-179	10	38	1189559459
-181	10	39	1189559512
-183	10	40	1189559564
-185	10	41	1189559982
-187	10	42	1189560017
-189	10	43	1189560079
-191	10	44	1189560131
-193	10	45	1190072009
-195	10	46	1190072044
-197	10	47	1190072120
-200	10	48	1190075661
-203	10	49	1190076131
-205	10	50	1190076190
-207	10	51	1190076332
-209	10	52	1190078474
-211	10	53	1190414559
-213	10	54	1190414581
-215	10	55	1190416870
-218	10	56	1190417036
-220	10	57	1190417082
-222	10	58	1190417179
-224	10	59	1190417229
-226	10	60	1190417273
-228	10	61	1190418800
-230	10	62	1190418827
-232	10	63	1190425775
-234	10	64	1190943025
-236	10	65	1190943083
-238	10	66	1190943510
-240	10	67	1191540219
-242	10	68	1191540300
-244	10	69	1191540352
-246	10	70	1191540408
-248	10	71	1191540508
-250	10	72	1191540547
-252	10	73	1191540573
-254	10	74	1191541180
-256	10	75	1191541270
-258	10	76	1191635764
-260	10	77	1191635868
-262	10	78	1191635917
-264	10	79	1191635939
-266	10	80	1191636005
-268	10	81	1191636092
-270	10	82	1191636167
-272	10	83	1191636218
-274	10	84	1191636290
-276	10	85	1191636327
-278	10	86	1191636423
-280	10	87	1192237781
-282	10	88	1192238274
-284	10	89	1192238353
-286	10	90	1192238414
-288	10	91	1192238442
-290	10	92	1192238469
-293	10	93	1192238494
-295	10	94	1192752013
-297	10	95	1192752113
-299	10	96	1192752205
-301	10	97	1193356827
-303	10	98	1193357165
-305	10	99	1193357202
-307	10	100	1193357332
-309	10	101	1193357483
-311	10	102	1193357846
-314	10	103	1194050464
-316	10	104	1194051211
-318	10	105	1194051355
-320	10	106	1194051425
-322	10	107	1194051466
-324	10	108	1194051607
-326	10	109	1194051697
-328	10	110	1194051838
-330	10	111	1194052205
-332	10	112	1194052234
-334	10	113	1194052274
-336	10	114	1194052326
-339	10	115	1194052356
-341	10	116	1194052388
-343	10	117	1194052430
-346	10	118	1194052451
-348	10	119	1194126336
-350	10	120	1194126454
-352	10	121	1194127288
-354	10	122	1194130602
-358	10	123	1194131618
-360	10	124	1194131644
-362	10	125	1194304793
-364	10	126	1194305327
-366	10	127	1194309082
-369	10	128	1194309798
-375	10	129	1194309826
-377	10	130	1194309886
-379	10	131	1194311367
-381	10	132	1194482213
-384	10	133	1194482312
-387	10	134	1194482357
-389	10	135	1194482416
-394	10	136	1194482478
-399	10	137	1194482577
-401	10	138	1194482635
-407	10	139	1194482672
-411	10	140	1194482760
-413	10	141	1194915549
-415	10	142	1194915583
-417	10	143	1194915616
-419	10	144	1194916469
-421	10	145	1194916815
-423	10	146	1194916856
-425	10	147	1196483247
+COPY project_version (project_version_id, stored_project_id, version, "timestamp", committer_id, commit_message, properties) FROM stdin;
+17	10	1	1184808175	\N	\N	\N
+19	10	2	1184808391	\N	\N	\N
+69	10	3	1184896508	\N	\N	\N
+71	10	4	1185846431	\N	\N	\N
+73	10	5	1185846677	\N	\N	\N
+75	10	6	1185847966	\N	\N	\N
+77	10	7	1185848876	\N	\N	\N
+79	10	8	1186094655	\N	\N	\N
+81	10	9	1186099467	\N	\N	\N
+84	10	10	1186099690	\N	\N	\N
+86	10	11	1186099749	\N	\N	\N
+88	10	12	1186099850	\N	\N	\N
+90	10	13	1186100112	\N	\N	\N
+92	10	14	1186100665	\N	\N	\N
+94	10	15	1186100717	\N	\N	\N
+96	10	16	1186100754	\N	\N	\N
+98	10	17	1186100792	\N	\N	\N
+100	10	18	1186359884	\N	\N	\N
+136	10	19	1186456532	\N	\N	\N
+138	10	20	1186533534	\N	\N	\N
+140	10	21	1186534227	\N	\N	\N
+143	10	22	1186534451	\N	\N	\N
+147	10	23	1186539311	\N	\N	\N
+149	10	24	1186539363	\N	\N	\N
+151	10	25	1186539734	\N	\N	\N
+153	10	26	1186539766	\N	\N	\N
+155	10	27	1186541493	\N	\N	\N
+158	10	28	1187132084	\N	\N	\N
+160	10	29	1187132114	\N	\N	\N
+162	10	30	1187312221	\N	\N	\N
+164	10	31	1187312265	\N	\N	\N
+166	10	32	1187312330	\N	\N	\N
+168	10	33	1187314249	\N	\N	\N
+170	10	34	1187314462	\N	\N	\N
+172	10	35	1187314507	\N	\N	\N
+174	10	36	1187317190	\N	\N	\N
+176	10	37	1187318289	\N	\N	\N
+179	10	38	1189559459	\N	\N	\N
+181	10	39	1189559512	\N	\N	\N
+183	10	40	1189559564	\N	\N	\N
+185	10	41	1189559982	\N	\N	\N
+187	10	42	1189560017	\N	\N	\N
+189	10	43	1189560079	\N	\N	\N
+191	10	44	1189560131	\N	\N	\N
+193	10	45	1190072009	\N	\N	\N
+195	10	46	1190072044	\N	\N	\N
+197	10	47	1190072120	\N	\N	\N
+200	10	48	1190075661	\N	\N	\N
+203	10	49	1190076131	\N	\N	\N
+205	10	50	1190076190	\N	\N	\N
+207	10	51	1190076332	\N	\N	\N
+209	10	52	1190078474	\N	\N	\N
+211	10	53	1190414559	\N	\N	\N
+213	10	54	1190414581	\N	\N	\N
+215	10	55	1190416870	\N	\N	\N
+218	10	56	1190417036	\N	\N	\N
+220	10	57	1190417082	\N	\N	\N
+222	10	58	1190417179	\N	\N	\N
+224	10	59	1190417229	\N	\N	\N
+226	10	60	1190417273	\N	\N	\N
+228	10	61	1190418800	\N	\N	\N
+230	10	62	1190418827	\N	\N	\N
+232	10	63	1190425775	\N	\N	\N
+234	10	64	1190943025	\N	\N	\N
+236	10	65	1190943083	\N	\N	\N
+238	10	66	1190943510	\N	\N	\N
+240	10	67	1191540219	\N	\N	\N
+242	10	68	1191540300	\N	\N	\N
+244	10	69	1191540352	\N	\N	\N
+246	10	70	1191540408	\N	\N	\N
+248	10	71	1191540508	\N	\N	\N
+250	10	72	1191540547	\N	\N	\N
+252	10	73	1191540573	\N	\N	\N
+254	10	74	1191541180	\N	\N	\N
+256	10	75	1191541270	\N	\N	\N
+258	10	76	1191635764	\N	\N	\N
+260	10	77	1191635868	\N	\N	\N
+262	10	78	1191635917	\N	\N	\N
+264	10	79	1191635939	\N	\N	\N
+266	10	80	1191636005	\N	\N	\N
+268	10	81	1191636092	\N	\N	\N
+270	10	82	1191636167	\N	\N	\N
+272	10	83	1191636218	\N	\N	\N
+274	10	84	1191636290	\N	\N	\N
+276	10	85	1191636327	\N	\N	\N
+278	10	86	1191636423	\N	\N	\N
+280	10	87	1192237781	\N	\N	\N
+282	10	88	1192238274	\N	\N	\N
+284	10	89	1192238353	\N	\N	\N
+286	10	90	1192238414	\N	\N	\N
+288	10	91	1192238442	\N	\N	\N
+290	10	92	1192238469	\N	\N	\N
+293	10	93	1192238494	\N	\N	\N
+295	10	94	1192752013	\N	\N	\N
+297	10	95	1192752113	\N	\N	\N
+299	10	96	1192752205	\N	\N	\N
+301	10	97	1193356827	\N	\N	\N
+303	10	98	1193357165	\N	\N	\N
+305	10	99	1193357202	\N	\N	\N
+307	10	100	1193357332	\N	\N	\N
+309	10	101	1193357483	\N	\N	\N
+311	10	102	1193357846	\N	\N	\N
+314	10	103	1194050464	\N	\N	\N
+316	10	104	1194051211	\N	\N	\N
+318	10	105	1194051355	\N	\N	\N
+320	10	106	1194051425	\N	\N	\N
+322	10	107	1194051466	\N	\N	\N
+324	10	108	1194051607	\N	\N	\N
+326	10	109	1194051697	\N	\N	\N
+328	10	110	1194051838	\N	\N	\N
+330	10	111	1194052205	\N	\N	\N
+332	10	112	1194052234	\N	\N	\N
+334	10	113	1194052274	\N	\N	\N
+336	10	114	1194052326	\N	\N	\N
+339	10	115	1194052356	\N	\N	\N
+341	10	116	1194052388	\N	\N	\N
+343	10	117	1194052430	\N	\N	\N
+346	10	118	1194052451	\N	\N	\N
+348	10	119	1194126336	\N	\N	\N
+350	10	120	1194126454	\N	\N	\N
+352	10	121	1194127288	\N	\N	\N
+354	10	122	1194130602	\N	\N	\N
+358	10	123	1194131618	\N	\N	\N
+360	10	124	1194131644	\N	\N	\N
+362	10	125	1194304793	\N	\N	\N
+364	10	126	1194305327	\N	\N	\N
+366	10	127	1194309082	\N	\N	\N
+369	10	128	1194309798	\N	\N	\N
+375	10	129	1194309826	\N	\N	\N
+377	10	130	1194309886	\N	\N	\N
+379	10	131	1194311367	\N	\N	\N
+381	10	132	1194482213	\N	\N	\N
+384	10	133	1194482312	\N	\N	\N
+387	10	134	1194482357	\N	\N	\N
+389	10	135	1194482416	\N	\N	\N
+394	10	136	1194482478	\N	\N	\N
+399	10	137	1194482577	\N	\N	\N
+401	10	138	1194482635	\N	\N	\N
+407	10	139	1194482672	\N	\N	\N
+411	10	140	1194482760	\N	\N	\N
+413	10	141	1194915549	\N	\N	\N
+415	10	142	1194915583	\N	\N	\N
+417	10	143	1194915616	\N	\N	\N
+419	10	144	1194916469	\N	\N	\N
+421	10	145	1194916815	\N	\N	\N
+423	10	146	1194916856	\N	\N	\N
+425	10	147	1196483247	\N	\N	\N
 \.
 
 
@@ -1276,6 +1412,10 @@ COPY project_version (project_version_id, stored_project_id, version, "timestamp
 --
 
 COPY project_version_measurement (project_version_measurement_id, metric_id, project_version_id, when_run, result) FROM stdin;
+1	3	425	2008-05-05 10:23:54	1337
+2	698	425	2008-05-05 10:23:54	1337
+3	3	423	2008-05-05 10:23:54	2048
+4	3	421	\N	\N
 \.
 
 
@@ -1284,6 +1424,16 @@ COPY project_version_measurement (project_version_measurement_id, metric_id, pro
 --
 
 COPY sender (sender_id, sender_email) FROM stdin;
+\.
+
+
+--
+-- Data for Name: service_url; Type: TABLE DATA; Schema: public; Owner: alitheia
+--
+
+COPY service_url (service_url_id, url) FROM stdin;
+1	svc://sqooss
+694	svc://sqooss.security
 \.
 
 
@@ -1300,7 +1450,7 @@ COPY stored_project (project_id, project_name, website_url, contact_url, bts_url
 -- Data for Name: tag; Type: TABLE DATA; Schema: public; Owner: alitheia
 --
 
-COPY tag (tag_id, tag_name) FROM stdin;
+COPY tag (tag_id, tag_name, tag_version) FROM stdin;
 \.
 
 
@@ -1308,10 +1458,10 @@ COPY tag (tag_id, tag_name) FROM stdin;
 -- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: alitheia
 --
 
-COPY users (user_id, name, registered, last_activity, "password", email) FROM stdin;
-1	'Fluffy Bunny'	1970-01-01 00:00:00	2008-01-14 00:00:00	carrot	bunny@kde.org
-2	'Adriaan Bunny'	2008-01-01 00:00:00	2008-02-14 00:00:00	celery	bynny@example.com
-3	alitheia	2008-01-01 00:00:00	2008-02-14 00:00:00	aa055fc92ac0e92be352a5a27bb5eacca8bf1b10cb22496f4dc4315b963eeaaa	NA
+COPY users (user_id, name, registered, last_activity, password, email) FROM stdin;
+3	alitheia	2008-01-01 00:00:00	2008-05-08 12:46:17.942	aa055fc92ac0e92be352a5a27bb5eacca8bf1b10cb22496f4dc4315b963eeaaa	NA
+1	Fluffy Bunny	1970-01-01 00:00:00	2008-05-05 18:50:24.692	carrot	bunny@kde.org
+2	Adriaan Bunny	2008-01-01 00:00:00	2008-02-14 00:00:00	celery	bynny@example.com
 \.
 
 
@@ -1353,6 +1503,54 @@ ALTER TABLE ONLY commits
 
 ALTER TABLE ONLY committer
     ADD CONSTRAINT committer_pkey PRIMARY KEY (committer_id);
+
+
+--
+-- Name: developer_email_key; Type: CONSTRAINT; Schema: public; Owner: alitheia; Tablespace: 
+--
+
+ALTER TABLE ONLY developer
+    ADD CONSTRAINT developer_email_key UNIQUE (email);
+
+
+--
+-- Name: developer_pkey; Type: CONSTRAINT; Schema: public; Owner: alitheia; Tablespace: 
+--
+
+ALTER TABLE ONLY developer
+    ADD CONSTRAINT developer_pkey PRIMARY KEY (developer_id);
+
+
+--
+-- Name: developer_username_key; Type: CONSTRAINT; Schema: public; Owner: alitheia; Tablespace: 
+--
+
+ALTER TABLE ONLY developer
+    ADD CONSTRAINT developer_username_key UNIQUE (username, stored_project_id);
+
+
+--
+-- Name: directory_path_key; Type: CONSTRAINT; Schema: public; Owner: alitheia; Tablespace: 
+--
+
+ALTER TABLE ONLY directory
+    ADD CONSTRAINT directory_path_key UNIQUE (path);
+
+
+--
+-- Name: directory_pkey; Type: CONSTRAINT; Schema: public; Owner: alitheia; Tablespace: 
+--
+
+ALTER TABLE ONLY directory
+    ADD CONSTRAINT directory_pkey PRIMARY KEY (directory_id);
+
+
+--
+-- Name: evaluation_mark_pkey; Type: CONSTRAINT; Schema: public; Owner: alitheia; Tablespace: 
+--
+
+ALTER TABLE ONLY evaluation_mark
+    ADD CONSTRAINT evaluation_mark_pkey PRIMARY KEY (evaluation_mark_id);
 
 
 --
@@ -1412,6 +1610,14 @@ ALTER TABLE ONLY mailmessage
 
 
 --
+-- Name: metric_mnemonic_key; Type: CONSTRAINT; Schema: public; Owner: alitheia; Tablespace: 
+--
+
+ALTER TABLE ONLY metric
+    ADD CONSTRAINT metric_mnemonic_key UNIQUE (mnemonic);
+
+
+--
 -- Name: metric_pkey; Type: CONSTRAINT; Schema: public; Owner: alitheia; Tablespace: 
 --
 
@@ -1425,6 +1631,30 @@ ALTER TABLE ONLY metric
 
 ALTER TABLE ONLY metric_type
     ADD CONSTRAINT metric_type_pkey PRIMARY KEY (metric_type_id);
+
+
+--
+-- Name: pending_user_pkey; Type: CONSTRAINT; Schema: public; Owner: alitheia; Tablespace: 
+--
+
+ALTER TABLE ONLY pending_user
+    ADD CONSTRAINT pending_user_pkey PRIMARY KEY (user_id);
+
+
+--
+-- Name: plugin_configuration_pkey; Type: CONSTRAINT; Schema: public; Owner: alitheia; Tablespace: 
+--
+
+ALTER TABLE ONLY plugin_configuration
+    ADD CONSTRAINT plugin_configuration_pkey PRIMARY KEY (plugin_configuration_id);
+
+
+--
+-- Name: plugin_hashcode_key; Type: CONSTRAINT; Schema: public; Owner: alitheia; Tablespace: 
+--
+
+ALTER TABLE ONLY plugin
+    ADD CONSTRAINT plugin_hashcode_key UNIQUE (hashcode);
 
 
 --
@@ -1532,11 +1762,35 @@ ALTER TABLE ONLY users
 
 
 --
+-- Name: fk10254c0aa1067; Type: FK CONSTRAINT; Schema: public; Owner: alitheia
+--
+
+ALTER TABLE ONLY bug
+    ADD CONSTRAINT fk10254c0aa1067 FOREIGN KEY (commit_id) REFERENCES project_version(project_version_id);
+
+
+--
 -- Name: fk10254d40f631f; Type: FK CONSTRAINT; Schema: public; Owner: alitheia
 --
 
 ALTER TABLE ONLY bug
     ADD CONSTRAINT fk10254d40f631f FOREIGN KEY (commit_id) REFERENCES commits(commit_id);
+
+
+--
+-- Name: fk1437a6a0db077; Type: FK CONSTRAINT; Schema: public; Owner: alitheia
+--
+
+ALTER TABLE ONLY tag
+    ADD CONSTRAINT fk1437a6a0db077 FOREIGN KEY (tag_version) REFERENCES project_version(project_version_id);
+
+
+--
+-- Name: fk30970127795008d3; Type: FK CONSTRAINT; Schema: public; Owner: alitheia
+--
+
+ALTER TABLE ONLY bug_report_message
+    ADD CONSTRAINT fk30970127795008d3 FOREIGN KEY (bug_reporter_id) REFERENCES developer(developer_id);
 
 
 --
@@ -1553,6 +1807,14 @@ ALTER TABLE ONLY bug_report_message
 
 ALTER TABLE ONLY bug_report_message
     ADD CONSTRAINT fk30970127da059be FOREIGN KEY (bug_reporter_id) REFERENCES bug_reporter(bug_reporter_id);
+
+
+--
+-- Name: fk51830250179a144a; Type: FK CONSTRAINT; Schema: public; Owner: alitheia
+--
+
+ALTER TABLE ONLY mailmessage
+    ADD CONSTRAINT fk51830250179a144a FOREIGN KEY (sender_id) REFERENCES developer(developer_id);
 
 
 --
@@ -1604,6 +1866,14 @@ ALTER TABLE ONLY group_user
 
 
 --
+-- Name: fk72a307aac3822bae; Type: FK CONSTRAINT; Schema: public; Owner: alitheia
+--
+
+ALTER TABLE ONLY developer
+    ADD CONSTRAINT fk72a307aac3822bae FOREIGN KEY (stored_project_id) REFERENCES stored_project(project_id);
+
+
+--
 -- Name: fk8758e9b0a94ea7b8; Type: FK CONSTRAINT; Schema: public; Owner: alitheia
 --
 
@@ -1617,6 +1887,22 @@ ALTER TABLE ONLY metric
 
 ALTER TABLE ONLY metric
     ADD CONSTRAINT fk8758e9b0d6dfd19f FOREIGN KEY (plugin_id) REFERENCES plugin(plugin_id);
+
+
+--
+-- Name: fk8a6b69f01b42e47f; Type: FK CONSTRAINT; Schema: public; Owner: alitheia
+--
+
+ALTER TABLE ONLY evaluation_mark
+    ADD CONSTRAINT fk8a6b69f01b42e47f FOREIGN KEY (metric_id) REFERENCES metric(metric_id);
+
+
+--
+-- Name: fk8a6b69f0c3822bae; Type: FK CONSTRAINT; Schema: public; Owner: alitheia
+--
+
+ALTER TABLE ONLY evaluation_mark
+    ADD CONSTRAINT fk8a6b69f0c3822bae FOREIGN KEY (stored_project_id) REFERENCES stored_project(project_id);
 
 
 --
@@ -1652,6 +1938,14 @@ ALTER TABLE ONLY privilege_value
 
 
 --
+-- Name: fkc3dc430224543bb5; Type: FK CONSTRAINT; Schema: public; Owner: alitheia
+--
+
+ALTER TABLE ONLY project_file
+    ADD CONSTRAINT fkc3dc430224543bb5 FOREIGN KEY (directory_id) REFERENCES directory(directory_id);
+
+
+--
 -- Name: fkc3dc4302f6aebe0c; Type: FK CONSTRAINT; Schema: public; Owner: alitheia
 --
 
@@ -1660,11 +1954,27 @@ ALTER TABLE ONLY project_file
 
 
 --
+-- Name: fkc5061d722258bad5; Type: FK CONSTRAINT; Schema: public; Owner: alitheia
+--
+
+ALTER TABLE ONLY project_version
+    ADD CONSTRAINT fkc5061d722258bad5 FOREIGN KEY (committer_id) REFERENCES developer(developer_id);
+
+
+--
 -- Name: fkc5061d72c3822bae; Type: FK CONSTRAINT; Schema: public; Owner: alitheia
 --
 
 ALTER TABLE ONLY project_version
     ADD CONSTRAINT fkc5061d72c3822bae FOREIGN KEY (stored_project_id) REFERENCES stored_project(project_id);
+
+
+--
+-- Name: fkc666accad6dfd19f; Type: FK CONSTRAINT; Schema: public; Owner: alitheia
+--
+
+ALTER TABLE ONLY plugin_configuration
+    ADD CONSTRAINT fkc666accad6dfd19f FOREIGN KEY (plugin_id) REFERENCES plugin(plugin_id);
 
 
 --
@@ -1708,11 +2018,12 @@ ALTER TABLE ONLY project_file_measurement
 
 
 --
--- Name: public; Type: ACL; Schema: -; Owner: alitheia
+-- Name: public; Type: ACL; Schema: -; Owner: postgres
 --
 
 REVOKE ALL ON SCHEMA public FROM PUBLIC;
-REVOKE ALL ON SCHEMA public FROM alitheia;
+REVOKE ALL ON SCHEMA public FROM postgres;
+GRANT ALL ON SCHEMA public TO postgres;
 GRANT ALL ON SCHEMA public TO alitheia;
 GRANT ALL ON SCHEMA public TO PUBLIC;
 
