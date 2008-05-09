@@ -48,7 +48,7 @@ public class ProjectsListView extends ListView {
     private Project currentProject;
 
     // Projects cache and number
-    Vector<Project> currentProjects = null;
+    Vector<Project> projects = null;
     private long totalProjects = 0;
 
     public ProjectsListView () {
@@ -109,17 +109,17 @@ public class ProjectsListView extends ListView {
 
     public void retrieveData (Terrier terrier) {
         this.terrier = terrier;
-        currentProjects = terrier.getEvaluatedProjects();
-        totalProjects = currentProjects.size();
+        projects = terrier.getEvaluatedProjects();
+        totalProjects = projects.size();
     }
 
     public String getHtml() {
         StringBuilder html = new StringBuilder();
-        if (currentProjects != null) {
-            if (currentProjects.size() > 0) {
+        if (projects != null) {
+            if (projects.size() > 0) {
                 html.append("\n<!-- Projects -->");
                 html.append("\n<ul class=\"projectslist\">");
-                for (Project p: currentProjects) {
+                for (Project p: projects) {
                     html.append(
                             "\n\t<li>"
                             + "<a href=\"?pid=" + p.getId() + "\">"
@@ -148,8 +148,8 @@ public class ProjectsListView extends ListView {
 
         for (int i = 0; (i<13) && (i<totalProjects); ++i) {
             int j = r.nextInt((int)totalProjects);
-            if (!v.contains(currentProjects.elementAt(j))) {
-                v.add(currentProjects.elementAt(j));
+            if (!v.contains(projects.elementAt(j))) {
+                v.add(projects.elementAt(j));
             }
         }
 

@@ -298,7 +298,7 @@ public class Terrier {
             WSMetric[] metrics =
                 connection.getMetricAccessor().getMetricsByProjectId(projectId);
             for (WSMetric met : metrics) {
-                view.addMetric(new Metric(met));
+                view.addMetric(new Metric(met, this));
             }
         } catch (WSException e) {
             error = "Can not retrieve the list of metrics for this project.";
@@ -320,7 +320,7 @@ public class Terrier {
         try {
             WSMetric[] allMetrics = connection.getMetricAccessor().getMetrics();
             for (WSMetric wsMetric : allMetrics) {
-                metricTableView.addMetric(new Metric(wsMetric));
+                metricTableView.addMetric(new Metric(wsMetric, this));
             }
         } catch (WSException wse) {
             error = "Cannot retrieve the list of all metrics.";
