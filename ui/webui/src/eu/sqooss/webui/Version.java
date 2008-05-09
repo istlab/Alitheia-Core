@@ -108,6 +108,7 @@ public class Version {
     public void setFiles() {
         SortedMap<Long, File> files = new TreeMap<Long, File>();
         File fs[] = getFiles();
+        files.put(new Long(1337), new File(id, new Long(1337), "FakeFile.cpp", "FakeStatus", terrier));
         if (fs != null && fs.length > 0) {
             for (File f: fs) {
                 files.put(f.getId(), f);
@@ -126,11 +127,11 @@ public class Version {
             //if (files == null) {
             //    setFiles();
             //}
+            html.append("\n<ul");
             for (File f: files.values()) {
-                String s = "FF:" + f.getName() + f.getId();
-                terrier.addError(s);
-                html.append(s);
+                html.append("\n\t<li>" + f.getLink() + "</li>");
             }
+            html.append("\n</ul>");
             return html.toString();
         } catch (NullPointerException npe) {
             terrier.addError("No files to list");

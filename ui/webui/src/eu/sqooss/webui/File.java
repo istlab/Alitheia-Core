@@ -42,6 +42,7 @@ class File {
     private String status = "FILE_STATUS_UNSET";
     private Long versionId;
     private Long id;
+    private Terrier terrier;
 
     public File (WSProjectFile wsFile) {
         versionId = wsFile.getProjectVersion();
@@ -49,6 +50,15 @@ class File {
         status = wsFile.getStatus();
         id = wsFile.getId();
         // TODO: measurements (and metrics?)
+    }
+
+    public File(Long versionId, Long fileId, String name, String status, Terrier t) {
+        this.versionId = versionId;
+        this.name = name;
+        this.status = status;
+        this.id = fileId;
+        this.versionId = versionId;
+        this.terrier = t;
     }
 
     public Long getVersion () {
@@ -65,6 +75,10 @@ class File {
 
     public Long getId() {
         return id;
+    }
+
+    public String getLink() {
+        return "<a href=\"files.jsp?fid=" + id + "\">" + name + "</a>";
     }
 
     public String getHtml() {
