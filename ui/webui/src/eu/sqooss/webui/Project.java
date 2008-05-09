@@ -60,7 +60,7 @@ public class Project extends WebuiItem {
 
     // Contains a sorted list of all project versions mapped to their ID.
     private SortedMap<Long, Version> versions;
-    //private Terrier terrier;
+    private SortedMap<Long, File> files;
 
     public Project () {
 
@@ -107,16 +107,6 @@ public class Project extends WebuiItem {
 
     public String getRepository() {
         return repository;
-    }
-
-    /** Returns an HTML table with files in the current project version.
-     *
-     * @param versionId The ID field of the version
-     */
-    // FIXME: deprecated, this happens in Version, forward?
-    public String listFiles() {
-        //FileListView f = terrier.getFiles4ProjectVersion(currentVersionId);
-        return getCurrentVersion().listFiles();
     }
 
     public void setFileCount(Integer n) {
@@ -233,14 +223,11 @@ public class Project extends WebuiItem {
      */
     public void setVersions(SortedMap<Long, Long> vs) {
         Boolean changed = false;
-        Long i = new Long(1337);
         SortedMap<Long, Version> versions = new TreeMap<Long, Version>();
         for (Long vid: vs.values()) {
-            //Long vid = vs.get(k);
             Version v = terrier.getVersionById(id, vid); // This is horribly inefficient
             versions.put(vid, v);
             changed = true;
-            i++;
         }
         if (changed) {
             terrier.addError("Number of versions:" + versions.size());
@@ -269,16 +256,24 @@ public class Project extends WebuiItem {
     public int countVersions() {
         return versions.size();
     }
-/*
-    public Version getCurrentVersion() {
-        return versions.get(getCurrentVersionId());
-    }
-*/
+
     /**
      * Sets the specified version as selected version for this project
      * @param versionNumber the version number
      */
     public void setCurrentVersionId(Long versionNumber) {
         currentVersionId = versionNumber;
+    }
+
+    public SortedMap<Long, File> getFiles () {
+        Vector<File> fs = terrier.getFiles4Project(id);
+        SortedMap<Long, File> files = new TreeMap<Long, File>();
+        files.put(new Long(1337), new File(id, new Long(1337), "src/FakeFile.cpp", "FAKE_STATUS", terrier));
+        Iterator<File> filesIterator = fs.iterator();
+        while (filesIterator.hasNext()) {
+            File nextFile = filesIterator.next();
+            files.put(nextFile.getId(), nextFile);
+        }
+        return files;
     }
 }

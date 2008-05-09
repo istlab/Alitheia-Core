@@ -53,10 +53,7 @@ import eu.sqooss.ws.client.datatypes.WSProjectVersion;
 import eu.sqooss.ws.client.datatypes.WSStoredProject;
 import eu.sqooss.ws.client.datatypes.WSUser;
 
-import eu.sqooss.webui.User;
-import eu.sqooss.webui.File;
-import eu.sqooss.webui.Project;
-import eu.sqooss.webui.Version;
+import eu.sqooss.webui.*;
 
 
 
@@ -227,6 +224,36 @@ public class Terrier {
         return versions;
     }
 
+    /**
+     * Gets the list of all files for a project
+     *
+     * @return The list of versions in this project.
+     */
+    public Vector<File> getFiles4Project(Long projectId) {
+        Vector<File> files = new Vector<File>();
+        if (!connection.isConnected()) {
+            addError("Error: No Connection: " + connection.getError());
+            return files;
+        }
+        try {
+            // Retrieve evaluated projects only
+            WSProjectFile filesResult[] = connection.getProjectAccessor().getFilesByProjectId(projectId);
+            addError("#Files: " + filesResult.length);
+            for (WSProjectFile wspf : filesResult) {
+                File f = new File(wspf, this);
+                files.addElement(f);
+                addError("File added: " + f.getName());
+            }
+        } catch (WSException wse) {
+            addError("Cannot retrieve the list of files for project " + projectId + ".");
+            return files;
+        }
+        if ( files.size() == 0 ) {
+            addError("Zero files in project.");
+        }
+        return files;
+    }
+
     public Version getVersionById(Long projectId, Long versionId) {
         // FIXME: UGLY UGLY UGLY, performance--
         if (!connection.isConnected()) {
@@ -320,7 +347,7 @@ public class Terrier {
             try {
                 WSProjectFile[] files = connection.getProjectAccessor().getFilesByProjectVersionId(versionId);
                 for (WSProjectFile file : files) {
-                    view.addFile(new File(file));
+                    view.addFile(new File(file, this));
                 }
         } catch (NullPointerException e) {
             // Nevermind?
@@ -343,7 +370,7 @@ public class Terrier {
                 connection.getProjectAccessor().getFilesByProjectVersionId(versionId);
             addError("FILES:." + wsfiles.length);
             for (int i = 0; i < wsfiles.length; i++) {
-                files[i] = new File(wsfiles[i]);
+                files[i] = new File(wsfiles[i], this);
                 addError("File added." + versionId + files[i].getName());
             }
         } catch (WSException e) {

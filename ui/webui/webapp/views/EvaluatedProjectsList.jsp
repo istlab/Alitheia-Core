@@ -86,7 +86,12 @@ if (ProjectsListView.hasProjects()) {
             }
         }
 
-        out.println("<strong>Files:</strong><pre>" + selectedProject.getCurrentVersion().listFiles() + "</pre>");
+        out.println("<h3>Files in " + selectedProject.getName() + "</h3>");
+        out.println(selectedProject.listFiles());
+
+        out.println("<h3>Files in Version " + selectedProject.getCurrentVersionId() + "</h3>");
+        out.println(selectedProject.getCurrentVersion().listFiles());
+
         out.println("</div>"); // End of this group
         out.println("<div style=\"margin-bottom: 20px;\"></div>");
     }

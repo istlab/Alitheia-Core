@@ -84,9 +84,17 @@ public class Version extends WebuiItem {
         projectId = p;
     }
 
-    public File[] getFiles () {
+    public SortedMap<Long, File> getFiles () {
         File fs[] = terrier.getProjectVersionFiles(id);
-        return fs;
+        SortedMap<Long, File> files = new TreeMap<Long, File>();
+        if ( fs == null || fs.length == 0 ) {
+            files.put(new Long(1337), new File(id, new Long(1337), "src/FakeFile.cpp", "FAKE_STATUS", terrier));
+            return files;
+        }
+        for (File f: fs) {
+            files.put(f.getId(), f);
+        }
+        return files;
     }
 
     public String getHtml() {

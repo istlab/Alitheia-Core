@@ -44,11 +44,12 @@ class File {
     private Long id;
     private Terrier terrier;
 
-    public File (WSProjectFile wsFile) {
+    public File (WSProjectFile wsFile, Terrier t) {
         versionId = wsFile.getProjectVersion();
         name = wsFile.getFileName();
         status = wsFile.getStatus();
         id = wsFile.getId();
+        terrier = t;
         // TODO: measurements (and metrics?)
     }
 
