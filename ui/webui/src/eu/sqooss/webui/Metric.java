@@ -35,23 +35,20 @@ package eu.sqooss.webui;
 
 import eu.sqooss.ws.client.datatypes.WSMetric;
 
-class Metric {
+public class Metric extends WebuiItem {
 
-    private Long id;
     private String mnemonic;
     private String type;
     private String description;
 
-    public Metric (WSMetric metric) {
+    public Metric (WSMetric metric, Terrier t) {
         mnemonic    = metric.getMnemonic();
         id          = metric.getId();
         type        = metric.getMetricType().getType();
         description = metric.getDescription();
+        terrier     = t;
     }
 
-    public Long getId () {
-        return id;
-    }
 
     public String getMnemonic() {
         return mnemonic;

@@ -60,7 +60,6 @@ public class Project extends WebuiItem {
 
     // Contains a sorted list of all project versions mapped to their ID.
     private SortedMap<Long, Version> versions;
-    private SortedMap<Long, File> files;
 
     public Project () {
 

@@ -35,7 +35,7 @@ package eu.sqooss.webui;
 
 import eu.sqooss.ws.client.datatypes.WSProjectFile;
 
-class File {
+class File extends WebuiItem {
 
     private static final String COMMENT = "<!-- File -->\n";
     private String name = "FILE_NAME_UNSET";
