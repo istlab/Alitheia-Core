@@ -28,8 +28,8 @@ if (ProjectsListView.hasProjects()) {
     Project selectedProject = ProjectsListView.getCurrentProject();
     if (selectedProject != null) {
         out.println("<div id=\"selectedproject\" class=\"group\">");
-        out.println("<h1>" + selectedProject.getName() + "</h1>");
-        out.println("<span class=\"forget\"><a href=\"?pid=none\">(forget)</a></span>");
+        out.println("<h1>" + selectedProject.getName());
+        out.println("<span class=\"forget\"><a href=\"?pid=none\">(forget)</a></span></h1>");
 
         out.println(selectedProject.getInfo());
 
@@ -68,7 +68,8 @@ if (ProjectsListView.hasProjects()) {
                     out.println ("<br />Versions: "
                         + selectedProject.getFirstVersion().getId()
                         + " - "
-                        + selectedProject.getLastVersion().getId());
+                        + selectedProject.getLastVersion().getId()
+                        + " (" + selectedProject.countVersions() + " total)");
                 } else {
                     out.println ("<br />Version: "
                         + selectedProject.getFirstVersion());
@@ -77,9 +78,6 @@ if (ProjectsListView.hasProjects()) {
                 out.println("Project doesn't seem to have versions recorded.");
             }
             out.println (versionSelector(projectId, versionId));
-            out.println ("<br /><strong>Files:</strong> "
-                + terrier.getFilesNumber4ProjectVersion(versionId)
-                + " in version " + versionId + " (" + selectedProject.countVersions() + " total)");
             if (inputError != null) {
                 out.println(Functions.error(inputError));
             }
@@ -92,6 +90,8 @@ if (ProjectsListView.hasProjects()) {
         int v_c = selectedProject.getCurrentVersion().getFileCount();
         int p_c = selectedProject.getFileCount();
 
+        out.println ("<br /><h2>Files:</h2> "
+            + v_c + " in version " + selectedProject.getCurrentVersionId());
 
         out.println("\n<table width=\"100%\">\n\t<tr><td>");
 
