@@ -215,7 +215,7 @@ public class Terrier {
                 addError("Version added: " + v.getId());
             }
         } catch (WSException wse) {
-            addError("Cannot retrieve the list of versions for project " + projectId + ".");
+            addError("Cannot retrieve the list of versions for project " + projectId + ":" + wse.getMessage());
             return versions;
         }
         if ( versions.size() == 0 ) {
