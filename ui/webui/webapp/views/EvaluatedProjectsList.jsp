@@ -85,13 +85,26 @@ if (ProjectsListView.hasProjects()) {
             }
         }
 
-        out.println("<h3>Files in " + selectedProject.getName() + "</h3>");
-        out.println(selectedProject.listFiles());
-
-        out.println("<h3>Files in Version " + selectedProject.getCurrentVersionId() + "</h3>");
-        out.println(selectedProject.getCurrentVersion().listFiles());
-
         out.println(selectedProject.showMetrics());
+
+        String versionFileList = selectedProject.getCurrentVersion().listFiles();
+        String projectFileList = selectedProject.listFiles();
+        int v_c = selectedProject.getCurrentVersion().getFileCount();
+        int p_c = selectedProject.getFileCount();
+
+
+        out.println("\n<table width=\"100%\">\n\t<tr><td>");
+
+        out.println("<h3>Files in " + selectedProject.getName() + " (" + p_c + ")</h3>");
+        out.println(projectFileList);
+
+        out.println("\n\t\t</td><td>");
+
+        out.println("<h3>Files in Version " + selectedProject.getCurrentVersionId() + " (" + v_c + ")</h3>");
+        out.println(versionFileList);
+
+        out.println("\n\t\t</td>\n\t</tr>\n</table>");
+
         out.println("</div>"); // End of this group
         out.println("<div style=\"margin-bottom: 20px;\"></div>");
     }

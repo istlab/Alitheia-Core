@@ -53,7 +53,6 @@ public class Project extends WebuiItem {
     private String  mail;
     private String  contact;
     private String  website;
-    private Integer fileCount;
 
     // Contains the version number of the last selected version
     private Long currentVersionId;
@@ -106,10 +105,6 @@ public class Project extends WebuiItem {
 
     public String getRepository() {
         return repository;
-    }
-
-    public void setFileCount(Integer n) {
-        fileCount = n;
     }
 
     public String showVersions() {
@@ -286,6 +281,7 @@ public class Project extends WebuiItem {
             File nextFile = filesIterator.next();
             files.put(nextFile.getId(), nextFile);
         }
+        fileCount = files.size();
         return files;
     }
 }

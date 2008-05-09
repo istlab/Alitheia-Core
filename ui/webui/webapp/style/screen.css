@@ -307,7 +307,7 @@ td.number {
     color: Red;
 }
 #table tr.head {
-    background-color: LightSteelBlue;
+    background-color: #F3F3F3;
 }
 #table td.head {
     text-align: left;

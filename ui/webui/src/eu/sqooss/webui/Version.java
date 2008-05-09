@@ -89,11 +89,13 @@ public class Version extends WebuiItem {
         SortedMap<Long, File> files = new TreeMap<Long, File>();
         if ( fs == null || fs.length == 0 ) {
             files.put(new Long(1337), new File(id, new Long(1337), "src/FakeFile.cpp", "FAKE_STATUS", terrier));
+            fileCount = files.size();
             return files;
         }
         for (File f: fs) {
             files.put(f.getId(), f);
         }
+        fileCount = files.size();
         return files;
     }
 
