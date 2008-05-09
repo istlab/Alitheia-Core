@@ -130,7 +130,7 @@ public class Terrier {
             // Retrieve information about this project
             prj = new Project(connection.getProjectAccessor().getProjectById(projectId), this);
             // Retrieve all project versions
-            prj.setVersions(getProjectVersions(projectId));
+            prj.setVersions();
         } catch (WSException wse) {
             error = "Could not retrieve the project:" + wse.getMessage();
             return null;

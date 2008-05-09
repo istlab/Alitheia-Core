@@ -28,8 +28,7 @@ if (ProjectsListView.hasProjects()) {
     Project selectedProject = ProjectsListView.getCurrentProject();
     if (selectedProject != null) {
         out.println("<div id=\"selectedproject\" class=\"group\">");
-        out.println("Currently selected:");
-        out.println("<strong>" + selectedProject.getName() + "</strong>");
+        out.println("<h1>" + selectedProject.getName() + "</h1>");
         out.println("<span class=\"forget\"><a href=\"?pid=none\">(forget)</a></span>");
 
         out.println(selectedProject.getInfo());
