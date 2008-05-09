@@ -31,8 +31,10 @@ if (ProjectsListView.hasProjects()) {
         out.println("<h1>" + selectedProject.getName());
         out.println("<span class=\"forget\"><a href=\"?pid=none\">(forget)</a></span></h1>");
 
+        out.println("\n<h2>Project Metadata</h2>\n");
         out.println(selectedProject.getInfo());
 
+        out.println("\n<h2>Project Versions</h2>\n");
         // Display the number of files in the selected project version
         // TODO: The files number should be cached in the Project object,
         //       instead of calling the Terrier each time.
@@ -90,17 +92,17 @@ if (ProjectsListView.hasProjects()) {
         int v_c = selectedProject.getCurrentVersion().getFileCount();
         int p_c = selectedProject.getFileCount();
 
-        out.println ("<br /><h2>Files:</h2> "
-            + v_c + " in version " + selectedProject.getCurrentVersionId());
+        out.println ("<br /><h2>Files</h2> "
+            + v_c + " file(s) in version " + selectedProject.getCurrentVersionId());
 
         out.println("\n<table width=\"100%\">\n\t<tr><td>");
 
-        out.println("<h3>Files in " + selectedProject.getName() + " (" + p_c + ")</h3>");
+        out.println("<strong>Files in " + selectedProject.getName() + " (" + p_c + ")</strong>");
         out.println(projectFileList);
 
         out.println("\n\t\t</td><td>");
 
-        out.println("<h3>Files in Version " + selectedProject.getCurrentVersionId() + " (" + v_c + ")</h3>");
+        out.println("<strong>Files in Version " + selectedProject.getCurrentVersionId() + " (" + v_c + ")</strong>");
         out.println(versionFileList);
 
         out.println("\n\t\t</td>\n\t</tr>\n</table>");
