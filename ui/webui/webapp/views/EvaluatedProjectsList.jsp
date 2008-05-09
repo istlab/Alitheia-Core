@@ -92,6 +92,7 @@ if (ProjectsListView.hasProjects()) {
         out.println("<h3>Files in Version " + selectedProject.getCurrentVersionId() + "</h3>");
         out.println(selectedProject.getCurrentVersion().listFiles());
 
+        out.println(selectedProject.showMetrics());
         out.println("</div>"); // End of this group
         out.println("<div style=\"margin-bottom: 20px;\"></div>");
     }

@@ -156,6 +156,19 @@ public class Project extends WebuiItem {
         return html.toString();
     }
 
+    public String showMetrics() {
+        StringBuilder html = new StringBuilder();
+        html.append("<h2>Metrics for project " + getName() + "</h2>");
+        MetricsTableView metricsView = terrier.getMetrics4Project(id);
+        //metricsView = terrier.getAllMetrics();
+        if (metricsView != null ) {
+            html.append(metricsView.getHtml());
+        } else {
+            html.append(terrier.getError());
+        }
+        return html.toString();
+    }
+
     /**
      * Gets the first known version of this project.
      * 
