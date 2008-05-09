@@ -41,15 +41,15 @@ import eu.sqooss.ws.client.datatypes.WSProjectVersion;
 import eu.sqooss.webui.Project;
 
 
-public class Version {
+public class Version extends WebuiItem {
 
     private static final String COMMENT = "<!-- Version -->\n";
     private Long projectId;
     private Long number;
-    private Long id;
-    private Terrier terrier;
+    //private Long id;
+    //private Terrier terrier;
     // Contains a sorted list of all files in this version mapped to their ID.
-    private SortedMap<Long, File> files;
+    //private SortedMap<Long, File> files;
 
     public Version () {
 
@@ -68,14 +68,6 @@ public class Version {
         terrier = t;
     }
 
-    public Long getId () {
-        return id;
-    }
-
-    public void setId (Long new_id) {
-        id = new_id;
-    }
-
     public Long getNumber () {
         return number;
     }
@@ -92,51 +84,9 @@ public class Version {
         projectId = p;
     }
 
-    public Terrier getTerrier () {
-        return terrier;
-    }
-
-    public void setTerrier (Terrier t) {
-        terrier = t;
-    }
-
     public File[] getFiles () {
         File fs[] = terrier.getProjectVersionFiles(id);
         return fs;
-    }
-
-    public void setFiles() {
-        SortedMap<Long, File> files = new TreeMap<Long, File>();
-        File fs[] = getFiles();
-        files.put(new Long(1337), new File(id, new Long(1337), "FakeFile.cpp", "FakeStatus", terrier));
-        if (fs != null && fs.length > 0) {
-            for (File f: fs) {
-                files.put(f.getId(), f);
-            }
-            terrier.addError(files.size() + " files found in version " + id);
-        } else {
-            terrier.addError("Zero files found in version " + id);
-        }
-        this.files = files;
-    }
-
-    public String listFiles() {
-        setFiles();
-        try {
-            StringBuilder html = new StringBuilder();
-            //if (files == null) {
-            //    setFiles();
-            //}
-            html.append("\n<ul");
-            for (File f: files.values()) {
-                html.append("\n\t<li>" + f.getLink() + "</li>");
-            }
-            html.append("\n</ul>");
-            return html.toString();
-        } catch (NullPointerException npe) {
-            terrier.addError("No files to list");
-            return "No files to list.";
-        }
     }
 
     public String getHtml() {

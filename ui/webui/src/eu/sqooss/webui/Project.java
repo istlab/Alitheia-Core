@@ -44,9 +44,9 @@ import eu.sqooss.ws.client.datatypes.WSStoredProject;
 import eu.sqooss.ws.client.datatypes.WSProjectVersion;
 
 
-public class Project {
+public class Project extends WebuiItem {
 
-    private Long    id;
+    //private Long    id;
     private String  name;
     private String  bts;
     private String  repository;
@@ -60,7 +60,7 @@ public class Project {
 
     // Contains a sorted list of all project versions mapped to their ID.
     private SortedMap<Long, Version> versions;
-    private Terrier terrier;
+    //private Terrier terrier;
 
     public Project () {
 
