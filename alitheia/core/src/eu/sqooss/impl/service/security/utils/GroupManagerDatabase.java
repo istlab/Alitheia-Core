@@ -100,115 +100,57 @@ public class GroupManagerDatabase implements GroupManagerDBQueries {
         return db.deleteRecord(dao);
     }
     
-    public boolean addPrivilegeToGroup(long groupId, long urlId,
-            long privilegeValueId) {
-        Session session = db.getSession(this);
-        try {
-            Group group = db.findObjectById(session, Group.class, groupId);
-            PrivilegeValue privilegeValue = db.findObjectById(session, PrivilegeValue.class,
-                    privilegeValueId);
-            ServiceUrl serviceUrl = db.findObjectById(session, ServiceUrl.class, urlId);
-            if ((group != null) && (privilegeValue != null) && (serviceUrl != null)) {
-                GroupPrivilege newGroupPrivilege = new GroupPrivilege();
-                newGroupPrivilege.setGroup(group);
-                newGroupPrivilege.setPv(privilegeValue);
-                newGroupPrivilege.setUrl(serviceUrl);
-                Transaction transaction = null;
-                try {
-                    transaction = session.beginTransaction();
-                    session.persist(newGroupPrivilege);
-                    session.refresh(group);
-                    session.refresh(privilegeValue);
-                    session.refresh(serviceUrl);
-                    transaction.commit();
-                } catch (HibernateException he) {
-                    if (transaction != null) {
-                        transaction.rollback();
-                    }
-                    return false;
-                }
-                return true;
-            } else {
-                return false;
-            }
-        } finally {
-            session.flush();
-            db.returnSession(session);
+    public boolean addPrivilegeToGroup(long groupId, long urlId, long privilegeValueId) {
+        Group group = db.findObjectById(Group.class, groupId);
+        PrivilegeValue privilegeValue = db.findObjectById(PrivilegeValue.class,
+                privilegeValueId);
+        ServiceUrl serviceUrl = db.findObjectById(ServiceUrl.class, urlId);
+        if ((group != null) && (privilegeValue != null) && (serviceUrl != null)) {
+            GroupPrivilege newGroupPrivilege = new GroupPrivilege();
+            newGroupPrivilege.setGroup(group);
+            newGroupPrivilege.setPv(privilegeValue);
+            newGroupPrivilege.setUrl(serviceUrl);
+            return db.addAssociation(newGroupPrivilege);
         }
+        return false;
     }
     
     public boolean deletePrivilegeFromGroup(long groupId, long urlId, long privilegeValueId) {
-        Session session = db.getSession(this);
-        try {
-            Group group = db.findObjectById(session, Group.class, groupId);
-            PrivilegeValue privilegeValue = db.findObjectById(session, PrivilegeValue.class,
-                    privilegeValueId);
-            ServiceUrl serviceUrl = db.findObjectById(session, ServiceUrl.class, urlId);
-            if ((group != null) && (privilegeValue != null) && (serviceUrl != null)) {
-                GroupPrivilege groupPrivilege = new GroupPrivilege();
-                groupPrivilege.setGroup(group);
-                groupPrivilege.setPv(privilegeValue);
-                groupPrivilege.setUrl(serviceUrl);
-                Object storedGroupPrivilege =
-                    session.get(GroupPrivilege.class, groupPrivilege);
-                if (storedGroupPrivilege != null) {
-                    Transaction transaction = null;
-                    try {
-                        transaction = session.beginTransaction();
-                        session.delete(storedGroupPrivilege);
-                        session.refresh(group);
-                        session.refresh(privilegeValue);
-                        session.refresh(serviceUrl);
-                        transaction.commit();
-                    } catch (HibernateException he) {
-                        if (transaction != null) {
-                            transaction.rollback();
-                        }
-                        return false;
-                    }
-                    return true;
-                }
-            }
-            return false;
-        } finally {
-            session.flush();
-            db.returnSession(session);
+        Group group = db.findObjectById(Group.class, groupId);
+        PrivilegeValue privilegeValue = db.findObjectById(PrivilegeValue.class,
+                privilegeValueId);
+        ServiceUrl serviceUrl = db.findObjectById(ServiceUrl.class, urlId);
+        if ((group != null) && (privilegeValue != null) && (serviceUrl != null)) {
+            GroupPrivilege groupPrivilege = new GroupPrivilege();
+            groupPrivilege.setGroup(group);
+            groupPrivilege.setPv(privilegeValue);
+            groupPrivilege.setUrl(serviceUrl);
+            return db.deleteAssociation(groupPrivilege);
         }
+        return false;
     }
     
     @SuppressWarnings("unchecked")
     public boolean addUserToGroup(long groupId, long userId) {
-        Session session = db.getSession(this);
-        try {
-            Group group = db.findObjectById(session, Group.class, groupId);
-            User user = db.findObjectById(session, User.class, userId);
-            if ((group!=null) && (user != null)) {
-                return ((group.getUsers().add(user)) &&
-                        (user.getGroups().add(group)));
-            } else {
-                return false;
-            }
-        } finally {
-            session.flush();
-            db.returnSession(session);
+        Group group = db.findObjectById(Group.class, groupId);
+        User user = db.findObjectById(User.class, userId);
+        if ((group!=null) && (user != null)) {
+            group.getUsers().add(user);
+            user.getGroups().add(group);
+            return true;
         }
+        return false;
     }
     
     public boolean deleteUserFromGroup(long groupId, long userId) {
-        Session session = db.getSession(this);
-        try {
-            Group group = db.findObjectById(session, Group.class, groupId);
-            User user = db.findObjectById(session, User.class, userId);
-            if ((group!=null) && (user != null)) {
-                return ((group.getUsers().remove(user)) &&
-                        (user.getGroups().remove(group)));
-            } else {
-                return false;
-            }
-        } finally {
-            session.flush();
-            db.returnSession(session);
+        Group group = db.findObjectById(Group.class, groupId);
+        User user = db.findObjectById(User.class, userId);
+        if ((group!=null) && (user != null)) {
+            group.getUsers().remove(user);
+            user.getGroups().remove(group);
+            return true;
         }
+        return false;
     }
     
 }

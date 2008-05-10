@@ -61,41 +61,28 @@ public class Directory extends DAObject {
      * @param path The path of the Directory to return
      * @return A Directory record for the specified path or null on failure
      */
-    public static Directory getDirectory(Session s, String path) {
+    public static Directory getDirectory(String path) {
         
         DBService dbs = CoreActivator.getDBService();
         Map<String,Object> parameterMap = new HashMap<String,Object>();
         parameterMap.put("path", path);
         
-        List<Directory> dirs = dbs.findObjectsByProperties(s, Directory.class,
+        List<Directory> dirs = dbs.findObjectsByProperties(Directory.class,
                 parameterMap);
         
         /* Dir path in table, return it */
-        if(dirs.size() > 0)
+        if ( !dirs.isEmpty() )
             return dirs.get(0);
         
         /* Dir path not in table create it */ 
         Directory d = new Directory();
         d.setPath(path);
-        s.save(d);
+        if ( !dbs.addRecord(d) )
+            return null;
+        
         return d;
     }
     
-    public static Directory getDirectory(String path) {
-    	Object sessionHolder = new Object();
-    	DBService dbs = CoreActivator.getDBService();
-    	Session s = dbs.getSession(sessionHolder);
-    	Directory d = getDirectory(s, path);
-    	try {
-    		s.getTransaction().commit();
-    	} catch (HibernateException e) {
-    		s.getTransaction().rollback();
-    		d = null;
-    	} finally {
-    		dbs.returnSession(s);
-    	}
-    	return d;
-    }
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

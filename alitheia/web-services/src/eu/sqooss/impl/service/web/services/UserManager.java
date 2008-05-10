@@ -59,11 +59,14 @@ public class UserManager extends AbstractManager {
         
         super.updateUserActivity(userNameForAccess);
         
+        db.startDBSession();
         User newUser = userManager.createUser(newUserName, newPassword, email);
-        
         if (newUser != null) {
-            return new WSUser(newUser);
+            WSUser wsu = new WSUser(newUser);
+            db.commitDBSession();
+            return wsu;
         } else {
+            db.rollbackDBSession();
             return null;
         }
     }
@@ -78,7 +81,14 @@ public class UserManager extends AbstractManager {
         
         super.updateUserActivity(userNameForAccess);
         
-        return userManager.createPendingUser(newUserName, newPassword, email);
+        db.startDBSession();
+        boolean ok = userManager.createPendingUser(newUserName, newPassword, email);
+        if (ok) {
+            db.commitDBSession();
+        } else {
+            db.rollbackDBSession();
+        }
+        return ok;
     }
     
     /**
@@ -92,11 +102,14 @@ public class UserManager extends AbstractManager {
         
         super.updateUserActivity(userNameForAccess);
         
+        db.startDBSession();
         User user = userManager.getUser(userId); 
-        
         if (user != null) {
-            return new WSUser(user);
+            WSUser wsu = new WSUser(user);
+            db.commitDBSession();
+            return wsu;
         } else {
+            db.rollbackDBSession();
             return null;
         }
         
@@ -113,7 +126,14 @@ public class UserManager extends AbstractManager {
         
         super.updateUserActivity(userNameForAccess);
         
-        return userManager.modifyUser(userName, newPassword, newEmail);
+        db.startDBSession();
+        boolean ok = userManager.modifyUser(userName, newPassword, newEmail);
+        if (ok) {
+            db.commitDBSession();
+        } else {
+            db.rollbackDBSession();
+        }
+        return ok;
     }
     
     /**
@@ -125,7 +145,14 @@ public class UserManager extends AbstractManager {
         
         super.updateUserActivity(userNameForAccess);
         
-        return userManager.deleteUser(userId);
+        db.startDBSession();
+        boolean ok = userManager.deleteUser(userId);
+        if (ok) {
+            db.commitDBSession();
+        } else {
+            db.rollbackDBSession();
+        }
+        return ok;
     }
     
     /**
@@ -137,12 +164,15 @@ public class UserManager extends AbstractManager {
         security.checkUserReadAccess(userNameForAccess, passwordForAccess, -1, userName);
         
         super.updateUserActivity(userNameForAccess);
-        
+
+        db.startDBSession();
         User user = userManager.getUser(userName);
-        
         if (user != null) {
-            return new WSUser(user);
+            WSUser wsu = new WSUser(user);
+            db.commitDBSession();
+            return wsu;
         } else {
+            db.rollbackDBSession();
             return null;
         }
     }

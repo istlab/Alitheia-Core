@@ -523,10 +523,12 @@ public class WebAdminRenderer {
     }
 
     public static String renderProjects() {
+        sobjDB.startDBSession();
         List projects = sobjDB.doHQL("from StoredProject");
         Collection<PluginInfo> metrics = sobjPluginAdmin.listPlugins();
 
         if (projects == null || metrics == null) {
+            sobjDB.commitDBSession();
             return "<li>Nothing to display.</li>";
         }
 
@@ -574,6 +576,7 @@ public class WebAdminRenderer {
             s.append("</tr>");
         }
         s.append("</table>");
+        sobjDB.commitDBSession();
         return s.toString();
     }
 
@@ -583,6 +586,7 @@ public class WebAdminRenderer {
         // Indentation spacer
         String IN = "            ";
         // Retrieve information for all registered users
+        sobjDB.startDBSession();
         List<?> dbUsers = sobjDB.doHQL("from User");
 
         if ((dbUsers != null) && (dbUsers.size() > 0)) {
@@ -620,6 +624,7 @@ public class WebAdminRenderer {
         else {
             b.append("No users found!");
         }
+        sobjDB.commitDBSession();
 
         return b.toString();
     }
@@ -655,7 +660,7 @@ public class WebAdminRenderer {
             return;
         }
 
-        if (sobjDB != null) {
+        if (sobjDB != null && sobjDB.startDBSession()) {
             StoredProject p = new StoredProject();
             p.setName(name);
             p.setWebsite(website);
@@ -665,14 +670,17 @@ public class WebAdminRenderer {
             p.setMail(mail);
 
             sobjDB.addRecord(p);
+            sobjDB.commitDBSession();
 
             /* Run a few checks before actually storing the project */
             //1. Duplicate project
+            sobjDB.startDBSession();
             HashMap<String, Object> pname = new HashMap<String, Object>();
             pname.put("name", (Object)p.getName());
             if(sobjDB.findObjectsByProperties(StoredProject.class, pname).size() > 1) {
                 //Duplicate project, remove
                 sobjDB.deleteRecord(sobjDB.findObjectById(StoredProject.class, p.getId()));
+                sobjDB.commitDBSession();
                 sobjLogger.warn("A project with the same name already exists");
                 vc.put("RESULTS","<p>ERROR: A project" +
                        " with the same name (" + p.getName() + ") already exists. " +
@@ -703,6 +711,7 @@ public class WebAdminRenderer {
                                          " project not added.</p>" + tryAgain);
                 //Invalid repository, remove and remove accessor
                 sobjDB.deleteRecord(sobjDB.findObjectById(StoredProject.class, p.getId()));
+                sobjDB.commitDBSession();
                 sobjTDS.releaseAccessor(a);
                 return;
             }
@@ -724,6 +733,7 @@ public class WebAdminRenderer {
                                          "to start while adding project. Project was not added.</p>" +
                                          tryAgain);
             }
+            sobjDB.commitDBSession();
         }
     }
 

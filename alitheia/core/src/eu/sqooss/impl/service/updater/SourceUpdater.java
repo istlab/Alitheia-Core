@@ -119,10 +119,9 @@ class SourceUpdater extends Job {
         LRUMap dirCache = new LRUMap(3000);
 
         logger.info("Running source update for project " + project.getName());
-        Session s = dbs.getSession(this);
         long ts = System.currentTimeMillis();
-        Transaction tx = s.beginTransaction();
         try {
+            dbs.startDBSession();
 
             // This is the last version we actually know about
             ProjectVersion lastVersion = StoredProject.getLastProjectVersion(project);
@@ -150,7 +149,7 @@ class SourceUpdater extends Job {
                 d = (Developer)devCache.get(author);
                 
                 if (d == null) {
-                    d = Developer.getDeveloperByUsername(s, entry.getAuthor(),
+                    d = Developer.getDeveloperByUsername(entry.getAuthor(),
                             project);
                     devCache.put(author, d);
                 }
@@ -165,7 +164,7 @@ class SourceUpdater extends Job {
                 curVersion.setCommitMsg(commitMsg);
                 /*TODO: Fix this when the TDS starts supporting SVN properties*/
                 //curVersion.setProperties(entry.getProperties);
-                s.save(curVersion);
+                dbs.addRecord(curVersion);
                 updProjectVersions.add(new Long(curVersion.getId()));
 
                 for(String chPath: entry.getChangedPaths()) {
@@ -183,7 +182,7 @@ class SourceUpdater extends Job {
                         tag.setName(chPath.substring(5));
                         logger.info("Creating tag <" + tag.getName() + ">");
                         
-                        s.save(tag);
+                        dbs.addRecord(tag);
                         break;
                     }
                     
@@ -191,13 +190,13 @@ class SourceUpdater extends Job {
                     String path = chPath.substring(0, chPath.lastIndexOf('/'));
                     if (path == null || path.equalsIgnoreCase("")) {
                         path = "/"; //SVN entry does not have a path
-		    }
+                    }
                     String fname = chPath.substring(chPath.lastIndexOf('/') + 1);
 
                     Directory dir = null;
                     dir = (Directory) dirCache.get(path);
                     if (dir == null) {
-                        dir = Directory.getDirectory(s, path);
+                        dir = Directory.getDirectory(path);
                         dirCache.put(path, dir);
                     }
                     
@@ -215,10 +214,10 @@ class SourceUpdater extends Job {
                     if (t == SCMNodeType.DIR && 
                             pf.getStatus().equalsIgnoreCase("DELETED")) {
                    	logger.warn("Deleted directory not processed");
-		   	//markDeleted(s, pf, pf.getProjectVersion());
+		   	//markDeleted(pf, pf.getProjectVersion());
                     }
                     
-                    s.save(pf);
+                    dbs.addRecord(pf);
                     updFiles.add(pf.getId());
                 }
                 
@@ -227,11 +226,11 @@ class SourceUpdater extends Job {
                 /*Cleanup for huge projects*/
                 if (numRevisions % 10000 == 0) {
                     logger.info("Commited 10000 revisions");
-		    tx.commit();
-                    tx = s.beginTransaction();
+                    dbs.commitDBSession();
+                    dbs.startDBSession();
                 }
             }
-            tx.commit();
+            dbs.commitDBSession();
             logger.info("Processed " + numRevisions + " revisions");
         } catch (InvalidRepositoryException e) {
             logger.error("Not such repository:" + e.getMessage());
@@ -239,25 +238,9 @@ class SourceUpdater extends Job {
         } catch (InvalidProjectRevisionException e) {
             logger.error("Not such repository revision:" + e.getMessage());
             throw e;
-        } catch (HibernateException e) {
-            if (tx != null) {
-                try {
-                    tx.rollback();
-                } catch (HibernateException ex) {
-                    logger.error("Error while rolling back failed transaction"
-                            + ". DB may be left in inconsistent state:"
-                            + ex.getMessage());
-                    ex.printStackTrace();
-                }
-                logger.error("Failed to commit updates to the database: "
-                        + e.getMessage() + " Transaction rollbacked");
-            }
-            throw e;
         } finally {
             logger.info(project.getName() + ": Time to process entries: "
                     + (int) ((System.currentTimeMillis() - ts) / 1000));
-            
-            dbs.returnSession(s);
             
             /*Kickstart metrics*/
             ma.runMetrics(ProjectVersion.class, updProjectVersions);
@@ -270,10 +253,9 @@ class SourceUpdater extends Job {
     /**
      * Mark the contents of a directory as DELETED when the directory has
      * been DELETED 
-     * @param s The Hibernate session to operate on
      * @param pf The project file representing the deleted directory
      */
-    private void markDeleted(Session s, ProjectFile pf, ProjectVersion pv) {
+    private void markDeleted(ProjectFile pf, ProjectVersion pv) {
         if (pf.getIsDirectory() == false)
             return;
         
@@ -300,10 +282,10 @@ class SourceUpdater extends Job {
             pf2.setProjectVersion(pf1.getProjectVersion());
             pf2.setStatus("DELETED");
             
-            s.save(pf2);
+            dbs.addRecord(pf2);
             
             if(pf1.getIsDirectory()) {
-                markDeleted(s, pf1, pv);
+                markDeleted(pf1, pv);
             } 
         }
     }

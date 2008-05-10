@@ -38,8 +38,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.hibernate.Session;
-
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Group;
 import eu.sqooss.service.db.PendingUser;
@@ -50,13 +48,10 @@ public class UserManagerDatabase implements UserManagerDBQueries {
     private static final String ATTRIBUTE_USER_NAME = "name";
     
     private DBService db;
-    private Map<String, Object> userProps;
-    private Object lockObject = new Object();
     
     public UserManagerDatabase(DBService db) {
         super();
         this.db = db;
-        userProps = new Hashtable<String, Object>(1);
     }
 
     public User getUser(long userId) {
@@ -64,11 +59,9 @@ public class UserManagerDatabase implements UserManagerDBQueries {
     }
     
     public List<User> getUser(String userName) {
-        synchronized (lockObject) {
-            userProps.clear();
-            userProps.put(ATTRIBUTE_USER_NAME, userName);
-            return db.findObjectsByProperties(User.class, userProps);
-        }
+        Map<String, Object> userProps = new Hashtable<String, Object>(1);
+        userProps.put(ATTRIBUTE_USER_NAME, userName);
+        return db.findObjectsByProperties(User.class, userProps);
     }
     
     public List<?> getUsers() {
@@ -92,36 +85,19 @@ public class UserManagerDatabase implements UserManagerDBQueries {
         return db.addRecord(newPendingUser);
     }
     
-    public boolean modifyUser(String userName, String newPasswordHash,
-            String newEmail) {
-        Session session = null;
-        List<User> users = null;
-        boolean isModified = false;
-        try {
-            session = db.getSession(this);
-            synchronized (lockObject) {
-                userProps.clear();
-                userProps.put(ATTRIBUTE_USER_NAME, userName);
-                users = db.findObjectsByProperties(session, User.class, userProps);
+    public boolean modifyUser(String userName, String newPasswordHash, String newEmail) {
+        List<User> users = getUser(userName);
+        if (users.size() == 1) {
+            User user = users.get(0);
+            if (newPasswordHash != null) {
+                user.setPassword(newPasswordHash);
             }
-            if (users.size() == 1) {
-                User user = users.get(0);
-                if (newPasswordHash != null) {
-                    user.setPassword(newPasswordHash);
-                    isModified = true;
-                }
-                if (newEmail != null) {
-                    user.setEmail(newEmail);
-                    isModified = true;
-                }
+            if (newEmail != null) {
+                user.setEmail(newEmail);
             }
-        } finally {
-            if (session != null) {
-                session.flush();
-                db.returnSession(session);
-            }
+            return true;
         }
-        return isModified;
+        return false;
     }
     
     public boolean deleteUser(User user) {
@@ -129,29 +105,21 @@ public class UserManagerDatabase implements UserManagerDBQueries {
     }
 
     public boolean hasPendingUserHash (String hashValue) {
-        if (getPendingUser("hash", hashValue) != null) return true;
-        return false;
+        return getPendingUser("hash", hashValue) != null;
     }
 
     public boolean hasPendingUserName(String userName) {
-        if (getPendingUser("name", userName) != null) return true;
-        return false;
+        return getPendingUser("name", userName) != null;
     }
 
     public PendingUser getPendingUser (String field, String value) {
-        // Get a DB session
-        Session s = db.getSession(this);
-
         // Search for a matching pending user's record
-        HashMap<String, Object> filter = new HashMap<String, Object>();
+        Map<String, Object> filter = new HashMap<String, Object>(1);
         filter.put(field, value);
         List<PendingUser> pending =
-            db.findObjectsByProperties(s, PendingUser.class, filter);
+            db.findObjectsByProperties(PendingUser.class, filter);
 
-        // Free the DB session
-        db.returnSession(s);
-
-        if (! pending.isEmpty()) {
+        if ( !pending.isEmpty() ) {
             return pending.get(0);
         }
         return null;
@@ -161,12 +129,8 @@ public class UserManagerDatabase implements UserManagerDBQueries {
         return db.doHQL(GET_FIRST_PENDING_USER);
     }
     
-    public boolean deletePendingUser (PendingUser pending) {
-        // Get a DB session and delete the record
-        Session s = db.getSession(this);
-        boolean result = db.deleteRecord(s, pending);
-        db.returnSession(s);
-        return result;
+    public boolean deletePendingUser (PendingUser pending) {   
+        return db.deleteRecord(pending);
     }
 
 }

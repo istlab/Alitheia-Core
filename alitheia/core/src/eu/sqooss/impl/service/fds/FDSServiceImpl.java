@@ -914,9 +914,11 @@ public class FDSServiceImpl implements FDSService {
         
         // Timeline tests
         DBService dbs = CoreActivator.getDBService();
+        dbs.startDBSession();
         // Try to find an installed project to work on
         StoredProject testProject= dbs.findObjectById(StoredProject.class, 1);
         if (testProject == null) {
+            dbs.rollbackDBSession();
             logger.info("No installed projects found, skipping Timeline tests");
         } else {
             logger.info("Testing timeline over project " + testProject.getName());
@@ -934,6 +936,7 @@ public class FDSServiceImpl implements FDSService {
                 List<ProjectVersion> fromVersion =
                     dbs.findObjectsByProperties(ProjectVersion.class, props);
                 if ( fromVersion.size() != 1) {
+                    dbs.rollbackDBSession();
                     return "Found less or more than one ProjectVersion for version "
                         + fromVersionNumber + " of project " + testProject.getName();
                 }
@@ -941,6 +944,7 @@ public class FDSServiceImpl implements FDSService {
                 List<ProjectVersion> toVersion =
                     dbs.findObjectsByProperties(ProjectVersion.class, props);
                 if ( toVersion.size() != 1) {
+                    dbs.rollbackDBSession();
                     return "Found less or more than one ProjectVersion for version "
                         + toVersionNumber + " of project " + testProject.getName();
                 }
@@ -955,6 +959,7 @@ public class FDSServiceImpl implements FDSService {
                 
                 events = timeline.getTimeLine( from, to, ResourceType.SCM );
                 if (events.isEmpty()) {
+                    dbs.rollbackDBSession();
                     return "The timeline returned an empty list of SCM events";
                 }
                 logger.info("Timeline returned " + events.size() + " SCM events");
@@ -966,11 +971,13 @@ public class FDSServiceImpl implements FDSService {
                 logger.info("Timeline returned " + events.size() + " BTS events");
                 events = timeline.getTimeLine( from, to, EnumSet.allOf(ResourceType.class) );
                 if (events.isEmpty()) {
+                    dbs.rollbackDBSession();
                     return "The timeline returned an empty total list of events";
                 }
                 logger.info("Timeline returned " + events.size() + " events in total");
             }
         }
+        dbs.commitDBSession();
         return null;
     }
 

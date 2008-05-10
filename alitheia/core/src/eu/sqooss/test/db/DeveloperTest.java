@@ -42,7 +42,9 @@ public class DeveloperTest {
     }
 
     @After public void tearDown() {
+        dbs.startDBSession();
         dbs.deleteRecords(bugReporters);
+        dbs.commitDBSession();
         System.err.println("Finished teardown...");
     }
     
@@ -50,10 +52,14 @@ public class DeveloperTest {
         List<Developer> results;
         
         System.err.println("Inside the test...");
+        dbs.startDBSession();
         dbs.addRecords(bugReporters);
+        dbs.commitDBSession();
         Map<String, Object> properties = new HashMap<String, Object>();
         properties.put("name", "foo");
+        dbs.startDBSession();
         results = dbs.findObjectsByProperties(Developer.class, properties);
+        dbs.commitDBSession();
         Assert.assertTrue(results.size() ==  1);
     }
     

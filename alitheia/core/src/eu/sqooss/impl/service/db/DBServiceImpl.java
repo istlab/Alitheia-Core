@@ -41,18 +41,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import org.hibernate.HibernateException;
 import org.hibernate.QueryException;
-import org.hibernate.TransactionException;
 import org.hibernate.JDBCException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 import org.osgi.framework.BundleContext;
 
@@ -76,106 +73,11 @@ public class DBServiceImpl implements DBService {
     private static final String DB_DIALECT_PROPERTY = "eu.sqooss.db.dialect";
     private static final String HIBERNATE_CONFIG_PROPERTY = "eu.sqooss.hibernate.config";
 
-    /* Those two should be runtime configuration options */
-    private static final int INIT_POOL_SIZE = 5;
-    private static final int MAX_POOL_SIZE = 100;
-
     private Logger logger = null;
-    // This is the database connection; we may want to do more pooling here.
-    private Connection dbConnection = null;
     // Store the class and URL of the database to hand off to
     // Hibernate so that it obeys the fallback from Postgres to Derby as well.
     private String dbClass, dbURL, dbDialect;
-    private SessionManager sm = null;
-
-    /**
-     * The simplest possible Session pool implementation. Maintains a pool of
-     * active hibernate sessions and manages associations of sessions to
-     * clients. <it>It only supports one session per client object</it>
-     */
-    private class SessionManager {
-
-        /* Session->Session Holder mapping */
-        private HashMap<Session, Object> sessions;
-        private SessionFactory sf;
-        private boolean expand;
-
-        /**
-         * Constructor
-         *
-         * @param f -
-         *            The factory to get sessions from
-         * @param expand -
-         *            Indicates whether the session manager will expand the
-         *            session pool if the all sessions are in use
-         */
-        public SessionManager(SessionFactory f, boolean expand) {
-            sf = f;
-            this.expand = expand;
-            sessions = new HashMap<Session, Object>();
-
-            for (int i = 0; i < INIT_POOL_SIZE; i++)
-                sessions.put(sf.openSession(), this);
-
-            logger.info("Hibernate session manager init: pool size "
-                    + sessions.size());
-        }
-
-        /**
-         * Returns a session to the holder object
-         *
-         * @param holder
-         *            The object to which the returned session is bound to
-         * @throws Exception
-         */
-        public synchronized Session getSession(Object holder) throws Exception {
-            Iterator<Session> i = sessions.keySet().iterator();
-            Session s = null;
-
-            while (i.hasNext()) {
-                s = i.next();
-                if (sessions.get(s) == this)
-                    break;
-                s = null;
-            }
-
-            // Pool is full, expand it
-            if (s == null && expand) {
-                int size = sessions.size() / 2;
-
-                if (size + sessions.size() >= MAX_POOL_SIZE)
-                    size = MAX_POOL_SIZE - sessions.size();
-
-                if (MAX_POOL_SIZE == sessions.size())
-                    throw new Exception("SessionManager: Cannot serve more "
-                            + "than " + MAX_POOL_SIZE + " sessions");
-
-                for (int j = 0; j < size; j++)
-                    sessions.put(sf.openSession(), this);
-
-                logger.info("Expanded Hibernate session pool to size "
-                        + sessions.size());
-                return getSession(holder);
-            }
-
-            if (s != null)
-                sessions.put(s, holder);
-
-            return s;
-        }
-
-        /**
-         * Return a session to the session manager and release the binding to
-         * the holder object
-         *
-         * @param s
-         */
-        public synchronized void returnSession(Session s) {
-            if (sessions.containsKey(s)) {
-                sessions.put(s, this);
-            }
-        }
-    }
+    private SessionFactory sessionFactory = null;
 
     private void logSQLException(SQLException e) {
 
@@ -186,19 +88,35 @@ public class DBServiceImpl implements DBService {
             e = e.getNextException();
         }
     }
-
-    private void logExceptionAndRollbackTransaction( Exception e, Transaction tx) {
-        if (tx != null) {
-            logger.warn("Error during database transaction: " + e.getMessage() + ". Rolling back transaction.");
-            try {
-                tx.rollback();
-            } catch (HibernateException ex) {
-                logger.error("Error while rolling back failed transaction."
-                        + " DB may be left in inconsistent state: " + ex.getMessage());
-            }
-        } else {
-            logger.error("Database session error: " + e.getMessage());
+    
+    private void logExceptionAndTerminateSession( Exception e ) {
+        if ( e instanceof JDBCException ) {
+            JDBCException jdbce = (JDBCException) e;
+            logSQLException(jdbce.getSQLException());
         }
+        logger.warn("Exception caught during database session: " + e.getMessage() 
+                + ". Rolling back current transaction and terminating session...");
+        Session s = null;
+        try {
+            s = sessionFactory.getCurrentSession();
+            s.getTransaction().rollback();
+        } catch (HibernateException e1) {
+            logger.error("Error while rolling back failed transaction :" + e1.getMessage());
+            if ( s != null ) {
+                try {
+                    s.close();
+                } catch ( HibernateException e2) {}
+            }
+        }
+        
+    }
+   
+    private boolean checkSession() {
+        if ( !isDBSessionActive() ) {
+            logger.warn("Trying to call a DBService method without an active session");
+            return false;
+        }
+        return true;
     }
     
     private boolean getJDBCConnection(String driver, String url, String dialect) {
@@ -207,7 +125,6 @@ public class DBServiceImpl implements DBService {
             dbClass = null;
             dbURL = null;
             dbDialect = null;
-            dbConnection = null;
             return false;
         }
         
@@ -232,7 +149,6 @@ public class DBServiceImpl implements DBService {
             dbClass = driver;
             dbURL = url;
             dbDialect = dialect;
-            dbConnection = c;
             return true;
         } catch (SQLException e) {
             logSQLException(e);
@@ -241,7 +157,6 @@ public class DBServiceImpl implements DBService {
         dbClass = null;
         dbURL = null;
         dbDialect = null;
-        dbConnection = null;
         return false;
     }
 
@@ -275,8 +190,7 @@ public class DBServiceImpl implements DBService {
             c.setProperty("hibernate.connection.username", "alitheia");
             c.setProperty("hibernate.connection.password", "");
             c.setProperty("hibernate.connection.dialect", dbDialect);
-            sf = c.buildSessionFactory();
-            sm = new SessionManager(sf, true);
+            sessionFactory = c.buildSessionFactory();
 
         } catch (Throwable e) {
             logger.error("Failed to initialize Hibernate: " + e.getMessage());
@@ -367,67 +281,24 @@ public class DBServiceImpl implements DBService {
         }
     }
 
-    /* (non-Javadoc)
-     * @see eu.sqooss.service.db.DBService#findObjectById(java.lang.Class, long)
-     */
+    @SuppressWarnings("unchecked")
     public <T extends DAObject> T findObjectById(Class<T> daoClass, long id) {
-        Session s = getSession(this);
-        Transaction tx = null;
+        if ( !checkSession() )
+            return null;
+        
         try {
-            tx = s.beginTransaction();
-            T obj = findObjectById(s, daoClass, id);
-            tx.commit();
-            return obj;
-        } catch( TransactionException e ) {
-            logger.error("Transaction error: " + e.getMessage());
+            Session s = sessionFactory.getCurrentSession();
+            return (T) s.get(daoClass, id);
+        } catch (HibernateException e) {
+            logExceptionAndTerminateSession(e);
             return null;
-        } catch( HibernateException e ) {
-            logExceptionAndRollbackTransaction(e,tx);
-            return null;
-        } finally {
-            returnSession(s);
         }
     }
-    
-    /* (non-Javadoc)
-     * @see eu.sqooss.service.db.DBService#findObjectById(org.hibernate.Session, java.lang.Class, long)
-     */
-    @SuppressWarnings("unchecked")
-    public <T extends DAObject> T findObjectById(Session s, Class<T> daoClass, long id)
-        throws HibernateException {
-        return (T) s.get(daoClass, id);
-    }
 
-    /* (non-Javadoc)
-     * @see eu.sqooss.service.db.DBService#findObjectByProperties(java.lang.Class, java.util.Map)
-     */
     @SuppressWarnings("unchecked")
     public <T extends DAObject> List<T> findObjectsByProperties(Class<T> daoClass, Map<String,Object> properties ) {
-
-        Session s = getSession(this);
-        Transaction tx = null;
-        try {
-            tx = s.beginTransaction();
-            List<T> result = findObjectsByProperties(s, daoClass, properties);
-            tx.commit();
-            return result;
-        } catch( TransactionException e ) {
-            logger.error("Transaction error: " + e.getMessage());
+        if( !checkSession() )
             return Collections.emptyList();
-        } catch( HibernateException e ) {
-            logExceptionAndRollbackTransaction(e,tx);
-            return Collections.emptyList();
-        } finally {
-            returnSession(s);
-        }
-    }  
-
-    /* (non-Javadoc)
-     * @see eu.sqooss.service.db.DBService#findObjectByProperties(org.hibernate.Session, java.lang.Class, java.util.Map)
-     */
-    @SuppressWarnings("unchecked")
-    public <T extends DAObject> List<T> findObjectsByProperties(Session s, Class<T> daoClass, Map<String,Object> properties )
-        throws HibernateException {
 
         // TODO maybe check that the properties are valid (e.g. with java.bean.PropertyDescriptor)
 
@@ -441,9 +312,12 @@ public class DBServiceImpl implements DBService {
         }
         try {
             // We use "foo" as the name of the object
-            return (List<T>) doHQL( s, "from " + daoClass.getName() + " as foo " + whereClause, parameterMap );
+            return (List<T>) doHQL( "from " + daoClass.getName() + " as foo " + whereClause, parameterMap );
         } catch (QueryException e) {
-                logger.warn("findObjectsByProperties(): invalid properties map");
+            logger.warn("findObjectsByProperties(): invalid properties map. Restarting session...");
+            // Automatically restart a session
+            // (just be careful with preloaded DAOs that become detached)
+            startDBSession();
             return Collections.emptyList();
         }
     }
@@ -453,41 +327,7 @@ public class DBServiceImpl implements DBService {
      */
     public List<?> doSQL(String sql)
         throws SQLException {
-        Session s = getSession(this);
-        Transaction tx = null;
-        try {
-            tx = s.beginTransaction();
-            List<?> result = doSQL(s, sql);
-            tx.commit();
-            return result;
-        } catch ( JDBCException e ) {
-            logExceptionAndRollbackTransaction(e,tx);
-            throw e.getSQLException();
-        } catch( TransactionException e ) {
-            logger.error("Transaction error: " + e.getMessage());
-            return Collections.emptyList();
-        } catch( HibernateException e ) {
-            logExceptionAndRollbackTransaction(e,tx);
-            return Collections.emptyList();
-        } finally {
-            returnSession(s);
-        }
-    }
-
-    /* (non-Javadoc)
-     * @see eu.sqooss.service.db.DBService#doSQL(org.hibernate.Session, java.lang.String)
-     */
-    public List<?> doSQL(Session s, String sql)
-        throws HibernateException {
-        try {
-            return s.createSQLQuery(sql).list();
-        } catch( JDBCException e ) {
-            logSQLException(e.getSQLException());
-            throw e;
-        } catch ( HibernateException e) {
-            logger.error("Hibernate exception: " + e.getMessage());
-            throw e;
-        }
+        return doSQL(sql, null);
     }
 
     /* (non-Javadoc)
@@ -495,52 +335,32 @@ public class DBServiceImpl implements DBService {
      */
     public List<?> doSQL(String sql, Map<String, Object> params)
         throws SQLException, QueryException {
-        Session s = getSession(this);
-        Transaction tx = null;
+        boolean autoSession = !isDBSessionActive();
         try {
-            tx = s.beginTransaction();
-            List<?> result = doSQL(s, sql, params);
-            tx.commit();
+            Session s = sessionFactory.getCurrentSession();
+            if (autoSession) {
+                s.beginTransaction();
+            }
+            Query query = s.createSQLQuery(sql);
+            if ( params != null ) {
+                for ( String param : params.keySet() ) {
+                    query.setParameter(param, params.get(param));
+                }
+            }
+            List<?> result = query.list();
+            if (autoSession) {
+                s.getTransaction().commit();
+            }
             return result;
         } catch ( JDBCException e ) {
-            logExceptionAndRollbackTransaction(e,tx);
+            logExceptionAndTerminateSession(e);
             throw e.getSQLException();
         } catch ( QueryException e ) {
-            logExceptionAndRollbackTransaction(e, tx);
+            logExceptionAndTerminateSession(e);
             throw e;
-        } catch( TransactionException e ) {
-            logger.error("Transaction error: " + e.getMessage());
-            return Collections.emptyList();
         } catch( HibernateException e ) {
-            logExceptionAndRollbackTransaction(e,tx);
+            logExceptionAndTerminateSession(e);
             return Collections.emptyList();
-        } finally {
-            returnSession(s);
-        }
-    }
-
-    /* (non-Javadoc)
-     * @see eu.sqooss.service.db.DBService#doSQL(org.hibernate.Session, java.lang.String, java.util.Map)
-     */
-    public List<?> doSQL(Session s, String sql, Map<String, Object> params)
-        throws HibernateException {
-        try {
-            Query query = s.createSQLQuery(sql);
-            Iterator<String> i = params.keySet().iterator();
-            while(i.hasNext()) {
-                String paramName = i.next();
-                query.setParameter(paramName, params.get(paramName));
-            }
-            return query.list();
-        } catch (JDBCException e) {
-            logSQLException(e.getSQLException());
-            throw e;
-        } catch (QueryException e) {
-            logger.warn("Error while executing SQL query: " + e.getMessage());
-            throw e;
-        } catch (HibernateException e) {
-            logger.error("Hibernate error: " + e.getMessage());
-            throw e;
         }
     }
 
@@ -566,50 +386,11 @@ public class DBServiceImpl implements DBService {
     public List<?> doHQL(String hql, Map<String, Object> params,
             Map<String, Collection> collectionParams) 
         throws QueryException {
-        Session s = getSession(this);
-        Transaction tx = null;
-        try {
-            tx = s.beginTransaction();
-            List<?> result = doHQL(s, hql, params, collectionParams);
-            tx.commit();
-            return result;
-        } catch (QueryException e) {
-            logExceptionAndRollbackTransaction(e,tx);
-            throw e;
-        } catch( TransactionException e ) {
-            logger.error("Transaction error: " + e.getMessage());
+        if ( !checkSession() ) {
             return Collections.emptyList();
-        } catch( HibernateException e ) {
-            logExceptionAndRollbackTransaction(e,tx);
-            return Collections.emptyList();
-        } finally {
-            returnSession(s);
         }
-    }
-
-    /* (non-Javadoc)
-     * @see eu.sqooss.service.db.DBService#doHQL(org.hibernate.Session, java.lang.String)
-     */
-    public List<?> doHQL(Session s, String hql) 
-        throws HibernateException {
-        return doHQL(s, hql, null, null);
-    }
-
-    /* (non-Javadoc)
-     * @see eu.sqooss.service.db.DBService#doHQL(org.hibernate.Session, java.lang.String, java.util.Map)
-     */
-    public List<?> doHQL(Session s, String hql, Map<String, Object> params) 
-        throws HibernateException {
-        return doHQL(s, hql, params, null);
-    }
-
-    /* (non-Javadoc)
-     * @see eu.sqooss.service.db.DBService#doHQL(org.hibernate.Session, java.lang.String, java.util.Map, java.util.Map)
-     */
-    public List<?> doHQL(Session s, String hql, Map<String, Object> params,
-            Map<String, Collection> collectionParams) 
-        throws HibernateException {
         try {
+            Session s = sessionFactory.getCurrentSession();
             Query query = s.createQuery(hql);
             if (params != null) {
                 for ( String param : params.keySet() ) {
@@ -622,286 +403,163 @@ public class DBServiceImpl implements DBService {
                 }
             }
             return query.list();
-        } catch (JDBCException e) {
-            logSQLException(e.getSQLException());
+        } catch ( QueryException e ) {
+            logExceptionAndTerminateSession(e);
             throw e;
-        } catch (QueryException e) {
-            logger.warn("Error while executing HQL query: " +  e.getMessage());
-            throw e;
-        } catch (HibernateException e) {
-            logger.error("Hibernate error: " + e.getMessage());
-            throw e;
+        } catch( HibernateException e ) {
+            logExceptionAndTerminateSession(e);
+            return Collections.emptyList();
         } catch (ClassCastException e) {
             // Throw a QueryException instead of forwarding the ClassCastException
             // it's more explicit
-            logger.warn("Invalid HQL query parameter type: " + e.getMessage());
-            throw new QueryException("Invalid query parameter type: " + e.getMessage(), e);
+            QueryException ebis = new QueryException("Invalid HQL query parameter type: "
+                                                    + e.getMessage(), e);
+            logExceptionAndTerminateSession(ebis);
+            throw ebis;
         }
         
-    }
-
-    /* (non-Javadoc)
-     * @see eu.sqooss.service.db.DBService#getSession(java.lang.Object)
-     */
-    public Session getSession(Object holder) {
-        Session s = null;
-        try {
-            s = sm.getSession(holder);
-        } catch (Exception e) {
-            logger.error("getSession(): " + e.getMessage());
-        }
-        return s;
-    }
-
-    /* (non-Javadoc)
-     * @see eu.sqooss.service.db.DBService#returnSession(org.hibernate.Session)
-     */
-    public void returnSession(Session s) {
-        sm.returnSession(s);
     }
 
     /* (non-Javadoc)
      * @see eu.sqooss.service.db.DBService#addRecord(eu.sqooss.service.db.DAObject)
      */
     public boolean addRecord(DAObject record) {
-        Session s = getSession(this);
-        try {
-            return addRecord(s, record);
-        } finally {
-            returnSession(s);
-        }
-    }
-
-    /* (non-Javadoc)
-     * @see eu.sqooss.service.db.DBService#addRecord(org.hibernate.Session, eu.sqooss.service.db.DAObject)
-     */
-    public boolean addRecord(Session s, DAObject record) {
         ArrayList<DAObject> tmpList = new ArrayList<DAObject>(1);
         tmpList.add(record);
-        return addRecords(s, tmpList);
+        return addRecords(tmpList);
     }
 
-    /* (non-Javadoc)
-     * @see eu.sqooss.service.db.DBService#updateRecord(eu.sqooss.service.db.DAObject)
-     */
-    public boolean updateRecord(DAObject record) {
-        Session s = getSession(this);
-        try {
-            return updateRecord(s, record);            
-        } finally {
-            returnSession(s);            
-        }
-    }
-
-    /* (non-Javadoc)
-     * @see eu.sqooss.service.db.DBService#updateRecord(org.hibernate.Session, eu.sqooss.service.db.DAObject)
-     */
-    public boolean updateRecord(Session s, DAObject record) {
-        ArrayList<DAObject> tmpList = new ArrayList<DAObject>(1);
-        tmpList.add(record);
-        return updateRecords(s, tmpList);
-    }
+//    /* (non-Javadoc)
+//     * @see eu.sqooss.service.db.DBService#updateRecord(eu.sqooss.service.db.DAObject)
+//     */
+//    public boolean updateRecord(DAObject record) {
+//        ArrayList<DAObject> tmpList = new ArrayList<DAObject>(1);
+//        tmpList.add(record);
+//        return updateRecords(tmpList);
+//    }
 
     /* (non-Javadoc)
      * @see eu.sqooss.service.db.DBService#deleteRecord(eu.sqooss.service.db.DAObject)
      */
     public boolean deleteRecord(DAObject record) {
-        Session s = getSession(this);
-        try {
-            return deleteRecord(s, record);            
-        } finally {
-            returnSession(s);            
-        }
-    }
-
-    /* (non-Javadoc)
-     * @see eu.sqooss.service.db.DBService#deleteRecord(org.hibernate.Session, eu.sqooss.service.db.DAObject)
-     */
-    public boolean deleteRecord(Session s, DAObject record) {
         ArrayList<DAObject> tmpList = new ArrayList<DAObject>(1);
         tmpList.add(record);
-        return deleteRecords(s, tmpList);
+        return deleteRecords(tmpList);
     }
 
     /* (non-Javadoc)
      * @see eu.sqooss.service.db.DBService#addRecords(java.util.List)
      */
     public boolean addRecords(List<DAObject> records) {
-        Session s = getSession(this);
-        try {
-            return addRecords(s, records);
-        } finally {
-            returnSession(s);
-        }
-    }
-
-    /* (non-Javadoc)
-     * @see eu.sqooss.service.db.DBService#addRecords(org.hibernate.Session, java.util.List)
-     */
-    public boolean addRecords(Session s, List<DAObject> records) {
-
-        if( s == null )
+        if( !checkSession() )
             return false;
 
-        Transaction tx = null;
         DAObject lastRecord = null;
         try {
-            tx = s.beginTransaction();
+            Session s = sessionFactory.getCurrentSession();
             for (DAObject record : records) {
                 lastRecord = record;
                 s.save(record);				
             }
             lastRecord = null;
-            tx.commit();
             return true;
-        } catch( TransactionException e ) {
-            logger.error("Transaction error: " + e.getMessage());
-            return false;
         } catch (HibernateException e) {
             if (lastRecord != null) {
                 logger.error("Failed to add object "
                         + "[" + lastRecord.getClass().getName() + ":" + lastRecord.getId() + "]"
                         + " to the database: " + e.getMessage());
             }
-            logExceptionAndRollbackTransaction(e,tx);
+            logExceptionAndTerminateSession(e);
             return false;
         }
     }
 
-    /* (non-Javadoc)
-     * @see eu.sqooss.service.db.DBService#updateRecords(java.util.List)
-     */
-    public boolean updateRecords(List<DAObject> records) {
-        Session s = getSession(this);
-        try {
-            return updateRecords(s, records);
-        } finally {
-            returnSession(s);
-        }
-    }
-
-    /* (non-Javadoc)
-     * @see eu.sqooss.service.db.DBService#updateRecords(org.hibernate.Session, java.util.List)
-     */
-    public boolean updateRecords(Session s, List<DAObject> records) {
-
-        if( s == null )
-            return false;
-
-        Transaction tx = null;
-        DAObject lastRecord = null;
-        try {
-            tx = s.beginTransaction();
-            for (DAObject record : records) {
-                lastRecord = record;
-                s.update(record);               
-            }
-            lastRecord = null;
-            tx.commit();
-            return true;
-        } catch( TransactionException e ) {
-            logger.error("Transaction error: " + e.getMessage());
-            return false;
-        } catch (HibernateException e) {
-            if (lastRecord != null) {
-                logger.error("Failed to update object "
-                        + "[" + lastRecord.getClass().getName() + ":" + lastRecord.getId() + "]"
-                        + " in the database: " + e.getMessage());
-            }
-            logExceptionAndRollbackTransaction(e,tx);
-            return false;
-        }
-    }
+//    /* (non-Javadoc)
+//     * @see eu.sqooss.service.db.DBService#updateRecords(java.util.List)
+//     */
+//    public boolean updateRecords(List<DAObject> records) {
+//        if( !checkSession() )
+//            return false;
+//
+//        DAObject lastRecord = null;
+//        try {
+//            Session s = sessionFactory.getCurrentSession();
+//            for (DAObject record : records) {
+//                lastRecord = record;
+//                s.update(record);               
+//            }
+//            lastRecord = null;
+//            return true;
+//        } catch (HibernateException e) {
+//            if (lastRecord != null) {
+//                logger.error("Failed to update object "
+//                        + "[" + lastRecord.getClass().getName() + ":" + lastRecord.getId() + "]"
+//                        + " in the database: " + e.getMessage());
+//            }
+//            logExceptionAndTerminateSession(e);
+//            return false;
+//        }
+//    }
 
     /* (non-Javadoc)
      * @see eu.sqooss.service.db.DBService#deleteRecords(java.util.List)
      */
     public boolean deleteRecords(List<DAObject> records) {
-        Session s = getSession(this);
-        try {
-            return deleteRecords(s, records);
-        } finally {
-            returnSession(s);
-        }
-    }
-
-    /* (non-Javadoc)
-     * @see eu.sqooss.service.db.DBService#deleteRecords(org.hibernate.Session, java.util.List)
-     */
-    public boolean deleteRecords(Session s, List<DAObject> records) {
-
-        if( s == null )
+        if( !checkSession() )
             return false;
 
-        Transaction tx = null;
         DAObject lastRecord = null;
         try {
-            tx = s.beginTransaction();
+            Session s = sessionFactory.getCurrentSession();
             for (DAObject record : records) {
                 lastRecord = record;
                 s.delete(record);				
             }
             lastRecord = null;
-            tx.commit();
             return true;
-        } catch( TransactionException e ) {
-            logger.error("Transaction error: " + e.getMessage());
-            return false;
         } catch (HibernateException e) {
             if (lastRecord != null) {
                 logger.error("Failed to remove object "
                         + "[" + lastRecord.getClass().getName() + ":" + lastRecord.getId() + "]"
                         + " from the database: " + e.getMessage());
             }
-            logExceptionAndRollbackTransaction(e,tx);
+            logExceptionAndTerminateSession(e);
+            return false;
+        }
+    }
+    
+    public boolean addAssociation(Object compositeKey) {
+        if( !checkSession() )
+            return false;
+
+        try {
+            Session s = sessionFactory.getCurrentSession();
+            s.save(compositeKey);
+            return true;
+        } catch (HibernateException e) {
+            logExceptionAndTerminateSession(e);
+            return false;
+        }
+    }
+
+    public boolean deleteAssociation(Object compositeKey) {
+        if( !checkSession() )
+            return false;
+
+        try {
+            Session s = sessionFactory.getCurrentSession();
+            s.delete(compositeKey);
+            return true;
+        } catch (HibernateException e) {
+            logExceptionAndTerminateSession(e);
             return false;
         }
     }
 
     public Object selfTest() {
-        Object[] o = new Object[INIT_POOL_SIZE + 1];
-        Session[] s = new Session[INIT_POOL_SIZE + 1];
-
-        try {
-            for (int i = 0; i < INIT_POOL_SIZE + 1; i++) {
-                s[i] = null;
-            }
-
-            for (int i = 0; i < INIT_POOL_SIZE + 1; i++) {
-                s[i] = getSession(o[i]);
-            }
-
-            for (int i = 0; i < INIT_POOL_SIZE + 1; i++) {
-                if (s[i] == null) {
-                    return "Tests failed, a session is null";
-                }
-            }
-        } catch (Exception e) {
-            return "Tests failed: " + e.getMessage();
-        }
-
-        if (sm.sessions.size() != (INIT_POOL_SIZE + (INIT_POOL_SIZE / 2))) {
-            return "Tests failed: Session pool size should be "
-            + (INIT_POOL_SIZE + (INIT_POOL_SIZE / 2)) + ", it is "
-            + sm.sessions.size();
-        }
-
-        o = new Object[MAX_POOL_SIZE + 3];
-        s = new Session[MAX_POOL_SIZE + 3];
-
-        for (int i = 0; i < MAX_POOL_SIZE + 3; i++) {
-            s[i] = getSession(o[i]);
-        }
-
-        if (s[MAX_POOL_SIZE + 2] != null) {
-            return ("Tests failed, the session pool should have returned null");
-        }
-
-        for (int i = 0; i < MAX_POOL_SIZE + 3; i++) {
-            returnSession(s[i]);
-        }
         
-        // API tests
+        if ( !startDBSession() )
+            return "couldn't initialize DB session";
         
         StoredProject testProject = findObjectById(StoredProject.class, 1);
         if ( testProject != null ) {
@@ -909,11 +567,13 @@ public class DBServiceImpl implements DBService {
         } else {
             // Not an error, there may just not be any projects installed yet
             logger.info("found no project with ID 1, findObjectById() returned null");
+            rollbackDBSession();
             return null;
         }
         // This one should fail
         StoredProject unknownProject = findObjectById(StoredProject.class, -1);
         if ( unknownProject != null ) {
+            rollbackDBSession();
             return "found a project with ID -1 !";
         }
         // This doesn't even compile - good
@@ -922,37 +582,43 @@ public class DBServiceImpl implements DBService {
         Map<String, Object> props = Collections.emptyMap();
         List<StoredProject> projectList = findObjectsByProperties(StoredProject.class, props);
         if ( projectList.size() != StoredProject.getProjectCount() ) {
+            rollbackDBSession();
             return "findObjectsByProperties() empty params test failed";
         }
         
         props = new HashMap<String, Object>();
         props.put("name", testProject.getName());
         projectList = findObjectsByProperties(StoredProject.class, props);
-        if ( projectList.size() != 1 || !projectList.get(0).equals(testProject) ) {
+        if ( projectList.size() != 1 || projectList.get(0).getId() != testProject.getId() ) {
+            rollbackDBSession();
             return "findObjectsByProperties() name param test failed";
         }
         props.put("name", "no_project_would_ever_be_called_that");
         projectList = findObjectsByProperties(StoredProject.class, props);
         if ( !projectList.isEmpty() ) {
+            rollbackDBSession();
             return "findObjectsByProperties invalid name param test failed";
         }
         props.clear();
         props.put("name", testProject.getName());
         props.put("id", testProject.getId());
         projectList = findObjectsByProperties(StoredProject.class, props);
-        if ( projectList.size() != 1 || !projectList.get(0).equals(testProject) ) {
+        if ( projectList.size() != 1 || projectList.get(0).getId() != testProject.getId() ) {
+            rollbackDBSession();
             return "findObjectsByProperties() name+id param test failed";
         }
         
         props.put("id", 0L);
         projectList = findObjectsByProperties(StoredProject.class, props);
         if ( !projectList.isEmpty() ) {
+            rollbackDBSession();
             return "findObjectsByProperties() invalid id param test failed";
         }
 
         props.put("id", "oops");
         projectList = findObjectsByProperties(StoredProject.class, props);
         if ( !projectList.isEmpty() ) {
+            rollbackDBSession();
             return "findObjectsByProperties() invalid param type test failed";
         }
 
@@ -961,12 +627,14 @@ public class DBServiceImpl implements DBService {
         props.put("id", 1);
         projectList = findObjectsByProperties(StoredProject.class, props);
         if ( !projectList.isEmpty() ) {
+            rollbackDBSession();
             return "findObjectsByProperties() int constant param test failed";
         }
         // This is correct
         props.put("id", 1L);
         projectList = findObjectsByProperties(StoredProject.class, props);
         if ( projectList.isEmpty() ) {
+            rollbackDBSession();
             return "findObjectsByProperties() long constant param test failed";
         }
         
@@ -974,23 +642,32 @@ public class DBServiceImpl implements DBService {
         props.put("thatonedoesntexist", "duh");
         projectList = findObjectsByProperties(StoredProject.class, props);
         if ( !projectList.isEmpty() ) {
+            rollbackDBSession();
             return "findObjectsByProperties() invalid param name failed";
         }
         
-        // Test doHQL and doSQL error handling
+        rollbackDBSession();
+        // TODO: add some out-of-session tests
         
+        // Test doHQL and doSQL error handling
+
+        startDBSession();
         boolean exceptionThrown = false;
         try {
             doHQL("from Something as a where a.id = 1");
         } catch (QueryException e) {
             exceptionThrown = true;
+            if (isDBSessionActive())
+                return "DB session still active after exception";
         } catch (Exception e) {
             return "unexpected exception thrown during doHQL() invalid query test"; 
         }
         if (!exceptionThrown) {
+            rollbackDBSession();
             return "doHQL() invalid query failed";
         }
 
+        startDBSession();
         exceptionThrown = false;
         props.clear();
         props.put("id", "duh");
@@ -998,38 +675,50 @@ public class DBServiceImpl implements DBService {
             doHQL("from StoredProject as p where p.id = :id", props);
         } catch (QueryException e) {
             exceptionThrown = true;
+            if (isDBSessionActive())
+                return "DB session still active after exception";
         } catch (Exception e) {
             return "unexpected exception thrown during doHQL() invalid param test"; 
         }
         if (!exceptionThrown) {
+            rollbackDBSession();
             return "doHQL() invalid param failed";
         }
 
+        startDBSession();
         exceptionThrown = false;
         props.clear();
         try {
             doHQL("from StoredProject as p where p.id = :id", props);
         } catch (QueryException e) {
             exceptionThrown = true;
+            if (isDBSessionActive())
+                return "DB session still active after exception";
         } catch (Exception e) {
             return "unexpected exception thrown during doHQL() missing param test"; 
         }
         if (!exceptionThrown) {
+            rollbackDBSession();
             return "doHQL() missing param failed";
         }
         
+        startDBSession();
         exceptionThrown = false;
         try {
             doSQL("SELECT * FROM NADA");
         } catch (SQLException e) {
             exceptionThrown = true;
+            if (isDBSessionActive())
+                return "DB session still active after exception";
         } catch (Exception e) {
             return "unexpected exception thrown during doSQL() invalid query test"; 
         }
         if (!exceptionThrown) {
+            rollbackDBSession();
             return "doSQL() invalid query failed";
         }
         
+        startDBSession();
         exceptionThrown = false;
         props.clear();
         props.put("id", "duh");
@@ -1037,26 +726,35 @@ public class DBServiceImpl implements DBService {
             doSQL("SELECT * FROM STORED_PROJECT WHERE PROJECT_ID=:id", props);
         } catch (SQLException e) {
             exceptionThrown = true;
+            if (isDBSessionActive())
+                return "DB session still active after exception";
         } catch (Exception e) {
             return "unexpected exception thrown during doSQL() invalid param test"; 
         }
         if (!exceptionThrown) {
+            rollbackDBSession();
             return "doSQL() invalid param failed";
         }
 
+        startDBSession();
         exceptionThrown = false;
         props.clear();
         try {
             doSQL("SELECT * FROM STORED_PROJECT WHERE PROJECT_ID=:id", props);
         } catch (QueryException e) {
             exceptionThrown = true;
+            if (isDBSessionActive())
+                return "DB session still active after exception";
         } catch (Exception e) {
             return "unexpected exception thrown during doSQL() missing param test"; 
         }
         if (!exceptionThrown) {
+            rollbackDBSession();
             return "doSQL() missing param failed";
         }
         
+        startDBSession();
+
         // Now test the addRecord/updateRecord/deleteRecord methods
         
         final String testProjectName = "selfTestTempProject";
@@ -1064,6 +762,7 @@ public class DBServiceImpl implements DBService {
         props.put("name", testProjectName);
         projectList = findObjectsByProperties(StoredProject.class, props);
         if ( !projectList.isEmpty() ) {
+            rollbackDBSession();
             return "a project named 'selfTestTempProject' already exists, aborting tests";
         }
         
@@ -1077,39 +776,204 @@ public class DBServiceImpl implements DBService {
         // Should still not be in the db yet
         projectList = findObjectsByProperties(StoredProject.class, props);
         if ( !projectList.isEmpty() ) {
+            rollbackDBSession();
             return "project 'selfTestTempProject' in the database before calling addRecord ?!";
         }
 
-        addRecord(testProject);
+        if ( !addRecord(testProject) ) {
+            return "error while calling addRecord()";
+        }
+        
+        // The following test fails, because of a weird Hibernate behavior:
+        // The object is found in the session cache, so Hibernate returns it
+        // although it actually doesn't exist in the DB yet (we haven't committed the results)
+        // --> So always make sure to commit your changes before the next query
+//        projectList = findObjectsByProperties(StoredProject.class, props);
+//        if ( !projectList.isEmpty() ) {
+//            rollbackDBSession();
+//            return "project 'selfTestTempProject' saved in the db before calling commit";
+//        }
+
+        if ( !commitDBSession() ) {
+            return "error while committing db session after adding a record";
+        }
+        
+        startDBSession();
         projectList = findObjectsByProperties(StoredProject.class, props);
-        if ( projectList.isEmpty() || projectList.get(0) != testProject ) {
+        if ( projectList.isEmpty() ) {
+            rollbackDBSession();
             return "project 'selfTestTempProject' not saved in the db";
         }
 
-        // testProject is detached at that point, so changes should not be automatically
-        // persisted in the db
+        // testProject is detached at that point (it belongs to the previous session)
+        // so changes should NOT be persisted in the db at the next commit
         testProject.setContact("duh");
+        if ( !commitDBSession() ) {
+            return "error while committing session afer change to project";
+        }        
+
         props.clear();
         props.put("contact", "duh");
+        startDBSession();
         projectList = findObjectsByProperties(StoredProject.class, props);
         if ( !projectList.isEmpty() ) {
-            return "new contact property was set in the db";
-        }
-        
-        updateRecord(testProject);
-        // now it should have made it to the db
-        if ( projectList.isEmpty() || projectList.get(0) != testProject ) {
-            return "project 'selfTestTempProject' not updated in the db";
+            rollbackDBSession();
+            return "new contact property for detached DAO was updated in the db";
         }
 
-        deleteRecord(testProject);
+        // Get a new testProject for the current session
+        props.clear();
+        props.put("name", testProjectName);
+        projectList = findObjectsByProperties(StoredProject.class, props);
+        if ( projectList.isEmpty() ) {
+            rollbackDBSession();
+            return "couldn't find test project";
+        }
+        testProject = projectList.get(0);
+        testProject.setContact("duh");        
+
+        props.clear();
+        props.put("contact", "duh");
+
+        // The following test fails, because of a weird Hibernate behavior:
+        // The object is found in the session cache, so Hibernate returns it
+        // although it actually doesn't exist in the DB yet (we haven't committed the results)
+        // --> So always make sure to commit your changes before the next query
+//        projectList = findObjectsByProperties(StoredProject.class, props);
+//        if ( !projectList.isEmpty() ) {
+//            rollbackDBSession();
+//            return "new contact property was updated in the db before session commit";
+//        }
+
+        if ( !commitDBSession() ) {
+            return "error while committing session afer change to project";
+        }
+        
+        startDBSession();
+        projectList = findObjectsByProperties(StoredProject.class, props);
+        if ( projectList.isEmpty() ) {
+            rollbackDBSession();
+            return "new contact property was not updated in the db";
+        }
+        
+        if ( !deleteRecord(projectList.get(0)) ) {
+            return "error while calling deleteRecord()";
+        }
+
+        // The following test fails, because of a weird Hibernate behavior:
+        // The object is found in the session cache, so Hibernate returns it
+        // although it actually doesn't exist in the DB yet (we haven't committed the results)
+        // --> So always make sure to commit your changes before the next query
+//        projectList = findObjectsByProperties(StoredProject.class, props);
+//        if ( projectList.isEmpty() ) {
+//            rollbackDBSession();
+//            return "project 'selfTestTempProject' deleted in the db before session commit";
+//        }
+        
+        if ( !commitDBSession() ) {
+            return "error while committing session after deleting project";
+        }
+        
+        startDBSession();
         projectList = findObjectsByProperties(StoredProject.class, props);
         if ( !projectList.isEmpty() ) {
+            rollbackDBSession();
             return "project 'selfTestTempProject' not deleted in the db";
         }
         
+        commitDBSession();
         return null;
     }
+
+    public boolean startDBSession() {
+        if( isDBSessionActive() ) {
+            logger.debug("startDBSession() - a session was already started for that thread");
+            return true;
+        }
+        
+        Session s = null;
+        try {
+            s = sessionFactory.getCurrentSession();
+            //logger.debug("startDBSession: " + s + "[hashcode=" + s.hashCode() + ",open=" + s.isOpen() + "]");
+            s.beginTransaction();
+        } catch (HibernateException e) {
+            logger.error("startDBSession() - error while initializing session: " + e.getMessage());
+            if ( s != null ) {
+                try {
+                    s.close();
+                } catch (HibernateException e1) {
+                }
+            }
+            return false;
+        }
+        return true;
+    }
+
+    public boolean commitDBSession() {
+        if ( !checkSession() )
+            return false;
+        
+        Session s = null;
+        try {
+            s = sessionFactory.getCurrentSession();
+            //logger.debug("commitDBSession: " + s + "[hashcode=" + s.hashCode() + ",open=" + s.isOpen() + "]");
+            s.getTransaction().commit();
+        } catch (HibernateException e) {
+            logger.error("commitDBSession() - error while committing transaction: " + e.getMessage());
+            if ( s != null ) {
+                // The docs say to do so
+                try {
+                    s.getTransaction().rollback();
+                } catch (HibernateException e1) {
+                    try {
+                        s.close();
+                    } catch (HibernateException e2) {
+                    }
+                }
+            }
+            return false;
+        }
+        return true;
+    }
+
+    public boolean rollbackDBSession() {
+        if ( !checkSession() )
+            return false;
+        
+        Session s = null;
+        try {
+            s = sessionFactory.getCurrentSession();
+            s.getTransaction().rollback();
+        } catch (HibernateException e) {
+            logger.error("commitDBSession() - error while rolling back transaction: " + e.getMessage());
+            if ( s != null ) {
+                try {
+                    s.close();
+                } catch (HibernateException e1) {
+                }
+            }
+            return false;
+        }
+        return true;
+    }
+
+    public boolean isDBSessionActive() {
+        Session s = null;
+        try {
+            s = sessionFactory.getCurrentSession();
+            return s.getTransaction() != null && s.getTransaction().isActive();
+        } catch (HibernateException e) {
+            logger.error("isDBSessionActive() - error while checking session status: " + e.getMessage());
+            if ( s != null ) {
+                try {
+                    s.close();
+                } catch (HibernateException e1) {
+                }
+            }
+            return false;
+        }
+    }
+
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

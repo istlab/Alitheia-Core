@@ -54,6 +54,7 @@ class PendingUserCleaner extends TimerTask {
      */
     @Override
     public void run() {
+        // FIXME : Need to get access to DBService to start and end the DB session
         List<?> pendingUser = db.getFirstPendingUser();
         if ((pendingUser != null) && (pendingUser.size() != 0)) {
             PendingUser firstPendingUser = (PendingUser) pendingUser.get(0);

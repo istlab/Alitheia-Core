@@ -37,9 +37,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
-
 import eu.sqooss.impl.service.CoreActivator;
 import eu.sqooss.service.db.DAObject;
 
@@ -115,19 +112,18 @@ public class Developer extends DAObject{
 	 *         <li>The passed email is invalid syntactically</li>
 	 *         <ul>
 	 */
-    public static Developer getDeveloperByEmail(Session s, 
-    		String email, StoredProject sp){
+    public static Developer getDeveloperByEmail(String email, StoredProject sp){
         DBService dbs = CoreActivator.getDBService();
         
         Map<String,Object> parameterMap = new HashMap<String,Object>();
         parameterMap.put("email", email);
         parameterMap.put("storedProject", sp);
         
-        List<Developer> devs = dbs.findObjectsByProperties(s, Developer.class,
+        List<Developer> devs = dbs.findObjectsByProperties(Developer.class,
                 parameterMap);
         
         /* Developer in the DB, return it */
-        if(devs.size() > 0)
+        if ( !devs.isEmpty() )
             return devs.get(0);
         
         parameterMap.clear();
@@ -139,14 +135,13 @@ public class Developer extends DAObject{
         parameterMap.put("username", unameFromEmail);
         parameterMap.put("storedProject", sp);
         
-        devs = dbs.findObjectsByProperties(s, Developer.class,
+        devs = dbs.findObjectsByProperties(Developer.class,
                 parameterMap);
         
         /* Developer's uname in table, update with email and return it */
-        if(devs.size() > 0) {
+        if ( !devs.isEmpty() ) {
             Developer d = devs.get(0);
             d.setEmail(email);
-            s.update(s);
             return d;
         }
         
@@ -157,31 +152,12 @@ public class Developer extends DAObject{
         d.setStoredProject(sp);
         
         /*Failure here probably indicates non-existing StoredProject*/
-        s.save(d);
+        if ( !dbs.addRecord(d) )
+            return null;
         
         return d;
     }
-    
-    /** 
-     * Session-less implementation of {@link  Developer.getDeveloperByEmail} 
-     */
-    public static Developer getDeveloperByEmail(String email, 
-    		StoredProject sp) {
-    	Object sessionHolder = new Object();
-    	DBService dbs = CoreActivator.getDBService();
-    	Session s = dbs.getSession(sessionHolder);
-    	Developer d = getDeveloperByUsername(s, email, sp);
-    	try {
-    		s.getTransaction().commit();
-    	} catch (HibernateException e) {
-    		s.getTransaction().rollback();
-    		d = null;
-    	} finally {
-    		dbs.returnSession(s);
-    	}
-    	return d;
-    }
-   
+       
     /**
 	 * Return the entry in the Developer table that corresponds to the provided
 	 * username. If the entry does not exist, it will be created and saved. If
@@ -191,13 +167,12 @@ public class Developer extends DAObject{
 	 * This method comes in two flavours that enable its use in both 
 	 * manual and automatic transaction management environments.
 	 * 
-	 * @param s The Session to use when accessing the database
 	 * @param username The Developer's username
 	 * @param sp The StoredProject this Developer belongs to
 	 * @return A Developer record for the specified Developer or null on failure
 	 */
-    public static Developer getDeveloperByUsername(Session s, 
-    		String username, StoredProject sp) {
+    @SuppressWarnings("unchecked")
+    public static Developer getDeveloperByUsername(String username, StoredProject sp) {
 		
 		DBService dbs = CoreActivator.getDBService();
 
@@ -205,7 +180,7 @@ public class Developer extends DAObject{
 		parameterMap.put("username", username);
 		parameterMap.put("storedProject", sp);
 
-		List<Developer> devs = dbs.findObjectsByProperties(s, Developer.class,
+		List<Developer> devs = dbs.findObjectsByProperties(Developer.class,
 				parameterMap);
 
 		/* 
@@ -213,7 +188,7 @@ public class Developer extends DAObject{
 		 * Username + storedproject is unique, so only one record 
 		 * can be returned by the query 
 		 */
-		if (devs.size() > 0)
+		if ( !devs.isEmpty() )
 			return devs.get(0);
 
 		/* 
@@ -222,14 +197,13 @@ public class Developer extends DAObject{
 		 * TODO: "like" is NOT a Hibernate keyword. The following query might 
 		 * only work with postgres  
 		 */
-		devs = (List<Developer>) dbs.doHQL(s, "from Developer where email like '" + username + "'");
+		devs = (List<Developer>) dbs.doHQL("from Developer where email like '" + username + "'");
 
 		for (Developer d : devs) {
 			String email = d.getEmail();
 			/*Ok got one, update the username*/
 			if (email.startsWith(username)) {
 				d.setUsername(username);
-				s.update(s);
 				return d;
 			}
 		}
@@ -241,31 +215,12 @@ public class Developer extends DAObject{
 		d.setStoredProject(sp);
 
 		/*Failure here probably indicates non-existing StoredProject*/
-		s.save(d);
+		if ( !dbs.addRecord(d) )
+		    return null;
 		
 		return d;
 	}   
     
-    /** 
-     * Session-less implementation of {@link  Developer.getDeveloperByUsername} 
-     */
-    public static Developer getDeveloperByUsername(String username, 
-    		StoredProject sp) {
-    	Object sessionHolder = new Object();
-    	DBService dbs = CoreActivator.getDBService();
-    	
-    	Session s = dbs.getSession(sessionHolder);
-    	Developer d = getDeveloperByUsername(s, username, sp);
-    	try {
-    		s.getTransaction().commit();
-    	} catch (HibernateException e) {
-    		s.getTransaction().rollback();
-    		d = null;
-    	} finally {
-    		dbs.returnSession(s);
-    	}
-    	return d;
-    }
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

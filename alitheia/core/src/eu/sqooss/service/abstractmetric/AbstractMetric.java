@@ -291,6 +291,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
          *       metric type records. Therefore the following block is
          *       used to create them explicitly when required.
          */
+        db.startDBSession();
         if (MetricType.getMetricType(type) == null) {
             MetricType newType = new MetricType(type);
             db.addRecord(newType);
@@ -300,7 +301,8 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         m.setMnemonic(mnemonic);
         m.setMetricType(MetricType.getMetricType(type));
         m.setPlugin(Plugin.getPluginByHashcode(getUniqueKey()));
-        return db.addRecord(m);
+        db.addRecord(m);
+        return db.commitDBSession();
     }
 
     /**
@@ -333,14 +335,14 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
             // Store the evaluation mark locally
             evaluationMarked.put(sp.getId(), me.getId());
 
-            // Get a DB session
-            Session s = db.getSession(this);
+    	    if ( !db.startDBSession() )
+    	        return; 
 
             // Search for a previous evaluation of this metric on this project
             HashMap<String, Object> filter = new HashMap<String, Object>();
             filter.put("metric", me);
             filter.put("storedProject", sp);
-            List<EvaluationMark> wasEvaluated = db.findObjectsByProperties(s,
+            List<EvaluationMark> wasEvaluated = db.findObjectsByProperties(
                     EvaluationMark.class, filter);
 
             // If this is a first time evaluation, then remember this in the DB
@@ -348,11 +350,12 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
                 EvaluationMark evaluationMark = new EvaluationMark();
                 evaluationMark.setMetric(me);
                 evaluationMark.setStoredProject(sp);
-                db.addRecord(evaluationMark);
+                if ( !db.addRecord(evaluationMark) ) {
+                    db.rollbackDBSession();
+                    return; // a log entry will be found in the db
+                }
             }
-
-            // Free the DB session
-            db.returnSession(s);
+            db.commitDBSession();
         }
     }
 
@@ -365,11 +368,16 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         HashMap<String, Object> h = new HashMap<String, Object>();
         h.put("name", this.getName());
         
+        if ( !db.startDBSession() ) {
+            return false;
+        }
+        
         List<Plugin> plugins = db.findObjectsByProperties(Plugin.class, h);
         
         if (!plugins.isEmpty()) {
             log.warn("A plugin with name <" + getName()
                     + "> is already installed, won't re-install.");
+            db.rollbackDBSession();
             return false;
         }
 
@@ -382,7 +390,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         
         db.addRecord(p);
         
-        return true;
+        return db.commitDBSession();
     }
 
     /**
@@ -391,13 +399,21 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      * Subclasses should also clean up any custom tables created.
      */
     public boolean remove() {
-
+        if ( !db.startDBSession() ) {
+            return false;
+        }
         Plugin p = Plugin.getPluginByHashcode(getUniqueKey());
-        return db.deleteRecord(p);
+        if ( db.deleteRecord(p) ) {
+            return db.commitDBSession();
+        } else {
+            db.rollbackDBSession();
+            return false;
+        }
     }
 
     public boolean update() {
         HashMap<String, Object> h = new HashMap<String, Object>();
+        db.startDBSession();
         List<StoredProject> l = db.findObjectsByProperties(StoredProject.class, h);
         
         for(StoredProject sp : l) {
@@ -410,7 +426,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
                 log.error("Cannot schedule update job");
             }
         }
-        
+        db.commitDBSession();
         return true;
     }
     
@@ -451,6 +467,9 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      */
     protected final void addConfigEntry(String name, String defValue, 
             String msg, PluginInfo.ConfigurationType type) {
+        if ( !db.startDBSession() )
+            return;
+        
         Plugin p = Plugin.getPluginByHashcode(getUniqueKey());
         List<PluginConfiguration> pcList = Plugin.getConfigEntries(p);
         Iterator<PluginConfiguration> i = pcList.iterator();
@@ -465,7 +484,6 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
                 pc.setMsg(msg);
                 pc.setType(type.toString());
                 found = true;
-                db.updateRecord(pc);
                 break;
             }
         }
@@ -479,7 +497,10 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
             pc.setPlugin(p);
             db.addRecord(pc);
         }
-        pa.pluginUpdated(this);
+        
+        if ( db.commitDBSession() ) {
+            pa.pluginUpdated(this);
+        }
     }
     
     /**
@@ -487,6 +508,9 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      * @param name The name of the configuration property to remove
      */
     protected final void removeConfigEntry(String name) {
+        if ( !db.startDBSession() ) {
+            return;
+        }
         Plugin p = Plugin.getPluginByHashcode(getUniqueKey());
         List<PluginConfiguration> pcList = Plugin.getConfigEntries(p);
         Iterator<PluginConfiguration> i = pcList.iterator();
@@ -501,6 +525,8 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
                 break;
             }
         }
-        pa.pluginUpdated(this);
+        if ( db.commitDBSession() ) {
+            pa.pluginUpdated(this);
+        }
     }
 }

@@ -75,7 +75,7 @@ public class MetricActivatorJob extends Job {
     @Override
     protected void run() throws Exception {
          
-        Session s = dbs.getSession(this);
+        dbs.startDBSession();
         for(Long i : objectIDs) {
             for (PluginInfo pi : pli) {
                 // Get the metric plug-in that installed this metric
@@ -85,14 +85,14 @@ public class MetricActivatorJob extends Job {
                     try {
                         // Retrieve the resource object's DAO from the
                         // database and run the metric on it
-                        m.run(dbs.findObjectById(s, clazz, i));
+                        m.run(dbs.findObjectById(clazz, i));
                     } catch (MetricMismatchException e) {
                         logger.warn("Metric " + m.getName() + " failed");
                     }
                 }
             }
         }
-        dbs.returnSession(s);
+        dbs.commitDBSession();
     }
 }
 

@@ -37,8 +37,6 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
-import org.hibernate.Session;
-
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.User;
 
@@ -46,34 +44,24 @@ public abstract class AbstractManager {
     
     private static final String ATTRIBUTE_USER_NAME = "name";  
     
-    private DBService db;
-    private Map<String, Object> properties;
-    private Object lockObject = new Object();
+    protected DBService db;
     
     protected AbstractManager(DBService db) {
         this.db = db;
-        properties = new Hashtable<String, Object>(1);
     }
     
     protected boolean updateUserActivity(String userName) {
-        Session session = null;
-        try {
-            session = db.getSession(this);
-            synchronized (lockObject) {
-                properties.put(ATTRIBUTE_USER_NAME, userName);
-                List<User> users = db.findObjectsByProperties(session, User.class, properties);
-                if (users.size() != 0) { //the user name is unique
-                    users.get(0).setLastActivity(new Date(System.currentTimeMillis()));
-                    return true;
-                } else {
-                    return false; // the user doesn't exist
-                }
-            }
-        } finally {
-            if (session != null) {
-                session.flush();
-                db.returnSession(session);
-            }
+        Map<String,Object> properties = new Hashtable<String, Object>(1);
+        properties.put(ATTRIBUTE_USER_NAME, userName);
+        db.startDBSession();
+        List<User> users = db.findObjectsByProperties(User.class, properties);
+        if ( !users.isEmpty() ) { //the user name is unique
+            users.get(0).setLastActivity(new Date(System.currentTimeMillis()));
+            db.commitDBSession();
+            return true;
+        } else {
+            db.rollbackDBSession();
+            return false; // the user doesn't exist
         }
     }
     

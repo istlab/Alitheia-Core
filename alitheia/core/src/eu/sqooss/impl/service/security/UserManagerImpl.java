@@ -102,7 +102,9 @@ public class UserManagerImpl implements UserManager {
         this.messaging = messaging;
         this.logger = logger;
         
+        db.startDBSession();
         initNewUserPermission();
+        db.commitDBSession();
         
         try {
         	messageDigest = MessageDigest.getInstance("SHA-256");
@@ -131,8 +133,6 @@ public class UserManagerImpl implements UserManager {
         if (dbWrapper.createUser(newUser)) {
             if (addDefaultPermission(newUser)) {
                 return newUser;
-            } else {
-                deleteUser(newUser.getId());
             }
         }
         return null;
@@ -186,11 +186,12 @@ public class UserManagerImpl implements UserManager {
      * @see eu.sqooss.service.security.UserManager#createPendingUser(java.lang.String, java.lang.String, java.lang.String)
      */
     public boolean createPendingUser(String userName, String password, String email) {
+        
         logger.debug("Create pending user! user name: " + userName +
                 "; e-mail: " + email);
         
         // Check if there is an existing user (or pending) with the same name
-        if ((getUser(userName) != null) || (hasPendingUserName(userName))) {
+        if ( !dbWrapper.getUser(userName).isEmpty() || !dbWrapper.hasPendingUserName(userName) ) {
             return false;
         }
         
@@ -233,7 +234,7 @@ public class UserManagerImpl implements UserManager {
      */
     public boolean deleteUser(long userId) {
         logger.debug("Delete user! user's id: " + userId);
-        User user = getUser(userId);
+        User user = dbWrapper.getUser(userId);
         return deleteUser(user);
     }
 
@@ -242,8 +243,12 @@ public class UserManagerImpl implements UserManager {
      */
     public boolean deleteUser(String userName) {
         logger.debug("Delete user! username: " + userName);
-        User user = getUser(userName);
-        return deleteUser(user);
+        List<User> user = dbWrapper.getUser(userName);
+        if ( !user.isEmpty() ) {
+            return deleteUser(user.get(0));
+        } else {
+            return false;
+        }
     }
 
     private boolean deleteUser(User user) {
@@ -324,6 +329,7 @@ public class UserManagerImpl implements UserManager {
     }
     
     private void initNewUserPermission() {
+        
         Group[] groups = groupManager.getGroups();
         for (Group group : groups) {
             if (NEW_USERS_GROUP_DESCRIPTION.equals(group.getDescription())) {
@@ -469,7 +475,7 @@ public class UserManagerImpl implements UserManager {
      */
     public boolean activatePendingUser (String hashValue) {
         PendingUser p = dbWrapper.getPendingUser("hash", hashValue);
-        if (createUser(p.getName(), p.getPassword(), p.getEmail()) != null) {
+        if ( p != null && createUser(p.getName(), p.getPassword(), p.getEmail()) != null) {
             return dbWrapper.deletePendingUser(p);
         }
         return false;

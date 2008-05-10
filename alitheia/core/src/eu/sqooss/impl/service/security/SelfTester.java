@@ -77,6 +77,8 @@ public class SelfTester {
     }
     
     public String test() {
+        // FIXME : Get access to the DBService to start and end a session
+        
         if (!isEnable) {
             return null; //the security control is not enabled
         }

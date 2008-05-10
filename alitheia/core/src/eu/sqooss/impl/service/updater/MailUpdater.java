@@ -138,6 +138,7 @@ class MailUpdater extends Job {
                     InternetAddress inet = new InternetAddress(actualSender.toString());
                     senderEmail = inet.getAddress();
                 }
+                dbs.startDBSession();
                 Developer sender = Developer.getDeveloperByEmail(senderEmail,
 						mllist.getStoredProject());
                 MailMessage mmsg = MailMessage.getMessageById(messageId);
@@ -151,6 +152,7 @@ class MailUpdater extends Job {
                     mmsg.setSubject(mm.getSubject());
                     dbs.addRecord(mmsg);
                 }
+                dbs.commitDBSession();
                 if (!mailAccessor.markMessageAsSeen(listId, messageId)) {
                     logger.warn("Failed to mark message as seen.");
                 }

@@ -71,7 +71,7 @@ class Stuffer implements Runnable {
     public void run() {
         logger.debug("Now running stuffer.");
 
-        if (db != null) {
+        if (db != null && db.startDBSession() ) {
             List l = db.doHQL("from StoredProject");
 
             if (l.isEmpty()) {
@@ -82,6 +82,8 @@ class Stuffer implements Runnable {
                 StoredProject p = (StoredProject) o;
                 tds.addAccessor(p.getId(), p.getName(), p.getBugs(), p.getMail(), p.getRepository());
             }
+            
+            db.commitDBSession();
         } else {
             bogusStuffer();
         }

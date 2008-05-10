@@ -110,29 +110,11 @@ public class ProjectManagerDatabase implements ProjectManagerDBQueries {
     }
     
     public long createNewProject(StoredProject newProject, ProjectVersion newProjectVersion) {
-        Session dbSession = null;
-        Transaction transaction = null;
-        try {
-            dbSession = db.getSession(this);
-            transaction = dbSession.beginTransaction();
-            //        db.addRecord(dbSession, newStoredProject);
-            dbSession.save(newProject);
+            db.addRecord(newProject);
             long newProjectId = newProject.getId();
             newProjectVersion.setProject(newProject);
-            //        db.addRecord(dbSession, newProjectVersion);
-            dbSession.save(newProjectVersion);
-            transaction.commit();
-            db.returnSession(dbSession);
+            db.addRecord(newProjectVersion);
             return newProjectId;
-        } catch (HibernateException he) {
-            if (transaction != null) {
-                transaction.rollback();
-            }
-            if (dbSession != null) {
-                db.returnSession(dbSession);
-            }
-            throw he;
-        }
     }
     
 }

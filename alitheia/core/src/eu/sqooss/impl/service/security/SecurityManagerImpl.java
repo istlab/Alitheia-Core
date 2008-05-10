@@ -77,6 +77,7 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
     private PrivilegeManager privilegeManager;
     private ServiceUrlManager serviceUrlManager;
     private SecurityManagerDatabase dbWrapper;
+    private DBService db;
     private Logger logger;
     private ServiceReference srefHttpService = null;
     private HttpService sobjHttpService = null;
@@ -84,6 +85,12 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
     
     private class ConfirmationServlet extends HttpServlet {
         private static final long serialVersionUID = 1L;
+        
+        private DBService db;
+        
+        public ConfirmationServlet( DBService db ) {
+            this.db = db;
+        }
 
         protected void doGet(HttpServletRequest req, HttpServletResponse res)
             throws ServletException, IOException {
@@ -94,6 +101,7 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
             String confId = req.getParameter("confid");
             if ((confId != null) && (confId.length() > 0 )) {
                 
+                db.startDBSession();
                 if (userManager.hasPendingUserHash(confId)) {
                     if (userManager.activatePendingUser(confId)) {
                         content.println(
@@ -108,6 +116,7 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
                 else {
                     content.println("User not found!");
                 }
+                db.commitDBSession();
             }
             else {
                 content.println("Wrong parameters!");
@@ -124,7 +133,7 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
         AlitheiaCore sobjCore = (AlitheiaCore) bc.getService(srefCore);
 
         // Obtain the required core components
-        DBService db = sobjCore.getDBService();
+        this.db = sobjCore.getDBService();
         MessagingService messaging = sobjCore.getMessagingService();
         this.logger = logger;
 
@@ -142,7 +151,9 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
         isEnable = Boolean.valueOf(System.getProperty(PROPERTY_ENABLE, "true"));
 
         // Create the unprivileged SQO-OSS user
+        db.startDBSession();
         initDefaultUser();
+        db.commitDBSession();
         
         // Get a reference to the HTTPService, and its object
         srefHttpService = bc.getServiceReference(HttpService.class.getName());
@@ -153,7 +164,7 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
                     // Register the user's confirmation servlet
                     sobjHttpService.registerServlet(
                         "/confirmRegistration",
-                        new ConfirmationServlet(),
+                        new ConfirmationServlet(db),
                         new Hashtable<String, String>(),
                         null);
                 }
@@ -204,15 +215,22 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
         }
         
         try {
+            db.startDBSession();
             if (dbWrapper.isExistentResourceUrl(resourceUrl, userName, passwordHash)) {
-                return checkPermissionPrivileges(resourceUrl, privileges, userName, passwordHash);
+                boolean ok = checkPermissionPrivileges(resourceUrl, privileges, userName, passwordHash);
+                db.commitDBSession();
+                return ok;
             } else if (dbWrapper.isExistentResourceUrl(URL_SQOOSS, userName, passwordHash)) {
-                return checkPermissionPrivileges(URL_SQOOSS, privileges, userName, passwordHash);
+                boolean ok = checkPermissionPrivileges(URL_SQOOSS, privileges, userName, passwordHash);
+                db.commitDBSession();
+                return ok;
             } else {
+                db.commitDBSession();
                 return false; //there aren't privileges
             }
         } catch (RuntimeException re) {
             logger.warn(re.getMessage());
+            db.rollbackDBSession();
             return false;
         }
     }

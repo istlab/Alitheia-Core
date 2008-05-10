@@ -86,8 +86,11 @@ public class MetricManager extends AbstractManager {
         
         super.updateUserActivity(userName);
         
+        db.startDBSession();
         List<?> metrics = dbWrapper.getMetricsByProjectId(projectId);
-        return convertToWSMetrics(metrics);
+        WSMetric[] wsMetrics = convertToWSMetrics(metrics);
+        db.commitDBSession();
+        return wsMetrics;
     }
     
     /**
@@ -108,6 +111,8 @@ public class MetricManager extends AbstractManager {
             fileNamesSet = new HashSet<String>(Arrays.asList(fileNames));
         }
         
+        db.startDBSession();
+        
         if ((folders.length != 0) && (folders[0] != null)) {
             Map<String, Object> folderNameParameters = new Hashtable<String, Object>(1);
             List currentFileNames;
@@ -123,7 +128,9 @@ public class MetricManager extends AbstractManager {
             result = dbWrapper.getMetricsByFileNames(projectId, fileNamesSet);
         }
         
-        return convertToWSMetrics(result);
+        WSMetric[] wsMetrics = convertToWSMetrics(result);
+        db.commitDBSession();
+        return wsMetrics;
     }
     
     /**
@@ -136,7 +143,10 @@ public class MetricManager extends AbstractManager {
         
         super.updateUserActivity(userName);
         
-        return convertToWSMetrics(dbWrapper.getMetrics());
+        db.startDBSession();
+        WSMetric[] wsMetrics = convertToWSMetrics(dbWrapper.getMetrics());
+        db.commitDBSession();
+        return wsMetrics;
     }
     
     @SuppressWarnings("unchecked")
@@ -151,6 +161,7 @@ public class MetricManager extends AbstractManager {
         
         WSResultEntry[] result = null;
         List<WSResultEntry> resultList = null;
+        db.startDBSession();
         DAObject daObject = dbWrapper.getMetricsResultDAObject(resultRequest);
         if (daObject != null) {
             List<Metric> metrics = (List<Metric>) dbWrapper.getMetricsResultMetricsList(resultRequest);
@@ -160,6 +171,7 @@ public class MetricManager extends AbstractManager {
             result = new WSResultEntry[resultList.size()];
             resultList.toArray(result);
         }
+        db.commitDBSession();
         return result;
     }
     

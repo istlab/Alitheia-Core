@@ -73,9 +73,11 @@ public class ProjectManager extends AbstractManager {
         
         super.updateUserActivity(userName);
         
+        db.startDBSession();
         List<?> projects = dbWrapper.getEvaluatedProjects();
-
-        return convertToWSStoredProject(projects);
+        WSStoredProject[] wsSP = convertToWSStoredProject(projects);
+        db.commitDBSession();
+        return wsSP;
     }
     
     /**
@@ -87,15 +89,19 @@ public class ProjectManager extends AbstractManager {
         securityWrapper.checkDBReadAccess(userName, password);
         
         super.updateUserActivity(userName);
-        
+    
+        db.startDBSession();
         List queryResult = dbWrapper.getStoredProjects();
 
         List<StoredProject> l = (List<StoredProject>) queryResult;
         if (l==null) {
             logger.warn("Stored project query is broken.");
+            db.rollbackDBSession();
             return null;
         } else {
-            return convertToWSStoredProject(l);
+            WSStoredProject[] wsSP = convertToWSStoredProject(l);
+            db.commitDBSession();
+            return wsSP;
         }
     }
     
@@ -113,13 +119,13 @@ public class ProjectManager extends AbstractManager {
                 ";\n BTS: " + BTSLocation + "; user's e-mail: " + userEmailAddress +
                 "; website: " + website);
         
+        
         securityWrapper.checkDBWriteAccess(userName, password);
         
         super.updateUserActivity(userName);
         
-        List<?> projects;
-        
-        projects = dbWrapper.getStoredProjects(projectName, projectVersion);
+        db.startDBSession();
+        List<?> projects = dbWrapper.getStoredProjects(projectName, projectVersion);
         
         if (projects.size() == 0) {
             StoredProject newStoredProject = new StoredProject();
@@ -135,18 +141,21 @@ public class ProjectManager extends AbstractManager {
             newProjectVersion.setVersion(projectVersion);
             
             newStoredProjectId = dbWrapper.createNewProject(newStoredProject, newProjectVersion);
-            
+            db.commitDBSession();
             if (!tds.projectExists(newStoredProjectId)) {
                 tds.addAccessor(newStoredProjectId, projectName, BTSLocation,
                         mailingListLocation, srcRepositoryLocation);
             }
             return new WSStoredProject(newStoredProject);
         } else if (projects.size() == 1) {
-            return convertToWSStoredProject(projects)[0];
+            WSStoredProject wsp = convertToWSStoredProject(projects)[0];
+            db.commitDBSession();
+            return wsp;
         } else {
             String message = "The database contains more than 1 project! name:" + 
             projectName + "; version: " + projectVersion;
             logger.warn(message);
+            db.rollbackDBSession();
             throw new RuntimeException(message);
         }
     }
@@ -159,8 +168,10 @@ public class ProjectManager extends AbstractManager {
         logger.info("Retrieve project id! user: " + userName +
                 "; project name: " + projectName);
 
+        db.startDBSession();
         List<StoredProject> projects = dbWrapper.getStoredProjects(projectName);
-
+        db.commitDBSession();
+                
         if (projects.size() != 0) {
             long projectId = projects.get(0).getId();
             securityWrapper.checkProjectReadAccess(userName, password, projectId);
@@ -183,12 +194,16 @@ public class ProjectManager extends AbstractManager {
 
         super.updateUserActivity(userName);
         
+        db.startDBSession();
         StoredProject storedProject = dbWrapper.getProjectById(projectId);
 
         if (storedProject != null) {
             List<ProjectVersion> projectVersions = storedProject.getProjectVersions();
-            return convertToWSProjectVersion(projectVersions); 
+            WSProjectVersion[] wspv = convertToWSProjectVersion(projectVersions);
+            db.commitDBSession();
+            return wspv;
         } else {
+            db.rollbackDBSession();
             return null;
         }
 
@@ -206,13 +221,15 @@ public class ProjectManager extends AbstractManager {
 
         super.updateUserActivity(userName);
         
-        StoredProject storedProject;
-
-        storedProject = dbWrapper.getProjectById(projectId);
+        db.startDBSession();
+        StoredProject storedProject= dbWrapper.getProjectById(projectId);
         
         if (storedProject != null) {
-            return new WSStoredProject(storedProject);
+            WSStoredProject wsp = new WSStoredProject(storedProject);
+            db.commitDBSession();
+            return wsp;
         } else {
+            db.rollbackDBSession();
             return null;
         }
 
@@ -228,9 +245,12 @@ public class ProjectManager extends AbstractManager {
 
         super.updateUserActivity(userName);
         
+        db.startDBSession();
         List<?> queryResult = dbWrapper.getFilesByProjectId(projectId);
 
-        return convertToWSProjectFiles(queryResult);
+        WSProjectFile[] wspf = convertToWSProjectFiles(queryResult);
+        db.commitDBSession();
+        return wspf;
     }
     
     /**
@@ -244,9 +264,12 @@ public class ProjectManager extends AbstractManager {
         
         super.updateUserActivity(userName);
         
+        db.startDBSession();
         List<?> queryResult = dbWrapper.getFilesByProjectVersionId(projectVersionId);
         
-        return convertToWSProjectFiles(queryResult);
+        WSProjectFile[] wspf = convertToWSProjectFiles(queryResult);
+        db.commitDBSession();
+        return wspf;
     }
     
     /**
@@ -260,8 +283,9 @@ public class ProjectManager extends AbstractManager {
         
         super.updateUserActivity(userName);
         
+        db.startDBSession();
         List<?> queryResult = dbWrapper.getFilesNumberByProjectVersionId(projectVersionId);
-        
+        db.commitDBSession();
         return ((BigInteger)queryResult.get(0)).longValue();
     }
     
