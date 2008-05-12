@@ -35,6 +35,7 @@ package eu.sqooss.impl.service.webadmin;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -46,6 +47,7 @@ import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.Group;
 import eu.sqooss.service.db.PluginConfiguration;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.db.User;
@@ -64,6 +66,7 @@ import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.TDAccessor;
 import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.webadmin.WebadminService;
+import eu.sqooss.service.security.SecurityManager;
 
 import org.apache.velocity.VelocityContext;
 
@@ -87,6 +90,7 @@ public class WebAdminRenderer {
     private static Scheduler sobjSched = null;
     private static TDSService sobjTDS = null;
     private static UpdaterService sobjUpdater = null;
+    private static SecurityManager sobjSecurity = null;
 
     // Velocity stuff
     private VelocityContext vc = null;
@@ -146,6 +150,12 @@ public class WebAdminRenderer {
             sobjUpdater = sobjAlitheiaCore.getUpdater();
             if (sobjUpdater != null) {
                 sobjLogger.debug("WebAdmin got Updater Service object.");
+            }
+
+            // Get the Security Manager's object
+            sobjSecurity = sobjAlitheiaCore.getSecurityManager();
+            if (sobjSecurity != null) {
+                sobjLogger.debug("WebAdmin got the Security Manager's object.");
             }
         }
 
@@ -580,50 +590,213 @@ public class WebAdminRenderer {
         return s.toString();
     }
 
-    public static String renderUsers() {
-        // Stores the assembled HTML content
-        StringBuilder b = new StringBuilder();
-        // Indentation spacer
-        String IN = "            ";
-        // Retrieve information for all registered users
-        sobjDB.startDBSession();
-        List<?> dbUsers = sobjDB.doHQL("from User");
+    private static Long fromString (String value) {
+        try {
+            return (new Long(value));
+        }
+        catch (NumberFormatException ex){
+            return null;
+        }
+    }
 
-        if ((dbUsers != null) && (dbUsers.size() > 0)) {
-            User[] users = new User[dbUsers.size()];
-            dbUsers.toArray(users);
+    private static String debugRequest (HttpServletRequest request) {
+        StringBuilder b = new StringBuilder();
+        Enumeration<?> e = request.getParameterNames();
+        while (e.hasMoreElements()) {
+            String key = (String) e.nextElement();
+            b.append(key + "=" + request.getParameter(key) + "<br/>");
+        }
+        return b.toString();
+    }
+    
+    private static String sp (long num) {
+        StringBuilder b = new StringBuilder();
+        String space = "  ";
+        for (long i = 0; i < num; i++) {
+            b.append(space);
+        }
+        return b.toString();
+    }
+
+    public static String renderUsers(HttpServletRequest request) {
+        // Stores the assembled HTML content
+        StringBuilder b = new StringBuilder("\n");
+        // Indentation spacer
+        long in = 6;
+        // Create a DB session
+        sobjDB.startDBSession();
+        // Store all known users here
+        User[] users = null;
+        // Store all known groups here
+        Group[] groups = null;
+        // Retrieve information for all registered users
+        try {
+            users = sobjSecurity.getUserManager().getUsers();
+        }
+        catch (NullPointerException ex) {
+            users = null;
+        }
+        if ((users != null) && (users.length > 0)) {
+            // Request parameters
+            String reqParEditUser      = "editUser";
+            // Request values
+            Long reqValUserId        = null;
+            // Selected user
+            User selUser = null;
+            if (request != null) {
+                b.append(debugRequest(request));
+                // User edit request
+                if ((request.getParameter(reqParEditUser) != null) &&
+                    (request.getParameter(reqParEditUser) != "")) {
+                    // Get the requested user's object
+                    reqValUserId =
+                        fromString(request.getParameter(reqParEditUser));
+                    if (reqValUserId != null) {
+                        for (User user : users) {
+                            if (user.getId() == reqValUserId) {
+                                selUser = user;
+                            }
+                        }
+                    }
+                    // Retrieve a list of all groups in the SQO-OSS database
+                    try {
+                        groups = sobjSecurity.getGroupManager().getGroups();
+                    }
+                    catch (NullPointerException ex) {
+                        groups = null;
+                    }
+                }
+            }
             // Create the form
-            b.append("<form id=\"users\" name=\"users\" method=\"post\" action=\"/users\">\n");
+            b.append(sp(in) + "<form id=\"users\""
+                    + " name=\"users\""
+                    + " method=\"post\""
+                    + " action=\"/users\">\n");
             // Create the table
-            b.append("<table>\n");
-            b.append("<thead>\n");
-            b.append("<tr class=\"head\">\n");
-            b.append("<td class=\"head\" style=\"width: 10%;\">User Id</td>\n");
-            b.append("<td class=\"head\" style=\"width: 30%;\">User Name</td>\n");
-            b.append("<td class=\"head\" style=\"width: 30%;\">User Email</td>\n");
-            b.append("<td class=\"head\" style=\"width: 30%;\">Created</td>\n");
-            b.append("</tr>\n");
-            b.append("</thead>\n");
-            b.append("<tbody>\n");
-            // Push the users info
-            for (User nextUser : users) {
-                b.append("<tr>\n");
-                b.append("<td>" + nextUser.getId() + "</td>\n");
-                b.append("<td>" + nextUser.getName() + "</td>\n");
-                b.append("<td>" + nextUser.getEmail() + "</td>\n");
+            b.append(sp(++in) + "<table>\n");
+            b.append(sp(++in) + "<thead>\n");
+            b.append(sp(++in) + "<tr class=\"head\">\n");
+
+            // ---( HEADER ROWS )--------------------------------------------
+            // User editor - header row
+            if (selUser != null) {
+                b.append(sp(++in) + "<td class=\"head\""
+                        + " style=\"width: 40%;\">"
+                        + "Account Details</td>\n");
+                b.append(sp(in) + "<td class=\"head\" style=\"width: 30%;\">"
+                        + "Member Of</td>\n");
+                b.append(sp(in) + "<td class=\"head\" style=\"width: 30%;\">"
+                        + "Available Groups</td>\n");
+            }
+            // Users list - header row
+            else {
+                b.append(sp(++in) + "<td class=\"head\" style=\"width: 10%;\">"
+                        + "User Id</td>\n");
+                b.append(sp(in) + "<td class=\"head\" style=\"width: 30%;\">"
+                        + "User Name</td>\n");
+                b.append(sp(in) + "<td class=\"head\" style=\"width: 30%;\">"
+                        + "User Email</td>\n");
+                b.append(sp(in) + "<td class=\"head\" style=\"width: 30%;\">"
+                        + "Created</td>\n");
+            }
+            b.append(sp(--in) + "</tr>\n");
+            b.append(sp(--in) + "</thead>\n");
+            b.append(sp(in) + "<tbody>\n");
+
+            // ---( TABLE ROWS )---------------------------------------------
+            // User editor - table rows
+            if (selUser != null) {
+                b.append(sp(++in) + "<tr>\n");
+                b.append(sp(++in) + "<td>\n");
+                b.append(sp(++in) + "<table>\n");
+                b.append(sp(++in) + "<tr>\n"
+                        + sp(++in)
+                        + "<td class=\"name\">User Id</td>"
+                        + "<td>&nbsp;" + selUser.getId() + "</td>"
+                        + sp(--in) + "</tr>\n");
+                b.append(sp(in) + "<tr>\n"
+                        + sp(++in)
+                        + "<td class=\"name\">User Name</td>\n"
+                        + "<td>&nbsp;" + selUser.getName() + "</td>\n"
+                        + sp(--in) + "</tr>\n");
+                b.append(sp(in) + "<tr>\n"
+                        + sp(++in)
+                        + "<td class=\"name\">User Email</td>\n"
+                        + "<td>&nbsp;" + selUser.getEmail() + "</td>\n"
+                        + sp(--in) + "</tr>\n");
                 DateFormat date = DateFormat.getDateInstance();
-                b.append("<td>" + date.format(nextUser.getRegistered()) + "</td>\n");
-                b.append("</tr>\n");
+                b.append(sp(in) + "<tr>\n"
+                        + sp(++in)
+                        + "<td class=\"name\">Created</td>\n"
+                        + "<td>&nbsp;" + date.format(selUser.getRegistered())
+                        + "</td>\n"
+                        + sp(--in) + "</tr>\n");
+                b.append(sp(--in) + "</table>\n");
+                b.append(sp(--in) + "<td rowspan=\"4\">\n");
+                b.append(sp(++in) + "<select name=\"aa\""
+                        + " size=\"4\" style=\"width: 100%; border: 0;\">\n");
+                for (Object memberOf : selUser.getGroups()) {
+                    b.append(sp(++in) + "<option"
+                            + " value=\""
+                            + ((Group) memberOf).getId()
+                            + "\">"
+                            + ((Group) memberOf).getDescription()
+                            + "</option>\n");
+                }
+                b.append(sp(--in) + "</select>\n");
+                b.append(sp(--in) + "</td>\n");
+                b.append(sp(in) + "<td rowspan=\"4\">\n");
+                b.append(sp(++in) + "<select name=\"bb\""
+                        + " size=\"4\" style=\"width: 100%; border: 0;\">\n");
+                for (Object group : groups) {
+                    b.append(sp(++in) + "<option"
+                            + " value=\""
+                            + ((Group) group).getId()
+                            + "\">"
+                            + ((Group) group).getDescription()
+                            + "</option>\n");
+                }
+                b.append(sp(--in) + "</select>\n");
+                b.append(sp(--in) + "</td>\n");
+                b.append(sp(--in) + "</tr>\n");
+            }
+            // User list -table rows
+            else {
+                for (User nextUser : users) {
+                    String htmlEditUser = "<td"
+                        + " onclick=\"javascript:"
+                        + "document.getElementById('"
+                            + reqParEditUser + "').value='"
+                            + nextUser.getId() + "';"
+                            + "document.users.submit();\">"
+                        + nextUser.getName()
+                        + "</td>\n";
+                    b.append(sp(++in) + "<tr>\n");
+                    b.append(sp(++in) + "<td>" + nextUser.getId() + "</td>\n");
+                    b.append(sp(in) + htmlEditUser);
+                    b.append(sp(in) + "<td>" + nextUser.getEmail() + "</td>\n");
+                    DateFormat date = DateFormat.getDateInstance();
+                    b.append(sp(in) + "<td>"
+                            + date.format(nextUser.getRegistered())
+                            + "</td>\n");
+                    b.append(sp(--in) + "</tr>\n");
+                }
             }
             // Close the table
-            b.append("</tbody>\n");
-            b.append("</table>\n");
+            b.append(sp(--in) + "</tbody>\n");
+            b.append(sp(--in) + "</table>\n");
+            // User ID's input field 
+            b.append(sp(in) + "<input type=\"hidden\""
+                    + " id=\"" + reqParEditUser + "\"" 
+                    + " name=\"" + reqParEditUser + "\""
+                    + " value=\"\">\n");
             // Close the form
-            b.append("</form>\n");
+            b.append(sp(--in) + "</form>\n");
         }
         else {
             b.append("No users found!");
         }
+        // Close the DB session
         sobjDB.commitDBSession();
 
         return b.toString();

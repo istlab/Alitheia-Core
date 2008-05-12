@@ -209,7 +209,7 @@ public class AdminServlet extends HttpServlet {
             }
             else if (query.startsWith("/users")) {
                 refreshUsers = false;
-                vc.put("Users", render.renderMetrics(request));
+                vc.put("USERS", render.renderUsers(request));
                 sendPage(response, "/users.html");
             }
             else {
@@ -314,7 +314,7 @@ public class AdminServlet extends HttpServlet {
         }
         // Users content
         if (refreshUsers) {
-            vc.put("USERS", render.renderUsers());
+            vc.put("USERS", render.renderUsers(null));
         }
         else {
             refreshUsers = true;
