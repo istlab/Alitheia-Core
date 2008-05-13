@@ -46,6 +46,7 @@ public class WebuiItem {
     private static final String COMMENT = "<!-- WebuiItem -->\n";
     private StringBuilder error = new StringBuilder();
     protected Long id;
+    protected String name;
     protected String page = "home.jsp";
     protected String reqName = "id";
     protected Terrier terrier;

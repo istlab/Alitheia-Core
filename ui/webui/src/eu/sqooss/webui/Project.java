@@ -196,7 +196,7 @@ public class Project extends WebuiItem {
         if ((versions != null) && (versions.size() > 0)) {
             return versions.get(versions.firstKey());
         }
-        terrier.addError("FirstVersion null");
+        terrier.addError("FirstVersion null" + versions.size());
         return null;
     }
 
@@ -219,13 +219,14 @@ public class Project extends WebuiItem {
      * @return the list of version numbers, or null if the project has no
      * version.
      */
+/*
     public Set<Long> getVersions() {
         if (versions != null) {
             return versions.keySet();
         }
         return null;
     }
-
+*/
     /**
      * Gets a version by its ID.
      *
@@ -258,10 +259,6 @@ public class Project extends WebuiItem {
      * @param versions the list of project versions
      */
     public void setVersions() {
-        if (terrier == null) {
-            addError("Could not set versions, no terrier");
-            return;
-        }
         SortedMap<Long, Long> vs = terrier.getProjectVersions(id);
         Boolean changed = false;
         SortedMap<Long, Version> versions = new TreeMap<Long, Version>();
@@ -277,6 +274,21 @@ public class Project extends WebuiItem {
         setCurrentVersionId(getLastVersion().getId());
     }
 
+    public SortedMap<Long, Version> getVersions() {
+        return versions;
+    }
+
+/*
+    public Long[] getVersionIds() {
+        Long[] vs = new Long[versions.size()];
+        int i = 0;
+        for (Long k: versions.keySet()) {
+            vs[i] = k;
+            i++;
+        }
+        return vs;
+    }
+*/
     /**
      * Returns the last selected version of this project.
      * 

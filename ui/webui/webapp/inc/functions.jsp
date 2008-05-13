@@ -1,17 +1,23 @@
 <%!
 
-public static String versionSelector(Long projectId, Long currentVer) {
-    String form =
-        "<form id=\"selectversion\">"
-        + "Current version:"
-        + "&nbsp;"
-        + "<input type=\"text\" name=\"version" + projectId
-            + "\" value=\"" + currentVer+ "\" class=\"form\"/>"
-        + "&nbsp;"
-        + "<input type=\"submit\" value=\"Change\"  class=\"form\"/>"
-        + "</form>";
-    //String form = "bl\'\"a";
-    return form;
+public static String versionSelector(Project p) {
+    StringBuilder html = new StringBuilder("\n<form id=\"selectversion\">");
+    html.append("\n\t<select name=\"version" + p.getId() + "\" class=\"form\">");
+    SortedMap<Long, Version>versions = p.getVersions();
+    for (Long k: versions.keySet()) {
+        Version v = versions.get(k);
+        if (k.equals(p.getCurrentVersionId())) {
+            html.append("\n\t\t<option  class=\"form\" value=\""
+                + v.getId() + "\" selected=\"true\">***" + v.shortName() + "***</option>");
+        } else {
+            html.append("\n\t\t<option  class=\"form\" value=\""
+                + v.getId() + "\">" + v.shortName() +  "</option>");
+        }
+    }
+    html.append("\n\t</select>");
+    html.append("\n\t<input type=\"submit\" value=\"Go\" class=\"form\" /> ");
+    html.append("\n</form>");
+    return html.toString();
 }
 
 public static Long getId(String string_id) {

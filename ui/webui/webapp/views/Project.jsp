@@ -50,7 +50,7 @@ if (selectedProject != null && selectedProject.isValid()) {
     } else {
         out.println("Project doesn't seem to have versions recorded.");
     }
-    out.println (versionSelector(projectId, versionId));
+    out.println(versionSelector(selectedProject));
     if (inputError != null) {
         out.println(Functions.error(inputError));
     }

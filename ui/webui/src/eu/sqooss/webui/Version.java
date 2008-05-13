@@ -46,10 +46,6 @@ public class Version extends WebuiItem {
     private static final String COMMENT = "<!-- Version -->\n";
     private Long projectId;
     private Long number;
-    //private Long id;
-    //private Terrier terrier;
-    // Contains a sorted list of all files in this version mapped to their ID.
-    //private SortedMap<Long, File> files;
 
     public Version () {
         page = "version.jsp";
@@ -59,6 +55,7 @@ public class Version extends WebuiItem {
         id = wsVersion.getId();
         terrier = t;
         number = wsVersion.getVersion();
+        name = "" + number;
         projectId = wsVersion.getProject();
     }
 
@@ -68,20 +65,20 @@ public class Version extends WebuiItem {
         terrier = t;
     }
 
-    public Long getNumber () {
-        return number;
-    }
-
-    public void setNumber (Long new_number) {
-        number = new_number;
-    }
-
     public Long getProjectId() {
         return projectId;
     }
 
     public void setProjectId(Long p) {
         projectId = p;
+    }
+
+    public Long getNumber () {
+        return number;
+    }
+
+    public void setNumber(Long n) {
+        number = n;
     }
 
     public SortedMap<Long, File> getFiles () {
@@ -106,7 +103,7 @@ public class Version extends WebuiItem {
     }
 
     public String shortName () {
-        return "v" + number;
+        return "v" + id;
     }
 
     public String longName () {
