@@ -394,7 +394,7 @@ public class Terrier {
         try {
             return connection.getProjectAccessor().getFilesNumberByProjectVersionId(versionId);
         } catch (WSException e) {
-            error = "Can not retrieve the number of files for this version.";
+            addError("Can not retrieve the number of files for this version.");
         }
         return null;
     }
