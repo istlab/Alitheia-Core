@@ -32,6 +32,8 @@
 
 package eu.sqooss.scl;
 
+import org.apache.axis2.AxisFault;
+
 /**
  * Thrown when the connection can't be established to the SQO-OSS's web services service or
  * web services service throws an exception.
@@ -58,7 +60,7 @@ public class WSException extends Exception {
      * @see java.lang.Exception#Exception(java.lang.Throwable cause)
      */
     public WSException(Throwable cause) {
-        super(cause);
+        this(cause.getMessage(), cause);
     }
     
     /**
@@ -68,6 +70,25 @@ public class WSException extends Exception {
         super(message, cause);
     }
 
+    /**
+     * @see java.lang.Throwable#getMessage()
+     */
+    @Override
+    public String getMessage() {
+        Throwable lastCause = getCause();
+        if (lastCause == null) {
+            return super.getMessage();
+        } else {
+            Throwable tmpThrowable = lastCause; 
+            while ((tmpThrowable != null) &&
+                    (tmpThrowable instanceof AxisFault)) {
+                lastCause = tmpThrowable;
+                tmpThrowable = tmpThrowable.getCause();
+            }
+            return lastCause.getMessage();
+        }
+    }
+    
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

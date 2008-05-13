@@ -57,9 +57,6 @@ public class WSSession {
         this.metricAccessor  = new WSMetricAccessorImpl(userName, password, webServiceUrl);
         this.userAccessor    = new WSUserAccessorImpl(userName, password, webServiceUrl);
         initSessionUser(userName);
-        if (sessionUser == null) {
-            throw new WSException("The parameters of the session are not valid!");
-        }
     }
     
     /**
@@ -98,14 +95,17 @@ public class WSSession {
         throw new UnsupportedOperationException("Coming soon");
     }
     
-    private void initSessionUser(String userName) {
+    private void initSessionUser(String userName) throws WSException {
         try {
             sessionUser = userAccessor.getUserByName(userName);
-        } catch(WSException wse) {
-            sessionUser = null;
+        } catch (WSException wse) {
+            throw wse;
+        }
+        if (sessionUser == null) {
+            throw new WSException("Can't find the user: " + userName);
         }
     }
-    
+
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
