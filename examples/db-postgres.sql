@@ -566,6 +566,7 @@ COPY directory (directory_id, path) FROM stdin;
 --
 
 COPY evaluation_mark (evaluation_mark_id, metric_id, stored_project_id) FROM stdin;
+1	3	10
 \.
 
 
@@ -1459,9 +1460,9 @@ COPY tag (tag_id, tag_name, tag_version) FROM stdin;
 --
 
 COPY users (user_id, name, registered, last_activity, password, email) FROM stdin;
-3	alitheia	2008-01-01 00:00:00	2008-05-08 13:43:59.842	aa055fc92ac0e92be352a5a27bb5eacca8bf1b10cb22496f4dc4315b963eeaaa	NA
-1	Fluffy Bunny	1970-01-01 00:00:00	2008-05-05 18:50:24.692	carrot	bunny@kde.org
+1	Fluffy Bunny	1970-01-01 00:00:00	2008-05-08 17:41:04.283	carrot	bunny@kde.org
 2	Adriaan Bunny	2008-01-01 00:00:00	2008-02-14 00:00:00	celery	bynny@example.com
+3	alitheia	2008-01-01 00:00:00	2008-05-13 13:21:57.155	aa055fc92ac0e92be352a5a27bb5eacca8bf1b10cb22496f4dc4315b963eeaaa	NA
 \.
 
 
