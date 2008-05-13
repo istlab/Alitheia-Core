@@ -716,8 +716,15 @@ public class WebAdminRenderer {
                     + " name=\"users\""
                     + " method=\"post\""
                     + " action=\"/users\">\n");
+            // Create the "user" fieldset
+            b.append(sp(++in) + "<fieldset>\n");
+            b.append(sp(++in) + "<legend>"
+                    + ((selUser != null)
+                            ? "User " + selUser.getName()
+                            : "All users")
+                    + "</legend\n>");
             // Create the table
-            b.append(sp(++in) + "<table>\n");
+            b.append(sp(in) + "<table>\n");
             b.append(sp(++in) + "<thead>\n");
             b.append(sp(++in) + "<tr class=\"head\">\n");
 
@@ -872,16 +879,16 @@ public class WebAdminRenderer {
             // Close the table
             b.append(sp(--in) + "</tbody>\n");
             b.append(sp(--in) + "</table>\n");
+            b.append(sp(--in) + "</fieldset>\n");
 
             // ---( GROUP ROWS )---------------------------------------------
             if (selGroup != null) {
-                b.append(sp(++in) + "<table>\n");
+                b.append(sp(in) + "<fieldset>\n");
+                b.append(sp(++in) + "<legend>Group "
+                        + selGroup.getDescription() + "</legend\n>");
+                b.append(sp(in) + "<table>\n");
 
                 b.append(sp(++in) + "<thead>\n");
-                b.append(sp(++in) + "<tr class=\"head\">\n");
-                b.append(sp(++in) + "<td class=\"head\" collspan=\"3\">"
-                        + selGroup.getDescription() + "</td>\n");
-                b.append(sp(--in) + "</tr>\n");
                 b.append(sp(++in) + "<tr class=\"head\">\n");
                 b.append(sp(++in) + "<td class=\"head\""
                         + " style=\"width: 15%;\">"
@@ -912,6 +919,7 @@ public class WebAdminRenderer {
                 b.append(sp(--in) + "</tbody>\n");
 
                 b.append(sp(--in) + "</table>\n");
+                b.append(sp(--in) + "</fieldset>\n");
             }
 
             // ---( INPUT FIELD )--------------------------------------------

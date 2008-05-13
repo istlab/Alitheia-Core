@@ -324,3 +324,9 @@ td.number {
     background-color: Bisque;
     font-style: italic;
 }
+#table fieldset, select {
+    background-color: #f6f6f6;
+    border: 1px dotted #ccc;
+    margin: 15px 0 10px 0;
+    font-size: 10pt;
+}
