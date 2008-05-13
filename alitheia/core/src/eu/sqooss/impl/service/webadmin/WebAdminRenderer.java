@@ -101,6 +101,9 @@ public class WebAdminRenderer {
     // Current time
     private static long startTime = new Date().getTime();
 
+    // Debug flag
+    private static boolean DEBUG = false;
+
     public WebAdminRenderer(BundleContext bundlecontext, VelocityContext vc) {
         srefCore = bundlecontext.getServiceReference(AlitheiaCore.class.getName());
         this.vc = vc;
@@ -172,6 +175,9 @@ public class WebAdminRenderer {
         StringBuilder b = new StringBuilder();
         // Indentation spacer
         String IN = "            ";
+
+        // Create a DB session
+        sobjDB.startDBSession();
         // Retrieve information for all registered metric plug-ins
         Collection<PluginInfo> l = sobjPluginAdmin.listPlugins();
 
@@ -299,6 +305,8 @@ public class WebAdminRenderer {
             b.append("</form>\n");
         }
 
+        // Close the DB session
+        sobjDB.commitDBSession();
         return b.toString();
     }
 
@@ -629,32 +637,45 @@ public class WebAdminRenderer {
         return b.toString();
     }
 
+    /**
+     * Renders the various user views:
+     * <ul>
+     *   <li>Users viewer
+     *   <li>User editor
+     *   <li>Group editor
+     *   <li>Privilege editor
+     * </ul>
+     * 
+     * @param request the servlet's request object
+     * 
+     * @return The current view.
+     */
     public static String renderUsers(HttpServletRequest request) {
         // Stores the assembled HTML content
         StringBuilder b = new StringBuilder("\n");
         // Indentation spacer
         long in = 6;
-        // Create a DB session
-        sobjDB.startDBSession();
         // Store here all known users
         User[] users = null;
         // Store here all known groups
         Group[] groups = null;
+
+        // Create a DB session
+        sobjDB.startDBSession();
         // Retrieve information for all registered users
-        try {
-            users = sobjSecurity.getUserManager().getUsers();
-        }
-        catch (NullPointerException ex) {
-            users = null;
-        }
+        users = sobjSecurity.getUserManager().getUsers();
         if ((users != null) && (users.length > 0)) {
             // Request parameters
-            String reqParEditUser      = "editUser";
-            String reqParAddToGroup    = "addToGroup";
-            String reqParRemFromGroup  = "removeFromGroup";
+            String reqParAction        = "action";
+            String reqParUserId        = "userId";
+            String reqParGroupId       = "groupId";
+            // Action values
+            String actValAddToGroup    = "addToGroup";
+            String actValRemFromGroup  = "removeFromGroup";
             // Request values
-            Long reqValUserId        = null;
-            Long reqValGroupId       = null;
+            Long reqValUserId          = null;
+            Long reqValGroupId         = null;
+            String reqValAction        = null;
             // Selected user
             User selUser = null;
             // Selected group;
@@ -662,51 +683,54 @@ public class WebAdminRenderer {
 
             // Parse the servlet's request object
             if (request != null) {
-                b.append(debugRequest(request));
-                // User edit request
-                if ((request.getParameter(reqParEditUser) != null) &&
-                    (request.getParameter(reqParEditUser) != "")) {
-                    // Get the requested user's object
+                // DEBUG: Dump the servlet's request parameter
+                if (DEBUG) {
+                    b.append(debugRequest(request));
+                }
+                // Retrieve the selected user Id (if any)
+                if ((request.getParameter(reqParUserId) != null) &&
+                    (request.getParameter(reqParUserId) != "")) {
+                    // Get the selected user's object
                     reqValUserId =
-                        fromString(request.getParameter(reqParEditUser));
+                        fromString(request.getParameter(reqParUserId));
                     if (reqValUserId != null) {
-                        for (User user : users) {
-                            if (user.getId() == reqValUserId) {
-                                selUser = user;
-                            }
-                        }
+                        selUser = sobjSecurity.getUserManager()
+                            .getUser(reqValUserId);
                     }
-                    // Retrieve a list of all groups in the SQO-OSS database
-                    try {
-                        groups = sobjSecurity.getGroupManager().getGroups();
-                    }
-                    catch (NullPointerException ex) {
-                        groups = null;
-                    }
+                    // Retrieve information for all registered groups
+                    groups = sobjSecurity.getGroupManager().getGroups();
                 }
-                // "Add user to group" request
-                if ((request.getParameter(reqParAddToGroup) != null) &&
-                        (request.getParameter(reqParAddToGroup) != "")) {
-                    // Get the selected group's Id
+                // Retrieve the selected group Id (if any)
+                if ((request.getParameter(reqParGroupId) != null) &&
+                        (request.getParameter(reqParGroupId) != "")) {
+                    // Get the selected group's object
                     reqValGroupId =
-                        fromString(request.getParameter(reqParAddToGroup));
-                }
-                // "Remove user from group" request
-                if ((request.getParameter(reqParRemFromGroup) != null) &&
-                        (request.getParameter(reqParRemFromGroup) != "")) {
-                    // Get the selected group's Id
-                    reqValGroupId =
-                        fromString(request.getParameter(reqParRemFromGroup));
-                }
-                // Get the selected group's object
-                if (reqValGroupId != null) {
-                    try {
-                        selGroup =
-                            sobjSecurity.getGroupManager()
+                        fromString(request.getParameter(reqParGroupId));
+                    if (reqValGroupId != null) {
+                        selGroup = sobjSecurity.getGroupManager()
                             .getGroup(reqValGroupId);
                     }
-                    catch (NullPointerException ex) {
-                        selGroup = null;
+                }
+                // Retrieve the selected editor's action
+                reqValAction = request.getParameter(reqParAction);
+                if ((reqValAction != null) && (reqValAction != "")) {
+                    // Add the selected user to the selected group
+                    if (reqValAction.equalsIgnoreCase(actValAddToGroup)) {
+                        if ((selUser != null) && (selGroup != null)) {
+                            sobjSecurity.getGroupManager()
+                            .addUserToGroup(
+                                    selGroup.getId(),
+                                    selUser.getId());
+                        }
+                    }
+                    // Remove the selected user from the selected group
+                    else if (reqValAction.equalsIgnoreCase(actValRemFromGroup)) {
+                        if ((selUser != null) && (selGroup != null)) {
+                            sobjSecurity.getGroupManager()
+                            .deleteUserFromGroup(
+                                    selGroup.getId(),
+                                    selUser.getId());
+                        }
                     }
                 }
             }
@@ -789,26 +813,30 @@ public class WebAdminRenderer {
                 b.append(sp(--in) + "</td>\n");
                 // Display all groups where the selected user is a member
                 b.append(sp(in) + "<td>\n");
-                b.append(sp(++in) + "<select name=\"assigned\""
+                b.append(sp(++in) + "<select"
                         + " size=\"4\" style=\"width: 100%; border: 0;\">\n");
                 sp(++in);
                 for (Object memberOf : selUser.getGroups()) {
+                    Group group = (Group) memberOf;
                     b.append(sp(in) + "<option"
-                            + " value=\""
-                            + ((Group) memberOf).getId() + "\""
+                            + " value=\"" + group.getId() + "\""
                             + " onclick=\"javascript:"
                             + " document.getElementById('"
-                                 + reqParRemFromGroup + "').value='"
-                                 + ((Group) memberOf).getId() + "';"
-                            + "document.users.submit();\">"
-                            + ((Group) memberOf).getDescription()
+                                 + reqParGroupId + "').value='"
+                                 + group.getId() + "';"
+                            + "document.users.submit();\""
+                            + (((selGroup != null)
+                                    && (selGroup.getId() == group.getId()))
+                                    ? " selected" : "")
+                            + ">"
+                            + group.getDescription()
                             + "</option>\n");
                 }
                 b.append(sp(--in) + "</select>\n");
                 b.append(sp(--in) + "</td>\n");
                 // Display all group where the selected user is not a member
                 b.append(sp(in) + "<td>\n");
-                b.append(sp(++in) + "<select name=\"available\""
+                b.append(sp(++in) + "<select"
                         + " size=\"4\" style=\"width: 100%; border: 0;\">\n");
                 sp(++in);
                 for (Group group : groups) {
@@ -818,9 +846,13 @@ public class WebAdminRenderer {
                                 + " value=\"" + group.getId() + "\""
                                 + " onclick=\"javascript:"
                                 + " document.getElementById('"
-                                    + reqParAddToGroup + "').value='"
+                                    + reqParGroupId + "').value='"
                                     + group.getId() + "';"
-                                + "document.users.submit();\">"
+                                + "document.users.submit();\""
+                                + (((selGroup != null)
+                                        && (selGroup.getId() == group.getId()))
+                                        ? " selected" : "")
+                                + ">"
                                 + group.getDescription()
                                 + "</option>\n");
                     }
@@ -835,7 +867,7 @@ public class WebAdminRenderer {
                     String htmlEditUser = "<td"
                         + " onclick=\"javascript:"
                         + "document.getElementById('"
-                            + reqParEditUser + "').value='"
+                            + reqParUserId + "').value='"
                             + nextUser.getId() + "';"
                             + "document.users.submit();\">"
                         + nextUser.getName()
@@ -855,25 +887,41 @@ public class WebAdminRenderer {
             // ---( COMMAND ROWS )-------------------------------------------
             if (selUser != null) {
                 b.append(sp(in) + "<tr>\n");
+
                 b.append(sp(++in) + "<td>\n");
                 b.append(sp(++in) + "&nbsp;\n");
                 b.append(sp(--in) + "</td>\n");
+
                 b.append(sp(in) + "<td style=\"padding: 0;\">\n");
-                b.append(sp(++in) + "<input class=\"install\""
-                        + " type=\"button\""
-                        + " value=\"Remove\""
-                        + " onclick=\"javascript:"
-                        + "document.users.submit();\""
-                        + ">\n");
+                if ((selGroup != null)
+                        && (selUser.getGroups().contains(selGroup) == true)) {
+                    b.append(sp(++in) + "<input class=\"install\""
+                            + " type=\"button\""
+                            + " value=\"Remove\""
+                            + " onclick=\"javascript:"
+                            + "document.getElementById('"
+                            + reqParAction + "').value='"
+                            + actValRemFromGroup + "';"
+                            + "document.users.submit();\""
+                            + ">\n");
+                }
                 b.append(sp(--in) + "</td>\n");
+
                 b.append(sp(in) + "<td style=\"padding: 0;\">\n");
-                b.append(sp(++in) + "<input class=\"install\""
-                        + " type=\"button\""
-                        + " value=\"Add\""
-                        + " onclick=\"javascript:"
-                        + "document.users.submit();\""
-                        + ">\n");
+                if ((selGroup != null)
+                        && (selUser.getGroups().contains(selGroup) == false)) {
+                    b.append(sp(++in) + "<input class=\"install\""
+                            + " type=\"button\""
+                            + " value=\"Add\""
+                            + " onclick=\"javascript:"
+                            + "document.getElementById('"
+                            + reqParAction + "').value='"
+                            + actValAddToGroup + "';"
+                            + "document.users.submit();\""
+                            + ">\n");
+                }
                 b.append(sp(--in) + "</td>\n");
+
                 b.append(sp(--in) + "</tr>\n");
             }
             // Close the table
@@ -923,22 +971,25 @@ public class WebAdminRenderer {
             }
 
             // ---( INPUT FIELD )--------------------------------------------
-            // User ID's input field
+            // "Action type" input field
             b.append(sp(in) + "<input type=\"hidden\""
-                    + " id=\"" + reqParEditUser + "\"" 
-                    + " name=\"" + reqParEditUser + "\""
-                    + " value=\"" + ((selUser != null) ? selUser.getId() : "")
+                    + " id=\"" + reqParAction + "\"" 
+                    + " name=\"" + reqParAction + "\""
+                    + " value=\"\">\n");
+            // "User Id" input field
+            b.append(sp(in) + "<input type=\"hidden\""
+                    + " id=\"" + reqParUserId + "\"" 
+                    + " name=\"" + reqParUserId + "\""
+                    + " value=\""
+                    + ((selUser != null) ? selUser.getId() : "")
                     + "\">\n");
-            // "Add to group" input field
+            // "Group Id" input field
             b.append(sp(in) + "<input type=\"hidden\""
-                    + " id=\"" + reqParAddToGroup + "\"" 
-                    + " name=\"" + reqParAddToGroup + "\""
-                    + " value=\"\">\n");
-            // "Remove from group" input field
-            b.append(sp(in) + "<input type=\"hidden\""
-                    + " id=\"" + reqParRemFromGroup + "\"" 
-                    + " name=\"" + reqParRemFromGroup + "\""
-                    + " value=\"\">\n");
+                    + " id=\"" + reqParGroupId + "\"" 
+                    + " name=\"" + reqParGroupId + "\""
+                    + " value=\""
+                    + ((selGroup != null) ? selGroup.getId() : "")
+                    + "\">\n");
 
             // Close the form
             b.append(sp(--in) + "</form>\n");
