@@ -62,7 +62,7 @@ String msg      = "";
     scope="session">
     <jsp:setProperty name="selectedProject" property="id" value="<%= projectId %>"/>
     <%
-    if (projectId == null) {
+    if (projectId != null) {
         selectedProject.setTerrier(terrier);
         selectedProject.retrieveData();
     }
