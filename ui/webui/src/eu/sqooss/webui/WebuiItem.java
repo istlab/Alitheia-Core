@@ -94,6 +94,10 @@ public class WebuiItem {
         return "<a href=\"" + page + "?id=" + id + "\" " + css_class + ">" + shortName() + "</a>";
     }
 
+    public String link() {
+        return link(null);
+    }
+
     public SortedMap<Long, File> getFiles () {
         terrier.addError("getFiles() in WebuiItem should not be called");
         fileCount = 0;

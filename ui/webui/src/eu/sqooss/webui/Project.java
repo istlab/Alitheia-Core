@@ -169,6 +169,10 @@ public class Project extends WebuiItem {
         return html.toString();
     }
 
+    public String shortName() {
+        return getName();
+    }
+
     public String showMetrics() {
         StringBuilder html = new StringBuilder();
         MetricsTableView metricsView = terrier.getMetrics4Project(id);
