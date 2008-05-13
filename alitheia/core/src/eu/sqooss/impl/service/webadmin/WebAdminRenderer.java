@@ -48,7 +48,10 @@ import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Group;
+import eu.sqooss.service.db.GroupPrivilege;
 import eu.sqooss.service.db.PluginConfiguration;
+import eu.sqooss.service.db.Privilege;
+import eu.sqooss.service.db.PrivilegeValue;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.db.User;
 import eu.sqooss.service.logging.Logger;
@@ -612,7 +615,7 @@ public class WebAdminRenderer {
         Enumeration<?> e = request.getParameterNames();
         while (e.hasMoreElements()) {
             String key = (String) e.nextElement();
-            b.append(key + "=" + request.getParameter(key) + "<br/>");
+            b.append(key + "=" + request.getParameter(key) + "<br/>\n");
         }
         return b.toString();
     }
@@ -633,9 +636,9 @@ public class WebAdminRenderer {
         long in = 6;
         // Create a DB session
         sobjDB.startDBSession();
-        // Store all known users here
+        // Store here all known users
         User[] users = null;
-        // Store all known groups here
+        // Store here all known groups
         Group[] groups = null;
         // Retrieve information for all registered users
         try {
@@ -647,10 +650,17 @@ public class WebAdminRenderer {
         if ((users != null) && (users.length > 0)) {
             // Request parameters
             String reqParEditUser      = "editUser";
+            String reqParAddToGroup    = "addToGroup";
+            String reqParRemFromGroup  = "removeFromGroup";
             // Request values
             Long reqValUserId        = null;
+            Long reqValGroupId       = null;
             // Selected user
             User selUser = null;
+            // Selected group;
+            Group selGroup = null;
+
+            // Parse the servlet's request object
             if (request != null) {
                 b.append(debugRequest(request));
                 // User edit request
@@ -674,7 +684,33 @@ public class WebAdminRenderer {
                         groups = null;
                     }
                 }
+                // "Add user to group" request
+                if ((request.getParameter(reqParAddToGroup) != null) &&
+                        (request.getParameter(reqParAddToGroup) != "")) {
+                    // Get the selected group's Id
+                    reqValGroupId =
+                        fromString(request.getParameter(reqParAddToGroup));
+                }
+                // "Remove user from group" request
+                if ((request.getParameter(reqParRemFromGroup) != null) &&
+                        (request.getParameter(reqParRemFromGroup) != "")) {
+                    // Get the selected group's Id
+                    reqValGroupId =
+                        fromString(request.getParameter(reqParRemFromGroup));
+                }
+                // Get the selected group's object
+                if (reqValGroupId != null) {
+                    try {
+                        selGroup =
+                            sobjSecurity.getGroupManager()
+                            .getGroup(reqValGroupId);
+                    }
+                    catch (NullPointerException ex) {
+                        selGroup = null;
+                    }
+                }
             }
+
             // Create the form
             b.append(sp(in) + "<form id=\"users\""
                     + " name=\"users\""
@@ -719,52 +755,65 @@ public class WebAdminRenderer {
                 b.append(sp(++in) + "<table>\n");
                 b.append(sp(++in) + "<tr>\n"
                         + sp(++in)
-                        + "<td class=\"name\">User Id</td>"
-                        + "<td>&nbsp;" + selUser.getId() + "</td>"
+                        + "<td class=\"name\">User Id</td>\n"
+                        + sp(in) + "<td>&nbsp;"
+                        + selUser.getId() + "</td>\n"
                         + sp(--in) + "</tr>\n");
                 b.append(sp(in) + "<tr>\n"
                         + sp(++in)
                         + "<td class=\"name\">User Name</td>\n"
-                        + "<td>&nbsp;" + selUser.getName() + "</td>\n"
+                        + sp(in) + "<td>&nbsp;"
+                        + selUser.getName() + "</td>\n"
                         + sp(--in) + "</tr>\n");
                 b.append(sp(in) + "<tr>\n"
                         + sp(++in)
                         + "<td class=\"name\">User Email</td>\n"
-                        + "<td>&nbsp;" + selUser.getEmail() + "</td>\n"
+                        + sp(in) + "<td>&nbsp;"
+                        + selUser.getEmail() + "</td>\n"
                         + sp(--in) + "</tr>\n");
                 DateFormat date = DateFormat.getDateInstance();
                 b.append(sp(in) + "<tr>\n"
                         + sp(++in)
                         + "<td class=\"name\">Created</td>\n"
-                        + "<td>&nbsp;" + date.format(selUser.getRegistered())
-                        + "</td>\n"
+                        + sp(in) + "<td>&nbsp;"
+                        + date.format(selUser.getRegistered()) + "</td>\n"
                         + sp(--in) + "</tr>\n");
                 b.append(sp(--in) + "</table>\n");
+                b.append(sp(--in) + "</td>\n");
                 // Display all groups where the selected user is a member
-                b.append(sp(--in) + "<td rowspan=\"4\">\n");
-                b.append(sp(++in) + "<select name=\"aa\""
+                b.append(sp(in) + "<td>\n");
+                b.append(sp(++in) + "<select name=\"assigned\""
                         + " size=\"4\" style=\"width: 100%; border: 0;\">\n");
+                sp(++in);
                 for (Object memberOf : selUser.getGroups()) {
-                    b.append(sp(++in) + "<option"
+                    b.append(sp(in) + "<option"
                             + " value=\""
-                            + ((Group) memberOf).getId()
-                            + "\">"
+                            + ((Group) memberOf).getId() + "\""
+                            + " onclick=\"javascript:"
+                            + " document.getElementById('"
+                                 + reqParRemFromGroup + "').value='"
+                                 + ((Group) memberOf).getId() + "';"
+                            + "document.users.submit();\">"
                             + ((Group) memberOf).getDescription()
                             + "</option>\n");
                 }
                 b.append(sp(--in) + "</select>\n");
                 b.append(sp(--in) + "</td>\n");
                 // Display all group where the selected user is not a member
-                b.append(sp(in) + "<td rowspan=\"4\">\n");
-                b.append(sp(++in) + "<select name=\"bb\""
+                b.append(sp(in) + "<td>\n");
+                b.append(sp(++in) + "<select name=\"available\""
                         + " size=\"4\" style=\"width: 100%; border: 0;\">\n");
+                sp(++in);
                 for (Group group : groups) {
                     // Skip groups where this user is already a member 
                     if (selUser.getGroups().contains(group) == false) {
-                        b.append(sp(++in) + "<option"
-                                + " value=\""
-                                + group.getId()
-                                + "\">"
+                        b.append(sp(in) + "<option"
+                                + " value=\"" + group.getId() + "\""
+                                + " onclick=\"javascript:"
+                                + " document.getElementById('"
+                                    + reqParAddToGroup + "').value='"
+                                    + group.getId() + "';"
+                                + "document.users.submit();\">"
                                 + group.getDescription()
                                 + "</option>\n");
                     }
@@ -795,14 +844,94 @@ public class WebAdminRenderer {
                     b.append(sp(--in) + "</tr>\n");
                 }
             }
+
+            // ---( COMMAND ROWS )-------------------------------------------
+            if (selUser != null) {
+                b.append(sp(in) + "<tr>\n");
+                b.append(sp(++in) + "<td>\n");
+                b.append(sp(++in) + "&nbsp;\n");
+                b.append(sp(--in) + "</td>\n");
+                b.append(sp(in) + "<td style=\"padding: 0;\">\n");
+                b.append(sp(++in) + "<input class=\"install\""
+                        + " type=\"button\""
+                        + " value=\"Remove\""
+                        + " onclick=\"javascript:"
+                        + "document.users.submit();\""
+                        + ">\n");
+                b.append(sp(--in) + "</td>\n");
+                b.append(sp(in) + "<td style=\"padding: 0;\">\n");
+                b.append(sp(++in) + "<input class=\"install\""
+                        + " type=\"button\""
+                        + " value=\"Add\""
+                        + " onclick=\"javascript:"
+                        + "document.users.submit();\""
+                        + ">\n");
+                b.append(sp(--in) + "</td>\n");
+                b.append(sp(--in) + "</tr>\n");
+            }
             // Close the table
             b.append(sp(--in) + "</tbody>\n");
             b.append(sp(--in) + "</table>\n");
-            // User ID's input field 
+
+            // ---( GROUP ROWS )---------------------------------------------
+            if (selGroup != null) {
+                b.append(sp(++in) + "<table>\n");
+
+                b.append(sp(++in) + "<thead>\n");
+                b.append(sp(++in) + "<tr class=\"head\">\n");
+                b.append(sp(++in) + "<td class=\"head\" collspan=\"3\">"
+                        + selGroup.getDescription() + "</td>\n");
+                b.append(sp(--in) + "</tr>\n");
+                b.append(sp(++in) + "<tr class=\"head\">\n");
+                b.append(sp(++in) + "<td class=\"head\""
+                        + " style=\"width: 15%;\">"
+                        + "Actions</td>\n");
+                b.append(sp(in) + "<td class=\"head\""
+                        + " style=\"width: 60%;\">"
+                        + "Privileges</td>\n");
+                b.append(sp(in) + "<td class=\"head\""
+                        + " style=\"width: 35%;\">"
+                        + "Values</td>\n");
+                b.append(sp(--in) + "</tr>\n");
+                b.append(sp(--in) + "</thead>\n");
+
+                b.append(sp(in) + "<tbody>\n");
+                for (Object privilege : selGroup.getGroupPrivileges()) {
+                    b.append(sp(++in) + "<tr>\n");
+                    b.append(sp(++in) + "<td>"
+                            + "&nbsp;"
+                            + "</td>\n");
+                    b.append(sp(++in) + "<td>"
+                            + ((GroupPrivilege) privilege).getUrl().getUrl()
+                            + "</td>\n");
+                    b.append(sp(++in) + "<td>"
+                            + ((GroupPrivilege) privilege).getPv().getValue()
+                            + "</td>\n");
+                    b.append(sp(--in) + "</tr>\n");
+                }
+                b.append(sp(--in) + "</tbody>\n");
+
+                b.append(sp(--in) + "</table>\n");
+            }
+
+            // ---( INPUT FIELD )--------------------------------------------
+            // User ID's input field
             b.append(sp(in) + "<input type=\"hidden\""
                     + " id=\"" + reqParEditUser + "\"" 
                     + " name=\"" + reqParEditUser + "\""
+                    + " value=\"" + ((selUser != null) ? selUser.getId() : "")
+                    + "\">\n");
+            // "Add to group" input field
+            b.append(sp(in) + "<input type=\"hidden\""
+                    + " id=\"" + reqParAddToGroup + "\"" 
+                    + " name=\"" + reqParAddToGroup + "\""
                     + " value=\"\">\n");
+            // "Remove from group" input field
+            b.append(sp(in) + "<input type=\"hidden\""
+                    + " id=\"" + reqParRemFromGroup + "\"" 
+                    + " name=\"" + reqParRemFromGroup + "\""
+                    + " value=\"\">\n");
+
             // Close the form
             b.append(sp(--in) + "</form>\n");
         }
