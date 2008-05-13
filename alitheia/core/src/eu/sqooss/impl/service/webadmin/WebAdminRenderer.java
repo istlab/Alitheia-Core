@@ -590,6 +590,14 @@ public class WebAdminRenderer {
         return s.toString();
     }
 
+    /**
+     * Converts a <code>String</code> into its <code>long</code>
+     * representation, while handling internally any thrown exception.
+     * 
+     * @param value the String value
+     * 
+     * @return The long value.
+     */
     private static Long fromString (String value) {
         try {
             return (new Long(value));
@@ -732,6 +740,7 @@ public class WebAdminRenderer {
                         + "</td>\n"
                         + sp(--in) + "</tr>\n");
                 b.append(sp(--in) + "</table>\n");
+                // Display all groups where the selected user is a member
                 b.append(sp(--in) + "<td rowspan=\"4\">\n");
                 b.append(sp(++in) + "<select name=\"aa\""
                         + " size=\"4\" style=\"width: 100%; border: 0;\">\n");
@@ -745,16 +754,20 @@ public class WebAdminRenderer {
                 }
                 b.append(sp(--in) + "</select>\n");
                 b.append(sp(--in) + "</td>\n");
+                // Display all group where the selected user is not a member
                 b.append(sp(in) + "<td rowspan=\"4\">\n");
                 b.append(sp(++in) + "<select name=\"bb\""
                         + " size=\"4\" style=\"width: 100%; border: 0;\">\n");
-                for (Object group : groups) {
-                    b.append(sp(++in) + "<option"
-                            + " value=\""
-                            + ((Group) group).getId()
-                            + "\">"
-                            + ((Group) group).getDescription()
-                            + "</option>\n");
+                for (Group group : groups) {
+                    // Skip groups where this user is already a member 
+                    if (selUser.getGroups().contains(group) == false) {
+                        b.append(sp(++in) + "<option"
+                                + " value=\""
+                                + group.getId()
+                                + "\">"
+                                + group.getDescription()
+                                + "</option>\n");
+                    }
                 }
                 b.append(sp(--in) + "</select>\n");
                 b.append(sp(--in) + "</td>\n");
