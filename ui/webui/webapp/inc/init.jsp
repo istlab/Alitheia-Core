@@ -26,6 +26,7 @@ if (request.getParameter("pid") != null) {
         projectId = getId(req);
     }
 }
+out.println("PRoject ID: " + projectId);
 /*
     This file instaniates shared objects and defines shared variables
     commonly used by the majority of the WebUI JSP pages. Therefore, it
