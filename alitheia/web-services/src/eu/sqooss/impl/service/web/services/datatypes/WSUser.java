@@ -34,41 +34,51 @@ package eu.sqooss.impl.service.web.services.datatypes;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Set;
 
 import eu.sqooss.service.db.Group;
-import eu.sqooss.service.db.User;
-
 
 public class WSUser {
     
-    private User securityUser;
+    private long id;
+    private String userName;
+    private String email;
+    private long registered;
+    private long lastActivity;
+    private WSUserGroup[] groups;
     
-    public WSUser(User securityUser) {
-        this.securityUser = securityUser;
+    public WSUser(long id, String userName, String email,
+            long registered, long lastActivity, Set<?> groups) {
+        this.id = id;
+        this.userName = userName;
+        this.email = email;
+        this.registered = registered;
+        this.lastActivity = lastActivity;
+        this.groups = parseSecurityGroups(groups);
     }
     
     public long getId() {
-        return securityUser.getId();
+        return id;
     }
     
     public String getUserName() {
-        return securityUser.getName();
+        return userName;
     }
     
     public String getEmail() {
-    	return securityUser.getEmail();
+        return email;
     }
     
     public long getRegistered() {
-    	return securityUser.getRegistered().getTime();
+        return registered;
     }
     
     public long getLastActivity() {
-    	return securityUser.getLastActivity().getTime();
+        return lastActivity;
     }
     
     public WSUserGroup[] getUserGroups() {
-        return parseSecurityGroups(securityUser.getGroups());
+        return groups;
     }
     
     private WSUserGroup[] parseSecurityGroups(Collection<?> securityGroups) {
@@ -76,7 +86,7 @@ public class WSUser {
             WSUserGroup[] userGroups = new WSUserGroup[securityGroups.size()];
             Iterator<?> iterator = securityGroups.iterator();
             for (int i = 0; i < userGroups.length; i++) {
-                userGroups[i] = new WSUserGroup((Group)iterator.next());
+                userGroups[i] = new WSUserGroup((Group) iterator.next());
             }
             return userGroups;
         } else {

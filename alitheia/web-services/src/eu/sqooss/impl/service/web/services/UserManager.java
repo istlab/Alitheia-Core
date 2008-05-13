@@ -62,7 +62,9 @@ public class UserManager extends AbstractManager {
         db.startDBSession();
         User newUser = userManager.createUser(newUserName, newPassword, email);
         if (newUser != null) {
-            WSUser wsu = new WSUser(newUser);
+            WSUser wsu = new WSUser(newUser.getId(), newUser.getName(),
+                    newUser.getEmail(), newUser.getRegistered().getTime(),
+                    newUser.getLastActivity().getTime(), newUser.getGroups());
             db.commitDBSession();
             return wsu;
         } else {
@@ -105,7 +107,9 @@ public class UserManager extends AbstractManager {
         db.startDBSession();
         User user = userManager.getUser(userId); 
         if (user != null) {
-            WSUser wsu = new WSUser(user);
+            WSUser wsu = new WSUser(user.getId(), user.getName(),
+                    user.getEmail(), user.getRegistered().getTime(),
+                    user.getLastActivity().getTime(), user.getGroups());
             db.commitDBSession();
             return wsu;
         } else {
@@ -168,7 +172,9 @@ public class UserManager extends AbstractManager {
         db.startDBSession();
         User user = userManager.getUser(userName);
         if (user != null) {
-            WSUser wsu = new WSUser(user);
+            WSUser wsu = new WSUser(user.getId(), user.getName(),
+                    user.getEmail(), user.getRegistered().getTime(),
+                    user.getLastActivity().getTime(), user.getGroups());
             db.commitDBSession();
             return wsu;
         } else {
