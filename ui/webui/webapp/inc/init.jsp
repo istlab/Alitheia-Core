@@ -19,12 +19,12 @@ public void jspInit() {
 <%@ include file="/inc/functions.jsp" %>
 <%
 
-
-//Project selectedProject = null;
-
 Long projectId = null;
 if (request.getParameter("pid") != null) {
-    projectId = getId(request.getParameter("pid"));
+    String req = request.getParameter("pid");
+    if (!"none".equals(req)) {
+        projectId = getId(req);
+    }
 }
 /*
     This file instaniates shared objects and defines shared variables
@@ -48,14 +48,6 @@ String msg      = "";
     <jsp:setProperty name="terrier" property="*"/>
 </jsp:useBean>
 
-<%
-if (terrier == null) {
-    out.println("Terrier is NOT there");
-} else {
-    out.println("Terrier is there");
-}
-%>
-
 <jsp:useBean
     id="user"
     class="eu.sqooss.webui.User"
@@ -69,12 +61,21 @@ if (terrier == null) {
     scope="session">
     <jsp:setProperty name="selectedProject" property="id" value="<%= projectId %>"/>
     <%
-        // Initialise the Terrier's configuration properties
+    if (projectId == null) {
         selectedProject.setTerrier(terrier);
         selectedProject.retrieveData();
+    }
     %>
 </jsp:useBean>
+<%
 
+/*
+|| selectedProject.isValid()) {
+    projectId = null;
+    selectedProject = null;
+}
+*/
+%>
 
 <jsp:useBean id="validator"
     class="eu.sqooss.webui.InputValidator"

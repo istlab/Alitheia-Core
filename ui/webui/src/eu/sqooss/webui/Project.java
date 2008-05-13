@@ -79,14 +79,17 @@ public class Project extends WebuiItem {
         mail = p.getMail();
         contact = p.getContact();
         website = p.getWebsite();
+        setVersions();
     }
 
     public void retrieveData() {
+        if (id == null) {
+            return;
+        }
         try {
             initProject(terrier.connection().getProjectAccessor().getProjectById(id));
         } catch (WSException wse) {
             addError("Could not retrieve the project:" + wse.getMessage());
-            //return null;
         }
     }
 
@@ -168,7 +171,6 @@ public class Project extends WebuiItem {
 
     public String showMetrics() {
         StringBuilder html = new StringBuilder();
-        html.append("<h2>Metrics for project " + getName() + "</h2>");
         MetricsTableView metricsView = terrier.getMetrics4Project(id);
         //metricsView = terrier.getAllMetrics();
         if (metricsView != null ) {
@@ -233,10 +235,14 @@ public class Project extends WebuiItem {
      * @return The Version under that id.
      */
     public Version getCurrentVersion() {
-        if (versions == null) {
-            setVersions();
+        try {
+            if (versions == null && id != null) {
+                setVersions();
+            }
+            return versions.get(getCurrentVersionId());
+        } catch (NullPointerException npe) {
+            return null;
         }
-        return versions.get(getCurrentVersionId());
     }
     /**
      * Sets the list of all known project versions. The first field in each
@@ -246,6 +252,10 @@ public class Project extends WebuiItem {
      * @param versions the list of project versions
      */
     public void setVersions() {
+        if (terrier == null) {
+            addError("Could not set versions, no terrier");
+            return;
+        }
         SortedMap<Long, Long> vs = terrier.getProjectVersions(id);
         Boolean changed = false;
         SortedMap<Long, Version> versions = new TreeMap<Long, Version>();

@@ -44,7 +44,7 @@ import eu.sqooss.webui.File;
 public class WebuiItem {
 
     private static final String COMMENT = "<!-- WebuiItem -->\n";
-    private StringBuilder error;
+    private StringBuilder error = new StringBuilder();
     protected Long id;
     protected String page = "home.jsp";
     protected Terrier terrier;
@@ -137,5 +137,9 @@ public class WebuiItem {
 
     public String error() {
         return error.toString();
+    }
+
+    public Boolean isValid() {
+        return id != null;
     }
 }

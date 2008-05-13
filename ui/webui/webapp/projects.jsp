@@ -9,10 +9,10 @@
 <%@ include file="/inc/header.jsp" %>
 
 <%
-if (projectId != null || selectedProject != null) {
-    %> <%@ include file="/views/Project.jsp" %> <%
+if (selectedProject != null && selectedProject.isValid()) {
+    %>Project <%@ include file="/views/Project.jsp" %> <%
 } else {
-    %> <%@ include file="/views/EvaluatedProjectsList.jsp" %> <%
+    %>NoProject <%@ include file="/views/EvaluatedProjectsList.jsp" %> <%
 
 }
 %>

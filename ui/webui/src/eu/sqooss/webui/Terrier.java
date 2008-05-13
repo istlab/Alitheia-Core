@@ -307,7 +307,7 @@ public class Terrier {
                 view.addMetric(new Metric(met, this));
             }
         } catch (WSException wse) {
-            error = "Can not retrieve the list of metrics for this project:" + wse.getMessage();
+            addError("Can not retrieve the list of metrics for this project:" + wse.getMessage());
             return null;
         }
         return view;

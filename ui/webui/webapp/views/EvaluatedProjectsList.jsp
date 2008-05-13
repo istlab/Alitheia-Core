@@ -6,31 +6,33 @@ scope="session"/>
 <jsp:setProperty name="ProjectsListView" property="*"/>
 
 <%
-ProjectsListView.setProjectId(request.getParameter("pid"));
-// Retrieve the list of evaluated project from the connected SQO-OSS system
-ProjectsListView.retrieveData(terrier);
+if (selectedProject != null) {
+    //ProjectsListView.setProjectId();
+    // Retrieve the list of evaluated project from the connected SQO-OSS system
+    ProjectsListView.retrieveData(terrier);
 
-if (ProjectsListView.hasProjects()) {
-    // Generate the HTML content dispaying all evaluated projects
-    String projects = ProjectsListView.getHtml();
+    if (ProjectsListView.hasProjects()) {
+        // Generate the HTML content dispaying all evaluated projects
+        String projects = ProjectsListView.getHtml();
 
-    selectedProject = ProjectsListView.getCurrentProject();
+        //selectedProject = ProjectsListView.getCurrentProject();
 
-    %>
-    <%@ include file="/views/Project.jsp" %>
-    <%
+        %>
+        <%@ include file="/views/Project.jsp" %>
+        <%
 
-        out.println("<div id=\"projectslist\" class=\"group\">");
-        out.println(projects);
-        out.println("</div>");
-} else {
-    out.println("<div id=\"error\" class=\"group\">");
-    if (cruncher.isOnline()) {
-        out.println(Functions.error("Unable to find any evaluated projects."));
+            out.println("<div id=\"projectslist\" class=\"group\">");
+            out.println(projects);
+            out.println("</div>");
     } else {
-        out.println(cruncher.getStatus());
+        out.println("<div id=\"error\" class=\"group\">");
+        if (cruncher.isOnline()) {
+            out.println(Functions.error("Unable to find any evaluated projects."));
+        } else {
+            out.println(cruncher.getStatus());
+        }
+        out.println("</div>");
     }
-    out.println("</div>");
 }
 //out.println(Functions.error(terrier.getError()));
 
