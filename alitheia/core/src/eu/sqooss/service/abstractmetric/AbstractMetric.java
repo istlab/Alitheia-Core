@@ -121,15 +121,21 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         pa = ((AlitheiaCore) bc.getService(serviceRef)).getPluginAdmin();
 
         if(pa == null)
-            log.error("Could not get a reference to the Plugin Administation " +
-            		"service");
+            log.error("Could not get a reference to the Plugin Administation "
+                    + "service");
         
         //init the metrics if the plug-in exists
+        boolean ownDBSession = false;
+        if (db.isDBSessionActive() == false) {
+            // Create a DB session
+            db.startDBSession();
+            ownDBSession = true;
+        }
         Plugin plugin = Plugin.getPluginByHashcode(getUniqueKey());
         if (plugin != null) {
             metrics = Plugin.getSupportedMetrics(plugin);
         }
-        
+        if (ownDBSession) db.commitDBSession();
     }
 
     /**

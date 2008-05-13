@@ -623,24 +623,38 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
     }
 
     public void pluginUpdated(AlitheiaPlugin p) {
+        // Make sure that this method is called with an existing DB session
+        boolean ownDBSession = false;
+        if (sobjDB.isDBSessionActive() == false) {
+            // Create a DB session
+            sobjDB.startDBSession();
+            ownDBSession = true;
+        }
+
         PluginInfo pi = getPluginInfo(p);
         if (pi == null) {
             logger.warn("Ignoring configuration update for not registered" +
                     " plugin <" + p.getName() + ">");
+            if (ownDBSession) sobjDB.rollbackDBSession();
             return;
         }
         if (pi.installed == false) {
             logger.warn("Ignoring configuration update for not installed" +
                     " plugin <" + p.getName() + ">");
+            if (ownDBSession) sobjDB.rollbackDBSession();
             return;
         }
+
         ServiceReference srefPlugin = pi.getServiceRef(); 
         Plugin pDao = pluginRefToPluginDAO(srefPlugin);
-        
+
         PluginInfo plugInfo = createInstalledPI(srefPlugin, pDao);
         registeredPlugins.put(plugInfo.getHashcode(), plugInfo);
 
         logger.info("Plugin (" + plugInfo.getPluginName() + ") updated");
+
+        // Close the DB session
+        if (ownDBSession) sobjDB.commitDBSession();
     }
 
     public AlitheiaPlugin getImplementingPlugin(String mnemonic) {
