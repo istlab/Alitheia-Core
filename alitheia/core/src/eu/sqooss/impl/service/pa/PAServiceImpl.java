@@ -48,6 +48,7 @@ import org.osgi.framework.ServiceReference;
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.db.DAObject;
+import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.logging.Logger;
@@ -81,6 +82,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
 
     // Required SQO-OSS components
     private Logger logger;
+    private DBService sobjDB = null;
 
     /** 
      * Keeps a list of registered metric plug-in's services, indexed by the 
@@ -96,25 +98,43 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
      * @param logger - the Logger component's instance
      */
     public PAServiceImpl (BundleContext bc, Logger logger) {
-        logger.info("Starting the PluginAdmin component.");
         this.bc = bc;
+
+        // Store the Logger instance
         this.logger = logger;
+        logger.info("Starting the PluginAdmin component.");
 
-        // Attach this object as a listener for metric services
-        try {
-            bc.addServiceListener(this, SREF_FILTER_PLUGIN);
-        } catch (InvalidSyntaxException e) {
-            logger.error(INVALID_FILTER_SYNTAX);
+        // Get the AlitheaCore's object
+        ServiceReference srefCore = null;
+        srefCore = bc.getServiceReference(AlitheiaCore.class.getName());
+        AlitheiaCore sobjCore = (AlitheiaCore) bc.getService(srefCore);
+
+        if (sobjCore != null) {
+            // Obtain the required core components
+            sobjDB = sobjCore.getDBService();
+            if (sobjDB == null) {
+                logger.error("Can not obtain the DB object!");
+            }
+
+            // Attach this object as a listener for metric services
+            try {
+                bc.addServiceListener(this, SREF_FILTER_PLUGIN);
+            } catch (InvalidSyntaxException e) {
+                logger.error(INVALID_FILTER_SYNTAX);
+            }
+
+            // Register an extension to the Equinox console, in order to
+            // provide commands for managing plug-in's services
+            bc.registerService(
+                    CommandProvider.class.getName(),
+                    new PACommandProvider(this) ,
+                    null);
+
+            logger.debug("The PluginAdmin component was successfully started.");
         }
-
-        // Register an extension to the Equinox console, in order to
-        // provide commands for managing plug-in's services
-        bc.registerService(
-                CommandProvider.class.getName(),
-                new PACommandProvider(this) ,
-                null);
-
-        logger.debug("The PluginAdmin component was successfully started.");
+        else {
+            logger.error("Can not obtain the Core object!");
+        }
     }
 
     /**
@@ -409,6 +429,9 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
         // Get a reference to the affected service
         ServiceReference affectedService = event.getServiceReference();
 
+        // Create a DB session
+        sobjDB.startDBSession();
+
         // Find out what happened to the service
         switch (event.getType()) {
         // New service was registered
@@ -423,6 +446,9 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
         case ServiceEvent.MODIFIED:
             pluginModified(affectedService);
         }
+
+        // Close the DB session
+        sobjDB.commitDBSession();
     }
 
 /* ===[ Implementation of the PluginAdmin interface ]===================== */
