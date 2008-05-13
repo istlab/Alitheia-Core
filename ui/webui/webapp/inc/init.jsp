@@ -5,6 +5,7 @@
 ResourceBundle configProperties = null;
 String initError = null;
 
+
 public void jspInit() {
     try {
         configProperties = ResourceBundle.getBundle("/config");
@@ -15,7 +16,14 @@ public void jspInit() {
     }
 }
 %>
+<%@ include file="/inc/functions.jsp" %>
 <%
+Project selectedProject = null;
+
+Long projectId = null;
+if (request.getParameter("pid") != null) {
+    projectId = getId(request.getParameter("pid"));
+}
 /*
     This file instaniates shared objects and defines shared variables
     commonly used by the majority of the WebUI JSP pages. Therefore, it
