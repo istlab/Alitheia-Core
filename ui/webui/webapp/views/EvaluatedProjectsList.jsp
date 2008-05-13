@@ -2,8 +2,13 @@
 
 <%@ include file="/inc/functions.jsp" %>
 
-<%
+<jsp:useBean id="ProjectsListView"
+class="eu.sqooss.webui.ProjectsListView"
+scope="session"/>
+<jsp:setProperty name="ProjectsListView" property="*"/>
 
+<%
+ProjectsListView.setProjectId(request.getParameter("pid"));
 // Retrieve the list of evaluated project from the connected SQO-OSS system
 ProjectsListView.retrieveData(terrier);
 

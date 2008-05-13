@@ -27,10 +27,6 @@ String msg      = "";
 
 %>
 
-<jsp:useBean id="ProjectsListView"
-    class="eu.sqooss.webui.ProjectsListView"
-    scope="session"/>
-<jsp:setProperty name="ProjectsListView" property="*"/>
 
 <jsp:useBean id="terrier"
     class="eu.sqooss.webui.Terrier"
@@ -85,7 +81,6 @@ String regEmail = request.getParameter("email");
 // Flag for failed authentication or registration
 boolean loginFailure = false;
 
-ProjectsListView.setProjectId(request.getParameter("pid"));
 
 String errorMsg = "";
 

@@ -71,6 +71,8 @@ public class Terrier {
 
     private TerrierConnection connection = null;
 
+    private Project currentProject;
+
     /**
      * Empty constructor. Instantiates a new <code>Terrier</code> object.
      */
@@ -136,6 +138,10 @@ public class Terrier {
             return null;
         }
         return prj;
+    }
+
+    public void setCurrentProject(Project p) {
+        currentProject = p;
     }
 
     /**

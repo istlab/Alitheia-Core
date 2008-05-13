@@ -1,6 +1,12 @@
 <%@ page import="eu.sqooss.webui.*" %>
 
+<jsp:useBean id="ProjectsListView"
+class="eu.sqooss.webui.ProjectsListView"
+scope="session"/>
+<jsp:setProperty name="ProjectsListView" property="*"/>
+
 <%
+ProjectsListView.setProjectId(request.getParameter("pid"));
 ProjectsListView.retrieveData(terrier);
 %>
 <div id="tagcloud" class="group">
