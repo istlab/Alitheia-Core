@@ -254,7 +254,7 @@ public class Terrier {
         return files;
     }
 
-    public Version getVersionById(Long projectId, Long versionId) {
+    public Version getVersion(Long projectId, Long versionId) {
         // FIXME: UGLY UGLY UGLY, performance--
         if (!connection.isConnected()) {
             addError(connection.getError());

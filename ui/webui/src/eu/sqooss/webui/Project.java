@@ -209,7 +209,7 @@ public class Project extends WebuiItem {
      * @return The Version under that id.
      */
     public Version getVersion(Long versionId) {
-        return terrier.getVersionById(id, versionId);
+        return terrier.getVersion(id, versionId);
     }
 
     /**
@@ -232,7 +232,7 @@ public class Project extends WebuiItem {
         Boolean changed = false;
         SortedMap<Long, Version> versions = new TreeMap<Long, Version>();
         for (Long vid: vs.values()) {
-            Version v = terrier.getVersionById(id, vid); // This is horribly inefficient
+            Version v = terrier.getVersion(id, vid);
             versions.put(vid, v);
             changed = true;
         }
