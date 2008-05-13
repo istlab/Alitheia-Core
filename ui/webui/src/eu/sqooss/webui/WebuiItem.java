@@ -44,6 +44,7 @@ import eu.sqooss.webui.File;
 public class WebuiItem {
 
     private static final String COMMENT = "<!-- WebuiItem -->\n";
+    private StringBuilder error;
     protected Long id;
     protected String page = "home.jsp";
     protected Terrier terrier;
@@ -128,5 +129,13 @@ public class WebuiItem {
             terrier.addError("No files to list");
             return "No files to list.";
         }
+    }
+
+    public void addError(String html) {
+        error.append(html);
+    }
+
+    public String error() {
+        return error.toString();
     }
 }

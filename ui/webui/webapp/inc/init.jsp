@@ -67,8 +67,12 @@ if (terrier == null) {
     id="selectedProject"
     class="eu.sqooss.webui.Project"
     scope="session">
-    <jsp:setProperty name="selectedProject" property="terrier" value="<%= terrier %>"/>
     <jsp:setProperty name="selectedProject" property="id" value="<%= projectId %>"/>
+    <%
+        // Initialise the Terrier's configuration properties
+        selectedProject.setTerrier(terrier);
+        selectedProject.retrieveData();
+    %>
 </jsp:useBean>
 
 

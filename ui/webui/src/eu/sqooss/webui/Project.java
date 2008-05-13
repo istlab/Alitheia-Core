@@ -71,15 +71,6 @@ public class Project extends WebuiItem {
         initProject(p);
    }
 
-    public void retrieveData() {
-        try {
-            initProject(terrier.connection().getProjectAccessor().getProjectById(getId()));
-        } catch (WSException wse) {
-            //error = "Could not retrieve the project:" + wse.getMessage();
-            //return null;
-        }
-    }
-
     private void initProject(WSStoredProject p) {
         id = p.getId();
         name = p.getName();
@@ -88,6 +79,15 @@ public class Project extends WebuiItem {
         mail = p.getMail();
         contact = p.getContact();
         website = p.getWebsite();
+    }
+
+    public void retrieveData() {
+        try {
+            initProject(terrier.connection().getProjectAccessor().getProjectById(id));
+        } catch (WSException wse) {
+            addError("Could not retrieve the project:" + wse.getMessage());
+            //return null;
+        }
     }
 
     public void setTerrier(Terrier t) {
