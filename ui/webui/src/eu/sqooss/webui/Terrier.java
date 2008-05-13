@@ -300,8 +300,8 @@ public class Terrier {
             for (WSMetric met : metrics) {
                 view.addMetric(new Metric(met, this));
             }
-        } catch (WSException e) {
-            error = "Can not retrieve the list of metrics for this project.";
+        } catch (WSException wse) {
+            error = "Can not retrieve the list of metrics for this project:" + wse.getMessage();
             return null;
         }
         return view;
@@ -323,7 +323,7 @@ public class Terrier {
                 metricTableView.addMetric(new Metric(wsMetric, this));
             }
         } catch (WSException wse) {
-            error = "Cannot retrieve the list of all metrics.";
+            error = "Cannot retrieve the list of all metrics." + wse.getMessage();
             return null;
         }
         return metricTableView;
