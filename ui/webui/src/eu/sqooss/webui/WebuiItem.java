@@ -147,4 +147,8 @@ public class WebuiItem {
     public Boolean isValid() {
         return id != null;
     }
+
+    public void setInValid() {
+        id = null;
+    }
 }
