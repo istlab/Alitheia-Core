@@ -3,9 +3,9 @@
 <div id="fileslist" class="group">
 <% // List files per selected project
 
-if (ProjectsListView.getCurrentProject() != null) {
+if (selectedProject != null && selectedProject.isValid()) {
     // Retrieve the selected project's object
-    Project selectedProject = ProjectsListView.getCurrentProject();
+    //Project selectedProject = ProjectsListView.getCurrentProject();
 
     // Retrieve the selected project's version ()
     //Long selectedVersion = selectedProject.getCurrentVersionId();
@@ -30,10 +30,8 @@ if (ProjectsListView.getCurrentProject() != null) {
     else {
         out.println(Functions.error(
         "You have to <a href=\"/projects.jsp\">select</a> a project version."));
-    
     }
-}
-else {
+} else {
     out.println(Functions.error(
         "You have to <a href=\"/projects.jsp\">select</a> a project first."));
 }
