@@ -18,7 +18,9 @@ public void jspInit() {
 %>
 <%@ include file="/inc/functions.jsp" %>
 <%
-Project selectedProject = null;
+
+
+//Project selectedProject = null;
 
 Long projectId = null;
 if (request.getParameter("pid") != null) {
@@ -43,14 +45,30 @@ String msg      = "";
         // Initialise the Terrier's configuration properties
         terrier.initConfig(configProperties);
     %>
+    <jsp:setProperty name="terrier" property="*"/>
 </jsp:useBean>
-<jsp:setProperty name="terrier" property="*"/>
+
+<%
+if (terrier == null) {
+    out.println("Terrier is NOT there");
+} else {
+    out.println("Terrier is there");
+}
+%>
 
 <jsp:useBean
     id="user"
     class="eu.sqooss.webui.User"
     scope="session">
     <jsp:setProperty name="user" property="loggedIn" value="false"/>
+</jsp:useBean>
+
+<jsp:useBean
+    id="selectedProject"
+    class="eu.sqooss.webui.Project"
+    scope="session">
+    <jsp:setProperty name="selectedProject" property="terrier" value="<%= terrier %>"/>
+    <jsp:setProperty name="selectedProject" property="id" value="<%= projectId %>"/>
 </jsp:useBean>
 
 
@@ -60,6 +78,7 @@ String msg      = "";
 <jsp:setProperty name="validator" property="*"/>
 
 <%
+
 
 // TODO: Move into a separate Java class file
 final String ACT_REQ_LOGIN = "Sign in";

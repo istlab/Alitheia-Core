@@ -9,8 +9,8 @@
 
 // Show metric per project, when a project selection exists
 
-if (ProjectsListView.getProjectId() != null) {
-    out.println(ProjectsListView.getCurrentProject().showMetrics());
+if (selectedProject != null) {
+    out.println(selectedProject.showMetrics());
     // Add some space
     out.println("<br/>");
 }
@@ -29,12 +29,12 @@ if (metricsView != null ) {
 } else {
     out.println(Functions.error(terrier.getError()));
 }
-if (ProjectsListView.getProjectId() == null) {
-%>
-<p />
-No project is selected. If you want to see metrics applied to a certain project,
-<a href="/projects.jsp">choose one</a> first.
-<%
+if (selectedProject == null) {
+    %>
+    <p />
+    No project is selected. If you want to see metrics applied to a certain project,
+    <a href="/projects.jsp">choose one</a> first.
+    <%
 }
 %>
 </div>

@@ -40,6 +40,8 @@ import java.util.SortedSet;
 import java.util.Iterator;
 import java.util.Vector;
 
+import eu.sqooss.scl.WSException;
+
 import eu.sqooss.ws.client.datatypes.WSStoredProject;
 import eu.sqooss.ws.client.datatypes.WSProjectVersion;
 
@@ -65,15 +67,28 @@ public class Project extends WebuiItem {
     }
 
     public Project (WSStoredProject p, Terrier t) {
-        id = p.getId();
         terrier = t;
+        initProject(p);
+   }
+
+    public void retrieveData() {
+        try {
+            initProject(terrier.connection().getProjectAccessor().getProjectById(getId()));
+        } catch (WSException wse) {
+            //error = "Could not retrieve the project:" + wse.getMessage();
+            //return null;
+        }
+    }
+
+    private void initProject(WSStoredProject p) {
+        id = p.getId();
         name = p.getName();
         bts = p.getBugs();
         repository = p.getRepository();
         mail = p.getMail();
         contact = p.getContact();
         website = p.getWebsite();
-   }
+    }
 
     public void setTerrier(Terrier t) {
         terrier = t;
@@ -218,6 +233,9 @@ public class Project extends WebuiItem {
      * @return The Version under that id.
      */
     public Version getCurrentVersion() {
+        if (versions == null) {
+            setVersions();
+        }
         return versions.get(getCurrentVersionId());
     }
     /**
