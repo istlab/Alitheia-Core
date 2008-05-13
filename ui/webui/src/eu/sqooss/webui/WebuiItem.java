@@ -45,6 +45,7 @@ public class WebuiItem {
 
     private static final String COMMENT = "<!-- WebuiItem -->\n";
     protected Long id;
+    protected String page = "home.jsp";
     protected Terrier terrier;
     // Contains a sorted list of all files in this version mapped to their ID.
     protected SortedMap<Long, File> files;
@@ -82,6 +83,14 @@ public class WebuiItem {
 
     public String longName () {
         return getHtml(); // Yeah, we'r lazy.
+    }
+
+    public String link(String cssClass) {
+        String css_class = "";
+        if (cssClass != null) {
+            css_class = " class=\"" + cssClass + "\" ";
+        }
+        return "<a href=\"" + page + "?id=" + id + "\" " + css_class + ">" + shortName() + "</a>";
     }
 
     public SortedMap<Long, File> getFiles () {

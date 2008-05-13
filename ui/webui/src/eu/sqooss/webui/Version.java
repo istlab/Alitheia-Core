@@ -52,7 +52,7 @@ public class Version extends WebuiItem {
     //private SortedMap<Long, File> files;
 
     public Version () {
-
+        page = "version.jsp";
     }
 
     public Version (WSProjectVersion wsVersion, Terrier t) {
