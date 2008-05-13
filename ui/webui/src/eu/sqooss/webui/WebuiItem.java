@@ -47,6 +47,7 @@ public class WebuiItem {
     private StringBuilder error = new StringBuilder();
     protected Long id;
     protected String page = "home.jsp";
+    protected String reqName = "id";
     protected Terrier terrier;
     // Contains a sorted list of all files in this version mapped to their ID.
     protected SortedMap<Long, File> files;
@@ -74,7 +75,7 @@ public class WebuiItem {
 
     public String getHtml() {
         StringBuilder html = new StringBuilder(COMMENT);
-        html.append("<b>WebuiItem:</b> " + id);
+        html.append("<strong>WebuiItem:</strong> " + id);
         return html.toString();
     }
 
@@ -91,7 +92,7 @@ public class WebuiItem {
         if (cssClass != null) {
             css_class = " class=\"" + cssClass + "\" ";
         }
-        return "<a href=\"" + page + "?id=" + id + "\" " + css_class + ">" + shortName() + "</a>";
+        return "<a href=\"" + page + "?" + reqName + "=" + id + "\" " + css_class + ">" + shortName() + "</a>";
     }
 
     public String link() {

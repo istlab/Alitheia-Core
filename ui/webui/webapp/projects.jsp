@@ -1,7 +1,7 @@
 <%@ include file="/inc/init.jsp" %>
 <%
-    title = "Projects";
-    if (selectedProject != null) {
+    title = "Evaluated Projects";
+    if (selectedProject.isValid()) {
         title = "Project: " + selectedProject.getName();
     }
 %>
@@ -10,9 +10,9 @@
 
 <%
 if (selectedProject != null && selectedProject.isValid()) {
-    %>Project <%@ include file="/views/Project.jsp" %> <%
+    %> <%@ include file="/views/Project.jsp" %> <%
 } else {
-    %>NoProject <%@ include file="/views/EvaluatedProjectsList.jsp" %> <%
+    %> <%@ include file="/views/EvaluatedProjectsList.jsp" %> <%
 
 }
 %>

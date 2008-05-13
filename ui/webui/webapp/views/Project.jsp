@@ -1,13 +1,6 @@
 <%@ page import="eu.sqooss.webui.*" %>
 <%
 
-// Display some information about the chose project
-
-/*
-if (projectId != null) {
-    selectedProject = terrier.getProject(projectId);
-}
-*/
 if (selectedProject != null && selectedProject.isValid()) {
     out.println("<div id=\"selectedproject\" class=\"group\">");
     out.println("<h1>" + selectedProject.getName());

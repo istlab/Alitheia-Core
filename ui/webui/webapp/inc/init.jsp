@@ -24,9 +24,9 @@ if (request.getParameter("pid") != null) {
     String req = request.getParameter("pid");
     if (!"none".equals(req)) {
         projectId = getId(req);
+        //out.println("PID: " + projectId);
     }
 }
-out.println("PRoject ID: " + projectId);
 /*
     This file instaniates shared objects and defines shared variables
     commonly used by the majority of the WebUI JSP pages. Therefore, it
@@ -63,28 +63,35 @@ String msg      = "";
     <jsp:setProperty name="selectedProject" property="id" value="<%= projectId %>"/>
     <%
     if (projectId != null) {
+        //out.println("projectId: " + projectId);
+        selectedProject.setId(projectId);
         selectedProject.setTerrier(terrier);
         selectedProject.retrieveData();
+        //out.println(selectedProject.getHtml());
+    } else {
+        //out.println("NOPID" + selectedProject.isValid());
     }
     %>
 </jsp:useBean>
+
 <%
-
-/*
-|| selectedProject.isValid()) {
-    projectId = null;
-    selectedProject = null;
+// Selectedproject might have become valid, reflect that
+if (projectId != null && !selectedProject.isValid()) {
+    selectedProject.setId(projectId);
+    selectedProject.setTerrier(terrier);
+    selectedProject.retrieveData();
 }
-*/
-%>
 
+if ("none".equals(request.getParameter("pid"))) {
+    selectedProject.setId(null); // Invalidate
+}
+%>
 <jsp:useBean id="validator"
     class="eu.sqooss.webui.InputValidator"
     scope="session"/>
 <jsp:setProperty name="validator" property="*"/>
 
 <%
-
 
 // TODO: Move into a separate Java class file
 final String ACT_REQ_LOGIN = "Sign in";

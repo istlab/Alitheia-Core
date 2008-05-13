@@ -72,6 +72,8 @@ public class Project extends WebuiItem {
    }
 
     private void initProject(WSStoredProject p) {
+        page = "/projects.jsp";
+        reqName = "pid";
         id = p.getId();
         name = p.getName();
         bts = p.getBugs();
@@ -139,22 +141,22 @@ public class Project extends WebuiItem {
     public String getInfo() {
         StringBuilder html = new StringBuilder();
         html.append("\n<table class=\"projectinfo\">\n\t<tr>\n\t\t<td>");
-        html.append("Website: \n\t\t</td><td>\n"
+        html.append("<strong>Website:</strong> \n\t\t</td><td>\n"
                 + (getWebsite() != null 
                         ? "<a href=\"" + getWebsite() + "\">" + getWebsite() + "</a>"
                         : "<i>undefined</i>"));
         html.append("\n\t\t</td>\n\t</tr>\n\t<tr>\n\t\t<td>");
-        html.append("Contact: \n\t\t</td><td>\n"
+        html.append("<strong>Contact:</strong> \n\t\t</td><td>\n"
                 + (getContact() != null 
                         ? "<a href=\"" + getContact() + "\">" + getContact() + "</a>"
                         : "<i>undefined</i>"));
         html.append("\n\t\t</td>\n\t</tr>\n\t<tr>\n\t\t<td>");
-        html.append("SVN Mirror: \n\t\t</td><td>\n"
+        html.append("<strong>SVN Mirror:</strong> \n\t\t</td><td>\n"
                 + (getRepository() != null 
                         ? "<a href=\"files.jsp" + getId() + "\">" + getRepository() + "</a>"
                         : "<i>undefined</i>"));
         html.append("\n\t\t</td>\n\t</tr>\n\t<tr>\n\t\t<td>");
-        html.append("Bug Data: \n\t\t</td><td>\n"
+        html.append("<strong>Bug Data:</strong> \n\t\t</td><td>\n"
                 + (getBts() != null 
                         ? "<a href=\"" + getBts() + "\">" + getBts() + "</a>"
                         : "<i>undefined</i>"));
