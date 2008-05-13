@@ -314,6 +314,12 @@ td.number {
 #table td.name {
     font-weight: bold;
 }
+#table td.edit {
+    cursor: pointer;
+}
+#table td.edit:hover {
+    background-color: #FFFF99;
+}
 #table td.uninstalled {
     background-color: WhiteSmoke;
 }

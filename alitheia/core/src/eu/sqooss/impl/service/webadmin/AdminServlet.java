@@ -102,6 +102,7 @@ public class AdminServlet extends HttpServlet {
         addStaticContent("/gear.png", "image/x-png");
         addStaticContent("/header-repeat.png", "image/x-png");
         addStaticContent("/add_user.png", "image/x-png");
+        addStaticContent("/edit.png", "image/x-png");
 
         // Create the dynamic content map
         dynamicContentMap = new Hashtable<String, String>();

@@ -864,12 +864,13 @@ public class WebAdminRenderer {
             // User list -table rows
             else {
                 for (User nextUser : users) {
-                    String htmlEditUser = "<td"
+                    String htmlEditUser = "<td class=\"edit\""
                         + " onclick=\"javascript:"
                         + "document.getElementById('"
                             + reqParUserId + "').value='"
                             + nextUser.getId() + "';"
                             + "document.users.submit();\">"
+                        + "<img src=\"/edit.png\" alt=\"[Edit]\"/>"
                         + nextUser.getName()
                         + "</td>\n";
                     b.append(sp(++in) + "<tr>\n");
