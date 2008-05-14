@@ -4,6 +4,7 @@ include $(TOP_SRCDIR)/Makefile.bundle
 
 clean-dir :
 	rm -rf sqoosslib
+	rm -rf ../build
 
 PLUGINS_FOLDER = "/plugins"
 DESTINATION_FOLDER = "$(ECLIPSE_HOME)$(PLUGINS_FOLDER)"
