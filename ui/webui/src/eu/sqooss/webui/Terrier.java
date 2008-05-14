@@ -374,13 +374,13 @@ public class Terrier {
 
             WSProjectFile[] wsfiles =
                 connection.getProjectAccessor().getFilesByProjectVersionId(versionId);
-            addError("FILES:." + wsfiles.length);
+            //addError("FILES:." + wsfiles.length);
             for (int i = 0; i < wsfiles.length; i++) {
                 files[i] = new File(wsfiles[i], this);
-                addError("File added." + versionId + files[i].getName());
+                //addError("File added." + versionId + files[i].getName());
             }
         } catch (WSException e) {
-            addError("Can not retrieve the list of files for this version.");
+            addError("Can not retrieve the list of files for this version:" + e.getMessage());
             return null;
         }
         return files;
@@ -520,14 +520,14 @@ public class Terrier {
     }
 
     public String getError() {
-        return error;
+        return "\n<ol>" + error + "\n</ol>";
     }
 
     public void addError(String message) {
-        if (error != "") {
-            error += " ";
-        }
-        error += message + "<br />";
+        //if (error != "") {
+        //    error += "<li>" + message;
+        //}
+        error += "\n\t<li>" + message + "</li>";
     }
 
     public void flushError() {

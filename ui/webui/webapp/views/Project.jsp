@@ -3,20 +3,24 @@
 
 if (selectedProject != null && selectedProject.isValid()) {
     out.println("<div id=\"selectedproject\" class=\"group\">");
+
+    // Update Message Box
     msg += "<br /><strong>Project:</strong> " + selectedProject.getName();
     msg += "<span class=\"forget\"><a href=\"?pid=none\">(forget)</a></span>";
     msg += "<br /><strong>Version:</strong> " + selectedProject.getCurrentVersion().shortName();
 %>
-<table width="100%"  cellspacing="20">
+<table>
     <tr>
-        <td valign="top">
+        <td valign="top" style="padding-right: 30px">
         <%
+            // Metadata
             out.println("\n<h2>" + selectedProject.getName() + " Metadata</h2>\n");
             out.println(selectedProject.getInfo());
         %>
         </td>
         <td valign="top">
         <%
+            // Versions
             out.println("\n<h2>" + selectedProject.getName() + " Versions");
             // Display the number of files in the selected project version
             // TODO: The files number should be cached in the Project object,
@@ -71,25 +75,26 @@ if (selectedProject != null && selectedProject.isValid()) {
     </tr>
     </table>
     <%
+
+    // Metrics
     out.println("<h2>Metrics for " + selectedProject.getName() + "</h2>");
     out.println(selectedProject.showMetrics());
 
+
+    // Files
     String versionFileList = selectedProject.getCurrentVersion().listFiles();
     String projectFileList = selectedProject.listFiles();
     int v_c = selectedProject.getCurrentVersion().getFileCount();
     int p_c = selectedProject.getFileCount();
 
-    out.println ("<br /><h2>Files in " + selectedProject.getName() + "</h2> "
-        + v_c + " file(s) in version " + selectedProject.getCurrentVersionId());
+    out.println("\n<table width=\"100%\">\n\t<tr><td style=\"padding-right: 30px\">");
 
-    out.println("\n<table width=\"100%\">\n\t<tr><td>");
-
-    out.println("<strong>Files in " + selectedProject.getName() + " (" + p_c + ")</strong>");
+    out.println("<h2>Files in " + selectedProject.getName() + " (" + p_c + ")</h2>");
     out.println(projectFileList);
 
     out.println("\n\t\t</td><td>");
 
-    out.println("<strong>Files in Version " + selectedProject.getCurrentVersionId() + " (" + v_c + ")</strong>");
+    out.println("<h2>Files in Version " + selectedProject.getCurrentVersionId() + " (" + v_c + ")</h2>");
     out.println(versionFileList);
 
     out.println("\n\t\t</td>\n\t</tr>\n</table>");
@@ -97,7 +102,7 @@ if (selectedProject != null && selectedProject.isValid()) {
     out.println("</div>"); // End of this group
     out.println("<div style=\"margin-bottom: 20px;\"></div>");
 } else {
-    //out.println("Project apparently null");
+    out.println(error("Invalid Project."));
 }
 
 %>

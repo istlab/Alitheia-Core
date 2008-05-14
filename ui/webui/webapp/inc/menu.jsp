@@ -38,4 +38,13 @@ cruncher.hit();
 out.println(cruncher.getStatus());
 %>
       </fieldset>
+      <fieldset id="status">
+        <legend>Errors</legend>
+<%
+    out.println(error(terrier.getError()));
+    terrier.flushError();
+%>
+      </fieldset>
+
+
     </div>

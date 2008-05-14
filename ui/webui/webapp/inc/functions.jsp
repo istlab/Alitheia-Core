@@ -1,5 +1,9 @@
 <%!
 
+public static String error(String e) {
+    return "<p><font color=\"red\">" + e + "</font></p>";
+}
+
 public static String versionSelector(Project p) {
     StringBuilder html = new StringBuilder("\n<form id=\"selectversion\">");
     html.append("\n\t<select name=\"version" + p.getId() + "\" class=\"form\">");
