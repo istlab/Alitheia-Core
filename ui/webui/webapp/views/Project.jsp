@@ -9,16 +9,16 @@ if (selectedProject != null && selectedProject.isValid()) {
     msg += "<span class=\"forget\"><a href=\"?pid=none\">(forget)</a></span>";
     msg += "<br /><strong>Version:</strong> " + selectedProject.getCurrentVersion().shortName();
 %>
-<table>
+<table width="100%">
     <tr>
-        <td valign="top" style="padding-right: 30px">
+        <td valign="top" style="padding-right: 30px" width="50%">
         <%
             // Metadata
             out.println("\n<h2>" + selectedProject.getName() + " Metadata</h2>\n");
             out.println(selectedProject.getInfo());
         %>
         </td>
-        <td valign="top">
+        <td valign="top" width="50%">
         <%
             // Versions
             out.println("\n<h2>" + selectedProject.getName() + " Versions");
@@ -87,12 +87,12 @@ if (selectedProject != null && selectedProject.isValid()) {
     int v_c = selectedProject.getCurrentVersion().getFileCount();
     int p_c = selectedProject.getFileCount();
 
-    out.println("\n<table width=\"100%\">\n\t<tr><td style=\"padding-right: 30px\">");
+    out.println("\n<table width=\"100%\">\n\t<tr><td style=\"padding-right: 30px\" width=\"50%\">");
 
     out.println("<h2>Files in " + selectedProject.getName() + " (" + p_c + ")</h2>");
     out.println(projectFileList);
 
-    out.println("\n\t\t</td><td>");
+    out.println("\n\t\t</td><td width=\"50%\">");
 
     out.println("<h2>Files in Version " + selectedProject.getCurrentVersionId() + " (" + v_c + ")</h2>");
     out.println(versionFileList);
