@@ -496,26 +496,18 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
                 // and update the plug-in's information object upon success.
                 if (sobjPlugin.install()) {
                     // Get the DAO that belongs to this metric plug-in
-                    DBService db = CoreActivator.getDBService();
-                    try {
-                        db.startDBSession();
-                        Plugin daoPlugin = pluginRefToPluginDAO(srefPlugin);
-                        if (daoPlugin != null) {
-                            // Create an info object for installed plug-in
-                            PluginInfo pluginInfo =
-                                createInstalledPI(srefPlugin, daoPlugin);
-                            if (pluginInfo != null) {
-                                // Remove the old "registered" info object
-                                registeredPlugins.remove(serviceID.toString());
-                                // Store the info object
-                                registeredPlugins.put(
-                                        pluginInfo.getHashcode(), pluginInfo);
-                                return true;
-                            }
-                        }
-                    } finally {
-                        if (db.isDBSessionActive()) {
-                            db.commitDBSession();
+                    Plugin daoPlugin = pluginRefToPluginDAO(srefPlugin);
+                    if (daoPlugin != null) {
+                        // Create an info object for installed plug-in
+                        PluginInfo pluginInfo = createInstalledPI(srefPlugin,
+                                daoPlugin);
+                        if (pluginInfo != null) {
+                            // Remove the old "registered" info object
+                            registeredPlugins.remove(serviceID.toString());
+                            // Store the info object
+                            registeredPlugins.put(pluginInfo.getHashcode(),
+                                    pluginInfo);
+                            return true;
                         }
                     }
                 }
@@ -634,11 +626,11 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
     public void pluginUpdated(AlitheiaPlugin p) {
         // Make sure that this method is called with an existing DB session
         boolean ownDBSession = false;
-        if (sobjDB.isDBSessionActive() == false) {
+     /*   if (sobjDB.isDBSessionActive() == false) {
             // Create a DB session
             sobjDB.startDBSession();
             ownDBSession = true;
-        }
+        }*/
 
         PluginInfo pi = getPluginInfo(p);
         if (pi == null) {
@@ -663,7 +655,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
         logger.info("Plugin (" + plugInfo.getPluginName() + ") updated");
 
         // Close the DB session
-        if (ownDBSession) sobjDB.commitDBSession();
+       // if (ownDBSession) sobjDB.commitDBSession();
     }
 
     public AlitheiaPlugin getImplementingPlugin(String mnemonic) {

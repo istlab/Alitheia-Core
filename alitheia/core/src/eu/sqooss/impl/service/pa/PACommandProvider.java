@@ -91,6 +91,7 @@ public class PACommandProvider implements CommandProvider {
     /* ===[ Command methods ]============================================= */
 
     public void _install_plugin (CommandInterpreter ci) {
+        dbs.startDBSession();
         // Retrieve the service ID from the command's parameters list
         String serviceId = ci.nextArgument();
         if ((serviceId != null) && (sobjPA != null)){
@@ -117,6 +118,8 @@ public class PACommandProvider implements CommandProvider {
                         + "The specified service ID is not a number");
             }
         }
+        if(!dbs.commitDBSession())
+            dbs.rollbackDBSession();
     }
 
     public void _list_plugins (CommandInterpreter ci) {
@@ -186,6 +189,7 @@ public class PACommandProvider implements CommandProvider {
     }
     
     public void _remove_plugin(CommandInterpreter ci) {
+        dbs.startDBSession();
         String serviceId = ci.nextArgument();
         if ((serviceId != null) && (sobjPA != null)){
            try {
@@ -204,6 +208,8 @@ public class PACommandProvider implements CommandProvider {
                        + "The specified service ID is not a number");
            }
         }
+        if(!dbs.commitDBSession())
+            dbs.rollbackDBSession();
     }
 }
 
