@@ -67,6 +67,7 @@ import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.security.GroupManager;
 import eu.sqooss.service.security.PrivilegeManager;
 import eu.sqooss.service.security.SecurityManager;
+import eu.sqooss.service.security.UserManager;
 import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.TDAccessor;
 import eu.sqooss.service.tds.TDSService;
@@ -656,19 +657,16 @@ public class WebAdminRenderer {
         StringBuilder e = new StringBuilder();
         // Indentation spacer
         long in = 6;
-        // Store here all known users
-        User[] users = null;
-        // Store here all known groups
-        Group[] groups = null;
 
         // Create a DB session
         sobjDB.startDBSession();
         // Get the various security managers
+        UserManager secUM = sobjSecurity.getUserManager();
         GroupManager secGM = sobjSecurity.getGroupManager();
         PrivilegeManager secPM = sobjSecurity.getPrivilegeManager();
-        // Retrieve information for all registered users
-        users = sobjSecurity.getUserManager().getUsers();
-        if ((users != null) && (users.length > 0)) {
+
+        // Proceed only when at least the system user is available
+        if (secUM.getUsers().length > 0) {
             // Request parameters
             String reqParAction        = "action";
             String reqParUserId        = "userId";
@@ -814,9 +812,6 @@ public class WebAdminRenderer {
                 }
             }
 
-            // Retrieve information for all registered groups
-            groups = sobjSecurity.getGroupManager().getGroups();
-
             // Create the form
             b.append(sp(in) + "<form id=\"users\""
                     + " name=\"users\""
@@ -931,7 +926,7 @@ public class WebAdminRenderer {
                 b.append(sp(++in) + "<select"
                         + " size=\"4\" style=\"width: 100%; border: 0;\">\n");
                 sp(++in);
-                for (Group group : groups) {
+                for (Group group : secGM.getGroups()) {
                     // Skip groups where this user is already a member 
                     if (selUser.getGroups().contains(group) == false) {
                         b.append(sp(in) + "<option"
@@ -955,7 +950,7 @@ public class WebAdminRenderer {
             }
             // User list -table rows
             else {
-                for (User nextUser : users) {
+                for (User nextUser : secUM.getUsers()) {
                     String htmlEditUser = "<td class=\"edit\""
                         + " onclick=\"javascript:"
                         + "document.getElementById('"
