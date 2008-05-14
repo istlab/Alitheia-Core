@@ -11,8 +11,7 @@
 #news, #tagcloud, #selectedproject,
 #projectslist, #metricslist, #fileslits,  #loginpage {
     padding: 1ex 1em;
-    padding-left: 20px;
-    /*padding-left: 76px;*/
+    padding-left: 56px;
     min-height: 52px; /* 36px for image + 8px padding */
 }
 
