@@ -8,10 +8,7 @@
     </div>
   </div>
   <div id="statusbar">
-<%
-    out.println("&nbsp<strong>Errors:</strong>;<font color=\"red\">" + terrier.getError() + "</font>");
-    terrier.flushError();
-%>
+
   </div>
   </body>
 </html>

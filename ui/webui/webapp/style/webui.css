@@ -72,3 +72,9 @@ span.forget {
 span.forget a {
     color: #666;
 }
+
+#error ul li {
+    list-style-type: square;
+    color: #CE2323;
+}
+

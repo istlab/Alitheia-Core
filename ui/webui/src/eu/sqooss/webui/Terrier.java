@@ -520,13 +520,10 @@ public class Terrier {
     }
 
     public String getError() {
-        return "\n<ol>" + error + "\n</ol>";
+        return "\n<ul>" + error + "\n</ul>";
     }
 
     public void addError(String message) {
-        //if (error != "") {
-        //    error += "<li>" + message;
-        //}
         error += "\n\t<li>" + message + "</li>";
     }
 

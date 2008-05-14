@@ -38,7 +38,7 @@ cruncher.hit();
 out.println(cruncher.getStatus());
 %>
       </fieldset>
-      <fieldset id="status">
+      <fieldset id="error">
         <legend>Errors</legend>
 <%
     out.println(error(terrier.getError()));

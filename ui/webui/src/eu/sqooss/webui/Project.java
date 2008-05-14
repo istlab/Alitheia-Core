@@ -182,6 +182,7 @@ public class Project extends WebuiItem {
         if (metricsView != null ) {
             html.append(metricsView.getHtml());
         } else {
+            html.append("<strong>Could not retrieve metrics for this project.</strong> The following errors were reported:<br />");
             html.append(terrier.getError());
         }
         return html.toString();
@@ -267,8 +268,8 @@ public class Project extends WebuiItem {
             versions.put(vid, v);
             changed = true;
         }
-        if (changed) {
-            terrier.addError("Number of versions:" + versions.size());
+        if (!changed) {
+            terrier.addError("Project has no versions: " + versions.size());
         }
         this.versions = versions;
         setCurrentVersionId(getLastVersion().getId());
