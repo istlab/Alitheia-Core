@@ -141,6 +141,10 @@ public class StoredProject extends DAObject {
         if (l == null) {
             return 0;
         }
+        if (l.size() < 1) {
+            return 0;
+        }
+
         Object o = l.get(0);
         if (o == null) {
             return 0;
