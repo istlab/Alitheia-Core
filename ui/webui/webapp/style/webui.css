@@ -43,6 +43,7 @@
 #selectedproject table.projectinfo {
     margin: 3px 0px 3px 3em;
 }
+
 #statusbar {
     background:#f6f6f6;
     border-top: 1px solid #ccc;
@@ -54,8 +55,9 @@
     bottom: 0;
     left: 0;
 }
+
 ul.projectslist {
-    list-style-type: none;
+    list-style-type: square;
     margin: 0;
     padding: 0;
     margin-left: 0px;

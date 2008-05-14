@@ -158,7 +158,7 @@ public class Project extends WebuiItem {
         html.append("\n\t\t</td>\n\t</tr>\n\t<tr>\n\t\t<td>");
         html.append("<strong>Bug Data:</strong> \n\t\t</td><td>\n"
                 + (getBts() != null 
-                        ? "<a href=\"" + getBts() + "\">" + getBts() + "</a>"
+                        ? getBts()
                         : "<i>undefined</i>"));
         html.append("\n\t\t</td>\n\t</tr>\n</table>");
         return html.toString();
