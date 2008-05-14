@@ -65,6 +65,7 @@ import eu.sqooss.service.pa.PluginInfo;
 import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.security.GroupManager;
+import eu.sqooss.service.security.PrivilegeManager;
 import eu.sqooss.service.security.SecurityManager;
 import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.TDAccessor;
@@ -664,6 +665,7 @@ public class WebAdminRenderer {
         sobjDB.startDBSession();
         // Get the various security managers
         GroupManager secGM = sobjSecurity.getGroupManager();
+        PrivilegeManager secPM = sobjSecurity.getPrivilegeManager();
         // Retrieve information for all registered users
         users = sobjSecurity.getUserManager().getUsers();
         if ((users != null) && (users.length > 0)) {
@@ -684,7 +686,7 @@ public class WebAdminRenderer {
             Long reqValUserId          = null;
             Long reqValGroupId         = null;
             Long reqValRightId         = null;
-            String reqValNewGroupName  = null;
+            String reqValGroupName     = null;
             String reqValAction        = null;
             // Selected user
             User selUser = null;
@@ -709,8 +711,6 @@ public class WebAdminRenderer {
                         selUser = sobjSecurity.getUserManager()
                             .getUser(reqValUserId);
                     }
-                    // Retrieve information for all registered groups
-                    groups = sobjSecurity.getGroupManager().getGroups();
                 }
                 // Retrieve the selected group Id (if any)
                 if ((req.getParameter(reqParGroupId) != null) &&
@@ -747,22 +747,22 @@ public class WebAdminRenderer {
                     // Add new group to the system
                     else if (reqValAction.equalsIgnoreCase(actValAddNewGroup)) {
                         // Retrieve the selected group name
-                        reqValNewGroupName =
+                        reqValGroupName =
                             req.getParameter(reqParGroupName);
                         // Create the new group
-                        if ((reqValNewGroupName != null)
-                                && (reqValNewGroupName != "")) {
-                            if (secGM.getGroup(reqValNewGroupName) == null) {
-                                Group newGroup =
-                                    secGM.createGroup(reqValNewGroupName);
-                                if (newGroup != null) {
-                                    selGroup = newGroup;
+                        if ((reqValGroupName != null)
+                                && (reqValGroupName != "")) {
+                            if (secGM.getGroup(reqValGroupName) == null) {
+                                Group group =
+                                    secGM.createGroup(reqValGroupName);
+                                if (group != null) {
+                                    selGroup = group;
                                 }
                                 else {
                                     e.append(sp(in)
                                             + "<b>Can not create group:</b>"
                                             + "&nbsp;"
-                                            + reqValNewGroupName
+                                            + reqValGroupName
                                             + "<br/>\n");
                                 }
                             }
@@ -770,7 +770,7 @@ public class WebAdminRenderer {
                                 e.append(sp(in)
                                         + "<b>This group already exists:</b>"
                                         + "&nbsp;"
-                                        + reqValNewGroupName
+                                        + reqValGroupName
                                         + "<br/>\n");
                             }
                         }
@@ -780,8 +780,42 @@ public class WebAdminRenderer {
                                     + "<br/>\n");
                         }
                     }
+                    // Remove existing group from the system
+                    else if (reqValAction.equalsIgnoreCase(actValConRemGroup)) {
+                        // Remove the selected group
+                        if (selGroup != null) {
+                            // Check (ignore case) if this is the system group
+                            if (selGroup.getDescription().equalsIgnoreCase(
+                                    sobjSecurity.getSystemGroup())) {
+                                e.append(sp(in)
+                                        + "<b>Denied system group removal!</b>"
+                                        + "<br/>\n");
+                            }
+                            // Delete the selected group
+                            else  {
+                                if (secGM.deleteGroup(selGroup.getId())) {
+                                    selGroup = null;
+                                }
+                                else {
+                                    e.append(sp(in)
+                                            + "<b>Can not remove group:</b>"
+                                            + "&nbsp;"
+                                            + reqValGroupName
+                                            + "<br/>\n");
+                                }
+                            }
+                        }
+                        else {
+                            e.append(sp(in)
+                                    + "<b>You must select a group name!</b>"
+                                    + "<br/>\n");
+                        }
+                    }
                 }
             }
+
+            // Retrieve information for all registered groups
+            groups = sobjSecurity.getGroupManager().getGroups();
 
             // Create the form
             b.append(sp(in) + "<form id=\"users\""
@@ -879,9 +913,9 @@ public class WebAdminRenderer {
                     b.append(sp(in) + "<option"
                             + " value=\"" + group.getId() + "\""
                             + " onclick=\"javascript:"
-                            + " document.getElementById('"
-                                 + reqParGroupId + "').value='"
-                                 + group.getId() + "';"
+                            + "document.getElementById('"
+                            + reqParGroupId + "').value="
+                            + group.getId() + ";"
                             + "document.users.submit();\""
                             + (((selGroup != null)
                                     && (selGroup.getId() == group.getId()))
@@ -903,9 +937,9 @@ public class WebAdminRenderer {
                         b.append(sp(in) + "<option"
                                 + " value=\"" + group.getId() + "\""
                                 + " onclick=\"javascript:"
-                                + " document.getElementById('"
-                                    + reqParGroupId + "').value='"
-                                    + group.getId() + "';"
+                                + "document.getElementById('"
+                                + reqParGroupId + "').value="
+                                + group.getId() + ";"
                                 + "document.users.submit();\""
                                 + (((selGroup != null)
                                         && (selGroup.getId() == group.getId()))
@@ -943,7 +977,13 @@ public class WebAdminRenderer {
                 }
             }
 
-            // ---( COMMAND ROWS )-------------------------------------------
+            // ===============================================================
+            // TOOLBARS
+            // ===============================================================
+
+            // ===============================================================
+            // User editor's toolbar
+            // ===============================================================
             if (selUser != null) {
                 b.append(sp(in) + "<tr>\n");
 
@@ -983,8 +1023,13 @@ public class WebAdminRenderer {
 
                 b.append(sp(--in) + "</tr>\n");
             }
+
+            // ===============================================================
+            // Main toolbar
+            // ===============================================================
             b.append(sp(in) + "<tr class=\"subhead\">");
             b.append(sp(++in) + "<td colspan=\"" + maxColspan + "\">"
+                    // Remove User
                     + ((selUser != null)
                         ? "&nbsp;"
                         + "<input class=\"install\""
@@ -999,26 +1044,24 @@ public class WebAdminRenderer {
                         + actValReqNewGroup + "';"
                         + "document.users.submit();\">"
                         : "")
+                    // Add group
                     + "&nbsp;"
                     + "<input class=\"install\""
                     + " style=\"width: 100px;\""
                     + " type=\"button\""
                     + " value=\"Add group\""
                     + " onclick=\"javascript:"
-                    + " document.getElementById('"
-                    + reqParGroupId + "').value='';"
                     + "document.getElementById('"
                     + reqParAction + "').value='"
                     + actValReqNewGroup + "';"
                     + "document.users.submit();\">"
+                    // Remove Group
                     + "&nbsp;"
                     + "<input class=\"install\""
                     + " style=\"width: 100px;\""
                     + " type=\"button\""
                     + " value=\"Remove group\""
                     + " onclick=\"javascript:"
-                    + " document.getElementById('"
-                    + reqParGroupId + "').value='';"
                     + "document.getElementById('"
                     + reqParAction + "').value='"
                     + actValReqRemGroup + "';"
@@ -1030,9 +1073,93 @@ public class WebAdminRenderer {
             b.append(sp(--in) + "</table>\n");
             b.append(sp(--in) + "</fieldset>\n");
 
-            // ---( GROUP ROWS )---------------------------------------------
+            // ===============================================================
+            // GROUP RELATED VIEWS
+            // ===============================================================
+
+            // ===============================================================
+            // "New group" editor
+            // ===============================================================
+            if ((reqValAction != null)
+                    && (reqValAction.equalsIgnoreCase(actValReqNewGroup))) {
+                b.append(sp(in) + "<fieldset>\n");
+                b.append(sp(++in) + "<legend>New group" + "</legend\n>");
+                b.append(sp(in) + "<span><b>Group name</b>&nbsp;"
+                        + "<input style=\"width: 150px;\""
+                        + " type=\"text\""
+                        + " id=\"" + reqParGroupName + "\""
+                        + " name=\"" + reqParGroupName + "\""
+                        + " value=\"\">"
+                        + "&nbsp;"
+                        + "<input class=\"install\" style=\"width: 60px;\""
+                        + " type=\"button\""
+                        + " value=\"Apply\""
+                        + " onclick=\"javascript:"
+                        + "document.getElementById('"
+                        + reqParAction + "').value='"
+                        + actValAddNewGroup + "';"
+                        + "document.users.submit();\">"
+                        + "&nbsp;"
+                        + "<input class=\"install\" style=\"width: 60px;\""
+                        + " type=\"button\""
+                        + " value=\"Cancel\""
+                        + " onclick=\"javascript:"
+                        + "document.users.submit();\">"
+                        + "</span>\n");
+                b.append(sp(--in) + "</fieldset>\n");
+            }
+            // ===============================================================
+            // "Remove group" editor
+            // ===============================================================
+            else if ((reqValAction != null)
+                    && (reqValAction.equalsIgnoreCase(actValReqRemGroup))) {
+                b.append(sp(in) + "<fieldset>\n");
+                b.append(sp(++in) + "<legend>Remove group" + "</legend\n>");
+                b.append(sp(in) + "<span><b>Group name</b>&nbsp;"
+                        + "<select style=\"width: 150px;\""
+                        + " id=\"removeGroup\""
+                        + " name=\"removeGroup\">");
+                for (Group group : secGM.getGroups()) {
+                    // Do not display the SQO-OSS system group
+                    if (group.getDescription().equalsIgnoreCase(
+                            sobjSecurity.getSystemGroup()) == false) {
+                        b.append(sp(in) + "<option"
+                                + " value=\"" + group.getId() + "\""
+                                + (((selGroup != null)
+                                        && (selGroup.getId() == group.getId()))
+                                        ? " selected"
+                                        : "")
+                                + ">"
+                                + group.getDescription()
+                                + "</option>");
+                    }
+                }
+                b.append(sp(in) + "</select>"
+                        + "&nbsp;"
+                        + "<input class=\"install\" style=\"width: 60px;\""
+                        + " type=\"button\""
+                        + " value=\"Remove\""
+                        + " onclick=\"javascript:"
+                        + "document.getElementById('"
+                        + reqParAction + "').value='"
+                        + actValConRemGroup + "';"
+                        + "document.getElementById('"
+                        + reqParGroupId + "').value="
+                        + "document.getElementById('removeGroup').value;"
+                        + "document.users.submit();\">"
+                        + "&nbsp;"
+                        + "<input class=\"install\" style=\"width: 60px;\""
+                        + " type=\"button\""
+                        + " value=\"Cancel\""
+                        + " onclick=\"javascript:"
+                        + "document.users.submit();\">"
+                        + "</span>\n");
+                b.append(sp(--in) + "</fieldset>\n");
+            }
+            // ===============================================================
             // "Selected group" editor
-            if (selGroup != null) {
+            // ===============================================================-
+            else if (selGroup != null) {
                 b.append(sp(in) + "<fieldset>\n");
                 b.append(sp(++in) + "<legend>Group "
                         + selGroup.getDescription() + "</legend\n>");
@@ -1063,147 +1190,86 @@ public class WebAdminRenderer {
                     b.append(sp(++in) + "<td class=\"subhead\" colspan=\"4\">"
                             + "Assigned</td>");
                     b.append(sp(--in) + "</tr>\n");
-                }
-                // "Assigned rights" list
-                for (Object privilege : selGroup.getGroupPrivileges()) {
-                    b.append(sp(in) + "<tr>\n");
-                    // Action bar
-                    b.append(sp(++in) + "<td>"
-                            + "&nbsp;"
-                            + "</td>\n");
-                    // Attached service
-                    b.append(sp(++in) + "<td>"
-                            + ((GroupPrivilege) privilege).getUrl().getUrl()
-                            + "</td>\n");
-                    // Assigned privilege
-                    b.append(sp(++in) + "<td>"
-                            + ((GroupPrivilege) privilege).getPv().getPrivilege().getDescription()
-                            + "</td>\n");
-                    // Granted right
-                    b.append(sp(++in) + "<td>"
-                            + ((GroupPrivilege) privilege).getPv().getValue()
-                            + "</td>\n");
-                    b.append(sp(--in) + "</tr>\n");
+                    // "Assigned rights" list
+                    for (Object privilege : selGroup.getGroupPrivileges()) {
+                        // Cast to a GroupPrivilege and display it
+                        GroupPrivilege grPriv = (GroupPrivilege) privilege;
+                        b.append(sp(in) + "<tr>\n");
+                        // Action bar
+                        b.append(sp(++in) + "<td>"
+                                + "&nbsp;"
+                                + "</td>\n");
+                        // Attached service
+                        b.append(sp(++in) + "<td>"
+                                + grPriv.getUrl().getUrl()
+                                + "</td>\n");
+                        // Assigned privilege
+                        b.append(sp(++in) + "<td>"
+                                + grPriv.getPv().getPrivilege().getDescription()
+                                + "</td>\n");
+                        // Granted right
+                        b.append(sp(++in) + "<td>"
+                                + grPriv.getPv().getValue()
+                                + "</td>\n");
+                        b.append(sp(--in) + "</tr>\n");
+                    }
                 }
 
                 // "Available rights" header
-                if (selGroup.getGroupPrivileges().isEmpty() == false) {
+                if (secPM.getPrivileges().length > 0) {
                     b.append(sp(in) + "<tr class=\"subhead\">\n");
                     b.append(sp(++in) + "<td class=\"subhead\" colspan=\"4\">"
                             + "Available</td>");
                     b.append(sp(--in) + "</tr>\n");
-                }
-                // "Available rights" list
-                for (Privilege privilege : sobjSecurity.getPrivilegeManager().getPrivileges()) {
-                    b.append(sp(in) + "<tr>\n");
-                    // Action bar
-                    b.append(sp(++in) + "<td>"
-                            + "&nbsp;"
-                            + "</td>\n");
-                    // Available services
-                    b.append(sp(in) + "<td>"
-                            + "&nbsp;"
-                            + "</td>\n");
-                    // Available privileges
-                    b.append(sp(in) + "<td>"
-                            + privilege.getDescription()
-                            + "</td>\n");
-                    // Available rights
-                    b.append(sp(in) + "<td>\n");
-                    PrivilegeValue[] values =
-                        sobjSecurity.getPrivilegeManager()
-                            .getPrivilegeValues(privilege.getId());
-                    if ((values != null) && (values.length > 0)) {
-                        b.append(sp(++in) + "<select"
-                                + " style=\"width: 100%; border: 0;\">\n");
-                        in++;
-                        for (PrivilegeValue value : values) {
-                            b.append(sp(in) + "<option"
-                                    + " value=\"" + value.getId() + "\""
-                                    + " onclick=\"javascript:"
-                                    + " document.getElementById('"
+                    // "Available rights" list
+                    for (Privilege privilege : secPM.getPrivileges()) {
+                        b.append(sp(in) + "<tr>\n");
+                        // Action bar
+                        b.append(sp(++in) + "<td>"
+                                + "&nbsp;"
+                                + "</td>\n");
+                        // Available services
+                        b.append(sp(in) + "<td>"
+                                + "&nbsp;"
+                                + "</td>\n");
+                        // Available privileges
+                        b.append(sp(in) + "<td>"
+                                + privilege.getDescription()
+                                + "</td>\n");
+                        // Available rights
+                        b.append(sp(in) + "<td>\n");
+                        PrivilegeValue[] values =
+                            secPM.getPrivilegeValues(privilege.getId());
+                        if ((values != null) && (values.length > 0)) {
+                            b.append(sp(++in) + "<select"
+                                    + " style=\"width: 100%; border: 0;\""
+                                    + ">\n");
+                            in++;
+                            for (PrivilegeValue value : values) {
+                                b.append(sp(in) + "<option"
+                                        + " value=\"" + value.getId() + "\""
+                                        + " onclick=\"javascript:"
+                                        + " document.getElementById('"
                                         + reqParRightId + "').value='"
                                         + value.getId() + "';"
-                                    + "document.users.submit();\""
-                                    + ">"
-                                    + value.getValue()
-                                    + "</option>\n");
+                                        + "document.users.submit();\""
+                                        + ">"
+                                        + value.getValue()
+                                        + "</option>\n");
+                            }
+                            b.append(sp(--in) + "</select>\n");
                         }
-                        b.append(sp(--in) + "</select>\n");
+                        else {
+                            b.append(sp(++in) + "<b>NA</b>");
+                        }
+                        b.append(sp(--in) + "</td>\n");
+                        b.append(sp(--in) + "</tr>\n");
                     }
-                    else {
-                        b.append(sp(++in) + "<b>NA</b>");
-                    }
-                    b.append(sp(--in) + "</td>\n");
-                    b.append(sp(--in) + "</tr>\n");
                 }
 
                 b.append(sp(--in) + "</tbody>\n");
 
                 b.append(sp(--in) + "</table>\n");
-                b.append(sp(--in) + "</fieldset>\n");
-            }
-            // "New group" editor
-            else if ((reqValAction != null)
-                    && (reqValAction.equalsIgnoreCase(actValReqNewGroup))) {
-                b.append(sp(in) + "<fieldset>\n");
-                b.append(sp(++in) + "<legend>New group" + "</legend\n>");
-                b.append(sp(in) + "<span><b>Group name</b>&nbsp;"
-                        + "<input style=\"width: 150px;\""
-                        + " type=\"text\""
-                        + " id=\"" + reqParGroupName + "\""
-                        + " name=\"" + reqParGroupName + "\""
-                        + " value=\"\">"
-                        + "&nbsp;"
-                        + "<input class=\"install\" style=\"width: 60px;\""
-                        + " type=\"button\""
-                        + " value=\"Apply\""
-                        + " onclick=\"javascript:"
-                        + "document.getElementById('"
-                        + reqParAction + "').value='"
-                        + actValAddNewGroup + "';"
-                        + "document.users.submit();\">"
-                        + "&nbsp;"
-                        + "<input class=\"install\" style=\"width: 60px;\""
-                        + " type=\"button\""
-                        + " value=\"Cancel\""
-                        + " onclick=\"javascript:"
-                        + "document.users.submit();\">"
-                        + "</span>\n");
-                b.append(sp(--in) + "</fieldset>\n");
-            }
-            // "Remove group" editor
-            else if ((reqValAction != null)
-                    && (reqValAction.equalsIgnoreCase(actValReqRemGroup))) {
-                b.append(sp(in) + "<fieldset>\n");
-                b.append(sp(++in) + "<legend>Remove group" + "</legend\n>");
-                b.append(sp(in) + "<span><b>Group name</b>&nbsp;"
-                        + "<select style=\"width: 150px;\""
-                        + " id=\"" + reqParGroupName + "\""
-                        + " name=\"" + reqParGroupName + "\">");
-                for (Group group : secGM.getGroups()) {
-                    b.append(sp(in) + "<option"
-                            + " value=\"" + group.getId() + "\">"
-                            + group.getDescription()
-                            + "</option>");
-                }
-                b.append(sp(in) + "</select>"
-                        + "&nbsp;"
-                        + "<input class=\"install\" style=\"width: 60px;\""
-                        + " type=\"button\""
-                        + " value=\"Remove\""
-                        + " onclick=\"javascript:"
-                        + "document.getElementById('"
-                        + reqParAction + "').value='"
-                        + actValConRemGroup + "';"
-                        + "document.users.submit();\">"
-                        + "&nbsp;"
-                        + "<input class=\"install\" style=\"width: 60px;\""
-                        + " type=\"button\""
-                        + " value=\"Cancel\""
-                        + " onclick=\"javascript:"
-                        + "document.users.submit();\">"
-                        + "</span>\n");
                 b.append(sp(--in) + "</fieldset>\n");
             }
 
