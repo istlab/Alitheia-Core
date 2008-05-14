@@ -41,6 +41,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.apache.commons.collections.LRUMap;
+import org.hibernate.FlushMode;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DBService;
@@ -222,8 +223,8 @@ class SourceUpdater extends Job {
                 /*Cleanup for huge projects*/
                 if (numRevisions % 10000 == 0) {
                     logger.info("Commited 10000 revisions");
-                    dbs.commitDBSession();
-                    dbs.startDBSession();
+                    dbs.getDBSession().flush();
+                    dbs.getDBSession().clear();
                 }
             }
             logger.info("Processed " + numRevisions + " revisions");
@@ -236,13 +237,12 @@ class SourceUpdater extends Job {
         } finally {
             logger.info(project.getName() + ": Time to process entries: "
                     + (int) ((System.currentTimeMillis() - ts) / 1000));
-            
+            dbs.commitDBSession();
             /*Kickstart metrics*/
             ma.runMetrics(ProjectVersion.class, updProjectVersions);
             ma.runMetrics(ProjectFile.class, updFiles);
 
             updater.removeUpdater(project.getName(), UpdaterService.UpdateTarget.CODE);
-            dbs.commitDBSession();
         }
     }
 
