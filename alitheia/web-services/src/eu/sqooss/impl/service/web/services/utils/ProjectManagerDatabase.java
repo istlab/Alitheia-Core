@@ -38,9 +38,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
+import org.hibernate.QueryException;
 
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.ProjectVersion;
@@ -107,6 +105,18 @@ public class ProjectManagerDatabase implements ProjectManagerDBQueries {
         } catch (SQLException e) {
             return Collections.emptyList();
         }
+    }
+    
+    public List<?> getFilesNumberByProjectId(long projectId) {
+        Map<String, Object> queryParameters = new Hashtable<String, Object>(1);
+        queryParameters.put(GET_FILES_NUMBER_BY_PROJECT_ID_PARAM, projectId);
+        
+        try {
+            return db.doHQL(GET_FILES_NUMBER_BY_PROJECT_ID, queryParameters);
+        } catch (QueryException qe) {
+            return Collections.emptyList();
+        }
+        
     }
     
     public long createNewProject(StoredProject newProject, ProjectVersion newProjectVersion) {

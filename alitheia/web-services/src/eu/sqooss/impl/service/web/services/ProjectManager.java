@@ -289,6 +289,23 @@ public class ProjectManager extends AbstractManager {
         return ((BigInteger)queryResult.get(0)).longValue();
     }
     
+    /**
+     * @see eu.sqooss.service.web.services.WebServices#getFilesNumberByProjectId(String, String, long)
+     */
+    public long getFilesNumberByProjectId(String userName, String password, long projectId) {
+        logger.info("Get file's number for project! user: " + userName +
+                "; project id: " + projectId);
+        
+        securityWrapper.checkProjectReadAccess(userName, password, projectId);
+        
+        super.updateUserActivity(userName);
+        
+        db.startDBSession();
+        List<?> queryResult = dbWrapper.getFilesNumberByProjectId(projectId);
+        db.commitDBSession();
+        return ((Long) queryResult.get(0)).longValue();
+    }
+    
     private WSProjectFile[] convertToWSProjectFiles(List<?> projectFiles) {
         WSProjectFile[] result = null;
         if ((projectFiles != null) && (projectFiles.size() != 0)) {

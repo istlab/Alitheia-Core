@@ -101,6 +101,15 @@ interface ProjectManagerDBQueries {
                                                                     "      and pf.file_status<>'DELETED' ";
     
     
+    public static final String GET_FILES_NUMBER_BY_PROJECT_ID_PARAM = "project_id";
+    
+    public static final String GET_FILES_NUMBER_BY_PROJECT_ID = "select count(*) " +
+                                                                "from ProjectVersion pv, ProjectFile pf " +
+                                                                "where pv.id=pf.projectVersion " +
+                                                                " and pv.project.id=:" +
+                                                                GET_FILES_NUMBER_BY_PROJECT_ID_PARAM;
+    
+    
     public static final String GET_STORED_PROJECTS_PARAM_PR_NAME    = "project_name";
     
     public static final String GET_STORED_PROJECTS_PARAM_PR_VERSION = "project_ver";

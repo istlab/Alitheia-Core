@@ -253,6 +253,23 @@ public class WebServices {
     }
 
     /**
+     * The method returns the total of the files, that exist in the given project.
+     * 
+     * @param userName - the user's name used for authentication
+     * @param password - the user's password used for authentication
+     * @param projectId - the project's identifier
+     * 
+     * @return The number of the eproject's files.
+     */
+    public long getFilesNumberByProjectId(
+            String userName,
+            String password,
+            long projectId) {
+        return projectManager.getFilesNumberByProjectId(
+                userName, password, projectId);
+    }
+    
+    /**
      * This method creates a request for a project evaluation. The SQO-OSS
      * framework administrator can then decide, if the project should be
      * included for evaluation or not.
