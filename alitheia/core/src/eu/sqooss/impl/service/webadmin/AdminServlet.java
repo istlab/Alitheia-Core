@@ -92,6 +92,7 @@ public class AdminServlet extends HttpServlet {
         // Create the static content map
         staticContentMap = new Hashtable<String, Pair<String, String>>();
         addStaticContent("/screen.css", "text/css");
+        addStaticContent("/webadmin.css", "text/css");
         addStaticContent("/sqo-oss.png", "image/x-png");
         addStaticContent("/queue.png", "image/x-png");
         addStaticContent("/uptime.png", "image/x-png");
