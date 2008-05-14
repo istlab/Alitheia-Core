@@ -602,12 +602,12 @@ public class WebAdminRenderer {
     }
 
     /**
-     * Converts a <code>String</code> into its <code>long</code>
-     * representation, while handling internally any thrown exception.
+     * Converts a <code>String</code> into a <code>Long</code>,
+     * while handling internally any thrown exception.
      * 
-     * @param value the String value
+     * @param value the <code>String</code> value
      * 
-     * @return The long value.
+     * @return The <code>Long</code> value.
      */
     private static Long fromString (String value) {
         try {
@@ -627,7 +627,7 @@ public class WebAdminRenderer {
         }
         return b.toString();
     }
-    
+
     private static String sp (long num) {
         StringBuilder b = new StringBuilder();
         String space = "  ";
@@ -638,7 +638,7 @@ public class WebAdminRenderer {
     }
 
     /**
-     * Renders the various user views:
+     * Renders the various user views of the SQO-OSS WebAdmin UI:
      * <ul>
      *   <li>Users viewer
      *   <li>User editor
@@ -669,12 +669,14 @@ public class WebAdminRenderer {
             String reqParAction        = "action";
             String reqParUserId        = "userId";
             String reqParGroupId       = "groupId";
+            String reqParRightId       = "rightId";
             // Action values
             String actValAddToGroup    = "addToGroup";
             String actValRemFromGroup  = "removeFromGroup";
             // Request values
             Long reqValUserId          = null;
             Long reqValGroupId         = null;
+            Long reqValRightId         = null;
             String reqValAction        = null;
             // Selected user
             User selUser = null;
@@ -943,28 +945,96 @@ public class WebAdminRenderer {
                         + " style=\"width: 15%;\">"
                         + "Actions</td>\n");
                 b.append(sp(in) + "<td class=\"head\""
-                        + " style=\"width: 60%;\">"
+                        + " style=\"width: 55%;\">"
+                        + "Services</td>\n");
+                b.append(sp(in) + "<td class=\"head\""
+                        + " style=\"width: 15%;\">"
                         + "Privileges</td>\n");
                 b.append(sp(in) + "<td class=\"head\""
-                        + " style=\"width: 35%;\">"
-                        + "Values</td>\n");
+                        + " style=\"width: 15%;\">"
+                        + "Rights</td>\n");
                 b.append(sp(--in) + "</tr>\n");
                 b.append(sp(--in) + "</thead>\n");
 
                 b.append(sp(in) + "<tbody>\n");
+
+                // "Assigned rights" header
+                if (selGroup.getGroupPrivileges().isEmpty() == false) {
+                    b.append(sp(++in) + "<tr class=\"subhead\">\n");
+                    b.append(sp(++in) + "<td class=\"subhead\" colspan=\"4\">"
+                            + "Assigned</td>");
+                    b.append(sp(--in) + "</tr>\n");
+                }
+                // "Assigned rights" list
                 for (Object privilege : selGroup.getGroupPrivileges()) {
-                    b.append(sp(++in) + "<tr>\n");
+                    b.append(sp(in) + "<tr>\n");
+                    // Action bar
                     b.append(sp(++in) + "<td>"
                             + "&nbsp;"
                             + "</td>\n");
+                    // Attached service
                     b.append(sp(++in) + "<td>"
                             + ((GroupPrivilege) privilege).getUrl().getUrl()
                             + "</td>\n");
+                    // Assigned privilege
+                    b.append(sp(++in) + "<td>"
+                            + ((GroupPrivilege) privilege).getPv().getPrivilege().getDescription()
+                            + "</td>\n");
+                    // Granted right
                     b.append(sp(++in) + "<td>"
                             + ((GroupPrivilege) privilege).getPv().getValue()
                             + "</td>\n");
                     b.append(sp(--in) + "</tr>\n");
                 }
+
+                // "Available rights" header
+                if (selGroup.getGroupPrivileges().isEmpty() == false) {
+                    b.append(sp(in) + "<tr class=\"subhead\">\n");
+                    b.append(sp(++in) + "<td class=\"subhead\" colspan=\"4\">"
+                            + "Available</td>");
+                    b.append(sp(--in) + "</tr>\n");
+                }
+                // "Available rights" list
+                for (Privilege privilege : sobjSecurity.getPrivilegeManager().getPrivileges()) {
+                    b.append(sp(in) + "<tr>\n");
+                    // Action bar
+                    b.append(sp(++in) + "<td>"
+                            + "&nbsp;"
+                            + "</td>\n");
+                    // Available services
+                    b.append(sp(++in) + "<td>"
+                            + "&nbsp;"
+                            + "</td>\n");
+                    // Available privileges
+                    b.append(sp(++in) + "<td>"
+                            + privilege.getDescription()
+                            + "</td>\n");
+                    // Available rights
+                    b.append(sp(++in) + "<td>\n");
+                    PrivilegeValue[] values =
+                        sobjSecurity.getPrivilegeManager()
+                            .getPrivilegeValues(privilege.getId());
+                    if ((values != null) && (values.length > 0)) {
+                        b.append(sp(++in) + "<select"
+                                + " style=\"width: 100%; border: 0;\">\n");
+                        for (PrivilegeValue value : values) {
+                            b.append(sp(in) + "<option"
+                                    + " value=\"" + value.getId() + "\""
+                                    + " onclick=\"javascript:"
+                                    + " document.getElementById('"
+                                        + reqParRightId + "').value='"
+                                        + value.getId() + "';"
+                                    + "document.users.submit();\""
+                                    + ">"
+                                    + value.getValue()
+                                    + "</option>\n");
+                        }
+                        b.append(sp(--in) + "</select>");
+                    }
+                    b.append(sp(++in) + "</td>\n");
+                    b.append(sp(--in) + "</tr>\n");
+                }
+
                 b.append(sp(--in) + "</tbody>\n");
 
                 b.append(sp(--in) + "</table>\n");
@@ -991,6 +1061,11 @@ public class WebAdminRenderer {
                     + " value=\""
                     + ((selGroup != null) ? selGroup.getId() : "")
                     + "\">\n");
+            // "Right Id" input field
+            b.append(sp(in) + "<input type=\"hidden\""
+                    + " id=\"" + reqParRightId + "\"" 
+                    + " name=\"" + reqParRightId + "\""
+                    + " value=\"\">\n");
 
             // Close the form
             b.append(sp(--in) + "</form>\n");

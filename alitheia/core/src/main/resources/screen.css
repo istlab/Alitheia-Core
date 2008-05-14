@@ -307,9 +307,16 @@ td.number {
 #table tr.head {
     background-color: LightSteelBlue;
 }
+#table tr.subhead {
+    background-color: #CCFFCC;
+}
 #table td.head {
     text-align: left;
     font-weight: bold;
+}
+#table td.subhead {
+    text-align: left;
+    font-weight: lighter;
 }
 #table td.name {
     font-weight: bold;
