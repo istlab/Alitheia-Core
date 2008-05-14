@@ -263,7 +263,7 @@ form p {
 	width: 89%;
 	float: left;
 	clear: left;
-	border: 1px solid green;
+	border: 1px dotted #ccc;
 	margin: 15px 0 10px 0;
 	font-size: 10pt;
 }
