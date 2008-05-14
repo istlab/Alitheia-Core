@@ -35,6 +35,8 @@ package org.clmt.sqooss;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.clmt.io.CLMTFile;
 
@@ -56,18 +58,17 @@ public final class AlitheiaFileAdapter extends CLMTFile {
 
     @Override
     public boolean exists() {
-        return FileOps.getInstance().exists(path);
+        return FileOps.instance().exists(path);
     }
 
     @Override
     public String getAbsolutePath() {
-        Thread.dumpStack();
-        return null;
+        return path;
     }
 
     @Override
     public InputStream getInputStream() {
-        Thread.dumpStack();
+        FileOps.instance().getInputStream(path);
         return null;
     }
 
@@ -85,7 +86,7 @@ public final class AlitheiaFileAdapter extends CLMTFile {
 
     @Override
     public boolean isDirectory() {
-        return FileOps.getInstance().isDirectory(path);
+        return FileOps.instance().isDirectory(path);
     }
 
     @Override
@@ -95,8 +96,24 @@ public final class AlitheiaFileAdapter extends CLMTFile {
 
     @Override
     public CLMTFile[] listFiles() {
-        Thread.dumpStack();
-        return null;
+        
+        if(!isDirectory()) 
+            return null;
+        
+        ArrayList<CLMTFile> files = new ArrayList<CLMTFile>(); 
+        
+        List<String> fileList = FileOps.instance().listFiles(path); 
+        List<String> dirList = FileOps.instance().getDirectories(path);
+        
+        for (String s : fileList) {
+            files.add(newFile(this.path + "/" +s));
+        }
+        
+        for (String s : dirList) {
+            files.add(newFile(this.path + "/" + s));
+        }
+        
+        return files.toArray(new CLMTFile[]{});
     }
 
     @Override

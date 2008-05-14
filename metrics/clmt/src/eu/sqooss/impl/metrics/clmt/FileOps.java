@@ -33,35 +33,96 @@
 
 package eu.sqooss.impl.metrics.clmt;
 
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+
+import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.fds.InMemoryCheckout;
+import eu.sqooss.service.fds.InMemoryDirectory;
 
 public class FileOps {
     
     private static final FileOps instance;
     
-    private InMemoryCheckout imc;
+    private ThreadLocal<InMemoryCheckout> imc = new ThreadLocal<InMemoryCheckout>();
     
     static {
         instance = new FileOps();
     }
     
-    public static FileOps getInstance() {
+    public static FileOps instance() {
         return instance;
     }
     
-    public void setInMemoryCheckout(InMemoryCheckout imc) {
-        this.imc = imc;
+    public synchronized void setInMemoryCheckout(InMemoryCheckout imc) {
+        System.err.println("Thread id " + Thread.currentThread().getId() + " setting local" + imc.toString());
+        this.imc.set(imc);
     }
 
     public boolean exists(String path) {
-        if (imc.getRoot().getFile(path) != null)
-            return true;
-        return false;
+        
+        return imc.get().getRoot().pathExists(path);
     }
     
     public boolean isDirectory(String path) {
-        return imc.getRoot().getFile(path).getIsDirectory();
+        ProjectFile pf = imc.get().getRoot().getFile(path);
+        if (pf == null) {
+            if(exists(path)) { //e.g. / root dir 
+                return true;
+            }
+            return false;
+        }
+        return pf.getIsDirectory();
     }
     
+    /**
+     * List the directories in a directory (non-recursive)
+     * 
+     * @param path The path of the directory whose contents we want listed
+     * @return A list of strings containing the directory names of the files
+     * in the directory. The path is not appended. 
+     */
+    public List<String> getDirectories(String path) {
+        if(!isDirectory(path)) {  
+            return null;
+        }
+        
+        List<String> files = new ArrayList<String>();
+        List<InMemoryDirectory> imdList = 
+            imc.get().getRoot().getSubdirectoryByName(path).getSubDirectories();
+        
+        for(InMemoryDirectory imd : imdList) {
+            files.add(imd.getName());
+        }
+        
+        return files;
+    }
     
+    /**
+     * List the files in a directory. 
+     * 
+     * @return A list of strings containing the file names of the files
+     * in the directory. The path is not appended.
+     */
+    public List<String> listFiles(String path) {
+        
+        if(!isDirectory(path)) {  
+            return null;
+        }
+        
+        List<String> files = new ArrayList<String>();
+        List<ProjectFile> pfList = imc.get().getRoot().getSubdirectoryByName(path).getFiles();
+        
+        for(ProjectFile f : pfList) {
+            files.add(f.getName());
+        }
+        
+        return files;
+    }
+    
+    public InputStream getInputStream(String path) {
+        ProjectFile f = imc.get().getRoot().getFile(path);
+        return null;
+    }
 }

@@ -37,6 +37,7 @@ import java.io.ByteArrayInputStream;
 import java.util.List;
 
 import org.clmt.cache.Cache;
+import org.clmt.cache.CacheException;
 import org.clmt.configuration.Calculation;
 import org.clmt.configuration.Source;
 import org.clmt.configuration.Task;
@@ -107,7 +108,7 @@ public class CLTMJob extends AbstractMetricJob {
                     + ":" + e.getMessage());   
         }
        
-        FileOps.getInstance().setInMemoryCheckout(imc);
+        FileOps.instance().setInMemoryCheckout(imc);
         
         /*CMLT Init*/
         CLMTProperties clmtProp = CLMTProperties.getInstance();
@@ -116,8 +117,6 @@ public class CLTMJob extends AbstractMetricJob {
         MetricList.getInstance();
         Cache cache = Cache.getInstance();
         cache.setCacheSize(Integer.valueOf(clmtProp.get(Config.CACHE_SIZE)));
-        
-        
         
         /*Construct task for parsing Java files*/
         for(Metric m : lm) {
@@ -145,6 +144,14 @@ public class CLTMJob extends AbstractMetricJob {
             return;
         }
         
+        for (Source s : t.getSource()) {
+            try {
+                cache.add(s);
+            } catch (CacheException ce) {
+                log.warn(ce.getMessage());
+            }
+        }
+        
         MetricList mlist = MetricList.getInstance();
         MetricResultList mrlist = new MetricResultList();
         for (Calculation calc : t.getCalculations()) {
@@ -156,6 +163,8 @@ public class CLTMJob extends AbstractMetricJob {
                 log.warn("Could not load plugin - " + mie.getMessage());
             }
         }
+        
+        System.out.println(mrlist.toString());
     }
 }
 
