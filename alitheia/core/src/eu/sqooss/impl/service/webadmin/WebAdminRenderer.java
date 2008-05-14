@@ -672,8 +672,8 @@ public class WebAdminRenderer {
             String reqParUserId        = "userId";
             String reqParGroupId       = "groupId";
             String reqParRightId       = "rightId";
-            String reqParNewGroupName  = "newGroupName";
-            // Action values
+            String reqParGroupName     = "newGroupName";
+            // Recognized "action" parameter's values
             String actValAddToGroup    = "addToGroup";
             String actValRemFromGroup  = "removeFromGroup";
             String actValReqNewGroup   = "reqNewGroup";
@@ -748,7 +748,7 @@ public class WebAdminRenderer {
                     else if (reqValAction.equalsIgnoreCase(actValAddNewGroup)) {
                         // Retrieve the selected group name
                         reqValNewGroupName =
-                            req.getParameter(reqParNewGroupName);
+                            req.getParameter(reqParGroupName);
                         // Create the new group
                         if ((reqValNewGroupName != null)
                                 && (reqValNewGroupName != "")) {
@@ -1151,8 +1151,8 @@ public class WebAdminRenderer {
                 b.append(sp(in) + "<span><b>Group name</b>&nbsp;"
                         + "<input style=\"width: 150px;\""
                         + " type=\"text\""
-                        + " id=\"" + reqParNewGroupName + "\""
-                        + " name=\"" + reqParNewGroupName + "\""
+                        + " id=\"" + reqParGroupName + "\""
+                        + " name=\"" + reqParGroupName + "\""
                         + " value=\"\">"
                         + "&nbsp;"
                         + "<input class=\"install\" style=\"width: 60px;\""
@@ -1162,6 +1162,40 @@ public class WebAdminRenderer {
                         + "document.getElementById('"
                         + reqParAction + "').value='"
                         + actValAddNewGroup + "';"
+                        + "document.users.submit();\">"
+                        + "&nbsp;"
+                        + "<input class=\"install\" style=\"width: 60px;\""
+                        + " type=\"button\""
+                        + " value=\"Cancel\""
+                        + " onclick=\"javascript:"
+                        + "document.users.submit();\">"
+                        + "</span>\n");
+                b.append(sp(--in) + "</fieldset>\n");
+            }
+            // "Remove group" editor
+            else if ((reqValAction != null)
+                    && (reqValAction.equalsIgnoreCase(actValReqRemGroup))) {
+                b.append(sp(in) + "<fieldset>\n");
+                b.append(sp(++in) + "<legend>Remove group" + "</legend\n>");
+                b.append(sp(in) + "<span><b>Group name</b>&nbsp;"
+                        + "<select style=\"width: 150px;\""
+                        + " id=\"" + reqParGroupName + "\""
+                        + " name=\"" + reqParGroupName + "\">");
+                for (Group group : secGM.getGroups()) {
+                    b.append(sp(in) + "<option"
+                            + " value=\"" + group.getId() + "\">"
+                            + group.getDescription()
+                            + "</option>");
+                }
+                b.append(sp(in) + "</select>"
+                        + "&nbsp;"
+                        + "<input class=\"install\" style=\"width: 60px;\""
+                        + " type=\"button\""
+                        + " value=\"Remove\""
+                        + " onclick=\"javascript:"
+                        + "document.getElementById('"
+                        + reqParAction + "').value='"
+                        + actValConRemGroup + "';"
                         + "document.users.submit();\">"
                         + "&nbsp;"
                         + "<input class=\"install\" style=\"width: 60px;\""

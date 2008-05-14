@@ -390,10 +390,10 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
     }
 
     private void initDefaultUser() {
-        String userName = bc.getProperty(PROPERTY_DEFAULT_USER_NAME);
+        String userName = getSystemUser();
         String userPassword = bc.getProperty(PROPERTY_DEFAULT_USER_PASSWORD);
         String userEmail = bc.getProperty(PROPERTY_DEFAULT_USER_EMAIL);
-        String userGroup = bc.getProperty(PROPERTY_DEFAULT_USER_GROUP);
+        String userGroup = getSystemGroup();
         if ((userName == null) || (userPassword == null) ||
                 (userEmail == null) || (userGroup == null)) {
             logger.error("The default security user is not created! " +
@@ -438,6 +438,14 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
     public Object selfTest() {
         SelfTester tester = new SelfTester(this);
         return tester.test();
+    }
+
+    public String getSystemGroup() {
+        return bc.getProperty(PROPERTY_DEFAULT_USER_NAME);
+    }
+
+    public String getSystemUser() {
+        return bc.getProperty(PROPERTY_DEFAULT_USER_GROUP);
     }
 
 }

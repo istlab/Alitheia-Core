@@ -161,6 +161,19 @@ public interface SecurityManager {
             String privilegeValue,
             String serviceUrl);
 
+    /**
+     * Gets the SQO-OSS system user's name.
+     * 
+     * @return The system user's name.
+     */
+    public String getSystemUser();
+
+    /**
+     * Gets the SQO-OSS system group's name.
+     * 
+     * @return The system group's name.
+     */
+    public String getSystemGroup();
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
