@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="SQO-OSS" default="run" basedir=".">
+    <description>Runs live specification and tests on the SQO-OSS code.</description>
+
+    <path id="cp">
+      <fileset dir="../../../sqoossrepo">
+        <include name="**/*.jar"/>
+      </fileset>
+      <dirset dir="build/"/>
+      <dirset dir="src/"/>
+      <dirset dir="spec/"/>
+      <dirset dir="../wslib/build"/>
+    </path>
+
+    <target name="compile">
+      <javac srcdir="spec/"
+             destdir="build/"
+             includes="*/**"
+             classpathref="cp"/>
+    </target>
+
+    <target name="run" depends="compile">
+      <junit haltonerror="true">
+        <classpath refid="cp" />
+        <formatter type="plain" usefile="false" />
+
+        <batchtest>
+          <fileset dir="spec/">
+            <include name="**/*.java" />
+          </fileset>
+        </batchtest>
+      </junit>
+    </target>
+
+</project>

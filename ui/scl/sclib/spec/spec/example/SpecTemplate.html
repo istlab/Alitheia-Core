@@ -1,0 +1,53 @@
+<html xmlns:concordion="http://www.concordion.org/2007/concordion">
+<body>
+
+    <h1>Concise Spec Title</h1>
+
+    <p>The background of this spec (The "Why?" part), giving context.</p>
+    <p>Specification of the behavior as plain english.</p>
+
+    <div class="example">
+
+        <h3>Example</h3>
+
+        <p>Simple concrete example(s) go(es) here. Try to think them using the Given-When-Then pattern:</p>
+        <blockquote>
+        <b>Given</b> (some context)
+        <br/><b>When</b> (something happens)
+        <br/><b>then</b> (some behaviour)
+        </blockquote>
+
+        <p>Of course, the resulting sentence will be a bit clumsy, it's fine to rephrase it to make it more
+        natural. So for instance:</p>
+
+        <p>When the system startups, it should be <span concordion:assertEquals="status()">connected</span>
+        to the database.</p>
+
+        <p>Then, when we access the available users, the resulting list should be:</p>
+        <table concordion:verifyRows="#person : getPeople()">
+          <tr>
+            <th concordion:assertEquals="#person.firstName">First Name</th>
+            <th concordion:assertEquals="#person.lastName">Last Name</th>
+          </tr>
+          <tr><td>Peter</td><td>Gibbons</td></tr>
+          <tr><td>Samir</td><td>Nagheenanajar</td></tr>
+          <tr><td>Michael</td><td>Bolton</td></tr>
+          <tr><td>Milton</td><td>Waddams</td></tr>
+        </table>
+    </div>
+
+
+    <h2>Further Details</h2>
+
+    <!--
+    Questions raised by this specification. Each one links to another finer grained active specification.
+    -->
+    <ul>
+        <li><a href="SpecTemplate.html">Another active specification?</a></li>
+        <li><a href="SpecTemplate.html">What about this specific case?</a></li>
+        <li><a href="SpecTemplate.html">What if it throws an exception?</a></li>
+    </ul>
+
+
+</body>
+</html>
