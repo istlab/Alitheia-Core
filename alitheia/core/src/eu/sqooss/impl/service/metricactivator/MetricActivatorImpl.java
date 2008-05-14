@@ -44,7 +44,6 @@ import org.osgi.framework.ServiceReference;
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.db.DAObject;
-import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
@@ -63,7 +62,6 @@ public class MetricActivatorImpl implements MetricActivator {
     private Logger logger;
     private PluginAdmin pa;
     private Scheduler sched;
-    private DBService dbs;
     
     public MetricActivatorImpl(BundleContext bc, Logger logger) {
         this.bc=bc;
@@ -74,7 +72,6 @@ public class MetricActivatorImpl implements MetricActivator {
         
         this.logger = logger;
         this.pa = core.getPluginAdmin();
-        this.dbs = core.getDBService();
         this.sched = core.getScheduler();
     }
     
@@ -106,7 +103,7 @@ public class MetricActivatorImpl implements MetricActivator {
            }
            
            MetricActivatorJob maj = new MetricActivatorJob(metrics, clazz,
-                    slice, logger, dbs, bc);
+                    slice, logger, bc);
             
             try {
                 sched.enqueue(maj);

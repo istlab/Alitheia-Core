@@ -35,7 +35,6 @@ package eu.sqooss.impl.service.metricactivator;
 
 import java.util.List;
 
-import org.hibernate.Session;
 import org.osgi.framework.BundleContext;
 
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
@@ -46,6 +45,12 @@ import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.pa.PluginInfo;
 import eu.sqooss.service.scheduler.Job;
 
+/**
+ * Schedule metric jobs in parallel. Used to overcome DB I/O waits
+ * when scheduling jobs on large multiprocessor systems.
+ * 
+ * @author Georgios Gousios
+ */
 public class MetricActivatorJob extends Job {
 
     private Long[] objectIDs;
@@ -58,13 +63,12 @@ public class MetricActivatorJob extends Job {
     MetricActivatorJob(List<PluginInfo> pi,
             Class<? extends DAObject> clazz,
             Long[] objectIDs, 
-            Logger l, DBService dbs, BundleContext bc) {
+            Logger l, BundleContext bc) {
         this.clazz = clazz;
         this.objectIDs = objectIDs;
         this.logger = l;
         this.pli = pi;
         this.bc = bc;
-        this.dbs = dbs;
     }
     
     @Override
