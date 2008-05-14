@@ -71,8 +71,15 @@ public class WcJob extends AbstractMetricJob {
             return;
         }
         
+        if(!db.startDBSession()) {
+            log.error("No DBSession could be opened!");
+            return;
+        }
+            
+        
         // Retrieve the content of the selected project file
         // FIXME change to use streams for processing
+        pf = db.attach(pf);
         byte[] content = fds.getFileContents(pf);
         if (content != null) {
             // Create an input stream from the project file's content
@@ -120,6 +127,9 @@ public class WcJob extends AbstractMetricJob {
                         + e
                         + "> while measuring: "
                         + pf.getFileName());
+            } finally {
+                if(!db.commitDBSession())
+                    db.rollbackDBSession();
             }
         }
     }
