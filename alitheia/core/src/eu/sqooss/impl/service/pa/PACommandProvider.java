@@ -40,6 +40,7 @@ import org.eclipse.osgi.framework.console.CommandProvider;
 import org.osgi.framework.Constants;
 
 import eu.sqooss.service.db.DAObject;
+import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.pa.PluginAdmin;
@@ -47,11 +48,13 @@ import eu.sqooss.service.pa.PluginInfo;
 
 public class PACommandProvider implements CommandProvider {
     private PluginAdmin sobjPA = null;
+    private DBService dbs = null;
 
     /* ===[ Constructors ]================================================ */
 
-    public PACommandProvider (PluginAdmin pluginAdmin) {
+    public PACommandProvider (PluginAdmin pluginAdmin, DBService dbs) {
         this.sobjPA = pluginAdmin;
+        this.dbs = dbs;
     }
 
     public String getHelp() {
@@ -117,6 +120,7 @@ public class PACommandProvider implements CommandProvider {
     }
 
     public void _list_plugins (CommandInterpreter ci) {
+        dbs.startDBSession();
         if (sobjPA == null) {
             ci.println("No PluginAdmin available!");
             return;
@@ -178,6 +182,7 @@ public class PACommandProvider implements CommandProvider {
                 ci.print("\n");
             }                        
         }
+        dbs.commitDBSession();
     }
     
     public void _remove_plugin(CommandInterpreter ci) {

@@ -127,7 +127,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
             // provide commands for managing plug-in's services
             bc.registerService(
                     CommandProvider.class.getName(),
-                    new PACommandProvider(this) ,
+                    new PACommandProvider(this, sobjDB) ,
                     null);
 
             logger.debug("The PluginAdmin component was successfully started.");
