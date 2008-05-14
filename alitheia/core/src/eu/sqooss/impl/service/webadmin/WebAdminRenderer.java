@@ -64,6 +64,7 @@ import eu.sqooss.service.pa.PluginAdmin;
 import eu.sqooss.service.pa.PluginInfo;
 import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.scheduler.Scheduler;
+import eu.sqooss.service.security.GroupManager;
 import eu.sqooss.service.security.SecurityManager;
 import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.TDAccessor;
@@ -643,13 +644,15 @@ public class WebAdminRenderer {
      *   <li>Privilege editor
      * </ul>
      * 
-     * @param request the servlet's request object
+     * @param req the servlet's request object
      * 
      * @return The current view.
      */
-    public static String renderUsers(HttpServletRequest request) {
+    public static String renderUsers(HttpServletRequest req) {
         // Stores the assembled HTML content
         StringBuilder b = new StringBuilder("\n");
+        // Stores the accumulated error messages;
+        StringBuilder e = new StringBuilder();
         // Indentation spacer
         long in = 6;
         // Store here all known users
@@ -659,6 +662,8 @@ public class WebAdminRenderer {
 
         // Create a DB session
         sobjDB.startDBSession();
+        // Get the various security managers
+        GroupManager secGM = sobjSecurity.getGroupManager();
         // Retrieve information for all registered users
         users = sobjSecurity.getUserManager().getUsers();
         if ((users != null) && (users.length > 0)) {
@@ -689,17 +694,17 @@ public class WebAdminRenderer {
             long maxColspan = 1;
 
             // Parse the servlet's request object
-            if (request != null) {
+            if (req != null) {
                 // DEBUG: Dump the servlet's request parameter
                 if (DEBUG) {
-                    b.append(debugRequest(request));
+                    b.append(debugRequest(req));
                 }
                 // Retrieve the selected user Id (if any)
-                if ((request.getParameter(reqParUserId) != null) &&
-                    (request.getParameter(reqParUserId) != "")) {
+                if ((req.getParameter(reqParUserId) != null) &&
+                    (req.getParameter(reqParUserId) != "")) {
                     // Get the selected user's object
                     reqValUserId =
-                        fromString(request.getParameter(reqParUserId));
+                        fromString(req.getParameter(reqParUserId));
                     if (reqValUserId != null) {
                         selUser = sobjSecurity.getUserManager()
                             .getUser(reqValUserId);
@@ -708,18 +713,18 @@ public class WebAdminRenderer {
                     groups = sobjSecurity.getGroupManager().getGroups();
                 }
                 // Retrieve the selected group Id (if any)
-                if ((request.getParameter(reqParGroupId) != null) &&
-                        (request.getParameter(reqParGroupId) != "")) {
+                if ((req.getParameter(reqParGroupId) != null) &&
+                        (req.getParameter(reqParGroupId) != "")) {
                     // Get the selected group's object
                     reqValGroupId =
-                        fromString(request.getParameter(reqParGroupId));
+                        fromString(req.getParameter(reqParGroupId));
                     if (reqValGroupId != null) {
                         selGroup = sobjSecurity.getGroupManager()
                             .getGroup(reqValGroupId);
                     }
                 }
                 // Retrieve the selected editor's action
-                reqValAction = request.getParameter(reqParAction);
+                reqValAction = req.getParameter(reqParAction);
                 if ((reqValAction != null) && (reqValAction != "")) {
                     // Add the selected user to the selected group
                     if (reqValAction.equalsIgnoreCase(actValAddToGroup)) {
@@ -741,7 +746,39 @@ public class WebAdminRenderer {
                     }
                     // Add new group to the system
                     else if (reqValAction.equalsIgnoreCase(actValAddNewGroup)) {
-                        
+                        // Retrieve the selected group name
+                        reqValNewGroupName =
+                            req.getParameter(reqParNewGroupName);
+                        // Create the new group
+                        if ((reqValNewGroupName != null)
+                                && (reqValNewGroupName != "")) {
+                            if (secGM.getGroup(reqValNewGroupName) == null) {
+                                Group newGroup =
+                                    secGM.createGroup(reqValNewGroupName);
+                                if (newGroup != null) {
+                                    selGroup = newGroup;
+                                }
+                                else {
+                                    e.append(sp(in)
+                                            + "<b>Can not create group:</b>"
+                                            + "&nbsp;"
+                                            + reqValNewGroupName
+                                            + "<br/>\n");
+                                }
+                            }
+                            else {
+                                e.append(sp(in)
+                                        + "<b>This group already exists:</b>"
+                                        + "&nbsp;"
+                                        + reqValNewGroupName
+                                        + "<br/>\n");
+                            }
+                        }
+                        else {
+                            e.append(sp(in)
+                                    + "<b>You must specify a group name!</b>"
+                                    + "<br/>\n");
+                        }
                     }
                 }
             }
@@ -751,6 +788,14 @@ public class WebAdminRenderer {
                     + " name=\"users\""
                     + " method=\"post\""
                     + " action=\"/users\">\n");
+            // Display the accumulated error messages (if any)
+            if (e.toString().length() > 0) {
+                b.append(sp(++in) + "<fieldset>\n");
+                b.append(sp(++in) + "<legend>Error</legend\n>");
+                b.append(e.toString());
+                b.append(sp(--in) + "</fieldset>\n");
+                in--;
+            }
             // Create the "user" fieldset
             b.append(sp(++in) + "<fieldset>\n");
             b.append(sp(++in) + "<legend>"
@@ -1106,8 +1151,8 @@ public class WebAdminRenderer {
                 b.append(sp(in) + "<span><b>Group name</b>&nbsp;"
                         + "<input style=\"width: 150px;\""
                         + " type=\"text\""
-                        + " id=\"" + reqValNewGroupName+ "\""
-                        + " name=\"" + reqValNewGroupName+ "\""
+                        + " id=\"" + reqParNewGroupName + "\""
+                        + " name=\"" + reqParNewGroupName + "\""
                         + " value=\"\">"
                         + "&nbsp;"
                         + "<input class=\"install\" style=\"width: 60px;\""
