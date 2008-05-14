@@ -129,6 +129,8 @@ public class InMemoryDirectory {
      * @return A reference to a ProjectFile
      */
     public ProjectFile getFile(String name) {
+        
+        /*Recursively traverse the directories of the provided file path*/
         if (name.indexOf('/') != -1 ) {
             String pathName = name.substring(0, name.indexOf('/'));
             String fileName = name.substring(name.indexOf('/') + 1);
@@ -210,7 +212,41 @@ public class InMemoryDirectory {
     }
 
     /**
+     * Search if the provided path exists in this directory or below  
+     * 
+     * @return true, if the provided path can be reached from the current 
+     * directory 
+     */
+    public boolean pathExists(String path) {
+        //Check if the path points to a dir first
+        InMemoryDirectory dir = getSubdirectoryByName(path);
+        
+        if (dir != null) {
+            return true;
+        }
+        
+        // Split directory part from (possible) file part and re-check
+        String file = path.substring(path.lastIndexOf('/'), path.length() - 1);
+        path = path.substring(0, path.lastIndexOf('/'));
+        dir = getSubdirectoryByName(path);
+
+        if (dir == null) {
+            // Dir not found
+            return false;
+        }
+
+        //Dir found, search files for matching file name
+        for (ProjectFile f : dir.getFiles()) {
+            if (f.getFileName().equals(file)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    /**
      * Adds a file.
+     * 
      * @param path The filename relative to this directory.
      */
     public void addFile(String path) {
@@ -248,24 +284,24 @@ public class InMemoryDirectory {
     
     /**
      * Gets a subdirectory.
-     * @param name The name of the directory.
+     * @param path The name of the directory.
      * @return An InMemoryDirectory reference.
      */
-    public InMemoryDirectory getSubdirectoryByName(String name) {
-    	if (name == null || name.equals("")) {
+    public InMemoryDirectory getSubdirectoryByName(String path) {
+    	if (path == null || path.equals("")) {
     		return this;
-    	} else if (name.indexOf('/') == -1 ) {
-    		for (InMemoryDirectory dir : directories) {
-            	if (dir.getName().equals(name) ) {
-            		return dir;
-            	}
-    		}
-    		return null;
+    	} else if (path.indexOf('/') == -1 ) {
+            for (InMemoryDirectory dir : directories) {
+                if (dir.getName().equals(path)) {
+                    return dir;
+                }
+            }
+            return null;
     	}
-		String pathName = name.substring(0, name.indexOf('/'));
-		String fileName = name.substring(name.indexOf('/') + 1);
+    	String pathName = path.substring(0, path.indexOf('/'));
+    	String fileName = path.substring(path.indexOf('/') + 1);
 
-		return getSubdirectoryByName(pathName).getSubdirectoryByName(fileName);
+    	return getSubdirectoryByName(pathName).getSubdirectoryByName(fileName);
     }
  
     /**
