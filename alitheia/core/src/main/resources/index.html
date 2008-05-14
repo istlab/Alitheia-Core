@@ -1,11 +1,4 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
-"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
-  <head>
-    <title>SQO-OSS : Metrics</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
-    <link rel="stylesheet" type="text/css" media="screen" href="/screen.css" />
-  </head>
+#include("header.inc")
   <body class="section-1">
     <div id="wrap">
       <div id="header">
@@ -21,19 +14,8 @@
           </div>
         </div>
       </div>
-      <div id="sidebar">
-        $STATUS_CORE
-        $STATUS_JOBS
-        $OPTIONS
-      </div>
-      <div id="footer">
-        <p>
-        $COPYRIGHT
-        </p>
-      </div>
+#parse("sidebar.inc")
     </div>
   </body>
 </html>
-
-<!-- I love teh $name -->
 

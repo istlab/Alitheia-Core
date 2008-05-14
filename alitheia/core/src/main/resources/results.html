@@ -1,14 +1,5 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
-<head>
-<title>SQO-OSS : Result</title>
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-<link rel="stylesheet" type="text/css" media="screen" href="/screen.css" />
-</head>
-
-<body
-$ACTIVE
->
+#include("header.inc")
+<body $ACTIVE >
 <div id="wrap">
 	<div id="header"><h1>Admin Panel</h1><img src="sqo-oss.png" title="SQO-OSS" /></div>
 	<div id="main">
@@ -19,16 +10,7 @@ $ACTIVE
   	</div>
 	</div>
 	</div>
-	<div id="sidebar">
-          $STATUS_CORE
-          $STATUS_JOBS
-          $OPTIONS
-	</div>
-	<div id="footer">
-		<p>
-                $COPYRIGHT
-                </p>
-	</div>
+#parse("sidebar.inc")
 </div>
 
 </body>
