@@ -56,6 +56,22 @@ public class WSProjectVersion {
     public long getVersion() {
         return projectVersion.getVersion();
     }
+    
+    public long getTimestamp() {
+        return projectVersion.getTimestamp();
+    }
+    
+    public String getCommitMsg() {
+        return projectVersion.getCommitMsg();
+    }
+    
+    public String getProperties() {
+        return projectVersion.getProperties();
+    }
+    
+    public long getCommiter() {
+        return projectVersion.getCommitter().getId();
+    }
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
