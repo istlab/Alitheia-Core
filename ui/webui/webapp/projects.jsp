@@ -12,7 +12,9 @@
 if (selectedProject != null && selectedProject.isValid()) {
     %> <%@ include file="/views/Project.jsp" %> <%
 } else {
-    %> <%@ include file="/views/EvaluatedProjectsList.jsp" %> <%
+    %>
+        <h2>The following projects have been evaluated:</h2>
+        <%@ include file="/views/EvaluatedProjectsList.jsp" %> <%
 
 }
 %>

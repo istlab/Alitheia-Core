@@ -34,6 +34,10 @@ if (selectedProject != null && selectedProject.isValid()) {
 } else {
     out.println(Functions.error(
         "You have to <a href=\"/projects.jsp\">select</a> a project first."));
+
+%>
+    <%@ include file="/views/EvaluatedProjectsList.jsp" %>
+<%
 }
 
 %>
