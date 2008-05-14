@@ -1037,9 +1037,21 @@ public class WebAdminRenderer {
             // ===============================================================
             b.append(sp(in) + "<tr class=\"subhead\">");
             b.append(sp(++in) + "<td colspan=\"" + maxColspan + "\">"
-                    // Remove User
                     + ((selUser != null)
                         ? "&nbsp;"
+                        // List users
+                        + "<input class=\"install\""
+                        + " style=\"width: 100px;\""
+                        + " type=\"button\""
+                        + " value=\"Users list\""
+                        + " onclick=\"javascript:"
+                        + " document.getElementById('"
+                        + reqParUserId + "').value='';"
+                        + " document.getElementById('"
+                        + reqParGroupId + "').value='';"
+                        + "document.users.submit();\">"
+                        + "&nbsp;"
+                        // Remove User
                         + "<input class=\"install\""
                         + " style=\"width: 100px;\""
                         + " type=\"button\""
@@ -1052,8 +1064,8 @@ public class WebAdminRenderer {
                         + actValReqNewGroup + "';"
                         + "document.users.submit();\">"
                         : "")
-                    // Add group
                     + "&nbsp;"
+                    // Add group
                     + "<input class=\"install\""
                     + " style=\"width: 100px;\""
                     + " type=\"button\""
@@ -1063,8 +1075,8 @@ public class WebAdminRenderer {
                     + reqParAction + "').value='"
                     + actValReqNewGroup + "';"
                     + "document.users.submit();\">"
-                    // Remove Group
                     + "&nbsp;"
+                    // Remove Group
                     + "<input class=\"install\""
                     + " style=\"width: 100px;\""
                     + " type=\"button\""
