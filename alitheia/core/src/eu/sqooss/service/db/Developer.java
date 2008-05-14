@@ -159,67 +159,67 @@ public class Developer extends DAObject{
     }
        
     /**
-	 * Return the entry in the Developer table that corresponds to the provided
-	 * username. If the entry does not exist, it will be created and saved. If
-	 * the username matches the email of an existing developer in the database,
-	 * then this record is updated with the provided username and returned.
-	 * 
-	 * This method comes in two flavours that enable its use in both 
-	 * manual and automatic transaction management environments.
-	 * 
-	 * @param username The Developer's username
-	 * @param sp The StoredProject this Developer belongs to
-	 * @return A Developer record for the specified Developer or null on failure
-	 */
+     * Return the entry in the Developer table that corresponds to the provided
+     * username. If the entry does not exist, it will be created and saved. If
+     * the username matches the email of an existing developer in the database,
+     * then this record is updated with the provided username and returned.
+     * 
+     * This method comes in two flavours that enable its use in both manual and
+     * automatic transaction management environments.
+     * 
+     * @param username The Developer's username
+     * @param sp The StoredProject this Developer belongs to
+     * @return A Developer record for the specified Developer or null on failure
+     */
     @SuppressWarnings("unchecked")
     public static Developer getDeveloperByUsername(String username, StoredProject sp) {
 		
-		DBService dbs = CoreActivator.getDBService();
+        DBService dbs = CoreActivator.getDBService();
 
-		Map<String, Object> parameterMap = new HashMap<String, Object>();
-		parameterMap.put("username", username);
-		parameterMap.put("storedProject", sp);
+        Map<String, Object> parameterMap = new HashMap<String, Object>();
+        parameterMap.put("username", username);
+        parameterMap.put("storedProject", sp);
 
-		List<Developer> devs = dbs.findObjectsByProperties(Developer.class,
-				parameterMap);
+        List<Developer> devs = dbs.findObjectsByProperties(Developer.class,
+                parameterMap);
 
-		/* 
-		 * Developer in the DB, return it
-		 * Username + storedproject is unique, so only one record 
-		 * can be returned by the query 
-		 */
-		if ( !devs.isEmpty() )
-			return devs.get(0);
+        /*
+         * Developer in the DB, return it Username + storedproject is unique, so
+         * only one record can be returned by the query
+         */
+        if (!devs.isEmpty())
+            return devs.get(0);
 
-		/* 
-		 * Try to find a Developer whose email starts with username
-		 *  
-		 * TODO: "like" is NOT a Hibernate keyword. The following query might 
-		 * only work with postgres  
-		 */
-		devs = (List<Developer>) dbs.doHQL("from Developer where email like '" + username + "'");
+        /*
+         * Try to find a Developer whose email starts with username
+         * 
+         * TODO: "like" is NOT a Hibernate keyword. The following query might
+         * only work with postgres
+         */
+        devs = (List<Developer>) dbs.doHQL("from Developer where email like '"
+                + username + "'");
 
-		for (Developer d : devs) {
-			String email = d.getEmail();
-			/*Ok got one, update the username*/
-			if (email.startsWith(username)) {
-				d.setUsername(username);
-				return d;
-			}
-		}
+        for (Developer d : devs) {
+            String email = d.getEmail();
+            /* Ok got one, update the username */
+            if (email.startsWith(username)) {
+                d.setUsername(username);
+                return d;
+            }
+        }
 
-		/* Developer not in table, create new developer*/
-		Developer d = new Developer();
+        /* Developer not in table, create new developer */
+        Developer d = new Developer();
 
-		d.setUsername(username);
-		d.setStoredProject(sp);
+        d.setUsername(username);
+        d.setStoredProject(sp);
 
-		/*Failure here probably indicates non-existing StoredProject*/
-		if ( !dbs.addRecord(d) )
-		    return null;
-		
-		return d;
-	}   
+        /*Failure here probably indicates non-existing StoredProject*/
+        if (!dbs.addRecord(d))
+            return null;
+
+        return d;
+    }   
     
 }
 

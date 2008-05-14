@@ -973,6 +973,21 @@ public class DBServiceImpl implements DBService {
             return false;
         }
     }
+    
+    public Session getDBSession() {
+        return sessionFactory.getCurrentSession();
+    }
+    
+    public <T extends DAObject> T attach(T obj) {
+        Session s = sessionFactory.getCurrentSession();
+        T objMerged = null;
+        try {
+            objMerged = (T) s.merge(obj);
+        } catch (HibernateException e) {
+            logExceptionAndTerminateSession(e);
+        }
+        return objMerged;
+    }
 
 }
 

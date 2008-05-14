@@ -8,8 +8,8 @@
     <id name="id" column="ID">
       <generator class="native" />
     </id>
-    <many-to-one name="sender" column="SENDER_ID" not-null="true" />
-    <many-to-one name="listId" column="MLIST_ID" not-null="true" />
+    <many-to-one name="sender" column="SENDER_ID" not-null="true" cascade="merge" />
+    <many-to-one name="listId" column="MLIST_ID" not-null="true" cascade="merge" />
     <property name="messageId" column="MESSAGEID" not-null="true" />
     <property name="sendDate" column="SEND_DATE" />
     <property name="arrivalDate" column="ARRIVAL_DATE" />

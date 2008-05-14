@@ -8,7 +8,7 @@
     <id name="id" column="BUG_ID">
       <generator class="native" />
     </id>
-    <many-to-one name="commit" column="COMMIT_ID" />
+    <many-to-one name="commit" column="COMMIT_ID" cascade="merge" />
     <property name="bugFileLoc" column="BUG_FILE_LOC" />
     <property name="severity" column="SEVERITY" />
     <property name="status" column="STATUS" />
