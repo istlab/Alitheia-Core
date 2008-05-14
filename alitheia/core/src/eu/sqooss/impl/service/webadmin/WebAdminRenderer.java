@@ -39,6 +39,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -637,6 +638,11 @@ public class WebAdminRenderer {
         return b.toString();
     }
 
+    private static boolean checkName (String text) {
+        Pattern p = Pattern.compile("[a-zA-Z0-9]*");
+        return p.matcher(text).matches();
+    }
+
     /**
      * Renders the various user views of the SQO-OSS WebAdmin UI:
      * <ul>
@@ -750,7 +756,14 @@ public class WebAdminRenderer {
                         // Create the new group
                         if ((reqValGroupName != null)
                                 && (reqValGroupName != "")) {
-                            if (secGM.getGroup(reqValGroupName) == null) {
+                            if (checkName(reqValGroupName) == false) {
+                                e.append(sp(in)
+                                        + "<b>Incorrect syntax:</b>"
+                                        + "&nbsp;"
+                                        + reqValGroupName
+                                        + "<br/>\n");
+                            }
+                            else if (secGM.getGroup(reqValGroupName) == null) {
                                 Group group =
                                     secGM.createGroup(reqValGroupName);
                                 if (group != null) {
