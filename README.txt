@@ -77,10 +77,6 @@ metrics/
     Contain the source code of the various metric plug-ins developed for the
     Alitheia system. Each metric is a self-contained codebase.
 
-sharedlibs/
-    Code which is shared between the UI and the Core Platform is
-    stored here and built first.
-
 sqoossrepo/
     This is a Maven-style repository for all of the dependencies
     that Alitheia has. The intention is that pristine source goes

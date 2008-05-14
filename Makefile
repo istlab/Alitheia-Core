@@ -48,10 +48,7 @@ include Makefile.common
 build-extlibs :
 	cd sqoossrepo && $(MAKE) && $(MAKE) install
 
-build-shared :
-	cd sharedlibs && $(MAKE) && $(MAKE) install
-
-build-core : build-extlibs build-shared
+build-core : build-extlibs
 	cd alitheia && $(MAKE) && $(MAKE) install
 	
 # The standard clean target calls clean-dir to clean up things *here*,
