@@ -40,9 +40,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.dialogs.PropertyPage;
 
-abstract class AbstractConfigurationPropertyPage extends PropertyPage {
+abstract class AbstractConfigurationPropertyPage extends EnabledPropertyPage {
 
     private static final int TEXT_FIELDS_SWT_STYLE = SWT.SINGLE | SWT.BORDER;
     

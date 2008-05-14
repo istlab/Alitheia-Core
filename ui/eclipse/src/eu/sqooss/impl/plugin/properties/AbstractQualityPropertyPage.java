@@ -42,9 +42,8 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.dialogs.PropertyPage;
 
-class AbstractQualityPropertyPage extends PropertyPage {
+class AbstractQualityPropertyPage extends EnabledPropertyPage {
 
     protected Text textFieldEntityPath;
     protected Combo comboMetric;

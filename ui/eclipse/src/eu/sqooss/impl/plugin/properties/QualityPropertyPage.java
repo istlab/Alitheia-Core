@@ -32,9 +32,7 @@
 
 package eu.sqooss.impl.plugin.properties;
 
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.jface.dialogs.ControlEnableState;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -44,15 +42,11 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 
-import eu.sqooss.plugin.util.ConnectionUtils;
 import eu.sqooss.plugin.util.Constants;
-import eu.sqooss.plugin.util.EnabledState;
 
-public class QualityPropertyPage extends AbstractQualityPropertyPage implements SelectionListener, EnabledState {
+public class QualityPropertyPage extends AbstractQualityPropertyPage implements SelectionListener {
 
     private Composite parent;
-    private Composite mainComposite;
-    private ControlEnableState controlEnableState;
     
     /**
      * @see eu.sqooss.plugin.properties.AbstractQualityPropertyPage#createContents(org.eclipse.swt.widgets.Composite)
@@ -60,16 +54,12 @@ public class QualityPropertyPage extends AbstractQualityPropertyPage implements 
     @Override
     protected Control createContents(Composite parent) {
         this.parent = parent;
-        
-        IResource resource = (IResource) (getElement().getAdapter(IResource.class));
-        IProject resourceProject = resource.getProject();
-        
-        mainComposite = (Composite) super.createContents(parent);
+        mainControl = (Composite) super.createContents(parent);
         buttonCompareVersion.addSelectionListener(this);
         textFieldEntityPath.setText(getEntityPath());
         parent.forceFocus();
-        setEnabled(ConnectionUtils.validateConfiguration(resourceProject) == null);
-        return mainComposite;
+        enableIfPossible();
+        return mainControl;
     }
 
     /**
@@ -81,10 +71,16 @@ public class QualityPropertyPage extends AbstractQualityPropertyPage implements 
         super.createControl(parent);
     }
 
+    /**
+     * @see org.eclipse.swt.events.SelectionListener#widgetDefaultSelected(org.eclipse.swt.events.SelectionEvent)
+     */
     public void widgetDefaultSelected(SelectionEvent e) {
         //do nothing
     }
 
+    /**
+     * @see org.eclipse.swt.events.SelectionListener#widgetSelected(org.eclipse.swt.events.SelectionEvent)
+     */
     public void widgetSelected(SelectionEvent e) {
         Object eventSource = e.getSource(); 
         if (eventSource == buttonCompareVersion) {
@@ -104,21 +100,14 @@ public class QualityPropertyPage extends AbstractQualityPropertyPage implements 
      */
     public void setEnabled(boolean isEnabled) {
         if (isEnabled) {
-            //it is disabled before, enable now
             if (controlEnableState != null) {
-                controlEnableState.restore();
-                controlEnableState = null;
-                
                 //remove the configuration link
                 configurationLink.dispose();
                 configurationLink = null;
                 parent.layout();
             }
         }else {
-            //it is enabled, disable now
             if (controlEnableState == null) {
-                controlEnableState = ControlEnableState.disable(mainComposite);
-                
                 //add configuration link
                 configurationLink = new Link(parent, SWT.NONE);
                 configurationLink.setText(PropertyPagesMessages.ProjectPropertyPage_Link_Configuration);
@@ -127,8 +116,8 @@ public class QualityPropertyPage extends AbstractQualityPropertyPage implements 
                 parent.layout();
             }
         }
+        super.setEnabled(isEnabled);
     }
-    
     
     
     private String getEntityPath() {

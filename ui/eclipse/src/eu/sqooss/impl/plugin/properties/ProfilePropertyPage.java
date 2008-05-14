@@ -32,63 +32,58 @@
 
 package eu.sqooss.impl.plugin.properties;
 
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.jface.dialogs.ControlEnableState;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 
-import eu.sqooss.plugin.util.ConnectionUtils;
 import eu.sqooss.plugin.util.Constants;
-import eu.sqooss.plugin.util.EnabledState;
 
-public class ProfilePropertyPage extends AbstractProfilePropertyPage implements EnabledState, SelectionListener {
-    
-    private ControlEnableState controlEnableState;
+public class ProfilePropertyPage extends AbstractProfilePropertyPage implements SelectionListener {
     
     /**
      * @see eu.sqooss.plugin.properties.AbstractProfilePropertyPage#createContents(org.eclipse.swt.widgets.Composite)
      */
     @Override
     protected Control createContents(Composite parent) {
-        IResource resource = (IResource) (getElement().getAdapter(IResource.class));
-        IProject resourceProject = resource.getProject();
-        
         Composite containerComposite = (Composite) super.createContents(parent);
+        
+        mainControl = mainComposite;
         
         configurationLink.addSelectionListener(this);
         
         textFieldPath.setText(getEntityPath());
         
-        setEnabled(ConnectionUtils.validateConfiguration(resourceProject) == null);
+        enableIfPossible();
         
         return containerComposite;
     }
     
-    public void setEnabled(boolean isEnable) {
-        if (isEnable) {
-            //it is disabled before, enable now
-            if (controlEnableState != null) {
-                controlEnableState.restore();
-                controlEnableState = null;
-                configurationLink.setVisible(false);
-            }
-        }else {
-            //it is enabled, disable now
-            if (controlEnableState == null) {
-                controlEnableState = ControlEnableState.disable(mainComposite);
-                configurationLink.setVisible(true);
-            }
+    /**
+     * @see eu.sqooss.impl.plugin.properties.EnabledPropertyPage#setEnabled(boolean)
+     */
+    @Override
+    public void setEnabled(boolean isEnabled) {
+        super.setEnabled(isEnabled);
+        if (isEnabled) {
+            configurationLink.setVisible(false);
+        } else {
+            configurationLink.setVisible(true);
         }
     }
 
+    /**
+     * @see org.eclipse.swt.events.SelectionListener#widgetDefaultSelected(org.eclipse.swt.events.SelectionEvent)
+     */
     public void widgetDefaultSelected(SelectionEvent e) {
         //do nothing
     }
 
+    /**
+     * @see org.eclipse.swt.events.SelectionListener#widgetSelected(org.eclipse.swt.events.SelectionEvent)
+     */
     public void widgetSelected(SelectionEvent e) {
         Object eventSource = e.getSource();
         if (eventSource == configurationLink) {

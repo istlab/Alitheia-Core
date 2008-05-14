@@ -34,11 +34,6 @@ package eu.sqooss.impl.plugin.properties;
 
 import java.util.List;
 
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.IPreferenceNode;
 import org.eclipse.jface.preference.IPreferencePage;
@@ -49,18 +44,10 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
-import eu.sqooss.impl.plugin.Activator;
-import eu.sqooss.plugin.util.ConnectionUtils;
 import eu.sqooss.plugin.util.EnabledState;
 
-public class ConfigurationPropertyPage extends AbstractConfigurationPropertyPage implements SelectionListener{
+public class ConfigurationPropertyPage extends AbstractConfigurationPropertyPage implements SelectionListener {
 
-    private static final String TEXT_FIELD_USER_NAME_DEFAULT_VALUE    = "";
-    private static final String TEXT_FIELD_PASSWORD_DEFAULT_VALUE     = "";
-    private static final String TEXT_FIELD_PROJECT_NAME_DEFAULT_VALUE = "";
-    
-    private IProject project;
-    
 	public ConfigurationPropertyPage() {
 		super();
 	}
@@ -72,38 +59,11 @@ public class ConfigurationPropertyPage extends AbstractConfigurationPropertyPage
     @Override
     protected Control createContents(Composite parent) {
         Control control = super.createContents(parent);
-        try {
-            String propertyValue;
-            IResource resource = (IResource) (getElement().getAdapter(IResource.class));
-            this.project = resource.getProject();
-            
-            propertyValue = project.getPersistentProperty(ConnectionUtils.PROPERTY_SERVER_URL);
-            if (propertyValue == null) {
-                propertyValue = PropertyPagesMessages.
-                ConfigurationPropertyPage_Text_Server_Url_Default_Value;
-            }
-            textFieldServerUrl.setText(propertyValue);
-            
-            propertyValue = project.getPersistentProperty(ConnectionUtils.PROPERTY_USER_NAME);
-            if (propertyValue == null) {
-                propertyValue = TEXT_FIELD_USER_NAME_DEFAULT_VALUE;
-            }
-            textFieldUserName.setText(propertyValue);
-            
-            propertyValue = project.getPersistentProperty(ConnectionUtils.PROPERTY_PASSWORD);
-            if (propertyValue == null) {
-                propertyValue = TEXT_FIELD_PASSWORD_DEFAULT_VALUE;
-            }
-            textFieldPassword.setText(propertyValue);
-            
-            propertyValue = project.getPersistentProperty(ConnectionUtils.PROPERTY_PROJECT_NAME);
-            if (propertyValue == null) {
-                propertyValue = TEXT_FIELD_PROJECT_NAME_DEFAULT_VALUE;
-            }
-            textFieldProjectName.setText(propertyValue);
-        } catch (CoreException ce) {
-            performDefaults();
-        }
+        enableIfPossible();
+        textFieldServerUrl.setText(connectionUtils.getServerUrl());
+        textFieldUserName.setText(connectionUtils.getUserName());
+        textFieldPassword.setText(connectionUtils.getPassword());
+        textFieldProjectName.setText(connectionUtils.getProjectName());
         return control;
     }
 
@@ -124,9 +84,12 @@ public class ConfigurationPropertyPage extends AbstractConfigurationPropertyPage
         super.performDefaults();
         textFieldServerUrl.setText(PropertyPagesMessages.
                 ConfigurationPropertyPage_Text_Server_Url_Default_Value);
-        textFieldUserName.setText(TEXT_FIELD_USER_NAME_DEFAULT_VALUE);
-        textFieldPassword.setText(TEXT_FIELD_PASSWORD_DEFAULT_VALUE);
-        textFieldProjectName.setText(TEXT_FIELD_PROJECT_NAME_DEFAULT_VALUE);
+        textFieldUserName.setText(PropertyPagesMessages.
+                ConfigurationPropertyPage_Text_User_Name_Default_Value);
+        textFieldPassword.setText(PropertyPagesMessages.
+                ConfigurationPropertyPage_Text_Password_Default_Value);
+        textFieldProjectName.setText(PropertyPagesMessages.
+                ConfigurationPropertyPage_Text_Project_Name_Default_Value);
     }
 
     /**
@@ -135,7 +98,9 @@ public class ConfigurationPropertyPage extends AbstractConfigurationPropertyPage
     @Override
     public boolean performOk() {
         if (super.performOk()) {
-            saveConfiguration();
+            updateConnectionUtilsFields();
+            connectionUtils.save();
+            notifyPropertyPages(connectionUtils.validate());
             return true;
         } else {
             return false;
@@ -147,21 +112,9 @@ public class ConfigurationPropertyPage extends AbstractConfigurationPropertyPage
      */
     @Override
     protected void performApply() {
-        saveConfiguration();
-        String validateMessage = ConnectionUtils.validateConfiguration(project);
-        PreferenceDialog preferenceDialog = (PreferenceDialog) getContainer();
-        List<?> nodes = preferenceDialog.getPreferenceManager().getElements(PreferenceManager.POST_ORDER);
-        IPreferenceNode currentNode;
-        IPreferencePage currentPage;
-        EnabledState enabledPage;
-        for (Object node : nodes) {
-            currentNode = (IPreferenceNode) node;
-            currentPage = currentNode.getPage();
-            if (currentPage instanceof EnabledState) {
-                enabledPage = ((EnabledState) currentPage);
-                enabledPage.setEnabled(validateMessage == null);
-            }
-        }
+        updateConnectionUtilsFields();
+        connectionUtils.save();
+        notifyPropertyPages(connectionUtils.validate());
     }
 
 
@@ -175,69 +128,52 @@ public class ConfigurationPropertyPage extends AbstractConfigurationPropertyPage
         }
     }
 	
+    @Override
+    public void setEnabled(boolean isEnabled) {
+        notifyPropertyPages(isEnabled);
+    }
+
     private void validateConfiguration() {
-        String serverUrl = textFieldServerUrl.getText();
-        String userName = textFieldUserName.getText();
-        String password = textFieldPassword.getText();
-        String projectName = textFieldProjectName.getText();
-        String validateMessage = ConnectionUtils.validateConfiguration(serverUrl, userName, password, projectName); 
-        if (validateMessage == null) {
+        updateConnectionUtilsFields();
+        if (connectionUtils.validate()) {
             boolean isForSave;
             isForSave = MessageDialog.openQuestion(getShell(),
                     PropertyPagesMessages.ConfigurationPropertyPage_MessageBox_Validate_Title,
                     PropertyPagesMessages.ConfigurationPropertyPage_MessageBox_Validate_Pass);
-            if (isForSave) {
-                saveConfiguration();
+            if ((isForSave) && (!connectionUtils.save())) {
+                MessageDialog.openWarning(getShell(),
+                        PropertyPagesMessages.ConfigurationPropertyPage_MessageBox_Save_Title,
+                        PropertyPagesMessages.ConfigurationPropertyPage_MessageBox_Save_Fail);
             }
         } else {
             MessageDialog.openWarning(getShell(),
                     PropertyPagesMessages.ConfigurationPropertyPage_MessageBox_Validate_Title,
                     PropertyPagesMessages.ConfigurationPropertyPage_MessageBox_Validate_Fail + 
-                    "\n\nReason: " + validateMessage);
+                    "\n\nReason: " + connectionUtils.getErrorMessage());
+        }
+        notifyPropertyPages(connectionUtils.isValid());
+    }
+    
+    private void updateConnectionUtilsFields() {
+        connectionUtils.setServerUrl(textFieldServerUrl.getText());
+        connectionUtils.setProjectName(textFieldProjectName.getText());
+        connectionUtils.setUserName(textFieldUserName.getText());
+        connectionUtils.setPassword(textFieldPassword.getText());
+    }
+    
+    private void notifyPropertyPages(boolean isEnabled) {
+        PreferenceDialog preferenceDialog = (PreferenceDialog) getContainer();
+        List<?> nodes = preferenceDialog.getPreferenceManager().getElements(PreferenceManager.POST_ORDER);
+        IPreferencePage currentPage;
+        for (Object node : nodes) {
+            currentPage = ((IPreferenceNode) node).getPage();
+            if ((currentPage instanceof EnabledState) &&
+                    (currentPage != this)){
+                ((EnabledState) currentPage).setEnabled(isEnabled);
+            }
         }
     }
     
-    private void saveConfiguration() {
-        try {
-            String propertyValue;
-
-            propertyValue = textFieldServerUrl.getText().trim();
-            if (!PropertyPagesMessages.
-                    ConfigurationPropertyPage_Text_Server_Url_Default_Value.equals(propertyValue)) {
-                project.setPersistentProperty(ConnectionUtils.PROPERTY_SERVER_URL, propertyValue);
-            } else {
-                project.setPersistentProperty(ConnectionUtils.PROPERTY_SERVER_URL, null);
-            }
-
-            propertyValue = textFieldUserName.getText().trim();
-            if (!TEXT_FIELD_USER_NAME_DEFAULT_VALUE.equals(propertyValue)) {
-                project.setPersistentProperty(ConnectionUtils.PROPERTY_USER_NAME, propertyValue);
-            } else {
-                project.setPersistentProperty(ConnectionUtils.PROPERTY_USER_NAME, null);
-            }
-
-            propertyValue = textFieldPassword.getText().trim();
-            if (!TEXT_FIELD_PASSWORD_DEFAULT_VALUE.equals(propertyValue)) {
-                project.setPersistentProperty(ConnectionUtils.PROPERTY_PASSWORD, propertyValue);
-            } else {
-                project.setPersistentProperty(ConnectionUtils.PROPERTY_PASSWORD, null);
-            }
-
-            propertyValue = textFieldProjectName.getText();
-            if (!TEXT_FIELD_PROJECT_NAME_DEFAULT_VALUE.equals(propertyValue)) {
-                project.setPersistentProperty(ConnectionUtils.PROPERTY_PROJECT_NAME, propertyValue);
-            } else {
-                project.setPersistentProperty(ConnectionUtils.PROPERTY_PROJECT_NAME, null);
-            }
-        } catch (CoreException ce) {
-            Status errorStatus = new Status(Status.ERROR, Activator.PLUGIN_ID,
-                    PropertyPagesMessages.ConfigurationPropertyPage_MessageBox_Validate_Fail, ce);
-            ErrorDialog.openError(getShell(),
-                    PropertyPagesMessages.ConfigurationPropertyPage_MessageBox_Validate_Title,
-                    null,
-                    errorStatus);
-        }
-    }
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

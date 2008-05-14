@@ -32,8 +32,20 @@
 
 package eu.sqooss.plugin.util;
 
+/**
+ * The property pages can implement this interface.
+ * They are notified for the state of the configuration.
+ * In case of invalid configuration the <code>isEnabled</code>
+ * parameter is <code>false</code>.  
+ */
 public interface EnabledState {
     
+    /**
+     * This method is called from the <code>ConfigurationPropertyPage</code>.
+     * 
+     * @param isEnabled - if the user configuration settings are valid then
+     * <code>isEnabled</code> is <code>true</code>, <code>false</code> otherwise
+     */
     public void setEnabled(boolean isEnabled);
     
 }

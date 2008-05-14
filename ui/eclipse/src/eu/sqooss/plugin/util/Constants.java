@@ -34,15 +34,31 @@ package eu.sqooss.plugin.util;
 
 public interface Constants {
     
+    /**
+     * Represents the identifier of the project property page
+     * as stored in the configuration file.
+     */
     public static final String PROJECT_PROPERTY_PAGE_ID =
         "eu.sqooss.impl.plugin.properties.projectPropertyPage";
     
+    /**
+     * Represents the identifier of the configuration property page
+     * as stored in the configuration file.
+     */
     public static final String CONFIGURATION_PROPERTY_PAGE_ID = 
         "eu.sqooss.impl.plugin.properties.configurationPropertyPage";
     
+    /**
+     * Represents the identifier of the profile property page
+     * as stored in the configuration file.
+     */
     public static final String PROFILE_PROPERTY_PAGE_ID =
         "eu.sqooss.impl.plugin.properties.profilePropertyPage";
     
+    /**
+     * Represents the identifier of the quality property page
+     * as stored in the configuration file.
+     */
     public static final String QUALITY_PROPERTY_PAGE_ID =
         "eu.sqooss.impl.plugin.properties.qualityPropertyPage";
     

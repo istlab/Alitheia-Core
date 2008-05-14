@@ -42,9 +42,8 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.dialogs.PropertyPage;
 
-abstract class AbstractProfilePropertyPage extends PropertyPage {
+abstract class AbstractProfilePropertyPage extends EnabledPropertyPage {
 
     private static final int TEXT_FIELDS_SWT_STYLE = SWT.SINGLE | SWT.BORDER;
     

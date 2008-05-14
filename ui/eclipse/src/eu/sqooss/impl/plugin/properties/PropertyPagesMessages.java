@@ -52,9 +52,15 @@ public class PropertyPagesMessages extends NLS {
     public static String ProjectPropertyPage_Link_Profile;
     public static String ProjectPropertyPage_Link_Quality;
     
+    //EnabledPropertyPage
+    public static String EnabledPropertyPage_Connection_Init_Dialog_Message;
+    
     //ConfigurationPropertyPage's messages
     public static String ConfigurationPropertyPage_Label_Server_Url;
     public static String ConfigurationPropertyPage_Text_Server_Url_Default_Value;
+    public static String ConfigurationPropertyPage_Text_User_Name_Default_Value;
+    public static String ConfigurationPropertyPage_Text_Password_Default_Value;
+    public static String ConfigurationPropertyPage_Text_Project_Name_Default_Value;
     public static String ConfigurationPropertyPage_Label_User_Name;
     public static String ConfigurationPropertyPage_Label_Password;
     public static String ConfigurationPropertyPage_Label_Project_Name;
