@@ -670,6 +670,7 @@ public class WebAdminRenderer {
             // Action values
             String actValAddToGroup    = "addToGroup";
             String actValRemFromGroup  = "removeFromGroup";
+            String actValNewGroup      = "newGroup";
             // Request values
             Long reqValUserId          = null;
             Long reqValGroupId         = null;
@@ -920,6 +921,15 @@ public class WebAdminRenderer {
                             + "document.users.submit();\""
                             + ">\n");
                 }
+                b.append(sp(++in) + "<input class=\"install\""
+                        + " type=\"button\""
+                        + " value=\"New\""
+                        + " onclick=\"javascript:"
+                        + "document.getElementById('"
+                        + reqParAction + "').value='"
+                        + actValNewGroup + "';"
+                        + "document.users.submit();\""
+                        + ">\n");
                 b.append(sp(--in) + "</td>\n");
 
                 b.append(sp(--in) + "</tr>\n");
@@ -999,21 +1009,22 @@ public class WebAdminRenderer {
                             + "&nbsp;"
                             + "</td>\n");
                     // Available services
-                    b.append(sp(++in) + "<td>"
+                    b.append(sp(in) + "<td>"
                             + "&nbsp;"
                             + "</td>\n");
                     // Available privileges
-                    b.append(sp(++in) + "<td>"
+                    b.append(sp(in) + "<td>"
                             + privilege.getDescription()
                             + "</td>\n");
                     // Available rights
-                    b.append(sp(++in) + "<td>\n");
+                    b.append(sp(in) + "<td>\n");
                     PrivilegeValue[] values =
                         sobjSecurity.getPrivilegeManager()
                             .getPrivilegeValues(privilege.getId());
                     if ((values != null) && (values.length > 0)) {
                         b.append(sp(++in) + "<select"
                                 + " style=\"width: 100%; border: 0;\">\n");
+                        in++;
                         for (PrivilegeValue value : values) {
                             b.append(sp(in) + "<option"
                                     + " value=\"" + value.getId() + "\""
@@ -1026,9 +1037,12 @@ public class WebAdminRenderer {
                                     + value.getValue()
                                     + "</option>\n");
                         }
-                        b.append(sp(--in) + "</select>");
+                        b.append(sp(--in) + "</select>\n");
                     }
-                    b.append(sp(++in) + "</td>\n");
+                    else {
+                        b.append(sp(++in) + "<b>NA</b>");
+                    }
+                    b.append(sp(--in) + "</td>\n");
                     b.append(sp(--in) + "</tr>\n");
                 }
 
