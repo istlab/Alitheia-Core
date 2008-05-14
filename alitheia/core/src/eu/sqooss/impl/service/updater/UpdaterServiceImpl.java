@@ -52,6 +52,7 @@ import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
 
 import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.scheduler.SchedulerException;
@@ -65,6 +66,7 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
     private AlitheiaCore core = null;
     private HttpService httpService = null;
     private BundleContext context;
+    private DBService dbs = null;
     private Map<String,Set<UpdateTarget>> currentJobs = null; 
 
     public UpdaterServiceImpl(BundleContext bc, Logger logger) throws ServletException,
@@ -89,6 +91,8 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
         } else {
             logger.error("Could not load the HTTP service.");
         }
+        
+        dbs = core.getDBService();
         
         currentJobs = new HashMap<String,Set<UpdateTarget>>();
         logger.info("Succesfully started updater service");
@@ -335,7 +339,6 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
             logger.warn("The project <" + p + "> was not found");
             return false;
         }
-
         return update(project, t, results);
     }
     
@@ -366,6 +369,7 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
         String p = request.getParameter("project");
         String t = request.getParameter("target");
         String errorMessage;
+        dbs.startDBSession();
         if (p == null) {
             errorMessage = "Bad updater request is missing project name.";
             logger.warn(errorMessage);
@@ -422,7 +426,7 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
             response.getWriter().println("</updater>");
             response.getWriter().flush();
         }
-
+        dbs.commitDBSession();
     }
 
     public Object selfTest() {

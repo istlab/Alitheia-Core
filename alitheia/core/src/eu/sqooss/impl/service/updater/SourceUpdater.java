@@ -41,9 +41,6 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.apache.commons.collections.LRUMap;
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DBService;
@@ -102,7 +99,7 @@ class SourceUpdater extends Job {
      * @throws Exception as per the general contract of Job.run()
      */
     protected void run() throws Exception {
-        
+        dbs.startDBSession();
         int numRevisions = 0;
         
         /* 
@@ -121,7 +118,6 @@ class SourceUpdater extends Job {
         logger.info("Running source update for project " + project.getName());
         long ts = System.currentTimeMillis();
         try {
-            dbs.startDBSession();
 
             // This is the last version we actually know about
             ProjectVersion lastVersion = StoredProject.getLastProjectVersion(project);
@@ -230,7 +226,6 @@ class SourceUpdater extends Job {
                     dbs.startDBSession();
                 }
             }
-            dbs.commitDBSession();
             logger.info("Processed " + numRevisions + " revisions");
         } catch (InvalidRepositoryException e) {
             logger.error("Not such repository:" + e.getMessage());
@@ -247,6 +242,7 @@ class SourceUpdater extends Job {
             ma.runMetrics(ProjectFile.class, updFiles);
 
             updater.removeUpdater(project.getName(), UpdaterService.UpdateTarget.CODE);
+            dbs.commitDBSession();
         }
     }
 
