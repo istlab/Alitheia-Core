@@ -3,20 +3,21 @@
 
 if (selectedProject != null && selectedProject.isValid()) {
     out.println("<div id=\"selectedproject\" class=\"group\">");
-    out.println("<h1>" + selectedProject.getName());
-    out.println("<span class=\"forget\"><a href=\"?pid=none\">(forget)</a></span></h1>");
+    msg += "<br /><strong>Project:</strong> " + selectedProject.getName();
+    msg += "<span class=\"forget\"><a href=\"?pid=none\">(forget)</a></span>";
+    msg += "<br /><strong>Version:</strong> " + selectedProject.getCurrentVersion().shortName();
 %>
-<table>
+<table width="100%"  cellspacing="20">
     <tr>
         <td valign="top">
         <%
-            out.println("\n<h2>Project Metadata</h2>\n");
+            out.println("\n<h2>" + selectedProject.getName() + " Metadata</h2>\n");
             out.println(selectedProject.getInfo());
         %>
         </td>
         <td valign="top">
         <%
-            out.println("\n<h2>Project Versions");
+            out.println("\n<h2>" + selectedProject.getName() + " Versions");
             // Display the number of files in the selected project version
             // TODO: The files number should be cached in the Project object,
             //       instead of calling the Terrier each time.
@@ -60,6 +61,7 @@ if (selectedProject != null && selectedProject.isValid()) {
             out.println("</h2>\n");
 
             // Show the version selector
+            out.println("Choose the version you want to display: ");
             out.println(versionSelector(selectedProject));
             if (inputError != null) {
                 out.println(Functions.error(inputError));
@@ -69,7 +71,7 @@ if (selectedProject != null && selectedProject.isValid()) {
     </tr>
     </table>
     <%
-    out.println("<h2>Metrics for project " + selectedProject.getName() + "</h2>");
+    out.println("<h2>Metrics for " + selectedProject.getName() + "</h2>");
     out.println(selectedProject.showMetrics());
 
     String versionFileList = selectedProject.getCurrentVersion().listFiles();
@@ -77,7 +79,7 @@ if (selectedProject != null && selectedProject.isValid()) {
     int v_c = selectedProject.getCurrentVersion().getFileCount();
     int p_c = selectedProject.getFileCount();
 
-    out.println ("<br /><h2>Files</h2> "
+    out.println ("<br /><h2>Files in " + selectedProject.getName() + "</h2> "
         + v_c + " file(s) in version " + selectedProject.getCurrentVersionId());
 
     out.println("\n<table width=\"100%\">\n\t<tr><td>");

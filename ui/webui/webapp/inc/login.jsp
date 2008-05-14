@@ -32,8 +32,8 @@ boolean loginFailure = false;
 String errorMsg = "";
 
 if (user.getLoggedIn()) {
-    msg = "Signed in as " + user.getName() + ".";
-    msg = msg + " <a href=\"/logout.jsp\">sign out</a>";
+    msg = "Signed in as <em>" + user.getName() + "</em>.<br />";
+    //msg = msg + " <a href=\"/logout.jsp\">sign out</a>";
 }
 // Check for registration request
 else if (postAction.compareToIgnoreCase(ACT_REQ_REGISTER) == 0) {
