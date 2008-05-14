@@ -21,9 +21,9 @@
                     * @param param0
                 
          */
-         public eu.sqooss.ws.client.ws.GetMetricsByFileNamesResponse getMetricsByFileNames(
+         public eu.sqooss.ws.client.ws.GetProjectVersionsByProjectIdResponse getProjectVersionsByProjectId(
 
-                eu.sqooss.ws.client.ws.GetMetricsByFileNames param0)
+                eu.sqooss.ws.client.ws.GetProjectVersionsByProjectId param0)
                 throws java.rmi.RemoteException
           
           ;
@@ -51,9 +51,9 @@
                     * @param param4
                 
          */
-         public eu.sqooss.ws.client.ws.GetUserMessageOfTheDayResponse getUserMessageOfTheDay(
+         public eu.sqooss.ws.client.ws.GetMetricsResponse getMetrics(
 
-                eu.sqooss.ws.client.ws.GetUserMessageOfTheDay param4)
+                eu.sqooss.ws.client.ws.GetMetrics param4)
                 throws java.rmi.RemoteException
           
           ;
@@ -66,9 +66,9 @@
                     * @param param6
                 
          */
-         public eu.sqooss.ws.client.ws.GetUserByIdResponse getUserById(
+         public eu.sqooss.ws.client.ws.GetUserByNameResponse getUserByName(
 
-                eu.sqooss.ws.client.ws.GetUserById param6)
+                eu.sqooss.ws.client.ws.GetUserByName param6)
                 throws java.rmi.RemoteException
           
           ;
@@ -81,9 +81,9 @@
                     * @param param8
                 
          */
-         public eu.sqooss.ws.client.ws.GetMetricsResponse getMetrics(
+         public eu.sqooss.ws.client.ws.GetFilesNumberByProjectVersionIdResponse getFilesNumberByProjectVersionId(
 
-                eu.sqooss.ws.client.ws.GetMetrics param8)
+                eu.sqooss.ws.client.ws.GetFilesNumberByProjectVersionId param8)
                 throws java.rmi.RemoteException
           
           ;
@@ -111,9 +111,9 @@
                     * @param param12
                 
          */
-         public eu.sqooss.ws.client.ws.GetFilesByProjectIdResponse getFilesByProjectId(
+         public eu.sqooss.ws.client.ws.GetProjectIdByNameResponse getProjectIdByName(
 
-                eu.sqooss.ws.client.ws.GetFilesByProjectId param12)
+                eu.sqooss.ws.client.ws.GetProjectIdByName param12)
                 throws java.rmi.RemoteException
           
           ;
@@ -126,9 +126,9 @@
                     * @param param14
                 
          */
-         public eu.sqooss.ws.client.ws.GetFilesNumberByProjectVersionIdResponse getFilesNumberByProjectVersionId(
+         public eu.sqooss.ws.client.ws.DeleteUserByIdResponse deleteUserById(
 
-                eu.sqooss.ws.client.ws.GetFilesNumberByProjectVersionId param14)
+                eu.sqooss.ws.client.ws.DeleteUserById param14)
                 throws java.rmi.RemoteException
           
           ;
@@ -141,9 +141,9 @@
                     * @param param16
                 
          */
-         public eu.sqooss.ws.client.ws.RequestEvaluation4ProjectResponse requestEvaluation4Project(
+         public eu.sqooss.ws.client.ws.ModifyUserResponse modifyUser(
 
-                eu.sqooss.ws.client.ws.RequestEvaluation4Project param16)
+                eu.sqooss.ws.client.ws.ModifyUser param16)
                 throws java.rmi.RemoteException
           
           ;
@@ -156,9 +156,9 @@
                     * @param param18
                 
          */
-         public eu.sqooss.ws.client.ws.GetUserByNameResponse getUserByName(
+         public eu.sqooss.ws.client.ws.GetStoredProjectsResponse getStoredProjects(
 
-                eu.sqooss.ws.client.ws.GetUserByName param18)
+                eu.sqooss.ws.client.ws.GetStoredProjects param18)
                 throws java.rmi.RemoteException
           
           ;
@@ -171,9 +171,9 @@
                     * @param param20
                 
          */
-         public eu.sqooss.ws.client.ws.GetProjectByIdResponse getProjectById(
+         public eu.sqooss.ws.client.ws.GetFilesNumberByProjectIdResponse getFilesNumberByProjectId(
 
-                eu.sqooss.ws.client.ws.GetProjectById param20)
+                eu.sqooss.ws.client.ws.GetFilesNumberByProjectId param20)
                 throws java.rmi.RemoteException
           
           ;
@@ -186,9 +186,9 @@
                     * @param param22
                 
          */
-         public eu.sqooss.ws.client.ws.CreateUserResponse createUser(
+         public eu.sqooss.ws.client.ws.GetFilesByProjectIdResponse getFilesByProjectId(
 
-                eu.sqooss.ws.client.ws.CreateUser param22)
+                eu.sqooss.ws.client.ws.GetFilesByProjectId param22)
                 throws java.rmi.RemoteException
           
           ;
@@ -201,9 +201,9 @@
                     * @param param24
                 
          */
-         public eu.sqooss.ws.client.ws.GetProjectVersionsByProjectIdResponse getProjectVersionsByProjectId(
+         public eu.sqooss.ws.client.ws.RequestEvaluation4ProjectResponse requestEvaluation4Project(
 
-                eu.sqooss.ws.client.ws.GetProjectVersionsByProjectId param24)
+                eu.sqooss.ws.client.ws.RequestEvaluation4Project param24)
                 throws java.rmi.RemoteException
           
           ;
@@ -216,9 +216,9 @@
                     * @param param26
                 
          */
-         public eu.sqooss.ws.client.ws.GetStoredProjectsResponse getStoredProjects(
+         public eu.sqooss.ws.client.ws.GetMetricsByFileNamesResponse getMetricsByFileNames(
 
-                eu.sqooss.ws.client.ws.GetStoredProjects param26)
+                eu.sqooss.ws.client.ws.GetMetricsByFileNames param26)
                 throws java.rmi.RemoteException
           
           ;
@@ -231,9 +231,9 @@
                     * @param param28
                 
          */
-         public eu.sqooss.ws.client.ws.ModifyUserResponse modifyUser(
+         public eu.sqooss.ws.client.ws.GetMetricsResultResponse getMetricsResult(
 
-                eu.sqooss.ws.client.ws.ModifyUser param28)
+                eu.sqooss.ws.client.ws.GetMetricsResult param28)
                 throws java.rmi.RemoteException
           
           ;
@@ -246,9 +246,9 @@
                     * @param param30
                 
          */
-         public eu.sqooss.ws.client.ws.GetProjectIdByNameResponse getProjectIdByName(
+         public eu.sqooss.ws.client.ws.GetProjectByIdResponse getProjectById(
 
-                eu.sqooss.ws.client.ws.GetProjectIdByName param30)
+                eu.sqooss.ws.client.ws.GetProjectById param30)
                 throws java.rmi.RemoteException
           
           ;
@@ -261,9 +261,9 @@
                     * @param param32
                 
          */
-         public eu.sqooss.ws.client.ws.GetMetricsResultResponse getMetricsResult(
+         public eu.sqooss.ws.client.ws.GetFilesByProjectVersionIdResponse getFilesByProjectVersionId(
 
-                eu.sqooss.ws.client.ws.GetMetricsResult param32)
+                eu.sqooss.ws.client.ws.GetFilesByProjectVersionId param32)
                 throws java.rmi.RemoteException
           
           ;
@@ -276,9 +276,9 @@
                     * @param param34
                 
          */
-         public eu.sqooss.ws.client.ws.DeleteUserByIdResponse deleteUserById(
+         public eu.sqooss.ws.client.ws.GetUserByIdResponse getUserById(
 
-                eu.sqooss.ws.client.ws.DeleteUserById param34)
+                eu.sqooss.ws.client.ws.GetUserById param34)
                 throws java.rmi.RemoteException
           
           ;
@@ -291,9 +291,9 @@
                     * @param param36
                 
          */
-         public eu.sqooss.ws.client.ws.GetMetricsByProjectIdResponse getMetricsByProjectId(
+         public eu.sqooss.ws.client.ws.CreateUserResponse createUser(
 
-                eu.sqooss.ws.client.ws.GetMetricsByProjectId param36)
+                eu.sqooss.ws.client.ws.CreateUser param36)
                 throws java.rmi.RemoteException
           
           ;
@@ -306,9 +306,24 @@
                     * @param param38
                 
          */
-         public eu.sqooss.ws.client.ws.GetFilesByProjectVersionIdResponse getFilesByProjectVersionId(
+         public eu.sqooss.ws.client.ws.GetMetricsByProjectIdResponse getMetricsByProjectId(
 
-                eu.sqooss.ws.client.ws.GetFilesByProjectVersionId param38)
+                eu.sqooss.ws.client.ws.GetMetricsByProjectId param38)
+                throws java.rmi.RemoteException
+          
+          ;
+
+        
+
+        /**
+                * Auto generated method signature
+                
+                    * @param param40
+                
+         */
+         public eu.sqooss.ws.client.ws.GetUserMessageOfTheDayResponse getUserMessageOfTheDay(
+
+                eu.sqooss.ws.client.ws.GetUserMessageOfTheDay param40)
                 throws java.rmi.RemoteException
           
           ;

@@ -20,39 +20,9 @@
               
                   if (
                   "http://datatypes.services.web.service.impl.sqooss.eu/xsd".equals(namespaceURI) &&
-                  "WSMetricType".equals(typeName)){
-                   
-                            return  eu.sqooss.ws.client.datatypes.WSMetricType.Factory.parse(reader);
-                        
-
-                  }
-
-              
-                  if (
-                  "http://datatypes.services.web.service.impl.sqooss.eu/xsd".equals(namespaceURI) &&
                   "WSMetric".equals(typeName)){
                    
                             return  eu.sqooss.ws.client.datatypes.WSMetric.Factory.parse(reader);
-                        
-
-                  }
-
-              
-                  if (
-                  "http://datatypes.services.web.service.impl.sqooss.eu/xsd".equals(namespaceURI) &&
-                  "WSMetricsResultRequest".equals(typeName)){
-                   
-                            return  eu.sqooss.ws.client.datatypes.WSMetricsResultRequest.Factory.parse(reader);
-                        
-
-                  }
-
-              
-                  if (
-                  "http://datatypes.services.web.service.impl.sqooss.eu/xsd".equals(namespaceURI) &&
-                  "WSProjectFile".equals(typeName)){
-                   
-                            return  eu.sqooss.ws.client.datatypes.WSProjectFile.Factory.parse(reader);
                         
 
                   }
@@ -70,9 +40,39 @@
               
                   if (
                   "http://datatypes.services.web.service.impl.sqooss.eu/xsd".equals(namespaceURI) &&
-                  "WSUserGroup".equals(typeName)){
+                  "WSProjectFile".equals(typeName)){
                    
-                            return  eu.sqooss.ws.client.datatypes.WSUserGroup.Factory.parse(reader);
+                            return  eu.sqooss.ws.client.datatypes.WSProjectFile.Factory.parse(reader);
+                        
+
+                  }
+
+              
+                  if (
+                  "http://datatypes.services.web.service.impl.sqooss.eu/xsd".equals(namespaceURI) &&
+                  "WSMetricsResultRequest".equals(typeName)){
+                   
+                            return  eu.sqooss.ws.client.datatypes.WSMetricsResultRequest.Factory.parse(reader);
+                        
+
+                  }
+
+              
+                  if (
+                  "http://datatypes.services.web.service.impl.sqooss.eu/xsd".equals(namespaceURI) &&
+                  "WSResultEntry".equals(typeName)){
+                   
+                            return  eu.sqooss.ws.client.datatypes.WSResultEntry.Factory.parse(reader);
+                        
+
+                  }
+
+              
+                  if (
+                  "http://datatypes.services.web.service.impl.sqooss.eu/xsd".equals(namespaceURI) &&
+                  "WSMetricType".equals(typeName)){
+                   
+                            return  eu.sqooss.ws.client.datatypes.WSMetricType.Factory.parse(reader);
                         
 
                   }
@@ -100,9 +100,9 @@
               
                   if (
                   "http://datatypes.services.web.service.impl.sqooss.eu/xsd".equals(namespaceURI) &&
-                  "WSResultEntry".equals(typeName)){
+                  "WSUserGroup".equals(typeName)){
                    
-                            return  eu.sqooss.ws.client.datatypes.WSResultEntry.Factory.parse(reader);
+                            return  eu.sqooss.ws.client.datatypes.WSUserGroup.Factory.parse(reader);
                         
 
                   }
