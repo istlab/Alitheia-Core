@@ -673,6 +673,8 @@ public class WebAdminRenderer {
             String actValRemFromGroup  = "removeFromGroup";
             String actValReqNewGroup   = "reqNewGroup";
             String actValAddNewGroup   = "addNewGroup";
+            String actValReqRemGroup   = "reqRemGroup";
+            String actValConRemGroup   = "conRemGroup";
             // Request values
             Long reqValUserId          = null;
             Long reqValGroupId         = null;
@@ -683,6 +685,8 @@ public class WebAdminRenderer {
             User selUser = null;
             // Selected group;
             Group selGroup = null;
+            // Current colspan (max columns)
+            long maxColspan = 1;
 
             // Parse the servlet's request object
             if (request != null) {
@@ -769,6 +773,7 @@ public class WebAdminRenderer {
                         + "Member Of</td>\n");
                 b.append(sp(in) + "<td class=\"head\" style=\"width: 30%;\">"
                         + "Available Groups</td>\n");
+                maxColspan = 3;
             }
             // Users list - header row
             else {
@@ -780,6 +785,7 @@ public class WebAdminRenderer {
                         + "User Email</td>\n");
                 b.append(sp(in) + "<td class=\"head\" style=\"width: 30%;\">"
                         + "Created</td>\n");
+                maxColspan = 4;
             }
             b.append(sp(--in) + "</tr>\n");
             b.append(sp(--in) + "</thead>\n");
@@ -905,7 +911,7 @@ public class WebAdminRenderer {
                         && (selUser.getGroups().contains(selGroup) == true)) {
                     b.append(sp(++in) + "<input class=\"install\""
                             + " type=\"button\""
-                            + " value=\"Remove\""
+                            + " value=\"Detach\""
                             + " onclick=\"javascript:"
                             + "document.getElementById('"
                             + reqParAction + "').value='"
@@ -916,40 +922,64 @@ public class WebAdminRenderer {
                 b.append(sp(--in) + "</td>\n");
 
                 b.append(sp(in) + "<td style=\"padding: 0;\">\n");
-                b.append(sp(++in) + "<span>");
-                boolean halfSize = false;
                 if ((selGroup != null)
                         && (selUser.getGroups().contains(selGroup) == false)) {
                     b.append(sp(++in) + "<input class=\"install\""
-                            + " style=\"width: 50%;\""
                             + " type=\"button\""
-                            + " value=\"Add\""
+                            + " value=\"Assign\""
                             + " onclick=\"javascript:"
                             + "document.getElementById('"
                             + reqParAction + "').value='"
                             + actValAddToGroup + "';"
                             + "document.users.submit();\""
                             + ">\n");
-                    halfSize = true;
                 }
-                b.append(((halfSize) ? sp(in) : sp(++in)) 
+                b.append(sp(--in) + "</td>\n");
+
+                b.append(sp(--in) + "</tr>\n");
+            }
+            b.append(sp(in) + "<tr class=\"subhead\">");
+            b.append(sp(++in) + "<td colspan=\"" + maxColspan + "\">"
+                    + ((selUser != null)
+                        ? "&nbsp;"
                         + "<input class=\"install\""
+                        + " style=\"width: 100px;\""
                         + " type=\"button\""
-                        + ((halfSize) ? " style=\"width: 50%;\"" : "")
-                        + " value=\"New\""
+                        + " value=\"Remove user\""
                         + " onclick=\"javascript:"
                         + " document.getElementById('"
                         + reqParGroupId + "').value='';"
                         + "document.getElementById('"
                         + reqParAction + "').value='"
                         + actValReqNewGroup + "';"
-                        + "document.users.submit();\""
-                        + ">\n");
-                b.append(sp(--in) + "</span>");
-                b.append(sp(--in) + "</td>\n");
-
-                b.append(sp(--in) + "</tr>\n");
-            }
+                        + "document.users.submit();\">"
+                        : "")
+                    + "&nbsp;"
+                    + "<input class=\"install\""
+                    + " style=\"width: 100px;\""
+                    + " type=\"button\""
+                    + " value=\"Add group\""
+                    + " onclick=\"javascript:"
+                    + " document.getElementById('"
+                    + reqParGroupId + "').value='';"
+                    + "document.getElementById('"
+                    + reqParAction + "').value='"
+                    + actValReqNewGroup + "';"
+                    + "document.users.submit();\">"
+                    + "&nbsp;"
+                    + "<input class=\"install\""
+                    + " style=\"width: 100px;\""
+                    + " type=\"button\""
+                    + " value=\"Remove group\""
+                    + " onclick=\"javascript:"
+                    + " document.getElementById('"
+                    + reqParGroupId + "').value='';"
+                    + "document.getElementById('"
+                    + reqParAction + "').value='"
+                    + actValReqRemGroup + "';"
+                    + "document.users.submit();\">"
+                    + "</td>\n");
+            b.append(sp(--in) + "</tr>");
             // Close the table
             b.append(sp(--in) + "</tbody>\n");
             b.append(sp(--in) + "</table>\n");
