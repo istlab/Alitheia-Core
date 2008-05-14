@@ -735,6 +735,10 @@ public class WebAdminRenderer {
                                     selUser.getId());
                         }
                     }
+                    // Add new group to the system
+                    else if (reqValAction.equalsIgnoreCase(actValAddNewGroup)) {
+                        
+                    }
                 }
             }
 
@@ -912,9 +916,12 @@ public class WebAdminRenderer {
                 b.append(sp(--in) + "</td>\n");
 
                 b.append(sp(in) + "<td style=\"padding: 0;\">\n");
+                b.append(sp(++in) + "<span>");
+                boolean halfSize = false;
                 if ((selGroup != null)
                         && (selUser.getGroups().contains(selGroup) == false)) {
                     b.append(sp(++in) + "<input class=\"install\""
+                            + " style=\"width: 50%;\""
                             + " type=\"button\""
                             + " value=\"Add\""
                             + " onclick=\"javascript:"
@@ -923,9 +930,12 @@ public class WebAdminRenderer {
                             + actValAddToGroup + "';"
                             + "document.users.submit();\""
                             + ">\n");
+                    halfSize = true;
                 }
-                b.append(sp(++in) + "<input class=\"install\""
+                b.append(((halfSize) ? sp(in) : sp(++in)) 
+                        + "<input class=\"install\""
                         + " type=\"button\""
+                        + ((halfSize) ? " style=\"width: 50%;\"" : "")
                         + " value=\"New\""
                         + " onclick=\"javascript:"
                         + " document.getElementById('"
@@ -935,6 +945,7 @@ public class WebAdminRenderer {
                         + actValReqNewGroup + "';"
                         + "document.users.submit();\""
                         + ">\n");
+                b.append(sp(--in) + "</span>");
                 b.append(sp(--in) + "</td>\n");
 
                 b.append(sp(--in) + "</tr>\n");
@@ -945,6 +956,7 @@ public class WebAdminRenderer {
             b.append(sp(--in) + "</fieldset>\n");
 
             // ---( GROUP ROWS )---------------------------------------------
+            // "Selected group" editor
             if (selGroup != null) {
                 b.append(sp(in) + "<fieldset>\n");
                 b.append(sp(++in) + "<legend>Group "
@@ -1056,6 +1068,7 @@ public class WebAdminRenderer {
                 b.append(sp(--in) + "</table>\n");
                 b.append(sp(--in) + "</fieldset>\n");
             }
+            // "New group" editor
             else if ((reqValAction != null)
                     && (reqValAction.equalsIgnoreCase(actValReqNewGroup))) {
                 b.append(sp(in) + "<fieldset>\n");
