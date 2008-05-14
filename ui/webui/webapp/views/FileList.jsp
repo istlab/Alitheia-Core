@@ -1,7 +1,7 @@
 <%@ page import="eu.sqooss.webui.*" %>
 
 <div id="fileslist" class="group">
-<% // List files per selected project
+<% // List files per selected project and version
 
 if (selectedProject != null && selectedProject.isValid()) {
     // Retrieve the selected project's object
@@ -26,15 +26,17 @@ if (selectedProject != null && selectedProject.isValid()) {
         //       instead of calling the Terrier each time.
         out.println (
             terrier.getFiles4ProjectVersion(versionId).getHtml());
-    }
-    else {
+    } else {
+        // We should probably just list the files in the project here,
+        // version-independent
         out.println(Functions.error(
-        "You have to <a href=\"/projects.jsp\">select</a> a project version."));
+        "FIXME: Please select a <a href=\"/versions.jsp\">select a project version.</a>"));
     }
 } else {
-    out.println(Functions.error(
-        "You have to <a href=\"/projects.jsp\">select</a> a project first."));
+    out.println("<h2>Please select a select a project</h2>");
 
+// FIXME: Clicking on the project entries should get you to the file list
+// It now brings you to the project's dashboard
 %>
     <%@ include file="/views/EvaluatedProjectsList.jsp" %>
 <%
