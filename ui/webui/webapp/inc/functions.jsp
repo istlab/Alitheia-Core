@@ -8,7 +8,7 @@ public static String versionSelector(Project p) {
         Version v = versions.get(k);
         if (k.equals(p.getCurrentVersionId())) {
             html.append("\n\t\t<option  class=\"form\" value=\""
-                + v.getId() + "\" selected=\"true\">***" + v.shortName() + "***</option>");
+                + v.getId() + "\" selected=\"true\">" + v.shortName() + "</option>");
         } else {
             html.append("\n\t\t<option  class=\"form\" value=\""
                 + v.getId() + "\">" + v.shortName() +  "</option>");

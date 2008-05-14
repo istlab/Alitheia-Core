@@ -5,56 +5,70 @@ if (selectedProject != null && selectedProject.isValid()) {
     out.println("<div id=\"selectedproject\" class=\"group\">");
     out.println("<h1>" + selectedProject.getName());
     out.println("<span class=\"forget\"><a href=\"?pid=none\">(forget)</a></span></h1>");
+%>
+<table>
+    <tr>
+        <td valign="top">
+        <%
+            out.println("\n<h2>Project Metadata</h2>\n");
+            out.println(selectedProject.getInfo());
+        %>
+        </td>
+        <td valign="top">
+        <%
+            out.println("\n<h2>Project Versions");
+            // Display the number of files in the selected project version
+            // TODO: The files number should be cached in the Project object,
+            //       instead of calling the Terrier each time.
+            //if (selectedProject.getCurrentVersionId() != null) {
+                //projectId = selectedProject.getId();
+            String inputError = null;
+            if (request.getParameter("version" + projectId) != null) {
+                Long changeSelected = null;
+                try {
+                    changeSelected =
+                        new Long(request.getParameter("version" + projectId));
+                }
+                catch (NumberFormatException e) {
+                    inputError = new String("Wrong version format!");
+                }
 
-    out.println("\n<h2>Project Metadata</h2>\n");
-    out.println(selectedProject.getInfo());
+                if (changeSelected != null && (changeSelected != selectedProject.getCurrentVersionId())) {
+                    selectedProject.setCurrentVersionId(changeSelected);
+                }
+            }
+            //out.println("Number of versions: " + selectedProject.countVersions());
+            Version currentVersion = selectedProject.getCurrentVersion();
+            Long versionNum = currentVersion.getNumber();
+            Long versionId = currentVersion.getId();
+            // Display the first and last known project versions
+            if (selectedProject.getFirstVersion() != null) {
+                if (selectedProject.getFirstVersion()
+                    != selectedProject.getLastVersion()) {
+                    out.println (
+                        + selectedProject.getFirstVersion().getId()
+                        + " - "
+                        + selectedProject.getLastVersion().getId()
+                        + " (" + selectedProject.countVersions() + " total)");
+                } else {
+                    out.println ("<br />Version: "
+                        + selectedProject.getFirstVersion());
+                }
+            } else {
+                out.println("Project doesn't seem to have versions recorded.");
+            }
+            out.println("</h2>\n");
 
-    out.println("\n<h2>Project Versions</h2>\n");
-    // Display the number of files in the selected project version
-    // TODO: The files number should be cached in the Project object,
-    //       instead of calling the Terrier each time.
-    //if (selectedProject.getCurrentVersionId() != null) {
-        //projectId = selectedProject.getId();
-    String inputError = null;
-    if (request.getParameter("version" + projectId) != null) {
-        Long changeSelected = null;
-        try {
-            changeSelected =
-                new Long(request.getParameter("version" + projectId));
-        }
-        catch (NumberFormatException e) {
-            inputError = new String("Wrong version format!");
-        }
-
-        if (changeSelected != null && (changeSelected != selectedProject.getCurrentVersionId())) {
-            selectedProject.setCurrentVersionId(changeSelected);
-        }
-    }
-    //out.println("Number of versions: " + selectedProject.countVersions());
-    Version currentVersion = selectedProject.getCurrentVersion();
-    Long versionNum = currentVersion.getNumber();
-    Long versionId = currentVersion.getId();
-    // Display the first and last known project versions
-    if (selectedProject.getFirstVersion() != null) {
-        if (selectedProject.getFirstVersion()
-            != selectedProject.getLastVersion()) {
-            out.println ("<br />Versions: "
-                + selectedProject.getFirstVersion().getId()
-                + " - "
-                + selectedProject.getLastVersion().getId()
-                + " (" + selectedProject.countVersions() + " total)");
-        } else {
-            out.println ("<br />Version: "
-                + selectedProject.getFirstVersion());
-        }
-    } else {
-        out.println("Project doesn't seem to have versions recorded.");
-    }
-    out.println(versionSelector(selectedProject));
-    if (inputError != null) {
-        out.println(Functions.error(inputError));
-    }
-
+            // Show the version selector
+            out.println(versionSelector(selectedProject));
+            if (inputError != null) {
+                out.println(Functions.error(inputError));
+            }
+        %>
+        </td>
+    </tr>
+    </table>
+    <%
     out.println("<h2>Metrics for project " + selectedProject.getName() + "</h2>");
     out.println(selectedProject.showMetrics());
 
