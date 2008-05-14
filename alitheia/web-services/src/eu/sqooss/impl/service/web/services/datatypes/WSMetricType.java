@@ -39,14 +39,14 @@ import eu.sqooss.service.db.MetricType;
  */
 public class WSMetricType {
     
-    private MetricType metricType;
+    private String type;
     
     public WSMetricType(MetricType metricType) {
-        this.metricType = metricType;
+        this.type = metricType.getType();
     }
     
     public String getType() {
-        return metricType.getType().toString();
+        return type;
     }
 
 }

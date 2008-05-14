@@ -46,6 +46,7 @@ import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
 
 import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.impl.service.CoreActivator;
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
@@ -495,18 +496,26 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
                 // and update the plug-in's information object upon success.
                 if (sobjPlugin.install()) {
                     // Get the DAO that belongs to this metric plug-in
-                    Plugin daoPlugin = pluginRefToPluginDAO(srefPlugin);
-                    if (daoPlugin != null) {
-                        // Create an info object for installed plug-in
-                        PluginInfo pluginInfo =
-                            createInstalledPI(srefPlugin, daoPlugin);
-                        if (pluginInfo != null) {
-                            // Remove the old "registered" info object
-                            registeredPlugins.remove(serviceID.toString());
-                            // Store the info object
-                            registeredPlugins.put(
-                                    pluginInfo.getHashcode(), pluginInfo);
-                            return true;
+                    DBService db = CoreActivator.getDBService();
+                    try {
+                        db.startDBSession();
+                        Plugin daoPlugin = pluginRefToPluginDAO(srefPlugin);
+                        if (daoPlugin != null) {
+                            // Create an info object for installed plug-in
+                            PluginInfo pluginInfo =
+                                createInstalledPI(srefPlugin, daoPlugin);
+                            if (pluginInfo != null) {
+                                // Remove the old "registered" info object
+                                registeredPlugins.remove(serviceID.toString());
+                                // Store the info object
+                                registeredPlugins.put(
+                                        pluginInfo.getHashcode(), pluginInfo);
+                                return true;
+                            }
+                        }
+                    } finally {
+                        if (db.isDBSessionActive()) {
+                            db.commitDBSession();
                         }
                     }
                 }
