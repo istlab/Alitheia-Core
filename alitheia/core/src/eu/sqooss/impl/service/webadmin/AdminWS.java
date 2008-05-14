@@ -53,11 +53,13 @@ import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.scheduler.SchedulerStats;
 import eu.sqooss.service.db.StoredProject;
+import eu.sqooss.service.db.DBService;
 
 public class AdminWS extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private BundleContext bundleContext = null;
     private Scheduler scheduler = null;
+    private DBService dbservice = null;
 
     public AdminWS( BundleContext bc ) {
         bundleContext = bc;
@@ -66,6 +68,7 @@ public class AdminWS extends HttpServlet {
         if (srefCore != null) {
             AlitheiaCore core = (AlitheiaCore) bc.getService(srefCore);
             scheduler = core.getScheduler();
+            dbservice = core.getDBService();
         } else {
             System.out.println("No CORE");
         }
@@ -81,7 +84,9 @@ public class AdminWS extends HttpServlet {
         print.println("online=true");
         print.println("uptime=" + upTime);
         print.println("load=" + scheduler.getSchedulerStats().getWaitingJobs());
+        dbservice.startDBSession();
         print.println("projects=" + StoredProject.getProjectCount());
+        dbservice.rollbackDBSession();
 
         int count = 0;
         if (bundleContext != null) {
