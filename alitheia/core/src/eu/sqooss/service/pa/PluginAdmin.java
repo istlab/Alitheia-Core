@@ -100,7 +100,8 @@ public interface PluginAdmin {
      *  
      * @param mnemonic - the metric's mnemonic name
      * 
-     * @return The metric plug-in object, that implements this metric.
+     * @return The metric plug-in object that implements this metric, or nulll
+     * if no such plugin found.
      */
     public AlitheiaPlugin getImplementingPlugin(String mnemonic);
 

@@ -217,4 +217,11 @@ public interface AlitheiaPlugin {
      * @return A list of PluginConfiguration objects
      */
     List<PluginConfiguration> getConfigurationSchema();
+    
+    /**
+     * Return a list of metric mnemonics that the metrics in this plugin
+     * use. 
+     * @return A list of metric dependencies for this plug-in
+     */
+    List<String> getMetricDependencies();
 }

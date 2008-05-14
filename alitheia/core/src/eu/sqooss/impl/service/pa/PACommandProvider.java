@@ -110,6 +110,8 @@ public class PACommandProvider implements CommandProvider {
                             + " "
                             + "Install on plug-in with ID "
                             + serviceId + " was unsuccessfull!");
+                    dbs.rollbackDBSession();
+                    return;
                 }
             } catch (NumberFormatException e) {
                 ci.println (
@@ -118,8 +120,7 @@ public class PACommandProvider implements CommandProvider {
                         + "The specified service ID is not a number");
             }
         }
-        if(!dbs.commitDBSession())
-            dbs.rollbackDBSession();
+        dbs.commitDBSession();
     }
 
     public void _list_plugins (CommandInterpreter ci) {

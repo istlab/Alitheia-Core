@@ -87,10 +87,12 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     /** Cache the metrics list on first access*/
     protected List<Metric> metrics = null;
 
+    /** Metric dependencies */
+    protected List<String> metricDependencies = new ArrayList<String>();
+    
     /**Types used to activate this metric*/
     protected List<Class<? extends DAObject>> activationTypes = new ArrayList<Class<? extends DAObject>>();
 
-    
     /** Cache the result of the mark evaluation function*/
     protected HashMap<Long, Long> evaluationMarked = new HashMap<Long, Long>();
 
@@ -348,10 +350,8 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
                 EvaluationMark evaluationMark = new EvaluationMark();
                 evaluationMark.setMetric(me);
                 evaluationMark.setStoredProject(sp);
-                if ( !db.addRecord(evaluationMark) ) {
-                    db.rollbackDBSession();
-                    return; // a log entry will be found in the db
-                }
+                
+                db.addRecord(evaluationMark);
             }
         }
     }
@@ -370,10 +370,18 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         if (!plugins.isEmpty()) {
             log.warn("A plugin with name <" + getName()
                     + "> is already installed, won't re-install.");
-            db.rollbackDBSession();
             return false;
         }
 
+        /*Check if the metric has unsatisfied dependencies*/
+        for(String dep : metricDependencies) {
+            if (pa.getImplementingPlugin(dep) == null) {
+                log.error("No plug-in installed that implements the " + dep
+                        + " metric");
+                return false;
+            }   
+        }
+        
         Plugin p = new Plugin();
         p.setName(getName());
         p.setInstalldate(new Date(System.currentTimeMillis()));
@@ -501,5 +509,19 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
             }
         }
         pa.pluginUpdated(this);
+    }
+    
+    public final List<String> getMetricDependencies() {
+        return this.metricDependencies;
+    }
+    
+    /**
+     * Add a metric mnemonic to the list of metric dependencies.
+     * @param mnemonic The mnemonic to be added
+     */
+    protected final void addMetricDepedency(String mnemonic) {
+        if(!metricDependencies.contains(mnemonic)) {
+            metricDependencies.add(mnemonic);
+        }
     }
 }
