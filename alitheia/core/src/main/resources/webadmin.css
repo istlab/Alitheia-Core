@@ -1,0 +1,56 @@
+/* ===[ METRICS CSS ]===================================================== */
+#table table {
+    border-collapse: collapse;
+    width: 100%;
+}
+#table td {
+    padding-left: 10px;
+}
+#table input {
+    width: 100%;
+}
+#table input.install {
+    color: Green;
+}
+#table input.uninstall {
+    color: Red;
+}
+#table tr.head {
+    background-color: LightSteelBlue;
+}
+#table tr.subhead {
+    background-color: #CCFFCC;
+}
+#table td.head {
+    text-align: left;
+    font-weight: bold;
+}
+#table td.subhead {
+    text-align: left;
+    font-weight: lighter;
+}
+#table td.name {
+    font-weight: bold;
+}
+#table td.edit {
+    cursor: pointer;
+}
+#table td.edit:hover {
+    background-color: #FFFF99;
+}
+#table td.uninstalled {
+    background-color: WhiteSmoke;
+}
+#table td.attr {
+    background-color: Bisque;
+}
+#table td.noattr {
+    background-color: Bisque;
+    font-style: italic;
+}
+#table fieldset, select {
+    background-color: #f6f6f6;
+    border: 1px dotted #ccc;
+    margin: 15px 0 10px 0;
+    font-size: 10pt;
+}

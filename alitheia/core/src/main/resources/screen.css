@@ -1,4 +1,13 @@
-/* Layout */
+/* CSS for Alitheia's web interfaces. This is the shared portion
+   of the CSS, which defines general layout principles such as
+   body, #sidebar, #header and #footer. There shouldn't be much
+   layout specific to a particular application in here at all.
+
+   This file should be kept in-sync between the following places:
+	ui/webui/webapp/style/screen.css
+	alitheia/core/src/main/resources/screen.css
+*/
+
 body,
 html {
 	margin:0;
@@ -33,7 +42,7 @@ input {
 
 #header h1 {
 	float: right;
-    	padding: 10px 15px 0 0;
+	padding: 10px 15px 0 0;
 	font-size: 18px;
 	font-weight: bold;
 }
@@ -166,11 +175,30 @@ body.section-6 #menu li#nav-6 a {
 }
 
 #contents h2 {
-	width: 100%;
-	padding: 0;
-	margin: 0;
-	margin-bottom: 10px;
-	border-bottom: 1px dotted #000;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    margin-bottom: 10px;
+    margin-top: 20px;
+    border-bottom: 1px dotted #000;
+}
+
+#contents h1 {
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    margin-bottom: 20px;
+    margin-top: 25px;
+    border-bottom: 1px dotted #000;
+}
+
+#contents h3 {
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    margin-bottom: 5px;
+    margin-top: 15px;
+    border-bottom: 1px dotted #000;
 }
 
 #bundles table {
@@ -229,13 +257,13 @@ form p {
 	display: inline;
 }
 
-#status, #jobs, #options, #newproject {
+#sidebar fieldset {
 	display: inline;
 	background-color: #f6f6f6;
 	width: 89%;
 	float: left;
 	clear: left;
-	border: 1px dotted #ccc;
+	border: 1px solid green;
 	margin: 15px 0 10px 0;
 	font-size: 10pt;
 }
@@ -287,59 +315,4 @@ tr.newgroup td {
 td.number {
 	text-align: right;
 }
-/* ===[ METRICS CSS ]===================================================== */
-#table table {
-    border-collapse: collapse;
-    width: 100%;
-}
-#table td {
-    padding-left: 10px;
-}
-#table input {
-    width: 100%;
-}
-#table input.install {
-    color: Green;
-}
-#table input.uninstall {
-    color: Red;
-}
-#table tr.head {
-    background-color: LightSteelBlue;
-}
-#table tr.subhead {
-    background-color: #CCFFCC;
-}
-#table td.head {
-    text-align: left;
-    font-weight: bold;
-}
-#table td.subhead {
-    text-align: left;
-    font-weight: lighter;
-}
-#table td.name {
-    font-weight: bold;
-}
-#table td.edit {
-    cursor: pointer;
-}
-#table td.edit:hover {
-    background-color: #FFFF99;
-}
-#table td.uninstalled {
-    background-color: WhiteSmoke;
-}
-#table td.attr {
-    background-color: Bisque;
-}
-#table td.noattr {
-    background-color: Bisque;
-    font-style: italic;
-}
-#table fieldset, select {
-    background-color: #f6f6f6;
-    border: 1px dotted #ccc;
-    margin: 15px 0 10px 0;
-    font-size: 10pt;
-}
+
