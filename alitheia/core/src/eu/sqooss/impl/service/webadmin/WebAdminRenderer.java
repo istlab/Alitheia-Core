@@ -33,8 +33,8 @@
 package eu.sqooss.impl.service.webadmin;
 
 import java.text.DateFormat;
-import java.util.Date;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -42,9 +42,12 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import eu.sqooss.core.AlitheiaCore;
+import org.apache.velocity.VelocityContext;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
+import org.osgi.framework.ServiceReference;
 
-import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
+import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Group;
@@ -54,28 +57,20 @@ import eu.sqooss.service.db.Privilege;
 import eu.sqooss.service.db.PrivilegeValue;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.db.User;
-import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.logging.LogManager;
+import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.metricactivator.MetricActivator;
 import eu.sqooss.service.pa.PluginAdmin;
 import eu.sqooss.service.pa.PluginInfo;
-import eu.sqooss.service.pa.PluginInfo.ConfigurationType;
-import eu.sqooss.service.updater.UpdaterService;
-import eu.sqooss.service.util.Pair;
-import eu.sqooss.service.util.StringUtils;
 import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.scheduler.Scheduler;
+import eu.sqooss.service.security.SecurityManager;
 import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.TDAccessor;
 import eu.sqooss.service.tds.TDSService;
+import eu.sqooss.service.updater.UpdaterService;
+import eu.sqooss.service.util.StringUtils;
 import eu.sqooss.service.webadmin.WebadminService;
-import eu.sqooss.service.security.SecurityManager;
-
-import org.apache.velocity.VelocityContext;
-
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.Constants;
-import org.osgi.framework.ServiceReference;
 
 public class WebAdminRenderer {
     // Core components
@@ -590,9 +585,11 @@ public class WebAdminRenderer {
             s.append("\">Website</a>&nbsp;Alitheia Reports");
             s.append("</font></td>");
             for(PluginInfo m : metrics) {
-                s.append("<td>");
-                s.append(sobjMetricActivator.getLastAppliedVersion(sobjPluginAdmin.getPlugin(m), p));
-                s.append("</td>");
+                if(m.installed) {
+                    s.append("<td>");
+                    s.append(sobjMetricActivator.getLastAppliedVersion(sobjPluginAdmin.getPlugin(m), p));
+                    s.append("</td>");
+                }
             }
             s.append("</tr>");
         }
