@@ -114,6 +114,11 @@ public class DBServiceImpl implements DBService {
     private boolean checkSession() {
         if ( !isDBSessionActive() ) {
             logger.warn("Trying to call a DBService method without an active session");
+try {
+throw new Exception("No active session.");
+} catch (Exception e) {
+e.printStackTrace();
+}
             return false;
         }
         return true;
