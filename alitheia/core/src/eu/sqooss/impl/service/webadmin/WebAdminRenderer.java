@@ -667,14 +667,17 @@ public class WebAdminRenderer {
             String reqParUserId        = "userId";
             String reqParGroupId       = "groupId";
             String reqParRightId       = "rightId";
+            String reqParNewGroupName  = "newGroupName";
             // Action values
             String actValAddToGroup    = "addToGroup";
             String actValRemFromGroup  = "removeFromGroup";
-            String actValNewGroup      = "newGroup";
+            String actValReqNewGroup   = "reqNewGroup";
+            String actValAddNewGroup   = "addNewGroup";
             // Request values
             Long reqValUserId          = null;
             Long reqValGroupId         = null;
             Long reqValRightId         = null;
+            String reqValNewGroupName  = null;
             String reqValAction        = null;
             // Selected user
             User selUser = null;
@@ -925,9 +928,11 @@ public class WebAdminRenderer {
                         + " type=\"button\""
                         + " value=\"New\""
                         + " onclick=\"javascript:"
+                        + " document.getElementById('"
+                        + reqParGroupId + "').value='';"
                         + "document.getElementById('"
                         + reqParAction + "').value='"
-                        + actValNewGroup + "';"
+                        + actValReqNewGroup + "';"
                         + "document.users.submit();\""
                         + ">\n");
                 b.append(sp(--in) + "</td>\n");
@@ -1049,6 +1054,34 @@ public class WebAdminRenderer {
                 b.append(sp(--in) + "</tbody>\n");
 
                 b.append(sp(--in) + "</table>\n");
+                b.append(sp(--in) + "</fieldset>\n");
+            }
+            else if ((reqValAction != null)
+                    && (reqValAction.equalsIgnoreCase(actValReqNewGroup))) {
+                b.append(sp(in) + "<fieldset>\n");
+                b.append(sp(++in) + "<legend>New group" + "</legend\n>");
+                b.append(sp(in) + "<span><b>Group name</b>&nbsp;"
+                        + "<input style=\"width: 150px;\""
+                        + " type=\"text\""
+                        + " id=\"" + reqValNewGroupName+ "\""
+                        + " name=\"" + reqValNewGroupName+ "\""
+                        + " value=\"\">"
+                        + "&nbsp;"
+                        + "<input class=\"install\" style=\"width: 60px;\""
+                        + " type=\"button\""
+                        + " value=\"Apply\""
+                        + " onclick=\"javascript:"
+                        + "document.getElementById('"
+                        + reqParAction + "').value='"
+                        + actValAddNewGroup + "';"
+                        + "document.users.submit();\">"
+                        + "&nbsp;"
+                        + "<input class=\"install\" style=\"width: 60px;\""
+                        + " type=\"button\""
+                        + " value=\"Cancel\""
+                        + " onclick=\"javascript:"
+                        + "document.users.submit();\">"
+                        + "</span>\n");
                 b.append(sp(--in) + "</fieldset>\n");
             }
 
