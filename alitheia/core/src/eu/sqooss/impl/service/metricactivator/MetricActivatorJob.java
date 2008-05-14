@@ -37,6 +37,7 @@ import java.util.List;
 
 import org.osgi.framework.BundleContext;
 
+import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.abstractmetric.MetricMismatchException;
 import eu.sqooss.service.db.DAObject;
@@ -69,6 +70,7 @@ public class MetricActivatorJob extends Job {
         this.logger = l;
         this.pli = pi;
         this.bc = bc;
+        this.dbs = ((AlitheiaCore)bc.getService(bc.getServiceReference(AlitheiaCore.class.getName()))).getDBService();
     }
     
     @Override
