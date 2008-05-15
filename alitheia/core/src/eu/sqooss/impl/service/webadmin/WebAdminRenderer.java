@@ -695,6 +695,7 @@ public class WebAdminRenderer {
             Long reqValGroupId         = null;
             Long reqValRightId         = null;
             String reqValGroupName     = null;
+            String reqValShow          = "users";
             String reqValAction        = "";
             // Selected user
             User selUser = null;
@@ -703,7 +704,9 @@ public class WebAdminRenderer {
             // Current colspan (max columns)
             long maxColspan = 1;
 
+            // ===============================================================
             // Parse the servlet's request object
+            // ===============================================================
             if (req != null) {
                 // DEBUG: Dump the servlet's request parameter
                 if (DEBUG) {
@@ -820,12 +823,17 @@ public class WebAdminRenderer {
                 }
             }
 
+            // ===============================================================
             // Create the form
+            // ===============================================================
             b.append(sp(in) + "<form id=\"users\""
                     + " name=\"users\""
                     + " method=\"post\""
                     + " action=\"/users\">\n");
+
+            // ===============================================================
             // Display the accumulated error messages (if any)
+            // ===============================================================
             if (e.toString().length() > 0) {
                 b.append(sp(++in) + "<fieldset>\n");
                 b.append(sp(++in) + "<legend>Error</legend\n>");
@@ -833,285 +841,6 @@ public class WebAdminRenderer {
                 b.append(sp(--in) + "</fieldset>\n");
                 in--;
             }
-            // Create the "user" fieldset
-            b.append(sp(++in) + "<fieldset>\n");
-            b.append(sp(++in) + "<legend>"
-                    + ((selUser != null)
-                            ? "User " + selUser.getName()
-                            : "All users")
-                    + "</legend\n>");
-            // Create the table
-            b.append(sp(in) + "<table>\n");
-            b.append(sp(++in) + "<thead>\n");
-            b.append(sp(++in) + "<tr class=\"head\">\n");
-
-            // ---( HEADER ROWS )--------------------------------------------
-            // User editor - header row
-            if (selUser != null) {
-                b.append(sp(++in) + "<td class=\"head\""
-                        + " style=\"width: 40%;\">"
-                        + "Account Details</td>\n");
-                b.append(sp(in) + "<td class=\"head\" style=\"width: 30%;\">"
-                        + "Member Of</td>\n");
-                b.append(sp(in) + "<td class=\"head\" style=\"width: 30%;\">"
-                        + "Available Groups</td>\n");
-                maxColspan = 3;
-            }
-            // Users list - header row
-            else {
-                b.append(sp(++in) + "<td class=\"head\" style=\"width: 10%;\">"
-                        + "User Id</td>\n");
-                b.append(sp(in) + "<td class=\"head\" style=\"width: 30%;\">"
-                        + "User Name</td>\n");
-                b.append(sp(in) + "<td class=\"head\" style=\"width: 30%;\">"
-                        + "User Email</td>\n");
-                b.append(sp(in) + "<td class=\"head\" style=\"width: 30%;\">"
-                        + "Created</td>\n");
-                maxColspan = 4;
-            }
-            b.append(sp(--in) + "</tr>\n");
-            b.append(sp(--in) + "</thead>\n");
-            b.append(sp(in) + "<tbody>\n");
-
-            // ---( TABLE ROWS )---------------------------------------------
-            // User editor - table rows
-            if (selUser != null) {
-                b.append(sp(++in) + "<tr>\n");
-                b.append(sp(++in) + "<td>\n");
-                b.append(sp(++in) + "<table>\n");
-                b.append(sp(++in) + "<tr>\n"
-                        + sp(++in)
-                        + "<td class=\"name\">User Id</td>\n"
-                        + sp(in) + "<td>&nbsp;"
-                        + selUser.getId() + "</td>\n"
-                        + sp(--in) + "</tr>\n");
-                b.append(sp(in) + "<tr>\n"
-                        + sp(++in)
-                        + "<td class=\"name\">User Name</td>\n"
-                        + sp(in) + "<td>&nbsp;"
-                        + selUser.getName() + "</td>\n"
-                        + sp(--in) + "</tr>\n");
-                b.append(sp(in) + "<tr>\n"
-                        + sp(++in)
-                        + "<td class=\"name\">User Email</td>\n"
-                        + sp(in) + "<td>&nbsp;"
-                        + selUser.getEmail() + "</td>\n"
-                        + sp(--in) + "</tr>\n");
-                DateFormat date = DateFormat.getDateInstance();
-                b.append(sp(in) + "<tr>\n"
-                        + sp(++in)
-                        + "<td class=\"name\">Created</td>\n"
-                        + sp(in) + "<td>&nbsp;"
-                        + date.format(selUser.getRegistered()) + "</td>\n"
-                        + sp(--in) + "</tr>\n");
-                b.append(sp(--in) + "</table>\n");
-                b.append(sp(--in) + "</td>\n");
-                // Display all groups where the selected user is a member
-                b.append(sp(in) + "<td>\n");
-                b.append(sp(++in) + "<select"
-                        + " id=\"attachedGroups\" name=\"attachedGroups\""
-                        + " size=\"4\""
-                        + " style=\"width: 100%; border: 0;\""
-                        + "onchange=\""
-                        + "document.getElementById('"
-                        + reqParGroupId + "').value="
-                        + "document.getElementById('attachedGroups').value;"
-                        + "document.users.submit();\""
-                        + "\""
-                        + ">\n");
-                sp(++in);
-                for (Object memberOf : selUser.getGroups()) {
-                    Group group = (Group) memberOf;
-                    boolean selected = ((selGroup != null)
-                            && (selGroup.getId() == group.getId()));
-                    b.append(sp(in) + "<option"
-                            + " value=\"" + group.getId() + "\""
-                            + ((selected) ? " selected" : "")
-                            + ">"
-                            + group.getDescription()
-                            + "</option>\n");
-                }
-                b.append(sp(--in) + "</select>\n");
-                b.append(sp(--in) + "</td>\n");
-                // Display all group where the selected user is not a member
-                b.append(sp(in) + "<td>\n");
-                b.append(sp(++in) + "<select"
-                        + " id=\"availableGroups\" name=\"availableGroups\""
-                        + " size=\"4\""
-                        + " style=\"width: 100%; border: 0;\""
-                        + "onchange=\""
-                        + "document.getElementById('"
-                        + reqParGroupId + "').value="
-                        + "document.getElementById('availableGroups').value;"
-                        + "document.users.submit();\""
-                        + "\""
-                        + ">\n");
-                sp(++in);
-                for (Group group : secGM.getGroups()) {
-                    // Skip groups where this user is already a member 
-                    if (selUser.getGroups().contains(group) == false) {
-                        boolean selected = ((selGroup != null)
-                                && (selGroup.getId() == group.getId()));
-                        b.append(sp(in) + "<option"
-                                + " value=\"" + group.getId() + "\""
-                                + ((selected) ? " selected" : "")
-                                + ">"
-                                + group.getDescription()
-                                + "</option>\n");
-                    }
-                }
-                b.append(sp(--in) + "</select>\n");
-                b.append(sp(--in) + "</td>\n");
-                b.append(sp(--in) + "</tr>\n");
-            }
-            // User list -table rows
-            else {
-                for (User nextUser : secUM.getUsers()) {
-                    String htmlEditUser = "<td class=\"edit\""
-                        + " onclick=\"javascript:"
-                        + "document.getElementById('"
-                            + reqParUserId + "').value='"
-                            + nextUser.getId() + "';"
-                            + "document.users.submit();\">"
-                        + "<img src=\"/edit.png\" alt=\"[Edit]\"/>"
-                        + nextUser.getName()
-                        + "</td>\n";
-                    b.append(sp(++in) + "<tr>\n");
-                    b.append(sp(++in) + "<td>" + nextUser.getId() + "</td>\n");
-                    b.append(sp(in) + htmlEditUser);
-                    b.append(sp(in) + "<td>" + nextUser.getEmail() + "</td>\n");
-                    DateFormat date = DateFormat.getDateInstance();
-                    b.append(sp(in) + "<td>"
-                            + date.format(nextUser.getRegistered())
-                            + "</td>\n");
-                    b.append(sp(--in) + "</tr>\n");
-                }
-            }
-
-            // ===============================================================
-            // TOOLBARS
-            // ===============================================================
-
-            // ===============================================================
-            // User editor's toolbar
-            // ===============================================================
-            if (selUser != null) {
-                b.append(sp(in) + "<tr>\n");
-
-                b.append(sp(++in) + "<td>\n");
-                b.append(sp(++in) + "&nbsp;\n");
-                b.append(sp(--in) + "</td>\n");
-
-                b.append(sp(in) + "<td style=\"padding: 0;\">\n");
-                if ((selGroup != null)
-                        && (selUser.getGroups().contains(selGroup) == true)) {
-                    b.append(sp(++in) + "<input class=\"install\""
-                            + " type=\"button\""
-                            + " value=\"Detach\""
-                            + " onclick=\"javascript:"
-                            + "document.getElementById('"
-                            + reqParAction + "').value='"
-                            + actValRemFromGroup + "';"
-                            + "document.users.submit();\""
-                            + ">\n");
-                }
-                b.append(sp(--in) + "</td>\n");
-
-                b.append(sp(in) + "<td style=\"padding: 0;\">\n");
-                if ((selGroup != null)
-                        && (selUser.getGroups().contains(selGroup) == false)) {
-                    b.append(sp(++in) + "<input class=\"install\""
-                            + " type=\"button\""
-                            + " value=\"Assign\""
-                            + " onclick=\"javascript:"
-                            + "document.getElementById('"
-                            + reqParAction + "').value='"
-                            + actValAddToGroup + "';"
-                            + "document.users.submit();\""
-                            + ">\n");
-                }
-                b.append(sp(--in) + "</td>\n");
-
-                b.append(sp(--in) + "</tr>\n");
-            }
-
-            // ===============================================================
-            // Main toolbar
-            // ===============================================================
-            b.append(sp(in) + "<tr class=\"subhead\">");
-            b.append(sp(++in) + "<td colspan=\"" + maxColspan + "\">"
-                    + "&nbsp;"
-                    // Add User
-                    + "<input class=\"install\""
-                    + " style=\"width: 100px;\""
-                    + " type=\"button\""
-                    + " value=\"Add user\""
-                    + " onclick=\"javascript:"
-                    + " document.getElementById('"
-                    + reqParGroupId + "').value='';"
-                    + "document.getElementById('"
-                    + reqParAction + "').value='"
-                    + actValReqNewUser + "';"
-                    + "document.users.submit();\">"
-                    + ((selUser != null)
-                        ? "&nbsp;"
-                        // List users
-                        + "<input class=\"install\""
-                        + " style=\"width: 100px;\""
-                        + " type=\"button\""
-                        + " value=\"Users list\""
-                        + " onclick=\"javascript:"
-                        + " document.getElementById('"
-                        + reqParUserId + "').value='';"
-                        + " document.getElementById('"
-                        + reqParGroupId + "').value='';"
-                        + "document.users.submit();\">"
-                        + "&nbsp;"
-                        // Remove User
-                        + "<input class=\"install\""
-                        + " style=\"width: 100px;\""
-                        + " type=\"button\""
-                        + " value=\"Remove user\""
-                        + " onclick=\"javascript:"
-                        + " document.getElementById('"
-                        + reqParGroupId + "').value='';"
-                        + "document.getElementById('"
-                        + reqParAction + "').value='"
-                        + actValReqNewUser + "';"
-                        + "document.users.submit();\">"
-                        : "")
-                    + "&nbsp;"
-                    // Add group
-                    + "<input class=\"install\""
-                    + " style=\"width: 100px;\""
-                    + " type=\"button\""
-                    + " value=\"Add group\""
-                    + " onclick=\"javascript:"
-                    + "document.getElementById('"
-                    + reqParAction + "').value='"
-                    + actValReqNewGroup + "';"
-                    + "document.users.submit();\">"
-                    + "&nbsp;"
-                    // Remove Group
-                    + "<input class=\"install\""
-                    + " style=\"width: 100px;\""
-                    + " type=\"button\""
-                    + " value=\"Remove group\""
-                    + " onclick=\"javascript:"
-                    + "document.getElementById('"
-                    + reqParAction + "').value='"
-                    + actValReqRemGroup + "';"
-                    + "document.users.submit();\">"
-                    + "</td>\n");
-            b.append(sp(--in) + "</tr>");
-            // Close the table
-            b.append(sp(--in) + "</tbody>\n");
-            b.append(sp(--in) + "</table>\n");
-            b.append(sp(--in) + "</fieldset>\n");
-
-            // ===============================================================
-            // GROUP RELATED VIEWS
-            // ===============================================================
 
             // ===============================================================
             // "New group" editor
@@ -1192,124 +921,419 @@ public class WebAdminRenderer {
                         + "</span>\n");
                 b.append(sp(--in) + "</fieldset>\n");
             }
-            // ===============================================================
-            // "Selected group" editor
-            // ===============================================================-
-            else if (selGroup != null) {
-                b.append(sp(in) + "<fieldset>\n");
-                b.append(sp(++in) + "<legend>Group "
-                        + selGroup.getDescription() + "</legend\n>");
-                b.append(sp(in) + "<table>\n");
+            else {
+                // Create the fieldset for the "user" views
+                if ((reqValShow.equals("users")) || (selUser != null)) {
+                    b.append(sp(++in) + "<fieldset>\n");
+                    b.append(sp(++in) + "<legend>"
+                            + ((selUser != null)
+                                    ? "User " + selUser.getName()
+                                    : "All users")
+                            + "</legend\n>");
+                }
 
+                b.append(sp(in) + "<table>\n");
                 b.append(sp(++in) + "<thead>\n");
                 b.append(sp(++in) + "<tr class=\"head\">\n");
-                b.append(sp(++in) + "<td class=\"head\""
-                        + " style=\"width: 15%;\">"
-                        + "Actions</td>\n");
-                b.append(sp(in) + "<td class=\"head\""
-                        + " style=\"width: 55%;\">"
-                        + "Services</td>\n");
-                b.append(sp(in) + "<td class=\"head\""
-                        + " style=\"width: 15%;\">"
-                        + "Privileges</td>\n");
-                b.append(sp(in) + "<td class=\"head\""
-                        + " style=\"width: 15%;\">"
-                        + "Rights</td>\n");
+
+                // ===========================================================
+                // User editor - header row
+                // ===========================================================
+                if (selUser != null) {
+                    b.append(sp(++in) + "<td class=\"head\""
+                            + " style=\"width: 40%;\">"
+                            + "Account Details</td>\n");
+                    b.append(sp(in) + "<td class=\"head\""
+                            + " style=\"width: 30%;\">"
+                            + "Member Of</td>\n");
+                    b.append(sp(in) + "<td class=\"head\""
+                            + " style=\"width: 30%;\">"
+                            + "Available Groups</td>\n");
+                    maxColspan = 3;
+                }
+                // ===========================================================
+                // Users list - header row
+                // ===========================================================
+                else if (reqValShow.equals("users")) {
+                    b.append(sp(++in) + "<td class=\"head\""
+                            + " style=\"width: 10%;\">"
+                            + "User Id</td>\n");
+                    b.append(sp(in) + "<td class=\"head\""
+                            + " style=\"width: 30%;\">"
+                            + "User Name</td>\n");
+                    b.append(sp(in) + "<td class=\"head\""
+                            + " style=\"width: 30%;\">"
+                            + "User Email</td>\n");
+                    b.append(sp(in) + "<td class=\"head\""
+                            + " style=\"width: 30%;\">"
+                            + "Created</td>\n");
+                    maxColspan = 4;
+                }
+
                 b.append(sp(--in) + "</tr>\n");
                 b.append(sp(--in) + "</thead>\n");
-
                 b.append(sp(in) + "<tbody>\n");
 
-                // "Assigned rights" header
-                if (selGroup.getGroupPrivileges().isEmpty() == false) {
-                    b.append(sp(++in) + "<tr class=\"subhead\">\n");
-                    b.append(sp(++in) + "<td class=\"subhead\" colspan=\"4\">"
-                            + "Assigned</td>");
+                // ===========================================================
+                // User editor - content rows
+                // ===========================================================
+                if (selUser != null) {
+                    b.append(sp(++in) + "<tr>\n");
+                    b.append(sp(++in) + "<td>\n");
+                    b.append(sp(++in) + "<table>\n");
+                    b.append(sp(++in) + "<tr>\n"
+                            + sp(++in)
+                            + "<td class=\"name\">User Id</td>\n"
+                            + sp(in) + "<td>&nbsp;"
+                            + selUser.getId() + "</td>\n"
+                            + sp(--in) + "</tr>\n");
+                    b.append(sp(in) + "<tr>\n"
+                            + sp(++in)
+                            + "<td class=\"name\">User Name</td>\n"
+                            + sp(in) + "<td>&nbsp;"
+                            + selUser.getName() + "</td>\n"
+                            + sp(--in) + "</tr>\n");
+                    b.append(sp(in) + "<tr>\n"
+                            + sp(++in)
+                            + "<td class=\"name\">User Email</td>\n"
+                            + sp(in) + "<td>&nbsp;"
+                            + selUser.getEmail() + "</td>\n"
+                            + sp(--in) + "</tr>\n");
+                    DateFormat date = DateFormat.getDateInstance();
+                    b.append(sp(in) + "<tr>\n"
+                            + sp(++in)
+                            + "<td class=\"name\">Created</td>\n"
+                            + sp(in) + "<td>&nbsp;"
+                            + date.format(selUser.getRegistered()) + "</td>\n"
+                            + sp(--in) + "</tr>\n");
+                    b.append(sp(--in) + "</table>\n");
+                    b.append(sp(--in) + "</td>\n");
+                    // Display all groups where the selected user is a member
+                    b.append(sp(in) + "<td>\n");
+                    b.append(sp(++in) + "<select"
+                            + " id=\"attachedGroups\" name=\"attachedGroups\""
+                            + " size=\"4\""
+                            + " style=\"width: 100%; border: 0;\""
+                            + "onchange=\""
+                            + "document.getElementById('"
+                            + reqParGroupId + "').value="
+                            + "document.getElementById('attachedGroups').value;"
+                            + "document.users.submit();\""
+                            + "\""
+                            + ">\n");
+                    sp(++in);
+                    for (Object memberOf : selUser.getGroups()) {
+                        Group group = (Group) memberOf;
+                        boolean selected = ((selGroup != null)
+                                && (selGroup.getId() == group.getId()));
+                        b.append(sp(in) + "<option"
+                                + " value=\"" + group.getId() + "\""
+                                + ((selected) ? " selected" : "")
+                                + ">"
+                                + group.getDescription()
+                                + "</option>\n");
+                    }
+                    b.append(sp(--in) + "</select>\n");
+                    b.append(sp(--in) + "</td>\n");
+                    // Display all group where the selected user is not a member
+                    b.append(sp(in) + "<td>\n");
+                    b.append(sp(++in) + "<select"
+                            + " id=\"availableGroups\" name=\"availableGroups\""
+                            + " size=\"4\""
+                            + " style=\"width: 100%; border: 0;\""
+                            + "onchange=\""
+                            + "document.getElementById('"
+                            + reqParGroupId + "').value="
+                            + "document.getElementById('availableGroups').value;"
+                            + "document.users.submit();\""
+                            + "\""
+                            + ">\n");
+                    sp(++in);
+                    for (Group group : secGM.getGroups()) {
+                        // Skip groups where this user is already a member 
+                        if (selUser.getGroups().contains(group) == false) {
+                            boolean selected = ((selGroup != null)
+                                    && (selGroup.getId() == group.getId()));
+                            b.append(sp(in) + "<option"
+                                    + " value=\"" + group.getId() + "\""
+                                    + ((selected) ? " selected" : "")
+                                    + ">"
+                                    + group.getDescription()
+                                    + "</option>\n");
+                        }
+                    }
+                    b.append(sp(--in) + "</select>\n");
+                    b.append(sp(--in) + "</td>\n");
                     b.append(sp(--in) + "</tr>\n");
-                    // "Assigned rights" list
-                    for (Object privilege : selGroup.getGroupPrivileges()) {
-                        // Cast to a GroupPrivilege and display it
-                        GroupPrivilege grPriv = (GroupPrivilege) privilege;
-                        b.append(sp(in) + "<tr>\n");
-                        // Action bar
-                        b.append(sp(++in) + "<td>"
-                                + "&nbsp;"
-                                + "</td>\n");
-                        // Attached service
-                        b.append(sp(++in) + "<td>"
-                                + grPriv.getUrl().getUrl()
-                                + "</td>\n");
-                        // Assigned privilege
-                        b.append(sp(++in) + "<td>"
-                                + grPriv.getPv().getPrivilege().getDescription()
-                                + "</td>\n");
-                        // Granted right
-                        b.append(sp(++in) + "<td>"
-                                + grPriv.getPv().getValue()
+                }
+                // ===========================================================
+                // User list -content rows
+                // ===========================================================
+                else if (reqValShow.equals("users")) {
+                    for (User nextUser : secUM.getUsers()) {
+                        String htmlEditUser = "<td class=\"edit\""
+                            + " onclick=\"javascript:"
+                            + "document.getElementById('"
+                            + reqParUserId + "').value='"
+                            + nextUser.getId() + "';"
+                            + "document.users.submit();\">"
+                            + "<img src=\"/edit.png\" alt=\"[Edit]\"/>"
+                            + nextUser.getName()
+                            + "</td>\n";
+                        b.append(sp(++in) + "<tr>\n");
+                        b.append(sp(++in) + "<td>" + nextUser.getId() + "</td>\n");
+                        b.append(sp(in) + htmlEditUser);
+                        b.append(sp(in) + "<td>" + nextUser.getEmail() + "</td>\n");
+                        DateFormat date = DateFormat.getDateInstance();
+                        b.append(sp(in) + "<td>"
+                                + date.format(nextUser.getRegistered())
                                 + "</td>\n");
                         b.append(sp(--in) + "</tr>\n");
                     }
                 }
 
-                // "Available rights" header
-                if (secPM.getPrivileges().length > 0) {
-                    b.append(sp(in) + "<tr class=\"subhead\">\n");
-                    b.append(sp(++in) + "<td class=\"subhead\" colspan=\"4\">"
-                            + "Available</td>");
+                // ===============================================================
+                // User editor - toolbar
+                // ===============================================================
+                if (selUser != null) {
+                    b.append(sp(in) + "<tr>\n");
+                    
+                    b.append(sp(++in) + "<td>\n");
+                    b.append(sp(++in) + "&nbsp;\n");
+                    b.append(sp(--in) + "</td>\n");
+                    
+                    b.append(sp(in) + "<td style=\"padding: 0;\">\n");
+                    if ((selGroup != null)
+                            && (selUser.getGroups().contains(selGroup) == true)) {
+                        b.append(sp(++in) + "<input class=\"install\""
+                                + " type=\"button\""
+                                + " value=\"Detach\""
+                                + " onclick=\"javascript:"
+                                + "document.getElementById('"
+                                + reqParAction + "').value='"
+                                + actValRemFromGroup + "';"
+                                + "document.users.submit();\""
+                                + ">\n");
+                    }
+                    b.append(sp(--in) + "</td>\n");
+                    
+                    b.append(sp(in) + "<td style=\"padding: 0;\">\n");
+                    if ((selGroup != null)
+                            && (selUser.getGroups().contains(selGroup) == false)) {
+                        b.append(sp(++in) + "<input class=\"install\""
+                                + " type=\"button\""
+                                + " value=\"Assign\""
+                                + " onclick=\"javascript:"
+                                + "document.getElementById('"
+                                + reqParAction + "').value='"
+                                + actValAddToGroup + "';"
+                                + "document.users.submit();\""
+                                + ">\n");
+                    }
+                    b.append(sp(--in) + "</td>\n");
+                    
                     b.append(sp(--in) + "</tr>\n");
-                    // "Available rights" list
-                    for (Privilege privilege : secPM.getPrivileges()) {
-                        b.append(sp(in) + "<tr>\n");
-                        // Action bar
-                        b.append(sp(++in) + "<td>"
-                                + "&nbsp;"
-                                + "</td>\n");
-                        // Available services
-                        b.append(sp(in) + "<td>"
-                                + "&nbsp;"
-                                + "</td>\n");
-                        // Available privileges
-                        b.append(sp(in) + "<td>"
-                                + privilege.getDescription()
-                                + "</td>\n");
-                        // Available rights
-                        b.append(sp(in) + "<td>\n");
-                        PrivilegeValue[] values =
-                            secPM.getPrivilegeValues(privilege.getId());
-                        if ((values != null) && (values.length > 0)) {
-                            b.append(sp(++in) + "<select"
-                                    + " style=\"width: 100%; border: 0;\""
-                                    + ">\n");
-                            in++;
-                            for (PrivilegeValue value : values) {
-                                b.append(sp(in) + "<option"
-                                        + " value=\"" + value.getId() + "\""
+                }
+
+                // ===========================================================
+                // Main toolbar
+                // ===========================================================
+                b.append(sp(in) + "<tr class=\"subhead\">");
+                b.append(sp(++in) + "<td colspan=\"" + maxColspan + "\">"
+                        + "&nbsp;"
+                        // Add User
+                        + "<input class=\"install\""
+                        + " style=\"width: 100px;\""
+                        + " type=\"button\""
+                        + " value=\"Add user\""
+                        + " onclick=\"javascript:"
+                        + " document.getElementById('"
+                        + reqParGroupId + "').value='';"
+                        + "document.getElementById('"
+                        + reqParAction + "').value='"
+                        + actValReqNewUser + "';"
+                        + "document.users.submit();\">"
+                        + ((selUser != null)
+                                ? "&nbsp;"
+                                        // List users
+                                        + "<input class=\"install\""
+                                        + " style=\"width: 100px;\""
+                                        + " type=\"button\""
+                                        + " value=\"Users list\""
                                         + " onclick=\"javascript:"
                                         + " document.getElementById('"
-                                        + reqParRightId + "').value='"
-                                        + value.getId() + "';"
-                                        + "document.users.submit();\""
-                                        + ">"
-                                        + value.getValue()
-                                        + "</option>\n");
-                            }
-                            b.append(sp(--in) + "</select>\n");
-                        }
-                        else {
-                            b.append(sp(++in) + "<b>NA</b>");
-                        }
-                        b.append(sp(--in) + "</td>\n");
-                        b.append(sp(--in) + "</tr>\n");
-                    }
-                }
+                                        + reqParUserId + "').value='';"
+                                        + " document.getElementById('"
+                                        + reqParGroupId + "').value='';"
+                                        + "document.users.submit();\">"
+                                        + "&nbsp;"
+                                        // Remove User
+                                        + "<input class=\"install\""
+                                        + " style=\"width: 100px;\""
+                                        + " type=\"button\""
+                                        + " value=\"Remove user\""
+                                        + " onclick=\"javascript:"
+                                        + " document.getElementById('"
+                                        + reqParGroupId + "').value='';"
+                                        + "document.getElementById('"
+                                        + reqParAction + "').value='"
+                                        + actValReqNewUser + "';"
+                                        + "document.users.submit();\">"
+                                        : "")
+                                        + "&nbsp;"
+                                        // Add group
+                                        + "<input class=\"install\""
+                                        + " style=\"width: 100px;\""
+                                        + " type=\"button\""
+                                        + " value=\"Add group\""
+                                        + " onclick=\"javascript:"
+                                        + "document.getElementById('"
+                                        + reqParAction + "').value='"
+                                        + actValReqNewGroup + "';"
+                                        + "document.users.submit();\">"
+                                        + "&nbsp;"
+                                        // Remove Group
+                                        + "<input class=\"install\""
+                                        + " style=\"width: 100px;\""
+                                        + " type=\"button\""
+                                        + " value=\"Remove group\""
+                                        + " onclick=\"javascript:"
+                                        + "document.getElementById('"
+                                        + reqParAction + "').value='"
+                                        + actValReqRemGroup + "';"
+                                        + "document.users.submit();\">"
+                                        + "</td>\n");
+                b.append(sp(--in) + "</tr>");
 
+                // Close the table
                 b.append(sp(--in) + "</tbody>\n");
-
                 b.append(sp(--in) + "</table>\n");
                 b.append(sp(--in) + "</fieldset>\n");
+
+                // ===============================================================
+                // "Selected group" viewer
+                // ===============================================================
+                if ((selUser != null) && (selGroup != null)) {
+                    b.append(sp(in) + "<fieldset>\n");
+                    b.append(sp(++in) + "<legend>Group "
+                            + selGroup.getDescription() + "</legend\n>");
+                    b.append(sp(in) + "<table>\n");
+
+                    b.append(sp(++in) + "<thead>\n");
+                    b.append(sp(++in) + "<tr class=\"head\">\n");
+                    b.append(sp(++in) + "<td class=\"head\""
+                            + " style=\"width: 15%;\">"
+                            + "Actions</td>\n");
+                    b.append(sp(in) + "<td class=\"head\""
+                            + " style=\"width: 55%;\">"
+                            + "Services</td>\n");
+                    b.append(sp(in) + "<td class=\"head\""
+                            + " style=\"width: 15%;\">"
+                            + "Privileges</td>\n");
+                    b.append(sp(in) + "<td class=\"head\""
+                            + " style=\"width: 15%;\">"
+                            + "Rights</td>\n");
+                    b.append(sp(--in) + "</tr>\n");
+                    b.append(sp(--in) + "</thead>\n");
+
+                    b.append(sp(in) + "<tbody>\n");
+
+                    // "Assigned rights" header
+                    if (selGroup.getGroupPrivileges().isEmpty() == false) {
+                        // "Assigned rights" list
+                        for (Object privilege : selGroup.getGroupPrivileges()) {
+                            // Cast to a GroupPrivilege and display it
+                            GroupPrivilege grPriv = (GroupPrivilege) privilege;
+                            b.append(sp(in) + "<tr>\n");
+                            // Action bar
+                            b.append(sp(++in) + "<td>"
+                                    + "&nbsp;"
+                                    + "</td>\n");
+                            // Attached service
+                            b.append(sp(++in) + "<td>"
+                                    + grPriv.getUrl().getUrl()
+                                    + "</td>\n");
+                            // Assigned privilege
+                            b.append(sp(++in) + "<td>"
+                                    + grPriv.getPv().getPrivilege().getDescription()
+                                    + "</td>\n");
+                            // Granted right
+                            b.append(sp(++in) + "<td>"
+                                    + grPriv.getPv().getValue()
+                                    + "</td>\n");
+                            b.append(sp(--in) + "</tr>\n");
+                        }
+                    }
+                    else {
+                        b.append(sp(++in) + "<tr>\n");
+                        b.append(sp(++in) + "<td class=\"noattr\""
+                                + " colspan=\"4\">"
+                                + "No assigned privileges</td>\n");
+                        b.append(sp(--in) + "</tr>\n");
+                    }
+
+//                    // "Available rights" header
+//                    if (secPM.getPrivileges().length > 0) {
+//                        b.append(sp(in) + "<tr class=\"subhead\">\n");
+//                        b.append(sp(++in) + "<td class=\"subhead\" colspan=\"4\">"
+//                                + "Available</td>");
+//                        b.append(sp(--in) + "</tr>\n");
+//                        // "Available rights" list
+//                        for (Privilege privilege : secPM.getPrivileges()) {
+//                            b.append(sp(in) + "<tr>\n");
+//                            // Action bar
+//                            b.append(sp(++in) + "<td>"
+//                                    + "&nbsp;"
+//                                    + "</td>\n");
+//                            // Available services
+//                            b.append(sp(in) + "<td>"
+//                                    + "&nbsp;"
+//                                    + "</td>\n");
+//                            // Available privileges
+//                            b.append(sp(in) + "<td>"
+//                                    + privilege.getDescription()
+//                                    + "</td>\n");
+//                            // Available rights
+//                            b.append(sp(in) + "<td>\n");
+//                            PrivilegeValue[] values =
+//                                secPM.getPrivilegeValues(privilege.getId());
+//                            if ((values != null) && (values.length > 0)) {
+//                                b.append(sp(++in) + "<select"
+//                                        + " style=\"width: 100%; border: 0;\""
+//                                        + ">\n");
+//                                in++;
+//                                for (PrivilegeValue value : values) {
+//                                    b.append(sp(in) + "<option"
+//                                            + " value=\"" + value.getId() + "\""
+//                                            + " onclick=\"javascript:"
+//                                            + " document.getElementById('"
+//                                            + reqParRightId + "').value='"
+//                                            + value.getId() + "';"
+//                                            + "document.users.submit();\""
+//                                            + ">"
+//                                            + value.getValue()
+//                                            + "</option>\n");
+//                                }
+//                                b.append(sp(--in) + "</select>\n");
+//                            }
+//                            else {
+//                                b.append(sp(++in) + "<b>NA</b>");
+//                            }
+//                            b.append(sp(--in) + "</td>\n");
+//                            b.append(sp(--in) + "</tr>\n");
+//                        }
+//                    }
+
+                    b.append(sp(--in) + "</tbody>\n");
+
+                    b.append(sp(--in) + "</table>\n");
+                    b.append(sp(--in) + "</fieldset>\n");
+                }
             }
 
-            // ---( INPUT FIELD )--------------------------------------------
+            // ===============================================================
+            // INPUT FIELDS
+            // ===============================================================
             // "Action type" input field
             b.append(sp(in) + "<input type=\"hidden\""
                     + " id=\"" + reqParAction + "\"" 
@@ -1335,7 +1359,9 @@ public class WebAdminRenderer {
                     + " name=\"" + reqParRightId + "\""
                     + " value=\"\">\n");
 
+            // ===============================================================
             // Close the form
+            // ===============================================================
             b.append(sp(--in) + "</form>\n");
         }
         else {
