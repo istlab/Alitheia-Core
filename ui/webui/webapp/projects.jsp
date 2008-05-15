@@ -9,7 +9,7 @@
 <%@ include file="/inc/header.jsp" %>
 
 <%
-if (selectedProject != null && selectedProject.isValid()) {
+if (selectedProject.isValid()) {
     %> <%@ include file="/views/Project.jsp" %> <%
 } else {
     %>

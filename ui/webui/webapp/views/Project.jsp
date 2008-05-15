@@ -1,13 +1,17 @@
 <%@ page import="eu.sqooss.webui.*" %>
 <%
 
-if (selectedProject != null && selectedProject.isValid()) {
+if (selectedProject.isValid()) {
     out.println("<div id=\"selectedproject\" class=\"group\">");
 
     // Update Message Box
     msg += "<br /><strong>Project:</strong> " + selectedProject.getName();
     msg += "<span class=\"forget\"><a href=\"?pid=none\">(forget)</a></span>";
-    msg += "<br /><strong>Version:</strong> " + selectedProject.getCurrentVersion().shortName();
+    if (selectedProject.getCurrentVersion() != null) {
+        msg += "<br /><strong>Version:</strong> " + selectedProject.getCurrentVersion().shortName();
+    } else {
+        msg += "<br />No versions recorded.";
+    }
 %>
 <table width="100%">
     <tr>
@@ -42,35 +46,36 @@ if (selectedProject != null && selectedProject.isValid()) {
                     selectedProject.setCurrentVersionId(changeSelected);
                 }
             }
-            //out.println("Number of versions: " + selectedProject.countVersions());
-            Version currentVersion = selectedProject.getCurrentVersion();
-            Long versionNum = currentVersion.getNumber();
-            Long versionId = currentVersion.getId();
-            // Display the first and last known project versions
-            if (selectedProject.getFirstVersion() != null) {
-                if (selectedProject.getFirstVersion()
-                    != selectedProject.getLastVersion()) {
-                    out.println (
-                        + selectedProject.getFirstVersion().getId()
-                        + " - "
-                        + selectedProject.getLastVersion().getId()
-                        + " (" + selectedProject.countVersions() + " total)");
+            if (selectedProject.getCurrentVersion() != null) {
+                Version currentVersion = selectedProject.getCurrentVersion();
+                Long versionNum = currentVersion.getNumber();
+                Long versionId = currentVersion.getId();
+                // Display the first and last known project versions
+                if (selectedProject.getFirstVersion() != null) {
+                    if (selectedProject.getFirstVersion()
+                        != selectedProject.getLastVersion()) {
+                        out.println (
+                            + selectedProject.getFirstVersion().getId()
+                            + " - "
+                            + selectedProject.getLastVersion().getId()
+                            + " (" + selectedProject.countVersions() + " total)");
+                    } else {
+                        out.println ("<br />Version: "
+                            + selectedProject.getFirstVersion());
+                    }
                 } else {
-                    out.println ("<br />Version: "
-                        + selectedProject.getFirstVersion());
+                    out.println("Project doesn't seem to have versions recorded.");
                 }
-            } else {
-                out.println("Project doesn't seem to have versions recorded.");
+                out.println("</h2>\n");
+    
+                // Show the version selector
+                out.println("Choose the version you want to display: ");
+                out.println(versionSelector(selectedProject));
+                if (inputError != null) {
+                    out.println(Functions.error(inputError));
+                }
             }
-            out.println("</h2>\n");
-
-            // Show the version selector
-            out.println("Choose the version you want to display: ");
-            out.println(versionSelector(selectedProject));
-            if (inputError != null) {
-                out.println(Functions.error(inputError));
-            }
-        %>
+            %>
         </td>
     </tr>
     </table>
@@ -82,9 +87,14 @@ if (selectedProject != null && selectedProject.isValid()) {
 
 
     // Files
-    String versionFileList = selectedProject.getCurrentVersion().listFiles();
+    int v_c = 0;
+    String versionFileList = "";
+    if (selectedProject.getCurrentVersion() != null) {
+        versionFileList = selectedProject.getCurrentVersion().listFiles();
+        v_c = selectedProject.getCurrentVersion().getFileCount();
+    }
+
     String projectFileList = selectedProject.listFiles();
-    int v_c = selectedProject.getCurrentVersion().getFileCount();
     int p_c = selectedProject.getFileCount();
 
     out.println("\n<table width=\"100%\">\n\t<tr><td style=\"padding-right: 30px\" width=\"50%\">");
@@ -94,9 +104,12 @@ if (selectedProject != null && selectedProject.isValid()) {
 
     out.println("\n\t\t</td><td width=\"50%\">");
 
-    out.println("<h2>Files in Version " + selectedProject.getCurrentVersionId() + " (" + v_c + ")</h2>");
-    out.println(versionFileList);
-
+    if (selectedProject.getCurrentVersion() != null) {
+        out.println("<h2>Files in Version " + selectedProject.getCurrentVersionId() + " (" + v_c + ")</h2>");
+        out.println(versionFileList);
+    } else {
+        out.println("No versions in Project");
+    }
     out.println("\n\t\t</td>\n\t</tr>\n</table>");
 
     out.println("</div>"); // End of this group
