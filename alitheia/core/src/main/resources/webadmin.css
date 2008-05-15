@@ -173,6 +173,7 @@ body.section-6 #menu li#nav-6 a {
     width: 150px;
     border: 1px solid #ccc;
     background: url(/greyBack.jpg) top repeat-x;
+    font-size: 8pt;
 }
 #table tr.head {
     background-color: LightSteelBlue;

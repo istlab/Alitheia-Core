@@ -993,7 +993,7 @@ public class WebAdminRenderer {
             // ===============================================================
             if (e.toString().length() > 0) {
                 b.append(sp(++in) + "<fieldset>\n");
-                b.append(sp(++in) + "<legend>Error</legend\n>");
+                b.append(sp(++in) + "<legend>Error</legend>\n");
                 b.append(e.toString());
                 b.append(sp(--in) + "</fieldset>\n");
                 in--;
@@ -1005,7 +1005,7 @@ public class WebAdminRenderer {
             if ((reqValAction != null)
                     && (reqValAction.equalsIgnoreCase(actValReqNewGroup))) {
                 b.append(sp(in) + "<fieldset>\n");
-                b.append(sp(++in) + "<legend>New group" + "</legend\n>");
+                b.append(sp(++in) + "<legend>New group" + "</legend>\n");
                 b.append(sp(in) + "<span><b>Group name</b>&nbsp;"
                         + "<input style=\"width: 150px;\""
                         + " type=\"text\""
@@ -1036,11 +1036,20 @@ public class WebAdminRenderer {
             else if ((reqValAction != null)
                     && (reqValAction.equalsIgnoreCase(actValReqRemGroup))) {
                 b.append(sp(in) + "<fieldset>\n");
-                b.append(sp(++in) + "<legend>Remove group" + "</legend\n>");
-                b.append(sp(in) + "<span><b>Group name</b>&nbsp;"
-                        + "<select style=\"width: 150px;\""
+                b.append(sp(++in) + "<legend>Remove group" + "</legend>\n");
+                b.append(sp(in) + "<table class=\"borderless\">");
+                // Group name
+                b.append(sp(++in) + "<tr>\n"
+                        + sp(++in)
+                        + "<td class=\"borderless\" style=\"width:100px;\">"
+                        + "<b>Group name</b>"
+                        + "</td>\n"
+                        + sp(in)
+                        + "<td class=\"borderless\">\n"
+                        + sp(++in)
+                        + "<select class=\"form\""
                         + " id=\"removeGroup\""
-                        + " name=\"removeGroup\">");
+                        + " name=\"removeGroup\">\n");
                 for (Group group : secGM.getGroups()) {
                     // Do not display the SQO-OSS system group
                     if (group.getDescription().equalsIgnoreCase(
@@ -1053,13 +1062,19 @@ public class WebAdminRenderer {
                                         : "")
                                 + ">"
                                 + group.getDescription()
-                                + "</option>");
+                                + "</option>\n");
                     }
                 }
-                b.append(sp(in) + "</select>"
-                        + "&nbsp;"
+                b.append(sp(in) + "</select>\n"
+                        + sp(--in)
+                        + "</td>\n"
+                        + sp(--in)
+                        + "</tr>\n");
+                // Toolbar
+                b.append(sp(in) + "<tr>\n"
+                        + sp(++in)
+                        + "<td colspan=\"2\" class=\"borderless\">"
                         + "<input type=\"button\""
-                        + " class=\"install\""
                         + " style=\"width: 100px;\""
                         + " value=\"Remove\""
                         + " onclick=\"javascript:"
@@ -1077,7 +1092,10 @@ public class WebAdminRenderer {
                         + " value=\"Cancel\""
                         + " onclick=\"javascript:"
                         + "document.users.submit();\">"
-                        + "</span>\n");
+                        + "</td>\n"
+                        + sp(--in)
+                        + "</tr>\n");
+                b.append(sp(--in) + "</table>");
                 b.append(sp(--in) + "</fieldset>\n");
             }
             // ===============================================================
@@ -1086,7 +1104,7 @@ public class WebAdminRenderer {
             else if ((reqValAction != null)
                     && (reqValAction.equalsIgnoreCase(actValReqNewUser))) {
                 b.append(sp(in) + "<fieldset>\n");
-                b.append(sp(++in) + "<legend>New user" + "</legend\n>");
+                b.append(sp(++in) + "<legend>New user" + "</legend>\n");
                 b.append(sp(in) + "<table class=\"borderless\">");
                 // User name
                 b.append(sp(in) + "<tr>\n"
@@ -1189,11 +1207,20 @@ public class WebAdminRenderer {
             else if ((reqValAction != null)
                     && (reqValAction.equalsIgnoreCase(actValReqRemUser))) {
                 b.append(sp(in) + "<fieldset>\n");
-                b.append(sp(++in) + "<legend>Remove user" + "</legend\n>");
-                b.append(sp(in) + "<span><b>User name</b>&nbsp;"
-                        + "<select style=\"width: 150px;\""
+                b.append(sp(++in) + "<legend>Remove user" + "</legend>\n");
+                b.append(sp(in) + "<table class=\"borderless\">");
+                // User name
+                b.append(sp(++in) + "<tr>\n"
+                        + sp(++in)
+                        + "<td class=\"borderless\" style=\"width:100px;\">"
+                        + "<b>User name</b>"
+                        + "</td>\n"
+                        + sp(in)
+                        + "<td class=\"borderless\">\n"
+                        + sp(++in)
+                        + "<select class=\"form\""
                         + " id=\"removeUser\""
-                        + " name=\"removeUser\">");
+                        + " name=\"removeUser\">\n");
                 for (User user : secUM.getUsers()) {
                     // Do not display the SQO-OSS system group
                     if (user.getName().equalsIgnoreCase(
@@ -1206,11 +1233,18 @@ public class WebAdminRenderer {
                                         : "")
                                 + ">"
                                 + user.getName()
-                                + "</option>");
+                                + "</option>\n");
                     }
                 }
-                b.append(sp(in) + "</select>"
-                        + "&nbsp;"
+                b.append(sp(in) + "</select>\n"
+                        + sp(--in)
+                        + "</td>\n"
+                        + sp(--in)
+                        + "</tr>\n");
+                // Toolbar
+                b.append(sp(in) + "<tr>\n"
+                        + sp(++in)
+                        + "<td colspan=\"2\" class=\"borderless\">"
                         + "<input type=\"button\""
                         + " class=\"install\""
                         + " style=\"width: 100px;\""
@@ -1230,7 +1264,10 @@ public class WebAdminRenderer {
                         + " value=\"Cancel\""
                         + " onclick=\"javascript:"
                         + "document.users.submit();\">"
-                        + "</span>\n");
+                        + "</td>\n"
+                        + sp(--in)
+                        + "</tr>\n");
+                b.append(sp(--in) + "</table>");
                 b.append(sp(--in) + "</fieldset>\n");
             }
             // ===============================================================
@@ -1244,7 +1281,7 @@ public class WebAdminRenderer {
                             + ((selUser != null)
                                     ? "User " + selUser.getName()
                                     : "All users")
-                            + "</legend\n>");
+                            + "</legend>\n");
                 }
 
                 b.append(sp(in) + "<table>\n");
