@@ -9,11 +9,13 @@ if (selectedProject.isValid()) {
 
     // Retrieve the selected project's version ()
     //Long selectedVersion = selectedProject.getCurrentVersionId();
-    Long selectedVersion = selectedProject.getLastVersion().getId();
+    Version selectedVersion = selectedProject.getLastVersion();
+    /*
+    Long selectedVersionId = 0;
     if (selectedVersion != null) {
-        selectedVersion = selectedProject.getLastVersion().getId();
+        selectedVersionId = selectedProject.getLastVersion().getId();
     }
-
+    */
     if (selectedVersion != null) {
         out.println("<h2>Files for"
             + " project " + selectedProject.getName()
@@ -24,8 +26,7 @@ if (selectedProject.isValid()) {
         Long versionId = selectedProject.getCurrentVersionId();
         // TODO: The files list should be cached in the Project object,
         //       instead of calling the Terrier each time.
-        out.println (
-            terrier.getFiles4ProjectVersion(versionId).getHtml());
+        out.println (terrier.getFiles4ProjectVersion(versionId).getHtml());
     } else {
         // We should probably just list the files in the project here,
         // version-independent

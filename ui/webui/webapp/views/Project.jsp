@@ -13,7 +13,7 @@ if (selectedProject.isValid()) {
         msg += "<br />No versions recorded.";
     }
 %>
-<table width="100%">
+<table width="100%" class="dashboard">
     <tr>
         <td valign="top" style="padding-right: 30px" width="50%">
         <%
@@ -74,8 +74,10 @@ if (selectedProject.isValid()) {
                 if (inputError != null) {
                     out.println(Functions.error(inputError));
                 }
+            } else {
+                msg += "<br />No versions recorded.";
             }
-            %>
+        %>
         </td>
     </tr>
     </table>

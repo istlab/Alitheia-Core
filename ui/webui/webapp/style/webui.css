@@ -43,6 +43,11 @@
     margin-bottom: 20px;
 }
 
+#content td {
+    background-color: #fff;
+    border: 0px;
+}
+
 #selectedproject table.projectinfo {
     margin: 3px 0px 3px 3em;
 }
