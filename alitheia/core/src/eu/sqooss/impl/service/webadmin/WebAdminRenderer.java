@@ -686,10 +686,12 @@ public class WebAdminRenderer {
             String actValAddNewGroup   = "addNewGroup";
             String actValReqRemGroup   = "reqRemGroup";
             String actValConRemGroup   = "conRemGroup";
+            String actValConEditGroup  = "conEditGroup";
             String actValReqNewUser    = "reqNewUser";
             String actValAddNewUser    = "addNewUser";
             String actValReqRemUser    = "reqRemUser";
-            String actValConRemUSer    = "conRemUser";
+            String actValConRemUser    = "conRemUser";
+            String actValConEditUser    = "conEditUser";
             // Request values
             Long reqValUserId          = null;
             Long reqValGroupId         = null;
@@ -1097,16 +1099,36 @@ public class WebAdminRenderer {
                 // ===============================================================
                 if (selUser != null) {
                     b.append(sp(in) + "<tr>\n");
-                    
+                    // User modifications
                     b.append(sp(++in) + "<td>\n");
-                    b.append(sp(++in) + "&nbsp;\n");
+                    b.append(sp(++in) + "<input type=\"button\""
+                            + " class=\"install\""
+                            + " style=\"width: 100px;\""
+                            + " value=\"Edit\""
+                            + " onclick=\"javascript:"
+                            + "document.getElementById('"
+                            + reqParAction + "').value='"
+                            + actValConEditUser + "';"
+                            + "document.users.submit();\""
+                            + ">\n");
+                    b.append(sp(++in) + "<input type=\"button\""
+                            + " class=\"install\""
+                            + " style=\"width: 100px;\""
+                            + " value=\"Delete\""
+                            + " onclick=\"javascript:"
+                            + "document.getElementById('"
+                            + reqParAction + "').value='"
+                            + actValConRemUser + "';"
+                            + "document.users.submit();\""
+                            + ">\n");
                     b.append(sp(--in) + "</td>\n");
-                    
-                    b.append(sp(in) + "<td style=\"padding: 0;\">\n");
+                    // Detach group
+                    b.append(sp(in) + "<td>\n");
                     if ((selGroup != null)
                             && (selUser.getGroups().contains(selGroup) == true)) {
-                        b.append(sp(++in) + "<input class=\"install\""
-                                + " type=\"button\""
+                        b.append(sp(++in) + "<input type=\"button\""
+                                + " class=\"install\""
+                                + " style=\"width: 100px;\""
                                 + " value=\"Detach\""
                                 + " onclick=\"javascript:"
                                 + "document.getElementById('"
@@ -1116,12 +1138,13 @@ public class WebAdminRenderer {
                                 + ">\n");
                     }
                     b.append(sp(--in) + "</td>\n");
-                    
-                    b.append(sp(in) + "<td style=\"padding: 0;\">\n");
+                    // Assign group 
+                    b.append(sp(in) + "<td>\n");
                     if ((selGroup != null)
                             && (selUser.getGroups().contains(selGroup) == false)) {
-                        b.append(sp(++in) + "<input class=\"install\""
-                                + " type=\"button\""
+                        b.append(sp(++in) + "<input type=\"button\""
+                                + " class=\"install\""
+                                + " style=\"width: 100px;\""
                                 + " value=\"Assign\""
                                 + " onclick=\"javascript:"
                                 + "document.getElementById('"
@@ -1131,7 +1154,7 @@ public class WebAdminRenderer {
                                 + ">\n");
                     }
                     b.append(sp(--in) + "</td>\n");
-                    
+                    // Close the toolbar
                     b.append(sp(--in) + "</tr>\n");
                 }
 
@@ -1140,7 +1163,6 @@ public class WebAdminRenderer {
                 // ===========================================================
                 b.append(sp(in) + "<tr class=\"subhead\">");
                 b.append(sp(++in) + "<td colspan=\"" + maxColspan + "\">"
-                        + "&nbsp;"
                         // Add User
                         + "<input class=\"install\""
                         + " style=\"width: 100px;\""
