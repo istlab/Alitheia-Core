@@ -1083,21 +1083,21 @@ public class WebAdminRenderer {
             // ===============================================================
             // "New user" editor
             // ===============================================================
-            if ((reqValAction != null)
+            else if ((reqValAction != null)
                     && (reqValAction.equalsIgnoreCase(actValReqNewUser))) {
                 b.append(sp(in) + "<fieldset>\n");
                 b.append(sp(++in) + "<legend>New user" + "</legend\n>");
-                b.append(sp(in) + "<table>");
+                b.append(sp(in) + "<table class=\"borderless\">");
                 // User name
                 b.append(sp(in) + "<tr>\n"
                         + sp(++in)
-                        + "<td style=\"width:100px;\">"
+                        + "<td class=\"borderless\" style=\"width:100px;\">"
                         + "<b>Name</b>"
                         + "</td>\n"
                         + sp(in)
-                        + "<td>"
+                        + "<td class=\"borderless\">"
                         + "<input type=\"text\""
-                        + " style=\"width: 150px;\""
+                        + " class=\"form\""
                         + " id=\"" + reqParUserName + "\""
                         + " name=\"" + reqParUserName + "\""
                         + " value=\""
@@ -1108,13 +1108,13 @@ public class WebAdminRenderer {
                 // Email address
                 b.append(sp(in) + "<tr>\n"
                         + sp(++in)
-                        + "<td style=\"width:100px;\">"
+                        + "<td class=\"borderless\" style=\"width:100px;\">"
                         + "<b>Email</b>"
                         + "</td>\n"
                         + sp(in)
-                        + "<td>"
+                        + "<td class=\"borderless\">"
                         + "<input type=\"text\""
-                        + " style=\"width: 150px;\""
+                        + " class=\"form\""
                         + " id=\"" + reqParUserEmail + "\""
                         + " name=\"" + reqParUserEmail + "\""
                         + " value=\""
@@ -1125,13 +1125,13 @@ public class WebAdminRenderer {
                 // Account password
                 b.append(sp(in) + "<tr>\n"
                         + sp(++in)
-                        + "<td style=\"width:100px;\">"
+                        + "<td class=\"borderless\" style=\"width:100px;\">"
                         + "<b>Password</b>"
                         + "</td>\n"
                         + sp(in)
-                        + "<td>"
+                        + "<td class=\"borderless\">"
                         + "<input type=\"password\""
-                        + " style=\"width: 150px;\""
+                        + " class=\"form\""
                         + " id=\"" + reqParUserPass + "\""
                         + " name=\"" + reqParUserPass + "\""
                         + " value=\""
@@ -1142,13 +1142,13 @@ public class WebAdminRenderer {
                 // Confirmation password
                 b.append(sp(in) + "<tr>\n"
                         + sp(++in)
-                        + "<td style=\"width:100px;\">"
+                        + "<td class=\"borderless\" style=\"width:100px;\">"
                         + "<b>Confirm</b>"
                         + "</td>\n"
                         + sp(in)
-                        + "<td>"
+                        + "<td class=\"borderless\">"
                         + "<input type=\"password\""
-                        + " style=\"width: 150px;\""
+                        + " class=\"form\""
                         + " id=\"" + reqParPassConf + "\""
                         + " name=\"" + reqParPassConf + "\""
                         + " value=\""
@@ -1160,7 +1160,7 @@ public class WebAdminRenderer {
                 // Toolbar
                 b.append(sp(in) + "<tr>\n"
                         + sp(++in)
-                        + "<td colspan=\"2\">"
+                        + "<td colspan=\"2\" class=\"borderless\">"
                         + "<input type=\"button\""
                         + " class=\"install\""
                         + " style=\"width: 100px;\""

@@ -165,6 +165,15 @@ body.section-6 #menu li#nav-6 a {
 #table input.uninstall {
     color: Red;
 }
+#table .borderless {
+    border: 0;
+    background-color: #f6f6f6;
+}
+#table .form {
+    width: 150px;
+    border: 1px solid #ccc;
+    background: url(/greyBack.jpg) top repeat-x;
+}
 #table tr.head {
     background-color: LightSteelBlue;
 }
