@@ -126,7 +126,7 @@ public interface SecurityConstants {
         public String toString() {
             String name = name();
             if (name.equals(ALL.name())) {
-                return "<all privilege values";
+                return "<all privilege values>";
             } else {
                 return name().toLowerCase();
             }
