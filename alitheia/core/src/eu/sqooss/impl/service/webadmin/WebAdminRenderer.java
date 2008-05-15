@@ -1464,7 +1464,6 @@ public class WebAdminRenderer {
                             + actValConEditUser + "';"
                             + "document.users.submit();\""
                             + ">\n");
-                    b.append(sp(in) + "&nbsp;");
                     b.append(sp(in) + "<input type=\"button\""
                             + " class=\"install\""
                             + " style=\"width: 100px;\""
@@ -1490,8 +1489,9 @@ public class WebAdminRenderer {
                                 + actValRemFromGroup + "';"
                                 + "document.users.submit();\""
                                 + ">\n");
+                        in--;
                     }
-                    b.append(sp(--in) + "</td>\n");
+                    b.append(sp(in) + "</td>\n");
                     // Assign group 
                     b.append(sp(in) + "<td>\n");
                     if ((selGroup != null)
@@ -1506,8 +1506,9 @@ public class WebAdminRenderer {
                                 + actValAddToGroup + "';"
                                 + "document.users.submit();\""
                                 + ">\n");
+                        in--;
                     }
-                    b.append(sp(--in) + "</td>\n");
+                    b.append(sp(in) + "</td>\n");
                     // Close the toolbar
                     b.append(sp(--in) + "</tr>\n");
                 }
@@ -1515,9 +1516,10 @@ public class WebAdminRenderer {
                 // ===========================================================
                 // Main toolbar
                 // ===========================================================
-                b.append(sp(in) + "<tr class=\"subhead\">");
-                b.append(sp(++in) + "<td colspan=\"" + maxColspan + "\">"
+                b.append(sp(in) + "<tr class=\"subhead\">\n");
+                b.append(sp(++in) + "<td colspan=\"" + maxColspan + "\">\n"
                         // List users
+                        + sp(++in)
                         + "<input type=\"button\""
                         + " class=\"install\""
                         + " style=\"width: 100px;\""
@@ -1527,9 +1529,9 @@ public class WebAdminRenderer {
                         + reqParUserId + "').value='';"
                         + " document.getElementById('"
                         + reqParGroupId + "').value='';"
-                        + "document.users.submit();\">"
-                        + "&nbsp;"
+                        + "document.users.submit();\">\n"
                         // Add User
+                        + sp(in)
                         + "<input type=\"button\""
                         + " class=\"install\""
                         + " style=\"width: 100px;\""
@@ -1540,9 +1542,9 @@ public class WebAdminRenderer {
                         + "document.getElementById('"
                         + reqParAction + "').value='"
                         + actValReqNewUser + "';"
-                        + "document.users.submit();\">"
-                        + "&nbsp;"
+                        + "document.users.submit();\">\n"
                         // Remove User
+                        + sp(in)
                         + "<input type=\"button\""
                         + " class=\"install\""
                         + " style=\"width: 100px;\""
@@ -1553,9 +1555,9 @@ public class WebAdminRenderer {
                         + "document.getElementById('"
                         + reqParAction + "').value='"
                         + actValReqRemUser + "';"
-                        + "document.users.submit();\">"
-                        + "&nbsp;"
+                        + "document.users.submit();\">\n"
                         // Add group
+                        + sp(in)
                         + "<input type=\"button\""
                         + " class=\"install\""
                         + " style=\"width: 100px;\""
@@ -1564,9 +1566,9 @@ public class WebAdminRenderer {
                         + "document.getElementById('"
                         + reqParAction + "').value='"
                         + actValReqNewGroup + "';"
-                        + "document.users.submit();\">"
-                        + "&nbsp;"
+                        + "document.users.submit();\">\n"
                         // Remove Group
+                        + sp(in)
                         + "<input type=\"button\""
                         + " class=\"install\""
                         + " style=\"width: 100px;\""
@@ -1575,10 +1577,10 @@ public class WebAdminRenderer {
                         + "document.getElementById('"
                         + reqParAction + "').value='"
                         + actValReqRemGroup + "';"
-                        + "document.users.submit();\">"
-                        + "&nbsp;"
+                        + "document.users.submit();\">\n"
+                        + sp(--in)
                         + "</td>\n");
-                b.append(sp(--in) + "</tr>");
+                b.append(sp(--in) + "</tr>\n");
 
                 // Close the table
                 b.append(sp(--in) + "</tbody>\n");
