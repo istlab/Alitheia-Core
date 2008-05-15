@@ -9,7 +9,7 @@
 
 // Show metric per project, when a project selection exists
 
-if (selectedProject.isValid()) {
+if (selectedProject != null) {
     out.println(selectedProject.showMetrics());
     // Add some space
     out.println("<br/>");
