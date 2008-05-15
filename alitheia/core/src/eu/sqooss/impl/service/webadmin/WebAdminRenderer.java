@@ -903,8 +903,9 @@ public class WebAdminRenderer {
                 }
                 b.append(sp(in) + "</select>"
                         + "&nbsp;"
-                        + "<input class=\"install\" style=\"width: 60px;\""
-                        + " type=\"button\""
+                        + "<input type=\"button\""
+                        + " class=\"install\""
+                        + " style=\"width: 100px;\""
                         + " value=\"Remove\""
                         + " onclick=\"javascript:"
                         + "document.getElementById('"
@@ -915,14 +916,68 @@ public class WebAdminRenderer {
                         + "document.getElementById('removeGroup').value;"
                         + "document.users.submit();\">"
                         + "&nbsp;"
-                        + "<input class=\"install\" style=\"width: 60px;\""
-                        + " type=\"button\""
+                        + "<input type=\"button\""
+                        + " class=\"install\""
+                        + " style=\"width: 100px;\""
                         + " value=\"Cancel\""
                         + " onclick=\"javascript:"
                         + "document.users.submit();\">"
                         + "</span>\n");
                 b.append(sp(--in) + "</fieldset>\n");
             }
+            // ===============================================================
+            // "Remove user" editor
+            // ===============================================================
+            else if ((reqValAction != null)
+                    && (reqValAction.equalsIgnoreCase(actValReqRemUser))) {
+                b.append(sp(in) + "<fieldset>\n");
+                b.append(sp(++in) + "<legend>Remove user" + "</legend\n>");
+                b.append(sp(in) + "<span><b>User name</b>&nbsp;"
+                        + "<select style=\"width: 150px;\""
+                        + " id=\"removeUser\""
+                        + " name=\"removeUser\">");
+                for (User user : secUM.getUsers()) {
+                    // Do not display the SQO-OSS system group
+                    if (user.getName().equalsIgnoreCase(
+                            sobjSecurity.getSystemUser()) == false) {
+                        b.append(sp(in) + "<option"
+                                + " value=\"" + user.getId() + "\""
+                                + (((selUser != null)
+                                        && (selUser.getId() == user.getId()))
+                                        ? " selected"
+                                        : "")
+                                + ">"
+                                + user.getName()
+                                + "</option>");
+                    }
+                }
+                b.append(sp(in) + "</select>"
+                        + "&nbsp;"
+                        + "<input type=\"button\""
+                        + " class=\"install\""
+                        + " style=\"width: 100px;\""
+                        + " value=\"Remove\""
+                        + " onclick=\"javascript:"
+                        + "document.getElementById('"
+                        + reqParAction + "').value='"
+                        + actValConRemUser + "';"
+                        + "document.getElementById('"
+                        + reqParGroupId + "').value="
+                        + "document.getElementById('removeUser').value;"
+                        + "document.users.submit();\">"
+                        + "&nbsp;"
+                        + "<input type=\"button\""
+                        + " class=\"install\""
+                        + " style=\"width: 100px;\""
+                        + " value=\"Cancel\""
+                        + " onclick=\"javascript:"
+                        + "document.users.submit();\">"
+                        + "</span>\n");
+                b.append(sp(--in) + "</fieldset>\n");
+            }
+            // ===============================================================
+            // Main viewers and editors
+            // ===============================================================
             else {
                 // Create the fieldset for the "user" views
                 if ((reqValShow.equals("users")) || (selUser != null)) {
@@ -1097,7 +1152,10 @@ public class WebAdminRenderer {
                 // ===============================================================
                 // User editor - toolbar
                 // ===============================================================
-                if (selUser != null) {
+                if ((selUser != null)
+                    && (selUser.getName().equals(
+                            sobjSecurity.getSystemUser()) == false)) {
+                    // Create the toolbar
                     b.append(sp(in) + "<tr>\n");
                     // User modifications
                     b.append(sp(++in) + "<td>\n");
@@ -1111,10 +1169,11 @@ public class WebAdminRenderer {
                             + actValConEditUser + "';"
                             + "document.users.submit();\""
                             + ">\n");
-                    b.append(sp(++in) + "<input type=\"button\""
+                    b.append(sp(in) + "&nbsp;");
+                    b.append(sp(in) + "<input type=\"button\""
                             + " class=\"install\""
                             + " style=\"width: 100px;\""
-                            + " value=\"Delete\""
+                            + " value=\"Remove\""
                             + " onclick=\"javascript:"
                             + "document.getElementById('"
                             + reqParAction + "').value='"
@@ -1163,10 +1222,22 @@ public class WebAdminRenderer {
                 // ===========================================================
                 b.append(sp(in) + "<tr class=\"subhead\">");
                 b.append(sp(++in) + "<td colspan=\"" + maxColspan + "\">"
-                        // Add User
-                        + "<input class=\"install\""
+                        // List users
+                        + "<input type=\"button\""
+                        + " class=\"install\""
                         + " style=\"width: 100px;\""
-                        + " type=\"button\""
+                        + " value=\"Users list\""
+                        + " onclick=\"javascript:"
+                        + " document.getElementById('"
+                        + reqParUserId + "').value='';"
+                        + " document.getElementById('"
+                        + reqParGroupId + "').value='';"
+                        + "document.users.submit();\">"
+                        + "&nbsp;"
+                        // Add User
+                        + "<input type=\"button\""
+                        + " class=\"install\""
+                        + " style=\"width: 100px;\""
                         + " value=\"Add user\""
                         + " onclick=\"javascript:"
                         + " document.getElementById('"
@@ -1175,56 +1246,43 @@ public class WebAdminRenderer {
                         + reqParAction + "').value='"
                         + actValReqNewUser + "';"
                         + "document.users.submit();\">"
-                        + ((selUser != null)
-                                ? "&nbsp;"
-                                        // List users
-                                        + "<input class=\"install\""
-                                        + " style=\"width: 100px;\""
-                                        + " type=\"button\""
-                                        + " value=\"Users list\""
-                                        + " onclick=\"javascript:"
-                                        + " document.getElementById('"
-                                        + reqParUserId + "').value='';"
-                                        + " document.getElementById('"
-                                        + reqParGroupId + "').value='';"
-                                        + "document.users.submit();\">"
-                                        + "&nbsp;"
-                                        // Remove User
-                                        + "<input class=\"install\""
-                                        + " style=\"width: 100px;\""
-                                        + " type=\"button\""
-                                        + " value=\"Remove user\""
-                                        + " onclick=\"javascript:"
-                                        + " document.getElementById('"
-                                        + reqParGroupId + "').value='';"
-                                        + "document.getElementById('"
-                                        + reqParAction + "').value='"
-                                        + actValReqNewUser + "';"
-                                        + "document.users.submit();\">"
-                                        : "")
-                                        + "&nbsp;"
-                                        // Add group
-                                        + "<input class=\"install\""
-                                        + " style=\"width: 100px;\""
-                                        + " type=\"button\""
-                                        + " value=\"Add group\""
-                                        + " onclick=\"javascript:"
-                                        + "document.getElementById('"
-                                        + reqParAction + "').value='"
-                                        + actValReqNewGroup + "';"
-                                        + "document.users.submit();\">"
-                                        + "&nbsp;"
-                                        // Remove Group
-                                        + "<input class=\"install\""
-                                        + " style=\"width: 100px;\""
-                                        + " type=\"button\""
-                                        + " value=\"Remove group\""
-                                        + " onclick=\"javascript:"
-                                        + "document.getElementById('"
-                                        + reqParAction + "').value='"
-                                        + actValReqRemGroup + "';"
-                                        + "document.users.submit();\">"
-                                        + "</td>\n");
+                        + "&nbsp;"
+                        // Remove User
+                        + "<input type=\"button\""
+                        + " class=\"install\""
+                        + " style=\"width: 100px;\""
+                        + " value=\"Remove user\""
+                        + " onclick=\"javascript:"
+                        + " document.getElementById('"
+                        + reqParGroupId + "').value='';"
+                        + "document.getElementById('"
+                        + reqParAction + "').value='"
+                        + actValReqRemUser + "';"
+                        + "document.users.submit();\">"
+                        + "&nbsp;"
+                        // Add group
+                        + "<input type=\"button\""
+                        + " class=\"install\""
+                        + " style=\"width: 100px;\""
+                        + " value=\"Add group\""
+                        + " onclick=\"javascript:"
+                        + "document.getElementById('"
+                        + reqParAction + "').value='"
+                        + actValReqNewGroup + "';"
+                        + "document.users.submit();\">"
+                        + "&nbsp;"
+                        // Remove Group
+                        + "<input type=\"button\""
+                        + " class=\"install\""
+                        + " style=\"width: 100px;\""
+                        + " value=\"Remove group\""
+                        + " onclick=\"javascript:"
+                        + "document.getElementById('"
+                        + reqParAction + "').value='"
+                        + actValReqRemGroup + "';"
+                        + "document.users.submit();\">"
+                        + "&nbsp;"
+                        + "</td>\n");
                 b.append(sp(--in) + "</tr>");
 
                 // Close the table
