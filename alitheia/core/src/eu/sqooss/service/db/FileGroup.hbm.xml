@@ -5,15 +5,14 @@
 
 <hibernate-mapping>
   <class name="eu.sqooss.service.db.FileGroup" table="FILE_GROUP">
-    <id name="id" column="FILE_GROUP__ID">
+    <id name="id" column="FILE_GROUP_ID">
       <generator class="native" />
     </id>
     <property name="name" column="FILE_GROUP_NAME" />
     <property name="subPath" column="GROUP_SUBPATH" />
     <property name="regex" column="REGEX" />
     <property name="recalcFreq" column="RECALC_FREQ" />
-    <property name="subPath" column="GROUP_SUBPATH" />
     <property name="lastUsed" column="LAST_USED" />
-    <property name="projectVersion" column="PROJECT_VERSION" />
+    <many-to-one name="projectVersion" column="PROJECT_VERSION_ID" not-null="true" cascade="merge"/>
   </class>
 </hibernate-mapping>
