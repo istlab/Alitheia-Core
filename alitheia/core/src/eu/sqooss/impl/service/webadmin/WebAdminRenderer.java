@@ -643,6 +643,29 @@ public class WebAdminRenderer {
         return p.matcher(text).matches();
     }
 
+    private static boolean checkEmail (String text) {
+        // Check for adjacent dot signs
+        Pattern p = Pattern.compile("\\.\\.");
+        if (p.matcher(text).matches()) return false;
+        // Split into local and domain part
+        String parts[] = text.split("@");
+        if (parts.length != 2) return false;
+        // Check for head or foot occurrence of dot signs
+        p = Pattern.compile("^[.]");
+        if (p.matcher(parts[0]).matches()) return false;
+        if (p.matcher(parts[1]).matches()) return false;
+        p = Pattern.compile("[.]$");
+        if (p.matcher(parts[0]).matches()) return false;
+        if (p.matcher(parts[1]).matches()) return false;
+        // Local part regexp
+        Pattern l = Pattern.compile("^[a-zA-Z0-9!#$%*/?|^{}`~&'+-=_.]+$");
+        // Domain part regexp
+        Pattern d = Pattern.compile("^[a-zA-Z0-9.-]+[.][a-zA-Z]{2,4}$");
+        // Match both parts
+        return ((l.matcher(parts[0]).matches())
+                && (d.matcher(parts[1]).matches()));
+    }
+
     /**
      * Renders the various user views of the SQO-OSS WebAdmin UI:
      * <ul>
@@ -679,6 +702,10 @@ public class WebAdminRenderer {
             String reqParGroupId       = "groupId";
             String reqParRightId       = "rightId";
             String reqParGroupName     = "newGroupName";
+            String reqParUserName      = "userName";
+            String reqParUserEmail     = "userEmail";
+            String reqParUserPass      = "userPass";
+            String reqParPassConf      = "passConf";
             // Recognized "action" parameter's values
             String actValAddToGroup    = "addToGroup";
             String actValRemFromGroup  = "removeFromGroup";
@@ -691,12 +718,16 @@ public class WebAdminRenderer {
             String actValAddNewUser    = "addNewUser";
             String actValReqRemUser    = "reqRemUser";
             String actValConRemUser    = "conRemUser";
-            String actValConEditUser    = "conEditUser";
+            String actValConEditUser   = "conEditUser";
             // Request values
-            Long reqValUserId          = null;
-            Long reqValGroupId         = null;
-            Long reqValRightId         = null;
+            Long   reqValUserId        = null;
+            Long   reqValGroupId       = null;
+            Long   reqValRightId       = null;
             String reqValGroupName     = null;
+            String reqValUserName      = null;
+            String reqValUserEmail     = null;
+            String reqValUserPass      = null;
+            String reqValPassConf      = null;
             String reqValShow          = "users";
             String reqValAction        = "";
             // Selected user
@@ -750,6 +781,7 @@ public class WebAdminRenderer {
                     }
                     // Add new group to the system
                     else if (reqValAction.equalsIgnoreCase(actValAddNewGroup)) {
+                        reqValAction = actValReqNewGroup;
                         // Retrieve the selected group name
                         reqValGroupName =
                             req.getParameter(reqParGroupName);
@@ -768,6 +800,7 @@ public class WebAdminRenderer {
                                     secGM.createGroup(reqValGroupName);
                                 if (group != null) {
                                     selGroup = group;
+                                    reqValAction = actValAddNewGroup;
                                 }
                                 else {
                                     e.append(sp(in)
@@ -819,6 +852,128 @@ public class WebAdminRenderer {
                         else {
                             e.append(sp(in)
                                     + "<b>You must select a group name!</b>"
+                                    + "<br/>\n");
+                        }
+                    }
+                    // Add new user to the system
+                    else if (reqValAction.equalsIgnoreCase(actValAddNewUser)) {
+                        reqValAction = actValReqNewUser;
+                        // Retrieve the selected user parameters
+                        reqValUserName =
+                            req.getParameter(reqParUserName);
+                        reqValUserEmail =
+                            req.getParameter(reqParUserEmail);
+                        reqValUserPass =
+                            req.getParameter(reqParUserPass);
+                        reqValPassConf =
+                            req.getParameter(reqParPassConf);
+
+                        // Check the user name
+                        if ((reqValUserName == null)
+                                || (reqValUserName.length() == 0)) {
+                            e.append(sp(in)
+                                    + "<b>You must specify an user name!</b>"
+                                    + "<br/>\n");
+                        }
+                        else if (checkName(reqValUserName) == false) {
+                            e.append(sp(in)
+                                    + "<b>Incorrect syntax:</b>"
+                                    + "&nbsp;"
+                                    + reqValUserName
+                                    + "<br/>\n");
+                        }
+                        // Check the email address
+                        if ((reqValUserEmail == null)
+                                || (reqValUserEmail.length() == 0)) {
+                            e.append(sp(in)
+                                    + "<b>You must specify an email address!</b>"
+                                    + "<br/>\n");
+                        }
+                        else if (checkEmail(reqValUserEmail) == false) {
+                            e.append(sp(in)
+                                    + "<b>Incorrect syntax:</b>"
+                                    + "&nbsp;"
+                                    + reqValUserEmail
+                                    + "<br/>\n");
+                        }
+                        // Check the passwords
+                        if ((reqValUserPass == null)
+                                || (reqValUserPass.length() == 0)) {
+                            e.append(sp(in)
+                                    + "<b>You must specify an account password!</b>"
+                                    + "<br/>\n");
+                        }
+                        else if ((reqValPassConf == null)
+                                || (reqValPassConf.length() == 0)) {
+                            e.append(sp(in)
+                                    + "<b>You must specify a confirmation password!</b>"
+                                    + "<br/>\n");
+                        }
+                        else if (reqValUserPass.equals(reqValPassConf) == false) {
+                            e.append(sp(in)
+                                    + "<b>Both passwords do not match!</b>"
+                                    + "<br/>\n");
+                            reqValUserPass = null;
+                            reqValPassConf = null;
+                        }
+
+                        // Create the new user
+                        if (e.toString().length() == 0) {
+                            if (secUM.getUser(reqValUserName) == null) {
+                                User user =
+                                    secUM.createUser(
+                                            reqValUserName,
+                                            reqValUserPass,
+                                            reqValUserEmail);
+                                if (user != null) {
+                                    selUser = user;
+                                    reqValAction = actValAddNewUser;
+                                }
+                                else {
+                                    e.append(sp(in)
+                                            + "<b>Can not create user:</b>"
+                                            + "&nbsp;"
+                                            + reqValUserName
+                                            + "<br/>\n");
+                                }
+                            }
+                            else {
+                                e.append(sp(in)
+                                        + "<b>Such user already exists:</b>"
+                                        + "&nbsp;"
+                                        + reqValUserName
+                                        + "<br/>\n");
+                            }
+                        }
+                    }
+                    // Remove existing user from the system
+                    else if (reqValAction.equalsIgnoreCase(actValConRemUser)) {
+                        // Remove the selected user
+                        if (selUser != null) {
+                            // Check if this is the system user
+                            if (selUser.getName().equals(
+                                    sobjSecurity.getSystemUser())) {
+                                e.append(sp(in)
+                                        + "<b>Denied system user removal!</b>"
+                                        + "<br/>\n");
+                            }
+                            // Delete the selected user
+                            else  {
+                                if (secUM.deleteUser(selUser.getId())) {
+                                    selUser = null;
+                                }
+                                else {
+                                    e.append(sp(in)
+                                            + "<b>Can not remove user:</b>"
+                                            + "&nbsp;"
+                                            + reqValUserName
+                                            + "<br/>\n");
+                                }
+                            }
+                        }
+                        else {
+                            e.append(sp(in)
+                                    + "<b>You must select an user name!</b>"
                                     + "<br/>\n");
                         }
                     }
@@ -926,6 +1081,109 @@ public class WebAdminRenderer {
                 b.append(sp(--in) + "</fieldset>\n");
             }
             // ===============================================================
+            // "New user" editor
+            // ===============================================================
+            if ((reqValAction != null)
+                    && (reqValAction.equalsIgnoreCase(actValReqNewUser))) {
+                b.append(sp(in) + "<fieldset>\n");
+                b.append(sp(++in) + "<legend>New user" + "</legend\n>");
+                b.append(sp(in) + "<table>");
+                // User name
+                b.append(sp(in) + "<tr>\n"
+                        + sp(++in)
+                        + "<td style=\"width:100px;\">"
+                        + "<b>Name</b>"
+                        + "</td>\n"
+                        + sp(in)
+                        + "<td>"
+                        + "<input type=\"text\""
+                        + " style=\"width: 150px;\""
+                        + " id=\"" + reqParUserName + "\""
+                        + " name=\"" + reqParUserName + "\""
+                        + " value=\""
+                        + ((reqValUserName != null) ? reqValUserName : "" )
+                        + "\">"
+                        + "</td>\n"
+                        + sp(--in) + "</tr>\n");
+                // Email address
+                b.append(sp(in) + "<tr>\n"
+                        + sp(++in)
+                        + "<td style=\"width:100px;\">"
+                        + "<b>Email</b>"
+                        + "</td>\n"
+                        + sp(in)
+                        + "<td>"
+                        + "<input type=\"text\""
+                        + " style=\"width: 150px;\""
+                        + " id=\"" + reqParUserEmail + "\""
+                        + " name=\"" + reqParUserEmail + "\""
+                        + " value=\""
+                        + ((reqValUserEmail != null) ? reqValUserEmail : "" )
+                        + "\">"
+                        + "</td>\n"
+                        + sp(--in) + "</tr>\n");
+                // Account password
+                b.append(sp(in) + "<tr>\n"
+                        + sp(++in)
+                        + "<td style=\"width:100px;\">"
+                        + "<b>Password</b>"
+                        + "</td>\n"
+                        + sp(in)
+                        + "<td>"
+                        + "<input type=\"password\""
+                        + " style=\"width: 150px;\""
+                        + " id=\"" + reqParUserPass + "\""
+                        + " name=\"" + reqParUserPass + "\""
+                        + " value=\""
+                        + ((reqValUserPass != null) ? reqValUserPass : "" )
+                        + "\">"
+                        + "</td>\n"
+                        + sp(--in) + "</tr>\n");
+                // Confirmation password
+                b.append(sp(in) + "<tr>\n"
+                        + sp(++in)
+                        + "<td style=\"width:100px;\">"
+                        + "<b>Confirm</b>"
+                        + "</td>\n"
+                        + sp(in)
+                        + "<td>"
+                        + "<input type=\"password\""
+                        + " style=\"width: 150px;\""
+                        + " id=\"" + reqParPassConf + "\""
+                        + " name=\"" + reqParPassConf + "\""
+                        + " value=\""
+                        + ((reqValPassConf != null) ? reqValPassConf : "" )
+                        + "\">"
+                        + "</td>\n"
+                        + sp(--in)
+                        + "</tr>\n");
+                // Toolbar
+                b.append(sp(in) + "<tr>\n"
+                        + sp(++in)
+                        + "<td colspan=\"2\">"
+                        + "<input type=\"button\""
+                        + " class=\"install\""
+                        + " style=\"width: 100px;\""
+                        + " value=\"Apply\""
+                        + " onclick=\"javascript:"
+                        + "document.getElementById('"
+                        + reqParAction + "').value='"
+                        + actValAddNewUser + "';"
+                        + "document.users.submit();\">"
+                        + "&nbsp;"
+                        + "<input type=\"button\""
+                        + " class=\"install\""
+                        + " style=\"width: 100px;\""
+                        + " value=\"Cancel\""
+                        + " onclick=\"javascript:"
+                        + "document.users.submit();\">"
+                        + "</td>\n"
+                        + sp(--in)
+                        + "</tr>\n");
+                b.append(sp(--in) + "</table>");
+                b.append(sp(--in) + "</fieldset>\n");
+            }
+            // ===============================================================
             // "Remove user" editor
             // ===============================================================
             else if ((reqValAction != null)
@@ -962,7 +1220,7 @@ public class WebAdminRenderer {
                         + reqParAction + "').value='"
                         + actValConRemUser + "';"
                         + "document.getElementById('"
-                        + reqParGroupId + "').value="
+                        + reqParUserId + "').value="
                         + "document.getElementById('removeUser').value;"
                         + "document.users.submit();\">"
                         + "&nbsp;"
