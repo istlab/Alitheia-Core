@@ -272,7 +272,9 @@ public class Project extends WebuiItem {
             terrier.addError("Project has no versions: " + versions.size());
         }
         this.versions = versions;
-        setCurrentVersionId(getLastVersion().getId());
+        if (versions.size() > 0) {
+            setCurrentVersionId(getLastVersion().getId());
+        }
     }
 
     public SortedMap<Long, Version> getVersions() {

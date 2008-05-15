@@ -3,7 +3,7 @@
 <div id="fileslist" class="group">
 <% // List files per selected project and version
 
-if (selectedProject != null && selectedProject.isValid()) {
+if (selectedProject.isValid()) {
     // Retrieve the selected project's object
     //Project selectedProject = ProjectsListView.getCurrentProject();
 
