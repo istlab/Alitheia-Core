@@ -27,7 +27,14 @@ all : build
 build : build-dir
 	$(MAVEN) package install
 
-build-dir :
+build-dir : build-subdirs
+
+ifeq ($(SUBDIRS),)
+build-subdirs :
+else
+build-subdirs :
+	for i in $(SUBDIRS) ; do ( cd $$i && $(MAKE) build-dir ) || exit 1; done
+endif
 
 # Duplicate target if you *just* want to invoke Maven
 build-maven :

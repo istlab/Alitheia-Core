@@ -171,6 +171,7 @@ install : $(foreach j,$(REJARS),install-$(j)) $(foreach j,$(INSTALLS),install-$(
 
 .PHONY : all clean clean-all build install
 
+build-dir :
 
 help :
 	@echo $(MAVEN) install:install-file \

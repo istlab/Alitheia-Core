@@ -2,8 +2,10 @@ include $(TOP_SRCDIR)/Makefile.config
 
 all : build
 
-build :
+build : build-dir
 	$(MAVEN) package install
+
+build-dir :
 
 clean : clean-dir
 	rm -rf build target

@@ -1,6 +1,10 @@
 TOP_SRCDIR=../../..
 include $(TOP_SRCDIR)/Makefile.bundle
 
+clean-dir : clean-deps clean-src
+
+build-dir : install-deps compile-wsdl
+
 ###
 #
 # This library is unusal in that most of the source
@@ -16,12 +20,14 @@ include $(TOP_SRCDIR)/Makefile.bundle
 update-wsdl : clean-wsdl clean-deps \
 	fetch-wsdl \
 	install-deps \
-	compile-wsdl \
-	install-wsdl
-
+	compile-wsdl
 
 # Retrieve the WSDL from the running core platform.
 fetch-wsdl : clean-wsdl ws.wsdl
+
+# Cleans up the source directory.
+clean-src :
+	rm -rf src
 
 # Cleans up the WSDL file which was fetched.
 clean-wsdl :
@@ -36,11 +42,6 @@ clean-deps :
 # the right versions of everything out of the sqooss repo.
 install-deps :
 	$(MAVEN) dependency:copy-dependencies
-
-# Copy over the source trees.
-install-wsdl :
-	cd src && rm `find . -type f | grep -v /.svn/`
-	( cd src.new && tar cf - src ) | tar xvf - 
 
 # Retrieve the actual WSDL sources. This requires a running
 # Alitheia Core system on the local machine at the default port.
@@ -73,14 +74,13 @@ else
 ALL_CP=$(_ALL_CP)
 endif
 
-# Magic invocation of WSDL2Java.
-compile-wsdl : ws.wsdl
-	rm -rf src.new
+# The invocation of WSDL2Java. For more options run the tool from the console.
+compile-wsdl : clean-src
 	java -cp $(ALL_CP) org.apache.axis2.wsdl.WSDL2Java \
-		-uri ws.wsdl -s -u -o src.new \
+		-uri ws.wsdl -s -u -o . \
 		-p eu.sqooss.ws.client \
-		-ns2p http://datatypes.services.web.service.impl.sqooss.eu/xsd=eu.sqooss.ws.client.datatypes,http://services.web.service.sqooss.eu/xsd=eu.sqooss.ws.client.ws 
-
+		-ns2p http://datatypes.services.web.service.impl.sqooss.eu/xsd=eu.sqooss.ws.client.datatypes,http://services.web.service.sqooss.eu/xsd=eu.sqooss.ws.client.ws
+	rm -f build.xml
 
 
 
