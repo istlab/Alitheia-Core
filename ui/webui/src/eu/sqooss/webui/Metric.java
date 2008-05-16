@@ -44,7 +44,8 @@ public class Metric extends WebuiItem {
     public Metric (WSMetric metric, Terrier t) {
         mnemonic    = metric.getMnemonic();
         id          = metric.getId();
-        type        = metric.getMetricType().getType();
+        //TODO: optimize
+        type        = t.getMetricTypeById(metric.getMetricTypeId());
         description = metric.getDescription();
         terrier     = t;
     }

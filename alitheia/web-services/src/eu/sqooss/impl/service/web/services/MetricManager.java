@@ -42,6 +42,7 @@ import java.util.Map;
 import java.util.Set;
 
 import eu.sqooss.impl.service.web.services.datatypes.WSMetric;
+import eu.sqooss.impl.service.web.services.datatypes.WSMetricType;
 import eu.sqooss.impl.service.web.services.datatypes.WSMetricsResultRequest;
 import eu.sqooss.impl.service.web.services.datatypes.WSResultEntry;
 import eu.sqooss.impl.service.web.services.utils.MetricManagerDatabase;
@@ -53,6 +54,7 @@ import eu.sqooss.service.abstractmetric.ResultEntry;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Metric;
+import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.pa.PluginAdmin;
 import eu.sqooss.service.security.SecurityManager;
@@ -91,6 +93,26 @@ public class MetricManager extends AbstractManager {
         WSMetric[] wsMetrics = convertToWSMetrics(metrics);
         db.commitDBSession();
         return wsMetrics;
+    }
+    
+    /**
+     * @see eu.sqooss.service.web.services.WebServices#getMetricTypeById(String, String, long)
+     */
+    public WSMetricType getMetricTypeById(String userName,
+            String password, long metricTypeId) {
+        
+        logger.info("Retrieve metric type with given id! user: " + userName +
+                "; metric type id: " + metricTypeId);
+        
+        securityWrapper.checkDBReadAccess(userName, password);
+        
+        super.updateUserActivity(userName);
+        
+        db.startDBSession();
+        WSMetricType metricType = createWSMetricType(
+                dbWrapper.getMetricTypeById(metricTypeId));
+        db.commitDBSession();
+        return metricType;
     }
     
     /**
@@ -232,10 +254,29 @@ public class MetricManager extends AbstractManager {
         if ((metrics != null) && (metrics.size() != 0)) {
             result = new WSMetric[metrics.size()];
             for (int i = 0; i < result.length; i++) {
-                result[i] = new WSMetric((Metric) metrics.get(i));
+                result[i] = createWSMetric((Metric) metrics.get(i));
             }
         }
         return result;
+    }
+    
+    private static WSMetric createWSMetric(Metric metric) {
+        if (metric == null) return null;
+        WSMetric wsMetric = new WSMetric();
+        wsMetric.setId(metric.getId());
+        wsMetric.setDescription(metric.getDescription());
+        wsMetric.setMetricTypeId(metric.getMetricType().getId());
+        wsMetric.setMnemonic(metric.getMnemonic());
+        wsMetric.setPluginId(metric.getPlugin().getId());
+        return wsMetric;
+    }
+    
+    private static WSMetricType createWSMetricType(MetricType metricType) {
+        if (metricType == null) return null;
+        WSMetricType wsMetricType = new WSMetricType();
+        wsMetricType.setId(metricType.getId());
+        wsMetricType.setType(metricType.getType());
+        return wsMetricType; 
     }
     
 }

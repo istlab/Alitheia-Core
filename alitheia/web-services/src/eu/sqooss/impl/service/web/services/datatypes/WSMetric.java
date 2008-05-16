@@ -32,42 +32,87 @@
 
 package eu.sqooss.impl.service.web.services.datatypes;
 
-import eu.sqooss.service.db.Metric;
-
 /**
  * This class wraps the <code>eu.sqooss.service.db.Metric</code>
- * with the <code>eu.sqooss.service.db.MetricType</code>.
  */
 public class WSMetric {
     
-    private Metric metric;
-    private WSMetricType wsMetricType;
+    private long id;
+    private long pluginId;
+    private long metricTypeId;
+    private String mnemonic;
+    private String description;
     
-    public WSMetric(Metric metric) {
-        this.metric = metric;
-        this.wsMetricType = new WSMetricType(metric.getMetricType());
-    }
-    
-    public WSMetricType getMetricType() {
-        return wsMetricType;
-    }
-    
+    /**
+     * @return the id
+     */
     public long getId() {
-        return metric.getId();
+        return id;
+    }
+
+    /**
+     * @param id the id to set
+     */
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    /**
+     * @return the pluginId
+     */
+    public long getPluginId() {
+        return pluginId;
     }
     
+    /**
+     * @param pluginId the pluginId to set
+     */
+    public void setPluginId(long pluginId) {
+        this.pluginId = pluginId;
+    }
+    
+    /**
+     * @return the metricTypeId
+     */
     public long getMetricTypeId() {
-        return metric.getMetricType().getId();
+        return metricTypeId;
     }
-
-    public String getDescription() {
-        return metric.getDescription();
+    
+    /**
+     * @param metricTypeId the metricTypeId to set
+     */
+    public void setMetricTypeId(long metricTypeId) {
+        this.metricTypeId = metricTypeId;
     }
-
+    
+    /**
+     * @return the mnemonic
+     */
     public String getMnemonic() {
-        return metric.getMnemonic();
+        return mnemonic;
     }
-
+    
+    /**
+     * @param mnemonic the mnemonic to set
+     */
+    public void setMnemonic(String mnemonic) {
+        this.mnemonic = mnemonic;
+    }
+    
+    /**
+     * @return the description
+     */
+    public String getDescription() {
+        return description;
+    }
+    
+    /**
+     * @param description the description to set
+     */
+    public void setDescription(String description) {
+        this.description = description;
+    }
+    
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

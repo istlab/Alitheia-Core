@@ -48,6 +48,7 @@ import eu.sqooss.scl.accessor.WSMetricAccessor;
 import eu.sqooss.scl.accessor.WSProjectAccessor;
 import eu.sqooss.scl.accessor.WSUserAccessor;
 import eu.sqooss.ws.client.datatypes.WSMetric;
+import eu.sqooss.ws.client.datatypes.WSMetricType;
 import eu.sqooss.ws.client.datatypes.WSProjectFile;
 import eu.sqooss.ws.client.datatypes.WSProjectVersion;
 import eu.sqooss.ws.client.datatypes.WSStoredProject;
@@ -410,6 +411,20 @@ public class Terrier {
         return null;
     }
 
+    public String getMetricTypeById(long metricTypeId) {
+        if (!connection.isConnected()) {
+            return null;
+        }
+        String result = null;
+        try {
+            WSMetricType metricType = connection.getMetricAccessor().getMetricTypeById(metricTypeId);
+            result = metricType.getType();
+        } catch (WSException e) {
+            error = "Can not retrieve information about the metric type.";
+        }
+        return result;
+    }
+    
     /**
      * Retrieves information about the specified user from the SQO-OSS
      * framework.

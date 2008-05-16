@@ -42,8 +42,11 @@ import org.apache.axis2.AxisFault;
 import eu.sqooss.scl.accessor.WSMetricAccessor;
 import eu.sqooss.ws.client.WsStub;
 import eu.sqooss.ws.client.datatypes.WSMetric;
+import eu.sqooss.ws.client.datatypes.WSMetricType;
 import eu.sqooss.ws.client.datatypes.WSMetricsResultRequest;
 import eu.sqooss.ws.client.datatypes.WSResultEntry;
+import eu.sqooss.ws.client.ws.GetMetricTypeById;
+import eu.sqooss.ws.client.ws.GetMetricTypeByIdResponse;
 import eu.sqooss.ws.client.ws.GetMetrics;
 import eu.sqooss.ws.client.ws.GetMetricsByFileNames;
 import eu.sqooss.ws.client.ws.GetMetricsByFileNamesResponse;
@@ -56,6 +59,8 @@ import eu.sqooss.ws.client.ws.GetMetricsResultResponse;
 class WSMetricAccessorImpl extends WSMetricAccessor {
 
     private static final String METHOD_NAME_GET_METRICS_BY_PROJECT_ID  = "getMetricsByProjectId";
+    
+    private static final String METHOD_NAME_GET_METRIC_TYPE_BY_ID      = "getMetricTypeById";
 
     private static final String METHOD_NAME_GET_METRICS_BY_FILE_NAMES  = "getMetricsByFileNames";
     
@@ -104,6 +109,33 @@ class WSMetricAccessorImpl extends WSMetricAccessor {
             }
         }
         return (WSMetric[]) normaliseWSArrayResult(response.get_return());
+    }
+
+    /**
+     * @see eu.sqooss.scl.accessor.WSMetricAccessor#getMetricTypeById(long)
+     */
+    @Override
+    public WSMetricType getMetricTypeById(long metricTypeId) throws WSException {
+        GetMetricTypeByIdResponse response;
+        GetMetricTypeById params;
+        if (!parameters.containsKey(METHOD_NAME_GET_METRIC_TYPE_BY_ID)) {
+            params = new GetMetricTypeById();
+            params.setPassword(password);
+            params.setUserName(userName);
+            parameters.put(METHOD_NAME_GET_METRIC_TYPE_BY_ID, params);
+        } else {
+            params = (GetMetricTypeById) parameters.get(
+                    METHOD_NAME_GET_METRIC_TYPE_BY_ID);
+        }
+        synchronized (params) {
+            params.setMetricTypeId(metricTypeId);
+            try {
+                response = wsStub.getMetricTypeById(params);
+            } catch (RemoteException re) {
+                throw new WSException(re);
+            }
+        }
+        return response.get_return();
     }
 
     /**

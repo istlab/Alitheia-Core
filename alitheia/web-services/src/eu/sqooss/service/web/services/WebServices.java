@@ -39,6 +39,7 @@ import eu.sqooss.impl.service.web.services.ProjectManager;
 import eu.sqooss.impl.service.web.services.UserManager;
 import eu.sqooss.impl.service.web.services.datatypes.WSFileGroup;
 import eu.sqooss.impl.service.web.services.datatypes.WSMetric;
+import eu.sqooss.impl.service.web.services.datatypes.WSMetricType;
 import eu.sqooss.impl.service.web.services.datatypes.WSMetricsResultRequest;
 import eu.sqooss.impl.service.web.services.datatypes.WSProjectFile;
 import eu.sqooss.impl.service.web.services.datatypes.WSProjectVersion;
@@ -309,6 +310,25 @@ public class WebServices {
                 userName, password, projectId);
     }
 
+    /**
+     * The method returns all information, that the SQO-OSS framework has
+     * collected about the specified metric type.
+     * 
+     * @param userName - the user's name used for authentication
+     * @param password - the user's password used for authentication
+     * @param metricTypeId - the metric type's identifier
+     * 
+     * @return The <code>WSMetricType</code> object that describes the
+     * metric type, or <code>null</code> when such metric type does not exist.
+     */
+    public WSMetricType getMetricTypeById(
+            String userName,
+            String password,
+            long metricTypeId) {
+        return metricManager.getMetricTypeById(
+                userName, password, metricTypeId);
+    }
+    
     /**
      * This method returns an array with all metrics, that are currently
      * installed in the SQO-OSS framework.

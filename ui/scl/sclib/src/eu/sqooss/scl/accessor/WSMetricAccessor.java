@@ -34,6 +34,7 @@ package eu.sqooss.scl.accessor;
 
 import eu.sqooss.scl.WSException;
 import eu.sqooss.ws.client.datatypes.WSMetric;
+import eu.sqooss.ws.client.datatypes.WSMetricType;
 import eu.sqooss.ws.client.datatypes.WSMetricsResultRequest;
 import eu.sqooss.ws.client.datatypes.WSResultEntry;
 
@@ -58,6 +59,17 @@ public abstract class WSMetricAccessor extends WSAccessor {
      * <ul>
      */
     public abstract WSMetric[] getMetricsByProjectId(long projectId) throws WSException;
+    
+    /**
+     * The method returns all information, that the SQO-OSS framework has
+     * collected about the specified metric type.
+     * 
+     * @param metricTypeId - the metric type's identifier
+     * 
+     * @return The <code>WSMetricType</code> object that describes the
+     * metric type, or <code>null</code> when such metric type does not exist.
+     */
+    public abstract WSMetricType getMetricTypeById(long metricTypeId) throws WSException;
     
     /**
      * This method returns an array of all metrics that have been evaluated on

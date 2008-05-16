@@ -42,6 +42,7 @@ import eu.sqooss.impl.service.web.services.datatypes.WSMetricsResultRequest;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.FileGroup;
+import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
@@ -59,6 +60,10 @@ public class MetricManagerDatabase implements MetricManagerDBQueries {
         queryParameters.put(GET_METRICS_BY_PROJECT_ID_PARAM, projectId);
         
         return db.doHQL(GET_METRICS_BY_PROJECT_ID, queryParameters);
+    }
+    
+    public MetricType getMetricTypeById(long metricTypeId) {
+        return db.findObjectById(MetricType.class, metricTypeId);
     }
     
     public List<?> getMetricsByFileNames(long projectId, Collection fileNames) {

@@ -32,23 +32,42 @@
 
 package eu.sqooss.impl.service.web.services.datatypes;
 
-import eu.sqooss.service.db.MetricType;
-
 /**
  * This class wraps the <code>eu.sqooss.service.db.MetricType</code> 
  */
 public class WSMetricType {
     
+    private long id;
     private String type;
     
-    public WSMetricType(MetricType metricType) {
-        this.type = metricType.getType();
+    /**
+     * @return the id
+     */
+    public long getId() {
+        return id;
     }
     
+    /**
+     * @param id the id to set
+     */
+    public void setId(long id) {
+        this.id = id;
+    }
+    
+    /**
+     * @return the type
+     */
     public String getType() {
         return type;
     }
-
+    
+    /**
+     * @param type the type to set
+     */
+    public void setType(String type) {
+        this.type = type;
+    }
+    
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
