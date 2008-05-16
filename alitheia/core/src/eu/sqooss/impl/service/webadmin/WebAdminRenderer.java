@@ -792,6 +792,7 @@ public class WebAdminRenderer {
             String reqParUserEmail     = "userEmail";
             String reqParUserPass      = "userPass";
             String reqParPassConf      = "passConf";
+            String reqParViewList      = "showList";
             // Recognized "action" parameter's values
             String actValAddToGroup    = "addToGroup";
             String actValRemFromGroup  = "removeFromGroup";
@@ -814,7 +815,7 @@ public class WebAdminRenderer {
             String reqValUserEmail     = null;
             String reqValUserPass      = null;
             String reqValPassConf      = null;
-            String reqValShow          = "users";
+            String reqValViewList      = "users";
             String reqValAction        = "";
             // Selected user
             User selUser = null;
@@ -830,6 +831,12 @@ public class WebAdminRenderer {
                 // DEBUG: Dump the servlet's request parameter
                 if (DEBUG) {
                     b.append(debugRequest(req));
+                }
+                // Retrieve the requested list view
+                reqValViewList = req.getParameter(reqParViewList);
+                if ((reqValViewList == null)
+                        || (reqValViewList.length() == 0)) {
+                    reqValViewList = "users";
                 }
                 // Retrieve the selected user's DAO (if any)
                 reqValUserId = fromString(req.getParameter(reqParUserId));
@@ -1375,12 +1382,21 @@ public class WebAdminRenderer {
             // ===============================================================
             else {
                 // Create the fieldset for the "user" views
-                if ((reqValShow.equals("users")) || (selUser != null)) {
+                if ((reqValViewList.equals("users")) || (selUser != null)) {
                     b.append(sp(++in) + "<fieldset>\n");
                     b.append(sp(++in) + "<legend>"
                             + ((selUser != null)
                                     ? "User " + selUser.getName()
                                     : "All users")
+                            + "</legend>\n");
+                }
+                // Create the fieldset for the "group" views
+                if ((reqValViewList.equals("groups")) || (selGroup != null)) {
+                    b.append(sp(++in) + "<fieldset>\n");
+                    b.append(sp(++in) + "<legend>"
+                            + ((selGroup != null)
+                                    ? "Group " + selGroup.getDescription()
+                                    : "All groups")
                             + "</legend>\n");
                 }
 
@@ -1391,7 +1407,8 @@ public class WebAdminRenderer {
                 // ===========================================================
                 // User editor - header row
                 // ===========================================================
-                if (selUser != null) {
+                if ((selUser != null)
+                        && (reqValViewList.equals("users"))) {
                     b.append(sp(++in) + "<td class=\"head\""
                             + " style=\"width: 40%;\">"
                             + "Account Details</td>\n");
@@ -1406,7 +1423,7 @@ public class WebAdminRenderer {
                 // ===========================================================
                 // Users list - header row
                 // ===========================================================
-                else if (reqValShow.equals("users")) {
+                else if (reqValViewList.equals("users")) {
                     b.append(sp(++in) + "<td class=\"head\""
                             + " style=\"width: 10%;\">"
                             + "User Id</td>\n");
@@ -1420,6 +1437,18 @@ public class WebAdminRenderer {
                             + " style=\"width: 30%;\">"
                             + "Created</td>\n");
                     maxColspan = 4;
+                }
+                // ===========================================================
+                // Groups list - header row
+                // ===========================================================
+                else if (reqValViewList.equals("groups")) {
+                    b.append(sp(++in) + "<td class=\"head\""
+                            + " style=\"width: 10%;\">"
+                            + "Group Id</td>\n");
+                    b.append(sp(in) + "<td class=\"head\""
+                            + " style=\"width: 90%;\">"
+                            + "Group Name</td>\n");
+                    maxColspan = 2;
                 }
 
                 b.append(sp(--in) + "</tr>\n");
@@ -1519,9 +1548,9 @@ public class WebAdminRenderer {
                     b.append(sp(--in) + "</tr>\n");
                 }
                 // ===========================================================
-                // User list -content rows
+                // Users list -content rows
                 // ===========================================================
-                else if (reqValShow.equals("users")) {
+                else if (reqValViewList.equals("users")) {
                     for (User nextUser : secUM.getUsers()) {
                         String htmlEditUser = "<td class=\"edit\""
                             + " onclick=\"javascript:"
@@ -1540,6 +1569,28 @@ public class WebAdminRenderer {
                         b.append(sp(in) + "<td>"
                                 + date.format(nextUser.getRegistered())
                                 + "</td>\n");
+                        b.append(sp(--in) + "</tr>\n");
+                    }
+                }
+                // ===========================================================
+                // Groups list -content rows
+                // ===========================================================
+                else if (reqValViewList.equals("groups")) {
+                    for (Group nextGroup : secGM.getGroups()) {
+                        String htmlEditGroup = "<td class=\"edit\""
+                            + " onclick=\"javascript:"
+                            + "document.getElementById('"
+                            + reqParGroupId + "').value='"
+                            + nextGroup.getId() + "';"
+                            + "document.users.submit();\">"
+                            + "<img src=\"/edit.png\" alt=\"[Edit]\"/>"
+                            + nextGroup.getDescription()
+                            + "</td>\n";
+                        b.append(sp(++in) + "<tr>\n");
+                        b.append(sp(++in) + "<td>"
+                                + nextGroup.getId()
+                                + "</td>\n");
+                        b.append(sp(in) + htmlEditGroup);
                         b.append(sp(--in) + "</tr>\n");
                     }
                 }
@@ -1614,22 +1665,44 @@ public class WebAdminRenderer {
                 }
 
                 // ===========================================================
-                // Main toolbar
+                // Common toolbar
                 // ===========================================================
-                b.append(sp(in) + "<tr class=\"subhead\">\n");
-                b.append(sp(++in) + "<td colspan=\"" + maxColspan + "\">\n"
+                b.append(sp(in++) + "<tr class=\"subhead\">\n");
+                b.append(sp(in++) + "<td colspan=\"" + maxColspan + "\">\n"
                         // List users
-                        + sp(++in)
-                        + "<input type=\"button\""
-                        + " class=\"install\""
-                        + " style=\"width: 100px;\""
-                        + " value=\"Users list\""
-                        + " onclick=\"javascript:"
-                        + " document.getElementById('"
-                        + reqParUserId + "').value='';"
-                        + " document.getElementById('"
-                        + reqParGroupId + "').value='';"
-                        + "document.users.submit();\">\n"
+                        + sp(in)
+                        + ((reqValViewList.equals("users") == false)
+                                ? "<input type=\"button\""
+                                        + " class=\"install\""
+                                        + " style=\"width: 100px;\""
+                                        + " value=\"Users list\""
+                                        + " onclick=\"javascript:"
+                                        + " document.getElementById('"
+                                        + reqParViewList + "').value='users';"
+                                        + " document.getElementById('"
+                                        + reqParUserId + "').value='';"
+                                        + " document.getElementById('"
+                                        + reqParGroupId + "').value='';"
+                                        + "document.users.submit();\">\n"
+                                        : ""
+                        )
+                        // List groups
+                        + sp(in)
+                        + ((reqValViewList.equals("groups") == false)
+                                ? "<input type=\"button\""
+                                        + " class=\"install\""
+                                        + " style=\"width: 100px;\""
+                                        + " value=\"Groups list\""
+                                        + " onclick=\"javascript:"
+                                        + " document.getElementById('"
+                                        + reqParViewList + "').value='groups';"
+                                        + " document.getElementById('"
+                                        + reqParUserId + "').value='';"
+                                        + " document.getElementById('"
+                                        + reqParGroupId + "').value='';"
+                                        + "document.users.submit();\">\n"
+                                        : ""
+                        )
                         // Add User
                         + sp(in)
                         + "<input type=\"button\""
@@ -1835,6 +1908,13 @@ public class WebAdminRenderer {
                     + " id=\"" + reqParRightId + "\"" 
                     + " name=\"" + reqParRightId + "\""
                     + " value=\"\">\n");
+            // "View list" input field
+            b.append(sp(in) + "<input type=\"hidden\""
+                    + " id=\"" + reqParViewList + "\"" 
+                    + " name=\"" + reqParViewList + "\""
+                    + " value=\""
+                    + ((reqValViewList != null) ? reqValViewList : "")
+                    + "\">\n");
 
             // ===============================================================
             // Close the form
