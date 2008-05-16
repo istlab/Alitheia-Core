@@ -29,9 +29,9 @@
 <xs:complexType name="WSProjectVersion">
 <xs:sequence>
 <xs:element name="commitMsg" nillable="true" type="xs:string" />
-<xs:element name="commiter" type="xs:long" />
+<xs:element name="committerId" type="xs:long" />
 <xs:element name="id" type="xs:long" />
-<xs:element name="project" type="xs:long" />
+<xs:element name="projectId" type="xs:long" />
 <xs:element name="properties" nillable="true" type="xs:string" />
 <xs:element name="timestamp" type="xs:long" />
 <xs:element name="version" type="xs:long" />
