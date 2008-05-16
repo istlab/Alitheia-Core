@@ -37,6 +37,7 @@ import org.osgi.framework.BundleContext;
 import eu.sqooss.impl.service.web.services.MetricManager;
 import eu.sqooss.impl.service.web.services.ProjectManager;
 import eu.sqooss.impl.service.web.services.UserManager;
+import eu.sqooss.impl.service.web.services.datatypes.WSFileGroup;
 import eu.sqooss.impl.service.web.services.datatypes.WSMetric;
 import eu.sqooss.impl.service.web.services.datatypes.WSMetricsResultRequest;
 import eu.sqooss.impl.service.web.services.datatypes.WSProjectFile;
@@ -174,7 +175,27 @@ public class WebServices {
         return projectManager.getFilesByProjectVersionId(
                 userName, password, projectVersionId);
     }
-
+    
+    /**
+     * This method returns an array of all file groups that belongs to the project
+     * with the given Id.
+     * 
+     * @param userName - the user's name used for authentication
+     * @param password - the user's password used for authentication
+     * @param projectId - the project's identifier
+     * 
+     * @return The array of project's file groups, or a <code>null</code> array when
+     *   none are found <i>(for example, when the project is not yet not
+     *   evaluated)</i>.
+     */
+    public WSFileGroup[] getFileGroupsByProjectId(
+            String userName,
+            String password,
+            long projectId) {
+        return projectManager.getFileGroupsByProjectId(
+                userName, password, projectId);
+    }
+    
     /**
      * This method returns the identifier of the project associated with the
      * given project name.

@@ -76,6 +76,15 @@ interface ProjectManagerDBQueries {
     		                                                     "order by d.path, head.fname";
     
     
+    public static final String GET_FILE_GROUPS_BY_PROJECT_ID_PARAM = "project_id";
+    
+    public static final String GET_FILE_GROUPS_BY_PROJECT_ID = "select fg " +
+                                                               "from ProjectVersion pv, FileGroup fg " +
+                                                               "where fg.projectVersion=pv.id " +
+                                                               " and pv.project.id=:" +
+                                                               GET_FILE_GROUPS_BY_PROJECT_ID_PARAM;
+    
+    
     public static final String GET_FILES_NUMBER_BY_PROJECT_VERSION_ID_PARAM = "project_ver";
     
     public static final String GET_FILES_NUMBER_BY_PROJECT_VERSION_ID = "select count(*) " +

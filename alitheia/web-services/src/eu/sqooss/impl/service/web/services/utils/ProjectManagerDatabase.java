@@ -96,6 +96,17 @@ public class ProjectManagerDatabase implements ProjectManagerDBQueries {
         }
     }
     
+    public List<?> getFileGroupsByProjectId(long projectVersionId) {
+        Map<String, Object> queryParameters = new Hashtable<String, Object>(1);
+        queryParameters.put(GET_FILE_GROUPS_BY_PROJECT_ID_PARAM, projectVersionId);
+        
+        try {
+            return db.doHQL(GET_FILE_GROUPS_BY_PROJECT_ID, queryParameters);
+        } catch (QueryException qe) {
+            return Collections.emptyList();
+        }
+    }
+    
     public List<?> getFilesNumberByProjectVersionId(long projectVersionId) {
         Map<String, Object> queryParameters = new Hashtable<String, Object>(1);
         queryParameters.put(GET_FILES_NUMBER_BY_PROJECT_VERSION_ID_PARAM, projectVersionId);

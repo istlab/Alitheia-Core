@@ -35,12 +35,14 @@ package eu.sqooss.impl.service.web.services;
 import java.math.BigInteger;
 import java.util.List;
 
+import eu.sqooss.impl.service.web.services.datatypes.WSFileGroup;
 import eu.sqooss.impl.service.web.services.datatypes.WSProjectFile;
 import eu.sqooss.impl.service.web.services.datatypes.WSProjectVersion;
 import eu.sqooss.impl.service.web.services.datatypes.WSStoredProject;
 import eu.sqooss.impl.service.web.services.utils.ProjectManagerDatabase;
 import eu.sqooss.impl.service.web.services.utils.SecurityWrapper;
 import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.FileGroup;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
@@ -215,6 +217,27 @@ public class ProjectManager extends AbstractManager {
     }
     
     /**
+     * @see eu.sqooss.service.web.services.WebServices#getFileGroupsByProjectId(String, String, long)
+     */
+    public WSFileGroup[] getFileGroupsByProjectId(String userName,
+            String password, long projectId) {
+        logger.info("Get a file group list for the project! user: " + userName +
+                "; project id: " + projectId);
+        
+        securityWrapper.checkProjectReadAccess(
+                userName, password, projectId);
+        
+        super.updateUserActivity(userName);
+        
+        db.startDBSession();
+        List<?> queryResult = dbWrapper.getFileGroupsByProjectId(projectId);
+        WSFileGroup[] wsfg = convertToWSFileGroup(queryResult);
+        db.commitDBSession();
+        
+        return wsfg;
+    }
+    
+    /**
      * @see eu.sqooss.service.web.services.WebServices#getFilesNumberByProjectVersionId(String, String, long)
      */
     public long getFilesNumberByProjectVersionId(String userName, String password, long projectVersionId) {
@@ -317,6 +340,19 @@ public class ProjectManager extends AbstractManager {
         return result;
     }
     
+    private WSFileGroup[] convertToWSFileGroup(List<?> fileGroups) {
+        WSFileGroup[] result = null;
+        if ((fileGroups != null) && (fileGroups.size() != 0)) {
+            result = new WSFileGroup[fileGroups.size()];
+            FileGroup currentElem;
+            for (int i = 0; i < result.length; i++) {
+                currentElem = (FileGroup) fileGroups.get(i);
+                result[i] = createWSFileGroup(currentElem);
+            }
+        }
+        return result;
+    }
+    
     private static WSStoredProject createWSStoredProject(StoredProject storedProject) {
         if (storedProject == null) return null;
         WSStoredProject wsStoredProject = new WSStoredProject();
@@ -353,6 +389,19 @@ public class ProjectManager extends AbstractManager {
         wsProjectFile.setProjectVersionId(projectFile.getProjectVersion().getId());
         wsProjectFile.setStatus(projectFile.getStatus());
         return wsProjectFile;
+    }
+    
+    private static WSFileGroup createWSFileGroup(FileGroup fileGroup) {
+        if (fileGroup == null) return null;
+        WSFileGroup wsFileGroup = new WSFileGroup();
+        wsFileGroup.setId(fileGroup.getId());
+        wsFileGroup.setLastUsed(fileGroup.getLastUsed().getTime());
+        wsFileGroup.setName(fileGroup.getName());
+        wsFileGroup.setProjectVersionId(fileGroup.getProjectVersion().getId());
+        wsFileGroup.setRecalcFreq(fileGroup.getRecalcFreq());
+        wsFileGroup.setRegularExpression(fileGroup.getRegex());
+        wsFileGroup.setSubPath(fileGroup.getSubPath());
+        return wsFileGroup;
     }
     
 }
