@@ -32,8 +32,6 @@
 
 package eu.sqooss.impl.service.web.services.utils;
 
-import java.io.File;
-
 interface ProjectManagerDBQueries {
 
     public static final String GET_EVALUATED_PROJECTS = "select sp " +
@@ -55,8 +53,8 @@ interface ProjectManagerDBQueries {
     
     public static final String GET_FILES_BY_PROJECT_VERSION_ID_PARAM = "project_ver";
     
-    public static final String GET_FILES_BY_PROJECT_VERSION_ID = "select pf.project_file_id, d.path || '" + File.separator + 
-                                                                 "'       || head.fname, head.headrev, pf.file_status, pf.is_directory " +
+    public static final String GET_FILES_BY_PROJECT_VERSION_ID = "select pf.project_file_id, d.directory_id, " + 
+                                                                 "       head.fname, head.headrev, pf.file_status, pf.is_directory " +
     		                                                     "from (select pf.directory_id as dir, " +
     		                                                     "             pf.file_name as fname, " +
     		                                                     "             max(pv.project_version_id) as headrev " +

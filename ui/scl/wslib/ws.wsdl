@@ -19,9 +19,10 @@
 <xs:complexType name="WSProjectFile">
 <xs:sequence>
 <xs:element name="directory" type="xs:boolean" />
+<xs:element name="directoryId" type="xs:long" />
 <xs:element name="fileName" nillable="true" type="xs:string" />
 <xs:element name="id" type="xs:long" />
-<xs:element name="projectVersion" type="xs:long" />
+<xs:element name="projectVersionId" type="xs:long" />
 <xs:element name="status" nillable="true" type="xs:string" />
 </xs:sequence>
 </xs:complexType>

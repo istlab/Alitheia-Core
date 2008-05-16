@@ -32,54 +32,100 @@
 
 package eu.sqooss.impl.service.web.services.datatypes;
 
-import eu.sqooss.service.db.ProjectFile;
-
 /**
  * This class wraps the <code>eu.sqooss.service.db.ProjectFile</code>
  */
 public class WSProjectFile {
     
     private long id;
-    private long projectVersion;
+    private long projectVersionId;
+    private long directoryId;
     private String fileName;
     private String status;
     private boolean isDirectory;
     
-    public WSProjectFile(ProjectFile projectFile) {
-        id = projectFile.getId();
-        fileName = projectFile.getFileName();
-        projectVersion = projectFile.getProjectVersion().getId();
-        status = projectFile.getStatus();
-        isDirectory = projectFile.getIsDirectory();
-    }
-
-    public WSProjectFile(long id, String fileName, long projectVersion,
-            String status, boolean isDirectory) {
-        this.id = id;
-        this.fileName = fileName;
-        this.projectVersion = projectVersion;
-        this.status = status;
-        this.isDirectory = isDirectory;
-    }
-    
+    /**
+     * @return the id
+     */
     public long getId() {
         return id;
     }
     
+    /**
+     * @param id the id to set
+     */
+    public void setId(long id) {
+        this.id = id;
+    }
+    
+    /**
+     * @return the projectVersionId
+     */
+    public long getProjectVersionId() {
+        return projectVersionId;
+    }
+    
+    /**
+     * @param projectVersionId the projectVersionId to set
+     */
+    public void setProjectVersionId(long projectVersionId) {
+        this.projectVersionId = projectVersionId;
+    }
+    
+    /**
+     * @return the directoryId
+     */
+    public long getDirectoryId() {
+        return directoryId;
+    }
+    
+    /**
+     * @param directoryId the directoryId to set
+     */
+    public void setDirectoryId(long directoryId) {
+        this.directoryId = directoryId;
+    }
+    
+    /**
+     * @return the fileName
+     */
     public String getFileName() {
         return fileName;
     }
-
-    public long getProjectVersion() {
-        return projectVersion;
+    
+    /**
+     * @param fileName the fileName to set
+     */
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
-
+    
+    /**
+     * @return the status
+     */
     public String getStatus() {
         return status;
     }
-
+    
+    /**
+     * @param status the status to set
+     */
+    public void setStatus(String status) {
+        this.status = status;
+    }
+    
+    /**
+     * @return the isDirectory
+     */
     public boolean isDirectory() {
         return isDirectory;
+    }
+    
+    /**
+     * @param isDirectory the isDirectory to set
+     */
+    public void setDirectory(boolean isDirectory) {
+        this.isDirectory = isDirectory;
     }
     
 }

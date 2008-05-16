@@ -45,7 +45,7 @@ class File extends WebuiItem {
     private Terrier terrier;
 
     public File (WSProjectFile wsFile, Terrier t) {
-        versionId = wsFile.getProjectVersion();
+        versionId = wsFile.getProjectVersionId();
         name = wsFile.getFileName();
         status = wsFile.getStatus();
         id = wsFile.getId();

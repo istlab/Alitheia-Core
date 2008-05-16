@@ -256,24 +256,35 @@ public class ProjectManager extends AbstractManager {
             if (currentElem instanceof ProjectFile) { //parse HQL
                 for (int i = 0; i < result.length; i++) {
                     currentElem = projectFiles.get(i);
-                    result[i] = new WSProjectFile((ProjectFile) currentElem);
+                    result[i] = createWSProjectFile((ProjectFile) currentElem);
                 }
             } else if (currentElem.getClass().isArray()) { //parse SQL
                 BigInteger fileId;
-                BigInteger projectVersion;
+                BigInteger projectVersionId;
+                BigInteger directoryId;
                 String fileName;
                 String status;
                 Boolean isDirectory;
                 Object[] currentFile;
+                WSProjectFile currentWSProjectFile;
                 for (int i = 0; i < result.length; i++) {
                     currentFile = (Object[])projectFiles.get(i);
                     fileId = (BigInteger)currentFile[0];
-                    fileName = (String)currentFile[1];
-                    projectVersion = (BigInteger)currentFile[2];
-                    status = (String)currentFile[3];
-                    isDirectory = (Boolean)currentFile[4];
-                    result[i] = new WSProjectFile(fileId.longValue(), fileName,
-                            projectVersion.longValue(), status, isDirectory);
+                    directoryId = (BigInteger)currentFile[1];
+                    fileName = (String)currentFile[2];
+                    projectVersionId = (BigInteger)currentFile[3];
+                    status = (String)currentFile[4];
+                    isDirectory = (Boolean)currentFile[5];
+                    
+                    currentWSProjectFile = new WSProjectFile();
+                    currentWSProjectFile.setId(fileId.longValue());
+                    currentWSProjectFile.setDirectoryId(directoryId.longValue());
+                    currentWSProjectFile.setDirectory(isDirectory);
+                    currentWSProjectFile.setStatus(status);
+                    currentWSProjectFile.setProjectVersionId(projectVersionId.longValue());
+                    currentWSProjectFile.setFileName(fileName);
+                    
+                    result[i] = currentWSProjectFile;
                 }
             }
         }
@@ -330,6 +341,18 @@ public class ProjectManager extends AbstractManager {
         wsProjectVersion.setTimestamp(projectVersion.getTimestamp());
         wsProjectVersion.setVersion(projectVersion.getVersion());
         return wsProjectVersion;
+    }
+    
+    private static WSProjectFile createWSProjectFile(ProjectFile projectFile) {
+        if (projectFile == null) return null;
+        WSProjectFile wsProjectFile = new WSProjectFile();
+        wsProjectFile.setId(projectFile.getId());
+        wsProjectFile.setDirectoryId(projectFile.getDir().getId());
+        wsProjectFile.setDirectory(projectFile.getIsDirectory());
+        wsProjectFile.setFileName(projectFile.getFileName());
+        wsProjectFile.setProjectVersionId(projectFile.getProjectVersion().getId());
+        wsProjectFile.setStatus(projectFile.getStatus());
+        return wsProjectFile;
     }
     
 }
