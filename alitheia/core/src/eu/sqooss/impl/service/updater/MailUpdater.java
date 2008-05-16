@@ -71,7 +71,8 @@ class MailUpdater extends Job {
     private AlitheiaCore core;
     private Logger logger;
     private UpdaterServiceImpl updater;
-
+    private DBService dbs;
+    
     public MailUpdater(StoredProject project,
             UpdaterServiceImpl updater,
                        AlitheiaCore core,
@@ -84,6 +85,7 @@ class MailUpdater extends Job {
         this.project = project;
         this.logger = logger;
         this.updater = updater;
+        this.dbs = core.getDBService();
     }
 
     public int priority() {
@@ -91,6 +93,7 @@ class MailUpdater extends Job {
     }
 
     protected void run() {
+        dbs.startDBSession();        
         try {
             TDAccessor spAccessor = core.getTDSService().getAccessor(project.getId());
             MailAccessor mailAccessor = spAccessor.getMailAccessor();
@@ -102,12 +105,12 @@ class MailUpdater extends Job {
             logger.warn(daoe.getMessage());
         }
         updater.removeUpdater(project.getName(),UpdaterService.UpdateTarget.MAIL);
+        dbs.commitDBSession();
     }
 
     private void processList(MailAccessor mailAccessor, MailingList mllist) {
         List<String> messageIds = null;
         String listId = mllist.getListId();
-        DBService dbs = core.getDBService();
         try {
             messageIds = mailAccessor.getNewMessages(listId);
         } catch (FileNotFoundException e) {
@@ -138,7 +141,7 @@ class MailUpdater extends Job {
                     InternetAddress inet = new InternetAddress(actualSender.toString());
                     senderEmail = inet.getAddress();
                 }
-                dbs.startDBSession();
+                
                 Developer sender = Developer.getDeveloperByEmail(senderEmail,
 						mllist.getStoredProject());
                 MailMessage mmsg = MailMessage.getMessageById(messageId);
@@ -152,7 +155,7 @@ class MailUpdater extends Job {
                     mmsg.setSubject(mm.getSubject());
                     dbs.addRecord(mmsg);
                 }
-                dbs.commitDBSession();
+                
                 if (!mailAccessor.markMessageAsSeen(listId, messageId)) {
                     logger.warn("Failed to mark message as seen.");
                 }
