@@ -287,7 +287,7 @@ public class ProjectManager extends AbstractManager {
             ProjectVersion currentElem;
             for (int i = 0; i < result.length; i++) {
                 currentElem = (ProjectVersion) projectVersions.get(i);
-                result[i] = new WSProjectVersion(currentElem);
+                result[i] = createWSProjectVersion(currentElem);
             }
         }
         return result;
@@ -317,6 +317,19 @@ public class ProjectManager extends AbstractManager {
         wsStoredProject.setRepository(storedProject.getRepository());
         wsStoredProject.setWebsite(storedProject.getWebsite());
         return wsStoredProject;
+    }
+    
+    private static WSProjectVersion createWSProjectVersion(ProjectVersion projectVersion) {
+        if (projectVersion == null) return null;
+        WSProjectVersion wsProjectVersion = new WSProjectVersion();
+        wsProjectVersion.setId(projectVersion.getId());
+        wsProjectVersion.setCommitMsg(projectVersion.getCommitMsg());
+        wsProjectVersion.setCommitterId(projectVersion.getCommitter().getId());
+        wsProjectVersion.setProjectId(projectVersion.getProject().getId());
+        wsProjectVersion.setProperties(projectVersion.getProperties());
+        wsProjectVersion.setTimestamp(projectVersion.getTimestamp());
+        wsProjectVersion.setVersion(projectVersion.getVersion());
+        return wsProjectVersion;
     }
     
 }

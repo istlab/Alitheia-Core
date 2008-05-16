@@ -56,7 +56,7 @@ public class Version extends WebuiItem {
         terrier = t;
         number = wsVersion.getVersion();
         name = "" + number;
-        projectId = wsVersion.getProject();
+        projectId = wsVersion.getProjectId();
     }
 
     public Version(Long projectId, Long versionId, Terrier t) {

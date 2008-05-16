@@ -32,46 +32,117 @@
 
 package eu.sqooss.impl.service.web.services.datatypes;
 
-import eu.sqooss.service.db.ProjectVersion;
-
 /**
  * This class wraps the <code>eu.sqooss.service.db.ProjectVersion</code>.
  */
 public class WSProjectVersion {
 
-    private ProjectVersion projectVersion;
-
-    public WSProjectVersion(ProjectVersion projectVersion) {
-        this.projectVersion = projectVersion;
-    }
-
+    private long id;
+    private String commitMsg;
+    private long committerId;
+    private long projectId;
+    private String properties;
+    private long timestamp;
+    private long version;
+    
+    /**
+     * @return the id
+     */
     public long getId() {
-        return projectVersion.getId();
-    }
-
-    public long getProject() {
-        return projectVersion.getProject().getId();
-    }
-
-    public long getVersion() {
-        return projectVersion.getVersion();
+        return id;
     }
     
-    public long getTimestamp() {
-        return projectVersion.getTimestamp();
+    /**
+     * @param id the id to set
+     */
+    public void setId(long id) {
+        this.id = id;
     }
     
+    /**
+     * @return the commitMsg
+     */
     public String getCommitMsg() {
-        return projectVersion.getCommitMsg();
+        return commitMsg;
     }
     
+    /**
+     * @param commitMsg the commitMsg to set
+     */
+    public void setCommitMsg(String commitMsg) {
+        this.commitMsg = commitMsg;
+    }
+    
+    /**
+     * @return the committerId
+     */
+    public long getCommitterId() {
+        return committerId;
+    }
+    
+    /**
+     * @param committerId the committerId to set
+     */
+    public void setCommitterId(long committerId) {
+        this.committerId = committerId;
+    }
+    
+    /**
+     * @return the projectId
+     */
+    public long getProjectId() {
+        return projectId;
+    }
+    
+    /**
+     * @param projectId the projectId to set
+     */
+    public void setProjectId(long projectId) {
+        this.projectId = projectId;
+    }
+    
+    /**
+     * @return the properties
+     */
     public String getProperties() {
-        return projectVersion.getProperties();
+        return properties;
     }
     
-    public long getCommiter() {
-        return projectVersion.getCommitter().getId();
+    /**
+     * @param properties the properties to set
+     */
+    public void setProperties(String properties) {
+        this.properties = properties;
     }
+    
+    /**
+     * @return the timestamp
+     */
+    public long getTimestamp() {
+        return timestamp;
+    }
+    
+    /**
+     * @param timestamp the timestamp to set
+     */
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
+    }
+    
+    /**
+     * @return the version
+     */
+    public long getVersion() {
+        return version;
+    }
+    
+    /**
+     * @param version the version to set
+     */
+    public void setVersion(long version) {
+        this.version = version;
+    }
+    
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
