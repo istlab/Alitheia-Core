@@ -39,6 +39,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Vector;
 import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
@@ -1085,15 +1086,31 @@ public class WebAdminRenderer {
                     && (reqValAction.equalsIgnoreCase(actValReqNewGroup))) {
                 b.append(sp(in) + "<fieldset>\n");
                 b.append(sp(++in) + "<legend>New group" + "</legend>\n");
-                b.append(sp(in) + "<span><b>Group name</b>&nbsp;"
-                        + "<input style=\"width: 150px;\""
-                        + " type=\"text\""
+                b.append(sp(in) + "<table class=\"borderless\">");
+                // Group name
+                b.append(sp(++in) + "<tr>\n"
+                        + sp(++in)
+                        + "<td class=\"borderless\" style=\"width:100px;\">"
+                        + "<b>Group name</b>"
+                        + "</td>\n"
+                        + sp(in)
+                        + "<td class=\"borderless\">\n"
+                        + sp(++in)
+                        + "<input type=\"text\""
+                        + " class=\"form\""
                         + " id=\"" + reqParGroupName + "\""
                         + " name=\"" + reqParGroupName + "\""
                         + " value=\"\">"
-                        + "&nbsp;"
-                        + "<input class=\"install\" style=\"width: 60px;\""
-                        + " type=\"button\""
+                        + "</td>\n"
+                        + sp(--in)
+                        + "</tr>\n");
+                // Toolbar
+                b.append(sp(in) + "<tr>\n"
+                        + sp(++in)
+                        + "<td colspan=\"2\" class=\"borderless\">"
+                        + "<input type=\"button\""
+                        + " class=\"install\""
+                        + " style=\"width: 100px;\""
                         + " value=\"Apply\""
                         + " onclick=\"javascript:"
                         + "document.getElementById('"
@@ -1101,12 +1118,16 @@ public class WebAdminRenderer {
                         + actValAddNewGroup + "';"
                         + "document.users.submit();\">"
                         + "&nbsp;"
-                        + "<input class=\"install\" style=\"width: 60px;\""
-                        + " type=\"button\""
+                        + "<input type=\"button\""
+                        + " class=\"install\""
+                        + " style=\"width: 100px;\""
                         + " value=\"Cancel\""
                         + " onclick=\"javascript:"
                         + "document.users.submit();\">"
-                        + "</span>\n");
+                        + "</td>\n"
+                        + sp(--in)
+                        + "</tr>\n");
+                b.append(sp(--in) + "</table>");
                 b.append(sp(--in) + "</fieldset>\n");
             }
             // ===============================================================
