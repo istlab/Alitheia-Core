@@ -137,42 +137,6 @@ public abstract class WSProjectAccessor extends WSAccessor {
     public abstract long getFilesNumberByProjectId(long projectId) throws WSException;
     
     /**
-     * This method creates a request for a project evaluation. The SQO-OSS
-     * framework administrator can then decide, if the project should be
-     * included for evaluation or not.
-     * <br/>
-     * If a project with the same characteristics is already stored in the
-     * SQO-OSS framework, then this method returns information about the
-     * existing project.
-     *  
-     * @param projectName - the project's name
-     * @param projectVersion - the project's version (optional)
-     * @param srcRepositoryLocation - URL of the project's source repository
-     * @param mailingListLocation - URL of the project's mailing list
-     * @param BTSLocation - URL of the project's bug tracking system
-     * @param userEmailAddress - alternative user's e-mail address, for
-     *   receiving the administrator's decision (optional)
-     * @param website - the project's web site
-     * 
-     * @return The <code>WSStoredProject</code> object that describes the
-     * new project, or the <code>WSStoredProject</code> object of the existing
-     * project.
-     * 
-     * @throws WSException
-     * <ul>
-     *  <li>if the connection can't be established to the SQO-OSS's web services service</li>
-     *  <li>if web services service throws an exception</li>
-     * <ul>
-     * 
-     * @deprecated This method has been deprecated, since the users where
-     *   withdrawn rights to request a project evaluation.
-     */
-    @Deprecated
-    public abstract WSStoredProject requestEvaluation4Project(String projectName, long projectVersion,
-            String srcRepositoryLocation, String mailingListLocation,
-            String BTSLocation, String userEmailAddress, String website) throws WSException;
-    
-    /**
      * This method returns the identifier of the project associated with the
      * given project name.
      * 

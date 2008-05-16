@@ -50,30 +50,6 @@ public class UserManager extends AbstractManager {
     }
     
     /**
-     * @see eu.sqooss.service.web.services.WebServices#createUser(String, String, String, String, String)
-     */
-    public WSUser createUser(String userNameForAccess, String passwordForAccess,
-            String newUserName, String newPassword, String email) {
-        
-        security.checkUserWriteAccess(userNameForAccess, passwordForAccess, -1, null);
-        
-        super.updateUserActivity(userNameForAccess);
-        
-        db.startDBSession();
-        User newUser = userManager.createUser(newUserName, newPassword, email);
-        if (newUser != null) {
-            WSUser wsu = new WSUser(newUser.getId(), newUser.getName(),
-                    newUser.getEmail(), newUser.getRegistered().getTime(),
-                    newUser.getLastActivity().getTime(), newUser.getGroups());
-            db.commitDBSession();
-            return wsu;
-        } else {
-            db.rollbackDBSession();
-            return null;
-        }
-    }
-    
-    /**
      * @see eu.sqooss.service.web.services.WebServices#createPendingUser(String, String, String, String, String)
      */
     public boolean createPendingUser(String userNameForAccess, String passwordForAccess,

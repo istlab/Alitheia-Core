@@ -61,8 +61,6 @@ import eu.sqooss.ws.client.ws.GetProjectVersionsByProjectId;
 import eu.sqooss.ws.client.ws.GetProjectVersionsByProjectIdResponse;
 import eu.sqooss.ws.client.ws.GetStoredProjects;
 import eu.sqooss.ws.client.ws.GetStoredProjectsResponse;
-import eu.sqooss.ws.client.ws.RequestEvaluation4Project;
-import eu.sqooss.ws.client.ws.RequestEvaluation4ProjectResponse;
 
 class WSProjectAccessorImpl extends WSProjectAccessor {
 
@@ -71,8 +69,6 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
     private static final String METHOD_NAME_GET_STORED_PROJECTS          = "getStoredProjects";
 
     private static final String METHOD_NAME_GET_FILES_BY_PROJECT_ID      = "getFilesByProjectId";
-
-    private static final String METHOD_NAME_REQUEST_EVALUATION_4_PROJECT = "requestEvaluation4Project";
 
     private static final String METHOD_NAME_GET_PROJECT_ID_BY_NAME       = "getProjectIdByName";
 
@@ -261,41 +257,6 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
             }
         }
         
-        return response.get_return();
-    }
-
-    /**
-     * @see eu.sqooss.scl.accessor.WSProjectAccessor#requestEvaluation4Project(java.lang.String, long, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)
-     */
-    @Override
-    public WSStoredProject requestEvaluation4Project(String projectName, long projectVersion,
-            String srcRepositoryLocation, String mailingListLocation,
-            String BTSLocation, String userEmailAddress, String website) throws WSException {
-        RequestEvaluation4ProjectResponse response;
-        RequestEvaluation4Project params;
-        if (!parameters.containsKey(METHOD_NAME_REQUEST_EVALUATION_4_PROJECT)) {
-            params = new RequestEvaluation4Project();
-            params.setPassword(password);
-            params.setUserName(userName);
-            parameters.put(METHOD_NAME_REQUEST_EVALUATION_4_PROJECT, params);
-        } else {
-            params = (RequestEvaluation4Project) parameters.get(
-                    METHOD_NAME_REQUEST_EVALUATION_4_PROJECT);
-        }
-        synchronized (params) {
-            params.setProjectName(projectName);
-            params.setProjectVersion(projectVersion);
-            params.setSrcRepositoryLocation(srcRepositoryLocation);
-            params.setMailingListLocation(mailingListLocation);
-            params.setBTSLocation(BTSLocation);
-            params.setUserEmailAddress(userEmailAddress);
-            params.setWebsite(website);
-            try {
-                response = wsStub.requestEvaluation4Project(params);
-            } catch (RemoteException re) {
-                throw new WSException(re);
-            }
-        }
         return response.get_return();
     }
 

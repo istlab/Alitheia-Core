@@ -41,29 +41,6 @@ import eu.sqooss.ws.client.datatypes.WSUser;
 public abstract class WSUserAccessor extends WSAccessor {
     
     /**
-     * This method creates a new SQO-OSS user with the given characteristics.
-     * 
-     * @param newUserName - name for the new user
-     * @param newPassword - password of the new user
-     * @param email - email address of the new user
-     * 
-     * @return The <code>WSUser</code> object, that describes the newly created
-     * user.
-     * 
-     * @throws WSException
-     * <ul>
-     *  <li>if the connection can't be established to the SQO-OSS's web services service</li>
-     *  <li>if web services service throws an exception</li>
-     * <ul>
-     * 
-     * @deprecated This method is deprecated, in favor of
-     * <code>createPendingUser()<code>.
-     */
-    @Deprecated
-    public abstract WSUser createUser(String newUserName, String newPassword,
-            String email) throws WSException;
-    
-    /**
      * 
      * This method creates a new pending user entry, and sends an email to the
      * given user address with a request for confirmation. After successful

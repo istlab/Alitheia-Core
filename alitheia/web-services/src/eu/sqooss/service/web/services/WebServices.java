@@ -268,56 +268,6 @@ public class WebServices {
         return projectManager.getFilesNumberByProjectId(
                 userName, password, projectId);
     }
-    
-    /**
-     * This method creates a request for a project evaluation. The SQO-OSS
-     * framework administrator can then decide, if the project should be
-     * included for evaluation or not.
-     * <br/>
-     * If a project with the same characteristics is already stored in the
-     * SQO-OSS framework, then this method returns information about the
-     * existing project.
-     * 
-     * @param userName - the user's name used for authentication
-     * @param password - the user's password used for authentication
-     * @param projectName - the project's name
-     * @param projectVersion - the project's version (optional)
-     * @param srcRepositoryLocation - URL of the project's source repository
-     * @param mailingListLocation - URL of the project's mailing list
-     * @param BTSLocation - URL of the project's bug tracking system
-     * @param userEmailAddress - alternative user's e-mail address, for
-     *   receiving the administrator's decision (optional)
-     * @param website - the project's web site
-     * 
-     * @return The <code>WSStoredProject</code> object that describes the
-     * new project, or the <code>WSStoredProject</code> object of the existing
-     * project.
-     * 
-     * @deprecated This method has been deprecated, since the users where
-     *   withdrawn rights to request a project evaluation.
-     */
-    @Deprecated
-    public WSStoredProject requestEvaluation4Project(
-            String userName,
-            String password,
-            String projectName,
-            long projectVersion,
-            String srcRepositoryLocation,
-            String mailingListLocation,
-            String BTSLocation,
-            String userEmailAddress,
-            String website) {
-        return projectManager.requestEvaluation4Project(
-                userName,
-                password,
-                projectName,
-                projectVersion,
-                srcRepositoryLocation,
-                mailingListLocation,
-                BTSLocation,
-                userEmailAddress,
-                website);
-    }
 
     // ===[ MetricManager methods]============================================
 
@@ -401,36 +351,6 @@ public class WebServices {
     }
     
     // ===[ UserManager methods]==============================================
-
-    /**
-     * This method creates a new SQO-OSS user with the given characteristics.
-     * 
-     * @param userNameForAccess - the SQO-OSS unprivileged user's name
-     * @param passwordForAccess - the SQO-OSS unprivileged user's password
-     * @param newUserName - name for the new user
-     * @param newPassword - password of the new user
-     * @param email - email address of the new user
-     * 
-     * return The <code>WSUser</code> object, that describes the newly created
-     *   user.
-     * 
-     * @deprecated This method is deprecated, in favor of
-     *   <code>createPendingUser()<code>.
-     */
-    @Deprecated
-    public WSUser createUser(
-            String userNameForAccess,
-            String passwordForAccess,
-            String newUserName,
-            String newPassword,
-            String email) {
-        return userManager.createUser(
-                userNameForAccess,
-                passwordForAccess,
-                newUserName,
-                newPassword,
-                email);
-    }
 
     /**
      * This method creates a new pending user entry, and sends an email to the

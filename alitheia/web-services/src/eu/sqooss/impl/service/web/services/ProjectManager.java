@@ -106,61 +106,6 @@ public class ProjectManager extends AbstractManager {
     }
     
     /**
-     * @see eu.sqooss.service.web.services.WebServices#requestEvaluation4Project(String, String, String, int, String, String, String, String, String)
-     */
-    public WSStoredProject requestEvaluation4Project(String userName, String password,
-            String projectName, long projectVersion,
-            String srcRepositoryLocation, String mailingListLocation,
-            String BTSLocation, String userEmailAddress, String website) {
-        logger.info("Request evaluation for project! user: " + userName +
-                "; project name: " + projectName + "; projectVersion: " + projectVersion +
-                ";\n source repository: " + srcRepositoryLocation +
-                "; mailing list: " + mailingListLocation +
-                ";\n BTS: " + BTSLocation + "; user's e-mail: " + userEmailAddress +
-                "; website: " + website);
-        
-        
-        securityWrapper.checkDBWriteAccess(userName, password);
-        
-        super.updateUserActivity(userName);
-        
-        db.startDBSession();
-        List<?> projects = dbWrapper.getStoredProjects(projectName, projectVersion);
-        
-        if (projects.size() == 0) {
-            StoredProject newStoredProject = new StoredProject();
-            newStoredProject.setBugs(BTSLocation);
-            newStoredProject.setContact(userEmailAddress);
-            newStoredProject.setMail(mailingListLocation);
-            newStoredProject.setName(projectName);
-            newStoredProject.setRepository(srcRepositoryLocation);
-            newStoredProject.setWebsite(website);
-            long newStoredProjectId;
-            
-            ProjectVersion newProjectVersion = new ProjectVersion();
-            newProjectVersion.setVersion(projectVersion);
-            
-            newStoredProjectId = dbWrapper.createNewProject(newStoredProject, newProjectVersion);
-            db.commitDBSession();
-            if (!tds.projectExists(newStoredProjectId)) {
-                tds.addAccessor(newStoredProjectId, projectName, BTSLocation,
-                        mailingListLocation, srcRepositoryLocation);
-            }
-            return new WSStoredProject(newStoredProject);
-        } else if (projects.size() == 1) {
-            WSStoredProject wsp = convertToWSStoredProject(projects)[0];
-            db.commitDBSession();
-            return wsp;
-        } else {
-            String message = "The database contains more than 1 project! name:" + 
-            projectName + "; version: " + projectVersion;
-            logger.warn(message);
-            db.rollbackDBSession();
-            throw new RuntimeException(message);
-        }
-    }
-    
-    /**
      * @see eu.sqooss.service.web.services.WebServices#getProjectIdByName(String, String, String)
      */
     public long getProjectIdByName(String userName, String password, String projectName) {

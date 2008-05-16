@@ -43,8 +43,6 @@ import eu.sqooss.ws.client.WsStub;
 import eu.sqooss.ws.client.datatypes.WSUser;
 import eu.sqooss.ws.client.ws.CreatePendingUser;
 import eu.sqooss.ws.client.ws.CreatePendingUserResponse;
-import eu.sqooss.ws.client.ws.CreateUser;
-import eu.sqooss.ws.client.ws.CreateUserResponse;
 import eu.sqooss.ws.client.ws.DeleteUserById;
 import eu.sqooss.ws.client.ws.DeleteUserByIdResponse;
 import eu.sqooss.ws.client.ws.GetUserById;
@@ -57,8 +55,6 @@ import eu.sqooss.ws.client.ws.ModifyUser;
 import eu.sqooss.ws.client.ws.ModifyUserResponse;
 
 class WSUserAccessorImpl extends WSUserAccessor {
-
-    private static final String METHOD_NAME_CREATE_USER          = "createUser";
 
     private static final String METHOD_NAME_CREATE_PENDING_USER  = "createPendingUser";
 
@@ -86,36 +82,6 @@ class WSUserAccessorImpl extends WSUserAccessor {
         } catch (AxisFault af) {
             throw new WSException(af);
         }
-    }
-
-    /**
-     * @see eu.sqooss.scl.accessor.WSUserAccessor#createUser(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)
-     */
-    @Override
-    public WSUser createUser(String newUserName, String newPassword,
-            String email) throws WSException {
-        CreateUserResponse response;
-        CreateUser params;
-        if (!parameters.containsKey(METHOD_NAME_CREATE_USER)) {
-            params = new CreateUser();
-            params.setPasswordForAccess(password);
-            params.setUserNameForAccess(userName);
-            parameters.put(METHOD_NAME_CREATE_USER, params);
-        } else {
-            params = (CreateUser) parameters.get(
-                    METHOD_NAME_CREATE_USER);
-        }
-        synchronized (params) {
-            params.setNewUserName(newUserName);
-            params.setNewPassword(newPassword);
-            params.setEmail(email);
-            try {
-                response = wsStub.createUser(params);
-            } catch (RemoteException re) {
-                throw new WSException(re);
-            }
-        }
-        return (WSUser) normaliseWSArrayResult(response.get_return());
     }
 
     /**
