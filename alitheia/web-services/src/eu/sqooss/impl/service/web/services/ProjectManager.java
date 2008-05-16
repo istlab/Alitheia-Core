@@ -45,20 +45,17 @@ import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
-import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.security.SecurityManager;
 
 public class ProjectManager extends AbstractManager {
     
     private Logger logger;
-    private TDSService tds;
     private ProjectManagerDatabase dbWrapper;
     private SecurityWrapper securityWrapper;
     
-    public ProjectManager(Logger logger, DBService db, TDSService tds, SecurityManager security) {
+    public ProjectManager(Logger logger, DBService db, SecurityManager security) {
         super(db);
         this.logger = logger;
-        this.tds = tds;
         this.dbWrapper = new ProjectManagerDatabase(db);
         this.securityWrapper = new SecurityWrapper(security);
     }
@@ -170,7 +167,7 @@ public class ProjectManager extends AbstractManager {
         StoredProject storedProject= dbWrapper.getProjectById(projectId);
         
         if (storedProject != null) {
-            WSStoredProject wsp = new WSStoredProject(storedProject);
+            WSStoredProject wsp = createWSStoredProject(storedProject);
             db.commitDBSession();
             return wsp;
         } else {
@@ -303,10 +300,23 @@ public class ProjectManager extends AbstractManager {
             StoredProject currentElem;
             for (int i = 0; i < result.length; i++) {
                 currentElem = (StoredProject) storedProjects.get(i);
-                result[i] = new WSStoredProject(currentElem);
+                result[i] = createWSStoredProject(currentElem);
             }
         }
         return result;
+    }
+    
+    private static WSStoredProject createWSStoredProject(StoredProject storedProject) {
+        if (storedProject == null) return null;
+        WSStoredProject wsStoredProject = new WSStoredProject();
+        wsStoredProject.setId(storedProject.getId());
+        wsStoredProject.setBugs(storedProject.getBugs());
+        wsStoredProject.setContact(storedProject.getContact());
+        wsStoredProject.setMail(storedProject.getMail());
+        wsStoredProject.setName(storedProject.getName());
+        wsStoredProject.setRepository(storedProject.getRepository());
+        wsStoredProject.setWebsite(storedProject.getWebsite());
+        return wsStoredProject;
     }
     
 }

@@ -48,7 +48,6 @@ import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.pa.PluginAdmin;
 import eu.sqooss.service.security.SecurityManager;
-import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.webadmin.WebadminService;
 
 /* 
@@ -95,12 +94,11 @@ public class WebServices {
             BundleContext bc,
             SecurityManager securityManager,
             DBService db,
-            TDSService tds,
             PluginAdmin pluginAdmin,
             Logger logger,
             WebadminService wa) {
         metricManager = new MetricManager(logger, db, pluginAdmin, securityManager);
-        projectManager = new ProjectManager(logger, db, tds, securityManager);
+        projectManager = new ProjectManager(logger, db, securityManager);
         userManager = new UserManager(securityManager, db);
         webadmin = wa;
     }

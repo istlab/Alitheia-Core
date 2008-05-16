@@ -32,47 +32,117 @@
 
 package eu.sqooss.impl.service.web.services.datatypes;
 
-import eu.sqooss.service.db.StoredProject;
-
 /**
  * This class wraps the <code>eu.sqooss.service.db.StoredProject</code>.
  */
 public class WSStoredProject {
     
-    private StoredProject storedProject;
+    private long id;
+    private String bugs;
+    private String contact;
+    private String mail;
+    private String name;
+    private String repository;
+    private String website;
 
-    public WSStoredProject(StoredProject storedProject) {
-        this.storedProject = storedProject;
+    /**
+     * @return the bugs
+     */
+    public String getBugs() {
+        return bugs;
+    }
+
+    /**
+     * @param bugs the bugs to set
+     */
+    public void setBugs(String bugs) {
+        this.bugs = bugs;
+    }
+
+    /**
+     * @return the contact
+     */
+    public String getContact() {
+        return contact;
+    }
+
+    /**
+     * @param contact the contact to set
+     */
+    public void setContact(String contact) {
+        this.contact = contact;
+    }
+
+    /**
+     * @return the id
+     */
+    public long getId() {
+        return id;
+    }
+
+    /**
+     * @param id the id to set
+     */
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    /**
+     * @return the mail
+     */
+    public String getMail() {
+        return mail;
+    }
+
+    /**
+     * @param mail the mail to set
+     */
+    public void setMail(String mail) {
+        this.mail = mail;
+    }
+
+    /**
+     * @return the name
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * @param name the name to set
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * @return the repository
+     */
+    public String getRepository() {
+        return repository;
+    }
+
+    /**
+     * @param repository the repository to set
+     */
+    public void setRepository(String repository) {
+        this.repository = repository;
+    }
+
+    /**
+     * @return the website
+     */
+    public String getWebsite() {
+        return website;
+    }
+
+    /**
+     * @param website the website to set
+     */
+    public void setWebsite(String website) {
+        this.website = website;
     }
     
-    public String getName() {
-        return storedProject.getName();
-    }
-
-    public String getWebsite() {
-        return storedProject.getWebsite();
-    }
-
-    public String getContact() {
-        return storedProject.getContact();
-    }
-
-    public String getBugs() {
-        return storedProject.getBugs();
-    }
-
-    public String getRepository() {
-        return storedProject.getRepository();
-    }
-
-    public String getMail() {
-        return storedProject.getMail();
-    }
-
-    public long getId() {
-        return storedProject.getId();
-    }
-
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
