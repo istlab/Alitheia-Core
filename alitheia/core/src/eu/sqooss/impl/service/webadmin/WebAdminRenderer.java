@@ -88,7 +88,7 @@ public class WebAdminRenderer {
     // Service components
     private static DBService sobjDB = null;
     private static MetricActivator sobjMetricActivator = null;
-    private static PluginAdmin sobjPluginAdmin = null;
+    private static PluginAdmin sobjPA = null;
     private static Scheduler sobjSched = null;
     private static TDSService sobjTDS = null;
     private static UpdaterService sobjUpdater = null;
@@ -128,8 +128,8 @@ public class WebAdminRenderer {
             }
 
             // Get the Plugin Administration object
-            sobjPluginAdmin = sobjAlitheiaCore.getPluginAdmin();
-            if (sobjPluginAdmin != null) {
+            sobjPA = sobjAlitheiaCore.getPluginAdmin();
+            if (sobjPA != null) {
                 sobjLogger.debug("WebAdmin got Plugin Admin object.");
             }
 
@@ -169,58 +169,82 @@ public class WebAdminRenderer {
         myStuffer.run();
     }
 
-    public static String renderMetrics(HttpServletRequest request) {
+    public static String renderMetrics(HttpServletRequest req) {
         // Stores the assembled HTML content
         StringBuilder b = new StringBuilder();
+        // Stores the accumulated error messages
+        StringBuilder e = new StringBuilder();
         // Indentation spacer
-        String IN = "            ";
+        long in = 6;
 
         // Create a DB session
         sobjDB.startDBSession();
-        // Retrieve information for all registered metric plug-ins
-        Collection<PluginInfo> l = sobjPluginAdmin.listPlugins();
 
         // Request parameters
-        String reqParAction         = "metricAction";
-        String reqParNumber         = "metricNumber";
+        String reqParAction        = "metricAction";
+        String reqParNumber        = "metricNumber";
+        // Recognized "action" parameter's values
+        String actValInstall       = "install";
+        String actValUninstall     = "uninstall";
         // Request values
-        String reqValInstall        = "install";
-        String reqValUninstall      = "uninstall";
-        if (request != null) {
-            String metricAction = request.getParameter(reqParAction);
-            String metricNumber = request.getParameter(reqParNumber);
+        boolean reqValShowAttr     = true;
+        boolean reqValShowActv     = true;
+
+        // ===============================================================
+        // Parse the servlet's request object
+        // ===============================================================
+        if (req != null) {
+            String metricAction = req.getParameter(reqParAction);
+            String metricHashcode = req.getParameter(reqParNumber);
             if (metricAction != null) {
-                if (metricNumber != null) {
+                if (metricHashcode != null) {
                     // Metric install request
-                    if (metricAction.equalsIgnoreCase(reqValInstall)) {
-                        if (sobjPluginAdmin.installPlugin(metricNumber)) {
-                            b.append("Metric successfuly installed.");
-                        }
-                        else {
-                            b.append("Metric can not be installed.");
-                            b.append(" Check log for details.");
+                    if (metricAction.equals(actValInstall)) {
+                        if (sobjPA.installPlugin(metricHashcode) == false) {
+                            e.append("Metric can not be installed!"
+                                    + " Check log for details.");
                         }
                     }
                     // Metric un-install request
-                    else if (metricAction.equalsIgnoreCase(reqValUninstall)) {
-                        if (sobjPluginAdmin.uninstallPlugin(metricNumber)) {
-                            b.append("Metric successfuly uninstalled.");
-                        }
-                        else {
-                            b.append("Metric can not be uninstalled.");
-                            b.append(" Check log for details.");
+                    else if (metricAction.equals(actValUninstall)) {
+                        if (sobjPA.uninstallPlugin(metricHashcode) == false) {
+                            e.append("Metric can not be uninstalled."
+                                    + " Check log for details.");
                         }
                     }
                 }
             }
         }
 
-        if (l.isEmpty()) {
-            b.append("No metrics found!");
+        if (sobjPA.listPlugins().isEmpty()) {
+            b.append(normalFieldset(
+                    "Metrics list",
+                    null,
+                    new StringBuilder("No metrics found!"),
+                    in));
         }
         else {
+            // ===============================================================
             // Create the form
-            b.append("<form id=\"metrics\" name=\"metrics\" method=\"post\" action=\"/index\">\n");
+            // ===============================================================
+            b.append(sp (in) + "<form id=\"metrics\""
+                    + " name=\"metrics\""
+                    + " method=\"post\""
+                    + " action=\"/index\">\n");
+
+            // ===============================================================
+            // Display the accumulated error messages (if any)
+            // ===============================================================
+            b.append(errorFieldset(e, ++in));
+
+            // ===============================================================
+            // Metrics list
+            // ===============================================================
+            b.append(sp(++in) + "<fieldset>\n");
+            b.append(sp(++in) + "<legend>All metrics</legend>\n");
+
+            // Retrieve information for all registered metric plug-ins
+            Collection<PluginInfo> l = sobjPA.listPlugins();
             // Create the table
             b.append("<table>\n");
             b.append("<thead>\n");
@@ -244,7 +268,7 @@ public class WebAdminRenderer {
                             + " type=\"button\""
                             + " value=\"INSTALL\""
                             + " onclick=\"javascript:"
-                            + "document.getElementById('" + reqParAction + "').value='" + reqValInstall + "';"
+                            + "document.getElementById('" + reqParAction + "').value='" + actValInstall + "';"
                             + "document.getElementById('" + reqParNumber +"').value='" + i.getHashcode() + "';"
                             + "document.metrics.submit();\""
                             + ">");
@@ -261,7 +285,8 @@ public class WebAdminRenderer {
                     b.append("</tr>\n");
                     
                     // Configuration bar
-                    b.append(renderMetricAttributes(i));
+                    b.append(renderMetricAttributes(
+                            i, reqValShowAttr, reqValShowActv, in));
                 }
             }
             // Installed plug-ins
@@ -275,7 +300,7 @@ public class WebAdminRenderer {
                             + " type=\"button\""
                             + " value=\"UNINSTALL\""
                             + " onclick=\"javascript:"
-                            + "document.getElementById('" + reqParAction + "').value='" + reqValUninstall  +"';"
+                            + "document.getElementById('" + reqParAction + "').value='" + actValUninstall  +"';"
                             + "document.getElementById('" + reqParNumber +"').value='" + i.getHashcode() + "';"
                             + "document.metrics.submit();\""
                             + ">");
@@ -292,7 +317,8 @@ public class WebAdminRenderer {
                     b.append("</tr>\n");
                     
                     // Configuration bar
-                    b.append(renderMetricAttributes(i));
+                    b.append(renderMetricAttributes(
+                            i, reqValShowAttr, reqValShowActv, in));
                 }
             }
             // Close the table
@@ -300,22 +326,37 @@ public class WebAdminRenderer {
             b.append("</table>\n");
             b.append("<input type=\"hidden\" id=\"" + reqParAction + "\" name=\"metricAction\" value=\"\">\n");
             b.append("<input type=\"hidden\" id=\"" + reqParNumber + "\" name=\"metricNumber\" value=\"\">\n");
+
+            b.append(sp(--in) + "</fieldset>\n");
+
+            // ===============================================================
             // Close the form
-            b.append("</form>\n");
+            // ===============================================================
+            b.append(sp(--in) + "</form>\n");
         }
 
         // Close the DB session
         sobjDB.commitDBSession();
+
         return b.toString();
     }
 
     /**
-     * Creates a set of table rows populated with the attributes and their
-     * values of the given <code>PluginInfo</code> object
+     * Creates a set of table rows populated with the metric attributes and
+     * their values as found in the given <code>PluginInfo</code> object
      * 
      * @param pluginInfo a <code>PluginInfo</code> object
+     * @param showAttributes
+     * @param showActivators
+     * @param in indentation space
+     * 
+     * @return The table as HTML snippet.
      */
-    private static String renderMetricAttributes(PluginInfo pluginInfo) {
+    private static String renderMetricAttributes(
+            PluginInfo pluginInfo,
+            boolean showAttributes,
+            boolean showActivators,
+            long in) {
         // Retrieve the configuration set of this plug-in
         List<PluginConfiguration> l =  pluginInfo.getConfiguration();
 
@@ -325,43 +366,45 @@ public class WebAdminRenderer {
         }
         // Skip plug-ins that aren't configured or don't have configuration
         else if ((l == null) || (l.isEmpty())) {
-            return ("<tr>"
-                    + "<td>&nbsp;</td>\n"
-                    + "<td colspan=\"3\" class=\"noattr\">"
+            return (sp(in++) + "<tr>\n"
+                    + sp(in) + "<td>&nbsp;</td>\n"
+                    + sp(in) + "<td colspan=\"3\" class=\"noattr\">"
                     + "This metric plug-in has no configurable attributes."
                     + "</td>\n"
-                    + "</tr>\n");
+                    + sp(--in)+ "</tr>\n");
         }
+        // Display all configuration attributes and activation types
         else {
             StringBuilder b = new StringBuilder();
-            
             // List the metric plug-in's configuration attributes
-            for (PluginConfiguration c : l) {
-                b.append("<tr>");
-                b.append("<td>&nbsp;</td>\n");
-                b.append("<td colspan=\"3\" class=\"attr\">"
-                        + "<b>Attribute:</b> " + c.getName()
-                        + "&nbsp;<b>Type:</b> " + c.getType()
-                        + "&nbsp;<b>Value:</b> " + c.getValue()
-                        + "</td>\n");
-                b.append("</tr>\n");
-            }
-            
-            // List the metric plug-in's activator types
-            List<Class<? extends DAObject>> activationTypesList =
-                pluginInfo.getActivationTypes();
-            if (activationTypesList != null) {
-                for (Class<? extends DAObject> activationType : activationTypesList) {
-                    b.append("<tr>");
-                    b.append("<td>&nbsp;</td>\n");
-                    b.append("<td colspan=\"3\" class=\"attr\">"
-                            + "<b>Activator:</b> "
-                            + activationType.getName()
-                            + "</td>");
-                    b.append("</tr>\n");
+            if (showAttributes) {
+                for (PluginConfiguration c : l) {
+                    b.append(sp(in++) + "<tr>");
+                    b.append(sp(in) + "<td>&nbsp;</td>\n");
+                    b.append(sp(in) + "<td colspan=\"3\" class=\"attr\">"
+                            + "<b>Attribute:</b> " + c.getName()
+                            + "&nbsp;<b>Type:</b> " + c.getType()
+                            + "&nbsp;<b>Value:</b> " + c.getValue()
+                            + "</td>\n");
+                    b.append(sp(--in)+ "</tr>\n");
                 }
             }
-            
+            // List the metric plug-in's activator types
+            if (showActivators) {
+                List<Class<? extends DAObject>> activationTypesList =
+                    pluginInfo.getActivationTypes();
+                if (activationTypesList != null) {
+                    for (Class<? extends DAObject> activationType : activationTypesList) {
+                        b.append("<tr>");
+                        b.append("<td>&nbsp;</td>\n");
+                        b.append("<td colspan=\"3\" class=\"attr\">"
+                                + "<b>Activator:</b> "
+                                + activationType.getName()
+                                + "</td>");
+                        b.append("</tr>\n");
+                    }
+                }
+            }
             return b.toString();
         }
     }
@@ -545,7 +588,7 @@ public class WebAdminRenderer {
     public static String renderProjects() {
         sobjDB.startDBSession();
         List projects = sobjDB.doHQL("from StoredProject");
-        Collection<PluginInfo> metrics = sobjPluginAdmin.listPlugins();
+        Collection<PluginInfo> metrics = sobjPA.listPlugins();
 
         if (projects == null || metrics == null) {
             sobjDB.commitDBSession();
@@ -591,7 +634,7 @@ public class WebAdminRenderer {
             for(PluginInfo m : metrics) {
                 if(m.installed) {
                     s.append("<td>");
-                    s.append(sobjMetricActivator.getLastAppliedVersion(sobjPluginAdmin.getPlugin(m), p));
+                    s.append(sobjMetricActivator.getLastAppliedVersion(sobjPA.getPlugin(m), p));
                     s.append("</td>");
                 }
             }
@@ -651,10 +694,10 @@ public class WebAdminRenderer {
         String parts[] = text.split("@");
         if (parts.length != 2) return false;
         // Check for head or foot occurrence of dot signs
-        p = Pattern.compile("^[.]");
+        p = Pattern.compile("^[.].*");
         if (p.matcher(parts[0]).matches()) return false;
         if (p.matcher(parts[1]).matches()) return false;
-        p = Pattern.compile("[.]$");
+        p = Pattern.compile(".*[.]$");
         if (p.matcher(parts[0]).matches()) return false;
         if (p.matcher(parts[1]).matches()) return false;
         // Local part regexp
@@ -664,6 +707,48 @@ public class WebAdminRenderer {
         // Match both parts
         return ((l.matcher(parts[0]).matches())
                 && (d.matcher(parts[1]).matches()));
+    }
+
+    /**
+     * Produces an HTML <code>fieldset</code> presenting the HTML content
+     * stored in the given <code>StringBuilder</code>.
+     * 
+     * @param name the fieldset legend's name
+     * @param css the CSS class name to use
+     * @param content the HTML content
+     * @param in the indentation length (<i>rendered into *2 spaces</i>)
+     * 
+     * @return The HTML presentation.
+     */
+    private static String normalFieldset (
+            String name,
+            String css,
+            StringBuilder content,
+            long in) {
+        if ((content != null) && (content.toString().length() > 0)) {
+            return (sp(in) + "<fieldset"
+                    + ((css != null) ? "class=\"" + css + "\"": "")
+                    + ">\n"
+                    + sp(++in) + "<legend>"
+                    + ((name != null) ? name : "NONAME")
+                    + "</legend>\n"
+                    + content.toString()
+                    + sp(--in) + "</fieldset>\n");
+        }
+        return ("");
+    }
+
+    /**
+     * Produces an HTML <code>fieldset</code> presenting all errors stored in
+     * the given <code>StringBuilder</code>.
+     * 
+     * @param errors the list of errors
+     * @param in the indentation length (<i>rendered into *2 spaces</i>)
+     * 
+     * @return The HTML presentation.
+     */
+    private static String errorFieldset (StringBuilder errors, long in) {
+        return normalFieldset("Errors", null, errors, in);
     }
 
     /**
@@ -991,13 +1076,7 @@ public class WebAdminRenderer {
             // ===============================================================
             // Display the accumulated error messages (if any)
             // ===============================================================
-            if (e.toString().length() > 0) {
-                b.append(sp(++in) + "<fieldset>\n");
-                b.append(sp(++in) + "<legend>Error</legend>\n");
-                b.append(e.toString());
-                b.append(sp(--in) + "</fieldset>\n");
-                in--;
-            }
+            b.append(errorFieldset(e, ++in));
 
             // ===============================================================
             // "New group" editor
@@ -1742,7 +1821,11 @@ public class WebAdminRenderer {
             b.append(sp(--in) + "</form>\n");
         }
         else {
-            b.append("No users found!");
+            b.append(normalFieldset(
+                    "Users list",
+                    null,
+                    new StringBuilder("No users found!"),
+                    in));
         }
         // Close the DB session
         sobjDB.commitDBSession();
