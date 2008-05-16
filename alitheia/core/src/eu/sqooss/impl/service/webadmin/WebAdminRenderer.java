@@ -57,6 +57,7 @@ import eu.sqooss.service.db.GroupPrivilege;
 import eu.sqooss.service.db.PluginConfiguration;
 import eu.sqooss.service.db.Privilege;
 import eu.sqooss.service.db.PrivilegeValue;
+import eu.sqooss.service.db.ServiceUrl;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.db.User;
 import eu.sqooss.service.logging.LogManager;
@@ -69,6 +70,7 @@ import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.security.GroupManager;
 import eu.sqooss.service.security.PrivilegeManager;
 import eu.sqooss.service.security.SecurityManager;
+import eu.sqooss.service.security.ServiceUrlManager;
 import eu.sqooss.service.security.UserManager;
 import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.TDAccessor;
@@ -779,6 +781,7 @@ public class WebAdminRenderer {
         UserManager secUM = sobjSecurity.getUserManager();
         GroupManager secGM = sobjSecurity.getGroupManager();
         PrivilegeManager secPM = sobjSecurity.getPrivilegeManager();
+        ServiceUrlManager secSU = sobjSecurity.getServiceUrlManager();
 
         // Proceed only when at least the system user is available
         if (secUM.getUsers().length > 0) {
@@ -806,6 +809,8 @@ public class WebAdminRenderer {
             String actValReqRemUser    = "reqRemUser";
             String actValConRemUser    = "conRemUser";
             String actValConEditUser   = "conEditUser";
+            String actValReqService    = "reqService";
+            String actValAddService    = "addService";
             // Request values
             Long   reqValUserId        = null;
             Long   reqValGroupId       = null;
@@ -832,11 +837,10 @@ public class WebAdminRenderer {
                 if (DEBUG) {
                     b.append(debugRequest(req));
                 }
-                // Retrieve the requested list view
+                // Retrieve the requested list view (if any)
                 reqValViewList = req.getParameter(reqParViewList);
-                if ((reqValViewList == null)
-                        || (reqValViewList.length() == 0)) {
-                    reqValViewList = "users";
+                if (reqValViewList == null) {
+                    reqValViewList = "";
                 }
                 // Retrieve the selected user's DAO (if any)
                 reqValUserId = fromString(req.getParameter(reqParUserId));
@@ -1378,6 +1382,71 @@ public class WebAdminRenderer {
                 b.append(sp(--in) + "</fieldset>\n");
             }
             // ===============================================================
+            // "Add service" editor
+            // ===============================================================
+            else if ((reqValAction != null)
+                    && (reqValAction.equalsIgnoreCase(actValReqService))) {
+                b.append(sp(in) + "<fieldset>\n");
+                b.append(sp(++in) + "<legend>Add service"
+                        + ((selGroup != null) 
+                                ? " to group" + selGroup.getDescription() 
+                                        : "")
+                        + "</legend>\n");
+                b.append(sp(in) + "<table class=\"borderless\">");
+                // Service name
+                b.append(sp(++in) + "<tr>\n"
+                        + sp(++in)
+                        + "<td class=\"borderless\" style=\"width:100px;\">"
+                        + "<b>User name</b>"
+                        + "</td>\n"
+                        + sp(in)
+                        + "<td class=\"borderless\">\n"
+                        + sp(++in)
+                        + "<select class=\"form\""
+                        + " id=\"addService\""
+                        + " name=\"addService\">\n");
+                for (ServiceUrl service : secSU.getServiceUrls()) {
+                        b.append(sp(in) + "<option"
+                                + " value=\"" + service.getId() + "\""
+                                + ">"
+                                + service.getUrl()
+                                + "</option>\n");
+                }
+                b.append(sp(in) + "</select>\n"
+                        + sp(--in)
+                        + "</td>\n"
+                        + sp(--in)
+                        + "</tr>\n");
+                // Toolbar
+                b.append(sp(in) + "<tr>\n"
+                        + sp(++in)
+                        + "<td colspan=\"2\" class=\"borderless\">"
+                        + "<input type=\"button\""
+                        + " class=\"install\""
+                        + " style=\"width: 100px;\""
+                        + " value=\"Remove\""
+                        + " onclick=\"javascript:"
+                        + "document.getElementById('"
+                        + reqParAction + "').value='"
+                        + actValConRemUser + "';"
+                        + "document.getElementById('"
+                        + reqParUserId + "').value="
+                        + "document.getElementById('removeUser').value;"
+                        + "document.users.submit();\">"
+                        + "&nbsp;"
+                        + "<input type=\"button\""
+                        + " class=\"install\""
+                        + " style=\"width: 100px;\""
+                        + " value=\"Cancel\""
+                        + " onclick=\"javascript:"
+                        + "document.users.submit();\">"
+                        + "</td>\n"
+                        + sp(--in)
+                        + "</tr>\n");
+                b.append(sp(--in) + "</table>");
+                b.append(sp(--in) + "</fieldset>\n");
+            }
+            // ===============================================================
             // Main viewers and editors
             // ===============================================================
             else {
@@ -1391,7 +1460,7 @@ public class WebAdminRenderer {
                             + "</legend>\n");
                 }
                 // Create the fieldset for the "group" views
-                if ((reqValViewList.equals("groups")) || (selGroup != null)) {
+                else if ((reqValViewList.equals("groups")) || (selGroup != null)) {
                     b.append(sp(++in) + "<fieldset>\n");
                     b.append(sp(++in) + "<legend>"
                             + ((selGroup != null)
@@ -1407,8 +1476,7 @@ public class WebAdminRenderer {
                 // ===========================================================
                 // User editor - header row
                 // ===========================================================
-                if ((selUser != null)
-                        && (reqValViewList.equals("users"))) {
+                if (selUser != null) {
                     b.append(sp(++in) + "<td class=\"head\""
                             + " style=\"width: 40%;\">"
                             + "Account Details</td>\n");
@@ -1437,6 +1505,21 @@ public class WebAdminRenderer {
                             + " style=\"width: 30%;\">"
                             + "Created</td>\n");
                     maxColspan = 4;
+                }
+                // ===========================================================
+                // Group editor - header row
+                // ===========================================================
+                else if (selGroup != null) {
+                    b.append(sp(++in) + "<td class=\"head\""
+                            + " style=\"width: 40%;\">"
+                            + "Resource Name</td>\n");
+                    b.append(sp(in) + "<td class=\"head\""
+                            + " style=\"width: 30%;\">"
+                            + "Privilege Type</td>\n");
+                    b.append(sp(in) + "<td class=\"head\""
+                            + " style=\"width: 30%;\">"
+                            + "Privilege Value</td>\n");
+                    maxColspan = 3;
                 }
                 // ===========================================================
                 // Groups list - header row
@@ -1573,6 +1656,41 @@ public class WebAdminRenderer {
                     }
                 }
                 // ===========================================================
+                // Group editor - content rows
+                // ===========================================================
+                else if (selGroup != null) {
+                    if (selGroup.getGroupPrivileges().isEmpty()) {
+                        b.append(sp(++in) + "<tr>\n");
+                        b.append(sp(++in) + "<td"
+                                + " colspan=\"" + maxColspan + "\""
+                                + " class=\"noattr\""
+                                + ">"
+                                + "This group has no attached resources."
+                                + "</td>\n");
+                        b.append(sp(--in) + "</tr>\n");
+                    }
+                    else {
+                        for (Object priv : selGroup.getGroupPrivileges()) {
+                            b.append(sp(++in) + "<tr>\n");
+                            // Cast to a GroupPrivilege and display it
+                            GroupPrivilege grPriv = (GroupPrivilege) priv;
+                            // Service name
+                            b.append(sp(++in) + "<td>"
+                                    + grPriv.getUrl().getUrl()
+                                    + "</td>\n");
+                            // Privilege type
+                            b.append(sp(in) + "<td>"
+                                    + grPriv.getPv().getPrivilege().getDescription()
+                                    + "</td>\n");
+                            // Privilege value
+                            b.append(sp(in) + "<td>"
+                                    + grPriv.getPv().getValue()
+                                    + "</td>\n");
+                            b.append(sp(--in) + "</tr>\n");
+                        }
+                    }
+                }
+                // ===========================================================
                 // Groups list -content rows
                 // ===========================================================
                 else if (reqValViewList.equals("groups")) {
@@ -1660,6 +1778,41 @@ public class WebAdminRenderer {
                         in--;
                     }
                     b.append(sp(in) + "</td>\n");
+                    // Close the toolbar
+                    b.append(sp(--in) + "</tr>\n");
+                }
+                // ===============================================================
+                // Group editor - toolbar
+                // ===============================================================
+                else if ((selGroup != null)
+                    && (selGroup.getDescription().equals(
+                            sobjSecurity.getSystemGroup()) == false)) {
+                    // Create the toolbar
+                    b.append(sp(in) + "<tr>\n");
+                    // Group modifications
+                    b.append(sp(in++) + "<td colspan=\""
+                            + maxColspan
+                            + "\">\n");
+                    b.append(sp(++in) + "<input type=\"button\""
+                            + " class=\"install\""
+                            + " style=\"width: 100px;\""
+                            + " value=\"Add Resource\""
+                            + " onclick=\"javascript:"
+                            + "document.getElementById('"
+                            + reqParAction + "').value='"
+                            + actValReqService + "';"
+                            + "document.users.submit();\""
+                            + ">\n");
+                    b.append(sp(in) + "<input type=\"button\""
+                            + " class=\"install\""
+                            + " style=\"width: 100px;\""
+                            + " value=\"Remove\""
+                            + " onclick=\"javascript:"
+                            + "document.getElementById('"
+                            + reqParAction + "').value='"
+                            + actValConRemGroup + "';"
+                            + "document.users.submit();\""
+                            + ">\n");
                     // Close the toolbar
                     b.append(sp(--in) + "</tr>\n");
                 }
@@ -1770,56 +1923,48 @@ public class WebAdminRenderer {
                     b.append(sp(in) + "<table>\n");
 
                     b.append(sp(++in) + "<thead>\n");
-                    b.append(sp(++in) + "<tr class=\"head\">\n");
                     b.append(sp(++in) + "<td class=\"head\""
-                            + " style=\"width: 15%;\">"
-                            + "Actions</td>\n");
+                            + " style=\"width: 40%;\">"
+                            + "Resource Name</td>\n");
                     b.append(sp(in) + "<td class=\"head\""
-                            + " style=\"width: 55%;\">"
-                            + "Services</td>\n");
+                            + " style=\"width: 30%;\">"
+                            + "Privilege Type</td>\n");
                     b.append(sp(in) + "<td class=\"head\""
-                            + " style=\"width: 15%;\">"
-                            + "Privileges</td>\n");
-                    b.append(sp(in) + "<td class=\"head\""
-                            + " style=\"width: 15%;\">"
-                            + "Rights</td>\n");
-                    b.append(sp(--in) + "</tr>\n");
+                            + " style=\"width: 30%;\">"
+                            + "Privilege Value</td>\n");
                     b.append(sp(--in) + "</thead>\n");
+                    maxColspan = 3;
 
                     b.append(sp(in) + "<tbody>\n");
-
-                    // "Assigned rights" header
-                    if (selGroup.getGroupPrivileges().isEmpty() == false) {
-                        // "Assigned rights" list
-                        for (Object privilege : selGroup.getGroupPrivileges()) {
+                    if (selGroup.getGroupPrivileges().isEmpty()) {
+                        b.append(sp(++in) + "<tr>\n");
+                        b.append(sp(++in) + "<td"
+                                + " colspan=\"" + maxColspan + "\""
+                                + " class=\"noattr\""
+                                + ">"
+                                + "This group has no attached resources."
+                                + "</td>\n");
+                        b.append(sp(--in) + "</tr>\n");
+                    }
+                    else {
+                        for (Object priv : selGroup.getGroupPrivileges()) {
+                            b.append(sp(++in) + "<tr>\n");
                             // Cast to a GroupPrivilege and display it
-                            GroupPrivilege grPriv = (GroupPrivilege) privilege;
-                            b.append(sp(in) + "<tr>\n");
-                            // Action bar
-                            b.append(sp(++in) + "<td>"
-                                    + "&nbsp;"
-                                    + "</td>\n");
-                            // Attached service
+                            GroupPrivilege grPriv = (GroupPrivilege) priv;
+                            // Service name
                             b.append(sp(++in) + "<td>"
                                     + grPriv.getUrl().getUrl()
                                     + "</td>\n");
-                            // Assigned privilege
-                            b.append(sp(++in) + "<td>"
+                            // Privilege type
+                            b.append(sp(in) + "<td>"
                                     + grPriv.getPv().getPrivilege().getDescription()
                                     + "</td>\n");
-                            // Granted right
-                            b.append(sp(++in) + "<td>"
+                            // Privilege value
+                            b.append(sp(in) + "<td>"
                                     + grPriv.getPv().getValue()
                                     + "</td>\n");
                             b.append(sp(--in) + "</tr>\n");
                         }
-                    }
-                    else {
-                        b.append(sp(++in) + "<tr>\n");
-                        b.append(sp(++in) + "<td class=\"noattr\""
-                                + " colspan=\"4\">"
-                                + "No assigned privileges</td>\n");
-                        b.append(sp(--in) + "</tr>\n");
                     }
 
 //                    // "Available rights" header
@@ -1912,9 +2057,7 @@ public class WebAdminRenderer {
             b.append(sp(in) + "<input type=\"hidden\""
                     + " id=\"" + reqParViewList + "\"" 
                     + " name=\"" + reqParViewList + "\""
-                    + " value=\""
-                    + ((reqValViewList != null) ? reqValViewList : "")
-                    + "\">\n");
+                    + " value=\"\">\n");
 
             // ===============================================================
             // Close the form
