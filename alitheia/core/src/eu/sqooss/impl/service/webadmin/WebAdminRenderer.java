@@ -222,6 +222,7 @@ public class WebAdminRenderer {
         String actValInstall       = "installPlugin";
         String actValUninstall     = "uninstallPlugin";
         String actValReqAddAttr    = "requestAttribute";
+        String actValReqUpdAttr    = "updateAttribute";
         String actValConAddAttr    = "confirmAttribute";
         // Request values
         String reqValAction        = "";
@@ -262,20 +263,23 @@ public class WebAdminRenderer {
                     b.append(debugRequest(req));
                 }
 
-                // Retrieve the selected plug-in's hash code and info object
-                reqValHashcode = req.getParameter(reqParHashcode);
-                if (reqValHashcode != null) {
-                    selPI = sobjPA.getPluginInfo(reqValHashcode);
-                }
-                // Retrieve the selected configuration parameter's values
-                reqValAttrName = req.getParameter(reqParAttrName);
-                reqValAttrDescr = req.getParameter(reqParAttrDescr);
-                reqValAttrType = req.getParameter(reqParAttrType);
-                reqValAttrValue = req.getParameter(reqParAttrValue);
                 // Retrieve the selected editor's action (if any)
                 reqValAction = req.getParameter(reqParAction);
                 if (reqValAction == null) {
                     reqValAction = "";
+                }
+                // Retrieve the selected configuration parameter's values
+                if ((reqValAction.equals(actValConAddAttr))
+                        || (reqValAction.equals(actValReqUpdAttr))) {
+                    reqValAttrName = req.getParameter(reqParAttrName);
+                    reqValAttrDescr = req.getParameter(reqParAttrDescr);
+                    reqValAttrType = req.getParameter(reqParAttrType);
+                    reqValAttrValue = req.getParameter(reqParAttrValue);
+                }
+                // Retrieve the selected plug-in's hash code and info object
+                reqValHashcode = req.getParameter(reqParHashcode);
+                if (reqValHashcode != null) {
+                    selPI = sobjPA.getPluginInfo(reqValHashcode);
                 }
                 if (reqValHashcode != null) {
                     // Plug-in install request
@@ -318,7 +322,8 @@ public class WebAdminRenderer {
             // "Update/New configuration parameter" editor
             // ===============================================================
             if ((selPI != null)
-                    && (reqValAction.equalsIgnoreCase(actValReqAddAttr))) {
+                    && ((reqValAction.equals(actValReqAddAttr))
+                            || (reqValAction.equals(actValReqUpdAttr)))) {
                 // Field value
                 String value = null;
                 // Create the field-set
@@ -495,7 +500,7 @@ public class WebAdminRenderer {
                             + " onclick=\"javascript:"
                             + "document.getElementById('"
                             + reqParAction + "').value='"
-                            + actValReqAddAttr + "';"
+                            + actValReqUpdAttr + "';"
                             + "document.getElementById('"
                             + reqParAttrName + "').value='"
                             + param.getName() + "';"
