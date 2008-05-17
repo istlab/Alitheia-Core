@@ -32,6 +32,11 @@
 
 package eu.sqooss.impl.service.webadmin;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.LineNumberReader;
 import java.text.DateFormat;
 import java.util.Collection;
 import java.util.Date;
@@ -40,6 +45,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
@@ -2464,8 +2470,6 @@ public class WebAdminRenderer {
     }
 
     public void addProject(HttpServletRequest request) {        
-        final String tryAgain = "<p><a href=\"/projects\">Try again</a>.</p>";
-        final String returnToList = "<p><a href=\"/projects\">Try again</a>.</p>";
         
         String name = request.getParameter("name");
         String website = request.getParameter("website");
@@ -2474,6 +2478,14 @@ public class WebAdminRenderer {
         String mail = request.getParameter("mail");
         String scm = request.getParameter("scm");
         
+        addProject(name, website, contact, bts, mail, scm); 
+    }
+    
+    private void addProject(String name, String website, String contact, 
+            String bts, String mail, String scm) {
+        final String tryAgain = "<p><a href=\"/projects\">Try again</a>.</p>";
+        final String returnToList = "<p><a href=\"/projects\">Try again</a>.</p>";
+       
         // Avoid missing-entirely kinds of parameters.
         if ( (name == null) ||
              (website == null) ||
@@ -2570,6 +2582,70 @@ public class WebAdminRenderer {
             sobjDB.commitDBSession();
         }
     }
+    
+    public void addProjectDir(HttpServletRequest request) {
+        String info = request.getParameter("info");
+        
+        if(info == null || info.length() == 0) {
+            vc.put("RESULTS",
+                    "<p>Add project failed because some of the required information was missing.</p>"
+                    + "<b>" + info + "</b>");
+            return;
+        }
+        
+        if (!info.endsWith("info.txt")) {
+            vc.put("RESULTS",
+                    "<p>The entered path does not include an info.txt file</p> <br/>"
+                    + "<b>" + info + "</b>");
+            return;
+        }
+        
+        File f = new File(info);
+        
+        if (!f.exists() || !f.isFile()) {
+            vc.put("RESULTS",
+                    "<p>The provided path does not exist or is not a file</p> <br/>"
+                    + "<b>" + info + "</b>");
+            return;
+        }
+        
+        String name = f.getParentFile().getName();
+        String bts = "bts:" + f.getParentFile().getAbsolutePath() + "/bugs";
+        String mail = "maildir:" + f.getParentFile().getAbsolutePath() + "/mail";
+        String scm = "file://" + f.getParentFile().getAbsolutePath() + "/svn";
+        
+        Pattern wsPattern = Pattern.compile("^Website:?\\s*(http.*)$");
+        Pattern ctnPattern = Pattern.compile("^Contact:?\\s*(http.*)$");
+        
+        String website = "", contact = "";
+        
+        try {
+            LineNumberReader lnr = new LineNumberReader(new FileReader(f));
+            String line = null;
+            while((line = lnr.readLine()) != null) {
+                Matcher m = wsPattern.matcher(line);
+                if(m.matches()){
+                    website = m.group(1);
+                }
+                m = ctnPattern.matcher(line);
+                if(m.matches()){
+                    contact = m.group(1);
+                }
+            }
+        } catch (FileNotFoundException fnfe) {
+            vc.put("RESULTS",
+                    "<p>Error opeing file info.txt, file vanished?</p> <br/>"
+                    + "<b>" + fnfe.getMessage() + "</b>");
+            return;
+        } catch (IOException e) {
+            vc.put("RESULTS",
+                    "<p>The provided path does not exist or is not a file</p> <br/>"
+                    + "<b>" + info + "</b>");
+            return;
+        }
+        
+        addProject(name, website, contact, bts, mail, scm);        
+    }
 
     public void setMOTD(WebadminService webadmin, HttpServletRequest request) {
         webadmin.setMessageOfTheDay(request.getParameter("motdtext"));
@@ -2580,5 +2656,5 @@ public class WebAdminRenderer {
 
     public static void logRequest(String request) {
         sobjLogger.info(request);
-    }
+    }  
 }

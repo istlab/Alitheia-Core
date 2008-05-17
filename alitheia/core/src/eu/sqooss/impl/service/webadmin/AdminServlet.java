@@ -199,7 +199,10 @@ public class AdminServlet extends HttpServlet {
             if (query.startsWith("/addproject")) {
                 render.addProject(request);
                 sendPage(response, "/results.html");
-            } 
+            } else if (query.startsWith("/diraddproject")) {
+                render.addProjectDir(request);
+                sendPage(response, "/results.html");
+            }
             else if (query.startsWith("/motd")) {
                 render.setMOTD(webadmin, request);
                 sendPage(response, "/results.html");

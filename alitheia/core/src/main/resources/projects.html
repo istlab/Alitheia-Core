@@ -15,24 +15,26 @@
                 <tr>
                   <td>Project Name:</td>
                   <td><input name="name" type="text" class="form" /></td>
-<!-- TODO: this kind of texts needs i18n support -->
-		  <td rowspan="6" valign="top">Enter project information here. The project name
-		  is a human-readable short name for the project and is displayed
-		  to users, so use the common name for it. Website is the main
-		  project website for that project and is also displayed
-		  to users. Contact is for the project contact and not
-		  displayed for users; usually you enter a sysadmin address.<br/><br/>
-		  Bugs, mail and subversion refer to the Alitheia data stores
-		  for each of the project data types.
-		  </td>
+					<!-- TODO: this kind of texts needs i18n support -->
+		  			<td rowspan="7" valign="top">Enter project information here. The project name
+		  			is a human-readable short name for the project and is displayed
+		  			to users, so use the common name for it. Website is the main
+		  			project website for that project and is also displayed
+		  			to users. Contact is for the project contact and not
+		  			displayed for users; usually you enter a sysadmin address.<br/><br/>
+		  			Bugs, mail and subversion refer to the Alitheia data stores
+		  			for each of the project data types. <br/><br/>
+		  			Alternatively, if the project to be added follows the standard SQO-OSS mirrored project 
+		  			directory layout, you can use the form below to select the <tt>info.txt</tt> file  
+		  			</td>
                 </tr>
                 <tr>
                   <td>Website:</td>
-                  <td><input name="website" type="text" class="form" /></td>
+                  <td><input name="website" type="text" class="form"/></td>
                 </tr>
                 <tr>
                   <td>Contact:</td>
-                  <td><input name="contact" type="text" class="form" /></td>
+                  <td><input name="contact" type="text" class="form"/></td>
                 </tr>
                 <tr>
                   <td>Bug Database:</td>
@@ -40,17 +42,26 @@
                 </tr>
                 <tr>
                   <td>Mail:</td>
-                  <td><input name="mail" type="text" class="form" /></td>
+                  <td><input name="mail" type="text" class="form"/></td>
                 </tr>
                 <tr>
                   <td>Subversion:</td>
-                  <td><input name="scm" type="text" class="form" /></td>
+                  <td><input name="scm" type="text" class="form"/></td>
                 </tr>
                 <tr>
                   <td>&nbsp;</td>
-                  <td><input type="submit" value="Install Project" /></td>
+                  <td><input type="submit" value="Install Project"/></td>
                 </tr>
               </table>
+            </form>
+            <form id="addprojectdir" method="post" action="diraddproject">
+            <table width="100%">
+            	<tr>
+            		<td width="20%">Project info.txt file</td>
+            		<td width="60%"><input name="info" type="text" alt="Enter the path to the info.txt file of the project you want to install" class="form"/></td>
+            		<td width="20%"><input type="submit" value="Install Project"/></td>	
+            	</tr>
+            </table>
             </form>
           </fieldset>
           <div id="projectlist">
@@ -61,6 +72,6 @@
           </div>
 	</div>
       </div>
-#parse("sidebar.inc")
+	#parse("sidebar.inc")
   </body>
 </html>
