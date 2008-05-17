@@ -41,6 +41,7 @@ import eu.sqooss.scl.WSException;
 import eu.sqooss.scl.WSSession;
 import eu.sqooss.scl.accessor.WSAccessor;
 import eu.sqooss.scl.accessor.WSProjectAccessor;
+import eu.sqooss.ws.client.datatypes.WSStoredProject;
 
 /**
  * <code>ConnectionUtils</code> is a utility class which
@@ -68,7 +69,7 @@ public class ConnectionUtils {
     private String userName;
     private String password;
     private String projectName;
-    private long projectId;
+    private WSStoredProject storedProject;
     private WSSession wsSession;
     
     /**
@@ -228,9 +229,14 @@ public class ConnectionUtils {
             wsSession = new WSSession(userName, password, serverUrl);
             WSProjectAccessor projectAccessor =
                 ((WSProjectAccessor) wsSession.getAccessor(WSAccessor.Type.PROJECT));
-            projectId = projectAccessor.getProjectIdByName(projectName);
-            isValid = true;
-            errorMessage = "";
+            storedProject = projectAccessor.getProjectByName(projectName);
+            if (storedProject == null) {
+                isValid = false;
+                errorMessage = "The project doesn't exist!";
+            } else {
+                isValid = true;
+                errorMessage = "";
+            }
         } catch (WSException wse) {
             isValid = false;
             errorMessage = getExceptionDump(wse); 

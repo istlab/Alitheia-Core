@@ -158,12 +158,13 @@ public abstract class WSProjectAccessor extends WSAccessor {
     public abstract long getFilesNumberByProjectId(long projectId) throws WSException;
     
     /**
-     * This method returns the identifier of the project associated with the
-     * given project name.
+     * The method returns all information, that the SQO-OSS framework has
+     * collected about the specified project.
      * 
-     * @param projectName - the name of the project as stored in the SQO-OSS.
+     * @param projectName - the project's name
      * 
-     * @return The identifier of the matching project.
+     * @return The <code>WSStoredProject</code> object that describes the
+     * project, or <code>null</code> when such project does not exist.
      * 
      * @throws WSException
      * <ul>
@@ -171,7 +172,7 @@ public abstract class WSProjectAccessor extends WSAccessor {
      *  <li>if web services service throws an exception</li>
      * <ul>
      */
-    public abstract long getProjectIdByName(String projectName) throws WSException;
+    public abstract WSStoredProject getProjectByName(String projectName) throws WSException;
     
     /**
      * The method returns an array representing all evaluated versions of the

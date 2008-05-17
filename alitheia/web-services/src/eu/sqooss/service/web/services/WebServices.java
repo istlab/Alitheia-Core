@@ -198,26 +198,6 @@ public class WebServices {
     }
     
     /**
-     * This method returns the identifier of the project associated with the
-     * given project name.
-     * 
-     * @param userName - the user's name used for authentication
-     * @param password - the user's password used for authentication
-     * @param projectName - the project's name
-     * 
-     * @return The identifier of the matching project.
-     * @throws IllegalArgumentException - when a matching project can not be
-     *   found.
-     */
-    public long getProjectIdByName(
-            String userName,
-            String password,
-            String projectName) {
-        return projectManager.getProjectIdByName(
-                userName, password, projectName);
-    }
-
-    /**
      * The method returns an array representing all evaluated versions of the
      * given project.
      * 
@@ -254,6 +234,25 @@ public class WebServices {
         return projectManager.getProjectById(userName, password, projectId);
     }
 
+    /**
+     * The method returns all information, that the SQO-OSS framework has
+     * collected about the specified project.
+     * 
+     * @param userName - the user's name used for authentication
+     * @param password - the user's password used for authentication
+     * @param projectName - the project's name
+     * 
+     * @return The <code>WSStoredProject</code> object that describes the
+     * project, or <code>null</code> when such project does not exist.
+     */
+    public WSStoredProject getProjectByName(
+            String userName,
+            String password,
+            String projectName) {
+        return projectManager.getProjectByName(
+                userName, password, projectName);
+    }
+    
     /**
      * The method returns the total number of files, that exists in the given
      * project version.

@@ -105,11 +105,11 @@ public class ProjectManager extends AbstractManager {
     }
     
     /**
-     * @see eu.sqooss.service.web.services.WebServices#getProjectIdByName(String, String, String)
+     * @see eu.sqooss.service.web.services.WebServices#getProjectByName(String, String, String)
      */
-    public long getProjectIdByName(String userName, String password, String projectName) {
+    public WSStoredProject getProjectByName(String userName, String password, String projectName) {
 
-        logger.info("Retrieve project id! user: " + userName +
+        logger.info("Retrieve project! user: " + userName +
                 "; project name: " + projectName);
 
         db.startDBSession();
@@ -117,12 +117,13 @@ public class ProjectManager extends AbstractManager {
         db.commitDBSession();
                 
         if (projects.size() != 0) {
-            long projectId = projects.get(0).getId();
-            securityWrapper.checkProjectReadAccess(userName, password, projectId);
+            StoredProject storedProject = projects.get(0); 
+            securityWrapper.checkProjectReadAccess(
+                    userName, password, storedProject.getId());
             super.updateUserActivity(userName);
-            return projectId;
+            return createWSStoredProject(storedProject);
         } else {
-            throw new IllegalArgumentException("Can't find the project with name: " + projectName);
+            return null;
         }
     }
     

@@ -58,8 +58,8 @@ import eu.sqooss.ws.client.ws.GetFilesNumberByProjectVersionId;
 import eu.sqooss.ws.client.ws.GetFilesNumberByProjectVersionIdResponse;
 import eu.sqooss.ws.client.ws.GetProjectById;
 import eu.sqooss.ws.client.ws.GetProjectByIdResponse;
-import eu.sqooss.ws.client.ws.GetProjectIdByName;
-import eu.sqooss.ws.client.ws.GetProjectIdByNameResponse;
+import eu.sqooss.ws.client.ws.GetProjectByName;
+import eu.sqooss.ws.client.ws.GetProjectByNameResponse;
 import eu.sqooss.ws.client.ws.GetProjectVersionsByProjectId;
 import eu.sqooss.ws.client.ws.GetProjectVersionsByProjectIdResponse;
 import eu.sqooss.ws.client.ws.GetStoredProjects;
@@ -73,7 +73,7 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
 
     private static final String METHOD_NAME_GET_FILES_BY_PROJECT_ID      = "getFilesByProjectId";
 
-    private static final String METHOD_NAME_GET_PROJECT_ID_BY_NAME       = "getProjectIdByName";
+    private static final String METHOD_NAME_GET_PROJECT_BY_NAME          = "getProjectByName";
 
     private static final String METHOD_NAME_GET_PROJECT_VERSIONS_BY_PROJECT_ID       = "getProjectVersionsByProjectId";
 
@@ -293,25 +293,25 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
     }
 
     /**
-     * @see eu.sqooss.scl.accessor.WSProjectAccessor#getProjectIdByName(java.lang.String)
+     * @see eu.sqooss.scl.accessor.WSProjectAccessor#getProjectByName(java.lang.String)
      */
     @Override
-    public long getProjectIdByName(String projectName) throws WSException {
-        GetProjectIdByNameResponse response;
-        GetProjectIdByName params;
-        if (!parameters.containsKey(METHOD_NAME_GET_PROJECT_ID_BY_NAME)) {
-            params = new GetProjectIdByName();
+    public WSStoredProject getProjectByName(String projectName) throws WSException {
+        GetProjectByNameResponse response;
+        GetProjectByName params;
+        if (!parameters.containsKey(METHOD_NAME_GET_PROJECT_BY_NAME)) {
+            params = new GetProjectByName();
             params.setPassword(password);
             params.setUserName(userName);
-            parameters.put(METHOD_NAME_GET_PROJECT_ID_BY_NAME, params);
+            parameters.put(METHOD_NAME_GET_PROJECT_BY_NAME, params);
         } else {
-            params = (GetProjectIdByName) parameters.get(
-                    METHOD_NAME_GET_PROJECT_ID_BY_NAME);
+            params = (GetProjectByName) parameters.get(
+                    METHOD_NAME_GET_PROJECT_BY_NAME);
         }
         synchronized (params) {
             params.setProjectName(projectName);
             try {
-                response = wsStub.getProjectIdByName(params);
+                response = wsStub.getProjectByName(params);
             } catch (RemoteException re) {
                 throw new WSException(re);
             }
