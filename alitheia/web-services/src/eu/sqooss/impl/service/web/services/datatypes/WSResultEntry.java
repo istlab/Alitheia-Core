@@ -32,8 +32,6 @@
 
 package eu.sqooss.impl.service.web.services.datatypes;
 
-import eu.sqooss.service.abstractmetric.ResultEntry;
-
 /**
  * The Class WSResultEntry.
  */
@@ -43,22 +41,46 @@ public class WSResultEntry {
     private String mnemonic;
     private String mimeType;
     
-    public WSResultEntry(ResultEntry resultEntry) {
-        this.result = resultEntry.toString();
-        this.mnemonic = resultEntry.getMnemonic();
-        this.mimeType = resultEntry.getMimeType();
-    }
-    
+    /**
+     * @return the result
+     */
     public String getResult() {
         return result;
     }
     
+    /**
+     * @param result the result to set
+     */
+    public void setResult(String result) {
+        this.result = result;
+    }
+    
+    /**
+     * @return the mnemonic
+     */
     public String getMnemonic() {
         return mnemonic;
     }
     
+    /**
+     * @param mnemonic the mnemonic to set
+     */
+    public void setMnemonic(String mnemonic) {
+        this.mnemonic = mnemonic;
+    }
+    
+    /**
+     * @return the mimeType
+     */
     public String getMimeType() {
         return mimeType;
+    }
+    
+    /**
+     * @param mimeType the mimeType to set
+     */
+    public void setMimeType(String mimeType) {
+        this.mimeType = mimeType;
     }
     
 }

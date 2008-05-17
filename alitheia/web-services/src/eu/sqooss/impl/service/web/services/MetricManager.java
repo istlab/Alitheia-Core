@@ -220,7 +220,7 @@ public class MetricManager extends AbstractManager {
             for (int i = 0; i < currentResult.getRowCount(); i++) {
                 currentRow = currentResult.getRow(i);
                 for (int j = 0; j < currentRow.size(); j++) {
-                    resultList.add(new WSResultEntry(currentRow.get(j)));
+                    resultList.add(createWSResultEntry(currentRow.get(j)));
                 }
             }
         }
@@ -277,6 +277,15 @@ public class MetricManager extends AbstractManager {
         wsMetricType.setId(metricType.getId());
         wsMetricType.setType(metricType.getType());
         return wsMetricType; 
+    }
+    
+    private static WSResultEntry createWSResultEntry(ResultEntry resultEntry) {
+        if (resultEntry == null) return null;
+        WSResultEntry wsResultEntry = new WSResultEntry();
+        wsResultEntry.setMimeType(resultEntry.getMimeType());
+        wsResultEntry.setMnemonic(resultEntry.getMnemonic());
+        wsResultEntry.setResult(resultEntry.toString());
+        return wsResultEntry;
     }
     
 }
