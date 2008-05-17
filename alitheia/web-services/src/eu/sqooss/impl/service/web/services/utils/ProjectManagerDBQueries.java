@@ -129,6 +129,14 @@ interface ProjectManagerDBQueries {
                                                      " and pv.version=:" +
                                                      GET_STORED_PROJECTS_PARAM_PR_VERSION;
     
+    
+    public static final String GET_PROJECT_VERSIONS_BY_IDS_PARAM = "list_of_pvs_ids";
+    
+    public static final String GET_PROJECT_VERSIONS_BY_IDS = "select pv " +
+                                                             "from ProjectVersion pv " +
+                                                             "where pv.id in (:" +
+                                                             GET_PROJECT_VERSIONS_BY_IDS_PARAM + ") ";
+    
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

@@ -33,6 +33,8 @@
 package eu.sqooss.impl.service.web.services.utils;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Hashtable;
 import java.util.List;
@@ -70,6 +72,17 @@ public class ProjectManagerDatabase implements ProjectManagerDBQueries {
         return db.findObjectById(StoredProject.class, projectId);
     }
 
+    @SuppressWarnings("unchecked")
+    public List<?> getProjectVersionsByIds(long[] ids) {
+        Map<String, Collection> queryParameters = new Hashtable<String, Collection>(1);
+        Collection idsCollection = new ArrayList(ids.length);
+        for (long id : ids) {
+            idsCollection.add(id);
+        }
+        queryParameters.put(GET_PROJECT_VERSIONS_BY_IDS_PARAM, idsCollection);
+        return db.doHQL(GET_PROJECT_VERSIONS_BY_IDS, null, queryParameters);
+    }
+    
     public List<?> getStoredProjects(String projectName, long projectVersion) {
         Map<String, Object> queryParameters = new Hashtable<String, Object>(2);
         queryParameters.put(GET_STORED_PROJECTS_PARAM_PR_NAME, projectName);

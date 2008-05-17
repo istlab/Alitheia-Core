@@ -193,6 +193,23 @@ public abstract class WSProjectAccessor extends WSAccessor {
     
     /**
      * The method returns all information, that the SQO-OSS framework has
+     * collected about the specified project versions.
+     * 
+     * @param projectVerionsIds - the project versions' identifiers
+     * 
+     * @return The <code>WSProjectVersion</code> array that describes the
+     * project versions, or empty array when such project versions do not exist.
+     * 
+     * @throws WSException
+     * <ul>
+     *  <li>if the connection can't be established to the SQO-OSS's web services service</li>
+     *  <li>if web services service throws an exception</li>
+     * <ul>
+     */
+    public abstract WSProjectVersion[] getProjectVersionsByIds(long[] projectVersionsIds) throws WSException;
+    
+    /**
+     * The method returns all information, that the SQO-OSS framework has
      * collected about the specified projects.
      * 
      * @param userName - the user's name used for authentication

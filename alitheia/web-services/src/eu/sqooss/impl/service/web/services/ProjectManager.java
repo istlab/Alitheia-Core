@@ -157,6 +157,26 @@ public class ProjectManager extends AbstractManager {
 
     }
     
+    public WSProjectVersion[] getProjectVersionsByIds(
+            String userName,
+            String password,
+            long[] projectVersionsIds) {
+
+        logger.info("Retrieve project versions! user: " + userName +
+                "; project versions' ids: " + Arrays.toString(projectVersionsIds));
+
+        securityWrapper.checkProjectVersionsReadAccess(
+                userName, password, projectVersionsIds);
+
+        super.updateUserActivity(userName);
+
+        db.startDBSession();
+        List<?> wspv = dbWrapper.getProjectVersionsByIds(projectVersionsIds);
+        db.commitDBSession();
+
+        return convertToWSProjectVersion(wspv);
+    }
+    
     /**
      *  @see eu.sqooss.service.web.services.WebServices#getProjectsByIds(String, String, long[])
      */
@@ -211,7 +231,8 @@ public class ProjectManager extends AbstractManager {
         logger.info("Get file list for project version! user: " + userName +
                 "; project version id: " + projectVersionId);
         
-        securityWrapper.checkProjectVersionReadAccess(userName, password, projectVersionId);
+        securityWrapper.checkProjectVersionsReadAccess(
+                userName, password, new long[] {projectVersionId});
         
         super.updateUserActivity(userName);
         
@@ -251,7 +272,8 @@ public class ProjectManager extends AbstractManager {
         logger.info("Get files's number for project version! user: " + userName +
                 "; project version id: " + projectVersionId);
         
-        securityWrapper.checkProjectVersionReadAccess(userName, password, projectVersionId);
+        securityWrapper.checkProjectVersionsReadAccess(
+                userName, password, new long[] {projectVersionId});
         
         super.updateUserActivity(userName);
         

@@ -56,6 +56,8 @@ import eu.sqooss.ws.client.ws.GetFilesNumberByProjectId;
 import eu.sqooss.ws.client.ws.GetFilesNumberByProjectIdResponse;
 import eu.sqooss.ws.client.ws.GetFilesNumberByProjectVersionId;
 import eu.sqooss.ws.client.ws.GetFilesNumberByProjectVersionIdResponse;
+import eu.sqooss.ws.client.ws.GetProjectVersionsByIds;
+import eu.sqooss.ws.client.ws.GetProjectVersionsByIdsResponse;
 import eu.sqooss.ws.client.ws.GetProjectsByIds;
 import eu.sqooss.ws.client.ws.GetProjectsByIdsResponse;
 import eu.sqooss.ws.client.ws.GetProjectByName;
@@ -76,6 +78,8 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
     private static final String METHOD_NAME_GET_PROJECT_BY_NAME          = "getProjectByName";
 
     private static final String METHOD_NAME_GET_PROJECT_VERSIONS_BY_PROJECT_ID       = "getProjectVersionsByProjectId";
+    
+    private static final String METHOD_NAME_GET_PROJECT_VERSIONS_BY_IDS              = "getProjectVersionsByIds";
 
     private static final String METHOD_NAME_GET_PROJECTS_BY_IDS                      = "getProjectsByIds";
 
@@ -87,7 +91,8 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
     
     private static final String METHOD_NAME_GET_FILE_GROUPS_BY_PROJECT_ID            = "getFileGroupsByProjectId";
 
-    private static final WSStoredProject[] EMPTY_ARRAY_STORED_PROJECTS = new WSStoredProject[0];
+    private static final WSStoredProject[] EMPTY_ARRAY_STORED_PROJECTS   = new WSStoredProject[0];
+    private static final WSProjectVersion[] EMPTY_ARRAY_PROJECT_VERSIONS = new WSProjectVersion[0];
     
     private Map<String, Object> parameters;
     private String userName;
@@ -349,6 +354,36 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
 
         return (WSProjectVersion[]) normaliseWSArrayResult(response.get_return());
 
+    }
+
+    /**
+     * @see eu.sqooss.scl.accessor.WSProjectAccessor#getProjectVersionsByIds(long[])
+     */
+    @Override
+    public WSProjectVersion[] getProjectVersionsByIds(long[] projectVersionsIds)
+            throws WSException {
+        if (!isValidArray(projectVersionsIds)) return EMPTY_ARRAY_PROJECT_VERSIONS;
+        GetProjectVersionsByIdsResponse response;
+        GetProjectVersionsByIds params;
+        if (!parameters.containsKey(METHOD_NAME_GET_PROJECT_VERSIONS_BY_IDS)) {
+            params = new GetProjectVersionsByIds();
+            params.setPassword(password);
+            params.setUserName(userName);
+            parameters.put(METHOD_NAME_GET_PROJECT_VERSIONS_BY_IDS, params);
+        } else {
+            params = (GetProjectVersionsByIds) parameters.get(
+                    METHOD_NAME_GET_PROJECT_VERSIONS_BY_IDS);
+        }
+        synchronized (params) {
+            params.setProjectVersionsIds(projectVersionsIds);
+            try {
+                response = wsStub.getProjectVersionsByIds(params);
+            } catch (RemoteException re) {
+                throw new WSException(re);
+            }
+        }
+        
+        return (WSProjectVersion[]) normaliseWSArrayResult(response.get_return());
     }
 
     /**
