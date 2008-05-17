@@ -65,6 +65,7 @@ import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.metricactivator.MetricActivator;
 import eu.sqooss.service.pa.PluginAdmin;
 import eu.sqooss.service.pa.PluginInfo;
+import eu.sqooss.service.pa.PluginInfo.ConfigurationType;
 import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.security.GroupManager;
@@ -172,9 +173,36 @@ public class WebAdminRenderer {
         myStuffer.run();
     }
 
+    /**
+     * Verifies, if the specified configuration parameter exist in the
+     * given plug-in's information object.
+     * 
+     * @param selPI the plug-in's information object
+     * @param name the parameter's name
+     * @param type the parameter's type
+     * 
+     * @return <code>true</code>, if such parameter is found,
+     *   or <code>false</code> otherwise.
+     */
+    public static boolean paramExist (
+            PluginInfo selPI,
+            String name,
+            String type) {
+        if ((selPI == null) || (name == null) || (type == null)) {
+            return false;
+        }
+        for (PluginConfiguration param : selPI.getConfiguration()) {
+            if ((param.getName().equals(name))
+                    && (param.getType().equals(type))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static String renderMetrics(HttpServletRequest req) {
         // Stores the assembled HTML content
-        StringBuilder b = new StringBuilder();
+        StringBuilder b = new StringBuilder("\n");
         // Stores the accumulated error messages
         StringBuilder e = new StringBuilder();
         // Indentation spacer
@@ -184,53 +212,99 @@ public class WebAdminRenderer {
         sobjDB.startDBSession();
 
         // Request parameters
-        String reqParAction        = "metricAction";
-        String reqParNumber        = "metricNumber";
+        String reqParAction        = "action";
+        String reqParHashcode      = "pluginHashcode";
+        String reqParAttrName      = "attributeName";
+        String reqParAttrDescr     = "attributeDescription";
+        String reqParAttrType      = "attributeType";
+        String reqParAttrValue     = "attributeValue";
         // Recognized "action" parameter's values
-        String actValInstall       = "install";
-        String actValUninstall     = "uninstall";
+        String actValInstall       = "installPlugin";
+        String actValUninstall     = "uninstallPlugin";
+        String actValReqAddAttr    = "requestAttribute";
+        String actValConAddAttr    = "confirmAttribute";
         // Request values
+        String reqValAction        = "";
+        String reqValHashcode      = null;
         boolean reqValShowAttr     = true;
         boolean reqValShowActv     = true;
+        String reqValAttrName      = null;
+        String reqValAttrDescr     = null;
+        String reqValAttrType      = null;
+        String reqValAttrValue     = null;
+        // Info object of the selected plug-in
+        PluginInfo selPI           = null;
 
-        // ===============================================================
-        // Parse the servlet's request object
-        // ===============================================================
-        if (req != null) {
-            String metricAction = req.getParameter(reqParAction);
-            String metricHashcode = req.getParameter(reqParNumber);
-            if (metricAction != null) {
-                if (metricHashcode != null) {
-                    // Metric install request
-                    if (metricAction.equals(actValInstall)) {
-                        if (sobjPA.installPlugin(metricHashcode) == false) {
-                            e.append("Metric can not be installed!"
-                                    + " Check log for details.");
-                        }
-                    }
-                    // Metric un-install request
-                    else if (metricAction.equals(actValUninstall)) {
-                        if (sobjPA.uninstallPlugin(metricHashcode) == false) {
-                            e.append("Metric can not be uninstalled."
-                                    + " Check log for details.");
-                        }
-                    }
-                }
-            }
-        }
-
+        // Proceed only when at least one plug-in is registered
         if (sobjPA.listPlugins().isEmpty()) {
             b.append(normalFieldset(
-                    "Metrics list",
+                    "All plug-ins",
                     null,
-                    new StringBuilder("No metrics found!"),
+                    new StringBuilder("<span>"
+                            + "No plug-ins found!&nbsp;"
+                            + "<input type=\"button\""
+                            + " class=\"install\""
+                            + " style=\"width: 100px;\""
+                            + " value=\"Refresh\""
+                            + " onclick=\"javascript:"
+                            + "window.location.reload(true);"
+                            + "\">"
+                            + "</span>"),
                     in));
         }
         else {
             // ===============================================================
+            // Parse the servlet's request object
+            // ===============================================================
+            if (req != null) {
+                // DEBUG: Dump the servlet's request parameter
+                if (DEBUG) {
+                    b.append(debugRequest(req));
+                }
+
+                // Retrieve the selected plug-in's hash code and info object
+                reqValHashcode = req.getParameter(reqParHashcode);
+                if (reqValHashcode != null) {
+                    selPI = sobjPA.getPluginInfo(reqValHashcode);
+                }
+                // Retrieve the selected configuration parameter's values
+                reqValAttrName = req.getParameter(reqParAttrName);
+                reqValAttrDescr = req.getParameter(reqParAttrDescr);
+                reqValAttrType = req.getParameter(reqParAttrType);
+                reqValAttrValue = req.getParameter(reqParAttrValue);
+                // Retrieve the selected editor's action (if any)
+                reqValAction = req.getParameter(reqParAction);
+                if (reqValAction == null) {
+                    reqValAction = "";
+                }
+                if (reqValHashcode != null) {
+                    // Plug-in install request
+                    if (reqValAction.equals(actValInstall)) {
+                        if (sobjPA.installPlugin(reqValHashcode) == false) {
+                            e.append("Plug-in can not be installed!"
+                                    + " Check log for details.");
+                        }
+                    }
+                    // Plug-in un-install request
+                    else if (reqValAction.equals(actValUninstall)) {
+                        if (sobjPA.uninstallPlugin(reqValHashcode) == false) {
+                            e.append("Plug-in can not be uninstalled."
+                                    + " Check log for details.");
+                        }
+                    }
+                    // Plug-in's configuration parameter create/update
+                    else if (reqValAction.equals(actValConAddAttr)) {
+                        // Check for a parameter update
+                        boolean update = paramExist(
+                                selPI, reqValAttrName, reqValAttrType);
+                    }
+                }
+            }
+
+            // ===============================================================
             // Create the form
             // ===============================================================
-            b.append(sp (in) + "<form id=\"metrics\""
+            b.append(sp(in++) + "<form id=\"metrics\""
                     + " name=\"metrics\""
                     + " method=\"post\""
                     + " action=\"/index\">\n");
@@ -238,99 +312,406 @@ public class WebAdminRenderer {
             // ===============================================================
             // Display the accumulated error messages (if any)
             // ===============================================================
-            b.append(errorFieldset(e, ++in));
+            b.append(errorFieldset(e, in));
 
             // ===============================================================
-            // Metrics list
+            // "Update/New configuration parameter" editor
             // ===============================================================
-            b.append(sp(++in) + "<fieldset>\n");
-            b.append(sp(++in) + "<legend>All metrics</legend>\n");
-
-            // Retrieve information for all registered metric plug-ins
-            Collection<PluginInfo> l = sobjPA.listPlugins();
-            // Create the table
-            b.append("<table>\n");
-            b.append("<thead>\n");
-            b.append("<tr class=\"head\">\n");
-            b.append("<td class=\"head\" style=\"width: 80px;\">Status</td>\n");
-            b.append("<td class=\"head\" style=\"width: 30%;\">Name</td>\n");
-            b.append("<td class=\"head\" style=\"width: 40%;\">Class</td>\n");
-            b.append("<td class=\"head\">Version</td>\n");
-            b.append("</tr>\n");
-            b.append("</thead>\n");
-            b.append("<tbody>\n");
-            // Push the metrics info
-            // Not-installed plug-ins first
-            for(PluginInfo i : l) {
-                if (i.installed == false) {
-                    b.append("<tr class=\"uninstalled\">");
-                    
-                    // Command bar
-                    b.append("<td style=\"padding: 0;\">");
-                    b.append("<input class=\"install\""
-                            + " type=\"button\""
-                            + " value=\"INSTALL\""
-                            + " onclick=\"javascript:"
-                            + "document.getElementById('" + reqParAction + "').value='" + actValInstall + "';"
-                            + "document.getElementById('" + reqParNumber +"').value='" + i.getHashcode() + "';"
-                            + "document.metrics.submit();\""
-                            + ">");
-                    b.append("</td>\n");
-                    
-                    // Info bar
-                    b.append("<td>" + i.getPluginName() + "</td>\n");
-                    b.append("<td>"
-                            + StringUtils.join((String[]) (
-                                    i.getServiceRef().getProperty(
-                                            Constants.OBJECTCLASS)),",")
-                            + "</td>\n");
-                    b.append("<td>" + i.getPluginVersion() + "</td>\n");
-                    b.append("</tr>\n");
-                    
-                    // Configuration bar
-                    b.append(renderMetricAttributes(
-                            i, reqValShowAttr, reqValShowActv, in));
+            if ((selPI != null)
+                    && (reqValAction.equalsIgnoreCase(actValReqAddAttr))) {
+                // Field value
+                String value = null;
+                // Create the field-set
+                b.append(sp(in) + "<fieldset>\n");
+                // Check for a parameter update
+                boolean update = paramExist(
+                        selPI, reqValAttrName, reqValAttrType);
+                b.append(sp(++in) + "<legend>"
+                        + ((update)
+                                ? "Update parameter of "
+                                : "New parameter for ")
+                        + selPI.getPluginName()
+                        + "</legend>\n");
+                b.append(sp(in) + "<table class=\"borderless\">");
+                // Parameter's name
+                value = ((reqValAttrName != null) ? reqValAttrName : "");
+                b.append(sp(in) + "<tr>\n"
+                        + sp(++in)
+                        + "<td class=\"borderless\" style=\"width:100px;\">"
+                        + "<b>Name</b>"
+                        + "</td>\n"
+                        + sp(in)
+                        + "<td class=\"borderless\">"
+                        + ((update) ? value
+                                : "<input type=\"text\""
+                                    + " class=\"form\""
+                                    + " id=\"" + reqParAttrName + "\""
+                                    + " name=\"" + reqParAttrName + "\""
+                                    + " value=\"" + value + "\">")
+                                    + "</td>\n"
+                                    + sp(--in) + "</tr>\n");
+                // Parameter's description
+                value = ((reqValAttrDescr != null) ? reqValAttrDescr : "");
+                b.append(sp(in) + "<tr>\n"
+                        + sp(++in)
+                        + "<td class=\"borderless\" style=\"width:100px;\">"
+                        + "<b>Description</b>"
+                        + "</td>\n"
+                        + sp(in)
+                        + "<td class=\"borderless\">"
+                        + ((update) ? value
+                                : "<input type=\"text\""
+                                    + " class=\"form\""
+                                    + " id=\"" + reqParAttrDescr + "\""
+                                    + " name=\"" + reqParAttrDescr + "\""
+                                    + " value=\"" + value + "\">")
+                                    + "</td>\n"
+                                    + sp(--in) + "</tr>\n");
+                // Parameter's type
+                value = ((reqValAttrType != null) ? reqValAttrType : "");
+                b.append(sp(in) + "<tr>\n"
+                        + sp(++in)
+                        + "<td class=\"borderless\" style=\"width:100px;\">"
+                        + "<b>Type</b>"
+                        + "</td>\n"
+                        + sp(in)
+                        + "<td class=\"borderless\">\n"
+                        + sp(++in));
+                if (update) {
+                    b.append(value);
                 }
-            }
-            // Installed plug-ins
-            for(PluginInfo i : l) {
-                if (i.installed) {
-                    b.append("<tr>");
-                    
-                    // Command bar
-                    b.append("<td style=\"padding: 0;\">");
-                    b.append("<input class=\"uninstall\""
-                            + " type=\"button\""
-                            + " value=\"UNINSTALL\""
-                            + " onclick=\"javascript:"
-                            + "document.getElementById('" + reqParAction + "').value='" + actValUninstall  +"';"
-                            + "document.getElementById('" + reqParNumber +"').value='" + i.getHashcode() + "';"
-                            + "document.metrics.submit();\""
-                            + ">");
-                    b.append("</td>\n");
-                    
-                    // Info bar
-                    b.append("<td>" + i.getPluginName() + "</td>\n");
-                    b.append("<td>"
-                            + StringUtils.join((String[]) (
-                                    i.getServiceRef().getProperty(
-                                            Constants.OBJECTCLASS)),",")
-                            + "</td>\n");
-                    b.append("<td>" + i.getPluginVersion() + "</td>\n");
-                    b.append("</tr>\n");
-                    
-                    // Configuration bar
-                    b.append(renderMetricAttributes(
-                            i, reqValShowAttr, reqValShowActv, in));
+                else {
+                    b.append("<select class=\"form\""
+                            + " id=\"" + reqParAttrType + "\""
+                            + " name=\"" + reqParAttrType + "\">\n");
+                    for (ConfigurationType type : ConfigurationType.values()) {
+                        boolean selected = type.toString().equals(value);
+                        b.append(sp(in) + "<option"
+                                + " value=\"" + type.toString() + "\""
+                                + ((selected) ? " selected" : "")
+                                + ">"
+                                + type.toString()
+                                + "</option>\n");
+                    }
+                    b.append(sp(in) + "</select>\n");
                 }
+                b.append(sp(--in)
+                        + "</td>\n"
+                        + sp(--in)
+                        + "</tr>\n");
+                // Attribute's value
+                value = ((reqValAttrValue != null) ? reqValAttrValue : "");
+                b.append(sp(in) + "<tr>\n"
+                        + sp(++in)
+                        + "<td class=\"borderless\" style=\"width:100px;\">"
+                        + "<b>Value</b>"
+                        + "</td>\n"
+                        + sp(in)
+                        + "<td class=\"borderless\">"
+                        + "<input type=\"text\""
+                        + " class=\"form\""
+                        + " id=\"" + reqParAttrValue + "\""
+                        + " name=\"" + reqParAttrValue + "\""
+                        + " value=\"" + value +"\">"
+                        + "</td>\n"
+                        + sp(--in)
+                        + "</tr>\n");
+                // Tool-bar
+                value = ((update) ? "Update" : "Add");
+                b.append(sp(in) + "<tr>\n"
+                        + sp(++in)
+                        + "<td colspan=\"2\" class=\"borderless\">"
+                        + "<input type=\"button\""
+                        + " class=\"install\""
+                        + " style=\"width: 100px;\""
+                        + " value=\"" + value + "\""
+                        + " onclick=\"javascript:"
+                        + "document.getElementById('"
+                        + reqParAction + "').value='"
+                        + actValConAddAttr + "';"
+                        + "document.metrics.submit();\">"
+                        + "&nbsp;"
+                        + "<input type=\"button\""
+                        + " class=\"install\""
+                        + " style=\"width: 100px;\""
+                        + " value=\"Cancel\""
+                        + " onclick=\"javascript:"
+                        + "document.metrics.submit();\">"
+                        + "</td>\n"
+                        + sp(--in)
+                        + "</tr>\n");
+                b.append(sp(--in) + "</table>");
+                b.append(sp(--in) + "</fieldset>\n");
             }
-            // Close the table
-            b.append("</tbody>\n");
-            b.append("</table>\n");
-            b.append("<input type=\"hidden\" id=\"" + reqParAction + "\" name=\"metricAction\" value=\"\">\n");
-            b.append("<input type=\"hidden\" id=\"" + reqParNumber + "\" name=\"metricNumber\" value=\"\">\n");
+            // ===============================================================
+            // "Plug-in editor" view
+            // ===============================================================
+            else if (selPI != null) {
+                // Create the plug-in field-set
+                b.append(sp(in) + "<fieldset>\n");
+                b.append(sp(++in) + "<legend>"
+                        + selPI.getPluginName()
+                        + "</legend>\n");
+                // Create the parameters field-set
+                b.append(sp(++in) + "<fieldset>\n");
+                b.append(sp(++in) + "<legend>"
+                        + "Configuration parameters"
+                        + "</legend>\n");
+                // Create the parameters table
+                b.append(sp(in) + "<table>\n");
+                b.append(sp(++in) + "<thead>\n");
+                b.append(sp(++in) + "<tr class=\"head\">\n");
+                b.append(sp(++in) + "<td class=\"head\""
+                        + " style=\"width: 30%;\">"
+                        + "Name</td>\n");
+                b.append(sp(in) + "<td class=\"head\""
+                        + " style=\"width: 20%;\">"
+                        + "Type</td>\n");
+                b.append(sp(in) + "<td class=\"head\""
+                        + " style=\"width: 50%;\">"
+                        + "Value</td>\n");
+                b.append(sp(--in) + "</tr>\n");
+                b.append(sp(--in) + "</thead>\n");
+                // Display the configuration set of this plug-in
+                b.append(sp(in++) + "<tbody>\n");
+                // Get the plug-in's configuration set
+                List<PluginConfiguration> config = selPI.getConfiguration();
+                if (config.isEmpty()) {
+                    b.append(sp(in++) + "<tr>");
+                    b.append(sp(in) + "<td colspan=\"3\" class=\"noattr\">"
+                            + "This plug-in has no configurable parameters."
+                            + "</td>\n");
+                    b.append(sp(--in)+ "</tr>\n");
+                }
+                else {
+                    for (PluginConfiguration param : config) {
+                        b.append(sp(in++) + "<tr>\n");
+                        String htmlEditParam = "<td class=\"edit\""
+                            + " title=\""
+                            + ((param.getMsg() != null)
+                                    ? param.getMsg()
+                                    : "No description available.")
+                            + "\""
+                            + " onclick=\"javascript:"
+                            + "document.getElementById('"
+                            + reqParAction + "').value='"
+                            + actValReqAddAttr + "';"
+                            + "document.getElementById('"
+                            + reqParAttrName + "').value='"
+                            + param.getName() + "';"
+                            + "document.getElementById('"
+                            + reqParAttrType + "').value='"
+                            + param.getType() + "';"
+                            + "document.getElementById('"
+                            + reqParAttrDescr + "').value='"
+                            + param.getMsg() + "';"
+                            + "document.getElementById('"
+                            + reqParAttrValue + "').value='"
+                            + param.getValue() + "';"
+                            + "document.metrics.submit();\">"
+                            + "<img src=\"/edit.png\" alt=\"[Edit]\"/>"
+                            + param.getName()
+                            + "</td>\n";
+                        b.append(sp(in)
+                                + htmlEditParam
+                                + sp(in) + "<td>"
+                                + param.getType()
+                                + "</td>\n"
+                                + sp(in) + "<td>"
+                                + param.getValue()
+                                + "</td>\n");
+                        b.append(sp(--in)+ "</tr>\n");
+                    }
+                }
+                // Create the parameter's tool-bar
+                b.append(sp(in) + "<tr>\n");
+                b.append(sp(++in) + "<td colspan=\"3\">\n");
+                b.append(sp(++in) + "<input type=\"button\""
+                        + " class=\"install\""
+                        + " style=\"width: 100px;\""
+                        + " value=\"Plug-ins list\""
+                        + " onclick=\"javascript:"
+                        + "document.getElementById('"
+                        + reqParHashcode + "').value='';"
+                        + "document.metrics.submit();\""
+                        + ">\n");
+                b.append(sp(in) + "<input type=\"button\""
+                        + " class=\"install\""
+                        + " style=\"width: 100px;\""
+                        + " value=\"Add parameter\""
+                        + " onclick=\"javascript:"
+                        + "document.getElementById('"
+                        + reqParAction + "').value='"
+                        + actValReqAddAttr + "';"
+                        + "document.metrics.submit();\""
+                        + ">\n");
+                b.append(sp(--in) + "</td>\n");
+                b.append(sp(--in) + "</tr>\n");
+                // Close the parameters table
+                b.append(sp(--in) + "</tbody>\n");
+                // Close the parameters table
+                b.append(sp(--in) + "</table>\n");
+                // Close the parameters field-set
+                b.append(sp(--in) + "</fieldset>\n");
+                // Close the plug-in field-set
+                b.append(sp(--in) + "</fieldset>\n");
+            }
+            // ===============================================================
+            // "Plug-ins list" view
+            // ===============================================================
+            else {
+                // Create the field-set
+                b.append(sp(++in) + "<fieldset>\n");
+                b.append(sp(++in) + "<legend>All plug-ins</legend>\n");
+                // Retrieve information for all registered metric plug-ins
+                Collection<PluginInfo> l = sobjPA.listPlugins();
+                // Create the header row
+                b.append("<table>\n");
+                b.append("<thead>\n");
+                b.append("<tr class=\"head\">\n");
+                b.append("<td class=\"head\" style=\"width: 80px;\">"
+                        + "Status</td>\n");
+                b.append("<td class=\"head\" style=\"width: 30%;\">"
+                        + "Name</td>\n");
+                b.append("<td class=\"head\" style=\"width: 40%;\">"
+                        + "Class</td>\n");
+                b.append("<td class=\"head\">Version</td>\n");
+                b.append("</tr>\n");
+                b.append("</thead>\n");
+                b.append("<tbody>\n");
+                // Push the metrics info
+                // Not-installed plug-ins first
+                for(PluginInfo i : l) {
+                    String htmlEditPlugin = "<td class=\"edit\""
+                        + " onclick=\"javascript:"
+                        + "document.getElementById('"
+                        + reqParHashcode + "').value='"
+                        + i.getHashcode() + "';"
+                        + "document.metrics.submit();\">"
+                        + "<img src=\"/edit.png\" alt=\"[Edit]\"/>"
+                        + i.getPluginName()
+                        + "</td>\n";
+                    if (i.installed == false) {
+                        b.append("<tr class=\"uninstalled\">");
+                        
+                        // Command bar
+                        b.append("<td style=\"padding: 0;\">");
+                        b.append("<input class=\"install\""
+                                + " type=\"button\""
+                                + " value=\"INSTALL\""
+                                + " onclick=\"javascript:"
+                                + "document.getElementById('" + reqParAction + "').value='" + actValInstall + "';"
+                                + "document.getElementById('" + reqParHashcode +"').value='" + i.getHashcode() + "';"
+                                + "document.metrics.submit();\""
+                                + ">");
+                        b.append("</td>\n");
+                        
+                        // Info bar
+                        b.append(htmlEditPlugin);
+                        b.append("<td>"
+                                + StringUtils.join((String[]) (
+                                        i.getServiceRef().getProperty(
+                                                Constants.OBJECTCLASS)),",")
+                                                + "</td>\n");
+                        b.append("<td>" + i.getPluginVersion() + "</td>\n");
+                        b.append("</tr>\n");
+                        
+                        // Configuration bar
+                        b.append(renderMetricAttributes(
+                                i, reqValShowAttr, reqValShowActv, in));
+                    }
+                }
+                // Installed plug-ins
+                for(PluginInfo i : l) {
+                    String htmlEditPlugin = "<td class=\"edit\""
+                        + " onclick=\"javascript:"
+                        + "document.getElementById('"
+                        + reqParHashcode + "').value='"
+                        + i.getHashcode() + "';"
+                        + "document.metrics.submit();\">"
+                        + "<img src=\"/edit.png\" alt=\"[Edit]\"/>"
+                        + i.getPluginName()
+                        + "</td>\n";
+                    if (i.installed) {
+                        b.append("<tr>");
+                        
+                        // Command bar
+                        b.append("<td style=\"padding: 0;\">");
+                        b.append("<input class=\"uninstall\""
+                                + " type=\"button\""
+                                + " value=\"UNINSTALL\""
+                                + " onclick=\"javascript:"
+                                + "document.getElementById('" + reqParAction + "').value='" + actValUninstall  +"';"
+                                + "document.getElementById('" + reqParHashcode +"').value='" + i.getHashcode() + "';"
+                                + "document.metrics.submit();\""
+                                + ">");
+                        b.append("</td>\n");
+                        
+                        // Info bar
+                        b.append(htmlEditPlugin);
+                        b.append("<td>"
+                                + StringUtils.join((String[]) (
+                                        i.getServiceRef().getProperty(
+                                                Constants.OBJECTCLASS)),",")
+                                                + "</td>\n");
+                        b.append("<td>" + i.getPluginVersion() + "</td>\n");
+                        b.append("</tr>\n");
+                        
+                        // Configuration bar
+                        b.append(renderMetricAttributes(
+                                i, reqValShowAttr, reqValShowActv, in));
+                    }
+                }
+                // Close the table
+                b.append("</tbody>\n");
+                b.append("</table>\n");
+                // Close the fieldset
+                b.append(sp(--in) + "</fieldset>\n");
+            }
 
-            b.append(sp(--in) + "</fieldset>\n");
+            // ===============================================================
+            // INPUT FIELDS
+            // ===============================================================
+            // "Action type" input field
+            b.append("<input type=\"hidden\""
+                    + " id=\"" + reqParAction + "\""
+                    + " name=\"" + reqParAction + "\""
+                    + " value=\"\">\n");
+            // "Selected plug-in's hash code" input field
+            b.append("<input type=\"hidden\""
+                    + " id=\"" + reqParHashcode + "\""
+                    + " name=\"" + reqParHashcode + "\""
+                    + " value=\""
+                    + ((reqValHashcode != null) ? reqValHashcode : "")
+                    + "\">\n");
+            // "Configuration attribute's name" input field
+            b.append("<input type=\"hidden\""
+                    + " id=\"" + reqParAttrName + "\""
+                    + " name=\"" + reqParAttrName + "\""
+                    + " value=\""
+                    + ((reqValAttrName != null) ? reqValAttrName : "")
+                    + "\">\n");
+            // "Configuration attribute's description" input field
+            b.append("<input type=\"hidden\""
+                    + " id=\"" + reqParAttrDescr + "\""
+                    + " name=\"" + reqParAttrDescr + "\""
+                    + " value=\""
+                    + ((reqValAttrDescr != null) ? reqValAttrDescr : "")
+                    + "\">\n");
+            // "Configuration attribute's type" input field
+            b.append("<input type=\"hidden\""
+                    + " id=\"" + reqParAttrType + "\""
+                    + " name=\"" + reqParAttrType + "\""
+                    + " value=\""
+                    + ((reqValAttrType != null) ? reqValAttrType : "")
+                    + "\">\n");
+            // "Configuration attribute's value" input field
+            b.append("<input type=\"hidden\""
+                    + " id=\"" + reqParAttrValue + "\""
+                    + " name=\"" + reqParAttrValue + "\""
+                    + " value=\""
+                    + ((reqValAttrValue != null) ? reqValAttrValue : "")
+                    + "\">\n");
 
             // ===============================================================
             // Close the form
@@ -372,7 +753,7 @@ public class WebAdminRenderer {
             return (sp(in++) + "<tr>\n"
                     + sp(in) + "<td>&nbsp;</td>\n"
                     + sp(in) + "<td colspan=\"3\" class=\"noattr\">"
-                    + "This metric plug-in has no configurable attributes."
+                    + "This plug-in has no configurable attributes."
                     + "</td>\n"
                     + sp(--in)+ "</tr>\n");
         }

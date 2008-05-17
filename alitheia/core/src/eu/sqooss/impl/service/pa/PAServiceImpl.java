@@ -611,6 +611,10 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
         return null;
     }
 
+    public PluginInfo getPluginInfo(String hash) {
+        return registeredPlugins.get(hash);
+    }
+
     /* (non-Javadoc)
      * @see eu.sqooss.service.pa.PluginAdmin#getPlugin(eu.sqooss.service.pa.PluginInfo)
      */

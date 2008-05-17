@@ -74,6 +74,18 @@ public interface PluginAdmin {
     public PluginInfo getPluginInfo(AlitheiaPlugin m);
 
     /**
+     * Returns the metric plug-in's information object, that belongs to the
+     * metric plug-in with the given hash code.
+     *
+     * @param hash - the hash code value
+     * 
+     * @return The <code>PluginInfo</code> object associated with that
+     *   plug-in, or <code>null</null> when the specified hash code doesn't
+     *   reference an existing plug-in.
+     */
+    public PluginInfo getPluginInfo(String hash);
+
+    /**
      * Get the metric plug-in object, that corresponds to the given plug-in's
      * information object.
      * 
