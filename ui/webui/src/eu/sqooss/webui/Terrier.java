@@ -129,14 +129,21 @@ public class Terrier {
         debug += "ok";
 
         Project prj;
+        WSStoredProject[] storedProjects;
         try {
             // Retrieve information about this project
-            prj = new Project(connection.getProjectAccessor().getProjectById(projectId), this);
-            // Retrieve all project versions
-            prj.setVersions();
+            storedProjects = connection.getProjectAccessor().getProjectsByIds(new long[] {projectId});
+            if (storedProjects.length != 0) {
+                prj = new Project(storedProjects[0], this);
+                // Retrieve all project versions
+                prj.setVersions();
+            } else {
+                error = "The project does not exist!";
+                prj = null;
+            }
         } catch (WSException wse) {
             error = "Could not retrieve the project:" + wse.getMessage();
-            return null;
+            prj = null;
         }
         return prj;
     }

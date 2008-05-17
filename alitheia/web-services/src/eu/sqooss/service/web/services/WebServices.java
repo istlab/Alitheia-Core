@@ -218,20 +218,20 @@ public class WebServices {
 
     /**
      * The method returns all information, that the SQO-OSS framework has
-     * collected about the specified project.
+     * collected about the specified projects.
      * 
      * @param userName - the user's name used for authentication
      * @param password - the user's password used for authentication
-     * @param projectId - the project's identifier
+     * @param projectsIds - the projects' identifiers
      * 
-     * @return The <code>WSStoredProject</code> object that describes the
-     * project, or <code>null</code> when such project does not exist.
+     * @return The <code>WSStoredProject</code> array that describes the
+     * projects, or <code>null</code> when such projects do not exist.
      */
-    public WSStoredProject getProjectById(
+    public WSStoredProject[] getProjectsByIds(
             String userName,
             String password,
-            long projectId) {
-        return projectManager.getProjectById(userName, password, projectId);
+            long[] projectsIds) {
+        return projectManager.getProjectsByIds(userName, password, projectsIds);
     }
 
     /**

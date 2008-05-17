@@ -88,8 +88,14 @@ public class Project extends WebuiItem {
         if (id == null) {
             return;
         }
+        WSStoredProject[] storedProjects;
         try {
-            initProject(terrier.connection().getProjectAccessor().getProjectById(id));
+            storedProjects = terrier.connection().getProjectAccessor().getProjectsByIds(new long[] {id});
+            if (storedProjects.length != 0) {
+                initProject(storedProjects[0]);
+            } else {
+                addError("The project does not exist!");
+            }
         } catch (WSException wse) {
             addError("Could not retrieve the project:" + wse.getMessage());
         }

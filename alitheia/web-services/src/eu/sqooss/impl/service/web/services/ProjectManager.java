@@ -33,6 +33,8 @@
 package eu.sqooss.impl.service.web.services;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import eu.sqooss.impl.service.web.services.datatypes.WSFileGroup;
@@ -118,8 +120,8 @@ public class ProjectManager extends AbstractManager {
                 
         if (projects.size() != 0) {
             StoredProject storedProject = projects.get(0); 
-            securityWrapper.checkProjectReadAccess(
-                    userName, password, storedProject.getId());
+            securityWrapper.checkProjectsReadAccess(
+                    userName, password, new long[] {storedProject.getId()});
             super.updateUserActivity(userName);
             return createWSStoredProject(storedProject);
         } else {
@@ -135,7 +137,8 @@ public class ProjectManager extends AbstractManager {
         logger.info("Retrieve stored project versions! user: " + userName +
                 "; project's id: " + projectId);
 
-        securityWrapper.checkProjectReadAccess(userName, password, projectId);
+        securityWrapper.checkProjectsReadAccess(
+                userName, password, new long[] {projectId});
 
         super.updateUserActivity(userName);
         
@@ -155,29 +158,31 @@ public class ProjectManager extends AbstractManager {
     }
     
     /**
-     *  @see eu.sqooss.service.web.services.WebServices#getProjectById(String, String, long)
+     *  @see eu.sqooss.service.web.services.WebServices#getProjectsByIds(String, String, long[])
      */
-    public WSStoredProject getProjectById(String userName, String password, long projectId) {
+    public WSStoredProject[] getProjectsByIds(String userName, String password, long[] projectsIds) {
 
-        logger.info("Retrieve stored project! user: " + userName +
-                "; project's id: " + projectId );
+        logger.info("Retrieve stored projects! user: " + userName +
+                "; projects' ids: " + Arrays.toString(projectsIds) );
 
-        securityWrapper.checkProjectReadAccess(userName, password, projectId);
+        securityWrapper.checkProjectsReadAccess(userName, password, projectsIds);
 
         super.updateUserActivity(userName);
         
-        db.startDBSession();
-        StoredProject storedProject= dbWrapper.getProjectById(projectId);
-        
-        if (storedProject != null) {
-            WSStoredProject wsp = createWSStoredProject(storedProject);
-            db.commitDBSession();
-            return wsp;
-        } else {
-            db.rollbackDBSession();
+        if (projectsIds == null) {
             return null;
         }
-
+        List<StoredProject> storedProjects = new ArrayList<StoredProject>();
+        StoredProject currectStoredProject;
+        db.startDBSession();
+        for (int i = 0; i < projectsIds.length; i++) {
+            currectStoredProject = dbWrapper.getProjectById(projectsIds[i]);
+            if (currectStoredProject != null) {
+                storedProjects.add(currectStoredProject);
+            }
+        }
+        db.commitDBSession();
+        return convertToWSStoredProject(storedProjects);
     }
     
     /**
@@ -186,7 +191,8 @@ public class ProjectManager extends AbstractManager {
     public WSProjectFile[] getFilesByProjectId(String userName, String password, long projectId) {
         logger.info("Retrieve file list! user: " + userName + "; project id: " + projectId);
 
-        securityWrapper.checkProjectReadAccess(userName, password, projectId);
+        securityWrapper.checkProjectsReadAccess(
+                userName, password, new long[] {projectId});
 
         super.updateUserActivity(userName);
         
@@ -225,8 +231,8 @@ public class ProjectManager extends AbstractManager {
         logger.info("Get a file group list for the project! user: " + userName +
                 "; project id: " + projectId);
         
-        securityWrapper.checkProjectReadAccess(
-                userName, password, projectId);
+        securityWrapper.checkProjectsReadAccess(
+                userName, password, new long[] {projectId});
         
         super.updateUserActivity(userName);
         
@@ -262,7 +268,8 @@ public class ProjectManager extends AbstractManager {
         logger.info("Get file's number for project! user: " + userName +
                 "; project id: " + projectId);
         
-        securityWrapper.checkProjectReadAccess(userName, password, projectId);
+        securityWrapper.checkProjectsReadAccess(
+                userName, password, new long[] {projectId});
         
         super.updateUserActivity(userName);
         

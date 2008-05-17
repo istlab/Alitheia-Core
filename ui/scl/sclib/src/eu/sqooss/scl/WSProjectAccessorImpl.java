@@ -56,8 +56,8 @@ import eu.sqooss.ws.client.ws.GetFilesNumberByProjectId;
 import eu.sqooss.ws.client.ws.GetFilesNumberByProjectIdResponse;
 import eu.sqooss.ws.client.ws.GetFilesNumberByProjectVersionId;
 import eu.sqooss.ws.client.ws.GetFilesNumberByProjectVersionIdResponse;
-import eu.sqooss.ws.client.ws.GetProjectById;
-import eu.sqooss.ws.client.ws.GetProjectByIdResponse;
+import eu.sqooss.ws.client.ws.GetProjectsByIds;
+import eu.sqooss.ws.client.ws.GetProjectsByIdsResponse;
 import eu.sqooss.ws.client.ws.GetProjectByName;
 import eu.sqooss.ws.client.ws.GetProjectByNameResponse;
 import eu.sqooss.ws.client.ws.GetProjectVersionsByProjectId;
@@ -77,7 +77,7 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
 
     private static final String METHOD_NAME_GET_PROJECT_VERSIONS_BY_PROJECT_ID       = "getProjectVersionsByProjectId";
 
-    private static final String METHOD_NAME_GET_PROJECT_BY_ID                        = "getProjectById";
+    private static final String METHOD_NAME_GET_PROJECTS_BY_IDS                      = "getProjectsByIds";
 
     private static final String METHOD_NAME_GET_FILES_NUMBER_BY_PROJECT_VERSION_ID   = "getFilesNumberByProjectVersionId";
     
@@ -87,6 +87,8 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
     
     private static final String METHOD_NAME_GET_FILE_GROUPS_BY_PROJECT_ID            = "getFileGroupsByProjectId";
 
+    private static final WSStoredProject[] EMPTY_ARRAY_STORED_PROJECTS = new WSStoredProject[0];
+    
     private Map<String, Object> parameters;
     private String userName;
     private String password;
@@ -350,34 +352,39 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
     }
 
     /**
-     * @see eu.sqooss.scl.accessor.WSProjectAccessor#getProjectById(long)
+     * @see eu.sqooss.scl.accessor.WSProjectAccessor#getProjectsByIds(long[])
      */
     @Override
-    public WSStoredProject getProjectById(long projectId) throws WSException {
-        GetProjectByIdResponse response;
-        GetProjectById params;
-        if (!parameters.containsKey(METHOD_NAME_GET_PROJECT_BY_ID)) {
-            params = new GetProjectById();
+    public WSStoredProject[] getProjectsByIds(long[] projectsIds) throws WSException {
+        if (!isValidArray(projectsIds)) return EMPTY_ARRAY_STORED_PROJECTS; 
+        GetProjectsByIdsResponse response;
+        GetProjectsByIds params;
+        if (!parameters.containsKey(METHOD_NAME_GET_PROJECTS_BY_IDS)) {
+            params = new GetProjectsByIds();
             params.setPassword(password);
             params.setUserName(userName);
-            parameters.put(METHOD_NAME_GET_PROJECT_BY_ID, params);
+            parameters.put(METHOD_NAME_GET_PROJECTS_BY_IDS, params);
         } else {
-            params = (GetProjectById) parameters.get(
-                    METHOD_NAME_GET_PROJECT_BY_ID);
+            params = (GetProjectsByIds) parameters.get(
+                    METHOD_NAME_GET_PROJECTS_BY_IDS);
         }
         synchronized (params) {
-            params.setProjectId(projectId);
+            params.setProjectsIds(projectsIds);
             try {
-                response = wsStub.getProjectById(params);
+                response = wsStub.getProjectsByIds(params);
             } catch (RemoteException re) {
                 throw new WSException(re);
             }
         }
 
-        return (WSStoredProject) normaliseWSArrayResult(response.get_return());
+        return (WSStoredProject[]) normaliseWSArrayResult(response.get_return());
 
     }
 
+    private static boolean isValidArray(long[] arr) {
+        return ((arr != null) && (arr.length > 0));
+    }
+    
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

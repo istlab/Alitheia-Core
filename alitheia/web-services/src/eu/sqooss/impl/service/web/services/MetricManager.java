@@ -84,7 +84,7 @@ public class MetricManager extends AbstractManager {
         logger.info("Retrieve metrics for selected project! user: " + userName +
                 "; project id:" + projectId);
         
-        securityWrapper.checkProjectReadAccess(userName, password, projectId);
+        securityWrapper.checkProjectsReadAccess(userName, password, new long[] {projectId});
         
         super.updateUserActivity(userName);
         
@@ -122,7 +122,7 @@ public class MetricManager extends AbstractManager {
             long projectId, String[] folders, String[] fileNames) {
         logger.info("Retrieve metrics for selected files! user: " + userName + "; project id: " + projectId);
 
-        securityWrapper.checkProjectReadAccess(userName, password, projectId);
+        securityWrapper.checkProjectsReadAccess(userName, password, new long[] {projectId});
 
         super.updateUserActivity(userName);
         

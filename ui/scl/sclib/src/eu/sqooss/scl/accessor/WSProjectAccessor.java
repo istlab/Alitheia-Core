@@ -193,12 +193,14 @@ public abstract class WSProjectAccessor extends WSAccessor {
     
     /**
      * The method returns all information, that the SQO-OSS framework has
-     * collected about the specified project.
+     * collected about the specified projects.
      * 
-     * @param projectId - the project's identifier
+     * @param userName - the user's name used for authentication
+     * @param password - the user's password used for authentication
+     * @param projectsIds - the projects' identifiers
      * 
-     * @return The <code>WSStoredProject</code> object that describes the
-     * project, or <code>null</code> when such project does not exist.
+     * @return The <code>WSStoredProject</code> array that describes the
+     * projects, or empty array when such projects do not exist.
      * 
      * @throws WSException
      * <ul>
@@ -206,7 +208,7 @@ public abstract class WSProjectAccessor extends WSAccessor {
      *  <li>if web services service throws an exception</li>
      * <ul>
      */
-    public abstract WSStoredProject getProjectById(long projectId) throws WSException;
+    public abstract WSStoredProject[] getProjectsByIds(long[] projectId) throws WSException;
     
 }
 
