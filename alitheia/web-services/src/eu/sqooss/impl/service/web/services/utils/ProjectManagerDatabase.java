@@ -68,8 +68,15 @@ public class ProjectManagerDatabase implements ProjectManagerDBQueries {
         return db.findObjectsByProperties(StoredProject.class, properties);
     }
 
-    public StoredProject getProjectById(long projectId) {
-        return db.findObjectById(StoredProject.class, projectId);
+    @SuppressWarnings("unchecked")
+    public List<?> getProjectsByIds(long[] ids) {
+        Map<String, Collection> queryParameters = new Hashtable<String, Collection>(1);
+        Collection idsCollection = new ArrayList(ids.length);
+        for (long id : ids) {
+            idsCollection.add(id);
+        }
+        queryParameters.put(GET_PROJECTS_BY_IDS_PARAM, idsCollection);
+        return db.doHQL(GET_PROJECTS_BY_IDS, null, queryParameters);
     }
 
     @SuppressWarnings("unchecked")

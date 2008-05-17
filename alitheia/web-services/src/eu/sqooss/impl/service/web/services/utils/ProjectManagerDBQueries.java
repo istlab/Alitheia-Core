@@ -130,6 +130,14 @@ interface ProjectManagerDBQueries {
                                                      GET_STORED_PROJECTS_PARAM_PR_VERSION;
     
     
+    public static final String GET_PROJECTS_BY_IDS_PARAM = "list_of_sps_ids";
+    
+    public static final String GET_PROJECTS_BY_IDS = "select sp " +
+                                                     "from StoredProject sp " +
+                                                     "where sp.id in (:" +
+                                                     GET_PROJECTS_BY_IDS_PARAM + ") ";
+    
+    
     public static final String GET_PROJECT_VERSIONS_BY_IDS_PARAM = "list_of_pvs_ids";
     
     public static final String GET_PROJECT_VERSIONS_BY_IDS = "select pv " +

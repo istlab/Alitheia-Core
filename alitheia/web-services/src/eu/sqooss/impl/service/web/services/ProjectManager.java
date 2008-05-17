@@ -33,7 +33,6 @@
 package eu.sqooss.impl.service.web.services;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -143,9 +142,10 @@ public class ProjectManager extends AbstractManager {
         super.updateUserActivity(userName);
         
         db.startDBSession();
-        StoredProject storedProject = dbWrapper.getProjectById(projectId);
+        List<?> storedProjects = dbWrapper.getProjectsByIds(new long[] {projectId});
 
-        if (storedProject != null) {
+        if (!storedProjects.isEmpty()) {
+            StoredProject storedProject = (StoredProject) storedProjects.get(0);
             List<ProjectVersion> projectVersions = storedProject.getProjectVersions();
             WSProjectVersion[] wspv = convertToWSProjectVersion(projectVersions);
             db.commitDBSession();
@@ -157,10 +157,8 @@ public class ProjectManager extends AbstractManager {
 
     }
     
-    public WSProjectVersion[] getProjectVersionsByIds(
-            String userName,
-            String password,
-            long[] projectVersionsIds) {
+    public WSProjectVersion[] getProjectVersionsByIds(String userName,
+            String password, long[] projectVersionsIds) {
 
         logger.info("Retrieve project versions! user: " + userName +
                 "; project versions' ids: " + Arrays.toString(projectVersionsIds));
@@ -170,6 +168,10 @@ public class ProjectManager extends AbstractManager {
 
         super.updateUserActivity(userName);
 
+        if(projectVersionsIds == null) {
+            return null;
+        }
+        
         db.startDBSession();
         List<?> wspv = dbWrapper.getProjectVersionsByIds(projectVersionsIds);
         db.commitDBSession();
@@ -192,17 +194,12 @@ public class ProjectManager extends AbstractManager {
         if (projectsIds == null) {
             return null;
         }
-        List<StoredProject> storedProjects = new ArrayList<StoredProject>();
-        StoredProject currectStoredProject;
+        
         db.startDBSession();
-        for (int i = 0; i < projectsIds.length; i++) {
-            currectStoredProject = dbWrapper.getProjectById(projectsIds[i]);
-            if (currectStoredProject != null) {
-                storedProjects.add(currectStoredProject);
-            }
-        }
+        List<?> wssp = dbWrapper.getProjectsByIds(projectsIds);
         db.commitDBSession();
-        return convertToWSStoredProject(storedProjects);
+        
+        return convertToWSStoredProject(wssp);
     }
     
     /**
