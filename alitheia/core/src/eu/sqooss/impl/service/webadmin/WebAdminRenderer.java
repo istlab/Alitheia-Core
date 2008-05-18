@@ -60,6 +60,7 @@ import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Group;
 import eu.sqooss.service.db.GroupPrivilege;
+import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.db.PluginConfiguration;
 import eu.sqooss.service.db.Privilege;
 import eu.sqooss.service.db.PrivilegeValue;
@@ -307,6 +308,7 @@ public class WebAdminRenderer {
                         // Check for a parameter update
                         boolean update = paramExist(
                                 selPI, reqValAttrName, reqValAttrType);
+                        // Property update
                         if (update) {
                             try {
                                 if (selPI.updateConfigEntry(
@@ -329,6 +331,35 @@ public class WebAdminRenderer {
                             catch (Exception ex) {
                                 e.append(ex.getMessage());
                             }
+                        }
+                        // Property add
+                        else {
+                            PluginConfiguration newParam =
+                                new PluginConfiguration();
+                            newParam.setPlugin(Plugin.getPluginByHashcode(
+                                    reqValHashcode));
+                            newParam.setName(reqValAttrName);
+                            newParam.setMsg(reqValAttrDescr);
+                            newParam.setType(reqValAttrType);
+                            newParam.setValue(reqValAttrValue);
+                            if (sobjDB.addRecord(newParam)) {
+                                // Update the Plug-in Admin's information
+                                sobjPA.pluginUpdated(
+                                        sobjPA.getPlugin(selPI));
+                                // Reload the PluginInfo object
+                                selPI =
+                                    sobjPA.getPluginInfo(reqValHashcode);
+                            }
+                            else {
+                                e.append("Configuration expansion"
+                                        + " has failed."
+                                        + " Check log for details.");
+                            }
+                        }
+                        // Return to the add/update view upon error
+                        if (e.toString().length() > 0) {
+                            if (update) reqValAction = actValReqUpdAttr;
+                            else reqValAction = actValReqAddAttr;
                         }
                     }
                 }
