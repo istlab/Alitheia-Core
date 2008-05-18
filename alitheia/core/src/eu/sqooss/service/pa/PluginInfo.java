@@ -193,7 +193,7 @@ public class PluginInfo {
     }
 
     /**
-     * Sets a new value of the given metric plugin's configuration parameter
+     * Sets a new value of existing metric plugin's configuration parameter
      * by updating its database record.
      * 
      * @param db the DB components object
@@ -254,17 +254,20 @@ public class PluginInfo {
     }
 
     /**
-     * Adds the config entry.
+     * Adds a new configuration parameter for this metric plug-in by updating
+     * its database record.
      * 
      * @param db the DB components object
-     * @param name the name
-     * @param description the description
-     * @param type the type
-     * @param value the value
+     * @param name the configuration property's name
+     * @param description the configuration property's description
+     * @param type the configuration property's type
+     * @param value the configuration property's value
      * 
-     * @return true, if successful
+     * @return <code>true</code> upon successful append, of <code>false</code>
+     *   when a corresponding database record can not be created.
      * 
-     * @throws Exception the exception
+     * @throws <code>Exception</code> upon incorrect value's syntax,
+     *   invalid parameter's type, or invalid parameter's name.
      */
     public boolean addConfigEntry(
             DBService db,

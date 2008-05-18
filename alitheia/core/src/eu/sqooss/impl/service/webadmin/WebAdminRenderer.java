@@ -207,6 +207,32 @@ public class WebAdminRenderer {
         return false;
     }
 
+    /**
+     * Returns the Id of the given configuration property.
+     * 
+     * @param selPI the plug-in's information object
+     * @param name the parameter's name
+     * @param type the parameter's type
+     * 
+     * @return The property's Id, or <code>null</code> if the property does
+     *   not exist.
+     */
+    public static Long getParamId (
+            PluginInfo selPI,
+            String name,
+            String type) {
+        if ((selPI == null) || (name == null) || (type == null)) {
+            return null;
+        }
+        for (PluginConfiguration param : selPI.getConfiguration()) {
+            if ((param.getName().equals(name))
+                    && (param.getType().equals(type))) {
+                return param.getId();
+            }
+        }
+        return null;
+    }
+
     public static String renderMetrics(HttpServletRequest req) {
         // Stores the assembled HTML content
         StringBuilder b = new StringBuilder("\n");
@@ -278,7 +304,8 @@ public class WebAdminRenderer {
                 }
                 // Retrieve the selected configuration parameter's values
                 if ((reqValAction.equals(actValConAddAttr))
-                        || (reqValAction.equals(actValReqUpdAttr))) {
+                        || (reqValAction.equals(actValReqUpdAttr))
+                        || (reqValAction.equals(actValConRemAttr))) {
                     reqValAttrName = req.getParameter(reqParAttrName);
                     reqValAttrDescr = req.getParameter(reqParAttrDescr);
                     reqValAttrType = req.getParameter(reqParAttrType);
@@ -304,6 +331,34 @@ public class WebAdminRenderer {
                                     + " Check log for details.");
                         }
                     }
+                    // Plug-in's configuration parameter remove
+                    else if (reqValAction.equals(actValConRemAttr)) {
+                        Long paramId = getParamId(
+                                selPI, reqValAttrName, reqValAttrType);
+                        if (paramId != null) {
+                            PluginConfiguration param = sobjDB.findObjectById(
+                                    PluginConfiguration.class, paramId);
+                            if ((param != null)
+                                    && (sobjDB.deleteRecord(param))) {
+                                // Update the Plug-in Admin's information
+                                sobjPA.pluginUpdated(sobjPA.getPlugin(selPI));
+                                // Reload the PluginInfo object
+                                selPI = sobjPA.getPluginInfo(reqValHashcode);
+                            }
+                            else {
+                                e.append("Configuration remove"
+                                        + " has failed!"
+                                        + " Check log for details.");
+                            }
+                        }
+                        else {
+                            e.append ("Unknown configuration property!");
+                        }
+                        // Return to the update view upon error
+                        if (e.toString().length() > 0) {
+                            reqValAction = actValReqUpdAttr;
+                        }
+                    }
                     // Plug-in's configuration parameter create/update
                     else if (reqValAction.equals(actValConAddAttr)) {
                         // Check for a parameter update
@@ -325,7 +380,7 @@ public class WebAdminRenderer {
                                 }
                                 else {
                                     e.append("Configuration update"
-                                            + " has failed."
+                                            + " has failed!"
                                             + " Check log for details.");
                                 }
                             }
@@ -351,7 +406,7 @@ public class WebAdminRenderer {
                                 }
                                 else {
                                     e.append("Configuration expansion"
-                                            + " has failed."
+                                            + " has failed!"
                                             + " Check log for details.");
                                 }
                             }
