@@ -41,7 +41,6 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.apache.commons.collections.LRUMap;
-import org.hibernate.FlushMode;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DBService;
@@ -113,8 +112,8 @@ class SourceUpdater extends Job {
         SortedSet<Long> updFiles = new TreeSet<Long>();
 
         /*Avoid Hibernate thrasing by caching frequently accessed objects*/
-        LRUMap devCache = new LRUMap(1000);
-        LRUMap dirCache = new LRUMap(3000);
+        LRUMap devCache = new LRUMap(500);
+        LRUMap dirCache = new LRUMap(1000);
 
         logger.info("Running source update for project " + project.getName());
         long ts = System.currentTimeMillis();
@@ -124,6 +123,13 @@ class SourceUpdater extends Job {
             ProjectVersion lastVersion = StoredProject.getLastProjectVersion(project);
             SCMAccessor scm = tds.getAccessor(project.getId()).getSCMAccessor();
             long lastSCMVersion = scm.getHeadRevision();
+            
+            /* Don't choke when called to update an up-to-date project*/
+            if (lastVersion.getVersion() >= lastSCMVersion) {
+                dbs.commitDBSession();
+                return;
+            }
+            
             CommitLog commitLog = scm.getCommitLog(
                     new ProjectRevision(lastVersion.getVersion() + 1),
                     new ProjectRevision(lastSCMVersion));
@@ -221,8 +227,8 @@ class SourceUpdater extends Job {
                 numRevisions ++;
                 
                 /*Cleanup for huge projects*/
-                if (numRevisions % 10000 == 0) {
-                    logger.info("Commited 10000 revisions");
+                if (numRevisions % 2000 == 0) {
+                    logger.info("Commited 2000 revisions");
                     dbs.getDBSession().flush();
                     dbs.getDBSession().clear();
                 }
