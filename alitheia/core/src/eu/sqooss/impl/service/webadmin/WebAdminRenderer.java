@@ -987,7 +987,7 @@ public class WebAdminRenderer {
 
         if (projects == null || metrics == null) {
             sobjDB.commitDBSession();
-            return "<li>Nothing to display.</li>";
+            return "<b>No projects installed</b>";
         }
 
         StringBuilder s = new StringBuilder();
@@ -1003,16 +1003,16 @@ public class WebAdminRenderer {
                 s.append("</b></td>");
             }
         }
-        s.append("</tr>");
+        s.append("</tr>\n");
        
         for (int i=0; i<projects.size(); i++) {
-            s.append("<tr>");
+            s.append("\t<tr>\n");
             StoredProject p = (StoredProject) projects.get(i);
-            s.append("<td><font size=\"-2\"><b>");
+            s.append("\t\t<!--project--><td><font size=\"-2\"><b>");
             s.append(p.getName());
             s.append("</b> ([id=");
             s.append(p.getId());
-            s.append("]) <br/>Update:");
+            s.append("]) <br/>\nUpdate:");
             for (String updTarget: UpdaterService.UpdateTarget.toStringArray()) {
                 s.append("<a href=\"http://localhost:8088/updater?project=");
                 s.append(p.getName());
@@ -1025,15 +1025,15 @@ public class WebAdminRenderer {
             s.append("<br/>Sites: <a href=\"");
             s.append(p.getWebsite());
             s.append("\">Website</a>&nbsp;Alitheia Reports");
-            s.append("</font></td>");
+            s.append("</font></td>\n");
             for(PluginInfo m : metrics) {
                 if(m.installed) {
-                    s.append("<td>");
+                    s.append("\n<td>\n");
                     s.append(sobjMetricActivator.getLastAppliedVersion(sobjPA.getPlugin(m), p));
-                    s.append("</td>");
+                    s.append("\n</td>\n");
                 }
             }
-            s.append("</tr>");
+            s.append("</tr>\n");
         }
         s.append("</table>");
         sobjDB.commitDBSession();
