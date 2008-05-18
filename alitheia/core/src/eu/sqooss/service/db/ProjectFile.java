@@ -33,6 +33,11 @@
 
 package eu.sqooss.service.db;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import eu.sqooss.impl.service.CoreActivator;
 import eu.sqooss.service.db.DAObject;
 
 public class ProjectFile extends DAObject{
@@ -98,6 +103,34 @@ public class ProjectFile extends DAObject{
      */
     public String getFileName() {
         return dir.getPath() + "/" + name;
+    }
+    
+    public static ProjectFile getPreviousFileVersion(ProjectFile pf) {
+        DBService dbs = CoreActivator.getDBService();
+        
+        String paramFile = "paramFile"; 
+        String paramVersion = "paramVersion"; 
+        
+        String query = "select pf from ProjectVersion pv, ProjectFile pf where pv.timestamp in (" +
+        		"select max(pv2.timestamp) " +
+        		"from ProjectVersion pv2, ProjectFile pf2 " +
+        		"where pv2.timestamp < :" + paramVersion +
+        		" and pf2.projectVersion = pv2.id" +
+        		" and pf2.name = :" + paramFile +
+        		" and pv2.project = pv.project )" +
+        		"and pf.projectVersion = pv.id and pf.name = :" + paramFile;
+        
+        Map<String,Object> parameters = new HashMap<String,Object>();
+        parameters.put(paramFile, pf.name);
+        parameters.put(paramVersion, pf.getProjectVersion().getTimestamp());
+
+        List<?> projectFiles = dbs.doHQL(query, parameters);
+        
+        if(projectFiles == null || projectFiles.size() == 0) {
+            return null;
+        }else {
+            return (ProjectFile) projectFiles.get(0);
+        }
     }
     
 }

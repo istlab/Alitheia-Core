@@ -120,7 +120,8 @@ public class ProjectVersion extends DAObject {
         String query = "from ProjectVersion pv where pv.timestamp in (" +
         		"select max(pv2.timestamp) " +
         		"from ProjectVersion pv2 " +
-        		"where pv2.timestamp < :)" + paramTS;
+        		"where pv2.timestamp < :" + paramTS +
+        		" and pv2.project = pv.project)";
         
         Map<String,Object> parameters = new HashMap<String,Object>();
         parameters.put(paramTS, pv.getTimestamp());
