@@ -33,57 +33,22 @@
 
 package eu.sqooss.impl.metrics.productivity;
 
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
+public class ProductivityMetricActions {
 
-import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.metrics.productivity.ProductivityMetric;
-import eu.sqooss.service.abstractmetric.AbstractMetric;
-import eu.sqooss.service.abstractmetric.Result;
-import eu.sqooss.service.db.Metric;
-import eu.sqooss.service.db.MetricType;
-import eu.sqooss.service.db.ProjectVersion;
-import eu.sqooss.service.scheduler.Scheduler;
-
-public class ProductivityMetricImpl extends AbstractMetric implements
-        ProductivityMetric {
-
-    public ProductivityMetricImpl(BundleContext bc) {
-        super(bc);
-        super.addActivationType(ProjectVersion.class);
+    public enum ActionType {
+        CNS, // Commit new source file
+        CND, // Commit new directory
+        CDF, // Commit documentation files
+        CTF, // Commit translation files
+        CBF, // Commit binary files
+        CEC, // Commit with empty commit comment,
+        CMF, // Commit more than X files in a single commit
+        TCO, // Commit (for calculating the number of commits per developer)
+        TCF, // Commit files (for calculating the number of committed files
+                // per developer)
+        CBN, // Commit comment that includes a bug report number
+        CPH, // Commit comment that awards a pointy hat
     }
-    
-    public boolean install() {
-    	 boolean result = super.install();
-         if (result) {
-             result &= super.addSupportedMetrics(
-                     "Developer Productivity Metric",
-                     "PROD",
-                     MetricType.Type.PROJECT_WIDE);
-         }
-         return result;
-    }
-
-	public Result getResult(ProjectVersion a, Metric m) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public void run(ProjectVersion v) {
-		 try {
-			 ProductivityMetricJob j = new ProductivityMetricJob(this, v);
-
-	         ServiceReference serviceRef = null;
-	         serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
-	         Scheduler s = ((AlitheiaCore) bc.getService(serviceRef)).getScheduler();
-
-	         s.enqueue(j);
-		 } catch (Exception e) {
-			 log.error("Could not schedule productivity-metric job for project version: " 
-	                    + v.getVersion());
-	     }
-		
-	}
 }
 
-// vi: ai nosi sw=4 ts=4 expandtab
+//vi: ai nosi sw=4 ts=4 expandtab

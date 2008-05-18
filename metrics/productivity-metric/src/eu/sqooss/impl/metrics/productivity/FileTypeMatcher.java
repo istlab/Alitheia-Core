@@ -36,20 +36,34 @@ package eu.sqooss.impl.metrics.productivity;
 public class FileTypeMatcher {
 
     public enum FileType {
-        SRC, BIN, DOC, XML, TXT
+        SRC, BIN, DOC, XML, TXT, TRANS
     }
 
     private static String[] srcMimes = { ".c", ".java", ".h", ".py", "cpp",
-            ".C", ".properties", ".po", ".sh", ".rb", ".el", ".m4", ".cs" };
+            ".C", ".sh", ".rb", ".el", ".m4", ".cs", ".xsl" };
 
-    private static String[] docMimes = { ".txt", ".sgml", ".html", ".tex" };
+    private static String[] docMimes = { ".txt", ".sgml", ".html", ".tex",
+            ".htm" };
 
     private static String[] xmlFormats = { ".xml", ".svn", ".argo", ".graffle",
             ".vcproj", ".csproj" };
 
     private static String[] binMimes = { ".pdf", ".png", ".jpg", ".tiff",
-            ".dvi", ".gz", ".zip", ".properties", ".gif", ".exe", ".jar",
-            ".doc", ".png", ".o", ".class", ".pyc" };
+            ".dvi", ".gz", ".zip", ".gif", ".exe", ".jar", ".doc", ".png",
+            ".o", ".class", ".pyc", ".bmp", ".ico" };
+
+    private static String[] transMimes = { ".po" };
+
+    private static final String locales = "ar_SA|zh_CN|zh_TW|nl_NL|en_AU|en_CA|" +
+    		"en_GB|en_US|fr_CA|fr_FR|de_DE|iw_IL|hi_IN|it_IT|ja_JP|ko_KR|" +
+    		"pt_BR|es_ES|sv_SE|th_TH|th_TH_TH|sq_AL|ar_DZ|ar_BH|ar_EG|" +
+    		"ar_IQ|ar_JO|ar_KW|ar_LB|ar_LY|ar_MA|ar_OM|ar_QA|ar_SD|ar_SY|" +
+    		"ar_TN|ar_AE|ar_YE|be_BY|bg_BG|ca_ES|zh_HK|hr_HR|cs_CZ|da_DK|" +
+    		"nl_BE|en_IN|en_IE|en_NZ|en_ZA|et_EE|fi_FI|fr_BE|fr_LU|fr_CH|" +
+    		"de_AT|de_LU|de_CH|el_GR|hu_HU|is_IS|it_CH|lv_LV|lt_LT|mk_MK|" +
+    		"no_NO|no_NO_NY|pl_PL|pt_PT|ro_RO|ru_RU|sr_YU|sh_YU|sk_SK|sl_SI|" +
+    		"es_AR|es_BO|es_CL|es_CO|es_CR|es_DO|es_EC|es_SV|es_GT|es_HN|" +
+    		"es_MX|es_NI|es_PA|es_PY|es_PE|es_PR|es_UY|es_VE|tr_TR|uk_UA";
 
     public static FileType getFileType(String path) {
         for (String s : srcMimes)
@@ -68,6 +82,15 @@ public class FileTypeMatcher {
             if (path.endsWith(s))
                 return FileType.BIN;
 
+        for (String s : transMimes)
+            if (path.endsWith(s))
+                return FileType.TRANS;
+
+        if (java.util.regex.Pattern.matches("(?i)^.*(" 
+                + locales + ")\\.properties.*$", path)) {
+            return FileType.TRANS;
+        }
+
         return FileType.TXT;
 
     }
@@ -77,7 +100,6 @@ public class FileTypeMatcher {
         return null;
 
     }
-
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab
