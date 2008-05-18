@@ -196,17 +196,23 @@ public class PluginInfo {
      * Sets a new value of the given metric plugin's configuration parameter
      * by updating its database record.
      * 
-     * @param name - the configuration property's name
-     * @param newVal - the new value, that should be assigned to the
+     * @param db the DB components object
+     * @param name the configuration property's name
+     * @param newVal the new value, that should be assigned to the
      *   selected configuration property
      * 
      * @return <code>true</code> upon successful update, of <code>false</code>
      *   when a corresponding database record does not exist.
      * 
-     * @throws <code>Exception</code> upon incorrect value's syntax
+     * @throws <code>Exception</code> upon incorrect value's syntax, or
+     *   invalid parameter's type.
      */
     public boolean updateConfigEntry(DBService db, String name, String newVal)
         throws Exception {
+        // Check for an invalid name
+        if (name == null) {
+            throw new Exception("Invalid name!");
+        }
         // Check if such configuration parameter exists
         for (PluginConfiguration pc : config) {
             if (pc.getName().equals(name)) {
@@ -215,13 +221,13 @@ public class PluginInfo {
                     ConfigurationType.fromString(pc.getType());
                 // Check for invalid type
                 if (type == null) {
-                    return false;
+                    throw new Exception("Invalid parameter's type!");
                 }
                 // Check for a boolean type
                 else if (type.equals(ConfigurationType.BOOLEAN)) {
                     if ((newVal.equals("true") == false)
                             && (newVal.equals("false") == false)) {
-                        throw new Exception("Not a boolean value!");
+                        throw new Exception("Not a valid boolean value!");
                     }
                 }
                 // Check for an integer type
@@ -229,7 +235,7 @@ public class PluginInfo {
                     try {
                         Integer.valueOf(newVal);
                     } catch (NumberFormatException nfe) {
-                        throw new Exception("Not an integer value!");
+                        throw new Exception("Not a valid integer value!");
                     }
                 }
 
@@ -246,6 +252,70 @@ public class PluginInfo {
         }
         return false;
     }
+
+    /**
+     * Adds the config entry.
+     * 
+     * @param db the DB components object
+     * @param name the name
+     * @param description the description
+     * @param type the type
+     * @param value the value
+     * 
+     * @return true, if successful
+     * 
+     * @throws Exception the exception
+     */
+    public boolean addConfigEntry(
+            DBService db,
+            String name,
+            String description,
+            String type,
+            String value)
+    throws Exception {
+        // Check for an invalid name
+        if (name == null) {
+            throw new Exception("Invalid name!");
+        }
+
+        // Check for invalid type
+        if ((type == null)
+                || (ConfigurationType.fromString(type) == null)) {
+            throw new Exception("Invalid type!");
+        }
+
+        // Check for invalid value
+        if (value == null) {
+            throw new Exception("Invalid value!");
+        }
+        // Check for invalid boolean value
+        else if (type.equals(ConfigurationType.BOOLEAN.toString())) {
+            if ((value.equals("true") == false)
+                    && (value.equals("false") == false)) {
+                throw new Exception("Not a valid boolean value!");
+            }
+        }
+        // Check for an invalid integer value
+        else if (type.equals(ConfigurationType.INTEGER.toString())) {
+            try {
+                Integer.valueOf(value);
+            } catch (NumberFormatException nfe) {
+                throw new Exception("Not a valid integer value!");
+            }
+        }
+
+        // Add the new configuration parameter
+        PluginConfiguration newParam =
+            new PluginConfiguration();
+        newParam.setPlugin(Plugin.getPluginByHashcode(hashcode));
+        newParam.setName(name);
+        newParam.setMsg((description != null) ? description : "");
+        newParam.setType(type);
+        newParam.setValue(value);
+        if (db.addRecord(newParam)) return true;
+
+        return false;
+}
 
     /**
      * Sets the metric's name. In practice the <code>metricName</code>

@@ -231,6 +231,7 @@ public class WebAdminRenderer {
         String actValReqAddAttr    = "requestAttribute";
         String actValReqUpdAttr    = "updateAttribute";
         String actValConAddAttr    = "confirmAttribute";
+        String actValConRemAttr    = "removeAttribute";
         // Request values
         String reqValAction        = "";
         String reqValHashcode      = null;
@@ -308,7 +309,7 @@ public class WebAdminRenderer {
                         // Check for a parameter update
                         boolean update = paramExist(
                                 selPI, reqValAttrName, reqValAttrType);
-                        // Property update
+                        // Update configuration property
                         if (update) {
                             try {
                                 if (selPI.updateConfigEntry(
@@ -332,28 +333,30 @@ public class WebAdminRenderer {
                                 e.append(ex.getMessage());
                             }
                         }
-                        // Property add
+                        // Add configuration property
                         else {
-                            PluginConfiguration newParam =
-                                new PluginConfiguration();
-                            newParam.setPlugin(Plugin.getPluginByHashcode(
-                                    reqValHashcode));
-                            newParam.setName(reqValAttrName);
-                            newParam.setMsg(reqValAttrDescr);
-                            newParam.setType(reqValAttrType);
-                            newParam.setValue(reqValAttrValue);
-                            if (sobjDB.addRecord(newParam)) {
-                                // Update the Plug-in Admin's information
-                                sobjPA.pluginUpdated(
-                                        sobjPA.getPlugin(selPI));
-                                // Reload the PluginInfo object
-                                selPI =
-                                    sobjPA.getPluginInfo(reqValHashcode);
+                            try {
+                                if (selPI.addConfigEntry(
+                                        sobjDB,
+                                        reqValAttrName,
+                                        reqValAttrDescr,
+                                        reqValAttrType,
+                                        reqValAttrValue)) {
+                                    // Update the Plug-in Admin's information
+                                    sobjPA.pluginUpdated(
+                                            sobjPA.getPlugin(selPI));
+                                    // Reload the PluginInfo object
+                                    selPI =
+                                        sobjPA.getPluginInfo(reqValHashcode);
+                                }
+                                else {
+                                    e.append("Configuration expansion"
+                                            + " has failed."
+                                            + " Check log for details.");
+                                }
                             }
-                            else {
-                                e.append("Configuration expansion"
-                                        + " has failed."
-                                        + " Check log for details.");
+                            catch (Exception ex) {
+                                e.append(ex.getMessage());
                             }
                         }
                         // Return to the add/update view upon error
@@ -495,8 +498,20 @@ public class WebAdminRenderer {
                         + reqParAction + "').value='"
                         + actValConAddAttr + "';"
                         + "document.metrics.submit();\">"
-                        + "&nbsp;"
-                        + "<input type=\"button\""
+                        + "&nbsp;");
+                if (update) {
+                    b.append(sp(in) + "<input type=\"button\""
+                            + " class=\"install\""
+                            + " style=\"width: 100px;\""
+                            + " value=\"Remove\""
+                            + " onclick=\"javascript:"
+                            + "document.getElementById('"
+                            + reqParAction + "').value='"
+                            + actValConRemAttr + "';"
+                            + "document.metrics.submit();\">"
+                            + "&nbsp;");
+                }
+                b.append(sp(in) + "<input type=\"button\""
                         + " class=\"install\""
                         + " style=\"width: 100px;\""
                         + " value=\"Cancel\""
