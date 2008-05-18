@@ -41,6 +41,7 @@ import eu.sqooss.service.abstractmetric.ProjectFileMetric;
 import eu.sqooss.service.abstractmetric.ProjectVersionMetric;
 import eu.sqooss.service.abstractmetric.StoredProjectMetric;
 import eu.sqooss.service.db.DAObject;
+import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.db.PluginConfiguration;
 import eu.sqooss.service.util.StringUtils;
@@ -75,13 +76,13 @@ public class PluginInfo {
         BOOLEAN;
         
         public static ConfigurationType fromString(String config) {
-            if (config == BOOLEAN.toString())
+            if (config.equals(BOOLEAN.toString()))
                 return BOOLEAN;
 
-            if (config == STRING.toString())
+            if (config.equals(STRING.toString()))
                 return STRING;
 
-            if (config == INTEGER.toString())
+            if (config.equals(INTEGER.toString()))
                 return INTEGER;
 
             return null;
@@ -192,46 +193,55 @@ public class PluginInfo {
     }
 
     /**
-     * Updates the given metric plugin's configuration parameter with a new
-     * value.
+     * Sets a new value of the given metric plugin's configuration parameter
+     * by updating its database record.
      * 
      * @param name - the configuration property's name
-     * @param newValue - the new value, that should be assigned to the
+     * @param newVal - the new value, that should be assigned to the
      *   selected configuration property
      * 
-     * @return <code>true</code> if the value has been successfully modified.
-     *   Return value of <code>false</code> might indicate:
-     *   <ul>
-     *     <li>incorrect value type
-     *     <li>failed update on the corresponding database record
-     *   </ul>
+     * @return <code>true</code> upon successful update, of <code>false</code>
+     *   when a corresponding database record does not exist.
+     * 
+     * @throws <code>Exception</code> upon incorrect value's syntax
      */
-    public boolean updateConfigEntry(String name, String newValue) {
-
+    public boolean updateConfigEntry(DBService db, String name, String newVal)
+        throws Exception {
+        // Check if such configuration parameter exists
         for (PluginConfiguration pc : config) {
-            if (pc.getName() == name) {
-                ConfigurationType c = ConfigurationType
-                        .fromString(pc.getType());
-
-                if (c == null) {
+            if (pc.getName().equals(name)) {
+                // Retrieve the configuration parameter's type
+                ConfigurationType type = 
+                    ConfigurationType.fromString(pc.getType());
+                // Check for invalid type
+                if (type == null) {
                     return false;
                 }
-
-                if (c == ConfigurationType.BOOLEAN) {
-                    if (newValue != "true" && newValue != "false") {
-                        return false;
-                    }
-                } else if (c == ConfigurationType.INTEGER) {
-                    try {
-                        Integer.valueOf(newValue);
-                    } catch (NumberFormatException nfe) {
-                        return false;
+                // Check for a boolean type
+                else if (type.equals(ConfigurationType.BOOLEAN)) {
+                    if ((newVal.equals("true") == false)
+                            && (newVal.equals("false") == false)) {
+                        throw new Exception("Not a boolean value!");
                     }
                 }
-                HashMap<String, Object> names = new HashMap<String, Object>();
-                
-                return PluginConfiguration.updConfigurationEntry(
-                        Plugin.getPluginByHashcode(hashcode), names);
+                // Check for an integer type
+                else if (type.equals(ConfigurationType.INTEGER)) {
+                    try {
+                        Integer.valueOf(newVal);
+                    } catch (NumberFormatException nfe) {
+                        throw new Exception("Not an integer value!");
+                    }
+                }
+
+                // Update the given configuration parameter
+                // NOTE: We can not update "pc" directly, since it is detached
+                // i.e. the DB session that retrieved it is closed long ago.
+                PluginConfiguration updateDAO =
+                    db.findObjectById(PluginConfiguration.class, pc.getId());
+                if (updateDAO != null) {
+                    updateDAO.setValue(newVal);
+                    return true;
+                }
             }
         }
         return false;

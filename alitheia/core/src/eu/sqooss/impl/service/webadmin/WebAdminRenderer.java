@@ -307,6 +307,29 @@ public class WebAdminRenderer {
                         // Check for a parameter update
                         boolean update = paramExist(
                                 selPI, reqValAttrName, reqValAttrType);
+                        if (update) {
+                            try {
+                                if (selPI.updateConfigEntry(
+                                        sobjDB,
+                                        reqValAttrName,
+                                        reqValAttrValue)) {
+                                    // Update the Plug-in Admin's information
+                                    sobjPA.pluginUpdated(
+                                            sobjPA.getPlugin(selPI));
+                                    // Reload the PluginInfo object
+                                    selPI =
+                                        sobjPA.getPluginInfo(reqValHashcode);
+                                }
+                                else {
+                                    e.append("Configuration update"
+                                            + " has failed."
+                                            + " Check log for details.");
+                                }
+                            }
+                            catch (Exception ex) {
+                                e.append(ex.getMessage());
+                            }
+                        }
                     }
                 }
             }
