@@ -13,7 +13,7 @@ if (selectedProject.isValid()) {
         msg += "<br />No versions recorded.";
     }
 %>
-<table width="100%" class="dashboard">
+<table width="100%" border="0" background="none">
     <tr>
         <td valign="top" style="padding-right: 30px" width="50%">
         <%
@@ -22,7 +22,7 @@ if (selectedProject.isValid()) {
             out.println(selectedProject.getInfo());
         %>
         </td>
-        <td valign="top" width="50%">
+        <td valign="top" width="50%" class="borderless">
         <%
             // Versions
             out.println("\n<h2>" + selectedProject.getName() + " Versions");
@@ -115,7 +115,7 @@ if (selectedProject.isValid()) {
     out.println("\n\t\t</td>\n\t</tr>\n</table>");
 
     out.println("</div>"); // End of this group
-    out.println("<div style=\"margin-bottom: 20px;\"></div>");
+    //out.println("<div style=\"margin-bottom: 20px;\"></div>");
 } else {
     out.println(error("Invalid Project."));
 }

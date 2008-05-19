@@ -7,8 +7,5 @@
 
     </div>
   </div>
-  <div id="statusbar">
-
-  </div>
   </body>
 </html>
