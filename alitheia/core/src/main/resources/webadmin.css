@@ -149,6 +149,9 @@ body.section-6 #menu li#nav-6 a {
 
 
 /* ===[ METRICS CSS ]===================================================== */
+#table {
+    font-size: 10pt;
+}
 #table table {
     border-collapse: collapse;
     width: 100%;
@@ -156,14 +159,8 @@ body.section-6 #menu li#nav-6 a {
 #table td {
     padding-left: 10px;
 }
-#table input {
+#table input.expand {
     width: 100%;
-}
-#table input.install {
-    color: Green;
-}
-#table input.uninstall {
-    color: Red;
 }
 #table .borderless {
     border: 0;

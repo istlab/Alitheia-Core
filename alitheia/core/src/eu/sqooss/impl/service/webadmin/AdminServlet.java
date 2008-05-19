@@ -209,7 +209,7 @@ public class AdminServlet extends HttpServlet {
             }
             else if (query.startsWith("/index")) {
                 refreshMetrics = false;
-                vc.put("METRICS", render.renderMetrics(request));
+                vc.put("METRICS", render.renderPlugins(request));
                 sendPage(response, "/index.html");
             }
             else if (query.startsWith("/users")) {
@@ -276,7 +276,7 @@ public class AdminServlet extends HttpServlet {
             vc.put("LOGO", "<img src='/logo' id='logo' alt='Logo' />");
             vc.put("MENU",
                    "<ul id=\"menu\">" +
-                   "<li id=\"nav-1\"><a href=\"/index\">Metrics</a></li>" +
+                   "<li id=\"nav-1\"><a href=\"/index\">Plug-ins</a></li>" +
                    "<li id=\"nav-3\"><a href=\"/projects\">Projects</a></li>" +
                    "<li id=\"nav-6\"><a href=\"/users\">Users</a></li>" +
                    "<li id=\"nav-2\"><a href=\"/logs\">Logs</a></li>" +
@@ -312,7 +312,7 @@ public class AdminServlet extends HttpServlet {
         vc.put("JOBFAILSTATS", render.renderJobFailStats());
         // Metrics content
         if (refreshMetrics) {
-            vc.put("METRICS", render.renderMetrics(null));
+            vc.put("METRICS", render.renderPlugins(null));
         }
         else {
             refreshMetrics = true;

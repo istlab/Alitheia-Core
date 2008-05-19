@@ -60,7 +60,6 @@ import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Group;
 import eu.sqooss.service.db.GroupPrivilege;
-import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.db.PluginConfiguration;
 import eu.sqooss.service.db.Privilege;
 import eu.sqooss.service.db.PrivilegeValue;
@@ -181,26 +180,28 @@ public class WebAdminRenderer {
     }
 
     /**
-     * Verifies, if the specified configuration parameter exist in the
+     * Verifies, if the specified configuration property exist in the
      * given plug-in's information object.
      * 
      * @param selPI the plug-in's information object
-     * @param name the parameter's name
-     * @param type the parameter's type
+     * @param name the property's name
+     * @param type the property's type
      * 
-     * @return <code>true</code>, if such parameter is found,
+     * @return <code>true</code>, if such property is found,
      *   or <code>false</code> otherwise.
      */
-    public static boolean paramExist (
+    private static boolean hasConfProp (
             PluginInfo selPI,
             String name,
             String type) {
+        // Check if all values are valid
         if ((selPI == null) || (name == null) || (type == null)) {
             return false;
         }
-        for (PluginConfiguration param : selPI.getConfiguration()) {
-            if ((param.getName().equals(name))
-                    && (param.getType().equals(type))) {
+        // Search for a matching property
+        for (PluginConfiguration property : selPI.getConfiguration()) {
+            if ((property.getName().equals(name))
+                    && (property.getType().equals(type))) {
                 return true;
             }
         }
@@ -211,29 +212,38 @@ public class WebAdminRenderer {
      * Returns the Id of the given configuration property.
      * 
      * @param selPI the plug-in's information object
-     * @param name the parameter's name
-     * @param type the parameter's type
+     * @param name the property's name
+     * @param type the property's type
      * 
      * @return The property's Id, or <code>null</code> if the property does
      *   not exist.
      */
-    public static Long getParamId (
+    private static Long getConfPropId (
             PluginInfo selPI,
             String name,
             String type) {
+        // Check if all values are valid
         if ((selPI == null) || (name == null) || (type == null)) {
             return null;
         }
-        for (PluginConfiguration param : selPI.getConfiguration()) {
-            if ((param.getName().equals(name))
-                    && (param.getType().equals(type))) {
-                return param.getId();
+        // Search for a matching property
+        for (PluginConfiguration property : selPI.getConfiguration()) {
+            if ((property.getName().equals(name))
+                    && (property.getType().equals(type))) {
+                return property.getId();
             }
         }
         return null;
     }
 
-    public static String renderMetrics(HttpServletRequest req) {
+    /**
+     * Renders the various plug-in views.
+     * 
+     * @param req the servlet's request object
+     * 
+     * @return The HTML presentation of the generated view.
+     */
+    public static String renderPlugins(HttpServletRequest req) {
         // Stores the assembled HTML content
         StringBuilder b = new StringBuilder("\n");
         // Stores the accumulated error messages
@@ -247,26 +257,29 @@ public class WebAdminRenderer {
         // Request parameters
         String reqParAction        = "action";
         String reqParHashcode      = "pluginHashcode";
-        String reqParAttrName      = "attributeName";
-        String reqParAttrDescr     = "attributeDescription";
-        String reqParAttrType      = "attributeType";
-        String reqParAttrValue     = "attributeValue";
+        String reqParPropName      = "propertyName";
+        String reqParPropDescr     = "propertyDescription";
+        String reqParPropType      = "propertyType";
+        String reqParPropValue     = "propertyValue";
+        String reqParShowProp      = "showProperties";
+        String reqParShowActv      = "showActivators";
+        
         // Recognized "action" parameter's values
         String actValInstall       = "installPlugin";
         String actValUninstall     = "uninstallPlugin";
-        String actValReqAddAttr    = "requestAttribute";
-        String actValReqUpdAttr    = "updateAttribute";
-        String actValConAddAttr    = "confirmAttribute";
-        String actValConRemAttr    = "removeAttribute";
+        String actValReqAddProp    = "createProperty";
+        String actValReqUpdProp    = "updateProperty";
+        String actValConAddProp    = "confirmProperty";
+        String actValConRemProp    = "removeProperty";
         // Request values
         String reqValAction        = "";
         String reqValHashcode      = null;
-        boolean reqValShowAttr     = true;
-        boolean reqValShowActv     = true;
-        String reqValAttrName      = null;
-        String reqValAttrDescr     = null;
-        String reqValAttrType      = null;
-        String reqValAttrValue     = null;
+        String reqValPropName      = null;
+        String reqValPropDescr     = null;
+        String reqValPropType      = null;
+        String reqValPropValue     = null;
+        boolean reqValShowProp     = false;         // Show plug-in properties
+        boolean reqValShowActv     = false;         // Show plug-in activators
         // Info object of the selected plug-in
         PluginInfo selPI           = null;
 
@@ -297,56 +310,73 @@ public class WebAdminRenderer {
                     b.append(debugRequest(req));
                 }
 
+                // Retrieve the various display flags
+                if ((req.getParameter(reqParShowProp) != null)
+                        && (req.getParameter(reqParShowProp).equals("true"))) {
+                    reqValShowProp = true;
+                }
+                if ((req.getParameter(reqParShowActv) != null)
+                        && (req.getParameter(reqParShowActv).equals("true"))) {
+                    reqValShowActv = true;
+                }
                 // Retrieve the selected editor's action (if any)
                 reqValAction = req.getParameter(reqParAction);
                 if (reqValAction == null) {
                     reqValAction = "";
                 }
-                // Retrieve the selected configuration parameter's values
-                if ((reqValAction.equals(actValConAddAttr))
-                        || (reqValAction.equals(actValReqUpdAttr))
-                        || (reqValAction.equals(actValConRemAttr))) {
-                    reqValAttrName = req.getParameter(reqParAttrName);
-                    reqValAttrDescr = req.getParameter(reqParAttrDescr);
-                    reqValAttrType = req.getParameter(reqParAttrType);
-                    reqValAttrValue = req.getParameter(reqParAttrValue);
+                // Retrieve the selected configuration property's values
+                if ((reqValAction.equals(actValConAddProp))
+                        || (reqValAction.equals(actValReqUpdProp))
+                        || (reqValAction.equals(actValConRemProp))) {
+                    // Name, description, type and value
+                    reqValPropName  = req.getParameter(reqParPropName);
+                    reqValPropDescr = req.getParameter(reqParPropDescr);
+                    reqValPropType  = req.getParameter(reqParPropType);
+                    reqValPropValue = req.getParameter(reqParPropValue);
                 }
                 // Retrieve the selected plug-in's hash code and info object
                 reqValHashcode = req.getParameter(reqParHashcode);
                 if (reqValHashcode != null) {
                     selPI = sobjPA.getPluginInfo(reqValHashcode);
                 }
+                // Plug-in based actions
                 if (reqValHashcode != null) {
+                    // =======================================================
                     // Plug-in install request
+                    // =======================================================
                     if (reqValAction.equals(actValInstall)) {
                         if (sobjPA.installPlugin(reqValHashcode) == false) {
                             e.append("Plug-in can not be installed!"
                                     + " Check log for details.");
                         }
                     }
+                    // =======================================================
                     // Plug-in un-install request
+                    // =======================================================
                     else if (reqValAction.equals(actValUninstall)) {
                         if (sobjPA.uninstallPlugin(reqValHashcode) == false) {
                             e.append("Plug-in can not be uninstalled."
                                     + " Check log for details.");
                         }
                     }
-                    // Plug-in's configuration parameter remove
-                    else if (reqValAction.equals(actValConRemAttr)) {
-                        Long paramId = getParamId(
-                                selPI, reqValAttrName, reqValAttrType);
-                        if (paramId != null) {
-                            PluginConfiguration param = sobjDB.findObjectById(
-                                    PluginConfiguration.class, paramId);
-                            if ((param != null)
-                                    && (sobjDB.deleteRecord(param))) {
+                    // =======================================================
+                    // Plug-in's configuration parameter removal
+                    // =======================================================
+                    else if (reqValAction.equals(actValConRemProp)) {
+                        Long propId = getConfPropId(
+                                selPI, reqValPropName, reqValPropType);
+                        if (propId != null) {
+                            PluginConfiguration prop = sobjDB.findObjectById(
+                                    PluginConfiguration.class, propId);
+                            if ((prop != null)
+                                    && (sobjDB.deleteRecord(prop))) {
                                 // Update the Plug-in Admin's information
                                 sobjPA.pluginUpdated(sobjPA.getPlugin(selPI));
                                 // Reload the PluginInfo object
                                 selPI = sobjPA.getPluginInfo(reqValHashcode);
                             }
                             else {
-                                e.append("Configuration remove"
+                                e.append("Property removal"
                                         + " has failed!"
                                         + " Check log for details.");
                             }
@@ -356,21 +386,23 @@ public class WebAdminRenderer {
                         }
                         // Return to the update view upon error
                         if (e.toString().length() > 0) {
-                            reqValAction = actValReqUpdAttr;
+                            reqValAction = actValReqUpdProp;
                         }
                     }
-                    // Plug-in's configuration parameter create/update
-                    else if (reqValAction.equals(actValConAddAttr)) {
+                    // =======================================================
+                    // Plug-in's configuration parameter creation/update
+                    // =======================================================
+                    else if (reqValAction.equals(actValConAddProp)) {
                         // Check for a parameter update
-                        boolean update = paramExist(
-                                selPI, reqValAttrName, reqValAttrType);
+                        boolean update = hasConfProp(
+                                selPI, reqValPropName, reqValPropType);
                         // Update configuration property
                         if (update) {
                             try {
                                 if (selPI.updateConfigEntry(
                                         sobjDB,
-                                        reqValAttrName,
-                                        reqValAttrValue)) {
+                                        reqValPropName,
+                                        reqValPropValue)) {
                                     // Update the Plug-in Admin's information
                                     sobjPA.pluginUpdated(
                                             sobjPA.getPlugin(selPI));
@@ -379,7 +411,7 @@ public class WebAdminRenderer {
                                         sobjPA.getPluginInfo(reqValHashcode);
                                 }
                                 else {
-                                    e.append("Configuration update"
+                                    e.append("Property update"
                                             + " has failed!"
                                             + " Check log for details.");
                                 }
@@ -388,15 +420,15 @@ public class WebAdminRenderer {
                                 e.append(ex.getMessage());
                             }
                         }
-                        // Add configuration property
+                        // Create configuration property
                         else {
                             try {
                                 if (selPI.addConfigEntry(
                                         sobjDB,
-                                        reqValAttrName,
-                                        reqValAttrDescr,
-                                        reqValAttrType,
-                                        reqValAttrValue)) {
+                                        reqValPropName,
+                                        reqValPropDescr,
+                                        reqValPropType,
+                                        reqValPropValue)) {
                                     // Update the Plug-in Admin's information
                                     sobjPA.pluginUpdated(
                                             sobjPA.getPlugin(selPI));
@@ -405,7 +437,7 @@ public class WebAdminRenderer {
                                         sobjPA.getPluginInfo(reqValHashcode);
                                 }
                                 else {
-                                    e.append("Configuration expansion"
+                                    e.append("Property creation"
                                             + " has failed!"
                                             + " Check log for details.");
                                 }
@@ -414,10 +446,10 @@ public class WebAdminRenderer {
                                 e.append(ex.getMessage());
                             }
                         }
-                        // Return to the add/update view upon error
+                        // Return to the create/update view upon error
                         if (e.toString().length() > 0) {
-                            if (update) reqValAction = actValReqUpdAttr;
-                            else reqValAction = actValReqAddAttr;
+                            if (update) reqValAction = actValReqUpdProp;
+                            else reqValAction = actValReqAddProp;
                         }
                     }
                 }
@@ -437,27 +469,27 @@ public class WebAdminRenderer {
             b.append(errorFieldset(e, in));
 
             // ===============================================================
-            // "Update/New configuration parameter" editor
+            // "Create/update configuration property" editor
             // ===============================================================
             if ((selPI != null)
-                    && ((reqValAction.equals(actValReqAddAttr))
-                            || (reqValAction.equals(actValReqUpdAttr)))) {
-                // Field value
+                    && ((reqValAction.equals(actValReqAddProp))
+                            || (reqValAction.equals(actValReqUpdProp)))) {
+                // Input field values are stored here
                 String value = null;
                 // Create the field-set
                 b.append(sp(in) + "<fieldset>\n");
-                // Check for a parameter update
-                boolean update = paramExist(
-                        selPI, reqValAttrName, reqValAttrType);
+                // Check for a property update request
+                boolean update = hasConfProp(
+                        selPI, reqValPropName, reqValPropType);
                 b.append(sp(++in) + "<legend>"
                         + ((update)
-                                ? "Update parameter of "
-                                : "New parameter for ")
+                                ? "Update property of "
+                                : "Create property for ")
                         + selPI.getPluginName()
                         + "</legend>\n");
                 b.append(sp(in) + "<table class=\"borderless\">");
-                // Parameter's name
-                value = ((reqValAttrName != null) ? reqValAttrName : "");
+                // Property's name
+                value = ((reqValPropName != null) ? reqValPropName : "");
                 b.append(sp(in) + "<tr>\n"
                         + sp(++in)
                         + "<td class=\"borderless\" style=\"width:100px;\">"
@@ -468,13 +500,13 @@ public class WebAdminRenderer {
                         + ((update) ? value
                                 : "<input type=\"text\""
                                     + " class=\"form\""
-                                    + " id=\"" + reqParAttrName + "\""
-                                    + " name=\"" + reqParAttrName + "\""
+                                    + " id=\"" + reqParPropName + "\""
+                                    + " name=\"" + reqParPropName + "\""
                                     + " value=\"" + value + "\">")
                                     + "</td>\n"
                                     + sp(--in) + "</tr>\n");
-                // Parameter's description
-                value = ((reqValAttrDescr != null) ? reqValAttrDescr : "");
+                // Proeprty's description
+                value = ((reqValPropDescr != null) ? reqValPropDescr : "");
                 b.append(sp(in) + "<tr>\n"
                         + sp(++in)
                         + "<td class=\"borderless\" style=\"width:100px;\">"
@@ -485,13 +517,13 @@ public class WebAdminRenderer {
                         + ((update) ? value
                                 : "<input type=\"text\""
                                     + " class=\"form\""
-                                    + " id=\"" + reqParAttrDescr + "\""
-                                    + " name=\"" + reqParAttrDescr + "\""
+                                    + " id=\"" + reqParPropDescr + "\""
+                                    + " name=\"" + reqParPropDescr + "\""
                                     + " value=\"" + value + "\">")
                                     + "</td>\n"
                                     + sp(--in) + "</tr>\n");
-                // Parameter's type
-                value = ((reqValAttrType != null) ? reqValAttrType : "");
+                // Property's type
+                value = ((reqValPropType != null) ? reqValPropType : "");
                 b.append(sp(in) + "<tr>\n"
                         + sp(++in)
                         + "<td class=\"borderless\" style=\"width:100px;\">"
@@ -505,8 +537,8 @@ public class WebAdminRenderer {
                 }
                 else {
                     b.append("<select class=\"form\""
-                            + " id=\"" + reqParAttrType + "\""
-                            + " name=\"" + reqParAttrType + "\">\n");
+                            + " id=\"" + reqParPropType + "\""
+                            + " name=\"" + reqParPropType + "\">\n");
                     for (ConfigurationType type : ConfigurationType.values()) {
                         boolean selected = type.toString().equals(value);
                         b.append(sp(in) + "<option"
@@ -522,8 +554,8 @@ public class WebAdminRenderer {
                         + "</td>\n"
                         + sp(--in)
                         + "</tr>\n");
-                // Attribute's value
-                value = ((reqValAttrValue != null) ? reqValAttrValue : "");
+                // Property's value
+                value = ((reqValPropValue != null) ? reqValPropValue : "");
                 b.append(sp(in) + "<tr>\n"
                         + sp(++in)
                         + "<td class=\"borderless\" style=\"width:100px;\">"
@@ -533,14 +565,14 @@ public class WebAdminRenderer {
                         + "<td class=\"borderless\">"
                         + "<input type=\"text\""
                         + " class=\"form\""
-                        + " id=\"" + reqParAttrValue + "\""
-                        + " name=\"" + reqParAttrValue + "\""
+                        + " id=\"" + reqParPropValue + "\""
+                        + " name=\"" + reqParPropValue + "\""
                         + " value=\"" + value +"\">"
                         + "</td>\n"
                         + sp(--in)
                         + "</tr>\n");
-                // Tool-bar
-                value = ((update) ? "Update" : "Add");
+                // Command tool-bar
+                value = ((update) ? "Update" : "Create");
                 b.append(sp(in) + "<tr>\n"
                         + sp(++in)
                         + "<td colspan=\"2\" class=\"borderless\">"
@@ -551,7 +583,7 @@ public class WebAdminRenderer {
                         + " onclick=\"javascript:"
                         + "document.getElementById('"
                         + reqParAction + "').value='"
-                        + actValConAddAttr + "';"
+                        + actValConAddProp + "';"
                         + "document.metrics.submit();\">"
                         + "&nbsp;");
                 if (update) {
@@ -562,7 +594,7 @@ public class WebAdminRenderer {
                             + " onclick=\"javascript:"
                             + "document.getElementById('"
                             + reqParAction + "').value='"
-                            + actValConRemAttr + "';"
+                            + actValConRemProp + "';"
                             + "document.metrics.submit();\">"
                             + "&nbsp;");
                 }
@@ -587,12 +619,12 @@ public class WebAdminRenderer {
                 b.append(sp(++in) + "<legend>"
                         + selPI.getPluginName()
                         + "</legend>\n");
-                // Create the parameters field-set
+                // Create the properties field-set
                 b.append(sp(++in) + "<fieldset>\n");
                 b.append(sp(++in) + "<legend>"
-                        + "Configuration parameters"
+                        + "Configuration properties"
                         + "</legend>\n");
-                // Create the parameters table
+                // Create the properties table
                 b.append(sp(in) + "<table>\n");
                 b.append(sp(++in) + "<thead>\n");
                 b.append(sp(++in) + "<tr class=\"head\">\n");
@@ -607,21 +639,21 @@ public class WebAdminRenderer {
                         + "Value</td>\n");
                 b.append(sp(--in) + "</tr>\n");
                 b.append(sp(--in) + "</thead>\n");
-                // Display the configuration set of this plug-in
+                // Display the set of configuration properties
                 b.append(sp(in++) + "<tbody>\n");
                 // Get the plug-in's configuration set
                 List<PluginConfiguration> config = selPI.getConfiguration();
                 if (config.isEmpty()) {
                     b.append(sp(in++) + "<tr>");
                     b.append(sp(in) + "<td colspan=\"3\" class=\"noattr\">"
-                            + "This plug-in has no configurable parameters."
+                            + "This plug-in has no configuration properties."
                             + "</td>\n");
                     b.append(sp(--in)+ "</tr>\n");
                 }
                 else {
                     for (PluginConfiguration param : config) {
                         b.append(sp(in++) + "<tr>\n");
-                        String htmlEditParam = "<td class=\"edit\""
+                        String htmlEditProp = "<td class=\"edit\""
                             + " title=\""
                             + ((param.getMsg() != null)
                                     ? param.getMsg()
@@ -630,25 +662,25 @@ public class WebAdminRenderer {
                             + " onclick=\"javascript:"
                             + "document.getElementById('"
                             + reqParAction + "').value='"
-                            + actValReqUpdAttr + "';"
+                            + actValReqUpdProp + "';"
                             + "document.getElementById('"
-                            + reqParAttrName + "').value='"
+                            + reqParPropName + "').value='"
                             + param.getName() + "';"
                             + "document.getElementById('"
-                            + reqParAttrType + "').value='"
+                            + reqParPropType + "').value='"
                             + param.getType() + "';"
                             + "document.getElementById('"
-                            + reqParAttrDescr + "').value='"
+                            + reqParPropDescr + "').value='"
                             + param.getMsg() + "';"
                             + "document.getElementById('"
-                            + reqParAttrValue + "').value='"
+                            + reqParPropValue + "').value='"
                             + param.getValue() + "';"
                             + "document.metrics.submit();\">"
                             + "<img src=\"/edit.png\" alt=\"[Edit]\"/>"
                             + param.getName()
                             + "</td>\n";
                         b.append(sp(in)
-                                + htmlEditParam
+                                + htmlEditProp
                                 + sp(in) + "<td>"
                                 + param.getType()
                                 + "</td>\n"
@@ -658,7 +690,7 @@ public class WebAdminRenderer {
                         b.append(sp(--in)+ "</tr>\n");
                     }
                 }
-                // Create the parameter's tool-bar
+                // Command tool-bar
                 b.append(sp(in) + "<tr>\n");
                 b.append(sp(++in) + "<td colspan=\"3\">\n");
                 b.append(sp(++in) + "<input type=\"button\""
@@ -673,11 +705,11 @@ public class WebAdminRenderer {
                 b.append(sp(in) + "<input type=\"button\""
                         + " class=\"install\""
                         + " style=\"width: 100px;\""
-                        + " value=\"Add parameter\""
+                        + " value=\"Add property\""
                         + " onclick=\"javascript:"
                         + "document.getElementById('"
                         + reqParAction + "').value='"
-                        + actValReqAddAttr + "';"
+                        + actValReqAddProp + "';"
                         + "document.metrics.submit();\""
                         + ">\n");
                 b.append(sp(--in) + "</td>\n");
@@ -696,111 +728,141 @@ public class WebAdminRenderer {
             // ===============================================================
             else {
                 // Create the field-set
-                b.append(sp(++in) + "<fieldset>\n");
+                b.append(sp(in) + "<fieldset>\n");
                 b.append(sp(++in) + "<legend>All plug-ins</legend>\n");
                 // Retrieve information for all registered metric plug-ins
                 Collection<PluginInfo> l = sobjPA.listPlugins();
                 // Create the header row
-                b.append("<table>\n");
-                b.append("<thead>\n");
-                b.append("<tr class=\"head\">\n");
-                b.append("<td class=\"head\" style=\"width: 80px;\">"
+                b.append(sp(in) + "<table>\n");
+                b.append(sp(++in) + "<thead>\n");
+                b.append(sp(++in) + "<tr class=\"head\">\n");
+                b.append(sp(++in) + "<td class=\"head\""
+                        + " style=\"width: 80px;\">"
                         + "Status</td>\n");
-                b.append("<td class=\"head\" style=\"width: 30%;\">"
+                b.append(sp(in) + "<td class=\"head\""
+                        + " style=\"width: 30%;\">"
                         + "Name</td>\n");
-                b.append("<td class=\"head\" style=\"width: 40%;\">"
+                b.append(sp(in) + "<td class=\"head\""
+                        + " style=\"width: 40%;\">"
                         + "Class</td>\n");
-                b.append("<td class=\"head\">Version</td>\n");
-                b.append("</tr>\n");
-                b.append("</thead>\n");
-                b.append("<tbody>\n");
-                // Push the metrics info
-                // Not-installed plug-ins first
+                b.append(sp(in) + "<td class=\"head\">Version</td>\n");
+                b.append(sp(--in) + "</tr>\n");
+                b.append(sp(--in) + "</thead>\n");
+                // Create the content row
+                b.append(sp(in) + "<tbody>\n");
+                in++;
+                // Display not-installed plug-ins first
                 for(PluginInfo i : l) {
-                    String htmlEditPlugin = "<td class=\"edit\""
-                        + " onclick=\"javascript:"
-                        + "document.getElementById('"
-                        + reqParHashcode + "').value='"
-                        + i.getHashcode() + "';"
-                        + "document.metrics.submit();\">"
-                        + "<img src=\"/edit.png\" alt=\"[Edit]\"/>"
-                        + i.getPluginName()
-                        + "</td>\n";
                     if (i.installed == false) {
-                        b.append("<tr class=\"uninstalled\">");
-                        
-                        // Command bar
-                        b.append("<td style=\"padding: 0;\">");
-                        b.append("<input class=\"install\""
+                        b.append(sp(in) + "<tr class=\"uninstalled\">\n");
+                        // Command tool-bar
+                        b.append(sp(++in) + "<td style=\"padding: 0;\">");
+                        b.append("<input"
                                 + " type=\"button\""
+                                + " class=\"expand\""
                                 + " value=\"INSTALL\""
                                 + " onclick=\"javascript:"
-                                + "document.getElementById('" + reqParAction + "').value='" + actValInstall + "';"
-                                + "document.getElementById('" + reqParHashcode +"').value='" + i.getHashcode() + "';"
+                                + "document.getElementById('"
+                                + reqParAction + "').value='"
+                                + actValInstall + "';"
+                                + "document.getElementById('"
+                                + reqParHashcode +"').value='"
+                                + i.getHashcode() + "';"
                                 + "document.metrics.submit();\""
                                 + ">");
                         b.append("</td>\n");
-                        
-                        // Info bar
+                        // Plug-in information
+                        String htmlEditPlugin = sp(in) + "<td class=\"edit\""
+                            + " onclick=\"javascript:"
+                            + "document.getElementById('"
+                            + reqParHashcode + "').value='"
+                            + i.getHashcode() + "';"
+                            + "document.metrics.submit();\">"
+                            + "<img src=\"/edit.png\" alt=\"[Edit]\"/>"
+                            + i.getPluginName()
+                            + "</td>\n";
                         b.append(htmlEditPlugin);
-                        b.append("<td>"
+                        b.append(sp(in) + "<td>"
                                 + StringUtils.join((String[]) (
                                         i.getServiceRef().getProperty(
                                                 Constants.OBJECTCLASS)),",")
                                                 + "</td>\n");
-                        b.append("<td>" + i.getPluginVersion() + "</td>\n");
-                        b.append("</tr>\n");
+                        b.append(sp(in) + "<td>"
+                                + i.getPluginVersion() + "</td>\n");
+                        b.append(sp(--in) + "</tr>\n");
                         
-                        // Configuration bar
+                        // Extended plug-in information
                         b.append(renderMetricAttributes(
-                                i, reqValShowAttr, reqValShowActv, in));
+                                i, reqValShowProp, reqValShowActv, in));
                     }
                 }
                 // Installed plug-ins
                 for(PluginInfo i : l) {
-                    String htmlEditPlugin = "<td class=\"edit\""
-                        + " onclick=\"javascript:"
-                        + "document.getElementById('"
-                        + reqParHashcode + "').value='"
-                        + i.getHashcode() + "';"
-                        + "document.metrics.submit();\">"
-                        + "<img src=\"/edit.png\" alt=\"[Edit]\"/>"
-                        + i.getPluginName()
-                        + "</td>\n";
                     if (i.installed) {
-                        b.append("<tr>");
-                        
-                        // Command bar
-                        b.append("<td style=\"padding: 0;\">");
-                        b.append("<input class=\"uninstall\""
+                        b.append(sp(in) + "<tr>\n");
+                        // Command tool-bar
+                        b.append(sp(++in) + "<td style=\"padding: 0;\">");
+                        b.append("<input"
                                 + " type=\"button\""
+                                + " class=\"expand\""
                                 + " value=\"UNINSTALL\""
                                 + " onclick=\"javascript:"
-                                + "document.getElementById('" + reqParAction + "').value='" + actValUninstall  +"';"
-                                + "document.getElementById('" + reqParHashcode +"').value='" + i.getHashcode() + "';"
+                                + "document.getElementById('"
+                                + reqParAction + "').value='"
+                                + actValUninstall  +"';"
+                                + "document.getElementById('"
+                                + reqParHashcode +"').value='"
+                                + i.getHashcode() + "';"
                                 + "document.metrics.submit();\""
                                 + ">");
                         b.append("</td>\n");
-                        
-                        // Info bar
+                        // Plug-in information
+                        String htmlEditPlugin = sp(in) + "<td class=\"edit\""
+                            + " onclick=\"javascript:"
+                            + "document.getElementById('"
+                            + reqParHashcode + "').value='"
+                            + i.getHashcode() + "';"
+                            + "document.metrics.submit();\">"
+                            + "<img src=\"/edit.png\" alt=\"[Edit]\"/>"
+                            + i.getPluginName()
+                            + "</td>\n";
                         b.append(htmlEditPlugin);
-                        b.append("<td>"
+                        b.append(sp(in) + "<td>"
                                 + StringUtils.join((String[]) (
                                         i.getServiceRef().getProperty(
                                                 Constants.OBJECTCLASS)),",")
                                                 + "</td>\n");
-                        b.append("<td>" + i.getPluginVersion() + "</td>\n");
-                        b.append("</tr>\n");
-                        
-                        // Configuration bar
+                        b.append(sp(in) + "<td>"
+                                + i.getPluginVersion() + "</td>\n");
+                        b.append(sp(--in) + "</tr>\n");
+                        // Extended plug-in information
                         b.append(renderMetricAttributes(
-                                i, reqValShowAttr, reqValShowActv, in));
+                                i, reqValShowProp, reqValShowActv, in));
                     }
                 }
                 // Close the table
-                b.append("</tbody>\n");
-                b.append("</table>\n");
-                // Close the fieldset
+                b.append(sp(--in) + "</tbody>\n");
+                b.append(sp(--in) + "</table>\n");
+                // Display flags
+                b.append(sp(in) + "<span>\n");
+                b.append(sp(++in) + "<input"
+                        + " type=\"checkbox\""
+                        + ((reqValShowProp) ? "checked" : "")
+                        + " onclick=\"javascript:"
+                        + "document.getElementById('"
+                        + reqParShowProp + "').value = this.checked;"
+                        + "document.metrics.submit();\""
+                        + ">Display properties\n");
+                b.append(sp(++in) + "<input"
+                        + " type=\"checkbox\""
+                        + ((reqValShowActv) ? "checked" : "")
+                        + " onclick=\"javascript:"
+                        + "document.getElementById('"
+                        + reqParShowActv + "').value = this.checked;"
+                        + "document.metrics.submit();\""
+                        + ">Display activators\n");
+                b.append(sp(--in) + "</span>\n");
+                // Close the field-set
                 b.append(sp(--in) + "</fieldset>\n");
             }
 
@@ -808,44 +870,58 @@ public class WebAdminRenderer {
             // INPUT FIELDS
             // ===============================================================
             // "Action type" input field
-            b.append("<input type=\"hidden\""
+            b.append(sp(in) + "<input type=\"hidden\""
                     + " id=\"" + reqParAction + "\""
                     + " name=\"" + reqParAction + "\""
                     + " value=\"\">\n");
             // "Selected plug-in's hash code" input field
-            b.append("<input type=\"hidden\""
+            b.append(sp(in) + "<input type=\"hidden\""
                     + " id=\"" + reqParHashcode + "\""
                     + " name=\"" + reqParHashcode + "\""
                     + " value=\""
                     + ((reqValHashcode != null) ? reqValHashcode : "")
                     + "\">\n");
             // "Configuration attribute's name" input field
-            b.append("<input type=\"hidden\""
-                    + " id=\"" + reqParAttrName + "\""
-                    + " name=\"" + reqParAttrName + "\""
+            b.append(sp(in) + "<input type=\"hidden\""
+                    + " id=\"" + reqParPropName + "\""
+                    + " name=\"" + reqParPropName + "\""
                     + " value=\""
-                    + ((reqValAttrName != null) ? reqValAttrName : "")
+                    + ((reqValPropName != null) ? reqValPropName : "")
                     + "\">\n");
             // "Configuration attribute's description" input field
-            b.append("<input type=\"hidden\""
-                    + " id=\"" + reqParAttrDescr + "\""
-                    + " name=\"" + reqParAttrDescr + "\""
+            b.append(sp(in) + "<input type=\"hidden\""
+                    + " id=\"" + reqParPropDescr + "\""
+                    + " name=\"" + reqParPropDescr + "\""
                     + " value=\""
-                    + ((reqValAttrDescr != null) ? reqValAttrDescr : "")
+                    + ((reqValPropDescr != null) ? reqValPropDescr : "")
                     + "\">\n");
             // "Configuration attribute's type" input field
-            b.append("<input type=\"hidden\""
-                    + " id=\"" + reqParAttrType + "\""
-                    + " name=\"" + reqParAttrType + "\""
+            b.append(sp(in) + "<input type=\"hidden\""
+                    + " id=\"" + reqParPropType + "\""
+                    + " name=\"" + reqParPropType + "\""
                     + " value=\""
-                    + ((reqValAttrType != null) ? reqValAttrType : "")
+                    + ((reqValPropType != null) ? reqValPropType : "")
                     + "\">\n");
             // "Configuration attribute's value" input field
-            b.append("<input type=\"hidden\""
-                    + " id=\"" + reqParAttrValue + "\""
-                    + " name=\"" + reqParAttrValue + "\""
+            b.append(sp(in) + "<input type=\"hidden\""
+                    + " id=\"" + reqParPropValue + "\""
+                    + " name=\"" + reqParPropValue + "\""
                     + " value=\""
-                    + ((reqValAttrValue != null) ? reqValAttrValue : "")
+                    + ((reqValPropValue != null) ? reqValPropValue : "")
+                    + "\">\n");
+            // "Show configuration properties" input field
+            b.append(sp(in) + "<input type=\"hidden\""
+                    + " id=\"" + reqParShowProp + "\""
+                    + " name=\"" + reqParShowProp + "\""
+                    + " value=\""
+                    + reqValShowProp
+                    + "\">\n");
+            // "Show activators" input field
+            b.append(sp(in) + "<input type=\"hidden\""
+                    + " id=\"" + reqParShowActv + "\""
+                    + " name=\"" + reqParShowActv + "\""
+                    + " value=\""
+                    + reqValShowActv
                     + "\">\n");
 
             // ===============================================================
@@ -861,64 +937,66 @@ public class WebAdminRenderer {
     }
 
     /**
-     * Creates a set of table rows populated with the metric attributes and
-     * their values as found in the given <code>PluginInfo</code> object
+     * Creates a set of table rows populated with the metric properties and
+     * activators as found in the given <code>PluginInfo</code> object
      * 
-     * @param pluginInfo a <code>PluginInfo</code> object
-     * @param showAttributes
+     * @param pluginInfo the plug-in's <code>PluginInfo</code> object
+     * @param showProperties
      * @param showActivators
      * @param in indentation space
      * 
-     * @return The table as HTML snippet.
+     * @return The table as HTML presentation.
      */
     private static String renderMetricAttributes(
             PluginInfo pluginInfo,
-            boolean showAttributes,
+            boolean showProperties,
             boolean showActivators,
             long in) {
         // Retrieve the configuration set of this plug-in
         List<PluginConfiguration> l =  pluginInfo.getConfiguration();
-
         // Skip metric plug-ins that are registered but not installed
         if (pluginInfo.installed == false) {
             return "";
         }
         // Skip plug-ins that aren't configured or don't have configuration
         else if ((l == null) || (l.isEmpty())) {
-            return (sp(in++) + "<tr>\n"
-                    + sp(in) + "<td>&nbsp;</td>\n"
-                    + sp(in) + "<td colspan=\"3\" class=\"noattr\">"
-                    + "This plug-in has no configurable attributes."
-                    + "</td>\n"
-                    + sp(--in)+ "</tr>\n");
+            if (showProperties) {
+                return (sp(in++) + "<tr>\n"
+                        + sp(in) + "<td>&nbsp;</td>\n"
+                        + sp(in) + "<td colspan=\"3\" class=\"noattr\">"
+                        + "This plug-in has no configuration properties."
+                        + "</td>\n"
+                        + sp(--in)+ "</tr>\n");
+            }
+            return "";
         }
         // Display all configuration attributes and activation types
         else {
             StringBuilder b = new StringBuilder();
-            // List the metric plug-in's configuration attributes
-            if (showAttributes) {
-                for (PluginConfiguration c : l) {
+            // List the metric plug-in's configuration properties
+            if (showProperties) {
+                for (PluginConfiguration property : l) {
                     b.append(sp(in++) + "<tr>");
                     b.append(sp(in) + "<td>&nbsp;</td>\n");
                     b.append(sp(in) + "<td colspan=\"3\" class=\"attr\">"
-                            + "<b>Attribute:</b> " + c.getName()
-                            + "&nbsp;<b>Type:</b> " + c.getType()
-                            + "&nbsp;<b>Value:</b> " + c.getValue()
+                            + "<b>Property:</b> " + property.getName()
+                            + "&nbsp;<b>Type:</b> " + property.getType()
+                            + "&nbsp;<b>Value:</b> " + property.getValue()
                             + "</td>\n");
                     b.append(sp(--in)+ "</tr>\n");
                 }
             }
             // List the metric plug-in's activator types
             if (showActivators) {
-                List<Class<? extends DAObject>> activationTypesList =
+                List<Class<? extends DAObject>> activators =
                     pluginInfo.getActivationTypes();
-                if (activationTypesList != null) {
-                    for (Class<? extends DAObject> activationType : activationTypesList) {
+                if (activators != null) {
+                    for (Class<? extends DAObject> activator : activators) {
                         b.append("<tr>");
                         b.append("<td>&nbsp;</td>\n");
                         b.append("<td colspan=\"3\" class=\"attr\">"
                                 + "<b>Activator:</b> "
-                                + activationType.getName()
+                                + activator.getName()
                                 + "</td>");
                         b.append("</tr>\n");
                     }
