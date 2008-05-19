@@ -33,6 +33,7 @@
 package eu.sqooss.scl.accessor;
 
 import eu.sqooss.scl.WSException;
+import eu.sqooss.ws.client.datatypes.WSDeveloper;
 import eu.sqooss.ws.client.datatypes.WSDirectory;
 import eu.sqooss.ws.client.datatypes.WSFileGroup;
 import eu.sqooss.ws.client.datatypes.WSProjectFile;
@@ -165,8 +166,30 @@ public abstract class WSProjectAccessor extends WSAccessor {
      * @param directoriesIds - the identifiers of the requested directories
      * 
      * @return The <code>WSDirectory</code> array describing the requested directories.
+     * 
+     * @throws WSException
+     * <ul>
+     *  <li>if the connection can't be established to the SQO-OSS's web services service</li>
+     *  <li>if web services service throws an exception</li>
+     * <ul>
      */
     public abstract WSDirectory[] getDirectoriesByIds(long[] directoriesIds) throws WSException;
+    
+    /**
+     * This method returns all known information about the developers referenced by
+     * the given identifiers.
+     * 
+     * @param developersIds - the identifiers of the requested developers
+     * 
+     * @return The <code>WSDeveloper</code> array describing the requested developers.
+     * 
+     * @throws WSException
+     * <ul>
+     *  <li>if the connection can't be established to the SQO-OSS's web services service</li>
+     *  <li>if web services service throws an exception</li>
+     * <ul>
+     */
+    public abstract WSDeveloper[] getDevelopersByIds(long[] developersIds) throws WSException;
     
     /**
      * The method returns all information, that the SQO-OSS framework has

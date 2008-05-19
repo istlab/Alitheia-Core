@@ -36,6 +36,7 @@ import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
 
+import eu.sqooss.impl.service.web.services.datatypes.WSDeveloper;
 import eu.sqooss.impl.service.web.services.datatypes.WSDirectory;
 import eu.sqooss.impl.service.web.services.datatypes.WSFileGroup;
 import eu.sqooss.impl.service.web.services.datatypes.WSProjectFile;
@@ -44,6 +45,7 @@ import eu.sqooss.impl.service.web.services.datatypes.WSStoredProject;
 import eu.sqooss.impl.service.web.services.utils.ProjectManagerDatabase;
 import eu.sqooss.impl.service.web.services.utils.SecurityWrapper;
 import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.Developer;
 import eu.sqooss.service.db.Directory;
 import eu.sqooss.service.db.FileGroup;
 import eu.sqooss.service.db.ProjectFile;
@@ -301,7 +303,7 @@ public class ProjectManager extends AbstractManager {
     }
     
     /**
-     * {@link eu.sqooss.service.web.services.WebServices#getDirectoriesByIds(String, String, long[])}
+     * @see eu.sqooss.service.web.services.WebServices#getDirectoriesByIds(String, String, long[])
      */
     public WSDirectory[] getDirectoriesByIds(String userName, String password,
             long[] directoriesIds) {
@@ -317,6 +319,29 @@ public class ProjectManager extends AbstractManager {
         db.commitDBSession();
         
         return convertToWSDirectory(queryResult);
+    }
+    
+    /**
+     * @see eu.sqooss.service.web.services.WebServices#getDevelopersByIds(String, String, long[])
+     */
+    public WSDeveloper[] getDevelopersByIds(String userName, String password,
+            long[] developersIds) {
+        logger.info("Get developers by ids! useR: " + userName +
+                "; developers' ids: " + Arrays.toString(developersIds));
+        
+        securityWrapper.checkDBReadAccess(userName, password);
+        
+        super.updateUserActivity(userName);
+        
+        if (developersIds == null) {
+            return null;
+        }
+        
+        db.startDBSession();
+        List<?> developers = dbWrapper.getDevelopersByIds(developersIds);
+        db.commitDBSession();
+        
+        return convertToWSDeveloper(developers);
     }
     
     private WSProjectFile[] convertToWSProjectFiles(List<?> projectFiles) {
@@ -412,6 +437,30 @@ public class ProjectManager extends AbstractManager {
             }
         }
         return result;
+    }
+    
+    private WSDeveloper[] convertToWSDeveloper(List<?> developers) {
+        WSDeveloper[] result = null;
+        if ((developers != null) && (!developers.isEmpty())) {
+            result = new WSDeveloper[developers.size()];
+            Developer currentElem;
+            for (int i = 0; i < result.length; i++) {
+                currentElem = (Developer) developers.get(i);
+                result[i] = createWSDeveloper(currentElem);
+            }
+        }
+        return result;
+    }
+    
+    private static WSDeveloper createWSDeveloper(Developer developer) {
+        if (developer == null) return null;
+        WSDeveloper wsDeveloper = new WSDeveloper();
+        wsDeveloper.setId(developer.getId());
+        wsDeveloper.setEmail(developer.getEmail());
+        wsDeveloper.setName(developer.getName());
+        wsDeveloper.setStoredProjectId(developer.getStoredProject().getId());
+        wsDeveloper.setUsername(developer.getUsername());
+        return wsDeveloper;
     }
     
     private static WSStoredProject createWSStoredProject(StoredProject storedProject) {

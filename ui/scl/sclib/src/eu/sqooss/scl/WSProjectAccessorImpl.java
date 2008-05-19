@@ -40,11 +40,14 @@ import org.apache.axis2.AxisFault;
 
 import eu.sqooss.scl.accessor.WSProjectAccessor;
 import eu.sqooss.ws.client.WsStub;
+import eu.sqooss.ws.client.datatypes.WSDeveloper;
 import eu.sqooss.ws.client.datatypes.WSDirectory;
 import eu.sqooss.ws.client.datatypes.WSFileGroup;
 import eu.sqooss.ws.client.datatypes.WSProjectFile;
 import eu.sqooss.ws.client.datatypes.WSProjectVersion;
 import eu.sqooss.ws.client.datatypes.WSStoredProject;
+import eu.sqooss.ws.client.ws.GetDevelopersByIds;
+import eu.sqooss.ws.client.ws.GetDevelopersByIdsResponse;
 import eu.sqooss.ws.client.ws.GetDirectoriesByIds;
 import eu.sqooss.ws.client.ws.GetDirectoriesByIdsResponse;
 import eu.sqooss.ws.client.ws.GetEvaluatedProjects;
@@ -95,10 +98,13 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
     private static final String METHOD_NAME_GET_FILE_GROUPS_BY_PROJECT_ID            = "getFileGroupsByProjectId";
     
     private static final String METHOD_NAME_GET_DIRECTORIES_BY_IDS                   = "getDirectoriesByIds";
+    
+    private static final String METHOD_NAME_GET_DEVELOPERS_BY_IDS                    = "getDevelopersByIds";
 
     private static final WSStoredProject[] EMPTY_ARRAY_STORED_PROJECTS   = new WSStoredProject[0];
     private static final WSProjectVersion[] EMPTY_ARRAY_PROJECT_VERSIONS = new WSProjectVersion[0];
     private static final WSDirectory[] EMPTY_ARRAY_DIRECTORIES = new WSDirectory[0];
+    private static final WSDeveloper[] EMPTY_ARRAY_DEVELOPERS = new WSDeveloper[0];
     
     private Map<String, Object> parameters;
     private String userName;
@@ -332,6 +338,35 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
             }
         }
         return (WSDirectory[]) normaliseWSArrayResult(response.get_return());
+    }
+
+    /**
+     * @see eu.sqooss.scl.accessor.WSProjectAccessor#getDevelopersByIds(long[])
+     */
+    @Override
+    public WSDeveloper[] getDevelopersByIds(long[] developersIds)
+            throws WSException {
+        if (!isValidArray(developersIds)) return EMPTY_ARRAY_DEVELOPERS;
+        GetDevelopersByIdsResponse response;
+        GetDevelopersByIds params;
+        if (!parameters.containsKey(METHOD_NAME_GET_DEVELOPERS_BY_IDS)) {
+            params = new GetDevelopersByIds();
+            params.setPassword(password);
+            params.setUserName(userName);
+            parameters.put(METHOD_NAME_GET_DEVELOPERS_BY_IDS, params);
+        } else {
+            params = (GetDevelopersByIds) parameters.get(
+                    METHOD_NAME_GET_DEVELOPERS_BY_IDS);
+        }
+        synchronized (params) {
+            params.setDevelopersIds(developersIds);
+            try {
+                response = wsStub.getDevelopersByIds(params);
+            } catch (RemoteException re) {
+                throw new WSException(re);
+            }
+        }
+        return (WSDeveloper[]) normaliseWSArrayResult(response.get_return());
     }
 
     /**

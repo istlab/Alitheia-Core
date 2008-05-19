@@ -37,6 +37,7 @@ import org.osgi.framework.BundleContext;
 import eu.sqooss.impl.service.web.services.MetricManager;
 import eu.sqooss.impl.service.web.services.ProjectManager;
 import eu.sqooss.impl.service.web.services.UserManager;
+import eu.sqooss.impl.service.web.services.datatypes.WSDeveloper;
 import eu.sqooss.impl.service.web.services.datatypes.WSDirectory;
 import eu.sqooss.impl.service.web.services.datatypes.WSFileGroup;
 import eu.sqooss.impl.service.web.services.datatypes.WSMetric;
@@ -324,6 +325,24 @@ public class WebServices {
             long[] directoriesIds) {
         return projectManager.getDirectoriesByIds(
                 userName, password, directoriesIds);
+    }
+    
+    /**
+     * This method returns all known information about the developers referenced by
+     * the given identifiers.
+     * 
+     * @param userName - the user's name used for authentication
+     * @param password - the user's password used for authentication
+     * @param developersIds - the identifiers of the requested developers
+     * 
+     * @return The <code>WSDeveloper</code> array describing the requested developers.
+     */
+    public WSDeveloper[] getDevelopersByIds(
+            String userName,
+            String password,
+            long[] developersIds) {
+        return projectManager.getDevelopersByIds(userName,
+                password, developersIds);
     }
     
     // ===[ MetricManager methods]============================================

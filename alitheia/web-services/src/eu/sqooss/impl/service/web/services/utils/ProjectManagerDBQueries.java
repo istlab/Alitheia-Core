@@ -124,6 +124,15 @@ interface ProjectManagerDBQueries {
     		                                            "where dir.id in (:" +
     		                                            GET_DIRECTORIES_BY_IDS_PARAM + ") ";
     
+    
+    public static final String GET_DEVELOPERS_BY_IDS_PARAM = "list_of_devs_ids";
+    
+    public static final String GET_DEVELOPERS_BY_IDS = "select dev " +
+    		                                           "from Developer dev " +
+    		                                           "where dev.id in (:" +
+    		                                           GET_DEVELOPERS_BY_IDS_PARAM + ") ";
+    
+    
     public static final String GET_STORED_PROJECTS_PARAM_PR_NAME    = "project_name";
     
     public static final String GET_STORED_PROJECTS_PARAM_PR_VERSION = "project_ver";
