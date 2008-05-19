@@ -193,6 +193,55 @@ public class PluginInfo {
     }
 
     /**
+     * Verifies, if the specified configuration property exist in this
+     * plug-in's information object.
+     * 
+     * @param name the property's name
+     * @param type the property's type
+     * 
+     * @return <code>true</code>, if such property is found,
+     *   or <code>false</code> otherwise.
+     */
+    public boolean hasConfProp (String name, String type) {
+        // Check if all values are valid
+        if ((name == null) || (type == null)) {
+            return false;
+        }
+        // Search for a matching property
+        for (PluginConfiguration property : config) {
+            if ((property.getName().equals(name))
+                    && (property.getType().equals(type))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns the Id of the given configuration property.
+     * 
+     * @param name the property's name
+     * @param type the property's type
+     * 
+     * @return The property's Id, or <code>null</code> if the property does
+     *   not exist.
+     */
+    public Long getConfPropId (String name, String type) {
+        // Check if all values are valid
+        if ((name == null) || (type == null)) {
+            return null;
+        }
+        // Search for a matching property
+        for (PluginConfiguration property : config) {
+            if ((property.getName().equals(name))
+                    && (property.getType().equals(type))) {
+                return property.getId();
+            }
+        }
+        return null;
+    }
+
+    /**
      * Sets a new value of existing metric plugin's configuration parameter
      * by updating its database record.
      * 

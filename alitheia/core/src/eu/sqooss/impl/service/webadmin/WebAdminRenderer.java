@@ -180,63 +180,6 @@ public class WebAdminRenderer {
     }
 
     /**
-     * Verifies, if the specified configuration property exist in the
-     * given plug-in's information object.
-     * 
-     * @param selPI the plug-in's information object
-     * @param name the property's name
-     * @param type the property's type
-     * 
-     * @return <code>true</code>, if such property is found,
-     *   or <code>false</code> otherwise.
-     */
-    private static boolean hasConfProp (
-            PluginInfo selPI,
-            String name,
-            String type) {
-        // Check if all values are valid
-        if ((selPI == null) || (name == null) || (type == null)) {
-            return false;
-        }
-        // Search for a matching property
-        for (PluginConfiguration property : selPI.getConfiguration()) {
-            if ((property.getName().equals(name))
-                    && (property.getType().equals(type))) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Returns the Id of the given configuration property.
-     * 
-     * @param selPI the plug-in's information object
-     * @param name the property's name
-     * @param type the property's type
-     * 
-     * @return The property's Id, or <code>null</code> if the property does
-     *   not exist.
-     */
-    private static Long getConfPropId (
-            PluginInfo selPI,
-            String name,
-            String type) {
-        // Check if all values are valid
-        if ((selPI == null) || (name == null) || (type == null)) {
-            return null;
-        }
-        // Search for a matching property
-        for (PluginConfiguration property : selPI.getConfiguration()) {
-            if ((property.getName().equals(name))
-                    && (property.getType().equals(type))) {
-                return property.getId();
-            }
-        }
-        return null;
-    }
-
-    /**
      * Renders the various plug-in views.
      * 
      * @param req the servlet's request object
@@ -363,8 +306,8 @@ public class WebAdminRenderer {
                     // Plug-in's configuration parameter removal
                     // =======================================================
                     else if (reqValAction.equals(actValConRemProp)) {
-                        Long propId = getConfPropId(
-                                selPI, reqValPropName, reqValPropType);
+                        Long propId = selPI.getConfPropId(
+                                reqValPropName, reqValPropType);
                         if (propId != null) {
                             PluginConfiguration prop = sobjDB.findObjectById(
                                     PluginConfiguration.class, propId);
@@ -394,8 +337,8 @@ public class WebAdminRenderer {
                     // =======================================================
                     else if (reqValAction.equals(actValConAddProp)) {
                         // Check for a parameter update
-                        boolean update = hasConfProp(
-                                selPI, reqValPropName, reqValPropType);
+                        boolean update = selPI.hasConfProp(
+                                reqValPropName, reqValPropType);
                         // Update configuration property
                         if (update) {
                             try {
@@ -479,8 +422,8 @@ public class WebAdminRenderer {
                 // Create the field-set
                 b.append(sp(in) + "<fieldset>\n");
                 // Check for a property update request
-                boolean update = hasConfProp(
-                        selPI, reqValPropName, reqValPropType);
+                boolean update = selPI.hasConfProp(
+                        reqValPropName, reqValPropType);
                 b.append(sp(++in) + "<legend>"
                         + ((update)
                                 ? "Update property of "
