@@ -2,7 +2,7 @@
 <%
     title = "Evaluated Projects";
     if (selectedProject.isValid()) {
-        title = "Project Dashboard <em>" + selectedProject.getName() + "</em>";
+        title = "Project Dashboard " + selectedProject.getName();
     }
 %>
 <%@ page session="true" %>
