@@ -330,21 +330,21 @@ public class WebServices {
 
     /**
      * The method returns all information, that the SQO-OSS framework has
-     * collected about the specified metric type.
+     * collected about the specified metric types.
      * 
      * @param userName - the user's name used for authentication
      * @param password - the user's password used for authentication
-     * @param metricTypeId - the metric type's identifier
+     * @param metricTypesIds - the metric types' identifiers
      * 
-     * @return The <code>WSMetricType</code> object that describes the
-     * metric type, or <code>null</code> when such metric type does not exist.
+     * @return The <code>WSMetricType</code> array that describes the
+     * metric types, or <code>null</code> when such metric types do not exist.
      */
-    public WSMetricType getMetricTypeById(
+    public WSMetricType[] getMetricTypesByIds(
             String userName,
             String password,
-            long metricTypeId) {
-        return metricManager.getMetricTypeById(
-                userName, password, metricTypeId);
+            long[] metricTypesIds) {
+        return metricManager.getMetricTypesByIds(
+                userName, password, metricTypesIds);
     }
     
     /**

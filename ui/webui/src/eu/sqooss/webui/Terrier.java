@@ -424,8 +424,13 @@ public class Terrier {
         }
         String result = null;
         try {
-            WSMetricType metricType = connection.getMetricAccessor().getMetricTypeById(metricTypeId);
-            result = metricType.getType();
+            WSMetricType[] metricTypes = connection.getMetricAccessor().
+            getMetricTypesByIds(new long[] {metricTypeId});
+            if (metricTypes.length != 0) {
+                result = metricTypes[0].getType();
+            } else {
+                error = "The metric type doesn't exist!";
+            }
         } catch (WSException e) {
             error = "Can not retrieve information about the metric type.";
         }

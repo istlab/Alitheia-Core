@@ -45,8 +45,8 @@ import eu.sqooss.ws.client.datatypes.WSMetric;
 import eu.sqooss.ws.client.datatypes.WSMetricType;
 import eu.sqooss.ws.client.datatypes.WSMetricsResultRequest;
 import eu.sqooss.ws.client.datatypes.WSResultEntry;
-import eu.sqooss.ws.client.ws.GetMetricTypeById;
-import eu.sqooss.ws.client.ws.GetMetricTypeByIdResponse;
+import eu.sqooss.ws.client.ws.GetMetricTypesByIds;
+import eu.sqooss.ws.client.ws.GetMetricTypesByIdsResponse;
 import eu.sqooss.ws.client.ws.GetMetrics;
 import eu.sqooss.ws.client.ws.GetMetricsByFileNames;
 import eu.sqooss.ws.client.ws.GetMetricsByFileNamesResponse;
@@ -60,7 +60,7 @@ class WSMetricAccessorImpl extends WSMetricAccessor {
 
     private static final String METHOD_NAME_GET_METRICS_BY_PROJECT_ID  = "getMetricsByProjectId";
     
-    private static final String METHOD_NAME_GET_METRIC_TYPE_BY_ID      = "getMetricTypeById";
+    private static final String METHOD_NAME_GET_METRIC_TYPES_BY_IDS    = "getMetricTypesByIds";
 
     private static final String METHOD_NAME_GET_METRICS_BY_FILE_NAMES  = "getMetricsByFileNames";
     
@@ -68,6 +68,8 @@ class WSMetricAccessorImpl extends WSMetricAccessor {
 
     private static final String METHOD_NAME_GET_METRICS_RESULT         = "getMetricsResult";
 
+    private static final WSMetricType[] EMPTY_ARRAY_METRIC_TYPES = new WSMetricType[0];
+    
     private Map<String, Object> parameters;
     private String userName;
     private String password;
@@ -112,30 +114,31 @@ class WSMetricAccessorImpl extends WSMetricAccessor {
     }
 
     /**
-     * @see eu.sqooss.scl.accessor.WSMetricAccessor#getMetricTypeById(long)
+     * @see eu.sqooss.scl.accessor.WSMetricAccessor#getMetricTypesByIds(long[])
      */
     @Override
-    public WSMetricType getMetricTypeById(long metricTypeId) throws WSException {
-        GetMetricTypeByIdResponse response;
-        GetMetricTypeById params;
-        if (!parameters.containsKey(METHOD_NAME_GET_METRIC_TYPE_BY_ID)) {
-            params = new GetMetricTypeById();
+    public WSMetricType[] getMetricTypesByIds(long[] metricTypesIds) throws WSException {
+        if (!isValidArray(metricTypesIds)) return EMPTY_ARRAY_METRIC_TYPES;
+        GetMetricTypesByIdsResponse response;
+        GetMetricTypesByIds params;
+        if (!parameters.containsKey(METHOD_NAME_GET_METRIC_TYPES_BY_IDS)) {
+            params = new GetMetricTypesByIds();
             params.setPassword(password);
             params.setUserName(userName);
-            parameters.put(METHOD_NAME_GET_METRIC_TYPE_BY_ID, params);
+            parameters.put(METHOD_NAME_GET_METRIC_TYPES_BY_IDS, params);
         } else {
-            params = (GetMetricTypeById) parameters.get(
-                    METHOD_NAME_GET_METRIC_TYPE_BY_ID);
+            params = (GetMetricTypesByIds) parameters.get(
+                    METHOD_NAME_GET_METRIC_TYPES_BY_IDS);
         }
         synchronized (params) {
-            params.setMetricTypeId(metricTypeId);
+            params.setMetricTypesIds(metricTypesIds);
             try {
-                response = wsStub.getMetricTypeById(params);
+                response = wsStub.getMetricTypesByIds(params);
             } catch (RemoteException re) {
                 throw new WSException(re);
             }
         }
-        return response.get_return();
+        return (WSMetricType[]) normaliseWSArrayResult(response.get_return());
     }
 
     /**
@@ -259,6 +262,10 @@ class WSMetricAccessorImpl extends WSMetricAccessor {
         return (WSResultEntry[]) normaliseWSArrayResult(response.get_return());
     }
 
+    private static boolean isValidArray(long[] arr) {
+        return ((arr != null) && (arr.length > 0));
+    }
+    
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

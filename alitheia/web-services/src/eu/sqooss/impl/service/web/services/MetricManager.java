@@ -96,23 +96,27 @@ public class MetricManager extends AbstractManager {
     }
     
     /**
-     * @see eu.sqooss.service.web.services.WebServices#getMetricTypeById(String, String, long)
+     * @see eu.sqooss.service.web.services.WebServices#getMetricTypesByIds(String, String, long[])
      */
-    public WSMetricType getMetricTypeById(String userName,
-            String password, long metricTypeId) {
+    public WSMetricType[] getMetricTypesByIds(String userName,
+            String password, long[] metricTypesIds) {
         
-        logger.info("Retrieve metric type with given id! user: " + userName +
-                "; metric type id: " + metricTypeId);
+        logger.info("Retrieve metric types with given ids! user: " + userName +
+                "; metric types ids: " + Arrays.toString(metricTypesIds));
         
         securityWrapper.checkDBReadAccess(userName, password);
         
         super.updateUserActivity(userName);
         
+        if (metricTypesIds == null) {
+            return null;
+        }
+        
         db.startDBSession();
-        WSMetricType metricType = createWSMetricType(
-                dbWrapper.getMetricTypeById(metricTypeId));
+        List<?> metricTypes = dbWrapper.getMetricTypesByIds(metricTypesIds);
         db.commitDBSession();
-        return metricType;
+        
+        return convertToWSMetricTypes(metricTypes);
     }
     
     /**
@@ -251,10 +255,21 @@ public class MetricManager extends AbstractManager {
     
     private WSMetric[] convertToWSMetrics(List<?> metrics) {
         WSMetric[] result = null;
-        if ((metrics != null) && (metrics.size() != 0)) {
+        if ((metrics != null) && (!metrics.isEmpty())) {
             result = new WSMetric[metrics.size()];
             for (int i = 0; i < result.length; i++) {
                 result[i] = createWSMetric((Metric) metrics.get(i));
+            }
+        }
+        return result;
+    }
+    
+    private WSMetricType[] convertToWSMetricTypes(List<?> metricTypes) {
+        WSMetricType[] result = null;
+        if ((metricTypes != null) && (!metricTypes.isEmpty())) {
+            result = new WSMetricType[metricTypes.size()];
+            for (int i = 0; i < result.length; i++) {
+                result[i] = createWSMetricType((MetricType) metricTypes.get(i));
             }
         }
         return result;

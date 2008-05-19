@@ -77,6 +77,13 @@ interface MetricManagerDBQueries {
                                                                        "where m.mnemonic in (:" +
                                                                        GET_METRICS_RESULT_METRICS_LIST_PARAM +")";
     
+    
+    public static final String GET_METRIC_TYPES_BY_IDS_PARAM = "list_of_ids";
+    
+    public static final String GET_METRIC_TYPES_BY_IDS       = "select mt " +
+    		                                                   "from MetricType mt " +
+    		                                                   "where mt.id in (:" +
+    		                                                   GET_METRIC_TYPES_BY_IDS_PARAM + ") ";
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

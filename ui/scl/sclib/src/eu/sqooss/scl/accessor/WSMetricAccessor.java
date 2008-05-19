@@ -62,14 +62,20 @@ public abstract class WSMetricAccessor extends WSAccessor {
     
     /**
      * The method returns all information, that the SQO-OSS framework has
-     * collected about the specified metric type.
+     * collected about the specified metric types.
      * 
-     * @param metricTypeId - the metric type's identifier
+     * @param metricTypesIds - the metric types' identifiers
      * 
-     * @return The <code>WSMetricType</code> object that describes the
-     * metric type, or <code>null</code> when such metric type does not exist.
+     * @return The <code>WSMetricType</code> array that describes the
+     * metric types, or an empty array when such metric types do not exist.
+     * 
+     * @throws WSException
+     * <ul>
+     *  <li>if the connection can't be established to the SQO-OSS's web services service</li>
+     *  <li>if web services service throws an exception</li>
+     * <ul>
      */
-    public abstract WSMetricType getMetricTypeById(long metricTypeId) throws WSException;
+    public abstract WSMetricType[] getMetricTypesByIds(long[] metricTypesIds) throws WSException;
     
     /**
      * This method returns an array of all metrics that have been evaluated on

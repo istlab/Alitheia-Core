@@ -32,6 +32,7 @@
 
 package eu.sqooss.impl.service.web.services.utils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Hashtable;
@@ -62,8 +63,14 @@ public class MetricManagerDatabase implements MetricManagerDBQueries {
         return db.doHQL(GET_METRICS_BY_PROJECT_ID, queryParameters);
     }
     
-    public MetricType getMetricTypeById(long metricTypeId) {
-        return db.findObjectById(MetricType.class, metricTypeId);
+    public List<?> getMetricTypesByIds(long[] metricTypesIds) {
+        Map<String, Collection> queryParameters = new Hashtable<String, Collection>();
+        Collection idsCollection = new ArrayList();
+        for (long id : metricTypesIds) {
+            idsCollection.add(id);
+        }
+        queryParameters.put(GET_METRIC_TYPES_BY_IDS_PARAM, idsCollection);
+        return db.doHQL(GET_METRIC_TYPES_BY_IDS, null, queryParameters);
     }
     
     public List<?> getMetricsByFileNames(long projectId, Collection fileNames) {

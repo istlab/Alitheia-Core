@@ -72,8 +72,6 @@ public abstract class WSUserAccessor extends WSAccessor {
      * <br/>
      * <i>The information does not include the users' password hash.<i>
      * 
-     * @param userNameForAccess - the user's name used for authentication
-     * @param passwordForAccess - the user's password used for authentication
      * @param usersIds - the identifiers of the requested users
      * 
      * @return The <code>WSUser</code> array describing the requested users.
