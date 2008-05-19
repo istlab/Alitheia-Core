@@ -86,6 +86,27 @@ if (projectId != null && !selectedProject.isValid()) {
     selectedProject.retrieveData();
 }
 
+if (selectedProject.isValid()) {
+    // Set to the requested version
+    String vparam = "version" + selectedProject.getId();
+    Long versionId = null;
+    //out.println("VParam: " + vparam);
+    if (request.getParameter(vparam) != null) {
+        String req = request.getParameter(vparam);
+        if (!"none".equals(req)) {
+            versionId = getId(req);
+            //out.println("versionId: " + versionId);
+        } else if ("last".equals(req)) {
+            // getFirstVersion.
+        } else if ("first".equals(req)) {
+            // getFirstVersion.
+        }
+        if (versionId != null) {
+            selectedProject.setCurrentVersionId(versionId);
+        }
+    }
+}
+
 if ("none".equals(request.getParameter("pid"))) {
     selectedProject.setInValid(); // Invalidate
 }
