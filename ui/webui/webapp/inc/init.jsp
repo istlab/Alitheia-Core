@@ -95,11 +95,13 @@ if (selectedProject.isValid()) {
         String req = request.getParameter(vparam);
         if (!"none".equals(req)) {
             versionId = getId(req);
-            //out.println("versionId: " + versionId);
-        } else if ("last".equals(req)) {
-            // getFirstVersion.
+        }
+        if ("last".equals(req)) {
+            selectedProject.setCurrentVersionId(selectedProject.getLastVersion().getId());
         } else if ("first".equals(req)) {
-            // getFirstVersion.
+            selectedProject.setCurrentVersionId(selectedProject.getFirstVersion().getId());
+        } else if ("none".equals(req)) {
+            selectedProject.setCurrentVersionId(null);
         }
         if (versionId != null) {
             selectedProject.setCurrentVersionId(versionId);

@@ -21,6 +21,10 @@ public static String versionSelector(Project p) {
     html.append("\n\t</select>");
     html.append("\n\t<input type=\"submit\" value=\"Go\" class=\"form\" /> ");
     html.append("\n</form>");
+    String vparam = "version" + p.getId();
+    html.append("<br /><strong>Jump to:</strong>");
+    html.append("&nbsp;<a href=\"?" + vparam + "=first\">first version</a>");
+    html.append("&nbsp;<a href=\"?" + vparam + "=last\">last version</a>");
     return html.toString();
 }
 
