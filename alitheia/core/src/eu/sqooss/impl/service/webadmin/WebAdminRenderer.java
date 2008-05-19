@@ -306,22 +306,28 @@ public class WebAdminRenderer {
                     // Plug-in's configuration parameter removal
                     // =======================================================
                     else if (reqValAction.equals(actValConRemProp)) {
-                        Long propId = selPI.getConfPropId(
-                                reqValPropName, reqValPropType);
-                        if (propId != null) {
-                            PluginConfiguration prop = sobjDB.findObjectById(
-                                    PluginConfiguration.class, propId);
-                            if ((prop != null)
-                                    && (sobjDB.deleteRecord(prop))) {
-                                // Update the Plug-in Admin's information
-                                sobjPA.pluginUpdated(sobjPA.getPlugin(selPI));
-                                // Reload the PluginInfo object
-                                selPI = sobjPA.getPluginInfo(reqValHashcode);
+                        if (selPI.hasConfProp(
+                                reqValPropName, reqValPropType)) {
+                            try {
+                                if (selPI.removeConfigEntry(
+                                        sobjDB,
+                                        reqValPropName,
+                                        reqValPropType)) {
+                                    // Update the Plug-in Admin's information
+                                    sobjPA.pluginUpdated(
+                                            sobjPA.getPlugin(selPI));
+                                    // Reload the PluginInfo object
+                                    selPI = sobjPA.getPluginInfo(
+                                            reqValHashcode);
+                                }
+                                else {
+                                    e.append("Property removal"
+                                            + " has failed!"
+                                            + " Check log for details.");
+                                }
                             }
-                            else {
-                                e.append("Property removal"
-                                        + " has failed!"
-                                        + " Check log for details.");
+                            catch (Exception ex) {
+                                e.append(ex.getMessage());
                             }
                         }
                         else {

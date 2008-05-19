@@ -243,7 +243,7 @@ public class PluginInfo {
 
     /**
      * Sets a new value of existing metric plugin's configuration parameter
-     * by updating its database record.
+     * by creating a new database record.
      * 
      * @param db the DB components object
      * @param name the configuration property's name
@@ -303,8 +303,8 @@ public class PluginInfo {
     }
 
     /**
-     * Adds a new configuration parameter for this metric plug-in by updating
-     * its database record.
+     * Adds a new configuration parameter for this metric plug-in by creating
+     * a new database record for it.
      * 
      * @param db the DB components object
      * @param name the configuration property's name
@@ -365,6 +365,49 @@ public class PluginInfo {
         newParam.setType(type);
         newParam.setValue(value);
         if (db.addRecord(newParam)) return true;
+
+        return false;
+}
+
+    /**
+     * Removes an existing configuration parameter of this metric plug-in by
+     * deleting its database record.
+     * 
+     * @param db the DB components object
+     * @param name the configuration property's name
+     * @param type the configuration property's type
+     * 
+     * @return <code>true</code> upon successful remove, or <code>false</code>
+     *   when a corresponding database record can not be found.
+     * 
+     * @throws <code>Exception</code> upon invalid parameter's type or name.
+     */
+    public boolean removeConfigEntry(
+            DBService db,
+            String name,
+            String type)
+    throws Exception {
+        // Check for an invalid name
+        if (name == null) {
+            throw new Exception("Invalid name!");
+        }
+
+        // Check for invalid type
+        if ((type == null)
+                || (ConfigurationType.fromString(type) == null)) {
+            throw new Exception("Invalid type!");
+        }
+
+        // Get the property's Id
+        Long propId = getConfPropId(name, type);
+        if (propId != null) {
+            // Remove the specified configuration property
+            PluginConfiguration prop = db.findObjectById(
+                    PluginConfiguration.class, propId);
+            if ((prop != null) && (db.deleteRecord(prop))) {
+                return true;
+            }
+        }
 
         return false;
 }
