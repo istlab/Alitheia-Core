@@ -35,7 +35,6 @@ package eu.sqooss.scl;
 import java.rmi.RemoteException;
 import java.util.Hashtable;
 import java.util.Map;
-import java.util.StringTokenizer;
 
 import org.apache.axis2.AxisFault;
 
@@ -48,8 +47,6 @@ import eu.sqooss.ws.client.datatypes.WSResultEntry;
 import eu.sqooss.ws.client.ws.GetMetricTypesByIds;
 import eu.sqooss.ws.client.ws.GetMetricTypesByIdsResponse;
 import eu.sqooss.ws.client.ws.GetMetrics;
-import eu.sqooss.ws.client.ws.GetMetricsByFileNames;
-import eu.sqooss.ws.client.ws.GetMetricsByFileNamesResponse;
 import eu.sqooss.ws.client.ws.GetMetricsByProjectId;
 import eu.sqooss.ws.client.ws.GetMetricsByProjectIdResponse;
 import eu.sqooss.ws.client.ws.GetMetricsResponse;
@@ -62,8 +59,6 @@ class WSMetricAccessorImpl extends WSMetricAccessor {
     
     private static final String METHOD_NAME_GET_METRIC_TYPES_BY_IDS    = "getMetricTypesByIds";
 
-    private static final String METHOD_NAME_GET_METRICS_BY_FILE_NAMES  = "getMetricsByFileNames";
-    
     private static final String METHOD_NAME_GET_METRICS                = "getMetrics";
 
     private static final String METHOD_NAME_GET_METRICS_RESULT         = "getMetricsResult";
@@ -139,75 +134,6 @@ class WSMetricAccessorImpl extends WSMetricAccessor {
             }
         }
         return (WSMetricType[]) normaliseWSArrayResult(response.get_return());
-    }
-
-    /**
-     * Utility function for retrieveMetrics4SelectedFiles, which
-     * gets a String representing a comma-separated list of directories
-     * or files. This is basically java.lang.String.split() with some
-     * additional munging - leading and trailing spaces are not
-     * supported (e.g. "foo , bar" is the same as "foo,bar") and empty
-     * entries (e.g. "foo,,bar" is the same as "foo,bar") aren't either.
-     *
-     * Also, this method hides the en_US spelling behind a better name.
-     *
-     * @param s String to tokenize
-     * @return An array of string tokens. This array is never null;
-     *      this array is never empty; if it would be empty, then
-     *      an array of length 1 with a single null is used instead.
-     */
-    private String[] tokeniseCommaSeparatedString(String s) {
-        // Degenerate case: null strings map to [null]
-        if (s == null) {
-            return new String[]{null};
-        }
-
-        StringTokenizer tokenizer = new StringTokenizer(s, ",");
-        int tokenCount = tokenizer.countTokens();
-        // If there are no tokens, map to [null]
-        if (tokenCount == 0) {
-            return new String[]{null};
-        }
-
-        String[] tokens = new String[tokenCount];
-        for (int i = 0; i < tokenCount; ++i) {
-            tokens[i] = tokenizer.nextToken().trim();
-        }
-
-        return tokens;
-    }
-
-    /**
-     * @see eu.sqooss.scl.accessor.WSMetricAccessor#getMetricsByFileNames(long, java.lang.String, java.lang.String)
-     */
-    @Override
-    public WSMetric[] getMetricsByFileNames(long projectId, String folderNames,
-            String fileNames) throws WSException {
-        String[] folderNamesArray = tokeniseCommaSeparatedString(folderNames);
-        String[] fileNamesArray = tokeniseCommaSeparatedString(fileNames);
-
-        GetMetricsByFileNamesResponse response;
-        GetMetricsByFileNames params;
-        if (!parameters.containsKey(METHOD_NAME_GET_METRICS_BY_FILE_NAMES)) {
-            params = new GetMetricsByFileNames();
-            params.setPassword(password);
-            params.setUserName(userName);
-            parameters.put(METHOD_NAME_GET_METRICS_BY_FILE_NAMES, params);
-        } else {
-            params = (GetMetricsByFileNames) parameters.get(
-                    METHOD_NAME_GET_METRICS_BY_FILE_NAMES);
-        }
-        synchronized (params) {
-            params.setProjectId(projectId);
-            params.setFolders(folderNamesArray);
-            params.setFileNames(fileNamesArray);
-            try {
-                response = wsStub.getMetricsByFileNames(params);
-            } catch (RemoteException re) {
-                throw new WSException(re);
-            }
-        }
-        return (WSMetric[]) normaliseWSArrayResult(response.get_return());
     }
 
     /**

@@ -43,31 +43,6 @@ interface MetricManagerDBQueries {
                                                            GET_METRICS_BY_PROJECT_ID_PARAM;
     
     
-    public static final String GET_METRICS_BY_FILE_NAMES_PARAM_LIST = "list_of_filenames";
-    
-    public static final String GET_METRICS_BY_FILE_NAMES_PARAM_PR = "project_id";
-    
-    public static final String GET_METRICS_BY_FILE_NAMES = "select distinct metric " +
-                                                                   "from ProjectFile pf, ProjectVersion pv, " +
-                                                                   "     ProjectFileMeasurement pfm, Metric metric " +
-                                                                   "where pv.id=pf.projectVersion " +
-                                                                   " and pf.id=pfm.projectFile " +
-                                                                   " and metric.id=pfm.metric " +
-                                                                   " and pf.name in (:" +
-                                                                   GET_METRICS_BY_FILE_NAMES_PARAM_LIST + ") " +
-                                                                   " and pv.project.id=:" +
-                                                                   GET_METRICS_BY_FILE_NAMES_PARAM_PR;
-                                                 
-    
-    public static final String RETRIEVE_METRICS_4_SELECTED_FILES_DIRS_PARAM = "dir_name";
-    
-    public static final String RETRIEVE_METRICS_4_SELECTED_FILES_DIRS = "select pf.name " +
-                                                                        "from ProjectFile pf, ProjectVersion pv " +
-                                                                        "where pf.name like :" +
-                                                                        RETRIEVE_METRICS_4_SELECTED_FILES_DIRS_PARAM + " " +
-                                                                        " and pv.project.id=:" +
-                                                                        GET_METRICS_BY_FILE_NAMES_PARAM_PR;
-    
     public static final String GET_METRICS = "from Metric";
     
     

@@ -78,31 +78,6 @@ public abstract class WSMetricAccessor extends WSAccessor {
     public abstract WSMetricType[] getMetricTypesByIds(long[] metricTypesIds) throws WSException;
     
     /**
-     * This method returns an array of all metrics that have been evaluated on
-     * the selected set of project files.
-     * <br/>
-     * Separate files can be selected by including them in the
-     * <code>fileNames</code> array.
-     * <br/>
-     * For selecting all files in a specific folder, the folder name must be 
-     * included in the <code>folders</code> array.
-     * 
-     * @param projectId - the project's identifier
-     * @param folderNames - the folders' names; the folders' delimiter is a comma
-     * @param fileNames - the files' names, the files' delimiter is a comma
-     * 
-     * @return The array with all evaluated metrics,
-     * or a empty array when none are found.
-     * 
-     * @throws WSException
-     * <ul>
-     *  <li>if the connection can't be established to the SQO-OSS's web services service</li>
-     *  <li>if web services service throws an exception</li>
-     * <ul>
-     */
-    public abstract WSMetric[] getMetricsByFileNames(long projectId, String folderNames, String fileNames) throws WSException;
-    
-    /**
      * This method returns an array with all metrics, that are currently
      * installed in the SQO-OSS framework.
      * 

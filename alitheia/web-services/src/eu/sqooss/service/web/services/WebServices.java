@@ -400,35 +400,6 @@ public class WebServices {
     }
 
     /**
-     * This method returns an array of all metrics that have been evaluated on
-     * the selected set of project files.
-     * <br/>
-     * Separate files can be selected by including them in the
-     * <code>fileNames</code> array.
-     * <br/>
-     * For selecting all files in a specific folder, the folder name must be 
-     * included in the <code>folders</code> array.
-     * 
-     * @param userName - the user's name used for authentication
-     * @param password - the user's password used for authentication
-     * @param projectId - the project's identifier
-     * @param folders - the array with folder names
-     * @param fileNames - the array with file names
-     * 
-     * @return The array with all evaluated metrics, or a <code>null</code>
-     *   array when none are found.
-     */
-    public WSMetric[] getMetricsByFileNames(
-            String userName,
-            String password,
-            long projectId,
-            String[] folders,
-            String[] fileNames) {
-        return metricManager.getMetricsByFileNames(
-                userName, password, projectId, folders, fileNames);
-    }
-
-    /**
      * Returns the array of results from the evaluation of the specified
      * metrics on the given data access object.
      * 

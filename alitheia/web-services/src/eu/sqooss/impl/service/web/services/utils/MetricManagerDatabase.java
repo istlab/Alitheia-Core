@@ -43,7 +43,6 @@ import eu.sqooss.impl.service.web.services.datatypes.WSMetricsResultRequest;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.FileGroup;
-import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
@@ -73,29 +72,8 @@ public class MetricManagerDatabase implements MetricManagerDBQueries {
         return db.doHQL(GET_METRIC_TYPES_BY_IDS, null, queryParameters);
     }
     
-    public List<?> getMetricsByFileNames(long projectId, Collection fileNames) {
-        Map<String, Object> projectIdParameter = new Hashtable<String, Object>(1);
-        projectIdParameter.put(GET_METRICS_BY_FILE_NAMES_PARAM_PR,
-                projectId);
-        Map<String, Collection> fileNamesParameter = new Hashtable<String, Collection>(1);
-        fileNamesParameter.put(GET_METRICS_BY_FILE_NAMES_PARAM_LIST,
-                fileNames);
-        return db.doHQL(GET_METRICS_BY_FILE_NAMES,
-                projectIdParameter, fileNamesParameter);
-    }
-    
     public List<?> getMetrics() {
         return db.doHQL(GET_METRICS);
-    }
-    
-    public List<?> getFilesFromFolder(long projectId, String folder) {
-        Map<String, Object> folderNameParameters = new Hashtable<String, Object>(2);
-        folderNameParameters.put(GET_METRICS_BY_FILE_NAMES_PARAM_PR,
-                projectId);
-        folderNameParameters.put(RETRIEVE_METRICS_4_SELECTED_FILES_DIRS_PARAM,
-                folder + "%");
-        return db.doHQL(RETRIEVE_METRICS_4_SELECTED_FILES_DIRS,
-                folderNameParameters);
     }
     
     public DAObject getMetricsResultDAObject(WSMetricsResultRequest resultRequest) {

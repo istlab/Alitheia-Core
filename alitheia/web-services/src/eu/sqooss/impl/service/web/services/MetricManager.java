@@ -35,11 +35,8 @@ package eu.sqooss.impl.service.web.services;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
-import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import eu.sqooss.impl.service.web.services.datatypes.WSMetric;
 import eu.sqooss.impl.service.web.services.datatypes.WSMetricType;
@@ -117,46 +114,6 @@ public class MetricManager extends AbstractManager {
         db.commitDBSession();
         
         return convertToWSMetricTypes(metricTypes);
-    }
-    
-    /**
-     * @see eu.sqooss.service.web.services.WebServices#getMetricsByFileNames(String, String, String, String[], String[])
-     */
-    public WSMetric[] getMetricsByFileNames(String userName, String password,
-            long projectId, String[] folders, String[] fileNames) {
-        logger.info("Retrieve metrics for selected files! user: " + userName + "; project id: " + projectId);
-
-        securityWrapper.checkProjectsReadAccess(userName, password, new long[] {projectId});
-
-        super.updateUserActivity(userName);
-        
-        Set<String> fileNamesSet;
-        if ((fileNames.length == 0) || (fileNames[0] == null)) {
-            fileNamesSet = new HashSet<String>();
-        } else {
-            fileNamesSet = new HashSet<String>(Arrays.asList(fileNames));
-        }
-        
-        db.startDBSession();
-        
-        if ((folders.length != 0) && (folders[0] != null)) {
-            Map<String, Object> folderNameParameters = new Hashtable<String, Object>(1);
-            List currentFileNames;
-            for (String folder : folders) {
-                currentFileNames = dbWrapper.getFilesFromFolder(projectId, folder);
-                fileNamesSet.addAll(currentFileNames);
-            }
-        }
-        
-        List<?> result = null;
-        
-        if (fileNamesSet.size() != 0) {
-            result = dbWrapper.getMetricsByFileNames(projectId, fileNamesSet);
-        }
-        
-        WSMetric[] wsMetrics = convertToWSMetrics(result);
-        db.commitDBSession();
-        return wsMetrics;
     }
     
     /**
