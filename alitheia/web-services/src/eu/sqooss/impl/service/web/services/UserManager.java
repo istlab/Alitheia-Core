@@ -32,22 +32,26 @@
 
 package eu.sqooss.impl.service.web.services;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.User;
+import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.security.SecurityManager;
 import eu.sqooss.impl.service.web.services.datatypes.WSUser;
 import eu.sqooss.impl.service.web.services.utils.SecurityWrapper;
 
 public class UserManager extends AbstractManager {
     
+    private Logger logger;
     private SecurityWrapper security;
     private eu.sqooss.service.security.UserManager userManager;
     
-    public UserManager(SecurityManager securityManager, DBService db) {
+    public UserManager(Logger logger, SecurityManager securityManager, DBService db) {
         super(db);
+        this.logger = logger;
         this.security = new SecurityWrapper(securityManager);
         this.userManager = securityManager.getUserManager();
     }
@@ -57,6 +61,8 @@ public class UserManager extends AbstractManager {
      */
     public boolean createPendingUser(String userNameForAccess, String passwordForAccess,
             String newUserName, String newPassword, String email) {
+        logger.info("Create pending user! user: " + userNameForAccess +
+                "; new user's name: " + newUserName + "; new user's e-mail: " + email);
         
         security.checkUserWriteAccess(userNameForAccess, passwordForAccess, -1, null);
         
@@ -77,6 +83,8 @@ public class UserManager extends AbstractManager {
      */
     public WSUser[] getUsersByIds(String userNameForAccess,
             String passwordForAccess, long[] usersIds) {
+        logger.info("Get users by ids! user: " + userNameForAccess +
+                "; ids: " + Arrays.toString(usersIds));
         
         security.checkUsersReadAccess(userNameForAccess,
                 passwordForAccess, usersIds, null);
@@ -111,6 +119,8 @@ public class UserManager extends AbstractManager {
      */
     public boolean modifyUser(String userNameForAccess, String passwordForAccess,
             String userName, String newPassword, String newEmail) {
+        logger.info("Modify user! user: " + userNameForAccess +
+                "; modified user's name: " + userName + "; new e-mail: " + newEmail);
         
         security.checkUserWriteAccess(userNameForAccess, passwordForAccess,
                 -1, userName);
@@ -131,6 +141,8 @@ public class UserManager extends AbstractManager {
      * @see eu.sqooss.service.web.services.WebServices#deleteUserById(String, String, long)
      */
     public boolean deleteUserById(String userNameForAccess, String passwordForAccess, long userId) {
+        logger.info("Delete user by id! user: " + userNameForAccess +
+                "; deleted user's id: " + userId);
         
         security.checkUserWriteAccess(userNameForAccess, passwordForAccess, userId, null);
         
@@ -151,6 +163,8 @@ public class UserManager extends AbstractManager {
      */
     public WSUser getUserByName(String userNameForAccess,
             String passwordForAccess, String userName) {
+        logger.info("Get user by name! user: " + userNameForAccess +
+                "; requested user name: " + userName);
         
         security.checkUsersReadAccess(userNameForAccess, passwordForAccess, null, userName);
         

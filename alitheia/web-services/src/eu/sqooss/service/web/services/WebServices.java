@@ -101,7 +101,7 @@ public class WebServices {
             WebadminService wa) {
         metricManager = new MetricManager(logger, db, pluginAdmin, securityManager);
         projectManager = new ProjectManager(logger, db, securityManager);
-        userManager = new UserManager(securityManager, db);
+        userManager = new UserManager(logger, securityManager, db);
         webadmin = wa;
     }
 
