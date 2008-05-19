@@ -125,7 +125,7 @@ public class WebuiItem {
             //if (files == null) {
             //    setFiles();
             //}
-            html.append("\n<ul");
+            html.append("\n<ul>");
             for (File f: files.values()) {
                 html.append("\n\t<li>" + f.getLink() + "</li>");
             }

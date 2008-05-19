@@ -104,7 +104,7 @@ if (selectedProject.isValid()) {
     out.println("<h2>Files in " + selectedProject.getName() + " (" + p_c + ")</h2>");
     out.println(projectFileList);
 
-    out.println("\n\t\t</td><td width=\"50%\">");
+    out.println("\n\t\t</td><td valign=\"top\" width=\"50%\">");
 
     if (selectedProject.getCurrentVersion() != null) {
         out.println("<h2>Files in Version " + selectedProject.getCurrentVersionId() + " (" + v_c + ")</h2>");
