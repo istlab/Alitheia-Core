@@ -117,6 +117,13 @@ interface ProjectManagerDBQueries {
                                                                 GET_FILES_NUMBER_BY_PROJECT_ID_PARAM;
     
     
+    public static final String GET_DIRECTORIES_BY_IDS_PARAM = "list_of_dirs_ids";
+    
+    public static final String GET_DIRECTORIES_BY_IDS = "select dir " +
+    		                                            "from Directory dir " +
+    		                                            "where dir.id in (:" +
+    		                                            GET_DIRECTORIES_BY_IDS_PARAM + ") ";
+    
     public static final String GET_STORED_PROJECTS_PARAM_PR_NAME    = "project_name";
     
     public static final String GET_STORED_PROJECTS_PARAM_PR_VERSION = "project_ver";

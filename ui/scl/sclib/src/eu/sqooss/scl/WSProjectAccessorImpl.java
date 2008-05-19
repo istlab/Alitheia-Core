@@ -40,10 +40,13 @@ import org.apache.axis2.AxisFault;
 
 import eu.sqooss.scl.accessor.WSProjectAccessor;
 import eu.sqooss.ws.client.WsStub;
+import eu.sqooss.ws.client.datatypes.WSDirectory;
 import eu.sqooss.ws.client.datatypes.WSFileGroup;
 import eu.sqooss.ws.client.datatypes.WSProjectFile;
 import eu.sqooss.ws.client.datatypes.WSProjectVersion;
 import eu.sqooss.ws.client.datatypes.WSStoredProject;
+import eu.sqooss.ws.client.ws.GetDirectoriesByIds;
+import eu.sqooss.ws.client.ws.GetDirectoriesByIdsResponse;
 import eu.sqooss.ws.client.ws.GetEvaluatedProjects;
 import eu.sqooss.ws.client.ws.GetEvaluatedProjectsResponse;
 import eu.sqooss.ws.client.ws.GetFileGroupsByProjectId;
@@ -90,9 +93,12 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
     private static final String METHOD_NAME_GET_FILES_BY_PROJECT_VERSION_ID          = "getFilesByProjectVersionId";
     
     private static final String METHOD_NAME_GET_FILE_GROUPS_BY_PROJECT_ID            = "getFileGroupsByProjectId";
+    
+    private static final String METHOD_NAME_GET_DIRECTORIES_BY_IDS                   = "getDirectoriesByIds";
 
     private static final WSStoredProject[] EMPTY_ARRAY_STORED_PROJECTS   = new WSStoredProject[0];
     private static final WSProjectVersion[] EMPTY_ARRAY_PROJECT_VERSIONS = new WSProjectVersion[0];
+    private static final WSDirectory[] EMPTY_ARRAY_DIRECTORIES = new WSDirectory[0];
     
     private Map<String, Object> parameters;
     private String userName;
@@ -297,6 +303,35 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
         }
         
         return response.get_return();
+    }
+
+    /**
+     * @see eu.sqooss.scl.accessor.WSProjectAccessor#getDirectoriesByIds(long[])
+     */
+    @Override
+    public WSDirectory[] getDirectoriesByIds(long[] directoriesIds)
+            throws WSException {
+        if (!isValidArray(directoriesIds)) return EMPTY_ARRAY_DIRECTORIES;
+        GetDirectoriesByIdsResponse response;
+        GetDirectoriesByIds params;
+        if (!parameters.containsKey(METHOD_NAME_GET_DIRECTORIES_BY_IDS)) {
+            params = new GetDirectoriesByIds();
+            params.setPassword(password);
+            params.setUserName(userName);
+            parameters.put(METHOD_NAME_GET_DIRECTORIES_BY_IDS, params);
+        } else {
+            params = (GetDirectoriesByIds) parameters.get(
+                    METHOD_NAME_GET_DIRECTORIES_BY_IDS);
+        }
+        synchronized (params) {
+            params.setDirectoriesIds(directoriesIds);
+            try {
+                response = wsStub.getDirectoriesByIds(params);
+            } catch (RemoteException re) {
+                throw new WSException(re);
+            }
+        }
+        return (WSDirectory[]) normaliseWSArrayResult(response.get_return());
     }
 
     /**

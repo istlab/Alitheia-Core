@@ -150,6 +150,17 @@ public class ProjectManagerDatabase implements ProjectManagerDBQueries {
         
     }
     
+    @SuppressWarnings("unchecked")
+    public List<?> getDirectoriesByIds(long[] ids) {
+        Map<String, Collection> queryParameters = new Hashtable<String, Collection>();
+        Collection idsCollection = new ArrayList();
+        for (long id : ids) {
+            idsCollection.add(id);
+        }
+        queryParameters.put(GET_DIRECTORIES_BY_IDS_PARAM, idsCollection);
+        return db.doHQL(GET_DIRECTORIES_BY_IDS, null, queryParameters);
+    }
+    
     public long createNewProject(StoredProject newProject, ProjectVersion newProjectVersion) {
             db.addRecord(newProject);
             long newProjectId = newProject.getId();

@@ -33,6 +33,7 @@
 package eu.sqooss.scl.accessor;
 
 import eu.sqooss.scl.WSException;
+import eu.sqooss.ws.client.datatypes.WSDirectory;
 import eu.sqooss.ws.client.datatypes.WSFileGroup;
 import eu.sqooss.ws.client.datatypes.WSProjectFile;
 import eu.sqooss.ws.client.datatypes.WSProjectVersion;
@@ -156,6 +157,16 @@ public abstract class WSProjectAccessor extends WSAccessor {
      * <ul>
      */
     public abstract long getFilesNumberByProjectId(long projectId) throws WSException;
+    
+    /**
+     * This method returns all known information about the directories referenced by
+     * the given identifiers.
+     * 
+     * @param directoriesIds - the identifiers of the requested directories
+     * 
+     * @return The <code>WSDirectory</code> array describing the requested directories.
+     */
+    public abstract WSDirectory[] getDirectoriesByIds(long[] directoriesIds) throws WSException;
     
     /**
      * The method returns all information, that the SQO-OSS framework has

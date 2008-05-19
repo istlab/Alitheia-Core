@@ -36,6 +36,7 @@ import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
 
+import eu.sqooss.impl.service.web.services.datatypes.WSDirectory;
 import eu.sqooss.impl.service.web.services.datatypes.WSFileGroup;
 import eu.sqooss.impl.service.web.services.datatypes.WSProjectFile;
 import eu.sqooss.impl.service.web.services.datatypes.WSProjectVersion;
@@ -43,6 +44,7 @@ import eu.sqooss.impl.service.web.services.datatypes.WSStoredProject;
 import eu.sqooss.impl.service.web.services.utils.ProjectManagerDatabase;
 import eu.sqooss.impl.service.web.services.utils.SecurityWrapper;
 import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.Directory;
 import eu.sqooss.service.db.FileGroup;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
@@ -298,6 +300,25 @@ public class ProjectManager extends AbstractManager {
         return ((Long) queryResult.get(0)).longValue();
     }
     
+    /**
+     * {@link eu.sqooss.service.web.services.WebServices#getDirectoriesByIds(String, String, long[])}
+     */
+    public WSDirectory[] getDirectoriesByIds(String userName, String password,
+            long[] directoriesIds) {
+        logger.info("Get directories by ids! user: " + userName +
+                "; directories' ids: " + Arrays.toString(directoriesIds));
+        
+        securityWrapper.checkDBReadAccess(userName, password);
+        
+        super.updateUserActivity(userName);
+        
+        db.startDBSession();
+        List<?> queryResult = dbWrapper.getDirectoriesByIds(directoriesIds);
+        db.commitDBSession();
+        
+        return convertToWSDirectory(queryResult);
+    }
+    
     private WSProjectFile[] convertToWSProjectFiles(List<?> projectFiles) {
         WSProjectFile[] result = null;
         if ((projectFiles != null) && (projectFiles.size() != 0)) {
@@ -380,6 +401,19 @@ public class ProjectManager extends AbstractManager {
         return result;
     }
     
+    private WSDirectory[] convertToWSDirectory(List<?> directories) {
+        WSDirectory[] result = null;
+        if ((directories != null) && (directories.size() != 0)) {
+            result = new WSDirectory[directories.size()];
+            Directory currentElem;
+            for (int i = 0; i < result.length; i++) {
+                currentElem = (Directory) directories.get(i);
+                result[i] = createWSDirectory(currentElem);
+            }
+        }
+        return result;
+    }
+    
     private static WSStoredProject createWSStoredProject(StoredProject storedProject) {
         if (storedProject == null) return null;
         WSStoredProject wsStoredProject = new WSStoredProject();
@@ -429,6 +463,14 @@ public class ProjectManager extends AbstractManager {
         wsFileGroup.setRegularExpression(fileGroup.getRegex());
         wsFileGroup.setSubPath(fileGroup.getSubPath());
         return wsFileGroup;
+    }
+    
+    private static WSDirectory createWSDirectory(Directory directory) {
+        if (directory == null) return null;
+        WSDirectory wsDirectory = new WSDirectory();
+        wsDirectory.setId(directory.getId());
+        wsDirectory.setPath(directory.getPath());
+        return wsDirectory;
     }
     
 }

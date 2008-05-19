@@ -37,6 +37,7 @@ import org.osgi.framework.BundleContext;
 import eu.sqooss.impl.service.web.services.MetricManager;
 import eu.sqooss.impl.service.web.services.ProjectManager;
 import eu.sqooss.impl.service.web.services.UserManager;
+import eu.sqooss.impl.service.web.services.datatypes.WSDirectory;
 import eu.sqooss.impl.service.web.services.datatypes.WSFileGroup;
 import eu.sqooss.impl.service.web.services.datatypes.WSMetric;
 import eu.sqooss.impl.service.web.services.datatypes.WSMetricType;
@@ -307,6 +308,24 @@ public class WebServices {
                 userName, password, projectId);
     }
 
+    /**
+     * This method returns all known information about the directories referenced by
+     * the given identifiers.
+     * 
+     * @param userName - the user's name used for authentication
+     * @param password - the user's password used for authentication
+     * @param directoriesIds - the identifiers of the requested directories
+     * 
+     * @return The <code>WSDirectory</code> array describing the requested directories.
+     */
+    public WSDirectory[] getDirectoriesByIds(
+            String userName,
+            String password,
+            long[] directoriesIds) {
+        return projectManager.getDirectoriesByIds(
+                userName, password, directoriesIds);
+    }
+    
     // ===[ MetricManager methods]============================================
 
     /**
