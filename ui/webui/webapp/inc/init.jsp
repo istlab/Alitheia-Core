@@ -2,6 +2,7 @@
 <%@ page import="eu.sqooss.webui.*" %>
 <%@ page session="true" %>
 <%!
+
 ResourceBundle configProperties = null;
 String initError = null;
 
@@ -18,6 +19,7 @@ public void jspInit() {
 %>
 <%@ include file="/inc/functions.jsp" %>
 <%
+response.setBufferSize(16384);
 
 Long projectId = null;
 if (request.getParameter("pid") != null) {

@@ -256,7 +256,7 @@ public class Terrier {
             for (WSProjectFile wspf : filesResult) {
                 File f = new File(wspf, this);
                 files.addElement(f);
-                addError("File added: " + f.getName());
+                //addError("File added: " + f.getName());
             }
         } catch (WSException wse) {
             addError("Cannot retrieve the list of files for project " + projectId + ".");
@@ -379,13 +379,15 @@ public class Terrier {
         }
         File[] files = null;
         try {
-
-            WSProjectFile[] wsfiles =
-                connection.getProjectAccessor().getFilesByProjectVersionId(versionId);
+            try {
+                WSProjectFile[] wsfiles = connection.getProjectAccessor().getFilesByProjectVersionId(versionId);
+                for (int i = 0; i < wsfiles.length; i++) {
+                    files[i] = new File(wsfiles[i], this);
+                    //addError("File added." + versionId + files[i].getName());
+                }
+            } catch (NullPointerException npe) {
             //addError("FILES:." + wsfiles.length);
-            for (int i = 0; i < wsfiles.length; i++) {
-                files[i] = new File(wsfiles[i], this);
-                //addError("File added." + versionId + files[i].getName());
+                // Nevermind.
             }
         } catch (WSException e) {
             addError("Can not retrieve the list of files for this version:" + e.getMessage());
