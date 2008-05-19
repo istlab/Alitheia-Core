@@ -438,23 +438,23 @@ public class WebServices {
     }
 
     /**
-     * This method returns all known information about the user referenced by
-     * the given identifier.
+     * This method returns all known information about the users referenced by
+     * the given identifiers.
      * <br/>
-     * <i>The information does not include the user's password hash.<i>
+     * <i>The information does not include the users' password hash.<i>
      * 
      * @param userNameForAccess - the user's name used for authentication
      * @param passwordForAccess - the user's password used for authentication
-     * @param userId - the identifier of the requested user
+     * @param usersIds - the identifiers of the requested users
      * 
-     * @return The <code>WSUser</code> object describing the requested user.
+     * @return The <code>WSUser</code> array describing the requested users.
      */
-    public WSUser getUserById(
+    public WSUser[] getUsersByIds(
             String userNameForAccess,
             String passwordForAccess,
-            long userId) {
-        return userManager.getUserById(
-                userNameForAccess, passwordForAccess, userId);
+            long[] usersIds) {
+        return userManager.getUsersByIds(
+                userNameForAccess, passwordForAccess, usersIds);
     }
 
     /**

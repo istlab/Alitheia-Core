@@ -93,6 +93,26 @@ public class WSUser {
             return new WSUserGroup[] {null};
         }
     }
+
+    /**
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object other) {
+        if (!(other instanceof WSUser)) {
+            return false;
+        }
+        WSUser otherUser = (WSUser) other;
+        return this.getId() == otherUser.getId();
+    }
+
+    /**
+     * @see java.lang.Object#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        return Long.valueOf(this.getId()).hashCode();
+    }
     
 }
 

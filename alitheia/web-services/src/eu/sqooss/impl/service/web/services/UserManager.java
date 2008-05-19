@@ -32,6 +32,9 @@
 
 package eu.sqooss.impl.service.web.services;
 
+import java.util.Collection;
+import java.util.HashSet;
+
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.User;
 import eu.sqooss.service.security.SecurityManager;
@@ -70,26 +73,34 @@ public class UserManager extends AbstractManager {
     }
     
     /**
-     * @see eu.sqooss.service.web.services.WebServices#getUserById(String, String, long)
+     * @see eu.sqooss.service.web.services.WebServices#getUsersByIds(String, String, long[])
      */
-    public WSUser getUserById(String userNameForAccess,
-            String passwordForAccess, long userId) {
+    public WSUser[] getUsersByIds(String userNameForAccess,
+            String passwordForAccess, long[] usersIds) {
         
-        security.checkUserReadAccess(userNameForAccess,
-                passwordForAccess, userId, null);
+        security.checkUsersReadAccess(userNameForAccess,
+                passwordForAccess, usersIds, null);
         
         super.updateUserActivity(userNameForAccess);
         
+        if (usersIds == null) {
+            return null;
+        }
+        
         db.startDBSession();
-        User user = userManager.getUser(userId); 
-        if (user != null) {
-            WSUser wsu = new WSUser(user.getId(), user.getName(),
-                    user.getEmail(), user.getRegistered().getTime(),
-                    user.getLastActivity().getTime(), user.getGroups());
-            db.commitDBSession();
-            return wsu;
+        Collection<WSUser> users = new HashSet<WSUser>();
+        User currentUser;
+        for (long userId : usersIds) {
+            currentUser = userManager.getUser(userId);
+            if (currentUser != null) {
+                users.add(createWSUser(currentUser));
+            }
+        }
+        db.commitDBSession();
+        
+        if (!users.isEmpty()) {
+            return users.toArray(new WSUser[users.size()]);
         } else {
-            db.rollbackDBSession();
             return null;
         }
         
@@ -141,7 +152,7 @@ public class UserManager extends AbstractManager {
     public WSUser getUserByName(String userNameForAccess,
             String passwordForAccess, String userName) {
         
-        security.checkUserReadAccess(userNameForAccess, passwordForAccess, -1, userName);
+        security.checkUsersReadAccess(userNameForAccess, passwordForAccess, null, userName);
         
         super.updateUserActivity(userNameForAccess);
 
@@ -159,6 +170,14 @@ public class UserManager extends AbstractManager {
         }
     }
 
+    private static WSUser createWSUser(User user) {
+        if (user == null) return null;
+        WSUser wsu = new WSUser(user.getId(), user.getName(),
+                user.getEmail(), user.getRegistered().getTime(),
+                user.getLastActivity().getTime(), user.getGroups());
+        return wsu;
+    }
+    
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

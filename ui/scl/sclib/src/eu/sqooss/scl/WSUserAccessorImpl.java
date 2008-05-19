@@ -45,8 +45,8 @@ import eu.sqooss.ws.client.ws.CreatePendingUser;
 import eu.sqooss.ws.client.ws.CreatePendingUserResponse;
 import eu.sqooss.ws.client.ws.DeleteUserById;
 import eu.sqooss.ws.client.ws.DeleteUserByIdResponse;
-import eu.sqooss.ws.client.ws.GetUserById;
-import eu.sqooss.ws.client.ws.GetUserByIdResponse;
+import eu.sqooss.ws.client.ws.GetUsersByIds;
+import eu.sqooss.ws.client.ws.GetUsersByIdsResponse;
 import eu.sqooss.ws.client.ws.GetUserByName;
 import eu.sqooss.ws.client.ws.GetUserByNameResponse;
 import eu.sqooss.ws.client.ws.GetUserMessageOfTheDay;
@@ -58,7 +58,7 @@ class WSUserAccessorImpl extends WSUserAccessor {
 
     private static final String METHOD_NAME_CREATE_PENDING_USER  = "createPendingUser";
 
-    private static final String METHOD_NAME_GET_USER_BY_ID       = "getUserById";
+    private static final String METHOD_NAME_GET_USERS_BY_IDS     = "getUsersByIds";
 
     private static final String METHOD_NAME_GET_USER_BY_NAME     = "getUserByName";
 
@@ -68,6 +68,8 @@ class WSUserAccessorImpl extends WSUserAccessor {
 
     private static final String METHOD_NAME_GET_USER_MESSAGE_OF_THE_DAY = "getUserMessageOfTheDay";
 
+    private static final WSUser[] EMPTY_ARRAY_USERS = new WSUser[0];
+    
     private Map<String, Object> parameters;
     private String userName;
     private String password;
@@ -115,30 +117,31 @@ class WSUserAccessorImpl extends WSUserAccessor {
     }
 
     /**
-     * @see eu.sqooss.scl.accessor.WSUserAccessor#getUserById(long)
+     * @see eu.sqooss.scl.accessor.WSUserAccessor#getUserById(long[])
      */
     @Override
-    public WSUser getUserById(long userId) throws WSException {
-        GetUserByIdResponse response;
-        GetUserById params;
-        if (!parameters.containsKey(METHOD_NAME_GET_USER_BY_ID)) {
-            params = new GetUserById();
+    public WSUser[] getUsersByIds(long[] usersIds) throws WSException {
+        if (!isValidArray(usersIds)) return EMPTY_ARRAY_USERS;
+        GetUsersByIdsResponse response;
+        GetUsersByIds params;
+        if (!parameters.containsKey(METHOD_NAME_GET_USERS_BY_IDS)) {
+            params = new GetUsersByIds();
             params.setPasswordForAccess(password);
             params.setUserNameForAccess(userName);
-            parameters.put(METHOD_NAME_GET_USER_BY_ID, params);
+            parameters.put(METHOD_NAME_GET_USERS_BY_IDS, params);
         } else {
-            params = (GetUserById) parameters.get(
-                    METHOD_NAME_GET_USER_BY_ID);
+            params = (GetUsersByIds) parameters.get(
+                    METHOD_NAME_GET_USERS_BY_IDS);
         }
         synchronized (params) {
-            params.setUserId(userId);
+            params.setUsersIds(usersIds);
             try {
-                response = wsStub.getUserById(params);
+                response = wsStub.getUsersByIds(params);
             } catch (RemoteException re) {
                 throw new WSException(re);
             }
         }
-        return (WSUser) normaliseWSArrayResult(response.get_return());
+        return (WSUser[]) normaliseWSArrayResult(response.get_return());
     }
 
     /**
@@ -249,6 +252,11 @@ class WSUserAccessorImpl extends WSUserAccessor {
         }
         return response.get_return();
     }
+    
+    private static boolean isValidArray(long[] arr) {
+        return ((arr != null) && (arr.length > 0));
+    }
+    
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

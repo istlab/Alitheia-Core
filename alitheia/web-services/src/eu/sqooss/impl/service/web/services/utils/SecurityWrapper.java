@@ -116,15 +116,17 @@ public class SecurityWrapper implements SecurityConstants {
         }
     }
     
-    public void checkUserReadAccess(String userName, String password,
-            long userId, String privilegeUserName) {
+    public void checkUsersReadAccess(String userName, String password,
+            long[] usersIds, String privilegeUserName) {
         synchronized (privilegesLockObject) {
             privileges.clear();
             privileges.put(Privilege.ACTION.toString(), PrivilegeValue.READ.toString());
-            if (privilegeUserName != null) {
+            if (usersIds != null) {
+                for (long userId : usersIds) {
+                    privileges.put(Privilege.USER_ID.toString(), Long.toString(userId));
+                }
+            } else if (privilegeUserName != null) {
                 privileges.put(Privilege.USER_ID.toString(), privilegeUserName);
-            } else if (userId >= 0) {
-                privileges.put(Privilege.USER_ID.toString(), Long.toString(userId));
             }
             if (!security.checkPermission(URL_SQOOSS_SECURITY, privileges, userName, password)) {
                 throw new SecurityException("Security violation!");

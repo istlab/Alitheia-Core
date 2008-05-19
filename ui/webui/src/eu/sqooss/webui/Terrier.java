@@ -446,9 +446,11 @@ public class Terrier {
             return null;
         }
         try {
-            WSUser user = connection.getUserAccessor().getUserById(userId);
-            if (user != null) {
-                return new User(user.getId(), user.getUserName(), user.getEmail());
+            WSUser[] users = connection.getUserAccessor().getUsersByIds(new long[] {userId});
+            if (users.length != 0) {
+                return new User(users[0].getId(), users[0].getUserName(), users[0].getEmail());
+            } else {
+                error = "The user does not exist!";
             }
         } catch (WSException e) {
             error = "Can not retrieve information about the selected user.";

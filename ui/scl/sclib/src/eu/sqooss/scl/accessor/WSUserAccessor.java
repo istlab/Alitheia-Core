@@ -67,14 +67,16 @@ public abstract class WSUserAccessor extends WSAccessor {
             String email) throws WSException;
     
     /**
-     * This method returns all known information about the user referenced by
-     * the given identifier.
+     * This method returns all known information about the users referenced by
+     * the given identifiers.
      * <br/>
-     * <i>The information does not include the user's password hash.<i>
-     *  
-     * @param userId - the identifier of the requested user
+     * <i>The information does not include the users' password hash.<i>
      * 
-     * @return The <code>WSUser</code> object describing the requested user.
+     * @param userNameForAccess - the user's name used for authentication
+     * @param passwordForAccess - the user's password used for authentication
+     * @param usersIds - the identifiers of the requested users
+     * 
+     * @return The <code>WSUser</code> array describing the requested users.
      * 
      * @throws WSException
      * <ul>
@@ -82,7 +84,7 @@ public abstract class WSUserAccessor extends WSAccessor {
      *  <li>if web services service throws an exception</li>
      * <ul>
      */
-    public abstract WSUser getUserById(long userId) throws WSException;
+    public abstract WSUser[] getUsersByIds(long[] usersIds) throws WSException;
     
     /**
      * This method returns all known information about the user associated
