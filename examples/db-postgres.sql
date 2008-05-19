@@ -151,6 +151,23 @@ CREATE TABLE feature (
 ALTER TABLE public.feature OWNER TO alitheia;
 
 --
+-- Name: file_group; Type: TABLE; Schema: public; Owner: alitheia; Tablespace: 
+--
+
+CREATE TABLE file_group (
+    file_group_id bigint NOT NULL,
+    file_group_name character varying(255),
+    group_subpath character varying(255),
+    regex character varying(255),
+    recalc_freq integer,
+    last_used time without time zone,
+    project_version_id bigint NOT NULL
+);
+
+
+ALTER TABLE public.file_group OWNER TO alitheia;
+
+--
 -- Name: file_metadata; Type: TABLE; Schema: public; Owner: alitheia; Tablespace: 
 --
 
@@ -567,6 +584,8 @@ COPY directory (directory_id, path) FROM stdin;
 
 COPY evaluation_mark (evaluation_mark_id, metric_id, stored_project_id) FROM stdin;
 1	3	10
+2	701	10
+3	702	10
 \.
 
 
@@ -575,6 +594,14 @@ COPY evaluation_mark (evaluation_mark_id, metric_id, stored_project_id) FROM std
 --
 
 COPY feature (feature_id, feature_name) FROM stdin;
+\.
+
+
+--
+-- Data for Name: file_group; Type: TABLE DATA; Schema: public; Owner: alitheia
+--
+
+COPY file_group (file_group_id, file_group_name, group_subpath, regex, recalc_freq, last_used, project_version_id) FROM stdin;
 \.
 
 
@@ -1462,7 +1489,7 @@ COPY tag (tag_id, tag_name, tag_version) FROM stdin;
 COPY users (user_id, name, registered, last_activity, password, email) FROM stdin;
 1	Fluffy Bunny	1970-01-01 00:00:00	2008-05-08 17:41:04.283	carrot	bunny@kde.org
 2	Adriaan Bunny	2008-01-01 00:00:00	2008-02-14 00:00:00	celery	bynny@example.com
-3	alitheia	2008-01-01 00:00:00	2008-05-13 13:21:57.155	aa055fc92ac0e92be352a5a27bb5eacca8bf1b10cb22496f4dc4315b963eeaaa	NA
+3	alitheia	2008-01-01 00:00:00	2008-05-19 12:39:56.316	aa055fc92ac0e92be352a5a27bb5eacca8bf1b10cb22496f4dc4315b963eeaaa	NA
 \.
 
 
@@ -1560,6 +1587,14 @@ ALTER TABLE ONLY evaluation_mark
 
 ALTER TABLE ONLY feature
     ADD CONSTRAINT feature_pkey PRIMARY KEY (feature_id);
+
+
+--
+-- Name: file_group_pkey; Type: CONSTRAINT; Schema: public; Owner: alitheia; Tablespace: 
+--
+
+ALTER TABLE ONLY file_group
+    ADD CONSTRAINT file_group_pkey PRIMARY KEY (file_group_id);
 
 
 --
@@ -1976,6 +2011,14 @@ ALTER TABLE ONLY project_version
 
 ALTER TABLE ONLY plugin_configuration
     ADD CONSTRAINT fkc666accad6dfd19f FOREIGN KEY (plugin_id) REFERENCES plugin(plugin_id);
+
+
+--
+-- Name: fkd2ab41dcf6aebe0c; Type: FK CONSTRAINT; Schema: public; Owner: alitheia
+--
+
+ALTER TABLE ONLY file_group
+    ADD CONSTRAINT fkd2ab41dcf6aebe0c FOREIGN KEY (project_version_id) REFERENCES project_version(project_version_id);
 
 
 --
