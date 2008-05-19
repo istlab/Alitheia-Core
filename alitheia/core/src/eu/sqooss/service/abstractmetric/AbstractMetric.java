@@ -42,6 +42,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
@@ -429,7 +430,10 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     
     protected final void addActivationType(Class<? extends DAObject> c) {
         activationTypes.add(c);
-        pa.pluginUpdated(this);
+        // Call the PA only on started metric bundles
+        if (bc.getBundle().getState() == Bundle.ACTIVE) {
+            pa.pluginUpdated(this);
+        }
     }
     
     /**
