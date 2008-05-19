@@ -151,6 +151,14 @@ public interface AlitheiaPlugin {
         throws MetricMismatchException;
 
     /**
+     * Get the description objects for all metrics supported by this plug-in
+     * as found in the database.
+     *
+     * @return the list of metric descriptors, or null if none
+     */
+    List<Metric> getSupportedMetrics();
+    
+    /**
      * Generic "run plug-in" method. This method performs a measurement for
      * the given DAO, if possible. The DAO might be any one of the types
      * that make sense for measurements -- ProjectVersion, projectFile,
