@@ -79,9 +79,9 @@ public class MetricManager extends AbstractManager {
     }
     
     /**
-     * @see eu.sqooss.service.web.services.WebServices#getMetricsByProjectId(String, String, long)
+     * @see eu.sqooss.service.web.services.WebServices#getProjectEvaluatedMetrics(String, String, long)
      */
-    public WSMetric[] getMetricsByProjectId(String userName,
+    public WSMetric[] getProjectEvaluatedMetrics(String userName,
             String password, long projectId) {
         
         logger.info("Retrieve metrics for selected project! user: " + userName +
@@ -92,7 +92,7 @@ public class MetricManager extends AbstractManager {
         super.updateUserActivity(userName);
         
         db.startDBSession();
-        List<?> metrics = dbWrapper.getMetricsByProjectId(projectId);
+        List<?> metrics = dbWrapper.getProjectEvaluatedMetrics(projectId);
         WSMetric[] wsMetrics = convertToWSMetrics(metrics);
         db.commitDBSession();
         return wsMetrics;

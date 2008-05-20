@@ -47,18 +47,20 @@ import eu.sqooss.ws.client.datatypes.WSMetricsResultRequest;
 import eu.sqooss.ws.client.datatypes.WSResultEntry;
 import eu.sqooss.ws.client.ws.GetMetricTypesByIds;
 import eu.sqooss.ws.client.ws.GetMetricTypesByIdsResponse;
-import eu.sqooss.ws.client.ws.GetMetricsByProjectId;
-import eu.sqooss.ws.client.ws.GetMetricsByProjectIdResponse;
+//import eu.sqooss.ws.client.ws.GetMetricsByProjectId;
+//import eu.sqooss.ws.client.ws.GetMetricsByProjectIdResponse;
 import eu.sqooss.ws.client.ws.GetMetricsByResourcesIds;
 import eu.sqooss.ws.client.ws.GetMetricsByResourcesIdsResponse;
 import eu.sqooss.ws.client.ws.GetMetricsResult;
 import eu.sqooss.ws.client.ws.GetMetricsResultResponse;
+import eu.sqooss.ws.client.ws.GetProjectEvaluatedMetrics;
+import eu.sqooss.ws.client.ws.GetProjectEvaluatedMetricsResponse;
 
 class WSMetricAccessorImpl extends WSMetricAccessor {
 
-    private static final String METHOD_NAME_GET_METRICS_BY_PROJECT_ID    = "getMetricsByProjectId";
+    private static final String METHOD_NAME_GET_PROJECT_EVALUATED_METRICS    = "getMetricsByProjectId";
     
-    private static final String METHOD_NAME_GET_METRIC_TYPES_BY_IDS      = "getMetricTypesByIds";
+    private static final String METHOD_NAME_GET_METRIC_TYPES_BY_IDS          = "getMetricTypesByIds";
 
     private static final String METHOD_NAME_GET_METRICS_BY_RESOURCES_IDS = "getMetricsByResourcesIds";
 
@@ -86,22 +88,22 @@ class WSMetricAccessorImpl extends WSMetricAccessor {
      * @see eu.sqooss.scl.accessor.WSMetricAccessor#getMetricsByProjectId(long)
      */
     @Override
-    public WSMetric[] getMetricsByProjectId(long projectId) throws WSException {
-        GetMetricsByProjectIdResponse response;
-        GetMetricsByProjectId params;
-        if (!parameters.containsKey(METHOD_NAME_GET_METRICS_BY_PROJECT_ID)) {
-            params = new GetMetricsByProjectId();
+    public WSMetric[] getProjectEvaluatedMetrics(long projectId) throws WSException {
+        GetProjectEvaluatedMetricsResponse response;
+        GetProjectEvaluatedMetrics params;
+        if (!parameters.containsKey(METHOD_NAME_GET_PROJECT_EVALUATED_METRICS)) {
+            params = new GetProjectEvaluatedMetrics();
             params.setPassword(password);
             params.setUserName(userName);
-            parameters.put(METHOD_NAME_GET_METRICS_BY_PROJECT_ID, params);
+            parameters.put(METHOD_NAME_GET_PROJECT_EVALUATED_METRICS, params);
         } else {
-            params = (GetMetricsByProjectId) parameters.get(
-                    METHOD_NAME_GET_METRICS_BY_PROJECT_ID);
+            params = (GetProjectEvaluatedMetrics) parameters.get(
+                    METHOD_NAME_GET_PROJECT_EVALUATED_METRICS);
         }
         synchronized (params) {
             params.setProjectId(projectId);
             try {
-                response = wsStub.getMetricsByProjectId(params);
+                response = wsStub.getProjectEvaluatedMetrics(params);
             } catch (RemoteException re) {
                 throw new WSException(re);
             }

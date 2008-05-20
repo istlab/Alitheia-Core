@@ -359,11 +359,11 @@ public class WebServices {
      * @return The array with all evaluated metrics, or a <code>null</code>
      *   array when none are found.
      */
-    public WSMetric[] getMetricsByProjectId(
+    public WSMetric[] getProjectEvaluatedMetrics(
             String userName,
             String password,
             long projectId) {
-        return metricManager.getMetricsByProjectId(
+        return metricManager.getProjectEvaluatedMetrics(
                 userName, password, projectId);
     }
 

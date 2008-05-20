@@ -311,7 +311,7 @@ public class Terrier {
         MetricsTableView view = new MetricsTableView(projectId);
         try {
             WSMetric[] metrics =
-                connection.getMetricAccessor().getMetricsByProjectId(projectId);
+                connection.getMetricAccessor().getProjectEvaluatedMetrics(projectId);
             for (WSMetric met : metrics) {
                 view.addMetric(new Metric(met, this));
             }

@@ -57,11 +57,11 @@ public class MetricManagerDatabase implements MetricManagerDBQueries {
         this.db = db;
     }
     
-    public List<?> getMetricsByProjectId(long projectId) {
+    public List<?> getProjectEvaluatedMetrics(long projectId) {
         Map<String, Object> queryParameters = new Hashtable<String, Object>(1);
-        queryParameters.put(GET_METRICS_BY_PROJECT_ID_PARAM, projectId);
+        queryParameters.put(GET_PROJECT_EVALUATED_METRICS_PARAM, projectId);
         
-        return db.doHQL(GET_METRICS_BY_PROJECT_ID, queryParameters);
+        return db.doHQL(GET_PROJECT_EVALUATED_METRICS, queryParameters);
     }
     
     public List<?> getMetricTypesByIds(long[] metricTypesIds) {

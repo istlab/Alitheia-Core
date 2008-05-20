@@ -59,7 +59,7 @@ public abstract class WSMetricAccessor extends WSAccessor {
      *  <li>if web services service throws an exception</li>
      * <ul>
      */
-    public abstract WSMetric[] getMetricsByProjectId(long projectId) throws WSException;
+    public abstract WSMetric[] getProjectEvaluatedMetrics(long projectId) throws WSException;
     
     /**
      * The method returns all information, that the SQO-OSS framework has
