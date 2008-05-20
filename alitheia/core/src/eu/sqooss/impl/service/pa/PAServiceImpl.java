@@ -647,7 +647,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
             pi = createInstalledPI(srefPlugin, pDao);
             if (pi != null) {
                 registeredPlugins.put(pi.getHashcode(), pi);
-                logger.info("Plug-in (" + p.getName()
+                logger.info("Plug-in (" + pi.getPluginName()
                         + ") successfuly updated");
                 // TODO: Not sure, if this is the correct plug-in method
                 //       to call upon configuration update, but it is the
