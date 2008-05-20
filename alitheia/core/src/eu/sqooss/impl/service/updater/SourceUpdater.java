@@ -229,8 +229,7 @@ class SourceUpdater extends Job {
                 /*Cleanup for huge projects*/
                 if (numRevisions % 2000 == 0) {
                     logger.info("Commited 2000 revisions");
-                    dbs.getDBSession().flush();
-                    dbs.getDBSession().clear();
+                    dbs.flushDBSession();
                 }
             }
             logger.info("Processed " + numRevisions + " revisions");

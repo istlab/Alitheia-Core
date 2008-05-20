@@ -710,7 +710,7 @@ public class WebAdminRenderer {
                     }
                     else {
                         for (Metric metric: metrics) {
-                            metric = sobjDB.attach(metric);
+                            metric = sobjDB.attachObjectToDBSession(metric);
                             b.append(sp(in++) + "<tr>\n");
                             b.append(sp(in) + "<td>"
                                     + metric.getId() + "</td>\n");

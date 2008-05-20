@@ -278,7 +278,7 @@ public class PluginInfo {
                 }
 
                 // Update the given configuration property
-                pc = db.attach(pc);
+                pc = db.attachObjectToDBSession(pc);
                 pc.setValue(newVal);
                 return true;
             }

@@ -961,6 +961,28 @@ e.printStackTrace();
         }
         return true;
     }
+    
+    public boolean flushDBSession() {
+        if ( !checkSession() )
+            return false;
+        
+        Session s = null;
+        try {
+            s = sessionFactory.getCurrentSession();
+            s.flush();
+            s.clear();
+        } catch (HibernateException e) {
+            logger.error("flushDBSession() - error while flushing session: " + e.getMessage());
+            if ( s != null ) {
+                try {
+                    s.close();
+                } catch (HibernateException e1) {
+                }
+            }
+            return false;
+        }
+        return true;
+    }
 
     public boolean isDBSessionActive() {
         Session s = null;
@@ -978,20 +1000,23 @@ e.printStackTrace();
             return false;
         }
     }
-    
-    public Session getDBSession() {
-        return sessionFactory.getCurrentSession();
-    }
-    
-    public <T extends DAObject> T attach(T obj) {
-        Session s = sessionFactory.getCurrentSession();
-        T objMerged = null;
+        
+    @SuppressWarnings("unchecked")
+    public <T extends DAObject> T attachObjectToDBSession(T obj) {
+        if( !checkSession() )
+            return null;
+
         try {
-            objMerged = (T) s.merge(obj);
+            Session s = sessionFactory.getCurrentSession();
+            if ( s.contains(obj)) {
+                return obj;
+            } else {
+                return (T) s.merge(obj);
+            }
         } catch (HibernateException e) {
             logExceptionAndTerminateSession(e);
+            return null;
         }
-        return objMerged;
     }
 
 }

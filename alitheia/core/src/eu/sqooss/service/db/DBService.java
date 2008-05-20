@@ -117,6 +117,7 @@ public interface DBService {
      */
     public boolean rollbackDBSession();
     
+    public boolean flushDBSession();
     
     /**
      * Returns the state of the work session for the current thread.
@@ -234,6 +235,18 @@ public interface DBService {
     public boolean deleteAssociation(Object compositeKey);
 
     /**
+     * Attach a disconnected object to the current Session. If the corresponding
+     * row exists, then the returned object will merge the persistent and 
+     * the disconnected object fields. Preference will be given to the field
+     * values of the detached object. If the detached object contains 
+     * references to other DAOs, the attach operation will cascade.
+     *  
+     * @param obj The object to connect
+     * @return The connect instance of the object
+     */
+    public <T extends DAObject> T attachObjectToDBSession(T obj);
+
+    /**
      * Execute a complete SQL query to the database, using the default database session.
      * This allows low-level manipulation of the database contents outside of the DAO types.
      * To limit risks of SQL injection exploits, please do not execute queries like
@@ -330,27 +343,7 @@ public interface DBService {
     public List<?> doHQL(String hql, Map<String, Object> params,
                           Map<String, Collection> collectionParams)
         throws QueryException;
-
-    /**
-     * Return the active session for the current context. Only use this method
-     * if you really know what you are doing. 
-     * 
-     * @return The Session for the current thread.
-     */
-    public Session getDBSession();
-    
-    /**
-     * Attach a disconnected object to the current Session. If the corresponding
-     * row exists, then the returned object will merge the persistent and 
-     * the disconnected object fields. Preference will be given to the field
-     * values of the detached object. If the detached object contains 
-     * references to other DAOs, the attach operation will cascade.
-     *  
-     * @param obj The object to connect
-     * @return The connect instance of the object
-     */
-    public <T extends DAObject> T attach(T obj);
-    
+        
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab
