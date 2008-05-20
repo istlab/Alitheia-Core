@@ -313,19 +313,14 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      * @return the list of metric descriptors, or null if none
      */
     public List<Metric> getSupportedMetrics() {
-        return Plugin.getSupportedMetrics(
-                Plugin.getPluginByHashcode(getUniqueKey()));
-        // NOTE: returning an "old" "metrics" array means returning a
-        // detached DAOs. Any references that such DAO can have are therefore
-        // invalid and lead to a DB exception when trying to get them
-//        if (metrics == null) {
-//            metrics = Plugin.getSupportedMetrics(Plugin.getPluginByHashcode(getUniqueKey()));
-//        }
-//        if (metrics.isEmpty()) {
-//            return null;
-//        } else {
-//            return metrics;
-//        }
+        if (metrics == null) {
+            metrics = Plugin.getSupportedMetrics(Plugin.getPluginByHashcode(getUniqueKey()));
+        }
+        if (metrics.isEmpty()) {
+            return null;
+        } else {
+            return metrics;
+        }
     }
 
     /**
