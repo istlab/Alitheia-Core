@@ -99,7 +99,7 @@ if (selectedProject.isValid()) {
     String projectFileList = selectedProject.listFiles();
     int p_c = selectedProject.getFileCount();
 
-    out.println("\n<table width=\"100%\">\n\t<tr><td style=\"padding-right: 30px\" width=\"50%\">");
+    out.println("\n<table width=\"100%\">\n\t<tr><td valign=\"top\" style=\"padding-right: 30px\" width=\"50%\">");
 
     out.println("<h2>Files in " + selectedProject.getName() + " (" + p_c + ")</h2>");
     out.println(projectFileList);

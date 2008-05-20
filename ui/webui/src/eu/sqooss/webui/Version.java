@@ -82,8 +82,13 @@ public class Version extends WebuiItem {
     }
 
     public SortedMap<Long, File> getFiles () {
-        File fs[] = terrier.getProjectVersionFiles(id);
+        // FIXME: doesn't seem to work
         SortedMap<Long, File> files = new TreeMap<Long, File>();
+        if (!isValid()) {
+            addError("no ID in getFiles()");
+            return files;
+        }
+        File fs[] = terrier.getProjectVersionFiles(id);
         if ( fs == null || fs.length == 0 ) {
             files.put(new Long(1337), new File(id, new Long(1337), "src/FakeFile.cpp", "FAKE_STATUS", terrier));
             fileCount = files.size();
@@ -94,6 +99,10 @@ public class Version extends WebuiItem {
         }
         fileCount = files.size();
         return files;
+    }
+
+    public String listFiles() {
+        return terrier.getFiles4ProjectVersion(id).getHtml();
     }
 
     public String getHtml() {

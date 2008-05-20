@@ -388,18 +388,20 @@ public class Terrier {
         try {
             try {
                 WSProjectFile[] wsfiles = connection.getProjectAccessor().getFilesByProjectVersionId(versionId);
-                for (int i = 0; i < wsfiles.length; i++) {
-                    files[i] = new File(wsfiles[i], this);
-                    //addError("File added." + versionId + files[i].getName());
+                int i = 0;
+                for (WSProjectFile file : wsfiles) {
+                    files[i] = new File(file, this);
+                    //view.addFile(new File(file, this));
                 }
             } catch (NullPointerException npe) {
-            //addError("FILES:." + wsfiles.length);
+                addError("NPE looping files:" + npe.getMessage());
                 // Nevermind.
             }
         } catch (WSException e) {
             addError("Can not retrieve the list of files for this version:" + e.getMessage());
-            return null;
+            return files;
         }
+        //addError(files.length + " Files n Version " + versionId);
         return files;
     }
 
