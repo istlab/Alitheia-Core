@@ -45,6 +45,8 @@
         <mapping resource="eu/sqooss/service/db/ServiceUrl.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/MailMessage.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/ProjectVersionMeasurement.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/StoredProjectMeasurement.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/FileGroupMeasurement.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/Metric.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/MetricType.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/Plugin.hbm.xml"/>

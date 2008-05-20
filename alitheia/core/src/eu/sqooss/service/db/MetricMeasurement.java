@@ -3,7 +3,6 @@
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  *
  * Copyright 2007-2008 by the SQO-OSS consortium members <info@sqo-oss.eu>
- * Copyright 2007-2008 by Georgios Gousios <gousiosg@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -30,25 +29,62 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
+ 
 
 package eu.sqooss.service.db;
 
-public class ProjectFileMeasurement extends MetricMeasurement {
+import java.sql.Timestamp;
+
+import eu.sqooss.service.db.DAObject;
+
+public class MetricMeasurement extends DAObject {
     
-    private ProjectFile projectFile;
-
-    public ProjectFileMeasurement() {
-        // Nothing to do here
+    private Metric metric;
+    private Timestamp whenRun;
+    private String result;
+    
+    /**
+     * @return the metric
+     */
+    public Metric getMetric() {
+        return metric;
     }
-
-    public ProjectFile getProjectFile() {
-        return projectFile;
+    
+    /**
+     * @param metric the metric to set
+     */
+    public void setMetric(Metric metric) {
+        this.metric = metric;
     }
-
-    public void setProjectFile(ProjectFile pf) {
-        this.projectFile = pf;
+    
+    /**
+     * @return the whenRun
+     */
+    public Timestamp getWhenRun() {
+        return whenRun;
     }
-
+    
+    /**
+     * @param whenRun the whenRun to set
+     */
+    public void setWhenRun(Timestamp whenRun) {
+        this.whenRun = whenRun;
+    }
+    
+    /**
+     * @return the result
+     */
+    public String getResult() {
+        return result;
+    }
+    
+    /**
+     * @param result the result to set
+     */
+    public void setResult(String result) {
+        this.result = result;
+    }
+    
 }
 
-//vi: ai nosi sw=4 ts=4 expandtab
+// vi: ai nosi sw=4 ts=4 expandtab

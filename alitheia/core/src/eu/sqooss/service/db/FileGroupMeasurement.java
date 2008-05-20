@@ -3,7 +3,6 @@
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  *
  * Copyright 2007-2008 by the SQO-OSS consortium members <info@sqo-oss.eu>
- * Copyright 2007-2008 by Georgios Gousios <gousiosg@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -30,25 +29,28 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
+ 
 
 package eu.sqooss.service.db;
 
-public class ProjectFileMeasurement extends MetricMeasurement {
+public class FileGroupMeasurement extends MetricMeasurement {
     
-    private ProjectFile projectFile;
+    private FileGroup fileGroup;
 
-    public ProjectFileMeasurement() {
-        // Nothing to do here
+    /**
+     * @return the fileGroup
+     */
+    public FileGroup getFileGroup() {
+        return fileGroup;
     }
 
-    public ProjectFile getProjectFile() {
-        return projectFile;
+    /**
+     * @param fileGroup the fileGroup to set
+     */
+    public void setFileGroup(FileGroup fileGroup) {
+        this.fileGroup = fileGroup;
     }
-
-    public void setProjectFile(ProjectFile pf) {
-        this.projectFile = pf;
-    }
-
+    
 }
 
-//vi: ai nosi sw=4 ts=4 expandtab
+// vi: ai nosi sw=4 ts=4 expandtab

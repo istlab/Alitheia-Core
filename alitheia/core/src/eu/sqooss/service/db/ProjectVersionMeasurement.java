@@ -33,26 +33,12 @@
 
 package eu.sqooss.service.db;
 
-import eu.sqooss.service.db.DAObject;
-
-import java.sql.Timestamp;
-
-public class ProjectVersionMeasurement extends DAObject{
-    private Metric metric;
+public class ProjectVersionMeasurement extends MetricMeasurement {
+    
     private ProjectVersion projectVersion;
-    private Timestamp whenRun;
-    private String result;
 
     public ProjectVersionMeasurement() {
         // Nothing to do here
-    }
-
-    public Metric getMetric() {
-        return metric;
-    }
-
-    public void setMetric(Metric metric) {
-        this.metric = metric;
     }
 
     public ProjectVersion getProjectVersion() {
@@ -63,21 +49,6 @@ public class ProjectVersionMeasurement extends DAObject{
         this.projectVersion = projectVersion;
     }
 
-    public Timestamp getWhenRun() {
-        return whenRun;
-    }
-
-    public void setWhenRun(Timestamp whenRun) {
-        this.whenRun = whenRun;
-    }
-        
-    public String getResult() {
-        return result;
-    }
-
-    public void setResult(String result) {
-        this.result = result;
-    }
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
