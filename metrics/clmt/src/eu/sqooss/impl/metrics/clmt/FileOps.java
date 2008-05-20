@@ -33,11 +33,11 @@
 
 package eu.sqooss.impl.metrics.clmt;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import eu.sqooss.service.db.ProjectFile;
+import eu.sqooss.service.fds.FDSService;
 import eu.sqooss.service.fds.InMemoryCheckout;
 import eu.sqooss.service.fds.InMemoryDirectory;
 
@@ -46,6 +46,7 @@ public class FileOps {
     private static final FileOps instance;
     
     private ThreadLocal<InMemoryCheckout> imc = new ThreadLocal<InMemoryCheckout>();
+    private ThreadLocal<FDSService> fds = new ThreadLocal<FDSService>();
     
     static {
         instance = new FileOps();
@@ -56,8 +57,11 @@ public class FileOps {
     }
     
     public synchronized void setInMemoryCheckout(InMemoryCheckout imc) {
-        System.err.println("Thread id " + Thread.currentThread().getId() + " setting local" + imc.toString());
         this.imc.set(imc);
+    }
+    
+    public synchronized void setFDS(FDSService fds) {
+        this.fds.set(fds);
     }
 
     public boolean exists(String path) {
@@ -121,8 +125,8 @@ public class FileOps {
         return files;
     }
     
-    public InputStream getInputStream(String path) {
+    public synchronized byte[] getFileContents(String path) {
         ProjectFile f = imc.get().getRoot().getFile(path);
-        return null;
+        return fds.get().getFileContents(f);
     }
 }

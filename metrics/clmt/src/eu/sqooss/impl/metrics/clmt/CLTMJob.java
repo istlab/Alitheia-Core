@@ -90,6 +90,10 @@ public class CLTMJob extends AbstractMetricJob {
     }
 
     public void run() {
+        if(!db.startDBSession()) {
+            log.error("No DBSession could be opened!");
+            return;
+        }
         List<Metric> lm = parent.getSupportedMetrics();
         StringBuilder metricCalc = new StringBuilder();
         InMemoryCheckout imc = null;
@@ -109,6 +113,7 @@ public class CLTMJob extends AbstractMetricJob {
         }
        
         FileOps.instance().setInMemoryCheckout(imc);
+        FileOps.instance().setFDS(fds);
         
         /*CMLT Init*/
         CLMTProperties clmtProp = CLMTProperties.getInstance();
@@ -165,6 +170,7 @@ public class CLTMJob extends AbstractMetricJob {
         }
         
         System.out.println(mrlist.toString());
+        db.commitDBSession();
     }
 }
 
