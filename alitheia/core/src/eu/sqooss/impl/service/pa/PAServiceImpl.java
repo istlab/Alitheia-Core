@@ -640,22 +640,22 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
                     " plugin <" + p.getName() + "> bundle.");
             return;
         }
-        // Check for not installed metric plug-in
+        // Check for installed metric plug-in
         if (pi.installed == false) {
-            logger.warn("Ignoring configuration update for not installed" +
-                    " plugin <" + p.getName() + ">");
-            
-            return;
+            ServiceReference srefPlugin = pi.getServiceRef();
+            Plugin pDao = pluginRefToPluginDAO(srefPlugin);
+            pi = createInstalledPI(srefPlugin, pDao);
+            if (pi != null) {
+                registeredPlugins.put(pi.getHashcode(), pi);
+                logger.info("Plug-in (" + p.getName()
+                        + ") successfuly updated");
+            }
         }
-
-        ServiceReference srefPlugin = pi.getServiceRef();
-        Plugin pDao = pluginRefToPluginDAO(srefPlugin);
-        pi = createInstalledPI(srefPlugin, pDao);
-        if (pi != null) {
-            registeredPlugins.put(pi.getHashcode(), pi);
-            logger.info("Plugin (" + pi.getPluginName() + ") updated");
+        // The given metric plug-in is not installed
+        else {
+            logger.warn("Ignoring configuration update for registered"
+                    + " plug-in (" + p.getName() + ")");
         }
-
     }
 
     public AlitheiaPlugin getImplementingPlugin(String mnemonic) {
