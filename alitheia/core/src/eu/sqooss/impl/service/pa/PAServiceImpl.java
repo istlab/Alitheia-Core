@@ -662,7 +662,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
                 Plugin p = pluginRefToPluginDAO(sr);
                 List<Metric> lm = Plugin.getSupportedMetrics(p);
                 for (Metric m : lm){
-                    if (m.getMnemonic() == mnemonic) {
+                    if (m.getMnemonic().equals(mnemonic)) {
                         return getPlugin(pi);
                     }
                 }
