@@ -649,6 +649,10 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
                 registeredPlugins.put(pi.getHashcode(), pi);
                 logger.info("Plug-in (" + p.getName()
                         + ") successfuly updated");
+                // TODO: Not sure, if this is the correct plug-in method
+                //       to call upon configuration update, but it is the
+                //       only one which performs something in that scope.
+                getPlugin(pi).update();
             }
         }
         // The given metric plug-in is not installed
