@@ -221,8 +221,14 @@ public interface AlitheiaPlugin {
     List<Class<? extends DAObject>> getActivationTypes();
     
     /**
-     * Get the plugin's configuration schema. 
-     * @return A list of PluginConfiguration objects
+     * Retrieves the list of configuration properties for this plug-in.
+     * <br/>
+     * Metric plug-ins can use the <code>AbstractMetric</code>'s
+     * <code>addConfigEntry</code> and <code>removeConfigEntry</code> methods
+     * to manage their own configuration schema.
+     * 
+     * @return The list of the existing configuration properties for
+     *   this plug-in.
      */
     List<PluginConfiguration> getConfigurationSchema();
     

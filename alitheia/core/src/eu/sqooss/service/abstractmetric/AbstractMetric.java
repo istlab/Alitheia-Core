@@ -439,11 +439,9 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     public final String getUniqueKey() {
         return DigestUtils.md5Hex(this.getClass().getCanonicalName());
     }
-    
-    /**
-     * Get the configuration options for this plug-in. Concrete plug-ins
-     * can use the addConfigEntry and removeConfigEntry methods to 
-     * change the configuration schema.
+
+    /* (non-Javadoc)
+     * @see eu.sqooss.service.abstractmetric.AlitheiaPlugin#getConfigurationSchema()
      */
     public final List<PluginConfiguration> getConfigurationSchema() {
         // Retrieve the plug-in's info object
@@ -484,7 +482,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
                     pa.pluginUpdated(pa.getPlugin(pi));
                 }
                 else {
-                    log.error("Property [" + name +"] update has failed!"
+                    log.error("Property (" + name +") update has failed!"
                         + " Check log for details.");
                 }
             }
@@ -496,13 +494,13 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
                     pa.pluginUpdated(pa.getPlugin(pi));
                 }
                 else {
-                    log.error("Property [" + name +"] append has failed!"
+                    log.error("Property (" + name +") append has failed!"
                         + " Check log for details.");
                 }
             }
         }
         catch (Exception ex){
-            log.error("Can not modify property [" + name +"] : "
+            log.error("Can not modify property (" + name +") : "
                     + ex.toString());
         }
     }
@@ -531,20 +529,20 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
                     pa.pluginUpdated(pa.getPlugin(pi));
                 }
                 else {
-                    log.error("Property [" + name +"] remove has failed!"
+                    log.error("Property (" + name +") remove has failed!"
                             + " Check log for details.");
                 }
             }
             else {
-                log.error("Property [" + name +"] does not exist!");
+                log.error("Property (" + name +") does not exist!");
             }
         }
         catch (Exception ex){
-            log.error("Can not remove property [" + name +"] : "
+            log.error("Can not remove property (" + name +") : "
                     + ex.toString());
         }
     }
-    
+
     public final List<String> getMetricDependencies() {
         return this.metricDependencies;
     }
