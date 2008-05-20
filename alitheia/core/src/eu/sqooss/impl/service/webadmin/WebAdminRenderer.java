@@ -90,6 +90,8 @@ import eu.sqooss.service.webadmin.WebadminService;
 /**
  * The WebAdminRender class provdies functions for rendering content
  * to be displayed within the WebAdmin interface.
+ *
+ * @author, Paul J. Adams <paul.adams@siriusit.co.uk>
  */
 public class WebAdminRenderer {
     // Core components
