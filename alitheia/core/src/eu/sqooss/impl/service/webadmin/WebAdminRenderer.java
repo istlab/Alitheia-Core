@@ -573,8 +573,100 @@ public class WebAdminRenderer {
                 b.append(sp(++in) + "<legend>"
                         + selPI.getPluginName()
                         + "</legend>\n");
+                //============================================================
+                // Create the plug-in info table
+                //============================================================
+                b.append(sp(in) + "<table>\n");
+                b.append(sp(++in) + "<thead>\n");
+                b.append(sp(++in) + "<tr class=\"head\">\n");
+                b.append(sp(++in) + "<td class=\"head\""
+                        + " style=\"width: 80px;\">"
+                        + "Status</td>\n");
+                b.append(sp(in) + "<td class=\"head\""
+                        + " style=\"width: 30%;\">"
+                        + "Name</td>\n");
+                b.append(sp(in) + "<td class=\"head\""
+                        + " style=\"width: 40%;\">"
+                        + "Class</td>\n");
+                b.append(sp(in) + "<td class=\"head\">Version</td>\n");
+                b.append(sp(--in) + "</tr>\n");
+                b.append(sp(--in) + "</thead>\n");
+                // Display the plug-in's info
+                b.append(sp(in) + "<tbody>\n");
+                b.append(sp(in++) + "<tr>\n");
+                // Plug-in state
+                b.append(sp(++in) + "<td>"
+                        + ((selPI.installed) 
+                                ? "Installed" : "Registered")
+                                + "</td>\n");
+                // Plug-in name
+                b.append(sp(in) + "<td>"
+                        + selPI.getPluginName() + "</td>\n");
+                // Plug-in class
+                b.append(sp(in) + "<td>"
+                        + StringUtils.join((String[]) (
+                                selPI.getServiceRef().getProperty(
+                                        Constants.OBJECTCLASS)),",")
+                                        + "</td>\n");
+                // Plug-in version
+                b.append(sp(in) + "<td>"
+                        + selPI.getPluginVersion() + "</td>\n");
+                b.append(sp(--in) + "</tr>\n");
+                // Plug-in tool-bar
+                b.append(sp(in++) + "<tr>\n");
+                b.append(sp(in++) + "<td colspan=\"4\">\n");
+                b.append(sp(in) + "<input type=\"button\""
+                        + " class=\"install\""
+                        + " style=\"width: 100px;\""
+                        + " value=\"Plug-ins list\""
+                        + " onclick=\"javascript:"
+                        + "document.getElementById('"
+                        + reqParHashcode + "').value='';"
+                        + "document.metrics.submit();\""
+                        + ">\n");
                 if (selPI.installed) {
+                    b.append(sp(in) + "<input type=\"button\""
+                            + " class=\"install\""
+                            + " style=\"width: 100px;\""
+                            + " value=\"Uninstall\""
+                            + " onclick=\"javascript:"
+                            + "document.getElementById('"
+                            + reqParAction + "').value='"
+                            + actValUninstall + "';"
+                            + "document.getElementById('"
+                            + reqParHashcode +"').value='"
+                            + selPI.getHashcode() + "';"
+                            + "document.metrics.submit();\""
+                            + ">\n");
+                }
+                else {
+                    b.append(sp(in) + "<input type=\"button\""
+                            + " class=\"install\""
+                            + " style=\"width: 100px;\""
+                            + " value=\"Install\""
+                            + " onclick=\"javascript:"
+                            + "document.getElementById('"
+                            + reqParAction + "').value='"
+                            + actValInstall + "';"
+                            + "document.getElementById('"
+                            + reqParHashcode +"').value='"
+                            + selPI.getHashcode() + "';"
+                            + "document.metrics.submit();\""
+                            + ">\n");
+                }
+                b.append(sp(--in) + "</td>\n");
+                b.append(sp(--in) + "</tr>\n");
+                // Close the plug-in table
+                b.append(sp(--in) + "</tbody>\n");
+                b.append(sp(--in) + "</table>\n");
+
+                //============================================================
+                // Registered metrics, activators and configuration 
+                //============================================================
+                if (selPI.installed) {
+                    //========================================================
                     // Create the metrics field-set
+                    //========================================================
                     b.append(sp(++in) + "<fieldset>\n");
                     b.append(sp(++in) + "<legend>"
                             + "Supported metrics"
@@ -631,8 +723,9 @@ public class WebAdminRenderer {
                     b.append(sp(--in) + "</table>\n");
                     // Close the metric field-set
                     b.append(sp(--in) + "</fieldset>\n");
-
+                    //========================================================
                     // Create the properties field-set
+                    //========================================================
                     b.append(sp(++in) + "<fieldset>\n");
                     b.append(sp(++in) + "<legend>"
                             + "Configuration properties"
@@ -725,49 +818,7 @@ public class WebAdminRenderer {
                     // Close the properties field-set
                     b.append(sp(--in) + "</fieldset>\n");
                 }
-                else {
-                    b.append ("This plug-in is not installed.<br/>");
-                }
-                // Plug-in tool-bar
-                b.append(sp(++in) + "<input type=\"button\""
-                        + " class=\"install\""
-                        + " style=\"width: 100px;\""
-                        + " value=\"Plug-ins list\""
-                        + " onclick=\"javascript:"
-                        + "document.getElementById('"
-                        + reqParHashcode + "').value='';"
-                        + "document.metrics.submit();\""
-                        + ">\n");
-                if (selPI.installed) {
-                    b.append(sp(in) + "<input type=\"button\""
-                            + " class=\"install\""
-                            + " style=\"width: 100px;\""
-                            + " value=\"Uninstall\""
-                            + " onclick=\"javascript:"
-                            + "document.getElementById('"
-                            + reqParAction + "').value='"
-                            + actValUninstall + "';"
-                            + "document.getElementById('"
-                            + reqParHashcode +"').value='"
-                            + selPI.getHashcode() + "';"
-                            + "document.metrics.submit();\""
-                            + ">\n");
-                }
-                else {
-                    b.append(sp(in) + "<input type=\"button\""
-                            + " class=\"install\""
-                            + " style=\"width: 100px;\""
-                            + " value=\"Install\""
-                            + " onclick=\"javascript:"
-                            + "document.getElementById('"
-                            + reqParAction + "').value='"
-                            + actValInstall + "';"
-                            + "document.getElementById('"
-                            + reqParHashcode +"').value='"
-                            + selPI.getHashcode() + "';"
-                            + "document.metrics.submit();\""
-                            + ">\n");
-                }
+
                 // Close the plug-in field-set
                 b.append(sp(--in) + "</fieldset>\n");
             }
@@ -803,22 +854,8 @@ public class WebAdminRenderer {
                 for(PluginInfo i : l) {
                     if (i.installed == false) {
                         b.append(sp(in) + "<tr class=\"uninstalled\">\n");
-                        // Command tool-bar
-                        b.append(sp(++in) + "<td style=\"padding: 0;\">");
-                        b.append("<input"
-                                + " type=\"button\""
-                                + " class=\"expand\""
-                                + " value=\"INSTALL\""
-                                + " onclick=\"javascript:"
-                                + "document.getElementById('"
-                                + reqParAction + "').value='"
-                                + actValInstall + "';"
-                                + "document.getElementById('"
-                                + reqParHashcode +"').value='"
-                                + i.getHashcode() + "';"
-                                + "document.metrics.submit();\""
-                                + ">");
-                        b.append("</td>\n");
+                        // Plug-in state
+                        b.append(sp(++in) + "<td>Registered</td>\n");
                         // Plug-in information
                         String htmlEditPlugin = sp(in) + "<td class=\"edit\""
                             + " onclick=\"javascript:"
@@ -847,22 +884,8 @@ public class WebAdminRenderer {
                 for(PluginInfo i : l) {
                     if (i.installed) {
                         b.append(sp(in) + "<tr>\n");
-                        // Command tool-bar
-                        b.append(sp(++in) + "<td style=\"padding: 0;\">");
-                        b.append("<input"
-                                + " type=\"button\""
-                                + " class=\"expand\""
-                                + " value=\"UNINSTALL\""
-                                + " onclick=\"javascript:"
-                                + "document.getElementById('"
-                                + reqParAction + "').value='"
-                                + actValUninstall  +"';"
-                                + "document.getElementById('"
-                                + reqParHashcode +"').value='"
-                                + i.getHashcode() + "';"
-                                + "document.metrics.submit();\""
-                                + ">");
-                        b.append("</td>\n");
+                        // Plug-in state
+                        b.append(sp(++in) + "<td>Installed</td>\n");
                         // Plug-in information
                         String htmlEditPlugin = sp(in) + "<td class=\"edit\""
                             + " onclick=\"javascript:"
