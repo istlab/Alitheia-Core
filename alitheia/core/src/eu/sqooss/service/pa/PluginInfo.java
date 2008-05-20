@@ -193,31 +193,6 @@ public class PluginInfo {
     }
 
     /**
-     * Verifies, if the specified configuration property exist in this
-     * plug-in's information object.
-     * 
-     * @param name the property's name
-     * @param type the property's type
-     * 
-     * @return <code>true</code>, if such property is found,
-     *   or <code>false</code> otherwise.
-     */
-    public boolean hasConfProp (String name, String type) {
-        // Check if all values are valid
-        if ((name == null) || (type == null)) {
-            return false;
-        }
-        // Search for a matching property
-        for (PluginConfiguration property : config) {
-            if ((property.getName().equals(name))
-                    && (property.getType().equals(type))) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
      * Returns the Id of the given configuration property.
      * 
      * @param name the property's name
@@ -242,7 +217,21 @@ public class PluginInfo {
     }
 
     /**
-     * Sets a new value of existing metric plugin's configuration parameter
+     * Verifies, if the specified configuration property exist in this
+     * plug-in's information object.
+     * 
+     * @param name the property's name
+     * @param type the property's type
+     * 
+     * @return <code>true</code>, if such property is found,
+     *   or <code>false</code> otherwise.
+     */
+    public boolean hasConfProp (String name, String type) {
+        return ((getConfPropId(name, type) == null) ? false : true);
+    }
+
+    /**
+     * Sets a new value of existing metric plugin's configuration property
      * by creating a new database record.
      * 
      * @param db the DB components object
@@ -254,7 +243,7 @@ public class PluginInfo {
      *   when a corresponding database record does not exist.
      * 
      * @throws <code>Exception</code> upon incorrect value's syntax, or
-     *   invalid parameter's type.
+     *   invalid property's type.
      */
     public boolean updateConfigEntry(DBService db, String name, String newVal)
         throws Exception {
@@ -262,15 +251,15 @@ public class PluginInfo {
         if (name == null) {
             throw new Exception("Invalid name!");
         }
-        // Check if such configuration parameter exists
+        // Check if such configuration property exists
         for (PluginConfiguration pc : config) {
             if (pc.getName().equals(name)) {
-                // Retrieve the configuration parameter's type
+                // Retrieve the configuration property's type
                 ConfigurationType type = 
                     ConfigurationType.fromString(pc.getType());
                 // Check for invalid type
                 if (type == null) {
-                    throw new Exception("Invalid parameter's type!");
+                    throw new Exception("Invalid property's type!");
                 }
                 // Check for a boolean type
                 else if (type.equals(ConfigurationType.BOOLEAN)) {
@@ -288,7 +277,7 @@ public class PluginInfo {
                     }
                 }
 
-                // Update the given configuration parameter
+                // Update the given configuration property
                 // NOTE: We can not update "pc" directly, since it is detached
                 // i.e. the DB session that retrieved it is closed long ago.
                 PluginConfiguration updateDAO =
@@ -303,7 +292,7 @@ public class PluginInfo {
     }
 
     /**
-     * Adds a new configuration parameter for this metric plug-in by creating
+     * Adds a new configuration property for this metric plug-in by creating
      * a new database record for it.
      * 
      * @param db the DB components object
@@ -316,7 +305,7 @@ public class PluginInfo {
      *   when a corresponding database record can not be created.
      * 
      * @throws <code>Exception</code> upon incorrect value's syntax,
-     *   invalid parameter's type, or invalid parameter's name.
+     *   invalid property's type, or invalid property's name.
      */
     public boolean addConfigEntry(
             DBService db,
@@ -356,7 +345,7 @@ public class PluginInfo {
             }
         }
 
-        // Add the new configuration parameter
+        // Add the new configuration property
         PluginConfiguration newParam =
             new PluginConfiguration();
         newParam.setPlugin(Plugin.getPluginByHashcode(hashcode));
@@ -370,7 +359,7 @@ public class PluginInfo {
 }
 
     /**
-     * Removes an existing configuration parameter of this metric plug-in by
+     * Removes an existing configuration property of this metric plug-in by
      * deleting its database record.
      * 
      * @param db the DB components object
@@ -380,7 +369,7 @@ public class PluginInfo {
      * @return <code>true</code> upon successful remove, or <code>false</code>
      *   when a corresponding database record can not be found.
      * 
-     * @throws <code>Exception</code> upon invalid parameter's type or name.
+     * @throws <code>Exception</code> upon invalid property's type or name.
      */
     public boolean removeConfigEntry(
             DBService db,

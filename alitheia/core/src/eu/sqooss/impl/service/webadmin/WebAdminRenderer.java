@@ -307,7 +307,7 @@ public class WebAdminRenderer {
                 // Plug-in info based actions
                 if ((selPI != null) && (selPI.installed)) {
                     // =======================================================
-                    // Plug-in's configuration parameter removal
+                    // Plug-in's configuration property removal
                     // =======================================================
                     if (reqValAction.equals(actValConRemProp)) {
                         if (selPI.hasConfProp(
@@ -343,10 +343,10 @@ public class WebAdminRenderer {
                         }
                     }
                     // =======================================================
-                    // Plug-in's configuration parameter creation/update
+                    // Plug-in's configuration property creation/update
                     // =======================================================
                     else if (reqValAction.equals(actValConAddProp)) {
-                        // Check for a parameter update
+                        // Check for a property update
                         boolean update = selPI.hasConfProp(
                                 reqValPropName, reqValPropType);
                         // Update configuration property
@@ -458,7 +458,7 @@ public class WebAdminRenderer {
                                     + " value=\"" + value + "\">")
                                     + "</td>\n"
                                     + sp(--in) + "</tr>\n");
-                // Proeprty's description
+                // Property's description
                 value = ((reqValPropDescr != null) ? reqValPropDescr : "");
                 b.append(sp(in) + "<tr>\n"
                         + sp(++in)
@@ -659,11 +659,11 @@ public class WebAdminRenderer {
                             + ">\n");
                     b.append(sp(--in) + "</td>\n");
                     b.append(sp(--in) + "</tr>\n");
-                    // Close the parameters table
+                    // Close the properties table
                     b.append(sp(--in) + "</tbody>\n");
-                    // Close the parameters table
+                    // Close the properties table
                     b.append(sp(--in) + "</table>\n");
-                    // Close the parameters field-set
+                    // Close the properties field-set
                     b.append(sp(--in) + "</fieldset>\n");
                 }
                 else {
