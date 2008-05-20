@@ -278,14 +278,9 @@ public class PluginInfo {
                 }
 
                 // Update the given configuration property
-                // NOTE: We can not update "pc" directly, since it is detached
-                // i.e. the DB session that retrieved it is closed long ago.
-                PluginConfiguration updateDAO =
-                    db.findObjectById(PluginConfiguration.class, pc.getId());
-                if (updateDAO != null) {
-                    updateDAO.setValue(newVal);
-                    return true;
-                }
+                pc = db.attach(pc);
+                pc.setValue(newVal);
+                return true;
             }
         }
         return false;
