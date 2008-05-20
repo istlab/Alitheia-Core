@@ -51,6 +51,7 @@ class File extends WebuiItem {
         id = wsFile.getId();
         terrier = t;
         // TODO: measurements (and metrics?)
+        // TODO: isDirectory()?
     }
 
     public File(Long versionId, Long fileId, String name, String status, Terrier t) {
