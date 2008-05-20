@@ -98,7 +98,6 @@ class InMemoryCheckoutImpl implements InMemoryCheckout {
     protected void createCheckout(InMemoryDirectory dir) {
 
         DBService dbs = CoreActivator.getDBService();
-    	dbs.startDBSession();
     	
         StoredProject project = getProject();
         ProjectVersion version = ProjectVersion.getVersionByRevision(project, getRevision() );
@@ -131,8 +130,6 @@ class InMemoryCheckoutImpl implements InMemoryCheckout {
                 }
             }
         }
-        
-        dbs.commitDBSession();
     }
         
     public int claim() {
