@@ -60,6 +60,7 @@ import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Group;
 import eu.sqooss.service.db.GroupPrivilege;
+import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.PluginConfiguration;
 import eu.sqooss.service.db.Privilege;
 import eu.sqooss.service.db.PrivilegeValue;
@@ -573,6 +574,64 @@ public class WebAdminRenderer {
                         + selPI.getPluginName()
                         + "</legend>\n");
                 if (selPI.installed) {
+                    // Create the metrics field-set
+                    b.append(sp(++in) + "<fieldset>\n");
+                    b.append(sp(++in) + "<legend>"
+                            + "Supported metrics"
+                            + "</legend>\n");
+                    // Create the metrics table
+                    b.append(sp(in) + "<table>\n");
+                    b.append(sp(++in) + "<thead>\n");
+                    b.append(sp(++in) + "<tr class=\"head\">\n");
+                    b.append(sp(++in) + "<td class=\"head\""
+                            + " style=\"width: 10%;\">"
+                            + "Id</td>\n");
+                    b.append(sp(in) + "<td class=\"head\""
+                            + " style=\"width: 25%;\">"
+                            + "Name</td>\n");
+                    b.append(sp(in) + "<td class=\"head\""
+                            + " style=\"width: 25%;\">"
+                            + "Type</td>\n");
+                    b.append(sp(in) + "<td class=\"head\""
+                            + " style=\"width: 40%;\">"
+                            + "Description</td>\n");
+                    b.append(sp(--in) + "</tr>\n");
+                    b.append(sp(--in) + "</thead>\n");
+                    // Display the list of supported metrics
+                    b.append(sp(in++) + "<tbody>\n");
+                    // Get the list of supported metrics
+                    List<Metric> metrics =
+                        sobjPA.getPlugin(selPI).getSupportedMetrics();
+                    if ((metrics == null) || (metrics.isEmpty())) {
+                        b.append(sp(in++) + "<tr>");
+                        b.append(sp(in) + "<td colspan=\"4\" class=\"noattr\">"
+                                + "This plug-in does not support metrics."
+                                + "</td>\n");
+                        b.append(sp(--in)+ "</tr>\n");
+                    }
+                    else {
+                        for (Metric metric: metrics) {
+                            metric = sobjDB.attach(metric);
+                            b.append(sp(in++) + "<tr>\n");
+                            b.append(sp(in) + "<td>"
+                                    + metric.getId() + "</td>\n");
+                            b.append(sp(in) + "<td>"
+                                    + metric.getMnemonic() + "</td>\n");
+                            b.append(sp(in) + "<td>"
+                                    + metric.getMetricType().getType()
+                                    + "</td>\n");
+                            b.append(sp(in) + "<td>"
+                                    + metric.getDescription() + "</td>\n");
+                            b.append(sp(--in)+ "</tr>\n");
+                        }
+                    }
+                    // Close the metrics table
+                    b.append(sp(--in) + "</tbody>\n");
+                    // Close the metrics table
+                    b.append(sp(--in) + "</table>\n");
+                    // Close the metric field-set
+                    b.append(sp(--in) + "</fieldset>\n");
+
                     // Create the properties field-set
                     b.append(sp(++in) + "<fieldset>\n");
                     b.append(sp(++in) + "<legend>"
