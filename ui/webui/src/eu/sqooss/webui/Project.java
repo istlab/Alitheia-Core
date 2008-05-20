@@ -152,17 +152,17 @@ public class Project extends WebuiItem {
                         ? "<a href=\"" + getWebsite() + "\">" + getWebsite() + "</a>"
                         : "<i>undefined</i>"));
         html.append("\n\t\t</td>\n\t</tr>\n\t<tr>\n\t\t<td>");
-        html.append("<strong>Contact:</strong> \n\t\t</td><td>\n"
+        html.append(icon("mail-message-new") + "<strong>Contact:</strong> \n\t\t</td><td>\n"
                 + (getContact() != null 
                         ? "<a href=\"" + getContact() + "\">" + getContact() + "</a>"
                         : "<i>undefined</i>"));
         html.append("\n\t\t</td>\n\t</tr>\n\t<tr>\n\t\t<td>");
-        html.append("<strong>SVN Mirror:</strong> \n\t\t</td><td>\n"
+        html.append(icon("vcs_status") + "<strong>SVN Mirror:</strong> \n\t\t</td><td>\n"
                 + (getRepository() != null 
                         ? "<a href=\"files.jsp" + getId() + "\">" + getRepository() + "</a>"
                         : "<i>undefined</i>"));
         html.append("\n\t\t</td>\n\t</tr>\n\t<tr>\n\t\t<td>");
-        html.append("<strong>Bug Data:</strong> \n\t\t</td><td>\n"
+        html.append(icon("kbugbuster") + "<strong>Bug Data:</strong> \n\t\t</td><td>\n"
                 + (getBts() != null 
                         ? getBts()
                         : "<i>undefined</i>"));
