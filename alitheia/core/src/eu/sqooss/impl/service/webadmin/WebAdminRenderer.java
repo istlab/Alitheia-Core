@@ -92,6 +92,7 @@ import eu.sqooss.service.webadmin.WebadminService;
  * to be displayed within the WebAdmin interface.
  *
  * @author, Paul J. Adams <paul.adams@siriusit.co.uk>
+ * @author, Boryan Yotov <b.yotov@prosyst.com>
  */
 public class WebAdminRenderer {
     // Core components
