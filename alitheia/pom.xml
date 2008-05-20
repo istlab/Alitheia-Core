@@ -50,6 +50,7 @@
     <module>core</module>
     <module>tester</module>
     <module>web-services</module>
+    <module>specs</module>
   </modules>
 </project>
 

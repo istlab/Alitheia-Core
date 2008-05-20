@@ -66,6 +66,8 @@ clean-dir : clean-osgi clean-log
 clean-osgi :
 	rm -rf $(PREFIX)/configuration/org.eclipse.osgi/
 	rm -f $(PREFIX)/configuration/*.log
+	rm -rf $(PREFIX)/configuration-specs/org.eclipse.osgi/
+	rm -f $(PREFIX)/configuration-specs/*.log
 
 # Throw away all the logs that the system creates.
 clean-log :
@@ -155,8 +157,14 @@ stop-core :
 show-log :
 	@cat $(PREFIX)/logs/alitheia.log
 
+specs : clean-osgi
+	cd $(PREFIX) && \
+	$(JAVA_CMD) \
+	-Dosgi.configuration.area=$(PREFIX)/configuration-specs \
+	$(JAVA_CORE_ARGS)
+
 .PHONY : start-core start-core-bg start-core-debug start-core-monitor 
-.PHONY : stop-core show-log
+.PHONY : stop-core show-log test
 
 
 ###

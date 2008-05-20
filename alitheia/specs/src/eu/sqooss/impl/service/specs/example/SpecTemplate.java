@@ -1,4 +1,4 @@
-package spec.example;
+package eu.sqooss.impl.service.specs.example;
 
 import java.util.Collection;
 import java.util.ArrayList;
