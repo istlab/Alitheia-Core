@@ -74,10 +74,6 @@ public class MetricManagerDatabase implements MetricManagerDBQueries {
         return db.doHQL(GET_METRIC_TYPES_BY_IDS, null, queryParameters);
     }
     
-    public List<?> getMetrics() {
-        return db.doHQL(GET_METRICS);
-    }
-    
     public List<?> getMetricsByResourcesIds(WSMetricsRequest request) {
         long[] ids = request.getResourcesIds();
         Collection idsCollection = new ArrayList();

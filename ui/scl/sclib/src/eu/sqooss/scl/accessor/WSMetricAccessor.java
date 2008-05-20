@@ -79,21 +79,6 @@ public abstract class WSMetricAccessor extends WSAccessor {
     public abstract WSMetricType[] getMetricTypesByIds(long[] metricTypesIds) throws WSException;
     
     /**
-     * This method returns an array with all metrics, that are currently
-     * installed in the SQO-OSS framework.
-     * 
-     * @return The array with all installed metrics,
-     * or a empty array when none are found.
-     * 
-     * @throws WSException
-     * <ul>
-     *  <li>if the connection can't be established to the SQO-OSS's web services service</li>
-     *  <li>if web services service throws an exception</li>
-     * <ul>
-     */
-    public abstract WSMetric[] getMetrics() throws WSException;
-    
-    /**
      * The method looks for the metrics. The request object gives the search criteria. 
      * 
      * @param userName - the user's name used for authentication

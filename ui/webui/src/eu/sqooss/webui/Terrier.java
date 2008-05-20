@@ -49,6 +49,7 @@ import eu.sqooss.scl.accessor.WSProjectAccessor;
 import eu.sqooss.scl.accessor.WSUserAccessor;
 import eu.sqooss.ws.client.datatypes.WSMetric;
 import eu.sqooss.ws.client.datatypes.WSMetricType;
+import eu.sqooss.ws.client.datatypes.WSMetricsRequest;
 import eu.sqooss.ws.client.datatypes.WSProjectFile;
 import eu.sqooss.ws.client.datatypes.WSProjectVersion;
 import eu.sqooss.ws.client.datatypes.WSStoredProject;
@@ -332,7 +333,13 @@ public class Terrier {
         }
         MetricsTableView metricTableView = new MetricsTableView();
         try {
-            WSMetric[] allMetrics = connection.getMetricAccessor().getMetrics();
+            WSMetricsRequest request = new WSMetricsRequest();
+            request.setSkipResourcesIds(true);
+            request.setIsFileGroup(true);
+            request.setIsProjectFile(true);
+            request.setIsProjectVersion(true);
+            request.setIsStoredProject(true);
+            WSMetric[] allMetrics = connection.getMetricAccessor().getMetricsByResourcesIds(request);
             for (WSMetric wsMetric : allMetrics) {
                 metricTableView.addMetric(new Metric(wsMetric, this));
             }

@@ -47,12 +47,10 @@ import eu.sqooss.ws.client.datatypes.WSMetricsResultRequest;
 import eu.sqooss.ws.client.datatypes.WSResultEntry;
 import eu.sqooss.ws.client.ws.GetMetricTypesByIds;
 import eu.sqooss.ws.client.ws.GetMetricTypesByIdsResponse;
-import eu.sqooss.ws.client.ws.GetMetrics;
 import eu.sqooss.ws.client.ws.GetMetricsByProjectId;
 import eu.sqooss.ws.client.ws.GetMetricsByProjectIdResponse;
 import eu.sqooss.ws.client.ws.GetMetricsByResourcesIds;
 import eu.sqooss.ws.client.ws.GetMetricsByResourcesIdsResponse;
-import eu.sqooss.ws.client.ws.GetMetricsResponse;
 import eu.sqooss.ws.client.ws.GetMetricsResult;
 import eu.sqooss.ws.client.ws.GetMetricsResultResponse;
 
@@ -62,8 +60,6 @@ class WSMetricAccessorImpl extends WSMetricAccessor {
     
     private static final String METHOD_NAME_GET_METRIC_TYPES_BY_IDS      = "getMetricTypesByIds";
 
-    private static final String METHOD_NAME_GET_METRICS                  = "getMetrics";
-    
     private static final String METHOD_NAME_GET_METRICS_BY_RESOURCES_IDS = "getMetricsByResourcesIds";
 
     private static final String METHOD_NAME_GET_METRICS_RESULT           = "getMetricsResult";
@@ -142,37 +138,16 @@ class WSMetricAccessorImpl extends WSMetricAccessor {
     }
 
     /**
-     * @see eu.sqooss.scl.accessor.WSMetricAccessor#getMetrics()
-     */
-    @Override
-    public WSMetric[] getMetrics() throws WSException {
-        GetMetricsResponse response;
-        GetMetrics params;
-        if (!parameters.containsKey(METHOD_NAME_GET_METRICS)) {
-            params = new GetMetrics();
-            params.setPassword(password);
-            params.setUserName(userName);
-            parameters.put(METHOD_NAME_GET_METRICS, params);
-        } else {
-            params = (GetMetrics) parameters.get(METHOD_NAME_GET_METRICS);
-        }
-        synchronized (params) {
-            try {
-                response = wsStub.getMetrics(params);
-            } catch (RemoteException re) {
-                throw new WSException(re);
-            }
-        }
-        return (WSMetric[]) normaliseWSArrayResult(response.get_return());
-    }
-
-    /**
      * @see eu.sqooss.scl.accessor.WSMetricAccessor#getMetricsByResourcesIds(eu.sqooss.impl.service.web.services.datatypes.WSMetricsRequest)
      */
     @Override
     public WSMetric[] getMetricsByResourcesIds(WSMetricsRequest request) throws WSException {
         GetMetricsByResourcesIdsResponse response;
         GetMetricsByResourcesIds params;
+        if (request.getSkipResourcesIds()) {
+            //set not null array
+            request.setResourcesIds(new long[] {-1});
+        }
         if (!parameters.containsKey(METHOD_NAME_GET_METRICS_BY_RESOURCES_IDS)) {
             params = new GetMetricsByResourcesIds();
             params.setPassword(password);

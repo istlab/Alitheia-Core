@@ -123,22 +123,6 @@ public class MetricManager extends AbstractManager {
     }
     
     /**
-     * @see eu.sqooss.service.web.services.WebServices#getMetrics(String, String)
-     */
-    public WSMetric[] getMetrics(String userName, String password) {
-        logger.info("Get metrics! user: " + userName);
-        
-        securityWrapper.checkMetricsReadAccess(userName, password, null);
-        
-        super.updateUserActivity(userName);
-        
-        db.startDBSession();
-        WSMetric[] wsMetrics = convertToWSMetrics(dbWrapper.getMetrics());
-        db.commitDBSession();
-        return wsMetrics;
-    }
-    
-    /**
      * @see eu.sqooss.service.web.services.WebServices#getMetricsByResourcesIds(String, String, WSMetricsRequest)
      */
     public WSMetric[] getMetricsByResourcesIds(

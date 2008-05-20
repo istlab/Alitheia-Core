@@ -387,20 +387,6 @@ public class WebServices {
     }
     
     /**
-     * This method returns an array with all metrics, that are currently
-     * installed in the SQO-OSS framework.
-     * 
-     * @param userName - the user's name used for authentication
-     * @param password - the user's password used for authentication
-     * 
-     * @return The array with all installed metrics, or a <code>null</code>
-     *   array when none are found.
-     */
-    public WSMetric[] getMetrics(String userName, String password) {
-        return metricManager.getMetrics(userName, password);
-    }
-
-    /**
      * The method looks for the metrics. The request object gives the search criteria. 
      * 
      * @param userName - the user's name used for authentication

@@ -43,9 +43,6 @@ interface MetricManagerDBQueries {
                                                            GET_METRICS_BY_PROJECT_ID_PARAM;
     
     
-    public static final String GET_METRICS = "from Metric";
-    
-    
     public static final String GET_METRICS_BY_RESOURCES_IDS_PARAM = "list_of_ids";
     
     public static final String GET_METRICS_BY_RESOURCES_IDS_STORED_PROJECTS = "select spm.metric " +
