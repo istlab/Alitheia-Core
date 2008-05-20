@@ -339,4 +339,13 @@ public class Project extends WebuiItem {
         fileCount = files.size();
         return files;
     }
+
+    public String listFiles() {
+        Vector<File> fs = terrier.getFiles4Project(id);
+        FileListView view = new FileListView();
+        view.setFiles(fs);
+        return view.getHtml();
+    }
+
+
 }

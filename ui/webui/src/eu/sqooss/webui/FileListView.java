@@ -39,7 +39,7 @@ import java.util.Vector;
 
 public class FileListView extends ListView {
 
-    private Vector<eu.sqooss.webui.File> files = new Vector<File>();
+    private Vector<File> files = new Vector<File>();
 
     // Contains the ID of the selected project, if any
     private Long projectId;
@@ -53,6 +53,10 @@ public class FileListView extends ListView {
 
     public void addFile(eu.sqooss.webui.File file) {
         files.add(file);
+    }
+
+    public void setFiles(Vector<File> files) {
+        this.files = files;
     }
 
     public Vector<String> filterItems (Vector<String> items) {
