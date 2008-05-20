@@ -82,9 +82,6 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     /** Reference to the DB service, not to be passed to metric jobs */
     protected PluginAdmin pa;
     
-    /**PLug-in configuration schema*/
-    protected List<PluginConfiguration> config = null;
-    
     /** Cache the metrics list on first access*/
     protected List<Metric> metrics = null;
 
@@ -430,7 +427,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     
     protected final void addActivationType(Class<? extends DAObject> c) {
         activationTypes.add(c);
-        // Call the PA only on started metric bundles
+        // Call the Plug-in Admin only on started metric bundles
         if (bc.getBundle().getState() == Bundle.ACTIVE) {
             pa.pluginUpdated(this);
         }
@@ -449,70 +446,103 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      * change the configuration schema.
      */
     public final List<PluginConfiguration> getConfigurationSchema() {
-        return config;
+        // Retrieve the plug-in's info object
+        PluginInfo pi = pa.getPluginInfo(getUniqueKey());
+        if (pi == null) {
+            // The plug-in's info object is always null during bundle startup
+            if (bc.getBundle().getState() == Bundle.ACTIVE) {
+                log.error("Invalid plug-in's info object!");
+            }
+            return new ArrayList<PluginConfiguration>();
+        }
+        return pi.getConfiguration();
     }
-    
+
     /**
      * Add an entry to this plug-in's configuration schema.
      * 
      * @param name The name of the configuration property
      * @param defValue The default value for the configuration property
+     * @param msg The description of the configuration property
      * @param type The type of the configuration property
      */
     protected final void addConfigEntry(String name, String defValue, 
             String msg, PluginInfo.ConfigurationType type) {
-        
-        
-        Plugin p = Plugin.getPluginByHashcode(getUniqueKey());
-        List<PluginConfiguration> pcList = Plugin.getConfigEntries(p);
-        Iterator<PluginConfiguration> i = pcList.iterator();
-        PluginConfiguration pc = null;
-        boolean found = false;
-        
-        while(i.hasNext()) {
-            pc = i.next();
-            /*Found entry, update*/
-            if (pc.getName() == name) {
-                pc.setValue(defValue);
-                pc.setMsg(msg);
-                pc.setType(type.toString());
-                found = true;
-                break;
+        // Retrieve the plug-in's info object
+        PluginInfo pi = pa.getPluginInfo(getUniqueKey());
+        // Will happen if called during bundle's startup
+        if (pi == null) {
+            log.error("Invalid plug-in's info object!");
+            return;
+        }
+        // Modify the plug-in's configuration
+        try {
+            // Update property
+            if (pi.hasConfProp(name, type.toString())) {
+                if (pi.updateConfigEntry(db, name, defValue)) {
+                    // Update the Plug-in Admin's information
+                    pa.pluginUpdated(pa.getPlugin(pi));
+                }
+                else {
+                    log.error("Property [" + name +"] update has failed!"
+                        + " Check log for details.");
+                }
+            }
+            // Create property
+            else {
+                if (pi.addConfigEntry(
+                        db, name, msg, type.toString(), defValue)) {
+                    // Update the Plug-in Admin's information
+                    pa.pluginUpdated(pa.getPlugin(pi));
+                }
+                else {
+                    log.error("Property [" + name +"] append has failed!"
+                        + " Check log for details.");
+                }
             }
         }
-        /*Not found, create entry*/
-        if (!found) {
-            pc = new PluginConfiguration();
-            pc.setName(name);
-            pc.setValue(defValue);
-            pc.setMsg(msg);
-            pc.setType(type.toString());
-            pc.setPlugin(p);
+        catch (Exception ex){
+            log.error("Can not modify property [" + name +"] : "
+                    + ex.toString());
         }
-        if (db.addRecord(pc))
-            pa.pluginUpdated(this);
     }
-    
+
     /**
      * Remove an entry from the plug-in's configuration schema
+     * 
      * @param name The name of the configuration property to remove
+     * @param name The type of the configuration property to remove
      */
-    protected final void removeConfigEntry(String name) {
-        
-        Plugin p = Plugin.getPluginByHashcode(getUniqueKey());
-        List<PluginConfiguration> pcList = Plugin.getConfigEntries(p);
-        Iterator<PluginConfiguration> i = pcList.iterator();
-        PluginConfiguration pc = null;
-        
-        while(i.hasNext()) {
-            pc = i.next();
-            /*Found entry, remove*/
-            if (pc.getName() == name) {
-                db.deleteRecord(pc);
-                break;
+    protected final void removeConfigEntry(
+            String name,
+            PluginInfo.ConfigurationType type) {
+        // Retrieve the plug-in's info object
+        PluginInfo pi = pa.getPluginInfo(getUniqueKey());
+        // Will happen if called during bundle's startup
+        if (pi == null) {
+            log.error("Invalid plug-in's info object!");
+            return;
+        }
+        // Modify the plug-in's configuration
+        try {
+            if (pi.hasConfProp(name, type.toString())) {
+                if (pi.removeConfigEntry(db, name, type.toString())) {
+                    // Update the Plug-in Admin's information
+                    pa.pluginUpdated(pa.getPlugin(pi));
+                }
+                else {
+                    log.error("Property [" + name +"] remove has failed!"
+                            + " Check log for details.");
+                }
+            }
+            else {
+                log.error("Property [" + name +"] does not exist!");
             }
         }
-        pa.pluginUpdated(this);
+        catch (Exception ex){
+            log.error("Can not remove property [" + name +"] : "
+                    + ex.toString());
+        }
     }
     
     public final List<String> getMetricDependencies() {

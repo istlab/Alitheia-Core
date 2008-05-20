@@ -167,7 +167,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
      * 
      * @return The service Id.
      */
-    private Long getServiceID (String hash) {
+    private Long getServiceId (String hash) {
         if ((hash != null) && (registeredPlugins.containsKey(hash))) {
             // Get the plug-in info object pointed by the given hash
             PluginInfo infoPlugin = registeredPlugins.get(hash);
@@ -260,11 +260,15 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
             logger.debug(
                     "Creating info object for registered plug-in "
                     + sobjPlugin.getName());
-            PluginInfo pluginInfo = new PluginInfo();
-            pluginInfo.setPluginName(sobjPlugin.getName());
-            pluginInfo.setPluginVersion(sobjPlugin.getVersion());
+//            PluginInfo pluginInfo = new PluginInfo();
+//            pluginInfo.setPluginName(sobjPlugin.getName());
+//            pluginInfo.setPluginVersion(sobjPlugin.getVersion());
+//            pluginInfo.setServiceRef(srefPlugin);
+//            pluginInfo.setHashcode(getServiceId(srefPlugin).toString());
+            PluginInfo pluginInfo =
+                new PluginInfo(sobjPlugin.getConfigurationSchema(), sobjPlugin);
             pluginInfo.setServiceRef(srefPlugin);
-            pluginInfo.setHashcode(getServiceId(srefPlugin).toString());
+            pluginInfo.setHashcode(sobjPlugin.getUniqueKey());
             // Mark as not installed
             pluginInfo.installed = false;
             return pluginInfo;
@@ -464,7 +468,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
      * @see eu.sqooss.service.pa.PluginAdmin#installPlugin(java.lang.String)
      */
     public boolean installPlugin(String hash) {
-        Long sid = getServiceID(hash);
+        Long sid = getServiceId(hash);
         if (sid != null) {
             return installPlugin (sid);
         }
@@ -502,10 +506,11 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
                                 daoPlugin);
                         if (pluginInfo != null) {
                             // Remove the old "registered" info object
-                            registeredPlugins.remove(serviceID.toString());
+                            registeredPlugins.remove(
+                                    sobjPlugin.getUniqueKey());
                             // Store the info object
-                            registeredPlugins.put(pluginInfo.getHashcode(),
-                                    pluginInfo);
+                            registeredPlugins.put(
+                                    pluginInfo.getHashcode(), pluginInfo);
                             return true;
                         }
                     }
@@ -525,7 +530,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
      * @see eu.sqooss.service.pa.PluginAdmin#uninstallPlugin(java.lang.String)
      */
     public boolean uninstallPlugin(String hash) {
-        Long sid = getServiceID(hash);
+        Long sid = getServiceId(hash);
         if (sid != null) {
             return uninstallPlugin (sid);
         }
@@ -627,13 +632,15 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
     }
 
     public void pluginUpdated(AlitheiaPlugin p) {
-    
+        // Get the plug-in's info object
         PluginInfo pi = getPluginInfo(p);
+        // Will happen if called during bundle's startup
         if (pi == null) {
-            logger.warn("Ignoring configuration update for not registered" +
-                    " plugin <" + p.getName() + ">");
+            logger.warn("Ignoring configuration update for not active" +
+                    " plugin <" + p.getName() + "> bundle.");
             return;
         }
+        // Check for not installed metric plug-in
         if (pi.installed == false) {
             logger.warn("Ignoring configuration update for not installed" +
                     " plugin <" + p.getName() + ">");
@@ -641,13 +648,13 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
             return;
         }
 
-        ServiceReference srefPlugin = pi.getServiceRef(); 
+        ServiceReference srefPlugin = pi.getServiceRef();
         Plugin pDao = pluginRefToPluginDAO(srefPlugin);
-
-        PluginInfo plugInfo = createInstalledPI(srefPlugin, pDao);
-        registeredPlugins.put(plugInfo.getHashcode(), plugInfo);
-
-        logger.info("Plugin (" + plugInfo.getPluginName() + ") updated");
+        pi = createInstalledPI(srefPlugin, pDao);
+        if (pi != null) {
+            registeredPlugins.put(pi.getHashcode(), pi);
+            logger.info("Plugin (" + pi.getPluginName() + ") updated");
+        }
 
     }
 
