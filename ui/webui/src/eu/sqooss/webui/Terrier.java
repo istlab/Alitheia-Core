@@ -356,7 +356,7 @@ public class Terrier {
         if (!connection.isConnected()) {
             return null;
         }
-        FileListView view = new FileListView(versionId);
+        FileListView view = new FileListView();
         try {
             try {
                 WSProjectFile[] files = connection.getProjectAccessor().getFilesByProjectVersionId(versionId);

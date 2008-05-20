@@ -1,4 +1,3 @@
-
 /*
  * This file is part of the Alitheia system, developed by the SQO-OSS
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
@@ -46,26 +45,14 @@ public class FileListView extends ListView {
     private Long projectId;
 
     public FileListView () {
-        //retrieveData();
-    }
-
-    public FileListView (Long projectId) {
-        this.projectId = projectId;
-        //retrieveData();
     }
     
     public Integer size() {
         return files.size();
     }
 
-
     public void addFile(eu.sqooss.webui.File file) {
         files.add(file);
-    }
-    
-
-    public void retrieveData () {
-        
     }
 
     public Vector<String> filterItems (Vector<String> items) {
@@ -79,7 +66,7 @@ public class FileListView extends ListView {
         Iterator<File> filesIterator = files.iterator();
         //html.append(pre);
         html.append(files.size() + " Files found \n<ul>\n");
-        html.append("\n<li> <a href=\"/files.jsp\">TheFirstFile</a> </li>");
+        //html.append("\n<li> <a href=\"/files.jsp\">TheFirstFile</a> </li>");
         while (filesIterator.hasNext()) {
             File nextFile = filesIterator.next();
             html.append(

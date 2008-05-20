@@ -55,7 +55,4 @@ abstract class ListView {
     }
 
     public abstract String getHtml();
-
-    public abstract void retrieveData ();
-
 }
