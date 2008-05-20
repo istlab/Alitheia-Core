@@ -76,7 +76,7 @@ endif
 
 # The invocation of WSDL2Java. For more options run the tool from the console.
 compile-wsdl : clean-src
-	java -cp $(ALL_CP) org.apache.axis2.wsdl.WSDL2Java \
+	$(JAVA_CMD) -cp '$(ALL_CP)' org.apache.axis2.wsdl.WSDL2Java \
 		-uri ws.wsdl -s -u -o . \
 		-p eu.sqooss.ws.client \
 		-ns2p http://datatypes.services.web.service.impl.sqooss.eu/xsd=eu.sqooss.ws.client.datatypes,http://services.web.service.sqooss.eu/xsd=eu.sqooss.ws.client.ws
