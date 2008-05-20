@@ -641,7 +641,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
             return;
         }
         // Check for installed metric plug-in
-        if (pi.installed == false) {
+        if (pi.installed) {
             ServiceReference srefPlugin = pi.getServiceRef();
             Plugin pDao = pluginRefToPluginDAO(srefPlugin);
             pi = createInstalledPI(srefPlugin, pDao);
