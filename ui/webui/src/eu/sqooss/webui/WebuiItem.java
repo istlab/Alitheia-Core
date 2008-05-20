@@ -137,6 +137,18 @@ public class WebuiItem {
         }
     }
 
+    public String icon(String name) {
+        return Functions.icon(name);
+    }
+    
+    public String icon(String name, int size) {
+        return Functions.icon(name, size);
+    }
+
+    public String icon(String name, int size, String tooltip) {
+        return Functions.icon(name, size, tooltip);
+    }
+
     public void addError(String html) {
         error.append(html);
     }

@@ -53,4 +53,25 @@ public class Functions {
         return "<strong><font color=\"orange\">" + msg + "</font></strong>";
     }
 
+    public static String icon(String name) {
+        return icon(name, 0);
+    }
+
+    public static String icon(String name, int size) {
+        return icon(name, size, name); // Just use name as tooltip for now
+    }
+
+    public static String icon(String name, int size, String tooltip) {
+        if (size == 0) {
+            size = 16;
+        }
+        StringBuilder html = new StringBuilder("<img src=\"/img/icons/");
+        html.append(size + "x" + size + "/");
+        html.append(name + ".png\" ");
+        html.append("alt=\"" + tooltip + "\" ");
+        html.append("title=\"" + tooltip + "\" ");
+        html.append("class=\"icon\" />");
+        return html.toString();
+    }
+
 }

@@ -64,9 +64,7 @@ public class FileListView extends ListView {
     public String getHtml() {
         StringBuffer html = new StringBuffer();
         Iterator<File> filesIterator = files.iterator();
-        //html.append(pre);
         html.append(files.size() + " Files found \n<ul>\n");
-        //html.append("\n<li> <a href=\"/files.jsp\">TheFirstFile</a> </li>");
         while (filesIterator.hasNext()) {
             File nextFile = filesIterator.next();
             html.append(

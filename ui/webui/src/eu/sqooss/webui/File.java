@@ -82,13 +82,25 @@ class File extends WebuiItem {
         return "<a href=\"files.jsp?fid=" + id + "\">" + name + "</a>";
     }
 
+    public String getStatusIcon() {
+        String iconname = "vcs_status";
+        String tooltip = "status unknown";
+        if (status.equals("ADDED")) {
+            iconname = "vcs_add";
+            tooltip = "file was added";
+        } else if (status.equals("MODIFIED")) {
+            iconname = "vcs_update";
+            tooltip = "file was modified";
+        } else if (status.equals("DELETED")) {
+            iconname = "vcs_remove";
+            tooltip = "file was removed";
+        }
+        return icon(iconname, 0, tooltip);
+    }
+
     public String getHtml() {
         StringBuilder html = new StringBuilder(COMMENT);
-        html.append("<b>File:</b> " + getLink());
-        // The next line shows the version ID, not the version number
-        //html.append(" <i>(ver." + getVersion() + ")</i>"); // Version
-        html.append(" <i>(" + getStatus() + ")</i>"); // Status
-        html.append("<br />");
+        html.append(getStatusIcon() + "&nbsp;" + getLink());
         return html.toString();
     }
 }

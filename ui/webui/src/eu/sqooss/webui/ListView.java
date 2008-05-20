@@ -55,4 +55,12 @@ abstract class ListView {
     }
 
     public abstract String getHtml();
+
+    public String icon(String name) {
+        return Functions.icon(name, 0);
+    }
+    
+    public String icon(String name, int size) {
+        return Functions.icon(name, size);
+    }
 }
