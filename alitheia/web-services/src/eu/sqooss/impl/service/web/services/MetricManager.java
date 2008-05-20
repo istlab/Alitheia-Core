@@ -40,6 +40,7 @@ import java.util.List;
 
 import eu.sqooss.impl.service.web.services.datatypes.WSMetric;
 import eu.sqooss.impl.service.web.services.datatypes.WSMetricType;
+import eu.sqooss.impl.service.web.services.datatypes.WSMetricsRequest;
 import eu.sqooss.impl.service.web.services.datatypes.WSMetricsResultRequest;
 import eu.sqooss.impl.service.web.services.datatypes.WSResultEntry;
 import eu.sqooss.impl.service.web.services.utils.MetricManagerDatabase;
@@ -50,10 +51,15 @@ import eu.sqooss.service.abstractmetric.Result;
 import eu.sqooss.service.abstractmetric.ResultEntry;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.FileGroup;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
+import eu.sqooss.service.db.ProjectFile;
+import eu.sqooss.service.db.ProjectVersion;
+import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.pa.PluginAdmin;
+import eu.sqooss.service.pa.PluginInfo;
 import eu.sqooss.service.security.SecurityManager;
 
 public class MetricManager extends AbstractManager {
@@ -132,6 +138,47 @@ public class MetricManager extends AbstractManager {
         return wsMetrics;
     }
     
+    /**
+     * @see eu.sqooss.service.web.services.WebServices#getMetricsByResourcesIds(String, String, WSMetricsRequest)
+     */
+    public WSMetric[] getMetricsByResourcesIds(
+            String userName,
+            String password,
+            WSMetricsRequest request) {
+        logger.info("Get metrics by resources ids! user: " + userName +
+                "; request: " + request.toString());
+        
+        securityWrapper.checkMetricsReadAccess(userName, password, null);
+        
+        super.updateUserActivity(userName);
+        
+        if (request.getSkipResourcesIds()) {
+            List<Metric> metrics = new ArrayList<Metric>();
+            if (request.getIsFileGroup()) {
+                metrics.addAll(getMetrics(pluginAdmin.
+                        listPluginProviders(FileGroup.class)));
+            }
+            if (request.getIsProjectFile()) {
+                metrics.addAll(getMetrics(pluginAdmin.
+                        listPluginProviders(ProjectFile.class)));
+            }
+            if (request.getIsProjectVersion()) {
+                metrics.addAll(getMetrics(pluginAdmin.
+                        listPluginProviders(ProjectVersion.class)));
+            }
+            if (request.getIsStoredProject()) {
+                metrics.addAll(getMetrics(pluginAdmin.
+                        listPluginProviders(StoredProject.class)));
+            }
+            return convertToWSMetrics(metrics);
+        } else {
+            db.startDBSession();
+            List<?> metrics = dbWrapper.getMetricsByResourcesIds(request);
+            db.commitDBSession();
+            return convertToWSMetrics(metrics);
+        }
+    }
+    
     @SuppressWarnings("unchecked")
     public WSResultEntry[] getMetricsResult(String userName, String password,
             WSMetricsResultRequest resultRequest) {
@@ -208,6 +255,18 @@ public class MetricManager extends AbstractManager {
             }
         }
         return plugins;
+    }
+    
+    private List<Metric> getMetrics(List<PluginInfo> pluginInfos) {
+        List<Metric> result = new ArrayList<Metric>();
+        AlitheiaPlugin currentPlugin;
+        for (PluginInfo pluginInfo : pluginInfos) {
+            currentPlugin = pluginAdmin.getPlugin(pluginInfo);
+            if (currentPlugin != null) {
+                result.addAll(currentPlugin.getSupportedMetrics());
+            }
+        }
+        return result;
     }
     
     private WSMetric[] convertToWSMetrics(List<?> metrics) {

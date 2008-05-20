@@ -35,10 +35,12 @@ package eu.sqooss.impl.service.web.services.utils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
+import eu.sqooss.impl.service.web.services.datatypes.WSMetricsRequest;
 import eu.sqooss.impl.service.web.services.datatypes.WSMetricsResultRequest;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
@@ -74,6 +76,30 @@ public class MetricManagerDatabase implements MetricManagerDBQueries {
     
     public List<?> getMetrics() {
         return db.doHQL(GET_METRICS);
+    }
+    
+    public List<?> getMetricsByResourcesIds(WSMetricsRequest request) {
+        long[] ids = request.getResourcesIds();
+        Collection idsCollection = new ArrayList();
+        for (long id : ids) {
+            idsCollection.add(id);
+        }
+        Map<String, Collection> queryParameters = new Hashtable<String, Collection>(1);
+        if (request.getIsProjectFile()) {
+            queryParameters.put(GET_METRICS_BY_RESOURCES_IDS_PARAM, idsCollection);
+            return db.doHQL(GET_METRICS_BY_RESOURCES_IDS_PROJECT_FILES, null, queryParameters);
+        } else if (request.getIsProjectVersion()) {
+            queryParameters.put(GET_METRICS_BY_RESOURCES_IDS_PARAM, idsCollection);
+            return db.doHQL(GET_METRICS_BY_RESOURCES_IDS_PROJECT_VERSIONS, null, queryParameters);
+        } else if (request.getIsStoredProject()) {
+            queryParameters.put(GET_METRICS_BY_RESOURCES_IDS_PARAM, idsCollection);
+            return db.doHQL(GET_METRICS_BY_RESOURCES_IDS_STORED_PROJECTS, null, queryParameters);
+        } else if (request.getIsFileGroup()) {
+            queryParameters.put(GET_METRICS_BY_RESOURCES_IDS_PARAM, idsCollection);
+            return db.doHQL(GET_METRICS_BY_RESOURCES_IDS_FILE_GROUPS, null, queryParameters);
+        } else {
+            return Collections.emptyList();
+        }
     }
     
     public DAObject getMetricsResultDAObject(WSMetricsResultRequest resultRequest) {

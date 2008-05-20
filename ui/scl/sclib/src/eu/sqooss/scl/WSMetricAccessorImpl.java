@@ -42,6 +42,7 @@ import eu.sqooss.scl.accessor.WSMetricAccessor;
 import eu.sqooss.ws.client.WsStub;
 import eu.sqooss.ws.client.datatypes.WSMetric;
 import eu.sqooss.ws.client.datatypes.WSMetricType;
+import eu.sqooss.ws.client.datatypes.WSMetricsRequest;
 import eu.sqooss.ws.client.datatypes.WSMetricsResultRequest;
 import eu.sqooss.ws.client.datatypes.WSResultEntry;
 import eu.sqooss.ws.client.ws.GetMetricTypesByIds;
@@ -49,19 +50,23 @@ import eu.sqooss.ws.client.ws.GetMetricTypesByIdsResponse;
 import eu.sqooss.ws.client.ws.GetMetrics;
 import eu.sqooss.ws.client.ws.GetMetricsByProjectId;
 import eu.sqooss.ws.client.ws.GetMetricsByProjectIdResponse;
+import eu.sqooss.ws.client.ws.GetMetricsByResourcesIds;
+import eu.sqooss.ws.client.ws.GetMetricsByResourcesIdsResponse;
 import eu.sqooss.ws.client.ws.GetMetricsResponse;
 import eu.sqooss.ws.client.ws.GetMetricsResult;
 import eu.sqooss.ws.client.ws.GetMetricsResultResponse;
 
 class WSMetricAccessorImpl extends WSMetricAccessor {
 
-    private static final String METHOD_NAME_GET_METRICS_BY_PROJECT_ID  = "getMetricsByProjectId";
+    private static final String METHOD_NAME_GET_METRICS_BY_PROJECT_ID    = "getMetricsByProjectId";
     
-    private static final String METHOD_NAME_GET_METRIC_TYPES_BY_IDS    = "getMetricTypesByIds";
+    private static final String METHOD_NAME_GET_METRIC_TYPES_BY_IDS      = "getMetricTypesByIds";
 
-    private static final String METHOD_NAME_GET_METRICS                = "getMetrics";
+    private static final String METHOD_NAME_GET_METRICS                  = "getMetrics";
+    
+    private static final String METHOD_NAME_GET_METRICS_BY_RESOURCES_IDS = "getMetricsByResourcesIds";
 
-    private static final String METHOD_NAME_GET_METRICS_RESULT         = "getMetricsResult";
+    private static final String METHOD_NAME_GET_METRICS_RESULT           = "getMetricsResult";
 
     private static final WSMetricType[] EMPTY_ARRAY_METRIC_TYPES = new WSMetricType[0];
     
@@ -154,6 +159,33 @@ class WSMetricAccessorImpl extends WSMetricAccessor {
         synchronized (params) {
             try {
                 response = wsStub.getMetrics(params);
+            } catch (RemoteException re) {
+                throw new WSException(re);
+            }
+        }
+        return (WSMetric[]) normaliseWSArrayResult(response.get_return());
+    }
+
+    /**
+     * @see eu.sqooss.scl.accessor.WSMetricAccessor#getMetricsByResourcesIds(eu.sqooss.impl.service.web.services.datatypes.WSMetricsRequest)
+     */
+    @Override
+    public WSMetric[] getMetricsByResourcesIds(WSMetricsRequest request) throws WSException {
+        GetMetricsByResourcesIdsResponse response;
+        GetMetricsByResourcesIds params;
+        if (!parameters.containsKey(METHOD_NAME_GET_METRICS_BY_RESOURCES_IDS)) {
+            params = new GetMetricsByResourcesIds();
+            params.setPassword(password);
+            params.setUserName(userName);
+            parameters.put(METHOD_NAME_GET_METRICS_BY_RESOURCES_IDS, params);
+        } else {
+            params = (GetMetricsByResourcesIds) parameters.get(
+                    METHOD_NAME_GET_METRICS_BY_RESOURCES_IDS);
+        }
+        synchronized (params) {
+            params.setRequest(request);
+            try {
+                response = wsStub.getMetricsByResourcesIds(params);
             } catch (RemoteException re) {
                 throw new WSException(re);
             }

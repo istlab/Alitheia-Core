@@ -42,6 +42,7 @@ import eu.sqooss.impl.service.web.services.datatypes.WSDirectory;
 import eu.sqooss.impl.service.web.services.datatypes.WSFileGroup;
 import eu.sqooss.impl.service.web.services.datatypes.WSMetric;
 import eu.sqooss.impl.service.web.services.datatypes.WSMetricType;
+import eu.sqooss.impl.service.web.services.datatypes.WSMetricsRequest;
 import eu.sqooss.impl.service.web.services.datatypes.WSMetricsResultRequest;
 import eu.sqooss.impl.service.web.services.datatypes.WSProjectFile;
 import eu.sqooss.impl.service.web.services.datatypes.WSProjectVersion;
@@ -399,6 +400,24 @@ public class WebServices {
         return metricManager.getMetrics(userName, password);
     }
 
+    /**
+     * The method looks for the metrics. The request object gives the search criteria. 
+     * 
+     * @param userName - the user's name used for authentication
+     * @param password - the user's password used for authentication
+     * @param request - the request object,
+     * the object contains the request information
+     * 
+     * @return The array of metrics,
+     * or a <code>null</code> array when none are found.
+     */
+    public WSMetric[] getMetricsByResourcesIds(
+            String userName,
+            String password,
+            WSMetricsRequest request) {
+        return metricManager.getMetricsByResourcesIds(userName, password, request);
+    }
+    
     /**
      * Returns the array of results from the evaluation of the specified
      * metrics on the given data access object.

@@ -35,6 +35,7 @@ package eu.sqooss.scl.accessor;
 import eu.sqooss.scl.WSException;
 import eu.sqooss.ws.client.datatypes.WSMetric;
 import eu.sqooss.ws.client.datatypes.WSMetricType;
+import eu.sqooss.ws.client.datatypes.WSMetricsRequest;
 import eu.sqooss.ws.client.datatypes.WSMetricsResultRequest;
 import eu.sqooss.ws.client.datatypes.WSResultEntry;
 
@@ -91,6 +92,25 @@ public abstract class WSMetricAccessor extends WSAccessor {
      * <ul>
      */
     public abstract WSMetric[] getMetrics() throws WSException;
+    
+    /**
+     * The method looks for the metrics. The request object gives the search criteria. 
+     * 
+     * @param userName - the user's name used for authentication
+     * @param password - the user's password used for authentication
+     * @param request - the request object,
+     * the object contains the request information
+     * 
+     * @return The array of metrics,
+     * or an empty array when none are found.
+     * 
+     * @throws WSException
+     * <ul>
+     *  <li>if the connection can't be established to the SQO-OSS's web services service</li>
+     *  <li>if web services service throws an exception</li>
+     * <ul>
+     */
+    public abstract WSMetric[] getMetricsByResourcesIds(WSMetricsRequest request) throws WSException;
     
     /**
      * This method returns the array of results from the evaluation of the specified
