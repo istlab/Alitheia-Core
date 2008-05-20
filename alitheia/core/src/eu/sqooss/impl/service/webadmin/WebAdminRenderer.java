@@ -87,6 +87,10 @@ import eu.sqooss.service.updater.UpdaterService;
 import eu.sqooss.service.util.StringUtils;
 import eu.sqooss.service.webadmin.WebadminService;
 
+/**
+ * The WebAdminRender class provdies functions for rendering content
+ * to be displayed within the WebAdmin interface.
+ */
 public class WebAdminRenderer {
     // Core components
     private static AlitheiaCore sobjAlitheiaCore = null;
