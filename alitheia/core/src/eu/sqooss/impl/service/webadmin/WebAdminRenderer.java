@@ -2925,5 +2925,9 @@ public class WebAdminRenderer {
 
     public static void logRequest(String request) {
         sobjLogger.info(request);
+    }
+
+    public static String renderRules(HttpServletRequest req) {
+        return "";
     }  
 }

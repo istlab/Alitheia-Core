@@ -85,6 +85,9 @@ public class AdminServlet extends HttpServlet {
     // Flag for refreshing the users content
     private boolean refreshUsers = true;
 
+    // Flag for refreshing the rules content
+    private boolean refreshRules = true;
+
     public AdminServlet(BundleContext bc, WebadminService webadmin) {
         this.webadmin = webadmin;
         this.bc = bc;
@@ -114,6 +117,7 @@ public class AdminServlet extends HttpServlet {
         dynamicContentMap.put("/jobs", "jobs.html");
         dynamicContentMap.put("/alljobs", "alljobs.html");
         dynamicContentMap.put("/users", "users.html");
+        dynamicContentMap.put("/rules", "rules.html");
 
         // Now the dynamic substitutions and renderer
         vc = new VelocityContext();
@@ -217,6 +221,11 @@ public class AdminServlet extends HttpServlet {
                 vc.put("USERS", render.renderUsers(request));
                 sendPage(response, "/users.html");
             }
+            else if (query.startsWith("/rules")) {
+                refreshRules = false;
+                vc.put("RULES", render.renderRules(request));
+                sendPage(response, "/rules.html");
+            }
             else {
                 doGet(request,response);
             }
@@ -281,6 +290,7 @@ public class AdminServlet extends HttpServlet {
                    "<li id=\"nav-6\"><a href=\"/users\">Users</a></li>" +
                    "<li id=\"nav-2\"><a href=\"/logs\">Logs</a></li>" +
                    "<li id=\"nav-4\"><a href=\"/jobs\">Jobs</a></li>" +
+                   "<li id=\"nav-7\"><a href=\"/rules\">Rules</a></li>" +
                    "</ul>");
             vc.put("OPTIONS","<fieldset id=\"options\">" +
                    "<legend>Options</legend>" +
@@ -323,6 +333,13 @@ public class AdminServlet extends HttpServlet {
         }
         else {
             refreshUsers = true;
+        }
+        // Rules content
+        if (refreshRules) {
+            vc.put("RULES", render.renderRules(null));
+        }
+        else {
+            refreshRules = true;
         }
         
         // These are composite substitutions

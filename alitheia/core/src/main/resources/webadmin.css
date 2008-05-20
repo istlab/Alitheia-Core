@@ -71,12 +71,19 @@
 	border-bottom : 1px solid #ccc;
 }
 
+#menu li#nav-7 a {
+    background : #eee url(/gear.png) 0 3px no-repeat;
+    padding-left: 25px;
+    border-bottom : 1px solid #ccc;
+}
+
 body.section-1 #menu li#nav-1 a,
 body.section-2 #menu li#nav-2 a,
 body.section-3 #menu li#nav-3 a,
 body.section-4 #menu li#nav-4 a,
 body.section-5 #menu li#nav-5 a,
-body.section-6 #menu li#nav-6 a {
+body.section-6 #menu li#nav-6 a,
+body.section-7 #menu li#nav-7 a  {
 	background-color: #fff;
 	border-bottom : 1px solid #fff;
 	color : #000;
