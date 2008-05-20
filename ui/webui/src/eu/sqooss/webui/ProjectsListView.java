@@ -129,7 +129,6 @@ public class ProjectsListView extends ListView {
         return html.toString();
     }
 
-    @Override
     public void retrieveData() {
         //TODO: retrieve some data
     }
