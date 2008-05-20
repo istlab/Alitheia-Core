@@ -84,7 +84,7 @@ class File extends WebuiItem {
 
     public String getHtml() {
         StringBuilder html = new StringBuilder(COMMENT);
-        html.append("<b>File:</b> <a href=\"files.jsp?id= " + id + "\">" + getName() +"</a>");
+        html.append("<b>File:</b> " + getLink());
         // The next line shows the version ID, not the version number
         //html.append(" <i>(ver." + getVersion() + ")</i>"); // Version
         html.append(" <i>(" + getStatus() + ")</i>"); // Status
