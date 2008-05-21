@@ -6,6 +6,7 @@ Bundle-Version: 0.0.1
 Bundle-Vendor: KDAB
 Bundle-Category: data
 Bundle-Description: This bundle provides the Active Specifications Service
-Bundle-Classpath: .
+Bundle-Classpath: eu.sqooss.ui.scl.scl-0.0.1.jar,
+    eu.sqooss.ui.scl.client-0.0.1.jar
 Import-Package: org.osgi.framework, eu.sqooss.core, eu.sqooss.service.logging
 

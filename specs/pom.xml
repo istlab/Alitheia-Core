@@ -37,7 +37,7 @@
       <plugin>
         <artifactId>maven-jar-plugin</artifactId>
         <configuration>
-          <outputDirectory>${topdir}/equinox</outputDirectory>
+          <outputDirectory>${basedir}/target</outputDirectory>
           <finalName>${groupId}.${artifactId}-${version}</finalName>
           <archive>
             <manifestFile>${basedir}/manifest/specs.mf</manifestFile>
