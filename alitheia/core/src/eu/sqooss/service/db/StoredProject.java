@@ -166,18 +166,12 @@ public class StoredProject extends DAObject {
     }
 
     public static StoredProject getProjectByName(String name) {
-        StoredProject project = null;
         DBService dbs = CoreActivator.getDBService();
 
         Map<String,Object> parameterMap = new HashMap<String,Object>();
         parameterMap.put("name",name);
-        List<?> prList = dbs.doHQL("from StoredProject where PROJECT_NAME=:name",parameterMap);
-        if ((prList == null) || (prList.size() != 1)) {
-            return null;
-        }
-
-        project = (StoredProject) prList.get(0);
-        return project;
+        List<StoredProject> prList = dbs.findObjectsByProperties(StoredProject.class, parameterMap);
+        return (prList == null || prList.size() != 1) ? null : prList.get(0);
     }
 
     public static ProjectVersion getLastProjectVersion(StoredProject project) {
