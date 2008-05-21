@@ -46,6 +46,7 @@ import org.clmt.configuration.properties.CLMTProperties;
 import org.clmt.configuration.properties.Config;
 import org.clmt.metrics.MetricInstantiationException;
 import org.clmt.metrics.MetricList;
+import org.clmt.metrics.MetricResult;
 import org.clmt.metrics.MetricResultList;
 import org.clmt.sqooss.AlitheiaFileAdapter;
 import org.clmt.sqooss.AlitheiaLoggerAdapter;
@@ -132,7 +133,7 @@ public class CLTMJob extends AbstractMetricJob {
         }
         
         /*Yes, string based XML construction and stuff*/
-        String taskXML = String.format(XMLTaskProto, 
+        String javaTask = String.format(XMLTaskProto, 
                 pv.getProject().getName(), 
                 pv.getProject().getName()+"-Java", 
                 "Java",
@@ -142,7 +143,7 @@ public class CLTMJob extends AbstractMetricJob {
         Task t = null;
         try {
             t = new Task(pv.getProject().getName(), 
-                    new ByteArrayInputStream(taskXML.getBytes()));
+                    new ByteArrayInputStream(javaTask.getBytes()));
         } catch (TaskException e) {
             log.error(this.getClass().getName() + ": Invalid task file:" 
                     + e.getMessage());
@@ -170,6 +171,14 @@ public class CLTMJob extends AbstractMetricJob {
         }
         
         System.out.println(mrlist.toString());
+        
+        String[] keys = mrlist.getNames();
+        MetricResult[] lmr = null;
+        for(String key: keys) {
+            lmr = mrlist.getResult(key);
+            
+        }
+        
         db.commitDBSession();
     }
 }

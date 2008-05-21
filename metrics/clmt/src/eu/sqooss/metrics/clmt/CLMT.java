@@ -32,8 +32,9 @@
 
 package eu.sqooss.metrics.clmt;
 
+import eu.sqooss.service.abstractmetric.ProjectFileMetric;
 import eu.sqooss.service.abstractmetric.ProjectVersionMetric;
 
-public interface CLMT extends ProjectVersionMetric {
+public interface CLMT extends ProjectVersionMetric, ProjectFileMetric {
     
 }

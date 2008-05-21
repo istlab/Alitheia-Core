@@ -33,6 +33,8 @@
 
 package eu.sqooss.impl.metrics.clmt;
 
+import java.util.List;
+
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
@@ -40,8 +42,10 @@ import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.metrics.clmt.CLMT;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.Result;
+import eu.sqooss.service.abstractmetric.ResultEntry;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
+import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.scheduler.Scheduler;
 
@@ -50,6 +54,7 @@ public class CLTMImplementation extends AbstractMetric implements CLMT {
     public CLTMImplementation(BundleContext bc) {
         super(bc);      
         this.addActivationType(ProjectVersion.class);
+        this.addActivationType(ProjectFile.class);
     }
     
     public boolean install() {
@@ -79,6 +84,10 @@ public class CLTMImplementation extends AbstractMetric implements CLMT {
                     "Weighted Methods per Class",
                     "WMC",
                     MetricType.Type.SOURCE_CODE);
+            result &= super.addSupportedMetrics(
+                    "Depth of Inheritance Tree",
+                    "DIT",
+                    MetricType.Type.SOURCE_CODE);
             
         }
         return result;
@@ -101,6 +110,14 @@ public class CLTMImplementation extends AbstractMetric implements CLMT {
     
     public Result getResult(ProjectVersion a, Metric m) {
         
+        return null;
+    }
+
+    public void run(ProjectFile a) {
+        //Nothing to do, the metric is activated by project versions only
+    }
+
+    public List<ResultEntry> getResult(ProjectFile a, Metric m) {
         return null;
     }    
 }
