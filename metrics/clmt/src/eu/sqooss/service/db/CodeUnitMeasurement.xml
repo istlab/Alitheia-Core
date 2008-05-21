@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+  <class name="eu.sqooss.service.db.CodeUnitMeasurement" table="CODE_UNIT_MEASUREMENT">
+    <id name="id" column="CODE_UNIT_MEASUREMENT_ID">
+      <generator class="native" />
+    </id>
+    <many-to-one name="metric" column="METRIC_ID" not-null="true" cascade="merge" />
+    <many-to-one name="projectFile" column="PROJECT_FILE_ID" not-null="true" cascade="merge" />
+    <property name="whenRun" column="WHEN_RUN" type="java.util.Date" />
+    <property name="result" column="RESULT" type="string" />
+    <many-to-one name="codeConstructType" column="CODE_CONSTRUCT_TYPE_ID" not-null="true" cascade="merge" />
+    <property name="codeConstructName" column="CODE_CONSTRUCT_NAME" type="string" />
+  </class>
+</hibernate-mapping>
