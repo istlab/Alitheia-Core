@@ -789,6 +789,7 @@ public class FDSServiceImpl implements FDSService {
         } catch (NullPointerException e) {
             logger.warn("Null pointer in checkout.");
             e.printStackTrace();
+            thrown = true;
         }
         if (thrown) {
             return new String("Unexpected exception thrown for p." + TEST_PROJECT_ID + " r.1");
@@ -816,6 +817,9 @@ public class FDSServiceImpl implements FDSService {
         }
         
         // now we try the same stuff with in-memory
+        // InMemoryCheckout needs a db session, so start one before
+        DBService dbs = CoreActivator.getDBService();
+        dbs.startDBSession();        
         InMemoryCheckoutImpl inMemoryProjectCheckout = null;
         try {
             logger.info("Getting something sensible out of FDS using in-memory technique");
@@ -830,8 +834,10 @@ public class FDSServiceImpl implements FDSService {
         } catch (NullPointerException e) {
             logger.warn("Null pointer in checkout.");
             e.printStackTrace();
+            thrown = true;
         }
         if (thrown) {
+            dbs.rollbackDBSession();
             return new String("Unexpected exception thrown for p." + TEST_PROJECT_ID + " r.1");
         }
         
@@ -842,6 +848,7 @@ public class FDSServiceImpl implements FDSService {
                 logger.warn("Project ID " + TEST_PROJECT_ID + " is no longer managed.");
             }
         }
+        dbs.commitDBSession();
         
 
         // This test goes through and updates the KPilot checkout from r.4 to
@@ -883,6 +890,7 @@ public class FDSServiceImpl implements FDSService {
             // check in-memory checkouts
             InMemoryCheckout otherInMemoryCheckout = null;
             currentRevision = 4;
+            dbs.startDBSession();
             try {
             	logger.info("Advancing single checkout object.");
             	otherInMemoryCheckout = getInMemoryCheckout(TEST_PROJECT_ID,
@@ -908,17 +916,16 @@ public class FDSServiceImpl implements FDSService {
                 logger.warn("Project ID " + TEST_PROJECT_ID + " has no revision "
                     + currentRevision);
             }
+            dbs.commitDBSession();
         } else {
             logger.info("Skipping update self-test.");
         }
         
         // Timeline tests
-        DBService dbs = CoreActivator.getDBService();
         dbs.startDBSession();
         // Try to find an installed project to work on
         StoredProject testProject= dbs.findObjectById(StoredProject.class, 1);
         if (testProject == null) {
-            dbs.rollbackDBSession();
             logger.info("No installed projects found, skipping Timeline tests");
         } else {
             logger.info("Testing timeline over project " + testProject.getName());
