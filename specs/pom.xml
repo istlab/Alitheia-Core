@@ -55,6 +55,15 @@
           <descriptors>
             <descriptor>${basedir}/assembly.xml</descriptor>
           </descriptors>
+          <executions>
+            <execution>
+              <id>${artifactId}</id>
+              <phase>package</phase>
+              <goals>
+                <goal>assembly</goal>
+              </goals>
+            </execution>
+          </executions>
         </configuration>
       </plugin>
     </plugins>
