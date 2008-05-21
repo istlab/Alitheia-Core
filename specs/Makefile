@@ -2,6 +2,8 @@ TOP_SRCDIR=..
 
 include $(TOP_SRCDIR)/Makefile.bundle
 
-build :
+assembly :
 	$(MAVEN) assembly:directory package
+
+install : assembly
 
