@@ -41,10 +41,13 @@ import org.apache.axis2.AxisFault;
 import eu.sqooss.scl.accessor.WSUserAccessor;
 import eu.sqooss.ws.client.WsStub;
 import eu.sqooss.ws.client.datatypes.WSUser;
+import eu.sqooss.ws.client.datatypes.WSUserGroup;
 import eu.sqooss.ws.client.ws.CreatePendingUser;
 import eu.sqooss.ws.client.ws.CreatePendingUserResponse;
 import eu.sqooss.ws.client.ws.DeleteUserById;
 import eu.sqooss.ws.client.ws.DeleteUserByIdResponse;
+import eu.sqooss.ws.client.ws.GetUserGroups;
+import eu.sqooss.ws.client.ws.GetUserGroupsResponse;
 import eu.sqooss.ws.client.ws.GetUsersByIds;
 import eu.sqooss.ws.client.ws.GetUsersByIdsResponse;
 import eu.sqooss.ws.client.ws.GetUserByName;
@@ -59,6 +62,8 @@ class WSUserAccessorImpl extends WSUserAccessor {
     private static final String METHOD_NAME_CREATE_PENDING_USER  = "createPendingUser";
 
     private static final String METHOD_NAME_GET_USERS_BY_IDS     = "getUsersByIds";
+    
+    private static final String METHOD_NAME_GET_USER_GROUPS      = "getUserGroups";
 
     private static final String METHOD_NAME_GET_USER_BY_NAME     = "getUserByName";
 
@@ -142,6 +147,32 @@ class WSUserAccessorImpl extends WSUserAccessor {
             }
         }
         return (WSUser[]) normaliseWSArrayResult(response.get_return());
+    }
+
+    /**
+     * @see eu.sqooss.scl.accessor.WSUserAccessor#getUserGroups()
+     */
+    @Override
+    public WSUserGroup[] getUserGroups() throws WSException {
+        GetUserGroupsResponse response;
+        GetUserGroups params;
+        if (!parameters.containsKey(METHOD_NAME_GET_USER_GROUPS)) {
+            params = new GetUserGroups();
+            params.setPassword(password);
+            params.setUserName(userName);
+            parameters.put(METHOD_NAME_GET_USER_GROUPS, params);
+        } else {
+            params = (GetUserGroups) parameters.get(
+                    METHOD_NAME_GET_USER_GROUPS);
+        }
+        synchronized (params) {
+            try {
+                response = wsStub.getUserGroups(params);
+            } catch (RemoteException re) {
+                throw new WSException(re);
+            }
+        }
+        return (WSUserGroup[]) normaliseWSArrayResult(response.get_return());
     }
 
     /**

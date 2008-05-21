@@ -34,6 +34,7 @@ package eu.sqooss.scl.accessor;
 
 import eu.sqooss.scl.WSException;
 import eu.sqooss.ws.client.datatypes.WSUser;
+import eu.sqooss.ws.client.datatypes.WSUserGroup;
 
 /**
  * This class contains the users methods. 
@@ -83,6 +84,21 @@ public abstract class WSUserAccessor extends WSAccessor {
      * <ul>
      */
     public abstract WSUser[] getUsersByIds(long[] usersIds) throws WSException;
+    
+    /**
+     * The method returns all information, that the SQO-OSS framework has
+     * collected about the users' groups
+     * 
+     * @return The <code>WSUserGroup</code> array that describes the
+     * users' groups, or an empty array when the groups do not exist.
+     * 
+     * @throws WSException
+     * <ul>
+     *  <li>if the connection can't be established to the SQO-OSS's web services service</li>
+     *  <li>if web services service throws an exception</li>
+     * <ul>
+     */
+    public abstract WSUserGroup[] getUserGroups() throws WSException;
     
     /**
      * This method returns all known information about the user associated

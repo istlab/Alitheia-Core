@@ -49,6 +49,7 @@ import eu.sqooss.impl.service.web.services.datatypes.WSProjectVersion;
 import eu.sqooss.impl.service.web.services.datatypes.WSResultEntry;
 import eu.sqooss.impl.service.web.services.datatypes.WSStoredProject;
 import eu.sqooss.impl.service.web.services.datatypes.WSUser;
+import eu.sqooss.impl.service.web.services.datatypes.WSUserGroup;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.pa.PluginAdmin;
@@ -471,6 +472,22 @@ public class WebServices {
                 userNameForAccess, passwordForAccess, usersIds);
     }
 
+    /**
+     * The method returns all information, that the SQO-OSS framework has
+     * collected about the users' groups
+     * 
+     * @param userName - the user's name used for authentication
+     * @param password - the user's password used for authentication
+     * 
+     * @return The <code>WSUserGroup</code> array that describes the
+     * users' groups, or <code>null</code> when the groups do not exist.
+     */
+    public WSUserGroup[] getUserGroups(
+            String userName,
+            String password) {
+        return userManager.getUserGroups(userName, password);
+    }
+    
     /**
      * This method returns all known information about the user associated
      * with the given user name.

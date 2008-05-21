@@ -32,12 +32,6 @@
 
 package eu.sqooss.impl.service.web.services.datatypes;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Set;
-
-import eu.sqooss.service.db.Group;
-
 public class WSUser {
     
     private long id;
@@ -47,51 +41,88 @@ public class WSUser {
     private long lastActivity;
     private WSUserGroup[] groups;
     
-    public WSUser(long id, String userName, String email,
-            long registered, long lastActivity, Set<?> groups) {
-        this.id = id;
-        this.userName = userName;
-        this.email = email;
-        this.registered = registered;
-        this.lastActivity = lastActivity;
-        this.groups = parseSecurityGroups(groups);
-    }
-    
+    /**
+     * @return the id
+     */
     public long getId() {
         return id;
     }
-    
+
+    /**
+     * @param id the id to set
+     */
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    /**
+     * @return the userName
+     */
     public String getUserName() {
         return userName;
     }
-    
+
+    /**
+     * @param userName the userName to set
+     */
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    /**
+     * @return the email
+     */
     public String getEmail() {
         return email;
     }
-    
+
+    /**
+     * @param email the email to set
+     */
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    /**
+     * @return the registered
+     */
     public long getRegistered() {
         return registered;
     }
-    
+
+    /**
+     * @param registered the registered to set
+     */
+    public void setRegistered(long registered) {
+        this.registered = registered;
+    }
+
+    /**
+     * @return the lastActivity
+     */
     public long getLastActivity() {
         return lastActivity;
     }
-    
-    public WSUserGroup[] getUserGroups() {
+
+    /**
+     * @param lastActivity the lastActivity to set
+     */
+    public void setLastActivity(long lastActivity) {
+        this.lastActivity = lastActivity;
+    }
+
+    /**
+     * @return the groups
+     */
+    public WSUserGroup[] getGroups() {
         return groups;
     }
-    
-    private WSUserGroup[] parseSecurityGroups(Collection<?> securityGroups) {
-        if ((securityGroups != null) && (securityGroups.size() != 0)) {
-            WSUserGroup[] userGroups = new WSUserGroup[securityGroups.size()];
-            Iterator<?> iterator = securityGroups.iterator();
-            for (int i = 0; i < userGroups.length; i++) {
-                userGroups[i] = new WSUserGroup((Group) iterator.next());
-            }
-            return userGroups;
-        } else {
-            return new WSUserGroup[] {null};
-        }
+
+    /**
+     * @param groups the groups to set
+     */
+    public void setGroups(WSUserGroup[] groups) {
+        this.groups = groups;
     }
 
     /**

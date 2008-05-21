@@ -32,22 +32,37 @@
 
 package eu.sqooss.impl.service.web.services.datatypes;
 
-import eu.sqooss.service.db.Group;
-
 public class WSUserGroup {
     
-    private Group securityGroup;
+    private long id;
+    private String description;
     
-    public WSUserGroup(Group securityGroup) {
-        this.securityGroup = securityGroup;
-    }
-    
+    /**
+     * @return the id
+     */
     public long getId() {
-        return securityGroup.getId();
+        return id;
     }
     
+    /**
+     * @param id the id to set
+     */
+    public void setId(long id) {
+        this.id = id;
+    }
+    
+    /**
+     * @return the description
+     */
     public String getDescription() {
-        return securityGroup.getDescription();
+        return description;
+    }
+    
+    /**
+     * @param description the description to set
+     */
+    public void setDescription(String description) {
+        this.description = description;
     }
     
 }
