@@ -105,23 +105,37 @@ public class ProjectFile extends DAObject{
         return dir.getPath() + "/" + name;
     }
     
+    /**
+     * Get the previous entry for the provided ProjectFile
+     * @param pf
+     * @return The previous file revision, or null if the file is not found 
+     * or if the file was added in the provided revision 
+     */
     public static ProjectFile getPreviousFileVersion(ProjectFile pf) {
         DBService dbs = CoreActivator.getDBService();
         
+        //No need to query if a file was just added
+        if (pf.getStatus() == "ADDED") 
+            return null;
+        
         String paramFile = "paramFile"; 
         String paramVersion = "paramVersion"; 
+        String paramDir = "paramDir";
         
-        String query = "select pf from ProjectVersion pv, ProjectFile pf where pv.timestamp in (" +
+        String query = "select pf from ProjectVersion pv, ProjectFile pf " +
+        		"where pv.timestamp in (" +
         		"select max(pv2.timestamp) " +
         		"from ProjectVersion pv2, ProjectFile pf2 " +
         		"where pv2.timestamp < :" + paramVersion +
         		" and pf2.projectVersion = pv2.id" +
+                        " and pf2.dir = :" + paramDir +
         		" and pf2.name = :" + paramFile +
         		" and pv2.project = pv.project )" +
         		"and pf.projectVersion = pv.id and pf.name = :" + paramFile;
         
         Map<String,Object> parameters = new HashMap<String,Object>();
-        parameters.put(paramFile, pf.name);
+        parameters.put(paramFile, pf.getName());
+        parameters.put(paramDir, pf.getDir());
         parameters.put(paramVersion, pf.getProjectVersion().getTimestamp());
 
         List<?> projectFiles = dbs.doHQL(query, parameters);
@@ -133,6 +147,53 @@ public class ProjectFile extends DAObject{
         }
     }
     
+    /**
+     * Get the file revision that is current to the provided project version.
+     * @param pv The project version against which we want the current version
+     * @param path The absolute file path (starting with /)
+     * @return The ProjectFile instance or null if the project file was deleted before,
+     * has not been added till or not found in the provided project version
+     */
+    public static ProjectFile getLatestVersion(ProjectVersion pv, String path) {
+        DBService dbs = CoreActivator.getDBService();
+        
+        String dir = path.substring(0, path.lastIndexOf('/'));
+        String fname = path.substring(path.lastIndexOf('/') + 1);
+        
+        if (path == null || path.equalsIgnoreCase("")) {
+            path = "/"; 
+        }
+        
+        Directory d = Directory.getDirectory(path, false);
+        
+        String paramFile = "paramFile"; 
+        String paramTS = "paramTS"; 
+        String paramDir = "paramDir";
+        
+        String query = "select pf from ProjectVersion pv, ProjectFile pf " +
+                        "where pv.timestamp in (" +
+                        "select max(pv2.timestamp) " +
+                        "from ProjectVersion pv2, ProjectFile pf2 " +
+                        "where pv2.timestamp <= :" + paramTS +
+                        " and pf2.projectVersion = pv2.id" +
+                        " and pf2.dir = :" + paramDir +
+                        " and pf2.name = :" + paramFile +
+                        " and pv2.project = pv.project )" +
+                        "and pf.projectVersion = pv.id and pf.name = :" + paramFile;
+        
+        Map<String,Object> parameters = new HashMap<String,Object>();
+        parameters.put(paramFile, fname);
+        parameters.put(paramDir, d);
+        parameters.put(paramTS, pv.getTimestamp());
+
+        List<?> projectFiles = dbs.doHQL(query, parameters);
+        
+        if(projectFiles == null || projectFiles.size() == 0) {
+            return null;
+        }else {
+            return (ProjectFile) projectFiles.get(0);
+        }
+    }
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
