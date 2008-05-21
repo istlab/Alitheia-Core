@@ -99,9 +99,17 @@ class InMemoryCheckoutImpl implements InMemoryCheckout {
 
         DBService dbs = CoreActivator.getDBService();
     	
+        
         StoredProject project = getProject();
+        if ( project == null ) {
+            return;
+            // FIXME : handle the case of a project not in the db more nicely ?
+            // maybe throw an exception ?
+        }
+        
+        // FIXME : here too, the version validity should be checked
+        // (could be that the db wasn't updated to the latest version yet)
         ProjectVersion version = ProjectVersion.getVersionByRevision(project, getRevision() );
-    
         String paramVersion = "version_id";
         String paramProjectId = "project_id";
         
