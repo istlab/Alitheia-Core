@@ -161,7 +161,7 @@ specs : clean-osgi
 	cd $(PREFIX) && \
 	$(JAVA_CMD) \
 	-Dosgi.configuration.area=$(PREFIX)/configuration-specs \
-	$(JAVA_CORE_ARGS)
+	$(JAVA_CORE_ARGS) -console
 
 .PHONY : start-core start-core-bg start-core-debug start-core-monitor 
 .PHONY : stop-core show-log test
