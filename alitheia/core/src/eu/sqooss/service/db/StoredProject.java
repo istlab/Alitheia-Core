@@ -79,6 +79,10 @@ public class StoredProject extends DAObject {
      * Access to the mail store via the TDS. @see btsUrl.
      */
     private String mailUrl;
+    /**
+     * The versions that this project contains
+     */
+    private List<ProjectVersion> projectVersions;
 
     public StoredProject() {
     }
@@ -133,6 +137,14 @@ public class StoredProject extends DAObject {
 
     public void setMail(String url) {
         this.mailUrl = url;
+    }
+    
+    public List<ProjectVersion> getProjectVersions() {
+        return projectVersions;
+    }
+    
+    public void setProjectVersions(List<ProjectVersion> projectVersions) {
+        this.projectVersions = projectVersions;
     }
 
     public static int getProjectCount() {
@@ -196,29 +208,6 @@ public class StoredProject extends DAObject {
         
         lastVersion = (ProjectVersion) pvList.get(0);
         return lastVersion;
-    }
-
-    @SuppressWarnings("unchecked")
-	public List<ProjectVersion> getProjectVersions() {
-        
-        DBService dbs = CoreActivator.getDBService();
-        
-        String paramProjectId = "project_id";
-        String query = "select pv " +
-                       "from ProjectVersion pv " +
-                       "where pv.project.id=:" +
-                       paramProjectId;
-
-        Map<String,Object> parameters = new HashMap<String,Object>();
-        parameters.put(paramProjectId, this.getId());
-        
-        List<?> projectVersions = dbs.doHQL(query, parameters);
-        if ((projectVersions == null) || (projectVersions.size() == 0)) {
-            return null;
-        } else {
-            return (List<ProjectVersion>) projectVersions;
-        }
-        
     }
 }
 

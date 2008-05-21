@@ -14,5 +14,10 @@
     <property name="bugs" column="BTS_URL" />
     <property name="repository" column="SCM_URL" />
     <property name="mail" column="MAIL_URL" />
+    <list name="projectVersions" inverse="true" cascade="all-delete-orphan">
+        <key column="STORED_PROJECT_ID"/>
+        <list-index column="VERSION" base="1"/>
+        <one-to-many class="eu.sqooss.service.db.ProjectVersion"/>
+    </list>
   </class>
 </hibernate-mapping>
