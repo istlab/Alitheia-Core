@@ -160,18 +160,6 @@ public interface DBService {
      */
     public <T extends DAObject> List<T> findObjectsByProperties(Class<T> daoClass,
                                                                 Map<String,Object> properties );
-
-    /**
-     * A generic query method to retrieve a list of all DAOs of the given
-     * class.
-     * 
-     * @param daoClass the actual class of the DAObjects
-     * @return The list of all DAOs matching the given, or <code>null</code>
-     *   if a database access error occurred.
-     */
-    public <T extends DAObject> List<T> findObjectsByClass(
-            Class<T> daoClass);
-
     /**
      * Add a new record to the system database, using the default database session.
      * This should initialize any tables that are needed for storage of project information.
