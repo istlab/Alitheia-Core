@@ -327,6 +327,23 @@ e.printStackTrace();
         }
     }
 
+    @SuppressWarnings("unchecked")
+    public <T extends DAObject> List<T> findObjectsByClass(Class<T> daoClass) {
+        if( !checkSession() )
+            return Collections.emptyList();
+
+        try {
+            return (List<T>) doHQL( "from " + daoClass.getName());
+        } catch (QueryException e) {
+            logger.warn("findObjectsByClass(): unknown class name."
+                    + " Restarting session...");
+            // Automatically restart a session
+            // (just be careful with preloaded DAOs that become detached)
+            startDBSession();
+            return Collections.emptyList();
+        }
+    }
+
     /* (non-Javadoc)
      * @see eu.sqooss.service.db.DBService#doSQL(java.lang.String)
      */
