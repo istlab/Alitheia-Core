@@ -33,6 +33,11 @@
 
 package eu.sqooss.service.db;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import eu.sqooss.impl.service.CoreActivator;
 import eu.sqooss.service.db.DAObject;
 
 public class Metric extends DAObject{
@@ -98,6 +103,26 @@ public class Metric extends DAObject{
             return Long.valueOf(this.getId()).hashCode();
         }
     }   
+    
+    /**
+     * Get a metric from its mnemonic name
+     * @param mnem - The metric mnemonic name to search for
+     * @return A Metric object or null when no metric can be found for the 
+     * provided mnemonic
+     */
+    public static Metric getMetricByMnemonic(String mnem) {
+        DBService dbs = CoreActivator.getDBService();
+        
+        Map<String, Object> properties = new HashMap<String, Object>();
+        properties.put("mnemonic", mnem);
+        
+        List<Metric> result = dbs.findObjectsByProperties(Metric.class, properties);
+        
+        if (result.size() <= 0)
+            return null;
+            
+        return result.get(0);
+    }
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
