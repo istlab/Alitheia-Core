@@ -52,6 +52,7 @@ import eu.sqooss.impl.service.web.services.datatypes.WSUser;
 import eu.sqooss.impl.service.web.services.datatypes.WSUserGroup;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.messaging.MessagingService;
 import eu.sqooss.service.pa.PluginAdmin;
 import eu.sqooss.service.security.SecurityManager;
 import eu.sqooss.service.webadmin.WebadminService;
@@ -102,10 +103,11 @@ public class WebServices {
             DBService db,
             PluginAdmin pluginAdmin,
             Logger logger,
-            WebadminService wa) {
+            WebadminService wa,
+            MessagingService messaging) {
         metricManager = new MetricManager(logger, db, pluginAdmin, securityManager);
         projectManager = new ProjectManager(logger, db, securityManager);
-        userManager = new UserManager(logger, securityManager, db);
+        userManager = new UserManager(logger, securityManager, db, messaging);
         webadmin = wa;
     }
 
@@ -582,6 +584,25 @@ public class WebServices {
         }
         return "Share and enjoy.";
     }
+    
+    /**
+     * The method notifies the administrator of the framework.
+     * The user receives the status of the message.
+     *  
+     * @param userName - the user's name used for authentication
+     * @param password - the user's password used for authentication
+     * @param title    - the title of the message
+     * @param message  - the notification message 
+     */
+    public boolean notifyAdmin(
+            String userName,
+            String password,
+            String title,
+            String messageBody) {
+        userManager.notifyAdmin(userName, password, title, messageBody);
+        return true;
+    }
+    
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

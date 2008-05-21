@@ -56,6 +56,7 @@ import eu.sqooss.ws.client.ws.GetUserMessageOfTheDay;
 import eu.sqooss.ws.client.ws.GetUserMessageOfTheDayResponse;
 import eu.sqooss.ws.client.ws.ModifyUser;
 import eu.sqooss.ws.client.ws.ModifyUserResponse;
+import eu.sqooss.ws.client.ws.NotifyAdmin;
 
 class WSUserAccessorImpl extends WSUserAccessor {
 
@@ -72,6 +73,8 @@ class WSUserAccessorImpl extends WSUserAccessor {
     private static final String METHOD_NAME_DELETE_USER_BY_ID    = "deleteUserById";
 
     private static final String METHOD_NAME_GET_USER_MESSAGE_OF_THE_DAY = "getUserMessageOfTheDay";
+    
+    private static final String METHOD_NAME_NOTIFY_ADMIN = "notifyAdmin";
 
     private static final WSUser[] EMPTY_ARRAY_USERS = new WSUser[0];
     
@@ -284,6 +287,37 @@ class WSUserAccessorImpl extends WSUserAccessor {
         return response.get_return();
     }
     
+    /**
+     * @see eu.sqooss.scl.accessor.WSUserAccessor#notifyAdmin(java.lang.String, java.lang.String)
+     */
+    @Override
+    public void notifyAdmin(String messageBody, String title) throws WSException {
+        if ((messageBody == null) || (title == null)) {
+            throw new IllegalArgumentException("Null argument!");
+        }
+        if ((messageBody.trim().length() == 0) || (title.trim().length() == 0)) {
+            throw new IllegalArgumentException("Empty argument!");
+        }
+        NotifyAdmin params;
+        if (!parameters.containsKey(METHOD_NAME_NOTIFY_ADMIN)) {
+            params = new NotifyAdmin();
+            params.setPassword(password);
+            params.setUserName(userName);
+            parameters.put(METHOD_NAME_NOTIFY_ADMIN, params);
+        } else {
+            params = (NotifyAdmin) parameters.get(METHOD_NAME_NOTIFY_ADMIN);
+        }
+        synchronized (params) {
+            params.setMessageBody(messageBody);
+            params.setTitle(title);
+            try {
+                wsStub.notifyAdmin(params);
+            } catch (RemoteException re) {
+                throw new WSException(re);
+            }
+        }
+    }
+
     private static boolean isValidArray(long[] arr) {
         return ((arr != null) && (arr.length > 0));
     }

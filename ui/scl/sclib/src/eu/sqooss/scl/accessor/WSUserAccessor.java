@@ -173,6 +173,27 @@ public abstract class WSUserAccessor extends WSAccessor {
      * <ul>
      */
     public abstract String getUserMessageOfTheDay(String userName) throws WSException;
+    
+    /**
+     * The method notifies the administrator of the framework.
+     * The user receives the status of the message.
+     *  
+     * @param messageBody  - the notification message
+     * @param title    - the title of the message
+     * 
+     * @throws WSException
+     * <ul>
+     *  <li>if the connection can't be established to the SQO-OSS's web services service</li>
+     *  <li>if web services service throws an exception</li>
+     * </ul>
+     * 
+     * @throws IllegalArgumentException
+     * <ul>
+     *  <li>if the message is null or empty</li>
+     *  <li>if the title is null or empty</li>
+     * </ul>
+     */
+    public abstract void notifyAdmin(String messageBody, String title) throws WSException;
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

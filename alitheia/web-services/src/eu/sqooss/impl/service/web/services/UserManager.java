@@ -36,31 +36,35 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
+import eu.sqooss.impl.service.web.services.datatypes.WSUser;
+import eu.sqooss.impl.service.web.services.datatypes.WSUserGroup;
+import eu.sqooss.impl.service.web.services.utils.SecurityWrapper;
+import eu.sqooss.impl.service.web.services.utils.UserManagerMessageSender;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Group;
 import eu.sqooss.service.db.User;
 import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.messaging.MessagingService;
 import eu.sqooss.service.security.SecurityManager;
-import eu.sqooss.impl.service.web.services.datatypes.WSUser;
-import eu.sqooss.impl.service.web.services.datatypes.WSUserGroup;
-import eu.sqooss.impl.service.web.services.utils.SecurityWrapper;
 
 public class UserManager extends AbstractManager {
     
     private Logger logger;
     private SecurityWrapper security;
+    private UserManagerMessageSender messageSender;
     private eu.sqooss.service.security.UserManager userManager;
     private eu.sqooss.service.security.GroupManager groupManager;
     
-    public UserManager(Logger logger, SecurityManager securityManager, DBService db) {
+    public UserManager(Logger logger, SecurityManager securityManager,
+            DBService db, MessagingService messagingService) {
         super(db);
         this.logger = logger;
         this.security = new SecurityWrapper(securityManager);
         this.userManager = securityManager.getUserManager();
         this.groupManager = securityManager.getGroupManager();
+        this.messageSender = new UserManagerMessageSender(messagingService);
     }
     
     /**
@@ -216,6 +220,24 @@ public class UserManager extends AbstractManager {
         }
     }
 
+    /**
+     * @see eu.sqooss.service.web.services.WebServices#notifyAdmin(String, String, String, String)
+     */
+    public void notifyAdmin(String userName, String password,
+            String title, String messageBody) {
+        logger.info("Notify admin! user: " + userName +
+                "; title: " + title);
+        
+        //TODO: check the security
+        
+        super.updateUserActivity(userName);
+        
+        db.startDBSession();
+        User user = userManager.getUser(userName);
+        messageSender.sendMessage(messageBody, title, user);
+        db.commitDBSession();
+    }
+    
     private static WSUserGroup createWSUserGroup(Group group) {
         if (group == null) return null;
         WSUserGroup wsug = new WSUserGroup();
