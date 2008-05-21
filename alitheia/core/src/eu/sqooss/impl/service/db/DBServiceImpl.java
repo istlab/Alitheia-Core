@@ -509,7 +509,7 @@ e.printStackTrace();
     /* (non-Javadoc)
      * @see eu.sqooss.service.db.DBService#deleteRecords(java.util.List)
      */
-    public boolean deleteRecords(List<DAObject> records) {
+    public <T extends DAObject> boolean deleteRecords(List<T> records) {
         if( !checkSession() )
             return false;
 

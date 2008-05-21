@@ -214,7 +214,7 @@ public interface DBService {
      * @param records the list of records to remove from the database
      * @return true if all the record deletions succeeded, false otherwise
      */
-    public boolean deleteRecords(List<DAObject> records);
+    public <T extends DAObject> boolean deleteRecords(List<T> records);
 
     /**
      * Add a new composite-key association to the system database.
