@@ -37,9 +37,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
-
 import eu.sqooss.impl.service.CoreActivator;
 
 public class Directory extends DAObject {
@@ -55,13 +52,15 @@ public class Directory extends DAObject {
     
     /**
      * Return the entry in the Directory table that corresponds to the
-     * passed argument. If the entry does not exist, it will be created 
-     * and saved. 
+     * passed argument. If the entry does not exist, it will optionally be 
+     * created and saved, depending on the second parameter
      *  
-     * @param path The path of the Directory to return
+     * @param path The path of the Directory to search for
+     * @param create Whether or not the directory entry will be created if
+     * not found. If true, it will be created.
      * @return A Directory record for the specified path or null on failure
      */
-    public static Directory getDirectory(String path) {
+    public static Directory getDirectory(String path, boolean create) {
         
         DBService dbs = CoreActivator.getDBService();
         Map<String,Object> parameterMap = new HashMap<String,Object>();
@@ -74,15 +73,18 @@ public class Directory extends DAObject {
         if ( !dirs.isEmpty() )
             return dirs.get(0);
         
-        /* Dir path not in table create it */ 
-        Directory d = new Directory();
-        d.setPath(path);
-        if ( !dbs.addRecord(d) )
-            return null;
+        if (create) {
+            /* Dir path not in table, create it */ 
+            Directory d = new Directory();
+            d.setPath(path);
+            if (!dbs.addRecord(d))
+                return null;
         
-        return d;
+            return d;
+        }
+        //Dir not found and not created
+        return null;
     }
-    
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

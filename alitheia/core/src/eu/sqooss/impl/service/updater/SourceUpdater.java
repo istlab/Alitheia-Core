@@ -199,7 +199,7 @@ class SourceUpdater extends Job {
                     Directory dir = null;
                     dir = (Directory) dirCache.get(path);
                     if (dir == null) {
-                        dir = Directory.getDirectory(path);
+                        dir = Directory.getDirectory(path, true);
                         dirCache.put(path, dir);
                     }
                     
