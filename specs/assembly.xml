@@ -1,0 +1,18 @@
+<assembly>
+  <id>sqooss.ui.eclipse</id>
+  <includeBaseDirectory>false</includeBaseDirectory>
+  <formats>
+     <format>jar</format>
+  </formats>
+  <dependencySets>
+    <dependencySet>
+      <outputDirectory>/</outputDirectory>
+      <outputFileNameMapping>${groupId}.${artifactId}-${version}.${extension}</outputFileNameMapping>
+      <unpack>false</unpack>
+      <scope>compile</scope>
+      <excludes>
+        <exclude>eu.sqooss:specs</exclude>
+      </excludes>
+    </dependencySet>
+  </dependencySets>
+</assembly>

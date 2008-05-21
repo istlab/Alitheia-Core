@@ -30,13 +30,14 @@
   </scm>
 
   <build>
-    <defaultGoal>deploy:deploy</defaultGoal>
+    <defaultGoal>package</defaultGoal>
     <sourceDirectory>${basedir}/src</sourceDirectory>
     <outputDirectory>${basedir}/build</outputDirectory>
     <plugins>
       <plugin>
         <artifactId>maven-jar-plugin</artifactId>
         <configuration>
+          <outputDirectory>${topdir}/equinox</outputDirectory>
           <finalName>${groupId}.${artifactId}-${version}</finalName>
           <archive>
             <manifestFile>${basedir}/manifest/specs.mf</manifestFile>
@@ -45,12 +46,24 @@
         </configuration>
       </plugin>
       <plugin>
-        <artifactId>maven-deploy-plugin</artifactId>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>2.1</version>
         <configuration>
-          <generatePom>false</generatePom>
+          <outputDirectory>${basedir}</outputDirectory>
+          <finalName>libs</finalName>
+          <appendAssemblyId>false</appendAssemblyId>
+          <descriptors>
+            <descriptor>${basedir}/assembly.xml</descriptor>
+          </descriptors>
         </configuration>
       </plugin>
     </plugins>
+    <resources>
+      <resource>
+        <directory>${basedir}/libs</directory>
+        <targetPath>.</targetPath>
+      </resource>
+    </resources>
   </build>
 
   <dependencies>
@@ -66,14 +79,12 @@
       <artifactId>scl</artifactId>
       <version>[0.0.1,)</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>eu.sqooss.ui.scl</groupId>
       <artifactId>client</artifactId>
       <version>[0.0.1,)</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.eclipse.equinox</groupId>
