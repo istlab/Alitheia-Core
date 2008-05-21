@@ -21,7 +21,7 @@ public class FirstUser
 	
 	public boolean userIsInGroup(String groupName)
 	{
-		WSUserGroup[] groups = user.getUserGroups();
+		WSUserGroup[] groups = user.getGroups();
 		
 		for (WSUserGroup group : groups)
 		{

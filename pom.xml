@@ -119,6 +119,7 @@
     <module>alitheia</module>
     <module>metrics</module>
     <module>ui</module>
+    <module>specs</module>
   </modules>
 </project>
 

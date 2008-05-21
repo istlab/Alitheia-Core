@@ -2,12 +2,12 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>eu.sqooss</groupId>
-    <artifactId>alitheia</artifactId>
-    <version>1.0.0</version>
+    <groupId>eu</groupId>
+    <artifactId>sqooss</artifactId>
+    <version>0.0.1</version>
   </parent>
 
-  <groupId>eu.sqooss.alitheia</groupId>
+  <groupId>eu.sqooss</groupId>
   <artifactId>specs</artifactId>
   <version>0.0.1</version>
   <packaging>jar</packaging>
