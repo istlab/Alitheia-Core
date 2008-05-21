@@ -179,7 +179,7 @@ public interface DBService {
      * @param records the list of records to persist into the database
      * @return true if all the record insertions succeeded, false otherwise
      */
-    public boolean addRecords(List<DAObject> records);
+    public <T extends DAObject> boolean addRecords(List<T> records);
 
 //    /**
 //     * Update an existing record in the system database, using the default database session.

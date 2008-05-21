@@ -455,7 +455,7 @@ e.printStackTrace();
     /* (non-Javadoc)
      * @see eu.sqooss.service.db.DBService#addRecords(java.util.List)
      */
-    public boolean addRecords(List<DAObject> records) {
+    public <T extends DAObject> boolean addRecords(List<T> records) {
         if( !checkSession() )
             return false;
 
