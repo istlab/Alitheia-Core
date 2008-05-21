@@ -15,4 +15,13 @@
       </excludes>
     </dependencySet>
   </dependencySets>
+  <fileSets>
+    <fileSet>
+      <outputDirectory>/</outputDirectory>
+      <directory>src</directory>
+      <includes>
+        <include>**/*.html</include>
+      </includes>
+    </fileSet>
+  </fileSets>
 </assembly>
