@@ -34,6 +34,8 @@
 package eu.sqooss.impl.metrics.clmt;
 
 import java.io.ByteArrayInputStream;
+import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.clmt.cache.Cache;
@@ -46,6 +48,7 @@ import org.clmt.configuration.properties.CLMTProperties;
 import org.clmt.configuration.properties.Config;
 import org.clmt.metrics.MetricInstantiationException;
 import org.clmt.metrics.MetricList;
+import org.clmt.metrics.MetricNameCategory;
 import org.clmt.metrics.MetricResult;
 import org.clmt.metrics.MetricResultList;
 import org.clmt.sqooss.AlitheiaFileAdapter;
@@ -53,8 +56,12 @@ import org.clmt.sqooss.AlitheiaLoggerAdapter;
 
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.AbstractMetricJob;
+import eu.sqooss.service.db.CodeConstructType;
+import eu.sqooss.service.db.CodeUnitMeasurement;
 import eu.sqooss.service.db.Metric;
+import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
+import eu.sqooss.service.db.ProjectVersionMeasurement;
 import eu.sqooss.service.fds.InMemoryCheckout;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
 import eu.sqooss.service.tds.InvalidRepositoryException;
@@ -66,6 +73,9 @@ public class CLTMJob extends AbstractMetricJob {
     private AbstractMetric parent = null;
     
     private ProjectVersion pv;
+    
+    private List<ProjectVersionMeasurement> pvm;
+    private List<CodeUnitMeasurement> cum;
     
     private final String XMLTaskProto = "<task>\n"     +
     "  <description>%s </description>\n"               +
@@ -84,6 +94,8 @@ public class CLTMJob extends AbstractMetricJob {
         super(owner);
         parent = owner;
         this.pv = p;
+        pvm = new ArrayList<ProjectVersionMeasurement>();
+        cum = new ArrayList<CodeUnitMeasurement>();
     }
 
     public int priority() {
@@ -172,14 +184,70 @@ public class CLTMJob extends AbstractMetricJob {
         
         System.out.println(mrlist.toString());
         
-        String[] keys = mrlist.getNames();
+        String[] keys = mrlist.getFilenames();
         MetricResult[] lmr = null;
-        for(String key: keys) {
-            lmr = mrlist.getResult(key);
+        for(String file: keys) {
+            lmr = mrlist.getResultsByFilename(file);
             
+            for(MetricResult mr : lmr) {
+                if (mr.getNameCategory() == MetricNameCategory.PROJECT_WIDE) {
+                    storeProjectWideResult(mr);
+                } else {
+                    storeConstructMetric(file, mr);
+                }
+            }
         }
         
+        //db.addRecords(pvm);
+        //db.addRecords(cum);
         db.commitDBSession();
+    }
+
+    private void storeConstructMetric(String fileName, MetricResult mr) {
+        Metric m =  Metric.getMetricByMnemonic(mr.getName());
+        
+        //This measurement is not to be stored yet
+        if (m == null) {
+            return;
+        }
+        
+        ProjectFile pf = ProjectFile.getLatestVersion(pv, fileName);
+        
+        if (pf == null) {
+            log.warn("Cannot find path: " + fileName + " for project:" +
+                    pv.getProject().getName() +" version:" + 
+                    pv.getVersion() + ". Result not stored.");
+            return;
+        }
+        
+        MetricNameCategory mnc = mr.getNameCategory();
+                
+        CodeUnitMeasurement meas = new CodeUnitMeasurement();
+        meas.setMetric(m);
+        meas.setProjectFile(pf);
+        meas.setResult(mr.getValue());
+        meas.setCodeConstructName(mr.getName());
+        meas.setCodeConstructType(new CodeConstructType(CodeConstructType.ConstructType.fromString(mnc.toString())));
+        meas.setWhenRun(new Timestamp(System.currentTimeMillis()));
+        
+        cum.add(meas);
+    }
+
+    private void storeProjectWideResult(MetricResult mr) {
+        Metric m =  Metric.getMetricByMnemonic(mr.getName());
+        
+        //This measurement is not to be stored yet
+        if (m == null) {
+            return;
+        }
+        
+        ProjectVersionMeasurement meas = new ProjectVersionMeasurement();
+        meas.setProjectVersion(pv);
+        meas.setResult(mr.getValue());
+        meas.setWhenRun(new Timestamp(System.currentTimeMillis()));
+        meas.setMetric(m);
+        
+        pvm.add(meas);
     }
 }
 

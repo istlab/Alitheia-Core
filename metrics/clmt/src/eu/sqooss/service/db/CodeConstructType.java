@@ -76,7 +76,7 @@ public class CodeConstructType extends DAObject {
         this.type = ConstructType.fromString(s).toString();
     }
     
-    public static CodeConstructType getMetricType(ConstructType t) {
+    public static CodeConstructType getConstructType(ConstructType t) {
         DBService db = CoreActivator.getDBService();
         HashMap<String, Object> s = new HashMap<String, Object>();
         s.put("type", t.toString());
