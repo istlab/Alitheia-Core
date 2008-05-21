@@ -39,7 +39,7 @@ import eu.sqooss.scl.WSSession;
 
 public class SpecsActivator implements BundleActivator {
 
-    public void start(BundleContext bc) {
+    public void start(BundleContext bc) throws Exception {
         try {
         	System.out.println("SpecsActivator: creating session");
         	new WSSession("alitheia", "alitheia", "http://localhost:8088/sqooss/services/ws/");
