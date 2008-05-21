@@ -41,9 +41,9 @@ public class SpecsActivator implements BundleActivator {
 
     public void start(BundleContext bc) throws Exception {
         try {
-        	System.out.println("SpecsActivator: creating session");
-        	new WSSession("alitheia", "alitheia", "http://localhost:8088/sqooss/services/ws/");
-        	System.out.println("SpecsActivator: SUCCESS");
+            System.out.println("SpecsActivator: creating session");
+            new WSSession("alitheia", "alitheia", "http://localhost:8088/sqooss/services/ws/");
+            System.out.println("SpecsActivator: SUCCESS");
         } catch (Exception e) {
         	e.printStackTrace();
         }
