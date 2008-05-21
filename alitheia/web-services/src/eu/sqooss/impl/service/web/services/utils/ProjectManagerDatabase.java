@@ -170,16 +170,7 @@ public class ProjectManagerDatabase implements ProjectManagerDBQueries {
         }
         queryParameters.put(GET_DEVELOPERS_BY_IDS_PARAM, idsCollection);
         return db.doHQL(GET_DEVELOPERS_BY_IDS, null, queryParameters);
-    }
-    
-    public long createNewProject(StoredProject newProject, ProjectVersion newProjectVersion) {
-            db.addRecord(newProject);
-            long newProjectId = newProject.getId();
-            newProjectVersion.setProject(newProject);
-            db.addRecord(newProjectVersion);
-            return newProjectId;
-    }
-    
+    }    
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
