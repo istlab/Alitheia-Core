@@ -42,6 +42,8 @@ import java.util.TreeSet;
 
 import org.apache.commons.collections.LRUMap;
 
+import sun.misc.GC.LatencyRequest;
+
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Developer;
@@ -120,18 +122,19 @@ class SourceUpdater extends Job {
         try {
 
             // This is the last version we actually know about
-            ProjectVersion lastVersion = StoredProject.getLastProjectVersion(project);
+            ProjectVersion versionDao = StoredProject.getLastProjectVersion(project);
+            final long lastProjectVersion = (versionDao != null) ? versionDao.getVersion() : 0;
             SCMAccessor scm = tds.getAccessor(project.getId()).getSCMAccessor();
-            long lastSCMVersion = scm.getHeadRevision();
+            final long lastSCMVersion = scm.getHeadRevision();
             
             /* Don't choke when called to update an up-to-date project*/
-            if (lastVersion.getVersion() >= lastSCMVersion) {
+            if (lastProjectVersion >= lastSCMVersion) {
                 dbs.commitDBSession();
                 return;
             }
             
             CommitLog commitLog = scm.getCommitLog(
-                    new ProjectRevision(lastVersion.getVersion() + 1),
+                    new ProjectRevision(lastProjectVersion + 1),
                     new ProjectRevision(lastSCMVersion));
 
             logger.info(project.getName() + ": Log entries: " + commitLog.size());

@@ -930,8 +930,8 @@ public class FDSServiceImpl implements FDSService {
         } else {
             logger.info("Testing timeline over project " + testProject.getName());
             Timeline timeline = getTimeline(testProject);
-            final long lastVersionNum = StoredProject.getLastProjectVersion(testProject)
-                                     .getVersion();
+            ProjectVersion v = StoredProject.getLastProjectVersion(testProject);
+            final long lastVersionNum = (v != null) ? v.getVersion() : 0 ;
             if ( lastVersionNum < 5 ) {
                 logger.info("Project has too little versions to test timeline, skipping tests.");
             } else {

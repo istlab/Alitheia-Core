@@ -171,11 +171,10 @@ public class StoredProject extends DAObject {
         Map<String,Object> parameterMap = new HashMap<String,Object>();
         parameterMap.put("name",name);
         List<StoredProject> prList = dbs.findObjectsByProperties(StoredProject.class, parameterMap);
-        return (prList == null || prList.size() != 1) ? null : prList.get(0);
+        return (prList == null || prList.isEmpty()) ? null : prList.get(0);
     }
 
     public static ProjectVersion getLastProjectVersion(StoredProject project) {
-        ProjectVersion lastVersion = null;
         DBService dbs = CoreActivator.getDBService();
 
         Map<String,Object> parameterMap = new HashMap<String,Object>();
@@ -185,23 +184,7 @@ public class StoredProject extends DAObject {
                 + " ProjectVersion pv2 where pv2.project=:sp)",
                 parameterMap);
 
-        if ((pvList == null) || (pvList.size()==0)) {
-            lastVersion = new ProjectVersion();
-            lastVersion.setProject(project);
-            lastVersion.setVersion(0);
-            return lastVersion;
-        }
-        
-        for (Object o : pvList) {
-            if (o instanceof ProjectVersion) {
-                ProjectVersion op = (ProjectVersion)o;
-            }
-        }
-        if (pvList.size() > 1) {
-        }
-        
-        lastVersion = (ProjectVersion) pvList.get(0);
-        return lastVersion;
+        return (pvList == null || pvList.isEmpty()) ? null : (ProjectVersion) pvList.get(0);
     }
 }
 
