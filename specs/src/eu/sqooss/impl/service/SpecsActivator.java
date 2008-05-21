@@ -47,7 +47,8 @@ public class SpecsActivator implements BundleActivator {
         } catch (Exception e) {
         	e.printStackTrace();
         }
-        System.exit(0);
+        // Do not stop the system while the bundle is starting!!!
+        //System.exit(0);
     }
 
     public void stop(BundleContext bc) throws Exception {
