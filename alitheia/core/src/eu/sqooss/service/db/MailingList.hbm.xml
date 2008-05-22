@@ -9,6 +9,6 @@
       <generator class="native" />
     </id>
     <property name="listId" column="MLIST_LISTID" not-null="true"/>
-    <many-to-one name="storedProject" column="PROJECT_ID" cascade="merge" />
+    <many-to-one name="storedProject" column="PROJECT_ID" not-null="true" cascade="merge" />
   </class>
 </hibernate-mapping>
