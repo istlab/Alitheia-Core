@@ -287,17 +287,6 @@ public class Project extends WebuiItem {
         return versions;
     }
 
-/*
-    public Long[] getVersionIds() {
-        Long[] vs = new Long[versions.size()];
-        int i = 0;
-        for (Long k: versions.keySet()) {
-            vs[i] = k;
-            i++;
-        }
-        return vs;
-    }
-*/
     /**
      * Returns the last selected version of this project.
      * 
