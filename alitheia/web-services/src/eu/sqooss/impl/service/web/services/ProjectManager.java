@@ -78,7 +78,7 @@ public class ProjectManager extends AbstractManager {
         List<?> projects = dbWrapper.getEvaluatedProjects();
         WSStoredProject[] wsSP = WSStoredProject.asArray(projects);
         db.commitDBSession();
-        return wsSP;
+        return (WSStoredProject[]) normalizeWSArrayResult(wsSP);
     }
     
     /**
@@ -102,7 +102,7 @@ public class ProjectManager extends AbstractManager {
         } else {
             WSStoredProject[] wsSP = WSStoredProject.asArray(l);
             db.commitDBSession();
-            return wsSP;
+            return (WSStoredProject[]) normalizeWSArrayResult(wsSP);
         }
     }
     
@@ -150,7 +150,7 @@ public class ProjectManager extends AbstractManager {
             List<ProjectVersion> projectVersions = storedProject.getProjectVersions();
             WSProjectVersion[] wspv = WSProjectVersion.asArray(projectVersions);
             db.commitDBSession();
-            return wspv;
+            return (WSProjectVersion[]) normalizeWSArrayResult(wspv);
         } else {
             db.rollbackDBSession();
             return null;
@@ -177,7 +177,7 @@ public class ProjectManager extends AbstractManager {
         List<?> wspv = dbWrapper.getProjectVersionsByIds(projectVersionsIds);
         db.commitDBSession();
 
-        return WSProjectVersion.asArray(wspv);
+        return (WSProjectVersion[]) normalizeWSArrayResult(WSProjectVersion.asArray(wspv));
     }
     
     /**
@@ -200,7 +200,7 @@ public class ProjectManager extends AbstractManager {
         List<?> wssp = dbWrapper.getProjectsByIds(projectsIds);
         db.commitDBSession();
         
-        return WSStoredProject.asArray(wssp);
+        return (WSStoredProject[]) normalizeWSArrayResult(WSStoredProject.asArray(wssp));
     }
     
     /**
@@ -219,7 +219,7 @@ public class ProjectManager extends AbstractManager {
 
         WSProjectFile[] wspf = convertToWSProjectFiles(queryResult);
         db.commitDBSession();
-        return wspf;
+        return (WSProjectFile[]) normalizeWSArrayResult(wspf);
     }
     
     /**
@@ -239,7 +239,7 @@ public class ProjectManager extends AbstractManager {
         
         WSProjectFile[] wspf = convertToWSProjectFiles(queryResult);
         db.commitDBSession();
-        return wspf;
+        return (WSProjectFile[]) normalizeWSArrayResult(wspf);
     }
     
     /**
@@ -260,7 +260,7 @@ public class ProjectManager extends AbstractManager {
         WSFileGroup[] wsfg = WSFileGroup.asArray(queryResult);
         db.commitDBSession();
         
-        return wsfg;
+        return (WSFileGroup[]) normalizeWSArrayResult(wsfg);
     }
     
     /**
@@ -315,7 +315,7 @@ public class ProjectManager extends AbstractManager {
         List<?> queryResult = dbWrapper.getDirectoriesByIds(directoriesIds);
         db.commitDBSession();
         
-        return WSDirectory.asArray(queryResult);
+        return (WSDirectory[]) normalizeWSArrayResult(WSDirectory.asArray(queryResult));
     }
     
     /**
@@ -338,7 +338,7 @@ public class ProjectManager extends AbstractManager {
         List<?> developers = dbWrapper.getDevelopersByIds(developersIds);
         db.commitDBSession();
         
-        return WSDeveloper.asArray(developers);
+        return (WSDeveloper[]) normalizeWSArrayResult(WSDeveloper.asArray(developers));
     }
     
     private WSProjectFile[] convertToWSProjectFiles(List<?> projectFiles) {

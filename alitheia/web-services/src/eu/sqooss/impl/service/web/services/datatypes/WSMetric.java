@@ -156,7 +156,7 @@ public class WSMetric {
      */
     public static WSMetric[] asArray(List<?> metrics) {
         WSMetric[] result = null;
-        if ((metrics != null) && (!metrics.isEmpty())) {
+        if (metrics != null) {
             result = new WSMetric[metrics.size()];
             Metric currentElem;
             for (int i = 0; i < result.length; i++) {

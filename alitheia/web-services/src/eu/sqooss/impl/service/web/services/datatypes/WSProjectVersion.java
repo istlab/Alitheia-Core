@@ -188,7 +188,7 @@ public class WSProjectVersion {
      */
     public static WSProjectVersion[] asArray(List<?> projectVersions) {
         WSProjectVersion[] result = null;
-        if ((projectVersions != null) && (!projectVersions.isEmpty())) {
+        if (projectVersions != null) {
             result = new WSProjectVersion[projectVersions.size()];
             ProjectVersion currentElem;
             for (int i = 0; i < result.length; i++) {

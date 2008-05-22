@@ -32,6 +32,7 @@
 
 package eu.sqooss.impl.service.web.services;
 
+import java.lang.reflect.Array;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
@@ -50,6 +51,10 @@ public abstract class AbstractManager {
         this.db = db;
     }
     
+    /**
+     * The method updates the user's activity.
+     * In this way the system can remove an unused account.
+     */
     protected boolean updateUserActivity(String userName) {
         Map<String,Object> properties = new Hashtable<String, Object>(1);
         properties.put(ATTRIBUTE_USER_NAME, userName);
@@ -62,6 +67,27 @@ public abstract class AbstractManager {
         } else {
             db.rollbackDBSession();
             return false; // the user doesn't exist
+        }
+    }
+    
+    /**
+     * Normalize a web-service result.
+     * You can't send an empty arrays.
+     * These array are replaced with <code>null</code>.
+     *
+     * If the result is not an array, nothing
+     * happens, so this is safe to apply to any result.
+     *
+     * @param result Object, possibly an array
+     * 
+     * @return the normalized object
+     */
+    protected static Object normalizeWSArrayResult(Object result) {
+        if ((result != null) && (result.getClass().isArray()) &&
+                (Array.getLength(result) == 0)) {
+            return null;
+        } else {
+            return result;
         }
     }
     

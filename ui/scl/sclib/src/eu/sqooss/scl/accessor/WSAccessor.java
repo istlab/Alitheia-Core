@@ -63,7 +63,7 @@ public abstract class WSAccessor {
      * @param result Object, possibly an array, to de-munge
      * @return Un-munged object, if applicable
      */
-    protected Object normaliseWSArrayResult(Object result) {
+    protected Object normalizeWSArrayResult(Object result) {
         if ((result != null) && (result.getClass().isArray()) &&
                 (Array.getLength(result) != 0) && (Array.get(result, 0) == null)) {
             return Array.newInstance(result.getClass().getComponentType(), 0);

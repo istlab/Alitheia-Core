@@ -117,13 +117,13 @@ public class UserManager extends AbstractManager {
             }
         }
         db.commitDBSession();
-        
+        WSUser[] result;
         if (!users.isEmpty()) {
-            return users.toArray(new WSUser[users.size()]);
+            result = users.toArray(new WSUser[users.size()]);
         } else {
-            return null;
+            result = null;
         }
-        
+        return (WSUser[]) normalizeWSArrayResult(result);
     }
     
     /**
@@ -149,7 +149,7 @@ public class UserManager extends AbstractManager {
         if (result.length == 0) {
             return null;
         } else {
-            return result;
+            return (WSUserGroup[]) normalizeWSArrayResult(result);
         }
     }
     

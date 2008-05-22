@@ -153,7 +153,7 @@ public class WSDeveloper {
      */
     public static WSDeveloper[] asArray(List<?> developers) {
         WSDeveloper[] result = null;
-        if ((developers != null) && (!developers.isEmpty())) {
+        if (developers != null) {
             result = new WSDeveloper[developers.size()];
             Developer currentElem;
             for (int i = 0; i < result.length; i++) {

@@ -150,7 +150,7 @@ class WSUserAccessorImpl extends WSUserAccessor {
                 throw new WSException(re);
             }
         }
-        return (WSUser[]) normaliseWSArrayResult(response.get_return());
+        return (WSUser[]) normalizeWSArrayResult(response.get_return());
     }
 
     /**
@@ -176,7 +176,7 @@ class WSUserAccessorImpl extends WSUserAccessor {
                 throw new WSException(re);
             }
         }
-        return (WSUserGroup[]) normaliseWSArrayResult(response.get_return());
+        return (WSUserGroup[]) normalizeWSArrayResult(response.get_return());
     }
 
     /**
@@ -203,7 +203,7 @@ class WSUserAccessorImpl extends WSUserAccessor {
                 throw new WSException(re);
             }
         }
-        return (WSUser) normaliseWSArrayResult(response.get_return());
+        return response.get_return();
     }
 
     /**

@@ -185,7 +185,7 @@ public class WSFileGroup {
      */
     public static WSFileGroup[] asArray(List<?> fileGroups) {
         WSFileGroup[] result = null;
-        if ((fileGroups != null) && (!fileGroups.isEmpty())) {
+        if (fileGroups != null) {
             result = new WSFileGroup[fileGroups.size()];
             FileGroup currentElem;
             for (int i = 0; i < result.length; i++) {

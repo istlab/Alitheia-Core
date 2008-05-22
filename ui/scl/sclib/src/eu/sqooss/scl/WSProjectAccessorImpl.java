@@ -145,7 +145,7 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
                 throw new WSException(e);
             }
         }
-        return (WSStoredProject[]) normaliseWSArrayResult(response.get_return());
+        return (WSStoredProject[]) normalizeWSArrayResult(response.get_return());
     }
 
     /**
@@ -171,7 +171,7 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
                 throw new WSException(e);
             }
         }
-        return (WSStoredProject[]) normaliseWSArrayResult(response.get_return());
+        return (WSStoredProject[]) normalizeWSArrayResult(response.get_return());
     }
 
     /**
@@ -198,7 +198,7 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
                 throw new WSException(re);
             }
         }
-        return (WSProjectFile[]) normaliseWSArrayResult(response.get_return());
+        return (WSProjectFile[]) normalizeWSArrayResult(response.get_return());
     }
 
     /**
@@ -225,7 +225,7 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
                 throw new WSException(re);
             }
         }
-        return (WSProjectFile[]) normaliseWSArrayResult(response.get_return());
+        return (WSProjectFile[]) normalizeWSArrayResult(response.get_return());
     }
 
     /**
@@ -252,7 +252,7 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
                 throw new WSException(re);
             }
         }
-        return (WSFileGroup[]) normaliseWSArrayResult(response.get_return());
+        return (WSFileGroup[]) normalizeWSArrayResult(response.get_return());
     }
     
     /**
@@ -337,7 +337,7 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
                 throw new WSException(re);
             }
         }
-        return (WSDirectory[]) normaliseWSArrayResult(response.get_return());
+        return (WSDirectory[]) normalizeWSArrayResult(response.get_return());
     }
 
     /**
@@ -366,7 +366,7 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
                 throw new WSException(re);
             }
         }
-        return (WSDeveloper[]) normaliseWSArrayResult(response.get_return());
+        return (WSDeveloper[]) normalizeWSArrayResult(response.get_return());
     }
 
     /**
@@ -422,7 +422,7 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
             }
         }
 
-        return (WSProjectVersion[]) normaliseWSArrayResult(response.get_return());
+        return (WSProjectVersion[]) normalizeWSArrayResult(response.get_return());
 
     }
 
@@ -453,7 +453,7 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
             }
         }
         
-        return (WSProjectVersion[]) normaliseWSArrayResult(response.get_return());
+        return (WSProjectVersion[]) normalizeWSArrayResult(response.get_return());
     }
 
     /**
@@ -482,7 +482,7 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
             }
         }
 
-        return (WSStoredProject[]) normaliseWSArrayResult(response.get_return());
+        return (WSStoredProject[]) normalizeWSArrayResult(response.get_return());
 
     }
 

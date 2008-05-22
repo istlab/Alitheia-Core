@@ -108,7 +108,7 @@ class WSMetricAccessorImpl extends WSMetricAccessor {
                 throw new WSException(re);
             }
         }
-        return (WSMetric[]) normaliseWSArrayResult(response.get_return());
+        return (WSMetric[]) normalizeWSArrayResult(response.get_return());
     }
 
     /**
@@ -136,7 +136,7 @@ class WSMetricAccessorImpl extends WSMetricAccessor {
                 throw new WSException(re);
             }
         }
-        return (WSMetricType[]) normaliseWSArrayResult(response.get_return());
+        return (WSMetricType[]) normalizeWSArrayResult(response.get_return());
     }
 
     /**
@@ -167,7 +167,7 @@ class WSMetricAccessorImpl extends WSMetricAccessor {
                 throw new WSException(re);
             }
         }
-        return (WSMetric[]) normaliseWSArrayResult(response.get_return());
+        return (WSMetric[]) normalizeWSArrayResult(response.get_return());
     }
 
     /**
@@ -194,7 +194,7 @@ class WSMetricAccessorImpl extends WSMetricAccessor {
                 throw new WSException(re);
             }
         }
-        return (WSResultEntry[]) normaliseWSArrayResult(response.get_return());
+        return (WSResultEntry[]) normalizeWSArrayResult(response.get_return());
     }
 
     private static boolean isValidArray(long[] arr) {

@@ -105,8 +105,7 @@ public class WSDirectory {
      */
     public static WSDirectory[] asArray(List<?> directories) {
         WSDirectory[] result = null;
-        if ((directories != null) && (!directories.isEmpty()) &&
-                (directories.get(0) instanceof Directory)) {
+        if (directories != null) {
             result = new WSDirectory[directories.size()];
             Directory currentElem;
             for (int i = 0; i < result.length; i++) {

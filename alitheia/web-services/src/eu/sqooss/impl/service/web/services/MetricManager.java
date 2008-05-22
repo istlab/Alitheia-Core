@@ -94,7 +94,7 @@ public class MetricManager extends AbstractManager {
         List<?> metrics = dbWrapper.getProjectEvaluatedMetrics(projectId);
         WSMetric[] wsMetrics = WSMetric.asArray(metrics);
         db.commitDBSession();
-        return wsMetrics;
+        return (WSMetric[]) normalizeWSArrayResult(wsMetrics);
     }
     
     /**
@@ -118,7 +118,7 @@ public class MetricManager extends AbstractManager {
         List<?> metricTypes = dbWrapper.getMetricTypesByIds(metricTypesIds);
         db.commitDBSession();
         
-        return WSMetricType.asArray(metricTypes);
+        return (WSMetricType[]) normalizeWSArrayResult(WSMetricType.asArray(metricTypes));
     }
     
     /**
@@ -135,6 +135,7 @@ public class MetricManager extends AbstractManager {
         
         super.updateUserActivity(userName);
         
+        WSMetric[] result;
         if (request.getSkipResourcesIds()) {
             List<Metric> metrics = new ArrayList<Metric>();
             if (request.getIsFileGroup()) {
@@ -153,13 +154,14 @@ public class MetricManager extends AbstractManager {
                 metrics.addAll(getMetrics(pluginAdmin.
                         listPluginProviders(StoredProject.class)));
             }
-            return WSMetric.asArray(metrics);
+            result = WSMetric.asArray(metrics);
         } else {
             db.startDBSession();
             List<?> metrics = dbWrapper.getMetricsByResourcesIds(request);
             db.commitDBSession();
-            return WSMetric.asArray(metrics);
+            result = WSMetric.asArray(metrics);
         }
+        return (WSMetric[]) normalizeWSArrayResult(result);
     }
     
     @SuppressWarnings("unchecked")
@@ -185,7 +187,7 @@ public class MetricManager extends AbstractManager {
             resultList.toArray(result);
         }
         db.commitDBSession();
-        return result;
+        return (WSResultEntry[]) normalizeWSArrayResult(result);
     }
     
     private List<WSResultEntry> getMetricsResult(List<Metric> metrics, DAObject daObject) {

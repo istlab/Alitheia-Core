@@ -188,7 +188,7 @@ public class WSStoredProject {
      */
     public static WSStoredProject[] asArray(List<?> storedProjects) {
         WSStoredProject[] result = null;
-        if ((storedProjects != null) && (!storedProjects.isEmpty())) {
+        if (storedProjects != null) {
             result = new WSStoredProject[storedProjects.size()];
             StoredProject currentElem;
             for (int i = 0; i < result.length; i++) {

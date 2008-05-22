@@ -108,7 +108,7 @@ public class WSMetricType {
      */
     public static WSMetricType[] asArray(List<?> metricTypes) {
         WSMetricType[] result = null;
-        if ((metricTypes != null) && (!metricTypes.isEmpty())) {
+        if (metricTypes != null) {
             result = new WSMetricType[metricTypes.size()];
             MetricType currentElem;
             for (int i = 0; i < result.length; i++) {

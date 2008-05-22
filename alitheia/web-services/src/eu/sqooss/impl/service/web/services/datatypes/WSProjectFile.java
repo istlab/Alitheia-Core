@@ -172,7 +172,7 @@ public class WSProjectFile {
      */
     public static WSProjectFile[] asList(List<?> projectFiles) {
         WSProjectFile[] result = null;
-        if ((projectFiles != null) && (!projectFiles.isEmpty())) {
+        if (projectFiles != null) {
             result = new WSProjectFile[projectFiles.size()];
             ProjectFile currentElem;
             for (int i = 0; i < result.length; i++) {
