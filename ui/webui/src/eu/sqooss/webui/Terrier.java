@@ -389,11 +389,9 @@ public class Terrier {
         try {
             try {
                 WSProjectFile[] wsfiles = connection.getProjectAccessor().getFilesByProjectVersionId(versionId);
-                //int i = 0;
                 for (WSProjectFile file : wsfiles) {
                     files.addElement(new File(file, this));
-                    addError("gPVF:" + file.getId());
-                    //view.addFile(new File(file, this));
+                    //addError("gPVF:" + file.getId());
                 }
             } catch (NullPointerException npe) {
                 addError("NPE looping files:" + npe.getMessage());

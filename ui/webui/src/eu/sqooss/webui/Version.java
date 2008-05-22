@@ -89,7 +89,7 @@ public class Version extends WebuiItem {
         fileCount = fs.size();
         if ( fs == null || fs.size() == 0 ) {
             //File f = new File(id, new Long(1337), "src/FakeFile.cpp", "DELETED", terrier);
-            files.put(new Long(1337), f);
+            //files.put(new Long(1337), f);
             return;
         }
         files = new TreeMap<Long, File>();

@@ -4,18 +4,16 @@
 <% // List files per selected project and version
 
 if (selectedProject.isValid()) {
-    // Retrieve the selected project's object
-    //Project selectedProject = ProjectsListView.getCurrentProject();
 
-    // Retrieve the selected project's version ()
-    //Long selectedVersion = selectedProject.getCurrentVersionId();
-    Version selectedVersion = selectedProject.getLastVersion();
-    /*
-    Long selectedVersionId = 0;
-    if (selectedVersion != null) {
-        selectedVersionId = selectedProject.getLastVersion().getId();
-    }
-    */
+    out.println("<h2>Files for"
+        + " project " + selectedProject.getName()
+        + "</h2>");
+
+    out.println(selectedProject.fileStats());
+    out.println(selectedProject.listFiles());
+
+
+    Version selectedVersion = selectedProject.getCurrentVersion();
     if (selectedVersion != null) {
         out.println("<h2>Files for"
             + " project " + selectedProject.getName()
@@ -23,24 +21,19 @@ if (selectedProject.isValid()) {
             + "</h2>");
 
         // Display all files in the selected project version
-        Long versionId = selectedProject.getCurrentVersionId();
-        // TODO: The files list should be cached in the Project object,
-        //       instead of calling the Terrier each time.
-        out.println (terrier.getFiles4ProjectVersion(versionId).getHtml());
+        out.println(selectedVersion.fileStats());
+        out.println(selectedVersion.listFiles());
     } else {
-        // We should probably just list the files in the project here,
-        // version-independent
-        out.println(Functions.error(
-        "FIXME: Please select a <a href=\"/versions.jsp\">select a project version.</a>"));
+        out.println(Functions.error("Please select a <a href=\"/versions.jsp\">select a project version.</a>"));
     }
 } else {
     out.println("<h2>Please select a select a project</h2>");
 
-// FIXME: Clicking on the project entries should get you to the file list
-// It now brings you to the project's dashboard
-%>
-    <%@ include file="/views/EvaluatedProjectsList.jsp" %>
-<%
+    // FIXME: Clicking on the project entries should get you to the file list
+    // It now brings you to the project's dashboard
+    %>
+        <%@ include file="/views/EvaluatedProjectsList.jsp" %>
+    <%
 }
 
 %>
