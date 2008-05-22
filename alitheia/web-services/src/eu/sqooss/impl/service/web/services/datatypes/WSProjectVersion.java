@@ -32,6 +32,8 @@
 
 package eu.sqooss.impl.service.web.services.datatypes;
 
+import java.util.List;
+
 import eu.sqooss.service.db.ProjectVersion;
 
 /**
@@ -169,6 +171,36 @@ public class WSProjectVersion {
         } catch (Exception e) {
             return null;
         }
+    }
+    
+    /**
+     * The method returns an array containing
+     * all of the elements in the project versions list.
+     * The list argument should contain DAO
+     * <code>ProjectVersion</code> objects.
+     *  
+     * @param projectVersions - the project versions list;
+     * the elements should be <code>ProjectVersion</code> objects  
+     * 
+     * @return - an array with <code>WSProjectVersion</code> objects;
+     * if the list is null, empty or contains different object type
+     * then the array is null
+     */
+    public static WSProjectVersion[] asArray(List<?> projectVersions) {
+        WSProjectVersion[] result = null;
+        if ((projectVersions != null) && (!projectVersions.isEmpty())) {
+            result = new WSProjectVersion[projectVersions.size()];
+            ProjectVersion currentElem;
+            for (int i = 0; i < result.length; i++) {
+                try {
+                    currentElem = (ProjectVersion) projectVersions.get(i);
+                } catch (ClassCastException e) {
+                    return null;
+                }
+                result[i] = WSProjectVersion.getInstance(currentElem);
+            }
+        }
+        return result;
     }
     
 }

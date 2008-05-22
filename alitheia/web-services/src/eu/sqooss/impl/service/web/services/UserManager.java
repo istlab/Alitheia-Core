@@ -35,8 +35,6 @@ package eu.sqooss.impl.service.web.services;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
 
 import eu.sqooss.impl.service.web.services.datatypes.WSUser;
 import eu.sqooss.impl.service.web.services.datatypes.WSUserGroup;

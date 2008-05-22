@@ -32,6 +32,8 @@
 
 package eu.sqooss.impl.service.web.services.datatypes;
 
+import java.util.List;
+
 import eu.sqooss.service.db.Metric;
 
 /**
@@ -137,6 +139,36 @@ public class WSMetric {
         } catch (Exception e) {
             return null;
         }
+    }
+    
+    /**
+     * The method returns an array containing
+     * all of the elements in the metrics list.
+     * The list argument should contain DAO
+     * <code>Metric</code> objects.
+     *  
+     * @param metrics - the metrics list;
+     * the elements should be <code>Metric</code> objects  
+     * 
+     * @return - an array with <code>WSMetric</code> objects;
+     * if the list is null, empty or contains different object type
+     * then the array is null
+     */
+    public static WSMetric[] asArray(List<?> metrics) {
+        WSMetric[] result = null;
+        if ((metrics != null) && (!metrics.isEmpty())) {
+            result = new WSMetric[metrics.size()];
+            Metric currentElem;
+            for (int i = 0; i < result.length; i++) {
+                try {
+                    currentElem = (Metric) metrics.get(i);
+                } catch (ClassCastException e) {
+                    return null;
+                }
+                result[i] = WSMetric.getInstance(currentElem);
+            }
+        }
+        return result;
     }
     
 }

@@ -32,6 +32,8 @@
 
 package eu.sqooss.impl.service.web.services.datatypes;
 
+import java.util.List;
+
 import eu.sqooss.service.db.StoredProject;
 
 /**
@@ -169,6 +171,36 @@ public class WSStoredProject {
         } catch (Exception e) {
             return null;
         }
+    }
+    
+    /**
+     * The method returns an array containing
+     * all of the elements in the stored projects list.
+     * The list argument should contain DAO
+     * <code>StoredProject</code> objects.
+     *  
+     * @param storedProjects - the stored projects list;
+     * the elements should be <code>StoredProject</code> objects  
+     * 
+     * @return - an array with <code>WSStoredProject</code> objects;
+     * if the list is null, empty or contains different object type
+     * then the array is null
+     */
+    public static WSStoredProject[] asArray(List<?> storedProjects) {
+        WSStoredProject[] result = null;
+        if ((storedProjects != null) && (!storedProjects.isEmpty())) {
+            result = new WSStoredProject[storedProjects.size()];
+            StoredProject currentElem;
+            for (int i = 0; i < result.length; i++) {
+                try {
+                    currentElem = (StoredProject) storedProjects.get(i);
+                } catch (ClassCastException e) {
+                    return null;
+                }
+                result[i] = WSStoredProject.getInstance(currentElem);
+            }
+        }
+        return result;
     }
     
 }

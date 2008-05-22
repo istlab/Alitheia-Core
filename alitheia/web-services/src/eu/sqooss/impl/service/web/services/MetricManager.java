@@ -53,7 +53,6 @@ import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.FileGroup;
 import eu.sqooss.service.db.Metric;
-import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
@@ -93,7 +92,7 @@ public class MetricManager extends AbstractManager {
         
         db.startDBSession();
         List<?> metrics = dbWrapper.getProjectEvaluatedMetrics(projectId);
-        WSMetric[] wsMetrics = convertToWSMetrics(metrics);
+        WSMetric[] wsMetrics = WSMetric.asArray(metrics);
         db.commitDBSession();
         return wsMetrics;
     }
@@ -119,7 +118,7 @@ public class MetricManager extends AbstractManager {
         List<?> metricTypes = dbWrapper.getMetricTypesByIds(metricTypesIds);
         db.commitDBSession();
         
-        return convertToWSMetricTypes(metricTypes);
+        return WSMetricType.asArray(metricTypes);
     }
     
     /**
@@ -154,12 +153,12 @@ public class MetricManager extends AbstractManager {
                 metrics.addAll(getMetrics(pluginAdmin.
                         listPluginProviders(StoredProject.class)));
             }
-            return convertToWSMetrics(metrics);
+            return WSMetric.asArray(metrics);
         } else {
             db.startDBSession();
             List<?> metrics = dbWrapper.getMetricsByResourcesIds(request);
             db.commitDBSession();
-            return convertToWSMetrics(metrics);
+            return WSMetric.asArray(metrics);
         }
     }
     
@@ -248,28 +247,6 @@ public class MetricManager extends AbstractManager {
             currentPlugin = pluginAdmin.getPlugin(pluginInfo);
             if (currentPlugin != null) {
                 result.addAll(currentPlugin.getSupportedMetrics());
-            }
-        }
-        return result;
-    }
-    
-    private WSMetric[] convertToWSMetrics(List<?> metrics) {
-        WSMetric[] result = null;
-        if ((metrics != null) && (!metrics.isEmpty())) {
-            result = new WSMetric[metrics.size()];
-            for (int i = 0; i < result.length; i++) {
-                result[i] = WSMetric.getInstance((Metric) metrics.get(i));
-            }
-        }
-        return result;
-    }
-    
-    private WSMetricType[] convertToWSMetricTypes(List<?> metricTypes) {
-        WSMetricType[] result = null;
-        if ((metricTypes != null) && (!metricTypes.isEmpty())) {
-            result = new WSMetricType[metricTypes.size()];
-            for (int i = 0; i < result.length; i++) {
-                result[i] = WSMetricType.getInstance((MetricType) metricTypes.get(i));
             }
         }
         return result;

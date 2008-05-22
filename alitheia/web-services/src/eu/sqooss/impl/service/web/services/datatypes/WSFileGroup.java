@@ -32,6 +32,8 @@
 
 package eu.sqooss.impl.service.web.services.datatypes;
 
+import java.util.List;
+
 import eu.sqooss.service.db.FileGroup;
 
 public class WSFileGroup {
@@ -166,6 +168,36 @@ public class WSFileGroup {
         } catch (Exception e) {
             return null;
         }
+    }
+    
+    /**
+     * The method returns an array containing
+     * all of the elements in the file groups list.
+     * The list argument should contain DAO
+     * <code>FileGroup</code> objects.
+     *  
+     * @param fileGroups - the file groups list;
+     * the elements should be <code>FileGroup</code> objects  
+     * 
+     * @return - an array with <code>WSFileGroup</code> objects;
+     * if the list is null, empty or contains different object type
+     * then the array is null
+     */
+    public static WSFileGroup[] asArray(List<?> fileGroups) {
+        WSFileGroup[] result = null;
+        if ((fileGroups != null) && (!fileGroups.isEmpty())) {
+            result = new WSFileGroup[fileGroups.size()];
+            FileGroup currentElem;
+            for (int i = 0; i < result.length; i++) {
+                try {
+                    currentElem = (FileGroup) fileGroups.get(i);
+                } catch (ClassCastException e) {
+                    return null;
+                }
+                result[i] = WSFileGroup.getInstance(currentElem);
+            }
+        }
+        return result;
     }
     
 }

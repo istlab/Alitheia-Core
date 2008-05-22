@@ -45,9 +45,6 @@ import eu.sqooss.impl.service.web.services.datatypes.WSStoredProject;
 import eu.sqooss.impl.service.web.services.utils.ProjectManagerDatabase;
 import eu.sqooss.impl.service.web.services.utils.SecurityWrapper;
 import eu.sqooss.service.db.DBService;
-import eu.sqooss.service.db.Developer;
-import eu.sqooss.service.db.Directory;
-import eu.sqooss.service.db.FileGroup;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
@@ -79,7 +76,7 @@ public class ProjectManager extends AbstractManager {
         
         db.startDBSession();
         List<?> projects = dbWrapper.getEvaluatedProjects();
-        WSStoredProject[] wsSP = convertToWSStoredProject(projects);
+        WSStoredProject[] wsSP = WSStoredProject.asArray(projects);
         db.commitDBSession();
         return wsSP;
     }
@@ -103,7 +100,7 @@ public class ProjectManager extends AbstractManager {
             db.rollbackDBSession();
             return null;
         } else {
-            WSStoredProject[] wsSP = convertToWSStoredProject(l);
+            WSStoredProject[] wsSP = WSStoredProject.asArray(l);
             db.commitDBSession();
             return wsSP;
         }
@@ -151,7 +148,7 @@ public class ProjectManager extends AbstractManager {
         if (!storedProjects.isEmpty()) {
             StoredProject storedProject = (StoredProject) storedProjects.get(0);
             List<ProjectVersion> projectVersions = storedProject.getProjectVersions();
-            WSProjectVersion[] wspv = convertToWSProjectVersion(projectVersions);
+            WSProjectVersion[] wspv = WSProjectVersion.asArray(projectVersions);
             db.commitDBSession();
             return wspv;
         } else {
@@ -180,7 +177,7 @@ public class ProjectManager extends AbstractManager {
         List<?> wspv = dbWrapper.getProjectVersionsByIds(projectVersionsIds);
         db.commitDBSession();
 
-        return convertToWSProjectVersion(wspv);
+        return WSProjectVersion.asArray(wspv);
     }
     
     /**
@@ -203,7 +200,7 @@ public class ProjectManager extends AbstractManager {
         List<?> wssp = dbWrapper.getProjectsByIds(projectsIds);
         db.commitDBSession();
         
-        return convertToWSStoredProject(wssp);
+        return WSStoredProject.asArray(wssp);
     }
     
     /**
@@ -260,7 +257,7 @@ public class ProjectManager extends AbstractManager {
         
         db.startDBSession();
         List<?> queryResult = dbWrapper.getFileGroupsByProjectId(projectId);
-        WSFileGroup[] wsfg = convertToWSFileGroup(queryResult);
+        WSFileGroup[] wsfg = WSFileGroup.asArray(queryResult);
         db.commitDBSession();
         
         return wsfg;
@@ -318,7 +315,7 @@ public class ProjectManager extends AbstractManager {
         List<?> queryResult = dbWrapper.getDirectoriesByIds(directoriesIds);
         db.commitDBSession();
         
-        return convertToWSDirectory(queryResult);
+        return WSDirectory.asArray(queryResult);
     }
     
     /**
@@ -341,20 +338,17 @@ public class ProjectManager extends AbstractManager {
         List<?> developers = dbWrapper.getDevelopersByIds(developersIds);
         db.commitDBSession();
         
-        return convertToWSDeveloper(developers);
+        return WSDeveloper.asArray(developers);
     }
     
     private WSProjectFile[] convertToWSProjectFiles(List<?> projectFiles) {
         WSProjectFile[] result = null;
         if ((projectFiles != null) && (projectFiles.size() != 0)) {
-            result = new WSProjectFile[projectFiles.size()];
             Object currentElem = projectFiles.get(0);
             if (currentElem instanceof ProjectFile) { //parse HQL
-                for (int i = 0; i < result.length; i++) {
-                    currentElem = projectFiles.get(i);
-                    result[i] = WSProjectFile.getInstance((ProjectFile) currentElem);
-                }
+                result = WSProjectFile.asList(projectFiles);
             } else if (currentElem.getClass().isArray()) { //parse SQL
+                result = new WSProjectFile[projectFiles.size()];
                 BigInteger fileId;
                 BigInteger projectVersionId;
                 BigInteger directoryId;
@@ -382,71 +376,6 @@ public class ProjectManager extends AbstractManager {
                     
                     result[i] = currentWSProjectFile;
                 }
-            }
-        }
-        return result;
-    }
-    
-    private WSProjectVersion[] convertToWSProjectVersion(List<?> projectVersions) {
-        WSProjectVersion[] result = null;
-        if ((projectVersions != null) && (projectVersions.size() != 0)) {
-            result = new WSProjectVersion[projectVersions.size()];
-            ProjectVersion currentElem;
-            for (int i = 0; i < result.length; i++) {
-                currentElem = (ProjectVersion) projectVersions.get(i);
-                result[i] = WSProjectVersion.getInstance(currentElem);
-            }
-        }
-        return result;
-    }
-    
-    private WSStoredProject[] convertToWSStoredProject(List<?> storedProjects) {
-        WSStoredProject[] result = null;
-        if ((storedProjects != null) && (storedProjects.size() != 0)) {
-            result = new WSStoredProject[storedProjects.size()];
-            StoredProject currentElem;
-            for (int i = 0; i < result.length; i++) {
-                currentElem = (StoredProject) storedProjects.get(i);
-                result[i] = WSStoredProject.getInstance(currentElem);
-            }
-        }
-        return result;
-    }
-    
-    private WSFileGroup[] convertToWSFileGroup(List<?> fileGroups) {
-        WSFileGroup[] result = null;
-        if ((fileGroups != null) && (fileGroups.size() != 0)) {
-            result = new WSFileGroup[fileGroups.size()];
-            FileGroup currentElem;
-            for (int i = 0; i < result.length; i++) {
-                currentElem = (FileGroup) fileGroups.get(i);
-                result[i] = WSFileGroup.getInstance(currentElem);
-            }
-        }
-        return result;
-    }
-    
-    private WSDirectory[] convertToWSDirectory(List<?> directories) {
-        WSDirectory[] result = null;
-        if ((directories != null) && (directories.size() != 0)) {
-            result = new WSDirectory[directories.size()];
-            Directory currentElem;
-            for (int i = 0; i < result.length; i++) {
-                currentElem = (Directory) directories.get(i);
-                result[i] = WSDirectory.getInstance(currentElem);
-            }
-        }
-        return result;
-    }
-    
-    private WSDeveloper[] convertToWSDeveloper(List<?> developers) {
-        WSDeveloper[] result = null;
-        if ((developers != null) && (!developers.isEmpty())) {
-            result = new WSDeveloper[developers.size()];
-            Developer currentElem;
-            for (int i = 0; i < result.length; i++) {
-                currentElem = (Developer) developers.get(i);
-                result[i] = WSDeveloper.getInstance(currentElem);
             }
         }
         return result;

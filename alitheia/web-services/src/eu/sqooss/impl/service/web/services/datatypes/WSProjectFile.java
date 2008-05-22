@@ -32,6 +32,8 @@
 
 package eu.sqooss.impl.service.web.services.datatypes;
 
+import java.util.List;
+
 import eu.sqooss.service.db.ProjectFile;
 
 /**
@@ -153,6 +155,36 @@ public class WSProjectFile {
         } catch (Exception e) {
             return null;
         }
+    }
+    
+    /**
+     * The method returns an array containing
+     * all of the elements in the project files list.
+     * The list argument should contain DAO
+     * <code>ProjectFile</code> objects.
+     *  
+     * @param projectFiles - the project files list;
+     * the elements should be <code>ProjectFile</code> objects  
+     * 
+     * @return - an array with <code>WSProjectFile</code> objects;
+     * if the list is null, empty or contains different object type
+     * then the array is null
+     */
+    public static WSProjectFile[] asList(List<?> projectFiles) {
+        WSProjectFile[] result = null;
+        if ((projectFiles != null) && (!projectFiles.isEmpty())) {
+            result = new WSProjectFile[projectFiles.size()];
+            ProjectFile currentElem;
+            for (int i = 0; i < result.length; i++) {
+                try {
+                    currentElem = (ProjectFile) projectFiles.get(i);
+                } catch (ClassCastException e) {
+                    return null;
+                }
+                result[i] = WSProjectFile.getInstance(currentElem);
+            }
+        }
+        return result;
     }
     
 }

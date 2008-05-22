@@ -32,6 +32,8 @@
 
 package eu.sqooss.impl.service.web.services.datatypes;
 
+import java.util.List;
+
 import eu.sqooss.service.db.Developer;
 
 public class WSDeveloper {
@@ -134,6 +136,36 @@ public class WSDeveloper {
         } catch (Exception e) {
             return null;
         }
+    }
+    
+    /**
+     * The method returns an array containing
+     * all of the elements in the developers list.
+     * The list argument should contain DAO
+     * <code>Developer</code> objects.
+     *  
+     * @param developers - the developers list;
+     * the elements should be <code>Developer</code> objects  
+     * 
+     * @return - an array with <code>WSDeveloper</code> objects;
+     * if the list is null, empty or contains different object type
+     * then the array is null
+     */
+    public static WSDeveloper[] asArray(List<?> developers) {
+        WSDeveloper[] result = null;
+        if ((developers != null) && (!developers.isEmpty())) {
+            result = new WSDeveloper[developers.size()];
+            Developer currentElem;
+            for (int i = 0; i < result.length; i++) {
+                try {
+                    currentElem = (Developer) developers.get(i);
+                } catch (ClassCastException e) {
+                    return null;
+                }
+                result[i] = WSDeveloper.getInstance(currentElem);
+            }
+        }
+        return result;
     }
     
 }

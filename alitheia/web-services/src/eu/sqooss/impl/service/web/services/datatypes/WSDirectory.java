@@ -32,6 +32,8 @@
 
 package eu.sqooss.impl.service.web.services.datatypes;
 
+import java.util.List;
+
 import eu.sqooss.service.db.Directory;
 
 public class WSDirectory {
@@ -86,6 +88,37 @@ public class WSDirectory {
         } catch (Exception e) {
             return null;
         }
+    }
+    
+    /**
+     * The method returns an array containing
+     * all of the elements in the directories list.
+     * The list argument should contain DAO
+     * <code>Directory</code> objects.
+     *  
+     * @param directories - the directories list;
+     * the elements should be <code>Directory</code> objects  
+     * 
+     * @return - an array with <code>WSDirectory</code> objects;
+     * if the list is null, empty or contains different object type
+     * then the array is null
+     */
+    public static WSDirectory[] asArray(List<?> directories) {
+        WSDirectory[] result = null;
+        if ((directories != null) && (!directories.isEmpty()) &&
+                (directories.get(0) instanceof Directory)) {
+            result = new WSDirectory[directories.size()];
+            Directory currentElem;
+            for (int i = 0; i < result.length; i++) {
+                try {
+                    currentElem = (Directory) directories.get(i);
+                } catch (ClassCastException e) {
+                    return null;
+                }
+                result[i] = WSDirectory.getInstance(currentElem);
+            }
+        }
+        return result;
     }
     
 }
