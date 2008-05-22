@@ -116,7 +116,7 @@ class WSMetricAccessorImpl extends WSMetricAccessor {
      */
     @Override
     public WSMetricType[] getMetricTypesByIds(long[] metricTypesIds) throws WSException {
-        if (!isValidArray(metricTypesIds)) return EMPTY_ARRAY_METRIC_TYPES;
+        if (!normalizeWSArrayParameter(metricTypesIds)) return EMPTY_ARRAY_METRIC_TYPES;
         GetMetricTypesByIdsResponse response;
         GetMetricTypesByIds params;
         if (!parameters.containsKey(METHOD_NAME_GET_METRIC_TYPES_BY_IDS)) {
@@ -197,10 +197,6 @@ class WSMetricAccessorImpl extends WSMetricAccessor {
         return (WSResultEntry[]) normalizeWSArrayResult(response.get_return());
     }
 
-    private static boolean isValidArray(long[] arr) {
-        return ((arr != null) && (arr.length > 0));
-    }
-    
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

@@ -317,7 +317,7 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
     @Override
     public WSDirectory[] getDirectoriesByIds(long[] directoriesIds)
             throws WSException {
-        if (!isValidArray(directoriesIds)) return EMPTY_ARRAY_DIRECTORIES;
+        if (!normalizeWSArrayParameter(directoriesIds)) return EMPTY_ARRAY_DIRECTORIES;
         GetDirectoriesByIdsResponse response;
         GetDirectoriesByIds params;
         if (!parameters.containsKey(METHOD_NAME_GET_DIRECTORIES_BY_IDS)) {
@@ -346,7 +346,7 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
     @Override
     public WSDeveloper[] getDevelopersByIds(long[] developersIds)
             throws WSException {
-        if (!isValidArray(developersIds)) return EMPTY_ARRAY_DEVELOPERS;
+        if (!normalizeWSArrayParameter(developersIds)) return EMPTY_ARRAY_DEVELOPERS;
         GetDevelopersByIdsResponse response;
         GetDevelopersByIds params;
         if (!parameters.containsKey(METHOD_NAME_GET_DEVELOPERS_BY_IDS)) {
@@ -432,7 +432,7 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
     @Override
     public WSProjectVersion[] getProjectVersionsByIds(long[] projectVersionsIds)
             throws WSException {
-        if (!isValidArray(projectVersionsIds)) return EMPTY_ARRAY_PROJECT_VERSIONS;
+        if (!normalizeWSArrayParameter(projectVersionsIds)) return EMPTY_ARRAY_PROJECT_VERSIONS;
         GetProjectVersionsByIdsResponse response;
         GetProjectVersionsByIds params;
         if (!parameters.containsKey(METHOD_NAME_GET_PROJECT_VERSIONS_BY_IDS)) {
@@ -461,7 +461,7 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
      */
     @Override
     public WSStoredProject[] getProjectsByIds(long[] projectsIds) throws WSException {
-        if (!isValidArray(projectsIds)) return EMPTY_ARRAY_STORED_PROJECTS; 
+        if (!normalizeWSArrayParameter(projectsIds)) return EMPTY_ARRAY_STORED_PROJECTS; 
         GetProjectsByIdsResponse response;
         GetProjectsByIds params;
         if (!parameters.containsKey(METHOD_NAME_GET_PROJECTS_BY_IDS)) {
@@ -486,10 +486,6 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
 
     }
 
-    private static boolean isValidArray(long[] arr) {
-        return ((arr != null) && (arr.length > 0));
-    }
-    
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

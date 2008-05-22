@@ -130,7 +130,7 @@ class WSUserAccessorImpl extends WSUserAccessor {
      */
     @Override
     public WSUser[] getUsersByIds(long[] usersIds) throws WSException {
-        if (!isValidArray(usersIds)) return EMPTY_ARRAY_USERS;
+        if (!normalizeWSArrayParameter(usersIds)) return EMPTY_ARRAY_USERS;
         GetUsersByIdsResponse response;
         GetUsersByIds params;
         if (!parameters.containsKey(METHOD_NAME_GET_USERS_BY_IDS)) {
@@ -321,10 +321,6 @@ class WSUserAccessorImpl extends WSUserAccessor {
         return response.get_return();
     }
 
-    private static boolean isValidArray(long[] arr) {
-        return ((arr != null) && (arr.length > 0));
-    }
-    
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

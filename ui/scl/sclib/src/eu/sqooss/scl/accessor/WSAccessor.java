@@ -51,7 +51,7 @@ public abstract class WSAccessor {
     }
 
     /**
-     * Normalise a web-service result which is an array to
+     * Normalize a web-service result which is an array to
      * undo the munging applied by Axis. You can't send zero-
      * length arrays or null arrays, apparently, so this
      * function un-munges the representation [null] into
@@ -72,6 +72,18 @@ public abstract class WSAccessor {
         }
     }
 
+    /**
+     * The method normalizes the web-service array parameter.
+     * You can't use null or zero-length array.
+     *  
+     * @param arr - the long array
+     * 
+     * @return <code>true</code> if the array isn't null and isn't empty
+     */
+    protected boolean normalizeWSArrayParameter(long[] arr) {
+        return ((arr != null) && (arr.length > 0));
+    }
+    
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
