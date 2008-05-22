@@ -107,6 +107,9 @@ public class CLTMJob extends AbstractMetricJob {
             log.error("No DBSession could be opened!");
             return;
         }
+        
+        pv = db.attachObjectToDBSession(pv);
+        
         List<Metric> lm = parent.getSupportedMetrics();
         StringBuilder metricCalc = new StringBuilder();
         InMemoryCheckout imc = null;
@@ -149,7 +152,7 @@ public class CLTMJob extends AbstractMetricJob {
                 pv.getProject().getName(), 
                 pv.getProject().getName()+"-Java", 
                 "Java",
-                "/",
+                "",
                 ".*java",
                 metricCalc);
         Task t = null;
@@ -191,9 +194,9 @@ public class CLTMJob extends AbstractMetricJob {
             
             for(MetricResult mr : lmr) {
                 if (mr.getNameCategory() == MetricNameCategory.PROJECT_WIDE) {
-                    storeProjectWideResult(mr);
+             //       storeProjectWideResult(mr);
                 } else {
-                    storeConstructMetric(file, mr);
+               //     storeConstructMetric(file, mr);
                 }
             }
         }
