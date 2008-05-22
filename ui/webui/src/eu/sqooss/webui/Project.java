@@ -61,6 +61,7 @@ public class Project extends WebuiItem {
 
     // Contains a sorted list of all project versions mapped to their ID.
     private SortedMap<Long, Version> versions;
+    Vector<File> fs; // For convenience
 
     public Project () {
 
@@ -316,8 +317,8 @@ public class Project extends WebuiItem {
         currentVersionId = versionNumber;
     }
 
-    public SortedMap<Long, File> getFiles () {
-        Vector<File> fs = terrier.getFiles4Project(id);
+    public void getFiles () {
+        fs = terrier.getFiles4Project(id);
         SortedMap<Long, File> files = new TreeMap<Long, File>();
         files.put(new Long(1337), new File(id, new Long(1337), "src/FakeFile.cpp", "FAKE_STATUS", terrier));
         Iterator<File> filesIterator = fs.iterator();
@@ -328,7 +329,7 @@ public class Project extends WebuiItem {
         }
         fileCount = files.size();
 
-        return files;
+        //return files;
     }
 
     public String listFiles() {
@@ -338,15 +339,18 @@ public class Project extends WebuiItem {
         return view.getHtml();
     }
 
-    public String fileStat() {
-        Vector<File> fs = terrier.getFiles4Project(id);
-        Iterator<File> filesIterator = fs.iterator();
+    public String fileStats() {
+        //Vector<File> fs = terrier.getFiles4Project(id);
         
+        if (fs == null || fs.size() == 0) {
+            getFiles();
+        }
         int total = fileCount = fs.size();
         int added = 0;
         int modified = 0;
         int deleted = 0;
-        
+
+        Iterator<File> filesIterator = fs.iterator();
         while (filesIterator.hasNext()) {
             File nextFile = filesIterator.next();
             if (nextFile.getStatus().equals("MODIFIED")) {

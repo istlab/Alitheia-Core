@@ -97,7 +97,7 @@ if (selectedProject.isValid()) {
     }
 
     //String projectFileList = selectedProject.listFiles();
-    String projectFileList = selectedProject.fileStat();
+    String projectFileList = selectedProject.fileStats();
     int p_c = selectedProject.getFileCount();
 
     out.println("\n<table width=\"100%\">\n\t<tr><td valign=\"top\" style=\"padding-right: 30px\" width=\"50%\">");

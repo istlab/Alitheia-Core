@@ -100,10 +100,10 @@ public class WebuiItem {
         return link(null);
     }
 
-    public SortedMap<Long, File> getFiles () {
+    protected void getFiles () {
         terrier.addError("getFiles() in WebuiItem should not be called");
         fileCount = 0;
-        return new TreeMap<Long, File>();
+        //return new TreeMap<Long, File>();
     }
 
     public void setFileCount(Integer n) {
@@ -114,12 +114,12 @@ public class WebuiItem {
         return fileCount;
     }
 
-    public void setFiles() {
-        this.files = getFiles();
+    public void setFiles(SortedMap<Long, File> f) {
+        files = f;
     }
 
     public String listFiles() {
-        setFiles();
+        getFiles();
         try {
             StringBuilder html = new StringBuilder();
             //if (files == null) {
