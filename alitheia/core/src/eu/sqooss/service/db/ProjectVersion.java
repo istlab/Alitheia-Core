@@ -36,6 +36,7 @@ package eu.sqooss.service.db;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import eu.sqooss.impl.service.CoreActivator;
 
@@ -48,6 +49,11 @@ public class ProjectVersion extends DAObject {
     private Developer committer;
     private String commitMsg;
     private String properties;
+    private Set<ProjectFile> versionFiles;
+    private Set<FileGroup> fileGroups;
+    private Set<Tag> tags;
+    private Set<Bug> bugs;
+    private Set<ProjectVersionMeasurement> measurements;
 
     public ProjectVersion() {
         // Nothing to do
@@ -71,28 +77,79 @@ public class ProjectVersion extends DAObject {
     public void setVersion(long version) {
         this.version = version;
     }
-    
-    @SuppressWarnings("unchecked")
-	public List<ProjectFile> getVersionFiles() {
-        DBService dbs = CoreActivator.getDBService();
-        
-        String paramVersionId = "project_version_id";
-        String query = "select pf " +
-                       "from ProjectFile pf " +
-                       "where pf.projectVersion.id=:" +
-                       paramVersionId;
 
-        Map<String,Object> parameters = new HashMap<String,Object>();
-        parameters.put(paramVersionId, this.getId());
-        
-        List<?> projectFiles = dbs.doHQL(query, parameters);
-        if ((projectFiles == null) || (projectFiles.size() == 0)) {
-            return null;
-        } else {
-            return (List<ProjectFile>) projectFiles;
-        }
+    public long getTimestamp() {
+        return timestamp;
     }
-   
+
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
+    }
+    
+    public Developer getCommitter() {
+        return committer;
+    }
+
+    public void setCommitter(Developer committer) {
+        this.committer = committer;
+    }
+
+    public String getProperties() {
+        return properties;
+    }
+
+    public void setProperties(String properties) {
+        this.properties = properties;
+    }
+
+    public String getCommitMsg() {
+        return commitMsg;
+    }
+
+    public void setCommitMsg(String commitMsg) {
+        this.commitMsg = commitMsg;
+    }
+    
+    public Set<ProjectFile> getVersionFiles() {
+        return versionFiles;
+    }
+    
+    public void setVersionFiles( Set<ProjectFile> versionFiles ) {
+        this.versionFiles = versionFiles;
+    }
+
+    public Set<FileGroup> getFileGroups() {
+        return fileGroups;
+    }
+    
+    public void setFileGroups(Set<FileGroup> fileGroups) {
+        this.fileGroups = fileGroups;
+    }
+    
+    public Set<Tag> getTags() {
+        return tags;
+    }
+    
+    public void setTags(Set<Tag> tags) {
+        this.tags = tags;
+    }
+    
+    public Set<Bug> getBugs() {
+        return bugs;
+    }
+    
+    public void setBugs(Set<Bug> bugs) {
+        this.bugs = bugs;
+    }
+    
+    public Set<ProjectVersionMeasurement> getMeasurements() {
+        return measurements;
+    }
+    
+    public void setMeasurements(Set<ProjectVersionMeasurement> measurements) {
+        this.measurements = measurements;
+    }
+    
     public static ProjectVersion getVersionByRevision( StoredProject project, ProjectRevision revision ) {
         DBService dbs = CoreActivator.getDBService();
    
@@ -136,39 +193,7 @@ public class ProjectVersion extends DAObject {
         }else {
             return (ProjectVersion) projectVersions.get(0);
         }
-    }
-        
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
-    }
-    
-    public Developer getCommitter() {
-        return committer;
-    }
-
-    public void setCommitter(Developer committer) {
-        this.committer = committer;
-    }
-
-    public String getProperties() {
-        return properties;
-    }
-
-    public void setProperties(String properties) {
-        this.properties = properties;
-    }
-
-	public String getCommitMsg() {
-		return commitMsg;
-	}
-
-	public void setCommitMsg(String commitMsg) {
-		this.commitMsg = commitMsg;
-	}
+    }   
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

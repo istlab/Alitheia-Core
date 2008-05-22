@@ -14,5 +14,25 @@
     <many-to-one name="committer" column="COMMITTER_ID" not-null="true" cascade="merge" />
     <property name="commitMsg" column="COMMIT_MESSAGE" length="512"/>
     <property name="properties" column="PROPERTIES" length="512"/>
+    <set name="versionFiles" inverse="true" cascade="all-delete-orphan">
+        <key column="PROJECT_VERSION_ID"/>
+        <one-to-many class="eu.sqooss.service.db.ProjectFile"/>
+    </set>
+    <set name="fileGroups" inverse="true" cascade="all-delete-orphan">
+        <key column="PROJECT_VERSION_ID"/>
+        <one-to-many class="eu.sqooss.service.db.FileGroup"/>
+    </set>
+    <set name="tags" inverse="true" cascade="all-delete-orphan">
+        <key column="TAG_VERSION"/>
+        <one-to-many class="eu.sqooss.service.db.Tag"/>
+    </set>
+    <set name="bugs" inverse="true" cascade="all-delete-orphan">
+        <key column="COMMIT_ID"/>
+        <one-to-many class="eu.sqooss.service.db.Bug"/>
+    </set>
+    <set name="measurements" inverse="true" cascade="all-delete-orphan">
+        <key column="PROJECT_VERSION_ID"/>
+        <one-to-many class="eu.sqooss.service.db.ProjectVersionMeasurement"/>
+    </set>
   </class>
 </hibernate-mapping>
