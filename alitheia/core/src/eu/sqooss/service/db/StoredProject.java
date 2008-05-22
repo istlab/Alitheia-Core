@@ -38,6 +38,7 @@ package eu.sqooss.service.db;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import eu.sqooss.impl.service.CoreActivator;
 
@@ -83,6 +84,11 @@ public class StoredProject extends DAObject {
      * The versions that this project contains
      */
     private List<ProjectVersion> projectVersions;
+    
+    private Set<Developer> developers;
+    private Set<MailingList> mailingLists;
+    private Set<StoredProjectMeasurement> measurements;
+    private Set<EvaluationMark> evaluationMarks;
 
     public StoredProject() {
     }
@@ -145,6 +151,38 @@ public class StoredProject extends DAObject {
     
     public void setProjectVersions(List<ProjectVersion> projectVersions) {
         this.projectVersions = projectVersions;
+    }
+
+    public Set<Developer> getDevelopers() {
+        return developers;
+    }
+
+    public void setDevelopers(Set<Developer> developers) {
+        this.developers = developers;
+    }
+
+    public Set<MailingList> getMailingLists() {
+        return mailingLists;
+    }
+
+    public void setMailingLists(Set<MailingList> mailingLists) {
+        this.mailingLists = mailingLists;
+    }
+
+    public Set<StoredProjectMeasurement> getMeasurements() {
+        return measurements;
+    }
+
+    public void setMeasurements(Set<StoredProjectMeasurement> measurements) {
+        this.measurements = measurements;
+    }
+
+    public Set<EvaluationMark> getEvaluationMarks() {
+        return evaluationMarks;
+    }
+
+    public void setEvaluationMarks(Set<EvaluationMark> evaluationMarks) {
+        this.evaluationMarks = evaluationMarks;
     }
 
     public static int getProjectCount() {

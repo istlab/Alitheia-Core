@@ -19,5 +19,21 @@
         <list-index column="VERSION" base="1"/>
         <one-to-many class="eu.sqooss.service.db.ProjectVersion"/>
     </list>
+    <set name="developers" inverse="true" cascade="all-delete-orphan">
+        <key column="STORED_PROJECT_ID"/>
+        <one-to-many class="eu.sqooss.service.db.Developer"/>
+    </set>
+    <set name="mailingLists" inverse="true" cascade="all-delete-orphan">
+        <key column="PROJECT_ID"/>
+        <one-to-many class="eu.sqooss.service.db.MailingList"/>
+    </set>
+    <set name="measurements" inverse="true" cascade="all-delete-orphan">
+        <key column="STORED_PROJECT_ID"/>
+        <one-to-many class="eu.sqooss.service.db.StoredProjectMeasurement"/>
+    </set>
+    <set name="evaluationMarks" inverse="true" cascade="all-delete-orphan">
+        <key column="STORED_PROJECT_ID"/>
+        <one-to-many class="eu.sqooss.service.db.EvaluationMark"/>
+    </set>
   </class>
 </hibernate-mapping>
