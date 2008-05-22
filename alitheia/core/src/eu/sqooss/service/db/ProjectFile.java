@@ -55,6 +55,7 @@ public class ProjectFile extends DAObject{
 
     public ProjectFile(ProjectVersion pv) {
         this.projectVersion = pv;
+        isDirectory = false; //By default, all entries are files
     }
 
     public void setName(String name) {
