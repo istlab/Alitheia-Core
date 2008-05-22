@@ -34,12 +34,16 @@ package eu.sqooss.impl.service;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Enumeration;
 
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleException;
+import org.osgi.framework.ServiceReference;
 
 public class SpecsActivator implements BundleActivator {
 
@@ -49,8 +53,18 @@ public class SpecsActivator implements BundleActivator {
         ArrayList<String> failedNames = new ArrayList<String>();
     }
 
+    private Bundle[] alitheiaBundles;
+    
     public void start(BundleContext bc) throws Exception {
         System.out.println("\n\n");
+        
+        Bundle core = findBundleByName(bc, "eu.sqooss.service.core");
+        if (core!=null) {
+            alitheiaBundles = findBundleDependencies(core);
+        }
+                
+        stopAlitheia(); // We want alitheia to be shutdown first
+        
         System.out.println("Running specs...");
 
         final String specsRootPkg = "eu.sqooss.impl.service.specs";
@@ -72,8 +86,10 @@ public class SpecsActivator implements BundleActivator {
             String className = "eu.sqooss.impl.service.specs."+path.replace('/', '.');
             Class<?> c = bc.getBundle().loadClass(className);
 
-            System.out.println("Running "+className);
+            System.out.println("*** Running "+className);
+            startAlitheia();
             Result r = JUnitCore.runClasses(c);
+            stopAlitheia();
 
             stats.runsCount++;
             if (r.getFailureCount()>0) {
@@ -100,6 +116,67 @@ public class SpecsActivator implements BundleActivator {
         bc.getBundle(0).stop();
     }
 
+    private void startAlitheia() throws BundleException {
+        for (int i=0; i<alitheiaBundles.length; ++i) {
+            alitheiaBundles[i].start();
+        }
+    }
+
+    private void stopAlitheia() throws BundleException {
+        for (int i=alitheiaBundles.length-1; i>=0; --i) {
+            alitheiaBundles[i].stop();
+        }
+    }
+    
+    private Bundle findBundleByName(BundleContext bc, String name) {
+        Bundle[] bundles = bc.getBundles();
+        for (int i=0; i<bundles.length; ++i) {
+            if (bundles[i].getSymbolicName().equals(name)) {
+                return bundles[i];
+            }
+        }
+        return null;
+    }
+    
+    private boolean bundleEquals(Bundle b1, Bundle b2) {
+        return b1.getBundleId()==b2.getBundleId();
+    }
+    
+    private boolean bundleContains(Collection<Bundle> c, Bundle b) {
+        for (Bundle cb : c) {
+            if (bundleEquals(cb, b)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void findBundleDependenciesRec(Bundle root, ArrayList<Bundle> bundles) {
+        ServiceReference[] services = root.getRegisteredServices();
+        for (int i=0; i<services.length; ++i) {
+            Bundle[] using = services[i].getUsingBundles();
+            if (using==null) continue;
+            
+            for (int j=0; j<using.length; ++j) {
+                if (bundleEquals(using[j], root)
+                 || bundleContains(bundles, using[j])
+                 || !using[j].getSymbolicName().startsWith("eu.sqooss.")) continue;
+                
+                bundles.add(using[j]);
+                findBundleDependenciesRec(using[j], bundles);
+            }
+        }
+    }
+
+    private Bundle[] findBundleDependencies(Bundle root) {
+        ArrayList<Bundle> bundles = new ArrayList<Bundle>();
+        bundles.add(root);
+        findBundleDependenciesRec(root, bundles);
+        Bundle[] result = new Bundle[bundles.size()];
+        bundles.toArray(result);
+        return result;
+    }
+    
     public void stop(BundleContext bc) throws Exception {
     }
 }
