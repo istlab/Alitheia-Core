@@ -32,6 +32,8 @@
 
 package eu.sqooss.impl.service.web.services.datatypes;
 
+import eu.sqooss.service.db.ProjectFile;
+
 /**
  * This class wraps the <code>eu.sqooss.service.db.ProjectFile</code>
  */
@@ -126,6 +128,31 @@ public class WSProjectFile {
      */
     public void setDirectory(boolean isDirectory) {
         this.isDirectory = isDirectory;
+    }
+    
+    /**
+     * The method creates a new <code>WSProjectFile</code> object
+     * from the existent DAO object.
+     * The method doesn't care of the db session. 
+     * 
+     * @param projectFile - DAO project file object
+     * 
+     * @return The new <code>WSProjectFile</code> object
+     */
+    public static WSProjectFile getInstance(ProjectFile projectFile) {
+        if (projectFile == null) return null;
+        try {
+            WSProjectFile wsProjectFile = new WSProjectFile();
+            wsProjectFile.setId(projectFile.getId());
+            wsProjectFile.setDirectoryId(projectFile.getDir().getId());
+            wsProjectFile.setDirectory(projectFile.getIsDirectory());
+            wsProjectFile.setFileName(projectFile.getFileName());
+            wsProjectFile.setProjectVersionId(projectFile.getProjectVersion().getId());
+            wsProjectFile.setStatus(projectFile.getStatus());
+            return wsProjectFile;
+        } catch (Exception e) {
+            return null;
+        }
     }
     
 }

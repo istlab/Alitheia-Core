@@ -32,6 +32,12 @@
 
 package eu.sqooss.impl.service.web.services.datatypes;
 
+import java.util.Iterator;
+import java.util.Set;
+
+import eu.sqooss.service.db.Group;
+import eu.sqooss.service.db.User;
+
 public class WSUser {
     
     private long id;
@@ -143,6 +149,42 @@ public class WSUser {
     @Override
     public int hashCode() {
         return Long.valueOf(this.getId()).hashCode();
+    }
+    
+    /**
+     * The method creates a new <code>WSUser</code> object
+     * from the existent DAO object.
+     * The method doesn't care of the db session. 
+     * 
+     * @param user - DAO user object
+     * 
+     * @return The new <code>WSUser</code> object
+     */
+    public static WSUser getInstance(User user) {
+        if (user == null) return null;
+        try {
+            WSUser wsu = new WSUser();
+            wsu.setId(user.getId());
+            wsu.setEmail(wsu.getEmail());
+            wsu.setLastActivity(user.getLastActivity().getTime());
+            wsu.setRegistered(user.getRegistered().getTime());
+            wsu.setUserName(user.getName());
+            Set<?> securityGroups = user.getGroups();
+            WSUserGroup[] userGroups;
+            if ((securityGroups != null) && (!securityGroups.isEmpty())) {
+                userGroups = new WSUserGroup[securityGroups.size()];
+                Iterator<?> iterator = securityGroups.iterator();
+                for (int i = 0; i < userGroups.length; i++) {
+                    userGroups[i] = WSUserGroup.getInstance((Group) iterator.next());
+                }
+            } else {
+                userGroups = new WSUserGroup[] {null};
+            }
+            wsu.setGroups(userGroups);
+            return wsu;
+        } catch (Exception e) {
+            return null;
+        }
     }
     
 }

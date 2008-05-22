@@ -32,6 +32,8 @@
 
 package eu.sqooss.impl.service.web.services.datatypes;
 
+import eu.sqooss.service.abstractmetric.ResultEntry;
+
 /**
  * The Class WSResultEntry.
  */
@@ -81,6 +83,27 @@ public class WSResultEntry {
      */
     public void setMimeType(String mimeType) {
         this.mimeType = mimeType;
+    }
+    
+    /**
+     * The method creates a new <code>WSResultEntry</code> object
+     * from the existent result entry object.
+     * 
+     * @param resultEntry -  the result entry object
+     * 
+     * @return The new <code>WSResultEntry</code> object
+     */
+    public static WSResultEntry getInstance(ResultEntry resultEntry) {
+        if (resultEntry == null) return null;
+        try {
+            WSResultEntry wsResultEntry = new WSResultEntry();
+            wsResultEntry.setMimeType(resultEntry.getMimeType());
+            wsResultEntry.setMnemonic(resultEntry.getMnemonic());
+            wsResultEntry.setResult(resultEntry.toString());
+            return wsResultEntry;
+        } catch (Exception e) {
+            return null;
+        }
     }
     
 }

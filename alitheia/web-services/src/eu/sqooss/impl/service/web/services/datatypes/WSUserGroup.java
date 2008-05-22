@@ -32,6 +32,8 @@
 
 package eu.sqooss.impl.service.web.services.datatypes;
 
+import eu.sqooss.service.db.Group;
+
 public class WSUserGroup {
     
     private long id;
@@ -63,6 +65,27 @@ public class WSUserGroup {
      */
     public void setDescription(String description) {
         this.description = description;
+    }
+    
+    /**
+     * The method creates a new <code>WSUserGroup</code> object
+     * from the existent DAO object.
+     * The method doesn't care of the db session. 
+     * 
+     * @param group - DAO group object
+     * 
+     * @return The new <code>WSUserGroup</code> object
+     */
+    public static WSUserGroup getInstance(Group group) {
+        if (group == null) return null;
+        try {
+            WSUserGroup wsug = new WSUserGroup();
+            wsug.setId(group.getId());
+            wsug.setDescription(group.getDescription());
+            return wsug;
+        } catch (Exception e) {
+            return null;
+        }
     }
     
 }

@@ -32,6 +32,8 @@
 
 package eu.sqooss.impl.service.web.services.datatypes;
 
+import eu.sqooss.service.db.MetricType;
+
 /**
  * This class wraps the <code>eu.sqooss.service.db.MetricType</code> 
  */
@@ -66,6 +68,27 @@ public class WSMetricType {
      */
     public void setType(String type) {
         this.type = type;
+    }
+    
+    /**
+     * The method creates a new <code>WSMetricType</code> object
+     * from the existent DAO object.
+     * The method doesn't care of the db session. 
+     * 
+     * @param metricType - DAO metric type object
+     * 
+     * @return The new <code>WSMetricType</code> object
+     */
+    public static WSMetricType getInstance(MetricType metricType) {
+        if (metricType == null) return null;
+        try {
+            WSMetricType wsMetricType = new WSMetricType();
+            wsMetricType.setId(metricType.getId());
+            wsMetricType.setType(metricType.getType());
+            return wsMetricType;
+        } catch (Exception e) {
+            return null;
+        }
     }
     
 }

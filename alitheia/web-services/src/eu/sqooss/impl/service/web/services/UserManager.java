@@ -115,7 +115,7 @@ public class UserManager extends AbstractManager {
         for (long userId : usersIds) {
             currentUser = userManager.getUser(userId);
             if (currentUser != null) {
-                users.add(createWSUser(currentUser));
+                users.add(WSUser.getInstance(currentUser));
             }
         }
         db.commitDBSession();
@@ -145,7 +145,7 @@ public class UserManager extends AbstractManager {
         
         WSUserGroup[] result = new WSUserGroup[groups.length];
         for (int i = 0; i < result.length; i++) {
-            result[i] = createWSUserGroup(groups[i]);
+            result[i] = WSUserGroup.getInstance(groups[i]);
         }
         db.commitDBSession();
         if (result.length == 0) {
@@ -214,7 +214,7 @@ public class UserManager extends AbstractManager {
         db.startDBSession();
         User user = userManager.getUser(userName);
         if (user != null) {
-            WSUser wsu = createWSUser(user);
+            WSUser wsu = WSUser.getInstance(user);
             db.commitDBSession();
             return wsu;
         } else {
@@ -268,37 +268,6 @@ public class UserManager extends AbstractManager {
         }
         db.commitDBSession();
         return result;
-    }
-    
-    private static WSUserGroup createWSUserGroup(Group group) {
-        if (group == null) return null;
-        WSUserGroup wsug = new WSUserGroup();
-        wsug.setId(group.getId());
-        wsug.setDescription(group.getDescription());
-        return wsug;
-    }
-    
-    private static WSUser createWSUser(User user) {
-        if (user == null) return null;
-        WSUser wsu = new WSUser();
-        wsu.setId(user.getId());
-        wsu.setEmail(wsu.getEmail());
-        wsu.setLastActivity(user.getLastActivity().getTime());
-        wsu.setRegistered(user.getRegistered().getTime());
-        wsu.setUserName(user.getName());
-        Set<?> securityGroups = user.getGroups();
-        WSUserGroup[] userGroups;
-        if ((securityGroups != null) && (!securityGroups.isEmpty())) {
-            userGroups = new WSUserGroup[securityGroups.size()];
-            Iterator<?> iterator = securityGroups.iterator();
-            for (int i = 0; i < userGroups.length; i++) {
-                userGroups[i] = createWSUserGroup((Group) iterator.next());
-            }
-        } else {
-            userGroups = new WSUserGroup[] {null};
-        }
-        wsu.setGroups(userGroups);
-        return wsu;
     }
     
 }

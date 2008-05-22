@@ -126,7 +126,7 @@ public class ProjectManager extends AbstractManager {
             securityWrapper.checkProjectsReadAccess(
                     userName, password, new long[] {storedProject.getId()});
             super.updateUserActivity(userName);
-            return createWSStoredProject(storedProject);
+            return WSStoredProject.getInstance(storedProject);
         } else {
             return null;
         }
@@ -352,7 +352,7 @@ public class ProjectManager extends AbstractManager {
             if (currentElem instanceof ProjectFile) { //parse HQL
                 for (int i = 0; i < result.length; i++) {
                     currentElem = projectFiles.get(i);
-                    result[i] = createWSProjectFile((ProjectFile) currentElem);
+                    result[i] = WSProjectFile.getInstance((ProjectFile) currentElem);
                 }
             } else if (currentElem.getClass().isArray()) { //parse SQL
                 BigInteger fileId;
@@ -394,7 +394,7 @@ public class ProjectManager extends AbstractManager {
             ProjectVersion currentElem;
             for (int i = 0; i < result.length; i++) {
                 currentElem = (ProjectVersion) projectVersions.get(i);
-                result[i] = createWSProjectVersion(currentElem);
+                result[i] = WSProjectVersion.getInstance(currentElem);
             }
         }
         return result;
@@ -407,7 +407,7 @@ public class ProjectManager extends AbstractManager {
             StoredProject currentElem;
             for (int i = 0; i < result.length; i++) {
                 currentElem = (StoredProject) storedProjects.get(i);
-                result[i] = createWSStoredProject(currentElem);
+                result[i] = WSStoredProject.getInstance(currentElem);
             }
         }
         return result;
@@ -420,7 +420,7 @@ public class ProjectManager extends AbstractManager {
             FileGroup currentElem;
             for (int i = 0; i < result.length; i++) {
                 currentElem = (FileGroup) fileGroups.get(i);
-                result[i] = createWSFileGroup(currentElem);
+                result[i] = WSFileGroup.getInstance(currentElem);
             }
         }
         return result;
@@ -433,7 +433,7 @@ public class ProjectManager extends AbstractManager {
             Directory currentElem;
             for (int i = 0; i < result.length; i++) {
                 currentElem = (Directory) directories.get(i);
-                result[i] = createWSDirectory(currentElem);
+                result[i] = WSDirectory.getInstance(currentElem);
             }
         }
         return result;
@@ -446,80 +446,10 @@ public class ProjectManager extends AbstractManager {
             Developer currentElem;
             for (int i = 0; i < result.length; i++) {
                 currentElem = (Developer) developers.get(i);
-                result[i] = createWSDeveloper(currentElem);
+                result[i] = WSDeveloper.getInstance(currentElem);
             }
         }
         return result;
-    }
-    
-    private static WSDeveloper createWSDeveloper(Developer developer) {
-        if (developer == null) return null;
-        WSDeveloper wsDeveloper = new WSDeveloper();
-        wsDeveloper.setId(developer.getId());
-        wsDeveloper.setEmail(developer.getEmail());
-        wsDeveloper.setName(developer.getName());
-        wsDeveloper.setStoredProjectId(developer.getStoredProject().getId());
-        wsDeveloper.setUsername(developer.getUsername());
-        return wsDeveloper;
-    }
-    
-    private static WSStoredProject createWSStoredProject(StoredProject storedProject) {
-        if (storedProject == null) return null;
-        WSStoredProject wsStoredProject = new WSStoredProject();
-        wsStoredProject.setId(storedProject.getId());
-        wsStoredProject.setBugs(storedProject.getBugs());
-        wsStoredProject.setContact(storedProject.getContact());
-        wsStoredProject.setMail(storedProject.getMail());
-        wsStoredProject.setName(storedProject.getName());
-        wsStoredProject.setRepository(storedProject.getRepository());
-        wsStoredProject.setWebsite(storedProject.getWebsite());
-        return wsStoredProject;
-    }
-    
-    private static WSProjectVersion createWSProjectVersion(ProjectVersion projectVersion) {
-        if (projectVersion == null) return null;
-        WSProjectVersion wsProjectVersion = new WSProjectVersion();
-        wsProjectVersion.setId(projectVersion.getId());
-        wsProjectVersion.setCommitMsg(projectVersion.getCommitMsg());
-        wsProjectVersion.setCommitterId(projectVersion.getCommitter().getId());
-        wsProjectVersion.setProjectId(projectVersion.getProject().getId());
-        wsProjectVersion.setProperties(projectVersion.getProperties());
-        wsProjectVersion.setTimestamp(projectVersion.getTimestamp());
-        wsProjectVersion.setVersion(projectVersion.getVersion());
-        return wsProjectVersion;
-    }
-    
-    private static WSProjectFile createWSProjectFile(ProjectFile projectFile) {
-        if (projectFile == null) return null;
-        WSProjectFile wsProjectFile = new WSProjectFile();
-        wsProjectFile.setId(projectFile.getId());
-        wsProjectFile.setDirectoryId(projectFile.getDir().getId());
-        wsProjectFile.setDirectory(projectFile.getIsDirectory());
-        wsProjectFile.setFileName(projectFile.getFileName());
-        wsProjectFile.setProjectVersionId(projectFile.getProjectVersion().getId());
-        wsProjectFile.setStatus(projectFile.getStatus());
-        return wsProjectFile;
-    }
-    
-    private static WSFileGroup createWSFileGroup(FileGroup fileGroup) {
-        if (fileGroup == null) return null;
-        WSFileGroup wsFileGroup = new WSFileGroup();
-        wsFileGroup.setId(fileGroup.getId());
-        wsFileGroup.setLastUsed(fileGroup.getLastUsed().getTime());
-        wsFileGroup.setName(fileGroup.getName());
-        wsFileGroup.setProjectVersionId(fileGroup.getProjectVersion().getId());
-        wsFileGroup.setRecalcFreq(fileGroup.getRecalcFreq());
-        wsFileGroup.setRegularExpression(fileGroup.getRegex());
-        wsFileGroup.setSubPath(fileGroup.getSubPath());
-        return wsFileGroup;
-    }
-    
-    private static WSDirectory createWSDirectory(Directory directory) {
-        if (directory == null) return null;
-        WSDirectory wsDirectory = new WSDirectory();
-        wsDirectory.setId(directory.getId());
-        wsDirectory.setPath(directory.getPath());
-        return wsDirectory;
     }
     
 }

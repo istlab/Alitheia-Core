@@ -32,6 +32,8 @@
 
 package eu.sqooss.impl.service.web.services.datatypes;
 
+import eu.sqooss.service.db.Metric;
+
 /**
  * This class wraps the <code>eu.sqooss.service.db.Metric</code>
  */
@@ -111,6 +113,30 @@ public class WSMetric {
      */
     public void setDescription(String description) {
         this.description = description;
+    }
+    
+    /**
+     * The method creates a new <code>WSMetric</code> object
+     * from the existent DAO object.
+     * The method doesn't care of the db session. 
+     * 
+     * @param metric - DAO metric object
+     * 
+     * @return The new <code>WSMetric</code> object
+     */
+    public static WSMetric getInstance(Metric metric) {
+        if (metric == null) return null;
+        try {
+            WSMetric wsMetric = new WSMetric();
+            wsMetric.setId(metric.getId());
+            wsMetric.setDescription(metric.getDescription());
+            wsMetric.setMetricTypeId(metric.getMetricType().getId());
+            wsMetric.setMnemonic(metric.getMnemonic());
+            wsMetric.setPluginId(metric.getPlugin().getId());
+            return wsMetric;
+        } catch (Exception e) {
+            return null;
+        }
     }
     
 }

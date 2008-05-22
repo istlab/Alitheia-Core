@@ -32,6 +32,8 @@
 
 package eu.sqooss.impl.service.web.services.datatypes;
 
+import eu.sqooss.service.db.FileGroup;
+
 public class WSFileGroup {
     
     private long id;
@@ -138,6 +140,32 @@ public class WSFileGroup {
      */
     public void setProjectVersionId(long projectVersionId) {
         this.projectVersionId = projectVersionId;
+    }
+    
+    /**
+     * The method creates a new <code>WSFileGroup</code> object
+     * from the existent DAO object.
+     * The method doesn't care of the db session. 
+     * 
+     * @param fileGroup - DAO file group object
+     * 
+     * @return The new <code>WSFileGroup</code> object
+     */
+    public static WSFileGroup getInstance(FileGroup fileGroup) {
+        if (fileGroup == null) return null;
+        try {
+            WSFileGroup wsFileGroup = new WSFileGroup();
+            wsFileGroup.setId(fileGroup.getId());
+            wsFileGroup.setLastUsed(fileGroup.getLastUsed().getTime());
+            wsFileGroup.setName(fileGroup.getName());
+            wsFileGroup.setProjectVersionId(fileGroup.getProjectVersion().getId());
+            wsFileGroup.setRecalcFreq(fileGroup.getRecalcFreq());
+            wsFileGroup.setRegularExpression(fileGroup.getRegex());
+            wsFileGroup.setSubPath(fileGroup.getSubPath());
+            return wsFileGroup;
+        } catch (Exception e) {
+            return null;
+        }
     }
     
 }

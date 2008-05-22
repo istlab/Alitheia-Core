@@ -32,6 +32,8 @@
 
 package eu.sqooss.impl.service.web.services.datatypes;
 
+import eu.sqooss.service.db.ProjectVersion;
+
 /**
  * This class wraps the <code>eu.sqooss.service.db.ProjectVersion</code>.
  */
@@ -141,6 +143,32 @@ public class WSProjectVersion {
      */
     public void setVersion(long version) {
         this.version = version;
+    }
+    
+    /**
+     * The method creates a new <code>WSProjectVersion</code> object
+     * from the existent DAO object.
+     * The method doesn't care of the db session. 
+     * 
+     * @param projectVersion - DAO project version object
+     * 
+     * @return The new <code>WSProjectVersion</code> object
+     */
+    public static WSProjectVersion getInstance(ProjectVersion projectVersion) {
+        if (projectVersion == null) return null;
+        try {
+            WSProjectVersion wsProjectVersion = new WSProjectVersion();
+            wsProjectVersion.setId(projectVersion.getId());
+            wsProjectVersion.setCommitMsg(projectVersion.getCommitMsg());
+            wsProjectVersion.setCommitterId(projectVersion.getCommitter().getId());
+            wsProjectVersion.setProjectId(projectVersion.getProject().getId());
+            wsProjectVersion.setProperties(projectVersion.getProperties());
+            wsProjectVersion.setTimestamp(projectVersion.getTimestamp());
+            wsProjectVersion.setVersion(projectVersion.getVersion());
+            return wsProjectVersion;
+        } catch (Exception e) {
+            return null;
+        }
     }
     
 }

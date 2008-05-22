@@ -32,6 +32,8 @@
 
 package eu.sqooss.impl.service.web.services.datatypes;
 
+import eu.sqooss.service.db.StoredProject;
+
 /**
  * This class wraps the <code>eu.sqooss.service.db.StoredProject</code>.
  */
@@ -141,6 +143,32 @@ public class WSStoredProject {
      */
     public void setWebsite(String website) {
         this.website = website;
+    }
+    
+    /**
+     * The method creates a new <code>WSStoredProject</code> object
+     * from the existent DAO object.
+     * The method doesn't care of the db session. 
+     * 
+     * @param storedProject - DAO stored project object
+     * 
+     * @return The new <code>WSStoredProject</code> object
+     */
+    public static WSStoredProject getInstance(StoredProject storedProject) {
+        if (storedProject == null) return null;
+        try {
+            WSStoredProject wsStoredProject = new WSStoredProject();
+            wsStoredProject.setId(storedProject.getId());
+            wsStoredProject.setBugs(storedProject.getBugs());
+            wsStoredProject.setContact(storedProject.getContact());
+            wsStoredProject.setMail(storedProject.getMail());
+            wsStoredProject.setName(storedProject.getName());
+            wsStoredProject.setRepository(storedProject.getRepository());
+            wsStoredProject.setWebsite(storedProject.getWebsite());
+            return wsStoredProject;
+        } catch (Exception e) {
+            return null;
+        }
     }
     
 }

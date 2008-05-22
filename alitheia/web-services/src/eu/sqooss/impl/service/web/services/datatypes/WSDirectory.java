@@ -32,6 +32,8 @@
 
 package eu.sqooss.impl.service.web.services.datatypes;
 
+import eu.sqooss.service.db.Directory;
+
 public class WSDirectory {
     
     private long id;
@@ -63,6 +65,27 @@ public class WSDirectory {
      */
     public void setPath(String path) {
         this.path = path;
+    }
+    
+    /**
+     * The method creates a new <code>WSDirectory</code> object
+     * from the existent DAO object.
+     * The method doesn't care of the db session. 
+     * 
+     * @param directory - DAO directory object
+     * 
+     * @return The new <code>WSDirectory</code> object
+     */
+    public static WSDirectory getInstance(Directory directory) {
+        if (directory == null) return null;
+        try {
+            WSDirectory wsDirectory = new WSDirectory();
+            wsDirectory.setId(directory.getId());
+            wsDirectory.setPath(directory.getPath());
+            return wsDirectory;
+        } catch (Exception e) {
+            return null;
+        }
     }
     
 }

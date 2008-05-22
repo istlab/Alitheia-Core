@@ -212,7 +212,7 @@ public class MetricManager extends AbstractManager {
             for (int i = 0; i < currentResult.getRowCount(); i++) {
                 currentRow = currentResult.getRow(i);
                 for (int j = 0; j < currentRow.size(); j++) {
-                    resultList.add(createWSResultEntry(currentRow.get(j)));
+                    resultList.add(WSResultEntry.getInstance(currentRow.get(j)));
                 }
             }
         }
@@ -258,7 +258,7 @@ public class MetricManager extends AbstractManager {
         if ((metrics != null) && (!metrics.isEmpty())) {
             result = new WSMetric[metrics.size()];
             for (int i = 0; i < result.length; i++) {
-                result[i] = createWSMetric((Metric) metrics.get(i));
+                result[i] = WSMetric.getInstance((Metric) metrics.get(i));
             }
         }
         return result;
@@ -269,38 +269,10 @@ public class MetricManager extends AbstractManager {
         if ((metricTypes != null) && (!metricTypes.isEmpty())) {
             result = new WSMetricType[metricTypes.size()];
             for (int i = 0; i < result.length; i++) {
-                result[i] = createWSMetricType((MetricType) metricTypes.get(i));
+                result[i] = WSMetricType.getInstance((MetricType) metricTypes.get(i));
             }
         }
         return result;
-    }
-    
-    private static WSMetric createWSMetric(Metric metric) {
-        if (metric == null) return null;
-        WSMetric wsMetric = new WSMetric();
-        wsMetric.setId(metric.getId());
-        wsMetric.setDescription(metric.getDescription());
-        wsMetric.setMetricTypeId(metric.getMetricType().getId());
-        wsMetric.setMnemonic(metric.getMnemonic());
-        wsMetric.setPluginId(metric.getPlugin().getId());
-        return wsMetric;
-    }
-    
-    private static WSMetricType createWSMetricType(MetricType metricType) {
-        if (metricType == null) return null;
-        WSMetricType wsMetricType = new WSMetricType();
-        wsMetricType.setId(metricType.getId());
-        wsMetricType.setType(metricType.getType());
-        return wsMetricType; 
-    }
-    
-    private static WSResultEntry createWSResultEntry(ResultEntry resultEntry) {
-        if (resultEntry == null) return null;
-        WSResultEntry wsResultEntry = new WSResultEntry();
-        wsResultEntry.setMimeType(resultEntry.getMimeType());
-        wsResultEntry.setMnemonic(resultEntry.getMnemonic());
-        wsResultEntry.setResult(resultEntry.toString());
-        return wsResultEntry;
     }
     
 }

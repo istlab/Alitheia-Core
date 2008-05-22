@@ -32,6 +32,8 @@
 
 package eu.sqooss.impl.service.web.services.datatypes;
 
+import eu.sqooss.service.db.Developer;
+
 public class WSDeveloper {
     
     private long id;
@@ -108,6 +110,30 @@ public class WSDeveloper {
      */
     public void setStoredProjectId(long storedProjectId) {
         this.storedProjectId = storedProjectId;
+    }
+    
+    /**
+     * The method creates a new <code>WSDeveloper</code> object
+     * from the existent DAO object.
+     * The method doesn't care of the db session. 
+     * 
+     * @param developer - DAO developer object
+     * 
+     * @return The new <code>WSDeveloper</code> object
+     */
+    public static WSDeveloper getInstance(Developer developer) {
+        if (developer == null) return null;
+        try {
+            WSDeveloper wsDeveloper = new WSDeveloper();
+            wsDeveloper.setId(developer.getId());
+            wsDeveloper.setEmail(developer.getEmail());
+            wsDeveloper.setName(developer.getName());
+            wsDeveloper.setStoredProjectId(developer.getStoredProject().getId());
+            wsDeveloper.setUsername(developer.getUsername());
+            return wsDeveloper;
+        } catch (Exception e) {
+            return null;
+        }
     }
     
 }
