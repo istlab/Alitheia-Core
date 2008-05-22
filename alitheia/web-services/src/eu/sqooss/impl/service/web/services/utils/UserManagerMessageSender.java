@@ -32,9 +32,16 @@
 
 package eu.sqooss.impl.service.web.services.utils;
 
+import java.io.StringWriter;
 import java.util.Vector;
 
+import org.apache.velocity.Template;
+import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.VelocityEngine;
+import org.apache.velocity.runtime.RuntimeConstants;
+
 import eu.sqooss.service.db.User;
+import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.messaging.Message;
 import eu.sqooss.service.messaging.MessageListener;
 import eu.sqooss.service.messaging.MessagingService;
@@ -46,10 +53,15 @@ public class UserManagerMessageSender implements MessageListener {
     private Vector<String> adminEmail;
     private Vector<Pair> messagesAndUserEmails;
     private MessagingService messagingService;
+    private VelocityContext successContext;
+    private Template successTemplate;
+    private VelocityContext unsuccessContext;
+    private Template unsuccessTemplate;
     
     public UserManagerMessageSender(MessagingService messagingService) {
         this.messagingService = messagingService;
         init();
+        initVelocityTemplates();
     }
     
     public void sendMessage(String messageBody, String title, User fromUser) {
@@ -60,7 +72,7 @@ public class UserManagerMessageSender implements MessageListener {
         } else {
             Vector<String> recipient = new Vector<String>();
             recipient.add(fromUser.getEmail());
-            sendUnsuccessfulMessage(recipient);
+            sendUnsuccessfulMessage(recipient, messageBody, title);
         }
     }
     
@@ -73,7 +85,8 @@ public class UserManagerMessageSender implements MessageListener {
         if (userMail != null) {
             Vector<String> recipient = new Vector<String>(1);
             recipient.add(userMail);
-            sendUnsuccessfulMessage(recipient);
+            sendUnsuccessfulMessage(recipient,
+                    message.getBody(), message.getTitle());
         }
     }
 
@@ -85,7 +98,8 @@ public class UserManagerMessageSender implements MessageListener {
         if (userMail != null) {
             Vector<String> recipient = new Vector<String>(1);
             recipient.add(userMail);
-            sendSuccessfulMessage(recipient);
+            sendSuccessfulMessage(recipient, 
+                    message.getBody(), message.getTitle());
         }
     }
     
@@ -96,6 +110,32 @@ public class UserManagerMessageSender implements MessageListener {
         //do nothing here
     }
     /* ===[MessageListener methods]=== */
+    
+    private void initVelocityTemplates() {
+        successContext = new VelocityContext();
+        unsuccessContext = new VelocityContext();
+        VelocityEngine velocityEngine = new VelocityEngine();
+        velocityEngine.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS,
+                                   "org.apache.velocity.runtime.log.SimpleLog4JLogSystem");
+        velocityEngine.setProperty("runtime.log.logsystem.log4j.category", 
+                                   Logger.NAME_SQOOSS_WEB_SERVICES);
+        velocityEngine.setProperty(RuntimeConstants.RESOURCE_LOADER,"bundle");
+        velocityEngine.setProperty("bundle.resource.loader.description",
+                                   "Loader from the bundle.");
+        velocityEngine.setProperty("bundle.resource.loader.class",
+                                   "org.apache.velocity.runtime.resource.loader.JarResourceLoader");
+        velocityEngine.setProperty("bundle.resource.loader.path",
+                                   "jar:file:eu.sqooss.alitheia.web-services-0.0.1.jar");
+        try {
+            successTemplate = velocityEngine.getTemplate(
+                    "/OSGI-INF/configuration/NotifyAdminSuccess.vtl");
+            unsuccessTemplate = velocityEngine.getTemplate(
+                    "/OSGI-INF/configuration/NotifyAdminUnsuccess.vtl");
+        } catch (Exception e) {
+            successTemplate = null;
+            unsuccessTemplate = null;
+        }
+    }
     
     private String removeLocalMessage(Message message) {
         Pair currentPair;
@@ -111,15 +151,43 @@ public class UserManagerMessageSender implements MessageListener {
         return null;
     }
     
-    private void sendSuccessfulMessage(Vector<String> recipients) {
-        Message message = Message.getInstance("The administrator of SQO-OSS is nitified!",
-                recipients, "SQO-OSS notification seccess", null);
+    private void sendSuccessfulMessage(Vector<String> recipients,
+            String messageBody, String messageTitle) {
+        StringWriter bodyWriter = new StringWriter();
+        if (successTemplate != null) {
+            synchronized (successContext) {
+                successContext.put("E_MAIL", recipients.toString());
+                successContext.put("MESSAGE_TITLE", messageTitle);
+                successContext.put("MESSAGE_BODY", messageBody);
+                try {
+                    successTemplate.merge(successContext, bodyWriter);
+                } catch (Exception e) {
+                    bodyWriter.write("");
+                }
+            }
+        }
+        Message message = Message.getInstance(bodyWriter.toString(),
+                recipients, "SQO-OSS notification is sent successfully", null);
         messagingService.sendMessage(message);
     }
     
-    private void sendUnsuccessfulMessage(Vector<String> recipients) {
-        Message message = Message.getInstance("The administrator of SQO-OSS isn't notified!",
-                recipients, "SQO-OSS notification failed", null);
+    private void sendUnsuccessfulMessage(Vector<String> recipients,
+            String messageBody, String messageTitle) {
+        StringWriter bodyWriter = new StringWriter();
+        if (unsuccessTemplate != null) {
+            synchronized (unsuccessContext) {
+                unsuccessContext.put("E_MAIL", recipients.toString());
+                unsuccessContext.put("MESSAGE_TITLE", messageTitle);
+                unsuccessContext.put("MESSAGE_BODY", messageBody);
+                try {
+                    unsuccessTemplate.merge(unsuccessContext, bodyWriter);
+                } catch (Exception e) {
+                    bodyWriter.write("");
+                }
+            }
+        }
+        Message message = Message.getInstance(bodyWriter.toString(),
+                recipients, "SQO-OSS notification is not sent", null);
         messagingService.sendMessage(message);
     }
     

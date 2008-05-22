@@ -85,6 +85,13 @@
       <type>jar</type>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>org.apache</groupId>
+      <artifactId>velocity</artifactId>
+      <version>1.5</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
 </project>
 
