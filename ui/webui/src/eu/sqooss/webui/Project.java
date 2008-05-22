@@ -33,12 +33,7 @@
 
 package eu.sqooss.webui;
 
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
-import java.util.SortedSet;
-import java.util.Iterator;
-import java.util.Vector;
+import java.util.*;
 
 import eu.sqooss.scl.WSException;
 
@@ -61,7 +56,6 @@ public class Project extends WebuiItem {
 
     // Contains a sorted list of all project versions mapped to their ID.
     private SortedMap<Long, Version> versions;
-    Vector<File> fs; // For convenience
 
     public Project () {
 
@@ -330,7 +324,7 @@ public class Project extends WebuiItem {
         while (filesIterator.hasNext()) {
             File nextFile = filesIterator.next();
             files.put(nextFile.getId(), nextFile);
-            terrier.addError("File added:" + nextFile.getId());
+            //terrier.addError("File added:" + nextFile.getId());
         }
         fileCount = files.size();
     }
@@ -341,37 +335,5 @@ public class Project extends WebuiItem {
         view.setFiles(fs);
         return view.getHtml();
     }
-
-    public String fileStats() {
-        getFiles();
-        
-        int total = fileCount = fs.size();
-        int added = 0;
-        int modified = 0;
-        int deleted = 0;
-
-        Iterator<File> filesIterator = fs.iterator();
-        while (filesIterator.hasNext()) {
-            File nextFile = filesIterator.next();
-            if (nextFile.getStatus().equals("MODIFIED")) {
-                modified += 1;
-            } else if (nextFile.getStatus().equals("ADDED")) {
-                added += 1;
-            } else if (nextFile.getStatus().equals("DELETED")) {
-                deleted +=1;
-            }
-        }
-
-        StringBuilder html = new StringBuilder("\n\n<table>");
-        html.append("\n\t<tr><td>" + icon("vcs_add") + "<strong>Files added:</strong></td>\n\t<td>" + added + "</td></tr>");
-        html.append("\n\t<tr><td>" + icon("vcs_update") + "<strong>Files modified:</strong></td>\n\t<td>" + modified + "</td></tr>");
-        html.append("\n\t<tr><td>" + icon("vcs_remove") + "<strong>Files deleted:</strong></td>\n\t<td>" + deleted + "</td></tr>");
-        html.append("\n\t<tr><td colspan=\"2\"><hr /></td></tr>");
-        html.append("\n\t<tr><td>" + icon("vcs_status") + "<strong>Total files changed:</strong></td><td>" + total + "</td>\n\t</tr>");
-        html.append("\n</table>");
-
-        return html.toString();
-    }
-
 
 }

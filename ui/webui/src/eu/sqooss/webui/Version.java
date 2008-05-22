@@ -33,8 +33,7 @@
 
 package eu.sqooss.webui;
 
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.*;
 
 import eu.sqooss.ws.client.datatypes.WSProjectVersion;
 
@@ -81,24 +80,24 @@ public class Version extends WebuiItem {
         number = n;
     }
 
-    public SortedMap<Long, File> getFiles () {
-        // FIXME: doesn't seem to work
-        SortedMap<Long, File> files = new TreeMap<Long, File>();
+    public void getFiles () {
         if (!isValid()) {
             addError("no ID in getFiles()");
-            return files;
+            return;
         }
-        File fs[] = terrier.getProjectVersionFiles(id);
-        if ( fs == null || fs.length == 0 ) {
-            //files.put(new Long(1337), new File(id, new Long(1337), "src/FakeFile.cpp", "FAKE_STATUS", terrier));
-            fileCount = files.size();
-            return files;
+        fs = terrier.getProjectVersionFiles(id);
+        fileCount = fs.size();
+        if ( fs == null || fs.size() == 0 ) {
+            //File f = new File(id, new Long(1337), "src/FakeFile.cpp", "DELETED", terrier);
+            files.put(new Long(1337), f);
+            return;
         }
-        for (File f: fs) {
-            files.put(f.getId(), f);
+        files = new TreeMap<Long, File>();
+        Iterator<File> filesIterator = fs.iterator();
+        while (filesIterator.hasNext()) {
+            File nextFile = filesIterator.next();
+            files.put(nextFile.getId(), nextFile);
         }
-        fileCount = files.size();
-        return files;
     }
 
     public String listFiles() {

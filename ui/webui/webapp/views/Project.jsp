@@ -92,7 +92,8 @@ if (selectedProject.isValid()) {
     int v_c = 0;
     String versionFileList = "";
     if (selectedProject.getCurrentVersion() != null) {
-        versionFileList = selectedProject.getCurrentVersion().listFiles();
+        versionFileList = selectedProject.getCurrentVersion().fileStats();
+        //versionFileList = selectedProject.getCurrentVersion().listFiles();
         v_c = selectedProject.getCurrentVersion().getFileCount();
     }
 

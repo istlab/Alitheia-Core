@@ -380,17 +380,19 @@ public class Terrier {
         return view;
     }
 
-    public File[] getProjectVersionFiles(Long versionId) {
+    public Vector<File> getProjectVersionFiles(Long versionId) {
         if (!connection.isConnected()) {
             return null;
         }
-        File[] files = null;
+        Vector<File> files = new Vector<File>();
+        //File[] files = null;
         try {
             try {
                 WSProjectFile[] wsfiles = connection.getProjectAccessor().getFilesByProjectVersionId(versionId);
-                int i = 0;
+                //int i = 0;
                 for (WSProjectFile file : wsfiles) {
-                    files[i] = new File(file, this);
+                    files.addElement(new File(file, this));
+                    addError("gPVF:" + file.getId());
                     //view.addFile(new File(file, this));
                 }
             } catch (NullPointerException npe) {
@@ -401,7 +403,7 @@ public class Terrier {
             addError("Can not retrieve the list of files for this version:" + e.getMessage());
             return files;
         }
-        //addError(files.length + " Files n Version " + versionId);
+        addError(files.size() + " Files n Version " + versionId);
         return files;
     }
 

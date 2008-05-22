@@ -33,12 +33,9 @@
 
 package eu.sqooss.webui;
 
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.*;
 
-//import eu.sqooss.ws.client.datatypes.WSProjectWebuiItem;
-
-import eu.sqooss.webui.File;
+import eu.sqooss.webui.*;
 
 
 public class WebuiItem {
@@ -52,6 +49,8 @@ public class WebuiItem {
     protected Terrier terrier;
     // Contains a sorted list of all files in this version mapped to their ID.
     protected SortedMap<Long, File> files;
+    Vector<File> fs; // For convenience
+
     protected int fileCount;
 
     public WebuiItem () {
@@ -135,6 +134,39 @@ public class WebuiItem {
             terrier.addError("No files to list");
             return "No files to list.";
         }
+    }
+
+    public String fileStats() {
+        getFiles();
+        if (fs == null) {
+            return "No files.";
+        }
+        int total = fileCount = fs.size();
+        int added = 0;
+        int modified = 0;
+        int deleted = 0;
+
+        Iterator<File> filesIterator = fs.iterator();
+        while (filesIterator.hasNext()) {
+            File nextFile = filesIterator.next();
+            if (nextFile.getStatus().equals("MODIFIED")) {
+                modified += 1;
+            } else if (nextFile.getStatus().equals("ADDED")) {
+                added += 1;
+            } else if (nextFile.getStatus().equals("DELETED")) {
+                deleted +=1;
+            }
+        }
+
+        StringBuilder html = new StringBuilder("\n\n<table>");
+        html.append("\n\t<tr><td>" + icon("vcs_add") + "<strong>Files added:</strong></td>\n\t<td>" + added + "</td></tr>");
+        html.append("\n\t<tr><td>" + icon("vcs_update") + "<strong>Files modified:</strong></td>\n\t<td>" + modified + "</td></tr>");
+        html.append("\n\t<tr><td>" + icon("vcs_remove") + "<strong>Files deleted:</strong></td>\n\t<td>" + deleted + "</td></tr>");
+        html.append("\n\t<tr><td colspan=\"2\"><hr /></td></tr>");
+        html.append("\n\t<tr><td>" + icon("vcs_status") + "<strong>Total files changed:</strong></td><td>" + total + "</td>\n\t</tr>");
+        html.append("\n</table>");
+
+        return html.toString();
     }
 
     public String icon(String name) {
