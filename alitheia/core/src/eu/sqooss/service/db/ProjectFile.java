@@ -165,7 +165,7 @@ public class ProjectFile extends DAObject{
             path = "/"; 
         }
         
-        Directory d = Directory.getDirectory(path, false);
+        Directory d = Directory.getDirectory(dir, false);
         
         String paramFile = "paramFile"; 
         String paramTS = "paramTS"; 
