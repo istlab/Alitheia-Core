@@ -324,8 +324,10 @@ public class Project extends WebuiItem {
         while (filesIterator.hasNext()) {
             File nextFile = filesIterator.next();
             files.put(nextFile.getId(), nextFile);
+            terrier.addError("File added:" + nextFile.getId());
         }
         fileCount = files.size();
+
         return files;
     }
 
@@ -355,13 +357,13 @@ public class Project extends WebuiItem {
                 deleted +=1;
             }
         }
-        StringBuilder html = new StringBuilder("<table>");
-        html.append("<tr><td><strong>Files added:</strong></td><td>" + added + "</td></tr>");
-        html.append("<tr><td><strong>Files modified:</strong></td><td>" + modified + "</td></tr>");
-        html.append("<tr><td><strong>Files deleted:</strong></td><td>" + deleted + "</td></tr>");
-        html.append("<tr><td colspan=\"2\"><hr /></td></tr>");
 
-        html.append("<tr><td><strong> </strong></td><td>" + total + "</td></tr>");
+        StringBuilder html = new StringBuilder("<table>");
+        html.append("<tr><td>" + icon("vcs_added") + "<strong>Files added:</strong></td><td>" + added + "</td></tr>");
+        html.append("<tr><td>" + icon("vcs_added") + "<strong>Files modified:</strong></td><td>" + modified + "</td></tr>");
+        html.append("<tr><td>" + icon("vcs_added") + "<strong>Files deleted:</strong></td><td>" + deleted + "</td></tr>");
+        html.append("<tr><td colspan=\"2\"><hr /></td></tr>");
+        html.append("<tr><td>" + icon("vcs_status") + "<strong> </strong></td><td>" + total + "</td></tr>");
         html.append("</table>");
 
         return html.toString();
