@@ -162,8 +162,6 @@ public abstract class WSUserAccessor extends WSAccessor {
      * the SQO-OSS system administrator or the SQO-OSS framework itself,
      * upon occurrence of specific events (like addition of a new project).
      * 
-     * @param userName - the user's name
-     * 
      * @return The message of the day, which is valid for that user.
      * 
      * @throws WSException
@@ -172,7 +170,7 @@ public abstract class WSUserAccessor extends WSAccessor {
      *  <li>if web services service throws an exception</li>
      * <ul>
      */
-    public abstract String getUserMessageOfTheDay(String userName) throws WSException;
+    public abstract String getMessageOfTheDay() throws WSException;
     
     /**
      * The method notifies the administrator of the framework.

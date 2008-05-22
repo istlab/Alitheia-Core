@@ -46,14 +46,14 @@ import eu.sqooss.ws.client.ws.CreatePendingUser;
 import eu.sqooss.ws.client.ws.CreatePendingUserResponse;
 import eu.sqooss.ws.client.ws.DeleteUserById;
 import eu.sqooss.ws.client.ws.DeleteUserByIdResponse;
+import eu.sqooss.ws.client.ws.GetMessageOfTheDay;
+import eu.sqooss.ws.client.ws.GetMessageOfTheDayResponse;
+import eu.sqooss.ws.client.ws.GetUserByName;
+import eu.sqooss.ws.client.ws.GetUserByNameResponse;
 import eu.sqooss.ws.client.ws.GetUserGroups;
 import eu.sqooss.ws.client.ws.GetUserGroupsResponse;
 import eu.sqooss.ws.client.ws.GetUsersByIds;
 import eu.sqooss.ws.client.ws.GetUsersByIdsResponse;
-import eu.sqooss.ws.client.ws.GetUserByName;
-import eu.sqooss.ws.client.ws.GetUserByNameResponse;
-import eu.sqooss.ws.client.ws.GetUserMessageOfTheDay;
-import eu.sqooss.ws.client.ws.GetUserMessageOfTheDayResponse;
 import eu.sqooss.ws.client.ws.ModifyUser;
 import eu.sqooss.ws.client.ws.ModifyUserResponse;
 import eu.sqooss.ws.client.ws.NotifyAdmin;
@@ -72,7 +72,7 @@ class WSUserAccessorImpl extends WSUserAccessor {
 
     private static final String METHOD_NAME_DELETE_USER_BY_ID    = "deleteUserById";
 
-    private static final String METHOD_NAME_GET_USER_MESSAGE_OF_THE_DAY = "getUserMessageOfTheDay";
+    private static final String METHOD_NAME_GET_MESSAGE_OF_THE_DAY = "getMessageOfTheDay";
     
     private static final String METHOD_NAME_NOTIFY_ADMIN = "notifyAdmin";
 
@@ -265,21 +265,21 @@ class WSUserAccessorImpl extends WSUserAccessor {
     /**
      * @see eu.sqooss.scl.accessor.WSUserAccessor#getUserMessageOfTheDay(java.lang.String)
      */
-    public String getUserMessageOfTheDay(String userName) throws WSException {
-        GetUserMessageOfTheDayResponse response;
-        GetUserMessageOfTheDay params;
-        if (!parameters.containsKey(METHOD_NAME_GET_USER_MESSAGE_OF_THE_DAY)) {
-            params = new GetUserMessageOfTheDay();
+    public String getMessageOfTheDay() throws WSException {
+        GetMessageOfTheDayResponse response;
+        GetMessageOfTheDay params;
+        if (!parameters.containsKey(METHOD_NAME_GET_MESSAGE_OF_THE_DAY)) {
+            params = new GetMessageOfTheDay();
             params.setUserName(userName);
-            parameters.put(METHOD_NAME_GET_USER_MESSAGE_OF_THE_DAY, params);
+            params.setPassword(password);
+            parameters.put(METHOD_NAME_GET_MESSAGE_OF_THE_DAY, params);
         } else {
-            params = (GetUserMessageOfTheDay) parameters.get(
-                    METHOD_NAME_GET_USER_MESSAGE_OF_THE_DAY);
+            params = (GetMessageOfTheDay) parameters.get(
+                    METHOD_NAME_GET_MESSAGE_OF_THE_DAY);
         }
         synchronized (params) {
-            params.setUserName(userName);
             try {
-                response = wsStub.getUserMessageOfTheDay(params);
+                response = wsStub.getMessageOfTheDay(params);
             } catch (RemoteException re) {
                 throw new WSException(re);
             }

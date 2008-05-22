@@ -85,7 +85,6 @@ public class WebServices {
     private MetricManager metricManager;
     private ProjectManager projectManager;
     private UserManager userManager;
-    private WebadminService webadmin;
 
     /**
      * Instantiates a new WebServices object.
@@ -107,8 +106,7 @@ public class WebServices {
             MessagingService messaging) {
         metricManager = new MetricManager(logger, db, pluginAdmin, securityManager);
         projectManager = new ProjectManager(logger, db, securityManager);
-        userManager = new UserManager(logger, securityManager, db, messaging);
-        webadmin = wa;
+        userManager = new UserManager(logger, securityManager, db, messaging, wa);
     }
 
     // ===[ ProjectManager methods]===========================================
@@ -566,23 +564,14 @@ public class WebServices {
      * upon occurrence of specific events (like addition of a new project).
      * 
      * @param userName - the user's name
+     * @param password - the user's password
      * 
      * @return The message of the day, which is valid for that user.
      */
-    public String getUserMessageOfTheDay(String userName) {
-        String s = null;
-        if (webadmin != null) {
-            s = webadmin.getMessageOfTheDay();
-        } else {
-            s = "No connection to MOTD server.";
-        }
-        if (userName.length() < 3 /* inches ? */) {
-            return "Expand your unit, " + userName;
-        }
-        if (s != null) {
-            return s;
-        }
-        return "Share and enjoy.";
+    public String getMessageOfTheDay(
+            String userName,
+            String password) {
+        return userManager.getMessageOfTheDay(userName, password);
     }
     
     /**

@@ -509,16 +509,7 @@ public class Terrier {
      */
     public String getUserMessageOfTheDay() {
         try {
-            String user = connection.getUserName();
-            if (user == null) {
-                if (confParams.getString(Constants.cfgUnprivUser) != null) {
-                    user = confParams.getString(Constants.cfgUnprivUser);
-                }
-                else {
-                    user = Constants.cfgUnprivUser;
-                }
-            }
-            return connection.getUserAccessor().getUserMessageOfTheDay(user);
+            return connection.getUserAccessor().getMessageOfTheDay();
         } catch (WSException e) {
             return null;
         } catch (NullPointerException e) {

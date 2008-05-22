@@ -48,23 +48,26 @@ import eu.sqooss.service.db.User;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.messaging.MessagingService;
 import eu.sqooss.service.security.SecurityManager;
+import eu.sqooss.service.webadmin.WebadminService;
 
 public class UserManager extends AbstractManager {
     
     private Logger logger;
     private SecurityWrapper security;
     private UserManagerMessageSender messageSender;
+    private WebadminService webadmin;
     private eu.sqooss.service.security.UserManager userManager;
     private eu.sqooss.service.security.GroupManager groupManager;
     
     public UserManager(Logger logger, SecurityManager securityManager,
-            DBService db, MessagingService messagingService) {
+            DBService db, MessagingService messagingService, WebadminService webadmin) {
         super(db);
         this.logger = logger;
         this.security = new SecurityWrapper(securityManager);
         this.userManager = securityManager.getUserManager();
         this.groupManager = securityManager.getGroupManager();
         this.messageSender = new UserManagerMessageSender(messagingService);
+        this.webadmin = webadmin;
     }
     
     /**
@@ -220,6 +223,29 @@ public class UserManager extends AbstractManager {
         }
     }
 
+    /**
+     * @see eu.sqooss.service.web.services.WebServices#getMessageOfTheDay(String)
+     */
+    public String getMessageOfTheDay(String userName, String password) {
+        logger.info("Get message of the day! user: " + userName);
+        
+        //TODO: check the security
+        
+        String s = null;
+        if (webadmin != null) {
+            s = webadmin.getMessageOfTheDay();
+        } else {
+            s = "No connection to MOTD server.";
+        }
+        if (userName.length() < 3 /* inches ? */) {
+            return "Expand your unit, " + userName;
+        }
+        if (s != null) {
+            return s;
+        }
+        return "Share and enjoy.";
+    }
+    
     /**
      * @see eu.sqooss.service.web.services.WebServices#notifyAdmin(String, String, String, String)
      */
