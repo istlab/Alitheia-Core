@@ -318,6 +318,11 @@ public class Project extends WebuiItem {
     }
 
     public void getFiles () {
+        if (fs != null && fs.size() > 0) {
+            // Do it only once per instance
+            return;
+        }
+
         fs = terrier.getFiles4Project(id);
         SortedMap<Long, File> files = new TreeMap<Long, File>();
         files.put(new Long(1337), new File(id, new Long(1337), "src/FakeFile.cpp", "FAKE_STATUS", terrier));
@@ -328,23 +333,18 @@ public class Project extends WebuiItem {
             terrier.addError("File added:" + nextFile.getId());
         }
         fileCount = files.size();
-
-        //return files;
     }
 
     public String listFiles() {
-        Vector<File> fs = terrier.getFiles4Project(id);
+        getFiles();
         FileListView view = new FileListView();
         view.setFiles(fs);
         return view.getHtml();
     }
 
     public String fileStats() {
-        //Vector<File> fs = terrier.getFiles4Project(id);
+        getFiles();
         
-        if (fs == null || fs.size() == 0) {
-            getFiles();
-        }
         int total = fileCount = fs.size();
         int added = 0;
         int modified = 0;
