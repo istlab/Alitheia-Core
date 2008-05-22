@@ -78,15 +78,15 @@ public class MessagingServiceThread implements Runnable {
             messagingService.startThreadIfNeeded();
             sender = getMessageSender(message);
             messageStatus = sender.sendMessage(message);
-            MessagingServiceImpl.log("The message (id = " + message.getId() + ") status is " + messageStatus + " after the message dispatch",
-            		MessagingServiceImpl.LOGGING_INFO_LEVEL);
             ungetMessageSender();
-            message.setStatus(messageStatus);
-            messagingService.notifyListeners(message, messageStatus);
-
             boolean timeout = ((message.getQueueTime() + queueringTime) < System.currentTimeMillis());
             if ((messageStatus == Message.STATUS_FAILED) && !timeout) {
                 queue.push(message);
+            } else {
+                MessagingServiceImpl.log("The message (id = " + message.getId() + ") status is " + messageStatus + " after the message dispatch",
+                        MessagingServiceImpl.LOGGING_INFO_LEVEL);
+                message.setStatus(messageStatus);
+                messagingService.notifyListeners(message, messageStatus);
             }
             messagingService.stopThreadIfNeeded(this);
         }
