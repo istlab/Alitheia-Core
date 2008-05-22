@@ -391,17 +391,19 @@ public class UserManagerImpl implements UserManager {
         StringWriter bodyWriter = new StringWriter();
         String url = getHashUrl(pendingUser.getHash());
         if (velocityTemplate != null) {
-            velocityContext.put("URL", url);
-            velocityContext.put("EXPIRATION_TIME", expirationDate.toString());
-            velocityContext.put("USER_NAME", pendingUser.getName());
-            velocityContext.put("PASSWORD", password);
-            velocityContext.put("E_MAIL", pendingUser.getEmail());
-            velocityContext.put("CREATED_TIME", pendingUser.getCreated().toString());
-            try {
-                velocityTemplate.merge(velocityContext, bodyWriter);
-            } catch (IOException ioe) {
-                logger.error(ioe.getMessage());
-                bodyWriter.write(url);
+            synchronized (velocityContext) {
+                velocityContext.put("URL", url);
+                velocityContext.put("EXPIRATION_TIME", expirationDate.toString());
+                velocityContext.put("USER_NAME", pendingUser.getName());
+                velocityContext.put("PASSWORD", password);
+                velocityContext.put("E_MAIL", pendingUser.getEmail());
+                velocityContext.put("CREATED_TIME", pendingUser.getCreated().toString());
+                try {
+                    velocityTemplate.merge(velocityContext, bodyWriter);
+                } catch (IOException ioe) {
+                    logger.error(ioe.getMessage());
+                    bodyWriter.write(url);
+                }
             }
         } else {
             bodyWriter.write(url);
