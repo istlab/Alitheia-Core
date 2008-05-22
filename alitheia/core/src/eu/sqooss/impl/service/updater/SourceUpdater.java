@@ -144,8 +144,7 @@ class SourceUpdater extends Job {
             
             for (CommitEntry entry : commitLog) {
                 
-                ProjectVersion curVersion = new ProjectVersion();
-                curVersion.setProject(project);
+                ProjectVersion curVersion = new ProjectVersion(project);
                 // Assertion: this value is the same as lastSCMVersion
                 curVersion.setVersion(entry.getRevision().getSVNRevision());
                 curVersion.setTimestamp((long)(entry.getDate().getTime() / 1000));
@@ -170,6 +169,9 @@ class SourceUpdater extends Job {
                 curVersion.setCommitMsg(commitMsg);
                 /*TODO: Fix this when the TDS starts supporting SVN properties*/
                 //curVersion.setProperties(entry.getProperties);
+                // Use addRecord instead of adding to the list of versions in the project
+                // so we don't need to load the complete list of revisions
+                // (especially as we used getLastProjectVersion above)
                 dbs.addRecord(curVersion);
                 updProjectVersions.add(new Long(curVersion.getId()));
 
@@ -184,7 +186,7 @@ class SourceUpdater extends Job {
                      */
                     if(t == SCMNodeType.DIR && isTag(entry, chPath)) {
                         
-                        Tag tag = curVersion.addTag();
+                        Tag tag = new Tag(curVersion);
                         tag.setName(chPath.substring(5));
                         logger.info("Creating tag <" + tag.getName() + ">");
                         
@@ -192,7 +194,8 @@ class SourceUpdater extends Job {
                         break;
                     }
                     
-                    ProjectFile pf = curVersion.addProjectFile();
+                    ProjectFile pf = new ProjectFile(curVersion);
+                    
                     String path = chPath.substring(0, chPath.lastIndexOf('/'));
                     if (path == null || path.equalsIgnoreCase("")) {
                         path = "/"; //SVN entry does not have a path

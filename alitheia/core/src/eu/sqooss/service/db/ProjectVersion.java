@@ -52,6 +52,9 @@ public class ProjectVersion extends DAObject {
     public ProjectVersion() {
         // Nothing to do
     }
+    public ProjectVersion(StoredProject project) {
+        this.project = project;
+    }
 
     public StoredProject getProject() {
         return project;
@@ -134,11 +137,7 @@ public class ProjectVersion extends DAObject {
             return (ProjectVersion) projectVersions.get(0);
         }
     }
-    
-    public ProjectFile addProjectFile() {
-        return new ProjectFile(this);
-    }
-    
+        
     public long getTimestamp() {
         return timestamp;
     }
@@ -147,12 +146,6 @@ public class ProjectVersion extends DAObject {
         this.timestamp = timestamp;
     }
     
-    public Tag addTag() {
-        Tag tag = new Tag();
-        tag.setProjectVersion(this);
-        return tag;
-    }
-
     public Developer getCommitter() {
         return committer;
     }
