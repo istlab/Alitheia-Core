@@ -41,8 +41,10 @@ import java.util.LinkedList;
 import java.lang.Comparable;
 import java.lang.InterruptedException;
 
+import eu.sqooss.impl.service.CoreActivator;
 import eu.sqooss.service.util.Pair;
 
+import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.scheduler.SchedulerException;
 
 /**
@@ -154,11 +156,26 @@ public abstract class Job implements Comparable<Job> {
      * @throws Exception
      */
     final public void execute() throws Exception {
+        DBService dbs = CoreActivator.getDBService();
+        
         try {
             setState(State.Running);
             run();
-            setState(State.Finished);
+            
+            /*Idiot/bad programmer proofing*/
+            assert (!dbs.isDBSessionActive());            
+            if (dbs.isDBSessionActive()) {
+                dbs.rollbackDBSession();
+                setState(State.Error); //No uncommited sessions are tolerated
+            } else {
+                setState(State.Finished);
+            }   
         } catch(Exception e) {
+            
+            if (dbs.isDBSessionActive()) {
+                dbs.rollbackDBSession();
+            }
+            
             // In case of an exception, state becomes Error
             m_errorException = e;
             setState(State.Error);
