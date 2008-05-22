@@ -47,8 +47,36 @@ public class ProductivityMetricActions {
         TCF, // Commit files (for calculating the number of committed files
                 // per developer)
         CBN, // Commit comment that includes a bug report number
-        CPH, // Commit comment that awards a pointy hat
+        CPH; // Commit comment that awards a pointy hat
+        
+        public static ActionType fromString(String s) {
+            if ("CNS".equals(s))
+                return ActionType.CNS;
+            else if ("CND".equals(s))
+                return ActionType.CND;
+            else if ("CDF".equals(s))
+                return ActionType.CDF;
+            else if ("CTF".equals(s))
+                return ActionType.CTF;
+            else if ("CBF".equals(s))
+                return ActionType.CBF;
+            else if ("CEC".equals(s))
+                return ActionType.CEC;
+            else if ("CMF".equals(s))
+                return ActionType.CMF;
+            else if ("TCO".equals(s))
+                return ActionType.TCO;
+            else if ("TCF".equals(s))
+                return ActionType.TCF;
+            else if ("CBN".equals(s))
+                return ActionType.CBN;
+            else if ("CPH".equals(s))
+                return ActionType.CPH;
+            else
+                return null;
+        }
     }
+
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
