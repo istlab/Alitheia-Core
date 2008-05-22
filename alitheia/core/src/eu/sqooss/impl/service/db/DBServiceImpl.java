@@ -55,6 +55,7 @@ import org.osgi.framework.BundleContext;
 
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.impl.service.logging.LoggerImpl;
@@ -809,9 +810,21 @@ e.printStackTrace();
             rollbackDBSession();
             return "project 'selfTestTempProject' not saved in the db";
         }
+        
+        ProjectVersion testVersion = new ProjectVersion();
+        testVersion.setProject(projectList.get(0));
+        testVersion.setVersion(9999);
+        testVersion.setCommitMsg("hello");
+        testVersion.setProperties("zob");
+        testVersion.setTimestamp(0);
+        if ( addRecord(testVersion) ) {
+            rollbackDBSession();
+            return "adding a project version without a committer should fail (not-null constraint)";
+        }
 
         // testProject is detached at that point (it belongs to the previous session)
         // so changes should NOT be persisted in the db at the next commit
+        startDBSession();
         testProject.setContact("duh");
         if ( !commitDBSession() ) {
             return "error while committing session afer change to project";
@@ -885,8 +898,85 @@ e.printStackTrace();
             rollbackDBSession();
             return "project 'selfTestTempProject' not deleted in the db";
         }
-        
         commitDBSession();
+        
+        //
+        // Collection mappings tests
+        //
+        
+        startDBSession();
+        testProject = findObjectById(StoredProject.class, 1);
+        List<ProjectVersion> projectVersions = testProject.getProjectVersions();
+        final int originalVersionCount = projectVersions.size();
+        logger.debug("project versions for project " + testProject.getName() + ": "
+                    + originalVersionCount);
+        ProjectVersion firstVersion = projectVersions.get(0);
+        ProjectVersion lastVersion = projectVersions.get(originalVersionCount-1);
+        logger.debug("first version info: " + firstVersion.getVersion() + " - " + firstVersion.getCommitMsg());
+        logger.debug("last version info: " + lastVersion.getVersion() + " - " + lastVersion.getCommitMsg());
+                
+        testVersion = new ProjectVersion();
+        testVersion.setProject(testProject);
+        testVersion.setVersion(lastVersion.getVersion()+1);
+        testVersion.setCommitter(lastVersion.getCommitter());
+        testVersion.setCommitMsg("hello");
+        testVersion.setProperties("zob");
+        testVersion.setTimestamp(0);
+        
+        // You can persist the new version just by adding it to the project's list
+        projectVersions.add(testVersion);
+        commitDBSession();
+        startDBSession();
+        testProject = findObjectById(StoredProject.class, 1);
+        final int newVersionCount = testProject.getProjectVersions().size();
+        if ( newVersionCount == originalVersionCount ) {
+            rollbackDBSession();
+            return "adding version to collection didn't modify the DB";
+        }
+        logger.debug("project now has " + newVersionCount + " versions");
+        // Works for removing too
+        logger.debug("removing added version");
+        testVersion = attachObjectToDBSession(testVersion);
+        testProject.getProjectVersions().remove(testVersion);
+        commitDBSession();
+        startDBSession();
+        if ( findObjectById(StoredProject.class, 1).getProjectVersions().size() != originalVersionCount ) {
+            rollbackDBSession();
+            return "removing version from collection didn't modify the DB";
+        }
+        commitDBSession();
+        
+        // You can also use the standard addRecord/deleteRecord methods
+        startDBSession();
+        testProject = findObjectById(StoredProject.class, 1);
+        testVersion = new ProjectVersion();
+        testVersion.setProject(testProject);
+        testVersion.setVersion(lastVersion.getVersion()+1);
+        testVersion.setCommitter(lastVersion.getCommitter());
+        testVersion.setCommitMsg("hello");
+        testVersion.setProperties("zob");
+        testVersion.setTimestamp(1);
+        if ( !addRecord(testVersion) ) {
+            rollbackDBSession();
+            return "error while adding test project version #2";
+        }
+        logger.debug("before addRecord(testVersion) commit, projectVersion.size() == " + testProject.getProjectVersions().size() );
+        commitDBSession();        
+        startDBSession();
+        if ( findObjectById(StoredProject.class, 1).getProjectVersions().size() == originalVersionCount ) {
+            rollbackDBSession();
+            return "adding version with addRecord didn't modify the DB";
+        }        
+        testVersion = attachObjectToDBSession(testVersion);
+        deleteRecord(testVersion);
+        commitDBSession();
+        startDBSession();
+        if ( findObjectById(StoredProject.class, 1).getProjectVersions().size() != originalVersionCount ) {
+            rollbackDBSession();
+            return "removing version with deleteRecord didn't modify the DB";
+        }
+        commitDBSession();
+
         return null;
     }
 
