@@ -32,23 +32,72 @@
 
 package eu.sqooss.impl.service;
 
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Enumeration;
+
+import org.junit.runner.JUnitCore;
+import org.junit.runner.Result;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
-import eu.sqooss.scl.WSSession;
-
 public class SpecsActivator implements BundleActivator {
 
+    private class SpecsStats {
+        int runsCount;
+        int failedCount;
+        ArrayList<String> failedNames = new ArrayList<String>();
+    }
+
     public void start(BundleContext bc) throws Exception {
-        try {
-            System.out.println("SpecsActivator: creating session");
-            new WSSession("alitheia", "alitheia", "http://localhost:8088/sqooss/services/ws/");
-            System.out.println("SpecsActivator: SUCCESS");
-        } catch (Exception e) {
-        	e.printStackTrace();
+        System.out.println("\n\n");
+        System.out.println("Running specs...");
+
+        final String specsRootPkg = "eu.sqooss.impl.service.specs";
+        final String specsRootPath = specsRootPkg.replace('.', '/');
+
+        System.out.println("Start processing specs from "+specsRootPkg);
+        System.out.println("");
+
+        Enumeration<?> paths = bc.getBundle().findEntries(specsRootPath, "*.class", true);
+        SpecsStats stats = new SpecsStats();
+
+        while (paths.hasMoreElements()) {
+            String path = ((URL)paths.nextElement()).getPath();
+            int i = path.indexOf("specs/");
+            path = path.substring(i+6, path.length()-6);
+
+            if (path.contains("$")) continue; //skip inner classes
+
+            String className = "eu.sqooss.impl.service.specs."+path.replace('/', '.');
+            Class<?> c = bc.getBundle().loadClass(className);
+
+            System.out.println("Running "+className);
+            Result r = JUnitCore.runClasses(c);
+
+            stats.runsCount++;
+            if (r.getFailureCount()>0) {
+                stats.failedCount++;
+                stats.failedNames.add(className);
+            }
         }
-        // Do not stop the system while the bundle is starting!!!
-        //System.exit(0);
+
+        if (stats.runsCount==0) {
+            System.out.println("NO SPECS FOUND!");
+        } else {
+            int successPercent = 100 - (stats.failedCount*100)/stats.runsCount;
+            System.out.println(""+successPercent+"% specs passed, "+stats.failedCount+" failed out of "+stats.runsCount);
+
+            if (stats.failedCount>0) {
+                System.out.println("");
+                System.out.println("The following specs FAILED:");
+                for (String className : stats.failedNames) {
+                    System.out.println("\t"+className);
+                }
+            }
+        }
+
+        bc.getBundle(0).stop();
     }
 
     public void stop(BundleContext bc) throws Exception {
