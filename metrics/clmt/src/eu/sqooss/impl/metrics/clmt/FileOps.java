@@ -65,19 +65,16 @@ public class FileOps {
     }
 
     public boolean exists(String path) {
-        
         return imc.get().getRoot().pathExists(path);
     }
     
     public boolean isDirectory(String path) {
-        ProjectFile pf = imc.get().getRoot().getFile(path);
-        if (pf == null) {
-            if(exists(path)) { //e.g. / root dir 
-                return true;
-            }
+
+        InMemoryDirectory imd = imc.get().getRoot().getSubdirectoryByName(path);
+        
+        if (imd == null)
             return false;
-        }
-        return pf.getIsDirectory();
+        return true;
     }
     
     /**
@@ -110,7 +107,6 @@ public class FileOps {
      * in the directory. The path is not appended.
      */
     public List<String> listFiles(String path) {
-        
         if(!isDirectory(path)) {  
             return null;
         }

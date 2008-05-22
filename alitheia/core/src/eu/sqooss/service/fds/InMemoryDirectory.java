@@ -226,7 +226,7 @@ public class InMemoryDirectory {
         }
         
         // Split directory part from (possible) file part and re-check
-        String file = path.substring(path.lastIndexOf('/'), path.length() - 1);
+        String file = path.substring(path.lastIndexOf('/') + 1, path.length());
         path = path.substring(0, path.lastIndexOf('/'));
         dir = getSubdirectoryByName(path);
 
@@ -236,11 +236,10 @@ public class InMemoryDirectory {
         }
 
         //Dir found, search files for matching file name
-        for (ProjectFile f : dir.getFiles()) {
-            if (f.getFileName().equals(file)) {
-                return true;
-            }
+        if (dir.getFiles().contains(file)) {
+            return true;
         }
+        
         return false;
     }
     
