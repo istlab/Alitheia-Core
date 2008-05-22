@@ -33,30 +33,12 @@
 
 package eu.sqooss.webui;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
+import java.io.*;
+import java.util.*;
 
-import java.util.ResourceBundle;
-import java.util.SortedMap;
-import java.util.TreeMap;
-import java.util.Vector;
-
-import eu.sqooss.scl.WSException;
-import eu.sqooss.scl.WSSession;
-import eu.sqooss.scl.accessor.WSAccessor;
-import eu.sqooss.scl.accessor.WSMetricAccessor;
-import eu.sqooss.scl.accessor.WSProjectAccessor;
-import eu.sqooss.scl.accessor.WSUserAccessor;
-import eu.sqooss.ws.client.datatypes.WSMetric;
-import eu.sqooss.ws.client.datatypes.WSMetricType;
-import eu.sqooss.ws.client.datatypes.WSMetricsRequest;
-import eu.sqooss.ws.client.datatypes.WSProjectFile;
-import eu.sqooss.ws.client.datatypes.WSProjectVersion;
-import eu.sqooss.ws.client.datatypes.WSStoredProject;
-import eu.sqooss.ws.client.datatypes.WSUser;
-
-import eu.sqooss.webui.*;
-
+import eu.sqooss.scl.*;
+import eu.sqooss.scl.accessor.*;
+import eu.sqooss.ws.client.datatypes.*;
 
 
 /**
@@ -282,9 +264,7 @@ public class Terrier {
                 connection.getProjectAccessor().getProjectVersionsByProjectId(projectId);
             for (WSProjectVersion wssp : versionsResult) {
                 if (versionId.equals(wssp.getId())) {
-                    //addError("Strike: " + wssp.getId() + " == " + versionId);
                     Version v = new Version(wssp, this);
-                    //Version v = new Version(projectId, wssp.getId(), this);
                     if ( v == null ) {
                         addError("IsNull: " + wssp.getId() + " == " + versionId);
                     }
@@ -385,7 +365,6 @@ public class Terrier {
             return null;
         }
         Vector<File> files = new Vector<File>();
-        //File[] files = null;
         try {
             try {
                 WSProjectFile[] wsfiles = connection.getProjectAccessor().getFilesByProjectVersionId(versionId);
@@ -401,7 +380,7 @@ public class Terrier {
             addError("Can not retrieve the list of files for this version:" + e.getMessage());
             return files;
         }
-        addError(files.size() + " Files n Version " + versionId);
+        //addError(files.size() + " Files n Version " + versionId);
         return files;
     }
 

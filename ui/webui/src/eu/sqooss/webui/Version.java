@@ -37,8 +37,6 @@ import java.util.*;
 
 import eu.sqooss.ws.client.datatypes.WSProjectVersion;
 
-import eu.sqooss.webui.Project;
-
 
 public class Version extends WebuiItem {
 
@@ -88,8 +86,6 @@ public class Version extends WebuiItem {
         fs = terrier.getProjectVersionFiles(id);
         fileCount = fs.size();
         if ( fs == null || fs.size() == 0 ) {
-            //File f = new File(id, new Long(1337), "src/FakeFile.cpp", "DELETED", terrier);
-            //files.put(new Long(1337), f);
             return;
         }
         files = new TreeMap<Long, File>();
@@ -115,6 +111,6 @@ public class Version extends WebuiItem {
     }
 
     public String longName () {
-        return getHtml(); // Yeah, we'r lazy.
+        return getHtml(); // Yeah, we're lazy.
     }
 }

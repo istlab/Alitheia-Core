@@ -35,8 +35,6 @@ package eu.sqooss.webui;
 
 import java.util.*;
 
-import eu.sqooss.webui.*;
-
 
 public class WebuiItem {
 
@@ -102,7 +100,6 @@ public class WebuiItem {
     protected void getFiles () {
         terrier.addError("getFiles() in WebuiItem should not be called");
         fileCount = 0;
-        //return new TreeMap<Long, File>();
     }
 
     public void setFileCount(Integer n) {
@@ -121,9 +118,6 @@ public class WebuiItem {
         getFiles();
         try {
             StringBuilder html = new StringBuilder();
-            //if (files == null) {
-            //    setFiles();
-            //}
             html.append("\n<ul>");
             for (File f: files.values()) {
                 html.append("\n\t<li>" + f.getLink() + "</li>");
