@@ -70,19 +70,23 @@ public class ProductivityMetricJob extends AbstractMetricJob {
     }
     
     public void run() {
-        if(!db.startDBSession()) {
+        if (!db.startDBSession()) {
             log.error("No DBSession could be opened!");
             return;
         }
-        
+
+        pv = db.attachObjectToDBSession(pv);
+
         FileTypeMatcher.FileType fType;
         boolean isNew;
+        ProjectFile prevFile;
+        int locCurrent, locPrevious;
         Developer dev = pv.getCommitter();
         String commitMsg = pv.getCommitMsg();
         Set<ProjectFile> ProjectFiles = pv.getVersionFiles();
-        ProjectFile prevFile;
         List<Metric> locMetric = new ArrayList<Metric>();
-        AlitheiaPlugin plugin = this.core.getPluginAdmin().getImplementingPlugin("LOC");
+        AlitheiaPlugin plugin = this.core.getPluginAdmin()
+                .getImplementingPlugin("LOC");
         if (plugin != null) {
             locMetric = plugin.getSupportedMetrics();
         } else {
@@ -90,19 +94,15 @@ public class ProductivityMetricJob extends AbstractMetricJob {
             db.rollbackDBSession();
             return;
         }
-        Result results;
-        
+
         Pattern bugNumberLabel = Pattern.compile("\\A.*(pr:|bug:).*\\Z",
                 Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
-        
-        Pattern pHatLabel = Pattern.compile("\\A.*(ph:|pointy hat|p?hat:).*\\Z", 
-                Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
-        
-        Matcher m;
 
-        System.out.println("------- Version: " + pv.getVersion()
-                + ", ProjectVersion: " + pv.getId() + ", Comment: "
-                + pv.getCommitMsg());
+        Pattern pHatLabel = Pattern.compile(
+                "\\A.*(ph:|pointy hat|p?hat:).*\\Z", Pattern.CASE_INSENSITIVE
+                        | Pattern.MULTILINE | Pattern.DOTALL);
+
+        Matcher m;
 
         updateField(dev, ProductivityMetricActions.ActionType.TCO, true, 1);
         updateField(dev, ProductivityMetricActions.ActionType.TCF, true,
@@ -113,68 +113,72 @@ public class ProductivityMetricJob extends AbstractMetricJob {
         } else {
             m = bugNumberLabel.matcher(commitMsg);
             if (m.matches()) {
-                updateField(dev, ProductivityMetricActions.ActionType.CBN, true, 1);
+                updateField(dev, ProductivityMetricActions.ActionType.CBN,
+                        true, 1);
             }
             m = pHatLabel.matcher(commitMsg);
             if (m.matches()) {
-                updateField(dev, ProductivityMetricActions.ActionType.CPH, true, 1);
+                updateField(dev, ProductivityMetricActions.ActionType.CPH,
+                        true, 1);
             }
         }
 
         if (ProjectFiles.size() >= 5) { // TODO in stored project activation
-                                        // type after calculating mean
+            // type after calculating mean
             updateField(dev, ProductivityMetricActions.ActionType.CMF, true, 1);
         }
 
         Iterator<ProjectFile> i = ProjectFiles.iterator();
-        while(i.hasNext()){
+        while (i.hasNext()) {
             ProjectFile pf = i.next();
 
-            // System.out.print(ProjectFiles.get(i).getStatus() + ", \t" +
-            // ProjectFiles.get(i).getName() + ", \t" +
-            // ProjectFiles.get(i).getIsDirectory() + "\n");
-
-            fType = FileTypeMatcher.getFileType(
-                    pf.getFileName());
+            fType = FileTypeMatcher.getFileType(pf.getFileName());
             isNew = (pf.getStatus().equalsIgnoreCase("ADDED"));
 
             if (pf.getIsDirectory()) {
                 if (isNew) {
-                    updateField(dev, ProductivityMetricActions.ActionType.CND, true,
-                            1);
+                    updateField(dev, ProductivityMetricActions.ActionType.CND,
+                            true, 1);
                 }
             } else if (fType == FileTypeMatcher.FileType.SRC) {
-                if (isNew) {
-                    updateField(dev, ProductivityMetricActions.ActionType.CNS, true,
-                            1);
-                } else {
-                    // TODO: metric CAL
-                    prevFile = ProjectFile.getPreviousFileVersion(pf);
-                    
-                    try {
-                        results = plugin.getResult(pf, locMetric);
-                        results.getRow(0).get(0);
-                    } catch (MetricMismatchException e) {
-                        log.error("Results of LOC metric for project: "+ pv.getProject().getName() +" file: "+ pf.getFileName() +", Version: "+ pv.getVersion() +" can not be retrieved: " + e.getMessage());
-                        db.rollbackDBSession();
-                        return;
+                try {
+                    locCurrent = plugin.getResult(pf, locMetric).getRow(0).get(0).getInteger();
+                    if (isNew) {
+                        updateField(dev,
+                                ProductivityMetricActions.ActionType.CNS, true, 1);
+                        locPrevious = 0;
+                    } else {
+                        prevFile = ProjectFile.getPreviousFileVersion(pf);
+                        locPrevious = plugin.getResult(prevFile, locMetric).getRow(0).get(0).getInteger();
                     }
+                    updateField(dev, ProductivityMetricActions.ActionType.CAL,
+                            true, abs(locCurrent - locPrevious));
+                } catch (MetricMismatchException e) {
+                    log.error("Results of LOC metric for project: "
+                            + pv.getProject().getName() + " file: "
+                            + pf.getFileName() + ", Version: "
+                            + pv.getVersion() + " can not be retrieved: "
+                            + e.getMessage());
+                    db.rollbackDBSession();
+                    return;
                 }
             } else if (fType == FileTypeMatcher.FileType.BIN) {
-                updateField(dev, ProductivityMetricActions.ActionType.CBF, true, 1);
+                updateField(dev, ProductivityMetricActions.ActionType.CBF,
+                        true, 1);
             } else if (fType == FileTypeMatcher.FileType.DOC) {
-                updateField(dev, ProductivityMetricActions.ActionType.CDF, true, 1);
+                updateField(dev, ProductivityMetricActions.ActionType.CDF,
+                        true, 1);
             } else if (fType == FileTypeMatcher.FileType.TRANS) {
-                updateField(dev, ProductivityMetricActions.ActionType.CTF, true, 1);
+                updateField(dev, ProductivityMetricActions.ActionType.CTF,
+                        true, 1);
             }
 
         }
-
         db.commitDBSession();
     }
     
     private void updateField(Developer dev, ProductivityMetricActions.ActionType actionType, boolean isPositive, int value){
-    	//TODO: test updates        
+    	//TODO: test updates, uncomment       
 /*        ProductivityActions a = ProductivityActions.getProductivityAction(dev, actionType, isPositive);
         
         if (a == null) {
@@ -188,6 +192,13 @@ public class ProductivityMetricJob extends AbstractMetricJob {
             a.setTotal(a.getTotal() + value);
         }
 */
+    }
+    
+    private int abs (int value){
+        if (value<0) 
+            return -1 * value;
+        else
+            return value;
     }
 }
 

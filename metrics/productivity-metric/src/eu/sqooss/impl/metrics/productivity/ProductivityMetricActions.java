@@ -47,7 +47,8 @@ public class ProductivityMetricActions {
         TCF, // Commit files (for calculating the number of committed files
                 // per developer)
         CBN, // Commit comment that includes a bug report number
-        CPH; // Commit comment that awards a pointy hat
+        CPH, // Commit comment that awards a pointy hat
+        CAL; //Add or remove lines of code
         
         public static ActionType fromString(String s) {
             if ("CNS".equals(s))
@@ -72,6 +73,8 @@ public class ProductivityMetricActions {
                 return ActionType.CBN;
             else if ("CPH".equals(s))
                 return ActionType.CPH;
+            else if ("CAL".equals(s))
+                return ActionType.CAL;
             else
                 return null;
         }
