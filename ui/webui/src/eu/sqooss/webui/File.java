@@ -39,7 +39,7 @@ class File extends WebuiItem {
 
     private static final String COMMENT = "<!-- File -->\n";
     private String name = "FILE_NAME_UNSET";
-    private String status = "FILE_STATUS_UNSET";
+    private String status = "FILE_STATUS_UNSET"; // status is one of ADDED, MODIFIED or DELETED
     private Long versionId;
     private Long id;
     private Terrier terrier;

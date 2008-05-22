@@ -336,5 +336,36 @@ public class Project extends WebuiItem {
         return view.getHtml();
     }
 
+    public String fileStat() {
+        Vector<File> fs = terrier.getFiles4Project(id);
+        Iterator<File> filesIterator = fs.iterator();
+        
+        int total = fileCount = fs.size();
+        int added = 0;
+        int modified = 0;
+        int deleted = 0;
+        
+        while (filesIterator.hasNext()) {
+            File nextFile = filesIterator.next();
+            if (nextFile.getStatus().equals("MODIFIED")) {
+                modified += 1;
+            } else if (nextFile.getStatus().equals("ADDED")) {
+                added += 1;
+            } else if (nextFile.getStatus().equals("DELETED")) {
+                deleted +=1;
+            }
+        }
+        StringBuilder html = new StringBuilder("<table>");
+        html.append("<tr><td><strong>Files added:</strong></td><td>" + added + "</td></tr>");
+        html.append("<tr><td><strong>Files modified:</strong></td><td>" + modified + "</td></tr>");
+        html.append("<tr><td><strong>Files deleted:</strong></td><td>" + deleted + "</td></tr>");
+        html.append("<tr><td colspan=\"2\"><hr /></td></tr>");
+
+        html.append("<tr><td><strong> </strong></td><td>" + total + "</td></tr>");
+        html.append("</table>");
+
+        return html.toString();
+    }
+
 
 }
