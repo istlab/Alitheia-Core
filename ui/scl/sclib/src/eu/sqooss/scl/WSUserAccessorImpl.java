@@ -57,6 +57,7 @@ import eu.sqooss.ws.client.ws.GetUsersByIdsResponse;
 import eu.sqooss.ws.client.ws.ModifyUser;
 import eu.sqooss.ws.client.ws.ModifyUserResponse;
 import eu.sqooss.ws.client.ws.NotifyAdmin;
+import eu.sqooss.ws.client.ws.NotifyAdminResponse;
 
 class WSUserAccessorImpl extends WSUserAccessor {
 
@@ -291,13 +292,14 @@ class WSUserAccessorImpl extends WSUserAccessor {
      * @see eu.sqooss.scl.accessor.WSUserAccessor#notifyAdmin(java.lang.String, java.lang.String)
      */
     @Override
-    public void notifyAdmin(String messageBody, String title) throws WSException {
+    public boolean notifyAdmin(String messageBody, String title) throws WSException {
         if ((messageBody == null) || (title == null)) {
             throw new IllegalArgumentException("Null argument!");
         }
         if ((messageBody.trim().length() == 0) || (title.trim().length() == 0)) {
             throw new IllegalArgumentException("Empty argument!");
         }
+        NotifyAdminResponse response;
         NotifyAdmin params;
         if (!parameters.containsKey(METHOD_NAME_NOTIFY_ADMIN)) {
             params = new NotifyAdmin();
@@ -311,11 +313,12 @@ class WSUserAccessorImpl extends WSUserAccessor {
             params.setMessageBody(messageBody);
             params.setTitle(title);
             try {
-                wsStub.notifyAdmin(params);
+                response = wsStub.notifyAdmin(params);
             } catch (RemoteException re) {
                 throw new WSException(re);
             }
         }
+        return response.get_return();
     }
 
     private static boolean isValidArray(long[] arr) {

@@ -64,15 +64,17 @@ public class UserManagerMessageSender implements MessageListener {
         initVelocityTemplates();
     }
     
-    public void sendMessage(String messageBody, String title, User fromUser) {
+    public boolean sendMessage(String messageBody, String title, User fromUser) {
         if (adminEmail != null) {
             Message message = Message.getInstance(messageBody, adminEmail, title, null);
             messagesAndUserEmails.add(new Pair(message, fromUser.getEmail()));
             messagingService.sendMessage(message);
+            return true;
         } else {
             Vector<String> recipient = new Vector<String>();
             recipient.add(fromUser.getEmail());
             sendUnsuccessfulMessage(recipient, messageBody, title);
+            return false;
         }
     }
     

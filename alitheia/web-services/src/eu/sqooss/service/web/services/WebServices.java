@@ -581,15 +581,16 @@ public class WebServices {
      * @param userName - the user's name used for authentication
      * @param password - the user's password used for authentication
      * @param title    - the title of the message
-     * @param message  - the notification message 
+     * @param message  - the notification message
+     * 
+     * @return <code>true</code> if the message is queued  
      */
     public boolean notifyAdmin(
             String userName,
             String password,
             String title,
             String messageBody) {
-        userManager.notifyAdmin(userName, password, title, messageBody);
-        return true;
+        return userManager.notifyAdmin(userName, password, title, messageBody);
     }
     
 }

@@ -179,6 +179,8 @@ public abstract class WSUserAccessor extends WSAccessor {
      * @param messageBody  - the notification message
      * @param title    - the title of the message
      * 
+     * @return <code>true</code> if the message is queued
+     * 
      * @throws WSException
      * <ul>
      *  <li>if the connection can't be established to the SQO-OSS's web services service</li>
@@ -191,7 +193,7 @@ public abstract class WSUserAccessor extends WSAccessor {
      *  <li>if the title is null or empty</li>
      * </ul>
      */
-    public abstract void notifyAdmin(String messageBody, String title) throws WSException;
+    public abstract boolean notifyAdmin(String messageBody, String title) throws WSException;
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

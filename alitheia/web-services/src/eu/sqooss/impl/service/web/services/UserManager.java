@@ -249,7 +249,7 @@ public class UserManager extends AbstractManager {
     /**
      * @see eu.sqooss.service.web.services.WebServices#notifyAdmin(String, String, String, String)
      */
-    public void notifyAdmin(String userName, String password,
+    public boolean notifyAdmin(String userName, String password,
             String title, String messageBody) {
         logger.info("Notify admin! user: " + userName +
                 "; title: " + title);
@@ -260,8 +260,14 @@ public class UserManager extends AbstractManager {
         
         db.startDBSession();
         User user = userManager.getUser(userName);
-        messageSender.sendMessage(messageBody, title, user);
+        boolean result;
+        if (user != null) {
+            result = messageSender.sendMessage(messageBody, title, user);
+        } else {
+            result = false;
+        }
         db.commitDBSession();
+        return result;
     }
     
     private static WSUserGroup createWSUserGroup(Group group) {
