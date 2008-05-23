@@ -39,9 +39,6 @@ interface ProjectManagerDBQueries {
                                                         "where sp.id=em.storedProject ";
     
     
-    public static final String GET_STORED_PROJECTS = "from StoredProject";
-
-    
     public static final String GET_FILES_BY_PROJECT_ID_PARAM = "project_id";
     
     public static final String GET_FILES_BY_PROJECT_ID = "select distinct pf " +
@@ -131,19 +128,6 @@ interface ProjectManagerDBQueries {
     		                                           "from Developer dev " +
     		                                           "where dev.id in (:" +
     		                                           GET_DEVELOPERS_BY_IDS_PARAM + ") ";
-    
-    
-    public static final String GET_STORED_PROJECTS_PARAM_PR_NAME    = "project_name";
-    
-    public static final String GET_STORED_PROJECTS_PARAM_PR_VERSION = "project_ver";
-    
-    public static final String GET_STORED_PROJECTS_BY_NAME_VERSION = "select sp " +
-                                                     "from StoredProject sp, ProjectVersion pv " +
-                                                     "where sp.id=pv.project " +
-                                                     " and sp.name=:" +
-                                                     GET_STORED_PROJECTS_PARAM_PR_NAME + " " +
-                                                     " and pv.version=:" +
-                                                     GET_STORED_PROJECTS_PARAM_PR_VERSION;
     
     
     public static final String GET_PROJECTS_BY_IDS_PARAM = "list_of_sps_ids";

@@ -32,9 +32,9 @@
 
 package eu.sqooss.impl.service.web.services;
 
-import java.math.BigInteger;
 import java.util.Arrays;
-import java.util.List;
+import java.util.Hashtable;
+import java.util.Map;
 
 import eu.sqooss.impl.service.web.services.datatypes.WSDeveloper;
 import eu.sqooss.impl.service.web.services.datatypes.WSDirectory;
@@ -45,9 +45,6 @@ import eu.sqooss.impl.service.web.services.datatypes.WSStoredProject;
 import eu.sqooss.impl.service.web.services.utils.ProjectManagerDatabase;
 import eu.sqooss.impl.service.web.services.utils.SecurityWrapper;
 import eu.sqooss.service.db.DBService;
-import eu.sqooss.service.db.ProjectFile;
-import eu.sqooss.service.db.ProjectVersion;
-import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.security.SecurityManager;
 
@@ -74,11 +71,8 @@ public class ProjectManager extends AbstractManager {
         
         super.updateUserActivity(userName);
         
-        db.startDBSession();
-        List<?> projects = dbWrapper.getEvaluatedProjects();
-        WSStoredProject[] wsSP = WSStoredProject.asArray(projects);
-        db.commitDBSession();
-        return (WSStoredProject[]) normalizeWSArrayResult(wsSP);
+        WSStoredProject[] result = dbWrapper.getEvaluatedProjects();
+        return (WSStoredProject[]) normalizeWSArrayResult(result);
     }
     
     /**
@@ -91,19 +85,8 @@ public class ProjectManager extends AbstractManager {
         
         super.updateUserActivity(userName);
     
-        db.startDBSession();
-        List queryResult = dbWrapper.getStoredProjects();
-
-        List<StoredProject> l = (List<StoredProject>) queryResult;
-        if (l==null) {
-            logger.warn("Stored project query is broken.");
-            db.rollbackDBSession();
-            return null;
-        } else {
-            WSStoredProject[] wsSP = WSStoredProject.asArray(l);
-            db.commitDBSession();
-            return (WSStoredProject[]) normalizeWSArrayResult(wsSP);
-        }
+        WSStoredProject[] result = dbWrapper.getStoredProjects(new Hashtable<String, Object>());
+        return (WSStoredProject[]) normalizeWSArrayResult(result);
     }
     
     /**
@@ -114,16 +97,15 @@ public class ProjectManager extends AbstractManager {
         logger.info("Retrieve project! user: " + userName +
                 "; project name: " + projectName);
 
-        db.startDBSession();
-        List<StoredProject> projects = dbWrapper.getStoredProjects(projectName);
-        db.commitDBSession();
-                
-        if (projects.size() != 0) {
-            StoredProject storedProject = projects.get(0); 
-            securityWrapper.checkProjectsReadAccess(
-                    userName, password, new long[] {storedProject.getId()});
-            super.updateUserActivity(userName);
-            return WSStoredProject.getInstance(storedProject);
+        //TODO: check the security
+        
+        super.updateUserActivity(userName);
+        
+        Map<String, Object> properties = new Hashtable<String, Object>(1);
+        properties.put("name", projectName);
+        WSStoredProject[] projects = dbWrapper.getStoredProjects(properties);
+        if ((projects != null) && (projects.length != 0)) {
+            return projects[0];
         } else {
             return null;
         }
@@ -142,22 +124,13 @@ public class ProjectManager extends AbstractManager {
 
         super.updateUserActivity(userName);
         
-        db.startDBSession();
-        List<?> storedProjects = dbWrapper.getProjectsByIds(new long[] {projectId});
-
-        if (!storedProjects.isEmpty()) {
-            StoredProject storedProject = (StoredProject) storedProjects.get(0);
-            List<ProjectVersion> projectVersions = storedProject.getProjectVersions();
-            WSProjectVersion[] wspv = WSProjectVersion.asArray(projectVersions);
-            db.commitDBSession();
-            return (WSProjectVersion[]) normalizeWSArrayResult(wspv);
-        } else {
-            db.rollbackDBSession();
-            return null;
-        }
-
+        WSProjectVersion[] result = dbWrapper.getProjectVersionsByProjectId(projectId);
+        return (WSProjectVersion[]) normalizeWSArrayResult(result);
     }
     
+    /**
+     * @see eu.sqooss.service.web.services.WebServices#getProjectVersionsByIds(String, String, long[])
+     */
     public WSProjectVersion[] getProjectVersionsByIds(String userName,
             String password, long[] projectVersionsIds) {
 
@@ -173,11 +146,8 @@ public class ProjectManager extends AbstractManager {
             return null;
         }
         
-        db.startDBSession();
-        List<?> wspv = dbWrapper.getProjectVersionsByIds(projectVersionsIds);
-        db.commitDBSession();
-
-        return (WSProjectVersion[]) normalizeWSArrayResult(WSProjectVersion.asArray(wspv));
+        WSProjectVersion[] result = dbWrapper.getProjectVersionsByIds(projectVersionsIds);
+        return (WSProjectVersion[]) normalizeWSArrayResult(result);
     }
     
     /**
@@ -196,11 +166,8 @@ public class ProjectManager extends AbstractManager {
             return null;
         }
         
-        db.startDBSession();
-        List<?> wssp = dbWrapper.getProjectsByIds(projectsIds);
-        db.commitDBSession();
-        
-        return (WSStoredProject[]) normalizeWSArrayResult(WSStoredProject.asArray(wssp));
+        WSStoredProject[] result = dbWrapper.getProjectsByIds(projectsIds);
+        return (WSStoredProject[]) normalizeWSArrayResult(result);
     }
     
     /**
@@ -214,12 +181,8 @@ public class ProjectManager extends AbstractManager {
 
         super.updateUserActivity(userName);
         
-        db.startDBSession();
-        List<?> queryResult = dbWrapper.getFilesByProjectId(projectId);
-
-        WSProjectFile[] wspf = convertToWSProjectFiles(queryResult);
-        db.commitDBSession();
-        return (WSProjectFile[]) normalizeWSArrayResult(wspf);
+        WSProjectFile[] result = dbWrapper.getFilesByProjectId(projectId);
+        return (WSProjectFile[]) normalizeWSArrayResult(result);
     }
     
     /**
@@ -234,12 +197,8 @@ public class ProjectManager extends AbstractManager {
         
         super.updateUserActivity(userName);
         
-        db.startDBSession();
-        List<?> queryResult = dbWrapper.getFilesByProjectVersionId(projectVersionId);
-        
-        WSProjectFile[] wspf = convertToWSProjectFiles(queryResult);
-        db.commitDBSession();
-        return (WSProjectFile[]) normalizeWSArrayResult(wspf);
+        WSProjectFile[] result = dbWrapper.getFilesByProjectVersionId(projectVersionId);
+        return (WSProjectFile[]) normalizeWSArrayResult(result);
     }
     
     /**
@@ -255,12 +214,8 @@ public class ProjectManager extends AbstractManager {
         
         super.updateUserActivity(userName);
         
-        db.startDBSession();
-        List<?> queryResult = dbWrapper.getFileGroupsByProjectId(projectId);
-        WSFileGroup[] wsfg = WSFileGroup.asArray(queryResult);
-        db.commitDBSession();
-        
-        return (WSFileGroup[]) normalizeWSArrayResult(wsfg);
+        WSFileGroup[] result = dbWrapper.getFileGroupsByProjectId(projectId);
+        return (WSFileGroup[]) normalizeWSArrayResult(result);
     }
     
     /**
@@ -275,10 +230,7 @@ public class ProjectManager extends AbstractManager {
         
         super.updateUserActivity(userName);
         
-        db.startDBSession();
-        List<?> queryResult = dbWrapper.getFilesNumberByProjectVersionId(projectVersionId);
-        db.commitDBSession();
-        return ((BigInteger)queryResult.get(0)).longValue();
+        return dbWrapper.getFilesNumberByProjectVersionId(projectVersionId);
     }
     
     /**
@@ -293,10 +245,7 @@ public class ProjectManager extends AbstractManager {
         
         super.updateUserActivity(userName);
         
-        db.startDBSession();
-        List<?> queryResult = dbWrapper.getFilesNumberByProjectId(projectId);
-        db.commitDBSession();
-        return ((Long) queryResult.get(0)).longValue();
+        return dbWrapper.getFilesNumberByProjectId(projectId);
     }
     
     /**
@@ -311,11 +260,8 @@ public class ProjectManager extends AbstractManager {
         
         super.updateUserActivity(userName);
         
-        db.startDBSession();
-        List<?> queryResult = dbWrapper.getDirectoriesByIds(directoriesIds);
-        db.commitDBSession();
-        
-        return (WSDirectory[]) normalizeWSArrayResult(WSDirectory.asArray(queryResult));
+        WSDirectory[] result = dbWrapper.getDirectoriesByIds(directoriesIds);
+        return (WSDirectory[]) normalizeWSArrayResult(result);
     }
     
     /**
@@ -334,51 +280,8 @@ public class ProjectManager extends AbstractManager {
             return null;
         }
         
-        db.startDBSession();
-        List<?> developers = dbWrapper.getDevelopersByIds(developersIds);
-        db.commitDBSession();
-        
-        return (WSDeveloper[]) normalizeWSArrayResult(WSDeveloper.asArray(developers));
-    }
-    
-    private WSProjectFile[] convertToWSProjectFiles(List<?> projectFiles) {
-        WSProjectFile[] result = null;
-        if ((projectFiles != null) && (projectFiles.size() != 0)) {
-            Object currentElem = projectFiles.get(0);
-            if (currentElem instanceof ProjectFile) { //parse HQL
-                result = WSProjectFile.asList(projectFiles);
-            } else if (currentElem.getClass().isArray()) { //parse SQL
-                result = new WSProjectFile[projectFiles.size()];
-                BigInteger fileId;
-                BigInteger projectVersionId;
-                BigInteger directoryId;
-                String fileName;
-                String status;
-                Boolean isDirectory;
-                Object[] currentFile;
-                WSProjectFile currentWSProjectFile;
-                for (int i = 0; i < result.length; i++) {
-                    currentFile = (Object[])projectFiles.get(i);
-                    fileId = (BigInteger)currentFile[0];
-                    directoryId = (BigInteger)currentFile[1];
-                    fileName = (String)currentFile[2];
-                    projectVersionId = (BigInteger)currentFile[3];
-                    status = (String)currentFile[4];
-                    isDirectory = (Boolean)currentFile[5];
-                    
-                    currentWSProjectFile = new WSProjectFile();
-                    currentWSProjectFile.setId(fileId.longValue());
-                    currentWSProjectFile.setDirectoryId(directoryId.longValue());
-                    currentWSProjectFile.setDirectory(isDirectory);
-                    currentWSProjectFile.setStatus(status);
-                    currentWSProjectFile.setProjectVersionId(projectVersionId.longValue());
-                    currentWSProjectFile.setFileName(fileName);
-                    
-                    result[i] = currentWSProjectFile;
-                }
-            }
-        }
-        return result;
+        WSDeveloper[] result = dbWrapper.getDevelopersByIds(developersIds);
+        return (WSDeveloper[]) normalizeWSArrayResult(result);
     }
     
 }
