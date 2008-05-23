@@ -171,7 +171,7 @@ public class WSProjectFile {
      * if the list is null, contains different object type
      * or the DAO can't be wrapped then the array is null
      */
-    public static WSProjectFile[] asList(List<?> projectFiles) {
+    public static WSProjectFile[] asArray(List<?> projectFiles) {
         WSProjectFile[] result = null;
         if (projectFiles != null) {
             result = new WSProjectFile[projectFiles.size()];

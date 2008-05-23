@@ -229,7 +229,7 @@ public class ProjectManagerDatabase implements ProjectManagerDBQueries {
         if ((projectFiles != null) && (projectFiles.size() != 0)) {
             Object currentElem = projectFiles.get(0);
             if (currentElem instanceof ProjectFile) { //parse HQL
-                result = WSProjectFile.asList(projectFiles);
+                result = WSProjectFile.asArray(projectFiles);
             } else if (currentElem.getClass().isArray()) { //parse SQL
                 result = new WSProjectFile[projectFiles.size()];
                 BigInteger fileId;
