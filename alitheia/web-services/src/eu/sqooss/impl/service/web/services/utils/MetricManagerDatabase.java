@@ -35,11 +35,12 @@ package eu.sqooss.impl.service.web.services.utils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
+import eu.sqooss.impl.service.web.services.datatypes.WSMetric;
+import eu.sqooss.impl.service.web.services.datatypes.WSMetricType;
 import eu.sqooss.impl.service.web.services.datatypes.WSMetricsRequest;
 import eu.sqooss.impl.service.web.services.datatypes.WSMetricsResultRequest;
 import eu.sqooss.service.db.DAObject;
@@ -57,45 +58,59 @@ public class MetricManagerDatabase implements MetricManagerDBQueries {
         this.db = db;
     }
     
-    public List<?> getProjectEvaluatedMetrics(long projectId) {
+    public WSMetric[] getProjectEvaluatedMetrics(long projectId) {
         Map<String, Object> queryParameters = new Hashtable<String, Object>(1);
         queryParameters.put(GET_PROJECT_EVALUATED_METRICS_PARAM, projectId);
         
-        return db.doHQL(GET_PROJECT_EVALUATED_METRICS, queryParameters);
+        db.startDBSession();
+        List<?> metrics = db.doHQL(GET_PROJECT_EVALUATED_METRICS, queryParameters);
+        WSMetric[] result = WSMetric.asArray(metrics);
+        db.commitDBSession();
+        return result;
     }
     
-    public List<?> getMetricTypesByIds(long[] metricTypesIds) {
+    @SuppressWarnings("unchecked")
+    public WSMetricType[] getMetricTypesByIds(long[] metricTypesIds) {
         Map<String, Collection> queryParameters = new Hashtable<String, Collection>();
-        Collection idsCollection = new ArrayList();
+        Collection<Long> idsCollection = new ArrayList<Long>();
         for (long id : metricTypesIds) {
             idsCollection.add(id);
         }
         queryParameters.put(GET_METRIC_TYPES_BY_IDS_PARAM, idsCollection);
-        return db.doHQL(GET_METRIC_TYPES_BY_IDS, null, queryParameters);
+        db.startDBSession();
+        List<?> metricTypes = db.doHQL(GET_METRIC_TYPES_BY_IDS, null, queryParameters);
+        WSMetricType[] result = WSMetricType.asArray(metricTypes);
+        db.commitDBSession();
+        return result;
     }
     
-    public List<?> getMetricsByResourcesIds(WSMetricsRequest request) {
+    @SuppressWarnings("unchecked")
+    public WSMetric[] getMetricsByResourcesIds(WSMetricsRequest request) {
         long[] ids = request.getResourcesIds();
-        Collection idsCollection = new ArrayList();
+        Collection<Long> idsCollection = new ArrayList<Long>();
         for (long id : ids) {
             idsCollection.add(id);
         }
         Map<String, Collection> queryParameters = new Hashtable<String, Collection>(1);
+        List<?> metrics;
+        db.startDBSession();
         if (request.getIsProjectFile()) {
             queryParameters.put(GET_METRICS_BY_RESOURCES_IDS_PARAM, idsCollection);
-            return db.doHQL(GET_METRICS_BY_RESOURCES_IDS_PROJECT_FILES, null, queryParameters);
+            metrics = db.doHQL(GET_METRICS_BY_RESOURCES_IDS_PROJECT_FILES, null, queryParameters);
         } else if (request.getIsProjectVersion()) {
             queryParameters.put(GET_METRICS_BY_RESOURCES_IDS_PARAM, idsCollection);
-            return db.doHQL(GET_METRICS_BY_RESOURCES_IDS_PROJECT_VERSIONS, null, queryParameters);
+            metrics = db.doHQL(GET_METRICS_BY_RESOURCES_IDS_PROJECT_VERSIONS, null, queryParameters);
         } else if (request.getIsStoredProject()) {
             queryParameters.put(GET_METRICS_BY_RESOURCES_IDS_PARAM, idsCollection);
-            return db.doHQL(GET_METRICS_BY_RESOURCES_IDS_STORED_PROJECTS, null, queryParameters);
+            metrics = db.doHQL(GET_METRICS_BY_RESOURCES_IDS_STORED_PROJECTS, null, queryParameters);
         } else if (request.getIsFileGroup()) {
             queryParameters.put(GET_METRICS_BY_RESOURCES_IDS_PARAM, idsCollection);
-            return db.doHQL(GET_METRICS_BY_RESOURCES_IDS_FILE_GROUPS, null, queryParameters);
+            metrics = db.doHQL(GET_METRICS_BY_RESOURCES_IDS_FILE_GROUPS, null, queryParameters);
         } else {
-            return Collections.emptyList();
+            metrics = null;
         }
+        db.commitDBSession();
+        return WSMetric.asArray(metrics);
     }
     
     public DAObject getMetricsResultDAObject(WSMetricsResultRequest resultRequest) {
@@ -113,6 +128,7 @@ public class MetricManagerDatabase implements MetricManagerDBQueries {
         return result;
     }
     
+    @SuppressWarnings("unchecked")
     public List<?> getMetricsResultMetricsList(WSMetricsResultRequest resultRequest) {
         String[] mnemonics = resultRequest.getMnemonics();
         if ((mnemonics != null) && (mnemonics.length != 0)) {

@@ -90,11 +90,8 @@ public class MetricManager extends AbstractManager {
         
         super.updateUserActivity(userName);
         
-        db.startDBSession();
-        List<?> metrics = dbWrapper.getProjectEvaluatedMetrics(projectId);
-        WSMetric[] wsMetrics = WSMetric.asArray(metrics);
-        db.commitDBSession();
-        return (WSMetric[]) normalizeWSArrayResult(wsMetrics);
+        WSMetric[] result = dbWrapper.getProjectEvaluatedMetrics(projectId);
+        return (WSMetric[]) normalizeWSArrayResult(result);
     }
     
     /**
@@ -114,11 +111,8 @@ public class MetricManager extends AbstractManager {
             return null;
         }
         
-        db.startDBSession();
-        List<?> metricTypes = dbWrapper.getMetricTypesByIds(metricTypesIds);
-        db.commitDBSession();
-        
-        return (WSMetricType[]) normalizeWSArrayResult(WSMetricType.asArray(metricTypes));
+        WSMetricType[] result = dbWrapper.getMetricTypesByIds(metricTypesIds);
+        return (WSMetricType[]) normalizeWSArrayResult(result);
     }
     
     /**
@@ -156,10 +150,7 @@ public class MetricManager extends AbstractManager {
             }
             result = WSMetric.asArray(metrics);
         } else {
-            db.startDBSession();
-            List<?> metrics = dbWrapper.getMetricsByResourcesIds(request);
-            db.commitDBSession();
-            result = WSMetric.asArray(metrics);
+            result = dbWrapper.getMetricsByResourcesIds(request);
         }
         return (WSMetric[]) normalizeWSArrayResult(result);
     }
