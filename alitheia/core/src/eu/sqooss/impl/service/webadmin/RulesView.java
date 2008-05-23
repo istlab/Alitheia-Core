@@ -156,10 +156,15 @@ public class RulesView extends AbstractView{
                     rule.setScope(reqValRuleScope.toString());
                     rule.setAction(reqValRuleAction.toString());
                     rule.setValue(reqValRuleValue);
-                    rule.setPrevRule(null);
-                    rule.setNextRule(null);
+                    InvocationRule lastRule = InvocationRule.last(sobjDB);
+                    if (lastRule != null) {
+                        rule.setPrevRule(lastRule.getId());
+                    }
                     if (sobjDB.addRecord(rule)) {
-                        
+                        // Update the "old" last rule
+                        if (lastRule != null) {
+                            lastRule.setNextRule(rule.getId());
+                        }
                     }
                     else {
                         e.append("Rule creation"
@@ -414,56 +419,58 @@ public class RulesView extends AbstractView{
             b.append(sp(--in) + "</thead>\n");
             b.append(sp(in++) + "<tbody>\n");
             // Create the content row
-            b.append(sp(in++) + "<tr>\n");
             List<InvocationRule> rules = sobjDB.findObjectsByProperties(
                     InvocationRule.class, new HashMap<String, Object>());
             if ((rules == null) || (rules.isEmpty())) {
+                b.append(sp(in++) + "<tr>\n");
                 b.append(sp(in++) + "<td colspan=\"6\" class=\"noattr\">\n");
                 b.append(sp(in) + "There are no defined invocation rules.\n");
                 b.append(sp(--in) + "</td>\n");
+                b.append(sp(--in) + "</tr>\n");
             }
             else {
                 InvocationRule rule = InvocationRule.first(sobjDB);
                 while (rule != null) {
+                    b.append(sp(in++) + "<tr>\n");
                     // Project name
                     b.append(sp(in++) + "<td>"
                             + ((rule.getProject() == null) ? "<b>ANY</b>"
                                     : rule.getProject().getName())
                             + "</td>\n");
                     // Plug-in name
-                    b.append(sp(in++) + "<td>"
+                    b.append(sp(in) + "<td>"
                             + ((rule.getPlugin() == null) ? "<b>ANY</b>"
                                     : rule.getPlugin().getName())
                             + "</td>\n");
                     // Metric type
-                    b.append(sp(in++) + "<td>"
+                    b.append(sp(in) + "<td>"
                             + ((rule.getMetricType() == null) ? "<b>ANY</b>"
                                     : rule.getMetricType().getType())
                             + "</td>\n");
                     // Rule scope
-                    b.append(sp(in++) + "<td>"
+                    b.append(sp(in) + "<td>"
                             + rule.getScope()
                             + "</td>\n");
                     // Rule value
-                    b.append(sp(in++) + "<td>"
+                    b.append(sp(in) + "<td>"
                             + ((rule.getValue() == null) ? "<b>NONE</b>"
                                     : rule.getValue())
                             + "</td>\n");
                     // Rule action
-                    b.append(sp(in++) + "<td>"
+                    b.append(sp(in) + "<td>"
                             + rule.getAction()
                             + "</td>\n");
                     rule = rule.next(sobjDB);
+                    b.append(sp(--in) + "</tr>\n");
                 }
             }
-            b.append(sp(--in) + "</tr>\n");
             // Command tool-bar
             b.append(sp(in++) + "<tr>\n");
             b.append(sp(in++) + "<td colspan=\"6\">\n");
             b.append(sp(in) + "<input type=\"button\""
                     + " class=\"install\""
                     + " style=\"width: 100px;\""
-                    + " value=\"Add rule\""
+                    + " value=\"Append rule\""
                     + " onclick=\"javascript:"
                     + "document.getElementById('"
                     + reqParAction + "').value='"

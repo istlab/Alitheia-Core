@@ -149,6 +149,15 @@ public class InvocationRule extends DAObject {
         this.metricType = metricType;
     }
 
+    /**
+     * Returns the first rule in the invocation rules chain.
+     * 
+     * @param db the DB components object
+     * 
+     * @return The <code>InvocationRule</code> DAO of the first rule in the
+     *   chain, or <code>null</code> when the chain is empty or a database
+     *   failure happened.
+     */
     public static InvocationRule first(DBService db) {
         if (db == null) return null;
         HashMap<String,Object> properties = new HashMap<String, Object>();
@@ -162,6 +171,16 @@ public class InvocationRule extends DAObject {
         return null;
     }
 
+    /**
+     * Returns the rule that follows the current one in the invocation rules
+     * chain.
+     * 
+     * @param db the DB components object
+     * 
+     * @return The <code>InvocationRule</code> DAO of the next rule in the
+     *   chain, or <code>null</code> when the chain is empty or a database
+     *   failure happened.
+     */
     public InvocationRule next(DBService db) {
         if (db == null) return null;
         if (getNextRule() != null) {
@@ -170,6 +189,15 @@ public class InvocationRule extends DAObject {
         return null;
     }
 
+    /**
+     * Returns the last rule in the invocation rules chain.
+     * 
+     * @param db the DB components object
+     * 
+     * @return The <code>InvocationRule</code> DAO of the last rule in the
+     *   chain, or <code>null</code> when the chain is empty or a database
+     *   failure happened.
+     */
     public static InvocationRule last(DBService db) {
         if (db == null) return null;
         HashMap<String,Object> properties = new HashMap<String, Object>();
