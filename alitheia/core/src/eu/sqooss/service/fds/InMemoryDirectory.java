@@ -211,6 +211,10 @@ public class InMemoryDirectory {
         return result;
     }
 
+    public List<String> getFileNames() {
+        return this.files;
+    }
+    
     /**
      * Search if the provided path exists in this directory or below  
      * 

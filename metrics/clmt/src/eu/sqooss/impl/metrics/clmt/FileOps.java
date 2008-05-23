@@ -85,9 +85,6 @@ public class FileOps {
      * in the directory. The path is not appended. 
      */
     public List<String> getDirectories(String path) {
-        if(!isDirectory(path)) {  
-            return null;
-        }
         
         List<String> files = new ArrayList<String>();
         List<InMemoryDirectory> imdList = 
@@ -107,18 +104,8 @@ public class FileOps {
      * in the directory. The path is not appended.
      */
     public List<String> listFiles(String path) {
-        if(!isDirectory(path)) {  
-            return null;
-        }
         
-        List<String> files = new ArrayList<String>();
-        List<ProjectFile> pfList = imc.get().getRoot().getSubdirectoryByName(path).getFiles();
-        
-        for(ProjectFile f : pfList) {
-            files.add(f.getName());
-        }
-        
-        return files;
+        return imc.get().getRoot().getSubdirectoryByName(path).getFileNames();
     }
     
     public synchronized byte[] getFileContents(String path) {
