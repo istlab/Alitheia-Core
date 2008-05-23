@@ -78,9 +78,18 @@ public class AdminServlet extends HttpServlet {
 
     // Renderer of content
     WebAdminRenderer render = null;
-    
-    // Flag for refreshing the metrics content
-    private boolean refreshMetrics = true;
+
+    // Plug-ins view
+    PluginsView pluginsView = null;
+
+    // Users view
+    UsersView usersView = null;
+
+    // Invocation rules view
+    RulesView rulesView = null;
+
+    // Flag for refreshing the plug-ins content
+    private boolean refreshPlugins = true;
 
     // Flag for refreshing the users content
     private boolean refreshUsers = true;
@@ -122,6 +131,9 @@ public class AdminServlet extends HttpServlet {
         // Now the dynamic substitutions and renderer
         vc = new VelocityContext();
         render = new WebAdminRenderer(bc, vc);
+        // Create the invocation rules view
+        rulesView = new RulesView(bc, vc);
+
         createSubstitutions(true);
 
 
@@ -172,7 +184,7 @@ public class AdminServlet extends HttpServlet {
                 return;
             }
             if (query.startsWith("/restart")) {
-                refreshMetrics  = false;
+                refreshPlugins = false;
                 vc.put("RESULTS", "<p>Alitheia Core is now restarting.</p>");
                 sendPage(response, "/results.html");
 
@@ -212,18 +224,18 @@ public class AdminServlet extends HttpServlet {
                 sendPage(response, "/results.html");
             }
             else if (query.startsWith("/index")) {
-                refreshMetrics = false;
-                vc.put("METRICS", render.renderPlugins(request));
+                refreshPlugins = false;
+                vc.put("METRICS", pluginsView.render(request));
                 sendPage(response, "/index.html");
             }
             else if (query.startsWith("/users")) {
                 refreshUsers = false;
-                vc.put("USERS", render.renderUsers(request));
+                vc.put("USERS", usersView.render(request));
                 sendPage(response, "/users.html");
             }
             else if (query.startsWith("/rules")) {
                 refreshRules = false;
-                vc.put("RULES", render.renderRules(request));
+                vc.put("RULES", rulesView.render(request));
                 sendPage(response, "/rules.html");
             }
             else {
@@ -321,22 +333,22 @@ public class AdminServlet extends HttpServlet {
         vc.put("FAILJOBS", render.renderFailedJobs());
         vc.put("JOBFAILSTATS", render.renderJobFailStats());
         // Metrics content
-        if (refreshMetrics) {
-            vc.put("METRICS", render.renderPlugins(null));
+        if (refreshPlugins) {
+            vc.put("METRICS", pluginsView.render(null));
         }
         else {
-            refreshMetrics = true;
+            refreshPlugins = true;
         }
         // Users content
         if (refreshUsers) {
-            vc.put("USERS", render.renderUsers(null));
+            vc.put("USERS", usersView.render(null));
         }
         else {
             refreshUsers = true;
         }
         // Rules content
         if (refreshRules) {
-            vc.put("RULES", render.renderRules(null));
+            vc.put("RULES", rulesView.render(null));
         }
         else {
             refreshRules = true;

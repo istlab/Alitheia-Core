@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+  <class name="eu.sqooss.service.db.InvocationRule" table="INVOCATION_RULE">
+    <id name="id" column="INVOCATION_RULE_ID">
+      <generator class="native" />
+    </id>
+    <property name="prevRule" column="PREV_RULE" unique="true" not-null="false"/>
+    <property name="nextRule" column="NEXT_RULE" unique="true" not-null="false"/>
+    <property name="scope" column="SCOPE" not-null="true"/>
+    <property name="value" column="VALUE" not-null="false"/>
+    <property name="action" column="ACTION" not-null="true"/>
+    <many-to-one name="project" column="STORED_PROJECT_ID" not-null="false" cascade="merge" />
+    <many-to-one name="plugin" column="PLUGIN_ID" not-null="false" cascade="merge" />
+    <many-to-one name="metricType" column="METRIC_TYPE_ID" not-null="false" cascade="merge" />
+  </class>
+</hibernate-mapping>

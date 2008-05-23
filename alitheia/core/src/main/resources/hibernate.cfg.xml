@@ -67,6 +67,7 @@
         <mapping resource="eu/sqooss/service/db/ProjectFileMeasurement.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/Directory.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/EvaluationMark.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/InvocationRule.hbm.xml"/>
     </session-factory>
 
 </hibernate-configuration>

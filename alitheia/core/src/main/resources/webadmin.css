@@ -212,7 +212,7 @@ body.section-7 #menu li#nav-7 a  {
     background-color: Bisque;
     font-style: italic;
 }
-#table fieldset, select {
+#table fieldset {
     background-color: #f6f6f6;
     border: 1px dotted #ccc;
     margin: 15px 0 10px 0;
