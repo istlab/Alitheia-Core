@@ -98,26 +98,30 @@ public class WSMetricType {
      * all of the elements in the metric types list.
      * The list argument should contain DAO
      * <code>MetricType</code> objects.
+     * The method doesn't care of the db session.
      *  
      * @param metricTypes - the metric types list;
      * the elements should be <code>MetricType</code> objects  
      * 
      * @return - an array with <code>WSMetricType</code> objects;
-     * if the list is null, empty or contains different object type
-     * then the array is null
+     * if the list is null, contains different object type
+     * or the DAO can't be wrapped then the array is null
      */
     public static WSMetricType[] asArray(List<?> metricTypes) {
         WSMetricType[] result = null;
         if (metricTypes != null) {
             result = new WSMetricType[metricTypes.size()];
-            MetricType currentElem;
+            MetricType currentMetricType;
+            WSMetricType currentWSMetricType;
             for (int i = 0; i < result.length; i++) {
                 try {
-                    currentElem = (MetricType) metricTypes.get(i);
+                    currentMetricType = (MetricType) metricTypes.get(i);
                 } catch (ClassCastException e) {
                     return null;
                 }
-                result[i] = WSMetricType.getInstance(currentElem);
+                currentWSMetricType = WSMetricType.getInstance(currentMetricType);
+                if (currentWSMetricType == null) return null;
+                result[i] = currentWSMetricType;
             }
         }
         return result;

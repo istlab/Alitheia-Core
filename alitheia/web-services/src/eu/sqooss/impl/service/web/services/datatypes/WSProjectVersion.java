@@ -178,26 +178,30 @@ public class WSProjectVersion {
      * all of the elements in the project versions list.
      * The list argument should contain DAO
      * <code>ProjectVersion</code> objects.
+     * The method doesn't care of the db session.
      *  
      * @param projectVersions - the project versions list;
      * the elements should be <code>ProjectVersion</code> objects  
      * 
      * @return - an array with <code>WSProjectVersion</code> objects;
-     * if the list is null, empty or contains different object type
-     * then the array is null
+     * if the list is null, contains different object type
+     * or the DAO can't be wrapped then the array is null
      */
     public static WSProjectVersion[] asArray(List<?> projectVersions) {
         WSProjectVersion[] result = null;
         if (projectVersions != null) {
             result = new WSProjectVersion[projectVersions.size()];
-            ProjectVersion currentElem;
+            ProjectVersion currentProjectVersion;
+            WSProjectVersion currentWSProjectVersion;
             for (int i = 0; i < result.length; i++) {
                 try {
-                    currentElem = (ProjectVersion) projectVersions.get(i);
+                    currentProjectVersion = (ProjectVersion) projectVersions.get(i);
                 } catch (ClassCastException e) {
                     return null;
                 }
-                result[i] = WSProjectVersion.getInstance(currentElem);
+                currentWSProjectVersion = WSProjectVersion.getInstance(currentProjectVersion);
+                if (currentWSProjectVersion == null) return null;
+                result[i] = currentWSProjectVersion;
             }
         }
         return result;

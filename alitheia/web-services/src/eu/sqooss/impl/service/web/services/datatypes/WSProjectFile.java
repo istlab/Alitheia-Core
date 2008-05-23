@@ -162,26 +162,30 @@ public class WSProjectFile {
      * all of the elements in the project files list.
      * The list argument should contain DAO
      * <code>ProjectFile</code> objects.
+     * The method doesn't care of the db session.
      *  
      * @param projectFiles - the project files list;
      * the elements should be <code>ProjectFile</code> objects  
      * 
      * @return - an array with <code>WSProjectFile</code> objects;
-     * if the list is null, empty or contains different object type
-     * then the array is null
+     * if the list is null, contains different object type
+     * or the DAO can't be wrapped then the array is null
      */
     public static WSProjectFile[] asList(List<?> projectFiles) {
         WSProjectFile[] result = null;
         if (projectFiles != null) {
             result = new WSProjectFile[projectFiles.size()];
-            ProjectFile currentElem;
+            ProjectFile currentProjectFile;
+            WSProjectFile currentWSProjectFile;
             for (int i = 0; i < result.length; i++) {
                 try {
-                    currentElem = (ProjectFile) projectFiles.get(i);
+                    currentProjectFile = (ProjectFile) projectFiles.get(i);
                 } catch (ClassCastException e) {
                     return null;
                 }
-                result[i] = WSProjectFile.getInstance(currentElem);
+                currentWSProjectFile = WSProjectFile.getInstance(currentProjectFile);
+                if (currentWSProjectFile == null) return null;
+                result[i] = currentWSProjectFile;
             }
         }
         return result;

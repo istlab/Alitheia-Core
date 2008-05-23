@@ -146,26 +146,30 @@ public class WSMetric {
      * all of the elements in the metrics list.
      * The list argument should contain DAO
      * <code>Metric</code> objects.
+     * The method doesn't care of the db session. 
      *  
      * @param metrics - the metrics list;
      * the elements should be <code>Metric</code> objects  
      * 
      * @return - an array with <code>WSMetric</code> objects;
-     * if the list is null, empty or contains different object type
-     * then the array is null
+     * if the list is null, contains different object type
+     * or the DAO can't be wrapped then the array is null
      */
     public static WSMetric[] asArray(List<?> metrics) {
         WSMetric[] result = null;
         if (metrics != null) {
             result = new WSMetric[metrics.size()];
-            Metric currentElem;
+            Metric currentMetric;
+            WSMetric currentWSMetric;
             for (int i = 0; i < result.length; i++) {
                 try {
-                    currentElem = (Metric) metrics.get(i);
+                    currentMetric = (Metric) metrics.get(i);
                 } catch (ClassCastException e) {
                     return null;
                 }
-                result[i] = WSMetric.getInstance(currentElem);
+                currentWSMetric = WSMetric.getInstance(currentMetric);
+                if (currentWSMetric == null) return null;
+                result[i] = currentWSMetric;
             }
         }
         return result;

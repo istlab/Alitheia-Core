@@ -175,26 +175,30 @@ public class WSFileGroup {
      * all of the elements in the file groups list.
      * The list argument should contain DAO
      * <code>FileGroup</code> objects.
+     * The method doesn't care of the db session. 
      *  
      * @param fileGroups - the file groups list;
      * the elements should be <code>FileGroup</code> objects  
      * 
      * @return - an array with <code>WSFileGroup</code> objects;
-     * if the list is null, empty or contains different object type
-     * then the array is null
+     * if the list is null, contains different object type
+     * or the DAO can't be wrapped then the array is null
      */
     public static WSFileGroup[] asArray(List<?> fileGroups) {
         WSFileGroup[] result = null;
         if (fileGroups != null) {
             result = new WSFileGroup[fileGroups.size()];
-            FileGroup currentElem;
+            FileGroup currentFileGroup;
+            WSFileGroup currentWSFileGroup;
             for (int i = 0; i < result.length; i++) {
                 try {
-                    currentElem = (FileGroup) fileGroups.get(i);
+                    currentFileGroup = (FileGroup) fileGroups.get(i);
                 } catch (ClassCastException e) {
                     return null;
                 }
-                result[i] = WSFileGroup.getInstance(currentElem);
+                currentWSFileGroup = WSFileGroup.getInstance(currentFileGroup);
+                if (currentWSFileGroup == null) return null;
+                result[i] = currentWSFileGroup;
             }
         }
         return result;

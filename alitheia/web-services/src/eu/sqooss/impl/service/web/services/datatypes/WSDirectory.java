@@ -95,26 +95,30 @@ public class WSDirectory {
      * all of the elements in the directories list.
      * The list argument should contain DAO
      * <code>Directory</code> objects.
+     * The method doesn't care of the db session. 
      *  
      * @param directories - the directories list;
      * the elements should be <code>Directory</code> objects  
      * 
      * @return - an array with <code>WSDirectory</code> objects;
-     * if the list is null, empty or contains different object type
-     * then the array is null
+     * if the list is null, contains different object type
+     * or the DAO can't be wrapped then the array is null
      */
     public static WSDirectory[] asArray(List<?> directories) {
         WSDirectory[] result = null;
         if (directories != null) {
             result = new WSDirectory[directories.size()];
-            Directory currentElem;
+            Directory currentDirectory;
+            WSDirectory currentWSDirectory;
             for (int i = 0; i < result.length; i++) {
                 try {
-                    currentElem = (Directory) directories.get(i);
+                    currentDirectory = (Directory) directories.get(i);
                 } catch (ClassCastException e) {
                     return null;
                 }
-                result[i] = WSDirectory.getInstance(currentElem);
+                currentWSDirectory = WSDirectory.getInstance(currentDirectory);
+                if (currentWSDirectory == null) return null;
+                result[i] = currentWSDirectory;
             }
         }
         return result;

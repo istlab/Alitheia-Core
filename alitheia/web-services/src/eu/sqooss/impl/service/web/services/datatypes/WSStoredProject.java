@@ -178,26 +178,30 @@ public class WSStoredProject {
      * all of the elements in the stored projects list.
      * The list argument should contain DAO
      * <code>StoredProject</code> objects.
+     * The method doesn't care of the db session.
      *  
      * @param storedProjects - the stored projects list;
      * the elements should be <code>StoredProject</code> objects  
      * 
      * @return - an array with <code>WSStoredProject</code> objects;
-     * if the list is null, empty or contains different object type
-     * then the array is null
+     * if the list is null, contains different object type
+     * or the DAO can't be wrapped then the array is null
      */
     public static WSStoredProject[] asArray(List<?> storedProjects) {
         WSStoredProject[] result = null;
         if (storedProjects != null) {
             result = new WSStoredProject[storedProjects.size()];
-            StoredProject currentElem;
+            StoredProject currentStoredProject;
+            WSStoredProject currentWSStoredProject;
             for (int i = 0; i < result.length; i++) {
                 try {
-                    currentElem = (StoredProject) storedProjects.get(i);
+                    currentStoredProject = (StoredProject) storedProjects.get(i);
                 } catch (ClassCastException e) {
                     return null;
                 }
-                result[i] = WSStoredProject.getInstance(currentElem);
+                currentWSStoredProject = WSStoredProject.getInstance(currentStoredProject);
+                if (currentWSStoredProject == null) return null;
+                result[i] = currentWSStoredProject;
             }
         }
         return result;

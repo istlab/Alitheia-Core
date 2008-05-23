@@ -143,26 +143,30 @@ public class WSDeveloper {
      * all of the elements in the developers list.
      * The list argument should contain DAO
      * <code>Developer</code> objects.
+     * The method doesn't care of the db session.
      *  
      * @param developers - the developers list;
      * the elements should be <code>Developer</code> objects  
      * 
      * @return - an array with <code>WSDeveloper</code> objects;
-     * if the list is null, empty or contains different object type
-     * then the array is null
+     * if the list is null, contains different object type
+     * or the DAO can't be wrapped then the array is null
      */
     public static WSDeveloper[] asArray(List<?> developers) {
         WSDeveloper[] result = null;
         if (developers != null) {
             result = new WSDeveloper[developers.size()];
-            Developer currentElem;
+            Developer currentDeveloper;
+            WSDeveloper currentWSDeveloper;
             for (int i = 0; i < result.length; i++) {
                 try {
-                    currentElem = (Developer) developers.get(i);
+                    currentDeveloper = (Developer) developers.get(i);
                 } catch (ClassCastException e) {
                     return null;
                 }
-                result[i] = WSDeveloper.getInstance(currentElem);
+                currentWSDeveloper = WSDeveloper.getInstance(currentDeveloper);
+                if (currentWSDeveloper == null) return null;
+                result[i] = currentWSDeveloper;
             }
         }
         return result;
