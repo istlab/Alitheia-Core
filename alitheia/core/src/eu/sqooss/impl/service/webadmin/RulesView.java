@@ -192,14 +192,6 @@ public class RulesView extends AbstractView{
                     else {
                         prevRule = InvocationRule.last(sobjDB);
                     }
-                    // ++
-                    if (prevRule != null) {
-                        System.out.println(prevRule.getId() + "=" + rule.getPrevRule());
-                    }
-                    if (nextRule != null) {
-                        System.out.println(nextRule.getId() + "=" + rule.getNextRule());
-                    }
-                    // --
                     // Create the new rule
                     if (sobjDB.addRecord(rule)) {
                         // Update the previous rule
@@ -219,6 +211,62 @@ public class RulesView extends AbstractView{
                 }
                 if (e.toString().length() > 0) {
                     reqValAction = actValReqAddRule;
+                }
+            }
+            // Remove rule's confirmation
+            if (reqValAction.equals(actValConRemRule)) {
+                if (reqValSelRuleId != null) {
+                    InvocationRule selRule = sobjDB.findObjectById(
+                            InvocationRule.class, reqValSelRuleId);
+                    if (selRule != null) {
+                        // Get the rule, that follow the selected one
+                        InvocationRule nextRule = null;
+                        if (selRule.getNextRule() != null) {
+                            nextRule = sobjDB.findObjectById(
+                                    InvocationRule.class,
+                                    selRule.getNextRule());
+                        }
+                        // Get the rule, that preceed the selected one
+                        InvocationRule prevRule = null;
+                        if (selRule.getPrevRule() != null) {
+                            prevRule = sobjDB.findObjectById(
+                                    InvocationRule.class,
+                                    selRule.getPrevRule());
+                        }
+                        // Remove the selected rule
+                        if (sobjDB.deleteRecord(selRule)) {
+                            // Update the neighbor rules
+                            if ((prevRule != null) && (nextRule != null)) {
+                                prevRule.setNextRule(nextRule.getId());
+                                nextRule.setPrevRule(prevRule.getId());
+                            }
+                            else {
+                                // Update the preceeding rule
+                                if (prevRule != null) {
+                                    prevRule.setNextRule(null);
+                                }
+                                // Update the following rule
+                                if (nextRule != null) {
+                                    nextRule.setPrevRule(null);
+                                }
+                            }
+                        }
+                        else {
+                            e.append("Rule deletion"
+                                    + " has failed!"
+                                    + " Check log for details.");
+                        }
+                    }
+                    else {
+                        e.append("The selected rule can not be found in the"
+                                + "database!");
+                    }
+                }
+                else {
+                    e.append("You must select a rule first!");
+                }
+                if (e.toString().length() > 0) {
+                    reqValAction = "";
                 }
             }
         }
@@ -568,6 +616,15 @@ public class RulesView extends AbstractView{
                             + actValConRuleDown + "';"
                             + conSubmitForm + "\">\n");
                 }
+                b.append(sp(in) + "<input type=\"button\""
+                        + " class=\"install\""
+                        + " style=\"width: 100px;\""
+                        + " value=\"Delete rule\""
+                        + " onclick=\"javascript:"
+                        + "document.getElementById('"
+                        + reqParAction + "').value='"
+                        + actValConRemRule + "';"
+                        + conSubmitForm + "\">\n");
             }
             b.append(sp(--in) + "</td>\n");
             b.append(sp(--in) + "</tr>\n");
