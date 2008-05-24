@@ -185,6 +185,16 @@ body.section-7 #menu li#nav-7 a  {
 #table tr.subhead {
     background-color: #CCFFCC;
 }
+#table tr.edit {
+    cursor: pointer;
+}
+#table tr.selected {
+    color: Green;
+    background-color: #FFFF99;
+}
+#table tr.edit:hover {
+    background-color: #FFFF99;
+}
 #table td.head {
     text-align: left;
     font-weight: bold;
@@ -201,6 +211,9 @@ body.section-7 #menu li#nav-7 a  {
 }
 #table td.edit:hover {
     background-color: #FFFF99;
+}
+#table td.trans {
+    background-color: transparent;
 }
 #table td.uninstalled {
     background-color: WhiteSmoke;

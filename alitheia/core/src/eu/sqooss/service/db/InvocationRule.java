@@ -172,14 +172,32 @@ public class InvocationRule extends DAObject {
     }
 
     /**
+     * Returns the rule that precedes the current one in the invocation rules
+     * chain.
+     * 
+     * @param db the DB components object
+     * 
+     * @return The <code>InvocationRule</code> DAO of the previous rule in the
+     *   chain. Or <code>null</code> when the chain is empty, when this is the
+     *   first rule, or if a database failure happened.
+     */
+    public InvocationRule prev(DBService db) {
+        if (db == null) return null;
+        if (getPrevRule() != null) {
+            return db.findObjectById(InvocationRule.class, getPrevRule());
+        }
+        return null;
+    }
+
+    /**
      * Returns the rule that follows the current one in the invocation rules
      * chain.
      * 
      * @param db the DB components object
      * 
      * @return The <code>InvocationRule</code> DAO of the next rule in the
-     *   chain, or <code>null</code> when the chain is empty or a database
-     *   failure happened.
+     *   chain. Or <code>null</code> when the chain is empty, when this is the
+     *   last rule, or if a database failure happened.
      */
     public InvocationRule next(DBService db) {
         if (db == null) return null;

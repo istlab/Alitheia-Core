@@ -106,6 +106,8 @@ public class RulesView extends AbstractView{
             if (reqValAction == null) {
                 reqValAction = "";
             };
+            // Retrieve the selected rule's Id (if any)
+            reqValSelRuleId = fromString(req.getParameter(reqParSelRuleId));
             // Retrieve the parameters of the created/updated rule
             reqValRuleProject = fromString(req.getParameter(reqParRuleProject));
             reqValRulePlugin = fromString(req.getParameter(reqParRulePlugin));
@@ -124,22 +126,22 @@ public class RulesView extends AbstractView{
             }
             // Create/update rule's confirmation
             if (reqValAction.equals(actValConAddRule)) {
-                boolean create = true;
+                boolean isValid = true;
                 if (reqValRuleScope == null) {
                     e.append("Indefined rule scope!");
-                    create = false;
+                    isValid = false;
                 }
                 if (reqValRuleAction == null) {
                     e.append("Indefined rule action!");
-                    create = false;
+                    isValid = false;
                 }
                 if ((reqValRuleValue == null) && (
                         ((reqValRuleScope == null) 
                                 && (reqValRuleScope != ScopeType.ALL)))) {
                     e.append("Indefined rule value!");
-                    create = false;
+                    isValid = false;
                 }
-                if (create) {
+                if (isValid) {
                     InvocationRule rule = new InvocationRule();
                     if (reqValRuleProject != null) {
                         rule.setProject(sobjDB.findObjectById(
@@ -156,14 +158,57 @@ public class RulesView extends AbstractView{
                     rule.setScope(reqValRuleScope.toString());
                     rule.setAction(reqValRuleAction.toString());
                     rule.setValue(reqValRuleValue);
-                    InvocationRule lastRule = InvocationRule.last(sobjDB);
-                    if (lastRule != null) {
-                        rule.setPrevRule(lastRule.getId());
+                    // Get the rule, that will be preceeded by the new one
+                    InvocationRule nextRule = null;
+                    // Rule insert
+                    if (reqValSelRuleId != null) {
+                        nextRule = sobjDB.findObjectById(
+                                InvocationRule.class, reqValSelRuleId);
+                        if (nextRule != null) {
+                            rule.setNextRule(nextRule.getId());
+                        }
                     }
+                    // Rule append
+                    else {
+                        if (InvocationRule.last(sobjDB) != null) {
+                            rule.setPrevRule(
+                                    InvocationRule.last(sobjDB).getId());
+                        }
+                    }
+                    // Get the rule, that will be followed by the new one
+                    InvocationRule prevRule = null;
+                    // Rule insert
+                    if ((reqValSelRuleId != null) && (nextRule != null)) {
+                        if (nextRule.getPrevRule() != null) {
+                            prevRule = sobjDB.findObjectById(
+                                    InvocationRule.class,
+                                    nextRule.getPrevRule());
+                            if (prevRule != null) {
+                                rule.setPrevRule(prevRule.getId());
+                            }
+                        }
+                    }
+                    // Rule append
+                    else {
+                        prevRule = InvocationRule.last(sobjDB);
+                    }
+                    // ++
+                    if (prevRule != null) {
+                        System.out.println(prevRule.getId() + "=" + rule.getPrevRule());
+                    }
+                    if (nextRule != null) {
+                        System.out.println(nextRule.getId() + "=" + rule.getNextRule());
+                    }
+                    // --
+                    // Create the new rule
                     if (sobjDB.addRecord(rule)) {
-                        // Update the "old" last rule
-                        if (lastRule != null) {
-                            lastRule.setNextRule(rule.getId());
+                        // Update the previous rule
+                        if (prevRule != null) {
+                            prevRule.setNextRule(rule.getId());
+                        }
+                        // Update the following rule
+                        if (nextRule != null) {
+                            nextRule.setPrevRule(rule.getId());
                         }
                     }
                     else {
@@ -431,33 +476,44 @@ public class RulesView extends AbstractView{
             else {
                 InvocationRule rule = InvocationRule.first(sobjDB);
                 while (rule != null) {
-                    b.append(sp(in++) + "<tr>\n");
+                    if ((reqValSelRuleId != null)
+                            && (reqValSelRuleId == rule.getId())) {
+                        b.append(sp(in++) + "<tr class=\"selected\">\n");
+                    }
+                    else {
+                        b.append(sp(in++) + "<tr class=\"edit\""
+                                + " onclick=\"javascript:"
+                                + "document.getElementById('"
+                                + reqParSelRuleId + "').value='"
+                                + rule.getId() + "';"
+                                + conSubmitForm + "\">\n");
+                    }
                     // Project name
-                    b.append(sp(in++) + "<td>"
+                    b.append(sp(in++) + "<td class=\"trans\">"
                             + ((rule.getProject() == null) ? "<b>ANY</b>"
                                     : rule.getProject().getName())
                             + "</td>\n");
                     // Plug-in name
-                    b.append(sp(in) + "<td>"
+                    b.append(sp(in) + "<td class=\"trans\">"
                             + ((rule.getPlugin() == null) ? "<b>ANY</b>"
                                     : rule.getPlugin().getName())
                             + "</td>\n");
                     // Metric type
-                    b.append(sp(in) + "<td>"
+                    b.append(sp(in) + "<td class=\"trans\">"
                             + ((rule.getMetricType() == null) ? "<b>ANY</b>"
                                     : rule.getMetricType().getType())
                             + "</td>\n");
                     // Rule scope
-                    b.append(sp(in) + "<td>"
+                    b.append(sp(in) + "<td class=\"trans\">"
                             + rule.getScope()
                             + "</td>\n");
                     // Rule value
-                    b.append(sp(in) + "<td>"
+                    b.append(sp(in) + "<td class=\"trans\">"
                             + ((rule.getValue() == null) ? "<b>NONE</b>"
                                     : rule.getValue())
                             + "</td>\n");
                     // Rule action
-                    b.append(sp(in) + "<td>"
+                    b.append(sp(in) + "<td class=\"trans\">"
                             + rule.getAction()
                             + "</td>\n");
                     rule = rule.next(sobjDB);
@@ -475,26 +531,43 @@ public class RulesView extends AbstractView{
                     + "document.getElementById('"
                     + reqParAction + "').value='"
                     + actValReqAddRule + "';"
+                    + "document.getElementById('"
+                    + reqParSelRuleId + "').value='';"
                     + conSubmitForm + "\">\n");
             if (reqValSelRuleId != null) {
                 b.append(sp(in) + "<input type=\"button\""
                         + " class=\"install\""
                         + " style=\"width: 100px;\""
-                        + " value=\"Move up\""
+                        + " value=\"Insert rule\""
                         + " onclick=\"javascript:"
                         + "document.getElementById('"
                         + reqParAction + "').value='"
-                        + actValConRuleUp + "';"
+                        + actValReqAddRule + "';"
                         + conSubmitForm + "\">\n");
-                b.append(sp(in) + "<input type=\"button\""
-                        + " class=\"install\""
-                        + " style=\"width: 100px;\""
-                        + " value=\"Move down\""
-                        + " onclick=\"javascript:"
-                        + "document.getElementById('"
-                        + reqParAction + "').value='"
-                        + actValConRuleDown + "';"
-                        + conSubmitForm + "\">\n");
+                InvocationRule rule = sobjDB.findObjectById(
+                        InvocationRule.class, reqValSelRuleId);
+                if ((rule != null) && (rule.prev(sobjDB) != null)) {
+                    b.append(sp(in) + "<input type=\"button\""
+                            + " class=\"install\""
+                            + " style=\"width: 100px;\""
+                            + " value=\"Move up\""
+                            + " onclick=\"javascript:"
+                            + "document.getElementById('"
+                            + reqParAction + "').value='"
+                            + actValConRuleUp + "';"
+                            + conSubmitForm + "\">\n");
+                }
+                if ((rule != null) && (rule.next(sobjDB) != null)) {
+                    b.append(sp(in) + "<input type=\"button\""
+                            + " class=\"install\""
+                            + " style=\"width: 100px;\""
+                            + " value=\"Move down\""
+                            + " onclick=\"javascript:"
+                            + "document.getElementById('"
+                            + reqParAction + "').value='"
+                            + actValConRuleDown + "';"
+                            + conSubmitForm + "\">\n");
+                }
             }
             b.append(sp(--in) + "</td>\n");
             b.append(sp(--in) + "</tr>\n");
