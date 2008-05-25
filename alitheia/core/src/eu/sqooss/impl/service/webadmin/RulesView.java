@@ -192,21 +192,28 @@ public class RulesView extends AbstractView{
                     else {
                         prevRule = InvocationRule.last(sobjDB);
                     }
-                    // Create the new rule
-                    if (sobjDB.addRecord(rule)) {
-                        // Update the previous rule
-                        if (prevRule != null) {
-                            prevRule.setNextRule(rule.getId());
+                    // Validate and create the new rule
+                    try {
+                        rule.validate(sobjDB);
+                        if (sobjDB.addRecord(rule)) {
+                            reqValSelRuleId = null;
+                            // Update the previous rule
+                            if (prevRule != null) {
+                                prevRule.setNextRule(rule.getId());
+                            }
+                            // Update the following rule
+                            if (nextRule != null) {
+                                nextRule.setPrevRule(rule.getId());
+                            }
                         }
-                        // Update the following rule
-                        if (nextRule != null) {
-                            nextRule.setPrevRule(rule.getId());
+                        else {
+                            e.append("Rule creation"
+                                    + " has failed!"
+                                    + " Check log for details.");
                         }
                     }
-                    else {
-                        e.append("Rule creation"
-                                + " has failed!"
-                                + " Check log for details.");
+                    catch (Exception ex) {
+                        e.append(ex.getMessage());
                     }
                 }
                 if (e.toString().length() > 0) {

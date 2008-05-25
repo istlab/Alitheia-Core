@@ -35,6 +35,8 @@ package eu.sqooss.service.db;
 import java.util.HashMap;
 import java.util.List;
 
+import eu.sqooss.service.db.MetricType.Type;
+
 public class InvocationRule extends DAObject {
     private Long prevRule = null;
     private Long nextRule = null;
@@ -65,7 +67,8 @@ public class InvocationRule extends DAObject {
         EACH,
         FROM,
         TO,
-        RANGE;
+        RANGE,
+        LIST;
 
         public static ScopeType fromString(String scope) {
             if (scope.equals(ALL.toString()))
@@ -80,6 +83,8 @@ public class InvocationRule extends DAObject {
                 return TO;
             else if (scope.equals(RANGE.toString()))
                 return RANGE;
+            else if (scope.equals(LIST.toString()))
+                return LIST;
             else
                 return null;
         }
@@ -152,7 +157,7 @@ public class InvocationRule extends DAObject {
     /**
      * Returns the first rule in the invocation rules chain.
      * 
-     * @param db the DB components object
+     * @param db the DB component's object
      * 
      * @return The <code>InvocationRule</code> DAO of the first rule in the
      *   chain, or <code>null</code> when the chain is empty or a database
@@ -175,7 +180,7 @@ public class InvocationRule extends DAObject {
      * Returns the rule that precedes the current one in the invocation rules
      * chain.
      * 
-     * @param db the DB components object
+     * @param db the DB component's object
      * 
      * @return The <code>InvocationRule</code> DAO of the previous rule in the
      *   chain. Or <code>null</code> when the chain is empty, when this is the
@@ -193,7 +198,7 @@ public class InvocationRule extends DAObject {
      * Returns the rule that follows the current one in the invocation rules
      * chain.
      * 
-     * @param db the DB components object
+     * @param db the DB component's object
      * 
      * @return The <code>InvocationRule</code> DAO of the next rule in the
      *   chain. Or <code>null</code> when the chain is empty, when this is the
@@ -210,7 +215,7 @@ public class InvocationRule extends DAObject {
     /**
      * Returns the last rule in the invocation rules chain.
      * 
-     * @param db the DB components object
+     * @param db the DB component's object
      * 
      * @return The <code>InvocationRule</code> DAO of the last rule in the
      *   chain, or <code>null</code> when the chain is empty or a database
@@ -227,5 +232,181 @@ public class InvocationRule extends DAObject {
             return (InvocationRule) objects.get(0);
         }
         return null;
+    }
+
+    /**
+     * Validates a singleton based scope against the given rule's value and
+     * metric's type.
+     * <br/>
+     * The given metric's type determines the value content like:
+     * <ul>
+     *  <li><code>PROJECT_WIDE</code> and <code>SOURCE_CODE</code> expect a
+     *  a single numeric project versions as a rule's value.
+     * </ul>
+     * 
+     * @param value the rule's value
+     * @param type the metric's type
+     * 
+     * @return <code>true</code> upon successful validation,
+     *   or <code>false</code> otherwise.
+     */
+    private static boolean isSingleScope(String value, Type type) {
+        if (value != null) {
+            switch (type) {
+            case PROJECT_WIDE:
+            case SOURCE_CODE:
+                try {
+                    new Long(value); return true;
+                }
+                catch (NumberFormatException ex) {
+                    return false;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Validates a range based scope against the given rule's value and
+     * metric's type.
+     * <br/>
+     * The given metric's type determines the value content like:
+     * <ul>
+     *  <li><code>PROJECT_WIDE</code> and <code>SOURCE_CODE</code> expect a
+     *  hyphen ('-') separated range of numeric project versions
+     *  (<i>exactly two</i>) as a rule's value.
+     * </ul>
+     * 
+     * @param value the rule's value
+     * @param type the metric's type
+     * 
+     * @return <code>true</code> upon successful validation,
+     *   or <code>false</code> otherwise.
+     */
+    private static boolean isRangeScope(String value, Type type) {
+        if (value != null) {
+            switch (type) {
+            case PROJECT_WIDE:
+            case SOURCE_CODE:
+                String[] values = value.split("-");
+                if (values.length == 2) {
+                    for (String nextVal : values) {
+                        try {
+                            new Long(nextVal);
+                        }
+                        catch (NumberFormatException ex) {
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+                return false;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Validates a list based scope against the given rule's value and
+     * metric's type.
+     * <br/>
+     * The given metric's type determines the value content like:
+     * <ul>
+     *  <li><code>PROJECT_WIDE</code> and <code>SOURCE_CODE</code> expect a
+     *  comma (',') separated list of numeric project versions
+     *  (<i>at least two</i>) as a rule's value.
+     * </ul>
+     * 
+     * @param value the rule's value
+     * @param type the metric's type
+     * 
+     * @return <code>true</code> upon successful validation,
+     *   or <code>false</code> otherwise.
+     */
+    private static boolean isListScope(String value, Type type) {
+        if (value != null) {
+            switch (type) {
+            case PROJECT_WIDE:
+            case SOURCE_CODE:
+                String[] values = value.split(",");
+                if (values.length > 1) {
+                    for (String nextVal : values) {
+                        try {
+                            new Long(nextVal);
+                        }
+                        catch (NumberFormatException ex) {
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+                return false;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Validates the current rule.
+     * 
+     * @param db the DB component's object
+     * 
+     * @throws <code>Exception</code>, which describes the reason for the
+     *   validation failure.
+     */
+    public void validate(DBService db) throws Exception {
+        //====================================================================
+        // Assemble the rule components
+        //====================================================================
+        // Assemble the metric type
+        Type type = null;
+        if (metricType != null) {
+            type = Type.fromString(metricType.getType());
+        }
+        // Assemble the rule value
+        String value = getValue();
+        // Assemble the rule scope
+        ScopeType scope = null;
+        if (getScope() != null) {
+            scope = ScopeType.fromString(getScope());
+        }
+        //====================================================================
+        // Validate the rule's scope
+        //====================================================================
+        // Check for invalid ("null") scope 
+        if (scope == null) {
+            throw new Exception("Invalid scope type!");
+        }
+        // Check for selected scope without defined target
+        if ((scope != ScopeType.ALL) && (type == null)) {
+            throw new Exception("A scope is selected but a metric type"
+                    + " is not defined!");
+        }
+        switch (scope) {
+        case ALL:
+            break;
+        case EXACT:
+        case EACH:
+        case FROM:
+        case TO:
+            if (isSingleScope(value, type) == false) {
+                throw new Exception("Invalid value for that scope!");
+            }
+            break;
+        case RANGE:
+            if (isRangeScope(value, type) == false) {
+                throw new Exception(
+                        "Invalid range of values for that scope!");
+            }
+            break;
+        case LIST:
+            if (isListScope(value, type) == false) {
+                throw new Exception(
+                        "Invalid list of values for that scope!");
+            }
+            break;
+        default:
+            throw new Exception("Unknown scope type!");
+        }
     }
 }
