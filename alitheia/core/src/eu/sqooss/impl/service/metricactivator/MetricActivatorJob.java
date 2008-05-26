@@ -42,7 +42,9 @@ import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.abstractmetric.MetricMismatchException;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.InvocationRule.ActionType;
 import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.metricactivator.MetricActivator;
 import eu.sqooss.service.pa.PluginInfo;
 import eu.sqooss.service.scheduler.Job;
 
@@ -60,6 +62,7 @@ public class MetricActivatorJob extends Job {
     private Class<? extends DAObject> clazz;
     private BundleContext bc;
     private List<PluginInfo> pli;
+    private MetricActivator ma;
     
     MetricActivatorJob(List<PluginInfo> pi,
             Class<? extends DAObject> clazz,
@@ -71,6 +74,7 @@ public class MetricActivatorJob extends Job {
         this.pli = pi;
         this.bc = bc;
         this.dbs = ((AlitheiaCore)bc.getService(bc.getServiceReference(AlitheiaCore.class.getName()))).getDBService();
+        this.ma = ((AlitheiaCore)bc.getService(bc.getServiceReference(AlitheiaCore.class.getName()))).getMetricActivator();
     }
     
     @Override
@@ -91,7 +95,11 @@ public class MetricActivatorJob extends Job {
                     try {
                         // Retrieve the resource object's DAO from the
                         // database and run the metric on it
-                        m.run(dbs.findObjectById(clazz, i));
+                        DAObject res = dbs.findObjectById(clazz, i);
+                        if ((res != null)
+                                && (ma.matchRules(m, res) == ActionType.EVAL)) {
+                            m.run(res);
+                        }
                     } catch (MetricMismatchException e) {
                         logger.warn("Metric " + m.getName() + " failed");
                     }

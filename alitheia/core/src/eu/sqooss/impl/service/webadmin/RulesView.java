@@ -206,14 +206,17 @@ public class RulesView extends AbstractView{
                         }
                         // Try to create the new rule
                         if (sobjDB.addRecord(rule)) {
+                            sobjMetricActivator.reloadRule(rule.getId());
                             reqValSelRuleId = null;
                             // Update the previous rule
                             if (prevRule != null) {
                                 prevRule.setNextRule(rule.getId());
+                                sobjMetricActivator.reloadRule(prevRule.getId());
                             }
                             // Update the following rule
                             if (nextRule != null) {
                                 nextRule.setPrevRule(rule.getId());
+                                sobjMetricActivator.reloadRule(nextRule.getId());
                             }
                         }
                         else {
@@ -252,19 +255,24 @@ public class RulesView extends AbstractView{
                         }
                         // Remove the selected rule
                         if (sobjDB.deleteRecord(selRule)) {
+                            sobjMetricActivator.reloadRule(selRule.getId());
                             // Update the neighbor rules
                             if ((prevRule != null) && (nextRule != null)) {
                                 prevRule.setNextRule(nextRule.getId());
                                 nextRule.setPrevRule(prevRule.getId());
+                                sobjMetricActivator.reloadRule(prevRule.getId());
+                                sobjMetricActivator.reloadRule(nextRule.getId());
                             }
                             else {
                                 // Update the preceeding rule
                                 if (prevRule != null) {
                                     prevRule.setNextRule(null);
+                                    sobjMetricActivator.reloadRule(prevRule.getId());
                                 }
                                 // Update the following rule
                                 if (nextRule != null) {
                                     nextRule.setPrevRule(null);
+                                    sobjMetricActivator.reloadRule(nextRule.getId());
                                 }
                             }
                         }

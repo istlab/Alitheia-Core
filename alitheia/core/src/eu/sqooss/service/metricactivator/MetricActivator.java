@@ -38,6 +38,7 @@ import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
+import eu.sqooss.service.db.InvocationRule.ActionType;
 
 /**
  * The MetricActivator service is responsible for kickstarting metric jobs 
@@ -78,5 +79,18 @@ public interface MetricActivator {
      * @return
      */
     public ProjectVersion getLastAppliedVersion(AlitheiaPlugin m, StoredProject sp);
-    
+
+    /**
+     * Reloads the invocation rule with the specified Id from the database.
+     * When a rule with the given Id doesn't exist in the database, then it
+     * is removed from the <code>MetricActivator</code>'s cache as well
+     * (<i>if found in the cache</i>).
+     * When such rule exists in the database, then its record in the cache is
+     * replaced with the current database record.
+     * 
+     * @param ruleId the invocation rule's Id
+     */
+    public void reloadRule (Long ruleId);
+
+    public ActionType matchRules (AlitheiaPlugin ap, DAObject resource);
 }

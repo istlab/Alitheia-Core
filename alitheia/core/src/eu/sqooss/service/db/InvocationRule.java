@@ -34,6 +34,7 @@ package eu.sqooss.service.db;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Vector;
 
 import eu.sqooss.service.db.MetricType.Type;
 
@@ -489,5 +490,85 @@ public class InvocationRule extends DAObject {
             return false;
         }
         return true;
+    }
+
+    public boolean match(ScopeType scp, String val, ProjectFile res) {
+        // Always match on "ALL" scope
+        if (scp == ScopeType.ALL) return true;
+        // Compare the rule value to the resource's project version
+        long version = res.getProjectVersion().getVersion();
+        // TODO: Check if the project file exists for other project versions
+        switch (scp) {
+        case EXACT:
+        case EACH:
+        case FROM:
+        case TO:
+            long value = parseIntValue(val);
+            return (value == version);
+        case RANGE:
+            long[] range = parseIntRange(val);
+            if ((range[0] <= version) && (version <= range[1]))
+                return true;
+            else 
+                return false;
+        case LIST:
+            long[] values = parseIntList(val);
+            for (int i = 0; i < values.length ; i++) {
+                if (values[i] == version) return true;
+            }
+            return false;
+        }
+        // Unrecognized scope types are dealt here
+        return false;
+    }
+
+    /**
+     * Converts the given rule's value into a single integer.
+     * 
+     * @param val the rule's value
+     * 
+     * @return The integer representation of the rule's value.
+     */
+    private long parseIntValue(String val) {
+        return new Long(val).longValue();
+    }
+
+    /**
+     * Converts the given rule's value into a two member array of integer
+     * values, where the least indexed integer represents the range begin and
+     * the top indexed - the range end.
+     * 
+     * @param val the rule's value
+     * 
+     * @return The pair of integers representing the rule's values range.
+     */
+    private long[] parseIntRange(String val) {
+        long[] result = new long[2];
+        String[] values = val.split("-");
+        long n1 = new Long(values[0]);
+        long n2 = new Long(values[1]);
+        if (n2 > n1) {
+            result[0] = n1; result[1] = n2;
+        }
+        else {
+            result[0] = n2; result[1] = n1;
+        }
+        return result;
+    }
+
+    /**
+     * Converts the given rule's value into a list of integer values.
+     * 
+     * @param val the rule's value
+     * 
+     * @return The list of integers representing the rule's values set.
+     */
+    private long[] parseIntList(String val) {
+        String[] values = val.split(",");
+        long[] result = new long[values.length];
+        for (int i = 0; i < values.length ; i++) {
+            result[i] = new Long(values[i]);
+        }
+        return result;
     }
 }
