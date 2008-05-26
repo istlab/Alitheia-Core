@@ -128,7 +128,6 @@ public class MetricActivatorImpl implements MetricActivator {
         }
         // No rules found
         if (rule == null) {
-            System.out.println("No rules");
             return DEFAULT_ACTION;
         }
         // Retrieve the plug-in DAO
