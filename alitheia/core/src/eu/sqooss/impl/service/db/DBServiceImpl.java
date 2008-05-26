@@ -73,6 +73,7 @@ public class DBServiceImpl implements DBService {
     private static final String DB_CONNECTION_URL_PROPERTY = "eu.sqooss.db.url";
     private static final String DB_DIALECT_PROPERTY = "eu.sqooss.db.dialect";
     private static final String HIBERNATE_CONFIG_PROPERTY = "eu.sqooss.hibernate.config";
+    private static final String HIBERNATE_RESET_PROPERTY = "eu.sqooss.hibernate.reset";
 
     private Logger logger = null;
     // Store the class and URL of the database to hand off to
@@ -180,7 +181,7 @@ e.printStackTrace();
         "org.hibernate.dialect.DerbyDialect");
     }
 
-    private void initHibernate(URL configFileURL) {
+    private void initHibernate(URL configFileURL, boolean resetDatabase) {
         SessionFactory sf = null;
         logger.info("Initializing Hibernate with URL <" + configFileURL + ">");
         if (configFileURL == null) {
@@ -196,6 +197,9 @@ e.printStackTrace();
             c.setProperty("hibernate.connection.username", "alitheia");
             c.setProperty("hibernate.connection.password", "");
             c.setProperty("hibernate.connection.dialect", dbDialect);
+            if (resetDatabase) {
+                c.setProperty("hibernate.hbm2ddl.auto", "create");
+            }
             sessionFactory = c.buildSessionFactory();
 
         } catch (Throwable e) {
@@ -253,7 +257,7 @@ e.printStackTrace();
             System.exit(1);
         }
 
-        initHibernate(hibernateConfigURL);
+        initHibernate(hibernateConfigURL, false);
     }
 
     /**
@@ -280,7 +284,11 @@ e.printStackTrace();
 
         if (dbClass != null) {
             logger.info("Using JDBC " + dbClass);
-            initHibernate(bc.getBundle().getEntry("/hibernate.cfg.xml"));
+            boolean resetDatabase = false;
+            if (Boolean.valueOf(bc.getProperty(HIBERNATE_RESET_PROPERTY))) {
+                resetDatabase = true;
+            }
+            initHibernate(bc.getBundle().getEntry("/hibernate.cfg.xml"), resetDatabase);
         } else {
             logger.error("Hibernate will not be initialized.");
             // TODO: Throw something to prevent the bundle from being started?
