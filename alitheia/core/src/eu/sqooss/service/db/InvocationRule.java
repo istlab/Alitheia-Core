@@ -409,4 +409,85 @@ public class InvocationRule extends DAObject {
             throw new Exception("Unknown scope type!");
         }
     }
+
+    /**
+     * Compares this rule to the given one. This method returns
+     * <code>true</code> only if the given object is not <code>null</code>
+     * and the following rule fields are equal:
+     * <ul>
+     *   <li> project - integer comparison by project Id
+     *   <li> plug-in - integer comparison by plug-in Id
+     *   <li> metric type - string comparison by metric's type
+     *   <li> scope - string comparison by rule's scope
+     *   <li> action - string comparison by rule's action
+     *   <li> value - string comparison by rule's value
+     * </ul>
+     * 
+     * @param rule the rule to compare
+     * 
+     * @return <code>true</code>, if equal, or <code>false</code> otherwise.
+     */
+    public boolean equals(InvocationRule rule) {
+        // Check for a valid input parameter
+        if (rule == null) {
+            return false;
+        }
+        // Compare the project
+        if ((rule.getProject() != null) && (getProject() != null)) {
+            if (rule.getProject().getId() != getProject().getId()) {
+                return false;
+            }
+        }
+        else if ((rule.getProject() != null) || (getProject() != null)) {
+            return false;
+        }
+        // Compare the plug-in
+        if ((rule.getPlugin() != null) && (getPlugin() != null)) {
+            if (rule.getPlugin().getId() != getPlugin().getId()) {
+                return false;
+            }
+        }
+        else if ((rule.getPlugin() != null) || (getPlugin() != null)) {
+            return false;
+        }
+        // Compare the metric type
+        if ((rule.getMetricType() != null) && (getMetricType() != null)) {
+            if (rule.metricType.getType().equals(
+                    getMetricType().getType()) != true) {
+                return false;
+            }
+        }
+        else if ((rule.getMetricType() != null)
+                || (getMetricType() != null)) {
+            return false;
+        }
+        // Compare the scope
+        if ((rule.getScope() != null) && (getScope() != null)) {
+            if (rule.getScope().equals(getScope()) != true) {
+                return false;
+            }
+        }
+        else if ((rule.getScope() != null) || (getScope() != null)) {
+            return false;
+        }
+        // Compare the action
+        if ((rule.getAction() != null) && (getAction() != null)) {
+            if (rule.getAction().equals(getAction()) != true) {
+                return false;
+            }
+        }
+        else if ((rule.getAction() != null) || (getAction() != null)) {
+            return false;
+        }
+        // Compare the value
+        if ((rule.getValue() != null) && (getValue() != null)) {
+            if (rule.getValue().equals(getValue()) != true) {
+                return false;
+            }
+        }
+        else if ((rule.getValue() != null) || (getValue() != null)) {
+            return false;
+        }
+        return true;
+    }
 }

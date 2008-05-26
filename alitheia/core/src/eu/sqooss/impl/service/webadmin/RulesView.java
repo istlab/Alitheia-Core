@@ -195,6 +195,16 @@ public class RulesView extends AbstractView{
                     // Validate and create the new rule
                     try {
                         rule.validate(sobjDB);
+                        // Check for a duplicated rule
+                        InvocationRule cmpRule = InvocationRule.first(sobjDB);
+                        while (cmpRule != null) {
+                            if (rule.equals(cmpRule)) {
+                                throw new Exception(
+                                        "The same rule already exist!");
+                            }
+                            cmpRule = cmpRule.next(sobjDB);
+                        }
+                        // Try to create the new rule
                         if (sobjDB.addRecord(rule)) {
                             reqValSelRuleId = null;
                             // Update the previous rule
