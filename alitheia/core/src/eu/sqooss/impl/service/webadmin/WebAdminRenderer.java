@@ -248,38 +248,67 @@ public class WebAdminRenderer {
         result.append("\t</thead>\n");
         result.append("\t<tbody>\n");
 
-        Class<?> tmpClass;
-        for(Job j: jobs) {
-            result.append("\t\t<tr>\n\t\t\t<td>");
-            tmpClass = j.getClass();
-            result.append(tmpClass.getPackage().getName());
-            result.append(". " + tmpClass.getSimpleName());
-            result.append("</td>\n\t\t\t<td>");
-            if (j.getErrorException().getClass().toString() != null) {
-                tmpClass = j.getErrorException().getClass();
-                result.append(tmpClass.getPackage().getName());
-                result.append(". " + tmpClass.getSimpleName());
+        if ((jobs != null) && (jobs.length > 0)) {
+            for(Job j: jobs) {
+                if (j == null) continue;
+                result.append("\t\t<tr>\n\t\t\t<td>");
+                if (j.getClass() != null) {
+                    try {
+                        result.append(j.getClass().getPackage().getName());
+                        result.append(". " + j.getClass().getSimpleName());
+                    }
+                    catch (NullPointerException ex) {
+                        result.append("<b>NA<b>");
+                    }
+                }
+                else {
+                    result.append("<b>NA<b>");
+                }
                 result.append("</td>\n\t\t\t<td>");
-            } else {
-                result.append("null");
-                result.append("</td>\n\t\t\t<td>");    
+                Exception e = j.getErrorException();
+                if (e != null) {
+                    try {
+                        result.append(e.getClass().getPackage().getName());
+                        result.append(". " + e.getClass().getSimpleName());
+                    }
+                    catch (NullPointerException ex) {
+                        result.append("<b>NA<b>");
+                    }
+                }
+                else {
+                    result.append("<b>NA</b>");
+                }
+                result.append("</td>\n\t\t\t<td>");
+                try {
+                    result.append(e.getMessage());
+                }
+                catch (NullPointerException ex) {
+                    result.append("<b>NA<b>");
+                }
+                result.append("</td>\n\t\t\t<td>");
+                if ((e != null) 
+                        && (e.getStackTrace() != null)) {
+                    for(StackTraceElement m: e.getStackTrace()) {
+                        if (m == null) continue;
+                        result.append(m.getClassName());
+                        result.append(". ");
+                        result.append(m.getMethodName());
+                        result.append("(), (");
+                        result.append(m.getFileName());
+                        result.append(":");
+                        result.append(m.getLineNumber());
+                        result.append(")<br/>");
+                    }
+                }
+                else {
+                    result.append("<b>NA</b>");
+                }
+                result.append("\t\t\t</td>\n\t\t</tr>");
             }
-            result.append(j.getErrorException().getMessage());
-            result.append("</td>\n\t\t\t<td>");
-            for(StackTraceElement m: j.getErrorException().getStackTrace()) {
-                result.append(m.getClassName());
-                result.append(". ");
-                result.append(m.getMethodName());
-                result.append("(), (");
-                result.append(m.getFileName());
-                result.append(":");
-                result.append(m.getLineNumber());
-                result.append(")<br/>");
-            }
-
-            result.append("\t\t\t</td>\n\t\t</tr>");
         }
-
+        else {
+            result.append ("<tr><td colspan=\"4\">No failed jobs.</td></tr>");
+        }
         result.append("\t</tbody>\n");
         result.append("</table>");
 
