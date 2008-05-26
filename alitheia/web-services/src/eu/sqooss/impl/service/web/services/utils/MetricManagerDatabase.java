@@ -32,7 +32,6 @@
 
 package eu.sqooss.impl.service.web.services.utils;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Hashtable;
@@ -41,7 +40,6 @@ import java.util.Map;
 
 import eu.sqooss.impl.service.web.services.datatypes.WSMetric;
 import eu.sqooss.impl.service.web.services.datatypes.WSMetricType;
-import eu.sqooss.impl.service.web.services.datatypes.WSMetricsRequest;
 import eu.sqooss.impl.service.web.services.datatypes.WSMetricsResultRequest;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
@@ -70,13 +68,9 @@ public class MetricManagerDatabase implements MetricManagerDBQueries {
     }
     
     @SuppressWarnings("unchecked")
-    public WSMetricType[] getMetricTypesByIds(long[] metricTypesIds) {
+    public WSMetricType[] getMetricTypesByIds(Collection<Long> metricTypesIds) {
         Map<String, Collection> queryParameters = new Hashtable<String, Collection>();
-        Collection<Long> idsCollection = new ArrayList<Long>();
-        for (long id : metricTypesIds) {
-            idsCollection.add(id);
-        }
-        queryParameters.put(GET_METRIC_TYPES_BY_IDS_PARAM, idsCollection);
+        queryParameters.put(GET_METRIC_TYPES_BY_IDS_PARAM, metricTypesIds);
         db.startDBSession();
         List<?> metricTypes = db.doHQL(GET_METRIC_TYPES_BY_IDS, null, queryParameters);
         WSMetricType[] result = WSMetricType.asArray(metricTypes);
@@ -85,26 +79,23 @@ public class MetricManagerDatabase implements MetricManagerDBQueries {
     }
     
     @SuppressWarnings("unchecked")
-    public WSMetric[] getMetricsByResourcesIds(WSMetricsRequest request) {
-        long[] ids = request.getResourcesIds();
-        Collection<Long> idsCollection = new ArrayList<Long>();
-        for (long id : ids) {
-            idsCollection.add(id);
-        }
+    public WSMetric[] getMetricsByResourcesIds(Collection<Long> ids,
+            boolean isProjectFile, boolean isProjectVersion,
+            boolean isStoredProject, boolean isFileGroup) {
         Map<String, Collection> queryParameters = new Hashtable<String, Collection>(1);
         List<?> metrics;
         db.startDBSession();
-        if (request.getIsProjectFile()) {
-            queryParameters.put(GET_METRICS_BY_RESOURCES_IDS_PARAM, idsCollection);
+        if (isProjectFile) {
+            queryParameters.put(GET_METRICS_BY_RESOURCES_IDS_PARAM, ids);
             metrics = db.doHQL(GET_METRICS_BY_RESOURCES_IDS_PROJECT_FILES, null, queryParameters);
-        } else if (request.getIsProjectVersion()) {
-            queryParameters.put(GET_METRICS_BY_RESOURCES_IDS_PARAM, idsCollection);
+        } else if (isProjectVersion) {
+            queryParameters.put(GET_METRICS_BY_RESOURCES_IDS_PARAM, ids);
             metrics = db.doHQL(GET_METRICS_BY_RESOURCES_IDS_PROJECT_VERSIONS, null, queryParameters);
-        } else if (request.getIsStoredProject()) {
-            queryParameters.put(GET_METRICS_BY_RESOURCES_IDS_PARAM, idsCollection);
+        } else if (isStoredProject) {
+            queryParameters.put(GET_METRICS_BY_RESOURCES_IDS_PARAM, ids);
             metrics = db.doHQL(GET_METRICS_BY_RESOURCES_IDS_STORED_PROJECTS, null, queryParameters);
-        } else if (request.getIsFileGroup()) {
-            queryParameters.put(GET_METRICS_BY_RESOURCES_IDS_PARAM, idsCollection);
+        } else if (isFileGroup) {
+            queryParameters.put(GET_METRICS_BY_RESOURCES_IDS_PARAM, ids);
             metrics = db.doHQL(GET_METRICS_BY_RESOURCES_IDS_FILE_GROUPS, null, queryParameters);
         } else {
             metrics = null;

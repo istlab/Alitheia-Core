@@ -34,7 +34,6 @@ package eu.sqooss.impl.service.web.services.utils;
 
 import java.math.BigInteger;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Hashtable;
 import java.util.List;
@@ -89,13 +88,9 @@ public class ProjectManagerDatabase implements ProjectManagerDBQueries {
     }
     
     @SuppressWarnings("unchecked")
-    public WSStoredProject[] getProjectsByIds(long[] ids) {
+    public WSStoredProject[] getProjectsByIds(Collection<Long> ids) {
         Map<String, Collection> queryParameters = new Hashtable<String, Collection>(1);
-        Collection<Long> idsCollection = new ArrayList<Long>(ids.length);
-        for (long id : ids) {
-            idsCollection.add(id);
-        }
-        queryParameters.put(GET_PROJECTS_BY_IDS_PARAM, idsCollection);
+        queryParameters.put(GET_PROJECTS_BY_IDS_PARAM, ids);
         db.startDBSession();
         List<?> projects = db.doHQL(GET_PROJECTS_BY_IDS, null, queryParameters);
         WSStoredProject[] result = WSStoredProject.asArray(projects);
@@ -104,13 +99,9 @@ public class ProjectManagerDatabase implements ProjectManagerDBQueries {
     }
 
     @SuppressWarnings("unchecked")
-    public WSProjectVersion[] getProjectVersionsByIds(long[] ids) {
+    public WSProjectVersion[] getProjectVersionsByIds(Collection<Long> ids) {
         Map<String, Collection> queryParameters = new Hashtable<String, Collection>(1);
-        Collection<Long> idsCollection = new ArrayList<Long>(ids.length);
-        for (long id : ids) {
-            idsCollection.add(id);
-        }
-        queryParameters.put(GET_PROJECT_VERSIONS_BY_IDS_PARAM, idsCollection);
+        queryParameters.put(GET_PROJECT_VERSIONS_BY_IDS_PARAM, ids);
         db.startDBSession();
         List<?> projectVersions = db.doHQL(GET_PROJECT_VERSIONS_BY_IDS, null, queryParameters);
         WSProjectVersion[] result = WSProjectVersion.asArray(projectVersions);
@@ -195,13 +186,9 @@ public class ProjectManagerDatabase implements ProjectManagerDBQueries {
     }
     
     @SuppressWarnings("unchecked")
-    public WSDirectory[] getDirectoriesByIds(long[] ids) {
+    public WSDirectory[] getDirectoriesByIds(Collection<Long> ids) {
         Map<String, Collection> queryParameters = new Hashtable<String, Collection>();
-        Collection<Long> idsCollection = new ArrayList<Long>();
-        for (long id : ids) {
-            idsCollection.add(id);
-        }
-        queryParameters.put(GET_DIRECTORIES_BY_IDS_PARAM, idsCollection);
+        queryParameters.put(GET_DIRECTORIES_BY_IDS_PARAM, ids);
         db.startDBSession();
         List<?> directories = db.doHQL(GET_DIRECTORIES_BY_IDS, null, queryParameters);
         WSDirectory[] result = WSDirectory.asArray(directories);
@@ -210,13 +197,9 @@ public class ProjectManagerDatabase implements ProjectManagerDBQueries {
     }
     
     @SuppressWarnings("unchecked")
-    public WSDeveloper[] getDevelopersByIds(long[] ids) {
+    public WSDeveloper[] getDevelopersByIds(Collection<Long> ids) {
         Map<String, Collection> queryParameters = new Hashtable<String, Collection>();
-        Collection<Long> idsCollection = new ArrayList<Long>();
-        for (long id : ids) {
-            idsCollection.add(id);
-        }
-        queryParameters.put(GET_DEVELOPERS_BY_IDS_PARAM, idsCollection);
+        queryParameters.put(GET_DEVELOPERS_BY_IDS_PARAM, ids);
         db.startDBSession();
         List<?> developers = db.doHQL(GET_DEVELOPERS_BY_IDS, null, queryParameters);
         WSDeveloper[] result = WSDeveloper.asArray(developers);

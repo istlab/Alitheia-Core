@@ -33,6 +33,9 @@
 package eu.sqooss.impl.service.web.services;
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
@@ -89,6 +92,19 @@ public abstract class AbstractManager {
         } else {
             return result;
         }
+    }
+    
+    /**
+     * The method parses the array to the collection.
+     * If the array is <code>null</code> then the result is empty. 
+     */
+    protected static Collection<Long> asCollection(long[] array) {
+        if (array == null) return Collections.emptyList();
+        Collection<Long> result = new ArrayList<Long>(array.length);
+        for (long currentElem : array) {
+            result.add(Long.valueOf(currentElem));
+        }
+        return result;
     }
     
 }

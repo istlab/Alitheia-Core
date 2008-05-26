@@ -142,11 +142,8 @@ public class ProjectManager extends AbstractManager {
 
         super.updateUserActivity(userName);
 
-        if(projectVersionsIds == null) {
-            return null;
-        }
-        
-        WSProjectVersion[] result = dbWrapper.getProjectVersionsByIds(projectVersionsIds);
+        WSProjectVersion[] result = dbWrapper.getProjectVersionsByIds(
+                asCollection(projectVersionsIds));
         return (WSProjectVersion[]) normalizeWSArrayResult(result);
     }
     
@@ -162,11 +159,7 @@ public class ProjectManager extends AbstractManager {
 
         super.updateUserActivity(userName);
         
-        if (projectsIds == null) {
-            return null;
-        }
-        
-        WSStoredProject[] result = dbWrapper.getProjectsByIds(projectsIds);
+        WSStoredProject[] result = dbWrapper.getProjectsByIds(asCollection(projectsIds));
         return (WSStoredProject[]) normalizeWSArrayResult(result);
     }
     
@@ -260,7 +253,8 @@ public class ProjectManager extends AbstractManager {
         
         super.updateUserActivity(userName);
         
-        WSDirectory[] result = dbWrapper.getDirectoriesByIds(directoriesIds);
+        WSDirectory[] result = dbWrapper.getDirectoriesByIds(
+                asCollection(directoriesIds));
         return (WSDirectory[]) normalizeWSArrayResult(result);
     }
     
@@ -276,11 +270,8 @@ public class ProjectManager extends AbstractManager {
         
         super.updateUserActivity(userName);
         
-        if (developersIds == null) {
-            return null;
-        }
-        
-        WSDeveloper[] result = dbWrapper.getDevelopersByIds(developersIds);
+        WSDeveloper[] result = dbWrapper.getDevelopersByIds(
+                asCollection(developersIds));
         return (WSDeveloper[]) normalizeWSArrayResult(result);
     }
     

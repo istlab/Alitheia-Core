@@ -103,10 +103,6 @@ public class UserManager extends AbstractManager {
         
         super.updateUserActivity(userNameForAccess);
         
-        if (usersIds == null) {
-            return null;
-        }
-        
         db.startDBSession();
         Collection<WSUser> users = new HashSet<WSUser>();
         User currentUser;

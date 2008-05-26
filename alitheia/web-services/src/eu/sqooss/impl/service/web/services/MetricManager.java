@@ -34,6 +34,7 @@ package eu.sqooss.impl.service.web.services;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
@@ -111,7 +112,8 @@ public class MetricManager extends AbstractManager {
             return null;
         }
         
-        WSMetricType[] result = dbWrapper.getMetricTypesByIds(metricTypesIds);
+        WSMetricType[] result = dbWrapper.getMetricTypesByIds(
+                asCollection(metricTypesIds));
         return (WSMetricType[]) normalizeWSArrayResult(result);
     }
     
@@ -130,27 +132,33 @@ public class MetricManager extends AbstractManager {
         super.updateUserActivity(userName);
         
         WSMetric[] result;
+        boolean isProjectFile = request.getIsProjectFile();
+        boolean isProjectVersion = request.getIsProjectVersion();
+        boolean isStoredProject = request.getIsStoredProject();
+        boolean isFileGroup = request.getIsFileGroup();
         if (request.getSkipResourcesIds()) {
             List<Metric> metrics = new ArrayList<Metric>();
-            if (request.getIsFileGroup()) {
+            if (isFileGroup) {
                 metrics.addAll(getMetrics(pluginAdmin.
                         listPluginProviders(FileGroup.class)));
             }
-            if (request.getIsProjectFile()) {
+            if (isProjectFile) {
                 metrics.addAll(getMetrics(pluginAdmin.
                         listPluginProviders(ProjectFile.class)));
             }
-            if (request.getIsProjectVersion()) {
+            if (isProjectVersion) {
                 metrics.addAll(getMetrics(pluginAdmin.
                         listPluginProviders(ProjectVersion.class)));
             }
-            if (request.getIsStoredProject()) {
+            if (isStoredProject) {
                 metrics.addAll(getMetrics(pluginAdmin.
                         listPluginProviders(StoredProject.class)));
             }
             result = WSMetric.asArray(metrics);
         } else {
-            result = dbWrapper.getMetricsByResourcesIds(request);
+            Collection<Long> ids = asCollection(request.getResourcesIds());
+            result = dbWrapper.getMetricsByResourcesIds(ids, isProjectFile,
+                    isProjectVersion, isStoredProject, isFileGroup);
         }
         return (WSMetric[]) normalizeWSArrayResult(result);
     }
