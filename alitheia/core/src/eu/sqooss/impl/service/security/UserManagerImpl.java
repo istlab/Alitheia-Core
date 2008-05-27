@@ -191,7 +191,7 @@ public class UserManagerImpl implements UserManager {
                 "; e-mail: " + email);
         
         // Check if there is an existing user (or pending) with the same name
-        if ( !dbWrapper.getUser(userName).isEmpty() || !dbWrapper.hasPendingUserName(userName) ) {
+        if ( !dbWrapper.getUser(userName).isEmpty() || dbWrapper.hasPendingUserName(userName) ) {
             return false;
         }
         
