@@ -163,7 +163,9 @@ public class MessagingServiceImpl implements MessagingService {
      */
     public void addMessageListener(MessageListener listener) {
         synchronized (lockObjectListeners) {
-            messageListeners.addElement(listener);
+            if (!messageListeners.contains(listener)) {
+                messageListeners.addElement(listener);
+            }
         }
     }
 
