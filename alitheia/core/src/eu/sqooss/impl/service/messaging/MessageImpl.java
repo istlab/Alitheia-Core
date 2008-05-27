@@ -220,8 +220,28 @@ public class MessageImpl extends Message implements TimerListener {
         }
     }
 
+    /**
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        StringBuffer strRepresentation = new StringBuffer();
+        strRepresentation.append("id: ");
+        strRepresentation.append(id);
+        strRepresentation.append("; recipients: ");
+        strRepresentation.append(recipients.toString());
+        strRepresentation.append("; status: ");
+        strRepresentation.append(status);
+        strRepresentation.append("; protocol: ");
+        strRepresentation.append(protocol);
+        strRepresentation.append("; title: ");
+        strRepresentation.append(title);
+        strRepresentation.append("; message body: ");
+        strRepresentation.append(body);
+        return strRepresentation.toString();
+    }
+    
     /* Message history methods */
-
     public void setMessageHistory(MessageHistory messageHistory) {
         this.messageHistory = messageHistory;
     }
