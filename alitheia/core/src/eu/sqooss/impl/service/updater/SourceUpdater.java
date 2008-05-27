@@ -101,6 +101,7 @@ class SourceUpdater extends Job {
     protected void run() throws Exception {
         dbs.startDBSession();
         int numRevisions = 0;
+        boolean newVersion = true;
         
         /* 
          * Cache project version and project file IDs for kick-starting
@@ -128,6 +129,8 @@ class SourceUpdater extends Job {
             /* Don't choke when called to update an up-to-date project*/
             if (lastProjectVersion >= lastSCMVersion) {
                 dbs.commitDBSession();
+                newVersion = false;
+                // Return GOES through the final clause
                 return;
             }
             
@@ -244,14 +247,18 @@ class SourceUpdater extends Job {
             logger.error("Not such repository revision:" + e.getMessage());
             throw e;
         } finally {
-            logger.info(project.getName() + ": Time to process entries: "
-                    + (int) ((System.currentTimeMillis() - ts) / 1000));
-            dbs.commitDBSession();
-            /*Kickstart metrics*/
-            ma.runMetrics(ProjectVersion.class, updProjectVersions);
-            ma.runMetrics(ProjectFile.class, updFiles);
-
-            updater.removeUpdater(project.getName(), UpdaterService.UpdateTarget.CODE);
+            if (newVersion) {
+                logger.info(project.getName() + ": Time to process entries: "
+                        + (int) ((System.currentTimeMillis() - ts) / 1000));
+                dbs.commitDBSession();
+                /*Kickstart metrics*/
+                ma.runMetrics(ProjectVersion.class, updProjectVersions);
+                ma.runMetrics(ProjectFile.class, updFiles);
+                
+                updater.removeUpdater(
+                        project.getName(),
+                        UpdaterService.UpdateTarget.CODE);
+            }
         }
     }
 
