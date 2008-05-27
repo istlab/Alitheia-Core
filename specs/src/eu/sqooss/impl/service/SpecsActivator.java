@@ -45,7 +45,12 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.ServiceReference;
 
+import eu.sqooss.core.AlitheiaCore;
+
 public class SpecsActivator implements BundleActivator {
+
+    private ServiceReference serviceRef = null;
+    public static AlitheiaCore alitheiaCore = null;
 
     private class SpecsStats {
         int runsCount;
@@ -63,7 +68,7 @@ public class SpecsActivator implements BundleActivator {
             alitheiaBundles = findBundleDependencies(core);
         }
                 
-        stopAlitheia(); // We want alitheia to be shutdown first
+        stopAlitheia(bc); // We want alitheia to be shutdown first
         
         System.out.println("Running specs...");
 
@@ -87,9 +92,9 @@ public class SpecsActivator implements BundleActivator {
             Class<?> c = bc.getBundle().loadClass(className);
 
             System.out.println("*** Running "+className);
-            startAlitheia();
+            startAlitheia(bc);
             Result r = JUnitCore.runClasses(c);
-            stopAlitheia();
+            stopAlitheia(bc);
 
             stats.runsCount++;
             if (r.getFailureCount()>0) {
@@ -116,13 +121,21 @@ public class SpecsActivator implements BundleActivator {
         bc.getBundle(0).stop();
     }
 
-    private void startAlitheia() throws BundleException {
+    private void startAlitheia(BundleContext bc) throws BundleException {
         for (int i=0; i<alitheiaBundles.length; ++i) {
             alitheiaBundles[i].start();
         }
+        serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
+        alitheiaCore = (AlitheiaCore) bc.getService(serviceRef);
     }
 
-    private void stopAlitheia() throws BundleException {
+    private void stopAlitheia(BundleContext bc) throws BundleException {
+        alitheiaCore = null;
+        if (serviceRef != null) {
+            bc.ungetService(serviceRef);
+            serviceRef = null;
+        }
+        
         for (int i=alitheiaBundles.length-1; i>=0; --i) {
             alitheiaBundles[i].stop();
         }
