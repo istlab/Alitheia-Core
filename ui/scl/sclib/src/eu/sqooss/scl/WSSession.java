@@ -85,16 +85,6 @@ public class WSSession {
         return sessionUser;
     }
     
-    public void addWebServiceListener(String webServiceMethodUrl, WSEventListener listener) {
-        //TODO:
-        throw new UnsupportedOperationException("Coming soon");
-    }
-    
-    public void removeWebServiceListener(String webServiceMethodUrl, WSEventListener listener) {
-        //TODO:
-        throw new UnsupportedOperationException("Coming soon");
-    }
-    
     private void initSessionUser(String userName) throws WSException {
         try {
             sessionUser = userAccessor.getUserByName(userName);
