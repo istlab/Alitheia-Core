@@ -54,6 +54,7 @@ public class NotifyAdminMessageSender implements MessageListener {
     private Template successTemplate;
     private VelocityContext unsuccessContext;
     private Template unsuccessTemplate;
+    private Object lockObject = new Object();
     
     public NotifyAdminMessageSender(MessagingService messagingService,
             VelocityEngine velocityEngine) {
@@ -70,9 +71,12 @@ public class NotifyAdminMessageSender implements MessageListener {
             return false;
         }
         if (adminEmail != null) {
-            Message message = Message.getInstance(messageBody, adminEmail, title, null);
-            messagesAndUserEmails.add(new Pair(message, fromEmailAddress));
-            messagingService.sendMessage(message);
+            synchronized (lockObject) {
+                Message message = Message.getInstance(messageBody, adminEmail, title, null);
+                messagesAndUserEmails.add(new Pair(message, fromEmailAddress));
+                messagingService.addMessageListener(this);
+                messagingService.sendMessage(message);
+            }
             return true;
         } else {
             Vector<String> recipient = new Vector<String>();
@@ -134,17 +138,22 @@ public class NotifyAdminMessageSender implements MessageListener {
     }
     
     private String removeLocalMessage(Message message) {
-        Pair currentPair;
-        Message currectMessage;
-        for (int i = 0; i < messagesAndUserEmails.size(); i++) {
-            currentPair = messagesAndUserEmails.get(i);
-            currectMessage = (Message) currentPair.getFirstElement();
-            if (currectMessage.equals(message)) {
-                messagesAndUserEmails.remove(i);
-                return (String) currentPair.getSecondElement();
+        synchronized (lockObject) {
+            Pair currentPair;
+            Message currectMessage;
+            for (int i = 0; i < messagesAndUserEmails.size(); i++) {
+                currentPair = messagesAndUserEmails.get(i);
+                currectMessage = (Message) currentPair.getFirstElement();
+                if (currectMessage.equals(message)) {
+                    messagesAndUserEmails.remove(i);
+                    if (messagesAndUserEmails.isEmpty()) {
+                        messagingService.removeMessageListener(this);
+                    }
+                    return (String) currentPair.getSecondElement();
+                }
             }
+            return null;
         }
-        return null;
     }
     
     private void sendSuccessfulMessage(Vector<String> recipients,
@@ -192,7 +201,6 @@ public class NotifyAdminMessageSender implements MessageListener {
         if (adminEmailProp != null) {
             adminEmail = new Vector<String>();
             adminEmail.add(adminEmailProp);
-            messagingService.addMessageListener(this);
         }
         messagesAndUserEmails = new Vector<Pair>();
     }
