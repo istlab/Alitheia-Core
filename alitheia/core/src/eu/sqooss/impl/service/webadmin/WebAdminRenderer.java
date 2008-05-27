@@ -405,7 +405,7 @@ public class WebAdminRenderer {
             s.append(p.getId());
             s.append("]) <br/>\nUpdate:");
             for (String updTarget: UpdaterService.UpdateTarget.toStringArray()) {
-                s.append("<a href=\"http://localhost:8088/updater?project=");
+                s.append("<a href=\"updater?project=");
                 s.append(p.getName());
                 s.append("&target=");
                 s.append(updTarget);
