@@ -371,13 +371,10 @@ public class UserManagerImpl implements UserManager {
                                    "org.apache.velocity.runtime.log.SimpleLog4JLogSystem");
         velocityEngine.setProperty("runtime.log.logsystem.log4j.category", 
                                    Logger.NAME_SQOOSS_SECURITY);
-        velocityEngine.setProperty(RuntimeConstants.RESOURCE_LOADER,"bundle");
-        velocityEngine.setProperty("bundle.resource.loader.description",
-                                   "Loader from the bundle.");
-        velocityEngine.setProperty("bundle.resource.loader.class",
-                                   "org.apache.velocity.runtime.resource.loader.JarResourceLoader");
-        velocityEngine.setProperty("bundle.resource.loader.path",
-                                   "jar:file:eu.sqooss.alitheia.core-0.0.1.jar");
+        String resourceLoader = "classpath";
+        velocityEngine.setProperty(RuntimeConstants.RESOURCE_LOADER, resourceLoader);
+        velocityEngine.setProperty(resourceLoader + "." + RuntimeConstants.RESOURCE_LOADER + ".class",
+        "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader");
         try {
             velocityTemplate = velocityEngine.getTemplate(
                     "/security/UserConfirmation.vtl");

@@ -57,6 +57,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.velocity.app.VelocityEngine;
+import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 
@@ -143,13 +144,10 @@ public class AdminServlet extends HttpServlet {
                            "org.apache.velocity.runtime.log.SimpleLog4JLogSystem");
             ve.setProperty("runtime.log.logsystem.log4j.category", 
                            Logger.NAME_SQOOSS_WEBADMIN);
-            ve.setProperty("resource.loader","bundle");
-            ve.setProperty("bundle.resource.loader.description",
-                           "Loader from the bundle.");
-            ve.setProperty("bundle.resource.loader.class",
-                           "org.apache.velocity.runtime.resource.loader.JarResourceLoader");
-            ve.setProperty("bundle.resource.loader.path",
-                           "jar:file:eu.sqooss.alitheia.core-0.0.1.jar");
+            String resourceLoader = "classpath";
+            ve.setProperty(RuntimeConstants.RESOURCE_LOADER, resourceLoader);
+            ve.setProperty(resourceLoader + "." + RuntimeConstants.RESOURCE_LOADER + ".class",
+            "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader");
         }
         catch (Exception e) {
             System.out.println(e);

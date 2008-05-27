@@ -13,3 +13,4 @@ Import-Package: org.apache.log4j,
 Export-Package: org.apache.velocity;version="1.5",
   org.apache.velocity.app;version="1.5",
   org.apache.velocity.context;version="1.5"
+Fragment-Host: eu.sqooss.service.core
