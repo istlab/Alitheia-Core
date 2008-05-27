@@ -37,6 +37,18 @@ package eu.sqooss.service.webadmin;
 public interface WebadminService {
     public String getMessageOfTheDay();
     public void setMessageOfTheDay(String s);
+    
+    /**
+     * The method notifies the administrator of the framework.
+     * The user receives the status of the message as e-mail.
+     * 
+     * @param title - the title of the message
+     * @param messageBody - the message body
+     * 
+     * @return <code>true</code> if the message is queued
+     */
+    public boolean notifyAdmin(String title,
+            String messageBody, String fromEmailAddress);
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

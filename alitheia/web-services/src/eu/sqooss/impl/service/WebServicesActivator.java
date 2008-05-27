@@ -48,7 +48,6 @@ import eu.sqooss.impl.service.web.services.Constants;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
-import eu.sqooss.service.messaging.MessagingService;
 import eu.sqooss.service.pa.PluginAdmin;
 import eu.sqooss.service.security.SecurityManager;
 import eu.sqooss.service.web.services.WebServices;
@@ -78,13 +77,12 @@ public class WebServicesActivator implements BundleActivator {
         SecurityManager securityManager = core.getSecurityManager();
         DBService db = core.getDBService();
         PluginAdmin pluginAdmin = core.getPluginAdmin();
-        MessagingService messagingService = core.getMessagingService();
         logManager  = core.getLogManager();
         logger = logManager.createLogger(Logger.NAME_SQOOSS_WEB_SERVICES);
         
         //registers the web service
         Object serviceObject = new WebServices(bc, securityManager, db,
-                pluginAdmin, logger, core.getWebadminService(), messagingService);
+                pluginAdmin, logger, core.getWebadminService());
         Properties props = initProperties(bc);
         String serviceClass = props.getProperty(Constants.PROPERTY_KEY_WEB_SERVICES_INTERFACE); 
         webServicesReg = bc.registerService(serviceClass, serviceObject, props);

@@ -30,7 +30,7 @@
  *
  */
 
-package eu.sqooss.impl.service.web.services.utils;
+package eu.sqooss.impl.service.webadmin;
 
 import java.io.StringWriter;
 import java.util.Vector;
@@ -38,17 +38,14 @@ import java.util.Vector;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
-import org.apache.velocity.runtime.RuntimeConstants;
 
-import eu.sqooss.service.db.User;
-import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.messaging.Message;
 import eu.sqooss.service.messaging.MessageListener;
 import eu.sqooss.service.messaging.MessagingService;
 
-public class UserManagerMessageSender implements MessageListener {
+public class NotifyAdminMessageSender implements MessageListener {
     
-    private static final String PROPERTY_ADMIN_EMAIL = "eu.sqooss.web.services.admin.email";
+    private static final String PROPERTY_ADMIN_EMAIL = "eu.sqooss.webadmin.admin.email";
     
     private Vector<String> adminEmail;
     private Vector<Pair> messagesAndUserEmails;
@@ -58,21 +55,28 @@ public class UserManagerMessageSender implements MessageListener {
     private VelocityContext unsuccessContext;
     private Template unsuccessTemplate;
     
-    public UserManagerMessageSender(MessagingService messagingService) {
+    public NotifyAdminMessageSender(MessagingService messagingService,
+            VelocityEngine velocityEngine) {
         this.messagingService = messagingService;
         init();
-        initVelocityTemplates();
+        initVelocityTemplates(velocityEngine);
     }
     
-    public boolean sendMessage(String messageBody, String title, User fromUser) {
+    public boolean sendMessage(String messageBody, String title,
+            String fromEmailAddress) {
+        if ((messageBody == null) || (title == null) || (fromEmailAddress == null) ||
+                (messageBody.trim().length() == 0) || (title.trim().length() == 0) ||
+                (fromEmailAddress.trim().length() == 0)) {
+            return false;
+        }
         if (adminEmail != null) {
             Message message = Message.getInstance(messageBody, adminEmail, title, null);
-            messagesAndUserEmails.add(new Pair(message, fromUser.getEmail()));
+            messagesAndUserEmails.add(new Pair(message, fromEmailAddress));
             messagingService.sendMessage(message);
             return true;
         } else {
             Vector<String> recipient = new Vector<String>();
-            recipient.add(fromUser.getEmail());
+            recipient.add(fromEmailAddress);
             sendUnsuccessfulMessage(recipient, messageBody, title);
             return false;
         }
@@ -113,29 +117,19 @@ public class UserManagerMessageSender implements MessageListener {
     }
     /* ===[MessageListener methods]=== */
     
-    private void initVelocityTemplates() {
-        successContext = new VelocityContext();
-        unsuccessContext = new VelocityContext();
-        VelocityEngine velocityEngine = new VelocityEngine();
-        velocityEngine.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS,
-                                   "org.apache.velocity.runtime.log.SimpleLog4JLogSystem");
-        velocityEngine.setProperty("runtime.log.logsystem.log4j.category", 
-                                   Logger.NAME_SQOOSS_WEB_SERVICES);
-        velocityEngine.setProperty(RuntimeConstants.RESOURCE_LOADER,"bundle");
-        velocityEngine.setProperty("bundle.resource.loader.description",
-                                   "Loader from the bundle.");
-        velocityEngine.setProperty("bundle.resource.loader.class",
-                                   "org.apache.velocity.runtime.resource.loader.JarResourceLoader");
-        velocityEngine.setProperty("bundle.resource.loader.path",
-                                   "jar:file:eu.sqooss.alitheia.web-services-0.0.1.jar");
-        try {
-            successTemplate = velocityEngine.getTemplate(
-                    "/OSGI-INF/configuration/NotifyAdminSuccess.vtl");
-            unsuccessTemplate = velocityEngine.getTemplate(
-                    "/OSGI-INF/configuration/NotifyAdminUnsuccess.vtl");
-        } catch (Exception e) {
-            successTemplate = null;
-            unsuccessTemplate = null;
+    private void initVelocityTemplates(VelocityEngine velocityEngine) {
+        if (velocityEngine != null) {
+            successContext = new VelocityContext();
+            unsuccessContext = new VelocityContext();
+            try {
+                successTemplate = velocityEngine.getTemplate(
+                "/NotifyAdminSuccess.vtl");
+                unsuccessTemplate = velocityEngine.getTemplate(
+                "/NotifyAdminUnsuccess.vtl");
+            } catch (Exception e) {
+                successTemplate = null;
+                unsuccessTemplate = null;
+            }
         }
     }
     
@@ -201,6 +195,46 @@ public class UserManagerMessageSender implements MessageListener {
             messagingService.addMessageListener(this);
         }
         messagesAndUserEmails = new Vector<Pair>();
+    }
+    
+    private class Pair {
+        
+        private Object firstElement;
+        private Object secondElement;
+        
+        public Pair(Object firstElement, Object secondElement) {
+            this.firstElement = firstElement;
+            this.secondElement = secondElement;
+        }
+        
+        /**
+         * @return the firstElement
+         */
+        public Object getFirstElement() {
+            return firstElement;
+        }
+        
+        /**
+         * @param firstElement the firstElement to set
+         */
+        public void setFirstElement(Object firstElement) {
+            this.firstElement = firstElement;
+        }
+        
+        /**
+         * @return the secondElement
+         */
+        public Object getSecondElement() {
+            return secondElement;
+        }
+        
+        /**
+         * @param secondElement the secondElement to set
+         */
+        public void setSecondElement(Object secondElement) {
+            this.secondElement = secondElement;
+        }
+        
     }
     
 }

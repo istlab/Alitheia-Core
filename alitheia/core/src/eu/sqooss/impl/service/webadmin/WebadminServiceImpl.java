@@ -38,18 +38,25 @@ import java.util.Hashtable;
 
 import javax.servlet.Servlet;
 
+import org.apache.velocity.app.VelocityEngine;
+import org.apache.velocity.runtime.RuntimeConstants;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.http.HttpService;
 
+import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.messaging.MessagingService;
 import eu.sqooss.service.webadmin.WebadminService;
 
 public class WebadminServiceImpl implements WebadminService {
     private ServiceReference srefHTTPService    = null;
     private HttpService sobjHTTPService         = null;
     private AdminServlet servlet                = null;
+    private VelocityEngine ve;
+    private NotifyAdminMessageSender messageSender;
 
-    public WebadminServiceImpl(BundleContext bc) {
+    public WebadminServiceImpl(BundleContext bc,
+            MessagingService messagingService) {
         // Get a reference to the HTTPService, and then its object
         srefHTTPService = bc.getServiceReference(
             HttpService.class.getName());
@@ -61,9 +68,11 @@ public class WebadminServiceImpl implements WebadminService {
                 "[ERROR] Could not find a HTTP service!");
         }
 
+        initVelocity();
+        messageSender = new NotifyAdminMessageSender(messagingService, ve);
         // Register the front-end servlets
         if (sobjHTTPService != null) {
-            servlet = new AdminServlet(bc, this);
+            servlet = new AdminServlet(bc, this, ve);
             try {
                 sobjHTTPService.registerServlet(
                     "/",
@@ -101,6 +110,35 @@ public class WebadminServiceImpl implements WebadminService {
 
     public void setMessageOfTheDay(String s) {
         messageOfTheDay = s;
+    }
+    
+    /**
+     * @see eu.sqooss.service.webadmin.WebadminService#notifyAdmin(String, String, String)
+     */
+    public boolean notifyAdmin(String title,
+            String messageBody, String fromEmailAddress) {
+        return messageSender.sendMessage(messageBody, title, fromEmailAddress);
+    }
+
+    /*
+     * The utility method used for the initialization of the velocity engine. 
+     */
+    private void initVelocity() {
+        try {
+            ve = new VelocityEngine();
+            ve.setProperty("runtime.log.logsystem.class",
+                           "org.apache.velocity.runtime.log.SimpleLog4JLogSystem");
+            ve.setProperty("runtime.log.logsystem.log4j.category", 
+                           Logger.NAME_SQOOSS_WEBADMIN);
+            String resourceLoader = "classpath";
+            ve.setProperty(RuntimeConstants.RESOURCE_LOADER, resourceLoader);
+            ve.setProperty(resourceLoader + "." + RuntimeConstants.RESOURCE_LOADER + ".class",
+            "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader");
+        }
+        catch (Exception e) {
+            //TODO: log
+            System.out.println(e);
+        }
     }
 }
 

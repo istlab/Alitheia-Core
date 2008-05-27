@@ -128,7 +128,7 @@ public class AlitheiaCore {
      * Initializes an instance of the WebAdmin component.
      */
     private void initWebAdmin() {
-        webadmin = new WebadminServiceImpl(bc);
+        webadmin = new WebadminServiceImpl(bc, getMessagingService());
     }
 
     /**

@@ -98,9 +98,11 @@ public class AdminServlet extends HttpServlet {
     // Flag for refreshing the rules content
     private boolean refreshRules = true;
 
-    public AdminServlet(BundleContext bc, WebadminService webadmin) {
+    public AdminServlet(BundleContext bc,
+            WebadminService webadmin, VelocityEngine ve) {
         this.webadmin = webadmin;
         this.bc = bc;
+        this.ve = ve;
 
         // Create the static content map
         staticContentMap = new Hashtable<String, Pair<String, String>>();
@@ -137,21 +139,6 @@ public class AdminServlet extends HttpServlet {
 
         createSubstitutions(true);
 
-
-        try {
-            ve = new VelocityEngine();
-            ve.setProperty("runtime.log.logsystem.class",
-                           "org.apache.velocity.runtime.log.SimpleLog4JLogSystem");
-            ve.setProperty("runtime.log.logsystem.log4j.category", 
-                           Logger.NAME_SQOOSS_WEBADMIN);
-            String resourceLoader = "classpath";
-            ve.setProperty(RuntimeConstants.RESOURCE_LOADER, resourceLoader);
-            ve.setProperty(resourceLoader + "." + RuntimeConstants.RESOURCE_LOADER + ".class",
-            "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader");
-        }
-        catch (Exception e) {
-            System.out.println(e);
-        }
     }
 
     /**

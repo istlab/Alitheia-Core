@@ -14,10 +14,6 @@ Import-Package: org.osgi.framework,
   eu.sqooss.service.webadmin,
   eu.sqooss.service.abstractmetric,
   eu.sqooss.service.pa,
-  eu.sqooss.service.messaging,
   eu.sqooss.core,
-  org.apache.velocity;version="1.5",
-  org.apache.velocity.app;version="1.5",
-  org.apache.velocity.context;version="1.5",
   org.hibernate
 Export-Package: eu.sqooss.service.web.services

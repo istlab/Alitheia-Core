@@ -52,7 +52,6 @@ import eu.sqooss.impl.service.web.services.datatypes.WSUser;
 import eu.sqooss.impl.service.web.services.datatypes.WSUserGroup;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.logging.Logger;
-import eu.sqooss.service.messaging.MessagingService;
 import eu.sqooss.service.pa.PluginAdmin;
 import eu.sqooss.service.security.SecurityManager;
 import eu.sqooss.service.webadmin.WebadminService;
@@ -102,11 +101,10 @@ public class WebServices {
             DBService db,
             PluginAdmin pluginAdmin,
             Logger logger,
-            WebadminService wa,
-            MessagingService messaging) {
+            WebadminService wa) {
         metricManager = new MetricManager(logger, db, pluginAdmin, securityManager);
         projectManager = new ProjectManager(logger, db, securityManager);
-        userManager = new UserManager(logger, securityManager, db, messaging, wa);
+        userManager = new UserManager(logger, securityManager, db, wa);
     }
 
     // ===[ ProjectManager methods]===========================================

@@ -39,12 +39,10 @@ import java.util.HashSet;
 import eu.sqooss.impl.service.web.services.datatypes.WSUser;
 import eu.sqooss.impl.service.web.services.datatypes.WSUserGroup;
 import eu.sqooss.impl.service.web.services.utils.SecurityWrapper;
-import eu.sqooss.impl.service.web.services.utils.UserManagerMessageSender;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Group;
 import eu.sqooss.service.db.User;
 import eu.sqooss.service.logging.Logger;
-import eu.sqooss.service.messaging.MessagingService;
 import eu.sqooss.service.security.SecurityManager;
 import eu.sqooss.service.webadmin.WebadminService;
 
@@ -52,19 +50,17 @@ public class UserManager extends AbstractManager {
     
     private Logger logger;
     private SecurityWrapper security;
-    private UserManagerMessageSender messageSender;
     private WebadminService webadmin;
     private eu.sqooss.service.security.UserManager userManager;
     private eu.sqooss.service.security.GroupManager groupManager;
     
     public UserManager(Logger logger, SecurityManager securityManager,
-            DBService db, MessagingService messagingService, WebadminService webadmin) {
+            DBService db, WebadminService webadmin) {
         super(db);
         this.logger = logger;
         this.security = new SecurityWrapper(securityManager);
         this.userManager = securityManager.getUserManager();
         this.groupManager = securityManager.getGroupManager();
-        this.messageSender = new UserManagerMessageSender(messagingService);
         this.webadmin = webadmin;
     }
     
@@ -256,7 +252,7 @@ public class UserManager extends AbstractManager {
         User user = userManager.getUser(userName);
         boolean result;
         if (user != null) {
-            result = messageSender.sendMessage(messageBody, title, user);
+            result = webadmin.notifyAdmin(title, messageBody, user.getEmail());
         } else {
             result = false;
         }
