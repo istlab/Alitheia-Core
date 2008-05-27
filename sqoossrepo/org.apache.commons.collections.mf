@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Vendor: Apache Software Foundation
 Bundle-Name: Apache Commons Collections
-Bundle-Version: 2.1.1
+Bundle-Version: 3.2
 Bundle-SymbolicName: org.apache.commons.collections
-Bundle-ClassPath: org.apache.commons.collections-2.1.1.jar
-Export-Package: org.apache.commons.collections;version="2.1.1"
+Bundle-ClassPath: org.apache.commons.collections-3.2.jar
+Export-Package: org.apache.commons.collections;version="3.2"
