@@ -60,10 +60,8 @@ public class MetricManagerDatabase implements MetricManagerDBQueries {
         Map<String, Object> queryParameters = new Hashtable<String, Object>(1);
         queryParameters.put(GET_PROJECT_EVALUATED_METRICS_PARAM, projectId);
         
-        db.startDBSession();
         List<?> metrics = db.doHQL(GET_PROJECT_EVALUATED_METRICS, queryParameters);
         WSMetric[] result = WSMetric.asArray(metrics);
-        db.commitDBSession();
         return result;
     }
     
@@ -71,10 +69,8 @@ public class MetricManagerDatabase implements MetricManagerDBQueries {
     public WSMetricType[] getMetricTypesByIds(Collection<Long> metricTypesIds) {
         Map<String, Collection> queryParameters = new Hashtable<String, Collection>();
         queryParameters.put(GET_METRIC_TYPES_BY_IDS_PARAM, metricTypesIds);
-        db.startDBSession();
         List<?> metricTypes = db.doHQL(GET_METRIC_TYPES_BY_IDS, null, queryParameters);
         WSMetricType[] result = WSMetricType.asArray(metricTypes);
-        db.commitDBSession();
         return result;
     }
     
@@ -84,7 +80,6 @@ public class MetricManagerDatabase implements MetricManagerDBQueries {
             boolean isStoredProject, boolean isFileGroup) {
         Map<String, Collection> queryParameters = new Hashtable<String, Collection>(1);
         List<?> metrics;
-        db.startDBSession();
         if (isProjectFile) {
             queryParameters.put(GET_METRICS_BY_RESOURCES_IDS_PARAM, ids);
             metrics = db.doHQL(GET_METRICS_BY_RESOURCES_IDS_PROJECT_FILES, null, queryParameters);
@@ -100,7 +95,6 @@ public class MetricManagerDatabase implements MetricManagerDBQueries {
         } else {
             metrics = null;
         }
-        db.commitDBSession();
         return WSMetric.asArray(metrics);
     }
     

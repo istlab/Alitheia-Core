@@ -72,11 +72,17 @@ public class UserManager extends AbstractManager {
         logger.info("Create pending user! user: " + userNameForAccess +
                 "; new user's name: " + newUserName + "; new user's e-mail: " + email);
         
-        security.checkUserWriteAccess(userNameForAccess, passwordForAccess, -1, null);
+        db.startDBSession();
+        
+        try {
+            security.checkUserWriteAccess(userNameForAccess, passwordForAccess, -1, null);
+        } catch (SecurityException se) {
+            db.commitDBSession();
+            throw se;
+        }
         
         super.updateUserActivity(userNameForAccess);
         
-        db.startDBSession();
         boolean ok = userManager.createPendingUser(newUserName, newPassword, email);
         if (ok) {
             db.commitDBSession();
@@ -105,16 +111,14 @@ public class UserManager extends AbstractManager {
                     passwordForAccess, usersIds, null);
             } catch (SecurityException se) {
                 if (db.isDBSessionActive()) {
-                    db.rollbackDBSession();
+                    db.commitDBSession();
                 }
                 throw se;
             }
         }
-        db.commitDBSession();
         
         super.updateUserActivity(userNameForAccess);
         
-        db.startDBSession();
         Collection<WSUser> users = new HashSet<WSUser>();
         for (long userId : usersIds) {
             currentUser = userManager.getUser(userId);
@@ -138,13 +142,19 @@ public class UserManager extends AbstractManager {
     public WSUserGroup[] getUserGroups(String userName, String password) {
         logger.info("Get user groups! user: " + userName);
         
+        db.startDBSession();
+        
         //TODO:
-        security.checkDBReadAccess(userName, password);
+        try {
+            security.checkDBReadAccess(userName, password);
+        } catch (SecurityException se) {
+            db.commitDBSession();
+            throw se;
+        }
         
         super.updateUserActivity(userName);
         
         //FIXME: the security service doesn't work after the last DB changes
-        db.startDBSession();
         Group[] groups = groupManager.getGroups();
         
         WSUserGroup[] result = new WSUserGroup[groups.length];
@@ -167,12 +177,18 @@ public class UserManager extends AbstractManager {
         logger.info("Modify user! user: " + userNameForAccess +
                 "; modified user's name: " + userName + "; new e-mail: " + newEmail);
         
-        security.checkUserWriteAccess(userNameForAccess, passwordForAccess,
-                -1, userName);
+        db.startDBSession();
+        
+        try {
+            security.checkUserWriteAccess(userNameForAccess, passwordForAccess,
+                    -1, userName);
+        } catch (SecurityException se) {
+            db.commitDBSession();
+            throw se;
+        }
         
         super.updateUserActivity(userNameForAccess);
         
-        db.startDBSession();
         boolean ok = userManager.modifyUser(userName, newPassword, newEmail);
         if (ok) {
             db.commitDBSession();
@@ -189,11 +205,17 @@ public class UserManager extends AbstractManager {
         logger.info("Delete user by id! user: " + userNameForAccess +
                 "; deleted user's id: " + userId);
         
-        security.checkUserWriteAccess(userNameForAccess, passwordForAccess, userId, null);
+        db.startDBSession();
+        
+        try {
+            security.checkUserWriteAccess(userNameForAccess, passwordForAccess, userId, null);
+        } catch (SecurityException se) {
+            db.commitDBSession();
+            throw se;
+        }
         
         super.updateUserActivity(userNameForAccess);
         
-        db.startDBSession();
         boolean ok = userManager.deleteUser(userId);
         if (ok) {
             db.commitDBSession();
@@ -219,17 +241,14 @@ public class UserManager extends AbstractManager {
                         userNameForAccess, passwordForAccess, null, userName);
             } catch (SecurityException se) {
                 if (db.isDBSessionActive()) {
-                    db.rollbackDBSession();
+                    db.commitDBSession();
                 }
                 throw se;
             }
         }
-        db.commitDBSession();
         
         super.updateUserActivity(userNameForAccess);
 
-        db.startDBSession();
-        user = db.attachObjectToDBSession(user);
         if (user != null) {
             WSUser wsu = WSUser.getInstance(user);
             db.commitDBSession();
@@ -271,11 +290,12 @@ public class UserManager extends AbstractManager {
         logger.info("Notify admin! user: " + userName +
                 "; title: " + title);
         
+        db.startDBSession();
+        
         //TODO: check the security
         
         super.updateUserActivity(userName);
         
-        db.startDBSession();
         User user = userManager.getUser(userName);
         boolean result;
         if (user != null) {

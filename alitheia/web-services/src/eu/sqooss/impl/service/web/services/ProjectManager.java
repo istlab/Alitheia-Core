@@ -67,11 +67,21 @@ public class ProjectManager extends AbstractManager {
     public WSStoredProject[] getEvaluatedProjects(String userName, String password) {
         logger.info("Gets the evaluated project list! user: " + userName);
 
-        securityWrapper.checkDBReadAccess(userName, password);
+        db.startDBSession();
+        
+        try {
+            securityWrapper.checkDBReadAccess(userName, password);
+        } catch (SecurityException se) {
+            db.commitDBSession();
+            throw se;
+        }
         
         super.updateUserActivity(userName);
         
         WSStoredProject[] result = dbWrapper.getEvaluatedProjects();
+        
+        db.commitDBSession();
+        
         return (WSStoredProject[]) normalizeWSArrayResult(result);
     }
     
@@ -81,11 +91,21 @@ public class ProjectManager extends AbstractManager {
     public WSStoredProject[] getStoredProjects(String userName, String password) {
         logger.info("Gets the stored project list! user: " + userName);
 
-        securityWrapper.checkDBReadAccess(userName, password);
+        db.startDBSession();
+        
+        try {
+            securityWrapper.checkDBReadAccess(userName, password);
+        } catch (SecurityException se) {
+            db.commitDBSession();
+            throw se;
+        }
         
         super.updateUserActivity(userName);
     
         WSStoredProject[] result = dbWrapper.getStoredProjects(new Hashtable<String, Object>());
+        
+        db.commitDBSession();
+        
         return (WSStoredProject[]) normalizeWSArrayResult(result);
     }
     
@@ -97,6 +117,8 @@ public class ProjectManager extends AbstractManager {
         logger.info("Retrieve project! user: " + userName +
                 "; project name: " + projectName);
 
+        db.startDBSession();
+        
         //TODO: check the security
         
         super.updateUserActivity(userName);
@@ -104,6 +126,7 @@ public class ProjectManager extends AbstractManager {
         Map<String, Object> properties = new Hashtable<String, Object>(1);
         properties.put("name", projectName);
         WSStoredProject[] projects = dbWrapper.getStoredProjects(properties);
+        db.commitDBSession();
         if ((projects != null) && (projects.length != 0)) {
             return projects[0];
         } else {
@@ -119,12 +142,22 @@ public class ProjectManager extends AbstractManager {
         logger.info("Retrieve stored project versions! user: " + userName +
                 "; project's id: " + projectId);
 
-        securityWrapper.checkProjectsReadAccess(
-                userName, password, new long[] {projectId});
+        db.startDBSession();
+        
+        try {
+            securityWrapper.checkProjectsReadAccess(
+                    userName, password, new long[] {projectId});
+        } catch (SecurityException se) {
+            db.commitDBSession();
+            throw se;
+        }
 
         super.updateUserActivity(userName);
         
         WSProjectVersion[] result = dbWrapper.getProjectVersionsByProjectId(projectId);
+        
+        db.commitDBSession();
+        
         return (WSProjectVersion[]) normalizeWSArrayResult(result);
     }
     
@@ -137,13 +170,23 @@ public class ProjectManager extends AbstractManager {
         logger.info("Retrieve project versions! user: " + userName +
                 "; project versions' ids: " + Arrays.toString(projectVersionsIds));
 
-        securityWrapper.checkProjectVersionsReadAccess(
-                userName, password, projectVersionsIds);
+        db.startDBSession();
+        
+        try {
+            securityWrapper.checkProjectVersionsReadAccess(
+                    userName, password, projectVersionsIds);
+        } catch (SecurityException se) {
+            db.commitDBSession();
+            throw se;
+        }
 
         super.updateUserActivity(userName);
-
+        
         WSProjectVersion[] result = dbWrapper.getProjectVersionsByIds(
                 asCollection(projectVersionsIds));
+        
+        db.commitDBSession();
+        
         return (WSProjectVersion[]) normalizeWSArrayResult(result);
     }
     
@@ -155,11 +198,21 @@ public class ProjectManager extends AbstractManager {
         logger.info("Retrieve stored projects! user: " + userName +
                 "; projects' ids: " + Arrays.toString(projectsIds) );
 
-        securityWrapper.checkProjectsReadAccess(userName, password, projectsIds);
+        db.startDBSession();
+        
+        try {
+            securityWrapper.checkProjectsReadAccess(userName, password, projectsIds);
+        } catch (SecurityException se) {
+            db.commitDBSession();
+            throw se;
+        }
 
         super.updateUserActivity(userName);
         
         WSStoredProject[] result = dbWrapper.getProjectsByIds(asCollection(projectsIds));
+        
+        db.commitDBSession();
+        
         return (WSStoredProject[]) normalizeWSArrayResult(result);
     }
     
@@ -169,12 +222,22 @@ public class ProjectManager extends AbstractManager {
     public WSProjectFile[] getFilesByProjectId(String userName, String password, long projectId) {
         logger.info("Retrieve file list! user: " + userName + "; project id: " + projectId);
 
-        securityWrapper.checkProjectsReadAccess(
-                userName, password, new long[] {projectId});
+        db.startDBSession();
+        
+        try {
+            securityWrapper.checkProjectsReadAccess(
+                    userName, password, new long[] {projectId});
+        } catch (SecurityException se) {
+            db.commitDBSession();
+            throw se;
+        }
 
         super.updateUserActivity(userName);
         
         WSProjectFile[] result = dbWrapper.getFilesByProjectId(projectId);
+        
+        db.commitDBSession();
+        
         return (WSProjectFile[]) normalizeWSArrayResult(result);
     }
     
@@ -185,12 +248,22 @@ public class ProjectManager extends AbstractManager {
         logger.info("Get file list for project version! user: " + userName +
                 "; project version id: " + projectVersionId);
         
-        securityWrapper.checkProjectVersionsReadAccess(
-                userName, password, new long[] {projectVersionId});
+        db.startDBSession();
+        
+        try {
+            securityWrapper.checkProjectVersionsReadAccess(
+                    userName, password, new long[] {projectVersionId});
+        } catch (SecurityException se) {
+            db.commitDBSession();
+            throw se;
+        }
         
         super.updateUserActivity(userName);
         
         WSProjectFile[] result = dbWrapper.getFilesByProjectVersionId(projectVersionId);
+        
+        db.commitDBSession();
+        
         return (WSProjectFile[]) normalizeWSArrayResult(result);
     }
     
@@ -202,12 +275,22 @@ public class ProjectManager extends AbstractManager {
         logger.info("Get a file group list for the project! user: " + userName +
                 "; project id: " + projectId);
         
-        securityWrapper.checkProjectsReadAccess(
-                userName, password, new long[] {projectId});
+        db.startDBSession();
+        
+        try {
+            securityWrapper.checkProjectsReadAccess(
+                    userName, password, new long[] {projectId});
+        } catch (SecurityException se) {
+            db.commitDBSession();
+            throw se;
+        }
         
         super.updateUserActivity(userName);
         
         WSFileGroup[] result = dbWrapper.getFileGroupsByProjectId(projectId);
+        
+        db.commitDBSession();
+        
         return (WSFileGroup[]) normalizeWSArrayResult(result);
     }
     
@@ -218,12 +301,23 @@ public class ProjectManager extends AbstractManager {
         logger.info("Get files's number for project version! user: " + userName +
                 "; project version id: " + projectVersionId);
         
-        securityWrapper.checkProjectVersionsReadAccess(
-                userName, password, new long[] {projectVersionId});
+        db.startDBSession();
+        
+        try {
+            securityWrapper.checkProjectVersionsReadAccess(
+                    userName, password, new long[] {projectVersionId});
+        } catch (SecurityException se) {
+            db.commitDBSession();
+            throw se;
+        }
         
         super.updateUserActivity(userName);
         
-        return dbWrapper.getFilesNumberByProjectVersionId(projectVersionId);
+        long result = dbWrapper.getFilesNumberByProjectVersionId(projectVersionId);
+        
+        db.commitDBSession();
+        
+        return result;
     }
     
     /**
@@ -233,12 +327,23 @@ public class ProjectManager extends AbstractManager {
         logger.info("Get file's number for project! user: " + userName +
                 "; project id: " + projectId);
         
-        securityWrapper.checkProjectsReadAccess(
-                userName, password, new long[] {projectId});
+        db.startDBSession();
+        
+        try {
+            securityWrapper.checkProjectsReadAccess(
+                    userName, password, new long[] {projectId});
+        } catch (SecurityException se) {
+            db.commitDBSession();
+            throw se;
+        }
         
         super.updateUserActivity(userName);
         
-        return dbWrapper.getFilesNumberByProjectId(projectId);
+        long result = dbWrapper.getFilesNumberByProjectId(projectId);
+        
+        db.commitDBSession();
+        
+        return result;
     }
     
     /**
@@ -249,12 +354,22 @@ public class ProjectManager extends AbstractManager {
         logger.info("Get directories by ids! user: " + userName +
                 "; directories' ids: " + Arrays.toString(directoriesIds));
         
-        securityWrapper.checkDBReadAccess(userName, password);
+        db.startDBSession();
+        
+        try {
+            securityWrapper.checkDBReadAccess(userName, password);
+        } catch (SecurityException se) {
+            db.commitDBSession();
+            throw se;
+        }
         
         super.updateUserActivity(userName);
         
         WSDirectory[] result = dbWrapper.getDirectoriesByIds(
                 asCollection(directoriesIds));
+        
+        db.commitDBSession();
+        
         return (WSDirectory[]) normalizeWSArrayResult(result);
     }
     
@@ -266,12 +381,22 @@ public class ProjectManager extends AbstractManager {
         logger.info("Get developers by ids! useR: " + userName +
                 "; developers' ids: " + Arrays.toString(developersIds));
         
-        securityWrapper.checkDBReadAccess(userName, password);
+        db.startDBSession();
+        
+        try {
+            securityWrapper.checkDBReadAccess(userName, password);
+        } catch (SecurityException se) {
+            db.commitDBSession();
+            throw se;
+        }
         
         super.updateUserActivity(userName);
         
         WSDeveloper[] result = dbWrapper.getDevelopersByIds(
                 asCollection(developersIds));
+        
+        db.commitDBSession();
+        
         return (WSDeveloper[]) normalizeWSArrayResult(result);
     }
     

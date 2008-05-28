@@ -87,11 +87,21 @@ public class MetricManager extends AbstractManager {
         logger.info("Retrieve metrics for selected project! user: " + userName +
                 "; project id:" + projectId);
         
-        securityWrapper.checkProjectsReadAccess(userName, password, new long[] {projectId});
+        db.startDBSession();
+        
+        try {
+            securityWrapper.checkProjectsReadAccess(userName, password, new long[] {projectId});
+        } catch (SecurityException se) {
+            db.commitDBSession();
+            throw se;
+        }
         
         super.updateUserActivity(userName);
         
         WSMetric[] result = dbWrapper.getProjectEvaluatedMetrics(projectId);
+        
+        db.commitDBSession();
+        
         return (WSMetric[]) normalizeWSArrayResult(result);
     }
     
@@ -104,7 +114,14 @@ public class MetricManager extends AbstractManager {
         logger.info("Retrieve metric types with given ids! user: " + userName +
                 "; metric types ids: " + Arrays.toString(metricTypesIds));
         
-        securityWrapper.checkDBReadAccess(userName, password);
+        db.startDBSession();
+        
+        try {
+            securityWrapper.checkDBReadAccess(userName, password);
+        } catch (SecurityException se) {
+            db.commitDBSession();
+            throw se;
+        }
         
         super.updateUserActivity(userName);
         
@@ -114,6 +131,9 @@ public class MetricManager extends AbstractManager {
         
         WSMetricType[] result = dbWrapper.getMetricTypesByIds(
                 asCollection(metricTypesIds));
+        
+        db.commitDBSession();
+        
         return (WSMetricType[]) normalizeWSArrayResult(result);
     }
     
@@ -127,7 +147,14 @@ public class MetricManager extends AbstractManager {
         logger.info("Get metrics by resources ids! user: " + userName +
                 "; request: " + request.toString());
         
-        securityWrapper.checkMetricsReadAccess(userName, password, null);
+        db.startDBSession();
+        
+        try {
+            securityWrapper.checkMetricsReadAccess(userName, password, null);
+        } catch (SecurityException se) {
+            db.commitDBSession();
+            throw se;
+        }
         
         super.updateUserActivity(userName);
         
@@ -160,6 +187,9 @@ public class MetricManager extends AbstractManager {
             result = dbWrapper.getMetricsByResourcesIds(ids, isProjectFile,
                     isProjectVersion, isStoredProject, isFileGroup);
         }
+        
+        db.commitDBSession();
+        
         return (WSMetric[]) normalizeWSArrayResult(result);
     }
     
@@ -169,13 +199,19 @@ public class MetricManager extends AbstractManager {
         logger.info("Get metrics result! user: " + userName +
                 "; request: " + resultRequest.toString());
         
-        securityWrapper.checkMetricsReadAccess(userName, password, resultRequest.getMnemonics());
+        db.startDBSession();
+        
+        try {
+            securityWrapper.checkMetricsReadAccess(userName, password, resultRequest.getMnemonics());
+        } catch (SecurityException se) {
+            db.commitDBSession();
+            throw se;
+        }
         
         super.updateUserActivity(userName);
         
         WSResultEntry[] result = null;
         List<WSResultEntry> resultList = null;
-        db.startDBSession();
         DAObject daObject = dbWrapper.getMetricsResultDAObject(resultRequest);
         if (daObject != null) {
             List<Metric> metrics = (List<Metric>) dbWrapper.getMetricsResultMetricsList(resultRequest);

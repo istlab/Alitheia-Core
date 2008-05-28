@@ -61,14 +61,11 @@ public abstract class AbstractManager {
     protected boolean updateUserActivity(String userName) {
         Map<String,Object> properties = new Hashtable<String, Object>(1);
         properties.put(ATTRIBUTE_USER_NAME, userName);
-        db.startDBSession();
         List<User> users = db.findObjectsByProperties(User.class, properties);
         if ( !users.isEmpty() ) { //the user name is unique
             users.get(0).setLastActivity(new Date(System.currentTimeMillis()));
-            db.commitDBSession();
             return true;
         } else {
-            db.rollbackDBSession();
             return false; // the user doesn't exist
         }
     }

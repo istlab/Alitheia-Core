@@ -59,31 +59,25 @@ public class ProjectManagerDatabase implements ProjectManagerDBQueries {
     }
     
     public WSStoredProject[] getEvaluatedProjects() {
-        db.startDBSession();
         List<?> evaluatedProjects = db.doHQL(GET_EVALUATED_PROJECTS);
         WSStoredProject[] result = WSStoredProject.asArray(evaluatedProjects);
-        db.commitDBSession();
         return result;
     }
     
     public WSStoredProject[] getStoredProjects(Map<String, Object> properties) {
-        db.startDBSession();
         List<StoredProject> storedProjects = db.findObjectsByProperties(
                 StoredProject.class, properties);
         WSStoredProject[] result = WSStoredProject.asArray(storedProjects);
-        db.commitDBSession();
         return result;
     }
     
     public WSProjectVersion[] getProjectVersionsByProjectId(long projectId) {
-        db.startDBSession();
         StoredProject storedProject = db.findObjectById(StoredProject.class, projectId);
         WSProjectVersion[] result = null;
         if (storedProject != null) {
             List<ProjectVersion> projectVersions = storedProject.getProjectVersions();
             result = WSProjectVersion.asArray(projectVersions);
         }
-        db.commitDBSession();
         return result;
     }
     
@@ -91,10 +85,8 @@ public class ProjectManagerDatabase implements ProjectManagerDBQueries {
     public WSStoredProject[] getProjectsByIds(Collection<Long> ids) {
         Map<String, Collection> queryParameters = new Hashtable<String, Collection>(1);
         queryParameters.put(GET_PROJECTS_BY_IDS_PARAM, ids);
-        db.startDBSession();
         List<?> projects = db.doHQL(GET_PROJECTS_BY_IDS, null, queryParameters);
         WSStoredProject[] result = WSStoredProject.asArray(projects);
-        db.commitDBSession();
         return result;
     }
 
@@ -102,10 +94,8 @@ public class ProjectManagerDatabase implements ProjectManagerDBQueries {
     public WSProjectVersion[] getProjectVersionsByIds(Collection<Long> ids) {
         Map<String, Collection> queryParameters = new Hashtable<String, Collection>(1);
         queryParameters.put(GET_PROJECT_VERSIONS_BY_IDS_PARAM, ids);
-        db.startDBSession();
         List<?> projectVersions = db.doHQL(GET_PROJECT_VERSIONS_BY_IDS, null, queryParameters);
         WSProjectVersion[] result = WSProjectVersion.asArray(projectVersions);
-        db.commitDBSession();
         return result;
     }
     
@@ -113,10 +103,8 @@ public class ProjectManagerDatabase implements ProjectManagerDBQueries {
         Map<String, Object> queryParameters = new Hashtable<String, Object>(1);
         queryParameters.put(GET_FILES_BY_PROJECT_ID_PARAM, projectId);
 
-        db.startDBSession();
         List<?> projectFiles = db.doHQL(GET_FILES_BY_PROJECT_ID, queryParameters);
         WSProjectFile[] result = convertToWSProjectFiles(projectFiles);
-        db.commitDBSession();
         return result;
     }
     
@@ -126,15 +114,10 @@ public class ProjectManagerDatabase implements ProjectManagerDBQueries {
         
         WSProjectFile[] result;
         try {
-            db.startDBSession();
             List<?> projectVersionFiles = db.doSQL(GET_FILES_BY_PROJECT_VERSION_ID, queryParameters);
             result = convertToWSProjectFiles(projectVersionFiles);
         } catch (SQLException e) {
             result = null;
-        } finally {
-            if (db.isDBSessionActive()) {
-                db.commitDBSession();
-            }
         }
         return result;
     }
@@ -143,10 +126,8 @@ public class ProjectManagerDatabase implements ProjectManagerDBQueries {
         Map<String, Object> queryParameters = new Hashtable<String, Object>(1);
         queryParameters.put(GET_FILE_GROUPS_BY_PROJECT_ID_PARAM, projectVersionId);
         
-        db.startDBSession();
         List<?> projectFileGroups = db.doHQL(GET_FILE_GROUPS_BY_PROJECT_ID, queryParameters);
         WSFileGroup[] result = WSFileGroup.asArray(projectFileGroups);
-        db.commitDBSession();
         return result;
     }
     
@@ -156,17 +137,12 @@ public class ProjectManagerDatabase implements ProjectManagerDBQueries {
         
         long result = 0;
         try {
-            db.startDBSession();
             List<?> projectVersionFilesNumber = db.doSQL(GET_FILES_NUMBER_BY_PROJECT_VERSION_ID, queryParameters);
             if (!projectVersionFilesNumber.isEmpty()) {
                 result = ((BigInteger)projectVersionFilesNumber.get(0)).longValue();
             }
         } catch (SQLException e) {
             //do nothing
-        } finally {
-            if (db.isDBSessionActive()) {
-                db.commitDBSession();
-            }
         }
         return result;
     }
@@ -176,12 +152,10 @@ public class ProjectManagerDatabase implements ProjectManagerDBQueries {
         queryParameters.put(GET_FILES_NUMBER_BY_PROJECT_ID_PARAM, projectId);
         
         long result = 0;
-        db.startDBSession();
         List<?> projectFilesNumber = db.doHQL(GET_FILES_NUMBER_BY_PROJECT_ID, queryParameters);
         if (!projectFilesNumber.isEmpty()) {
             result = ((Long) projectFilesNumber.get(0)).longValue();
         }
-        db.commitDBSession();
         return result;
     }
     
@@ -189,10 +163,8 @@ public class ProjectManagerDatabase implements ProjectManagerDBQueries {
     public WSDirectory[] getDirectoriesByIds(Collection<Long> ids) {
         Map<String, Collection> queryParameters = new Hashtable<String, Collection>();
         queryParameters.put(GET_DIRECTORIES_BY_IDS_PARAM, ids);
-        db.startDBSession();
         List<?> directories = db.doHQL(GET_DIRECTORIES_BY_IDS, null, queryParameters);
         WSDirectory[] result = WSDirectory.asArray(directories);
-        db.commitDBSession();
         return result;
     }
     
@@ -200,10 +172,8 @@ public class ProjectManagerDatabase implements ProjectManagerDBQueries {
     public WSDeveloper[] getDevelopersByIds(Collection<Long> ids) {
         Map<String, Collection> queryParameters = new Hashtable<String, Collection>();
         queryParameters.put(GET_DEVELOPERS_BY_IDS_PARAM, ids);
-        db.startDBSession();
         List<?> developers = db.doHQL(GET_DEVELOPERS_BY_IDS, null, queryParameters);
         WSDeveloper[] result = WSDeveloper.asArray(developers);
-        db.commitDBSession();
         return result;
     }
     
