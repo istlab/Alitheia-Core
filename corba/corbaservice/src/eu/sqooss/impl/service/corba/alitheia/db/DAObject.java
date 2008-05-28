@@ -81,14 +81,7 @@ public abstract class DAObject {
     {
         T result = null;
         if (id != 0) {
-            final boolean started = !db.isDBSessionActive();
-            if (started) {
-                db.startDBSession();
-            }
             result = db.findObjectById(daoClass, id);
-            if (started) {
-                db.commitDBSession();
-            }
         } else {
             try {
                 result = daoClass.newInstance();
@@ -348,14 +341,7 @@ public abstract class DAObject {
    public static eu.sqooss.impl.service.corba.alitheia.MetricType toCorbaObject(MetricType type) {
         eu.sqooss.impl.service.corba.alitheia.MetricType metricType = new eu.sqooss.impl.service.corba.alitheia.MetricType();
         metricType.id = (int)type.getId();
-        final boolean started = !db.isDBSessionActive();
-        if (started) {
-            db.startDBSession();
-        }
         metricType.type = toCorbaObject(type.getEnumType());
-        if (started) {
-            db.commitDBSession();
-        }
         return metricType;
     }
 

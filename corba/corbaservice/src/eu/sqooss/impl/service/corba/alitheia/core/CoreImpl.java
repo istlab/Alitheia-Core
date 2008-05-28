@@ -30,6 +30,7 @@ import eu.sqooss.impl.service.corba.alitheia.StoredProjectMetric;
 import eu.sqooss.impl.service.corba.alitheia.StoredProjectMetricHelper;
 import eu.sqooss.impl.service.corba.alitheia.db.DAObject;
 import eu.sqooss.impl.service.corba.alitheia.job.CorbaJobImpl;
+import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.fds.FDSService;
 
 /**
@@ -43,6 +44,7 @@ public class CoreImpl extends CorePOA {
     BundleContext bc = null;
     FDSService fds = null;
     AlitheiaCore core = null;
+    DBService db = null;
 
     Map< String, CorbaJobImpl > registeredJobs = null;
     Map< String, CorbaMetricImpl > registeredMetrics = null;
@@ -55,6 +57,7 @@ public class CoreImpl extends CorePOA {
         ServiceReference serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
         core = (AlitheiaCore)bc.getService(serviceRef);
         fds = core.getFDSService();
+        db = core.getDBService();
     }
 
     private static int nextId = 0;
@@ -121,11 +124,19 @@ public class CoreImpl extends CorePOA {
      */
     public Metric[] getSupportedMetrics(String metricname) {
         CorbaMetricImpl metric = registeredMetrics.get(metricname);
+        final boolean startedSession = !db.isDBSessionActive(); 
+        if (startedSession) {
+            db.startDBSession();
+        }
         List<eu.sqooss.service.db.Metric> metrics = metric.getSupportedMetrics();
         
         Metric[] result = new Metric[metrics.size()];
         for( int i = 0; i < metrics.size(); ++i ) {
             result[ i ] = DAObject.toCorbaObject(metrics.get(i));
+        }
+
+        if (startedSession) {
+            db.commitDBSession();
         }
 
         return result;

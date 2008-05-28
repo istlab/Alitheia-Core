@@ -15,6 +15,7 @@ import eu.sqooss.impl.service.corba.alitheia.FDSPOA;
 import eu.sqooss.impl.service.corba.alitheia.ProjectFile;
 import eu.sqooss.impl.service.corba.alitheia.ProjectVersion;
 import eu.sqooss.impl.service.corba.alitheia.db.DAObject;
+import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.fds.FDSService;
 import eu.sqooss.service.fds.InMemoryCheckout;
 import eu.sqooss.service.fds.InMemoryDirectory;
@@ -29,6 +30,7 @@ import eu.sqooss.service.tds.ProjectRevision;
 public class FDSImpl extends FDSPOA {
 
 	protected FDSService fds = null;
+	protected DBService db = null;
 	
 	protected Map<ProjectVersion, Checkout> checkouts = new HashMap< ProjectVersion, Checkout>(); 
 	
@@ -40,7 +42,7 @@ public class FDSImpl extends FDSPOA {
             return;
         }
         fds = core.getFDSService();
-	
+        db = core.getDBService();
 	}
 
     /**
@@ -49,6 +51,10 @@ public class FDSImpl extends FDSPOA {
      * @return The size of the file. 
      */
     public int getFileContents(ProjectFile file, StringHolder contents) {
+        final boolean started = !db.isDBSessionActive();
+        if (started) {
+            db.startDBSession();
+        }
         try {
             InputStream stream = fds.getFileContents(DAObject.fromCorbaObject(file));
             final int length = 1024;
@@ -63,6 +69,10 @@ public class FDSImpl extends FDSPOA {
             System.out.println(e.toString());
             e.printStackTrace();
             return 0;
+        } finally {
+            if (started) {
+                db.commitDBSession();
+            }
         }
         return contents.value.length();
     }
@@ -73,6 +83,10 @@ public class FDSImpl extends FDSPOA {
      * @return The size of the file. 
      */
     public int getFileContentParts(ProjectFile file, int begin, int length, StringHolder contents) {
+        final boolean started = !db.isDBSessionActive();
+        if (started) {
+            db.startDBSession();
+        }
         byte[] content = new byte[length];
         int bytesRead = 0;
         try {
@@ -82,6 +96,11 @@ public class FDSImpl extends FDSPOA {
         } catch ( Exception e ) {
             System.out.println(e.toString());
             e.printStackTrace();
+        } finally {
+            if (started) {
+                db.commitDBSession();
+            }
+
         }
         contents.value = new String(content, 0, bytesRead);
         return content.length;
@@ -125,6 +144,10 @@ public class FDSImpl extends FDSPOA {
 	 * @param version The ProjectVersion to create the checkout for.
 	 */
 	public Checkout getCheckout(ProjectVersion version) {
+        final boolean started = !db.isDBSessionActive();
+        if (started) {
+            db.startDBSession();
+        }
 		synchronized( checkouts ) {
 			if (!checkouts.containsKey(version)) {
 				try {
@@ -133,6 +156,9 @@ public class FDSImpl extends FDSPOA {
 					return null;
 				}
 			}
+	        if (started) {
+	            db.commitDBSession();
+	        }
 			return checkouts.get(version);
 		}
 	}

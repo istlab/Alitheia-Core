@@ -42,16 +42,16 @@ public class DbImpl extends DatabasePOA {
 	 * @return true if the record insertion succeeded, false otherwise
 	 */
     public boolean addRecord(AnyHolder dbObject) {
-        eu.sqooss.service.db.DAObject obj = DAObject.fromCorbaObject(dbObject.value);
         final boolean started = !db.isDBSessionActive();
         if (started) {
             db.startDBSession();
         }
+        eu.sqooss.service.db.DAObject obj = DAObject.fromCorbaObject(dbObject.value);
         boolean result = db.addRecord(obj);
+        dbObject.value = DAObject.toCorbaObject(obj);
         if (started) {
             db.commitDBSession();
         }
-        dbObject.value = DAObject.toCorbaObject(obj);
         return result;
     }
 
@@ -106,10 +106,11 @@ public class DbImpl extends DatabasePOA {
             db.startDBSession();
         }
         eu.sqooss.service.db.DAObject obj = db.findObjectById(classType, id);
+        Any result = DAObject.toCorbaObject(obj);
         if (started) {
             db.commitDBSession();
         }
-        return DAObject.toCorbaObject(obj);
+        return result;
     }
 
     protected static Map<String, Object> arrayToMap(map_entry[] array) {
@@ -130,12 +131,12 @@ public class DbImpl extends DatabasePOA {
             db.startDBSession();
         }
         List<eu.sqooss.service.db.DAObject> objects = db.findObjectsByProperties(classType, propMap);
-        if (started) {
-            db.commitDBSession();
-        }
         Any[] result = new Any[objects.size()];
         for (int i = 0; i < objects.size(); ++i) {
             result[i] = DAObject.toCorbaObject(objects.get(i));
+        }
+        if (started) {
+            db.commitDBSession();
         }
         return result;
     }
@@ -147,9 +148,6 @@ public class DbImpl extends DatabasePOA {
             db.startDBSession();
         }
         List<?> objects = db.doHQL(hql, propMap);
-        if (started) {
-            db.commitDBSession();
-        }
         Any[] result = new Any[objects.size()];
         for (int i = 0; i < objects.size(); ++i) {
             Object o = objects.get(i);
@@ -161,6 +159,9 @@ public class DbImpl extends DatabasePOA {
                 result[i].insert_boolean(((Boolean)o).booleanValue());
             else if (o instanceof String)
                 result[i].insert_string((String)o);
+        }
+        if (started) {
+            db.commitDBSession();
         }
         return result;
     }
@@ -168,12 +169,26 @@ public class DbImpl extends DatabasePOA {
     public Any[] doSQL(String sql, map_entry[] params) {
         Map<String, Object> propMap = arrayToMap(params);
         List<?> objects;
+        Any[] result = null;
         try {
             final boolean started = !db.isDBSessionActive();
             if (started) {
                 db.startDBSession();
             }
             objects = db.doSQL(sql, propMap);
+        
+            result = new Any[objects.size()];
+            for (int i = 0; i < objects.size(); ++i) {
+                Object o = objects.get(i);
+                if (o instanceof eu.sqooss.service.db.DAObject)
+                    result[i] = DAObject.toCorbaObject((eu.sqooss.service.db.DAObject) objects.get(i));
+                else if (o instanceof Long)
+                    result[i].insert_long(((Long)o).intValue());
+                else if (o instanceof Boolean)
+                    result[i].insert_boolean(((Boolean)o).booleanValue());
+                else if (o instanceof String)
+                    result[i].insert_string((String)o);
+            }
             if (started) {
                 db.commitDBSession();
             }
@@ -181,17 +196,6 @@ public class DbImpl extends DatabasePOA {
             db.rollbackDBSession();
             return null;
         }
-        Any[] result = new Any[objects.size()];
-        for (int i = 0; i < objects.size(); ++i) {
-            Object o = objects.get(i);
-            if (o instanceof eu.sqooss.service.db.DAObject)
-                result[i] = DAObject.toCorbaObject((eu.sqooss.service.db.DAObject) objects.get(i));
-            else if (o instanceof Long)
-                result[i].insert_long(((Long)o).intValue());
-            else if (o instanceof Boolean)
-                result[i].insert_boolean(((Boolean)o).booleanValue());
-            else if (o instanceof String)
-                result[i].insert_string((String)o);
-        }
-        return result;    }
+        return result;
+    }
 }

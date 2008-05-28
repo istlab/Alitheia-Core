@@ -82,9 +82,6 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     /** Reference to the DB service, not to be passed to metric jobs */
     protected PluginAdmin pa;
     
-    /** Cache the metrics list on first access*/
-    protected List<Metric> metrics = null;
-
     /** Metric dependencies */
     protected List<String> metricDependencies = new ArrayList<String>();
     
@@ -122,16 +119,6 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         if(pa == null)
             log.error("Could not get a reference to the Plugin Administation "
                     + "service");
-        
-        //init the metrics if the plug-in exists
-        
-        db.startDBSession();
-        
-        Plugin plugin = Plugin.getPluginByHashcode(getUniqueKey());
-        if (plugin != null) {
-            metrics = Plugin.getSupportedMetrics(plugin);
-        }
-        db.commitDBSession();
     }
 
     /**
@@ -189,12 +176,15 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      * @throws MetricMismatchException if the DAO is of a type
      *      not supported by this metric.
      */
+    @SuppressWarnings("unchecked")
     public Result getResult(DAObject o, List<Metric> l) throws MetricMismatchException {
  
         boolean found = false;
         Result r = new Result();
         
         Iterator<Class<? extends DAObject>> i = getActivationTypes().iterator();
+        
+        List<Metric> metrics = getSupportedMetrics();
         
         for (Metric m : l) {
             if (!metrics.contains(m)) {
@@ -315,9 +305,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      * @return the list of metric descriptors, or null if none
      */
     public List<Metric> getSupportedMetrics() {
-        if (metrics == null) {
-            metrics = Plugin.getSupportedMetrics(Plugin.getPluginByHashcode(getUniqueKey()));
-        }
+        List<Metric> metrics = Plugin.getSupportedMetrics(Plugin.getPluginByHashcode(getUniqueKey()));
         if (metrics.isEmpty()) {
             return null;
         } else {
