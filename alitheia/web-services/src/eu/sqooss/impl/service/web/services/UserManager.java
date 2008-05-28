@@ -94,14 +94,28 @@ public class UserManager extends AbstractManager {
         logger.info("Get users by ids! user: " + userNameForAccess +
                 "; ids: " + Arrays.toString(usersIds));
         
-        security.checkUsersReadAccess(userNameForAccess,
-                passwordForAccess, usersIds, null);
+        db.startDBSession();
+        User currentUser = null;
+        if (usersIds.length == 1) {
+            currentUser = userManager.getUser(usersIds[0]);
+        }
+        if (!isSameUser(userNameForAccess, passwordForAccess, currentUser)) {
+            try {
+            security.checkUsersReadAccess(userNameForAccess,
+                    passwordForAccess, usersIds, null);
+            } catch (SecurityException se) {
+                if (db.isDBSessionActive()) {
+                    db.rollbackDBSession();
+                }
+                throw se;
+            }
+        }
+        db.commitDBSession();
         
         super.updateUserActivity(userNameForAccess);
         
         db.startDBSession();
         Collection<WSUser> users = new HashSet<WSUser>();
-        User currentUser;
         for (long userId : usersIds) {
             currentUser = userManager.getUser(userId);
             if (currentUser != null) {
@@ -197,12 +211,25 @@ public class UserManager extends AbstractManager {
         logger.info("Get user by name! user: " + userNameForAccess +
                 "; requested user name: " + userName);
         
-        security.checkUsersReadAccess(userNameForAccess, passwordForAccess, null, userName);
+        db.startDBSession();
+        User user = userManager.getUser(userName);
+        if (!isSameUser(userNameForAccess, passwordForAccess, user)) {
+            try {
+                security.checkUsersReadAccess(
+                        userNameForAccess, passwordForAccess, null, userName);
+            } catch (SecurityException se) {
+                if (db.isDBSessionActive()) {
+                    db.rollbackDBSession();
+                }
+                throw se;
+            }
+        }
+        db.commitDBSession();
         
         super.updateUserActivity(userNameForAccess);
 
         db.startDBSession();
-        User user = userManager.getUser(userName);
+        user = db.attachObjectToDBSession(user);
         if (user != null) {
             WSUser wsu = WSUser.getInstance(user);
             db.commitDBSession();
@@ -258,6 +285,18 @@ public class UserManager extends AbstractManager {
         }
         db.commitDBSession();
         return result;
+    }
+    
+    private boolean isSameUser(String userNameForAccess,
+            String passwordForAccess, User otherUser) {
+        String passwordHash = userManager.getHash(passwordForAccess);
+        if ((userNameForAccess == null) ||
+                (passwordHash == null) ||
+                (otherUser == null)) {
+            return false;
+        }
+        return (userNameForAccess.equals(otherUser.getName()) &&
+                (passwordHash.equals(otherUser.getPassword())));
     }
     
 }
