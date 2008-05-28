@@ -1,0 +1,50 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>eu.sqooss</groupId>
+    <artifactId>metrics</artifactId>
+    <version>1.0.0</version>
+  </parent>
+
+  <groupId>eu.sqooss.metrics</groupId>
+  <artifactId>quality</artifactId>
+  <version>0.0.1</version>
+  <packaging>jar</packaging>
+
+  <name>Alitheia Plug-in 'Quality Model'</name>
+  <url>http://ikaria.dmst.aueb.gr/metrics/skeleton</url>
+  <inceptionYear>2008</inceptionYear>
+  <description>The Quality Model...(Complete this Description)</description>
+
+  <scm>
+    <connection>scm:svn:https://svn.sqo-oss.eu/devel/trunk/metrics/quality-model</connection>
+    <developerConnection>scm:svn:https://svn.sqo-oss.eu/devel/trunk/metrics/quality-model</developerConnection>
+  </scm>
+
+  <build>
+    <defaultGoal>package</defaultGoal>
+    <sourceDirectory>${basedir}/src</sourceDirectory>
+    <outputDirectory>${basedir}/build</outputDirectory>
+    <plugins>
+      <plugin>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <finalName>${groupId}.${artifactId}-${version}</finalName>
+          <archive>
+            <manifestFile>${basedir}/manifest/manifest.mf</manifestFile>
+            <addMavenDescriptor>false</addMavenDescriptor>
+          </archive>
+        </configuration> 
+      </plugin>
+      <plugin>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <configuration>
+          <generatePom>false</generatePom>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>
+
