@@ -271,7 +271,7 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
 
         Group userGroup = groupManager.getGroup(groupDescription);
         if (userGroup == null) {
-            return false;
+            userGroup = groupManager.createGroup(groupDescription);
         }
         eu.sqooss.service.db.Privilege userPrivilege =
             privilegeManager.getPrivilege(privilege); 
