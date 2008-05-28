@@ -1,8 +1,11 @@
 package eu.sqooss.impl.metrics.corba;
 
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 
+import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
+import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.MetricType;
 
 /**
@@ -15,9 +18,13 @@ abstract public class CorbaMetricImpl extends AbstractMetric {
 
     eu.sqooss.impl.service.corba.alitheia.AbstractMetric m;
 
+    DBService db = null;
+    
     public CorbaMetricImpl(BundleContext bc, eu.sqooss.impl.service.corba.alitheia.AbstractMetric m) {
         super(bc);
         this.m = m;
+        ServiceReference serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
+        db = ((AlitheiaCore) bc.getService(serviceRef)).getDBService();
     }
 
     /**
@@ -30,7 +37,15 @@ abstract public class CorbaMetricImpl extends AbstractMetric {
      * @return
      */
     public boolean doAddSupportedMetrics(String desc, String mnemonic, MetricType.Type type) {
-        return addSupportedMetrics(desc, mnemonic, type);
+        final boolean startedSession = !db.isDBSessionActive(); 
+        if (startedSession) {
+            db.startDBSession();
+        }
+        final boolean result = addSupportedMetrics(desc, mnemonic, type);
+        if (startedSession) {
+            db.commitDBSession();
+        }
+        return result;
     }
 
     /**
@@ -65,7 +80,19 @@ abstract public class CorbaMetricImpl extends AbstractMetric {
      * {@inheritDoc}
      */
     public boolean install() {
-        return super.install() && m.doInstall();
+        final boolean startedSession = !db.isDBSessionActive(); 
+        if (startedSession) {
+            db.startDBSession();
+        }
+        boolean result = super.install();
+        // w/o commiting here, the Plugin won't be there
+        db.commitDBSession();
+        db.startDBSession();
+        result = result && m.doInstall();
+        if (startedSession) {
+            db.commitDBSession();
+        }
+        return result;
     }
 
     /**

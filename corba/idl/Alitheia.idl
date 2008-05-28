@@ -181,6 +181,10 @@ module alitheia
     // returns the length of the file
     long getFileContents( in ProjectFile file, out string contents );
 
+    // puts the contents of \a file into \a contents
+    // returns the length of the file
+    long getFileContentParts( in ProjectFile file, in long begin, in long length, out string contents );
+
     // creates a checkout of all files of the current \a version
     Checkout getCheckout( in ProjectVersion version );
 
@@ -224,7 +228,7 @@ module alitheia
         Finished,
         Error
     };
-    void setState( in JobState state );
+    oneway void setState( in JobState state );
   };
 
   interface Logger

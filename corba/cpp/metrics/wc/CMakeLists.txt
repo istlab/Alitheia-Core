@@ -23,4 +23,5 @@ target_link_libraries( wcmetric
   -lssl -lcrypto
   -lboost_thread-mt
   -lboost_date_time
+  -lboost_filesystem
 )

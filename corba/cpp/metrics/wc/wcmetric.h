@@ -4,6 +4,7 @@
 #include <Metric>
 #include <Logger>
 #include <Database>
+#include <Scheduler>
 
 class WcMetric : public Alitheia::ProjectFileMetric
 {
@@ -21,6 +22,7 @@ public:
 
 private:
     Alitheia::Logger logger;
+    Alitheia::Scheduler scheduler;
 };
 
 #endif

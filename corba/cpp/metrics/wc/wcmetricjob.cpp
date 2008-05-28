@@ -2,6 +2,7 @@
 
 #include <Metric>
 #include <Database>
+#include <Logger>
 #include <boost/date_time/posix_time/posix_time.hpp>
 
 using std::vector;
@@ -23,6 +24,9 @@ WcMetricJob::~WcMetricJob()
 
 void WcMetricJob::run()
 {
+    Logger logger;
+    logger.setTeeStream( std::cout );
+    logger << name() << ": Measuring " << projectFile.name << std::endl;
     string line;
     int count = -1;
     do
@@ -50,6 +54,4 @@ void WcMetricJob::run()
 
 void WcMetricJob::stateChanged( State state )
 {
-    if( state == Finished )
-        delete this;
 }

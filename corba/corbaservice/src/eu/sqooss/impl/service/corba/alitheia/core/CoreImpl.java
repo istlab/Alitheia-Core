@@ -3,6 +3,7 @@ package eu.sqooss.impl.service.corba.alitheia.core;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -146,11 +147,12 @@ public class CoreImpl extends CorePOA {
      * Get a list of all files added/deleted/changed in \a version.
      */
     public ProjectFile[] getVersionFiles (ProjectVersion version) {
-        List<eu.sqooss.service.db.ProjectFile> files = DAObject.fromCorbaObject(version).getVersionFiles();
-
+        Set<eu.sqooss.service.db.ProjectFile> files = DAObject.fromCorbaObject(version).getVersionFiles();
+        eu.sqooss.service.db.ProjectFile[] filesArray = (eu.sqooss.service.db.ProjectFile[]) files.toArray();
+        
         ProjectFile[] result = new ProjectFile[files.size()];
         for( int i = 0; i < files.size(); ++i ) {
-            result[ i ] = DAObject.toCorbaObject(files.get(i));
+            result[ i ] = DAObject.toCorbaObject(filesArray[ i ]);
         }
 
         return result;

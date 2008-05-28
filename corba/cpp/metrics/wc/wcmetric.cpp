@@ -1,6 +1,7 @@
 #include "wcmetric.h"
 
 #include <Core>
+#include <Scheduler>
 
 #include "wcmetricjob.h"
 
@@ -50,6 +51,5 @@ string WcMetric::getResult( const ProjectFile& ) const
 
 void WcMetric::run( ProjectFile& file )
 {
-    logger << name() << ": Measuring " << file.name << endl;
-    Core::instance()->enqueueJob( new WcMetricJob( this, file ) );
+    scheduler.enqueueJob( new WcMetricJob( this, file ) );
 }
