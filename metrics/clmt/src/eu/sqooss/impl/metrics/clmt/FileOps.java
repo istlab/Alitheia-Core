@@ -33,6 +33,7 @@
 
 package eu.sqooss.impl.metrics.clmt;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -108,7 +109,7 @@ public class FileOps {
         return imc.get().getRoot().getSubdirectoryByName(path).getFileNames();
     }
     
-    public synchronized byte[] getFileContents(String path) {
+    public synchronized InputStream getFileContents(String path) {
         ProjectFile f = imc.get().getRoot().getFile(path);
         return fds.get().getFileContents(f);
     }

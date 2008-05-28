@@ -34,6 +34,7 @@
 package eu.sqooss.service.fds;
 
 import java.io.File;
+import java.io.InputStream;
 
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.StoredProject;
@@ -129,7 +130,7 @@ public interface FDSService {
      * 
      * @return the file contents or null if none.
      */
-    byte[] getFileContents(ProjectFile pf);
+    InputStream getFileContents(ProjectFile pf);
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

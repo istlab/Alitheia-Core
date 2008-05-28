@@ -33,7 +33,6 @@
 
 package org.clmt.sqooss;
 
-import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -46,7 +45,7 @@ import eu.sqooss.impl.metrics.clmt.FileOps;
 public final class AlitheiaFileAdapter extends CLMTFile {
 
     private String path;
-    byte[] contents;
+    InputStream contents;
      
     public AlitheiaFileAdapter(String path) {
         this.path = path;
@@ -74,8 +73,7 @@ public final class AlitheiaFileAdapter extends CLMTFile {
             contents = FileOps.instance().getFileContents(path);
         }
         
-        ByteArrayInputStream bis = new ByteArrayInputStream(contents);
-        return bis;
+        return contents;
     }
 
     @Override

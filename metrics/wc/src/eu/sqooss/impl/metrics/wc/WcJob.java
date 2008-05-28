@@ -34,8 +34,8 @@
 
 package eu.sqooss.impl.metrics.wc;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.sql.Timestamp;
@@ -43,8 +43,8 @@ import java.sql.Timestamp;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.AbstractMetricJob;
 import eu.sqooss.service.db.Metric;
-import eu.sqooss.service.db.ProjectFileMeasurement;
 import eu.sqooss.service.db.ProjectFile;
+import eu.sqooss.service.db.ProjectFileMeasurement;
 
 public class WcJob extends AbstractMetricJob {
 
@@ -78,12 +78,10 @@ public class WcJob extends AbstractMetricJob {
             
         
         // Retrieve the content of the selected project file
-        // FIXME change to use streams for processing
         pf = db.attachObjectToDBSession(pf);
-        byte[] content = fds.getFileContents(pf);
-        if (content != null) {
+        InputStream in = fds.getFileContents(pf);
+        if (in != null) {
             // Create an input stream from the project file's content
-            ByteArrayInputStream in = new ByteArrayInputStream(content);
             try {
                 log.info(
                         this.getClass().getName()

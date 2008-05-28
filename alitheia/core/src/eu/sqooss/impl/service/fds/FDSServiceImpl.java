@@ -32,8 +32,11 @@
 
 package eu.sqooss.impl.service.fds;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.Calendar;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -557,41 +560,14 @@ public class FDSServiceImpl implements FDSService {
     }
 
     /** {@inheritDoc} */
-    public byte[] getFileContents(ProjectFile pf) {
-        // Let's see if the file is cached already.
-        ProjectRevision pr = projectFileRevision(pf);
-        if (pr == null) {
-            return null;
-        }
-
-        File checkoutFile = projectFileLocal(pf, pr);
-
-        if ((checkoutFile != null) &&
-            checkoutFile.exists() &&
-            checkoutFile.isFile() &&
-            checkoutFile.canRead()) {
-            return eu.sqooss.service.util.FileUtils.fileContents(checkoutFile);
-        }
-
-        // We get here if the file isn't locally cached,
-        // so we need to get it from the SCM.
-        SCMAccessor scm = projectFileAccessor(pf);
-        if (scm == null) {
-            return null;
-        }
-
-        // Need to get file from SCM
-        java.io.ByteArrayOutputStream output = new java.io.ByteArrayOutputStream();
+    public InputStream getFileContents(ProjectFile pf) {
+        File file = getFile(pf);
         try {
-            scm.getFile(pf.getFileName() , pr, output);
-        } catch (InvalidRepositoryException e) {
-            logger.error("The repository for " + pf.toString() + " is invalid.");
-        } catch (InvalidProjectRevisionException e) {
-            logger.error("The repository for " + pf.toString() + " has no revision " + pr + ".");
+            return new FileInputStream(file);
         } catch (FileNotFoundException e) {
             logger.error("File " + pf.toString() + " not found in the given repository.");
+            return null;
         }
-        return output.toByteArray();
     }
 
 
