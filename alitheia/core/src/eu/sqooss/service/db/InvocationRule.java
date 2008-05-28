@@ -492,29 +492,94 @@ public class InvocationRule extends DAObject {
         return true;
     }
 
+    /**
+     * Matches a project file's version against the given rule's scope and
+     * rule's value.
+     * <br/>
+     * The rule's scope determines how the project file's version will be
+     * compared, while the rule's value defines against which project versions
+     * to perform that comparison.
+     * <br/>
+     * <br/>
+     * <i>Note: this method doesn't distinguish between a file and folder, so
+     * both of them can be successfully matched. It's up to the metrics, to
+     * decide if they will evaluate that project file or not.</i>
+     * 
+     * @param scp the rule's scope
+     * @param val the rule's value (<i>one or more project versions</i>)
+     * @param res the project file's DAO
+     * 
+     * @return <code>true</code>, if successfully matched,
+     *   or <code>false<code> it there is no match.
+     */
     public boolean match(ScopeType scp, String val, ProjectFile res) {
         // Always match on "ALL" scope
         if (scp == ScopeType.ALL) return true;
-        // Compare the rule value to the resource's project version
-        long version = res.getProjectVersion().getVersion();
-        // TODO: Check if the project file exists for other project versions
+
+        // Get the project version where the given file was deleted (if any)
+        Long deletionVersion = ProjectFile.getDeletionVersion(res);
+        // Get the project version of the given file
+        long fileVersion = res.getProjectVersion().getVersion();
+
+        // Compare the rule value to the project version of the given file
         switch (scp) {
         case EXACT:
+            // Get the project version from the scope value
+            long exact = parseIntValue(val);
+            // Match only files that are older or equal to the selected
+            // project version and were not deleted prior that version.
+            if (deletionVersion != null) {
+                return ((fileVersion <= exact)
+                        && (exact < deletionVersion.longValue()));
+            }
+            return (fileVersion <= exact);
         case EACH:
+            return true; // TODO: Implement
         case FROM:
+            // Get the project version from the scope value
+            long fromVersion = parseIntValue(val);
+            // Match only files that were not deleted prior the selected
+            // project version.
+            if (deletionVersion != null) {
+                return (fromVersion < deletionVersion.longValue());
+            }
+            return true;
         case TO:
-            long value = parseIntValue(val);
-            return (value == version);
+            // Get the project version from the scope value
+            long uptoVersion = parseIntValue(val);
+            // Match only files that are older or equal to the selected
+            // project version.
+            return (fileVersion <= uptoVersion);
         case RANGE:
+            // Get the project version's range from the scope's value
             long[] range = parseIntRange(val);
-            if ((range[0] <= version) && (version <= range[1]))
+            // Match only files that are older or equal to the newer project
+            // version (the upper value in the range) and were not deleted
+            // prior the older project version (the lower value in the range)
+            if (deletionVersion != null) {
+                if ((fileVersion <= range[1])
+                        && (range[0] < deletionVersion.longValue())) {
+                    return true;
+                }
+                return false;
+            }
+            if (fileVersion <= range[1])
                 return true;
             else 
                 return false;
         case LIST:
+            // Get the list of project versions from the scope's value
             long[] values = parseIntList(val);
             for (int i = 0; i < values.length ; i++) {
-                if (values[i] == version) return true;
+                // Match only files that are older or equal to the listed
+                // project version and were not deleted prior that version.
+                if (deletionVersion != null) {
+                    if ((fileVersion <= values[i])
+                            && (values[i] < deletionVersion.longValue())) {
+                        return true;
+                    }
+                }
+                if (fileVersion <= values[i]) return true;
             }
             return false;
         }

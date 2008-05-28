@@ -195,6 +195,153 @@ public class ProjectFile extends DAObject{
             return (ProjectFile) projectFiles.get(0);
         }
     }
+
+    /**
+     * Returns the project version's number where this file was deleted.
+     * <br/>
+     * This method takes into consideration the deletion of parent folders,
+     * thus detecting the situation when a file was deleted indirectly by
+     * removing a parent folder.
+     * <br/>
+     * For a project files in a deleted state, this method will return the
+     * project version's number of the same file.
+     * 
+     * @param pf the project's file
+     * 
+     * @return The project version's number where this file was deleted,
+     *   or <code>null</code> if this file still exist.
+     */
+    public static Long getDeletionVersion(ProjectFile pf) {
+        DBService db = CoreActivator.getDBService();
+
+        // Skip files which are in a "DELETED" state
+        if (pf.status.equals("DELETED")) {
+            return pf.getProjectVersion().getVersion();
+        }
+
+        // Keep the deletion version
+        Long deletionVersion = null;
+
+        // Retrieve the version of the given project file
+        long fileVersion = pf.getProjectVersion().getVersion();
+
+        // Get all project files in state "DELETED" that match the given
+        // file's name and folder
+        HashMap<String,Object> props = new HashMap<String,Object>();
+        props.put("name", pf.getName());
+        props.put("dir", pf.getDir());
+        props.put("status", new String("DELETED"));
+        List<ProjectFile> deletions =
+            db.findObjectsByProperties(ProjectFile.class, props);
+        // Check if this file was deleted at all
+        if ((deletions != null) && (deletions.size() > 0)) {
+            for (ProjectFile nextDeletion : deletions) {
+                // Skip deletion matches that are not in the same project
+                if (nextDeletion.getProjectVersion().getProject().getId()
+                        != pf.getProjectVersion().getProject().getId())
+                    continue;
+                // Skip deletion matches that are older than the given file
+                long nextDeletionVersion =
+                    nextDeletion.getProjectVersion().getVersion();
+                if (nextDeletionVersion <= fileVersion)
+                    continue;
+                // Check if this deletion is a closer match
+                if ((deletionVersion == null)
+                        || (deletionVersion > nextDeletionVersion)) {
+                    deletionVersion = 
+                        nextDeletionVersion;
+                }
+            }
+        }
+
+        // Take into consideration the deletion version of the parent folder
+        ProjectFile parentFolder = getParentFolder(pf);
+        if (parentFolder != null) {
+            Long parentDeletionVersion = getDeletionVersion(parentFolder);
+            if (parentDeletionVersion != null) {
+                // Check if the parent folder was deleted later on
+                if ((deletionVersion != null)
+                    && (parentDeletionVersion.longValue()
+                            > deletionVersion.longValue())) {
+                    return deletionVersion;
+                }
+                return parentDeletionVersion;
+            }
+        }
+
+        // Return the project's version where this file was deleted
+        return deletionVersion;
+    }
+
+    /**
+     * Gets the parent folder of the given project file.
+     * 
+     * @param pf the project file
+     * 
+     * @return The <code>ProjectFile</code> DAO of the parent folder,
+     *   or <code>null</code> if the given file is located in the project's
+     *   root folder (<i>or the given file is the root folder</i> ).
+     */
+    public static ProjectFile getParentFolder(ProjectFile pf) {
+        DBService db = CoreActivator.getDBService();
+
+        // Get the file's folder
+        String filePath = pf.getDir().getPath();
+
+        // Proceed only if this file is not the project's root folder
+        if (filePath.matches("^/+$") == false) {
+            // Split the folder into folder's name and folder's path
+            String dirPath =
+                filePath.substring(0, filePath.lastIndexOf('/') + 1);
+            if (dirPath.matches(".+/$")) {
+                // Remove the trailing path separator from the folder's path
+                dirPath = dirPath.substring(0, dirPath.lastIndexOf('/'));
+            }
+            String dirName =
+                filePath.substring(filePath.lastIndexOf('/') + 1);
+            // Retrieve the Directory DAO of the extracted folder's path
+            HashMap<String,Object> props = new HashMap<String,Object>();
+            props.put("path", dirPath);
+            List<Directory> dirs =
+                db.findObjectsByProperties(Directory.class, props);
+            // Retrieve the ProjectFile DAOs of all folders that can be a
+            // parent of the given project file.
+            props.clear();
+            props.put("name", dirName);
+            props.put("dir", dirs.get(0));
+            props.put("status", new String("ADDED"));
+            List<ProjectFile> folders =
+                db.findObjectsByProperties(ProjectFile.class, props);
+            // Match until the "real" parent folder is found
+            if ((folders != null) && (folders.size() > 0)) {
+                // Retrieve the version of the given project file
+                long fileVersion = pf.getProjectVersion().getVersion();
+                // Keep the matched folder's DAO
+                ProjectFile fileFolder = null; 
+                for (ProjectFile nextFolder : folders) {
+                    // Skip folder matches that are not in the same project
+                    if (nextFolder.getProjectVersion().getProject().getId()
+                            != pf.getProjectVersion().getProject().getId())
+                        continue;
+                    // Skip folder matches that are newer than the given file
+                    long nextFolderVersion =
+                        nextFolder.getProjectVersion().getVersion();
+                    if (nextFolderVersion > fileVersion)
+                        continue;
+                    // Check if this folder is a closer match
+                    if ((fileFolder == null)
+                            || (fileFolder.projectVersion.getVersion()
+                                    < nextFolderVersion)) {
+                        fileFolder = nextFolder;
+                    }
+                }
+                // Return the parent folder's DAO
+                return fileFolder;
+            }
+        }
+
+        return null;
+    }
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
