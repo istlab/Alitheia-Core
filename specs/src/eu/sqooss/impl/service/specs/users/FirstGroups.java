@@ -11,6 +11,7 @@ import eu.sqooss.impl.service.SpecsActivator;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Group;
 import eu.sqooss.service.db.GroupPrivilege;
+import eu.sqooss.service.db.User;
 
 @RunWith(ConcordionRunner.class)
 public class FirstGroups
@@ -27,12 +28,6 @@ public class FirstGroups
         for (Group group : groups)
         {
             result.add(group.getDescription());
-            for (Object obj : group.getGroupPrivileges())
-            {
-                GroupPrivilege priv = (GroupPrivilege)obj;
-                
-                System.out.println(group.getDescription()+", "+priv.getUrl().getUrl()+", "+priv.getPv().getPrivilege().getDescription()+", "+priv.getPv().getValue());
-            }
         }
         db.commitDBSession();
         
@@ -54,11 +49,18 @@ public class FirstGroups
             {
                 GroupPrivilege priv = (GroupPrivilege)obj;
 
+                String privValue = priv.getPv().getValue(); 
+                if (priv.getPv().getPrivilege().getDescription().equals("user_id"))
+                {
+                    User user = db.findObjectById(User.class, Long.valueOf(privValue));
+                    privValue = user.getName();
+                }
+                
                 result.add(new Priv(
                         group.getDescription(),
                         priv.getUrl().getUrl(),
                         priv.getPv().getPrivilege().getDescription(),
-                        priv.getPv().getValue()
+                        privValue
                 ));
             }
         }
