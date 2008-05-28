@@ -232,7 +232,9 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
             if (!found)
                 throw new MetricMismatchException(o);
             
-            r.addResultRow(new ArrayList<ResultEntry> (re));
+            if (re != null) {
+                r.addResultRow(new ArrayList<ResultEntry> (re));
+            }
         }
         return r;
     }
