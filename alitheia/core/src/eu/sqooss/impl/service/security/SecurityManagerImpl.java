@@ -144,8 +144,7 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
         groupManager = new GroupManagerImpl(db, logger);
         privilegeManager = new PrivilegeManagerImpl(db, logger);
         serviceUrlManager = new ServiceUrlManagerImpl(db, logger);
-        userManager = new UserManagerImpl(db, messaging, logger,
-                privilegeManager, groupManager, serviceUrlManager);
+        userManager = new UserManagerImpl(db, messaging, logger);
 
         // Check if security is enabled in the configuration file
         isEnable = Boolean.valueOf(System.getProperty(PROPERTY_ENABLE, "true"));

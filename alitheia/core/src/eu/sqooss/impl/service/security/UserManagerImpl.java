@@ -52,25 +52,15 @@ import org.apache.velocity.runtime.RuntimeConstants;
 
 import eu.sqooss.impl.service.security.utils.UserManagerDatabase;
 import eu.sqooss.service.db.DBService;
-import eu.sqooss.service.db.Group;
 import eu.sqooss.service.db.PendingUser;
-import eu.sqooss.service.db.Privilege;
-import eu.sqooss.service.db.PrivilegeValue;
-import eu.sqooss.service.db.ServiceUrl;
 import eu.sqooss.service.db.User;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.messaging.Message;
 import eu.sqooss.service.messaging.MessagingService;
-import eu.sqooss.service.security.GroupManager;
-import eu.sqooss.service.security.PrivilegeManager;
-import eu.sqooss.service.security.ServiceUrlManager;
 import eu.sqooss.service.security.UserManager;
-import eu.sqooss.service.security.SecurityConstants;
 
 public class UserManagerImpl implements UserManager {
 
-    private static final String NEW_USERS_GROUP_DESCRIPTION = "new users";
-    
     private static final String PROPERTY_SERVER_URL = "eu.sqooss.security.server.url";
     private static final String PROPERTY_HTTP_PORT  = "org.osgi.service.http.port";
     
@@ -78,12 +68,6 @@ public class UserManagerImpl implements UserManager {
 	
 	private static final long EXPIRATION_PERIOD = 24*3600*1000;
 	
-	private Group newUserGroup;
-	private ServiceUrl newUserServiceUrl;
-	private Privilege newUserPrivilege;
-	private GroupManager groupManager;
-	private ServiceUrlManager serviceUrlManager;
-	private PrivilegeManager privilegeManager;
     private UserManagerDatabase dbWrapper;
     private MessagingService messaging;
     private Logger logger;
@@ -92,19 +76,10 @@ public class UserManagerImpl implements UserManager {
     private Template velocityTemplate;
     private VelocityContext velocityContext;
     
-    public UserManagerImpl(DBService db, MessagingService messaging, Logger logger,
-            PrivilegeManager privilegeManager, GroupManager groupManager,
-            ServiceUrlManager serviceUrlManager) {
-        this.privilegeManager = privilegeManager;
-        this.groupManager = groupManager;
-        this.serviceUrlManager = serviceUrlManager;
+    public UserManagerImpl(DBService db, MessagingService messaging, Logger logger) {
         this.dbWrapper = new UserManagerDatabase(db);
         this.messaging = messaging;
         this.logger = logger;
-        
-        db.startDBSession();
-        initNewUserPermission();
-        db.commitDBSession();
         
         try {
         	messageDigest = MessageDigest.getInstance("SHA-256");
@@ -131,57 +106,11 @@ public class UserManagerImpl implements UserManager {
         newUser.setRegistered(new Date());
         newUser.setLastActivity(newUser.getRegistered());
         if (dbWrapper.createUser(newUser)) {
-            if (addDefaultPermission(newUser)) {
-                return newUser;
-            }
+            return newUser;
         }
         return null;
     }
 
-    private boolean addDefaultPermission(User user) {
-        if (!groupManager.addUserToGroup(newUserGroup.getId(), user.getId())) {
-            return false;
-        }
-        PrivilegeValue newPrivilegeValue = privilegeManager.createPrivilegeValue(
-                newUserPrivilege.getId(), Long.toString(user.getId()));
-        if (newPrivilegeValue != null) {
-            if (groupManager.addPrivilegeToGroup(newUserGroup.getId(),
-                    newUserServiceUrl.getId(), newPrivilegeValue.getId())) {
-                return true;
-            }
-            privilegeManager.deletePrivilegeValue(newPrivilegeValue.getId());
-        }
-        groupManager.deleteUserFromGroup(newUserGroup.getId(), user.getId());
-        return false;
-    }
-    
-    private boolean removeDefaultPermission(User user) {
-        if (!groupManager.deleteUserFromGroup(newUserGroup.getId(), user.getId())) {
-            return false;
-        }
-        PrivilegeValue[] privilegeValues = privilegeManager.getPrivilegeValues(
-                newUserPrivilege.getId());
-        PrivilegeValue privilegeValue = null;
-        for (PrivilegeValue pValue : privilegeValues) {
-            if (Long.toString(user.getId()).equals(pValue.getValue())) {
-                privilegeValue = pValue;
-                break;
-            }
-        }
-        if (privilegeValue != null) {
-            if (groupManager.deletePrivilegeFromGroup(newUserGroup.getId(),
-                    newUserServiceUrl.getId(), privilegeValue.getId())) {
-                if (privilegeManager.deletePrivilegeValue(privilegeValue.getId())) {
-                    return true;
-                }
-                groupManager.addPrivilegeToGroup(newUserGroup.getId(),
-                        newUserServiceUrl.getId(), privilegeValue.getId());
-            }
-        }
-        groupManager.addUserToGroup(newUserGroup.getId(), user.getId());
-        return false;
-    }
-    
     /**
      * @see eu.sqooss.service.security.UserManager#createPendingUser(java.lang.String, java.lang.String, java.lang.String)
      */
@@ -253,16 +182,13 @@ public class UserManagerImpl implements UserManager {
 
     private boolean deleteUser(User user) {
         if (user != null) {
-            if (removeDefaultPermission(user)) {
-                if (dbWrapper.deleteUser(user)) {
-                    return true;
-                }
-                addDefaultPermission(user);
+            if (dbWrapper.deleteUser(user)) {
+                return true;
             }
         }
         return false;
     }
-    
+
     /**
      * @see eu.sqooss.service.security.UserManager#getUser(long)
      */
@@ -328,42 +254,6 @@ public class UserManagerImpl implements UserManager {
     	return passwordHash.toString();
     }
     
-    private void initNewUserPermission() {
-        
-        Group[] groups = groupManager.getGroups();
-        for (Group group : groups) {
-            if (NEW_USERS_GROUP_DESCRIPTION.equals(group.getDescription())) {
-                newUserGroup = group;
-                break;
-            }
-        }
-        if (newUserGroup == null) {
-            newUserGroup = groupManager.createGroup(NEW_USERS_GROUP_DESCRIPTION);
-        }
-        ServiceUrl[] serviceUrls = serviceUrlManager.getServiceUrls();
-        for (ServiceUrl serviceUrl : serviceUrls) {
-            if (SecurityConstants.URL_SQOOSS_SECURITY.equals(serviceUrl.getUrl())) {
-                newUserServiceUrl = serviceUrl;
-                break;
-            }
-        }
-        if (newUserServiceUrl == null) {
-            newUserServiceUrl = serviceUrlManager.createServiceUrl(SecurityConstants.URL_SQOOSS_SECURITY);
-        }
-        Privilege[] privileges = privilegeManager.getPrivileges();
-        for (Privilege privilege : privileges) {
-            if (SecurityConstants.Privilege.USER_ID.toString().equals(
-                    privilege.getDescription())) {
-                newUserPrivilege = privilege;
-                break;
-            }
-        }
-        if (newUserPrivilege == null) {
-            newUserPrivilege = privilegeManager.createPrivilege(
-                    SecurityConstants.Privilege.USER_ID);
-        }
-    }
-
     private void initVelocityTemplate() {
         velocityContext = new VelocityContext();
         VelocityEngine velocityEngine = new VelocityEngine();
