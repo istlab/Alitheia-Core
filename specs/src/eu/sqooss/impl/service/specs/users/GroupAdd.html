@@ -1,0 +1,53 @@
+<html xmlns:concordion="http://www.concordion.org/2007/concordion">
+<body>
+
+    <h1>Adding Groups to the System</h1>
+
+    <p>In order to allow user access, and to manage their privileges easily, the system should
+	allow to create new user groups.</p>
+    
+	<p>The system can create empty groups and add them to its groups list.</p>
+
+    <div class="example">
+
+        <h3>Example</h3>
+
+        <p concordion:execute="addGroup(#added_group)">Given the system only
+        having the initial group list (see <a href="FirstGroups.html">this
+        spec</a>), when we add the new group
+        "<span concordion:set="#added_group">sqo-oss developers</span>", then
+        the group list becomes:</p>
+        <table concordion:verifyRows="#group : getGroups()">
+          <tr>
+            <th concordion:assertEquals="#group">Group Name</th>
+          </tr>
+          <tr><td>new users</td></tr>
+          <tr><td>alitheia</td></tr>
+          <tr><td>sqo-oss developers</td></tr>
+        </table>
+		
+        <p>Also, this newly created group
+        <span concordion:assertTrue="groupHasNoPrivilege(#added_group)">
+        has no privilege</span>.</p>
+		
+        <p concordion:execute="addGroup(#added_group)">Once this new group is
+        added, when we try to add it again, the group list is not modified:</p>
+        <table concordion:verifyRows="#group : getGroups()">
+          <tr>
+            <th concordion:assertEquals="#group">Group Name</th>
+          </tr>
+          <tr><td>new users</td></tr>
+          <tr><td>alitheia</td></tr>
+          <tr><td>sqo-oss developers</td></tr>
+        </table>
+    </div>
+
+
+    <h2>See Also</h2>
+    <ul>
+        <li><a href="GroupRemove.html">Can we remove groups?</a></li>
+        <li><a href="GroupEdit.html">Can we edit groups?</a></li>
+        <li><a href="UsersInGroups.html">Can we add/remove users from groups?</a></li>
+    </ul>
+</body>
+</html>
