@@ -32,15 +32,14 @@
 
 package eu.sqooss.core;
 
-import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
 
 import javax.servlet.ServletException;
 
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 import org.osgi.service.http.NamespaceException;
 
 import eu.sqooss.impl.service.db.DBServiceImpl;

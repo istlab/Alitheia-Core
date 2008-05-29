@@ -32,8 +32,6 @@
 
 package eu.sqooss.impl.service.logging;
 
-import org.apache.log4j.*;
-
 import eu.sqooss.service.logging.Logger;
 
 public class LoggerImpl implements Logger {
