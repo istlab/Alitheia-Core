@@ -527,9 +527,10 @@ e.printStackTrace();
             Session s = sessionFactory.getCurrentSession();
             for (DAObject record : records) {
                 lastRecord = record;
-                s.delete(record);				
+                s.delete(record);
             }
             lastRecord = null;
+            s.flush();
             return true;
         } catch (HibernateException e) {
             if (lastRecord != null) {
@@ -562,6 +563,9 @@ e.printStackTrace();
 
         try {
             Session s = sessionFactory.getCurrentSession();
+            if (!s.contains(compositeKey)) {
+                compositeKey = s.merge(compositeKey);
+            }
             s.delete(compositeKey);
             return true;
         } catch (HibernateException e) {
