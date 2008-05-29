@@ -22,6 +22,8 @@ namespace Alitheia
         int id;
     };
 
+    class ProjectVersion;
+
     class StoredProject : public DAObject
     {
     public:
@@ -31,7 +33,10 @@ namespace Alitheia
 
         eu::sqooss::impl::service::corba::alitheia::StoredProject toCorba() const;
         operator CORBA::Any() const;
-       
+ 
+        static StoredProject getProjectByName( const std::string& name );
+        static ProjectVersion getLastProjectVersion( const StoredProject& project );
+      
         std::string name;
         std::string website;
         std::string contact;
@@ -111,6 +116,8 @@ namespace Alitheia
 
         void save( std::ostream& stream ) const;
         void save( const std::string& filename ) const;
+
+        std::string getFileName() const;
 
         std::string name;
         ProjectVersion projectVersion;

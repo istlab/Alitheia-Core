@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.omg.CORBA.StringHolder;
 import org.osgi.framework.BundleContext;
@@ -112,9 +113,9 @@ public class FDSImpl extends FDSPOA {
 	 * @param version The ProjectVersion to create the checkout for.
 	 * @return A reference to a Corba style checkout.
 	 */
-	protected Checkout createCheckout(eu.sqooss.service.db.ProjectVersion version) throws InvalidRepositoryException, InvalidProjectRevisionException {
+	protected Checkout createCheckout(eu.sqooss.service.db.ProjectVersion version, String pattern) throws InvalidRepositoryException, InvalidProjectRevisionException {
 		ProjectRevision rev = new ProjectRevision(version.getVersion());
-		InMemoryCheckout co = fds.getInMemoryCheckout(version.getProject().getId(), rev);
+		InMemoryCheckout co = fds.getInMemoryCheckout(version.getProject().getId(), rev, Pattern.compile(pattern));
 		
 		List<eu.sqooss.service.db.ProjectFile> files = getFiles(co.getRoot());
 		
@@ -132,11 +133,11 @@ public class FDSImpl extends FDSPOA {
 	 * Gets a checkout.
 	 * @param version The ProjectVersion to create the checkout for.
 	 */
-	public Checkout getCheckout(ProjectVersion version) {
+	public Checkout getCheckout(ProjectVersion version, String pattern) {
         db.startDBSession();
 		Checkout result = null;
         try {
-            result = createCheckout(DAObject.fromCorbaObject(version));
+            result = createCheckout(DAObject.fromCorbaObject(version), pattern);
         } catch (InvalidRepositoryException e) {
             // just returns null, then;
         } catch (InvalidProjectRevisionException e) {

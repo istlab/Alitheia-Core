@@ -33,14 +33,12 @@
 
 package eu.sqooss.service.db;
 
-import eu.sqooss.impl.service.CoreActivator;
-import eu.sqooss.service.db.DAObject;
-
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import eu.sqooss.impl.service.CoreActivator;
 
 /**
  * This class represents the data relating to bugs, stored in the database

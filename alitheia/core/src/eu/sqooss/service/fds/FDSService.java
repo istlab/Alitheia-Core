@@ -35,6 +35,7 @@ package eu.sqooss.service.fds;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.regex.Pattern;
 
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.StoredProject;
@@ -86,8 +87,24 @@ public interface FDSService {
      *              exist in the project repository
      */
     InMemoryCheckout getInMemoryCheckout(long id, ProjectRevision r)
-    	throws InvalidRepositoryException,
-    		   InvalidProjectRevisionException;
+        throws InvalidRepositoryException,
+               InvalidProjectRevisionException;
+    /**
+     * Maintains an in-memory representation of a project checkout for a
+     * specific revision. 
+     * 
+     * @param id Stored project id
+     * @param r The revision to retrieve the checkout from
+     * @param pattern A regular expression pattern used to filter files by their path
+     * @return An in-memory representation of the working copy for a specific
+     *              revision
+     * @throws InvalidRepositoryException if the project repository is not valid
+     * @throws InvalidProjectRevisionException if this revision number does not
+     *              exist in the project repository
+     */
+    InMemoryCheckout getInMemoryCheckout(long id, ProjectRevision r, Pattern pattern)
+        throws InvalidRepositoryException,
+               InvalidProjectRevisionException;
     
     /**
      * Release a previously obtained checkout.

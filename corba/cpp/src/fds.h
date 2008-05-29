@@ -38,7 +38,7 @@ namespace Alitheia
 
         std::string getFileContents( const ProjectFile& file ) const;
 
-        Checkout getCheckout( const ProjectVersion& version ) const;
+        Checkout getCheckout( const ProjectVersion& version, const std::string& pattern = std::string() ) const;
 
     private:
         class Private;

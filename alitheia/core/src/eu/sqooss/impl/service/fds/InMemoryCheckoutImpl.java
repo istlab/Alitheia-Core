@@ -37,6 +37,7 @@ import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import eu.sqooss.impl.service.CoreActivator;
 import eu.sqooss.service.db.DBService;
@@ -87,13 +88,29 @@ class InMemoryCheckoutImpl implements InMemoryCheckout {
         root = new InMemoryDirectory(this);
 
         setRevision(r);
-        createCheckout(root.createSubDirectory(scm.getSubProjectPath()));
+        Pattern p = Pattern.compile(".*");
+        createCheckout(root.createSubDirectory(scm.getSubProjectPath()),p);
+        
+         entry = scm.getCommitLog(repoPath, r);
+    }
+
+    InMemoryCheckoutImpl(SCMAccessor scm, String path, ProjectRevision r, Pattern p)
+        throws FileNotFoundException,
+               InvalidProjectRevisionException,
+               InvalidRepositoryException {
+        projectId = scm.getId();
+        projectName = scm.getName();
+        repoPath = path;
+        root = new InMemoryDirectory(this);
+
+        setRevision(r);
+        createCheckout(root.createSubDirectory(scm.getSubProjectPath()), p);
         
          entry = scm.getCommitLog(repoPath, r);
     }
 
     @SuppressWarnings("unchecked")
-    protected void createCheckout(InMemoryDirectory dir) throws InvalidProjectRevisionException {
+    protected void createCheckout(InMemoryDirectory dir, Pattern pattern) throws InvalidProjectRevisionException {
 
         DBService dbs = CoreActivator.getDBService();
     	
@@ -128,10 +145,12 @@ class InMemoryCheckoutImpl implements InMemoryCheckout {
         List<ProjectFile> projectFiles = (List<ProjectFile>) dbs.doHQL(query, parameters);
         if (projectFiles != null && projectFiles.size() != 0) {
             for (ProjectFile f : projectFiles) {
-                if (!f.getIsDirectory()) {
-                    dir.createSubDirectory(f.getDir().getPath()).addFile(f.getName());
-                } else {
-                    dir.createSubDirectory(f.getFileName());
+                if (pattern.matcher(f.getFileName()).matches()) {
+                    if (!f.getIsDirectory()) {
+                        dir.createSubDirectory(f.getDir().getPath()).addFile(f.getName());
+                    } else {
+                        dir.createSubDirectory(f.getFileName());
+                    }
                 }
             }
         }

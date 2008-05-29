@@ -90,7 +90,8 @@ string FDS::getFileContents( const ProjectFile& file ) const
     return std::string( content, length );
 }
 
-Checkout FDS::getCheckout( const ProjectVersion& version ) const
+Checkout FDS::getCheckout( const ProjectVersion& version, const string& pattern ) const
 {
-    return Checkout( *(d->fds->getCheckout( version.toCorba() ) ) );
+    return Checkout( *(d->fds->getCheckout( version.toCorba(), pattern.empty() ? ".*"
+                                                                               : CORBA::string_dup( pattern.c_str() ) ) ) );
 }

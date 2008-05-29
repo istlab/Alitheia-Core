@@ -34,8 +34,6 @@ package eu.sqooss.service.db;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Vector;
-
 import eu.sqooss.service.db.MetricType.Type;
 
 public class InvocationRule extends DAObject {

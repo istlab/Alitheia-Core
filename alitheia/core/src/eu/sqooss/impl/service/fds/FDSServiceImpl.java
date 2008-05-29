@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.SortedSet;
+import java.util.regex.Pattern;
 
 import org.apache.commons.codec.binary.Hex;
 import org.osgi.framework.BundleContext;
@@ -296,14 +297,14 @@ public class FDSServiceImpl implements FDSService {
         }
     }
 
-    private InMemoryCheckoutImpl createInMemoryCheckout(SCMAccessor svn, ProjectRevision r) 
-    	throws InvalidRepositoryException,
-    	       InvalidProjectRevisionException {
+    private InMemoryCheckoutImpl createInMemoryCheckout(SCMAccessor svn, ProjectRevision r, Pattern pattern) 
+        throws InvalidRepositoryException,
+               InvalidProjectRevisionException {
         // Side effect: throws if the revision is invalid
         svn.resolveProjectRevision(r);
         
         try {
-        	return new InMemoryCheckoutImpl(svn, "",r);
+        	return new InMemoryCheckoutImpl(svn, "", r, pattern);
     	} catch (FileNotFoundException e) {
     		logger.warn("Root of project " + svn.getName()
     	          + " does not exist: " + e.getMessage());
@@ -527,10 +528,15 @@ public class FDSServiceImpl implements FDSService {
         }
     }
 
+    /** {@inheritDoc} */
+    public InMemoryCheckoutImpl getInMemoryCheckout(long projectId, ProjectRevision r)
+            throws InvalidRepositoryException, InvalidProjectRevisionException {
+        return getInMemoryCheckout(projectId, r, Pattern.compile(".*"));
+    }
 
     /** {@inheritDoc} */
-	public InMemoryCheckoutImpl getInMemoryCheckout(long projectId, ProjectRevision r)
-			throws InvalidRepositoryException, InvalidProjectRevisionException {
+    public InMemoryCheckoutImpl getInMemoryCheckout(long projectId, ProjectRevision r, Pattern pattern)
+            throws InvalidRepositoryException, InvalidProjectRevisionException {
 		if(!tds.projectExists(projectId)) {
 			throw new InvalidRepositoryException(String.valueOf(projectId),
 					"", "No such project to check out.");
@@ -557,7 +563,7 @@ public class FDSServiceImpl implements FDSService {
 		svn.resolveProjectRevision(r);
 	    logger.info("Finding available checkout for "
 	               + svn.getName() + " " + r);
-	    return createInMemoryCheckout(svn,r);
+	    return createInMemoryCheckout(svn, r, pattern);
 	}
 	
     /** {@inheritDoc} */

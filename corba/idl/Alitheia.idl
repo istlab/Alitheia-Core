@@ -186,10 +186,7 @@ module alitheia
     long getFileContentParts( in ProjectFile file, in long begin, in long length, out string contents );
 
     // creates a checkout of all files of the current \a version
-    Checkout getCheckout( in ProjectVersion version );
-
-    // releases a checkout
-    void releaseCheckout( in ProjectVersion version );
+    Checkout getCheckout( in ProjectVersion version, in string pattern );
   };
 
   struct map_entry

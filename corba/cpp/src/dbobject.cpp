@@ -69,6 +69,27 @@ StoredProject StoredProject::fromCorba( const CORBA::Any& any )
     return StoredProject( project );
 }
 
+StoredProject StoredProject::getProjectByName( const std::string& name )
+{
+    Database db;
+    Database::property_map properties;
+    properties[ "name" ] = name;
+    const vector< StoredProject > projects = db.findObjectsByProperties< StoredProject >( properties );
+    return projects.empty() ? StoredProject() : projects.front();
+}
+
+ProjectVersion StoredProject::getLastProjectVersion( const StoredProject& project )
+{
+    Database db;
+    Database::property_map properties;
+    properties[ "sp" ] = project;
+    const vector< Database::db_row_entry > versions = db.doHQL(
+        "from ProjectVersion pv where pv.project=:sp "
+        "and pv.version = ( select max( pv2.version ) from "
+        "ProjectVersion pv2 where pv2.project=:sp)", properties );
+    return versions.empty() ? ProjectVersion() : boost::get< ProjectVersion >( versions.front() );
+}
+ 
 ProjectVersion::ProjectVersion( const alitheia::ProjectVersion& version )
     : DAObject( version.id ),
       project( version.project ),
@@ -195,6 +216,14 @@ void ProjectFile::save( const string& filename ) const
 {
     ofstream file( filename.c_str() );
     save( file );
+}
+
+std::string ProjectFile::getFileName() const
+{
+    if( directory.path == "/" )
+        return directory.path + name;
+    else
+        return directory.path + "/" + name;
 }
 
 alitheia::ProjectFile ProjectFile::toCorba() const

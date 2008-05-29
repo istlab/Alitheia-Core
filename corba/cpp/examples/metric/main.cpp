@@ -3,6 +3,7 @@
 #include <Metric>
 #include <DBObject>
 #include <Database>
+#include <FDS>
 
 #include <sstream>
 #include <ostream>
@@ -107,22 +108,19 @@ int main( int argc, char **argv)
 {
     Core& c = *Core::instance();
    
-    Database db;
-    Database::property_map properties;
-    properties[ "name" ] = std::string( "svn" );
-    const std::vector<StoredProject> projects = db.findObjectsByProperties< StoredProject >( properties );
-    cout << projects.size() << endl;
-    const StoredProject& p = projects.front();
-    //const StoredProject p = db.findObjectById< StoredProject >( 34578 );
+    const StoredProject p = StoredProject::getProjectByName( "SVN" );
     cout << p.id << " " << p.name << endl;
-/*    p.name = "PDFCreator";
-    db.updateRecord( p );
-   
-    p = db.findObjectById< StoredProject >( p.id );
-    cout << p.name << endl;*/
 
-    const Developer dev = Developer::byUsername( "christoph", p );
-    cout << dev.id << endl;
+    const ProjectVersion v = StoredProject::getLastProjectVersion( p );
+    cout << v.id << " " << v.version << endl;
+
+    FDS fds;
+    const Checkout co = fds.getCheckout( v, "/mirror/.*" );
+    
+    for( vector< ProjectFile >::const_iterator it = co.files.begin(); it != co.files.end(); ++it )
+    {
+        cout << it->getFileName() << endl;
+    }
 
     return 0;
 
