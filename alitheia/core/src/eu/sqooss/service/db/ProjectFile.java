@@ -103,7 +103,11 @@ public class ProjectFile extends DAObject{
      * @return 
      */
     public String getFileName() {
-        return dir.getPath() + "/" + name;
+        String result = dir.getPath();
+        if (!result.endsWith("/"))
+            result += "/";
+        result += name;
+        return result;
     }
     
     /**
