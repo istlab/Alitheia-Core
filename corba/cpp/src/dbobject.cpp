@@ -388,7 +388,7 @@ PluginConfiguration::PluginConfiguration( const alitheia::PluginConfiguration& c
       value( config.value ),
       type( config.type ),
       msg( config.msg ),
-      plugin( config.plugin )
+      plugin( config.metricPlugin )
 {
 }
 
@@ -407,7 +407,7 @@ alitheia::PluginConfiguration PluginConfiguration::toCorba() const
     result.value = CORBA::string_dup( value.c_str() );
     result.type = CORBA::string_dup( type.c_str() );
     result.msg = CORBA::string_dup( msg.c_str() );
-    result.plugin = plugin.toCorba();
+    result.metricPlugin = plugin.toCorba();
     return result;
 }
 

@@ -97,7 +97,7 @@ module alitheia
     string value;
     string type;
     string msg;
-    Plugin plugin;
+    Plugin metricPlugin;
   };
 
   struct Metric

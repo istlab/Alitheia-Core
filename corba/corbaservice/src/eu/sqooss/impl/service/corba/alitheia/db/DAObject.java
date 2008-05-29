@@ -387,7 +387,7 @@ public abstract class DAObject {
         plugin.value = p.getValue() == null ? "" : p.getValue();
         plugin.type = p.getType() == null ? "" : p.getType();
         plugin.msg = p.getMsg() == null ? "" : p.getMsg();
-        plugin.plugin = p.getPlugin() == null ? new eu.sqooss.impl.service.corba.alitheia.Plugin() : toCorbaObject(p.getPlugin());
+        plugin.metricPlugin = p.getPlugin() == null ? new eu.sqooss.impl.service.corba.alitheia.Plugin() : toCorbaObject(p.getPlugin());
         return plugin;
     }
 
@@ -401,7 +401,7 @@ public abstract class DAObject {
         plugin.setValue(p.value);
         plugin.setType(p.type);
         plugin.setMsg(p.msg);
-        plugin.setPlugin(fromCorbaObject(p.plugin));
+        plugin.setPlugin(fromCorbaObject(p.metricPlugin));
         return plugin;
     }
 
