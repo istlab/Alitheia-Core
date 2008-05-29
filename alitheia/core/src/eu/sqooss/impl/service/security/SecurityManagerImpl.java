@@ -213,24 +213,26 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
             return false;
         }
         
-        try {
+        boolean isDBSessionActive = db.isDBSessionActive();
+        if (!isDBSessionActive) {
             db.startDBSession();
+        }
+        
+        try {
             if (dbWrapper.isExistentResourceUrl(resourceUrl, userName, passwordHash)) {
-                boolean ok = checkPermissionPrivileges(resourceUrl, privileges, userName, passwordHash);
-                db.commitDBSession();
-                return ok;
+                return checkPermissionPrivileges(resourceUrl, privileges, userName, passwordHash);
             } else if (dbWrapper.isExistentResourceUrl(URL_SQOOSS, userName, passwordHash)) {
-                boolean ok = checkPermissionPrivileges(URL_SQOOSS, privileges, userName, passwordHash);
-                db.commitDBSession();
-                return ok;
+                return checkPermissionPrivileges(URL_SQOOSS, privileges, userName, passwordHash);
             } else {
-                db.commitDBSession();
                 return false; //there aren't privileges
             }
         } catch (RuntimeException re) {
             logger.warn(re.getMessage());
-            db.rollbackDBSession();
             return false;
+        } finally {
+            if ((!isDBSessionActive) && db.isDBSessionActive()) {
+                db.commitDBSession();
+            }
         }
     }
 
@@ -330,8 +332,8 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
 
     private boolean checkPermissionPrivileges(String resourceUrl, Dictionary<String, String> privileges, String userName, String password) {
         
-        if (dbWrapper.checkAuthorizationRule(resourceUrl, Privilege.ALL.toString(),
-                PrivilegeValue.ALL.toString(), userName, password)) {
+        if (dbWrapper.checkAuthorizationRule(resourceUrl, ALL_PRIVILEGES,
+                ALL_PRIVILEGE_VALUES, userName, password)) {
             return true;
         }
 
@@ -346,10 +348,10 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
                 result = result &&
                        (dbWrapper.checkAuthorizationRule(resourceUrl, currentPrivilegeName, 
                             currentPrivilegeValue, userName, password) ||
-                        dbWrapper.checkAuthorizationRule(resourceUrl, Privilege.ALL.toString(), 
+                        dbWrapper.checkAuthorizationRule(resourceUrl, ALL_PRIVILEGES, 
                             currentPrivilegeValue, userName, password) ||
                         dbWrapper.checkAuthorizationRule(resourceUrl, currentPrivilegeName,
-                            PrivilegeValue.ALL.toString(), userName, password));
+                            ALL_PRIVILEGE_VALUES, userName, password));
             }
         }
         
@@ -423,7 +425,7 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
     }
 
     public Object selfTest() {
-        SelfTester tester = new SelfTester(this);
+        SelfTester tester = new SelfTester(this, db);
         return tester.test();
     }
 

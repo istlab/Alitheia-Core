@@ -41,7 +41,6 @@ import eu.sqooss.service.db.Privilege;
 import eu.sqooss.service.db.PrivilegeValue;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.security.PrivilegeManager;
-import eu.sqooss.service.security.SecurityConstants;
 
 public class PrivilegeManagerImpl implements PrivilegeManager {
 
@@ -68,13 +67,6 @@ public class PrivilegeManagerImpl implements PrivilegeManager {
         }
     }
 
-    /**
-     * @see eu.sqooss.service.security.PrivilegeManager#createPrivilege(eu.sqooss.service.security.SecurityConstants.Privilege)
-     */
-    public Privilege createPrivilege(SecurityConstants.Privilege privilege) {
-        return createPrivilege(privilege.toString());
-    }
-    
     /**
      * @see eu.sqooss.service.security.PrivilegeManager#createPrivilegeValue(long, java.lang.String)
      */

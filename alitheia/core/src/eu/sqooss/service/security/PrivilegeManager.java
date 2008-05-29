@@ -131,17 +131,6 @@ public interface PrivilegeManager {
     public Privilege createPrivilege(String privilegeName);
 
     /**
-     * This method creates a new privilege, based on one of the pre-defined
-     * privilege's descriptors {@link SecurityConstants.Privilege}.
-     * 
-     * @param privilegeName - the privilege's descriptor
-     * 
-     * @return The new privilege's <code>Privilege</code> object,
-     *   or <code>null</code> if the privilege can not be created.
-     */
-    public Privilege createPrivilege(SecurityConstants.Privilege privilege);
-
-    /**
      * This method creates a new privilege's value associated with the given
      * privilege's value descriptor, and assigns it to the privilege
      * referenced with the specified privilege identifier.

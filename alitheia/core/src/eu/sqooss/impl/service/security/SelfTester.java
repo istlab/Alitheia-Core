@@ -32,9 +32,7 @@
 
 package eu.sqooss.impl.service.security;
 
-import java.util.Dictionary;
-import java.util.Hashtable;
-
+import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Group;
 import eu.sqooss.service.db.Privilege;
 import eu.sqooss.service.db.PrivilegeValue;
@@ -59,7 +57,9 @@ public class SelfTester {
     private static final String TEST_PASS  = "alitheia_test_pass";
     private static final String TEST_MAIL  = "alihteia_test_mail";
     private static final String TEST_GROUP = "alitheia_test_group";
+    private static final String TEST_SERVICE_URL = "alitheia_test_url";
     
+    private DBService db;
     private SecurityManager securityManager;
     private UserManager userManager;
     private GroupManager groupManager;
@@ -67,7 +67,8 @@ public class SelfTester {
     private PrivilegeManager privilegeManager;
     private boolean isEnable;
     
-    public SelfTester(SecurityManager securityManager) {
+    public SelfTester(SecurityManager securityManager, DBService db) {
+        this.db = db;
         this.securityManager = securityManager;
         this.userManager = securityManager.getUserManager();
         this.groupManager = securityManager.getGroupManager();
@@ -77,11 +78,10 @@ public class SelfTester {
     }
     
     public String test() {
-        // FIXME : Get access to the DBService to start and end a session
-        
         if (!isEnable) {
             return null; //the security control is not enabled
         }
+        db.startDBSession();
         try {
             String testResult;
 
@@ -110,6 +110,10 @@ public class SelfTester {
             }
         } catch (Throwable t) {
             return "Unexpected exception: " + t.getMessage();
+        } finally {
+            if (db.isDBSessionActive()) {
+                db.commitDBSession();
+            }
         }
         return null;
     }
@@ -151,13 +155,6 @@ public class SelfTester {
         if (defaultUserGroup == null) {
             return "Can't find default user's group!";
         }
-        Dictionary<String, String> privileges = new Hashtable<String, String>();
-        privileges.put(SecurityConstants.Privilege.ACTION.toString(),
-                SecurityConstants.PrivilegeValue.WRITE.toString());
-        if(!securityManager.checkPermission(SecurityConstants.URL_SQOOSS_SECURITY,
-                privileges, defaultUserName, defaultUserPassword)){
-            return "The default user's permissions are not set!";
-        }
         return null;
     }
     
@@ -174,6 +171,10 @@ public class SelfTester {
                 return "Could not create a test user!";
             }
 
+            if (userManager.getUser(newUser.getId()).getId() != newUser.getId()) {
+                return "The test user isn't created correct!";
+            }
+            
             if (userManager.getUser(newUser.getName()).getId() != newUser.getId()) {
                 return "The test user isn't created correct!";
             }
@@ -185,7 +186,6 @@ public class SelfTester {
             if (!modifiedMail.equals(userManager.getUser(newUser.getName()).getEmail())) {
                 return "The test user isn't modified correct!";
             }
-            
         } finally {
             testClear(newUser, null, null, null, null);
         }
@@ -212,7 +212,7 @@ public class SelfTester {
             groupManager.addUserToGroup(newGroup.getId(), newUser.getId());
 
             Group[] newUserGroups = groupManager.getGroups(newUser.getId());
-            if ((newUserGroups == null) || (newUserGroups.length != 2)) {
+            if ((newUserGroups == null) || (newUserGroups.length != 1)) {
                 return "The user's groups are incorrect!";
             }
 
@@ -252,7 +252,7 @@ public class SelfTester {
         
         try {
             newPrivilege = privilegeManager.createPrivilege(
-                    SecurityConstants.Privilege.ALL.toString());
+                    SecurityConstants.ALL_PRIVILEGES);
             if (newPrivilege == null) {
                 return "Could not create a test privilege!";
             }
@@ -262,7 +262,7 @@ public class SelfTester {
             }
             
             newPrivilegeValue = privilegeManager.createPrivilegeValue(newPrivilege.getId(),
-                    SecurityConstants.Privilege.ALL.toString());
+                    SecurityConstants.ALL_PRIVILEGES);
             if (newPrivilegeValue == null) {
                 return "Could not create a test privilege value!";
             }
@@ -322,9 +322,9 @@ public class SelfTester {
             serviceUrl = serviceUrlManager.createServiceUrl(
                     SecurityConstants.URL_SQOOSS);
             privilege = privilegeManager.createPrivilege(
-                    SecurityConstants.Privilege.ALL);
+                    SecurityConstants.ALL_PRIVILEGES);
             privilegeValue = privilegeManager.createPrivilegeValue(
-                    privilege.getId(), SecurityConstants.PrivilegeValue.ALL.toString());
+                    privilege.getId(), SecurityConstants.ALL_PRIVILEGE_VALUES);
 
             if (!groupManager.addUserToGroup(group.getId(), user.getId())) {
                 return false;
@@ -335,7 +335,12 @@ public class SelfTester {
                 return false;
             }
 
-            if (!securityManager.checkPermission(SecurityConstants.URL_SQOOSS_DATABASE,
+            if (!securityManager.checkPermission(SecurityConstants.URL_SQOOSS,
+                    null, TEST_USER, TEST_PASS)) {
+                return false;
+            }
+            
+            if (!securityManager.checkPermission(TEST_SERVICE_URL,
                     null, TEST_USER, TEST_PASS)) {
                 return false;
             }
@@ -350,7 +355,12 @@ public class SelfTester {
                 return false;
             }
             
-            if (!securityManager.checkPermission(SecurityConstants.URL_SQOOSS_DATABASE,
+            if (!securityManager.checkPermission(SecurityConstants.URL_SQOOSS,
+                    null, TEST_USER, TEST_PASS)) {
+                return false;
+            }
+            
+            if (!securityManager.checkPermission(TEST_SERVICE_URL,
                     null, TEST_USER, TEST_PASS)) {
                 return false;
             }

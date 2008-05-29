@@ -60,78 +60,9 @@ public interface SecurityConstants {
      */
     public static final String URL_SQOOSS = "svc://sqooss";
     
-    /**
-     * Represents the url of the service system.
-     */
-    public static final String URL_SQOOSS_SERVICE      = SecurityConstants.URL_SQOOSS + ".service";
+    public static final String ALL_PRIVILEGES = "<all privileges>";
     
-    /**
-     * Represents the url of the database connectivity.
-     */
-    public static final String URL_SQOOSS_DATABASE     = SecurityConstants.URL_SQOOSS + ".database";
-    
-    /**
-     * Represents the url of the security.
-     */
-    public static final String URL_SQOOSS_SECURITY     = SecurityConstants.URL_SQOOSS + ".security";
-    
-    /**
-     * Represents the url of the messaging.
-     */
-    public static final String URL_SQOOSS_MESSAGING    = SecurityConstants.URL_SQOOSS + ".messaging";
-    
-    /**
-     * Represents the url of the web services.
-     */
-    public static final String URL_SQOOSS_WEB_SERVICES = SecurityConstants.URL_SQOOSS + ".webservices";
-    
-    /**
-     * Represents the url of the scheduling.
-     */
-    public static final String URL_SQOOSS_SCHEDULING   = SecurityConstants.URL_SQOOSS + ".scheduling";
-    
-    /**
-     * Represents the url of the updater.
-     */
-    public static final String URL_SQOOSS_UPDATER      = SecurityConstants.URL_SQOOSS + ".updater";
-    
-    public static final String URL_SQOOSS_PROJECTS     = SecurityConstants.URL_SQOOSS + ".projects";
-    
-    /**
-     * Represents some of the privileges.
-     * The user should use the toString() method.
-     */
-    public static enum Privilege {
-        ACTION,
-        PROJECT_ID,
-        PROJECT_VERSION_ID,
-        METRIC_MNEMONIC,
-        USER_ID,
-        ALL;
-        public String toString() {
-            String name = name();
-            if (name.equals(ALL.name())) {
-                return "<all privileges>";
-            } else {
-                return name.toLowerCase(); 
-            }
-        }
-        
-    };
-    
-    public static enum PrivilegeValue {
-        READ,
-        WRITE,
-        ALL;
-        public String toString() {
-            String name = name();
-            if (name.equals(ALL.name())) {
-                return "<all privilege values>";
-            } else {
-                return name().toLowerCase();
-            }
-        }
-    }
+    public static final String ALL_PRIVILEGE_VALUES = "<all privilege values>";
     
 }
 
