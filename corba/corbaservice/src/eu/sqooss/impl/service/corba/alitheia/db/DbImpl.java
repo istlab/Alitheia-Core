@@ -42,16 +42,11 @@ public class DbImpl extends DatabasePOA {
 	 * @return true if the record insertion succeeded, false otherwise
 	 */
     public boolean addRecord(AnyHolder dbObject) {
-        final boolean started = !db.isDBSessionActive();
-        if (started) {
-            db.startDBSession();
-        }
+        db.startDBSession();
         eu.sqooss.service.db.DAObject obj = DAObject.fromCorbaObject(dbObject.value);
         boolean result = db.addRecord(obj);
         dbObject.value = DAObject.toCorbaObject(obj);
-        if (started) {
-            db.commitDBSession();
-        }
+        db.commitDBSession();
         return result;
     }
 
@@ -62,12 +57,15 @@ public class DbImpl extends DatabasePOA {
      * @return true if the record update succeeded, false otherwise
      */
     public boolean updateRecord(AnyHolder record) {
+        db.startDBSession();
         eu.sqooss.service.db.DAObject obj = DAObject.fromCorbaObject(record.value);
         if (obj.getId()==0) {
+            db.commitDBSession();
             return false;
         }
         //boolean result = db.updateRecord(obj);
         record.value = DAObject.toCorbaObject(obj);
+        db.commitDBSession();
         return true;
     }
 
@@ -78,14 +76,9 @@ public class DbImpl extends DatabasePOA {
      * @return true if the record deletion succeeded, false otherwise
      */
     public boolean deleteRecord(Any record) {
-        final boolean started = !db.isDBSessionActive();
-        if (started) {
-            db.startDBSession();
-        }
+        db.startDBSession();
         boolean result = db.deleteRecord(DAObject.fromCorbaObject(record));
-        if (started) {
-            db.commitDBSession();
-        }
+        db.commitDBSession();
         return result;
     }
 
@@ -99,17 +92,12 @@ public class DbImpl extends DatabasePOA {
      */
     @SuppressWarnings("unchecked")
     public Any findObjectById(Any type, int id) {
+        db.startDBSession();
         Class<eu.sqooss.service.db.DAObject> classType = 
             (Class<eu.sqooss.service.db.DAObject>) DAObject.fromCorbaType(type);
-        final boolean started = !db.isDBSessionActive();
-        if (started) {
-            db.startDBSession();
-        }
-        eu.sqooss.service.db.DAObject obj = db.findObjectById(classType, id);
+         eu.sqooss.service.db.DAObject obj = db.findObjectById(classType, id);
         Any result = DAObject.toCorbaObject(obj);
-        if (started) {
-            db.commitDBSession();
-        }
+        db.commitDBSession();
         return result;
     }
 
@@ -123,30 +111,22 @@ public class DbImpl extends DatabasePOA {
     
     @SuppressWarnings("unchecked")
     public Any[] findObjectsByProperties(Any type, map_entry[] properties) {
+        db.startDBSession();
         Map<String, Object> propMap = arrayToMap(properties);
         Class<eu.sqooss.service.db.DAObject> classType = 
             (Class<eu.sqooss.service.db.DAObject>) DAObject.fromCorbaType(type);
-        final boolean started = !db.isDBSessionActive();
-        if (started) {
-            db.startDBSession();
-        }
         List<eu.sqooss.service.db.DAObject> objects = db.findObjectsByProperties(classType, propMap);
         Any[] result = new Any[objects.size()];
         for (int i = 0; i < objects.size(); ++i) {
             result[i] = DAObject.toCorbaObject(objects.get(i));
         }
-        if (started) {
-            db.commitDBSession();
-        }
+        db.commitDBSession();
         return result;
     }
 
     public Any[] doHQL(String hql, map_entry[] params) {
+        db.startDBSession();
         Map<String, Object> propMap = arrayToMap(params);
-        final boolean started = !db.isDBSessionActive();
-        if (started) {
-            db.startDBSession();
-        }
         List<?> objects = db.doHQL(hql, propMap);
         Any[] result = new Any[objects.size()];
         for (int i = 0; i < objects.size(); ++i) {
@@ -160,21 +140,16 @@ public class DbImpl extends DatabasePOA {
             else if (o instanceof String)
                 result[i].insert_string((String)o);
         }
-        if (started) {
-            db.commitDBSession();
-        }
+        db.commitDBSession();
         return result;
     }
 
     public Any[] doSQL(String sql, map_entry[] params) {
+        db.startDBSession();
         Map<String, Object> propMap = arrayToMap(params);
         List<?> objects;
         Any[] result = null;
         try {
-            final boolean started = !db.isDBSessionActive();
-            if (started) {
-                db.startDBSession();
-            }
             objects = db.doSQL(sql, propMap);
         
             result = new Any[objects.size()];
@@ -189,9 +164,7 @@ public class DbImpl extends DatabasePOA {
                 else if (o instanceof String)
                     result[i].insert_string((String)o);
             }
-            if (started) {
-                db.commitDBSession();
-            }
+            db.commitDBSession();
         } catch (Exception e) {
             db.rollbackDBSession();
             return null;

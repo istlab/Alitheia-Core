@@ -4,6 +4,7 @@
 #include <Metric>
 #include <Logger>
 #include <FDS>
+#include <Scheduler>
 
 #include <string>
 #include <vector>
@@ -47,6 +48,7 @@ public:
 
 private:
     Alitheia::Logger logger;
+    Alitheia::Scheduler scheduler;
 
     std::string metric;
     std::string program;
@@ -68,10 +70,11 @@ public:
     std::string getResult( const Alitheia::ProjectVersion& ) const;
     void run( Alitheia::ProjectVersion& );
 
-    Alitheia::FDS fds;
 
 private:
+    Alitheia::FDS fds;
     Alitheia::Logger logger;
+    Alitheia::Scheduler scheduler;
 
     std::string metric;
     std::string program;

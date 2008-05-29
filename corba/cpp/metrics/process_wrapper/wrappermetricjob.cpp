@@ -146,8 +146,6 @@ void ProjectFileWrapperMetricJob::run()
 
 void ProjectFileWrapperMetricJob::stateChanged( State state )
 {
-    if( state == Finished )
-        delete this;
 }
 
 ProjectVersionWrapperMetricJob::ProjectVersionWrapperMetricJob( const ProjectVersionWrapperMetric* metric, const string& program, 
@@ -235,8 +233,4 @@ void ProjectVersionWrapperMetricJob::run()
 
 void ProjectVersionWrapperMetricJob::stateChanged( State state )
 {
-    if( state == Finished )
-    {
-        delete this;
-    }
 }

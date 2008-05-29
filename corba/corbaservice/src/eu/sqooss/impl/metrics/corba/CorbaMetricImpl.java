@@ -37,14 +37,9 @@ abstract public class CorbaMetricImpl extends AbstractMetric {
      * @return
      */
     public boolean doAddSupportedMetrics(String desc, String mnemonic, MetricType.Type type) {
-        final boolean startedSession = !db.isDBSessionActive(); 
-        if (startedSession) {
-            db.startDBSession();
-        }
+        db.startDBSession();
         final boolean result = addSupportedMetrics(desc, mnemonic, type);
-        if (startedSession) {
-            db.commitDBSession();
-        }
+        db.commitDBSession();
         return result;
     }
 
@@ -80,18 +75,11 @@ abstract public class CorbaMetricImpl extends AbstractMetric {
      * {@inheritDoc}
      */
     public boolean install() {
-        final boolean startedSession = !db.isDBSessionActive(); 
-        if (startedSession) {
-            db.startDBSession();
-        }
         boolean result = super.install();
         // w/o commiting here, the Plugin won't be there
         db.commitDBSession();
         db.startDBSession();
         result = result && m.doInstall();
-        if (startedSession) {
-            db.commitDBSession();
-        }
         return result;
     }
 

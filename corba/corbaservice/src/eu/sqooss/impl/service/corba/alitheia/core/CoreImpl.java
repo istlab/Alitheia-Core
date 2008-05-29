@@ -45,7 +45,7 @@ public class CoreImpl extends CorePOA {
     FDSService fds = null;
     AlitheiaCore core = null;
     DBService db = null;
-
+    
     Map< String, CorbaJobImpl > registeredJobs = null;
     Map< String, CorbaMetricImpl > registeredMetrics = null;
     
@@ -104,7 +104,6 @@ public class CoreImpl extends CorePOA {
             FileGroupMetric m = FileGroupMetricHelper.narrow(o);
             wrapper = new CorbaFileGroupMetricImpl(bc,m);
         }
-        
         registeredMetrics.put(name, wrapper);
         
         return CorbaActivator.instance().registerExternalCorbaObject(CorbaMetricImpl.class.getName(), wrapper);
@@ -124,10 +123,7 @@ public class CoreImpl extends CorePOA {
      */
     public Metric[] getSupportedMetrics(String metricname) {
         CorbaMetricImpl metric = registeredMetrics.get(metricname);
-        final boolean startedSession = !db.isDBSessionActive(); 
-        if (startedSession) {
-            db.startDBSession();
-        }
+        db.startDBSession();
         List<eu.sqooss.service.db.Metric> metrics = metric.getSupportedMetrics();
         
         Metric[] result = new Metric[metrics.size()];
@@ -135,9 +131,7 @@ public class CoreImpl extends CorePOA {
             result[ i ] = DAObject.toCorbaObject(metrics.get(i));
         }
 
-        if (startedSession) {
-            db.commitDBSession();
-        }
+        db.commitDBSession();
 
         return result;
     }
@@ -158,6 +152,7 @@ public class CoreImpl extends CorePOA {
      * Get a list of all files added/deleted/changed in \a version.
      */
     public ProjectFile[] getVersionFiles (ProjectVersion version) {
+        db.startDBSession();
         Set<eu.sqooss.service.db.ProjectFile> files = DAObject.fromCorbaObject(version).getVersionFiles();
         eu.sqooss.service.db.ProjectFile[] filesArray = (eu.sqooss.service.db.ProjectFile[]) files.toArray();
         
@@ -166,6 +161,7 @@ public class CoreImpl extends CorePOA {
             result[ i ] = DAObject.toCorbaObject(filesArray[ i ]);
         }
 
+        db.commitDBSession();
         return result;
     }
 }

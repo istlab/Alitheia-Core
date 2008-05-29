@@ -51,10 +51,7 @@ public class FDSImpl extends FDSPOA {
      * @return The size of the file. 
      */
     public int getFileContents(ProjectFile file, StringHolder contents) {
-        final boolean started = !db.isDBSessionActive();
-        if (started) {
-            db.startDBSession();
-        }
+        db.startDBSession();
         try {
             InputStream stream = fds.getFileContents(DAObject.fromCorbaObject(file));
             final int length = 1024;
@@ -70,9 +67,7 @@ public class FDSImpl extends FDSPOA {
             e.printStackTrace();
             return 0;
         } finally {
-            if (started) {
-                db.commitDBSession();
-            }
+            db.commitDBSession();
         }
         return contents.value.length();
     }
@@ -83,10 +78,7 @@ public class FDSImpl extends FDSPOA {
      * @return The size of the file. 
      */
     public int getFileContentParts(ProjectFile file, int begin, int length, StringHolder contents) {
-        final boolean started = !db.isDBSessionActive();
-        if (started) {
-            db.startDBSession();
-        }
+        db.startDBSession();
         byte[] content = new byte[length];
         int bytesRead = 0;
         try {
@@ -97,10 +89,7 @@ public class FDSImpl extends FDSPOA {
             System.out.println(e.toString());
             e.printStackTrace();
         } finally {
-            if (started) {
-                db.commitDBSession();
-            }
-
+            db.commitDBSession();
         }
         contents.value = new String(content, 0, bytesRead);
         return content.length;
@@ -144,23 +133,17 @@ public class FDSImpl extends FDSPOA {
 	 * @param version The ProjectVersion to create the checkout for.
 	 */
 	public Checkout getCheckout(ProjectVersion version) {
-        final boolean started = !db.isDBSessionActive();
-        if (started) {
-            db.startDBSession();
+        db.startDBSession();
+		Checkout result = null;
+        try {
+            result = createCheckout(DAObject.fromCorbaObject(version));
+        } catch (InvalidRepositoryException e) {
+            // just returns null, then;
+        } catch (InvalidProjectRevisionException e) {
+        } finally {
+            db.commitDBSession();
         }
-		synchronized( checkouts ) {
-			if (!checkouts.containsKey(version)) {
-				try {
-					checkouts.put(version, createCheckout(DAObject.fromCorbaObject(version)));
-				} catch (Exception e) {
-					return null;
-				}
-			}
-	        if (started) {
-	            db.commitDBSession();
-	        }
-			return checkouts.get(version);
-		}
+		return result;
 	}
 
 	/**

@@ -109,7 +109,7 @@ int main( int argc, char **argv)
    
     Database db;
     Database::property_map properties;
-    properties[ "name" ] = std::string( "PDFCreator" );
+    properties[ "name" ] = std::string( "svn" );
     const std::vector<StoredProject> projects = db.findObjectsByProperties< StoredProject >( properties );
     cout << projects.size() << endl;
     const StoredProject& p = projects.front();
