@@ -11,5 +11,3 @@ l.error( "Test" )
 j = Job()
 s = Scheduler()
 s.enqueueJob( j )
-
-Core.shutdown()

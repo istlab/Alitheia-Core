@@ -9,6 +9,7 @@ import eu__POA
 class CorbaHandler:
 
     orb = None
+    poa = None
     poaobj = None
     orb_thread = None
     m_instance = None
@@ -27,6 +28,8 @@ class CorbaHandler:
     def __init__(self):
         self.orb = CORBA.ORB_init(['-ORBInitRef','NameService=corbaloc:iiop:1.2@localhost:2809/NameService'], CORBA.ORB_ID)
         self.poaobj = self.orb.resolve_initial_references("RootPOA")
+        poaManager = self.poaobj._get_the_POAManager()
+        poaManager.activate()
         self.orb_thread = CorbaHandler.OrbThread(self.orb)
 
     @staticmethod
@@ -64,9 +67,12 @@ class Job (eu__POA.sqooss.impl.service.corba.alitheia.Job):
         print "run!"
 
     def priority(self):
+        print "priority!"
         return 0
 
-    def stateChanged(self,state):
+    def setState(self,state):
+        print "stateChanged!"
+        print state
         return
 
 class Scheduler:
