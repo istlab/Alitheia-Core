@@ -77,8 +77,6 @@ class InMemoryCheckoutImpl implements InMemoryCheckout {
 
     private InMemoryDirectory root;
     
-    private int claims;
-    
     InMemoryCheckoutImpl(SCMAccessor scm, String path, ProjectRevision r)
         throws FileNotFoundException,
                InvalidProjectRevisionException,
@@ -138,18 +136,6 @@ class InMemoryCheckoutImpl implements InMemoryCheckout {
                 }
             }
         }
-    }
-        
-    public int claim() {
-        return ++claims;
-    }
-
-    public int release() {
-        return --claims;
-    }
-
-    public int getReferenceCount() {
-        return claims;
     }
 
     public void setRevision(ProjectRevision r) {

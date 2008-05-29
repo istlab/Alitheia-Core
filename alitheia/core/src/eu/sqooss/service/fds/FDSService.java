@@ -100,8 +100,6 @@ public interface FDSService {
      */
     void releaseCheckout(Checkout c)
     	throws InvalidRepositoryException;
-    void releaseCheckout(InMemoryCheckout c)
-    	throws InvalidRepositoryException;
     
     /**
      * This function returns a timeline view (combined metadata and pointers 

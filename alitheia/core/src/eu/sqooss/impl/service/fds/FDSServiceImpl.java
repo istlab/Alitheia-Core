@@ -32,7 +32,6 @@
 
 package eu.sqooss.impl.service.fds;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -102,7 +101,6 @@ public class FDSServiceImpl implements FDSService {
      * checkouts all have different revisions.
      */
     private HashMap < Long, List < CheckoutImpl > > checkoutCollection;
-    private HashMap < Long, List < InMemoryCheckoutImpl > > inMemoryCheckoutCollection;
 
     /*
      * The following constants influence the formatting of checkout
@@ -179,7 +177,6 @@ public class FDSServiceImpl implements FDSService {
         logger.info("Got TDS service for FDS.");
 
         checkoutCollection = new HashMap < Long, List < CheckoutImpl > >();
-        inMemoryCheckoutCollection = new HashMap< Long, List< InMemoryCheckoutImpl > >();
 
         // Get the checkout root from the properties file.
         String s = bc.getProperty("eu.sqooss.fds.root");
@@ -227,20 +224,6 @@ public class FDSServiceImpl implements FDSService {
         }
         return null;
     }
-
-    private InMemoryCheckoutImpl findCheckout(final List < InMemoryCheckoutImpl > l,
-            final ProjectRevision r) {
-            if (!r.hasSVNRevision()) {
-                return null;
-            }
-            for (Iterator < InMemoryCheckoutImpl > i = l.iterator(); i.hasNext(); ) {
-                InMemoryCheckoutImpl c = i.next();
-                if (c.getRevision().getSVNRevision() == r.getSVNRevision()) {
-                    return c;
-                }
-            }
-            return null;
-        }
 
     /**
      * Scan a list of checkouts heuristically for one checkout that is
@@ -313,30 +296,6 @@ public class FDSServiceImpl implements FDSService {
         }
     }
 
-    private InMemoryCheckoutImpl findInMemoryCheckout(InMemoryCheckout c)
-    	throws InvalidRepositoryException {
-    	List<InMemoryCheckoutImpl> l = inMemoryCheckoutCollection.get(c.getId());
-    	if (l == null) {
-        	throw new InvalidRepositoryException(c.getName(),"",
-        		"No managed checkout for this project.");
-    	}
-    	if (!c.getRevision().isValid() || !c.getRevision().hasSVNRevision()) {
-        	throw new InvalidRepositoryException(c.getName(),"",
-            	"Bogus checkout has bad revision attached.");
-    	}
-
-    	InMemoryCheckoutImpl candidate = findCheckout(l, c.getRevision());
-    	if (candidate == c) {
-        	return candidate;
-    	} else {
-        	// This means that we have two objects in the checkoutCollection
-        	// with the same project name and the same SVN revision, but
-        	// they are different objects. This must not happen.
-    		throw new RuntimeException("Duplicate checkouts for "
-        		+ c.getName() + " " + c.getRevision());
-    	}
-    }
-
     private InMemoryCheckoutImpl createInMemoryCheckout(SCMAccessor svn, ProjectRevision r) 
     	throws InvalidRepositoryException,
     	       InvalidProjectRevisionException {
@@ -344,9 +303,7 @@ public class FDSServiceImpl implements FDSService {
         svn.resolveProjectRevision(r);
         
         try {
-        	InMemoryCheckoutImpl c = new InMemoryCheckoutImpl(svn, "",r);
-        	c.claim();
-        	return c;
+        	return new InMemoryCheckoutImpl(svn, "",r);
     	} catch (FileNotFoundException e) {
     		logger.warn("Root of project " + svn.getName()
     	          + " does not exist: " + e.getMessage());
@@ -678,15 +635,6 @@ public class FDSServiceImpl implements FDSService {
     	}
     }
 
-    public void releaseCheckout(InMemoryCheckout c)
-    	throws InvalidRepositoryException {
-    	InMemoryCheckoutImpl i = findInMemoryCheckout(c);
-    	if (i.release() < 1) {
-    		logger.info("Checkout of " + c.getName() + " (" +
-    				c.getRevision() + ") is free.");
-    	}
-    }
-
     /**
      * Perform a self-test on the FDS by trying various operations
      * on existing checkouts.
@@ -817,13 +765,6 @@ public class FDSServiceImpl implements FDSService {
             return new String("Unexpected exception thrown for p." + TEST_PROJECT_ID + " r.1");
         }
         
-        if (inMemoryProjectCheckout != null) {
-            try {
-                releaseCheckout(inMemoryProjectCheckout);
-            } catch (InvalidRepositoryException e) {
-                logger.warn("Project ID " + TEST_PROJECT_ID + " is no longer managed.");
-            }
-        }
         dbs.commitDBSession();
         
 
@@ -876,14 +817,9 @@ public class FDSServiceImpl implements FDSService {
             				+ "different object.");
             	}
                 while (currentRevision < 60) {
-                    releaseCheckout(otherInMemoryCheckout);
                     currentRevision++;
                     otherInMemoryCheckout = getInMemoryCheckout(TEST_PROJECT_ID,
                         new ProjectRevision(currentRevision));
-                }
-                if (otherInMemoryCheckout != inMemoryProjectCheckout) {
-                    logger.warn("Sixtieth request for " + TEST_PROJECT_ID + " r.60 returned "
-                        + "different object.");
                 }
 
             } catch (InvalidRepositoryException e) {
