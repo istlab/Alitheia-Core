@@ -405,24 +405,12 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
                 }
             } else {
                 defaultUser = userManager.createUser(userName, userPassword, userEmail);
-                Group defaultUserGroup = null;
-                Group[] groups = groupManager.getGroups();
-                for (Group group : groups) {
-                    if (userGroup.equals(group.getDescription())) {
-                        defaultUserGroup = group;
-                        break;
-                    }
-                }
+                Group defaultUserGroup = groupManager.getGroup(userGroup);
                 if (defaultUserGroup == null) {
                     defaultUserGroup = groupManager.createGroup(userGroup);
                 }
                 if (groupManager.addUserToGroup(defaultUserGroup.getId(), defaultUser.getId())) {
-                    if (createSecurityConfiguration(userGroup, Privilege.ACTION.toString(),
-                            PrivilegeValue.WRITE.toString(), URL_SQOOSS_SECURITY)) {
-                        return;
-                    } else {
-                        logger.error("The permissions of the default security user are not set!");
-                    }
+                    return;
                 } else {
                     logger.error("The default user isn't created!");
                 }
