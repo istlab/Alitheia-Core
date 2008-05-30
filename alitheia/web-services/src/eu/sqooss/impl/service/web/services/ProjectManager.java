@@ -43,7 +43,7 @@ import eu.sqooss.impl.service.web.services.datatypes.WSProjectFile;
 import eu.sqooss.impl.service.web.services.datatypes.WSProjectVersion;
 import eu.sqooss.impl.service.web.services.datatypes.WSStoredProject;
 import eu.sqooss.impl.service.web.services.utils.ProjectManagerDatabase;
-import eu.sqooss.impl.service.web.services.utils.SecurityWrapper;
+import eu.sqooss.impl.service.web.services.utils.ProjectSecurityWrapper;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.security.SecurityManager;
@@ -52,13 +52,13 @@ public class ProjectManager extends AbstractManager {
     
     private Logger logger;
     private ProjectManagerDatabase dbWrapper;
-    private SecurityWrapper securityWrapper;
+    private ProjectSecurityWrapper securityWrapper;
     
     public ProjectManager(Logger logger, DBService db, SecurityManager security) {
         super(db);
         this.logger = logger;
         this.dbWrapper = new ProjectManagerDatabase(db);
-        this.securityWrapper = new SecurityWrapper(security);
+        this.securityWrapper = new ProjectSecurityWrapper(security);
     }
     
     /**
@@ -119,7 +119,13 @@ public class ProjectManager extends AbstractManager {
 
         db.startDBSession();
         
-        //TODO: check the security
+        try {
+            securityWrapper.checkDBProjectsReadAccess(
+                    userName, password, null, projectName);
+        } catch (SecurityException se) {
+            db.commitDBSession();
+            throw se;
+        }
         
         super.updateUserActivity(userName);
         
@@ -145,8 +151,8 @@ public class ProjectManager extends AbstractManager {
         db.startDBSession();
         
         try {
-            securityWrapper.checkProjectsReadAccess(
-                    userName, password, new long[] {projectId});
+            securityWrapper.checkDBProjectsReadAccess(
+                    userName, password, new long[] {projectId}, null);
         } catch (SecurityException se) {
             db.commitDBSession();
             throw se;
@@ -201,7 +207,8 @@ public class ProjectManager extends AbstractManager {
         db.startDBSession();
         
         try {
-            securityWrapper.checkProjectsReadAccess(userName, password, projectsIds);
+            securityWrapper.checkDBProjectsReadAccess(userName, password,
+                    projectsIds, null);
         } catch (SecurityException se) {
             db.commitDBSession();
             throw se;
@@ -225,8 +232,8 @@ public class ProjectManager extends AbstractManager {
         db.startDBSession();
         
         try {
-            securityWrapper.checkProjectsReadAccess(
-                    userName, password, new long[] {projectId});
+            securityWrapper.checkDBProjectsReadAccess(
+                    userName, password, new long[] {projectId}, null);
         } catch (SecurityException se) {
             db.commitDBSession();
             throw se;
@@ -278,8 +285,8 @@ public class ProjectManager extends AbstractManager {
         db.startDBSession();
         
         try {
-            securityWrapper.checkProjectsReadAccess(
-                    userName, password, new long[] {projectId});
+            securityWrapper.checkDBProjectsReadAccess(
+                    userName, password, new long[] {projectId}, null);
         } catch (SecurityException se) {
             db.commitDBSession();
             throw se;
@@ -330,8 +337,8 @@ public class ProjectManager extends AbstractManager {
         db.startDBSession();
         
         try {
-            securityWrapper.checkProjectsReadAccess(
-                    userName, password, new long[] {projectId});
+            securityWrapper.checkDBProjectsReadAccess(
+                    userName, password, new long[] {projectId}, null);
         } catch (SecurityException se) {
             db.commitDBSession();
             throw se;

@@ -38,7 +38,7 @@ import java.util.HashSet;
 
 import eu.sqooss.impl.service.web.services.datatypes.WSUser;
 import eu.sqooss.impl.service.web.services.datatypes.WSUserGroup;
-import eu.sqooss.impl.service.web.services.utils.SecurityWrapper;
+import eu.sqooss.impl.service.web.services.utils.UserSecurityWrapper;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Group;
 import eu.sqooss.service.db.User;
@@ -49,7 +49,7 @@ import eu.sqooss.service.webadmin.WebadminService;
 public class UserManager extends AbstractManager {
     
     private Logger logger;
-    private SecurityWrapper security;
+    private UserSecurityWrapper security;
     private WebadminService webadmin;
     private eu.sqooss.service.security.UserManager userManager;
     private eu.sqooss.service.security.GroupManager groupManager;
@@ -58,7 +58,7 @@ public class UserManager extends AbstractManager {
             DBService db, WebadminService webadmin) {
         super(db);
         this.logger = logger;
-        this.security = new SecurityWrapper(securityManager);
+        this.security = new UserSecurityWrapper(securityManager);
         this.userManager = securityManager.getUserManager();
         this.groupManager = securityManager.getGroupManager();
         this.webadmin = webadmin;
@@ -78,7 +78,7 @@ public class UserManager extends AbstractManager {
         db.startDBSession();
         
         try {
-            security.checkUserWriteAccess(userNameForAccess, passwordForAccess, -1, null);
+            security.checkSecurityWriteAccess(userNameForAccess, passwordForAccess, -1, null);
         } catch (SecurityException se) {
             db.commitDBSession();
             throw se;
@@ -110,7 +110,7 @@ public class UserManager extends AbstractManager {
         }
         if (!isSameUser(userNameForAccess, passwordForAccess, currentUser)) {
             try {
-            security.checkUsersReadAccess(userNameForAccess,
+            security.checkSecurityReadAccess(userNameForAccess,
                     passwordForAccess, usersIds, null);
             } catch (SecurityException se) {
                 if (db.isDBSessionActive()) {
@@ -147,9 +147,8 @@ public class UserManager extends AbstractManager {
         
         db.startDBSession();
         
-        //TODO:
         try {
-            security.checkDBReadAccess(userName, password);
+            security.checkSecurityReadAccess(userName, password, null, null);
         } catch (SecurityException se) {
             db.commitDBSession();
             throw se;
@@ -157,7 +156,6 @@ public class UserManager extends AbstractManager {
         
         super.updateUserActivity(userName);
         
-        //FIXME: the security service doesn't work after the last DB changes
         Group[] groups = groupManager.getGroups();
         
         WSUserGroup[] result = new WSUserGroup[groups.length];
@@ -183,7 +181,7 @@ public class UserManager extends AbstractManager {
         db.startDBSession();
         
         try {
-            security.checkUserWriteAccess(userNameForAccess, passwordForAccess,
+            security.checkSecurityWriteAccess(userNameForAccess, passwordForAccess,
                     -1, userName);
         } catch (SecurityException se) {
             db.commitDBSession();
@@ -211,7 +209,7 @@ public class UserManager extends AbstractManager {
         db.startDBSession();
         
         try {
-            security.checkUserWriteAccess(userNameForAccess, passwordForAccess, userId, null);
+            security.checkSecurityWriteAccess(userNameForAccess, passwordForAccess, userId, null);
         } catch (SecurityException se) {
             db.commitDBSession();
             throw se;
@@ -240,7 +238,7 @@ public class UserManager extends AbstractManager {
         User user = userManager.getUser(userName);
         if (!isSameUser(userNameForAccess, passwordForAccess, user)) {
             try {
-                security.checkUsersReadAccess(
+                security.checkSecurityReadAccess(
                         userNameForAccess, passwordForAccess, null, userName);
             } catch (SecurityException se) {
                 if (db.isDBSessionActive()) {
@@ -268,7 +266,14 @@ public class UserManager extends AbstractManager {
     public String getMessageOfTheDay(String userName, String password) {
         logger.info("Get message of the day! user: " + userName);
         
-        //TODO: check the security
+        db.startDBSession();
+        try {
+            security.checkWebAdminReadAccess(userName, password);
+        } finally {
+            if (db.isDBSessionActive()) {
+                db.commitDBSession();
+            }
+        }
         
         String s = null;
         if (webadmin != null) {
@@ -295,7 +300,14 @@ public class UserManager extends AbstractManager {
         
         db.startDBSession();
         
-        //TODO: check the security
+        try {
+            security.checkWebAdminSendAccess(userName, password);
+        } catch (SecurityException se) {
+            if (db.isDBSessionActive()) {
+                db.commitDBSession();
+            }
+            throw se;
+        }
         
         super.updateUserActivity(userName);
         

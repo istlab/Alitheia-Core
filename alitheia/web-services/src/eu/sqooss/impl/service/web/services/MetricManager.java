@@ -45,7 +45,7 @@ import eu.sqooss.impl.service.web.services.datatypes.WSMetricsRequest;
 import eu.sqooss.impl.service.web.services.datatypes.WSMetricsResultRequest;
 import eu.sqooss.impl.service.web.services.datatypes.WSResultEntry;
 import eu.sqooss.impl.service.web.services.utils.MetricManagerDatabase;
-import eu.sqooss.impl.service.web.services.utils.SecurityWrapper;
+import eu.sqooss.impl.service.web.services.utils.MetricSecurityWrapper;
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.abstractmetric.MetricMismatchException;
 import eu.sqooss.service.abstractmetric.Result;
@@ -67,7 +67,7 @@ public class MetricManager extends AbstractManager {
     private Logger logger;
     private PluginAdmin pluginAdmin;
     private MetricManagerDatabase dbWrapper;
-    private SecurityWrapper securityWrapper;
+    private MetricSecurityWrapper securityWrapper;
     
     public MetricManager(Logger logger, DBService db,
             PluginAdmin pluginAdmin, SecurityManager security) {
@@ -75,7 +75,7 @@ public class MetricManager extends AbstractManager {
         this.logger = logger;
         this.pluginAdmin = pluginAdmin;
         this.dbWrapper = new MetricManagerDatabase(db);
-        this.securityWrapper = new SecurityWrapper(security);
+        this.securityWrapper = new MetricSecurityWrapper(security);
     }
     
     /**
@@ -90,7 +90,7 @@ public class MetricManager extends AbstractManager {
         db.startDBSession();
         
         try {
-            securityWrapper.checkProjectsReadAccess(userName, password, new long[] {projectId});
+            securityWrapper.checkDBProjectsReadAccess(userName, password, new long[] {projectId}, null);
         } catch (SecurityException se) {
             db.commitDBSession();
             throw se;
@@ -150,7 +150,7 @@ public class MetricManager extends AbstractManager {
         db.startDBSession();
         
         try {
-            securityWrapper.checkMetricsReadAccess(userName, password, null);
+            securityWrapper.checkDBMetricsReadAccess(userName, password, null);
         } catch (SecurityException se) {
             db.commitDBSession();
             throw se;
@@ -202,7 +202,7 @@ public class MetricManager extends AbstractManager {
         db.startDBSession();
         
         try {
-            securityWrapper.checkMetricsReadAccess(userName, password, resultRequest.getMnemonics());
+            securityWrapper.checkDBMetricsReadAccess(userName, password, resultRequest.getMnemonics());
         } catch (SecurityException se) {
             db.commitDBSession();
             throw se;

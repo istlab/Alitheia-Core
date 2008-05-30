@@ -38,6 +38,7 @@ public interface SecurityWrapperConstants extends SecurityConstants {
     
     public static enum PrivilegeValue {
         
+        PERMIT,
         READ,
         WRITE,
         ALL;
@@ -63,10 +64,14 @@ public interface SecurityWrapperConstants extends SecurityConstants {
         PROJECT_VERSION_ID,
         METRIC_MNEMONIC,
         USER_ID,
+        SEND_MESSAGE,
         ALL;
         
         private static final PrivilegeValue[] VALUES_ALL = {PrivilegeValue.ALL};
-        private static final PrivilegeValue[] VALUES_ACTION = {PrivilegeValue.ALL, PrivilegeValue.READ, PrivilegeValue.WRITE};
+        private static final PrivilegeValue[] VALUES_ACTION =
+        {PrivilegeValue.ALL, PrivilegeValue.READ, PrivilegeValue.WRITE};
+        private static final PrivilegeValue[] VALUES_SEND_MESSAGE =
+        {PrivilegeValue.ALL, PrivilegeValue.PERMIT};
         
         /**
          * @see java.lang.Enum#toString()
@@ -88,6 +93,7 @@ public interface SecurityWrapperConstants extends SecurityConstants {
             case USER_ID :            /*go to the next*/;
             case METRIC_MNEMONIC :    /*go to the next*/;
             case ALL : return VALUES_ALL;
+            case SEND_MESSAGE : return VALUES_SEND_MESSAGE;
             case ACTION : return VALUES_ACTION;
             }
             return null; //inaccessible
@@ -97,15 +103,20 @@ public interface SecurityWrapperConstants extends SecurityConstants {
     
     public static enum ServiceUrl {
         
-        DATABASE,
         SECURITY,
-        PLUGIN_ADMIN;
+        DATABASE,
+        WEBADMIN;
         
+        private static final String URL_SQOOSS_DATABASE = URL_SQOOSS + ".database";
         private static final String URL_SQOOSS_SECURITY = URL_SQOOSS + ".security";
+        private static final String URL_SQOOSS_WEBADMIN = URL_SQOOSS + ".webadmin";
         
-        private static final Privilege[] PRIVILEGES =
-        {Privilege.ALL, Privilege.ACTION, Privilege.METRIC_MNEMONIC,
-            Privilege.USER_ID, Privilege.PROJECT_VERSION_ID, Privilege.PROJECT_ID};
+        private static final Privilege[] PRIVILEEGS_SECURITY =
+        {Privilege.ALL, Privilege.ACTION, Privilege.USER_ID};
+        private static final Privilege[] PRIVILEEGS_DATABASE =
+        {Privilege.ALL, Privilege.ACTION, Privilege.PROJECT_ID};
+        private static final Privilege[] PRIVILEGES_WEBADMIN =
+        {Privilege.ALL, Privilege.ACTION};
         
         /**
          * @see java.lang.Enum#toString()
@@ -114,12 +125,19 @@ public interface SecurityWrapperConstants extends SecurityConstants {
         public String toString() {
             switch (this) {
             case SECURITY : return URL_SQOOSS_SECURITY;
+            case WEBADMIN : return URL_SQOOSS_WEBADMIN;
+            case DATABASE : return URL_SQOOSS_DATABASE;
             }
             return null; //inaccessible
         }
         
         public Privilege[] getPrivileges() {
-            return PRIVILEGES;
+            switch (this) {
+            case SECURITY : return PRIVILEEGS_SECURITY;
+            case DATABASE : return PRIVILEEGS_DATABASE;
+            case WEBADMIN : return PRIVILEGES_WEBADMIN;
+            }
+            return null; //inaccessible
         }
         
     }
