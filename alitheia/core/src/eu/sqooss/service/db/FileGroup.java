@@ -32,9 +32,8 @@
 
 package eu.sqooss.service.db;
 
-import eu.sqooss.service.db.DAObject;
-
 import java.sql.Time;
+import java.util.Set;
 
 /**
  * This class represents a FileGroup in the database. FileGroups are
@@ -65,6 +64,11 @@ public class FileGroup extends DAObject{
      * The ProjectVersion where this FG was created
      */
     private ProjectVersion projectVersion;
+    
+    /**
+     * The measurements for this file group
+     */
+    private Set<FileGroupMeasurement> measurements;
 
     public FileGroup() {
         // Nothing to do
@@ -116,6 +120,14 @@ public class FileGroup extends DAObject{
 
     public void setProjectVersion(ProjectVersion projectVersion ) {
         this.projectVersion = projectVersion;
+    }
+
+    public Set<FileGroupMeasurement> getMeasurements() {
+        return measurements;
+    }
+
+    public void setMeasurements(Set<FileGroupMeasurement> measurements) {
+        this.measurements = measurements;
     }
 }
 

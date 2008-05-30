@@ -10,5 +10,9 @@
     </id>
     <property name="listId" column="MLIST_LISTID" not-null="true"/>
     <many-to-one name="storedProject" column="PROJECT_ID" not-null="true" cascade="merge" />
+    <set name="messages" inverse="true" cascade="all-delete-orphan">
+        <key column="MLIST_ID"/>
+        <one-to-many class="eu.sqooss.service.db.MailMessage"/>
+    </set>
   </class>
 </hibernate-mapping>

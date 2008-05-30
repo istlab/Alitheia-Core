@@ -36,6 +36,7 @@ package eu.sqooss.impl.service.updater;
 import java.io.FileNotFoundException;
 
 import java.util.List;
+import java.util.Set;
 
 import javax.mail.Address;
 import javax.mail.MessagingException;
@@ -94,15 +95,11 @@ class MailUpdater extends Job {
 
     protected void run() {
         dbs.startDBSession();        
-        try {
-            TDAccessor spAccessor = core.getTDSService().getAccessor(project.getId());
-            MailAccessor mailAccessor = spAccessor.getMailAccessor();
-            List<MailingList> mllist = MailingList.getListsPerProject(project);
-            for ( MailingList ml : mllist ) {
-                processList(mailAccessor, ml);
-            }
-        } catch ( DAOException daoe ) {
-            logger.warn(daoe.getMessage());
+        TDAccessor spAccessor = core.getTDSService().getAccessor(project.getId());
+        MailAccessor mailAccessor = spAccessor.getMailAccessor();
+        Set<MailingList> mllist = project.getMailingLists();
+        for ( MailingList ml : mllist ) {
+            processList(mailAccessor, ml);
         }
         updater.removeUpdater(project.getName(),UpdaterService.UpdateTarget.MAIL);
         dbs.commitDBSession();
@@ -147,7 +144,7 @@ class MailUpdater extends Job {
                 MailMessage mmsg = MailMessage.getMessageById(messageId);
                 if (mmsg == null) {
                     mmsg = new MailMessage();
-                    mmsg.setListId(mllist);
+                    mmsg.setList(mllist);
                     mmsg.setMessageId(mm.getMessageID());
                     mmsg.setSender(sender);
                     mmsg.setSendDate(mm.getSentDate());

@@ -49,6 +49,7 @@ import eu.sqooss.service.db.DAOException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.EnumSet;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.List;
@@ -89,25 +90,21 @@ class TimelineImpl implements Timeline {
         final Date begin = from.getTime();
         final Date end = to.getTime();
         
-        try {
-            List<MailingList> lists = MailingList.getListsPerProject(project);
-            if (lists != null) {
-                for (MailingList list : lists) {
-                    // get all messages
-                    List<MailMessage> messages = list.getMessages();
-                    if (messages == null)
+        Set<MailingList> lists = project.getMailingLists();
+        if (lists != null) {
+            for (MailingList list : lists) {
+                // get all messages
+                Set<MailMessage> messages = list.getMessages();
+                if (messages == null)
+                    continue;
+                for (MailMessage message : messages)
+                {
+                    if (message.getSendDate().before(begin) ||
+                        message.getSendDate().after(end))
                         continue;
-                    for (MailMessage message : messages)
-                    {
-                        if (message.getSendDate().before(begin) ||
-                            message.getSendDate().after(end))
-                            continue;
-                        result.add( new MailingListEvent( message.getSendDate().getTime(), message ) );
-                    }
+                    result.add( new MailingListEvent( message.getSendDate().getTime(), message ) );
                 }
             }
-        } catch(DAOException ex) {
-            // Will be removed when the DB code is refactored
         }
 
         return result;

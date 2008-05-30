@@ -45,7 +45,7 @@ import eu.sqooss.impl.service.CoreActivator;
  */
 public class MailMessage extends DAObject {
     Developer sender;
-    MailingList listId;
+    MailingList list;
     String messageId;
     String subject;
     Date sendDate;
@@ -69,12 +69,12 @@ public class MailMessage extends DAObject {
         sender = value;
     }
 
-    public MailingList getListId() {
-        return listId;
+    public MailingList getList() {
+        return list;
     }
 
-    public void setListId( MailingList value ) {
-        listId = value;
+    public void setList( MailingList value ) {
+        list = value;
     }
 
     public String getMessageId() {
@@ -102,16 +102,18 @@ public class MailMessage extends DAObject {
     }
     
     public static MailMessage getMessageById(String messageId) throws DAOException {
-	DBService dbs = CoreActivator.getDBService();
-
-	List msgList = dbs.doHQL("from MailMessage where MESSAGEID = '" + messageId + "'");
-	if ((msgList == null) || (msgList.size()==0)) {
-	    return null;
-	}
-	if(msgList.size() != 1) {
-	    throw new DAOException("MailMessage", "More than one message of MailMessage retrieved for message id " + messageId);
-	}
-	
-	return (MailMessage)msgList.get(0);
+    	DBService dbs = CoreActivator.getDBService();
+    	Map<String,Object> properties = new HashMap<String, Object>(1);
+    	properties.put("messageId", messageId);
+    	List<MailMessage> msgList = dbs.findObjectsByProperties(MailMessage.class, properties);
+    	
+    	if ((msgList == null) || (msgList.isEmpty())) {
+    	    return null;
+    	}
+    	if(msgList.size() > 1) {
+    	    throw new DAOException("MailMessage", "More than one message of MailMessage retrieved for message id " + messageId);
+    	}
+    	
+    	return msgList.get(0);
     }
 }

@@ -33,12 +33,7 @@
 
 package eu.sqooss.service.db;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import eu.sqooss.impl.service.CoreActivator;
+import java.util.Set;
 
 /**
  *
@@ -48,6 +43,7 @@ import eu.sqooss.impl.service.CoreActivator;
 public class MailingList extends DAObject {
     private String listId;
     private StoredProject storedProject;
+    private Set<MailMessage> messages;
 
     public MailingList() {}
 
@@ -67,42 +63,11 @@ public class MailingList extends DAObject {
         this.storedProject = sp;
     }
 
-    public List<MailMessage> getMessages()
-    {
-        DBService dbs = CoreActivator.getDBService();
-
-        String paramListId = "mlist_listid";
-        String query = "Select mm " +
-                       "from MailMessage mm " + 
-                       "where mm.MailingList.mlist_listid=:" +
-                       paramListId;
-
-        Map<String,Object> parameters = new HashMap<String,Object>();
-        parameters.put(paramListId, this.getListId());
-
-        List<?> msgList = dbs.doHQL(query, parameters);
-	    if ((msgList == null) || (msgList.size()==0)) {
-	        return null;
-    	}
-	
-        return (List<MailMessage>)msgList;
+    public Set<MailMessage> getMessages() {
+        return messages;
     }
 
-    public static List<MailingList> getListsPerProject(StoredProject sp) throws DAOException {
-        DBService dbs = CoreActivator.getDBService();
-        List<MailingList> ml = new ArrayList<MailingList>();
-
-        // TODO: query needs testing, and all of this maybe rewrite
-        List mllist = dbs.doHQL("from MailingList where PROJECT_ID = " + sp.getId());
-        int mllistLen = mllist.size();
-        if (mllistLen == 0) {
-            // TODO: Why throw? Why not just return an empty list here?
-            throw new DAOException("MailingList", "No list found for project " + sp.getName());
-        }
-        for (int i = 0;i < mllistLen;i++) {
-            ml.add((MailingList)mllist.get(i));
-        }
-
-        return ml;
+    public void setMessages(Set<MailMessage> messages) {
+        this.messages = messages;
     }
 }

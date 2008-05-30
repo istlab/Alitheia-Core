@@ -36,6 +36,7 @@ package eu.sqooss.service.db;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.Map;
 
 import eu.sqooss.impl.service.CoreActivator;
@@ -143,6 +144,11 @@ public class Bug extends DAObject {
      * A short description of the bug.
      */
     private String shortDesc;
+    
+    /**
+     * The list of messages associated to this bug
+     */
+    private Set<BugReportMessage> reportMessages;
      
     public String getBugFileLoc() {
         return bugFileLoc;
@@ -270,6 +276,14 @@ public class Bug extends DAObject {
 
     public void setShortDesc(String shortDesc) {
         this.shortDesc = shortDesc;
+    }
+
+        public Set<BugReportMessage> getReportMessages() {
+        return reportMessages;
+    }
+
+    public void setReportMessages(Set<BugReportMessage> reportMessages) {
+        this.reportMessages = reportMessages;
     }
 
         public Bug() {

@@ -13,5 +13,17 @@
     <property name="email" column="EMAIL" unique="true" />
     <property name="username" column="USERNAME" unique-key="unq.uname.sp"/>
     <many-to-one name="storedProject" column="STORED_PROJECT_ID" unique-key="unq.uname.sp" cascade="merge"/>
+    <set name="commits" inverse="true" cascade="all-delete-orphan">
+        <key column="COMMITTER_ID"/>
+        <one-to-many class="eu.sqooss.service.db.ProjectVersion"/>
+    </set>
+    <set name="mails" inverse="true" cascade="all-delete-orphan">
+        <key column="SENDER_ID"/>
+        <one-to-many class="eu.sqooss.service.db.MailMessage"/>
+    </set>
+    <set name="bugReportMessages" inverse="true" cascade="all-delete-orphan">
+        <key column="BUG_REPORTER_ID"/>
+        <one-to-many class="eu.sqooss.service.db.BugReportMessage"/>
+    </set>
   </class>
 </hibernate-mapping>

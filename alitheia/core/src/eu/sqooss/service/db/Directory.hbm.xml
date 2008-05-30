@@ -8,8 +8,12 @@
     <id name="id" column="DIRECTORY_ID">
       <generator class="native" />
     </id>
-    
     <property name="path" column="PATH" unique="true" />
+    <set name="files" inverse="true" cascade="all-delete-orphan">
+        <key column="DIRECTORY_ID"/>
+        <one-to-many class="eu.sqooss.service.db.ProjectFile"/>
+    </set>
+    
   </class>
 </hibernate-mapping>
 

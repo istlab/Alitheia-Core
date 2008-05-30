@@ -35,6 +35,7 @@ package eu.sqooss.service.db;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.Map;
 
 import eu.sqooss.impl.service.CoreActivator;
@@ -63,6 +64,21 @@ public class Developer extends DAObject{
 	 * The project this developer belongs to
 	 */
 	private StoredProject storedProject;
+	
+	/**
+	 * The list of commits from this developer
+	 */
+	private Set<ProjectVersion> commits;
+	
+	/**
+	 * The list of mails sent by this developer
+	 */
+	private Set<MailMessage> mails;
+	
+	/**
+	 * The list of bug report messages sent by this developper
+	 */
+	private Set<BugReportMessage> bugReportMessages;
 
 	public void setName(String name) {
 		this.name = name;
@@ -96,6 +112,30 @@ public class Developer extends DAObject{
 		this.storedProject = storedProject;
 	}
     
+    public Set<ProjectVersion> getCommits() {
+        return commits;
+    }
+
+    public void setCommits(Set<ProjectVersion> commits) {
+        this.commits = commits;
+    }
+
+    public Set<MailMessage> getMails() {
+        return mails;
+    }
+
+    public void setMails(Set<MailMessage> mails) {
+        this.mails = mails;
+    }
+
+    public Set<BugReportMessage> getBugReportMessages() {
+        return bugReportMessages;
+    }
+
+    public void setBugReportMessages(Set<BugReportMessage> bugReportMessages) {
+        this.bugReportMessages = bugReportMessages;
+    }
+
     /**
 	 * Return the entry in the Developer table that corresponds to the provided
 	 * email. If the entry does not exist, it will be created and saved. If the

@@ -35,6 +35,7 @@ package eu.sqooss.service.db;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.Map;
 
 import eu.sqooss.impl.service.CoreActivator;
@@ -47,6 +48,7 @@ public class ProjectFile extends DAObject{
     private Boolean isDirectory;
     private Directory dir;
 
+    private Set<ProjectFileMeasurement> measurements;
 
     public ProjectFile() {
         // Nothing to see here
@@ -98,6 +100,14 @@ public class ProjectFile extends DAObject{
         this.dir = dir;
     }
     
+    public Set<ProjectFileMeasurement> getMeasurements() {
+        return measurements;
+    }
+
+    public void setMeasurements(Set<ProjectFileMeasurement> measurements) {
+        this.measurements = measurements;
+    }
+
     /**
      * Returns the full path to the file, relative to the repository root
      * @return 

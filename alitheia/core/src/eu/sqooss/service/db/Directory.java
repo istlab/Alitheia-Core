@@ -35,12 +35,15 @@ package eu.sqooss.service.db;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.Map;
 
 import eu.sqooss.impl.service.CoreActivator;
 
 public class Directory extends DAObject {
-    String path;
+    private String path;
+    
+    private Set<ProjectFile> files;
 
     public String getPath() {
         return path;
@@ -50,6 +53,14 @@ public class Directory extends DAObject {
         this.path = path;
     }    
     
+    public Set<ProjectFile> getFiles() {
+        return files;
+    }
+
+    public void setFiles(Set<ProjectFile> files) {
+        this.files = files;
+    }
+
     /**
      * Return the entry in the Directory table that corresponds to the
      * passed argument. If the entry does not exist, it will optionally be 
