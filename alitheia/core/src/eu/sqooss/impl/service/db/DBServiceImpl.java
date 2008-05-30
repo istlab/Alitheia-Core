@@ -443,15 +443,6 @@ e.printStackTrace();
         return addRecords(tmpList);
     }
 
-//    /* (non-Javadoc)
-//     * @see eu.sqooss.service.db.DBService#updateRecord(eu.sqooss.service.db.DAObject)
-//     */
-//    public boolean updateRecord(DAObject record) {
-//        ArrayList<DAObject> tmpList = new ArrayList<DAObject>(1);
-//        tmpList.add(record);
-//        return updateRecords(tmpList);
-//    }
-
     /* (non-Javadoc)
      * @see eu.sqooss.service.db.DBService#deleteRecord(eu.sqooss.service.db.DAObject)
      */
@@ -476,6 +467,7 @@ e.printStackTrace();
                 s.save(record);				
             }
             lastRecord = null;
+            s.flush();
             return true;
         } catch (HibernateException e) {
             if (lastRecord != null) {
@@ -487,33 +479,6 @@ e.printStackTrace();
             return false;
         }
     }
-
-//    /* (non-Javadoc)
-//     * @see eu.sqooss.service.db.DBService#updateRecords(java.util.List)
-//     */
-//    public boolean updateRecords(List<DAObject> records) {
-//        if( !checkSession() )
-//            return false;
-//
-//        DAObject lastRecord = null;
-//        try {
-//            Session s = sessionFactory.getCurrentSession();
-//            for (DAObject record : records) {
-//                lastRecord = record;
-//                s.update(record);               
-//            }
-//            lastRecord = null;
-//            return true;
-//        } catch (HibernateException e) {
-//            if (lastRecord != null) {
-//                logger.error("Failed to update object "
-//                        + "[" + lastRecord.getClass().getName() + ":" + lastRecord.getId() + "]"
-//                        + " in the database: " + e.getMessage());
-//            }
-//            logExceptionAndTerminateSession(e);
-//            return false;
-//        }
-//    }
 
     /* (non-Javadoc)
      * @see eu.sqooss.service.db.DBService#deleteRecords(java.util.List)
@@ -802,15 +767,11 @@ e.printStackTrace();
             return "error while calling addRecord()";
         }
         
-        // The following test fails, because of a weird Hibernate behavior:
-        // The object is found in the session cache, so Hibernate returns it
-        // although it actually doesn't exist in the DB yet (we haven't committed the results)
-        // --> So always make sure to commit your changes before the next query
-//        projectList = findObjectsByProperties(StoredProject.class, props);
-//        if ( !projectList.isEmpty() ) {
-//            rollbackDBSession();
-//            return "project 'selfTestTempProject' saved in the db before calling commit";
-//        }
+        projectList = findObjectsByProperties(StoredProject.class, props);
+        if ( projectList.isEmpty() ) {
+            rollbackDBSession();
+            return "project 'selfTestTempProject' not saved in the local session";
+        }
 
         if ( !commitDBSession() ) {
             return "error while committing db session after adding a record";
@@ -865,15 +826,11 @@ e.printStackTrace();
         props.clear();
         props.put("contact", "duh");
 
-        // The following test fails, because of a weird Hibernate behavior:
-        // The object is found in the session cache, so Hibernate returns it
-        // although it actually doesn't exist in the DB yet (we haven't committed the results)
-        // --> So always make sure to commit your changes before the next query
-//        projectList = findObjectsByProperties(StoredProject.class, props);
-//        if ( !projectList.isEmpty() ) {
-//            rollbackDBSession();
-//            return "new contact property was updated in the db before session commit";
-//        }
+        projectList = findObjectsByProperties(StoredProject.class, props);
+        if ( projectList.isEmpty() ) {
+            rollbackDBSession();
+            return "new contact property was not saved in the local session";
+        }
 
         if ( !commitDBSession() ) {
             return "error while committing session afer change to project";
@@ -890,15 +847,11 @@ e.printStackTrace();
             return "error while calling deleteRecord()";
         }
 
-        // The following test fails, because of a weird Hibernate behavior:
-        // The object is found in the session cache, so Hibernate returns it
-        // although it actually doesn't exist in the DB yet (we haven't committed the results)
-        // --> So always make sure to commit your changes before the next query
-//        projectList = findObjectsByProperties(StoredProject.class, props);
-//        if ( projectList.isEmpty() ) {
-//            rollbackDBSession();
-//            return "project 'selfTestTempProject' deleted in the db before session commit";
-//        }
+        projectList = findObjectsByProperties(StoredProject.class, props);
+        if ( !projectList.isEmpty() ) {
+            rollbackDBSession();
+            return "project 'selfTestTempProject' not deleted in the local session";
+        }
         
         if ( !commitDBSession() ) {
             return "error while committing session after deleting project";
@@ -972,15 +925,24 @@ e.printStackTrace();
             rollbackDBSession();
             return "error while adding test project version #2";
         }
-        logger.debug("before addRecord(testVersion) commit, projectVersion.size() == " + testProject.getProjectVersions().size() );
+        if ( testProject.getProjectVersions().size() == originalVersionCount ) {
+            return "adding version with addRecord didn't update the project versions collection";
+        }
         commitDBSession();        
         startDBSession();
         if ( findObjectById(StoredProject.class, 1).getProjectVersions().size() == originalVersionCount ) {
             rollbackDBSession();
             return "adding version with addRecord didn't modify the DB";
         }        
-        testVersion = attachObjectToDBSession(testVersion);
-        deleteRecord(testVersion);
+        commitDBSession();
+        startDBSession();
+        testProject = findObjectById(StoredProject.class, 1);
+        if ( !deleteRecord(StoredProject.getLastProjectVersion(testProject)) ) {
+            return "error while removing test project version #2";
+        }
+        if ( testProject.getProjectVersions().size() != originalVersionCount ) {
+            return "removing version with deleteRecord didn't update the project versions collection";
+        }
         commitDBSession();
         startDBSession();
         if ( findObjectById(StoredProject.class, 1).getProjectVersions().size() != originalVersionCount ) {
