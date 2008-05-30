@@ -174,6 +174,13 @@ public interface SecurityManager {
      * @return The system group's name.
      */
     public String getSystemGroup();
+    
+    /**
+     * Every new user is assigned to this group.
+     * 
+     * @return The group description
+     */
+    public String getNewUsersGroup();
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

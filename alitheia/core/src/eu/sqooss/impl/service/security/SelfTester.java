@@ -66,6 +66,7 @@ public class SelfTester {
     private ServiceUrlManager serviceUrlManager;
     private PrivilegeManager privilegeManager;
     private boolean isEnable;
+    private long newUsersGroupId;
     
     public SelfTester(SecurityManager securityManager, DBService db) {
         this.db = db;
@@ -83,6 +84,9 @@ public class SelfTester {
         }
         db.startDBSession();
         try {
+            
+            init();
+            
             String testResult;
 
             if ((testResult = testDefaultUser()) != null) {
@@ -378,6 +382,9 @@ public class SelfTester {
             groupManager.deleteUserFromGroup(group.getId(), user.getId());
         }
         if (user != null) {
+            if (newUsersGroupId >= 0) {
+                groupManager.deleteUserFromGroup(newUsersGroupId, user.getId());
+            }
             userManager.deleteUser(user.getId());
         }
         if (group != null) {
@@ -391,6 +398,15 @@ public class SelfTester {
         }
         if (privilege != null) {
             privilegeManager.deletePrivilege(privilege.getId());
+        }
+    }
+    
+    private void init() {
+        Group group = groupManager.getGroup(securityManager.getNewUsersGroup());
+        if (group != null) {
+            newUsersGroupId = group.getId();
+        } else {
+            newUsersGroupId = -1;
         }
     }
     

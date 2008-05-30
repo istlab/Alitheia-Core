@@ -52,11 +52,13 @@ import org.apache.velocity.runtime.RuntimeConstants;
 
 import eu.sqooss.impl.service.security.utils.UserManagerDatabase;
 import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.Group;
 import eu.sqooss.service.db.PendingUser;
 import eu.sqooss.service.db.User;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.messaging.Message;
 import eu.sqooss.service.messaging.MessagingService;
+import eu.sqooss.service.security.GroupManager;
 import eu.sqooss.service.security.UserManager;
 
 public class UserManagerImpl implements UserManager {
@@ -75,11 +77,16 @@ public class UserManagerImpl implements UserManager {
     private Timer pendingTimer;
     private Template velocityTemplate;
     private VelocityContext velocityContext;
+    private String newUsersGroup;
+    private GroupManager groupManager;
     
-    public UserManagerImpl(DBService db, MessagingService messaging, Logger logger) {
+    public UserManagerImpl(DBService db, MessagingService messaging,
+            Logger logger, GroupManager groupManager, String newUsersGroup) {
+        this.newUsersGroup = newUsersGroup;
         this.dbWrapper = new UserManagerDatabase(db);
         this.messaging = messaging;
         this.logger = logger;
+        this.groupManager = groupManager;
         
         try {
         	messageDigest = MessageDigest.getInstance("SHA-256");
@@ -109,6 +116,12 @@ public class UserManagerImpl implements UserManager {
         result.setLastActivity(result.getRegistered());
         if (!dbWrapper.createUser(result)) {
             result = null;
+        } else if (newUsersGroup != null) {
+            Group group = groupManager.getGroup(newUsersGroup);
+            if (group != null) {
+                groupManager.addUserToGroup(group.getId(),
+                        result.getId());
+            }
         }
         return result;
     }

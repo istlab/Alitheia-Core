@@ -69,6 +69,7 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
     private static final String PROPERTY_DEFAULT_USER_PASSWORD = "eu.sqooss.security.user.password";
     private static final String PROPERTY_DEFAULT_USER_EMAIL    = "eu.sqooss.security.user.email";
     private static final String PROPERTY_DEFAULT_USER_GROUP    = "eu.sqooss.security.user.group";
+    private static final String PROPERTY_NEW_USERS_GROUP       = "eu.sqooss.security.new.users.group";
     private static final String PROPERTY_ENABLE                = "eu.sqooss.security.enable";
     
     private BundleContext bc;
@@ -82,6 +83,7 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
     private ServiceReference srefHttpService = null;
     private HttpService sobjHttpService = null;
     private boolean isEnable;
+    private String newUsersGroup;
     
     private class ConfirmationServlet extends HttpServlet {
         private static final long serialVersionUID = 1L;
@@ -140,11 +142,14 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
         // Instantiate a wrapper around the DB component
         this.dbWrapper = new SecurityManagerDatabase(sobjCore.getDBService());
 
+        newUsersGroup = System.getProperty(PROPERTY_NEW_USERS_GROUP); 
+        
         // Instantiate the various security managers
         groupManager = new GroupManagerImpl(db, logger);
         privilegeManager = new PrivilegeManagerImpl(db, logger);
         serviceUrlManager = new ServiceUrlManagerImpl(db, logger);
-        userManager = new UserManagerImpl(db, messaging, logger);
+        userManager = new UserManagerImpl(db, messaging, logger,
+                groupManager, newUsersGroup);
 
         // Check if security is enabled in the configuration file
         isEnable = Boolean.valueOf(System.getProperty(PROPERTY_ENABLE, "true"));
@@ -152,6 +157,7 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
         // Create the unprivileged SQO-OSS user
         db.startDBSession();
         initDefaultUser();
+        initNewUsersGroup();
         storeConstantsInDB();
         db.commitDBSession();
         
@@ -415,6 +421,12 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
         }
     }
 
+    private void initNewUsersGroup() {
+        if (newUsersGroup != null) {
+            groupManager.createGroup(newUsersGroup);
+        }
+    }
+    
     private void storeConstantsInDB() {
         serviceUrlManager.createServiceUrl(URL_SQOOSS);
     }
@@ -424,12 +436,25 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
         return tester.test();
     }
 
+    /**
+     * @see eu.sqooss.service.security.SecurityManager#getSystemGroup()
+     */
     public String getSystemGroup() {
         return bc.getProperty(PROPERTY_DEFAULT_USER_NAME);
     }
 
+    /**
+     * @see eu.sqooss.service.security.SecurityManager#getSystemUser()
+     */
     public String getSystemUser() {
         return bc.getProperty(PROPERTY_DEFAULT_USER_GROUP);
+    }
+
+    /**
+     * @see eu.sqooss.service.security.SecurityManager#getNewUsersGroup()
+     */
+    public String getNewUsersGroup() {
+        return newUsersGroup;
     }
 
 }
