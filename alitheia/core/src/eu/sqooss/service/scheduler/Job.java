@@ -166,7 +166,7 @@ public abstract class Job implements Comparable<Job> {
             assert (!dbs.isDBSessionActive());            
             if (dbs.isDBSessionActive()) {
                 dbs.rollbackDBSession();
-                setState(State.Error); //No uncommited sessions are tolerated
+                setState(State.Error); //No uncommitted sessions are tolerated
             } else {
                 setState(State.Finished);
             }   

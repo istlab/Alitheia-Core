@@ -65,72 +65,64 @@ public class WcJob extends AbstractMetricJob {
     }
 
     public void run() {
-        
-        //We do not support directories
-        if(pf.getIsDirectory()) {
+
+        // We do not support directories
+        if (pf.getIsDirectory()) {
             return;
         }
-        
-        if(!db.startDBSession()) {
+
+        if (!db.startDBSession()) {
             log.error("No DBSession could be opened!");
             return;
         }
-            
-        
+
         // Retrieve the content of the selected project file
         pf = db.attachObjectToDBSession(pf);
         InputStream in = fds.getFileContents(pf);
-        if (in != null) {
-            // Create an input stream from the project file's content
-            try {
-                log.info(
-                        this.getClass().getName()
-                        + " Measuring: "
-                        + pf.getFileName());
+        if (in == null) {
+            return;
+        }
+        // Create an input stream from the project file's content
+        try {
+            log.info(this.getClass().getName() + " Measuring: "
+                    + pf.getFileName());
 
-                // Measure the number of lines in the project file
-                LineNumberReader lnr =
-                    new LineNumberReader(new InputStreamReader(in));
-                int lines = 0;
-                while(lnr.readLine() != null) {
-                    lines++;
-                }
-                lnr.close();
-
-                // Create the measurement DAO
-                // TODO: What to do if this plug-in has registered more that
-                //       one metric. Create a separate Measurement for all
-                //       of them ?
-                if (!parent.getSupportedMetrics().isEmpty()) {
-                    Metric metric = parent.getSupportedMetrics().get(0);
-                    ProjectFileMeasurement m = new ProjectFileMeasurement();
-                    m.setMetric(metric);
-                    m.setProjectFile(pf);
-                    m.setWhenRun(new Timestamp(System.currentTimeMillis()));
-                    m.setResult(String.valueOf(lines));
-                    
-                    // Try to store the Measurement DAO into the DB
-                    db.addRecord(m);
-                    
-                    // Check for a first time evaluation of this metric
-                    // on this project
-                    parent.markEvaluation (
-                            metric,
-                            pf.getProjectVersion().getProject());
-                }
-            } catch (IOException e) {
-                log.error(
-                        this.getClass().getName()
-                        + " IO Error <"
-                        + e
-                        + "> while measuring: "
-                        + pf.getFileName());
-            } finally {
-                if(!db.commitDBSession())
-                    db.rollbackDBSession();
+            // Measure the number of lines in the project file
+            LineNumberReader lnr = 
+                new LineNumberReader(new InputStreamReader(in));
+            int lines = 0;
+            while (lnr.readLine() != null) {
+                lines++;
             }
+            lnr.close();
+
+            // Create the measurement DAO
+            // TODO: What to do if this plug-in has registered more that
+            // one metric. Create a separate Measurement for all
+            // of them ?
+            if (!parent.getSupportedMetrics().isEmpty()) {
+                Metric metric = parent.getSupportedMetrics().get(0);
+                ProjectFileMeasurement m = new ProjectFileMeasurement();
+                m.setMetric(metric);
+                m.setProjectFile(pf);
+                m.setWhenRun(new Timestamp(System.currentTimeMillis()));
+                m.setResult(String.valueOf(lines));
+
+                // Try to store the Measurement DAO into the DB
+                db.addRecord(m);
+
+                // Check for a first time evaluation of this metric
+                // on this project
+                parent.markEvaluation(metric, pf.getProjectVersion().getProject());
+            }
+        } catch (IOException e) {
+            log.error(this.getClass().getName() + " IO Error <" + e
+                    + "> while measuring: " + pf.getFileName());
+        } finally {
+            if (!db.commitDBSession())
+                db.rollbackDBSession();
         }
     }
 }
 
-//vi: ai nosi sw=4 ts=4 expandtab
+// vi: ai nosi sw=4 ts=4 expandtab
