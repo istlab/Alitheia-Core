@@ -216,7 +216,7 @@ public class SelfTester {
             groupManager.addUserToGroup(newGroup.getId(), newUser.getId());
 
             Group[] newUserGroups = groupManager.getGroups(newUser.getId());
-            if ((newUserGroups == null) || (newUserGroups.length != 1)) {
+            if ((newUserGroups == null) || (newUserGroups.length != 2)) {
                 return "The user's groups are incorrect!";
             }
 
@@ -247,7 +247,7 @@ public class SelfTester {
         PrivilegeValue newPrivilegeValue = null;
         
         try {
-            newPrivilege = privilegeManager.createPrivilege(
+            newPrivilege = privilegeManager.getPrivilege(
                     SecurityConstants.ALL_PRIVILEGES);
             if (newPrivilege == null) {
                 return "Could not create a test privilege!";
@@ -267,7 +267,7 @@ public class SelfTester {
                 return "The test privilege value isn't created correct!";
             }
         } finally {
-            testClear(null, null, null, newPrivilege, newPrivilegeValue);
+            testClear(null, null, null, null, newPrivilegeValue);
         }
         
         return null;
@@ -317,9 +317,9 @@ public class SelfTester {
             group = groupManager.createGroup(TEST_GROUP);
             serviceUrl = serviceUrlManager.getServiceUrl(
                     SecurityConstants.URL_SQOOSS);
-            privilege = privilegeManager.createPrivilege(
+            privilege = privilegeManager.getPrivilege(
                     SecurityConstants.ALL_PRIVILEGES);
-            privilegeValue = privilegeManager.createPrivilegeValue(
+            privilegeValue = privilegeManager.getPrivilegeValue(
                     privilege.getId(), SecurityConstants.ALL_PRIVILEGE_VALUES);
 
             if (!groupManager.addUserToGroup(group.getId(), user.getId())) {
@@ -367,7 +367,7 @@ public class SelfTester {
             }
             
         } finally {
-            testClear(user, group, null, privilege, privilegeValue);
+            testClear(user, group, null, null, null);
         }
         return true;
     }
