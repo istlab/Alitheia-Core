@@ -226,23 +226,15 @@ public class SelfTester {
     
     private String testServiceUrlManager() {
         
-        ServiceUrl newServiceUrl = null;
-        
-        try {
-            newServiceUrl = serviceUrlManager.createServiceUrl(SecurityConstants.URL_SQOOSS);
-            if (newServiceUrl == null) {
-                return "Could not create a test service url!";
-            }
-            
-            if (serviceUrlManager.getServiceUrl(newServiceUrl.getId()).getId() != newServiceUrl.getId()) {
-                return "The test service url isn't created correct!";
-            }
-        } finally {
-            testClear(null, null, newServiceUrl, null, null);
+        ServiceUrl newServiceUrl = serviceUrlManager.getServiceUrl(SecurityConstants.URL_SQOOSS);
+        if (newServiceUrl == null) {
+            return "Could not create a test service url!";
         }
-        
+
+        if (serviceUrlManager.getServiceUrl(newServiceUrl.getId()).getId() != newServiceUrl.getId()) {
+            return "The test service url isn't created correct!";
+        }
         return null;
-        
     }
     
     private String testPrivilegeManager() {
@@ -319,7 +311,7 @@ public class SelfTester {
         try {
             user = userManager.createUser(TEST_USER, TEST_PASS, TEST_MAIL);
             group = groupManager.createGroup(TEST_GROUP);
-            serviceUrl = serviceUrlManager.createServiceUrl(
+            serviceUrl = serviceUrlManager.getServiceUrl(
                     SecurityConstants.URL_SQOOSS);
             privilege = privilegeManager.createPrivilege(
                     SecurityConstants.ALL_PRIVILEGES);
@@ -371,7 +363,7 @@ public class SelfTester {
             }
             
         } finally {
-            testClear(user, group, null, null, null);
+            testClear(user, group, null, privilege, privilegeValue);
         }
         return true;
     }

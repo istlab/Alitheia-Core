@@ -152,6 +152,7 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
         // Create the unprivileged SQO-OSS user
         db.startDBSession();
         initDefaultUser();
+        storeConstantsInDB();
         db.commitDBSession();
         
         // Get a reference to the HTTPService, and its object
@@ -293,13 +294,8 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
         if (groupManager.addPrivilegeToGroup(userGroup.getId(),
                 userServiceUrl.getId(), userPrivilegeValue.getId())) {
             return true;
-        } else {
-            //clean if possible
-            privilegeManager.deletePrivilegeValue(userPrivilegeValue.getId());
-            privilegeManager.deletePrivilege(userPrivilege.getId());
-            serviceUrlManager.deleteServiceUrl(userServiceUrl.getId());
-            return false;
         }
+        return false;
     }
 
     /**
@@ -321,13 +317,8 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
         if (userPrivilegeValue == null) {
             return false;
         }
-        boolean result = groupManager.deletePrivilegeFromGroup(userGroup.getId(),
+        return groupManager.deletePrivilegeFromGroup(userGroup.getId(),
                 userServiceUrl.getId(), userPrivilegeValue.getId());
-        //clean if possible
-        privilegeManager.deletePrivilegeValue(userPrivilegeValue.getId());
-        privilegeManager.deletePrivilege(userPrivilege.getId());
-        serviceUrlManager.deleteServiceUrl(userServiceUrl.getId());
-        return result;
     }
 
     private boolean checkPermissionPrivileges(String resourceUrl, Dictionary<String, String> privileges, String userName, String password) {
@@ -424,6 +415,10 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
         }
     }
 
+    private void storeConstantsInDB() {
+        serviceUrlManager.createServiceUrl(URL_SQOOSS);
+    }
+    
     public Object selfTest() {
         SelfTester tester = new SelfTester(this, db);
         return tester.test();
