@@ -33,12 +33,19 @@
 
 package eu.sqooss.webui;
 
-import java.io.*;
-import java.util.*;
+import java.util.ResourceBundle;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import java.util.Vector;
 
-import eu.sqooss.scl.*;
-import eu.sqooss.scl.accessor.*;
-import eu.sqooss.ws.client.datatypes.*;
+import eu.sqooss.scl.WSException;
+import eu.sqooss.ws.client.datatypes.WSMetric;
+import eu.sqooss.ws.client.datatypes.WSMetricType;
+import eu.sqooss.ws.client.datatypes.WSMetricsRequest;
+import eu.sqooss.ws.client.datatypes.WSProjectFile;
+import eu.sqooss.ws.client.datatypes.WSProjectVersion;
+import eu.sqooss.ws.client.datatypes.WSStoredProject;
+import eu.sqooss.ws.client.datatypes.WSUser;
 
 
 /**
@@ -252,7 +259,6 @@ public class Terrier {
     }
 
     public Version getVersion(Long projectId, Long versionId) {
-        // FIXME: UGLY UGLY UGLY, performance--
         if (!connection.isConnected()) {
             addError(connection.getError());
             addError("Not connected.");
@@ -260,17 +266,11 @@ public class Terrier {
         }
         try {
             // Retrieve evaluated projects only
-            WSProjectVersion versionsResult[] =
-                connection.getProjectAccessor().getProjectVersionsByProjectId(projectId);
-            for (WSProjectVersion wssp : versionsResult) {
-                if (versionId.equals(wssp.getId())) {
-                    Version v = new Version(wssp, this);
-                    if ( v == null ) {
-                        addError("IsNull: " + wssp.getId() + " == " + versionId);
-                    }
-                    return v;
-                }
-            }
+            WSProjectVersion[] versionsResult = 
+                connection.getProjectAccessor().getProjectVersionsByIds(new long[] {projectId});
+            
+            Version v = new Version(versionsResult[0], this);
+            return v;
         } catch (WSException wse) {
             addError("Cannot this version " + versionId + "for project " + projectId + ".");
         }
