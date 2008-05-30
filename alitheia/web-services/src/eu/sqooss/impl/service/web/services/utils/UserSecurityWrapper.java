@@ -32,12 +32,13 @@
 
 package eu.sqooss.impl.service.web.services.utils;
 
+import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.security.SecurityManager;
 
 public class UserSecurityWrapper extends AbstractSecurityWrapper{
     
-    public UserSecurityWrapper(SecurityManager security) {
-        super(security);
+    public UserSecurityWrapper(SecurityManager security, DBService db) {
+        super(security, db);
     }
 
     public boolean addPermissonsToSystemGroup() {

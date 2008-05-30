@@ -58,7 +58,7 @@ public class ProjectManager extends AbstractManager {
         super(db);
         this.logger = logger;
         this.dbWrapper = new ProjectManagerDatabase(db);
-        this.securityWrapper = new ProjectSecurityWrapper(security);
+        this.securityWrapper = new ProjectSecurityWrapper(security, db);
     }
     
     /**

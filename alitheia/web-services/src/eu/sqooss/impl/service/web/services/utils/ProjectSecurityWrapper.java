@@ -32,12 +32,13 @@
 
 package eu.sqooss.impl.service.web.services.utils;
 
+import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.security.SecurityManager;
 
 public class ProjectSecurityWrapper extends AbstractSecurityWrapper{
     
-    public ProjectSecurityWrapper(SecurityManager security) {
-        super(security);
+    public ProjectSecurityWrapper(SecurityManager security, DBService db) {
+        super(security, db);
     }
 
     public void checkProjectVersionsReadAccess(String userName, String password, long[] projectVersionsIds) {

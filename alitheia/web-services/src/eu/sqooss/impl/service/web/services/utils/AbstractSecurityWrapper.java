@@ -34,6 +34,7 @@ package eu.sqooss.impl.service.web.services.utils;
 
 import java.util.Hashtable;
 
+import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.security.SecurityManager;
 
 public class AbstractSecurityWrapper implements SecurityWrapperConstants {
@@ -42,9 +43,12 @@ public class AbstractSecurityWrapper implements SecurityWrapperConstants {
     protected Hashtable<String, String> privileges;
     protected Object privilegesLockObject = new Object();
     
-    public AbstractSecurityWrapper(SecurityManager security) {
+    public AbstractSecurityWrapper(SecurityManager security, DBService db) {
         this.security = security;
         this.privileges = new Hashtable<String, String>();
+        db.startDBSession();
+        initDB();
+        db.commitDBSession();
     }
     
     public void checkDBReadAccess(String userName, String password) {
@@ -75,6 +79,25 @@ public class AbstractSecurityWrapper implements SecurityWrapperConstants {
             if (!security.checkPermission(ServiceUrl.DATABASE.toString(),
                     privileges, userName, password)) {
                 throw new SecurityException("Security violation!");
+            }
+        }
+    }
+    
+    private void initDB() {
+        if (security.getGroupManager().getGroup(GROUP_DESCRIPTION) == null) {
+            ServiceUrl[] ServiceUrls = ServiceUrl.values();
+            Privilege[] privileges;
+            PrivilegeValue[] privilegeValues;
+            for (ServiceUrl serviceUrl : ServiceUrls) {
+                privileges = serviceUrl.getPrivileges();
+                for (Privilege privilege : privileges) {
+                    privilegeValues = privilege.getValues();
+                    for (PrivilegeValue privilegeValue : privilegeValues) {
+                        security.createSecurityConfiguration(GROUP_DESCRIPTION,
+                                privilege.toString(), privilegeValue.toString(),
+                                serviceUrl.toString());
+                    }
+                }
             }
         }
     }
