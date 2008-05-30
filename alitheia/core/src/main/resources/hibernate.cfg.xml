@@ -38,7 +38,6 @@
         <!-- Drop and re-create the database schema on startup -->
         <property name="hbm2ddl.auto">update</property>
 
-        <mapping resource="eu/sqooss/service/db/Feature.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/Privilege.hbm.xml"/>        
         <mapping resource="eu/sqooss/service/db/PrivilegeValue.hbm.xml"/>        
         <mapping resource="eu/sqooss/service/db/GroupPrivilege.hbm.xml"/>
