@@ -64,6 +64,7 @@ public class UserManager extends AbstractManager {
         this.webadmin = webadmin;
         db.startDBSession();
         security.addPermissonsToSystemGroup();
+        security.addPermissionsToNewUsersGroup();
         db.commitDBSession();
     }
     

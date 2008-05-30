@@ -41,6 +41,12 @@ public class UserSecurityWrapper extends AbstractSecurityWrapper{
         super(security, db);
     }
 
+    public boolean addPermissionsToNewUsersGroup() {
+        return security.createSecurityConfiguration(security.getNewUsersGroup(),
+                Privilege.SEND_MESSAGE.toString(), PrivilegeValue.PERMIT.toString(),
+                ServiceUrl.WEBADMIN.toString());
+    }
+    
     public boolean addPermissonsToSystemGroup() {
         return security.createSecurityConfiguration(
                 security.getSystemGroup(), Privilege.ACTION.toString(),
