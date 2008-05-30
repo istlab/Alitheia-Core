@@ -34,10 +34,9 @@ package eu.sqooss.impl.service.web.services.utils;
 
 import java.util.Hashtable;
 
-import eu.sqooss.service.security.SecurityConstants;
 import eu.sqooss.service.security.SecurityManager;
 
-public class SecurityWrapper implements SecurityConstants {
+public class SecurityWrapper implements SecurityWrapperConstants {
     
     private SecurityManager security;
     private Hashtable<String, String> privileges;
@@ -46,6 +45,12 @@ public class SecurityWrapper implements SecurityConstants {
     public SecurityWrapper(SecurityManager security) {
         this.security = security;
         this.privileges = new Hashtable<String, String>();
+    }
+    
+    public boolean addPermissonsToSystemGroup() {
+        return security.createSecurityConfiguration(
+                security.getSystemGroup(), Privilege.ACTION.toString(),
+                PrivilegeValue.WRITE.toString(), ServiceUrl.SECURITY.toString());
     }
     
     public void checkDBReadAccess(String userName, String password) {
