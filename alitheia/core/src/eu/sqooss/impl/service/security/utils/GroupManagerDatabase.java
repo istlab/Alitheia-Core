@@ -37,10 +37,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
-
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Group;
@@ -101,6 +97,13 @@ public class GroupManagerDatabase implements GroupManagerDBQueries {
     }
     
     public boolean addPrivilegeToGroup(long groupId, long urlId, long privilegeValueId) {
+        Map<String, Object> queryParameters = new Hashtable<String, Object>(3);
+        queryParameters.put(ADD_PRIVILEGE_TO_GROUP_PARAM_GROUP_ID, groupId);
+        queryParameters.put(ADD_PRIVILEGE_TO_GROUP_PARAM_PRIV_VALUE_ID, privilegeValueId);
+        queryParameters.put(ADD_PRIVILEGE_TO_GROUP_PARAM_URL_ID, urlId);
+        if (!db.doHQL(ADD_PRIVILEGE_TO_GROUP, queryParameters).isEmpty()) {
+            return true;
+        }
         Group group = db.findObjectById(Group.class, groupId);
         PrivilegeValue privilegeValue = db.findObjectById(PrivilegeValue.class,
                 privilegeValueId);
@@ -132,6 +135,12 @@ public class GroupManagerDatabase implements GroupManagerDBQueries {
     
     @SuppressWarnings("unchecked")
     public boolean addUserToGroup(long groupId, long userId) {
+        Map<String, Object> queryParameters = new Hashtable<String, Object>(2);
+        queryParameters.put(ADD_USER_TO_GROUP_PARAM_USER_ID, userId);
+        queryParameters.put(ADD_USER_TO_GROUP_PARAM_GROUP_ID, groupId);
+        if (!db.doHQL(ADD_USER_TO_GROUP, queryParameters).isEmpty()) {
+            return true;
+        }
         Group group = db.findObjectById(Group.class, groupId);
         User user = db.findObjectById(User.class, userId);
         if ((group!=null) && (user != null)) {

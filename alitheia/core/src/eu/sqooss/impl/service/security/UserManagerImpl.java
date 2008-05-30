@@ -95,20 +95,22 @@ public class UserManagerImpl implements UserManager {
      */
     public User createUser(String userName, String password, String email) {
         logger.debug("Create user! username: " + userName + "; e-mail: " + email);
+        User result = getUser(userName);
+        if (result != null) return null; //existent user
         String passwordHash = getHash(password);
         if (passwordHash == null) {
         	return null;
         }
-        User newUser = new User();
-        newUser.setName(userName);
-        newUser.setPassword(passwordHash);
-        newUser.setEmail(email);
-        newUser.setRegistered(new Date());
-        newUser.setLastActivity(newUser.getRegistered());
-        if (dbWrapper.createUser(newUser)) {
-            return newUser;
+        result = new User();
+        result.setName(userName);
+        result.setPassword(passwordHash);
+        result.setEmail(email);
+        result.setRegistered(new Date());
+        result.setLastActivity(result.getRegistered());
+        if (!dbWrapper.createUser(result)) {
+            result = null;
         }
-        return null;
+        return result;
     }
 
     /**

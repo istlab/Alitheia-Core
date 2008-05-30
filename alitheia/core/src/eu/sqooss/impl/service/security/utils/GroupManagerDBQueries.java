@@ -38,6 +38,26 @@ public interface GroupManagerDBQueries {
     
     public static final String GET_GROUP_PRIVILEGES = "from GroupPrivilege";
     
+    public static final String ADD_USER_TO_GROUP_PARAM_USER_ID = "user_id";
+    public static final String ADD_USER_TO_GROUP_PARAM_GROUP_ID = "group_id";
+    public static final String ADD_USER_TO_GROUP = "select gu " +
+    		                                       "from GroupUser gu " +
+    		                                       "where gu.user.id=:" +
+    		                                       ADD_USER_TO_GROUP_PARAM_USER_ID + 
+    		                                       " and gu.group.id=:" +
+    		                                       ADD_USER_TO_GROUP_PARAM_GROUP_ID;
+    
+    public static final String ADD_PRIVILEGE_TO_GROUP_PARAM_GROUP_ID = "group_id";
+    public static final String ADD_PRIVILEGE_TO_GROUP_PARAM_URL_ID = "url_id";
+    public static final String ADD_PRIVILEGE_TO_GROUP_PARAM_PRIV_VALUE_ID = "priv_value_id";
+    public static final String ADD_PRIVILEGE_TO_GROUP = "select gp " +
+    		                                            "from GroupPrivilege gp " +
+    		                                            "where gp.group.id=:" +
+    		                                            ADD_PRIVILEGE_TO_GROUP_PARAM_GROUP_ID +
+    		                                            " and gp.url.id=:" +
+    		                                            ADD_PRIVILEGE_TO_GROUP_PARAM_URL_ID +
+    		                                            " and gp.pv.id=:" +
+    		                                            ADD_PRIVILEGE_TO_GROUP_PARAM_PRIV_VALUE_ID;
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

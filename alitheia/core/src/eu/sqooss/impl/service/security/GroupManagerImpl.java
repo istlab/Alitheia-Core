@@ -77,13 +77,14 @@ public class GroupManagerImpl implements GroupManager {
      */
     public Group createGroup(String description) {
         logger.debug("Create group! description: " + description);
-        Group newGroup = new Group();
-        newGroup.setDescription(description);
-        if (dbWrapper.create(newGroup)) {
-            return newGroup;
-        } else {
-            return null;
+        Group result = getGroup(description);
+        if (result != null) return null; //the group is in the db
+        result = new Group();
+        result.setDescription(description);
+        if (!dbWrapper.create(result)) {
+            result = null;
         }
+        return result;
     }
 
     /**

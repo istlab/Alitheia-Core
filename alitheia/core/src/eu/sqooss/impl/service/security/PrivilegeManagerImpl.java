@@ -58,13 +58,14 @@ public class PrivilegeManagerImpl implements PrivilegeManager {
      */
     public Privilege createPrivilege(String privilegeName) {
         logger.debug("Create privilege! privilege's name: " + privilegeName);
-        Privilege newPrivilege = new Privilege();
-        newPrivilege.setDescription(privilegeName);
-        if (dbWrapper.create(newPrivilege)) {
-            return newPrivilege;
-        } else {
-            return null;
+        Privilege result = getPrivilege(privilegeName);
+        if (result != null) return null; //existent privilege
+        result = new Privilege();
+        result.setDescription(privilegeName);
+        if (!dbWrapper.create(result)) {
+            result = null;
         }
+        return result;
     }
 
     /**
@@ -74,16 +75,18 @@ public class PrivilegeManagerImpl implements PrivilegeManager {
             String privilegeValue) {
         logger.debug("Create privilege value! privilege's id: " + privilegeId +
                 "; privilege's value: " + privilegeValue);
+        PrivilegeValue result = getPrivilegeValue(privilegeId, privilegeValue);
+        if (result != null) return null; //existent privilege value
         Privilege privilege = getPrivilege(privilegeId);
         if (privilege != null) {
-            PrivilegeValue newPrivilegeValue = new PrivilegeValue();
-            newPrivilegeValue.setPrivilege(privilege);
-            newPrivilegeValue.setValue(privilegeValue);
-            if (dbWrapper.create(newPrivilegeValue)) {
-                return newPrivilegeValue;
+            result = new PrivilegeValue();
+            result.setPrivilege(privilege);
+            result.setValue(privilegeValue);
+            if (!dbWrapper.create(result)) {
+                result = null;
             }
         }
-        return  null;
+        return result;
     }
 
     /**
