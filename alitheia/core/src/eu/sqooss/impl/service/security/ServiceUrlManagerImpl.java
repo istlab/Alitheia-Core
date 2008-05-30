@@ -57,13 +57,15 @@ public class ServiceUrlManagerImpl implements ServiceUrlManager {
      */
     public ServiceUrl createServiceUrl(String url) {
         logger.debug("Create service url! url: " + url);
-        ServiceUrl newServiceUrl = new ServiceUrl();
-        newServiceUrl.setUrl(url);
-        if (dbWrapper.createServiceUrl(newServiceUrl)) {
-            return newServiceUrl;
-        } else {
-            return null;
+        ServiceUrl result = getServiceUrl(url);
+        if (result == null) {
+            result = new ServiceUrl();
+            result.setUrl(url);
+            if (!dbWrapper.createServiceUrl(result)) {
+                result = null;
+            }
         }
+        return result;
     }
 
     /**
