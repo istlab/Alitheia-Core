@@ -50,8 +50,6 @@ namespace Alitheia
             return T::fromCorba( *findObjectById( T(), id ) );
         }
 
-        class test{};
-
         typedef std::string property_map_key;
         typedef boost::variant< int,
                                 bool,
