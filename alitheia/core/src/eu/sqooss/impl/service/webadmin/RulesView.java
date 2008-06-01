@@ -32,6 +32,7 @@
  */
 package eu.sqooss.impl.service.webadmin;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -41,6 +42,7 @@ import org.apache.velocity.VelocityContext;
 import org.osgi.framework.BundleContext;
 
 import eu.sqooss.service.db.InvocationRule;
+import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.db.StoredProject;
@@ -433,7 +435,9 @@ public class RulesView extends AbstractView{
             if (((reqValSelRuleId != null)
                     && (reqValSelRuleId.longValue() != defaultRuleId))
                     || (reqValSelRuleId == null)) {
+                //------------------------------------------------------------
                 // Project selection
+                //------------------------------------------------------------
                 b.append(sp(in++) + "<tr>\n");
                 b.append(sp(in)
                         + "<td class=\"borderless\" style=\"width:100px;\">"
@@ -474,7 +478,9 @@ public class RulesView extends AbstractView{
                 b.append(sp(--in) + "</select>\n"
                         + sp(--in) + "</td>\n"
                         + sp(--in) + "</tr>\n");
+                //------------------------------------------------------------
                 // Plug-in selection
+                //------------------------------------------------------------
                 b.append(sp(in++) + "<tr>\n");
                 b.append(sp(in)
                         + "<td class=\"borderless\" style=\"width:100px;\">"
@@ -485,11 +491,19 @@ public class RulesView extends AbstractView{
                         + sp(++in)
                         + "<select class=\"form\""
                         + " id=\"" + reqParRulePlugin + "\""
-                        + " name=\"" + reqParRulePlugin + "\">\n");
+                        + " name=\"" + reqParRulePlugin + "\""
+                        + " onchange=\"javascript:"
+                        + "document.getElementById('"
+                        + reqParAction + "').value='" + reqValAction + "';"
+                        + conSubmitForm + "\""
+                        + ">\n");
                 // Retrieve the list of all installed plug-ins
                 List<Plugin> allPlugins =
                     sobjDB.findObjectsByProperties(
                             Plugin.class, new HashMap<String, Object>());
+                // Stores the metric types of the selected plug-in (if any)
+                List<MetricType> selPluginMetricTypes =
+                    new ArrayList<MetricType>();
                 // "Any plug-in" option
                 b.append(sp(++in) + "<option"
                         + " value=\"ANY\""
@@ -508,12 +522,28 @@ public class RulesView extends AbstractView{
                                 + ">"
                                 + nextPlugin.getName()
                                 + "</option>\n");
+                        // Retrieve all metric types of the selected plug-in
+                        if (isSelected) {
+                            for (Metric nextMetric :
+                                Plugin.getSupportedMetrics(nextPlugin)) {
+                                // Get the next metric's type
+                                MetricType nextType = 
+                                    nextMetric.getMetricType();
+                                // Store only unique types
+                                if (selPluginMetricTypes.contains(nextType)
+                                        == false) {
+                                    selPluginMetricTypes.add(nextType);
+                                }
+                            }
+                        }
                     }
                 }
                 b.append(sp(--in) + "</select>\n"
                         + sp(--in) + "</td>\n"
                         + sp(--in) + "</tr>\n");
+                //------------------------------------------------------------
                 // Metric type selection
+                //------------------------------------------------------------
                 b.append(sp(in++) + "<tr>\n");
                 b.append(sp(in)
                         + "<td class=\"borderless\" style=\"width:100px;\">"
@@ -529,6 +559,10 @@ public class RulesView extends AbstractView{
                 List<MetricType> allTypes =
                     sobjDB.findObjectsByProperties(
                             MetricType.class, new HashMap<String, Object>());
+                // If a metric plug-in was selected then use its set of types
+                if (selPluginMetricTypes.isEmpty() == false) {
+                    allTypes = selPluginMetricTypes;
+                }
                 // "Any metric type" option
                 b.append(sp(++in) + "<option"
                         + " value=\"ANY\""
@@ -552,7 +586,9 @@ public class RulesView extends AbstractView{
                 b.append(sp(--in) + "</select>"
                         + sp(--in) + "</td>\n"
                         + sp(--in) + "</tr>\n");
+                //------------------------------------------------------------
                 // Rule scope selection
+                //------------------------------------------------------------
                 b.append(sp(in++) + "<tr>\n");
                 b.append(sp(in)
                         + "<td class=\"borderless\" style=\"width:100px;\">"
@@ -579,7 +615,9 @@ public class RulesView extends AbstractView{
                         + sp(--in) + "</td>\n"
                         + sp(--in) + "</tr>\n");
             }
+            //----------------------------------------------------------------
             // Rule action selection
+            //----------------------------------------------------------------
             b.append(sp(in++) + "<tr>\n");
             b.append(sp(in)
                     + "<td class=\"borderless\" style=\"width:100px;\">"
@@ -610,7 +648,9 @@ public class RulesView extends AbstractView{
             if (((reqValSelRuleId != null)
                     && (reqValSelRuleId.longValue() != defaultRuleId))
                     || (reqValSelRuleId == null)) {
+                //------------------------------------------------------------
                 // Rule value input
+                //------------------------------------------------------------
                 b.append(sp(in++) + "<tr>\n");
                 b.append(sp(in)
                         + "<td class=\"borderless\" style=\"width:100px;\">"
