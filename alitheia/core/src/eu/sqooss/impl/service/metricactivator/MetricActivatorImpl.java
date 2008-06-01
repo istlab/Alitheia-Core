@@ -73,7 +73,8 @@ public class MetricActivatorImpl implements MetricActivator {
     private DBService db;
 
     // Default action of the invocation rules chain
-    private static ActionType DEFAULT_ACTION = ActionType.EVAL;
+    private ActionType defaultAction = null;
+    private Long defaultRuleId = null;
     private Long firstRuleId = null;
     private HashMap<Long,InvocationRule> rules =
         new HashMap<Long,InvocationRule>();
@@ -92,13 +93,16 @@ public class MetricActivatorImpl implements MetricActivator {
 
         // Load all defined invocation rules
         db.startDBSession();
+        InvocationRule defaultRule = InvocationRule.getDefaultRule(db);
+        defaultRuleId = defaultRule.getId();
+        defaultAction = ActionType.fromString(defaultRule.getAction());
         InvocationRule rule = InvocationRule.first(db);
-        if (rule != null) firstRuleId = rule.getId();
+        firstRuleId = rule.getId();
         while (rule != null) {
             rules.put(rule.getId(), rule);
             rule = rule.next(db);
         }
-        db.rollbackDBSession();
+        db.commitDBSession();
     }
 
     public void reloadRule (Long ruleId) {
@@ -110,8 +114,13 @@ public class MetricActivatorImpl implements MetricActivator {
         // Rule update
         if (rule != null) {
             rules.put(rule.getId(), rule);
+            // Check if this is the first rule in the chain
             if (rule.getPrevRule() == null) {
                 firstRuleId = rule.getId();
+            }
+            // Check if this is the default rule in the chain
+            if (rule.getId() == defaultRuleId.longValue()) {
+                defaultAction = ActionType.fromString(rule.getAction());
             }
         }
         // Rule remove
@@ -122,14 +131,8 @@ public class MetricActivatorImpl implements MetricActivator {
 
     public ActionType matchRules (AlitheiaPlugin ap, DAObject resource) {
         // Retrieve the first rule
-        InvocationRule rule = null;
-        if (firstRuleId != null) {
-            rule = rules.get(firstRuleId);
-        }
-        // No rules found
-        if (rule == null) {
-            return DEFAULT_ACTION;
-        }
+        InvocationRule rule = rules.get(firstRuleId);
+
         // Retrieve the plug-in DAO
         Plugin plugin = null;
         if ((ap != null) && (ap.getUniqueKey() != null)) {
@@ -145,6 +148,10 @@ public class MetricActivatorImpl implements MetricActivator {
         // Match against a resource of type ProjectFile
         //====================================================================
         if (resource instanceof ProjectFile) {
+            // Skip on project file in state "DELETED"
+            if (((ProjectFile) resource).getStatus().equals("DELETED")) {
+                return defaultAction;
+            }
             ProjectVersion version =
                 ((ProjectFile) resource).getProjectVersion();
             StoredProject project = version.getProject();
@@ -152,10 +159,14 @@ public class MetricActivatorImpl implements MetricActivator {
             if ((project == null)
                     || (plugin == null)
                     || (version == null)) {
-                return DEFAULT_ACTION;
+                return defaultAction;
             }
             // Traverse through each rule until a match is found.
             while (rule != null) {
+                // Check for the default rule
+                if (rule.getId() == defaultRuleId) {
+                    return defaultAction;
+                }
                 // Retrieve the rule's metric type
                 Type metricType = null;
                 if (rule.getMetricType() != null) {
@@ -197,6 +208,10 @@ public class MetricActivatorImpl implements MetricActivator {
                         ScopeType.fromString(rule.getScope()),
                         rule.getValue(),
                         (ProjectFile) resource)) {
+                    // TODO: Remove the debug to speed up processing
+                    logger.debug("Rule match: "
+                            + ((ProjectFile) resource).getFileName()
+                            + " : " + rule.getAction());
                     return ActionType.fromString(rule.getAction());
                 }
                 // Move to the next rule
@@ -204,7 +219,7 @@ public class MetricActivatorImpl implements MetricActivator {
             }
         }
         // No matching rule found. Return the default action.
-        return DEFAULT_ACTION;
+        return defaultAction;
     }
 
     public <T extends DAObject> void runMetrics(Class<T> clazz,

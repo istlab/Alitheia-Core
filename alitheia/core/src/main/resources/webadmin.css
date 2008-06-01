@@ -180,7 +180,8 @@ body.section-7 #menu li#nav-7 a  {
     font-size: 8pt;
 }
 #table tr.head {
-    background-color: LightSteelBlue;
+    background-color: #CCCCFF;
+    font-weight: bold;
 }
 #table tr.subhead {
     background-color: #CCFFCC;
@@ -188,16 +189,25 @@ body.section-7 #menu li#nav-7 a  {
 #table tr.edit {
     cursor: pointer;
 }
-#table tr.selected {
-    color: Green;
-    background-color: #FFFF99;
-}
 #table tr.edit:hover {
     background-color: #FFFF99;
 }
-#table td.head {
-    text-align: left;
+#table tr.editMajor {
+    background-color: #EEEEEE;
+    cursor: pointer;
     font-weight: bold;
+}
+#table tr.editMajor:hover {
+    background-color: #FFFF99;
+}
+#table tr.selected {
+    color: Green;
+    background-color: #FFFF99;
+    font-weight: bold;
+}
+#table td.head {
+    background-color: transparent;
+    text-align: left;
 }
 #table td.subhead {
     text-align: left;

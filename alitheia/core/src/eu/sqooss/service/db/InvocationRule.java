@@ -37,6 +37,9 @@ import java.util.List;
 import eu.sqooss.service.db.MetricType.Type;
 
 public class InvocationRule extends DAObject {
+    private static String DEFAULT_SCOPE = "DEFAULT";
+    private static String DEFAULT_ACTION = ActionType.EVAL.toString();
+
     private Long prevRule = null;
     private Long nextRule = null;
     private String scope = null;
@@ -154,6 +157,59 @@ public class InvocationRule extends DAObject {
     }
 
     /**
+     * Gets the rule that describes the default action (<i>policy</i>) of the
+     * invocation rules chain. If such rule does not exist, then it is
+     * silently created by this method and returned.
+     * 
+     * @param db the DB component's object
+     * 
+     * @return The default rule's <code>InvocationRule</code> DAO.
+     */
+    public static InvocationRule getDefaultRule(DBService db) {
+        if (db == null) return null;
+        HashMap<String,Object> properties = new HashMap<String, Object>();
+        properties.put("scope", DEFAULT_SCOPE);
+        List<?> objects = db.findObjectsByProperties(
+                InvocationRule.class, properties);
+        if ((objects != null) && (objects.size() > 0)) {
+            return (InvocationRule) objects.get(0);
+        }
+        else {
+            InvocationRule defaultRule = new InvocationRule();
+            defaultRule.setScope(DEFAULT_SCOPE);
+            defaultRule.setAction(DEFAULT_ACTION);
+            // Check if there are any other rules in the chain
+            // (Should happen only if the default rule were forcedly deleted)
+            if (last(db) != null) {
+                InvocationRule lastRule = last(db);
+                defaultRule.setPrevRule(lastRule.getId());
+                db.addRecord(defaultRule);
+                lastRule.setNextRule(defaultRule.getId());
+            }
+            else
+                db.addRecord(defaultRule);
+            return(defaultRule);
+        }
+    }
+
+    /**
+     * Modifies the action (<i>policy</i>) of the default rule.
+     * 
+     * @param db the DB component's object
+     * @param action the new action
+     * 
+     * @return <code>true</code>, if successfully modified,
+     *   or <code>false</code> otherwise.
+     */
+    public static boolean setDefaultRule(DBService db, ActionType action) {
+        if ((db == null) || (action == null)) return false;
+        InvocationRule defaultRule = getDefaultRule(db);
+        if (action.toString().equals(defaultRule.getAction()) == false)
+            defaultRule.setScope(action.toString());
+        return true;
+    }
+
+    /**
      * Returns the first rule in the invocation rules chain.
      * 
      * @param db the DB component's object
@@ -164,8 +220,6 @@ public class InvocationRule extends DAObject {
      */
     public static InvocationRule first(DBService db) {
         if (db == null) return null;
-        HashMap<String,Object> properties = new HashMap<String, Object>();
-        properties.put("prevRule", null);
         List<?> objects =
             db.doHQL("from " + InvocationRule.class.getName()
                     + " where prevRule is null");
@@ -212,7 +266,8 @@ public class InvocationRule extends DAObject {
     }
 
     /**
-     * Returns the last rule in the invocation rules chain.
+     * Returns the last rule in the invocation rules chain. During normal
+     * operation the default rule will always be the last rule in the chain.
      * 
      * @param db the DB component's object
      * 
@@ -222,8 +277,6 @@ public class InvocationRule extends DAObject {
      */
     public static InvocationRule last(DBService db) {
         if (db == null) return null;
-        HashMap<String,Object> properties = new HashMap<String, Object>();
-        properties.put("nextRule", null);
         List<?> objects =
             db.doHQL("from " + InvocationRule.class.getName()
                     + " where nextRule is null");
@@ -369,18 +422,32 @@ public class InvocationRule extends DAObject {
         if (getScope() != null) {
             scope = ScopeType.fromString(getScope());
         }
+        // Assemble the rule scope
+        ActionType action = null;
+        if (getAction() != null) {
+            action = ActionType.fromString(getAction());
+        }
         //====================================================================
         // Validate the rule's scope
         //====================================================================
+        // Check for invalid ("null") action
+        if (action == null) {
+            throw new Exception("Invalid action type!");
+        }
+        // Skip the rest of the validation process when default rule
+        if (getScope().equals(DEFAULT_SCOPE)) {
+            return;
+        }
         // Check for invalid ("null") scope 
         if (scope == null) {
             throw new Exception("Invalid scope type!");
         }
-        // Check for selected scope without defined target
+        // Check for selected scope without defined target metric's type
         if ((scope != ScopeType.ALL) && (type == null)) {
-            throw new Exception("A scope is selected but a metric type"
+            throw new Exception("A scope is selected but a metric's type"
                     + " is not defined!");
         }
+        // Check the value's content and format
         switch (scope) {
         case ALL:
             break;
@@ -406,6 +473,15 @@ public class InvocationRule extends DAObject {
             break;
         default:
             throw new Exception("Unknown scope type!");
+        }
+        // Check for a duplicated rule
+        InvocationRule cmpRule = first(db);
+        while (cmpRule != null) {
+            if (this.equals(cmpRule)) {
+                throw new Exception("A rule with the same properties"
+                        + " exist already!");
+            }
+            cmpRule = cmpRule.next(db);
         }
     }
 
@@ -488,6 +564,23 @@ public class InvocationRule extends DAObject {
             return false;
         }
         return true;
+    }
+
+    /**
+     * Copies the source rule into the target rule, while preserving the
+     * the target rule's Id and location (the Ids of the previous and next
+     * rule).
+     * 
+     * @param source the source rule
+     * @param target the target rule
+     */
+    public static void copy(InvocationRule source, InvocationRule target) {
+        target.setProject(source.getProject());
+        target.setPlugin(source.getPlugin());
+        target.setMetricType(source.getMetricType());
+        target.setScope(source.getScope());
+        target.setValue(source.getValue());
+        target.setAction(source.getAction());
     }
 
     /**

@@ -63,7 +63,7 @@ public abstract class AbstractView {
 
     // Service components
     protected static DBService sobjDB = null;
-    protected static MetricActivator sobjMetricActivator = null;
+    protected static MetricActivator compMA = null;
     protected static PluginAdmin sobjPA = null;
     protected static Scheduler sobjSched = null;
     protected static TDSService sobjTDS = null;
@@ -115,8 +115,8 @@ public abstract class AbstractView {
             }
 
             // Get the metric activator, whatever that is
-            sobjMetricActivator = sobjAlitheiaCore.getMetricActivator();
-            if (sobjMetricActivator != null) {
+            compMA = sobjAlitheiaCore.getMetricActivator();
+            if (compMA != null) {
                 sobjLogger.debug("WebAdmin got Metric Activator object.");
             }
 
