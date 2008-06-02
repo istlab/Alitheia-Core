@@ -196,6 +196,40 @@ public class ProjectManager extends AbstractManager {
         return (WSProjectVersion[]) normalizeWSArrayResult(result);
     }
     
+    /**
+     * @see eu.sqooss.service.web.services.WebServices#getProjectVersionsByVersionNumbers(String, String, long, long[])
+     */
+    public WSProjectVersion[] getProjectVersionsByVersionNumbers(
+            String userName,
+            String password,
+            long projectId,
+            long[] versionNumbers) {
+        
+        logger.info("Retrieve project versions by project id and version numbers! user: " +
+        		userName + "; project id: " + projectId + "; version numbers: " + Arrays.toString(versionNumbers));
+        
+        db.startDBSession();
+        
+        try {
+            securityWrapper.checkDBReadAccess(userName, password);
+        } catch (SecurityException se) {
+            db.commitDBSession();
+            throw se;
+        }
+        
+        super.updateUserActivity(userName);
+        
+        WSProjectVersion[] result = dbWrapper.getProjectVersionsByVersionNumbers(
+                projectId, asCollection(versionNumbers));
+        
+        db.commitDBSession();
+        
+        return (WSProjectVersion[]) normalizeWSArrayResult(result);
+    }
+    
+    /**
+     * @see eu.sqooss.service.web.services.WebServices#getLastProjectVersions(String, String, long[])
+     */
     public WSProjectVersion[] getLastProjectVersions(String userName,
             String password, long[] projectsIds) {
         

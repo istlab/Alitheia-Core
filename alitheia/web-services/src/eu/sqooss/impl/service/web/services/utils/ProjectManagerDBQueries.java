@@ -145,6 +145,19 @@ interface ProjectManagerDBQueries {
                                                              "where pv.id in (:" +
                                                              GET_PROJECT_VERSIONS_BY_IDS_PARAM + ") ";
     
+    
+    public static final String GET_PROJECT_VERSIONS_BY_VERSION_NUMBERS_PARAM_PR_ID  = "project_id";
+    
+    public static final String GET_PROJECT_VERSIONS_BY_VERSION_NUMBERS_PARAM_VB_IDS = "list_of_ver_numbers";
+    
+    public static final String GET_PROJECT_VERSIONS_BY_VERSION_NUMBERS = "select pv " +
+    		                                                             "from ProjectVersion pv " +
+    		                                                             "where pv.version in (:" +
+    		                                                             GET_PROJECT_VERSIONS_BY_VERSION_NUMBERS_PARAM_VB_IDS + ") " +
+    		                                                             " and pv.project.id=:" +
+    		                                                             GET_PROJECT_VERSIONS_BY_VERSION_NUMBERS_PARAM_PR_ID;
+    
+    
     public static final String GET_LAST_PROJECT_VERSIONS_PARAM = "list_of_sps_ids";
     
     public static final String GET_LAST_PROJECT_VERSIONS = "select pv " +

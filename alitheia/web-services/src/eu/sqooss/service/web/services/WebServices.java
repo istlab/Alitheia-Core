@@ -239,6 +239,27 @@ public class WebServices {
     
     /**
      * The method returns all information, that the SQO-OSS framework has
+     * collected about the specified project versions.
+     * 
+     * @param userName - the user's name for authentication
+     * @param password - the user's password for authentication
+     * @param projectId - the project identifier
+     * @param versionNumbers - the project's version numbers
+     * 
+     * @return The <code>WSProjectVersion</code> array that describes the
+     * project versions, or <code>null</code> when such project versions do not exist.
+     */
+    public WSProjectVersion[] getProjectVersionsByVersionNumbers(
+            String userName,
+            String password,
+            long projectId,
+            long[] versionNumbers) {
+        return projectManager.getProjectVersionsByVersionNumbers(
+                userName, password, projectId, versionNumbers);
+    }
+    
+    /**
+     * The method returns all information, that the SQO-OSS framework has
      * collected about the last versions of the projects.
      * 
      * @param userName - the user's name used for authentication

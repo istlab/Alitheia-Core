@@ -100,6 +100,20 @@ public class ProjectManagerDatabase implements ProjectManagerDBQueries {
     }
     
     @SuppressWarnings("unchecked")
+    public WSProjectVersion[] getProjectVersionsByVersionNumbers(
+            long projectId, Collection<Long> versionNumbers) {
+        Map<String, Collection> queryCollectionParams = new Hashtable<String, Collection>(1);
+        queryCollectionParams.put(
+                GET_PROJECT_VERSIONS_BY_VERSION_NUMBERS_PARAM_VB_IDS, versionNumbers);
+        Map<String, Object> queryParams = new Hashtable<String, Object>(1);
+        queryParams.put(GET_PROJECT_VERSIONS_BY_VERSION_NUMBERS_PARAM_PR_ID, projectId);
+        List<?> projectVersions = db.doHQL(GET_PROJECT_VERSIONS_BY_VERSION_NUMBERS,
+                queryParams, queryCollectionParams);
+        WSProjectVersion[] result = WSProjectVersion.asArray(projectVersions);
+        return result;
+    }
+    
+    @SuppressWarnings("unchecked")
     public WSProjectVersion[] getLastProjectVersions(Collection<Long> ids) {
         Map<String, Collection> queryParameters = new Hashtable<String, Collection>(1);
         queryParameters.put(GET_LAST_PROJECT_VERSIONS_PARAM, ids);
