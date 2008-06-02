@@ -81,7 +81,6 @@ public class PluginsView extends AbstractView{
         String reqParPropValue     = "propertyValue";
         String reqParShowProp      = "showProperties";
         String reqParShowActv      = "showActivators";
-        
         // Recognized "action" parameter's values
         String actValInstall       = "installPlugin";
         String actValUninstall     = "uninstallPlugin";
@@ -439,7 +438,7 @@ public class PluginsView extends AbstractView{
                 b.append(sp(--in) + "</fieldset>\n");
             }
             // ===============================================================
-            // "Plug-in editor" view
+            // Plug-in editor
             // ===============================================================
             else if (selPI != null) {
                 // Create the plug-in field-set
@@ -447,9 +446,9 @@ public class PluginsView extends AbstractView{
                 b.append(sp(++in) + "<legend>"
                         + selPI.getPluginName()
                         + "</legend>\n");
-                //============================================================
+                //------------------------------------------------------------
                 // Create the plug-in info table
-                //============================================================
+                //------------------------------------------------------------
                 b.append(sp(in) + "<table>\n");
                 b.append(sp(++in) + "<thead>\n");
                 b.append(sp(++in) + "<tr class=\"head\">\n");
@@ -534,13 +533,13 @@ public class PluginsView extends AbstractView{
                 b.append(sp(--in) + "</tbody>\n");
                 b.append(sp(--in) + "</table>\n");
 
-                //============================================================
+                //------------------------------------------------------------
                 // Registered metrics, activators and configuration 
-                //============================================================
+                //------------------------------------------------------------
                 if (selPI.installed) {
-                    //========================================================
+                    //--------------------------------------------------------
                     // Create the metrics field-set
-                    //========================================================
+                    //--------------------------------------------------------
                     b.append(sp(++in) + "<fieldset>\n");
                     b.append(sp(++in) + "<legend>"
                             + "Supported metrics"
@@ -597,9 +596,9 @@ public class PluginsView extends AbstractView{
                     b.append(sp(--in) + "</table>\n");
                     // Close the metric field-set
                     b.append(sp(--in) + "</fieldset>\n");
-                    //========================================================
+                    //--------------------------------------------------------
                     // Create the properties field-set
-                    //========================================================
+                    //--------------------------------------------------------
                     b.append(sp(++in) + "<fieldset>\n");
                     b.append(sp(++in) + "<legend>"
                             + "Configuration properties"
@@ -632,39 +631,40 @@ public class PluginsView extends AbstractView{
                     }
                     else {
                         for (PluginConfiguration param : config) {
-                            b.append(sp(in++) + "<tr>\n");
-                            String htmlEditProp = "<td class=\"edit\""
-                                + " title=\""
-                                + ((param.getMsg() != null)
-                                        ? param.getMsg()
-                                                : "No description available.")
-                                                + "\"";
-                            htmlEditProp += " onclick=\"javascript:"
-                                + "document.getElementById('"
-                                + reqParAction + "').value='"
-                                + actValReqUpdProp + "';"
-                                + "document.getElementById('"
-                                + reqParPropName + "').value='"
-                                + param.getName() + "';"
-                                + "document.getElementById('"
-                                + reqParPropType + "').value='"
-                                + param.getType() + "';"
-                                + "document.getElementById('"
-                                + reqParPropDescr + "').value='"
-                                + param.getMsg() + "';"
-                                + "document.getElementById('"
-                                + reqParPropValue + "').value='"
-                                + param.getValue() + "';"
-                                + "document.metrics.submit();\">"
-                                + "<img src=\"/edit.png\" alt=\"[Edit]\"/>"
-                                + param.getName()
-                                + "</td>\n";
-                            b.append(sp(in)
-                                    + htmlEditProp
-                                    + sp(in) + "<td>"
+                            b.append(sp(in++) + "<tr class=\"edit\""
+                                    + " onclick=\"javascript:"
+                                    + "document.getElementById('"
+                                    + reqParAction + "').value='"
+                                    + actValReqUpdProp + "';"
+                                    + "document.getElementById('"
+                                    + reqParPropName + "').value='"
+                                    + param.getName() + "';"
+                                    + "document.getElementById('"
+                                    + reqParPropType + "').value='"
+                                    + param.getType() + "';"
+                                    + "document.getElementById('"
+                                    + reqParPropDescr + "').value='"
+                                    + param.getMsg() + "';"
+                                    + "document.getElementById('"
+                                    + reqParPropValue + "').value='"
+                                    + param.getValue() + "';"
+                                    + "document.metrics.submit();\""
+                                    + ">\n");
+                            // Property's name and description
+                            String description = param.getMsg();
+                            if (param.getMsg() == null)
+                                description = "No description available.";
+                            b.append(sp(in) + "<td class=\"trans\""
+                                    + " title=\"" + description + "\">"
+                                    + "<img src=\"/edit.png\" alt=\"[Edit]\"/>"
+                                    + "&nbsp;" + param.getName()
+                                    + "</td>\n");
+                            // Property's type
+                            b.append(sp(in) + "<td class=\"trans\">"
                                     + param.getType()
-                                    + "</td>\n"
-                                    + sp(in) + "<td>"
+                                    + "</td>\n");
+                            // Property's value
+                            b.append(sp(in) + "<td class=\"trans\">"
                                     + param.getValue()
                                     + "</td>\n");
                             b.append(sp(--in)+ "</tr>\n");
@@ -697,7 +697,7 @@ public class PluginsView extends AbstractView{
                 b.append(sp(--in) + "</fieldset>\n");
             }
             // ===============================================================
-            // "Plug-ins list" view
+            // Plug-ins list
             // ===============================================================
             else {
                 // Create the field-set
@@ -705,7 +705,9 @@ public class PluginsView extends AbstractView{
                 b.append(sp(++in) + "<legend>All plug-ins</legend>\n");
                 // Retrieve information for all registered metric plug-ins
                 Collection<PluginInfo> l = sobjPA.listPlugins();
+                //------------------------------------------------------------
                 // Create the header row
+                //------------------------------------------------------------
                 b.append(sp(in) + "<table>\n");
                 b.append(sp(++in) + "<thead>\n");
                 b.append(sp(++in) + "<tr class=\"head\">\n");
@@ -721,73 +723,89 @@ public class PluginsView extends AbstractView{
                 b.append(sp(in) + "<td class=\"head\">Version</td>\n");
                 b.append(sp(--in) + "</tr>\n");
                 b.append(sp(--in) + "</thead>\n");
+                //------------------------------------------------------------
                 // Create the content row
+                //------------------------------------------------------------
                 b.append(sp(in) + "<tbody>\n");
                 in++;
+                //------------------------------------------------------------
                 // Display not-installed plug-ins first
+                //------------------------------------------------------------
                 for(PluginInfo i : l) {
                     if (i.installed == false) {
-                        b.append(sp(in) + "<tr class=\"uninstalled\">\n");
+                        b.append(sp(in) + "<tr class=\"edit\""
+                                + " onclick=\"javascript:"
+                                + "document.getElementById('"
+                                + reqParHashcode + "').value='"
+                                + i.getHashcode() + "';"
+                                + "document.metrics.submit();\""
+                                + ">\n");
                         // Plug-in state
-                        b.append(sp(++in) + "<td>Registered</td>\n");
-                        // Plug-in information
-                        String htmlEditPlugin = sp(in) + "<td class=\"edit\""
-                            + " onclick=\"javascript:"
-                            + "document.getElementById('"
-                            + reqParHashcode + "').value='"
-                            + i.getHashcode() + "';"
-                            + "document.metrics.submit();\">"
-                            + "<img src=\"/edit.png\" alt=\"[Edit]\"/>"
+                        b.append(sp(++in) + "<td class=\"trans\">"
+                                + "<img src=\"/edit.png\" alt=\"[Edit]\"/>"
+                                + "&nbsp;Registered</td>\n");
+                        // Plug-in name
+                        b.append(sp(in) + "<td class=\"trans\">"
                             + i.getPluginName()
-                            + "</td>\n";
-                        b.append(htmlEditPlugin);
-                        b.append(sp(in) + "<td>"
+                            + "</td>\n");
+                        // Plug-in class
+                        b.append(sp(in) + "<td class=\"trans\">"
                                 + StringUtils.join((String[]) (
                                         i.getServiceRef().getProperty(
                                                 Constants.OBJECTCLASS)),",")
                                                 + "</td>\n");
-                        b.append(sp(in) + "<td>"
+                        // Plug-in version
+                        b.append(sp(in) + "<td class=\"trans\">"
                                 + i.getPluginVersion() + "</td>\n");
                         b.append(sp(--in) + "</tr>\n");
                         // Extended plug-in information
-                        b.append(renderMetricAttributes(
+                        b.append(renderPluginAttributes(
                                 i, reqValShowProp, reqValShowActv, in));
                     }
                 }
+                //------------------------------------------------------------
                 // Installed plug-ins
+                //------------------------------------------------------------
                 for(PluginInfo i : l) {
                     if (i.installed) {
-                        b.append(sp(in) + "<tr>\n");
+                        b.append(sp(in) + "<tr class=\"edit\""
+                                + " onclick=\"javascript:"
+                                + "document.getElementById('"
+                                + reqParHashcode + "').value='"
+                                + i.getHashcode() + "';"
+                                + "document.metrics.submit();\""
+                                + ">\n");
                         // Plug-in state
-                        b.append(sp(++in) + "<td>Installed</td>\n");
-                        // Plug-in information
-                        String htmlEditPlugin = sp(in) + "<td class=\"edit\""
-                            + " onclick=\"javascript:"
-                            + "document.getElementById('"
-                            + reqParHashcode + "').value='"
-                            + i.getHashcode() + "';"
-                            + "document.metrics.submit();\">"
-                            + "<img src=\"/edit.png\" alt=\"[Edit]\"/>"
-                            + i.getPluginName()
-                            + "</td>\n";
-                        b.append(htmlEditPlugin);
-                        b.append(sp(in) + "<td>"
+                        b.append(sp(++in) + "<td class=\"trans\">"
+                                + "<img src=\"/edit.png\" alt=\"[Edit]\"/>"
+                                + "&nbsp;Installed</td>\n");
+                        // Plug-in name
+                        b.append(sp(in) + "<td class=\"trans\">"
+                                + i.getPluginName()
+                                + "</td>\n");
+                        // Plug-in class
+                        b.append(sp(in) + "<td class=\"trans\">"
                                 + StringUtils.join((String[]) (
                                         i.getServiceRef().getProperty(
                                                 Constants.OBJECTCLASS)),",")
                                                 + "</td>\n");
-                        b.append(sp(in) + "<td>"
+                        // Plug-in version
+                        b.append(sp(in) + "<td class=\"trans\">"
                                 + i.getPluginVersion() + "</td>\n");
                         b.append(sp(--in) + "</tr>\n");
                         // Extended plug-in information
-                        b.append(renderMetricAttributes(
+                        b.append(renderPluginAttributes(
                                 i, reqValShowProp, reqValShowActv, in));
                     }
                 }
+                //------------------------------------------------------------
                 // Close the table
+                //------------------------------------------------------------
                 b.append(sp(--in) + "</tbody>\n");
                 b.append(sp(--in) + "</table>\n");
+                //------------------------------------------------------------
                 // Display flags
+                //------------------------------------------------------------
                 b.append(sp(in) + "<span>\n");
                 b.append(sp(++in) + "<input"
                         + " type=\"checkbox\""
@@ -885,17 +903,17 @@ public class PluginsView extends AbstractView{
     }
 
     /**
-     * Creates a set of table rows populated with the metric properties and
-     * activators as found in the given <code>PluginInfo</code> object
+     * Creates a set of table rows populated with the plug-in properties and
+     * activators, as found in the given <code>PluginInfo</code> object
      * 
      * @param pluginInfo the plug-in's <code>PluginInfo</code> object
-     * @param showProperties
-     * @param showActivators
-     * @param in indentation space
+     * @param showProperties display flag
+     * @param showActivators display flag
+     * @param in indentation value for the generated HTML content
      * 
      * @return The table as HTML presentation.
      */
-    private static String renderMetricAttributes(
+    private static String renderPluginAttributes(
             PluginInfo pluginInfo,
             boolean showProperties,
             boolean showActivators,

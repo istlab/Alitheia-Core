@@ -767,6 +767,8 @@ public class RulesView extends AbstractView{
                     if (rule.getId() != defaultRule.getId()) {
                         // Project name
                         b.append(sp(in++) + "<td class=\"trans\">"
+                                + "<img src=\"/edit.png\" alt=\"[Edit]\"/>"
+                                + "&nbsp;"
                                 + ((rule.getProject() == null) ? "<b>ANY</b>"
                                         : rule.getProject().getName())
                                         + "</td>\n");
