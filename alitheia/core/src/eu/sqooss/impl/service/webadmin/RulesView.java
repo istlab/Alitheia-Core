@@ -55,6 +55,13 @@ public class RulesView extends AbstractView{
         super(bundlecontext, vc);
     }
 
+    /**
+     * Renders the various rule's views.
+     * 
+     * @param req the servlet's request object
+     * 
+     * @return The HTML presentation of the generated view.
+     */
     public static String render(HttpServletRequest req) {
         // Stores the assembled HTML content
         StringBuilder b = new StringBuilder("\n");
