@@ -103,7 +103,6 @@ class MailUpdater extends Job {
                         "> seem to have 0 (zero) mailing lists!!");
         }
         for ( MailingList ml : mllist ) {
-            System.out.println(1);
             processList(mailAccessor, ml);
         }
         updater.removeUpdater(project.getName(), UpdaterService.UpdateTarget.MAIL);
