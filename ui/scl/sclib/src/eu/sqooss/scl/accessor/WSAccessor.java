@@ -80,7 +80,7 @@ public abstract class WSAccessor {
      * 
      * @return <code>true</code> if the array isn't null and isn't empty
      */
-    protected boolean normalizeWSArrayParameter(long[] arr) {
+    protected boolean isNormalizedWSArrayParameter(long[] arr) {
         return ((arr != null) && (arr.length > 0));
     }
     

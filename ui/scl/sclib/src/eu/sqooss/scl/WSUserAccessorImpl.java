@@ -130,7 +130,7 @@ class WSUserAccessorImpl extends WSUserAccessor {
      */
     @Override
     public WSUser[] getUsersByIds(long[] usersIds) throws WSException {
-        if (!normalizeWSArrayParameter(usersIds)) return EMPTY_ARRAY_USERS;
+        if (!isNormalizedWSArrayParameter(usersIds)) return EMPTY_ARRAY_USERS;
         GetUsersByIdsResponse response;
         GetUsersByIds params;
         if (!parameters.containsKey(METHOD_NAME_GET_USERS_BY_IDS)) {

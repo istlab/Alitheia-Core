@@ -116,7 +116,7 @@ class WSMetricAccessorImpl extends WSMetricAccessor {
      */
     @Override
     public WSMetricType[] getMetricTypesByIds(long[] metricTypesIds) throws WSException {
-        if (!normalizeWSArrayParameter(metricTypesIds)) return EMPTY_ARRAY_METRIC_TYPES;
+        if (!isNormalizedWSArrayParameter(metricTypesIds)) return EMPTY_ARRAY_METRIC_TYPES;
         GetMetricTypesByIdsResponse response;
         GetMetricTypesByIds params;
         if (!parameters.containsKey(METHOD_NAME_GET_METRIC_TYPES_BY_IDS)) {
