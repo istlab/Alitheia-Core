@@ -37,6 +37,7 @@ namespace Alitheia
         virtual ~FDS();
 
         std::string getFileContents( const ProjectFile& file ) const;
+        std::string getFileContents( const ProjectFile& file, int begin, int length ) const;
 
         Checkout getCheckout( const ProjectVersion& version, const std::string& pattern = std::string() ) const;
 

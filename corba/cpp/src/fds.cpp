@@ -90,6 +90,13 @@ string FDS::getFileContents( const ProjectFile& file ) const
     return std::string( content, length );
 }
 
+string FDS::getFileContents( const ProjectFile& file, int begin, int length ) const
+{
+    CORBA::String_var content;
+    const int size = d->fds->getFileContentParts( file.toCorba(), begin, length, content.out() );
+    return std::string( content, size );
+}
+
 Checkout FDS::getCheckout( const ProjectVersion& version, const string& pattern ) const
 {
     return Checkout( *(d->fds->getCheckout( version.toCorba(), pattern.empty() ? ".*"

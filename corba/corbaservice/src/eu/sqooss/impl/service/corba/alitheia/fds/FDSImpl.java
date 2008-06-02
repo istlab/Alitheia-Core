@@ -92,8 +92,9 @@ public class FDSImpl extends FDSPOA {
         } finally {
             db.commitDBSession();
         }
+        bytesRead = Math.max(bytesRead, 0);
         contents.value = new String(content, 0, bytesRead);
-        return content.length;
+        return bytesRead;
     }
 
 	/**

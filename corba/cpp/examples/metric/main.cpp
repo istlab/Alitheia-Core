@@ -115,11 +115,17 @@ int main( int argc, char **argv)
     cout << v.id << " " << v.version << endl;
 
     FDS fds;
-    const Checkout co = fds.getCheckout( v, "/mirror/.*" );
+    Checkout co = fds.getCheckout( v, "/mirror/.*" );
     
-    for( vector< ProjectFile >::const_iterator it = co.files.begin(); it != co.files.end(); ++it )
+    for( vector< ProjectFile >::iterator it = co.files.begin(); it != co.files.end(); ++it )
     {
         cout << it->getFileName() << endl;
+        do
+        {
+            std::string line;
+            std::getline( *it, line );
+            cout << line << endl;
+        } while( !it->eof() );
     }
 
     return 0;

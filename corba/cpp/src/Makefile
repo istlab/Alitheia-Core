@@ -1,7 +1,7 @@
 all: ../lib/libalitheia.a
 
 Alitheia.o: Alitheia.h
-	mico-c++ -g -I. -c Alitheia.cpp
+	mico-c++ -g -I. -fno-strict-aliasing -c Alitheia.cpp
 
 logger.o: Alitheia.h logger.cpp corbahandler.h logger.h
 	mico-c++ -g -c logger.cpp

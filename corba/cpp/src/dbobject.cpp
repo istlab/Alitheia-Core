@@ -140,26 +140,34 @@ class ProjectFileBuffer : public stringbuf
 public:
     ProjectFileBuffer( const ProjectFile* file )
         : file( file ),
-          read( false )
+          eof( false ),
+          readBytes( 0 )
     {
     }
 
 protected:
     int underflow()
     {
-        if( !read )
+        if( !eof )
         {
-            FDS fds;
-            string data = fds.getFileContents( *file );
+            static FDS fds;
+            // read the data in blocks of 16kb
+            string data = fds.getFileContents( *file, readBytes, 16384 );
             sputn( data.c_str(), data.size() );
-            read = true;
+            readBytes += data.size();
+            eof = data.size() == 0;
+        }
+        else
+        {
+            return EOF;
         }
         return stringbuf::underflow();
     }
 
 private:
     const ProjectFile* const file;
-    bool read;
+    bool eof;
+    int readBytes;
 };
 }
 
