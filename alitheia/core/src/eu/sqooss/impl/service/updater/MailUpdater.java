@@ -4,6 +4,7 @@
  *
  * Copyright 2007-2008 by the SQO-OSS consortium members <info@sqo-oss.eu>
  * Copyright 2007-2008 Georgios Gousios <gousiosg@gmail.com>
+ * Copyright 2007-2008 Vassilios Karakoidas <vassilios.karakoidas@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -65,7 +66,7 @@ import eu.sqooss.service.updater.UpdaterService;
 /**
  * Synchronises raw mails with the database
  *
- * @author Vassilios Karakoidas (bkarak@aueb.gr)
+ * @author Vassilios Karakoidas (vassilios.karakoidas@gmail.com)
  */
 class MailUpdater extends Job {
     private StoredProject project;
@@ -95,12 +96,39 @@ class MailUpdater extends Job {
 
     protected void run() {
         dbs.startDBSession();
-        TDAccessor spAccessor = core.getTDSService().getAccessor(project.getId());
+        project = dbs.attachObjectToDBSession(project);
+        TDAccessor spAccessor = core.getTDSService().getAccessor(project.getId()); 
         MailAccessor mailAccessor = spAccessor.getMailAccessor();
-        Set<MailingList> mllist = project.getMailingLists();
-        if(mllist.size() == 0) {
+        List<String> lists = mailAccessor.getMailingLists();
+        if(lists.size() == 0) {
             logger.warn("Project <" + project.getName() + " - " + project.getId() +
-                        "> seem to have 0 (zero) mailing lists!!");
+            "> seem to have 0 (zero) mailing lists!!");
+            dbs.commitDBSession();
+        }
+        Set<MailingList> mllist = project.getMailingLists();
+        boolean refresh = false;
+        //check if the mailing lists exist
+        for ( String listId : lists ) {
+            boolean exists = false;
+            
+            for ( MailingList ml : mllist ) {
+                if(ml.getListId().compareTo(listId) == 0) {
+                    exists = true;
+                    break; 
+                 }
+            }
+            if(!exists) {
+                // add the mailing list
+                MailingList nml = new MailingList();
+                nml.setListId(listId);
+                nml.setStoredProject(project);
+                dbs.addRecord(nml);
+                refresh = true;
+            }
+        }
+        
+        if(refresh) {
+            mllist = project.getMailingLists();
         }
         for ( MailingList ml : mllist ) {
             processList(mailAccessor, ml);
@@ -143,10 +171,12 @@ class MailUpdater extends Job {
                     senderEmail = inet.getAddress();
                 }
                 
-                Developer sender = Developer.getDeveloperByEmail(senderEmail, 
+                Developer sender = Developer.getDeveloperByEmail(senderEmail,
                                                                  mllist.getStoredProject());
                 MailMessage mmsg = MailMessage.getMessageById(messageId);
                 if (mmsg == null) {
+                    // if the message does not exist in the database, then
+                    // write a new one
                     mmsg = new MailMessage();
                     mmsg.setList(mllist);
                     mmsg.setMessageId(mm.getMessageID());
