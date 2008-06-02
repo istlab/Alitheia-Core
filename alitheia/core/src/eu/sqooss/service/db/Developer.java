@@ -144,8 +144,7 @@ public class Developer extends DAObject{
 	 * 
 	 * @param email
 	 *            The Developer's email
-	 * @param sp
-	 *            The StoredProject this Developer belongs to
+	 * @param sp The StoredProject this Developer belongs to
 	 * @return A Developer record for the specified Developer or null when:
 	 *         <ul>
 	 *         <li>The passed StoredProject does not exist</li>
@@ -159,8 +158,8 @@ public class Developer extends DAObject{
         parameterMap.put("email", email);
         parameterMap.put("storedProject", sp);
         
-        List<Developer> devs = dbs.findObjectsByProperties(Developer.class,
-                parameterMap);
+        List<Developer> devs = dbs.findObjectsByProperties(Developer.class, 
+                                                           parameterMap);
         
         /* Developer in the DB, return it */
         if ( !devs.isEmpty() )
@@ -175,8 +174,7 @@ public class Developer extends DAObject{
         parameterMap.put("username", unameFromEmail);
         parameterMap.put("storedProject", sp);
         
-        devs = dbs.findObjectsByProperties(Developer.class,
-                parameterMap);
+        devs = dbs.findObjectsByProperties(Developer.class, parameterMap);
         
         /* Developer's uname in table, update with email and return it */
         if ( !devs.isEmpty() ) {
