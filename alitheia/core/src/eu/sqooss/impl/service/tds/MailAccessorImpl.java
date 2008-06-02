@@ -370,9 +370,9 @@ public class MailAccessorImpl extends NamedAccessorImpl
                 // d is directory (if not discard)
                 if(d.isDirectory()) {
                     // should have cur, new, tmp
-                    if(!(new File(d, "cur").exists())) { break; }
-                    if(!(new File(d, "new").exists())) { break; }
-                    if(!(new File(d, "tmp").exists())) { break; }
+                    if(!(new File(d, "cur").exists())) { continue; }
+                    if(!(new File(d, "new").exists())) { continue; }
+                    if(!(new File(d, "tmp").exists())) { continue; }
                     // passed
                     lists.add(d.getName());
                 }
