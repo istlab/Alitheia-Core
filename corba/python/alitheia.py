@@ -7,7 +7,6 @@ import eu
 import eu__POA
 
 class CorbaHandler:
-
     orb = None
     poa = None
     poaobj = None
@@ -27,7 +26,7 @@ class CorbaHandler:
 
     def __init__(self):
         self.orb = CORBA.ORB_init(['-ORBInitRef','NameService=corbaloc:iiop:1.2@localhost:2809/NameService'], CORBA.ORB_ID)
-        self.poaobj = self.orb.resolve_initial_references("RootPOA")
+        self.poaobj = self.orb.resolve_initial_references('RootPOA')
         poaManager = self.poaobj._get_the_POAManager()
         poaManager.activate()
         self.orb_thread = CorbaHandler.OrbThread(self.orb)
@@ -39,22 +38,22 @@ class CorbaHandler:
         return CorbaHandler.m_instance
 
     def getObject(self,name):
-        nameService = self.orb.resolve_initial_references( "NameService" )
+        nameService = self.orb.resolve_initial_references('NameService')
         nameService = nameService._narrow( CosNaming.NamingContext )
         if nameService is None:
-            print "Error: Could not find naming service"
+            print 'Error: Could not find naming service'
             return None
-        cosName = [ CosNaming.NameComponent( name, "" ) ]
-        obj = nameService.resolve( cosName )
+        cosName = [ CosNaming.NameComponent(name,'')]
+        obj = nameService.resolve(cosName)
         return obj
 
     def exportObject(self,obj,name):
-        nameService = self.orb.resolve_initial_references( "NameService" )
+        nameService = self.orb.resolve_initial_references('NameService')
         nameService = nameService._narrow( CosNaming.NamingContext )
         if nameService is None:
-            print "Error: Could not find naming service"
+            print 'Error: Could not find naming service'
             return None
-        cosName = [ CosNaming.NameComponent( name, "" ) ]
+        cosName = [ CosNaming.NameComponent(name,'')]
         nameService.rebind(cosName, obj._this())
 
     def shutdown(self):
@@ -64,7 +63,7 @@ class Scheduler:
     scheduler = None
     
     def __init__(self):
-        self.scheduler = CorbaHandler.instance().getObject( "AlitheiaScheduler" )
+        self.scheduler = CorbaHandler.instance().getObject('AlitheiaScheduler')
 
     def enqueueJob(self,job):
         if len(job.orbname) == 0:
@@ -72,7 +71,7 @@ class Scheduler:
         self.scheduler.enqueueJob(job.orbname)
     
     def registerJob(self,job):
-        job.orbname = "Alitheia_Job_" + str(Core.instance().getUniqueId())
+        job.orbname = 'Alitheia_Job_' + str(Core.instance().getUniqueId())
         CorbaHandler.instance().exportObject(job, job.orbname)
         self.scheduler.registerJob(job.orbname)
 
@@ -102,7 +101,7 @@ class Scheduler:
         self.scheduler.waitForJobFinished(job.orbname)
 
 class Job (eu__POA.sqooss.impl.service.corba.alitheia.Job):
-    orbname = ""
+    orbname = ''
     state = None
     scheduler = Scheduler()
 
@@ -132,7 +131,7 @@ class Logger:
     name = None
 
     def __init__( self, name ):
-        self.logger = CorbaHandler.instance().getObject( "AlitheiaLogger" )
+        self.logger = CorbaHandler.instance().getObject('AlitheiaLogger')
         self.name = name
 
     def debug( self, message ):
@@ -152,7 +151,7 @@ class Core:
     m_instance = None
 
     def __init__(self):
-        self.core = CorbaHandler.instance().getObject( "AlitheiaCore" )
+        self.core = CorbaHandler.instance().getObject('AlitheiaCore')
 
     @staticmethod
     def instance():
@@ -168,7 +167,7 @@ class Core:
         return self.core.getUniqueId()
 
     def registerMetric(self,metric):
-        metric.orbname = "Alitheia_Metric_" + str(Core.instance().getUniqueId())
+        metric.orbname = 'Alitheia_Metric_' + str(Core.instance().getUniqueId())
         CorbaHandler.instance().exportObject(metric, metric.orbname)
         metric.id = self.core.registerMetric(metric.orbname)
 
@@ -176,7 +175,7 @@ class Core:
         self.core.unregisterMetric(metric.id)
 
 class AbstractMetric (eu__POA.sqooss.impl.service.corba.alitheia.AbstractMetric):
-    orbname = ""
+    orbname = ''
     id = 0
 
     def doInstall(self):
@@ -213,44 +212,44 @@ class AbstractMetric (eu__POA.sqooss.impl.service.corba.alitheia.AbstractMetric)
         return False
 
     def author(self):
-        return ""
+        return ''
 
     def description(self):
-        return ""
+        return ''
 
     def name(self):
-        return "foobar"
+        return ''
 
     def version(self):
-        return ""
+        return ''
 
     def dateInstalled(self):
-        return ""
+        return ''
 
 class ProjectVersionMetric (eu__POA.sqooss.impl.service.corba.alitheia.ProjectVersionMetric,AbstractMetric):
     def run(self,projectFile):
-        print "run: Nothing to do"
+        print 'run: Nothing to do'
 
     def getResult(self,projectFile):
-        print "getResult: Nothing to do"
+        print 'getResult: Nothing to do'
         
 class ProjectFileMetric (eu__POA.sqooss.impl.service.corba.alitheia.ProjectFileMetric,AbstractMetric):
     def run(self,projectFile):
-        print "run: Nothing to do"
+        print 'run: Nothing to do'
 
     def getResult(self,projectFile):
-        print "getResult: Nothing to do"
+        print 'getResult: Nothing to do'
 
 class StoredProjectMetric (eu__POA.sqooss.impl.service.corba.alitheia.StoredProjectMetric,AbstractMetric):
     def run(self,projectFile):
-        print "run: Nothing to do"
+        print 'run: Nothing to do'
 
     def getResult(self,projectFile):
-        print "getResult: Nothing to do"
+        print 'getResult: Nothing to do'
 
 class FileGroupMetric (eu__POA.sqooss.impl.service.corba.alitheia.FileGroupMetric,AbstractMetric):
     def run(self,projectFile):
-        print "run: Nothing to do"
+        print 'run: Nothing to do'
 
     def getResult(self,projectFile):
-        print "getResult: Nothing to do"
+        print 'getResult: Nothing to do'
