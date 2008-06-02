@@ -55,7 +55,7 @@ public class PluginsView extends AbstractView{
     }
 
     /**
-     * Renders the various plug-in views.
+     * Renders the various plug-in's views.
      * 
      * @param req the servlet's request object
      * 
@@ -726,8 +726,7 @@ public class PluginsView extends AbstractView{
                 //------------------------------------------------------------
                 // Create the content row
                 //------------------------------------------------------------
-                b.append(sp(in) + "<tbody>\n");
-                in++;
+                b.append(sp(in++) + "<tbody>\n");
                 //------------------------------------------------------------
                 // Display not-installed plug-ins first
                 //------------------------------------------------------------
