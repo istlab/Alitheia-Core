@@ -39,6 +39,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.LinkedList;
@@ -60,6 +61,7 @@ import eu.sqooss.service.logging.Logger;
  */
 public class MailAccessorImpl extends NamedAccessorImpl
     implements MailAccessor {
+
     /**
      * Where in the filesystem is the root of the message
      * folder hierarchy for the project this accessor is bound to?
@@ -355,6 +357,13 @@ public class MailAccessorImpl extends NamedAccessorImpl
         }
         
         return msgFile.renameTo(targetMsgFile);
+    }
+    
+    /** {@inheritDoc} */
+    public List<String> getMailingLists() {
+        List<String> lists = new ArrayList<String>();
+        
+        return lists;
     }
 }
 

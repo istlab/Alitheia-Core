@@ -98,6 +98,24 @@ public interface MailAccessor extends NamedAccessor {
         throws IllegalArgumentException,
                FileNotFoundException;
     
+    /**
+     * Returns available mailing lists for the current maildir
+     * 
+     * The maildir folder should have the following structure:
+     * 
+     * mailroot/maillist1/cur
+     *                   /tmp
+     *                   /new
+     * mailroot/maillist2/cur
+     *                   /tmp
+     *                   /new
+     * 
+     * mailist1, maillist2 are serving as ListId
+     * 
+     * @return a List with the ListIds
+     */
+    public List<String> getMailingLists();
+    
     /*
      * The following methods from D5 are not implemented:
      *
