@@ -317,7 +317,7 @@ public class AdminServlet extends HttpServlet {
         vc.put("WAITJOBS", render.renderWaitJobs());
         vc.put("FAILJOBS", render.renderFailedJobs());
         vc.put("JOBFAILSTATS", render.renderJobFailStats());
-        // Metrics content
+        // Plug-ins content
         if (refreshPlugins) {
             vc.put("METRICS", pluginsView.render(null));
         }
