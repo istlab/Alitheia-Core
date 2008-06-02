@@ -588,14 +588,33 @@ public class InvocationRule extends DAObject {
      * rule's value.
      * <br/>
      * The rule's scope determines how the project file's version will be
-     * compared, while the rule's value defines against which project versions
-     * to perform that comparison.
+     * compared, while the rule's value defines against which project
+     * version(s) to perform that comparison.
      * <br/>
      * <br/>
+     * Depending on the rule's scope the following logics are followed:
+     * <ul>
+     *   <li><b>ALL</b> always return a positive match
+     *   <li><b>EXACT</b> returns a positive match only on project files that
+     *     are older or equal to given project version, and were not deleted
+     *     prior that project version.
+     *   <li><b>EACH</b> <i>not yet implemented</i>.
+     *   <li><b>FROM</b> returns a positive match only on project files that
+     *     were not deleted prior the given project version.
+     *   <li><b>TO</b> returns a positive match only on project files that
+     *     are older or equal to the given project version.
+     *   <li><b>RANGE</b> returns a positive match only on project files
+     *     that are older or equal to the newer project version and were not
+     *     deleted prior the older project version in the given range.
+     *   <li><b>LIST</b> returns a positive match only on project files that
+     *     that are older or equal to at least one of the listed project
+     *     versions and were not deleted prior that version.
+     * </ul>
+     *
      * <i>Note: this method doesn't distinguish between a file and folder, so
      * both of them can be successfully matched. It's up to the metrics, to
      * decide if they will evaluate that project file or not.</i>
-     * 
+     * <br/>
      * @param scp the rule's scope
      * @param val the rule's value (<i>one or more project versions</i>)
      * @param res the project file's DAO
