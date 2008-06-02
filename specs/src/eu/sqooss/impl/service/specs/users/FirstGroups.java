@@ -8,6 +8,7 @@ import org.concordion.integration.junit4.ConcordionRunner;
 import org.junit.runner.RunWith;
 
 import eu.sqooss.impl.service.SpecsActivator;
+import eu.sqooss.impl.service.dsl.SpGroup;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Group;
 import eu.sqooss.service.db.GroupPrivilege;
@@ -16,22 +17,9 @@ import eu.sqooss.service.db.User;
 @RunWith(ConcordionRunner.class)
 public class FirstGroups
 {
-    public ArrayList<String> getGroups()
+    public ArrayList<SpGroup> getGroups()
     {
-        ArrayList<String> result = new ArrayList<String>();
-        
-        DBService db = SpecsActivator.alitheiaCore.getDBService();
-
-        db.startDBSession();
-        List<Group> groups = db.findObjectsByProperties(Group.class, new HashMap<String,Object>());
-        
-        for (Group group : groups)
-        {
-            result.add(group.getDescription());
-        }
-        db.commitDBSession();
-        
-        return result;
+        return SpGroup.allGroups();
     }
     
     public ArrayList<Priv> getAllPrivileges()
@@ -69,7 +57,7 @@ public class FirstGroups
         return result;
     }
     
-    public class Priv
+    class Priv
     {
         public String group;
         public String service;

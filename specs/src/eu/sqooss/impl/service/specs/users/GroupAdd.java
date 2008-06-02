@@ -8,11 +8,11 @@ import org.concordion.integration.junit4.ConcordionRunner;
 import org.junit.runner.RunWith;
 
 import eu.sqooss.impl.service.SpecsActivator;
+import eu.sqooss.impl.service.dsl.SpGroup;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Group;
 import eu.sqooss.service.db.GroupPrivilege;
 import eu.sqooss.service.db.User;
-import eu.sqooss.service.security.GroupManager;
 
 @RunWith(ConcordionRunner.class)
 public class GroupAdd
@@ -21,26 +21,12 @@ public class GroupAdd
 
     public void addGroup(String groupName)
     {
-        GroupManager gm = SpecsActivator.alitheiaCore.getSecurityManager().getGroupManager();
-        db.startDBSession();
-        gm.createGroup(groupName);
-        db.commitDBSession();
+        new SpGroup(groupName).create();
     }
     
-    public ArrayList<String> getGroups()
+    public ArrayList<SpGroup> getGroups()
     {
-        ArrayList<String> result = new ArrayList<String>();
-        
-        db.startDBSession();
-        List<Group> groups = db.findObjectsByProperties(Group.class, new HashMap<String,Object>());
-        
-        for (Group group : groups)
-        {
-            result.add(group.getDescription());
-        }
-        db.commitDBSession();
-        
-        return result;
+        return SpGroup.allGroups();
     }
     
     public boolean groupHasNoPrivilege(String groupName)
