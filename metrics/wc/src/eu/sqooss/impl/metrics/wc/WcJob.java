@@ -65,12 +65,7 @@ public class WcJob extends AbstractMetricJob {
     }
 
     public void run() {
-
-        // We do not support directories
-        if (pf.getIsDirectory()) {
-            return;
-        }
-
+    
         if (!db.startDBSession()) {
             log.error("No DBSession could be opened!");
             return;
@@ -78,8 +73,16 @@ public class WcJob extends AbstractMetricJob {
 
         // Retrieve the content of the selected project file
         pf = db.attachObjectToDBSession(pf);
+        
+     // We do not support directories
+        if (pf.getIsDirectory()) {
+            db.commitDBSession();
+            return;
+        }
+        
         InputStream in = fds.getFileContents(pf);
         if (in == null) {
+            db.commitDBSession();
             return;
         }
         // Create an input stream from the project file's content
