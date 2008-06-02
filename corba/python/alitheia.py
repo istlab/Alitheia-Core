@@ -60,21 +60,6 @@ class CorbaHandler:
     def shutdown(self):
         self.orb.shutdown(True)
 
-class Job (eu__POA.sqooss.impl.service.corba.alitheia.Job):
-    name = ""
-
-    def run(self):
-        print "run!"
-
-    def priority(self):
-        print "priority!"
-        return 0
-
-    def setState(self,state):
-        print "stateChanged!"
-        print state
-        return
-
 class Scheduler:
     scheduler = None
     
@@ -82,14 +67,65 @@ class Scheduler:
         self.scheduler = CorbaHandler.instance().getObject( "AlitheiaScheduler" )
 
     def enqueueJob(self,job):
-        if len(job.name) == 0:
+        if len(job.orbname) == 0:
             self.registerJob(job)
-        self.scheduler.enqueueJob(job.name)
+        self.scheduler.enqueueJob(job.orbname)
     
     def registerJob(self,job):
-        job.name = "Alitheia_Job_" + str(Core.instance().getUniqueId())
-        CorbaHandler.instance().exportObject(job, job.name)
-        self.scheduler.registerJob(job.name)
+        job.orbname = "Alitheia_Job_" + str(Core.instance().getUniqueId())
+        CorbaHandler.instance().exportObject(job, job.orbname)
+        self.scheduler.registerJob(job.orbname)
+
+    def isExecuting(self):
+        return self.scheduler.isExecuting()
+
+    def startExecute(self,n):
+        self.scheduler.stateExecute(n)
+
+    def stopExecute(self,n):
+        self.scheduler.stopExecute(n)
+
+    def unregisterJob(self,job):
+        self.scheduler.unregisterJob(job.orbname)
+        CorbaHandler.instance().unexportObject(job.orbname)
+
+    def addJobDependency(self,job,dependency):
+        if len(job.orbname) == 0:
+            self.registerJob(job)
+        if len(dependency.orbname) == 0:
+            self.registerJob(dependency)
+        self.scheduler.addJobDependency(job.orbname, dependency.orbname)
+
+    def waitForJobFinished(self,job):
+        if len(job.orbname) == 0:
+            self.registerJob(job)
+        self.scheduler.waitForJobFinished(job.orbname)
+
+class Job (eu__POA.sqooss.impl.service.corba.alitheia.Job):
+    orbname = ""
+    state = None
+    scheduler = Scheduler()
+
+    def priority(self):
+        return 0
+
+    def state(self):
+        return self.state
+
+    def stateChanged(self,state):
+        return
+
+    def setState(self,state):
+        if self.state == state:
+            return
+        self.state = state
+        self.stateChanged(state)
+
+    def addDependency(self,other):
+        self.scheduler.addJobDependency(self,other)
+
+    def waitForFinished(self):
+        self.scheduler.waitForJobFinished(self)
 
 class Logger:
     logger = None
@@ -130,3 +166,91 @@ class Core:
 
     def getUniqueId(self):
         return self.core.getUniqueId()
+
+    def registerMetric(self,metric):
+        metric.orbname = "Alitheia_Metric_" + str(Core.instance().getUniqueId())
+        CorbaHandler.instance().exportObject(metric, metric.orbname)
+        metric.id = self.core.registerMetric(metric.orbname)
+
+    def unregisterMetric(self,metric):
+        self.core.unregisterMetric(metric.id)
+
+class AbstractMetric (eu__POA.sqooss.impl.service.corba.alitheia.AbstractMetric):
+    orbname = ""
+    id = 0
+
+    def doInstall(self):
+        return self.install()
+
+    def doRemove(self):
+        return self.remove()
+
+    def doUpdate(self):
+        return self.update()
+
+    def getAuthor(self):
+        return self.author()
+
+    def getDescription(self):
+        return self.description()
+
+    def getName(self):
+        return self.name()
+
+    def getVersion(self):
+        return self.version()
+
+    def getDateInstalled(self):
+        return self.dateInstalled()
+
+    def install(self):
+        return False
+
+    def remove(self):
+        return False
+
+    def update(self):
+        return False
+
+    def author(self):
+        return ""
+
+    def description(self):
+        return ""
+
+    def name(self):
+        return "foobar"
+
+    def version(self):
+        return ""
+
+    def dateInstalled(self):
+        return ""
+
+class ProjectVersionMetric (eu__POA.sqooss.impl.service.corba.alitheia.ProjectVersionMetric,AbstractMetric):
+    def run(self,projectFile):
+        print "run: Nothing to do"
+
+    def getResult(self,projectFile):
+        print "getResult: Nothing to do"
+        
+class ProjectFileMetric (eu__POA.sqooss.impl.service.corba.alitheia.ProjectFileMetric,AbstractMetric):
+    def run(self,projectFile):
+        print "run: Nothing to do"
+
+    def getResult(self,projectFile):
+        print "getResult: Nothing to do"
+
+class StoredProjectMetric (eu__POA.sqooss.impl.service.corba.alitheia.StoredProjectMetric,AbstractMetric):
+    def run(self,projectFile):
+        print "run: Nothing to do"
+
+    def getResult(self,projectFile):
+        print "getResult: Nothing to do"
+
+class FileGroupMetric (eu__POA.sqooss.impl.service.corba.alitheia.FileGroupMetric,AbstractMetric):
+    def run(self,projectFile):
+        print "run: Nothing to do"
+
+    def getResult(self,projectFile):
+        print "getResult: Nothing to do"
