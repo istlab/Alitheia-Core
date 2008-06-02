@@ -520,6 +520,9 @@ public class FDSServiceImpl implements FDSService {
     /** {@inheritDoc} */
     public InputStream getFileContents(ProjectFile pf) {
         File file = getFile(pf);
+        if (file == null) {
+            return null;
+        }
         try {
             return new FileInputStream(file);
         } catch (FileNotFoundException e) {
