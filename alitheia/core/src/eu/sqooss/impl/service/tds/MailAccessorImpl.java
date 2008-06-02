@@ -363,6 +363,22 @@ public class MailAccessorImpl extends NamedAccessorImpl
     public List<String> getMailingLists() {
         List<String> lists = new ArrayList<String>();
         
+        //scan for list directories
+        if(maildirRoot.isDirectory()) {
+            File[] subdirs = maildirRoot.listFiles();
+            for ( File d : subdirs ) {
+                // d is directory (if not discard)
+                if(d.isDirectory()) {
+                    // should have cur, new, tmp
+                    if(!(new File(d, "cur").exists())) { break; }
+                    if(!(new File(d, "new").exists())) { break; }
+                    if(!(new File(d, "tmp").exists())) { break; }
+                    // passed
+                    lists.add(d.getName());
+                }
+            }
+        }
+        
         return lists;
     }
 }
