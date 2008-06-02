@@ -99,6 +99,15 @@ public class ProjectManagerDatabase implements ProjectManagerDBQueries {
         return result;
     }
     
+    @SuppressWarnings("unchecked")
+    public WSProjectVersion[] getLastProjectVersions(Collection<Long> ids) {
+        Map<String, Collection> queryParameters = new Hashtable<String, Collection>(1);
+        queryParameters.put(GET_LAST_PROJECT_VERSIONS_PARAM, ids);
+        List<?> projectVersions = db.doHQL(GET_LAST_PROJECT_VERSIONS, null, queryParameters);
+        WSProjectVersion[] result = WSProjectVersion.asArray(projectVersions);
+        return result;
+    }
+    
     public WSProjectFile[] getFilesByProjectId(long projectId) {
         Map<String, Object> queryParameters = new Hashtable<String, Object>(1);
         queryParameters.put(GET_FILES_BY_PROJECT_ID_PARAM, projectId);

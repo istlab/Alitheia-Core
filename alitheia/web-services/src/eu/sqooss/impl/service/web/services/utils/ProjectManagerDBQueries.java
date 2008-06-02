@@ -145,6 +145,17 @@ interface ProjectManagerDBQueries {
                                                              "where pv.id in (:" +
                                                              GET_PROJECT_VERSIONS_BY_IDS_PARAM + ") ";
     
+    public static final String GET_LAST_PROJECT_VERSIONS_PARAM = "list_of_sps_ids";
+    
+    public static final String GET_LAST_PROJECT_VERSIONS = "select pv " +
+    		                                               "from ProjectVersion pv " +
+    		                                               "where pv.project.id in (:" +
+    		                                               GET_LAST_PROJECT_VERSIONS_PARAM + ") " +
+    		                                               " and pv.version= " +
+    		                                               "      (select max(pv1.version) " +
+    		                                               "      from ProjectVersion pv1 " +
+    		                                               "      where pv.project=pv1.project) ";
+    
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

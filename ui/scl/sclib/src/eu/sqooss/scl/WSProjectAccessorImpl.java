@@ -62,6 +62,8 @@ import eu.sqooss.ws.client.ws.GetFilesNumberByProjectId;
 import eu.sqooss.ws.client.ws.GetFilesNumberByProjectIdResponse;
 import eu.sqooss.ws.client.ws.GetFilesNumberByProjectVersionId;
 import eu.sqooss.ws.client.ws.GetFilesNumberByProjectVersionIdResponse;
+import eu.sqooss.ws.client.ws.GetLastProjectVersions;
+import eu.sqooss.ws.client.ws.GetLastProjectVersionsResponse;
 import eu.sqooss.ws.client.ws.GetProjectVersionsByIds;
 import eu.sqooss.ws.client.ws.GetProjectVersionsByIdsResponse;
 import eu.sqooss.ws.client.ws.GetProjectsByIds;
@@ -86,6 +88,8 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
     private static final String METHOD_NAME_GET_PROJECT_VERSIONS_BY_PROJECT_ID       = "getProjectVersionsByProjectId";
     
     private static final String METHOD_NAME_GET_PROJECT_VERSIONS_BY_IDS              = "getProjectVersionsByIds";
+    
+    private static final String METHOD_NAME_GET_LAST_PROJECT_VERSIONS                = "getLastProjectVersions";
 
     private static final String METHOD_NAME_GET_PROJECTS_BY_IDS                      = "getProjectsByIds";
 
@@ -448,6 +452,35 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
             params.setProjectVersionsIds(projectVersionsIds);
             try {
                 response = wsStub.getProjectVersionsByIds(params);
+            } catch (RemoteException re) {
+                throw new WSException(re);
+            }
+        }
+        
+        return (WSProjectVersion[]) normalizeWSArrayResult(response.get_return());
+    }
+
+    /**
+     * @see eu.sqooss.scl.accessor.WSProjectAccessor#getLastProjectVersions(long[])
+     */
+    @Override
+    public WSProjectVersion[] getLastProjectVersions(long[] projectsIds) throws WSException {
+        if (!normalizeWSArrayParameter(projectsIds)) return EMPTY_ARRAY_PROJECT_VERSIONS;
+        GetLastProjectVersionsResponse response;
+        GetLastProjectVersions params;
+        if (!parameters.containsKey(METHOD_NAME_GET_LAST_PROJECT_VERSIONS)) {
+            params = new GetLastProjectVersions();
+            params.setPassword(password);
+            params.setUserName(userName);
+            parameters.put(METHOD_NAME_GET_LAST_PROJECT_VERSIONS, params);
+        } else {
+            params = (GetLastProjectVersions) parameters.get(
+                    METHOD_NAME_GET_LAST_PROJECT_VERSIONS);
+        }
+        synchronized (params) {
+            params.setProjectsIds(projectsIds);
+            try {
+                response = wsStub.getLastProjectVersions(params);
             } catch (RemoteException re) {
                 throw new WSException(re);
             }
