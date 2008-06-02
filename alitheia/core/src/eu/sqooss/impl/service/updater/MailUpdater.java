@@ -75,7 +75,7 @@ class MailUpdater extends Job {
     private DBService dbs;
     
     public MailUpdater(StoredProject project,
-            UpdaterServiceImpl updater,
+                       UpdaterServiceImpl updater,
                        AlitheiaCore core,
                        Logger logger) throws UpdaterException {
         if (project == null || core == null || logger == null) {
@@ -94,14 +94,19 @@ class MailUpdater extends Job {
     }
 
     protected void run() {
-        dbs.startDBSession();        
+        dbs.startDBSession();
         TDAccessor spAccessor = core.getTDSService().getAccessor(project.getId());
         MailAccessor mailAccessor = spAccessor.getMailAccessor();
         Set<MailingList> mllist = project.getMailingLists();
+        if(mllist.size() == 0) {
+            logger.warn("Project <" + project.getName() + " - " + project.getId() +
+                        "> seem to have 0 (zero) mailing lists!!");
+        }
         for ( MailingList ml : mllist ) {
+            System.out.println(1);
             processList(mailAccessor, ml);
         }
-        updater.removeUpdater(project.getName(),UpdaterService.UpdateTarget.MAIL);
+        updater.removeUpdater(project.getName(), UpdaterService.UpdateTarget.MAIL);
         dbs.commitDBSession();
     }
 
@@ -139,8 +144,8 @@ class MailUpdater extends Job {
                     senderEmail = inet.getAddress();
                 }
                 
-                Developer sender = Developer.getDeveloperByEmail(senderEmail,
-						mllist.getStoredProject());
+                Developer sender = Developer.getDeveloperByEmail(senderEmail, 
+                                                                 mllist.getStoredProject());
                 MailMessage mmsg = MailMessage.getMessageById(messageId);
                 if (mmsg == null) {
                     mmsg = new MailMessage();
@@ -156,18 +161,18 @@ class MailUpdater extends Job {
                 if (!mailAccessor.markMessageAsSeen(listId, messageId)) {
                     logger.warn("Failed to mark message as seen.");
                 }
-			} catch (FileNotFoundException e) {
-				logger.warn(msg + "not found: " + e.getMessage());
-			} catch (MessagingException me) {
-				logger.warn(msg + " could not be parsed! - " + me.toString());
-			} catch (DAOException daoe) {
-				logger.warn(msg + " error - " + daoe.toString());
-			} catch (Exception e) {
-				e.printStackTrace();
-				logger.warn(msg + " error - " + e.getMessage());
-			}
-		}
+            } catch (FileNotFoundException e) {
+                logger.warn(msg + "not found: " + e.getMessage());
+            } catch (MessagingException me) {
+                logger.warn(msg + " could not be parsed! - " + me.toString());
+            } catch (DAOException daoe) {
+                logger.warn(msg + " error - " + daoe.toString());
+            } catch (Exception e) {
+                e.printStackTrace();
+                logger.warn(msg + " error - " + e.getMessage());
+            }
 	}
+    }
 }
 
 /*
