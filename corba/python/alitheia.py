@@ -6,6 +6,8 @@ import Alitheia_idl
 import eu
 import eu__POA
 
+from eu.sqooss.impl.service.corba.alitheia import StoredProject
+
 class CorbaHandler:
     orb = None
     poa = None
@@ -19,7 +21,7 @@ class CorbaHandler:
         def __init__(self,orb):
             Thread.__init__(self)
             self.orb = orb
-            self.start()
+            #self.start()
 
         def run(self):
             self.orb.run()
@@ -174,6 +176,86 @@ class Core:
     def unregisterMetric(self,metric):
         self.core.unregisterMetric(metric.id)
 
+class Database (eu__POA.sqooss.impl.service.corba.alitheia.Database):
+    db = None
+
+    def __init__(self):
+        self.db = CorbaHandler.instance().getObject('AlitheiaDatabase')
+
+    def addRecord(self,object):
+        return self.db.addRecord(obect)
+
+    def deleteRecord(self,object):
+        return self.db.deleteRecord(object)
+
+    def updateRecord(self,object):
+        return self.db.updateRecord(object)
+
+    def findObjectById(self,type,id):
+        any = CORBA.Any(CORBA.TypeCode('IDL:eu/sqooss/impl/service/corba/alitheia/' + type.__name__ + ':1.0'), type())
+        return self.db.findObjectById(any,long(id)).value()
+      
+    def findObjectsByProperties(self,type,properties):
+        any = CORBA.Any(CORBA.TypeCode('IDL:eu/sqooss/impl/service/corba/alitheia/' + type.__name__ + ':1.0'), type())
+        map = []
+        
+        for k, v in properties.iteritems():
+            if v.__class__ == long or v.__class__ == int:
+                value = CORBA.Any(CORBA.TC_long, long(v))
+            elif v.__class__ == str:
+                value = CORBA.Any(CORBA.TC_string, v)
+            else:
+                value = CORBA.Any(CORBA.TypeCode('IDL:eu/sqooss/impl/service/corba/alitheia/' + v.__class__.__name__ + ':1.0'), v)
+            map.append(eu.sqooss.impl.service.corba.alitheia.map_entry(k,value))
+
+        resultAny = self.db.findObjectsByProperties(any,map)
+        result = []
+
+        for i in resultAny:
+            result.append(i.value())
+
+        return result
+
+    def doHQL(self,hql,params={}):
+        map = []
+
+        for k, v in params.iteritems():
+            if v.__class__ == long or v.__class__ == int:
+                value = CORBA.Any(CORBA.TC_long, long(v))
+            elif v.__class__ == str:
+                value = CORBA.Any(CORBA.TC_string, v)
+            else:
+                value = CORBA.Any(CORBA.TypeCode('IDL:eu/sqooss/impl/service/corba/alitheia/' + v.__class__.__name__ + ':1.0'), v)
+            map.append(eu.sqooss.impl.service.corba.alitheia.map_entry(k,value))
+
+        resultAny = self.db.doHQL(hql,map)
+        result = []
+
+        for i in resultAny:
+            result.append(i.value())
+
+        return result
+
+    def doSQL(self,sql,params={}):
+        map = []
+
+        for k, v in params.iteritems():
+            if v.__class__ == long or v.__class__ == int:
+                value = CORBA.Any(CORBA.TC_long, long(v))
+            elif v.__class__ == str:
+                value = CORBA.Any(CORBA.TC_string, v)
+            else:
+                value = CORBA.Any(CORBA.TypeCode('IDL:eu/sqooss/impl/service/corba/alitheia/' + v.__class__.__name__ + ':1.0'), v)
+            map.append(eu.sqooss.impl.service.corba.alitheia.map_entry(k,value))
+
+        resultAny = self.db.doSQL(sql,map)
+        result = []
+
+        for i in resultAny:
+            result.append(i.value())
+
+        return result
+
 class AbstractMetric (eu__POA.sqooss.impl.service.corba.alitheia.AbstractMetric):
     orbname = ''
     id = 0
@@ -277,3 +359,32 @@ class FileGroupMetric (eu__POA.sqooss.impl.service.corba.alitheia.FileGroupMetri
 
     def getResult(self,fileGroup):
         print 'getResult: Nothing to do'
+
+OldStoredProjectInit = StoredProject.__init__
+def StoredProjectInit(self, id=0, name='', website='', contact='', bugs='', repository='', mail=''):
+    return OldStoredProjectInit(self, id, name, website, contact, bugs, repository, mail)
+
+@staticmethod
+def StoredProjectGetProjectByName(name):
+    db = Database()
+    properties = { 'name': name }
+    objects = db.findObjectsByProperties(StoredProject,properties)
+    if len(objects) == 0:
+        return None
+
+    return objects[0]
+
+@staticmethod
+def StoredProjectGetLastProjectVersion(project):
+    db = Database()
+    properties = { 'sp': project }
+    objects = db.doHQL('from ProjectVersion pv where pv.project=:sp and pv.version = ( select max( pv2.version ) from ProjectVersion pv2 where pv2.project=:sp)', properties)
+
+    if len(objects) == 0:
+        return None
+
+    return objects[0]
+
+setattr(eu.sqooss.impl.service.corba.alitheia.StoredProject,'getProjectByName',StoredProjectGetProjectByName)
+setattr(eu.sqooss.impl.service.corba.alitheia.StoredProject,'getLastProjectVersion',StoredProjectGetLastProjectVersion)
+setattr(eu.sqooss.impl.service.corba.alitheia.StoredProject,'__init__',StoredProjectInit)

@@ -5,6 +5,9 @@ from alitheia import Core
 from alitheia import Job
 from alitheia import Scheduler
 from alitheia import ProjectFileMetric
+from alitheia import StoredProject
+from alitheia import Database
+
 
 class TestJob(Job):
     def run(self):
@@ -26,18 +29,26 @@ class Metric(ProjectFileMetric):
     def version(self):
         return '1.0.0.0'
 
-l = Logger('sqooss')
-l.error('Test')
+#l = Logger('sqooss')
+#l.error('Test')
 
-j = TestJob()
-s = Scheduler()
-s.enqueueJob( j )
+#j = TestJob()
+#s = Scheduler()
+#s.enqueueJob( j )
 
-c = Core()
+#c = Core()
 
-m = Metric()
-c.registerMetric(m)
+#m = Metric()
+#c.registerMetric(m)
 
-j.waitForFinished()
+#j.waitForFinished()
 
-#Core.shutdown()
+db = Database()
+props = {'id': 2232}
+props = {'name': 'SVN'}
+objects = db.findObjectsByProperties(StoredProject,props)
+print objects
+
+print StoredProject.getLastProjectVersion(StoredProject.getProjectByName('SVN'))
+
+Core.shutdown()
