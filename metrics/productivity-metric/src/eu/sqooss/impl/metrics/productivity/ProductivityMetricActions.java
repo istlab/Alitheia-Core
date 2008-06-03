@@ -33,8 +33,29 @@
 
 package eu.sqooss.impl.metrics.productivity;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 public class ProductivityMetricActions {
 
+    public static HashMap<ActionCategory, ArrayList<ActionType>> types = 
+        new java.util.HashMap<ActionCategory, ArrayList<ActionType>>();
+    
+    static {
+        ArrayList<ActionType> c = new ArrayList<ActionType>();
+        c.add(ActionType.CNS);
+        c.add(ActionType.CND);
+        c.add(ActionType.CDF);
+        c.add(ActionType.CTF);
+        c.add(ActionType.CBF);
+        c.add(ActionType.CEC);
+        c.add(ActionType.CMF);
+        c.add(ActionType.CBN);
+        c.add(ActionType.CPH);
+        c.add(ActionType.CAL);
+        types.put(ActionCategory.C, c);
+    }
+    
     public enum ActionType {
         CNS, // Commit new source file
         CND, // Commit new directory
@@ -77,6 +98,38 @@ public class ProductivityMetricActions {
                 return ActionType.CAL;
             else
                 return null;
+        }
+        
+        public static ArrayList<ActionType> getActionTypes(ActionCategory a){
+            return types.get(a);
+        }
+    }
+    
+    public enum ActionCategory{
+        C,  //Code and documentation repository
+        M,  //Mailing lists - forums
+        B;   //Bug database
+        
+        public static ActionCategory fromString(String s){
+            if ("C".equals(s))
+                return ActionCategory.C;
+            else if ("M".equals(s))
+                return ActionCategory.M;
+            else if ("B".equals(s))
+                return ActionCategory.B;
+            else
+                return null;
+        }
+        
+        public static ActionCategory getActionCategory(ActionType a){
+            for(ActionCategory ac : types.keySet()) {
+                for(ActionType at : types.get(ac)) {
+                    if (at.equals(a)) {
+                        return ac;
+                    }
+                }
+            }
+            return null;
         }
     }
 

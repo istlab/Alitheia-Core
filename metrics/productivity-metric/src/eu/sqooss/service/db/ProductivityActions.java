@@ -10,6 +10,7 @@ import eu.sqooss.impl.service.CoreActivator;
 public class ProductivityActions extends DAObject {
 
     private Developer developer;
+    private String actionCategory;
     private String actionType;
     private boolean isPositive;
     private long total;
@@ -20,6 +21,18 @@ public class ProductivityActions extends DAObject {
 
     public void setDeveloper(Developer developer) {
         this.developer = developer;
+    }
+    
+    public ProductivityMetricActions.ActionCategory getActionCategory(){
+        return ProductivityMetricActions.ActionCategory.fromString(actionCategory);
+    }
+    
+    public String getCategory(){
+        return actionCategory;
+    }
+    
+    public void setActionCategory(ProductivityMetricActions.ActionCategory s) {
+        this.actionCategory = s.toString();
     }
     
     public ProductivityMetricActions.ActionType getActionType(){
@@ -51,23 +64,20 @@ public class ProductivityActions extends DAObject {
     }
 
     public static ProductivityActions getProductivityAction(Developer dev, 
-            ProductivityMetricActions.ActionType actionType, boolean isPositive) {
+            ProductivityMetricActions.ActionType actionType) {
         
         DBService dbs = CoreActivator.getDBService();
         
         String paramDeveloper = "paramDeveloper"; 
         String paramType = "paramType"; 
-        String paramPositive = "paramPositive";
         
         String query = "select a from ProductivityActions a " +
                 " where a.developer = :" + paramDeveloper +
-                " and a.actionType = :" + paramType +
-                " and a.isPositive = :" + paramPositive ;
+                " and a.actionType = :" + paramType ;
         
         Map<String,Object> parameters = new HashMap<String,Object>();
         parameters.put(paramDeveloper, dev.getId());
         parameters.put(paramType, actionType.toString());
-        parameters.put(paramPositive, isPositive);
 
         List<?> productivityActions = dbs.doHQL(query, parameters);
         
@@ -78,4 +88,45 @@ public class ProductivityActions extends DAObject {
         }
     }
   
+    public static long getTotalActions(){
+        DBService dbs = CoreActivator.getDBService();
+        
+        String query = "select sum(total) from ProductivityActions" ;
+        
+        List<?> totalActions = dbs.doHQL(query);
+        
+        return Long.parseLong(totalActions.get(0).toString());
+    }
+    
+    public static long getTotalActionsPerCategory(ProductivityMetricActions.ActionCategory actionCategory){
+        DBService dbs = CoreActivator.getDBService();
+        
+        String paramCategory = "paramCategory"; 
+        
+        String query = "select sum(total) from ProductivityActions" +
+                       " where a.actionCategory = :" + paramCategory ;
+        
+        Map<String,Object> parameters = new HashMap<String,Object>();
+        parameters.put(paramCategory, actionCategory.toString());
+        
+        List<?> totalActions = dbs.doHQL(query);
+        
+        return Long.parseLong(totalActions.get(0).toString());
+    }
+    
+    public static long getTotalActionsPerType(ProductivityMetricActions.ActionType actionType){
+        DBService dbs = CoreActivator.getDBService();
+        
+        String paramType = "paramType"; 
+        
+        String query = "select sum(total) from ProductivityActions" +
+                       " where a.actionType = :" + paramType ;
+        
+        Map<String,Object> parameters = new HashMap<String,Object>();
+        parameters.put(paramType, actionType.toString());
+        
+        List<?> totalActions = dbs.doHQL(query, parameters);
+        
+        return Long.parseLong(totalActions.get(0).toString());
+    }
 }

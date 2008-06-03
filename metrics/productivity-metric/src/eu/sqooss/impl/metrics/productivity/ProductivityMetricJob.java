@@ -40,11 +40,12 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import eu.sqooss.impl.metrics.productivity.ProductivityMetricActions.ActionType;
+import eu.sqooss.impl.metrics.productivity.ProductivityMetricActions.ActionCategory;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.AbstractMetricJob;
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.abstractmetric.MetricMismatchException;
-import eu.sqooss.service.abstractmetric.Result;
 import eu.sqooss.service.db.Developer;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.ProjectFile;
@@ -90,7 +91,7 @@ public class ProductivityMetricJob extends AbstractMetricJob {
         if (plugin != null) {
             locMetric = plugin.getSupportedMetrics();
         } else {
-            log.error("Could not fild WC plugin metrics!");
+            log.error("Could not find WC plugin metrics!");
             db.rollbackDBSession();
             return;
         }
@@ -104,28 +105,28 @@ public class ProductivityMetricJob extends AbstractMetricJob {
 
         Matcher m;
 
-        updateField(dev, ProductivityMetricActions.ActionType.TCO, true, 1);
-        updateField(dev, ProductivityMetricActions.ActionType.TCF, true,
-                ProjectFiles.size());
-
+        updateField(dev, ActionType.TCO, true, 1);
+        updateField(dev, ActionType.TCF, true,
+                ProjectFiles.size());        
+        
         if (commitMsg.length() == 0) {
-            updateField(dev, ProductivityMetricActions.ActionType.CEC, true, 1);
+            updateField(dev, ActionType.CEC, false, 1);
         } else {
             m = bugNumberLabel.matcher(commitMsg);
             if (m.matches()) {
-                updateField(dev, ProductivityMetricActions.ActionType.CBN,
+                updateField(dev, ActionType.CBN,
                         true, 1);
             }
             m = pHatLabel.matcher(commitMsg);
             if (m.matches()) {
-                updateField(dev, ProductivityMetricActions.ActionType.CPH,
+                updateField(dev, ActionType.CPH,
                         true, 1);
             }
         }
 
-        if (ProjectFiles.size() >= 5) { // TODO in stored project activation
-            // type after calculating mean
-            updateField(dev, ProductivityMetricActions.ActionType.CMF, true, 1);
+        if (ProjectFiles.size() >
+                Integer.parseInt(this.core.getPluginAdmin().getPluginInfo(this.parent.getUniqueKey()).getConfiguration().get(0).getValue())) {
+            updateField(dev, ActionType.CMF, false, 1);
         }
 
         Iterator<ProjectFile> i = ProjectFiles.iterator();
@@ -137,7 +138,7 @@ public class ProductivityMetricJob extends AbstractMetricJob {
 
             if (pf.getIsDirectory()) {
                 if (isNew) {
-                    updateField(dev, ProductivityMetricActions.ActionType.CND,
+                    updateField(dev, ActionType.CND,
                             true, 1);
                 }
             } else if (fType == FileTypeMatcher.FileType.SRC) {
@@ -145,13 +146,13 @@ public class ProductivityMetricJob extends AbstractMetricJob {
                     locCurrent = plugin.getResult(pf, locMetric).getRow(0).get(0).getInteger();
                     if (isNew) {
                         updateField(dev,
-                                ProductivityMetricActions.ActionType.CNS, true, 1);
+                                ActionType.CNS, true, 1);
                         locPrevious = 0;
                     } else {
                         prevFile = ProjectFile.getPreviousFileVersion(pf);
                         locPrevious = plugin.getResult(prevFile, locMetric).getRow(0).get(0).getInteger();
                     }
-                    updateField(dev, ProductivityMetricActions.ActionType.CAL,
+                    updateField(dev, ActionType.CAL,
                             true, abs(locCurrent - locPrevious));
                 } catch (MetricMismatchException e) {
                     log.error("Results of LOC metric for project: "
@@ -163,13 +164,13 @@ public class ProductivityMetricJob extends AbstractMetricJob {
                     return;
                 }
             } else if (fType == FileTypeMatcher.FileType.BIN) {
-                updateField(dev, ProductivityMetricActions.ActionType.CBF,
+                updateField(dev, ActionType.CBF,
                         true, 1);
             } else if (fType == FileTypeMatcher.FileType.DOC) {
-                updateField(dev, ProductivityMetricActions.ActionType.CDF,
+                updateField(dev, ActionType.CDF,
                         true, 1);
             } else if (fType == FileTypeMatcher.FileType.TRANS) {
-                updateField(dev, ProductivityMetricActions.ActionType.CTF,
+                updateField(dev, ActionType.CTF,
                         true, 1);
             }
 
@@ -177,13 +178,14 @@ public class ProductivityMetricJob extends AbstractMetricJob {
         db.commitDBSession();
     }
     
-    private void updateField(Developer dev, ProductivityMetricActions.ActionType actionType, boolean isPositive, int value){
+    private void updateField(Developer dev, ActionType actionType, boolean isPositive, int value){
     	//TODO: test updates, uncomment       
-/*        ProductivityActions a = ProductivityActions.getProductivityAction(dev, actionType, isPositive);
+/*        ProductivityActions a = ProductivityActions.getProductivityAction(dev, actionType);
         
         if (a == null) {
             a = new ProductivityActions();
             a.setDeveloper(dev);
+            a.setActionCategory(ActionCategory.getActionCategory(actionType));
             a.setActionType(actionType);
             a.setIsPositive(isPositive);
             a.setTotal(value);
@@ -191,7 +193,50 @@ public class ProductivityMetricJob extends AbstractMetricJob {
         } else{
             a.setTotal(a.getTotal() + value);
         }
+        
+        updateWeights(actionType);
 */
+    }
+    
+    private void updateWeights(ActionType actionType){
+        //TODO: test, uncomment
+        
+/*        ActionCategory actionCategory = ActionCategory.getActionCategory(actionType);
+        
+        long totalActions = ProductivityActions.getTotalActions();
+        long totalActionsPerCategory = ProductivityActions.getTotalActionsPerCategory(actionCategory);
+        long totalActionsPerType = ProductivityActions.getTotalActionsPerType(actionType);
+        
+        //update weight for the action type
+        long weight = 100 * totalActionsPerType /
+                            totalActionsPerCategory;
+        
+        ProductivityWeights a = ProductivityWeights.getWeight(actionType);
+        
+        if (a == null) {
+            a = new ProductivityWeights();
+            a.setActionType(actionType);
+            a.setWeight(weight);
+            db.addRecord(a);
+        } else{
+            a.setWeight(weight);
+        }
+        
+        //update weight for the action category
+        weight = 100 *  totalActionsPerCategory /
+                        totalActions;
+
+        a = ProductivityWeights.getWeight(actionCategory);
+        
+        if (a == null) {
+            a = new ProductivityWeights();
+            a.setActionCategory(actionCategory);
+            a.setWeight(weight);
+            db.addRecord(a);
+        } else{
+            a.setWeight(weight);
+        }
+  */     
     }
     
     private int abs (int value){
