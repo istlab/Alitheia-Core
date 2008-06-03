@@ -6,12 +6,16 @@ Bundle-Version: 0.0.1
 Bundle-Activator: eu.sqooss.impl.service.Activator
 Bundle-Vendor: AUEB
 Export-Package: eu.sqooss.metric.productivity, eu.sqooss.service.db
-Import-Package: eu.sqooss.service.logging,
-    eu.sqooss.service.tds, org.osgi.framework,
-    eu.sqooss.service.abstractmetric,
+Import-Package: org.osgi.framework,
+    eu.sqooss.service.logging,
+    eu.sqooss.service.tds,
     eu.sqooss.service.fds,
+    eu.sqooss.service.abstractmetric,
     eu.sqooss.service.scheduler,
     eu.sqooss.service.db,
+    eu.sqooss.service.util,
+    eu.sqooss.core,
+    eu.sqooss.service.pa,
     org.apache.commons.codec.digest 
     
 
