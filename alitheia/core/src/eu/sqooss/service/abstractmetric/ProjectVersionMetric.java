@@ -33,6 +33,8 @@
 
 package eu.sqooss.service.abstractmetric;
 
+import java.util.List;
+
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.ProjectVersion;
 
@@ -55,5 +57,5 @@ public interface ProjectVersionMetric extends AlitheiaPlugin {
      * @return A {@link MetricResult} object when results for this version
      * exist, <tt>null</tt> otherwise.
      */
-    Result getResult(ProjectVersion a, Metric m);
+    List<ResultEntry> getResult(ProjectVersion a, Metric m);
 }

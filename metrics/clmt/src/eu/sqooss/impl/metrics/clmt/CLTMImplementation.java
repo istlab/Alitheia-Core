@@ -108,7 +108,7 @@ public class CLTMImplementation extends AbstractMetric implements CLMT {
         }
     }
     
-    public Result getResult(ProjectVersion a, Metric m) {
+    public List<ResultEntry> getResult(ProjectVersion a, Metric m) {
         
         return null;
     }
