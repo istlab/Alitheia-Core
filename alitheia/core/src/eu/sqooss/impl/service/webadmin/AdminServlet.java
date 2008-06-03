@@ -49,6 +49,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 import java.util.Hashtable;
+import java.util.ResourceBundle;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -89,15 +90,6 @@ public class AdminServlet extends HttpServlet {
     // Invocation rules view
     RulesView rulesView = null;
 
-    // Flag for refreshing the plug-ins content
-    private boolean refreshPlugins = true;
-
-    // Flag for refreshing the users content
-    private boolean refreshUsers = true;
-
-    // Flag for refreshing the rules content
-    private boolean refreshRules = true;
-
     public AdminServlet(BundleContext bc,
             WebadminService webadmin, VelocityEngine ve) {
         this.webadmin = webadmin;
@@ -134,11 +126,11 @@ public class AdminServlet extends HttpServlet {
         // Now the dynamic substitutions and renderer
         vc = new VelocityContext();
         render = new WebAdminRenderer(bc, vc);
-        // Create the invocation rules view
+        
+        // Create the various view objects
         rulesView = new RulesView(bc, vc);
-
-        createSubstitutions(true);
-
+        usersView = new UsersView(bc, vc);
+        rulesView = new RulesView(bc, vc);
     }
 
     /**
@@ -161,7 +153,7 @@ public class AdminServlet extends HttpServlet {
             // This is static content
             if (query.startsWith("/stop")) {
                 vc.put("RESULTS", "<p>Alitheia Core is now shutdown.</p>");
-                sendPage(response, "/results.html");
+                sendPage(response, request, "/results.html");
 
                 // Now stop the system
                 render.logRequest("System stopped by user request to webadmin.");
@@ -169,9 +161,8 @@ public class AdminServlet extends HttpServlet {
                 return;
             }
             if (query.startsWith("/restart")) {
-                refreshPlugins = false;
                 vc.put("RESULTS", "<p>Alitheia Core is now restarting.</p>");
-                sendPage(response, "/results.html");
+                sendPage(response, request, "/results.html");
 
                 //FIXME: How do we do a restart?
                 return;
@@ -180,7 +171,7 @@ public class AdminServlet extends HttpServlet {
                 sendResource(response, staticContentMap.get(query));
             }
             else if ((query != null) && (dynamicContentMap.containsKey(query))) {
-                sendPage(response, dynamicContentMap.get(query));
+                sendPage(response, request, dynamicContentMap.get(query));
             }
         }
         catch (Exception e) {
@@ -199,29 +190,14 @@ public class AdminServlet extends HttpServlet {
 
             if (query.startsWith("/addproject")) {
                 render.addProject(request);
-                sendPage(response, "/results.html");
+                sendPage(response, request, "/results.html");
             } else if (query.startsWith("/diraddproject")) {
                 render.addProjectDir(request);
-                sendPage(response, "/results.html");
+                sendPage(response, request, "/results.html");
             }
             else if (query.startsWith("/motd")) {
                 render.setMOTD(webadmin, request);
-                sendPage(response, "/results.html");
-            }
-            else if (query.startsWith("/index")) {
-                refreshPlugins = false;
-                vc.put("METRICS", pluginsView.render(request));
-                sendPage(response, "/index.html");
-            }
-            else if (query.startsWith("/users")) {
-                refreshUsers = false;
-                vc.put("USERS", usersView.render(request));
-                sendPage(response, "/users.html");
-            }
-            else if (query.startsWith("/rules")) {
-                refreshRules = false;
-                vc.put("RULES", rulesView.render(request));
-                sendPage(response, "/rules.html");
+                sendPage(response, request, "/results.html");
             }
             else {
                 doGet(request,response);
@@ -261,47 +237,69 @@ public class AdminServlet extends HttpServlet {
         }
     }
 
-    protected void sendPage(HttpServletResponse response, String path)
+    protected void sendPage(
+            HttpServletResponse response,
+            HttpServletRequest request,
+            String path)
         throws ServletException, IOException, Exception {
         Template t = ve.getTemplate( path );
         StringWriter writer = new StringWriter();
         PrintWriter print = response.getWriter();
 
         // Do any substitutions that may be required
-        createSubstitutions(false);
+        createSubstitutions(request);
         response.setContentType("text/html");
         t.merge(vc, writer);
 
         print.print(writer.toString());
     }
 
-    private void createSubstitutions(boolean initialRun) {
-        if (initialRun) {
-            // Simple string substitutions
-            vc.put("COPYRIGHT", "Copyright 2007-2008 <a href=\"http://www.sqo-oss.eu/about/\">SQO-OSS Consortium Members</a>");
-            vc.put("LOGO", "<img src='/logo' id='logo' alt='Logo' />");
-            vc.put("MENU",
-                   "<ul id=\"menu\">" +
-                   "<li id=\"nav-1\"><a href=\"/index\">Plug-ins</a></li>" +
-                   "<li id=\"nav-3\"><a href=\"/projects\">Projects</a></li>" +
-                   "<li id=\"nav-6\"><a href=\"/users\">Users</a></li>" +
-                   "<li id=\"nav-2\"><a href=\"/logs\">Logs</a></li>" +
-                   "<li id=\"nav-4\"><a href=\"/jobs\">Jobs</a></li>" +
-                   "<li id=\"nav-7\"><a href=\"/rules\">Rules</a></li>" +
-                   "</ul>");
-            vc.put("OPTIONS","<fieldset id=\"options\">" +
-                   "<legend>Options</legend>" +
-                   "<form id=\"motd\" method=\"post\" action=\"motd\">" +
-                   "<p>Message of the day:</p><br/>"+ 
-                   "<input id=\"motdinput\" type=\"text\" name=\"motdtext\" class=\"form\"/>" +
-                   "<br/><input type=\"submit\" value=\"Set\" id=\"motdbutton\" /></form>" +
-                   "<form id=\"start\" method=\"post\" action=\"restart\">" +
-                   "<p><input type=\"submit\" value=\"Restart\" /></p>" +
-                   "</form>" +
-                   "<form id=\"stop\" method=\"post\" action=\"stop\">" +
-                   "<p><input type=\"submit\" value=\"Stop\" /></p>" +
-                   "</form></fieldset>");
-        }
+    private void createSubstitutions(HttpServletRequest request) {
+        // Get the various resource bundles
+        ResourceBundle resLabels =
+            AbstractView.getLabelsBundle(request.getLocale());
+
+        // Simple string substitutions
+        vc.put("COPYRIGHT",
+                "Copyright 2007-2008"
+                + "<a href=\"http://www.sqo-oss.eu/about/\">"
+                + "SQO-OSS Consortium Members"
+                + "</a>");
+        vc.put("LOGO", "<img src='/logo' id='logo' alt='Logo' />");
+        vc.put("MENU",
+                "<ul id=\"menu\">"
+                + "<li id=\"nav-1\"><a href=\"/index\">" 
+                + resLabels.getString("plugins") + "</a></li>"
+                + "<li id=\"nav-3\"><a href=\"/projects\">"
+                + resLabels.getString("projects") + "</a></li>"
+                + "<li id=\"nav-6\"><a href=\"/users\">"
+                + resLabels.getString("users") + "</a></li>"
+                + "<li id=\"nav-2\"><a href=\"/logs\">"
+                + resLabels.getString("logs") + "</a></li>"
+                + "<li id=\"nav-4\"><a href=\"/jobs\">"
+                + resLabels.getString("jobs") + "</a></li>"
+                + "<li id=\"nav-7\"><a href=\"/rules\">"
+                + resLabels.getString("rules") + "</a></li>"
+                + "</ul>");
+        vc.put("OPTIONS",
+                "<fieldset id=\"options\">"
+                + "<legend>" + resLabels.getString("options") + "</legend>"
+                + "<form id=\"motd\" method=\"post\" action=\"motd\">"
+                + "<p>" + resLabels.getString("motd") + ":</p><br/>"
+                + "<input id=\"motdinput\" type=\"text\" name=\"motdtext\""
+                + " class=\"form\"/>"
+                + "<br/>"
+                + "<input type=\"submit\" value=\""
+                + resLabels.getString("set") + "\" id=\"motdbutton\" />"
+                + "</form>"
+                + "<form id=\"start\" method=\"post\" action=\"restart\">"
+                + "<input type=\"submit\" value=\""
+                + resLabels.getString("restart") + "\" />\n"
+                + "</form>"
+                + "<form id=\"stop\" method=\"post\" action=\"stop\">"
+                + "<input type=\"submit\" value=\""
+                + resLabels.getString("stop") + "\" />"
+                + "</form></fieldset>");
 
         // Function-based substitutions
         //vc.put("STATUS", someFunction); FIXME
@@ -318,28 +316,13 @@ public class AdminServlet extends HttpServlet {
         vc.put("FAILJOBS", render.renderFailedJobs());
         vc.put("JOBFAILSTATS", render.renderJobFailStats());
         // Plug-ins content
-        if (refreshPlugins) {
-            vc.put("METRICS", pluginsView.render(null));
-        }
-        else {
-            refreshPlugins = true;
-        }
+        vc.put("METRICS", pluginsView.render(request));
         // Users content
-        if (refreshUsers) {
-            vc.put("USERS", usersView.render(null));
-        }
-        else {
-            refreshUsers = true;
-        }
+        vc.put("USERS", usersView.render(request));
         // Rules content
-        if (refreshRules) {
-            vc.put("RULES", rulesView.render(null));
-        }
-        else {
-            refreshRules = true;
-        }
-        
-        // These are composite substitutions
+        vc.put("RULES", rulesView.render(request));
+
+        // Composite substitutions
         vc.put("STATUS_CORE","<fieldset id=\"status\">" +
                      "<legend>Status</legend>" +
                      "<ul>" +

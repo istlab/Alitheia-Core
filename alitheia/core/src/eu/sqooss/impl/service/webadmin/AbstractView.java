@@ -33,6 +33,8 @@
 package eu.sqooss.impl.service.webadmin;
 
 import java.util.Enumeration;
+import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
@@ -72,6 +74,9 @@ public abstract class AbstractView {
 
     // Velocity stuff
     protected VelocityContext vc = null;
+
+    // Resource files' names
+    private static String RES_LABELS_FILE = "ResourceLabels";
 
     // Debug flag
     protected static boolean DEBUG = false;
@@ -138,6 +143,13 @@ public abstract class AbstractView {
                 sobjLogger.debug("WebAdmin got the Security Manager's object.");
             }
         }
+    }
+
+    public static ResourceBundle getLabelsBundle (Locale locale) {
+        if (locale != null)
+            return ResourceBundle.getBundle(RES_LABELS_FILE, locale);
+        else
+            return ResourceBundle.getBundle(RES_LABELS_FILE);
     }
 
     protected static String debugRequest (HttpServletRequest request) {

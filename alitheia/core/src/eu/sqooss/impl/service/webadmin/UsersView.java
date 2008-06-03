@@ -33,6 +33,7 @@
 package eu.sqooss.impl.service.webadmin;
 
 import java.text.DateFormat;
+import java.util.ResourceBundle;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -55,7 +56,7 @@ public class UsersView extends AbstractView{
     }
 
     /**
-     * Renders the various user views of the SQO-OSS WebAdmin UI:
+     * Renders the various user's views of the SQO-OSS WebAdmin UI:
      * <ul>
      *   <li>Users viewer
      *   <li>User editor
@@ -77,58 +78,62 @@ public class UsersView extends AbstractView{
 
         // Create a DB session
         sobjDB.startDBSession();
-        // Get the various security managers
+
+        // Get the required security managers
         UserManager secUM = sobjSecurity.getUserManager();
         GroupManager secGM = sobjSecurity.getGroupManager();
         PrivilegeManager secPM = sobjSecurity.getPrivilegeManager();
         ServiceUrlManager secSU = sobjSecurity.getServiceUrlManager();
 
-        // Proceed only when at least the system user is available
-        if (secUM.getUsers().length > 0) {
-            // Request parameters
-            String reqParAction        = "action";
-            String reqParUserId        = "userId";
-            String reqParGroupId       = "groupId";
-            String reqParRightId       = "rightId";
-            String reqParGroupName     = "newGroupName";
-            String reqParUserName      = "userName";
-            String reqParUserEmail     = "userEmail";
-            String reqParUserPass      = "userPass";
-            String reqParPassConf      = "passConf";
-            String reqParViewList      = "showList";
-            // Recognized "action" parameter's values
-            String actValAddToGroup    = "addToGroup";
-            String actValRemFromGroup  = "removeFromGroup";
-            String actValReqNewGroup   = "reqNewGroup";
-            String actValAddNewGroup   = "addNewGroup";
-            String actValReqRemGroup   = "reqRemGroup";
-            String actValConRemGroup   = "conRemGroup";
-            String actValConEditGroup  = "conEditGroup";
-            String actValReqNewUser    = "reqNewUser";
-            String actValAddNewUser    = "addNewUser";
-            String actValReqRemUser    = "reqRemUser";
-            String actValConRemUser    = "conRemUser";
-            String actValConEditUser   = "conEditUser";
-            String actValReqService    = "reqService";
-            String actValAddService    = "addService";
-            // Request values
-            Long   reqValUserId        = null;
-            Long   reqValGroupId       = null;
-            Long   reqValRightId       = null;
-            String reqValGroupName     = null;
-            String reqValUserName      = null;
-            String reqValUserEmail     = null;
-            String reqValUserPass      = null;
-            String reqValPassConf      = null;
-            String reqValViewList      = "users";
-            String reqValAction        = "";
-            // Selected user
-            User selUser = null;
-            // Selected group;
-            Group selGroup = null;
-            // Current colspan (max columns)
-            long maxColspan = 1;
+        // Get the required resource bundles
+        ResourceBundle resLabels = getLabelsBundle(req.getLocale());
 
+        // Request parameters
+        String reqParAction        = "action";
+        String reqParUserId        = "userId";
+        String reqParGroupId       = "groupId";
+        String reqParRightId       = "rightId";
+        String reqParGroupName     = "newGroupName";
+        String reqParUserName      = "userName";
+        String reqParUserEmail     = "userEmail";
+        String reqParUserPass      = "userPass";
+        String reqParPassConf      = "passConf";
+        String reqParViewList      = "showList";
+        // Recognized "action" parameter's values
+        String actValAddToGroup    = "addToGroup";
+        String actValRemFromGroup  = "removeFromGroup";
+        String actValReqNewGroup   = "reqNewGroup";
+        String actValAddNewGroup   = "addNewGroup";
+        String actValReqRemGroup   = "reqRemGroup";
+        String actValConRemGroup   = "conRemGroup";
+        String actValConEditGroup  = "conEditGroup";
+        String actValReqNewUser    = "reqNewUser";
+        String actValAddNewUser    = "addNewUser";
+        String actValReqRemUser    = "reqRemUser";
+        String actValConRemUser    = "conRemUser";
+        String actValConEditUser   = "conEditUser";
+        String actValReqService    = "reqService";
+        String actValAddService    = "addService";
+        // Request values
+        Long   reqValUserId        = null;
+        Long   reqValGroupId       = null;
+        Long   reqValRightId       = null;
+        String reqValGroupName     = null;
+        String reqValUserName      = null;
+        String reqValUserEmail     = null;
+        String reqValUserPass      = null;
+        String reqValPassConf      = null;
+        String reqValViewList      = null;
+        String reqValAction        = "";
+        // Selected user
+        User selUser = null;
+        // Selected group;
+        Group selGroup = null;
+        // Current colspan (max columns)
+        long maxColspan = 1;
+
+        // Proceed only if at least the system user is available
+        if (secUM.getUsers().length > 0) {
             // ===============================================================
             // Parse the servlet's request object
             // ===============================================================
@@ -137,242 +142,256 @@ public class UsersView extends AbstractView{
                 if (DEBUG) {
                     b.append(debugRequest(req));
                 }
+
+                // Retrieve the selected editor's action (if any)
+                reqValAction = req.getParameter(reqParAction);
+                if (reqValAction == null) {
+                    reqValAction = "";
+                };
+
                 // Retrieve the requested list view (if any)
                 reqValViewList = req.getParameter(reqParViewList);
                 if (reqValViewList == null) {
-                    reqValViewList = "";
+                    reqValViewList = "users";
                 }
+
                 // Retrieve the selected user's DAO (if any)
                 reqValUserId = fromString(req.getParameter(reqParUserId));
                 if (reqValUserId != null) {
                     selUser = secUM.getUser(reqValUserId);
                 }
+
                 // Retrieve the selected group's DAO (if any)
                 reqValGroupId = fromString(req.getParameter(reqParGroupId));
                 if (reqValGroupId != null) {
                     selGroup = secGM.getGroup(reqValGroupId);
                 }
-                // Retrieve the selected editor's action
-                reqValAction = req.getParameter(reqParAction);
-                if (reqValAction == null) {
-                    reqValAction = "";
+
+                // ===========================================================
+                // Add a selected user to a selected group
+                // ===========================================================
+                if (reqValAction.equalsIgnoreCase(actValAddToGroup)) {
+                    if ((selUser != null) && (selGroup != null)) {
+                        if (secGM.addUserToGroup(
+                                selGroup.getId(), selUser.getId()) == false) {
+                            e.append(sp(in) + "Can not add user ("
+                                    + selUser.getName() + ")"
+                                    + " to group ("
+                                    + selGroup.getDescription() + ")!"
+                                    + " Check log for details."
+                                    + "<br/>\n");
+                        }
+                    }
+                    if (selUser == null)
+                        e.append(sp(in)
+                                + "You must select an user first!<br/>\n");
+                    if (selUser == null)
+                        e.append(sp(in)
+                                + "You must select a group first!<br/>\n");
                 }
-                else if (reqValAction != "") {
-                    // Add the selected user to the selected group
-                    if (reqValAction.equalsIgnoreCase(actValAddToGroup)) {
-                        if ((selUser != null) && (selGroup != null)) {
-                            sobjSecurity.getGroupManager()
-                            .addUserToGroup(
-                                    selGroup.getId(),
-                                    selUser.getId());
+                // ===========================================================
+                // Remove a selected user from a selected group
+                // ===========================================================
+                else if (reqValAction.equalsIgnoreCase(actValRemFromGroup)) {
+                    if ((selUser != null) && (selGroup != null)) {
+                        if (secGM.deleteUserFromGroup(
+                                selGroup.getId(), selUser.getId()) == false) {
+                            e.append(sp(in) + "Can not remove user ("
+                                    + selUser.getName() + ")"
+                                    + " from group ("
+                                    + selGroup.getDescription() + ")!"
+                                    + " Check log for details."
+                                    + "<br/>\n");
                         }
                     }
-                    // Remove the selected user from the selected group
-                    else if (reqValAction.equalsIgnoreCase(actValRemFromGroup)) {
-                        if ((selUser != null) && (selGroup != null)) {
-                            sobjSecurity.getGroupManager()
-                            .deleteUserFromGroup(
-                                    selGroup.getId(),
-                                    selUser.getId());
+                    if (selUser == null)
+                        e.append(sp(in)
+                                + "You must select an user first!<br/>\n");
+                    if (selUser == null)
+                        e.append(sp(in)
+                                + "You must select a group first!<br/>\n");
+                }
+                // ===========================================================
+                // Add new group to the system
+                // ===========================================================
+                else if (reqValAction.equalsIgnoreCase(actValAddNewGroup)) {
+                    reqValAction = actValReqNewGroup;
+                    // Retrieve the selected group name
+                    reqValGroupName = req.getParameter(reqParGroupName);
+                    // Create a new group with the specified name
+                    if ((reqValGroupName != null)
+                            && (reqValGroupName.length() > 0)) {
+                        // Check the name syntax
+                        if (checkName(reqValGroupName) == false) {
+                            e.append(sp(in)
+                                    + "Incorrect group name syntax!<br/>\n");
                         }
-                    }
-                    // Add new group to the system
-                    else if (reqValAction.equalsIgnoreCase(actValAddNewGroup)) {
-                        reqValAction = actValReqNewGroup;
-                        // Retrieve the selected group name
-                        reqValGroupName =
-                            req.getParameter(reqParGroupName);
-                        // Create the new group
-                        if ((reqValGroupName != null)
-                                && (reqValGroupName != "")) {
-                            if (checkName(reqValGroupName) == false) {
-                                e.append(sp(in)
-                                        + "<b>Incorrect syntax:</b>"
-                                        + "&nbsp;"
-                                        + reqValGroupName
+                        // Check if a group with the same name already exist
+                        else if (secGM.getGroup(reqValGroupName) == null) {
+                            Group group = secGM.createGroup(reqValGroupName);
+                            if (group != null) {
+                                selGroup = group;
+                                reqValAction = actValAddNewGroup;
+                            }
+                            else {
+                                e.append(sp(in) + "Can not create group ("
+                                        + reqValGroupName + ")!"
+                                        + " Check log for details."
                                         + "<br/>\n");
                             }
-                            else if (secGM.getGroup(reqValGroupName) == null) {
-                                Group group =
-                                    secGM.createGroup(reqValGroupName);
-                                if (group != null) {
-                                    selGroup = group;
-                                    reqValAction = actValAddNewGroup;
-                                }
-                                else {
-                                    e.append(sp(in)
-                                            + "<b>Can not create group:</b>"
-                                            + "&nbsp;"
-                                            + reqValGroupName
-                                            + "<br/>\n");
-                                }
+                        }
+                        else {
+                            e.append(sp(in) + "A group with the same name ("
+                                    + reqValGroupName + ") already exists!"
+                                    + "<br/>\n");
+                        }
+                    }
+                    else {
+                        e.append(sp(in) + "You must specify a group name!"
+                                + "<br/>\n");
+                    }
+                }
+                // ===========================================================
+                // Remove an existing group from the system
+                // ===========================================================
+                else if (reqValAction.equalsIgnoreCase(actValConRemGroup)) {
+                    // Remove the selected group
+                    if (selGroup != null) {
+                        // Check if this is the system group
+                        if (selGroup.getDescription().equals(
+                                sobjSecurity.getSystemGroup())) {
+                            e.append(sp(in) + "System group removal denied!"
+                                    + "<br/>\n");
+                        }
+                        // Try to delete the selected group
+                        else {
+                            if (secGM.deleteGroup(selGroup.getId())) {
+                                selGroup = null;
                             }
                             else {
                                 e.append(sp(in)
-                                        + "<b>This group already exists:</b>"
-                                        + "&nbsp;"
-                                        + reqValGroupName
+                                        + "Can not remove group ("
+                                        + reqValGroupName + ")!"
+                                        + " Check log for details."
+                                        + "<br/>\n");
+                            }
+                        }
+                    }
+                    else {
+                        e.append(sp(in) + "You must select a group name!"
+                                + "<br/>\n");
+                    }
+                }
+                // ===========================================================
+                // Add new user to the system
+                // ===========================================================
+                else if (reqValAction.equalsIgnoreCase(actValAddNewUser)) {
+                    reqValAction = actValReqNewUser;
+                    // Retrieve the selected user's parameters
+                    reqValUserName = req.getParameter(reqParUserName);
+                    reqValUserEmail = req.getParameter(reqParUserEmail);
+                    reqValUserPass = req.getParameter(reqParUserPass);
+                    reqValPassConf = req.getParameter(reqParPassConf);
+
+                    // Check if a user name is specified
+                    if ((reqValUserName == null)
+                            || (reqValUserName.length() == 0)) {
+                        e.append(sp(in) + "You must specify an user name!"
+                                + "<br/>\n");
+                    }
+                    // Check for a valid user name
+                    else if (checkName(reqValUserName) == false) {
+                        e.append(sp(in) + "Incorrect user name syntax!"
+                                + "<br/>\n");
+                    }
+                    // Check if an email address is specified
+                    if ((reqValUserEmail == null)
+                            || (reqValUserEmail.length() == 0)) {
+                        e.append(sp(in) + "You must specify an email address!"
+                                + "<br/>\n");
+                    }
+                    // Check for a valid email address
+                    else if (checkEmail(reqValUserEmail) == false) {
+                        e.append(sp(in) + "Incorrect email address syntax!"
+                                + "<br/>\n");
+                    }
+                    // Check if both passwords are specified
+                    if ((reqValUserPass == null)
+                            || (reqValUserPass.length() == 0)) {
+                        e.append(sp(in)
+                                + "You must specify an account password!"
+                                + "<br/>\n");
+                    }
+                    else if ((reqValPassConf == null)
+                            || (reqValPassConf.length() == 0)) {
+                        e.append(sp(in)
+                                + "You must specify a confirmation password!"
+                                + "<br/>\n");
+                    }
+                    // Check if both passwords are equal
+                    else if (reqValUserPass.equals(reqValPassConf) == false) {
+                        e.append(sp(in)
+                                + "The specified passwords do not match!"
+                                + "<br/>\n");
+                        reqValUserPass = null;
+                        reqValPassConf = null;
+                    }
+                    // Try to create the new user
+                    if (e.toString().length() == 0) {
+                        if (secUM.getUser(reqValUserName) == null) {
+                            User user =
+                                secUM.createUser(
+                                        reqValUserName,
+                                        reqValUserPass,
+                                        reqValUserEmail);
+                            if (user != null) {
+                                selUser = user;
+                                reqValAction = actValAddNewUser;
+                            }
+                            else {
+                                e.append(sp(in) + "Can not create user ("
+                                        + reqValUserName + ")!"
+                                        + " Check log for details."
                                         + "<br/>\n");
                             }
                         }
                         else {
-                            e.append(sp(in)
-                                    + "<b>You must specify a group name!</b>"
+                            e.append(sp(in) + "An user with the same name ("
+                                    + reqValUserName + ") already exists!"
                                     + "<br/>\n");
                         }
                     }
-                    // Remove existing group from the system
-                    else if (reqValAction.equalsIgnoreCase(actValConRemGroup)) {
-                        // Remove the selected group
-                        if (selGroup != null) {
-                            // Check (ignore case) if this is the system group
-                            if (selGroup.getDescription().equalsIgnoreCase(
-                                    sobjSecurity.getSystemGroup())) {
-                                e.append(sp(in)
-                                        + "<b>Denied system group removal!</b>"
-                                        + "<br/>\n");
-                            }
-                            // Delete the selected group
-                            else  {
-                                if (secGM.deleteGroup(selGroup.getId())) {
-                                    selGroup = null;
-                                }
-                                else {
-                                    e.append(sp(in)
-                                            + "<b>Can not remove group:</b>"
-                                            + "&nbsp;"
-                                            + reqValGroupName
-                                            + "<br/>\n");
-                                }
-                            }
+                }
+                // ===========================================================
+                // Remove an existing user from the system
+                // ===========================================================
+                else if (reqValAction.equalsIgnoreCase(actValConRemUser)) {
+                    // Remove the selected user
+                    if (selUser != null) {
+                        // Check if this is the system user
+                        if (selUser.getName().equals(
+                                sobjSecurity.getSystemUser())) {
+                            e.append(sp(in) + "System user removal denied!"
+                                    + "<br/>\n");
                         }
+                        // Delete the selected user
                         else {
-                            e.append(sp(in)
-                                    + "<b>You must select a group name!</b>"
-                                    + "<br/>\n");
-                        }
-                    }
-                    // Add new user to the system
-                    else if (reqValAction.equalsIgnoreCase(actValAddNewUser)) {
-                        reqValAction = actValReqNewUser;
-                        // Retrieve the selected user parameters
-                        reqValUserName =
-                            req.getParameter(reqParUserName);
-                        reqValUserEmail =
-                            req.getParameter(reqParUserEmail);
-                        reqValUserPass =
-                            req.getParameter(reqParUserPass);
-                        reqValPassConf =
-                            req.getParameter(reqParPassConf);
-
-                        // Check the user name
-                        if ((reqValUserName == null)
-                                || (reqValUserName.length() == 0)) {
-                            e.append(sp(in)
-                                    + "<b>You must specify an user name!</b>"
-                                    + "<br/>\n");
-                        }
-                        else if (checkName(reqValUserName) == false) {
-                            e.append(sp(in)
-                                    + "<b>Incorrect syntax:</b>"
-                                    + "&nbsp;"
-                                    + reqValUserName
-                                    + "<br/>\n");
-                        }
-                        // Check the email address
-                        if ((reqValUserEmail == null)
-                                || (reqValUserEmail.length() == 0)) {
-                            e.append(sp(in)
-                                    + "<b>You must specify an email address!</b>"
-                                    + "<br/>\n");
-                        }
-                        else if (checkEmail(reqValUserEmail) == false) {
-                            e.append(sp(in)
-                                    + "<b>Incorrect syntax:</b>"
-                                    + "&nbsp;"
-                                    + reqValUserEmail
-                                    + "<br/>\n");
-                        }
-                        // Check the passwords
-                        if ((reqValUserPass == null)
-                                || (reqValUserPass.length() == 0)) {
-                            e.append(sp(in)
-                                    + "<b>You must specify an account password!</b>"
-                                    + "<br/>\n");
-                        }
-                        else if ((reqValPassConf == null)
-                                || (reqValPassConf.length() == 0)) {
-                            e.append(sp(in)
-                                    + "<b>You must specify a confirmation password!</b>"
-                                    + "<br/>\n");
-                        }
-                        else if (reqValUserPass.equals(reqValPassConf) == false) {
-                            e.append(sp(in)
-                                    + "<b>Both passwords do not match!</b>"
-                                    + "<br/>\n");
-                            reqValUserPass = null;
-                            reqValPassConf = null;
-                        }
-
-                        // Create the new user
-                        if (e.toString().length() == 0) {
-                            if (secUM.getUser(reqValUserName) == null) {
-                                User user =
-                                    secUM.createUser(
-                                            reqValUserName,
-                                            reqValUserPass,
-                                            reqValUserEmail);
-                                if (user != null) {
-                                    selUser = user;
-                                    reqValAction = actValAddNewUser;
-                                }
-                                else {
-                                    e.append(sp(in)
-                                            + "<b>Can not create user:</b>"
-                                            + "&nbsp;"
-                                            + reqValUserName
-                                            + "<br/>\n");
-                                }
+                            if (secUM.deleteUser(selUser.getId())) {
+                                selUser = null;
                             }
                             else {
                                 e.append(sp(in)
-                                        + "<b>Such user already exists:</b>"
-                                        + "&nbsp;"
-                                        + reqValUserName
+                                        + "Can not remove user ("
+                                        + reqValUserName + ")!"
+                                        + " Check log for details."
                                         + "<br/>\n");
                             }
                         }
                     }
-                    // Remove existing user from the system
-                    else if (reqValAction.equalsIgnoreCase(actValConRemUser)) {
-                        // Remove the selected user
-                        if (selUser != null) {
-                            // Check if this is the system user
-                            if (selUser.getName().equals(
-                                    sobjSecurity.getSystemUser())) {
-                                e.append(sp(in)
-                                        + "<b>Denied system user removal!</b>"
-                                        + "<br/>\n");
-                            }
-                            // Delete the selected user
-                            else  {
-                                if (secUM.deleteUser(selUser.getId())) {
-                                    selUser = null;
-                                }
-                                else {
-                                    e.append(sp(in)
-                                            + "<b>Can not remove user:</b>"
-                                            + "&nbsp;"
-                                            + reqValUserName
-                                            + "<br/>\n");
-                                }
-                            }
-                        }
-                        else {
-                            e.append(sp(in)
-                                    + "<b>You must select an user name!</b>"
-                                    + "<br/>\n");
-                        }
+                    else {
+                        e.append(sp(in)
+                                + "<b>You must select an user name!</b>"
+                                + "<br/>\n");
                     }
                 }
             }
@@ -393,8 +412,7 @@ public class UsersView extends AbstractView{
             // ===============================================================
             // "New group" editor
             // ===============================================================
-            if ((reqValAction != null)
-                    && (reqValAction.equalsIgnoreCase(actValReqNewGroup))) {
+            if (reqValAction.equalsIgnoreCase(actValReqNewGroup)) {
                 b.append(sp(in) + "<fieldset>\n");
                 b.append(sp(++in) + "<legend>New group" + "</legend>\n");
                 b.append(sp(in) + "<table class=\"borderless\">");
@@ -432,7 +450,7 @@ public class UsersView extends AbstractView{
                         + "<input type=\"button\""
                         + " class=\"install\""
                         + " style=\"width: 100px;\""
-                        + " value=\"Cancel\""
+                        + " value=\"" + resLabels.getString("cancel") + "\""
                         + " onclick=\"javascript:"
                         + "document.users.submit();\">"
                         + "</td>\n"
@@ -444,8 +462,7 @@ public class UsersView extends AbstractView{
             // ===============================================================
             // "Remove group" editor
             // ===============================================================
-            else if ((reqValAction != null)
-                    && (reqValAction.equalsIgnoreCase(actValReqRemGroup))) {
+            else if (reqValAction.equalsIgnoreCase(actValReqRemGroup)) {
                 b.append(sp(in) + "<fieldset>\n");
                 b.append(sp(++in) + "<legend>Remove group" + "</legend>\n");
                 b.append(sp(in) + "<table class=\"borderless\">");
@@ -500,8 +517,10 @@ public class UsersView extends AbstractView{
                         + "<input type=\"button\""
                         + " class=\"install\""
                         + " style=\"width: 100px;\""
-                        + " value=\"Cancel\""
+                        + " value=\"" + resLabels.getString("cancel") + "\""
                         + " onclick=\"javascript:"
+                        + "document.getElementById('"
+                        + reqParGroupId + "').value='';"
                         + "document.users.submit();\">"
                         + "</td>\n"
                         + sp(--in)
@@ -512,8 +531,7 @@ public class UsersView extends AbstractView{
             // ===============================================================
             // "New user" editor
             // ===============================================================
-            else if ((reqValAction != null)
-                    && (reqValAction.equalsIgnoreCase(actValReqNewUser))) {
+            else if (reqValAction.equalsIgnoreCase(actValReqNewUser)) {
                 b.append(sp(in) + "<fieldset>\n");
                 b.append(sp(++in) + "<legend>New user" + "</legend>\n");
                 b.append(sp(in) + "<table class=\"borderless\">");
@@ -603,7 +621,7 @@ public class UsersView extends AbstractView{
                         + "<input type=\"button\""
                         + " class=\"install\""
                         + " style=\"width: 100px;\""
-                        + " value=\"Cancel\""
+                        + " value=\"" + resLabels.getString("cancel") + "\""
                         + " onclick=\"javascript:"
                         + "document.users.submit();\">"
                         + "</td>\n"
@@ -615,8 +633,7 @@ public class UsersView extends AbstractView{
             // ===============================================================
             // "Remove user" editor
             // ===============================================================
-            else if ((reqValAction != null)
-                    && (reqValAction.equalsIgnoreCase(actValReqRemUser))) {
+            else if (reqValAction.equalsIgnoreCase(actValReqRemUser)) {
                 b.append(sp(in) + "<fieldset>\n");
                 b.append(sp(++in) + "<legend>Remove user" + "</legend>\n");
                 b.append(sp(in) + "<table class=\"borderless\">");
@@ -674,6 +691,8 @@ public class UsersView extends AbstractView{
                         + " style=\"width: 100px;\""
                         + " value=\"Cancel\""
                         + " onclick=\"javascript:"
+                        + "document.getElementById('"
+                        + reqParUserId + "').value='';"
                         + "document.users.submit();\">"
                         + "</td>\n"
                         + sp(--in)
@@ -684,8 +703,7 @@ public class UsersView extends AbstractView{
             // ===============================================================
             // "Add service" editor
             // ===============================================================
-            else if ((reqValAction != null)
-                    && (reqValAction.equalsIgnoreCase(actValReqService))) {
+            else if (reqValAction.equalsIgnoreCase(actValReqService)) {
                 b.append(sp(in) + "<fieldset>\n");
                 b.append(sp(++in) + "<legend>Add service"
                         + ((selGroup != null) 
@@ -935,21 +953,29 @@ public class UsersView extends AbstractView{
                 // ===========================================================
                 else if (reqValViewList.equals("users")) {
                     for (User nextUser : secUM.getUsers()) {
-                        String htmlEditUser = "<td class=\"edit\""
-                            + " onclick=\"javascript:"
-                            + "document.getElementById('"
-                            + reqParUserId + "').value='"
-                            + nextUser.getId() + "';"
-                            + "document.users.submit();\">"
-                            + "<img src=\"/edit.png\" alt=\"[Edit]\"/>"
-                            + nextUser.getName()
-                            + "</td>\n";
-                        b.append(sp(++in) + "<tr>\n");
-                        b.append(sp(++in) + "<td>" + nextUser.getId() + "</td>\n");
-                        b.append(sp(in) + htmlEditUser);
-                        b.append(sp(in) + "<td>" + nextUser.getEmail() + "</td>\n");
+                        b.append(sp(++in) + "<tr class=\"edit\""
+                                + " onclick=\"javascript:"
+                                + "document.getElementById('"
+                                + reqParUserId + "').value='"
+                                + nextUser.getId() + "';"
+                                + "document.users.submit();\""
+                                + ">\n");
+                        // User's Id
+                        b.append(sp(++in) + "<td class=\"trans\">"
+                                + "<img src=\"/edit.png\" alt=\"[Edit]\"/>"
+                                + "&nbsp;" + nextUser.getId()
+                                + "</td>\n");
+                        // User's name
+                        b.append(sp(in) + "<td class=\"trans\">"
+                                + nextUser.getName()
+                                + "</td>\n");
+                        // User's email
+                        b.append(sp(in) + "<td class=\"trans\">"
+                                + nextUser.getEmail()
+                                + "</td>\n");
+                        // User's registration date
                         DateFormat date = DateFormat.getDateInstance();
-                        b.append(sp(in) + "<td>"
+                        b.append(sp(in) + "<td class=\"trans\">"
                                 + date.format(nextUser.getRegistered())
                                 + "</td>\n");
                         b.append(sp(--in) + "</tr>\n");
@@ -991,24 +1017,26 @@ public class UsersView extends AbstractView{
                     }
                 }
                 // ===========================================================
-                // Groups list -content rows
+                // Groups list - content rows
                 // ===========================================================
                 else if (reqValViewList.equals("groups")) {
                     for (Group nextGroup : secGM.getGroups()) {
-                        String htmlEditGroup = "<td class=\"edit\""
-                            + " onclick=\"javascript:"
-                            + "document.getElementById('"
-                            + reqParGroupId + "').value='"
-                            + nextGroup.getId() + "';"
-                            + "document.users.submit();\">"
-                            + "<img src=\"/edit.png\" alt=\"[Edit]\"/>"
-                            + nextGroup.getDescription()
-                            + "</td>\n";
-                        b.append(sp(++in) + "<tr>\n");
-                        b.append(sp(++in) + "<td>"
-                                + nextGroup.getId()
+                        b.append(sp(++in) + "<tr class=\"edit\""
+                                + " onclick=\"javascript:"
+                                + "document.getElementById('"
+                                + reqParGroupId + "').value='"
+                                + nextGroup.getId() + "';"
+                                + "document.users.submit();\""
+                                + ">\n");
+                        // Group's Id
+                        b.append(sp(++in) + "<td class=\"trans\">"
+                                + "<img src=\"/edit.png\" alt=\"[Edit]\"/>"
+                                + "&nbsp;" + nextGroup.getId()
                                 + "</td>\n");
-                        b.append(sp(in) + htmlEditGroup);
+                        // Group name
+                        b.append(sp(in) + "<td class=\"trans\">"
+                                + nextGroup.getDescription()
+                                + "</td>\n");
                         b.append(sp(--in) + "</tr>\n");
                     }
                 }
@@ -1121,43 +1149,46 @@ public class UsersView extends AbstractView{
                 // Common toolbar
                 // ===========================================================
                 b.append(sp(in++) + "<tr class=\"subhead\">\n");
-                b.append(sp(in++) + "<td colspan=\"" + maxColspan + "\">\n"
-                        // List users
-                        + sp(in)
-                        + ((reqValViewList.equals("users") == false)
-                                ? "<input type=\"button\""
-                                        + " class=\"install\""
-                                        + " style=\"width: 100px;\""
-                                        + " value=\"Users list\""
-                                        + " onclick=\"javascript:"
-                                        + " document.getElementById('"
-                                        + reqParViewList + "').value='users';"
-                                        + " document.getElementById('"
-                                        + reqParUserId + "').value='';"
-                                        + " document.getElementById('"
-                                        + reqParGroupId + "').value='';"
-                                        + "document.users.submit();\">\n"
-                                        : ""
-                        )
-                        // List groups
-                        + sp(in)
-                        + ((reqValViewList.equals("groups") == false)
-                                ? "<input type=\"button\""
-                                        + " class=\"install\""
-                                        + " style=\"width: 100px;\""
-                                        + " value=\"Groups list\""
-                                        + " onclick=\"javascript:"
-                                        + " document.getElementById('"
-                                        + reqParViewList + "').value='groups';"
-                                        + " document.getElementById('"
-                                        + reqParUserId + "').value='';"
-                                        + " document.getElementById('"
-                                        + reqParGroupId + "').value='';"
-                                        + "document.users.submit();\">\n"
-                                        : ""
-                        )
-                        // Add User
-                        + sp(in)
+                b.append(sp(in++) + "<td colspan=\"" + maxColspan + "\">\n");
+                String btnAction = null;
+                // List users button
+                btnAction = " disabled";
+                if (reqValViewList.equals("users") == false) {
+                    btnAction = " onclick=\"javascript:"
+                        + " document.getElementById('"
+                        + reqParViewList + "').value='users';"
+                        + " document.getElementById('"
+                        + reqParUserId + "').value='';"
+                        + " document.getElementById('"
+                        + reqParGroupId + "').value='';"
+                        + "document.users.submit();\"";
+                }
+                b.append(sp(in) + "<input type=\"button\""
+                        + " class=\"install\""
+                        + " style=\"width: 100px;\""
+                        + " value=\"Users list\""
+                        + btnAction
+                        + ">\n");
+                // List groups button
+                btnAction = " disabled";
+                if (reqValViewList.equals("groups") == false) {
+                    btnAction = " onclick=\"javascript:"
+                        + " document.getElementById('"
+                        + reqParViewList + "').value='groups';"
+                        + " document.getElementById('"
+                        + reqParUserId + "').value='';"
+                        + " document.getElementById('"
+                        + reqParGroupId + "').value='';"
+                        + "document.users.submit();\"";
+                }
+                b.append(sp(in) + "<input type=\"button\""
+                        + " class=\"install\""
+                        + " style=\"width: 100px;\""
+                        + " value=\"Groups list\""
+                        + btnAction
+                        + ">\n");
+                // Add user button
+                b.append(sp(in)
                         + "<input type=\"button\""
                         + " class=\"install\""
                         + " style=\"width: 100px;\""
@@ -1168,9 +1199,9 @@ public class UsersView extends AbstractView{
                         + "document.getElementById('"
                         + reqParAction + "').value='"
                         + actValReqNewUser + "';"
-                        + "document.users.submit();\">\n"
-                        // Remove User
-                        + sp(in)
+                        + "document.users.submit();\">\n");
+                // Remove user button
+                b.append(sp(in)
                         + "<input type=\"button\""
                         + " class=\"install\""
                         + " style=\"width: 100px;\""
@@ -1181,9 +1212,9 @@ public class UsersView extends AbstractView{
                         + "document.getElementById('"
                         + reqParAction + "').value='"
                         + actValReqRemUser + "';"
-                        + "document.users.submit();\">\n"
-                        // Add group
-                        + sp(in)
+                        + "document.users.submit();\">\n");
+                // Add group button
+                b.append(sp(in)
                         + "<input type=\"button\""
                         + " class=\"install\""
                         + " style=\"width: 100px;\""
@@ -1192,9 +1223,9 @@ public class UsersView extends AbstractView{
                         + "document.getElementById('"
                         + reqParAction + "').value='"
                         + actValReqNewGroup + "';"
-                        + "document.users.submit();\">\n"
-                        // Remove Group
-                        + sp(in)
+                        + "document.users.submit();\">\n");
+                // Remove group button
+                b.append(sp(in)
                         + "<input type=\"button\""
                         + " class=\"install\""
                         + " style=\"width: 100px;\""
