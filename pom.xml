@@ -98,6 +98,19 @@
 
     </plugins>
   </build>
+  
+  <reporting>
+    <plugins>
+      <plugin> 
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId> 
+        <configuration>
+          <aggregate>true</aggregate>
+          <excludePackageNames>eu.sqooss.impl.*:eu.sqooss.metrics.*:eu.sqooss.test.*:org.*</excludePackageNames>
+        </configuration> 
+      </plugin>
+    </plugins>
+  </reporting>
 
   <repositories>
     <repository>

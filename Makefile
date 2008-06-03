@@ -181,7 +181,7 @@ manual :
 	cd doc && XSLTS=${XSLT} $(MAKE)
 
 javadoc: ## Write maven based javadoc rules	
-
+	mvn -Dproject.reporting.outputDirectory=doc javadoc:javadoc
 ###
 #
 # Transitional targets
