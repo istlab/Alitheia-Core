@@ -89,10 +89,8 @@ public class WcImplementation extends AbstractMetric implements Wc {
             // There is only one measurement per metric and project file
             Integer value = Integer.parseInt(measurement.get(0).getResult());
             // ... and therefore only one result entry
-            ArrayList<ResultEntry> entries = new ArrayList<ResultEntry>();
             ResultEntry entry = 
                 new ResultEntry(value, ResultEntry.MIME_TYPE_TYPE_INTEGER, m.getMnemonic());
-            entries.add(entry);
             results.add(entry);
             return results;
         }
