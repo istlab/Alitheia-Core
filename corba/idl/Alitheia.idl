@@ -259,33 +259,33 @@ module alitheia
   {
     /* Generic run plug-in method
      * Returns a XML-serialized MetricResult */
-    string getResult( in ProjectVersion version );
+    string doGetResult( in ProjectVersion version );
 
-    void run( in ProjectVersion v );
+    void doRun( in ProjectVersion v );
   };
   interface StoredProjectMetric : AbstractMetric
   {
     /* Generic run plug-in method
      * Returns a XML-serialized MetricResult */
-    string getResult( in StoredProject project );
+    string doGetResult( in StoredProject project );
 
-    void run( in StoredProject p );
+    void doRun( in StoredProject p );
   };
   interface ProjectFileMetric : AbstractMetric
   {
     /* Generic run plug-in method
      * Returns a XML-serialized MetricResult */
-    string getResult( in ProjectFile file );
+    string doGetResult( in ProjectFile file );
 
-    void run( in ProjectFile f );
+    void doRun( in ProjectFile f );
   };
   interface FileGroupMetric : AbstractMetric
   {
     /* Generic run plug-in method
      * Returns a XML-serialized MetricResult */
-    string getResult( in FileGroup group );
+    string doGetResult( in FileGroup group );
 
-    void run( in FileGroup g );
+    void doRun( in FileGroup g );
   };
 };
 };

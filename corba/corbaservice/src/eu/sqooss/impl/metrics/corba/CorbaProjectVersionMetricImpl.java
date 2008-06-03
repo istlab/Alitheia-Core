@@ -26,7 +26,7 @@ public class CorbaProjectVersionMetricImpl extends CorbaMetricImpl implements eu
      * {@inheritDoc}
      */
 	public void run(ProjectVersion v) {
-	    metric.run(DAObject.toCorbaObject(v));	
+	    metric.doRun(DAObject.toCorbaObject(v));	
 	}
 
 	/**

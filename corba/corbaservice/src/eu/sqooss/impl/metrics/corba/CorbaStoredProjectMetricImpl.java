@@ -29,7 +29,7 @@ public class CorbaStoredProjectMetricImpl extends CorbaMetricImpl implements eu.
 	 * {@inheritDoc}
 	 */
 	public void run(StoredProject a) {
-	    metric.run(DAObject.toCorbaObject(a));
+	    metric.doRun(DAObject.toCorbaObject(a));
 	}
 
 	/**

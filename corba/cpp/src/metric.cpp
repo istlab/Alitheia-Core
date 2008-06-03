@@ -133,51 +133,45 @@ bool AbstractMetric::addSupportedMetrics( const string& description, const strin
     return Core::instance()->addSupportedMetrics( this, description, mnemonic, type );
 }
 
-char* ProjectVersionMetric::getResult( const alitheia::ProjectVersion& projectVersion )
+char* ProjectVersionMetric::doGetResult( const alitheia::ProjectVersion& projectVersion )
 {
     return CORBA::string_dup( getResult( ProjectVersion( projectVersion ) ).c_str() );
 }
 
-void ProjectVersionMetric::run( const alitheia::ProjectVersion& projectVersion )
+void ProjectVersionMetric::doRun( const alitheia::ProjectVersion& projectVersion )
 {
     ProjectVersion version( projectVersion );
     run( version );
 }
 
-CORBA::Boolean ProjectVersionMetric::run2nd( const alitheia::ProjectVersion& a, const alitheia::ProjectVersion& b )
-{
-    //return CORBA::string_dup( getResult( ProjectVersion( projectVersion ) ).c_str() );
-    return false;
-}
-
-char* ProjectFileMetric::getResult( const alitheia::ProjectFile& projectFile )
+char* ProjectFileMetric::doGetResult( const alitheia::ProjectFile& projectFile )
 {
     ProjectFile file( projectFile );
     return CORBA::string_dup( getResult( file ).c_str() );
 }
 
-void ProjectFileMetric::run( const alitheia::ProjectFile& projectFile )
+void ProjectFileMetric::doRun( const alitheia::ProjectFile& projectFile )
 {
     ProjectFile file( projectFile );
     run( file );
 }
 
-char* StoredProjectMetric::getResult( const alitheia::StoredProject& storedProject )
+char* StoredProjectMetric::doGetResult( const alitheia::StoredProject& storedProject )
 {
     return CORBA::string_dup( getResult( StoredProject( storedProject ) ).c_str() );
 }
 
-void StoredProjectMetric::run( const alitheia::StoredProject& storedProject )
+void StoredProjectMetric::doRun( const alitheia::StoredProject& storedProject )
 {
 //    return CORBA::string_dup( getResult( StoredProject( storedProject ) ).c_str() );
 }
 
-char* FileGroupMetric::getResult( const alitheia::FileGroup& fileGroup )
+char* FileGroupMetric::doGetResult( const alitheia::FileGroup& fileGroup )
 {
     return CORBA::string_dup( getResult( FileGroup( fileGroup ) ).c_str() );
 }
 
-void FileGroupMetric::run( const alitheia::FileGroup& fileGroup )
+void FileGroupMetric::doRun( const alitheia::FileGroup& fileGroup )
 {
 //    return CORBA::string_dup( getResult( FileGroup( fileGroup ) ).c_str() );
 }

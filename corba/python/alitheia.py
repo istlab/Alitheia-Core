@@ -227,13 +227,25 @@ class AbstractMetric (eu__POA.sqooss.impl.service.corba.alitheia.AbstractMetric)
         return ''
 
 class ProjectVersionMetric (eu__POA.sqooss.impl.service.corba.alitheia.ProjectVersionMetric,AbstractMetric):
-    def run(self,projectFile):
+    def doRun(self,projectVersion):
+        self.run(projectVersion)
+
+    def doGetResult(self,projectVersion):
+        return self.getResult(projectVersion)
+
+    def run(self,projectVersion):
         print 'run: Nothing to do'
 
-    def getResult(self,projectFile):
+    def getResult(self,projectVersion):
         print 'getResult: Nothing to do'
         
 class ProjectFileMetric (eu__POA.sqooss.impl.service.corba.alitheia.ProjectFileMetric,AbstractMetric):
+    def doRun(self,projectFile):
+        self.run(projectFile)
+
+    def doGetResult(self,projectFile):
+        return self.getResult(projectFile)
+
     def run(self,projectFile):
         print 'run: Nothing to do'
 
@@ -241,15 +253,27 @@ class ProjectFileMetric (eu__POA.sqooss.impl.service.corba.alitheia.ProjectFileM
         print 'getResult: Nothing to do'
 
 class StoredProjectMetric (eu__POA.sqooss.impl.service.corba.alitheia.StoredProjectMetric,AbstractMetric):
-    def run(self,projectFile):
+    def doRun(self,storedProject):
+        self.run(storedProject)
+
+    def doGetResult(self,storedProject):
+        return self.getResult(storedProject)
+
+    def run(self,storedProject):
         print 'run: Nothing to do'
 
-    def getResult(self,projectFile):
+    def getResult(self,storedProject):
         print 'getResult: Nothing to do'
 
 class FileGroupMetric (eu__POA.sqooss.impl.service.corba.alitheia.FileGroupMetric,AbstractMetric):
-    def run(self,projectFile):
+    def doRun(self,fileGroup):
+        self.run(fileGroup)
+
+    def doGetResult(self,fileGroup):
+        return self.getResult(fileGroup)
+
+    def run(self,fileGroup):
         print 'run: Nothing to do'
 
-    def getResult(self,projectFile):
+    def getResult(self,fileGroup):
         print 'getResult: Nothing to do'

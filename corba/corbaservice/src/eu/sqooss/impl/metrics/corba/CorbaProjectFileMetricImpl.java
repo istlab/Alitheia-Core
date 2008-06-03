@@ -29,7 +29,7 @@ public class CorbaProjectFileMetricImpl extends CorbaMetricImpl implements eu.sq
      */
     public void run(eu.sqooss.service.db.ProjectFile a) {
         ProjectFile file = DAObject.toCorbaObject(a);
-        metric.run(file);
+        metric.doRun(file);
     }
 
     /**

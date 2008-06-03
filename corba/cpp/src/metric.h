@@ -65,9 +65,8 @@ namespace Alitheia
     class ProjectVersionMetric : public AbstractMetric, virtual public POA_eu::sqooss::impl::service::corba::alitheia::ProjectVersionMetric
     {
     public:
-        char* getResult( const eu::sqooss::impl::service::corba::alitheia::ProjectVersion& projectVersion );
-        void run( const eu::sqooss::impl::service::corba::alitheia::ProjectVersion& v );
-        CORBA::Boolean run2nd( const eu::sqooss::impl::service::corba::alitheia::ProjectVersion& a, const eu::sqooss::impl::service::corba::alitheia::ProjectVersion& b );
+        char* doGetResult( const eu::sqooss::impl::service::corba::alitheia::ProjectVersion& projectVersion );
+        void doRun( const eu::sqooss::impl::service::corba::alitheia::ProjectVersion& v );
 
         virtual std::string getResult( const ProjectVersion& projectVersion ) const = 0;
         virtual void run( ProjectVersion& version ) = 0;
@@ -76,8 +75,8 @@ namespace Alitheia
     class ProjectFileMetric : public AbstractMetric, virtual public POA_eu::sqooss::impl::service::corba::alitheia::ProjectFileMetric
     {
     public:
-        char* getResult( const eu::sqooss::impl::service::corba::alitheia::ProjectFile& projectFile );
-        void run( const eu::sqooss::impl::service::corba::alitheia::ProjectFile& projectFile );
+        char* doGetResult( const eu::sqooss::impl::service::corba::alitheia::ProjectFile& projectFile );
+        void doRun( const eu::sqooss::impl::service::corba::alitheia::ProjectFile& projectFile );
 
         virtual std::string getResult( const ProjectFile& projectFile ) const = 0;
         virtual void run( ProjectFile& projectFile ) = 0;
@@ -86,8 +85,8 @@ namespace Alitheia
     class StoredProjectMetric : public AbstractMetric, virtual public POA_eu::sqooss::impl::service::corba::alitheia::StoredProjectMetric
     {
     public:
-        char* getResult( const eu::sqooss::impl::service::corba::alitheia::StoredProject& storedProject );
-        void run( const eu::sqooss::impl::service::corba::alitheia::StoredProject& storedProject );
+        char* doGetResult( const eu::sqooss::impl::service::corba::alitheia::StoredProject& storedProject );
+        void doRun( const eu::sqooss::impl::service::corba::alitheia::StoredProject& storedProject );
 
         virtual std::string getResult( const StoredProject& storedProject ) const = 0;
     };
@@ -95,8 +94,8 @@ namespace Alitheia
     class FileGroupMetric : public AbstractMetric, virtual public POA_eu::sqooss::impl::service::corba::alitheia::FileGroupMetric
     {
     public:
-        char* getResult( const eu::sqooss::impl::service::corba::alitheia::FileGroup& fileGroup );
-        void run( const eu::sqooss::impl::service::corba::alitheia::FileGroup& fileGroup );
+        char* doGetResult( const eu::sqooss::impl::service::corba::alitheia::FileGroup& fileGroup );
+        void doRun( const eu::sqooss::impl::service::corba::alitheia::FileGroup& fileGroup );
 
         virtual std::string getResult( const FileGroup& fileGroup ) const = 0;
     };

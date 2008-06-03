@@ -28,7 +28,7 @@ public class CorbaFileGroupMetricImpl extends CorbaMetricImpl implements eu.sqoo
 	 * {@inheritDoc}
 	 */
 	public void run(FileGroup a) {
-        metric.run(DAObject.toCorbaObject(a));
+        metric.doRun(DAObject.toCorbaObject(a));
     }
 
 	/**
