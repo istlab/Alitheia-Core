@@ -7,6 +7,8 @@ import java.util.List;
 import eu.sqooss.impl.service.SpecsActivator;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Group;
+import eu.sqooss.service.db.GroupPrivilege;
+import eu.sqooss.service.db.User;
 import eu.sqooss.service.security.GroupManager;
 
 public class SpGroup implements SpEntity {
@@ -78,5 +80,35 @@ public class SpGroup implements SpEntity {
         db.startDBSession();
         gm.addUserToGroup(id, user.id);
         db.commitDBSession();
+    }
+    
+    public ArrayList<SpPrivilege> getPrivileges() {
+        ArrayList<SpPrivilege> result = new ArrayList<SpPrivilege>();
+        
+        db.startDBSession();
+        Group group = gm.getGroup(name);
+        
+        if (group==null) {
+            return result;
+        }
+
+        for (Object obj : group.getGroupPrivileges()) {
+            GroupPrivilege priv = (GroupPrivilege)obj;
+
+            String privValue = priv.getPv().getValue(); 
+            if (priv.getPv().getPrivilege().getDescription().equals("user_id")) {
+                User user = db.findObjectById(User.class, Long.valueOf(privValue));
+                privValue = user.getName();
+            }
+            
+            result.add(new SpPrivilege(
+                    group.getDescription(),
+                    priv.getUrl().getUrl(),
+                    priv.getPv().getPrivilege().getDescription(),
+                    privValue
+            ));
+        }
+        
+        return result;
     }
 }
