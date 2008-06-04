@@ -34,6 +34,7 @@ package eu.sqooss.impl.service.webadmin;
 
 import java.text.DateFormat;
 import java.util.ResourceBundle;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -113,6 +114,7 @@ public class UsersView extends AbstractView{
         String actValReqNewUser    = "reqNewUser";
         String actValAddNewUser    = "addNewUser";
         String actValConRemUser    = "conRemUser";
+        String actValReqEditUser   = "reqEditUser";
         String actValConEditUser   = "conEditUser";
         String actValReqService    = "reqService";
         String actValAddService    = "addService";
@@ -155,6 +157,13 @@ public class UsersView extends AbstractView{
                 reqValUserId = fromString(req.getParameter(reqParUserId));
                 if (reqValUserId != null) {
                     selUser = secUM.getUser(reqValUserId);
+                    // Retrieve the selected user's parameters
+                    if (selUser != null) {
+                        reqValUserName = selUser.getName();
+                        reqValUserEmail = selUser.getEmail();
+                        reqValUserPass = null;
+                        reqValPassConf = null;
+                    }
                 }
 
                 // Retrieve the selected group's DAO (if any)
@@ -176,7 +185,7 @@ public class UsersView extends AbstractView{
                 // ===========================================================
                 // Add a selected user to a selected group
                 // ===========================================================
-                if (reqValAction.equalsIgnoreCase(actValAddToGroup)) {
+                if (reqValAction.equals(actValAddToGroup)) {
                     if ((selUser != null) && (selGroup != null)) {
                         if (secGM.addUserToGroup(
                                 selGroup.getId(), selUser.getId()) == false) {
@@ -196,7 +205,7 @@ public class UsersView extends AbstractView{
                 // ===========================================================
                 // Remove a selected user from a selected group
                 // ===========================================================
-                else if (reqValAction.equalsIgnoreCase(actValRemFromGroup)) {
+                else if (reqValAction.equals(actValRemFromGroup)) {
                     if ((selUser != null) && (selGroup != null)) {
                         if (secGM.deleteUserFromGroup(
                                 selGroup.getId(), selUser.getId()) == false) {
@@ -216,7 +225,7 @@ public class UsersView extends AbstractView{
                 // ===========================================================
                 // Add new group to the system
                 // ===========================================================
-                else if (reqValAction.equalsIgnoreCase(actValAddNewGroup)) {
+                else if (reqValAction.equals(actValAddNewGroup)) {
                     reqValAction = actValReqNewGroup;
                     // Retrieve the selected group name
                     reqValGroupName = req.getParameter(reqParGroupName);
@@ -233,7 +242,8 @@ public class UsersView extends AbstractView{
                             Group group = secGM.createGroup(reqValGroupName);
                             if (group != null) {
                                 selGroup = group;
-                                reqValAction = actValAddNewGroup;
+                                reqValViewList = "";
+                                reqValAction = "";
                             }
                             else {
                                 e.append(sp(in) + resErr.getString("e0006")
@@ -254,7 +264,7 @@ public class UsersView extends AbstractView{
                 // ===========================================================
                 // Remove an existing group from the system
                 // ===========================================================
-                else if (reqValAction.equalsIgnoreCase(actValConRemGroup)) {
+                else if (reqValAction.equals(actValConRemGroup)) {
                     // Remove the selected group
                     if (selGroup != null) {
                         // Check if this is the system group
@@ -267,6 +277,7 @@ public class UsersView extends AbstractView{
                         else {
                             if (secGM.deleteGroup(selGroup.getId())) {
                                 selGroup = null;
+                                reqValViewList = "groups";
                             }
                             else {
                                 e.append(sp(in) + resErr.getString("e0010")
@@ -281,16 +292,24 @@ public class UsersView extends AbstractView{
                     }
                 }
                 // ===========================================================
-                // Add new user to the system
+                // Add new user to the system or change an existing one
                 // ===========================================================
-                else if (reqValAction.equalsIgnoreCase(actValAddNewUser)) {
-                    reqValAction = actValReqNewUser;
-                    // Retrieve the selected user's parameters
-                    reqValUserName = req.getParameter(reqParUserName);
+                else if ((reqValAction.equals(actValAddNewUser))
+                        || (reqValAction.equals(actValConEditUser))) {
+                    // Check if changing an existing user
+                    boolean existing = false;
+                    if ((selUser != null)
+                            && (reqValAction.equals(actValConEditUser))) {
+                        existing = true;
+                    }
+                    // Retrieve the supplied user's parameters
+                    if (existing)
+                        reqValUserName = selUser.getName();
+                    else
+                        reqValUserName = req.getParameter(reqParUserName);
                     reqValUserEmail = req.getParameter(reqParUserEmail);
                     reqValUserPass = req.getParameter(reqParUserPass);
                     reqValPassConf = req.getParameter(reqParPassConf);
-
                     // Check if a user name is specified
                     if ((reqValUserName == null)
                             || (reqValUserName.length() == 0)) {
@@ -313,8 +332,15 @@ public class UsersView extends AbstractView{
                         e.append(sp(in) + resErr.getString("e0015")
                                 + "<br/>\n");
                     }
+                    // Check if the passwords should be left untouched
+                    if ((existing)
+                            && (reqValUserPass.length() == 0)
+                            && (reqValPassConf.length() == 0)) {
+                        reqValUserPass = null;
+                        reqValPassConf = null;
+                    }
                     // Check if both passwords are specified
-                    if ((reqValUserPass == null)
+                    else if ((reqValUserPass == null)
                             || (reqValUserPass.length() == 0)) {
                         e.append(sp(in) + resErr.getString("e0016")
                                 + "<br/>\n");
@@ -333,15 +359,32 @@ public class UsersView extends AbstractView{
                     }
                     // Try to create the new user
                     if (e.toString().length() == 0) {
-                        if (secUM.getUser(reqValUserName) == null) {
+                        // Change an existing user account
+                        if (existing) {
+                            // Try to modify the selected user's account
+                            if (secUM.modifyUser(
+                                    reqValUserName,
+                                    reqValUserPass,
+                                    reqValUserEmail)) {
+                                reqValAction = "";
+                            }
+                            else 
+                                e.append(sp(in) + resErr.getString("e0024")
+                                        + " " + resMsg.getString("m0001")
+                                        + "<br/>\n");
+                        }
+                        // Create new user account
+                        else if (secUM.getUser(reqValUserName) == null) {
                             User user =
                                 secUM.createUser(
                                         reqValUserName,
                                         reqValUserPass,
                                         reqValUserEmail);
+                            // Successfully created
                             if (user != null) {
                                 selUser = user;
-                                reqValAction = actValAddNewUser;
+                                reqValViewList = "";
+                                reqValAction = "";
                             }
                             else {
                                 e.append(sp(in) + resErr.getString("e0019")
@@ -349,10 +392,18 @@ public class UsersView extends AbstractView{
                                         + "<br/>\n");
                             }
                         }
+                        // Detected an attempt for creating a duplicated user
                         else {
                             e.append(sp(in) + resErr.getString("e0020")
                                     + "<br/>\n");
                         }
+                    }
+                    // Return to the proper editor upon error
+                    if (e.toString().length() > 0) {
+                        if (existing)
+                            reqValAction = actValReqEditUser;
+                        else
+                            reqValAction = actValReqNewUser;
                     }
                 }
                 // ===========================================================
@@ -369,8 +420,21 @@ public class UsersView extends AbstractView{
                         }
                         // Delete the selected user
                         else {
-                            if (secUM.deleteUser(selUser.getId())) {
+                            // TODO. Remove this cycle and the check for group
+                            // membership (below) once we have a cascading
+                            // delete.
+                            for (Object nextGroup :
+                                selUser.getGroups().toArray()) {
+                                // Remove the user from this group
+                                secGM.deleteUserFromGroup(
+                                        ((Group) nextGroup).getId(),
+                                        selUser.getId());
+                            }
+                            if ((selUser.getGroups().isEmpty())
+                                    && (secUM.deleteUser(selUser.getId()))) {
                                 selUser = null;
+                                selGroup = null;
+                                reqValViewList = "users";
                             }
                             else {
                                 e.append(sp(in) + resErr.getString("e0022")
@@ -453,30 +517,42 @@ public class UsersView extends AbstractView{
                 b.append(sp(in) + "</fieldset>\n");
             }
             // ===============================================================
-            // "New user" editor
+            // Editor for creating new or modifying an existing user account
             // ===============================================================
-            else if (reqValAction.equalsIgnoreCase(actValReqNewUser)) {
+            else if ((reqValAction.equals(actValReqNewUser))
+                    || (reqValAction.equals(actValReqEditUser))) {
+                // Check if modifying an existing user
+                boolean existing = false;
+                if ((selUser != null)
+                        && (reqValAction.equals(actValReqEditUser))) {
+                    existing = true;
+                }
+                // Create the field-set
                 b.append(sp(in) + "<fieldset>\n");
-                b.append(sp(++in) + "<legend>" + resLbl.getString("l0030")
+                b.append(sp(++in) + "<legend>"
+                        + ((existing)
+                                ? resLbl.getString("l0050")
+                                        : resLbl.getString("l0030"))
                         + "</legend>\n");
                 b.append(sp(in) + "<table class=\"borderless\">");
                 // User name
-                b.append(sp(in) + "<tr>\n"
-                        + sp(++in)
-                        + "<td class=\"borderless\" style=\"width:100px;\">"
+                b.append(sp(in) + "<tr>\n");
+                b.append(sp(++in) + "<td class=\"borderless\""
+                        + " style=\"width:100px;\">"
                         + "<b>" + resLbl.getString("l0031") + "</b>"
-                        + "</td>\n"
-                        + sp(in)
-                        + "<td class=\"borderless\">"
-                        + "<input type=\"text\""
+                        + "</td>\n");
+                b.append(sp(in)
+                        + "<td class=\"borderless\">\n");
+                b.append(sp(++in) + "<input type=\"text\""
                         + " class=\"form\""
                         + " id=\"" + reqParUserName + "\""
                         + " name=\"" + reqParUserName + "\""
+                        + ((existing) ? " disabled" : "")
                         + " value=\""
                         + ((reqValUserName != null) ? reqValUserName : "" )
-                        + "\">"
-                        + "</td>\n"
-                        + sp(--in) + "</tr>\n");
+                        + "\">\n");
+                b.append(sp(--in) + "</td>\n");
+                b.append(sp(--in) + "</tr>\n");
                 // Email address
                 b.append(sp(in) + "<tr>\n"
                         + sp(++in)
@@ -509,6 +585,7 @@ public class UsersView extends AbstractView{
                         + " value=\""
                         + ((reqValUserPass != null) ? reqValUserPass : "" )
                         + "\">"
+                        + ((existing) ? "&nbsp;<sup>1</sup>" : "")
                         + "</td>\n"
                         + sp(--in) + "</tr>\n");
                 // Confirmation password
@@ -526,6 +603,7 @@ public class UsersView extends AbstractView{
                         + " value=\""
                         + ((reqValPassConf != null) ? reqValPassConf : "" )
                         + "\">"
+                        + ((existing) ? "&nbsp;<sup>1</sup>" : "")
                         + "</td>\n"
                         + sp(--in)
                         + "</tr>\n");
@@ -543,7 +621,8 @@ public class UsersView extends AbstractView{
                         + " onclick=\"javascript:"
                         + "document.getElementById('"
                         + reqParAction + "').value='"
-                        + actValAddNewUser + "';"
+                        + ((existing) ? actValConEditUser : actValAddNewUser)
+                        + "';"
                         + "document.users.submit();\">\n");
                 // Cancel button
                 b.append(sp(in--) + "<input type=\"button\""
@@ -555,6 +634,10 @@ public class UsersView extends AbstractView{
                 b.append(sp(in--) + "</td>\n");
                 b.append(sp(in--) + "</tr>\n");
                 b.append(sp(in--) + "</table>");
+                // Legend field (for existing accounts only)
+                if (existing)
+                    b.append(sp(in) + "<p><sup>1</sup> "
+                            + resMsg.getString("m0004") + "</p>");
                 b.append(sp(in) + "</fieldset>\n");
             }
             // ===============================================================
@@ -867,7 +950,7 @@ public class UsersView extends AbstractView{
                                 + " colspan=\"" + maxColspan + "\""
                                 + " class=\"noattr\""
                                 + ">"
-                                + "This group has no attached resources."
+                                + resMsg.getString("m0002")
                                 + "</td>\n");
                         b.append(sp(--in) + "</tr>\n");
                     }
@@ -1030,18 +1113,18 @@ public class UsersView extends AbstractView{
                     b.append(sp(++in) + "<input type=\"button\""
                             + " class=\"install\""
                             + " style=\"width: 100px;\""
-                            + " value=\"Edit\""
+                            + " value=\"" + resLbl.getString("l0048") + "\""
                             + " onclick=\"javascript:"
                             + "document.getElementById('"
                             + reqParAction + "').value='"
-                            + actValConEditUser + "';"
+                            + actValReqEditUser + "';"
                             + "document.users.submit();\""
                             + ">\n");
                     // Remove user
                     b.append(sp(in) + "<input type=\"button\""
                             + " class=\"install\""
                             + " style=\"width: 100px;\""
-                            + " value=\"Remove\""
+                            + " value=\"" + resLbl.getString("l0049") + "\""
                             + " onclick=\"javascript:"
                             + "document.getElementById('"
                             + reqParAction + "').value='"
@@ -1058,7 +1141,7 @@ public class UsersView extends AbstractView{
                     b.append(sp(in) + "<input type=\"button\""
                             + " class=\"install\""
                             + " style=\"width: 100px;\""
-                            + " value=\"Add Resource\""
+                            + " value=\"" + resLbl.getString("l0060") + "\""
                             + " onclick=\"javascript:"
                             + "document.getElementById('"
                             + reqParAction + "').value='"
@@ -1069,7 +1152,7 @@ public class UsersView extends AbstractView{
                     b.append(sp(in) + "<input type=\"button\""
                             + " class=\"install\""
                             + " style=\"width: 100px;\""
-                            + " value=\"Remove\""
+                            + " value=\"" + resLbl.getString("l0049") + "\""
                             + " onclick=\"javascript:"
                             + "document.getElementById('"
                             + reqParAction + "').value='"
