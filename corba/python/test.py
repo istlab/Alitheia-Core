@@ -7,6 +7,7 @@ from alitheia import Scheduler
 from alitheia import ProjectFileMetric
 from alitheia import StoredProject
 from alitheia import Database
+from alitheia import FDS
 
 
 class TestJob(Job):
@@ -49,6 +50,16 @@ props = {'name': 'SVN'}
 objects = db.findObjectsByProperties(StoredProject,props)
 print objects
 
-print StoredProject.getLastProjectVersion(StoredProject.getProjectByName('SVN'))
+version = StoredProject.getLastProjectVersion(StoredProject.getProjectByName('SVN'))
+print version, version.version
+
+fds = FDS()
+co = fds.getCheckout(version)
+print co
+
+for file in co.files:
+    print file.getFileName()
+    for line in file:
+        print line
 
 Core.shutdown()

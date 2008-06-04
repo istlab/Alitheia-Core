@@ -176,6 +176,25 @@ class Core:
     def unregisterMetric(self,metric):
         self.core.unregisterMetric(metric.id)
 
+class FDS (eu__POA.sqooss.impl.service.corba.alitheia.FDS):
+    fds = None
+
+    def __init__(self):
+        self.fds = CorbaHandler.instance().getObject('AlitheiaFDS')
+
+    def getFileContents(self,projectFile,begin=0,length=-1):
+        contents = ''
+        result = None
+        if length < 0:
+            result = self.fds.getFileContents(projectFile)
+        else:
+            result = self.fds.getFileContentParts(projectFile,begin,length)
+        contents = result[1]
+        return contents
+
+    def getCheckout(self,projectVersion,pattern='.*'):
+        return self.fds.getCheckout(projectVersion,pattern)
+
 class Database (eu__POA.sqooss.impl.service.corba.alitheia.Database):
     db = None
 
@@ -385,6 +404,38 @@ def StoredProjectGetLastProjectVersion(project):
 
     return objects[0]
 
+def ProjectFileGetFileName(self):
+    if self.dir.path == '/':
+        return self.dir.path + self.name
+    else:
+        return self.dir.path + '/' + self.name
+
+def readNextBlock(fds,projectFile,begin):
+    return fds.getFileContents(projectFile,begin,16384)
+
+def ProjectFileNext(self):
+    while self.buffer.find('\n') == -1:
+        newData = readNextBlock(self.fds,self,self.numReadBytes)
+        self.buffer += newData
+        self.numReadBytes += len(newData)
+        if len(newData) == 0:
+            raise StopIteration
+
+    lines = self.buffer.split('\n',1)
+    self.buffer = lines[1]
+
+    return lines[0]
+
+def ProjectFileIter(self):
+    self.fds = FDS()
+    self.numReadBytes = 0
+    self.buffer = ''
+    return self
+
 setattr(eu.sqooss.impl.service.corba.alitheia.StoredProject,'getProjectByName',StoredProjectGetProjectByName)
 setattr(eu.sqooss.impl.service.corba.alitheia.StoredProject,'getLastProjectVersion',StoredProjectGetLastProjectVersion)
 setattr(eu.sqooss.impl.service.corba.alitheia.StoredProject,'__init__',StoredProjectInit)
+
+setattr(eu.sqooss.impl.service.corba.alitheia.ProjectFile,'getFileName',ProjectFileGetFileName)
+setattr(eu.sqooss.impl.service.corba.alitheia.ProjectFile,'next',ProjectFileNext)
+setattr(eu.sqooss.impl.service.corba.alitheia.ProjectFile,'__iter__',ProjectFileIter)
