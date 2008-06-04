@@ -260,6 +260,10 @@ public class AdminServlet extends HttpServlet {
             AbstractView.getLabelsBundle(request.getLocale());
 
         // Simple string substitutions
+        vc.put("APP_NAME", resLabels.getString("l0002"));
+        vc.put("PLUGINS_HEADER", resLabels.getString("plugins_mngm"));
+        vc.put("USERS_HEADER", resLabels.getString("users_mngm"));
+        vc.put("RULES_HEADER", resLabels.getString("rules_mngm"));
         vc.put("COPYRIGHT",
                 "Copyright 2007-2008"
                 + "<a href=\"http://www.sqo-oss.eu/about/\">"
@@ -273,7 +277,7 @@ public class AdminServlet extends HttpServlet {
                 + "<li id=\"nav-3\"><a href=\"/projects\">"
                 + resLabels.getString("projects") + "</a></li>"
                 + "<li id=\"nav-6\"><a href=\"/users\">"
-                + resLabels.getString("users") + "</a></li>"
+                + resLabels.getString("l0024") + "</a></li>"
                 + "<li id=\"nav-2\"><a href=\"/logs\">"
                 + resLabels.getString("logs") + "</a></li>"
                 + "<li id=\"nav-4\"><a href=\"/jobs\">"
@@ -290,7 +294,7 @@ public class AdminServlet extends HttpServlet {
                 + " class=\"form\"/>"
                 + "<br/>"
                 + "<input type=\"submit\" value=\""
-                + resLabels.getString("set") + "\" id=\"motdbutton\" />"
+                + resLabels.getString("l0005") + "\" id=\"motdbutton\" />"
                 + "</form>"
                 + "<form id=\"start\" method=\"post\" action=\"restart\">"
                 + "<input type=\"submit\" value=\""
@@ -323,33 +327,42 @@ public class AdminServlet extends HttpServlet {
         vc.put("RULES", rulesView.render(request));
 
         // Composite substitutions
-        vc.put("STATUS_CORE","<fieldset id=\"status\">" +
-                     "<legend>Status</legend>" +
-                     "<ul>" +
-                     "<li class=\"uptime\">Uptime: " +
-                                          vc.get("UPTIME") +
-                     "</li>" +
-                     "<li class=\"queue\">Job Queue Length: " +
-                                          vc.get("QUEUE_LENGTH") +
-                                          "</li></ul></fieldset>");
-        vc.put("STATUS_JOBS","<fieldset id=\"jobs\">" +
-                     "<legend>Job Info</legend>" +
-                     "<table width='100%' cellspacing=0 cellpadding=3>" +
-                     "<tr><td>Executing:</td><td class=\"number\">" +
-                                          vc.get("JOB_EXEC") +
-                     "</td></tr>" +
-                     "<tr><td>Waiting:</td><td class=\"number\">" +
-                                          vc.get("JOB_WAIT") +
-                     "</td></tr>" +
-                     "<tr><td>Failed:</td><td class=\"number\">" +
-                                          vc.get("JOB_FAILED") +
-                     "</td></tr>" +
-                     "<tr><td>Total:</td><td class=\"number\">" +
-                                          vc.get("JOB_TOTAL") +
-                     "</td></tr>" +
-                     "<tr class=\"newgroup\"><td>Workers:</td><td class=\"number\">" +
-                                          vc.get("JOB_WORKTHR") +
-                                          "</td></tr></table></fieldset>");
+        vc.put("STATUS_CORE",
+                "<fieldset id=\"status\">"
+                + "<legend>" + resLabels.getString("status") + "</legend>"
+                + "<ul>"
+                + "<li class=\"uptime\">" + resLabels.getString("uptime")
+                + ": " + vc.get("UPTIME") + "</li>"
+                + "<li class=\"queue\">" + resLabels.getString("queue_length")
+                + ": " + vc.get("QUEUE_LENGTH") + "</li>"
+                + "</ul>"
+                + "</fieldset>");
+        vc.put("STATUS_JOBS",
+                "<fieldset id=\"jobs\">"
+                + "<legend>" + resLabels.getString("job_info") + "</legend>"
+                + "<table width='100%' cellspacing=0 cellpadding=3>"
+                + "<tr>"
+                + "<td>" + resLabels.getString("executing") + ":</td>"
+                + "<td class=\"number\">" + vc.get("JOB_EXEC") + "</td>"
+                + "</tr>"
+                + "<tr>"
+                + "<td>" + resLabels.getString("waiting") + ":</td>"
+                + "<td class=\"number\">" + vc.get("JOB_WAIT") + "</td>"
+                + "</tr>"
+                + "<tr>"
+                + "<td>" + resLabels.getString("failed") + ":</td>"
+                + "<td class=\"number\">" + vc.get("JOB_FAILED") + "</td>"
+                + "</tr>"
+                + "<tr>"
+                + "<td>" + resLabels.getString("total") + ":</td>"
+                + "<td class=\"number\">" + vc.get("JOB_TOTAL") + "</td>"
+                + "</tr>"
+                + "<tr class=\"newgroup\">"
+                + "<td>" + resLabels.getString("workers") + ":</td>"
+                + "<td class=\"number\">" + vc.get("JOB_WORKTHR") + "</td>"
+                + "</tr>"
+                + "</table>"
+                + "</fieldset>");
     }
 }
 

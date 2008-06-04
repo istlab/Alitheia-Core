@@ -86,7 +86,8 @@ public class UsersView extends AbstractView{
         ServiceUrlManager secSU = sobjSecurity.getServiceUrlManager();
 
         // Get the required resource bundles
-        ResourceBundle resLabels = getLabelsBundle(req.getLocale());
+        ResourceBundle resLbl = getLabelsBundle(req.getLocale());
+        ResourceBundle resErr = getErrorsBundle(req.getLocale());
 
         // Request parameters
         String reqParAction        = "action";
@@ -104,12 +105,10 @@ public class UsersView extends AbstractView{
         String actValRemFromGroup  = "removeFromGroup";
         String actValReqNewGroup   = "reqNewGroup";
         String actValAddNewGroup   = "addNewGroup";
-        String actValReqRemGroup   = "reqRemGroup";
         String actValConRemGroup   = "conRemGroup";
         String actValConEditGroup  = "conEditGroup";
         String actValReqNewUser    = "reqNewUser";
         String actValAddNewUser    = "addNewUser";
-        String actValReqRemUser    = "reqRemUser";
         String actValConRemUser    = "conRemUser";
         String actValConEditUser   = "conEditUser";
         String actValReqService    = "reqService";
@@ -149,12 +148,6 @@ public class UsersView extends AbstractView{
                     reqValAction = "";
                 };
 
-                // Retrieve the requested list view (if any)
-                reqValViewList = req.getParameter(reqParViewList);
-                if (reqValViewList == null) {
-                    reqValViewList = "users";
-                }
-
                 // Retrieve the selected user's DAO (if any)
                 reqValUserId = fromString(req.getParameter(reqParUserId));
                 if (reqValUserId != null) {
@@ -167,6 +160,16 @@ public class UsersView extends AbstractView{
                     selGroup = secGM.getGroup(reqValGroupId);
                 }
 
+                // Retrieve the requested list view (if any)
+                reqValViewList = req.getParameter(reqParViewList);
+                if ((reqValViewList == null)
+                        || (reqValViewList.length() == 0)) {
+                    if ((selUser != null) || (selGroup != null))
+                        reqValViewList = "";
+                    else
+                        reqValViewList = "users";
+                }
+
                 // ===========================================================
                 // Add a selected user to a selected group
                 // ===========================================================
@@ -174,20 +177,18 @@ public class UsersView extends AbstractView{
                     if ((selUser != null) && (selGroup != null)) {
                         if (secGM.addUserToGroup(
                                 selGroup.getId(), selUser.getId()) == false) {
-                            e.append(sp(in) + "Can not add user ("
-                                    + selUser.getName() + ")"
-                                    + " to group ("
-                                    + selGroup.getDescription() + ")!"
-                                    + " Check log for details."
+                            e.append(sp(in) 
+                                    + resErr.getString("e0001")
+                                    + " " + resErr.getString("m0001")
                                     + "<br/>\n");
                         }
                     }
                     if (selUser == null)
-                        e.append(sp(in)
-                                + "You must select an user first!<br/>\n");
-                    if (selUser == null)
-                        e.append(sp(in)
-                                + "You must select a group first!<br/>\n");
+                        e.append(sp(in) + resErr.getString("e0004")
+                                + "<br/>\n");
+                    if (selGroup == null)
+                        e.append(sp(in) + resErr.getString("e0003")
+                                + "<br/>\n");
                 }
                 // ===========================================================
                 // Remove a selected user from a selected group
@@ -196,20 +197,18 @@ public class UsersView extends AbstractView{
                     if ((selUser != null) && (selGroup != null)) {
                         if (secGM.deleteUserFromGroup(
                                 selGroup.getId(), selUser.getId()) == false) {
-                            e.append(sp(in) + "Can not remove user ("
-                                    + selUser.getName() + ")"
-                                    + " from group ("
-                                    + selGroup.getDescription() + ")!"
-                                    + " Check log for details."
+                            e.append(sp(in) 
+                                    + resErr.getString("e0002")
+                                    + " " + resErr.getString("m0001")
                                     + "<br/>\n");
                         }
                     }
                     if (selUser == null)
-                        e.append(sp(in)
-                                + "You must select an user first!<br/>\n");
-                    if (selUser == null)
-                        e.append(sp(in)
-                                + "You must select a group first!<br/>\n");
+                        e.append(sp(in) + resErr.getString("e0004")
+                                + "<br/>\n");
+                    if (selGroup == null)
+                        e.append(sp(in) + resErr.getString("e0003")
+                                + "<br/>\n");
                 }
                 // ===========================================================
                 // Add new group to the system
@@ -223,8 +222,8 @@ public class UsersView extends AbstractView{
                             && (reqValGroupName.length() > 0)) {
                         // Check the name syntax
                         if (checkName(reqValGroupName) == false) {
-                            e.append(sp(in)
-                                    + "Incorrect group name syntax!<br/>\n");
+                            e.append(sp(in) + resErr.getString("e0005")
+                                    + "<br/>\n");
                         }
                         // Check if a group with the same name already exist
                         else if (secGM.getGroup(reqValGroupName) == null) {
@@ -234,20 +233,18 @@ public class UsersView extends AbstractView{
                                 reqValAction = actValAddNewGroup;
                             }
                             else {
-                                e.append(sp(in) + "Can not create group ("
-                                        + reqValGroupName + ")!"
-                                        + " Check log for details."
+                                e.append(sp(in) + resErr.getString("e0006")
+                                        + " " + resErr.getString("m0001")
                                         + "<br/>\n");
                             }
                         }
                         else {
-                            e.append(sp(in) + "A group with the same name ("
-                                    + reqValGroupName + ") already exists!"
+                            e.append(sp(in) + resErr.getString("e0007") 
                                     + "<br/>\n");
                         }
                     }
                     else {
-                        e.append(sp(in) + "You must specify a group name!"
+                        e.append(sp(in) + resErr.getString("e0008")
                                 + "<br/>\n");
                     }
                 }
@@ -260,7 +257,7 @@ public class UsersView extends AbstractView{
                         // Check if this is the system group
                         if (selGroup.getDescription().equals(
                                 sobjSecurity.getSystemGroup())) {
-                            e.append(sp(in) + "System group removal denied!"
+                            e.append(sp(in) + resErr.getString("e0009")
                                     + "<br/>\n");
                         }
                         // Try to delete the selected group
@@ -269,16 +266,14 @@ public class UsersView extends AbstractView{
                                 selGroup = null;
                             }
                             else {
-                                e.append(sp(in)
-                                        + "Can not remove group ("
-                                        + reqValGroupName + ")!"
-                                        + " Check log for details."
+                                e.append(sp(in) + resErr.getString("e0010")
+                                        + " " + resErr.getString("m0001")
                                         + "<br/>\n");
                             }
                         }
                     }
                     else {
-                        e.append(sp(in) + "You must select a group name!"
+                        e.append(sp(in) + resErr.getString("e0011")
                                 + "<br/>\n");
                     }
                 }
@@ -296,42 +291,39 @@ public class UsersView extends AbstractView{
                     // Check if a user name is specified
                     if ((reqValUserName == null)
                             || (reqValUserName.length() == 0)) {
-                        e.append(sp(in) + "You must specify an user name!"
+                        e.append(sp(in) + resErr.getString("e0012")
                                 + "<br/>\n");
                     }
                     // Check for a valid user name
                     else if (checkName(reqValUserName) == false) {
-                        e.append(sp(in) + "Incorrect user name syntax!"
+                        e.append(sp(in) + resErr.getString("e0013")
                                 + "<br/>\n");
                     }
                     // Check if an email address is specified
                     if ((reqValUserEmail == null)
                             || (reqValUserEmail.length() == 0)) {
-                        e.append(sp(in) + "You must specify an email address!"
+                        e.append(sp(in) + resErr.getString("e0014")
                                 + "<br/>\n");
                     }
                     // Check for a valid email address
                     else if (checkEmail(reqValUserEmail) == false) {
-                        e.append(sp(in) + "Incorrect email address syntax!"
+                        e.append(sp(in) + resErr.getString("e0015")
                                 + "<br/>\n");
                     }
                     // Check if both passwords are specified
                     if ((reqValUserPass == null)
                             || (reqValUserPass.length() == 0)) {
-                        e.append(sp(in)
-                                + "You must specify an account password!"
+                        e.append(sp(in) + resErr.getString("e0016")
                                 + "<br/>\n");
                     }
                     else if ((reqValPassConf == null)
                             || (reqValPassConf.length() == 0)) {
-                        e.append(sp(in)
-                                + "You must specify a confirmation password!"
+                        e.append(sp(in) + resErr.getString("e0017")
                                 + "<br/>\n");
                     }
                     // Check if both passwords are equal
                     else if (reqValUserPass.equals(reqValPassConf) == false) {
-                        e.append(sp(in)
-                                + "The specified passwords do not match!"
+                        e.append(sp(in) + resErr.getString("e0018")
                                 + "<br/>\n");
                         reqValUserPass = null;
                         reqValPassConf = null;
@@ -349,15 +341,13 @@ public class UsersView extends AbstractView{
                                 reqValAction = actValAddNewUser;
                             }
                             else {
-                                e.append(sp(in) + "Can not create user ("
-                                        + reqValUserName + ")!"
-                                        + " Check log for details."
+                                e.append(sp(in) + resErr.getString("e0019")
+                                        + " " + resErr.getString("m0001")
                                         + "<br/>\n");
                             }
                         }
                         else {
-                            e.append(sp(in) + "An user with the same name ("
-                                    + reqValUserName + ") already exists!"
+                            e.append(sp(in) + resErr.getString("e0020")
                                     + "<br/>\n");
                         }
                     }
@@ -371,7 +361,7 @@ public class UsersView extends AbstractView{
                         // Check if this is the system user
                         if (selUser.getName().equals(
                                 sobjSecurity.getSystemUser())) {
-                            e.append(sp(in) + "System user removal denied!"
+                            e.append(sp(in) + resErr.getString("e0021")
                                     + "<br/>\n");
                         }
                         // Delete the selected user
@@ -380,17 +370,14 @@ public class UsersView extends AbstractView{
                                 selUser = null;
                             }
                             else {
-                                e.append(sp(in)
-                                        + "Can not remove user ("
-                                        + reqValUserName + ")!"
-                                        + " Check log for details."
+                                e.append(sp(in) + resErr.getString("e0022")
+                                        + " " + resErr.getString("m0001")
                                         + "<br/>\n");
                             }
                         }
                     }
                     else {
-                        e.append(sp(in)
-                                + "<b>You must select an user name!</b>"
+                        e.append(sp(in) + resErr.getString("e0023")
                                 + "<br/>\n");
                     }
                 }
@@ -414,13 +401,14 @@ public class UsersView extends AbstractView{
             // ===============================================================
             if (reqValAction.equalsIgnoreCase(actValReqNewGroup)) {
                 b.append(sp(in) + "<fieldset>\n");
-                b.append(sp(++in) + "<legend>New group" + "</legend>\n");
+                b.append(sp(++in) + "<legend>" + resLbl.getString("l0028")
+                        + "</legend>\n");
                 b.append(sp(in) + "<table class=\"borderless\">");
                 // Group name
                 b.append(sp(++in) + "<tr>\n"
                         + sp(++in)
                         + "<td class=\"borderless\" style=\"width:100px;\">"
-                        + "<b>Group name</b>"
+                        + "<b>" + resLbl.getString("l0029") + "</b>"
                         + "</td>\n"
                         + sp(in)
                         + "<td class=\"borderless\">\n"
@@ -433,113 +421,47 @@ public class UsersView extends AbstractView{
                         + "</td>\n"
                         + sp(--in)
                         + "</tr>\n");
-                // Toolbar
-                b.append(sp(in) + "<tr>\n"
-                        + sp(++in)
-                        + "<td colspan=\"2\" class=\"borderless\">"
-                        + "<input type=\"button\""
+                //------------------------------------------------------------
+                // Tool-bar
+                //------------------------------------------------------------
+                b.append(sp(in) + "<tr>\n");
+                b.append(sp(++in)
+                        + "<td colspan=\"2\" class=\"borderless\">\n");
+                // Apply button
+                b.append(sp(++in) + "<input type=\"button\""
                         + " class=\"install\""
                         + " style=\"width: 100px;\""
-                        + " value=\"Apply\""
+                        + " value=\"" + resLbl.getString("l0003") + "\""
                         + " onclick=\"javascript:"
                         + "document.getElementById('"
                         + reqParAction + "').value='"
                         + actValAddNewGroup + "';"
-                        + "document.users.submit();\">"
-                        + "&nbsp;"
-                        + "<input type=\"button\""
+                        + "document.users.submit();\">\n");
+                // Cancel button
+                b.append(sp(in--) + "<input type=\"button\""
                         + " class=\"install\""
                         + " style=\"width: 100px;\""
-                        + " value=\"" + resLabels.getString("cancel") + "\""
+                        + " value=\"" + resLbl.getString("l0004") + "\""
                         + " onclick=\"javascript:"
-                        + "document.users.submit();\">"
-                        + "</td>\n"
-                        + sp(--in)
-                        + "</tr>\n");
-                b.append(sp(--in) + "</table>");
-                b.append(sp(--in) + "</fieldset>\n");
-            }
-            // ===============================================================
-            // "Remove group" editor
-            // ===============================================================
-            else if (reqValAction.equalsIgnoreCase(actValReqRemGroup)) {
-                b.append(sp(in) + "<fieldset>\n");
-                b.append(sp(++in) + "<legend>Remove group" + "</legend>\n");
-                b.append(sp(in) + "<table class=\"borderless\">");
-                // Group name
-                b.append(sp(++in) + "<tr>\n"
-                        + sp(++in)
-                        + "<td class=\"borderless\" style=\"width:100px;\">"
-                        + "<b>Group name</b>"
-                        + "</td>\n"
-                        + sp(in)
-                        + "<td class=\"borderless\">\n"
-                        + sp(++in)
-                        + "<select class=\"form\""
-                        + " id=\"removeGroup\""
-                        + " name=\"removeGroup\">\n");
-                for (Group group : secGM.getGroups()) {
-                    // Do not display the SQO-OSS system group
-                    if (group.getDescription().equalsIgnoreCase(
-                            sobjSecurity.getSystemGroup()) == false) {
-                        b.append(sp(in) + "<option"
-                                + " value=\"" + group.getId() + "\""
-                                + (((selGroup != null)
-                                        && (selGroup.getId() == group.getId()))
-                                        ? " selected"
-                                        : "")
-                                + ">"
-                                + group.getDescription()
-                                + "</option>\n");
-                    }
-                }
-                b.append(sp(in) + "</select>\n"
-                        + sp(--in)
-                        + "</td>\n"
-                        + sp(--in)
-                        + "</tr>\n");
-                // Toolbar
-                b.append(sp(in) + "<tr>\n"
-                        + sp(++in)
-                        + "<td colspan=\"2\" class=\"borderless\">"
-                        + "<input type=\"button\""
-                        + " style=\"width: 100px;\""
-                        + " value=\"Remove\""
-                        + " onclick=\"javascript:"
-                        + "document.getElementById('"
-                        + reqParAction + "').value='"
-                        + actValConRemGroup + "';"
-                        + "document.getElementById('"
-                        + reqParGroupId + "').value="
-                        + "document.getElementById('removeGroup').value;"
-                        + "document.users.submit();\">"
-                        + "&nbsp;"
-                        + "<input type=\"button\""
-                        + " class=\"install\""
-                        + " style=\"width: 100px;\""
-                        + " value=\"" + resLabels.getString("cancel") + "\""
-                        + " onclick=\"javascript:"
-                        + "document.getElementById('"
-                        + reqParGroupId + "').value='';"
-                        + "document.users.submit();\">"
-                        + "</td>\n"
-                        + sp(--in)
-                        + "</tr>\n");
-                b.append(sp(--in) + "</table>");
-                b.append(sp(--in) + "</fieldset>\n");
+                        + "document.users.submit();\">\n");
+                b.append(sp(in--) + "</td>\n");
+                b.append(sp(in--) + "</tr>\n");
+                b.append(sp(in--) + "</table>");
+                b.append(sp(in) + "</fieldset>\n");
             }
             // ===============================================================
             // "New user" editor
             // ===============================================================
             else if (reqValAction.equalsIgnoreCase(actValReqNewUser)) {
                 b.append(sp(in) + "<fieldset>\n");
-                b.append(sp(++in) + "<legend>New user" + "</legend>\n");
+                b.append(sp(++in) + "<legend>" + resLbl.getString("l0030")
+                        + "</legend>\n");
                 b.append(sp(in) + "<table class=\"borderless\">");
                 // User name
                 b.append(sp(in) + "<tr>\n"
                         + sp(++in)
                         + "<td class=\"borderless\" style=\"width:100px;\">"
-                        + "<b>Name</b>"
+                        + "<b>" + resLbl.getString("l0031") + "</b>"
                         + "</td>\n"
                         + sp(in)
                         + "<td class=\"borderless\">"
@@ -556,7 +478,7 @@ public class UsersView extends AbstractView{
                 b.append(sp(in) + "<tr>\n"
                         + sp(++in)
                         + "<td class=\"borderless\" style=\"width:100px;\">"
-                        + "<b>Email</b>"
+                        + "<b>" + resLbl.getString("l0032") + "</b>"
                         + "</td>\n"
                         + sp(in)
                         + "<td class=\"borderless\">"
@@ -573,7 +495,7 @@ public class UsersView extends AbstractView{
                 b.append(sp(in) + "<tr>\n"
                         + sp(++in)
                         + "<td class=\"borderless\" style=\"width:100px;\">"
-                        + "<b>Password</b>"
+                        + "<b>" + resLbl.getString("l0033") + "</b>"
                         + "</td>\n"
                         + sp(in)
                         + "<td class=\"borderless\">"
@@ -590,7 +512,7 @@ public class UsersView extends AbstractView{
                 b.append(sp(in) + "<tr>\n"
                         + sp(++in)
                         + "<td class=\"borderless\" style=\"width:100px;\">"
-                        + "<b>Confirm</b>"
+                        + "<b>" + resLbl.getString("l0034") + "</b>"
                         + "</td>\n"
                         + sp(in)
                         + "<td class=\"borderless\">"
@@ -604,101 +526,33 @@ public class UsersView extends AbstractView{
                         + "</td>\n"
                         + sp(--in)
                         + "</tr>\n");
+                //------------------------------------------------------------
                 // Toolbar
-                b.append(sp(in) + "<tr>\n"
-                        + sp(++in)
-                        + "<td colspan=\"2\" class=\"borderless\">"
-                        + "<input type=\"button\""
+                //------------------------------------------------------------
+                b.append(sp(in) + "<tr>\n");
+                b.append(sp(++in)
+                        + "<td colspan=\"2\" class=\"borderless\">\n");
+                // Apply button
+                b.append(sp(++in) + "<input type=\"button\""
                         + " class=\"install\""
                         + " style=\"width: 100px;\""
-                        + " value=\"Apply\""
+                        + " value=\"" + resLbl.getString("l0003") + "\""
                         + " onclick=\"javascript:"
                         + "document.getElementById('"
                         + reqParAction + "').value='"
                         + actValAddNewUser + "';"
-                        + "document.users.submit();\">"
-                        + "&nbsp;"
-                        + "<input type=\"button\""
+                        + "document.users.submit();\">\n");
+                // Cancel button
+                b.append(sp(in--) + "<input type=\"button\""
                         + " class=\"install\""
                         + " style=\"width: 100px;\""
-                        + " value=\"" + resLabels.getString("cancel") + "\""
+                        + " value=\"" + resLbl.getString("l0004") + "\""
                         + " onclick=\"javascript:"
-                        + "document.users.submit();\">"
-                        + "</td>\n"
-                        + sp(--in)
-                        + "</tr>\n");
-                b.append(sp(--in) + "</table>");
-                b.append(sp(--in) + "</fieldset>\n");
-            }
-            // ===============================================================
-            // "Remove user" editor
-            // ===============================================================
-            else if (reqValAction.equalsIgnoreCase(actValReqRemUser)) {
-                b.append(sp(in) + "<fieldset>\n");
-                b.append(sp(++in) + "<legend>Remove user" + "</legend>\n");
-                b.append(sp(in) + "<table class=\"borderless\">");
-                // User name
-                b.append(sp(++in) + "<tr>\n"
-                        + sp(++in)
-                        + "<td class=\"borderless\" style=\"width:100px;\">"
-                        + "<b>User name</b>"
-                        + "</td>\n"
-                        + sp(in)
-                        + "<td class=\"borderless\">\n"
-                        + sp(++in)
-                        + "<select class=\"form\""
-                        + " id=\"removeUser\""
-                        + " name=\"removeUser\">\n");
-                for (User user : secUM.getUsers()) {
-                    // Do not display the SQO-OSS system group
-                    if (user.getName().equalsIgnoreCase(
-                            sobjSecurity.getSystemUser()) == false) {
-                        b.append(sp(in) + "<option"
-                                + " value=\"" + user.getId() + "\""
-                                + (((selUser != null)
-                                        && (selUser.getId() == user.getId()))
-                                        ? " selected"
-                                        : "")
-                                + ">"
-                                + user.getName()
-                                + "</option>\n");
-                    }
-                }
-                b.append(sp(in) + "</select>\n"
-                        + sp(--in)
-                        + "</td>\n"
-                        + sp(--in)
-                        + "</tr>\n");
-                // Toolbar
-                b.append(sp(in) + "<tr>\n"
-                        + sp(++in)
-                        + "<td colspan=\"2\" class=\"borderless\">"
-                        + "<input type=\"button\""
-                        + " class=\"install\""
-                        + " style=\"width: 100px;\""
-                        + " value=\"Remove\""
-                        + " onclick=\"javascript:"
-                        + "document.getElementById('"
-                        + reqParAction + "').value='"
-                        + actValConRemUser + "';"
-                        + "document.getElementById('"
-                        + reqParUserId + "').value="
-                        + "document.getElementById('removeUser').value;"
-                        + "document.users.submit();\">"
-                        + "&nbsp;"
-                        + "<input type=\"button\""
-                        + " class=\"install\""
-                        + " style=\"width: 100px;\""
-                        + " value=\"Cancel\""
-                        + " onclick=\"javascript:"
-                        + "document.getElementById('"
-                        + reqParUserId + "').value='';"
-                        + "document.users.submit();\">"
-                        + "</td>\n"
-                        + sp(--in)
-                        + "</tr>\n");
-                b.append(sp(--in) + "</table>");
-                b.append(sp(--in) + "</fieldset>\n");
+                        + "document.users.submit();\">\n");
+                b.append(sp(in--) + "</td>\n");
+                b.append(sp(in--) + "</tr>\n");
+                b.append(sp(in--) + "</table>");
+                b.append(sp(in) + "</fieldset>\n");
             }
             // ===============================================================
             // "Add service" editor
@@ -768,22 +622,26 @@ public class UsersView extends AbstractView{
             // Main viewers and editors
             // ===============================================================
             else {
-                // Create the fieldset for the "user" views
-                if ((reqValViewList.equals("users")) || (selUser != null)) {
+                // Create the field-set for the "user" views
+                if ((reqValViewList.equals("users"))
+                        || (selUser != null)) {
                     b.append(sp(++in) + "<fieldset>\n");
                     b.append(sp(++in) + "<legend>"
                             + ((selUser != null)
-                                    ? "User " + selUser.getName()
-                                    : "All users")
+                                    ? resLbl.getString("l0024") + " "
+                                            + selUser.getName()
+                                    : resLbl.getString("l0035"))
                             + "</legend>\n");
                 }
-                // Create the fieldset for the "group" views
-                else if ((reqValViewList.equals("groups")) || (selGroup != null)) {
+                // Create the field-set for the "group" views
+                else if ((reqValViewList.equals("groups"))
+                        || (selGroup != null)) {
                     b.append(sp(++in) + "<fieldset>\n");
                     b.append(sp(++in) + "<legend>"
                             + ((selGroup != null)
-                                    ? "Group " + selGroup.getDescription()
-                                    : "All groups")
+                                    ? resLbl.getString("l0026") + " "
+                                            + selGroup.getDescription()
+                                    : resLbl.getString("l0036"))
                             + "</legend>\n");
                 }
 
@@ -797,13 +655,28 @@ public class UsersView extends AbstractView{
                 if (selUser != null) {
                     b.append(sp(++in) + "<td class=\"head\""
                             + " style=\"width: 40%;\">"
-                            + "Account Details</td>\n");
+                            + resLbl.getString("l0040") + "</td>\n");
                     b.append(sp(in) + "<td class=\"head\""
                             + " style=\"width: 30%;\">"
-                            + "Member Of</td>\n");
+                            + resLbl.getString("l0041") + "</td>\n");
                     b.append(sp(in) + "<td class=\"head\""
                             + " style=\"width: 30%;\">"
-                            + "Available Groups</td>\n");
+                            + resLbl.getString("l0042") + "</td>\n");
+                    maxColspan = 3;
+                }
+                // ===========================================================
+                // Group editor - header row
+                // ===========================================================
+                else if (selGroup != null) {
+                    b.append(sp(++in) + "<td class=\"head\""
+                            + " style=\"width: 40%;\">"
+                            + resLbl.getString("l0043") + "</td>\n");
+                    b.append(sp(in) + "<td class=\"head\""
+                            + " style=\"width: 30%;\">"
+                            + resLbl.getString("l0044") + "</td>\n");
+                    b.append(sp(in) + "<td class=\"head\""
+                            + " style=\"width: 30%;\">"
+                            + resLbl.getString("l0045") + "</td>\n");
                     maxColspan = 3;
                 }
                 // ===========================================================
@@ -812,32 +685,17 @@ public class UsersView extends AbstractView{
                 else if (reqValViewList.equals("users")) {
                     b.append(sp(++in) + "<td class=\"head\""
                             + " style=\"width: 10%;\">"
-                            + "User Id</td>\n");
+                            + resLbl.getString("l0038") + "</td>\n");
                     b.append(sp(in) + "<td class=\"head\""
                             + " style=\"width: 30%;\">"
-                            + "User Name</td>\n");
+                            + resLbl.getString("l0031") + "</td>\n");
                     b.append(sp(in) + "<td class=\"head\""
                             + " style=\"width: 30%;\">"
-                            + "User Email</td>\n");
+                            + resLbl.getString("l0032") + "</td>\n");
                     b.append(sp(in) + "<td class=\"head\""
                             + " style=\"width: 30%;\">"
-                            + "Created</td>\n");
+                            + resLbl.getString("l0039") + "</td>\n");
                     maxColspan = 4;
-                }
-                // ===========================================================
-                // Group editor - header row
-                // ===========================================================
-                else if (selGroup != null) {
-                    b.append(sp(++in) + "<td class=\"head\""
-                            + " style=\"width: 40%;\">"
-                            + "Resource Name</td>\n");
-                    b.append(sp(in) + "<td class=\"head\""
-                            + " style=\"width: 30%;\">"
-                            + "Privilege Type</td>\n");
-                    b.append(sp(in) + "<td class=\"head\""
-                            + " style=\"width: 30%;\">"
-                            + "Privilege Value</td>\n");
-                    maxColspan = 3;
                 }
                 // ===========================================================
                 // Groups list - header row
@@ -845,10 +703,10 @@ public class UsersView extends AbstractView{
                 else if (reqValViewList.equals("groups")) {
                     b.append(sp(++in) + "<td class=\"head\""
                             + " style=\"width: 10%;\">"
-                            + "Group Id</td>\n");
+                            + resLbl.getString("l0037") + "</td>\n");
                     b.append(sp(in) + "<td class=\"head\""
                             + " style=\"width: 90%;\">"
-                            + "Group Name</td>\n");
+                            + resLbl.getString("l0029") + "</td>\n");
                     maxColspan = 2;
                 }
 
@@ -865,26 +723,30 @@ public class UsersView extends AbstractView{
                     b.append(sp(++in) + "<table>\n");
                     b.append(sp(++in) + "<tr>\n"
                             + sp(++in)
-                            + "<td class=\"name\">User Id</td>\n"
+                            + "<td class=\"name\">"
+                            + resLbl.getString("l0038") + "</td>\n"
                             + sp(in) + "<td>&nbsp;"
                             + selUser.getId() + "</td>\n"
                             + sp(--in) + "</tr>\n");
                     b.append(sp(in) + "<tr>\n"
                             + sp(++in)
-                            + "<td class=\"name\">User Name</td>\n"
+                            + "<td class=\"name\">"
+                            + resLbl.getString("l0031") + "</td>\n"
                             + sp(in) + "<td>&nbsp;"
                             + selUser.getName() + "</td>\n"
                             + sp(--in) + "</tr>\n");
                     b.append(sp(in) + "<tr>\n"
                             + sp(++in)
-                            + "<td class=\"name\">User Email</td>\n"
+                            + "<td class=\"name\">"
+                            + resLbl.getString("l0032") + "</td>\n"
                             + sp(in) + "<td>&nbsp;"
                             + selUser.getEmail() + "</td>\n"
                             + sp(--in) + "</tr>\n");
                     DateFormat date = DateFormat.getDateInstance();
                     b.append(sp(in) + "<tr>\n"
                             + sp(++in)
-                            + "<td class=\"name\">Created</td>\n"
+                            + "<td class=\"name\">"
+                            + resLbl.getString("l0039") + "</td>\n"
                             + sp(in) + "<td>&nbsp;"
                             + date.format(selUser.getRegistered()) + "</td>\n"
                             + sp(--in) + "</tr>\n");
@@ -949,39 +811,6 @@ public class UsersView extends AbstractView{
                     b.append(sp(--in) + "</tr>\n");
                 }
                 // ===========================================================
-                // Users list -content rows
-                // ===========================================================
-                else if (reqValViewList.equals("users")) {
-                    for (User nextUser : secUM.getUsers()) {
-                        b.append(sp(++in) + "<tr class=\"edit\""
-                                + " onclick=\"javascript:"
-                                + "document.getElementById('"
-                                + reqParUserId + "').value='"
-                                + nextUser.getId() + "';"
-                                + "document.users.submit();\""
-                                + ">\n");
-                        // User's Id
-                        b.append(sp(++in) + "<td class=\"trans\">"
-                                + "<img src=\"/edit.png\" alt=\"[Edit]\"/>"
-                                + "&nbsp;" + nextUser.getId()
-                                + "</td>\n");
-                        // User's name
-                        b.append(sp(in) + "<td class=\"trans\">"
-                                + nextUser.getName()
-                                + "</td>\n");
-                        // User's email
-                        b.append(sp(in) + "<td class=\"trans\">"
-                                + nextUser.getEmail()
-                                + "</td>\n");
-                        // User's registration date
-                        DateFormat date = DateFormat.getDateInstance();
-                        b.append(sp(in) + "<td class=\"trans\">"
-                                + date.format(nextUser.getRegistered())
-                                + "</td>\n");
-                        b.append(sp(--in) + "</tr>\n");
-                    }
-                }
-                // ===========================================================
                 // Group editor - content rows
                 // ===========================================================
                 else if (selGroup != null) {
@@ -1014,6 +843,39 @@ public class UsersView extends AbstractView{
                                     + "</td>\n");
                             b.append(sp(--in) + "</tr>\n");
                         }
+                    }
+                }
+                // ===========================================================
+                // Users list -content rows
+                // ===========================================================
+                else if (reqValViewList.equals("users")) {
+                    for (User nextUser : secUM.getUsers()) {
+                        b.append(sp(++in) + "<tr class=\"edit\""
+                                + " onclick=\"javascript:"
+                                + "document.getElementById('"
+                                + reqParUserId + "').value='"
+                                + nextUser.getId() + "';"
+                                + "document.users.submit();\""
+                                + ">\n");
+                        // User's Id
+                        b.append(sp(++in) + "<td class=\"trans\">"
+                                + "<img src=\"/edit.png\" alt=\"[Edit]\"/>"
+                                + "&nbsp;" + nextUser.getId()
+                                + "</td>\n");
+                        // User's name
+                        b.append(sp(in) + "<td class=\"trans\">"
+                                + nextUser.getName()
+                                + "</td>\n");
+                        // User's email
+                        b.append(sp(in) + "<td class=\"trans\">"
+                                + nextUser.getEmail()
+                                + "</td>\n");
+                        // User's registration date
+                        DateFormat date = DateFormat.getDateInstance();
+                        b.append(sp(in) + "<td class=\"trans\">"
+                                + date.format(nextUser.getRegistered())
+                                + "</td>\n");
+                        b.append(sp(--in) + "</tr>\n");
                     }
                 }
                 // ===========================================================
@@ -1146,53 +1008,55 @@ public class UsersView extends AbstractView{
                 }
 
                 // ===========================================================
-                // Common toolbar
+                // Common tool-bar
                 // ===========================================================
                 b.append(sp(in++) + "<tr class=\"subhead\">\n");
                 b.append(sp(in++) + "<td colspan=\"" + maxColspan + "\">\n");
-                String btnAction = null;
+                String btnDisabled = null;
                 // List users button
-                btnAction = " disabled";
-                if (reqValViewList.equals("users") == false) {
-                    btnAction = " onclick=\"javascript:"
+                btnDisabled = "";
+                if (reqValViewList.equals("users")) {
+                    btnDisabled = " disabled";
+                }
+                b.append(sp(in) + "<input type=\"button\""
+                        + " class=\"install\""
+                        + " style=\"width: 100px;\""
+                        + " value=\"" + resLbl.getString("l0035") + "\""
+                        + btnDisabled
+                        + " onclick=\"javascript:"
                         + " document.getElementById('"
                         + reqParViewList + "').value='users';"
                         + " document.getElementById('"
                         + reqParUserId + "').value='';"
                         + " document.getElementById('"
                         + reqParGroupId + "').value='';"
-                        + "document.users.submit();\"";
+                        + "document.users.submit();\""
+                        + ">\n");
+                // List groups button
+                btnDisabled = "";
+                if (reqValViewList.equals("groups")) {
+                    btnDisabled = " disabled";
                 }
                 b.append(sp(in) + "<input type=\"button\""
                         + " class=\"install\""
                         + " style=\"width: 100px;\""
-                        + " value=\"Users list\""
-                        + btnAction
-                        + ">\n");
-                // List groups button
-                btnAction = " disabled";
-                if (reqValViewList.equals("groups") == false) {
-                    btnAction = " onclick=\"javascript:"
+                        + " value=\"" + resLbl.getString("l0036") + "\""
+                        + btnDisabled
+                        + " onclick=\"javascript:"
                         + " document.getElementById('"
                         + reqParViewList + "').value='groups';"
                         + " document.getElementById('"
                         + reqParUserId + "').value='';"
                         + " document.getElementById('"
                         + reqParGroupId + "').value='';"
-                        + "document.users.submit();\"";
-                }
-                b.append(sp(in) + "<input type=\"button\""
-                        + " class=\"install\""
-                        + " style=\"width: 100px;\""
-                        + " value=\"Groups list\""
-                        + btnAction
+                        + "document.users.submit();\""
                         + ">\n");
                 // Add user button
                 b.append(sp(in)
                         + "<input type=\"button\""
                         + " class=\"install\""
                         + " style=\"width: 100px;\""
-                        + " value=\"Add user\""
+                        + " value=\"" + resLbl.getString("l0046") + "\""
                         + " onclick=\"javascript:"
                         + " document.getElementById('"
                         + reqParGroupId + "').value='';"
@@ -1200,43 +1064,17 @@ public class UsersView extends AbstractView{
                         + reqParAction + "').value='"
                         + actValReqNewUser + "';"
                         + "document.users.submit();\">\n");
-                // Remove user button
-                b.append(sp(in)
-                        + "<input type=\"button\""
-                        + " class=\"install\""
-                        + " style=\"width: 100px;\""
-                        + " value=\"Remove user\""
-                        + " onclick=\"javascript:"
-                        + " document.getElementById('"
-                        + reqParGroupId + "').value='';"
-                        + "document.getElementById('"
-                        + reqParAction + "').value='"
-                        + actValReqRemUser + "';"
-                        + "document.users.submit();\">\n");
                 // Add group button
                 b.append(sp(in)
                         + "<input type=\"button\""
                         + " class=\"install\""
                         + " style=\"width: 100px;\""
-                        + " value=\"Add group\""
+                        + " value=\"" + resLbl.getString("l0047") + "\""
                         + " onclick=\"javascript:"
                         + "document.getElementById('"
                         + reqParAction + "').value='"
                         + actValReqNewGroup + "';"
                         + "document.users.submit();\">\n");
-                // Remove group button
-                b.append(sp(in)
-                        + "<input type=\"button\""
-                        + " class=\"install\""
-                        + " style=\"width: 100px;\""
-                        + " value=\"Remove group\""
-                        + " onclick=\"javascript:"
-                        + "document.getElementById('"
-                        + reqParAction + "').value='"
-                        + actValReqRemGroup + "';"
-                        + "document.users.submit();\">\n"
-                        + sp(--in)
-                        + "</td>\n");
                 b.append(sp(--in) + "</tr>\n");
 
                 // Close the table
