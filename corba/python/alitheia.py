@@ -21,7 +21,7 @@ class CorbaHandler:
         def __init__(self,orb):
             Thread.__init__(self)
             self.orb = orb
-            #self.start()
+            self.start()
 
         def run(self):
             self.orb.run()
