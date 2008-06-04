@@ -206,6 +206,7 @@ public abstract class DAObject {
     
     // use ISO date time format
     private static DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd'T'HHmmss");
+    private static DateFormat otherParsingDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
     /**
      * Formats a date as ISO date time format.
@@ -221,8 +222,13 @@ public abstract class DAObject {
         try {
             return dateFormat.parse(date);
         } catch( Exception e ) {
-            return null;
         }
+        // try another version...
+        try {
+             return otherParsingDateFormat.parse(date);
+        } catch( Exception e ) {
+        }
+        return new Date();
     }
 
     /**

@@ -6,7 +6,13 @@ import Alitheia_idl
 import eu
 import eu__POA
 
-from eu.sqooss.impl.service.corba.alitheia import StoredProject
+import eu.sqooss.impl.service.corba.alitheia
+from  eu.sqooss.impl.service.corba.alitheia import MetricType
+from  eu.sqooss.impl.service.corba.alitheia import SourceCode
+from  eu.sqooss.impl.service.corba.alitheia import StoredProject
+from  eu.sqooss.impl.service.corba.alitheia import ProjectFile
+from  eu.sqooss.impl.service.corba.alitheia import ProjectFileMetric
+from  eu.sqooss.impl.service.corba.alitheia import ProjectFileMeasurement
 
 class CorbaHandler:
     orb = None
@@ -176,6 +182,12 @@ class Core:
     def unregisterMetric(self,metric):
         self.core.unregisterMetric(metric.id)
 
+    def addSupportedMetrics(self,metric,description,mnemonic,type):
+        return self.core.addSupportedMetrics(metric.orbname,description,mnemonic,type)
+
+    def getSupportedMetrics(self,metric):
+        return self.core.getSupportedMetrics(metric.orbname)
+
 class FDS (eu__POA.sqooss.impl.service.corba.alitheia.FDS):
     fds = None
 
@@ -201,14 +213,23 @@ class Database (eu__POA.sqooss.impl.service.corba.alitheia.Database):
     def __init__(self):
         self.db = CorbaHandler.instance().getObject('AlitheiaDatabase')
 
+    @staticmethod
+    def anyFromObject(object):
+        if object.__class__ == long or object.__class__ == int:
+            return CORBA.Any(CORBA.TC_long, long(object))
+        elif object.__class__ == str:
+            return CORBA.Any(CORBA.TC_string, object)
+        else:
+            return CORBA.Any(CORBA.TypeCode('IDL:eu/sqooss/impl/service/corba/alitheia/' + object.__class__.__name__ + ':1.0'), object)
+
     def addRecord(self,object):
-        return self.db.addRecord(obect)
+        return self.db.addRecord(Database.anyFromObject(object))
 
     def deleteRecord(self,object):
-        return self.db.deleteRecord(object)
+        return self.db.deleteRecord(Database.anyFromObject(object))
 
     def updateRecord(self,object):
-        return self.db.updateRecord(object)
+        return self.db.updateRecord(Database.anyFromObject(object))
 
     def findObjectById(self,type,id):
         any = CORBA.Any(CORBA.TypeCode('IDL:eu/sqooss/impl/service/corba/alitheia/' + type.__name__ + ':1.0'), type())
@@ -219,12 +240,7 @@ class Database (eu__POA.sqooss.impl.service.corba.alitheia.Database):
         map = []
         
         for k, v in properties.iteritems():
-            if v.__class__ == long or v.__class__ == int:
-                value = CORBA.Any(CORBA.TC_long, long(v))
-            elif v.__class__ == str:
-                value = CORBA.Any(CORBA.TC_string, v)
-            else:
-                value = CORBA.Any(CORBA.TypeCode('IDL:eu/sqooss/impl/service/corba/alitheia/' + v.__class__.__name__ + ':1.0'), v)
+            value = Database.anyFromObject(v)
             map.append(eu.sqooss.impl.service.corba.alitheia.map_entry(k,value))
 
         resultAny = self.db.findObjectsByProperties(any,map)
@@ -239,12 +255,7 @@ class Database (eu__POA.sqooss.impl.service.corba.alitheia.Database):
         map = []
 
         for k, v in params.iteritems():
-            if v.__class__ == long or v.__class__ == int:
-                value = CORBA.Any(CORBA.TC_long, long(v))
-            elif v.__class__ == str:
-                value = CORBA.Any(CORBA.TC_string, v)
-            else:
-                value = CORBA.Any(CORBA.TypeCode('IDL:eu/sqooss/impl/service/corba/alitheia/' + v.__class__.__name__ + ':1.0'), v)
+            value = Database.anyFromObject(v)
             map.append(eu.sqooss.impl.service.corba.alitheia.map_entry(k,value))
 
         resultAny = self.db.doHQL(hql,map)
@@ -259,12 +270,7 @@ class Database (eu__POA.sqooss.impl.service.corba.alitheia.Database):
         map = []
 
         for k, v in params.iteritems():
-            if v.__class__ == long or v.__class__ == int:
-                value = CORBA.Any(CORBA.TC_long, long(v))
-            elif v.__class__ == str:
-                value = CORBA.Any(CORBA.TC_string, v)
-            else:
-                value = CORBA.Any(CORBA.TypeCode('IDL:eu/sqooss/impl/service/corba/alitheia/' + v.__class__.__name__ + ':1.0'), v)
+            value = Database.anyFromObject(v)
             map.append(eu.sqooss.impl.service.corba.alitheia.map_entry(k,value))
 
         resultAny = self.db.doSQL(sql,map)
@@ -278,6 +284,12 @@ class Database (eu__POA.sqooss.impl.service.corba.alitheia.Database):
 class AbstractMetric (eu__POA.sqooss.impl.service.corba.alitheia.AbstractMetric):
     orbname = ''
     id = 0
+
+    def addSupportedMetrics(self,description,mnemonic,type):
+        return Core.instance().addSupportedMetrics(self,description,mnemonic,type)
+
+    def getSupportedMetrics(self):
+        return Core.instance().getSupportedMetrics(self)
 
     def doInstall(self):
         return self.install()
@@ -325,7 +337,11 @@ class AbstractMetric (eu__POA.sqooss.impl.service.corba.alitheia.AbstractMetric)
         return ''
 
     def dateInstalled(self):
-        return ''
+        metrics = self.getSupportedMetrics()
+        if len(metrics) == 0:
+            return ''
+        else:
+            return metrics[0].metricPlugin.installdate
 
 class ProjectVersionMetric (eu__POA.sqooss.impl.service.corba.alitheia.ProjectVersionMetric,AbstractMetric):
     def doRun(self,projectVersion):
@@ -383,6 +399,10 @@ OldStoredProjectInit = StoredProject.__init__
 def StoredProjectInit(self, id=0, name='', website='', contact='', bugs='', repository='', mail=''):
     return OldStoredProjectInit(self, id, name, website, contact, bugs, repository, mail)
 
+OldProjectFileMeasurementInit = ProjectFileMeasurement.__init__
+def ProjectFileMeasurementInit(self, id=0, measureMetric=None, file=None, whenRun=None, result=None):
+    return OldProjectFileMeasurementInit(self, id, measureMetric, file, whenRun, result)
+
 @staticmethod
 def StoredProjectGetProjectByName(name):
     db = Database()
@@ -439,3 +459,5 @@ setattr(eu.sqooss.impl.service.corba.alitheia.StoredProject,'__init__',StoredPro
 setattr(eu.sqooss.impl.service.corba.alitheia.ProjectFile,'getFileName',ProjectFileGetFileName)
 setattr(eu.sqooss.impl.service.corba.alitheia.ProjectFile,'next',ProjectFileNext)
 setattr(eu.sqooss.impl.service.corba.alitheia.ProjectFile,'__iter__',ProjectFileIter)
+
+setattr(eu.sqooss.impl.service.corba.alitheia.ProjectFileMeasurement,'__init__',ProjectFileMeasurementInit)

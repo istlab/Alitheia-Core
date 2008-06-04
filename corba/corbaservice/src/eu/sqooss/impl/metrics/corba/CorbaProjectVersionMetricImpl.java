@@ -1,10 +1,12 @@
 package eu.sqooss.impl.metrics.corba;
 
+import java.util.List;
+
 import org.osgi.framework.BundleContext;
 
 import eu.sqooss.impl.service.corba.alitheia.ProjectVersionMetric;
 import eu.sqooss.impl.service.corba.alitheia.db.DAObject;
-import eu.sqooss.service.abstractmetric.Result;
+import eu.sqooss.service.abstractmetric.ResultEntry;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.ProjectVersion;
 
@@ -32,7 +34,7 @@ public class CorbaProjectVersionMetricImpl extends CorbaMetricImpl implements eu
 	/**
 	 * {@inheritDoc}
 	 */
-	public Result getResult(ProjectVersion a, Metric m) {
+	public List<ResultEntry> getResult(ProjectVersion a, Metric m) {
 		// TODO Auto-generated method stub
 		return null;
 	}
