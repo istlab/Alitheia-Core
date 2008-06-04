@@ -90,6 +90,14 @@ public class SpGroup implements SpEntity {
         gm.addUserToGroup(id, user.id);
         db.commitDBSession();
     }
+
+    public void removeUser(String userName) {
+        load();
+        SpUser user = new SpUser(userName);
+        db.startDBSession();
+        gm.deleteUserFromGroup(id, user.id);
+        db.commitDBSession();
+    }
     
     public ArrayList<SpPrivilege> getPrivileges() {
         ArrayList<SpPrivilege> result = new ArrayList<SpPrivilege>();

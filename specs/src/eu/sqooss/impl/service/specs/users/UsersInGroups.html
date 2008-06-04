@@ -1,0 +1,65 @@
+<html xmlns:concordion="http://www.concordion.org/2007/concordion">
+<body>
+
+    <h1>Moving Users in Groups<h1>
+
+    <p>Since the system allows to create groups and users, it also allows to move users from one group to another.</p>
+    
+    <div class="example">
+
+        <h3>Example</h3>
+
+        <p>Given the system has the followin two groups:</p>
+        <table concordion:execute="addGroup(#groupname)">
+          <tr>
+            <th concordion:set="#groupname">Group</th>
+          </tr>
+          <tr><td>humongous</td></tr>
+          <tr><td>clones</td></tr>
+        </table>
+        <p>And that the group
+        "<span concordion:set="#full_group">humongous</span>" contains
+        the following users:</p>
+        <table concordion:execute="addUserToGroup(#username, #full_group)">
+          <tr>
+            <th concordion:set="#username">User</th>
+          </tr>
+          <tr><td>ade</td></tr>
+          <tr><td>padams</td></tr>
+          <tr><td>sebas</td></tr>
+        </table>
+        <p concordion:execute="ensureGroupIsEmpty(#empty_group)">While the
+        <span concordion:set="#empty_group">clones</span>" group is empty.</p>
+        
+        <p>When we move the following users to the empty group:</p>
+        <table concordion:execute="moveUser(#user, #full_group, #empty_group)">
+          <tr>
+            <th concordion:set="#user">User Name</th>
+          </tr>
+          <tr><td>padams</td></tr>
+          <tr><td>ade</td></tr>
+        </table>
+            
+        <p>Then, the groups composition will be the following:</p>
+        <table concordion:verifyRows="#user : getUsersForGroup(#full_group)">
+          <tr>
+            <th concordion:assertEquals="#user.name">Users in "humongous"</th>
+          </tr>
+          <tr><td>sebas</td></tr>
+        </table>
+        <table concordion:verifyRows="#user : getUsersForGroup(#empty_group)">
+          <tr>
+            <th concordion:assertEquals="#user.name">Users in "clones"</th>
+          </tr>
+          <tr><td>ade</td></tr>
+          <tr><td>padams</td></tr>
+        </table>
+    </div>
+
+
+    <h2>See Also</h2>
+    <ul>
+        <li><a href="UsersInGroups.html">Can we add/remove users from groups?</a></li>
+    </ul>
+</body>
+</html>
