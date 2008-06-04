@@ -3,6 +3,7 @@ package eu.sqooss.impl.service.dsl;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.TreeSet;
 
 import eu.sqooss.impl.service.SpecsActivator;
 import eu.sqooss.service.db.DBService;
@@ -74,6 +75,14 @@ public class SpGroup implements SpEntity {
         persistent = false;
     }
     
+    public void rename(String newName) {
+        db.startDBSession();
+        Group group = gm.getGroup(name);
+        group.setDescription(newName);
+        db.commitDBSession();
+        name = newName;
+    }
+    
     public void addUser(String userName) {
         load();
         SpUser user = new SpUser(userName);
@@ -107,6 +116,27 @@ public class SpGroup implements SpEntity {
                     priv.getPv().getPrivilege().getDescription(),
                     privValue
             ));
+        }
+        
+        return result;
+    }
+    
+    public ArrayList<SpUser> getUsers() {
+        ArrayList<SpUser> result = new ArrayList<SpUser>();
+        
+        db.startDBSession();
+        Group group = gm.getGroup(name);
+        
+        if (group==null) {
+            return result;
+        }
+
+        TreeSet<String> userNames = new TreeSet<String>();
+        for (Object obj : group.getUsers()) {
+            userNames.add(((User)obj).getName());
+        }
+        for (String name : userNames) {
+            result.add(new SpUser(name));
         }
         
         return result;
