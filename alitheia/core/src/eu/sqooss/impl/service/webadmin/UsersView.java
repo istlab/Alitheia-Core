@@ -34,7 +34,6 @@ package eu.sqooss.impl.service.webadmin;
 
 import java.text.DateFormat;
 import java.util.ResourceBundle;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
