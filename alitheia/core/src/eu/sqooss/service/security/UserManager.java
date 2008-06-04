@@ -82,7 +82,7 @@ public interface UserManager {
     public User[] getUsers(long groupId);
 
     /**
-     * This method creates a new user from the specified user parameters
+     * This method creates a new user from the specified user parameters.
      * 
      * @param userName - the user's name
      * @param password - the user's password
@@ -109,12 +109,16 @@ public interface UserManager {
 
     /**
      * This method modifies the user associated with the given user name.
+     * <br/>
+     * Both <code>password</code> and <code>email</code> accept a
+     * <code>null</code> as a value, which means that this parameter won't be
+     * changed during the modification process.
      * 
      * @param userName - the user's name
      * @param newPassword - the new user's password
      * @param newEmail - the new user's email
      * 
-     * @return <code>true</code> if the user is modified successfully,
+     * @return <code>true</code> if the user was successfully modified,
      *   or <code>false</code> upon failure.
      * 
      */
