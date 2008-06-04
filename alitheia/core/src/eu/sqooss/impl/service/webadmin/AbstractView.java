@@ -76,8 +76,9 @@ public abstract class AbstractView {
     protected VelocityContext vc = null;
 
     // Names of the various resource files
-    private static String RES_LABELS_FILE = "ResourceLabels";
-    private static String RES_ERRORS_FILE = "ResourceErrors";
+    private static String RES_LABELS_FILE   = "ResourceLabels";
+    private static String RES_ERRORS_FILE   = "ResourceErrors";
+    private static String RES_MESSAGES_FILE = "ResourceMessages";
 
     // Debug flag
     protected static boolean DEBUG = false;
@@ -158,6 +159,13 @@ public abstract class AbstractView {
             return ResourceBundle.getBundle(RES_ERRORS_FILE, locale);
         else
             return ResourceBundle.getBundle(RES_ERRORS_FILE);
+    }
+
+    public static ResourceBundle getMessagesBundle (Locale locale) {
+        if (locale != null)
+            return ResourceBundle.getBundle(RES_MESSAGES_FILE, locale);
+        else
+            return ResourceBundle.getBundle(RES_MESSAGES_FILE);
     }
 
     protected static String debugRequest (HttpServletRequest request) {

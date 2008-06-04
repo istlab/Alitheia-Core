@@ -2,7 +2,9 @@
    It handles all the specialised formatting for the webadmin's
    menu system and special input boxes.
 */
-
+h2 {
+    font-size: 16px;
+}
 #menu {
 	border-bottom : 1px solid #ccc;
 	margin : 0;
@@ -171,7 +173,7 @@ body.section-7 #menu li#nav-7 a  {
 }
 #table .borderless {
     border: 0;
-    background-color: #f6f6f6;
+    background-color: transparent;
 }
 #table .form {
     width: 150px;
@@ -203,7 +205,6 @@ body.section-7 #menu li#nav-7 a  {
 #table tr.selected {
     color: Green;
     background-color: #FFFF99;
-    font-weight: bold;
 }
 #table td.head {
     background-color: transparent;

@@ -42,6 +42,8 @@ import org.osgi.framework.BundleContext;
 
 import eu.sqooss.service.db.Group;
 import eu.sqooss.service.db.GroupPrivilege;
+import eu.sqooss.service.db.Privilege;
+import eu.sqooss.service.db.PrivilegeValue;
 import eu.sqooss.service.db.ServiceUrl;
 import eu.sqooss.service.db.User;
 import eu.sqooss.service.security.GroupManager;
@@ -88,6 +90,7 @@ public class UsersView extends AbstractView{
         // Get the required resource bundles
         ResourceBundle resLbl = getLabelsBundle(req.getLocale());
         ResourceBundle resErr = getErrorsBundle(req.getLocale());
+        ResourceBundle resMsg = getMessagesBundle(req.getLocale());
 
         // Request parameters
         String reqParAction        = "action";
@@ -179,7 +182,7 @@ public class UsersView extends AbstractView{
                                 selGroup.getId(), selUser.getId()) == false) {
                             e.append(sp(in) 
                                     + resErr.getString("e0001")
-                                    + " " + resErr.getString("m0001")
+                                    + " " + resMsg.getString("m0001")
                                     + "<br/>\n");
                         }
                     }
@@ -199,7 +202,7 @@ public class UsersView extends AbstractView{
                                 selGroup.getId(), selUser.getId()) == false) {
                             e.append(sp(in) 
                                     + resErr.getString("e0002")
-                                    + " " + resErr.getString("m0001")
+                                    + " " + resMsg.getString("m0001")
                                     + "<br/>\n");
                         }
                     }
@@ -234,7 +237,7 @@ public class UsersView extends AbstractView{
                             }
                             else {
                                 e.append(sp(in) + resErr.getString("e0006")
-                                        + " " + resErr.getString("m0001")
+                                        + " " + resMsg.getString("m0001")
                                         + "<br/>\n");
                             }
                         }
@@ -267,7 +270,7 @@ public class UsersView extends AbstractView{
                             }
                             else {
                                 e.append(sp(in) + resErr.getString("e0010")
-                                        + " " + resErr.getString("m0001")
+                                        + " " + resMsg.getString("m0001")
                                         + "<br/>\n");
                             }
                         }
@@ -342,7 +345,7 @@ public class UsersView extends AbstractView{
                             }
                             else {
                                 e.append(sp(in) + resErr.getString("e0019")
-                                        + " " + resErr.getString("m0001")
+                                        + " " + resMsg.getString("m0001")
                                         + "<br/>\n");
                             }
                         }
@@ -371,7 +374,7 @@ public class UsersView extends AbstractView{
                             }
                             else {
                                 e.append(sp(in) + resErr.getString("e0022")
-                                        + " " + resErr.getString("m0001")
+                                        + " " + resMsg.getString("m0001")
                                         + "<br/>\n");
                             }
                         }
@@ -628,7 +631,7 @@ public class UsersView extends AbstractView{
                     b.append(sp(++in) + "<fieldset>\n");
                     b.append(sp(++in) + "<legend>"
                             + ((selUser != null)
-                                    ? resLbl.getString("l0024") + " "
+                                    ? resLbl.getString("l0024") + ": "
                                             + selUser.getName()
                                     : resLbl.getString("l0035"))
                             + "</legend>\n");
@@ -639,7 +642,7 @@ public class UsersView extends AbstractView{
                     b.append(sp(++in) + "<fieldset>\n");
                     b.append(sp(++in) + "<legend>"
                             + ((selGroup != null)
-                                    ? resLbl.getString("l0026") + " "
+                                    ? resLbl.getString("l0026") + ": "
                                             + selGroup.getDescription()
                                     : resLbl.getString("l0036"))
                             + "</legend>\n");
@@ -718,36 +721,41 @@ public class UsersView extends AbstractView{
                 // User editor - content rows
                 // ===========================================================
                 if (selUser != null) {
+                    String btnDisabled = null;
                     b.append(sp(++in) + "<tr>\n");
                     b.append(sp(++in) + "<td>\n");
-                    b.append(sp(++in) + "<table>\n");
+                    b.append(sp(++in) + "<table class=\"borderless\">\n");
                     b.append(sp(++in) + "<tr>\n"
                             + sp(++in)
-                            + "<td class=\"name\">"
-                            + resLbl.getString("l0038") + "</td>\n"
-                            + sp(in) + "<td>&nbsp;"
+                            + "<td class=\"borderless\">"
+                            + "<b>" + resLbl.getString("l0038") + "</b>"
+                            + "</td>\n"
+                            + sp(in) + "<td class=\"borderless\">"
                             + selUser.getId() + "</td>\n"
                             + sp(--in) + "</tr>\n");
                     b.append(sp(in) + "<tr>\n"
                             + sp(++in)
-                            + "<td class=\"name\">"
-                            + resLbl.getString("l0031") + "</td>\n"
-                            + sp(in) + "<td>&nbsp;"
+                            + "<td class=\"borderless\">"
+                            + "<b>" + resLbl.getString("l0031") + "</b>"
+                            + "</td>\n"
+                            + sp(in) + "<td class=\"borderless\">"
                             + selUser.getName() + "</td>\n"
                             + sp(--in) + "</tr>\n");
                     b.append(sp(in) + "<tr>\n"
                             + sp(++in)
-                            + "<td class=\"name\">"
-                            + resLbl.getString("l0032") + "</td>\n"
-                            + sp(in) + "<td>&nbsp;"
+                            + "<td class=\"borderless\">"
+                            + "<b>" + resLbl.getString("l0032") + "</b>"
+                            + "</td>\n"
+                            + sp(in) + "<td class=\"borderless\">"
                             + selUser.getEmail() + "</td>\n"
                             + sp(--in) + "</tr>\n");
                     DateFormat date = DateFormat.getDateInstance();
                     b.append(sp(in) + "<tr>\n"
                             + sp(++in)
-                            + "<td class=\"name\">"
-                            + resLbl.getString("l0039") + "</td>\n"
-                            + sp(in) + "<td>&nbsp;"
+                            + "<td class=\"borderless\">"
+                            + "<b>" + resLbl.getString("l0039") + "</b>"
+                            + "</td>\n"
+                            + sp(in) + "<td class=\"borderless\">"
                             + date.format(selUser.getRegistered()) + "</td>\n"
                             + sp(--in) + "</tr>\n");
                     b.append(sp(--in) + "</table>\n");
@@ -778,6 +786,25 @@ public class UsersView extends AbstractView{
                                 + "</option>\n");
                     }
                     b.append(sp(--in) + "</select>\n");
+                    // Detach button
+                    btnDisabled = " disabled";
+                    if ((selGroup != null)
+                            && (selUser.getGroups().contains(selGroup)
+                                    == true)) {
+                        btnDisabled = "";
+                    }
+                        b.append(sp(in) + "<br/>\n" + sp(in)
+                                + "<input type=\"button\""
+                                + " class=\"install\""
+                                + " style=\"width: 100px;\""
+                                + " value=\"Detach\""
+                                + btnDisabled
+                                + " onclick=\"javascript:"
+                                + "document.getElementById('"
+                                + reqParAction + "').value='"
+                                + actValRemFromGroup + "';"
+                                + "document.users.submit();\""
+                                + ">\n");
                     b.append(sp(--in) + "</td>\n");
                     // Display all group where the selected user is not a member
                     b.append(sp(in) + "<td>\n");
@@ -807,8 +834,28 @@ public class UsersView extends AbstractView{
                         }
                     }
                     b.append(sp(--in) + "</select>\n");
+                    // Attach button
+                    btnDisabled = " disabled";
+                    if ((selGroup != null)
+                            && (selUser.getGroups().contains(selGroup)
+                                    == false)) {
+                        btnDisabled = "";
+                    }
+                    b.append(sp(in) + "<br/>\n" + sp(in)
+                            + "<input type=\"button\""
+                            + " class=\"install\""
+                            + " style=\"width: 100px;\""
+                            + " value=\"Assign\""
+                            + btnDisabled
+                            + " onclick=\"javascript:"
+                            + "document.getElementById('"
+                            + reqParAction + "').value='"
+                            + actValAddToGroup + "';"
+                            + "document.users.submit();\""
+                            + ">\n");
                     b.append(sp(--in) + "</td>\n");
                     b.append(sp(--in) + "</tr>\n");
+                    
                 }
                 // ===========================================================
                 // Group editor - content rows
@@ -903,110 +950,6 @@ public class UsersView extends AbstractView{
                     }
                 }
 
-                // ===============================================================
-                // User editor - toolbar
-                // ===============================================================
-                if ((selUser != null)
-                    && (selUser.getName().equals(
-                            sobjSecurity.getSystemUser()) == false)) {
-                    // Create the toolbar
-                    b.append(sp(in) + "<tr>\n");
-                    // User modifications
-                    b.append(sp(++in) + "<td>\n");
-                    b.append(sp(++in) + "<input type=\"button\""
-                            + " class=\"install\""
-                            + " style=\"width: 100px;\""
-                            + " value=\"Edit\""
-                            + " onclick=\"javascript:"
-                            + "document.getElementById('"
-                            + reqParAction + "').value='"
-                            + actValConEditUser + "';"
-                            + "document.users.submit();\""
-                            + ">\n");
-                    b.append(sp(in) + "<input type=\"button\""
-                            + " class=\"install\""
-                            + " style=\"width: 100px;\""
-                            + " value=\"Remove\""
-                            + " onclick=\"javascript:"
-                            + "document.getElementById('"
-                            + reqParAction + "').value='"
-                            + actValConRemUser + "';"
-                            + "document.users.submit();\""
-                            + ">\n");
-                    b.append(sp(--in) + "</td>\n");
-                    // Detach group
-                    b.append(sp(in) + "<td>\n");
-                    if ((selGroup != null)
-                            && (selUser.getGroups().contains(selGroup) == true)) {
-                        b.append(sp(++in) + "<input type=\"button\""
-                                + " class=\"install\""
-                                + " style=\"width: 100px;\""
-                                + " value=\"Detach\""
-                                + " onclick=\"javascript:"
-                                + "document.getElementById('"
-                                + reqParAction + "').value='"
-                                + actValRemFromGroup + "';"
-                                + "document.users.submit();\""
-                                + ">\n");
-                        in--;
-                    }
-                    b.append(sp(in) + "</td>\n");
-                    // Assign group 
-                    b.append(sp(in) + "<td>\n");
-                    if ((selGroup != null)
-                            && (selUser.getGroups().contains(selGroup) == false)) {
-                        b.append(sp(++in) + "<input type=\"button\""
-                                + " class=\"install\""
-                                + " style=\"width: 100px;\""
-                                + " value=\"Assign\""
-                                + " onclick=\"javascript:"
-                                + "document.getElementById('"
-                                + reqParAction + "').value='"
-                                + actValAddToGroup + "';"
-                                + "document.users.submit();\""
-                                + ">\n");
-                        in--;
-                    }
-                    b.append(sp(in) + "</td>\n");
-                    // Close the toolbar
-                    b.append(sp(--in) + "</tr>\n");
-                }
-                // ===============================================================
-                // Group editor - toolbar
-                // ===============================================================
-                else if ((selGroup != null)
-                    && (selGroup.getDescription().equals(
-                            sobjSecurity.getSystemGroup()) == false)) {
-                    // Create the toolbar
-                    b.append(sp(in) + "<tr>\n");
-                    // Group modifications
-                    b.append(sp(in++) + "<td colspan=\""
-                            + maxColspan
-                            + "\">\n");
-                    b.append(sp(++in) + "<input type=\"button\""
-                            + " class=\"install\""
-                            + " style=\"width: 100px;\""
-                            + " value=\"Add Resource\""
-                            + " onclick=\"javascript:"
-                            + "document.getElementById('"
-                            + reqParAction + "').value='"
-                            + actValReqService + "';"
-                            + "document.users.submit();\""
-                            + ">\n");
-                    b.append(sp(in) + "<input type=\"button\""
-                            + " class=\"install\""
-                            + " style=\"width: 100px;\""
-                            + " value=\"Remove\""
-                            + " onclick=\"javascript:"
-                            + "document.getElementById('"
-                            + reqParAction + "').value='"
-                            + actValConRemGroup + "';"
-                            + "document.users.submit();\""
-                            + ">\n");
-                    // Close the toolbar
-                    b.append(sp(--in) + "</tr>\n");
-                }
-
                 // ===========================================================
                 // Common tool-bar
                 // ===========================================================
@@ -1052,29 +995,88 @@ public class UsersView extends AbstractView{
                         + "document.users.submit();\""
                         + ">\n");
                 // Add user button
-                b.append(sp(in)
-                        + "<input type=\"button\""
-                        + " class=\"install\""
-                        + " style=\"width: 100px;\""
-                        + " value=\"" + resLbl.getString("l0046") + "\""
-                        + " onclick=\"javascript:"
-                        + " document.getElementById('"
-                        + reqParGroupId + "').value='';"
-                        + "document.getElementById('"
-                        + reqParAction + "').value='"
-                        + actValReqNewUser + "';"
-                        + "document.users.submit();\">\n");
+                if (reqValViewList.equals("users")) {
+                    b.append(sp(in)
+                            + "<input type=\"button\""
+                            + " class=\"install\""
+                            + " style=\"width: 100px;\""
+                            + " value=\"" + resLbl.getString("l0046") + "\""
+                            + " onclick=\"javascript:"
+                            + " document.getElementById('"
+                            + reqParGroupId + "').value='';"
+                            + "document.getElementById('"
+                            + reqParAction + "').value='"
+                            + actValReqNewUser + "';"
+                            + "document.users.submit();\">\n");
+                }
                 // Add group button
-                b.append(sp(in)
-                        + "<input type=\"button\""
-                        + " class=\"install\""
-                        + " style=\"width: 100px;\""
-                        + " value=\"" + resLbl.getString("l0047") + "\""
-                        + " onclick=\"javascript:"
-                        + "document.getElementById('"
-                        + reqParAction + "').value='"
-                        + actValReqNewGroup + "';"
-                        + "document.users.submit();\">\n");
+                if (reqValViewList.equals("groups")) {
+                    b.append(sp(in)
+                            + "<input type=\"button\""
+                            + " class=\"install\""
+                            + " style=\"width: 100px;\""
+                            + " value=\"" + resLbl.getString("l0047") + "\""
+                            + " onclick=\"javascript:"
+                            + "document.getElementById('"
+                            + reqParAction + "').value='"
+                            + actValReqNewGroup + "';"
+                            + "document.users.submit();\">\n");
+                }
+                // Additional buttons for the user editor
+                if ((selUser != null)
+                        && (selUser.getName().equals(
+                                sobjSecurity.getSystemUser()) == false)) {
+                    // Edit user
+                    b.append(sp(++in) + "<input type=\"button\""
+                            + " class=\"install\""
+                            + " style=\"width: 100px;\""
+                            + " value=\"Edit\""
+                            + " onclick=\"javascript:"
+                            + "document.getElementById('"
+                            + reqParAction + "').value='"
+                            + actValConEditUser + "';"
+                            + "document.users.submit();\""
+                            + ">\n");
+                    // Remove user
+                    b.append(sp(in) + "<input type=\"button\""
+                            + " class=\"install\""
+                            + " style=\"width: 100px;\""
+                            + " value=\"Remove\""
+                            + " onclick=\"javascript:"
+                            + "document.getElementById('"
+                            + reqParAction + "').value='"
+                            + actValConRemUser + "';"
+                            + "document.users.submit();\""
+                            + ">\n");
+                }
+                // Additional buttons for the group editor
+                if ((selUser == null)
+                        && (selGroup != null)
+                        && (selGroup.getDescription().equals(
+                                sobjSecurity.getSystemGroup()) == false)) {
+                    // Add resource
+                    b.append(sp(in) + "<input type=\"button\""
+                            + " class=\"install\""
+                            + " style=\"width: 100px;\""
+                            + " value=\"Add Resource\""
+                            + " onclick=\"javascript:"
+                            + "document.getElementById('"
+                            + reqParAction + "').value='"
+                            + actValReqService + "';"
+                            + "document.users.submit();\""
+                            + ">\n");
+                    // Remove group
+                    b.append(sp(in) + "<input type=\"button\""
+                            + " class=\"install\""
+                            + " style=\"width: 100px;\""
+                            + " value=\"Remove\""
+                            + " onclick=\"javascript:"
+                            + "document.getElementById('"
+                            + reqParAction + "').value='"
+                            + actValConRemGroup + "';"
+                            + "document.users.submit();\""
+                            + ">\n");
+                }
                 b.append(sp(--in) + "</tr>\n");
 
                 // Close the table
@@ -1087,31 +1089,36 @@ public class UsersView extends AbstractView{
                 // ===============================================================
                 if ((selUser != null) && (selGroup != null)) {
                     b.append(sp(in) + "<fieldset>\n");
-                    b.append(sp(++in) + "<legend>Group "
+                    b.append(sp(++in) + "<legend>"
+                            + resLbl.getString("l0026") + ": "
                             + selGroup.getDescription() + "</legend\n>");
                     b.append(sp(in) + "<table>\n");
-
+                    // Header row
                     b.append(sp(++in) + "<thead>\n");
+                    b.append(sp(++in) + "<tr class=\"head\">\n");
                     b.append(sp(++in) + "<td class=\"head\""
                             + " style=\"width: 40%;\">"
-                            + "Resource Name</td>\n");
+                            + resLbl.getString("l0043")
+                            + "</td>\n");
                     b.append(sp(in) + "<td class=\"head\""
                             + " style=\"width: 30%;\">"
-                            + "Privilege Type</td>\n");
+                            + resLbl.getString("l0044")
+                            + "</td>\n");
                     b.append(sp(in) + "<td class=\"head\""
                             + " style=\"width: 30%;\">"
-                            + "Privilege Value</td>\n");
+                            + resLbl.getString("l0045")
+                            + "</td>\n");
+                    b.append(sp(--in) + "</tr>\n");
                     b.append(sp(--in) + "</thead>\n");
                     maxColspan = 3;
-
+                    // Content rows
                     b.append(sp(in) + "<tbody>\n");
                     if (selGroup.getGroupPrivileges().isEmpty()) {
                         b.append(sp(++in) + "<tr>\n");
                         b.append(sp(++in) + "<td"
                                 + " colspan=\"" + maxColspan + "\""
-                                + " class=\"noattr\""
-                                + ">"
-                                + "This group has no attached resources."
+                                + " class=\"noattr\">"
+                                + resMsg.getString("m0002")
                                 + "</td>\n");
                         b.append(sp(--in) + "</tr>\n");
                     }
@@ -1121,16 +1128,19 @@ public class UsersView extends AbstractView{
                             // Cast to a GroupPrivilege and display it
                             GroupPrivilege grPriv = (GroupPrivilege) priv;
                             // Service name
+                            ServiceUrl pUrl = grPriv.getUrl();
                             b.append(sp(++in) + "<td>"
-                                    + grPriv.getUrl().getUrl()
+                                    + pUrl.getUrl()
                                     + "</td>\n");
                             // Privilege type
+                            Privilege pType = grPriv.getPv().getPrivilege();
                             b.append(sp(in) + "<td>"
-                                    + grPriv.getPv().getPrivilege().getDescription()
+                                    + pType.getDescription()
                                     + "</td>\n");
                             // Privilege value
+                            PrivilegeValue pValue = grPriv.getPv();
                             b.append(sp(in) + "<td>"
-                                    + grPriv.getPv().getValue()
+                                    + pValue.getValue()
                                     + "</td>\n");
                             b.append(sp(--in) + "</tr>\n");
                         }
@@ -1235,11 +1245,12 @@ public class UsersView extends AbstractView{
         }
         else {
             b.append(normalFieldset(
-                    "Users list",
+                    resLbl.getString("l0035"),
                     null,
-                    new StringBuilder("No users found!"),
+                    new StringBuilder(resMsg.getString("m0003")),
                     in));
         }
+
         // Close the DB session
         sobjDB.commitDBSession();
 
