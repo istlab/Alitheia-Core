@@ -33,6 +33,8 @@
 package eu.sqooss.impl.service.webadmin;
 
 import java.text.DateFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import javax.servlet.http.HttpServletRequest;
@@ -186,7 +188,13 @@ public class UsersView extends AbstractView{
                 // ===========================================================
                 if (reqValAction.equals(actValAddToGroup)) {
                     if ((selUser != null) && (selGroup != null)) {
-                        if (secGM.addUserToGroup(
+                        // Deny adding user to a definition group
+                        if (isDefinitionGroup(selGroup.getId())) {
+                            e.append(sp(in) + resErr.getString("e0025")
+                                    + "<br/>\n");
+                        }
+                        // Try to add the selected user to the selected group
+                        else if (secGM.addUserToGroup(
                                 selGroup.getId(), selUser.getId()) == false) {
                             e.append(sp(in) 
                                     + resErr.getString("e0001")
@@ -707,6 +715,12 @@ public class UsersView extends AbstractView{
             // Main viewers and editors
             // ===============================================================
             else {
+                // Do not display definition groups
+                if ((selGroup != null)
+                        && (isDefinitionGroup(selGroup.getId()))) {
+                    selGroup = null;
+                    reqValViewList = "groups";
+                }
                 // Create the field-set for the "user" views
                 if ((reqValViewList.equals("users"))
                         || (selUser != null)) {
@@ -750,7 +764,7 @@ public class UsersView extends AbstractView{
                     maxColspan = 3;
                 }
                 // ===========================================================
-                // Group editor - header row
+                // Group editor - header row (definition groups are skipped)
                 // ===========================================================
                 else if (selGroup != null) {
                     b.append(sp(++in) + "<td class=\"head\""
@@ -858,6 +872,9 @@ public class UsersView extends AbstractView{
                     sp(++in);
                     for (Object memberOf : selUser.getGroups()) {
                         Group group = (Group) memberOf;
+                        // Skip all definition groups
+                        if (isDefinitionGroup(group.getId()))
+                            continue;
                         boolean selected = ((selGroup != null)
                                 && (selGroup.getId() == group.getId()));
                         b.append(sp(in) + "<option"
@@ -903,6 +920,9 @@ public class UsersView extends AbstractView{
                             + ">\n");
                     sp(++in);
                     for (Group group : secGM.getGroups()) {
+                        // Skip all definition groups
+                        if (isDefinitionGroup(group.getId()))
+                            continue;
                         // Skip groups where this user is already a member 
                         if (selUser.getGroups().contains(group) == false) {
                             boolean selected = ((selGroup != null)
@@ -943,6 +963,7 @@ public class UsersView extends AbstractView{
                 // Group editor - content rows
                 // ===========================================================
                 else if (selGroup != null) {
+                    // Check if this group has assigned privileges
                     if (selGroup.getGroupPrivileges().isEmpty()) {
                         b.append(sp(++in) + "<tr>\n");
                         b.append(sp(++in) + "<td"
@@ -1012,6 +1033,9 @@ public class UsersView extends AbstractView{
                 // ===========================================================
                 else if (reqValViewList.equals("groups")) {
                     for (Group nextGroup : secGM.getGroups()) {
+                        // Skip all definition groups
+                        if (isDefinitionGroup(nextGroup.getId()))
+                            continue;
                         b.append(sp(++in) + "<tr class=\"edit\""
                                 + " onclick=\"javascript:"
                                 + "document.getElementById('"
@@ -1337,6 +1361,28 @@ public class UsersView extends AbstractView{
         sobjDB.commitDBSession();
 
         return b.toString();
+    }
+
+    private static boolean isDefinitionGroup(long groupId) {
+        // Holds the list of privilege definition groups
+        List<Group> definitionGroups = new ArrayList<Group>();
+
+        // TODO: This code uses a hard-coded way for discovering the
+        // WSS's group with definitions of supported privilege variations.
+        // Fix it, once there is a better way for achieving that.
+        Group wssDefGroup = sobjSecurity.getGroupManager().getGroup(
+                "web admin security group");
+        if (wssDefGroup != null)
+            definitionGroups.add(wssDefGroup);
+
+        // Check if the given group Id belongs to a priv. definition group
+        for (Group nextDefGroup : definitionGroups) {
+            if (nextDefGroup.getId() == groupId) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
 
