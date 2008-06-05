@@ -76,7 +76,7 @@ public class Project extends WebuiItem {
         mail = p.getMail();
         contact = p.getContact();
         website = p.getWebsite();
-        setVersions();
+        //setVersions(); //FIXME: We want something sensible here
     }
 
     public void retrieveData() {
@@ -271,9 +271,10 @@ public class Project extends WebuiItem {
         }
         if (!changed) {
             terrier.addError("Project has no versions: " + versions.size());
+            return;
         }
         this.versions = versions;
-        if (versions.size() > 0) {
+        if (versions != null && versions.size() > 0) {
             setCurrentVersionId(getLastVersion().getId());
         }
     }

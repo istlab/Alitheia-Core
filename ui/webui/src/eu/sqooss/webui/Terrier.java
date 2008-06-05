@@ -268,9 +268,12 @@ public class Terrier {
             // Retrieve evaluated projects only
             WSProjectVersion[] versionsResult = 
                 connection.getProjectAccessor().getProjectVersionsByIds(new long[] {projectId});
-            
-            Version v = new Version(versionsResult[0], this);
-            return v;
+            if (versionsResult.length > 0) {
+                Version v = new Version(versionsResult[0], this);
+                return v;
+            } else {
+                return null;
+            }
         } catch (WSException wse) {
             addError("Cannot this version " + versionId + "for project " + projectId + ".");
         }
