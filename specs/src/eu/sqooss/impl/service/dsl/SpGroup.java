@@ -35,6 +35,24 @@ public class SpGroup implements SpEntity {
         
         return result;
     }
+
+    public static boolean groupExists(String groupName) {
+        DBService db = SpecsActivator.alitheiaCore.getDBService();
+        boolean result = false;
+
+        db.startDBSession();
+        List<Group> groups = db.findObjectsByProperties(Group.class, new HashMap<String,Object>());
+        
+        for (Group group : groups) {
+            if (groupName.compareTo(group.getDescription()) == 0)
+            {
+                result = true;
+            }
+        }
+        db.commitDBSession();
+        
+        return result;
+    }
     
     public SpGroup(String n) {
         name = n;

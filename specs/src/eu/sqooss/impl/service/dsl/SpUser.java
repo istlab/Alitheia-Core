@@ -124,4 +124,23 @@ public class SpUser implements SpEntity {
         persistent = false;
     }
 
+    public boolean isMemberOf(String groupName) {
+         db.startDBSession();
+       User user = um.getUser(name);
+
+        boolean result = false;
+        TreeSet<String> groupNames = new TreeSet<String>();
+        for (Object obj : user.getGroups())
+        {
+            Group g = (Group)obj;
+            if (groupName.compareTo(g.getDescription()) == 0)
+            {
+                result = true;
+            }
+        }
+        db.commitDBSession();
+        
+       return result;
+    }
+
 }
