@@ -764,7 +764,7 @@ public class UsersView extends AbstractView{
                     maxColspan = 3;
                 }
                 // ===========================================================
-                // Group editor - header row (definition groups are skipped)
+                // Group editor - header row
                 // ===========================================================
                 else if (selGroup != null) {
                     b.append(sp(++in) + "<td class=\"head\""
