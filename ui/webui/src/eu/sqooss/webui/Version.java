@@ -49,6 +49,7 @@ public class Version extends WebuiItem {
     private static final String COMMENT = "<!-- Version -->\n";
     private Long projectId;
     private Long number;
+    private Long filesNumber;
 
     public Version () {
         page = "version.jsp";
@@ -60,6 +61,7 @@ public class Version extends WebuiItem {
         number = wsVersion.getVersion();
         name = "" + number;
         projectId = wsVersion.getProjectId();
+        filesNumber = getFilesNumber();
     }
 
     public Version(Long projectId, Long versionId, Terrier t) {
@@ -82,6 +84,10 @@ public class Version extends WebuiItem {
 
     public void setNumber(Long n) {
         number = n;
+    }
+
+    public Long getFilesNumber() {
+        return terrier.getFilesNumber4ProjectVersion(id);
     }
 
     public void getFiles () {
