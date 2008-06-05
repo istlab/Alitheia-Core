@@ -259,13 +259,15 @@ public class Project extends WebuiItem {
             return null;
         }
     }
+
+/*
     /**
      * Sets the list of all known project versions. The first field in each
      * version token must be the version number. The second field must be the
      * corresponding version ID.
      *
      * @param versions the list of project versions
-     */
+     * /
     public void setVersions() {
         SortedMap<Long, Long> vs = terrier.getProjectVersions(id);
         Boolean changed = false;
@@ -284,7 +286,7 @@ public class Project extends WebuiItem {
             setCurrentVersionId(getLastVersion().getId());
         }
     }
-
+*/
     public SortedMap<Long, Version> getVersions() {
         return versions;
     }
