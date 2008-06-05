@@ -35,6 +35,13 @@ package eu.sqooss.webui;
 
 import eu.sqooss.ws.client.datatypes.WSMetric;
 
+/**
+ * This class represents a Metric that has been applied to a project 
+ * evaluated by Alitheia.
+ * It currently only provides access to metric metadata.
+ *
+ * The Metric class is part of the high-level webui API.
+ */
 public class Metric extends WebuiItem {
 
     private String mnemonic;
@@ -49,7 +56,6 @@ public class Metric extends WebuiItem {
         description = metric.getDescription();
         terrier     = t;
     }
-
 
     public String getMnemonic() {
         return mnemonic;

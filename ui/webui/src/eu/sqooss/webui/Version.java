@@ -37,7 +37,13 @@ import java.util.*;
 
 import eu.sqooss.ws.client.datatypes.WSProjectVersion;
 
-
+/**
+ * This class represents a Version of a project that has been evaluated 
+ * by Alitheia.
+ * It provides access to version metadata and files in this version.
+ *
+ * The Version class is part of the high-level webui API.
+ */
 public class Version extends WebuiItem {
 
     private static final String COMMENT = "<!-- Version -->\n";

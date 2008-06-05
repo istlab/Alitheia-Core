@@ -35,7 +35,9 @@ package eu.sqooss.webui;
 
 import java.util.*;
 
-
+/**
+ * This class is the base class for the high-level API for the webui.
+ */
 public class WebuiItem {
 
     private static final String COMMENT = "<!-- WebuiItem -->\n";

@@ -40,7 +40,13 @@ import eu.sqooss.scl.WSException;
 import eu.sqooss.ws.client.datatypes.WSStoredProject;
 import eu.sqooss.ws.client.datatypes.WSProjectVersion;
 
-
+/**
+ * This class represents a project that has been evaluated by Alitheia.
+ * It provides access to project metadata, files and versions in this
+ * project and holds metrics that have been applied to this project.
+ *
+ * The Project class is part of the high-level webui API.
+ */
 public class Project extends WebuiItem {
 
     //private Long    id;

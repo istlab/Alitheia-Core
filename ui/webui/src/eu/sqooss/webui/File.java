@@ -35,6 +35,14 @@ package eu.sqooss.webui;
 
 import eu.sqooss.ws.client.datatypes.WSProjectFile;
 
+/**
+ * This class represents a File in a project or version that has been 
+ * evaluated by Alitheia.
+ * It provides access to the files' metadata and some convenience 
+ * functions for display.
+ *
+ * The File class is part of the high-level webui API.
+ */
 class File extends WebuiItem {
 
     private static final String COMMENT = "<!-- File -->\n";
