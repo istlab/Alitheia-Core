@@ -125,8 +125,6 @@ public class Terrier {
             storedProjects = connection.getProjectAccessor().getProjectsByIds(new long[] {projectId});
             if (storedProjects.length != 0) {
                 prj = new Project(storedProjects[0], this);
-                // Retrieve all project versions
-                prj.setVersions();
             } else {
                 error = "The project does not exist!";
                 prj = null;
