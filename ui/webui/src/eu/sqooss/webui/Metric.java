@@ -73,4 +73,8 @@ public class Metric extends WebuiItem {
         return description;
     }
 
+    public String getHtml () {
+        return description + " (" + type + ", " + mnemonic + ")";
+    }
+
 }
