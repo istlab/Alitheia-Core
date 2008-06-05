@@ -140,6 +140,7 @@ public class Terrier {
         currentProject = p;
     }
 
+/* Should not be called / needed: It  takes ages for large projects
     /**
      * Gets the list of all known project versions. The first field in each
      * version token contains the version number. The second field contains
@@ -147,7 +148,7 @@ public class Terrier {
      *
      * @param projectId The ID of the selected project.
      * @return the list of project versions
-     */
+     * /
     public SortedMap<Long,Long> getProjectVersions(Long projectId) {
         SortedMap<Long, Long> projectVersions = new TreeMap<Long, Long>();
         if (!connection.isConnected()) {
@@ -166,7 +167,7 @@ public class Terrier {
         }
         return projectVersions;
     }
-
+*/
     /**
      * Gets the list of all project that were evaluated in the attached
      * SQO-OSS framework.
@@ -194,11 +195,13 @@ public class Terrier {
         return projects;
     }
 
+/*
+// Should not be called / needed: it takes ages for large projects.
     /**
      * Gets the list of all versions for a project
      *
      * @return The list of versions in this project.
-     */
+     * /
     public Vector<Version> getVersions4Project(Long projectId) {
         Vector<Version> versions = new Vector<Version>();
         if (!connection.isConnected()) {
@@ -225,7 +228,7 @@ public class Terrier {
         }
         return versions;
     }
-
+*/
     /**
      * Gets the list of all files for a project
      *
