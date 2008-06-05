@@ -246,7 +246,7 @@ public class Project extends WebuiItem {
     public Version getCurrentVersion() {
         try {
             if (versions == null && id != null) {
-                setVersions();
+                //setVersions(); // FIXME: drop in a performant getCurrentVersion()
             }
             return versions.get(getCurrentVersionId());
         } catch (NullPointerException npe) {
