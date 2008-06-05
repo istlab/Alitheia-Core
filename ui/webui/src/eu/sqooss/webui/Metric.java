@@ -57,6 +57,10 @@ public class Metric extends WebuiItem {
         terrier     = t;
     }
 
+    public Long getId() {
+        return id;
+    }
+
     public String getMnemonic() {
         return mnemonic;
     }

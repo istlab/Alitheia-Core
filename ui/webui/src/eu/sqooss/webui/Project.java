@@ -38,6 +38,7 @@ import java.util.*;
 import eu.sqooss.scl.WSException;
 
 import eu.sqooss.ws.client.datatypes.WSStoredProject;
+import eu.sqooss.ws.client.datatypes.WSMetric;
 import eu.sqooss.ws.client.datatypes.WSProjectVersion;
 
 /**
@@ -62,6 +63,7 @@ public class Project extends WebuiItem {
 
     // Contains a sorted list of all project versions mapped to their ID.
     private SortedMap<Long, Version> versions;
+    private SortedMap<Long, Metric> metrics;
 
     public Project () {
 
@@ -99,6 +101,16 @@ public class Project extends WebuiItem {
             }
         } catch (WSException wse) {
             addError("Could not retrieve the project:" + wse.getMessage());
+        }
+    }
+
+    public void retrieveMetrics() {
+        WSMetric[] wsmetrics = terrier.getMetricsForProject(id);
+        if (wsmetrics == null) {
+            return;
+        }
+        for (int i = 0; i < wsmetrics.length; i++ ) {
+            metrics.put(wsmetrics[i].getId(), new Metric(wsmetrics[i], terrier));
         }
     }
 
@@ -185,7 +197,6 @@ public class Project extends WebuiItem {
     public String showMetrics() {
         StringBuilder html = new StringBuilder();
         MetricsTableView metricsView = terrier.getMetrics4Project(id);
-        //metricsView = terrier.getAllMetrics();
         if (metricsView != null ) {
             html.append(metricsView.getHtml());
         } else {

@@ -306,6 +306,14 @@ public class Terrier {
         return view;
     }
 
+    public WSMetric[] getMetricsForProject(Long projectId) {
+        try {
+            return connection.getMetricAccessor().getProjectEvaluatedMetrics(projectId);
+        } catch (WSException wse) {
+            return null;
+        }
+    }
+
     /**
      * Retrieves all metrics and generates a proper view for displaying them.
      *

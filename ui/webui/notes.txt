@@ -11,6 +11,14 @@ project -> version -> metrics -> measurements
 
 - Save in session: Current project, current version, current
 
+wishlist:
+=========
+The following methods would be nice to have in the SCL:
+
+WSProjectAccessor.getNumberOfProjectVersions()
+
+
+
 
 Pages
 ======
