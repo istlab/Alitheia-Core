@@ -70,7 +70,7 @@ public class UsersView extends AbstractView{
      * 
      * @param req the servlet's request object
      * 
-     * @return The current view.
+     * @return The current user's view.
      */
     public static String render(HttpServletRequest req) {
         // Stores the assembled HTML content
@@ -1363,19 +1363,20 @@ public class UsersView extends AbstractView{
         return b.toString();
     }
 
+    /**
+     * Checks, if the given group Id belong to a definition group.
+     * 
+     * @param groupId the group Id
+     * 
+     * @return <code>true</code>, if the given group Id belongs to a
+     *   definition group, or <code>false</code> if it belongs to an user
+     *   group.
+     */
     private static boolean isDefinitionGroup(long groupId) {
         // Holds the list of privilege definition groups
-        List<Group> definitionGroups = new ArrayList<Group>();
+        List<Group> definitionGroups = getAllDefinitionGroups();
 
-        // TODO: This code uses a hard-coded way for discovering the
-        // WSS's group with definitions of supported privilege variations.
-        // Fix it, once there is a better way for achieving that.
-        Group wssDefGroup = sobjSecurity.getGroupManager().getGroup(
-                "web admin security group");
-        if (wssDefGroup != null)
-            definitionGroups.add(wssDefGroup);
-
-        // Check if the given group Id belongs to a priv. definition group
+        // Check if the given group Id belongs to a definition group
         for (Group nextDefGroup : definitionGroups) {
             if (nextDefGroup.getId() == groupId) {
                 return true;
@@ -1383,6 +1384,26 @@ public class UsersView extends AbstractView{
         }
 
         return false;
+    }
+
+    /**
+     * Gets the list all definition groups registered in the SQO-OSS database.
+     * 
+     * @return The list of all definition groups.
+     */
+    private static List<Group> getAllDefinitionGroups () {
+        // Holds the list of privilege definition groups
+        List<Group> definitionGroups = new ArrayList<Group>();
+
+        // TODO: This code uses a hard-coded way for discovering the
+        // WSS's group with definitions of supported privilege variations.
+        // Fix it, once there is an API for achieving that.
+        Group wssDefGroup = sobjSecurity.getGroupManager().getGroup(
+                "web admin security group");
+        if (wssDefGroup != null)
+            definitionGroups.add(wssDefGroup);
+
+        return definitionGroups;
     }
 }
 
