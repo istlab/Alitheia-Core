@@ -14,10 +14,9 @@
         <p concordion:execute="addUser(#username, #email, #password, #new_users_group)">Given the system only
         having the initial user list (see <a href="FirstUser.html">this
         spec</a>), when we add the new user
-        "<span concordion:set="#username">test-user</span>", having the email address 
-        "<span concordion:set="#email">test-user@sqo-oss.org</span>" and password 
-        "<span concordion:set="#password">test-123</span>. The default group is <span concordion:set="#new_users_group">new_users_group</span>"
-        then the user list becomes:</p>
+        <em><span concordion:set="#username">test-user</span></em>, having the email address 
+        <em><span concordion:set="#email">test-user@sqo-oss.org</span></em> and password 
+        <em><span concordion:set="#password">test-123</span></em>. The default group for this user is <em><span concordion:set="#new_users_group">new_users_group</span></em>. After the addition the user list becomes:</p>
         <table concordion:verifyRows="#user : getUsers()">
           <tr>
             <th concordion:assertEquals="#user.name">User Name</th>
@@ -30,7 +29,7 @@
         <span concordion:assertTrue="memberOf(#username, #new_users_group)">new_users_group</span>
          group.</p>
 
-       <p>Trying to add the same <span concordion:set="#username">test-user</span> again <span concordion:assertTrue="addExistingUser(#username, #email, #password)">is denied</span>.</p>
+       <p>Trying to add the same <em><span concordion:set="#username">test-user</span></em> again <span concordion:assertTrue="addExistingUser(#username, #email, #password)">is denied</span>.</p>
                 
     </div>
 
