@@ -32,7 +32,10 @@
 
 package eu.sqooss.impl.service.db;
 
+import java.io.File;
+import java.io.FilenameFilter;
 import java.net.URL;
+import java.net.URI;
 import java.net.MalformedURLException;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -199,6 +202,25 @@ e.printStackTrace();
             c.setProperty("hibernate.connection.dialect", dbDialect);
             if (resetDatabase) {
                 c.setProperty("hibernate.hbm2ddl.auto", "create");
+            }
+            // Get the list of eu.sqo-oss.metrics.* jars and add them to the config
+            String equinoxInstallDirProperty = System.getProperty("osgi.install.area");
+            if ( equinoxInstallDirProperty != null ) {
+                File equinoxInstallDir = new File( URI.create(equinoxInstallDirProperty) );
+                if ( equinoxInstallDir.exists() && equinoxInstallDir.isDirectory() ) {
+                    File[] metricsJars = equinoxInstallDir.listFiles(new FilenameFilter() {
+                        public boolean accept(File dir, String name) {
+                            return name.startsWith("eu.sqooss.metrics") && name.endsWith(".jar");
+                        }
+                    });
+                    for( File jarFile: metricsJars ) {
+                        logger.debug("found metric bundle \"" + jarFile.getName() + "\", examining for custom DAOs");
+                        c.addJar(jarFile);
+                    }
+                } else {
+                    logger.warn("couln't resolve equinox install property to a directory on disk :" + equinoxInstallDirProperty
+                                + ". Custom DAOs from metrics bundles won't be initialized.");
+                }
             }
             sessionFactory = c.buildSessionFactory();
 
