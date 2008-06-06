@@ -58,11 +58,14 @@ import java.util.SortedSet;
  */
 public interface Timeline {
     
-    /* Yes, we have this all over the place */
+
+    /** A timeline consists of events; each event has a type,
+     *  corresponding to the resource that has changed.
+     */
     public enum ResourceType {
-        SCM,
-        MAIL,
-        BTS
+        SCM,  //< Code change
+        MAIL, //< Mail message arrived
+        BTS   //< Bug change
     }
     
     /**
