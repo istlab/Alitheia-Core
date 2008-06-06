@@ -29,7 +29,7 @@
         <span concordion:assertTrue="memberOf(#username, #new_users_group)">new_users_group</span>
          group.</p>
 
-       <p>Trying to add the same <em><span concordion:set="#username">test-user</span></em> again <span concordion:assertTrue="addExistingUser(#username, #email, #password)">is denied</span>.</p>
+       <p>Trying to add the same <em><span concordion:set="#username">test-user</span></em> again <span concordion:assertTrue="addUserExtended(#username, #email, #password)">is denied</span>.</p>
                 
     </div>
 

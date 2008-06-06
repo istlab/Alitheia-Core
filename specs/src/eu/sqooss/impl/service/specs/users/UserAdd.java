@@ -28,7 +28,8 @@ public class UserAdd
         gr.addUser(userName);
     }
     
-    public boolean addExistingUser(String userName, String email, String password)
+    //tries to add an user. returns "true" if the addition FAILED
+    public boolean addUserExtended(String userName, String email, String password)
     {
         db.startDBSession();
         User user = um.createUser(userName, password, email);
