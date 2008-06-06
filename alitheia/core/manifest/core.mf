@@ -54,6 +54,6 @@ Export-Package: eu.sqooss.core,
     eu.sqooss.service.messaging,
     eu.sqooss.service.messaging.sender,
     eu.sqooss.service.util
-
+Eclipse-RegisterBuddy: org.hibernate
 
 
