@@ -1,0 +1,75 @@
+<html xmlns:concordion="http://www.concordion.org/2007/concordion">
+<body>
+
+    <h1>Editing Users of the System</h1>
+
+    <p>Since the system allows to create user, it also allows to edit them. It is possible to edit the email and password of an user.</p>
+    
+    <div class="example">
+
+        <h3>Example</h3>
+
+        <p concordion:execute="addUser(#username, #email, #password, #new_users_group)">Given the system only
+        having the initial user list (see <a href="FirstUser.html">this
+        spec</a>), when we add the new user
+        <em><span concordion:set="#username">test-user</span></em>, having the email address 
+        <em><span concordion:set="#email">test-user@sqo-oss.org</span></em> and password 
+        <em><span concordion:set="#password">test-123</span></em>, and using the default group <em><span concordion:set="#new_users_group">new_users_group</span></em>, the user list becomes:</p>
+        <table concordion:verifyRows="#user : getUsers()">
+          <tr>
+            <th concordion:assertEquals="#user.name">User Name</th>
+          </tr>
+          <tr><td>alitheia</td></tr>
+          <tr><td>test-user</td></tr>
+        </table>
+        
+        <p>The user now has the following properties:</p>
+        <table concordion:verifyRows="#user : getUserInfo(#username)">
+          <tr>
+            <th concordion:assertEquals="#user.name">User Name</th>
+            <th concordion:assertEquals="#user.password">Encoded Password</th>
+            <th concordion:assertEquals="#user.email">Email</th>
+          </tr>
+          <tr>  
+            <td>test-user</td>
+            <td>37eb19184eb9e4983307ec14d5441f731334fd473dee8556ed6bc7682fc4da32</td>
+            <td>test-user@sqo-oss.org</td>
+          </tr>
+        </table>
+                
+        <p concordion:execute="changeEmail(#username, #newemail)">After changing the email address to <em><span concordion:set="#newemail" >test@sqo-oss.org</span></em>, the user has the following properties:</p>
+        <table concordion:verifyRows="#user : getUserInfo(#username)">
+          <tr>
+            <th concordion:assertEquals="#user.name">User Name</th>
+            <th concordion:assertEquals="#user.password">Encoded Password</th>
+            <th concordion:assertEquals="#user.email">Email</th>
+          </tr>
+          <tr>  
+            <td>test-user</td>
+            <td>37eb19184eb9e4983307ec14d5441f731334fd473dee8556ed6bc7682fc4da32</td>
+            <td>test@sqo-oss.org</td>
+          </tr>
+        </table>
+
+         <p concordion:execute="changePassword(#username, #newpassword)">After changing the password to <em><span concordion:set="#newpassword">new-password</span></em>, the user has the following properties:</p>
+        <table concordion:verifyRows="#user : getUserInfo(#username)">
+          <tr>
+            <th concordion:assertEquals="#user.name">User Name</th>
+            <th concordion:assertEquals="#user.password">Encoded Password</th>
+            <th concordion:assertEquals="#user.email">Email</th>
+          </tr>
+          <tr>  
+            <td>test-user</td>
+            <td>b8b9f8f23992ebc2617febc03d92ecb1763fba7b77a5d053b69c416bad18a369</td>
+            <td>test@sqo-oss.org</td>
+          </tr>
+        </table>
+    </div>
+
+    <h2>See Also</h2>
+    <ul>
+        <li><a href="UserAdd.html">Can we add users?</a></li>
+        <li><a href="UserRemove.html">Can we remove users?</a></li>
+    </ul>
+</body>
+</html>

@@ -125,7 +125,7 @@ public class SpUser implements SpEntity {
     }
 
     public boolean isMemberOf(String groupName) {
-         db.startDBSession();
+       db.startDBSession();
        User user = um.getUser(name);
 
         boolean result = false;
@@ -143,4 +143,21 @@ public class SpUser implements SpEntity {
        return result;
     }
 
+    public void changePassword(String newPassword) {
+       db.startDBSession();
+       User user = um.getUser(name);
+  
+       user.setPassword(um.getHash(newPassword));      
+       db.commitDBSession();    
+       password = newPassword;  
+    }
+
+    public void changeEmail(String newEmail) {
+       db.startDBSession();
+       User user = um.getUser(name);
+  
+       user.setEmail(newEmail);      
+       db.commitDBSession();    
+       email = newEmail;  
+    }
 }
