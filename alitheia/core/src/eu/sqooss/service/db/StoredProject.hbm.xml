@@ -8,7 +8,7 @@
     <id name="id" column="PROJECT_ID">
       <generator class="native" />
     </id>
-    <property name="name" column="PROJECT_NAME" />
+    <property name="name" column="PROJECT_NAME" unique="true" />
     <property name="website" column="WEBSITE_URL" />
     <property name="contact" column="CONTACT_URL" />
     <property name="bugs" column="BTS_URL" />
