@@ -45,8 +45,17 @@ import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 
+// The presence of imports of impl in an interface
+// signals some kind of entanglement problem.
 import eu.sqooss.impl.service.CoreActivator;
 
+/**
+ * An InMemoryDirectory object represents part of an in-memory
+ * checkout. InMemoryDirectory objects hang together in a tree
+ * for a directory hierarchy. Each directory may contain
+ * files; you can use getFile() to retrieve references to
+ * project files from the checkout.
+ */
 public class InMemoryDirectory {
     
     private InMemoryCheckout checkout;
@@ -129,7 +138,7 @@ public class InMemoryDirectory {
      * @return A reference to a ProjectFile
      */
     public ProjectFile getFile(String name) {
-        
+
         /*Recursively traverse the directories of the provided file path*/
         if (name.indexOf('/') != -1 ) {
             String pathName = name.substring(0, name.indexOf('/'));
@@ -137,7 +146,7 @@ public class InMemoryDirectory {
             InMemoryDirectory dir = getSubdirectoryByName(pathName);
             return dir == null ? null : dir.getFile(fileName);
         }
-        
+
         DBService dbs = CoreActivator.getDBService();
         
         StoredProject project = getCheckout().getProject();
