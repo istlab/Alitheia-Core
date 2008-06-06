@@ -3,7 +3,7 @@
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  *
  * Copyright 2007-2008 by the SQO-OSS consortium members <info@sqo-oss.eu>
- * Copyright 2007-2008 by Adriaan de Groot <groot@kde.org>
+ * Copyright 2008 by Christoph Schleifenbaum, KDAB
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -39,19 +39,21 @@ import eu.sqooss.service.tds.CommitEntry;
 import eu.sqooss.service.tds.ProjectRevision;
 
 /**
- * A checkout represents a working copy (checkout) of a project
- * somewhere within the filesystem of the Alitheia system. A checkout
+ * A checkout represents a working copy (checkout) of a project;
+ * the InMemoryCheckout does not reside on disk but represents
+ * the checkout as a collection of Java objects which may be read
+ * through the usual InputStream methods. A checkout
  * has a specific revision attached to it. On no account may you edit
  * files in a checkout! It is a read only working copy. Other parts
  * of the Alitheia system may access the same checkout concurrently.
  * Use the FDSService to obtain a checkout and remember to release it
  * when done.
  *
- * Typical use of a checkout looks like this:
+ * Typical use of an in-memory checkout looks like this:
  *
  * <code>
  * Checkout c = fds.getCheckout(projectId, new ProjectRevision(svnRevision));
- * File r = c.getRoot();
+ * InMemoryDirectory d = c.getRoot();
  * // Do stuff in the file system tree under r, but don't change anything!
  * fds.releaseCheckout(c);
  * </code>
