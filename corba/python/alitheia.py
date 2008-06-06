@@ -7,12 +7,25 @@ import eu
 import eu__POA
 
 import eu.sqooss.impl.service.corba.alitheia
+from  eu.sqooss.impl.service.corba.alitheia import Developer
+from  eu.sqooss.impl.service.corba.alitheia import Directory
+from  eu.sqooss.impl.service.corba.alitheia import FileGroup
+from  eu.sqooss.impl.service.corba.alitheia import FileGroupMetric
+from  eu.sqooss.impl.service.corba.alitheia import Metric
 from  eu.sqooss.impl.service.corba.alitheia import MetricType
 from  eu.sqooss.impl.service.corba.alitheia import SourceCode
+from  eu.sqooss.impl.service.corba.alitheia import MailingList
+from  eu.sqooss.impl.service.corba.alitheia import BugDatabase
+from  eu.sqooss.impl.service.corba.alitheia import ProjectWide
 from  eu.sqooss.impl.service.corba.alitheia import StoredProject
+from  eu.sqooss.impl.service.corba.alitheia import Plugin
+from  eu.sqooss.impl.service.corba.alitheia import PluginConfiguration
 from  eu.sqooss.impl.service.corba.alitheia import ProjectFile
 from  eu.sqooss.impl.service.corba.alitheia import ProjectFileMetric
 from  eu.sqooss.impl.service.corba.alitheia import ProjectFileMeasurement
+from  eu.sqooss.impl.service.corba.alitheia import ProjectVersion
+from  eu.sqooss.impl.service.corba.alitheia import ProjectVersionMetric
+from  eu.sqooss.impl.service.corba.alitheia import ProjectVersionMeasurement
 
 class CorbaHandler:
     orb = None
@@ -30,7 +43,7 @@ class CorbaHandler:
             self.start()
 
         def run(self):
-            self.orb.run()
+                self.orb.run()
 
     def __init__(self):
         self.orb = CORBA.ORB_init(['-ORBInitRef','NameService=corbaloc:iiop:1.2@localhost:2809/NameService'], CORBA.ORB_ID)
@@ -219,6 +232,8 @@ class Database (eu__POA.sqooss.impl.service.corba.alitheia.Database):
             return CORBA.Any(CORBA.TC_long, long(object))
         elif object.__class__ == str:
             return CORBA.Any(CORBA.TC_string, object)
+        elif object.__class__ == bool:
+            return CORBA.Any(CORBA.TC_boolean, object)
         else:
             return CORBA.Any(CORBA.TypeCode('IDL:eu/sqooss/impl/service/corba/alitheia/' + object.__class__.__name__ + ':1.0'), object)
 
@@ -395,13 +410,54 @@ class FileGroupMetric (eu__POA.sqooss.impl.service.corba.alitheia.FileGroupMetri
     def getResult(self,fileGroup):
         print 'getResult: Nothing to do'
 
+OldDirectoryInit = Directory.__init__
+def DirectoryInit(self, id=0, path=''):
+    return OldDirectoryInit(self, id, path)
+
 OldStoredProjectInit = StoredProject.__init__
 def StoredProjectInit(self, id=0, name='', website='', contact='', bugs='', repository='', mail=''):
     return OldStoredProjectInit(self, id, name, website, contact, bugs, repository, mail)
 
+OldDeveloperInit = Developer.__init__
+def DeveloperInit(self, id=0, name='', email='', username='', project=None):
+    return OldDeveloperInit(self, id, name, email, username, project)
+
+OldProjectVersionInit = ProjectVersion.__init__
+def ProjectVersionInit(self, id=0, project=None, version=None, timeStamp=None, committer=None, commitMsg=None, properties=None):
+    return OldProjectVersionInit(self, id, project, version, timeStamp, comitter, committer, commitMsg, properties)
+
+OldProjectFileInit = ProjectFile.__init__
+def ProjectFileInit(self, id=0, name=None, version=None, status=None, isDirectory=False, dir=None):
+    return OldProjectFileInit(self, id, name, version, status, isDirectory, dir)
+
+OldFileGroupInit = FileGroup.__init__
+def FileGroupInit(self, id=0, name=None, subPath=None, regex=None, recalcFreq=None, lastUsed=None, version=None):
+    return OldFileGroupInit(self, id, name, subPath, regex, recalcFreq, lastUsed, version)
+
+OldPluginInit = Plugin.__init__
+def PluginInit(self, id=0, name=None, installdate=None):
+    return OldPluginInit(self, id, name, installdate)
+
+OldMetricTypeInit = MetricType.__init__
+def MetricTypeInit(self, id=0, type=None):
+    return OldMetricTypeInit(self, id, type)
+
+OldPluginConfigurationInit = PluginConfiguration.__init__
+def PluginConfigurationInit(self, id=0, name=None, value=None, type=None, msg=None, metricPlugin=None):
+    return OldPluginConfiguration(self, id, name, value, type, msg, metricPlugin)
+
+OldMetricInit = Metric.__init__
+def MetricInit(self, id=0, metricPlugin=None, type=None, mnemonic=None, description=None):
+    return OldMetricInit(self, id, metricPlugin, type, mnemonic, description)
+
 OldProjectFileMeasurementInit = ProjectFileMeasurement.__init__
 def ProjectFileMeasurementInit(self, id=0, measureMetric=None, file=None, whenRun=None, result=None):
     return OldProjectFileMeasurementInit(self, id, measureMetric, file, whenRun, result)
+
+OldProjectVersionMeasurementInit = ProjectVersionMeasurement.__init__
+def ProjectVersionMeasurementInit(self, id=0, measureMetric=None, version=None, whenRun=None, result=None):
+    return OldProjectVersionMeasurementInit(self, id, measureMetric, version, whenRun, result)
+
 
 @staticmethod
 def StoredProjectGetProjectByName(name):
@@ -452,12 +508,22 @@ def ProjectFileIter(self):
     self.buffer = ''
     return self
 
+setattr(eu.sqooss.impl.service.corba.alitheia.Directory,                '__init__',DirectoryInit)
+setattr(eu.sqooss.impl.service.corba.alitheia.StoredProject,            '__init__',StoredProjectInit)
+setattr(eu.sqooss.impl.service.corba.alitheia.Developer,                '__init__',DeveloperInit)
+setattr(eu.sqooss.impl.service.corba.alitheia.ProjectVersion,           '__init__',ProjectVersionInit)
+setattr(eu.sqooss.impl.service.corba.alitheia.ProjectFile,              '__init__',ProjectFileInit)
+setattr(eu.sqooss.impl.service.corba.alitheia.FileGroup,                '__init__',FileGroupInit)
+setattr(eu.sqooss.impl.service.corba.alitheia.MetricType,               '__init__',MetricTypeInit)
+setattr(eu.sqooss.impl.service.corba.alitheia.Plugin,                   '__init__',PluginInit)
+setattr(eu.sqooss.impl.service.corba.alitheia.PluginConfiguration,      '__init__',PluginConfigurationInit)
+setattr(eu.sqooss.impl.service.corba.alitheia.Metric,                   '__init__',MetricInit)
+setattr(eu.sqooss.impl.service.corba.alitheia.ProjectFileMeasurement,   '__init__',ProjectFileMeasurementInit)
+setattr(eu.sqooss.impl.service.corba.alitheia.ProjectVersionMeasurement,'__init__',ProjectVersionMeasurementInit)
+
 setattr(eu.sqooss.impl.service.corba.alitheia.StoredProject,'getProjectByName',StoredProjectGetProjectByName)
 setattr(eu.sqooss.impl.service.corba.alitheia.StoredProject,'getLastProjectVersion',StoredProjectGetLastProjectVersion)
-setattr(eu.sqooss.impl.service.corba.alitheia.StoredProject,'__init__',StoredProjectInit)
 
 setattr(eu.sqooss.impl.service.corba.alitheia.ProjectFile,'getFileName',ProjectFileGetFileName)
 setattr(eu.sqooss.impl.service.corba.alitheia.ProjectFile,'next',ProjectFileNext)
 setattr(eu.sqooss.impl.service.corba.alitheia.ProjectFile,'__iter__',ProjectFileIter)
-
-setattr(eu.sqooss.impl.service.corba.alitheia.ProjectFileMeasurement,'__init__',ProjectFileMeasurementInit)
