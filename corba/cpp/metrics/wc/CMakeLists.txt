@@ -13,15 +13,18 @@ set ( HEADER_FILES
     wcmetricjob.h
   )
 
-include_directories(../../include)
+include_directories(../../include .)
+link_directories( ../../lib ${Boost_LIBRARY_DIRS})
 
 add_executable( wcmetric ${SRC_FILES}  ${HEADER_FILES} )
 
-target_link_libraries( wcmetric
-  -L../../lib -lalitheia
-  -lmico2.3.12 -lmicocoss2.3.12
-  -lssl -lcrypto
-  -lboost_thread-mt
-  -lboost_date_time
-  -lboost_filesystem
+target_link_libraries( wcmetric 
+    alitheia
+    mico2.3.12 
+    micocoss2.3.12
+    ssl
+    crypto
+    boost_thread-mt
+    boost_date_time
+    boost_filesystem
 )

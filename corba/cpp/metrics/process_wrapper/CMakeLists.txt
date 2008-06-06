@@ -16,16 +16,19 @@ set ( HEADER_FILES
   )
 
 include_directories(../../include .)
+link_directories( ../../lib ${Boost_LIBRARY_DIRS})
 
-add_executable( process_wrapper ${SRC_FILES}  ${HEADER_FILES} ${MOC_SRCS} )
+add_executable( process_wrapper ${SRC_FILES}  ${HEADER_FILES} )
 
 
 target_link_libraries( process_wrapper
-  -L../../lib -lalitheia
-  -lmico2.3.12 -lmicocoss2.3.12
-  -lssl -lcrypto
-  -lboost_thread-mt
-  -lboost_date_time
-  -lboost_program_options
-  -lboost_filesystem
+  alitheia
+  mico2.3.12 
+  micocoss2.3.12
+  ssl 
+  crypto
+  boost_thread-mt
+  boost_date_time
+  boost_program_options
+  boost_filesystem
 )
