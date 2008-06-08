@@ -34,6 +34,7 @@ package eu.sqooss.impl.service.webadmin;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -47,13 +48,17 @@ import eu.sqooss.service.db.GroupPrivilege;
 import eu.sqooss.service.db.Privilege;
 import eu.sqooss.service.db.PrivilegeValue;
 import eu.sqooss.service.db.ServiceUrl;
+import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.db.User;
 import eu.sqooss.service.security.GroupManager;
 import eu.sqooss.service.security.PrivilegeManager;
-import eu.sqooss.service.security.ServiceUrlManager;
+import eu.sqooss.service.security.SecurityConstants;
 import eu.sqooss.service.security.UserManager;
 
 public class UsersView extends AbstractView{
+
+    // User-friendly substitution for ALL_PRIVILEGE and ALL_PRIVILEGE_VALUES
+    public static String ALL = "ALL";
 
     public UsersView(BundleContext bundlecontext, VelocityContext vc) {
         super(bundlecontext, vc);
@@ -87,7 +92,6 @@ public class UsersView extends AbstractView{
         UserManager secUM = sobjSecurity.getUserManager();
         GroupManager secGM = sobjSecurity.getGroupManager();
         PrivilegeManager secPM = sobjSecurity.getPrivilegeManager();
-        ServiceUrlManager secSU = sobjSecurity.getServiceUrlManager();
 
         // Get the required resource bundles
         ResourceBundle resLbl = getLabelsBundle(req.getLocale());
@@ -98,12 +102,15 @@ public class UsersView extends AbstractView{
         String reqParAction        = "action";
         String reqParUserId        = "userId";
         String reqParGroupId       = "groupId";
-        String reqParRightId       = "rightId";
         String reqParGroupName     = "newGroupName";
         String reqParUserName      = "userName";
         String reqParUserEmail     = "userEmail";
         String reqParUserPass      = "userPass";
         String reqParPassConf      = "passConf";
+        String reqParGroupPrivId   = "groupPrivilegeId";
+        String reqParServiceId     = "serviceId";
+        String reqParPrivType      = "privilegeType";
+        String reqParPrivValue     = "privilegeValue";
         String reqParViewList      = "showList";
         // Recognized "action" parameter's values
         String actValAddToGroup    = "addToGroup";
@@ -111,23 +118,28 @@ public class UsersView extends AbstractView{
         String actValReqNewGroup   = "reqNewGroup";
         String actValAddNewGroup   = "addNewGroup";
         String actValConRemGroup   = "conRemGroup";
-        String actValConEditGroup  = "conEditGroup";
         String actValReqNewUser    = "reqNewUser";
         String actValAddNewUser    = "addNewUser";
         String actValConRemUser    = "conRemUser";
         String actValReqEditUser   = "reqEditUser";
         String actValConEditUser   = "conEditUser";
-        String actValReqService    = "reqService";
-        String actValAddService    = "addService";
+        String actValReqAddPriv    = "reqAddGroupPrivilege";
+        String actValConAddPriv    = "conAddGroupPrivilege";
+        String actValReqEditPriv   = "reqEditGroupPrivilege";
+        String actValConEditPriv   = "conEditGroupPrivilege";
+        String actValConRemPriv    = "comRemGroupPrivilege";
         // Request values
         Long   reqValUserId        = null;
         Long   reqValGroupId       = null;
-        Long   reqValRightId       = null;
         String reqValGroupName     = null;
         String reqValUserName      = null;
         String reqValUserEmail     = null;
         String reqValUserPass      = null;
         String reqValPassConf      = null;
+        Long   reqValGroupPrivId   = null;
+        Long   reqValServiceId     = null;
+        String reqValPrivType      = null;
+        String reqValPrivValue     = null;
         String reqValViewList      = null;
         String reqValAction        = "";
         // Selected user
@@ -136,6 +148,8 @@ public class UsersView extends AbstractView{
         Group selGroup = null;
         // Current colspan (max columns)
         long maxColspan = 1;
+        // Static parameters
+        final String conSubmitForm = "document.users.submit();";
 
         // Proceed only if at least the system user is available
         if (secUM.getUsers().length > 0) {
@@ -171,6 +185,45 @@ public class UsersView extends AbstractView{
                 reqValGroupId = fromString(req.getParameter(reqParGroupId));
                 if (reqValGroupId != null) {
                     selGroup = secGM.getGroup(reqValGroupId);
+                }
+
+                // Retrieve the selected service's Id (if any)
+                reqValServiceId =
+                    fromString(req.getParameter(reqParServiceId));
+
+                // Retrieve the selected privilege's type
+                reqValPrivType = req.getParameter(reqParPrivType);
+                if (reqValPrivType == null) {
+                    reqValPrivType = "";
+                }
+
+                // Retrieve the selected privilege's value
+                reqValPrivValue = req.getParameter(reqParPrivValue);
+                if (reqValPrivValue == null) {
+                    reqValPrivValue = "";
+                }
+
+                // Retrieve the selected GroupPrivilege's Id (if any)
+                reqValGroupPrivId =
+                    fromString(req.getParameter(reqParGroupPrivId));
+                if ((reqValServiceId == null)
+                        && (reqValGroupPrivId != null)
+                        && (selGroup != null)) {
+                    GroupPrivilege selPriv = findGroupPrivilege(
+                            selGroup, reqValGroupPrivId);
+                    // Retrieve the parameters of the selected group privilege
+                    if (selPriv != null) {
+                        reqValServiceId = selPriv.getUrl().getId();
+                        reqValPrivType =
+                            selPriv.getPv().getPrivilege().getDescription();
+                        if (reqValPrivType.equals(
+                                SecurityConstants.ALL_PRIVILEGES))
+                            reqValPrivType = ALL;
+                        reqValPrivValue = selPriv.getPv().getValue();
+                        if (reqValPrivValue.equals(
+                                SecurityConstants.ALL_PRIVILEGE_VALUES))
+                            reqValPrivValue = ALL;
+                    }
                 }
 
                 // Retrieve the requested list view (if any)
@@ -282,6 +335,20 @@ public class UsersView extends AbstractView{
                         }
                         // Try to delete the selected group
                         else {
+                            // Delete all associated group privileges first
+                            Object[] grpPrivileges =
+                                selGroup.getGroupPrivileges().toArray();
+                            if (grpPrivileges != null) {
+                                for (Object nextDAO : grpPrivileges) {
+                                    GroupPrivilege priv =
+                                        (GroupPrivilege) nextDAO;
+                                secGM.deletePrivilegeFromGroup(
+                                        selGroup.getId(),
+                                        priv.getUrl().getId(),
+                                        priv.getPv().getId());
+                                }
+                            }
+                            // Try to delete the group
                             if (secGM.deleteGroup(selGroup.getId())) {
                                 selGroup = null;
                                 reqValViewList = "groups";
@@ -427,9 +494,7 @@ public class UsersView extends AbstractView{
                         }
                         // Delete the selected user
                         else {
-                            // TODO. Remove this cycle and the check for group
-                            // membership (below) once we have a cascading
-                            // delete.
+                            // Remove the user from all associated groups
                             for (Object nextGroup :
                                 selUser.getGroups().toArray()) {
                                 // Remove the user from this group
@@ -437,6 +502,7 @@ public class UsersView extends AbstractView{
                                         ((Group) nextGroup).getId(),
                                         selUser.getId());
                             }
+                            // Delete the user's DAO
                             if ((selUser.getGroups().isEmpty())
                                     && (secUM.deleteUser(selUser.getId()))) {
                                 selUser = null;
@@ -453,6 +519,182 @@ public class UsersView extends AbstractView{
                     else {
                         e.append(sp(in) + resErr.getString("e0023")
                                 + "<br/>\n");
+                    }
+                }
+                // ===========================================================
+                // Add/modify privilege to/of selected group
+                // ===========================================================
+                else if ((reqValAction.equals(actValConAddPriv))
+                        || (reqValAction.equals(actValConEditPriv))) {
+                    // Check if changing an existing privilege
+                    boolean existing = false;
+                    if ((reqValGroupPrivId != null)
+                            && (reqValAction.equals(actValConEditPriv))) {
+                        existing = true;
+                    }
+                    // Check if a group is selected
+                    if (selGroup == null) {
+                        e.append(sp(in) + resErr.getString("e0003")
+                                + "<br/>\n");
+                    }
+                    // Check if a service URL is selected
+                    else if (reqValServiceId == null) {
+                        e.append(sp(in) + resErr.getString("e0030")
+                                + "<br/>\n");
+                    }
+                    else {
+                        // Check if this is the system group
+                        if (selGroup.getDescription().equals(
+                                sobjSecurity.getSystemGroup())) {
+                            e.append(sp(in) + resErr.getString("e0026")
+                                    + "<br/>\n");
+                        }
+                        // Add/modify the specified privilege
+                        else {
+                            // Get the privilege's type DAO
+                            Privilege privType = null;
+                            if (reqValPrivType.equals(ALL))
+                                privType = secPM.getPrivilege(
+                                        SecurityConstants.ALL_PRIVILEGES);
+                            else 
+                                privType = secPM.getPrivilege(
+                                        reqValPrivType);
+                            // Create a new privilege's value DAO if necessary
+                            PrivilegeValue privValue = null;
+                            if (privType != null) {
+                                String val = reqValPrivValue;
+                                if (val.equals(ALL)) {
+                                    val = SecurityConstants.ALL_PRIVILEGE_VALUES;
+                                }
+                                // Check for an existing privilege value
+                                privValue = secPM.getPrivilegeValue(
+                                        privType.getId(), val);
+                                // Create it, if such a value doesn't exit
+                                if (privValue == null)
+                                    privValue =
+                                        secPM.createPrivilegeValue(
+                                                privType.getId(), val);
+                            }
+                            else {
+                                e.append(sp(in)
+                                        + resErr.getString("e0027")
+                                        + "<br/>\n");
+                            }
+                            // Add this privilege to the selected group
+                            if (privValue != null) {
+                                // Modify an existing group privilege
+                                if (existing) {
+                                    GroupPrivilege selPriv =
+                                        findGroupPrivilege(
+                                                selGroup,
+                                                reqValGroupPrivId);
+                                    // Remove the selected group privilege
+                                    if (selPriv != null) {
+                                        // TODO: Just modifying it, seems to
+                                        // not work for the GroupPrivilege
+                                        // association ...
+//                                        selPriv.setUrl(secSU.getServiceUrl(
+//                                                reqValServiceId));
+//                                        selPriv.setPv(privValue);
+                                        // ... "delete and create" until a
+                                        // better solution is found
+                                        secGM.deletePrivilegeFromGroup(
+                                                selGroup.getId(),
+                                                selPriv.getUrl().getId(),
+                                                selPriv.getPv().getId());
+                                        secGM.addPrivilegeToGroup(
+                                                selGroup.getId(),
+                                                reqValServiceId,
+                                                privValue.getId());
+                                            sobjDB.commitDBSession();
+                                            sobjDB.startDBSession();
+                                            selGroup =
+                                                secGM.getGroup(reqValGroupId);
+                                    }
+                                    else {
+                                        e.append(sp(in)
+                                                + resErr.getString("e0031")
+                                                + "<br/>\n");
+                                    }
+                                }
+                                // Create a new group privilege
+                                else if (secGM.addPrivilegeToGroup(
+                                        selGroup.getId(),
+                                        reqValServiceId,
+                                        privValue.getId())) {
+                                    sobjDB.commitDBSession();
+                                    sobjDB.startDBSession();
+                                    selGroup =
+                                        secGM.getGroup(reqValGroupId);
+                                }
+                                else {
+                                    e.append(sp(in)
+                                            + resErr.getString("e0029")
+                                            + " " + resMsg.getString("m0001")
+                                            + "<br/>\n");
+                                }
+                            }
+                            else {
+                                e.append(sp(in)
+                                        + resErr.getString("e0028")
+                                        + "<br/>\n");
+                            }
+                        }
+                    }
+                    // Return to the proper editor upon error
+                    if (e.toString().length() > 0) {
+                        if (existing)
+                            reqValAction = actValReqEditPriv;
+                        else
+                            reqValAction = actValReqAddPriv;
+                    }
+                }
+                // ===========================================================
+                // Remove an existing privilege from the selected group
+                // ===========================================================
+                else if (reqValAction.equalsIgnoreCase(actValConRemPriv)) {
+                    // Check if a group is selected
+                    if (selGroup == null) {
+                        e.append(sp(in) + resErr.getString("e0003")
+                                + "<br/>\n");
+                    }
+                    // Check if a group privilege is selected
+                    else if (findGroupPrivilege(
+                            selGroup, reqValGroupPrivId) == null) {
+                        e.append(sp(in) + resErr.getString("e0031")
+                                + "<br/>\n");
+                    }
+                    else {
+                        // Check if this is the system group
+                        if (selGroup.getDescription().equals(
+                                sobjSecurity.getSystemGroup())) {
+                            e.append(sp(in) + resErr.getString("e0026")
+                                    + "<br/>\n");
+                        }
+                        // Remove the selected group privilege
+                        else {
+                            GroupPrivilege selPriv = findGroupPrivilege(
+                                    selGroup, reqValGroupPrivId);
+                            if (secGM.deletePrivilegeFromGroup(
+                                    selGroup.getId(),
+                                    selPriv.getUrl().getId(),
+                                    selPriv.getPv().getId())) {
+                                sobjDB.commitDBSession();
+                                sobjDB.startDBSession();
+                                selGroup =
+                                    secGM.getGroup(reqValGroupId);
+                            }
+                            else {
+                                e.append(sp(in)
+                                        + resErr.getString("e0032")
+                                        + " " + resMsg.getString("m0001")
+                                        + "<br/>\n");
+                            }
+                        }
+                    }
+                    // Return to the proper editor upon error
+                    if (e.toString().length() > 0) {
+                        reqValAction = actValReqEditPriv;
                     }
                 }
             }
@@ -648,68 +890,276 @@ public class UsersView extends AbstractView{
                 b.append(sp(in) + "</fieldset>\n");
             }
             // ===============================================================
-            // "Add service" editor
+            // "Add/modify group privilege" editor
             // ===============================================================
-            else if (reqValAction.equalsIgnoreCase(actValReqService)) {
-                b.append(sp(in) + "<fieldset>\n");
-                b.append(sp(++in) + "<legend>Add service"
-                        + ((selGroup != null) 
-                                ? " to group" + selGroup.getDescription() 
-                                        : "")
+            else if ((reqValAction.equals(actValReqAddPriv))
+                    || (reqValAction.equals(actValReqEditPriv))){
+                // Check if modifying an existing group privilege
+                boolean existing = false;
+                if ((reqValGroupPrivId != null)
+                        && (reqValAction.equals(actValReqEditPriv))) {
+                    existing = true;
+                }
+
+                // Create the field-set
+                b.append(sp(in++) + "<fieldset>\n");
+                b.append(sp(in) + "<legend>"
+                        + ((existing)
+                                ? resLbl.getString("l0054")
+                                        : resLbl.getString("l0053"))
+                        + ": "
+                        + ((selGroup != null)
+                                ? selGroup.getDescription() 
+                                        : resLbl.getString("l0051"))
                         + "</legend>\n");
-                b.append(sp(in) + "<table class=\"borderless\">");
-                // Service name
-                b.append(sp(++in) + "<tr>\n"
-                        + sp(++in)
-                        + "<td class=\"borderless\" style=\"width:100px;\">"
-                        + "<b>User name</b>"
-                        + "</td>\n"
-                        + sp(in)
-                        + "<td class=\"borderless\">\n"
-                        + sp(++in)
-                        + "<select class=\"form\""
-                        + " id=\"addService\""
-                        + " name=\"addService\">\n");
-                for (ServiceUrl service : secSU.getServiceUrls()) {
+
+                // Get all recognized privileges, privilege types and URLs
+                List<GroupPrivilege> suppPrivs =
+                    new ArrayList<GroupPrivilege>();
+                List<ServiceUrl> suppUrls = new ArrayList<ServiceUrl>();
+                List<String> suppTypes = new ArrayList<String>();
+                for (Group nextGroup : getAllDefinitionGroups()) {
+                    for (Object nextDAO : nextGroup.getGroupPrivileges()) {
+                        // Fill the privileges list
+                        GroupPrivilege nextPriv = (GroupPrivilege) nextDAO;
+                        suppPrivs.add(nextPriv);
+                        // Fill the URLs and privilege type lists
+                        ServiceUrl nextURL = nextPriv.getUrl();
+                        if (reqValServiceId == null)
+                            reqValServiceId = nextURL.getId();
+                        if (nextURL.getId() == reqValServiceId) {
+                            String nextType = nextPriv.getPv()
+                                .getPrivilege().getDescription();
+                            if (suppTypes.contains(nextType)) {
+                                continue;
+                            }
+                            if (nextType.equals(
+                                    SecurityConstants.ALL_PRIVILEGES))
+                                suppTypes.add(ALL);
+                            else
+                                suppTypes.add(nextType);
+                        }
+                        if (suppUrls.contains(nextURL)) {
+                            continue;
+                        }
+                        suppUrls.add(nextURL);
+                    }
+                }
+
+                // Skip when no group was selected
+                if (selGroup == null) {
+                    b.append(sp(in) + resErr.getString("e0003") + "\n");
+                }
+                // Skip when no services can be found
+                else if (suppUrls.isEmpty()) {
+                    b.append(sp(in) + resMsg.getString("m0005") + "\n");
+                }
+                // Editor's content
+                else {
+                    b.append(sp(in++) + "<table class=\"borderless\">");
+                    //--------------------------------------------------------
+                    // Service URL name
+                    //--------------------------------------------------------
+                    b.append(sp(in++) + "<tr>\n");
+                    b.append(sp(in) + "<td class=\"borderless\""
+                            + " style=\"width:100px;\">"
+                            + "<b>" + resLbl.getString("l0043") + "</b>"
+                            + "</td>\n");
+                    b.append(sp(in++) + "<td class=\"borderless\">\n");
+                    b.append(sp(in++)
+                            + "<select class=\"form\""
+                            + " id=\"" + reqParServiceId + "\""
+                            + " name=\"" + reqParServiceId + "\""
+                            + " onchange=\"javascript:"
+                            + "document.getElementById('" + reqParAction
+                            + "').value='" + reqValAction + "';"
+                            + conSubmitForm + "\""
+                            + ">\n");
+                    for (ServiceUrl service : suppUrls) {
+                        boolean selectedURL = false;
+                        if ((reqValServiceId != null)
+                                && (reqValServiceId.longValue()
+                                        == service.getId()))
+                            selectedURL = true;
                         b.append(sp(in) + "<option"
                                 + " value=\"" + service.getId() + "\""
+                                + ((selectedURL) ? " selected" : "")
                                 + ">"
                                 + service.getUrl()
                                 + "</option>\n");
+                    }
+                    b.append(sp(--in) + "</select>\n");
+                    b.append(sp(--in) + "</td>\n");
+                    b.append(sp(--in) + "</tr>\n");
+                    //--------------------------------------------------------
+                    // Privilege type and value
+                    //--------------------------------------------------------
+                    if (reqValServiceId != null) {
+                        //----------------------------------------------------
+                        // Privilege type
+                        //----------------------------------------------------
+                        b.append(sp(in++) + "<tr>\n");
+                        b.append(sp(in++) + "<td class=\"borderless\""
+                                + " style=\"width:100px;\">"
+                                + "<b>" + resLbl.getString("l0044") + "</b>"
+                                + "</td>\n");
+                        b.append(sp(in++) + "<td class=\"borderless\">\n");
+                        // Skip if no types exist for the selected service
+                        if (suppTypes.isEmpty()) {
+                            b.append(sp(in) + resMsg.getObject("m0006")
+                                    + "\n");
+                        }
+                        else {
+                            b.append(sp(in++) + "<select class=\"form\""
+                                    + " id=\"" + reqParPrivType + "\""
+                                    + " name=\"" + reqParPrivType + "\""
+                                    + " onchange=\"javascript:"
+                                    + "document.getElementById('"
+                                    + reqParAction
+                                    + "').value='" + reqValAction + "';"
+                                    + conSubmitForm + "\""
+                                    + ">\n");
+                            for (String type : suppTypes) {
+                                boolean selectedType = false;
+                                if (reqValPrivType.equals(type))
+                                    selectedType = true;
+                                b.append(sp(in) + "<option"
+                                        + " value=\"" + type + "\""
+                                        + ((selectedType) ? " selected" : "")
+                                        + ">"
+                                        + type
+                                        + "</option>\n");
+                            }
+                            b.append(sp(--in) + "</select>\n");
+                        }
+                        b.append(sp(--in) + "</td>\n");
+                        b.append(sp(--in) + "</tr>\n");
+                        //----------------------------------------------------
+                        // Privilege value
+                        //----------------------------------------------------
+                        // Skip if no types exist for the selected service
+                        if (suppTypes.isEmpty() == false) {
+                            // Retrieve all privilege values supported by the
+                            // selected privilege type
+                            Hashtable<String,String> values =
+                                new Hashtable<String, String>();
+                            // Put the "all values" value
+                            values.put(ALL, ALL);
+                            // TODO: The following "type based" value
+                            // retrieval logic uses hard-coded types
+                            // while waiting for an API that provides them
+                            if (reqValPrivType.equals("user_id")) {
+                                if (secUM.getUsers() != null) {
+                                    for (User nextUser : secUM.getUsers()) {
+                                        // Skip the system user
+                                        if (nextUser.getName().equals(
+                                                sobjSecurity.getSystemUser()))
+                                            continue;
+                                        values.put(
+                                                Long.toString(nextUser.getId()),
+                                                nextUser.getName());
+                                    }
+                                }
+                            }
+                            else if (reqValPrivType.equals("project_id")) {
+                                List<StoredProject> allProjects =
+                                    sobjDB.findObjectsByProperties(
+                                            StoredProject.class,
+                                            new Hashtable<String, Object>());
+                                for (StoredProject nextPrj : allProjects) {
+                                    values.put(
+                                            Long.toString(nextPrj.getId()),
+                                            nextPrj.getName());
+                                }
+                            }
+                            else if (reqValPrivType.equals("send_message")) {
+                                values.remove(ALL);
+                                values.put("permit", "permit");
+                                values.put("deny", "deny");
+                            }
+                            else if (reqValPrivType.equals("action")) {
+                                // TODO: Skip since this is a bit confusing
+                            }
+                            //------------------------------------------------
+                            // Display the value's selector
+                            //------------------------------------------------
+                            b.append(sp(in++) + "<tr>\n");
+                            b.append(sp(in++) + "<td class=\"borderless\""
+                                    + " style=\"width:100px;\">"
+                                    + "<b>"
+                                    + resLbl.getString("l0045")
+                                    + "</b>"
+                                    + "</td>\n");
+                            b.append(sp(in++)
+                                    + "<td class=\"borderless\">\n");
+                            b.append(sp(in++) + "<select class=\"form\""
+                                    + " id=\"" + reqParPrivValue + "\""
+                                    + " name=\"" + reqParPrivValue + "\""
+                                    + ">\n");
+                            for (String nextVal : values.keySet()) {
+                                boolean selectedValue = false;
+                                if (reqValPrivValue.equals(nextVal))
+                                    selectedValue = true;
+                                b.append(sp(in) + "<option"
+                                        + " value=\"" + nextVal + "\""
+                                        + ((selectedValue) ? " selected" : "")
+                                        + ">"
+                                        + values.get(nextVal)
+                                        + "</option>\n");
+                            }
+                            b.append(sp(--in) + "</select>\n");
+                            b.append(sp(--in) + "</td>\n");
+                            b.append(sp(--in) + "</tr>\n");
+                        }
+                    }
+                    //--------------------------------------------------------
+                    // Tool-bar
+                    //--------------------------------------------------------
+                    b.append(sp(in) + "<tr>\n");
+                    b.append(sp(++in)
+                            + "<td colspan=\"2\" class=\"borderless\">\n");
+                    // Apply button
+                    b.append(sp(++in) + "<input type=\"button\""
+                            + " class=\"install\""
+                            + " style=\"width: 100px;\""
+                            + " value=\""
+                            + ((existing)
+                                    ? resLbl.getString("l0048")
+                                    : resLbl.getString("l0003"))
+                            + "\""
+                            + " onclick=\"javascript:"
+                            + "document.getElementById('"
+                            + reqParAction + "').value='"
+                            + ((existing)
+                                    ? actValConEditPriv
+                                    : actValConAddPriv)
+                            + "';"
+                            + "document.users.submit();\""
+                            + ">\n");
+                    // Remove button (only on existing group privilege)
+                    if (existing) {
+                        b.append(sp(in--) + "<input type=\"button\""
+                                + " class=\"install\""
+                                + " style=\"width: 100px;\""
+                                + " value=\"" + resLbl.getString("l0049") + "\""
+                                + " onclick=\"javascript:"
+                                + "document.getElementById('"
+                                + reqParAction + "').value='"
+                                + actValConRemPriv + "';"
+                                + "document.users.submit();\">\n");
+                    }
+                    // Cancel button
+                    b.append(sp(in--) + "<input type=\"button\""
+                            + " class=\"install\""
+                            + " style=\"width: 100px;\""
+                            + " value=\"" + resLbl.getString("l0004") + "\""
+                            + " onclick=\"javascript:"
+                            + "document.users.submit();\">\n");
+                    b.append(sp(in--) + "</td>\n");
+                    b.append(sp(in--) + "</tr>\n");
+                    b.append(sp(in--) + "</table>");
                 }
-                b.append(sp(in) + "</select>\n"
-                        + sp(--in)
-                        + "</td>\n"
-                        + sp(--in)
-                        + "</tr>\n");
-                // Toolbar
-                b.append(sp(in) + "<tr>\n"
-                        + sp(++in)
-                        + "<td colspan=\"2\" class=\"borderless\">"
-                        + "<input type=\"button\""
-                        + " class=\"install\""
-                        + " style=\"width: 100px;\""
-                        + " value=\"Remove\""
-                        + " onclick=\"javascript:"
-                        + "document.getElementById('"
-                        + reqParAction + "').value='"
-                        + actValConRemUser + "';"
-                        + "document.getElementById('"
-                        + reqParUserId + "').value="
-                        + "document.getElementById('removeUser').value;"
-                        + "document.users.submit();\">"
-                        + "&nbsp;"
-                        + "<input type=\"button\""
-                        + " class=\"install\""
-                        + " style=\"width: 100px;\""
-                        + " value=\"Cancel\""
-                        + " onclick=\"javascript:"
-                        + "document.users.submit();\">"
-                        + "</td>\n"
-                        + sp(--in)
-                        + "</tr>\n");
-                b.append(sp(--in) + "</table>");
-                b.append(sp(--in) + "</fieldset>\n");
+                b.append(sp(in) + "</fieldset>\n");
             }
             // ===============================================================
             // Main viewers and editors
@@ -721,22 +1171,22 @@ public class UsersView extends AbstractView{
                     selGroup = null;
                     reqValViewList = "groups";
                 }
-                // Create the field-set for the "user" views
+                // Create the field-set for the various "user" views
                 if ((reqValViewList.equals("users"))
                         || (selUser != null)) {
-                    b.append(sp(++in) + "<fieldset>\n");
-                    b.append(sp(++in) + "<legend>"
+                    b.append(sp(in++) + "<fieldset>\n");
+                    b.append(sp(in) + "<legend>"
                             + ((selUser != null)
                                     ? resLbl.getString("l0024") + ": "
                                             + selUser.getName()
                                     : resLbl.getString("l0035"))
                             + "</legend>\n");
                 }
-                // Create the field-set for the "group" views
+                // Create the field-set for the various "group" views
                 else if ((reqValViewList.equals("groups"))
                         || (selGroup != null)) {
-                    b.append(sp(++in) + "<fieldset>\n");
-                    b.append(sp(++in) + "<legend>"
+                    b.append(sp(in++) + "<fieldset>\n");
+                    b.append(sp(in) + "<legend>"
                             + ((selGroup != null)
                                     ? resLbl.getString("l0026") + ": "
                                             + selGroup.getDescription()
@@ -744,15 +1194,15 @@ public class UsersView extends AbstractView{
                             + "</legend>\n");
                 }
 
-                b.append(sp(in) + "<table>\n");
-                b.append(sp(++in) + "<thead>\n");
-                b.append(sp(++in) + "<tr class=\"head\">\n");
+                b.append(sp(in++) + "<table>\n");
+                b.append(sp(in++) + "<thead>\n");
+                b.append(sp(in++) + "<tr class=\"head\">\n");
 
                 // ===========================================================
                 // User editor - header row
                 // ===========================================================
                 if (selUser != null) {
-                    b.append(sp(++in) + "<td class=\"head\""
+                    b.append(sp(in) + "<td class=\"head\""
                             + " style=\"width: 40%;\">"
                             + resLbl.getString("l0040") + "</td>\n");
                     b.append(sp(in) + "<td class=\"head\""
@@ -767,7 +1217,7 @@ public class UsersView extends AbstractView{
                 // Group editor - header row
                 // ===========================================================
                 else if (selGroup != null) {
-                    b.append(sp(++in) + "<td class=\"head\""
+                    b.append(sp(in) + "<td class=\"head\""
                             + " style=\"width: 40%;\">"
                             + resLbl.getString("l0043") + "</td>\n");
                     b.append(sp(in) + "<td class=\"head\""
@@ -782,7 +1232,7 @@ public class UsersView extends AbstractView{
                 // Users list - header row
                 // ===========================================================
                 else if (reqValViewList.equals("users")) {
-                    b.append(sp(++in) + "<td class=\"head\""
+                    b.append(sp(in) + "<td class=\"head\""
                             + " style=\"width: 10%;\">"
                             + resLbl.getString("l0038") + "</td>\n");
                     b.append(sp(in) + "<td class=\"head\""
@@ -800,7 +1250,7 @@ public class UsersView extends AbstractView{
                 // Groups list - header row
                 // ===========================================================
                 else if (reqValViewList.equals("groups")) {
-                    b.append(sp(++in) + "<td class=\"head\""
+                    b.append(sp(in) + "<td class=\"head\""
                             + " style=\"width: 10%;\">"
                             + resLbl.getString("l0037") + "</td>\n");
                     b.append(sp(in) + "<td class=\"head\""
@@ -811,34 +1261,34 @@ public class UsersView extends AbstractView{
 
                 b.append(sp(--in) + "</tr>\n");
                 b.append(sp(--in) + "</thead>\n");
-                b.append(sp(in) + "<tbody>\n");
+                b.append(sp(in++) + "<tbody>\n");
 
                 // ===========================================================
                 // User editor - content rows
                 // ===========================================================
                 if (selUser != null) {
                     String btnDisabled = null;
-                    b.append(sp(++in) + "<tr>\n");
-                    b.append(sp(++in) + "<td>\n");
-                    b.append(sp(++in) + "<table class=\"borderless\">\n");
-                    b.append(sp(++in) + "<tr>\n"
-                            + sp(++in)
+                    b.append(sp(in++) + "<tr>\n");
+                    b.append(sp(in++) + "<td>\n");
+                    b.append(sp(in++) + "<table class=\"borderless\">\n");
+                    b.append(sp(in++) + "<tr>\n"
+                            + sp(in)
                             + "<td class=\"borderless\">"
                             + "<b>" + resLbl.getString("l0038") + "</b>"
                             + "</td>\n"
                             + sp(in) + "<td class=\"borderless\">"
                             + selUser.getId() + "</td>\n"
                             + sp(--in) + "</tr>\n");
-                    b.append(sp(in) + "<tr>\n"
-                            + sp(++in)
+                    b.append(sp(in++) + "<tr>\n"
+                            + sp(in)
                             + "<td class=\"borderless\">"
                             + "<b>" + resLbl.getString("l0031") + "</b>"
                             + "</td>\n"
                             + sp(in) + "<td class=\"borderless\">"
                             + selUser.getName() + "</td>\n"
                             + sp(--in) + "</tr>\n");
-                    b.append(sp(in) + "<tr>\n"
-                            + sp(++in)
+                    b.append(sp(in++) + "<tr>\n"
+                            + sp(in)
                             + "<td class=\"borderless\">"
                             + "<b>" + resLbl.getString("l0032") + "</b>"
                             + "</td>\n"
@@ -846,8 +1296,8 @@ public class UsersView extends AbstractView{
                             + selUser.getEmail() + "</td>\n"
                             + sp(--in) + "</tr>\n");
                     DateFormat date = DateFormat.getDateInstance();
-                    b.append(sp(in) + "<tr>\n"
-                            + sp(++in)
+                    b.append(sp(in++) + "<tr>\n"
+                            + sp(in)
                             + "<td class=\"borderless\">"
                             + "<b>" + resLbl.getString("l0039") + "</b>"
                             + "</td>\n"
@@ -857,8 +1307,8 @@ public class UsersView extends AbstractView{
                     b.append(sp(--in) + "</table>\n");
                     b.append(sp(--in) + "</td>\n");
                     // Display all groups where the selected user is a member
-                    b.append(sp(in) + "<td>\n");
-                    b.append(sp(++in) + "<select"
+                    b.append(sp(in++) + "<td>\n");
+                    b.append(sp(in++) + "<select"
                             + " id=\"attachedGroups\" name=\"attachedGroups\""
                             + " size=\"4\""
                             + " style=\"width: 100%; border: 0;\""
@@ -869,7 +1319,6 @@ public class UsersView extends AbstractView{
                             + "document.users.submit();\""
                             + "\""
                             + ">\n");
-                    sp(++in);
                     for (Object memberOf : selUser.getGroups()) {
                         Group group = (Group) memberOf;
                         // Skip all definition groups
@@ -906,8 +1355,8 @@ public class UsersView extends AbstractView{
                                 + ">\n");
                     b.append(sp(--in) + "</td>\n");
                     // Display all group where the selected user is not a member
-                    b.append(sp(in) + "<td>\n");
-                    b.append(sp(++in) + "<select"
+                    b.append(sp(in++) + "<td>\n");
+                    b.append(sp(in++) + "<select"
                             + " id=\"availableGroups\" name=\"availableGroups\""
                             + " size=\"4\""
                             + " style=\"width: 100%; border: 0;\""
@@ -918,7 +1367,6 @@ public class UsersView extends AbstractView{
                             + "document.users.submit();\""
                             + "\""
                             + ">\n");
-                    sp(++in);
                     for (Group group : secGM.getGroups()) {
                         // Skip all definition groups
                         if (isDefinitionGroup(group.getId()))
@@ -965,8 +1413,8 @@ public class UsersView extends AbstractView{
                 else if (selGroup != null) {
                     // Check if this group has assigned privileges
                     if (selGroup.getGroupPrivileges().isEmpty()) {
-                        b.append(sp(++in) + "<tr>\n");
-                        b.append(sp(++in) + "<td"
+                        b.append(sp(in++) + "<tr>\n");
+                        b.append(sp(in) + "<td"
                                 + " colspan=\"" + maxColspan + "\""
                                 + " class=\"noattr\""
                                 + ">"
@@ -976,21 +1424,45 @@ public class UsersView extends AbstractView{
                     }
                     else {
                         for (Object priv : selGroup.getGroupPrivileges()) {
-                            b.append(sp(++in) + "<tr>\n");
+                            String val = null;
                             // Cast to a GroupPrivilege and display it
                             GroupPrivilege grPriv = (GroupPrivilege) priv;
+                            b.append(sp(in++) + "<tr class=\"edit\""
+                                    + " onclick=\"javascript:"
+                                    + "document.getElementById('"
+                                    + reqParGroupPrivId + "').value='"
+                                    + grPriv.hashCode() + "';"
+                                    + "document.getElementById('"
+                                    + reqParAction + "').value='"
+                                    + actValReqEditPriv + "';"
+                                    + conSubmitForm + "\""
+                                    + ">\n");
+                            //------------------------------------------------
                             // Service name
-                            b.append(sp(++in) + "<td>"
-                                    + grPriv.getUrl().getUrl()
+                            //------------------------------------------------
+                            val = grPriv.getUrl().getUrl();
+                            b.append(sp(in) + "<td class=\"trans\">"
+                                    + "<img src=\"/edit.png\" alt=\"[Edit]\"/>"
+                                    + "&nbsp;"
+                                    + val
                                     + "</td>\n");
+                            //------------------------------------------------
                             // Privilege type
-                            b.append(sp(in) + "<td>"
-                                    + grPriv.getPv().getPrivilege().getDescription()
-                                    + "</td>\n");
+                            //------------------------------------------------
+                            Privilege privType = grPriv.getPv().getPrivilege();
+                            val = privType.getDescription();
+                            if (val.equals(SecurityConstants.ALL_PRIVILEGES))
+                                val = ALL;
+                            b.append(sp(in) + "<td class=\"trans\">"
+                                    + val + "</td>\n");
+                            //------------------------------------------------
                             // Privilege value
-                            b.append(sp(in) + "<td>"
-                                    + grPriv.getPv().getValue()
-                                    + "</td>\n");
+                            //------------------------------------------------
+                            val = renderPrivilegeType(grPriv);
+                            if (val == null)
+                                val = resLbl.getString("l0051");
+                            b.append(sp(in) + "<td class=\"trans\">"
+                                    + val + "</td>\n");
                             b.append(sp(--in) + "</tr>\n");
                         }
                     }
@@ -1000,7 +1472,7 @@ public class UsersView extends AbstractView{
                 // ===========================================================
                 else if (reqValViewList.equals("users")) {
                     for (User nextUser : secUM.getUsers()) {
-                        b.append(sp(++in) + "<tr class=\"edit\""
+                        b.append(sp(in++) + "<tr class=\"edit\""
                                 + " onclick=\"javascript:"
                                 + "document.getElementById('"
                                 + reqParUserId + "').value='"
@@ -1008,13 +1480,20 @@ public class UsersView extends AbstractView{
                                 + "document.users.submit();\""
                                 + ">\n");
                         // User's Id
-                        b.append(sp(++in) + "<td class=\"trans\">"
+                        b.append(sp(in) + "<td class=\"trans\">"
                                 + "<img src=\"/edit.png\" alt=\"[Edit]\"/>"
                                 + "&nbsp;" + nextUser.getId()
                                 + "</td>\n");
                         // User's name
+                        boolean sysUser = nextUser.getName().equals(
+                                sobjSecurity.getSystemUser());
                         b.append(sp(in) + "<td class=\"trans\">"
                                 + nextUser.getName()
+                                + ((sysUser)
+                                        ? " <i>("
+                                                + resLbl.getString("l0055")
+                                                + ")</i>"
+                                        : "")
                                 + "</td>\n");
                         // User's email
                         b.append(sp(in) + "<td class=\"trans\">"
@@ -1036,7 +1515,7 @@ public class UsersView extends AbstractView{
                         // Skip all definition groups
                         if (isDefinitionGroup(nextGroup.getId()))
                             continue;
-                        b.append(sp(++in) + "<tr class=\"edit\""
+                        b.append(sp(in++) + "<tr class=\"edit\""
                                 + " onclick=\"javascript:"
                                 + "document.getElementById('"
                                 + reqParGroupId + "').value='"
@@ -1044,13 +1523,20 @@ public class UsersView extends AbstractView{
                                 + "document.users.submit();\""
                                 + ">\n");
                         // Group's Id
-                        b.append(sp(++in) + "<td class=\"trans\">"
+                        b.append(sp(in) + "<td class=\"trans\">"
                                 + "<img src=\"/edit.png\" alt=\"[Edit]\"/>"
                                 + "&nbsp;" + nextGroup.getId()
                                 + "</td>\n");
                         // Group name
+                        boolean sysGrp = nextGroup.getDescription().equals(
+                                sobjSecurity.getSystemGroup());
                         b.append(sp(in) + "<td class=\"trans\">"
                                 + nextGroup.getDescription()
+                                + ((sysGrp)
+                                        ? " <i>("
+                                                + resLbl.getString("l0056")
+                                                + ")</i>"
+                                        : "")
                                 + "</td>\n");
                         b.append(sp(--in) + "</tr>\n");
                     }
@@ -1128,12 +1614,12 @@ public class UsersView extends AbstractView{
                             + actValReqNewGroup + "';"
                             + "document.users.submit();\">\n");
                 }
-                // Additional buttons for the user editor
+                // Additional buttons for the user editor (skip on sys.user)
                 if ((selUser != null)
                         && (selUser.getName().equals(
                                 sobjSecurity.getSystemUser()) == false)) {
                     // Edit user
-                    b.append(sp(++in) + "<input type=\"button\""
+                    b.append(sp(in) + "<input type=\"button\""
                             + " class=\"install\""
                             + " style=\"width: 100px;\""
                             + " value=\"" + resLbl.getString("l0048") + "\""
@@ -1155,20 +1641,22 @@ public class UsersView extends AbstractView{
                             + "document.users.submit();\""
                             + ">\n");
                 }
-                // Additional buttons for the group editor
+                // Additional buttons for the group editor (skip on sys.group)
                 if ((selUser == null)
                         && (selGroup != null)
                         && (selGroup.getDescription().equals(
                                 sobjSecurity.getSystemGroup()) == false)) {
-                    // Add resource
+                    // Add new group privilege
                     b.append(sp(in) + "<input type=\"button\""
                             + " class=\"install\""
                             + " style=\"width: 100px;\""
-                            + " value=\"" + resLbl.getString("l0060") + "\""
+                            + " value=\"" + resLbl.getString("l0052") + "\""
                             + " onclick=\"javascript:"
                             + "document.getElementById('"
                             + reqParAction + "').value='"
-                            + actValReqService + "';"
+                            + actValReqAddPriv + "';"
+                            + "document.getElementById('"
+                            + reqParGroupPrivId + "').value='';"
                             + "document.users.submit();\""
                             + ">\n");
                     // Remove group
@@ -1183,6 +1671,7 @@ public class UsersView extends AbstractView{
                             + "document.users.submit();\""
                             + ">\n");
                 }
+                b.append(sp(--in) + "</td>\n");
                 b.append(sp(--in) + "</tr>\n");
 
                 // Close the table
@@ -1194,15 +1683,15 @@ public class UsersView extends AbstractView{
                 // "Selected group" viewer
                 // ===============================================================
                 if ((selUser != null) && (selGroup != null)) {
-                    b.append(sp(in) + "<fieldset>\n");
-                    b.append(sp(++in) + "<legend>"
+                    b.append(sp(in++) + "<fieldset>\n");
+                    b.append(sp(in) + "<legend>"
                             + resLbl.getString("l0026") + ": "
                             + selGroup.getDescription() + "</legend\n>");
-                    b.append(sp(in) + "<table>\n");
+                    b.append(sp(in++) + "<table>\n");
                     // Header row
-                    b.append(sp(++in) + "<thead>\n");
-                    b.append(sp(++in) + "<tr class=\"head\">\n");
-                    b.append(sp(++in) + "<td class=\"head\""
+                    b.append(sp(in++) + "<thead>\n");
+                    b.append(sp(in++) + "<tr class=\"head\">\n");
+                    b.append(sp(in) + "<td class=\"head\""
                             + " style=\"width: 40%;\">"
                             + resLbl.getString("l0043")
                             + "</td>\n");
@@ -1218,10 +1707,10 @@ public class UsersView extends AbstractView{
                     b.append(sp(--in) + "</thead>\n");
                     maxColspan = 3;
                     // Content rows
-                    b.append(sp(in) + "<tbody>\n");
+                    b.append(sp(in++) + "<tbody>\n");
                     if (selGroup.getGroupPrivileges().isEmpty()) {
-                        b.append(sp(++in) + "<tr>\n");
-                        b.append(sp(++in) + "<td"
+                        b.append(sp(in++) + "<tr>\n");
+                        b.append(sp(in) + "<td"
                                 + " colspan=\"" + maxColspan + "\""
                                 + " class=\"noattr\">"
                                 + resMsg.getString("m0002")
@@ -1230,82 +1719,24 @@ public class UsersView extends AbstractView{
                     }
                     else {
                         for (Object priv : selGroup.getGroupPrivileges()) {
-                            b.append(sp(++in) + "<tr>\n");
-                            // Cast to a GroupPrivilege and display it
+                            // Cast the DAO object to a GroupPrivilege
                             GroupPrivilege grPriv = (GroupPrivilege) priv;
-                            // Service name
-                            ServiceUrl pUrl = grPriv.getUrl();
-                            b.append(sp(++in) + "<td>"
-                                    + pUrl.getUrl()
-                                    + "</td>\n");
-                            // Privilege type
-                            Privilege pType = grPriv.getPv().getPrivilege();
-                            b.append(sp(in) + "<td>"
-                                    + pType.getDescription()
-                                    + "</td>\n");
-                            // Privilege value
-                            PrivilegeValue pValue = grPriv.getPv();
-                            b.append(sp(in) + "<td>"
-                                    + pValue.getValue()
-                                    + "</td>\n");
+                            // Retrieve the privilege parameters
+                            String pUrl = grPriv.getUrl().getUrl();
+                            String pType =
+                                grPriv.getPv().getPrivilege().getDescription();
+                            String pValue = renderPrivilegeType(grPriv);
+                            if (pValue == null)
+                                pValue = resLbl.getString("l0051");
+                            // Render the privilege
+                            b.append(sp(in++) + "<tr>\n");
+                            b.append(sp(in) + "<td>" + pUrl + "</td>\n");
+                            b.append(sp(in) + "<td>" + pType + "</td>\n");
+                            b.append(sp(in) + "<td>" + pValue + "</td>\n");
                             b.append(sp(--in) + "</tr>\n");
                         }
                     }
-
-//                    // "Available rights" header
-//                    if (secPM.getPrivileges().length > 0) {
-//                        b.append(sp(in) + "<tr class=\"subhead\">\n");
-//                        b.append(sp(++in) + "<td class=\"subhead\" colspan=\"4\">"
-//                                + "Available</td>");
-//                        b.append(sp(--in) + "</tr>\n");
-//                        // "Available rights" list
-//                        for (Privilege privilege : secPM.getPrivileges()) {
-//                            b.append(sp(in) + "<tr>\n");
-//                            // Action bar
-//                            b.append(sp(++in) + "<td>"
-//                                    + "&nbsp;"
-//                                    + "</td>\n");
-//                            // Available services
-//                            b.append(sp(in) + "<td>"
-//                                    + "&nbsp;"
-//                                    + "</td>\n");
-//                            // Available privileges
-//                            b.append(sp(in) + "<td>"
-//                                    + privilege.getDescription()
-//                                    + "</td>\n");
-//                            // Available rights
-//                            b.append(sp(in) + "<td>\n");
-//                            PrivilegeValue[] values =
-//                                secPM.getPrivilegeValues(privilege.getId());
-//                            if ((values != null) && (values.length > 0)) {
-//                                b.append(sp(++in) + "<select"
-//                                        + " style=\"width: 100%; border: 0;\""
-//                                        + ">\n");
-//                                in++;
-//                                for (PrivilegeValue value : values) {
-//                                    b.append(sp(in) + "<option"
-//                                            + " value=\"" + value.getId() + "\""
-//                                            + " onclick=\"javascript:"
-//                                            + " document.getElementById('"
-//                                            + reqParRightId + "').value='"
-//                                            + value.getId() + "';"
-//                                            + "document.users.submit();\""
-//                                            + ">"
-//                                            + value.getValue()
-//                                            + "</option>\n");
-//                                }
-//                                b.append(sp(--in) + "</select>\n");
-//                            }
-//                            else {
-//                                b.append(sp(++in) + "<b>NA</b>");
-//                            }
-//                            b.append(sp(--in) + "</td>\n");
-//                            b.append(sp(--in) + "</tr>\n");
-//                        }
-//                    }
-
                     b.append(sp(--in) + "</tbody>\n");
-
                     b.append(sp(--in) + "</table>\n");
                     b.append(sp(--in) + "</fieldset>\n");
                 }
@@ -1333,10 +1764,17 @@ public class UsersView extends AbstractView{
                     + " value=\""
                     + ((selGroup != null) ? selGroup.getId() : "")
                     + "\">\n");
-            // "Right Id" input field
+            // "GroupPrivilege Id" input field
             b.append(sp(in) + "<input type=\"hidden\""
-                    + " id=\"" + reqParRightId + "\"" 
-                    + " name=\"" + reqParRightId + "\""
+                    + " id=\"" + reqParGroupPrivId + "\"" 
+                    + " name=\"" + reqParGroupPrivId + "\""
+                    + " value=\""
+                    + ((reqValGroupPrivId != null) ? reqValGroupPrivId : "")
+                    + "\">\n");
+            // "Service Id" input field
+            b.append(sp(in) + "<input type=\"hidden\""
+                    + " id=\"" + reqParServiceId + "\"" 
+                    + " name=\"" + reqParServiceId + "\""
                     + " value=\"\">\n");
             // "View list" input field
             b.append(sp(in) + "<input type=\"hidden\""
@@ -1364,7 +1802,7 @@ public class UsersView extends AbstractView{
     }
 
     /**
-     * Checks, if the given group Id belong to a definition group.
+     * Checks, if the given group Id belongs to a definition group.
      * 
      * @param groupId the group Id
      * 
@@ -1388,6 +1826,9 @@ public class UsersView extends AbstractView{
 
     /**
      * Gets the list all definition groups registered in the SQO-OSS database.
+     * <br/>
+     * <i>A definition group defines the privilege variations supported by the
+     * component that has registered that group.</i>
      * 
      * @return The list of all definition groups.
      */
@@ -1395,9 +1836,9 @@ public class UsersView extends AbstractView{
         // Holds the list of privilege definition groups
         List<Group> definitionGroups = new ArrayList<Group>();
 
-        // TODO: This code uses a hard-coded way for discovering the
-        // WSS's group with definitions of supported privilege variations.
-        // Fix it, once there is an API for achieving that.
+        // TODO: This code uses a hard-coded definition group names in order
+        // to find these groups. Fix it, once there is an API that provides
+        // this information.
         Group wssDefGroup = sobjSecurity.getGroupManager().getGroup(
                 "web admin security group");
         if (wssDefGroup != null)
@@ -1405,6 +1846,72 @@ public class UsersView extends AbstractView{
 
         return definitionGroups;
     }
+
+    /**
+     * Finds the group privilege that contains the specified hash value and
+     * belong to the given group.
+     * 
+     * @param group the group DAO
+     * @param hash the hash value of the searched group privilege
+     * 
+     * @return The group privilege DAO if found, or <code>null</code> upon
+     *   failure.
+     */
+    private static GroupPrivilege findGroupPrivilege (Group group, Long hash) {
+        // Skip on undefined group DAO
+        if (group == null)
+            return null;
+        // Skip when the hash value is undefined
+        if (hash == null)
+            return null;
+        // Search for a group privilege with the given hash value
+        for (Object nextDAO : group.getGroupPrivileges()) {
+            GroupPrivilege priv = (GroupPrivilege) nextDAO;
+            if (hash.intValue() == priv.hashCode()) {
+                return priv;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Converts the privilege's value referenced by the given group privilege
+     * into an user-friendly display form.
+     * 
+     * @param p the group privilege's DAO
+     * 
+     * @return The converted privilege's value.
+     */
+    private static String renderPrivilegeType (GroupPrivilege p) {
+        String result = p.getPv().getValue();
+        Privilege type = p.getPv().getPrivilege();
+
+        if (result.equals(SecurityConstants.ALL_PRIVILEGE_VALUES)) {
+            return ALL;
+        }
+        // TODO: The following "type based" value
+        // display logic uses hard-coded types
+        // while waiting for an API that provides them
+        else {
+            if (type.getDescription().equals("project_id")) {
+                StoredProject valPrj = sobjDB.findObjectById(
+                        StoredProject.class,fromString(result));
+                if (valPrj != null)
+                    return valPrj.getName();
+            }
+            else if (type.getDescription().equals("user_id")) {
+                User valUser = sobjDB.findObjectById(
+                        User.class, fromString(result));
+                if (valUser != null)
+                    return valUser.getName();
+            }
+            else if (type.getDescription().equals("action")) {
+                return result;
+            }
+        }
+        return null;
+    }
+
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
