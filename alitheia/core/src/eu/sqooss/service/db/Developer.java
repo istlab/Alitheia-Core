@@ -42,75 +42,76 @@ import eu.sqooss.impl.service.CoreActivator;
 import eu.sqooss.service.db.DAObject;
 
 /**
- * A developer belonging to a project.  
+ * A DAObject representing a developer belonging to a project.
  */
 public class Developer extends DAObject{
     /**
-	 * The developer's name
-	 */
-	private String name;
+     * The developer's name
+     */
+    private String name;
 
-	/**
-	 * The developer's email
-	 */
-	private String email;
+    /**
+     * The developer's email
+     */
+    private String email;
 
-	/**
-	 * The developer's username
-	 */
-	private String username;
+    /**
+     * The developer's username
+     */
+    private String username;
 
-	/**
-	 * The project this developer belongs to
-	 */
-	private StoredProject storedProject;
+    /**
+     * The project this developer belongs to
+     */
+    private StoredProject storedProject;
 	
-	/**
-	 * The list of commits from this developer
-	 */
-	private Set<ProjectVersion> commits;
+    /**
+     * The list of commits from this developer
+     */
+    private Set<ProjectVersion> commits;
 	
-	/**
-	 * The list of mails sent by this developer
-	 */
-	private Set<MailMessage> mails;
+    /**
+     * The list of mails sent by this developer
+     */
+    private Set<MailMessage> mails;
 	
-	/**
-	 * The list of bug report messages sent by this developper
-	 */
-	private Set<BugReportMessage> bugReportMessages;
+    /**
+     * The list of bug report messages sent by this developper
+     */
+    private Set<BugReportMessage> bugReportMessages;
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public String getEmail() {
-		return email;
-	}
+    public String getEmail() {
+        return email;
+    }
 
-	public void setEmail(String email) {
-		this.email = email;
-	}
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
-	public String getUsername() {
-		return username;
-	}
+    public String getUsername() {
+        return username;
+    }
 
-	public void setUsername(String username) {
-		this.username = username;
-	}
+    public void setUsername(String username) {
+        this.username = username;
+    }
 
-	public StoredProject getStoredProject() {
-		return storedProject;
-	}
+    public StoredProject getStoredProject() {
+        return storedProject;
+    }
 
-	public void setStoredProject(StoredProject storedProject) {
-		this.storedProject = storedProject;
-	}
+    public void setStoredProject(StoredProject storedProject) {
+        this.storedProject = storedProject;
+    }
     
     public Set<ProjectVersion> getCommits() {
         return commits;
@@ -137,20 +138,20 @@ public class Developer extends DAObject{
     }
 
     /**
-	 * Return the entry in the Developer table that corresponds to the provided
-	 * email. If the entry does not exist, it will be created and saved. If the
-	 * email username (the part before @) exists in the database, then this
-	 * record is updated with the provided email and returned.
-	 * 
-	 * @param email
-	 *            The Developer's email
-	 * @param sp The StoredProject this Developer belongs to
-	 * @return A Developer record for the specified Developer or null when:
-	 *         <ul>
-	 *         <li>The passed StoredProject does not exist</li>
-	 *         <li>The passed email is invalid syntactically</li>
-	 *         <ul>
-	 */
+     * Return the entry in the Developer table that corresponds to the provided
+     * email. If the entry does not exist, it will be created and saved. If the
+     * email username (the part before @) exists in the database, then this
+     * record is updated with the provided email and returned.
+     * 
+     * @param email
+     *            The Developer's email
+     * @param sp The StoredProject this Developer belongs to
+     * @return A Developer record for the specified Developer or null when:
+     *         <ul>
+     *         <li>The passed StoredProject does not exist</li>
+     *         <li>The passed email is invalid syntactically</li>
+     *         <ul>
+     */
     public static Developer getDeveloperByEmail(String email, StoredProject sp){
         DBService dbs = CoreActivator.getDBService();
         
@@ -210,7 +211,7 @@ public class Developer extends DAObject{
      * @return A Developer record for the specified Developer or null on failure
      */
     @SuppressWarnings("unchecked")
-    public static Developer getDeveloperByUsername(String username, StoredProject sp) {
+        public static Developer getDeveloperByUsername(String username, StoredProject sp) {
 		
         DBService dbs = CoreActivator.getDBService();
 
@@ -219,7 +220,7 @@ public class Developer extends DAObject{
         parameterMap.put("storedProject", sp);
 
         List<Developer> devs = dbs.findObjectsByProperties(Developer.class,
-                parameterMap);
+                                                           parameterMap);
 
         /*
          * Developer in the DB, return it Username + storedproject is unique, so
@@ -235,7 +236,7 @@ public class Developer extends DAObject{
          * only work with postgres
          */
         devs = (List<Developer>) dbs.doHQL("from Developer where email like '"
-                + username + "'");
+                                           + username + "'");
 
         for (Developer d : devs) {
             String email = d.getEmail();
