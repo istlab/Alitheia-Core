@@ -32,7 +32,13 @@
 
 package eu.sqooss.service.web.services;
 
+import java.util.Dictionary;
+import java.util.Hashtable;
+
 import org.osgi.framework.BundleContext;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.EventHandler;
 
 import eu.sqooss.impl.service.web.services.MetricManager;
 import eu.sqooss.impl.service.web.services.ProjectManager;
@@ -78,13 +84,21 @@ import eu.sqooss.service.webadmin.WebadminService;
  * for use by the SQO-OSS user interfaces (<i>or other web service aware
  * applications</i>).
  */
-public class WebServices {
+public class WebServices implements EventHandler{
 
     // Instances of the manager classes
     private MetricManager metricManager;
     private ProjectManager projectManager;
     private UserManager userManager;
-
+    
+    private BundleContext bc;
+    private Logger logger;
+    private PluginAdmin pluginAdmin;
+    private SecurityManager securityManager;
+    private DBService db;
+    private WebadminService wa;
+    
+    
     /**
      * Instantiates a new WebServices object.
      * 
@@ -102,11 +116,31 @@ public class WebServices {
             PluginAdmin pluginAdmin,
             Logger logger,
             WebadminService wa) {
+        
+        this.bc = bc;
+        this.securityManager = securityManager;
+        this.db = db;
+        this.pluginAdmin = pluginAdmin;
+        this.logger = logger;
+        this.wa = wa;
+        
+        //Register an event handler for DB init events
+        final String[] topics = new String[] {
+                DBService.EVENT_STARTED
+        };
+        
+        Dictionary d = new Hashtable(); 
+        d.put(EventConstants.EVENT_TOPIC, topics ); 
+        
+        bc.registerService(EventHandler.class.getName(), this, d);  
+    }
+
+    private void initComponents() {
         metricManager = new MetricManager(logger, db, pluginAdmin, securityManager);
         projectManager = new ProjectManager(logger, db, securityManager);
         userManager = new UserManager(logger, securityManager, db, wa);
     }
-
+    
     // ===[ ProjectManager methods]===========================================
 
     /**
@@ -210,7 +244,7 @@ public class WebServices {
      * @return The array with all evaluated project versions, or a
      *   <code>null</code> array when none are found.
      */
-    public WSProjectVersion[] getProjectVersionsByProjectId(
+     public WSProjectVersion[] getProjectVersionsByProjectId(
             String userName,
             String password,
             long projectId) {
@@ -611,7 +645,14 @@ public class WebServices {
             String messageBody) {
         return userManager.notifyAdmin(userName, password, title, messageBody);
     }
-    
+
+    // ===[EventHandler method]================================================
+    public void handleEvent(Event e) {
+        logger.debug("Caught EVENT type=" + e.getPropertyNames().toString());
+        if (e.getTopic() == DBService.EVENT_STARTED) {
+            initComponents();           
+        }
+    }
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

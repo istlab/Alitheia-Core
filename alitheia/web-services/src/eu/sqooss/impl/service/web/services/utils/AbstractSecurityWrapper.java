@@ -33,6 +33,7 @@
 package eu.sqooss.impl.service.web.services.utils;
 
 import java.util.Hashtable;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.security.SecurityManager;
@@ -42,16 +43,20 @@ public class AbstractSecurityWrapper implements SecurityWrapperConstants {
     protected SecurityManager security;
     protected Hashtable<String, String> privileges;
     protected Object privilegesLockObject = new Object();
+    private DBService db;
+    private AtomicBoolean initialized;
     
     public AbstractSecurityWrapper(SecurityManager security, DBService db) {
         this.security = security;
         this.privileges = new Hashtable<String, String>();
-        db.startDBSession();
-        initDB();
-        db.commitDBSession();
+        this.db = db;
+        initialized = new AtomicBoolean(false);
     }
     
     public void checkDBReadAccess(String userName, String password) {
+        if (!initialized.get() == true) {
+            initDB();
+        }
         synchronized (privilegesLockObject) {
             privileges.clear();
             privileges.put(Privilege.ACTION.toString(),
@@ -65,6 +70,9 @@ public class AbstractSecurityWrapper implements SecurityWrapperConstants {
     
     public void checkDBProjectsReadAccess(String userName, String password,
             long[] projectsIds, String projectName) {
+        if (!initialized.get() == true) {
+            initDB();
+        }
         synchronized (privilegesLockObject) {
             privileges.clear();
             privileges.put(Privilege.ACTION.toString(), PrivilegeValue.READ.toString());
@@ -83,7 +91,12 @@ public class AbstractSecurityWrapper implements SecurityWrapperConstants {
         }
     }
     
-    private void initDB() {
+    protected boolean isInitialized() {
+        return initialized.get();
+    }
+    
+    protected void initDB() {
+        db.startDBSession();
         if (security.getGroupManager().getGroup(GROUP_DESCRIPTION) == null) {
             ServiceUrl[] ServiceUrls = ServiceUrl.values();
             Privilege[] privileges;
@@ -100,8 +113,9 @@ public class AbstractSecurityWrapper implements SecurityWrapperConstants {
                 }
             }
         }
+        initialized.compareAndSet(false, true);
+        db.commitDBSession();
     }
-    
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
