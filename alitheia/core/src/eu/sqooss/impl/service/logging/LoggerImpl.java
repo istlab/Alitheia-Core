@@ -110,12 +110,15 @@ public class LoggerImpl implements Logger {
         }
 
         StringBuilder b = new StringBuilder();
+        b.append(e.getMessage());
+        b.append(":\n");
         StackTraceElement stack[] = e.getStackTrace();
         if ((b==null) || (stack==null)) {
             return "";
         }
         for (StackTraceElement s : stack) {
             if (s!=null) {
+                b.append("    ");
                 b.append(s.toString());
                 b.append("\n");
             }
