@@ -40,8 +40,6 @@ import eu.sqooss.impl.service.CoreActivator;
 
 /**
  * DAO Object for the MailMessage database table
- *
- * @author Vassilios Karakoidas (bkarak@aueb.gr)
  */
 public class MailMessage extends DAObject {
     Developer sender;
