@@ -35,21 +35,33 @@ package eu.sqooss.impl.service;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Dictionary;
+import java.util.Hashtable;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
+import org.osgi.framework.ServiceRegistration;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.EventHandler;
 
 // Now the SQO-OSS imports, alphabetically
 import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
 
-public class TesterActivator implements BundleActivator {
+public class TesterActivator implements BundleActivator, EventHandler, Runnable {
+    
+    private static final int TEST_WAITING_TIME = 3000;
+    
     private ServiceReference serviceRef = null;
     private AlitheiaCore core = null;
     private Logger logger = null;
+    private BundleContext bc;
+    private ServiceRegistration sReg;
 
     private void getLogger() {
         assert (core != null);
@@ -64,8 +76,45 @@ public class TesterActivator implements BundleActivator {
             return;
         }
 
-        System.out.println("Self-test is enabled. Starting self-test.");
+        this.bc = bc;
+        
+        Dictionary<String, String> props = new Hashtable<String, String>(1);
+        props.put(EventConstants.EVENT_TOPIC, DBService.EVENT_STARTED);
+        sReg = bc.registerService(EventHandler.class.getName(), this, props);
+        
+        System.out.println("Self-test is enabled.");
+    }
 
+    public void stop(BundleContext bc) throws Exception {
+        if (serviceRef != null) {
+            bc.ungetService(serviceRef);
+        }
+        if (sReg != null) {
+            sReg.unregister();
+        }
+    }
+
+    /**
+     * @see org.osgi.service.event.EventHandler#handleEvent(org.osgi.service.event.Event)
+     */
+    public void handleEvent(Event event) {
+        if (DBService.EVENT_STARTED.equals(event.getTopic())) {
+            Thread thread = new Thread(this);
+            thread.start();
+        }
+    }
+
+    /**
+     * @see java.lang.Runnable#run()
+     */
+    public void run() {
+        
+        try {
+            Thread.sleep(TEST_WAITING_TIME);
+        } catch (InterruptedException ie) {
+            ie.printStackTrace();
+        }
+        
         serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
         core = (AlitheiaCore) bc.getService(serviceRef);
 
@@ -75,6 +124,7 @@ public class TesterActivator implements BundleActivator {
         }
 
         logger.info("Running self-test.");
+        System.out.println("Self-test is enabled. Starting self-test");
 
         Bundle[] bundles = bc.getBundles();
         for (Bundle b : bundles) {
@@ -141,12 +191,7 @@ public class TesterActivator implements BundleActivator {
         logger.info("Finished self-test.");
         System.out.println("Self-test is enabled. Finished self-test.");
     }
-
-    public void stop(BundleContext bc) throws Exception {
-        if (serviceRef != null) {
-            bc.ungetService(serviceRef);
-        }
-    }
+    
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab
