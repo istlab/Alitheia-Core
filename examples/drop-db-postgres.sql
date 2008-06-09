@@ -40,6 +40,18 @@ drop table pending_user;
 drop table plugin_configuration;
 drop table plugin;
 
+-- Now go around again
+drop table stored_project_measurement;
+drop table developer;
+drop table file_group_measurement;
+drop table file_group;
+drop table invocation_rule;
+drop table plugin;
+drop table metric_type;
+drop table project_version;
+
+
+
 -- Display remaining tables, just in case
 --
 \d
