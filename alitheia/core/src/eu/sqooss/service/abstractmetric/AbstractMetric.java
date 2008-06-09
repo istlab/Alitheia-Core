@@ -442,7 +442,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
             // but if it is not available when the bundle is active, something
             // is possibly wrong.
             if (bc.getBundle().getState() == Bundle.ACTIVE) {
-                log.warn("No info object for plugin <" + getName() + ">");
+                log.warn("Plugin <" + getName() + "> is loaded but not installed.");
             }
             return new ArrayList<PluginConfiguration>();
         }
