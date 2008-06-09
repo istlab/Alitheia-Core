@@ -40,16 +40,40 @@ import java.util.Map;
 import eu.sqooss.impl.service.CoreActivator;
 import eu.sqooss.service.db.DAObject;
 
+/**
+ * Instances of this object type represent the basic information on
+ * Metrics stored in the database 
+ */
 public class Metric extends DAObject{
-    private Plugin plugin;
-    private MetricType metricType;
-    private String mnemonic;
-    private String description;
+    /**
+     * the Alitheia Core plugin providing the functionality for this
+     * metric
+     */
+    private Plugin plugin; 
 
+    /**
+     * A representation of the type of metric:
+     * SOURCE_CODE - Relating to SVN
+     * MAILING_LIST - Relating to email data
+     * BUG_DATABASE - Relating to BTS data
+     * PROJECT_WIDE - Relating to all available project data
+     */
+    private MetricType metricType;
+
+    /**
+     * The short form of the metric's name
+     */
+    private String mnemonic; 
+
+    /**
+     * A description of the work performed by this metric
+     */
+    private String description;
+    
     public Metric() {
         //Nothing to do here
     }
-
+    
     public MetricType getMetricType() {
         return metricType;
     }
