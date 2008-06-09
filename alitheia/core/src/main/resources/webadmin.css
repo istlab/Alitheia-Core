@@ -204,6 +204,7 @@ body.section-7 #menu li#nav-7 a  {
 }
 #table tr.selected {
     color: Green;
+    cursor: pointer;
     background-color: #FFFF99;
 }
 #table td.head {
