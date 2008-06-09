@@ -37,13 +37,40 @@ import java.util.*;
 
 import eu.sqooss.service.db.DAObject;
 
+/**
+ * Part of the security system, instances of this class represent the
+ * details of an Alitheia Core system user, as stored in the database
+ */
 public class User extends DAObject {
-
+    /**
+     * The name of the Alitheia Core user
+     */
     private String name;
+
+    /**
+     * The date on which the user was registered into the system
+     */
     private Date registered;
+
+    /**
+     * The date on which the user last logged into the Alitheia Core
+     */
     private Date lastActivity;
+
+    /**
+     * The password for this Alitheia Core user
+     */
     private String password;
+
+    /**
+     * The email address for this Alitheia Core user
+     */
     private String email;
+
+    /**
+     * A set representing the security system groups of which this
+     * user is a member
+     */
     private Set groups = new HashSet();
     
     public User() {};
