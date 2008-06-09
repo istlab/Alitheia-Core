@@ -51,6 +51,7 @@ import eu.sqooss.service.db.PrivilegeValue;
 import eu.sqooss.service.db.ServiceUrl;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.db.User;
+import eu.sqooss.service.db.GroupType.Type;
 import eu.sqooss.service.security.GroupManager;
 import eu.sqooss.service.security.PrivilegeManager;
 import eu.sqooss.service.security.SecurityConstants;
@@ -1368,7 +1369,7 @@ public class UsersView extends AbstractView {
                             + "document.users.submit();\""
                             + "\""
                             + ">\n");
-                    for (Group group : secGM.getGroups(null)) {
+                    for (Group group : secGM.getGroups(Type.USER)) {
                         // Skip all definition groups
                         if (isDefinitionGroup(group.getId()))
                             continue;
@@ -1512,7 +1513,7 @@ public class UsersView extends AbstractView {
                 // Groups list - content rows
                 // ===========================================================
                 else if (reqValViewList.equals("groups")) {
-                    for (Group nextGroup : secGM.getGroups(null)) {
+                    for (Group nextGroup : secGM.getGroups(Type.USER)) {
                         // Skip all definition groups
                         if (isDefinitionGroup(nextGroup.getId()))
                             continue;
@@ -1813,7 +1814,7 @@ public class UsersView extends AbstractView {
      */
     private static boolean isDefinitionGroup(long groupId) {
         // Holds the list of privilege definition groups
-        List<Group> definitionGroups = getAllDefinitionGroups();
+        Group[] definitionGroups = getAllDefinitionGroups();
 
         // Check if the given group Id belongs to a definition group
         for (Group nextDefGroup : definitionGroups) {
@@ -1833,19 +1834,8 @@ public class UsersView extends AbstractView {
      * 
      * @return The list of all definition groups.
      */
-    private static List<Group> getAllDefinitionGroups () {
-        // Holds the list of privilege definition groups
-        List<Group> definitionGroups = new ArrayList<Group>();
-
-        // TODO: This code uses a hard-coded definition group names in order
-        // to find these groups. Fix it, once there is an API that provides
-        // this information.
-        Group wssDefGroup = sobjSecurity.getGroupManager().getGroup(
-                "web admin security group");
-        if (wssDefGroup != null)
-            definitionGroups.add(wssDefGroup);
-
-        return definitionGroups;
+    private static Group[] getAllDefinitionGroups () {
+        return sobjSecurity.getGroupManager().getGroups(Type.DEFINITION);
     }
 
     /**
