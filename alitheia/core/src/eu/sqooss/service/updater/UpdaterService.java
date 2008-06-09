@@ -108,9 +108,8 @@ public interface UpdaterService {
      */
     boolean update(StoredProject project, UpdateTarget target, Set<Integer> results);
 
-    
     /**
-     * Checks if is an update is running for the specified project
+     * Checks if an update is running for the specified project
      * on the given resource target.
      * 
      * @param project the project DAO
