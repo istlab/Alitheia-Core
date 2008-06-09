@@ -103,12 +103,13 @@ public class LoggerImpl implements Logger {
     protected int unget() {
         return --takingsNumber;
     }
-    
+
     private static String renderStackTrace(Exception e) {
         StringBuilder b = new StringBuilder();
         StackTraceElement stack[] = e.getStackTrace();
         for (StackTraceElement s : stack) {
             b.append(s.toString());
+            b.append("\n");
         }
         return b.toString();
     }

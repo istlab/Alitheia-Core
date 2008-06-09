@@ -44,6 +44,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.http.HttpService;
 
+import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.messaging.MessagingService;
 import eu.sqooss.service.webadmin.WebadminService;
@@ -54,9 +55,17 @@ public class WebadminServiceImpl implements WebadminService {
     private AdminServlet servlet                = null;
     private VelocityEngine ve;
     private NotifyAdminMessageSender messageSender;
+    private Logger logger = null;
 
     public WebadminServiceImpl(BundleContext bc,
             MessagingService messagingService, Logger logger) {
+        ServiceReference srcore = bc.getServiceReference(AlitheiaCore.class.getName());
+        AlitheiaCore core = (AlitheiaCore) bc.getService(srcore);
+
+        //Get the LogManager and Logger objects
+        logger = core.getLogManager().createLogger(
+                    Logger.NAME_SQOOSS_WEBADMIN);
+
         // Get a reference to the HTTPService, and then its object
         srefHTTPService = bc.getServiceReference(
             HttpService.class.getName());
@@ -64,8 +73,7 @@ public class WebadminServiceImpl implements WebadminService {
             sobjHTTPService = (HttpService) bc.getService(srefHTTPService);
         }
         else {
-            System.out.println(
-                "[ERROR] Could not find a HTTP service!");
+            logger.error("Could not find a HTTP service!");
         }
 
         initVelocity();
@@ -81,7 +89,7 @@ public class WebadminServiceImpl implements WebadminService {
                     null);
             }
             catch (Exception e) {
-                System.out.println("[ERROR] AdminServlet: " + e);
+                logger.error("AdminServlet",e);
             }
 
             try {
@@ -92,7 +100,7 @@ public class WebadminServiceImpl implements WebadminService {
                         null);
             }
             catch (Exception e) {
-                System.out.println("[ERROR] AdminWS: " + e);
+                logger.error("AdmWS", e);
             }
         }
     }
@@ -111,7 +119,7 @@ public class WebadminServiceImpl implements WebadminService {
     public void setMessageOfTheDay(String s) {
         messageOfTheDay = s;
     }
-    
+
     /**
      * @see eu.sqooss.service.webadmin.WebadminService#notifyAdmin(String, String, String)
      */
@@ -121,14 +129,14 @@ public class WebadminServiceImpl implements WebadminService {
     }
 
     /*
-     * The utility method used for the initialization of the velocity engine. 
+     * The utility method used for the initialization of the velocity engine.
      */
     private void initVelocity() {
         try {
             ve = new VelocityEngine();
             ve.setProperty("runtime.log.logsystem.class",
                            "org.apache.velocity.runtime.log.SimpleLog4JLogSystem");
-            ve.setProperty("runtime.log.logsystem.log4j.category", 
+            ve.setProperty("runtime.log.logsystem.log4j.category",
                            Logger.NAME_SQOOSS_WEBADMIN);
             String resourceLoader = "classpath";
             ve.setProperty(RuntimeConstants.RESOURCE_LOADER, resourceLoader);
@@ -136,8 +144,7 @@ public class WebadminServiceImpl implements WebadminService {
             "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader");
         }
         catch (Exception e) {
-            //TODO: log
-            System.out.println(e);
+            logger.error("Velocity initialization",e);
         }
     }
 }

@@ -187,7 +187,7 @@ public class AdminServlet extends HttpServlet {
             }
         }
         catch (NullPointerException e) {
-            logger.warn("Got a NPE while rendering a page.");
+            logger.warn("Got a NPE while rendering a page.",e);
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }

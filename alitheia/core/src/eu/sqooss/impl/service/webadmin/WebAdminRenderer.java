@@ -71,7 +71,7 @@ import eu.sqooss.service.webadmin.WebadminService;
 public class WebAdminRenderer  extends AbstractView {
     // Current time
     private static long startTime = new Date().getTime();
-    
+
     public WebAdminRenderer(BundleContext bundlecontext, VelocityContext vc) {
         super(bundlecontext, vc);
     }
@@ -196,7 +196,7 @@ public class WebAdminRenderer  extends AbstractView {
                     result.append("<b>NA<b>");
                 }
                 result.append("</td>\n\t\t\t<td>");
-                if ((e != null) 
+                if ((e != null)
                         && (e.getStackTrace() != null)) {
                     for(StackTraceElement m: e.getStackTrace()) {
                         if (m == null) continue;
@@ -370,7 +370,7 @@ public class WebAdminRenderer  extends AbstractView {
         Collection<PluginInfo> metrics = sobjPA.listPlugins();
 
         if (reqValAction.equals(actReqAddProject)) {
-            
+
         }
         // ===================================================================
         // Projects list
@@ -502,12 +502,12 @@ public class WebAdminRenderer  extends AbstractView {
         // ===============================================================
         // "Action type" input field
         b.append(sp(in) + "<input type=\"hidden\""
-                + " id=\"" + reqParAction + "\"" 
+                + " id=\"" + reqParAction + "\""
                 + " name=\"" + reqParAction + "\""
                 + " value=\"\">\n");
         // "Project Id" input field
         b.append(sp(in) + "<input type=\"hidden\""
-                + " id=\"" + reqParProjectId + "\"" 
+                + " id=\"" + reqParProjectId + "\""
                 + " name=\"" + reqParProjectId + "\""
                 + " value=\""
                 + ((selProject != null) ? selProject.getId() : "")
@@ -526,7 +526,7 @@ public class WebAdminRenderer  extends AbstractView {
         b.append("<table border=\"1\">");
         b.append("<tr>");
         b.append("<td><b>Project</b></td>");
-        
+
         for(PluginInfo m : metrics) {
             if(m.installed) {
                 b.append("<td><b>");
@@ -535,7 +535,7 @@ public class WebAdminRenderer  extends AbstractView {
             }
         }
         b.append("</tr>\n");
-       
+
         for (int i=0; i<projects.size(); i++) {
             b.append("\t<tr>\n");
             StoredProject p = projects.get(i);
@@ -574,23 +574,23 @@ public class WebAdminRenderer  extends AbstractView {
         return b.toString();
     }
 
-    public void addProject(HttpServletRequest request) {        
-        
+    public void addProject(HttpServletRequest request) {
+
         String name = request.getParameter("name");
         String website = request.getParameter("website");
         String contact = request.getParameter("contact");
         String bts = request.getParameter("bts");
         String mail = request.getParameter("mail");
         String scm = request.getParameter("scm");
-        
-        addProject(name, website, contact, bts, mail, scm); 
+
+        addProject(name, website, contact, bts, mail, scm);
     }
-    
-    private void addProject(String name, String website, String contact, 
+
+    private void addProject(String name, String website, String contact,
             String bts, String mail, String scm) {
         final String tryAgain = "<p><a href=\"/projects\">Try again</a>.</p>";
         final String returnToList = "<p><a href=\"/projects\">Try again</a>.</p>";
-       
+
         // Avoid missing-entirely kinds of parameters.
         if ( (name == null) ||
              (website == null) ||
@@ -599,14 +599,14 @@ public class WebAdminRenderer  extends AbstractView {
                  (mail == null) || */
              (scm == null) ) {
             vc.put("RESULTS",
-                   "<p>Add project failed because some of the required information was missing.</p>" 
+                   "<p>Add project failed because some of the required information was missing.</p>"
                    + tryAgain);
             return;
         }
 
         // Avoid adding projects with empty names or SVN.
         if (name.trim().length() == 0 || scm.trim().length() == 0) {
-            vc.put("RESULTS", "<p>Add project failed because the project name or Subversion repository were missing.</p>" 
+            vc.put("RESULTS", "<p>Add project failed because the project name or Subversion repository were missing.</p>"
                    + tryAgain);
             return;
         }
@@ -643,7 +643,7 @@ public class WebAdminRenderer  extends AbstractView {
             sobjTDS.addAccessor(p.getId(), p.getName(), p.getBugs(),
                                 p.getMail(), p.getRepository());
             TDAccessor a = sobjTDS.getAccessor(p.getId());
-            
+
             try {
                 a.getSCMAccessor().getHeadRevision();
                 //FIXME: fix this when we have a proper bug accessor
@@ -666,9 +666,9 @@ public class WebAdminRenderer  extends AbstractView {
                 sobjTDS.releaseAccessor(a);
                 return;
             }
-            
+
             sobjTDS.releaseAccessor(a);
-            
+
             // 3. Call the updater and check if it starts
             if (sobjUpdater.update(p, UpdaterService.UpdateTarget.ALL, null)) {
                 sobjLogger.info("Added a new project <" + name + "> with ID " +
@@ -687,43 +687,43 @@ public class WebAdminRenderer  extends AbstractView {
             sobjDB.commitDBSession();
         }
     }
-    
+
     public void addProjectDir(HttpServletRequest request) {
         String info = request.getParameter("info");
-        
+
         if(info == null || info.length() == 0) {
             vc.put("RESULTS",
                     "<p>Add project failed because some of the required information was missing.</p>"
                     + "<b>" + info + "</b>");
             return;
         }
-        
+
         if (!info.endsWith("info.txt")) {
             vc.put("RESULTS",
                     "<p>The entered path does not include an info.txt file</p> <br/>"
                     + "<b>" + info + "</b>");
             return;
         }
-        
+
         File f = new File(info);
-        
+
         if (!f.exists() || !f.isFile()) {
             vc.put("RESULTS",
                     "<p>The provided path does not exist or is not a file</p> <br/>"
                     + "<b>" + info + "</b>");
             return;
         }
-        
+
         String name = f.getParentFile().getName();
         String bts = "bts:" + f.getParentFile().getAbsolutePath() + "/bugs";
         String mail = "maildir:" + f.getParentFile().getAbsolutePath() + "/mail";
         String scm = "file://" + f.getParentFile().getAbsolutePath() + "/svn";
-        
+
         Pattern wsPattern = Pattern.compile("^Website:?\\s*(http.*)$");
         Pattern ctnPattern = Pattern.compile("^Contact:?\\s*(http.*)$");
-        
+
         String website = "", contact = "";
-        
+
         try {
             LineNumberReader lnr = new LineNumberReader(new FileReader(f));
             String line = null;
@@ -748,13 +748,13 @@ public class WebAdminRenderer  extends AbstractView {
                     + "<b>" + info + "</b>");
             return;
         }
-        
-        addProject(name, website, contact, bts, mail, scm);        
+
+        addProject(name, website, contact, bts, mail, scm);
     }
 
     public void setMOTD(WebadminService webadmin, HttpServletRequest request) {
         webadmin.setMessageOfTheDay(request.getParameter("motdtext"));
-        vc.put("RESULTS", 
+        vc.put("RESULTS",
                "<p>The Message Of The Day was successfully updated with: <i>" +
                request.getParameter("motdtext") + "</i></p>");
     }
