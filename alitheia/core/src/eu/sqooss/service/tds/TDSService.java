@@ -33,8 +33,6 @@
 
 package eu.sqooss.service.tds;
 
-import eu.sqooss.service.tds.TDAccessor;
-
 /**
  * The TDS service interface provides a way to retrieve and release
  * and configure the thin data access objects. A typical lifecycle

@@ -34,8 +34,11 @@ package eu.sqooss.core;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.servlet.ServletException;
 
@@ -106,7 +109,10 @@ public class AlitheiaCore {
     private MetricActivator ma;
 
     /** The parent bundle's context object. */
-    private org.osgi.framework.BundleContext bc;
+    private BundleContext bc;
+    
+    /** Is the database inited yet? */
+    private AtomicBoolean dbInited;
 
     /**
      * Initializes an instance of the Logger component.
@@ -145,6 +151,7 @@ public class AlitheiaCore {
      */
     public AlitheiaCore(BundleContext bc) {
         this.bc = bc;
+        dbInited = new AtomicBoolean(false);
     }
 
     /**
@@ -206,6 +213,9 @@ public class AlitheiaCore {
      * @return The DB component's instance.
      */
     public DBService getDBService() {
+        //TODO: Naive busy wait
+     //   while(dbInited.get() != true) {
+       // }
         return db;
     }
 
@@ -284,7 +294,7 @@ public class AlitheiaCore {
      */
     public TDSService getTDSService() {
         if (tds == null) {
-            tds = new TDSServiceImpl(
+            tds = new TDSServiceImpl(bc, 
                     getLogManager().createLogger(Logger.NAME_SQOOSS_TDS));
         }
         return tds;

@@ -50,22 +50,12 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.velocity.VelocityContext;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 
-import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.StoredProject;
-import eu.sqooss.service.logging.LogManager;
-import eu.sqooss.service.logging.Logger;
-import eu.sqooss.service.metricactivator.MetricActivator;
-import eu.sqooss.service.pa.PluginAdmin;
 import eu.sqooss.service.pa.PluginInfo;
 import eu.sqooss.service.scheduler.Job;
-import eu.sqooss.service.scheduler.Scheduler;
-import eu.sqooss.service.security.SecurityManager;
 import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.TDAccessor;
-import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.updater.UpdaterService;
 import eu.sqooss.service.util.StringUtils;
 import eu.sqooss.service.webadmin.WebadminService;
@@ -83,10 +73,6 @@ public class WebAdminRenderer  extends AbstractView {
     
     public WebAdminRenderer(BundleContext bundlecontext, VelocityContext vc) {
         super(bundlecontext, vc);
-
-        // Do some stuffing
-        Stuffer myStuffer = new Stuffer(sobjDB, sobjLogger, sobjTDS);
-        myStuffer.run();
     }
 
     public static String renderJobFailStats() {

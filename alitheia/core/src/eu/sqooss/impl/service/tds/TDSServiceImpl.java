@@ -32,23 +32,36 @@
 
 package eu.sqooss.impl.service.tds;
 
+import java.util.Dictionary;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.EventHandler;
 import org.tmatesoft.svn.core.internal.io.dav.DAVRepositoryFactory;
 import org.tmatesoft.svn.core.internal.io.fs.FSRepositoryFactory;
 import org.tmatesoft.svn.core.internal.io.svn.SVNRepositoryFactoryImpl;
 
+import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.TDAccessor;
 import eu.sqooss.service.tds.TDSService;
 
-public class TDSServiceImpl implements TDSService {
+public class TDSServiceImpl implements TDSService, EventHandler {
     private Logger logger = null;
     private HashMap<Long, TDAccessorImpl> accessorPool;
-
-    public TDSServiceImpl(Logger l) {
+    private BundleContext bc;
+    
+    public TDSServiceImpl(BundleContext bc, Logger l)  {
+        this.bc = bc;
         logger = l;
         // Many other implementation classes need the same logger
         TDAccessorImpl.logger = logger;
@@ -68,6 +81,16 @@ public class TDSServiceImpl implements TDSService {
         logger.info("SVN repo factories initialized.");
 
         accessorPool = new HashMap<Long,TDAccessorImpl>();
+        
+        //Register an event handler
+        final String[] topics = new String[] {
+                DBService.EVENT_STARTED
+        };
+            
+        Dictionary d = new Hashtable(); 
+        d.put(EventConstants.EVENT_TOPIC, topics ); 
+        
+        bc.registerService(EventHandler.class.getName(), this, d); 
     }
 
     // Interface methods
@@ -160,8 +183,60 @@ public class TDSServiceImpl implements TDSService {
         // Everything is ok
         return null;
     }
+    
+    /**
+     * Tell the TDS which projects are installed. Implemented here s 
+     */
+    private void stuffer() {
+        logger.debug("TDS now running stuffer.");
+        ServiceReference srefCore = null;
+        DBService db = null;
+        srefCore = bc.getServiceReference(AlitheiaCore.class.getName());
+        AlitheiaCore sobjCore = (AlitheiaCore) bc.getService(srefCore);
+
+        if (sobjCore != null) {
+            // Obtain the required core components
+            db = sobjCore.getDBService();
+            if (db == null) {
+                logger.error("Can not obtain the DB object!");
+            }
+        }
+        
+        if (db != null && db.startDBSession()) {
+            List l = db.doHQL("from StoredProject");
+
+            if (l.isEmpty()) {
+                bogusStuffer();
+                // Next for loop is empty as well
+            }
+            for (Object o : l) {
+                StoredProject p = (StoredProject) o;
+                addAccessor(p.getId(), p.getName(), p.getBugs(), 
+                        p.getMail(), p.getRepository());
+            }
+            db.commitDBSession();
+        } else {
+            bogusStuffer();
+        }
+
+        logger.info("TDS Stuffer is finished.");
+    }
+
+
+    private void bogusStuffer() {
+        logger.debug("Stuffing bogus project into TDS");
+        // Some dorky default project so the TDS is not empty
+        // for the test later.
+        addAccessor(1, "KPilot", "", "",
+            "http://cvs.codeyard.net/svn/kpilot/" );
+    }
+
+    public void handleEvent(Event e) {
+        logger.debug("Caught EVENT type=" + e.getPropertyNames().toString());
+        if (e.getTopic() == DBService.EVENT_STARTED) {
+            stuffer();           
+        }
+    }
 }
 
-
 // vi: ai nosi sw=4 ts=4 expandtab
-

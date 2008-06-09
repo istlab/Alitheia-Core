@@ -44,8 +44,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.hibernate.HibernateException;
 import org.hibernate.QueryException;
@@ -55,6 +57,11 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkEvent;
+import org.osgi.framework.FrameworkListener;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventAdmin;
 
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
@@ -70,20 +77,23 @@ import eu.sqooss.impl.service.logging.LoggerImpl;
  * @author ???, Romain Pokrzywka
  * 
  */
-public class DBServiceImpl implements DBService {
+public class DBServiceImpl implements DBService, FrameworkListener {
 
     private static final String DB_DRIVER_PROPERTY = "eu.sqooss.db.driver";
     private static final String DB_CONNECTION_URL_PROPERTY = "eu.sqooss.db.url";
     private static final String DB_DIALECT_PROPERTY = "eu.sqooss.db.dialect";
     private static final String HIBERNATE_CONFIG_PROPERTY = "eu.sqooss.hibernate.config";
     private static final String HIBERNATE_RESET_PROPERTY = "eu.sqooss.hibernate.reset";
-
+    
     private Logger logger = null;
     // Store the class and URL of the database to hand off to
     // Hibernate so that it obeys the fallback from Postgres to Derby as well.
     private String dbClass, dbURL, dbDialect;
     private SessionFactory sessionFactory = null;
-
+    private BundleContext bc = null;
+    private EventAdmin eaService = null;
+    private AtomicBoolean isInitialised = new AtomicBoolean(false);
+    
     private void logSQLException(SQLException e) {
 
         while (e != null) {
@@ -119,11 +129,11 @@ public class DBServiceImpl implements DBService {
     private boolean checkSession() {
         if ( !isDBSessionActive() ) {
             logger.warn("Trying to call a DBService method without an active session");
-try {
-throw new Exception("No active session.");
-} catch (Exception e) {
-e.printStackTrace();
-}
+            try {
+                throw new Exception("No active session.");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             return false;
         }
         return true;
@@ -185,7 +195,7 @@ e.printStackTrace();
     }
 
     private void initHibernate(URL configFileURL, boolean resetDatabase) {
-        SessionFactory sf = null;
+        
         logger.info("Initializing Hibernate with URL <" + configFileURL + ">");
         if (configFileURL == null) {
             logger.warn("Ignoring null URL.");
@@ -215,6 +225,7 @@ e.printStackTrace();
                     });
                     for( File jarFile: metricsJars ) {
                         logger.debug("found metric bundle \"" + jarFile.getName() + "\", examining for custom DAOs");
+                        
                         c.addJar(jarFile);
                     }
                 } else {
@@ -289,6 +300,7 @@ e.printStackTrace();
      * @param l The current Logger
      */
     public DBServiceImpl(BundleContext bc, Logger l) {
+        this.bc = bc;
         logger = l;
 
         dbURL = null;
@@ -303,17 +315,15 @@ e.printStackTrace();
                 logger.error("DB service got no JDBC connectors.");
             }
         }
-
-        if (dbClass != null) {
-            logger.info("Using JDBC " + dbClass);
-            boolean resetDatabase = false;
-            if (Boolean.valueOf(bc.getProperty(HIBERNATE_RESET_PROPERTY))) {
-                resetDatabase = true;
-            }
-            initHibernate(bc.getBundle().getEntry("/hibernate.cfg.xml"), resetDatabase);
-        } else {
-            logger.error("Hibernate will not be initialized.");
-            // TODO: Throw something to prevent the bundle from being started?
+        bc.addFrameworkListener(this);
+        
+        ServiceReference srefEAService = bc.getServiceReference(
+                org.osgi.service.event.EventAdmin.class.getName());
+        if (srefEAService != null) {
+            eaService = (EventAdmin) bc.getService(srefEAService);
+        }
+        else {
+            System.err.println("Could not find a Event Admin service!");
         }
     }
 
@@ -977,6 +987,11 @@ e.printStackTrace();
     }
 
     public boolean startDBSession() {
+        //Boot time check
+        if(isInitialised.get() == false) {
+            return false;
+        }
+        
         if( isDBSessionActive() ) {
             logger.debug("startDBSession() - a session was already started for that thread");
             return true;
@@ -1071,6 +1086,11 @@ e.printStackTrace();
     }
 
     public boolean isDBSessionActive() {
+        //Boot time check
+        if(isInitialised.get() == false) {
+            return false;
+        }
+        
         Session s = null;
         try {
             s = sessionFactory.getCurrentSession();
@@ -1104,7 +1124,39 @@ e.printStackTrace();
             return null;
         }
     }
-
+      
+    public void frameworkEvent(FrameworkEvent event) {
+        
+        /**
+         * Start Hibernate after all other bundles have started
+         */
+        if(event.getType() == FrameworkEvent.STARTLEVEL_CHANGED) {
+            if (dbClass != null) {
+                logger.info("Using JDBC " + dbClass);
+                boolean resetDatabase = false;
+                if (Boolean.valueOf(bc.getProperty(HIBERNATE_RESET_PROPERTY))) {
+                    resetDatabase = true;
+                }
+                logger.info("Caught STARTED event - Initialising Hibernate");
+                
+                initHibernate(bc.getBundle().getEntry("/hibernate.cfg.xml"), resetDatabase);
+                
+                isInitialised.compareAndSet(false, true);
+                
+                if (eaService != null) {
+                    Hashtable<String, Boolean> value = new Hashtable();
+                    value.put("value", true);
+                    eaService.sendEvent(new Event(DBService.EVENT_STARTED, value));
+                } else {
+                    logger.error("Cannot send the" + DBService.EVENT_STARTED + 
+                            "event");
+                }
+            } else {
+                logger.error("Hibernate could not be initialized.");
+                // TODO: Throw something to prevent the bundle from being started?
+            }
+        }
+    }
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

@@ -33,9 +33,13 @@ package eu.sqooss.impl.service.pa;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Dictionary;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 import org.eclipse.osgi.framework.console.CommandProvider;
 import org.osgi.framework.BundleContext;
@@ -44,6 +48,9 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.EventHandler;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
@@ -55,7 +62,7 @@ import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.pa.PluginAdmin;
 import eu.sqooss.service.pa.PluginInfo;
 
-public class PAServiceImpl implements PluginAdmin, ServiceListener {
+public class PAServiceImpl implements PluginAdmin, ServiceListener, EventHandler  {
 
     /* ===[ Constants: Service search filters ]=========================== */
 
@@ -83,6 +90,8 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
     // Required SQO-OSS components
     private Logger logger;
     private DBService sobjDB = null;
+    
+    private Queue<ServiceEvent> initEventQueue = new LinkedList<ServiceEvent>();
 
     /** 
      * Keeps a list of registered metric plug-in's services, indexed by the 
@@ -129,7 +138,17 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
                     CommandProvider.class.getName(),
                     new PACommandProvider(this, sobjDB) ,
                     null);
-
+            
+            //Register an event handler for DB init events
+            final String[] topics = new String[] {
+                    DBService.EVENT_STARTED
+            };
+                
+            Dictionary d = new Hashtable(); 
+            d.put(EventConstants.EVENT_TOPIC, topics ); 
+            
+            bc.registerService(EventHandler.class.getName(), this, d); 
+             
             logger.debug("The PluginAdmin component was successfully started.");
         }
         else {
@@ -433,8 +452,14 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
         // Get a reference to the affected service
         ServiceReference affectedService = event.getServiceReference();
 
-        // Create a DB session
-        sobjDB.startDBSession();
+        /* 
+         * If the DB session failed to initialise store the event 
+         * for later processing 
+         */
+        if (!sobjDB.startDBSession()) {
+            initEventQueue.add(event);
+            return;
+        }
 
         // Find out what happened to the service
         switch (event.getType()) {
@@ -683,6 +708,15 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
         return null;
     }
 
+    public void handleEvent(Event e) {
+        logger.info("Caught EVENT type=" + e.getPropertyNames().toString());
+        if (e.getTopic() == DBService.EVENT_STARTED) {
+            //Fire up queued service events after the DB service is inited
+            while (initEventQueue.size() > 0) {
+                serviceChanged(initEventQueue.remove());
+            }
+        }
+    }
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

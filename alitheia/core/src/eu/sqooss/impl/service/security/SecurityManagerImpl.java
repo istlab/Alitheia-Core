@@ -46,6 +46,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventHandler;
 import org.osgi.service.http.HttpService;
 
 import eu.sqooss.core.AlitheiaCore;
@@ -63,7 +65,7 @@ import eu.sqooss.service.security.SecurityManager;
 import eu.sqooss.service.security.ServiceUrlManager;
 import eu.sqooss.service.security.UserManager;
 
-public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
+public class SecurityManagerImpl implements SecurityManager, SecurityConstants, EventHandler {
 
     private static final String PROPERTY_DEFAULT_USER_NAME     = "eu.sqooss.security.user.name";
     private static final String PROPERTY_DEFAULT_USER_PASSWORD = "eu.sqooss.security.user.password";
@@ -153,13 +155,6 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
 
         // Check if security is enabled in the configuration file
         isEnable = Boolean.valueOf(System.getProperty(PROPERTY_ENABLE, "true"));
-
-        // Create the unprivileged SQO-OSS user
-        db.startDBSession();
-        initDefaultUser();
-        initNewUsersGroup();
-        storeConstantsInDB();
-        db.commitDBSession();
         
         // Get a reference to the HTTPService, and its object
         srefHttpService = bc.getServiceReference(HttpService.class.getName());
@@ -457,6 +452,16 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
         return newUsersGroup;
     }
 
+    public void handleEvent(Event e) {
+        
+        logger.debug("Caught EVENT type=" + e.getPropertyNames().toString());
+        // Create the unprivileged SQO-OSS user
+        db.startDBSession();
+        initDefaultUser();
+        initNewUsersGroup();
+        storeConstantsInDB();
+        db.commitDBSession();
+    }
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

@@ -911,7 +911,7 @@ public class FDSServiceImpl implements FDSService {
 
     public Timeline getTimeline(StoredProject c) {
         return new TimelineImpl(c);
-    }
+    }    
 }
 
 

@@ -76,8 +76,7 @@ public class MetricActivatorImpl implements MetricActivator {
     private ActionType defaultAction = null;
     private Long defaultRuleId = null;
     private Long firstRuleId = null;
-    private HashMap<Long,InvocationRule> rules =
-        new HashMap<Long,InvocationRule>();
+    private HashMap<Long,InvocationRule> rules = null;
 
     public MetricActivatorImpl(BundleContext bc, Logger logger) {
         this.bc=bc;
@@ -90,9 +89,12 @@ public class MetricActivatorImpl implements MetricActivator {
         this.pa = core.getPluginAdmin();
         this.sched = core.getScheduler();
         this.db = core.getDBService();
+    }
 
+    private void initRules() {
         // Load all defined invocation rules
-        db.startDBSession();
+        //db.startDBSession();
+        rules = new HashMap<Long, InvocationRule>();
         InvocationRule defaultRule = InvocationRule.getDefaultRule(db);
         defaultRuleId = defaultRule.getId();
         defaultAction = ActionType.fromString(defaultRule.getAction());
@@ -102,10 +104,14 @@ public class MetricActivatorImpl implements MetricActivator {
             rules.put(rule.getId(), rule);
             rule = rule.next(db);
         }
-        db.commitDBSession();
+        //db.commitDBSession();
     }
-
+    
     public void reloadRule (Long ruleId) {
+        if(rules == null) {
+            initRules();
+        }
+        
         // Invalid rule Id
         if (ruleId == null) return;
         // Retrieve the target rule from the database
@@ -130,6 +136,10 @@ public class MetricActivatorImpl implements MetricActivator {
     }
 
     public ActionType matchRules (AlitheiaPlugin ap, DAObject resource) {
+        if(rules == null) {
+            initRules();
+        }
+        
         // Retrieve the first rule
         InvocationRule rule = rules.get(firstRuleId);
 

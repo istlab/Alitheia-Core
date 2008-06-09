@@ -41,7 +41,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.hibernate.QueryException;
-import org.hibernate.Session;
 
 
 /**
@@ -69,6 +68,12 @@ import org.hibernate.Session;
  *
  */
 public interface DBService {
+    
+    /**
+     * Event denoting that the hibernate subsystem has been succesfully 
+     * initialised
+     */
+    public static final String EVENT_STARTED = "db/hibernate/STARTED";    
     
     /**
      * Starts a new work session with the DBService for the current thread.
@@ -117,6 +122,10 @@ public interface DBService {
      */
     public boolean rollbackDBSession();
     
+    /**
+     * Write uncommited session
+     * @return True if successful, false otherwise
+     */
     public boolean flushDBSession();
     
     /**
@@ -125,7 +134,6 @@ public interface DBService {
      *         false otherwise
      */
     public boolean isDBSessionActive();
-    
     
     /**
      * A generic query method to retrieve a single DAObject subclass using its identifier.
@@ -180,24 +188,6 @@ public interface DBService {
      */
     public <T extends DAObject> boolean addRecords(List<T> records);
 
-//    /**
-//     * Update an existing record in the system database, using the default database session.
-//     *
-//     * @param record the record to update in the database
-//     * @return true if the record update succeeded, false otherwise
-//     */
-//    public boolean updateRecord(DAObject record);
-//    
-//    /**
-//     * Update multiple existing records in the system database, using the default database session.
-//     * The results will be committed only if all the updates are successful,
-//     * so if any update fails then no record will be updated.
-//     * 
-//     * @param records the list of records to update in the database
-//     * @return true if all the record updates succeeded, false otherwise
-//     */
-//    public boolean updateRecords(List<DAObject> records);
-    
     /**
      * Delete an existing record from the system database, using the default database session.
      *
