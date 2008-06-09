@@ -58,6 +58,7 @@ import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.TDAccessor;
 import eu.sqooss.service.updater.UpdaterService;
+import eu.sqooss.service.updater.UpdaterService.UpdateTarget;
 import eu.sqooss.service.util.StringUtils;
 import eu.sqooss.service.webadmin.WebadminService;
 
@@ -304,6 +305,10 @@ public class WebAdminRenderer  extends AbstractView {
         // Recognized "action" parameter's values
         String actReqAddProject    = "reqAddProject";
         String actConRemProject    = "conRemProject";
+        String actConUpdAll        = "conUpdateAll";
+        String actConUpdCode       = "conUpdateCode";
+        String actConUpdMail       = "conUpdateMail";
+        String actConUpdBugs       = "conUpdateBugs";
         // Request values
         String reqValAction        = "";
         Long   reqValProjectId     = null;
@@ -343,11 +348,58 @@ public class WebAdminRenderer  extends AbstractView {
                         selProject = null;
                     }
                     else {
-                        e.append("Can not remove this project!");
+                        e.append(sp(in) + "Can not remove this project!"
+                                + " " + resMsg.getString("m0001")
+                                + "<br/>\n");
                     }
                 }
                 else {
-                    e.append("You must select a project first!");
+                    e.append(sp(in) + "You must select a project first!"
+                            + "<br/>\n");
+                }
+            }
+            // ---------------------------------------------------------------
+            // Trigger code update
+            // ---------------------------------------------------------------
+            else if (reqValAction.equals(actConUpdCode)) {
+                if (sobjUpdater.update(
+                        selProject, UpdateTarget.CODE, null) == false) {
+                    e.append(sp(in) + "Can not start a source code update!"
+                            + " " + "Try again later!"
+                            + "<br/>\n");
+                }
+            }
+            // ---------------------------------------------------------------
+            // Trigger mailing list(s) update
+            // ---------------------------------------------------------------
+            else if (reqValAction.equals(actConUpdMail)) {
+                if (sobjUpdater.update(
+                        selProject, UpdateTarget.MAIL, null) == false) {
+                    e.append(sp(in) + "Can not start a mailing list update!"
+                            + " " + "Try again later!"
+                            + "<br/>\n");
+                }
+            }
+            // ---------------------------------------------------------------
+            // Trigger bugs list(s) update
+            // ---------------------------------------------------------------
+            else if (reqValAction.equals(actConUpdBugs)) {
+                if (sobjUpdater.update(
+                        selProject, UpdateTarget.BUGS, null) == false) {
+                    e.append(sp(in) + "Can not start a bug list update!"
+                            + " " + "Try again later!"
+                            + "<br/>\n");
+                }
+            }
+            // ---------------------------------------------------------------
+            // Trigger update on all resources for that project
+            // ---------------------------------------------------------------
+            else if (reqValAction.equals(actConUpdAll)) {
+                if (sobjUpdater.update(
+                        selProject, UpdateTarget.ALL, null) == false) {
+                    e.append(sp(in) + "Can not start a complete update!"
+                            + " " + "Try again later!"
+                            + "<br/>\n");
                 }
             }
         }
@@ -407,57 +459,90 @@ public class WebAdminRenderer  extends AbstractView {
                     + "Evaluated</td>\n");
             b.append(sp(--in) + "</tr>\n");
             b.append(sp(--in) + "</thead>\n");
-            //----------------------------------------------------------------
-            // Create the content rows
-            //----------------------------------------------------------------
-            b.append(sp(in++) + "<tbody>\n");
-            for (StoredProject nextPrj : projects) {
-                boolean selected = false;
-                if ((selProject != null)
-                        && (selProject.getId() == nextPrj.getId())) {
-                    selected = true;
-                }
-                b.append(sp(in++) + "<tr class=\""
-                        + ((selected) ? "selected" : "edit") + "\""
-                        + " onclick=\"javascript:"
-                        + "document.getElementById('"
-                        + reqParProjectId + "').value='"
-                        + nextPrj.getId() + "';"
-                        + "document.projects.submit();\""
-                        + ">\n");
-                // Project Id
-                b.append(sp(in) + "<td class=\"trans\">"
-                        + nextPrj.getId()
-                        + "</td>\n");
-                // Project name
-                b.append(sp(in) + "<td class=\"trans\">"
-                        + nextPrj.getName()
-                        + "</td>\n");
-                // Last project version
-                String lastVersion = resLbl.getString("l0051");
-                if (StoredProject.getLastProjectVersion(nextPrj) != null) {
-                    lastVersion = new Long(
-                            StoredProject.getLastProjectVersion(
-                                    nextPrj).getVersion()).toString();
-                }
-                b.append(sp(in) + "<td class=\"trans\">"
-                        + lastVersion
-                        + "</td>\n");
-                // Date of the last known email
-                b.append(sp(in) + "<td class=\"trans\">"
-                        + resLbl.getString("l0051")
-                        + "</td>\n");
-                // Date of the last known bug entry
-                b.append(sp(in) + "<td class=\"trans\">"
-                        + resLbl.getString("l0051")
-                        + "</td>\n");
-                // Evaluation state
-                b.append(sp(in) + "<td class=\"trans\">"
-                        + ((nextPrj.getEvaluationMarks().isEmpty())
-                                ? resLbl.getString("l0007")
-                                : resLbl.getString("l0006"))
+
+            if (projects.isEmpty()) {
+                b.append(sp(in++) + "<tr>\n");
+                b.append(sp(in) + "<td colspan=\"6\" class=\"noattr\">\n"
+                        + "No projects found."
                         + "</td>\n");
                 b.append(sp(--in) + "</tr>\n");
+            }
+            else {
+                //------------------------------------------------------------
+                // Create the content rows
+                //------------------------------------------------------------
+                b.append(sp(in++) + "<tbody>\n");
+                for (StoredProject nextPrj : projects) {
+                    boolean selected = false;
+                    if ((selProject != null)
+                            && (selProject.getId() == nextPrj.getId())) {
+                        selected = true;
+                    }
+                    b.append(sp(in++) + "<tr class=\""
+                            + ((selected) ? "selected" : "edit") + "\""
+                            + " onclick=\"javascript:"
+                            + "document.getElementById('"
+                            + reqParProjectId + "').value='"
+                            + ((selected) ? "" : nextPrj.getId())
+                            + "';"
+                            + "document.projects.submit();\""
+                            + ">\n");
+                    // Project Id
+                    b.append(sp(in) + "<td class=\"trans\">"
+                            + nextPrj.getId()
+                            + "</td>\n");
+                    // Project name
+                    b.append(sp(in) + "<td class=\"trans\">"
+                            + "<img src=\"/edit.png\" alt=\"[Edit]\"/>"
+                            + "&nbsp;"
+                            + nextPrj.getName()
+                            + "</td>\n");
+                    // Last project version
+                    String lastVersion = resLbl.getString("l0051");
+                    if (StoredProject.getLastProjectVersion(nextPrj) != null) {
+                        lastVersion = new Long(
+                                StoredProject.getLastProjectVersion(
+                                        nextPrj).getVersion()).toString();
+                    }
+                    b.append(sp(in) + "<td class=\"trans\">"
+                            + lastVersion
+                            + "</td>\n");
+                    // Date of the last known email
+                    b.append(sp(in) + "<td class=\"trans\">"
+                            + resLbl.getString("l0051")
+                            + "</td>\n");
+                    // Date of the last known bug entry
+                    b.append(sp(in) + "<td class=\"trans\">"
+                            + resLbl.getString("l0051")
+                            + "</td>\n");
+                    // Evaluation state
+                    b.append(sp(in) + "<td class=\"trans\">"
+                            + ((nextPrj.getEvaluationMarks().isEmpty())
+                                    ? resLbl.getString("l0007")
+                                            : resLbl.getString("l0006"))
+                                            + "</td>\n");
+                    b.append(sp(--in) + "</tr>\n");
+                    if ((selected) && (metrics.isEmpty() == false)) {
+                        for(PluginInfo m : metrics) {
+                            if (m.installed) {
+                                ProjectVersion lastVer =
+                                    compMA.getLastAppliedVersion(
+                                            sobjPA.getPlugin(m), nextPrj);
+                                b.append("\n</td>\n");
+                                b.append(sp(in++) + "<tr>\n");
+                                b.append(sp(in) + "<td colspan=\"6\""
+                                        + " class=\"noattr\">\n"
+                                        + m.getPluginName()
+                                        + ": "
+                                        + ((lastVer != null)
+                                                ? "at version" + " "
+                                                        + lastVer.getVersion()
+                                                : resLbl.getString("l0051"))
+                                        + "</td>\n");
+                            }
+                        }
+                    }
+                }
             }
             //----------------------------------------------------------------
             // Tool-bar
@@ -485,6 +570,62 @@ public class WebAdminRenderer  extends AbstractView {
                     + "document.getElementById('"
                     + reqParAction + "').value='"
                     + actConRemProject + "';"
+                    + "document.projects.submit();\""
+                    + ((selProject != null) ? "" : " disabled")
+                    + ">\n");
+            // Trigger source update
+            // TODO: Check if an update is already running (the Updater method
+            // that provides this info is hidden right now)
+            b.append(sp(in) + "<input type=\"button\""
+                    + " class=\"install\""
+                    + " style=\"width: 100px;\""
+                    + " value=\"" + "Update source" + "\""
+                    + " onclick=\"javascript:"
+                    + "document.getElementById('"
+                    + reqParAction + "').value='"
+                    + actConUpdCode + "';"
+                    + "document.projects.submit();\""
+                    + ((selProject != null) ? "" : " disabled")
+                    + ">\n");
+            // Trigger mailing list update
+            // TODO: Check if an update is already running (the Updater method
+            // that provides this info is hidden right now)
+            b.append(sp(in) + "<input type=\"button\""
+                    + " class=\"install\""
+                    + " style=\"width: 100px;\""
+                    + " value=\"" + "Update emails" + "\""
+                    + " onclick=\"javascript:"
+                    + "document.getElementById('"
+                    + reqParAction + "').value='"
+                    + actConUpdMail + "';"
+                    + "document.projects.submit();\""
+                    + ((selProject != null) ? "" : " disabled")
+                    + ">\n");
+            // Trigger bugs list update
+            // TODO: Check if an update is already running (the Updater method
+            // that provides this info is hidden right now)
+            b.append(sp(in) + "<input type=\"button\""
+                    + " class=\"install\""
+                    + " style=\"width: 100px;\""
+                    + " value=\"" + "Update bugs" + "\""
+                    + " onclick=\"javascript:"
+                    + "document.getElementById('"
+                    + reqParAction + "').value='"
+                    + actConUpdBugs + "';"
+                    + "document.projects.submit();\""
+                    + ((selProject != null) ? "" : " disabled")
+                    + ">\n");
+            // Trigger all updates
+            // TODO: Check if an update is already running (the Updater method
+            // that provides this info is hidden right now)
+            b.append(sp(in) + "<input type=\"button\""
+                    + " class=\"install\""
+                    + " style=\"width: 100px;\""
+                    + " value=\"" + "Update all" + "\""
+                    + " onclick=\"javascript:"
+                    + "document.getElementById('"
+                    + reqParAction + "').value='"
+                    + actConUpdAll + "';"
                     + "document.projects.submit();\""
                     + ((selProject != null) ? "" : " disabled")
                     + ">\n");
@@ -523,51 +664,51 @@ public class WebAdminRenderer  extends AbstractView {
 //            sobjDB.commitDBSession();
 //            return "<b>No projects installed</b>";
 //        }
-
-        b.append("<table border=\"1\">");
-        b.append("<tr>");
-        b.append("<td><b>Project</b></td>");
-
-        for(PluginInfo m : metrics) {
-            if(m.installed) {
-                b.append("<td><b>");
-                b.append(m.getPluginName());
-                b.append("</b></td>");
-            }
-        }
-        b.append("</tr>\n");
-
-        for (int i=0; i<projects.size(); i++) {
-            b.append("\t<tr>\n");
-            StoredProject p = projects.get(i);
-            b.append("\t\t<!--project--><td><font size=\"-2\"><b>");
-            b.append(p.getName());
-            b.append("</b> ([id=");
-            b.append(p.getId());
-            b.append("]) <br/>\nUpdate:");
-            for (String updTarget: UpdaterService.UpdateTarget.toStringArray()) {
-                b.append("<a href=\"updater?project=");
-                b.append(p.getName());
-                b.append("&target=");
-                b.append(updTarget);
-                b.append("\" title=\"Tell the updater to check for new data in this category.\">");
-                b.append(updTarget);
-                b.append("</a>&nbsp");
-            }
-            b.append("<br/>Sites: <a href=\"");
-            b.append(p.getWebsite());
-            b.append("\">Website</a>&nbsp;Alitheia Reports");
-            b.append("</font></td>\n");
-            for(PluginInfo m : metrics) {
-                if(m.installed) {
-                    b.append("\n<td>\n");
-                    b.append(compMA.getLastAppliedVersion(sobjPA.getPlugin(m), p));
-                    b.append("\n</td>\n");
-                }
-            }
-            b.append("</tr>\n");
-        }
-        b.append("</table>");
+//
+//        b.append("<table border=\"1\">");
+//        b.append("<tr>");
+//        b.append("<td><b>Project</b></td>");
+//
+//        for(PluginInfo m : metrics) {
+//            if(m.installed) {
+//                b.append("<td><b>");
+//                b.append(m.getPluginName());
+//                b.append("</b></td>");
+//            }
+//        }
+//        b.append("</tr>\n");
+//
+//        for (int i=0; i<projects.size(); i++) {
+//            b.append("\t<tr>\n");
+//            StoredProject p = projects.get(i);
+//            b.append("\t\t<!--project--><td><font size=\"-2\"><b>");
+//            b.append(p.getName());
+//            b.append("</b> ([id=");
+//            b.append(p.getId());
+//            b.append("]) <br/>\nUpdate:");
+//            for (String updTarget: UpdaterService.UpdateTarget.toStringArray()) {
+//                b.append("<a href=\"updater?project=");
+//                b.append(p.getName());
+//                b.append("&target=");
+//                b.append(updTarget);
+//                b.append("\" title=\"Tell the updater to check for new data in this category.\">");
+//                b.append(updTarget);
+//                b.append("</a>&nbsp");
+//            }
+//            b.append("<br/>Sites: <a href=\"");
+//            b.append(p.getWebsite());
+//            b.append("\">Website</a>&nbsp;Alitheia Reports");
+//            b.append("</font></td>\n");
+//            for(PluginInfo m : metrics) {
+//                if(m.installed) {
+//                    b.append("\n<td>\n");
+//                    b.append(compMA.getLastAppliedVersion(sobjPA.getPlugin(m), p));
+//                    b.append("\n</td>\n");
+//                }
+//            }
+//            b.append("</tr>\n");
+//        }
+//        b.append("</table>");
 
         // Close the DB session
         sobjDB.commitDBSession();
