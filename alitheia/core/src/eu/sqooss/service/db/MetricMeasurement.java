@@ -37,10 +37,24 @@ import java.sql.Timestamp;
 
 import eu.sqooss.service.db.DAObject;
 
+/**
+ * Instances of this class represent the result of a metric
+ * calculation as stored in the database 
+ */
 public class MetricMeasurement extends DAObject {
-    
+    /**
+     * The metric to which this result belongs
+     */
     private Metric metric;
+
+    /**
+     * The date/time at which this result was generated
+     */
     private Timestamp whenRun;
+
+    /**
+     * A representation of the calculation result
+     */
     private String result;
     
     /**
