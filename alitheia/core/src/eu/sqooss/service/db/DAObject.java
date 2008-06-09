@@ -38,14 +38,22 @@ package eu.sqooss.service.db;
  */
 public class DAObject {
     /**
-     * The DAO instance ID
+     * The DAO instance ID, required by Hibernate
      */
     private long id;
 
+    /**
+     * Returns the unique ID assigned to this instance
+     */
     public long getId() {
         return id;
     }
 
+    /**
+     * Sets the unique instance ID to this instance
+     *
+     * @param id   The unique id to set for this instance
+     */
     public void setId(long id) {
         this.id = id;
     }
