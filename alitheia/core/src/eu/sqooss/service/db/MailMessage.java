@@ -42,12 +42,36 @@ import eu.sqooss.impl.service.CoreActivator;
  * DAO Object for the MailMessage database table
  */
 public class MailMessage extends DAObject {
+    /**
+     * the sender of the email
+     */
     Developer sender;
+
+    /**
+     * The list to which the email was orignally sent
+     */
     MailingList list;
+
+    /**
+     * Unique ID for this message in the database
+     */
     String messageId;
+
+    /**
+     * The subject of the email
+     */
     String subject;
+
+    /**
+     * The date on which the email was originally sent
+     */
     Date sendDate;
-    Date arrivalDate;    
+
+    /**
+     * The date on which the email was archived by the list managing
+     * software
+     */
+    Date arrivalDate;
 
     public MailMessage() {}
     
