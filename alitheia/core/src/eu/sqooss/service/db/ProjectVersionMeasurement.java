@@ -33,8 +33,14 @@
 
 package eu.sqooss.service.db;
 
+/**
+ * Instances of this class represent the result of measurements made
+ * against ProjectVersions as stored in the database
+ */
 public class ProjectVersionMeasurement extends MetricMeasurement {
-    
+    /**
+     * The ProjectVersion to which the instance relates
+     */
     private ProjectVersion projectVersion;
 
     public ProjectVersionMeasurement() {
