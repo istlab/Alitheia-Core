@@ -47,6 +47,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.event.Event;
+import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.http.HttpService;
 
@@ -156,6 +157,10 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants, 
 
         // Check if security is enabled in the configuration file
         isEnable = Boolean.valueOf(System.getProperty(PROPERTY_ENABLE, "true"));
+        
+        Dictionary<String, String> props = new Hashtable<String, String>(1);
+        props.put(EventConstants.EVENT_TOPIC, DBService.EVENT_STARTED);
+        bc.registerService(EventHandler.class.getName(), this, props);
         
         // Get a reference to the HTTPService, and its object
         srefHttpService = bc.getServiceReference(HttpService.class.getName());
@@ -455,14 +460,15 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants, 
     }
 
     public void handleEvent(Event e) {
-        
-        logger.debug("Caught EVENT type=" + e.getPropertyNames().toString());
-        // Create the unprivileged SQO-OSS user
-        db.startDBSession();
-        initDefaultUser();
-        initNewUsersGroup();
-        storeConstantsInDB();
-        db.commitDBSession();
+        if (DBService.EVENT_STARTED.equals(e.getTopic())) {
+            logger.debug("Caught EVENT type=" + e.getPropertyNames().toString());
+            // Create the unprivileged SQO-OSS user
+            db.startDBSession();
+            initDefaultUser();
+            initNewUsersGroup();
+            storeConstantsInDB();
+            db.commitDBSession();
+        }
     }
 }
 
