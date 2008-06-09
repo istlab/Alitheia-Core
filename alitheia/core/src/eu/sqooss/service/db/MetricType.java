@@ -1,4 +1,4 @@
-/*
+]/*
  * This file is part of the Alitheia system, developed by the SQO-OSS
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  *
@@ -39,9 +39,25 @@ import java.util.List;
 import eu.sqooss.impl.service.CoreActivator;
 import eu.sqooss.service.db.DAObject;
 
+/**
+ * Instances of this class represent to what forms of data a metric
+ * stored in the database is related to
+ */
 public class MetricType extends DAObject {
+    /**
+     * A string representation of the type of metric
+     */
     private String type;
 
+/**
+ * An enumeration of the metric types:
+ * <ul>
+ * <li>SOURCE CODE - Relates to SVN data</li>
+ * <li>MAILING_LIST - Relates to email data</li>
+ * <li>BUG_DATABASE - Relates to BTS data</li>
+ * <li>PROJECT_WIDE - Relates to all available data</li>
+ *</ul>
+ */
     public enum Type {
 
         SOURCE_CODE, MAILING_LIST, BUG_DATABASE, PROJECT_WIDE;
