@@ -42,17 +42,57 @@ import eu.sqooss.impl.service.CoreActivator;
 
 import eu.sqooss.service.tds.ProjectRevision;
 
+/**
+ * Instances of this class represent the data about a version of a
+ * project as stored in the database
+ */
 public class ProjectVersion extends DAObject {
+    /**
+     * The project to which this object relates
+     */
     private StoredProject project;
+
+    /**
+     * The version number of the project to which this object relates
+     */
     private long version;
+
+    /**
+     * The date/time at which this version occurs
+     */
     private long timestamp;
+
+    /**
+     * The developer causing this revision of the project
+     */
     private Developer committer;
+
+    /**
+     * The commit message provided by the developer as the revision was made
+     */
     private String commitMsg;
+
     private String properties;
+    
+    /**
+     * The set of file within the project in this version
+     */
     private Set<ProjectFile> versionFiles;
     private Set<FileGroup> fileGroups;
+
+    /**
+     * The set of known tags in this version of the project
+     */
     private Set<Tag> tags;
+    
+    /**
+     * The set of known bugs in this version of the projecy
+     */
     private Set<Bug> bugs;
+
+    /**
+     * The set of measurements available for the given version of the project
+     */
     private Set<ProjectVersionMeasurement> measurements;
 
     public ProjectVersion() {
