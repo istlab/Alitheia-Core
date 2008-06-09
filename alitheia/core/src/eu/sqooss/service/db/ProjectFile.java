@@ -56,6 +56,14 @@ public class ProjectFile extends DAObject{
      */
     private ProjectVersion projectVersion;
 
+    /**
+     * A representation of the status of the file in this revision:
+     * <ul>
+     * <li>ADDED</li>
+     * <li>MODIFIED</li>
+     * <li>DELETED</li>
+     * </ul>
+     */
     private String status;
 
     /**
