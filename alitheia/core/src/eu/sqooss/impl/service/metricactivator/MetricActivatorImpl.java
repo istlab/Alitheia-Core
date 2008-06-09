@@ -139,7 +139,7 @@ public class MetricActivatorImpl implements MetricActivator {
         if(rules == null) {
             initRules();
         }
-        
+
         // Retrieve the first rule
         InvocationRule rule = rules.get(firstRuleId);
 
@@ -180,7 +180,8 @@ public class MetricActivatorImpl implements MetricActivator {
                 // Retrieve the rule's metric type
                 Type metricType = null;
                 if (rule.getMetricType() != null) {
-                    metricType = rule.getMetricType().getEnumType();
+                    metricType = (db.attachObjectToDBSession(
+                            rule.getMetricType())).getEnumType();
                 }
                 // Skip on a metric type which can not evaluate that resource
                 if ((metricType != null) 
