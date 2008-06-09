@@ -81,10 +81,10 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
 
     /** Reference to the DB service, not to be passed to metric jobs */
     protected PluginAdmin pa;
-    
+
     /** Metric dependencies */
     protected List<String> metricDependencies = new ArrayList<String>();
-    
+
     /**Types used to activate this metric*/
     protected List<Class<? extends DAObject>> activationTypes = new ArrayList<Class<? extends DAObject>>();
 
@@ -113,7 +113,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
 
         if(db == null)
             log.error("Could not get a reference to the DB service");
-        
+
         pa = ((AlitheiaCore) bc.getService(serviceRef)).getPluginAdmin();
 
         if(pa == null)
@@ -178,14 +178,14 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      */
     @SuppressWarnings("unchecked")
     public Result getResult(DAObject o, List<Metric> l) throws MetricMismatchException {
- 
+
         boolean found = false;
         Result r = new Result();
-        
+
         Iterator<Class<? extends DAObject>> i = getActivationTypes().iterator();
-        
+
         List<Metric> metrics = getSupportedMetrics();
-        
+
         for (Metric m : l) {
             if (!metrics.contains(m)) {
                 throw new MetricMismatchException("Metric " + m.getMnemonic()
@@ -219,9 +219,10 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
                     }
                 }
             }
-            if (!found)
+            if (!found) {
                 throw new MetricMismatchException(o);
-            
+            }
+
             if (re != null) {
                 r.addResultRow(new ArrayList<ResultEntry> (re));
             }
@@ -232,21 +233,21 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     /**
      * Call the appropriate run() method according to the type of the entity
      * that is measured.
-     * 
+     *
      * @param o
      *                DAO which determines which sub-interface run method is
      *                called and also determines what is to be measured by that
      *                sub-interface.
      * @throws MetricMismatchException
      *                 if the DAO is of a type not supported by this metric.
-     * 
+     *
      * FIXME:
      */
     public void run(DAObject o) throws MetricMismatchException {
-        
+
         boolean found = false;
         Iterator<Class<? extends DAObject>> i = getActivationTypes().iterator();
-        
+
         while(i.hasNext()) {
             Class<? extends DAObject> c = i.next();
             if (c.isInstance(o)) {
@@ -257,10 +258,10 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
                 } catch (SecurityException e) {
                     log.error("Unable to invoke run method:" + e.getMessage());
                 } catch (NoSuchMethodException e) {
-                    log.error("No method run(" + c.getName() +") for type " 
+                    log.error("No method run(" + c.getName() +") for type "
                             + this.getClass().getName());
                 } catch (IllegalArgumentException e) {
-                    log.error("Unable to invoke run method:" + e.getMessage()); 
+                    log.error("Unable to invoke run method:" + e.getMessage());
                 } catch (IllegalAccessException e) {
                     log.error("Unable to invoke run method:" + e.getMessage());
                 } catch (InvocationTargetException e) {
@@ -279,7 +280,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      * @param type The metric type of the supported metric
      * @return True if the operation succeeds, false otherwise (i.e. duplicates etc)
      */
-    protected final boolean addSupportedMetrics(String desc, String mnemonic, 
+    protected final boolean addSupportedMetrics(String desc, String mnemonic,
             MetricType.Type type) {
         /* NOTE: In its current status the DB doesn't provide predefined
          *       metric type records. Therefore the following block is
@@ -295,7 +296,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         m.setMetricType(MetricType.getMetricType(type));
         m.setPlugin(Plugin.getPluginByHashcode(getUniqueKey()));
         return db.addRecord(m);
-        
+
     }
 
     /**
@@ -338,7 +339,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
                 EvaluationMark evaluationMark = new EvaluationMark();
                 evaluationMark.setMetric(me);
                 evaluationMark.setStoredProject(sp);
-                
+
                 db.addRecord(evaluationMark);
             }
         }
@@ -352,9 +353,9 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     public boolean install() {
         HashMap<String, Object> h = new HashMap<String, Object>();
         h.put("name", this.getName());
-     
+
         List<Plugin> plugins = db.findObjectsByProperties(Plugin.class, h);
-        
+
         if (!plugins.isEmpty()) {
             log.warn("A plugin with name <" + getName()
                     + "> is already installed, won't re-install.");
@@ -367,18 +368,18 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
                 log.error("No plug-in installed that implements the " + dep
                         + " metric");
                 return false;
-            }   
+            }
         }
-        
+
         Plugin p = new Plugin();
         p.setName(getName());
         p.setInstalldate(new Date(System.currentTimeMillis()));
         p.setVersion(getVersion());
         p.setActive(true);
         p.setHashcode(getUniqueKey());
-        
+
         return db.addRecord(p);
-        
+
     }
 
     /**
@@ -394,7 +395,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     public boolean update() {
         HashMap<String, Object> h = new HashMap<String, Object>();
         List<StoredProject> l = db.findObjectsByProperties(StoredProject.class, h);
-        
+
         for(StoredProject sp : l) {
             Scheduler s = ((AlitheiaCore) bc.getService(this.bc
                     .getServiceReference(AlitheiaCore.class.getName())))
@@ -407,14 +408,14 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         }
         return true;
     }
-    
+
     /**
      * {@inheritDoc}
      */
     public final List<Class<? extends DAObject>> getActivationTypes() {
         return activationTypes;
     }
-    
+
     protected final void addActivationType(Class<? extends DAObject> c) {
         activationTypes.add(c);
         // Call the Plug-in Admin only on started metric bundles
@@ -422,9 +423,9 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
             pa.pluginUpdated(this);
         }
     }
-    
+
     /**
-     * Return an MD5 hex key. 
+     * Return an MD5 hex key.
      */
     public final String getUniqueKey() {
         return DigestUtils.md5Hex(this.getClass().getCanonicalName());
@@ -437,9 +438,11 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         // Retrieve the plug-in's info object
         PluginInfo pi = pa.getPluginInfo(getUniqueKey());
         if (pi == null) {
-            // The plug-in's info object is always null during bundle startup
+            // The plug-in's info object is always null during bundle startup,
+            // but if it is not available when the bundle is active, something
+            // is possibly wrong.
             if (bc.getBundle().getState() == Bundle.ACTIVE) {
-                log.error("Invalid plug-in's info object!");
+                log.warn("No info object for plugin <" + getName() + ">");
             }
             return new ArrayList<PluginConfiguration>();
         }
@@ -448,19 +451,21 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
 
     /**
      * Add an entry to this plug-in's configuration schema.
-     * 
+     *
      * @param name The name of the configuration property
      * @param defValue The default value for the configuration property
      * @param msg The description of the configuration property
      * @param type The type of the configuration property
      */
-    protected final void addConfigEntry(String name, String defValue, 
+    protected final void addConfigEntry(String name, String defValue,
             String msg, PluginInfo.ConfigurationType type) {
         // Retrieve the plug-in's info object
         PluginInfo pi = pa.getPluginInfo(getUniqueKey());
         // Will happen if called during bundle's startup
         if (pi == null) {
-            log.error("Invalid plug-in's info object!");
+            log.warn("Adding configuration key <" + name +
+                "> to plugin <" + getName() + "> failed: " +
+                "no PluginInfo.");
             return;
         }
         // Modify the plug-in's configuration
@@ -472,8 +477,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
                     pa.pluginUpdated(pa.getPlugin(pi));
                 }
                 else {
-                    log.error("Property (" + name +") update has failed!"
-                        + " Check log for details.");
+                    log.error("Property (" + name +") update has failed!");
                 }
             }
             // Create property
@@ -484,20 +488,19 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
                     pa.pluginUpdated(pa.getPlugin(pi));
                 }
                 else {
-                    log.error("Property (" + name +") append has failed!"
-                        + " Check log for details.");
+                    log.error("Property (" + name +") append has failed!");
                 }
             }
         }
         catch (Exception ex){
-            log.error("Can not modify property (" + name +") : "
-                    + ex.toString());
+            log.error("Can not modify property (" + name +") for plugin ("
+                    + getName(), ex);
         }
     }
 
     /**
      * Remove an entry from the plug-in's configuration schema
-     * 
+     *
      * @param name The name of the configuration property to remove
      * @param name The type of the configuration property to remove
      */
@@ -508,7 +511,9 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         PluginInfo pi = pa.getPluginInfo(getUniqueKey());
         // Will happen if called during bundle's startup
         if (pi == null) {
-            log.error("Invalid plug-in's info object!");
+            log.warn("Removing configuration key <" + name +
+                "> from plugin <" + getName() + "> failed: " +
+                "no PluginInfo.");
             return;
         }
         // Modify the plug-in's configuration
@@ -519,8 +524,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
                     pa.pluginUpdated(pa.getPlugin(pi));
                 }
                 else {
-                    log.error("Property (" + name +") remove has failed!"
-                            + " Check log for details.");
+                    log.error("Property (" + name +") remove has failed!");
                 }
             }
             else {
@@ -528,15 +532,15 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
             }
         }
         catch (Exception ex){
-            log.error("Can not remove property (" + name +") : "
-                    + ex.toString());
+            log.error("Can not remove property (" + name +") from plugin ("
+                    + getName() + ")", ex);
         }
     }
 
     public final List<String> getMetricDependencies() {
         return this.metricDependencies;
     }
-    
+
     /**
      * Add a metric mnemonic to the list of metric dependencies.
      * @param mnemonic The mnemonic to be added
