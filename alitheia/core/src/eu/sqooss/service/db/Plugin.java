@@ -40,12 +40,41 @@ import java.util.List;
 import eu.sqooss.impl.service.CoreActivator;
 import eu.sqooss.service.db.DAObject;
 
-public class Plugin extends DAObject{ 
-    private String name;
-    private Date installdate;
-    private String version;
-    private String description;
+/**
+ * Instances of this class represent data related to Alitheia Core
+ * plugins, stored in the database
+ */
+public class Plugin extends DAObject{
+    /**
+     * the name of the plugin
+     */
+    private String name; 
+
+    /**
+     * A representation of date on which the plugin was installed into
+     * the ALitheia Core
+     */
+    private Date installdate; 
+    
+    /**
+     * The version number of this plugin
+     */
+    private String version; 
+
+    /**
+     * A description of the plugin and the metrics provided
+     */
+    private String description; 
+
+    /**
+     * Denotes if the metric is active as well as being installed
+     */
     private boolean active;
+
+    /**
+     * A hashcode representing the plugin bundle to ensure a unique
+     * identifier
+     */
     private String hashcode;
 
     public String getName() {
