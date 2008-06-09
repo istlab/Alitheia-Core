@@ -126,7 +126,7 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
     /**
      * Overload for convenience. See isUpdateRunning(String,UpdateTarget).
      */
-    private boolean isUpdateRunning(StoredProject p, UpdateTarget t) {
+    public boolean isUpdateRunning(StoredProject p, UpdateTarget t) {
         return isUpdateRunning(p.getName(),t);
     }
 
