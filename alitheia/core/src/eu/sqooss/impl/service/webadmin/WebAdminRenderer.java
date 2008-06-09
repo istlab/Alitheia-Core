@@ -344,6 +344,7 @@ public class WebAdminRenderer  extends AbstractView {
             // ---------------------------------------------------------------
             if (reqValAction.equals(actConRemProject)) {
                 if (selProject != null) {
+                    // TODO: Delete any associated invocation rules first.
                     // Delete the selected project
                     if (sobjDB.deleteRecord(selProject)) {
                         selProject = null;
