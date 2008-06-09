@@ -33,8 +33,14 @@
 
 package eu.sqooss.service.db;
 
+/**
+ * Instances of this class represent a measurement made against a
+ * specific file
+ */
 public class ProjectFileMeasurement extends MetricMeasurement {
-    
+    /**
+     * The file against which the measurement was made
+     */ 
     private ProjectFile projectFile;
 
     public ProjectFileMeasurement() {
