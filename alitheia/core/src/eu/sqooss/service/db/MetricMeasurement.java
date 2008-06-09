@@ -39,7 +39,9 @@ import eu.sqooss.service.db.DAObject;
 
 /**
  * Instances of this class represent the result of a metric
- * calculation as stored in the database 
+ * calculation as stored in the database. This class is extended by
+ * other DAO to show results related to specific entities: project,
+ * files etc.
  */
 public class MetricMeasurement extends DAObject {
     /**

@@ -33,8 +33,14 @@
 
 package eu.sqooss.service.db;
 
+/**
+ * Instances of this class represent a measurement made against a
+ * StoredProject, as stored in the database
+ */
 public class StoredProjectMeasurement extends MetricMeasurement {
-    
+    /**
+     * The StoredPRoject to which this measurement relates
+     */
     private StoredProject storedProject;
 
     /**
