@@ -155,7 +155,7 @@ public class AdminServlet extends HttpServlet {
             String query = request.getPathInfo();
 
             // Add the request to the log
-            render.logRequest("GET:" + query);
+            logger.debug("GET:" + query);
 
             // This is static content
             if (query.startsWith("/stop")) {
@@ -163,7 +163,7 @@ public class AdminServlet extends HttpServlet {
                 sendPage(response, request, "/results.html");
 
                 // Now stop the system
-                render.logRequest("System stopped by user request to webadmin.");
+                logger.info("System stopped by user request to webadmin.");
                 try {
                     bc.getBundle(0).stop();
                 } catch (BundleException be) {
@@ -199,7 +199,7 @@ public class AdminServlet extends HttpServlet {
             String query = request.getPathInfo();
 
             // Add the request to the log
-            render.logRequest("POST:" + query);
+            logger.debug("POST:" + query);
 
             if (query.startsWith("/addproject")) {
                 render.addProject(request);

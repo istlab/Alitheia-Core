@@ -705,11 +705,6 @@ public class WebAdminRenderer  extends AbstractView {
                "<p>The Message Of The Day was successfully updated with: <i>" +
                request.getParameter("motdtext") + "</i></p>");
     }
-
-    public static void logRequest(String request) {
-        sobjLogger.info(request);
-    }
-
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
