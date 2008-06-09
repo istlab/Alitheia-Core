@@ -51,6 +51,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.velocity.VelocityContext;
 import org.osgi.framework.BundleContext;
 
+import eu.sqooss.service.db.InvocationRule;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.pa.PluginInfo;
@@ -283,6 +284,49 @@ public class WebAdminRenderer  extends AbstractView {
         return String.format("%d:%02d:%02d:%02d", days, hours, mins, secs);
     }
 
+    private static void deleteInvocationRule (InvocationRule rule) {
+        if (rule != null) {
+            long ruleId = rule.getId();
+            // Get the rule, that follow the selected one
+            InvocationRule nextRule = null;
+            if (rule.getNextRule() != null) {
+                nextRule = sobjDB.findObjectById(
+                        InvocationRule.class,
+                        rule.getNextRule());
+            }
+            // Get the rule, that preceed the selected one
+            InvocationRule prevRule = null;
+            if (rule.getPrevRule() != null) {
+                prevRule = sobjDB.findObjectById(
+                        InvocationRule.class,
+                        rule.getPrevRule());
+            }
+            // Remove the selected rule
+            if (sobjDB.deleteRecord(rule)) {
+                compMA.reloadRule(ruleId);
+                // Update the neighbor rules
+                if ((prevRule != null) && (nextRule != null)) {
+                    prevRule.setNextRule(nextRule.getId());
+                    nextRule.setPrevRule(prevRule.getId());
+                    compMA.reloadRule(prevRule.getId());
+                    compMA.reloadRule(nextRule.getId());
+                }
+                else {
+                    // Update the preceeding rule
+                    if (prevRule != null) {
+                        prevRule.setNextRule(null);
+                        compMA.reloadRule(prevRule.getId());
+                    }
+                    // Update the following rule
+                    if (nextRule != null) {
+                        nextRule.setPrevRule(null);
+                        compMA.reloadRule(nextRule.getId());
+                    }
+                }
+            }
+        }
+    }
+
     public static String renderProjects(HttpServletRequest req) {
         // Stores the assembled HTML content
         StringBuilder b = new StringBuilder("\n");
@@ -344,7 +388,17 @@ public class WebAdminRenderer  extends AbstractView {
             // ---------------------------------------------------------------
             if (reqValAction.equals(actConRemProject)) {
                 if (selProject != null) {
-                    // TODO: Delete any associated invocation rules first.
+                    // Delete any associated invocation rules first
+                    HashMap<String,Object> properties =
+                        new HashMap<String, Object>();
+                    properties.put("project", selProject);
+                    List<?> assosRules = sobjDB.findObjectsByProperties(
+                            InvocationRule.class, properties);
+                    if ((assosRules != null) && (assosRules.size() > 0)) {
+                        for (Object nextDAO: assosRules) {
+                            deleteInvocationRule((InvocationRule) nextDAO);
+                        }
+                    }
                     // Delete the selected project
                     if (sobjDB.deleteRecord(selProject)) {
                         selProject = null;
@@ -431,7 +485,7 @@ public class WebAdminRenderer  extends AbstractView {
             
         }
         // ===================================================================
-        // "Delete project" confirmation
+        // "Delete project" confirmation view
         // ===================================================================
         else if ((reqValAction.equals(actReqRemProject))
                 && (selProject != null)) {
@@ -440,11 +494,23 @@ public class WebAdminRenderer  extends AbstractView {
                     + ": " + selProject.getName()
                     + "</legend>\n");
             b.append(sp(in++) + "<table class=\"borderless\">");
-            // Group name
+            // Confirmation message
             b.append(sp(in++) + "<tr>\n");
             b.append(sp(in) + "<td class=\"borderless\">"
                     + "<b>" + resMsg.getString("m0007") + "</b>"
                     + "</td>\n");
+            // Affected invocation rules
+            HashMap<String,Object> properties = new HashMap<String, Object>();
+            properties.put("project", selProject);
+            List<?> affectedRules = sobjDB.findObjectsByProperties(
+                    InvocationRule.class, properties);
+            if ((affectedRules != null) && (affectedRules.size() > 0)) {
+                b.append(sp(in++) + "<tr>\n");
+                b.append(sp(in) + "<td class=\"borderless\">"
+                        + resMsg.getString("m0008") + ": "
+                        + affectedRules.size()
+                        + "</td>\n");
+            }
             b.append(sp(--in) + "</tr>\n");
             //------------------------------------------------------------
             // Tool-bar
@@ -475,7 +541,7 @@ public class WebAdminRenderer  extends AbstractView {
             b.append(sp(in) + "</fieldset>\n");
         }
         // ===================================================================
-        // Projects list
+        // Projects list view
         // ===================================================================
         else {
             // Create the field-set
