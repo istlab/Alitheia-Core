@@ -88,11 +88,12 @@ public class WebAdminRenderer  extends AbstractView {
         result.append("\t</thead>\n");
         result.append("\t<tbody>\n");
 
-        for(String key : fjobs.keySet().toArray(new String[1])) {
+        String[] jobfailures = fjobs.keySet().toArray(new String[1]);
+        for(String key : jobfailures) {
             result.append("\t\t<tr>\n\t\t\t<td>");
-            result.append(key);
+            result.append(key==null ? "No failures" : key);
             result.append("</td>\n\t\t\t<td>");
-            result.append(fjobs.get(key));
+            result.append(key==null ? "&nbsp;" : fjobs.get(key));
             result.append("\t\t\t</td>\n\t\t</tr>");
         }
         result.append("\t</tbody>\n");
