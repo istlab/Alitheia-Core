@@ -172,10 +172,26 @@ public interface Logger {
     public void warn(String message);
 
     /**
+    * Logs a message with a warning logging level and
+    * a stack trace from the exception explaining why.
+    * @param message a log message
+    * @param e exception that caused the message
+    */
+    public void warn(String message, Exception e);
+
+    /**
     * Logs a message with a severe(highest) logging level
     * @param message a log message
     */
     public void error(String message);
+
+    /**
+    * Logs a message with a severe(highest) logging level and
+    * a stack trace from the exception explaining why.
+    * @param message a log message
+    * @param e exception that caused the message
+    */
+    public void error(String message, Exception e);
 
     /**
     * Returns a name of the logger.

@@ -76,12 +76,25 @@ public class LoggerImpl implements Logger {
         }
     }
 
+    public void warn(String message, Exception e) {
+        synchronized (lockObject) {
+            theLogger.warn(message);
+            theLogger.warn(renderStackTrace(e));
+        }
+    }
+
     public void error(String message) {
         synchronized (lockObject) {
             theLogger.error(message);
         }
     }
 
+    public void error(String message, Exception e) {
+        synchronized (lockObject) {
+            theLogger.error(message);
+            theLogger.error(renderStackTrace(e));
+        }
+    }
 
     protected void get() {
         takingsNumber++;
@@ -89,6 +102,15 @@ public class LoggerImpl implements Logger {
 
     protected int unget() {
         return --takingsNumber;
+    }
+    
+    private static String renderStackTrace(Exception e) {
+        StringBuilder b = new StringBuilder();
+        StackTraceElement stack[] = e.getStackTrace();
+        for (StackTraceElement s : stack) {
+            b.append(s.toString());
+        }
+        return b.toString();
     }
 }
 
