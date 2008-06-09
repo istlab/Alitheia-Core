@@ -105,11 +105,20 @@ public class LoggerImpl implements Logger {
     }
 
     private static String renderStackTrace(Exception e) {
+        if (e==null) {
+            return "";
+        }
+
         StringBuilder b = new StringBuilder();
         StackTraceElement stack[] = e.getStackTrace();
+        if ((b==null) || (stack==null)) {
+            return "";
+        }
         for (StackTraceElement s : stack) {
-            b.append(s.toString());
-            b.append("\n");
+            if (s!=null) {
+                b.append(s.toString());
+                b.append("\n");
+            }
         }
         return b.toString();
     }
