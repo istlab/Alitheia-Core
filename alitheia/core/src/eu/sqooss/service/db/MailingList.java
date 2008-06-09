@@ -36,13 +36,23 @@ package eu.sqooss.service.db;
 import java.util.Set;
 
 /**
- *
- *
- * @author Vassilios Karakoidas (bkarak@aueb.gr)
+ * Instances of this class represent t=he basic details of a project
+ * mailing list stored in the database
  */
 public class MailingList extends DAObject {
+    /**
+     * List unique ID within the database
+     */
     private String listId;
+
+    /**
+     * The project to which this list is related
+     */
     private StoredProject storedProject;
+
+    /**
+     * The set of avilable messages in this list
+     */
     private Set<MailMessage> messages;
 
     public MailingList() {}
