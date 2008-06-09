@@ -55,7 +55,7 @@ import eu.sqooss.service.security.PrivilegeManager;
 import eu.sqooss.service.security.SecurityConstants;
 import eu.sqooss.service.security.UserManager;
 
-public class UsersView extends AbstractView{
+public class UsersView extends AbstractView {
 
     // User-friendly substitution for ALL_PRIVILEGE and ALL_PRIVILEGE_VALUES
     public static String ALL = "ALL";

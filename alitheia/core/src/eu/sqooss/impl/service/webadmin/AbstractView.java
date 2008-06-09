@@ -60,7 +60,7 @@ public abstract class AbstractView {
     protected static ServiceReference srefCore = null;
 
     // Critical logging components
-    private static LogManager sobjLogManager = null;
+    protected static LogManager sobjLogManager = null;
     protected static Logger sobjLogger = null;
 
     // Service components

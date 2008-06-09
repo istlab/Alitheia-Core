@@ -42,6 +42,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ResourceBundle;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -76,90 +77,12 @@ import eu.sqooss.service.webadmin.WebadminService;
  * @author, Paul J. Adams <paul.adams@siriusit.co.uk>
  * @author, Boryan Yotov <b.yotov@prosyst.com>
  */
-public class WebAdminRenderer {
-    // Core components
-    private static AlitheiaCore sobjAlitheiaCore = null;
-    private static ServiceReference srefCore = null;
-
-    // Critical logging components
-    private static LogManager sobjLogManager = null;
-    private static Logger sobjLogger = null;
-
-    // Service components
-    private static DBService sobjDB = null;
-    private static MetricActivator sobjMetricActivator = null;
-    private static PluginAdmin sobjPA = null;
-    private static Scheduler sobjSched = null;
-    private static TDSService sobjTDS = null;
-    private static UpdaterService sobjUpdater = null;
-    private static SecurityManager sobjSecurity = null;
-
-    // Velocity stuff
-    private VelocityContext vc = null;
-
+public class WebAdminRenderer  extends AbstractView {
     // Current time
     private static long startTime = new Date().getTime();
-
+    
     public WebAdminRenderer(BundleContext bundlecontext, VelocityContext vc) {
-        srefCore = bundlecontext.getServiceReference(AlitheiaCore.class.getName());
-        this.vc = vc;
-
-        if (srefCore != null) {
-            sobjAlitheiaCore = (AlitheiaCore) bundlecontext.getService(srefCore);
-        }
-        else {
-            System.out.println("AdminServlet: No Alitheia Core found.");
-        }
-
-        if (sobjAlitheiaCore != null) {
-            //Get the LogManager and Logger objects
-            sobjLogManager = sobjAlitheiaCore.getLogManager();
-            if (sobjLogManager != null) {
-                sobjLogger = sobjLogManager.createLogger(Logger.NAME_SQOOSS_WEBADMIN);
-            }
-
-            // Get the DB Service object
-            sobjDB = sobjAlitheiaCore.getDBService();
-            if (sobjDB != null) {
-                sobjLogger.debug("WebAdmin got DB Service object.");
-            }
-
-            // Get the Plugin Administration object
-            sobjPA = sobjAlitheiaCore.getPluginAdmin();
-            if (sobjPA != null) {
-                sobjLogger.debug("WebAdmin got Plugin Admin object.");
-            }
-
-            // Get the scheduler
-            sobjSched = sobjAlitheiaCore.getScheduler();
-            if (sobjSched != null) {
-                sobjLogger.debug("WebAdmin got Scheduler Service object.");
-            }
-
-            // Get the metric activator, whatever that is
-            sobjMetricActivator = sobjAlitheiaCore.getMetricActivator();
-            if (sobjMetricActivator != null) {
-                sobjLogger.debug("WebAdmin got Metric Activator object.");
-            }
-
-            // Get the TDS Service object
-            sobjTDS = sobjAlitheiaCore.getTDSService();
-            if (sobjTDS != null) {
-                sobjLogger.debug("WebAdmin got TDS Service object.");
-            }
-
-            // Get the Updater Service object
-            sobjUpdater = sobjAlitheiaCore.getUpdater();
-            if (sobjUpdater != null) {
-                sobjLogger.debug("WebAdmin got Updater Service object.");
-            }
-
-            // Get the Security Manager's object
-            sobjSecurity = sobjAlitheiaCore.getSecurityManager();
-            if (sobjSecurity != null) {
-                sobjLogger.debug("WebAdmin got the Security Manager's object.");
-            }
-        }
+        super(bundlecontext, vc);
 
         // Do some stuffing
         Stuffer myStuffer = new Stuffer(sobjDB, sobjLogger, sobjTDS);
@@ -371,64 +294,244 @@ public class WebAdminRenderer {
         return String.format("%d:%02d:%02d:%02d", days, hours, mins, secs);
     }
 
-    public static String renderProjects() {
+    public static String renderProjects(HttpServletRequest req) {
+        // Stores the assembled HTML content
+        StringBuilder b = new StringBuilder("\n");
+        // Stores the accumulated error messages
+        StringBuilder e = new StringBuilder();
+        // Indentation spacer
+        long in = 6;
+
+        // Create a DB session
         sobjDB.startDBSession();
-        List projects = sobjDB.doHQL("from StoredProject");
+
+        // Get the required resource bundles
+        ResourceBundle resLbl = getLabelsBundle(req.getLocale());
+        ResourceBundle resErr = getErrorsBundle(req.getLocale());
+        ResourceBundle resMsg = getMessagesBundle(req.getLocale());
+
+        // Request parameters
+        String reqParAction        = "action";
+        String reqParProjectId     = "projectId";
+        // Recognized "action" parameter's values
+        String actReqAddProject    = "reqAddProject";
+        String actConRemProject    = "conRemProject";
+        // Request values
+        String reqValAction        = "";
+        Long   reqValProjectId     = null;
+
+        // Selected project
+        StoredProject selProject = null;
+
+        // ===============================================================
+        // Parse the servlet's request object
+        // ===============================================================
+        if (req != null) {
+            // DEBUG: Dump the servlet's request parameter
+            if (DEBUG) {
+                b.append(debugRequest(req));
+            }
+
+            // Retrieve the selected editor's action (if any)
+            reqValAction = req.getParameter(reqParAction);
+            if (reqValAction == null) {
+                reqValAction = "";
+            };
+
+            // Retrieve the selected user's DAO (if any)
+            reqValProjectId = fromString(req.getParameter(reqParProjectId));
+            if (reqValProjectId != null) {
+                selProject = sobjDB.findObjectById(
+                        StoredProject.class, reqValProjectId);
+            }
+        }
+
+        // Get the complete list of projects stored in the SQO-OSS framework
+        List<StoredProject> projects = sobjDB.findObjectsByProperties(
+                StoredProject.class, new HashMap<String, Object>());
         Collection<PluginInfo> metrics = sobjPA.listPlugins();
+
+        if (reqValAction.equals(actReqAddProject)) {
+            
+        }
+        // ===================================================================
+        // Projects list
+        // ===================================================================
+        else {
+            // Create the field-set
+            b.append(sp(in++) + "<fieldset>\n");
+            b.append(sp(in) + "<legend>All projects</legend>\n");
+
+            //----------------------------------------------------------------
+            // Create the header row
+            //----------------------------------------------------------------
+            b.append(sp(in++) + "<table>\n");
+            b.append(sp(in++) + "<thead>\n");
+            b.append(sp(in++) + "<tr class=\"head\">\n");
+            b.append(sp(in) + "<td class=\"head\""
+                    + " style=\"width: 5%;\">"
+                    + "Id</td>\n");
+            b.append(sp(in) + "<td class=\"head\""
+                    + " style=\"width: 35%;\">"
+                    + "Name</td>\n");
+            b.append(sp(in) + "<td class=\"head\""
+                    + " style=\"width: 15%;\">"
+                    + "Last Version</td>\n");
+            b.append(sp(in) + "<td class=\"head\""
+                    + " style=\"width: 15%;\">"
+                    + "Last Email</td>\n");
+            b.append(sp(in) + "<td class=\"head\""
+                    + " style=\"width: 15%;\">"
+                    + "Last Bug</td>\n");
+            b.append(sp(in) + "<td class=\"head\""
+                    + " style=\"width: 15%;\">"
+                    + "Evaluated</td>\n");
+            b.append(sp(--in) + "</tr>\n");
+            b.append(sp(--in) + "</thead>\n");
+            //----------------------------------------------------------------
+            // Create the content rows
+            //----------------------------------------------------------------
+            b.append(sp(in++) + "<tbody>\n");
+            for (StoredProject nextPrj : projects) {
+                b.append(sp(in++) + "<tr class=\"edit\""
+                        + " onclick=\"javascript:"
+                        + "document.getElementById('"
+                        + reqParProjectId + "').value='"
+                        + nextPrj.getId() + "';"
+                        + "document.projects.submit();\""
+                        + ">\n");
+                b.append(sp(in) + "<td class=\"trans\">"
+                        + nextPrj.getId()
+                        + "</td>\n");
+                b.append(sp(in) + "<td class=\"trans\">"
+                        + nextPrj.getName()
+                        + "</td>\n");
+                b.append(sp(in) + "<td class=\"trans\">"
+                        + StoredProject.getLastProjectVersion(
+                                nextPrj).getVersion()
+                        + "</td>\n");
+                b.append(sp(in) + "<td class=\"trans\">"
+                        + resLbl.getString("l0051")
+                        + "</td>\n");
+                b.append(sp(in) + "<td class=\"trans\">"
+                        + resLbl.getString("l0051")
+                        + "</td>\n");
+                b.append(sp(in) + "<td class=\"trans\">"
+                        + ((nextPrj.getEvaluationMarks().isEmpty())
+                                ? resLbl.getString("l0007")
+                                : resLbl.getString("l0006"))
+                        + "</td>\n");
+                b.append(sp(--in) + "</tr>\n");
+            }
+            //----------------------------------------------------------------
+            // Tool-bar
+            //----------------------------------------------------------------
+            b.append(sp(in++) + "<tr class=\"subhead\">\n");
+            b.append(sp(in++) + "<td colspan=\"6\">\n");
+            // Add project button
+            b.append(sp(in) + "<input type=\"button\""
+                    + " class=\"install\""
+                    + " style=\"width: 100px;\""
+                    + " value=\"" + "Add project" + "\""
+                    + " onclick=\"javascript:"
+                    + "document.getElementById('"
+                    + reqParAction + "').value='"
+                    + actReqAddProject + "';"
+                    + "document.projects.submit();\""
+                    + " disabled"
+                    + ">\n");
+            // Remove project button
+            b.append(sp(in) + "<input type=\"button\""
+                    + " class=\"install\""
+                    + " style=\"width: 100px;\""
+                    + " value=\"" + "Delete project" + "\""
+                    + " onclick=\"javascript:"
+                    + "document.getElementById('"
+                    + reqParAction + "').value='"
+                    + actConRemProject + "';"
+                    + "document.projects.submit();\""
+                    + " disabled"
+                    + ">\n");
+            b.append(sp(--in) + "</td>\n");
+            b.append(sp(--in) + "</tr>\n");
+            //----------------------------------------------------------------
+            // Close the table
+            //----------------------------------------------------------------
+            b.append(sp(--in) + "</tbody>\n");
+            b.append(sp(--in) + "</table>\n");
+            b.append(sp(--in) + "</fieldset>\n");
+        }
+
+        // ===============================================================
+        // INPUT FIELDS
+        // ===============================================================
+        // "Action type" input field
+        b.append(sp(in) + "<input type=\"hidden\""
+                + " id=\"" + reqParAction + "\"" 
+                + " name=\"" + reqParAction + "\""
+                + " value=\"\">\n");
+        // "Project Id" input field
+        b.append(sp(in) + "<input type=\"hidden\""
+                + " id=\"" + reqParProjectId + "\"" 
+                + " name=\"" + reqParProjectId + "\""
+                + " value=\""
+                + ((selProject != null) ? selProject.getId() : "")
+                + "\">\n");
 
         if (projects == null || metrics == null) {
             sobjDB.commitDBSession();
             return "<b>No projects installed</b>";
         }
 
-        StringBuilder s = new StringBuilder();
-        
-        s.append("<table border=\"1\">");
-        s.append("<tr>");
-        s.append("<td><b>Project</b></td>");
+        b.append("<table border=\"1\">");
+        b.append("<tr>");
+        b.append("<td><b>Project</b></td>");
         
         for(PluginInfo m : metrics) {
             if(m.installed) {
-                s.append("<td><b>");
-                s.append(m.getPluginName());
-                s.append("</b></td>");
+                b.append("<td><b>");
+                b.append(m.getPluginName());
+                b.append("</b></td>");
             }
         }
-        s.append("</tr>\n");
+        b.append("</tr>\n");
        
         for (int i=0; i<projects.size(); i++) {
-            s.append("\t<tr>\n");
+            b.append("\t<tr>\n");
             StoredProject p = (StoredProject) projects.get(i);
-            s.append("\t\t<!--project--><td><font size=\"-2\"><b>");
-            s.append(p.getName());
-            s.append("</b> ([id=");
-            s.append(p.getId());
-            s.append("]) <br/>\nUpdate:");
+            b.append("\t\t<!--project--><td><font size=\"-2\"><b>");
+            b.append(p.getName());
+            b.append("</b> ([id=");
+            b.append(p.getId());
+            b.append("]) <br/>\nUpdate:");
             for (String updTarget: UpdaterService.UpdateTarget.toStringArray()) {
-                s.append("<a href=\"updater?project=");
-                s.append(p.getName());
-                s.append("&target=");
-                s.append(updTarget);
-                s.append("\" title=\"Tell the updater to check for new data in this category.\">");
-                s.append(updTarget);
-                s.append("</a>&nbsp");
+                b.append("<a href=\"updater?project=");
+                b.append(p.getName());
+                b.append("&target=");
+                b.append(updTarget);
+                b.append("\" title=\"Tell the updater to check for new data in this category.\">");
+                b.append(updTarget);
+                b.append("</a>&nbsp");
             }
-            s.append("<br/>Sites: <a href=\"");
-            s.append(p.getWebsite());
-            s.append("\">Website</a>&nbsp;Alitheia Reports");
-            s.append("</font></td>\n");
+            b.append("<br/>Sites: <a href=\"");
+            b.append(p.getWebsite());
+            b.append("\">Website</a>&nbsp;Alitheia Reports");
+            b.append("</font></td>\n");
             for(PluginInfo m : metrics) {
                 if(m.installed) {
-                    s.append("\n<td>\n");
-                    s.append(sobjMetricActivator.getLastAppliedVersion(sobjPA.getPlugin(m), p));
-                    s.append("\n</td>\n");
+                    b.append("\n<td>\n");
+                    b.append(compMA.getLastAppliedVersion(sobjPA.getPlugin(m), p));
+                    b.append("\n</td>\n");
                 }
             }
-            s.append("</tr>\n");
+            b.append("</tr>\n");
         }
-        s.append("</table>");
+        b.append("</table>");
+
+        // Close the DB session
         sobjDB.commitDBSession();
-        return s.toString();
+
+        return b.toString();
     }
 
     public void addProject(HttpServletRequest request) {        

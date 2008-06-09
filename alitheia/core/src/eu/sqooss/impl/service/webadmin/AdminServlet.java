@@ -308,7 +308,7 @@ public class AdminServlet extends HttpServlet {
         // Function-based substitutions
         //vc.put("STATUS", someFunction); FIXME
         vc.put("GETLOGS", render.renderLogs());
-        vc.put("PROJECTS", render.renderProjects());
+        vc.put("PROJECTS", render.renderProjects(request));
         vc.put("UPTIME", render.getUptime());
         vc.put("QUEUE_LENGTH", render.getSchedulerDetails("WAITING"));
         vc.put("JOB_EXEC", render.getSchedulerDetails("RUNNING"));
