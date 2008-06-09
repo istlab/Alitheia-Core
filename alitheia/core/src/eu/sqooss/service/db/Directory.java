@@ -40,9 +40,19 @@ import java.util.Map;
 
 import eu.sqooss.impl.service.CoreActivator;
 
+/**
+ * This class represents the data relating to a directory within an
+ * inserted project's SVN tree, stored inthe database
+ */
 public class Directory extends DAObject {
+    /**
+     * The path within the SVN repo
+     */
     private String path;
     
+    /**
+     * A set representing the files within this path
+     */
     private Set<ProjectFile> files;
 
     public String getPath() {
