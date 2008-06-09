@@ -41,11 +41,31 @@ import java.util.Map;
 import eu.sqooss.impl.service.CoreActivator;
 import eu.sqooss.service.db.DAObject;
 
+/**
+ * Instances of this class represent a file relating to a project as
+ * stored in the database
+ */
 public class ProjectFile extends DAObject{
+    /**
+     * The filename
+     */
     private String name;
+
+    /**
+     * the version of the project to which this file relates
+     */
     private ProjectVersion projectVersion;
+
     private String status;
+
+    /**
+     * If this "file" is actually a directory then this is set to true
+     */
     private Boolean isDirectory;
+
+    /**
+     * The SVN directory for which this file can be found
+     */
     private Directory dir;
 
     private Set<ProjectFileMeasurement> measurements;
