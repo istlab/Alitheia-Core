@@ -331,7 +331,38 @@ public class WebAdminRenderer  extends AbstractView {
                 selProject = sobjDB.findObjectById(
                         StoredProject.class, reqValProjectId);
             }
+
+            // ---------------------------------------------------------------
+            // Remove project
+            // ---------------------------------------------------------------
+            if (reqValAction.equals(actConRemProject)) {
+                if (selProject != null) {
+                    // Delete the selected project
+                    if (sobjDB.deleteRecord(selProject)) {
+                        selProject = null;
+                    }
+                    else {
+                        e.append("Can not remove this project!");
+                    }
+                }
+                else {
+                    e.append("You must select a project first!");
+                }
+            }
         }
+
+        // ===============================================================
+        // Create the form
+        // ===============================================================
+        b.append(sp(in) + "<form id=\"projects\""
+                + " name=\"projects\""
+                + " method=\"post\""
+                + " action=\"/projects\">\n");
+
+        // ===============================================================
+        // Display the accumulated error messages (if any)
+        // ===============================================================
+        b.append(errorFieldset(e, ++in));
 
         // Get the complete list of projects stored in the SQO-OSS framework
         List<StoredProject> projects = sobjDB.findObjectsByProperties(
@@ -380,29 +411,46 @@ public class WebAdminRenderer  extends AbstractView {
             //----------------------------------------------------------------
             b.append(sp(in++) + "<tbody>\n");
             for (StoredProject nextPrj : projects) {
-                b.append(sp(in++) + "<tr class=\"edit\""
+                boolean selected = false;
+                if ((selProject != null)
+                        && (selProject.getId() == nextPrj.getId())) {
+                    selected = true;
+                }
+                b.append(sp(in++) + "<tr class=\""
+                        + ((selected) ? "selected" : "edit") + "\""
                         + " onclick=\"javascript:"
                         + "document.getElementById('"
                         + reqParProjectId + "').value='"
                         + nextPrj.getId() + "';"
                         + "document.projects.submit();\""
                         + ">\n");
+                // Project Id
                 b.append(sp(in) + "<td class=\"trans\">"
                         + nextPrj.getId()
                         + "</td>\n");
+                // Project name
                 b.append(sp(in) + "<td class=\"trans\">"
                         + nextPrj.getName()
                         + "</td>\n");
-                ProjectVersion v = StoredProject.getLastProjectVersion(nextPrj);
+                // Last project version
+                String lastVersion = resLbl.getString("l0051");
+                if (StoredProject.getLastProjectVersion(nextPrj) != null) {
+                    lastVersion = new Long(
+                            StoredProject.getLastProjectVersion(
+                                    nextPrj).getVersion()).toString();
+                }
                 b.append(sp(in) + "<td class=\"trans\">"
-                        + ( v==null ? "no version" : v.getVersion() )
+                        + lastVersion
                         + "</td>\n");
+                // Date of the last known email
                 b.append(sp(in) + "<td class=\"trans\">"
                         + resLbl.getString("l0051")
                         + "</td>\n");
+                // Date of the last known bug entry
                 b.append(sp(in) + "<td class=\"trans\">"
                         + resLbl.getString("l0051")
                         + "</td>\n");
+                // Evaluation state
                 b.append(sp(in) + "<td class=\"trans\">"
                         + ((nextPrj.getEvaluationMarks().isEmpty())
                                 ? resLbl.getString("l0007")
@@ -437,7 +485,7 @@ public class WebAdminRenderer  extends AbstractView {
                     + reqParAction + "').value='"
                     + actConRemProject + "';"
                     + "document.projects.submit();\""
-                    + " disabled"
+                    + ((selProject != null) ? "" : " disabled")
                     + ">\n");
             b.append(sp(--in) + "</td>\n");
             b.append(sp(--in) + "</tr>\n");
@@ -465,10 +513,15 @@ public class WebAdminRenderer  extends AbstractView {
                 + ((selProject != null) ? selProject.getId() : "")
                 + "\">\n");
 
-        if (projects == null || metrics == null) {
-            sobjDB.commitDBSession();
-            return "<b>No projects installed</b>";
-        }
+        // ===============================================================
+        // Close the form
+        // ===============================================================
+        b.append(sp(--in) + "</form>\n");
+
+//        if (projects == null || metrics == null) {
+//            sobjDB.commitDBSession();
+//            return "<b>No projects installed</b>";
+//        }
 
         b.append("<table border=\"1\">");
         b.append("<tr>");
