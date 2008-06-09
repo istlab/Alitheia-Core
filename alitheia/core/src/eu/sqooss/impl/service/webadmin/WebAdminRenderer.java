@@ -304,6 +304,7 @@ public class WebAdminRenderer  extends AbstractView {
         String reqParProjectId     = "projectId";
         // Recognized "action" parameter's values
         String actReqAddProject    = "reqAddProject";
+        String actReqRemProject    = "reqRemProject";
         String actConRemProject    = "conRemProject";
         String actConUpdAll        = "conUpdateAll";
         String actConUpdCode       = "conUpdateCode";
@@ -422,8 +423,55 @@ public class WebAdminRenderer  extends AbstractView {
                 StoredProject.class, new HashMap<String, Object>());
         Collection<PluginInfo> metrics = sobjPA.listPlugins();
 
+        // ===================================================================
+        // "Add project" editor
+        // ===================================================================
         if (reqValAction.equals(actReqAddProject)) {
-
+            
+        }
+        // ===================================================================
+        // "Delete project" confirmation
+        // ===================================================================
+        else if ((reqValAction.equals(actReqRemProject))
+                && (selProject != null)) {
+            b.append(sp(in++) + "<fieldset>\n");
+            b.append(sp(in) + "<legend>" + resLbl.getString("l0059")
+                    + ": " + selProject.getName()
+                    + "</legend>\n");
+            b.append(sp(in++) + "<table class=\"borderless\">");
+            // Group name
+            b.append(sp(in++) + "<tr>\n");
+            b.append(sp(in) + "<td class=\"borderless\">"
+                    + "<b>" + resMsg.getString("m0007") + "</b>"
+                    + "</td>\n");
+            b.append(sp(--in) + "</tr>\n");
+            //------------------------------------------------------------
+            // Tool-bar
+            //------------------------------------------------------------
+            b.append(sp(in++) + "<tr>\n");
+            b.append(sp(in++)
+                    + "<td class=\"borderless\">\n");
+            // Confirm button
+            b.append(sp(in) + "<input type=\"button\""
+                    + " class=\"install\""
+                    + " style=\"width: 100px;\""
+                    + " value=\"" + resLbl.getString("l0006") + "\""
+                    + " onclick=\"javascript:"
+                    + "document.getElementById('"
+                    + reqParAction + "').value='"
+                    + actConRemProject + "';"
+                    + "document.projects.submit();\">\n");
+            // Cancel button
+            b.append(sp(in) + "<input type=\"button\""
+                    + " class=\"install\""
+                    + " style=\"width: 100px;\""
+                    + " value=\"" + resLbl.getString("l0004") + "\""
+                    + " onclick=\"javascript:"
+                    + "document.projects.submit();\">\n");
+            b.append(sp(--in) + "</td>\n");
+            b.append(sp(--in) + "</tr>\n");
+            b.append(sp(--in) + "</table>");
+            b.append(sp(in) + "</fieldset>\n");
         }
         // ===================================================================
         // Projects list
@@ -582,7 +630,7 @@ public class WebAdminRenderer  extends AbstractView {
                     + " onclick=\"javascript:"
                     + "document.getElementById('"
                     + reqParAction + "').value='"
-                    + actConRemProject + "';"
+                    + actReqRemProject + "';"
                     + "document.projects.submit();\""
                     + ((selProject != null) ? "" : " disabled")
                     + ">\n");
