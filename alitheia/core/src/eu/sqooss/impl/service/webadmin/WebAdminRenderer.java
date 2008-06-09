@@ -549,6 +549,19 @@ public class WebAdminRenderer  extends AbstractView {
             //----------------------------------------------------------------
             b.append(sp(in++) + "<tr class=\"subhead\">\n");
             b.append(sp(in++) + "<td colspan=\"6\">\n");
+            // Refresh button
+            b.append(sp(in) + "<input type=\"button\""
+                    + " class=\"install\""
+                    + " style=\"width: 100px;\""
+                    + " value=\"" + "Refresh" + "\""
+                    + " onclick=\"javascript:"
+                    + "window.location='/projects"
+                    + ((selProject != null)
+                            ? "?" + reqParProjectId + "="
+                                    + selProject.getId()
+                            : "")
+                    +"';\""
+                    + ">\n");
             // Add project button
             b.append(sp(in) + "<input type=\"button\""
                     + " class=\"install\""
@@ -574,8 +587,6 @@ public class WebAdminRenderer  extends AbstractView {
                     + ((selProject != null) ? "" : " disabled")
                     + ">\n");
             // Trigger source update
-            // TODO: Check if an update is already running (the Updater method
-            // that provides this info is hidden right now)
             b.append(sp(in) + "<input type=\"button\""
                     + " class=\"install\""
                     + " style=\"width: 100px;\""
@@ -585,11 +596,11 @@ public class WebAdminRenderer  extends AbstractView {
                     + reqParAction + "').value='"
                     + actConUpdCode + "';"
                     + "document.projects.submit();\""
-                    + ((selProject != null) ? "" : " disabled")
+                    + (((selProject != null) && (sobjUpdater.isUpdateRunning(
+                            selProject, UpdateTarget.CODE) == false))
+                            ? "" : " disabled")
                     + ">\n");
             // Trigger mailing list update
-            // TODO: Check if an update is already running (the Updater method
-            // that provides this info is hidden right now)
             b.append(sp(in) + "<input type=\"button\""
                     + " class=\"install\""
                     + " style=\"width: 100px;\""
@@ -599,11 +610,11 @@ public class WebAdminRenderer  extends AbstractView {
                     + reqParAction + "').value='"
                     + actConUpdMail + "';"
                     + "document.projects.submit();\""
-                    + ((selProject != null) ? "" : " disabled")
+                    + (((selProject != null) && (sobjUpdater.isUpdateRunning(
+                            selProject, UpdateTarget.MAIL) == false))
+                            ? "" : " disabled")
                     + ">\n");
             // Trigger bugs list update
-            // TODO: Check if an update is already running (the Updater method
-            // that provides this info is hidden right now)
             b.append(sp(in) + "<input type=\"button\""
                     + " class=\"install\""
                     + " style=\"width: 100px;\""
@@ -613,11 +624,11 @@ public class WebAdminRenderer  extends AbstractView {
                     + reqParAction + "').value='"
                     + actConUpdBugs + "';"
                     + "document.projects.submit();\""
-                    + ((selProject != null) ? "" : " disabled")
+                    + (((selProject != null) && (sobjUpdater.isUpdateRunning(
+                            selProject, UpdateTarget.BUGS) == false))
+                            ? "" : " disabled")
                     + ">\n");
             // Trigger all updates
-            // TODO: Check if an update is already running (the Updater method
-            // that provides this info is hidden right now)
             b.append(sp(in) + "<input type=\"button\""
                     + " class=\"install\""
                     + " style=\"width: 100px;\""
@@ -627,7 +638,9 @@ public class WebAdminRenderer  extends AbstractView {
                     + reqParAction + "').value='"
                     + actConUpdAll + "';"
                     + "document.projects.submit();\""
-                    + ((selProject != null) ? "" : " disabled")
+                    + (((selProject != null) && (sobjUpdater.isUpdateRunning(
+                            selProject, UpdateTarget.ALL) == false))
+                            ? "" : " disabled")
                     + ">\n");
             b.append(sp(--in) + "</td>\n");
             b.append(sp(--in) + "</tr>\n");
