@@ -85,22 +85,17 @@ public interface SCMAccessor extends NamedAccessor {
                InvalidRepositoryException,
                FileNotFoundException;
 
+    /**
+     * Once you have a checkout you can change the revision for it
+     * by calling updateCheckout, which modifies the files underneath
+     * to reflect the new version. This must be called with the current
+     * project revision as src, or very strange things may happen.
+     */
     void updateCheckout(String repoPath, ProjectRevision src,
         ProjectRevision dst, File localPath)
         throws InvalidProjectRevisionException,
                InvalidRepositoryException,
                FileNotFoundException;
-
-/*    void getCheckout(String repoPath, ProjectRevision revision, InMemoryDirectory root)
-        throws InvalidProjectRevisionException,
-               InvalidRepositoryException,
-               FileNotFoundException;
-
-    void updateCheckout(String repoPath, ProjectRevision src,
-        ProjectRevision dst, InMemoryDirectory root)
-        throws InvalidProjectRevisionException,
-               InvalidRepositoryException,
-               FileNotFoundException;*/
 
     /**
      * Retrieve a single file from the source repository, relative
@@ -150,6 +145,10 @@ public interface SCMAccessor extends NamedAccessor {
         throws InvalidProjectRevisionException,
                InvalidRepositoryException;
 
+    /**
+     * Convenience method, like getCommitLog() with only
+     * one revision. One entry is returned.
+     */
     CommitEntry getCommitLog(String repoPath, ProjectRevision r)
         throws InvalidProjectRevisionException,
                InvalidRepositoryException;
@@ -178,16 +177,16 @@ public interface SCMAccessor extends NamedAccessor {
         throws InvalidProjectRevisionException,
                InvalidRepositoryException,
                FileNotFoundException;
-    
+
     /**
      * Get the type of the node (File, Dir or Unknown)
      */
-    SCMNodeType getNodeType(String repoPath, ProjectRevision r) 
+    SCMNodeType getNodeType(String repoPath, ProjectRevision r)
     	throws InvalidRepositoryException;
-    
+
     /**
      * Get the subdirectory of the project within the SVN repsitory.
-     * @throws InvalidRepositoryException 
+     * @throws InvalidRepositoryException
      */
     String getSubProjectPath() throws InvalidRepositoryException;
 }

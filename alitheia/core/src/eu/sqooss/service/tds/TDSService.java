@@ -40,9 +40,8 @@ package eu.sqooss.service.tds;
  *
  * - Check if there already is an accessor (optional); if there isn't
  *   this indicated that the project has not been requested recently.
- * - Request an accessor for the project. This may throw a variety of
- *   exceptions indicating resource or permissions problems (or that
- *   the project does not exist).
+ * - Request an accessor for the project. This may return null to inform
+ *   that the project does not exist.
  * - If the accessor is returned, use its interface to get information
  *   from the project.
  * - When done, release the accessor.
@@ -56,6 +55,8 @@ package eu.sqooss.service.tds;
 public interface TDSService {
     /**
      * Check that the given project exists in the TDS.
+     * @param id project to check for
+     * @return if the project is known to the TDS
      */
     public boolean projectExists( long id );
 
@@ -63,16 +64,28 @@ public interface TDSService {
      * Check if the given project ID has an accessor object ready.
      * This may be used to suppress requests for the accessor if
      * it is not in use yet.
+     *
+     * @param id project to check for
+     * @return true if an accessor has already been created for
+     *      this project. A project may exist yet have no accessor
+     *      yet.
      */
     public boolean accessorExists( long id );
 
     /**
      * Retrieve the accessor object for the given project @p id .
+     * May return null if the accessor cannot be obtained.
+     *
+     * @param id project to get the accessor for
+     * @return accessor object or null
      */
     public TDAccessor getAccessor( long id );
 
     /**
-     * Release your claim on the accessor.
+     * Release your claim on the accessor. The accessor must have
+     * been previously obtained by a call to getAccessor.
+     * You may not use the accessor object after releasing it.
+     * @param accessor object to release
      */
     public void releaseAccessor( TDAccessor tda );
 
