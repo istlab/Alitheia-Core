@@ -35,8 +35,20 @@ package eu.sqooss.service.db;
 
 import eu.sqooss.service.db.DAObject;
 
+/**
+ * Instances of this class represent the data of an SVN tag for a
+ * project, as stored in the database
+ */
 public class Tag extends DAObject {
+    /**
+     * The version of the project to which this tag relates
+     */
     private ProjectVersion pv;
+
+    /**
+     * The name of the tag provided at the time it was commited by the
+     * developer
+     */
     private String name;
 
     public Tag() {
