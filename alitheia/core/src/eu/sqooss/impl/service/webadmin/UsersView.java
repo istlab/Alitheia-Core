@@ -45,6 +45,7 @@ import org.osgi.framework.BundleContext;
 
 import eu.sqooss.service.db.Group;
 import eu.sqooss.service.db.GroupPrivilege;
+import eu.sqooss.service.db.GroupType;
 import eu.sqooss.service.db.Privilege;
 import eu.sqooss.service.db.PrivilegeValue;
 import eu.sqooss.service.db.ServiceUrl;
@@ -299,7 +300,7 @@ public class UsersView extends AbstractView {
                         }
                         // Check if a group with the same name already exist
                         else if (secGM.getGroup(reqValGroupName) == null) {
-                            Group group = secGM.createGroup(reqValGroupName);
+                            Group group = secGM.createGroup(reqValGroupName, GroupType.Type.USER);
                             if (group != null) {
                                 selGroup = group;
                                 reqValViewList = "";

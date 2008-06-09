@@ -39,6 +39,7 @@ import eu.sqooss.impl.service.security.utils.GroupManagerDatabase;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Group;
 import eu.sqooss.service.db.GroupPrivilege;
+import eu.sqooss.service.db.GroupType;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.security.GroupManager;
 
@@ -75,12 +76,18 @@ public class GroupManagerImpl implements GroupManager {
     /**
      * @see eu.sqooss.service.security.GroupManager#createGroup(java.lang.String)
      */
-    public Group createGroup(String description) {
+    public Group createGroup(String description, GroupType.Type type) {
         logger.debug("Create group! description: " + description);
         Group result = getGroup(description);
         if (result != null) return null; //the group is in the db
         result = new Group();
         result.setDescription(description);
+        GroupType groupType = GroupType.getGroupType(type);
+        if (groupType == null) {
+            groupType = new GroupType(type);
+            dbWrapper.create(groupType);
+        }
+        result.setGroupType(groupType);
         if (!dbWrapper.create(result)) {
             result = null;
         }

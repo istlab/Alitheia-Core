@@ -34,6 +34,7 @@ package eu.sqooss.impl.service.security;
 
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Group;
+import eu.sqooss.service.db.GroupType;
 import eu.sqooss.service.db.Privilege;
 import eu.sqooss.service.db.PrivilegeValue;
 import eu.sqooss.service.db.ServiceUrl;
@@ -202,7 +203,7 @@ public class SelfTester {
         User newUser = null;
 
         try {
-            newGroup = groupManager.createGroup(TEST_GROUP);
+            newGroup = groupManager.createGroup(TEST_GROUP, GroupType.Type.USER);
             if (newGroup == null) {
                 return "Could not create a test group!";
             }
@@ -314,7 +315,7 @@ public class SelfTester {
         PrivilegeValue privilegeValue = null;
         try {
             user = userManager.createUser(TEST_USER, TEST_PASS, TEST_MAIL);
-            group = groupManager.createGroup(TEST_GROUP);
+            group = groupManager.createGroup(TEST_GROUP, GroupType.Type.USER);
             serviceUrl = serviceUrlManager.getServiceUrl(
                     SecurityConstants.URL_SQOOSS);
             privilege = privilegeManager.getPrivilege(
@@ -346,7 +347,7 @@ public class SelfTester {
                 return false;
             }
             
-            if (!securityManager.createSecurityConfiguration(group.getDescription(),
+            if (!securityManager.createSecurityConfiguration(group.getDescription(), GroupType.Type.USER,
                     privilege.getDescription(), privilegeValue.getValue(), serviceUrl.getUrl())) {
                 return false;
             }

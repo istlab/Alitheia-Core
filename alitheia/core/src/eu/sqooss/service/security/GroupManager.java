@@ -34,6 +34,7 @@ package eu.sqooss.service.security;
 
 import eu.sqooss.service.db.Group;
 import eu.sqooss.service.db.GroupPrivilege;
+import eu.sqooss.service.db.GroupType;
 
 /**
  * The <code>GroupManager</code> provides methods for group management,
@@ -89,7 +90,7 @@ public interface GroupManager {
      * @return The new group's <code>Group</code> object, or <code>null</code>
      *   if the group can not be created.
      */
-    public Group createGroup(String description);
+    public Group createGroup(String description, GroupType.Type type);
     
     /**
      * This method deletes the group referenced by the given identifier.

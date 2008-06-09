@@ -9,6 +9,7 @@ import eu.sqooss.impl.service.SpecsActivator;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Group;
 import eu.sqooss.service.db.GroupPrivilege;
+import eu.sqooss.service.db.GroupType;
 import eu.sqooss.service.db.User;
 import eu.sqooss.service.security.GroupManager;
 
@@ -20,6 +21,7 @@ public class SpGroup implements SpEntity {
     boolean persistent = false;
     
     public String name;
+    public GroupType.Type type;
     
     public static ArrayList<SpGroup> allGroups() {
         DBService db = SpecsActivator.alitheiaCore.getDBService();
@@ -54,8 +56,9 @@ public class SpGroup implements SpEntity {
         return result;
     }
     
-    public SpGroup(String n) {
+    public SpGroup(String n, GroupType.Type type) {
         name = n;
+        this.type = type;
         load();
     }
     
@@ -81,7 +84,7 @@ public class SpGroup implements SpEntity {
 
     public void create() {
         db.startDBSession();
-        gm.createGroup(name);
+        gm.createGroup(name, type);
         db.commitDBSession();
         persistent = true;
     }

@@ -54,6 +54,7 @@ import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.impl.service.security.utils.SecurityManagerDatabase;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Group;
+import eu.sqooss.service.db.GroupType;
 import eu.sqooss.service.db.ServiceUrl;
 import eu.sqooss.service.db.User;
 import eu.sqooss.service.logging.Logger;
@@ -270,11 +271,12 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants, 
      * @see eu.sqooss.service.security.SecurityManager#createSecurityConfiguration(java.lang.String, java.lang.String, java.lang.String, java.lang.String)
      */
     public boolean createSecurityConfiguration(String groupDescription,
-            String privilege, String privilegeValue, String serviceUrl) {
+            GroupType.Type groupType, String privilege, String privilegeValue,
+            String serviceUrl) {
 
         Group userGroup = groupManager.getGroup(groupDescription);
         if (userGroup == null) {
-            userGroup = groupManager.createGroup(groupDescription);
+            userGroup = groupManager.createGroup(groupDescription, groupType);
         }
         eu.sqooss.service.db.Privilege userPrivilege =
             privilegeManager.getPrivilege(privilege); 
@@ -401,7 +403,7 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants, 
                 defaultUser = userManager.createUser(userName, userPassword, userEmail);
                 Group defaultUserGroup = groupManager.getGroup(userGroup);
                 if (defaultUserGroup == null) {
-                    defaultUserGroup = groupManager.createGroup(userGroup);
+                    defaultUserGroup = groupManager.createGroup(userGroup, GroupType.Type.SYSTEM);
                 }
                 if (groupManager.addUserToGroup(defaultUserGroup.getId(), defaultUser.getId())) {
                     return;
@@ -418,7 +420,7 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants, 
 
     private void initNewUsersGroup() {
         if (newUsersGroup != null) {
-            groupManager.createGroup(newUsersGroup);
+            groupManager.createGroup(newUsersGroup, GroupType.Type.USER);
         }
     }
     

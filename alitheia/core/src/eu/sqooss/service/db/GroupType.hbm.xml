@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+  <class name="eu.sqooss.service.db.GroupType" table="GROUP_TYPE">
+    <id name="id" column="GROUP_TYPE_ID">
+      <generator class="native" />
+    </id>
+    <property name="type" column="TYPE" not-null="true" unique="true" />
+  </class>
+</hibernate-mapping>

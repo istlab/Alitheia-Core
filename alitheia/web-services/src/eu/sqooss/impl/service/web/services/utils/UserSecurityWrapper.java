@@ -33,6 +33,7 @@
 package eu.sqooss.impl.service.web.services.utils;
 
 import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.GroupType;
 import eu.sqooss.service.security.SecurityManager;
 
 public class UserSecurityWrapper extends AbstractSecurityWrapper{
@@ -43,13 +44,15 @@ public class UserSecurityWrapper extends AbstractSecurityWrapper{
 
     public boolean addPermissionsToNewUsersGroup() {
         return security.createSecurityConfiguration(security.getNewUsersGroup(),
+                GroupType.Type.USER,
                 Privilege.SEND_MESSAGE.toString(), PrivilegeValue.PERMIT.toString(),
                 ServiceUrl.WEBADMIN.toString());
     }
     
     public boolean addPermissonsToSystemGroup() {
         return security.createSecurityConfiguration(
-                security.getSystemGroup(), Privilege.ACTION.toString(),
+                security.getSystemGroup(), GroupType.Type.SYSTEM,
+                Privilege.ACTION.toString(),
                 PrivilegeValue.WRITE.toString(), ServiceUrl.SECURITY.toString());
     }
     

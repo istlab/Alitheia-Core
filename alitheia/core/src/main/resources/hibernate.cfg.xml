@@ -58,6 +58,7 @@
         <mapping resource="eu/sqooss/service/db/User.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/PendingUser.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/Group.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/GroupType.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/GroupUser.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/Bug.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/BugReportMessage.hbm.xml"/>

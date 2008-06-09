@@ -6,13 +6,14 @@ import org.concordion.integration.junit4.ConcordionRunner;
 import org.junit.runner.RunWith;
 
 import eu.sqooss.impl.service.dsl.SpGroup;
+import eu.sqooss.service.db.GroupType;
 
 @RunWith(ConcordionRunner.class)
 public class GroupAdd
 {
-    public void addGroup(String groupName)
+    public void addGroup(String groupName, GroupType.Type groupType)
     {
-        new SpGroup(groupName).create();
+        new SpGroup(groupName, groupType).create();
     }
     
     public ArrayList<SpGroup> getGroups()
@@ -20,8 +21,8 @@ public class GroupAdd
         return SpGroup.allGroups();
     }
     
-    public boolean groupHasNoPrivilege(String groupName)
+    public boolean groupHasNoPrivilege(String groupName, GroupType.Type groupType)
     {
-        return new SpGroup(groupName).getPrivileges().isEmpty();
+        return new SpGroup(groupName, groupType).getPrivileges().isEmpty();
     }
 }

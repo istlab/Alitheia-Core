@@ -34,6 +34,8 @@ package eu.sqooss.service.security;
 
 import java.util.Dictionary;
 
+import eu.sqooss.service.db.GroupType;
+
 /**
  * The <code>SecurityManager</code> class is used for validating the access
  * to resources, and provides methods for creation and management of access
@@ -131,6 +133,7 @@ public interface SecurityManager {
      *   corresponding record(s) is(are) created automatically.</i>
      * 
      * @param groupDescription - the group's descriptor
+     * @param groupType - the group's type  
      * @param privilege - the privilege's name (resource type)
      * @param privilegeValue - the privilege's value
      * @param serviceUrl - the URL identifying the requested service
@@ -140,6 +143,7 @@ public interface SecurityManager {
      */
     public boolean createSecurityConfiguration(
             String groupDescription,
+            GroupType.Type groupType,
             String privilege,
             String privilegeValue,
             String serviceUrl);

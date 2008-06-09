@@ -40,6 +40,7 @@ import eu.sqooss.service.db.DAObject;
 
 public class Group extends DAObject {
     private String description;
+    private GroupType groupType;
     private Set users = new HashSet();
     private Set groupPrivileges = new HashSet();
 
@@ -52,6 +53,20 @@ public class Group extends DAObject {
 
     public String getDescription() {
         return this.description;
+    }
+
+    /**
+     * @return the groupType
+     */
+    public GroupType getGroupType() {
+        return groupType;
+    }
+
+    /**
+     * @param groupType the groupType to set
+     */
+    public void setGroupType(GroupType groupType) {
+        this.groupType = groupType;
     }
 
     public Set getUsers() {

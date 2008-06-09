@@ -36,6 +36,7 @@ import java.util.Hashtable;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.GroupType;
 import eu.sqooss.service.security.SecurityManager;
 
 public class AbstractSecurityWrapper implements SecurityWrapperConstants {
@@ -107,6 +108,7 @@ public class AbstractSecurityWrapper implements SecurityWrapperConstants {
                     privilegeValues = privilege.getValues();
                     for (PrivilegeValue privilegeValue : privilegeValues) {
                         security.createSecurityConfiguration(GROUP_DESCRIPTION,
+                                GroupType.Type.DEFINITION,
                                 privilege.toString(), privilegeValue.toString(),
                                 serviceUrl.toString());
                     }

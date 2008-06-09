@@ -18,6 +18,7 @@
       <key column="GROUP_ID"/>
       <one-to-many class="eu.sqooss.service.db.GroupPrivilege"/>
     </set>
+    <many-to-one name="groupType" column="GROUP_TYPE" />
   </class>  
 </hibernate-mapping>
 
