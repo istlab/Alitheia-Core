@@ -139,6 +139,8 @@ module alitheia
 
   interface Core
   {
+    // returns an unique id which can be used as part of the name of
+    // objects exported into the orb to avoid name clashes.
     long getUniqueId();
     // registers a metric accesible by 'name' in the ORB at the core
     // returns an id which can be used to unregister the metric again
@@ -146,12 +148,14 @@ module alitheia
     // unregisters a metric previously registered
     void unregisterMetric( in long id );
 
+    // Add a supported metric description to the database
+    // See eu.sqooss.service.abstractmetric.AbstractMetric.addSupportedMetrics
     boolean addSupportedMetrics( in string metricname, 
                                  in string description, 
                                  in string mnemonic, 
                                  in MetricTypeType type );
     MetricList getSupportedMetrics( in string metricname );
-
+    
     ProjectFileList getVersionFiles( in ProjectVersion version );
   };
 
@@ -169,9 +173,12 @@ module alitheia
     // returns, wheter the scheduler ist currently executing
     boolean isExecuting();
 
+    // registers a job in the corba plugin having the name \a name
     long registerJob( in string name );
     void unregisterJob( in string name );
+    // adds the job \a dependency as dependency of \a job
     void addJobDependency( in string job, in string dependency );
+    // waits for the job with /a name to finish
     void waitForJobFinished( in string name );
   };
 
@@ -209,13 +216,21 @@ module alitheia
     any findObjectById( in any type, in long id );
     // finds objects by properties
     list findObjectsByProperties( in any type, in map properties );
+    // executes a SQL query on the database
+    // for parameters, see eu.sqooss.service.db.DbService.doSQL
     list doSQL( in string sql, in map params );
+    // executes a Hiberante HQL query on the database
+    // for parameters, see eu.sqooss.service.db.DbService.doQL
     list doHQL( in string hql, in map params );
   };
 
+  // job is to be exported by programs using the CORBA plugin
   interface Job
   {
+    // returns the priority of the job
+    // lower number means higher priority, 0 being the highest
     long priority();
+    // runs the job
     void run();
     enum JobState
     {
@@ -225,6 +240,8 @@ module alitheia
         Finished,
         Error
     };
+    // called by the scheduler as soon as the job's state
+    // is changing
     oneway void setState( in JobState state );
   };
 
@@ -240,10 +257,15 @@ module alitheia
     void error( in string logger, in string text );
   };
 
+  // AbstractMetric (or: derivates of it) is to be exported
+  // by programs using the CORBA plugin
   interface AbstractMetric
   {
+    // install the metric in the database
     boolean doInstall();
+    // remove the metric from the database
     boolean doRemove();
+    // updates the metric entry in the database
     boolean doUpdate();
     // Get information about the metric author
     string getAuthor();
@@ -257,34 +279,30 @@ module alitheia
 
   interface ProjectVersionMetric : AbstractMetric
   {
-    /* Generic run plug-in method
-     * Returns a XML-serialized MetricResult */
+    // returns the metric's result for ProjectVersion version
     string doGetResult( in ProjectVersion version );
-
+    // runs the metric on ProjectVersion v
     void doRun( in ProjectVersion v );
   };
   interface StoredProjectMetric : AbstractMetric
   {
-    /* Generic run plug-in method
-     * Returns a XML-serialized MetricResult */
+    // returns the metric's result for StoredProject project
     string doGetResult( in StoredProject project );
-
+    // runs the metric on StoredProject p
     void doRun( in StoredProject p );
   };
   interface ProjectFileMetric : AbstractMetric
   {
-    /* Generic run plug-in method
-     * Returns a XML-serialized MetricResult */
+    // returns the metric's result for ProjectFile file
     string doGetResult( in ProjectFile file );
-
+    // runs the metric on ProjectFile f
     void doRun( in ProjectFile f );
   };
   interface FileGroupMetric : AbstractMetric
   {
-    /* Generic run plug-in method
-     * Returns a XML-serialized MetricResult */
+    // returns the metric's result for FileGroup group
     string doGetResult( in FileGroup group );
-
+    // runs the metric on FileGroup g
     void doRun( in FileGroup g );
   };
 };

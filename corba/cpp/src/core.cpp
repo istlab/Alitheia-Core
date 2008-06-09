@@ -13,6 +13,9 @@
 
 namespace Alitheia
 {
+    /**
+     * \internal
+     */
     class Core::Private
     {
     public:
@@ -41,6 +44,9 @@ Core::Private::Private( Core* q )
 {
 };
 
+/**
+ * Ctrl+C handler for shutting down the Core.
+ */
 static void signal_handler( int sig )
 {
     if( sig == SIGINT )
@@ -50,6 +56,9 @@ static void signal_handler( int sig )
     }
 }
 
+/**
+ * Creates a new instance of the Core.
+ */
 Core::Core()
     : d( new Private( this ) )
 {
@@ -73,6 +82,9 @@ Core::Core()
     }
 }
 
+/**
+ * Destroys the Core.
+ */
 Core::~Core()
 {
     shutdown();
@@ -80,6 +92,9 @@ Core::~Core()
     delete d;
 }
 
+/**
+ * Returns the singleton instance of the Core.
+ */
 Core* Core::instance()
 {
     if( core == 0 )
@@ -87,6 +102,9 @@ Core* Core::instance()
     return core;
 }
 
+/**
+ * Registers \a metric in the Alitheia system.
+ */
 int Core::registerMetric( AbstractMetric* metric )
 {
     std::stringstream ss;
@@ -100,16 +118,27 @@ int Core::registerMetric( AbstractMetric* metric )
     return id;
 }
 
+/**
+ * Returns an unique id.
+ * This is used by the Core and by the Scheduler to create unique
+ * names for objects in the ORB.
+ */
 int Core::getUniqueId() const
 {
     return d->core->getUniqueId();
 }
 
+/**
+ * Unregisters \a metric from the Alitheia system.
+ */
 void Core::unregisterMetric( AbstractMetric* metric )
 {
     unregisterMetric( metric->id() );
 }
 
+/**
+ * Unregisters a metric with \a id from the Alitheia system.
+ */
 void Core::unregisterMetric( int id )
 {
     CorbaHandler::instance()->unexportObject( CORBA::string_dup( d->registeredMetrics[ id ].c_str() ) );
@@ -117,6 +146,12 @@ void Core::unregisterMetric( int id )
     d->registeredMetrics.erase( id );
 }
 
+/**
+ * \internal
+ * Add a supported metric description to the database.
+ * This method is only used by AbstractMetric.
+ * Call AbstractMetric::addSupportedMetrics instead.
+ */
 bool Core::addSupportedMetrics( AbstractMetric* metric, const std::string& description, 
                                 const std::string& mnemonic, MetricType::Type type ) const
 {
@@ -126,6 +161,12 @@ bool Core::addSupportedMetrics( AbstractMetric* metric, const std::string& descr
                                          static_cast< alitheia::MetricTypeType >( type ) );
 }
 
+/**
+ * \internal
+ * Get the dscription objects for all metrics supported by \a metric.
+ * This method is only used by AbstractMetric.
+ * Call AbstractMetrig::getSupportedMetrics instead.
+ */
 vector< Metric > Core::getSupportedMetrics( const AbstractMetric* metric ) const
 {
     const alitheia::MetricList& metrics = *(d->core->getSupportedMetrics( CORBA::string_dup( metric->orbName().c_str() ) ));
@@ -154,15 +195,21 @@ vector< ProjectFile > Core::getVersionFiles( const ProjectVersion& version ) con
     return result;
 }
 
+/**
+ * Runs the Alitheia CORBA system.
+ * Blocks until shutdown is called.
+ */
 void Core::run()
 {
     CorbaHandler::instance()->run();
 }
 
-#include <iostream>
+/**
+ * Shuts down the Alitheia CORBA system.
+ * All registered metrics will be unregistered.
+ */
 void Core::shutdown()
 {
-    std::cerr << "shutdown" << std::endl;
     for( map< int, string >::iterator it = d->registeredMetrics.begin(); it != d->registeredMetrics.end(); ++it )
     {
         unregisterMetric( it->first );

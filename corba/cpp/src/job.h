@@ -13,6 +13,9 @@ namespace Alitheia
     class Core;
     class Scheduler;
 
+    /**
+     * Abstract base class for jobs executable by the Scheduler.
+     */
     class Job : virtual public POA_eu::sqooss::impl::service::corba::alitheia::Job
     {
         friend class ::Alitheia::Scheduler;

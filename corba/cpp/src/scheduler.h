@@ -7,25 +7,18 @@ namespace Alitheia
 {
     class Job;
 
+    /**
+     * The class Scheduler can be used to let jobs being executed by 
+     * Alitheia's job scheduler.
+     */
     class Scheduler
     {
         friend class Job;
 
     public:
-        /**
-         * Constructor.
-         */
         Scheduler();
-
-        /**
-         * Destructor.
-         */
         virtual ~Scheduler();
 
-       /** Enqueue \a job.
-         * \a job is registered in Alitheia's job scheduler and executed
-         * as soon as all dependencies are met.
-         */
         void enqueueJob( Job* job );
 
         bool isExecuting() const;
@@ -35,12 +28,6 @@ namespace Alitheia
         void stopExecute();
 
     protected:
-        /**
-         * Registers \a job in the Alitheia core.
-         * The job is executed as possible.
-         *
-         * \note The job is executed in a different thread.
-         */
         int registerJob( Job* job );
 
         void unregisterJob( const std::string& name );

@@ -20,10 +20,16 @@ namespace Alitheia
     const std::string Logger::NameSqoOssFDS         = "sqooss.fds";
     const std::string Logger::NameSqoOssMetric      = "sqooss.metric";
     const std::string Logger::NameSqoOssTester      = "sqooss.tester";
-    
+
+    /**
+     * \internal
+     */
     class Logger::Private
     {
     public:
+        /**
+         * \internal
+         */
         class LoggerBuffer : public std::streambuf
         {
         public:
@@ -60,12 +66,18 @@ using std::string;
 using std::streambuf;
 using std::ostream;
 
+/**
+ * \internal
+ */
 Logger::Private::LoggerBuffer::LoggerBuffer( Logger* logger )
     : streambuf(),
       logger( logger )
 {
 }
 
+/**
+ * \internal
+ */
 int Logger::Private::LoggerBuffer::overflow( int c )
 {
     if( c == EOF )
@@ -80,19 +92,28 @@ int Logger::Private::LoggerBuffer::overflow( int c )
     return 0;
 }
 
+/**
+ * \internal
+ */
 Logger::Private::Private( Logger* q )
     : q( q ),
       copy_stream( 0 )
 {
 }
 
+/**
+ * \internal
+ */
 void Logger::Private::copyMessage( const string& message )
 {
     if( copy_stream != 0 )
         *copy_stream << message << endl;
 }
 
-
+/**
+ * Creates a new logger with \a name.
+ * Only the constant values defined in this class are valid names.
+ */
 Logger::Logger( const string& name )
     : ostream( new Private::LoggerBuffer( this ) ),
       d( new Private( this ) )
@@ -109,12 +130,18 @@ Logger::Logger( const string& name )
     }
 }
 
+/**
+ * Destroys this logger.
+ */
 Logger::~Logger()
 {
     delete rdbuf();
     delete d;
 }
 
+/**
+ * Sends \a message to the debug channel.
+ */
 void Logger::debug( const std::string& message )
 {
     try
@@ -128,6 +155,9 @@ void Logger::debug( const std::string& message )
     }
 }
 
+/**
+ * Sends \a message to the info channel.
+ */
 void Logger::info( const std::string& message )
 {
     try
@@ -141,6 +171,9 @@ void Logger::info( const std::string& message )
     }
 }
 
+/**
+ * Sends \a message to the warn channel.
+ */
 void Logger::warn( const std::string& message )
 {
     try
@@ -154,6 +187,9 @@ void Logger::warn( const std::string& message )
     }
 }
 
+/**
+ * Sends \a message to the error channel.
+ */
 void Logger::error( const std::string& message )
 {
     try
@@ -167,11 +203,18 @@ void Logger::error( const std::string& message )
     }
 }
 
+/**
+ * Returns this logger's name.
+ */
 string Logger::name() const
 {
     return d->name;
 }
 
+/**
+ * Set's \a stream as tee stream of the logger.
+ * All log messages are even send to \a stream, then.
+ */
 void Logger::setTeeStream( ostream& stream )
 {
     d->copy_stream = &stream;

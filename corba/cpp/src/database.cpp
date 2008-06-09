@@ -9,6 +9,9 @@
 
 namespace Alitheia
 {
+    /**
+     * \internal
+     */
     class Database::Private
     {
     public:
@@ -32,6 +35,9 @@ using std::endl;
 using std::exception;
 using std::vector;
 
+/**
+ * Constructs a new Database.
+ */
 Database::Database()
     : d( new Private( this ) )
 {
@@ -46,31 +52,53 @@ Database::Database()
     }
 }
 
+/**
+ * Detroys this Database.
+ */
 Database::~Database()
 {
     delete d;
 }
 
+/**
+ * \internal
+ * Adds \a record to the database.
+ */
 bool Database::addCorbaRecord( CORBA::Any& record )
 {
     return d->database->addRecord( record );
 }
 
+/**
+ * \internal
+ * Updates \a record in the database.
+ */
 bool Database::updateCorbaRecord( CORBA::Any& record )
 {
     return d->database->updateRecord( record );
 }
 
+/**
+ * Removes \a object from the database.
+ */
 bool Database::deleteRecord( const DAObject& object )
 {
     return d->database->deleteRecord( object );
 }
 
+/**
+ * \intarnal
+ * Finds an object having \a type by it's \a id.
+ */
 CORBA::Any* Database::findObjectById( const CORBA::Any& type, int id )
 {
     return d->database->findObjectById( type, id );
 }
 
+/**
+ * \internal
+ * Creates property_map_value from an CORBA::Any \a any.
+ */
 Database::property_map_value any_to_variant( const CORBA::Any& any )
 {
     Database::property_map_value result;
@@ -137,6 +165,10 @@ Database::property_map_value any_to_variant( const CORBA::Any& any )
     return result;
 }
 
+/**
+ * \internal
+ * Creates a CORBA::Any from a property_map_value \a variant.
+ */
 CORBA::Any variant_to_any( const Database::property_map_value& variant )
 {
     CORBA::Any result;
@@ -185,6 +217,10 @@ CORBA::Any variant_to_any( const Database::property_map_value& variant )
     return result;
 }
 
+/**
+ * \internal
+ * Creates a map_entry from a key/value pair \a p.
+ */
 alitheia::map_entry pair_to_corba_map_entry( const std::pair< Database::property_map_key, Database::property_map_value >& p )
 {
     alitheia::map_entry result;
@@ -193,6 +229,10 @@ alitheia::map_entry pair_to_corba_map_entry( const std::pair< Database::property
     return result;
 }
 
+/**
+ * \internal
+ * Creates a map from a property_map \a properties.
+ */
 alitheia::map property_map_to_corba_map( const Database::property_map& properties )
 {
     alitheia::map result;
@@ -205,6 +245,10 @@ alitheia::map property_map_to_corba_map( const Database::property_map& propertie
     return result;
 }
 
+/**
+ * \internal
+ * Finds a list of objects of \a type by some \a properties.
+ */
 vector< CORBA::Any > Database::findObjectsByProperties( const CORBA::Any& type, const property_map& properties )
 {
     const alitheia::list& objects = *(d->database->findObjectsByProperties( type, property_map_to_corba_map( properties ) ) );
@@ -216,7 +260,11 @@ vector< CORBA::Any > Database::findObjectsByProperties( const CORBA::Any& type, 
 
     return result;
 }
-    
+   
+/**
+ * Executes a Hibernate HQL query \a hql on the database.
+ * \params is used for parameters.
+ */
 vector< Database::db_row_entry > Database::doHQL( const std::string& hql, const property_map& params )
 {
     const alitheia::list& objects = *(d->database->doHQL( CORBA::string_dup( hql.c_str() ), 
@@ -229,6 +277,10 @@ vector< Database::db_row_entry > Database::doHQL( const std::string& hql, const 
     return result;
 }
 
+/**
+ * Executes a SQL query \a hql on the database.
+ * \params is used for parameters.
+ */
 vector< Database::db_row_entry > Database::doSQL( const std::string& sql, const property_map& params )
 {
     const alitheia::list& objects = *(d->database->doSQL( CORBA::string_dup( sql.c_str() ), 

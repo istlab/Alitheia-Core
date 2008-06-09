@@ -8,32 +8,16 @@
 
 namespace Alitheia
 {
-    class Checkout
-    {
-    public:
-        Checkout() {}
-        explicit Checkout( const eu::sqooss::impl::service::corba::alitheia::Checkout& checkout );
-        virtual ~Checkout();
-
-        ProjectVersion version;
-        std::vector< ProjectFile > files;
-
-        void saveFile( const std::string& directory, const ProjectFile& file ) const;
-        void save( const std::string& directory ) const;
-    };
-
+    class Checkout;
+    
+    /**
+     * The FDS (Fat Data Service) is the service to retrieve the contents of files and projects.
+     */
     class FDS
     {
 
     public:
-        /**
-         * Constructor.
-         */
         FDS();
-
-        /**
-         * Destructor.
-         */
         virtual ~FDS();
 
         std::string getFileContents( const ProjectFile& file ) const;
@@ -44,6 +28,31 @@ namespace Alitheia
     private:
         class Private;
         Private* d;
+    };
+
+    /**
+     * Checkout is a checkout of a project version. I.e. it contains references to all
+     * project files contained in the version.
+     * Use the FDS class to retriev a Checkout.
+     */
+    class Checkout
+    {
+        friend class ::Alitheia::FDS;
+    protected:
+        /**
+         * Creates a new Checkout.
+         */
+        Checkout() {}
+        
+    public:
+        explicit Checkout( const eu::sqooss::impl::service::corba::alitheia::Checkout& checkout );
+        virtual ~Checkout();
+
+        ProjectVersion version;
+        std::vector< ProjectFile > files;
+
+        void saveFile( const std::string& directory, const ProjectFile& file ) const;
+        void save( const std::string& directory ) const;
     };
 }
 

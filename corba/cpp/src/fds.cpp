@@ -11,6 +11,9 @@
 
 namespace Alitheia
 {
+    /**
+     * \internal
+     */
     class FDS::Private
     {
     public:
@@ -37,6 +40,9 @@ using std::string;
 using std::vector;
 using std::ofstream;
 
+/**
+ * Creates a new Checkout from it's CORBA representation.
+ */
 Checkout::Checkout( const eu::sqooss::impl::service::corba::alitheia::Checkout& checkout )
     : version( checkout.version )
 {
@@ -47,10 +53,18 @@ Checkout::Checkout( const eu::sqooss::impl::service::corba::alitheia::Checkout& 
     }
 }
 
+/**
+ * Destroys the Checkout.
+ */
 Checkout::~Checkout()
 {
 }
 
+/**
+ * Saves the file \a file into \a directory.
+ * The target file path even contains the file's directory.
+ * The directories are created if they don't exist yet.
+ */
 void Checkout::saveFile( const string& directory, const ProjectFile& file ) const
 {
     const string dirname = directory + "/" + file.directory.path;
@@ -59,11 +73,17 @@ void Checkout::saveFile( const string& directory, const ProjectFile& file ) cons
     file.save( filename );
 }
 
+/**
+ * Saves the complete checkout into \a directory.
+ */
 void Checkout::save( const std::string& directory ) const
 {
     for_each( files.begin(), files.end(), bind( &Checkout::saveFile, this, directory, _1 ) );
 }
 
+/**
+ * Creates a new FDS.
+ */
 FDS::FDS()
     : d( new Private( this ) )
 {
@@ -78,11 +98,17 @@ FDS::FDS()
     }
 }
 
+/**
+ * Destroys the FDS.
+ */
 FDS::~FDS()
 {
     delete d;
 }
 
+/**
+ * Returns the complete contents of \a file.
+ */
 string FDS::getFileContents( const ProjectFile& file ) const
 {
     CORBA::String_var content;
@@ -90,6 +116,9 @@ string FDS::getFileContents( const ProjectFile& file ) const
     return std::string( content, length );
 }
 
+/**
+ * Returns \a length bytes of the contents of \a file beginning at \a begin.
+ */
 string FDS::getFileContents( const ProjectFile& file, int begin, int length ) const
 {
     CORBA::String_var content;
@@ -97,6 +126,11 @@ string FDS::getFileContents( const ProjectFile& file, int begin, int length ) co
     return std::string( content, size );
 }
 
+/**
+ * Creates a Checkout of ProjectVersion \a version.
+ * If \a pattern is set, only files with path name matching the regular expression
+ * are contained in the Checkout.
+ */
 Checkout FDS::getCheckout( const ProjectVersion& version, const string& pattern ) const
 {
     return Checkout( *(d->fds->getCheckout( version.toCorba(), pattern.empty() ? ".*"

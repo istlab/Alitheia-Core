@@ -18,12 +18,18 @@ namespace CORBA
 
 namespace Alitheia
 {
+    /**
+     * Database provides access to Alitheia's database.
+     */
     class Database
     {
     public:
         Database();
         virtual ~Database();
 
+        /**
+         * Adds \a object as record into the database.
+         */
         template< class T >
         bool addRecord( T& object )
         {
@@ -35,6 +41,9 @@ namespace Alitheia
 
         bool deleteRecord( const DAObject& object );
         
+        /**
+         * Updates the record of \a object within the database.
+         */
         template< class T >
         bool updateRecord( T& object )
         {
@@ -44,6 +53,9 @@ namespace Alitheia
             return result;
         }
         
+        /**
+         * Finds an object of type T having \a id within the database.
+         */
         template< class T >
         T findObjectById( int id )
         {
@@ -69,6 +81,10 @@ namespace Alitheia
         typedef std::map< property_map_key, property_map_value > property_map;
         typedef property_map_value db_row_entry;
 
+        /**
+         * Gets a list of objects of type T matching a set of properties.
+         * The properties can be everything like "name", "project".
+         */
         template< class T >
         std::vector< T > findObjectsByProperties( const property_map& properties )
         {

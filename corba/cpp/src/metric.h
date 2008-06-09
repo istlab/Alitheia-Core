@@ -9,6 +9,9 @@ namespace Alitheia
 {
     class Core;
 
+    /**
+     * Abstract base class used for all metrics.
+     */
     class AbstractMetric : virtual public POA_eu::sqooss::impl::service::corba::alitheia::AbstractMetric
     {
         friend class ::Alitheia::Core;
@@ -37,15 +40,7 @@ namespace Alitheia
         virtual std::string dateInstalled() const;
 
     protected:
-        /**
-         * @return The name of the metric as it was exported in the ORB.
-         * This has nothing to do with getName()
-         */
         const std::string& orbName() const;
-        /**
-         * Sets the name of the object as it is exported in the ORB to \a name.
-         * This is set by the core.
-         */
         void setOrbName( const std::string& orbName );
 
         int id() const;
@@ -62,6 +57,11 @@ namespace Alitheia
         Private* d;
     };
 
+    /**
+     * Base class for ProjectVersion metrics.
+     * Reimplement this class and register the instance in 
+     * the Core to let Alitheia execute your metric.
+     */
     class ProjectVersionMetric : public AbstractMetric, virtual public POA_eu::sqooss::impl::service::corba::alitheia::ProjectVersionMetric
     {
     public:
@@ -72,6 +72,11 @@ namespace Alitheia
         virtual void run( ProjectVersion& version ) = 0;
     };
 
+    /**
+     * Base class for ProjectFile metrics.
+     * Reimplement this class and register the instance in 
+     * the Core to let Alitheia execute your metric.
+     */
     class ProjectFileMetric : public AbstractMetric, virtual public POA_eu::sqooss::impl::service::corba::alitheia::ProjectFileMetric
     {
     public:
@@ -82,6 +87,11 @@ namespace Alitheia
         virtual void run( ProjectFile& projectFile ) = 0;
     };
 
+    /**
+     * Base class for StoredProject metrics.
+     * Reimplement this class and register the instance in 
+     * the Core to let Alitheia execute your metric.
+     */
     class StoredProjectMetric : public AbstractMetric, virtual public POA_eu::sqooss::impl::service::corba::alitheia::StoredProjectMetric
     {
     public:
@@ -91,6 +101,11 @@ namespace Alitheia
         virtual std::string getResult( const StoredProject& storedProject ) const = 0;
     };
 
+    /**
+     * Base class for FileGroup metrics.
+     * Reimplement this class and register the instance in 
+     * the Core to let Alitheia execute your metric.
+     */
     class FileGroupMetric : public AbstractMetric, virtual public POA_eu::sqooss::impl::service::corba::alitheia::FileGroupMetric
     {
     public:

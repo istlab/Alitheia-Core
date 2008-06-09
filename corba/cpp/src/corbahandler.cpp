@@ -9,14 +9,24 @@
 
 using namespace std;
 
+/**
+ * \internal
+ * OrbThread is the background thread running the ORB.
+ */
 class OrbThread
 {
 public:
+    /**
+     * Creates a new OrbThread running the ORB \a orb.
+     */
     OrbThread( CORBA::ORB* orb )
         : thread( boost::bind( &CORBA::ORB::run, orb ) )
     {
     }
 
+    /**
+     * Waits for the thread to be done.
+     */
     void join()
     {
         thread.join();
@@ -26,6 +36,9 @@ private:
     boost::thread thread;
 };
 
+/**
+ * Creates a new CorbaHandler.
+ */
 CorbaHandler::CorbaHandler()
 {
     int argc = 3;
@@ -47,27 +60,43 @@ CorbaHandler::CorbaHandler()
     orb_thread = new OrbThread( orb );
 }
 
+/**
+ * Destroys the CorbaHandler.
+ */
 CorbaHandler::~CorbaHandler()
 {
 //    delete orb_thread;
 }
 
+/**
+ * Waits for the ORB thread to finish.
+ */
 void CorbaHandler::run()
 {
     orb_thread->join();
 }
 
+/**
+ * Shuts down the ORB thread.
+ */
 void CorbaHandler::shutdown()
 {
     orb->shutdown( TRUE );
 }
 
+/**
+ * Returns a singleton instance of CorbaHandler.
+ */
 CorbaHandler* CorbaHandler::instance()
 {
     static CorbaHandler handler;
     return &handler;
 }
 
+/**
+ * Imports an object identified by \a name from the CORBA ORB.
+ * @return A CORBA style object reference to the object.
+ */
 CORBA::Object_var CorbaHandler::getObject( const char* name ) const throw (CORBA::Exception)
 {
     const CORBA::Object_var nsobj = orb->resolve_initial_references( "NameService" );
@@ -81,6 +110,9 @@ CORBA::Object_var CorbaHandler::getObject( const char* name ) const throw (CORBA
     return nc->resolve( cosName );
 }
 
+/**
+ * Exports \a obj to the CORBA ORB using \a name as identifier.
+ */
 void CorbaHandler::exportObject( CORBA::Object_ptr obj, const char* name )
 {
     const CORBA::Object_var nsobj = orb->resolve_initial_references( "NameService" );
@@ -94,6 +126,9 @@ void CorbaHandler::exportObject( CORBA::Object_ptr obj, const char* name )
     nc->rebind( cosName, obj );
 }
 
+/**
+ * Stops exporting an object identified by \a name into the ORB.
+ */
 void CorbaHandler::unexportObject( const char* name )
 {
     const CORBA::Object_var nsobj = orb->resolve_initial_references( "NameService" );

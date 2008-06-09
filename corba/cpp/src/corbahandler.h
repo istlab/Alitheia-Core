@@ -5,6 +5,11 @@
 
 class OrbThread;
 
+/**
+ * \internal
+ * CorbaHandler is the layer between the C++ API and the CORBA ORB.
+ * It exports and imports objects to/from the ORB.
+ */
 class CorbaHandler
 {
 protected:
