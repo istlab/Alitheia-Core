@@ -84,7 +84,7 @@ import eu.sqooss.service.db.PluginConfiguration;
  *   <li>File Group</li>
  *   <li>File</li>
  *  </ul>
- * 
+ *
  * As a result, all metric plug-in implementations must implement at least two
  * interfaces:
  *  <ul>
@@ -104,35 +104,35 @@ public interface AlitheiaPlugin {
 
     /**
      * Get the metric version. Free form text.
-     * 
+     *
      * @return The metric's version.
      */
     String getVersion();
 
     /**
      * Get information about the metric author
-     * 
+     *
      * @return The metric's author.
      */
     String getAuthor();
 
     /**
      * Get the date this version of the metric has been installed
-     * 
+     *
      * @return The metric's installation date.
      */
     Date getDateInstalled();
 
     /**
      * Get the metric name
-     * 
+     *
      * @return The metric's name.
      */
     String getName();
 
     /**
      * Get a free text description of what this metric calculates
-     * 
+     *
      * @return The metric's description.
      */
     String getDescription();
@@ -142,7 +142,7 @@ public interface AlitheiaPlugin {
      *
      * @param o DAO whose type specifies the specialised sub-interface to use
      *          and whose value determines which result to get.
-     * @return l A list of metrics 
+     * @return l A list of metrics
      * @return value of the measurement or null if there is no such measurement.
      * @throws MetricMismatchException if the DAO type is one not supported by
      *          this metric.
@@ -157,7 +157,7 @@ public interface AlitheiaPlugin {
      * @return the list of metric descriptors, or null if none
      */
     List<Metric> getSupportedMetrics();
-    
+
     /**
      * Generic "run plug-in" method. This method performs a measurement for
      * the given DAO, if possible. The DAO might be any one of the types
@@ -190,7 +190,7 @@ public interface AlitheiaPlugin {
      * Perform maintenance operations when installing a new
      * version of the metric
      *
-     * @return True if installation succeeded, false otherwise 
+     * @return True if installation succeeded, false otherwise
      */
     boolean install();
 
@@ -200,41 +200,42 @@ public interface AlitheiaPlugin {
      * @return True, if the removal succeeded, false otherwise
      */
     boolean remove();
-    
+
     /**
      * Return a string that is unique for this plugin, used for indexing this
      * plugin to the system database
-     * 
+     *
      * @return A unique string, max length 255 characters
      */
     String getUniqueKey();
-    
+
     /**
      * Get the types supported by this plug-in for data processing and result
      * retrieval. An activation type is DAO subclass which is passed as argument
      * to the {@link AlitheiaPlugin.run()} and
      * {@link AlitheiaPlugin.getResult()}} methods to trigger metric
      * calculation and result retrieval.
-     * 
+     *
      * @return A list of DAObject subclasses
-     */     
+     */
     List<Class<? extends DAObject>> getActivationTypes();
-    
+
     /**
      * Retrieves the list of configuration properties for this plug-in.
      * <br/>
      * Metric plug-ins can use the <code>AbstractMetric</code>'s
      * <code>addConfigEntry</code> and <code>removeConfigEntry</code> methods
      * to manage their own configuration schema.
-     * 
+     *
      * @return The list of the existing configuration properties for
-     *   this plug-in.
+     *   this plug-in. This may be an empty list if no configuration is
+     *   needed or if the plug-in is not active.
      */
     List<PluginConfiguration> getConfigurationSchema();
-    
+
     /**
      * Return a list of metric mnemonics that the metrics in this plugin
-     * use. 
+     * use.
      * @return A list of metric dependencies for this plug-in
      */
     List<String> getMetricDependencies();
