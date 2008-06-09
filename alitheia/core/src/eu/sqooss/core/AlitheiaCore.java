@@ -133,7 +133,8 @@ public class AlitheiaCore {
      * Initializes an instance of the WebAdmin component.
      */
     private void initWebAdmin() {
-        webadmin = new WebadminServiceImpl(bc, getMessagingService());
+        webadmin = new WebadminServiceImpl(bc, getMessagingService(),
+                getLogManager().createLogger(Logger.NAME_SQOOSS_WEBADMIN));
     }
 
     /**

@@ -56,7 +56,7 @@ public class WebadminServiceImpl implements WebadminService {
     private NotifyAdminMessageSender messageSender;
 
     public WebadminServiceImpl(BundleContext bc,
-            MessagingService messagingService) {
+            MessagingService messagingService, Logger logger) {
         // Get a reference to the HTTPService, and then its object
         srefHTTPService = bc.getServiceReference(
             HttpService.class.getName());
@@ -72,7 +72,7 @@ public class WebadminServiceImpl implements WebadminService {
         messageSender = new NotifyAdminMessageSender(messagingService, ve);
         // Register the front-end servlets
         if (sobjHTTPService != null) {
-            servlet = new AdminServlet(bc, this, ve);
+            servlet = new AdminServlet(bc, this, logger, ve);
             try {
                 sobjHTTPService.registerServlet(
                     "/",
