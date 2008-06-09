@@ -157,7 +157,7 @@ public class UserManager extends AbstractManager {
         
         super.updateUserActivity(userName);
         
-        Group[] groups = groupManager.getGroups();
+        Group[] groups = groupManager.getGroups(null);
         
         WSUserGroup[] result = new WSUserGroup[groups.length];
         for (int i = 0; i < result.length; i++) {

@@ -34,8 +34,6 @@ package eu.sqooss.impl.service.security.utils;
 
 public interface GroupManagerDBQueries {
     
-    public static final String GET_GROUPS = "from Group";
-    
     public static final String GET_GROUP_PRIVILEGES = "from GroupPrivilege";
     
     public static final String ADD_USER_TO_GROUP_PARAM_USER_ID = "user_id";

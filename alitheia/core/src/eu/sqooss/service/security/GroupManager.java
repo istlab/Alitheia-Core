@@ -70,7 +70,7 @@ public interface GroupManager {
      * 
      * @return All groups in the SQO-OSS framework.
      */
-    public Group[] getGroups();
+    public Group[] getGroups(GroupType.Type type);
 
     /**
      * Given an user Id, this method returns an array of all groups (their 

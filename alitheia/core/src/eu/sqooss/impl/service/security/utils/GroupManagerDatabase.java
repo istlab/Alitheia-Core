@@ -41,6 +41,7 @@ import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Group;
 import eu.sqooss.service.db.GroupPrivilege;
+import eu.sqooss.service.db.GroupType;
 import eu.sqooss.service.db.PrivilegeValue;
 import eu.sqooss.service.db.ServiceUrl;
 import eu.sqooss.service.db.User;
@@ -59,8 +60,12 @@ public class GroupManagerDatabase implements GroupManagerDBQueries {
         groupProps = new Hashtable<String, Object>(1);
     }
 
-    public List<?> getGroups() {
-        return db.doHQL(GET_GROUPS);
+    public List<Group> getGroups(GroupType.Type type) {
+        Map<String, Object> props = new Hashtable<String, Object>();
+        if (type != null) {
+            props.put("groupType", GroupType.getGroupType(type));
+        }
+        return db.findObjectsByProperties(Group.class, props);
     }
     
     public Set<?> getGroups(long userId) {

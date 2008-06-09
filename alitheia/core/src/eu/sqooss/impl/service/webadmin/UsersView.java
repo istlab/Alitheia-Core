@@ -1368,7 +1368,7 @@ public class UsersView extends AbstractView {
                             + "document.users.submit();\""
                             + "\""
                             + ">\n");
-                    for (Group group : secGM.getGroups()) {
+                    for (Group group : secGM.getGroups(null)) {
                         // Skip all definition groups
                         if (isDefinitionGroup(group.getId()))
                             continue;
@@ -1512,7 +1512,7 @@ public class UsersView extends AbstractView {
                 // Groups list - content rows
                 // ===========================================================
                 else if (reqValViewList.equals("groups")) {
-                    for (Group nextGroup : secGM.getGroups()) {
+                    for (Group nextGroup : secGM.getGroups(null)) {
                         // Skip all definition groups
                         if (isDefinitionGroup(nextGroup.getId()))
                             continue;

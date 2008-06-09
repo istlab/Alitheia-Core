@@ -158,9 +158,9 @@ public class GroupManagerImpl implements GroupManager {
     /**
      * @see eu.sqooss.service.security.GroupManager#getGroups()
      */
-    public Group[] getGroups() {
-        logger.debug("Get gorups!");
-        return convertGroups(dbWrapper.getGroups());
+    public Group[] getGroups(GroupType.Type type) {
+        logger.debug("Get gorups! type: " + type.toString());
+        return convertGroups(dbWrapper.getGroups(type));
     }
 
     /**
