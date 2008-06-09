@@ -52,9 +52,9 @@ derby )
 		echo "show tables;" | eval $DERBY_COMMAND | grep "^ALITHEIA"
 	}
 	db_fill() {
-		sed -e 's/@@SCHEMA@@/ALITHEIA./' \
-			-e 's/@@HOUR@@/12.37.01.1234/' \
-			 examples/db-derby.sql | eval $DERBY_COMMAND
+		 sed -e 's/@SCHEMA@/alitheia./' \
+			-e 's/@TS=\(.*\)@/\1-12.27.38.2345/' \
+			examples/db-derby.sql | eval $DERBY_COMMAND
 	}
 	db_clean() {
 		cat examples/clear-db-derby.sql | eval $DERBY_COMMAND
@@ -72,7 +72,9 @@ postgres )
 		echo "\dt" | $POSTGRES_COMMAND
 	}
 	db_fill() {
-		cat examples/db-postgres.sql | $POSTGRES_COMMAND
+		sed -e 's/@SCHEMA@//' \
+			-e 's/@TS=\(.*\)@/\1 12:27/' \
+			 examples/db-derby.sql | $POSTGRES_COMMAND
 	}
 	db_clean() {
 		cat examples/clear-db-postgres.sql | $POSTGRES_COMMAND

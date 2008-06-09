@@ -2,21 +2,16 @@
 -- database, instead throw away all of the tables.
 
 drop table bug_report_message;
-drop table bug_reporter;
 drop table bug;
-drop table committer;
 drop table group_user;
 drop table group_privilege;
 drop table groups cascade;
-drop table feature;
-drop table commits;
 drop table mailinglist cascade;
-drop table file_metadata cascade;
 drop table mailmessage cascade;
-drop table measurement cascade;
 drop table project_file_measurement cascade;
 drop table project_version_measurement cascade;
 drop table metric cascade;
+drop table invocation_rule;
 drop table metric_type;
 drop table plugin;
 drop table privilege;
@@ -42,13 +37,12 @@ drop table plugin;
 
 -- Now go around again
 drop table stored_project_measurement;
-drop table developer;
 drop table file_group_measurement;
 drop table file_group;
-drop table invocation_rule;
 drop table plugin;
 drop table metric_type;
 drop table project_version;
+drop table developer;
 
 
 
