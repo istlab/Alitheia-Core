@@ -64,12 +64,16 @@ import org.apache.velocity.VelocityContext;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleException;
 
 public class AdminServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
-    private static WebadminService webadmin = null;
     private static BundleContext bc = null;
-
+    private static WebadminService webadmin = null;
+    
+    /// Logger given by our owner to write log messages to.
+    private Logger logger = null;
+    
     // Content tables
     private Hashtable<String, String> dynamicContentMap = null;
     private Hashtable<String, Pair<String, String>> staticContentMap = null;
@@ -91,10 +95,13 @@ public class AdminServlet extends HttpServlet {
     RulesView rulesView = null;
 
     public AdminServlet(BundleContext bc,
-            WebadminService webadmin, VelocityEngine ve) {
+            WebadminService webadmin, 
+            Logger logger,
+            VelocityEngine ve) {
         this.webadmin = webadmin;
         this.bc = bc;
         this.ve = ve;
+        this.logger = logger;
 
         // Create the static content map
         staticContentMap = new Hashtable<String, Pair<String, String>>();
@@ -157,7 +164,12 @@ public class AdminServlet extends HttpServlet {
 
                 // Now stop the system
                 render.logRequest("System stopped by user request to webadmin.");
-                bc.getBundle(0).stop();
+                try {
+                    bc.getBundle(0).stop();
+                } catch (BundleException be) {
+                    logger.warn("Could not stop bundle 0.");
+                    // And ignore
+                }
                 return;
             }
             if (query.startsWith("/restart")) {
@@ -174,8 +186,9 @@ public class AdminServlet extends HttpServlet {
                 sendPage(response, request, dynamicContentMap.get(query));
             }
         }
-        catch (Exception e) {
-            System.out.println(e);
+        catch (NullPointerException e) {
+            logger.warn("Got a NPE while rendering a page.");
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -202,8 +215,9 @@ public class AdminServlet extends HttpServlet {
             else {
                 doGet(request,response);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NullPointerException e) {
+            logger.warn("Got a NPE while handling POST data.");
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -241,8 +255,15 @@ public class AdminServlet extends HttpServlet {
             HttpServletResponse response,
             HttpServletRequest request,
             String path)
-        throws ServletException, IOException, Exception {
-        Template t = ve.getTemplate( path );
+        throws ServletException, IOException {
+        Template t = null;
+        try {
+            t = ve.getTemplate( path );
+        } catch (Exception e) {
+            logger.warn("Failed to get template <" + path + ">");
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            return;
+        }
         StringWriter writer = new StringWriter();
         PrintWriter print = response.getWriter();
 

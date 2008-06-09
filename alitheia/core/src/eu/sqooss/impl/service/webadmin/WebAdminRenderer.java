@@ -51,6 +51,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.velocity.VelocityContext;
 import org.osgi.framework.BundleContext;
 
+import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.pa.PluginInfo;
 import eu.sqooss.service.scheduler.Job;
@@ -392,9 +393,9 @@ public class WebAdminRenderer  extends AbstractView {
                 b.append(sp(in) + "<td class=\"trans\">"
                         + nextPrj.getName()
                         + "</td>\n");
+                ProjectVersion v = StoredProject.getLastProjectVersion(nextPrj);
                 b.append(sp(in) + "<td class=\"trans\">"
-                        + StoredProject.getLastProjectVersion(
-                                nextPrj).getVersion()
+                        + ( v==null ? "no version" : v.getVersion() )
                         + "</td>\n");
                 b.append(sp(in) + "<td class=\"trans\">"
                         + resLbl.getString("l0051")
@@ -484,7 +485,7 @@ public class WebAdminRenderer  extends AbstractView {
        
         for (int i=0; i<projects.size(); i++) {
             b.append("\t<tr>\n");
-            StoredProject p = (StoredProject) projects.get(i);
+            StoredProject p = projects.get(i);
             b.append("\t\t<!--project--><td><font size=\"-2\"><b>");
             b.append(p.getName());
             b.append("</b> ([id=");
