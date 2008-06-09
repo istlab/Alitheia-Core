@@ -170,18 +170,6 @@ public class ProjectManagerDatabase implements ProjectManagerDBQueries {
         return result;
     }
     
-    public long getFilesNumberByProjectId(long projectId) {
-        Map<String, Object> queryParameters = new Hashtable<String, Object>(1);
-        queryParameters.put(GET_FILES_NUMBER_BY_PROJECT_ID_PARAM, projectId);
-        
-        long result = 0;
-        List<?> projectFilesNumber = db.doHQL(GET_FILES_NUMBER_BY_PROJECT_ID, queryParameters);
-        if (!projectFilesNumber.isEmpty()) {
-            result = ((Long) projectFilesNumber.get(0)).longValue();
-        }
-        return result;
-    }
-    
     @SuppressWarnings("unchecked")
     public WSDirectory[] getDirectoriesByIds(Collection<Long> ids) {
         Map<String, Collection> queryParameters = new Hashtable<String, Collection>();

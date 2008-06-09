@@ -143,23 +143,6 @@ public abstract class WSProjectAccessor extends WSAccessor {
     public abstract long getFilesNumberByProjectVersionId(long projectVersionId) throws WSException;
     
     /**
-     * The method returns the total of the files, that exist in the given project.
-     * 
-     * @param userName - the user's name used for authentication
-     * @param password - the user's password used for authentication
-     * @param projectId - the project's identifier
-     * 
-     * @return The number of the eproject's files.
-     * 
-     * @throws WSException
-     * <ul>
-     *  <li>if the connection can't be established to the SQO-OSS's web services service</li>
-     *  <li>if web services service throws an exception</li>
-     * <ul>
-     */
-    public abstract long getFilesNumberByProjectId(long projectId) throws WSException;
-    
-    /**
      * This method returns all known information about the directories referenced by
      * the given identifiers.
      * 
@@ -207,23 +190,6 @@ public abstract class WSProjectAccessor extends WSAccessor {
      * <ul>
      */
     public abstract WSStoredProject getProjectByName(String projectName) throws WSException;
-    
-    /**
-     * The method returns an array representing all evaluated versions of the
-     * given project.
-     * 
-     * @param projectId - the project's identifier
-     * 
-     * @return The array with all evaluated project versions,
-     * or a empty array when none are found.
-     * 
-     * @throws WSException
-     * <ul>
-     *  <li>if the connection can't be established to the SQO-OSS's web services service</li>
-     *  <li>if web services service throws an exception</li>
-     * <ul>
-     */
-    public abstract WSProjectVersion[] getProjectVersionsByProjectId(long projectId) throws WSException;
     
     /**
      * The method returns all information, that the SQO-OSS framework has

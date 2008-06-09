@@ -331,23 +331,6 @@ public class WebServices {
     }
 
     /**
-     * The method returns the total of the files, that exist in the given project.
-     * 
-     * @param userName - the user's name used for authentication
-     * @param password - the user's password used for authentication
-     * @param projectId - the project's identifier
-     * 
-     * @return The number of the eproject's files.
-     */
-    public long getFilesNumberByProjectId(
-            String userName,
-            String password,
-            long projectId) {
-        return projectManager.getFilesNumberByProjectId(
-                userName, password, projectId);
-    }
-
-    /**
      * This method returns all known information about the directories referenced by
      * the given identifiers.
      * 
