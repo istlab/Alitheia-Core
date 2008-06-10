@@ -106,6 +106,7 @@ public class WcImplementation extends AbstractMetric implements Wc {
             Scheduler s = ((AlitheiaCore) bc.getService(serviceRef)).getScheduler();
 
             s.enqueue(w);
+            w.waitForFinished();
         } catch (Exception e) {
             log.error("Could not schedule wc job for project file: " 
                     + a.getFileName());
