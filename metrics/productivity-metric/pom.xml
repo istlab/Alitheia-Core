@@ -36,8 +36,8 @@
     <outputDirectory>${basedir}/build</outputDirectory>
     <resources>
       <resource>
-        <directory>${basedir}/src/eu/sqooss/metrics/productivity-metric/db</directory>
-        <targetPath>eu/sqooss/metrics/productivity-metric/db</targetPath>
+        <directory>${basedir}/src/eu/sqooss/metrics/productivity2/db/</directory>
+        <targetPath>eu/sqooss/metrics/productivity/db</targetPath>
         <includes>
           <include>**/*.hbm.xml</include>
         </includes>

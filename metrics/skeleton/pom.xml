@@ -35,6 +35,15 @@
     <defaultGoal>package</defaultGoal>
     <sourceDirectory>${basedir}/src</sourceDirectory>
     <outputDirectory>${basedir}/build</outputDirectory>
+    <resources>
+      <resource>
+        <directory>${basedir}/src/eu/sqooss/service/db</directory>
+        <targetPath>eu/sqooss/service/db</targetPath>
+        <includes>
+           <include>**/*.xml</include>
+        </includes>
+      </resource>
+    </resources>
     <plugins>
       <plugin>
         <artifactId>maven-jar-plugin</artifactId>

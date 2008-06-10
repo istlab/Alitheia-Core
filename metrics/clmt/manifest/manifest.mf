@@ -5,7 +5,7 @@ Bundle-SymbolicName: eu.sqooss.metric.clmt
 Bundle-Version: 0.0.1
 Bundle-Activator: eu.sqooss.impl.service.CLMTActivator
 Bundle-Vendor: AUEB
-Export-Package: eu.sqooss.metric.clmt, eu.sqooss.metric.clmt.db
+Export-Package: eu.sqooss.metrics.clmt, eu.sqooss.metrics.clmt.db
 Bundle-Description: Cross-Language Metric Tool wrapper plugin
 Bundle-ClassPath: .,
     clmt.jar

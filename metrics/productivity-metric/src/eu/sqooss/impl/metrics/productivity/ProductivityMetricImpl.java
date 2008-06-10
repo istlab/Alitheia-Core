@@ -34,7 +34,6 @@
 package eu.sqooss.impl.metrics.productivity;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import org.osgi.framework.BundleContext;
@@ -44,14 +43,13 @@ import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.impl.metrics.productivity.ProductivityMetricActions.ActionCategory;
 import eu.sqooss.impl.metrics.productivity.ProductivityMetricActions.ActionType;
 import eu.sqooss.metrics.productivity.ProductivityMetric;
-import eu.sqooss.metrics.productivity.db.*;
+import eu.sqooss.metrics.productivity.db.ProductivityActions;
+import eu.sqooss.metrics.productivity.db.ProductivityWeights;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
-import eu.sqooss.service.abstractmetric.Result;
 import eu.sqooss.service.abstractmetric.ResultEntry;
 import eu.sqooss.service.db.Developer;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
-import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.pa.PluginInfo;
 import eu.sqooss.service.scheduler.Scheduler;
