@@ -328,6 +328,7 @@ public class Terrier {
      */
     public MetricsTableView getAllMetrics() {
         if (!connection.isConnected()) {
+            addError(connection.getError());
             return null;
         }
         MetricsTableView metricTableView = new MetricsTableView();

@@ -27,7 +27,13 @@ if (metricsView != null) {
 if (metricsView != null ) {
     out.println(metricsView.getHtml());
 } else {
-    out.println(Functions.error(terrier.getError()));
+    out.println("<div id=\"error\">");
+    if (cruncher.isOnline()) {
+        out.println(Functions.error(terrier.getError()));
+    } else {
+        out.println(cruncher.getStatus());
+    }
+    out.println("</div>");
 }
 if (selectedProject == null) {
     %>
