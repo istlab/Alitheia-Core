@@ -13,8 +13,11 @@ if (selectedProject.isValid()) {
     %> <%@ include file="/views/Project.jsp" %> <%
 } else {
     %>
-        <h2>The following projects have been evaluated:</h2>
-        <%@ include file="/views/EvaluatedProjectsList.jsp" %> <%
+    <div id="projectslist" class="group">
+        <h2>Evaluated Projects</h2>
+        <%@ include file="/views/EvaluatedProjectsList.jsp" %> 
+    </div>
+<%
 
 }
 %>

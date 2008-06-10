@@ -43,6 +43,11 @@
     background-position: 12px 8px;
 }
 
+#projectslist {
+    background: #fff url(/img/desktop-mdk.png) no-repeat;
+    background-position: 12px 8px;
+}
+
 #tagcloud td {
     text-align: center;
 }
