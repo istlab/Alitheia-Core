@@ -91,27 +91,27 @@ public class MetricActivatorImpl implements MetricActivator {
         this.db = core.getDBService();
     }
 
-    private void initRules() {
+    public void initRules() {
         // Load all defined invocation rules
-        //db.startDBSession();
-        rules = new HashMap<Long, InvocationRule>();
-        InvocationRule defaultRule = InvocationRule.getDefaultRule(db);
-        defaultRuleId = defaultRule.getId();
-        defaultAction = ActionType.fromString(defaultRule.getAction());
-        InvocationRule rule = InvocationRule.first(db);
-        firstRuleId = rule.getId();
-        while (rule != null) {
-            rules.put(rule.getId(), rule);
-            rule = rule.next(db);
+        if (rules == null) {
+            rules = new HashMap<Long, InvocationRule>();
+            InvocationRule defaultRule = InvocationRule.getDefaultRule(db);
+            defaultRuleId = defaultRule.getId();
+            defaultAction = ActionType.fromString(defaultRule.getAction());
+            InvocationRule rule = InvocationRule.first(db);
+            firstRuleId = rule.getId();
+            while (rule != null) {
+                rules.put(rule.getId(), rule);
+                rule = rule.next(db);
+            }
         }
-        //db.commitDBSession();
     }
-    
+
     public void reloadRule (Long ruleId) {
-        if(rules == null) {
+        // Load the rules chain, if not done yet
+        if(rules == null)
             initRules();
-        }
-        
+
         // Invalid rule Id
         if (ruleId == null) return;
         // Retrieve the target rule from the database
@@ -131,14 +131,15 @@ public class MetricActivatorImpl implements MetricActivator {
         }
         // Rule remove
         else {
-            rules.remove(ruleId);
+            if (rules.containsKey(ruleId))
+                rules.remove(ruleId);
         }
     }
 
     public ActionType matchRules (AlitheiaPlugin ap, DAObject resource) {
-        if(rules == null) {
+        // Load the rules chain, if not done yet
+        if (rules == null)
             initRules();
-        }
 
         // Retrieve the first rule
         InvocationRule rule = rules.get(firstRuleId);

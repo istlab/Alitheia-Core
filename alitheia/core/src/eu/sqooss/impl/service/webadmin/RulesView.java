@@ -264,44 +264,10 @@ public class RulesView extends AbstractView{
                                 != reqValSelRuleId)){
                     InvocationRule selRule = sobjDB.findObjectById(
                             InvocationRule.class, reqValSelRuleId);
-                    if (selRule != null) {
-                        // Get the rule, that follow the selected one
-                        InvocationRule nextRule = null;
-                        if (selRule.getNextRule() != null) {
-                            nextRule = sobjDB.findObjectById(
-                                    InvocationRule.class,
-                                    selRule.getNextRule());
-                        }
-                        // Get the rule, that preceed the selected one
-                        InvocationRule prevRule = null;
-                        if (selRule.getPrevRule() != null) {
-                            prevRule = sobjDB.findObjectById(
-                                    InvocationRule.class,
-                                    selRule.getPrevRule());
-                        }
-                        // Remove the selected rule
-                        if (sobjDB.deleteRecord(selRule)) {
-                            compMA.reloadRule(reqValSelRuleId);
+                    if (selRule != null ) {
+                        if (InvocationRule.deleteInvocationRule(
+                                sobjDB, compMA, selRule)) {
                             reqValSelRuleId = null;
-                            // Update the neighbor rules
-                            if ((prevRule != null) && (nextRule != null)) {
-                                prevRule.setNextRule(nextRule.getId());
-                                nextRule.setPrevRule(prevRule.getId());
-                                compMA.reloadRule(prevRule.getId());
-                                compMA.reloadRule(nextRule.getId());
-                            }
-                            else {
-                                // Update the preceeding rule
-                                if (prevRule != null) {
-                                    prevRule.setNextRule(null);
-                                    compMA.reloadRule(prevRule.getId());
-                                }
-                                // Update the following rule
-                                if (nextRule != null) {
-                                    nextRule.setPrevRule(null);
-                                    compMA.reloadRule(nextRule.getId());
-                                }
-                            }
                         }
                         else {
                             e.append("Rule deletion"
@@ -737,6 +703,7 @@ public class RulesView extends AbstractView{
             b.append(sp(in++) + "<tbody>\n");
 
             // Retrieve information for all invocation rules
+            compMA.initRules();
             List<InvocationRule> rules = sobjDB.findObjectsByProperties(
                     InvocationRule.class, new HashMap<String, Object>());
 

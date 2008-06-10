@@ -81,6 +81,16 @@ public interface MetricActivator {
     public ProjectVersion getLastAppliedVersion(AlitheiaPlugin m, StoredProject sp);
 
     /**
+     * Instructs the <code>MetricActivator<code> component, to load the list
+     * of invocation rules available in the SQO-OSS database.
+     * <br/>
+     * In the special case when no rules can be found in the database,
+     * this method will initialize the rule chain, by creating a database
+     * record for its default rule i.e. the default chain policy.
+     */
+    public void initRules();
+
+    /**
      * Reloads the invocation rule with the specified Id from the database.
      * When a rule with the given Id doesn't exist in the database, then it
      * is removed from the <code>MetricActivator</code>'s cache as well
@@ -90,7 +100,7 @@ public interface MetricActivator {
      * 
      * @param ruleId the invocation rule's Id
      */
-    public void reloadRule (Long ruleId);
+    public void reloadRule(Long ruleId);
 
     public ActionType matchRules (AlitheiaPlugin ap, DAObject resource);
 }
