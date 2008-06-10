@@ -71,13 +71,23 @@ import eu.sqooss.service.webadmin.WebadminService;
  * @author, Boryan Yotov <b.yotov@prosyst.com>
  */
 public class WebAdminRenderer  extends AbstractView {
-    // Current time
+    /**
+     * Represents the system time at which the WebAdminRender (and
+     * thus the system) was started. This is required for the system
+     * uptime display.
+     */
     private static long startTime = new Date().getTime();
 
     public WebAdminRenderer(BundleContext bundlecontext, VelocityContext vc) {
         super(bundlecontext, vc);
     }
 
+    /**
+     * Creates and HTML table displaying the details of all the jobs
+     * that have failed whilst the system has been up
+     *
+     * @return a String representing the HTML table
+     */
     public static String renderJobFailStats() {
         StringBuilder result = new StringBuilder();
         HashMap<String,Integer> fjobs = sobjSched.getSchedulerStats().getFailedJobTypes();
@@ -103,6 +113,12 @@ public class WebAdminRenderer  extends AbstractView {
         return result.toString();
     }
 
+    /**
+     * Creates an HTML table displaying the details of all the jobs
+     * that are waiting whilst the system is up
+     *
+     * @return a String representing the HTML table
+     */
     public static String renderWaitJobs() {
         StringBuilder result = new StringBuilder();
         Job[] jobs = sobjSched.getWaitQueue();
@@ -228,6 +244,11 @@ public class WebAdminRenderer  extends AbstractView {
         return result.toString();
     }
 
+    /**
+     * Creates an HTML unordered list displaying the contents of the current system log
+     *
+     * @return a String representing the HTML unordered list items
+     */
     public static String renderLogs() {
         String[] names = sobjLogManager.getRecentEntries();
 
@@ -462,6 +483,9 @@ public class WebAdminRenderer  extends AbstractView {
         addProject(name, website, contact, bts, mail, scm);
     }
 
+    /**
+     * Allows the user to set the message of the day to be displayed within the WebUI
+     */
     public void setMOTD(WebadminService webadmin, HttpServletRequest request) {
         webadmin.setMessageOfTheDay(request.getParameter("motdtext"));
         vc.put("RESULTS",
