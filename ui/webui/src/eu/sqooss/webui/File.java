@@ -36,9 +36,9 @@ package eu.sqooss.webui;
 import eu.sqooss.ws.client.datatypes.WSProjectFile;
 
 /**
- * This class represents a File in a project or version that has been 
+ * This class represents a File in a project or version that has been
  * evaluated by Alitheia.
- * It provides access to the files' metadata and some convenience 
+ * It provides access to the files' metadata and some convenience
  * functions for display.
  *
  * The File class is part of the high-level webui API.
@@ -52,6 +52,10 @@ class File extends WebuiItem {
     private Long id;
     private Terrier terrier;
 
+    /** Initialise the File from a WSProjectFile, setting the data and storing a
+     * reference to the Terrier class that can then be used to fetch additional information.
+     *
+     */
     public File (WSProjectFile wsFile, Terrier t) {
         versionId = wsFile.getProjectVersionId();
         name = wsFile.getFileName();
@@ -61,7 +65,8 @@ class File extends WebuiItem {
         // TODO: measurements (and metrics?)
         // TODO: isDirectory()?
     }
-
+    /** Initialise a file with raw data.
+     */
     public File(Long versionId, Long fileId, String name, String status, Terrier t) {
         this.versionId = versionId;
         this.name = name;
@@ -91,6 +96,10 @@ class File extends WebuiItem {
         return "<a href=\"files.jsp?fid=" + id + "\">" + name + "</a>";
     }
 
+    /** Return a HTML string showing a statusicon indicating wether the file
+     * has been modified, deleted, added or unknown status.
+     *
+     */
     public String getStatusIcon() {
         String iconname = "vcs_status";
         String tooltip = "status unknown";
@@ -107,6 +116,8 @@ class File extends WebuiItem {
         return icon(iconname, 0, tooltip);
     }
 
+    /** HTML representation of the File.
+     */
     public String getHtml() {
         StringBuilder html = new StringBuilder(COMMENT);
         html.append(getStatusIcon() + "&nbsp;" + getLink());
