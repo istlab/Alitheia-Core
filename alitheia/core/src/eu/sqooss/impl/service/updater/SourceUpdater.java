@@ -33,16 +33,19 @@
 
 package eu.sqooss.impl.service.updater;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.apache.commons.collections.LRUMap;
 
 import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Developer;
 import eu.sqooss.service.db.Directory;
@@ -109,8 +112,8 @@ class SourceUpdater extends Job {
          * to avoid holding references to huge data graphs on large 
          * updates
          */
-        SortedSet<Long> updProjectVersions = new TreeSet<Long>();
-        SortedSet<Long> updFiles = new TreeSet<Long>();
+        Set<Long> updProjectVersions = new TreeSet<Long>();
+        Set<Long> updFiles = new TreeSet<Long>();
 
         /*Avoid Hibernate thrasing by caching frequently accessed objects*/
         LRUMap devCache = new LRUMap(500);
@@ -174,7 +177,7 @@ class SourceUpdater extends Job {
                 // so we don't need to load the complete list of revisions
                 // (especially as we used getLastProjectVersion above)
                 dbs.addRecord(curVersion);
-                updProjectVersions.add(new Long(curVersion.getId()));
+                updProjectVersions.add(curVersion.getId());
 
                 for(String chPath: entry.getChangedPaths()) {
 
@@ -252,9 +255,17 @@ class SourceUpdater extends Job {
                         + (int) ((System.currentTimeMillis() - ts) / 1000));
                 dbs.commitDBSession();
                 /*Kickstart metrics*/
-                ma.runMetrics(ProjectVersion.class, updProjectVersions);
-                ma.runMetrics(ProjectFile.class, updFiles);
                 
+                dbs.startDBSession();
+                List<DAObject> objects = new ArrayList<DAObject>(updProjectVersions.size() + updFiles.size());
+                for (Long l : updProjectVersions)
+                	objects.add(dbs.findObjectById(ProjectVersion.class, l));
+                for (Long l : updFiles)
+                	objects.add(dbs.findObjectById(ProjectFile.class, l));
+                
+                ma.runMetrics(objects);
+                dbs.commitDBSession();
+
                 updater.removeUpdater(
                         project.getName(),
                         UpdaterService.UpdateTarget.CODE);

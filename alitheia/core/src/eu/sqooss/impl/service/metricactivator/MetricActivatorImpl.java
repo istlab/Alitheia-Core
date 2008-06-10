@@ -33,33 +33,34 @@
 
 package eu.sqooss.impl.service.metricactivator;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.SortedSet;
+import java.util.Set;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
+import eu.sqooss.service.abstractmetric.MetricMismatchException;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.InvocationRule;
-import eu.sqooss.service.db.InvocationRule.ActionType;
-import eu.sqooss.service.db.InvocationRule.ScopeType;
 import eu.sqooss.service.db.Metric;
-import eu.sqooss.service.db.MetricType.Type;
 import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
+import eu.sqooss.service.db.InvocationRule.ActionType;
+import eu.sqooss.service.db.InvocationRule.ScopeType;
+import eu.sqooss.service.db.MetricType.Type;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.metricactivator.MetricActivator;
 import eu.sqooss.service.pa.PluginAdmin;
 import eu.sqooss.service.pa.PluginInfo;
-import eu.sqooss.service.scheduler.Scheduler;
-import eu.sqooss.service.scheduler.SchedulerException;
 
 public class MetricActivatorImpl implements MetricActivator {
 
@@ -69,7 +70,6 @@ public class MetricActivatorImpl implements MetricActivator {
     private AlitheiaCore core;
     private Logger logger;
     private PluginAdmin pa;
-    private Scheduler sched;
     private DBService db;
 
     // Default action of the invocation rules chain
@@ -87,7 +87,6 @@ public class MetricActivatorImpl implements MetricActivator {
 
         this.logger = logger;
         this.pa = core.getPluginAdmin();
-        this.sched = core.getScheduler();
         this.db = core.getDBService();
     }
 
@@ -233,43 +232,92 @@ public class MetricActivatorImpl implements MetricActivator {
         // No matching rule found. Return the default action.
         return defaultAction;
     }
+    
+    private void runMetric(DAObject object, AbstractMetric metric, List<AbstractMetric> handled) {
+    	if (handled.contains(metric))
+    		return;
 
-    public <T extends DAObject> void runMetrics(Class<T> clazz,
-            SortedSet<Long> objectIDs) {
-        // Get a list of all metrics that support the given activation type
-        List<PluginInfo> metrics = null;
-        metrics = core.getPluginAdmin().listPluginProviders(clazz);
+    	handled.add(metric);
+    	
+    	// meet the dependencies
+    	List<String> dependencies = metric.getMetricDependencies();
+    	for (String dependency : dependencies) {
+    		AbstractMetric dependencyMetric = (AbstractMetric) pa.getImplementingPlugin(dependency);
+    		if (dependencyMetric==null) {
+    			logger.error("No metric found to fulfill the dependency \"" + dependency + "\"");
+    			continue;
+    		}
+    		runMetric(object, dependencyMetric, handled);
+    	}
+    	
+    	try {
+			metric.run(object);
+		} catch (MetricMismatchException e) {
+            logger.warn("Metric " + metric.getName() + " failed");
+		}
+    }
+    
+ 	private void runMetric(DAObject object, Map<Class<?>,List<PluginInfo>> metricsForClass, List<DAObject> handled, List<DAObject> allToBeHandled) {
+		if (handled.contains(object))
+			return;
 
-        if (metrics == null || metrics.size() == 0) {
-            logger.warn("No metrics found for activation type " + clazz.getName());
-            return;
-        }
+		handled.add(object);
 
-        // Start a job per processor to schedule metrics
-       int cpus = Runtime.getRuntime().availableProcessors();
-       int sliceSize = (objectIDs.size() / cpus);
-       Long[] entries = objectIDs.toArray(new Long[] {});
+ 		Class<? extends DAObject> c = object.getClass();
+		if (metricsForClass.get(c)==null) {
+			metricsForClass.put(c, pa.listPluginProviders(c));
+		}
+		List<PluginInfo> metrics = metricsForClass.get(c);
+		if (metrics == null || metrics.size() == 0) {
+			logger.warn("No metrics found for activation type " + c.getName());
+		    return;
+		}
+    	
+		// if we have a StoredProject, make sure all it's ProjectVersions are handled first
+		if (object instanceof StoredProject) {
+			StoredProject p = (StoredProject)object;
+			List<ProjectVersion> versions = p.getProjectVersions();
+			
+			for (ProjectVersion version : versions) {
+				if (allToBeHandled.contains(version) && !handled.contains(version))
+					runMetric(version, metricsForClass, handled, allToBeHandled);
+			}
+		}
+		
+		// if we have a ProjectVersion, make sure all it's ProjectFiles are handled first
+		if (object instanceof ProjectVersion) {
+			ProjectVersion v = (ProjectVersion)object;
+			Set<ProjectFile> files = v.getVersionFiles();
+			
+			for (ProjectFile file : files) {
+				if (allToBeHandled.contains(file) && !handled.contains(file))
+					runMetric(file, metricsForClass, handled, allToBeHandled);
+			}
+		}
+		
+		List<AbstractMetric> allMetrics = new ArrayList<AbstractMetric>(metrics.size());
+		List<AbstractMetric> executedMetrics = new ArrayList<AbstractMetric>(metrics.size());
+		for (PluginInfo metric : metrics) {
+			AbstractMetric plugin = (AbstractMetric) bc.getService(metric.getServiceRef());
+			if (plugin==null)
+				continue;
+			allMetrics.add(plugin);
+		}
 
-       for (int i = 0; i < cpus; i++) {
-           Long [] slice = null;
-           if (i < cpus - 1) {
-               slice = new Long[sliceSize];
-               System.arraycopy(entries, i*sliceSize, slice, 0, sliceSize);
-           } else {
-               int remainder = entries.length - i * sliceSize;
-               slice = new Long[remainder];
-               System.arraycopy(entries, i*sliceSize, slice, 0, remainder);
-           }
-
-           MetricActivatorJob maj = new MetricActivatorJob(metrics, clazz,
-                    slice, logger, bc);
-
-            try {
-                sched.enqueue(maj);
-            } catch (SchedulerException e) {
-                logger.error("Error creating scheduler job:" + e.getMessage());
-            }
-        }
+		for (AbstractMetric m : allMetrics) {
+			runMetric(object, m, executedMetrics);
+		}
+    }
+    
+    public void runMetrics(List<DAObject> objects) {
+    	Map<Class<?>,List<PluginInfo>> metricsForClass = new HashMap<Class<?>,List<PluginInfo>>();
+    	
+    	// this is the list of DAObjects we already handled
+    	List<DAObject> handled = new ArrayList<DAObject>(objects.size());
+    	
+    	for(DAObject object : objects) {
+    		runMetric(object, metricsForClass, handled, objects);
+    	}
     }
 
     public void syncMetric(AlitheiaPlugin m, StoredProject sp) {

@@ -32,7 +32,7 @@
  */
 package eu.sqooss.service.metricactivator;
 
-import java.util.SortedSet;
+import java.util.List;
 
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.db.DAObject;
@@ -54,7 +54,7 @@ public interface MetricActivator {
      * @param clazz resource type
      * @param objectIDs resource IDs list
      */
-    public <T extends DAObject> void runMetrics(Class<T> clazz, SortedSet<Long> objectIDs);
+	public void runMetrics(List<DAObject> objects);
 
     /**
      * Synchronize metric results for all metrics for a specific project
