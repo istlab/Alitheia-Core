@@ -504,7 +504,9 @@ public class WebAdminRenderer  extends AbstractView {
         else {
             // Create the field-set
             b.append(sp(in++) + "<fieldset>\n");
-            b.append(sp(in) + "<legend>All projects</legend>\n");
+            b.append(sp(in) + "<legend>"
+                    + resLbl.getString("l0072")
+                    + "</legend>\n");
 
             //----------------------------------------------------------------
             // Create the header row
@@ -513,30 +515,36 @@ public class WebAdminRenderer  extends AbstractView {
             b.append(sp(in++) + "<thead>\n");
             b.append(sp(in++) + "<tr class=\"head\">\n");
             b.append(sp(in) + "<td class=\"head\""
-                    + " style=\"width: 5%;\">"
-                    + "Id</td>\n");
+                    + " style=\"width: 10%;\">"
+                    + resLbl.getString("l0066")
+                    + "</td>\n");
             b.append(sp(in) + "<td class=\"head\""
                     + " style=\"width: 35%;\">"
-                    + "Name</td>\n");
+                    + resLbl.getString("l0067")
+                    + "</td>\n");
             b.append(sp(in) + "<td class=\"head\""
                     + " style=\"width: 15%;\">"
-                    + "Last Version</td>\n");
+                    + resLbl.getString("l0068")
+                    + "</td>\n");
             b.append(sp(in) + "<td class=\"head\""
                     + " style=\"width: 15%;\">"
-                    + "Last Email</td>\n");
+                    + resLbl.getString("l0069")
+                    + "</td>\n");
             b.append(sp(in) + "<td class=\"head\""
                     + " style=\"width: 15%;\">"
-                    + "Last Bug</td>\n");
+                    + resLbl.getString("l0070")
+                    + "</td>\n");
             b.append(sp(in) + "<td class=\"head\""
-                    + " style=\"width: 15%;\">"
-                    + "Evaluated</td>\n");
+                    + " style=\"width: 10%;\">"
+                    + resLbl.getString("l0071")
+                    + "</td>\n");
             b.append(sp(--in) + "</tr>\n");
             b.append(sp(--in) + "</thead>\n");
 
             if (projects.isEmpty()) {
                 b.append(sp(in++) + "<tr>\n");
                 b.append(sp(in) + "<td colspan=\"6\" class=\"noattr\">\n"
-                        + "No projects found."
+                        + resMsg.getString("m0009")
                         + "</td>\n");
                 b.append(sp(--in) + "</tr>\n");
             }
@@ -608,7 +616,8 @@ public class WebAdminRenderer  extends AbstractView {
                                         + m.getPluginName()
                                         + ": "
                                         + ((lastVer != null)
-                                                ? "at version" + " "
+                                                ? resLbl.getString("l0065")
+                                                        + " "
                                                         + lastVer.getVersion()
                                                 : resLbl.getString("l0051"))
                                         + "</td>\n");
@@ -626,7 +635,7 @@ public class WebAdminRenderer  extends AbstractView {
             b.append(sp(in) + "<input type=\"button\""
                     + " class=\"install\""
                     + " style=\"width: 100px;\""
-                    + " value=\"" + "Refresh" + "\""
+                    + " value=\"" + resLbl.getString("l0008") + "\""
                     + " onclick=\"javascript:"
                     + "window.location='/projects"
                     + ((selProject != null)
@@ -639,7 +648,7 @@ public class WebAdminRenderer  extends AbstractView {
             b.append(sp(in) + "<input type=\"button\""
                     + " class=\"install\""
                     + " style=\"width: 100px;\""
-                    + " value=\"" + "Add project" + "\""
+                    + " value=\"" + resLbl.getString("l0060") + "\""
                     + " onclick=\"javascript:"
                     + "document.getElementById('"
                     + reqParAction + "').value='"
@@ -651,7 +660,7 @@ public class WebAdminRenderer  extends AbstractView {
             b.append(sp(in) + "<input type=\"button\""
                     + " class=\"install\""
                     + " style=\"width: 100px;\""
-                    + " value=\"" + "Delete project" + "\""
+                    + " value=\"" + resLbl.getString("l0059") + "\""
                     + " onclick=\"javascript:"
                     + "document.getElementById('"
                     + reqParAction + "').value='"
@@ -663,7 +672,7 @@ public class WebAdminRenderer  extends AbstractView {
             b.append(sp(in) + "<input type=\"button\""
                     + " class=\"install\""
                     + " style=\"width: 100px;\""
-                    + " value=\"" + "Update source" + "\""
+                    + " value=\"" + resLbl.getString("l0061") + "\""
                     + " onclick=\"javascript:"
                     + "document.getElementById('"
                     + reqParAction + "').value='"
@@ -677,7 +686,7 @@ public class WebAdminRenderer  extends AbstractView {
             b.append(sp(in) + "<input type=\"button\""
                     + " class=\"install\""
                     + " style=\"width: 100px;\""
-                    + " value=\"" + "Update emails" + "\""
+                    + " value=\"" + resLbl.getString("l0062") + "\""
                     + " onclick=\"javascript:"
                     + "document.getElementById('"
                     + reqParAction + "').value='"
@@ -691,7 +700,7 @@ public class WebAdminRenderer  extends AbstractView {
             b.append(sp(in) + "<input type=\"button\""
                     + " class=\"install\""
                     + " style=\"width: 100px;\""
-                    + " value=\"" + "Update bugs" + "\""
+                    + " value=\"" + resLbl.getString("l0063") + "\""
                     + " onclick=\"javascript:"
                     + "document.getElementById('"
                     + reqParAction + "').value='"
@@ -705,7 +714,7 @@ public class WebAdminRenderer  extends AbstractView {
             b.append(sp(in) + "<input type=\"button\""
                     + " class=\"install\""
                     + " style=\"width: 100px;\""
-                    + " value=\"" + "Update all" + "\""
+                    + " value=\"" + resLbl.getString("l0064") + "\""
                     + " onclick=\"javascript:"
                     + "document.getElementById('"
                     + reqParAction + "').value='"
