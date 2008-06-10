@@ -50,12 +50,30 @@ import eu.sqooss.service.tds.TDSService;
  * 
  */
 public class AbstractMetricJob extends Job {
-    
+    /**
+     * Provides access to logging functionality
+     */
     protected LogManager logService = null;
     protected Logger log = null;
+
+    /**
+     * Provides access to Alitheia Core functionality
+     */
     protected AlitheiaCore core = null;
+
+    /**
+     * Provides access to the Thin Data Store service
+     */
     protected TDSService tds = null;
+
+    /**
+     * Provides access to the Fat Data Store service
+     */
     protected FDSService fds = null;
+
+    /**
+     * Provides access to the Database service
+     */
     protected DBService db = null;
    
     public AbstractMetricJob(AbstractMetric owner) {
@@ -87,11 +105,19 @@ public class AbstractMetricJob extends Job {
             log.error("Didn't get DB Service");
     }
     
+    /**
+     * Funtion to return the priority of this job
+     *
+     * @return priority as int
+     */
     @Override
     public int priority() {
         return 0xbabe;
     }
 
+    /**
+     * Function to begin the execution of the job's tasks
+     */
     @Override
     protected void run() throws Exception {
         log.info(this.getClass().toString() + ": Nothing to do");
