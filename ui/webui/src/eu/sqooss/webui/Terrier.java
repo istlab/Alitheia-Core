@@ -75,7 +75,7 @@ public class Terrier {
      * specified <code>ResourceBundle</code> object. In the exceptional case,
      * when the specified configuration object is invalid, this function will
      * fall back to a set of predefined configuration settings.
-     * 
+     *
      * @param configuration a <code>ResourceBunde</code> configuration object
      */
     public void initConfig(ResourceBundle configuration) {
@@ -259,6 +259,13 @@ public class Terrier {
         return files;
     }
 
+    /**
+     * Fetch a Version by project and versionId.
+     *
+     * @param projectId The ID of selected project
+     * @param projectId The ID of the version
+     * @return The Version matching projectId and versionId.
+     */
     public Version getVersion(Long projectId, Long versionId) {
         if (!connection.isConnected()) {
             addError(connection.getError());
@@ -267,7 +274,7 @@ public class Terrier {
         }
         try {
             // Retrieve evaluated projects only
-            WSProjectVersion[] versionsResult = 
+            WSProjectVersion[] versionsResult =
                 connection.getProjectAccessor().getProjectVersionsByIds(new long[] {versionId});
             if (versionsResult.length > 0) {
                 Version v = new Version(versionsResult[0], this);
@@ -346,7 +353,7 @@ public class Terrier {
      * Retrieves all files that exist in the specified project version,
      * and generates a proper view for displaying them.
      *
-     * FIXME: THis returns a listview and should not be in terrier.
+     * FIXME: This returns a listview and should not be in terrier.
      *
      * @param versionId The ID of selected project version
      * @return The corresponding view object
@@ -438,7 +445,7 @@ public class Terrier {
         }
         return result;
     }
-    
+
     /**
      * Retrieves information about the specified user from the SQO-OSS
      * framework.
