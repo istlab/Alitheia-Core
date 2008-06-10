@@ -38,7 +38,7 @@ import java.util.*;
 import eu.sqooss.ws.client.datatypes.WSProjectVersion;
 
 /**
- * This class represents a Version of a project that has been evaluated 
+ * This class represents a Version of a project that has been evaluated
  * by Alitheia.
  * It provides access to version metadata and files in this version.
  *
@@ -51,10 +51,15 @@ public class Version extends WebuiItem {
     private Long number;
     private Long filesNumber;
 
+    /** Empty ctor, only sets the jsp page that can be used to display
+     * details about this Version.
+     */
     public Version () {
         page = "version.jsp";
     }
 
+    /** Ctor that fully initialises a Version from a WSProjectVersion object.
+     */
     public Version (WSProjectVersion wsVersion, Terrier t) {
         id = wsVersion.getId();
         terrier = t;
@@ -64,6 +69,10 @@ public class Version extends WebuiItem {
         filesNumber = getFilesNumber();
     }
 
+    /** Initialise some data of this Version. This method can be used when we
+     * don't have a WSProjectVersion to use for data initialisation, or if we
+     * don't want to use one for performance reasons.
+     */
     public Version(Long projectId, Long versionId, Terrier t) {
         id = versionId;
         this.projectId = projectId;
@@ -86,10 +95,16 @@ public class Version extends WebuiItem {
         number = n;
     }
 
+    /** Return the number of files that are part of this particular project version.
+     */
     public Long getFilesNumber() {
         return terrier.getFilesNumber4ProjectVersion(id);
     }
 
+    /** Fetch the files that are part of this particular Version from the SCL.
+     * After this method has been called the files in this Version are available
+     * in the files member.
+     */
     public void getFiles () {
         if (!isValid()) {
             addError("no ID in getFiles()");
@@ -108,20 +123,31 @@ public class Version extends WebuiItem {
         }
     }
 
+    /** Return an HTML list of all the Files in this Version.
+     *
+     *
+     */
     public String listFiles() {
         return terrier.getFiles4ProjectVersion(id).getHtml();
     }
 
+    /** Return an HTML representation of this Version.
+     *
+     */
     public String getHtml() {
         StringBuilder html = new StringBuilder(COMMENT);
         html.append("<b>Version:</b> " + id);
         return html.toString();
     }
 
+    /** Return a short HTML representation of this Version.
+     */
     public String shortName () {
         return "v" + id;
     }
 
+    /** Return a longer HTML representation of this Version.
+     */
     public String longName () {
         return getHtml(); // Yeah, we're lazy.
     }
