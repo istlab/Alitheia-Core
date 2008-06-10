@@ -51,8 +51,14 @@ public class WebuiItem {
     protected SortedMap<Long, File> files;
     Vector<File> fs; // For convenience
 
+    /** Some derived datatypes have files in them, we store them in this class,
+     * even though they're not used for all derived object for simplicity. Classes
+     * that do possess such a file list are Version and Project.
+     */
     protected int fileCount;
 
+    /** Empty ctor.
+     */
     public WebuiItem () {
 
     }
@@ -73,20 +79,31 @@ public class WebuiItem {
         terrier = t;
     }
 
+    /** Return an HTML representation of this Object.
+     */
     public String getHtml() {
         StringBuilder html = new StringBuilder(COMMENT);
         html.append("<strong>WebuiItem:</strong> " + id);
         return html.toString();
     }
 
+    /** Returns a short HTML representation of this object.
+     */
     public String shortName () {
-        return "v" + id;
+        return name + " " + id;
     }
 
+    /** Returns a longer HTML representation of this object.
+     */
     public String longName () {
-        return getHtml(); // Yeah, we'r lazy.
+        return getHtml(); // Yeah, we're lazy.
     }
 
+    /** Returns an HTML link to a page that shows more information about this object.
+     * The members page, reqName and id are required for this to work. Optionally,
+     * you can provide a CSS class to style the link. The link is build as $page?$reqName=$id,
+     * for example project.jsp?project=42 (with page="project.jsp", reqName="project", id=42.
+     */
     public String link(String cssClass) {
         String css_class = "";
         if (cssClass != null) {
@@ -95,15 +112,23 @@ public class WebuiItem {
         return "<a href=\"" + page + "?" + reqName + "=" + id + "\" " + css_class + ">" + shortName() + "</a>";
     }
 
+    /** Convenience method that returns a link without using a CSS class.
+     */
     public String link() {
         return link(null);
     }
 
+    /** Fetch files through the SCL. Note that we do not have enough knowledge at this
+     * point to fetch something sensible. If you run this method (and not its overload
+     * in Project or Version) there's probably something wrong with your code.
+     */
     protected void getFiles () {
         terrier.addError("getFiles() in WebuiItem should not be called");
         fileCount = 0;
     }
 
+    /** Count the number of files and store this number internally.
+     */
     public void setFileCount(Integer n) {
         fileCount = n;
     }
@@ -112,6 +137,9 @@ public class WebuiItem {
         return fileCount;
     }
 
+    /** Set the internal list of Files.
+     *
+     */
     public void setFiles(SortedMap<Long, File> f) {
         files = f;
     }
@@ -165,30 +193,47 @@ public class WebuiItem {
         return html.toString();
     }
 
+    /** Return an HTML snippet string representing the object icon.
+     */
     public String icon(String name) {
         return Functions.icon(name);
     }
-    
+
+    /** Return an HTML snippet string representing the object icon at a certain size.
+     */
     public String icon(String name, int size) {
         return Functions.icon(name, size);
     }
 
+    /** Return an HTML snippet string representing the object icon at a certain size.
+     * with a tooltip.
+     */
     public String icon(String name, int size, String tooltip) {
         return Functions.icon(name, size, tooltip);
     }
 
+    /** Add an error that will be displayed by this object later on. Note that in most cases,
+     * you'll want to add your messages to the Terrier object. This method is there if we
+     * don't have a Terrier at hand and want to message the user nevertheless.
+     */
     public void addError(String html) {
         error.append(html);
     }
 
+    /** Return the errors of this object as printable String.
+     */
     public String error() {
         return error.toString();
     }
 
+    /** Is this object initialised?
+     */
     public Boolean isValid() {
         return id != null;
     }
 
+    /** Explicitely invalidate this object.
+     */
     public void setInValid() {
         id = null;
     }
