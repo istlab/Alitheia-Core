@@ -32,6 +32,9 @@
 
 package eu.sqooss.service.pa;
 
+import java.util.Iterator;
+import java.util.List;
+
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 
@@ -46,10 +49,6 @@ import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.db.PluginConfiguration;
 import eu.sqooss.service.util.StringUtils;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-
 /**
  * This class holds runtime and configuration information about single metric
  * plug-in.
@@ -62,7 +61,7 @@ import java.util.List;
  * the service's information are copied into this new <code>PluginInfo</code>
  * instance.
  */
-public class PluginInfo {
+public class PluginInfo implements Comparable<PluginInfo> {
 
     /**
      * This enumeration includes all permitted types of configuration values,
@@ -569,6 +568,10 @@ public class PluginInfo {
         b.append("]");
         return b.toString();
     }
+
+	public int compareTo(PluginInfo pi) {
+		return hashcode.compareTo(pi.hashcode);
+	}
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
