@@ -30,7 +30,9 @@
  * 
  */
 
-package eu.sqooss.service.db;
+package eu.sqooss.metrics.productivity.db;
+
+import eu.sqooss.service.db.DAObject;
 
 public class ResourceWeight extends DAObject {
     public long resourceTypeID;

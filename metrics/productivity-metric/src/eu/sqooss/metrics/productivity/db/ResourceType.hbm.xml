@@ -4,7 +4,7 @@
         "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-  <class name="eu.sqooss.service.db.ResourceType" table="PRODUCTIVITY_RESOURCE_TYPE">
+  <class name="eu.sqooss.metrics.productivity.db.ResourceType" table="PRODUCTIVITY_RESOURCE_TYPE">
     <id name="id" column="RESOURCE_TYPE_ID">
       <generator class="native" />
     </id>

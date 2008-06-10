@@ -1,5 +1,4 @@
-/*
- * This file is part of the Alitheia system, developed by the SQO-OSS
+/* This file is part of the Alitheia system, developed by the SQO-OSS
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  * 
  * Copyright 2007-2008 by the SQO-OSS consortium members <info@sqo-oss.eu>
@@ -31,39 +30,21 @@
  * 
  */
 
-package eu.sqooss.service.db;
+package eu.sqooss.metrics.productivity.db;
 
-import java.util.Date;
+import eu.sqooss.service.db.DAObject;
 
-public class WeightHistory extends DAObject {
-    private long actionID;
-    private long weight;
-    private Date calcDate;
+public class ResourceType extends DAObject {
+    private String resourceName;
 
-    public long getActionID() {
-        return actionID;
+    public String getResourceName() {
+        return resourceName;
     }
 
-    public void setActionID(long actionID) {
-        this.actionID = actionID;
+    public void setResourceName(String resourceName) {
+        this.resourceName = resourceName;
     }
-
-    public long getWeight() {
-        return weight;
-    }
-
-    public void setWeight(long weight) {
-        this.weight = weight;
-    }
-
-    public Date getCalcDate() {
-        return calcDate;
-    }
-
-    public void setCalcDate(Date calcDate) {
-        this.calcDate = calcDate;
-    }
-
 }
 
-// vi: ai nosi sw=4 ts=4 expandtab
+
+//vi: ai nosi sw=4 ts=4 expandtab

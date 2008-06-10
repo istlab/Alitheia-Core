@@ -4,12 +4,12 @@
         "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-  <class name="eu.sqooss.service.db.WeightHistory" table="PRODUCTIVITY_WEIGHT_HISTORY">
-    <id name="id" column="WEIGHT_HISTORY_ID">
+  <class name="eu.sqooss.metrics.productivity.db.ResourceWeight" table="PRODUCTIVITY_RESOURCE_WEIGHT">
+    <id name="id" column="RESOURCE_WEIGHT_ID">
       <generator class="native" />
     </id>
-    <property name="actionID" column="RESOURCE_TYPE_ID" />
+    <property name="resourceTypeID" column="RESOURCE_TYPE_ID" />
+    <property name="projectID" column="PROJECT_ID" />
     <property name="weight" column="WEIGHT" />
-    <property name="calcDate" column="CALC_DATE" />
   </class>
 </hibernate-mapping>

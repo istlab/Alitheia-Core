@@ -31,37 +31,41 @@
  * 
  */
 
-package eu.sqooss.service.db;
+package eu.sqooss.metrics.productivity.db;
 
-public class Actions extends DAObject {
-    private long resourceTypeID;
-    private String actionName;
-    private boolean isActionProductive;
+import java.util.Date;
 
-    public long getResourceTypeID() {
-        return resourceTypeID;
+import eu.sqooss.service.db.DAObject;
+
+public class WeightHistory extends DAObject {
+    private long actionID;
+    private long weight;
+    private Date calcDate;
+
+    public long getActionID() {
+        return actionID;
     }
 
-    public void setResourceTypeID(long resourceTypeID) {
-        this.resourceTypeID = resourceTypeID;
+    public void setActionID(long actionID) {
+        this.actionID = actionID;
     }
 
-    public String getActionName() {
-        return actionName;
+    public long getWeight() {
+        return weight;
     }
 
-    public void setActionName(String actionName) {
-        this.actionName = actionName;
+    public void setWeight(long weight) {
+        this.weight = weight;
     }
 
-    public boolean isActionProductive() {
-        return isActionProductive;
+    public Date getCalcDate() {
+        return calcDate;
     }
 
-    public void setActionProductive(boolean isActionProductive) {
-        this.isActionProductive = isActionProductive;
+    public void setCalcDate(Date calcDate) {
+        this.calcDate = calcDate;
     }
+
 }
 
-
-//vi: ai nosi sw=4 ts=4 expandtab
+// vi: ai nosi sw=4 ts=4 expandtab

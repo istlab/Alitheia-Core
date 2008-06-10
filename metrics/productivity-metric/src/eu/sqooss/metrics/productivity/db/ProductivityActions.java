@@ -1,4 +1,4 @@
-package eu.sqooss.service.db;
+package eu.sqooss.metrics.productivity.db;
 
 import java.util.HashMap;
 import java.util.List;
@@ -6,6 +6,9 @@ import java.util.Map;
 
 import eu.sqooss.impl.metrics.productivity.ProductivityMetricActions;
 import eu.sqooss.impl.service.CoreActivator;
+import eu.sqooss.service.db.DAObject;
+import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.Developer;
 
 public class ProductivityActions extends DAObject {
 

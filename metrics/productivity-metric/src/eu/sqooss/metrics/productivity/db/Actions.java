@@ -31,37 +31,38 @@
  * 
  */
 
-package eu.sqooss.service.db;
+package eu.sqooss.metrics.productivity.db;
 
-public class DeveloperActions extends DAObject {
-    private long developerID;
-    private long weightID;
-    private long totalActions;
+import eu.sqooss.service.db.DAObject;
 
-    public long getDeveloperID() {
-        return developerID;
+public class Actions extends DAObject {
+    private long resourceTypeID;
+    private String actionName;
+    private boolean isActionProductive;
+
+    public long getResourceTypeID() {
+        return resourceTypeID;
     }
 
-    public void setDeveloperID(long developerID) {
-        this.developerID = developerID;
+    public void setResourceTypeID(long resourceTypeID) {
+        this.resourceTypeID = resourceTypeID;
     }
 
-    public long getWeightID() {
-        return weightID;
+    public String getActionName() {
+        return actionName;
     }
 
-    public void setWeightID(long weightID) {
-        this.weightID = weightID;
+    public void setActionName(String actionName) {
+        this.actionName = actionName;
     }
 
-    public long getTotalActions() {
-        return totalActions;
+    public boolean isActionProductive() {
+        return isActionProductive;
     }
 
-    public void setTotalActions(long totalActions) {
-        this.totalActions = totalActions;
+    public void setActionProductive(boolean isActionProductive) {
+        this.isActionProductive = isActionProductive;
     }
-
 }
 
 

@@ -1,4 +1,5 @@
-/* This file is part of the Alitheia system, developed by the SQO-OSS
+/*
+ * This file is part of the Alitheia system, developed by the SQO-OSS
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  * 
  * Copyright 2007-2008 by the SQO-OSS consortium members <info@sqo-oss.eu>
@@ -30,18 +31,39 @@
  * 
  */
 
-package eu.sqooss.service.db;
+package eu.sqooss.metrics.productivity.db;
 
-public class ResourceType extends DAObject {
-    private String resourceName;
+import eu.sqooss.service.db.DAObject;
 
-    public String getResourceName() {
-        return resourceName;
+public class DeveloperActions extends DAObject {
+    private long developerID;
+    private long weightID;
+    private long totalActions;
+
+    public long getDeveloperID() {
+        return developerID;
     }
 
-    public void setResourceName(String resourceName) {
-        this.resourceName = resourceName;
+    public void setDeveloperID(long developerID) {
+        this.developerID = developerID;
     }
+
+    public long getWeightID() {
+        return weightID;
+    }
+
+    public void setWeightID(long weightID) {
+        this.weightID = weightID;
+    }
+
+    public long getTotalActions() {
+        return totalActions;
+    }
+
+    public void setTotalActions(long totalActions) {
+        this.totalActions = totalActions;
+    }
+
 }
 
 
