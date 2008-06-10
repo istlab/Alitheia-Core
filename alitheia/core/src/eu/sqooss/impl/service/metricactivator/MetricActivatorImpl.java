@@ -84,7 +84,7 @@ public class MetricActivatorImpl implements MetricActivator {
         ServiceReference serviceRef = null;
         serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
         core = (AlitheiaCore) bc.getService(serviceRef);
-        
+
         this.logger = logger;
         this.pa = core.getPluginAdmin();
         this.sched = core.getScheduler();
@@ -185,7 +185,7 @@ public class MetricActivatorImpl implements MetricActivator {
                             rule.getMetricType())).getEnumType();
                 }
                 // Skip on a metric type which can not evaluate that resource
-                if ((metricType != null) 
+                if ((metricType != null)
                         && (metricType != Type.SOURCE_CODE)
                         && (metricType != Type.PROJECT_WIDE)){
                     rule = rules.get(rule.getNextRule());
@@ -239,31 +239,31 @@ public class MetricActivatorImpl implements MetricActivator {
         // Get a list of all metrics that support the given activation type
         List<PluginInfo> metrics = null;
         metrics = core.getPluginAdmin().listPluginProviders(clazz);
-        
+
         if (metrics == null || metrics.size() == 0) {
             logger.warn("No metrics found for activation type " + clazz.getName());
             return;
         }
-        
+
         // Start a job per processor to schedule metrics
        int cpus = Runtime.getRuntime().availableProcessors();
        int sliceSize = (objectIDs.size() / cpus);
-       Long[] entries = objectIDs.toArray(new Long[] {}); 
-       
+       Long[] entries = objectIDs.toArray(new Long[] {});
+
        for (int i = 0; i < cpus; i++) {
            Long [] slice = null;
            if (i < cpus - 1) {
-               slice = new Long[sliceSize]; 
+               slice = new Long[sliceSize];
                System.arraycopy(entries, i*sliceSize, slice, 0, sliceSize);
            } else {
                int remainder = entries.length - i * sliceSize;
                slice = new Long[remainder];
                System.arraycopy(entries, i*sliceSize, slice, 0, remainder);
            }
-           
+
            MetricActivatorJob maj = new MetricActivatorJob(metrics, clazz,
                     slice, logger, bc);
-            
+
             try {
                 sched.enqueue(maj);
             } catch (SchedulerException e) {
@@ -274,19 +274,16 @@ public class MetricActivatorImpl implements MetricActivator {
 
     public void syncMetric(AlitheiaPlugin m, StoredProject sp) {
         PluginInfo mi = pa.getPluginInfo(m);
-        
+
     }
 
     public <T extends DAObject> void syncMetrics(StoredProject sp) {
-        
+
     }
 
     public ProjectVersion getLastAppliedVersion(AlitheiaPlugin m, StoredProject sp) {
         PluginInfo mi = pa.getPluginInfo(m);
-        
-        Map<String, Object> properties = new HashMap<String, Object>();
-     //   mi.
-       // List<Metric> metrics = dbs.findObjectsByProperties(Metric.class , properties);
+
         return null;
     }
 

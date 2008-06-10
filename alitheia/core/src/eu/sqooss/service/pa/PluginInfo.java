@@ -39,10 +39,10 @@ import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
-import eu.sqooss.service.abstractmetric.FileGroupMetric;
-import eu.sqooss.service.abstractmetric.ProjectFileMetric;
-import eu.sqooss.service.abstractmetric.ProjectVersionMetric;
-import eu.sqooss.service.abstractmetric.StoredProjectMetric;
+// import eu.sqooss.service.abstractmetric.FileGroupMetric;
+// import eu.sqooss.service.abstractmetric.ProjectFileMetric;
+// import eu.sqooss.service.abstractmetric.ProjectVersionMetric;
+// import eu.sqooss.service.abstractmetric.StoredProjectMetric;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Plugin;
@@ -73,7 +73,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
         INTEGER,
         STRING,
         BOOLEAN;
-        
+
         public static ConfigurationType fromString(String config) {
             if (config.equals(BOOLEAN.toString()))
                 return BOOLEAN;
@@ -117,7 +117,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
      *   <li>{@link FileGroupMetric}</li>
      * </ul>
      */
-    List<Class<? extends DAObject>> activationTypes; 
+    List<Class<? extends DAObject>> activationTypes;
 
     /**
      * The hash code's value of the associated metric metric plug-in.
@@ -152,14 +152,14 @@ public class PluginInfo implements Comparable<PluginInfo> {
      * Empty constructor.
      */
     public PluginInfo() {
-        
+
     }
 
     /**
      * Simple constructor, that creates a new <code>PluginInfo</code> instance
      * and initializes it with the given metric plug-in's configuration
      * parameters.
-     * 
+     *
      * @param c - the list of configuration parameters
      */
     public PluginInfo(List<PluginConfiguration> c) {
@@ -170,7 +170,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
      * Creates a new <code>PluginInfo</code> instance, and initializes it with
      * the given metric plug-in's configuration parameters and description
      * fields.
-     * 
+     *
      * @param c - the list of configuration parameters
      */
     public PluginInfo(List<PluginConfiguration> c, AlitheiaPlugin p) {
@@ -184,7 +184,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
 
     /**
      * Returns the list of currently store metric configuration parameters.
-     * 
+     *
      * @return The list of configuration parameters.
      */
     public List<PluginConfiguration> getConfiguration() {
@@ -193,10 +193,10 @@ public class PluginInfo implements Comparable<PluginInfo> {
 
     /**
      * Returns the Id of the given configuration property.
-     * 
+     *
      * @param name the property's name
      * @param type the property's type
-     * 
+     *
      * @return The property's Id, or <code>null</code> if the property does
      *   not exist.
      */
@@ -218,10 +218,10 @@ public class PluginInfo implements Comparable<PluginInfo> {
     /**
      * Verifies, if the specified configuration property exist in this
      * plug-in's information object.
-     * 
+     *
      * @param name the property's name
      * @param type the property's type
-     * 
+     *
      * @return <code>true</code>, if such property is found,
      *   or <code>false</code> otherwise.
      */
@@ -232,15 +232,15 @@ public class PluginInfo implements Comparable<PluginInfo> {
     /**
      * Sets a new value of existing metric plugin's configuration property
      * by creating a new database record.
-     * 
+     *
      * @param db the DB components object
      * @param name the configuration property's name
      * @param newVal the new value, that should be assigned to the
      *   selected configuration property
-     * 
+     *
      * @return <code>true</code> upon successful update, of <code>false</code>
      *   when a corresponding database record does not exist.
-     * 
+     *
      * @throws <code>Exception</code> upon incorrect value's syntax, or
      *   invalid property's type.
      */
@@ -254,7 +254,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
         for (PluginConfiguration pc : config) {
             if (pc.getName().equals(name)) {
                 // Retrieve the configuration property's type
-                ConfigurationType type = 
+                ConfigurationType type =
                     ConfigurationType.fromString(pc.getType());
                 // Check for invalid type
                 if (type == null) {
@@ -288,16 +288,16 @@ public class PluginInfo implements Comparable<PluginInfo> {
     /**
      * Adds a new configuration property for this metric plug-in by creating
      * a new database record for it.
-     * 
+     *
      * @param db the DB components object
      * @param name the configuration property's name
      * @param description the configuration property's description
      * @param type the configuration property's type
      * @param value the configuration property's value
-     * 
+     *
      * @return <code>true</code> upon successful append, of <code>false</code>
      *   when a corresponding database record can not be created.
-     * 
+     *
      * @throws <code>Exception</code> upon incorrect value's syntax,
      *   invalid property's type, or invalid property's name.
      */
@@ -355,14 +355,14 @@ public class PluginInfo implements Comparable<PluginInfo> {
     /**
      * Removes an existing configuration property of this metric plug-in by
      * deleting its database record.
-     * 
+     *
      * @param db the DB components object
      * @param name the configuration property's name
      * @param type the configuration property's type
-     * 
+     *
      * @return <code>true</code> upon successful remove, or <code>false</code>
      *   when a corresponding database record can not be found.
-     * 
+     *
      * @throws <code>Exception</code> upon invalid property's type or name.
      */
     public boolean removeConfigEntry(
@@ -399,7 +399,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
      * Sets the metric's name. In practice the <code>metricName</code>
      * parameter must be equal with the name of the associated metric
      * plug-in.
-     * 
+     *
      * @param metricName - the metric name
      */
     public void setPluginName(String metricName) {
@@ -409,7 +409,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
     /**
      * Returns the metric name stored in this <code>MetricInfo</code>
      * object.
-     * 
+     *
      * @return Metric name.
      */
     public String getPluginName() {
@@ -420,7 +420,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
      * Sets the metric's version. In practice the <code>metricVersion</code>
      * parameter must be equal with the version of the associated metric
      * plug-in.
-     * 
+     *
      * @param metricVersion - a metric version
      */
     public void setPluginVersion(String metricVersion) {
@@ -430,7 +430,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
     /**
      * Returns the metric version stored in this <code>MetricInfo</code>
      * object.
-     * 
+     *
      * @return Metric version.
      */
     public String getPluginVersion() {
@@ -443,7 +443,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
      * the associated metric plug-in.<br/>
      * <br/>
      * Note: Any previous entries in this list will be deleted by this action.
-     * 
+     *
      * @param l - the list of supported activation interfaces
      */
     public void setActivationTypes(List<Class<? extends DAObject>> l) {
@@ -453,7 +453,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
     /**
      * Returns the list off all activation interfaces (types) supported by the
      * associated metric plug-in.
-     * 
+     *
      * @return - the list of supported activation interfaces
      */
     public List<Class<? extends DAObject>> getActivationTypes() {
@@ -463,7 +463,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
     /**
      * Adds one or more additional activation interfaces (types) to the
      * locally stored list of supported activation interfaces.
-     * 
+     *
      * @param activator - the list of additional activation interfaces
      */
     public void addActivationType(Class<? extends DAObject> activator) {
@@ -473,7 +473,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
     /**
      * Compares the provided activation interface to the locally stored list
      * of supported activation interfaces.
-     * 
+     *
      * @return <code>true</code> when the given activation interface is found
      * in the list, or <code>false</code> otherwise.
      */
@@ -483,7 +483,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
         Iterator<Class<? extends DAObject>> i =
             this.activationTypes.iterator();
         while (i.hasNext()) {
-            if (i.next().equals(o)) 
+            if (i.next().equals(o))
                 return true;
         }
         return false;
@@ -492,7 +492,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
     /**
      * Initializes the corresponding local field with the reference to the
      * service, that registered the associated metric plug-in.
-     * 
+     *
      * @param serviceRef - the service reference
      */
     public void setServiceRef(ServiceReference serviceRef) {
@@ -502,7 +502,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
     /**
      * Returns the service reference that points to the associated metric
      * plug-in.
-     * 
+     *
      * @return The service reference.
      */
     public ServiceReference getServiceRef() {
@@ -515,7 +515,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
      * The value must be unique, which means that no other
      * <code>MetricInfo</code> with the same hash code should be kept by
      * the <code>PluginAdmin</code> instance that created this object.
-     *  
+     *
      * @param hashcode - the hash code's value of this object
      */
     public void setHashcode(String hashcode) {
@@ -524,7 +524,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
 
     /**
      * Returns the hash code's value of this <code>MetricInfo</code> instance.
-     * 
+     *
      * @return The hash code's value of this object.
      */
     public String getHashcode() {
@@ -534,7 +534,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
     /**
      * Creates a text representation of this <code>MetricInfo</code>
      * instance.
-     * 
+     *
      * @return The text representation of this object.
      */
     public String toString() {
