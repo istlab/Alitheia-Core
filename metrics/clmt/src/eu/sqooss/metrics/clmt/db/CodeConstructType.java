@@ -31,12 +31,14 @@
  *
  */
 
-package eu.sqooss.service.db;
+package eu.sqooss.metrics.clmt.db;
 
 import java.util.HashMap;
 import java.util.List;
 
 import eu.sqooss.impl.service.CoreActivator;
+import eu.sqooss.service.db.DAObject;
+import eu.sqooss.service.db.DBService;
 
 public class CodeConstructType extends DAObject {
     

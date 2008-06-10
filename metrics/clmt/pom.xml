@@ -46,6 +46,13 @@
          <include>clmt.properties</include>
        </includes>
        </resource>
+        <resource>
+        <directory>${basedir}/src/eu/sqooss/metrics/productivity-metric/db</directory>
+        <targetPath>eu/sqooss/metrics/productivity-metric/db</targetPath>
+        <includes>
+          <include>**/*.hbm.xml</include>
+        </includes>
+      </resource>
     </resources>
     <plugins>
       <plugin>

@@ -4,7 +4,7 @@
         "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-  <class name="eu.sqooss.service.db.CodeUnitMeasurement" table="CODE_UNIT_MEASUREMENT">
+  <class name="eu.sqooss.metrics.clmt.db.CodeUnitMeasurement" table="CODE_UNIT_MEASUREMENT">
     <id name="id" column="CODE_UNIT_MEASUREMENT_ID">
       <generator class="native" />
     </id>

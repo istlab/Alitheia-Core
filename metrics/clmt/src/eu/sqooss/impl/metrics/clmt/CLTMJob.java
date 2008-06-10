@@ -54,10 +54,10 @@ import org.clmt.metrics.MetricResultList;
 import org.clmt.sqooss.AlitheiaFileAdapter;
 import org.clmt.sqooss.AlitheiaLoggerAdapter;
 
+import eu.sqooss.metrics.clmt.db.CodeConstructType;
+import eu.sqooss.metrics.clmt.db.CodeUnitMeasurement;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.AbstractMetricJob;
-import eu.sqooss.service.db.CodeConstructType;
-import eu.sqooss.service.db.CodeUnitMeasurement;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;

@@ -31,7 +31,9 @@
  *
  */
 
-package eu.sqooss.service.db;
+package eu.sqooss.metrics.clmt.db;
+
+import eu.sqooss.service.db.ProjectFileMeasurement;
 
 public class CodeUnitMeasurement extends ProjectFileMeasurement {
 

@@ -5,6 +5,7 @@ Bundle-SymbolicName: eu.sqooss.metric.clmt
 Bundle-Version: 0.0.1
 Bundle-Activator: eu.sqooss.impl.service.CLMTActivator
 Bundle-Vendor: AUEB
+Export-Package: eu.sqooss.metric.clmt, eu.sqooss.metric.clmt.db
 Bundle-Description: Cross-Language Metric Tool wrapper plugin
 Bundle-ClassPath: .,
     clmt.jar
@@ -19,4 +20,4 @@ Import-Package:  org.osgi.framework,
     eu.sqooss.service.util,
     eu.sqooss.service.pa,
     org.apache.commons.codec.digest
-
+Eclipse-RegisterBuddy: org.hibernate
