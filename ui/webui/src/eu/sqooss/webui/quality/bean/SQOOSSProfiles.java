@@ -79,7 +79,7 @@ public enum SQOOSSProfiles implements Comparable<SQOOSSProfiles>,
 	 * Compares two profiles. Returns a negative, zero or positive integer if <code>first</code> is less, equal or greater than the <code>second</code> respectively.
 	 * @return The ordinal difference of the <code>first</code> from the <code>second</code>.
 	 */
-	@Override
+	//@Override
 	public int compare(SQOOSSProfiles first, SQOOSSProfiles second) {
 		return first.compareTo(second);
 	}
