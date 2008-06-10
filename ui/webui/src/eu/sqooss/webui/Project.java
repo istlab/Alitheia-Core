@@ -65,15 +65,28 @@ public class Project extends WebuiItem {
     private SortedMap<Long, Version> versions;
     private SortedMap<Long, Metric> metrics;
 
+    /**
+     * Empty constructor so we can create this object without having
+     * any further knowledge. You'll need to initProject() manually,
+     * providing a WSProject your self..
+     */
     public Project () {
 
     }
 
+    /**
+     * Constructor that initialises the Project and its data from a WStoredProject.
+     */
     public Project (WSStoredProject p, Terrier t) {
         terrier = t;
         initProject(p);
    }
 
+    /**
+     * Initialises the Project from a WSStoredProject and fills it with
+     * relevant data. This function is automatically called from the non-empty
+     * ctor and needs to be manually called if the empty ctor is used,
+     */
     private void initProject(WSStoredProject p) {
         page = "/projects.jsp";
         reqName = "pid";
@@ -87,6 +100,9 @@ public class Project extends WebuiItem {
         //setVersions(); //FIXME: We want something sensible here
     }
 
+    /**
+     * Fetches the Project's data from the SCL by ID.
+     */
     public void retrieveData() {
         if (id == null) {
             return;
@@ -104,6 +120,9 @@ public class Project extends WebuiItem {
         }
     }
 
+    /**
+     *Fetches the Metrics that have been applied to this project through the SCL.
+     */
     public void retrieveMetrics() {
         WSMetric[] wsmetrics = terrier.getMetricsForProject(id);
         if (wsmetrics == null) {
@@ -146,6 +165,8 @@ public class Project extends WebuiItem {
         return repository;
     }
 
+    /** Returns an HTML table with all the versions this project has.
+     */
     public String showVersions() {
         StringBuilder html = new StringBuilder();
         html.append("\n<table class=\"projectversions\">");
@@ -157,32 +178,36 @@ public class Project extends WebuiItem {
         return html.toString();
     }
 
+    /** Returns an HTML table with meta information about this project.
+     */
     public String getInfo() {
         StringBuilder html = new StringBuilder();
         html.append("\n<table class=\"projectinfo\">\n\t<tr>\n\t\t<td>");
         html.append("<strong>Website:</strong> \n\t\t</td><td>\n"
-                + (getWebsite() != null 
+                + (getWebsite() != null
                         ? "<a href=\"" + getWebsite() + "\">" + getWebsite() + "</a>"
                         : "<i>undefined</i>"));
         html.append("\n\t\t</td>\n\t</tr>\n\t<tr>\n\t\t<td>");
         html.append(icon("mail-message-new") + "<strong>Contact:</strong> \n\t\t</td><td>\n"
-                + (getContact() != null 
+                + (getContact() != null
                         ? "<a href=\"" + getContact() + "\">" + getContact() + "</a>"
                         : "<i>undefined</i>"));
         html.append("\n\t\t</td>\n\t</tr>\n\t<tr>\n\t\t<td>");
         html.append(icon("vcs_status") + "<strong>SVN Mirror:</strong> \n\t\t</td><td>\n"
-                + (getRepository() != null 
+                + (getRepository() != null
                         ? "<a href=\"files.jsp" + getId() + "\">" + getRepository() + "</a>"
                         : "<i>undefined</i>"));
         html.append("\n\t\t</td>\n\t</tr>\n\t<tr>\n\t\t<td>");
         html.append(icon("kbugbuster") + "<strong>Bug Data:</strong> \n\t\t</td><td>\n"
-                + (getBts() != null 
+                + (getBts() != null
                         ? getBts()
                         : "<i>undefined</i>"));
         html.append("\n\t\t</td>\n\t</tr>\n</table>");
         return html.toString();
     }
 
+    /** Returns an HTML representation of the project, mainly the name.
+     */
     public String getHtml() {
         StringBuilder html = new StringBuilder("<!-- Project -->\n");
         html.append("<h2>" + getName() + " (" + getId() + ")</h2>");
@@ -190,10 +215,14 @@ public class Project extends WebuiItem {
         return html.toString();
     }
 
+    /** Returns a short HTML representation of the project, mainly the name.
+     */
     public String shortName() {
         return getName();
     }
 
+    /** Returns an HTML table (in fact a MetricsView of the metrics applied to this Project.
+     */
     public String showMetrics() {
         StringBuilder html = new StringBuilder();
         MetricsTableView metricsView = terrier.getMetrics4Project(id);
@@ -208,7 +237,7 @@ public class Project extends WebuiItem {
 
     /**
      * Gets the first known version of this project.
-     * 
+     *
      * @return the version number, or null if the project has no version.
      */
     public Version getFirstVersion() {
@@ -221,7 +250,7 @@ public class Project extends WebuiItem {
 
     /**
      * Gets the last known version of this project.
-     * 
+     *
      * @return the version number, or null if the project has no version.
      */
     public Version getLastVersion() {
@@ -304,7 +333,7 @@ public class Project extends WebuiItem {
 
     /**
      * Returns the last selected version of this project.
-     * 
+     *
      * @return the version number, or null if there is no selected version.
      */
     public Long getCurrentVersionId() {
@@ -349,6 +378,8 @@ public class Project extends WebuiItem {
         fileCount = files.size();
     }
 
+    /** Returns an HTML representation of the files in this project, using the ListView class.
+     */
     public String listFiles() {
         getFiles();
         FileListView view = new FileListView();
