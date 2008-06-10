@@ -275,11 +275,15 @@ public abstract class AbstractView {
     }
 
     protected static boolean checkName (String text) {
+        if (text == null) return false;
+
         Pattern p = Pattern.compile("[a-zA-Z0-9]*");
         return p.matcher(text).matches();
     }
 
     protected static boolean checkEmail (String text) {
+        if (text == null) return false;
+
         // Check for adjacent dot signs
         Pattern p = Pattern.compile("\\.\\.");
         if (p.matcher(text).matches()) return false;

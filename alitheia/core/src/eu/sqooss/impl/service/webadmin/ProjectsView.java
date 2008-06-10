@@ -139,9 +139,69 @@ public class ProjectsView extends AbstractView {
             }
 
             // ---------------------------------------------------------------
+            // Add project
+            // ---------------------------------------------------------------
+            if (reqValAction.equals(actConAddProject)) {
+                // Retrieve the specified project properties
+                reqValPrjName = req.getParameter(reqParPrjName);
+                reqValPrjWeb = req.getParameter(reqParPrjWeb);
+                reqValPrjContact = req.getParameter(reqParPrjContact);
+                reqValPrjBug = req.getParameter(reqParPrjBug);
+                reqValPrjMail = req.getParameter(reqParPrjMail);
+                reqValPrjCode = req.getParameter(reqParPrjCode);
+                // Checks the validity of the project properties
+                boolean valid = true;
+                if (checkName(reqValPrjName) == false) {
+                    valid = false;
+                    e.append(sp(in) + "Invalid project name!" + "<br/>\n");
+                }
+                if (checkEmail(reqValPrjContact) == false) {
+                    valid = false;
+                    e.append(sp(in) + "Invalid contact e-mail!" + "<br/>\n");
+                }
+                // TODO: add regexp for URLs and check the rest parameters
+                
+                // Proceed upon valid project properties
+                if (valid) {
+                    // Check if a project with the same name already exists
+                    HashMap<String, Object> params =
+                        new HashMap<String, Object>();
+                    params.put("name", reqValPrjName);
+                    if (sobjDB.findObjectsByProperties(
+                            StoredProject.class, params).size() > 1) {
+                        e.append(sp(in) + resErr.getString("prj_exists")
+                                + "<br/>\n");
+                    }
+                    // Create the new project's DAO
+                    else {
+                        StoredProject p = new StoredProject();
+                        p.setName(reqValPrjName);
+                        p.setWebsite(reqValPrjWeb);
+                        p.setContact(reqValPrjContact);
+                        p.setBugs(reqValPrjBug);
+                        p.setMail(reqValPrjMail);
+                        p.setRepository(reqValPrjCode);
+                        // Try to add the DAO to the DB
+                        if (sobjDB.addRecord(p) == true) {
+                            selProject = p;
+                        }
+                        else {
+                            e.append(sp(in)
+                                    + resErr.getString("prj_add_failed")
+                                    + " " + resMsg.getString("m0001")
+                                    + "<br/>\n");
+                        }
+                    }
+                }
+                // Return to the "Add project" view upon failure
+                if (e.length() > 0) {
+                    reqValAction = actReqAddProject;
+                }
+            }
+            // ---------------------------------------------------------------
             // Remove project
             // ---------------------------------------------------------------
-            if (reqValAction.equals(actConRemProject)) {
+            else if (reqValAction.equals(actConRemProject)) {
                 if (selProject != null) {
                     // Delete any associated invocation rules first
                     HashMap<String,Object> properties =
@@ -438,11 +498,15 @@ public class ProjectsView extends AbstractView {
                             + resLbl.getString("l0051")
                             + "</td>\n");
                     // Evaluation state
+                    String evalState = resLbl.getString("l0007");
+                    if ((nextPrj.getEvaluationMarks() != null)
+                            && (nextPrj.getEvaluationMarks().isEmpty()
+                                    == false)) {
+                        evalState = resLbl.getString("l0006");
+                    }
                     b.append(sp(in) + "<td class=\"trans\">"
-                            + ((nextPrj.getEvaluationMarks().isEmpty())
-                                    ? resLbl.getString("l0007")
-                                            : resLbl.getString("l0006"))
-                                            + "</td>\n");
+                            + evalState
+                            + "</td>\n");
                     b.append(sp(--in) + "</tr>\n");
                     if ((selected) && (metrics.isEmpty() == false)) {
                         showLastAppliedVersion(nextPrj, metrics, resLbl, b);
