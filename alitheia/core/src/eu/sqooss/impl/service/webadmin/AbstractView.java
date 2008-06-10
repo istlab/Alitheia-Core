@@ -277,7 +277,20 @@ public abstract class AbstractView {
     protected static boolean checkName (String text) {
         if (text == null) return false;
 
-        Pattern p = Pattern.compile("[a-zA-Z0-9]*");
+        Pattern p = Pattern.compile("[a-zA-Z0-9]+");
+        return p.matcher(text).matches();
+    }
+
+    protected static boolean checkProjectName (String text) {
+        if (text == null) return false;
+
+        // Check for head or foot occurrence of deprecated signs
+        Pattern p = Pattern.compile("^[ _]+.*");
+        if (p.matcher(text).matches()) return false;
+        p = Pattern.compile(".*[ _]+$");
+        if (p.matcher(text).matches()) return false;
+        // Check the name
+        p = Pattern.compile("[a-zA-Z0-9_ ]+");
         return p.matcher(text).matches();
     }
 
@@ -304,6 +317,21 @@ public abstract class AbstractView {
         // Match both parts
         return ((l.matcher(parts[0]).matches())
                 && (d.matcher(parts[1]).matches()));
+    }
+
+    protected static boolean checkUrl (String text, String schemes) {
+        if (text == null) return false;
+
+        // Split into scheme and rest part
+        String parts[] = text.split("://");
+        if (parts.length < 2) return false;
+        String scheme = parts[0];
+        // Match corresponding to the scheme
+        Pattern p = Pattern.compile("^(" + schemes + ")$");
+        if (p.matcher(scheme).matches()) {
+            return true;
+        }
+        return false;
     }
 }
 

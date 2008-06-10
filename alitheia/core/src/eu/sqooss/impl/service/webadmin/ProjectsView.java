@@ -151,7 +151,7 @@ public class ProjectsView extends AbstractView {
                 reqValPrjCode = req.getParameter(reqParPrjCode);
                 // Checks the validity of the project properties
                 boolean valid = true;
-                if (checkName(reqValPrjName) == false) {
+                if (checkProjectName(reqValPrjName) == false) {
                     valid = false;
                     e.append(sp(in) + "Invalid project name!" + "<br/>\n");
                 }
@@ -159,8 +159,22 @@ public class ProjectsView extends AbstractView {
                     valid = false;
                     e.append(sp(in) + "Invalid contact e-mail!" + "<br/>\n");
                 }
-                // TODO: add regexp for URLs and check the rest parameters
-                
+                if (checkUrl(reqValPrjWeb, "http|https") == false) {
+                    valid = false;
+                    e.append(sp(in) + "Invalid homepage URL!" + "<br/>\n");
+                }
+                if (checkUrl(reqValPrjBug, "http|https") == false) {
+                    valid = false;
+                    e.append(sp(in) + "Invalid bug database URL!" + "<br/>\n");
+                }
+                if (checkUrl(reqValPrjMail, "maildir") == false) {
+                    valid = false;
+                    e.append(sp(in) + "Invalid mailing list URL!" + "<br/>\n");
+                }
+                if (checkUrl(reqValPrjCode, "http|https|svn|file") == false) {
+                    valid = false;
+                    e.append(sp(in) + "Invalid source code URL!" + "<br/>\n");
+                }
                 // Proceed upon valid project properties
                 if (valid) {
                     // Check if a project with the same name already exists
