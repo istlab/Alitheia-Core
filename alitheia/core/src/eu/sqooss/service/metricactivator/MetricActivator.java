@@ -36,7 +36,6 @@ import java.util.List;
 
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.db.DAObject;
-import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.db.InvocationRule.ActionType;
 
@@ -49,10 +48,9 @@ public interface MetricActivator {
     /**
      * Runs all metrics that support the given project's resource type,
      * on all project resources (of the same resource type) pointed
-     * by the specified resource IDs list.
+     * by the specified objects.
      *
-     * @param clazz resource type
-     * @param objectIDs resource IDs list
+     * @param objects The objects to run the metrics on
      */
 	public void runMetrics(List<DAObject> objects);
 
