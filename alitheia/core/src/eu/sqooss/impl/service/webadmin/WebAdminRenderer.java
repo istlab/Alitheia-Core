@@ -362,13 +362,13 @@ public class WebAdminRenderer  extends AbstractView {
                         selProject = null;
                     }
                     else {
-                        e.append(sp(in) + "Can not remove this project!"
+                        e.append(sp(in) + resErr.getString("e0033")
                                 + " " + resMsg.getString("m0001")
                                 + "<br/>\n");
                     }
                 }
                 else {
-                    e.append(sp(in) + "You must select a project first!"
+                    e.append(sp(in) + resErr.getString("e0034")
                             + "<br/>\n");
                 }
             }
@@ -378,8 +378,8 @@ public class WebAdminRenderer  extends AbstractView {
             else if (reqValAction.equals(actConUpdCode)) {
                 if (sobjUpdater.update(
                         selProject, UpdateTarget.CODE, null) == false) {
-                    e.append(sp(in) + "Can not start a source code update!"
-                            + " " + "Try again later!"
+                    e.append(sp(in) + resErr.getString("e0035")
+                            + " " + resMsg.getString("m0010")
                             + "<br/>\n");
                 }
             }
@@ -389,8 +389,8 @@ public class WebAdminRenderer  extends AbstractView {
             else if (reqValAction.equals(actConUpdMail)) {
                 if (sobjUpdater.update(
                         selProject, UpdateTarget.MAIL, null) == false) {
-                    e.append(sp(in) + "Can not start a mailing list update!"
-                            + " " + "Try again later!"
+                    e.append(sp(in) + resErr.getString("e0036")
+                            + " " + resMsg.getString("m0010")
                             + "<br/>\n");
                 }
             }
@@ -400,8 +400,8 @@ public class WebAdminRenderer  extends AbstractView {
             else if (reqValAction.equals(actConUpdBugs)) {
                 if (sobjUpdater.update(
                         selProject, UpdateTarget.BUGS, null) == false) {
-                    e.append(sp(in) + "Can not start a bug list update!"
-                            + " " + "Try again later!"
+                    e.append(sp(in) + resErr.getString("e0037")
+                            + " " + resMsg.getString("m0010")
                             + "<br/>\n");
                 }
             }
@@ -411,8 +411,8 @@ public class WebAdminRenderer  extends AbstractView {
             else if (reqValAction.equals(actConUpdAll)) {
                 if (sobjUpdater.update(
                         selProject, UpdateTarget.ALL, null) == false) {
-                    e.append(sp(in) + "Can not start a complete update!"
-                            + " " + "Try again later!"
+                    e.append(sp(in) + resErr.getString("e0038")
+                            + " " + resMsg.getString("m0010")
                             + "<br/>\n");
                 }
             }
