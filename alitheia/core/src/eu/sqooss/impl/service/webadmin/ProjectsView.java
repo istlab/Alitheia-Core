@@ -32,7 +32,6 @@
  */
 package eu.sqooss.impl.service.webadmin;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -44,18 +43,21 @@ import org.apache.velocity.VelocityContext;
 import org.osgi.framework.BundleContext;
 
 import eu.sqooss.service.db.InvocationRule;
-import eu.sqooss.service.db.Metric;
-import eu.sqooss.service.db.MetricType;
-import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
-import eu.sqooss.service.db.InvocationRule.ActionType;
-import eu.sqooss.service.db.InvocationRule.ScopeType;
 import eu.sqooss.service.pa.PluginInfo;
 import eu.sqooss.service.updater.UpdaterService.UpdateTarget;
 
-public class ProjectsView extends AbstractView{
+public class ProjectsView extends AbstractView {
+    // Script for submitting this page
+    private static String SUBMIT = "document.projects.submit();";
 
+    /**
+     * Instantiates a new projects view.
+     * 
+     * @param bundlecontext the <code>BundleContext</code> object
+     * @param vc the <code>VelocityContext</code> object
+     */
     public ProjectsView(BundleContext bundlecontext, VelocityContext vc) {
         super(bundlecontext, vc);
     }
@@ -86,8 +88,15 @@ public class ProjectsView extends AbstractView{
         // Request parameters
         String reqParAction        = "action";
         String reqParProjectId     = "projectId";
+        String reqParPrjName       = "projectName";
+        String reqParPrjWeb        = "projectHomepage";
+        String reqParPrjContact    = "projectContact";
+        String reqParPrjBug        = "projectBL";
+        String reqParPrjMail       = "projectML";
+        String reqParPrjCode       = "projectSCM";
         // Recognized "action" parameter's values
         String actReqAddProject    = "reqAddProject";
+        String actConAddProject    = "conAddProject";
         String actReqRemProject    = "reqRemProject";
         String actConRemProject    = "conRemProject";
         String actConUpdAll        = "conUpdateAll";
@@ -97,6 +106,12 @@ public class ProjectsView extends AbstractView{
         // Request values
         String reqValAction        = "";
         Long   reqValProjectId     = null;
+        String reqValPrjName       = null;
+        String reqValPrjWeb        = null;
+        String reqValPrjContact    = null;
+        String reqValPrjBug        = null;
+        String reqValPrjMail       = null;
+        String reqValPrjCode       = null;
 
         // Selected project
         StoredProject selProject = null;
@@ -223,7 +238,51 @@ public class ProjectsView extends AbstractView{
         // "Add project" editor
         // ===================================================================
         if (reqValAction.equals(actReqAddProject)) {
+            // Create the field-set
+            b.append(sp(in++) + "<fieldset>\n");
+            b.append(sp(in) + "<legend>"
+                    + resLbl.getString("add_project")
+                    + "</legend>\n");
+            b.append(sp(in++) + "<table class=\"borderless\">");
+            // Create the input fields
+            b.append(normalInputRow(
+                    "Project name", reqParPrjName, reqValPrjName, in));
+            b.append(normalInputRow(
+                    "Homepage", reqParPrjWeb, reqValPrjWeb, in));
+            b.append(normalInputRow(
+                    "Contact e-mail", reqParPrjContact, reqValPrjContact, in));
+            b.append(normalInputRow(
+                    "Bug database", reqParPrjBug, reqValPrjBug, in));
+            b.append(normalInputRow(
+                    "Mailing list", reqParPrjMail, reqValPrjMail, in));
+            b.append(normalInputRow(
+                    "Source code", reqParPrjCode, reqValPrjCode, in));
 
+            //------------------------------------------------------------
+            // Tool-bar
+            //------------------------------------------------------------
+            b.append(sp(in) + "<tr>\n");
+            b.append(sp(++in)
+                    + "<td colspan=\"2\" class=\"borderless\">\n");
+            // Apply button
+            b.append(sp(++in) + "<input type=\"button\""
+                    + " class=\"install\""
+                    + " style=\"width: 100px;\""
+                    + " value=\"" + resLbl.getString("l0003") + "\""
+                    + " onclick=\"javascript:"
+                    + "document.getElementById('"
+                    + reqParAction + "').value='" + actConAddProject + "';"
+                    + SUBMIT + "\">\n");
+            // Cancel button
+            b.append(sp(in--) + "<input type=\"button\""
+                    + " class=\"install\""
+                    + " style=\"width: 100px;\""
+                    + " value=\"" + resLbl.getString("l0004") + "\""
+                    + " onclick=\"javascript:"
+                    + SUBMIT + "\">\n");
+            b.append(sp(in--) + "</td>\n");
+            b.append(sp(in--) + "</tr>\n");
+            b.append(sp(in--) + "</table>");
         }
         // ===================================================================
         // "Delete project" confirmation view
@@ -268,14 +327,14 @@ public class ProjectsView extends AbstractView{
                     + "document.getElementById('"
                     + reqParAction + "').value='"
                     + actConRemProject + "';"
-                    + "document.projects.submit();\">\n");
+                    + SUBMIT + "\">\n");
             // Cancel button
             b.append(sp(in) + "<input type=\"button\""
                     + " class=\"install\""
                     + " style=\"width: 100px;\""
                     + " value=\"" + resLbl.getString("l0004") + "\""
                     + " onclick=\"javascript:"
-                    + "document.projects.submit();\">\n");
+                    + SUBMIT + "\">\n");
             b.append(sp(--in) + "</td>\n");
             b.append(sp(--in) + "</tr>\n");
             b.append(sp(--in) + "</table>");
@@ -349,8 +408,7 @@ public class ProjectsView extends AbstractView{
                             + reqParProjectId + "').value='"
                             + ((selected) ? "" : nextPrj.getId())
                             + "';"
-                            + "document.projects.submit();\""
-                            + ">\n");
+                            + SUBMIT + "\">\n");
                     // Project Id
                     b.append(sp(in) + "<td class=\"trans\">"
                             + nextPrj.getId()
@@ -413,14 +471,12 @@ public class ProjectsView extends AbstractView{
             b.append(sp(in) + "<input type=\"button\""
                     + " class=\"install\""
                     + " style=\"width: 100px;\""
-                    + " value=\"" + resLbl.getString("l0060") + "\""
+                    + " value=\"" + resLbl.getString("add_project") + "\""
                     + " onclick=\"javascript:"
                     + "document.getElementById('"
                     + reqParAction + "').value='"
                     + actReqAddProject + "';"
-                    + "document.projects.submit();\""
-                    + " disabled"
-                    + ">\n");
+                    + SUBMIT + "\">\n");
             // Remove project button
             b.append(sp(in) + "<input type=\"button\""
                     + " class=\"install\""
@@ -430,7 +486,7 @@ public class ProjectsView extends AbstractView{
                     + "document.getElementById('"
                     + reqParAction + "').value='"
                     + actReqRemProject + "';"
-                    + "document.projects.submit();\""
+                    + SUBMIT + "\""
                     + ((selProject != null) ? "" : " disabled")
                     + ">\n");
             // Trigger source update
@@ -442,7 +498,7 @@ public class ProjectsView extends AbstractView{
                     + "document.getElementById('"
                     + reqParAction + "').value='"
                     + actConUpdCode + "';"
-                    + "document.projects.submit();\""
+                    + SUBMIT + "\""
                     + (((selProject != null) && (sobjUpdater.isUpdateRunning(
                             selProject, UpdateTarget.CODE) == false))
                             ? "" : " disabled")
@@ -456,7 +512,7 @@ public class ProjectsView extends AbstractView{
                     + "document.getElementById('"
                     + reqParAction + "').value='"
                     + actConUpdMail + "';"
-                    + "document.projects.submit();\""
+                    + SUBMIT + "\""
                     + (((selProject != null) && (sobjUpdater.isUpdateRunning(
                             selProject, UpdateTarget.MAIL) == false))
                             ? "" : " disabled")
@@ -470,7 +526,7 @@ public class ProjectsView extends AbstractView{
                     + "document.getElementById('"
                     + reqParAction + "').value='"
                     + actConUpdBugs + "';"
-                    + "document.projects.submit();\""
+                    + SUBMIT + "\""
                     + (((selProject != null) && (sobjUpdater.isUpdateRunning(
                             selProject, UpdateTarget.BUGS) == false))
                             ? "" : " disabled")
@@ -484,7 +540,7 @@ public class ProjectsView extends AbstractView{
                     + "document.getElementById('"
                     + reqParAction + "').value='"
                     + actConUpdAll + "';"
-                    + "document.projects.submit();\""
+                    + SUBMIT + "\""
                     + (((selProject != null) && (sobjUpdater.isUpdateRunning(
                             selProject, UpdateTarget.ALL) == false))
                             ? "" : " disabled")

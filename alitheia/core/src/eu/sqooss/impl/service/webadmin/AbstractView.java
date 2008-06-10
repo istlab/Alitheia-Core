@@ -187,6 +187,34 @@ public abstract class AbstractView {
         return b.toString();
     }
 
+    protected static String normalInputRow (
+            String title, String parName, String parValue, long in) {
+        // Stores the assembled HTML content
+        StringBuilder b = new StringBuilder("\n");
+
+        // Create the input field's row
+        if (parName != null) {
+            b.append(sp(in++) + "<tr>\n");
+            b.append(sp(in) + "<td class=\"borderless\""
+                    + " style=\"width:100px;\">"
+                    + "<b>" + ((title != null) ? title : "") + "</b>"
+                    + "</td>\n");
+            b.append(sp(in++) + "<td class=\"borderless\">\n");
+            b.append(sp(in) + "<input type=\"text\""
+                    + " class=\"form\""
+                    + " id=\"" + parName + "\""
+                    + " name=\"" + parName + "\""
+                    + " value=\""
+                    + ((parValue != null) ? parValue : "" )
+                    + "\">\n");
+            b.append(sp(--in) + "</td>\n");
+            b.append(sp(--in) + "</tr>\n");
+        }
+
+        // Return the generated content
+        return b.toString();
+    }
+
     /**
      * Produces an HTML <code>fieldset</code> presenting the HTML content
      * stored in the given <code>StringBuilder</code>.
