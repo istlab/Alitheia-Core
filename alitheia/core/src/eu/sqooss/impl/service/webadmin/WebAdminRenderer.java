@@ -284,49 +284,6 @@ public class WebAdminRenderer  extends AbstractView {
         return String.format("%d:%02d:%02d:%02d", days, hours, mins, secs);
     }
 
-    private static void deleteInvocationRule (InvocationRule rule) {
-        if (rule != null) {
-            long ruleId = rule.getId();
-            // Get the rule, that follow the selected one
-            InvocationRule nextRule = null;
-            if (rule.getNextRule() != null) {
-                nextRule = sobjDB.findObjectById(
-                        InvocationRule.class,
-                        rule.getNextRule());
-            }
-            // Get the rule, that preceed the selected one
-            InvocationRule prevRule = null;
-            if (rule.getPrevRule() != null) {
-                prevRule = sobjDB.findObjectById(
-                        InvocationRule.class,
-                        rule.getPrevRule());
-            }
-            // Remove the selected rule
-            if (sobjDB.deleteRecord(rule)) {
-                compMA.reloadRule(ruleId);
-                // Update the neighbor rules
-                if ((prevRule != null) && (nextRule != null)) {
-                    prevRule.setNextRule(nextRule.getId());
-                    nextRule.setPrevRule(prevRule.getId());
-                    compMA.reloadRule(prevRule.getId());
-                    compMA.reloadRule(nextRule.getId());
-                }
-                else {
-                    // Update the preceeding rule
-                    if (prevRule != null) {
-                        prevRule.setNextRule(null);
-                        compMA.reloadRule(prevRule.getId());
-                    }
-                    // Update the following rule
-                    if (nextRule != null) {
-                        nextRule.setPrevRule(null);
-                        compMA.reloadRule(nextRule.getId());
-                    }
-                }
-            }
-        }
-    }
-
     public static String renderProjects(HttpServletRequest req) {
         // Stores the assembled HTML content
         StringBuilder b = new StringBuilder("\n");
@@ -396,7 +353,8 @@ public class WebAdminRenderer  extends AbstractView {
                             InvocationRule.class, properties);
                     if ((assosRules != null) && (assosRules.size() > 0)) {
                         for (Object nextDAO: assosRules) {
-                            deleteInvocationRule((InvocationRule) nextDAO);
+                            InvocationRule.deleteInvocationRule(
+                                    sobjDB, compMA, (InvocationRule) nextDAO);
                         }
                     }
                     // Delete the selected project

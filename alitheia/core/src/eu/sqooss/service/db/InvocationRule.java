@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import eu.sqooss.service.db.MetricType.Type;
+import eu.sqooss.service.metricactivator.MetricActivator;
 
 public class InvocationRule extends DAObject {
     private static String DEFAULT_SCOPE = "DEFAULT";
@@ -285,6 +286,52 @@ public class InvocationRule extends DAObject {
             return (InvocationRule) objects.get(0);
         }
         return null;
+    }
+
+    public static boolean deleteInvocationRule (
+            DBService db, MetricActivator ma, InvocationRule rule) {
+        if (rule != null) {
+            long ruleId = rule.getId();
+            // Get the rule, that follow the selected one
+            InvocationRule nextRule = null;
+            if (rule.getNextRule() != null) {
+                nextRule = db.findObjectById(
+                        InvocationRule.class,
+                        rule.getNextRule());
+            }
+            // Get the rule, that preceed the selected one
+            InvocationRule prevRule = null;
+            if (rule.getPrevRule() != null) {
+                prevRule = db.findObjectById(
+                        InvocationRule.class,
+                        rule.getPrevRule());
+            }
+            // Remove the selected rule
+            if (db.deleteRecord(rule)) {
+                ma.reloadRule(ruleId);
+                // Update the neighbor rules
+                if ((prevRule != null) && (nextRule != null)) {
+                    prevRule.setNextRule(nextRule.getId());
+                    nextRule.setPrevRule(prevRule.getId());
+                    ma.reloadRule(prevRule.getId());
+                    ma.reloadRule(nextRule.getId());
+                }
+                else {
+                    // Update the preceeding rule
+                    if (prevRule != null) {
+                        prevRule.setNextRule(null);
+                        ma.reloadRule(prevRule.getId());
+                    }
+                    // Update the following rule
+                    if (nextRule != null) {
+                        nextRule.setPrevRule(null);
+                        ma.reloadRule(nextRule.getId());
+                    }
+                }
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
