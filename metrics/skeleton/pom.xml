@@ -8,12 +8,12 @@
   </parent>
 
   <groupId>eu.sqooss.metrics</groupId>
-  <artifactId>simulation</artifactId>
+  <artifactId>skeleton</artifactId>
   <version>0.0.1</version>
   <packaging>jar</packaging>
 
-  <name>Alitheia Plug-in 'simulation'</name>
-  <url>http://ikaria.dmst.aueb.gr/metrics/simulation</url>
+  <name>Alitheia Plug-in skeleton</name>
+  <url>http://ikaria.dmst.aueb.gr/metrics/skeleton</url>
   <inceptionYear>2008</inceptionYear>
   <description>
     This metric is a 'no-op' type of metric, intended to function 
@@ -24,10 +24,10 @@
 
   <scm>
     <connection>
-      scm:svn:https://svn.sqo-oss.eu/devel/trunk/metrics/simulation
+      scm:svn:https://svn.sqo-oss.eu/devel/trunk/metrics/skeleton
     </connection>
     <developerConnection>
-      scm:svn:https://svn.sqo-oss.eu/devel/trunk/metrics/simulation
+      scm:svn:https://svn.sqo-oss.eu/devel/trunk/metrics/skeleton
     </developerConnection>
   </scm>
 
