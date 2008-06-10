@@ -39,6 +39,8 @@ import java.util.List;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.PluginConfiguration;
+import eu.sqooss.service.db.ProjectVersion;
+import eu.sqooss.service.db.StoredProject;
 
 
 /**
@@ -239,4 +241,19 @@ public interface AlitheiaPlugin {
      * @return A list of metric dependencies for this plug-in
      */
     List<String> getMetricDependencies();
+
+    /**
+     * For a given project and plugin, return the latest project version
+     * for which the plugin has completely evaluated that project.
+     * Here completely evaluated means that each metric in the plugin must
+     * be completely evaluated; a metric is completely evaluated if:
+     *   - it is a file metric and has a result for each file in the
+     *     project at that state.
+     *   - it is a project metric and has a result for that project state.
+     *   - otherwise it is not completely evaluated.
+     *
+     * @param sp Stored project to check for.
+     * @return   Latest version that is completely evaluated or null.
+     */
+    ProjectVersion getLastAppliedVersion(StoredProject p);
 }

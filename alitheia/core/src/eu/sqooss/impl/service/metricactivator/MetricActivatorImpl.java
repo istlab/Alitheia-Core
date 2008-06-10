@@ -280,13 +280,6 @@ public class MetricActivatorImpl implements MetricActivator {
     public <T extends DAObject> void syncMetrics(StoredProject sp) {
 
     }
-
-    public ProjectVersion getLastAppliedVersion(AlitheiaPlugin m, StoredProject sp) {
-        PluginInfo mi = pa.getPluginInfo(m);
-
-        return null;
-    }
-
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

@@ -54,6 +54,7 @@ import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.db.PluginConfiguration;
+import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.pa.PluginAdmin;
@@ -549,5 +550,11 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         if(!metricDependencies.contains(mnemonic)) {
             metricDependencies.add(mnemonic);
         }
+    }
+
+    public ProjectVersion getLastAppliedVersion(StoredProject p) {
+        log.warn("Abstract getLastAppliedVersion called for plugin "
+            + getName() + " for project " + p.getName());
+        return null;
     }
 }

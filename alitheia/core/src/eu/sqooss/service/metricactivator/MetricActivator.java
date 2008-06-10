@@ -41,52 +41,36 @@ import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.db.InvocationRule.ActionType;
 
 /**
- * The MetricActivator service is responsible for kickstarting metric jobs 
- * either after project metadata updates or  
+ * The MetricActivator service is responsible for kickstarting metric jobs
+ * either after project metadata updates or
  */
 public interface MetricActivator {
 
     /**
      * Runs all metrics that support the given project's resource type,
      * on all project resources (of the same resource type) pointed
-     * by the specified resource IDs list. 
-     * 
-     * @param clazz resource type 
+     * by the specified resource IDs list.
+     *
+     * @param clazz resource type
      * @param objectIDs resource IDs list
      */
     public <T extends DAObject> void runMetrics(Class<T> clazz, SortedSet<Long> objectIDs);
-    
+
     /**
      * Synchronize metric results for all metrics for a specific project
-     * 
+     *
      * @param clazz
      * @param sp
      */
     public <T extends DAObject> void syncMetrics(StoredProject sp);
-    
+
     /**
-     * 
-     * 
+     *
+     *
      * @param m
      * @param sp
      */
     public void syncMetric(AlitheiaPlugin m, StoredProject sp);
-    
-    /**
-     * For a given project and plugin, return the latest project version
-     * for which the plugin has completely evaluated that project.
-     * Here completely evaluated means that each metric in the plugin must
-     * be completely evaluated; a metric is completely evaluated if:
-     *   - it is a file metric and has a result for each file in the
-     *     project at that state.
-     *   - it is a project metric and has a result for that project state.
-     *   - otherwise it is not completely evaluated.
-     * 
-     * @param m  Plugin to ask for completeness.
-     * @param sp Stored project to check.
-     * @return   Latest version that is completely evaluated or null.
-     */
-    public ProjectVersion getLastAppliedVersion(AlitheiaPlugin m, StoredProject sp);
 
     /**
      * Instructs the <code>MetricActivator<code> component, to load the list
@@ -105,7 +89,7 @@ public interface MetricActivator {
      * (<i>if found in the cache</i>).
      * When such rule exists in the database, then its record in the cache is
      * replaced with the current database record.
-     * 
+     *
      * @param ruleId the invocation rule's Id
      */
     public void reloadRule(Long ruleId);

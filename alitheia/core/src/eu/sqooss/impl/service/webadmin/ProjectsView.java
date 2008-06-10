@@ -62,9 +62,9 @@ public class ProjectsView extends AbstractView{
 
     /**
      * Renders the various project's views.
-     * 
+     *
      * @param req the servlet's request object
-     * 
+     *
      * @return The HTML presentation of the generated view.
      */
     public static String render(HttpServletRequest req) {
@@ -223,7 +223,7 @@ public class ProjectsView extends AbstractView{
         // "Add project" editor
         // ===================================================================
         if (reqValAction.equals(actReqAddProject)) {
-            
+
         }
         // ===================================================================
         // "Delete project" confirmation view
@@ -387,25 +387,7 @@ public class ProjectsView extends AbstractView{
                                             + "</td>\n");
                     b.append(sp(--in) + "</tr>\n");
                     if ((selected) && (metrics.isEmpty() == false)) {
-                        for(PluginInfo m : metrics) {
-                            if (m.installed) {
-                                ProjectVersion lastVer =
-                                    compMA.getLastAppliedVersion(
-                                            sobjPA.getPlugin(m), nextPrj);
-                                b.append("\n</td>\n");
-                                b.append(sp(in++) + "<tr>\n");
-                                b.append(sp(in) + "<td colspan=\"6\""
-                                        + " class=\"noattr\">\n"
-                                        + m.getPluginName()
-                                        + ": "
-                                        + ((lastVer != null)
-                                                ? resLbl.getString("l0065")
-                                                        + " "
-                                                        + lastVer.getVersion()
-                                                : resLbl.getString("l0051"))
-                                        + "</td>\n");
-                            }
-                        }
+                        showLastAppliedVersion(nextPrj, metrics, resLbl, b);
                     }
                 }
             }
@@ -543,6 +525,34 @@ public class ProjectsView extends AbstractView{
 
         return b.toString();
     }
+
+
+    private static void showLastAppliedVersion(StoredProject project,
+        Collection<PluginInfo> metrics,
+        ResourceBundle resources,
+	StringBuilder b) {
+        for(PluginInfo m : metrics) {
+            if (m.installed) {
+                ProjectVersion lastVer =
+                    sobjPA.getPlugin(m).getLastAppliedVersion(project);
+                b.append("<tr>\n");
+                b.append(sp(1) + "<td colspan=\"6\""
+                        + " class=\"noattr\">\n"
+                        + m.getPluginName()
+                        + ": "
+                        + ((lastVer != null)
+                                ? resources.getString("l0065")
+                                        + " "
+                                        + lastVer.getVersion()
+                                : resources.getString("l0051"))
+                        + "</td>\n");
+                b.append("</tr>\n");
+            }
+        }
+    }
+
 }
 
-//vi: ai nosi sw=4 ts=4 expandtab
+
+// vi: ai nosi sw=4 ts=4 expandtab
+

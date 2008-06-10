@@ -39,10 +39,6 @@ import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
-// import eu.sqooss.service.abstractmetric.FileGroupMetric;
-// import eu.sqooss.service.abstractmetric.ProjectFileMetric;
-// import eu.sqooss.service.abstractmetric.ProjectVersionMetric;
-// import eu.sqooss.service.abstractmetric.StoredProjectMetric;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Plugin;
