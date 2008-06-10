@@ -34,6 +34,15 @@
     <defaultGoal>deploy:deploy</defaultGoal>
     <sourceDirectory>${basedir}/src</sourceDirectory>
     <outputDirectory>${basedir}/build</outputDirectory>
+    <resources>
+      <resource>
+        <directory>${basedir}/src/eu/sqooss/metrics/productivity-metric/db</directory>
+        <targetPath>eu/sqooss/metrics/productivity-metric/db</targetPath>
+        <includes>
+          <include>**/*.hbm.xml</include>
+        </includes>
+      </resource>
+    </resources>
     <plugins>
       <plugin>
         <artifactId>maven-jar-plugin</artifactId>
