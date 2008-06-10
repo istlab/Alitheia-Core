@@ -12,7 +12,7 @@
   <version>0.0.1</version>
   <packaging>jar</packaging>
 
-  <name>Alitheia Plugin 'clmt'</name>
+  <name>Alitheia Plug-in 'clmt'</name>
   <url>http://ikaria.dmst.aueb.gr/metrics/skeleton</url>
   <inceptionYear>2008</inceptionYear>
   <description>

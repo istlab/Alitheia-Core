@@ -12,7 +12,7 @@
   <version>0.0.1</version>
   <packaging>jar</packaging>
 
-  <name>Alitheia Plug-in skeleton</name>
+  <name>Alitheia Plug-in Example</name>
   <url>http://ikaria.dmst.aueb.gr/metrics/skeleton</url>
   <inceptionYear>2008</inceptionYear>
   <description>
