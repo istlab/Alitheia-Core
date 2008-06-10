@@ -1,11 +1,11 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: 
-Bundle-SymbolicName: eu.sqooss.metric.skeleton
+Bundle-Name: Simulation
+Bundle-SymbolicName: eu.sqooss.metric.simulation
 Bundle-Version: 0.0.1
-Bundle-Activator: eu.sqooss.impl.service.SkeletonActivator
+Bundle-Activator: eu.sqooss.impl.service.SimulationActivator
 Bundle-Vendor: AUEB
-Bundle-Description: Skeleton metric
+Bundle-Description: Simulation metric
 Import-Package:  org.osgi.framework,
     eu.sqooss.core,
     eu.sqooss.service.abstractmetric,
@@ -16,3 +16,4 @@ Import-Package:  org.osgi.framework,
     eu.sqooss.service.tds,
     eu.sqooss.service.util,
     org.apache.commons.codec.digest
+Eclipse-RegisterBuddy: org.hibernate

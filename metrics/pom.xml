@@ -89,7 +89,9 @@
     <module>productivity-metric</module>
     <module>skeleton</module>
     <module>clmt</module>
+
     <module>quality-model</module>
+	<module>simulation</module>
   </modules>
 </project>
 
