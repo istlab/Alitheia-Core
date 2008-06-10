@@ -48,6 +48,11 @@
     background-position: 12px 8px;
 }
 
+#metricslist {
+    background: #fff url(/img/artsaudiomanager.png) no-repeat;
+    background-position: 12px 8px;
+}
+
 #tagcloud td {
     text-align: center;
 }
