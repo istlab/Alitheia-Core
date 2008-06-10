@@ -63,7 +63,7 @@ alitheia/
     Contains the source code the Alitheia platform.
 
 corba/
-    Contains the Corba / C++ bindings for the Alitheia platform. 
+    Contains the Corba / C++ / Python bindings for the Alitheia platform. 
 
 equinox/
     Contains deployment configuration and is the default installation
