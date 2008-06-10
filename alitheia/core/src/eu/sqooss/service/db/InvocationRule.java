@@ -32,6 +32,7 @@
 
 package eu.sqooss.service.db;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import eu.sqooss.service.db.MetricType.Type;
@@ -598,7 +599,10 @@ public class InvocationRule extends DAObject {
      *   <li><b>EXACT</b> returns a positive match only on project files that
      *     are older or equal to given project version, and were not deleted
      *     prior that project version.
-     *   <li><b>EACH</b> <i>not yet implemented</i>.
+     *   <li><b>EACH</b> EACH is like LIST (<i>see LIST</i>), but requires
+     *     only a base project version <b>N</b> as an input value, while
+     *     recalculating the list of each <b>N<sup>th</sup></b> versions on
+     *     its own. The match is then performed against the accumulated list.
      *   <li><b>FROM</b> returns a positive match only on project files that
      *     were not deleted prior the given project version.
      *   <li><b>TO</b> returns a positive match only on project files that
@@ -644,7 +648,28 @@ public class InvocationRule extends DAObject {
             }
             return (fileVersion <= exact);
         case EACH:
-            return true; // TODO: Implement
+            // Retrieve the latest project version
+            ProjectVersion lastPrjVer = StoredProject.getLastProjectVersion(
+                    res.getProjectVersion().getProject());
+            long eachBase = parseIntValue(val);
+            long eachNext = eachBase;
+            List<Long> eachList = new ArrayList<Long>();
+            while (eachNext <= lastPrjVer.getVersion()) {
+                eachList.add(eachNext);
+                eachNext += eachBase;
+            }
+            for (long nextVer : eachList) {
+                // Match only files that are older or equal to the listed
+                // project version and were not deleted prior that version.
+                if (deletionVersion != null) {
+                    if ((fileVersion <= nextVer)
+                            && (nextVer < deletionVersion.longValue())) {
+                        return true;
+                    }
+                }
+                if (fileVersion <= nextVer) return true;
+            }
+            return false;
         case FROM:
             // Get the project version from the scope value
             long fromVersion = parseIntValue(val);
