@@ -45,6 +45,10 @@ import org.osgi.framework.ServiceReference;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.logging.LogManager;
 
+/**
+ * This class provides the base functionality for the activation of an
+ * Alitheia Core plugin
+ */
 public abstract class BundleActivatorBase implements Logger, ServiceListener {
     private ServiceReference logManagerService = null;
     private BundleContext bc = null;
@@ -52,7 +56,10 @@ public abstract class BundleActivatorBase implements Logger, ServiceListener {
     private Logger logger = null;
     private String loggerName = null;
     private static String loggerClass = LogManager.class.getName();
-    
+   
+    /**
+     * Starts the execution of the Alitheia Core plugin
+     */
     protected void start(final BundleContext bc, String loggerName) {
         this.bc = bc;
         this.loggerName = loggerName;
@@ -60,11 +67,18 @@ public abstract class BundleActivatorBase implements Logger, ServiceListener {
         addListener();
     }
 
+    /**
+     * Stops the execution of the Alitheia Core plugin
+     */
     protected void stop() {
         removeListener();
         ungetLogger();
     }
 
+    /**
+     * Attaches a listener for loggin events from the Alitheia Core
+     * plugin
+     */
     private void addListener() {
         if (logManagerService != null) {
             String loggerFilter = "(" + Constants.OBJECTCLASS
@@ -77,10 +91,16 @@ public abstract class BundleActivatorBase implements Logger, ServiceListener {
         }
     }
 
+    /**
+     * Removes the listener for logging events
+     */
     private void removeListener() {
         bc.removeServiceListener(this);
     }
 
+    /**
+     * Retrieve the logging service for this Alitheia Core plugin
+     */
     private void getLogger() {
         if (logManagerService == null) {
             logManagerService = bc.getServiceReference(loggerClass);
@@ -91,6 +111,9 @@ public abstract class BundleActivatorBase implements Logger, ServiceListener {
         }
     }
 
+    /**
+     * Remove the logging service for this Alitheia Core plugin
+     */
     private void ungetLogger() {
         if (logManagerService != null) {
             logManager.releaseLogger(logger.getName());
@@ -119,24 +142,36 @@ public abstract class BundleActivatorBase implements Logger, ServiceListener {
 
 
     // Interface Logger. All calls forwarded to the actual logger object.
+    /**
+     * Logs a "debug" message
+     */
     public void debug(String m) {
         if (logger != null) {
             logger.debug(m);
         }
     }
 
+    /**
+     * Logs trivial information
+     */
     public void info(String m) {
         if (logger != null) {
             logger.info(m);
         }
     }
 
+    /**
+     * Logs a warning message
+     */
     public void warn(String m) {
         if (logger != null) {
             logger.warn(m);
         }
     }
 
+    /**
+     * Logs an error message
+     */
     public void error(String m) {
         if (logger != null) {
             logger.error(m);
@@ -149,18 +184,29 @@ public abstract class BundleActivatorBase implements Logger, ServiceListener {
         }
     }
 
+    /**
+     * Logs a warning message
+     */
     public void warning(String m) {
         if (logger != null) {
             logger.warn(m);
         }
     }
 
+    /**
+     * Logs a severe warning message
+     */
     public void severe(String m) {
         if (logger != null) {
             logger.error(m);
         }
     }
 
+    /**
+     * Retrieve the name of the logging service
+     *
+     * @return the name of the logger
+     */
     public String getName() {
         if (logger != null) {
             return logger.getName();
