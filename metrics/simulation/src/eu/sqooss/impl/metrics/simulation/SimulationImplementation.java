@@ -57,10 +57,6 @@ import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.abstractmetric.ResultEntry;
 
 import eu.sqooss.impl.service.db.DBServiceImpl;
-import eu.sqooss.service.db.SimulationResultsMax;
-import eu.sqooss.service.db.SimulationResultsMin;
-import eu.sqooss.service.db.SimulationResultsChi;
-import eu.sqooss.service.db.SimulationResultsSquareChi;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 
