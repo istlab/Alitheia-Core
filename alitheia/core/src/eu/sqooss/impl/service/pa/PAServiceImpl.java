@@ -144,7 +144,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener, EventHandler
                     DBService.EVENT_STARTED
             };
                 
-            Dictionary d = new Hashtable(); 
+            Dictionary<String, String[]> d = new Hashtable<String, String[]>(); 
             d.put(EventConstants.EVENT_TOPIC, topics ); 
             
             bc.registerService(EventHandler.class.getName(), this, d); 
