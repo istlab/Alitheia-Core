@@ -94,6 +94,9 @@ public class AdminServlet extends HttpServlet {
     // Invocation rules view
     RulesView rulesView = null;
 
+    // Projects view
+    ProjectsView projectsView = null;
+
     public AdminServlet(BundleContext bc,
             WebadminService webadmin, 
             Logger logger,
@@ -140,6 +143,7 @@ public class AdminServlet extends HttpServlet {
         rulesView = new RulesView(bc, vc);
         usersView = new UsersView(bc, vc);
         rulesView = new RulesView(bc, vc);
+        projectsView = new ProjectsView(bc, vc);
     }
 
     /**
@@ -331,7 +335,6 @@ public class AdminServlet extends HttpServlet {
         // Function-based substitutions
         //vc.put("STATUS", someFunction); FIXME
         vc.put("GETLOGS", render.renderLogs());
-        vc.put("PROJECTS", render.renderProjects(request));
         vc.put("UPTIME", render.getUptime());
         vc.put("QUEUE_LENGTH", render.getSchedulerDetails("WAITING"));
         vc.put("JOB_EXEC", render.getSchedulerDetails("RUNNING"));
@@ -348,6 +351,8 @@ public class AdminServlet extends HttpServlet {
         vc.put("USERS", usersView.render(request));
         // Rules content
         vc.put("RULES", rulesView.render(request));
+        // Projects content
+        vc.put("PROJECTS", projectsView.render(request));
 
         // Composite substitutions
         vc.put("STATUS_CORE",
