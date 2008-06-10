@@ -1,13 +1,19 @@
 TOP_SRCDIR=../../..
+WITNESS=target/src-generation-completed
+
 include $(TOP_SRCDIR)/Makefile.bundle
 
 clean-dir : clean-deps clean-src
 
-build-dir : install-deps compile-wsdl
+build-dir : $(WITNESS)
+
+$(WITNESS) : ws.wsdl
+	$(MAKE) install-deps compile-wsdl
+	test -f $(WITNESS)
 
 ###
 #
-# This library is unusal in that most of the source
+# This library is unusual in that most of the source
 # code, perhaps all of it, is auto-generated from the
 # WSDL produced by the running Alitheia Core. These
 # extra targets here help in updating the web-services
@@ -27,11 +33,11 @@ fetch-wsdl : clean-wsdl ws.wsdl
 
 # Cleans up the source directory.
 clean-src :
-	rm -rf src
+	rm -rf src $(WITNESS)
 
 # Cleans up the WSDL file which was fetched.
 clean-wsdl :
-	rm -f ws.wsdl
+	rm -f ws.wsdl $(WITNESS)
 
 # Cleans up all the dependency jars needed for compilation.
 clean-deps :
@@ -81,6 +87,7 @@ compile-wsdl : clean-src
 		-p eu.sqooss.ws.client \
 		-ns2p http://datatypes.services.web.service.impl.sqooss.eu/xsd=eu.sqooss.ws.client.datatypes,http://services.web.service.sqooss.eu/xsd=eu.sqooss.ws.client.ws
 	rm -f build.xml
+	touch $(WITNESS)
 
 
 
