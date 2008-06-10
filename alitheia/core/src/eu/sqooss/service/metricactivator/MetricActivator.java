@@ -73,10 +73,18 @@ public interface MetricActivator {
     public void syncMetric(AlitheiaPlugin m, StoredProject sp);
     
     /**
+     * For a given project and plugin, return the latest project version
+     * for which the plugin has completely evaluated that project.
+     * Here completely evaluated means that each metric in the plugin must
+     * be completely evaluated; a metric is completely evaluated if:
+     *   - it is a file metric and has a result for each file in the
+     *     project at that state.
+     *   - it is a project metric and has a result for that project state.
+     *   - otherwise it is not completely evaluated.
      * 
-     * @param m
-     * @param sp
-     * @return
+     * @param m  Plugin to ask for completeness.
+     * @param sp Stored project to check.
+     * @return   Latest version that is completely evaluated or null.
      */
     public ProjectVersion getLastAppliedVersion(AlitheiaPlugin m, StoredProject sp);
 
