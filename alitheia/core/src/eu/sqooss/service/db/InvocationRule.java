@@ -288,6 +288,26 @@ public class InvocationRule extends DAObject {
         return null;
     }
 
+    /**
+     * Deletes the given invocation rule. After a successful deletion,
+     * both neighbor rules are modified so they reference each other instead.
+     * <br/>
+     * If the given rule had only one neighbor i.e. when the given rule was
+     * the first rule in the chain, then that neighbor rule will be set as a
+     * chain's first.
+     * <br/>
+     * <br/>
+     * For any rule that is being modified (or deleted) by this method, a
+     * notification is sent to the <code>MetricActivator</code> component,
+     * so it can update its rules list (reload the modified rules).
+     * 
+     * @param db the DB component's object
+     * @param ma the MetricActivator component's object
+     * @param rule the rule that has to be removed
+     * 
+     * @return <code>true</code>, if the rule was successfully removed,
+     *   or <code>false</code> otherwise.
+     */
     public static boolean deleteInvocationRule (
             DBService db, MetricActivator ma, InvocationRule rule) {
         if (rule != null) {
