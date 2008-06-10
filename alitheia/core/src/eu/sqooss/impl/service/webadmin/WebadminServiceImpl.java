@@ -49,6 +49,14 @@ import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.messaging.MessagingService;
 import eu.sqooss.service.webadmin.WebadminService;
 
+/**
+ * This is the service which provides a web-based administration
+ * interface. This user interface is used for the addition and removal
+ * of projects from Alitheia Core and likewise for metric
+ * plugins. Users of the WebAdmin interface are also able to receive
+ * basic system information such as uptime, number of running/failed
+ * jobs, etc.
+ */
 public class WebadminServiceImpl implements WebadminService {
     private ServiceReference srefHTTPService    = null;
     private HttpService sobjHTTPService         = null;
