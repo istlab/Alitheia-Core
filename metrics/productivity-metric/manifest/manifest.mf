@@ -5,7 +5,7 @@ Bundle-SymbolicName: eu.sqooss.metric.productivity
 Bundle-Version: 0.0.1
 Bundle-Activator: eu.sqooss.impl.service.Activator
 Bundle-Vendor: AUEB
-Export-Package: eu.sqooss.metric.productivity, eu.sqooss.service.db
+Export-Package: eu.sqooss.metric.productivity, eu.sqooss.metric.productivity.db
 Import-Package: org.osgi.framework,
     eu.sqooss.service.logging,
     eu.sqooss.service.tds,
@@ -16,7 +16,7 @@ Import-Package: org.osgi.framework,
     eu.sqooss.service.util,
     eu.sqooss.core,
     eu.sqooss.service.pa,
-    org.apache.commons.codec.digest 
+    org.apache.commons.codec.digest
 Eclipse-RegisterBuddy: org.hibernate
 
 
