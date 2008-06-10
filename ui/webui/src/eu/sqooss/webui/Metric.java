@@ -36,7 +36,7 @@ package eu.sqooss.webui;
 import eu.sqooss.ws.client.datatypes.WSMetric;
 
 /**
- * This class represents a Metric that has been applied to a project 
+ * This class represents a Metric that has been applied to a project
  * evaluated by Alitheia.
  * It currently only provides access to metric metadata.
  *
@@ -48,6 +48,9 @@ public class Metric extends WebuiItem {
     private String type;
     private String description;
 
+    /** Constructs a Metric from a WSMetric, including initialisation
+     * of data in this object.
+     */
     public Metric (WSMetric metric, Terrier t) {
         mnemonic    = metric.getMnemonic();
         id          = metric.getId();
@@ -73,6 +76,8 @@ public class Metric extends WebuiItem {
         return description;
     }
 
+    /** Returns an HTML string representing the Metric
+     */
     public String getHtml () {
         return description + " (" + type + ", " + mnemonic + ")";
     }
