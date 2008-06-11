@@ -36,9 +36,9 @@ package eu.sqooss.service.db;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import eu.sqooss.impl.service.CoreActivator;
-import eu.sqooss.service.db.DAObject;
 
 /**
  * Instances of this class represent data related to Alitheia Core
@@ -77,6 +77,16 @@ public class Plugin extends DAObject{
      */
     private String hashcode;
 
+    /**
+     * A list of all configuration entries for this plugin
+     */
+    private Set<PluginConfiguration> configurations;
+    
+    /**
+     * A list of all supported metrics for this plugin
+     */
+    private Set<Metric> supportedMetrics;
+    
     public String getName() {
         return name;
     }
@@ -125,6 +135,22 @@ public class Plugin extends DAObject{
         this.hashcode = hashcode;
     }
     
+    public Set<PluginConfiguration> getConfigurations() {
+        return configurations;
+    }
+
+    public void setConfigurations(Set<PluginConfiguration> configurations) {
+        this.configurations = configurations;
+    }
+
+    public Set<Metric> getSupportedMetrics() {
+        return supportedMetrics;
+    }
+
+    public void setSupportedMetrics(Set<Metric> supportedMetrics) {
+        this.supportedMetrics = supportedMetrics;
+    }
+
     public static List<Plugin> getPluginByName(String name) {
         DBService db = CoreActivator.getDBService();
         HashMap<String, Object> s = new HashMap<String, Object>();
@@ -152,30 +178,6 @@ public class Plugin extends DAObject{
             return l.get(0);
         
         return null;
-    }
-    
-    /**
-     * Get plugin configuration entries
-     * @param p
-     * @return
-     */
-    public static List<PluginConfiguration> getConfigEntries(Plugin p) {
-        DBService db = CoreActivator.getDBService();
-        HashMap<String, Object> s = new HashMap<String, Object>();
-        s.put("plugin", p);
-        return (List<PluginConfiguration>)db.findObjectsByProperties(PluginConfiguration.class, s);
-    }
-    
-    /**
-     * Get supported metrics for the plugin
-     * @param p
-     * @return A, possibly empty, list of metric DAOs
-     */
-    public static List<Metric> getSupportedMetrics(Plugin p) {
-        DBService db = CoreActivator.getDBService();
-        HashMap<String, Object> s = new HashMap<String, Object>();
-        s.put("plugin", p);
-        return (List<Metric>)db.findObjectsByProperties(Metric.class, s);
     }
 }
 

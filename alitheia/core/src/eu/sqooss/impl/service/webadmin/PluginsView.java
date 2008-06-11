@@ -34,6 +34,7 @@ package eu.sqooss.impl.service.webadmin;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -621,7 +622,7 @@ public class PluginsView extends AbstractView{
                     // Display the set of configuration properties
                     b.append(sp(in++) + "<tbody>\n");
                     // Get the plug-in's configuration set
-                    List<PluginConfiguration> config = selPI.getConfiguration();
+                    Set<PluginConfiguration> config = selPI.getConfiguration();
                     if (config.isEmpty()) {
                         b.append(sp(in++) + "<tr>");
                         b.append(sp(in) + "<td colspan=\"3\" class=\"noattr\">"
@@ -921,7 +922,7 @@ public class PluginsView extends AbstractView{
         StringBuilder b = new StringBuilder();
         // List the metric plug-in's configuration properties
         if (showProperties) {
-            List<PluginConfiguration> l =
+            Set<PluginConfiguration> l =
                 pluginInfo.getConfiguration();
             // Skip if this plug-ins has no configuration
             if ((l != null) && (l.isEmpty() == false)) {

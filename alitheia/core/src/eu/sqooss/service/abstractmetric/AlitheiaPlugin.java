@@ -35,6 +35,7 @@ package eu.sqooss.service.abstractmetric;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.Metric;
@@ -254,7 +255,7 @@ public interface AlitheiaPlugin {
      *   this plug-in. This may be an empty list if no configuration is
      *   needed or if the plug-in is not active.
      */
-    List<PluginConfiguration> getConfigurationSchema();
+    Set<PluginConfiguration> getConfigurationSchema();
 
     /**
      * Return a list of metric mnemonics that the metrics in this plugin

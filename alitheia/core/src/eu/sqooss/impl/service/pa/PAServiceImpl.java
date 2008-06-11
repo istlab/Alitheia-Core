@@ -31,15 +31,7 @@
  */
 package eu.sqooss.impl.service.pa;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Dictionary;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 
 import org.eclipse.osgi.framework.console.CommandProvider;
 import org.osgi.framework.BundleContext;
@@ -218,7 +210,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener, EventHandler
              * it MUST return only one service reference.
              */
             matchingServices = bc.getServiceReferences(null, serviceFilter);
-            if ((matchingServices == null) && (matchingServices.length != 1)) {
+            if ((matchingServices == null) || (matchingServices.length != 1)) {
                 logger.error(NO_MATCHING_SERVICES);
             }
             else {
@@ -315,7 +307,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener, EventHandler
                     "Creating info object for installed plug-in "
                     + sobjPlugin.getName());
             PluginInfo pluginInfo =
-                new PluginInfo(Plugin.getConfigEntries(p), sobjPlugin);
+                new PluginInfo(p.getConfigurations(), sobjPlugin);
             pluginInfo.setServiceRef(srefPlugin);
             pluginInfo.setHashcode(p.getHashcode());
             // Mark as installed
@@ -696,7 +688,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener, EventHandler
             if (pi.installed) {
                 ServiceReference sr = pi.getServiceRef();
                 Plugin p = pluginRefToPluginDAO(sr);
-                List<Metric> lm = Plugin.getSupportedMetrics(p);
+                Set<Metric> lm = p.getSupportedMetrics();
                 for (Metric m : lm){
                     if (m.getMnemonic().equals(mnemonic)) {
                         return getPlugin(pi);

@@ -498,7 +498,7 @@ public class RulesView extends AbstractView{
                         // Retrieve all metric types of the selected plug-in
                         if (isSelected) {
                             for (Metric nextMetric :
-                                Plugin.getSupportedMetrics(nextPlugin)) {
+                                nextPlugin.getSupportedMetrics()) {
                                 // Get the next metric's type
                                 MetricType nextType = 
                                     nextMetric.getMetricType();

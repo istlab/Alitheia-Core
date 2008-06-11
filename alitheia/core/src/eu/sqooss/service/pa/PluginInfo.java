@@ -34,6 +34,7 @@ package eu.sqooss.service.pa;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
@@ -135,7 +136,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
      * A list containing the current set of configuration parameters of the
      * associated metric plug-in
      */
-    private List<PluginConfiguration> config = null;
+    private Set<PluginConfiguration> config = null;
 
     /**
      * This flag is set to <code>false<code> on a newly registered metric
@@ -158,7 +159,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
      *
      * @param c - the list of configuration parameters
      */
-    public PluginInfo(List<PluginConfiguration> c) {
+    public PluginInfo(Set<PluginConfiguration> c) {
         this.config = c;
     }
 
@@ -169,7 +170,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
      *
      * @param c - the list of configuration parameters
      */
-    public PluginInfo(List<PluginConfiguration> c, AlitheiaPlugin p) {
+    public PluginInfo(Set<PluginConfiguration> c, AlitheiaPlugin p) {
         this.config = c;
         if (p != null) {
             setPluginName(p.getName());
@@ -183,7 +184,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
      *
      * @return The list of configuration parameters.
      */
-    public List<PluginConfiguration> getConfiguration() {
+    public Set<PluginConfiguration> getConfiguration() {
         return this.config;
     }
 

@@ -36,11 +36,13 @@ package eu.sqooss.service.abstractmetric;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.codec.digest.DigestUtils;
@@ -381,8 +383,8 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      */
     public List<Metric> getSupportedMetrics() {
         if (supportedMetrics == null) {
-            supportedMetrics = Plugin.getSupportedMetrics(
-                    Plugin.getPluginByHashcode(getUniqueKey()));
+            supportedMetrics = new ArrayList<Metric>();
+            supportedMetrics.addAll( Plugin.getPluginByHashcode(getUniqueKey()).getSupportedMetrics() );
         }
 
         if (supportedMetrics.isEmpty()) {
@@ -487,7 +489,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
             }
         }
         // Cascade manually to remove our configurations
-        List<PluginConfiguration> configurations = getConfigurationSchema();
+        Set<PluginConfiguration> configurations = getConfigurationSchema();
         if (configurations != null) {
             for (PluginConfiguration c : configurations) {
                 db.deleteRecord(c);
@@ -539,7 +541,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     /* (non-Javadoc)
      * @see eu.sqooss.service.abstractmetric.AlitheiaPlugin#getConfigurationSchema()
      */
-    public final List<PluginConfiguration> getConfigurationSchema() {
+    public final Set<PluginConfiguration> getConfigurationSchema() {
         // Retrieve the plug-in's info object
         PluginInfo pi = pa.getPluginInfo(getUniqueKey());
         if (pi == null) {
@@ -549,7 +551,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
             if (bc.getBundle().getState() == Bundle.ACTIVE) {
                 log.warn("Plugin <" + getName() + "> is loaded but not installed.");
             }
-            return new ArrayList<PluginConfiguration>();
+            return Collections.emptySet();
         }
         return pi.getConfiguration();
     }

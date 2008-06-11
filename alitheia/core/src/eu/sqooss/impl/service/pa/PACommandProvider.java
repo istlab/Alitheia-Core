@@ -34,6 +34,7 @@ package eu.sqooss.impl.service.pa;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.osgi.framework.console.CommandInterpreter;
 import org.eclipse.osgi.framework.console.CommandProvider;
@@ -178,8 +179,8 @@ public class PACommandProvider implements CommandProvider {
             
             if(nextMetric.installed) {
                 ci.print("  Supported Metrics\t: ");
-                List<Metric> lm = Plugin.getSupportedMetrics(
-                        Plugin.getPluginByHashcode(nextMetric.getHashcode()));
+                Set<Metric> lm = 
+                        Plugin.getPluginByHashcode(nextMetric.getHashcode()).getSupportedMetrics();
                 for (Metric m : lm) 
                     ci.print(m.getMnemonic() + " ");
 

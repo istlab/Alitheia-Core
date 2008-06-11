@@ -125,7 +125,7 @@ public class ProductivityMetricJob extends AbstractMetricJob {
         }
 
         if (ProjectFiles.size() >
-                Integer.parseInt(this.core.getPluginAdmin().getPluginInfo(this.parent.getUniqueKey()).getConfiguration().get(0).getValue())) {
+                Integer.parseInt(core.getPluginAdmin().getPluginInfo(parent.getUniqueKey()).getConfiguration().iterator().next().getValue())) {
             updateField(dev, ActionType.CMF, false, 1);
         }
 
