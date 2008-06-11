@@ -70,10 +70,10 @@ public class AdminServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static BundleContext bc = null;
     private static WebadminService webadmin = null;
-    
+
     /// Logger given by our owner to write log messages to.
     private Logger logger = null;
-    
+
     // Content tables
     private Hashtable<String, String> dynamicContentMap = null;
     private Hashtable<String, Pair<String, String>> staticContentMap = null;
@@ -98,7 +98,7 @@ public class AdminServlet extends HttpServlet {
     ProjectsView projectsView = null;
 
     public AdminServlet(BundleContext bc,
-            WebadminService webadmin, 
+            WebadminService webadmin,
             Logger logger,
             VelocityEngine ve) {
         this.webadmin = webadmin;
@@ -138,7 +138,7 @@ public class AdminServlet extends HttpServlet {
         // Now the dynamic substitutions and renderer
         vc = new VelocityContext();
         render = new WebAdminRenderer(bc, vc);
-        
+
         // Create the various view objects
         rulesView = new RulesView(bc, vc);
         usersView = new UsersView(bc, vc);
@@ -294,12 +294,12 @@ public class AdminServlet extends HttpServlet {
         vc.put("COPYRIGHT",
                 "Copyright 2007-2008"
                 + "<a href=\"http://www.sqo-oss.eu/about/\">"
-                + "SQO-OSS Consortium Members"
+                + "&nbsp;SQO-OSS Consortium Members"
                 + "</a>");
         vc.put("LOGO", "<img src='/logo' id='logo' alt='Logo' />");
         vc.put("MENU",
                 "<ul id=\"menu\">"
-                + "<li id=\"nav-1\"><a href=\"/index\">" 
+                + "<li id=\"nav-1\"><a href=\"/index\">"
                 + resLabels.getString("plugins") + "</a></li>"
                 + "<li id=\"nav-3\"><a href=\"/projects\">"
                 + resLabels.getString("projects") + "</a></li>"
