@@ -144,7 +144,7 @@ public class ProjectsView extends AbstractView {
                         StoredProject.class, reqValProjectId);
             }
 
-            // Retrieve the selected plug-in
+            // Retrieve the selected plug-in's hash-code
             reqValSyncPlugin = req.getParameter(REQ_PAR_SYNC_PLUGIN);
 
             // ---------------------------------------------------------------
@@ -342,10 +342,10 @@ public class ProjectsView extends AbstractView {
             b.append(sp(in) + "<legend>"
                     + resLbl.getString("add_project")
                     + "</legend>\n");
-            b.append(sp(in++) + "<table class=\"borderless\""
-                    +" style=\"width: 40%;\">");
+            b.append(sp(in++) + "<span style=\"width: 100%;\">\n");
+            b.append(sp(in++) + "<span style=\"width: 40%; float: left;\">\n");
+            b.append(sp(in++) + "<table class=\"borderless\">\n");
             // Create the input fields
-            b.append(sp(in++) + "<span>\n");
             b.append(normalInputRow(
                     "Project name", reqParPrjName, reqValPrjName, in));
             b.append(normalInputRow(
@@ -362,11 +362,11 @@ public class ProjectsView extends AbstractView {
             //------------------------------------------------------------
             // Tool-bar
             //------------------------------------------------------------
-            b.append(sp(in) + "<tr>\n");
-            b.append(sp(++in)
+            b.append(sp(in++) + "<tr>\n");
+            b.append(sp(in++)
                     + "<td colspan=\"2\" class=\"borderless\">\n");
             // Apply button
-            b.append(sp(++in) + "<input type=\"button\""
+            b.append(sp(in) + "<input type=\"button\""
                     + " class=\"install\""
                     + " style=\"width: 100px;\""
                     + " value=\"" + resLbl.getString("l0003") + "\""
@@ -375,20 +375,29 @@ public class ProjectsView extends AbstractView {
                     + reqParAction + "').value='" + actConAddProject + "';"
                     + SUBMIT + "\">\n");
             // Cancel button
-            b.append(sp(in--) + "<input type=\"button\""
+            b.append(sp(in) + "<input type=\"button\""
                     + " class=\"install\""
                     + " style=\"width: 100px;\""
                     + " value=\"" + resLbl.getString("l0004") + "\""
                     + " onclick=\"javascript:"
                     + SUBMIT + "\">\n");
-            b.append(sp(in--) + "</td>\n");
-            b.append(sp(in--) + "</tr>\n");
-            b.append(sp(in--) + "</table>\n");
+            b.append(sp(--in) + "</td>\n");
+            b.append(sp(--in) + "</tr>\n");
+            b.append(sp(--in) + "</table>\n");
             // TODO: Fix alignment
             // Help message
-            b.append(resMsg.getObject("project_help"));
-            b.append(sp(in--) + "</span>\n");
-            b.append(sp(in--) + "</fieldset>\n");
+            b.append(sp(--in) + "</span>\n");
+            b.append(sp(in++) + "<span"
+                    + " style=\"width: 60%; float: right;;\">\n");
+            b.append(sp(in++) + "<fieldset"
+                    + " style=\"margin-top: -5px; background-color: white;\""
+                    + ">\n");
+            b.append(sp(in) + "<legend>" + "Help" + "</legend>\n");
+            b.append(sp(in) + resMsg.getObject("project_help") + "\n");
+            b.append(sp(--in) + "</fieldset>\n");
+            b.append(sp(--in) + "</span>\n");
+            b.append(sp(--in) + "</span>\n");
+            b.append(sp(--in) + "</fieldset>\n");
         }
         // ===================================================================
         // "Delete project" confirmation view
