@@ -23,7 +23,6 @@ drop table project_version;
 drop table service_url cascade;
 drop table stored_project cascade;
 drop table tag;
-drop table userlogins;
 drop table users;
 drop table privilege_value cascade;
 drop table evaluation_mark;
