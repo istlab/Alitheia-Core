@@ -97,10 +97,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
 
     /** Hold references to supported metrics */
     protected List<Metric> supportedMetrics = null;
-    
-    /***/
-    private ConcurrentHashMap<Thread, Boolean> inRecursiveGetResult; 
-    
+        
     /**
      * Init basic services common to all implementing classes
      * @param bc - The bundle context of the implementing metric - to be passed
@@ -129,9 +126,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         if(pa == null)
             log.error("Could not get a reference to the Plugin Administation "
                     + "service");
-        
-        inRecursiveGetResult = new ConcurrentHashMap<Thread, Boolean>();
-    }
+     }
 
     /**
      * Retrieve author information from the plug-in bundle
@@ -176,37 +171,25 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         return Plugin.getPluginByHashcode(getUniqueKey()).getInstalldate();
     }
 
+    Map<Long,Pair<Object,Long>> blockerObjects = new ConcurrentHashMap<Long,Pair<Object,Long>>();
+ 
     /**
      * Call the appropriate getResult() method according to
      * the type of the entity that is measured.
+     * 
+     * Use this method if you don't want the metric results
+     * to be calculated on-demand. Otherwise, use getResult().
      *
      * @param o DAO that specifies the desired result type.
      *      The type of o is used to dispatch to the correct
-     *      specialised getResult() method of the sub-interfaces.
+     *      specialized getResult() method of the sub-interfaces.
      * @return result (measurement) performed by this metric
      *      on the project data specified by o.
      * @throws MetricMismatchException if the DAO is of a type
      *      not supported by this metric.
      */
-    Map<Long,Pair<Object,Long>> blockerObjects = new ConcurrentHashMap<Long,Pair<Object,Long>>();
-    
-    @SuppressWarnings("unchecked")
-    public Result getResult(DAObject o, List<Metric> l) throws MetricMismatchException {
-        synchronized(blockerObjects) {
-            if (!blockerObjects.containsKey(o.getId())) {
-                blockerObjects.put(o.getId(), new Pair<Object,Long>(new Object(), 0L));
-            }
-
-            Pair<Object,Long> syncObject = blockerObjects.get(o.getId());
-            Long counter = syncObject.second;
-            ++counter;
-            syncObject.second = counter;
-        }
-        
-        synchronized(blockerObjects.get(o.getId())) {
-        
-        try{
-            
+     @SuppressWarnings("unchecked")
+	public Result getResultIfAlreadyCalculated(DAObject o, List<Metric> l) throws MetricMismatchException {
         boolean found = false;
         Result r = new Result();
         
@@ -256,38 +239,43 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
             }
         }
         
+        return r;
+    }
+    
+    /**
+     * Call the appropriate getResult() method according to
+     * the type of the entity that is measured.
+     * 
+     * If the appropriate getResult() doesn't return any value,
+     * the metric is forced to calculate the result. Then the
+     * appropriate getResult() method is called again.
+     *
+     * @param o DAO that specifies the desired result type.
+     *      The type of o is used to dispatch to the correct
+     *      specialized getResult() method of the sub-interfaces.
+     * @return result (measurement) performed by this metric
+     *      on the project data specified by o.
+     * @throws MetricMismatchException if the DAO is of a type
+     *      not supported by this metric.
+     */
+    public Result getResult(DAObject o, List<Metric> l) throws MetricMismatchException {
+        Result r = getResultIfAlreadyCalculated(o, l);
+        	
         // the result hasn't been calculated yet. Do so.
-        if (r.getRowCount() == 0 && (
-                inRecursiveGetResult.get(Thread.currentThread()) == null ||
-                inRecursiveGetResult.get(Thread.currentThread()) != true)) {
-            try {
-                inRecursiveGetResult.put(Thread.currentThread(), true); 
-                run(o);
-                r = getResult(o, l);
+        if (r.getRowCount() == 0) {
+        	synchronized(this) {
+        		run(o);
+        		r = getResultIfAlreadyCalculated(o, l);
 
-                if (r.getRowCount() == 0) {
-                    log.info("The metric didn't returned "
+        		if (r.getRowCount() == 0) {
+        			log.info("The metric didn't returned "
                             + "a result even after running it: "
                             + getClass().getCanonicalName());
-                }
-            } finally {
-                this.inRecursiveGetResult.remove(Thread.currentThread());
-            }
+            	}
+        	}
         }
         
         return r;
-        } finally {
-            synchronized(blockerObjects) {
-                Pair<Object,Long> syncObject = blockerObjects.get(o.getId());
-                Long counter = syncObject.second;
-                --counter;
-                syncObject.second = counter;
-                if (counter==0L) {
-                    blockerObjects.remove(o.getId());
-                }
-            }
-        }
-        }
     }
     
     /**

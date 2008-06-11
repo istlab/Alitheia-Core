@@ -33,10 +33,8 @@
 
 package eu.sqooss.impl.service.metricactivator;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.osgi.framework.BundleContext;
@@ -320,7 +318,8 @@ public class MetricActivatorImpl implements MetricActivator {
         }
     }
     
-    private void syncMetric(PluginInfo pi, Class<? extends DAObject> actType,
+    @SuppressWarnings("unchecked")
+	private void syncMetric(PluginInfo pi, Class<? extends DAObject> actType,
             String hqlQuery) {
         List<Long> objectIDs = (List<Long>) db.doHQL(hqlQuery);
         AbstractMetric metric = (AbstractMetric) bc.getService(pi.getServiceRef());
