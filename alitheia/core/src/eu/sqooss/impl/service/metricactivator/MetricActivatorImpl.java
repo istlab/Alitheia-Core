@@ -303,14 +303,14 @@ public class MetricActivatorImpl implements MetricActivator {
                 "from ProjectVersion pv, ProjectFile pf " +
                 "where pf.projectVersion=pv and pv.project = :" + paramSp;
             } else if (c.equals(ProjectVersion.class)) {
-                query = "select distinct pv.id from ProjectVersion pv" +
+                query = "select distinct pv.id from ProjectVersion pv " +
                         "where pv.project = :" + paramSp;
             } else if (c.equals(StoredProject.class)) {
                 query = "select distinct sp.id from StoredProject sp where sp = :" 
                     + paramSp;
             } else if (c.equals(MailMessage.class)) { 
                 query = "select distinct mm.id " +
-                        "from StoredProject sp, MailingList ml, MailMessage mm" +
+                        "from StoredProject sp, MailingList ml, MailMessage mm " +
                         "where mm.list = ml and " +
                         "ml.storedProject = :" + paramSp;query = "select ";
             } else if (c.equals(MailingList.class)) { 
