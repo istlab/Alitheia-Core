@@ -59,10 +59,9 @@ import eu.sqooss.service.db.PluginConfiguration;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.metricactivator.MetricActivator;
 import eu.sqooss.service.pa.PluginAdmin;
 import eu.sqooss.service.pa.PluginInfo;
-import eu.sqooss.service.scheduler.Scheduler;
-import eu.sqooss.service.scheduler.SchedulerException;
 import eu.sqooss.service.util.Pair;
 
 /**
@@ -473,26 +472,24 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         return true;
     }
 
+    /**{@inheritDoc}}*/
     public boolean update() {
-        HashMap<String, Object> h = new HashMap<String, Object>();
-        List<StoredProject> l = db.findObjectsByProperties(StoredProject.class, h);
-
-        for(StoredProject sp : l) {
-            Scheduler s = ((AlitheiaCore) bc.getService(this.bc
-                    .getServiceReference(AlitheiaCore.class.getName())))
-                    .getScheduler();
-            try {
-                s.enqueue(new DefaultUpdateJob(this, sp));
-            } catch (SchedulerException e) {
-                log.error("Cannot schedule update job");
-            }
+        ServiceReference serviceRef = null;
+        serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
+        
+        MetricActivator ma = 
+            ((AlitheiaCore)bc.getService(serviceRef)).getMetricActivator();
+        
+        if (ma == null) {
+            return false;
         }
+        
+        ma.syncMetrics(this);
+        
         return true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /**{@inheritDoc}*/
     public final List<Class<? extends DAObject>> getActivationTypes() {
         return activationTypes;
     }
