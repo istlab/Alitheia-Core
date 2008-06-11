@@ -72,8 +72,22 @@ public class Metric extends WebuiItem {
         return type;
     }
 
+    public Integer getResult() {
+        // FIXME: Do something smart with types, maybe invent a Result class?
+        return getResultInteger();
+    }
+
+    public Integer getResultInteger() {
+        // FIXME: not all results will be 1337, some will also be 42
+        return 1337;
+    }
+
     public String getDescription () {
         return description;
+    }
+
+    public String getLink() {
+        return "<a href=\"/results.jsp?id=" + getId() + "\">view results</a>";
     }
 
     /** Returns an HTML string representing the Metric

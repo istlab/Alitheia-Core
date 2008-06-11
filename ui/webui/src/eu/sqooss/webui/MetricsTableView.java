@@ -60,6 +60,9 @@ public class MetricsTableView {
     // Flag for enabling the visualization of metrics' types
     boolean showType = true;
 
+    // Flag for enabling the link to the results page
+    boolean showResult = true;
+
     // Flag for enabling the visualization of metrics' table header
     boolean showHeader = true;
 
@@ -144,6 +147,9 @@ public class MetricsTableView {
         if (showType) {
             columns++;
         }
+        if (showResult) {
+            columns++;
+        }
 
         // Prepare some CSS tricks
         // TODO: Wouldn't it be easier to simply switch the CSS file instead
@@ -188,6 +194,9 @@ public class MetricsTableView {
             if (showType) {
                 html.append("\n\t\t<td" + head_class + ">Type</td>");
             }
+            if (showResult) {
+                html.append("\n\t\t<td" + head_class + ">Results</td>");
+            }
             html.append("\n\t</tr>");
             html.append("\n</thead>\n");
         }
@@ -223,6 +232,10 @@ public class MetricsTableView {
             if (showType) {
                 html.append("\n\t<td " + cell_class + ">"
                         + metrics.get(key).getType() + "</td>");
+            }
+            if (showResult) {
+                html.append("\n\t<td " + cell_class + ">"
+                        + metrics.get(key).getLink() + "</td>");
             }
             html.append("\n</tr>");
         }
@@ -349,11 +362,31 @@ public class MetricsTableView {
         return showDescription;
     }
 
+    /*
+    * @return true or false (Show Metric's Type in the table?)
+    */
     public boolean getShowType() {
         return showType;
     }
 
+    /*
+    * @param show wether to show the Metric's Type in the Table or not
+    */
     public void setShowType(boolean showType) {
         this.showType = showType;
+    }
+
+    /*
+    * @return true or false (Show a link to the Metric's result)
+    */
+    public boolean getShowResult() {
+        return showType;
+    }
+
+    /*
+    * @param set wether to show a link to the Metric's result in the Table or not
+    */
+    public void setShowResult(boolean showResult) {
+        this.showResult = showResult;
     }
 }
