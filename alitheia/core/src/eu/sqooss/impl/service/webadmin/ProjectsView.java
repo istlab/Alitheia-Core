@@ -42,6 +42,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.velocity.VelocityContext;
 import org.osgi.framework.BundleContext;
 
+import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.db.InvocationRule;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
@@ -51,6 +52,10 @@ import eu.sqooss.service.updater.UpdaterService.UpdateTarget;
 public class ProjectsView extends AbstractView {
     // Script for submitting this page
     private static String SUBMIT = "document.projects.submit();";
+    // Servlet actions
+    
+    // Servlet parameters
+    private static String REQ_PAR_SYNC_PLUGIN = "reqParSyncPlugin";
 
     /**
      * Instantiates a new projects view.
@@ -112,6 +117,7 @@ public class ProjectsView extends AbstractView {
         String reqValPrjBug        = null;
         String reqValPrjMail       = null;
         String reqValPrjCode       = null;
+        String reqValSyncPlugin    = null;
 
         // Selected project
         StoredProject selProject = null;
@@ -131,12 +137,15 @@ public class ProjectsView extends AbstractView {
                 reqValAction = "";
             };
 
-            // Retrieve the selected user's DAO (if any)
+            // Retrieve the selected project's DAO (if any)
             reqValProjectId = fromString(req.getParameter(reqParProjectId));
             if (reqValProjectId != null) {
                 selProject = sobjDB.findObjectById(
                         StoredProject.class, reqValProjectId);
             }
+
+            // Retrieve the selected plug-in
+            reqValSyncPlugin = req.getParameter(REQ_PAR_SYNC_PLUGIN);
 
             // ---------------------------------------------------------------
             // Add project
@@ -288,6 +297,22 @@ public class ProjectsView extends AbstractView {
                             + "<br/>\n");
                 }
             }
+            // ---------------------------------------------------------------
+            // Trigger synchronize on the selected plug-in for that project
+            // ---------------------------------------------------------------
+            if ((reqValSyncPlugin != null) && (selProject != null)) {
+                PluginInfo pInfo = sobjPA.getPluginInfo(reqValSyncPlugin);
+                if (pInfo != null) {
+                    AlitheiaPlugin pObj = sobjPA.getPlugin(pInfo);
+                    if (pObj != null) {
+                        compMA.syncMetric(pObj, selProject);
+                        sobjLogger.debug("Syncronise plugin ("
+                                + pObj.getName()
+                                + ") on project ("
+                                + selProject.getName() + ").");
+                    }
+                }
+            }
         }
 
         // ===============================================================
@@ -317,8 +342,10 @@ public class ProjectsView extends AbstractView {
             b.append(sp(in) + "<legend>"
                     + resLbl.getString("add_project")
                     + "</legend>\n");
-            b.append(sp(in++) + "<table class=\"borderless\">");
+            b.append(sp(in++) + "<table class=\"borderless\""
+                    +" style=\"width: 40%;\">");
             // Create the input fields
+            b.append(sp(in++) + "<span>\n");
             b.append(normalInputRow(
                     "Project name", reqParPrjName, reqValPrjName, in));
             b.append(normalInputRow(
@@ -356,7 +383,12 @@ public class ProjectsView extends AbstractView {
                     + SUBMIT + "\">\n");
             b.append(sp(in--) + "</td>\n");
             b.append(sp(in--) + "</tr>\n");
-            b.append(sp(in--) + "</table>");
+            b.append(sp(in--) + "</table>\n");
+            // TODO: Fix alignment
+            // Help message
+            b.append(resMsg.getObject("project_help"));
+            b.append(sp(in--) + "</span>\n");
+            b.append(sp(in--) + "</fieldset>\n");
         }
         // ===================================================================
         // "Delete project" confirmation view
@@ -617,6 +649,11 @@ public class ProjectsView extends AbstractView {
                 + " value=\""
                 + ((selProject != null) ? selProject.getId() : "")
                 + "\">\n");
+        // "Plug-in hashcode" input field
+        b.append(sp(in) + "<input type=\"hidden\""
+                + " id=\"" + REQ_PAR_SYNC_PLUGIN + "\""
+                + " name=\"" + REQ_PAR_SYNC_PLUGIN + "\""
+                + " value=\"\">\n");
 
         // ===============================================================
         // Close the form
@@ -641,6 +678,17 @@ public class ProjectsView extends AbstractView {
                 b.append("<tr>\n");
                 b.append(sp(1) + "<td colspan=\"6\""
                         + " class=\"noattr\">\n"
+                        + "<input type=\"button\""
+                        + " class=\"install\""
+                        + " style=\"width: 100px;\""
+                        + " value=\"Synchronise\""
+                        + " onclick=\"javascript:"
+                        + "document.getElementById('"
+                        + REQ_PAR_SYNC_PLUGIN + "').value='"
+                        + m.getHashcode() + "';"
+                        + SUBMIT + "\""
+                        + ">"
+                        + "&nbsp;"
                         + m.getPluginName()
                         + ": "
                         + ((lastVer != null)
