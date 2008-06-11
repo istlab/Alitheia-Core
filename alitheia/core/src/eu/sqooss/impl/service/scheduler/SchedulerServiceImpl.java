@@ -69,7 +69,7 @@ public class SchedulerServiceImpl implements Scheduler {
         logger = l;
         logger.info("Got scheduling!");
 
-        startExecute(1);//3 * Runtime.getRuntime().availableProcessors());
+        startExecute(3 * Runtime.getRuntime().availableProcessors());
     }
 
     public void enqueue(Job job) throws SchedulerException {
