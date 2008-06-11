@@ -390,6 +390,20 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      */
     public boolean remove() {
         Plugin p = Plugin.getPluginByHashcode(getUniqueKey());
+        // Cascade manually to metrics inside this plugin
+        List<Metric> dependentMetrics = getSupportedMetrics();
+        if (dependentMetrics != null) {
+            for (Metric m : dependentMetrics) {
+                db.deleteRecord(m);
+            }
+        }
+        // Cascade manually to remove our configurations
+        List<PluginConfiguration> configurations = getConfigurationSchema();
+        if (configurations != null) {
+            for (PluginConfiguration c : configurations) {
+                db.deleteRecord(c);
+            }
+        }
         return db.deleteRecord(p);
     }
 
