@@ -60,6 +60,7 @@ class WorkerThreadImpl extends Thread implements WorkerThread
      * @param s the schedule being asked for jobs.
      */
     public WorkerThreadImpl( Scheduler s ) {
+    	super(null, null, "Scheduler Worker Thread");
         m_scheduler = s;
     }
 
@@ -91,7 +92,7 @@ class WorkerThreadImpl extends Thread implements WorkerThread
 		return m_job;
 	}
 
-	private void executeJob(Job j) {
+	protected void executeJob(Job j) {
 		Job oldJob = m_job;
 		try {
 			m_job = j;
@@ -104,7 +105,33 @@ class WorkerThreadImpl extends Thread implements WorkerThread
 		}
 	}
 	
+	/**
+	 * Temporary Worker Thread is used to trigger instant
+	 * execution of a job.
+	 * @author christoph
+	 *
+	 */
+	class TemporaryWorkerThread implements Runnable {
+
+		private WorkerThreadImpl worker;
+		private Job job;
+		
+		TemporaryWorkerThread(WorkerThreadImpl worker,Job job) {
+			this.worker = worker;
+			this.job = job;
+		}
+		
+		public void run() {
+			worker.executeJob(job);
+		}
+		
+	}
+	
 	public void takeJob(Job job) throws SchedulerException {
-		executeJob(m_scheduler.takeJob(job));
+		Thread thread = new Thread(
+				new TemporaryWorkerThread(
+						this,
+						m_scheduler.takeJob(job)), "Temporary Scheduler Worker Thread");
+		thread.start();
 	}
 }

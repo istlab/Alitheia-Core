@@ -291,7 +291,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      *
      * FIXME:
      */
-    public synchronized void run(DAObject o) throws MetricMismatchException {
+    public void run(DAObject o) throws MetricMismatchException {
 
         boolean found = false;
         Iterator<Class<? extends DAObject>> i = getActivationTypes().iterator();
@@ -373,7 +373,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      * @param me Evaluated metric
      * @param sp Evaluated project
      */
-    public synchronized void markEvaluation (Metric me, StoredProject sp) {
+    public void markEvaluation (Metric me, StoredProject sp) {
         if((evaluationMarked.containsKey(sp.getId()) == false) ||
                 (evaluationMarked.get(sp.getId()) != me.getId())) {
             // Store the evaluation mark locally
