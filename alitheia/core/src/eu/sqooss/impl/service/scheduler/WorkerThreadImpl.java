@@ -34,12 +34,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package eu.sqooss.impl.service.scheduler;
 
-import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.scheduler.Job;
+import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.scheduler.SchedulerException;
 import eu.sqooss.service.scheduler.WorkerThread;
-
-import java.lang.InterruptedException;
 
 /**
  * Worker thread executing jobs given by a scheduler.
@@ -55,11 +53,22 @@ class WorkerThreadImpl extends Thread implements WorkerThread
 
     private volatile Job m_job = null;
     
+    private boolean m_oneshot = false;
+    
     /**
      * Constructor creating a new WorkerThread
      * @param s the schedule being asked for jobs.
      */
-    public WorkerThreadImpl( Scheduler s ) {
+    public WorkerThreadImpl(Scheduler s) {
+    	super(null, null, "Scheduler Worker Thread");
+        m_scheduler = s;
+    }
+
+    /**
+     * Constructor creating a new WorkerThread
+     * @param s the schedule being asked for jobs.
+     */
+    public WorkerThreadImpl(Scheduler s, boolean oneshot) {
     	super(null, null, "Scheduler Worker Thread");
         m_scheduler = s;
     }
@@ -76,6 +85,9 @@ class WorkerThreadImpl extends Thread implements WorkerThread
             } catch (InterruptedException e) {
                 // we were interrupted, just try again
                 continue;
+            }
+            if (m_oneshot) {
+            	m_processing = false;
             }
         }
     }
@@ -111,10 +123,14 @@ class WorkerThreadImpl extends Thread implements WorkerThread
 	 * @author christoph
 	 *
 	 */
-	class TemporaryWorkerThread implements Runnable {
+	public class TemporaryWorkerThread implements Runnable {
 
 		private WorkerThreadImpl worker;
 		private Job job;
+		
+		public TemporaryWorkerThread(Job job) {
+			this.worker = new WorkerThreadImpl(null);
+		}
 		
 		TemporaryWorkerThread(WorkerThreadImpl worker,Job job) {
 			this.worker = worker;

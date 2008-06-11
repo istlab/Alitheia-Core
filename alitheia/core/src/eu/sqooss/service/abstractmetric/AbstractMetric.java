@@ -262,21 +262,48 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
 
         // the result hasn't been calculated yet. Do so.
         if (r.getRowCount() == 0) {
-        	synchronized(this) {
-        		run(o);
-        		r = getResultIfAlreadyCalculated(o, l);
+        	synchronized(lockObject(o)) {
+        		try {
+        			run(o);
+        			r = getResultIfAlreadyCalculated(o, l);
 
-        		if (r.getRowCount() == 0) {
-        			log.info("The metric didn't returned "
-                            + "a result even after running it: "
-                            + getClass().getCanonicalName());
-            	}
+        			if (r.getRowCount() == 0) {
+        				log.info("The metric didn't returned "
+                               + "a result even after running it: "
+                               + getClass().getCanonicalName());
+            	    }
+        		} finally {
+        			unlockObject(o);
+        		}
         	}
         }
 
         return r;
     }
 
+    private Map<Long,Pair<Object,Integer>> locks = new HashMap<Long,Pair<Object,Integer>>();
+    
+    private Object lockObject(DAObject o) {
+    	synchronized(locks) {
+    		if (!locks.containsKey(o.getId())) {
+    			locks.put(o.getId(), new Pair<Object,Integer>(new Object(), 0));
+    		}
+    		Pair<Object,Integer> p = locks.get(o.getId());
+    		p.second = p.second + 1;
+    		return p.first;
+    	}
+    }
+    
+    private void unlockObject(DAObject o) {
+    	synchronized(locks) {
+    		Pair<Object,Integer> p = locks.get(o.getId());
+    		p.second = p.second - 1;
+    		if (p.second == 0) {
+    			locks.remove(o.getId());
+    		}
+    	}
+    }
+    
     /**
      * Call the appropriate run() method according to the type of the entity
      * that is measured.

@@ -83,28 +83,24 @@ public abstract class Job implements Comparable<Job> {
 
     private Exception m_errorException;
     
-    private WorkerThread m_myWorkerThread;
-
+    private WorkerThread m_worker;
+    
+    public void setWorkerThread(WorkerThread worker) {
+    	m_worker = worker;
+    }
+    
     /**
      * @return The current state of the job.
      */
     public final State state() {
         return m_state;
     }
-
-    /**
-     * Sets this jobs worker thread.
-     */
-    void setWorkerThread(WorkerThread t) {
-    	m_myWorkerThread = t;
-    }
     
     /**
-     * Returns the WorkerThread which is running
-     * this job.
+     * Returns the Scheduler this Job was enqueued to.
      */
-    public WorkerThread getWorkerThread() {
-    	return m_myWorkerThread;
+    public Scheduler getScheduler() {
+    	return m_scheduler;
     }
     
     /**
@@ -260,27 +256,36 @@ public abstract class Job implements Comparable<Job> {
      * Waits for the job to finish.
      * Note that this method even returns when the job's state changes to Error.
      */
-    synchronized public final void waitForFinished() {
+    public final void waitForFinished() {
     	try {
-    		// if this method is running inside of a WorkerThread
-    		// we try to pass the job we're waiting for to the thread.
-    		if (Thread.currentThread() instanceof WorkerThread) {
-    			WorkerThread t = (WorkerThread) Thread.currentThread();
-    			t.takeJob(this);
+    		synchronized(this) {
+    			// if this method is running inside of a WorkerThread
+    			// we try to pass the job we're waiting for to the thread.
+    			if (Thread.currentThread() instanceof WorkerThread) {
+    				WorkerThread t = (WorkerThread) Thread.currentThread();
+    				t.takeJob(this);
+    			} else {
+    				throw new Exception();
+    			}
     		}
     	} catch(Exception e) {
     		// if something went wrong with taking the job
-    		// we just have to wait
+    		// ok - we might be stuck... 
+    		if (m_scheduler.getSchedulerStats().getIdleWorkerThreads()==0) {
+    			m_scheduler.startOneShotWorkerThread();
+    		}
     	}
-        while (state() != State.Finished) {
-            if (state() == State.Error) {
-            	return;
-            }
-            try {
-                wait();
-            } catch (InterruptedException e) {
-            }
-        }
+    	synchronized(this) {
+    		while (state() != State.Finished) {
+            	if (state() == State.Error) {
+            		return;
+            	}
+            	try {
+                	wait();
+            	} catch (InterruptedException e) {
+            	}
+        	}
+    	}
     }
 
     /**
@@ -328,7 +333,7 @@ public abstract class Job implements Comparable<Job> {
      * Sets the job's state.
      * @param s The new state.
      */
-    synchronized protected final void setState(State s) {
+    protected final void setState(State s) {
         if (m_state == s) {
             return;
         }
@@ -361,7 +366,9 @@ public abstract class Job implements Comparable<Job> {
 
         stateChanged(m_state);
 
-        notifyAll();
+        synchronized(this) {
+        	notifyAll();
+        }
     }
 
     /**

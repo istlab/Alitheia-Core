@@ -113,4 +113,9 @@ public interface Scheduler {
      * Get the list of threads working on jobs of this scheduler.
      */
     WorkerThread[] getWorkerThreads();
+    
+    /**
+     * Starts a temporary worker thread handling exactly one job.
+     */
+    void startOneShotWorkerThread();
 }
