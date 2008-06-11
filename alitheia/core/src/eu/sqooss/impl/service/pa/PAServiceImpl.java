@@ -90,11 +90,11 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener, EventHandler
     // Required SQO-OSS components
     private Logger logger;
     private DBService sobjDB = null;
-    
+
     private Queue<ServiceEvent> initEventQueue = new LinkedList<ServiceEvent>();
 
-    /** 
-     * Keeps a list of registered metric plug-in's services, indexed by the 
+    /**
+     * Keeps a list of registered metric plug-in's services, indexed by the
      * plugin's hash code (stored in the database).
      */
     private HashMap<String, PluginInfo> registeredPlugins =
@@ -102,7 +102,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener, EventHandler
 
     /**
      * Instantiates a new <code>PluginAdmin</code>.
-     * 
+     *
      * @param bc - the parent bundle's context object
      * @param logger - the Logger component's instance
      */
@@ -138,17 +138,17 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener, EventHandler
                     CommandProvider.class.getName(),
                     new PACommandProvider(this, sobjDB) ,
                     null);
-            
+
             //Register an event handler for DB init events
             final String[] topics = new String[] {
                     DBService.EVENT_STARTED
             };
-                
-            Dictionary<String, String[]> d = new Hashtable<String, String[]>(); 
-            d.put(EventConstants.EVENT_TOPIC, topics ); 
-            
-            bc.registerService(EventHandler.class.getName(), this, d); 
-             
+
+            Dictionary<String, String[]> d = new Hashtable<String, String[]>();
+            d.put(EventConstants.EVENT_TOPIC, topics );
+
+            bc.registerService(EventHandler.class.getName(), this, d);
+
             logger.debug("The PluginAdmin component was successfully started.");
         }
         else {
@@ -158,9 +158,9 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener, EventHandler
 
     /**
      * Retrieves the service Id of the specified service reference.
-     * 
+     *
      * @param sref - the service reference
-     * 
+     *
      * @return The service Id.
      */
     private Long getServiceId (ServiceReference sref) {
@@ -179,11 +179,11 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener, EventHandler
 
     /**
      * Extracts the service Id of the metric plug-in service described in the
-     * metric plug-in's information object located by the specified hash 
+     * metric plug-in's information object located by the specified hash
      * code's value.
-     * 
+     *
      * @param hash - the hash code's value
-     * 
+     *
      * @return The service Id.
      */
     private Long getServiceId (String hash) {
@@ -201,9 +201,9 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener, EventHandler
     /**
      * Gets the metric plug-in's service reference, that is registered with
      * the given service Id.
-     * 
+     *
      * @param serviceId - the service Id
-     * 
+     *
      * @return The metric plug-in's service reference.
      */
     private ServiceReference getPluginService (Long serviceId) {
@@ -234,9 +234,9 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener, EventHandler
 
     /**
      * Gets the metric plug-in's object registered with the given service.
-     * 
+     *
      * @param srefPlugin - the metric plug-in's service reference
-     * 
+     *
      * @return The metric plug-in's object.
      */
     private AlitheiaPlugin getPluginObject (ServiceReference srefPlugin) {
@@ -264,9 +264,9 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener, EventHandler
     /**
      * Creates a new <code>PluginInfo</code> object for registered plug-in
      * from the given metric plug-in's service.
-     * 
+     *
      * @param srefPlugin - the metric plug-in's service reference
-     * 
+     *
      * @return The new <code>PluginInfo</code> object, or <code>null</code>
      *   upon failure.
      */
@@ -329,9 +329,9 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener, EventHandler
     /**
      * Returns the database record associated with the metric plug-in that is
      * referenced by the given service reference.
-     * 
+     *
      * @param srefPlugin - the plug-in's service reference
-     * 
+     *
      * @return The <code>Plugin</code> DAO object if found in the database,
      *   or <code>null</code> when a matching record does not exist.
      */
@@ -350,9 +350,9 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener, EventHandler
     /**
      * Gets the <code>PluginInfo</code> object assigned to the given metric
      * plug-in's service.
-     * 
+     *
      * @param srefPlugin - the plug-in's service reference
-     * 
+     *
      * @return The <code>PluginInfo</code> object, or <code>null</code> when
      *  this plug-in has no <code>PluginInfo</code> object assigned to it.
      */
@@ -369,9 +369,9 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener, EventHandler
     }
 
     /**
-     * Performs various maintenance operations upon registration of a new 
+     * Performs various maintenance operations upon registration of a new
      * metric plug-in's service.
-     * 
+     *
      * @param srefPlugin - the metric plug-in's service reference
      */
     private void pluginRegistered (ServiceReference srefPlugin) {
@@ -409,7 +409,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener, EventHandler
     /**
      * Performs various maintenance operations during unregistration of an
      * existing metric plug-in's service.
-     * 
+     *
      * @param srefPlugin - the metric plug-in's service reference
      */
     private void pluginUnregistering (ServiceReference srefPlugin) {
@@ -452,9 +452,9 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener, EventHandler
         // Get a reference to the affected service
         ServiceReference affectedService = event.getServiceReference();
 
-        /* 
-         * If the DB session failed to initialise store the event 
-         * for later processing 
+        /*
+         * If the DB session failed to initialise store the event
+         * for later processing
          */
         if (!sobjDB.startDBSession()) {
             initEventQueue.add(event);
@@ -546,7 +546,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener, EventHandler
             }
         } catch (Error e) {
             logger.warn(INSTALL_FAILED + e);
-        } 
+        }
 
         return false;
     }
@@ -570,7 +570,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener, EventHandler
                 "Uninstalling plugin with service ID " + serviceID);
 
         // Pre-formated error messages
-        final String INSTALL_FAILED =
+        final String UNINSTALL_FAILED =
             "The uninstallation of plugin with"
             + " service ID "+ serviceID
             + " failed : ";
@@ -600,11 +600,11 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener, EventHandler
                 }
             }
             else {
-                logger.warn(INSTALL_FAILED + CANT_GET_SOBJ);
+                logger.warn(UNINSTALL_FAILED + CANT_GET_SOBJ);
             }
-        } catch (Error e) {
-            logger.warn(INSTALL_FAILED + e);
-        } 
+        } catch (Exception e) {
+            logger.warn(UNINSTALL_FAILED, e);
+        }
 
         return false;
     }
@@ -629,7 +629,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener, EventHandler
         PluginInfo mi = null;
         Collection<PluginInfo> c = listPlugins();
         Iterator<PluginInfo> i = c.iterator();
-        
+
         while (i.hasNext()) {
             mi = i.next();
 
