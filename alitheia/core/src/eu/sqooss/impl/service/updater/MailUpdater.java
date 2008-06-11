@@ -104,6 +104,7 @@ class MailUpdater extends Job {
             logger.warn("Project <" + project.getName() + " - " + project.getId() +
             "> seem to have 0 (zero) mailing lists!!");
             dbs.commitDBSession();
+            return;
         }
         Set<MailingList> mllist = project.getMailingLists();
         boolean refresh = false;
@@ -127,6 +128,7 @@ class MailUpdater extends Job {
             }
         }
         
+        // if we added a new mailing list, retrieve them again
         if(refresh) {
             mllist = project.getMailingLists();
         }
@@ -185,6 +187,7 @@ class MailUpdater extends Job {
                     mmsg.setArrivalDate(mm.getReceivedDate());
                     mmsg.setSubject(mm.getSubject());
                     dbs.addRecord(mmsg);
+                    System.out.println("Adding a new message: " + mm.getMessageID());
                 }
                 
                 if (!mailAccessor.markMessageAsSeen(listId, messageId)) {
