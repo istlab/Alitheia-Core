@@ -215,6 +215,26 @@ public abstract class AbstractView {
         return b.toString();
     }
 
+    protected static String normalInfoRow (
+            String title, String value, long in) {
+        // Stores the assembled HTML content
+        StringBuilder b = new StringBuilder("\n");
+
+        // Create the info row
+        b.append(sp(in++) + "<tr>\n");
+        b.append(sp(in) + "<td class=\"borderless\""
+                + " style=\"width:100px;\">"
+                + "<b>" + ((title != null) ? title : "") + "</b>"
+                + "</td>\n");
+        b.append(sp(in++) + "<td class=\"borderless\">\n");
+        b.append(sp(in) + ((value != null) ? value : "") + "\n");
+        b.append(sp(--in) + "</td>\n");
+        b.append(sp(--in) + "</tr>\n");
+        
+        // Return the generated content
+        return b.toString();
+    }
+
     /**
      * Produces an HTML <code>fieldset</code> presenting the HTML content
      * stored in the given <code>StringBuilder</code>.

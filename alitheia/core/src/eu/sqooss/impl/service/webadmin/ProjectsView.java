@@ -104,6 +104,7 @@ public class ProjectsView extends AbstractView {
         String actConAddProject    = "conAddProject";
         String actReqRemProject    = "reqRemProject";
         String actConRemProject    = "conRemProject";
+        String actReqShowProject   = "conShowProject";
         String actConUpdAll        = "conUpdateAll";
         String actConUpdCode       = "conUpdateCode";
         String actConUpdMail       = "conUpdateMail";
@@ -351,9 +352,52 @@ public class ProjectsView extends AbstractView {
         Collection<PluginInfo> metrics = sobjPA.listPlugins();
 
         // ===================================================================
+        // "Show project info" view
+        // ===================================================================
+        if ((reqValAction.equals(actReqShowProject))
+                && (selProject != null)) {
+            // Create the field-set
+            b.append(sp(in++) + "<fieldset>\n");
+            b.append(sp(in) + "<legend>"
+                    + "Project information"
+                    + "</legend>\n");
+            b.append(sp(in++) + "<table class=\"borderless\">\n");
+            // Create the input fields
+            b.append(normalInfoRow(
+                    "Project name", selProject.getName(), in));
+            b.append(normalInfoRow(
+                    "Homepage", selProject.getWebsite(), in));
+            b.append(normalInfoRow(
+                    "Contact e-mail", selProject.getContact(), in));
+            b.append(normalInfoRow(
+                    "Bug database", selProject.getBugs(), in));
+            b.append(normalInfoRow(
+                    "Mailing list", selProject.getMail(), in));
+            b.append(normalInfoRow(
+                    "Source code", selProject.getRepository(), in));
+
+            //------------------------------------------------------------
+            // Tool-bar
+            //------------------------------------------------------------
+            b.append(sp(in++) + "<tr>\n");
+            b.append(sp(in++)
+                    + "<td colspan=\"2\" class=\"borderless\">\n");
+            // Back button
+            b.append(sp(in) + "<input type=\"button\""
+                    + " class=\"install\""
+                    + " style=\"width: 100px;\""
+                    + " value=\"" + resLbl.getString("btn_back") + "\""
+                    + " onclick=\"javascript:"
+                    + SUBMIT + "\">\n");
+            b.append(sp(--in) + "</td>\n");
+            b.append(sp(--in) + "</tr>\n");
+            b.append(sp(--in) + "</table>\n");
+            b.append(sp(--in) + "</fieldset>\n");
+        }
+        // ===================================================================
         // "Add project" editor
         // ===================================================================
-        if (reqValAction.equals(actReqAddProject)) {
+        else if (reqValAction.equals(actReqAddProject)) {
             // Create the field-set
             b.append(sp(in++) + "<fieldset>\n");
             b.append(sp(in) + "<legend>"
@@ -516,7 +560,20 @@ public class ProjectsView extends AbstractView {
                             + "</td>\n");
                     // Project name
                     b.append(sp(in) + "<td class=\"trans\">"
-                            + "<img src=\"/edit.png\" alt=\"[Edit]\"/>"
+                            + ((selected)
+                                    ? "<input type=\"button\""
+                                        + " class=\"install\""
+                                        + " style=\"width: 100px;\""
+                                        + " value=\"" 
+                                        + resLbl.getString("btn_info")
+                                        + "\""
+                                        + " onclick=\"javascript:"
+                                        + "document.getElementById('"
+                                        + reqParAction + "').value='" 
+                                        + actReqShowProject + "';"
+                                        + SUBMIT + "\">"
+                                    : "<img src=\"/edit.png\""
+                                        + " alt=\"[Edit]\"/>")
                             + "&nbsp;"
                             + nextPrj.getName()
                             + "</td>\n");
