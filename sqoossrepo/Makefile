@@ -145,6 +145,7 @@ extra-velocity :
 
 
 $(eval $(call install_template,javax/saaj,api,1.3.0))
+$(eval $(call install_template,javax,xml,1.0))
 $(eval $(call install_template,org/apache/muse,complete,2.2.0))
 $(eval $(call install_template,org/apache/muse/osgi/soa,axis2,1.0.0))
 $(eval $(call install_template,org/apache/ws,java2wsdl,1.1.0))
