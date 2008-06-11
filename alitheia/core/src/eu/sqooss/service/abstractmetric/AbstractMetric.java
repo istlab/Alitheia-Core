@@ -96,7 +96,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
 
     /** Hold references to supported metrics */
     protected List<Metric> supportedMetrics = null;
-        
+
     /**
      * Init basic services common to all implementing classes
      * @param bc - The bundle context of the implementing metric - to be passed
@@ -171,11 +171,11 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     }
 
     Map<Long,Pair<Object,Long>> blockerObjects = new ConcurrentHashMap<Long,Pair<Object,Long>>();
- 
+
     /**
      * Call the appropriate getResult() method according to
      * the type of the entity that is measured.
-     * 
+     *
      * Use this method if you don't want the metric results
      * to be calculated on-demand. Otherwise, use getResult().
      *
@@ -191,7 +191,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
 	public Result getResultIfAlreadyCalculated(DAObject o, List<Metric> l) throws MetricMismatchException {
         boolean found = false;
         Result r = new Result();
-        
+
         Iterator<Class<? extends DAObject>> i = getActivationTypes().iterator();
 
         List<Metric> metrics = getSupportedMetrics();
@@ -237,14 +237,14 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
                 r.addResultRow(new ArrayList<ResultEntry> (re));
             }
         }
-        
+
         return r;
     }
-    
+
     /**
      * Call the appropriate getResult() method according to
      * the type of the entity that is measured.
-     * 
+     *
      * If the appropriate getResult() doesn't return any value,
      * the metric is forced to calculate the result. Then the
      * appropriate getResult() method is called again.
@@ -259,7 +259,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      */
     public Result getResult(DAObject o, List<Metric> l) throws MetricMismatchException {
         Result r = getResultIfAlreadyCalculated(o, l);
-        	
+
         // the result hasn't been calculated yet. Do so.
         if (r.getRowCount() == 0) {
         	synchronized(this) {
@@ -273,10 +273,10 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
             	}
         	}
         }
-        
+
         return r;
     }
-    
+
     /**
      * Call the appropriate run() method according to the type of the entity
      * that is measured.
@@ -357,7 +357,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
             supportedMetrics = Plugin.getSupportedMetrics(
                     Plugin.getPluginByHashcode(getUniqueKey()));
         }
-            
+
         if (supportedMetrics.isEmpty()) {
             return null;
         } else {
@@ -476,16 +476,16 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     public boolean update() {
         ServiceReference serviceRef = null;
         serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
-        
-        MetricActivator ma = 
+
+        MetricActivator ma =
             ((AlitheiaCore)bc.getService(serviceRef)).getMetricActivator();
-        
+
         if (ma == null) {
             return false;
         }
-        
+
         ma.syncMetrics(this);
-        
+
         return true;
     }
 
@@ -627,11 +627,5 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         if(!metricDependencies.contains(mnemonic)) {
             metricDependencies.add(mnemonic);
         }
-    }
-
-    public ProjectVersion getLastAppliedVersion(StoredProject p) {
-        log.warn("Abstract getLastAppliedVersion called for plugin "
-            + getName() + " for project " + p.getName());
-        return null;
     }
 }

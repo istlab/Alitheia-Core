@@ -190,7 +190,7 @@ public interface AlitheiaPlugin {
      * The subclass AbstractMetric handles job creation automatically for
      * metrics that have simple requirements (a single job for doing the
      * calculation).
-     * 
+     *
      * Note that even if you use (parallel running) jobs in your jobs, the
      * metric's run method needs to block until the result is calculated.
      *
@@ -262,19 +262,4 @@ public interface AlitheiaPlugin {
      * @return A list of metric dependencies for this plug-in
      */
     List<String> getMetricDependencies();
-
-    /**
-     * For a given project and plugin, return the latest project version
-     * for which the plugin has completely evaluated that project.
-     * Here completely evaluated means that each metric in the plugin must
-     * be completely evaluated; a metric is completely evaluated if:
-     *   - it is a file metric and has a result for each file in the
-     *     project at that state.
-     *   - it is a project metric and has a result for that project state.
-     *   - otherwise it is not completely evaluated.
-     *
-     * @param sp Stored project to check for.
-     * @return   Latest version that is completely evaluated or null.
-     */
-    ProjectVersion getLastAppliedVersion(StoredProject p);
 }

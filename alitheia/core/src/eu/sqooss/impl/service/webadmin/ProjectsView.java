@@ -53,7 +53,7 @@ public class ProjectsView extends AbstractView {
     // Script for submitting this page
     private static String SUBMIT = "document.projects.submit();";
     // Servlet actions
-    
+
     // Servlet parameters
     private static String REQ_PAR_SYNC_PLUGIN = "reqParSyncPlugin";
 
@@ -564,12 +564,12 @@ public class ProjectsView extends AbstractView {
                                     ? "<input type=\"button\""
                                         + " class=\"install\""
                                         + " style=\"width: 100px;\""
-                                        + " value=\"" 
+                                        + " value=\""
                                         + resLbl.getString("btn_info")
                                         + "\""
                                         + " onclick=\"javascript:"
                                         + "document.getElementById('"
-                                        + reqParAction + "').value='" 
+                                        + reqParAction + "').value='"
                                         + actReqShowProject + "';"
                                         + SUBMIT + "\">"
                                     : "<img src=\"/edit.png\""
@@ -756,8 +756,6 @@ public class ProjectsView extends AbstractView {
 	StringBuilder b) {
         for(PluginInfo m : metrics) {
             if (m.installed) {
-                ProjectVersion lastVer =
-                    sobjPA.getPlugin(m).getLastAppliedVersion(project);
                 b.append("<tr>\n");
                 b.append(sp(1) + "<td colspan=\"6\""
                         + " class=\"noattr\">\n"
@@ -773,12 +771,6 @@ public class ProjectsView extends AbstractView {
                         + ">"
                         + "&nbsp;"
                         + m.getPluginName()
-                        + ": "
-                        + ((lastVer != null)
-                                ? resources.getString("l0065")
-                                        + " "
-                                        + lastVer.getVersion()
-                                : resources.getString("l0051"))
                         + "</td>\n");
                 b.append("</tr>\n");
             }
