@@ -13,13 +13,13 @@ drop table project_version_measurement cascade;
 drop table metric cascade;
 drop table invocation_rule;
 drop table metric_type;
+drop table plugin_configuration;
 drop table plugin;
 drop table privilege;
 drop table privilege cascade;
 drop table project_file cascade;
 drop table project_file_join;
 drop table project_version;
-drop table sender;
 drop table service_url cascade;
 drop table stored_project cascade;
 drop table tag;
@@ -32,8 +32,6 @@ drop table hibernate_unique_key;
 drop table developer;
 drop table directory;
 drop table pending_user;
-drop table plugin_configuration;
-drop table plugin;
 
 -- Now go around again
 drop table stored_project_measurement;
@@ -43,7 +41,7 @@ drop table plugin;
 drop table metric_type;
 drop table project_version;
 drop table developer;
-
+drop table group_type;
 
 
 -- Display remaining tables, just in case
