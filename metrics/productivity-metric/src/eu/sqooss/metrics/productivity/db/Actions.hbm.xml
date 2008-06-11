@@ -10,6 +10,6 @@
     </id>
     <property name="resourceTypeID" column="RESOURCE_TYPE_ID" />
     <property name="actionName" column="ACTION_NAME" />
-    <property name="isActionProductive" column="IS_ACTION_PRODUCTIVE" />
+    <property name="actionProductive" column="IS_ACTION_PRODUCTIVE" />
   </class>
 </hibernate-mapping>

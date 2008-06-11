@@ -38,7 +38,7 @@ import eu.sqooss.service.db.DAObject;
 public class Actions extends DAObject {
     private long resourceTypeID;
     private String actionName;
-    private boolean isActionProductive;
+    private boolean actionProductive;
 
     public long getResourceTypeID() {
         return resourceTypeID;
@@ -57,11 +57,11 @@ public class Actions extends DAObject {
     }
 
     public boolean isActionProductive() {
-        return isActionProductive;
+        return actionProductive;
     }
 
     public void setActionProductive(boolean isActionProductive) {
-        this.isActionProductive = isActionProductive;
+        this.actionProductive = isActionProductive;
     }
 }
 
