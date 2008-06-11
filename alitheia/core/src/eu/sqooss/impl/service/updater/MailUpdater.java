@@ -102,7 +102,7 @@ class MailUpdater extends Job {
         List<String> lists = mailAccessor.getMailingLists();
         if(lists.size() == 0) {
             logger.warn("Project <" + project.getName() + "> with ID " + project.getId() +
-            "has no mailing lists.");
+            " has no mailing lists.");
             dbs.commitDBSession();
             updater.removeUpdater(project.getName(), UpdaterService.UpdateTarget.MAIL);
             return;
