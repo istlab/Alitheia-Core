@@ -172,17 +172,34 @@ public class ProjectsView extends AbstractView {
                     valid = false;
                     e.append(sp(in) + "Invalid homepage URL!" + "<br/>\n");
                 }
-                if (checkUrl(reqValPrjBug, "http|https") == false) {
-                    valid = false;
-                    e.append(sp(in) + "Invalid bug database URL!" + "<br/>\n");
+                if ((reqValPrjBug != null)
+                        && (reqValPrjBug.length() > 0)) {
+                    if (checkUrl(reqValPrjBug, "http|https") == false) {
+                        valid = false;
+                        e.append(sp(in) + "Invalid bug database URL!"
+                                + "<br/>\n");
+                    }
                 }
-                if (checkUrl(reqValPrjMail, "maildir") == false) {
-                    valid = false;
-                    e.append(sp(in) + "Invalid mailing list URL!" + "<br/>\n");
+                else if ((reqValPrjMail != null)
+                        && (reqValPrjMail.length() > 0)) {
+                    if (checkUrl(reqValPrjMail, "maildir") == false) {
+                        valid = false;
+                        e.append(sp(in) + "Invalid mailing list URL!"
+                                + "<br/>\n");
+                    }
                 }
-                if (checkUrl(reqValPrjCode, "http|https|svn|file") == false) {
+                else if ((reqValPrjCode != null)
+                        && (reqValPrjCode.length() > 0)) {
+                    if (checkUrl(reqValPrjCode, "http|https|svn|file") == false) {
+                        valid = false;
+                        e.append(sp(in) + "Invalid source code URL!"
+                                + "<br/>\n");
+                    }
+                }
+                else {
                     valid = false;
-                    e.append(sp(in) + "Invalid source code URL!" + "<br/>\n");
+                    e.append(sp(in) + "At least one resource source must be specified!"
+                            + "<br/>\n");
                 }
                 // Proceed upon valid project properties
                 if (valid) {
