@@ -261,11 +261,23 @@ public class MetricActivatorImpl implements MetricActivator {
     }
 
     /**{@inheritDoc}*/
+    @SuppressWarnings("unchecked")
+    public <T extends DAObject> void syncMetrics(AlitheiaPlugin ap) {
+        List<StoredProject> lp = 
+            (List<StoredProject>) db.doHQL("from StoredProject");
+        
+        for(StoredProject sp : lp) {
+            syncMetric(ap, sp);
+        }
+    }
+    
+    /**{@inheritDoc}*/
     public <T extends DAObject> void syncMetrics(StoredProject sp) {
         Collection<PluginInfo> plugins = pa.listPlugins();
         
         for(PluginInfo p : plugins) {
-            AlitheiaPlugin ap = (AlitheiaPlugin) bc.getService(p.getServiceRef());
+            AlitheiaPlugin ap = 
+                (AlitheiaPlugin) bc.getService(p.getServiceRef());
             syncMetric(ap, sp);
         }
     }

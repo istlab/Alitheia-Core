@@ -56,18 +56,25 @@ public interface MetricActivator {
     public void runMetrics(Set<Long> daoIDs, Class<? extends DAObject> clazz);
 
     /**
-     * Synchronize metric results for all metrics for a specific project
+     * Run all plug-ins on the provided stored project
      *
-     * @param clazz
-     * @param sp
+     * @param sp The stored project to run the metrics on
      */
     public <T extends DAObject> void syncMetrics(StoredProject sp);
 
     /**
+     * Run the provided plug-in over all projects 
      *
+     * @param sp The plug-in to run
+     */
+    public <T extends DAObject> void syncMetrics(AlitheiaPlugin ap);
+    
+    /**
+     * Synchronize a plug-in with the current state of the project
      *
-     * @param m
-     * @param sp
+     * @param m The plug to run on the project
+     * @param sp The project DAO for the project whose state is to be 
+     * synced with the results of the provided plugin
      */
     public void syncMetric(AlitheiaPlugin m, StoredProject sp);
 
