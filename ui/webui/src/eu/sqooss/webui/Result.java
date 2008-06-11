@@ -111,37 +111,29 @@ public class Result extends WebuiItem {
         return id;
     }
 
+    private static final String[] printable = {
+        MIME_TYPE_TEXT_HTML,
+        MIME_TYPE_TEXT_PLAIN,
+        MIME_TYPE_TEXT_XML,
+        MIME_TYPE_TEXT_CSV,
+        MIME_TYPE_TYPE_DOUBLE,
+        MIME_TYPE_TYPE_FLOAT,
+        MIME_TYPE_TYPE_INTEGER,
+        MIME_TYPE_TYPE_LONG };
+
     /** This method makes it easy to check if we can just dump the content
      * of the result to screen, or if we need to go through an extra HTML
      * request in order to send it as correct mimetype. (embedded image
      * data in HTML streams doesn't work ;-)
      */
     public Boolean getIsPrintable() {
-        if (mimetype.equals(MIME_TYPE_TEXT_HTML)) {
-            return true;
-        } else if (mimetype.equals(MIME_TYPE_IMAGE_GIF)) {
-            return false;
-        } else if (mimetype.equals(MIME_TYPE_IMAGE_JPEG)) {
-            return false;
-        } else if (mimetype.equals(MIME_TYPE_IMAGE_PNG)) {
-            return false;
-        } else if (mimetype.equals(MIME_TYPE_TEXT_PLAIN)) {
-            return true;
-        } else if (mimetype.equals(MIME_TYPE_TEXT_XML)) {
-            return true;
-        } else if (mimetype.equals(MIME_TYPE_TEXT_CSV)) {
-            return true;
-        } else if (mimetype.equals(MIME_TYPE_TYPE_DOUBLE)) {
-            return true;
-        } else if (mimetype.equals(MIME_TYPE_TYPE_FLOAT)) {
-            return true;
-        } else if (mimetype.equals(MIME_TYPE_TYPE_INTEGER)) {
-            return true;
-        } else if (mimetype.equals(MIME_TYPE_TYPE_LONG)) {
-            return true;
-        } else {
-            return false;
+        // Crudely search the array for the mimetype we have
+        for (String t : printable) {
+            if (t.equals(mimetype)) {
+                return true;
+            }
         }
+        return false;
     }
 
     public String getString() {
