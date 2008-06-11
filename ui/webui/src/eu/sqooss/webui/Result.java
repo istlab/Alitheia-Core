@@ -1,0 +1,175 @@
+/*
+ * This file is part of the Alitheia system, developed by the SQO-OSS
+ * consortium as part of the IST FP6 SQO-OSS project, number 033331.
+ *
+ * Copyright 2007-2008 by the SQO-OSS consortium members <info@sqo-oss.eu>
+ * Copyright 2007-2008 by Sebastian Kuegler <sebas@kde.org>
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     * Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
+package eu.sqooss.webui;
+
+import eu.sqooss.ws.client.datatypes.WSMetric;
+
+
+/**
+ * This class represents a Result of a Metric that has been applied to a project
+ * evaluated by Alitheia.
+ *
+ * The Result class is part of the high-level webui API.
+ */
+public class Result extends WebuiItem {
+
+    private String mnemonic;
+    private String type;
+    private String description;
+    private String data;
+    private String mimetype;
+
+    /** Keep the following list of mimetypes in sync with
+     * trunk/alitheia/core/src/eu/sqooss/service/abstractmetric/ResultEntry.java
+     */
+
+    /** Represents "type/integer" MIME type. */
+    public static final String MIME_TYPE_TYPE_INTEGER = "type/integer";
+
+    /** Represents "type/long" MIME type. */
+    public static final String MIME_TYPE_TYPE_LONG    = "type/long";
+
+    /** Represents "type/float" MIME type. */
+    public static final String MIME_TYPE_TYPE_FLOAT   = "type/float";
+
+    /** Represents "type/double" MIME type. */
+    public static final String MIME_TYPE_TYPE_DOUBLE  = "type/double";
+
+    /** Represents "text/plain" MIME type. */
+    public static final String MIME_TYPE_TEXT_PLAIN   = "text/plain";
+
+    /** Represents "text/html" MIME type. */
+    public static final String MIME_TYPE_TEXT_HTML    = "text/html";
+
+    /** Represents "text/xml" MIME type. */
+    public static final String MIME_TYPE_TEXT_XML     = "text/xml";
+
+    /** Represents "text/csv" MIME type. */
+    public static final String MIME_TYPE_TEXT_CSV     = "text/csv";
+
+    /** Represents "image/gif" MIME type. */
+    public static final String MIME_TYPE_IMAGE_GIF    = "image/gif";
+
+    /** Represents "image/png" MIME type. */
+    public static final String MIME_TYPE_IMAGE_PNG    = "image/png";
+
+    /** Represents "image/jpeg" MIME type. */
+    public static final String MIME_TYPE_IMAGE_JPEG   = "image/jpeg";
+
+    /** Constructs a Result from a WSResultEntry, including initialisation
+     * of data in this object.
+     */
+     /*
+    public Result (WSResultEntry resultentry, Terrier t) {
+        mnemonic    = resultentry.getMnemonic();
+        id          = resultentry.getId();
+        mimetype    = resultentry.getMimeType();
+        data        = resultentry.getResult();
+        terrier     = t;
+    }
+     */
+    public Result (Terrier t) {
+        mnemonic    = "LOC";
+        id          = new Long(1337);
+        mimetype    = MIME_TYPE_TYPE_INTEGER;
+        data        = "TheResult";
+        terrier     = t;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    /** This method makes it easy to check if we can just dump the content
+     * of the result to screen, or if we need to go through an extra HTML
+     * request in order to send it as correct mimetype. (embedded image
+     * data in HTML streams doesn't work ;-)
+     */
+    public Boolean getIsPrintable() {
+        if (mimetype.equals(MIME_TYPE_TEXT_HTML)) {
+            return true;
+        } else if (mimetype.equals(MIME_TYPE_IMAGE_GIF)) {
+            return false;
+        } else if (mimetype.equals(MIME_TYPE_IMAGE_JPEG)) {
+            return false;
+        } else if (mimetype.equals(MIME_TYPE_IMAGE_PNG)) {
+            return false;
+        } else if (mimetype.equals(MIME_TYPE_TEXT_PLAIN)) {
+            return true;
+        } else if (mimetype.equals(MIME_TYPE_TEXT_XML)) {
+            return true;
+        } else if (mimetype.equals(MIME_TYPE_TEXT_CSV)) {
+            return true;
+        } else if (mimetype.equals(MIME_TYPE_TYPE_DOUBLE)) {
+            return true;
+        } else if (mimetype.equals(MIME_TYPE_TYPE_FLOAT)) {
+            return true;
+        } else if (mimetype.equals(MIME_TYPE_TYPE_INTEGER)) {
+            return true;
+        } else if (mimetype.equals(MIME_TYPE_TYPE_LONG)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public String getString() {
+        if (getIsPrintable()) {
+            return data;
+        } else {
+            return "<a href=\"renderresult.jsp?id=" + getId() + "\">Render</a>";
+        }
+    }
+
+    public String getMnemonic() {
+        return mnemonic;
+    }
+
+    public String getMimeType() {
+        return getMimeType();
+    }
+
+    /** Returns an HTML string which is a link to a page displaying the result.
+     */
+    public String getLink() {
+        return "<a href=\"/results.jsp?id=" + getId() + "\">View Me</a>";
+    }
+
+    /** Returns an HTML string representing the Result in a clever way.
+     */
+    public String getHtml () {
+        return "<strong>Result:</strong>" + getString() + ", " + mnemonic + ")";
+    }
+
+}
