@@ -39,9 +39,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 
-import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.metrics.wc.Wc;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.ResultEntry;
@@ -50,7 +48,6 @@ import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectFileMeasurement;
 import eu.sqooss.service.pa.PluginInfo;
-import eu.sqooss.service.scheduler.Scheduler;
 
 public class WcImplementation extends AbstractMetric implements Wc {
     
