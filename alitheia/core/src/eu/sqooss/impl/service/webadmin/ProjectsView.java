@@ -54,7 +54,7 @@ public class ProjectsView extends AbstractView {
 
     /**
      * Instantiates a new projects view.
-     * 
+     *
      * @param bundlecontext the <code>BundleContext</code> object
      * @param vc the <code>VelocityContext</code> object
      */
@@ -424,38 +424,7 @@ public class ProjectsView extends AbstractView {
                     + resLbl.getString("l0072")
                     + "</legend>\n");
 
-            //----------------------------------------------------------------
-            // Create the header row
-            //----------------------------------------------------------------
-            b.append(sp(in++) + "<table>\n");
-            b.append(sp(in++) + "<thead>\n");
-            b.append(sp(in++) + "<tr class=\"head\">\n");
-            b.append(sp(in) + "<td class=\"head\""
-                    + " style=\"width: 10%;\">"
-                    + resLbl.getString("l0066")
-                    + "</td>\n");
-            b.append(sp(in) + "<td class=\"head\""
-                    + " style=\"width: 35%;\">"
-                    + resLbl.getString("l0067")
-                    + "</td>\n");
-            b.append(sp(in) + "<td class=\"head\""
-                    + " style=\"width: 15%;\">"
-                    + resLbl.getString("l0068")
-                    + "</td>\n");
-            b.append(sp(in) + "<td class=\"head\""
-                    + " style=\"width: 15%;\">"
-                    + resLbl.getString("l0069")
-                    + "</td>\n");
-            b.append(sp(in) + "<td class=\"head\""
-                    + " style=\"width: 15%;\">"
-                    + resLbl.getString("l0070")
-                    + "</td>\n");
-            b.append(sp(in) + "<td class=\"head\""
-                    + " style=\"width: 10%;\">"
-                    + resLbl.getString("l0071")
-                    + "</td>\n");
-            b.append(sp(--in) + "</tr>\n");
-            b.append(sp(--in) + "</thead>\n");
+            addHeaderRow(resLbl,b,in);
 
             if (projects.isEmpty()) {
                 b.append(sp(in++) + "<tr>\n");
@@ -685,6 +654,41 @@ public class ProjectsView extends AbstractView {
         }
     }
 
+    private static void addHeaderRow(ResourceBundle resLbl,
+        StringBuilder b, long in) {
+        //----------------------------------------------------------------
+        // Create the header row
+        //----------------------------------------------------------------
+        b.append(sp(in++) + "<table>\n");
+        b.append(sp(in++) + "<thead>\n");
+        b.append(sp(in++) + "<tr class=\"head\">\n");
+        b.append(sp(in) + "<td class=\"head\""
+                + " style=\"width: 10%;\">"
+                + resLbl.getString("l0066")
+                + "</td>\n");
+        b.append(sp(in) + "<td class=\"head\""
+                + " style=\"width: 35%;\">"
+                + resLbl.getString("l0067")
+                + "</td>\n");
+        b.append(sp(in) + "<td class=\"head\""
+                + " style=\"width: 15%;\">"
+                + resLbl.getString("l0068")
+                + "</td>\n");
+        b.append(sp(in) + "<td class=\"head\""
+                + " style=\"width: 15%;\">"
+                + resLbl.getString("l0069")
+                + "</td>\n");
+        b.append(sp(in) + "<td class=\"head\""
+                + " style=\"width: 15%;\">"
+                + resLbl.getString("l0070")
+                + "</td>\n");
+        b.append(sp(in) + "<td class=\"head\""
+                + " style=\"width: 10%;\">"
+                + resLbl.getString("l0071")
+                + "</td>\n");
+        b.append(sp(--in) + "</tr>\n");
+        b.append(sp(--in) + "</thead>\n");
+    }
 }
 
 
