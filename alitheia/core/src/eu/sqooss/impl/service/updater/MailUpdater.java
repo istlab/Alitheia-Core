@@ -74,7 +74,7 @@ class MailUpdater extends Job {
     private Logger logger;
     private UpdaterServiceImpl updater;
     private DBService dbs;
-    
+
     public MailUpdater(StoredProject project,
                        UpdaterServiceImpl updater,
                        AlitheiaCore core,
@@ -97,12 +97,12 @@ class MailUpdater extends Job {
     protected void run() {
         dbs.startDBSession();
         project = dbs.attachObjectToDBSession(project);
-        TDAccessor spAccessor = core.getTDSService().getAccessor(project.getId()); 
+        TDAccessor spAccessor = core.getTDSService().getAccessor(project.getId());
         MailAccessor mailAccessor = spAccessor.getMailAccessor();
         List<String> lists = mailAccessor.getMailingLists();
         if(lists.size() == 0) {
-            logger.warn("Project <" + project.getName() + " - " + project.getId() +
-            "> seem to have 0 (zero) mailing lists!!");
+            logger.warn("Project <" + project.getName() + "> with ID " + project.getId() +
+            "has no mailing lists.");
             dbs.commitDBSession();
             return;
         }
@@ -111,11 +111,11 @@ class MailUpdater extends Job {
         //check if the mailing lists exist
         for ( String listId : lists ) {
             boolean exists = false;
-            
+
             for ( MailingList ml : mllist ) {
                 if(ml.getListId().compareTo(listId) == 0) {
                     exists = true;
-                    break; 
+                    break;
                  }
             }
             if(!exists) {
@@ -127,7 +127,7 @@ class MailUpdater extends Job {
                 refresh = true;
             }
         }
-        
+
         // if we added a new mailing list, retrieve them again
         if(refresh) {
             mllist = project.getMailingLists();
@@ -172,7 +172,7 @@ class MailUpdater extends Job {
                     InternetAddress inet = new InternetAddress(actualSender.toString());
                     senderEmail = inet.getAddress();
                 }
-                
+
                 Developer sender = Developer.getDeveloperByEmail(senderEmail,
                                                                  mllist.getStoredProject());
                 MailMessage mmsg = MailMessage.getMessageById(messageId);
@@ -189,7 +189,7 @@ class MailUpdater extends Job {
                     dbs.addRecord(mmsg);
                     System.out.println("Adding a new message: " + mm.getMessageID());
                 }
-                
+
                 if (!mailAccessor.markMessageAsSeen(listId, messageId)) {
                     logger.warn("Failed to mark message as seen.");
                 }
