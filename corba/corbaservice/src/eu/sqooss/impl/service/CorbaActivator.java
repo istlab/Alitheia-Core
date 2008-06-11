@@ -2,6 +2,7 @@ package eu.sqooss.impl.service;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import org.omg.CORBA.ORB;
 import org.omg.CosNaming.NameComponent;
@@ -105,7 +106,9 @@ public class CorbaActivator implements BundleActivator {
             orb_args[1] = "NameService=" + bc.getProperty("eu.sqooss.corba.orb.nameservice");
             
             // create and initialize the ORB
-            orb = ORB.init( orb_args, null );
+            Properties p = new Properties();
+            p.setProperty("com.sun.CORBA.codeset.charsets", "0x05010001, 0x00010109");    // UTF-8, UTF-16
+            orb = ORB.init( orb_args, p );
             
             // get reference to rootpoa & activate the POAManager
             rootpoa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
