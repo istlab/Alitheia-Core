@@ -41,7 +41,7 @@ import java.lang.Comparable;
  *
  * @author Christoph Schleifenbaum
  */
-public class Pair<T1 extends Comparable<T1>, T2 extends Comparable<T2>> implements Comparable<Pair<T1,T2>> {
+public class Pair<T1,T2> implements Comparable<Pair<T1,T2>> {
 
     /**
      * First value.
@@ -78,14 +78,15 @@ public class Pair<T1 extends Comparable<T1>, T2 extends Comparable<T2>> implemen
      * @return negative integer, zero, or a positive integer as this object is 
      * less than, equal to, or greater than the specified object.
      */
+    @SuppressWarnings("unchecked")
     public int compareTo(Pair<T1,T2> other) {
-        if (this == other) {
+        if (this == other || !(first instanceof Comparable<?>) || !(second instanceof Comparable<?>)) {
             return 0;
         }
 
-        int firstComp = first.compareTo( other.first );
+        int firstComp = ((Comparable<T1>)first).compareTo( other.first );
         
-        return (firstComp != 0) ? firstComp : second.compareTo(other.second);
+        return (firstComp != 0) ? firstComp : ((Comparable<T2>)second).compareTo(other.second);
     }
 
     public String toString() {

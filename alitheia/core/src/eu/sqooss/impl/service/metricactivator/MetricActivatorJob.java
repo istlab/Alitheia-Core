@@ -33,19 +33,16 @@
 
 package eu.sqooss.impl.service.metricactivator;
 
-import java.util.List;
-
 import org.osgi.framework.BundleContext;
 
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
+import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.MetricMismatchException;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.InvocationRule.ActionType;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.metricactivator.MetricActivator;
-import eu.sqooss.service.pa.PluginInfo;
 import eu.sqooss.service.scheduler.Job;
 
 /**
@@ -56,25 +53,21 @@ import eu.sqooss.service.scheduler.Job;
  */
 public class MetricActivatorJob extends Job {
 
-    private Long[] objectIDs;
     private Logger logger;
     private DBService dbs;
-    private Class<? extends DAObject> clazz;
-    private BundleContext bc;
-    private List<PluginInfo> pli;
     private MetricActivator ma;
+    private Long daoID;
+    private AbstractMetric metric;
+    Class<? extends DAObject> daoType;
     
-    MetricActivatorJob(List<PluginInfo> pi,
-            Class<? extends DAObject> clazz,
-            Long[] objectIDs, 
-            Logger l, BundleContext bc) {
-        this.clazz = clazz;
-        this.objectIDs = objectIDs;
+    MetricActivatorJob(AbstractMetric m, Long daoID, Logger l,
+            Class<? extends DAObject> daoType, BundleContext bc) {
+    	this.metric = m;
         this.logger = l;
-        this.pli = pi;
-        this.bc = bc;
+        this.daoID = daoID;
+        this.daoType = daoType;
         this.dbs = ((AlitheiaCore)bc.getService(bc.getServiceReference(AlitheiaCore.class.getName()))).getDBService();
-        this.ma = ((AlitheiaCore)bc.getService(bc.getServiceReference(AlitheiaCore.class.getName()))).getMetricActivator();
+        this.ma = ((AlitheiaCore)bc.getService(bc.getServiceReference(AlitheiaCore.class.getName()))).getMetricActivator();   
     }
     
     @Override
@@ -86,24 +79,14 @@ public class MetricActivatorJob extends Job {
     protected void run() throws Exception {
          
         dbs.startDBSession();
-        for(Long i : objectIDs) {
-            for (PluginInfo pi : pli) {
-                // Get the metric plug-in that installed this metric
-                AlitheiaPlugin m =
-                    (AlitheiaPlugin) bc.getService(pi.getServiceRef());
-                if (m != null) {
-                    try {
-                        // Retrieve the resource object's DAO from the
-                        // database and run the metric on it
-                        DAObject res = dbs.findObjectById(clazz, i);
-                        if ((res != null)
-                                && (ma.matchRules(m, res) == ActionType.EVAL)) {
-                            m.run(res);
-                        }
-                    } catch (MetricMismatchException e) {
-                        logger.warn("Metric " + m.getName() + " failed");
-                    }
-                }
+        DAObject obj = dbs.findObjectById(daoType, daoID);
+        
+        // trigger calculation of the metric
+        if (ma.matchRules(metric,obj) == ActionType.EVAL) {
+            try {
+                metric.getResult(obj, metric.getSupportedMetrics());
+            } catch (MetricMismatchException e) {
+                logger.warn("Metric " + metric.getName() + " failed");
             }
         }
         dbs.commitDBSession();

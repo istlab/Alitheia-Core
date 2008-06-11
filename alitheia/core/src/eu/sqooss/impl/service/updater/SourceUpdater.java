@@ -256,7 +256,7 @@ class SourceUpdater extends Job {
                 dbs.commitDBSession();
                 /*Kickstart metrics*/
                 
-                dbs.startDBSession();
+               /* dbs.startDBSession();
                 List<DAObject> objects = new ArrayList<DAObject>(updProjectVersions.size() + updFiles.size());
                 for (Long l : updProjectVersions)
                 	objects.add(dbs.findObjectById(ProjectVersion.class, l));
@@ -264,8 +264,11 @@ class SourceUpdater extends Job {
                 	objects.add(dbs.findObjectById(ProjectFile.class, l));
                 
                 ma.runMetrics(objects);
-                dbs.commitDBSession();
-
+                dbs.commitDBSession();*/
+                
+                ma.runMetrics(updProjectVersions, ProjectVersion.class);
+                ma.runMetrics(updFiles, ProjectFile.class);
+                
                 updater.removeUpdater(
                         project.getName(),
                         UpdaterService.UpdateTarget.CODE);

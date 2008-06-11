@@ -40,6 +40,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.osgi.framework.Bundle;
@@ -61,6 +63,7 @@ import eu.sqooss.service.pa.PluginAdmin;
 import eu.sqooss.service.pa.PluginInfo;
 import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.scheduler.SchedulerException;
+import eu.sqooss.service.util.Pair;
 
 /**
  * A base class for all metrics. Implements basic functionality such as
@@ -92,6 +95,12 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     /** Cache the result of the mark evaluation function*/
     protected HashMap<Long, Long> evaluationMarked = new HashMap<Long, Long>();
 
+    /** Hold references to supported metrics */
+    protected List<Metric> supportedMetrics = null;
+    
+    /***/
+    private ConcurrentHashMap<Thread, Boolean> inRecursiveGetResult; 
+    
     /**
      * Init basic services common to all implementing classes
      * @param bc - The bundle context of the implementing metric - to be passed
@@ -120,6 +129,8 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         if(pa == null)
             log.error("Could not get a reference to the Plugin Administation "
                     + "service");
+        
+        inRecursiveGetResult = new ConcurrentHashMap<Thread, Boolean>();
     }
 
     /**
@@ -177,12 +188,28 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      * @throws MetricMismatchException if the DAO is of a type
      *      not supported by this metric.
      */
+    Map<Long,Pair<Object,Long>> blockerObjects = new ConcurrentHashMap<Long,Pair<Object,Long>>();
+    
     @SuppressWarnings("unchecked")
     public Result getResult(DAObject o, List<Metric> l) throws MetricMismatchException {
+        synchronized(blockerObjects) {
+            if (!blockerObjects.containsKey(o.getId())) {
+                blockerObjects.put(o.getId(), new Pair<Object,Long>(new Object(), 0L));
+            }
 
+            Pair<Object,Long> syncObject = blockerObjects.get(o.getId());
+            Long counter = syncObject.second;
+            ++counter;
+            syncObject.second = counter;
+        }
+        
+        synchronized(blockerObjects.get(o.getId())) {
+        
+        try{
+            
         boolean found = false;
         Result r = new Result();
-
+        
         Iterator<Class<? extends DAObject>> i = getActivationTypes().iterator();
 
         List<Metric> metrics = getSupportedMetrics();
@@ -228,9 +255,41 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
                 r.addResultRow(new ArrayList<ResultEntry> (re));
             }
         }
-        return r;
-    }
+        
+        // the result hasn't been calculated yet. Do so.
+        if (r.getRowCount() == 0 && (
+                inRecursiveGetResult.get(Thread.currentThread()) == null ||
+                inRecursiveGetResult.get(Thread.currentThread()) != true)) {
+            try {
+                inRecursiveGetResult.put(Thread.currentThread(), true); 
+                run(o);
+                r = getResult(o, l);
 
+                if (r.getRowCount() == 0) {
+                    log.info("The metric didn't returned "
+                            + "a result even after running it: "
+                            + getClass().getCanonicalName());
+                }
+            } finally {
+                this.inRecursiveGetResult.remove(Thread.currentThread());
+            }
+        }
+        
+        return r;
+        } finally {
+            synchronized(blockerObjects) {
+                Pair<Object,Long> syncObject = blockerObjects.get(o.getId());
+                Long counter = syncObject.second;
+                --counter;
+                syncObject.second = counter;
+                if (counter==0L) {
+                    blockerObjects.remove(o.getId());
+                }
+            }
+        }
+        }
+    }
+    
     /**
      * Call the appropriate run() method according to the type of the entity
      * that is measured.
@@ -244,7 +303,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      *
      * FIXME:
      */
-    public void run(DAObject o) throws MetricMismatchException {
+    public synchronized void run(DAObject o) throws MetricMismatchException {
 
         boolean found = false;
         Iterator<Class<? extends DAObject>> i = getActivationTypes().iterator();
@@ -307,11 +366,15 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      * @return the list of metric descriptors, or null if none
      */
     public List<Metric> getSupportedMetrics() {
-        List<Metric> metrics = Plugin.getSupportedMetrics(Plugin.getPluginByHashcode(getUniqueKey()));
-        if (metrics.isEmpty()) {
+        if (supportedMetrics == null) {
+            supportedMetrics = Plugin.getSupportedMetrics(
+                    Plugin.getPluginByHashcode(getUniqueKey()));
+        }
+            
+        if (supportedMetrics.isEmpty()) {
             return null;
         } else {
-            return metrics;
+            return supportedMetrics;
         }
     }
 

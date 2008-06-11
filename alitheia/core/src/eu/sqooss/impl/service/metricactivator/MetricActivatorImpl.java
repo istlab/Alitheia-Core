@@ -45,7 +45,6 @@ import org.osgi.framework.ServiceReference;
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
-import eu.sqooss.service.abstractmetric.MetricMismatchException;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.InvocationRule;
@@ -61,6 +60,8 @@ import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.metricactivator.MetricActivator;
 import eu.sqooss.service.pa.PluginAdmin;
 import eu.sqooss.service.pa.PluginInfo;
+import eu.sqooss.service.scheduler.Scheduler;
+import eu.sqooss.service.scheduler.SchedulerException;
 
 public class MetricActivatorImpl implements MetricActivator {
 
@@ -71,6 +72,7 @@ public class MetricActivatorImpl implements MetricActivator {
     private Logger logger;
     private PluginAdmin pa;
     private DBService db;
+    private Scheduler sched;
 
     // Default action of the invocation rules chain
     private ActionType defaultAction = null;
@@ -88,6 +90,7 @@ public class MetricActivatorImpl implements MetricActivator {
         this.logger = logger;
         this.pa = core.getPluginAdmin();
         this.db = core.getDBService();
+        this.sched = core.getScheduler();
     }
 
     public void initRules() {
@@ -233,100 +236,103 @@ public class MetricActivatorImpl implements MetricActivator {
         return defaultAction;
     }
     
-    private void runMetric(DAObject object, AbstractMetric metric, List<AbstractMetric> handled) {
-    	if (handled.contains(metric))
-    		return;
+    /*public void runMetrics(List<DAObject> objects) {
+    	Map<Class<?>,List<AbstractMetric>> pluginsForActiv = new HashMap<Class<?>,List<AbstractMetric>>();
 
-    	handled.add(metric);
-    	
-    	// meet the dependencies
-    	List<String> dependencies = metric.getMetricDependencies();
-    	for (String dependency : dependencies) {
-    		AbstractMetric dependencyMetric = (AbstractMetric) pa.getImplementingPlugin(dependency);
-    		if (dependencyMetric==null) {
-    			logger.error("No metric found to fulfill the dependency \"" + dependency + "\"");
-    			continue;
-    		}
-    		runMetric(object, dependencyMetric, handled);
-    	}
-    	
-    	try {
-			metric.run(object);
-		} catch (MetricMismatchException e) {
-            logger.warn("Metric " + metric.getName() + " failed");
-		}
-    }
+    	for (DAObject object : objects) {
+    	    Class<? extends DAObject> c = object.getClass();
+            if (pluginsForActiv.get(c) == null) {
+                List<PluginInfo> plugins = pa.listPluginProviders(c);
+                pluginsForActiv.put(c, new ArrayList<AbstractMetric>(plugins.size()));
+                for (PluginInfo pi : plugins) {
+                    AbstractMetric metric = (AbstractMetric) bc.getService(pi.getServiceRef());
+                    if (metric != null) {
+                        pluginsForActiv.get(c).add(metric);
+                    }
+                }
+            }
+
+            List<AbstractMetric> metrics = pluginsForActiv.get(c);
+            if (metrics == null || metrics.size() == 0) {
+                logger.warn("No metrics found for activation type " + c.getName());
+                //return;
+            }
+
+            for (AbstractMetric m : metrics) {
+                try {
+                    sched.enqueue(new MetricActivatorJob(m, object, logger,bc));
+                } catch (SchedulerException e) {
+                    logger.error("Could not enquere job to run the metric");
+                }
+            }
+        }
+    }*/
     
- 	private void runMetric(DAObject object, Map<Class<?>,List<PluginInfo>> metricsForClass, List<DAObject> handled, List<DAObject> allToBeHandled) {
-		if (handled.contains(object))
-			return;
-
-		handled.add(object);
-
- 		Class<? extends DAObject> c = object.getClass();
-		if (metricsForClass.get(c)==null) {
-			metricsForClass.put(c, pa.listPluginProviders(c));
-		}
-		List<PluginInfo> metrics = metricsForClass.get(c);
-		if (metrics == null || metrics.size() == 0) {
-			logger.warn("No metrics found for activation type " + c.getName());
-		    return;
-		}
-    	
-		// if we have a StoredProject, make sure all it's ProjectVersions are handled first
-		if (object instanceof StoredProject) {
-			StoredProject p = (StoredProject)object;
-			List<ProjectVersion> versions = p.getProjectVersions();
-			
-			for (ProjectVersion version : versions) {
-				if (allToBeHandled.contains(version) && !handled.contains(version))
-					runMetric(version, metricsForClass, handled, allToBeHandled);
-			}
-		}
-		
-		// if we have a ProjectVersion, make sure all it's ProjectFiles are handled first
-		if (object instanceof ProjectVersion) {
-			ProjectVersion v = (ProjectVersion)object;
-			Set<ProjectFile> files = v.getVersionFiles();
-			
-			for (ProjectFile file : files) {
-				if (allToBeHandled.contains(file) && !handled.contains(file))
-					runMetric(file, metricsForClass, handled, allToBeHandled);
-			}
-		}
-		
-		List<AbstractMetric> allMetrics = new ArrayList<AbstractMetric>(metrics.size());
-		List<AbstractMetric> executedMetrics = new ArrayList<AbstractMetric>(metrics.size());
-		for (PluginInfo metric : metrics) {
-			AbstractMetric plugin = (AbstractMetric) bc.getService(metric.getServiceRef());
-			if (plugin==null)
-				continue;
-			allMetrics.add(plugin);
-		}
-
-		for (AbstractMetric m : allMetrics) {
-			runMetric(object, m, executedMetrics);
-		}
-    }
-    
-    public void runMetrics(List<DAObject> objects) {
-    	Map<Class<?>,List<PluginInfo>> metricsForClass = new HashMap<Class<?>,List<PluginInfo>>();
-    	
-    	// this is the list of DAObjects we already handled
-    	List<DAObject> handled = new ArrayList<DAObject>(objects.size());
-    	
-    	for(DAObject object : objects) {
-    		runMetric(object, metricsForClass, handled, objects);
-    	}
-    }
-
-    public void syncMetric(AlitheiaPlugin m, StoredProject sp) {
-        PluginInfo mi = pa.getPluginInfo(m);
-
+    public void runMetrics(Set<Long> daoIDs, Class<? extends DAObject> actType) {
+        List<PluginInfo> plugins = pa.listPluginProviders(actType);
+        
+        if (plugins == null || plugins.size() == 0) {
+            logger.warn("No metrics found for activation type " 
+                    + actType.getName());
+            return;
+        }
+        
+        for (PluginInfo pi : plugins) {
+            AbstractMetric metric = (AbstractMetric) bc.getService(pi.getServiceRef());
+            for(Long l : daoIDs) {
+                try {
+                    sched.enqueue(new MetricActivatorJob(metric, l, 
+                            logger, actType, bc));
+                } catch (SchedulerException e) {
+                    logger.error("Could not enquere job to run the metric");
+                }
+            }
+        }   
     }
 
     public <T extends DAObject> void syncMetrics(StoredProject sp) {
-
+        
+    }
+ 
+    //TODO: Fix possible NPEs
+    public void syncMetric(AlitheiaPlugin m, StoredProject sp) {
+        PluginInfo mi = pa.getPluginInfo(m);
+        List<Class<? extends DAObject>> actTypes = mi.getActivationTypes();
+        String query = "";
+        
+        for(Class<? extends DAObject> c : actTypes) {
+            if(c.equals(ProjectFile.class)) {
+                query = "select pf.id " +
+                		"from ProjectVersion pv, ProjectFile pf, StoredProject sp" +
+                		"where pf.ProjectVersion=pv and ";
+                syncMetric(mi, c, query);
+            } else if(c.equals(ProjectVersion.class)) {
+                query = "select pv.id " +
+                                "from ProjectVersion pv, StoredProject sp" +
+                                "where pv. ";
+                syncMetric(mi, c, query);
+            } else if(c.equals(StoredProject.class)) {
+                query = "select sp.id from StoredProject sp where  ";
+                syncMetric(mi, c, query);
+            } else {
+                logger.error("Unknown activation type " + c.getName());
+            }
+        }
+    }
+    
+    private void syncMetric(PluginInfo pi, Class<? extends DAObject> actType,
+            String hqlQuery) {
+        List<Long> objectIDs = (List<Long>) db.doHQL(hqlQuery);
+        AbstractMetric metric = (AbstractMetric) bc.getService(pi.getServiceRef());
+        
+        for (Long l : objectIDs) {
+            try {
+                sched.enqueue(new MetricActivatorJob(metric, l, 
+                        logger, actType, bc));
+            } catch (SchedulerException e) {
+                logger.error("Could not enqueue job to sync metric");
+            }
+        }
     }
 }
 
