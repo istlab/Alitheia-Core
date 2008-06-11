@@ -35,6 +35,7 @@ package eu.sqooss.impl.service.metricactivator;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.osgi.framework.BundleContext;
@@ -46,6 +47,8 @@ import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.InvocationRule;
+import eu.sqooss.service.db.MailMessage;
+import eu.sqooss.service.db.MailingList;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.db.ProjectFile;
@@ -256,48 +259,67 @@ public class MetricActivatorImpl implements MetricActivator {
         }   
     }
 
+    /**{@inheritDoc}*/
     public <T extends DAObject> void syncMetrics(StoredProject sp) {
         
     }
  
-    //TODO: Fix possible NPEs
+    /**{@inheritDoc}*/
     public void syncMetric(AlitheiaPlugin m, StoredProject sp) {
         PluginInfo mi = pa.getPluginInfo(m);
         List<Class<? extends DAObject>> actTypes = mi.getActivationTypes();
-        String query = "";
+        
+        if ((actTypes == null) || actTypes.isEmpty()) {
+            logger.error("Plugin " + mi.getPluginName() +
+            		" has no activation types");
+            return;
+        }
+        
+        String query = "" , paramSp = "paramSp";
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put(paramSp, sp);
         
         for(Class<? extends DAObject> c : actTypes) {
             if(c.equals(ProjectFile.class)) {
-                query = "select pf.id " +
-                		"from ProjectVersion pv, ProjectFile pf, StoredProject sp" +
-                		"where pf.ProjectVersion=pv and ";
-                syncMetric(mi, c, query);
-            } else if(c.equals(ProjectVersion.class)) {
-                query = "select pv.id " +
-                                "from ProjectVersion pv, StoredProject sp" +
-                                "where pv. ";
-                syncMetric(mi, c, query);
-            } else if(c.equals(StoredProject.class)) {
-                query = "select sp.id from StoredProject sp where  ";
-                syncMetric(mi, c, query);
+                query = "select distinct pf.id " +
+                "from ProjectVersion pv, ProjectFile pf " +
+                "where pf.projectVersion=pv and pv.project = :" + paramSp;
+            } else if (c.equals(ProjectVersion.class)) {
+                query = "select distinct pv.id from ProjectVersion pv" +
+                        "where pv.project = :" + paramSp;
+            } else if (c.equals(StoredProject.class)) {
+                query = "select distinct sp.id from StoredProject sp where sp = :" 
+                    + paramSp;
+            } else if (c.equals(MailMessage.class)) { 
+                query = "select distinct mm.id " +
+                        "from StoredProject sp, MailingList ml, MailMessage mm" +
+                        "where mm.list = ml and " +
+                        "ml.storedProject = :" + paramSp;query = "select ";
+            } else if (c.equals(MailingList.class)) { 
+                query = "select distinct ml.id from StoredProject sp, MailingList ml " +
+                        "where ml.storedProject = :" + paramSp;
             } else {
                 logger.error("Unknown activation type " + c.getName());
+                return;
             }
+
+            syncMetric(mi, c, query, params);
         }
     }
     
     @SuppressWarnings("unchecked")
-	private void syncMetric(PluginInfo pi, Class<? extends DAObject> actType,
-            String hqlQuery) {
-        List<Long> objectIDs = (List<Long>) db.doHQL(hqlQuery);
-        AbstractMetric metric = (AbstractMetric) bc.getService(pi.getServiceRef());
+    private void syncMetric(PluginInfo pi, Class<? extends DAObject> actType,
+            String hqlQuery, Map<String, Object> map) {
+        List<Long> objectIDs = (List<Long>) db.doHQL(hqlQuery, map);
+        AbstractMetric metric = 
+            (AbstractMetric) bc.getService(pi.getServiceRef());
         
         for (Long l : objectIDs) {
             try {
-                sched.enqueue(new MetricActivatorJob(metric, l, 
-                        logger, actType, bc));
+                sched.enqueue(new MetricActivatorJob(metric, l, logger, 
+                        actType, bc));
             } catch (SchedulerException e) {
-                logger.error("Could not enqueue job to sync metric");
+                logger.error("Could not start job to sync metric");
             }
         }
     }
