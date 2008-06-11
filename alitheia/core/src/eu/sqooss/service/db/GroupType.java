@@ -35,12 +35,14 @@ package eu.sqooss.service.db;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import eu.sqooss.impl.service.CoreActivator;
 import eu.sqooss.service.db.DAObject;
 
 public class GroupType extends DAObject {
     private String type;
+    private Set<Group> groups;
 
     public enum Type {
 
@@ -101,6 +103,14 @@ public class GroupType extends DAObject {
         } else {
             return result.get(0);
         }
+    }
+
+    public Set<Group> getGroups() {
+        return groups;
+    }
+
+    public void setGroups(Set<Group> groups) {
+        this.groups = groups;
     }
 }
 

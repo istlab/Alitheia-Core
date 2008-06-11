@@ -9,5 +9,9 @@
       <generator class="native" />
     </id>
     <property name="type" column="TYPE" not-null="true" />
+    <set name="metrics" inverse="true">
+        <key column="METRIC_TYPE"/>
+        <one-to-many class="eu.sqooss.service.db.Metric"/>
+    </set>
   </class>
 </hibernate-mapping>
