@@ -251,17 +251,6 @@ class SourceUpdater extends Job {
                 logger.info(project.getName() + ": Time to process entries: "
                         + (int) ((System.currentTimeMillis() - ts) / 1000));
                 dbs.commitDBSession();
-                /*Kickstart metrics*/
-                
-               /* dbs.startDBSession();
-                List<DAObject> objects = new ArrayList<DAObject>(updProjectVersions.size() + updFiles.size());
-                for (Long l : updProjectVersions)
-                	objects.add(dbs.findObjectById(ProjectVersion.class, l));
-                for (Long l : updFiles)
-                	objects.add(dbs.findObjectById(ProjectFile.class, l));
-                
-                ma.runMetrics(objects);
-                dbs.commitDBSession();*/
                 
                 ma.runMetrics(updProjectVersions, ProjectVersion.class);
                 ma.runMetrics(updFiles, ProjectFile.class);

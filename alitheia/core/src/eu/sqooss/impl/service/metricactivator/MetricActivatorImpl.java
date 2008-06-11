@@ -233,39 +233,7 @@ public class MetricActivatorImpl implements MetricActivator {
         // No matching rule found. Return the default action.
         return defaultAction;
     }
-    
-    /*public void runMetrics(List<DAObject> objects) {
-    	Map<Class<?>,List<AbstractMetric>> pluginsForActiv = new HashMap<Class<?>,List<AbstractMetric>>();
-
-    	for (DAObject object : objects) {
-    	    Class<? extends DAObject> c = object.getClass();
-            if (pluginsForActiv.get(c) == null) {
-                List<PluginInfo> plugins = pa.listPluginProviders(c);
-                pluginsForActiv.put(c, new ArrayList<AbstractMetric>(plugins.size()));
-                for (PluginInfo pi : plugins) {
-                    AbstractMetric metric = (AbstractMetric) bc.getService(pi.getServiceRef());
-                    if (metric != null) {
-                        pluginsForActiv.get(c).add(metric);
-                    }
-                }
-            }
-
-            List<AbstractMetric> metrics = pluginsForActiv.get(c);
-            if (metrics == null || metrics.size() == 0) {
-                logger.warn("No metrics found for activation type " + c.getName());
-                //return;
-            }
-
-            for (AbstractMetric m : metrics) {
-                try {
-                    sched.enqueue(new MetricActivatorJob(m, object, logger,bc));
-                } catch (SchedulerException e) {
-                    logger.error("Could not enquere job to run the metric");
-                }
-            }
-        }
-    }*/
-    
+  
     public void runMetrics(Set<Long> daoIDs, Class<? extends DAObject> actType) {
         List<PluginInfo> plugins = pa.listPluginProviders(actType);
         
