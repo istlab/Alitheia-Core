@@ -190,6 +190,9 @@ public interface AlitheiaPlugin {
      * The subclass AbstractMetric handles job creation automatically for
      * metrics that have simple requirements (a single job for doing the
      * calculation).
+     * 
+     * Note that even if you use (parallel running) jobs in your jobs, the
+     * metric's run method needs to block until the result is calculated.
      *
      * @param o The DAO that gets passed to the plug-in in order to run it
      * @throws MetricMismatchException if the DAO is of an unsupported type.
