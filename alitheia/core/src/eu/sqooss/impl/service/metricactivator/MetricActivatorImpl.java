@@ -33,6 +33,7 @@
 
 package eu.sqooss.impl.service.metricactivator;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -261,7 +262,12 @@ public class MetricActivatorImpl implements MetricActivator {
 
     /**{@inheritDoc}*/
     public <T extends DAObject> void syncMetrics(StoredProject sp) {
+        Collection<PluginInfo> plugins = pa.listPlugins();
         
+        for(PluginInfo p : plugins) {
+            AlitheiaPlugin ap = (AlitheiaPlugin) bc.getService(p.getServiceRef());
+            syncMetric(ap, sp);
+        }
     }
  
     /**{@inheritDoc}*/
