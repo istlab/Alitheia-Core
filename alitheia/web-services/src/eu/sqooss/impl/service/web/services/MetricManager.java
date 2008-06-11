@@ -238,7 +238,7 @@ public class MetricManager extends AbstractManager {
             currentPlugin = keys.nextElement();
             currentPluginMetrics = plugins.get(currentPlugin);
             try {
-                currentResult = currentPlugin.getResult(daObject, currentPluginMetrics);
+                currentResult = currentPlugin.getResultIfAlreadyCalculated(daObject, currentPluginMetrics);
             } catch (MetricMismatchException e) {
                 currentResult = null;
             }
