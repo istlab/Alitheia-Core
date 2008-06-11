@@ -65,6 +65,16 @@ public interface Scheduler {
      * @return The job.
      */
     Job takeJob() throws java.lang.InterruptedException;
+    
+    /**
+     * Tries to take a specific job from the job queue.
+     * Unlike takeJob(), this method is not blocking.
+     * @param job The job wanted.
+     * @return The job.
+     * @throws SchedulerException When the job isn't enqueued in the Scheduler
+     * or it is already running.
+     */
+    Job takeJob(Job job) throws SchedulerException;
 
     /**
      * Starts job execution using \a n additional worker threads.
@@ -98,4 +108,9 @@ public interface Scheduler {
      * Get a copy of the failed job queue
      */
     Job[] getWaitQueue();
+    
+    /**
+     * Get the list of threads working on jobs of this scheduler.
+     */
+    WorkerThread[] getWorkerThreads();
 }

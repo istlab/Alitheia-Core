@@ -82,6 +82,8 @@ public abstract class Job implements Comparable<Job> {
     private Scheduler m_scheduler;
 
     private Exception m_errorException;
+    
+    private WorkerThread m_myWorkerThread;
 
     /**
      * @return The current state of the job.
@@ -90,6 +92,21 @@ public abstract class Job implements Comparable<Job> {
         return m_state;
     }
 
+    /**
+     * Sets this jobs worker thread.
+     */
+    void setWorkerThread(WorkerThread t) {
+    	m_myWorkerThread = t;
+    }
+    
+    /**
+     * Returns the WorkerThread which is running
+     * this job.
+     */
+    public WorkerThread getWorkerThread() {
+    	return m_myWorkerThread;
+    }
+    
     /**
      * Adds a dependency.
      * This job cannot be executed, as long \a other
@@ -240,15 +257,24 @@ public abstract class Job implements Comparable<Job> {
     }
 
     /**
-     * Waits for the job to finish succesfully.
-     * @throws SchedulerException When the job's state changes to Error instead.
-     *
-     * FIXME should this really throw? it would seem like waiting has failed.
+     * Waits for the job to finish.
+     * Note that this method even returns when the job's state changes to Error.
      */
-    synchronized public final void waitForFinished() throws SchedulerException {
+    synchronized public final void waitForFinished() {
+    	try {
+    		// if this method is running inside of a WorkerThread
+    		// we try to pass the job we're waiting for to the thread.
+    		if (Thread.currentThread() instanceof WorkerThread) {
+    			WorkerThread t = (WorkerThread) Thread.currentThread();
+    			t.takeJob(this);
+    		}
+    	} catch(Exception e) {
+    		// if something went wrong with taking the job
+    		// we just have to wait
+    	}
         while (state() != State.Finished) {
             if (state() == State.Error) {
-                throw new SchedulerException( "Job Error during waitForFinished" );
+            	return;
             }
             try {
                 wait();

@@ -32,79 +32,31 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-package eu.sqooss.impl.service.scheduler;
+package eu.sqooss.service.scheduler;
 
-import eu.sqooss.service.scheduler.Scheduler;
-import eu.sqooss.service.scheduler.Job;
-import eu.sqooss.service.scheduler.SchedulerException;
-import eu.sqooss.service.scheduler.WorkerThread;
+public interface WorkerThread {
 
-import java.lang.InterruptedException;
-
-/**
- * Worker thread executing jobs given by a scheduler.
- *
- * @author Christoph Schleifenbaum
- */
-class WorkerThreadImpl extends Thread implements WorkerThread
-{
-
-    private Scheduler m_scheduler;
-
-    private volatile boolean m_processing;
-
-    private volatile Job m_job = null;
-    
-    /**
-     * Constructor creating a new WorkerThread
-     * @param s the schedule being asked for jobs.
-     */
-    public WorkerThreadImpl( Scheduler s ) {
-        m_scheduler = s;
-    }
-
-    /**
-     * Runs the worker thread.
-     */
-    public void run() {
-        m_processing = true;
-        while (m_processing) {
-            try {
-                // get a job from the scheduler
-                executeJob(m_scheduler.takeJob());
-            } catch (InterruptedException e) {
-                // we were interrupted, just try again
-                continue;
-            }
-        }
-    }
-
-    /**
+	/**
      * Stops processing of jobs, after the current job has finished.
      */
-    public void stopProcessing() {
-        m_processing = false;
-        interrupt();
-    }
+	void stopProcessing();
 
-	public Job executedJob() {
-		return m_job;
-	}
-
-	private void executeJob(Job j) {
-		Job oldJob = m_job;
-		try {
-			m_job = j;
-			m_job.execute();
-		} catch (Exception e) {
-			// no error handling needed here, the job
-			// itself takes care of that.
-		} finally {
-			m_job = oldJob;
-		}
-	}
+	/**
+	 * Starts processing of jobs.
+	 */
+	void start();
 	
-	public void takeJob(Job job) throws SchedulerException {
-		executeJob(m_scheduler.takeJob(job));
-	}
+	/**
+	 * Returns the job currently executed by this thread, if any.
+	 */
+	Job executedJob();
+	
+	/**
+	 * Tries to enforce the given job to be handled by this
+	 * WorkerThread. This only works, if \a job is enqueued into
+	 * the Scheduler this thread belongs to and \a job is not
+	 * yet running.
+	 * Note that this method blocks until the job is done.
+	 */
+	void takeJob(Job job) throws SchedulerException;
 }

@@ -47,6 +47,7 @@ import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.scheduler.SchedulerException;
 import eu.sqooss.service.scheduler.SchedulerStats;
+import eu.sqooss.service.scheduler.WorkerThread;
 
 public class SchedulerServiceImpl implements Scheduler {
 
@@ -106,6 +107,17 @@ public class SchedulerServiceImpl implements Scheduler {
         return workQueue.take();
     }
 
+	public Job takeJob(Job job) throws SchedulerException {
+		synchronized(workQueue) {
+			if (!workQueue.contains(job)) {
+				throw new SchedulerException("Can't take job " + job
+						                   + ": It is not in the scheduler's queue right now.");
+			}
+			workQueue.remove(job);
+			return job;
+		}
+	}
+    
     public void jobStateChanged(Job job, Job.State state) {
         if (logger != null) {
             logger.info("Job " + job + " changed to state " + state);
@@ -144,7 +156,7 @@ public class SchedulerServiceImpl implements Scheduler {
         }
         
         for (int i = 0; i < n; ++i) {
-            WorkerThread t = new WorkerThread(this);
+            WorkerThread t = new WorkerThreadImpl(this);
             t.start();
             myWorkerThreads.add(t);
             stats.incWorkerThreads();
@@ -170,13 +182,6 @@ public class SchedulerServiceImpl implements Scheduler {
         } else {
             return !myWorkerThreads.isEmpty();
         }
-    }
-
-    /**
-     * Manually schedule a job to a given worker thread.
-     */
-    private void handJob(Job e, WorkerThread t) {
-        // Worker thread API needs extension to push a job to it.
     }
 
     public Object selfTest() {
@@ -340,6 +345,10 @@ public class SchedulerServiceImpl implements Scheduler {
         Job[] blockedJobs = new Job[blockedQueue.size()];
         return blockedQueue.toArray(blockedJobs);
     }
+
+	public WorkerThread[] getWorkerThreads() {
+		return (WorkerThread[]) this.myWorkerThreads.toArray();
+	}
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
