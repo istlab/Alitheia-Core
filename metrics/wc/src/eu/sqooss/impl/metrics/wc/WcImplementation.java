@@ -34,6 +34,11 @@
 
 package eu.sqooss.impl.metrics.wc;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.LineNumberReader;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -49,14 +54,20 @@ import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectFileMeasurement;
+import eu.sqooss.service.fds.FDSService;
 import eu.sqooss.service.pa.PluginInfo;
-import eu.sqooss.service.scheduler.Scheduler;
 
 public class WcImplementation extends AbstractMetric implements Wc {
     
+	private FDSService fds;
+	
     public WcImplementation(BundleContext bc) {
         super(bc);
         super.addActivationType(ProjectFile.class);
+        ServiceReference serviceRef = null;
+        serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
+        fds = ((AlitheiaCore)bc.getService(serviceRef)).getFDSService();
+
     }
 
     public boolean install() {
@@ -98,17 +109,52 @@ public class WcImplementation extends AbstractMetric implements Wc {
     }
 
     public void run(ProjectFile a) {
+        // We do not support directories
+        if (a.getIsDirectory()) {
+            return;
+        }
+        
+        InputStream in = fds.getFileContents(a);
+        if (in == null) {
+            return;
+        }
+        // Create an input stream from the project file's content
         try {
-            WcJob w = new WcJob(this, a);
-            ServiceReference serviceRef = null;
-            serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
-            Scheduler s = ((AlitheiaCore) bc.getService(serviceRef)).getScheduler();
-            s.enqueue(w);
-            w.waitForFinished();
-            //w.run();
-        } catch (Exception e) {
-            log.error("Could not schedule wc job for project file: " 
+            log.info(this.getClass().getName() + " Measuring: "
                     + a.getFileName());
+
+            // Measure the number of lines in the project file
+            LineNumberReader lnr = 
+                new LineNumberReader(new InputStreamReader(in));
+            int lines = 0;
+            while (lnr.readLine() != null) {
+                lines++;
+            }
+            lnr.close();
+
+            // Create the measurement DAO
+            // TODO: What to do if this plug-in has registered more that
+            // one metric. Create a separate Measurement for all
+            // of them ?
+            if (!getSupportedMetrics().isEmpty()) {
+                Metric metric = getSupportedMetrics().get(0);
+                ProjectFileMeasurement m = new ProjectFileMeasurement();
+                m.setMetric(metric);
+                m.setProjectFile(a);
+                m.setWhenRun(new Timestamp(System.currentTimeMillis()));
+                m.setResult(String.valueOf(lines));
+
+                // Try to store the Measurement DAO into the DB
+                db.addRecord(m);
+
+                // Check for a first time evaluation of this metric
+                // on this project
+                markEvaluation(metric, a.getProjectVersion().getProject());
+            }
+        } catch (IOException e) {
+            log.error(this.getClass().getName() + " IO Error <" + e
+                    + "> while measuring: " + a.getFileName());
+        
         }
     }
 }
