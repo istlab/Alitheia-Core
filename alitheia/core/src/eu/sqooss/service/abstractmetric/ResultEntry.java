@@ -45,61 +45,68 @@ import eu.sqooss.service.abstractmetric.ResultEntry;
  * A ResultEntry tries to be as generic as possible by storing
  * data to the least common denominator of containers, the byte array.
  * Each entry has an assosiated mime type. Mime types are used by the
- * users of the object to convert the byte array store to something 
+ * users of the object to convert the byte array store to something
  * they can use. Some convenience conversion functions are provided
  * with this object.
- * 
+ *
  *  Supported mime types include:
  *  <ul>
  *      <li>type/{integer, long, float, double}</li>
- *      <li>text/{plain, html, xml}</li>
+ *      <li>text/{plain, html, xml, csv}</li>
  *      <li>image/{gif, png, jpeg}</li>
  *  </ul>
- * 
+ *
  */
 public class ResultEntry {
 
+    /** Keep the following list of mimetypes in sync with
+     * trunk/ui/webui/src/eu/sqooss/webui/Result.java
+     */
+
     /** Represents "type/integer" MIME type. */
     public static final String MIME_TYPE_TYPE_INTEGER = "type/integer";
-    
+
     /** Represents "type/long" MIME type. */
     public static final String MIME_TYPE_TYPE_LONG    = "type/long";
-    
+
     /** Represents "type/float" MIME type. */
     public static final String MIME_TYPE_TYPE_FLOAT   = "type/float";
-    
+
     /** Represents "type/double" MIME type. */
     public static final String MIME_TYPE_TYPE_DOUBLE  = "type/double";
-    
+
     /** Represents "text/plain" MIME type. */
     public static final String MIME_TYPE_TEXT_PLAIN   = "text/plain";
-    
+
     /** Represents "text/html" MIME type. */
     public static final String MIME_TYPE_TEXT_HTML    = "text/html";
-    
+
     /** Represents "text/xml" MIME type. */
     public static final String MIME_TYPE_TEXT_XML     = "text/xml";
-    
+
+    /** Represents "text/csv" MIME type. */
+    public static final String MIME_TYPE_TEXT_CSV     = "text/csv";
+
     /** Represents "image/gif" MIME type. */
     public static final String MIME_TYPE_IMAGE_GIF    = "image/gif";
-    
+
     /** Represents "image/png" MIME type. */
     public static final String MIME_TYPE_IMAGE_PNG    = "image/png";
-    
+
     /** Represents "image/jpeg" MIME type. */
     public static final String MIME_TYPE_IMAGE_JPEG   = "image/jpeg";
-    
+
     private Object value;
     private byte[] valueByteArray;
     private String mimeType;
     private boolean isSimpleMimeType;
     private String mnemonic;
-    
+
     /**
      * Creates a new ResultEntry object.
      * The constructor creates the byte array with the {@link java.io.ObjectOutputStream#writeObject(Object)}.
      * (i.e. the primitive types are represent with their wrapper)
-     * 
+     *
      * @param value - An object encapsulating the value to be returned
      * @param mimeType - The mime type of the result value
      * @throws RuntimeException - When serialization of the passed object fails
@@ -107,7 +114,7 @@ public class ResultEntry {
      */
     public ResultEntry(Object value, String mimeType, String mnemonic) {
         validate(value, mimeType);
-        
+
         this.value = value;
         this.mimeType = mimeType;
         this.mnemonic = mnemonic;
@@ -122,7 +129,7 @@ public class ResultEntry {
     public byte[] getByteArray() {
         return valueByteArray;
     }
-    
+
     /**
      * @return The MIME type of the <code>ResultEntry</code>.
      */
@@ -141,7 +148,7 @@ public class ResultEntry {
             throw new IllegalStateException("The metric result entry isn't integer!");
         }
     }
-    
+
     /**
      * @return The long value of the <code>ResultEntry</code>.
      * @throws IllegalStateException if the ResultEntry isn't a long.
@@ -153,7 +160,7 @@ public class ResultEntry {
             throw new IllegalStateException("The metric result entry is'nt long!");
         }
     }
-    
+
     /**
      * @return The float value of the <code>ResultEntry</code>.
      * @throws IllegalStateException if the ResultEntry isn't a float.
@@ -165,7 +172,7 @@ public class ResultEntry {
             throw new IllegalStateException("The metric result entry isn't float!");
         }
     }
-    
+
     /**
      * @return The double value of the <code>ResultEntry</code>.
      * @throws IllegalStateException if the ResultEntry isn't a double.
@@ -177,7 +184,7 @@ public class ResultEntry {
             throw new IllegalStateException("The metric result entry isn't double!");
         }
     }
-    
+
     /**
      * @return The string value of the <code>ResultEntry</code>.
      * @throws IllegalStateException if the ResultEntry isn't a string.
@@ -189,7 +196,7 @@ public class ResultEntry {
             throw new IllegalStateException("The metric result entry isn't string!");
         }
     }
-    
+
     /**
      * @return The object value of the <code>ResultEntry</code>
      *         or <code>null</code> if there isn't.
@@ -197,14 +204,14 @@ public class ResultEntry {
     public Object getObject() {
         return value;
     }
-    
+
     /**
-     * @return The mnemonic of the metric that generated this result entry. 
+     * @return The mnemonic of the metric that generated this result entry.
      */
     public String getMnemonic() {
         return mnemonic;
     }
-    
+
     /**
      * @see java.lang.Object#toString()
      */
@@ -241,7 +248,7 @@ public class ResultEntry {
             return new ResultEntry(Base64.decodeBase64(sequenceInBase64), mimeType, mnemonic);
         }
     }
-    
+
     private void validate(Object value, String mimeType) {
         if (((MIME_TYPE_TYPE_INTEGER.equals(mimeType)) && (value instanceof Integer)) ||
                 ((MIME_TYPE_TYPE_LONG.equals(mimeType)) && (value instanceof Long)) ||
@@ -251,22 +258,22 @@ public class ResultEntry {
             isSimpleMimeType = true;
             return;
         }
-        
+
         if ((MIME_TYPE_TEXT_HTML.equals(mimeType) ||
                 MIME_TYPE_TEXT_XML.equals(mimeType)) && (value instanceof String)) {
             return;
         }
-        
+
         if ((MIME_TYPE_IMAGE_GIF.equals(mimeType) ||
                 MIME_TYPE_IMAGE_JPEG.equals(mimeType) ||
                 MIME_TYPE_IMAGE_PNG.equals(mimeType)) && (value != null)){
             return;
         }
-        
-        throw new IllegalArgumentException("The MIME type isn't compatible with the value! mime type: " + 
+
+        throw new IllegalArgumentException("The MIME type isn't compatible with the value! mime type: " +
                 mimeType + "; value: " + value);
     }
-    
+
     private void initValueBytes(Object value) {
         Class<?> valueClass = value.getClass();
         if ((valueClass.isArray()) &&
@@ -284,7 +291,7 @@ public class ResultEntry {
             }
         }
     }
-    
+
 }
 
 
