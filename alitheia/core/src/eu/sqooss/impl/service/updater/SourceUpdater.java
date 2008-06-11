@@ -73,7 +73,7 @@ class SourceUpdater extends Job {
     private Logger logger;
     private MetricActivator ma;
 
-    public SourceUpdater(StoredProject project, UpdaterServiceImpl updater, 
+    public SourceUpdater(StoredProject project, UpdaterServiceImpl updater,
             AlitheiaCore core, Logger logger) throws UpdaterException {
         if ((project == null) || (core == null) || (logger == null)) {
             throw new UpdaterException(
@@ -86,7 +86,7 @@ class SourceUpdater extends Job {
         this.tds = core.getTDSService();
         this.dbs = core.getDBService();
         this.ma = core.getMetricActivator();
-        
+
     }
 
     public int priority() {
@@ -95,24 +95,24 @@ class SourceUpdater extends Job {
 
     /**
      * @see eu.sqooss.service.scheduler.Job#run()
-     * 
+     *
      * @throws Exception as per the general contract of Job.run()
      */
     protected void run() throws Exception {
         dbs.startDBSession();
         int numRevisions = 0;
         boolean newVersion = true;
-        
-        /* 
+
+        /*
          * Cache project version and project file IDs for kick-starting
          * metric update jobs after the metadata update. This is done
-         * to avoid holding references to huge data graphs on large 
+         * to avoid holding references to huge data graphs on large
          * updates
          */
         Set<Long> updProjectVersions = new TreeSet<Long>();
         Set<Long> updFiles = new TreeSet<Long>();
 
-        /*Avoid Hibernate thrasing by caching frequently accessed objects*/
+        // Avoid Hibernate thrashing by caching frequently accessed objects
         LRUMap devCache = new LRUMap(500);
         LRUMap dirCache = new LRUMap(1000);
 
@@ -125,7 +125,7 @@ class SourceUpdater extends Job {
             final long lastProjectVersion = (versionDao != null) ? versionDao.getVersion() : 0;
             SCMAccessor scm = tds.getAccessor(project.getId()).getSCMAccessor();
             final long lastSCMVersion = scm.getHeadRevision();
-            
+
             /* Don't choke when called to update an up-to-date project*/
             if (lastProjectVersion >= lastSCMVersion) {
                 dbs.commitDBSession();
@@ -133,40 +133,40 @@ class SourceUpdater extends Job {
                 // Return GOES through the final clause
                 return;
             }
-            
+
             CommitLog commitLog = scm.getCommitLog(
                     new ProjectRevision(lastProjectVersion + 1),
                     new ProjectRevision(lastSCMVersion));
 
             logger.info(project.getName() + ": Log entries: " + commitLog.size());
-            logger.info(project.getName() + ": Time to get log: " + 
+            logger.info(project.getName() + ": Time to get log: " +
                     (int)((System.currentTimeMillis() - ts)/1000));
             ts = System.currentTimeMillis();
-            
+
             for (CommitEntry entry : commitLog) {
-                
+
                 ProjectVersion curVersion = new ProjectVersion(project);
                 // Assertion: this value is the same as lastSCMVersion
                 curVersion.setVersion(entry.getRevision().getSVNRevision());
                 curVersion.setTimestamp((long)(entry.getDate().getTime() / 1000));
-                
+
                 String author = entry.getAuthor();
                 Developer d = null;
                 d = (Developer)devCache.get(author);
-                
+
                 if (d == null) {
                     d = Developer.getDeveloperByUsername(entry.getAuthor(),
                             project);
                     devCache.put(author, d);
                 }
-                
+
                 curVersion.setCommitter(d);
-                
+
                 /* TODO: get column length info from Hibernate */
                 String commitMsg = entry.getMessage();
                 if(commitMsg.length() > 512)
                 	commitMsg = commitMsg.substring(0, 511);
-                
+
                 curVersion.setCommitMsg(commitMsg);
                 /*TODO: Fix this when the TDS starts supporting SVN properties*/
                 //curVersion.setProperties(entry.getProperties);
@@ -179,24 +179,24 @@ class SourceUpdater extends Job {
                 for(String chPath: entry.getChangedPaths()) {
 
                     SCMNodeType t = scm.getNodeType(chPath, entry.getRevision());
-                    
+
                     /* TODO: We make the assumption that tags entries
-                     * can only be directories, based on info obtained 
+                     * can only be directories, based on info obtained
                      * from the SVN manual
-                     * See: http://svnbook.red-bean.com/en/1.1/ch04s06.html 
+                     * See: http://svnbook.red-bean.com/en/1.1/ch04s06.html
                      */
                     if(t == SCMNodeType.DIR && isTag(entry, chPath)) {
-                        
+
                         Tag tag = new Tag(curVersion);
                         tag.setName(chPath.substring(5));
                         logger.info("Creating tag <" + tag.getName() + ">");
-                        
+
                         dbs.addRecord(tag);
                         break;
                     }
-                    
+
                     ProjectFile pf = new ProjectFile(curVersion);
-                    
+
                     String path = chPath.substring(0, chPath.lastIndexOf('/'));
                     if (path == null || path.equalsIgnoreCase("")) {
                         path = "/"; //SVN entry does not have a path
@@ -209,30 +209,30 @@ class SourceUpdater extends Job {
                         dir = Directory.getDirectory(path, true);
                         dirCache.put(path, dir);
                     }
-                    
+
                     pf.setName(fname);
                     pf.setDir(dir);
                     pf.setStatus(entry.getChangedPathsStatus().get(chPath).toString());
-                     
+
                     if (t == SCMNodeType.DIR) {
                         pf.setIsDirectory(true);
                     } else {
                         pf.setIsDirectory(false);
                     }
-                    
+
                     /*If a dir was deleted, mark all children as deleted*/
-                    if (t == SCMNodeType.DIR && 
+                    if (t == SCMNodeType.DIR &&
                             pf.getStatus().equalsIgnoreCase("DELETED")) {
                    	logger.warn("Deleted directory not processed");
 		   	//markDeleted(pf, pf.getProjectVersion());
                     }
-                    
+
                     dbs.addRecord(pf);
                     updFiles.add(pf.getId());
                 }
-                
+
                 numRevisions ++;
-                
+
                 /*Cleanup for huge projects*/
                 if (numRevisions % 2000 == 0) {
                     logger.info("Commited 2000 revisions");
@@ -251,54 +251,53 @@ class SourceUpdater extends Job {
                 logger.info(project.getName() + ": Time to process entries: "
                         + (int) ((System.currentTimeMillis() - ts) / 1000));
                 dbs.commitDBSession();
-                
+
                 ma.runMetrics(updProjectVersions, ProjectVersion.class);
                 ma.runMetrics(updFiles, ProjectFile.class);
-                
-                updater.removeUpdater(
-                        project.getName(),
-                        UpdaterService.UpdateTarget.CODE);
             }
+            updater.removeUpdater(
+                    project.getName(),
+                    UpdaterService.UpdateTarget.CODE);
         }
     }
 
     /**
      * Mark the contents of a directory as DELETED when the directory has
-     * been DELETED 
+     * been DELETED
      * @param pf The project file representing the deleted directory
      */
     private void markDeleted(ProjectFile pf, ProjectVersion pv) {
         if (pf.getIsDirectory() == false)
             return;
-        
+
         String paramVersion = "projectversion";
         String paramPath = "path";
-        
+
         String query = "from ProjectFile pf where pf.projectVersion=:" +
-        		paramVersion + " and pf.dir=:" + paramPath;         
-        
+        		paramVersion + " and pf.dir=:" + paramPath;
+
         Map<String,Object> parameters = new HashMap<String,Object>();
         parameters.put(paramVersion, ProjectVersion.getPreviousVersion(pv));
         parameters.put(paramPath, pf.getDir());
 
         List<ProjectFile> projectFiles = (List<ProjectFile>) dbs.doHQL(query, parameters);
         Iterator<ProjectFile> i = projectFiles.iterator();
-        
+
         while (i.hasNext()) {
             ProjectFile pf1 = i.next();
-            
+
             ProjectFile pf2 = new ProjectFile();
             pf2.setDir(pf1.getDir());
             pf2.setIsDirectory(pf1.getIsDirectory());
             pf2.setName(pf1.getName());
             pf2.setProjectVersion(pf1.getProjectVersion());
             pf2.setStatus("DELETED");
-            
+
             dbs.addRecord(pf2);
-            
+
             if(pf1.getIsDirectory()) {
                 markDeleted(pf1, pv);
-            } 
+            }
         }
     }
 

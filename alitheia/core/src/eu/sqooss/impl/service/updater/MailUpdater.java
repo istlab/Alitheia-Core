@@ -104,6 +104,7 @@ class MailUpdater extends Job {
             logger.warn("Project <" + project.getName() + "> with ID " + project.getId() +
             "has no mailing lists.");
             dbs.commitDBSession();
+            updater.removeUpdater(project.getName(), UpdaterService.UpdateTarget.MAIL);
             return;
         }
         Set<MailingList> mllist = project.getMailingLists();

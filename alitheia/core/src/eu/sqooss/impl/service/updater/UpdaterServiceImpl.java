@@ -67,7 +67,7 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
     private HttpService httpService = null;
     private BundleContext context;
     private DBService dbs = null;
-    private Map<String,Set<UpdateTarget>> currentJobs = null; 
+    private Map<String,Set<UpdateTarget>> currentJobs = null;
 
     public UpdaterServiceImpl(BundleContext bc, Logger logger) throws ServletException,
             NamespaceException {
@@ -91,9 +91,9 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
         } else {
             logger.error("Could not load the HTTP service.");
         }
-        
+
         dbs = core.getDBService();
-        
+
         currentJobs = new HashMap<String,Set<UpdateTarget>>();
         logger.info("Succesfully started updater service");
     }
@@ -101,7 +101,7 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
     /**
      * Check if an update of the given type t is running for the given project
      * name; if t is ALL, check if any update is running.
-     * 
+     *
      * @param projectName project to check for
      * @param t update type
      * @return true if such an update is running
@@ -133,7 +133,7 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
     /**
      * Claim an update job of the given type for the project. You may
      * not claim ALL as a type of update -- use the individual types.
-     * 
+     *
      * @param projectName the project to claim
      * @param t the type of update that is being claimed
      * @return true if the claim succeeds
@@ -149,6 +149,9 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
             if (s==null) {
                 s = new HashSet<UpdateTarget>(4);
                 currentJobs.put(projectName, s);
+                // Since we have just added this one, we know
+                // it was successful.
+                return true;
             }
             if (isUpdateRunning(projectName,t)) {
                 return false;
@@ -157,17 +160,17 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
         }
         return true;
     }
-    
+
     /*
      * Overload for convenience. See addUpdate(String,UpdateTarget).
      */
     private boolean addUpdate(StoredProject p, UpdateTarget t) {
         return addUpdate(p.getName(),t);
     }
-    
+
     /**
      * Removes an earlier claim made through addUpdate().
-     * 
+     *
      * @param projectName name of the project whose claim is released
      * @param t type of claim to release
      */
@@ -183,18 +186,18 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
             }
         }
     }
-    
+
     /*
      * Overload for convenience. See removeUpdater(String, UpdateTarget)
      */
     public void removeUpdater(StoredProject p, UpdateTarget t) {
         removeUpdater(p.getName(),t);
     }
-    
+
     /**
      * Overload for convenience. Multiple removeUpdater(String, UpdateTarget)
      * calls are made to release all the claims in the set.
-     * 
+     *
      * @param p project to release claims for
      * @param t set of targets to release
      */
@@ -206,7 +209,7 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
             removeUpdater(p,u);
         }
     }
-    
+
     /**
      * Produce a string representation of the set of update targets.
      * @param s set to convert to string
@@ -216,14 +219,14 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
         if ((s==null) || s.isEmpty()) {
             return "empty";
         }
-        
+
         String msg = "";
         for (UpdateTarget u : s) {
             msg = msg + u.toString() + " ";
         }
         return msg.trim();
     }
-    
+
     public boolean update(StoredProject project, UpdateTarget target, Set<Integer> result) {
         if (project == null) {
             logger.info("Bad project name for update.");
@@ -241,7 +244,7 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
 
         Set<UpdateTarget> s = currentJobs.get(project.getName());
         if (s != null) logger.info("Update set is:" + explain(s));
-       
+
         // Check all the types we need and make claims
         synchronized(currentJobs) {
             if (isUpdateRunning(project.getName(),target)) {
@@ -257,7 +260,7 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
                 addUpdate(project,target);
             }
         }
-        
+
         // When we get to here, we have staked our claims already -- thus preventing
         // others from getting through the synchronized block above -- and can start
         // queueing jobs; we maintain a list of successfully queued update jobs
@@ -274,19 +277,19 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
                 queued_successfully = true;
             } catch(SchedulerException e) {
                 logger.error("The Updater failed to update the mailing list " +
-                    " metadata data for project " + project.getName() + 
+                    " metadata data for project " + project.getName() +
                     " Scheduler error: " + e.getMessage());
             } catch (UpdaterException e) {
                 logger.error("The Updater failed to update the mailing list " +
-                        "metadata for project " + project.getName() + 
+                        "metadata for project " + project.getName() +
                         " Updater error: " +  e.getMessage());
             } finally {
                 if (!queued_successfully) {
                     removeUpdater(project,UpdateTarget.MAIL);
                 }
             }
-        } 
-        
+        }
+
         if (target == UpdateTarget.CODE || target == UpdateTarget.ALL) {
             // source code update
             boolean queued_successfully = false;
@@ -299,19 +302,19 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
                 queued_successfully = true;
             } catch (SchedulerException e) {
                 logger.error("The Updater failed to update the repository" +
-                		" metadata for project " + project.getName() + 
+                		" metadata for project " + project.getName() +
                 		" Scheduler error: " + e.getMessage());
             } catch (UpdaterException e) {
                 logger.error("The Updater failed to update the repository " +
-                        "metadata for project " + project.getName() + 
+                        "metadata for project " + project.getName() +
                         " Updater error: " +  e.getMessage());
             } finally {
                 if (!queued_successfully) {
                     removeUpdater(project,UpdateTarget.CODE);
                 }
             }
-        } 
-        
+        }
+
         if (target == UpdateTarget.BUGS || target == UpdateTarget.ALL) {
             // bug database update
             boolean queued_successfully = false;
@@ -341,13 +344,13 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
         }
         return update(project, t, results);
     }
-    
+
     /**
      * This is the standard HTTP request handler. It maps GET parameters onto
      * the method arguments for update(project,target). The response always
      * gets a response code -- SC_OK (200) only if the update was able to
      * start at all.
-     * 
+     *
      * The response codes in HTTP are used as follows:
      * - SC_OK  if the update starts successfully; a fake XML response is
      *          returned describing the success.
@@ -362,7 +365,7 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
      *          instance because it names a datatype that we do not know about
      *          (valid values are "mail", "code", "bugs" and "all" right now).
      * - SC_CONFLICT if there is already an update running for the given project
-     *          and data source; only one can be active at any time.                           
+     *          and data source; only one can be active at any time.
      */
     public void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

@@ -1,22 +1,22 @@
 /*
  * This file is part of the Alitheia system, developed by the SQO-OSS
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
- * 
+ *
  * Copyright 2007-2008 by the SQO-OSS consortium members <info@sqo-oss.eu>
  * Copyright 2007-2008 Panos Louridas <louridas@aueb.gr>
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
  * met:
- * 
+ *
  *     * Redistributions of source code must retain the above copyright
  *       notice, this list of conditions and the following disclaimer.
- * 
+ *
  *     * Redistributions in binary form must reproduce the above
  *       copyright notice, this list of conditions and the following
  *       disclaimer in the documentation and/or other materials provided
  *       with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -28,7 +28,7 @@
  * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 package eu.sqooss.impl.service.updater;
@@ -52,17 +52,17 @@ import eu.sqooss.service.scheduler.Job;
 
 import eu.sqooss.service.db.Bug;
 
-/** 
+/**
  * Provides the entrypoint for updating bug-related data.
- * 
+ *
  * Construction-wise, it follows the Builder pattern as described by Joshua Block.
  * As we are not sure about the full set of parameters we will be able to use, we employ
  * this design pattern to enable us to work with "optional named" parameters.
- * 
+ *
  * @author Panos Louridas (louridas@aueb.gr)
  */
 public class BugUpdater extends Job {
-    
+
     private TDSService tds;
 
     private DBService dbs;
@@ -71,7 +71,7 @@ public class BugUpdater extends Job {
 
     private Logger logger;
 
-    public class Builder {        
+    public class Builder {
         private TDSService tds;
         private DBService dbs;
         private Scheduler scheduler;
@@ -86,7 +86,7 @@ public class BugUpdater extends Job {
             this.scheduler = scheduler;
             this.logger = logger;
         }
-        
+
         /*
          * Example of optional parameter:
          * public Builder foo(int val) {
@@ -94,16 +94,16 @@ public class BugUpdater extends Job {
          *     return this;
          * }
          */
-        
+
         public BugUpdater build() throws UpdaterException {
             return new BugUpdater(this);
         }
     }
-    
+
     private BugUpdater(Builder builder) throws UpdaterException {
     }
-    
-    public void doUpdate() throws UpdaterException {	
+
+    public void doUpdate() throws UpdaterException {
     }
 
         public static void processBugs() throws UpdaterException {
@@ -115,7 +115,7 @@ public class BugUpdater extends Job {
         } catch (DocumentException dex) {
             throw new UpdaterException(dex.getMessage());
         }
-        
+
         Element root = document.getRootElement();
 
         for (Iterator i = root.elementIterator("bug"); i.hasNext(); ) {
@@ -124,7 +124,7 @@ public class BugUpdater extends Job {
             String description = element.element("short_desc").getStringValue();
         }
     }
-    
+
     @Override
     public int priority() {
         return 1;
@@ -133,6 +133,8 @@ public class BugUpdater extends Job {
     @Override
     protected void run() throws Exception {
         // TODO Auto-generated method stub
-        
+        logger.warn("Bogus method BugUpdater.run() called.");
+        // This updater is broken enough that it can't even
+        // remove itself from the updater.
     }
 }
