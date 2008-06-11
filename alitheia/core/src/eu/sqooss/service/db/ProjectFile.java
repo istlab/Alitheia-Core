@@ -69,7 +69,7 @@ public class ProjectFile extends DAObject{
     /**
      * If this "file" is actually a directory then this is set to true
      */
-    private Boolean isDirectory;
+    private boolean isDirectory;
 
     /**
      * The SVN directory for which this file can be found
@@ -112,11 +112,11 @@ public class ProjectFile extends DAObject{
         return status;
     }
 
-    public Boolean getIsDirectory() {
+    public boolean getIsDirectory() {
         return isDirectory;
     }
 
-    public void setIsDirectory(Boolean isDirectory) {
+    public void setIsDirectory(boolean isDirectory) {
         this.isDirectory = isDirectory;
     }
 

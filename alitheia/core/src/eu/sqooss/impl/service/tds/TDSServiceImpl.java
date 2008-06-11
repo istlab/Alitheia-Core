@@ -142,7 +142,7 @@ public class TDSServiceImpl implements TDSService, EventHandler {
         }
 
         // Add an accessor for testing purposes when none was there.
-        Boolean addedAccessor = false;
+        boolean addedAccessor = false;
         final int TEST_PROJECT_ID = 1337;
         if (accessorPool.isEmpty())
         {
