@@ -62,18 +62,18 @@ import eu.sqooss.service.pa.PluginAdmin;
 import eu.sqooss.service.security.SecurityManager;
 import eu.sqooss.service.webadmin.WebadminService;
 
-/* 
+/*
  * IMPORTANT NOTES:
- * 
+ *
  * 1. The WebServices's implementation and the data types are specially in this form.
  * The Axis2's wsdl generator is the reason.
  * It doesn't work correct with the interfaces, the abstract classes and the inheritance.
- * 
+ *
  * 2. java2wsdl doesn't support methods overloading.
- * 
+ *
  * 3. The returned arrays must not be empty because the client can't parse them.
  * The method can return null then the client receives the array with null element ([null]).
- * 
+ *
  * The URL is: http:/.../[web.service.context]/services/[web.service.name]
  * The wsdl file is: http:/.../[web.service.context]/services/[web.service.name]?wsdl
  */
@@ -90,18 +90,18 @@ public class WebServices implements EventHandler{
     private MetricManager metricManager;
     private ProjectManager projectManager;
     private UserManager userManager;
-    
+
     private BundleContext bc;
     private Logger logger;
     private PluginAdmin pluginAdmin;
     private SecurityManager securityManager;
     private DBService db;
     private WebadminService wa;
-    
-    
+
+
     /**
      * Instantiates a new WebServices object.
-     * 
+     *
      * @param bc - the parent's bundle context
      * @param securityManager - the Security component's instance
      * @param db - the DB component's instance
@@ -116,23 +116,23 @@ public class WebServices implements EventHandler{
             PluginAdmin pluginAdmin,
             Logger logger,
             WebadminService wa) {
-        
+
         this.bc = bc;
         this.securityManager = securityManager;
         this.db = db;
         this.pluginAdmin = pluginAdmin;
         this.logger = logger;
         this.wa = wa;
-        
+
         //Register an event handler for DB init events
         final String[] topics = new String[] {
                 DBService.EVENT_STARTED
         };
-        
-        Dictionary d = new Hashtable(); 
-        d.put(EventConstants.EVENT_TOPIC, topics ); 
-        
-        bc.registerService(EventHandler.class.getName(), this, d);  
+
+        Dictionary d = new Hashtable();
+        d.put(EventConstants.EVENT_TOPIC, topics );
+
+        bc.registerService(EventHandler.class.getName(), this, d);
     }
 
     private void initComponents() {
@@ -140,13 +140,13 @@ public class WebServices implements EventHandler{
         projectManager = new ProjectManager(logger, db, securityManager);
         userManager = new UserManager(logger, securityManager, db, wa);
     }
-    
+
     // ===[ ProjectManager methods]===========================================
 
     /**
      * This method returns an array of all projects accessible from the given
      * user, that the SQO-OSS framework has had evaluated.
-     * 
+     *
      * @param userName - the user's name used for authentication
      * @param password - the user's password used for authentication
      * @return The array of evaluated projects, or a <code>null</code> array
@@ -161,10 +161,10 @@ public class WebServices implements EventHandler{
     /**
      * This method returns an array of all projects accessible from the given
      * user, no matter if the SQO-OSS framework had evaluated them or not.
-     * 
+     *
      * @param userName - the user's name used for authentication
      * @param password - the user's password used for authentication
-     * 
+     *
      * @return The array of stored projects, or a <code>null</code> array when
      *   none are found.
      */
@@ -177,11 +177,11 @@ public class WebServices implements EventHandler{
     /**
      * This method returns an array of all files that belongs to the project
      * with the given Id.
-     * 
+     *
      * @param userName - the user's name used for authentication
      * @param password - the user's password used for authentication
      * @param projectId - the project's identifier
-     * 
+     *
      * @return The array of project's files, or a <code>null</code> array when
      *   none are found <i>(for example, when the project is not yet not
      *   evaluated)</i>.
@@ -197,11 +197,11 @@ public class WebServices implements EventHandler{
     /**
      * The method returns an array of all files that exists in the specified
      * project version.
-     * 
+     *
      * @param userName - the user's name used for authentication
      * @param password - the user's password used for authentication
      * @param projectVersionId - the project's version identifier
-     * 
+     *
      * @return The array of project's files in that project version, or a
      *   <code>null</code> array when none are found.
      */
@@ -212,15 +212,15 @@ public class WebServices implements EventHandler{
         return projectManager.getFilesByProjectVersionId(
                 userName, password, projectVersionId);
     }
-    
+
     /**
      * This method returns an array of all file groups that belongs to the project
      * with the given Id.
-     * 
+     *
      * @param userName - the user's name used for authentication
      * @param password - the user's password used for authentication
      * @param projectId - the project's identifier
-     * 
+     *
      * @return The array of project's file groups, or a <code>null</code> array when
      *   none are found <i>(for example, when the project is not yet not
      *   evaluated)</i>.
@@ -232,15 +232,15 @@ public class WebServices implements EventHandler{
         return projectManager.getFileGroupsByProjectId(
                 userName, password, projectId);
     }
-    
+
     /**
      * The method returns an array representing all evaluated versions of the
      * given project.
-     * 
+     *
      * @param userName - the user's name used for authentication
      * @param password - the user's password used for authentication
      * @param projectId - the project's identifier
-     * 
+     *
      * @return The array with all evaluated project versions, or a
      *   <code>null</code> array when none are found.
      */
@@ -255,11 +255,11 @@ public class WebServices implements EventHandler{
     /**
      * The method returns all information, that the SQO-OSS framework has
      * collected about the specified project versions.
-     * 
+     *
      * @param userName - the user's name used for authentication
      * @param password - the user's password used for authentication
      * @param projectVerionsIds - the project versions' identifiers
-     * 
+     *
      * @return The <code>WSProjectVersion</code> array that describes the
      * project versions, or <code>null</code> when such project versions do not exist.
      */
@@ -270,16 +270,16 @@ public class WebServices implements EventHandler{
         return projectManager.getProjectVersionsByIds(
                 userName, password, projectVersionsIds);
     }
-    
+
     /**
      * The method returns all information, that the SQO-OSS framework has
      * collected about the specified project versions.
-     * 
+     *
      * @param userName - the user's name for authentication
      * @param password - the user's password for authentication
      * @param projectId - the project identifier
      * @param versionNumbers - the project's version numbers
-     * 
+     *
      * @return The <code>WSProjectVersion</code> array that describes the
      * project versions, or <code>null</code> when such project versions do not exist.
      */
@@ -291,15 +291,15 @@ public class WebServices implements EventHandler{
         return projectManager.getProjectVersionsByVersionNumbers(
                 userName, password, projectId, versionNumbers);
     }
-    
+
     /**
      * The method returns all information, that the SQO-OSS framework has
      * collected about the last versions of the projects.
-     * 
+     *
      * @param userName - the user's name used for authentication
      * @param password - the user's password used for authentication
      * @param projectsIds - the projects' identifiers
-     * 
+     *
      * @return The <code>WSProjectVersion</code> array that describes the
      * project versions, or <code>null</code> when such project versions do not exist.
      */
@@ -308,15 +308,15 @@ public class WebServices implements EventHandler{
         return projectManager.getLastProjectVersions(
                 userName, password, projectsIds);
     }
-    
+
     /**
      * The method returns all information, that the SQO-OSS framework has
      * collected about the specified projects.
-     * 
+     *
      * @param userName - the user's name used for authentication
      * @param password - the user's password used for authentication
      * @param projectsIds - the projects' identifiers
-     * 
+     *
      * @return The <code>WSStoredProject</code> array that describes the
      * projects, or <code>null</code> when such projects do not exist.
      */
@@ -330,11 +330,11 @@ public class WebServices implements EventHandler{
     /**
      * The method returns all information, that the SQO-OSS framework has
      * collected about the specified project.
-     * 
+     *
      * @param userName - the user's name used for authentication
      * @param password - the user's password used for authentication
      * @param projectName - the project's name
-     * 
+     *
      * @return The <code>WSStoredProject</code> object that describes the
      * project, or <code>null</code> when such project does not exist.
      */
@@ -345,15 +345,15 @@ public class WebServices implements EventHandler{
         return projectManager.getProjectByName(
                 userName, password, projectName);
     }
-    
+
     /**
      * The method returns the total number of files, that exists in the given
      * project version.
-     * 
+     *
      * @param userName - the user's name used for authentication
      * @param password - the user's password used for authentication
      * @param projectVersionId - the project's version identifier
-     * 
+     *
      * @return The number of project's files in that project version.
      */
     public long getFilesNumberByProjectVersionId(
@@ -367,11 +367,11 @@ public class WebServices implements EventHandler{
     /**
      * This method returns all known information about the directories referenced by
      * the given identifiers.
-     * 
+     *
      * @param userName - the user's name used for authentication
      * @param password - the user's password used for authentication
      * @param directoriesIds - the identifiers of the requested directories
-     * 
+     *
      * @return The <code>WSDirectory</code> array describing the requested directories.
      */
     public WSDirectory[] getDirectoriesByIds(
@@ -381,15 +381,15 @@ public class WebServices implements EventHandler{
         return projectManager.getDirectoriesByIds(
                 userName, password, directoriesIds);
     }
-    
+
     /**
      * This method returns all known information about the developers referenced by
      * the given identifiers.
-     * 
+     *
      * @param userName - the user's name used for authentication
      * @param password - the user's password used for authentication
      * @param developersIds - the identifiers of the requested developers
-     * 
+     *
      * @return The <code>WSDeveloper</code> array describing the requested developers.
      */
     public WSDeveloper[] getDevelopersByIds(
@@ -399,17 +399,17 @@ public class WebServices implements EventHandler{
         return projectManager.getDevelopersByIds(userName,
                 password, developersIds);
     }
-    
+
     // ===[ MetricManager methods]============================================
 
     /**
      * This method returns an array with all metrics, that have been evaluated
      * for the given project.
-     * 
+     *
      * @param userName - the user's name used for authentication
      * @param password - the user's password used for authentication
      * @param projectId - the project's identifier
-     * 
+     *
      * @return The array with all evaluated metrics, or a <code>null</code>
      *   array when none are found.
      */
@@ -424,11 +424,11 @@ public class WebServices implements EventHandler{
     /**
      * The method returns all information, that the SQO-OSS framework has
      * collected about the specified metric types.
-     * 
+     *
      * @param userName - the user's name used for authentication
      * @param password - the user's password used for authentication
      * @param metricTypesIds - the metric types' identifiers
-     * 
+     *
      * @return The <code>WSMetricType</code> array that describes the
      * metric types, or <code>null</code> when such metric types do not exist.
      */
@@ -439,15 +439,15 @@ public class WebServices implements EventHandler{
         return metricManager.getMetricTypesByIds(
                 userName, password, metricTypesIds);
     }
-    
+
     /**
-     * The method looks for the metrics. The request object gives the search criteria. 
-     * 
+     * The method looks for the metrics. The request object gives the search criteria.
+     *
      * @param userName - the user's name used for authentication
      * @param password - the user's password used for authentication
      * @param request - the request object,
      * the object contains the request information
-     * 
+     *
      * @return The array of metrics,
      * or a <code>null</code> array when none are found.
      */
@@ -457,16 +457,26 @@ public class WebServices implements EventHandler{
             WSMetricsRequest request) {
         return metricManager.getMetricsByResourcesIds(userName, password, request);
     }
-    
+
+    /**
+     * Returns the array of results from all metrics applied to the
+     * given project version (or an empty array if there are none).
+     * The stored project is obtained from within the project version.
+     */
+    public WSResultEntry[] getMeasurements(String userName, String password,
+        WSProjectVersion v) {
+        return metricManager.getMeasurements(userName,password,v);
+    }
+
     /**
      * Returns the array of results from the evaluation of the specified
      * metrics on the given data access object.
-     * 
+     *
      * @param userName - the user's name used for authentication
      * @param password - the user's password used for authentication
      * @param resultRequest - the request object,
      * the object contains the request information
-     * 
+     *
      * @return The array of all metric evaluation results on that request,
      * or a <code>null</code> array when none are found.
      */
@@ -474,7 +484,7 @@ public class WebServices implements EventHandler{
             WSMetricsResultRequest resultRequest) {
         return metricManager.getMetricsResult(userName, password, resultRequest);
     }
-    
+
     // ===[ UserManager methods]==============================================
 
     /**
@@ -485,13 +495,13 @@ public class WebServices implements EventHandler{
      * Note: If the user doesn't confirm the request in time, then the pending
      * user entry is automatically removed from the system, after its
      * expiration.
-     * 
+     *
      * @param userNameForAccess - the SQO-OSS unprivileged user's name
      * @param passwordForAccess - the SQO-OSS unprivileged user's password
      * @param newUserName - name for the new user
      * @param newPassword - password of the new user
      * @param email - email address of the new user
-     * 
+     *
      * @return <code>true</code> upon success, or <code>false</code> when a
      *   user with the same name already exists.
      */
@@ -510,11 +520,11 @@ public class WebServices implements EventHandler{
      * the given identifiers.
      * <br/>
      * <i>The information does not include the users' password hash.<i>
-     * 
+     *
      * @param userNameForAccess - the user's name used for authentication
      * @param passwordForAccess - the user's password used for authentication
      * @param usersIds - the identifiers of the requested users
-     * 
+     *
      * @return The <code>WSUser</code> array describing the requested users.
      */
     public WSUser[] getUsersByIds(
@@ -528,10 +538,10 @@ public class WebServices implements EventHandler{
     /**
      * The method returns all information, that the SQO-OSS framework has
      * collected about the users' groups
-     * 
+     *
      * @param userName - the user's name used for authentication
      * @param password - the user's password used for authentication
-     * 
+     *
      * @return The <code>WSUserGroup</code> array that describes the
      * users' groups, or <code>null</code> when the groups do not exist.
      */
@@ -540,17 +550,17 @@ public class WebServices implements EventHandler{
             String password) {
         return userManager.getUserGroups(userName, password);
     }
-    
+
     /**
      * This method returns all known information about the user associated
      * with the given user name.
      * <br/>
      * <i>The information does not include the user's password hash.<i>
-     * 
+     *
      * @param userNameForAccess - the user's name used for authentication
      * @param passwordForAccess - the user's password used for authentication
      * @param userName - the name of the requested user
-     * 
+     *
      * @return The <code>WSUser</code> object describing the requested user.
      */
     public WSUser getUserByName(
@@ -567,13 +577,13 @@ public class WebServices implements EventHandler{
      * <br/>
      * <i>This method can change the user's password and email address
      *   only.</i>
-     * 
+     *
      * @param userNameForAccess - the user's name used for authentication
      * @param passwordForAccess - the user's password used for authentication
      * @param userName - the name of the requested user
      * @param newPassword - the new password
      * @param newEmail - the new email address
-     * 
+     *
      * @return <code>true</code> upon successful modification,
      *   or <code>false</code> in case of failure.
      */
@@ -593,11 +603,11 @@ public class WebServices implements EventHandler{
 
     /**
      * This method deletes the user referenced by the given identifier
-     * 
+     *
      * @param userNameForAccess - the user's name used for authentication
      * @param passwordForAccess - the user's password used for authentication
      * @param userId - the identifier of the requested user
-     * 
+     *
      * @return <code>true</code> upon successful removal,
      *   or <code>false</code> in case of failure.
      */
@@ -615,10 +625,10 @@ public class WebServices implements EventHandler{
      * Returns the user's message of the day. MOTD's are usually created by
      * the SQO-OSS system administrator or the SQO-OSS framework itself,
      * upon occurrence of specific events (like addition of a new project).
-     * 
+     *
      * @param userName - the user's name
      * @param password - the user's password
-     * 
+     *
      * @return The message of the day, which is valid for that user.
      */
     public String getMessageOfTheDay(
@@ -626,17 +636,17 @@ public class WebServices implements EventHandler{
             String password) {
         return userManager.getMessageOfTheDay(userName, password);
     }
-    
+
     /**
      * The method notifies the administrator of the framework.
      * The user receives the status of the message.
-     *  
+     *
      * @param userName - the user's name used for authentication
      * @param password - the user's password used for authentication
      * @param title    - the title of the message
      * @param message  - the notification message
-     * 
-     * @return <code>true</code> if the message is queued  
+     *
+     * @return <code>true</code> if the message is queued
      */
     public boolean notifyAdmin(
             String userName,
@@ -650,7 +660,7 @@ public class WebServices implements EventHandler{
     public void handleEvent(Event e) {
         logger.debug("Caught EVENT type=" + e.getPropertyNames().toString());
         if (e.getTopic() == DBService.EVENT_STARTED) {
-            initComponents();           
+            initComponents();
         }
     }
 }
