@@ -39,7 +39,9 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 
+import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.metrics.wc.Wc;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.ResultEntry;
@@ -48,6 +50,7 @@ import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectFileMeasurement;
 import eu.sqooss.service.pa.PluginInfo;
+import eu.sqooss.service.scheduler.Scheduler;
 
 public class WcImplementation extends AbstractMetric implements Wc {
     
@@ -97,8 +100,12 @@ public class WcImplementation extends AbstractMetric implements Wc {
     public void run(ProjectFile a) {
         try {
             WcJob w = new WcJob(this, a);
-
-            w.run();
+            ServiceReference serviceRef = null;
+            serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
+            Scheduler s = ((AlitheiaCore) bc.getService(serviceRef)).getScheduler();
+            s.enqueue(w);
+            w.waitForFinished();
+            //w.run();
         } catch (Exception e) {
             log.error("Could not schedule wc job for project file: " 
                     + a.getFileName());

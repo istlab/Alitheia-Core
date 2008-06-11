@@ -34,10 +34,7 @@
 
 package eu.sqooss.impl.metrics.simulation;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.ArrayList;
-import java.util.LinkedList;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -45,20 +42,11 @@ import org.osgi.framework.ServiceReference;
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.metrics.simulation.Simulation;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
-import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
-import eu.sqooss.service.abstractmetric.Result;
-import eu.sqooss.service.db.MetricType;
+import eu.sqooss.service.abstractmetric.ResultEntry;
+import eu.sqooss.service.db.DAObject;
+import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.scheduler.Scheduler;
-import eu.sqooss.service.util.Pair;
-import java.sql.SQLException;
-
-import eu.sqooss.service.db.Metric;
-import eu.sqooss.service.abstractmetric.ResultEntry;
-
-import eu.sqooss.impl.service.db.DBServiceImpl;
-import eu.sqooss.service.db.DAObject;
-import eu.sqooss.service.db.DBService;
 
 public class SimulationImplementation extends AbstractMetric implements
 		Simulation {
@@ -100,6 +88,7 @@ public class SimulationImplementation extends AbstractMetric implements
 			Scheduler s = ((AlitheiaCore) bc.getService(serviceRef))
 					.getScheduler();
 			s.enqueue(w);
+			w.waitForFinished();
 		} catch (Exception e) {
 			log.error("Could not schedule " + w.getClass().getName()
 					+ " for project file: " + ((ProjectFile) a).getFileName());

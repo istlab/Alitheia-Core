@@ -65,24 +65,24 @@ public class WcJob extends AbstractMetricJob {
     }
 
     public void run() {
-    
+    	db.startDBSession();
         if (!db.isDBSessionActive()) {
             log.error("No DBSession was found");
             return;
         }
 
         // Retrieve the content of the selected project file
-        //pf = db.attachObjectToDBSession(pf);
+        pf = db.attachObjectToDBSession(pf);
         
      // We do not support directories
         if (pf.getIsDirectory()) {
-            //db.commitDBSession();
+            db.commitDBSession();
             return;
         }
         
         InputStream in = fds.getFileContents(pf);
         if (in == null) {
-          //  db.commitDBSession();
+            db.commitDBSession();
             return;
         }
         // Create an input stream from the project file's content
@@ -122,8 +122,8 @@ public class WcJob extends AbstractMetricJob {
             log.error(this.getClass().getName() + " IO Error <" + e
                     + "> while measuring: " + pf.getFileName());
         } finally {
-         //   if (!db.commitDBSession())
-           //     db.rollbackDBSession();
+            if (!db.commitDBSession())
+                db.rollbackDBSession();
         }
     }
 }

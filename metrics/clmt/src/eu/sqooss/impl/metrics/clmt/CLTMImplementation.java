@@ -102,6 +102,7 @@ public class CLTMImplementation extends AbstractMetric implements CLMT {
             serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
             Scheduler s = ((AlitheiaCore) bc.getService(serviceRef)).getScheduler();
             s.enqueue(w);
+            w.waitForFinished();
         } catch (Exception e) {
             log.error("Could not schedule "+ w.getClass().getName() + 
                     " for project version: " + (v.getVersion()));

@@ -34,25 +34,16 @@
 
 package eu.sqooss.impl.metrics.quality;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 
-import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.metrics.quality.QualityModel;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.ResultEntry;
-import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
-import eu.sqooss.service.abstractmetric.Result;
-import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
-import eu.sqooss.service.db.StoredProject;
-import eu.sqooss.service.pa.PluginInfo;
-import eu.sqooss.service.scheduler.Scheduler;
-import eu.sqooss.service.util.Pair;
+import eu.sqooss.service.db.ProjectVersion;
 
 
 public class QualityModelImplementation extends AbstractMetric implements QualityModel {
@@ -64,6 +55,7 @@ public class QualityModelImplementation extends AbstractMetric implements Qualit
     public boolean install() { 	
     	boolean result = true;
     	super.addMetricDepedency("LOC");
+    	super.addSupportedMetrics("Quality", "QUAL", MetricType.Type.SOURCE_CODE);
     	//TODO add ALL the metrics dependecies when they are ready!
     	result &= super.install();
     	return result;
@@ -79,15 +71,15 @@ public class QualityModelImplementation extends AbstractMetric implements Qualit
         return remove() && install(); 
     }
 
-//    public List<ResultEntry> getResult(StoredProject a, Metric m) {
-//        ArrayList<ResultEntry> results = new ArrayList<ResultEntry>();
-//        
-//        return results;
-//    }
-//
-//    public void run() {
-//        
-//    }
+	public List<ResultEntry> getResult(ProjectVersion a, Metric m) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public void run(ProjectVersion v) {
+		// TODO Auto-generated method stub
+		
+	}
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

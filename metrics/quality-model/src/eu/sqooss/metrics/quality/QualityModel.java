@@ -34,7 +34,7 @@
 
 package eu.sqooss.metrics.quality;
 
-public interface QualityModel //extends (apparently it doesnot need to implement any interface yet)
-{
-    
+import eu.sqooss.service.abstractmetric.ProjectVersionMetric;
+
+public interface QualityModel extends ProjectVersionMetric {    
 }

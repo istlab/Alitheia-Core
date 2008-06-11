@@ -114,6 +114,7 @@ public class ProductivityMetricImpl extends AbstractMetric implements
 	         Scheduler s = ((AlitheiaCore) bc.getService(serviceRef)).getScheduler();
 
 	         s.enqueue(j);
+	         j.waitForFinished();
 		 } catch (Exception e) {
 			 log.error("Could not schedule productivity-metric job for project version: " 
 	                    + v.getVersion());
