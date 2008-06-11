@@ -407,8 +407,20 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         h.put("name", this.getName());
 
         List<Plugin> plugins = db.findObjectsByProperties(Plugin.class, h);
+        String myHashcode = getUniqueKey();
 
         if (!plugins.isEmpty()) {
+            // First, check if we are exactly that plugin and this is
+            // just a re-activation of the plugin.
+            for (Plugin p : plugins) {
+                if (p.getHashcode().equals(myHashcode)) {
+                    // That's really the same
+                    p.setActive(true);
+                    log.info("Reactivated plugin <" + getName() + ">");
+                    return true;
+                }
+            }
+
             log.warn("A plugin with name <" + getName()
                     + "> is already installed, won't re-install.");
             return false;
@@ -455,7 +467,10 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
                 db.deleteRecord(c);
             }
         }
-        return db.deleteRecord(p);
+        p.setActive(false);
+        db.commitDBSession();
+        db.startDBSession();
+        return true;
     }
 
     public boolean update() {
