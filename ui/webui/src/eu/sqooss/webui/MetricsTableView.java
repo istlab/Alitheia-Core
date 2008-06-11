@@ -36,11 +36,8 @@ package eu.sqooss.webui;
 
 import java.util.*;
 
-/* A bean for rendering a table or a list of Metrics available for a
+/** A bean for rendering a table or a list of Metrics available for a
  * project that is being evaluated.
- *
- * @author Sebastian Kuegler <sebas@kde.org>
- *
  *
  */
 public class MetricsTableView {
@@ -82,14 +79,14 @@ public class MetricsTableView {
      * Instantiates a new metrics table view. Empty constructor.
      */
     public MetricsTableView () {
-        
+
     }
 
     /**
      * Instantiates a new metrics table view, that on a later stage should be
      * filled with information about all metrics evaluated on the project with
      * the given Id.
-     * 
+     *
      * @param projectId the Id of the project
      */
     public MetricsTableView (Long projectId) {
@@ -98,7 +95,7 @@ public class MetricsTableView {
 
     /**
      * Adds another metric to the locally stored metrics list.
-     * 
+     *
      * @param metric a <code>Metric</code> instance
      */
     public void addMetric (Metric metric) {
@@ -108,7 +105,7 @@ public class MetricsTableView {
     /**
      * Constructs a logically correct error message when the list of metric
      * is empty
-     * 
+     *
      * @return the error message content
      */
     private String errNoMetrics () {
@@ -125,7 +122,7 @@ public class MetricsTableView {
      * Produces a HTML table, that displays the locally stored metric
      * information. The table content can be prior adjusted by using the
      * various display flags.
-     * 
+     *
      * @return HTML code representing the list of metrics
      */
     public String getHtml() {
@@ -157,7 +154,7 @@ public class MetricsTableView {
         String foot_class = new String(" class=\"head\"");
         String cell_class = new String();
         String cell_name_class = new String(" class=\"name\"");
-        
+
         // Construct the table's CSS Id
         if (tableId.length() > 0) {
             table_id = " id=\"" + tableId + "\" ";
@@ -242,7 +239,7 @@ public class MetricsTableView {
      * Generates a simple, unordered list of all metric descriptors in a HTML
      * format. The list's row content can be prior adjusted by using the
      * various display flags.
-     * 
+     *
      * @return The list of metric descriptors in a HTML format.
      */
     public String getHtmlList() {
@@ -262,7 +259,7 @@ public class MetricsTableView {
             html.append("</li>");
         }
         html.append("\n</ul>");
-        
+
         return html.toString();
     }
 
