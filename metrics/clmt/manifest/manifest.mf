@@ -19,5 +19,7 @@ Import-Package:  org.osgi.framework,
     eu.sqooss.service.tds,
     eu.sqooss.service.util,
     eu.sqooss.service.pa,
-    org.apache.commons.codec.digest
+    org.apache.commons.codec.digest,
+    org.hibernate;version="3.2.5",
+    org.hibernate.proxy;version="3.2.5"
 Eclipse-RegisterBuddy: org.hibernate

@@ -37,10 +37,10 @@
     <outputDirectory>${basedir}/build</outputDirectory>
     <resources>
       <resource>
-        <directory>${basedir}/src/eu/sqooss/service/db</directory>
-        <targetPath>eu/sqooss/service/db</targetPath>
+        <directory>${basedir}/src/eu/sqooss/metrics/skeleton/db</directory>
+        <targetPath>eu/sqooss/metrics/skeleton/db</targetPath>
         <includes>
-           <include>**/*.xml</include>
+           <include>**/*.hbm.xml</include>
         </includes>
       </resource>
     </resources>

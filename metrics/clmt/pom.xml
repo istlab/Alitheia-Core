@@ -47,7 +47,7 @@
        </includes>
        </resource>
         <resource>
-        <directory>${basedir}/src/eu/sqooss/metrics/clmt1/db/</directory>
+        <directory>${basedir}/src/eu/sqooss/metrics/clmt/db/</directory>
         <targetPath>eu/sqooss/metrics/clmt/db</targetPath>
         <includes>
           <include>**/*.hbm.xml</include>
