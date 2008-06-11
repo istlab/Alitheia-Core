@@ -140,9 +140,27 @@ public interface AlitheiaPlugin {
     String getDescription();
 
     /**
-     * Generic "get results" method, it is specialised by sub-interfaces.
+     * Generic "get results" method, it is specialized by sub-interfaces.
+     * If the result was not calculated yet, the result set is empty. If you
+     * want to trigger the calculation to get a result, use getResult() instead.
      *
-     * @param o DAO whose type specifies the specialised sub-interface to use
+     * @param o DAO whose type specifies the specialized sub-interface to use
+     *          and whose value determines which result to get.
+     * @return l A list of metrics
+     * @return value of the measurement or null if there is no such measurement.
+     * @throws MetricMismatchException if the DAO type is one not supported by
+     *          this metric.
+     */
+    Result getResultIfAlreadyCalculated(DAObject o, List<Metric> l)
+    	throws MetricMismatchException;
+
+    /**
+     * Generic "get results" method, it is specialized by sub-interfaces.
+     * If the result was not calculated yet, the plugin's run method is called.
+     * If you don't want this behavior, use getResultIfAlreadyCalculated()
+     * instead.
+     *
+     * @param o DAO whose type specifies the specialized sub-interface to use
      *          and whose value determines which result to get.
      * @return l A list of metrics
      * @return value of the measurement or null if there is no such measurement.
