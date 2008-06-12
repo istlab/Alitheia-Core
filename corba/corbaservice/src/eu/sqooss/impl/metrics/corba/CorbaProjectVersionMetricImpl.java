@@ -1,5 +1,6 @@
 package eu.sqooss.impl.metrics.corba;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import org.osgi.framework.BundleContext;
@@ -35,7 +36,8 @@ public class CorbaProjectVersionMetricImpl extends CorbaMetricImpl implements eu
 	 * {@inheritDoc}
 	 */
 	public List<ResultEntry> getResult(ProjectVersion a, Metric m) {
-		// TODO Auto-generated method stub
-		return null;
+		List<ResultEntry> result = new LinkedList<ResultEntry>();
+		metric.doGetResult(DAObject.toCorbaObject(a), DAObject.toCorbaObject(m));
+		return result;
 	}
 }

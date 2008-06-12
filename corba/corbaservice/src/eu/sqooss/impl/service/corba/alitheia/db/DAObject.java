@@ -22,6 +22,7 @@ import eu.sqooss.impl.service.corba.alitheia.ProjectFileHelper;
 import eu.sqooss.impl.service.corba.alitheia.ProjectFileMeasurementHelper;
 import eu.sqooss.impl.service.corba.alitheia.ProjectVersionHelper;
 import eu.sqooss.impl.service.corba.alitheia.ProjectVersionMeasurementHelper;
+import eu.sqooss.impl.service.corba.alitheia.ResultEntry;
 import eu.sqooss.impl.service.corba.alitheia.StoredProjectHelper;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Developer;
@@ -90,6 +91,20 @@ public abstract class DAObject {
             }
         }
         return result;
+    }
+    
+    public static eu.sqooss.service.abstractmetric.ResultEntry fromCorbaObject(ResultEntry object) {
+    	return eu.sqooss.service.abstractmetric.ResultEntry.fromString(object.value, 
+    			object.mimeType, 
+    			object.mnemonic);
+    }
+    
+    public static ResultEntry toCorbaObject(eu.sqooss.service.abstractmetric.ResultEntry object) {
+    	ResultEntry result = new ResultEntry();
+    	result.value = object.toString();
+    	result.mimeType = object.getMimeType();
+    	result.mnemonic = object.getMnemonic();
+    	return result;
     }
     
 	/**

@@ -1,5 +1,6 @@
 package eu.sqooss.impl.metrics.corba;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import org.osgi.framework.BundleContext;
@@ -37,7 +38,12 @@ public class CorbaProjectFileMetricImpl extends CorbaMetricImpl implements eu.sq
      */
 	public List<ResultEntry> getResult(eu.sqooss.service.db.ProjectFile a,
 			Metric m) {
-		// TODO Auto-generated method stub
-		return null;
+		List<ResultEntry> result = new LinkedList<ResultEntry>();
+		eu.sqooss.impl.service.corba.alitheia.ResultEntry[] entries = null;
+		entries = metric.doGetResult(DAObject.toCorbaObject(a), DAObject.toCorbaObject(m));
+		for (eu.sqooss.impl.service.corba.alitheia.ResultEntry e : entries) {
+			result.add(DAObject.fromCorbaObject(e));
+		}
+		return result;
 	}
 }
