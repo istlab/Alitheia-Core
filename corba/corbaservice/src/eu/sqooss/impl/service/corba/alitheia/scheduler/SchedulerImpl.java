@@ -1,13 +1,12 @@
 package eu.sqooss.impl.service.corba.alitheia.scheduler;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.impl.metrics.corba.CorbaMetricImpl;
 import eu.sqooss.impl.service.CorbaActivator;
 import eu.sqooss.impl.service.corba.alitheia.Job;
 import eu.sqooss.impl.service.corba.alitheia.JobHelper;
@@ -22,12 +21,10 @@ public class SchedulerImpl extends SchedulerPOA {
     AlitheiaCore core = null;
 
     Map< String, CorbaJobImpl > registeredJobs = null;
-    Map< String, CorbaMetricImpl > registeredMetrics = null;
     
     public SchedulerImpl(BundleContext bc) {
         this.bc = bc;
-        registeredJobs = new HashMap< String, CorbaJobImpl >();
-        registeredMetrics = new HashMap< String, CorbaMetricImpl >();
+        registeredJobs = new ConcurrentHashMap< String, CorbaJobImpl >();
 
         ServiceReference serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
         core = (AlitheiaCore)bc.getService(serviceRef);
@@ -72,8 +69,7 @@ public class SchedulerImpl extends SchedulerPOA {
     public void unregisterJob(String name) {
         CorbaJobImpl j = registeredJobs.get(name);
         registeredJobs.remove(name);
-        if (j!=null)
-        {
+        if (j!=null) {
             j.invalidate();
         }
     }
@@ -83,7 +79,7 @@ public class SchedulerImpl extends SchedulerPOA {
      * @param name The name of the job within the ORB.
      */
     public void enqueueJob(String name) {
-        registeredJobs.get(name).enqueue();
+    	registeredJobs.get(name).enqueue();
     }
 
     /**
@@ -93,7 +89,7 @@ public class SchedulerImpl extends SchedulerPOA {
      */
     public void addJobDependency(String job, String dependency) {
         try {
-            registeredJobs.get(job).addDependency(registeredJobs.get(dependency));
+        	registeredJobs.get(job).addDependency(registeredJobs.get(dependency));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -105,7 +101,7 @@ public class SchedulerImpl extends SchedulerPOA {
      */
     public void waitForJobFinished(String job) {
         try {
-            registeredJobs.get(job).waitForFinished();
+        	registeredJobs.get(job).waitForFinished();
         } catch (Exception e) {
             e.printStackTrace();
         }

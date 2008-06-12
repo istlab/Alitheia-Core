@@ -182,15 +182,17 @@ module alitheia
     void waitForJobFinished( in string name );
   };
 
+  typedef sequence<octet> bytes;
+
   interface FDS
   {
     // puts the contents of \a file into \a contents
     // returns the length of the file
-    long getFileContents( in ProjectFile file, out string contents );
+    bytes getFileContents( in ProjectFile file );
 
     // puts the contents of \a file into \a contents
     // returns the length of the file
-    long getFileContentParts( in ProjectFile file, in long begin, in long length, out string contents );
+    bytes getFileContentParts( in ProjectFile file, in long begin, in long length );
 
     // creates a checkout of all files of the current \a version
     Checkout getCheckout( in ProjectVersion version, in string pattern );

@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import org.omg.CORBA.StringHolder;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
@@ -51,26 +50,30 @@ public class FDSImpl extends FDSPOA {
      * @param contents Corba string holder to put the content int.
      * @return The size of the file. 
      */
-    public int getFileContents(ProjectFile file, StringHolder contents) {
+    public byte[] getFileContents(ProjectFile file) {
         db.startDBSession();
+        byte[] result = new byte[0];
+        InputStream stream = null;
         try {
-            InputStream stream = fds.getFileContents(DAObject.fromCorbaObject(file));
+            stream = fds.getFileContents(DAObject.fromCorbaObject(file));
             final int length = 1024;
             int read = 0;
-            contents.value = new String();
             do {
                 byte[] part = new byte[length];
                 read = stream.read(part);
-                contents.value += new String(part, 0, read);
+                if (read>0) {
+                	byte[] readSoFar = new byte[result.length + read];
+                	System.arraycopy(result, 0, readSoFar, 0, result.length);
+                	System.arraycopy(part, 0, readSoFar, result.length, read);
+                    result = readSoFar;
+                }
             } while (read==length);
         } catch ( Exception e ) {
-            System.out.println(e.toString());
-            e.printStackTrace();
-            return 0;
+            return result;
         } finally {
             db.commitDBSession();
         }
-        return contents.value.length();
+        return result;
     }
 
     /**
@@ -78,23 +81,26 @@ public class FDSImpl extends FDSPOA {
      * @param contents Corba string holder to put the content int.
      * @return The size of the file. 
      */
-    public int getFileContentParts(ProjectFile file, int begin, int length, StringHolder contents) {
+    public byte[] getFileContentParts(ProjectFile file, int begin, int length) {
         db.startDBSession();
+        byte[] result = new byte[0];
         byte[] content = new byte[length];
         int bytesRead = 0;
+        InputStream stream = null;
         try {
-            InputStream stream = fds.getFileContents(DAObject.fromCorbaObject(file));
+            stream = fds.getFileContents(DAObject.fromCorbaObject(file));
             stream.skip(begin);
             bytesRead = stream.read(content);
+            if (bytesRead>0) {
+            	result = new byte[bytesRead];
+            	System.arraycopy(content, 0, result, 0, bytesRead);
+            }
         } catch ( Exception e ) {
-            System.out.println(e.toString());
-            e.printStackTrace();
+        	return result;
         } finally {
             db.commitDBSession();
         }
-        bytesRead = Math.max(bytesRead, 0);
-        contents.value = new String(content, 0, bytesRead);
-        return bytesRead;
+        return result;
     }
 
 	/**

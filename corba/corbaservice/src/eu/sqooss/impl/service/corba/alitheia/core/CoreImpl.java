@@ -1,9 +1,9 @@
 package eu.sqooss.impl.service.corba.alitheia.core;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -29,7 +29,6 @@ import eu.sqooss.impl.service.corba.alitheia.ProjectVersionMetricHelper;
 import eu.sqooss.impl.service.corba.alitheia.StoredProjectMetric;
 import eu.sqooss.impl.service.corba.alitheia.StoredProjectMetricHelper;
 import eu.sqooss.impl.service.corba.alitheia.db.DAObject;
-import eu.sqooss.impl.service.corba.alitheia.job.CorbaJobImpl;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.fds.FDSService;
 
@@ -46,13 +45,11 @@ public class CoreImpl extends CorePOA {
     AlitheiaCore core = null;
     DBService db = null;
     
-    Map< String, CorbaJobImpl > registeredJobs = null;
     Map< String, CorbaMetricImpl > registeredMetrics = null;
     
     public CoreImpl(BundleContext bc) {
         this.bc = bc;
-        registeredJobs = new HashMap< String, CorbaJobImpl >();
-        registeredMetrics = new HashMap< String, CorbaMetricImpl >();
+        registeredMetrics = new ConcurrentHashMap< String, CorbaMetricImpl >();
 
         ServiceReference serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
         core = (AlitheiaCore)bc.getService(serviceRef);
@@ -104,8 +101,8 @@ public class CoreImpl extends CorePOA {
             FileGroupMetric m = FileGroupMetricHelper.narrow(o);
             wrapper = new CorbaFileGroupMetricImpl(bc,m);
         }
-        registeredMetrics.put(name, wrapper);
-        
+       	registeredMetrics.put(name, wrapper);
+
         return CorbaActivator.instance().registerExternalCorbaObject(CorbaMetricImpl.class.getName(), wrapper);
     }
 

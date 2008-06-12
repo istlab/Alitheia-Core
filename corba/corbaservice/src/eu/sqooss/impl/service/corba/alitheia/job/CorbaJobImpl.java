@@ -35,7 +35,7 @@ public class CorbaJobImpl extends Job {
 	 */
 	public int priority() {
 		try{
-			if (j==null || j._non_existent()) {
+			if (j==null) {
 				return 0xffff;
 			}
 			return j.priority();
@@ -52,7 +52,7 @@ public class CorbaJobImpl extends Job {
 	 * {@inheritDoc}
 	 */
 	protected void run() throws Exception {
-		if (j==null || j._non_existent()) {
+		if (j==null) {
 			return;
 		}
 		try{
@@ -71,7 +71,7 @@ public class CorbaJobImpl extends Job {
 	protected void stateChanged(State state) {
 		try
 		{
-		if (j==null || j._non_existent()) {
+		if (j==null) {
 			return;
 		}
 		switch (state) {
