@@ -58,7 +58,6 @@ import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.db.PluginConfiguration;
-import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.metricactivator.MetricActivator;
@@ -91,11 +90,16 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     protected List<String> metricDependencies = new ArrayList<String>();
 
     /**Types used to activate this metric*/
-    protected List<Class<? extends DAObject>> activationTypes = new ArrayList<Class<? extends DAObject>>();
+    private List<Class<? extends DAObject>> activationTypes = 
+        new ArrayList<Class<? extends DAObject>>();
 
     /** Cache the result of the mark evaluation function*/
     protected HashMap<Long, Long> evaluationMarked = new HashMap<Long, Long>();
 
+    /** Cache */
+    protected HashMap<Metric, Class<? extends DAObject>> metricActTypes = 
+        new HashMap<Metric, Class<? extends DAObject>>();
+    
     /** Hold references to supported metrics */
     protected List<Metric> supportedMetrics = null;
 
@@ -643,18 +647,18 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
                     + getName() + ")", ex);
         }
     }
-
-    public final List<String> getMetricDependencies() {
-        return this.metricDependencies;
+    
+    public final Class<? extends DAObject> getMetricActivationType(Metric m) {
+        if (!metricActTypes.containsKey(m)) {
+            return null;
+        }
+        return metricActTypes.get(m);
     }
-
-    /**
-     * Add a metric mnemonic to the list of metric dependencies.
-     * @param mnemonic The mnemonic to be added
-     */
-    protected final void addMetricDepedency(String mnemonic) {
-        if(!metricDependencies.contains(mnemonic)) {
-            metricDependencies.add(mnemonic);
+    
+    protected final void addMetricActivationType(Metric m, 
+            Class<? extends DAObject> c) {
+        if (!metricActTypes.containsKey(m)) {
+            metricActTypes.put(m, c);
         }
     }
 }

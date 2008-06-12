@@ -40,9 +40,6 @@ import java.util.Set;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.PluginConfiguration;
-import eu.sqooss.service.db.ProjectVersion;
-import eu.sqooss.service.db.StoredProject;
-
 
 /**
  * This interface defines the common metric plug-in related functionality.
@@ -245,6 +242,15 @@ public interface AlitheiaPlugin {
     List<Class<? extends DAObject>> getActivationTypes();
 
     /**
+     * Get the activation type that corresponds to the activation type which 
+     * the metric result is stored. 
+     * 
+     * @param m - The metric for which to search for an activation type
+     * @return A subclass of DAObject (a.k.a activation type)
+     */
+    Class<? extends DAObject> getMetricActivationType(Metric m);
+    
+    /**
      * Retrieves the list of configuration properties for this plug-in.
      * <br/>
      * Metric plug-ins can use the <code>AbstractMetric</code>'s
@@ -256,11 +262,4 @@ public interface AlitheiaPlugin {
      *   needed or if the plug-in is not active.
      */
     Set<PluginConfiguration> getConfigurationSchema();
-
-    /**
-     * Return a list of metric mnemonics that the metrics in this plugin
-     * use.
-     * @return A list of metric dependencies for this plug-in
-     */
-    List<String> getMetricDependencies();
 }
