@@ -61,8 +61,7 @@ public class Project extends WebuiItem {
     // Contains the version number of the last selected version
     private Long currentVersionId;
 
-    // Contains a sorted list of all project versions mapped to their ID.
-    private SortedMap<Long, Version> versions;
+    private Version currentVersion;
     private SortedMap<Long, Metric> metrics;
 
     /**
@@ -97,7 +96,7 @@ public class Project extends WebuiItem {
         mail = p.getMail();
         contact = p.getContact();
         website = p.getWebsite();
-        //setVersions(); //FIXME: We want something sensible here
+        currentVersion = getLastVersion();
     }
 
     /**
@@ -167,6 +166,7 @@ public class Project extends WebuiItem {
 
     /** Returns an HTML table with all the versions this project has.
      */
+/*
     public String showVersions() {
         StringBuilder html = new StringBuilder();
         html.append("\n<table class=\"projectversions\">");
@@ -177,7 +177,7 @@ public class Project extends WebuiItem {
         html.append("\n</table");
         return html.toString();
     }
-
+*/
     /** Returns an HTML table with meta information about this project.
      */
     public String getInfo() {
@@ -241,11 +241,8 @@ public class Project extends WebuiItem {
      * @return the version number, or null if the project has no version.
      */
     public Version getFirstVersion() {
-        if ((versions != null) && (versions.size() > 0)) {
-            return versions.get(versions.firstKey());
-        }
-        terrier.addError("FirstVersion null" + versions.size());
-        return null;
+        // FIXME: first != current
+        return currentVersion;
     }
 
     /**
@@ -254,12 +251,7 @@ public class Project extends WebuiItem {
      * @return the version number, or null if the project has no version.
      */
     public Version getLastVersion() {
-        // FIXME: Implement nicely. We don't store all those versions ...
-        if ((versions != null) && (versions.size() > 0)) {
-            return versions.get(versions.lastKey());
-        }
-        terrier.addError("LastVersion null" + versions.size());
-        return null;
+        return terrier.getLastProjectVersion(getId());
     }
 
     /**
@@ -291,20 +283,13 @@ public class Project extends WebuiItem {
      * @return The Version under that id.
      */
     public Version getCurrentVersion() {
-        try {
-            if (versions == null && id != null) {
-                //setVersions(); // FIXME: drop in a performant getCurrentVersion()
-            }
-            return versions.get(getCurrentVersionId());
-        } catch (NullPointerException npe) {
-            return null;
-        }
+        return currentVersion;
     }
-
+/*
     public SortedMap<Long, Version> getVersions() {
         return versions;
     }
-
+*/
     /**
      * Returns the last selected version of this project.
      *
@@ -323,7 +308,8 @@ public class Project extends WebuiItem {
     }
 
     public int countVersions() {
-        return versions.size();
+        // FIXME: Correctly count ...
+        return 1337;
     }
 
     /**

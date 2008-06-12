@@ -424,6 +424,22 @@ public class Terrier {
         return null;
     }
 
+    public Version getLastProjectVersion(Long projectId) {
+        long[] v = new long[1];
+        v[0] = projectId.longValue();
+        try {
+            WSProjectVersion[] wsversions = connection.getProjectAccessor().getLastProjectVersions(v);
+            if (wsversions.length != 0) {
+                return new Version(wsversions[0], this);
+            } else {
+                return null;
+            }
+        } catch (WSException e) {
+            addError("Can not retrieve last project version.");
+            return null;
+        }
+    }
+
     public Metric getMetric(Long metricId) {
         // TODO
         return null;

@@ -5,6 +5,8 @@ public static String error(String e) {
 }
 
 public static String versionSelector(Project p) {
+    return "Out of office, please come back later.";
+/*
     StringBuilder html = new StringBuilder("\n<form id=\"selectversion\">");
     html.append("\n\t<select name=\"version" + p.getId() + "\" class=\"form\">");
     SortedMap<Long, Version>versions = p.getVersions();
@@ -26,6 +28,7 @@ public static String versionSelector(Project p) {
     html.append("&nbsp;<a href=\"?" + vparam + "=first\">first version</a>");
     html.append("&nbsp;<a href=\"?" + vparam + "=last\">last version</a>");
     return html.toString();
+*/
 }
 
 public static Long getId(String string_id) {
