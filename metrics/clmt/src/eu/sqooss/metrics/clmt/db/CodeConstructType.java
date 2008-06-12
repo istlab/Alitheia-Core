@@ -47,13 +47,13 @@ public class CodeConstructType extends DAObject {
         CLASS, STATEMENT, METHOD, ATTRIBUTE;
             
         public static ConstructType fromString(String s) {
-            if ("CLASS".equals(s))
+            if ("CLASS".equalsIgnoreCase(s))
                 return ConstructType.CLASS;
-            else if ("STATEMENT".equals(s))
+            else if ("STATEMENT".equalsIgnoreCase(s))
                 return ConstructType.STATEMENT;
-            else if ("METHOD".equals(s))
+            else if ("METHOD".equalsIgnoreCase(s))
                 return ConstructType.METHOD;
-            else if ("ATTRIBUTE".equals(s))
+            else if ("ATTRIBUTE".equalsIgnoreCase(s))
                 return ConstructType.ATTRIBUTE;
             else
                 return null;
@@ -85,7 +85,9 @@ public class CodeConstructType extends DAObject {
         List<CodeConstructType> result = 
             db.findObjectsByProperties(CodeConstructType.class, s);
         if (result.isEmpty()) {
-            return null;
+            CodeConstructType cct = new CodeConstructType(t);
+            db.addRecord(cct);
+            return cct;
         }
         else {
             return (CodeConstructType) result.get(0);

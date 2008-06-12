@@ -143,7 +143,7 @@ public class CLTMImplementation extends AbstractMetric implements CLMT {
         
         /*Get a checkout for this revision*/
         try {
-            Pattern p = Pattern.compile("*.java");
+            Pattern p = Pattern.compile(".*java$");
             imc = fds.getInMemoryCheckout(pv.getProject().getId(), 
                     new ProjectRevision(pv.getVersion()), p);
         } catch (InvalidRepositoryException e) {
@@ -221,7 +221,7 @@ public class CLTMImplementation extends AbstractMetric implements CLMT {
             lmr = mrlist.getResultsByFilename(file);
             
             for(MetricResult mr : lmr) {
-                if (mr.getNameCategory() == MetricNameCategory.PROJECT_WIDE) {
+                if (mr.getNameCategory() != MetricNameCategory.PROJECT_WIDE) {
                     Metric m =  Metric.getMetricByMnemonic(mr.getName());
                     
                     //This measurement is not to be stored yet
@@ -245,7 +245,7 @@ public class CLTMImplementation extends AbstractMetric implements CLMT {
                     meas.setProjectFile(pf);
                     meas.setResult(mr.getValue());
                     meas.setCodeConstructName(mr.getName());
-                    meas.setCodeConstructType(new CodeConstructType(CodeConstructType.ConstructType.fromString(mnc.toString())));
+                    meas.setCodeConstructType(CodeConstructType.getConstructType(CodeConstructType.ConstructType.fromString(mnc.toString())));
                     meas.setWhenRun(new Timestamp(System.currentTimeMillis()));
                     
                     db.addRecord(meas);
@@ -267,7 +267,6 @@ public class CLTMImplementation extends AbstractMetric implements CLMT {
                 }
             }
         }
-        db.commitDBSession();
     }
     
     public List<ResultEntry> getResult(ProjectVersion a, Metric m) {
