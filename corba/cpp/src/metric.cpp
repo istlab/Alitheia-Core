@@ -5,9 +5,12 @@
 
 #include <CORBA.h>
 
+#include <sstream>
+
 using namespace Alitheia;
 using namespace eu::sqooss::impl::service::corba;
 using std::string;
+using std::stringstream;
 using std::vector;
 
 namespace Alitheia
@@ -223,13 +226,71 @@ bool AbstractMetric::addSupportedMetrics( const string& description, const strin
     return Core::instance()->addSupportedMetrics( this, description, mnemonic, type );
 }
 
+const std::string ResultEntry::MimeTypeTypeInteger = "type/integer";
+const std::string ResultEntry::MimeTypeTypeLong    = "type/long";
+const std::string ResultEntry::MimeTypeTypeFloat   = "type/float";
+const std::string ResultEntry::MimeTypeTypeDouble  = "type/double";
+const std::string ResultEntry::MimeTypeTextPlain   = "text/plain";
+const std::string ResultEntry::MimeTypeTextHtml    = "text/html";
+const std::string ResultEntry::MimeTypeTextCsv     = "text/csv";
+const std::string ResultEntry::MimeTypeImageGif    = "image/gif";
+const std::string ResultEntry::MimeTypeImagePng    = "image/png";
+const std::string ResultEntry::MimeTypeImageJpeg   = "image/jpeg";
+
+ResultEntry::ResultEntry( const value_type& value, const std::string& mimeType, const std::string& mnemonic )
+    : value( value ),
+      mimeType( mimeType ),
+      mnemonic( mnemonic )
+{
+}
+
+ResultEntry::~ResultEntry()
+{
+}
+
+alitheia::ResultEntry ResultEntry::toCorba() const
+{
+    alitheia::ResultEntry result;
+     
+    stringstream ss;
+
+    if( value.type() == typeid( int ) )
+        ss << boost::get< int >( value );
+    else if( value.type() == typeid( long ) )
+        ss << boost::get< long >( value );
+    else if( value.type() == typeid( float ) )
+        ss << boost::get< float >( value );
+    else if( value.type() == typeid( double ) )
+        ss << boost::get< double >( value );
+    else if( value.type() == typeid( string ) )
+        ss << boost::get< string >( value );
+    else if( value.type() == typeid( vector< char > ) )
+    {
+        // TODO: base64 encoding
+        //ss << boost::get< long >( value );
+    }
+        
+    result.value = CORBA::string_dup( ss.str().c_str() );
+    
+    result.mimeType = CORBA::string_dup( mimeType.c_str() );
+    result.mnemonic = CORBA::string_dup( mnemonic.c_str() );
+    
+    return result;
+}
+
 /**
  * Marshaller method for getResult()
  * Called via the CORBA ORB.
  */
-char* ProjectVersionMetric::doGetResult( const alitheia::ProjectVersion& projectVersion )
+alitheia::Result* ProjectVersionMetric::doGetResult( const alitheia::ProjectVersion& projectVersion,
+                                                     const alitheia::Metric& m )
 {
-    return CORBA::string_dup( getResult( ProjectVersion( projectVersion ) ).c_str() );
+    alitheia::Result* result = new alitheia::Result();
+    vector< ResultEntry > entries = getResult( ProjectVersion( projectVersion ), Metric( m ) );
+    for( uint i = 0; i < entries.size(); ++i )
+        (*result)[ i ] = entries[ i ].toCorba();
+    
+    return result;
 }
 
 /**
@@ -246,10 +307,17 @@ void ProjectVersionMetric::doRun( const alitheia::ProjectVersion& projectVersion
  * Marshaller method for getResult()
  * Called via the CORBA ORB.
  */
-char* ProjectFileMetric::doGetResult( const alitheia::ProjectFile& projectFile )
+alitheia::Result* ProjectFileMetric::doGetResult( const alitheia::ProjectFile& projectFile,
+                                                  const alitheia::Metric& m )
 {
-    ProjectFile file( projectFile );
-    return CORBA::string_dup( getResult( file ).c_str() );
+    const vector< ResultEntry > entries = getResult( ProjectFile( projectFile ), Metric( m ) );
+    alitheia::Result* const result = new alitheia::Result();
+    result->length( entries.size() );
+
+    for( size_t i = 0; i < entries.size(); ++i )
+        result->operator[]( i ) = entries[ i ].toCorba();
+    
+    return result;
 }
 
 /**
@@ -266,9 +334,14 @@ void ProjectFileMetric::doRun( const alitheia::ProjectFile& projectFile )
  * Marshaller method for getResult()
  * Called via the CORBA ORB.
  */
-char* StoredProjectMetric::doGetResult( const alitheia::StoredProject& storedProject )
+alitheia::Result* StoredProjectMetric::doGetResult( const alitheia::StoredProject& storedProject,
+                                                    const alitheia::Metric& m )
 {
-    return CORBA::string_dup( getResult( StoredProject( storedProject ) ).c_str() );
+    alitheia::Result* result = new alitheia::Result();
+    vector< ResultEntry > entries = getResult( StoredProject( storedProject ), Metric( m ) );
+    for( uint i = 0; i < entries.size(); ++i )
+        (*result)[ i ] = entries[ i ].toCorba();
+     return result;
 }
 
 /**
@@ -277,16 +350,22 @@ char* StoredProjectMetric::doGetResult( const alitheia::StoredProject& storedPro
  */
 void StoredProjectMetric::doRun( const alitheia::StoredProject& storedProject )
 {
-//    return CORBA::string_dup( getResult( StoredProject( storedProject ) ).c_str() );
+    StoredProject project( storedProject );
+    run( project );
 }
 
 /**
  * Marshaller method for getResult()
  * Called via the CORBA ORB.
  */
-char* FileGroupMetric::doGetResult( const alitheia::FileGroup& fileGroup )
+alitheia::Result* FileGroupMetric::doGetResult( const alitheia::FileGroup& fileGroup,
+                                                const alitheia::Metric& m )
 {
-    return CORBA::string_dup( getResult( FileGroup( fileGroup ) ).c_str() );
+    alitheia::Result* result = new alitheia::Result();
+    vector< ResultEntry > entries = getResult( FileGroup( fileGroup ), Metric( m ) );
+    for( uint i = 0; i < entries.size(); ++i )
+        (*result)[ i ] = entries[ i ].toCorba();
+     return result;
 }
 
 /**
@@ -295,5 +374,6 @@ char* FileGroupMetric::doGetResult( const alitheia::FileGroup& fileGroup )
  */
 void FileGroupMetric::doRun( const alitheia::FileGroup& fileGroup )
 {
-//    return CORBA::string_dup( getResult( FileGroup( fileGroup ) ).c_str() );
+    FileGroup group( fileGroup );
+    run( group );
 }
