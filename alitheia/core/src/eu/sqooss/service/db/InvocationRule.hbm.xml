@@ -13,8 +13,8 @@
     <property name="scope" column="SCOPE" not-null="true"/>
     <property name="value" column="VALUE" not-null="false"/>
     <property name="action" column="ACTION" not-null="true"/>
-    <many-to-one name="project" column="STORED_PROJECT_ID" not-null="false" cascade="merge" />
-    <many-to-one name="plugin" column="PLUGIN_ID" not-null="false" cascade="merge" />
-    <many-to-one name="metricType" column="METRIC_TYPE_ID" not-null="false" cascade="merge" />
+    <many-to-one name="project" column="STORED_PROJECT_ID" not-null="false" cascade="merge" lazy="false" />
+    <many-to-one name="plugin" column="PLUGIN_ID" not-null="false" cascade="merge" lazy="false" />
+    <many-to-one name="metricType" column="METRIC_TYPE_ID" not-null="false" cascade="merge" lazy="false" />
   </class>
 </hibernate-mapping>
