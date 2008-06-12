@@ -6,8 +6,8 @@ drop table bug;
 drop table group_user;
 drop table group_privilege;
 drop table groups cascade;
-drop table mailinglist cascade;
 drop table mailmessage cascade;
+drop table mailinglist cascade;
 drop table project_file_measurement cascade;
 drop table project_version_measurement cascade;
 drop table metric cascade;
@@ -15,20 +15,16 @@ drop table invocation_rule;
 drop table metric_type;
 drop table plugin_configuration;
 drop table plugin;
-drop table privilege;
+drop table privilege_value cascade;
 drop table privilege cascade;
 drop table project_file cascade;
-drop table project_file_join;
 drop table project_version;
 drop table service_url cascade;
 drop table stored_project cascade;
 drop table tag;
 drop table users;
-drop table privilege_value cascade;
 drop table evaluation_mark;
 drop sequence hibernate_sequence;
-drop table hibernate_unique_key;
-drop table developer;
 drop table directory;
 drop table pending_user;
 
@@ -41,6 +37,15 @@ drop table metric_type;
 drop table project_version;
 drop table developer;
 drop table group_type;
+
+-- New metric DB tables
+drop table code_unit_measurement;
+drop table code_construct_type;
+drop table productivity_actions;
+drop table productivity_developer_actions;
+drop table productivity_resource_type;
+drop table productivity_resource_weight;
+drop table productivity_weight_history;
 
 
 -- Display remaining tables, just in case
