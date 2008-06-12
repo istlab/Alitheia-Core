@@ -164,6 +164,11 @@ public class PluginsView extends AbstractView{
                             e.append("Plug-in can not be installed!"
                                     + " Check log for details.");
                         }
+                        // Persist the DB changes
+                        else {
+                            sobjDB.commitDBSession();
+                            sobjDB.startDBSession();
+                        }
                     }
                     // =======================================================
                     // Plug-in un-install request
@@ -172,6 +177,11 @@ public class PluginsView extends AbstractView{
                         if (sobjPA.uninstallPlugin(reqValHashcode) == false) {
                             e.append("Plug-in can not be uninstalled."
                                     + " Check log for details.");
+                        }
+                        // Persist the DB changes
+                        else {
+                            sobjDB.commitDBSession();
+                            sobjDB.startDBSession();
                         }
                     }
                 }
@@ -623,7 +633,7 @@ public class PluginsView extends AbstractView{
                     b.append(sp(in++) + "<tbody>\n");
                     // Get the plug-in's configuration set
                     Set<PluginConfiguration> config = selPI.getConfiguration();
-                    if (config.isEmpty()) {
+                    if ((config == null) || (config.isEmpty())) {
                         b.append(sp(in++) + "<tr>");
                         b.append(sp(in) + "<td colspan=\"3\" class=\"noattr\">"
                                 + "This plug-in has no configuration properties."
