@@ -34,6 +34,8 @@
 
 package eu.sqooss.service.util;
 
+import java.util.List;
+
 public class StringUtils {
     /**
     * Concatenate the strings in @p names, placing @p sep
@@ -56,9 +58,39 @@ public class StringUtils {
             return "";
         }
 
-        StringBuilder b = new StringBuilder( l * sep.length() + l + 1 );;
+        // This is just a (bad) guess at the capacity required
+        StringBuilder b = new StringBuilder( l * sep.length() + l + 1 );
         for ( int i=0; i<l; i++ ) {
             b.append(names[i]);
+            if ( (i < (l-1)) && (sep != null) ) {
+                b.append(sep);
+            }
+        }
+        return b.toString();
+    }
+
+    /**
+     * Overload of join() for use with List.
+     *
+     * @param names List of strings to join together
+     * @param sep   Separator between strings (may be null)
+     * @return null if names is null; strings in names joined with
+     *          sep in between otherwise.
+     */
+    public static String join(List<String> names, String sep) {
+        if ( names == null ) {
+            return null;
+        }
+        int l = names.size();
+        if (l<1) {
+            return "";
+        }
+
+        // This is just a (bad) guess at the capacity required
+        StringBuilder b = new StringBuilder( l * sep.length() + l + 1);
+        int i = 0;
+        for ( String s : names ) {
+            b.append(s);
             if ( (i < (l-1)) && (sep != null) ) {
                 b.append(sep);
             }
