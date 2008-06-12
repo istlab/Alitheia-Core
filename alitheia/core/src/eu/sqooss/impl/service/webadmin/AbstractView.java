@@ -34,6 +34,7 @@ package eu.sqooss.impl.service.webadmin;
 
 import java.util.Enumeration;
 import java.util.Locale;
+import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.regex.Pattern;
 
@@ -79,6 +80,11 @@ public abstract class AbstractView {
     private static String RES_LABELS_FILE   = "ResourceLabels";
     private static String RES_ERRORS_FILE   = "ResourceErrors";
     private static String RES_MESSAGES_FILE = "ResourceMessages";
+
+    // Resource bundles
+    private static ResourceBundle resLbl = null;
+    private static ResourceBundle resMsg = null;
+    private static ResourceBundle resErr = null;
 
     // Debug flag
     protected static boolean DEBUG = false;
@@ -147,6 +153,94 @@ public abstract class AbstractView {
         }
     }
 
+    /**
+     * Initializes the various resource bundle with the specified locale.
+     * 
+     * @param locale the user's locale
+     */
+    public static void initResources (Locale locale) {
+        resLbl = getLabelsBundle(locale);
+        resErr = getErrorsBundle(locale);
+        resMsg = getMessagesBundle(locale);
+    }
+
+    /**
+     * Retrieves the value of the given resource property from the
+     * resource bundle that stores all label strings.
+     * 
+     * @param name the name of the resource property
+     * 
+     * @return The property's value if that property can be found in the
+     *   corresponding resource bundle, or the property name when such 
+     *   property is missing.
+     */
+    public static String getLbl (String name) {
+        if (resLbl != null) {
+            try {
+                return resLbl.getString(name);
+            }
+            catch (NullPointerException ex) {
+                return "Undefined parameter name!";
+            }
+            catch (MissingResourceException ex) {
+                return name;
+            }
+        }
+        return name;
+    }
+
+    /**
+     * Retrieves the value of the given resource property from the
+     * resource bundle that stores all error strings.
+     * 
+     * @param name the name of the resource property
+     * 
+     * @return The property's value if that property can be found in the
+     *   corresponding resource bundle, or the property name when such 
+     *   property is missing.
+     */
+    public static String getErr (String name) {
+        if (resErr != null) {
+            try {
+                return resErr.getString(name);
+            }
+            catch (NullPointerException ex) {
+                return "Undefined parameter name!";
+            }
+            catch (MissingResourceException ex) {
+                return name;
+            }
+        }
+        return name;
+    }
+
+    /**
+     * Retrieves the value of the given resource property from the
+     * resource bundle that stores all message strings.
+     * 
+     * @param name the name of the resource property
+     * 
+     * @return The property's value if that property can be found in the
+     *   corresponding resource bundle, or the property name when such 
+     *   property is missing.
+     */
+    public static String getMsg (String name) {
+        if (resMsg != null) {
+            try {
+                return resMsg.getString(name);
+            }
+            catch (NullPointerException ex) {
+                return "Undefined parameter name!";
+            }
+            catch (MissingResourceException ex) {
+                return name;
+            }
+        }
+        return name;
+    }
+
+    // TODO: Move this method's logic in the initResources() once all views
+    // are using the new methods.
     public static ResourceBundle getLabelsBundle (Locale locale) {
         if (locale != null)
             return ResourceBundle.getBundle(RES_LABELS_FILE, locale);
@@ -154,6 +248,8 @@ public abstract class AbstractView {
             return ResourceBundle.getBundle(RES_LABELS_FILE);
     }
 
+    // TODO: Move this method's logic in the initResources() once all views
+    // are using the new methods.
     public static ResourceBundle getErrorsBundle (Locale locale) {
         if (locale != null)
             return ResourceBundle.getBundle(RES_ERRORS_FILE, locale);
@@ -161,6 +257,8 @@ public abstract class AbstractView {
             return ResourceBundle.getBundle(RES_ERRORS_FILE);
     }
 
+    // TODO: Move this method's logic in the initResources() once all views
+    // are using the new methods.
     public static ResourceBundle getMessagesBundle (Locale locale) {
         if (locale != null)
             return ResourceBundle.getBundle(RES_MESSAGES_FILE, locale);

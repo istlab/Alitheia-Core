@@ -35,7 +35,6 @@ package eu.sqooss.impl.service.webadmin;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -44,7 +43,6 @@ import org.osgi.framework.BundleContext;
 
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.db.InvocationRule;
-import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.pa.PluginInfo;
 import eu.sqooss.service.updater.UpdaterService.UpdateTarget;
@@ -52,10 +50,28 @@ import eu.sqooss.service.updater.UpdaterService.UpdateTarget;
 public class ProjectsView extends AbstractView {
     // Script for submitting this page
     private static String SUBMIT = "document.projects.submit();";
-    // Servlet actions
+
+    // Action parameter's values
+    private static String ACT_REQ_ADD_PROJECT   = "reqAddProject";
+    private static String ACT_CON_ADD_PROJECT   = "conAddProject";
+    private static String ACT_REQ_REM_PROJECT   = "reqRemProject";
+    private static String ACT_CON_REM_PROJECT   = "conRemProject";
+    private static String ACT_REQ_SHOW_PROJECT  = "conShowProject";
+    private static String ACT_CON_UPD_ALL       = "conUpdateAll";
+    private static String ACT_CON_UPD_CODE      = "conUpdateCode";
+    private static String ACT_CON_UPD_MAIL      = "conUpdateMail";
+    private static String ACT_CON_UPD_BUGS      = "conUpdateBugs";
 
     // Servlet parameters
-    private static String REQ_PAR_SYNC_PLUGIN = "reqParSyncPlugin";
+    private static String REQ_PAR_ACTION        = "action";
+    private static String REQ_PAR_PROJECT_ID    = "projectId";
+    private static String REQ_PAR_PRJ_NAME      = "projectName";
+    private static String REQ_PAR_PRJ_WEB       = "projectHomepage";
+    private static String REQ_PAR_PRJ_CONT      = "projectContact";
+    private static String REQ_PAR_PRJ_BUG       = "projectBL";
+    private static String REQ_PAR_PRJ_MAIL      = "projectML";
+    private static String REQ_PAR_PRJ_CODE      = "projectSCM";
+    private static String REQ_PAR_SYNC_PLUGIN   = "reqParSyncPlugin";
 
     /**
      * Instantiates a new projects view.
@@ -85,30 +101,9 @@ public class ProjectsView extends AbstractView {
         // Create a DB session
         sobjDB.startDBSession();
 
-        // Get the required resource bundles
-        ResourceBundle resLbl = getLabelsBundle(req.getLocale());
-        ResourceBundle resErr = getErrorsBundle(req.getLocale());
-        ResourceBundle resMsg = getMessagesBundle(req.getLocale());
+        // Initialize the resource bundles with the request's locale
+        initResources(req.getLocale());
 
-        // Request parameters
-        String reqParAction        = "action";
-        String reqParProjectId     = "projectId";
-        String reqParPrjName       = "projectName";
-        String reqParPrjWeb        = "projectHomepage";
-        String reqParPrjContact    = "projectContact";
-        String reqParPrjBug        = "projectBL";
-        String reqParPrjMail       = "projectML";
-        String reqParPrjCode       = "projectSCM";
-        // Recognized "action" parameter's values
-        String actReqAddProject    = "reqAddProject";
-        String actConAddProject    = "conAddProject";
-        String actReqRemProject    = "reqRemProject";
-        String actConRemProject    = "conRemProject";
-        String actReqShowProject   = "conShowProject";
-        String actConUpdAll        = "conUpdateAll";
-        String actConUpdCode       = "conUpdateCode";
-        String actConUpdMail       = "conUpdateMail";
-        String actConUpdBugs       = "conUpdateBugs";
         // Request values
         String reqValAction        = "";
         Long   reqValProjectId     = null;
@@ -133,13 +128,13 @@ public class ProjectsView extends AbstractView {
             }
 
             // Retrieve the selected editor's action (if any)
-            reqValAction = req.getParameter(reqParAction);
+            reqValAction = req.getParameter(REQ_PAR_ACTION);
             if (reqValAction == null) {
                 reqValAction = "";
             };
 
             // Retrieve the selected project's DAO (if any)
-            reqValProjectId = fromString(req.getParameter(reqParProjectId));
+            reqValProjectId = fromString(req.getParameter(REQ_PAR_PROJECT_ID));
             if (reqValProjectId != null) {
                 selProject = sobjDB.findObjectById(
                         StoredProject.class, reqValProjectId);
@@ -151,14 +146,14 @@ public class ProjectsView extends AbstractView {
             // ---------------------------------------------------------------
             // Add project
             // ---------------------------------------------------------------
-            if (reqValAction.equals(actConAddProject)) {
+            if (reqValAction.equals(ACT_CON_ADD_PROJECT)) {
                 // Retrieve the specified project properties
-                reqValPrjName = req.getParameter(reqParPrjName);
-                reqValPrjWeb = req.getParameter(reqParPrjWeb);
-                reqValPrjContact = req.getParameter(reqParPrjContact);
-                reqValPrjBug = req.getParameter(reqParPrjBug);
-                reqValPrjMail = req.getParameter(reqParPrjMail);
-                reqValPrjCode = req.getParameter(reqParPrjCode);
+                reqValPrjName = req.getParameter(REQ_PAR_PRJ_NAME);
+                reqValPrjWeb = req.getParameter(REQ_PAR_PRJ_WEB);
+                reqValPrjContact = req.getParameter(REQ_PAR_PRJ_CONT);
+                reqValPrjBug = req.getParameter(REQ_PAR_PRJ_BUG);
+                reqValPrjMail = req.getParameter(REQ_PAR_PRJ_MAIL);
+                reqValPrjCode = req.getParameter(REQ_PAR_PRJ_CODE);
                 // Checks the validity of the project properties
                 boolean valid = true;
                 if (checkProjectName(reqValPrjName) == false) {
@@ -199,7 +194,8 @@ public class ProjectsView extends AbstractView {
                 }
                 else {
                     valid = false;
-                    e.append(sp(in) + "At least one resource source must be specified!"
+                    e.append(sp(in)
+                            + "At least one resource source must be specified!"
                             + "<br/>\n");
                 }
                 // Proceed upon valid project properties
@@ -210,7 +206,7 @@ public class ProjectsView extends AbstractView {
                     params.put("name", reqValPrjName);
                     if (sobjDB.findObjectsByProperties(
                             StoredProject.class, params).size() > 1) {
-                        e.append(sp(in) + resErr.getString("prj_exists")
+                        e.append(sp(in) + getErr("prj_exists")
                                 + "<br/>\n");
                     }
                     // Create the new project's DAO
@@ -228,21 +224,21 @@ public class ProjectsView extends AbstractView {
                         }
                         else {
                             e.append(sp(in)
-                                    + resErr.getString("prj_add_failed")
-                                    + " " + resMsg.getString("m0001")
+                                    + getErr("prj_add_failed")
+                                    + " " + getMsg("m0001")
                                     + "<br/>\n");
                         }
                     }
                 }
                 // Return to the "Add project" view upon failure
                 if (e.length() > 0) {
-                    reqValAction = actReqAddProject;
+                    reqValAction = ACT_REQ_ADD_PROJECT;
                 }
             }
             // ---------------------------------------------------------------
             // Remove project
             // ---------------------------------------------------------------
-            else if (reqValAction.equals(actConRemProject)) {
+            else if (reqValAction.equals(ACT_CON_REM_PROJECT)) {
                 if (selProject != null) {
                     // Delete any associated invocation rules first
                     HashMap<String,Object> properties =
@@ -261,57 +257,57 @@ public class ProjectsView extends AbstractView {
                         selProject = null;
                     }
                     else {
-                        e.append(sp(in) + resErr.getString("e0033")
-                                + " " + resMsg.getString("m0001")
+                        e.append(sp(in) + getErr("e0033")
+                                + " " + getMsg("m0001")
                                 + "<br/>\n");
                     }
                 }
                 else {
-                    e.append(sp(in) + resErr.getString("e0034")
+                    e.append(sp(in) + getErr("e0034")
                             + "<br/>\n");
                 }
             }
             // ---------------------------------------------------------------
             // Trigger code update
             // ---------------------------------------------------------------
-            else if (reqValAction.equals(actConUpdCode)) {
+            else if (reqValAction.equals(ACT_CON_UPD_CODE)) {
                 if (sobjUpdater.update(
                         selProject, UpdateTarget.CODE, null) == false) {
-                    e.append(sp(in) + resErr.getString("e0035")
-                            + " " + resMsg.getString("m0010")
+                    e.append(sp(in) + getErr("e0035")
+                            + " " + getMsg("try_again")
                             + "<br/>\n");
                 }
             }
             // ---------------------------------------------------------------
             // Trigger mailing list(s) update
             // ---------------------------------------------------------------
-            else if (reqValAction.equals(actConUpdMail)) {
+            else if (reqValAction.equals(ACT_CON_UPD_MAIL)) {
                 if (sobjUpdater.update(
                         selProject, UpdateTarget.MAIL, null) == false) {
-                    e.append(sp(in) + resErr.getString("e0036")
-                            + " " + resMsg.getString("m0010")
+                    e.append(sp(in) + getErr("e0036")
+                            + " " + getMsg("try_again")
                             + "<br/>\n");
                 }
             }
             // ---------------------------------------------------------------
             // Trigger bugs list(s) update
             // ---------------------------------------------------------------
-            else if (reqValAction.equals(actConUpdBugs)) {
+            else if (reqValAction.equals(ACT_CON_UPD_BUGS)) {
                 if (sobjUpdater.update(
                         selProject, UpdateTarget.BUGS, null) == false) {
-                    e.append(sp(in) + resErr.getString("e0037")
-                            + " " + resMsg.getString("m0010")
+                    e.append(sp(in) + getErr("e0037")
+                            + " " + getMsg("try_again")
                             + "<br/>\n");
                 }
             }
             // ---------------------------------------------------------------
             // Trigger update on all resources for that project
             // ---------------------------------------------------------------
-            else if (reqValAction.equals(actConUpdAll)) {
+            else if (reqValAction.equals(ACT_CON_UPD_ALL)) {
                 if (sobjUpdater.update(
                         selProject, UpdateTarget.ALL, null) == false) {
-                    e.append(sp(in) + resErr.getString("e0038")
-                            + " " + resMsg.getString("m0010")
+                    e.append(sp(in) + getErr("e0038")
+                            + " " + getMsg("try_again")
                             + "<br/>\n");
                 }
             }
@@ -354,7 +350,7 @@ public class ProjectsView extends AbstractView {
         // ===================================================================
         // "Show project info" view
         // ===================================================================
-        if ((reqValAction.equals(actReqShowProject))
+        if ((reqValAction.equals(ACT_REQ_SHOW_PROJECT))
                 && (selProject != null)) {
             // Create the field-set
             b.append(sp(in++) + "<fieldset>\n");
@@ -386,7 +382,7 @@ public class ProjectsView extends AbstractView {
             b.append(sp(in) + "<input type=\"button\""
                     + " class=\"install\""
                     + " style=\"width: 100px;\""
-                    + " value=\"" + resLbl.getString("btn_back") + "\""
+                    + " value=\"" + getLbl("btn_back") + "\""
                     + " onclick=\"javascript:"
                     + SUBMIT + "\">\n");
             b.append(sp(--in) + "</td>\n");
@@ -397,28 +393,28 @@ public class ProjectsView extends AbstractView {
         // ===================================================================
         // "Add project" editor
         // ===================================================================
-        else if (reqValAction.equals(actReqAddProject)) {
+        else if (reqValAction.equals(ACT_REQ_ADD_PROJECT)) {
             // Create the field-set
             b.append(sp(in++) + "<fieldset>\n");
             b.append(sp(in) + "<legend>"
-                    + resLbl.getString("add_project")
+                    + getLbl("add_project")
                     + "</legend>\n");
             b.append(sp(in++) + "<span style=\"width: 100%;\">\n");
             b.append(sp(in++) + "<span style=\"width: 40%; float: left;\">\n");
             b.append(sp(in++) + "<table class=\"borderless\">\n");
             // Create the input fields
             b.append(normalInputRow(
-                    "Project name", reqParPrjName, reqValPrjName, in));
+                    "Project name", REQ_PAR_PRJ_NAME, reqValPrjName, in));
             b.append(normalInputRow(
-                    "Homepage", reqParPrjWeb, reqValPrjWeb, in));
+                    "Homepage", REQ_PAR_PRJ_WEB, reqValPrjWeb, in));
             b.append(normalInputRow(
-                    "Contact e-mail", reqParPrjContact, reqValPrjContact, in));
+                    "Contact e-mail", REQ_PAR_PRJ_CONT, reqValPrjContact, in));
             b.append(normalInputRow(
-                    "Bug database", reqParPrjBug, reqValPrjBug, in));
+                    "Bug database", REQ_PAR_PRJ_BUG, reqValPrjBug, in));
             b.append(normalInputRow(
-                    "Mailing list", reqParPrjMail, reqValPrjMail, in));
+                    "Mailing list", REQ_PAR_PRJ_MAIL, reqValPrjMail, in));
             b.append(normalInputRow(
-                    "Source code", reqParPrjCode, reqValPrjCode, in));
+                    "Source code", REQ_PAR_PRJ_CODE, reqValPrjCode, in));
 
             //------------------------------------------------------------
             // Tool-bar
@@ -430,23 +426,23 @@ public class ProjectsView extends AbstractView {
             b.append(sp(in) + "<input type=\"button\""
                     + " class=\"install\""
                     + " style=\"width: 100px;\""
-                    + " value=\"" + resLbl.getString("l0003") + "\""
+                    + " value=\"" + getLbl("l0003") + "\""
                     + " onclick=\"javascript:"
                     + "document.getElementById('"
-                    + reqParAction + "').value='" + actConAddProject + "';"
+                    + REQ_PAR_ACTION + "').value='"
+                    + ACT_CON_ADD_PROJECT + "';"
                     + SUBMIT + "\">\n");
             // Cancel button
             b.append(sp(in) + "<input type=\"button\""
                     + " class=\"install\""
                     + " style=\"width: 100px;\""
-                    + " value=\"" + resLbl.getString("l0004") + "\""
+                    + " value=\"" + getLbl("l0004") + "\""
                     + " onclick=\"javascript:"
                     + SUBMIT + "\">\n");
             b.append(sp(--in) + "</td>\n");
             b.append(sp(--in) + "</tr>\n");
             b.append(sp(--in) + "</table>\n");
-            // TODO: Fix alignment
-            // Help message
+            // Context help
             b.append(sp(--in) + "</span>\n");
             b.append(sp(in++) + "<span"
                     + " style=\"width: 60%; float: right;;\">\n");
@@ -454,7 +450,7 @@ public class ProjectsView extends AbstractView {
                     + " style=\"margin-top: -5px; background-color: white;\""
                     + ">\n");
             b.append(sp(in) + "<legend>" + "Help" + "</legend>\n");
-            b.append(sp(in) + resMsg.getObject("project_help") + "\n");
+            b.append(sp(in) + getMsg("project_help") + "\n");
             b.append(sp(--in) + "</fieldset>\n");
             b.append(sp(--in) + "</span>\n");
             b.append(sp(--in) + "</span>\n");
@@ -463,17 +459,17 @@ public class ProjectsView extends AbstractView {
         // ===================================================================
         // "Delete project" confirmation view
         // ===================================================================
-        else if ((reqValAction.equals(actReqRemProject))
+        else if ((reqValAction.equals(ACT_REQ_REM_PROJECT))
                 && (selProject != null)) {
             b.append(sp(in++) + "<fieldset>\n");
-            b.append(sp(in) + "<legend>" + resLbl.getString("l0059")
+            b.append(sp(in) + "<legend>" + getLbl("l0059")
                     + ": " + selProject.getName()
                     + "</legend>\n");
             b.append(sp(in++) + "<table class=\"borderless\">");
             // Confirmation message
             b.append(sp(in++) + "<tr>\n");
             b.append(sp(in) + "<td class=\"borderless\">"
-                    + "<b>" + resMsg.getString("m0007") + "</b>"
+                    + "<b>" + getMsg("delete_project") + "</b>"
                     + "</td>\n");
             // Affected invocation rules
             HashMap<String,Object> properties = new HashMap<String, Object>();
@@ -483,7 +479,7 @@ public class ProjectsView extends AbstractView {
             if ((affectedRules != null) && (affectedRules.size() > 0)) {
                 b.append(sp(in++) + "<tr>\n");
                 b.append(sp(in) + "<td class=\"borderless\">"
-                        + resMsg.getString("m0008") + ": "
+                        + getMsg("delete_assoc_rules") + ": "
                         + affectedRules.size()
                         + "</td>\n");
             }
@@ -498,17 +494,17 @@ public class ProjectsView extends AbstractView {
             b.append(sp(in) + "<input type=\"button\""
                     + " class=\"install\""
                     + " style=\"width: 100px;\""
-                    + " value=\"" + resLbl.getString("l0006") + "\""
+                    + " value=\"" + getLbl("l0006") + "\""
                     + " onclick=\"javascript:"
                     + "document.getElementById('"
-                    + reqParAction + "').value='"
-                    + actConRemProject + "';"
+                    + REQ_PAR_ACTION + "').value='"
+                    + ACT_CON_REM_PROJECT + "';"
                     + SUBMIT + "\">\n");
             // Cancel button
             b.append(sp(in) + "<input type=\"button\""
                     + " class=\"install\""
                     + " style=\"width: 100px;\""
-                    + " value=\"" + resLbl.getString("l0004") + "\""
+                    + " value=\"" + getLbl("l0004") + "\""
                     + " onclick=\"javascript:"
                     + SUBMIT + "\">\n");
             b.append(sp(--in) + "</td>\n");
@@ -523,15 +519,15 @@ public class ProjectsView extends AbstractView {
             // Create the field-set
             b.append(sp(in++) + "<fieldset>\n");
             b.append(sp(in) + "<legend>"
-                    + resLbl.getString("l0072")
+                    + getLbl("l0072")
                     + "</legend>\n");
 
-            addHeaderRow(resLbl,b,in);
+            addHeaderRow(b,in);
 
             if (projects.isEmpty()) {
                 b.append(sp(in++) + "<tr>\n");
                 b.append(sp(in) + "<td colspan=\"6\" class=\"noattr\">\n"
-                        + resMsg.getString("m0009")
+                        + getMsg("no_projects")
                         + "</td>\n");
                 b.append(sp(--in) + "</tr>\n");
             }
@@ -550,7 +546,7 @@ public class ProjectsView extends AbstractView {
                             + ((selected) ? "selected" : "edit") + "\""
                             + " onclick=\"javascript:"
                             + "document.getElementById('"
-                            + reqParProjectId + "').value='"
+                            + REQ_PAR_PROJECT_ID + "').value='"
                             + ((selected) ? "" : nextPrj.getId())
                             + "';"
                             + SUBMIT + "\">\n");
@@ -565,12 +561,12 @@ public class ProjectsView extends AbstractView {
                                         + " class=\"install\""
                                         + " style=\"width: 100px;\""
                                         + " value=\""
-                                        + resLbl.getString("btn_info")
+                                        + getLbl("btn_info")
                                         + "\""
                                         + " onclick=\"javascript:"
                                         + "document.getElementById('"
-                                        + reqParAction + "').value='"
-                                        + actReqShowProject + "';"
+                                        + REQ_PAR_ACTION + "').value='" 
+                                        + ACT_REQ_SHOW_PROJECT + "';"
                                         + SUBMIT + "\">"
                                     : "<img src=\"/edit.png\""
                                         + " alt=\"[Edit]\"/>")
@@ -578,7 +574,7 @@ public class ProjectsView extends AbstractView {
                             + nextPrj.getName()
                             + "</td>\n");
                     // Last project version
-                    String lastVersion = resLbl.getString("l0051");
+                    String lastVersion = getLbl("l0051");
                     if (StoredProject.getLastProjectVersion(nextPrj) != null) {
                         lastVersion = new Long(
                                 StoredProject.getLastProjectVersion(
@@ -589,25 +585,25 @@ public class ProjectsView extends AbstractView {
                             + "</td>\n");
                     // Date of the last known email
                     b.append(sp(in) + "<td class=\"trans\">"
-                            + resLbl.getString("l0051")
+                            + getLbl("l0051")
                             + "</td>\n");
                     // Date of the last known bug entry
                     b.append(sp(in) + "<td class=\"trans\">"
-                            + resLbl.getString("l0051")
+                            + getLbl("l0051")
                             + "</td>\n");
                     // Evaluation state
-                    String evalState = resLbl.getString("l0007");
+                    String evalState = getLbl("l0007");
                     if ((nextPrj.getEvaluationMarks() != null)
                             && (nextPrj.getEvaluationMarks().isEmpty()
                                     == false)) {
-                        evalState = resLbl.getString("l0006");
+                        evalState = getLbl("l0006");
                     }
                     b.append(sp(in) + "<td class=\"trans\">"
                             + evalState
                             + "</td>\n");
                     b.append(sp(--in) + "</tr>\n");
                     if ((selected) && (metrics.isEmpty() == false)) {
-                        showLastAppliedVersion(nextPrj, metrics, resLbl, b);
+                        showLastAppliedVersion(nextPrj, metrics, b);
                     }
                 }
             }
@@ -620,11 +616,11 @@ public class ProjectsView extends AbstractView {
             b.append(sp(in) + "<input type=\"button\""
                     + " class=\"install\""
                     + " style=\"width: 100px;\""
-                    + " value=\"" + resLbl.getString("l0008") + "\""
+                    + " value=\"" + getLbl("l0008") + "\""
                     + " onclick=\"javascript:"
                     + "window.location='/projects"
                     + ((selProject != null)
-                            ? "?" + reqParProjectId + "="
+                            ? "?" + REQ_PAR_PROJECT_ID + "="
                                     + selProject.getId()
                             : "")
                     +"';\""
@@ -633,21 +629,21 @@ public class ProjectsView extends AbstractView {
             b.append(sp(in) + "<input type=\"button\""
                     + " class=\"install\""
                     + " style=\"width: 100px;\""
-                    + " value=\"" + resLbl.getString("add_project") + "\""
+                    + " value=\"" + getLbl("add_project") + "\""
                     + " onclick=\"javascript:"
                     + "document.getElementById('"
-                    + reqParAction + "').value='"
-                    + actReqAddProject + "';"
+                    + REQ_PAR_ACTION + "').value='"
+                    + ACT_REQ_ADD_PROJECT + "';"
                     + SUBMIT + "\">\n");
             // Remove project button
             b.append(sp(in) + "<input type=\"button\""
                     + " class=\"install\""
                     + " style=\"width: 100px;\""
-                    + " value=\"" + resLbl.getString("l0059") + "\""
+                    + " value=\"" + getLbl("l0059") + "\""
                     + " onclick=\"javascript:"
                     + "document.getElementById('"
-                    + reqParAction + "').value='"
-                    + actReqRemProject + "';"
+                    + REQ_PAR_ACTION + "').value='"
+                    + ACT_REQ_REM_PROJECT + "';"
                     + SUBMIT + "\""
                     + ((selProject != null) ? "" : " disabled")
                     + ">\n");
@@ -655,11 +651,11 @@ public class ProjectsView extends AbstractView {
             b.append(sp(in) + "<input type=\"button\""
                     + " class=\"install\""
                     + " style=\"width: 100px;\""
-                    + " value=\"" + resLbl.getString("l0061") + "\""
+                    + " value=\"" + getLbl("l0061") + "\""
                     + " onclick=\"javascript:"
                     + "document.getElementById('"
-                    + reqParAction + "').value='"
-                    + actConUpdCode + "';"
+                    + REQ_PAR_ACTION + "').value='"
+                    + ACT_CON_UPD_CODE + "';"
                     + SUBMIT + "\""
                     + (((selProject != null) && (sobjUpdater.isUpdateRunning(
                             selProject, UpdateTarget.CODE) == false))
@@ -669,11 +665,11 @@ public class ProjectsView extends AbstractView {
             b.append(sp(in) + "<input type=\"button\""
                     + " class=\"install\""
                     + " style=\"width: 100px;\""
-                    + " value=\"" + resLbl.getString("l0062") + "\""
+                    + " value=\"" + getLbl("l0062") + "\""
                     + " onclick=\"javascript:"
                     + "document.getElementById('"
-                    + reqParAction + "').value='"
-                    + actConUpdMail + "';"
+                    + REQ_PAR_ACTION + "').value='"
+                    + ACT_CON_UPD_MAIL + "';"
                     + SUBMIT + "\""
                     + (((selProject != null) && (sobjUpdater.isUpdateRunning(
                             selProject, UpdateTarget.MAIL) == false))
@@ -683,11 +679,11 @@ public class ProjectsView extends AbstractView {
             b.append(sp(in) + "<input type=\"button\""
                     + " class=\"install\""
                     + " style=\"width: 100px;\""
-                    + " value=\"" + resLbl.getString("l0063") + "\""
+                    + " value=\"" + getLbl("l0063") + "\""
                     + " onclick=\"javascript:"
                     + "document.getElementById('"
-                    + reqParAction + "').value='"
-                    + actConUpdBugs + "';"
+                    + REQ_PAR_ACTION + "').value='"
+                    + ACT_CON_UPD_BUGS + "';"
                     + SUBMIT + "\""
                     + (((selProject != null) && (sobjUpdater.isUpdateRunning(
                             selProject, UpdateTarget.BUGS) == false))
@@ -697,11 +693,11 @@ public class ProjectsView extends AbstractView {
             b.append(sp(in) + "<input type=\"button\""
                     + " class=\"install\""
                     + " style=\"width: 100px;\""
-                    + " value=\"" + resLbl.getString("l0064") + "\""
+                    + " value=\"" + getLbl("l0064") + "\""
                     + " onclick=\"javascript:"
                     + "document.getElementById('"
-                    + reqParAction + "').value='"
-                    + actConUpdAll + "';"
+                    + REQ_PAR_ACTION + "').value='"
+                    + ACT_CON_UPD_ALL + "';"
                     + SUBMIT + "\""
                     + (((selProject != null) && (sobjUpdater.isUpdateRunning(
                             selProject, UpdateTarget.ALL) == false))
@@ -722,13 +718,13 @@ public class ProjectsView extends AbstractView {
         // ===============================================================
         // "Action type" input field
         b.append(sp(in) + "<input type=\"hidden\""
-                + " id=\"" + reqParAction + "\""
-                + " name=\"" + reqParAction + "\""
+                + " id=\"" + REQ_PAR_ACTION + "\""
+                + " name=\"" + REQ_PAR_ACTION + "\""
                 + " value=\"\">\n");
         // "Project Id" input field
         b.append(sp(in) + "<input type=\"hidden\""
-                + " id=\"" + reqParProjectId + "\""
-                + " name=\"" + reqParProjectId + "\""
+                + " id=\"" + REQ_PAR_PROJECT_ID + "\""
+                + " name=\"" + REQ_PAR_PROJECT_ID + "\""
                 + " value=\""
                 + ((selProject != null) ? selProject.getId() : "")
                 + "\">\n");
@@ -750,10 +746,10 @@ public class ProjectsView extends AbstractView {
     }
 
 
-    private static void showLastAppliedVersion(StoredProject project,
-        Collection<PluginInfo> metrics,
-        ResourceBundle resources,
-	StringBuilder b) {
+    private static void showLastAppliedVersion(
+            StoredProject project,
+            Collection<PluginInfo> metrics,
+            StringBuilder b) {
         for(PluginInfo m : metrics) {
             if (m.installed) {
                 b.append("<tr>\n");
@@ -777,8 +773,7 @@ public class ProjectsView extends AbstractView {
         }
     }
 
-    private static void addHeaderRow(ResourceBundle resLbl,
-        StringBuilder b, long in) {
+    private static void addHeaderRow(StringBuilder b, long in) {
         //----------------------------------------------------------------
         // Create the header row
         //----------------------------------------------------------------
@@ -787,33 +782,32 @@ public class ProjectsView extends AbstractView {
         b.append(sp(in++) + "<tr class=\"head\">\n");
         b.append(sp(in) + "<td class=\"head\""
                 + " style=\"width: 10%;\">"
-                + resLbl.getString("l0066")
+                + getLbl("l0066")
                 + "</td>\n");
         b.append(sp(in) + "<td class=\"head\""
                 + " style=\"width: 35%;\">"
-                + resLbl.getString("l0067")
+                + getLbl("l0067")
                 + "</td>\n");
         b.append(sp(in) + "<td class=\"head\""
                 + " style=\"width: 15%;\">"
-                + resLbl.getString("l0068")
+                + getLbl("l0068")
                 + "</td>\n");
         b.append(sp(in) + "<td class=\"head\""
                 + " style=\"width: 15%;\">"
-                + resLbl.getString("l0069")
+                + getLbl("l0069")
                 + "</td>\n");
         b.append(sp(in) + "<td class=\"head\""
                 + " style=\"width: 15%;\">"
-                + resLbl.getString("l0070")
+                + getLbl("l0070")
                 + "</td>\n");
         b.append(sp(in) + "<td class=\"head\""
                 + " style=\"width: 10%;\">"
-                + resLbl.getString("l0071")
+                + getLbl("l0071")
                 + "</td>\n");
         b.append(sp(--in) + "</tr>\n");
         b.append(sp(--in) + "</thead>\n");
     }
 }
-
 
 // vi: ai nosi sw=4 ts=4 expandtab
 
