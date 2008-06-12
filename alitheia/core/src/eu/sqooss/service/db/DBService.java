@@ -47,22 +47,32 @@ import org.hibernate.QueryException;
  * This is the service providing access to the Alitheia Database,
  * including project metadata, user management, metrics data...
  * 
- * The API includes methods for retrieving objects by id or by properties,
- * adding/updating/deleting records from the database,
- * and general-purpose querying methods for lower-level database access.
+ * The API includes methods for retrieving data access objects (DAO) by id or by properties,
+ * and adding/deleting records in the database, and general-purpose querying methods
+ * for lower-level database access.
+ * Access and manipulation of the data is done directly through the DAOs in an object-oriented way.
  * 
- * There are two overloads for each method: one with a Session argument and one without.
- * The methods without a Session argument manage the Hibernate session and transaction
- * for the operation internally, together with exception handling. This makes them
- * convenient to use for most cases, such as one-time queries or operations.
- * On the other hand, the methods with the Session argument delegate Hibernate session
- * and transaction management to the caller, as well as exception handling. This brings
- * greater flexibility, such as support for multiple operations within a same transaction,
- * but it requires the caller to write more code and is more prone to errors,
- * so you should only use them if you have a specific need for them.
+ * All access to the DB service has to be done in the context of a session. You can see the session
+ * as the connection to the database and the transaction for that connection.
+ * The method startDBSession() initialises a session, while commitDBSession() and rollbackDBSession()
+ * end the session, by committing or cancelling the changes respectively.
+ * You can also query the current state of the session with the method isDBSessionActive().
  * 
- * Regardless of their type, the methods from this interface will log all errors
- * coming from Hibernate itself or from JDBC
+ * All the methods in this interface are thread-safe, which means you can call these methods on the
+ * same DBService object from different threads without needed to protect the access to the object.
+ * Furthermore, each session is handled within the context of a thread. So if two different threads
+ * have code that call startDBSession(), they will each start their own, and whatever they do during
+ * the session will be isolated from the other. (ie. no DAO sharing, no changes visible accross threads...)
+ * 
+ * No exceptions are thrown by methods in this service. Notification of success or failure is achieved
+ * through return values. Exception handling for the actual db access and Hibernate is all handled
+ * internally, and all resources are guaranteed to be released properly if an error occurs.
+ * All errors are automatically logged into Alitheia's log file. (see Logger service)
+ * 
+ * nb: the package eu.sqooss.service.db contains all the Alitheia predefined DAOs that are used by
+ * the platform, but it is also possible to add your own DAOs in metrics installed by Alitheia.
+ * See the productivity metric for an example how to achieve that.
+ * 
  * 
  * @author Romain Pokrzywka
  *
@@ -117,14 +127,17 @@ public interface DBService {
      * This method is thread-safe, and it will always close the current session (if any)
      * and release any lock on the database, even if an error occurs.
      * 
-     * @return true if the session correctly closed,
+     * @return true if the session was correctly closed,
      *         false if there was no active session or if an error occured.
      */
     public boolean rollbackDBSession();
     
     /**
-     * Write uncommited session
-     * @return True if successful, false otherwise
+     * Flush the current changes in the session to the database and clears the session cache.
+     * Note that the transaction isn't committed though, so changes will only be visible
+     * to the current session.
+     * @return true if the session was correctly flushed,
+     *         false if there was no active session or if an error occured.
      */
     public boolean flushDBSession();
     
@@ -169,8 +182,7 @@ public interface DBService {
     public <T extends DAObject> List<T> findObjectsByProperties(Class<T> daoClass,
                                                                 Map<String,Object> properties );
     /**
-     * Add a new record to the system database, using the default database session.
-     * This should initialize any tables that are needed for storage of project information.
+     * Add a new record to the database, including all the associations the record may contain.
      * 
      * @param record the record to persist into the database
      * @return true if the record insertion succeeded, false otherwise
@@ -178,10 +190,7 @@ public interface DBService {
     public boolean addRecord(DAObject record);
     
     /**
-     * Add multiple new records to the system database, using the default database session.
-     * This should initialize any tables that are needed for storage of project information.
-     * The results will be committed only if all the insertions are successful,
-     * so if any insertion fails then no record will be added.
+     * Add multiple new records to the database.
      * 
      * @param records the list of records to persist into the database
      * @return true if all the record insertions succeeded, false otherwise
@@ -189,7 +198,7 @@ public interface DBService {
     public <T extends DAObject> boolean addRecords(List<T> records);
 
     /**
-     * Delete an existing record from the system database, using the default database session.
+     * Delete an existing record from the database.
      *
      * @param record the record to remove from the database
      * @return true if the record deletion succeeded, false otherwise
@@ -197,9 +206,7 @@ public interface DBService {
     public boolean deleteRecord(DAObject record);
     
     /**
-     * Delete multiple existing records from the system database, using the default database session.
-     * The results will be committed only if all the deletions are successful,
-     * so if any deletion fails then no record will be deleted.
+     * Delete multiple existing records from the database.
      * 
      * @param records the list of records to remove from the database
      * @return true if all the record deletions succeeded, false otherwise
@@ -207,8 +214,7 @@ public interface DBService {
     public <T extends DAObject> boolean deleteRecords(List<T> records);
 
     /**
-     * Add a new composite-key association to the system database.
-     * This should initialize any tables that are needed for storage of project information.
+     * Add a new composite-key association to the database.
      * 
      * @param compositeKey the composite key object to persist into the database
      * @return true if the association was successfully added, false otherwise
@@ -216,7 +222,7 @@ public interface DBService {
     public boolean addAssociation(Object compositeKey);
     
     /**
-     * Delete an existing composite-key association from the system database.
+     * Delete an existing composite-key association from the database.
      * 
      * @param compositeKey the composite key object to delete from the database
      * @return true if the association was successfully deleted, false otherwise
@@ -229,14 +235,16 @@ public interface DBService {
      * the disconnected object fields. Preference will be given to the field
      * values of the detached object. If the detached object contains 
      * references to other DAOs, the attach operation will cascade.
+     * 
+     * WARNING : the attached DAO is the returned object, NOT the one you passed as argument !
      *  
-     * @param obj The object to connect
-     * @return The connect instance of the object
+     * @param obj the object to connect
+     * @return the connected instance of the object
      */
     public <T extends DAObject> T attachObjectToDBSession(T obj);
 
     /**
-     * Execute a complete SQL query to the database, using the default database session.
+     * Execute a complete SQL query to the database.
      * This allows low-level manipulation of the database contents outside of the DAO types.
      * To limit risks of SQL injection exploits, please do not execute queries like
      * <code>"SELECT * FROM " + tableName</code>.
@@ -253,7 +261,7 @@ public interface DBService {
         throws SQLException;
     
     /**
-     * Execute a parameterized SQL query to the database, using the default database session.
+     * Execute a parameterized SQL query to the database.
      * This allows low-level manipulation of the database contents outside of the DAO types.
      * 
      * @param sql the sql query string
@@ -267,7 +275,7 @@ public interface DBService {
         throws SQLException, QueryException;
         
     /**
-     * Execute a complete HQL query to the database, using the default database session.
+     * Execute a complete HQL query to the database.
      * To limit risks of HQL injection exploits, please do not execute queries like
      * <code>"FROM " + objectClass</code>.
      * If you need dynamic HQL queries, please use the overload with the params argument.
@@ -275,7 +283,7 @@ public interface DBService {
      * @param hql the HQL query string
      * @return a list of {@link DAObject}. If the query contains multiple columns,
      *          the results are returned in an instance of Object[]
-     *           If a Hibernate error or a database access error occurs,
+     *           If the query is invalid or a database access error occurs,
      *           an empty list will be returned.
      *           
      * @throws QueryException if the query is invalid
@@ -286,13 +294,13 @@ public interface DBService {
         throws QueryException;
     
     /**
-     * Execute a parameterized HQL query to the database, using the default database session.
+     * Execute a parameterized HQL query to the database.
      *
      * @param hql the HQL query string
      * @param params the map of parameters to be substituted in the HQL query
      * @return a list of {@link DAObject}. If the query contains multiple columns,
      *          the results are returned in an instance of Object[]
-     *           If a Hibernate error or a database access error occurs,
+     *           If the query is invalid or a database access error occurs,
      *           an empty list will be returned.
      *           
      * @throws QueryException if the query is invalid or if params contains invalid entries
@@ -303,7 +311,7 @@ public interface DBService {
         throws QueryException;
 
     /**
-     * Execute a parameterized HQL query to the database, using the default database session.
+     * Execute a parameterized HQL query to the database.
      * HQL is very similar to SQL, but differs in a variety of important ways.
      * See the hibernate documentation at
      * http://www.hibernate.org/hib_docs/reference/en/html/queryhql.html
@@ -323,7 +331,7 @@ public interface DBService {
      * @param collectionParams the map of collection parameters to be substituted in the HQL query
      * @return a list of {@link DAObject}. If the query contains multiple columns,
      *          the results are returned in an instance of Object[]
-     *           If a Hibernate error or a database access error occurs,
+     *           If the query is invalid or a database access error occurs,
      *           an empty list will be returned.
      *           
      * @throws QueryException if the query is invalid or if params or collectionParams

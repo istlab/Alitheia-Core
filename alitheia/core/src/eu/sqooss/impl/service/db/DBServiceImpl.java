@@ -71,10 +71,9 @@ import eu.sqooss.service.logging.Logger;
 import eu.sqooss.impl.service.logging.LoggerImpl;
 
 /**
- * Implementation of the Database service, providing a Hibernate Session pool
- * and high-level and low-level data access APIs.
+ * Implementation of the Database service, using Hibernate's Thread-based session handling
  * 
- * @author ???, Romain Pokrzywka
+ * @author Romain Pokrzywka
  * 
  */
 public class DBServiceImpl implements DBService, FrameworkListener {
