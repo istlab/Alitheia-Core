@@ -140,34 +140,6 @@ public class Terrier {
         currentProject = p;
     }
 
-/* Should not be called / needed: It  takes ages for large projects
-    /**
-     * Gets the list of all known project versions. The first field in each
-     * version token contains the version number. The second field contains
-     * the corresponding version ID.
-     *
-     * @param projectId The ID of the selected project.
-     * @return the list of project versions
-     * /
-    public SortedMap<Long,Long> getProjectVersions(Long projectId) {
-        SortedMap<Long, Long> projectVersions = new TreeMap<Long, Long>();
-        if (!connection.isConnected()) {
-            return projectVersions;
-        }
-        try {
-            WSProjectVersion[] actualProjectVersions =
-                connection.getProjectAccessor().getProjectVersionsByProjectId(projectId);
-            for (WSProjectVersion nextVersion : actualProjectVersions){
-                projectVersions.put(
-                        nextVersion.getVersion(),
-                        nextVersion.getId());
-            };
-        } catch (WSException e) {
-            error = "Could not receive a list of project versions.";
-        }
-        return projectVersions;
-    }
-*/
     /**
      * Gets the list of all project that were evaluated in the attached
      * SQO-OSS framework.
@@ -195,71 +167,6 @@ public class Terrier {
         return projects;
     }
 
-/*
-// Should not be called / needed: it takes ages for large projects.
-    /**
-     * Gets the list of all versions for a project
-     *
-     * @return The list of versions in this project.
-     * /
-    public Vector<Version> getVersions4Project(Long projectId) {
-        Vector<Version> versions = new Vector<Version>();
-        if (!connection.isConnected()) {
-            addError("Error: No Connection: " + connection.getError());
-            return versions;
-        }
-        try {
-            // Retrieve evaluated projects only
-            WSProjectVersion versionsResult[] =
-                connection.getProjectAccessor().getProjectVersionsByProjectId(projectId);
-            addError("#Versions: " + versionsResult.length);
-            for (WSProjectVersion wssp : versionsResult) {
-                Version v = new Version(wssp, this);
-                //Version v = new Version(projectId, wssp.getId(), this);
-                versions.addElement(v);
-                addError("Version added: " + v.getId());
-            }
-        } catch (WSException wse) {
-            addError("Cannot retrieve the list of versions for project " + projectId + ":" + wse.getMessage());
-            return versions;
-        }
-        if ( versions.size() == 0 ) {
-            addError("Zero versions in getVersions4Project()");
-        }
-        return versions;
-    }
-*/
-    /**
-     * Gets the list of all files for a project
-     *
-     * @return The list of versions in this project.
-     */
-/*
-    public Vector<File> getFiles4Project(Long projectId) {
-        Vector<File> files = new Vector<File>();
-        if (!connection.isConnected()) {
-            addError("Error: No Connection: " + connection.getError());
-            return files;
-        }
-        try {
-            // Retrieve evaluated projects only
-            WSProjectFile filesResult[] = connection.getProjectAccessor().getFilesByProjectId(projectId);
-            addError("#Files: " + filesResult.length);
-            for (WSProjectFile wspf : filesResult) {
-                File f = new File(wspf, this);
-                files.addElement(f);
-                //addError("File added: " + f.getName());
-            }
-        } catch (WSException wse) {
-            addError("Cannot retrieve the list of files for project " + projectId + ".");
-            return files;
-        }
-        if ( files.size() == 0 ) {
-            addError("Zero files in project.");
-        }
-        return files;
-    }
-*/
     /**
      * Fetch a Version by project and versionId.
      *

@@ -123,22 +123,6 @@ public class Version extends WebuiItem {
         }
     }
 
-    public String listFiles() {
-        getFiles();
-        try {
-            StringBuilder html = new StringBuilder();
-            html.append("\n<ul>");
-            for (File f: files.values()) {
-                html.append("\n\t<li>" + f.getLink() + "</li>");
-            }
-            html.append("\n</ul>");
-            return html.toString();
-        } catch (NullPointerException npe) {
-            terrier.addError("No files to list");
-            return "No files to list.";
-        }
-    }
-
     public String fileStats() {
         getFiles();
         if (fs == null) {
@@ -177,11 +161,10 @@ public class Version extends WebuiItem {
      *
      *
      */
-/*
     public String listFiles() {
         return terrier.getFiles4ProjectVersion(id).getHtml();
     }
-*/
+
     /** Count the number of files and store this number internally.
      */
     public void setFileCount(Integer n) {

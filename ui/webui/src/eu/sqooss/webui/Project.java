@@ -164,20 +164,6 @@ public class Project extends WebuiItem {
         return repository;
     }
 
-    /** Returns an HTML table with all the versions this project has.
-     */
-/*
-    public String showVersions() {
-        StringBuilder html = new StringBuilder();
-        html.append("\n<table class=\"projectversions\">");
-        html.append("\n\t<tr>\n\t\t<td><strong>version</strong></td>\n\t</tr>" );
-        for (Version v: versions.values()) {
-            html.append("\n\t<tr>\n\t\t<td><strong>No: " + v.getNumber() + "</strong></td>\n\t</tr>" );
-        }
-        html.append("\n</table");
-        return html.toString();
-    }
-*/
     /** Returns an HTML table with meta information about this project.
      */
     public String getInfo() {
@@ -255,20 +241,6 @@ public class Project extends WebuiItem {
     }
 
     /**
-     * Gets a list of all known project version numbers.
-     *
-     * @return the list of version numbers, or null if the project has no
-     * version.
-     */
-/*
-    public Set<Long> getVersions() {
-        if (versions != null) {
-            return versions.keySet();
-        }
-        return null;
-    }
-*/
-    /**
      * Gets a version by its ID.
      *
      * @return The Version under that id.
@@ -285,11 +257,7 @@ public class Project extends WebuiItem {
     public Version getCurrentVersion() {
         return currentVersion;
     }
-/*
-    public SortedMap<Long, Version> getVersions() {
-        return versions;
-    }
-*/
+
     /**
      * Returns the last selected version of this project.
      *
