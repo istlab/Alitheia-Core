@@ -166,8 +166,10 @@ public class PluginsView extends AbstractView{
                         }
                         // Persist the DB changes
                         else {
-                            sobjDB.commitDBSession();
-                            sobjDB.startDBSession();
+                            sobjDB.flushDBSession();
+                            PluginInfo pInfo =
+                                sobjPA.getPluginInfo(reqValHashcode);
+                            sobjPA.pluginUpdated(sobjPA.getPlugin(pInfo));
                         }
                     }
                     // =======================================================
@@ -180,8 +182,7 @@ public class PluginsView extends AbstractView{
                         }
                         // Persist the DB changes
                         else {
-                            sobjDB.commitDBSession();
-                            sobjDB.startDBSession();
+                            sobjDB.flushDBSession();
                         }
                     }
                 }
