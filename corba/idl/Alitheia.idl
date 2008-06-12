@@ -131,6 +131,15 @@ module alitheia
   typedef sequence<ProjectVersion> ProjectVersionList;
   typedef sequence<Metric> MetricList;
 
+  struct ResultEntry
+  {
+    string value;
+    string mimeType;
+    string mnemonic;
+  };
+  
+  typedef sequence<ResultEntry> Result;
+
   struct Checkout
   {
     ProjectVersion version;
@@ -282,28 +291,28 @@ module alitheia
   interface ProjectVersionMetric : AbstractMetric
   {
     // returns the metric's result for ProjectVersion version
-    string doGetResult( in ProjectVersion version );
+    Result doGetResult( in ProjectVersion version, in Metric m );
     // runs the metric on ProjectVersion v
     void doRun( in ProjectVersion v );
   };
   interface StoredProjectMetric : AbstractMetric
   {
     // returns the metric's result for StoredProject project
-    string doGetResult( in StoredProject project );
+    Result doGetResult( in StoredProject project, in Metric m );
     // runs the metric on StoredProject p
     void doRun( in StoredProject p );
   };
   interface ProjectFileMetric : AbstractMetric
   {
     // returns the metric's result for ProjectFile file
-    string doGetResult( in ProjectFile file );
+    Result doGetResult( in ProjectFile file, in Metric m );
     // runs the metric on ProjectFile f
     void doRun( in ProjectFile f );
   };
   interface FileGroupMetric : AbstractMetric
   {
     // returns the metric's result for FileGroup group
-    string doGetResult( in FileGroup group );
+    Result doGetResult( in FileGroup group, in Metric m );
     // runs the metric on FileGroup g
     void doRun( in FileGroup g );
   };
