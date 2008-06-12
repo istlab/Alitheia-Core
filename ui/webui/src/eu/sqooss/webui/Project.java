@@ -254,6 +254,7 @@ public class Project extends WebuiItem {
      * @return the version number, or null if the project has no version.
      */
     public Version getLastVersion() {
+        // FIXME: Implement nicely. We don't store all those versions ...
         if ((versions != null) && (versions.size() > 0)) {
             return versions.get(versions.lastKey());
         }
@@ -300,33 +301,6 @@ public class Project extends WebuiItem {
         }
     }
 
-/*
-    /**
-     * Sets the list of all known project versions. The first field in each
-     * version token must be the version number. The second field must be the
-     * corresponding version ID.
-     *
-     * @param versions the list of project versions
-     * /
-    public void setVersions() {
-        SortedMap<Long, Long> vs = terrier.getProjectVersions(id);
-        Boolean changed = false;
-        SortedMap<Long, Version> versions = new TreeMap<Long, Version>();
-        for (Long vid: vs.values()) {
-            Version v = terrier.getVersion(id, vid);
-            versions.put(vid, v);
-            changed = true;
-        }
-        if (!changed) {
-            terrier.addError("Project has no versions: " + versions.size());
-            return;
-        }
-        this.versions = versions;
-        if (versions != null && versions.size() > 0) {
-            setCurrentVersionId(getLastVersion().getId());
-        }
-    }
-*/
     public SortedMap<Long, Version> getVersions() {
         return versions;
     }
@@ -358,24 +332,6 @@ public class Project extends WebuiItem {
      */
     public void setCurrentVersionId(Long versionNumber) {
         currentVersionId = versionNumber;
-    }
-
-    public void getFiles () {
-        if (fs != null && fs.size() > 0) {
-            // Do it only once per instance
-            return;
-        }
-
-        fs = terrier.getFiles4Project(id);
-        SortedMap<Long, File> files = new TreeMap<Long, File>();
-        files.put(new Long(1337), new File(id, new Long(1337), "src/FakeFile.cpp", "FAKE_STATUS", terrier));
-        Iterator<File> filesIterator = fs.iterator();
-        while (filesIterator.hasNext()) {
-            File nextFile = filesIterator.next();
-            files.put(nextFile.getId(), nextFile);
-            //terrier.addError("File added:" + nextFile.getId());
-        }
-        fileCount = files.size();
     }
 
     /** Returns an HTML representation of the files in this project, using the ListView class.

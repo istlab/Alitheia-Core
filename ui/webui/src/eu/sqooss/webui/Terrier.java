@@ -234,6 +234,7 @@ public class Terrier {
      *
      * @return The list of versions in this project.
      */
+/*
     public Vector<File> getFiles4Project(Long projectId) {
         Vector<File> files = new Vector<File>();
         if (!connection.isConnected()) {
@@ -258,7 +259,7 @@ public class Terrier {
         }
         return files;
     }
-
+*/
     /**
      * Fetch a Version by project and versionId.
      *

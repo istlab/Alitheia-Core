@@ -122,11 +122,12 @@ public class WebuiItem {
      * point to fetch something sensible. If you run this method (and not its overload
      * in Project or Version) there's probably something wrong with your code.
      */
+/*
     protected void getFiles () {
         terrier.addError("getFiles() in WebuiItem should not be called");
         fileCount = 0;
     }
-
+*/
     /** Count the number of files and store this number internally.
      */
     public void setFileCount(Integer n) {
@@ -142,55 +143,6 @@ public class WebuiItem {
      */
     public void setFiles(SortedMap<Long, File> f) {
         files = f;
-    }
-
-    public String listFiles() {
-        getFiles();
-        try {
-            StringBuilder html = new StringBuilder();
-            html.append("\n<ul>");
-            for (File f: files.values()) {
-                html.append("\n\t<li>" + f.getLink() + "</li>");
-            }
-            html.append("\n</ul>");
-            return html.toString();
-        } catch (NullPointerException npe) {
-            terrier.addError("No files to list");
-            return "No files to list.";
-        }
-    }
-
-    public String fileStats() {
-        getFiles();
-        if (fs == null) {
-            return "No files.";
-        }
-        int total = fileCount = fs.size();
-        int added = 0;
-        int modified = 0;
-        int deleted = 0;
-
-        Iterator<File> filesIterator = fs.iterator();
-        while (filesIterator.hasNext()) {
-            File nextFile = filesIterator.next();
-            if (nextFile.getStatus().equals("MODIFIED")) {
-                modified += 1;
-            } else if (nextFile.getStatus().equals("ADDED")) {
-                added += 1;
-            } else if (nextFile.getStatus().equals("DELETED")) {
-                deleted +=1;
-            }
-        }
-
-        StringBuilder html = new StringBuilder("\n\n<table>");
-        html.append("\n\t<tr><td>" + icon("vcs_add") + "<strong>Files added:</strong></td>\n\t<td>" + added + "</td></tr>");
-        html.append("\n\t<tr><td>" + icon("vcs_update") + "<strong>Files modified:</strong></td>\n\t<td>" + modified + "</td></tr>");
-        html.append("\n\t<tr><td>" + icon("vcs_remove") + "<strong>Files deleted:</strong></td>\n\t<td>" + deleted + "</td></tr>");
-        html.append("\n\t<tr><td colspan=\"2\"><hr /></td></tr>");
-        html.append("\n\t<tr><td>" + icon("vcs_status") + "<strong>Total files changed:</strong></td><td>" + total + "</td>\n\t</tr>");
-        html.append("\n</table>");
-
-        return html.toString();
     }
 
     /** Return an HTML snippet string representing the object icon.

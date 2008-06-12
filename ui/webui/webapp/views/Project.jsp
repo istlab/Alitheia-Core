@@ -67,7 +67,7 @@ if (selectedProject.isValid()) {
                     out.println("Project doesn't seem to have versions recorded.");
                 }
                 out.println("</h2>\n");
-    
+
                 // Show the version selector
                 out.println("Choose the version you want to display: ");
                 out.println(versionSelector(selectedProject));
@@ -91,20 +91,15 @@ if (selectedProject.isValid()) {
     // Files
     int v_c = 0;
     String versionFileList = "";
+    String v = "";
     if (selectedProject.getCurrentVersion() != null) {
         versionFileList = selectedProject.getCurrentVersion().fileStats();
         //versionFileList = selectedProject.getCurrentVersion().listFiles();
         v_c = selectedProject.getCurrentVersion().getFileCount();
+        v = selectedProject.getCurrentVersion().shortName();
     }
 
-    //String projectFileList = selectedProject.listFiles();
-    String projectFileList = selectedProject.fileStats();
-    int p_c = selectedProject.getFileCount();
-
     out.println("\n<table width=\"100%\">\n\t<tr><td valign=\"top\" style=\"padding-right: 30px\" width=\"50%\">");
-
-    out.println("<h2>Files in " + selectedProject.getName() + " (" + p_c + ")</h2>");
-    out.println(projectFileList);
 
     out.println("\n\t\t</td><td valign=\"top\" width=\"50%\">");
 
@@ -117,7 +112,6 @@ if (selectedProject.isValid()) {
     out.println("\n\t\t</td>\n\t</tr>\n</table>");
 
     out.println("</div>"); // End of this group
-    //out.println("<div style=\"margin-bottom: 20px;\"></div>");
 } else {
     out.println(error("Invalid Project."));
 }

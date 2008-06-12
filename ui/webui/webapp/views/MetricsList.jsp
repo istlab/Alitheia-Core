@@ -18,6 +18,7 @@ if (selectedProject.isValid()) {
 out.println("<h2>All available metrics</h2>");
 // Show all installed metrics available
 metricsView = terrier.getAllMetrics();
+
 // We don't provide metric names yet, therefore show the description
 if (metricsView != null) {
     metricsView.setShowDescription(true);
