@@ -100,9 +100,6 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     protected HashMap<String, Class<? extends DAObject>> metricActTypes = 
         new HashMap<String, Class<? extends DAObject>>();
     
-    /** Hold references to supported metrics */
-    protected List<Metric> supportedMetrics = null;
-
     /**
      * Init basic services common to all implementing classes
      * @param bc - The bundle context of the implementing metric - to be passed
@@ -386,10 +383,8 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      * @return the list of metric descriptors, or null if none
      */
     public List<Metric> getSupportedMetrics() {
-        if (supportedMetrics == null) {
-            supportedMetrics = new ArrayList<Metric>();
-            supportedMetrics.addAll( Plugin.getPluginByHashcode(getUniqueKey()).getSupportedMetrics() );
-        }
+        List<Metric> supportedMetrics = new ArrayList<Metric>();
+        supportedMetrics.addAll( Plugin.getPluginByHashcode(getUniqueKey()).getSupportedMetrics() );
 
         if (supportedMetrics.isEmpty()) {
             return null;
