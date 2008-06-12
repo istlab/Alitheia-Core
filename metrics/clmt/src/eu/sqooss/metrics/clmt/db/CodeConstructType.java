@@ -62,6 +62,9 @@ public class CodeConstructType extends DAObject {
     
     private String type;
    
+    public CodeConstructType() {
+    }
+    
     public CodeConstructType(ConstructType t) {
         type = t.toString();
     }

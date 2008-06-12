@@ -126,11 +126,6 @@ public class CLTMImplementation extends AbstractMetric implements CLMT {
                     "Weighted Methods per Class",
                     "WMC",
                     MetricType.Type.SOURCE_CODE);
-            result &= super.addSupportedMetrics(
-                    "Depth of Inheritance Tree",
-                    "DIT",
-                    MetricType.Type.SOURCE_CODE);
-            
         }
         return result;
     }
@@ -221,9 +216,10 @@ public class CLTMImplementation extends AbstractMetric implements CLMT {
             lmr = mrlist.getResultsByFilename(file);
             
             for(MetricResult mr : lmr) {
+                Metric m =  Metric.getMetricByMnemonic(mr.getName());
+
                 if (mr.getNameCategory() != MetricNameCategory.PROJECT_WIDE) {
-                    Metric m =  Metric.getMetricByMnemonic(mr.getName());
-                    
+
                     //This measurement is not to be stored yet
                     if (m == null) {
                         return;
@@ -244,14 +240,13 @@ public class CLTMImplementation extends AbstractMetric implements CLMT {
                     meas.setMetric(m);
                     meas.setProjectFile(pf);
                     meas.setResult(mr.getValue());
-                    meas.setCodeConstructName(mr.getName());
+                    meas.setCodeConstructName(mr.getFilename());
                     meas.setCodeConstructType(CodeConstructType.getConstructType(CodeConstructType.ConstructType.fromString(mnc.toString())));
                     meas.setWhenRun(new Timestamp(System.currentTimeMillis()));
                     
                     db.addRecord(meas);
                 } else {
-                    Metric m =  Metric.getMetricByMnemonic(mr.getName());
-                    
+  
                     //This measurement is not to be stored yet
                     if (m == null) {
                         return;
@@ -265,6 +260,7 @@ public class CLTMImplementation extends AbstractMetric implements CLMT {
                     
                     db.addRecord(meas);
                 }
+                markEvaluation(m, pv.getProject());
             }
         }
     }
