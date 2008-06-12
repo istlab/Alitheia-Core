@@ -625,8 +625,8 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener, EventHandler
         while (i.hasNext()) {
             mi = i.next();
 
-            if (mi.getPluginName() == m.getName()
-                    && mi.getPluginVersion() == m.getVersion()) {
+            if (mi.getPluginName().equals(m.getName())
+                    && mi.getPluginVersion().equals(m.getVersion())) {
                 return mi;
             }
         }
