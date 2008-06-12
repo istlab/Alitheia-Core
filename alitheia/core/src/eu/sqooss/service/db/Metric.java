@@ -36,6 +36,7 @@ package eu.sqooss.service.db;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import eu.sqooss.impl.service.CoreActivator;
 import eu.sqooss.service.db.DAObject;
@@ -69,6 +70,31 @@ public class Metric extends DAObject{
      * A description of the work performed by this metric
      */
     private String description;
+    
+    /**
+     * A list of evaluation marks for this metric
+     */
+    private Set<EvaluationMark> evaluationMarks;
+    
+    /**
+     * A list of project-wide measurements for this metric
+     */
+    private Set<StoredProjectMeasurement> projectMeasurements;
+    
+    /**
+     * A list of project-version-wide measurements for this metric
+     */
+    private Set<ProjectVersionMeasurement> versionMeasurements;
+    
+    /**
+     * A list of project-file-wide measurements for this metric
+     */
+    private Set<ProjectFileMeasurement> fileMeasurements;
+    
+    /**
+     * A list of project-file-group-wide measurements for this metric
+     */
+    private Set<FileGroupMeasurement> fileGroupMeasurements;
     
     public Metric() {
         //Nothing to do here
@@ -104,6 +130,49 @@ public class Metric extends DAObject{
 
     public void setMnemonic(String mnemonic) {
         this.mnemonic = mnemonic;
+    }
+
+    public Set<EvaluationMark> getEvaluationMarks() {
+        return evaluationMarks;
+    }
+
+    public void setEvaluationMarks(Set<EvaluationMark> evaluationMarks) {
+        this.evaluationMarks = evaluationMarks;
+    }
+
+    public Set<StoredProjectMeasurement> getProjectMeasurements() {
+        return projectMeasurements;
+    }
+
+    public void setProjectMeasurements(
+            Set<StoredProjectMeasurement> projectMeasurements) {
+        this.projectMeasurements = projectMeasurements;
+    }
+
+    public Set<ProjectVersionMeasurement> getVersionMeasurements() {
+        return versionMeasurements;
+    }
+
+    public void setVersionMeasurements(
+            Set<ProjectVersionMeasurement> versionMeasurements) {
+        this.versionMeasurements = versionMeasurements;
+    }
+
+    public Set<ProjectFileMeasurement> getFileMeasurements() {
+        return fileMeasurements;
+    }
+
+    public void setFileMeasurements(Set<ProjectFileMeasurement> fileMeasurements) {
+        this.fileMeasurements = fileMeasurements;
+    }
+
+    public Set<FileGroupMeasurement> getFileGroupMeasurements() {
+        return fileGroupMeasurements;
+    }
+
+    public void setFileGroupMeasurements(
+            Set<FileGroupMeasurement> fileGroupMeasurements) {
+        this.fileGroupMeasurements = fileGroupMeasurements;
     }
 
     @Override
