@@ -47,6 +47,13 @@ public class Metric extends WebuiItem {
     private String mnemonic;
     private String type;
     private String description;
+    private String activationType;
+
+    /** Represents a ProjectFile activated metric. */
+    public static final String PROJECT_FILE = "PROJECT_FILE";
+
+    /** Represents a ProjectVersion activated metric. */
+    public static final String PROJECT_VERSION = "PROJECT_VERSION";
 
     /** Constructs a Metric from a WSMetric, including initialisation
      * of data in this object.
@@ -56,6 +63,7 @@ public class Metric extends WebuiItem {
         id          = metric.getId();
         //TODO: optimize
         type        = t.getMetricTypeById(metric.getMetricTypeId());
+        activationType = PROJECT_FILE;
         description = metric.getDescription();
         terrier     = t;
     }
@@ -69,7 +77,17 @@ public class Metric extends WebuiItem {
     }
 
     public String getType () {
+        // Note that this does not tell us wether we have a ProjectVersion
+        // or a ProjectFile metric
         return type;
+    }
+
+    public Boolean isProjectVersionMetric () {
+        return activationType == PROJECT_VERSION;
+    }
+
+    public Boolean isProjectFileMetric () {
+        return activationType == PROJECT_FILE;
     }
 
     public Integer getResult() {

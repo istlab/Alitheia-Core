@@ -34,6 +34,7 @@
 package eu.sqooss.webui;
 
 import eu.sqooss.ws.client.datatypes.WSProjectFile;
+import eu.sqooss.ws.client.datatypes.WSMetricsResultRequest;
 
 /**
  * This class represents a File in a project or version that has been
@@ -94,6 +95,10 @@ class File extends WebuiItem {
 
     public String getLink() {
         return "<a href=\"files.jsp?fid=" + id + "\">" + name + "</a>";
+    }
+
+    public void retrieveResults() {
+        // FIXME: create resultrequest, pass to terrier, store Result in here
     }
 
     /** Return a HTML string showing a statusicon indicating wether the file

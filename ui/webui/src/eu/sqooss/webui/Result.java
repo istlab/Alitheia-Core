@@ -34,6 +34,7 @@
 package eu.sqooss.webui;
 
 import eu.sqooss.ws.client.datatypes.WSMetric;
+import eu.sqooss.ws.client.datatypes.WSResultEntry;
 
 
 /**
@@ -46,14 +47,20 @@ public class Result extends WebuiItem {
 
     private String mnemonic;
     private String type;
+    private String activationType;
     private String description;
     private String data;
     private String mimetype;
 
+    /** Represents a ProjectFile activated metric. */
+    public static final String PROJECT_FILE = "PROJECT_FILE";
+
+    /** Represents a ProjectVersion activated metric. */
+    public static final String PROJECT_VERSION = "PROJECT_VERSION";
+
     /** Keep the following list of mimetypes in sync with
      * trunk/alitheia/core/src/eu/sqooss/service/abstractmetric/ResultEntry.java
      */
-
     /** Represents "type/integer" MIME type. */
     public static final String MIME_TYPE_TYPE_INTEGER = "type/integer";
 
@@ -90,15 +97,16 @@ public class Result extends WebuiItem {
     /** Constructs a Result from a WSResultEntry, including initialisation
      * of data in this object.
      */
-     /*
+
     public Result (WSResultEntry resultentry, Terrier t) {
         mnemonic    = resultentry.getMnemonic();
-        id          = resultentry.getId();
+        //id          = resultentry.getId(); //FIXME: enable
         mimetype    = resultentry.getMimeType();
         data        = resultentry.getResult();
+        activationType = PROJECT_VERSION; //FIXME: read from ResultEntry
         terrier     = t;
     }
-     */
+
     public Result (Long resultId, Terrier t) {
         mnemonic    = "LOC";
         id          = resultId;
