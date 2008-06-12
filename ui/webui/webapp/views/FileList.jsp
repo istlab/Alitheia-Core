@@ -7,16 +7,6 @@ out.println("<table><tr>");
 if (selectedProject.isValid()) {
     out.println("<td valign=\"top\">");
 
-    out.println("<h2>Files for"
-        + " project " + selectedProject.getName()
-        + "</h2>");
-
-    out.println(selectedProject.fileStats());
-    out.println(selectedProject.listFiles());
-
-    out.println("</td>");
-    out.println("<td valign=\"top\">");
-
     Version selectedVersion = selectedProject.getCurrentVersion();
     if (selectedVersion != null) {
         out.println("<h2>Files "
