@@ -96,9 +96,9 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     /** Cache the result of the mark evaluation function*/
     protected HashMap<Long, Long> evaluationMarked = new HashMap<Long, Long>();
 
-    /** Cache */
-    protected HashMap<Metric, Class<? extends DAObject>> metricActTypes = 
-        new HashMap<Metric, Class<? extends DAObject>>();
+    /** Metric activation types */
+    protected HashMap<String, Class<? extends DAObject>> metricActTypes = 
+        new HashMap<String, Class<? extends DAObject>>();
     
     /** Hold references to supported metrics */
     protected List<Metric> supportedMetrics = null;
@@ -649,16 +649,16 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     }
     
     public final Class<? extends DAObject> getMetricActivationType(Metric m) {
-        if (!metricActTypes.containsKey(m)) {
+        if (!metricActTypes.containsKey(m.getMnemonic())) {
             return null;
         }
-        return metricActTypes.get(m);
+        return metricActTypes.get(m.getMnemonic());
     }
     
-    protected final void addMetricActivationType(Metric m, 
+    protected final void addMetricActivationType(String mnemonic, 
             Class<? extends DAObject> c) {
-        if (!metricActTypes.containsKey(m)) {
-            metricActTypes.put(m, c);
+        if (!metricActTypes.containsKey(mnemonic)) {
+            metricActTypes.put(mnemonic, c);
         }
     }
 }
