@@ -38,6 +38,7 @@ import java.util.HashMap;
 
 public class ProductivityMetricActions {
 
+    /** Maps categories to actions*/
     public static HashMap<ActionCategory, ArrayList<ActionType>> types = 
         new java.util.HashMap<ActionCategory, ArrayList<ActionType>>();
     
@@ -56,45 +57,66 @@ public class ProductivityMetricActions {
         types.put(ActionCategory.C, c);
     }
     
+    /**
+     * A basic categorization of the all the possible actions on
+     * various project assets
+     */
     public enum ActionType {
-        CNS, // Commit new source file
-        CND, // Commit new directory
-        CDF, // Commit documentation files
-        CTF, // Commit translation files
-        CBF, // Commit binary files
-        CEC, // Commit with empty commit comment,
-        CMF, // Commit more than X files in a single commit
-        TCO, // Commit (for calculating the number of commits per developer)
-        TCF, // Commit files (for calculating the number of committed files
-                // per developer)
-        CBN, // Commit comment that includes a bug report number
-        CPH, // Commit comment that awards a pointy hat
-        CAL; //Add or remove lines of code
+        /** Commit new source file */
+        CNS,
+        /** Commit new directory */
+        CND,
+        /** Commit documentation files */
+        CDF,
+        /** Commit translation files */
+        CTF,
+        /** Commit binary files */
+        CBF,
+        /** Commit with empty commit message */
+        CEC,
+        /** Commit more than X files in a single commit */
+        CMF,
+        /** 
+         * Commit to the SCM repository (for calculating the number
+         * of commits per developer) 
+         */
+        TCO,
+        /**
+         * Commit files (for calculating the number of committed files per
+         * developer)
+         */
+        TCF,
+        /** Commit comment that includes a bug report number */
+        CBN,
+        /** Commit comment that awards a pointy hat */
+        CPH,
+        /** Add or remove lines of code */
+        CAL;
         
         public static ActionType fromString(String s) {
-            if ("CNS".equals(s))
+            if ("CNS".equalsIgnoreCase(s))
                 return ActionType.CNS;
-            else if ("CND".equals(s))
+            else if ("CND".equalsIgnoreCase(s))
                 return ActionType.CND;
-            else if ("CDF".equals(s))
+            else if ("CDF".equalsIgnoreCase(s))
                 return ActionType.CDF;
-            else if ("CTF".equals(s))
+            else if ("CTF".equalsIgnoreCase(s))
                 return ActionType.CTF;
-            else if ("CBF".equals(s))
+            else if ("CBF".equalsIgnoreCase(s))
                 return ActionType.CBF;
-            else if ("CEC".equals(s))
+            else if ("CEC".equalsIgnoreCase(s))
                 return ActionType.CEC;
-            else if ("CMF".equals(s))
+            else if ("CMF".equalsIgnoreCase(s))
                 return ActionType.CMF;
-            else if ("TCO".equals(s))
+            else if ("TCO".equalsIgnoreCase(s))
                 return ActionType.TCO;
-            else if ("TCF".equals(s))
+            else if ("TCF".equalsIgnoreCase(s))
                 return ActionType.TCF;
-            else if ("CBN".equals(s))
+            else if ("CBN".equalsIgnoreCase(s))
                 return ActionType.CBN;
-            else if ("CPH".equals(s))
+            else if ("CPH".equalsIgnoreCase(s))
                 return ActionType.CPH;
-            else if ("CAL".equals(s))
+            else if ("CAL".equalsIgnoreCase(s))
                 return ActionType.CAL;
             else
                 return null;
@@ -105,17 +127,23 @@ public class ProductivityMetricActions {
         }
     }
     
+    /**
+     * An action can fall into in one of those categories
+     */
     public enum ActionCategory{
-        C,  //Code and documentation repository
-        M,  //Mailing lists - forums
-        B;   //Bug database
+        /** Code and documentation repository */
+        C,
+        /** Mailing lists - forums */
+        M,
+        /** Bug database*/
+        B;  
         
         public static ActionCategory fromString(String s){
-            if ("C".equals(s))
+            if ("C".equalsIgnoreCase(s))
                 return ActionCategory.C;
-            else if ("M".equals(s))
+            else if ("M".equalsIgnoreCase(s))
                 return ActionCategory.M;
-            else if ("B".equals(s))
+            else if ("B".equalsIgnoreCase(s))
                 return ActionCategory.B;
             else
                 return null;
@@ -132,7 +160,6 @@ public class ProductivityMetricActions {
             return null;
         }
     }
-
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

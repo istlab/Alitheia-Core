@@ -37,9 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 
-import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.impl.metrics.productivity.ProductivityMetricActions.ActionCategory;
 import eu.sqooss.impl.metrics.productivity.ProductivityMetricActions.ActionType;
 import eu.sqooss.metrics.productivity.ProductivityMetric;
@@ -52,18 +50,18 @@ import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.pa.PluginInfo;
-import eu.sqooss.service.scheduler.Scheduler;
 
 public class ProductivityMetricImpl extends AbstractMetric implements
         ProductivityMetric {
 
+    public static final String CONFIG_CMF_THRES = "CMF_threshold";
+    
     public ProductivityMetricImpl(BundleContext bc) {
         super(bc);
         super.addActivationType(ProjectVersion.class);
         super.addActivationType(Developer.class);
         
         super.addMetricActivationType("PROD", Developer.class);
-        
     }
     
     public boolean install() {
@@ -74,81 +72,78 @@ public class ProductivityMetricImpl extends AbstractMetric implements
                      "PROD",
                      MetricType.Type.PROJECT_WIDE);
          }
-         addConfigEntry("CMF_threshold", 
+         addConfigEntry(CONFIG_CMF_THRES, 
                  "5" , 
                  "Number of committed files above which the developer is penalized", 
                  PluginInfo.ConfigurationType.INTEGER);
          return result;
     }
 
-	public List<ResultEntry> getResult(ProjectVersion a, Metric m) {
+    public List<ResultEntry> getResult(ProjectVersion a, Metric m) {
         return null;
-	}
-	
-	public List<ResultEntry> getResult(Developer a, Metric m) {
+    }
+
+    public List<ResultEntry> getResult(Developer a, Metric m) {
         // TODO test
-	    ArrayList<ResultEntry> results = new ArrayList<ResultEntry>();
-	    ProductivityWeights weight;
-	    double value = 0;
-	    
+        ArrayList<ResultEntry> results = new ArrayList<ResultEntry>();
+        ProductivityWeights weight;
+        double value = 0;
+
         ActionCategory[] actionCategories = ActionCategory.values();
-        
-        for(int i=0; i<actionCategories.length; i++){
+
+        for (int i = 0; i < actionCategories.length; i++) {
             weight = ProductivityWeights.getWeight(actionCategories[i]);
-            
+
             if (weight != null) {
-                value = value + weight.getWeight() * 
-                                getResultPerActionCategory(a, actionCategories[i]);
+                value = value + weight.getWeight()
+                * getResultPerActionCategory(a, actionCategories[i]);
             }
         }
-	    
-	    ResultEntry entry = 
-            new ResultEntry(value, ResultEntry.MIME_TYPE_TYPE_LONG, m.getMnemonic());
+
+        ResultEntry entry = new ResultEntry(value,
+                ResultEntry.MIME_TYPE_TYPE_LONG, m.getMnemonic());
         results.add(entry);
-	    return results;
+        return results;
     }
 
-	public void run(ProjectVersion v) {
-		 try {
-			 ProductivityMetricJob j = new ProductivityMetricJob(this, v);
-
-	         ServiceReference serviceRef = null;
-	         serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
-	         Scheduler s = ((AlitheiaCore) bc.getService(serviceRef)).getScheduler();
-
-	         s.enqueue(j);
-	         j.waitForFinished();
-		 } catch (Exception e) {
-			 log.error("Could not schedule productivity-metric job for project version: " 
-	                    + v.getVersion());
-	     }
-		
-	}
-	
-	public void run(Developer v) {       
+    public void run(ProjectVersion v) {
+        try {
+            ProductivityMetricJob j = new ProductivityMetricJob(bc, this, v);
+            j.run();
+        } catch (Exception e) {
+            log.error("Could not schedule productivity-metric job for project version: " 
+                    + v.getVersion());
+        }
     }
-	
-	private double getResultPerActionCategory(Developer a, ActionCategory actionCategory){
-	    ArrayList<ActionType> actionTypes = ActionType.getActionTypes(actionCategory);
-	    ProductivityWeights weight;
-	    ProductivityActions totalActions;
-	    double value = 0;
-	    
-	    for(int i=0; i<actionTypes.size(); i++){
-	        weight = ProductivityWeights.getWeight(actionTypes.get(i));
-	        
-	        if (weight != null) {
-	            totalActions = ProductivityActions.getProductivityAction(a, actionTypes.get(i));
-	            if(totalActions != null){
-	                if (totalActions.getIsPositive())
-	                    value = value + weight.getWeight() * totalActions.getTotal();
-	                else
-	                    value = value - weight.getWeight() * totalActions.getTotal();
-	            }
+
+    public void run(Developer v) {
+        
+    }
+
+    private double getResultPerActionCategory(Developer a, 
+            ActionCategory actionCategory){
+        ArrayList<ActionType> actionTypes = 
+            ActionType.getActionTypes(actionCategory);
+        ProductivityWeights weight;
+        ProductivityActions totalActions;
+        double value = 0;
+
+        for(int i=0; i<actionTypes.size(); i++){
+            weight = ProductivityWeights.getWeight(actionTypes.get(i));
+
+            if (weight != null) {
+                totalActions = ProductivityActions.getProductivityAction(a, 
+                        actionTypes.get(i));
+                if(totalActions != null){
+                    if (totalActions.getIsPositive())
+                        value += weight.getWeight() * totalActions.getTotal();
+                    else
+                        value -= weight.getWeight() * totalActions.getTotal();
+                }
             }
-	    }
-	    return value;
-	}
+        }
+        return value;
+    }
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab
