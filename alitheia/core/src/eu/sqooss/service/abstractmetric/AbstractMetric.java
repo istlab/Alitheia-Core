@@ -69,8 +69,8 @@ import eu.sqooss.service.util.Pair;
  * A base class for all metrics. Implements basic functionality such as
  * logging setup and plug-in information retrieval from the OSGi bundle
  * manifest file. Metrics can choose to directly implement
- * the {@link eu.sqooss.abstractmetric.AlitheiaPlugin} interface instead of extending
- * this class.
+ * the {@link eu.sqooss.abstractmetric.AlitheiaPlugin} interface instead of 
+ * extending this class.
  */
 public abstract class AbstractMetric implements AlitheiaPlugin {
 
@@ -263,25 +263,26 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      * @throws MetricMismatchException if the DAO is of a type
      *      not supported by this metric.
      */
-    public Result getResult(DAObject o, List<Metric> l) throws MetricMismatchException {
+    public Result getResult(DAObject o, List<Metric> l) 
+    throws MetricMismatchException {
         Result r = getResultIfAlreadyCalculated(o, l);
 
         // the result hasn't been calculated yet. Do so.
         if (r.getRowCount() == 0) {
-        	synchronized(lockObject(o)) {
-        		try {
-        			run(o);
-        			r = getResultIfAlreadyCalculated(o, l);
+            synchronized (lockObject(o)) {
+                try {
+                    run(o);
+                    r = getResultIfAlreadyCalculated(o, l);
 
-        			if (r.getRowCount() == 0) {
-        				log.info("The metric didn't returned "
-                               + "a result even after running it: "
-                               + getClass().getCanonicalName());
-            	    }
-        		} finally {
-        			unlockObject(o);
-        		}
-        	}
+                    if (r.getRowCount() == 0) {
+                        log.info("The metric didn't returned "
+                                + "a result even after running it: "
+                                + getClass().getCanonicalName());
+                    }
+                } finally {
+                    unlockObject(o);
+                }
+            }
         }
 
         return r;
@@ -290,14 +291,15 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     private Map<Long,Pair<Object,Integer>> locks = new HashMap<Long,Pair<Object,Integer>>();
     
     private Object lockObject(DAObject o) {
-    	synchronized(locks) {
-    		if (!locks.containsKey(o.getId())) {
-    			locks.put(o.getId(), new Pair<Object,Integer>(new Object(), 0));
-    		}
-    		Pair<Object,Integer> p = locks.get(o.getId());
-    		p.second = p.second + 1;
-    		return p.first;
-    	}
+    	synchronized (locks) {
+            if (!locks.containsKey(o.getId())) {
+                locks.put(o.getId(), 
+                        new Pair<Object, Integer>(new Object(),0));
+            }
+            Pair<Object, Integer> p = locks.get(o.getId());
+            p.second = p.second + 1;
+            return p.first;
+        }
     }
     
     private void unlockObject(DAObject o) {
@@ -320,8 +322,6 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      *                sub-interface.
      * @throws MetricMismatchException
      *                 if the DAO is of a type not supported by this metric.
-     *
-     * FIXME:
      */
     public void run(DAObject o) throws MetricMismatchException {
 
@@ -532,6 +532,15 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         return activationTypes;
     }
 
+    /**
+     * Add an activation type for the plug-in. Plug-ins can have multiple
+     * activation types, depending on which project resource they are 
+     * interested in. 
+     * 
+     * The activation types are not persisted across restarts
+     *  
+     * @param c The activation type to register for the plug-in
+     */
     protected final void addActivationType(Class<? extends DAObject> c) {
         activationTypes.add(c);
         // Call the Plug-in Admin only on started metric bundles
@@ -541,15 +550,13 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     }
 
     /**
-     * Return an MD5 hex key.
+     * Return an MD5 hex key uniquely identifying the plug-in
      */
     public final String getUniqueKey() {
         return DigestUtils.md5Hex(this.getClass().getCanonicalName());
     }
 
-    /* (non-Javadoc)
-     * @see eu.sqooss.service.abstractmetric.AlitheiaPlugin#getConfigurationSchema()
-     */
+    /** {@inheritDoc} */
     public final Set<PluginConfiguration> getConfigurationSchema() {
         // Retrieve the plug-in's info object
         PluginInfo pi = pa.getPluginInfo(getUniqueKey());
@@ -653,6 +660,32 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         }
     }
     
+    /**
+     * Get a configuration option for this metric from the plugin configuration
+     * store
+     * 
+     * @param config The configuration option to retrieve
+     * @return The configuration entry corresponding the provided description or
+     * null if not found in the plug-in's configuration schema
+     */
+    public PluginConfiguration getConfigurationOption(String config) {
+        Set<PluginConfiguration> conf = 
+            pa.getPluginInfo(getUniqueKey()).getConfiguration();
+        
+        Iterator<PluginConfiguration> i = conf.iterator();
+        
+        while (i.hasNext()) {
+            PluginConfiguration pc = i.next();
+            if (pc.getName().equals(config)) {
+                return pc;
+            }
+        }
+        
+        /* Config option not found */
+        return null;
+    }
+    
+    /**{@inheritDoc}*/
     public final Class<? extends DAObject> getMetricActivationType(Metric m) {
         if (!metricActTypes.containsKey(m.getMnemonic())) {
             return null;
@@ -660,10 +693,17 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         return metricActTypes.get(m.getMnemonic());
     }
     
+    /**
+     * Update the mappings between metric and project resources against which
+     * metric results are stored against
+     * 
+     * @param mnemonic The metric mnemonic to update
+     * @param c The activation type for the provided mnemonic
+     */
     protected final void addMetricActivationType(String mnemonic, 
             Class<? extends DAObject> c) {
         if (!metricActTypes.containsKey(mnemonic)) {
             metricActTypes.put(mnemonic, c);
         }
-    }
+    }  
 }
