@@ -51,26 +51,26 @@ import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 
 public class ProjectManagerDatabase implements ProjectManagerDBQueries {
-    
+
     private DBService db;
-    
+
     public ProjectManagerDatabase(DBService db) {
         this.db = db;
     }
-    
+
     public WSStoredProject[] getEvaluatedProjects() {
         List<?> evaluatedProjects = db.doHQL(GET_EVALUATED_PROJECTS);
         WSStoredProject[] result = WSStoredProject.asArray(evaluatedProjects);
         return result;
     }
-    
+
     public WSStoredProject[] getStoredProjects(Map<String, Object> properties) {
         List<StoredProject> storedProjects = db.findObjectsByProperties(
                 StoredProject.class, properties);
         WSStoredProject[] result = WSStoredProject.asArray(storedProjects);
         return result;
     }
-    
+
     public WSProjectVersion[] getProjectVersionsByProjectId(long projectId) {
         StoredProject storedProject = db.findObjectById(StoredProject.class, projectId);
         WSProjectVersion[] result = null;
@@ -80,7 +80,7 @@ public class ProjectManagerDatabase implements ProjectManagerDBQueries {
         }
         return result;
     }
-    
+
     @SuppressWarnings("unchecked")
     public WSStoredProject[] getProjectsByIds(Collection<Long> ids) {
         Map<String, Collection> queryParameters = new Hashtable<String, Collection>(1);
@@ -98,7 +98,7 @@ public class ProjectManagerDatabase implements ProjectManagerDBQueries {
         WSProjectVersion[] result = WSProjectVersion.asArray(projectVersions);
         return result;
     }
-    
+
     @SuppressWarnings("unchecked")
     public WSProjectVersion[] getProjectVersionsByVersionNumbers(
             long projectId, Collection<Long> versionNumbers) {
@@ -112,7 +112,7 @@ public class ProjectManagerDatabase implements ProjectManagerDBQueries {
         WSProjectVersion[] result = WSProjectVersion.asArray(projectVersions);
         return result;
     }
-    
+
     @SuppressWarnings("unchecked")
     public WSProjectVersion[] getLastProjectVersions(Collection<Long> ids) {
         Map<String, Collection> queryParameters = new Hashtable<String, Collection>(1);
@@ -121,20 +121,15 @@ public class ProjectManagerDatabase implements ProjectManagerDBQueries {
         WSProjectVersion[] result = WSProjectVersion.asArray(projectVersions);
         return result;
     }
-    
-    public WSProjectFile[] getFilesByProjectId(long projectId) {
-        Map<String, Object> queryParameters = new Hashtable<String, Object>(1);
-        queryParameters.put(GET_FILES_BY_PROJECT_ID_PARAM, projectId);
 
-        List<?> projectFiles = db.doHQL(GET_FILES_BY_PROJECT_ID, queryParameters);
-        WSProjectFile[] result = convertToWSProjectFiles(projectFiles);
-        return result;
+    public WSProjectFile[] getFilesByProjectId(long projectId) {
+        return null;
     }
-    
+
     public WSProjectFile[] getFilesByProjectVersionId(long projectVersionId) {
         Map<String, Object> queryParameters = new Hashtable<String, Object>(1);
         queryParameters.put(GET_FILES_BY_PROJECT_VERSION_ID_PARAM, projectVersionId);
-        
+
         WSProjectFile[] result;
         try {
             List<?> projectVersionFiles = db.doSQL(GET_FILES_BY_PROJECT_VERSION_ID, queryParameters);
@@ -144,20 +139,20 @@ public class ProjectManagerDatabase implements ProjectManagerDBQueries {
         }
         return result;
     }
-    
+
     public WSFileGroup[] getFileGroupsByProjectId(long projectVersionId) {
         Map<String, Object> queryParameters = new Hashtable<String, Object>(1);
         queryParameters.put(GET_FILE_GROUPS_BY_PROJECT_ID_PARAM, projectVersionId);
-        
+
         List<?> projectFileGroups = db.doHQL(GET_FILE_GROUPS_BY_PROJECT_ID, queryParameters);
         WSFileGroup[] result = WSFileGroup.asArray(projectFileGroups);
         return result;
     }
-    
+
     public long getFilesNumberByProjectVersionId(long projectVersionId) {
         Map<String, Object> queryParameters = new Hashtable<String, Object>(1);
         queryParameters.put(GET_FILES_NUMBER_BY_PROJECT_VERSION_ID_PARAM, projectVersionId);
-        
+
         long result = 0;
         try {
             List<?> projectVersionFilesNumber = db.doSQL(GET_FILES_NUMBER_BY_PROJECT_VERSION_ID, queryParameters);
@@ -169,7 +164,7 @@ public class ProjectManagerDatabase implements ProjectManagerDBQueries {
         }
         return result;
     }
-    
+
     @SuppressWarnings("unchecked")
     public WSDirectory[] getDirectoriesByIds(Collection<Long> ids) {
         Map<String, Collection> queryParameters = new Hashtable<String, Collection>();
@@ -178,7 +173,7 @@ public class ProjectManagerDatabase implements ProjectManagerDBQueries {
         WSDirectory[] result = WSDirectory.asArray(directories);
         return result;
     }
-    
+
     @SuppressWarnings("unchecked")
     public WSDeveloper[] getDevelopersByIds(Collection<Long> ids) {
         Map<String, Collection> queryParameters = new Hashtable<String, Collection>();
@@ -187,7 +182,7 @@ public class ProjectManagerDatabase implements ProjectManagerDBQueries {
         WSDeveloper[] result = WSDeveloper.asArray(developers);
         return result;
     }
-    
+
     private WSProjectFile[] convertToWSProjectFiles(List<?> projectFiles) {
         WSProjectFile[] result = null;
         if ((projectFiles != null) && (projectFiles.size() != 0)) {
@@ -212,7 +207,7 @@ public class ProjectManagerDatabase implements ProjectManagerDBQueries {
                     projectVersionId = (BigInteger)currentFile[3];
                     status = (String)currentFile[4];
                     isDirectory = (Boolean)currentFile[5];
-                    
+
                     currentWSProjectFile = new WSProjectFile();
                     currentWSProjectFile.setId(fileId.longValue());
                     currentWSProjectFile.setDirectoryId(directoryId.longValue());
@@ -220,7 +215,7 @@ public class ProjectManagerDatabase implements ProjectManagerDBQueries {
                     currentWSProjectFile.setStatus(status);
                     currentWSProjectFile.setProjectVersionId(projectVersionId.longValue());
                     currentWSProjectFile.setFileName(fileName);
-                    
+
                     result[i] = currentWSProjectFile;
                 }
             }

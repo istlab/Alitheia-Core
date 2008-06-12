@@ -49,18 +49,18 @@ import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.security.SecurityManager;
 
 public class ProjectManager extends AbstractManager {
-    
+
     private Logger logger;
     private ProjectManagerDatabase dbWrapper;
     private ProjectSecurityWrapper securityWrapper;
-    
+
     public ProjectManager(Logger logger, DBService db, SecurityManager security) {
         super(db);
         this.logger = logger;
         this.dbWrapper = new ProjectManagerDatabase(db);
         this.securityWrapper = new ProjectSecurityWrapper(security, db);
     }
-    
+
     /**
      * @see eu.sqooss.service.web.services.WebServices#getEvaluatedProjects(String, String)
      */
@@ -68,23 +68,23 @@ public class ProjectManager extends AbstractManager {
         logger.info("Gets the evaluated project list! user: " + userName);
 
         db.startDBSession();
-        
+
         try {
             securityWrapper.checkDBReadAccess(userName, password);
         } catch (SecurityException se) {
             db.commitDBSession();
             throw se;
         }
-        
+
         super.updateUserActivity(userName);
-        
+
         WSStoredProject[] result = dbWrapper.getEvaluatedProjects();
-        
+
         db.commitDBSession();
-        
+
         return (WSStoredProject[]) normalizeWSArrayResult(result);
     }
-    
+
     /**
      * @see eu.sqooss.service.web.services.WebServices#getStoredProjects(String, String)
      */
@@ -92,23 +92,23 @@ public class ProjectManager extends AbstractManager {
         logger.info("Gets the stored project list! user: " + userName);
 
         db.startDBSession();
-        
+
         try {
             securityWrapper.checkDBReadAccess(userName, password);
         } catch (SecurityException se) {
             db.commitDBSession();
             throw se;
         }
-        
+
         super.updateUserActivity(userName);
-    
+
         WSStoredProject[] result = dbWrapper.getStoredProjects(new Hashtable<String, Object>());
-        
+
         db.commitDBSession();
-        
+
         return (WSStoredProject[]) normalizeWSArrayResult(result);
     }
-    
+
     /**
      * @see eu.sqooss.service.web.services.WebServices#getProjectByName(String, String, String)
      */
@@ -118,7 +118,7 @@ public class ProjectManager extends AbstractManager {
                 "; project name: " + projectName);
 
         db.startDBSession();
-        
+
         try {
             securityWrapper.checkDBProjectsReadAccess(
                     userName, password, null, projectName);
@@ -126,9 +126,9 @@ public class ProjectManager extends AbstractManager {
             db.commitDBSession();
             throw se;
         }
-        
+
         super.updateUserActivity(userName);
-        
+
         Map<String, Object> properties = new Hashtable<String, Object>(1);
         properties.put("name", projectName);
         WSStoredProject[] projects = dbWrapper.getStoredProjects(properties);
@@ -139,7 +139,7 @@ public class ProjectManager extends AbstractManager {
             return null;
         }
     }
-    
+
     /**
      * @see eu.sqooss.service.web.services.WebServices#getProjectVersionsByProjectId(String, String, long)
      */
@@ -149,7 +149,7 @@ public class ProjectManager extends AbstractManager {
                 "; project's id: " + projectId);
 
         db.startDBSession();
-        
+
         try {
             securityWrapper.checkDBProjectsReadAccess(
                     userName, password, new long[] {projectId}, null);
@@ -159,14 +159,14 @@ public class ProjectManager extends AbstractManager {
         }
 
         super.updateUserActivity(userName);
-        
+
         WSProjectVersion[] result = dbWrapper.getProjectVersionsByProjectId(projectId);
-        
+
         db.commitDBSession();
-        
+
         return (WSProjectVersion[]) normalizeWSArrayResult(result);
     }
-    
+
     /**
      * @see eu.sqooss.service.web.services.WebServices#getProjectVersionsByIds(String, String, long[])
      */
@@ -177,7 +177,7 @@ public class ProjectManager extends AbstractManager {
                 "; project versions' ids: " + Arrays.toString(projectVersionsIds));
 
         db.startDBSession();
-        
+
         try {
             securityWrapper.checkProjectVersionsReadAccess(
                     userName, password, projectVersionsIds);
@@ -187,15 +187,15 @@ public class ProjectManager extends AbstractManager {
         }
 
         super.updateUserActivity(userName);
-        
+
         WSProjectVersion[] result = dbWrapper.getProjectVersionsByIds(
                 asCollection(projectVersionsIds));
-        
+
         db.commitDBSession();
-        
+
         return (WSProjectVersion[]) normalizeWSArrayResult(result);
     }
-    
+
     /**
      * @see eu.sqooss.service.web.services.WebServices#getProjectVersionsByVersionNumbers(String, String, long, long[])
      */
@@ -204,57 +204,57 @@ public class ProjectManager extends AbstractManager {
             String password,
             long projectId,
             long[] versionNumbers) {
-        
+
         logger.info("Retrieve project versions by project id and version numbers! user: " +
         		userName + "; project id: " + projectId + "; version numbers: " + Arrays.toString(versionNumbers));
-        
+
         db.startDBSession();
-        
+
         try {
             securityWrapper.checkDBReadAccess(userName, password);
         } catch (SecurityException se) {
             db.commitDBSession();
             throw se;
         }
-        
+
         super.updateUserActivity(userName);
-        
+
         WSProjectVersion[] result = dbWrapper.getProjectVersionsByVersionNumbers(
                 projectId, asCollection(versionNumbers));
-        
+
         db.commitDBSession();
-        
+
         return (WSProjectVersion[]) normalizeWSArrayResult(result);
     }
-    
+
     /**
      * @see eu.sqooss.service.web.services.WebServices#getLastProjectVersions(String, String, long[])
      */
     public WSProjectVersion[] getLastProjectVersions(String userName,
             String password, long[] projectsIds) {
-        
+
         logger.info("Retrieve last project version! user: "  + userName +
                 "; project id: " + Arrays.toString(projectsIds));
-        
+
         db.startDBSession();
-        
+
         try {
             securityWrapper.checkDBProjectsReadAccess(userName, password, projectsIds, null);
         } catch (SecurityException se) {
             db.commitDBSession();
             throw se;
         }
-        
+
         super.updateUserActivity(userName);
-        
+
         WSProjectVersion[] result = dbWrapper.getLastProjectVersions(
                 asCollection(projectsIds));
-        
+
         db.commitDBSession();
-        
+
         return (WSProjectVersion[]) normalizeWSArrayResult(result);
     }
-    
+
     /**
      *  @see eu.sqooss.service.web.services.WebServices#getProjectsByIds(String, String, long[])
      */
@@ -264,7 +264,7 @@ public class ProjectManager extends AbstractManager {
                 "; projects' ids: " + Arrays.toString(projectsIds) );
 
         db.startDBSession();
-        
+
         try {
             securityWrapper.checkDBProjectsReadAccess(userName, password,
                     projectsIds, null);
@@ -274,22 +274,22 @@ public class ProjectManager extends AbstractManager {
         }
 
         super.updateUserActivity(userName);
-        
+
         WSStoredProject[] result = dbWrapper.getProjectsByIds(asCollection(projectsIds));
-        
+
         db.commitDBSession();
-        
+
         return (WSStoredProject[]) normalizeWSArrayResult(result);
     }
-    
+
     /**
      * @see eu.sqooss.service.web.services.WebServices#getFilesByProjectId(String, String, String)
      */
     public WSProjectFile[] getFilesByProjectId(String userName, String password, long projectId) {
-        logger.info("Retrieve file list! user: " + userName + "; project id: " + projectId);
+        logger.warn("Deprecated getFilesByProjectId called. PID=" + projectId);
 
         db.startDBSession();
-        
+
         try {
             securityWrapper.checkDBProjectsReadAccess(
                     userName, password, new long[] {projectId}, null);
@@ -299,23 +299,23 @@ public class ProjectManager extends AbstractManager {
         }
 
         super.updateUserActivity(userName);
-        
+
         WSProjectFile[] result = dbWrapper.getFilesByProjectId(projectId);
-        
+
         db.commitDBSession();
-        
+
         return (WSProjectFile[]) normalizeWSArrayResult(result);
     }
-    
+
     /**
      * @see eu.sqooss.service.web.services.WebServices#getFilesByProjectVersionId(String, String, long)
      */
     public WSProjectFile[] getFilesByProjectVersionId(String userName, String password, long projectVersionId) {
         logger.info("Get file list for project version! user: " + userName +
                 "; project version id: " + projectVersionId);
-        
+
         db.startDBSession();
-        
+
         try {
             securityWrapper.checkProjectVersionsReadAccess(
                     userName, password, new long[] {projectVersionId});
@@ -323,16 +323,16 @@ public class ProjectManager extends AbstractManager {
             db.commitDBSession();
             throw se;
         }
-        
+
         super.updateUserActivity(userName);
-        
+
         WSProjectFile[] result = dbWrapper.getFilesByProjectVersionId(projectVersionId);
-        
+
         db.commitDBSession();
-        
+
         return (WSProjectFile[]) normalizeWSArrayResult(result);
     }
-    
+
     /**
      * @see eu.sqooss.service.web.services.WebServices#getFileGroupsByProjectId(String, String, long)
      */
@@ -340,9 +340,9 @@ public class ProjectManager extends AbstractManager {
             String password, long projectId) {
         logger.info("Get a file group list for the project! user: " + userName +
                 "; project id: " + projectId);
-        
+
         db.startDBSession();
-        
+
         try {
             securityWrapper.checkDBProjectsReadAccess(
                     userName, password, new long[] {projectId}, null);
@@ -350,25 +350,25 @@ public class ProjectManager extends AbstractManager {
             db.commitDBSession();
             throw se;
         }
-        
+
         super.updateUserActivity(userName);
-        
+
         WSFileGroup[] result = dbWrapper.getFileGroupsByProjectId(projectId);
-        
+
         db.commitDBSession();
-        
+
         return (WSFileGroup[]) normalizeWSArrayResult(result);
     }
-    
+
     /**
      * @see eu.sqooss.service.web.services.WebServices#getFilesNumberByProjectVersionId(String, String, long)
      */
     public long getFilesNumberByProjectVersionId(String userName, String password, long projectVersionId) {
         logger.info("Get files's number for project version! user: " + userName +
                 "; project version id: " + projectVersionId);
-        
+
         db.startDBSession();
-        
+
         try {
             securityWrapper.checkProjectVersionsReadAccess(
                     userName, password, new long[] {projectVersionId});
@@ -376,16 +376,16 @@ public class ProjectManager extends AbstractManager {
             db.commitDBSession();
             throw se;
         }
-        
+
         super.updateUserActivity(userName);
-        
+
         long result = dbWrapper.getFilesNumberByProjectVersionId(projectVersionId);
-        
+
         db.commitDBSession();
-        
+
         return result;
     }
-    
+
     /**
      * @see eu.sqooss.service.web.services.WebServices#getDirectoriesByIds(String, String, long[])
      */
@@ -393,26 +393,26 @@ public class ProjectManager extends AbstractManager {
             long[] directoriesIds) {
         logger.info("Get directories by ids! user: " + userName +
                 "; directories' ids: " + Arrays.toString(directoriesIds));
-        
+
         db.startDBSession();
-        
+
         try {
             securityWrapper.checkDBReadAccess(userName, password);
         } catch (SecurityException se) {
             db.commitDBSession();
             throw se;
         }
-        
+
         super.updateUserActivity(userName);
-        
+
         WSDirectory[] result = dbWrapper.getDirectoriesByIds(
                 asCollection(directoriesIds));
-        
+
         db.commitDBSession();
-        
+
         return (WSDirectory[]) normalizeWSArrayResult(result);
     }
-    
+
     /**
      * @see eu.sqooss.service.web.services.WebServices#getDevelopersByIds(String, String, long[])
      */
@@ -420,26 +420,26 @@ public class ProjectManager extends AbstractManager {
             long[] developersIds) {
         logger.info("Get developers by ids! useR: " + userName +
                 "; developers' ids: " + Arrays.toString(developersIds));
-        
+
         db.startDBSession();
-        
+
         try {
             securityWrapper.checkDBReadAccess(userName, password);
         } catch (SecurityException se) {
             db.commitDBSession();
             throw se;
         }
-        
+
         super.updateUserActivity(userName);
-        
+
         WSDeveloper[] result = dbWrapper.getDevelopersByIds(
                 asCollection(developersIds));
-        
+
         db.commitDBSession();
-        
+
         return (WSDeveloper[]) normalizeWSArrayResult(result);
     }
-    
+
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
