@@ -333,14 +333,4 @@ public class Project extends WebuiItem {
     public void setCurrentVersionId(Long versionNumber) {
         currentVersionId = versionNumber;
     }
-
-    /** Returns an HTML representation of the files in this project, using the ListView class.
-     */
-    public String listFiles() {
-        getFiles();
-        FileListView view = new FileListView();
-        view.setFiles(fs);
-        return view.getHtml();
-    }
-
 }
