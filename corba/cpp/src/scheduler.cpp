@@ -13,6 +13,8 @@
 #include <vector>
 #include <sstream>
 
+#include <boost/thread.hpp>
+
 namespace Alitheia
 {
     /**
@@ -32,8 +34,11 @@ namespace Alitheia
     public:
         eu::sqooss::impl::service::corba::alitheia::Scheduler_var scheduler;
         std::vector< std::string > registeredJobs;
+        static boost::recursive_mutex mutex;
     };
 }
+
+boost::recursive_mutex Alitheia::Scheduler::Private::mutex;
 
 using namespace Alitheia;
 using namespace eu::sqooss::impl::service::corba;
@@ -75,6 +80,7 @@ Scheduler::~Scheduler()
  */
 int Scheduler::registerJob( Job* job )
 {
+    boost::recursive_mutex::scoped_lock lock( d->mutex );
     std::stringstream ss;
     ss << "Alitheia_Job_" << Core::instance()->getUniqueId();
     const std::string name = ss.str();
@@ -115,6 +121,7 @@ void Scheduler::stopExecute()
  */
 void Scheduler::unregisterJob( const string& name )
 {
+    boost::recursive_mutex::scoped_lock lock( d->mutex );
     d->scheduler->unregisterJob( CORBA::string_dup( name.c_str() ) );
     CorbaHandler::instance()->unexportObject( CORBA::string_dup( name.c_str() ) );
     d->registeredJobs.erase( std::find( d->registeredJobs.begin(), d->registeredJobs.end(), name ) );
@@ -133,6 +140,7 @@ void Scheduler::unregisterJob( Job* job )
  */
 void Scheduler::enqueueJob( Job* job )
 {
+    boost::recursive_mutex::scoped_lock lock( d->mutex );
     if( job->name().length() == 0 )
         registerJob( job );
     d->scheduler->enqueueJob( CORBA::string_dup( job->name().c_str() ) );
@@ -144,6 +152,7 @@ void Scheduler::enqueueJob( Job* job )
  */
 void Scheduler::addJobDependency( Job* job, Job* dependency )
 {
+    boost::recursive_mutex::scoped_lock lock( d->mutex );
     if( job->name().length() == 0 )
         registerJob( job );
     if( dependency->name().length() == 0 )
@@ -157,7 +166,10 @@ void Scheduler::addJobDependency( Job* job, Job* dependency )
  */
 void Scheduler::waitForJobFinished( Job* job )
 {
-    if( job->name().length() == 0 )
-        registerJob( job );
+    {
+        boost::recursive_mutex::scoped_lock lock( d->mutex );
+        if( job->name().length() == 0 )
+            registerJob( job );
+    }
     d->scheduler->waitForJobFinished( CORBA::string_dup( job->name().c_str() ) );
 }

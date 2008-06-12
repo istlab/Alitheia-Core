@@ -111,9 +111,14 @@ FDS::~FDS()
  */
 string FDS::getFileContents( const ProjectFile& file ) const
 {
-    CORBA::String_var content;
-    const int length = d->fds->getFileContents( file.toCorba(), content.out() );
-    return std::string( content, length );
+    const alitheia::bytes* const content = d->fds->getFileContents( file.toCorba() );
+    const size_t size = content->length();
+    std::string result;
+    if( size == 0 )
+        return result;
+    const unsigned char* const buffer = content->get_buffer();
+    for_each( buffer, buffer + size, bind( &string::push_back, &result, _1 ) );
+    return result;
 }
 
 /**
@@ -121,9 +126,14 @@ string FDS::getFileContents( const ProjectFile& file ) const
  */
 string FDS::getFileContents( const ProjectFile& file, int begin, int length ) const
 {
-    CORBA::String_var content;
-    const int size = d->fds->getFileContentParts( file.toCorba(), begin, length, content.out() );
-    return std::string( content, size );
+    const alitheia::bytes* const content = d->fds->getFileContentParts( file.toCorba(), begin, length );
+    const size_t size = content->length();
+    std::string result;
+    if( size == 0 )
+        return result;
+    const unsigned char* const buffer = content->get_buffer();
+    for_each( buffer, buffer + size, bind( &string::push_back, &result, _1 ) );
+    return result;
 }
 
 /**

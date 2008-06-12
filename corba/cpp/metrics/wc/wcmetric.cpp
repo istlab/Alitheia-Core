@@ -1,16 +1,20 @@
 #include "wcmetric.h"
 
 #include <Core>
-#include <Scheduler>
-
-#include "wcmetricjob.h"
+#include <Database>
 
 #include <sstream>
+#include <vector>
+#include <boost/date_time/posix_time/posix_time.hpp>
 
 using namespace Alitheia;
 
+using namespace boost::posix_time;
+
 using std::endl;
 using std::string;
+using std::stringstream;
+using std::vector;
 
 WcMetric::WcMetric()
     : logger( Logger::NameSqoOssMetric )
@@ -51,5 +55,35 @@ string WcMetric::getResult( const ProjectFile& ) const
 
 void WcMetric::run( ProjectFile& file )
 {
-    scheduler.enqueueJob( new WcMetricJob( this, file ) );
+    {
+        boost::mutex::scoped_lock lock( mutex );
+        logger << name() << ": measuring " << file.name << endl;
+    }
+
+    if( file.isDirectory )
+        return;
+    
+    string line;
+    int count = -1;
+    do
+    {
+        ++count;
+        std::getline( file, line );
+    } while( !file.eof() );
+
+    vector<Metric> metrics = getSupportedMetrics();
+    if( metrics.empty() )
+        return;
+
+    // add the result
+    ProjectFileMeasurement m;
+    m.metric = metrics.front();
+    m.projectFile = file;
+    
+    m.whenRun = to_iso_string( second_clock::local_time() );
+    stringstream ss;
+    ss << count;
+    m.result = ss.str();
+    Database db;
+    db.addRecord( m );
 }

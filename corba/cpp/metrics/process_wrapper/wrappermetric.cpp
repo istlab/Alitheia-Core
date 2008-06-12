@@ -58,7 +58,9 @@ string ProjectFileWrapperMetric::getResult( const ProjectFile& ) const
 void ProjectFileWrapperMetric::run( ProjectFile& file )
 {
     logger << name() << ": Measuring " << file.name << endl;
-    scheduler.enqueueJob( new ProjectFileWrapperMetricJob( this, program, arguments, file ) );
+    Job* job = new ProjectFileWrapperMetricJob( this, program, arguments, file );
+    scheduler.enqueueJob( job );
+    job->waitForFinished();
 }
 
 ProjectVersionWrapperMetric::ProjectVersionWrapperMetric( const string& metric, const string& program, 
@@ -105,6 +107,7 @@ string ProjectVersionWrapperMetric::getResult( const ProjectVersion& ) const
 void ProjectVersionWrapperMetric::run( ProjectVersion& version )
 {
     logger << name() << ": Measuring " << version.project.name << ", version " << version.version << endl;
-    scheduler.enqueueJob( new ProjectVersionWrapperMetricJob( this, program, arguments, version ) );
-    logger << name() << ": Job enqueued." << endl;
+    Job* job = new ProjectVersionWrapperMetricJob( this, program, arguments, version );
+    scheduler.enqueueJob( job );
+    job->waitForFinished();
 }

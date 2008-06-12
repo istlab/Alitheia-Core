@@ -6,6 +6,8 @@
 #include <Database>
 #include <Scheduler>
 
+#include <boost/thread.hpp>
+
 class WcMetric : public Alitheia::ProjectFileMetric
 {
 public:
@@ -23,6 +25,7 @@ public:
 private:
     Alitheia::Logger logger;
     Alitheia::Scheduler scheduler;
+    boost::mutex mutex;
 };
 
 #endif

@@ -15,7 +15,7 @@ set ( HEADER_FILES
     temporaryfile.h
   )
 
-include_directories(../../include .)
+include_directories(/opt/local/include ../../include .)
 link_directories( ../../lib ${Boost_LIBRARY_DIRS})
 
 add_executable( process_wrapper ${SRC_FILES}  ${HEADER_FILES} )
