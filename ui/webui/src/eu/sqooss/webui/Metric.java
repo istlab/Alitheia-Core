@@ -87,7 +87,7 @@ public class Metric extends WebuiItem {
     }
 
     public String getLink() {
-        return "<a href=\"/results.jsp?id=" + getId() + "\">view results</a>";
+        return "<a href=\"/results.jsp?rid=" + getId() + "\">view results</a>";
     }
 
     /** Returns an HTML string representing the Metric

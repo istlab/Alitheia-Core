@@ -99,9 +99,9 @@ public class Result extends WebuiItem {
         terrier     = t;
     }
      */
-    public Result (Terrier t) {
+    public Result (Long resultId, Terrier t) {
         mnemonic    = "LOC";
-        id          = new Long(1337);
+        id          = resultId;
         mimetype    = MIME_TYPE_TYPE_INTEGER;
         data        = "TheResult";
         terrier     = t;
@@ -155,7 +155,7 @@ public class Result extends WebuiItem {
     /** Returns an HTML string which is a link to a page displaying the result.
      */
     public String getLink() {
-        return "<a href=\"/results.jsp?id=" + getId() + "\">View Me</a>";
+        return "<a href=\"/results.jsp?rid=" + getId() + "\">View Me</a>";
     }
 
     /** Returns an HTML string representing the Result in a clever way.
