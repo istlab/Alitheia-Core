@@ -32,6 +32,8 @@
 
 package eu.sqooss.service.pa;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -114,7 +116,8 @@ public class PluginInfo implements Comparable<PluginInfo> {
      *   <li>{@link FileGroupMetric}</li>
      * </ul>
      */
-    List<Class<? extends DAObject>> activationTypes;
+    List<Class<? extends DAObject>> activationTypes =
+        new ArrayList<Class<? extends DAObject>>();
 
     /**
      * The hash code's value of the associated metric metric plug-in.
@@ -136,7 +139,8 @@ public class PluginInfo implements Comparable<PluginInfo> {
      * A list containing the current set of configuration parameters of the
      * associated metric plug-in
      */
-    private Set<PluginConfiguration> config = null;
+    private Set<PluginConfiguration> config =
+        new HashSet<PluginConfiguration>();
 
     /**
      * This flag is set to <code>false<code> on a newly registered metric
@@ -160,18 +164,19 @@ public class PluginInfo implements Comparable<PluginInfo> {
      * @param c - the list of configuration parameters
      */
     public PluginInfo(Set<PluginConfiguration> c) {
-        this.config = c;
+        setPluginConfiguration(c);
     }
 
     /**
      * Creates a new <code>PluginInfo</code> instance, and initializes it with
-     * the given metric plug-in's configuration parameters and description
-     * fields.
+     * the given metric plug-in's configuration parameters and the description
+     * fields found in the given plug-in instance.
      *
      * @param c - the list of configuration parameters
+     * @param p the <code>AlitheiaPlugin</code> instance
      */
     public PluginInfo(Set<PluginConfiguration> c, AlitheiaPlugin p) {
-        this.config = c;
+        setPluginConfiguration(c);
         if (p != null) {
             setPluginName(p.getName());
             setPluginVersion(p.getVersion());
@@ -179,8 +184,18 @@ public class PluginInfo implements Comparable<PluginInfo> {
         }
     }
 
+
     /**
-     * Returns the list of currently store metric configuration parameters.
+     * Initializes the configuration set that is available for this plug-in.
+     * 
+     * @param c the plug-in configuration set
+     */
+    public void setPluginConfiguration (Set<PluginConfiguration> c) {
+        this.config = c;
+    }
+
+    /**
+     * Returns the list of existing metric configuration parameters.
      *
      * @return The list of configuration parameters.
      */
@@ -344,7 +359,10 @@ public class PluginInfo implements Comparable<PluginInfo> {
         newParam.setMsg((description != null) ? description : "");
         newParam.setType(type);
         newParam.setValue(value);
-        if (db.addRecord(newParam)) return true;
+        if (db.addRecord(newParam)) {
+            db.flushDBSession();
+            return true;
+        }
 
         return false;
 }

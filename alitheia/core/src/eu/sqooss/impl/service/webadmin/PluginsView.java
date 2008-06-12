@@ -588,7 +588,6 @@ public class PluginsView extends AbstractView{
                     }
                     else {
                         for (Metric metric: metrics) {
-                            metric = sobjDB.attachObjectToDBSession(metric);
                             b.append(sp(in++) + "<tr>\n");
                             b.append(sp(in) + "<td>"
                                     + metric.getId() + "</td>\n");

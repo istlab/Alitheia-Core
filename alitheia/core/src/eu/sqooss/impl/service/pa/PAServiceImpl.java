@@ -50,6 +50,7 @@ import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.Plugin;
+import eu.sqooss.service.db.PluginConfiguration;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.pa.PluginAdmin;
 import eu.sqooss.service.pa.PluginInfo;
@@ -574,6 +575,9 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener, EventHandler
             // Get the metric plug-in's object
             AlitheiaPlugin sobjPlugin = getPluginObject(srefPlugin);
             if (sobjPlugin != null) {
+                // Release the stored configuration DAOs
+                getPluginInfo(sobjPlugin).setPluginConfiguration(
+                        new HashSet<PluginConfiguration>());
                 // Execute the remove() method of this metric plug-in,
                 // and update the plug-in's information object upon success.
                 if (sobjPlugin.remove()) {
