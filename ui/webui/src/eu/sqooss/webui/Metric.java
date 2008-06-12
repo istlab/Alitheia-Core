@@ -63,7 +63,7 @@ public class Metric extends WebuiItem {
         id          = metric.getId();
         //TODO: optimize
         type        = t.getMetricTypeById(metric.getMetricTypeId());
-        activationType = PROJECT_FILE;
+        activationType = PROJECT_FILE; // FIXME: Waiting for having that info in WSMetric
         description = metric.getDescription();
         terrier     = t;
     }
