@@ -32,8 +32,6 @@ drop table pending_user;
 drop table stored_project_measurement;
 drop table file_group_measurement;
 drop table file_group;
-drop table plugin;
-drop table metric_type;
 drop table project_version;
 drop table developer;
 drop table group_type;
