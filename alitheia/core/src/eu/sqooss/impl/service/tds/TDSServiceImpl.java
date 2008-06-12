@@ -87,7 +87,7 @@ public class TDSServiceImpl implements TDSService, EventHandler {
                 DBService.EVENT_STARTED
         };
             
-        Dictionary d = new Hashtable(); 
+        Dictionary<String, String[]> d = new Hashtable<String, String[]>(); 
         d.put(EventConstants.EVENT_TOPIC, topics ); 
         
         bc.registerService(EventHandler.class.getName(), this, d); 
@@ -203,7 +203,7 @@ public class TDSServiceImpl implements TDSService, EventHandler {
         }
         
         if (db != null && db.startDBSession()) {
-            List l = db.doHQL("from StoredProject");
+            List<?> l = db.doHQL("from StoredProject");
 
             if (l.isEmpty()) {
                 bogusStuffer();
