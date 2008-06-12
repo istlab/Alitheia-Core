@@ -54,7 +54,7 @@ public class QualityModelImplementation extends AbstractMetric implements Qualit
       
     public boolean install() { 	
     	boolean result = true;
-    	super.addMetricDepedency("LOC");
+
     	super.addSupportedMetrics("Quality", "QUAL", MetricType.Type.SOURCE_CODE);
     	//TODO add ALL the metrics dependecies when they are ready!
     	result &= super.install();
