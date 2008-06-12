@@ -218,9 +218,13 @@ public class ProjectsView extends AbstractView {
                         p.setBugs(reqValPrjBug);
                         p.setMail(reqValPrjMail);
                         p.setRepository(reqValPrjCode);
+
                         // Try to add the DAO to the DB
                         if (sobjDB.addRecord(p) == true) {
                             selProject = p;
+                            // register the new project in the TDS
+                            sobjTDS.addAccessor(p.getId(), p.getName(), p.getBugs(), 
+                                    p.getMail(), p.getRepository());
                         }
                         else {
                             e.append(sp(in)
