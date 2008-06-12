@@ -61,6 +61,9 @@ public class ProductivityMetricImpl extends AbstractMetric implements
         super(bc);
         super.addActivationType(ProjectVersion.class);
         super.addActivationType(Developer.class);
+        
+        super.addMetricActivationType("PROD", Developer.class);
+        
     }
     
     public boolean install() {

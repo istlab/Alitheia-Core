@@ -42,6 +42,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -59,15 +60,20 @@ import eu.sqooss.service.pa.PluginInfo;
 
 public class WcImplementation extends AbstractMetric implements Wc {
     
-	private FDSService fds;
+    private FDSService fds;
 	
     public WcImplementation(BundleContext bc) {
         super(bc);
         super.addActivationType(ProjectFile.class);
+        
+        super.addMetricActivationType("LOC", ProjectFile.class);
+        super.addMetricActivationType("LOCOM", ProjectFile.class);
+        
         ServiceReference serviceRef = null;
         serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
-        fds = ((AlitheiaCore)bc.getService(serviceRef)).getFDSService();
-
+       
+        
+        fds = ((AlitheiaCore)bc.getService(serviceRef)).getFDSService();    
     }
 
     public boolean install() {
@@ -76,6 +82,10 @@ public class WcImplementation extends AbstractMetric implements Wc {
             result &= super.addSupportedMetrics(
                     "Lines of Code",
                     "LOC",
+                    MetricType.Type.SOURCE_CODE);
+            result &= super.addSupportedMetrics(
+                    "Lines of Comments", 
+                    "LOCOM",
                     MetricType.Type.SOURCE_CODE);
             addConfigEntry("ignore-emptylines", 
                     Boolean.FALSE.toString() , 
@@ -108,52 +118,60 @@ public class WcImplementation extends AbstractMetric implements Wc {
         return null;
     }
 
-    public void run(ProjectFile a) {
+    public void run(ProjectFile pf) {
         // We do not support directories
-        if (a.getIsDirectory()) {
+        if (pf.getIsDirectory()) {
             return;
         }
         
-        InputStream in = fds.getFileContents(a);
+        InputStream in = fds.getFileContents(pf);
         if (in == null) {
             return;
         }
         // Create an input stream from the project file's content
         try {
             log.info(this.getClass().getName() + " Measuring: "
-                    + a.getFileName());
-
+                    + pf.getFileName());
+            
+            String regexp = "(?:/\\*([^*])*\n/)|(?:/[^*]*\\*+/)|(?://.*)|(?:#.*)";
+            Pattern pattern = Pattern.compile(regexp);
             // Measure the number of lines in the project file
             LineNumberReader lnr = 
                 new LineNumberReader(new InputStreamReader(in));
-            int lines = 0;
+            int lines = 0, comments = 0;
+            
             while (lnr.readLine() != null) {
                 lines++;
             }
             lnr.close();
 
-            // Create the measurement DAO
-            // TODO: What to do if this plug-in has registered more that
-            // one metric. Create a separate Measurement for all
-            // of them ?
-            if (!getSupportedMetrics().isEmpty()) {
-                Metric metric = getSupportedMetrics().get(0);
-                ProjectFileMeasurement m = new ProjectFileMeasurement();
-                m.setMetric(metric);
-                m.setProjectFile(a);
-                m.setWhenRun(new Timestamp(System.currentTimeMillis()));
-                m.setResult(String.valueOf(lines));
+            // Store the results
+            //
+            Metric metric = Metric.getMetricByMnemonic("LOC");
+            ProjectFileMeasurement locm = new ProjectFileMeasurement();
+            locm.setMetric(metric);
+            locm.setProjectFile(pf);
+            locm.setWhenRun(new Timestamp(System.currentTimeMillis()));
+            locm.setResult(String.valueOf(lines));
 
-                // Try to store the Measurement DAO into the DB
-                db.addRecord(m);
+            db.addRecord(locm);
+            markEvaluation(metric, pf.getProjectVersion().getProject());
+            // Check for a first time evaluation of this metric
+            // on this project
+            
+            metric = Metric.getMetricByMnemonic("LOCOM");
+            ProjectFileMeasurement locc = new ProjectFileMeasurement();
+            locc.setMetric(metric);
+            locc.setProjectFile(pf);
+            locc.setWhenRun(new Timestamp(System.currentTimeMillis()));
+            locc.setResult(String.valueOf(comments));
+            
+            db.addRecord(locm);
+            markEvaluation(metric, pf.getProjectVersion().getProject());
 
-                // Check for a first time evaluation of this metric
-                // on this project
-                markEvaluation(metric, a.getProjectVersion().getProject());
-            }
         } catch (IOException e) {
             log.error(this.getClass().getName() + " IO Error <" + e
-                    + "> while measuring: " + a.getFileName());
+                    + "> while measuring: " + pf.getFileName());
         
         }
     }

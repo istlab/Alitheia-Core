@@ -93,7 +93,14 @@ public class CLTMImplementation extends AbstractMetric implements CLMT {
     public CLTMImplementation(BundleContext bc) {
         super(bc);      
         this.addActivationType(ProjectVersion.class);
-        this.addActivationType(ProjectFile.class);
+        this.addActivationType(ProjectFile.class);        
+        
+        this.addMetricActivationType("NOCL", ProjectVersion.class);
+        this.addMetricActivationType("NOPA", ProjectFile.class);
+        this.addMetricActivationType("NOC",  ProjectFile.class);
+        this.addMetricActivationType("NOPM", ProjectFile.class);
+        this.addMetricActivationType("NOPRM",ProjectFile.class);
+        this.addMetricActivationType("WMC",  ProjectFile.class);
         
         ServiceReference sr = bc.getServiceReference(AlitheiaCore.class.getName());
         core = (AlitheiaCore) bc.getService(sr);
