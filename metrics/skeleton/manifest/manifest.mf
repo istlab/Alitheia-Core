@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: 
 Bundle-SymbolicName: eu.sqooss.metric.skeleton
 Bundle-Version: 0.0.1
-Bundle-Activator: eu.sqooss.impl.service.SkeletonActivator
+Bundle-Activator: eu.sqooss.metrics.skeleton.SkeletonActivator
 Bundle-Vendor: AUEB
 Bundle-Description: Skeleton metric
 Import-Package:  org.osgi.framework,

@@ -44,6 +44,7 @@ Import-Package: org.osgi.framework,
     org.tmatesoft.svn.core.internal.io.svn;version="1.1.4"
 Export-Package: eu.sqooss.core,
     eu.sqooss.service.abstractmetric,
+    eu.sqooss.impl.service,
     eu.sqooss.service.db,
     eu.sqooss.service.fds,
     eu.sqooss.service.logging,

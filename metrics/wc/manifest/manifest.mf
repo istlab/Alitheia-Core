@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Wc metric plug-in
 Bundle-SymbolicName: eu.sqooss.metric.wc
 Bundle-Version: 0.0.1
-Bundle-Activator: eu.sqooss.impl.service.WcActivator
+Bundle-Activator: eu.sqooss.metrics.wc.WcActivator
 Bundle-Vendor: AUEB
 Bundle-Description: Line counting metric
 Import-Package:  org.osgi.framework,

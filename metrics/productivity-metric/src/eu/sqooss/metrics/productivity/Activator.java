@@ -1,4 +1,4 @@
-package eu.sqooss.impl.service;
+package eu.sqooss.metrics.productivity;
 
 import java.util.Dictionary;
 import java.util.Hashtable;

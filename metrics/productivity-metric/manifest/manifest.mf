@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Productivity metric plug-in
 Bundle-SymbolicName: eu.sqooss.metric.productivity
 Bundle-Version: 0.0.1
-Bundle-Activator: eu.sqooss.impl.service.Activator
+Bundle-Activator: eu.sqooss.metrics.productivity.Activator
 Bundle-Vendor: AUEB
 Export-Package: eu.sqooss.metric.productivity, eu.sqooss.metric.productivity.db
 Import-Package: org.osgi.framework,
