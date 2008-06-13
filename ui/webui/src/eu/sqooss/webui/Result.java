@@ -186,7 +186,7 @@ public class Result extends WebuiItem {
     /** Returns an HTML string representing the Result in a clever way.
      */
     public String getHtml () {
-        return "<strong>Result:</strong>" + getString() + ", " + mnemonic + ")";
+        return mnemonic + ": " + getString();
     }
 
 }

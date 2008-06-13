@@ -145,11 +145,13 @@ class File extends WebuiItem {
         if (getIsDirectory()) {
             html.append(" " + "(DIR)");
         }
-        if (results.length < 1) {
-            html.append(" [[ No results, unfortunately. ]]");
-        } else {
-            for (int i = 0; i < results.length; i++) {
-                html.append(results[i].getHtml() + ", ");
+        if (!getIsDirectory()) {
+            if (results.length < 1) {
+                html.append(" [[ No results, unfortunately. ]]");
+            } else {
+                for (int i = 0; i < results.length; i++) {
+                    html.append(results[i].getHtml() + ", ");
+                }
             }
         }
         return html.toString();
