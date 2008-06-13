@@ -1,4 +1,7 @@
-<project>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                      http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -45,6 +48,21 @@
     </plugins>
   </build>
 
+  <repositories>
+    <repository>
+      <id>sqoossrepo</id>
+      <name>SQO-OSS Local Maven Repository</name>
+      <url>file://${basedir}/../sqoossrepo</url>
+    </repository>
+  </repositories>
+
+  <distributionManagement>
+    <repository>
+      <id>sqoossdeploy</id>
+      <name>SQO-OSS Deployment Directory</name>
+      <url>file://${basedir}/../equinox</url>
+    </repository>
+  </distributionManagement>
 
   <modules>
     <module>core</module>

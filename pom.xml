@@ -1,4 +1,7 @@
-<project>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                      http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>eu</groupId>
@@ -74,7 +77,7 @@
         <artifactId>maven-assembly-plugin</artifactId>
         <version>2.1</version>
         <configuration>
-          <outputDirectory>${topdir}</outputDirectory>
+          <outputDirectory>${basedir}</outputDirectory>
           <finalName>equinox</finalName>
           <appendAssemblyId>false</appendAssemblyId>
           <descriptors>
@@ -116,7 +119,7 @@
     <repository>
       <id>sqoossrepo</id>
       <name>SQO-OSS Local Maven Repository</name>
-      <url>file://${topdir}/sqoossrepo</url>
+      <url>file://${basedir}/sqoossrepo</url>
     </repository>
   </repositories>
 
@@ -124,7 +127,7 @@
     <repository>
       <id>sqoossdeploy</id>
       <name>SQO-OSS Deployment Directory</name>
-      <url>file://${topdir}/equinox</url>
+      <url>file://${basedir}/equinox</url>
     </repository>
   </distributionManagement>
 

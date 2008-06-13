@@ -41,8 +41,8 @@
         </executions>
         <configuration>
           <compiler>idlj</compiler>
-          <sourceDirectory>${topdir}/corba/idl</sourceDirectory>
-          <outputDirectory>${topdir}/corba/corbaservice/src</outputDirectory>
+          <sourceDirectory>.</sourceDirectory>
+          <outputDirectory>../corbaservice/src</outputDirectory>
           <sources>
             <source>
               <includes>

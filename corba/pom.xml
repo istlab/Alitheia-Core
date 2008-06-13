@@ -36,7 +36,7 @@
       <plugin>
         <artifactId>maven-jar-plugin</artifactId>
         <configuration>
-          <outputDirectory>${topdir}/equinox</outputDirectory>
+          <outputDirectory>../equinox</outputDirectory>
           <finalName>${artifactId}_${version}</finalName>
           <archive>
             <manifestFile>${basedir}/META-INF/MANIFEST.MF</manifestFile>
@@ -53,6 +53,22 @@
     </plugins>
   </build>
 
+  <repositories>
+    <repository>
+      <id>sqoossrepo</id>
+      <name>SQO-OSS Local Maven Repository</name>
+      <url>file://${basedir}/../sqoossrepo</url>
+    </repository>
+  </repositories>
+
+  <distributionManagement>
+    <repository>
+      <id>sqoossdeploy</id>
+      <name>SQO-OSS Deployment Directory</name>
+      <url>file://${basedir}/../equinox</url>
+    </repository>
+  </distributionManagement>
+
   <!-- All the metrics should have the same basic dependencies. -->
   <dependencies>
     <dependency>
@@ -63,21 +79,12 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>eu.sqooss</groupId>
-      <artifactId>lib</artifactId>
-      <version>[0.0.1,)</version>
-      <type>jar</type>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
       <groupId>org.eclipse.equinox</groupId>
       <artifactId>osgi</artifactId>
       <version>3.3.0</version>
       <type>jar</type>
       <scope>provided</scope>
     </dependency>
-
     <dependency>
       <groupId>org</groupId>
       <artifactId>hibernate</artifactId>

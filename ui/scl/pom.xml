@@ -66,6 +66,22 @@
     </plugins>
   </build>
 
+  <repositories>
+    <repository>
+      <id>sqoossrepo</id>
+      <name>SQO-OSS Local Maven Repository</name>
+      <url>file://${basedir}/../../sqoossrepo</url>
+    </repository>
+  </repositories>
+
+  <distributionManagement>
+    <repository>
+      <id>sqoossdeploy</id>
+      <name>SQO-OSS Deployment Directory</name>
+      <url>file://${basedir}/../../equinox</url>
+    </repository>
+  </distributionManagement>
+
   <modules>
     <module>wslib</module>
     <module>sclib</module>
