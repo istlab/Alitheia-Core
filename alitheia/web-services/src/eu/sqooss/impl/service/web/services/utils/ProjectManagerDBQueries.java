@@ -34,7 +34,7 @@ package eu.sqooss.impl.service.web.services.utils;
 
 interface ProjectManagerDBQueries {
 
-    public static final String GET_EVALUATED_PROJECTS = "select sp " +
+    public static final String GET_EVALUATED_PROJECTS = "select distinct sp " +
                                                         "from StoredProject sp, EvaluationMark em " +
                                                         "where sp.id=em.storedProject ";
     
