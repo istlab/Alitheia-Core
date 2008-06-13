@@ -18,10 +18,13 @@ drop table plugin;
 drop table privilege_value cascade;
 drop table privilege cascade;
 drop table project_file cascade;
+drop table tag;
+drop table stored_project_measurement;
+drop table file_group_measurement;
+drop table file_group;
 drop table project_version;
 drop table service_url cascade;
 drop table stored_project cascade;
-drop table tag;
 drop table users;
 drop table evaluation_mark;
 drop sequence hibernate_sequence;
@@ -29,10 +32,6 @@ drop table directory;
 drop table pending_user;
 
 -- Now go around again
-drop table stored_project_measurement;
-drop table file_group_measurement;
-drop table file_group;
-drop table project_version;
 drop table developer;
 drop table group_type;
 
