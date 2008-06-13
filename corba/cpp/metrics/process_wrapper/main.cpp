@@ -38,11 +38,13 @@ int main( int argc, char* argv[] )
         ( "help", "produce help message" )
         ( "type", value< string >(), "the type of the metric \n\"ProjectFile\" or \n\"ProjectVersion\"" )
         ( "metric", value< string >(), "short metric name, like \"LOC\"" )
+        ( "result-type", value< string >()->default_value( "text/plain" ), "result content type" )
         ( "command", value< vector< string > >()->multitoken(), "the command used for execution" )
     ;
     positional_options_description pd;
     pd.add( "command", -1 );
 
+    string resultType;
     string type;
     string metric;
     string program;
@@ -60,8 +62,10 @@ int main( int argc, char* argv[] )
             return 1;
         }
 
+        resultType = vm[ "result-type" ].as< string >();
         type = vm[ "type" ].as< string >();
         metric = vm[ "metric" ].as< string >();
+        
 
         arguments = vm[ "command" ].as< vector< string > >();
         // boost makes sure, that arguments isn't empty
@@ -71,14 +75,14 @@ int main( int argc, char* argv[] )
     }
     catch( const exception& e )
     {
-        cerr << e.what() << endl;
+        cerr << desc << endl;
         return 1;
     }
 
     if( type == "ProjectFile" )
-        Core::instance()->registerMetric( new ProjectFileWrapperMetric( metric, program, arguments ) );
+        Core::instance()->registerMetric( new ProjectFileWrapperMetric( metric, resultType, program, arguments ) );
     else if( type == "ProjectVersion" )
-        Core::instance()->registerMetric( new ProjectVersionWrapperMetric( metric, program, arguments ) );
+        Core::instance()->registerMetric( new ProjectVersionWrapperMetric( metric, resultType, program, arguments ) );
     else
     {
         cerr << "unknown type: '" << type << "'" << endl;

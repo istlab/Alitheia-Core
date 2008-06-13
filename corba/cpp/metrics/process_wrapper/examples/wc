@@ -4,6 +4,6 @@
 # The command reads the file from the standard input
 #
 # Usage:
-# ../process_wrapper --type ProjectFile --metric LOC ./wc
+# ../process_wrapper --type ProjectFile --result-type type/integer --metric LOC ./wc
 
 wc -l

@@ -2,9 +2,9 @@
 #define WRAPPERMETRIC_H
 
 #include <Metric>
+#include <Database>
 #include <Logger>
 #include <FDS>
-#include <Scheduler>
 
 #include <string>
 #include <vector>
@@ -34,7 +34,7 @@ T join( const std::vector< T >& v, const C& c )
 class ProjectFileWrapperMetric : public Alitheia::ProjectFileMetric
 {
 public:
-    ProjectFileWrapperMetric( const std::string& metric, const std::string& program, 
+    ProjectFileWrapperMetric( const std::string& metric, const std::string& resultType, const std::string& program, 
                               const std::vector< std::string >& arguments );
 
     bool install();
@@ -43,13 +43,14 @@ public:
     std::string description() const;
     std::string version() const;
     std::string result() const;
-    std::string getResult( const Alitheia::ProjectFile& ) const;
+    std::vector< Alitheia::ResultEntry > getResult( const Alitheia::ProjectFile&, const Alitheia::Metric& metric ) const;
     void run( Alitheia::ProjectFile& );
 
 private:
     Alitheia::Logger logger;
-    Alitheia::Scheduler scheduler;
-
+    Alitheia::Database db;
+    
+    std::string resultType;
     std::string metric;
     std::string program;
     std::vector< std::string > arguments;
@@ -58,7 +59,7 @@ private:
 class ProjectVersionWrapperMetric : public Alitheia::ProjectVersionMetric
 {
 public:
-    ProjectVersionWrapperMetric( const std::string& metric, const std::string& program, 
+    ProjectVersionWrapperMetric( const std::string& metric, const std::string& resultType, const std::string& program, 
                                  const std::vector< std::string >& arguments );
 
     bool install();
@@ -67,15 +68,16 @@ public:
     std::string description() const;
     std::string version() const;
     std::string result() const;
-    std::string getResult( const Alitheia::ProjectVersion& ) const;
+    std::vector< Alitheia::ResultEntry > getResult( const Alitheia::ProjectVersion&, const Alitheia::Metric& metric ) const;
     void run( Alitheia::ProjectVersion& );
 
 
 private:
     Alitheia::FDS fds;
     Alitheia::Logger logger;
-    Alitheia::Scheduler scheduler;
+    Alitheia::Database db;
 
+    std::string resultType;
     std::string metric;
     std::string program;
     std::vector< std::string > arguments;
