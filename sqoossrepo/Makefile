@@ -107,7 +107,7 @@ endef
 
 	
 $(eval $(call rejar_template,javax,mail,1.4,cp javax/activation/1.1/activation-1.1.jar tmp && mkdir -p tmp/META-INF && cp javax.mail.resources/* tmp/META-INF ))
-$(eval $(call rejar_template,javax,servlet,2.4.0.v200612120446))
+$(eval $(call rejar_template,javax,servlet,2.4.0))
 $(eval $(call rejar_template,javax/stax,api,1.0.1))
 $(eval $(call rejar_template,org/apache/axiom,api,1.2.2,mkdir -p tmp/META-INF/services && cp org.apache.axiom.api.resources/* tmp/META-INF/services))
 $(eval $(call rejar_template,org/apache/axiom,dom,1.2.2))

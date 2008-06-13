@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Version: 2.4.0.v200612120446
+Bundle-Version: 2.4.0
 Export-Package: javax.servlet;version="2.4",
   javax.servlet.http;version="2.4",
   javax.servlet.resources;version="2.4"
@@ -8,7 +8,7 @@ Bundle-SymbolicName: javax.servlet
 Bundle-Name: %bundleName
 Bundle-RequiredExecutionEnvironment: CDC-1.0/Foundation-1.0,J2SE-1.3
 Bundle-Vendor: %bundleProvider
-Bundle-Classpath: javax.servlet-2.4.0.v200612120446.jar
+Bundle-Classpath: javax.servlet-2.4.0
 
 Name: javax/servlet/GenericServlet.class
 SHA1-Digest: LBhvO/ORCsoGl71svTItBtuK1D4=
