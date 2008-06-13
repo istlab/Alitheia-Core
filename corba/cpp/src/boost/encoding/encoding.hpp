@@ -23,12 +23,9 @@ namespace encoding
 template< typename InputIterator, typename OutputIterator, typename encoding >
 OutputIterator encode( InputIterator first, InputIterator last, OutputIterator result, const encoding& enc )
 {
-    if( last <= first )
-        return result;
-
     while( first != last )
     {
-        enc.encode( first, result, last - first );
+        enc.encode( first, last, result );
     }
     return result;
 }
@@ -40,12 +37,9 @@ OutputIterator encode( InputIterator first, InputIterator last, OutputIterator r
 template< typename InputIterator, typename OutputIterator, typename encoding >
 OutputIterator decode( InputIterator first, InputIterator last, OutputIterator result, const encoding& enc )
 {
-    if( last <= first )
-        return result;
-
     while( first != last )
     {
-        enc.decode( first, result, last - first );
+        enc.decode( first, last, result );
     }
     return result;
 }

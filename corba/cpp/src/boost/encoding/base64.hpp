@@ -30,10 +30,10 @@ public:
     }
 
     template< typename InputIterator, typename OutputIterator >
-    void encode( InputIterator& first, OutputIterator& result, size_t max_characters ) const
+    void encode( InputIterator& first, InputIterator& last, OutputIterator& result ) const
     {
         unsigned char chunk[] = { '\0', '\0', '\0' };
-        for( size_t i = 0; i < max_characters && i < 3; ++i )
+        for( size_t i = 0; first != last && i < 3; ++i )
             chunk[i] = *(first++);
 
         unsigned char c[4];
@@ -45,8 +45,8 @@ public:
         for( size_t i = 0; i < 4; ++i )
             c[i] = encode( c[i] );
     
-        for( size_t i = 3; i <= 2; --i )
-            if( max_characters < i )
+        for( size_t i = 3; i >= 2; --i )
+            if( chunk[ i - 1 ] == '\0' )
                 c[i] = '=';
 
         for( size_t i = 0; i < 4; ++i )
@@ -62,18 +62,15 @@ public:
     }
 
     template< typename InputIterator, typename OutputIterator >
-    void decode( InputIterator& first, OutputIterator& result, size_t max_characters ) const
+    void decode( InputIterator& first, InputIterator& last, OutputIterator& result ) const
     {
-        if( max_characters < 4 ) 
-        {
-            // this is borked!
-            first += max_characters;
-            return;
-        }
-        
         unsigned char chunk[4];
         for( size_t i = 0; i < 4; ++i )
         {
+            // this is borked!
+            if( first == last )
+                return;
+            
             char c;
             do
             {
