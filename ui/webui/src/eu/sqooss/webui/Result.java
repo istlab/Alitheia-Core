@@ -115,6 +115,9 @@ public class Result extends WebuiItem {
         terrier     = t;
     }
 
+    public Result () {
+    }
+
     public Long getId() {
         return id;
     }

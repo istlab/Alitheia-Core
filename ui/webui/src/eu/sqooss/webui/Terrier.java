@@ -46,7 +46,8 @@ import eu.sqooss.ws.client.datatypes.WSProjectFile;
 import eu.sqooss.ws.client.datatypes.WSProjectVersion;
 import eu.sqooss.ws.client.datatypes.WSStoredProject;
 import eu.sqooss.ws.client.datatypes.WSUser;
-
+import eu.sqooss.ws.client.datatypes.WSMetricsResultRequest;
+import eu.sqooss.ws.client.datatypes.WSResultEntry;
 
 /**
  * This class is the entry point for retrieving data from the
@@ -286,6 +287,28 @@ public class Terrier {
             return null;
         }
         return view;
+    }
+
+    public Result[] getFileResults (Long[] ids) {
+        // prepare ResultRequester
+
+        try {
+            WSMetricsResultRequest request = new WSMetricsResultRequest();
+            request.setDaObjectId(ids[0].longValue()); // FIXME: Use array here, also pending API change
+            request.setProjectFile(true);
+            // Retrieve results from the accessor
+            WSResultEntry[] wsresults = connection.getMetricAccessor().getMetricsResult(request);
+            Result[] results = new Result[wsresults.length];
+            // create Array and return it
+            for (int i = 0; i < results.length; i++) {
+                results[i] = new Result(wsresults[i], this);
+            }
+            return results;
+        } catch (WSException wse) {
+            addError("Failed to retrieve FileResult.");
+        }
+        Result[] results = new Result[0];
+        return results;
     }
 
     public Vector<File> getProjectVersionFiles(Long versionId) {
