@@ -145,7 +145,7 @@ public class Version extends WebuiItem {
             } else if (nextFile.getStatus().equals("DELETED")) {
                 deleted +=1;
             } else {
-                hmmz.append("<br />Status unknown: " + nextFile.getName());
+                hmmz.append("<br />Status unknown: " + nextFile.getHtml());
             }
         }
 
