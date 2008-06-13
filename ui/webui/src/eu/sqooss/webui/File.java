@@ -33,7 +33,6 @@
 
 package eu.sqooss.webui;
 
-import eu.sqooss.webui.Result.ResourceType;
 import eu.sqooss.ws.client.datatypes.WSProjectFile;
 import eu.sqooss.ws.client.datatypes.WSMetricsResultRequest;
 
@@ -105,10 +104,6 @@ class File extends WebuiItem {
         return isDirectory;
     }
 
-    public void retrieveResults() {
-        // FIXME: create resultrequest, pass to terrier, store Result in here
-    }
-
     /** Return a HTML string showing a statusicon indicating wether the file
      * has been modified, deleted, added or unknown status.
      *
@@ -130,8 +125,15 @@ class File extends WebuiItem {
     }
 
     public void fetchResults () {
+        // prepare Metrics Result Requester
         long[] ids = {getId()};
-        results = terrier.getResults(ids, ResourceType.PROJECT_FILE);
+        WSMetricsResultRequest request = new WSMetricsResultRequest();
+        request.setDaObjectId(ids);
+        request.setProjectFile(true);
+        String[] mnemonics = new String[1];
+        mnemonics[0] = "LOC"; // FIXME: Use metric here...
+        request.setMnemonics(mnemonics);
+        results = terrier.getResults(request);
     }
 
 

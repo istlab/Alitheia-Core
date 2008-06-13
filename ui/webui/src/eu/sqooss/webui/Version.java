@@ -37,6 +37,7 @@ import java.util.*;
 
 import eu.sqooss.webui.Result.ResourceType;
 import eu.sqooss.ws.client.datatypes.WSProjectVersion;
+import eu.sqooss.ws.client.datatypes.WSMetricsResultRequest;
 
 /**
  * This class represents a Version of a project that has been evaluated
@@ -195,8 +196,15 @@ public class Version extends WebuiItem {
     }
 
     public void fetchResults () {
+        // prepare ResultRequester for file retrieval
         long[] ids = {getId()};
-        results = terrier.getResults(ids, ResourceType.PROJECT_VERSION);
+        WSMetricsResultRequest request = new WSMetricsResultRequest();
+        request.setDaObjectId(ids); // FIXME: Use array here, also pending API change
+        request.setProjectVersion(true);
+        String[] mnemonics = new String[1];
+        mnemonics[0] = "LOC"; // FIXME: Use metric here...
+        request.setMnemonics(mnemonics);
+        results = terrier.getResults(request);
     }
 
     public String showResults() {

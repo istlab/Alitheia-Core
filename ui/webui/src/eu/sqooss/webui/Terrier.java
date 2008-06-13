@@ -290,20 +290,8 @@ public class Terrier {
         return view;
     }
 
-    public Result[] getResults (long[] ids, ResourceType t) {
+    public Result[] getResults (WSMetricsResultRequest request) {
         try {
-            // prepare Metrics Result Requester
-            WSMetricsResultRequest request = new WSMetricsResultRequest();
-            request.setDaObjectId(ids);
-            // Set the proper resource type
-            switch (t) {
-            case PROJECT_FILE: request.setProjectFile(true); break;
-            case PROJECT_VERSION: request.setProjectVersion(true); break;
-            }
-            request.setProjectFile(true);
-            String[] mnemonics = new String[1];
-            mnemonics[0] = "LOC";
-            request.setMnemonics(mnemonics);
             // Retrieve results from the accessor
             WSResultEntry[] wsresults = connection.getMetricAccessor().getMetricsResult(request);
             Result[] results = new Result[wsresults.length];
@@ -313,7 +301,7 @@ public class Terrier {
             }
             return results;
         } catch (WSException wse) {
-            addError("Failed to retrieve FileResult.");
+            addError("Failed to retrieve ProjectResults.");
         }
         Result[] results = new Result[0];
         return results;
