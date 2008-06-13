@@ -8,7 +8,7 @@ if (selectedProject.isValid()) {
     msg += "<br /><strong>Project:</strong> " + selectedProject.getName();
     msg += "<span class=\"forget\"><a href=\"?pid=none\">(forget)</a></span>";
     if (selectedProject.getCurrentVersion() != null) {
-        msg += "<br /><strong>Version:</strong> " + selectedProject.getCurrentVersion().shortName();
+        msg += "<br /><strong>Version:</strong> " + selectedProject.getCurrentVersion().getNumber();
     } else {
         msg += "<br />No versions recorded.";
     }
