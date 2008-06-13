@@ -250,15 +250,48 @@ ResultEntry::ResultEntry( const value_type& value, const std::string& mimeType, 
       mimeType( mimeType ),
       mnemonic( mnemonic )
 {
-    // even accept std::string for those, but convert them to vector<char>
-    if( value.type() == typeid( string ) && ( mimeType == MimeTypeImageGif || 
-                                              mimeType == MimeTypeImagePng || 
-                                              mimeType == MimeTypeImageJpeg ) )
+    if( value.type() == typeid( string ) )
     {
-        const string s = boost::get< string >( value );
-        vector< char > binary( s.length() );
-        std::copy( s.begin(), s.end(), std::back_inserter( binary ) );
-        this->value = binary;
+        // even accept std::string for those, but convert them to vector<char>
+        if( mimeType == MimeTypeImageGif || mimeType == MimeTypeImagePng || mimeType == MimeTypeImageJpeg )
+        {
+            const string s = boost::get< string >( value );
+            vector< char > binary( s.length() );
+            std::copy( s.begin(), s.end(), std::back_inserter( binary ) );
+            this->value = binary;
+        }
+        else if( mimeType == MimeTypeTypeInteger )
+        {
+            stringstream ss;
+            ss << boost::get< string >( value );
+            int v;
+            ss >> v;
+            this->value = v;
+        }
+        else if( mimeType == MimeTypeTypeLong )
+        {
+            stringstream ss;
+            ss << boost::get< string >( value );
+            long v;
+            ss >> v;
+            this->value = v;
+        }
+        else if( mimeType == MimeTypeTypeFloat )
+        {
+            stringstream ss;
+            ss << boost::get< string >( value );
+            float v;
+            ss >> v;
+            this->value = v;
+        }
+        else if( mimeType == MimeTypeTypeDouble )
+        {
+            stringstream ss;
+            ss << boost::get< string >( value );
+            double v;
+            ss >> v;
+            this->value = v;
+        }
     }
 }
 
