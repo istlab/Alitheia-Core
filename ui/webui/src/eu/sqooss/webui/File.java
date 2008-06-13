@@ -51,6 +51,7 @@ class File extends WebuiItem {
     private String status = "FILE_STATUS_UNSET"; // status is one of ADDED, MODIFIED or DELETED
     private Long versionId;
     private Long id;
+    Boolean isDirectory;
     private Terrier terrier;
 
     /** Initialise the File from a WSProjectFile, setting the data and storing a
@@ -62,6 +63,7 @@ class File extends WebuiItem {
         name = wsFile.getFileName();
         status = wsFile.getStatus();
         id = wsFile.getId();
+        isDirectory = wsFile.getDirectory();
         terrier = t;
         // TODO: measurements (and metrics?)
         // TODO: isDirectory()?
@@ -97,6 +99,10 @@ class File extends WebuiItem {
         return "<a href=\"files.jsp?fid=" + id + "\">" + name + "</a>";
     }
 
+    public Boolean getIsDirectory() {
+        return isDirectory;
+    }
+
     public void retrieveResults() {
         // FIXME: create resultrequest, pass to terrier, store Result in here
     }
@@ -126,6 +132,9 @@ class File extends WebuiItem {
     public String getHtml() {
         StringBuilder html = new StringBuilder(COMMENT);
         html.append(getStatusIcon() + "&nbsp;" + getLink());
+        if (getIsDirectory()) {
+            html.append(" " + "(DIR)");
+        }
         return html.toString();
     }
 }

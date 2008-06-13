@@ -133,6 +133,8 @@ public class Version extends WebuiItem {
         int modified = 0;
         int deleted = 0;
 
+        StringBuilder hmmz = new StringBuilder(); // Note the beautiful var name
+
         Iterator<File> filesIterator = fs.iterator();
         while (filesIterator.hasNext()) {
             File nextFile = filesIterator.next();
@@ -142,17 +144,23 @@ public class Version extends WebuiItem {
                 added += 1;
             } else if (nextFile.getStatus().equals("DELETED")) {
                 deleted +=1;
+            } else {
+                hmmz.append("<br />Status unknown: " + nextFile.getName());
             }
         }
 
         StringBuilder html = new StringBuilder("\n\n<table>");
-        html.append("\n\t<tr><td>" + icon("vcs_add") + "<strong>Files added:</strong></td>\n\t<td>" + added + "</td></tr>");
-        html.append("\n\t<tr><td>" + icon("vcs_update") + "<strong>Files modified:</strong></td>\n\t<td>" + modified + "</td></tr>");
-        html.append("\n\t<tr><td>" + icon("vcs_remove") + "<strong>Files deleted:</strong></td>\n\t<td>" + deleted + "</td></tr>");
+        html.append("\n\t<tr><td>" + icon("vcs_add") +
+                "<strong>Files added:</strong></td>\n\t<td>" + added + "</td></tr>");
+        html.append("\n\t<tr><td>" + icon("vcs_update") +
+                "<strong>Files modified:</strong></td>\n\t<td>" + modified + "</td></tr>");
+        html.append("\n\t<tr><td>" + icon("vcs_remove") +
+                "<strong>Files deleted:</strong></td>\n\t<td>" + deleted + "</td></tr>");
         html.append("\n\t<tr><td colspan=\"2\"><hr /></td></tr>");
-        html.append("\n\t<tr><td>" + icon("vcs_status") + "<strong>Total files changed:</strong></td><td>" + total + "</td>\n\t</tr>");
+        html.append("\n\t<tr><td>" + icon("vcs_status") +
+                "<strong>Total files changed:</strong></td><td>" + total + "</td>\n\t</tr>");
         html.append("\n</table>");
-
+        html.append(hmmz.toString());
         return html.toString();
     }
 
