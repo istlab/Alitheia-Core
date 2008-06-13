@@ -289,10 +289,31 @@ public class Terrier {
         return view;
     }
 
+    public Result[] getVersionResults (Long[] ids) {
+        try {
+            // prepare ResultRequester for file retrieval
+            WSMetricsResultRequest request = new WSMetricsResultRequest();
+            request.setDaObjectId(ids[0].longValue()); // FIXME: Use array here, also pending API change
+            request.setProjectVersion(true);
+            // Retrieve results from the accessor
+            WSResultEntry[] wsresults = connection.getMetricAccessor().getMetricsResult(request);
+            Result[] results = new Result[wsresults.length];
+            // create Array and return it
+            for (int i = 0; i < results.length; i++) {
+                results[i] = new Result(wsresults[i], this);
+            }
+            return results;
+        } catch (WSException wse) {
+            addError("Failed to retrieve ProjectResults.");
+        }
+        Result[] results = new Result[0];
+        return results;
+    }
+
     public Result[] getFileResults (Long[] ids) {
-        // prepare ResultRequester
 
         try {
+            // prepare Metrics Result Requester
             WSMetricsResultRequest request = new WSMetricsResultRequest();
             request.setDaObjectId(ids[0].longValue()); // FIXME: Use array here, also pending API change
             request.setProjectFile(true);
