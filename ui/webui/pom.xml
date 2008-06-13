@@ -35,7 +35,7 @@
       <plugin>
         <artifactId>maven-war-plugin</artifactId>
         <configuration>
-          <outputDirectory>../build</outputDirectory>
+          <outputDirectory>${basedir}/../build</outputDirectory>
           <warName>ROOT</warName>
           <webResources>
             <resource>
