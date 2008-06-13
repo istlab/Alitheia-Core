@@ -57,7 +57,7 @@ namespace Alitheia
          * Finds an object of type T having \a id within the database.
          */
         template< class T >
-        T findObjectById( int id )
+        T findObjectById( int id ) const
         {
             return T::fromCorba( *findObjectById( T(), id ) );
         }
@@ -86,7 +86,7 @@ namespace Alitheia
          * The properties can be everything like "name", "project".
          */
         template< class T >
-        std::vector< T > findObjectsByProperties( const property_map& properties )
+        std::vector< T > findObjectsByProperties( const property_map& properties ) const
         {
             using namespace boost;
             const std::vector< CORBA::Any > objects = findObjectsByProperties( T(), properties );
@@ -103,8 +103,8 @@ namespace Alitheia
         std::vector< db_row_entry > doSQL( const std::string& sql, const property_map& params = property_map() );
 
     private:
-        CORBA::Any* findObjectById( const CORBA::Any& type, int id );
-        std::vector< CORBA::Any > findObjectsByProperties( const CORBA::Any& type, const property_map& );
+        CORBA::Any* findObjectById( const CORBA::Any& type, int id ) const;
+        std::vector< CORBA::Any > findObjectsByProperties( const CORBA::Any& type, const property_map& ) const;
         bool addCorbaRecord( CORBA::Any& record );
         bool updateCorbaRecord( CORBA::Any& record );
 

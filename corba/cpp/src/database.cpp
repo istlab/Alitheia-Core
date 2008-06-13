@@ -90,7 +90,7 @@ bool Database::deleteRecord( const DAObject& object )
  * \intarnal
  * Finds an object having \a type by it's \a id.
  */
-CORBA::Any* Database::findObjectById( const CORBA::Any& type, int id )
+CORBA::Any* Database::findObjectById( const CORBA::Any& type, int id ) const
 {
     return d->database->findObjectById( type, id );
 }
@@ -249,7 +249,7 @@ alitheia::map property_map_to_corba_map( const Database::property_map& propertie
  * \internal
  * Finds a list of objects of \a type by some \a properties.
  */
-vector< CORBA::Any > Database::findObjectsByProperties( const CORBA::Any& type, const property_map& properties )
+vector< CORBA::Any > Database::findObjectsByProperties( const CORBA::Any& type, const property_map& properties ) const
 {
     const alitheia::list& objects = *(d->database->findObjectsByProperties( type, property_map_to_corba_map( properties ) ) );
 

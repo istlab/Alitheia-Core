@@ -5,6 +5,7 @@
 
 #include <CORBA.h>
 
+#include <algorithm>
 #include <iterator>
 #include <sstream>
 
@@ -249,6 +250,16 @@ ResultEntry::ResultEntry( const value_type& value, const std::string& mimeType, 
       mimeType( mimeType ),
       mnemonic( mnemonic )
 {
+    // even accept std::string for those, but convert them to vector<char>
+    if( value.type() == typeid( string ) && ( mimeType == MimeTypeImageGif || 
+                                              mimeType == MimeTypeImagePng || 
+                                              mimeType == MimeTypeImageJpeg ) )
+    {
+        const string s = boost::get< string >( value );
+        vector< char > binary( s.length() );
+        std::copy( s.begin(), s.end(), std::back_inserter( binary ) );
+        this->value = binary;
+    }
 }
 
 ResultEntry::ResultEntry( const eu::sqooss::impl::service::corba::alitheia::ResultEntry& entry )

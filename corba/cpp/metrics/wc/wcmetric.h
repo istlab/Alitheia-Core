@@ -6,6 +6,8 @@
 #include <Database>
 #include <Scheduler>
 
+#include <vector>
+
 #include <boost/thread.hpp>
 
 class WcMetric : public Alitheia::ProjectFileMetric
@@ -19,13 +21,14 @@ public:
     std::string description() const;
     std::string version() const;
     std::string result() const;
-    std::string getResult( const Alitheia::ProjectFile& ) const;
+    std::vector< Alitheia::ResultEntry > getResult( const Alitheia::ProjectFile&, const Alitheia::Metric& metric ) const;
     void run( Alitheia::ProjectFile& );
 
 private:
     Alitheia::Logger logger;
     Alitheia::Scheduler scheduler;
-    boost::mutex mutex;
+    Alitheia::Database db;
+    mutable boost::mutex mutex;
 };
 
 #endif

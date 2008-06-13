@@ -48,9 +48,26 @@ string WcMetric::version() const
     return "0.0.1";
 }
 
-string WcMetric::getResult( const ProjectFile& ) const
+vector< ResultEntry > WcMetric::getResult( const ProjectFile& f, const Metric& m ) const
 {
-    return "getResult";
+    boost::mutex::scoped_lock lock( mutex );
+    vector< ResultEntry > result;
+    
+    Database::property_map properties;
+    properties[ "projectFile" ] = f;
+    properties[ "metric" ] = m;
+    const vector< ProjectFileMeasurement > measurements = db.findObjectsByProperties< ProjectFileMeasurement >( properties );
+    
+    if( !measurements.empty() )
+    {
+        stringstream ss;
+        ss << measurements.front().result;
+        int value;
+        ss >> value;
+        result.push_back( ResultEntry( value, ResultEntry::MimeTypeTypeInteger, m.mnemonic ) );
+    }
+    
+    return result;
 }
 
 void WcMetric::run( ProjectFile& file )
@@ -84,6 +101,5 @@ void WcMetric::run( ProjectFile& file )
     stringstream ss;
     ss << count;
     m.result = ss.str();
-    Database db;
     db.addRecord( m );
 }
