@@ -55,9 +55,9 @@ if (selectedProject.isValid()) {
                     if (selectedProject.getFirstVersion()
                         != selectedProject.getLastVersion()) {
                         out.println (
-                            + selectedProject.getFirstVersion().getId()
+                            + selectedProject.getFirstVersion().getNumber()
                             + " - "
-                            + selectedProject.getLastVersion().getId()
+                            + selectedProject.getLastVersion().getNumber()
                             + " (" + selectedProject.countVersions() + " total)");
                     } else {
                         out.println ("<br />Version: "
@@ -104,7 +104,7 @@ if (selectedProject.isValid()) {
     out.println("\n\t\t</td><td valign=\"top\" width=\"50%\">");
 
     if (selectedProject.getCurrentVersion() != null) {
-        out.println("<h2>Files in Version " + selectedProject.getCurrentVersionId() + " (" + v_c + ")</h2>");
+        out.println("<h2>Files in Version " + selectedProject.getCurrentVersion().getNumber() + " (" + v_c + ")</h2>");
         out.println(versionFileList);
     } else {
         out.println("No versions in Project");
