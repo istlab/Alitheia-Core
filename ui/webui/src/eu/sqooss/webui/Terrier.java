@@ -317,6 +317,9 @@ public class Terrier {
             WSMetricsResultRequest request = new WSMetricsResultRequest();
             request.setDaObjectId(ids[0].longValue()); // FIXME: Use array here, also pending API change
             request.setProjectFile(true);
+            String[] mnemonics = new String[1];
+            mnemonics[0] = "LOC";
+            request.setMnemonics(mnemonics);
             // Retrieve results from the accessor
             WSResultEntry[] wsresults = connection.getMetricAccessor().getMetricsResult(request);
             Result[] results = new Result[wsresults.length];
