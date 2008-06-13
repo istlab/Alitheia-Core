@@ -50,6 +50,7 @@ public class Version extends WebuiItem {
     private Long projectId;
     private Long number;
     private Long filesNumber;
+    private Result[] results;
 
     /** Empty ctor, only sets the jsp page that can be used to display
      * details about this Version.
@@ -67,6 +68,7 @@ public class Version extends WebuiItem {
         name = "" + number;
         projectId = wsVersion.getProjectId();
         filesNumber = getFilesNumber();
+        fetchResults();
     }
 
     /** Initialise some data of this Version. This method can be used when we
@@ -77,6 +79,7 @@ public class Version extends WebuiItem {
         id = versionId;
         this.projectId = projectId;
         terrier = t;
+        fetchResults();
     }
 
     public Long getProjectId() {
@@ -188,6 +191,11 @@ public class Version extends WebuiItem {
      */
     public void setFiles(SortedMap<Long, File> f) {
         files = f;
+    }
+
+    public void fetchResults () {
+        Long[] ids = {getId()};
+        results = terrier.getVersionResults(ids);
     }
 
     /** Return an HTML representation of this Version.
