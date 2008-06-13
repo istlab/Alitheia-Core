@@ -221,10 +221,9 @@ class SourceUpdater extends Job {
                     }
 
                     /*If a dir was deleted, mark all children as deleted*/
-                    if (t == SCMNodeType.DIR &&
-                            pf.getStatus().equalsIgnoreCase("DELETED")) {
-                   	logger.warn("Deleted directory not processed");
-		   	//markDeleted(pf, pf.getProjectVersion());
+                    if (t == SCMNodeType.DIR && pf.isDeleted()) {
+                        logger.warn("Deleted directory not processed");
+                        //markDeleted(pf, pf.getProjectVersion());
                     }
 
                     dbs.addRecord(pf);

@@ -113,6 +113,10 @@ public class ProjectFile extends DAObject{
         return status;
     }
 
+    public boolean isDeleted() {
+        return "DELETED".equalsIgnoreCase(status);
+    }
+
     public boolean getIsDirectory() {
         return isDirectory;
     }
