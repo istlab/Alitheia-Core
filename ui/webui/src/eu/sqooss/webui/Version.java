@@ -198,12 +198,24 @@ public class Version extends WebuiItem {
         results = terrier.getVersionResults(ids);
     }
 
+    public String showResults() {
+        StringBuilder html = new StringBuilder();
+        html.append("Found: " + results.length);
+        html.append("\n<ul>");
+        for (int i = 0; i < results.length; i++) {
+            html.append("\n\t<li>" + results[i].getHtml() + "</li>");
+        }
+        html.append("</ul>");
+        return html.toString();
+    }
+
     /** Return an HTML representation of this Version.
      *
      */
     public String getHtml() {
         StringBuilder html = new StringBuilder(COMMENT);
         html.append("<b>Version:</b> " + id);
+        html.append("<b>Results:</b> " + showResults());
         return html.toString();
     }
 
