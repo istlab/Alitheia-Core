@@ -59,6 +59,16 @@ insert into @SCHEMA@STORED_PROJECT values (
         'maildir:../examples/mail/SQO-OSS'
 ) ;
 
+insert into @SCHEMA@STORED_PROJECT values (
+        6,
+	'Sport',
+        'http://cvs.codeyard.net/sport',
+        'blah@gcc.org',
+        'file:/dev/null',
+        'http://cvs.codeyard.net/svn/sport',
+        'maildir:../examples/mail/SQO-OSS'
+) ;
+
 -- These are mailing lists for project 1, which is the
 -- yoyo / SQO-OSS amalgam.
 
