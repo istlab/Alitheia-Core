@@ -33,6 +33,7 @@
 
 package eu.sqooss.service.db;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -238,6 +239,13 @@ public class ProjectFile extends DAObject{
         }
     }
 
+    /**
+     * Returns all of the files visible in a given project version.
+     * Does not return null, but the list may be empty.
+     *
+     * @param version Project and version to look at
+     * @return List of files visible in that version (may be empty, not null)
+     */
     public static List<ProjectFile> getFilesForVersion(ProjectVersion version) {
         DBService dbs = CoreActivator.getDBService();
 
@@ -260,8 +268,12 @@ public class ProjectFile extends DAObject{
         parameters.put(paramProjectId, version.getProject().getId() );
 
         List<ProjectFile> projectFiles = (List<ProjectFile>) dbs.doHQL(query, parameters);
-        // TODO: maybe handle null differently
-        return projectFiles;
+        if (projectFiles==null) {
+            // Empty array list with a capacity of 1
+            return new ArrayList(1);
+        } else {
+            return projectFiles;
+        }
     }
 
     /**

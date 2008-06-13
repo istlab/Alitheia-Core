@@ -34,6 +34,7 @@ package eu.sqooss.impl.service.web.services;
 
 import java.util.Arrays;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 
 import eu.sqooss.impl.service.web.services.datatypes.WSDeveloper;
@@ -45,6 +46,8 @@ import eu.sqooss.impl.service.web.services.datatypes.WSStoredProject;
 import eu.sqooss.impl.service.web.services.utils.ProjectManagerDatabase;
 import eu.sqooss.impl.service.web.services.utils.ProjectSecurityWrapper;
 import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.ProjectFile;
+import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.security.SecurityManager;
 
@@ -311,8 +314,8 @@ public class ProjectManager extends AbstractManager {
      * @see eu.sqooss.service.web.services.WebServices#getFilesByProjectVersionId(String, String, long)
      */
     public WSProjectFile[] getFilesByProjectVersionId(String userName, String password, long projectVersionId) {
-        logger.info("Get file list for project version! user: " + userName +
-                "; project version id: " + projectVersionId);
+        logger.info("Get file list for project version ID "
+            + projectVersionId);
 
         db.startDBSession();
 
@@ -326,7 +329,13 @@ public class ProjectManager extends AbstractManager {
 
         super.updateUserActivity(userName);
 
-        WSProjectFile[] result = dbWrapper.getFilesByProjectVersionId(projectVersionId);
+        ProjectVersion v = db.findObjectById(ProjectVersion.class, projectVersionId);
+        List<ProjectFile> files = ProjectFile.getFilesForVersion(v);
+        WSProjectFile[] result = new WSProjectFile[files.size()];
+        int i = 0;
+        for (ProjectFile f : files) {
+            result[i++]=WSProjectFile.getInstance(f);
+        }
 
         db.commitDBSession();
 
