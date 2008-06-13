@@ -5,10 +5,17 @@
 
 #include <CORBA.h>
 
+#include <iterator>
 #include <sstream>
+
+#include "boost/encoding/base64.hpp"
+#include "boost/encoding/encoding.hpp"
+
+using namespace boost::encoding;
 
 using namespace Alitheia;
 using namespace eu::sqooss::impl::service::corba;
+
 using std::string;
 using std::stringstream;
 using std::vector;
@@ -244,6 +251,50 @@ ResultEntry::ResultEntry( const value_type& value, const std::string& mimeType, 
 {
 }
 
+ResultEntry::ResultEntry( const eu::sqooss::impl::service::corba::alitheia::ResultEntry& entry )
+    : mimeType( entry.mimeType ),
+      mnemonic( entry.mnemonic )
+{
+    stringstream ss;
+    ss << entry.value;
+    
+    if( mimeType == MimeTypeTypeInteger )
+    {
+        int v;
+        ss >> v;
+        value = v;
+    }
+    else if( mimeType == MimeTypeTypeLong )
+    {
+        long v;
+        ss >> v;
+        value = v;
+    }
+    else if( mimeType == MimeTypeTypeFloat )
+    {
+        float v;
+        ss >> v;
+        value = v;
+    }
+    else if( mimeType == MimeTypeTypeDouble )
+    {
+        double v;
+        ss >> v;
+        value = v;
+    }
+    else if( mimeType == MimeTypeTextPlain || mimeType == MimeTypeTextHtml  )
+    {
+        value = ss.str();
+    }
+    else
+    {
+        const string base64data = ss.str();
+        vector< char > binary( base64data.length() * 3 / 4 );
+        decode( base64data.begin(), base64data.end(), std::back_inserter( binary ), base64() );
+        value = binary;
+    }
+}
+
 ResultEntry::~ResultEntry()
 {
 }
@@ -266,8 +317,10 @@ alitheia::ResultEntry ResultEntry::toCorba() const
         ss << boost::get< string >( value );
     else if( value.type() == typeid( vector< char > ) )
     {
-        // TODO: base64 encoding
-        //ss << boost::get< long >( value );
+        const vector< char > binary =  boost::get< vector< char > >( value );
+        string base64data;
+        encode( binary.begin(), binary.end(), std::back_inserter( base64data ), base64() );
+        ss << base64data;
     }
         
     result.value = CORBA::string_dup( ss.str().c_str() );

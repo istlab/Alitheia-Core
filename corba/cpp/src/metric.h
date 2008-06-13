@@ -71,7 +71,7 @@ namespace Alitheia
         
         ResultEntry() {}
         ResultEntry( const value_type& value, const std::string& mimeType, const std::string& mnemonic );
-        //explicit ResultEntry( const eu::sqooss::impl::service::corba::alitheia::ResultEntry& entry );
+        explicit ResultEntry( const eu::sqooss::impl::service::corba::alitheia::ResultEntry& entry );
         virtual ~ResultEntry();
     
         static const std::string MimeTypeTypeInteger;
