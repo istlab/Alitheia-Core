@@ -367,12 +367,13 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
             MetricType newType = new MetricType(type);
             db.addRecord(newType);
         }
+        Plugin p = Plugin.getPluginByHashcode(getUniqueKey());
         Metric m = new Metric();
         m.setDescription(desc);
         m.setMnemonic(mnemonic);
         m.setMetricType(MetricType.getMetricType(type));
-        m.setPlugin(Plugin.getPluginByHashcode(getUniqueKey()));
-        return db.addRecord(m);
+        m.setPlugin(p);
+        return p.getSupportedMetrics().add(m);
 
     }
 
@@ -434,20 +435,8 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         h.put("name", this.getName());
 
         List<Plugin> plugins = db.findObjectsByProperties(Plugin.class, h);
-//        String myHashcode = getUniqueKey();
 
         if (!plugins.isEmpty()) {
-//            // First, check if we are exactly that plugin and this is
-//            // just a re-activation of the plugin.
-//            for (Plugin p : plugins) {
-//                if (p.getHashcode().equals(myHashcode)) {
-//                    // That's really the same
-//                    p.setActive(true);
-//                    log.info("Reactivated plugin <" + getName() + ">");
-//                    return true;
-//                }
-//            }
-
             log.warn("A plugin with name <" + getName()
                     + "> is already installed, won't re-install.");
             return false;
@@ -468,11 +457,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         p.setVersion(getVersion());
         p.setActive(true);
         p.setHashcode(getUniqueKey());
-//        return db.addRecord(p);
-        boolean result = db.addRecord(p);
-        db.flushDBSession();
-        return result;
-
+        return db.addRecord(p);
     }
 
     /**
@@ -482,27 +467,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      */
     public boolean remove() {
         Plugin p = Plugin.getPluginByHashcode(getUniqueKey());
-//        // Cascade manually to metrics inside this plugin
-//        List<Metric> dependentMetrics = getSupportedMetrics();
-//        if (dependentMetrics != null) {
-//            for (Metric m : dependentMetrics) {
-//                db.deleteRecord(m);
-//            }
-//        }
-//        // Cascade manually to remove our configurations
-//        Set<PluginConfiguration> configurations = getConfigurationSchema();
-//        if (configurations != null) {
-//            for (PluginConfiguration c : configurations) {
-//                db.deleteRecord(c);
-//            }
-//        }
-//        p.setActive(false);
-//        db.commitDBSession();
-//        db.startDBSession();
-//        return true;
-        boolean result = db.deleteRecord(p);
-        db.flushDBSession();
-        return result;
+        return db.deleteRecord(p);
     }
 
     /**{@inheritDoc}}*/

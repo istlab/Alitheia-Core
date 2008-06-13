@@ -35,6 +35,7 @@ package eu.sqooss.service.db;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -80,12 +81,12 @@ public class Plugin extends DAObject{
     /**
      * A list of all configuration entries for this plugin
      */
-    private Set<PluginConfiguration> configurations;
+    private Set<PluginConfiguration> configurations = new HashSet<PluginConfiguration>();
     
     /**
      * A list of all supported metrics for this plugin
      */
-    private Set<Metric> supportedMetrics;
+    private Set<Metric> supportedMetrics = new HashSet<Metric>();
     
     public String getName() {
         return name;

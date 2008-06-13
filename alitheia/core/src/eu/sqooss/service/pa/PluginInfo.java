@@ -354,17 +354,13 @@ public class PluginInfo implements Comparable<PluginInfo> {
         // Add the new configuration property
         PluginConfiguration newParam =
             new PluginConfiguration();
-        newParam.setPlugin(Plugin.getPluginByHashcode(hashcode));
         newParam.setName(name);
         newParam.setMsg((description != null) ? description : "");
         newParam.setType(type);
         newParam.setValue(value);
-        if (db.addRecord(newParam)) {
-            db.flushDBSession();
-            return true;
-        }
-
-        return false;
+        Plugin p = Plugin.getPluginByHashcode(hashcode);
+        newParam.setPlugin(p);
+        return p.getConfigurations().add(newParam);
 }
 
     /**

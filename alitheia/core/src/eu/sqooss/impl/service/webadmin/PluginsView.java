@@ -166,7 +166,6 @@ public class PluginsView extends AbstractView{
                         }
                         // Persist the DB changes
                         else {
-                            sobjDB.flushDBSession();
                             PluginInfo pInfo =
                                 sobjPA.getPluginInfo(reqValHashcode);
                             sobjPA.pluginUpdated(sobjPA.getPlugin(pInfo));
@@ -179,10 +178,6 @@ public class PluginsView extends AbstractView{
                         if (sobjPA.uninstallPlugin(reqValHashcode) == false) {
                             e.append("Plug-in can not be uninstalled."
                                     + " Check log for details.");
-                        }
-                        // Persist the DB changes
-                        else {
-                            sobjDB.flushDBSession();
                         }
                     }
                 }
