@@ -51,8 +51,9 @@ class File extends WebuiItem {
     private String status = "FILE_STATUS_UNSET"; // status is one of ADDED, MODIFIED or DELETED
     private Long versionId;
     private Long id;
-    Boolean isDirectory;
+    private Boolean isDirectory;
     private Terrier terrier;
+    private Result[] results;
 
     /** Initialise the File from a WSProjectFile, setting the data and storing a
      * reference to the Terrier class that can then be used to fetch additional information.
@@ -65,8 +66,7 @@ class File extends WebuiItem {
         id = wsFile.getId();
         isDirectory = wsFile.getDirectory();
         terrier = t;
-        // TODO: measurements (and metrics?)
-        // TODO: isDirectory()?
+        fetchResults();
     }
     /** Initialise a file with raw data.
      */
@@ -77,6 +77,7 @@ class File extends WebuiItem {
         this.id = fileId;
         this.versionId = versionId;
         this.terrier = t;
+        fetchResults();
     }
 
     public Long getVersion () {
@@ -127,6 +128,12 @@ class File extends WebuiItem {
         return icon(iconname, 0, tooltip);
     }
 
+    public void fetchResults () {
+        Long[] ids = {getId()};
+        results = terrier.getVersionResults(ids);
+    }
+
+
     /** HTML representation of the File.
      */
     public String getHtml() {
@@ -134,6 +141,11 @@ class File extends WebuiItem {
         html.append(getStatusIcon() + "&nbsp;" + getLink());
         if (getIsDirectory()) {
             html.append(" " + "(DIR)");
+        }
+        if (results.length < 1) {
+            html.append(" [[ No results, unfortunately. ]]");
+        } else {
+            html.append(results[0].getHtml()); // FIXME: We're only displaying the first ...
         }
         return html.toString();
     }
