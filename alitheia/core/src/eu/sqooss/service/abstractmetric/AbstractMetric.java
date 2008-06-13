@@ -206,14 +206,14 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
                         + Plugin.getPluginByHashcode(getUniqueKey()).getName());
             }
 
-            ArrayList<ResultEntry> re = null;
+            List<ResultEntry> re = null;
             while (i.hasNext()) {
                 Class<? extends DAObject> c = i.next();
                 if (c.isInstance(o)) {
                     found = true;
                     try {
                         Method method = this.getClass().getMethod("getResult", c, Metric.class);
-                        re =  (ArrayList<ResultEntry>) method.invoke(this, o, m);
+                        re =  (List<ResultEntry>) method.invoke(this, o, m);
                     } catch (SecurityException e) {
                         log.error("Unable to invoke getResult method:"
                                 + e.getMessage());
