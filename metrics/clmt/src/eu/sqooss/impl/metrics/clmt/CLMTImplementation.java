@@ -73,7 +73,7 @@ import eu.sqooss.service.tds.InvalidProjectRevisionException;
 import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.ProjectRevision;
 
-public class CLTMImplementation extends AbstractMetric implements CLMT {
+public class CLMTImplementation extends AbstractMetric implements CLMT {
     
     private final String XMLTaskProto = "<task>\n"     +
     "  <description>%s </description>\n"               +
@@ -90,7 +90,7 @@ public class CLTMImplementation extends AbstractMetric implements CLMT {
     
     private AlitheiaCore core;
     
-    public CLTMImplementation(BundleContext bc) {
+    public CLMTImplementation(BundleContext bc) {
         super(bc);      
         this.addActivationType(ProjectVersion.class);
         this.addActivationType(ProjectFile.class);        

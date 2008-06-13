@@ -37,7 +37,7 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
-import eu.sqooss.impl.metrics.clmt.CLTMImplementation;
+import eu.sqooss.impl.metrics.clmt.CLMTImplementation;
 
 
 public class CLMTActivator implements BundleActivator {
@@ -46,8 +46,8 @@ public class CLMTActivator implements BundleActivator {
 
     public void start(BundleContext bc) throws Exception {
 
-        registration = bc.registerService(CLTMImplementation.class.getName(),
-                new CLTMImplementation(bc), null);
+        registration = bc.registerService(CLMTImplementation.class.getName(),
+                new CLMTImplementation(bc), null);
     }
 
     public void stop(BundleContext context) throws Exception {
