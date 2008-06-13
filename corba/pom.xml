@@ -36,7 +36,7 @@
       <plugin>
         <artifactId>maven-jar-plugin</artifactId>
         <configuration>
-          <outputDirectory>../equinox</outputDirectory>
+          <outputDirectory>${basedir}/../equinox</outputDirectory>
           <finalName>${artifactId}_${version}</finalName>
           <archive>
             <manifestFile>${basedir}/META-INF/MANIFEST.MF</manifestFile>
