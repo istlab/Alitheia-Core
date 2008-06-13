@@ -39,6 +39,7 @@ import java.util.TreeMap;
 import java.util.Vector;
 
 import eu.sqooss.scl.WSException;
+import eu.sqooss.webui.Result.ResourceType;
 import eu.sqooss.ws.client.datatypes.WSMetric;
 import eu.sqooss.ws.client.datatypes.WSMetricType;
 import eu.sqooss.ws.client.datatypes.WSMetricsRequest;
@@ -289,33 +290,16 @@ public class Terrier {
         return view;
     }
 
-    public Result[] getVersionResults (long[] ids) {
-        try {
-            // prepare ResultRequester for file retrieval
-            WSMetricsResultRequest request = new WSMetricsResultRequest();
-            request.setDaObjectId(ids); // FIXME: Use array here, also pending API change
-            request.setProjectVersion(true);
-            // Retrieve results from the accessor
-            WSResultEntry[] wsresults = connection.getMetricAccessor().getMetricsResult(request);
-            Result[] results = new Result[wsresults.length];
-            // create Array and return it
-            for (int i = 0; i < results.length; i++) {
-                results[i] = new Result(wsresults[i], this);
-            }
-            return results;
-        } catch (WSException wse) {
-            addError("Failed to retrieve ProjectResults.");
-        }
-        Result[] results = new Result[0];
-        return results;
-    }
-
-    public Result[] getFileResults (long[] ids) {
-
+    public Result[] getResults (long[] ids, ResourceType t) {
         try {
             // prepare Metrics Result Requester
             WSMetricsResultRequest request = new WSMetricsResultRequest();
-            request.setDaObjectId(ids); // FIXME: Use array here, also pending API change
+            request.setDaObjectId(ids);
+            // Set the proper resource type
+            switch (t) {
+            case PROJECT_FILE: request.setProjectFile(true); break;
+            case PROJECT_VERSION: request.setProjectVersion(true); break;
+            }
             request.setProjectFile(true);
             String[] mnemonics = new String[1];
             mnemonics[0] = "LOC";

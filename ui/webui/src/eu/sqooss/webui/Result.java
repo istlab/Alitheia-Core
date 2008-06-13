@@ -45,6 +45,20 @@ import eu.sqooss.ws.client.datatypes.WSResultEntry;
  */
 public class Result extends WebuiItem {
 
+    public static enum ResourceType {
+        PROJECT_FILE,
+        PROJECT_VERSION;
+
+        public static ResourceType fromString(String scope) {
+            if (scope.equals(PROJECT_FILE.toString()))
+                return PROJECT_FILE;
+            if (scope.equals(PROJECT_VERSION.toString()))
+                return PROJECT_VERSION;
+            else
+                return null;
+        }
+    };
+
     private String mnemonic;
     private String type;
     private String activationType;

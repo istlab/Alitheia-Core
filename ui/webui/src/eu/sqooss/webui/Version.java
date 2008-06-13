@@ -35,6 +35,7 @@ package eu.sqooss.webui;
 
 import java.util.*;
 
+import eu.sqooss.webui.Result.ResourceType;
 import eu.sqooss.ws.client.datatypes.WSProjectVersion;
 
 /**
@@ -195,7 +196,7 @@ public class Version extends WebuiItem {
 
     public void fetchResults () {
         long[] ids = {getId()};
-        results = terrier.getVersionResults(ids);
+        results = terrier.getResults(ids, ResourceType.PROJECT_VERSION);
     }
 
     public String showResults() {

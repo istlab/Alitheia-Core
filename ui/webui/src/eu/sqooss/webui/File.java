@@ -33,6 +33,7 @@
 
 package eu.sqooss.webui;
 
+import eu.sqooss.webui.Result.ResourceType;
 import eu.sqooss.ws.client.datatypes.WSProjectFile;
 import eu.sqooss.ws.client.datatypes.WSMetricsResultRequest;
 
@@ -130,7 +131,7 @@ class File extends WebuiItem {
 
     public void fetchResults () {
         long[] ids = {getId()};
-        results = terrier.getFileResults(ids);
+        results = terrier.getResults(ids, ResourceType.PROJECT_FILE);
     }
 
 
