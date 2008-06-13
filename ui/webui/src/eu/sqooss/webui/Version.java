@@ -194,7 +194,7 @@ public class Version extends WebuiItem {
     }
 
     public void fetchResults () {
-        Long[] ids = {getId()};
+        long[] ids = {getId()};
         results = terrier.getVersionResults(ids);
     }
 

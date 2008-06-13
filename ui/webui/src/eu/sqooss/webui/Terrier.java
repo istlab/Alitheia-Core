@@ -289,11 +289,11 @@ public class Terrier {
         return view;
     }
 
-    public Result[] getVersionResults (Long[] ids) {
+    public Result[] getVersionResults (long[] ids) {
         try {
             // prepare ResultRequester for file retrieval
             WSMetricsResultRequest request = new WSMetricsResultRequest();
-            request.setDaObjectId(ids[0].longValue()); // FIXME: Use array here, also pending API change
+            request.setDaObjectId(ids); // FIXME: Use array here, also pending API change
             request.setProjectVersion(true);
             // Retrieve results from the accessor
             WSResultEntry[] wsresults = connection.getMetricAccessor().getMetricsResult(request);
@@ -310,12 +310,12 @@ public class Terrier {
         return results;
     }
 
-    public Result[] getFileResults (Long[] ids) {
+    public Result[] getFileResults (long[] ids) {
 
         try {
             // prepare Metrics Result Requester
             WSMetricsResultRequest request = new WSMetricsResultRequest();
-            request.setDaObjectId(ids[0].longValue()); // FIXME: Use array here, also pending API change
+            request.setDaObjectId(ids); // FIXME: Use array here, also pending API change
             request.setProjectFile(true);
             String[] mnemonics = new String[1];
             mnemonics[0] = "LOC";

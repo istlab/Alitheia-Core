@@ -129,8 +129,8 @@ class File extends WebuiItem {
     }
 
     public void fetchResults () {
-        Long[] ids = {getId()};
-        results = terrier.getVersionResults(ids);
+        long[] ids = {getId()};
+        results = terrier.getFileResults(ids);
     }
 
 
