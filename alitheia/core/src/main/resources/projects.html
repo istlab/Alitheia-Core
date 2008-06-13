@@ -2,28 +2,28 @@
   <body class="section-3">
     <div id="wrap">
       <div id="header">
-        <h1>Admin Panel</h1>
-        <img src="sqo-oss.png" alt="SQO-OSS Logo" />
+        <h1>$APP_NAME</h1>
+        <img src="/sqo-oss.png" alt="SQO-OSS Logo" />
       </div>
       <div id="main">
         $MENU
         <div id="contents">
+          <h2>$PROJECTS_HEADER</h2>
+          <div id="table">
+            $PROJECTS
+          </div>
           <fieldset id="newproject">
             <legend>Install new project</legend>
             <form id="addprojectdir" method="post" action="diraddproject">
             <table width="100%">
-            	<tr>
-            		<td width="20%">Project info.txt file</td>
-            		<td width="60%"><input name="info" type="text" alt="Enter the path to the info.txt file of the project you want to install" class="form"/></td>
-            		<td width="20%"><input type="submit" value="Install Project"/></td>	
-            	</tr>
+                <tr>
+                    <td width="20%">Project info.txt file</td>
+                    <td width="60%"><input name="info" type="text" alt="Enter the path to the info.txt file of the project you want to install" class="form"/></td>
+                    <td width="20%"><input type="submit" value="Install Project"/></td> 
+                </tr>
             </table>
             </form>
           </fieldset>
-          <div id="table">
-            <h2>Installed Projects</h2>
-              $PROJECTS
-          </div>
         </div>
       </div>
     #parse("sidebar.inc")

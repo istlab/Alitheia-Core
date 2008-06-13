@@ -37,19 +37,14 @@ package eu.sqooss.impl.service.webadmin;
 import eu.sqooss.impl.service.webadmin.WebAdminRenderer;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.util.Pair;
-import eu.sqooss.service.pa.PluginAdmin;
-import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.webadmin.WebadminService;
 
-import java.io.BufferedReader;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
 import java.util.Hashtable;
-import java.util.ResourceBundle;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -58,11 +53,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.velocity.app.VelocityEngine;
-import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 
-import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 
@@ -282,15 +275,15 @@ public class AdminServlet extends HttpServlet {
     }
 
     private void createSubstitutions(HttpServletRequest request) {
-        // Get the various resource bundles
-        ResourceBundle resLabels =
-            AbstractView.getLabelsBundle(request.getLocale());
+        // Initialize the resource bundles with the provided locale
+        AbstractView.initResources(request.getLocale());
 
         // Simple string substitutions
-        vc.put("APP_NAME", resLabels.getString("l0002"));
-        vc.put("PLUGINS_HEADER", resLabels.getString("plugins_mngm"));
-        vc.put("USERS_HEADER", resLabels.getString("users_mngm"));
-        vc.put("RULES_HEADER", resLabels.getString("rules_mngm"));
+        vc.put("APP_NAME", AbstractView.getLbl("app_name"));
+        vc.put("PLUGINS_HEADER", AbstractView.getLbl("plugins_mngm"));
+        vc.put("PROJECTS_HEADER", AbstractView.getLbl("projects_mngm"));
+        vc.put("USERS_HEADER", AbstractView.getLbl("users_mngm"));
+        vc.put("RULES_HEADER", AbstractView.getLbl("rules_mngm"));
         vc.put("COPYRIGHT",
                 "Copyright 2007-2008"
                 + "<a href=\"http://www.sqo-oss.eu/about/\">"
@@ -300,36 +293,36 @@ public class AdminServlet extends HttpServlet {
         vc.put("MENU",
                 "<ul id=\"menu\">"
                 + "<li id=\"nav-1\"><a href=\"/index\">"
-                + resLabels.getString("plugins") + "</a></li>"
+                + AbstractView.getLbl("plugins") + "</a></li>"
                 + "<li id=\"nav-3\"><a href=\"/projects\">"
-                + resLabels.getString("projects") + "</a></li>"
+                + AbstractView.getLbl("projects") + "</a></li>"
                 + "<li id=\"nav-6\"><a href=\"/users\">"
-                + resLabels.getString("l0024") + "</a></li>"
+                + AbstractView.getLbl("l0024") + "</a></li>"
                 + "<li id=\"nav-2\"><a href=\"/logs\">"
-                + resLabels.getString("logs") + "</a></li>"
+                + AbstractView.getLbl("logs") + "</a></li>"
                 + "<li id=\"nav-4\"><a href=\"/jobs\">"
-                + resLabels.getString("jobs") + "</a></li>"
+                + AbstractView.getLbl("jobs") + "</a></li>"
                 + "<li id=\"nav-7\"><a href=\"/rules\">"
-                + resLabels.getString("rules") + "</a></li>"
+                + AbstractView.getLbl("rules") + "</a></li>"
                 + "</ul>");
         vc.put("OPTIONS",
                 "<fieldset id=\"options\">"
-                + "<legend>" + resLabels.getString("options") + "</legend>"
+                + "<legend>" + AbstractView.getLbl("options") + "</legend>"
                 + "<form id=\"motd\" method=\"post\" action=\"motd\">"
-                + "<p>" + resLabels.getString("motd") + ":</p><br/>"
+                + "<p>" + AbstractView.getLbl("motd") + ":</p><br/>"
                 + "<input id=\"motdinput\" type=\"text\" name=\"motdtext\""
                 + " class=\"form\"/>"
                 + "<br/>"
                 + "<input type=\"submit\" value=\""
-                + resLabels.getString("l0005") + "\" id=\"motdbutton\" />"
+                + AbstractView.getLbl("l0005") + "\" id=\"motdbutton\" />"
                 + "</form>"
                 + "<form id=\"start\" method=\"post\" action=\"restart\">"
                 + "<input type=\"submit\" value=\""
-                + resLabels.getString("restart") + "\" />\n"
+                + AbstractView.getLbl("restart") + "\" />\n"
                 + "</form>"
                 + "<form id=\"stop\" method=\"post\" action=\"stop\">"
                 + "<input type=\"submit\" value=\""
-                + resLabels.getString("stop") + "\" />"
+                + AbstractView.getLbl("stop") + "\" />"
                 + "</form></fieldset>");
 
         // Function-based substitutions
@@ -357,36 +350,36 @@ public class AdminServlet extends HttpServlet {
         // Composite substitutions
         vc.put("STATUS_CORE",
                 "<fieldset id=\"status\">"
-                + "<legend>" + resLabels.getString("status") + "</legend>"
+                + "<legend>" + AbstractView.getLbl("status") + "</legend>"
                 + "<ul>"
-                + "<li class=\"uptime\">" + resLabels.getString("uptime")
+                + "<li class=\"uptime\">" + AbstractView.getLbl("uptime")
                 + ": " + vc.get("UPTIME") + "</li>"
-                + "<li class=\"queue\">" + resLabels.getString("queue_length")
+                + "<li class=\"queue\">" + AbstractView.getLbl("queue_length")
                 + ": " + vc.get("QUEUE_LENGTH") + "</li>"
                 + "</ul>"
                 + "</fieldset>");
         vc.put("STATUS_JOBS",
                 "<fieldset id=\"jobs\">"
-                + "<legend>" + resLabels.getString("job_info") + "</legend>"
+                + "<legend>" + AbstractView.getLbl("job_info") + "</legend>"
                 + "<table width='100%' cellspacing=0 cellpadding=3>"
                 + "<tr>"
-                + "<td>" + resLabels.getString("executing") + ":</td>"
+                + "<td>" + AbstractView.getLbl("executing") + ":</td>"
                 + "<td class=\"number\">" + vc.get("JOB_EXEC") + "</td>"
                 + "</tr>"
                 + "<tr>"
-                + "<td>" + resLabels.getString("waiting") + ":</td>"
+                + "<td>" + AbstractView.getLbl("waiting") + ":</td>"
                 + "<td class=\"number\">" + vc.get("JOB_WAIT") + "</td>"
                 + "</tr>"
                 + "<tr>"
-                + "<td>" + resLabels.getString("failed") + ":</td>"
+                + "<td>" + AbstractView.getLbl("failed") + ":</td>"
                 + "<td class=\"number\">" + vc.get("JOB_FAILED") + "</td>"
                 + "</tr>"
                 + "<tr>"
-                + "<td>" + resLabels.getString("total") + ":</td>"
+                + "<td>" + AbstractView.getLbl("total") + ":</td>"
                 + "<td class=\"number\">" + vc.get("JOB_TOTAL") + "</td>"
                 + "</tr>"
                 + "<tr class=\"newgroup\">"
-                + "<td>" + resLabels.getString("workers") + ":</td>"
+                + "<td>" + AbstractView.getLbl("workers") + ":</td>"
                 + "<td class=\"number\">" + vc.get("JOB_WORKTHR") + "</td>"
                 + "</tr>"
                 + "</table>"
