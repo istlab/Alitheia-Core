@@ -42,6 +42,7 @@ public class WSResultEntry {
     private String result;
     private String mnemonic;
     private String mimeType;
+    private long daoId;
     
     /**
      * @return the result
@@ -105,7 +106,22 @@ public class WSResultEntry {
             return null;
         }
     }
-    
+
+    /**
+     * Gets the Id of the DAO to which this measurement belong.
+     * 
+     * @return the DAO's unique Id
+     */
+    public long getDaoId() {
+        return daoId;
+    }
+
+    /**
+     * Sets the Id of the DAO to which this measurement belong.
+     */
+    public void setDaoId(long daoId) {
+        this.daoId = daoId;
+    }
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

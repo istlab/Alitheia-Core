@@ -34,18 +34,18 @@ package eu.sqooss.impl.service.web.services.datatypes;
 
 public class WSMetricsResultRequest {
     
-    private long daObjectId;
+    private Long[] daObjectId;
     private String[] mnemonics;
     private boolean isStoredProject;
     private boolean isProjectFile;
     private boolean isFileGroup;
     private boolean isProjectVersion;
     
-    public long getDaObjectId() {
+    public Long[] getDaObjectId() {
         return daObjectId;
     }
     
-    public void setDaObjectId(long daObjectId) {
+    public void setDaObjectId(Long[] daObjectId) {
         this.daObjectId = daObjectId;
     }
     

@@ -98,17 +98,17 @@ public class MetricManagerDatabase implements MetricManagerDBQueries {
         return WSMetric.asArray(metrics);
     }
     
-    public DAObject getMetricsResultDAObject(WSMetricsResultRequest resultRequest) {
-        long daObjectId = resultRequest.getDaObjectId();
+    public DAObject getMetricsResultDAObject(
+            WSMetricsResultRequest resultRequest, long daoId) {
         DAObject result = null;
         if (resultRequest.isFileGroup()) {
-            result = db.findObjectById(FileGroup.class, daObjectId);
+            result = db.findObjectById(FileGroup.class, daoId);
         } else if (resultRequest.isProjectFile()) {
-            result = db.findObjectById(ProjectFile.class, daObjectId);
+            result = db.findObjectById(ProjectFile.class, daoId);
         } else if (resultRequest.isProjectVersion()) {
-            result = db.findObjectById(ProjectVersion.class, daObjectId);
+            result = db.findObjectById(ProjectVersion.class, daoId);
         } else if (resultRequest.isStoredProject()) {
-            result = db.findObjectById(StoredProject.class, daObjectId);
+            result = db.findObjectById(StoredProject.class, daoId);
         }
         return result;
     }

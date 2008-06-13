@@ -244,15 +244,32 @@ public class MetricManager extends AbstractManager {
         super.updateUserActivity(userName);
 
         WSResultEntry[] result = null;
-        List<WSResultEntry> resultList = null;
-        DAObject daObject = dbWrapper.getMetricsResultDAObject(resultRequest);
-        if (daObject != null) {
-            List<Metric> metrics = (List<Metric>) dbWrapper.getMetricsResultMetricsList(resultRequest);
-            resultList = getMetricsResult(metrics, daObject);
+        List<WSResultEntry> resultsList = new ArrayList<WSResultEntry>();
+        if (resultRequest.getDaObjectId() != null) {
+            for (long nextDaoId : resultRequest.getDaObjectId()) {
+                // Find the DAO with this Id
+                DAObject nextDao = dbWrapper.getMetricsResultDAObject(
+                        resultRequest, nextDaoId);
+                // Stored the metric evaluation on this DAO
+                List<WSResultEntry> nextDaoResults = null;
+                if (nextDao != null) {
+                    List<Metric> metrics =
+                        (List<Metric>) dbWrapper.getMetricsResultMetricsList(
+                                resultRequest);
+                    nextDaoResults = getMetricsResult(metrics, nextDao);
+                }
+                if ((nextDaoResults != null) && (nextDaoResults.size() != 0)) {
+                    for (WSResultEntry nextResult : nextDaoResults) {
+                        nextResult.setDaoId(nextDaoId);
+                        resultsList.add(nextResult);
+                    }
+                }
+            }
         }
-        if ((resultList != null) && (resultList.size() != 0)) {
-            result = new WSResultEntry[resultList.size()];
-            resultList.toArray(result);
+        
+        if (resultsList.size() > 0) {
+            result = new WSResultEntry[resultsList.size()];
+            resultsList.toArray(result);
         }
         db.commitDBSession();
         return (WSResultEntry[]) normalizeWSArrayResult(result);
