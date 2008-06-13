@@ -77,7 +77,7 @@ class InMemoryCheckoutImpl implements InMemoryCheckout {
     private CommitEntry entry;
 
     private InMemoryDirectory root;
-    
+
     InMemoryCheckoutImpl(SCMAccessor scm, String path, ProjectRevision r)
         throws FileNotFoundException,
                InvalidProjectRevisionException,
@@ -90,7 +90,7 @@ class InMemoryCheckoutImpl implements InMemoryCheckout {
         setRevision(r);
         Pattern p = Pattern.compile(".*");
         createCheckout(root.createSubDirectory(scm.getSubProjectPath()),p);
-        
+
          entry = scm.getCommitLog(repoPath, r);
     }
 
@@ -105,7 +105,7 @@ class InMemoryCheckoutImpl implements InMemoryCheckout {
 
         setRevision(r);
         createCheckout(root.createSubDirectory(scm.getSubProjectPath()), p);
-        
+
          entry = scm.getCommitLog(repoPath, r);
     }
 
@@ -113,36 +113,18 @@ class InMemoryCheckoutImpl implements InMemoryCheckout {
     protected void createCheckout(InMemoryDirectory dir, Pattern pattern) throws InvalidProjectRevisionException {
 
         DBService dbs = CoreActivator.getDBService();
-    	
-        
+
+
         StoredProject project = getProject();
         if ( project == null ) {
             throw new InvalidProjectRevisionException(projectName, null);
         }
-        
+
         ProjectVersion version = ProjectVersion.getVersionByRevision(project, getRevision() );
         if ( version == null ) {
             throw new InvalidProjectRevisionException(projectName, null);
         }
-        String paramVersion = "version_id";
-        String paramProjectId = "project_id";
-        
-        String query = "select pf " +
-                       "from ProjectFile pf " +
-                       "where ( pf.projectVersion.version, pf.name, pf.dir ) " +
-                       "in ( " +
-                       "    select max( pf2.projectVersion.version ), pf2.name, pf2.dir from ProjectFile pf2 " +
-                       "    where pf2.projectVersion.project.id=:" + paramProjectId + " " +
-                       "    and pf2.projectVersion.version <=:" + paramVersion + " " +
-                       "    group by pf2.dir, pf2.name " +
-                       ") " +
-                       "and pf.status <> 'DELETED'";
-                                       
-        Map<String,Object> parameters = new HashMap<String,Object>();
-        parameters.put(paramVersion, version.getVersion() );
-        parameters.put(paramProjectId, project.getId() );
-
-        List<ProjectFile> projectFiles = (List<ProjectFile>) dbs.doHQL(query, parameters);
+        List<ProjectFile> projectFiles = ProjectFile.getFilesForVersion(version);
         if (projectFiles != null && projectFiles.size() != 0) {
             for (ProjectFile f : projectFiles) {
                 if (pattern.matcher(f.getFileName()).matches()) {
@@ -169,11 +151,11 @@ class InMemoryCheckoutImpl implements InMemoryCheckout {
     public StoredProject getProject() {
         return StoredProject.getProjectByName(projectName);
     }
-    
+
     public InMemoryDirectory getRoot() {
         return root;
     }
-    
+
     public CommitEntry getCommitLog() {
         return entry;
     }
@@ -188,7 +170,7 @@ class InMemoryCheckoutImpl implements InMemoryCheckout {
     public long getId() {
         return projectId;
     }
-    
+
     public ProjectFile getFile(String name) {
         return root.getFile(name);
     }

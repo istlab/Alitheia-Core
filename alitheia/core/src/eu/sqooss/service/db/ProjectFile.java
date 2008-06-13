@@ -127,7 +127,7 @@ public class ProjectFile extends DAObject{
     public void setDir(Directory dir) {
         this.dir = dir;
     }
-    
+
     public Set<ProjectFileMeasurement> getMeasurements() {
         return measurements;
     }
@@ -138,7 +138,7 @@ public class ProjectFile extends DAObject{
 
     /**
      * Returns the full path to the file, relative to the repository root
-     * @return 
+     * @return
      */
     public String getFileName() {
         String result = dir.getPath();
@@ -147,24 +147,24 @@ public class ProjectFile extends DAObject{
         result += name;
         return result;
     }
-    
+
     /**
      * Get the previous entry for the provided ProjectFile
      * @param pf
-     * @return The previous file revision, or null if the file is not found 
-     * or if the file was added in the provided revision 
+     * @return The previous file revision, or null if the file is not found
+     * or if the file was added in the provided revision
      */
     public static ProjectFile getPreviousFileVersion(ProjectFile pf) {
         DBService dbs = CoreActivator.getDBService();
-        
+
         //No need to query if a file was just added
-        if (pf.getStatus() == "ADDED") 
+        if (pf.getStatus() == "ADDED")
             return null;
-        
-        String paramFile = "paramFile"; 
-        String paramVersion = "paramVersion"; 
+
+        String paramFile = "paramFile";
+        String paramVersion = "paramVersion";
         String paramDir = "paramDir";
-        
+
         String query = "select pf from ProjectVersion pv, ProjectFile pf " +
         		"where pv.timestamp in (" +
         		"select max(pv2.timestamp) " +
@@ -175,21 +175,21 @@ public class ProjectFile extends DAObject{
         		" and pf2.name = :" + paramFile +
         		" and pv2.project = pv.project )" +
         		"and pf.projectVersion = pv.id and pf.name = :" + paramFile;
-        
+
         Map<String,Object> parameters = new HashMap<String,Object>();
         parameters.put(paramFile, pf.getName());
         parameters.put(paramDir, pf.getDir());
         parameters.put(paramVersion, pf.getProjectVersion().getTimestamp());
 
         List<?> projectFiles = dbs.doHQL(query, parameters);
-        
+
         if(projectFiles == null || projectFiles.size() == 0) {
             return null;
         }else {
             return (ProjectFile) projectFiles.get(0);
         }
     }
-    
+
     /**
      * Get the file revision that is current to the provided project version.
      * @param pv The project version against which we want the current version
@@ -199,20 +199,20 @@ public class ProjectFile extends DAObject{
      */
     public static ProjectFile getLatestVersion(ProjectVersion pv, String path) {
         DBService dbs = CoreActivator.getDBService();
-        
+
         String dir = path.substring(0, path.lastIndexOf('/'));
         String fname = path.substring(path.lastIndexOf('/') + 1);
-        
+
         if (path == null || path.equalsIgnoreCase("")) {
-            path = "/"; 
+            path = "/";
         }
-        
+
         Directory d = Directory.getDirectory(dir, false);
-        
-        String paramFile = "paramFile"; 
-        String paramTS = "paramTS"; 
+
+        String paramFile = "paramFile";
+        String paramTS = "paramTS";
         String paramDir = "paramDir";
-        
+
         String query = "select pf from ProjectVersion pv, ProjectFile pf " +
                         "where pv.timestamp in (" +
                         "select max(pv2.timestamp) " +
@@ -223,19 +223,45 @@ public class ProjectFile extends DAObject{
                         " and pf2.name = :" + paramFile +
                         " and pv2.project = pv.project )" +
                         "and pf.projectVersion = pv.id and pf.name = :" + paramFile;
-        
+
         Map<String,Object> parameters = new HashMap<String,Object>();
         parameters.put(paramFile, fname);
         parameters.put(paramDir, d);
         parameters.put(paramTS, pv.getTimestamp());
 
         List<?> projectFiles = dbs.doHQL(query, parameters);
-        
+
         if(projectFiles == null || projectFiles.size() == 0) {
             return null;
         }else {
             return (ProjectFile) projectFiles.get(0);
         }
+    }
+
+    public static List<ProjectFile> getFilesForVersion(ProjectVersion version) {
+        DBService dbs = CoreActivator.getDBService();
+
+        String paramVersion = "version_id";
+        String paramProjectId = "project_id";
+
+        String query = "select pf " +
+                       "from ProjectFile pf " +
+                       "where ( pf.projectVersion.version, pf.name, pf.dir ) " +
+                       "in ( " +
+                       "    select max( pf2.projectVersion.version ), pf2.name, pf2.dir from ProjectFile pf2 " +
+                       "    where pf2.projectVersion.project.id=:" + paramProjectId + " " +
+                       "    and pf2.projectVersion.version <=:" + paramVersion + " " +
+                       "    group by pf2.dir, pf2.name " +
+                       ") " +
+                       "and pf.status <> 'DELETED'";
+
+        Map<String,Object> parameters = new HashMap<String,Object>();
+        parameters.put(paramVersion, version.getVersion() );
+        parameters.put(paramProjectId, version.getProject().getId() );
+
+        List<ProjectFile> projectFiles = (List<ProjectFile>) dbs.doHQL(query, parameters);
+        // TODO: maybe handle null differently
+        return projectFiles;
     }
 
     /**
@@ -247,9 +273,9 @@ public class ProjectFile extends DAObject{
      * <br/>
      * For a project files in a deleted state, this method will return the
      * project version's number of the same file.
-     * 
+     *
      * @param pf the project's file
-     * 
+     *
      * @return The project version's number where this file was deleted,
      *   or <code>null</code> if this file still exist.
      */
@@ -290,7 +316,7 @@ public class ProjectFile extends DAObject{
                 // Check if this deletion is a closer match
                 if ((deletionVersion == null)
                         || (deletionVersion > nextDeletionVersion)) {
-                    deletionVersion = 
+                    deletionVersion =
                         nextDeletionVersion;
                 }
             }
@@ -317,9 +343,9 @@ public class ProjectFile extends DAObject{
 
     /**
      * Gets the parent folder of the given project file.
-     * 
+     *
      * @param pf the project file
-     * 
+     *
      * @return The <code>ProjectFile</code> DAO of the parent folder,
      *   or <code>null</code> if the given file is located in the project's
      *   root folder (<i>or the given file is the root folder</i> ).
@@ -359,7 +385,7 @@ public class ProjectFile extends DAObject{
                 // Retrieve the version of the given project file
                 long fileVersion = pf.getProjectVersion().getVersion();
                 // Keep the matched folder's DAO
-                ProjectFile fileFolder = null; 
+                ProjectFile fileFolder = null;
                 for (ProjectFile nextFolder : folders) {
                     // Skip folder matches that are not in the same project
                     if (nextFolder.getProjectVersion().getProject().getId()
