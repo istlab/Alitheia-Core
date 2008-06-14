@@ -297,7 +297,7 @@ public class AdminServlet extends HttpServlet {
                 + "<li id=\"nav-3\"><a href=\"/projects\">"
                 + AbstractView.getLbl("projects") + "</a></li>"
                 + "<li id=\"nav-6\"><a href=\"/users\">"
-                + AbstractView.getLbl("l0024") + "</a></li>"
+                + AbstractView.getLbl("users") + "</a></li>"
                 + "<li id=\"nav-2\"><a href=\"/logs\">"
                 + AbstractView.getLbl("logs") + "</a></li>"
                 + "<li id=\"nav-4\"><a href=\"/jobs\">"
