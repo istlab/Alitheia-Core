@@ -33,10 +33,7 @@
 
 package eu.sqooss.impl.service.updater;
 
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -116,7 +113,7 @@ class SourceUpdater extends Job {
         LRUMap devCache = new LRUMap(500);
         LRUMap dirCache = new LRUMap(1000);
 
-        logger.info("Running source update for project " + project.getName());
+        logger.info("Running source update for project " + project.getName() + " ID " + project.getId());
         long ts = System.currentTimeMillis();
         try {
 
@@ -139,7 +136,7 @@ class SourceUpdater extends Job {
                     new ProjectRevision(lastSCMVersion));
 
             logger.info(project.getName() + ": Log entries: " + commitLog.size());
-            logger.info(project.getName() + ": Time to get log: " +
+            logger.debug(project.getName() + ": Time to get log: " +
                     (int)((System.currentTimeMillis() - ts)/1000));
             ts = System.currentTimeMillis();
 
@@ -176,6 +173,7 @@ class SourceUpdater extends Job {
                 // (especially as we used getLastProjectVersion above)
                 dbs.addRecord(curVersion);
                 updProjectVersions.add(curVersion.getId());
+                logger.debug("Got version " + curVersion.getVersion() + " ID " + curVersion.getId());
 
                 for(String chPath: entry.getChangedPaths()) {
 
@@ -190,7 +188,7 @@ class SourceUpdater extends Job {
 
                         Tag tag = new Tag(curVersion);
                         tag.setName(chPath.substring(5));
-                        logger.info("Creating tag <" + tag.getName() + ">");
+                        logger.debug("Creating tag <" + tag.getName() + ">");
 
                         dbs.addRecord(tag);
                         break;
@@ -234,8 +232,8 @@ class SourceUpdater extends Job {
                             // In spite of it not being marked as a directory
                             // in the node tree right now.
                             pf.setIsDirectory(true);
-                            //markDeleted(pf, pf.getProjectVersion());
                         }
+                        markDeleted(pf,curVersion);
                     }
 
                     dbs.addRecord(pf);
@@ -282,31 +280,25 @@ class SourceUpdater extends Job {
             return;
         }
 
-        logger.warn("Deleted directory " + pf.getName() + ":" + pf.getId() + " not processed");
-
-        // Create a Directory object corresponding to
-        //  this project file. This must be in the correct
-        //  project -- Directory.getDirectory() is broken like that.
+        // logger.debug("Deleting directory " + pf.getName() + " ID " + pf.getId());
         Directory d = Directory.getDirectory(pf.getFileName(),false);
-        if (d==null) {
-            logger.error("Directory table inconsistent; no entry for file "
-                    + pf.getFileName() + ":" + pf.getId());
-            return;
-        }
+        List<ProjectFile> files = ProjectFile.getFilesForVersion(pv, d);
         
-        // List the files in that directory using ProjectFile.getFilesForVersion.
-        List<ProjectFile> files = ProjectFile.getFilesForVersion(pf.getProjectVersion(),d);
-        
-        // Loop over them, recurse on each directory
         for (ProjectFile f : files) {
             if (f.getIsDirectory()) {
-                markDeleted(f,pv);
+                ProjectFile mark = new ProjectFile(f,pv);
+                mark.makeDeleted();
+                dbs.addRecord(mark);
+                markDeleted(mark, pv);
             }
         }
-        
-        // Loop over them, mark each one deleted
         for (ProjectFile f : files) {
-            f.makeDeleted();
+            if (!f.getIsDirectory()) {
+                // logger.debug("Deleting " + f.getName() + " ID " + f.getId());
+                ProjectFile mark = new ProjectFile(f,pv);
+                mark.makeDeleted();
+                dbs.addRecord(mark);
+            }
         }
     }
 
