@@ -234,7 +234,7 @@ class SourceUpdater extends Job {
                             // In spite of it not being marked as a directory
                             // in the node tree right now.
                             pf.setIsDirectory(true);
-                            markDeleted(pf, pf.getProjectVersion());
+                            //markDeleted(pf, pf.getProjectVersion());
                         }
                     }
 
