@@ -40,7 +40,6 @@ import java.util.Set;
 import java.util.Map;
 
 import eu.sqooss.impl.service.CoreActivator;
-import eu.sqooss.service.db.DAObject;
 
 /**
  * Instances of this class represent a file relating to a project as
@@ -117,6 +116,10 @@ public class ProjectFile extends DAObject{
         return "DELETED".equalsIgnoreCase(status);
     }
 
+    public boolean isAdded() {
+        return "ADDED".equalsIgnoreCase(status);
+    }
+    
     public boolean getIsDirectory() {
         return isDirectory;
     }
@@ -163,8 +166,9 @@ public class ProjectFile extends DAObject{
         DBService dbs = CoreActivator.getDBService();
 
         //No need to query if a file was just added
-        if (pf.getStatus() == "ADDED")
+        if (pf.isAdded()) {
             return null;
+        }
 
         String paramFile = "paramFile";
         String paramVersion = "paramVersion";
@@ -299,7 +303,7 @@ public class ProjectFile extends DAObject{
         DBService db = CoreActivator.getDBService();
 
         // Skip files which are in a "DELETED" state
-        if (pf.status.equals("DELETED")) {
+        if (pf.isDeleted()) {
             return pf.getProjectVersion().getVersion();
         }
 
