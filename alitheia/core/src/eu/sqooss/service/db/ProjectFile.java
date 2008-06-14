@@ -120,6 +120,10 @@ public class ProjectFile extends DAObject{
         return "ADDED".equalsIgnoreCase(status);
     }
     
+    public void makeDeleted() {
+        setStatus("DELETED");
+    }
+    
     public boolean getIsDirectory() {
         return isDirectory;
     }
