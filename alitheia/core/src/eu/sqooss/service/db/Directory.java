@@ -91,15 +91,17 @@ public class Directory extends DAObject {
                 parameterMap);
         
         /* Dir path in table, return it */
-        if ( !dirs.isEmpty() )
+        if ( !dirs.isEmpty() ) {
             return dirs.get(0);
+        }
         
         if (create) {
             /* Dir path not in table, create it */ 
             Directory d = new Directory();
             d.setPath(path);
-            if (!dbs.addRecord(d))
+            if (!dbs.addRecord(d)) {
                 return null;
+            }
         
             return d;
         }
