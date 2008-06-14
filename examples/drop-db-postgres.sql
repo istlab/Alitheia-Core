@@ -1,49 +1,54 @@
 -- To avoid the situation that you need to be superuser to drop the
 -- database, instead throw away all of the tables.
+--
+-- You can either sed s/ACTION/drop table/ or sed s/ACTION/delete from/
+-- to drop or clear the database.
 
-drop table bug_report_message;
-drop table bug;
-drop table group_user;
-drop table group_privilege;
-drop table groups cascade;
-drop table mailmessage cascade;
-drop table mailinglist cascade;
-drop table project_file_measurement cascade;
-drop table project_version_measurement cascade;
-drop table metric cascade;
-drop table invocation_rule;
-drop table metric_type;
-drop table plugin_configuration;
-drop table plugin;
-drop table privilege_value cascade;
-drop table privilege cascade;
-drop table project_file cascade;
-drop table tag;
-drop table stored_project_measurement;
-drop table file_group_measurement;
-drop table file_group;
-drop table project_version;
-drop table service_url cascade;
-drop table stored_project cascade;
-drop table users;
-drop table evaluation_mark;
-drop sequence hibernate_sequence;
-drop table directory;
-drop table pending_user;
+ACTION bug_report_message;
+ACTION bug;
+ACTION group_user;
+ACTION group_privilege;
+ACTION groups;
+ACTION mailmessage;
+ACTION mailinglist;
+ACTION project_file_measurement;
+ACTION project_version_measurement;
+ACTION metric;
+ACTION invocation_rule;
+ACTION metric_type;
+ACTION plugin_configuration;
+ACTION plugin;
+ACTION privilege_value;
+ACTION privilege;
+ACTION project_file;
+ACTION tag;
+ACTION stored_project_measurement;
+ACTION file_group_measurement;
+ACTION file_group;
+ACTION project_version;
+ACTION service_url;
+ACTION stored_project;
+ACTION users;
+ACTION evaluation_mark;
+ACTION directory;
+ACTION pending_user;
 
 -- Now go around again
-drop table developer;
-drop table group_type;
+ACTION developer;
+ACTION group_type;
 
 -- New metric DB tables
-drop table code_unit_measurement;
-drop table code_construct_type;
-drop table productivity_actions;
-drop table productivity_developer_actions;
-drop table productivity_resource_type;
-drop table productivity_resource_weight;
-drop table productivity_weight_history;
+ACTION code_unit_measurement;
+ACTION code_construct_type;
+ACTION productivity_actions;
+ACTION productivity_developer_actions;
+ACTION productivity_resource_type;
+ACTION productivity_resource_weight;
+ACTION productivity_weight_history;
 
+
+-- Hibernate administration
+drop sequence hibernate_sequence;
 
 -- Display remaining tables, just in case
 --

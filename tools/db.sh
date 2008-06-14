@@ -77,10 +77,10 @@ postgres )
 			 examples/db-derby.sql | $POSTGRES_COMMAND
 	}
 	db_clean() {
-		cat examples/clear-db-postgres.sql | $POSTGRES_COMMAND
+		sed 's/ACTION/delete from/' examples/drop-db-postgres.sql | $POSTGRES_COMMAND
 	}
 	db_drop() {
-		cat examples/drop-db-postgres.sql | $POSTGRES_COMMAND
+		sed 's/ACTION/drop table/' examples/drop-db-postgres.sql | $POSTGRES_COMMAND
 	}
 	;;
 * ) echo "! Invalid database (expect derby or postgres, got <$db>)" ; exit 1 ;;
