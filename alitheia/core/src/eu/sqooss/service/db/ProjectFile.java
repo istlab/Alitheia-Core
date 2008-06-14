@@ -88,10 +88,21 @@ public class ProjectFile extends DAObject{
         isDirectory = false; //By default, all entries are files
     }
 
+    /**
+     * Sets the filename of this file. For directories, this
+     * is the directory name. Only one level of names is used --
+     * this is *not* the pathname.
+     * @param name Name to use
+     */
     public void setName(String name) {
         this.name = name;
     }
 
+    /**
+     * Get the filename -- not the pathname -- of this file
+     * or directory. See basename(1).
+     * @return Name of this file
+     */
     public String getName() {
         return name;
     }
