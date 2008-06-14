@@ -231,12 +231,10 @@ class SourceUpdater extends Job {
                         
                         /*If a dir was deleted, mark all children as deleted*/
                         if (lastIncarnation!=null && lastIncarnation.getIsDirectory()) {
-                            logger.warn("Deleted directory not processed");
                             // In spite of it not being marked as a directory
                             // in the node tree right now.
                             pf.setIsDirectory(true);
-                            // This implementation isn't very good.
-                            // markDeleted(pf, pf.getProjectVersion());
+                            markDeleted(pf, pf.getProjectVersion());
                         }
                     }
 
@@ -284,35 +282,17 @@ class SourceUpdater extends Job {
             return;
         }
 
-        String paramVersion = "projectversion";
-        String paramPath = "path";
+        logger.warn("Deleted directory " + pf.getName() + ":" + pf.getId() + " not processed");
 
-        String query = "from ProjectFile pf where pf.projectVersion=:" +
-        		paramVersion + " and pf.dir=:" + paramPath;
-
-        Map<String,Object> parameters = new HashMap<String,Object>();
-        parameters.put(paramVersion, ProjectVersion.getPreviousVersion(pv));
-        parameters.put(paramPath, pf.getDir());
-
-        List<ProjectFile> projectFiles = (List<ProjectFile>) dbs.doHQL(query, parameters);
-        Iterator<ProjectFile> i = projectFiles.iterator();
-
-        while (i.hasNext()) {
-            ProjectFile pf1 = i.next();
-
-            ProjectFile pf2 = new ProjectFile();
-            pf2.setDir(pf1.getDir());
-            pf2.setIsDirectory(pf1.getIsDirectory());
-            pf2.setName(pf1.getName());
-            pf2.setProjectVersion(pf1.getProjectVersion());
-            pf2.setStatus("DELETED");
-
-            dbs.addRecord(pf2);
-
-            if(pf1.getIsDirectory()) {
-                markDeleted(pf1, pv);
-            }
-        }
+        // Create a Directory object corresponding to
+        //  this project file. This must be in the correct
+        //  project -- Directory.getDirectory() is broken like that.
+        
+        // List the files in that directory using ProjectFile.getFilesForVersion.
+        
+        // Loop over them, recurse on each directory
+        
+        // Loop over them, mark each one deleted
     }
 
     /**
