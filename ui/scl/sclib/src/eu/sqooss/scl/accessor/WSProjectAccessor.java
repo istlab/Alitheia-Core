@@ -262,7 +262,25 @@ public abstract class WSProjectAccessor extends WSAccessor {
      * <ul>
      */
     public abstract WSStoredProject[] getProjectsByIds(long[] projectId) throws WSException;
-    
+
+    /**
+     * Returns the total number of versions for the project with the given Id
+     * that are stored in the SQO-OSS framework.
+     *
+     * @param userName - the user's name used for authentication
+     * @param password - the user's password used for authentication
+     * @param projectId - the project's identifier
+     *
+     * @return The total number of version for that project.
+     * 
+     * @throws WSException
+     * <ul>
+     *  <li>if a connection with the SQO-OSS's web services service can
+     *    not be established</li>
+     *  <li>if web services service throws an exception</li>
+     * <ul>
+     */
+    public abstract long getVersionsCount(long projectId) throws WSException;
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

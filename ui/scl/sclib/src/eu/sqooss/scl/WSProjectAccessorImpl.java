@@ -72,6 +72,8 @@ import eu.sqooss.ws.client.ws.GetProjectByName;
 import eu.sqooss.ws.client.ws.GetProjectByNameResponse;
 import eu.sqooss.ws.client.ws.GetStoredProjects;
 import eu.sqooss.ws.client.ws.GetStoredProjectsResponse;
+import eu.sqooss.ws.client.ws.GetVersionsCount;
+import eu.sqooss.ws.client.ws.GetVersionsCountResponse;
 
 class WSProjectAccessorImpl extends WSProjectAccessor {
 
@@ -86,6 +88,8 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
     private static final String METHOD_NAME_GET_PROJECT_VERSIONS_BY_IDS              = "getProjectVersionsByIds";
     
     private static final String METHOD_NAME_GET_PROJECT_VERSIONS_BY_VERSION_NUMBERS  = "getProjectVersionsByVersionNumbers";
+    
+    private static final String METHOD_NAME_GET_VERSIONS_COUNT                       = "getVersionsCount";
     
     private static final String METHOD_NAME_GET_LAST_PROJECT_VERSIONS                = "getLastProjectVersions";
 
@@ -199,6 +203,31 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
             }
         }
         return (WSProjectFile[]) normalizeWSArrayResult(response.get_return());
+    }
+
+    @Override
+    public long getVersionsCount(long projectId) throws WSException {
+        GetVersionsCountResponse response;
+        GetVersionsCount params;
+        if (!parameters.containsKey(METHOD_NAME_GET_VERSIONS_COUNT)) {
+            params = new GetVersionsCount();
+            params.setPassword(password);
+            params.setUserName(userName);
+            parameters.put(METHOD_NAME_GET_VERSIONS_COUNT, params);
+        } else {
+            params = (GetVersionsCount) parameters.get(
+                    METHOD_NAME_GET_VERSIONS_COUNT);
+        }
+        synchronized (params) {
+            params.setProjectId(projectId);
+            try {
+                response = wsStub.getVersionsCount(params);
+            } catch (RemoteException re) {
+                throw new WSException(re);
+            }
+        }
+
+        return response.get_return();
     }
 
     /**
