@@ -7,12 +7,12 @@
   <parent>
     <groupId>eu.sqooss</groupId>
     <artifactId>corba</artifactId>
-    <version>1.0.0</version>
+    <version>0.8.0</version>
   </parent>
 
   <groupId>eu.sqooss.corba</groupId>
   <artifactId>corbaservice</artifactId>
-  <version>0.0.1</version>
+  <version>0.8.0</version>
   <packaging>jar</packaging>
 
   <name>Alitheia Corba Interface Plugin</name>
@@ -84,7 +84,7 @@
     <dependency>
       <groupId>eu.sqooss.alitheia</groupId>
       <artifactId>core</artifactId>
-      <version>[0.0.1,)</version>
+      <version>0.8.0</version>
       <scope>provided</scope>
     </dependency>
     <dependency>

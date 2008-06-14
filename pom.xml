@@ -6,7 +6,7 @@
 
   <groupId>eu</groupId>
   <artifactId>sqooss</artifactId>
-  <version>0.0.1</version>
+  <version>0.8.0</version>
   <packaging>pom</packaging>
 
   <name>Alitheia</name>

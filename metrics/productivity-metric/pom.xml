@@ -7,12 +7,12 @@
   <parent>
     <groupId>eu.sqooss</groupId>
     <artifactId>metrics</artifactId>
-    <version>1.0.0</version>
+    <version>0.8.0</version>
   </parent>
 
   <groupId>eu.sqooss.metrics</groupId>
   <artifactId>productivity</artifactId>
-  <version>0.0.1</version>
+  <version>0.8.0</version>
   <packaging>jar</packaging>
 
   <name>Alitheia Metric 'productivity'</name>
@@ -86,7 +86,7 @@
     <dependency>
       <groupId>eu.sqooss.alitheia</groupId>
       <artifactId>core</artifactId>
-      <version>[0.0.1,)</version>
+      <version>[0.8.0,0.8.9)</version>
       <type>jar</type>
       <scope>provided</scope>
     </dependency>

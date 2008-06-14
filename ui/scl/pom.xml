@@ -7,12 +7,12 @@
   <parent>
     <groupId>eu.sqooss</groupId>
     <artifactId>ui</artifactId>
-    <version>1.0.0</version>
+    <version>0.8.0</version>
   </parent>
 
   <groupId>eu.sqooss.ui</groupId>
   <artifactId>scl</artifactId>
-  <version>1.0.0</version>
+  <version>0.8.0</version>
   <packaging>pom</packaging>
 
   <name>Alitheia UI Connector Library</name>

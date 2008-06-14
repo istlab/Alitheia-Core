@@ -7,12 +7,12 @@
   <parent>
     <groupId>eu.sqooss</groupId>
     <artifactId>corba</artifactId>
-    <version>1.0.0</version>
+    <version>0.8.0</version>
   </parent>
 
   <groupId>eu.sqooss.corba</groupId>
   <artifactId>idl</artifactId>
-  <version>0.0.1</version>
+  <version>0.8.0</version>
 
   <name>Alitheia Corba Interface Definition</name>
   <url>http://ikaria.dmst.aueb.gr/corba/idl</url>

@@ -7,12 +7,12 @@
   <parent>
     <groupId>eu.sqooss</groupId>
     <artifactId>ui</artifactId>
-    <version>1.0.0</version>
+    <version>0.8.0</version>
   </parent>
 
   <groupId>eu.sqooss.ui</groupId>
   <artifactId>webui</artifactId>
-  <version>1.0.0</version>
+  <version>0.8.0</version>
   <packaging>war</packaging>
 
   <name>Alitheia UI Tomcat Web Interface</name>
@@ -76,13 +76,13 @@
     <dependency>
       <groupId>eu.sqooss.ui.scl</groupId>
       <artifactId>scl</artifactId>
-      <version>0.0.1</version>
+      <version>0.8.0</version>
       <type>jar</type>
     </dependency>
     <dependency>
       <groupId>eu.sqooss.ui.scl</groupId>
       <artifactId>client</artifactId>
-      <version>0.0.1</version>
+      <version>0.8.0</version>
       <type>jar</type>
     </dependency>
     <dependency>
