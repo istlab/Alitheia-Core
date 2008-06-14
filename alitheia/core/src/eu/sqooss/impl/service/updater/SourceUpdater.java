@@ -164,8 +164,9 @@ class SourceUpdater extends Job {
 
                 /* TODO: get column length info from Hibernate */
                 String commitMsg = entry.getMessage();
-                if(commitMsg.length() > 512)
-                	commitMsg = commitMsg.substring(0, 511);
+                if(commitMsg.length() > 512) {
+                    commitMsg = commitMsg.substring(0, 511);
+                }
 
                 curVersion.setCommitMsg(commitMsg);
                 /*TODO: Fix this when the TDS starts supporting SVN properties*/
@@ -220,10 +221,23 @@ class SourceUpdater extends Job {
                         pf.setIsDirectory(false);
                     }
 
-                    /*If a dir was deleted, mark all children as deleted*/
-                    if (t == SCMNodeType.DIR && pf.isDeleted()) {
-                        logger.warn("Deleted directory not processed");
-                        //markDeleted(pf, pf.getProjectVersion());
+                    if (pf.isDeleted()) {
+                        /* Directories, when they are deleted, do not have type
+                         * DIR, but something else. So we need to check on
+                         * deletes whether this name was most recently a directory.
+                         */
+                        ProjectFile lastIncarnation =
+                            ProjectFile.getPreviousFileVersion(pf);
+                        
+                        /*If a dir was deleted, mark all children as deleted*/
+                        if (lastIncarnation!=null && lastIncarnation.getIsDirectory()) {
+                            logger.warn("Deleted directory not processed");
+                            // In spite of it not being marked as a directory
+                            // in the node tree right now.
+                            pf.setIsDirectory(true);
+                            // This implementation isn't very good.
+                            // markDeleted(pf, pf.getProjectVersion());
+                        }
                     }
 
                     dbs.addRecord(pf);
@@ -266,8 +280,9 @@ class SourceUpdater extends Job {
      * @param pf The project file representing the deleted directory
      */
     private void markDeleted(ProjectFile pf, ProjectVersion pv) {
-        if (pf.getIsDirectory() == false)
+        if (pf.getIsDirectory() == false) {
             return;
+        }
 
         String paramVersion = "projectversion";
         String paramPath = "path";
