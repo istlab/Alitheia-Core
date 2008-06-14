@@ -285,6 +285,49 @@ public class ProjectFile extends DAObject{
     }
 
     /**
+     * Returns all of the files visible in a given project version
+     * and in a given directory. Does not list recursively.
+     * Does not return null, but the list may be empty.
+     *
+     * @param version Project and version to look at
+     * @param d Directory to list
+     * @return List of files visible in that version (may be empty, not null)
+     */
+    public static List<ProjectFile> getFilesForVersion(ProjectVersion version,
+            Directory d) {
+        DBService dbs = CoreActivator.getDBService();
+
+        String paramVersion = "version_id";
+        String paramProjectId = "project_id";
+        String paramDirectoryId = "directory_id";
+
+        String query = "select pf " +
+                       "from ProjectFile pf " +
+                       "where pf.dir=:" + paramDirectoryId +
+                       " and ( pf.projectVersion.version, pf.name ) " +
+                       "in ( " +
+                       "    select max( pf2.projectVersion.version ), pf2.name  from ProjectFile pf2 " +
+                       "    where pf2.projectVersion.project.id=:" + paramProjectId + " " +
+                       "    and pf2.projectVersion.version <=:" + paramVersion + " " +
+                       "    group by pf2.name " +
+                       ") " +
+                       "and pf.status <> 'DELETED'";
+
+        Map<String,Object> parameters = new HashMap<String,Object>();
+        parameters.put(paramVersion, version.getVersion() );
+        parameters.put(paramProjectId, version.getProject().getId() );
+        parameters.put(paramDirectoryId, d.getId() );
+
+        List<ProjectFile> projectFiles = (List<ProjectFile>) dbs.doHQL(query, parameters);
+        if (projectFiles==null) {
+            // Empty array list with a capacity of 1
+            return new ArrayList(1);
+        } else {
+            return projectFiles;
+        }
+    }
+
+    /**
      * Returns the project version's number where this file was deleted.
      * <br/>
      * This method takes into consideration the deletion of parent folders,
