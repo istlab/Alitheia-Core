@@ -287,12 +287,27 @@ class SourceUpdater extends Job {
         // Create a Directory object corresponding to
         //  this project file. This must be in the correct
         //  project -- Directory.getDirectory() is broken like that.
+        Directory d = Directory.getDirectory(pf.getFileName(),false);
+        if (d==null) {
+            logger.error("Directory table inconsistent; no entry for file "
+                    + pf.getFileName() + ":" + pf.getId());
+            return;
+        }
         
         // List the files in that directory using ProjectFile.getFilesForVersion.
+        List<ProjectFile> files = ProjectFile.getFilesForVersion(pf.getProjectVersion(),d);
         
         // Loop over them, recurse on each directory
+        for (ProjectFile f : files) {
+            if (f.getIsDirectory()) {
+                markDeleted(f,pv);
+            }
+        }
         
         // Loop over them, mark each one deleted
+        for (ProjectFile f : files) {
+            f.makeDeleted();
+        }
     }
 
     /**
