@@ -366,6 +366,25 @@ public class Terrier {
         }
     }
 
+    /**
+     * Returns the total number of versions for the project with the given Id.
+     *
+     * @param projectId - the project's identifier
+     *
+     * @return The total number of version for that project.
+     */
+    public Long getVersionsCount(Long projectId) {
+        if (!connection.isConnected()) {
+            return null;
+        }
+        try {
+            return connection.getProjectAccessor().getVersionsCount(projectId);
+        } catch (WSException e) {
+            addError("Can not retrieve the number of project versions.");
+            return null;
+        }
+    }
+
     public Metric getMetric(Long metricId) {
         // TODO
         return null;

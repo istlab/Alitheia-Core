@@ -275,9 +275,17 @@ public class Project extends WebuiItem {
         }
     }
 
-    public int countVersions() {
-        // FIXME: Correctly count ...
-        return 1337;
+    /**
+     * Returns the total number of versions for this project
+     *
+     * @return The total number of version for this project.
+     */
+    public long countVersions() {
+        Long count = terrier.getVersionsCount(id);
+        if (count != null)
+            return count.longValue();
+        else
+            return 0;
     }
 
     /**
