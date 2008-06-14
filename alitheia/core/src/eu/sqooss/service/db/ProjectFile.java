@@ -89,6 +89,31 @@ public class ProjectFile extends DAObject{
     }
 
     /**
+     * "Copy" constructor creates a new object that is just like
+     * the given project file, except the project version is different.
+     * @param f File data to duplicate
+     * @param v New project version to set
+     * @throws IllegalArgumentException if the project implicit in the file
+     *          and the version does not match (e.g. assigning a version from
+     *          a different project to a file).
+     */
+    public ProjectFile(ProjectFile f, ProjectVersion v) 
+        throws IllegalArgumentException {
+        if (f.getProjectVersion().getProject().getId() != v.getProject().getId()) {
+            throw new IllegalArgumentException(
+                    "ProjectFile(" + f.getProjectVersion().getProject().getId() + ") " +
+                    "and ProjectVersion(" + v.getProject().getId() + ") " +
+                    "project ID mismatch.");
+        }
+        this.dir = f.getDir();
+        this.isDirectory = f.getIsDirectory();
+        this.measurements = null;
+        this.name = f.getName();
+        this.projectVersion = v;
+        this.status = f.getStatus();
+    }
+    
+    /**
      * Sets the filename of this file. For directories, this
      * is the directory name. Only one level of names is used --
      * this is *not* the pathname.
@@ -318,21 +343,22 @@ public class ProjectFile extends DAObject{
 
         String query = "select pf " +
                        "from ProjectFile pf " +
-                       "where pf.dir=:" + paramDirectoryId +
+                       "where pf.dir.id=:" + paramDirectoryId +
                        " and ( pf.projectVersion.version, pf.name ) " +
                        "in ( " +
                        "    select max( pf2.projectVersion.version ), pf2.name  from ProjectFile pf2 " +
-                       "    where pf2.projectVersion.project.id=:" + paramProjectId + " " +
-                       "    and pf2.projectVersion.version <=:" + paramVersion + " " +
+                       "    where pf2.projectVersion.project.id=:" + paramProjectId +
+                       "    and pf2.projectVersion.version <=:" + paramVersion +
+                       "    and pf2.dir=:" + paramDirectoryId +
                        "    group by pf2.name " +
                        ") " +
                        "and pf.status <> 'DELETED'";
 
         Map<String,Object> parameters = new HashMap<String,Object>();
-        parameters.put(paramVersion, version.getVersion() );
-        parameters.put(paramProjectId, version.getProject().getId() );
+        parameters.put(paramVersion, version.getVersion());
+        parameters.put(paramProjectId, version.getProject().getId());
         parameters.put(paramDirectoryId, d.getId() );
-
+        
         List<ProjectFile> projectFiles = (List<ProjectFile>) dbs.doHQL(query, parameters);
         if (projectFiles==null) {
             // Empty array list with a capacity of 1
