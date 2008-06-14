@@ -107,13 +107,9 @@ public class ProductivityMetricImpl extends AbstractMetric implements
     }
 
     public void run(ProjectVersion v) {
-        try {
-            ProductivityMetricJob j = new ProductivityMetricJob(bc, this, v);
-            j.run();
-        } catch (Exception e) {
-            log.error("Could not schedule productivity-metric job for project version: " 
-                    + v.getVersion());
-        }
+        ProductivityMetricJob j = new ProductivityMetricJob(bc, this, v);
+        j.run();
+       
     }
 
     public void run(Developer v) {
