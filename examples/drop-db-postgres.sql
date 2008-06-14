@@ -27,6 +27,7 @@ ACTION file_group_measurement;
 ACTION file_group;
 ACTION project_version;
 ACTION service_url;
+ACTION developer;
 ACTION stored_project;
 ACTION users;
 ACTION evaluation_mark;
@@ -34,7 +35,6 @@ ACTION directory;
 ACTION pending_user;
 
 -- Now go around again
-ACTION developer;
 ACTION group_type;
 
 -- New metric DB tables
