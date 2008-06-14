@@ -224,6 +224,26 @@ public class StoredProject extends DAObject {
 
         return (pvList == null || pvList.isEmpty()) ? null : (ProjectVersion) pvList.get(0);
     }
+
+    /**
+     * Returns the total number of versions for the project with the given Id.
+     *
+     * @param projectId - the project's identifier
+     *
+     * @return The total number of version for that project.
+     */
+    public static long getVersionsCount(Long projectId) {
+        DBService dbs = CoreActivator.getDBService();
+
+        Map<String,Object> parameterMap = new HashMap<String,Object>();
+        parameterMap.put("pid", projectId);
+        List<?> pvList = dbs.doHQL("select count(*)"
+                + " from ProjectVersion pv"
+                + " where pv.project.id=:pid",
+                parameterMap);
+
+        return (pvList == null || pvList.isEmpty()) ? 0 : (Long) pvList.get(0);
+    }
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

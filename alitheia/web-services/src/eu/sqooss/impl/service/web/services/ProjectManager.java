@@ -48,6 +48,7 @@ import eu.sqooss.impl.service.web.services.utils.ProjectSecurityWrapper;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
+import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.security.SecurityManager;
 
@@ -228,6 +229,32 @@ public class ProjectManager extends AbstractManager {
         db.commitDBSession();
 
         return (WSProjectVersion[]) normalizeWSArrayResult(result);
+    }
+
+    public long getVersionsCount(
+            String userName, String password, long projectId) {
+        
+        logger.info("Retrieve total number of versions! user: "  + userName +
+                "; project id: " + Long.toString(projectId));
+
+        db.startDBSession();
+
+        try {
+            long[] projectIds = {projectId};
+            securityWrapper.checkDBProjectsReadAccess(
+                    userName, password, projectIds, null);
+        } catch (SecurityException se) {
+            db.commitDBSession();
+            throw se;
+        }
+
+        super.updateUserActivity(userName);
+
+        long result = StoredProject.getVersionsCount(projectId);
+
+        db.commitDBSession();
+
+        return result;
     }
 
     /**
