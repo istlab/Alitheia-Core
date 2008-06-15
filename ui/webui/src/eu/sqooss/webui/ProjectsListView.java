@@ -51,9 +51,10 @@ public class ProjectsListView extends ListView {
     Vector<Project> projects = null;
     private long totalProjects = 0;
 
-    public ProjectsListView () {
-
-    }
+    /**
+     * Instantiates a new <code>ProjectsListView</code> object.
+     */
+    public ProjectsListView () {}
 
     public void setCurrentProject (Project project ) {
         currentProject = project;
@@ -111,6 +112,22 @@ public class ProjectsListView extends ListView {
         this.terrier = terrier;
         projects = terrier.getEvaluatedProjects();
         totalProjects = projects.size();
+    }
+
+    public String getHtml(String path) {
+        StringBuilder html = new StringBuilder();
+        if (projects != null) {
+            if (projects.size() > 0) {
+                html.append("\n<!-- Projects -->");
+                html.append("\n<ul class=\"projectslist\">");
+                for (Project p: projects) {
+                    html.append(
+                            "\n\t<li>" + p.getSelectLink(path) + "</li>");
+                }
+                html.append("\n</ul>");
+            }
+        }
+        return html.toString();
     }
 
     public String getHtml() {

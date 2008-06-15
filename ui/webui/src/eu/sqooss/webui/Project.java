@@ -325,4 +325,10 @@ public class Project extends WebuiItem {
         if (id != null)
             selectedMetrics.remove(id);
     }
+
+    public String getSelectLink (String path) {
+        return new String("<a href=\""
+                + path + "?pid=" + getId() + "\" >"
+                + getName() + "</a>");
+    }
 }

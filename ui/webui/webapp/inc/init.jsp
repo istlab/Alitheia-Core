@@ -65,6 +65,13 @@ String msg      = "";
     <jsp:setProperty name="settings" property="showAllMetrics" value="true"/>
 </jsp:useBean>
 
+<jsp:useBean
+    id="ProjectsListView"
+    class="eu.sqooss.webui.ProjectsListView"
+    scope="session">
+    <jsp:setProperty name="ProjectsListView" property="*"/>
+</jsp:useBean>
+
 <%
 // We also keep a Project as the session state.
 // The project is either valid, and can be used to display the

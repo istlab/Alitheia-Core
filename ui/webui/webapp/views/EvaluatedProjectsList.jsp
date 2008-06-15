@@ -1,10 +1,5 @@
 <%@ page import="eu.sqooss.webui.*" %>
 
-<jsp:useBean id="ProjectsListView"
-class="eu.sqooss.webui.ProjectsListView"
-scope="session"/>
-<jsp:setProperty name="ProjectsListView" property="*"/>
-
 <%
 
 // Retrieve the list of evaluated project from the connected SQO-OSS system
