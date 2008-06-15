@@ -51,7 +51,7 @@ if (selectedProject.isValid()) {
                 Long versionId = currentVersion.getId();
                 // Display the first and last known project versions
                 if (selectedProject.getFirstVersion() != null) {
-                    if (selectedProject.getFirstVersion().equals(
+                    if (!selectedProject.getFirstVersion().equals(
                         selectedProject.getLastVersion())) {
                         out.println("\n<h2>" + selectedProject.getName() + " Versions");
                         out.println (
