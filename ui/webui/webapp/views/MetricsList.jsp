@@ -37,20 +37,20 @@ if (selectedProject.isValid()) {
 // Add some space
 out.println("<br/>");
 out.println("<h2>All installed metrics</h2>");
-if (request.getParameter("metricsForm") != null) {
+if (request.getParameter("showAllMetrics") != null) {
     // Check the "Show all installed metrics" flag
-    if (request.getParameter("showAllMetrics") == null)
-        settings.setShowAllMetrics(false);
-    else
+    if (request.getParameter("showAllMetrics").equals("true"))
         settings.setShowAllMetrics(true);
+    else if (request.getParameter("showAllMetrics").equals("false"))
+        settings.setShowAllMetrics(false);
 }
-// Add a checkbox for show/hide all installed metrics
-out.println("<input type=\"checkbox\""
-    + ((settings.getShowAllMetrics()) ? " checked" : "")
-    + " name=\"showAllMetrics\">"
-    + "Show all registered metrics"
-    + "&nbsp;<input type=\"submit\" value=\"Apply\">"
-    + "<br/>");
+// Add a link for show/hide all installed metrics
+if (settings.getShowAllMetrics())
+    out.println("<a href=\"/metrics.jsp?showAllMetrics=false\">"
+        + "Hide all installed metrics" + "</a><br/>");
+else
+    out.println("<a href=\"/metrics.jsp?showAllMetrics=true\">"
+        + "Show all installed metrics" + "</a><br/>");
 // Display all installed metrics
 if (settings.getShowAllMetrics()) {
     MetricsTableView allMetrics =
@@ -70,6 +70,5 @@ if (selectedProject == null) {
     <%
 }
 %>
-        <input type="hidden" name="metricsForm" value="true">
     </form>
 </div>
