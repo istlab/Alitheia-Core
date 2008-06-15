@@ -60,6 +60,8 @@ import eu.sqooss.ws.client.ws.GetFilesByProjectVersionId;
 import eu.sqooss.ws.client.ws.GetFilesByProjectVersionIdResponse;
 import eu.sqooss.ws.client.ws.GetFilesNumberByProjectVersionId;
 import eu.sqooss.ws.client.ws.GetFilesNumberByProjectVersionIdResponse;
+import eu.sqooss.ws.client.ws.GetFirstProjectVersions;
+import eu.sqooss.ws.client.ws.GetFirstProjectVersionsResponse;
 import eu.sqooss.ws.client.ws.GetLastProjectVersions;
 import eu.sqooss.ws.client.ws.GetLastProjectVersionsResponse;
 import eu.sqooss.ws.client.ws.GetProjectVersionsByIds;
@@ -473,15 +475,15 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
         if (!isNormalizedWSArrayParameter(projectsIds)) {
             return EMPTY_ARRAY_PROJECT_VERSIONS;
         }
-        GetLastProjectVersionsResponse response;
-        GetLastProjectVersions params;
+        GetFirstProjectVersionsResponse response;
+        GetFirstProjectVersions params;
         if (!parameters.containsKey(METHOD_NAME_GET_FIRST_PROJECT_VERSIONS)) {
-            params = new GetLastProjectVersions();
+            params = new GetFirstProjectVersions();
             params.setPassword(password);
             params.setUserName(userName);
             parameters.put(METHOD_NAME_GET_FIRST_PROJECT_VERSIONS, params);
         } else {
-            params = (GetLastProjectVersions) parameters.get(
+            params = (GetFirstProjectVersions) parameters.get(
                     METHOD_NAME_GET_FIRST_PROJECT_VERSIONS);
         }
         synchronized (params) {
