@@ -85,7 +85,7 @@ if (selectedProject.isValid()) {
 
     // Metrics
     out.println("<h2>Metrics for " + selectedProject.getName() + "</h2>");
-    out.println(selectedProject.showMetrics(false));
+    out.println(selectedProject.showMetrics(false, false));
 
 
     // Files

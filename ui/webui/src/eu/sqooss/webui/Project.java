@@ -66,6 +66,9 @@ public class Project extends WebuiItem {
     // A cache for all metrics that have been evaluated on this project
     private List<Metric> metrics;
 
+    // Stores the list of Ids of all selected metrics
+    private List<Long> selectedMetrics = new ArrayList<Long>();
+
     /**
      * Empty constructor so we can create this object without having
      * any further knowledge. You'll need to initProject() manually,
@@ -220,15 +223,20 @@ public class Project extends WebuiItem {
      * @param refresh if set to <code>true</code> then the locally cached
      *   metrics information will first be refreshed with the information
      *   available from the attached SQO-OSS framework.
+     * @param chooser if set to <code>true</code> then the generated metrics
+     *   table will contain a field for selecting metrics.
      * 
      * @return the table's content
      */
-    public String showMetrics(boolean refresh) {
+    public String showMetrics(boolean refresh, boolean chooser) {
         StringBuilder html = new StringBuilder();
         MetricsTableView view =
             new MetricsTableView(retrieveMetrics(refresh));
         view.setProjectId(getId());
-        view.setShowChooser(true);
+        if (chooser) {
+            view.setShowChooser(true);
+            view.setSelectedMetrics(selectedMetrics);
+        }
         html.append(view.getHtml());
         return html.toString();
     }
@@ -306,5 +314,15 @@ public class Project extends WebuiItem {
      */
     public void setCurrentVersionId(Long versionNumber) {
         currentVersionId = versionNumber;
+    }
+
+    public void selectMetric (Long id) {
+        if (id != null)
+            selectedMetrics.add(id);
+    }
+
+    public void deselectMetric (Long id) {
+        if (id != null)
+            selectedMetrics.remove(id);
     }
 }

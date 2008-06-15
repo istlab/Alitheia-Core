@@ -45,6 +45,9 @@ public class MetricsTableView {
     // Stores the list of metric indexed by metric Id
     Map<Long,Metric> metrics = new HashMap<Long,Metric>();
 
+    // Stores the list of Ids of all selected metrics
+    private List<Long> selectedMetrics = new ArrayList<Long>();
+
     // Holds the Id of the project, on which this metrics were evaluated
     Long projectId = null;
 
@@ -199,7 +202,7 @@ public class MetricsTableView {
                 html.append("\n\t\t<td" + head_class + ">ID</td>");
             }
             if (showChooser) {
-                html.append("\n\t\t<td" + head_class + "></td>");
+                html.append("\n\t\t<td" + head_class + ">Selection</td>");
             }
             if (showMnemonic) {
                 html.append("\n\t\t<td" + head_class + ">Name</td>");
@@ -239,9 +242,9 @@ public class MetricsTableView {
             }
             if (showChooser) {
                 html.append("\n\t<td " + cell_class + ">"
-                        + "<input type=\"checkbox\" class=\"checkbox\""
-                        + ((false) ? " checked" : "")
-                        + " name=\"putMetricIdHere\">"
+                        + ((selectedMetrics.contains(key))
+                                ? metrics.get(key).getDeselectMetricLink()
+                                : metrics.get(key).getSelectMetricLink())
                         + "</td>");
             }
             if (showMnemonic) {
@@ -430,5 +433,10 @@ public class MetricsTableView {
       */
      public void setShowChooser(boolean enable) {
          this.showChooser = enable;
+     }
+
+     public void setSelectedMetrics (List<Long> selected) {
+         if (selected != null)
+             this.selectedMetrics = selected;
      }
 }

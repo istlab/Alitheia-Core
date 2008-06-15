@@ -8,10 +8,25 @@
 // Show metric per project, when a project selection exists
 //============================================================================
 if (selectedProject.isValid()) {
+    // Check for a metric selection
+    if (request.getParameter("selectMetric") != null) {
+        try {
+            Long selId = new Long(request.getParameter("selectMetric"));
+            selectedProject.selectMetric(selId);
+        }
+        catch (NumberFormatException ex) {}
+    }
+    if (request.getParameter("deselectMetric") != null) {
+        try {
+            Long selId = new Long(request.getParameter("deselectMetric"));
+            selectedProject.deselectMetric(selId);
+        }
+        catch (NumberFormatException ex) {}
+    }
     out.println("<h2>Metrics evaluated on project: "
         + selectedProject.getName()
         + "</h2>");
-    out.println(selectedProject.showMetrics(true));
+    out.println(selectedProject.showMetrics(true, true));
     // Print the accumulated errors (if any)
     if (terrier.hasErrors())
         out.println(Functions.error(terrier.getError()));
@@ -28,6 +43,21 @@ if (request.getParameter("metricsForm") != null) {
         settings.setShowAllMetrics(false);
     else
         settings.setShowAllMetrics(true);
+    // Check for a metric selection
+    if (request.getParameter("selectMetric") == null) {
+        try {
+            Long selId = new Long(request.getParameter("selectMetric"));
+            selectedProject.selectMetric(selId);
+        }
+        catch (NumberFormatException ex) {}
+    }
+    if (request.getParameter("deselectMetric") == null) {
+        try {
+            Long selId = new Long(request.getParameter("selectMetric"));
+            selectedProject.deselectMetric(selId);
+        }
+        catch (NumberFormatException ex) {}
+    }
 }
 // Add a checkbox for show/hide all installed metrics
 out.println("<input type=\"checkbox\""

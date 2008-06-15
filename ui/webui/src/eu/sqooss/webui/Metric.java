@@ -110,6 +110,14 @@ public class Metric extends WebuiItem {
         return "<a href=\"/results.jsp?rid=" + getId() + "\">view results</a>";
     }
 
+    public String getSelectMetricLink() {
+        return "<a href=\"/metrics.jsp?selectMetric=" + getId() + "\">Select</a>";
+    }
+
+    public String getDeselectMetricLink() {
+        return "<a href=\"/metrics.jsp?deselectMetric=" + getId() + "\">Deselect</a>";
+    }
+
     /** Returns an HTML string representing the Metric
      */
     public String getHtml () {
