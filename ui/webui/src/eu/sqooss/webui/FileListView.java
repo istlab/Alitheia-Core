@@ -34,29 +34,59 @@
 package eu.sqooss.webui;
 
 // Java imports
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Vector;
+
+import eu.sqooss.ws.client.datatypes.WSMetricsResultRequest;
 
 public class FileListView extends ListView {
 
-    private Vector<File> files = new Vector<File>();
+    private List<File> files = new Vector<File>();
 
     // Contains the ID of the selected project, if any
     private Long projectId;
 
-    public FileListView () {
+    /**
+     * Instantiates a new empty <code>FileListView</code> object.
+     */
+    public FileListView () {}
+
+    /**
+     * Instantiates a new <code>FileListView</code> object and initializes it
+     * with the given list of project files.
+     */
+    public FileListView (List<File> filesList) {
+        files = filesList;
     }
-    
+
+    /**
+     * Return the number of files that are stored in this object.
+     * 
+     * @return The number of files.
+     */
     public Integer size() {
         return files.size();
     }
 
-    public void addFile(eu.sqooss.webui.File file) {
+    /**
+     * Adds a single file to the stored files list.
+     * 
+     * @param file the file object
+     */
+    public void addFile(File file) {
         files.add(file);
     }
 
-    public void setFiles(Vector<File> files) {
-        this.files = files;
+    /**
+     * Initializes this object with a new list of files.
+     * 
+     * @param files the new files list
+     */
+    public void setFiles(List<File> filesList) {
+        this.files = filesList;
     }
 
     public Vector<String> filterItems (Vector<String> items) {
@@ -77,6 +107,54 @@ public class FileListView extends ListView {
                     : "");
         }
         html.append("\n</ul>");
+        return html.toString();
+    }
+
+    public String getHtml(
+            Terrier terrier,
+            Map<Long, String> selectedMetrics) {
+        StringBuffer html = new StringBuffer();
+        html.append(files.size() + " file(s) found.\n");
+        // Fetch the evaluation result for the files in the list
+        if (files.size() > 0) {
+            // Create an results request object
+            WSMetricsResultRequest resultRequest =
+                new WSMetricsResultRequest();
+            int index = 0;
+            long[] fileIds = new long[files.size()];
+            for (File nextFile : files)
+                fileIds[index++] = nextFile.getId();
+            resultRequest.setDaObjectId(fileIds);
+            resultRequest.setProjectFile(true);
+            String[] mnemonics = new String[selectedMetrics.size()];
+            index = 0;
+            for (String nextMnem : selectedMetrics.values())
+                mnemonics[index++] = nextMnem;
+            resultRequest.setMnemonics(mnemonics);
+            // Retrieve the evaluation result from the SQO-OSS framework
+            Result[] results = terrier.getResults(resultRequest);
+            // Distribute the results between the files
+            if (results != null) {
+                // Prepare a file_id to file mapping
+                Map<Long, File> filesMap = new HashMap<Long, File>();
+                for (File nextFile : files)
+                    filesMap.put(nextFile.getId(), nextFile);
+                for (Result nextResult : results) {
+                    File affectedFile = filesMap.get(nextResult.getId());
+                    if (affectedFile != null) {
+                        affectedFile.addResult(nextResult);
+                    }
+                }
+            }
+        }
+        // Display the list of files
+        html.append("<ul>\n");
+        for (File nextFile: files) {
+            html.append((nextFile != null)
+                    ? "<li>" + nextFile.getHtml() + "</li>\n"
+                    : "");
+        }
+        html.append("</ul>\n");
         return html.toString();
     }
 }

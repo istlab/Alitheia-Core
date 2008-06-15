@@ -170,12 +170,27 @@ public class Version extends WebuiItem {
     }
 
 
-    /** Return an HTML list of all the Files in this Version.
-     *
-     *
+    /**
+     * Return an HTML list of all files in this version combined with results
+     * from the metrics that were selected for this project.
+     * 
+     * @param project the project object
+     * 
+     * @return The files list as HTML.
      */
-    public String listFiles() {
-        return terrier.getFiles4ProjectVersion(id).getHtml();
+    public String listFiles(Project project) {
+        List<File> files = terrier.getFilesInProjectVersion(id);
+        if (files != null) {
+            FileListView view = new FileListView(files);
+            if (project != null) {
+                Map<Long, String> selectedMetrics =
+                    project.getSelectedMetricMnenmonics();
+                if (selectedMetrics.size() > 0)
+                    return view.getHtml(terrier, selectedMetrics);
+            }
+            return view.getHtml();
+        }
+        return "<strong>No files found for this project version!</strong>";
     }
 
     /** Count the number of files and store this number internally.

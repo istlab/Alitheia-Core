@@ -13,9 +13,11 @@ if (selectedProject.isValid()) {
             + " in version " + selectedVersion.getNumber()
             + "</h2>");
 
-        // Display all files in the selected project version
+        // Display some file statistics for the selected version
         out.println(selectedVersion.fileStats());
-        out.println(selectedVersion.listFiles());
+        // Display all files in the selected project version
+        // TODO: Replace with a file browser
+        out.println(selectedVersion.listFiles(selectedProject));
     } else {
         out.println(Functions.error(
             "Please select a <a href=\"/versions.jsp\">"

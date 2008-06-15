@@ -286,33 +286,28 @@ public class Terrier {
     }
 
     /**
-     * Retrieves all files that exist in the specified project version,
-     * and generates a proper view for displaying them.
+     * Retrieves all files that exist in the specified project version.
      *
-     * FIXME: This returns a listview and should not be in terrier.
-     *
-     * @param versionId The ID of selected project version
-     * @return The corresponding view object
+     * @param versionId the Id of selected project version
+     * @return The list of files in this project version.
      */
-    public FileListView getFiles4ProjectVersion(Long versionId) {
+    public List<File> getFilesInProjectVersion(Long versionId) {
         if (!connection.isConnected()) {
+            addError(connection.getError());
             return null;
         }
-        FileListView view = new FileListView();
+        List<File> result = new ArrayList<File>();
         try {
-            try {
-                WSProjectFile[] files = connection.getProjectAccessor().getFilesByProjectVersionId(versionId);
-                for (WSProjectFile file : files) {
-                    view.addFile(new File(file, this));
-                }
-        } catch (NullPointerException e) {
-            // Nevermind?
-        }
+            WSProjectFile[] wsfiles =
+                connection.getProjectAccessor().getFilesByProjectVersionId(
+                        versionId);
+            if (wsfiles != null)
+                for (WSProjectFile file : wsfiles)
+                    result.add(new File(file, this));
         } catch (WSException e) {
-            error = "Can not retrieve the list of files for this version.";
-            return null;
+            addError("Can not retrieve the list of files for this version.");
         }
-        return view;
+        return result;
     }
 
     public Result[] getResults (WSMetricsResultRequest request) {

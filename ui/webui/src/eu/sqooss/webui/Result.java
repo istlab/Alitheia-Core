@@ -114,7 +114,7 @@ public class Result extends WebuiItem {
 
     public Result (WSResultEntry resultentry, Terrier t) {
         mnemonic    = resultentry.getMnemonic();
-        //id          = resultentry.getId(); //FIXME: enable
+        id          = resultentry.getDaoId();
         mimetype    = resultentry.getMimeType();
         data        = resultentry.getResult();
         activationType = PROJECT_VERSION; //FIXME: read from ResultEntry

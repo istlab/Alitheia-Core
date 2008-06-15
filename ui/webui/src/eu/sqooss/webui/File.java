@@ -33,31 +33,52 @@
 
 package eu.sqooss.webui;
 
-import eu.sqooss.ws.client.datatypes.WSProjectFile;
-import eu.sqooss.ws.client.datatypes.WSMetricsResultRequest;
+import java.util.ArrayList;
+import java.util.List;
 
+import eu.sqooss.ws.client.datatypes.WSProjectFile;
+
+// TODO: Auto-generated Javadoc
 /**
  * This class represents a File in a project or version that has been
  * evaluated by Alitheia.
  * It provides access to the files' metadata and some convenience
  * functions for display.
- *
+ * 
  * The File class is part of the high-level webui API.
  */
 class File extends WebuiItem {
 
+    /** The Constant COMMENT. */
     private static final String COMMENT = "<!-- File -->\n";
+    
+    /** The name. */
     private String name = "FILE_NAME_UNSET";
+    
+    /** The status. */
     private String status = "FILE_STATUS_UNSET"; // status is one of ADDED, MODIFIED or DELETED
+    
+    /** The version id. */
     private Long versionId;
+    
+    /** The id. */
     private Long id;
+    
+    /** The is directory. */
     private Boolean isDirectory;
+    
+    /** The terrier. */
     private Terrier terrier;
-    private Result[] results;
+    
+    /** The results. */
+    private List<Result> results = new ArrayList<Result>();
 
-    /** Initialise the File from a WSProjectFile, setting the data and storing a
+    /**
+     * Initialise the File from a WSProjectFile, setting the data and storing a
      * reference to the Terrier class that can then be used to fetch additional information.
-     *
+     * 
+     * @param wsFile the ws file
+     * @param t the t
      */
     public File (WSProjectFile wsFile, Terrier t) {
         versionId = wsFile.getProjectVersionId();
@@ -66,9 +87,16 @@ class File extends WebuiItem {
         id = wsFile.getId();
         isDirectory = wsFile.getDirectory();
         terrier = t;
-        fetchResults();
     }
-    /** Initialise a file with raw data.
+    
+    /**
+     * Initialise a file with raw data.
+     * 
+     * @param versionId the version id
+     * @param fileId the file id
+     * @param name the name
+     * @param status the status
+     * @param t the t
      */
     public File(Long versionId, Long fileId, String name, String status, Terrier t) {
         this.versionId = versionId;
@@ -77,36 +105,65 @@ class File extends WebuiItem {
         this.id = fileId;
         this.versionId = versionId;
         this.terrier = t;
-        fetchResults();
     }
 
+    /**
+     * Gets the version.
+     * 
+     * @return the version
+     */
     public Long getVersion () {
         return versionId;
     }
 
+    /**
+     * Gets the name.
+     * 
+     * @return the name
+     */
     public String getName () {
         return name;
     }
 
+    /**
+     * Gets the status.
+     * 
+     * @return the status
+     */
     public String getStatus () {
         return status;
     }
 
+    /* (non-Javadoc)
+     * @see eu.sqooss.webui.WebuiItem#getId()
+     */
     public Long getId() {
         return id;
     }
 
+    /**
+     * Gets the link.
+     * 
+     * @return the link
+     */
     public String getLink() {
         return "<a href=\"files.jsp?fid=" + id + "\">" + name + "</a>";
     }
 
+    /**
+     * Gets the checks if is directory.
+     * 
+     * @return the checks if is directory
+     */
     public Boolean getIsDirectory() {
         return isDirectory;
     }
 
-    /** Return a HTML string showing a statusicon indicating wether the file
+    /**
+     * Return a HTML string showing a statusicon indicating wether the file
      * has been modified, deleted, added or unknown status.
-     *
+     * 
+     * @return the status icon
      */
     public String getStatusIcon() {
         String iconname = "vcs_status";
@@ -124,36 +181,35 @@ class File extends WebuiItem {
         return icon(iconname, 0, tooltip);
     }
 
-    public void fetchResults () {
-        // prepare Metrics Result Requester
-        long[] ids = {getId()};
-        WSMetricsResultRequest request = new WSMetricsResultRequest();
-        request.setDaObjectId(ids);
-        request.setProjectFile(true);
-        String[] mnemonics = new String[1];
-        mnemonics[0] = "LOC"; // FIXME: Use metric here...
-        request.setMnemonics(mnemonics);
-        results = terrier.getResults(request);
-    }
-
-
-    /** HTML representation of the File.
+    /**
+     * HTML representation of the File.
+     * 
+     * @return the html
      */
     public String getHtml() {
         StringBuilder html = new StringBuilder(COMMENT);
         html.append(getStatusIcon() + "&nbsp;" + getLink());
         if (getIsDirectory()) {
-            html.append(" " + "(DIR)");
+            html.append(" (<i>Folder</i>)");
         }
-        if (!getIsDirectory()) {
-            if (results.length < 1) {
-                html.append(" [[ No results, unfortunately. ]]");
-            } else {
-                for (int i = 0; i < results.length; i++) {
-                    html.append(results[i].getHtml() + ", ");
-                }
+        else {
+            if (results.size() > 0) {
+                for (Result nextResult : results)
+                    html.append(nextResult.getHtml() + ", ");
             }
+            else
+                html.append(" (<i>No results found</i>)");
         }
         return html.toString();
+    }
+
+    /**
+     * Adds a new evaluation result entry to the list of result for this file.
+     * 
+     * @param resultEntry the result entry
+     */
+    public void addResult(Result resultEntry) {
+        if (results.contains(resultEntry) == false)
+            results.add(resultEntry);
     }
 }

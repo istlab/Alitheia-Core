@@ -331,4 +331,14 @@ public class Project extends WebuiItem {
                 + path + "?pid=" + getId() + "\" >"
                 + getName() + "</a>");
     }
+
+    public Map<Long, String> getSelectedMetricMnenmonics() {
+        Map<Long, String> result = new HashMap<Long, String>();
+        for (Long nextId : selectedMetrics) {
+            for (Metric nextMetric : metrics)
+                if (nextMetric.getId().longValue() == nextId)
+                    result.put(nextId, nextMetric.getMnemonic());
+        }
+        return result;
+    }
 }
