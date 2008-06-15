@@ -25,7 +25,6 @@ if (selectedProject.isValid()) {
         <td valign="top" width="50%" class="borderless">
         <%
             // Versions
-            out.println("\n<h2>" + selectedProject.getName() + " Versions");
             // Display the number of files in the selected project version
             // TODO: The files number should be cached in the Project object,
             //       instead of calling the Terrier each time.
@@ -52,21 +51,25 @@ if (selectedProject.isValid()) {
                 Long versionId = currentVersion.getId();
                 // Display the first and last known project versions
                 if (selectedProject.getFirstVersion() != null) {
-                    if (selectedProject.getFirstVersion()
-                        != selectedProject.getLastVersion()) {
+                    if (selectedProject.getFirstVersion().equals(
+                        selectedProject.getLastVersion())) {
+                        out.println("\n<h2>" + selectedProject.getName() + " Versions");
                         out.println (
                             + selectedProject.getFirstVersion().getNumber()
                             + " - "
                             + selectedProject.getLastVersion().getNumber()
                             + " (" + selectedProject.countVersions() + " total)");
                     } else {
-                        out.println ("<br />Version: "
-                            + selectedProject.getFirstVersion());
+                        out.println("\n<h2>" + selectedProject.getName());
+                        out.println("Version "
+                            + selectedProject.getFirstVersion().getNumber());
                     }
+                    // Both of those branches started a H2 element
+                    out.println("</h2>\n");
                 } else {
+                    out.println("\n<h2>" + selectedProject.getName() + "Versions</h2>\n");
                     out.println("Project doesn't seem to have versions recorded.");
                 }
-                out.println("</h2>\n");
 
                 // Show the version selector
                 out.println("Choose the version you want to display: ");
@@ -75,6 +78,8 @@ if (selectedProject.isValid()) {
                     out.println(Functions.error(inputError));
                 }
             } else {
+                out.println("\n<h2>" + selectedProject.getName() + "Versions</h2>\n");
+                out.println("Project doesn't seem to have versions recorded.");
                 msg += "<br />No versions recorded.";
             }
         %>
