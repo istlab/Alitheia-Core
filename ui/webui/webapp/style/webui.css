@@ -115,6 +115,9 @@ span.forget a {
 #table input {
     width: 100%;
 }
+#table input.checkbox {
+    width: auto;
+}
 
 #table tr.head {
     background-color: #F3F3F3;

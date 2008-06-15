@@ -228,6 +228,7 @@ public class Project extends WebuiItem {
         MetricsTableView view =
             new MetricsTableView(retrieveMetrics(refresh));
         view.setProjectId(getId());
+        view.setShowChooser(true);
         html.append(view.getHtml());
         return html.toString();
     }

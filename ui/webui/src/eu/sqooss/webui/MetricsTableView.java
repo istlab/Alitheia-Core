@@ -51,6 +51,9 @@ public class MetricsTableView {
     // Flag for enabling the visualization of metrics' Ids
     boolean showId = false;
 
+    // Flag for enabling the selection of metrics
+    private boolean showChooser = false;
+
     // Flag for enabling the visualization of metrics' mnemonic names
     boolean showMnemonic = true;
 
@@ -145,6 +148,9 @@ public class MetricsTableView {
         if (showId) {
             columns++;
         }
+        if (showChooser) {
+            columns++;
+        }
         if (showMnemonic) {
             columns++;
         }
@@ -192,6 +198,9 @@ public class MetricsTableView {
             if (showId) {
                 html.append("\n\t\t<td" + head_class + ">ID</td>");
             }
+            if (showChooser) {
+                html.append("\n\t\t<td" + head_class + "></td>");
+            }
             if (showMnemonic) {
                 html.append("\n\t\t<td" + head_class + ">Name</td>");
             }
@@ -227,6 +236,13 @@ public class MetricsTableView {
             if (showId) {
                 html.append("\n\t<td " + cell_class + ">"
                         + key + "</td>");
+            }
+            if (showChooser) {
+                html.append("\n\t<td " + cell_class + ">"
+                        + "<input type=\"checkbox\" class=\"checkbox\""
+                        + ((false) ? " checked" : "")
+                        + " name=\"putMetricIdHere\">"
+                        + "</td>");
             }
             if (showMnemonic) {
                 html.append("\n\t<td " + cell_name_class + ">"
@@ -396,4 +412,23 @@ public class MetricsTableView {
     public void setShowResult(boolean showResult) {
         this.showResult = showResult;
     }
+
+    /**
+     * Returns the current state of the flag that enables the display of the
+     * metric selection field.
+     *
+     * @return <code>true</code> if enabled.
+     */
+     public boolean getShowChooser() {
+         return showChooser;
+     }
+
+     /**
+      * Enables/disables the metric selection field.
+      * @param enable a value of <code>true></code> will enable the metric
+      *   selection field.
+      */
+     public void setShowChooser(boolean enable) {
+         this.showChooser = enable;
+     }
 }
