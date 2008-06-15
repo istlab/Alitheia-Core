@@ -265,6 +265,13 @@ public class ProjectManager extends AbstractManager {
             String password, long[] projectsIds) {
         db.startDBSession();
 
+        StringBuilder b = new StringBuilder();
+        for (long l : projectsIds) {
+            b.append(l);
+            b.append(",");
+        }
+        logger.info("Retrieving first projectVersions " + b.toString());
+        
         try {
             securityWrapper.checkDBProjectsReadAccess(userName, password, projectsIds, null);
         } catch (SecurityException se) {
@@ -286,7 +293,14 @@ public class ProjectManager extends AbstractManager {
     
         Map<String, Collection> queryParameters = new Hashtable<String, Collection>(1);
         queryParameters.put(paramProjectIds, asCollection(projectsIds));
-        List<?> projectVersions = db.doHQL(query, null, queryParameters);
+        List<ProjectVersion> projectVersions = (List<ProjectVersion>) db.doHQL(query, null, queryParameters);
+        b = new StringBuilder();
+        for (ProjectVersion v : projectVersions) {
+            b.append(v.getVersion());
+            b.append(",");
+        }
+        logger.debug("Got versions " + b.toString());
+        
         WSProjectVersion[] result = WSProjectVersion.asArray(projectVersions);
 
         db.commitDBSession();
