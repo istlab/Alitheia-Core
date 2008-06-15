@@ -40,6 +40,7 @@ out.println("<input type=\"checkbox\""
 if (settings.getShowAllMetrics()) {
     MetricsTableView allMetrics =
         new MetricsTableView(terrier.getAllMetrics());
+    allMetrics.setShowResult(false);
     out.println(allMetrics.getHtml());
 }
 // Print the accumulated errors (if any)

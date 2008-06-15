@@ -49,7 +49,7 @@ public class MetricsTableView {
     Long projectId = null;
 
     // Flag for enabling the visualization of metrics' Ids
-    boolean showId = true;
+    boolean showId = false;
 
     // Flag for enabling the visualization of metrics' mnemonic names
     boolean showMnemonic = true;
