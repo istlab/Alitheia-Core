@@ -294,6 +294,24 @@ public class WebServices implements EventHandler{
 
     /**
      * The method returns all information, that the SQO-OSS framework has
+     * collected about the first versions (probably SVN revision 1) 
+     * of each of the projects.
+     *
+     * @param userName - the user's name used for authentication
+     * @param password - the user's password used for authentication
+     * @param projectsIds - the projects' identifiers
+     *
+     * @return The <code>WSProjectVersion</code> array that describes the
+     * project versions, or <code>null</code> when such project versions do not exist.
+     */
+    public WSProjectVersion[] getFirstProjectVersions(String userName,
+            String password, long[] projectsIds) {
+        return projectManager.getFirstProjectVersions(
+                userName, password, projectsIds);
+    }
+
+    /**
+     * The method returns all information, that the SQO-OSS framework has
      * collected about the last versions of the projects.
      *
      * @param userName - the user's name used for authentication

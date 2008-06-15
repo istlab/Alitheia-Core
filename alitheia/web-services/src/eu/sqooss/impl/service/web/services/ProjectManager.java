@@ -33,6 +33,7 @@
 package eu.sqooss.impl.service.web.services;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -255,6 +256,42 @@ public class ProjectManager extends AbstractManager {
         db.commitDBSession();
 
         return result;
+    }
+
+    /**
+     * @see eu.sqooss.service.web.services.WebServices#getFirstProjectVersions(String, String, long[])
+     */
+    public WSProjectVersion[] getFirstProjectVersions(String userName,
+            String password, long[] projectsIds) {
+        db.startDBSession();
+
+        try {
+            securityWrapper.checkDBProjectsReadAccess(userName, password, projectsIds, null);
+        } catch (SecurityException se) {
+            db.commitDBSession();
+            throw se;
+        }
+
+        super.updateUserActivity(userName);
+
+        String paramProjectIds = "project_ids";
+        String query = 
+               "select pv " +
+               "from ProjectVersion pv " +
+               "where pv.project.id in (:" + paramProjectIds + ")" +
+               " and pv.version= " +
+               "      (select min(pv1.version) " +
+               "      from ProjectVersion pv1 " +
+               "      where pv.project=pv1.project) ";
+    
+        Map<String, Collection> queryParameters = new Hashtable<String, Collection>(1);
+        queryParameters.put(paramProjectIds, asCollection(projectsIds));
+        List<?> projectVersions = db.doHQL(query, null, queryParameters);
+        WSProjectVersion[] result = WSProjectVersion.asArray(projectVersions);
+
+        db.commitDBSession();
+
+        return (WSProjectVersion[]) normalizeWSArrayResult(result);
     }
 
     /**
