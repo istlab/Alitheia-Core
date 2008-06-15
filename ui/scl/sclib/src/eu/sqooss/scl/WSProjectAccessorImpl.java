@@ -91,6 +91,8 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
     
     private static final String METHOD_NAME_GET_VERSIONS_COUNT                       = "getVersionsCount";
     
+    private static final String METHOD_NAME_GET_FIRST_PROJECT_VERSIONS                = "getFirstProjectVersions";
+    
     private static final String METHOD_NAME_GET_LAST_PROJECT_VERSIONS                = "getLastProjectVersions";
 
     private static final String METHOD_NAME_GET_PROJECTS_BY_IDS                      = "getProjectsByIds";
@@ -464,11 +466,44 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
     }
 
     /**
+     * @see eu.sqooss.scl.accessor.WSProjectAccessor#getFirstProjectVersions(long[])
+     */
+    @Override
+    public WSProjectVersion[] getFirstProjectVersions(long[] projectsIds) throws WSException {
+        if (!isNormalizedWSArrayParameter(projectsIds)) {
+            return EMPTY_ARRAY_PROJECT_VERSIONS;
+        }
+        GetLastProjectVersionsResponse response;
+        GetLastProjectVersions params;
+        if (!parameters.containsKey(METHOD_NAME_GET_FIRST_PROJECT_VERSIONS)) {
+            params = new GetLastProjectVersions();
+            params.setPassword(password);
+            params.setUserName(userName);
+            parameters.put(METHOD_NAME_GET_FIRST_PROJECT_VERSIONS, params);
+        } else {
+            params = (GetLastProjectVersions) parameters.get(
+                    METHOD_NAME_GET_FIRST_PROJECT_VERSIONS);
+        }
+        synchronized (params) {
+            params.setProjectsIds(projectsIds);
+            try {
+                response = wsStub.getFirstProjectVersions(params);
+            } catch (RemoteException re) {
+                throw new WSException(re);
+            }
+        }
+        
+        return (WSProjectVersion[]) normalizeWSArrayResult(response.get_return());
+    }
+
+    /**
      * @see eu.sqooss.scl.accessor.WSProjectAccessor#getLastProjectVersions(long[])
      */
     @Override
     public WSProjectVersion[] getLastProjectVersions(long[] projectsIds) throws WSException {
-        if (!isNormalizedWSArrayParameter(projectsIds)) return EMPTY_ARRAY_PROJECT_VERSIONS;
+        if (!isNormalizedWSArrayParameter(projectsIds)) {
+            return EMPTY_ARRAY_PROJECT_VERSIONS;
+        }
         GetLastProjectVersionsResponse response;
         GetLastProjectVersions params;
         if (!parameters.containsKey(METHOD_NAME_GET_LAST_PROJECT_VERSIONS)) {
