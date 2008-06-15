@@ -247,8 +247,7 @@ public class Project extends WebuiItem {
      * @return the version number, or null if the project has no version.
      */
     public Version getFirstVersion() {
-        // FIXME: first != current
-        return currentVersion;
+        return terrier.getFirstProjectVersion(getId());
     }
 
     /**

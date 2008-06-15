@@ -370,6 +370,36 @@ public class Terrier {
         return null;
     }
 
+    /**
+     * Retrieves the first recorded version (ought to be SVN revision 1)
+     * of a project. May return null on error.
+     *
+     * @param projectId project to get first version for
+     * @return Version object for first SVN revision or null on error.
+     */
+    public Version getFirstProjectVersion(Long projectId) {
+        long[] v = new long[1];
+        v[0] = projectId.longValue();
+        try {
+            WSProjectVersion[] wsversions = connection.getProjectAccessor().getFirstProjectVersions(v);
+            if (wsversions.length != 0) {
+                return new Version(wsversions[0], this);
+            } else {
+                return null;
+            }
+        } catch (WSException e) {
+            addError("Can not retrieve last project version.");
+            return null;
+        }
+    }
+
+    /**
+     * Retrieves the last recorded version (ought to be SVN HEAD)
+     * of a project. May return null on error.
+     *
+     * @param projectId project to get HEAD version for
+     * @return Version object for most recent SVN revision or null on error.
+     */
     public Version getLastProjectVersion(Long projectId) {
         long[] v = new long[1];
         v[0] = projectId.longValue();
