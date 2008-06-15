@@ -58,6 +58,13 @@ String msg      = "";
     <jsp:setProperty name="user" property="loggedIn" value="false"/>
 </jsp:useBean>
 
+<jsp:useBean
+    id="settings"
+    class="eu.sqooss.webui.SelectedSettings"
+    scope="session">
+    <jsp:setProperty name="settings" property="showAllMetrics" value="true"/>
+</jsp:useBean>
+
 <%
 // We also keep a Project as the session state.
 // The project is either valid, and can be used to display the

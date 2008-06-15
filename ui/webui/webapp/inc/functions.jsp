@@ -43,4 +43,20 @@ public static Long getId(String string_id) {
     return id;
 }
 
+/**
+ * Constructs a list of all parameters contained in the given servlet request.
+ *
+ * @param request the servlet's request object
+ *
+ * @return The list of request parameters.
+ */
+public static String debugRequest (HttpServletRequest request) {
+    StringBuilder b = new StringBuilder();
+    Enumeration<?> e = request.getParameterNames();
+    while (e.hasMoreElements()) {
+        String key = (String) e.nextElement();
+        b.append(key + "=" + request.getParameter(key) + "<br/>\n");
+    }
+    return b.toString();
+}
 %>

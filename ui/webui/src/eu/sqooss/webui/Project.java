@@ -62,7 +62,9 @@ public class Project extends WebuiItem {
     private Long currentVersionId;
 
     private Version currentVersion;
-    private SortedMap<Long, Metric> metrics;
+
+    // A cache for all metrics that have been evaluated on this project
+    private List<Metric> metrics;
 
     /**
      * Empty constructor so we can create this object without having
@@ -120,16 +122,20 @@ public class Project extends WebuiItem {
     }
 
     /**
-     *Fetches the Metrics that have been applied to this project through the SCL.
+     * Fetches the list of all metrics that have been evaluated on this
+     * project from the local store.
+     * 
+     * @param refresh if set to <code>true</code> then the locally cached
+     *   list will first be refreshed with the information available from
+     *   the attached SQO-OSS framework.
+     * 
+     * @return the list of metrics evaluated on this project.
      */
-    public void retrieveMetrics() {
-        WSMetric[] wsmetrics = terrier.getMetricsForProject(id);
-        if (wsmetrics == null) {
-            return;
+    public List<Metric> retrieveMetrics(boolean refresh) {
+        if ((metrics == null) || (refresh)) {
+            metrics = terrier.getMetricsForProject(id);
         }
-        for (int i = 0; i < wsmetrics.length; i++ ) {
-            metrics.put(wsmetrics[i].getId(), new Metric(wsmetrics[i], terrier));
-        }
+        return metrics;
     }
 
     public void setTerrier(Terrier t) {
@@ -207,17 +213,22 @@ public class Project extends WebuiItem {
         return getName();
     }
 
-    /** Returns an HTML table (in fact a MetricsView of the metrics applied to this Project.
+    /**
+     * Returns an HTML table containing all metric that were evaluated on
+     * this project.
+     * 
+     * @param refresh if set to <code>true</code> then the locally cached
+     *   metrics information will first be refreshed with the information
+     *   available from the attached SQO-OSS framework.
+     * 
+     * @return the table's content
      */
-    public String showMetrics() {
+    public String showMetrics(boolean refresh) {
         StringBuilder html = new StringBuilder();
-        MetricsTableView metricsView = terrier.getMetrics4Project(id);
-        if (metricsView != null ) {
-            html.append(metricsView.getHtml());
-        } else {
-            html.append("<strong>Could not retrieve metrics for this project.</strong> The following errors were reported:<br />");
-            html.append(terrier.getError());
-        }
+        MetricsTableView view =
+            new MetricsTableView(retrieveMetrics(refresh));
+        view.setProjectId(getId());
+        html.append(view.getHtml());
         return html.toString();
     }
 

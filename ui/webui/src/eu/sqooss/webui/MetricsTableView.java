@@ -79,25 +79,32 @@ public class MetricsTableView {
     String tableId = new String("table");
 
     /**
-     * Instantiates a new metrics table view. Empty constructor.
+     * Instantiates a new metrics table view
      */
-    public MetricsTableView () {
+    public MetricsTableView () {}
 
+    /**
+     * Instantiates a new metrics table view, from a list of metrics.
+     * 
+     * @param metricsList the metrics list
+     */
+    public MetricsTableView (List<Metric> metricsList) {
+        if (metricsList != null)
+            for (Metric nextMetric : metricsList)
+                metrics.put(nextMetric.getId(), nextMetric);
     }
 
     /**
-     * Instantiates a new metrics table view, that on a later stage should be
-     * filled with information about all metrics evaluated on the project with
-     * the given Id.
+     * Sets the Id of the project to which this view belongs.
      *
      * @param projectId the Id of the project
      */
-    public MetricsTableView (Long projectId) {
+    public void setProjectId (Long projectId) {
         this.projectId = projectId;
     }
 
     /**
-     * Adds another metric to the locally stored metrics list.
+     * Adds additional metric to the locally stored metrics list.
      *
      * @param metric a <code>Metric</code> instance
      */

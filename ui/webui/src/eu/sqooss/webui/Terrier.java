@@ -33,6 +33,9 @@
 
 package eu.sqooss.webui;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.ResourceBundle;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -58,6 +61,9 @@ import eu.sqooss.ws.client.datatypes.WSResultEntry;
 public class Terrier {
     private String error = "";
     private String debug = "";
+
+    // Metric types cache
+    private HashMap<Long, String> metricTypes = new HashMap<Long, String>();
 
     // Points to the the WebUI's configuration bundle
     private ResourceBundle confParams;
@@ -199,49 +205,56 @@ public class Terrier {
     }
 
     /**
-     * Retrieves all metrics that has been evaluated for the selected
-     * projects, and generates a proper view for displaying them.
+     * Retrieves the list of all metrics that has been evaluated on the
+     * project with the given Id.
      *
      * @param projectId The ID of selected project
-     * @return The corresponding view object
+     * @return The list of evaluated metrics, or <code>null</code> upon error.
      */
-    public MetricsTableView getMetrics4Project(Long projectId) {
-        if (!connection.isConnected()) {
-            return null;
-        }
-        MetricsTableView view = new MetricsTableView(projectId);
-        try {
-            WSMetric[] metrics =
-                connection.getMetricAccessor().getProjectEvaluatedMetrics(projectId);
-            for (WSMetric met : metrics) {
-                view.addMetric(new Metric(met, this));
-            }
-        } catch (WSException wse) {
-            addError("Can not retrieve the list of metrics for this project:" + wse.getMessage());
-            return null;
-        }
-        return view;
-    }
-
-    public WSMetric[] getMetricsForProject(Long projectId) {
-        try {
-            return connection.getMetricAccessor().getProjectEvaluatedMetrics(projectId);
-        } catch (WSException wse) {
-            return null;
-        }
-    }
-
-    /**
-     * Retrieves all metrics and generates a proper view for displaying them.
-     *
-     * @return The corresponding view object
-     */
-    public MetricsTableView getAllMetrics() {
+    public List<Metric> getMetricsForProject(Long projectId) {
         if (!connection.isConnected()) {
             addError(connection.getError());
             return null;
         }
-        MetricsTableView metricTableView = new MetricsTableView();
+        List<Metric> result = new ArrayList<Metric>();
+        try {
+            WSMetric[] wsmetrics = 
+                connection.getMetricAccessor().getProjectEvaluatedMetrics(
+                    projectId);
+            if ((wsmetrics != null) && (wsmetrics.length > 0)) {
+                // Retrieve the metric types
+                long[] typeIds = new long[wsmetrics.length];
+                int index = 0;
+                for (WSMetric nextMetric : wsmetrics)
+                    typeIds[index++] = nextMetric.getMetricTypeId();
+                HashMap<Long, String> metricTypes =
+                    getMetricTypesById(typeIds);
+                // Create the result list
+                for (WSMetric nextMetric : wsmetrics)
+                    result.add(new Metric(
+                            nextMetric,
+                            metricTypes.get(nextMetric.getMetricTypeId())));
+            }
+        } catch (WSException wse) {
+            addError("Cannot retrieve the list of metrics."
+                    + " " + wse.getMessage());
+            return null;
+        }
+        return result;
+    }
+
+    /**
+     * Retrieves the list of all metrics installed in the attached SQO-OSS
+     * framework.
+     *
+     * @return The list of all installed metric.
+     */
+    public List<Metric> getAllMetrics() {
+        if (!connection.isConnected()) {
+            addError(connection.getError());
+            return null;
+        }
+        List<Metric> result = new ArrayList<Metric>();
         try {
             WSMetricsRequest request = new WSMetricsRequest();
             request.setSkipResourcesIds(true);
@@ -249,15 +262,27 @@ public class Terrier {
             request.setIsProjectFile(true);
             request.setIsProjectVersion(true);
             request.setIsStoredProject(true);
-            WSMetric[] allMetrics = connection.getMetricAccessor().getMetricsByResourcesIds(request);
-            for (WSMetric wsMetric : allMetrics) {
-                metricTableView.addMetric(new Metric(wsMetric, this));
-            }
+            WSMetric[] wsmetrics =
+                connection.getMetricAccessor().getMetricsByResourcesIds(
+                        request);
+            // Retrieve the metric types
+            long[] typeIds = new long[wsmetrics.length];
+            int index = 0;
+            for (WSMetric nextMetric : wsmetrics)
+                typeIds[index++] = nextMetric.getMetricTypeId();
+            HashMap<Long, String> metricTypes =
+                getMetricTypesById(typeIds);
+            // Create the result list
+            for (WSMetric nextMetric : wsmetrics)
+                result.add(new Metric(
+                        nextMetric,
+                        metricTypes.get(nextMetric.getMetricTypeId())));
         } catch (WSException wse) {
-            error = "Cannot retrieve the list of all metrics." + wse.getMessage();
+            addError("Cannot retrieve the list of all installed metrics."
+                    + " " + wse.getMessage());
             return null;
         }
-        return metricTableView;
+        return result;
     }
 
     /**
@@ -375,6 +400,7 @@ public class Terrier {
      */
     public Long getVersionsCount(Long projectId) {
         if (!connection.isConnected()) {
+            addError(connection.getError());
             return null;
         }
         try {
@@ -390,21 +416,48 @@ public class Terrier {
         return null;
     }
 
-    public String getMetricTypeById(long metricTypeId) {
-        if (!connection.isConnected()) {
+    /**
+     * Retrieves metric types by their Ids. In case one or more metric types
+     * can not be located in the local cache, then this method will try to
+     * retrieve the missing types from the attached SQO-OSS framework.
+     * 
+     * @param metricTypeIds the list of metric type Ids
+     * 
+     * @return the map of metric type indexed by their Ids
+     */
+    public HashMap<Long, String> getMetricTypesById(long[] metricTypeIds) {
+        if (!connection.isConnected())
             return null;
+        HashMap<Long, String> result = new HashMap<Long, String>();
+        // Search into the local cache first
+        List<Long> missing = new ArrayList<Long>();
+        for (long nextId : metricTypeIds) {
+            if (metricTypes.containsKey(nextId))
+                result.put(nextId, metricTypes.get(nextId));
+            else
+                missing.add(nextId);
         }
-        String result = null;
-        try {
-            WSMetricType[] metricTypes = connection.getMetricAccessor().
-            getMetricTypesByIds(new long[] {metricTypeId});
-            if (metricTypes.length != 0) {
-                result = metricTypes[0].getType();
-            } else {
-                error = "The metric type doesn't exist!";
+        // Retrieve all missing metric types
+        if (missing.size() > 0) {
+            long[] query = new long[missing.size()];
+            int index = 0;
+            for (Long nextId : missing)
+                query[index++] = nextId.longValue();
+            try {
+                WSMetricType[] missingTypes =
+                    connection.getMetricAccessor().getMetricTypesByIds(query);
+                if (missingTypes.length > 0) {
+                    // Fill the local cache and the result list
+                    for (WSMetricType nextType : missingTypes) {
+                        metricTypes.put(nextType.getId(), nextType.getType());
+                        result.put(nextType.getId(), nextType.getType());
+                    }
+                } else {
+                    error = "One or more metric types can not be found!";
+                }
+            } catch (WSException e) {
+                error = "The metric types query has failed!";
             }
-        } catch (WSException e) {
-            error = "Can not retrieve information about the metric type.";
         }
         return result;
     }
@@ -509,6 +562,10 @@ public class Terrier {
      */
     public void logoutUser(String user) {
         connection.logoutUser(user);
+    }
+
+    public boolean hasErrors () {
+        return (error.length() > 0);
     }
 
     public String getError() {

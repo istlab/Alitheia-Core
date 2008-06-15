@@ -55,17 +55,19 @@ public class Metric extends WebuiItem {
     /** Represents a ProjectVersion activated metric. */
     public static final String PROJECT_VERSION = "PROJECT_VERSION";
 
-    /** Constructs a Metric from a WSMetric, including initialisation
-     * of data in this object.
+    /**
+     * Constructs a new <code>Metric</code> from a <code>WSMetric</code>
+     * instance and a metric type.
+     * 
+     * @param metric the metric object retrieved from the WSS call
+     * @param metricType the metric type
      */
-    public Metric (WSMetric metric, Terrier t) {
+    public Metric (WSMetric metric, String metricType) {
         mnemonic    = metric.getMnemonic();
         id          = metric.getId();
-        //TODO: optimize
-        type        = t.getMetricTypeById(metric.getMetricTypeId());
-        activationType = PROJECT_FILE; // FIXME: Waiting for having that info in WSMetric
+        type        = metricType;
         description = metric.getDescription();
-        terrier     = t;
+        activationType = PROJECT_FILE;
     }
 
     public Long getId() {

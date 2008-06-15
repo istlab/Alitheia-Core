@@ -1,41 +1,51 @@
-<jsp:useBean id="metricsView"
-    class="eu.sqooss.webui.MetricsTableView"
-    scope="page"/>
-
 <%@ page import="eu.sqooss.webui.*" %>
 
 <div id="metricslist" class="group">
-<% // List metrics per selected project or as total
-
+    <form id="metrics" name="metrics" method="GET">
+<%
+//out.println(debugRequest(request));
+//============================================================================
 // Show metric per project, when a project selection exists
-
+//============================================================================
 if (selectedProject.isValid()) {
-    out.println(selectedProject.showMetrics());
-    // Add some space
-    out.println("<br/>");
-}
-
-out.println("<h2>All available metrics</h2>");
-// Show all installed metrics available
-metricsView = terrier.getAllMetrics();
-
-// We don't provide metric names yet, therefore show the description
-if (metricsView != null) {
-    metricsView.setShowDescription(true);
-}
-
-// Display the accumulated metrics list
-if (metricsView != null ) {
-    out.println(metricsView.getHtml());
-} else {
-    out.println("<div id=\"error\">");
-    if (cruncher.isOnline()) {
+    out.println("<h2>Metrics evaluated on project: "
+        + selectedProject.getName()
+        + "</h2>");
+    out.println(selectedProject.showMetrics(true));
+    // Print the accumulated errors (if any)
+    if (terrier.hasErrors())
         out.println(Functions.error(terrier.getError()));
-    } else {
-        out.println(cruncher.getStatus());
-    }
-    out.println("</div>");
 }
+//============================================================================
+// Show all metrics installed in the SQO-OSS framework
+//============================================================================
+// Add some space
+out.println("<br/>");
+out.println("<h2>All installed metrics</h2>");
+if (request.getParameter("metricsForm") != null) {
+    // Check the "Show all installed metrics" flag
+    if (request.getParameter("showAllMetrics") == null)
+        settings.setShowAllMetrics(false);
+    else
+        settings.setShowAllMetrics(true);
+}
+// Add a checkbox for show/hide all installed metrics
+out.println("<input type=\"checkbox\""
+    + ((settings.getShowAllMetrics()) ? " checked" : "")
+    + " name=\"showAllMetrics\">"
+    + "Show all registered metrics"
+    + "&nbsp;<input type=\"submit\" value=\"Apply\">"
+    + "<br/>");
+// Display all installed metrics
+if (settings.getShowAllMetrics()) {
+    MetricsTableView allMetrics =
+        new MetricsTableView(terrier.getAllMetrics());
+    out.println(allMetrics.getHtml());
+}
+// Print the accumulated errors (if any)
+if (terrier.hasErrors())
+    out.println(Functions.error(terrier.getError()));
+
 if (selectedProject == null) {
     %>
     <p />
@@ -44,4 +54,6 @@ if (selectedProject == null) {
     <%
 }
 %>
+        <input type="hidden" name="metricsForm" value="true">
+    </form>
 </div>
