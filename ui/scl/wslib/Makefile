@@ -55,6 +55,7 @@ install-deps :
 # be committed to the source tree.
 ws.wsdl :
 	$(FETCH) "http://localhost:8088/sqooss/services/ws?wsdl" ws.wsdl
+	-xmllint --format ws.wsdl > ws-pretty.wsdl
 
 # This is one of the rare times we need to invoke java from a Makefile,
 # and it is ugly. We have a whole bunch of jars to work with:
