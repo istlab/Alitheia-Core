@@ -214,8 +214,7 @@ class FDS (eu__POA.sqooss.impl.service.corba.alitheia.FDS):
             result = self.fds.getFileContents(projectFile)
         else:
             result = self.fds.getFileContentParts(projectFile,begin,length)
-        contents = result[1]
-        return contents
+        return result
 
     def getCheckout(self,projectVersion,pattern='.*'):
         return self.fds.getCheckout(projectVersion,pattern)
