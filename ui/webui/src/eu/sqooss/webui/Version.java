@@ -239,7 +239,6 @@ public class Version extends WebuiItem {
             long[] fileIds = new long[files.size()];
             for (File nextFile : files.values()) {
                 fileIds[index++] = nextFile.getId();
-                terrier.addError(nextFile.getName());
             }
             resultRequest.setDaObjectId(fileIds);
             resultRequest.setProjectFile(true);
@@ -247,7 +246,6 @@ public class Version extends WebuiItem {
             index = 0;
             for (String nextMnem : selectedMetrics.values()) {
                 mnemonics[index++] = nextMnem;
-                terrier.addError(nextMnem);
             }
             resultRequest.setMnemonics(mnemonics);
             // Retrieve the evaluation result from the SQO-OSS framework
