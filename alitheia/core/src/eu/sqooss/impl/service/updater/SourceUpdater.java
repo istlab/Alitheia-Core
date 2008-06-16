@@ -215,10 +215,13 @@ class SourceUpdater extends Job {
 
                     if (t == SCMNodeType.DIR) {
                         pf.setIsDirectory(true);
+                        dir = Directory.getDirectory(chPath, true);
                     } else {
                         pf.setIsDirectory(false);
                     }
-
+                    
+                    dbs.addRecord(pf);
+                    
                     if (pf.isDeleted()) {
                         /* Directories, when they are deleted, do not have type
                          * DIR, but something else. So we need to check on
@@ -234,9 +237,8 @@ class SourceUpdater extends Job {
                             pf.setIsDirectory(true);
                         }
                         markDeleted(pf,curVersion);
-                    }
+                    } 
 
-                    dbs.addRecord(pf);
                     updFiles.add(pf.getId());
                 }
 
