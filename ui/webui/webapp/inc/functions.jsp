@@ -13,13 +13,17 @@ public static String versionSelector(Project p) {
     html.append("\t<input type=\"submit\" class=\"form\""
         + " value=\"Apply\"/>\n");
     html.append("</form>\n");
-// TODO: Fix this shortcuts too ...
-//    String vparam = "version" + p.getId();
-//    html.append("<br/><strong>Jump to:</strong>");
-//    html.append("&nbsp;<a href=\"?" + vparam + "=first\">"
-//        + "First version</a>\n");
-//    html.append("&nbsp;<a href=\"?" + vparam + "=last\">"
-//        + "Last version</a>\n");
+    // Shortcuts
+    html.append("<br/><strong>Jump to:</strong>\n");
+    html.append("<ul>\n");
+    html.append("<li><a href=\"?version" + p.getId()
+        + "=" + p.getFirstVersion().getNumber() + "\">"
+        + "First version</a>\n");
+    if (p.countVersions() > 1)
+        html.append("<li><a href=\"?version" + p.getId()
+            + "=" + p.getLastVersion().getNumber() + "\">"
+            + "Last version</a>\n");
+    html.append("</ul>\n");
     return html.toString();
 }
 
