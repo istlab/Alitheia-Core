@@ -7,8 +7,8 @@ Bundle-Vendor: KDAB
 Bundle-Category: data
 Bundle-Description: This bundle provides the Active Specifications Service
 Bundle-Classpath: .,
-    eu.sqooss.ui.scl.scl-0.0.1.jar,
-    eu.sqooss.ui.scl.client-0.0.1.jar,
+    eu.sqooss.ui.scl.scl-0.8.0.jar,
+    eu.sqooss.ui.scl.client-0.8.0.jar,
     org.junit-4.4.jar,
     org.concordion-1.2.0.jar,
     org.ognl-2.6.9.jar,
