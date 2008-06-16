@@ -37,12 +37,9 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
-import java.util.ResourceBundle;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -51,15 +48,11 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.velocity.VelocityContext;
 import org.osgi.framework.BundleContext;
 
-import eu.sqooss.service.db.InvocationRule;
-import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
-import eu.sqooss.service.pa.PluginInfo;
 import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.TDAccessor;
 import eu.sqooss.service.updater.UpdaterService;
-import eu.sqooss.service.updater.UpdaterService.UpdateTarget;
 import eu.sqooss.service.util.StringUtils;
 import eu.sqooss.service.webadmin.WebadminService;
 

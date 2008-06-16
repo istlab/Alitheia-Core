@@ -32,7 +32,6 @@
 
 package eu.sqooss.impl.service.messaging.senders.smtp.utils;
 
-import java.io.*;
 
 public class Base64 {
     private final static int BASE_CHARS_PER_LINE = 76;

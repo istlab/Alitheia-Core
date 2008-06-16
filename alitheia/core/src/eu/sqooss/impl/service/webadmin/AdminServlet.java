@@ -94,8 +94,8 @@ public class AdminServlet extends HttpServlet {
             WebadminService webadmin,
             Logger logger,
             VelocityEngine ve) {
-        this.webadmin = webadmin;
-        this.bc = bc;
+        AdminServlet.webadmin = webadmin;
+        AdminServlet.bc = bc;
         this.ve = ve;
         this.logger = logger;
 
@@ -327,25 +327,25 @@ public class AdminServlet extends HttpServlet {
 
         // Function-based substitutions
         //vc.put("STATUS", someFunction); FIXME
-        vc.put("GETLOGS", render.renderLogs());
-        vc.put("UPTIME", render.getUptime());
-        vc.put("QUEUE_LENGTH", render.getSchedulerDetails("WAITING"));
-        vc.put("JOB_EXEC", render.getSchedulerDetails("RUNNING"));
-        vc.put("JOB_WAIT", render.getSchedulerDetails("WAITING"));
-        vc.put("JOB_WORKTHR", render.getSchedulerDetails("WORKER"));
-        vc.put("JOB_FAILED", render.getSchedulerDetails("FAILED"));
-        vc.put("JOB_TOTAL", render.getSchedulerDetails("TOTAL"));
-        vc.put("WAITJOBS", render.renderWaitJobs());
-        vc.put("FAILJOBS", render.renderFailedJobs());
-        vc.put("JOBFAILSTATS", render.renderJobFailStats());
+        vc.put("GETLOGS", WebAdminRenderer.renderLogs());
+        vc.put("UPTIME", WebAdminRenderer.getUptime());
+        vc.put("QUEUE_LENGTH", WebAdminRenderer.getSchedulerDetails("WAITING"));
+        vc.put("JOB_EXEC", WebAdminRenderer.getSchedulerDetails("RUNNING"));
+        vc.put("JOB_WAIT", WebAdminRenderer.getSchedulerDetails("WAITING"));
+        vc.put("JOB_WORKTHR", WebAdminRenderer.getSchedulerDetails("WORKER"));
+        vc.put("JOB_FAILED", WebAdminRenderer.getSchedulerDetails("FAILED"));
+        vc.put("JOB_TOTAL", WebAdminRenderer.getSchedulerDetails("TOTAL"));
+        vc.put("WAITJOBS", WebAdminRenderer.renderWaitJobs());
+        vc.put("FAILJOBS", WebAdminRenderer.renderFailedJobs());
+        vc.put("JOBFAILSTATS", WebAdminRenderer.renderJobFailStats());
         // Plug-ins content
-        vc.put("METRICS", pluginsView.render(request));
+        vc.put("METRICS", PluginsView.render(request));
         // Users content
-        vc.put("USERS", usersView.render(request));
+        vc.put("USERS", UsersView.render(request));
         // Rules content
-        vc.put("RULES", rulesView.render(request));
+        vc.put("RULES", RulesView.render(request));
         // Projects content
-        vc.put("PROJECTS", projectsView.render(request));
+        vc.put("PROJECTS", ProjectsView.render(request));
 
         // Composite substitutions
         vc.put("STATUS_CORE",
