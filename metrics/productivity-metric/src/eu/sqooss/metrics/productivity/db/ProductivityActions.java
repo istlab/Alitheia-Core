@@ -96,7 +96,11 @@ public class ProductivityActions extends DAObject {
         
         String query = "select sum(total) from ProductivityActions" ;
         
-        List<?> totalActions = dbs.doHQL(query);
+        List<Long> totalActions = (List<Long>)dbs.doHQL(query);
+        
+        if(totalActions == null || totalActions.size() == 0) {
+            return 0L;
+        }
         
         return Long.parseLong(totalActions.get(0).toString());
     }
@@ -114,6 +118,10 @@ public class ProductivityActions extends DAObject {
         
         List<?> totalActions = dbs.doHQL(query);
         
+        if(totalActions == null || totalActions.size() == 0) {
+            return 0L;
+        }
+        
         return Long.parseLong(totalActions.get(0).toString());
     }
     
@@ -129,6 +137,10 @@ public class ProductivityActions extends DAObject {
         parameters.put(paramType, actionType.toString());
         
         List<?> totalActions = dbs.doHQL(query, parameters);
+        
+        if(totalActions == null || totalActions.size() == 0) {
+            return 0L;
+        }
         
         return Long.parseLong(totalActions.get(0).toString());
     }

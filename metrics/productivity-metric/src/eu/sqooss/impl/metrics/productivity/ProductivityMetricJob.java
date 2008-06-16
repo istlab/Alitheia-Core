@@ -123,8 +123,8 @@ public class ProductivityMetricJob {
                         | Pattern.MULTILINE | Pattern.DOTALL);
         Matcher m;
 
-        updateField(dev, ActionType.TCO, true, 1);
-        updateField(dev, ActionType.TCF, true, projectFiles.size());
+        //updateField(dev, ActionType.TCO, true, 1);
+        //updateField(dev, ActionType.TCF, true, projectFiles.size());
 
         if (commitMsg.length() == 0) {
             updateField(dev, ActionType.CEC, false, 1);
@@ -203,19 +203,19 @@ public class ProductivityMetricJob {
             a.setTotal(a.getTotal() + value);
         }
 
-        updateWeights(actionType);
+      //  updateWeights(actionType);
     }
     
     private void updateWeights(ActionType actionType) {
 
-        ActionCategory actionCategory = ActionCategory
-                .getActionCategory(actionType);
+        ActionCategory actionCategory = 
+            ActionCategory.getActionCategory(actionType);
 
         long totalActions = ProductivityActions.getTotalActions();
-        long totalActionsPerCategory = ProductivityActions
-                .getTotalActionsPerCategory(actionCategory);
-        long totalActionsPerType = ProductivityActions
-                .getTotalActionsPerType(actionType);
+        long totalActionsPerCategory = 
+            ProductivityActions.getTotalActionsPerCategory(actionCategory);
+        long totalActionsPerType = 
+            ProductivityActions.getTotalActionsPerType(actionType);
 
         // update weight for the action type
         long weight = 100 * totalActionsPerType / totalActionsPerCategory;
