@@ -193,12 +193,14 @@ class File extends WebuiItem {
             html.append(" (<i>Folder</i>)");
         }
         else {
+            html.append("<ul>");
             if (results.size() > 0) {
                 for (Result nextResult : results)
-                    html.append(nextResult.getHtml() + ", ");
+                    html.append("<li>" + nextResult.getHtml());
             }
             else
-                html.append(" (<i>No results found</i>)");
+                html.append("<li>(<i>No results found</i>)");
+            html.append("</ul>");
         }
         return html.toString();
     }
