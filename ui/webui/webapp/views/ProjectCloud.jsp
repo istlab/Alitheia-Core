@@ -16,12 +16,15 @@ if (ProjectsListView.hasProjects()) {
              m[i][j] = null;
         }
     }
-    java.util.Random r = new java.util.Random();
     double fontsize = 2.0; /* em */
-    for (Project p : v) {
-        int i = r.nextInt(5);
-        int j = r.nextInt(5);
 
+    /*
+     * We're going to stripe across the matrix. i,j go from (n,0)
+     * to (0,n) to (-1,n+1) and then jump back up to (n+1,0).
+     */
+    int i=0;
+    int j=0;
+    for (Project p : v) {
         if (m[i][j] == null) {
              m[i][j] = new String("<a href=" +
                             "\"projects.jsp?pid=" + p.getId() + "\" " +
@@ -30,12 +33,18 @@ if (ProjectsListView.hasProjects()) {
         }
 
         fontsize = fontsize - 0.1;
+        i--;
+        j++;
+        if (i<0) {
+            i=j;
+            j=0;
+        }
     }
 
     out.println("<table cellspacing=0 cellpadding=4>");
-    for (int i=0; i<5; ++i) {
+    for (i=0; i<5; ++i) {
         out.println("<tr>");
-        for (int j=0; j<5; ++j) {
+        for (j=0; j<5; ++j) {
              if (m[i][j] == null) {
                  out.println("<td>&nbsp;</td>");
              } else {

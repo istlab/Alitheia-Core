@@ -158,13 +158,9 @@ public class ProjectsListView extends ListView {
      */
     public Vector<Project> getCloudProjects() {
         Vector<Project> v = new Vector<Project>(13);
-        Random r = new Random();
 
         for (int i = 0; (i<13) && (i<totalProjects); ++i) {
-            int j = r.nextInt((int)totalProjects);
-            if (!v.contains(projects.elementAt(j))) {
-                v.add(projects.elementAt(j));
-            }
+            v.add(projects.elementAt(i));
         }
 
         return v;
