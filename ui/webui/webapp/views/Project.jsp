@@ -121,7 +121,7 @@ if (selectedProject.isValid()) {
     out.println("\n\t\t</td><td valign=\"top\" width=\"50%\">");
 
     if (selectedProject.getCurrentVersion() != null) {
-        out.println("<h2>Files in Version " + selectedProject.getCurrentVersion().getNumber() + " (" + v_c + ")</h2>");
+        out.println("<h2>Files in Version " + selectedProject.getCurrentVersion().getNumber() + "</h2>");
         out.println(versionFileList);
     } else {
         out.println("No versions in Project");
