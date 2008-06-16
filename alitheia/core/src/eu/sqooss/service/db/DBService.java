@@ -338,7 +338,7 @@ public interface DBService {
      *                          contain invalid entries
      */
     public List<? extends DAObject> doHQL(String hql, Map<String, Object> params,
-                          Map<String, Collection<?>> collectionParams)
+                          Map<String, Collection> collectionParams)
         throws QueryException;
         
 }

@@ -430,7 +430,7 @@ public class DBServiceImpl implements DBService, FrameworkListener {
      */
     @SuppressWarnings("unchecked")
     public List<? extends DAObject> doHQL(String hql, Map<String, Object> params,
-            Map<String, Collection<?>> collectionParams) 
+            Map<String, Collection> collectionParams) 
         throws QueryException {
         if ( !checkSession() ) {
             return Collections.emptyList();
