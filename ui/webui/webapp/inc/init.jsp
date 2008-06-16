@@ -26,11 +26,10 @@ if (request.getParameter("pid") != null) {
     String req = request.getParameter("pid");
     if (!"none".equals(req)) {
         projectId = getId(req);
-        //out.println("PID: " + projectId);
     }
 }
 /*
-    This file instaniates shared objects and defines shared variables
+    This file instantiates shared objects and defines shared variables
     commonly used by the majority of the WebUI JSP pages. Therefore, it
     should be included at the top of every JSP page.
 */
@@ -100,6 +99,12 @@ if (projectId != null && !selectedProject.isValid()) {
     selectedProject.retrieveData();
 }
 
+if (projectId != null && !projectId.equals(selectedProject.getId())) {
+    selectedProject.setId(projectId);
+    selectedProject.setTerrier(terrier);
+    selectedProject.retrieveData();
+}
+
 if (selectedProject.isValid()) {
     // Set to the requested version
     String vparam = "version" + selectedProject.getId();
@@ -107,16 +112,18 @@ if (selectedProject.isValid()) {
     //out.println("VParam: " + vparam);
     if (request.getParameter(vparam) != null) {
         String req = request.getParameter(vparam);
-        if (!"none".equals(req)) {
-            versionId = getId(req);
-        }
+        // Handle special cases of version first
         if ("last".equals(req)) {
             selectedProject.setCurrentVersionId(selectedProject.getLastVersion().getId());
         } else if ("first".equals(req)) {
             selectedProject.setCurrentVersionId(selectedProject.getFirstVersion().getId());
         } else if ("none".equals(req)) {
             selectedProject.setCurrentVersionId(null);
+        } else {
+            // Was not a special case, so now try to parse it as a number
+            versionId = getId(req);
         }
+
         if (versionId != null) {
             selectedProject.setCurrentVersionId(versionId);
         }
