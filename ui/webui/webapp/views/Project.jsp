@@ -24,25 +24,31 @@ if (selectedProject.isValid()) {
         </td>
         <td valign="top" width="50%" class="borderless">
         <%
-            // Versions
-            // Display the number of files in the selected project version
-            // TODO: The files number should be cached in the Project object,
-            //       instead of calling the Terrier each time.
-            //if (selectedProject.getCurrentVersionId() != null) {
-                //projectId = selectedProject.getId();
             String inputError = null;
-            if (request.getParameter("version" + projectId) != null) {
-                Long changeSelected = null;
+            // Check if the user has selected an another project version
+            String paramName = "version" + selectedProject.getId();
+            if (request.getParameter(paramName) != null) {
+                Long versionNumber = null;
+                Version selVersion = null;
                 try {
-                    changeSelected =
-                        new Long(request.getParameter("version" + projectId));
+                    versionNumber = new Long(request.getParameter(paramName));
+                    List<Version> versions = terrier.getVersionsByNumber(
+                        selectedProject.getId(), new long[]{versionNumber});
+                    if (versions.size() > 0)
+                        selVersion = versions.get(0);
+                    else
+                        inputError = new String("Version with number"
+                            + " " + versionNumber
+                            + " does not exist in this project!");
                 }
                 catch (NumberFormatException e) {
-                    inputError = new String("Wrong version format!");
+                    inputError = new String("Wrong version number format!");
                 }
-
-                if (changeSelected != null && (changeSelected != selectedProject.getCurrentVersionId())) {
-                    selectedProject.setCurrentVersionId(changeSelected);
+                // Switch to the selected version
+                if ((selVersion != null)
+                    && (selVersion.getId().equals(
+                        selectedProject.getCurrentVersionId()) == false)) {
+                    selectedProject.setCurrentVersion(selVersion);
                 }
             }
             if (selectedProject.getCurrentVersion() != null) {
@@ -53,15 +59,15 @@ if (selectedProject.isValid()) {
                 if (selectedProject.getFirstVersion() != null) {
                     if (!selectedProject.getFirstVersion().equals(
                         selectedProject.getLastVersion())) {
-                        out.println("\n<h2>" + selectedProject.getName() + " Versions");
-                        out.println (
+                        out.println("\n<h2>" + selectedProject.getName()
+                            + " Versions "
                             + selectedProject.getFirstVersion().getNumber()
                             + " - "
                             + selectedProject.getLastVersion().getNumber()
-                            + " (" + selectedProject.countVersions() + " total)");
+                            + "<br/>(" + selectedProject.countVersions() + " total)");
                     } else {
-                        out.println("\n<h2>" + selectedProject.getName());
-                        out.println("Version "
+                        out.println("\n<h2>" + selectedProject.getName()
+                            + " Version "
                             + selectedProject.getFirstVersion().getNumber());
                     }
                     // Both of those branches started a H2 element
@@ -72,7 +78,7 @@ if (selectedProject.isValid()) {
                 }
 
                 // Show the version selector
-                out.println("Choose the version you want to display: ");
+                out.println("Choose the version you want to display:<br/>");
                 out.println(versionSelector(selectedProject));
                 if (inputError != null) {
                     out.println(Functions.error(inputError));

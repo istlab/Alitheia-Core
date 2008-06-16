@@ -294,6 +294,7 @@ public class Project extends WebuiItem {
         }
     }
 
+    
     /**
      * Returns the total number of versions for this project
      *
@@ -313,6 +314,18 @@ public class Project extends WebuiItem {
      */
     public void setCurrentVersionId(Long versionNumber) {
         currentVersionId = versionNumber;
+    }
+
+    /**
+     * Sets the specified version as selected version for this project
+     *
+     * @param version the <code>Version</code> object
+     */
+    public void setCurrentVersion(Version version) {
+        if (version != null) {
+            currentVersion = version;
+            currentVersionId = version.getId();
+        }
     }
 
     public void selectMetric (Long id) {

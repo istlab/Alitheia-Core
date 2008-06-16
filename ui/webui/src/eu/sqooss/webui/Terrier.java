@@ -205,6 +205,38 @@ public class Terrier {
     }
 
     /**
+     * Retrieves one or more project versions by project Id and version
+     * numbers from the attached SQO-OSS framework.
+     *
+     * @param projectId the Id of selected project
+     * @param numbers the list of project version numbers
+     * @return The list of project versions that correspond to the given
+     *   version numbers.
+     */
+    public List<Version> getVersionsByNumber(Long projectId, long[] numbers) {
+        if (!connection.isConnected()) {
+            addError(connection.getError());
+            return null;
+        }
+        List<Version> result = new ArrayList<Version>();
+        if ((numbers != null) && (numbers.length > 0)) {
+            try {
+                // Retrieve the corresponding version objects
+                WSProjectVersion[] wsversions =
+                    connection.getProjectAccessor()
+                    .getProjectVersionsByVersionNumbers(projectId, numbers);
+                if (wsversions != null)
+                    for (WSProjectVersion nextVersion : wsversions)
+                        result.add(new Version(nextVersion, this));
+            }
+            catch (WSException wse) {
+                addError("Can not retrieve version(s) by number.");
+            }
+        }
+        return result;
+    }
+
+    /**
      * Retrieves the list of all metrics that has been evaluated on the
      * project with the given Id.
      *

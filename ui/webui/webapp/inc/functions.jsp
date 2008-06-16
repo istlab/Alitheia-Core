@@ -5,30 +5,22 @@ public static String error(String e) {
 }
 
 public static String versionSelector(Project p) {
-    return "Out of office, please come back later.";
-/*
-    StringBuilder html = new StringBuilder("\n<form id=\"selectversion\">");
-    html.append("\n\t<select name=\"version" + p.getId() + "\" class=\"form\">");
-    SortedMap<Long, Version>versions = p.getVersions();
-    for (Long k: versions.keySet()) {
-        Version v = versions.get(k);
-        if (k.equals(p.getCurrentVersionId())) {
-            html.append("\n\t\t<option  class=\"form\" value=\""
-                + v.getId() + "\" selected=\"true\">" + v.shortName() + "</option>");
-        } else {
-            html.append("\n\t\t<option  class=\"form\" value=\""
-                + v.getId() + "\">" + v.shortName() +  "</option>");
-        }
-    }
-    html.append("\n\t</select>");
-    html.append("\n\t<input type=\"submit\" value=\"Go\" class=\"form\" /> ");
-    html.append("\n</form>");
-    String vparam = "version" + p.getId();
-    html.append("<br /><strong>Jump to:</strong>");
-    html.append("&nbsp;<a href=\"?" + vparam + "=first\">first version</a>");
-    html.append("&nbsp;<a href=\"?" + vparam + "=last\">last version</a>");
+    StringBuilder html = new StringBuilder("\n");
+    html.append("<form id=\"selectversion\">\n");
+    html.append("\t<input type=\"text\" class=\"form\""
+        + " name=\"version" + p.getId() + "\""
+        + " value=\"\"/>\n");
+    html.append("\t<input type=\"submit\" class=\"form\""
+        + " value=\"Apply\"/>\n");
+    html.append("</form>\n");
+// TODO: Fix this shortcuts too ...
+//    String vparam = "version" + p.getId();
+//    html.append("<br/><strong>Jump to:</strong>");
+//    html.append("&nbsp;<a href=\"?" + vparam + "=first\">"
+//        + "First version</a>\n");
+//    html.append("&nbsp;<a href=\"?" + vparam + "=last\">"
+//        + "Last version</a>\n");
     return html.toString();
-*/
 }
 
 public static Long getId(String string_id) {
