@@ -34,13 +34,9 @@
 package eu.sqooss.impl.service.fds;
 
 import java.io.FileNotFoundException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Pattern;
 
-import eu.sqooss.impl.service.CoreActivator;
-import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
@@ -111,10 +107,6 @@ class InMemoryCheckoutImpl implements InMemoryCheckout {
 
     @SuppressWarnings("unchecked")
     protected void createCheckout(InMemoryDirectory dir, Pattern pattern) throws InvalidProjectRevisionException {
-
-        DBService dbs = CoreActivator.getDBService();
-
-
         StoredProject project = getProject();
         if ( project == null ) {
             throw new InvalidProjectRevisionException(projectName, null);

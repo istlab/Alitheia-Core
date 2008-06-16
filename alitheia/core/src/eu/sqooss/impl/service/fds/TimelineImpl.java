@@ -33,26 +33,24 @@
 
 package eu.sqooss.impl.service.fds;
 
-import eu.sqooss.service.fds.Timeline;
-import eu.sqooss.service.fds.ProjectEvent;
-import eu.sqooss.service.fds.MailingListEvent;
-import eu.sqooss.service.fds.RepositoryEvent;
-import eu.sqooss.service.fds.BugDBEvent;
-
-import eu.sqooss.service.db.StoredProject;
-import eu.sqooss.service.db.ProjectVersion;
-import eu.sqooss.service.db.MailMessage;
-import eu.sqooss.service.db.MailingList;
-import eu.sqooss.service.db.Bug;
-import eu.sqooss.service.db.DAOException;
-
 import java.util.Calendar;
 import java.util.Date;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.List;
+
+import eu.sqooss.service.db.Bug;
+import eu.sqooss.service.db.MailMessage;
+import eu.sqooss.service.db.MailingList;
+import eu.sqooss.service.db.ProjectVersion;
+import eu.sqooss.service.db.StoredProject;
+import eu.sqooss.service.fds.BugDBEvent;
+import eu.sqooss.service.fds.MailingListEvent;
+import eu.sqooss.service.fds.ProjectEvent;
+import eu.sqooss.service.fds.RepositoryEvent;
+import eu.sqooss.service.fds.Timeline;
 
 /**
  * The TimelineImpl implements the Timeline interface. It represents a
