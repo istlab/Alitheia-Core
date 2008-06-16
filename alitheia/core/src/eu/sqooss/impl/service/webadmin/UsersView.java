@@ -1179,7 +1179,7 @@ public class UsersView extends AbstractView {
                     b.append(sp(in++) + "<fieldset>\n");
                     b.append(sp(in) + "<legend>"
                             + ((selUser != null)
-                                    ? resLbl.getString("l0024") + ": "
+                                    ? resLbl.getString("user") + ": "
                                             + selUser.getName()
                                     : resLbl.getString("l0035"))
                             + "</legend>\n");
