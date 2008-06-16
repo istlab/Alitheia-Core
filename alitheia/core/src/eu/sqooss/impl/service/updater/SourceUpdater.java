@@ -304,10 +304,10 @@ class SourceUpdater extends Job {
         
         for (ProjectFile f : files) {
             if (f.getIsDirectory()) {
+                markDeleted(f, pv);
                 ProjectFile mark = new ProjectFile(f,pv);
                 mark.makeDeleted();
                 dbs.addRecord(mark);
-                markDeleted(mark, pv);
             }
         }
         for (ProjectFile f : files) {
