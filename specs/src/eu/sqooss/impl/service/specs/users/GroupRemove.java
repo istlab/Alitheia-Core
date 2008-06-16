@@ -7,25 +7,24 @@ import org.junit.runner.RunWith;
 
 import eu.sqooss.impl.service.dsl.SpGroup;
 import eu.sqooss.impl.service.dsl.SpUser;
-import eu.sqooss.service.db.GroupType;
 
 @RunWith(ConcordionRunner.class)
 public class GroupRemove
 {
-    public void addGroup(String groupName, GroupType.Type groupType)
+    public void addGroup(String groupName)
     {
-        new SpGroup(groupName, groupType).create();
+        new SpGroup(groupName).create();
     }
 
-    public void addUserToGroup(String userName, String groupName, GroupType.Type groupType)
+    public void addUserToGroup(String userName, String groupName)
     {
         new SpUser(userName, userName, userName+"@sqo-oss.org").create();
-        new SpGroup(groupName, groupType).addUser(userName);
+        new SpGroup(groupName).addUser(userName);
     }
 
-    public void removeGroup(String groupName, GroupType.Type groupType)
+    public void removeGroup(String groupName)
     {
-        new SpGroup(groupName, groupType).delete();
+        new SpGroup(groupName).delete();
     }
     
     public ArrayList<SpGroup> getGroups()

@@ -21,7 +21,6 @@ public class SpGroup implements SpEntity {
     boolean persistent = false;
     
     public String name;
-    public GroupType.Type type;
     
     public static ArrayList<SpGroup> allGroups() {
         DBService db = SpecsActivator.alitheiaCore.getDBService();
@@ -56,9 +55,8 @@ public class SpGroup implements SpEntity {
         return result;
     }
     
-    public SpGroup(String n, GroupType.Type type) {
+    public SpGroup(String n) {
         name = n;
-        this.type = type;
         load();
     }
     
@@ -84,7 +82,7 @@ public class SpGroup implements SpEntity {
 
     public void create() {
         db.startDBSession();
-        gm.createGroup(name, type);
+        gm.createGroup(name, GroupType.Type.USER);
         db.commitDBSession();
         persistent = true;
     }

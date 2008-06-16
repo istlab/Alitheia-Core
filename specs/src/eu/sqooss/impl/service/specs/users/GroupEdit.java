@@ -7,29 +7,28 @@ import org.junit.runner.RunWith;
 
 import eu.sqooss.impl.service.dsl.SpGroup;
 import eu.sqooss.impl.service.dsl.SpUser;
-import eu.sqooss.service.db.GroupType;
 
 @RunWith(ConcordionRunner.class)
 public class GroupEdit
 {
-    public void addGroup(String groupName, GroupType.Type groupType)
+    public void addGroup(String groupName)
     {
-        new SpGroup(groupName, groupType).create();
+        new SpGroup(groupName).create();
     }
 
-    public void addUserToGroup(String userName, String groupName, GroupType.Type groupType)
+    public void addUserToGroup(String userName, String groupName)
     {
         new SpUser(userName, userName, userName+"@sqo-oss.org").create();
-        new SpGroup(groupName, groupType).addUser(userName);
+        new SpGroup(groupName).addUser(userName);
     }
 
-    public void renameGroup(String groupName, String newGroupName, GroupType.Type groupType)
+    public void renameGroup(String groupName, String newGroupName)
     {
-        new SpGroup(groupName, groupType).rename(newGroupName);
+        new SpGroup(groupName).rename(newGroupName);
     }
     
-    public ArrayList<SpUser> getUsersForGroup(String groupName, GroupType.Type groupType)
+    public ArrayList<SpUser> getUsersForGroup(String groupName)
     {
-        return new SpGroup(groupName, groupType).getUsers();
+        return new SpGroup(groupName).getUsers();
     }
 }

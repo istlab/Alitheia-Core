@@ -8,7 +8,6 @@ import org.junit.runner.RunWith;
 import eu.sqooss.impl.service.SpecsActivator;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Group;
-import eu.sqooss.service.db.GroupType;
 import eu.sqooss.service.db.User;
 import eu.sqooss.service.security.UserManager;
 
@@ -21,11 +20,10 @@ public class UserEdit
     private DBService db = SpecsActivator.alitheiaCore.getDBService();
     private UserManager um = SpecsActivator.alitheiaCore.getSecurityManager().getUserManager();
 
-    public void addUser(String userName, String email, String password,
-            String group, GroupType.Type groupType)
+    public void addUser(String userName, String email, String password, String group)
     {
         new SpUser(userName, password, email).create();
-        SpGroup gr = new SpGroup(group, groupType);
+        SpGroup gr = new SpGroup(group);
         gr.create();
         gr.addUser(userName);
     }

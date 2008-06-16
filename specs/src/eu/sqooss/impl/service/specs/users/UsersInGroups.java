@@ -7,38 +7,36 @@ import org.junit.runner.RunWith;
 
 import eu.sqooss.impl.service.dsl.SpGroup;
 import eu.sqooss.impl.service.dsl.SpUser;
-import eu.sqooss.service.db.GroupType;
 
 @RunWith(ConcordionRunner.class)
 public class UsersInGroups
 {
-    public void addGroup(String groupName, GroupType.Type groupType)
+    public void addGroup(String groupName)
     {
-        new SpGroup(groupName, groupType).create();
+        new SpGroup(groupName).create();
     }
 
-    public void addUserToGroup(String userName, String groupName, GroupType.Type groupType)
+    public void addUserToGroup(String userName, String groupName)
     {
         new SpUser(userName, userName, userName+"@sqo-oss.org").create();
-        new SpGroup(groupName, groupType).addUser(userName);
+        new SpGroup(groupName).addUser(userName);
     }
 
-    public void ensureGroupIsEmpty(String groupName, GroupType.Type groupType)
+    public void ensureGroupIsEmpty(String groupName)
     {
-        if (!new SpGroup(groupName, groupType).getUsers().isEmpty()) {
+        if (!new SpGroup(groupName).getUsers().isEmpty()) {
             throw new RuntimeException(groupName + " is supposed to be empty");
         }
     }
     
-    public void moveUser(String userName, String from, GroupType.Type groupTypeFrom,
-            String to, GroupType.Type groupTypeTo)
+    public void moveUser(String userName, String from, String to)
     {
-        new SpGroup(from, groupTypeFrom).removeUser(userName);
-        new SpGroup(to, groupTypeTo).addUser(userName);
+        new SpGroup(from).removeUser(userName);
+        new SpGroup(to).addUser(userName);
     }
     
-    public ArrayList<SpUser> getUsersForGroup(String groupName, GroupType.Type groupType)
+    public ArrayList<SpUser> getUsersForGroup(String groupName)
     {
-        return new SpGroup(groupName, groupType).getUsers();
+        return new SpGroup(groupName).getUsers();
     }
 }
