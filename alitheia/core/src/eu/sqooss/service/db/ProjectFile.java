@@ -295,6 +295,7 @@ public class ProjectFile extends DAObject{
      * @param version Project and version to look at
      * @return List of files visible in that version (may be empty, not null)
      */
+    @SuppressWarnings("unchecked")
     public static List<ProjectFile> getFilesForVersion(ProjectVersion version) {
         DBService dbs = CoreActivator.getDBService();
 
@@ -319,7 +320,7 @@ public class ProjectFile extends DAObject{
         List<ProjectFile> projectFiles = (List<ProjectFile>) dbs.doHQL(query, parameters);
         if (projectFiles==null) {
             // Empty array list with a capacity of 1
-            return new ArrayList(1);
+            return new ArrayList<ProjectFile>(1);
         } else {
             return projectFiles;
         }
@@ -334,6 +335,7 @@ public class ProjectFile extends DAObject{
      * @param d Directory to list
      * @return List of files visible in that version (may be empty, not null)
      */
+    @SuppressWarnings("unchecked")
     public static List<ProjectFile> getFilesForVersion(ProjectVersion version,
             Directory d) {
         if (version==null || d==null) {
@@ -367,7 +369,7 @@ public class ProjectFile extends DAObject{
         List<ProjectFile> projectFiles = (List<ProjectFile>) dbs.doHQL(query, parameters);
         if (projectFiles==null) {
             // Empty array list with a capacity of 1
-            return new ArrayList(1);
+            return new ArrayList<ProjectFile>(1);
         } else {
             return projectFiles;
         }
