@@ -8,13 +8,9 @@
           <li><a href="/files.jsp" title="Project Files">Files</a></li>
 <%
 if (user.getLoggedIn()) {
-%>
-          <li><a href="/logout.jsp" title="Click here to log out">Logout</a></li>
-<%
+//        <li><a href="/logout.jsp" title="Click here to log out">Logout</a></li>
 } else {
-%>
-          <li><a href="/login.jsp" title="Click here to log in or register">Login</a></li>
-<%
+//        <li><a href="/login.jsp" title="Click here to log in or register">Login</a></li>
 }
 %>
         </ul>
