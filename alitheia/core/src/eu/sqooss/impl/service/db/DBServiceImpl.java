@@ -429,7 +429,7 @@ public class DBServiceImpl implements DBService, FrameworkListener {
      * @see eu.sqooss.service.db.DBService#doHQL(java.lang.String, java.util.Map, java.util.Map)
      */
     public List<?> doHQL(String hql, Map<String, Object> params,
-            Map<String, Collection> collectionParams) 
+            Map<String, Collection<?>> collectionParams) 
         throws QueryException {
         if ( !checkSession() ) {
             return Collections.emptyList();
@@ -1143,7 +1143,7 @@ public class DBServiceImpl implements DBService, FrameworkListener {
                 isInitialised.compareAndSet(false, true);
                 
                 if (eaService != null) {
-                    Hashtable<String, Boolean> value = new Hashtable();
+                    Hashtable<String, Boolean> value = new Hashtable<String, Boolean>();
                     value.put("value", true);
                     eaService.sendEvent(new Event(DBService.EVENT_STARTED, value));
                 } else {
