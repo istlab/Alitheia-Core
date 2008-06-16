@@ -180,18 +180,22 @@ public class Version extends WebuiItem {
      * @return The files list as HTML.
      */
     public String listFiles(Project project) {
-        //List<File> files = terrier.getFilesInProjectVersion(id); // FIXME: merge with getFiles()
+        StringBuilder html = new StringBuilder();
         if (files != null) {
             if (project != null) {
                 Map<Long, String> selectedMetrics = project.getSelectedMetricMnenmonics();
                 if (selectedMetrics.size() > 0) {
                     fetchFilesResults(selectedMetrics);
+                }  else {
+                    html.append(Functions.error("No Metrics have been selected, select a metric <a href=\"metrics.jsp\">here</a> to view results."));
                 }
             }
+
             //Collection<File> ff = files.values();
 
             FileListView view = new FileListView(files);
-            return view.getHtml();
+            html.append(view.getHtml());
+            return html.toString();
         }
         return "<strong>No files found for this project version!</strong>";
     }

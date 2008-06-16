@@ -58,7 +58,7 @@ public class Metric extends WebuiItem {
     /**
      * Constructs a new <code>Metric</code> from a <code>WSMetric</code>
      * instance and a metric type.
-     * 
+     *
      * @param metric the metric object retrieved from the WSS call
      * @param metricType the metric type
      */
@@ -107,7 +107,8 @@ public class Metric extends WebuiItem {
     }
 
     public String getLink() {
-        return "<a href=\"/results.jsp?rid=" + getId() + "\">view results</a>";
+        return "<a href=\"/files.jsp?rid=" + getId() + "\">view results</a>";
+        // TODO: Should go to results.jsp, with Mnem + ids
     }
 
     public String getSelectMetricLink() {
