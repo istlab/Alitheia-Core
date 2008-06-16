@@ -42,6 +42,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.osgi.framework.BundleContext;
@@ -56,7 +57,6 @@ import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectFileMeasurement;
 import eu.sqooss.service.fds.FDSService;
-import eu.sqooss.service.pa.PluginInfo;
 
 public class WcImplementation extends AbstractMetric implements Wc {
     
@@ -87,10 +87,6 @@ public class WcImplementation extends AbstractMetric implements Wc {
                     "Lines of Comments", 
                     "LOCOM",
                     MetricType.Type.SOURCE_CODE);
-            addConfigEntry("ignore-emptylines", 
-                    Boolean.FALSE.toString() , 
-                    "Ignore empty lines when counting", 
-                    PluginInfo.ConfigurationType.BOOLEAN);
         }
         return result;
     }
@@ -133,31 +129,60 @@ public class WcImplementation extends AbstractMetric implements Wc {
             log.info(this.getClass().getName() + " Measuring: "
                     + pf.getFileName());
             
-            String regexp = "(?:/\\*([^*])*\n/)|(?:/[^*]*\\*+/)|(?://.*)|(?:#.*)";
-            Pattern pattern = Pattern.compile(regexp);
+            /* Match start of multiline comment */
+            String startMultiLine = "/\\*+|<!--";
+           
+            /* End multiline comment */
+            String endMultiline = ".*\\*/|-->";
+            
+            /* Match single line comments, C/Java/C++ style*/
+            String singleLine = "//.*$|#.*$|/\\*.*\\*/";
+            
+            Pattern startMultiLinePattern = Pattern.compile(startMultiLine);
+            Pattern endMultiLinePattern = Pattern.compile(endMultiline);
+            Pattern singleLinePattern = Pattern.compile(singleLine);
+            
             // Measure the number of lines in the project file
             LineNumberReader lnr = 
                 new LineNumberReader(new InputStreamReader(in));
-            int lines = 0, comments = 0;
+            int comments = 0;
             
-            while (lnr.readLine() != null) {
-                lines++;
+            String line = null;
+            while ((line = lnr.readLine()) != null) {
+                
+                Matcher m = singleLinePattern.matcher(line);
+                /* Single line comments */
+                if (m.find()) {
+                    comments++;
+                    continue;
+                }
+                
+                m = startMultiLinePattern.matcher(line);
+                Matcher m2 = endMultiLinePattern.matcher(line);
+                
+                /* Multiline comments */
+                if (m.find()) {
+                    comments++;
+
+                    while((line = lnr.readLine()) != null && !m2.find()) {
+                            m2 = endMultiLinePattern.matcher(line);
+                            comments++;
+                    }
+                }
             }
+            
             lnr.close();
 
             // Store the results
-            //
             Metric metric = Metric.getMetricByMnemonic("LOC");
             ProjectFileMeasurement locm = new ProjectFileMeasurement();
             locm.setMetric(metric);
             locm.setProjectFile(pf);
             locm.setWhenRun(new Timestamp(System.currentTimeMillis()));
-            locm.setResult(String.valueOf(lines));
+            locm.setResult(String.valueOf(lnr.getLineNumber()));
 
             db.addRecord(locm);
             markEvaluation(metric, pf.getProjectVersion().getProject());
-            // Check for a first time evaluation of this metric
-            // on this project
             
             metric = Metric.getMetricByMnemonic("LOCOM");
             ProjectFileMeasurement locc = new ProjectFileMeasurement();
@@ -166,7 +191,7 @@ public class WcImplementation extends AbstractMetric implements Wc {
             locc.setWhenRun(new Timestamp(System.currentTimeMillis()));
             locc.setResult(String.valueOf(comments));
             
-            db.addRecord(locm);
+            db.addRecord(locc);
             markEvaluation(metric, pf.getProjectVersion().getProject());
 
         } catch (IOException e) {
