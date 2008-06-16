@@ -60,25 +60,31 @@ if (selectedProject.isValid()) {
                     if (!selectedProject.getFirstVersion().equals(
                         selectedProject.getLastVersion())) {
                         out.println("\n<h2>" + selectedProject.getName()
-                            + " Versions "
+                            + " Versions</h2>\n");
+                        out.println("<strong>Versions:</strong> "
                             + selectedProject.getFirstVersion().getNumber()
                             + " - "
                             + selectedProject.getLastVersion().getNumber()
-                            + "<br/>(" + selectedProject.countVersions() + " total)");
+                            + "\n");
+                        out.println("<br/><strong>Total:</strong> "
+                            + selectedProject.countVersions() + "\n");
                     } else {
                         out.println("\n<h2>" + selectedProject.getName()
-                            + " Version "
-                            + selectedProject.getFirstVersion().getNumber());
+                            + " Version</h2>\n");
+                        out.println("<br/><strong>Version:</strong> "
+                            + selectedProject.getFirstVersion().getNumber()
+                            + "\n");
                     }
-                    // Both of those branches started a H2 element
-                    out.println("</h2>\n");
                 } else {
-                    out.println("\n<h2>" + selectedProject.getName() + "Versions</h2>\n");
+                    out.println("\n<h2>" + selectedProject.getName()
+                        + "Versions</h2>\n");
                     out.println("Project doesn't seem to have versions recorded.");
                 }
 
                 // Show the version selector
-                out.println("Choose the version you want to display:<br/>");
+                out.println("<br/><br/><strong>"
+                    + "Choose the version you want to display:"
+                    + "</strong><br/>");
                 out.println(versionSelector(selectedProject));
                 if (inputError != null) {
                     out.println(Functions.error(inputError));
