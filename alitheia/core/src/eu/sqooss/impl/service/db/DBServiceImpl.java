@@ -412,7 +412,7 @@ public class DBServiceImpl implements DBService, FrameworkListener {
     /* (non-Javadoc)
      * @see eu.sqooss.service.db.DBService#doHQL(java.lang.String)
      */
-    public List<? extends DAObject> doHQL(String hql)
+    public List<?> doHQL(String hql)
         throws QueryException {
         return doHQL(hql, null, null);
     }
@@ -420,7 +420,7 @@ public class DBServiceImpl implements DBService, FrameworkListener {
     /* (non-Javadoc)
      * @see eu.sqooss.service.db.DBService#doHQL(java.lang.String, java.util.Map)
      */
-    public List<? extends DAObject> doHQL(String hql, Map<String, Object> params) 
+    public List<?> doHQL(String hql, Map<String, Object> params) 
         throws QueryException {
         return doHQL(hql, params, null);
     }
@@ -428,8 +428,7 @@ public class DBServiceImpl implements DBService, FrameworkListener {
     /* (non-Javadoc)
      * @see eu.sqooss.service.db.DBService#doHQL(java.lang.String, java.util.Map, java.util.Map)
      */
-    @SuppressWarnings("unchecked")
-    public List<? extends DAObject> doHQL(String hql, Map<String, Object> params,
+    public List<?> doHQL(String hql, Map<String, Object> params,
             Map<String, Collection> collectionParams) 
         throws QueryException {
         if ( !checkSession() ) {
@@ -1144,7 +1143,7 @@ public class DBServiceImpl implements DBService, FrameworkListener {
                 isInitialised.compareAndSet(false, true);
                 
                 if (eaService != null) {
-                    Hashtable<String, Boolean> value = new Hashtable<String, Boolean>();
+                    Hashtable<String, Boolean> value = new Hashtable();
                     value.put("value", true);
                     eaService.sendEvent(new Event(DBService.EVENT_STARTED, value));
                 } else {
