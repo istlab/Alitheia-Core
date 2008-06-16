@@ -276,12 +276,30 @@ class SourceUpdater extends Job {
      * @param pf The project file representing the deleted directory
      */
     private void markDeleted(ProjectFile pf, ProjectVersion pv) {
+        if (pf==null || pv==null) {
+            throw new IllegalArgumentException("ProjectFile or Version is null in markDeleted()");
+        }
         if (pf.getIsDirectory() == false) {
             return;
         }
+        // Check that the pf and the pv are consistent.
+        if (pf.getProjectVersion().getProject().getId() !=
+            pv.getProject().getId()) {
+            throw new IllegalArgumentException("ProjectFile project "
+                + pf.getProjectVersion().getProject().getId()
+                + " and ProjectVersion project "
+                + pv.getProject().getId() + " mismatch.");
+        }
 
-        // logger.debug("Deleting directory " + pf.getName() + " ID " + pf.getId());
+        logger.debug("Deleting directory " + pf.getName() + " ID " + pf.getId());
         Directory d = Directory.getDirectory(pf.getFileName(),false);
+        if (d==null) {
+            logger.warn("Directory entry " + pf.getFileName() + 
+                " in project " + pf.getProjectVersion().getProject().getName() +
+                " is missing in directory table.");
+            return;
+        }
+
         List<ProjectFile> files = ProjectFile.getFilesForVersion(pv, d);
         
         for (ProjectFile f : files) {
@@ -294,7 +312,6 @@ class SourceUpdater extends Job {
         }
         for (ProjectFile f : files) {
             if (!f.getIsDirectory()) {
-                // logger.debug("Deleting " + f.getName() + " ID " + f.getId());
                 ProjectFile mark = new ProjectFile(f,pv);
                 mark.makeDeleted();
                 dbs.addRecord(mark);
