@@ -412,7 +412,7 @@ public class DBServiceImpl implements DBService, FrameworkListener {
     /* (non-Javadoc)
      * @see eu.sqooss.service.db.DBService#doHQL(java.lang.String)
      */
-    public List<?> doHQL(String hql)
+    public List<? extends DAObject> doHQL(String hql)
         throws QueryException {
         return doHQL(hql, null, null);
     }
@@ -420,7 +420,7 @@ public class DBServiceImpl implements DBService, FrameworkListener {
     /* (non-Javadoc)
      * @see eu.sqooss.service.db.DBService#doHQL(java.lang.String, java.util.Map)
      */
-    public List<?> doHQL(String hql, Map<String, Object> params) 
+    public List<? extends DAObject> doHQL(String hql, Map<String, Object> params) 
         throws QueryException {
         return doHQL(hql, params, null);
     }
@@ -428,7 +428,8 @@ public class DBServiceImpl implements DBService, FrameworkListener {
     /* (non-Javadoc)
      * @see eu.sqooss.service.db.DBService#doHQL(java.lang.String, java.util.Map, java.util.Map)
      */
-    public List<?> doHQL(String hql, Map<String, Object> params,
+    @SuppressWarnings("unchecked")
+    public List<? extends DAObject> doHQL(String hql, Map<String, Object> params,
             Map<String, Collection<?>> collectionParams) 
         throws QueryException {
         if ( !checkSession() ) {

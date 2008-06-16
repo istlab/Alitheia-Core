@@ -290,7 +290,7 @@ public interface DBService {
      * 
      * @see doHQL(String, Map<String, Object>)
      */
-    public List<?> doHQL(String hql)
+    public List<? extends DAObject> doHQL(String hql)
         throws QueryException;
     
     /**
@@ -307,7 +307,7 @@ public interface DBService {
      * 
      * @see doHQL(String, Map<String, Object>, Map<String,Collection>)
      */
-    public List<?> doHQL(String hql, Map<String, Object> params)
+    public List<? extends DAObject> doHQL(String hql, Map<String, Object> params)
         throws QueryException;
 
     /**
@@ -337,7 +337,7 @@ public interface DBService {
      * @throws QueryException if the query is invalid or if params or collectionParams
      *                          contain invalid entries
      */
-    public List<?> doHQL(String hql, Map<String, Object> params,
+    public List<? extends DAObject> doHQL(String hql, Map<String, Object> params,
                           Map<String, Collection<?>> collectionParams)
         throws QueryException;
         
