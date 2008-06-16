@@ -7,6 +7,7 @@ Bundle-Activator: eu.sqooss.metrics.productivity.Activator
 Bundle-Vendor: AUEB
 Export-Package: eu.sqooss.metric.productivity, eu.sqooss.metric.productivity.db
 Import-Package: org.osgi.framework,
+    eu.sqooss.impl.service,
     eu.sqooss.service.logging,
     eu.sqooss.service.tds,
     eu.sqooss.service.fds,
