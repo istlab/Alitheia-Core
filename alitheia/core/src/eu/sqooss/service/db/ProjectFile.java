@@ -335,6 +335,10 @@ public class ProjectFile extends DAObject{
      */
     public static List<ProjectFile> getFilesForVersion(ProjectVersion version,
             Directory d) {
+        if (version==null || d==null) {
+            throw IllegalArgumentException("Project version or directory is null in getFilesForVersion.");
+	}
+
         DBService dbs = CoreActivator.getDBService();
 
         String paramVersion = "version_id";
