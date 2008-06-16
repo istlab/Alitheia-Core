@@ -245,20 +245,21 @@ public class MetricManager extends AbstractManager {
 
         WSResultEntry[] result = null;
         List<WSResultEntry> resultsList = new ArrayList<WSResultEntry>();
-        if (resultRequest.getDaObjectId() != null) {
+        // Retrieve the metrics by their mnemonics
+        List<Metric> metrics =
+            (List<Metric>) dbWrapper.getMetricsResultMetricsList(
+                    resultRequest);
+        if ((metrics != null) && (resultRequest.getDaObjectId() != null)) {
             for (long nextDaoId : resultRequest.getDaObjectId()) {
                 // Find the DAO with this Id
                 DAObject nextDao = dbWrapper.getMetricsResultDAObject(
                         resultRequest, nextDaoId);
-                // Stored the metric evaluation on this DAO
+                // Stores the metric evaluation on this DAO
                 List<WSResultEntry> nextDaoResults = null;
                 if (nextDao != null) {
-                    List<Metric> metrics =
-                        (List<Metric>) dbWrapper.getMetricsResultMetricsList(
-                                resultRequest);
                     nextDaoResults = getMetricsResult(metrics, nextDao);
                 }
-                if ((nextDaoResults != null) && (nextDaoResults.size() != 0)) {
+                if ((nextDaoResults != null) && (nextDaoResults.size() > 0)) {
                     for (WSResultEntry nextResult : nextDaoResults) {
                         nextResult.setDaoId(nextDaoId);
                         resultsList.add(nextResult);
@@ -294,13 +295,9 @@ public class MetricManager extends AbstractManager {
             }
         }
         if (currentResult != null) {
-            List<ResultEntry> currentRow;
-            for (int i = 0; i < currentResult.getRowCount(); i++) {
-                currentRow = currentResult.getRow(i);
-                for (int j = 0; j < currentRow.size(); j++) {
-                    resultList.add(WSResultEntry.getInstance(currentRow.get(j)));
-                }
-            }
+            while (currentResult.hasNext())
+                for (ResultEntry nextEntry: currentResult.next())
+                    resultList.add(WSResultEntry.getInstance(nextEntry));
         }
         return resultList;
     }
