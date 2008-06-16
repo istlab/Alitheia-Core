@@ -37,6 +37,7 @@ import java.util.*;
 
 import eu.sqooss.webui.Result.ResourceType;
 import eu.sqooss.ws.client.datatypes.WSProjectVersion;
+import eu.sqooss.ws.client.datatypes.WSMetric;
 import eu.sqooss.ws.client.datatypes.WSMetricsResultRequest;
 
 /**
@@ -179,15 +180,17 @@ public class Version extends WebuiItem {
      * @return The files list as HTML.
      */
     public String listFiles(Project project) {
-        List<File> files = terrier.getFilesInProjectVersion(id);
+        //List<File> files = terrier.getFilesInProjectVersion(id); // FIXME: merge with getFiles()
         if (files != null) {
-            FileListView view = new FileListView(files);
             if (project != null) {
-                Map<Long, String> selectedMetrics =
-                    project.getSelectedMetricMnenmonics();
-                if (selectedMetrics.size() > 0)
-                    return view.getHtml(terrier, selectedMetrics);
+                Map<Long, String> selectedMetrics = project.getSelectedMetricMnenmonics();
+                if (selectedMetrics.size() > 0) {
+                    fetchFilesResults(selectedMetrics);
+                }
             }
+            //Collection<File> ff = files.values();
+
+            FileListView view = new FileListView(files);
             return view.getHtml();
         }
         return "<strong>No files found for this project version!</strong>";
@@ -220,6 +223,46 @@ public class Version extends WebuiItem {
         mnemonics[0] = "LOC"; // FIXME: Use metric here...
         request.setMnemonics(mnemonics);
         results = terrier.getResults(request);
+    }
+
+    public void fetchFilesResults (Map<Long, String> selectedMetrics) {
+        // Fetch the evaluation result for the files in the list
+        if (files.size() > 0) {
+            // Create an results request object
+            WSMetricsResultRequest resultRequest =
+                new WSMetricsResultRequest();
+            int index = 0;
+            long[] fileIds = new long[files.size()];
+            for (File nextFile : files.values()) {
+                fileIds[index++] = nextFile.getId();
+                terrier.addError(nextFile.getName());
+            }
+            resultRequest.setDaObjectId(fileIds);
+            resultRequest.setProjectFile(true);
+            String[] mnemonics = new String[selectedMetrics.size()];
+            index = 0;
+            for (String nextMnem : selectedMetrics.values()) {
+                mnemonics[index++] = nextMnem;
+                terrier.addError(nextMnem);
+            }
+            resultRequest.setMnemonics(mnemonics);
+            // Retrieve the evaluation result from the SQO-OSS framework
+            Result[] results = terrier.getResults(resultRequest);
+            // Distribute the results between the files
+            if (results != null) {
+                // Prepare a file_id to file mapping
+                //Map<Long, File> filesMap = new HashMap<Long, File>();
+                //for (File nextFile : files.values())
+                //    filesMap.put(nextFile.getId(), nextFile);
+                for (Result nextResult : results) {
+                    //File affectedFile = filesMap.get(nextResult.getId());
+                    File affectedFile = files.get(nextResult.getId());
+                    if (affectedFile != null) {
+                        files.get(nextResult.getId()).addResult(nextResult);
+                    }
+                }
+            }
+        }
     }
 
     public String showResults() {

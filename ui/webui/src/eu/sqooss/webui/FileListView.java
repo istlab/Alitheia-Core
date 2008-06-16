@@ -39,6 +39,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
+import java.util.SortedMap;
 
 import eu.sqooss.ws.client.datatypes.WSMetricsResultRequest;
 
@@ -58,13 +59,23 @@ public class FileListView extends ListView {
      * Instantiates a new <code>FileListView</code> object and initializes it
      * with the given list of project files.
      */
-    public FileListView (List<File> filesList) {
+    public FileListView (Vector<File> filesList) {
         files = filesList;
     }
 
     /**
+     * Instantiates a new <code>FileListView</code> object and initializes it
+     * with the given list of project files.
+     */
+    public FileListView (SortedMap<Long, File> ffs) {
+        for (File nextFile : ffs.values()) {
+            files.add(nextFile);
+        }
+    }
+
+    /**
      * Return the number of files that are stored in this object.
-     * 
+     *
      * @return The number of files.
      */
     public Integer size() {
@@ -73,7 +84,7 @@ public class FileListView extends ListView {
 
     /**
      * Adds a single file to the stored files list.
-     * 
+     *
      * @param file the file object
      */
     public void addFile(File file) {
@@ -82,7 +93,7 @@ public class FileListView extends ListView {
 
     /**
      * Initializes this object with a new list of files.
-     * 
+     *
      * @param files the new files list
      */
     public void setFiles(List<File> filesList) {
@@ -115,38 +126,6 @@ public class FileListView extends ListView {
             Map<Long, String> selectedMetrics) {
         StringBuffer html = new StringBuffer();
         html.append(files.size() + " file(s) found.\n");
-        // Fetch the evaluation result for the files in the list
-        if (files.size() > 0) {
-            // Create an results request object
-            WSMetricsResultRequest resultRequest =
-                new WSMetricsResultRequest();
-            int index = 0;
-            long[] fileIds = new long[files.size()];
-            for (File nextFile : files)
-                fileIds[index++] = nextFile.getId();
-            resultRequest.setDaObjectId(fileIds);
-            resultRequest.setProjectFile(true);
-            String[] mnemonics = new String[selectedMetrics.size()];
-            index = 0;
-            for (String nextMnem : selectedMetrics.values())
-                mnemonics[index++] = nextMnem;
-            resultRequest.setMnemonics(mnemonics);
-            // Retrieve the evaluation result from the SQO-OSS framework
-            Result[] results = terrier.getResults(resultRequest);
-            // Distribute the results between the files
-            if (results != null) {
-                // Prepare a file_id to file mapping
-                Map<Long, File> filesMap = new HashMap<Long, File>();
-                for (File nextFile : files)
-                    filesMap.put(nextFile.getId(), nextFile);
-                for (Result nextResult : results) {
-                    File affectedFile = filesMap.get(nextResult.getId());
-                    if (affectedFile != null) {
-                        affectedFile.addResult(nextResult);
-                    }
-                }
-            }
-        }
         // Display the list of files
         html.append("<ul>\n");
         for (File nextFile: files) {
