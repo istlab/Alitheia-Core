@@ -195,8 +195,6 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         boolean found = false;
         Result r = new Result();
 
-        Iterator<Class<? extends DAObject>> i = getActivationTypes().iterator();
-
         List<Metric> metrics = getSupportedMetrics();
 
         for (Metric m : l) {
@@ -205,7 +203,8 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
                         + " not defined by plugin "
                         + Plugin.getPluginByHashcode(getUniqueKey()).getName());
             }
-
+            
+            Iterator<Class<? extends DAObject>> i = getActivationTypes().iterator();
             List<ResultEntry> re = null;
             while (i.hasNext()) {
                 Class<? extends DAObject> c = i.next();
