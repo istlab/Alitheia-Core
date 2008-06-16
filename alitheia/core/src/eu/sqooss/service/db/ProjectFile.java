@@ -1,3 +1,4 @@
+
 /*
  * This file is part of the Alitheia system, developed by the SQO-OSS
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
@@ -336,7 +337,7 @@ public class ProjectFile extends DAObject{
     public static List<ProjectFile> getFilesForVersion(ProjectVersion version,
             Directory d) {
         if (version==null || d==null) {
-            throw IllegalArgumentException("Project version or directory is null in getFilesForVersion.");
+            throw new IllegalArgumentException("Project version or directory is null in getFilesForVersion.");
 	}
 
         DBService dbs = CoreActivator.getDBService();
