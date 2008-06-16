@@ -70,7 +70,7 @@ public class Version extends WebuiItem {
         name = "" + number;
         projectId = wsVersion.getProjectId();
         filesNumber = getFilesNumber();
-        fetchResults();
+        fetchVersionResults();
     }
 
     /** Initialise some data of this Version. This method can be used when we
@@ -81,7 +81,7 @@ public class Version extends WebuiItem {
         id = versionId;
         this.projectId = projectId;
         terrier = t;
-        fetchResults();
+        fetchVersionResults();
     }
 
     public Long getProjectId() {
@@ -173,9 +173,9 @@ public class Version extends WebuiItem {
     /**
      * Return an HTML list of all files in this version combined with results
      * from the metrics that were selected for this project.
-     * 
+     *
      * @param project the project object
-     * 
+     *
      * @return The files list as HTML.
      */
     public String listFiles(Project project) {
@@ -210,11 +210,11 @@ public class Version extends WebuiItem {
         files = f;
     }
 
-    public void fetchResults () {
+    public void fetchVersionResults () {
         // prepare ResultRequester for file retrieval
         long[] ids = {getId()};
         WSMetricsResultRequest request = new WSMetricsResultRequest();
-        request.setDaObjectId(ids); // FIXME: Use array here, also pending API change
+        request.setDaObjectId(ids);
         request.setProjectVersion(true);
         String[] mnemonics = new String[1];
         mnemonics[0] = "LOC"; // FIXME: Use metric here...

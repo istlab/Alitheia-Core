@@ -118,16 +118,6 @@ public class WebuiItem {
         return link(null);
     }
 
-    /** Fetch files through the SCL. Note that we do not have enough knowledge at this
-     * point to fetch something sensible. If you run this method (and not its overload
-     * in Project or Version) there's probably something wrong with your code.
-     */
-/*
-    protected void getFiles () {
-        terrier.addError("getFiles() in WebuiItem should not be called");
-        fileCount = 0;
-    }
-*/
     /** Count the number of files and store this number internally.
      */
     public void setFileCount(Integer n) {
