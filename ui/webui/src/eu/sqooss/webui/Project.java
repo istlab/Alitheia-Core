@@ -104,6 +104,23 @@ public class Project extends WebuiItem {
     }
 
     /**
+     * Copies the target object into this object.
+     * 
+     * @param p the target <code>Project</code> instance
+     */
+    public void copyFrom (Project p) {
+        page = "/projects.jsp";
+        reqName = "pid";
+        id = p.getId();
+        name = p.getName();
+        bts = p.getBts();
+        repository = p.getRepository();
+        mail = p.getMail();
+        contact = p.getContact();
+        website = p.getWebsite();
+    }
+
+    /**
      * Fetches the Project's data from the SCL by ID.
      */
     public void retrieveData() {

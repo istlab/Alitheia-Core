@@ -81,22 +81,24 @@ String msg      = "";
     id="selectedProject"
     class="eu.sqooss.webui.Project"
     scope="session">
-    <jsp:setProperty name="selectedProject" property="id" value="<%= projectId %>"/>
-    <%
-    if (projectId != null) {
-        selectedProject.setId(projectId);
-        selectedProject.setTerrier(terrier);
-        selectedProject.retrieveData();
-    }
-    %>
+    <jsp:setProperty name="selectedProject" property="*"/>
 </jsp:useBean>
 
 <%
 // Selectedproject might have become valid, reflect that
 if (projectId != null && !selectedProject.isValid()) {
-    selectedProject.setId(projectId);
-    selectedProject.setTerrier(terrier);
-    selectedProject.retrieveData();
+        // Search for this project in the local cache first
+        Project objProject = ProjectsListView.getProject(projectId);
+        if (objProject != null) {
+            selectedProject.setTerrier(terrier);
+            selectedProject.copyFrom(objProject);
+        }
+        // Retrieve the project from the SQO-OSS framework
+        else {
+            selectedProject.setId(projectId);
+            selectedProject.setTerrier(terrier);
+            selectedProject.retrieveData();
+        }
 }
 
 if (projectId != null && !projectId.equals(selectedProject.getId())) {

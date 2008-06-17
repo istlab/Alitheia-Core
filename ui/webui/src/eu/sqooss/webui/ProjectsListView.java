@@ -165,6 +165,22 @@ public class ProjectsListView extends ListView {
 
         return v;
     }
+
+    /**
+     * Retrieves the project with the given Id from the local cache.
+     * 
+     * @param projectId the project Id
+     * 
+     * @return The corresponding <code>Project</code> object, when found in
+     *   the local cache, otherwise <code>null</code>.
+     */
+    public Project getProject (long projectId) {
+        if (projects != null)
+            for (Project nextPrj : projects)
+                if (nextPrj.getId() == projectId)
+                    return nextPrj;
+        return null;
+    }
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab
