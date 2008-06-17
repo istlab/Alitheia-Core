@@ -35,7 +35,11 @@ package eu.sqooss.impl.service;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Dictionary;
 import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
@@ -44,10 +48,15 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.ServiceReference;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.EventHandler;
+import org.osgi.service.startlevel.StartLevel;
 
 import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.service.db.DBService;
 
-public class SpecsActivator implements BundleActivator {
+public class SpecsActivator implements BundleActivator, EventHandler, Runnable {
 
     private ServiceReference serviceRef = null;
     public static AlitheiaCore alitheiaCore = null;
@@ -59,9 +68,20 @@ public class SpecsActivator implements BundleActivator {
     }
 
     private Bundle[] alitheiaBundles;
+    private BundleContext bundleContext;
+    private Semaphore isDBServiceReady = new Semaphore(0);
     
     public void start(BundleContext bc) throws Exception {
         System.out.println("\n\n");
+        
+        final String[] topics = new String[] {
+                DBService.EVENT_STARTED
+        };
+            
+        Dictionary<String, String[]> d = new Hashtable<String, String[]>(); 
+        d.put(EventConstants.EVENT_TOPIC, topics ); 
+        
+        bc.registerService(EventHandler.class.getName(), this, d);
         
         Bundle core = findBundleByName(bc, "eu.sqooss.service.core");
         if (core!=null) {
@@ -69,7 +89,11 @@ public class SpecsActivator implements BundleActivator {
         }
                 
         stopAlitheia(bc); // We want alitheia to be shutdown first
-        
+        bundleContext = bc;
+        new Thread(this).start();
+    }
+     
+    public void run() {
         System.out.println("Running specs...");
 
         final String specsRootPkg = "eu.sqooss.impl.service.specs";
@@ -78,7 +102,7 @@ public class SpecsActivator implements BundleActivator {
         System.out.println("Start processing specs from "+specsRootPkg);
         System.out.println("");
 
-        Enumeration<?> paths = bc.getBundle().findEntries(specsRootPath, "*.class", true);
+        Enumeration<?> paths = bundleContext.getBundle().findEntries(specsRootPath, "*.class", true);
         SpecsStats stats = new SpecsStats();
 
         while (paths.hasMoreElements()) {
@@ -89,12 +113,25 @@ public class SpecsActivator implements BundleActivator {
             if (path.contains("$")) continue; //skip inner classes
 
             String className = "eu.sqooss.impl.service.specs."+path.replace('/', '.');
-            Class<?> c = bc.getBundle().loadClass(className);
+            Class<?> c = null;
+            try {
+                c = bundleContext.getBundle().loadClass(className);
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
 
             System.out.println("*** Running "+className);
-            startAlitheia(bc);
+            try {
+                startAlitheia(bundleContext);
+            } catch (BundleException e) {
+                e.printStackTrace();
+            }
             Result r = JUnitCore.runClasses(c);
-            stopAlitheia(bc);
+            try {
+                stopAlitheia(bundleContext);
+            } catch (BundleException e) {
+                e.printStackTrace();
+            }
 
             stats.runsCount++;
             if (r.getFailureCount()>0) {
@@ -118,7 +155,11 @@ public class SpecsActivator implements BundleActivator {
             }
         }
 
-        bc.getBundle(0).stop();
+        try {
+            bundleContext.getBundle(0).stop();
+        } catch (BundleException e) {
+            e.printStackTrace();
+        }
     }
 
     private void startAlitheia(BundleContext bc) throws BundleException {
@@ -127,6 +168,17 @@ public class SpecsActivator implements BundleActivator {
         }
         serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
         alitheiaCore = (AlitheiaCore) bc.getService(serviceRef);
+
+        ServiceReference r = bc.getServiceReference(StartLevel.class.getName());
+        StartLevel sl = (StartLevel) bc.getService(r);
+        int s = sl.getStartLevel();
+        sl.setStartLevel(s);
+        
+        try {
+            isDBServiceReady.acquire();
+        } catch(InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     private void stopAlitheia(BundleContext bc) throws BundleException {
@@ -191,6 +243,12 @@ public class SpecsActivator implements BundleActivator {
     }
     
     public void stop(BundleContext bc) throws Exception {
+    }
+
+    public void handleEvent(Event e) {
+        if (e.getTopic() == DBService.EVENT_STARTED) {
+            isDBServiceReady.release();
+        }
     }
 }
 
