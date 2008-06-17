@@ -85,8 +85,12 @@ String msg      = "";
 </jsp:useBean>
 
 <%
-// Selectedproject might have become valid, reflect that
-if (projectId != null && !selectedProject.isValid()) {
+//============================================================================
+// Check if the user has selected a project (or switched to a new project)
+//============================================================================
+if ((projectId != null)
+        && ((selectedProject.isValid() == false)
+            || (selectedProject.getId().equals(projectId)) == false)) {
         // Search for this project in the local cache first
         Project objProject = ProjectsListView.getProject(projectId);
         if (objProject != null) {
@@ -99,12 +103,6 @@ if (projectId != null && !selectedProject.isValid()) {
             selectedProject.setTerrier(terrier);
             selectedProject.retrieveData();
         }
-}
-
-if (projectId != null && !projectId.equals(selectedProject.getId())) {
-    selectedProject.setId(projectId);
-    selectedProject.setTerrier(terrier);
-    selectedProject.retrieveData();
 }
 
 if (selectedProject.isValid()) {
