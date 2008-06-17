@@ -1,11 +1,10 @@
 
 
 <%
-if (terrier.getUserMessageOfTheDay() != null) {
+String motd = terrier.getUserMessageOfTheDay();
+if (motd != null) {
 %>
-<div id="news" class="group">
-<% out.println(terrier.getUserMessageOfTheDay()); %>
-</div>
+<div id="news" class="group"><% out.println(motd); %></div>
 <%
 }
 %>
