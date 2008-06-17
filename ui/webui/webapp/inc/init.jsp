@@ -21,13 +21,7 @@ public void jspInit() {
 <%
 response.setBufferSize(16384);
 
-Long projectId = null;
-if (request.getParameter("pid") != null) {
-    String req = request.getParameter("pid");
-    if (!"none".equals(req)) {
-        projectId = getId(req);
-    }
-}
+
 /*
     This file instantiates shared objects and defines shared variables
     commonly used by the majority of the WebUI JSP pages. Therefore, it
@@ -38,7 +32,6 @@ String title    = "Alitheia";
 String msg      = "";
 
 %>
-
 
 <jsp:useBean id="terrier"
     class="eu.sqooss.webui.Terrier"
@@ -88,6 +81,13 @@ String msg      = "";
 //============================================================================
 // Check if the user has selected a project (or switched to a new project)
 //============================================================================
+Long projectId = null;
+if (request.getParameter("pid") != null)
+    if (request.getParameter("pid").equals("none"))
+        selectedProject.invalidate();
+    else
+        projectId = getId(request.getParameter("pid"));
+
 if ((projectId != null)
         && ((selectedProject.isValid() == false)
             || (selectedProject.getId().equals(projectId)) == false)) {
@@ -105,39 +105,42 @@ if ((projectId != null)
         }
 }
 
+//============================================================================
+// Check if the user has selected a (new) project version
+//============================================================================
 if (selectedProject.isValid()) {
-    // Set to the requested version
+    // Construct the proper request parameter's name
     String vparam = "version" + selectedProject.getId();
-    Long versionId = null;
-    //out.println("VParam: " + vparam);
+
     if (request.getParameter(vparam) != null) {
         String req = request.getParameter(vparam);
-        // Handle special cases of version first
-        if ("last".equals(req)) {
-            selectedProject.setCurrentVersionId(selectedProject.getLastVersion().getId());
-        } else if ("first".equals(req)) {
-            selectedProject.setCurrentVersionId(selectedProject.getFirstVersion().getId());
-        } else if ("none".equals(req)) {
-            selectedProject.setCurrentVersionId(null);
-        } else {
-            // Was not a special case, so now try to parse it as a number
-            versionId = getId(req);
+        // Shortcut request for selecting the last project version
+        if (req.equals("last")) {
+            selectedProject.setCurrentVersionId(
+                selectedProject.getLastVersion().getId());
         }
-
-        if (versionId != null) {
-            selectedProject.setCurrentVersionId(versionId);
+        // Shortcut request for selecting the first project version
+        else if (req.equals("first")) {
+            selectedProject.setCurrentVersionId(
+                selectedProject.getFirstVersion().getId());
+        }
+        // Shortcut request for de-selecting the previously selected version
+        else if (req.equals("none")) {
+            selectedProject.setCurrentVersionId(null);
+        }
+        // Select a new project version 
+        else {
+            Long versionId = getId(req);
+            if (versionId != null)
+                selectedProject.setCurrentVersionId(versionId);
         }
     }
 }
-
-if ("none".equals(request.getParameter("pid"))) {
-    selectedProject.setInValid(); // Invalidate
-}
 %>
+
 <jsp:useBean id="validator"
     class="eu.sqooss.webui.InputValidator"
     scope="session"/>
 <jsp:setProperty name="validator" property="*"/>
-
 
 <%@ include file="/inc/login.jsp" %>

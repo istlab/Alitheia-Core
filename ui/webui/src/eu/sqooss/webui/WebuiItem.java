@@ -176,7 +176,7 @@ public class WebuiItem {
 
     /** Explicitely invalidate this object.
      */
-    public void setInValid() {
+    public void invalidate() {
         id = null;
     }
 }
