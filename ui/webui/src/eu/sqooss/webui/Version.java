@@ -136,6 +136,10 @@ public class Version extends WebuiItem {
     }
 
     public String fileStats() {
+        // TODO: Retrieving all files in order to generate the selected
+        // version's file statistic is a total madness. Better introduce a
+        // new WSS/SCL method and a data class that encapsulates this
+        // information.
         getFiles();
         if (fs == null) {
             return "No files.";
