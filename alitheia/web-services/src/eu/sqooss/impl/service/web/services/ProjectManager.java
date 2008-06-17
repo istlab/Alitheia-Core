@@ -289,7 +289,7 @@ public class ProjectManager extends AbstractManager {
                " and pv.version= " +
                "      (select min(pv1.version) " +
                "      from ProjectVersion pv1 " +
-               "      where pv.project=pv1.project) ";
+               "      where pv.project in (:" + paramProjectIds + ")) ";
     
         Map<String, Collection> queryParameters = new Hashtable<String, Collection>(1);
         queryParameters.put(paramProjectIds, asCollection(projectsIds));

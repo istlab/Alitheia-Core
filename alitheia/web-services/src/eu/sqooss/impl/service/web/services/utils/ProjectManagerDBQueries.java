@@ -158,7 +158,8 @@ interface ProjectManagerDBQueries {
     		                                               " and pv.version= " +
     		                                               "      (select max(pv1.version) " +
     		                                               "      from ProjectVersion pv1 " +
-    		                                               "      where pv.project=pv1.project) ";
+    		                                               "      where pv1.project = :" + 
+    		                                               GET_LAST_PROJECT_VERSIONS_PARAM + ")";
     
 }
 

@@ -34,6 +34,7 @@ package eu.sqooss.impl.service.web.services.utils;
 
 import java.math.BigInteger;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Hashtable;
 import java.util.List;
@@ -115,11 +116,18 @@ public class ProjectManagerDatabase implements ProjectManagerDBQueries {
 
     @SuppressWarnings("unchecked")
     public WSProjectVersion[] getLastProjectVersions(Collection<Long> ids) {
-        Map<String, Collection> queryParameters = new Hashtable<String, Collection>(1);
-        queryParameters.put(GET_LAST_PROJECT_VERSIONS_PARAM, ids);
-        List<?> projectVersions = db.doHQL(GET_LAST_PROJECT_VERSIONS, null, queryParameters);
-        WSProjectVersion[] result = WSProjectVersion.asArray(projectVersions);
-        return result;
+        List projectVersions = new ArrayList();
+        ArrayList<Long> args = new ArrayList<Long>();
+        for (Long l : ids) {                
+            args.clear();
+            args.add(l);
+            Map<String, Collection> queryParameters = new Hashtable<String, Collection>(1);
+            queryParameters.put(GET_LAST_PROJECT_VERSIONS_PARAM, args);
+            List result = db.doHQL(GET_LAST_PROJECT_VERSIONS, null, queryParameters);
+            projectVersions.addAll(result);
+        }
+        
+        return WSProjectVersion.asArray(projectVersions);
     }
 
     public WSProjectFile[] getFilesByProjectId(long projectId) {
