@@ -131,8 +131,12 @@ if (selectedProject.isValid()) {
         // Select a new project version 
         else {
             Long versionId = getId(req);
-            if (versionId != null)
+            if (versionId != null) {
                 selectedProject.setCurrentVersionId(versionId);
+                // Reread the project's last version
+                selectedProject.setLastVersion(null);
+                selectedProject.getLastVersion();
+            }
         }
     }
 }

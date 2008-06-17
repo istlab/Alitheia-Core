@@ -61,6 +61,8 @@ public class Project extends WebuiItem {
     // Contains the version number of the last selected version
     private Long currentVersionId;
 
+    private Version firstVersion = null;
+    private Version lastVersion = null;
     private Version currentVersion = null;
 
     // A cache for all metrics that have been evaluated on this project
@@ -257,13 +259,23 @@ public class Project extends WebuiItem {
         return html.toString();
     }
 
+    public void setFirstVersion(Version version) {
+        firstVersion = version;
+    }
+
     /**
      * Gets the first known version of this project.
      *
      * @return the version number, or null if the project has no version.
      */
     public Version getFirstVersion() {
-        return terrier.getFirstProjectVersion(getId());
+        if ((firstVersion == null) && (terrier != null))
+            firstVersion = terrier.getFirstProjectVersion(getId());
+        return firstVersion;
+    }
+
+    public void setLastVersion(Version version) {
+        lastVersion = version;
     }
 
     /**
@@ -272,7 +284,9 @@ public class Project extends WebuiItem {
      * @return the version number, or null if the project has no version.
      */
     public Version getLastVersion() {
-        return terrier.getLastProjectVersion(getId());
+        if ((lastVersion == null) && (terrier != null))
+            lastVersion = terrier.getLastProjectVersion(getId());
+        return lastVersion;
     }
 
     /**
