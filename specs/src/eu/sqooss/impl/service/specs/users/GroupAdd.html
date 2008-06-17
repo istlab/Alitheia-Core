@@ -21,9 +21,10 @@
           <tr>
             <th concordion:assertEquals="#group.name">Group Name</th>
           </tr>
-          <tr><td>new users</td></tr>
           <tr><td>alitheia</td></tr>
+          <tr><td>new_users_group</td></tr>
           <tr><td>sqo-oss developers</td></tr>
+          <tr><td>web services service security group</td></tr>
         </table>
 		
         <p>Also, this newly created group
@@ -34,11 +35,12 @@
         added, when we try to add it again, the group list is not modified:</p>
         <table concordion:verifyRows="#group : getGroups()">
           <tr>
-            <th concordion:assertEquals="#group">Group Name</th>
+            <th concordion:assertEquals="#group.name">Group Name</th>
           </tr>
-          <tr><td>new users</td></tr>
           <tr><td>alitheia</td></tr>
+          <tr><td>new_users_group</td></tr>
           <tr><td>sqo-oss developers</td></tr>
+          <tr><td>web services service security group</td></tr>
         </table>
     </div>
 

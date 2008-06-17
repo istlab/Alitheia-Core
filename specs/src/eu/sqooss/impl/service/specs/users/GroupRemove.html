@@ -32,9 +32,9 @@
             <th concordion:assertEquals="#user.name">User Name</th>
             <th concordion:assertEquals="#user.groupList">Groups</th>
           </tr>
-          <tr><td>alitheia</td><td>alitheia, new users</td></tr>
-          <tr><td>padams</td><td>humongous, new users</td></tr>
-          <tr><td>sebas</td><td>humongous, new users</td></tr>
+          <tr><td>alitheia</td><td>alitheia</td></tr>
+          <tr><td>padams</td><td>humongous, new_users_group</td></tr>
+          <tr><td>sebas</td><td>humongous, new_users_group</td></tr>
         </table>
 
         <p>When <span concordion:execute="removeGroup(#added_group)">removing
@@ -45,9 +45,9 @@
             <th concordion:assertEquals="#user.name">User Name</th>
             <th concordion:assertEquals="#user.groupList">Groups</th>
           </tr>
-          <tr><td>alitheia</td><td>alitheia, new users</td></tr>
-          <tr><td>padams</td><td>new users</td></tr>
-          <tr><td>sebas</td><td>new users</td></tr>
+          <tr><td>alitheia</td><td>alitheia</td></tr>
+          <tr><td>padams</td><td>new_users_group</td></tr>
+          <tr><td>sebas</td><td>new_users_group</td></tr>
         </table>
         
         <p>And the final group list will be again the following:</p>
@@ -55,8 +55,9 @@
           <tr>
             <th concordion:assertEquals="#group.name">Group Name</th>
           </tr>
-          <tr><td>new users</td></tr>
           <tr><td>alitheia</td></tr>
+          <tr><td>new_users_group</td></tr>
+          <tr><td>web services service security group</td></tr>
         </table>
     </div>
 
