@@ -243,6 +243,7 @@ Finally, exception handling has been completely removed for simplicity's sake. I
       </para> 
     </sect2>
     <sect2>
+    <title>Developing plugins</title>
     <sect3 id="devel:plugins:defs">
       <title>Definitions</title>
       <para>Following is a list of definitions of common terms in the
@@ -289,7 +290,6 @@ Finally, exception handling has been completely removed for simplicity's sake. I
       </varlistentry>
       </variablelist>
     </sect3>
-    <title>Developing plugins</title>
     <sect3 id="devel:plugins:general">
       <title>General</title>
       <para>
