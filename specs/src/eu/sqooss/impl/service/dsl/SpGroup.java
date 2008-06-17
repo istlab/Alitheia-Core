@@ -29,8 +29,14 @@ public class SpGroup implements SpEntity {
         db.startDBSession();
         List<Group> groups = db.findObjectsByProperties(Group.class, new HashMap<String,Object>());
         
+        TreeSet<String> groupNames = new TreeSet<String>();
+        HashMap<String, Long> ids = new HashMap<String, Long>();
         for (Group group : groups) {
-            result.add(new SpGroup(group.getDescription(), group.getId()));
+            groupNames.add(group.getDescription());
+            ids.put(group.getDescription(), group.getId());
+        }
+        for (String groupName : groupNames) {
+            result.add(new SpGroup(groupName, ids.get(groupName)));
         }
         db.commitDBSession();
         
