@@ -57,7 +57,7 @@ import eu.sqooss.service.updater.UpdaterService;
 
 public abstract class AbstractView {
     // Core components
-    private static AlitheiaCore sobjAlitheiaCore = null;
+    private static AlitheiaCore sobjCore = null;
     protected static ServiceReference srefCore = null;
 
     // Critical logging components
@@ -86,70 +86,76 @@ public abstract class AbstractView {
     private static ResourceBundle resMsg = null;
     private static ResourceBundle resErr = null;
 
-    // Debug flag
+    // Debug flag - global for all views
     protected static boolean DEBUG = false;
+    
+    // Some constants that are used internally
+    private static String NULL_PARAM_NAME = "Undefined parameter name!";
 
+    /**
+     * Instantiates a new <code>AbstractView</code> object.
+     * 
+     * @param bundlecontext the parent bundle's context
+     * @param vc the Velocity instance's context
+     */
     public AbstractView(BundleContext bundlecontext, VelocityContext vc) {
-        
+        // Keep the Velocity context instance
         this.vc = vc;
 
-        srefCore = bundlecontext.getServiceReference(AlitheiaCore.class.getName());
-        if (srefCore != null) {
-            sobjAlitheiaCore = (AlitheiaCore) bundlecontext.getService(srefCore);
-        }
-        else {
-            System.out.println("No Alitheia Core found.");
-        }
+        // Retrieve the SQO-OSS core service's object
+        srefCore = bundlecontext.getServiceReference(
+                AlitheiaCore.class.getName());
+        if (srefCore != null)
+            sobjCore = (AlitheiaCore) bundlecontext.getService(srefCore);
+        else
+            System.out.println("ERROR"
+                    + " " + Logger.NAME_SQOOSS_WEBADMIN
+                    + " - " + "Can not find the SQO-OSS core service!");
 
-        if (sobjAlitheiaCore != null) {
-            //Get the LogManager and Logger objects
-            sobjLogManager = sobjAlitheiaCore.getLogManager();
+        // Retrieve the instances of the core components
+        if (sobjCore != null) {
+            //Get the log manager's instance
+            sobjLogManager = sobjCore.getLogManager();
             if (sobjLogManager != null) {
+                // Instantiate a dedicated logger 
                 sobjLogger = sobjLogManager.createLogger(
                         Logger.NAME_SQOOSS_WEBADMIN);
             }
 
-            // Get the DB Service object
-            sobjDB = sobjAlitheiaCore.getDBService();
-            if (sobjDB != null) {
-                sobjLogger.debug("WebAdmin got DB Service object.");
-            }
+            // Get the database component's instance
+            sobjDB = sobjCore.getDBService();
+            if ((sobjDB != null) && (sobjLogger != null))
+                sobjLogger.debug("Got the database component's instance.");
 
-            // Get the Plug-in Administration object
-            sobjPA = sobjAlitheiaCore.getPluginAdmin();
-            if (sobjPA != null) {
-                sobjLogger.debug("WebAdmin got Plugin Admin object.");
-            }
+            // Get the plug-in admin's instance
+            sobjPA = sobjCore.getPluginAdmin();
+            if ((sobjPA != null) && (sobjLogger != null))
+                sobjLogger.debug("Got the plug-in admin's instance.");
 
-            // Get the scheduler
-            sobjSched = sobjAlitheiaCore.getScheduler();
-            if (sobjSched != null) {
-                sobjLogger.debug("WebAdmin got Scheduler Service object.");
-            }
+            // Get the scheduler's instance
+            sobjSched = sobjCore.getScheduler();
+            if ((sobjSched != null) && (sobjLogger != null))
+                sobjLogger.debug("Got the scheduler's instance.");
 
-            // Get the metric activator, whatever that is
-            compMA = sobjAlitheiaCore.getMetricActivator();
-            if (compMA != null) {
-                sobjLogger.debug("WebAdmin got Metric Activator object.");
-            }
+            // Get the metric activator's instance
+            compMA = sobjCore.getMetricActivator();
+            if ((compMA != null) && (sobjLogger != null))
+                sobjLogger.debug("Got the metric activator's instance.");
 
-            // Get the TDS Service object
-            sobjTDS = sobjAlitheiaCore.getTDSService();
-            if (sobjTDS != null) {
-                sobjLogger.debug("WebAdmin got TDS Service object.");
-            }
+            // Get the TDS component's instance
+            sobjTDS = sobjCore.getTDSService();
+            if ((sobjTDS != null) && (sobjLogger != null))
+                sobjLogger.debug("Got the TDS component's instance.");
 
-            // Get the Updater Service object
-            sobjUpdater = sobjAlitheiaCore.getUpdater();
-            if (sobjUpdater != null) {
-                sobjLogger.debug("WebAdmin got Updater Service object.");
-            }
+            // Get the updater component's instance
+            sobjUpdater = sobjCore.getUpdater();
+            if ((sobjUpdater != null) && (sobjLogger != null))
+                sobjLogger.debug("Got the updater component's instance.");
 
-            // Get the Security Manager's object
-            sobjSecurity = sobjAlitheiaCore.getSecurityManager();
-            if (sobjSecurity != null) {
-                sobjLogger.debug("WebAdmin got the Security Manager's object.");
-            }
+            // Get the security manager's instance
+            sobjSecurity = sobjCore.getSecurityManager();
+            if ((sobjSecurity != null) && (sobjLogger != null))
+                sobjLogger.debug("Got the security manager's instance.");
         }
     }
 
@@ -170,9 +176,9 @@ public abstract class AbstractView {
      * 
      * @param name the name of the resource property
      * 
-     * @return The property's value if that property can be found in the
-     *   corresponding resource bundle, or the property name when such 
-     *   property is missing.
+     * @return The property's value, when that property can be found in the
+     *   corresponding resource bundle, OR the provided property name's
+     *   parameter, when such property is missing.
      */
     public static String getLbl (String name) {
         if (resLbl != null) {
@@ -180,7 +186,7 @@ public abstract class AbstractView {
                 return resLbl.getString(name);
             }
             catch (NullPointerException ex) {
-                return "Undefined parameter name!";
+                return NULL_PARAM_NAME;
             }
             catch (MissingResourceException ex) {
                 return name;
@@ -195,9 +201,9 @@ public abstract class AbstractView {
      * 
      * @param name the name of the resource property
      * 
-     * @return The property's value if that property can be found in the
-     *   corresponding resource bundle, or the property name when such 
-     *   property is missing.
+     * @return The property's value, when that property can be found in the
+     *   corresponding resource bundle, OR the provided property name's
+     *   parameter, when such property is missing.
      */
     public static String getErr (String name) {
         if (resErr != null) {
@@ -205,7 +211,7 @@ public abstract class AbstractView {
                 return resErr.getString(name);
             }
             catch (NullPointerException ex) {
-                return "Undefined parameter name!";
+                return NULL_PARAM_NAME;
             }
             catch (MissingResourceException ex) {
                 return name;
@@ -220,9 +226,9 @@ public abstract class AbstractView {
      * 
      * @param name the name of the resource property
      * 
-     * @return The property's value if that property can be found in the
-     *   corresponding resource bundle, or the property name when such 
-     *   property is missing.
+     * @return The property's value, when that property can be found in the
+     *   corresponding resource bundle, OR the provided property name's
+     *   parameter, when such property is missing.
      */
     public static String getMsg (String name) {
         if (resMsg != null) {
@@ -230,7 +236,7 @@ public abstract class AbstractView {
                 return resMsg.getString(name);
             }
             catch (NullPointerException ex) {
-                return "Undefined parameter name!";
+                return NULL_PARAM_NAME;
             }
             catch (MissingResourceException ex) {
                 return name;
@@ -266,6 +272,15 @@ public abstract class AbstractView {
             return ResourceBundle.getBundle(RES_MESSAGES_FILE);
     }
 
+    /**
+     * Construct an HTML-based list of all parameters and their values, that
+     * are contained in the given servlet's request object. Useful for debug
+     * of the views functionality.
+     * 
+     * @param request the servlet's request object
+     * 
+     * @return The list of request parameters.
+     */
     protected static String debugRequest (HttpServletRequest request) {
         StringBuilder b = new StringBuilder();
         Enumeration<?> e = request.getParameterNames();
@@ -276,15 +291,40 @@ public abstract class AbstractView {
         return b.toString();
     }
 
+    /**
+     * Generates a string that contains a <b>2*num</b> spaces.
+     * <br/>
+     * <i>Used for indentation of the HTML content that is generated by the
+     * various views.</i>
+     * 
+     * @param num the indentation depth
+     * 
+     * @return The indentation string.
+     */
     protected static String sp (long num) {
         StringBuilder b = new StringBuilder();
-        String space = "  ";
-        for (long i = 0; i < num; i++) {
-            b.append(space);
-        }
+        for (long i = 0; i < num; i++)
+            b.append("  ");
         return b.toString();
     }
 
+    /**
+     * Generates a simple table row (<i>with two columns</i>) that represents
+     * a single text input element with a title line. The title line will be
+     * stored in the first cell, while the text input will be placed in the
+     * second cell.
+     * <br/>
+     * <i>This method is used by the various views for generating simple input
+     * screens.</i>
+     * 
+     * @param title the title that will preceed the input element
+     * @param parName the input element's name
+     * @param parValue the input element's initial value
+     * @param in the indentation depth
+     * 
+     * @return The string that contains the table's row, or an empty string
+     *   upon invalid (<code>null</code>) name of the input element.
+     */
     protected static String normalInputRow (
             String title, String parName, String parValue, long in) {
         // Stores the assembled HTML content
@@ -313,6 +353,21 @@ public abstract class AbstractView {
         return b.toString();
     }
 
+    /**
+     * Generates a simple table row (<i>with two columns</i>) that represents
+     * a single text message with a title line. The title line will be
+     * stored in the first cell, while the message will be placed in the
+     * second cell.
+     * <br/>
+     * <i>This method is used by the various views for generating simple info
+     * screens.</i>
+     * 
+     * @param title the title that will preceed the text message
+     * @param value the text message
+     * @param in the indentation depth
+     * 
+     * @return The string that contains the table's row.
+     */
     protected static String normalInfoRow (
             String title, String value, long in) {
         // Stores the assembled HTML content
@@ -334,13 +389,13 @@ public abstract class AbstractView {
     }
 
     /**
-     * Produces an HTML <code>fieldset</code> presenting the HTML content
-     * stored in the given <code>StringBuilder</code>.
+     * Produces an HTML fieldset tag which encapsulates the HTML
+     * content that is stored in the given <code>StringBuilder</code> object.
      * 
      * @param name the fieldset legend's name
      * @param css the CSS class name to use
      * @param content the HTML content
-     * @param in the indentation length (<i>rendered into *2 spaces</i>)
+     * @param in the indentation depth
      * 
      * @return The HTML presentation.
      */
@@ -362,22 +417,15 @@ public abstract class AbstractView {
         return ("");
     }
 
-    /**
-     * Produces an HTML <code>fieldset</code> presenting all errors stored in
-     * the given <code>StringBuilder</code>.
-     * 
-     * @param errors the list of errors
-     * @param in the indentation length (<i>rendered into *2 spaces</i>)
-     * 
-     * @return The HTML presentation.
-     */
+    // TODO: Remove this method, since it is not I18n compatible.
     protected static String errorFieldset (StringBuilder errors, long in) {
         return normalFieldset("Errors", null, errors, in);
     }
 
     /**
-     * Converts a <code>String</code> into a <code>Long</code>,
-     * while handling internally any thrown exception.
+     * Creates a <code>Long</code> object from the content of the given
+     * <code>String</code> object, while handling internally any thrown
+     * exception.
      * 
      * @param value the <code>String</code> value
      * 
@@ -392,13 +440,37 @@ public abstract class AbstractView {
         }
     }
 
+    /**
+     * Method for validation of a simple name-based properties.
+     * <br/>
+     * The validation will be successful on values that contain alphanumeric
+     * characters only.
+     * 
+     * @param text the property value
+     * 
+     * @return <code>true</code> upon successful validation,
+     *   or <code>false</code> otherwise.
+     */
     protected static boolean checkName (String text) {
         if (text == null) return false;
 
-        Pattern p = Pattern.compile("[a-zA-Z0-9]+");
+        Pattern p = Pattern.compile("[\\p{Alnum}]+");
         return p.matcher(text).matches();
     }
 
+    /**
+     * Method for validation of a project name-based properties.
+     * <br/>
+     * The validation will be successful on values that contain alphanumeric
+     * characters, plus the space and the underscore characters
+     * (<i>as long as they do not appear as first or last character in the
+     * sequence</i>).
+     * 
+     * @param text the property value
+     * 
+     * @return <code>true</code> upon successful validation,
+     *   or <code>false</code> otherwise.
+     */
     protected static boolean checkProjectName (String text) {
         if (text == null) return false;
 
@@ -408,10 +480,24 @@ public abstract class AbstractView {
         p = Pattern.compile(".*[ _]+$");
         if (p.matcher(text).matches()) return false;
         // Check the name
-        p = Pattern.compile("[a-zA-Z0-9_ ]+");
+        p = Pattern.compile("[\\p{Alnum}_ ]+");
         return p.matcher(text).matches();
     }
 
+    /**
+     * Method for validation of properties that hold an email address.
+     * <br/>
+     * The validation will be successful on values that satisfy the email
+     * address specification from RFC 2822.
+     * <br/>
+     * <i>Note: this methods tries to follow RFC 2822 as much as possible,
+     * but is not yet fully compatible with it.</i>
+     * 
+     * @param text the property value
+     * 
+     * @return <code>true</code> upon successful validation,
+     *   or <code>false</code> otherwise.
+     */
     protected static boolean checkEmail (String text) {
         if (text == null) return false;
 
@@ -428,15 +514,33 @@ public abstract class AbstractView {
         p = Pattern.compile(".*[.]$");
         if (p.matcher(parts[0]).matches()) return false;
         if (p.matcher(parts[1]).matches()) return false;
-        // Local part regexp
-        Pattern l = Pattern.compile("^[a-zA-Z0-9!#$%*/?|^{}`~&'+-=_.]+$");
-        // Domain part regexp
-        Pattern d = Pattern.compile("^[a-zA-Z0-9.-]+[.][a-zA-Z]{2,4}$");
+        // Local part's regular expression
+        Pattern l = Pattern.compile("^[\\p{Alnum}!#$%*/?|^{}`~&'+-=_.]+$");
+        // Domain part's regular expression
+        Pattern d = Pattern.compile("^[\\p{Alnum}.-]+[.][\\p{Alpha}]{2,4}$");
         // Match both parts
         return ((l.matcher(parts[0]).matches())
                 && (d.matcher(parts[1]).matches()));
     }
 
+    /**
+     * Method for validation of properties that hold an URL string against
+     * the given URL scheme(s). The validation is based on the specifications
+     * for that scheme(s).
+     * <br/>
+     * The scheme sequence can contain a single scheme
+     * (e.g. <code>"http"</code>), or two or more schemes separated by a pipe
+     * character (e.g. <code>"http|https|file"</code>).
+     * <br/>
+     * <i>Note:Not yet fully implemented. Right now this method checks only
+     * if a scheme name does match.</i>
+     * 
+     * @param text the property value
+     * @param schemes the pipe (|) separated schemes sequence.
+     * 
+     * @return <code>true</code> upon successful validation,
+     *   or <code>false</code> otherwise.
+     */
     protected static boolean checkUrl (String text, String schemes) {
         if (text == null) return false;
 
@@ -445,7 +549,8 @@ public abstract class AbstractView {
         if (parts.length < 2) return false;
         String scheme = parts[0];
         // Match corresponding to the scheme
-        Pattern p = Pattern.compile("^(" + schemes + ")$");
+        Pattern p = Pattern.compile(
+                "^(" + schemes + ")$", Pattern.CASE_INSENSITIVE);
         if (p.matcher(scheme).matches()) {
             return true;
         }
