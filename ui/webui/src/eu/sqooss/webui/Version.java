@@ -52,7 +52,7 @@ public class Version extends WebuiItem {
     private static final String COMMENT = "<!-- Version -->\n";
     private Long projectId;
     private Long number;
-    private Long filesNumber;
+    private Long filesNumber = null;
     private Result[] results;
 
     /** Empty ctor, only sets the jsp page that can be used to display
@@ -101,10 +101,16 @@ public class Version extends WebuiItem {
         number = n;
     }
 
-    /** Return the number of files that are part of this particular project version.
+    /**
+     * Return the number of files that are part of this particular project
+     * version.
+     * 
+     * @return the files number
      */
     public Long getFilesNumber() {
-        return terrier.getFilesNumber4ProjectVersion(id);
+        if (filesNumber == null)
+            filesNumber = terrier.getFilesNumber4ProjectVersion(id);
+        return filesNumber;
     }
 
     /** Fetch the files that are part of this particular Version from the SCL.
