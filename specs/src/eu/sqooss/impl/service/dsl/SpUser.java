@@ -30,6 +30,8 @@ public class SpUser implements SpEntity {
         db.startDBSession();
         List<User> users = db.findObjectsByProperties(User.class, new HashMap<String,Object>());
         
+        TreeSet<String> userNames = new TreeSet<String>();
+        HashMap<String, SpUser> instances = new HashMap<String, SpUser>();
         for (User user : users) {
             TreeSet<String> groupNames = new TreeSet<String>();
             for (Object obj : user.getGroups())
@@ -47,12 +49,18 @@ public class SpUser implements SpEntity {
                 first = false;
             }
             
-            result.add(new SpUser(user.getName(),
-                                  user.getPassword(),
-                                  user.getEmail(),
-                                  groupList,
-                                  user.getId()));
+            userNames.add(user.getName());
+            instances.put(user.getName(),
+                          new SpUser(user.getName(),
+                                     user.getPassword(),
+                                     user.getEmail(),
+                                     groupList,
+                                     user.getId()));
         }
+        for (String userName : userNames) {
+            result.add(instances.get(userName));
+        }
+        
         db.commitDBSession();
         
         return result;
