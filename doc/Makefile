@@ -21,10 +21,10 @@ html: ${HTMLOUTPUT}
 pdf: ${PDFOUTPUT}
 
 ${HTMLOUTPUT}: ${INPUT} prepare 
-	xmllint --xinclude --postvalid $< | xsltproc -o $@ ${XSLTS}/html/docbook.xsl -
+	xmllint --xinclude --postvalid $< | xsltproc -o $@ ${XSLT_DOCBOOK}/html/docbook.xsl -
 
 ${PDFOUTPUT} : ${INPUT} ${FILES}
-	xmllint --xinclude --postvalid $< | xsltproc -o tmp.fo ${XSLTS}/fo/docbook.xsl - &&\
+	xmllint --xinclude --postvalid $< | xsltproc -o tmp.fo ${XSLT_DOCBOOK}/fo/docbook.xsl - &&\
 	fop tmp.fo $@ &&\
 	rm tmp.fo
 
