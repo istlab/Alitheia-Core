@@ -61,7 +61,7 @@ public class Project extends WebuiItem {
     // Contains the version number of the last selected version
     private Long currentVersionId;
 
-    private Version currentVersion;
+    private Version currentVersion = null;
 
     // A cache for all metrics that have been evaluated on this project
     private List<Metric> metrics;
@@ -101,7 +101,6 @@ public class Project extends WebuiItem {
         mail = p.getMail();
         contact = p.getContact();
         website = p.getWebsite();
-        currentVersion = getLastVersion();
     }
 
     /**
@@ -274,6 +273,8 @@ public class Project extends WebuiItem {
      * @return The Version under that id.
      */
     public Version getCurrentVersion() {
+        if (currentVersion == null)
+            currentVersion = getLastVersion();
         return currentVersion;
     }
 
