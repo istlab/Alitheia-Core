@@ -17,13 +17,19 @@ if (selectedProject.isValid()) {
     <tr>
         <td valign="top" style="padding-right: 30px" width="50%">
         <%
-            // Metadata
-            out.println("\n<h2>" + selectedProject.getName() + " Metadata</h2>\n");
+            //================================================================
+            // Display the selected project's metadata
+            //================================================================
+            out.println("\n<h2>" + selectedProject.getName()
+                + " Metadata" + "</h2>\n");
             out.println(selectedProject.getInfo());
         %>
         </td>
         <td valign="top" width="50%" class="borderless">
         <%
+            //================================================================
+            // Display the selected project's version statistic and selector
+            //================================================================
             String inputError = null;
             // Check if the user has selected an another project version
             String paramName = "version" + selectedProject.getId();
@@ -100,48 +106,38 @@ if (selectedProject.isValid()) {
     </table>
     <%
 
-    // Metrics
+    //========================================================================
+    // Display the list of metrics that were evaluated on this project
+    //========================================================================
     out.println("<h2>Metrics for " + selectedProject.getName() + "</h2>");
     out.println(selectedProject.showMetrics(false, false));
 
 
-    // Files
-    int v_c = 0;
-    String versionFileList = "";
-    String v = "";
+    //========================================================================
+    // Display the source file statistic of the selected project
+    //========================================================================
+    %>
+    <table width="100%">
+        <tr>
+            <td valign="top" style="padding-right: 30px" width="50%"></td>
+            <td valign="top" width="50%">
+    <%
     if (selectedProject.getCurrentVersion() != null) {
-        versionFileList = selectedProject.getCurrentVersion().fileStats();
-        //versionFileList = selectedProject.getCurrentVersion().listFiles();
-        v_c = selectedProject.getCurrentVersion().getFileCount();
-        v = selectedProject.getCurrentVersion().shortName();
-    }
-
-    out.println("\n<table width=\"100%\">\n\t<tr><td valign=\"top\" style=\"padding-right: 30px\" width=\"50%\">");
-
-    out.println("\n\t\t</td><td valign=\"top\" width=\"50%\">");
-
-    if (selectedProject.getCurrentVersion() != null) {
-        out.println("<h2>Files in Version " + selectedProject.getCurrentVersion().getNumber() + "</h2>");
-        out.println(versionFileList);
+        out.println("<h2>Files in Version "
+            + selectedProject.getCurrentVersion().getNumber()
+            + "</h2>");
+        out.println(selectedProject.getCurrentVersion().fileStats());
     } else {
         out.println("No versions in Project");
     }
-    out.println("\n\t\t</td>\n\t</tr>\n</table>");
-
-    out.println("</div>"); // End of this group
+    %>
+            </td>
+        </tr>
+    </table>
+</div>
+    <%
 } else {
     out.println(error("Invalid Project."));
 }
 
 %>
-
-
-
-
-
-
-
-
-
-
-
