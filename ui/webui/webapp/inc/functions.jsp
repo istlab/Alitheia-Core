@@ -28,15 +28,12 @@ public static String versionSelector(Project p) {
 }
 
 public static Long getId(String string_id) {
-    Long id = null;
     try {
-        id = new Long(string_id);
+        return new Long(string_id);
     }
     catch (NumberFormatException e) {
-        //inputError = new String(string_id + " doesn't make sense!");
         return null;
     }
-    return id;
 }
 
 /**
