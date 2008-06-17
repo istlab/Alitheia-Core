@@ -62,7 +62,9 @@ public class Version extends WebuiItem {
         page = "version.jsp";
     }
 
-    /** Ctor that fully initialises a Version from a WSProjectVersion object.
+    /**
+     * Creates a new a <code>Version</code> instance from the given
+     * <code>WSProjectVersion</code> object.
      */
     public Version (WSProjectVersion wsVersion, Terrier t) {
         id = wsVersion.getId();
@@ -71,7 +73,6 @@ public class Version extends WebuiItem {
         name = "" + number;
         projectId = wsVersion.getProjectId();
         filesNumber = getFilesNumber();
-        fetchVersionResults();
     }
 
     /** Initialise some data of this Version. This method can be used when we
