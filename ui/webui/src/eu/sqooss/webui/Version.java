@@ -39,6 +39,7 @@ import eu.sqooss.webui.Result.ResourceType;
 import eu.sqooss.ws.client.datatypes.WSProjectVersion;
 import eu.sqooss.ws.client.datatypes.WSMetric;
 import eu.sqooss.ws.client.datatypes.WSMetricsResultRequest;
+import eu.sqooss.ws.client.datatypes.WSVersionStats;
 
 /**
  * This class represents a Version of a project that has been evaluated
@@ -54,6 +55,7 @@ public class Version extends WebuiItem {
     private Long number;
     private Long filesNumber = null;
     private Result[] results;
+    private WSVersionStats stats = null;
 
     /** Empty ctor, only sets the jsp page that can be used to display
      * details about this Version.
@@ -137,47 +139,33 @@ public class Version extends WebuiItem {
     }
 
     public String fileStats() {
-        // TODO: Retrieving all files in order to generate the selected
-        // version's file statistic is a total madness. Better introduce a
-        // new WSS/SCL method and a data class that encapsulates this
-        // information.
-        getFiles();
-        if (fs == null) {
-            return "No files.";
+        // Fetch the version's statistic if not already performed
+        if ((stats == null) && (getId() != null)) {
+            long[] versionIds = {this.getId().longValue()};
+            WSVersionStats[] wsstats =
+                terrier.getVersionsStatistics(versionIds);
+            if ((wsstats != null) && (wsstats.length > 0))
+                stats = wsstats[0];
         }
-        int total = fileCount = fs.size();
-        int added = 0;
-        int modified = 0;
-        int deleted = 0;
-
-        StringBuilder hmmz = new StringBuilder(); // Note the beautiful var name
-
-        Iterator<File> filesIterator = fs.iterator();
-        while (filesIterator.hasNext()) {
-            File nextFile = filesIterator.next();
-            if (nextFile.getStatus().equals("MODIFIED")) {
-                modified += 1;
-            } else if (nextFile.getStatus().equals("ADDED")) {
-                added += 1;
-            } else if (nextFile.getStatus().equals("DELETED")) {
-                deleted +=1;
-            } else {
-                hmmz.append("<br />Status unknown: " + nextFile.getHtml());
-            }
-        }
-
+        // No statistics available
+        if (stats == null)
+            return "No statistics available for the selected version!";
+        // Render the statistics page
         StringBuilder html = new StringBuilder("\n\n<table>");
         html.append("\n\t<tr><td>" + icon("vcs_add") +
-                "<strong>Files added:</strong></td>\n\t<td>" + added + "</td></tr>");
+                "<strong>Files added:</strong></td>\n\t<td>"
+                + stats.getAddedCount() + "</td></tr>");
         html.append("\n\t<tr><td>" + icon("vcs_update") +
-                "<strong>Files modified:</strong></td>\n\t<td>" + modified + "</td></tr>");
+                "<strong>Files modified:</strong></td>\n\t<td>"
+                + stats.getModifiedCount() + "</td></tr>");
         html.append("\n\t<tr><td>" + icon("vcs_remove") +
-                "<strong>Files deleted:</strong></td>\n\t<td>" + deleted + "</td></tr>");
+                "<strong>Files deleted:</strong></td>\n\t<td>"
+                + stats.getDeletedCount() + "</td></tr>");
         html.append("\n\t<tr><td colspan=\"2\"><hr /></td></tr>");
         html.append("\n\t<tr><td>" + icon("vcs_status") +
-                "<strong>Total files changed:</strong></td><td>" + total + "</td>\n\t</tr>");
+                "<strong>Total files changed:</strong></td><td>"
+                + stats.getTotalCount() + "</td>\n\t</tr>");
         html.append("\n</table>");
-        html.append(hmmz.toString());
         return html.toString();
     }
 
@@ -191,6 +179,12 @@ public class Version extends WebuiItem {
      * @return The files list as HTML.
      */
     public String listFiles(Project project) {
+        // TODO: Replace with a file browser!
+        
+        // Retrieve the list of files if not yet done
+        if (files == null)
+            getFiles();
+        // Render the files list (plus eval. results) page
         StringBuilder html = new StringBuilder();
         if (files != null) {
             if (project != null) {
@@ -201,9 +195,6 @@ public class Version extends WebuiItem {
                     html.append(Functions.error("No Metrics have been selected, select a metric <a href=\"metrics.jsp\">here</a> to view results."));
                 }
             }
-
-            //Collection<File> ff = files.values();
-
             FileListView view = new FileListView(files);
             html.append(view.getHtml());
             return html.toString();

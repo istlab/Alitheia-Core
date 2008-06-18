@@ -52,6 +52,7 @@ import eu.sqooss.ws.client.datatypes.WSStoredProject;
 import eu.sqooss.ws.client.datatypes.WSUser;
 import eu.sqooss.ws.client.datatypes.WSMetricsResultRequest;
 import eu.sqooss.ws.client.datatypes.WSResultEntry;
+import eu.sqooss.ws.client.datatypes.WSVersionStats;
 
 /**
  * This class is the entry point for retrieving data from the
@@ -464,6 +465,27 @@ public class Terrier {
             return connection.getProjectAccessor().getVersionsCount(projectId);
         } catch (WSException e) {
             addError("Can not retrieve the number of project versions.");
+            return null;
+        }
+    }
+
+    /**
+     * Returns the file statistic for the given project versions.
+     *
+     * @param projectVersionsIds - the projects identifiers
+     *
+     * @return The array of file statistics for the given versions.
+     */
+    public WSVersionStats[] getVersionsStatistics(long[] projectVersionsIds) {
+        if (!connection.isConnected()) {
+            addError(connection.getError());
+            return null;
+        }
+        try {
+            return connection.getProjectAccessor().getVersionsStatistics(
+                    projectVersionsIds);
+        } catch (WSException e) {
+            addError("Can not retrieve statistics for project versions.");
             return null;
         }
     }
