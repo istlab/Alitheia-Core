@@ -74,7 +74,6 @@ public class Version extends WebuiItem {
         number = wsVersion.getVersion();
         name = "" + number;
         projectId = wsVersion.getProjectId();
-        filesNumber = getFilesNumber();
     }
 
     /** Initialise some data of this Version. This method can be used when we
@@ -105,7 +104,7 @@ public class Version extends WebuiItem {
     }
 
     /**
-     * Return the number of files that are part of this particular project
+     * Return the number of files that exist in this particular project
      * version.
      * 
      * @return the files number
