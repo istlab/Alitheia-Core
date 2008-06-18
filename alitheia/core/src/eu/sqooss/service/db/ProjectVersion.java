@@ -240,12 +240,13 @@ public class ProjectVersion extends DAObject {
     }
     
     /**
-     * Gets the number of files in this version which are in the given state.
+     * Gets the number of files in the given version which are in the
+     * selected file state.
      * 
      * @param pv the version DAO
      * @param state the file state
      * 
-     * @return The number of files in this version and this state.
+     * @return The number of files in that version and that state.
      */
     public static long getFilesCount(ProjectVersion pv, String state) {
         DBService dbs = CoreActivator.getDBService();
