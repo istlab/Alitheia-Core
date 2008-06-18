@@ -176,6 +176,7 @@ public class SpecsActivator implements BundleActivator, EventHandler, Runnable {
         
         try {
             isDBServiceReady.acquire();
+            Thread.sleep(2000);
         } catch(InterruptedException e) {
             e.printStackTrace();
         }
