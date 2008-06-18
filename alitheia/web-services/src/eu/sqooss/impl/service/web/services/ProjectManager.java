@@ -32,6 +32,7 @@
 
 package eu.sqooss.impl.service.web.services;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Hashtable;
@@ -44,6 +45,7 @@ import eu.sqooss.impl.service.web.services.datatypes.WSFileGroup;
 import eu.sqooss.impl.service.web.services.datatypes.WSProjectFile;
 import eu.sqooss.impl.service.web.services.datatypes.WSProjectVersion;
 import eu.sqooss.impl.service.web.services.datatypes.WSStoredProject;
+import eu.sqooss.impl.service.web.services.datatypes.WSVersionStats;
 import eu.sqooss.impl.service.web.services.utils.ProjectManagerDatabase;
 import eu.sqooss.impl.service.web.services.utils.ProjectSecurityWrapper;
 import eu.sqooss.service.db.DBService;
@@ -525,6 +527,33 @@ public class ProjectManager extends AbstractManager {
         db.commitDBSession();
 
         return (WSDeveloper[]) normalizeWSArrayResult(result);
+    }
+
+    public WSVersionStats[] getVersionsStatistics(String userName,
+            String password, long[] projectVersionsIds) {
+        if (projectVersionsIds != null) {
+            List<WSVersionStats> result = new ArrayList<WSVersionStats>();
+            db.startDBSession();
+            for (Long nextId : projectVersionsIds) {
+                ProjectVersion nextVersion =
+                    db.findObjectById(ProjectVersion.class, nextId);
+                if (nextVersion != null) {
+                    WSVersionStats stats = new WSVersionStats();
+                    stats.setVersionId(nextVersion.getId());
+                    stats.setDeletedCount(ProjectVersion.getFilesCount(
+                            nextVersion, ProjectFile.STATE_DELETED));
+                    stats.setModifiedCount(ProjectVersion.getFilesCount(
+                            nextVersion, ProjectFile.STATE_MODIFIED));
+                    stats.setAddedCount(ProjectVersion.getFilesCount(
+                            nextVersion, ProjectFile.STATE_ADDED));
+                    result.add(stats);
+                }
+            }
+            db.commitDBSession();
+            if (result.size() > 0)
+                return result.toArray(new WSVersionStats[result.size()]);
+        }
+        return null;
     }
 
 }
