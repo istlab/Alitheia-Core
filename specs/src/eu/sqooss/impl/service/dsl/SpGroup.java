@@ -21,6 +21,7 @@ public class SpGroup implements SpEntity {
     boolean persistent = false;
     
     public String name;
+    public String type = "user";
     
     public static ArrayList<SpGroup> allGroups() {
         DBService db = SpecsActivator.alitheiaCore.getDBService();
@@ -30,13 +31,18 @@ public class SpGroup implements SpEntity {
         List<Group> groups = db.findObjectsByProperties(Group.class, new HashMap<String,Object>());
         
         TreeSet<String> groupNames = new TreeSet<String>();
-        HashMap<String, Long> ids = new HashMap<String, Long>();
+        HashMap<String, SpGroup> instances = new HashMap<String, SpGroup>();
         for (Group group : groups) {
             groupNames.add(group.getDescription());
-            ids.put(group.getDescription(), group.getId());
+            instances.put(group.getDescription(),
+                          new SpGroup(group.getDescription(),
+                                      group.getGroupType().getType().toLowerCase(),
+                                      group.getId()
+                                     )
+                         );
         }
         for (String groupName : groupNames) {
-            result.add(new SpGroup(groupName, ids.get(groupName)));
+            result.add(instances.get(groupName));
         }
         db.commitDBSession();
         
@@ -66,8 +72,9 @@ public class SpGroup implements SpEntity {
         load();
     }
     
-    private SpGroup(String n, long i) {
+    private SpGroup(String n, String t, long i) {
         name = n;
+        type = t;
         id = i;
         persistent = true;
     }
@@ -83,12 +90,13 @@ public class SpGroup implements SpEntity {
         
         id = group.getId();
         name = group.getDescription();
+        type = group.getGroupType().getType().toLowerCase();
         db.commitDBSession();
     }
 
     public void create() {
         db.startDBSession();
-        gm.createGroup(name, GroupType.Type.USER);
+        gm.createGroup(name, GroupType.Type.fromString(type));
         db.commitDBSession();
         persistent = true;
     }
