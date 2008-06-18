@@ -22,7 +22,7 @@ public class SpPrivilege
     public static ArrayList<SpPrivilege> getAllPrivileges() {
         ArrayList<SpPrivilege> result = new ArrayList<SpPrivilege>();
         
-        ArrayList<SpGroup> groups = new ArrayList<SpGroup>();
+        ArrayList<SpGroup> groups = SpGroup.allGroups();
         for (SpGroup group : groups) {
             result.addAll(group.getPrivileges());
         }

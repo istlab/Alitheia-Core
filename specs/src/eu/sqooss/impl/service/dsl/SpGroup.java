@@ -134,21 +134,32 @@ public class SpGroup implements SpEntity {
             return result;
         }
 
+        TreeSet<String> keys = new TreeSet<String>();
+        HashMap<String, SpPrivilege> instances = new HashMap<String, SpPrivilege>();
         for (Object obj : group.getGroupPrivileges()) {
             GroupPrivilege priv = (GroupPrivilege)obj;
 
             String privValue = priv.getPv().getValue(); 
-            if (priv.getPv().getPrivilege().getDescription().equals("user_id")) {
+            if (priv.getPv().getPrivilege().getDescription().equals("user_id")
+             && privValue.matches("\\d+")) {
                 User user = db.findObjectById(User.class, Long.valueOf(privValue));
                 privValue = user.getName();
             }
             
-            result.add(new SpPrivilege(
-                    group.getDescription(),
-                    priv.getUrl().getUrl(),
-                    priv.getPv().getPrivilege().getDescription(),
-                    privValue
-            ));
+            String key = group.getDescription()+":"+priv.getUrl().getUrl()+":"+priv.getPv().getPrivilege().getDescription()+":"+privValue;
+            keys.add(key);
+            instances.put(key,
+                          new SpPrivilege(
+                                  group.getDescription(),
+                                  priv.getUrl().getUrl(),
+                                  priv.getPv().getPrivilege().getDescription(),
+                                  privValue
+                          )
+                         );
+        }
+        
+        for (String key : keys) {
+            result.add(instances.get(key));
         }
         
         return result;
