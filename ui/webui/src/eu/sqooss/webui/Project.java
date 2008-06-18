@@ -61,6 +61,9 @@ public class Project extends WebuiItem {
     // Contains the version number of the last selected version
     private Long currentVersionId;
 
+    // Contains the number of versions in this project
+    Long versionsCount = null;
+
     private Version firstVersion = null;
     private Version lastVersion = null;
     private Version currentVersion = null;
@@ -328,14 +331,15 @@ public class Project extends WebuiItem {
 
     
     /**
-     * Returns the total number of versions for this project
+     * Returns the number of versions in this project
      *
-     * @return The total number of version for this project.
+     * @return The number of version in this project.
      */
     public long countVersions() {
-        Long count = terrier.getVersionsCount(id);
-        if (count != null)
-            return count.longValue();
+        if (versionsCount == null)
+            versionsCount = terrier.getVersionsCount(id);
+        if (versionsCount != null)
+            return versionsCount;
         else
             return 0;
     }
