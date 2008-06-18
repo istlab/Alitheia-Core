@@ -237,7 +237,36 @@ public class ProjectVersion extends DAObject {
         } else {
             return (ProjectVersion) projectVersions.get(0);
         }
-    }   
+    }
+    
+    /**
+     * Gets the number of files in this version which are in the given state.
+     * 
+     * @param pv the version DAO
+     * @param state the file state
+     * 
+     * @return The number of files in this version and this state.
+     */
+    public static long getFilesCount(ProjectVersion pv, String state) {
+        DBService dbs = CoreActivator.getDBService();
+        // Construct the field names
+        String parVersionId     = "project_version_id"; 
+        String parFileStatus    = "file_status";
+        // Construct the query string
+        String query = "select count(*) from ProjectFile pf"
+            + " where pf.projectVersion=:" + parVersionId
+            + " and pf.status=:" + parFileStatus;
+        // Execute the query
+        Map<String,Object> parameters = new HashMap<String,Object>();
+        parameters.put(parVersionId,    pv);
+        parameters.put(parFileStatus,   state);
+        List<?> queryResult = dbs.doHQL(query, parameters);
+        // Return the query's result (if found)
+        if(queryResult != null || queryResult.size() > 0)
+            return (Long) queryResult.get(0);
+        // Default result
+        return 0;
+    }
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

@@ -47,6 +47,11 @@ import eu.sqooss.impl.service.CoreActivator;
  * stored in the database
  */
 public class ProjectFile extends DAObject{
+    // File status constants
+    public static String STATE_ADDED    = "ADDED";
+    public static String STATE_MODIFIED = "MODIFIED";
+    public static String STATE_DELETED  = "DELETED";
+
     /**
      * The filename
      */
