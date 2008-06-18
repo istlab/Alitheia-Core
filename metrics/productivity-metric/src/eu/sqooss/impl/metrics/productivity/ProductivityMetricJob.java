@@ -84,7 +84,7 @@ public class ProductivityMetricJob {
     }
   
     public void run() {
-
+        
         /* Read config options in advance*/        
         FileTypeMatcher.FileType fType;
         boolean isNew;
@@ -187,15 +187,15 @@ public class ProductivityMetricJob {
     
     private void updateField(Developer dev, ActionType actionType,
             boolean isPositive, int value) {
-
+        
         ProductivityActions a = ProductivityActions.getProductivityAction(dev,
                 actionType);
 
         if (a == null) {
             a = new ProductivityActions();
             a.setDeveloper(dev);
-            a.setActionCategory(ActionCategory.getActionCategory(actionType));
-            a.setActionType(actionType);
+            a.setCategory(ActionCategory.getActionCategory(actionType));
+            a.setType(actionType);
             a.setIsPositive(isPositive);
             a.setTotal(value);
             db.addRecord(a);
@@ -203,7 +203,7 @@ public class ProductivityMetricJob {
             a.setTotal(a.getTotal() + value);
         }
 
-      //  updateWeights(actionType);
+        updateWeights(actionType);
     }
     
     private void updateWeights(ActionType actionType) {
@@ -218,13 +218,13 @@ public class ProductivityMetricJob {
             ProductivityActions.getTotalActionsPerType(actionType);
 
         // update weight for the action type
-        long weight = 100 * totalActionsPerType / totalActionsPerCategory;
+        double weight = (double)(100 * totalActionsPerType) / (double)totalActionsPerCategory;
 
         ProductivityWeights a = ProductivityWeights.getWeight(actionType);
-
+        
         if (a == null) {
             a = new ProductivityWeights();
-            a.setActionType(actionType);
+            a.setType(actionType);
             a.setWeight(weight);
             db.addRecord(a);
         } else {
@@ -232,13 +232,13 @@ public class ProductivityMetricJob {
         }
 
         // update weight for the action category
-        weight = 100 * totalActionsPerCategory / totalActions;
+        weight = (double)(100 * totalActionsPerCategory) / (double)totalActions;
 
         a = ProductivityWeights.getWeight(actionCategory);
 
         if (a == null) {
             a = new ProductivityWeights();
-            a.setActionCategory(actionCategory);
+            a.setCategory(actionCategory);
             a.setWeight(weight);
             db.addRecord(a);
         } else {

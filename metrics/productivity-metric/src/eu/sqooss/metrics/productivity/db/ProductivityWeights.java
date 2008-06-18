@@ -15,35 +15,43 @@ public class ProductivityWeights extends DAObject{
     private String actionType;
     private double weight;
     
-    public ProductivityMetricActions.ActionCategory getActionCategory(){
+    public ProductivityMetricActions.ActionCategory getCategory(){
         return ProductivityMetricActions.ActionCategory.fromString(actionCategory);
     }
     
-    public String getCategory(){
+    public String getActionCategory(){
         return actionCategory;
     }
     
-    public void setActionCategory(ProductivityMetricActions.ActionCategory s) {
+    public void setCategory(ProductivityMetricActions.ActionCategory s) {
         this.actionCategory = s.toString();
     }
     
-    public ProductivityMetricActions.ActionType getActionType(){
+    public void setActionCategory(String s) {
+        this.actionCategory = s;
+    }
+    
+    public ProductivityMetricActions.ActionType getType(){
         return ProductivityMetricActions.ActionType.fromString(actionType);
     }
     
-    public String getType(){
+    public String getActionType(){
         return actionType;
     }
     
-    public void setActionType(ProductivityMetricActions.ActionType s) {
+    public void setType(ProductivityMetricActions.ActionType s) {
         this.actionType = s.toString();
+    }
+    
+    public void setActionType(String s) {
+        this.actionType = s;
     }
     
     public double getWeight(){
         return weight;
     }
     
-    public void setWeight(long weight){
+    public void setWeight(double weight){
         this.weight = weight;
     }
     

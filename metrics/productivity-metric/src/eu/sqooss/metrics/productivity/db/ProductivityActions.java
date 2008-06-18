@@ -26,28 +26,36 @@ public class ProductivityActions extends DAObject {
         this.developer = developer;
     }
     
-    public ProductivityMetricActions.ActionCategory getActionCategory(){
+    public ProductivityMetricActions.ActionCategory getCategory(){
         return ProductivityMetricActions.ActionCategory.fromString(actionCategory);
     }
     
-    public String getCategory(){
+    public String getActionCategory(){
         return actionCategory;
     }
     
-    public void setActionCategory(ProductivityMetricActions.ActionCategory s) {
+    public void setCategory(ProductivityMetricActions.ActionCategory s) {
         this.actionCategory = s.toString();
     }
     
-    public ProductivityMetricActions.ActionType getActionType(){
+    public void setActionCategory(String s) {
+        this.actionCategory = s;
+    }
+    
+    public ProductivityMetricActions.ActionType getType(){
         return ProductivityMetricActions.ActionType.fromString(actionType);
     }
     
-    public String getType(){
+    public String getActionType(){
         return actionType;
     }
     
-    public void setActionType(ProductivityMetricActions.ActionType s) {
+    public void setType(ProductivityMetricActions.ActionType s) {
         this.actionType = s.toString();
+    }
+    
+    public void setActionType(String s) {
+        this.actionType = s;
     }
     
     public boolean getIsPositive(){
@@ -79,7 +87,7 @@ public class ProductivityActions extends DAObject {
                 " and a.actionType = :" + paramType ;
         
         Map<String,Object> parameters = new HashMap<String,Object>();
-        parameters.put(paramDeveloper, dev.getId());
+        parameters.put(paramDeveloper, dev);
         parameters.put(paramType, actionType.toString());
 
         List<?> productivityActions = dbs.doHQL(query, parameters);
@@ -111,12 +119,12 @@ public class ProductivityActions extends DAObject {
         String paramCategory = "paramCategory"; 
         
         String query = "select sum(total) from ProductivityActions" +
-                       " where a.actionCategory = :" + paramCategory ;
+                       " where actionCategory = :" + paramCategory ;
         
         Map<String,Object> parameters = new HashMap<String,Object>();
         parameters.put(paramCategory, actionCategory.toString());
         
-        List<?> totalActions = dbs.doHQL(query);
+        List<?> totalActions = dbs.doHQL(query, parameters);
         
         if(totalActions == null || totalActions.size() == 0) {
             return 0L;
@@ -131,7 +139,7 @@ public class ProductivityActions extends DAObject {
         String paramType = "paramType"; 
         
         String query = "select sum(total) from ProductivityActions" +
-                       " where a.actionType = :" + paramType ;
+                       " where actionType = :" + paramType ;
         
         Map<String,Object> parameters = new HashMap<String,Object>();
         parameters.put(paramType, actionType.toString());
