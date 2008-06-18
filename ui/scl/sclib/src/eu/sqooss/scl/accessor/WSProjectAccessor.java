@@ -39,6 +39,7 @@ import eu.sqooss.ws.client.datatypes.WSFileGroup;
 import eu.sqooss.ws.client.datatypes.WSProjectFile;
 import eu.sqooss.ws.client.datatypes.WSProjectVersion;
 import eu.sqooss.ws.client.datatypes.WSStoredProject;
+import eu.sqooss.ws.client.datatypes.WSVersionStats;
 
 /**
  * This class contains the projects methods. 
@@ -298,6 +299,27 @@ public abstract class WSProjectAccessor extends WSAccessor {
      * <ul>
      */
     public abstract long getVersionsCount(long projectId) throws WSException;
+
+    /**
+     * This method returns file statistic per given project version.
+     *
+     * @param userName - the user's name used for authentication
+     * @param password - the user's password used for authentication
+     * @param projectVerionsIds - the list of project versions' identifiers
+     *
+     * @return The <code>WSVersionStats</code> array of objects which describe
+     *   the file statistics for the given project versions,
+     *   or <code>null</code> when none of the given project versions exist.
+     *
+     * @throws WSException
+     * <ul>
+     *  <li>if a connection with the SQO-OSS's web services service can
+     *    not be established</li>
+     *  <li>if web services service throws an exception</li>
+     * <ul>
+     */
+    public abstract WSVersionStats[] getVersionsStatistics(
+            long[] projectVersionsIds) throws WSException;
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

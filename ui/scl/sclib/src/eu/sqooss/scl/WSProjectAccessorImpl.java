@@ -46,6 +46,7 @@ import eu.sqooss.ws.client.datatypes.WSFileGroup;
 import eu.sqooss.ws.client.datatypes.WSProjectFile;
 import eu.sqooss.ws.client.datatypes.WSProjectVersion;
 import eu.sqooss.ws.client.datatypes.WSStoredProject;
+import eu.sqooss.ws.client.datatypes.WSVersionStats;
 import eu.sqooss.ws.client.ws.GetDevelopersByIds;
 import eu.sqooss.ws.client.ws.GetDevelopersByIdsResponse;
 import eu.sqooss.ws.client.ws.GetDirectoriesByIds;
@@ -76,6 +77,8 @@ import eu.sqooss.ws.client.ws.GetStoredProjects;
 import eu.sqooss.ws.client.ws.GetStoredProjectsResponse;
 import eu.sqooss.ws.client.ws.GetVersionsCount;
 import eu.sqooss.ws.client.ws.GetVersionsCountResponse;
+import eu.sqooss.ws.client.ws.GetVersionsStatistics;
+import eu.sqooss.ws.client.ws.GetVersionsStatisticsResponse;
 
 class WSProjectAccessorImpl extends WSProjectAccessor {
 
@@ -90,9 +93,13 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
     private static final String METHOD_NAME_GET_PROJECT_VERSIONS_BY_IDS              = "getProjectVersionsByIds";
     
     private static final String METHOD_NAME_GET_PROJECT_VERSIONS_BY_VERSION_NUMBERS  = "getProjectVersionsByVersionNumbers";
-    
-    private static final String METHOD_NAME_GET_VERSIONS_COUNT                       = "getVersionsCount";
-    
+
+    private static final String METHOD_NAME_GET_VERSIONS_COUNT =
+        "getVersionsCount";
+
+    private static final String METHOD_NAME_GET_VERSIONS_STATISTICS =
+        "getVersionsStatistics";
+
     private static final String METHOD_NAME_GET_FIRST_PROJECT_VERSIONS                = "getFirstProjectVersions";
     
     private static final String METHOD_NAME_GET_LAST_PROJECT_VERSIONS                = "getLastProjectVersions";
@@ -207,6 +214,32 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
             }
         }
         return (WSProjectFile[]) normalizeWSArrayResult(response.get_return());
+    }
+
+    @Override
+    public WSVersionStats[] getVersionsStatistics(long[] projectVersionsIds)
+    throws WSException {
+        GetVersionsStatisticsResponse response;
+        GetVersionsStatistics params;
+        if (!parameters.containsKey(METHOD_NAME_GET_VERSIONS_STATISTICS)) {
+            params = new GetVersionsStatistics();
+            params.setPassword(password);
+            params.setUserName(userName);
+            parameters.put(METHOD_NAME_GET_VERSIONS_STATISTICS, params);
+        } else {
+            params = (GetVersionsStatistics) parameters.get(
+                    METHOD_NAME_GET_VERSIONS_STATISTICS);
+        }
+        synchronized (params) {
+            params.setProjectVersionsIds(projectVersionsIds);
+            try {
+                response = wsStub.getVersionsStatistics(params);
+            } catch (RemoteException re) {
+                throw new WSException(re);
+            }
+        }
+
+        return response.get_return();
     }
 
     @Override
