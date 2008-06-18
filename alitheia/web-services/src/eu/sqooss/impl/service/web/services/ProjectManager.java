@@ -529,11 +529,28 @@ public class ProjectManager extends AbstractManager {
         return (WSDeveloper[]) normalizeWSArrayResult(result);
     }
 
+    /**
+     * @see eu.sqooss.service.web.services.WebServices#getVersionsStatistics(String, String, long[])
+     */
     public WSVersionStats[] getVersionsStatistics(String userName,
             String password, long[] projectVersionsIds) {
+        // Log this call
+        logger.info("Get versions statistics!"
+                + " user: " + userName
+                + ";"
+                + " version Ids: " + Arrays.toString(projectVersionsIds));
+        // Match against the current security policy
+        db.startDBSession();
+        try {
+            securityWrapper.checkProjectVersionsReadAccess(
+                    userName, password, projectVersionsIds);
+        } catch (SecurityException se) {
+            db.commitDBSession();
+            throw se;
+        }
+        // Retrieve the results
         if (projectVersionsIds != null) {
             List<WSVersionStats> result = new ArrayList<WSVersionStats>();
-            db.startDBSession();
             for (Long nextId : projectVersionsIds) {
                 ProjectVersion nextVersion =
                     db.findObjectById(ProjectVersion.class, nextId);
@@ -549,10 +566,12 @@ public class ProjectManager extends AbstractManager {
                     result.add(stats);
                 }
             }
-            db.commitDBSession();
-            if (result.size() > 0)
+            if (result.size() > 0) {
+                db.commitDBSession();
                 return result.toArray(new WSVersionStats[result.size()]);
+            }
         }
+        db.commitDBSession();
         return null;
     }
 
