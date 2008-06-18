@@ -156,7 +156,6 @@ public class WebServices implements EventHandler{
     public WSStoredProject[] getEvaluatedProjects(
             String userName,
             String password) {
-        System.out.println("getEvaluatedProjects");
         return projectManager.getEvaluatedProjects(userName, password);
     }
 
@@ -173,7 +172,6 @@ public class WebServices implements EventHandler{
     public WSStoredProject[] getStoredProjects(
             String userName,
             String password) {
-        System.out.println("getStoredProjects");
         return projectManager.getStoredProjects(userName, password);
     }
 
@@ -193,7 +191,6 @@ public class WebServices implements EventHandler{
             String userName,
             String password,
             long projectId) {
-        System.out.println("getFilesByProjectId");
         return projectManager.getFilesByProjectId(
                 userName, password, projectId);
     }
@@ -213,7 +210,6 @@ public class WebServices implements EventHandler{
             String userName,
             String password,
             long projectVersionId) {
-        System.out.println("getFilesByProjectVersionId");
         return projectManager.getFilesByProjectVersionId(
                 userName, password, projectVersionId);
     }
@@ -234,7 +230,6 @@ public class WebServices implements EventHandler{
             String userName,
             String password,
             long projectId) {
-        System.out.println("getFileGroupsByProjectId");
         return projectManager.getFileGroupsByProjectId(
                 userName, password, projectId);
     }
@@ -254,7 +249,6 @@ public class WebServices implements EventHandler{
             String userName,
             String password,
             long projectId) {
-        System.out.println("getProjectVersionsByProjectId");
         return projectManager.getProjectVersionsByProjectId(
                 userName, password, projectId);
     }
@@ -274,7 +268,6 @@ public class WebServices implements EventHandler{
             String userName,
             String password,
             long[] projectVersionsIds) {
-        System.out.println("getProjectVersionsByIds");
         return projectManager.getProjectVersionsByIds(
                 userName, password, projectVersionsIds);
     }
@@ -294,7 +287,6 @@ public class WebServices implements EventHandler{
             String userName,
             String password,
             long[] projectVersionsIds) {
-        System.out.println("getVersionsStatistics");
         return projectManager.getVersionsStatistics(
                 userName, password, projectVersionsIds);
     }
@@ -316,7 +308,6 @@ public class WebServices implements EventHandler{
             String password,
             long projectId,
             long[] versionNumbers) {
-        System.out.println("getProjectVersionsByVersionNumbers");
         return projectManager.getProjectVersionsByVersionNumbers(
                 userName, password, projectId, versionNumbers);
     }
@@ -335,7 +326,6 @@ public class WebServices implements EventHandler{
      */
     public WSProjectVersion[] getFirstProjectVersions(String userName,
             String password, long[] projectsIds) {
-        System.out.println("getFirstProjectVersions");
         return projectManager.getFirstProjectVersions(
                 userName, password, projectsIds);
     }
@@ -353,7 +343,6 @@ public class WebServices implements EventHandler{
      */
     public WSProjectVersion[] getLastProjectVersions(String userName,
             String password, long[] projectsIds) {
-        System.out.println("getLastProjectVersions");
         return projectManager.getLastProjectVersions(
                 userName, password, projectsIds);
     }
@@ -369,7 +358,6 @@ public class WebServices implements EventHandler{
      */
     public long getVersionsCount(
             String userName, String password, long projectId) {
-        System.out.println("getVersionsCount");
         return projectManager.getVersionsCount(
                 userName, password, projectId);
     }
@@ -389,7 +377,6 @@ public class WebServices implements EventHandler{
             String userName,
             String password,
             long[] projectsIds) {
-        System.out.println("getProjectsByIds");
         return projectManager.getProjectsByIds(userName, password, projectsIds);
     }
 
@@ -408,7 +395,6 @@ public class WebServices implements EventHandler{
             String userName,
             String password,
             String projectName) {
-        System.out.println("getProjectByName");
         return projectManager.getProjectByName(
                 userName, password, projectName);
     }
@@ -427,7 +413,6 @@ public class WebServices implements EventHandler{
             String userName,
             String password,
             long projectVersionId) {
-        System.out.println("getFilesNumberByProjectVersionId:" + projectVersionId);
         return projectManager.getFilesNumberByProjectVersionId(
                 userName, password, projectVersionId);
     }
@@ -446,7 +431,6 @@ public class WebServices implements EventHandler{
             String userName,
             String password,
             long[] directoriesIds) {
-        System.out.println("getDirectoriesByIds");
         return projectManager.getDirectoriesByIds(
                 userName, password, directoriesIds);
     }
@@ -465,7 +449,6 @@ public class WebServices implements EventHandler{
             String userName,
             String password,
             long[] developersIds) {
-        System.out.println("getDevelopersByIds");
         return projectManager.getDevelopersByIds(userName,
                 password, developersIds);
     }
@@ -487,7 +470,6 @@ public class WebServices implements EventHandler{
             String userName,
             String password,
             long projectId) {
-        System.out.println("getProjectEvaluatedMetrics");
         return metricManager.getProjectEvaluatedMetrics(
                 userName, password, projectId);
     }
@@ -507,7 +489,6 @@ public class WebServices implements EventHandler{
             String userName,
             String password,
             long[] metricTypesIds) {
-        System.out.println("getMetricTypesByIds");
         return metricManager.getMetricTypesByIds(
                 userName, password, metricTypesIds);
     }
@@ -527,7 +508,6 @@ public class WebServices implements EventHandler{
             String userName,
             String password,
             WSMetricsRequest request) {
-        System.out.println("getMetricsByResourcesIds");
         return metricManager.getMetricsByResourcesIds(userName, password, request);
     }
 
@@ -538,7 +518,6 @@ public class WebServices implements EventHandler{
      */
     public WSResultEntry[] getMeasurements(String userName, String password,
         WSProjectVersion v) {
-        System.out.println("getMeasurements");
         return metricManager.getMeasurements(userName,password,v);
     }
 
@@ -556,7 +535,6 @@ public class WebServices implements EventHandler{
      */
     public WSResultEntry[] getMetricsResult(String userName, String password,
             WSMetricsResultRequest resultRequest) {
-        System.out.println("getMetricsResult");
         return metricManager.getMetricsResult(userName, password, resultRequest);
     }
 
@@ -586,7 +564,6 @@ public class WebServices implements EventHandler{
             String newUserName,
             String newPassword,
             String email) {
-        System.out.println("createPendingUser");
         return userManager.createPendingUser(userNameForAccess, passwordForAccess,
                 newUserName, newPassword, email);
     }
@@ -607,7 +584,6 @@ public class WebServices implements EventHandler{
             String userNameForAccess,
             String passwordForAccess,
             long[] usersIds) {
-        System.out.println("getUsersByIds");
         return userManager.getUsersByIds(
                 userNameForAccess, passwordForAccess, usersIds);
     }
@@ -625,7 +601,6 @@ public class WebServices implements EventHandler{
     public WSUserGroup[] getUserGroups(
             String userName,
             String password) {
-        System.out.println("getUserGroups");
         return userManager.getUserGroups(userName, password);
     }
 
@@ -645,7 +620,6 @@ public class WebServices implements EventHandler{
             String userNameForAccess,
             String passwordForAccess,
             String userName) {
-        System.out.println("getUserByName");
         return userManager.getUserByName(
                 userNameForAccess, passwordForAccess, userName);
     }
@@ -672,7 +646,6 @@ public class WebServices implements EventHandler{
             String userName,
             String newPassword,
             String newEmail) {
-        System.out.println("modifyUser");
         return userManager.modifyUser(
                 userNameForAccess,
                 passwordForAccess,
@@ -695,7 +668,6 @@ public class WebServices implements EventHandler{
             String userNameForAccess,
             String passwordForAccess,
             long userId) {
-        System.out.println("deleteUserById");
         return userManager.deleteUserById(
                 userNameForAccess, passwordForAccess, userId);
     }
@@ -715,7 +687,6 @@ public class WebServices implements EventHandler{
     public String getMessageOfTheDay(
             String userName,
             String password) {
-        System.out.println("getMessageOfTheDay");
         return userManager.getMessageOfTheDay(userName, password);
     }
 
@@ -735,7 +706,6 @@ public class WebServices implements EventHandler{
             String password,
             String title,
             String messageBody) {
-        System.out.println("notifyAdmin");
         return userManager.notifyAdmin(userName, password, title, messageBody);
     }
 
