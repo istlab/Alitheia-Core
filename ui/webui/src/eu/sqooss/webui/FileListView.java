@@ -110,21 +110,40 @@ public class FileListView extends ListView {
         StringBuffer html = new StringBuffer();
         html.append("<ul>\n");
         // Display all folders first
+        long dirCount = 0;
         for (File nextFile : files) {
-            if (nextFile.getIsDirectory())
+            if (nextFile.getIsDirectory()) {
+                dirCount++;
                 html.append((nextFile != null)
                         ? "<li>" + nextFile.getHtml() + "</li>\n"
                         : "");
+            }
         }
         // Display all files
+        long fileCount = 0;
         for (File nextFile : files) {
-            if (nextFile.getIsDirectory() == false)
+            if (nextFile.getIsDirectory() == false) {
+                fileCount++;
                 html.append((nextFile != null)
                         ? "<li>" + nextFile.getHtml() + "</li>\n"
                         : "");
+            }
         }
         html.append("</ul>\n");
-        html.append("<b>Total:</b> " + files.size() + " files found\n");
+        // Display the statistics line
+        html.append("<b>Total:</b> "
+                + ((dirCount > 0)
+                        ? ((dirCount > 1)
+                                ? dirCount + " folders"
+                                : "one folder")
+                        : "")
+                + (((fileCount > 0) && (dirCount > 0)) ? " and " : "")
+                + ((fileCount > 0)
+                        ? ((fileCount > 1)
+                                ? fileCount + " files"
+                                : "one file")
+                        : "")
+                + " found\n");
         return html.toString();
     }
 

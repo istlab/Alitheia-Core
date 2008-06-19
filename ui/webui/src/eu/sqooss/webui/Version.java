@@ -255,9 +255,28 @@ public class Version extends WebuiItem {
                 if (selectedMetrics.size() > 0) {
                     fetchFilesResults(selectedMetrics);
                 }  else {
-                    html.append(Functions.error("No Metrics have been selected, select a metric <a href=\"metrics.jsp\">here</a> to view results."));
+                    html.append(Functions.error(
+                            "No Metrics have been selected, select a metric"
+                            + " <a href=\"metrics.jsp\">here</a>"
+                            + " to view results."));
+                    html.append("<br/>");
                 }
             }
+            // Display the browser's navigation bar
+            if ((dirStack.size() > 1)) {
+                html.append("&nbsp;<a href=\"files.jsp?"
+                        + "did=top" + "\""
+                        + ">Top</a>");
+                html.append("&nbsp;<a href=\"files.jsp?"
+                        + "did=prev" + "\""
+                        + ">Previous</a>");
+            }
+            else {
+                html.append("&nbsp;Top");
+                html.append("&nbsp;Previous");
+            }
+            html.append("<br/>");
+            // Display the browser's content
             FileListView view = new FileListView(files);
             html.append(view.getHtml());
             return html.toString();

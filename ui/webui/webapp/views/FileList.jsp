@@ -28,14 +28,6 @@ if (selectedProject.isValid()) {
         // Display some file statistics for the selected version
         out.println(selectedVersion.fileStats());
         // Display all files in the selected project version
-        // TODO: Replace with a file browser
-        out.println("&nbsp;<a href=\"files.jsp?"
-            + "did=top"
-            + "\">Top</a>");
-        out.println("&nbsp;<a href=\"files.jsp?"
-            + "did=prev"
-            + "\">Previous</a>");
-        out.println("<br/>");
         out.println(selectedVersion.listFiles(selectedProject));
     } else {
         out.println(Functions.error(
