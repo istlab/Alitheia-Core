@@ -34,6 +34,7 @@ package eu.sqooss.impl.service.web.services.datatypes;
 
 import java.util.List;
 
+import eu.sqooss.service.db.Directory;
 import eu.sqooss.service.db.ProjectFile;
 
 /**
@@ -44,6 +45,8 @@ public class WSProjectFile {
     private long id;
     private long projectVersionId;
     private long directoryId;
+    private long toDirectoryId;
+    private String shortName;
     private String fileName;
     private String status;
     private boolean isDirectory;
@@ -144,14 +147,20 @@ public class WSProjectFile {
     public static WSProjectFile getInstance(ProjectFile projectFile) {
         if (projectFile == null) return null;
         try {
-            WSProjectFile wsProjectFile = new WSProjectFile();
-            wsProjectFile.setId(projectFile.getId());
-            wsProjectFile.setDirectoryId(projectFile.getDir().getId());
-            wsProjectFile.setDirectory(projectFile.getIsDirectory());
-            wsProjectFile.setFileName(projectFile.getFileName());
-            wsProjectFile.setProjectVersionId(projectFile.getProjectVersion().getId());
-            wsProjectFile.setStatus(projectFile.getStatus());
-            return wsProjectFile;
+            WSProjectFile result = new WSProjectFile();
+            result.setId(projectFile.getId());
+            result.setDirectoryId(projectFile.getDir().getId());
+            result.setDirectory(projectFile.getIsDirectory());
+            result.setShortName(projectFile.getName());
+            result.setFileName(projectFile.getFileName());
+            result.setProjectVersionId(projectFile.getProjectVersion().getId());
+            result.setStatus(projectFile.getStatus());
+            if (projectFile.getIsDirectory()) {
+                Directory dir = projectFile.toDirectory();
+                if (dir != null)
+                    result.setToDirectoryId(dir.getId());
+            }
+            return result;
         } catch (Exception e) {
             return null;
         }
@@ -189,6 +198,22 @@ public class WSProjectFile {
             }
         }
         return result;
+    }
+
+    public String getShortName() {
+        return shortName;
+    }
+
+    public void setShortName(String shortName) {
+        this.shortName = shortName;
+    }
+
+    public long getToDirectoryId() {
+        return toDirectoryId;
+    }
+
+    public void setToDirectoryId(long toDirectoryId) {
+        this.toDirectoryId = toDirectoryId;
     }
     
 }

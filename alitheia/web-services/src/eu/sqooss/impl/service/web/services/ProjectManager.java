@@ -35,6 +35,7 @@ package eu.sqooss.impl.service.web.services;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -49,6 +50,7 @@ import eu.sqooss.impl.service.web.services.datatypes.WSVersionStats;
 import eu.sqooss.impl.service.web.services.utils.ProjectManagerDatabase;
 import eu.sqooss.impl.service.web.services.utils.ProjectSecurityWrapper;
 import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.Directory;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
@@ -532,8 +534,10 @@ public class ProjectManager extends AbstractManager {
     /**
      * @see eu.sqooss.service.web.services.WebServices#getVersionsStatistics(String, String, long[])
      */
-    public WSVersionStats[] getVersionsStatistics(String userName,
-            String password, long[] projectVersionsIds) {
+    public WSVersionStats[] getVersionsStatistics(
+            String userName,
+            String password,
+            long[] projectVersionsIds) {
         // Log this call
         logger.info("Get versions statistics!"
                 + " user: " + userName
@@ -548,7 +552,8 @@ public class ProjectManager extends AbstractManager {
             db.commitDBSession();
             throw se;
         }
-        // Retrieve the results
+        super.updateUserActivity(userName);
+        // Retrieve the result(s)
         if (projectVersionsIds != null) {
             List<WSVersionStats> result = new ArrayList<WSVersionStats>();
             for (Long nextId : projectVersionsIds) {
@@ -573,6 +578,81 @@ public class ProjectManager extends AbstractManager {
         }
         db.commitDBSession();
         return null;
+    }
+
+    /**
+     * @see eu.sqooss.service.web.services.WebServices#getRootFolder(String, String, long)
+     */
+    public WSDirectory getRootDirectory(
+            String userName,
+            String password,
+            long projectId) {
+        // Log this call
+        logger.info("Get root directory!"
+                + " user: " + userName
+                +";"
+                + " project Id: " + projectId);
+        // Match against the current security policy
+        db.startDBSession();
+        try {
+            securityWrapper.checkDBProjectsReadAccess(
+                    userName, password, new long[] {projectId}, null);
+        } catch (SecurityException se) {
+            db.commitDBSession();
+            throw se;
+        }
+        super.updateUserActivity(userName);
+        // Retrieve the result(s)
+        WSDirectory result = null;
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("path", "/");
+        List<Directory> directories = db.findObjectsByProperties(
+                Directory.class, params);
+        if ((directories != null) && (directories.size() > 0))
+            result = WSDirectory.getInstance(directories.get(0));
+        db.commitDBSession();
+        return result;
+    }
+
+    /**
+     * @see eu.sqooss.service.web.services.WebServices#getFilesInDirectory(String, String, long, long)
+     */
+    public WSProjectFile[] getFilesInDirectory(String userName,
+            String password, long projectVersionId, long directoryId) {
+        // Log this call
+        logger.info("Get files in directory!"
+                + " user: " + userName
+                +";"
+                + " directory Id: " + directoryId);
+        // Match against the current security policy
+        db.startDBSession();
+        try {
+            securityWrapper.checkProjectVersionsReadAccess(
+                    userName, password, new long[] {projectVersionId});
+        } catch (SecurityException se) {
+            db.commitDBSession();
+            throw se;
+        }
+        super.updateUserActivity(userName);
+        // Retrieve the result(s)
+        WSProjectFile[] result = null;
+        ProjectVersion version =
+            db.findObjectById(ProjectVersion.class, projectVersionId);
+        Directory directory =
+            db.findObjectById(Directory.class, directoryId);
+        try {
+            List<ProjectFile> files =
+                ProjectFile.getFilesForVersion(version, directory);
+            if (files != null) {
+                result = new WSProjectFile[files.size()];
+                int index = 0;
+                for (ProjectFile nextFile : files)
+                    result[index++] = WSProjectFile.getInstance(nextFile);
+            }
+        }
+        catch (IllegalArgumentException ex) {}
+        db.commitDBSession();
+        return result;
     }
 
 }
