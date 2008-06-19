@@ -94,13 +94,15 @@ if ((projectId != null)
         // Search for this project in the local cache first
         Project objProject = ProjectsListView.getProject(projectId);
         if (objProject != null) {
+            selectedProject.flushCache();
             selectedProject.setTerrier(terrier);
             selectedProject.copyFrom(objProject);
         }
         // Retrieve the project from the SQO-OSS framework
         else {
-            selectedProject.setId(projectId);
+            selectedProject.flushCache();
             selectedProject.setTerrier(terrier);
+            selectedProject.setId(projectId);
             selectedProject.retrieveData();
         }
 }

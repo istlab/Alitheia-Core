@@ -389,4 +389,17 @@ public class Project extends WebuiItem {
         }
         return result;
     }
+
+    /**
+     * Flushes any information that is cached in this object.
+     */
+    public void flushCache() {
+        currentVersionId = null;
+        versionsCount = null;
+        firstVersion = null;
+        lastVersion = null;
+        currentVersion = null;
+        metrics = null;
+        selectedMetrics = new ArrayList<Long>();
+    }
 }
