@@ -1,0 +1,26 @@
+<html xmlns:concordion="http://www.concordion.org/2007/concordion">
+<body>
+
+    <h1>Removing Projects from the System</h1>
+
+    <p>Since the system allows to create projects, it also permits to delete them.</p>
+    
+    <div class="example">
+
+        <h3>Example</h3>
+
+        <p concordion:execute="addProject(#added_project)">We assume the system
+        have a single project named "<span concordion:set="#added_project">test project</span>".</p>
+        
+        <p>When we <span concordion:execute="removeProject(#added_project)">remove it</span> then the
+        project list is <span concordion:assertTrue="isProjectListEmpty()">empty</span> again.</p>
+    </div>
+
+
+    <h2>See Also</h2>
+    <ul>
+        <li><a href="ProjectAdd.html">Can we add projects?</a></li>
+        <li><a href="ProjectEdit.html">Can we edit projects?</a></li>
+    </ul>
+</body>
+</html>
