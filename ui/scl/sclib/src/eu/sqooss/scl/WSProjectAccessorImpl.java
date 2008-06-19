@@ -79,54 +79,68 @@ import eu.sqooss.ws.client.ws.GetVersionsCount;
 import eu.sqooss.ws.client.ws.GetVersionsCountResponse;
 import eu.sqooss.ws.client.ws.GetVersionsStatistics;
 import eu.sqooss.ws.client.ws.GetVersionsStatisticsResponse;
+import eu.sqooss.ws.client.ws.GetRootDirectory;
+import eu.sqooss.ws.client.ws.GetRootDirectoryResponse;
+import eu.sqooss.ws.client.ws.GetFilesInDirectory;
+import eu.sqooss.ws.client.ws.GetFilesInDirectoryResponse;
 
 class WSProjectAccessorImpl extends WSProjectAccessor {
 
-    private static final String METHOD_NAME_GET_EVALUATED_PROJECTS       = "getEvaluatedProjects";
-
-    private static final String METHOD_NAME_GET_STORED_PROJECTS          = "getStoredProjects";
-
-    private static final String METHOD_NAME_GET_FILES_BY_PROJECT_ID      = "getFilesByProjectId";
-
-    private static final String METHOD_NAME_GET_PROJECT_BY_NAME          = "getProjectByName";
-
-    private static final String METHOD_NAME_GET_PROJECT_VERSIONS_BY_IDS              = "getProjectVersionsByIds";
-    
-    private static final String METHOD_NAME_GET_PROJECT_VERSIONS_BY_VERSION_NUMBERS  = "getProjectVersionsByVersionNumbers";
-
+    private static final String METHOD_NAME_GET_EVALUATED_PROJECTS =
+        "getEvaluatedProjects";
+    private static final String METHOD_NAME_GET_STORED_PROJECTS =
+        "getStoredProjects";
+    private static final String METHOD_NAME_GET_FILES_BY_PROJECT_ID =
+        "getFilesByProjectId";
+    private static final String METHOD_NAME_GET_PROJECT_BY_NAME =
+        "getProjectByName";
+    private static final String METHOD_NAME_GET_PROJECT_VERSIONS_BY_IDS =
+        "getProjectVersionsByIds";
+    private static final String METHOD_NAME_GET_PROJECT_VERSIONS_BY_VERSION_NUMBERS =
+        "getProjectVersionsByVersionNumbers";
     private static final String METHOD_NAME_GET_VERSIONS_COUNT =
         "getVersionsCount";
-
     private static final String METHOD_NAME_GET_VERSIONS_STATISTICS =
         "getVersionsStatistics";
+    private static final String METHOD_NAME_GET_FIRST_PROJECT_VERSIONS =
+        "getFirstProjectVersions";
+    private static final String METHOD_NAME_GET_LAST_PROJECT_VERSIONS =
+        "getLastProjectVersions";
+    private static final String METHOD_NAME_GET_PROJECTS_BY_IDS =
+        "getProjectsByIds";
+    private static final String METHOD_NAME_GET_FILES_NUMBER_BY_PROJECT_VERSION_ID =
+        "getFilesNumberByProjectVersionId";
+    private static final String METHOD_NAME_GET_FILES_BY_PROJECT_VERSION_ID =
+        "getFilesByProjectVersionId";
+    private static final String METHOD_NAME_GET_FILE_GROUPS_BY_PROJECT_ID =
+        "getFileGroupsByProjectId";
+    private static final String METHOD_NAME_GET_DIRECTORIES_BY_IDS =
+        "getDirectoriesByIds";
+    private static final String METHOD_NAME_GET_DEVELOPERS_BY_IDS =
+        "getDevelopersByIds";
+    private static final String METHOD_NAME_GET_ROOT_DIRECTORY =
+        "getRootDirectory";
+    private static final String METHOD_NAME_GET_FILES_IN_DIRECTORY =
+        "getFilesInDirectory";
 
-    private static final String METHOD_NAME_GET_FIRST_PROJECT_VERSIONS                = "getFirstProjectVersions";
-    
-    private static final String METHOD_NAME_GET_LAST_PROJECT_VERSIONS                = "getLastProjectVersions";
-
-    private static final String METHOD_NAME_GET_PROJECTS_BY_IDS                      = "getProjectsByIds";
-
-    private static final String METHOD_NAME_GET_FILES_NUMBER_BY_PROJECT_VERSION_ID   = "getFilesNumberByProjectVersionId";
-    
-    private static final String METHOD_NAME_GET_FILES_BY_PROJECT_VERSION_ID          = "getFilesByProjectVersionId";
-    
-    private static final String METHOD_NAME_GET_FILE_GROUPS_BY_PROJECT_ID            = "getFileGroupsByProjectId";
-    
-    private static final String METHOD_NAME_GET_DIRECTORIES_BY_IDS                   = "getDirectoriesByIds";
-    
-    private static final String METHOD_NAME_GET_DEVELOPERS_BY_IDS                    = "getDevelopersByIds";
-
-    private static final WSStoredProject[] EMPTY_ARRAY_STORED_PROJECTS   = new WSStoredProject[0];
-    private static final WSProjectVersion[] EMPTY_ARRAY_PROJECT_VERSIONS = new WSProjectVersion[0];
-    private static final WSDirectory[] EMPTY_ARRAY_DIRECTORIES = new WSDirectory[0];
-    private static final WSDeveloper[] EMPTY_ARRAY_DEVELOPERS = new WSDeveloper[0];
+    private static final WSStoredProject[] EMPTY_ARRAY_STORED_PROJECTS =
+        new WSStoredProject[0];
+    private static final WSProjectVersion[] EMPTY_ARRAY_PROJECT_VERSIONS =
+        new WSProjectVersion[0];
+    private static final WSDirectory[] EMPTY_ARRAY_DIRECTORIES =
+        new WSDirectory[0];
+    private static final WSDeveloper[] EMPTY_ARRAY_DEVELOPERS =
+        new WSDeveloper[0];
     
     private Map<String, Object> parameters;
     private String userName;
     private String password;
     private WsStub wsStub;
 
-    public WSProjectAccessorImpl(String userName, String password, String webServiceUrl) throws WSException {
+    public WSProjectAccessorImpl(
+            String userName,
+            String password,
+            String webServiceUrl) throws WSException {
         this.userName = userName;
         this.password = password;
         parameters = new Hashtable<String, Object>();
@@ -135,6 +149,63 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
         } catch (AxisFault af) {
             throw new WSException(af);
         }
+    }
+
+    /**
+     * @see eu.sqooss.scl.accessor.WSProjectAccessor#getRootDirectory(long)
+     */
+    @Override
+    public WSDirectory getRootDirectory(long projectId) throws WSException {
+        GetRootDirectoryResponse response;
+        GetRootDirectory params;
+        if (!parameters.containsKey(METHOD_NAME_GET_ROOT_DIRECTORY)) {
+            params = new GetRootDirectory();
+            params.setPassword(password);
+            params.setUserName(userName);
+            parameters.put(METHOD_NAME_GET_ROOT_DIRECTORY, params);
+        } else {
+            params = (GetRootDirectory) parameters.get(
+                    METHOD_NAME_GET_ROOT_DIRECTORY);
+        }
+        synchronized (params) {
+            params.setProjectId(projectId);
+            try {
+                response = wsStub.getRootDirectory(params);
+            } catch (RemoteException re) {
+                throw new WSException(re);
+            }
+        }
+        return (WSDirectory) response.get_return();
+    }
+
+    /**
+     * @see eu.sqooss.scl.accessor.WSProjectAccessor#getFilesInDirectory(long, long)
+     */
+    @Override
+    public WSProjectFile[] getFilesInDirectory(
+            long projectVersionId,
+            long directoryId) throws WSException {
+        GetFilesInDirectoryResponse response;
+        GetFilesInDirectory params;
+        if (!parameters.containsKey(METHOD_NAME_GET_FILES_IN_DIRECTORY)) {
+            params = new GetFilesInDirectory();
+            params.setPassword(password);
+            params.setUserName(userName);
+            parameters.put(METHOD_NAME_GET_FILES_IN_DIRECTORY, params);
+        } else {
+            params = (GetFilesInDirectory) parameters.get(
+                    METHOD_NAME_GET_FILES_IN_DIRECTORY);
+        }
+        synchronized (params) {
+            params.setProjectVersionId(projectVersionId);
+            params.setDirectoryId(directoryId);
+            try {
+                response = wsStub.getFilesInDirectory(params);
+            } catch (RemoteException e) {
+                throw new WSException(e);
+            }
+        }
+        return (WSProjectFile[]) normalizeWSArrayResult(response.get_return());
     }
 
     /**
@@ -216,6 +287,9 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
         return (WSProjectFile[]) normalizeWSArrayResult(response.get_return());
     }
 
+    /**
+     * @see eu.sqooss.scl.accessor.WSProjectAccessor#getVersionsStatistics(long[])
+     */
     @Override
     public WSVersionStats[] getVersionsStatistics(long[] projectVersionsIds)
     throws WSException {

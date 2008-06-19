@@ -320,6 +320,50 @@ public abstract class WSProjectAccessor extends WSAccessor {
      */
     public abstract WSVersionStats[] getVersionsStatistics(
             long[] projectVersionsIds) throws WSException;
+
+    /**
+     * This method returns the root directory of the specified project's
+     * source tree.
+     *
+     * @param userName - the user's name used for authentication
+     * @param password - the user's password used for authentication
+     * @param projectId - the project's identifier
+     *
+     * @return The root directory's object, or <code>null</code> if not found.
+     *
+     * @throws WSException
+     * <ul>
+     *  <li>if a connection with the SQO-OSS's web services service can
+     *    not be established</li>
+     *  <li>if web services service throws an exception</li>
+     * <ul>
+     */
+    public abstract WSDirectory getRootDirectory(
+            long projectId) throws WSException;
+
+    /**
+     * This method returns an array of all files located in the selected
+     * directory, that exists in the specified project version.
+     *
+     * @param userName - the user's name used for authentication
+     * @param password - the user's password used for authentication
+     * @param projectVersionId - the project's version identifier
+     * @param directoryId - the directory identifier
+     *
+     * @return The array of project's files in that directory and that project
+     * version, or a <code>null</code> array when none are found.
+     *
+     * @throws WSException
+     * <ul>
+     *  <li>if a connection with the SQO-OSS's web services service can
+     *    not be established</li>
+     *  <li>if web services service throws an exception</li>
+     * <ul>
+     */
+    public abstract WSProjectFile[] getFilesInDirectory(
+            long projectVersionId,
+            long directoryId) throws WSException;
+
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
