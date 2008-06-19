@@ -13,10 +13,29 @@ if (selectedProject.isValid()) {
             + " in version " + selectedVersion.getNumber()
             + "</h2>");
 
+        // Check if the user has switched to another directory
+        if (request.getParameter("did") != null) {
+            if (request.getParameter("did").equals("top"))
+                selectedVersion.topDir();
+            else if (request.getParameter("did").equals("prev"))
+                selectedVersion.previousDir();
+            else {
+                Long directoryId = getId(request.getParameter("did"));
+                if (directoryId != null)
+                    selectedVersion.switchDir(directoryId);
+            }
+        }
         // Display some file statistics for the selected version
         out.println(selectedVersion.fileStats());
         // Display all files in the selected project version
         // TODO: Replace with a file browser
+        out.println("&nbsp;<a href=\"files.jsp?"
+            + "did=top"
+            + "\">Top</a>");
+        out.println("&nbsp;<a href=\"files.jsp?"
+            + "did=prev"
+            + "\">Previous</a>");
+        out.println("<br/>");
         out.println(selectedVersion.listFiles(selectedProject));
     } else {
         out.println(Functions.error(

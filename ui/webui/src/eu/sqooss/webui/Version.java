@@ -36,6 +36,7 @@ package eu.sqooss.webui;
 import java.util.*;
 
 import eu.sqooss.webui.Result.ResourceType;
+import eu.sqooss.ws.client.datatypes.WSDirectory;
 import eu.sqooss.ws.client.datatypes.WSProjectVersion;
 import eu.sqooss.ws.client.datatypes.WSMetric;
 import eu.sqooss.ws.client.datatypes.WSMetricsResultRequest;
@@ -56,6 +57,7 @@ public class Version extends WebuiItem {
     private Long filesNumber = null;
     private Result[] results;
     private WSVersionStats stats = null;
+    private Stack<Long> dirStack = new Stack<Long>();
 
     /** Empty ctor, only sets the jsp page that can be used to display
      * details about this Version.
@@ -115,26 +117,87 @@ public class Version extends WebuiItem {
         return filesNumber;
     }
 
-    /** Fetch the files that are part of this particular Version from the SCL.
-     * After this method has been called the files in this Version are available
-     * in the files member.
+    /**
+     * Fetch all files that exist in this project version from the attached
+     * SQO-OSS framework. All files that are found are copied into the
+     * <code>files<code> member.
      */
-    public void getFiles () {
-        if (!isValid()) {
-            addError("no ID in getFiles()");
-            return;
+    public void getAllFiles() {
+        if (isValid()) {
+            // TODO: We don't need that double caching (in fs and files)
+            fs = terrier.getProjectVersionFiles(id);
+            if ( fs == null || fs.size() == 0 )
+                return;
+            fileCount = fs.size();
+            files = new TreeMap<Long, File>();
+            Iterator<File> filesIterator = fs.iterator();
+            while (filesIterator.hasNext()) {
+                File nextFile = filesIterator.next();
+                files.put(nextFile.getId(), nextFile);
+            }
         }
-        fs = terrier.getProjectVersionFiles(id);
-        fileCount = fs.size();
-        if ( fs == null || fs.size() == 0 ) {
-            return;
+        else
+            addError("Invalid project version!");
+    }
+
+    public void switchDir(Long directoryId) {
+        // Skip if the user tries to switch to the same directory
+        if (dirStack.peek().equals(directoryId)) return;
+        // Flush the currently cached files
+        files = null;
+        // Check if the user tries to switch to a higher level directory
+        if (dirStack.contains(directoryId))
+            while ((dirStack.isEmpty() == false)
+                    || (dirStack.peek().equals(directoryId) == false))
+                dirStack.pop();
+        // Add the sub-directory to the stack
+        else
+            dirStack.push(directoryId);
+    }
+
+    public void previousDir() {
+        // Shift one level higher in the directory tree
+        files = null;
+        dirStack.pop();
+    }
+
+    public void topDir() {
+        // Switch to the root directory
+        files = null;
+        dirStack.clear();
+    }
+
+    /**
+     * Fetch all files in the current directory that exist in this project
+     * version from the attached SQO-OSS framework. All files that are found
+     * are copied into the <code>files<code> member.
+     */
+    public void getFilesInCurrentDirectory() {
+        if (isValid()) {
+            // Fill the files cache if empty
+            if (files == null) {
+                // Initialize the version's directory tree if empty
+                if (dirStack.isEmpty()) {
+                    WSDirectory rootDir = terrier.getRootDirectory(projectId);
+                    if (rootDir != null)
+                        dirStack.push(rootDir.getId());
+                }
+                // Fetch all files in the current directory for this version
+                if (dirStack.size() > 0) {
+                    Long currentDirId = dirStack.peek();
+                    List<File> filesList = terrier.getFilesInDirectory(
+                            getId(), currentDirId);
+                    if ((filesList != null) && (filesList.size() > 0)) {
+                        fileCount = filesList.size();
+                        files = new TreeMap<Long, File>();
+                        for (File nextFile : filesList)
+                            files.put(nextFile.getId(), nextFile);
+                    }
+                }
+            }
         }
-        files = new TreeMap<Long, File>();
-        Iterator<File> filesIterator = fs.iterator();
-        while (filesIterator.hasNext()) {
-            File nextFile = filesIterator.next();
-            files.put(nextFile.getId(), nextFile);
-        }
+        else
+            addError("Invalid project version!");
     }
 
     public String fileStats() {
@@ -182,8 +245,9 @@ public class Version extends WebuiItem {
         
         // Retrieve the list of files if not yet done
         if (files == null)
-            getFiles();
-        // Render the files list (plus eval. results) page
+            //getAllFiles();
+            getFilesInCurrentDirectory();
+        // Render the files list page (inclusive evaluation results)
         StringBuilder html = new StringBuilder();
         if (files != null) {
             if (project != null) {

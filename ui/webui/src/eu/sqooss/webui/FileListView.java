@@ -109,7 +109,7 @@ public class FileListView extends ListView {
     public String getHtml() {
         StringBuffer html = new StringBuffer();
         Iterator<File> filesIterator = files.iterator();
-        html.append(files.size() + " Files found \n<ul>\n");
+        html.append("<ul>\n");
         while (filesIterator.hasNext()) {
             File nextFile = filesIterator.next();
             html.append(
@@ -117,7 +117,9 @@ public class FileListView extends ListView {
                     ? "\n<li>" + nextFile.getHtml() + "</li>"
                     : "");
         }
+        
         html.append("\n</ul>");
+        html.append(files.size() + " Files found \n");
         return html.toString();
     }
 

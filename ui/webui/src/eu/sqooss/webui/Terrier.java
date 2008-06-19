@@ -43,6 +43,7 @@ import java.util.Vector;
 
 import eu.sqooss.scl.WSException;
 import eu.sqooss.webui.Result.ResourceType;
+import eu.sqooss.ws.client.datatypes.WSDirectory;
 import eu.sqooss.ws.client.datatypes.WSMetric;
 import eu.sqooss.ws.client.datatypes.WSMetricType;
 import eu.sqooss.ws.client.datatypes.WSMetricsRequest;
@@ -203,6 +204,63 @@ public class Terrier {
             addError("Cannot this version " + versionId + "for project " + projectId + ".");
         }
         return null;
+    }
+
+    /**
+     * This method returns the root directory of the specified project's
+     * source tree.
+     *
+     * @param projectId - the project's identifier
+     *
+     * @return The root directory's object, or <code>null</code> if not found.
+     */
+    public WSDirectory getRootDirectory(long projectId) {
+        if (!connection.isConnected()) {
+            addError(connection.getError());
+            return null;
+        }
+        try {
+            // Retrieve the corresponding directory object
+            return connection.getProjectAccessor().getRootDirectory(
+                    projectId);
+        }
+        catch (WSException wse) {
+            addError("Can not retrieve version(s) by number.");
+        }
+        return null;
+    }
+
+    /**
+     * This method returns an array of all files located in the selected
+     * directory, that exists in the specified project version.
+     *
+     * @param projectVersionId - the project's version identifier
+     * @param directoryId - the directory identifier
+     *
+     * @return The array of project's files in that directory and that project
+     * version, or a <code>null</code> array when none are found.
+     */
+    public List<File> getFilesInDirectory(
+            long projectVersionId,
+            long directoryId) {
+        if (!connection.isConnected()) {
+            addError(connection.getError());
+            return null;
+        }
+        List<File> result = new ArrayList<File>();
+        try {
+            WSProjectFile[] wsfiles =
+                connection.getProjectAccessor().getFilesInDirectory(
+                        projectVersionId,
+                        directoryId);
+            if (wsfiles != null)
+                for (WSProjectFile file : wsfiles)
+                    result.add(new File(file, this));
+        }
+        catch (WSException wse) {
+            addError("Can not retrieve the list of files for this directory!");
+        }
+        return result;
     }
 
     /**

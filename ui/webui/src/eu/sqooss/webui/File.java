@@ -51,7 +51,10 @@ class File extends WebuiItem {
 
     /** The Constant COMMENT. */
     private static final String COMMENT = "<!-- File -->\n";
-    
+
+    // The short name of this file
+    private String shortName;
+
     /** The name. */
     private String name = "FILE_NAME_UNSET";
     
@@ -67,6 +70,9 @@ class File extends WebuiItem {
     /** The is directory. */
     private Boolean isDirectory;
     
+    // Holds the Id of the Directory DAO that match this folder's name
+    Long toDirectoryId;
+    
     /** The terrier. */
     private Terrier terrier;
     
@@ -81,12 +87,14 @@ class File extends WebuiItem {
      * @param t the t
      */
     public File (WSProjectFile wsFile, Terrier t) {
-        versionId = wsFile.getProjectVersionId();
-        name = wsFile.getFileName();
-        status = wsFile.getStatus();
-        id = wsFile.getId();
-        isDirectory = wsFile.getDirectory();
-        terrier = t;
+        this.versionId = wsFile.getProjectVersionId();
+        this.shortName = wsFile.getShortName();
+        this.name = wsFile.getFileName();
+        this.status = wsFile.getStatus();
+        this.id = wsFile.getId();
+        this.isDirectory = wsFile.getDirectory();
+        this.toDirectoryId = wsFile.getToDirectoryId();
+        this.terrier = t;
     }
     
     /**
@@ -117,9 +125,18 @@ class File extends WebuiItem {
     }
 
     /**
-     * Gets the name.
+     * Gets the short name of this file.
      * 
-     * @return the name
+     * @return The short name of this file.
+     */
+    public String getShortName() {
+        return shortName;
+    }
+
+    /**
+     * Gets the full name of this file (inclusive path).
+     * 
+     * @return The full name of this file.
      */
     public String getName () {
         return name;
@@ -141,13 +158,28 @@ class File extends WebuiItem {
         return id;
     }
 
+    public Long getToDirectoryId() {
+        return toDirectoryId;
+    }
+
     /**
-     * Gets the link.
+     * Constructs a HTML link for selecting this file.
      * 
-     * @return the link
+     * @return The HTML link for selecting this file.
      */
     public String getLink() {
-        return "<a href=\"files.jsp?fid=" + id + "\">" + name + "</a>";
+        return "<a href=\"files.jsp?fid=" + id + "\">" + shortName + "</a>";
+    }
+
+    /**
+     * Constructs a HTML link for selecting this folder.
+     * 
+     * @return The HTML link for selecting this folder.
+     */
+    public String getDirLink() {
+        return "<a href=\"files.jsp?"
+            + "did=" + toDirectoryId
+            + "\">/" + shortName + "</a>";
     }
 
     /**
@@ -188,11 +220,12 @@ class File extends WebuiItem {
      */
     public String getHtml() {
         StringBuilder html = new StringBuilder(COMMENT);
-        html.append(getStatusIcon() + "&nbsp;" + getLink());
         if (getIsDirectory()) {
+            html.append(getStatusIcon() + "&nbsp;" + getDirLink());
             html.append(" (<i>Folder</i>)");
         }
         else {
+            html.append(getStatusIcon() + "&nbsp;" + getLink());
             html.append("<ul>");
             if (results.size() > 0) {
                 for (Result nextResult : results)
@@ -214,4 +247,5 @@ class File extends WebuiItem {
         if (results.contains(resultEntry) == false)
             results.add(resultEntry);
     }
+
 }
