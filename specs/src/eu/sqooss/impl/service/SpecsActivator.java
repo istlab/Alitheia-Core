@@ -96,47 +96,31 @@ public class SpecsActivator implements BundleActivator, EventHandler, Runnable {
     public void run() {
         System.out.println("Running specs...");
 
-        final String specsRootPkg = "eu.sqooss.impl.service.specs";
-        final String specsRootPath = specsRootPkg.replace('.', '/');
-
-        System.out.println("Start processing specs from "+specsRootPkg);
-        System.out.println("");
-
-        Enumeration<?> paths = bundleContext.getBundle().findEntries(specsRootPath, "*.class", true);
         SpecsStats stats = new SpecsStats();
 
-        while (paths.hasMoreElements()) {
-            String path = ((URL)paths.nextElement()).getPath();
-            int i = path.indexOf("specs/");
-            path = path.substring(i+6, path.length()-6);
+        String singleSpec = System.getenv("SINGLE_SPEC");
 
-            if (path.contains("$")) continue; //skip inner classes
-
-            String className = "eu.sqooss.impl.service.specs."+path.replace('/', '.');
-            Class<?> c = null;
-            try {
-                c = bundleContext.getBundle().loadClass(className);
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            }
-
-            System.out.println("*** Running "+className);
-            try {
-                startAlitheia(bundleContext);
-            } catch (BundleException e) {
-                e.printStackTrace();
-            }
-            Result r = JUnitCore.runClasses(c);
-            try {
-                stopAlitheia(bundleContext);
-            } catch (BundleException e) {
-                e.printStackTrace();
-            }
-
-            stats.runsCount++;
-            if (r.getFailureCount()>0) {
-                stats.failedCount++;
-                stats.failedNames.add(className);
+        if (singleSpec!=null) {
+            runSpec(singleSpec, stats);
+        } else {
+            
+            final String specsRootPkg = "eu.sqooss.impl.service.specs";
+            final String specsRootPath = specsRootPkg.replace('.', '/');
+    
+            System.out.println("Start processing specs from "+specsRootPkg);
+            System.out.println("");
+    
+            Enumeration<?> paths = bundleContext.getBundle().findEntries(specsRootPath, "*.class", true);
+    
+            while (paths.hasMoreElements()) {
+                String path = ((URL)paths.nextElement()).getPath();
+                int i = path.indexOf("specs/");
+                path = path.substring(i+6, path.length()-6);
+    
+                if (path.contains("$")) continue; //skip inner classes
+    
+                String className = "eu.sqooss.impl.service.specs."+path.replace('/', '.');
+                runSpec(className, stats);
             }
         }
 
@@ -162,6 +146,35 @@ public class SpecsActivator implements BundleActivator, EventHandler, Runnable {
         }
     }
 
+    private void runSpec(String className, SpecsStats stats) {
+        System.out.println("*** Running "+className);
+        Class<?> c = null;
+        try {
+            c = bundleContext.getBundle().loadClass(className);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        try {
+            startAlitheia(bundleContext);
+        } catch (BundleException e) {
+            e.printStackTrace();
+        }
+        Result r = JUnitCore.runClasses(c);
+        try {
+            stopAlitheia(bundleContext);
+        } catch (BundleException e) {
+            e.printStackTrace();
+        }
+
+        stats.runsCount++;
+        if (r.getFailureCount()>0) {
+            stats.failedCount++;
+            stats.failedNames.add(className);
+        }
+    }
+    
     private void startAlitheia(BundleContext bc) throws BundleException {
         for (int i=0; i<alitheiaBundles.length; ++i) {
             alitheiaBundles[i].start();
