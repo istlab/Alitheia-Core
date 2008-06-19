@@ -643,7 +643,7 @@ public class ProjectManager extends AbstractManager {
         try {
             List<ProjectFile> files =
                 ProjectFile.getFilesForVersion(version, directory);
-            if (files != null) {
+            if ((files != null) && (files.size() > 0)) {
                 result = new WSProjectFile[files.size()];
                 int index = 0;
                 for (ProjectFile nextFile : files)
