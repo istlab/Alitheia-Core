@@ -247,10 +247,15 @@ public class Version extends WebuiItem {
         if (files == null)
             //getAllFiles();
             getFilesInCurrentDirectory();
-        // Render the files list page (inclusive evaluation results)
+        
         StringBuilder html = new StringBuilder();
-        if (files != null) {
-            if (project != null) {
+        // Check for an empty revision
+        if ((files == null) && (dirStack.size() < 2)) {
+            return "<strong>No files found for this project version!</strong>";
+        }
+        // Render the files list page (inclusive evaluation results)
+        else {
+            if ((project != null) && (files != null) && (files.size() > 0)) {
                 Map<Long, String> selectedMetrics = project.getSelectedMetricMnenmonics();
                 if (selectedMetrics.size() > 0) {
                     fetchFilesResults(selectedMetrics);
@@ -277,11 +282,14 @@ public class Version extends WebuiItem {
             }
             html.append("<br/>");
             // Display the browser's content
-            FileListView view = new FileListView(files);
-            html.append(view.getHtml());
+            if ((project != null) && (files != null) && (files.size() > 0)) {
+                FileListView view = new FileListView(files);
+                html.append(view.getHtml());
+            }
+            else
+                html.append("<i>Empty</i>\n");
             return html.toString();
         }
-        return "<strong>No files found for this project version!</strong>";
     }
 
     /** Count the number of files and store this number internally.
