@@ -108,18 +108,23 @@ public class FileListView extends ListView {
 
     public String getHtml() {
         StringBuffer html = new StringBuffer();
-        Iterator<File> filesIterator = files.iterator();
         html.append("<ul>\n");
-        while (filesIterator.hasNext()) {
-            File nextFile = filesIterator.next();
-            html.append(
-                    (nextFile != null)
-                    ? "\n<li>" + nextFile.getHtml() + "</li>"
-                    : "");
+        // Display all folders first
+        for (File nextFile : files) {
+            if (nextFile.getIsDirectory())
+                html.append((nextFile != null)
+                        ? "<li>" + nextFile.getHtml() + "</li>\n"
+                        : "");
         }
-        
-        html.append("\n</ul>");
-        html.append(files.size() + " Files found \n");
+        // Display all files
+        for (File nextFile : files) {
+            if (nextFile.getIsDirectory() == false)
+                html.append((nextFile != null)
+                        ? "<li>" + nextFile.getHtml() + "</li>\n"
+                        : "");
+        }
+        html.append("</ul>\n");
+        html.append("<b>Total:</b> " + files.size() + " files found\n");
         return html.toString();
     }
 

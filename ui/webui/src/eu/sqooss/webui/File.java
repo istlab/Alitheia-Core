@@ -179,7 +179,7 @@ class File extends WebuiItem {
     public String getDirLink() {
         return "<a href=\"files.jsp?"
             + "did=" + toDirectoryId
-            + "\">/" + shortName + "</a>";
+            + "\">" + shortName + "/</a>";
     }
 
     /**
