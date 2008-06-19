@@ -203,6 +203,25 @@ public class ProjectFile extends DAObject{
     }
 
     /**
+     * If this <code>ProjectFile</code> represents a folder, then this method
+     * will return the <code>Directory<code> DAO that match the folder's name.
+     * 
+     * @return The corresponding <code>Directory</code> DAO
+     */
+    public Directory toDirectory() {
+        if ((isDirectory) && (getFileName() != null)) {
+            DBService dbs = CoreActivator.getDBService();
+            Map<String, Object> props = new HashMap<String, Object>();
+            props.put("path", getFileName());
+            List<Directory> matches =
+                dbs.findObjectsByProperties(Directory.class, props);
+            if ((matches != null) && (matches.size() > 0))
+                return matches.get(0);
+        }
+        return null;
+    }
+
+    /**
      * Get the previous entry for the provided ProjectFile
      * @param pf
      * @return The previous file revision, or null if the file is not found
