@@ -59,12 +59,10 @@ public class Result extends WebuiItem {
         }
     };
 
-    private String mnemonic;
-    private String type;
-    private String activationType;
-    private String description;
-    private String data;
-    private String mimetype;
+    private String mnemonic = new String();
+    private String mimetype = new String();
+    private String data = new String();
+    private String activationType = new String();
 
     /** Represents a ProjectFile activated metric. */
     public static final String PROJECT_FILE = "PROJECT_FILE";
@@ -72,9 +70,11 @@ public class Result extends WebuiItem {
     /** Represents a ProjectVersion activated metric. */
     public static final String PROJECT_VERSION = "PROJECT_VERSION";
 
-    /** Keep the following list of mimetypes in sync with
-     * trunk/alitheia/core/src/eu/sqooss/service/abstractmetric/ResultEntry.java
+    /* 
+     * The following list of mimetypes must be kept in sync with the mimetypes
+     * definitions from eu.sqooss.service.abstractmetric.ResultEntry
      */
+
     /** Represents "type/integer" MIME type. */
     public static final String MIME_TYPE_TYPE_INTEGER = "type/integer";
 
@@ -108,34 +108,6 @@ public class Result extends WebuiItem {
     /** Represents "image/jpeg" MIME type. */
     public static final String MIME_TYPE_IMAGE_JPEG   = "image/jpeg";
 
-    /** Constructs a Result from a WSResultEntry, including initialisation
-     * of data in this object.
-     */
-
-    public Result (WSResultEntry resultentry, Terrier t) {
-        mnemonic    = resultentry.getMnemonic();
-        id          = resultentry.getDaoId();
-        mimetype    = resultentry.getMimeType();
-        data        = resultentry.getResult();
-        activationType = PROJECT_VERSION; //FIXME: read from ResultEntry
-        terrier     = t;
-    }
-
-    public Result (Long resultId, Terrier t) {
-        mnemonic    = "LOC";
-        id          = resultId;
-        mimetype    = MIME_TYPE_TYPE_INTEGER;
-        data        = "TheResult";
-        terrier     = t;
-    }
-
-    public Result () {
-    }
-
-    public Long getId() {
-        return id;
-    }
-
     private static final String[] printable = {
         MIME_TYPE_TEXT_HTML,
         MIME_TYPE_TEXT_PLAIN,
@@ -145,6 +117,44 @@ public class Result extends WebuiItem {
         MIME_TYPE_TYPE_FLOAT,
         MIME_TYPE_TYPE_INTEGER,
         MIME_TYPE_TYPE_LONG };
+
+    /**
+     * Instantiates a new <code>Result</code>.
+     */
+    public Result () {
+    }
+
+    /**
+     * Instantiates a new <code>Result</code> and initializes it with the 
+     * information provided from the given <code>WSResultEntry</code>
+     * instance.
+     */
+    public Result (WSResultEntry resultentry, Terrier t) {
+        if (resultentry != null) {
+            id          = resultentry.getDaoId();
+            mnemonic    = resultentry.getMnemonic();
+            mimetype    = resultentry.getMimeType();
+            data        = resultentry.getResult();
+            activationType = PROJECT_VERSION; //FIXME: read from ResultEntry
+        }
+        terrier = t;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getString() {
+        return data;
+    }
+
+    public String getMnemonic() {
+        return mnemonic;
+    }
+
+    public String getMimeType() {
+        return mimetype;
+    }
 
     /** This method makes it easy to check if we can just dump the content
      * of the result to screen, or if we need to go through an extra HTML
@@ -161,32 +171,42 @@ public class Result extends WebuiItem {
         return false;
     }
 
-    public String getString() {
-        if (getIsPrintable()) {
-            return data;
-        } else {
-            return "<a href=\"renderresult.jsp?id=" + getId() + "\">Render</a>";
-        }
-    }
-
-    public String getMnemonic() {
-        return mnemonic;
-    }
-
-    public String getMimeType() {
-        return getMimeType();
-    }
-
-    /** Returns an HTML string which is a link to a page displaying the result.
+    /**Returns an HTML string which is a link to a page displaying the result.
      */
     public String getLink() {
         return "<a href=\"/results.jsp?rid=" + getId() + "\">View Me</a>";
     }
 
-    /** Returns an HTML string representing the Result in a clever way.
+    /**
+     * Returns an HTML string representing the Result in a clever way.
      */
     public String getHtml () {
-        return mnemonic + ": " + getString();
+        if (getIsPrintable())
+            return mnemonic + ": " + getString();
+        else
+            return "<a href=\"renderresult.jsp?id=" + getId() + "\">Render</a>";
     }
 
+    /**
+     * Verifies if this object is equal to the given <code>Result</code>
+     * object.
+     * 
+     * @param target the target <code>Result</code> object
+     * 
+     * @return <code>true<code>, if this <code>Result</code> is equal to the
+     *   given <code>Result</code> object, or <code>false</code> otherwise.
+     */
+    @Override
+    public boolean equals(Object target) {
+        if (this == target) return true;
+        if (target == null) return false;
+        if (getClass() != target.getClass()) return false;
+        Result result = (Result) target;
+        if (getMnemonic().equals(result.getMnemonic()))
+            if (getId().equals(result.getId()))
+                if (getMimeType().equals(result.getMimeType()))
+                    if (getString().equals(result.getString()))
+                        return true;
+        return false;
+    }
 }
