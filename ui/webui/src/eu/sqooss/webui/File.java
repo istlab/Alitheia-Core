@@ -192,48 +192,57 @@ class File extends WebuiItem {
     }
 
     /**
-     * Return a HTML string showing a statusicon indicating wether the file
-     * has been modified, deleted, added or unknown status.
+     * Return a HTML string showing a status icon indicating whether this file
+     * has been modified, deleted, added or left unchanged in the specified
+     * project version.
      * 
-     * @return the status icon
+     * @param versionId the version Id
+     * 
+     * @return the HTML code for the status icon
      */
-    public String getStatusIcon() {
-        String iconname = "vcs_status";
-        String tooltip = "status unknown";
-        if (status.equals("ADDED")) {
-            iconname = "vcs_add";
-            tooltip = "file was added";
-        } else if (status.equals("MODIFIED")) {
-            iconname = "vcs_update";
-            tooltip = "file was modified";
-        } else if (status.equals("DELETED")) {
-            iconname = "vcs_remove";
-            tooltip = "file was removed";
-        }
+    public String getStatusIcon(Long versionId) {
+        String iconname = "vcs_unchanged";
+        String tooltip = null;
+        if ((versionId != null) && (this.versionId == versionId))
+            if (status.equals("ADDED")) {
+                iconname = "vcs_add";
+                tooltip = "Added in this version";
+            } else if (status.equals("MODIFIED")) {
+                iconname = "vcs_update";
+                tooltip = "Modified in this version";
+            } else if (status.equals("DELETED")) {
+                iconname = "vcs_remove";
+                tooltip = "Removed in this version";
+            }
         return icon(iconname, 0, tooltip);
     }
 
     /**
-     * HTML representation of the File.
+     * Return a HTML representation of the file state and results in the given
+     * project version.
      * 
-     * @return the html
+     * @param versionId the project version's Id
+     * 
+     * @return the HTML for this file
      */
-    public String getHtml() {
-        StringBuilder html = new StringBuilder(COMMENT);
+    public String getHtml(Long versionId) {
+        StringBuilder html = new StringBuilder("");
         if (getIsDirectory()) {
-            html.append(getStatusIcon() + "&nbsp;" + getDirLink());
-            html.append(" (<i>Folder</i>)");
+            html.append(getStatusIcon(versionId)
+                    + "&nbsp;" + getDirLink()
+                    + " (<i>Folder</i>)\n");
         }
         else {
-            html.append(getStatusIcon() + "&nbsp;" + getLink());
-            html.append("<ul>");
+            html.append(getStatusIcon(versionId)
+                    + "&nbsp;" + getLink() + "\n");
             if (results.size() > 0) {
+                html.append("<ul>\n");
                 for (Result nextResult : results)
                     html.append("<li>" + nextResult.getHtml());
+                html.append("</ul>\n");
             }
             else
-                html.append("<li>(<i>No results found</i>)");
-            html.append("</ul>");
+                html.append(" (<i>No results found</i>)\n");
         }
         return html.toString();
     }

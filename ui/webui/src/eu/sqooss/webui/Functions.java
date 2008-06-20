@@ -68,8 +68,10 @@ public class Functions {
         StringBuilder html = new StringBuilder("<img src=\"/img/icons/");
         html.append(size + "x" + size + "/");
         html.append(name + ".png\" ");
-        html.append("alt=\"" + tooltip + "\" ");
-        html.append("title=\"" + tooltip + "\" ");
+        if (tooltip != null) {
+            html.append("alt=\"" + tooltip + "\" ");
+            html.append("title=\"" + tooltip + "\" ");
+        }
         html.append("class=\"icon\" />");
         return html.toString();
     }

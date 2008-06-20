@@ -284,6 +284,7 @@ public class Version extends WebuiItem {
             // Display the browser's content
             if ((project != null) && (files != null) && (files.size() > 0)) {
                 FileListView view = new FileListView(files);
+                view.setVersionId(this.id);
                 html.append(view.getHtml());
             }
             else

@@ -33,22 +33,20 @@
 
 package eu.sqooss.webui;
 
-// Java imports
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 import java.util.SortedMap;
 
-import eu.sqooss.ws.client.datatypes.WSMetricsResultRequest;
-
 public class FileListView extends ListView {
 
     private List<File> files = new Vector<File>();
 
-    // Contains the ID of the selected project, if any
+    // Contains the Id of the selected project (if any)
     private Long projectId;
+
+    // Contains the Id of the selected project's version (if any)
+    private Long versionId;
 
     /**
      * Instantiates a new empty <code>FileListView</code> object.
@@ -67,8 +65,8 @@ public class FileListView extends ListView {
      * Instantiates a new <code>FileListView</code> object and initializes it
      * with the given list of project files.
      */
-    public FileListView (SortedMap<Long, File> ffs) {
-        for (File nextFile : ffs.values()) {
+    public FileListView (SortedMap<Long, File> filesList) {
+        for (File nextFile : filesList.values()) {
             files.add(nextFile);
         }
     }
@@ -100,32 +98,70 @@ public class FileListView extends ListView {
         this.files = filesList;
     }
 
+    /**
+     * Gets the Id of the project that is associated with this view.
+     *
+     * @return The project Id, or <code>null</code> when none is associated.
+     */
+    public Long getProjectId() {
+        return projectId;
+    }
+
+    /**
+     * Sets the Id of the project that is associated with this view.
+     *
+     * @param projectId the project Id
+     */
+    public void setProjectId(Long projectId) {
+        this.projectId = projectId;
+    }
+
+    /**
+     * Gets the Id of the project's version that is associated with this view.
+     *
+     * @return The version Id, or <code>null</code> when none is associated.
+     */
+    public Long getVersionId() {
+        return versionId;
+    }
+
+    /**
+     * Sets the Id of the project's version that is associated with this view.
+     *
+     * @param versionId the version Id
+     */
+    public void setVersionId(Long versionId) {
+        this.versionId = versionId;
+    }
+
+    // TODO: Implement and document it
     public Vector<String> filterItems (Vector<String> items) {
         // TODO: Remove some files from this item list, such as Makefile, COPYING,
         // or alternatively, only show a list of certain extensions, like .cpp, .h ...
         return items;
     }
 
+    // TODO: Document it
     public String getHtml() {
         StringBuffer html = new StringBuffer();
         html.append("<ul>\n");
         // Display all folders first
         long dirCount = 0;
-        for (File nextFile : files) {
+        for (File nextFile : this.files) {
             if (nextFile.getIsDirectory()) {
                 dirCount++;
                 html.append((nextFile != null)
-                        ? "<li>" + nextFile.getHtml() + "</li>\n"
+                        ? "<li>" + nextFile.getHtml(this.versionId) + "</li>\n"
                         : "");
             }
         }
         // Display all files
         long fileCount = 0;
-        for (File nextFile : files) {
+        for (File nextFile : this.files) {
             if (nextFile.getIsDirectory() == false) {
                 fileCount++;
                 html.append((nextFile != null)
-                        ? "<li>" + nextFile.getHtml() + "</li>\n"
+                        ? "<li>" + nextFile.getHtml(this.versionId) + "</li>\n"
                         : "");
             }
         }
@@ -147,6 +183,7 @@ public class FileListView extends ListView {
         return html.toString();
     }
 
+    // TODO: Modify and document it
     public String getHtml(
             Terrier terrier,
             Map<Long, String> selectedMetrics) {
@@ -162,4 +199,5 @@ public class FileListView extends ListView {
         html.append("</ul>\n");
         return html.toString();
     }
+
 }
