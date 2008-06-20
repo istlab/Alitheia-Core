@@ -4,8 +4,10 @@
 if (selectedProject.isValid()) {
     out.println("<div id=\"selectedproject\" class=\"group\">");
 
-    // Update Message Box
-    msg += "<br /><strong>Project:</strong> " + selectedProject.getName();
+    // Update the Message Box
+    if (msg.length() > 0)
+        msg += "<br/>";
+    msg += "<strong>Project:</strong> " + selectedProject.getName();
     msg += "<span class=\"forget\"><a href=\"?pid=none\">(forget)</a></span>";
     if (selectedProject.getCurrentVersion() != null) {
         msg += "<br /><strong>Version:</strong> " + selectedProject.getCurrentVersion().getNumber();

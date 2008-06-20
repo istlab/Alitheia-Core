@@ -248,24 +248,29 @@ public class Version extends WebuiItem {
             //getAllFiles();
             getFilesInCurrentDirectory();
         
-        StringBuilder html = new StringBuilder();
-        // Check for an empty revision
+        // Check if this version contains no files
         if ((files == null) && (dirStack.size() < 2)) {
-            return "<strong>No files found for this project version!</strong>";
+            return Functions.warning(
+                    "No files found for this project version!");
         }
         // Render the files list page (inclusive evaluation results)
         else {
+            StringBuilder html = new StringBuilder();
+            // Retrieve results from all selected metrics (if any)
+            Map<Long, String> selectedMetrics = project.getSelectedMetricMnenmonics();
             if ((project != null) && (files != null) && (files.size() > 0)) {
-                Map<Long, String> selectedMetrics = project.getSelectedMetricMnenmonics();
-                if (selectedMetrics.size() > 0) {
+                if (selectedMetrics.size() > 0)
                     fetchFilesResults(selectedMetrics);
-                }  else {
-                    html.append(Functions.error(
-                            "No Metrics have been selected, select a metric"
-                            + " <a href=\"metrics.jsp\">here</a>"
-                            + " to view results."));
-                    html.append("<br/>");
-                }
+            }
+            // Ask the user to select some metrics, when none are selected
+            if (selectedMetrics.isEmpty()) {
+                html.append("<br/>");
+                html.append(Functions.warning(
+                        "No Metrics have been selected!"
+                        + " Select a metric"
+                        + " <a href=\"metrics.jsp\">here</a>"
+                        + " to view results."));
+                html.append("<br/>");
             }
             // Display the browser's navigation bar
             if ((dirStack.size() > 1)) {
@@ -288,7 +293,11 @@ public class Version extends WebuiItem {
                 html.append(view.getHtml());
             }
             else
-                html.append("<i>Empty</i>\n");
+                html.append("<ul>"
+                        + "<li>"
+                        + Functions.icon("vcs_empty", 0, "Empty folder")
+                        + "&nbsp;<i>Empty</i>"
+                        + "</ul>\n");
             return html.toString();
         }
     }

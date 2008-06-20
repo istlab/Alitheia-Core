@@ -1,13 +1,15 @@
 <%@ page import="eu.sqooss.webui.*" %>
 
-<div id="metricslist" class="group">
-    <form id="metrics" name="metrics" method="GET">
+<form id="metrics" name="metrics" method="GET">
 <%
 //out.println(debugRequest(request));
 //============================================================================
 // Show metric per project, when a project selection exists
 //============================================================================
 if (selectedProject.isValid()) {
+%>
+  <div id="metricslist" class="group">
+<%
     // Check for a metric selection
     if (request.getParameter("selectMetric") != null) {
         try {
@@ -30,12 +32,16 @@ if (selectedProject.isValid()) {
     // Print the accumulated errors (if any)
     if (terrier.hasErrors())
         out.println(Functions.error(terrier.getError()));
+%>
+  </div>
+<%
 }
+%>
+  <div id="metricslist" class="group">
+<%
 //============================================================================
 // Show all metrics installed in the SQO-OSS framework
 //============================================================================
-// Add some space
-out.println("<br/>");
 out.println("<h2>All installed metrics</h2>");
 if (request.getParameter("showAllMetrics") != null) {
     // Check the "Show all installed metrics" flag
@@ -70,5 +76,5 @@ if (selectedProject == null) {
     <%
 }
 %>
-    </form>
-</div>
+  </div>
+</form>

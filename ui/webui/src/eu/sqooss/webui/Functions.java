@@ -46,7 +46,15 @@ public class Functions {
         "No installed metrics has been found!";
 
     public static String error(String msg) {
-        return "<strong><font color=\"red\">" + msg + "</font></strong>";
+        return "<div id=\"msgbox\">"
+        + "<span class=\"error\">" + msg + "</span>"
+        + "</div>\n";
+    }
+
+    public static String warning(String msg) {
+        return "<div id=\"msgbox\">"
+            + "<span class=\"warning\">" + msg + "</span>"
+            + "</div>\n";
     }
 
     public static String debug(String msg) {

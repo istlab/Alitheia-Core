@@ -3,7 +3,7 @@
 */
 
 #contents table {
-    border-color: none;
+    border: none;
     border-width: 0 0 0 0;
 }
 
@@ -13,11 +13,11 @@
 }
 
 #contents td {
-        border-color: none;
-        border-width: 0 0 0 0;
-        margin: 0;
-        padding: 4px;
-        background-color: #fff;
+    border: none;
+    border-width: 0 0 0 0;
+    margin: 0;
+    padding: 4px;
+    background-color: #fff;
 }
 
 #sidebar ul {
@@ -99,9 +99,36 @@ span.forget a {
     color: #666;
 }
 
+#msgbox div {
+    
+}
+
+span.error {
+    padding: 5px 2px 5px 2px;
+    background-color: #FF6633;
+    color: black;
+    text-align: left;
+    font-weight: bold;
+    width: 100%;
+    border: 1px solid #cccccc;
+}
+
+span.warning {
+    padding: 5px 2px 5px 2px;
+    background-color: #FFFF99;
+    color: black;
+    text-align: left;
+    font-weight: bold;
+    width: 100%;
+    border: 1px solid #cccccc;
+}
+
 #error ul li {
     list-style-type: square;
     color: #CE2323;
+}
+#fileslist li {
+    list-style-type: none;
 }
 
 /* ===[ TABLES CSS ]===================================================== */

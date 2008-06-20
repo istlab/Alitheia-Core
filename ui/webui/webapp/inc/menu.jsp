@@ -1,4 +1,9 @@
     <div id="sidebar">
+<%
+//============================================================================
+// Menu Box
+//============================================================================
+%>
       <fieldset id="pages">
         <legend>Menu</legend>
         <ul>
@@ -17,8 +22,10 @@ if (user.getLoggedIn()) {
       </fieldset>
 
 <%
-    //msg = msg + request.getParameter("msg");
-    if ( (msg!=null) && msg.length() > 0 ) {
+//============================================================================
+// Message Box
+//============================================================================
+if ( (msg!=null) && msg.length() > 0 ) {
 %>
       <fieldset id="messages">
         <legend>Messages</legend>
@@ -26,6 +33,9 @@ if (user.getLoggedIn()) {
       </fieldset>
 <%
 }
+//============================================================================
+// Status Box
+//============================================================================
 %>
       <fieldset id="status">
         <legend>Status</legend>
@@ -34,6 +44,12 @@ cruncher.hit();
 out.println(cruncher.getStatus());
 %>
       </fieldset>
+<%
+//============================================================================
+// Error Box
+//============================================================================
+if (terrier.getError().length() > 0) {
+%>
       <fieldset id="error">
         <legend>Errors</legend>
 <%
@@ -41,6 +57,8 @@ out.println(cruncher.getStatus());
     terrier.flushError();
 %>
       </fieldset>
-
+<%
+}
+%>
 
     </div>

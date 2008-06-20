@@ -706,7 +706,10 @@ public class Terrier {
     }
 
     public String getError() {
-        return "\n<ul>" + error + "\n</ul>";
+        if (error.length() > 0)
+            return "\n<ul>" + error + "\n</ul>";
+        else
+            return "";
     }
 
     public void addError(String message) {
