@@ -54,6 +54,14 @@ public class UserManagerDatabase implements UserManagerDBQueries {
         this.db = db;
     }
 
+    /**
+     * Gets the <code>User</code> DAO associated with the given user Id.
+     * 
+     * @param userId the user Id
+     * 
+     * @return The user's DAO, or <code>null</code> if an user with this Id
+     *   can not be located in the database.
+     */
     public User getUser(long userId) {
         return db.findObjectById(User.class, userId);
     }

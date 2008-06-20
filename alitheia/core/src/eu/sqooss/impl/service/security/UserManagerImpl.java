@@ -177,9 +177,22 @@ public class UserManagerImpl implements UserManager {
      * @see eu.sqooss.service.security.UserManager#deleteUser(long)
      */
     public boolean deleteUser(long userId) {
-        logger.debug("Delete user! user's id: " + userId);
+        logger.debug("Delete user!"
+                + " user Id: " + userId);
+        // Search for an user with this Id
         User user = dbWrapper.getUser(userId);
-        return deleteUser(user);
+        if (user != null) {
+            // Detach from all member groups first
+            for (Object nextGroup : user.getGroups().toArray()) {
+                groupManager.deleteUserFromGroup(
+                        ((Group) nextGroup).getId(),
+                        user.getId());
+            }
+            // Try to delete that user
+            if (user.getGroups().size() == 0)
+                return deleteUser(user);
+        }
+        return false;
     }
 
     /**
