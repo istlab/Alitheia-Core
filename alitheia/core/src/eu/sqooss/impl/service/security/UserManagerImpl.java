@@ -189,7 +189,7 @@ public class UserManagerImpl implements UserManager {
                         user.getId());
             }
             // Try to delete that user
-            if (user.getGroups().size() == 0)
+            if (user.getGroups().isEmpty())
                 return deleteUser(user);
         }
         return false;
