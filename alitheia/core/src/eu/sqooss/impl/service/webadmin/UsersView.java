@@ -496,17 +496,8 @@ public class UsersView extends AbstractView {
                         }
                         // Delete the selected user
                         else {
-                            // Remove the user from all associated groups
-                            for (Object nextGroup :
-                                selUser.getGroups().toArray()) {
-                                // Remove the user from this group
-                                secGM.deleteUserFromGroup(
-                                        ((Group) nextGroup).getId(),
-                                        selUser.getId());
-                            }
                             // Delete the user's DAO
-                            if ((selUser.getGroups().isEmpty())
-                                    && (secUM.deleteUser(selUser.getId()))) {
+                            if (secUM.deleteUser(selUser.getId())) {
                                 selUser = null;
                                 selGroup = null;
                                 reqValViewList = "users";
