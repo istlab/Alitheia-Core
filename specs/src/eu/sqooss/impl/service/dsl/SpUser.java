@@ -10,7 +10,6 @@ import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Group;
 import eu.sqooss.service.db.User;
 import eu.sqooss.service.security.UserManager;
-import eu.sqooss.service.security.GroupManager;
 
 public class SpUser implements SpEntity {
     private DBService db = SpecsActivator.alitheiaCore.getDBService();
@@ -127,14 +126,7 @@ public class SpUser implements SpEntity {
     }
 
     public void delete() {
-        GroupManager gm = SpecsActivator.alitheiaCore.getSecurityManager().getGroupManager(); 
         db.startDBSession();
-        User user = um.getUser(name);
-        for (Object obj : user.getGroups())
-        {
-            Group g = (Group)obj;
-            gm.deleteUserFromGroup(g.getId(), user.getId());
-        }
         um.deleteUser(id);
         db.commitDBSession();
         persistent = false;
