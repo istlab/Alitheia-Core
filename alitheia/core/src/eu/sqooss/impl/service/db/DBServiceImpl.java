@@ -81,13 +81,15 @@ public class DBServiceImpl implements DBService, FrameworkListener {
     private static final String DB_DRIVER_PROPERTY = "eu.sqooss.db.driver";
     private static final String DB_CONNECTION_URL_PROPERTY = "eu.sqooss.db.url";
     private static final String DB_DIALECT_PROPERTY = "eu.sqooss.db.dialect";
+    private static final String DB_USERNAME_PROPERTY = "eu.sqooss.db.user";
+    private static final String DB_PASSWORD_PROPERTY = "eu.sqooss.db.passwd";
     private static final String HIBERNATE_CONFIG_PROPERTY = "eu.sqooss.hibernate.config";
     private static final String HIBERNATE_RESET_PROPERTY = "eu.sqooss.hibernate.reset";
     
     private Logger logger = null;
     // Store the class and URL of the database to hand off to
     // Hibernate so that it obeys the fallback from Postgres to Derby as well.
-    private String dbClass, dbURL, dbDialect;
+    private String dbClass, dbURL, dbDialect, dbUserName, dbPasswd;
     private SessionFactory sessionFactory = null;
     private BundleContext bc = null;
     private EventAdmin eaService = null;
@@ -138,12 +140,15 @@ public class DBServiceImpl implements DBService, FrameworkListener {
         return true;
     }
     
-    private boolean getJDBCConnection(String driver, String url, String dialect) {
+    private boolean getJDBCConnection(String driver, String url, String dialect, 
+            String username, String passwd) {
         
-        if ((driver == null) || (url == null) || (dialect == null)) {
+        if ((driver == null) || (url == null) || (dialect == null) || (username == null) || (passwd == null)) {
             dbClass = null;
             dbURL = null;
             dbDialect = null;
+            dbUserName = null;
+            dbPasswd = null;
             return false;
         }
         
@@ -163,11 +168,14 @@ public class DBServiceImpl implements DBService, FrameworkListener {
         }
         
         try {
-            Connection c = DriverManager.getConnection(url);
+            Connection c = DriverManager.getConnection(url, username, passwd);
             c.setAutoCommit(false);
             dbClass = driver;
             dbURL = url;
             dbDialect = dialect;
+            dbUserName = username;
+            dbPasswd = passwd;
+            c.close();
             return true;
         } catch (SQLException e) {
             logSQLException(e);
@@ -190,7 +198,7 @@ public class DBServiceImpl implements DBService, FrameworkListener {
     private boolean getDerbyJDBC() {
         return getJDBCConnection("org.apache.derby.jdbc.EmbeddedDriver",
                 "jdbc:derby:derbyDB;create=true",
-        "org.hibernate.dialect.DerbyDialect");
+                "org.hibernate.dialect.DerbyDialect", "", "");
     }
 
     private void initHibernate(URL configFileURL, boolean resetDatabase) {
@@ -206,8 +214,8 @@ public class DBServiceImpl implements DBService, FrameworkListener {
             // to override some of those properties.
             c.setProperty("hibernate.connection.driver_class", dbClass);
             c.setProperty("hibernate.connection.url", dbURL);
-            c.setProperty("hibernate.connection.username", "alitheia");
-            c.setProperty("hibernate.connection.password", "");
+            c.setProperty("hibernate.connection.username", dbUserName);
+            c.setProperty("hibernate.connection.password", dbPasswd);
             c.setProperty("hibernate.connection.dialect", dbDialect);
             if (resetDatabase) {
                 c.setProperty("hibernate.hbm2ddl.auto", "create");
@@ -249,6 +257,8 @@ public class DBServiceImpl implements DBService, FrameworkListener {
         String dbDriverProp;
         String dbConnectionURLProp;
         String dbDialectProp;
+        String dbuserName;
+        String dbPasswd;
         String hibernateConfigURLProp;
         URL hibernateConfigURL = null;
 
@@ -269,7 +279,19 @@ public class DBServiceImpl implements DBService, FrameworkListener {
             System.err.println("Could not get " + DB_DIALECT_PROPERTY + " property.");
             System.exit(1);
         }
-        if (!getJDBCConnection(dbDriverProp, dbConnectionURLProp, dbDialectProp)) {
+        
+        dbuserName = System.getProperty(DB_USERNAME_PROPERTY);
+        if (dbuserName == null) {
+            System.err.println("Could not get " + DB_USERNAME_PROPERTY + " property.");
+            System.exit(1);
+        }
+        dbPasswd = System.getProperty(DB_PASSWORD_PROPERTY);
+        if (dbPasswd == null) {
+            System.err.println("Could not get " + DB_PASSWORD_PROPERTY + " property.");
+            System.exit(1);
+        }
+     
+        if (!getJDBCConnection(dbDriverProp, dbConnectionURLProp, dbDialectProp, dbuserName, dbPasswd)) {
             System.err.println("Could not get JDBC connection.");
             System.exit(1);
         }
@@ -305,9 +327,13 @@ public class DBServiceImpl implements DBService, FrameworkListener {
         dbURL = null;
         dbClass = null;
         dbDialect = null;
+        dbUserName = null;
+        dbPasswd = null;
         if (!getJDBCConnection(bc.getProperty(DB_DRIVER_PROPERTY),
                 bc.getProperty(DB_CONNECTION_URL_PROPERTY),
-                bc.getProperty(DB_DIALECT_PROPERTY))) {
+                bc.getProperty(DB_DIALECT_PROPERTY),
+                bc.getProperty(DB_USERNAME_PROPERTY),
+                bc.getProperty(DB_PASSWORD_PROPERTY))) {
             if (!Boolean
                     .valueOf(bc.getProperty("eu.sqooss.db.fallback.enable"))
                     || !getDerbyJDBC()) {
