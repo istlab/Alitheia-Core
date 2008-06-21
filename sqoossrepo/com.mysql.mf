@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Vendor: MySQL AB 
+Bundle-Name: MySQL bundle 
+Bundle-Version: 5.1.6
+Bundle-SymbolicName: com.mysql 
+Bundle-ClassPath: com.mysql-5.1.6.jar
+Export-Package: com.mysql.jdbc  
