@@ -47,6 +47,7 @@ import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.Developer;
 import eu.sqooss.service.db.InvocationRule;
 import eu.sqooss.service.db.MailMessage;
 import eu.sqooss.service.db.MailingList;
@@ -316,6 +317,9 @@ public class MetricActivatorImpl implements MetricActivator {
             } else if (c.equals(MailingList.class)) { 
                 query = "select distinct ml.id from StoredProject sp, MailingList ml " +
                         "where ml.storedProject = :" + paramSp;
+            } else if (c.equals(Developer.class)) { 
+                query = "select distinct d.id from Developer d " +
+                        "where d.storedProject = :" + paramSp;
             } else {
                 logger.error("Unknown activation type " + c.getName());
                 return;
