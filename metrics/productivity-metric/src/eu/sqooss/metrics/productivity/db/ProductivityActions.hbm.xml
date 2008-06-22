@@ -9,9 +9,8 @@
       <generator class="native" />
     </id>
     <many-to-one name="developer" column="DEVELOPER_ID" not-null="true" cascade="merge" />
-    <property name="actionCategory" column="ACTION_CATEGORY" not-null="true" type = "string"/>
-    <property name="actionType" column="ACTION_TYPE" not-null="true" type = "string" />
-    <property name="isPositive" column="IS_POSITIVE"  />
+    <many-to-one name="projectVersion" column="PROJECT_VERSION_ID" not-null="true" cascade="merge"/>
+    <many-to-one name="productivityActionType" column="PRODUCTIVITY_ACTION_TYPE_ID" not-null="true" cascade="merge"/>
     <property name="total" column="TOTAL" not-null="true" />
   </class>
 </hibernate-mapping>

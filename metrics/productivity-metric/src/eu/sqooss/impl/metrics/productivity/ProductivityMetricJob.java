@@ -46,6 +46,7 @@ import org.osgi.framework.ServiceReference;
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.impl.metrics.productivity.ProductivityMetricActions.ActionCategory;
 import eu.sqooss.impl.metrics.productivity.ProductivityMetricActions.ActionType;
+import eu.sqooss.metrics.productivity.db.ProductivityActionType;
 import eu.sqooss.metrics.productivity.db.ProductivityActions;
 import eu.sqooss.metrics.productivity.db.ProductivityWeights;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
@@ -188,22 +189,28 @@ public class ProductivityMetricJob {
     private void updateField(Developer dev, ActionType actionType,
             boolean isPositive, int value) {
         
-        ProductivityActions a = ProductivityActions.getProductivityAction(dev,
-                actionType);
+        ProductivityActionType at = ProductivityActionType.getProductivityActionType(actionType, isPositive);
+        
+        if (at == null){
+            db.rollbackDBSession();
+            return;
+        }
+                
+        ProductivityActions a = ProductivityActions.getProductivityAction(dev, pv,
+                at);
 
         if (a == null) {
             a = new ProductivityActions();
             a.setDeveloper(dev);
-            a.setCategory(ActionCategory.getActionCategory(actionType));
-            a.setType(actionType);
-            a.setIsPositive(isPositive);
+            a.setProjectVersion(pv);
+            a.setProductivityActionType(at);
             a.setTotal(value);
             db.addRecord(a);
         } else {
             a.setTotal(a.getTotal() + value);
         }
 
-        updateWeights(actionType);
+ //       updateWeights(actionType);
     }
     
     private void updateWeights(ActionType actionType) {

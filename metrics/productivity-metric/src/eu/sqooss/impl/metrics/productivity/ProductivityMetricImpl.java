@@ -34,17 +34,22 @@
 package eu.sqooss.impl.metrics.productivity;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.osgi.framework.BundleContext;
 
 import eu.sqooss.impl.metrics.productivity.ProductivityMetricActions.ActionCategory;
 import eu.sqooss.impl.metrics.productivity.ProductivityMetricActions.ActionType;
+import eu.sqooss.impl.service.CoreActivator;
 import eu.sqooss.metrics.productivity.ProductivityMetric;
+import eu.sqooss.metrics.productivity.db.ProductivityActionType;
 import eu.sqooss.metrics.productivity.db.ProductivityActions;
 import eu.sqooss.metrics.productivity.db.ProductivityWeights;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.ResultEntry;
+import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Developer;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
@@ -80,11 +85,37 @@ public class ProductivityMetricImpl extends AbstractMetric implements
     }
 
     public List<ResultEntry> getResult(ProjectVersion a, Metric m) {
+        // project version has been processed, return an arbitrary result
+        
+        ArrayList<ResultEntry> res = new ArrayList<ResultEntry>();
+        String paramVersion = "paramVersion";
+        
+        String query = "select a from ProductivityActions a " +
+                " where a.projectVersion = :" + paramVersion ;
+        
+        Map<String,Object> parameters = new HashMap<String,Object>();
+        parameters.put(paramVersion, a);
+try{
+    List<?> p = db.doHQL(query, parameters);
+    
+    if ( !p.isEmpty() ){
+        res.add(new ResultEntry(1, ResultEntry.MIME_TYPE_TYPE_INTEGER, m.getMnemonic()));
+        return res;
+    } else {
         return null;
+    }  
+}catch(Exception e){
+    System.out.println("_____" +  e.getMessage() );
+    e.printStackTrace();
+}
+       return null; 
+        
+      
     }
 
     public List<ResultEntry> getResult(Developer a, Metric m) {
         // TODO test
+        /*
         ArrayList<ResultEntry> results = new ArrayList<ResultEntry>();
         ProductivityWeights weight;
         double value = 0;
@@ -104,6 +135,8 @@ public class ProductivityMetricImpl extends AbstractMetric implements
                 ResultEntry.MIME_TYPE_TYPE_LONG, m.getMnemonic());
         results.add(entry);
         return results;
+        */
+        return null;
     }
 
     public void run(ProjectVersion v) {
@@ -118,23 +151,27 @@ public class ProductivityMetricImpl extends AbstractMetric implements
 
     private double getResultPerActionCategory(Developer a, 
             ActionCategory actionCategory){
+        
         ArrayList<ActionType> actionTypes = 
             ActionType.getActionTypes(actionCategory);
         ProductivityWeights weight;
-        ProductivityActions totalActions;
+        long totalActions;
         double value = 0;
 
         for(int i=0; i<actionTypes.size(); i++){
             weight = ProductivityWeights.getWeight(actionTypes.get(i));
 
             if (weight != null) {
-                totalActions = ProductivityActions.getProductivityAction(a, 
-                        actionTypes.get(i));
-                if(totalActions != null){
-                    if (totalActions.getIsPositive())
-                        value += weight.getWeight() * totalActions.getTotal();
+                
+                ProductivityActionType at = ProductivityActionType.getProductivityActionType(actionTypes.get(i), null);
+                
+                totalActions  = ProductivityActions.getTotalActionsPerTypePerDeveloper(at, a);
+                
+                if(totalActions != 0){
+                    if (at.getIsPositive())
+                        value += weight.getWeight() * totalActions;
                     else
-                        value -= weight.getWeight() * totalActions.getTotal();
+                        value -= weight.getWeight() * totalActions;
                 }
             }
         }
