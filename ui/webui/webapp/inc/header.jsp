@@ -3,7 +3,7 @@
    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
-    <title><%= "Alitheia : " + title %></title>
+    <title><%= appName + " : " + title %></title>
     <link rel="stylesheet" type="text/css" href="/style/screen.css" />
     <link rel="stylesheet" type="text/css" href="/style/webui.css" />
   </head>
@@ -16,8 +16,4 @@
       </div>
       <div id="main">
         <div id="contents">
-
-<jsp:useBean id="cruncher"
-    class="eu.sqooss.webui.CruncherStatus"
-    scope="application" />
-
+<!-- header.jsp -->

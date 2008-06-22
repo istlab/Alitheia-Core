@@ -99,10 +99,6 @@ span.forget a {
     color: #666;
 }
 
-#msgbox div {
-    
-}
-
 span.error {
     padding: 5px 2px 5px 2px;
     background-color: #FF6633;
@@ -116,6 +112,16 @@ span.error {
 span.warning {
     padding: 5px 2px 5px 2px;
     background-color: #FFFF99;
+    color: black;
+    text-align: left;
+    font-weight: bold;
+    width: 100%;
+    border: 1px solid #cccccc;
+}
+
+span.debug {
+    padding: 5px 2px 5px 2px;
+    background-color: #66FF99;
     color: black;
     text-align: left;
     font-weight: bold;

@@ -40,7 +40,7 @@ import java.util.*;
  * project that is being evaluated.
  *
  */
-public class MetricsTableView {
+public class MetricsTableView extends ListView {
 
     // Stores the list of metric indexed by metric Id
     Map<Long,Metric> metrics = new HashMap<Long,Metric>();
@@ -55,7 +55,7 @@ public class MetricsTableView {
     boolean showId = false;
 
     // Flag for enabling the selection of metrics
-    private boolean showChooser = false;
+    public boolean showChooser = false;
 
     // Flag for enabling the visualization of metrics' mnemonic names
     boolean showMnemonic = true;
@@ -66,28 +66,23 @@ public class MetricsTableView {
     // Flag for enabling the visualization of metrics' types
     boolean showType = true;
 
-    // Flag for enabling the link to the results page
-    boolean showResult = true;
+    // Flag for enabling the links to the results page
+    public boolean showResult = true;
 
-    // Flag for enabling the visualization of metrics' table header
+    // Flag for enabling the visualization of the metrics' table header
     boolean showHeader = true;
 
-    // Flag for enabling the visualization of metrics' table footer
+    // Flag for enabling the visualization of the metrics' table footer
     boolean showFooter = true;
 
-    /* CSS class to use for the table element */
+    // CSS class to use for the table element
     String tableClass = new String("table");
 
-    /* CSS class to use for the individual cells of the table */
+    // CSS class to use for the individual cells of the table
     String cellClass = new String();
 
-    /* Identifier in the HTML output */
+    // HTML table identifier
     String tableId = new String("table");
-
-    /**
-     * Instantiates a new metrics table view
-     */
-    public MetricsTableView () {}
 
     /**
      * Instantiates a new metrics table view, from a list of metrics.
@@ -119,8 +114,7 @@ public class MetricsTableView {
     }
 
     /**
-     * Constructs a logically correct error message when the list of metric
-     * is empty
+     * Constructs a proper error message when the list of metric is empty
      *
      * @return the error message content
      */
@@ -134,38 +128,23 @@ public class MetricsTableView {
         }
     }
 
-    /**
-     * Produces a HTML table, that displays the locally stored metric
-     * information. The table content can be prior adjusted by using the
-     * various display flags.
-     *
-     * @return HTML code representing the list of metrics
-     */
-    public String getHtml() {
-        if (metrics.isEmpty()) {
-            return errNoMetrics();
-        }
 
-        // Count the table columns so we know how an empty table row looks like
+    /* (non-Javadoc)
+     * @see eu.sqooss.webui.ListView#getHtml(long)
+     */
+    public String getHtml(long in) {
+        // Skip on emtpy metrics list
+        if (metrics.isEmpty())
+            return errNoMetrics();
+
+        // Calculate the number of required table columns
         int columns = 0;
-        if (showId) {
-            columns++;
-        }
-        if (showChooser) {
-            columns++;
-        }
-        if (showMnemonic) {
-            columns++;
-        }
-        if (showDescription) {
-            columns++;
-        }
-        if (showType) {
-            columns++;
-        }
-        if (showResult) {
-            columns++;
-        }
+        if (showId)             columns++;
+        if (showChooser)        columns++;
+        if (showMnemonic)       columns++;
+        if (showDescription)    columns++;
+        if (showType)           columns++;
+        if (showResult)         columns++;
 
         // Prepare some CSS tricks
         // TODO: Wouldn't it be easier to simply switch the CSS file instead
@@ -189,87 +168,81 @@ public class MetricsTableView {
             cell_class = " class=\"" + cellClass + "\" ";
         }
 
-        StringBuilder html = new StringBuilder("<!-- MetricsTableView -->\n");
+        StringBuilder html = new StringBuilder("");
         // Create a table
-        html.append("\n<div" + table_id + ">");
-        html.append("\n<table>");
+        html.append(sp(in++) + "<div" + table_id + ">\n");
+        html.append(sp(in++) + "<table>\n");
 
         // Table header
         if (showHeader) {
-            html.append("\n<thead>");
-            html.append("\n\t<tr" + head_class + ">");
-            if (showId) {
-                html.append("\n\t\t<td" + head_class + ">ID</td>");
-            }
-            if (showChooser) {
-                html.append("\n\t\t<td" + head_class + ">Selection</td>");
-            }
-            if (showMnemonic) {
-                html.append("\n\t\t<td" + head_class + ">Name</td>");
-            }
-            if (showDescription) {
-                html.append("\n\t\t<td" + head_class + ">Description</td>");
-            }
-            if (showType) {
-                html.append("\n\t\t<td" + head_class + ">Type</td>");
-            }
-            if (showResult) {
-                html.append("\n\t\t<td" + head_class + ">Results</td>");
-            }
-            html.append("\n\t</tr>");
-            html.append("\n</thead>\n");
+            html.append(sp(in++) + "<thead>\n");
+            html.append(sp(in++) + "<tr" + head_class + ">\n");
+            if (showId)
+                html.append(sp(in) + "<td" + head_class + ">ID</td>\n");
+            if (showChooser)
+                html.append(sp(in) + "<td" + head_class + ">Selection</td>\n");
+            if (showMnemonic)
+                html.append(sp(in) + "<td" + head_class + ">Name</td>\n");
+            if (showDescription)
+                html.append(sp(in) + "<td" + head_class + ">Description</td>\n");
+            if (showType)
+                html.append(sp(in) + "<td" + head_class + ">Type</td>\n");
+            if (showResult)
+                html.append(sp(in) + "<td" + head_class + ">Results</td>\n");
+            html.append(sp(--in) + "</tr>\n");
+            html.append(sp(--in) + "</thead>\n");
         }
 
         // Table footer
         if (showFooter) {
-            html.append("\n<tfoot>");
-            html.append("\n\t<tr" + foot_class + ">");
-            html.append("\n\t\t<td" + foot_class
+            html.append(sp(in++) + "<tfoot>\n");
+            html.append(sp(in++) + "<tr" + foot_class + ">\n");
+            html.append(sp(in) + "<td" + foot_class
                     + " colspan=\"" + columns + "\">"
                     + "TOTAL: " + metrics.size() + " metrics"
-                    + "</td>");
-            html.append("\n\t</tr>");
-            html.append("\n</tfoot>\n");
+                    + "</td>\n");
+            html.append(sp(--in) + "</tr>\n");
+            html.append(sp(--in) + "</tfoot>\n");
         }
 
         // Table rows
-        html.append("\n<tbody>");
+        html.append(sp(in++) + "<tbody>\n");
         for (Long key: metrics.keySet()) {
-            html.append("\n<tr>");
+            html.append(sp(in++) + "<tr>\n");
             if (showId) {
-                html.append("\n\t<td " + cell_class + ">"
-                        + key + "</td>");
+                html.append(sp(in) + "<td " + cell_class + ">"
+                        + key + "</td>\n");
             }
             if (showChooser) {
-                html.append("\n\t<td " + cell_class + ">"
+                html.append(sp(in) + "<td " + cell_class + ">"
                         + ((selectedMetrics.contains(key))
                                 ? metrics.get(key).getDeselectMetricLink()
                                 : metrics.get(key).getSelectMetricLink())
-                        + "</td>");
+                        + "</td>\n");
             }
             if (showMnemonic) {
-                html.append("\n\t<td " + cell_name_class + ">"
-                        + metrics.get(key).getMnemonic() + "</td>");
+                html.append(sp(in) + "<td " + cell_name_class + ">"
+                        + metrics.get(key).getMnemonic() + "</td>\n");
             }
             if (showDescription) {
-                html.append("\n\t<td " + cell_class + ">"
-                        + metrics.get(key).getDescription() + "</td>");
+                html.append(sp(in) + "<td " + cell_class + ">"
+                        + metrics.get(key).getDescription() + "</td>\n");
             }
             if (showType) {
-                html.append("\n\t<td " + cell_class + ">"
-                        + metrics.get(key).getType() + "</td>");
+                html.append(sp(in) + "<td " + cell_class + ">"
+                        + metrics.get(key).getType() + "</td>\n");
             }
             if (showResult) {
-                html.append("\n\t<td " + cell_class + ">"
-                        + metrics.get(key).getLink() + "</td>");
+                html.append(sp(in) + "<td " + cell_class + ">"
+                        + metrics.get(key).getLink() + "</td>\n");
             }
-            html.append("\n</tr>");
+            html.append(sp(--in) + "</tr>\n");
         }
-        html.append("\n</tbody>");
+        html.append(sp(--in) + "</tbody>\n");
 
         // Close the table
-        html.append("\n</table>");
-        html.append("\n</div>");
+        html.append(sp(--in) + "</table>\n");
+        html.append(sp(--in) + "</div>\n");
 
         return html.toString();
     }
@@ -401,39 +374,6 @@ public class MetricsTableView {
     public void setShowType(boolean showType) {
         this.showType = showType;
     }
-
-    /*
-    * @return true or false (Show a link to the Metric's result)
-    */
-    public boolean getShowResult() {
-        return showType;
-    }
-
-    /*
-    * @param set wether to show a link to the Metric's result in the Table or not
-    */
-    public void setShowResult(boolean showResult) {
-        this.showResult = showResult;
-    }
-
-    /**
-     * Returns the current state of the flag that enables the display of the
-     * metric selection field.
-     *
-     * @return <code>true</code> if enabled.
-     */
-     public boolean getShowChooser() {
-         return showChooser;
-     }
-
-     /**
-      * Enables/disables the metric selection field.
-      * @param enable a value of <code>true></code> will enable the metric
-      *   selection field.
-      */
-     public void setShowChooser(boolean enable) {
-         this.showChooser = enable;
-     }
 
      public void setSelectedMetrics (List<Long> selected) {
          if (selected != null)

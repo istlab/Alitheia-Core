@@ -142,16 +142,17 @@ public class FileListView extends ListView {
     }
 
     // TODO: Document it
-    public String getHtml() {
+    public String getHtml(long in) {
         StringBuffer html = new StringBuffer();
-        html.append("<ul>\n");
+        html.append(sp(in++) + "<ul>\n");
         // Display all folders first
         long dirCount = 0;
         for (File nextFile : this.files) {
             if (nextFile.getIsDirectory()) {
                 dirCount++;
                 html.append((nextFile != null)
-                        ? "<li>" + nextFile.getHtml(this.versionId) + "</li>\n"
+                        ? sp(in) + "<li>" + nextFile.getHtml(this.versionId)
+                                + sp(in) + "</li>\n"
                         : "");
             }
         }
@@ -161,13 +162,14 @@ public class FileListView extends ListView {
             if (nextFile.getIsDirectory() == false) {
                 fileCount++;
                 html.append((nextFile != null)
-                        ? "<li>" + nextFile.getHtml(this.versionId) + "</li>\n"
+                        ? sp(in) + "<li>" + nextFile.getHtml(this.versionId)
+                                + sp(in) + "</li>\n"
                         : "");
             }
         }
-        html.append("</ul>\n");
+        html.append(sp(--in) + "</ul>\n");
         // Display the statistics line
-        html.append("<b>Total:</b> "
+        html.append(sp(in) + "<b>Total:</b> "
                 + ((dirCount > 0)
                         ? ((dirCount > 1)
                                 ? dirCount + " folders"
@@ -193,7 +195,7 @@ public class FileListView extends ListView {
         html.append("<ul>\n");
         for (File nextFile: files) {
             html.append((nextFile != null)
-                    ? "<li>" + nextFile.getHtml() + "</li>\n"
+                    ? "<li>" + nextFile.getHtml(0) + "</li>\n"
                     : "");
         }
         html.append("</ul>\n");

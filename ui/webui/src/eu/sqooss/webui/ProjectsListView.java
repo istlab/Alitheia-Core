@@ -33,137 +33,90 @@
 
 package eu.sqooss.webui;
 
-import java.util.Random;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
 
 import eu.sqooss.webui.ListView;
-import eu.sqooss.scl.WSException;
-import eu.sqooss.scl.WSSession;
 
 
 public class ProjectsListView extends ListView {
 
-    private Long projectId = null;
-    private Terrier terrier;
+    // Holds the current project
     private Project currentProject;
 
-    // Projects cache and number
-    Vector<Project> projects = null;
-    private long totalProjects = 0;
+    // Cache for all project that were retrieved during the last call to
+    // the SQO-OSS framework
+    List<Project> projects = new ArrayList<Project>();
 
     /**
-     * Instantiates a new <code>ProjectsListView</code> object.
+     * Sets the current project.
+     * 
+     * @param project the new current project
      */
-    public ProjectsListView () {}
-
     public void setCurrentProject (Project project ) {
-        currentProject = project;
-        currentProject.setTerrier(terrier);
+        if (project != null) {
+            currentProject = project;
+            currentProject.setTerrier(terrier);
+        }
+        else
+            this.currentProject = null;
     }
 
+    /**
+     * Sets as current the project with the given Id. If the project does not
+     * persist in the local cache, then this method will try to retrieve it
+     * from the SQO-OSS framework.
+     * 
+     * @param projectId the Id of the new current project
+     */
+    public void setCurrentProject(Long projectId) {
+        if (terrier == null)
+            return;
+        if (projectId != null) {
+            // Update the cache if necessary
+            if (getProject(projectId) != null) {
+                Project project = terrier.getProject(projectId);
+                if (project != null)
+                    projects.add(project);
+            }
+            // Retrieve the project from the cache
+            setCurrentProject(getProject(projectId));
+        }
+        else
+            this.currentProject = null;
+    }
+
+    /**
+     * Gets the current project.
+     * 
+     * @return The current project, or <code>null<code> when none.
+     */
     public Project getCurrentProject () {
         return currentProject;
     }
 
-    public void setProjectId(String projectId) {
-        if ((terrier == null) || (projectId == null)) {
-            return;
-        }
-
-        if ("none".equals(projectId)) {
-            this.projectId = null;
-            setCurrentProject(null);
-            return;
-        }
-
-        Long pid = null;
-        try {
-            pid = new Long(projectId);
-            this.projectId = pid;
-        }
-        catch (NumberFormatException ex){
-            this.projectId = null;
-            setCurrentProject(null);
-            return;
-        }
-        Project p = terrier.getProject(pid);
-        if (p != null) {
-            setCurrentProject(p);
-        }
-    }
-
-    public Long getProjectId() {
-        return projectId;
+    /**
+     * Gets the Id of the current project.
+     * 
+     * @return the Id of the current project, or <code>null<code> if none.
+     */
+    public Long getCurrentProjectId() {
+        if (currentProject != null)
+            return currentProject.getId();
+        else
+            return null;
     }
 
     /**
-     * Checks if this object stores information for at least one project.
+     * This method will check, if there is at least one project is stored in
+     * the local cache.
      *
-     * @return true, if one or more projects are stored, otherwise false
+     * @return <code>true</code>, if one or more projects are stored,
+     *   otherwise <code>false</code>.
      */
     public boolean hasProjects() {
-        if (totalProjects > 0) {
-            return true;
-        }
-        return false;
-    }
-
-    public void retrieveData (Terrier terrier) {
-        this.terrier = terrier;
-        projects = terrier.getEvaluatedProjects();
-        totalProjects = projects.size();
-    }
-
-    public String getHtml(String path) {
-        StringBuilder html = new StringBuilder();
-        if (projects != null) {
-            if (projects.size() > 0) {
-                html.append("\n<!-- Projects -->");
-                html.append("\n<ul class=\"projectslist\">");
-                for (Project p: projects) {
-                    html.append(
-                            "\n\t<li>" + p.getSelectLink(path) + "</li>");
-                }
-                html.append("\n</ul>");
-            }
-        }
-        return html.toString();
-    }
-
-    public String getHtml() {
-        StringBuilder html = new StringBuilder();
-        if (projects != null) {
-            if (projects.size() > 0) {
-                html.append("\n<!-- Projects -->");
-                html.append("\n<ul class=\"projectslist\">");
-                for (Project p: projects) {
-                    html.append(
-                            "\n\t<li>" + p.link() + "</li>");
-                }
-                html.append("\n</ul>");
-            }
-        }
-        return html.toString();
-    }
-
-    public void retrieveData() {
-        //TODO: retrieve some data
-    }
-
-
-    /**
-     * This method selects up to 13 projects from the list
-     * which are somehow "interesting" and which can be displayed
-     * in the tag cloud.
-     */
-    public Vector<Project> getCloudProjects() {
-        Vector<Project> v = new Vector<Project>(13);
-
-        for (int i = 0; (i<13) && (i<totalProjects); ++i) {
-            v.add(projects.elementAt(i));
-        }
-
-        return v;
+        return (!projects.isEmpty());
     }
 
     /**
@@ -175,13 +128,68 @@ public class ProjectsListView extends ListView {
      *   the local cache, otherwise <code>null</code>.
      */
     public Project getProject (long projectId) {
-        if (projects != null)
-            for (Project nextPrj : projects)
-                if (nextPrj.getId() == projectId)
-                    return nextPrj;
+        for (Project nextPrj : projects)
+            if (nextPrj.getId() == projectId)
+                return nextPrj;
         return null;
     }
+
+    /**
+     * Retrieves all the data that is required by this object from the
+     * SQO-OSS framework, unless the cache contains some data already.
+     * 
+     * @param terrier the <code>Terrier<code> instance
+     */
+    public void retrieveData (Terrier terrier) {
+        this.terrier = terrier;
+        if (projects.isEmpty())
+            projects = terrier.getEvaluatedProjects();
+    }
+
+    /**
+     * Flushes all the data that is cached by this object.
+     */
+    public void flushData () {
+        currentProject = null;
+        projects = new ArrayList<Project>();
+    }
+
+    /* (non-Javadoc)
+     * @see eu.sqooss.webui.ListView#getHtml(long)
+     */
+    public String getHtml(long in) {
+        StringBuilder html = new StringBuilder();
+        if (projects.size() > 0) {
+            html.append(sp(in++) + "<ul class=\"projectslist\">\n");
+            for (Project p: projects) {
+                p.setServletPath(getServletPath());
+                html.append(sp(in) + "<li>" + p.link() + "</li>\n");
+            }
+            html.append(sp(--in) + "</ul>");
+        }
+        return html.toString();
+    }
+
+    /**
+     * This method selects up to <code>number<code> projects from the projects
+     * cache which are somehow "interesting"(<i>TODO</i>) and therefore can be
+     * displayed in the tag cloud.
+     * 
+     * @param number the maximum number of projects that should be pushed in
+     *   the results list.
+     * 
+     * @return The list of cloud projects.
+     */
+    public Vector<Project> getCloudProjects(int number) {
+        Vector<Project> v = new Vector<Project>(number);
+
+        for (int i = 0; (i<number) && (i<projects.size()); ++i) {
+            v.add(projects.get(i));
+        }
+
+        return v;
+    }
+
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab
-

@@ -37,12 +37,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.SortedMap;
-import java.util.TreeMap;
 import java.util.Vector;
 
 import eu.sqooss.scl.WSException;
-import eu.sqooss.webui.Result.ResourceType;
 import eu.sqooss.ws.client.datatypes.WSDirectory;
 import eu.sqooss.ws.client.datatypes.WSMetric;
 import eu.sqooss.ws.client.datatypes.WSMetricType;
@@ -71,8 +68,6 @@ public class Terrier {
     private ResourceBundle confParams;
 
     private TerrierConnection connection = null;
-
-    private Project currentProject;
 
     /**
      * Empty constructor. Instantiates a new <code>Terrier</code> object.
@@ -115,46 +110,45 @@ public class Terrier {
         return connection;
     }
 
+    //========================================================================
+    // SCL WRAPPER METHODS
+    //========================================================================
+
     /**
      * Retrieves descriptive information about the selected project from
      * the SQO-OSS framework, and constructs a Project object from it.
      *
      * @param projectId The ID of the selected project.
-     * @return A Project object.
+     * @return The project's object, or <code> null when such project does
+     *   not exist or when a failure has occurred.
      */
     public Project getProject(Long projectId) {
         if (!connection.isConnected()) {
+            addError(connection.getError());
             return null;
         }
-        debug += "ok";
-
-        Project prj;
-        WSStoredProject[] storedProjects;
         try {
             // Retrieve information about this project
-            storedProjects = connection.getProjectAccessor().getProjectsByIds(new long[] {projectId});
-            if (storedProjects.length != 0) {
-                prj = new Project(storedProjects[0], this);
-            } else {
-                error = "The project does not exist!";
-                prj = null;
-            }
-        } catch (WSException wse) {
-            error = "Could not retrieve the project:" + wse.getMessage();
-            prj = null;
+            WSStoredProject[] storedProjects =
+                connection.getProjectAccessor().getProjectsByIds(
+                        new long[] {projectId});
+            if (storedProjects.length > 0)
+                return new Project(storedProjects[0]);
+            else
+                addError("This project does not exist!");
         }
-        return prj;
-    }
-
-    public void setCurrentProject(Project p) {
-        currentProject = p;
+        catch (WSException wse) {
+            addError("Can not retrieve this project!");
+        }
+        return null;
     }
 
     /**
-     * Gets the list of all project that were evaluated in the attached
+     * Gets the list of all project that were evaluated from the attached
      * SQO-OSS framework.
      *
-     * @return The list of evaluated projects.
+     * @return The list of evaluated projects, or an empty list when none
+     *   are found.
      */
     public Vector<Project> getEvaluatedProjects() {
         Vector<Project> projects = new Vector<Project>();
@@ -166,42 +160,39 @@ public class Terrier {
             // Retrieve evaluated projects only
             WSStoredProject projectsResult[] =
                 connection.getProjectAccessor().getEvaluatedProjects();
-
-            for (WSStoredProject wssp : projectsResult) {
-                projects.addElement(new Project(wssp, this));
-            }
-        } catch (WSException wse) {
-            addError("Can not retrieve the list of evaluated projects.");
-            return projects;
+            for (WSStoredProject nextProject : projectsResult)
+                projects.addElement(new Project(nextProject));
+        }
+        catch (WSException wse) {
+            addError("Can not retrieve the list of evaluated projects!");
         }
         return projects;
     }
 
     /**
-     * Fetch a Version by project and versionId.
+     * Retrieves a project's version by project and version Id.
      *
-     * @param projectId The ID of selected project
-     * @param projectId The ID of the version
-     * @return The Version matching projectId and versionId.
+     * @param projectId The Id of project
+     * @param versionId The Id of the version
+     *
+     * @return The version object that matches the selected project and
+     *   version Id, or <code>null<code> when such version does not exist.
      */
     public Version getVersion(Long projectId, Long versionId) {
         if (!connection.isConnected()) {
             addError(connection.getError());
-            addError("Not connected.");
             return null;
         }
         try {
-            // Retrieve evaluated projects only
+            // Search for a matching project
             WSProjectVersion[] versionsResult =
-                connection.getProjectAccessor().getProjectVersionsByIds(new long[] {versionId});
-            if (versionsResult.length > 0) {
-                Version v = new Version(versionsResult[0], this);
-                return v;
-            } else {
-                return null;
-            }
-        } catch (WSException wse) {
-            addError("Cannot this version " + versionId + "for project " + projectId + ".");
+                connection.getProjectAccessor().getProjectVersionsByIds(
+                        new long[] {versionId});
+            if (versionsResult.length > 0)
+                return new Version(versionsResult[0], this);
+        }
+        catch (WSException wse) {
+            addError("Can not retrieve this version!");
         }
         return null;
     }
@@ -210,7 +201,7 @@ public class Terrier {
      * This method returns the root directory of the specified project's
      * source tree.
      *
-     * @param projectId - the project's identifier
+     * @param projectId the Id of the project
      *
      * @return The root directory's object, or <code>null</code> if not found.
      */
@@ -225,7 +216,7 @@ public class Terrier {
                     projectId);
         }
         catch (WSException wse) {
-            addError("Can not retrieve version(s) by number.");
+            addError("Can not retrieve the project's source tree.");
         }
         return null;
     }
@@ -234,31 +225,27 @@ public class Terrier {
      * This method returns an array of all files located in the selected
      * directory, that exists in the specified project version.
      *
-     * @param projectVersionId - the project's version identifier
-     * @param directoryId - the directory identifier
+     * @param versionId the project's version Id
+     * @param directoryId the directory Id
      *
      * @return The array of project's files in that directory and that project
-     * version, or a <code>null</code> array when none are found.
+     * version, or a empty array when none are found.
      */
-    public List<File> getFilesInDirectory(
-            long projectVersionId,
-            long directoryId) {
+    public List<File> getFilesInDirectory(long versionId, long directoryId) {
+        List<File> result = new ArrayList<File>();
         if (!connection.isConnected()) {
             addError(connection.getError());
             return null;
         }
-        List<File> result = new ArrayList<File>();
         try {
             WSProjectFile[] wsfiles =
                 connection.getProjectAccessor().getFilesInDirectory(
-                        projectVersionId,
-                        directoryId);
-            if (wsfiles != null)
-                for (WSProjectFile file : wsfiles)
-                    result.add(new File(file, this));
+                        versionId, directoryId);
+            for (WSProjectFile file : wsfiles)
+                result.add(new File(file, this));
         }
         catch (WSException wse) {
-            addError("Can not retrieve the list of files for this directory!");
+            addError("Can not retrieve the list of files in this directory!");
         }
         return result;
     }
@@ -267,26 +254,26 @@ public class Terrier {
      * Retrieves one or more project versions by project Id and version
      * numbers from the attached SQO-OSS framework.
      *
-     * @param projectId the Id of selected project
+     * @param projectId the project Id
      * @param numbers the list of project version numbers
+     *
      * @return The list of project versions that correspond to the given
-     *   version numbers.
+     *   version numbers, or an empty list when none are found.
      */
     public List<Version> getVersionsByNumber(Long projectId, long[] numbers) {
+        List<Version> result = new ArrayList<Version>();
         if (!connection.isConnected()) {
             addError(connection.getError());
-            return null;
+            return result;
         }
-        List<Version> result = new ArrayList<Version>();
         if ((numbers != null) && (numbers.length > 0)) {
             try {
                 // Retrieve the corresponding version objects
                 WSProjectVersion[] wsversions =
                     connection.getProjectAccessor()
-                    .getProjectVersionsByVersionNumbers(projectId, numbers);
-                if (wsversions != null)
-                    for (WSProjectVersion nextVersion : wsversions)
-                        result.add(new Version(nextVersion, this));
+                        .getProjectVersionsByVersionNumbers(projectId, numbers);
+                for (WSProjectVersion nextVersion : wsversions)
+                    result.add(new Version(nextVersion, this));
             }
             catch (WSException wse) {
                 addError("Can not retrieve version(s) by number.");
@@ -299,20 +286,22 @@ public class Terrier {
      * Retrieves the list of all metrics that has been evaluated on the
      * project with the given Id.
      *
-     * @param projectId The ID of selected project
-     * @return The list of evaluated metrics, or <code>null</code> upon error.
+     * @param projectId the project Id
+     * 
+     * @return The list of evaluated metrics, or or an empty list when none
+     *   are found.
      */
     public List<Metric> getMetricsForProject(Long projectId) {
+        List<Metric> result = new ArrayList<Metric>();
         if (!connection.isConnected()) {
             addError(connection.getError());
-            return null;
+            return result;
         }
-        List<Metric> result = new ArrayList<Metric>();
         try {
             WSMetric[] wsmetrics = 
                 connection.getMetricAccessor().getProjectEvaluatedMetrics(
                     projectId);
-            if ((wsmetrics != null) && (wsmetrics.length > 0)) {
+            if (wsmetrics.length > 0) {
                 // Retrieve the metric types
                 long[] typeIds = new long[wsmetrics.length];
                 int index = 0;
@@ -326,10 +315,9 @@ public class Terrier {
                             nextMetric,
                             metricTypes.get(nextMetric.getMetricTypeId())));
             }
-        } catch (WSException wse) {
-            addError("Cannot retrieve the list of metrics."
-                    + " " + wse.getMessage());
-            return null;
+        }
+        catch (WSException wse) {
+            addError("Cannot retrieve the list of metrics.");
         }
         return result;
     }
@@ -707,13 +695,13 @@ public class Terrier {
 
     public String getError() {
         if (error.length() > 0)
-            return "\n<ul>" + error + "\n</ul>";
+            return "\t<ul>\n" + error + "\t</ul>\n";
         else
             return "";
     }
 
     public void addError(String message) {
-        error += "\n\t<li>" + message + "</li>";
+        error += "\t  <li>" + message + "</li>\n";
     }
 
     public void flushError() {
@@ -722,5 +710,15 @@ public class Terrier {
 
     public String getDebug() {
         return debug;
+    }
+
+    /**
+     * Returns the status of the connection with the SQO-OSS framework.
+     * 
+     * @return <code>true</code>, if a connection is established,
+     *   or <code>true</code> otherwise.
+     */
+    public boolean isConnected() {
+        return connection.isConnected();
     }
 }

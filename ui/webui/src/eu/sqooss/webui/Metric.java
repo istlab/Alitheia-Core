@@ -119,9 +119,11 @@ public class Metric extends WebuiItem {
         return "<a href=\"/metrics.jsp?deselectMetric=" + getId() + "\">Deselect</a>";
     }
 
-    /** Returns an HTML string representing the Metric
+
+    /* (non-Javadoc)
+     * @see eu.sqooss.webui.WebuiItem#getHtml(long)
      */
-    public String getHtml () {
+    public String getHtml (long in) {
         return description + " (" + type + ", " + mnemonic + ")";
     }
 

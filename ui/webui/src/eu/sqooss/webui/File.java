@@ -49,9 +49,6 @@ import eu.sqooss.ws.client.datatypes.WSProjectFile;
  */
 class File extends WebuiItem {
 
-    /** The Constant COMMENT. */
-    private static final String COMMENT = "<!-- File -->\n";
-
     // The short name of this file
     private String shortName;
 
@@ -72,10 +69,7 @@ class File extends WebuiItem {
     
     // Holds the Id of the Directory DAO that match this folder's name
     Long toDirectoryId;
-    
-    /** The terrier. */
-    private Terrier terrier;
-    
+
     /** The results. */
     private List<Result> results = new ArrayList<Result>();
 
@@ -217,6 +211,11 @@ class File extends WebuiItem {
         return icon(iconname, 0, tooltip);
     }
 
+    public String getHtml(long in) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
     /**
      * Return a HTML representation of the file state and results in the given
      * project version.
@@ -238,7 +237,7 @@ class File extends WebuiItem {
             if (results.size() > 0) {
                 html.append("<ul>\n");
                 for (Result nextResult : results)
-                    html.append("<li>" + nextResult.getHtml());
+                    html.append("<li>" + nextResult.getHtml(0));
                 html.append("</ul>\n");
             }
             else

@@ -35,70 +35,71 @@ package eu.sqooss.webui;
 
 import java.util.*;
 
-import eu.sqooss.scl.WSException;
-
 import eu.sqooss.ws.client.datatypes.WSStoredProject;
-import eu.sqooss.ws.client.datatypes.WSMetric;
-import eu.sqooss.ws.client.datatypes.WSProjectVersion;
 
 /**
- * This class represents a project that has been evaluated by Alitheia.
- * It provides access to project metadata, files and versions in this
- * project and holds metrics that have been applied to this project.
- *
- * The Project class is part of the high-level webui API.
+ * This class represents a project that has been evaluated by the SQO-OSS
+ * framework.
+ * <br/>
+ * It provides access to the project metadata, files and versions in this
+ * project. In addition it provides information about the metrics that have
+ * been applied to this project and its resources.
  */
 public class Project extends WebuiItem {
 
-    //private Long    id;
-    private String  name;
+    // Project metadata
     private String  bts;
     private String  repository;
     private String  mail;
     private String  contact;
     private String  website;
 
-    // Contains the version number of the last selected version
+    // Holds the version number of the currently selected version
     private Long currentVersionId;
 
-    // Contains the number of versions in this project
+    // Holds the number of versions in this project
     Long versionsCount = null;
 
+    // Versions cache
     private Version firstVersion = null;
     private Version lastVersion = null;
     private Version currentVersion = null;
 
     // A cache for all metrics that have been evaluated on this project
-    private List<Metric> metrics;
+    private List<Metric> metrics = new ArrayList<Metric>();
 
     // Stores the list of Ids of all selected metrics
     private List<Long> selectedMetrics = new ArrayList<Long>();
 
     /**
-     * Empty constructor so we can create this object without having
-     * any further knowledge. You'll need to initProject() manually,
-     * providing a WSProject your self..
+     * Instantiates a new <code>Project</code> object, without initializing
+     * its data. The object can be initialized later on by calling its
+     * <code>initProject()</code> method.
      */
     public Project () {
-
+        setServletPath("/projects.jsp");
+        reqParName = "pid";
     }
 
     /**
-     * Constructor that initialises the Project and its data from a WStoredProject.
+     * Instantiates a new <code>Project</code> object, and initializes it with
+     * the data stored in the given <code>WStoredProject</code> object.
+     * 
+     * @param p the project object
      */
-    public Project (WSStoredProject p, Terrier t) {
-        terrier = t;
+    public Project (WSStoredProject p) {
+        setServletPath("/projects.jsp");
+        reqParName = "pid";
         initProject(p);
    }
 
     /**
-     * Initialises the Project from a WSStoredProject and fills it with
-     * relevant data. This function is automatically called from the non-empty
-     * ctor and needs to be manually called if the empty ctor is used,
+     * Initializes or updates this object with the metadata provided from the
+     * given <code>WStoredProject</code> object.
+     * 
+     * @param p the project object
      */
     private void initProject(WSStoredProject p) {
-        page = "/projects.jsp";
-        reqName = "pid";
         id = p.getId();
         name = p.getName();
         bts = p.getBugs();
@@ -109,16 +110,14 @@ public class Project extends WebuiItem {
     }
 
     /**
-     * Copies the target object into this object.
+     * Copies the target object's metadata into this object.
      * 
      * @param p the target <code>Project</code> instance
      */
     public void copyFrom (Project p) {
-        page = "/projects.jsp";
-        reqName = "pid";
         id = p.getId();
         name = p.getName();
-        bts = p.getBts();
+        bts = p.getBugs();
         repository = p.getRepository();
         mail = p.getMail();
         contact = p.getContact();
@@ -126,142 +125,173 @@ public class Project extends WebuiItem {
     }
 
     /**
-     * Fetches the Project's data from the SCL by ID.
-     */
-    public void retrieveData() {
-        if (id == null) {
-            return;
-        }
-        WSStoredProject[] storedProjects;
-        try {
-            storedProjects = terrier.connection().getProjectAccessor().getProjectsByIds(new long[] {id});
-            if (storedProjects.length != 0) {
-                initProject(storedProjects[0]);
-            } else {
-                addError("The project does not exist!");
-            }
-        } catch (WSException wse) {
-            addError("Could not retrieve the project:" + wse.getMessage());
-        }
-    }
-
-    /**
-     * Fetches the list of all metrics that have been evaluated on this
-     * project from the local store.
+     * Gets the project's homepage.
      * 
-     * @param refresh if set to <code>true</code> then the locally cached
-     *   list will first be refreshed with the information available from
-     *   the attached SQO-OSS framework.
-     * 
-     * @return the list of metrics evaluated on this project.
+     * @return the project's homepage, or <code>null</code> when the
+     *   project is not yet initialized.
      */
-    public List<Metric> retrieveMetrics(boolean refresh) {
-        if ((metrics == null) || (refresh)) {
-            metrics = terrier.getMetricsForProject(id);
-        }
-        return metrics;
-    }
-
-    public void setTerrier(Terrier t) {
-        terrier = t;
-    }
-
-    public Long getId () {
-        return id;
-    }
-
-    public String getName () {
-        return name;
-    }
-
     public String getWebsite () {
         return website;
     }
 
-    public String getMail () {
-        return mail;
-    }
-
+    /**
+     * Gets the project's contact email
+     * 
+     * @return the project's contact email, or <code>null</code> when the
+     *   project is not yet initialized.
+     */
     public String getContact () {
         return contact;
     }
 
-    public String getBts() {
+    /**
+     * Gets the project's mailing list.
+     * 
+     * @return the project's mailing list, or <code>null</code> when the
+     *   project is not yet initialized.
+     */
+    public String getMail () {
+        return mail;
+    }
+
+    /**
+     * Gets the project's BTS URL.
+     * 
+     * @return the project's BTS URL, or <code>null</code> when the
+     *   project is not yet initialized.
+     */
+    public String getBugs() {
         return bts;
     }
 
+    /**
+     * Gets the project's source repository.
+     * 
+     * @return the project's source repository, or <code>null</code> when the
+     *   project is not yet initialized.
+     */
     public String getRepository() {
         return repository;
     }
 
-    /** Returns an HTML table with meta information about this project.
+    /**
+     * Retrieves all the data that is required by this object from the
+     * SQO-OSS framework, unless the cache contains some data already.
+     * 
+     * @param terrier the <code>Terrier<code> instance
      */
-    public String getInfo() {
-        StringBuilder html = new StringBuilder();
-        html.append("\n<table class=\"projectinfo\">\n\t<tr>\n\t\t<td>");
-        html.append("<strong>Website:</strong> \n\t\t</td><td>\n"
-                + (getWebsite() != null
-                        ? "<a href=\"" + getWebsite() + "\">" + getWebsite() + "</a>"
-                        : "<i>undefined</i>"));
-        html.append("\n\t\t</td>\n\t</tr>\n\t<tr>\n\t\t<td>");
-        html.append(icon("mail-message-new") + "<strong>Contact:</strong> \n\t\t</td><td>\n"
-                + (getContact() != null
-                        ? "<a href=\"" + getContact() + "\">" + getContact() + "</a>"
-                        : "<i>undefined</i>"));
-        html.append("\n\t\t</td>\n\t</tr>\n\t<tr>\n\t\t<td>");
-        html.append(icon("vcs_status") + "<strong>SVN Mirror:</strong> \n\t\t</td><td>\n"
-                + (getRepository() != null
-                        ? "<a href=\"files.jsp" + getId() + "\">" + getRepository() + "</a>"
-                        : "<i>undefined</i>"));
-        html.append("\n\t\t</td>\n\t</tr>\n\t<tr>\n\t\t<td>");
-        html.append(icon("kbugbuster") + "<strong>Bug Data:</strong> \n\t\t</td><td>\n"
-                + (getBts() != null
-                        ? getBts()
-                        : "<i>undefined</i>"));
-        html.append("\n\t\t</td>\n\t</tr>\n</table>");
-        return html.toString();
-    }
-
-    /** Returns an HTML representation of the project, mainly the name.
-     */
-    public String getHtml() {
-        StringBuilder html = new StringBuilder("<!-- Project -->\n");
-        html.append("<h2>" + getName() + " (" + getId() + ")</h2>");
-        html.append(getInfo());
-        return html.toString();
-    }
-
-    /** Returns a short HTML representation of the project, mainly the name.
-     */
-    public String shortName() {
-        return getName();
+    public void retrieveData(Terrier terrier) {
+        if ((terrier == null) || (id == null))
+            return;
+        setTerrier(terrier);
+        retrieveMetrics();
     }
 
     /**
-     * Returns an HTML table containing all metric that were evaluated on
-     * this project.
-     * 
-     * @param refresh if set to <code>true</code> then the locally cached
-     *   metrics information will first be refreshed with the information
-     *   available from the attached SQO-OSS framework.
-     * @param chooser if set to <code>true</code> then the generated metrics
-     *   table will contain a field for selecting metrics.
-     * 
-     * @return the table's content
+     * Flushes all the data that is cached by this object.
      */
-    public String showMetrics(boolean refresh, boolean chooser) {
+    public void flushData() {
+        currentVersionId = null;
+        versionsCount = null;
+        firstVersion = null;
+        lastVersion = null;
+        currentVersion = null;
+        metrics = null;
+        selectedMetrics = new ArrayList<Long>();
+    }
+
+    /**
+     * Retrieves the list of all metrics that have been evaluated on this
+     * project from the SQO-OSS framework, unless the cache contains some
+     * data already.
+     * 
+     * @return the list of metrics evaluated on this project, or empty list
+     *   when none are found.
+     */
+    public List<Metric> retrieveMetrics() {
+        if (metrics == null)
+            metrics = terrier.getMetricsForProject(id);
+        return metrics;
+    }
+
+    /**
+     * Renders the metadata stored in this project's object into HTML.
+     * 
+     * @param in indentation depth of the generated HTML content.
+     * 
+     * @return The HTML content.
+     */
+    public String getInfo(long in) {
         StringBuilder html = new StringBuilder();
-        MetricsTableView view =
-            new MetricsTableView(retrieveMetrics(refresh));
-        view.setProjectId(getId());
-        if (chooser) {
-            view.setShowChooser(true);
-            view.setSelectedMetrics(selectedMetrics);
-        }
-        html.append(view.getHtml());
+        html.append(sp(in++) + "<table class=\"projectinfo\">\n");
+        // Project website
+        html.append(sp(in++) + "<tr>\n");
+        html.append(sp(in) + "<td>"
+                + "<strong>Website:</strong>"
+                + "</td>\n");
+        html.append(sp(in) + "<td>"
+                + (getWebsite() != null
+                        ? "<a href=\"" + getWebsite() + "\">"
+                                + getWebsite() + "</a>"
+                        : "<i>undefined</i>")
+                + "</td>\n");
+        html.append(sp(--in) + "</tr>\n");
+        // Project contact address
+        html.append(sp(in++) + "<tr>\n");
+        html.append(sp(in) + "<td>"
+                + icon("mail-message-new")
+                + "<strong>Contact:</strong>"
+                + "</td>\n");
+        html.append(sp(in) + "<td>"
+                + (getContact() != null
+                        ? "<a href=\"" + getContact() + "\">"
+                                + getContact() + "</a>"
+                        : "<i>undefined</i>")
+                        + "</td>\n");
+        html.append(sp(--in) + "</tr>\n");
+        // Project's source repository
+        html.append(sp(in++) + "<tr>\n");
+        html.append(sp(in) + "<td>"
+                + icon("vcs_status")
+                + "<strong>SVN Mirror:</strong>"
+                + "</td>\n");
+        html.append(sp(in) + "<td>"
+                + (getRepository() != null
+                        ? "<a href=\"files.jsp" + getId() + "\">"
+                                + getRepository() + "</a>"
+                        : "<i>undefined</i>")
+                + "</td>\n");
+        html.append(sp(--in) + "</tr>\n");
+        // Project's BTS
+        html.append(sp(in++) + "<tr>\n");
+        html.append(sp(in) + "<td>"
+                + icon("kbugbuster") + "<strong>Bug Data:</strong>"
+                + "</td>\n");
+        html.append(sp(in) + "<td>"
+                + (getBugs() != null
+                        ? getBugs()
+                        : "<i>undefined</i>")
+                + "</td>\n");
+        html.append(sp(--in) + "</tr>\n");
+        html.append(sp(--in) + "</table>");
         return html.toString();
     }
 
+    /* (non-Javadoc)
+     * @see eu.sqooss.webui.WebuiItem#getHtml(long)
+     */
+    public String getHtml(long in) {
+        StringBuilder html = new StringBuilder("");
+        html.append(sp(in) + "<h2>" + getName() + " (" + getId() + ")</h2>");
+        html.append(getInfo(in++));
+        return html.toString();
+    }
+
+    /**
+     * Sets the first version of this project.
+     * 
+     * @param version the version object
+     */
     public void setFirstVersion(Version version) {
         firstVersion = version;
     }
@@ -269,7 +299,8 @@ public class Project extends WebuiItem {
     /**
      * Gets the first known version of this project.
      *
-     * @return the version number, or null if the project has no version.
+     * @return the first version's object, or <code>null<code> if the project
+     *   has no versions at all.
      */
     public Version getFirstVersion() {
         if ((firstVersion == null) && (terrier != null))
@@ -277,6 +308,11 @@ public class Project extends WebuiItem {
         return firstVersion;
     }
 
+    /**
+     * Sets the last version of this project.
+     * 
+     * @param version the version object
+     */
     public void setLastVersion(Version version) {
         lastVersion = version;
     }
@@ -284,7 +320,8 @@ public class Project extends WebuiItem {
     /**
      * Gets the last known version of this project.
      *
-     * @return the version number, or null if the project has no version.
+     * @return the last version's object, or <code>null</code> if the project
+     *   has no versions at all.
      */
     public Version getLastVersion() {
         if ((lastVersion == null) && (terrier != null))
@@ -293,18 +330,21 @@ public class Project extends WebuiItem {
     }
 
     /**
-     * Gets a version by its ID.
+     * Sets the current version.
      *
-     * @return The Version under that id.
+     * @param version the version object
      */
-    public Version getVersion(Long versionId) {
-        return terrier.getVersion(id, versionId);
+    public void setCurrentVersion(Version version) {
+        if (version != null) {
+            currentVersion = version;
+            currentVersionId = version.getId();
+        }
     }
 
     /**
      * Gets the current version.
      *
-     * @return The Version under that id.
+     * @return The version object.
      */
     public Version getCurrentVersion() {
         if (currentVersion == null)
@@ -313,9 +353,19 @@ public class Project extends WebuiItem {
     }
 
     /**
-     * Returns the last selected version of this project.
+     * Sets the version with the given number as current.
+     * 
+     * @param versionNumber the version number
+     */
+    public void setCurrentVersionId(Long versionNumber) {
+        currentVersionId = versionNumber;
+    }
+
+    /**
+     * Returns the number of the current version.
      *
-     * @return the version number, or null if there is no selected version.
+     * @return the version number, or <code>null</code> if a current version
+     *   is not yet defined.
      */
     public Long getCurrentVersionId() {
         try {
@@ -329,9 +379,17 @@ public class Project extends WebuiItem {
         }
     }
 
-    
     /**
-     * Returns the number of versions in this project
+     * Retrieves a version by its Id from the SQO-OSS framework.
+     *
+     * @return The Version under that id.
+     */
+    public Version getVersion(Long versionId) {
+        return terrier.getVersion(id, versionId);
+    }
+
+    /**
+     * Returns the total number of versions in this project
      *
      * @return The number of version in this project.
      */
@@ -345,42 +403,44 @@ public class Project extends WebuiItem {
     }
 
     /**
-     * Sets the specified version as selected version for this project
-     * @param versionNumber the version number
+     * Adds the metric with the given Id to the list of metrics which results
+     * will be displayed for this project in the various WebUI views.
+     * 
+     * @param id the metric Id
      */
-    public void setCurrentVersionId(Long versionNumber) {
-        currentVersionId = versionNumber;
-    }
-
-    /**
-     * Sets the specified version as selected version for this project
-     *
-     * @param version the <code>Version</code> object
-     */
-    public void setCurrentVersion(Version version) {
-        if (version != null) {
-            currentVersion = version;
-            currentVersionId = version.getId();
-        }
-    }
-
     public void selectMetric (Long id) {
         if (id != null)
             selectedMetrics.add(id);
     }
 
+    /**
+     * Removes the metric with the given Id from the list of metrics which
+     * results will be displayed for this project in the various WebUI views.
+     * 
+     * @param id the metric Id
+     */
     public void deselectMetric (Long id) {
         if (id != null)
             selectedMetrics.remove(id);
     }
 
-    public String getSelectLink (String path) {
-        return new String("<a href=\""
-                + path + "?pid=" + getId() + "\" >"
-                + getName() + "</a>");
+    /**
+     * Retrieve the list of Ids for all metrics that were selected for this
+     * project.
+     * 
+     * @return the list of selected metric Ids
+     */
+    public List<Long> getSelectedMetrics () {
+        return selectedMetrics;
     }
 
-    public Map<Long, String> getSelectedMetricMnenmonics() {
+    /**
+     * Gets the mnemonic names of the currently selected metrics.
+     * 
+     * @return The list mnemonic names, or an empty list when none are
+     *   selected.
+     */
+    public Map<Long, String> getSelectedMetricMnemonics() {
         Map<Long, String> result = new HashMap<Long, String>();
         for (Long nextId : selectedMetrics) {
             for (Metric nextMetric : metrics)
@@ -391,15 +451,23 @@ public class Project extends WebuiItem {
     }
 
     /**
-     * Flushes any information that is cached in this object.
+     * Verifies if this object is equal to the given <code>Project</code>
+     * object.
+     * 
+     * @param target the target <code>Project</code> object
+     * 
+     * @return <code>true<code>, if this <code>Project</code> is equal to the
+     *   given <code>Project</code> object, or <code>false</code> otherwise.
      */
-    public void flushCache() {
-        currentVersionId = null;
-        versionsCount = null;
-        firstVersion = null;
-        lastVersion = null;
-        currentVersion = null;
-        metrics = null;
-        selectedMetrics = new ArrayList<Long>();
+    @Override
+    public boolean equals(Object target) {
+        if (this == target) return true;
+        if (target == null) return false;
+        if (getClass() != target.getClass()) return false;
+        Project project = (Project) target;
+        if (getId().equals(project.getId()))
+            if (getName().equals(project.getId()))
+                return true;
+        return false;
     }
 }

@@ -33,150 +33,207 @@
 
 package eu.sqooss.webui;
 
-import java.util.*;
-
 /**
- * This class is the base class for the high-level API for the webui.
+ * This class represents the base storage class for a single SQO-OSS DAO.
  */
-public class WebuiItem {
+public abstract class WebuiItem {
 
-    private static final String COMMENT = "<!-- WebuiItem -->\n";
-    private StringBuilder error = new StringBuilder();
+    // Hold the object Id
     protected Long id;
+
+    // Holds the object name
     protected String name;
-    protected String page = "home.jsp";
-    protected String reqName = "id";
+
+    // Contains the servlet path of the page where this object will be shown
+    private String servletPath;
+
+    // Contains the HTML request parameter's name that references this object
+    protected String reqParName;
+
+    // Holds the terrier's instance.
     protected Terrier terrier;
-    // Contains a sorted list of all files in this version mapped to their ID.
-    protected SortedMap<Long, File> files;
-    Vector<File> fs; // For convenience
 
-    /** Some derived datatypes have files in them, we store them in this class,
-     * even though they're not used for all derived object for simplicity. Classes
-     * that do possess such a file list are Version and Project.
+    /**
+     * Gets the Id of this DAO object.
+     * 
+     * @return the DAO Id, or <code>null</code> when the
+     *   object is not yet initialized.
      */
-    protected int fileCount;
-
-    /** Empty ctor.
-     */
-    public WebuiItem () {
-
-    }
-
     public Long getId() {
         return id;
     }
 
+    /**
+     * Gets the Id of this DAO object.
+     * 
+     * @param id the Id value
+     */
     public void setId(Long id) {
         this.id = id;
     }
 
+    /**
+     * Gets the name of this DAO object.
+     * 
+     * @return the DAO name, or <code>null</code> when the
+     *   object is not yet initialized.
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * Sets the name of this DAO object.
+     * 
+     * @param name the name value
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * Gets the <code>Terrier</code> connector instance.
+     * 
+     * @return The <code>Terrier<code> instance.
+     */
     public Terrier getTerrier () {
         return terrier;
     }
 
-    public void setTerrier (Terrier t) {
-        terrier = t;
-    }
-
-    /** Return an HTML representation of this Object.
+    /**
+     * Sets the <code>Terrier</code> connector instance.
+     * 
+     * @param terrier the <code>Terrier<code> instance
      */
-    public String getHtml() {
-        StringBuilder html = new StringBuilder(COMMENT);
-        html.append("<strong>WebuiItem:</strong> " + id);
-        return html.toString();
+    public void setTerrier (Terrier terrier) {
+        this.terrier = terrier;
     }
 
-    /** Returns a short HTML representation of this object.
+    /**
+     * Renders the data stored in this object into HTML.
+     * 
+     * @param indentationDepth indentation depth of the generated HTML
+     *   content.
+     * 
+     * @return The HTML content.
      */
-    public String shortName () {
-        return name + " " + id;
-    }
+    public abstract String getHtml(long in);
 
-    /** Returns a longer HTML representation of this object.
-     */
-    public String longName () {
-        return getHtml(); // Yeah, we're lazy.
-    }
-
-    /** Returns an HTML link to a page that shows more information about this object.
+    /**
+     * Generates an HTML link to a page that shows detailed information about
+     * this object.
      * The members page, reqName and id are required for this to work. Optionally,
      * you can provide a CSS class to style the link. The link is build as $page?$reqName=$id,
      * for example project.jsp?project=42 (with page="project.jsp", reqName="project", id=42.
+     * 
+     * @param cssClass the CSS class to be used on the link
+     * 
+     * @return The link's HTML content.
      */
     public String link(String cssClass) {
         String css_class = "";
-        if (cssClass != null) {
+        if (cssClass != null)
             css_class = " class=\"" + cssClass + "\" ";
-        }
-        return "<a href=\"" + page + "?" + reqName + "=" + id + "\" " + css_class + ">" + shortName() + "</a>";
+        return "<a href=\"" + servletPath + "?" + reqParName + "=" + id + "\""
+            + " " + css_class + ">"
+            + getName() + "</a>";
     }
 
-    /** Convenience method that returns a link without using a CSS class.
+    /**
+     * Convenience method that returns a link without using a CSS class.
      */
     public String link() {
         return link(null);
     }
 
-    /** Count the number of files and store this number internally.
-     */
-    public void setFileCount(Integer n) {
-        fileCount = n;
-    }
-
-    public int getFileCount() {
-        return fileCount;
-    }
-
-    /** Set the internal list of Files.
-     *
-     */
-    public void setFiles(SortedMap<Long, File> f) {
-        files = f;
-    }
-
-    /** Return an HTML snippet string representing the object icon.
+    /**
+     * Return an HTML snippet string representing the object icon.
+     * 
+     * @param name the icon's filename (without the ".png" extension)
+     * 
+     * @return the icon's HTML string
      */
     public String icon(String name) {
         return Functions.icon(name);
     }
 
-    /** Return an HTML snippet string representing the object icon at a certain size.
+    /**
+     * Return an HTML snippet string representing the object icon at
+     * a certain size.
+     * 
+     * @param name the icon's filename (without the ".png" extension)
+     * @param size the icon's size (in pixels)
+     * 
+     * @return the icon's HTML string
      */
     public String icon(String name, int size) {
         return Functions.icon(name, size);
     }
 
-    /** Return an HTML snippet string representing the object icon at a certain size.
-     * with a tooltip.
+    /**
+     * Renders an HTML snippet string representing the object icon at
+     * a certain size and with a HTML tooltip.
+     * 
+     * @param name the icon's filename (without the ".png" extension)
+     * @param size the icon's size (in pixels)
+     * @param tooltip the icon's tooltip text
+     * 
+     * @return the icon's HTML string
      */
     public String icon(String name, int size, String tooltip) {
         return Functions.icon(name, size, tooltip);
     }
 
-    /** Add an error that will be displayed by this object later on. Note that in most cases,
-     * you'll want to add your messages to the Terrier object. This method is there if we
-     * don't have a Terrier at hand and want to message the user nevertheless.
+    /**
+     * Returns the initialization state of this object.
+     * 
+     * @return <code>true</code> when this object is initialized,
+     *   or <code>false</code> otherwise.
      */
-    public void addError(String html) {
-        error.append(html);
-    }
-
-    /** Return the errors of this object as printable String.
-     */
-    public String error() {
-        return error.toString();
-    }
-
-    /** Is this object initialised?
-     */
-    public Boolean isValid() {
+    public boolean isValid() {
         return id != null;
     }
 
-    /** Explicitely invalidate this object.
+    /**
+     * Explicitely invalidate this object.
      */
     public void invalidate() {
         id = null;
     }
+
+    /**
+     * Gets the servlet path of the page where this view will be displayed.
+     * 
+     * @return the servlet path
+     */
+    protected String getServletPath() {
+        return servletPath;
+    }
+
+    /**
+     * Sets the servlet path of the page where this view will be displayed.
+     * 
+     * @param servletPath the new servlet path
+     */
+    public void setServletPath(String servletPath) {
+        this.servletPath = servletPath;
+    }
+
+    /**
+     * Generates a string that contains a <b>2*num</b> spaces.
+     * <br/>
+     * <i>Used for indentation of the HTML content that is generated by the
+     * various views.</i>
+     * 
+     * @param num the indentation depth
+     * 
+     * @return The indentation string.
+     */
+    protected static String sp (long num) {
+        StringBuilder b = new StringBuilder();
+        for (long i = 0; i < num; i++)
+            b.append("  ");
+        return b.toString();
+    }
+
 }

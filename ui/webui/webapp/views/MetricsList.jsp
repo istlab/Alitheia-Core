@@ -1,15 +1,14 @@
-<%@ page import="eu.sqooss.webui.*" %>
-
-<form id="metrics" name="metrics" method="GET">
+<%@ page import="eu.sqooss.webui.*"
+%>          <form id="metrics" name="metrics" method="GET">
+            <div id="metricslist" class="group">
 <%
+// Indentation depth
+in = 7;
 //out.println(debugRequest(request));
 //============================================================================
 // Show metric per project, when a project selection exists
 //============================================================================
 if (selectedProject.isValid()) {
-%>
-  <div id="metricslist" class="group">
-<%
     // Check for a metric selection
     if (request.getParameter("selectMetric") != null) {
         try {
@@ -25,24 +24,30 @@ if (selectedProject.isValid()) {
         }
         catch (NumberFormatException ex) {}
     }
-    out.println("<h2>Metrics evaluated on project: "
-        + selectedProject.getName()
-        + "</h2>");
-    out.println(selectedProject.showMetrics(true, true));
-    // Print the accumulated errors (if any)
-    if (terrier.hasErrors())
-        out.println(Functions.error(terrier.getError()));
-%>
-  </div>
-<%
+    // Prepare the metrics view
+    MetricsTableView metricsView =
+        new MetricsTableView(selectedProject.retrieveMetrics());
+    metricsView.setProjectId(selectedProject.getId());
+    metricsView.setSelectedMetrics(selectedProject.getSelectedMetrics());
+    metricsView.showChooser = true;
+    metricsView.showResult = false;
+    // Display the metrics
+    out.println(sp(in) + "<h2>Metrics evaluated on project: "
+        + selectedProject.getName() + "</h2>");
+    out.print(metricsView.getHtml(in));
 }
-%>
-  <div id="metricslist" class="group">
+else {
+    out.print(sp(in) + Functions.warning("No project is selected."
+        + " If you want to see metrics applied to a certain project,"
+        + " <a href=\"/projects.jsp\">choose one</a> first."));
+}
+%>            </div>
+            <div id="metricslist" class="group">
 <%
 //============================================================================
 // Show all metrics installed in the SQO-OSS framework
 //============================================================================
-out.println("<h2>All installed metrics</h2>");
+out.println(sp(in) + "<h2>All installed metrics</h2>");
 if (request.getParameter("showAllMetrics") != null) {
     // Check the "Show all installed metrics" flag
     if (request.getParameter("showAllMetrics").equals("true"))
@@ -52,29 +57,17 @@ if (request.getParameter("showAllMetrics") != null) {
 }
 // Add a link for show/hide all installed metrics
 if (settings.getShowAllMetrics())
-    out.println("<a href=\"/metrics.jsp?showAllMetrics=false\">"
+    out.println(sp(in) + "<a href=\"/metrics.jsp?showAllMetrics=false\">"
         + "Hide all installed metrics" + "</a><br/>");
 else
-    out.println("<a href=\"/metrics.jsp?showAllMetrics=true\">"
+    out.println(sp(in) + "<a href=\"/metrics.jsp?showAllMetrics=true\">"
         + "Show all installed metrics" + "</a><br/>");
 // Display all installed metrics
 if (settings.getShowAllMetrics()) {
     MetricsTableView allMetrics =
         new MetricsTableView(terrier.getAllMetrics());
-    allMetrics.setShowResult(false);
-    out.println(allMetrics.getHtml());
+    allMetrics.showResult = false;
+    out.print(allMetrics.getHtml(in));
 }
-// Print the accumulated errors (if any)
-if (terrier.hasErrors())
-    out.println(Functions.error(terrier.getError()));
-
-if (selectedProject == null) {
-    %>
-    <p />
-    No project is selected. If you want to see metrics applied to a certain project,
-    <a href="/projects.jsp">choose one</a> first.
-    <%
-}
-%>
-  </div>
-</form>
+%>            </div>
+          </form>

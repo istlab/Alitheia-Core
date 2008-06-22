@@ -32,6 +32,10 @@
  */
 package eu.sqooss.webui;
 
+import java.util.Locale;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
+
 /**
  * This class is just for static strings and string formatting
  * functions. The static strings are various shared messages,
@@ -39,26 +43,123 @@ package eu.sqooss.webui;
  */
 public class Functions {
 
+    // Resource bundles
+    private static ResourceBundle resLbl = null;
+    private static ResourceBundle resMsg = null;
+    private static ResourceBundle resErr = null;
+
+    // Some constants that are used internally
+    private static String NULL_PARAM_NAME = "Undefined parameter name!";
+
     public static final String NOT_YET_EVALUATED =
         "This project has not yet been evaluated!";
 
     public static final String NO_INSTALLED_METRICS =
         "No installed metrics has been found!";
 
+    /**
+     * Initializes the various resource bundle with the specified locale.
+     * 
+     * @param locale the user's locale
+     */
+    public static void initResources (Locale locale) {
+        if (locale != null)
+            resLbl = ResourceBundle.getBundle("file_name", locale);
+        else
+            resLbl = ResourceBundle.getBundle("file_name");
+    }
+
+    /**
+     * Retrieves the value of the given resource property from the
+     * resource bundle that stores all label strings.
+     * 
+     * @param name the name of the resource property
+     * 
+     * @return The property's value, when that property can be found in the
+     *   corresponding resource bundle, OR the provided property name's
+     *   parameter, when such property is missing.
+     */
+    public static String getLbl (String name) {
+        if (resLbl != null) {
+            try {
+                return resLbl.getString(name);
+            }
+            catch (NullPointerException ex) {
+                return NULL_PARAM_NAME;
+            }
+            catch (MissingResourceException ex) {
+                return name;
+            }
+        }
+        return name;
+    }
+
+    /**
+     * Retrieves the value of the given resource property from the
+     * resource bundle that stores all error strings.
+     * 
+     * @param name the name of the resource property
+     * 
+     * @return The property's value, when that property can be found in the
+     *   corresponding resource bundle, OR the provided property name's
+     *   parameter, when such property is missing.
+     */
+    public static String getErr (String name) {
+        if (resErr != null) {
+            try {
+                return resErr.getString(name);
+            }
+            catch (NullPointerException ex) {
+                return NULL_PARAM_NAME;
+            }
+            catch (MissingResourceException ex) {
+                return name;
+            }
+        }
+        return name;
+    }
+
+    /**
+     * Retrieves the value of the given resource property from the
+     * resource bundle that stores all message strings.
+     * 
+     * @param name the name of the resource property
+     * 
+     * @return The property's value, when that property can be found in the
+     *   corresponding resource bundle, OR the provided property name's
+     *   parameter, when such property is missing.
+     */
+    public static String getMsg (String name) {
+        if (resMsg != null) {
+            try {
+                return resMsg.getString(name);
+            }
+            catch (NullPointerException ex) {
+                return NULL_PARAM_NAME;
+            }
+            catch (MissingResourceException ex) {
+                return name;
+            }
+        }
+        return name;
+    }
+
     public static String error(String msg) {
-        return "<div id=\"msgbox\">"
-        + "<span class=\"error\">" + msg + "</span>"
-        + "</div>\n";
+        return "<br/>"
+            + "<span class=\"error\">" + msg + "</span>"
+            + "<br/>\n";
     }
 
     public static String warning(String msg) {
-        return "<div id=\"msgbox\">"
+        return "<br/>"
             + "<span class=\"warning\">" + msg + "</span>"
-            + "</div>\n";
+            + "<br/>\n";
     }
 
     public static String debug(String msg) {
-        return "<strong><font color=\"orange\">" + msg + "</font></strong>";
+        return "<br/>"
+            + "<span class=\"debug\">" + msg + "</span>"
+            + "<br/>\n";
     }
 
     public static String icon(String name) {

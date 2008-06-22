@@ -35,10 +35,8 @@ package eu.sqooss.webui;
 
 import java.util.*;
 
-import eu.sqooss.webui.Result.ResourceType;
 import eu.sqooss.ws.client.datatypes.WSDirectory;
 import eu.sqooss.ws.client.datatypes.WSProjectVersion;
-import eu.sqooss.ws.client.datatypes.WSMetric;
 import eu.sqooss.ws.client.datatypes.WSMetricsResultRequest;
 import eu.sqooss.ws.client.datatypes.WSVersionStats;
 
@@ -51,7 +49,6 @@ import eu.sqooss.ws.client.datatypes.WSVersionStats;
  */
 public class Version extends WebuiItem {
 
-    private static final String COMMENT = "<!-- Version -->\n";
     private Long projectId;
     private Long number;
     private Long filesNumber = null;
@@ -59,11 +56,14 @@ public class Version extends WebuiItem {
     private WSVersionStats stats = null;
     private Stack<Long> dirStack = new Stack<Long>();
 
+    // Contains a list of all files in this version indexed by their Id
+    protected SortedMap<Long, File> files;
+
     /** Empty ctor, only sets the jsp page that can be used to display
      * details about this Version.
      */
     public Version () {
-        page = "version.jsp";
+        setServletPath("version.jsp");
     }
 
     /**
@@ -123,12 +123,12 @@ public class Version extends WebuiItem {
      * <code>files<code> member.
      */
     public void getAllFiles() {
+        if (terrier == null)
+            return;
         if (isValid()) {
-            // TODO: We don't need that double caching (in fs and files)
-            fs = terrier.getProjectVersionFiles(id);
+            Vector<File> fs = terrier.getProjectVersionFiles(id);
             if ( fs == null || fs.size() == 0 )
                 return;
-            fileCount = fs.size();
             files = new TreeMap<Long, File>();
             Iterator<File> filesIterator = fs.iterator();
             while (filesIterator.hasNext()) {
@@ -137,7 +137,7 @@ public class Version extends WebuiItem {
             }
         }
         else
-            addError("Invalid project version!");
+            terrier.addError("Invalid project version!");
     }
 
     public void switchDir(Long directoryId) {
@@ -173,6 +173,8 @@ public class Version extends WebuiItem {
      * are copied into the <code>files<code> member.
      */
     public void getFilesInCurrentDirectory() {
+        if (terrier == null)
+            return;
         if (isValid()) {
             // Fill the files cache if empty
             if (files == null) {
@@ -188,7 +190,6 @@ public class Version extends WebuiItem {
                     List<File> filesList = terrier.getFilesInDirectory(
                             getId(), currentDirId);
                     if ((filesList != null) && (filesList.size() > 0)) {
-                        fileCount = filesList.size();
                         files = new TreeMap<Long, File>();
                         for (File nextFile : filesList)
                             files.put(nextFile.getId(), nextFile);
@@ -197,10 +198,10 @@ public class Version extends WebuiItem {
             }
         }
         else
-            addError("Invalid project version!");
+            terrier.addError("Invalid project version!");
     }
 
-    public String fileStats() {
+    public String fileStats(long in) {
         // Fetch the version's statistic if not already performed
         if ((stats == null) && (getId() != null)) {
             long[] versionIds = {this.getId().longValue()};
@@ -211,23 +212,34 @@ public class Version extends WebuiItem {
         }
         // No statistics available
         if (stats == null)
-            return "No statistics available for the selected version!";
+            return "No statistics available!";
         // Render the statistics page
-        StringBuilder html = new StringBuilder("\n\n<table>");
-        html.append("\n\t<tr><td>" + icon("vcs_add") +
-                "<strong>Files added:</strong></td>\n\t<td>"
-                + stats.getAddedCount() + "</td></tr>");
-        html.append("\n\t<tr><td>" + icon("vcs_update") +
-                "<strong>Files modified:</strong></td>\n\t<td>"
-                + stats.getModifiedCount() + "</td></tr>");
-        html.append("\n\t<tr><td>" + icon("vcs_remove") +
-                "<strong>Files deleted:</strong></td>\n\t<td>"
-                + stats.getDeletedCount() + "</td></tr>");
-        html.append("\n\t<tr><td colspan=\"2\"><hr /></td></tr>");
-        html.append("\n\t<tr><td>" + icon("vcs_status") +
-                "<strong>Total files changed:</strong></td><td>"
-                + stats.getTotalCount() + "</td>\n\t</tr>");
-        html.append("\n</table>");
+        StringBuilder html = new StringBuilder("");
+        html.append(sp(in++) + "<table>\n");
+        html.append(sp(in) + "<tr>"
+                + "<td>" + icon("vcs_add")
+                + "<strong>Files added:</strong>" + "</td>"
+                + "<td>" + stats.getAddedCount() + "</td>"
+                + "</tr>\n");
+        html.append(sp(in) + "<tr>"
+                + "<td>" + icon("vcs_update")
+                + "<strong>Files modified:</strong>" + "</td>"
+                + "<td>" + stats.getModifiedCount() + "</td>"
+                + "</tr>\n");
+        html.append(sp(in) + "<tr>"
+                + "<td>" + icon("vcs_remove")
+                + "<strong>Files deleted:</strong>" + "</td>"
+                + "<td>" + stats.getDeletedCount() + "</td>"
+                + "</tr>\n");
+        html.append(sp(in) + "<tr>"
+                + "<td colspan=\"2\"><hr />" + "</td>"
+                + "</tr>\n");
+        html.append(sp(in) + "<tr>"
+                + "<td>" + icon("vcs_status")
+                + "<strong>Total files changed:</strong>" + "</td>"
+                + "<td>" + stats.getTotalCount() + "</td>"
+                + "</tr>\n");
+        html.append(sp(--in) + "</table>\n");
         return html.toString();
     }
 
@@ -235,81 +247,69 @@ public class Version extends WebuiItem {
     /**
      * Return an HTML list of all files in this version combined with results
      * from the metrics that were selected for this project.
-     *
+     * 
      * @param project the project object
-     *
+     * @param in the indentation depth
+     * 
      * @return The files list as HTML.
      */
-    public String listFiles(Project project) {
-        // TODO: Replace with a file browser!
-        
+    public String listFiles(Project project, long in) {
         // Retrieve the list of files if not yet done
         if (files == null)
             //getAllFiles();
             getFilesInCurrentDirectory();
-        
         // Check if this version contains no files
         if ((files == null) && (dirStack.size() < 2)) {
-            return Functions.warning(
-                    "No files found for this project version!");
+            return (sp(in) + Functions.warning(
+                    "No files found for this project version!"));
         }
         // Render the files list page (inclusive evaluation results)
         else {
             StringBuilder html = new StringBuilder();
             // Retrieve results from all selected metrics (if any)
-            Map<Long, String> selectedMetrics = project.getSelectedMetricMnenmonics();
+            Map<Long, String> selectedMetrics =
+                project.getSelectedMetricMnemonics();
             if ((project != null) && (files != null) && (files.size() > 0)) {
                 if (selectedMetrics.size() > 0)
                     fetchFilesResults(selectedMetrics);
             }
             // Ask the user to select some metrics, when none are selected
             if (selectedMetrics.isEmpty()) {
-                html.append("<br/>");
-                html.append(Functions.warning(
+                html.append(sp(in) + Functions.warning(
                         "No Metrics have been selected!"
                         + " Select a metric"
                         + " <a href=\"metrics.jsp\">here</a>"
                         + " to view results."));
-                html.append("<br/>");
             }
             // Display the browser's navigation bar
+            html.append(sp(in) + "<br/>\n");
             if ((dirStack.size() > 1)) {
-                html.append("&nbsp;<a href=\"files.jsp?"
+                html.append(sp(in) + "&nbsp;<a href=\"files.jsp?"
                         + "did=top" + "\""
                         + ">Top</a>");
                 html.append("&nbsp;<a href=\"files.jsp?"
                         + "did=prev" + "\""
-                        + ">Previous</a>");
+                        + ">Previous</a>\n");
             }
             else {
-                html.append("&nbsp;Top");
-                html.append("&nbsp;Previous");
+                html.append(sp(in) + "&nbsp;Top");
+                html.append("&nbsp;Previous\n");
             }
-            html.append("<br/>");
+            html.append(sp(in) + "<br/>\n");
             // Display the browser's content
             if ((project != null) && (files != null) && (files.size() > 0)) {
                 FileListView view = new FileListView(files);
                 view.setVersionId(this.id);
-                html.append(view.getHtml());
+                html.append(view.getHtml(in));
             }
             else
-                html.append("<ul>"
+                html.append(sp(in) + "<ul>"
                         + "<li>"
                         + Functions.icon("vcs_empty", 0, "Empty folder")
                         + "&nbsp;<i>Empty</i>"
                         + "</ul>\n");
             return html.toString();
         }
-    }
-
-    /** Count the number of files and store this number internally.
-     */
-    public void setFileCount(Integer n) {
-        fileCount = n;
-    }
-
-    public int getFileCount() {
-        return fileCount;
     }
 
     /** Set the internal list of Files.
@@ -374,17 +374,17 @@ public class Version extends WebuiItem {
         html.append("Found: " + results.length);
         html.append("\n<ul>");
         for (int i = 0; i < results.length; i++) {
-            html.append("\n\t<li>" + results[i].getHtml() + "</li>");
+            html.append("\n\t<li>" + results[i].getHtml(0) + "</li>");
         }
         html.append("</ul>");
         return html.toString();
     }
 
-    /** Return an HTML representation of this Version.
-     *
+    /* (non-Javadoc)
+     * @see eu.sqooss.webui.WebuiItem#getHtml(long)
      */
-    public String getHtml() {
-        StringBuilder html = new StringBuilder(COMMENT);
+    public String getHtml(long in) {
+        StringBuilder html = new StringBuilder("");
         html.append("<b>Version:</b> " + id);
         html.append("<b>Results:</b> " + showResults());
         return html.toString();
@@ -399,6 +399,7 @@ public class Version extends WebuiItem {
     /** Return a longer HTML representation of this Version.
      */
     public String longName () {
-        return getHtml(); // Yeah, we're lazy.
+        return getHtml(0); // Yeah, we're lazy.
     }
+
 }

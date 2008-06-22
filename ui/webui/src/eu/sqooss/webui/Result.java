@@ -177,10 +177,10 @@ public class Result extends WebuiItem {
         return "<a href=\"/results.jsp?rid=" + getId() + "\">View Me</a>";
     }
 
-    /**
-     * Returns an HTML string representing the Result in a clever way.
+    /* (non-Javadoc)
+     * @see eu.sqooss.webui.WebuiItem#getHtml(long)
      */
-    public String getHtml () {
+    public String getHtml (long in) {
         if (getIsPrintable())
             return mnemonic + ": " + getString();
         else

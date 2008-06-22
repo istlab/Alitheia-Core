@@ -57,8 +57,7 @@ public class MetricsListView extends ListView {
         // TODO: get some data ...
     }
 
-    @Override
-    public String getHtml() {
+    public String getHtml(long in) {
         // TODO: get html
         return null;
     }
