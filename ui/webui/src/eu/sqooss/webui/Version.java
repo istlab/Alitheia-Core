@@ -59,6 +59,9 @@ public class Version extends WebuiItem {
     // Contains a list of all files in this version indexed by their Id
     protected SortedMap<Long, File> files;
 
+    // Enables the display of the results overview
+    public boolean showResults = false;
+
     /** Empty ctor, only sets the jsp page that can be used to display
      * details about this Version.
      */
@@ -302,19 +305,35 @@ public class Version extends WebuiItem {
                         + " Select a metric"
                         + " <a href=\"metrics.jsp\">here</a>"
                         + " to view results."));
+                showResults = false;
             }
             // Display the browser's navigation bar
             html.append(sp(in) + "<br/>\n");
+            html.append(sp(in));
+            if (selectedMetrics.isEmpty() == false) {
+                if (showResults)
+                    html.append("&nbsp;<a href=\""
+                            + getServletPath()
+                            + "?showResults=false"
+                            + "\">Hide results</a>");
+                else
+                    html.append("&nbsp;<a href=\""
+                            + getServletPath()
+                            + "?showResults=true"
+                            + "\">Show results</a>");
+            }
             if ((dirStack.size() > 1)) {
-                html.append(sp(in) + "&nbsp;<a href=\"files.jsp?"
-                        + "did=top" + "\""
+                html.append("&nbsp;<a href=\""
+                        + getServletPath()
+                        + "?did=top" + "\""
                         + ">Top</a>");
-                html.append("&nbsp;<a href=\"files.jsp?"
-                        + "did=prev" + "\""
+                html.append("&nbsp;<a href=\""
+                        + getServletPath()
+                        + "?did=prev" + "\""
                         + ">Previous</a>\n");
             }
             else {
-                html.append(sp(in) + "&nbsp;Top");
+                html.append("&nbsp;Top");
                 html.append("&nbsp;Previous\n");
             }
             html.append(sp(in) + "<br/>\n");
@@ -322,6 +341,7 @@ public class Version extends WebuiItem {
             if ((project != null) && (files != null) && (files.size() > 0)) {
                 FileListView view = new FileListView(files);
                 view.setVersionId(this.id);
+                view.showResults = showResults;
                 html.append(view.getHtml(in));
             }
             else

@@ -34,9 +34,8 @@
 package eu.sqooss.webui;
 
 public class SelectedSettings {
-    private boolean showAllMetrics;
-
-    public SelectedSettings() {}
+    private boolean showAllMetrics = false;
+    private boolean showFileResultsOverview = false;
 
     public void setShowAllMetrics(boolean flag) {
         showAllMetrics = flag;
@@ -45,4 +44,13 @@ public class SelectedSettings {
     public boolean getShowAllMetrics() {
         return showAllMetrics;
     }
+
+    public void setShowFileResultsOverview(boolean flag) {
+        showFileResultsOverview = flag;
+    }
+
+    public boolean getShowFileResultsOverview() {
+        return showFileResultsOverview;
+    }
+
 }

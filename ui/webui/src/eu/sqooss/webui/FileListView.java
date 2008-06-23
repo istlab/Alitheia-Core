@@ -48,6 +48,9 @@ public class FileListView extends ListView {
     // Contains the Id of the selected project's version (if any)
     private Long versionId;
 
+    // Enables the display of the results overview
+    public boolean showResults = false;
+
     /**
      * Instantiates a new <code>FileListView</code> object and initializes it
      * with the given list of project files.
@@ -164,6 +167,7 @@ public class FileListView extends ListView {
         for (File nextFile : this.files) {
             if (nextFile.getIsDirectory() == false) {
                 fileCount++;
+                nextFile.showResults = this.showResults;
                 html.append((nextFile != null)
                         ? sp(in) + "<li>" + nextFile.getHtml(this.versionId)
                                 + sp(in) + "</li>\n"

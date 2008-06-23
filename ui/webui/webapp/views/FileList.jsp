@@ -10,7 +10,6 @@ if (selectedProject.isValid()) {
     if (selectedVersion != null) {
         out.println(sp(in) + "<h2>Files "
             + " in version " + selectedVersion.getNumber() + "</h2>");
-
         // Check if the user has switched to another directory
         if (request.getParameter("did") != null) {
             if (request.getParameter("did").equals("top"))
@@ -23,8 +22,16 @@ if (selectedProject.isValid()) {
                     selectedVersion.switchDir(directoryId);
             }
         }
-        // Display a verbose information about the selected file (if selected)
+        // Check if the user has enabled/disabled the results overview flag
+        if (request.getParameter("showResults") != null) {
+            if (request.getParameter("showResults").equals("true"))
+                settings.setShowFileResultsOverview(true);
+            else if (request.getParameter("showResults").equals("false"))
+                settings.setShowFileResultsOverview(false);
+        }
+        // Check if the user has selected a file
         if (request.getParameter("fid") != null) {
+            // Display a verbose information about the selected file
             out.print(selectedProject.renderFileVerbose(
                 strToLong(request.getParameter("fid")), in));
         }
@@ -33,6 +40,9 @@ if (selectedProject.isValid()) {
             // Display some file statistics for the selected version
             out.print(selectedVersion.fileStats(in));
             // Display all files in the selected project version
+            selectedVersion.setServletPath(request.getServletPath());
+            selectedVersion.showResults =
+                settings.getShowFileResultsOverview();
             out.print(selectedVersion.listFiles(selectedProject, in));
         }
     } else {
