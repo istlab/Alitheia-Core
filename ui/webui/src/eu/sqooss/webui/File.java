@@ -40,87 +40,62 @@ import eu.sqooss.ws.client.datatypes.WSProjectFile;
 
 // TODO: Auto-generated Javadoc
 /**
- * This class represents a File in a project or version that has been
- * evaluated by Alitheia.
- * It provides access to the files' metadata and some convenience
- * functions for display.
- * 
- * The File class is part of the high-level webui API.
+ * This class represents a single project file from a project version that
+ * is stored in the SQO-OSS framework.
+ * <br/>
+ * It provides access to the project file's metadata and some convenience
+ * functions for proper HTML rendering.
  */
-class File extends WebuiItem {
+public class File extends WebuiItem {
 
     // The short name of this file
     private String shortName;
 
-    /** The name. */
-    private String name = "FILE_NAME_UNSET";
-    
-    /** The status. */
-    private String status = "FILE_STATUS_UNSET"; // status is one of ADDED, MODIFIED or DELETED
-    
-    /** The version id. */
+    // The status of this file in this project version
+    private String status;
+
+    // The Id of the project version where this file belongs
     private Long versionId;
-    
-    /** The id. */
-    private Long id;
-    
-    /** The is directory. */
-    private Boolean isDirectory;
-    
+
+    // Defines if this file is a directory or a data file
+    private boolean isDirectory = false;
+
     // Holds the Id of the Directory DAO that match this folder's name
     Long toDirectoryId;
 
-    /** The results. */
+    // The list of results from metric that has been evaluated on this file
     private List<Result> results = new ArrayList<Result>();
 
     /**
-     * Initialise the File from a WSProjectFile, setting the data and storing a
-     * reference to the Terrier class that can then be used to fetch additional information.
-     * 
-     * @param wsFile the ws file
-     * @param t the t
+     * Instantiates a new <code>File</code> and initializes its fields with
+     * the data stored in the given <code>WSProjectFile</code> object.
+     *
+     * @param wsFile the <code>WSProjectFile</code> instance
      */
-    public File (WSProjectFile wsFile, Terrier t) {
-        this.versionId = wsFile.getProjectVersionId();
-        this.shortName = wsFile.getShortName();
-        this.name = wsFile.getFileName();
-        this.status = wsFile.getStatus();
-        this.id = wsFile.getId();
-        this.isDirectory = wsFile.getDirectory();
-        this.toDirectoryId = wsFile.getToDirectoryId();
-        this.terrier = t;
-    }
-    
-    /**
-     * Initialise a file with raw data.
-     * 
-     * @param versionId the version id
-     * @param fileId the file id
-     * @param name the name
-     * @param status the status
-     * @param t the t
-     */
-    public File(Long versionId, Long fileId, String name, String status, Terrier t) {
-        this.versionId = versionId;
-        this.name = name;
-        this.status = status;
-        this.id = fileId;
-        this.versionId = versionId;
-        this.terrier = t;
+    public File (WSProjectFile wsFile) {
+        if (wsFile != null) {
+            setId(wsFile.getId());
+            setName(wsFile.getFileName());
+            this.versionId = wsFile.getProjectVersionId();
+            this.shortName = wsFile.getShortName();
+            this.status = wsFile.getStatus();
+            this.isDirectory = wsFile.getDirectory();
+            this.toDirectoryId = wsFile.getToDirectoryId();
+        }
     }
 
     /**
-     * Gets the version.
-     * 
-     * @return the version
+     * Gets the project version's Id.
+     *
+     * @return The project version's Id.
      */
     public Long getVersion () {
         return versionId;
     }
 
     /**
-     * Gets the short name of this file.
-     * 
+     * Gets the short name of this file i.e. without the preceeding path.
+     *
      * @return The short name of this file.
      */
     public String getShortName() {
@@ -128,37 +103,38 @@ class File extends WebuiItem {
     }
 
     /**
-     * Gets the full name of this file (inclusive path).
-     * 
-     * @return The full name of this file.
-     */
-    public String getName () {
-        return name;
-    }
-
-    /**
-     * Gets the status.
-     * 
-     * @return the status
+     * Gets the file status.
+     *
+     * @return The file status.
      */
     public String getStatus () {
         return status;
     }
 
-    /* (non-Javadoc)
-     * @see eu.sqooss.webui.WebuiItem#getId()
+    /**
+     * This method will check if this project file is a directory.
+     * 
+     * @return <code>true<code> when this project file is a directory,
+     *   or <code>false<code> otherwise.
      */
-    public Long getId() {
-        return id;
+    public boolean getIsDirectory() {
+        return isDirectory;
     }
 
+    /**
+     * When this project file is a directory, then this method will return the
+     * Id of the directory DAO that matches the project file's name.
+     *
+     * @return the Id of the matching directory DAO, or <code>null<code>
+     *   when this project file is not a directory.
+     */
     public Long getToDirectoryId() {
         return toDirectoryId;
     }
 
     /**
      * Constructs a HTML link for selecting this file.
-     * 
+     *
      * @return The HTML link for selecting this file.
      */
     public String getLink() {
@@ -166,9 +142,9 @@ class File extends WebuiItem {
     }
 
     /**
-     * Constructs a HTML link for selecting this folder.
-     * 
-     * @return The HTML link for selecting this folder.
+     * Constructs a HTML link for selecting this directory.
+     *
+     * @return The rendered HTML content.
      */
     public String getDirLink() {
         return "<a href=\"files.jsp?"
@@ -177,22 +153,13 @@ class File extends WebuiItem {
     }
 
     /**
-     * Gets the checks if is directory.
-     * 
-     * @return the checks if is directory
-     */
-    public Boolean getIsDirectory() {
-        return isDirectory;
-    }
-
-    /**
      * Return a HTML string showing a status icon indicating whether this file
      * has been modified, deleted, added or left unchanged in the specified
      * project version.
-     * 
+     *
      * @param versionId the version Id
-     * 
-     * @return the HTML code for the status icon
+     *
+     * @return The rendered HTML content.
      */
     public String getStatusIcon(Long versionId) {
         String iconname = "vcs_unchanged";
@@ -211,9 +178,32 @@ class File extends WebuiItem {
         return icon(iconname, 0, tooltip);
     }
 
+    /**
+     * Adds a new evaluation result entry to the list of result for this file.
+     *
+     * @param resultEntry the result entry
+     */
+    public void addResult(Result resultEntry) {
+        if (results.contains(resultEntry) == false)
+            results.add(resultEntry);
+    }
+
+    /**
+     * Gets the list of results that are currently stored in this file.
+     * 
+     * @return The list of results.
+     */
+    public List<Result> getResults() {
+        return results;
+    }
+
+    /* (non-Javadoc)
+     * @see eu.sqooss.webui.WebuiItem#getHtml(long)
+     */
     public String getHtml(long in) {
-        // TODO Auto-generated method stub
-        return null;
+        StringBuilder b = new StringBuilder("");
+        b.append(sp(in) + getShortName());
+        return b.toString();
     }
 
     /**
@@ -222,7 +212,7 @@ class File extends WebuiItem {
      * 
      * @param versionId the project version's Id
      * 
-     * @return the HTML for this file
+     * @return The rendered HTML content.
      */
     public String getHtml(Long versionId) {
         StringBuilder html = new StringBuilder("");
@@ -232,28 +222,21 @@ class File extends WebuiItem {
                     + " (<i>Folder</i>)\n");
         }
         else {
-            html.append(getStatusIcon(versionId)
-                    + "&nbsp;" + getLink() + "\n");
             if (results.size() > 0) {
+                html.append(getStatusIcon(versionId)
+                        + "&nbsp;" + getLink() + "\n");
                 html.append("<ul>\n");
                 for (Result nextResult : results)
-                    html.append("<li>" + nextResult.getHtml(0));
+                    html.append("<li>" + nextResult.getMnemonic()
+                            + " : " + nextResult.getHtml(0));
                 html.append("</ul>\n");
             }
-            else
-                html.append(" (<i>No results found</i>)\n");
+            else {
+                html.append(getStatusIcon(versionId)
+                        + "&nbsp;" + getShortName()
+                        + " (<i>No results found</i>)\n");
+            }
         }
         return html.toString();
     }
-
-    /**
-     * Adds a new evaluation result entry to the list of result for this file.
-     * 
-     * @param resultEntry the result entry
-     */
-    public void addResult(Result resultEntry) {
-        if (results.contains(resultEntry) == false)
-            results.add(resultEntry);
-    }
-
 }

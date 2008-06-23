@@ -33,14 +33,14 @@
 
 package eu.sqooss.webui;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Vector;
 import java.util.SortedMap;
 
 public class FileListView extends ListView {
 
-    private List<File> files = new Vector<File>();
+    // Contains the list of files that can be presented by this view
+    private List<File> files = new ArrayList<File>();
 
     // Contains the Id of the selected project (if any)
     private Long projectId;
@@ -49,16 +49,11 @@ public class FileListView extends ListView {
     private Long versionId;
 
     /**
-     * Instantiates a new empty <code>FileListView</code> object.
-     */
-    public FileListView () {}
-
-    /**
      * Instantiates a new <code>FileListView</code> object and initializes it
      * with the given list of project files.
      */
-    public FileListView (Vector<File> filesList) {
-        files = filesList;
+    public FileListView (List<File> filesList) {
+        setFiles(filesList);
     }
 
     /**
@@ -66,9 +61,8 @@ public class FileListView extends ListView {
      * with the given list of project files.
      */
     public FileListView (SortedMap<Long, File> filesList) {
-        for (File nextFile : filesList.values()) {
-            files.add(nextFile);
-        }
+        for (File nextFile : filesList.values())
+            addFile(nextFile);
     }
 
     /**
@@ -81,21 +75,26 @@ public class FileListView extends ListView {
     }
 
     /**
-     * Adds a single file to the stored files list.
+     * Adds a single file to the stored files list. If the file object is
+     * <code>null</code>, then it won't be added.
      *
      * @param file the file object
      */
     public void addFile(File file) {
-        files.add(file);
+        if (file != null)
+            files.add(file);
     }
 
     /**
-     * Initializes this object with a new list of files.
+     * Initializes this object with a new list of files. If the list object
+     * is <code>null</code>, then it will be skipped.
      *
      * @param files the new files list
      */
     public void setFiles(List<File> filesList) {
-        this.files = filesList;
+        if (filesList != null)
+            for (File nextFile : filesList)
+                addFile(nextFile);
     }
 
     /**
@@ -134,14 +133,18 @@ public class FileListView extends ListView {
         this.versionId = versionId;
     }
 
-    // TODO: Implement and document it
-    public Vector<String> filterItems (Vector<String> items) {
-        // TODO: Remove some files from this item list, such as Makefile, COPYING,
-        // or alternatively, only show a list of certain extensions, like .cpp, .h ...
-        return items;
+    // TODO: This method can filter out some of the files from the given list,
+    // by using the specified set of filters.
+    public List<File> filterFiles (List<File> filesList) {
+        List<File> result = new ArrayList<File>();
+        if (filesList != null)
+            result = filesList;
+        return result;
     }
 
-    // TODO: Document it
+    /* (non-Javadoc)
+     * @see eu.sqooss.webui.ListView#getHtml(long)
+     */
     public String getHtml(long in) {
         StringBuffer html = new StringBuffer();
         html.append(sp(in++) + "<ul>\n");
@@ -182,23 +185,6 @@ public class FileListView extends ListView {
                                 : "one file")
                         : "")
                 + " found\n");
-        return html.toString();
-    }
-
-    // TODO: Modify and document it
-    public String getHtml(
-            Terrier terrier,
-            Map<Long, String> selectedMetrics) {
-        StringBuffer html = new StringBuffer();
-        html.append(files.size() + " file(s) found.\n");
-        // Display the list of files
-        html.append("<ul>\n");
-        for (File nextFile: files) {
-            html.append((nextFile != null)
-                    ? "<li>" + nextFile.getHtml(0) + "</li>\n"
-                    : "");
-        }
-        html.append("</ul>\n");
         return html.toString();
     }
 

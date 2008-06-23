@@ -242,7 +242,7 @@ public class Terrier {
                 connection.getProjectAccessor().getFilesInDirectory(
                         versionId, directoryId);
             for (WSProjectFile file : wsfiles)
-                result.add(new File(file, this));
+                result.add(new File(file));
         }
         catch (WSException wse) {
             addError("Can not retrieve the list of files in this directory!");
@@ -271,7 +271,8 @@ public class Terrier {
                 // Retrieve the corresponding version objects
                 WSProjectVersion[] wsversions =
                     connection.getProjectAccessor()
-                        .getProjectVersionsByVersionNumbers(projectId, numbers);
+                        .getProjectVersionsByVersionNumbers(
+                                projectId, numbers);
                 for (WSProjectVersion nextVersion : wsversions)
                     result.add(new Version(nextVersion, this));
             }
@@ -287,8 +288,8 @@ public class Terrier {
      * project with the given Id.
      *
      * @param projectId the project Id
-     * 
-     * @return The list of evaluated metrics, or or an empty list when none
+     *
+     * @return The list of evaluated metrics, or an empty list when none
      *   are found.
      */
     public List<Metric> getMetricsForProject(Long projectId) {
@@ -317,23 +318,24 @@ public class Terrier {
             }
         }
         catch (WSException wse) {
-            addError("Cannot retrieve the list of metrics.");
+            addError("Cannot retrieve the list of project metrics.");
         }
         return result;
     }
 
     /**
-     * Retrieves the list of all metrics installed in the attached SQO-OSS
-     * framework.
+     * Retrieves the list of all metrics that are currently installed in the
+     * attached SQO-OSS framework.
      *
-     * @return The list of all installed metric.
+     * @return The list of all installed metric or an empty list when none
+     *   are found.
      */
     public List<Metric> getAllMetrics() {
+        List<Metric> result = new ArrayList<Metric>();
         if (!connection.isConnected()) {
             addError(connection.getError());
-            return null;
+            return result;
         }
-        List<Metric> result = new ArrayList<Metric>();
         try {
             WSMetricsRequest request = new WSMetricsRequest();
             request.setSkipResourcesIds(true);
@@ -357,9 +359,7 @@ public class Terrier {
                         nextMetric,
                         metricTypes.get(nextMetric.getMetricTypeId())));
         } catch (WSException wse) {
-            addError("Cannot retrieve the list of all installed metrics."
-                    + " " + wse.getMessage());
-            return null;
+            addError("Cannot retrieve the list of all metrics.");
         }
         return result;
     }
@@ -382,7 +382,7 @@ public class Terrier {
                         versionId);
             if (wsfiles != null)
                 for (WSProjectFile file : wsfiles)
-                    result.add(new File(file, this));
+                    result.add(new File(file));
         } catch (WSException e) {
             addError("Can not retrieve the list of files for this version.");
         }
@@ -415,7 +415,7 @@ public class Terrier {
             try {
                 WSProjectFile[] wsfiles = connection.getProjectAccessor().getFilesByProjectVersionId(versionId);
                 for (WSProjectFile file : wsfiles) {
-                    files.addElement(new File(file, this));
+                    files.addElement(new File(file));
                     //addError("gPVF:" + file.getId());
                 }
             } catch (NullPointerException npe) {

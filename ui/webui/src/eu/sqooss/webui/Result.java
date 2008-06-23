@@ -182,7 +182,7 @@ public class Result extends WebuiItem {
      */
     public String getHtml (long in) {
         if (getIsPrintable())
-            return mnemonic + ": " + getString();
+            return getString();
         else
             return "<a href=\"renderresult.jsp?id=" + getId() + "\">Render</a>";
     }

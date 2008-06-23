@@ -277,6 +277,81 @@ public class Project extends WebuiItem {
         return html.toString();
     }
 
+    /**
+     * TODO: Add a method description.
+     * 
+     * @param fileId the file Id
+     * @param in the indentation depth
+     * 
+     * @return The rendered HTML content.
+     */
+    public String renderFileVerbose(Long fileId, long in) {
+        StringBuilder b = new StringBuilder("");
+        File selFile = null;
+        List<Result> selFileResults = new ArrayList<Result>();
+        if (fileId != null)
+            selFile = currentVersion.getFile(fileId);
+            if (selFile != null)
+                selFileResults = selFile.getResults();
+        if (selFile == null) {
+            b.append(sp(in) + Functions.error("File not found!"));
+        }
+        else if (selFileResults.isEmpty()) {
+            b.append(sp(in) + Functions.warning("No evaluation result."));
+        }
+        else {
+            b.append(sp(in) + "&nbsp;<b>Verbose results for file:</b> "
+                    + selFile.getName());
+            b.append(sp(in) + "<br/>\n");
+            b.append(sp(in++) + "<table style=\"width: 100%;\">\n");
+            // Table header
+            b.append(sp(in++) + "<thead>\n");
+            b.append(sp(in++) + "<tr>\n");
+            b.append(sp(in) + "<td style=\"text-align: left; width: 15%;\">"
+                    + "Metric</td>\n");
+            b.append(sp(in) + "<td style=\"text-align: left; width: 50%;\">"
+                    + "Description</td>\n");
+            b.append(sp(in) + "<td style=\"text-align: left; width: 35%;\">"
+                    + "Result</td>\n");
+            b.append(sp(--in) + "</tr>\n");
+            b.append(sp(--in) + "</thead>\n");
+            // Display all available results
+            HashMap<String, Metric> mnemToMetric =
+                new HashMap<String, Metric>();
+            for (Result nextResult : selFileResults) {
+                String mnemonic = nextResult.getMnemonic();
+                Metric metric = null;
+                if (mnemToMetric.containsKey(mnemonic)) {
+                    metric = mnemToMetric.get(mnemonic);
+                }
+                else {
+                    for (Metric nextMetric : metrics)
+                        if (nextMetric.getMnemonic().equals(mnemonic)) {
+                            mnemToMetric.put(mnemonic, nextMetric);
+                            metric = nextMetric;
+                        }
+                }
+                // Display the metric statistic's row
+                b.append(sp(in++) + "<tr>\n");
+                b.append(sp(in) + "<td style=\"text-align: left;\">"
+                        + metric.getMnemonic()
+                        + "</td>\n");
+                b.append(sp(in) + "<td style=\"text-align: left;\">"
+                        + metric.getDescription()
+                        + "</td>\n");
+                b.append(sp(in) + "<td style=\"text-align: left;\">"
+                        + nextResult.getString()
+                        + "</td>\n");
+                b.append(sp(in++) + "</tr>\n");
+            }
+            b.append(sp(--in) + "</table>\n");
+        }
+        b.append(sp(in) + "<br/>\n");
+        b.append(sp(in) + "<a href=\"/files.jsp\">"
+                + "Back</a>\n");
+        return b.toString();
+    }
+
     /* (non-Javadoc)
      * @see eu.sqooss.webui.WebuiItem#getHtml(long)
      */

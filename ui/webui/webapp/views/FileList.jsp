@@ -23,10 +23,18 @@ if (selectedProject.isValid()) {
                     selectedVersion.switchDir(directoryId);
             }
         }
-        // Display some file statistics for the selected version
-        out.print(selectedVersion.fileStats(in));
-        // Display all files in the selected project version
-        out.print(selectedVersion.listFiles(selectedProject, in));
+        // Display a verbose information about the selected file (if selected)
+        if (request.getParameter("fid") != null) {
+            out.print(selectedProject.renderFileVerbose(
+                strToLong(request.getParameter("fid")), in));
+        }
+        // Display the list of files in the selected project version
+        else {
+            // Display some file statistics for the selected version
+            out.print(selectedVersion.fileStats(in));
+            // Display all files in the selected project version
+            out.print(selectedVersion.listFiles(selectedProject, in));
+        }
     } else {
         out.print(sp(in) + Functions.warning(
             "Please select a <a href=\"/versions.jsp\">"

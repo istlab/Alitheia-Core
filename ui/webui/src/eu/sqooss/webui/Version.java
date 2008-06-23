@@ -201,6 +201,16 @@ public class Version extends WebuiItem {
             terrier.addError("Invalid project version!");
     }
 
+    /**
+     * Returns an HTML snippet presenting the file statistics in this project
+     * version. The generated statistic will include information regarding
+     * the number of added, modified or deleted files as well the total number
+     * of files that exist in this version.
+     * 
+     * @param in the indentation depth
+     * 
+     * @return The rendered HTML content.
+     */
     public String fileStats(long in) {
         // Fetch the version's statistic if not already performed
         if ((stats == null) && (getId() != null)) {
@@ -243,6 +253,18 @@ public class Version extends WebuiItem {
         return html.toString();
     }
 
+    /**
+     * Gets the file with the given Id from the local cache.
+     * 
+     * @param fileId the file Id
+     * 
+     * @return The file object.
+     */
+    public File getFile(Long fileId) {
+        if (fileId != null)
+            return files.get(fileId);
+        return null;
+    }
 
     /**
      * Return an HTML list of all files in this version combined with results
