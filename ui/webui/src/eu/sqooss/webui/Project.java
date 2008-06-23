@@ -347,7 +347,8 @@ public class Project extends WebuiItem {
             b.append(sp(--in) + "</table>\n");
         }
         b.append(sp(in) + "<br/>\n");
-        b.append(sp(in) + "<a href=\"/files.jsp\">"
+        b.append(sp(in) + "<a href=\"/files.jsp\""
+                + " class=\"button\">"
                 + "Back</a>\n");
         return b.toString();
     }

@@ -66,9 +66,6 @@ public class File extends WebuiItem {
     // The list of results from metric that has been evaluated on this file
     private List<Result> results = new ArrayList<Result>();
 
-    // Enables the display of the results overview
-    public boolean showResults = false;
-
     /**
      * Instantiates a new <code>File</code> and initializes its fields with
      * the data stored in the given <code>WSProjectFile</code> object.
@@ -228,7 +225,7 @@ public class File extends WebuiItem {
             if (results.size() > 0) {
                 html.append(getStatusIcon(versionId)
                         + "&nbsp;" + getLink() + "\n");
-                if (showResults) {
+                if (settings.getShowFileResultsOverview()) {
                     html.append("<ul>\n");
                     for (Result nextResult : results)
                         html.append("<li>" + nextResult.getMnemonic()
@@ -239,7 +236,7 @@ public class File extends WebuiItem {
             else {
                 html.append(getStatusIcon(versionId)
                         + "&nbsp;" + getShortName());
-                if (showResults)
+                if (settings.getShowFileResultsOverview())
                     html.append(" (<i>No results found</i>)");
                 html.append("\n");
             }

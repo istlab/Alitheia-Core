@@ -41,6 +41,18 @@ public abstract class ListView {
     // Holds the terrier's instance.
     protected Terrier terrier;
 
+    // Holds the user settings for this session
+    protected SelectedSettings settings = new SelectedSettings();
+
+    /**
+     * Sets the the user settings for this session.
+     * 
+     * @param settings the new settings
+     */
+    public void setSettings(SelectedSettings settings) {
+        this.settings = settings;
+    }
+
     /**
      * Renders the data stored in this object into HTML.
      * 

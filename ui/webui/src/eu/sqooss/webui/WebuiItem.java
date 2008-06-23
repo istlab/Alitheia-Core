@@ -53,6 +53,9 @@ public abstract class WebuiItem {
     // Holds the terrier's instance.
     protected Terrier terrier;
 
+    // Holds the user settings for this session
+    protected SelectedSettings settings = new SelectedSettings();
+
     /**
      * Gets the Id of this DAO object.
      * 
@@ -107,6 +110,15 @@ public abstract class WebuiItem {
      */
     public void setTerrier (Terrier terrier) {
         this.terrier = terrier;
+    }
+
+    /**
+     * Sets the the user settings for this session.
+     * 
+     * @param settings the new settings
+     */
+    public void setSettings(SelectedSettings settings) {
+        this.settings = settings;
     }
 
     /**

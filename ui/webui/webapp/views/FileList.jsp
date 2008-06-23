@@ -41,8 +41,7 @@ if (selectedProject.isValid()) {
             out.print(selectedVersion.fileStats(in));
             // Display all files in the selected project version
             selectedVersion.setServletPath(request.getServletPath());
-            selectedVersion.showResults =
-                settings.getShowFileResultsOverview();
+            selectedVersion.setSettings(settings);
             out.print(selectedVersion.listFiles(selectedProject, in));
         }
     } else {

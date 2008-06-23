@@ -129,6 +129,37 @@ span.debug {
     border: 1px solid #cccccc;
 }
 
+a.button {
+    text-align: center;
+    text-decoration: none;
+    color: black;
+    background-color: #cccccc;
+    padding: 2px 2px 2px 2px;
+    margin-left: 2px;
+    border: 2px outset #cccccc;
+}
+
+a.button:hover {
+    text-align: center;
+    text-decoration: none;
+    color: black;
+    background-color: #cccccc;
+    background-color: #FFFF99;
+    padding: 2px 2px 2px 2px;
+    margin-left: 2px;
+    border: 2px outset #cccccc;
+}
+
+a.button:visited {
+    text-align: center;
+    text-decoration: none;
+    color: black;
+    background-color: #cccccc;
+    padding: 2px 2px 2px 2px;
+    margin-left: 2px;
+    border: 2px outset #cccccc;
+}
+
 #error ul li {
     list-style-type: square;
     color: #CE2323;

@@ -59,9 +59,6 @@ public class Version extends WebuiItem {
     // Contains a list of all files in this version indexed by their Id
     protected SortedMap<Long, File> files;
 
-    // Enables the display of the results overview
-    public boolean showResults = false;
-
     /** Empty ctor, only sets the jsp page that can be used to display
      * details about this Version.
      */
@@ -305,43 +302,46 @@ public class Version extends WebuiItem {
                         + " Select a metric"
                         + " <a href=\"metrics.jsp\">here</a>"
                         + " to view results."));
-                showResults = false;
             }
             // Display the browser's navigation bar
             html.append(sp(in) + "<br/>\n");
             html.append(sp(in));
             if (selectedMetrics.isEmpty() == false) {
-                if (showResults)
+                if (settings.getShowFileResultsOverview())
                     html.append("&nbsp;<a href=\""
                             + getServletPath()
                             + "?showResults=false"
-                            + "\">Hide results</a>");
+                            + "\""
+                            + " class=\"button\""
+                            + ">Hide results</a>");
                 else
                     html.append("&nbsp;<a href=\""
                             + getServletPath()
                             + "?showResults=true"
-                            + "\">Show results</a>");
+                            + "\""
+                            + " class=\"button\""
+                            + ">Show results</a>");
             }
             if ((dirStack.size() > 1)) {
                 html.append("&nbsp;<a href=\""
                         + getServletPath()
                         + "?did=top" + "\""
+                        + "\""
+                        + " class=\"button\""
                         + ">Top</a>");
                 html.append("&nbsp;<a href=\""
                         + getServletPath()
                         + "?did=prev" + "\""
+                        + "\""
+                        + " class=\"button\""
                         + ">Previous</a>\n");
-            }
-            else {
-                html.append("&nbsp;Top");
-                html.append("&nbsp;Previous\n");
             }
             html.append(sp(in) + "<br/>\n");
             // Display the browser's content
             if ((project != null) && (files != null) && (files.size() > 0)) {
                 FileListView view = new FileListView(files);
                 view.setVersionId(this.id);
-                view.showResults = showResults;
+                view.setSettings(settings);
                 html.append(view.getHtml(in));
             }
             else
