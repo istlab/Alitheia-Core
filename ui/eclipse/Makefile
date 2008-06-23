@@ -24,6 +24,6 @@ install :
 	@if test "$(DESTINATION_FOLDER)" != "$(PLUGINS_FOLDER)" ; then \
 		echo "# Installing the Eclipse IDE plug-in to $(DESTINATION_FOLDER)" ; \
 		test -d $(DESTINATION_FOLDER) && \
-		cp ../build/eu.sqooss.ui.eclipse-1.0.0.jar $(DESTINATION_FOLDER) ; \
+		cp ../build/eu.sqooss.ui.eclipse*.jar $(DESTINATION_FOLDER) ; \
 	else echo "# The ECLIPSE_HOME variable is not initialized!" ; fi
 
