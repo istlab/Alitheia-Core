@@ -300,8 +300,31 @@ public class Project extends WebuiItem {
             b.append(sp(in) + Functions.warning("No evaluation result."));
         }
         else {
-            b.append(sp(in) + "&nbsp;<b>Verbose results for file:</b> "
-                    + selFile.getName());
+            // File name
+            int maxNameLength = 50;
+            String fileName = selFile.getName();
+            if (selFile.getShortName().length() <= maxNameLength) {
+                while (fileName.length() > maxNameLength) {
+                    fileName = fileName.substring(
+                            fileName.indexOf('/') + 1, fileName.length());
+                }
+                fileName = ".../" + fileName;
+            }
+            else {
+                fileName = selFile.getShortName();
+                fileName = fileName.substring(0, maxNameLength - 1);
+            }
+            b.append(sp(in) + "<span"
+                    + " style=\"float: left; width: 60%; text-align:left;\">"
+                    + "<b>File:</b> " + fileName
+                    + "</span>");
+            // "Compare against another version" field
+            b.append(sp(in) + "<span"
+                    + " style=\"float: right; width: 40%; text-align:right;\">"
+                    + "<b>Compare with:</b> "
+                    + "<input type=\"select\">"
+                    + "</input>"
+                    + "</span>");
             b.append(sp(in) + "<br/>\n");
             b.append(sp(in++) + "<table style=\"width: 100%;\">\n");
             // Table header
