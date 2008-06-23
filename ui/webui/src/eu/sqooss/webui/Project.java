@@ -308,11 +308,12 @@ public class Project extends WebuiItem {
                     fileName = fileName.substring(
                             fileName.indexOf('/') + 1, fileName.length());
                 }
-                fileName = ".../" + fileName;
+                if (fileName.length() < selFile.getName().length())
+                    fileName = ".../" + fileName;
             }
             else {
-                fileName = selFile.getShortName();
-                fileName = fileName.substring(0, maxNameLength - 1);
+                fileName = ".../"
+                    + selFile.getShortName().substring(0, maxNameLength -1);
             }
             b.append(sp(in) + "<span"
                     + " style=\"float: left; width: 60%; text-align:left;\">"
