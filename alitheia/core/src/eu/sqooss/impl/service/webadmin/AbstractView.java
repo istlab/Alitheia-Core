@@ -444,7 +444,8 @@ public abstract class AbstractView {
      * Method for validation of a simple name-based properties.
      * <br/>
      * The validation will be successful on values that contain alphanumeric
-     * characters only.
+     * characters, plus the space character (<i>as long as it does not appear
+     * as first or last character in the sequence</i>).
      * 
      * @param text the property value
      * 
@@ -454,7 +455,13 @@ public abstract class AbstractView {
     protected static boolean checkName (String text) {
         if (text == null) return false;
 
-        Pattern p = Pattern.compile("[\\p{Alnum}]+");
+        // Check for head or foot occurrence of deprecated signs
+        Pattern p = Pattern.compile("^[ ]+.*");
+        if (p.matcher(text).matches()) return false;
+        p = Pattern.compile(".*[ ]+$");
+        if (p.matcher(text).matches()) return false;
+        // Check the name
+        p = Pattern.compile("[\\p{Alnum} ]+");
         return p.matcher(text).matches();
     }
 
@@ -504,7 +511,7 @@ public abstract class AbstractView {
         // Check for adjacent dot signs
         Pattern p = Pattern.compile("\\.\\.");
         if (p.matcher(text).matches()) return false;
-        // Split into local and domain part
+        // Split the email into local and domain part
         String parts[] = text.split("@");
         if (parts.length != 2) return false;
         // Check for head or foot occurrence of dot signs
@@ -544,14 +551,26 @@ public abstract class AbstractView {
     protected static boolean checkUrl (String text, String schemes) {
         if (text == null) return false;
 
-        // Split into scheme and rest part
+        // Split the URL into scheme and path part
         String parts[] = text.split("://");
         if (parts.length < 2) return false;
         String scheme = parts[0];
-        // Match corresponding to the scheme
+        // Match against the specified URL schemes
         Pattern p = Pattern.compile(
                 "^(" + schemes + ")$", Pattern.CASE_INSENSITIVE);
         if (p.matcher(scheme).matches()) {
+            // Assemble the URL path
+            String path = "";
+            for (int i=1 ; i< parts.length; i++)
+                path += parts[i];
+            // Construct a path match
+            String alnum = "\\p{Alnum}";
+            String safe = " $@&+-.";
+            String extra = "!*\"'(),";
+            String escape = "%";
+            String xalpha = alnum + safe + extra + escape;
+            p = Pattern.compile("[" + xalpha + "]");
+            //TODO: Return true until the path URL match got implemented
             return true;
         }
         return false;
