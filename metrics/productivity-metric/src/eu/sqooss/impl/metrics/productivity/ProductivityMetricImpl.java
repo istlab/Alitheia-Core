@@ -42,14 +42,12 @@ import org.osgi.framework.BundleContext;
 
 import eu.sqooss.impl.metrics.productivity.ProductivityMetricActions.ActionCategory;
 import eu.sqooss.impl.metrics.productivity.ProductivityMetricActions.ActionType;
-import eu.sqooss.impl.service.CoreActivator;
 import eu.sqooss.metrics.productivity.ProductivityMetric;
 import eu.sqooss.metrics.productivity.db.ProductivityActionType;
 import eu.sqooss.metrics.productivity.db.ProductivityActions;
 import eu.sqooss.metrics.productivity.db.ProductivityWeights;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.ResultEntry;
-import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Developer;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
@@ -60,6 +58,7 @@ public class ProductivityMetricImpl extends AbstractMetric implements
         ProductivityMetric {
 
     public static final String CONFIG_CMF_THRES = "CMF_threshold";
+    public static final String CONFIG_WEIGHT_UPDATE_VERSIONS = "Weights_Update_Interval";
     
     public ProductivityMetricImpl(BundleContext bc) {
         super(bc);
@@ -81,11 +80,21 @@ public class ProductivityMetricImpl extends AbstractMetric implements
                  "5" , 
                  "Number of committed files above which the developer is penalized", 
                  PluginInfo.ConfigurationType.INTEGER);
+         addConfigEntry(CONFIG_WEIGHT_UPDATE_VERSIONS, 
+                 "150" , 
+                 "Number of new versions before recalculating the productivity weights", 
+                 PluginInfo.ConfigurationType.INTEGER);
          return result;
     }
 
+    /**
+     * Returns an arbitrary result to indicate that the provided project
+     * version has been already processed. If the provided version 
+     * was not processed, it returns null.
+     * 
+     * {@inheritDoc}
+     */
     public List<ResultEntry> getResult(ProjectVersion a, Metric m) {
-        // project version has been processed, return an arbitrary result
         
         ArrayList<ResultEntry> res = new ArrayList<ResultEntry>();
         String paramVersion = "paramVersion";
@@ -95,27 +104,23 @@ public class ProductivityMetricImpl extends AbstractMetric implements
         
         Map<String,Object> parameters = new HashMap<String,Object>();
         parameters.put(paramVersion, a);
-try{
-    List<?> p = db.doHQL(query, parameters);
+
+        List<?> p = db.doHQL(query, parameters);
     
-    if ( !p.isEmpty() ){
-        res.add(new ResultEntry(1, ResultEntry.MIME_TYPE_TYPE_INTEGER, m.getMnemonic()));
+        if ( p == null || p.isEmpty() ){
+            return null;
+        } 
+            
+        res.add(new ResultEntry(1, ResultEntry.MIME_TYPE_TYPE_INTEGER, 
+                m.getMnemonic()));
         return res;
-    } else {
-        return null;
-    }  
-}catch(Exception e){
-    System.out.println("_____" +  e.getMessage() );
-    e.printStackTrace();
-}
-       return null; 
-        
-      
     }
 
+    /**
+     * This plug-in's result is returned per developer. 
+     */
     public List<ResultEntry> getResult(Developer a, Metric m) {
-        // TODO test
-        /*
+        
         ArrayList<ResultEntry> results = new ArrayList<ResultEntry>();
         ProductivityWeights weight;
         double value = 0;
@@ -126,53 +131,56 @@ try{
             weight = ProductivityWeights.getWeight(actionCategories[i]);
 
             if (weight != null) {
-                value = value + weight.getWeight()
-                * getResultPerActionCategory(a, actionCategories[i]);
+                value = value + weight.getWeight() * 
+                    getResultPerActionCategory(a, actionCategories[i]);
             }
         }
 
         ResultEntry entry = new ResultEntry(value,
-                ResultEntry.MIME_TYPE_TYPE_LONG, m.getMnemonic());
+                ResultEntry.MIME_TYPE_TYPE_DOUBLE, m.getMnemonic());
         results.add(entry);
         return results;
-        */
-        return null;
     }
 
     public void run(ProjectVersion v) {
         ProductivityMetricJob j = new ProductivityMetricJob(bc, this, v);
         j.run();
-       
     }
 
     public void run(Developer v) {
         
     }
 
-    private double getResultPerActionCategory(Developer a, 
-            ActionCategory actionCategory){
+    /**
+     * Get result per developer and per category
+     * 
+     */
+    private double getResultPerActionCategory(Developer d, ActionCategory ac) {
         
-        ArrayList<ActionType> actionTypes = 
-            ActionType.getActionTypes(actionCategory);
+        ArrayList<ActionType> actionTypes = ActionType.getActionTypes(ac);
+        
         ProductivityWeights weight;
         long totalActions;
         double value = 0;
 
-        for(int i=0; i<actionTypes.size(); i++){
+        for (int i=0; i<actionTypes.size(); i++) {
             weight = ProductivityWeights.getWeight(actionTypes.get(i));
+            
+            if (weight == null) {
+                continue;
+            }
+            
+            ProductivityActionType at = 
+                ProductivityActionType.getProductivityActionType(actionTypes.get(i), null);
+                
+            totalActions = 
+                ProductivityActions.getTotalActionsPerTypePerDeveloper(actionTypes.get(i), d);
 
-            if (weight != null) {
-                
-                ProductivityActionType at = ProductivityActionType.getProductivityActionType(actionTypes.get(i), null);
-                
-                totalActions  = ProductivityActions.getTotalActionsPerTypePerDeveloper(at, a);
-                
-                if(totalActions != 0){
-                    if (at.getIsPositive())
-                        value += weight.getWeight() * totalActions;
-                    else
-                        value -= weight.getWeight() * totalActions;
-                }
+            if(totalActions != 0){
+                if (at.getIsPositive())
+                    value += weight.getWeight() * totalActions;
+                else
+                    value -= weight.getWeight() * totalActions;
             }
         }
         return value;

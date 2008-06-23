@@ -9,7 +9,6 @@ import eu.sqooss.impl.metrics.productivity.ProductivityMetricActions.ActionCateg
 import eu.sqooss.impl.service.CoreActivator;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
-import eu.sqooss.service.db.Developer;
 
 public class ProductivityActionType extends DAObject {
 
@@ -66,12 +65,14 @@ public class ProductivityActionType extends DAObject {
         Map<String,Object> parameterMap = new HashMap<String,Object>();
         parameterMap.put("actionType", actionType.toString());
         
-        List<ProductivityActionType> atl = dbs.findObjectsByProperties(ProductivityActionType.class, 
-                parameterMap);
+        List<ProductivityActionType> atl = dbs.findObjectsByProperties(
+                ProductivityActionType.class, parameterMap);
         
-        if ( !atl.isEmpty() )
-            return atl.get(0);
-        
+        if (atl != null) {
+            if (!atl.isEmpty() )
+                return atl.get(0);
+        }
+       
         if (isPositive == null)
             return null;
             

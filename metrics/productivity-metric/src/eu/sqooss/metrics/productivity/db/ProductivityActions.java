@@ -50,8 +50,8 @@ public class ProductivityActions extends DAObject {
         this.total = total;
     }
 
-    public static ProductivityActions getProductivityAction(Developer dev, ProjectVersion pv,
-            ProductivityActionType actionType) {
+    public static ProductivityActions getProductivityAction(Developer dev, 
+            ProjectVersion pv, ProductivityActionType actionType) {
         
         DBService dbs = CoreActivator.getDBService();
         
@@ -71,9 +71,9 @@ public class ProductivityActions extends DAObject {
 
         List<?> productivityActions = dbs.doHQL(query, parameters);
         
-        if(productivityActions == null || productivityActions.size() == 0) {
+        if (productivityActions == null || productivityActions.size() == 0) {
             return null;
-        }else {
+        } else {
             return (ProductivityActions) productivityActions.get(0);
         }
     }
@@ -85,72 +85,82 @@ public class ProductivityActions extends DAObject {
         
         List<?> totalActions = dbs.doHQL(query);
         
-        if(totalActions == null || totalActions.size() == 0) {
+        if(totalActions == null || totalActions.size() == 0 ||
+                totalActions.get(0) == null) {
             return 0L;
         }
         
         return Long.parseLong(totalActions.get(0).toString());
     }
     
-    public static long getTotalActionsPerCategory(ProductivityMetricActions.ActionCategory actionCategory){
+    public static long getTotalActionsPerCategory(
+            ProductivityMetricActions.ActionCategory actionCategory) {
         DBService dbs = CoreActivator.getDBService();
         
         String paramCategory = "paramCategory"; 
         
-        String query = "select sum(a.total) from ProductivityActions a, ProductivityActionType b " +
-                       " where a.PRODUCTIVITY_ACTION_TYPE_ID = b.PRODUCTIVITY_ACTION_TYPE_ID " +
-                       " and b.actionCategory = :" + paramCategory ;
+        String query = "select sum(a.total) from ProductivityActions a, " +
+        		"ProductivityActionType b " +
+        		"where a.productivityActionType = b.id and " +
+        		"b.actionCategory = :" + paramCategory ;
         
         Map<String,Object> parameters = new HashMap<String,Object>();
         parameters.put(paramCategory, actionCategory.toString());
         
         List<?> totalActions = dbs.doHQL(query, parameters);
         
-        if(totalActions == null || totalActions.size() == 0) {
+        if(totalActions == null || totalActions.size() == 0 || 
+                totalActions.get(0) == null) {
             return 0L;
         }
         
         return Long.parseLong(totalActions.get(0).toString());
     }
     
-    public static long getTotalActionsPerType(ProductivityMetricActions.ActionType actionType){
+    public static long getTotalActionsPerType(
+            ProductivityMetricActions.ActionType actionType) {
         DBService dbs = CoreActivator.getDBService();
         
         String paramType = "paramType"; 
         
-        String query = "select sum(a.total) from ProductivityActions a, ProductivityActionType b " +
-                       " where a.PRODUCTIVITY_ACTION_TYPE_ID = b.PRODUCTIVITY_ACTION_TYPE_ID " +
-                       " and b.actionType = :" + paramType ;
+        String query = "select sum(a.total) from ProductivityActions a, " +
+        		"ProductivityActionType b " +
+                " where a.productivityActionType = b.id " +
+                " and b.actionType = :" + paramType ;
         
         Map<String,Object> parameters = new HashMap<String,Object>();
         parameters.put(paramType, actionType.toString());
         
         List<?> totalActions = dbs.doHQL(query, parameters);
         
-        if(totalActions == null || totalActions.size() == 0) {
+        if(totalActions == null || totalActions.size() == 0 || 
+                totalActions.get(0) == null) {
             return 0L;
         }
         
         return Long.parseLong(totalActions.get(0).toString());
     }
     
-    public static long getTotalActionsPerTypePerDeveloper(ProductivityActionType actionType, Developer dev){
+    public static long getTotalActionsPerTypePerDeveloper(
+            ProductivityMetricActions.ActionType actionType, Developer dev) {
         DBService dbs = CoreActivator.getDBService();
         
         String paramType = "paramType"; 
         String paramDeveloper = "paramDeveloper"; 
         
-        String query = "select sum(total) from ProductivityActions " +
-                       " where productivityActionType = :" + paramType +
-                       " and developer = :" + paramDeveloper ;
+        String query = "select sum(a.total) from ProductivityActions a, ProductivityActionType b " +
+                       " where a.productivityActionType = b.id " +
+                       " and b.actionType = :" + paramType +
+                       " and a.developer = :" + paramDeveloper ;
         
         Map<String,Object> parameters = new HashMap<String,Object>();
-        parameters.put(paramType, actionType);
+        parameters.put(paramType, actionType.toString());
         parameters.put(paramDeveloper, dev);
         
         List<?> totalActions = dbs.doHQL(query, parameters);
         
-        if(totalActions == null || totalActions.size() == 0) {
+        if(totalActions == null || totalActions.size() == 0 || 
+                totalActions.get(0) == null) {
             return 0L;
         }
         

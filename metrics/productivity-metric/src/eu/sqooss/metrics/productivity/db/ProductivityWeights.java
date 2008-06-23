@@ -14,6 +14,7 @@ public class ProductivityWeights extends DAObject{
     private String actionCategory;
     private String actionType;
     private double weight;
+    private long lastUpdateVersions;
     
     public ProductivityMetricActions.ActionCategory getCategory(){
         return ProductivityMetricActions.ActionCategory.fromString(actionCategory);
@@ -53,6 +54,14 @@ public class ProductivityWeights extends DAObject{
     
     public void setWeight(double weight){
         this.weight = weight;
+    }
+    
+    public long getLastUpdateVersions(){
+        return lastUpdateVersions;
+    }
+    
+    public void setLastUpdateVersions(long lastUpdateVersions){
+        this.lastUpdateVersions = lastUpdateVersions;
     }
     
     public static ProductivityWeights getWeight(ProductivityMetricActions.ActionType actionType){
@@ -96,6 +105,20 @@ public class ProductivityWeights extends DAObject{
             return (ProductivityWeights)weights.get(0);
         }
         
+    }
+    
+    public static long getLastUpdateVersionsCount(){
+        DBService dbs = CoreActivator.getDBService();
+        
+        String query = "select max(lastUpdateVersions) from ProductivityWeights" ;
+        
+        List<?> totalActions = dbs.doHQL(query);
+        
+        if(totalActions == null || totalActions.size() == 0 || totalActions.get(0) == null) {
+            return 0L;
+        }
+        
+        return Long.parseLong(totalActions.get(0).toString());
     }
     
 }

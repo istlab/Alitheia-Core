@@ -92,7 +92,6 @@ public class FileTypeMatcher {
         }
 
         return FileType.TXT;
-
     }
 
     public static FileType getFileTypeFromExt(String ext) {

@@ -11,5 +11,6 @@
     <property name="actionType" column="ACTION_TYPE" type = "string"/>
     <property name="actionCategory" column="ACTION_CATEGORY" type = "string"/>
     <property name="weight" column="WEIGHT" not-null="true" />
+    <property name="lastUpdateVersions" column="LAST_UPDATE_VERSIONS" not-null="true" />
   </class>
 </hibernate-mapping>

@@ -88,7 +88,6 @@ public class ProductivityMetricJob {
         
         /* Read config options in advance*/        
         FileTypeMatcher.FileType fType;
-        boolean isNew;
         ProjectFile prevFile;
         int locCurrent, locPrevious;
         Developer dev = pv.getCommitter();
@@ -124,9 +123,6 @@ public class ProductivityMetricJob {
                         | Pattern.MULTILINE | Pattern.DOTALL);
         Matcher m;
 
-        //updateField(dev, ActionType.TCO, true, 1);
-        //updateField(dev, ActionType.TCF, true, projectFiles.size());
-
         if (commitMsg.length() == 0) {
             updateField(dev, ActionType.CEC, false, 1);
         } else {
@@ -150,24 +146,38 @@ public class ProductivityMetricJob {
             ProjectFile pf = i.next();
 
             fType = FileTypeMatcher.getFileType(pf.getFileName());
-            isNew = (pf.getStatus().equalsIgnoreCase("ADDED"));
 
             if (pf.getIsDirectory()) {
-                if (isNew) {
+                //New directory added
+                if (pf.isAdded()) {
                     updateField(dev, ActionType.CND, true, 1);
                 }
             } else if (fType == FileTypeMatcher.FileType.SRC) {
+                //Source file change, calc number of lines commited
                 try {
-                    locCurrent = plugin.getResult(pf, locMetric).getRow(0).get(0).getInteger();
-                    if (isNew) {
+                    //File deleted, set current lines to 0 
+                    if (pf.isDeleted()) {
+                        locCurrent = 0;
+                    } else {
+                        //Get lines of current version of the file from the wc metric
+                        locCurrent = plugin.getResult(pf, locMetric).getRow(0).get(0).getInteger();
+                    }
+                    //Source file just added
+                    if (pf.isAdded()) {
                         updateField(dev, ActionType.CNS, true, 1);
                         locPrevious = 0;
                     } else {
+                        //Existing file, get lines of previous version
                         prevFile = ProjectFile.getPreviousFileVersion(pf);
-                        locPrevious = plugin.getResult(prevFile, locMetric).getRow(0).get(0).getInteger();
+                        if (prevFile != null) {
+                            locPrevious = plugin.getResult(prevFile, locMetric).getRow(0).get(0).getInteger();
+                        } else {
+                            log.warn("Cannot get previous file " +
+                            		"version for file id: " + pf.getId());
+                            locPrevious = 0;
+                        }
                     }
                     updateField(dev, ActionType.CAL, true, abs(locCurrent - locPrevious));
-                    
                 } catch (MetricMismatchException e) {
                     log.error("Results of LOC metric for project: "
                             + pv.getProject().getName() + " file: "
@@ -184,11 +194,45 @@ public class ProductivityMetricJob {
                 updateField(dev, ActionType.CTF, true, 1);
             }
         }
+        
+        //Check if it is required to update the weights
+        pluginConf = parent.getConfigurationOption(
+                ProductivityMetricImpl.CONFIG_WEIGHT_UPDATE_VERSIONS);
+        
+        if (pluginConf == null || 
+                Integer.parseInt(pluginConf.getValue()) <= 0) {
+            log.error("Plug-in configuration option " + 
+                    ProductivityMetricImpl.CONFIG_WEIGHT_UPDATE_VERSIONS + " not found");
+            return;
+        }
+        
+        synchronized(getClass()){
+            long distinctVersions = calcDistinctVersions();
+            long previousVersions = ProductivityWeights.getLastUpdateVersionsCount();
+            //Should the weights be updated?
+            if (distinctVersions - previousVersions 
+                    >= Integer.parseInt(pluginConf.getValue())){
+                updateWeights(distinctVersions);
+            }
+        }
+    }
+    
+    private long calcDistinctVersions() {
+        List<?> distinctVersions = db.doHQL("select " +
+        		"count(distinct projectVersion) from ProductivityActions");
+        
+        if(distinctVersions == null || 
+                distinctVersions.size() == 0 || 
+                distinctVersions.get(0) == null) {
+            return 0L;
+        }
+        
+        return (Long.parseLong(distinctVersions.get(0).toString())) ;
     }
     
     private void updateField(Developer dev, ActionType actionType,
             boolean isPositive, int value) {
-        
+       
         ProductivityActionType at = ProductivityActionType.getProductivityActionType(actionType, isPositive);
         
         if (at == null){
@@ -196,8 +240,7 @@ public class ProductivityMetricJob {
             return;
         }
                 
-        ProductivityActions a = ProductivityActions.getProductivityAction(dev, pv,
-                at);
+        ProductivityActions a = ProductivityActions.getProductivityAction(dev, pv, at);
 
         if (a == null) {
             a = new ProductivityActions();
@@ -209,46 +252,82 @@ public class ProductivityMetricJob {
         } else {
             a.setTotal(a.getTotal() + value);
         }
-
- //       updateWeights(actionType);
     }
     
-    private void updateWeights(ActionType actionType) {
-
-        ActionCategory actionCategory = 
-            ActionCategory.getActionCategory(actionType);
+    private void updateWeights(long distinctVersions) {
+        ActionCategory[] actionCategories = ActionCategory.values();
 
         long totalActions = ProductivityActions.getTotalActions();
-        long totalActionsPerCategory = 
-            ProductivityActions.getTotalActionsPerCategory(actionCategory);
-        long totalActionsPerType = 
-            ProductivityActions.getTotalActionsPerType(actionType);
+        long totalActionsPerCategory;
+        long totalActionsPerType;
+        
+        if (totalActions <= 0) {
+            return;
+        }
+        
+        for (int i = 0; i < actionCategories.length; i++) {
+            //update action category weight
+            totalActionsPerCategory = 
+                ProductivityActions.getTotalActionsPerCategory(actionCategories[i]);
+                
+            if (totalActionsPerCategory <= 0) {
+                continue;
+            }
+            
+            updateActionCategoryWeight(actionCategories[i],
+                    totalActionsPerCategory, totalActions, distinctVersions);
 
-        // update weight for the action type
-        double weight = (double)(100 * totalActionsPerType) / (double)totalActionsPerCategory;
+            // update action types weights
+            ArrayList<ActionType> actionTypes = 
+                ActionType.getActionTypes(actionCategories[i]);
+
+            for (int j = 0; j < actionTypes.size(); j++) {
+                totalActionsPerType = 
+                    ProductivityActions.getTotalActionsPerType(actionTypes.get(j));
+                updateActionTypeWeight(actionTypes.get(j),totalActionsPerType, 
+                        totalActionsPerCategory, distinctVersions);
+            }
+        }
+    }
+    
+    private void updateActionTypeWeight(ActionType actionType, 
+            long totalActionsPerType, long totalActionsPerCategory, 
+            long distinctVersions) {
+
+        double weight = (double)(100 * totalActionsPerType) / 
+            (double)totalActionsPerCategory;
 
         ProductivityWeights a = ProductivityWeights.getWeight(actionType);
-        
+       
         if (a == null) {
             a = new ProductivityWeights();
             a.setType(actionType);
             a.setWeight(weight);
+            a.setLastUpdateVersions(distinctVersions);
             db.addRecord(a);
         } else {
+            a.setLastUpdateVersions(distinctVersions);
             a.setWeight(weight);
         }
+    }
+    
+    private void updateActionCategoryWeight(ActionCategory actionCategory, 
+            long totalActionsPerCategory, long totalActions, 
+            long distinctVersions){
 
-        // update weight for the action category
-        weight = (double)(100 * totalActionsPerCategory) / (double)totalActions;
+        double weight = (double)(100 * totalActionsPerCategory) / 
+            (double)totalActions;
 
-        a = ProductivityWeights.getWeight(actionCategory);
+        ProductivityWeights a = ProductivityWeights.getWeight(actionCategory);
 
-        if (a == null) {
+        if (a == null) { //No weight calculated for this action yet
             a = new ProductivityWeights();
             a.setCategory(actionCategory);
             a.setWeight(weight);
+            a.setLastUpdateVersions(distinctVersions);
             db.addRecord(a);
         } else {
+            a.setLastUpdateVersions(distinctVersions);
             a.setWeight(weight);
         }
     }
@@ -262,4 +341,3 @@ public class ProductivityMetricJob {
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
-
