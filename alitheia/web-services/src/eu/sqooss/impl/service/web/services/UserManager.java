@@ -58,7 +58,7 @@ public class UserManager extends AbstractManager {
             DBService db, WebadminService webadmin) {
         super(db);
         this.logger = logger;
-        this.security = new UserSecurityWrapper(securityManager, db);
+        this.security = new UserSecurityWrapper(securityManager, db, logger);
         this.userManager = securityManager.getUserManager();
         this.groupManager = securityManager.getGroupManager();
         this.webadmin = webadmin;

@@ -148,7 +148,8 @@ public class GroupManagerDatabase implements GroupManagerDBQueries {
         }
         Group group = db.findObjectById(Group.class, groupId);
         User user = db.findObjectById(User.class, userId);
-        if ((group!=null) && (user != null)) {
+        if ((group!=null) && (user != null) &&
+                (GroupType.Type.DEFINITION != group.getGroupType().getEnumType())) {
             group.getUsers().add(user);
             user.getGroups().add(group);
             return true;

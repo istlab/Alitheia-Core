@@ -36,7 +36,7 @@ import eu.sqooss.service.security.SecurityConstants;
 
 public interface SecurityWrapperConstants extends SecurityConstants {
     
-    public static final String GROUP_DESCRIPTION = "web services service security group";
+    public static final String PROPERTY_SECURITY_DEFINITION_GROUP = "eu.sqooss.web.services.security.group";
     
     public static enum PrivilegeValue {
         

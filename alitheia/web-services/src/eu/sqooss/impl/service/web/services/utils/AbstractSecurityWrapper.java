@@ -36,6 +36,7 @@ import java.util.Hashtable;
 
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.GroupType;
+import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.security.SecurityManager;
 
 public class AbstractSecurityWrapper implements SecurityWrapperConstants {
@@ -44,11 +45,13 @@ public class AbstractSecurityWrapper implements SecurityWrapperConstants {
     protected Hashtable<String, String> privileges;
     protected Object privilegesLockObject = new Object();
     private DBService db;
+    private Logger logger;
     
-    public AbstractSecurityWrapper(SecurityManager security, DBService db) {
+    public AbstractSecurityWrapper(SecurityManager security, DBService db, Logger logger) {
         this.security = security;
         this.privileges = new Hashtable<String, String>();
         this.db = db;
+        this.logger = logger;
         initDB();
     }
     
@@ -85,8 +88,12 @@ public class AbstractSecurityWrapper implements SecurityWrapperConstants {
     }
     
     protected void initDB() {
+        String securityGroup = System.getProperty(PROPERTY_SECURITY_DEFINITION_GROUP);
+        if (securityGroup == null) {
+            logger.error("Can't find the property: " + PROPERTY_SECURITY_DEFINITION_GROUP);
+        }
         db.startDBSession();
-        if (security.getGroupManager().getGroup(GROUP_DESCRIPTION) == null) {
+        if (security.getGroupManager().getGroup(securityGroup) == null) {
             ServiceUrl[] ServiceUrls = ServiceUrl.values();
             Privilege[] privileges;
             PrivilegeValue[] privilegeValues;
@@ -95,7 +102,7 @@ public class AbstractSecurityWrapper implements SecurityWrapperConstants {
                 for (Privilege privilege : privileges) {
                     privilegeValues = privilege.getValues();
                     for (PrivilegeValue privilegeValue : privilegeValues) {
-                        security.createSecurityConfiguration(GROUP_DESCRIPTION,
+                        security.createSecurityConfiguration(securityGroup,
                                 GroupType.Type.DEFINITION,
                                 privilege.toString(), privilegeValue.toString(),
                                 serviceUrl.toString());

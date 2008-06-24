@@ -79,7 +79,7 @@ public class MetricManager extends AbstractManager {
         this.logger = logger;
         this.pluginAdmin = pluginAdmin;
         this.dbWrapper = new MetricManagerDatabase(db);
-        this.securityWrapper = new MetricSecurityWrapper(security, db);
+        this.securityWrapper = new MetricSecurityWrapper(security, db, logger);
     }
 
     /**

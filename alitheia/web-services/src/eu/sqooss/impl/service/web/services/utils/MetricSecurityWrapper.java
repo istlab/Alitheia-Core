@@ -33,12 +33,13 @@
 package eu.sqooss.impl.service.web.services.utils;
 
 import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.security.SecurityManager;
 
 public class MetricSecurityWrapper extends AbstractSecurityWrapper{
     
-    public MetricSecurityWrapper(SecurityManager security, DBService db) {
-        super(security, db);
+    public MetricSecurityWrapper(SecurityManager security, DBService db, Logger logger) {
+        super(security, db, logger);
     }
 
     public void checkDBMetricsReadAccess(String userName, String password,

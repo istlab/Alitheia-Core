@@ -78,10 +78,14 @@ public class GroupManagerImpl implements GroupManager {
      */
     public Group createGroup(String description, GroupType.Type type) {
         logger.debug("Create group! description: " + description);
-        Group result = getGroup(description);
+        String mangledDescription = mangleGroupDescription(description);
+        if (mangledDescription == null) {
+            throw new IllegalArgumentException("The description of the group isn't correct!");
+        }
+        Group result = getGroup(mangledDescription);
         if (result != null) return null; //the group is in the db
         result = new Group();
-        result.setDescription(description);
+        result.setDescription(mangledDescription);
         GroupType groupType = GroupType.getGroupType(type);
         if (groupType == null) {
             groupType = new GroupType(type);
@@ -189,6 +193,25 @@ public class GroupManagerImpl implements GroupManager {
         } else {
             return null;
         }
+    }
+    
+    private static String mangleGroupDescription(String groupDescription) {
+        if (groupDescription == null) {
+            return null;
+        }
+        String mangledGroupName = groupDescription.trim();
+        if ("".equals(mangledGroupName)) {
+            return null;
+        }
+        char currentChar;
+        for (int i = 0; i < groupDescription.length(); i++) {
+            currentChar = groupDescription.charAt(i);
+            if (!Character.isLetterOrDigit(currentChar) &&
+                    !Character.isWhitespace(currentChar)) {
+                return null;
+            }
+        }
+        return mangledGroupName;
     }
     
 }

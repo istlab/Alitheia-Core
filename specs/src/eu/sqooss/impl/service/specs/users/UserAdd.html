@@ -16,7 +16,7 @@
         spec</a>), when we add the new user
         <em><span concordion:set="#username">test-user</span></em>, having the email address 
         <em><span concordion:set="#email">test-user@sqo-oss.org</span></em> and password 
-        <em><span concordion:set="#password">test-123</span></em>. The default group for this user is <em><span concordion:set="#new_users_group">new_users_group</span></em>. After the addition the user list becomes:</p>
+        <em><span concordion:set="#password">test-123</span></em>. The default group for this user is <em><span concordion:set="#new_users_group">users</span></em>. After the addition the user list becomes:</p>
         <table concordion:verifyRows="#user : getUsers()">
           <tr>
             <th concordion:assertEquals="#user.name">User Name</th>
