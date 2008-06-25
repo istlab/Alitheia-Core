@@ -57,7 +57,8 @@ public class SelfTester {
     private static final String TEST_USER  = "alitheia_test_user";
     private static final String TEST_PASS  = "alitheia_test_pass";
     private static final String TEST_MAIL  = "alihteia_test_mail";
-    private static final String TEST_GROUP = "alitheia_test_group";
+    private static final String TEST_GROUP = "alitheia test";
+    private static final String TEST_GROUP_WRONG = "alitheia_test";
     private static final String TEST_SERVICE_URL = "alitheia_test_url";
     
     private DBService db;
@@ -102,10 +103,18 @@ public class SelfTester {
                 return testResult;
             }
 
+            if ((testResult = testGroupManagerFail()) != null) {
+                return testResult;
+            }
+            
             if ((testResult = testServiceUrlManager()) != null) {
                 return testResult;
             }
 
+            if ((testResult = testPrivilegeManagerFail()) != null) {
+                return testResult;
+            }
+            
             if ((testResult = testPrivilegeManager()) != null) {
                 return testResult;
             }
@@ -197,6 +206,16 @@ public class SelfTester {
         return null;
     }
     
+    private String testGroupManagerFail() {
+        try {
+            groupManager.createGroup(TEST_GROUP_WRONG, GroupType.Type.USER);
+            return "Can create a group with incorrect name!";
+        } catch (IllegalArgumentException iae) {
+            //expected exception
+        }
+        return null;
+    }
+    
     private String testGroupManager() {
 
         Group newGroup = null;
@@ -238,6 +257,35 @@ public class SelfTester {
 
         if (serviceUrlManager.getServiceUrl(newServiceUrl.getId()).getId() != newServiceUrl.getId()) {
             return "The test service url isn't created correct!";
+        }
+        return null;
+    }
+    
+    private String testPrivilegeManagerFail() {
+        String privilege = SecurityConstants.ALL_PRIVILEGES +
+        SecurityConstants.PrivilegeAction.DELIMITER;
+        try {
+            privilegeManager.createPrivilege(privilege);
+            return "Can create a privilege with incorrect name: " + privilege;
+        } catch (IllegalArgumentException iae) {
+            //expected exception
+        }
+        privilege = SecurityConstants.PrivilegeAction.DELIMITER +
+        SecurityConstants.ALL_PRIVILEGES;
+        try {
+            privilegeManager.createPrivilege(privilege);
+            return "Can create a privilege with incorrect name: " + privilege;
+        } catch (IllegalArgumentException iae) {
+            //expected exception
+        }
+        privilege = SecurityConstants.ALL_PRIVILEGES +
+        SecurityConstants.PrivilegeAction.DELIMITER + SecurityConstants.PrivilegeAction.DELIMITER +
+        SecurityConstants.ALL_PRIVILEGES;
+        try {
+            privilegeManager.createPrivilege(privilege);
+            return "Can create a privilege with incorrect name: " + privilege;
+        } catch (IllegalArgumentException iae) {
+            //expected exception
         }
         return null;
     }
