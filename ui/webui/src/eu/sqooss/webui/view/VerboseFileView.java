@@ -88,6 +88,9 @@ public class VerboseFileView extends ListView {
             b.append(sp(in) + Functions.warning("No evaluation result."));
         }
         else {
+            //================================================================
+            // File information
+            //================================================================
             // File name
             String fileName = selFile.getName();
             // Adjust the file name length
@@ -107,29 +110,34 @@ public class VerboseFileView extends ListView {
                     + getServletPath() + "\">\n");
             b.append(sp(in) + "<span"
                     + " style=\"float: left; width: 60%; text-align:left;\">"
-                    + "<b>File:</b> " + fileName
+                    + "<b>Name: </b> " + fileName
                     + "</span>\n");
             // Display the "Compare against another version" field
             b.append(sp(in++) + "<span"
                     + " style=\"float: right; width: 40%; text-align:right;\">\n"
-                    + sp (in) + "<b>Compare with:</b>\n");
-            b.append(sp (in++) + "<select name=\"cvid\" size=\"1\""
+                    + sp(in) + "<b>Compare with:</b>\n");
+            b.append(sp(in++) + "<select name=\"cvid\" size=\"1\""
                     + " style=\"width:70px;\">\n");
-            b.append(sp (--in) + "</select>\n");
-            b.append(sp (in) + "<input type=submit class=\"submit\""
+            b.append(sp(--in) + "</select>\n");
+            b.append(sp(in) + "<input type=submit class=\"submit\""
                     + " value=\"Apply\">\n"
                     + sp (--in) + "</span>\n");
-            b.append(sp (--in) + "</form>\n");
+            b.append(sp(--in) + "</form>\n");
             b.append(sp(in) + "<br/>\n");
-            b.append(sp(in++) + "<table style=\"width: 100%;\">\n");
+            b.append(sp(in) + "<br/>\n");
+            //================================================================
+            // Results table
+            //================================================================
+            b.append(sp(in++) + "<div id=\"table\">\n");
+            b.append(sp(in++) + "<table>\n");
             // Table header
             b.append(sp(in++) + "<thead>\n");
-            b.append(sp(in++) + "<tr>\n");
-            b.append(sp(in) + "<td style=\"text-align: left; width: 15%;\">"
+            b.append(sp(in++) + "<tr class=\"head\">\n");
+            b.append(sp(in) + "<td class=\"head\" style=\"width: 15%;\">"
                     + "Metric</td>\n");
-            b.append(sp(in) + "<td style=\"text-align: left; width: 50%;\">"
+            b.append(sp(in) + "<td class=\"head\" style=\"width: 50%;\">"
                     + "Description</td>\n");
-            b.append(sp(in) + "<td style=\"text-align: left; width: 35%;\">"
+            b.append(sp(in) + "<td class=\"head\" style=\"width: 35%;\">"
                     + "Result</td>\n");
             b.append(sp(--in) + "</tr>\n");
             b.append(sp(--in) + "</thead>\n");
@@ -151,18 +159,19 @@ public class VerboseFileView extends ListView {
                 }
                 // Display the metric statistic's row
                 b.append(sp(in++) + "<tr>\n");
-                b.append(sp(in) + "<td style=\"text-align: left;\">"
+                b.append(sp(in) + "<td class=\"name\">"
                         + metric.getMnemonic()
                         + "</td>\n");
-                b.append(sp(in) + "<td style=\"text-align: left;\">"
+                b.append(sp(in) + "<td>"
                         + metric.getDescription()
                         + "</td>\n");
-                b.append(sp(in) + "<td style=\"text-align: left;\">"
+                b.append(sp(in) + "<td>"
                         + nextResult.getString()
                         + "</td>\n");
                 b.append(sp(--in) + "</tr>\n");
             }
             b.append(sp(--in) + "</table>\n");
+            b.append(sp(--in) + "</div>\n");
         }
         return b.toString();
     }

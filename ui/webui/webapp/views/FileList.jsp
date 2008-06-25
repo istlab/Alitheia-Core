@@ -9,7 +9,7 @@ if (selectedProject.isValid()) {
 <%
     Version selectedVersion = selectedProject.getCurrentVersion();
     if (selectedVersion != null) {
-        out.println(sp(in) + "<h2>Files "
+        out.println(sp(in) + "<h2>Files"
             + " in version " + selectedVersion.getNumber() + "</h2>");
         // Check if the user has switched to another directory
         if (request.getParameter("did") != null) {
@@ -39,7 +39,8 @@ if (selectedProject.isValid()) {
             verboseView.setServletPath(request.getServletPath());
             verboseView.setSettings(settings);
             out.print(verboseView.getHtml(in));
-%>            <form method="GET" action="<%= request.getServletPath() %>">
+%>            <br/>
+            <form method="GET" action="<%= request.getServletPath() %>">
               <input type=submit class="submit" value="Back">
             </form>
 <%

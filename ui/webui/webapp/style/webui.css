@@ -173,27 +173,68 @@ a.button:visited {
 }
 
 /* ===[ TABLES CSS ]===================================================== */
+#table {
+    font-size: 10pt;
+}
 #table table {
-    border-collapse: collapse;
     width: 100%;
+    border: 1px solid #C6C6C5;
 }
 #table td {
     padding-left: 10px;
+    border: 1px solid #C6C6C5;
+    text-align: left;
 }
-#table input {
+#table input.expand {
     width: 100%;
 }
-#table input.checkbox {
-    width: auto;
+#table .borderless {
+    border: 0;
+    background-color: transparent;
 }
-
 #table tr.head {
-    background-color: #F3F3F3;
+    background-color: #CCCCFF;
+    font-weight: bold;
+}
+#table tr.foot {
+    background-color: #C6C6C5;
+    font-weight: bold;
+}
+#table tr.edit {
+    cursor: pointer;
+}
+#table tr.edit:hover {
+    background-color: #FFFF99;
+}
+#table tr.selected {
+    color: Green;
+    cursor: pointer;
+    background-color: #FFFF99;
 }
 #table td.head {
+    background-color: transparent;
     text-align: left;
-    font-weight: bold;
+}
+#table td.foot {
+    background-color: transparent;
+    text-align: left;
 }
 #table td.name {
     font-weight: bold;
+}
+#table td.edit {
+    cursor: pointer;
+}
+#table td.edit:hover {
+    background-color: #FFFF99;
+}
+#table td.trans {
+    background-color: transparent;
+}
+#table td.attr {
+    background-color: Bisque;
+}
+#table td.noattr {
+    background-color: Bisque;
+    font-style: italic;
 }

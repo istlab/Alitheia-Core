@@ -152,7 +152,7 @@ public class MetricsTableView extends ListView {
         String table_id = new String();
         String css_class = new String();
         String head_class = new String(" class=\"head\"");
-        String foot_class = new String(" class=\"head\"");
+        String foot_class = new String(" class=\"foot\"");
         String cell_class = new String();
         String cell_name_class = new String(" class=\"name\"");
 
