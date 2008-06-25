@@ -7,6 +7,10 @@ import java.util.List;
 import eu.sqooss.impl.service.SpecsActivator;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.StoredProject;
+import eu.sqooss.service.tds.InvalidRepositoryException;
+import eu.sqooss.service.tds.ProjectRevision;
+import eu.sqooss.service.tds.SCMAccessor;
+import eu.sqooss.service.tds.TDSService;
 
 public class SpProject implements SpEntity {
     private DBService db = SpecsActivator.alitheiaCore.getDBService();
@@ -15,6 +19,9 @@ public class SpProject implements SpEntity {
     boolean persistent = false;
     
     public String name;
+    public String mail = null;
+    public String bugs = null;
+    public String repository = null;
     
     public static ArrayList<SpProject> allProjects() {
         DBService db = SpecsActivator.alitheiaCore.getDBService();
@@ -59,6 +66,10 @@ public class SpProject implements SpEntity {
         
         id = project.getId();
         name = project.getName();
+        mail = project.getMail();
+        bugs = project.getBugs();
+        repository = project.getRepository();
+        
         db.commitDBSession();
     }
 
@@ -67,6 +78,9 @@ public class SpProject implements SpEntity {
         StoredProject project = new StoredProject();
 
         project.setName(name);
+        project.setBugs(bugs);
+        project.setMail(mail);
+        project.setRepository(repository);
         
         db.addRecord(project);
         db.commitDBSession();
@@ -78,5 +92,22 @@ public class SpProject implements SpEntity {
         db.deleteRecord(db.findObjectById(StoredProject.class, id));
         db.commitDBSession();
         persistent = false;
+    }
+    
+    public ArrayList<ProjectRevision> revisions() throws InvalidRepositoryException {
+        ArrayList<ProjectRevision> result = new ArrayList<ProjectRevision>();
+        
+        TDSService tds = SpecsActivator.alitheiaCore.getTDSService();
+        tds.addAccessor(id, name, bugs, mail, repository);
+        SCMAccessor scm = tds.getAccessor(id).getSCMAccessor();
+        
+        ProjectRevision rev = new ProjectRevision(scm.getHeadRevision());
+        while (rev!=null && rev.isValid()) {
+            result.add(rev);
+            rev = rev.prev();
+        }
+
+        tds.releaseAccessor(tds.getAccessor(id));
+        return result;
     }
 }
