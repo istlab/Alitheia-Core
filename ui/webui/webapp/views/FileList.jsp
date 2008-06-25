@@ -39,6 +39,10 @@ if (selectedProject.isValid()) {
             verboseView.setServletPath(request.getServletPath());
             verboseView.setSettings(settings);
             out.print(verboseView.getHtml(in));
+%>            <form method="GET" action="<%= request.getServletPath() %>">
+              <input type=submit class="submit" value="Back">
+            </form>
+<%
         }
         // Display the list of files in the selected project version
         else {

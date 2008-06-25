@@ -102,20 +102,24 @@ public class VerboseFileView extends ListView {
             else {
                 fileName = ".../" + adjustRight(selFile.getShortName(), "...");
             }
-            // Display the file anme
+            // Display the file name
+            b.append(sp (in++) + "<form method=\"GET\" action=\""
+                    + getServletPath() + "\">\n");
             b.append(sp(in) + "<span"
                     + " style=\"float: left; width: 60%; text-align:left;\">"
                     + "<b>File:</b> " + fileName
-                    + "</span>");
+                    + "</span>\n");
             // Display the "Compare against another version" field
-            b.append(sp(in) + "<span"
-                    + " style=\"float: right; width: 40%; text-align:right;\">"
-                    + "<b>Compare with:</b> "
-                    + "<input type=\"select\">"
-                    + "</input>"
-                    + "<a href=\"" + getServletPath() + "\" class=\"button\">"
-                    + "Apply</a>"
-                    + "</span>");
+            b.append(sp(in++) + "<span"
+                    + " style=\"float: right; width: 40%; text-align:right;\">\n"
+                    + sp (in) + "<b>Compare with:</b>\n");
+            b.append(sp (in++) + "<select name=\"cvid\" size=\"1\""
+                    + " style=\"width:70px;\">\n");
+            b.append(sp (--in) + "</select>\n");
+            b.append(sp (in) + "<input type=submit class=\"submit\""
+                    + " value=\"Apply\">\n"
+                    + sp (--in) + "</span>\n");
+            b.append(sp (--in) + "</form>\n");
             b.append(sp(in) + "<br/>\n");
             b.append(sp(in++) + "<table style=\"width: 100%;\">\n");
             // Table header
@@ -156,14 +160,10 @@ public class VerboseFileView extends ListView {
                 b.append(sp(in) + "<td style=\"text-align: left;\">"
                         + nextResult.getString()
                         + "</td>\n");
-                b.append(sp(in++) + "</tr>\n");
+                b.append(sp(--in) + "</tr>\n");
             }
             b.append(sp(--in) + "</table>\n");
         }
-        b.append(sp(in) + "<br/>\n");
-        b.append(sp(in) + "<a href=\"/files.jsp\""
-                + " class=\"button\">"
-                + "Back</a>\n");
         return b.toString();
     }
 

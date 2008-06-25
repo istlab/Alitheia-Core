@@ -134,9 +134,13 @@ a.button {
     text-decoration: none;
     color: black;
     background-color: #cccccc;
-    padding: 2px 2px 2px 2px;
+    padding: 0px 2px 0px 2px;
     margin-left: 2px;
     border: 2px outset #cccccc;
+}
+
+input.submit {
+    width: 80px;
 }
 
 a.button:hover {
