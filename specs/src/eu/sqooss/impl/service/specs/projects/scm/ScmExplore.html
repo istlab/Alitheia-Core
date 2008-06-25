@@ -15,7 +15,7 @@
 
         <p concordion:execute="addProject(#added_project, #scm_path)">Given the system has a project named
         "<span concordion:set="#added_project">iCopy</span>" which source repository lies in the
-        "<span concordion:set="#scm_path">../../../iCopy/svn</span>".</p>
+        "<span concordion:set="#scm_path">../specs/data/iCopy/svn</span>".</p>
 
         <p>Then this project <span concordion:assertTrue="projectHasHistory(#added_project)">has a
         source code history</span>.</p>
