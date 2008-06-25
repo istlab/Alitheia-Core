@@ -25,7 +25,8 @@ public void jspInit() {
         initError = ex.toString();
     }
 }
-%><jsp:useBean id="terrier"
+%><jsp:useBean
+    id="terrier"
     class="eu.sqooss.webui.Terrier"
     scope="session"
 /><jsp:setProperty name="terrier" property="*"
@@ -93,7 +94,7 @@ if ((projectId != null)
     if (objProject != null) {
         selectedProject.flushData();
         selectedProject.setTerrier(terrier);
-        selectedProject.copyFrom(objProject);
+        selectedProject.copy(objProject);
     }
     // Retrieve the project from the SQO-OSS framework
     else {

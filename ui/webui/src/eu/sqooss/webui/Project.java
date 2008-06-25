@@ -41,9 +41,9 @@ import eu.sqooss.ws.client.datatypes.WSStoredProject;
  * This class represents a project that has been evaluated by the SQO-OSS
  * framework.
  * <br/>
- * It provides access to the project metadata, files and versions in this
- * project. In addition it provides information about the metrics that have
- * been applied to this project and its resources.
+ * It provides access to the project metadata, versions and files.
+ * In addition it provides information about the metrics that have been
+ * applied to this project and its resources.
  */
 public class Project extends WebuiItem {
 
@@ -100,13 +100,15 @@ public class Project extends WebuiItem {
      * @param p the project object
      */
     private void initProject(WSStoredProject p) {
-        id = p.getId();
-        name = p.getName();
-        bts = p.getBugs();
-        repository = p.getRepository();
-        mail = p.getMail();
-        contact = p.getContact();
-        website = p.getWebsite();
+        if (p != null) {
+            id = p.getId();
+            name = p.getName();
+            bts = p.getBugs();
+            repository = p.getRepository();
+            mail = p.getMail();
+            contact = p.getContact();
+            website = p.getWebsite();
+        }
     }
 
     /**
@@ -114,14 +116,16 @@ public class Project extends WebuiItem {
      * 
      * @param p the target <code>Project</code> instance
      */
-    public void copyFrom (Project p) {
-        id = p.getId();
-        name = p.getName();
-        bts = p.getBugs();
-        repository = p.getRepository();
-        mail = p.getMail();
-        contact = p.getContact();
-        website = p.getWebsite();
+    public void copy (Project p) {
+        if (p != null) {
+            id = p.getId();
+            name = p.getName();
+            bts = p.getBugs();
+            repository = p.getRepository();
+            mail = p.getMail();
+            contact = p.getContact();
+            website = p.getWebsite();
+        }
     }
 
     /**
@@ -176,15 +180,20 @@ public class Project extends WebuiItem {
 
     /**
      * Retrieves all the data that is required by this object from the
-     * SQO-OSS framework, unless the cache contains some data already.
+     * SQO-OSS framework, unless the cache contains some data already
+     * or this project is not yet initialized.
      * 
      * @param terrier the <code>Terrier<code> instance
      */
     public void retrieveData(Terrier terrier) {
-        if ((terrier == null) || (id == null))
-            return;
-        setTerrier(terrier);
-        retrieveMetrics();
+        if (terrier == null)
+                return;
+        if (isValid()) {
+            setTerrier(terrier);
+            retrieveMetrics();
+        }
+        else
+            terrier.addError("Invalid project!");
     }
 
     /**
@@ -196,7 +205,7 @@ public class Project extends WebuiItem {
         firstVersion = null;
         lastVersion = null;
         currentVersion = null;
-        metrics = null;
+        metrics.clear();
         selectedMetrics = new ArrayList<Long>();
     }
 
@@ -206,185 +215,18 @@ public class Project extends WebuiItem {
      * data already.
      * 
      * @return the list of metrics evaluated on this project, or empty list
-     *   when none are found.
+     *   when none are found or this project is not yet initialized.
      */
     public List<Metric> retrieveMetrics() {
-        if (metrics == null)
-            metrics = terrier.getMetricsForProject(id);
+        if (terrier == null)
+            return metrics;
+        if (isValid()) {
+            if (metrics.isEmpty())
+                metrics = terrier.getMetricsForProject(id);
+        }
+        else
+            terrier.addError("Invalid project!");
         return metrics;
-    }
-
-    /**
-     * Renders the metadata stored in this project's object into HTML.
-     * 
-     * @param in indentation depth of the generated HTML content.
-     * 
-     * @return The HTML content.
-     */
-    public String getInfo(long in) {
-        StringBuilder html = new StringBuilder();
-        html.append(sp(in++) + "<table class=\"projectinfo\">\n");
-        // Project website
-        html.append(sp(in++) + "<tr>\n");
-        html.append(sp(in) + "<td>"
-                + "<strong>Website:</strong>"
-                + "</td>\n");
-        html.append(sp(in) + "<td>"
-                + (getWebsite() != null
-                        ? "<a href=\"" + getWebsite() + "\">"
-                                + getWebsite() + "</a>"
-                        : "<i>undefined</i>")
-                + "</td>\n");
-        html.append(sp(--in) + "</tr>\n");
-        // Project contact address
-        html.append(sp(in++) + "<tr>\n");
-        html.append(sp(in) + "<td>"
-                + icon("mail-message-new")
-                + "<strong>Contact:</strong>"
-                + "</td>\n");
-        html.append(sp(in) + "<td>"
-                + (getContact() != null
-                        ? "<a href=\"" + getContact() + "\">"
-                                + getContact() + "</a>"
-                        : "<i>undefined</i>")
-                        + "</td>\n");
-        html.append(sp(--in) + "</tr>\n");
-        // Project's source repository
-        html.append(sp(in++) + "<tr>\n");
-        html.append(sp(in) + "<td>"
-                + icon("vcs_status")
-                + "<strong>SVN Mirror:</strong>"
-                + "</td>\n");
-        html.append(sp(in) + "<td>"
-                + (getRepository() != null
-                        ? "<a href=\"files.jsp" + getId() + "\">"
-                                + getRepository() + "</a>"
-                        : "<i>undefined</i>")
-                + "</td>\n");
-        html.append(sp(--in) + "</tr>\n");
-        // Project's BTS
-        html.append(sp(in++) + "<tr>\n");
-        html.append(sp(in) + "<td>"
-                + icon("kbugbuster") + "<strong>Bug Data:</strong>"
-                + "</td>\n");
-        html.append(sp(in) + "<td>"
-                + (getBugs() != null
-                        ? getBugs()
-                        : "<i>undefined</i>")
-                + "</td>\n");
-        html.append(sp(--in) + "</tr>\n");
-        html.append(sp(--in) + "</table>");
-        return html.toString();
-    }
-
-    /**
-     * TODO: Add a method description.
-     * 
-     * @param fileId the file Id
-     * @param in the indentation depth
-     * 
-     * @return The rendered HTML content.
-     */
-    public String renderFileVerbose(Long fileId, long in) {
-        StringBuilder b = new StringBuilder("");
-        File selFile = null;
-        List<Result> selFileResults = new ArrayList<Result>();
-        if (fileId != null)
-            selFile = currentVersion.getFile(fileId);
-            if (selFile != null)
-                selFileResults = selFile.getResults();
-        if (selFile == null) {
-            b.append(sp(in) + Functions.error("File not found!"));
-        }
-        else if (selFileResults.isEmpty()) {
-            b.append(sp(in) + Functions.warning("No evaluation result."));
-        }
-        else {
-            // File name
-            int maxNameLength = 50;
-            String fileName = selFile.getName();
-            if (selFile.getShortName().length() <= maxNameLength) {
-                while (fileName.length() > maxNameLength) {
-                    fileName = fileName.substring(
-                            fileName.indexOf('/') + 1, fileName.length());
-                }
-                if (fileName.length() < selFile.getName().length())
-                    fileName = ".../" + fileName;
-            }
-            else {
-                fileName = ".../"
-                    + selFile.getShortName().substring(0, maxNameLength -1);
-            }
-            b.append(sp(in) + "<span"
-                    + " style=\"float: left; width: 60%; text-align:left;\">"
-                    + "<b>File:</b> " + fileName
-                    + "</span>");
-            // "Compare against another version" field
-            b.append(sp(in) + "<span"
-                    + " style=\"float: right; width: 40%; text-align:right;\">"
-                    + "<b>Compare with:</b> "
-                    + "<input type=\"select\">"
-                    + "</input>"
-                    + "</span>");
-            b.append(sp(in) + "<br/>\n");
-            b.append(sp(in++) + "<table style=\"width: 100%;\">\n");
-            // Table header
-            b.append(sp(in++) + "<thead>\n");
-            b.append(sp(in++) + "<tr>\n");
-            b.append(sp(in) + "<td style=\"text-align: left; width: 15%;\">"
-                    + "Metric</td>\n");
-            b.append(sp(in) + "<td style=\"text-align: left; width: 50%;\">"
-                    + "Description</td>\n");
-            b.append(sp(in) + "<td style=\"text-align: left; width: 35%;\">"
-                    + "Result</td>\n");
-            b.append(sp(--in) + "</tr>\n");
-            b.append(sp(--in) + "</thead>\n");
-            // Display all available results
-            HashMap<String, Metric> mnemToMetric =
-                new HashMap<String, Metric>();
-            for (Result nextResult : selFileResults) {
-                String mnemonic = nextResult.getMnemonic();
-                Metric metric = null;
-                if (mnemToMetric.containsKey(mnemonic)) {
-                    metric = mnemToMetric.get(mnemonic);
-                }
-                else {
-                    for (Metric nextMetric : metrics)
-                        if (nextMetric.getMnemonic().equals(mnemonic)) {
-                            mnemToMetric.put(mnemonic, nextMetric);
-                            metric = nextMetric;
-                        }
-                }
-                // Display the metric statistic's row
-                b.append(sp(in++) + "<tr>\n");
-                b.append(sp(in) + "<td style=\"text-align: left;\">"
-                        + metric.getMnemonic()
-                        + "</td>\n");
-                b.append(sp(in) + "<td style=\"text-align: left;\">"
-                        + metric.getDescription()
-                        + "</td>\n");
-                b.append(sp(in) + "<td style=\"text-align: left;\">"
-                        + nextResult.getString()
-                        + "</td>\n");
-                b.append(sp(in++) + "</tr>\n");
-            }
-            b.append(sp(--in) + "</table>\n");
-        }
-        b.append(sp(in) + "<br/>\n");
-        b.append(sp(in) + "<a href=\"/files.jsp\""
-                + " class=\"button\">"
-                + "Back</a>\n");
-        return b.toString();
-    }
-
-    /* (non-Javadoc)
-     * @see eu.sqooss.webui.WebuiItem#getHtml(long)
-     */
-    public String getHtml(long in) {
-        StringBuilder html = new StringBuilder("");
-        html.append(sp(in) + "<h2>" + getName() + " (" + getId() + ")</h2>");
-        html.append(getInfo(in++));
-        return html.toString();
     }
 
     /**
@@ -393,7 +235,8 @@ public class Project extends WebuiItem {
      * @param version the version object
      */
     public void setFirstVersion(Version version) {
-        firstVersion = version;
+        if (version != null)
+            firstVersion = version;
     }
 
     /**
@@ -403,8 +246,12 @@ public class Project extends WebuiItem {
      *   has no versions at all.
      */
     public Version getFirstVersion() {
-        if ((firstVersion == null) && (terrier != null))
-            firstVersion = terrier.getFirstProjectVersion(getId());
+        if (isValid()) {
+            if ((firstVersion == null) && (terrier != null))
+                firstVersion = terrier.getFirstProjectVersion(getId());
+        }
+        else
+            terrier.addError("Invalid project!");
         return firstVersion;
     }
 
@@ -414,7 +261,8 @@ public class Project extends WebuiItem {
      * @param version the version object
      */
     public void setLastVersion(Version version) {
-        lastVersion = version;
+        if (version != null)
+            lastVersion = version;
     }
 
     /**
@@ -424,8 +272,12 @@ public class Project extends WebuiItem {
      *   has no versions at all.
      */
     public Version getLastVersion() {
-        if ((lastVersion == null) && (terrier != null))
-            lastVersion = terrier.getLastProjectVersion(getId());
+        if (isValid()) {
+            if ((lastVersion == null) && (terrier != null))
+                lastVersion = terrier.getLastProjectVersion(getId());
+        }
+        else
+            terrier.addError("Invalid project!");
         return lastVersion;
     }
 
@@ -435,7 +287,7 @@ public class Project extends WebuiItem {
      * @param version the version object
      */
     public void setCurrentVersion(Version version) {
-        if (version != null) {
+        if ((version != null) && (version.isValid())){
             currentVersion = version;
             currentVersionId = version.getId();
         }
@@ -469,7 +321,7 @@ public class Project extends WebuiItem {
      */
     public Long getCurrentVersionId() {
         try {
-            if ( currentVersionId == null ) {
+            if (currentVersionId == null) {
                 return getLastVersion().getId();
             }
             return currentVersionId;
@@ -477,15 +329,6 @@ public class Project extends WebuiItem {
             terrier.addError("Could not retrieve current version.");
             return null;
         }
-    }
-
-    /**
-     * Retrieves a version by its Id from the SQO-OSS framework.
-     *
-     * @return The Version under that id.
-     */
-    public Version getVersion(Long versionId) {
-        return terrier.getVersion(id, versionId);
     }
 
     /**
@@ -550,16 +393,23 @@ public class Project extends WebuiItem {
         return result;
     }
 
-    /**
-     * Verifies if this object is equal to the given <code>Project</code>
-     * object.
-     * 
-     * @param target the target <code>Project</code> object
-     * 
-     * @return <code>true<code>, if this <code>Project</code> is equal to the
-     *   given <code>Project</code> object, or <code>false</code> otherwise.
+    /* (non-Javadoc)
+     * @see eu.sqooss.webui.WebuiItem#getHtml(long)
      */
-    @Override
+    public String getHtml(long in) {
+        if (isValid() == false)
+            return(sp(in) + Functions.error("Invalid project!"));
+        StringBuilder html = new StringBuilder("");
+        html.append(sp(in) + "<h2>"
+                + getName() + " (" + getId()+ ")"
+                + "</h2>");
+        //html.append(getInfo(in++));
+        return html.toString();
+    }
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
     public boolean equals(Object target) {
         if (this == target) return true;
         if (target == null) return false;
@@ -570,4 +420,5 @@ public class Project extends WebuiItem {
                 return true;
         return false;
     }
+
 }

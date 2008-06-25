@@ -1,4 +1,5 @@
-      <div id="sidebar">
+<%@ page import="java.util.*"
+%>      <div id="sidebar">
 <%
 // Set the current identation depth
 in = 5;
@@ -43,14 +44,20 @@ out.println(sp(in) + cruncher.getStatus());
 //============================================================================
 // Error Box
 //============================================================================
-if (terrier.getError().length() > 0) {
+if (terrier.getErrors().size() > 0) {
 %>        <fieldset id="error">
           <legend>Errors</legend>
+            <ul>
 <%
     // Dump all errors from the communication with the SQO-OSS framework
-    out.println(error(terrier.getError(), in));
-    terrier.flushError();
-%>        </fieldset>
+    Stack<String> errors = terrier.getErrors();
+    while (errors.size() > 0) {
+%>
+              <li style="font-color: red;"><%= errors.pop() %></li>
+<%
+    }
+%>            </ul>
+        </fieldset>
 <%
 }
 %>      </div>

@@ -10,7 +10,7 @@ title = "Login";
 <div id="loginpage" class="group">
 <%
 // Display login page's title and accumulated errors (if any)
-errorMsg += "<tr />" + terrier.getError();
+//errorMsg += "<tr />" + terrier.getErrors();
 out.println("<font color=\"red\">" + errorMsg + "</font>");
 out.println("<br />");
 

@@ -41,52 +41,44 @@ import eu.sqooss.ws.client.datatypes.WSMetricsResultRequest;
 import eu.sqooss.ws.client.datatypes.WSVersionStats;
 
 /**
- * This class represents a Version of a project that has been evaluated
- * by Alitheia.
- * It provides access to version metadata and files in this version.
- *
- * The Version class is part of the high-level webui API.
+ * This class represents a version of a project that has been evaluated
+ * by the SQO-OSS framework.
+ * <br/>
+ * It provides access to the version's metadata and files.
  */
 public class Version extends WebuiItem {
 
     private Long projectId;
     private Long number;
     private Long filesNumber = null;
-    private Result[] results;
+    private List<Result> results;
     private WSVersionStats stats = null;
     private Stack<Long> dirStack = new Stack<Long>();
 
     // Contains a list of all files in this version indexed by their Id
-    protected SortedMap<Long, File> files;
-
-    /** Empty ctor, only sets the jsp page that can be used to display
-     * details about this Version.
-     */
-    public Version () {
-        setServletPath("version.jsp");
-    }
+    protected SortedMap<Long, File> files = new TreeMap<Long, File>();
 
     /**
-     * Creates a new a <code>Version</code> instance from the given
-     * <code>WSProjectVersion</code> object.
+     * Creates a new a <code>Version</code> instance.
      */
-    public Version (WSProjectVersion wsVersion, Terrier t) {
-        id = wsVersion.getId();
-        terrier = t;
-        number = wsVersion.getVersion();
-        name = "" + number;
-        projectId = wsVersion.getProjectId();
-    }
+    public Version () {}
 
-    /** Initialise some data of this Version. This method can be used when we
-     * don't have a WSProjectVersion to use for data initialisation, or if we
-     * don't want to use one for performance reasons.
+    /**
+     * Creates a new a <code>Version</code> instance, and initializes it with
+     * the information provided from the given <code>WSProjectVersion</code>
+     * object.
      */
-    public Version(Long projectId, Long versionId, Terrier t) {
-        id = versionId;
-        this.projectId = projectId;
-        terrier = t;
-        fetchVersionResults();
+    public Version (WSProjectVersion wsVersion, Terrier terrier) {
+        if (wsVersion != null) {
+            this.id = wsVersion.getId();
+            try {
+                this.name = new Long(wsVersion.getVersion()).toString();
+            }
+            catch (NumberFormatException ex) {}
+            this.number = wsVersion.getVersion();
+            this.projectId = wsVersion.getProjectId();
+        }
+        setTerrier(terrier);
     }
 
     public Long getProjectId() {
@@ -113,27 +105,23 @@ public class Version extends WebuiItem {
      */
     public Long getFilesNumber() {
         if (filesNumber == null)
-            filesNumber = terrier.getFilesNumber4ProjectVersion(id);
+            filesNumber = terrier.getFilesCount(id);
         return filesNumber;
     }
 
     /**
-     * Fetch all files that exist in this project version from the attached
-     * SQO-OSS framework. All files that are found are copied into the
-     * <code>files<code> member.
+     * Retrieves all files that exist in this project version from the
+     * attached SQO-OSS framework. All files that are found will be copied
+     * into the <code>files<code> member field.
      */
     public void getAllFiles() {
         if (terrier == null)
             return;
         if (isValid()) {
-            Vector<File> fs = terrier.getProjectVersionFiles(id);
-            if ( fs == null || fs.size() == 0 )
-                return;
-            files = new TreeMap<Long, File>();
-            Iterator<File> filesIterator = fs.iterator();
-            while (filesIterator.hasNext()) {
-                File nextFile = filesIterator.next();
-                files.put(nextFile.getId(), nextFile);
+            // Fill the files cache if empty
+            if (files.isEmpty()) {
+                for (File nextFile : terrier.getFilesInVersion(id))
+                    files.put(nextFile.getId(), nextFile);
             }
         }
         else
@@ -144,7 +132,7 @@ public class Version extends WebuiItem {
         // Skip if the user tries to switch to the same directory
         if (dirStack.peek().equals(directoryId)) return;
         // Flush the currently cached files
-        files = null;
+        files.clear();
         // Check if the user tries to switch to a higher level directory
         if (dirStack.contains(directoryId))
             while ((dirStack.isEmpty() == false)
@@ -157,13 +145,13 @@ public class Version extends WebuiItem {
 
     public void previousDir() {
         // Shift one level higher in the directory tree
-        files = null;
+        files.clear();
         dirStack.pop();
     }
 
     public void topDir() {
         // Switch to the root directory
-        files = null;
+        files.clear();
         dirStack.clear();
     }
 
@@ -177,7 +165,7 @@ public class Version extends WebuiItem {
             return;
         if (isValid()) {
             // Fill the files cache if empty
-            if (files == null) {
+            if (files.isEmpty()) {
                 // Initialize the version's directory tree if empty
                 if (dirStack.isEmpty()) {
                     WSDirectory rootDir = terrier.getRootDirectory(projectId);
@@ -189,7 +177,7 @@ public class Version extends WebuiItem {
                     Long currentDirId = dirStack.peek();
                     List<File> filesList = terrier.getFilesInDirectory(
                             getId(), currentDirId);
-                    if ((filesList != null) && (filesList.size() > 0)) {
+                    if (filesList.size() > 0) {
                         files = new TreeMap<Long, File>();
                         for (File nextFile : filesList)
                             files.put(nextFile.getId(), nextFile);
@@ -215,10 +203,10 @@ public class Version extends WebuiItem {
         // Fetch the version's statistic if not already performed
         if ((stats == null) && (getId() != null)) {
             long[] versionIds = {this.getId().longValue()};
-            WSVersionStats[] wsstats =
+            List<WSVersionStats> wsstats =
                 terrier.getVersionsStatistics(versionIds);
-            if ((wsstats != null) && (wsstats.length > 0))
-                stats = wsstats[0];
+            if (wsstats.size() > 0)
+                stats = wsstats.get(0);
         }
         // No statistics available
         if (stats == null)
@@ -277,11 +265,10 @@ public class Version extends WebuiItem {
      */
     public String listFiles(Project project, long in) {
         // Retrieve the list of files if not yet done
-        if (files == null)
-            //getAllFiles();
-            getFilesInCurrentDirectory();
+        //getAllFiles();
+        getFilesInCurrentDirectory();
         // Check if this version contains no files
-        if ((files == null) && (dirStack.size() < 2)) {
+        if ((files.isEmpty()) && (dirStack.size() < 2)) {
             return (sp(in) + Functions.warning(
                     "No files found for this project version!"));
         }
@@ -291,7 +278,7 @@ public class Version extends WebuiItem {
             // Retrieve results from all selected metrics (if any)
             Map<Long, String> selectedMetrics =
                 project.getSelectedMetricMnemonics();
-            if ((project != null) && (files != null) && (files.size() > 0)) {
+            if ((project != null) && (files.size() > 0)) {
                 if (selectedMetrics.size() > 0)
                     fetchFilesResults(selectedMetrics);
             }
@@ -338,7 +325,7 @@ public class Version extends WebuiItem {
             }
             html.append(sp(in) + "<br/>\n");
             // Display the browser's content
-            if ((project != null) && (files != null) && (files.size() > 0)) {
+            if ((project != null) && (files.size() > 0)) {
                 FileListView view = new FileListView(files);
                 view.setVersionId(this.id);
                 view.setSettings(settings);
@@ -358,7 +345,8 @@ public class Version extends WebuiItem {
      *
      */
     public void setFiles(SortedMap<Long, File> f) {
-        files = f;
+        if (f != null)
+            files = f;
     }
 
     public void fetchVersionResults () {
@@ -393,7 +381,7 @@ public class Version extends WebuiItem {
             }
             resultRequest.setMnemonics(mnemonics);
             // Retrieve the evaluation result from the SQO-OSS framework
-            Result[] results = terrier.getResults(resultRequest);
+            List<Result> results = terrier.getResults(resultRequest);
             // Distribute the results between the files
             if (results != null) {
                 // Prepare a file_id to file mapping
@@ -413,11 +401,10 @@ public class Version extends WebuiItem {
 
     public String showResults() {
         StringBuilder html = new StringBuilder();
-        html.append("Found: " + results.length);
+        html.append("Found: " + results.size());
         html.append("\n<ul>");
-        for (int i = 0; i < results.length; i++) {
-            html.append("\n\t<li>" + results[i].getHtml(0) + "</li>");
-        }
+        for (Result nextResult : results)
+            html.append("\n\t<li>" + nextResult.getHtml(0) + "</li>");
         html.append("</ul>");
         return html.toString();
     }

@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.Stack;
 import java.util.Vector;
 
 import eu.sqooss.scl.WSException;
@@ -53,13 +54,13 @@ import eu.sqooss.ws.client.datatypes.WSResultEntry;
 import eu.sqooss.ws.client.datatypes.WSVersionStats;
 
 /**
- * This class is the entry point for retrieving data from the
- * Alitheia core through the webservices. It has a connection
- * to the core and exposes data query methods.
+ * This class is the entry point for retrieving data from the SQO-OSS
+ * framework through the Web-services service (WSS). It establishes a
+ * connection to the WSS and exposes its data query methods.
  */
 public class Terrier {
-    private String error = "";
-    private String debug = "";
+    // Accumulates the generated error messages
+    private Stack<String> errorsStack = new Stack<String>();
 
     // Metric types cache
     private HashMap<Long, String> metricTypes = new HashMap<Long, String>();
@@ -67,10 +68,12 @@ public class Terrier {
     // Points to the the WebUI's configuration bundle
     private ResourceBundle confParams;
 
+    // Holds an instance of the object that establishes a connection with
+    // the SQO-OSS framework
     private TerrierConnection connection = null;
 
     /**
-     * Empty constructor. Instantiates a new <code>Terrier</code> object.
+     * Instantiates a new <code>Terrier</code> object.
      */
     public Terrier () {
     }
@@ -106,40 +109,119 @@ public class Terrier {
         connection = new TerrierConnection(connUrl, userName, userPass);
     }
 
+    /**
+     * Returns the current connection object.
+     * 
+     * @return The current <code>TerrierConnection</code> instance,
+     *   or <code>null</code> in case this object is not yet initialized.
+     */
     public TerrierConnection connection() {
         return connection;
     }
 
+    /**
+     * Returns the status of the connection with the SQO-OSS framework.
+     * 
+     * @return <code>true</code>, if a connection is established,
+     *   or <code>true</code> otherwise.
+     */
+    public boolean isConnected() {
+        if (connection != null)
+            return connection.isConnected();
+        return false;
+    }
+
+    /**
+     * This method will try to establish a session with the SQO-OSS framework
+     * by using the specified user credentials.
+     * 
+     * @param user the username
+     * @param pass the password
+     * 
+     * @return <code>true</code>, if the session is successfully established,
+     *   or <code>false</code> otherwise.
+     */
+    public boolean loginUser(String user, String pass) {
+        return connection.loginUser(user,pass);
+    }
+
+    /**
+     * This method will terminate the current user session, and will then
+     * establish a session by using the non-privileged user credentials.
+     */
+    public void logoutUser() {
+        connection.logoutUser();
+    }
+
+    /**
+     * Checks, if any errors were accumulated during the execution of the
+     * methods of this object.
+     * 
+     * @return <code>true<code>, if the errors buffer contain at least one
+     *   message, or <code>false</code> otherwise.
+     */
+    public boolean hasErrors () {
+        return (errorsStack.isEmpty());
+    }
+
+    /**
+     * Gets the list of currently accumulated error messages.
+     * 
+     * @return The list of error messages, or an empty list when none were
+     *   found.
+     */
+    public Stack<String> getErrors() {
+        return errorsStack;
+    }
+
+    /**
+     * Adds a error single error message to the current list of error messages.
+     * 
+     * @param message the message string
+     */
+    public void addError(String message) {
+        if (errorsStack.contains(message) == false)
+            errorsStack.push(message);
+    }
+
+    /**
+     * Flushes the list of currently accumulate error messages.
+     */
+    public void flushErrors() {
+        errorsStack.clear();
+    }
+
     //========================================================================
-    // SCL WRAPPER METHODS
+    // PROJECT RELATED SCL WRAPPER METHODS
     //========================================================================
 
     /**
      * Retrieves descriptive information about the selected project from
      * the SQO-OSS framework, and constructs a Project object from it.
      *
-     * @param projectId The ID of the selected project.
+     * @param projectId the project Id
+     *
      * @return The project's object, or <code> null when such project does
      *   not exist or when a failure has occurred.
      */
-    public Project getProject(Long projectId) {
-        if (!connection.isConnected()) {
+    public Project getProject(long projectId) {
+        if (isConnected()) {
+            try {
+                // Retrieve information about this project
+                WSStoredProject[] storedProjects =
+                    connection.getProjectAccessor().getProjectsByIds(
+                            new long[] {projectId});
+                if (storedProjects.length > 0)
+                    return new Project(storedProjects[0]);
+                else
+                    addError("This project does not exist!");
+            }
+            catch (WSException wse) {
+                addError("Can not retrieve this project!");
+            }
+        }
+        else
             addError(connection.getError());
-            return null;
-        }
-        try {
-            // Retrieve information about this project
-            WSStoredProject[] storedProjects =
-                connection.getProjectAccessor().getProjectsByIds(
-                        new long[] {projectId});
-            if (storedProjects.length > 0)
-                return new Project(storedProjects[0]);
-            else
-                addError("This project does not exist!");
-        }
-        catch (WSException wse) {
-            addError("Can not retrieve this project!");
-        }
         return null;
     }
 
@@ -151,103 +233,110 @@ public class Terrier {
      *   are found.
      */
     public Vector<Project> getEvaluatedProjects() {
-        Vector<Project> projects = new Vector<Project>();
-        if (!connection.isConnected()) {
+        Vector<Project> result = new Vector<Project>();
+        if (isConnected()) {
+            try {
+                // Retrieve evaluated projects only
+                WSStoredProject projectsResult[] =
+                    connection.getProjectAccessor().getEvaluatedProjects();
+                for (WSStoredProject nextProject : projectsResult)
+                    result.addElement(new Project(nextProject));
+            }
+            catch (WSException wse) {
+                addError("Can not retrieve the list of evaluated projects!");
+            }
+        }
+        else
             addError(connection.getError());
-            return projects;
-        }
-        try {
-            // Retrieve evaluated projects only
-            WSStoredProject projectsResult[] =
-                connection.getProjectAccessor().getEvaluatedProjects();
-            for (WSStoredProject nextProject : projectsResult)
-                projects.addElement(new Project(nextProject));
-        }
-        catch (WSException wse) {
-            addError("Can not retrieve the list of evaluated projects!");
-        }
-        return projects;
+        return result;
     }
+
+    //========================================================================
+    // VERSION RELATED SCL WRAPPER METHODS
+    //========================================================================
 
     /**
      * Retrieves a project's version by project and version Id.
      *
-     * @param projectId The Id of project
-     * @param versionId The Id of the version
+     * @param projectId the project Id
+     * @param versionId the project version's Id
      *
      * @return The version object that matches the selected project and
      *   version Id, or <code>null<code> when such version does not exist.
      */
-    public Version getVersion(Long projectId, Long versionId) {
-        if (!connection.isConnected()) {
+    public Version getVersion(long projectId, long versionId) {
+        if (isConnected()) {
+            try {
+                // Search for a matching project
+                WSProjectVersion[] versionsResult =
+                    connection.getProjectAccessor().getProjectVersionsByIds(
+                            new long[]{versionId});
+                if (versionsResult.length > 0)
+                    return new Version(versionsResult[0], this);
+            }
+            catch (WSException wse) {
+                addError("Can not retrieve version by Id!");
+            }
+        }
+        else
             addError(connection.getError());
-            return null;
-        }
-        try {
-            // Search for a matching project
-            WSProjectVersion[] versionsResult =
-                connection.getProjectAccessor().getProjectVersionsByIds(
-                        new long[] {versionId});
-            if (versionsResult.length > 0)
-                return new Version(versionsResult[0], this);
-        }
-        catch (WSException wse) {
-            addError("Can not retrieve this version!");
-        }
         return null;
     }
 
     /**
-     * This method returns the root directory of the specified project's
-     * source tree.
+     * Retrieves the first recorded version (<i>e.g. SVN revision 1</i>)
+     * of the selected project.
      *
-     * @param projectId the Id of the project
+     * @param projectId the project Id
      *
-     * @return The root directory's object, or <code>null</code> if not found.
+     * @return The version object that corresponds to the first version of
+     *   the selected project, or <code>null<code> when such version does not
+     *   exist.
      */
-    public WSDirectory getRootDirectory(long projectId) {
-        if (!connection.isConnected()) {
+    public Version getFirstProjectVersion(long projectId) {
+        if (isConnected()) {
+            try {
+                WSProjectVersion[] wsversions =
+                    connection.getProjectAccessor().getFirstProjectVersions(
+                            new long[]{projectId});
+                if (wsversions.length > 0)
+                    return new Version(wsversions[0], this);
+            }
+            catch (WSException e) {
+                addError("Can not retrieve last project version.");
+            }
+        }
+        else
             addError(connection.getError());
-            return null;
-        }
-        try {
-            // Retrieve the corresponding directory object
-            return connection.getProjectAccessor().getRootDirectory(
-                    projectId);
-        }
-        catch (WSException wse) {
-            addError("Can not retrieve the project's source tree.");
-        }
         return null;
     }
 
     /**
-     * This method returns an array of all files located in the selected
-     * directory, that exists in the specified project version.
+     * Retrieves the last recorded version (<i>e.g. SVN HEAD revision</i>)
+     * of the selected project.
      *
-     * @param versionId the project's version Id
-     * @param directoryId the directory Id
+     * @param projectId the project Id
      *
-     * @return The array of project's files in that directory and that project
-     * version, or a empty array when none are found.
+     * @return The version object that corresponds to the last version of
+     *   the selected project, or <code>null<code> when such version does not
+     *   exist.
      */
-    public List<File> getFilesInDirectory(long versionId, long directoryId) {
-        List<File> result = new ArrayList<File>();
-        if (!connection.isConnected()) {
+    public Version getLastProjectVersion(long projectId) {
+        if (isConnected()) {
+            try {
+                WSProjectVersion[] wsversions =
+                    connection.getProjectAccessor().getLastProjectVersions(
+                            new long[]{projectId});
+                if (wsversions.length > 0)
+                    return new Version(wsversions[0], this);
+            }
+            catch (WSException e) {
+                addError("Can not retrieve last project version.");
+            }
+        }
+        else
             addError(connection.getError());
-            return null;
-        }
-        try {
-            WSProjectFile[] wsfiles =
-                connection.getProjectAccessor().getFilesInDirectory(
-                        versionId, directoryId);
-            for (WSProjectFile file : wsfiles)
-                result.add(new File(file));
-        }
-        catch (WSException wse) {
-            addError("Can not retrieve the list of files in this directory!");
-        }
-        return result;
+        return null;
     }
 
     /**
@@ -260,19 +349,15 @@ public class Terrier {
      * @return The list of project versions that correspond to the given
      *   version numbers, or an empty list when none are found.
      */
-    public List<Version> getVersionsByNumber(Long projectId, long[] numbers) {
+    public List<Version> getVersionsByNumber(long projectId, long[] numbers) {
         List<Version> result = new ArrayList<Version>();
-        if (!connection.isConnected()) {
-            addError(connection.getError());
-            return result;
-        }
-        if ((numbers != null) && (numbers.length > 0)) {
+        if (isConnected()) {
             try {
                 // Retrieve the corresponding version objects
                 WSProjectVersion[] wsversions =
                     connection.getProjectAccessor()
-                        .getProjectVersionsByVersionNumbers(
-                                projectId, numbers);
+                    .getProjectVersionsByVersionNumbers(
+                            projectId, numbers);
                 for (WSProjectVersion nextVersion : wsversions)
                     result.add(new Version(nextVersion, this));
             }
@@ -280,8 +365,186 @@ public class Terrier {
                 addError("Can not retrieve version(s) by number.");
             }
         }
+        else
+            addError(connection.getError());
         return result;
     }
+
+
+    /**
+     * Returns the current number of versions for the project with the
+     * given Id.
+     *
+     * @param projectId the project Id
+     *
+     * @return The current number of versions for that project.
+     */
+    public Long getVersionsCount(Long projectId) {
+        if (isConnected()) {
+            try {
+                return connection.getProjectAccessor().getVersionsCount(
+                        projectId);
+            }
+            catch (WSException e) {
+                addError("Can not retrieve the number of project versions.");
+            }
+        }
+        else
+            addError(connection.getError());
+        return null;
+    }
+
+    /**
+     * Returns the file statistic for the given project versions.
+     *
+     * @param versionsIds the list of project version Ids
+     *
+     * @return The list of file statistics for the given versions,
+     *   or an empty list when none are found.
+     */
+    public List<WSVersionStats> getVersionsStatistics(long[] versionsIds) {
+        List<WSVersionStats> result = new ArrayList<WSVersionStats>();
+        if (isConnected()) {
+            try {
+                WSVersionStats[] wsstats =
+                    connection.getProjectAccessor().getVersionsStatistics(
+                            versionsIds);
+                for (WSVersionStats nextStats : wsstats)
+                    result.add(nextStats);
+            }
+            catch (WSException e) {
+                addError("Can not retrieve statistics for project versions.");
+            }
+        }
+        else
+            addError(connection.getError());
+        return result;
+    }
+
+
+    //========================================================================
+    // SOURCE FILE RELATED SCL WRAPPER METHODS
+    //========================================================================
+
+    /**
+     * This method returns the root directory of the specified project's
+     * source tree.
+     *
+     * @param projectId the project Id
+     *
+     * @return The root directory's object, or <code>null</code> if not found.
+     */
+    public WSDirectory getRootDirectory(long projectId) {
+        if (isConnected()) {
+            try {
+                // Retrieve the corresponding directory object
+                return connection.getProjectAccessor().getRootDirectory(
+                        projectId);
+            }
+            catch (WSException wse) {
+                addError("Can not retrieve the project's source tree.");
+            }
+        }
+        else
+            addError(connection.getError());
+        return null;
+    }
+
+
+    /**
+     * This method returns a list of all files located in the selected
+     * directory, that exists in the specified project version.
+     *
+     * @param versionId the project version's Id
+     * @param directoryId the directory Id
+     *
+     * @return The list of project's files in that directory and that project
+     * version, or a empty list when none are found.
+     */
+    public List<File> getFilesInDirectory(long versionId, long directoryId) {
+        List<File> result = new ArrayList<File>();
+        if (isConnected()) {
+            try {
+                WSProjectFile[] wsfiles =
+                    connection.getProjectAccessor().getFilesInDirectory(
+                            versionId, directoryId);
+                for (WSProjectFile nextFile : wsfiles)
+                    result.add(new File(nextFile));
+            }
+            catch (WSException wse) {
+                addError("Can not retrieve the list of files"
+                        + " in this directory!");
+            }
+        }
+        else
+            addError(connection.getError());
+        return result;
+    }
+
+
+    /**
+     * Retrieves all files that exist in the specified project version.
+     * <br/>
+     * <br/>
+     * <b>Note:</b> This method can take quite long in order to retrieve all
+     * files in a big project's version. Therefore, please try to use
+     * <code>getFilesInDirectory(long, long)</code> if possible.
+     *
+     * @param versionId the project version's Id
+     *
+     * @return The list of files in this project version, or an empty list
+     *   when none are found.
+     */
+    public List<File> getFilesInVersion(long versionId) {
+        List<File> result = new ArrayList<File>();
+        if (isConnected()) {
+            try {
+                WSProjectFile[] wsfiles =
+                    connection.getProjectAccessor().getFilesByProjectVersionId(
+                            versionId);
+                if (wsfiles != null)
+                    for (WSProjectFile file : wsfiles)
+                        result.add(new File(file));
+            }
+            catch (WSException e) {
+                addError("Can not retrieve the list of files"
+                        + " in this version.");
+            }
+        }
+        else
+            addError(connection.getError());
+        return result;
+    }
+
+    /**
+     * Retrieves the number of all files that exist in the specified project
+     * version.
+     *
+     * @param versionId the project version's Id
+     *
+     * @return The number of files, or <code>null<code> when such version does
+     *   not exist.
+     */
+    public Long getFilesCount(long versionId) {
+        if (isConnected()) {
+            try {
+                return connection.getProjectAccessor()
+                    .getFilesNumberByProjectVersionId(versionId);
+            }
+            catch (WSException e) {
+                addError("Can not retrieve the number of files"
+                        + " for this version.");
+            }
+        }
+        else
+            addError(connection.getError());
+        return null;
+    }
+
+
+    //========================================================================
+    // METRIC RELATED SCL WRAPPER METHODS
+    //========================================================================
 
     /**
      * Retrieves the list of all metrics that has been evaluated on the
@@ -292,47 +555,243 @@ public class Terrier {
      * @return The list of evaluated metrics, or an empty list when none
      *   are found.
      */
-    public List<Metric> getMetricsForProject(Long projectId) {
+    public List<Metric> getMetricsForProject(long projectId) {
         List<Metric> result = new ArrayList<Metric>();
-        if (!connection.isConnected()) {
-            addError(connection.getError());
-            return result;
-        }
-        try {
-            WSMetric[] wsmetrics = 
-                connection.getMetricAccessor().getProjectEvaluatedMetrics(
-                    projectId);
-            if (wsmetrics.length > 0) {
-                // Retrieve the metric types
-                long[] typeIds = new long[wsmetrics.length];
-                int index = 0;
-                for (WSMetric nextMetric : wsmetrics)
-                    typeIds[index++] = nextMetric.getMetricTypeId();
-                HashMap<Long, String> metricTypes =
-                    getMetricTypesById(typeIds);
-                // Create the result list
-                for (WSMetric nextMetric : wsmetrics)
-                    result.add(new Metric(
-                            nextMetric,
-                            metricTypes.get(nextMetric.getMetricTypeId())));
+        if (isConnected()) {
+            try {
+                WSMetric[] wsmetrics = 
+                    connection.getMetricAccessor().getProjectEvaluatedMetrics(
+                            projectId);
+                if (wsmetrics.length > 0) {
+                    // Retrieve the metric types
+                    long[] typeIds = new long[wsmetrics.length];
+                    int index = 0;
+                    for (WSMetric nextMetric : wsmetrics)
+                        typeIds[index++] = nextMetric.getMetricTypeId();
+                    HashMap<Long, String> metricTypes =
+                        getMetricTypesById(typeIds);
+                    // Create the result list
+                    for (WSMetric nextMetric : wsmetrics)
+                        result.add(new Metric(
+                                nextMetric,
+                                metricTypes.get(nextMetric.getMetricTypeId())));
+                }
+            }
+            catch (WSException wse) {
+                addError("Cannot retrieve the list of project metrics.");
             }
         }
-        catch (WSException wse) {
-            addError("Cannot retrieve the list of project metrics.");
-        }
+        else
+            addError(connection.getError());
         return result;
     }
+
+    /**
+     * Retrieves metric types by their Ids. In case one or more metric types
+     * can not be located in the local cache, then this method will try to
+     * retrieve the missing types from the attached SQO-OSS framework.
+     * 
+     * @param metricTypeIds the list of metric type Ids
+     * 
+     * @return the map of metric type indexed by their Ids
+     */
+    private HashMap<Long, String> getMetricTypesById(long[] metricTypeIds) {
+        HashMap<Long, String> result = new HashMap<Long, String>();
+        if (isConnected()) {
+            // Search into the local cache first
+            List<Long> missing = new ArrayList<Long>();
+            for (long nextId : metricTypeIds) {
+                if (metricTypes.containsKey(nextId))
+                    result.put(nextId, metricTypes.get(nextId));
+                else
+                    missing.add(nextId);
+            }
+            // Retrieve all missing metric types
+            if (missing.size() > 0) {
+                long[] query = new long[missing.size()];
+                int index = 0;
+                for (Long nextId : missing)
+                    query[index++] = nextId.longValue();
+                try {
+                    WSMetricType[] missingTypes =
+                        connection.getMetricAccessor().getMetricTypesByIds(
+                                query);
+                    if (missingTypes.length > 0) {
+                        // Fill the local cache and the result list
+                        for (WSMetricType nextType : missingTypes) {
+                            metricTypes.put(
+                                    nextType.getId(), nextType.getType());
+                            result.put(nextType.getId(), nextType.getType());
+                        }
+                    } else {
+                        addError("One or more metric types can not be found!");
+                    }
+                } catch (WSException e) {
+                    addError("The metric types query has failed!");
+                }
+            }
+        }
+        else
+            addError(connection.getError());
+        return result;
+    }
+
+    //========================================================================
+    // RESULT RELATED SCL WRAPPER METHODS
+    //========================================================================
+
+    /**
+     * Retrieves a list of evaluation results from the attached SQO-OSS
+     * framework, for all project resources and metrics that are described
+     * in the given result request object.
+     *
+     * @param request the result request object
+     *
+     * @return the list of results, or an empty list when none are found.
+     */
+    public List<Result> getResults (WSMetricsResultRequest request) {
+        List<Result> result = new ArrayList<Result>();
+        if (connection.isConnected()) {
+            try {
+                // Retrieve the requested results
+                WSResultEntry[] wsresults =
+                    connection.getMetricAccessor().getMetricsResult(request);
+                // Create the result list
+                for (WSResultEntry nextResult : wsresults)
+                    result.add(new Result(nextResult, this));
+            }
+            catch (WSException wse) {
+                addError("Failed to retrieve ProjectResults.");
+            }
+        }
+        else
+            addError(connection.getError());
+        return result;
+    }
+
+    //========================================================================
+    // USER RELATED SCL WRAPPER METHODS
+    //========================================================================
+
+    /**
+     * Retrieves information about the specified user from the SQO-OSS
+     * framework.
+     *
+     * @param userId the user Id
+     *
+     * @return an <code>User</code> object holding information about the
+     *   requested user, or <code>null</code> when such user does not exist
+     *   or its information is not available to the current user.
+     */
+    public User getUserById (Long userId) {
+        if (isConnected()) {
+            try {
+                WSUser[] users = connection.getUserAccessor().getUsersByIds(
+                        new long[]{userId});
+                if (users.length > 0)
+                    return new User(users[0]);
+            }
+            catch (WSException e) {
+                addError("Can not retrieve information"
+                        + " about the selected user.");
+            }
+        }
+        else
+            addError(connection.getError());
+        return null;
+    }
+
+    /**
+     * Retrieves information about the specified user from the SQO-OSS
+     * framework.
+     *
+     * @param userName the user name
+     *
+     * @return an <code>User</code> object holding information about the
+     *   requested user, or <code>null</code> when such user does not exist
+     *   or its information is not available to the current user.
+     */
+    public User getUserByName (String userName) {
+        if (isConnected()) {
+            try {
+                WSUser user = connection.getUserAccessor().getUserByName(
+                        userName);
+                if (user != null)
+                    return new User(user);
+            }
+            catch (WSException e) {
+                addError("Can not retrieve information"
+                        + " about the selected user.");
+            }
+        }
+        else
+            addError(connection.getError());
+        return null;
+    }
+
+    /**
+     * Sends an user registration request to the attached SQO-OSS framework.
+     * 
+     * @param username the username
+     * @param password the password
+     * @param email the email
+     * 
+     * @return <code>true</code>, if the registration process was successful,
+     *   or <code>false<code> when a user with the same name already exist.
+     */
+    public boolean registerUser (
+            String username,
+            String password,
+            String email) {
+        if (isConnected()) {
+            try {
+                return connection.getUserAccessor().createPendingUser(
+                        username, password, email);
+            }
+            catch (WSException e) {
+                addError("An error occured during the registration process!");
+            }
+        }
+        else
+            addError(connection.getError());
+        return false;
+    }
+
+    /**
+     * Retrieves the current message-of-the-day that is stored in the attached
+     * SQO-OSS framework.
+     * 
+     * @return The message text, or <code>null<code> when a message is not
+     *   provided.
+     */
+    public String getUserMessageOfTheDay() {
+        if (isConnected()) {
+            try {
+                return connection.getUserAccessor().getMessageOfTheDay();
+            }
+            catch (WSException e) {
+                addError("An error occured during the registration process!");
+            }
+        }
+        else
+            addError(connection.getError());
+        return null;
+    }
+
+    //========================================================================
+    // TODO: FIX ME
+    //========================================================================
 
     /**
      * Retrieves the list of all metrics that are currently installed in the
      * attached SQO-OSS framework.
      *
-     * @return The list of all installed metric or an empty list when none
+     * @return The list of all installed metric, or an empty list when none
      *   are found.
      */
     public List<Metric> getAllMetrics() {
         List<Metric> result = new ArrayList<Metric>();
-        if (!connection.isConnected()) {
+        if (!isConnected()) {
             addError(connection.getError());
             return result;
         }
@@ -364,361 +823,4 @@ public class Terrier {
         return result;
     }
 
-    /**
-     * Retrieves all files that exist in the specified project version.
-     *
-     * @param versionId the Id of selected project version
-     * @return The list of files in this project version.
-     */
-    public List<File> getFilesInProjectVersion(Long versionId) {
-        if (!connection.isConnected()) {
-            addError(connection.getError());
-            return null;
-        }
-        List<File> result = new ArrayList<File>();
-        try {
-            WSProjectFile[] wsfiles =
-                connection.getProjectAccessor().getFilesByProjectVersionId(
-                        versionId);
-            if (wsfiles != null)
-                for (WSProjectFile file : wsfiles)
-                    result.add(new File(file));
-        } catch (WSException e) {
-            addError("Can not retrieve the list of files for this version.");
-        }
-        return result;
-    }
-
-    public Result[] getResults (WSMetricsResultRequest request) {
-        try {
-            // Retrieve results from the accessor
-            WSResultEntry[] wsresults = connection.getMetricAccessor().getMetricsResult(request);
-            Result[] results = new Result[wsresults.length];
-            // create Array and return it
-            for (int i = 0; i < results.length; i++) {
-                results[i] = new Result(wsresults[i], this);
-            }
-            return results;
-        } catch (WSException wse) {
-            addError("Failed to retrieve ProjectResults.");
-        }
-        Result[] results = new Result[0];
-        return results;
-    }
-
-    public Vector<File> getProjectVersionFiles(Long versionId) {
-        if (!connection.isConnected()) {
-            return null;
-        }
-        Vector<File> files = new Vector<File>();
-        try {
-            try {
-                WSProjectFile[] wsfiles = connection.getProjectAccessor().getFilesByProjectVersionId(versionId);
-                for (WSProjectFile file : wsfiles) {
-                    files.addElement(new File(file));
-                    //addError("gPVF:" + file.getId());
-                }
-            } catch (NullPointerException npe) {
-                addError("NPE looping files:" + npe.getMessage());
-                // Nevermind.
-            }
-        } catch (WSException e) {
-            addError("Can not retrieve the list of files for this version:" + e.getMessage());
-            return files;
-        }
-        //addError(files.size() + " Files n Version " + versionId);
-        return files;
-    }
-
-    /**
-     * Retrieves the number of all files that exist in the specified project
-     * version.
-     *
-     * @param versionId The ID of selected project version
-     * @return The number of files.
-     */
-    public Long getFilesNumber4ProjectVersion(Long versionId) {
-        if (!connection.isConnected()) {
-            return null;
-        }
-        try {
-            return connection.getProjectAccessor().getFilesNumberByProjectVersionId(versionId);
-        } catch (WSException e) {
-            addError("Can not retrieve the number of files for this version.");
-        }
-        return null;
-    }
-
-    /**
-     * Retrieves the first recorded version (ought to be SVN revision 1)
-     * of a project. May return null on error.
-     *
-     * @param projectId project to get first version for
-     * @return Version object for first SVN revision or null on error.
-     */
-    public Version getFirstProjectVersion(Long projectId) {
-        long[] v = new long[1];
-        v[0] = projectId.longValue();
-        try {
-            WSProjectVersion[] wsversions = connection.getProjectAccessor().getFirstProjectVersions(v);
-            if (wsversions.length != 0) {
-                return new Version(wsversions[0], this);
-            } else {
-                return null;
-            }
-        } catch (WSException e) {
-            addError("Can not retrieve last project version.");
-            return null;
-        }
-    }
-
-    /**
-     * Retrieves the last recorded version (ought to be SVN HEAD)
-     * of a project. May return null on error.
-     *
-     * @param projectId project to get HEAD version for
-     * @return Version object for most recent SVN revision or null on error.
-     */
-    public Version getLastProjectVersion(Long projectId) {
-        long[] v = new long[1];
-        v[0] = projectId.longValue();
-        try {
-            WSProjectVersion[] wsversions = connection.getProjectAccessor().getLastProjectVersions(v);
-            if (wsversions.length != 0) {
-                return new Version(wsversions[0], this);
-            } else {
-                return null;
-            }
-        } catch (WSException e) {
-            addError("Can not retrieve last project version.");
-            return null;
-        }
-    }
-
-    /**
-     * Returns the total number of versions for the project with the given Id.
-     *
-     * @param projectId - the project's identifier
-     *
-     * @return The total number of version for that project.
-     */
-    public Long getVersionsCount(Long projectId) {
-        if (!connection.isConnected()) {
-            addError(connection.getError());
-            return null;
-        }
-        try {
-            return connection.getProjectAccessor().getVersionsCount(projectId);
-        } catch (WSException e) {
-            addError("Can not retrieve the number of project versions.");
-            return null;
-        }
-    }
-
-    /**
-     * Returns the file statistic for the given project versions.
-     *
-     * @param projectVersionsIds - the projects identifiers
-     *
-     * @return The array of file statistics for the given versions.
-     */
-    public WSVersionStats[] getVersionsStatistics(long[] projectVersionsIds) {
-        if (!connection.isConnected()) {
-            addError(connection.getError());
-            return null;
-        }
-        try {
-            return connection.getProjectAccessor().getVersionsStatistics(
-                    projectVersionsIds);
-        } catch (WSException e) {
-            addError("Can not retrieve statistics for project versions.");
-            return null;
-        }
-    }
-
-    public Metric getMetric(Long metricId) {
-        // TODO
-        return null;
-    }
-
-    /**
-     * Retrieves metric types by their Ids. In case one or more metric types
-     * can not be located in the local cache, then this method will try to
-     * retrieve the missing types from the attached SQO-OSS framework.
-     * 
-     * @param metricTypeIds the list of metric type Ids
-     * 
-     * @return the map of metric type indexed by their Ids
-     */
-    public HashMap<Long, String> getMetricTypesById(long[] metricTypeIds) {
-        if (!connection.isConnected())
-            return null;
-        HashMap<Long, String> result = new HashMap<Long, String>();
-        // Search into the local cache first
-        List<Long> missing = new ArrayList<Long>();
-        for (long nextId : metricTypeIds) {
-            if (metricTypes.containsKey(nextId))
-                result.put(nextId, metricTypes.get(nextId));
-            else
-                missing.add(nextId);
-        }
-        // Retrieve all missing metric types
-        if (missing.size() > 0) {
-            long[] query = new long[missing.size()];
-            int index = 0;
-            for (Long nextId : missing)
-                query[index++] = nextId.longValue();
-            try {
-                WSMetricType[] missingTypes =
-                    connection.getMetricAccessor().getMetricTypesByIds(query);
-                if (missingTypes.length > 0) {
-                    // Fill the local cache and the result list
-                    for (WSMetricType nextType : missingTypes) {
-                        metricTypes.put(nextType.getId(), nextType.getType());
-                        result.put(nextType.getId(), nextType.getType());
-                    }
-                } else {
-                    error = "One or more metric types can not be found!";
-                }
-            } catch (WSException e) {
-                error = "The metric types query has failed!";
-            }
-        }
-        return result;
-    }
-
-    /**
-     * Retrieves information about the specified user from the SQO-OSS
-     * framework.
-     *
-     * @param userId the user's account Id
-     *
-     * @return an User object holding information about the requested user, or
-     * <code>null</code> when no information is available
-     */
-    public User getUserById (Long userId) {
-        if (!connection.isConnected()) {
-            return null;
-        }
-        try {
-            WSUser[] users = connection.getUserAccessor().getUsersByIds(new long[] {userId});
-            if (users.length != 0) {
-                return new User(users[0].getId(), users[0].getUserName(), users[0].getEmail());
-            } else {
-                error = "The user does not exist!";
-            }
-        } catch (WSException e) {
-            error = "Can not retrieve information about the selected user.";
-        }
-        return null;
-    }
-
-    /**
-     * Retrieves information about the specified user from the SQO-OSS
-     * framework.
-     *
-     * @param userName the user's name
-     *
-     * @return an User object holding information about the requested user, or
-     * <code>null</code> when no information is available
-     */
-    public User getUserByName (String userName) {
-        if (!connection.isConnected()) {
-            return null;
-        }
-        try {
-            WSUser user = connection.getUserAccessor().getUserByName(userName);
-            if (user != null) {
-                return new User(user.getId(), user.getUserName(), user.getEmail());
-            }
-        } catch (WSException e) {
-            error = "Can not retrieve information about the selected user.";
-        }
-        return null;
-    }
-
-    public File getFile(Long fileId) {
-        // TODO
-        return null;
-    }
-
-    /**
-     * The Alitheia core may have a message-of-the-day stored in it,
-     * which is then printed when the user hits the front page.
-     */
-    public String getUserMessageOfTheDay() {
-        try {
-            return connection.getUserAccessor().getMessageOfTheDay();
-        } catch (WSException e) {
-            return null;
-        } catch (NullPointerException e) {
-            return null;
-        }
-    }
-
-    /**
-     * Adds a (pending) user to the connected SQO-OSS system.
-     */
-    public boolean registerUser (
-            String username,
-            String password,
-            String email) {
-        if (!connection.isConnected()) {
-            return false;
-        }
-        try {
-            return connection.getUserAccessor().createPendingUser(username, password, email);
-        } catch (WSException e) {
-            error = "An error occured during the registration process!";
-            error += " Please try again later.";
-            return false;
-        }
-    }
-
-    /**
-     * Forwarding function to TerrierConnection.loginUser
-     */
-    public boolean loginUser(String user, String pass) {
-        return connection.loginUser(user,pass);
-    }
-
-    /**
-     * Forwarding function to TerrierConnection.logoutUser
-     */
-    public void logoutUser(String user) {
-        connection.logoutUser(user);
-    }
-
-    public boolean hasErrors () {
-        return (error.length() > 0);
-    }
-
-    public String getError() {
-        if (error.length() > 0)
-            return "\t<ul>\n" + error + "\t</ul>\n";
-        else
-            return "";
-    }
-
-    public void addError(String message) {
-        error += "\t  <li>" + message + "</li>\n";
-    }
-
-    public void flushError() {
-        error = "";
-    }
-
-    public String getDebug() {
-        return debug;
-    }
-
-    /**
-     * Returns the status of the connection with the SQO-OSS framework.
-     * 
-     * @return <code>true</code>, if a connection is established,
-     *   or <code>true</code> otherwise.
-     */
-    public boolean isConnected() {
-        return connection.isConnected();
-    }
 }

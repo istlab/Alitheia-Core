@@ -11,7 +11,7 @@
 <%
     // Display page's title and accumulated errors (if any)
     out.println("<h1>Logout from the Alitheia System</h1>");
-    errorMsg += "<tr />" + terrier.getError();
+    //errorMsg += "<tr />" + terrier.getErrors();
     out.println("<font color=\"red\">" + errorMsg + "</font>");
     out.println("<br />");
 

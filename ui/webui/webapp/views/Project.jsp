@@ -1,4 +1,5 @@
 <%@ page import="eu.sqooss.webui.*"
+%><%@ page import="eu.sqooss.webui.view.*"
 %><%
 if (selectedProject.isValid()) {
     // Indentation depth
@@ -27,7 +28,8 @@ if (selectedProject.isValid()) {
     in = 9;
     out.println(sp(in) + "<h2>" + selectedProject.getName()
         + " metadata" + "</h2>");
-    out.println(selectedProject.getInfo(in));
+    ProjectInfoView infoView = new ProjectInfoView(selectedProject);
+    out.println(infoView.getHtml(in));
 %>                </td>
                 <td valign="top"style="width: 40%;">
 <%

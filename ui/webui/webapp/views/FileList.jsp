@@ -1,4 +1,5 @@
 <%@ page import="eu.sqooss.webui.*"
+%><%@ page import="eu.sqooss.webui.view.*"
 %><%
 //============================================================================
 // List all files in the selected project version
@@ -29,11 +30,13 @@ if (selectedProject.isValid()) {
             else if (request.getParameter("showResults").equals("false"))
                 settings.setShowFileResultsOverview(false);
         }
-        // Check if the user has selected a file
+        // Check, if the user has selected a file
         if (request.getParameter("fid") != null) {
             // Display a verbose information about the selected file
-            out.print(selectedProject.renderFileVerbose(
-                strToLong(request.getParameter("fid")), in));
+            Long fileId = strToLong(request.getParameter("fid"));
+            VerboseFileView verboseView =
+                new VerboseFileView(selectedProject, fileId);
+            out.print(verboseView.getHtml(in));
         }
         // Display the list of files in the selected project version
         else {

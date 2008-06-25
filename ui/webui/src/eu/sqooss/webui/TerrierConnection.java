@@ -157,14 +157,16 @@ public class TerrierConnection {
     }
 
     /**
-     * Performs a login to the SQO-OSS framework with the specified user
-     * account.
+     * This method will try to establish a session with the SQO-OSS framework
+     * by using the specified user credentials. Upon login failure it will
+     * exit with <code>false<code> as return value, but prior that it will
+     * re-establish the non-privileged user's session.
      *
-     * @param username The user's name
-     * @param password The user's password
+     * @param username the username
+     * @param password the password
      *
-     * @return <code>true</code> upon successful login, or
-     * <code>false</code> on failure.
+     * @return <code>true</code>, if the session is successfully established,
+     *   or <code>false</code> otherwise.
      */
     public boolean loginUser (String username, String password) {
         // Clean up the old session (if any)
@@ -192,13 +194,10 @@ public class TerrierConnection {
     }
 
     /**
-     * Performs a logout from the SQO-OSS framework for the specified user
-     * account. The user name is not used -- only one connection is supported
-     * at a time anyway.
-     *
-     * @param username The user's name
+     * This method will terminate the current user session, and will then
+     * establish a session by using the non-privileged user credentials.
      */
-    public void logoutUser (String username) {
+    public void logoutUser () {
         // Clean up the old session (if any)
         disconnect();
 

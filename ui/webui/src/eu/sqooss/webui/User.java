@@ -33,41 +33,47 @@
 
 package eu.sqooss.webui;
 
-public class User {
+import eu.sqooss.ws.client.datatypes.WSUser;
 
-    private Long id;
-    private String name;
+public class User extends WebuiItem {
+
+    // Hold the user's email address
     private String email;
+
+    // Determines if this user is currently logged into the SQO-OSS framework
     private boolean isLoggedIn;
 
     /**
-     * Simple constructor. Instantiates a new <code>User</code> object.
+     * Instantiates a new user.
      */
-    public User () {
-
+    public User() {
+        super();
     }
 
     /**
-     * Instantiates a new <code>User</code> object, and sets id, name and email.
+     * Instantiates a new user, and initializes it with the information stored
+     * in the given <code>WSUser</code> object
+     *
+     * @param user the <code>WSUser<code> object
      */
-    public User (Long id, String name, String email) {
-        this.id = id;
-        this.name = name;
-        this.email = (email != null) ? email : "";
+    public User (WSUser user) {
+        this.id = user.getId();
+        this.name = user.getUserName();
+        this.email = user.getEmail();
     }
 
     /**
-     * Returns the user id.
+     * Copies the values of the mutable properties from an object of the same
+     * type into the corresponding local properties.
+     * 
+     * @param from an <code>User</code> object used as a values source
      */
-    public Long getId () {
-        return id;
-    }
-
-    /**
-     * Returns the user's name.
-     */
-    public String getName () {
-        return name;
+    public void copy (User from) {
+        if (from != null) {
+            this.id = from.getId();
+            this.name = from.getName();
+            this.email = from.getEmail();
+        }
     }
 
     /**
@@ -78,39 +84,35 @@ public class User {
     }
 
     /**
-     * @return if the user is logged in.
+     * Checks if this user is currently logged into the attached SQO-OSS
+     * framework.
+     *
+     * @return <code>true</code> if the user is logged in,
+     *   or <code>false</code> otherwise.
      */
     public boolean getLoggedIn() {
         return isLoggedIn;
     }
 
     /**
-     * @param isLoggedIn Set login statush
+     * Modifies the login status of this user.
+     *
+     * @param isLoggedIn the new login status
      */
     public void setLoggedIn(boolean isLoggedIn) {
         this.isLoggedIn = isLoggedIn;
     }
 
-    /**
-     * @return An HTML representation of the user.
+
+    /* (non-Javadoc)
+     * @see eu.sqooss.webui.WebuiItem#getHtml(long)
      */
-    public String getHtml() {
-        StringBuilder html = new StringBuilder("<!-- User -->\n<ul>");
-        html.append("<h3>User: " + getName() + "(" + getId() + ")</h3>");
+    public String getHtml(long in) {
+        StringBuilder html = new StringBuilder("");
+        html.append(sp(in) + "<h3>"
+                + "User: " + getName() + "(" + getId() + ")"
+                + "</h3>");
         return html.toString();
     }
 
-    /** 
-     * Copies the values of the mutable properties from an object of the same
-     * type into the corresponding local properties.
-     * 
-     * @param from an User object used as a values source
-     */
-    public void copy (User from) {
-        if (from != null) {
-            this.id = from.getId();
-            this.name = from.getName();
-            this.email = from.getEmail();
-        }
-    }
 }
