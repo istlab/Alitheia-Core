@@ -130,10 +130,6 @@ public class ProjectManagerDatabase implements ProjectManagerDBQueries {
         return WSProjectVersion.asArray(projectVersions);
     }
 
-    public WSProjectFile[] getFilesByProjectId(long projectId) {
-        return null;
-    }
-
     public WSProjectFile[] getFilesByProjectVersionId(long projectVersionId) {
         Map<String, Object> queryParameters = new Hashtable<String, Object>(1);
         queryParameters.put(GET_FILES_BY_PROJECT_VERSION_ID_PARAM, projectVersionId);

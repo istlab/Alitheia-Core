@@ -77,20 +77,6 @@ public abstract class WSProjectAccessor extends WSAccessor {
     public abstract WSStoredProject[] getStoredProjects() throws WSException;
     
     /**
-     * This method returns an array of all files that belongs to the project
-     * with the given Id.
-     * 
-     * @param projectId - the project's identifier
-     * 
-     * @throws WSException
-     * <ul>
-     *  <li>if the connection can't be established to the SQO-OSS's web services service</li>
-     *  <li>if web services service throws an exception</li>
-     * <ul>
-     */
-    public abstract WSProjectFile[] getFilesByProjectId(long projectId) throws WSException;
-
-    /**
      * The method returns an array of all files that exists in the specified
      * project version.
      * 

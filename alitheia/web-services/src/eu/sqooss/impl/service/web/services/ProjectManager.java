@@ -369,32 +369,6 @@ public class ProjectManager extends AbstractManager {
     }
 
     /**
-     * @see eu.sqooss.service.web.services.WebServices#getFilesByProjectId(String, String, String)
-     */
-    public WSProjectFile[] getFilesByProjectId(String userName, String password, long projectId) {
-        logger.warn("Deprecated getFilesByProjectId called. PID=" + projectId);
-
-        db.startDBSession();
-
-        if (securityWrapper.checkProjectsReadAccess(
-                userName, password, new long[] {projectId})) {
-            if (db.isDBSessionActive()) {
-                db.commitDBSession();
-            }
-            throw new SecurityException(
-                    "Security violation in the get files by project id operation!");
-        }
-
-        super.updateUserActivity(userName);
-
-        WSProjectFile[] result = dbWrapper.getFilesByProjectId(projectId);
-
-        db.commitDBSession();
-
-        return (WSProjectFile[]) normalizeWSArrayResult(result);
-    }
-
-    /**
      * @see eu.sqooss.service.web.services.WebServices#getFilesByProjectVersionId(String, String, long)
      */
     public WSProjectFile[] getFilesByProjectVersionId(String userName, String password, long projectVersionId) {

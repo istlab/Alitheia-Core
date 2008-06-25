@@ -93,15 +93,6 @@
           <xs:element name="version" type="xs:long"/>
         </xs:sequence>
       </xs:complexType>
-      <xs:element name="WSResultEntry" type="ax21:WSResultEntry"/>
-      <xs:complexType name="WSResultEntry">
-        <xs:sequence>
-          <xs:element name="daoId" type="xs:long"/>
-          <xs:element name="mimeType" nillable="true" type="xs:string"/>
-          <xs:element name="mnemonic" nillable="true" type="xs:string"/>
-          <xs:element name="result" nillable="true" type="xs:string"/>
-        </xs:sequence>
-      </xs:complexType>
       <xs:element name="WSMetricsResultRequest" type="ax21:WSMetricsResultRequest"/>
       <xs:complexType name="WSMetricsResultRequest">
         <xs:sequence>
@@ -111,6 +102,15 @@
           <xs:element name="projectFile" type="xs:boolean"/>
           <xs:element name="projectVersion" type="xs:boolean"/>
           <xs:element name="storedProject" type="xs:boolean"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:element name="WSResultEntry" type="ax21:WSResultEntry"/>
+      <xs:complexType name="WSResultEntry">
+        <xs:sequence>
+          <xs:element name="daoId" type="xs:long"/>
+          <xs:element name="mimeType" nillable="true" type="xs:string"/>
+          <xs:element name="mnemonic" nillable="true" type="xs:string"/>
+          <xs:element name="result" nillable="true" type="xs:string"/>
         </xs:sequence>
       </xs:complexType>
       <xs:element name="WSStoredProject" type="ax21:WSStoredProject"/>
@@ -336,22 +336,6 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
-      <xs:element name="getFilesByProjectId">
-        <xs:complexType>
-          <xs:sequence>
-            <xs:element name="userName" nillable="true" type="xs:string"/>
-            <xs:element name="password" nillable="true" type="xs:string"/>
-            <xs:element name="projectId" nillable="true" type="xs:long"/>
-          </xs:sequence>
-        </xs:complexType>
-      </xs:element>
-      <xs:element name="getFilesByProjectIdResponse">
-        <xs:complexType>
-          <xs:sequence>
-            <xs:element maxOccurs="unbounded" name="return" nillable="true" type="ns1:WSProjectFile"/>
-          </xs:sequence>
-        </xs:complexType>
-      </xs:element>
       <xs:element name="getFilesByProjectVersionId">
         <xs:complexType>
           <xs:sequence>
@@ -463,22 +447,6 @@
         <xs:complexType>
           <xs:sequence>
             <xs:element maxOccurs="unbounded" name="return" nillable="true" type="ns1:WSProjectVersion"/>
-          </xs:sequence>
-        </xs:complexType>
-      </xs:element>
-      <xs:element name="getMeasurements">
-        <xs:complexType>
-          <xs:sequence>
-            <xs:element name="userName" nillable="true" type="xs:string"/>
-            <xs:element name="password" nillable="true" type="xs:string"/>
-            <xs:element name="v" nillable="true" type="ns1:WSProjectVersion"/>
-          </xs:sequence>
-        </xs:complexType>
-      </xs:element>
-      <xs:element name="getMeasurementsResponse">
-        <xs:complexType>
-          <xs:sequence>
-            <xs:element maxOccurs="unbounded" name="return" nillable="true" type="ns1:WSResultEntry"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>
@@ -709,12 +677,6 @@
   <wsdl:message name="getProjectByNameResponse">
     <wsdl:part name="part1" element="ns2:getProjectByNameResponse"/>
   </wsdl:message>
-  <wsdl:message name="getMeasurementsMessage">
-    <wsdl:part name="part1" element="ns2:getMeasurements"/>
-  </wsdl:message>
-  <wsdl:message name="getMeasurementsResponse">
-    <wsdl:part name="part1" element="ns2:getMeasurementsResponse"/>
-  </wsdl:message>
   <wsdl:message name="getDirectoriesByIdsMessage">
     <wsdl:part name="part1" element="ns2:getDirectoriesByIds"/>
   </wsdl:message>
@@ -733,17 +695,17 @@
   <wsdl:message name="getFilesNumberByProjectVersionIdResponse">
     <wsdl:part name="part1" element="ns2:getFilesNumberByProjectVersionIdResponse"/>
   </wsdl:message>
-  <wsdl:message name="createPendingUserMessage">
-    <wsdl:part name="part1" element="ns2:createPendingUser"/>
-  </wsdl:message>
-  <wsdl:message name="createPendingUserResponse">
-    <wsdl:part name="part1" element="ns2:createPendingUserResponse"/>
-  </wsdl:message>
   <wsdl:message name="getFilesInDirectoryMessage">
     <wsdl:part name="part1" element="ns2:getFilesInDirectory"/>
   </wsdl:message>
   <wsdl:message name="getFilesInDirectoryResponse">
     <wsdl:part name="part1" element="ns2:getFilesInDirectoryResponse"/>
+  </wsdl:message>
+  <wsdl:message name="createPendingUserMessage">
+    <wsdl:part name="part1" element="ns2:createPendingUser"/>
+  </wsdl:message>
+  <wsdl:message name="createPendingUserResponse">
+    <wsdl:part name="part1" element="ns2:createPendingUserResponse"/>
   </wsdl:message>
   <wsdl:message name="getUsersByIdsMessage">
     <wsdl:part name="part1" element="ns2:getUsersByIds"/>
@@ -775,16 +737,16 @@
   <wsdl:message name="getRootDirectoryResponse">
     <wsdl:part name="part1" element="ns2:getRootDirectoryResponse"/>
   </wsdl:message>
+  <wsdl:message name="handleEventMessage">
+    <wsdl:part name="part1" element="ns2:handleEvent"/>
+  </wsdl:message>
+  <wsdl:message name=""/>
   <wsdl:message name="getMessageOfTheDayMessage">
     <wsdl:part name="part1" element="ns2:getMessageOfTheDay"/>
   </wsdl:message>
   <wsdl:message name="getMessageOfTheDayResponse">
     <wsdl:part name="part1" element="ns2:getMessageOfTheDayResponse"/>
   </wsdl:message>
-  <wsdl:message name="handleEventMessage">
-    <wsdl:part name="part1" element="ns2:handleEvent"/>
-  </wsdl:message>
-  <wsdl:message name=""/>
   <wsdl:message name="getFilesByProjectVersionIdMessage">
     <wsdl:part name="part1" element="ns2:getFilesByProjectVersionId"/>
   </wsdl:message>
@@ -857,12 +819,6 @@
   <wsdl:message name="getVersionsStatisticsResponse">
     <wsdl:part name="part1" element="ns2:getVersionsStatisticsResponse"/>
   </wsdl:message>
-  <wsdl:message name="getFilesByProjectIdMessage">
-    <wsdl:part name="part1" element="ns2:getFilesByProjectId"/>
-  </wsdl:message>
-  <wsdl:message name="getFilesByProjectIdResponse">
-    <wsdl:part name="part1" element="ns2:getFilesByProjectIdResponse"/>
-  </wsdl:message>
   <wsdl:message name="getMetricsResultMessage">
     <wsdl:part name="part1" element="ns2:getMetricsResult"/>
   </wsdl:message>
@@ -896,10 +852,6 @@
       <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getProjectByNameMessage" wsaw:Action="urn:getProjectByName"/>
       <wsdl:output message="axis2:getProjectByNameResponse"/>
     </wsdl:operation>
-    <wsdl:operation name="getMeasurements">
-      <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getMeasurementsMessage" wsaw:Action="urn:getMeasurements"/>
-      <wsdl:output message="axis2:getMeasurementsResponse"/>
-    </wsdl:operation>
     <wsdl:operation name="getDirectoriesByIds">
       <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getDirectoriesByIdsMessage" wsaw:Action="urn:getDirectoriesByIds"/>
       <wsdl:output message="axis2:getDirectoriesByIdsResponse"/>
@@ -912,13 +864,13 @@
       <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getFilesNumberByProjectVersionIdMessage" wsaw:Action="urn:getFilesNumberByProjectVersionId"/>
       <wsdl:output message="axis2:getFilesNumberByProjectVersionIdResponse"/>
     </wsdl:operation>
-    <wsdl:operation name="createPendingUser">
-      <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:createPendingUserMessage" wsaw:Action="urn:createPendingUser"/>
-      <wsdl:output message="axis2:createPendingUserResponse"/>
-    </wsdl:operation>
     <wsdl:operation name="getFilesInDirectory">
       <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getFilesInDirectoryMessage" wsaw:Action="urn:getFilesInDirectory"/>
       <wsdl:output message="axis2:getFilesInDirectoryResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="createPendingUser">
+      <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:createPendingUserMessage" wsaw:Action="urn:createPendingUser"/>
+      <wsdl:output message="axis2:createPendingUserResponse"/>
     </wsdl:operation>
     <wsdl:operation name="getUsersByIds">
       <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getUsersByIdsMessage" wsaw:Action="urn:getUsersByIds"/>
@@ -940,13 +892,13 @@
       <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getRootDirectoryMessage" wsaw:Action="urn:getRootDirectory"/>
       <wsdl:output message="axis2:getRootDirectoryResponse"/>
     </wsdl:operation>
-    <wsdl:operation name="getMessageOfTheDay">
-      <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getMessageOfTheDayMessage" wsaw:Action="urn:getMessageOfTheDay"/>
-      <wsdl:output message="axis2:getMessageOfTheDayResponse"/>
-    </wsdl:operation>
     <wsdl:operation name="handleEvent">
       <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:handleEventMessage" wsaw:Action="urn:handleEvent"/>
       <wsdl:output message="axis2:null"/>
+    </wsdl:operation>
+    <wsdl:operation name="getMessageOfTheDay">
+      <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getMessageOfTheDayMessage" wsaw:Action="urn:getMessageOfTheDay"/>
+      <wsdl:output message="axis2:getMessageOfTheDayResponse"/>
     </wsdl:operation>
     <wsdl:operation name="getFilesByProjectVersionId">
       <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getFilesByProjectVersionIdMessage" wsaw:Action="urn:getFilesByProjectVersionId"/>
@@ -995,10 +947,6 @@
     <wsdl:operation name="getVersionsStatistics">
       <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getVersionsStatisticsMessage" wsaw:Action="urn:getVersionsStatistics"/>
       <wsdl:output message="axis2:getVersionsStatisticsResponse"/>
-    </wsdl:operation>
-    <wsdl:operation name="getFilesByProjectId">
-      <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getFilesByProjectIdMessage" wsaw:Action="urn:getFilesByProjectId"/>
-      <wsdl:output message="axis2:getFilesByProjectIdResponse"/>
     </wsdl:operation>
     <wsdl:operation name="initComponents">
       <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:null" wsaw:Action="urn:initComponents"/>
@@ -1060,15 +1008,6 @@
         <soap:body use="literal"/>
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="getMeasurements">
-      <soap:operation soapAction="urn:getMeasurements" style="document"/>
-      <wsdl:input>
-        <soap:body use="literal"/>
-      </wsdl:input>
-      <wsdl:output>
-        <soap:body use="literal"/>
-      </wsdl:output>
-    </wsdl:operation>
     <wsdl:operation name="getDirectoriesByIds">
       <soap:operation soapAction="urn:getDirectoriesByIds" style="document"/>
       <wsdl:input>
@@ -1096,8 +1035,8 @@
         <soap:body use="literal"/>
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="createPendingUser">
-      <soap:operation soapAction="urn:createPendingUser" style="document"/>
+    <wsdl:operation name="getFilesInDirectory">
+      <soap:operation soapAction="urn:getFilesInDirectory" style="document"/>
       <wsdl:input>
         <soap:body use="literal"/>
       </wsdl:input>
@@ -1105,8 +1044,8 @@
         <soap:body use="literal"/>
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="getFilesInDirectory">
-      <soap:operation soapAction="urn:getFilesInDirectory" style="document"/>
+    <wsdl:operation name="createPendingUser">
+      <soap:operation soapAction="urn:createPendingUser" style="document"/>
       <wsdl:input>
         <soap:body use="literal"/>
       </wsdl:input>
@@ -1159,8 +1098,8 @@
         <soap:body use="literal"/>
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="getMessageOfTheDay">
-      <soap:operation soapAction="urn:getMessageOfTheDay" style="document"/>
+    <wsdl:operation name="handleEvent">
+      <soap:operation soapAction="urn:handleEvent" style="document"/>
       <wsdl:input>
         <soap:body use="literal"/>
       </wsdl:input>
@@ -1168,8 +1107,8 @@
         <soap:body use="literal"/>
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="handleEvent">
-      <soap:operation soapAction="urn:handleEvent" style="document"/>
+    <wsdl:operation name="getMessageOfTheDay">
+      <soap:operation soapAction="urn:getMessageOfTheDay" style="document"/>
       <wsdl:input>
         <soap:body use="literal"/>
       </wsdl:input>
@@ -1285,15 +1224,6 @@
         <soap:body use="literal"/>
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="getFilesByProjectId">
-      <soap:operation soapAction="urn:getFilesByProjectId" style="document"/>
-      <wsdl:input>
-        <soap:body use="literal"/>
-      </wsdl:input>
-      <wsdl:output>
-        <soap:body use="literal"/>
-      </wsdl:output>
-    </wsdl:operation>
     <wsdl:operation name="initComponents">
       <soap:operation soapAction="urn:initComponents" style="document"/>
       <wsdl:input>
@@ -1369,15 +1299,6 @@
         <soap12:body use="literal"/>
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="getMeasurements">
-      <soap12:operation soapAction="urn:getMeasurements" style="document"/>
-      <wsdl:input>
-        <soap12:body use="literal"/>
-      </wsdl:input>
-      <wsdl:output>
-        <soap12:body use="literal"/>
-      </wsdl:output>
-    </wsdl:operation>
     <wsdl:operation name="getDirectoriesByIds">
       <soap12:operation soapAction="urn:getDirectoriesByIds" style="document"/>
       <wsdl:input>
@@ -1405,8 +1326,8 @@
         <soap12:body use="literal"/>
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="createPendingUser">
-      <soap12:operation soapAction="urn:createPendingUser" style="document"/>
+    <wsdl:operation name="getFilesInDirectory">
+      <soap12:operation soapAction="urn:getFilesInDirectory" style="document"/>
       <wsdl:input>
         <soap12:body use="literal"/>
       </wsdl:input>
@@ -1414,8 +1335,8 @@
         <soap12:body use="literal"/>
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="getFilesInDirectory">
-      <soap12:operation soapAction="urn:getFilesInDirectory" style="document"/>
+    <wsdl:operation name="createPendingUser">
+      <soap12:operation soapAction="urn:createPendingUser" style="document"/>
       <wsdl:input>
         <soap12:body use="literal"/>
       </wsdl:input>
@@ -1468,8 +1389,8 @@
         <soap12:body use="literal"/>
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="getMessageOfTheDay">
-      <soap12:operation soapAction="urn:getMessageOfTheDay" style="document"/>
+    <wsdl:operation name="handleEvent">
+      <soap12:operation soapAction="urn:handleEvent" style="document"/>
       <wsdl:input>
         <soap12:body use="literal"/>
       </wsdl:input>
@@ -1477,8 +1398,8 @@
         <soap12:body use="literal"/>
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="handleEvent">
-      <soap12:operation soapAction="urn:handleEvent" style="document"/>
+    <wsdl:operation name="getMessageOfTheDay">
+      <soap12:operation soapAction="urn:getMessageOfTheDay" style="document"/>
       <wsdl:input>
         <soap12:body use="literal"/>
       </wsdl:input>
@@ -1587,15 +1508,6 @@
     </wsdl:operation>
     <wsdl:operation name="getVersionsStatistics">
       <soap12:operation soapAction="urn:getVersionsStatistics" style="document"/>
-      <wsdl:input>
-        <soap12:body use="literal"/>
-      </wsdl:input>
-      <wsdl:output>
-        <soap12:body use="literal"/>
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="getFilesByProjectId">
-      <soap12:operation soapAction="urn:getFilesByProjectId" style="document"/>
       <wsdl:input>
         <soap12:body use="literal"/>
       </wsdl:input>

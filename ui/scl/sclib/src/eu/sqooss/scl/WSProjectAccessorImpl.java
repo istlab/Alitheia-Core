@@ -55,34 +55,32 @@ import eu.sqooss.ws.client.ws.GetEvaluatedProjects;
 import eu.sqooss.ws.client.ws.GetEvaluatedProjectsResponse;
 import eu.sqooss.ws.client.ws.GetFileGroupsByProjectId;
 import eu.sqooss.ws.client.ws.GetFileGroupsByProjectIdResponse;
-import eu.sqooss.ws.client.ws.GetFilesByProjectId;
-import eu.sqooss.ws.client.ws.GetFilesByProjectIdResponse;
 import eu.sqooss.ws.client.ws.GetFilesByProjectVersionId;
 import eu.sqooss.ws.client.ws.GetFilesByProjectVersionIdResponse;
+import eu.sqooss.ws.client.ws.GetFilesInDirectory;
+import eu.sqooss.ws.client.ws.GetFilesInDirectoryResponse;
 import eu.sqooss.ws.client.ws.GetFilesNumberByProjectVersionId;
 import eu.sqooss.ws.client.ws.GetFilesNumberByProjectVersionIdResponse;
 import eu.sqooss.ws.client.ws.GetFirstProjectVersions;
 import eu.sqooss.ws.client.ws.GetFirstProjectVersionsResponse;
 import eu.sqooss.ws.client.ws.GetLastProjectVersions;
 import eu.sqooss.ws.client.ws.GetLastProjectVersionsResponse;
+import eu.sqooss.ws.client.ws.GetProjectByName;
+import eu.sqooss.ws.client.ws.GetProjectByNameResponse;
 import eu.sqooss.ws.client.ws.GetProjectVersionsByIds;
 import eu.sqooss.ws.client.ws.GetProjectVersionsByIdsResponse;
 import eu.sqooss.ws.client.ws.GetProjectVersionsByVersionNumbers;
 import eu.sqooss.ws.client.ws.GetProjectVersionsByVersionNumbersResponse;
 import eu.sqooss.ws.client.ws.GetProjectsByIds;
 import eu.sqooss.ws.client.ws.GetProjectsByIdsResponse;
-import eu.sqooss.ws.client.ws.GetProjectByName;
-import eu.sqooss.ws.client.ws.GetProjectByNameResponse;
+import eu.sqooss.ws.client.ws.GetRootDirectory;
+import eu.sqooss.ws.client.ws.GetRootDirectoryResponse;
 import eu.sqooss.ws.client.ws.GetStoredProjects;
 import eu.sqooss.ws.client.ws.GetStoredProjectsResponse;
 import eu.sqooss.ws.client.ws.GetVersionsCount;
 import eu.sqooss.ws.client.ws.GetVersionsCountResponse;
 import eu.sqooss.ws.client.ws.GetVersionsStatistics;
 import eu.sqooss.ws.client.ws.GetVersionsStatisticsResponse;
-import eu.sqooss.ws.client.ws.GetRootDirectory;
-import eu.sqooss.ws.client.ws.GetRootDirectoryResponse;
-import eu.sqooss.ws.client.ws.GetFilesInDirectory;
-import eu.sqooss.ws.client.ws.GetFilesInDirectoryResponse;
 
 class WSProjectAccessorImpl extends WSProjectAccessor {
 
@@ -90,8 +88,6 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
         "getEvaluatedProjects";
     private static final String METHOD_NAME_GET_STORED_PROJECTS =
         "getStoredProjects";
-    private static final String METHOD_NAME_GET_FILES_BY_PROJECT_ID =
-        "getFilesByProjectId";
     private static final String METHOD_NAME_GET_PROJECT_BY_NAME =
         "getProjectByName";
     private static final String METHOD_NAME_GET_PROJECT_VERSIONS_BY_IDS =
@@ -258,33 +254,6 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
             }
         }
         return (WSStoredProject[]) normalizeWSArrayResult(response.get_return());
-    }
-
-    /**
-     * @see eu.sqooss.scl.accessor.WSProjectAccessor#getFilesByProjectId(long)
-     */
-    @Override
-    public WSProjectFile[] getFilesByProjectId(long projectId) throws WSException {
-        GetFilesByProjectIdResponse response;
-        GetFilesByProjectId params;
-        if (!parameters.containsKey(METHOD_NAME_GET_FILES_BY_PROJECT_ID)) {
-            params = new GetFilesByProjectId();
-            params.setPassword(password);
-            params.setUserName(userName);
-            parameters.put(METHOD_NAME_GET_FILES_BY_PROJECT_ID, params);
-        } else {
-            params = (GetFilesByProjectId) parameters.get(
-                    METHOD_NAME_GET_FILES_BY_PROJECT_ID);
-        }
-        synchronized (params) {
-            params.setProjectId(projectId);
-            try {
-                response = wsStub.getFilesByProjectId(params);
-            } catch (RemoteException re) {
-                throw new WSException(re);
-            }
-        }
-        return (WSProjectFile[]) normalizeWSArrayResult(response.get_return());
     }
 
     /**

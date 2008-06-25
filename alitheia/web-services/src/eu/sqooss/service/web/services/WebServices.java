@@ -176,26 +176,6 @@ public class WebServices implements EventHandler{
     }
 
     /**
-     * This method returns an array of all files that belongs to the project
-     * with the given Id.
-     *
-     * @param userName - the user's name used for authentication
-     * @param password - the user's password used for authentication
-     * @param projectId - the project's identifier
-     *
-     * @return The array of project's files, or a <code>null</code> array when
-     *   none are found <i>(for example, when the project is not yet not
-     *   evaluated)</i>.
-     */
-    public WSProjectFile[] getFilesByProjectId(
-            String userName,
-            String password,
-            long projectId) {
-        return projectManager.getFilesByProjectId(
-                userName, password, projectId);
-    }
-
-    /**
      * This method returns the root directory of the specified project's
      * source tree.
      *
@@ -548,16 +528,6 @@ public class WebServices implements EventHandler{
             String password,
             WSMetricsRequest request) {
         return metricManager.getMetricsByResourcesIds(userName, password, request);
-    }
-
-    /**
-     * Returns the array of results from all metrics applied to the
-     * given project version (or an empty array if there are none).
-     * The stored project is obtained from within the project version.
-     */
-    public WSResultEntry[] getMeasurements(String userName, String password,
-        WSProjectVersion v) {
-        return metricManager.getMeasurements(userName,password,v);
     }
 
     /**

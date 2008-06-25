@@ -38,13 +38,11 @@ import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.Set;
 
 import eu.sqooss.impl.service.web.services.datatypes.WSMetric;
 import eu.sqooss.impl.service.web.services.datatypes.WSMetricType;
 import eu.sqooss.impl.service.web.services.datatypes.WSMetricsRequest;
 import eu.sqooss.impl.service.web.services.datatypes.WSMetricsResultRequest;
-import eu.sqooss.impl.service.web.services.datatypes.WSProjectVersion;
 import eu.sqooss.impl.service.web.services.datatypes.WSResultEntry;
 import eu.sqooss.impl.service.web.services.utils.MetricManagerDatabase;
 import eu.sqooss.impl.service.web.services.utils.MetricSecurityWrapper;
@@ -54,7 +52,6 @@ import eu.sqooss.service.abstractmetric.Result;
 import eu.sqooss.service.abstractmetric.ResultEntry;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
-import eu.sqooss.service.db.EvaluationMark;
 import eu.sqooss.service.db.FileGroup;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.ProjectFile;
@@ -197,35 +194,6 @@ public class MetricManager extends AbstractManager {
         db.commitDBSession();
 
         return (WSMetric[]) normalizeWSArrayResult(result);
-    }
-
-    public WSResultEntry[] getMeasurements(String userName, String password,
-        WSProjectVersion wsv) {
-        WSResultEntry[] result = null;
-        db.startDBSession();
-        // First, get a stored project for this project version
-        ProjectVersion v = db.findObjectById(ProjectVersion.class, wsv.getId());
-        StoredProject p = v.getProject();
-        // Inform logger
-        logger.info("Retrieving measurements for project " +
-            p.getName() + " " + v.getVersion());
-        // Now loop over the metrics that have evaluated this project
-        Set<EvaluationMark> marks = p.getEvaluationMarks();
-        for (EvaluationMark mark : marks) {
-            Metric metric = mark.getMetric();
-            AlitheiaPlugin plugin = pluginAdmin.getImplementingPlugin(metric.getMnemonic());
-            List<Metric> l = new ArrayList<Metric>();
-            l.add(metric);
-            try {
-                Result r = plugin.getResult(v,l);
-                logger.info("Got measurement from " + metric.getMnemonic() + " with " +
-                    r.getRowCount());
-            } catch (MetricMismatchException e) {
-                // So that metric doesn't support project version metrics
-                // Ignore it.
-            }
-        }
-        return (WSResultEntry[]) normalizeWSArrayResult(result);
     }
 
     @SuppressWarnings("unchecked")
