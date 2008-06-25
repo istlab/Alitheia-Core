@@ -44,6 +44,9 @@ public abstract class ListView {
     // Holds the user settings for this session
     protected SelectedSettings settings = new SelectedSettings();
 
+    // Holds the maximum allowed length of the displayed strings
+    protected int maxStrLength = 50;
+
     /**
      * Sets the the user settings for this session.
      * 
@@ -120,5 +123,52 @@ public abstract class ListView {
         for (long i = 0; i < num; i++)
             b.append("  ");
         return b.toString();
+    }
+
+    /**
+     * Sets the maximum length of the displayed string variables. Any string
+     * which is longer than the specified value will be truncated up to that
+     * value.
+     * 
+     * @param maxStrLength the new maximum string length
+     */
+    public void setMaxStrLength(int maxStrLength) {
+        this.maxStrLength = maxStrLength;
+    }
+
+    /**
+     * Truncates the specified text string to the right, up to the currently
+     * set maximum length. When a footer string is specified and the string
+     * was truncated, then the footer will be append to the truncated result.
+     * 
+     * @param text the text string
+     * @param footer the footer string
+     * 
+     * @return the string
+     */
+    protected String adjustRight (String text, String footer) {
+        if (text.length() > maxStrLength)
+            text = text.substring(0, maxStrLength -1 )
+                + ((footer != null) ? footer : "");
+        return text;
+    }
+
+    /**
+     * Truncates the specified text string to the left, up to the currently
+     * set maximum length. When a header string is specified and the string
+     * was truncated, then the header will be added in front of the truncated
+     * result.
+     * 
+     * @param text the text string
+     * @param header the header string
+     * 
+     * @return the string
+     */
+    protected String adjustLeft (String text, String header) {
+        if (text.length() > maxStrLength)
+            text = ((header != null) ? header : "") 
+                + text.substring(
+                        text.length() - maxStrLength, text.length() - 1);
+        return text;
     }
 }

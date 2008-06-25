@@ -36,6 +36,8 @@ if (selectedProject.isValid()) {
             Long fileId = strToLong(request.getParameter("fid"));
             VerboseFileView verboseView =
                 new VerboseFileView(selectedProject, fileId);
+            verboseView.setServletPath(request.getServletPath());
+            verboseView.setSettings(settings);
             out.print(verboseView.getHtml(in));
         }
         // Display the list of files in the selected project version

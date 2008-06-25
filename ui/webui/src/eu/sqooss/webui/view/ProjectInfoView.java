@@ -37,12 +37,13 @@ import eu.sqooss.webui.Functions;
 import eu.sqooss.webui.ListView;
 import eu.sqooss.webui.Project;
 
+/**
+ * The class <code>ProjectInfoView</code> renders an HTML sequence that
+ * presents the metadata information of a single project.
+ */
 public class ProjectInfoView extends ListView {
     // Holds the project object
     private Project project;
-
-    // Holds the maximum allowed length of the displayed strings
-    private int maxStrLength = 50;
 
     /**
      * Instantiates a new project info view, and initializes it with the
@@ -54,32 +55,6 @@ public class ProjectInfoView extends ListView {
         super();
         this.project = project;
     }
-
-    /**
-     * Sets the maximum length of the displayed string variables. Any string
-     * which is longer than the specified value will be truncated up to that
-     * value.
-     * 
-     * @param maxStrLength the new maximum string length
-     */
-    public void setMaxStrLength(int maxStrLength) {
-        this.maxStrLength = maxStrLength;
-    }
-
-    /**
-     * Truncates the specified text string up to the currently set maximum
-     * length.
-     * 
-     * @param text the text string
-     * 
-     * @return the string
-     */
-    public String adjustLength (String text) {
-        if (text.length() > maxStrLength)
-            text = text.substring(0, maxStrLength -1 ) + "...";
-        return text;
-    }
-
 
     public String getHtml(long in) {
         if ((project == null) || (project.isValid() == false))
@@ -94,7 +69,7 @@ public class ProjectInfoView extends ListView {
         html.append(sp(in) + "<td>"
                 + (project.getWebsite() != null
                         ? "<a href=\"" + project.getWebsite() + "\">"
-                                + adjustLength(project.getWebsite())
+                                + adjustRight(project.getWebsite(), "...")
                                 + "</a>"
                         : "<i>undefined</i>")
                 + "</td>\n");
@@ -108,7 +83,7 @@ public class ProjectInfoView extends ListView {
         html.append(sp(in) + "<td>"
                 + (project.getContact() != null
                         ? "<a href=\"mailto:" + project.getContact() + "\">"
-                                + adjustLength(project.getContact())
+                                + adjustRight(project.getContact(), "...")
                                 + "</a>"
                         : "<i>undefined</i>")
                 + "</td>\n");
@@ -122,7 +97,7 @@ public class ProjectInfoView extends ListView {
         html.append(sp(in) + "<td>"
                 + (project.getRepository() != null
                         ? "<a href=\"files.jsp" + "\">"
-                                + adjustLength(project.getRepository())
+                                + adjustRight(project.getRepository(), "...")
                                 + "</a>"
                         : "<i>undefined</i>")
                 + "</td>\n");
@@ -135,7 +110,7 @@ public class ProjectInfoView extends ListView {
                 + "</td>\n");
         html.append(sp(in) + "<td>"
                 + (project.getBugs() != null
-                        ? adjustLength(project.getBugs())
+                        ? adjustRight(project.getBugs(), "...")
                         : "<i>undefined</i>")
                 + "</td>\n");
         html.append(sp(--in) + "</tr>\n");

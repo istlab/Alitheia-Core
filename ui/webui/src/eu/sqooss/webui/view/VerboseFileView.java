@@ -44,15 +44,19 @@ import eu.sqooss.webui.Metric;
 import eu.sqooss.webui.Project;
 import eu.sqooss.webui.Result;
 
+/**
+ * The class <code>VerboseFileView</code> renders an HTML sequence that
+ * verbosely presents the metric evaluation result of a single file in a
+ * specific project version. In addition it provides mean for comparing the
+ * results against the results calculated on this file in another project
+ * revision.
+ */
 public class VerboseFileView extends ListView {
     // Holds the project object
     private Project project;
 
     // Hold the file Id
     private Long fileId;
-
-    // Holds the maximum allowed length of the displayed strings
-    private int maxStrLength = 50;
 
     /**
      * Instantiates a new <code>VerboseFileView</code> object, and initializes
@@ -65,31 +69,6 @@ public class VerboseFileView extends ListView {
         super();
         this.project = project;
         this.fileId = fileId;
-    }
-
-    /**
-     * Sets the maximum length of the displayed string variables. Any string
-     * which is longer than the specified value will be truncated up to that
-     * value.
-     * 
-     * @param maxStrLength the new maximum string length
-     */
-    public void setMaxStrLength(int maxStrLength) {
-        this.maxStrLength = maxStrLength;
-    }
-
-    /**
-     * Truncates the specified text string up to the currently set maximum
-     * length.
-     * 
-     * @param text the text string
-     * 
-     * @return the string
-     */
-    public String adjustLength (String text) {
-        if (text.length() > maxStrLength)
-            text = text.substring(0, maxStrLength -1 );
-        return text;
     }
 
     public String getHtml(long in) {
@@ -111,6 +90,7 @@ public class VerboseFileView extends ListView {
         else {
             // File name
             String fileName = selFile.getName();
+            // Adjust the file name length
             if (selFile.getShortName().length() <= maxStrLength) {
                 while (fileName.length() > maxStrLength) {
                     fileName = fileName.substring(
@@ -120,18 +100,21 @@ public class VerboseFileView extends ListView {
                     fileName = ".../" + fileName;
             }
             else {
-                fileName = ".../" + adjustLength(selFile.getShortName());
+                fileName = ".../" + adjustRight(selFile.getShortName(), "...");
             }
+            // Display the file anme
             b.append(sp(in) + "<span"
                     + " style=\"float: left; width: 60%; text-align:left;\">"
                     + "<b>File:</b> " + fileName
                     + "</span>");
-            // "Compare against another version" field
+            // Display the "Compare against another version" field
             b.append(sp(in) + "<span"
                     + " style=\"float: right; width: 40%; text-align:right;\">"
                     + "<b>Compare with:</b> "
                     + "<input type=\"select\">"
                     + "</input>"
+                    + "<a href=\"" + getServletPath() + "\" class=\"button\">"
+                    + "Apply</a>"
                     + "</span>");
             b.append(sp(in) + "<br/>\n");
             b.append(sp(in++) + "<table style=\"width: 100%;\">\n");
