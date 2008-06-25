@@ -44,9 +44,8 @@ import eu.sqooss.impl.service.web.services.datatypes.WSMetric;
 import eu.sqooss.impl.service.web.services.datatypes.WSMetricType;
 import eu.sqooss.impl.service.web.services.datatypes.WSMetricsRequest;
 import eu.sqooss.impl.service.web.services.datatypes.WSMetricsResultRequest;
-import eu.sqooss.impl.service.web.services.datatypes.WSResultEntry;
-import eu.sqooss.impl.service.web.services.datatypes.WSStoredProject;
 import eu.sqooss.impl.service.web.services.datatypes.WSProjectVersion;
+import eu.sqooss.impl.service.web.services.datatypes.WSResultEntry;
 import eu.sqooss.impl.service.web.services.utils.MetricManagerDatabase;
 import eu.sqooss.impl.service.web.services.utils.MetricSecurityWrapper;
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
@@ -93,11 +92,12 @@ public class MetricManager extends AbstractManager {
 
         db.startDBSession();
 
-        try {
-            securityWrapper.checkDBProjectsReadAccess(userName, password, new long[] {projectId}, null);
-        } catch (SecurityException se) {
-            db.commitDBSession();
-            throw se;
+        if (!securityWrapper.checkProjectsReadAccess(userName,
+                password, new long[] {projectId})) {
+            if (db.isDBSessionActive()) {
+                db.commitDBSession();
+            }
+            throw new SecurityException("Security violation in the get project evaluated metrics operation!");
         }
 
         super.updateUserActivity(userName);
@@ -120,11 +120,12 @@ public class MetricManager extends AbstractManager {
 
         db.startDBSession();
 
-        try {
-            securityWrapper.checkDBReadAccess(userName, password);
-        } catch (SecurityException se) {
-            db.commitDBSession();
-            throw se;
+        if (!securityWrapper.checkMetricTypesReadAccess(userName, password, metricTypesIds)) {
+            if (db.isDBSessionActive()) {
+                db.commitDBSession();
+            }
+            throw new SecurityException(
+                    "Security violation in the get metric types by ids operation!");
         }
 
         super.updateUserActivity(userName);
@@ -153,11 +154,12 @@ public class MetricManager extends AbstractManager {
 
         db.startDBSession();
 
-        try {
-            securityWrapper.checkDBMetricsReadAccess(userName, password, null);
-        } catch (SecurityException se) {
-            db.commitDBSession();
-            throw se;
+        if (!securityWrapper.checkMetricsReadAccess(userName, password)) {
+            if (db.isDBSessionActive()) {
+                db.commitDBSession();
+            }
+            throw new SecurityException(
+                    "Security violation in the get metrics by resources ids!");
         }
 
         super.updateUserActivity(userName);
@@ -234,11 +236,12 @@ public class MetricManager extends AbstractManager {
 
         db.startDBSession();
 
-        try {
-            securityWrapper.checkDBMetricsReadAccess(userName, password, resultRequest.getMnemonics());
-        } catch (SecurityException se) {
-            db.commitDBSession();
-            throw se;
+        if (!securityWrapper.checkMetricsReadAccess(userName, password)) {
+            if (db.isDBSessionActive()) {
+                db.commitDBSession();
+            }
+            throw new SecurityException(
+                    "Security violation in the get metrics reault operation!");
         }
 
         super.updateUserActivity(userName);

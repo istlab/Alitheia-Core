@@ -34,84 +34,108 @@ package eu.sqooss.impl.service.web.services.utils;
 
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.GroupType;
+import eu.sqooss.service.db.User;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.security.SecurityManager;
+import eu.sqooss.service.security.UserManager;
 
 public class UserSecurityWrapper extends AbstractSecurityWrapper{
     
+    private UserManager securityUserManager;
+    
     public UserSecurityWrapper(SecurityManager security, DBService db, Logger logger) {
         super(security, db, logger);
+        this.securityUserManager = security.getUserManager();
     }
 
     public boolean addPermissionsToNewUsersGroup() {
-        return security.createSecurityConfiguration(security.getNewUsersGroup(),
+        return security.createSecurityConfiguration(
+                security.getNewUsersGroup(),
                 GroupType.Type.USER,
-                Privilege.SEND_MESSAGE.toString(), PrivilegeValue.PERMIT.toString(),
+                Privilege.ADMIN_NOTIFY.toString(),
+                PrivilegeValue.ALL.toString(),
                 ServiceUrl.WEBADMIN.toString());
     }
     
     public boolean addPermissonsToSystemGroup() {
         return security.createSecurityConfiguration(
-                security.getSystemGroup(), GroupType.Type.SYSTEM,
-                Privilege.ACTION.toString(),
-                PrivilegeValue.WRITE.toString(), ServiceUrl.SECURITY.toString());
+                security.getSystemGroup(),
+                GroupType.Type.SYSTEM,
+                Privilege.USER_WRITE.toString(),
+                PrivilegeValue.ALL.toString(),
+                ServiceUrl.SECURITY.toString());
     }
     
-    public void checkSecurityWriteAccess(String userName, String password,
-            long userId, String privilegeUserName) {
+    public boolean checkUsersWriteAccess(String userNameForAccess,
+            String passwordForAccess, String userName, long[] usersIds) {
         synchronized (privilegesLockObject) {
             privileges.clear();
-            privileges.put(Privilege.ACTION.toString(), PrivilegeValue.WRITE.toString());
-            if (privilegeUserName != null) {
-                privileges.put(Privilege.USER_ID.toString(), privilegeUserName);
-            } else if (userId >= 0) {
-                privileges.put(Privilege.USER_ID.toString(), Long.toString(userId));
+            if (userName != null) {
+                User user = securityUserManager.getUser(userName);
+                if (user == null) return false;
+                privileges.put(Privilege.USER_WRITE.toString(),
+                        Long.toString(user.getId()));
             }
-            if (!security.checkPermission(ServiceUrl.SECURITY.toString(),
-                    privileges, userName, password)) {
-                throw new SecurityException("Security violation!");
-            }
-        }
-    }
-    
-    public void checkSecurityReadAccess(String userName, String password,
-            long[] usersIds, String privilegeUserName) {
-        synchronized (privilegesLockObject) {
-            privileges.clear();
-            privileges.put(Privilege.ACTION.toString(), PrivilegeValue.READ.toString());
             if (usersIds != null) {
                 for (long userId : usersIds) {
-                    privileges.put(Privilege.USER_ID.toString(), Long.toString(userId));
+                    privileges.put(Privilege.USER_WRITE.toString(),
+                            Long.toString(userId));
                 }
-            } else if (privilegeUserName != null) {
-                privileges.put(Privilege.USER_ID.toString(), privilegeUserName);
             }
-            if (!security.checkPermission(ServiceUrl.SECURITY.toString(),
-                    privileges, userName, password)) {
-                throw new SecurityException("Security violation!");
-            }
+            return security.checkPermission(ServiceUrl.SECURITY.toString(),
+                    privileges, userNameForAccess, passwordForAccess);
         }
     }
     
-    public void checkWebAdminReadAccess(String userName, String password) {
+    public boolean checkUsersReadAccess(String userName, String password,
+            String otherUserName, long[] usersIds) {
         synchronized (privilegesLockObject) {
             privileges.clear();
-            privileges.put(Privilege.ACTION.toString(), PrivilegeValue.READ.toString());
-            if (!security.checkPermission(ServiceUrl.WEBADMIN.toString(),
-                    userName, password)) {
-                throw new SecurityException("Security violation!");
+            if (otherUserName != null) {
+                User user = securityUserManager.getUser(userName);
+                if (user == null) return false;
+                privileges.put(Privilege.USER_READ.toString(),
+                        Long.toString(user.getId()));
             }
+            for (long userId : usersIds) {
+                privileges.put(Privilege.USER_READ.toString(),
+                        Long.toString(userId));
+            }
+            return security.checkPermission(ServiceUrl.SECURITY.toString(),
+                    privileges, userName, password);
         }
     }
     
-    public void checkWebAdminSendAccess(String userName, String password) {
+    public boolean checkGroupReadAccess(String userName, String password) {
         synchronized (privilegesLockObject) {
             privileges.clear();
-            privileges.put(Privilege.ACTION.toString(), PrivilegeValue.PERMIT.toString());
-            if (!security.checkPermission(ServiceUrl.WEBADMIN.toString(),
-                    userName, password)) {
-                throw new SecurityException("Security violation!");
-            }
+            privileges.put(Privilege.GROUP_READ.toString(), PrivilegeValue.ALL.toString());
+            return security.checkPermission(ServiceUrl.SECURITY.toString(),
+                    privileges, userName, password);
+        }
+    }
+    
+    public boolean checkWebAdminGetMessageAccess(String userName, String password) {
+        User user = securityUserManager.getUser(userName);
+        if (user == null) return false; 
+        synchronized (privilegesLockObject) {
+            privileges.clear();
+            privileges.put(Privilege.ADMIN_GET_MESSAGE_OF_THE_DAY.toString(),
+                    Long.toString(user.getId()));
+            return security.checkPermission(ServiceUrl.WEBADMIN.toString(),
+                    privileges, userName, password);
+        }
+    }
+    
+    public boolean checkWebAdminNotifyAccess(String userName, String password) {
+        User user = securityUserManager.getUser(userName);
+        if (user == null) return false;
+        synchronized (privilegesLockObject) {
+            privileges.clear();
+            privileges.put(Privilege.ADMIN_NOTIFY.toString(),
+                    Long.toString(user.getId()));
+            return security.checkPermission(ServiceUrl.WEBADMIN.toString(),
+                    privileges, userName, password);
         }
     }
     

@@ -41,6 +41,7 @@ import eu.sqooss.service.db.Privilege;
 import eu.sqooss.service.db.PrivilegeValue;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.security.PrivilegeManager;
+import eu.sqooss.service.security.SecurityConstants;
 
 public class PrivilegeManagerImpl implements PrivilegeManager {
 
@@ -58,10 +59,12 @@ public class PrivilegeManagerImpl implements PrivilegeManager {
      */
     public Privilege createPrivilege(String privilegeName) {
         logger.debug("Create privilege! privilege's name: " + privilegeName);
-        Privilege result = getPrivilege(privilegeName);
+        String mangledPrivilegeName = manglePrivilegeName(privilegeName);
+        if (mangledPrivilegeName == null) return null;
+        Privilege result = getPrivilege(mangledPrivilegeName);
         if (result != null) return null; //existent privilege
         result = new Privilege();
-        result.setDescription(privilegeName);
+        result.setDescription(mangledPrivilegeName);
         if (!dbWrapper.create(result)) {
             result = null;
         }
@@ -201,6 +204,24 @@ public class PrivilegeManagerImpl implements PrivilegeManager {
             return result;
         } else {
             return null;
+        }
+    }
+    
+    private static String manglePrivilegeName(String privilegeName) {
+        if (privilegeName == null) {
+            return null;
+        }
+        String trimedPrivilegeName = privilegeName.trim();
+        if (("".equals(trimedPrivilegeName)) ||
+                (trimedPrivilegeName.indexOf(SecurityConstants.PrivilegeAction.DELIMITER) !=
+                 trimedPrivilegeName.lastIndexOf(SecurityConstants.PrivilegeAction.DELIMITER)) ||
+                (trimedPrivilegeName.startsWith(
+                        Character.toString(SecurityConstants.PrivilegeAction.DELIMITER))) ||
+                (trimedPrivilegeName.endsWith(
+                        Character.toString(SecurityConstants.PrivilegeAction.DELIMITER)))) {
+            return null;
+        } else {
+            return trimedPrivilegeName;
         }
     }
     

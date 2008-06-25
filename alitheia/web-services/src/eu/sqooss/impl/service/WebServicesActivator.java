@@ -45,6 +45,8 @@ import org.osgi.framework.ServiceRegistration;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.impl.service.web.services.Constants;
+import eu.sqooss.impl.service.web.services.utils.SecurityWrapperConstants.Privilege;
+import eu.sqooss.impl.service.web.services.utils.SecurityWrapperConstants.ServiceUrl;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
@@ -126,6 +128,8 @@ public class WebServicesActivator implements BundleActivator {
             }
         }
         setDefaultPropertiesIfNeed(props);
+        Privilege.init(props);
+        ServiceUrl.init(props);
         return props;
     }
     

@@ -78,11 +78,12 @@ public class UserManager extends AbstractManager {
         
         db.startDBSession();
         
-        try {
-            security.checkSecurityWriteAccess(userNameForAccess, passwordForAccess, -1, null);
-        } catch (SecurityException se) {
-            db.commitDBSession();
-            throw se;
+        if (!security.checkUsersWriteAccess(userNameForAccess,
+                passwordForAccess, userNameForAccess, null)) {
+            if (db.isDBSessionActive()) {
+                db.commitDBSession();
+            }
+            throw new SecurityException("Security violation in the create pending user operation!");
         }
         
         super.updateUserActivity(userNameForAccess);
@@ -110,14 +111,12 @@ public class UserManager extends AbstractManager {
             currentUser = userManager.getUser(usersIds[0]);
         }
         if (!isSameUser(userNameForAccess, passwordForAccess, currentUser)) {
-            try {
-            security.checkSecurityReadAccess(userNameForAccess,
-                    passwordForAccess, usersIds, null);
-            } catch (SecurityException se) {
+            if (!security.checkUsersReadAccess(userNameForAccess,
+                    passwordForAccess, null, usersIds)) {
                 if (db.isDBSessionActive()) {
                     db.commitDBSession();
                 }
-                throw se;
+                throw new SecurityException("Security violation in the get users by ids operation!");
             }
         }
         
@@ -148,11 +147,11 @@ public class UserManager extends AbstractManager {
         
         db.startDBSession();
         
-        try {
-            security.checkSecurityReadAccess(userName, password, null, null);
-        } catch (SecurityException se) {
-            db.commitDBSession();
-            throw se;
+        if (!security.checkGroupReadAccess(userName, password)) {
+            if (db.isDBSessionActive()) {
+                db.commitDBSession();
+            }
+            throw new SecurityException("Security violation in the get user groups operation!");
         }
         
         super.updateUserActivity(userName);
@@ -181,12 +180,12 @@ public class UserManager extends AbstractManager {
         
         db.startDBSession();
         
-        try {
-            security.checkSecurityWriteAccess(userNameForAccess, passwordForAccess,
-                    -1, userName);
-        } catch (SecurityException se) {
-            db.commitDBSession();
-            throw se;
+        if (!security.checkUsersWriteAccess(userNameForAccess,
+                passwordForAccess, userName, null)) {
+            if (db.isDBSessionActive()) {
+                db.commitDBSession();
+            }
+            throw new SecurityException("Securty violation in the modify operation!");
         }
         
         super.updateUserActivity(userNameForAccess);
@@ -209,11 +208,12 @@ public class UserManager extends AbstractManager {
         
         db.startDBSession();
         
-        try {
-            security.checkSecurityWriteAccess(userNameForAccess, passwordForAccess, userId, null);
-        } catch (SecurityException se) {
-            db.commitDBSession();
-            throw se;
+        if (!security.checkUsersWriteAccess(userNameForAccess,
+                passwordForAccess, null, new long[] {userId})) {
+            if (db.isDBSessionActive()) {
+                db.commitDBSession();
+            }
+            throw new SecurityException("Security violation in the delete user by id operation!");
         }
         
         super.updateUserActivity(userNameForAccess);
@@ -238,14 +238,12 @@ public class UserManager extends AbstractManager {
         db.startDBSession();
         User user = userManager.getUser(userName);
         if (!isSameUser(userNameForAccess, passwordForAccess, user)) {
-            try {
-                security.checkSecurityReadAccess(
-                        userNameForAccess, passwordForAccess, null, userName);
-            } catch (SecurityException se) {
+            if (!security.checkUsersReadAccess(userNameForAccess,passwordForAccess,
+                    userName, null)) {
                 if (db.isDBSessionActive()) {
                     db.commitDBSession();
                 }
-                throw se;
+                throw new SecurityException("Security violation in the get user by name operation!");
             }
         }
         
@@ -268,12 +266,13 @@ public class UserManager extends AbstractManager {
         logger.info("Get message of the day! user: " + userName);
         
         db.startDBSession();
-        try {
-            security.checkWebAdminReadAccess(userName, password);
-        } finally {
+        
+        if (!security.checkWebAdminGetMessageAccess(userName, password)) {
             if (db.isDBSessionActive()) {
                 db.commitDBSession();
             }
+            throw new SecurityException("Security violation in the get message " +
+            		"of the day operation");
         }
         
         String s = null;
@@ -301,13 +300,11 @@ public class UserManager extends AbstractManager {
         
         db.startDBSession();
         
-        try {
-            security.checkWebAdminSendAccess(userName, password);
-        } catch (SecurityException se) {
+        if (!security.checkWebAdminNotifyAccess(userName, password)) {
             if (db.isDBSessionActive()) {
                 db.commitDBSession();
             }
-            throw se;
+            throw new SecurityException("Security violation in the notify admin operation!");
         }
         
         super.updateUserActivity(userName);

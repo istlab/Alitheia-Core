@@ -64,6 +64,23 @@ public interface SecurityConstants {
     
     public static final String ALL_PRIVILEGE_VALUES = "<all privilege values>";
     
+    public static enum PrivilegeAction {
+        
+        READ,
+        WRITE,
+        DENY;
+        
+        public static final char DELIMITER = '_';
+
+        /**
+         * @see java.lang.Enum#toString()
+         */
+        @Override
+        public String toString() {
+            return name().toLowerCase();
+        }
+    }
+    
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

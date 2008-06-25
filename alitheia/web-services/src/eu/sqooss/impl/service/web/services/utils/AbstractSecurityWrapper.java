@@ -41,6 +41,8 @@ import eu.sqooss.service.security.SecurityManager;
 
 public class AbstractSecurityWrapper implements SecurityWrapperConstants {
     
+    private static final String PROPERTY_SECURITY_DEFINITION_GROUP = "eu.sqooss.web.services.security.group";
+    
     protected SecurityManager security;
     protected Hashtable<String, String> privileges;
     protected Object privilegesLockObject = new Object();
@@ -54,36 +56,22 @@ public class AbstractSecurityWrapper implements SecurityWrapperConstants {
         this.logger = logger;
         initDB();
     }
-    
-    public void checkDBReadAccess(String userName, String password) {
+
+    public boolean checkProjectsReadAccess(String userName, String password,
+            long[] projectsIds) {
         synchronized (privilegesLockObject) {
             privileges.clear();
-            privileges.put(Privilege.ACTION.toString(),
-                    PrivilegeValue.READ.toString());
-            if (!security.checkPermission(ServiceUrl.DATABASE.toString(),
-                    privileges, userName, password)) {
-                throw new SecurityException("Security violation!");
-            }
-        }
-    }
-    
-    public void checkDBProjectsReadAccess(String userName, String password,
-            long[] projectsIds, String projectName) {
-        synchronized (privilegesLockObject) {
-            privileges.clear();
-            privileges.put(Privilege.ACTION.toString(), PrivilegeValue.READ.toString());
-            if (projectsIds != null) {
-                for (int i = 0; i < projectsIds.length; i++) {
-                    privileges.put(Privilege.PROJECT_ID.toString(), Long.toString(projectsIds[i]));
+            if (projectsIds == null) {
+                privileges.put(Privilege.PROJECT_READ.toString(),
+                        PrivilegeValue.ALL.toString());
+            } else {
+                for (long projectId : projectsIds) {
+                    privileges.put(Privilege.PROJECT_READ.toString(),
+                            Long.toString(projectId));
                 }
             }
-            if (projectName != null) {
-                privileges.put(Privilege.PROJECT_ID.toString(), projectName);
-            }
-            if (!security.checkPermission(ServiceUrl.DATABASE.toString(),
-                    privileges, userName, password)) {
-                throw new SecurityException("Security violation!");
-            }
+            return security.checkPermission(ServiceUrl.DATABASE.toString(),
+                    privileges, userName, password);
         }
     }
     

@@ -78,13 +78,14 @@ public class ProjectManager extends AbstractManager {
 
         db.startDBSession();
 
-        try {
-            securityWrapper.checkDBReadAccess(userName, password);
-        } catch (SecurityException se) {
-            db.commitDBSession();
-            throw se;
+        if (!securityWrapper.checkProjectsReadAccess(userName, password, null)) {
+            if (db.isDBSessionActive()) {
+                db.commitDBSession();
+            }
+            throw new SecurityException(
+                    "Security violation in the get evalueated projects operation!");
         }
-
+        
         super.updateUserActivity(userName);
 
         WSStoredProject[] result = dbWrapper.getEvaluatedProjects();
@@ -102,11 +103,12 @@ public class ProjectManager extends AbstractManager {
 
         db.startDBSession();
 
-        try {
-            securityWrapper.checkDBReadAccess(userName, password);
-        } catch (SecurityException se) {
-            db.commitDBSession();
-            throw se;
+        if (!securityWrapper.checkProjectsReadAccess(userName, password, null)) {
+            if (db.isDBSessionActive()) {
+                db.commitDBSession();
+            }
+            throw new SecurityException(
+                    "Security violation in the get stored projects operation!");
         }
 
         super.updateUserActivity(userName);
@@ -128,25 +130,19 @@ public class ProjectManager extends AbstractManager {
 
         db.startDBSession();
 
-        try {
-            securityWrapper.checkDBProjectsReadAccess(
-                    userName, password, null, projectName);
-        } catch (SecurityException se) {
-            db.commitDBSession();
-            throw se;
-        }
-
         super.updateUserActivity(userName);
 
         Map<String, Object> properties = new Hashtable<String, Object>(1);
         properties.put("name", projectName);
         WSStoredProject[] projects = dbWrapper.getStoredProjects(properties);
         db.commitDBSession();
-        if ((projects != null) && (projects.length != 0)) {
-            return projects[0];
-        } else {
-            return null;
+        if ((projects == null) || (projects.length == 0) ||
+                (!securityWrapper.checkProjectsReadAccess(userName, password,
+                        new long[] {projects[0].getId()}))) {
+            throw new SecurityException(
+                    "Security violation in the get project by name operation!");
         }
+        return projects[0];
     }
 
     /**
@@ -159,12 +155,13 @@ public class ProjectManager extends AbstractManager {
 
         db.startDBSession();
 
-        try {
-            securityWrapper.checkDBProjectsReadAccess(
-                    userName, password, new long[] {projectId}, null);
-        } catch (SecurityException se) {
-            db.commitDBSession();
-            throw se;
+        if (!securityWrapper.checkProjectsReadAccess(
+                userName, password, new long[] {projectId})) {
+            if (db.isDBSessionActive()) {
+                db.commitDBSession();
+            }
+            throw new SecurityException(
+                    "Security violation in the get project versions by project id operation!");
         }
 
         super.updateUserActivity(userName);
@@ -187,12 +184,12 @@ public class ProjectManager extends AbstractManager {
 
         db.startDBSession();
 
-        try {
-            securityWrapper.checkProjectVersionsReadAccess(
-                    userName, password, projectVersionsIds);
-        } catch (SecurityException se) {
-            db.commitDBSession();
-            throw se;
+        if (!securityWrapper.checkProjectVersionsReadAccess(
+                userName, password, projectVersionsIds)) {
+            if (db.isDBSessionActive()) {
+                db.commitDBSession();
+            }
+            throw new SecurityException("Security violation in the get project versions by ids operation!");
         }
 
         super.updateUserActivity(userName);
@@ -219,11 +216,13 @@ public class ProjectManager extends AbstractManager {
 
         db.startDBSession();
 
-        try {
-            securityWrapper.checkDBReadAccess(userName, password);
-        } catch (SecurityException se) {
-            db.commitDBSession();
-            throw se;
+        if (!securityWrapper.checkProjectsReadAccess(
+                userName, password, new long[] {projectId})) {
+            if (db.isDBSessionActive()) {
+                db.commitDBSession();
+            }
+            throw new SecurityException(
+                    "Security violation in the get project versions by version numbers operation!");
         }
 
         super.updateUserActivity(userName);
@@ -244,15 +243,15 @@ public class ProjectManager extends AbstractManager {
 
         db.startDBSession();
 
-        try {
-            long[] projectIds = {projectId};
-            securityWrapper.checkDBProjectsReadAccess(
-                    userName, password, projectIds, null);
-        } catch (SecurityException se) {
-            db.commitDBSession();
-            throw se;
+        if (!securityWrapper.checkProjectsReadAccess(
+                userName, password, new long[] {projectId})) {
+            if (db.isDBSessionActive()) {
+                db.commitDBSession();
+            }
+            throw new SecurityException(
+                    "Security violation in the get versions count operation!");
         }
-
+        
         super.updateUserActivity(userName);
 
         long result = StoredProject.getVersionsCount(projectId);
@@ -276,11 +275,12 @@ public class ProjectManager extends AbstractManager {
         }
         logger.info("Retrieving first projectVersions " + b.toString());
         
-        try {
-            securityWrapper.checkDBProjectsReadAccess(userName, password, projectsIds, null);
-        } catch (SecurityException se) {
-            db.commitDBSession();
-            throw se;
+        if (!securityWrapper.checkProjectsReadAccess(userName, password, projectsIds)) {
+            if (db.isDBSessionActive()) {
+                db.commitDBSession();
+            }
+            throw new SecurityException(
+                    "Security violation in the get first project versions operation!");
         }
 
         super.updateUserActivity(userName);
@@ -323,11 +323,12 @@ public class ProjectManager extends AbstractManager {
 
         db.startDBSession();
 
-        try {
-            securityWrapper.checkDBProjectsReadAccess(userName, password, projectsIds, null);
-        } catch (SecurityException se) {
-            db.commitDBSession();
-            throw se;
+        if (!securityWrapper.checkProjectsReadAccess(userName, password, projectsIds)) {
+            if (db.isDBSessionActive()) {
+                db.commitDBSession();
+            }
+            throw new SecurityException(
+                    "Security violation in the get last project versions operation!");
         }
 
         super.updateUserActivity(userName);
@@ -350,12 +351,12 @@ public class ProjectManager extends AbstractManager {
 
         db.startDBSession();
 
-        try {
-            securityWrapper.checkDBProjectsReadAccess(userName, password,
-                    projectsIds, null);
-        } catch (SecurityException se) {
-            db.commitDBSession();
-            throw se;
+        if (!securityWrapper.checkProjectsReadAccess(userName, password, projectsIds)) {
+            if (db.isDBSessionActive()) {
+                db.commitDBSession();
+            }
+            throw new SecurityException(
+                    "Security violation in the get projects by ids operation!");
         }
 
         super.updateUserActivity(userName);
@@ -375,12 +376,13 @@ public class ProjectManager extends AbstractManager {
 
         db.startDBSession();
 
-        try {
-            securityWrapper.checkDBProjectsReadAccess(
-                    userName, password, new long[] {projectId}, null);
-        } catch (SecurityException se) {
-            db.commitDBSession();
-            throw se;
+        if (securityWrapper.checkProjectsReadAccess(
+                userName, password, new long[] {projectId})) {
+            if (db.isDBSessionActive()) {
+                db.commitDBSession();
+            }
+            throw new SecurityException(
+                    "Security violation in the get files by project id operation!");
         }
 
         super.updateUserActivity(userName);
@@ -401,14 +403,14 @@ public class ProjectManager extends AbstractManager {
 
         db.startDBSession();
 
-        try {
-            securityWrapper.checkProjectVersionsReadAccess(
-                    userName, password, new long[] {projectVersionId});
-        } catch (SecurityException se) {
-            db.commitDBSession();
-            throw se;
+        if (!securityWrapper.checkProjectVersionsReadAccess(
+                userName, password, new long[] {projectVersionId})) {
+            if (db.isDBSessionActive()) {
+                db.commitDBSession();
+            }
+            throw new SecurityException("Security violation in the get files by project version id operation!");
         }
-
+        
         super.updateUserActivity(userName);
 
         ProjectVersion v = db.findObjectById(ProjectVersion.class, projectVersionId);
@@ -434,12 +436,13 @@ public class ProjectManager extends AbstractManager {
 
         db.startDBSession();
 
-        try {
-            securityWrapper.checkDBProjectsReadAccess(
-                    userName, password, new long[] {projectId}, null);
-        } catch (SecurityException se) {
-            db.commitDBSession();
-            throw se;
+        if (!securityWrapper.checkProjectsReadAccess(
+                userName, password, new long[] {projectId})) {
+            if (db.isDBSessionActive()) {
+                db.commitDBSession();
+            }
+            throw new SecurityException(
+                    "Security violation in the get file groups by project id operation!");
         }
 
         super.updateUserActivity(userName);
@@ -460,14 +463,15 @@ public class ProjectManager extends AbstractManager {
 
         db.startDBSession();
 
-        try {
-            securityWrapper.checkProjectVersionsReadAccess(
-                    userName, password, new long[] {projectVersionId});
-        } catch (SecurityException se) {
-            db.commitDBSession();
-            throw se;
+        if (!securityWrapper.checkProjectVersionsReadAccess(
+                userName, password, new long[] {projectVersionId})) {
+            if (db.isDBSessionActive()) {
+                db.commitDBSession();
+            }
+            throw new SecurityException(
+                    "Security violation in the get fiels number by project version id operation!");
         }
-
+        
         super.updateUserActivity(userName);
 
         long result = dbWrapper.getFilesNumberByProjectVersionId(projectVersionId);
@@ -487,11 +491,11 @@ public class ProjectManager extends AbstractManager {
 
         db.startDBSession();
 
-        try {
-            securityWrapper.checkDBReadAccess(userName, password);
-        } catch (SecurityException se) {
-            db.commitDBSession();
-            throw se;
+        if (!securityWrapper.checkDirectoriesReadAccess(userName, password, directoriesIds)) {
+            if (db.isDBSessionActive()) {
+                db.commitDBSession();
+            }
+            throw new SecurityException("Security violation in the get directories by ids operation");
         }
 
         super.updateUserActivity(userName);
@@ -514,11 +518,12 @@ public class ProjectManager extends AbstractManager {
 
         db.startDBSession();
 
-        try {
-            securityWrapper.checkDBReadAccess(userName, password);
-        } catch (SecurityException se) {
-            db.commitDBSession();
-            throw se;
+        if (!securityWrapper.checkDevelopersReadAccess(userName, password, developersIds)) {
+            if (db.isDBSessionActive()) {
+                db.commitDBSession();
+            }
+            throw new SecurityException(
+                    "Security violation in the get developers by ids operation!");
         }
 
         super.updateUserActivity(userName);
@@ -545,13 +550,16 @@ public class ProjectManager extends AbstractManager {
                 + " version Ids: " + Arrays.toString(projectVersionsIds));
         // Match against the current security policy
         db.startDBSession();
-        try {
-            securityWrapper.checkProjectVersionsReadAccess(
-                    userName, password, projectVersionsIds);
-        } catch (SecurityException se) {
-            db.commitDBSession();
-            throw se;
+        
+        if (!securityWrapper.checkProjectVersionsReadAccess(
+                userName, password, projectVersionsIds)) {
+            if (db.isDBSessionActive()) {
+                db.commitDBSession();
+            }
+            throw new SecurityException(
+                    "Security violation in the get versions statistics operation!");
         }
+        
         super.updateUserActivity(userName);
         // Retrieve the result(s)
         if (projectVersionsIds != null) {
@@ -594,12 +602,13 @@ public class ProjectManager extends AbstractManager {
                 + " project Id: " + projectId);
         // Match against the current security policy
         db.startDBSession();
-        try {
-            securityWrapper.checkDBProjectsReadAccess(
-                    userName, password, new long[] {projectId}, null);
-        } catch (SecurityException se) {
-            db.commitDBSession();
-            throw se;
+        if (!securityWrapper.checkProjectsReadAccess(
+                userName, password, new long[] {projectId})) {
+            if (db.isDBSessionActive()) {
+                db.commitDBSession();
+            }
+            throw new SecurityException(
+                    "Security violation in the get root directory operation!");
         }
         super.updateUserActivity(userName);
         // Retrieve the result(s)
@@ -626,12 +635,13 @@ public class ProjectManager extends AbstractManager {
                 + " directory Id: " + directoryId);
         // Match against the current security policy
         db.startDBSession();
-        try {
-            securityWrapper.checkProjectVersionsReadAccess(
-                    userName, password, new long[] {projectVersionId});
-        } catch (SecurityException se) {
-            db.commitDBSession();
-            throw se;
+        if (!securityWrapper.checkDirectoriesReadAccess(userName,
+                password, new long[] {directoryId})) {
+            if (db.isDBSessionActive()) {
+                db.commitDBSession();
+            }
+            throw new SecurityException(
+                    "Security violation in the get files in directory operation!");
         }
         super.updateUserActivity(userName);
         // Retrieve the result(s)

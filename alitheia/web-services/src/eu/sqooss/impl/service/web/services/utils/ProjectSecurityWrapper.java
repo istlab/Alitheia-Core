@@ -42,18 +42,47 @@ public class ProjectSecurityWrapper extends AbstractSecurityWrapper{
         super(security, db, logger);
     }
 
-    public void checkProjectVersionsReadAccess(String userName, String password, long[] projectVersionsIds) {
+    public boolean checkDirectoriesReadAccess(String userName, String password,
+            long[] directoriesIds) {
         synchronized (privilegesLockObject) {
             privileges.clear();
-            privileges.put(Privilege.ACTION.toString(), PrivilegeValue.READ.toString());
-            for (int i = 0; i < projectVersionsIds.length; i++) {
-                privileges.put(Privilege.PROJECT_VERSION_ID.toString(),
-                        Long.toString(projectVersionsIds[i]));
+            for (long directoryId : directoriesIds) {
+                privileges.put(Privilege.DIRECTORY_READ.toString(),
+                        Long.toString(directoryId));
             }
-            if (!security.checkPermission(ServiceUrl.DATABASE.toString(),
-                    privileges, userName, password)) {
-                throw new SecurityException("Security violation!");
+            return security.checkPermission(ServiceUrl.DATABASE.toString(),
+                    privileges, userName, password);
+        }
+    }
+    
+    public boolean checkDevelopersReadAccess(String userName, String password,
+            long[] developersIds) {
+        synchronized (privilegesLockObject) {
+            privileges.clear();
+            for (long developerId : developersIds) {
+                privileges.put(Privilege.DEVELOPER_READ.toString(),
+                        Long.toString(developerId));
             }
+            return security.checkPermission(ServiceUrl.DATABASE.toString(),
+                    privileges, userName, password);
+        }
+    }
+    
+    public boolean checkProjectVersionsReadAccess(String userName, String password,
+            long[] projectVersionsIds) {
+        synchronized (privilegesLockObject) {
+            privileges.clear();
+            if (projectVersionsIds == null) {
+                privileges.put(Privilege.PROJECTVERSION_READ.toString(),
+                        PrivilegeValue.ALL.toString());
+            } else {
+                for (long projectVersionId : projectVersionsIds) {
+                    privileges.put(Privilege.PROJECT_READ.toString(),
+                            Long.toString(projectVersionId));
+                }
+            }
+            return security.checkPermission(ServiceUrl.DATABASE.toString(),
+                    privileges, userName, password);
         }
     }
     

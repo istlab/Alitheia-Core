@@ -42,24 +42,26 @@ public class MetricSecurityWrapper extends AbstractSecurityWrapper{
         super(security, db, logger);
     }
 
-    public void checkDBMetricsReadAccess(String userName, String password,
-            String[] mnemonics) {
+    public boolean checkMetricTypesReadAccess(String userName,
+            String password, long[] metricTypesIds) {
         synchronized (privilegesLockObject) {
             privileges.clear();
-            privileges.put(Privilege.ACTION.toString(), PrivilegeValue.READ.toString());
-            if ((mnemonics == null) || (mnemonics.length == 0)) {
-                privileges.put(Privilege.METRIC_MNEMONIC.toString(),
-                        PrivilegeValue.ALL.toString());
-            } else {
-                for (String currentMnemonic : mnemonics) {
-                    privileges.put(Privilege.METRIC_MNEMONIC.toString(),
-                            currentMnemonic);
-                }
+            for (long metricTypeId : metricTypesIds) {
+                privileges.put(Privilege.METRICTYPE_READ.toString(),
+                        Long.toString(metricTypeId));
             }
-            if (!security.checkPermission(ServiceUrl.DATABASE.toString(),
-                    privileges, userName, password)) {
-                throw new SecurityException("Security violation!");
-            }
+            return security.checkPermission(ServiceUrl.DATABASE.toString(),
+                    privileges, userName, password);
+        }
+    }
+    
+    public boolean checkMetricsReadAccess(String userName, String password) {
+        synchronized (privilegesLockObject) {
+            privileges.clear();
+            privileges.put(Privilege.METRIC_READ.toString(),
+                    PrivilegeValue.ALL.toString());
+            return security.checkPermission(ServiceUrl.PLUGINADMIN.toString(),
+                    privileges, userName, password);
         }
     }
     
