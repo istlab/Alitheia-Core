@@ -174,13 +174,17 @@ public class UsersView extends AbstractView {
                 reqValUserId = fromString(req.getParameter(reqParUserId));
                 if (reqValUserId != null) {
                     selUser = secUM.getUser(reqValUserId);
+                    String sysUser = sobjSecurity.getSystemUser();
                     // Retrieve the selected user's parameters
-                    if (selUser != null) {
+                    if ((selUser != null)
+                            && (selUser.getName().equals(sysUser) == false)){
                         reqValUserName = selUser.getName();
                         reqValUserEmail = selUser.getEmail();
                         reqValUserPass = null;
                         reqValPassConf = null;
                     }
+                    else
+                        selUser = null;
                 }
 
                 // Retrieve the selected group's DAO (if any)
@@ -1464,7 +1468,12 @@ public class UsersView extends AbstractView {
                 // Users list -content rows
                 // ===========================================================
                 else if (reqValViewList.equals("users")) {
+                    int usersNum = 0;
                     for (User nextUser : secUM.getUsers()) {
+                        String sysUser = sobjSecurity.getSystemUser();
+                        if (nextUser.getName().equals(sysUser))
+                            continue;
+                        usersNum++;
                         b.append(sp(in++) + "<tr class=\"edit\""
                                 + " onclick=\"javascript:"
                                 + "document.getElementById('"
@@ -1478,15 +1487,8 @@ public class UsersView extends AbstractView {
                                 + "&nbsp;" + nextUser.getId()
                                 + "</td>\n");
                         // User's name
-                        boolean sysUser = nextUser.getName().equals(
-                                sobjSecurity.getSystemUser());
                         b.append(sp(in) + "<td class=\"trans\">"
                                 + nextUser.getName()
-                                + ((sysUser)
-                                        ? " <i>("
-                                                + resLbl.getString("l0055")
-                                                + ")</i>"
-                                        : "")
                                 + "</td>\n");
                         // User's email
                         b.append(sp(in) + "<td class=\"trans\">"
@@ -1498,6 +1500,13 @@ public class UsersView extends AbstractView {
                                 + date.format(nextUser.getRegistered())
                                 + "</td>\n");
                         b.append(sp(--in) + "</tr>\n");
+                    }
+                    if (usersNum == 0) {
+                        b.append(sp(in++) + "<tr>");
+                        b.append(sp(in) + "<td colspan=\"4\" class=\"noattr\">"
+                                + getMsg("no_users")
+                                + "</td>\n");
+                        b.append(sp(--in)+ "</tr>\n");
                     }
                 }
                 // ===========================================================
@@ -1784,7 +1793,7 @@ public class UsersView extends AbstractView {
             b.append(normalFieldset(
                     resLbl.getString("l0035"),
                     null,
-                    new StringBuilder(resMsg.getString("m0003")),
+                    new StringBuilder(resMsg.getString("no_users")),
                     in));
         }
 
