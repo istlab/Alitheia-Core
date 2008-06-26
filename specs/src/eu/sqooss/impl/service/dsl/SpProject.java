@@ -102,7 +102,7 @@ public class SpProject implements SpEntity {
         SCMAccessor scm = tds.getAccessor(id).getSCMAccessor();
         
         ProjectRevision rev = new ProjectRevision(scm.getHeadRevision());
-        while (rev!=null && rev.isValid()) {
+        while (rev!=null && rev.isValid() && rev.getSVNRevision()>0) {
             result.add(rev);
             rev = rev.prev();
         }
