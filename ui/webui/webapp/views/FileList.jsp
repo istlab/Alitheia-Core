@@ -40,9 +40,9 @@ if (selectedProject.isValid()) {
             verboseView.setServletPath(request.getServletPath());
             verboseView.setSettings(settings);
             // Check if the user asks for a comparison with another version
-            if (request.getParameter("cvid") != null) {
+            if (request.getParameter("cvnum") != null) {
                 verboseView.compareAgainst(
-                    strToLong(request.getParameter("cvid")));
+                    strToLong(request.getParameter("cvnum")));
             }
             out.print(verboseView.getHtml(in));
 %>            <br/>
