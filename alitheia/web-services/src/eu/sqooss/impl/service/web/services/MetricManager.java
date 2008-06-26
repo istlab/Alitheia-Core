@@ -225,12 +225,10 @@ public class MetricManager extends AbstractManager {
                 // Find the DAO with this Id
                 DAObject nextDao = dbWrapper.getMetricsResultDAObject(
                         resultRequest, nextDaoId);
-                // Stores the metric evaluation on this DAO
-                List<WSResultEntry> nextDaoResults = null;
-                if (nextDao != null) {
-                    nextDaoResults = getMetricsResult(metrics, nextDao);
-                }
-                if ((nextDaoResults != null) && (nextDaoResults.size() > 0)) {
+                // Retrieve the metric evaluations for this DAO
+                List<WSResultEntry> nextDaoResults =
+                    getMetricsResult(metrics, nextDao);
+                if (nextDaoResults.size() > 0) {
                     for (WSResultEntry nextResult : nextDaoResults) {
                         nextResult.setDaoId(nextDaoId);
                         resultsList.add(nextResult);
@@ -247,28 +245,28 @@ public class MetricManager extends AbstractManager {
         return (WSResultEntry[]) normalizeWSArrayResult(result);
     }
 
-    private List<WSResultEntry> getMetricsResult(List<Metric> metrics, DAObject daObject) {
-        if ((metrics == null) || (metrics.size() == 0) || (daObject == null)) {
-            return null;
-        }
+    private List<WSResultEntry> getMetricsResult(List<Metric> metrics, DAObject dao) {
         List<WSResultEntry> resultList = new ArrayList<WSResultEntry>();
-        Hashtable<AlitheiaPlugin, List<Metric>> plugins = groupMetricsByPlugins(metrics);
-        AlitheiaPlugin currentPlugin;
-        Result currentResult = null;
-        List<Metric> currentPluginMetrics;
-        for (Enumeration<AlitheiaPlugin> keys = plugins.keys(); keys.hasMoreElements(); /*empty*/) {
-            currentPlugin = keys.nextElement();
-            currentPluginMetrics = plugins.get(currentPlugin);
+        if ((metrics == null) || (metrics.size() == 0) || (dao == null))
+            return resultList;
+
+        Hashtable<AlitheiaPlugin, List<Metric>> plugins =
+            groupMetricsByPlugins(metrics);
+
+        for (AlitheiaPlugin nextPlugin : plugins.keySet()) {
+            Result currentResult = null;
             try {
-                currentResult = currentPlugin.getResultIfAlreadyCalculated(daObject, currentPluginMetrics);
-            } catch (MetricMismatchException e) {
+                currentResult = nextPlugin.getResultIfAlreadyCalculated(
+                        dao, plugins.get(nextPlugin));
+            }
+            catch (MetricMismatchException e) {
                 currentResult = null;
             }
-        }
-        if (currentResult != null) {
-            while (currentResult.hasNext())
-                for (ResultEntry nextEntry: currentResult.next())
-                    resultList.add(WSResultEntry.getInstance(nextEntry));
+            if (currentResult != null) {
+                while (currentResult.hasNext())
+                    for (ResultEntry nextEntry: currentResult.next())
+                        resultList.add(WSResultEntry.getInstance(nextEntry));
+            }
         }
         return resultList;
     }
